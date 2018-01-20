@@ -6,13 +6,12 @@
 menuconfig SYSTEM_STACKMONITOR
 	bool "Stack Monitor"
 	default n
-	depends on STACK_COLORATION && !KERNEL_BUILD
+	depends on FS_PROCFS && !_FS_PROCFS_EXCLUDE_PROCESS && STACK_COLORATION
 	---help---
 		If the stack coloration feature is enabled (STACK_COLORATION) this
 		option will select the Stack Monitor.  The stack monitor is a daemon
 		that will periodically assess stack usage by all tasks and threads
-		in the system.  This feature depends on internal OS features and,
-		hence, is not available if the NuttX kernel build is selected.
+		in the system.
 
 if SYSTEM_STACKMONITOR
 
@@ -34,6 +33,10 @@ config SYSTEM_STACKMONITOR_INTERVAL
 	---help---
 		The rate in seconds that the stack monitor will wait before dumping
 		the next set stack usage information.  Default:  2 seconds.
+
+config SYSTEM_STACKMONITOR_MOUNTPOINT
+	string "procfs mountpoint"
+	default "/proc"
 
 endif
 

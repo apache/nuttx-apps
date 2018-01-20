@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/stackmonitor/stackmonitor.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,21 +42,21 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <fcntl.h>
+#include <dirent.h>
 #include <sched.h>
 #include <syslog.h>
 #include <errno.h>
-
-#include <nuttx/arch.h>
 
 #ifdef CONFIG_SYSTEM_STACKMONITOR
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#define STKMON_PREFIX "Stack Monitor: "
-
-/* Configuration ************************************************************/
 
 #ifndef CONFIG_SYSTEM_STACKMONITOR_STACKSIZE
 #  define CONFIG_SYSTEM_STACKMONITOR_STACKSIZE 2048
@@ -70,6 +70,10 @@
 #  define CONFIG_SYSTEM_STACKMONITOR_INTERVAL 2
 #endif
 
+#ifndef CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT
+#  define CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT "/proc"
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -79,6 +83,7 @@ struct stkmon_state_s
   volatile bool started;
   volatile bool stop;
   pid_t pid;
+  char line[80];
 };
 
 /****************************************************************************
@@ -86,50 +91,330 @@ struct stkmon_state_s
  ****************************************************************************/
 
 static struct stkmon_state_s g_stackmonitor;
+#if CONFIG_TASK_NAME_SIZE > 0
+static const char g_name[] = "Name:";
+#endif
+static const char g_stacksize[] = "StackSize:";
+static const char g_stackused[] = "StackUsed:";
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: stkmon_task
+ * Name: sktmon_isolate_value
  ****************************************************************************/
 
-static void stkmon_task(FAR struct tcb_s *tcb, FAR void *arg)
+static FAR char *sktmon_isolate_value(FAR char *line)
 {
-#if CONFIG_TASK_NAME_SIZE > 0
-  syslog(LOG_INFO, "%5d %6d %6d %s\n",
-         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), tcb->name);
-#else
-  syslog(LOG_INFO, "%5d %6d %6d\n",
-         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
-#endif
+  FAR char *ptr;
+
+  while (isblank(*line) && *line != '\0')
+    {
+      line++;
+    }
+
+  ptr = line;
+  while (*ptr != '\n' && *ptr != '\r' && *ptr != '\0')
+    {
+      ptr++;
+    }
+
+  *ptr = '\0';
+  return line;
 }
+
+/****************************************************************************
+ * Name: stkmon_process_directory
+ ****************************************************************************/
+
+static int stkmon_process_directory(FAR struct dirent *entryp)
+
+{
+  FAR char *filepath;
+  FAR char *endptr;
+  FAR const char *tmpstr;
+  FILE *stream;
+  unsigned long stack_size;
+  unsigned long stack_used;
+  int errcode;
+  int len;
+  int ret;
+
+#if CONFIG_TASK_NAME_SIZE > 0
+  FAR char *name = NULL;
+
+  /* Read the task status to get the task name */
+
+  filepath = NULL;
+  ret = asprintf(&filepath, CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT "/%s/status",
+                 entryp->d_name);
+  if (ret < 0 || filepath == NULL)
+    {
+      errcode = errno;
+      fprintf(stderr, "Stack Monitor: Failed to create path to status file: %d\n",
+              errcode);
+      return -errcode;
+    }
+
+  /* Open the status file */
+
+  stream = fopen(filepath, "r");
+  if (stream == NULL)
+    {
+      ret = -errno;
+      fprintf(stderr, "Stack Monitor: Failed to open %s: %d\n",
+              filepath, ret);
+      goto errout_with_filepath;
+    }
+
+  while (fgets(g_stackmonitor.line, 80, stream) != NULL)
+    {
+      g_stackmonitor.line[79] = '\n';
+      len = strlen(g_name);
+      if (strncmp(g_stackmonitor.line, g_name, len) == 0)
+        {
+          tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
+          if (*tmpstr == '\0')
+            {
+              ret = -EINVAL;
+              goto errout_with_stream;
+            }
+
+          name = strdup(tmpstr);
+          if (name == NULL)
+            {
+              ret = -EINVAL;
+              goto errout_with_stream;
+            }
+        }
+    }
+
+  free(filepath);
+  fclose(stream);
+#endif
+
+  /* Read stack information */
+
+  stack_size = 0;
+  stack_used = 0;
+  filepath   = NULL;
+
+  ret = asprintf(&filepath, CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT "/%s/stack",
+                 entryp->d_name);
+  if (ret < 0 || filepath == NULL)
+    {
+      errcode = errno;
+      fprintf(stderr, "Stack Monitor: Failed to create path to stack file: %d\n",
+              errcode);
+      ret = -EINVAL;
+      goto errout_with_name;
+    }
+
+  /* Open the stack file */
+
+  stream = fopen(filepath, "r");
+  if (stream == NULL)
+    {
+      ret = -errno;
+      fprintf(stderr, "Stack Monitor: Failed to open %s: %d\n",
+              filepath, ret);
+      goto errout_with_filepath;
+    }
+
+  while (fgets(g_stackmonitor.line, 80, stream) != NULL)
+    {
+      g_stackmonitor.line[79] = '\n';
+      len = strlen(g_stacksize);
+      if (strncmp(g_stackmonitor.line, g_stacksize, len) == 0)
+        {
+          tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
+          if (tmpstr == '\0')
+            {
+              ret = -EINVAL;
+              goto errout_with_stream;
+            }
+
+          stack_size = (uint32_t)strtoul(tmpstr, &endptr, 10);
+          if (*endptr != '\0')
+            {
+              fprintf(stderr, "Stack Monitor: Bad numeric value %s\n", tmpstr);
+              ret = -EINVAL;
+              goto errout_with_stream;
+            }
+        }
+      else
+        {
+          len = strlen(g_stackused);
+          if (strncmp(g_stackmonitor.line, g_stackused, len) == 0)
+            {
+              tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
+              if (tmpstr == '\0')
+                {
+                  ret = -EINVAL;
+                  goto errout_with_stream;
+                }
+
+              stack_used = (uint32_t)strtoul(tmpstr, &endptr, 10);
+              if (*endptr != '\0')
+                {
+                  fprintf(stderr, "Stack Monitor: Bad numeric value %s\n", tmpstr);
+                  ret = -EINVAL;
+                  goto errout_with_stream;
+                }
+            }
+        }
+    }
+
+  /* Finally, output the stack info that we gleaned from the procfs */
+
+#if CONFIG_TASK_NAME_SIZE > 0
+  printf("%5s %6lu %6lu %s\n", entryp->d_name, stack_size, stack_used, name);
+#else
+  printf("%5s %6lu %6lu\n", entryp->d_name, stack_size, stack_used);
+#endif
+
+  ret = OK;
+
+errout_with_stream:
+  fclose(stream);
+
+errout_with_filepath:
+  free(filepath);
+
+errout_with_name:
+#if CONFIG_TASK_NAME_SIZE > 0
+  if (name != NULL)
+    {
+      free(name);
+    }
+#endif
+  return ret;
+}
+
+/****************************************************************************
+ * Name: stackmonitor_check_name
+ ****************************************************************************/
+
+static bool stackmonitor_check_name(FAR char *name)
+{
+  int i;
+
+  /* Check each character in the name */
+
+  for (i = 0; i < NAME_MAX && name[i] != '\0'; i++)
+    {
+      if (!isdigit(name[i]))
+        {
+          /* Name contains something other than a decimal numeric character */
+
+          return false;
+        }
+    }
+
+  return true;
+}
+
+/****************************************************************************
+ * Name: stackmonitor_daemon
+ ****************************************************************************/
 
 static int stackmonitor_daemon(int argc, char **argv)
 {
-  syslog(LOG_INFO, STKMON_PREFIX "Running: %d\n", g_stackmonitor.pid);
+  DIR *dirp;
+  int exitcode = EXIT_SUCCESS;
+  int errcount = 0;
+  int ret;
+
+  printf("Stack Monitor: Running: %d\n", g_stackmonitor.pid);
 
   /* Loop until we detect that there is a request to stop. */
 
   while (!g_stackmonitor.stop)
     {
+      /* Wait for the next sample interval */
+
       sleep(CONFIG_SYSTEM_STACKMONITOR_INTERVAL);
+
+      /* Open the top-level procfs directory */
+
+      dirp = opendir(CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT);
+      if (dirp == NULL)
+        {
+          /* Failed to open the directory */
+
+          fprintf(stderr, "Stack Monitor: Failed to open directory: %s\n",
+                  CONFIG_SYSTEM_STACKMONITOR_MOUNTPOINT);
+
+          if (++errcount > 100)
+            {
+              fprintf(stderr, "Stack Monitor: Too many errors ... exiting\n");
+              exitcode = EXIT_FAILURE;
+              break;
+            }
+        }
+
+      /* Output the header */
+
 #if CONFIG_TASK_NAME_SIZE > 0
-      syslog(LOG_INFO, "%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
+      printf("%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
 #else
-      syslog(LOG_INFO, "%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
+      printf("%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
 #endif
-      sched_foreach(stkmon_task, NULL);
+
+      /* Read each directory entry */
+
+      for (; ; )
+        {
+          FAR struct dirent *entryp = readdir(dirp);
+          if (entryp == NULL)
+            {
+              /* Finished with this directory */
+
+              break;
+            }
+
+          /* Task/thread entries in the /proc directory will all be (1)
+           * directories with (2) all numeric names.
+           */
+
+          if (!DIRENT_ISDIRECTORY(entryp->d_type) ||
+              !stackmonitor_check_name(entryp->d_name))
+            {
+              /* Not a directory or not a numeric PID directory ... skip this entry */
+
+              continue;
+            }
+
+          /* Looks good -- process the directory */
+
+          ret = stkmon_process_directory(entryp);
+          if (ret < 0)
+            {
+              /* Failed to process the thread directory */
+
+              fprintf(stderr, "Stack Monitor: Failed to process sub-directory: %s\n",
+                      entryp->d_name);
+
+              if (++errcount > 100)
+                {
+                  fprintf(stderr, "Stack Monitor: Too many errors ... exiting\n");
+                  exitcode = EXIT_FAILURE;
+                  break;
+                }
+            }
+        }
+
+      closedir(dirp);
     }
 
   /* Stopped */
 
   g_stackmonitor.stop    = false;
   g_stackmonitor.started = false;
-  syslog(LOG_INFO, STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
+  printf("Stack Monitor: Stopped: %d\n", g_stackmonitor.pid);
 
-  return 0;
+  return exitcode;
 }
 
 /****************************************************************************
@@ -158,14 +443,13 @@ int stackmonitor_start(int argc, char **argv)
       if (ret < 0)
         {
           int errcode = errno;
-          syslog(LOG_INFO, STKMON_PREFIX
-                 "ERROR: Failed to start the stack monitor: %d\n",
+          printf("Stack Monitor ERROR: Failed to start the stack monitor: %d\n",
                  errcode);
         }
       else
         {
           g_stackmonitor.pid = ret;
-          syslog(LOG_INFO, STKMON_PREFIX "Started: %d\n", g_stackmonitor.pid);
+          printf("Stack Monitor: Started: %d\n", g_stackmonitor.pid);
         }
 
       sched_unlock();
@@ -173,7 +457,7 @@ int stackmonitor_start(int argc, char **argv)
     }
 
   sched_unlock();
-  syslog(LOG_INFO, STKMON_PREFIX "%s: %d\n",
+  printf("Stack Monitor: %s: %d\n",
          g_stackmonitor.stop ? "Stopping" : "Running", g_stackmonitor.pid);
   return 0;
 }
@@ -188,11 +472,11 @@ int stackmonitor_stop(int argc, char **argv)
        * it will see the stop indication and will exist.
        */
 
-      syslog(LOG_INFO, STKMON_PREFIX "Stopping: %d\n", g_stackmonitor.pid);
+      printf("Stack Monitor: Stopping: %d\n", g_stackmonitor.pid);
       g_stackmonitor.stop = true;
     }
 
-  syslog(LOG_INFO, STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
+  printf("Stack Monitor: Stopped: %d\n", g_stackmonitor.pid);
   return 0;
 }
 
