@@ -378,29 +378,26 @@ static int stackmonitor_daemon(int argc, char **argv)
            * directories with (2) all numeric names.
            */
 
-          if (!DIRENT_ISDIRECTORY(entryp->d_type) ||
-              !stackmonitor_check_name(entryp->d_name))
+          if (DIRENT_ISDIRECTORY(entryp->d_type) &&
+              stackmonitor_check_name(entryp->d_name))
             {
-              /* Not a directory or not a numeric PID directory ... skip this entry */
+              /* Looks good -- process the directory */
 
-              continue;
-            }
-
-          /* Looks good -- process the directory */
-
-          ret = stkmon_process_directory(entryp);
-          if (ret < 0)
-            {
-              /* Failed to process the thread directory */
-
-              fprintf(stderr, "Stack Monitor: Failed to process sub-directory: %s\n",
-                      entryp->d_name);
-
-              if (++errcount > 100)
+              ret = stkmon_process_directory(entryp);
+              if (ret < 0)
                 {
-                  fprintf(stderr, "Stack Monitor: Too many errors ... exiting\n");
-                  exitcode = EXIT_FAILURE;
-                  break;
+                  /* Failed to process the thread directory */
+
+                  fprintf(stderr,
+                          "Stack Monitor: Failed to process sub-directory: %s\n",
+                          entryp->d_name);
+
+                  if (++errcount > 100)
+                    {
+                      fprintf(stderr, "Stack Monitor: Too many errors ... exiting\n");
+                      exitcode = EXIT_FAILURE;
+                      break;
+                    }
                 }
             }
         }
