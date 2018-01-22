@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_parse.c
  *
- *   Copyright (C) 2007-2013, 2014, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2014, 2017-2018 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1169,7 +1170,9 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
           envstr = nsh_envexpand(vtbl, ptr);
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
           if ((vtbl->np.np_flags & NSH_PFLAG_SILENT) == 0)
+#endif
             {
               nsh_output(vtbl,"  %s=%s\n", ptr, envstr ? envstr :"(null)");
             }
