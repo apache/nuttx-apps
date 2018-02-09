@@ -55,7 +55,7 @@
  * Name: netlib_ipv4router
  *
  * Description:
- *   Given a destination address that is no on a local network, query the
+ *   Given a destination address that is not on a local network, query the
  *   IPv4 routing table, and return the IPv4 address of the routing that
  *   will provide access to the correct sub-net.
  *
