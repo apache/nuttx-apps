@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/ft80x/ft80x.h
+ * apps/graphics/ft80x/ft80x_regs.c
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,86 +33,38 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_FT80X_FT80X_H
-#define __APPS_GRAPHICS_FT80X_FT80X_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/compiler.h>
 
-#include <stdio.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
 #include <stdint.h>
-#include <debug.h>
+#include <unistd.h>
+#include <assert.h>
+#include <errno.h>
 
-#ifdef CONFIG_GRAPHICS_FT80X
+#include <nuttx/lcd/ft80x.h>
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* NOTE: These rely on internal definitions from compiler.h and debug.h.
- * Could be a porting issue.
- */
-
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
-#    define  ft80x_err(format, ...) \
-       fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_err(format, ...)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
-#    define  ft80x_warn(format, ...) \
-       fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_warn(format, ...)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
-#    define  ft80x_info(format, ...) \
-       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_info(format, ...)
-#  endif
-#else
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
-#    define  ft80x_err printf
-#  else
-#    define  ft80x_err (void)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
-#    define  ft80x_warn printf
-#  else
-#    define  ft80x_warn (void)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
-#    define  ft80x_info printf
-#  else
-#    define  ft80x_info (void)
-#  endif
-#endif
+#include "ft80x.h"
 
 /****************************************************************************
- * Public Types
+ * Pre-processor Defitions
  ****************************************************************************/
+
+/* Sleep for 10 MS between each REG_DLSWAP poll */
+
+#define DLSWAP_DELAY_USEC   (10 * 1000)
+
+/* But timeout after 5 seconds ( 5 * 100 * 10 MS = 5 S) */
+
+#define DLSWAP_TIMEOUT_CSEC (5 * 100)
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
-
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
-{
-#else
-#define EXTERN extern
-#endif
 
 /****************************************************************************
  * Name: ft80x_getreg8/16/32
@@ -131,9 +83,68 @@ extern "C"
  *
  ****************************************************************************/
 
-int ft80x_getreg8(int fd, uint32_t addr, FAR uint8_t *value);
-int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value);
-int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
+int ft80x_getreg8(int fd, uint32_t addr, FAR uint8_t *value)
+{
+  struct ft80x_register_s reg;
+  int ret;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr = addr;
+  ret      = ioctl(fd, FT80X_IOC_GETREG8, (unsigned long)((uintptr_t)&reg));
+
+  if (ret >= 0)
+    {
+      *value = reg.value.u8;
+      ret = OK;
+    }
+
+  return ret;
+}
+
+int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value)
+{
+  struct ft80x_register_s reg;
+  int ret;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr = addr;
+  ret      = ioctl(fd, FT80X_IOC_GETREG16, (unsigned long)((uintptr_t)&reg));
+
+  if (ret >= 0)
+    {
+      *value = reg.value.u16;
+      ret = OK;
+    }
+
+  return ret;
+}
+
+int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value)
+{
+  struct ft80x_register_s reg;
+  int ret;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr = addr;
+  ret      = ioctl(fd, FT80X_IOC_GETREG32, (unsigned long)((uintptr_t)&reg));
+
+  if (ret >= 0)
+    {
+      *value = reg.value.u32;
+      ret = OK;
+    }
+
+  return ret;
+}
 
 /****************************************************************************
  * Name: ft80x_putreg8/16/32
@@ -152,9 +163,44 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
  *
  ****************************************************************************/
 
-int ft80x_putreg8(int fd, uint32_t addr, uint8_t value);
-int ft80x_putreg16(int fd, uint32_t addr, uint16_t value);
-int ft80x_putreg32(int fd, uint32_t addr, uint32_t value);
+int ft80x_putreg8(int fd, uint32_t addr, uint8_t value)
+{
+  struct ft80x_register_s reg;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr     = addr;
+  reg.value.u8 = value;
+  return ioctl(fd, FT80X_IOC_PUTREG8, (unsigned long)((uintptr_t)&reg));
+}
+
+int ft80x_putreg16(int fd, uint32_t addr, uint16_t value)
+{
+  struct ft80x_register_s reg;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr      = addr;
+  reg.value.u16 = value;
+  return ioctl(fd, FT80X_IOC_PUTREG16, (unsigned long)((uintptr_t)&reg));
+}
+
+int ft80x_putreg32(int fd, uint32_t addr, uint32_t value)
+{
+  struct ft80x_register_s reg;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  reg.addr      = addr;
+  reg.value.u32 = value;
+  return ioctl(fd, FT80X_IOC_PUTREG32, (unsigned long)((uintptr_t)&reg));
+}
 
 /****************************************************************************
  * Name: ft80x_dl_swap
@@ -171,12 +217,50 @@ int ft80x_putreg32(int fd, uint32_t addr, uint32_t value);
  *
  ****************************************************************************/
 
-int ft80x_dl_swap(int fd);
+int ft80x_dl_swap(int fd)
+{
+  unsigned int timeout;
+  uint8_t regval8;
+  int ret;
 
-#undef EXTERN
-#ifdef __cplusplus
+  /* Perform the DL swap */
+
+  ret = ft80x_putreg8(fd, FT80X_REG_DLSWAP, DLSWAP_FRAME);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_putreg8 failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Now wait for the swap to complete */
+
+  timeout = 0;
+  for (; ; )
+    {
+      /* Read REG_DLSWAP again */
+
+      ret = ft80x_getreg8(fd, FT80X_REG_DLSWAP, &regval8);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_putreg8 failed: %d\n", ret);
+          return ret;
+        }
+
+      /* Check if the swap is complete */
+
+      if (regval8 == DLSWAP_DONE)
+        {
+          return OK;
+        }
+
+      if (++timeout > DLSWAP_TIMEOUT_CSEC)
+        {
+          ft80x_err("ERROR: Timed out waiting for DLSWAP to complete\n");
+          return -ETIMEDOUT;
+        }
+
+      /* No.. Wait a bit and try again */
+
+      usleep(DLSWAP_DELAY_USEC);
+    }
 }
-#endif
-
-#endif /* CONFIG_GRAPHICS_FT80X */
-#endif /* __APPS_GRAPHICS_FT80X_FT80X_H */

@@ -113,10 +113,9 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer);
  *
  *   1) Add the DISPLAY command to the local display list buffer to finish
  *      the last display
- *   2) Add the CMD_DLSWAP command to the local display list buffer to swap
- *      to the newly created display list.
- *   3) Flush the local display buffer to hardware and set the display list
+ *   2) Flush the local display buffer to hardware and set the display list
  *      buffer offset to zero.
+ *   3) Swap to the newly created display list.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller

@@ -43,14 +43,13 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 
 #include <nuttx/lcd/ft80x.h>
 
 #include "graphics/ft80x.h"
 #include "ft80x.h"
-
-#ifdef CONFIG_GRAPHICS_FT80X
 
 /****************************************************************************
  * Private Functions
@@ -184,10 +183,9 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  *   1) Add the DISPLAY command to the local display list buffer to finish
  *      the last display
- *   2) Add the CMD_DLSWAP command to the local display list buffer to swap
- *      to the newly created display list.
- *   3) Flush the local display buffer to hardware and set the display list
+ *   2) Flush the local display buffer to hardware and set the display list
  *      buffer offset to zero.
+ *   3) Swap to the newly created display list.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
@@ -201,11 +199,7 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
 int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
-  union
-  {
-    struct ft80x_dlcmd_s display;
-    struct ft80x_cmd_swap_s swap;
-  } u;
+  struct ft80x_dlcmd_s display;
   int ret;
 
   ft80x_info("fd=%d buffer=%p\n", fd, buffer);
@@ -215,27 +209,15 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
    *    the last display
    */
 
-  u.display.cmd = FT80X_DISPLAY();
-  ret = ft80x_dl_data(fd, buffer, &u.display, sizeof(struct ft80x_dlcmd_s));
+  display.cmd = FT80X_DISPLAY();
+  ret = ft80x_dl_data(fd, buffer, &display, sizeof(struct ft80x_dlcmd_s));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
       return ret;
     }
 
-  /* 2) Add the CMD_DLSWAP command to the local display list buffer to swap
-   *    to the newly created display list.
-   */
-
-  u.swap.cmd = FT80X_CMD_SWAP;
-  ret = ft80x_dl_data(fd, buffer, &u.swap, sizeof(struct ft80x_cmd_swap_s));
-  if (ret < 0)
-    {
-      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-      return ret;
-    }
-
-  /* 3) Flush the local display buffer to hardware and set the display list
+  /* 2) Flush the local display buffer to hardware and set the display list
    *    buffer offset to zero.
    */
 
@@ -243,6 +225,15 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+    }
+
+  /* 3) Swap to the newly created display list. */
+
+  ret = ft80x_dl_swap(fd);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_swap failed: %d\n", ret);
+      return ret;
     }
 
   return ret;
@@ -560,5 +551,3 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   buffer->dloffset = 0;
   return OK;
 }
-
-#endif /* CONFIG_GRAPHICS_FT80X */
