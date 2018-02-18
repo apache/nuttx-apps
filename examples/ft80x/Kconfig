@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FT80X
+	bool "FT80x example"
+	default n
+	depends on LCD_FT80X
+	select GRAPHICS_FT80X
+	---help---
+		Enable the FT80X example
+
+if EXAMPLES_FT80X
+
+config EXAMPES_FT80X_DEVPATH
+	string "FT80x device path"
+	default "/dev/ft800" if LCD_FT800
+	default "/dev/ft801" if LCD_FT801
+
+config EXAMPLES_FT80X_PROGNAME
+	string "FT80x program name"
+	default "ft80x"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_FT80X_PRIORITY
+	int "FT80x task priority"
+	default 100
+
+config EXAMPLES_FT80X_STACKSIZE
+	int "FT80x stack size"
+	default 2048
+
+endif
