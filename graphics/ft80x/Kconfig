@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GRAPHICS_FT80X
+	bool "FTDI/BridgeTek FT80x library"
+	default n
+	---help---
+		Enable support for the FTDI/BridgeTek FT80x library.
+
+if GRAPHICS_FT80X
+
+config GRAPHICS_FT80X_BUFSIZE
+	int "I/O buffer size"
+	default 512
+	range 32 8192
+	---help---
+		The size of the local display list I/O buffer.  Bigger is better!
+		This size should be an even multiple of 4 bytes (otherwise, the size
+		will be truncated to the next lower, aligned size).
+
+config GRAPHICS_FT80X_DEBUG_ERROR
+	bool "Enable error output"
+	default y
+
+config GRAPHICS_FT80X_DEBUG_WARN
+	bool "Enable warning output"
+	default n
+	depends on GRAPHICS_FT80X_DEBUG_ERROR
+
+config GRAPHICS_FT80X_DEBUG_INFO
+	bool "Enable informational output"
+	default n
+	depends on GRAPHICS_FT80X_DEBUG_WARN
+
+endif # GRAPHICS_FT80X
