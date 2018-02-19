@@ -66,7 +66,17 @@ struct ft80x_exampleinfo_s
 
 static const struct ft80x_exampleinfo_s g_primitives[] =
 {
-  { "Rectangles", ft80x_rectangles }
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
+  { "Bitmaps",    ft80x_bitmaps },     /* Bitmap drawing primitive */
+#endif
+  { "Points",     ft80x_points },      /* Point drawing primitive */
+  { "Lines",      ft80x_lines },       /* Line drawing primitive */
+                                       /* Line strip drawing primitive */
+                                       /* Edge strip right side drawing primitive */
+                                       /* Edge strip left side drawing primitive */
+                                       /* Edge strip above drawing primitive */
+                                       /* Edge strip below side drawing primitive */
+  { "Rectangles", ft80x_rectangles }   /* Rectangle drawing primitive */
 };
 
 #define NPRIMITIVES (sizeof(g_primitives) / sizeof(ft80x_example_t))
@@ -192,12 +202,12 @@ int ft80x_main(int argc, char *argv[])
 
   /* Open the configured FT80x device */
 
-  fd = open(CONFIG_EXAMPES_FT80X_DEVPATH, O_WRONLY);
+  fd = open(CONFIG_EXAMPLES_FT80X_DEVPATH, O_WRONLY);
   if (fd < 0)
     {
       int errcode = errno;
       ft80x_err("ERROR: Failed to open %s: %d\n",
-                CONFIG_EXAMPES_FT80X_DEVPATH, errcode);
+                CONFIG_EXAMPLES_FT80X_DEVPATH, errcode);
       UNUSED(errcode);
       return EXIT_FAILURE;
     }

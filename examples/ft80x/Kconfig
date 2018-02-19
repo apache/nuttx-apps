@@ -13,10 +13,18 @@ config EXAMPLES_FT80X
 
 if EXAMPLES_FT80X
 
-config EXAMPES_FT80X_DEVPATH
+config EXAMPLES_FT80X_DEVPATH
 	string "FT80x device path"
 	default "/dev/ft800" if LCD_FT800
 	default "/dev/ft801" if LCD_FT801
+
+config EXAMPLES_FT80X_EXCLUDE_BITMAPS
+	bool "Exclude bitmaps"
+	default n
+	---help---
+		On some very minimal platforms, you might want to exclude bitmaps
+		which will require 10's of kilobytes of memory (probably FLASH
+		memory, depending on the CPU and the linker script.)
 
 config EXAMPLES_FT80X_PROGNAME
 	string "FT80x program name"

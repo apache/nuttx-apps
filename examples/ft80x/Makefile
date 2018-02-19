@@ -47,7 +47,12 @@ STACKSIZE = $(CONFIG_EXAMPLES_FT80X_STACKSIZE)
 # FT80X example
 
 ASRCS =
+
 CSRCS = ft80x_primitives.c ft80x_coprocessor.c
+ifneq ($(ONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS),y)
+CSRCS = ft80x_bitmaps.c
+endif
+
 MAINSRC = ft80x_main.c
 
 CONFIG_EXAMPLES_FT80X_PROGNAME ?= ft80x$(EXEEXT)

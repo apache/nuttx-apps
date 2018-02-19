@@ -92,6 +92,7 @@ extern "C"
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
  *   4) Write the CMD_DLSTART command into the local display list buffer.
+ *      (REVISIT -- unnecessary)
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
@@ -201,6 +202,53 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  ****************************************************************************/
 
 int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+
+/****************************************************************************
+ * Name: ft80x_dl_create
+ *
+ * Description:
+ *   For simple display lists, this function combines all functionality into
+ *   a single combined.  This function does the following:
+ *
+ *   1) Calls ft80x_dl_dlstart() to initialize the display list.
+ *   2) Calls ft80x_dl_data() to transfer the simple display list
+ *   3) Calls ft80x_dl_end() to complete the display list
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - Pointer to a uint32_t array containing the simple display list
+ *   nwords - The number of 32-bit words in the array.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                    FAR const uint32_t *cmds, unsigned int nwords);
+
+/****************************************************************************
+ * Name: ft80x_ramg_write
+ *
+ * Description:
+ *   Write to graphics memory
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   offset - Offset in graphics memory to write to (dest)
+ *   data   - Pointer to a data to be written (src)
+ *   nbytes - The number of bytes to write to graphics memory.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
+                     unsigned int nbytes);
 
 #undef EXTERN
 #ifdef __cplusplus

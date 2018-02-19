@@ -106,6 +106,26 @@
 typedef CODE int (*ft80x_example_t)(int fd,
                                     FAR struct ft80x_dlbuffer_s *buffer);
 
+/* Bitmap header */
+
+struct ft80x_bitmaphdr_s
+{
+  uint8_t format;
+  int16_t width;
+  int16_t height;
+  int16_t stride;
+  int32_t offset;
+  FAR const uint8_t *data;
+};
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
+extern const struct ft80x_bitmaphdr_s g_lenaface_bmhdr;
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -120,6 +140,11 @@ extern "C"
 
 /* GPU Primitive display examples */
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
+int ft80x_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+#endif
+int ft80x_points(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 
 /* Co-processor display examples */

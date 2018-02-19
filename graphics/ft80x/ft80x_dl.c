@@ -129,7 +129,8 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer)
  *   2) Set the display list buffer offset to zero
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
- *   4) Write the CMD_DLSTART command into the local display list buffer.
+ *   4) Write the CMD_DLSTART command into the local display list buffer
+ *      (REVISIT -- unnecessary)
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
@@ -143,7 +144,9 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer)
 
 int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
+#if 0
   struct ft80x_cmd_dlstart_s dlstart;
+#endif
   off_t pos;
 
   ft80x_info("fd=%d buffer=%p\n", fd, buffer);
@@ -168,11 +171,15 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return -errcode;
     }
 
+#if 0 /* I believe that this is not necessary */
   /* 4) Write the CMD_DLSTART command into the local display list buffer. */
 
   dlstart.cmd = FT80X_CMD_DLSTART;
   return ft80x_dl_data(fd, buffer, &dlstart,
                        sizeof(struct ft80x_cmd_dlstart_s));
+#else
+  return OK;
+#endif
 }
 
 /****************************************************************************
@@ -549,5 +556,66 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   DEBUGASSERT(nwritten == buffer->dloffset);
   buffer->dloffset = 0;
+  return OK;
+}
+
+/****************************************************************************
+ * Name: ft80x_dl_create
+ *
+ * Description:
+ *   For simple display lists, this function combines all functionality into
+ *   a single combined.  This function does the following:
+ *
+ *   1) Calls ft80x_dl_dlstart() to initialize the display list.
+ *   2) Calls ft80x_dl_data() to transfer the simple display list
+ *   3) Calls ft80x_dl_end() to complete the display list
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - Pointer to a uint32_t array containing the simple display list
+ *   nwords - The number of 32-bit words in the array.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                    FAR const uint32_t *cmds, unsigned int nwords)
+{
+  int ret;
+
+  ft80x_info("fd=%d buffer=%p cmds=%p nwords=%u\n", fd, buffer, cmds, nwords);
+  DEBUGASSERT(fd >= 0 && buffer != NULL && cmds != NULL && nwords > 0);
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Copy the rectangle data into the display list */
+
+  ret = ft80x_dl_data(fd, buffer, cmds, nwords << 2);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* And terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+      return ret;
+    }
+
   return OK;
 }
