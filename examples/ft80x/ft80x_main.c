@@ -64,22 +64,76 @@ struct ft80x_exampleinfo_s
  * Private Data
  ****************************************************************************/
 
+/* GPU Primitive display examples.  Most primitives are used, but not many of
+ * their various options.
+ */
+
 static const struct ft80x_exampleinfo_s g_primitives[] =
 {
+  /* NAME           EXAMPLE ENTRY           PRIMITIVE */
 #ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
-  { "Bitmaps",    ft80x_bitmaps },     /* Bitmap drawing primitive */
+  { "Bitmaps",      ft80x_bitmaps },     /* BITMAPS         Bitmap drawing
+                                          *                 primitive */
 #endif
-  { "Points",     ft80x_points },      /* Point drawing primitive */
-  { "Lines",      ft80x_lines },       /* Line drawing primitive */
-                                       /* Line strip drawing primitive */
-                                       /* Edge strip right side drawing primitive */
-                                       /* Edge strip left side drawing primitive */
-                                       /* Edge strip above drawing primitive */
-                                       /* Edge strip below side drawing primitive */
-  { "Rectangles", ft80x_rectangles }   /* Rectangle drawing primitive */
+  { "Points",       ft80x_points },      /* POINTS          Point drawing
+                                          *                 primitive */
+  { "Lines",        ft80x_lines },       /* LINES           Line drawing */
+  { "Line Strip",   ft80x_linestrip },   /* LINE_STRIP      Line strip drawing
+                                          *                 primitive */
+  { "Edge Strip R", ft80x_edgestrip_r }, /* EDGE_STRIP_R    Edge strip right
+                                          *                 side drawing
+                                          *                 primitive */
+                                         /* EDGE_STRIP_L    Edge strip left
+                                          *                 side drawing
+                                          *                 primitive */
+                                         /* EDGE_STRIP_A    Edge strip above
+                                          *                 side drawing
+                                          *                 primitive */
+                                         /* EDGE_STRIP_B    Edge strip below
+                                          *                 side drawing
+                                          *                 primitive */
+  { "Rectangles",   ft80x_rectangles }   /* RECTS           Rectangle drawing
+                                          *                 primitive */
 };
 
 #define NPRIMITIVES (sizeof(g_primitives) / sizeof(ft80x_example_t))
+
+/* Co-processor display examples.  Only a small, but interesting, subset
+ * here co-processor command are exercised and these with only a few of the
+ * possible options.
+ */
+
+                                         /* CMD_TEXT        Draw text */
+                                         /* CMD_BUTTON      Draw a button */
+                                         /* CMD_CLOCK       Draw an analog
+                                          *                 clock */
+                                         /* CMD_GAUGE       Draw a gauge */
+                                         /* CMD_KEYS        Draw a row of
+                                          *                 keys */
+                                         /* CMD_PROGRESS    Draw a progress
+                                          *                 bar */
+                                         /* CMD_SCROLLBAR   Draw a scroll bar */
+                                         /* CMD_SLIDER      Draw a slider */
+                                         /* CMD_DIAL        Draw a rotary
+                                          *                 dial control */
+                                         /* CMD_TOGGLE      Draw a toggle
+                                          *                 switch */
+                                         /* CMD_NUMBER      Draw a decimal
+                                          *                 number */
+                                         /* CMD_CALIBRATE   Execute the touch
+                                          *                 screen calibration
+                                          *                 routine */
+                                         /* CMD_SPINNER     Start an animated
+                                          *                 spinner */
+                                         /* CMD_SCREENSAVER Start an animated
+                                          *                 screensaver */
+                                         /* CMD_SKETCH      Start a continuous
+                                          *                 sketch update */
+                                         /* CMD_SNAPSHOT    Take a snapshot
+                                          *                 of the current
+                                          *                 screen */
+                                         /* CMD_LOGO        Play device logo
+                                          *                 animation */
 
 /****************************************************************************
  * Private Functions

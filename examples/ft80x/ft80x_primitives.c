@@ -235,6 +235,80 @@ int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_linestrip
+ *
+ * Description:
+ *   Demonstrate the line strip primitive
+ *
+ ****************************************************************************/
+
+int ft80x_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  uint32_t cmds[7];
+  int ret;
+
+  /* Format the display list data */
+
+  cmds[0] = FT80X_CLEAR_COLOR_RGB(5, 45, 10);
+  cmds[1] = FT80X_COLOR_RGB(255, 168, 64);
+  cmds[2] = FT80X_CLEAR(1 ,1 ,1);
+  cmds[3] = FT80X_BEGIN(FT80X_PRIM_LINE_STRIP);
+  cmds[4] = FT80X_VERTEX2F(16 * 16, 16 * 16);
+  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) /3) * 16,
+                           (FT80X_DISPLAY_HEIGHT * 2 / 3) * 16);
+  cmds[6] = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH - 80) * 16,
+                           (FT80X_DISPLAY_HEIGHT - 20) * 16);
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_create(fd, buffer, cmds, 7);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
+      return ret;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: ft80x_edgestrip_r
+ *
+ * Description:
+ *   Demonstrate the edge strip right primitive
+ *
+ ****************************************************************************/
+
+int ft80x_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  uint32_t cmds[7];
+  int ret;
+
+  /* Format the display list data */
+
+  cmds[0] = FT80X_CLEAR_COLOR_RGB(5, 45, 10);
+  cmds[1] = FT80X_COLOR_RGB(255, 168, 64);
+  cmds[2] = FT80X_CLEAR(1 ,1 ,1);
+  cmds[3] = FT80X_BEGIN(FT80X_PRIM_EDGE_STRIP_R);
+  cmds[4] = FT80X_VERTEX2F(16 * 16,16 * 16);
+  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 3 ) * 16,
+                           ((FT80X_DISPLAY_HEIGHT * 2) / 3 ) * 16);
+  cmds[6] = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH - 80) * 16,
+                           (FT80X_DISPLAY_HEIGHT - 20) * 16);
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_create(fd, buffer, cmds, 7);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
+      return ret;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: ft80x_rectangles
  *
  * Description:

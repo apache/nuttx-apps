@@ -145,6 +145,8 @@ int ft80x_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 #endif
 int ft80x_points(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 
 /* Co-processor display examples */
