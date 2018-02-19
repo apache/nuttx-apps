@@ -86,7 +86,7 @@ int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
   ramg.nbytes = nbytes;
   ramg.value  = (FAR void *)data;  /* Need to discard const qualifier */
 
-  ret = ioctl(fd, FT80X_IOC_PUTRAMG. (unsigned long)((uintptr_t)&ramg));
+  ret = ioctl(fd, FT80X_IOC_PUTRAMG, (unsigned long)((uintptr_t)&ramg));
   if (ret < 0)
     {
       int errcode = errno;

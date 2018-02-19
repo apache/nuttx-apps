@@ -40,7 +40,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>vim 
+#include <nuttx/config.h>
 
 #include <errno.h>
 
