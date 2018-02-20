@@ -461,7 +461,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
 
       if (ret < 0)
         {
-          DEBUGASSERT(errno == -EINTR);
+          DEBUGASSERT(errno == EINTR || errno  == ECANCELED);
         }
     }
   while (ret < 0);

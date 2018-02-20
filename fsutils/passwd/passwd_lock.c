@@ -113,7 +113,7 @@ int passwd_lock(FAR sem_t **semp)
   while (sem_wait(sem) < 0)
     {
       int errcode = errno;
-      DEBUGASSERT(errcode == EINTR);
+      DEBUGASSERT(errcode == EINTR || errcode == ECANCELED);
       UNUSED(errcode);
     }
 
