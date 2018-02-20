@@ -62,7 +62,7 @@
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
-int ft80x_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
   uint32_t cmds[18];
@@ -119,7 +119,7 @@ int ft80x_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 18);
+  ret = ft80x_dl_create(fd, buffer, cmds, 18, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
@@ -138,7 +138,7 @@ int ft80x_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_points(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_points(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   uint32_t cmds[15];
   int ret;
@@ -169,7 +169,7 @@ int ft80x_points(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 15);
+  ret = ft80x_dl_create(fd, buffer, cmds, 15, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
@@ -187,7 +187,7 @@ int ft80x_points(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   uint32_t cmds[14];
   uint32_t height;
@@ -224,7 +224,7 @@ int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 14);
+  ret = ft80x_dl_create(fd, buffer, cmds, 14, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
@@ -242,7 +242,7 @@ int ft80x_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   uint32_t cmds[7];
   int ret;
@@ -261,7 +261,7 @@ int ft80x_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 7);
+  ret = ft80x_dl_create(fd, buffer, cmds, 7, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
@@ -279,7 +279,7 @@ int ft80x_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   uint32_t cmds[7];
   int ret;
@@ -291,14 +291,14 @@ int ft80x_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds[2] = FT80X_CLEAR(1 ,1 ,1);
   cmds[3] = FT80X_BEGIN(FT80X_PRIM_EDGE_STRIP_R);
   cmds[4] = FT80X_VERTEX2F(16 * 16,16 * 16);
-  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 3 ) * 16,
-                           ((FT80X_DISPLAY_HEIGHT * 2) / 3 ) * 16);
+  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 3) * 16,
+                           ((FT80X_DISPLAY_HEIGHT * 2) / 3) * 16);
   cmds[6] = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH - 80) * 16,
                            (FT80X_DISPLAY_HEIGHT - 20) * 16);
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 7);
+  ret = ft80x_dl_create(fd, buffer, cmds, 7, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
@@ -316,7 +316,7 @@ int ft80x_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_prim_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   uint32_t cmds[14];
   uint32_t width;
@@ -358,7 +358,7 @@ int ft80x_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_create(fd, buffer, cmds, 14);
+  ret = ft80x_dl_create(fd, buffer, cmds, 14, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);

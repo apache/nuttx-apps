@@ -64,8 +64,10 @@
 
 struct ft80x_dlbuffer_s
 {
+  bool coproc;       /* True: Use co-processor FIFO; false: Use DL memory */
   uint16_t dlsize;   /* Total sizeof the display list written to hardware */
   uint16_t dloffset; /* The number display list bytes buffered locally */
+  uint16_t hwoffset; /* Initial offset into FIFO memory */
   uint32_t dlbuffer[FT80X_DL_BUFWORDS];
 };
 
@@ -91,20 +93,21 @@ extern "C"
  *   2) Set the display list buffer offset to zero
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
- *   4) Write the CMD_DLSTART command into the local display list buffer.
- *      (REVISIT -- unnecessary)
+ *   4) Write the CMD_DLSTART command into the local display list buffer
+ *      (Only for co-processor commands)
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   coproc - True: Use co-processor FIFO; false: Use DL memory.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool coproc);
 
 /****************************************************************************
  * Name: ft80x_dl_end
@@ -114,9 +117,13 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer);
  *
  *   1) Add the DISPLAY command to the local display list buffer to finish
  *      the last display
- *   2) Flush the local display buffer to hardware and set the display list
+ *   2) If using co-processor RAM CMD, add the CMD_SWAP to the DL command
+ *      list
+ *   3) Flush the local display buffer to hardware and set the display list
  *      buffer offset to zero.
- *   3) Swap to the newly created display list.
+ *   4) Swap to the newly created display list (DL memory case only).
+ *   5) For the case of the co-processor RAM CMD, it will also wait for the
+ *      FIFO to be emptied.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
@@ -220,6 +227,7 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer);
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *   data   - Pointer to a uint32_t array containing the simple display list
  *   nwords - The number of 32-bit words in the array.
+ *   coproc - True: Use co-processor FIFO; false: Use DL memory.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -227,7 +235,8 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer);
  ****************************************************************************/
 
 int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                    FAR const uint32_t *cmds, unsigned int nwords);
+                    FAR const uint32_t *cmds, unsigned int nwords,
+                    bool coproc);
 
 /****************************************************************************
  * Name: ft80x_ramg_write
@@ -249,7 +258,6 @@ int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
 int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
                      unsigned int nbytes);
-
 #undef EXTERN
 #ifdef __cplusplus
 }

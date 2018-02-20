@@ -20,6 +20,14 @@ config GRAPHICS_FT80X_BUFSIZE
 		This size should be an even multiple of 4 bytes (otherwise, the size
 		will be truncated to the next lower, aligned size).
 
+config GRAPHICS_FT80X_CMDEMPTY_SIGNAL
+	int "CMDEMPTY event signal"
+	default 18
+	range l 31
+	---help---
+		This is the signal that will be received when the co-processor CMD
+		FIFO becomes empty.
+
 config GRAPHICS_FT80X_DEBUG_ERROR
 	bool "Enable error output"
 	default y

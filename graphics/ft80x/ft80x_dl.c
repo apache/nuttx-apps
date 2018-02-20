@@ -64,6 +64,8 @@
  *
  * Input Parameters:
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - Data being written.
+ *   len    - Number of bytes being written
  *
  * Returned Value:
  *   None
@@ -71,17 +73,22 @@
  ****************************************************************************/
 
 #ifdef GRAPHICS_FT80X_DEBUG_INFO
-static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer)
+static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer,
+                          FAR const void *data, size_t len)
 {
-  uint16_t nwords;
+  size_t nwords;
   int max;
   int i;
   int j;
 
-  printf("Write display list:  dlsize=%lu dloffset=%lu\n",
-         (unsigned long)buffer->dlsize, (unsigned long)buffer->dloffset);
+  printf("Writing display list:\n");
+  printf("  buffer: dlsize=%lu dloffset=%lu coproc=%u\n",
+         (unsigned long)buffer->dlsize, (unsigned long)buffer->dloffset,
+         buffer->coproc);
+  printf("  write:  data=%p length=%lu\n",
+         data, (unsigned long)len);
 
-  nwords = buffer->dloffset >> 2;
+  nwords = len >> 2;
   for (i = 0; i < nwords; i += 8)
     {
       printf("  %04x: ", i << 2);
@@ -113,7 +120,49 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer)
       putchar('\n');
     }
 }
+#else
+#  define ft80x_dl_dump(b,d,l)
 #endif
+
+/****************************************************************************
+ * Name: ft80x_dl_append
+ *
+ * Description:
+ *   Append the display list data to the appropriate memory region.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - A pointer to the start of the data to be written.
+ *   len    - The number of bytes to be written.
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static int ft80x_dl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                           FAR const void *data, size_t len)
+{
+  int ret;
+
+  ft80x_dl_dump(buffer, data, len);
+  if (buffer->coproc)
+    {
+      /* Append data to RAM CMD */
+
+      ret = ft80x_ramcmd_append(fd, buffer, data, len);
+    }
+  else
+    {
+      /* Append data to RAM DL */
+
+      ret = ft80x_ramdl_append(fd, buffer, data, len);
+    }
+
+  return ret;
+}
 
 /****************************************************************************
  * Public Functions
@@ -129,25 +178,25 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer)
  *   2) Set the display list buffer offset to zero
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
+ *      (Only for DL memory commands)
  *   4) Write the CMD_DLSTART command into the local display list buffer
- *      (REVISIT -- unnecessary)
+ *      (Only for co-processor commands)
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   coproc - True: Use co-processor FIFO; false: Use DL memory.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool coproc)
 {
-#if 0
   struct ft80x_cmd_dlstart_s dlstart;
-#endif
-  off_t pos;
+  int ret;
 
   ft80x_info("fd=%d buffer=%p\n", fd, buffer);
   DEBUGASSERT(fd >= 0 && buffer != NULL);
@@ -156,30 +205,49 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
    * 2) Set the display list buffer offset to zero
    */
 
-  buffer->dlsize  = 0;
+  buffer->coproc   = coproc;
+  buffer->dlsize   = 0;
   buffer->dloffset = 0;
+  buffer->hwoffset = 0;
 
-  /* 3) Reposition the VFS so that subsequent writes will be to the
-   *    beginning of the hardware display list.
-   */
-
-  pos = lseek(fd, 0, SEEK_SET);
-  if (pos < 0)
+  if (!coproc)
     {
-      int errcode = errno;
-      ft80x_err("ERROR: lseek failed: %d\n", errcode);
-      return -errcode;
+      /* 3) Reposition the VFS so that subsequent writes will be to the
+       *    beginning of the hardware display list.
+       */
+
+      ret = ft80x_ramdl_rewind(fd, buffer);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_ramdl_rewind failed: %d\n", ret);
+        }
+    }
+  else
+    {
+      /* Get the initial RAM CMD FIFO offset */
+
+      ret = ft80x_getreg16(fd, FT80X_REG_CMD_READ, &buffer->hwoffset);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
+        }
+      else
+        {
+          /* 4) Write the CMD_DLSTART command into the local display list
+           *    buffer. (Only for co-processor commands)
+           */
+
+          dlstart.cmd = FT80X_CMD_DLSTART;
+          ret = ft80x_dl_data(fd, buffer, &dlstart,
+                              sizeof(struct ft80x_cmd_dlstart_s));
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+            }
+        }
     }
 
-#if 0 /* I believe that this is not necessary */
-  /* 4) Write the CMD_DLSTART command into the local display list buffer. */
-
-  dlstart.cmd = FT80X_CMD_DLSTART;
-  return ft80x_dl_data(fd, buffer, &dlstart,
-                       sizeof(struct ft80x_cmd_dlstart_s));
-#else
-  return OK;
-#endif
+  return ret;
 }
 
 /****************************************************************************
@@ -190,9 +258,13 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  *   1) Add the DISPLAY command to the local display list buffer to finish
  *      the last display
- *   2) Flush the local display buffer to hardware and set the display list
+ *   2) If using co-processor RAM CMD, add the CMD_SWAP to the DL command
+ *      list
+ *   3) Flush the local display buffer to hardware and set the display list
  *      buffer offset to zero.
- *   3) Swap to the newly created display list.
+ *   4) Swap to the newly created display list (DL memory case only).
+ *   5) For the case of the co-processor RAM CMD, it will also wait for the
+ *      FIFO to be emptied.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
@@ -206,7 +278,13 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
 int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
-  struct ft80x_dlcmd_s display;
+  struct
+  {
+    struct ft80x_dlcmd_s display;
+    struct ft80x_cmd32_s swap;
+  } s;
+
+  size_t size;
   int ret;
 
   ft80x_info("fd=%d buffer=%p\n", fd, buffer);
@@ -216,15 +294,27 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
    *    the last display
    */
 
-  display.cmd = FT80X_DISPLAY();
-  ret = ft80x_dl_data(fd, buffer, &display, sizeof(struct ft80x_dlcmd_s));
+  s.display.cmd = FT80X_DISPLAY();
+  size          = sizeof(struct ft80x_dlcmd_s);
+
+  /* 2) If using co-processor RAM CMD, add the CMD_SWAP to the DL command
+   *    list
+   */
+
+  if (buffer->coproc)
+    {
+      s.swap.cmd = FT80X_CMD_SWAP;
+      size       = sizeof(s);
+    };
+
+  ret = ft80x_dl_data(fd, buffer, &s, size);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
       return ret;
     }
 
-  /* 2) Flush the local display buffer to hardware and set the display list
+  /* 3) Flush the local display buffer to hardware and set the display list
    *    buffer offset to zero.
    */
 
@@ -234,13 +324,30 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
     }
 
-  /* 3) Swap to the newly created display list. */
+  /* 4) Swap to the newly created display list (DL memory case only). */
 
-  ret = ft80x_dl_swap(fd);
-  if (ret < 0)
+  if (!buffer->coproc)
     {
-      ft80x_err("ERROR: ft80x_dl_swap failed: %d\n", ret);
-      return ret;
+      ret = ft80x_dl_swap(fd);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_swap failed: %d\n", ret);
+          return ret;
+        }
+    }
+
+  /* 5) For the case of the co-processor RAM CMD, it will also wait for the
+   *    FIFO to be emptied.
+   */
+
+  if (buffer->coproc)
+    {
+      ret = ft80x_ramcmd_waitfifoempty(fd, buffer);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty failed: %d\n", ret);
+          return ret;
+        }
     }
 
   return ret;
@@ -306,30 +413,28 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
         }
 
       /* Special case:  The new data won't fit into our local display list
+       * buffer.  Here we can assume the flush above occurred.  We can then
+       * work around by writing directly, unbuffered from the caller's
        * buffer.
        */
 
       if (padlen > FT80X_DL_BUFSIZE)
         {
           size_t writelen;
-          size_t nwritten;
 
           /* Write the aligned portion of the data directly to the FT80x
-           * hardware display list.  NOTE:  We have inside knowledge that
-           * the write will complete in a single operation so that no
-           * piecewise writes will ever be necessary.
+           * hardware display list.
            */
 
           writelen = datlen & ~3;
-          nwritten = write(fd, data, writelen);
-          if (nwritten < 0)
+          ret = ft80x_dl_append(fd, buffer, data, writelen);
+          if (ret < 0)
             {
-              int errcode = errno;
-              ft80x_err("ERROR: write failed: %d\n", errcode);
-              return -errcode;
+              ft80x_err("ERROR: ft80x_dl_append failed: %d\n", ret);
+              return ret;
             }
 
-          DEBUGASSERT(nwritten == writelen);
+          buffer->dlsize += writelen;
 
           /* Is there any unaligned remainder?  If the original data length
            * was aligned, then we should have writelen == datlen == padlen.
@@ -353,23 +458,25 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
             }
         }
 
-     /* Copy the data into the local display list buffer */
+      /* Copy the data into the local display list buffer */
 
-     bufptr            = (FAR uint8_t *)buffer->dlbuffer;
-     bufptr           += buffer->dloffset;
-     memcpy(bufptr, data, datlen);
+      bufptr            = (FAR uint8_t *)buffer->dlbuffer;
+      bufptr           += buffer->dloffset;
+      memcpy(bufptr, data, datlen);
 
-     bufptr           += datlen;
-     buffer->dloffset += datlen;
+      bufptr           += datlen;
+      buffer->dloffset += datlen;
 
      /* Then append zero bytes as necessary to achieve alignment */
 
-     while (datlen < padlen)
-       {
-         *bufptr++     = 0;
-         buffer->dloffset++;
-         datlen++;
-       }
+      while (datlen < padlen)
+        {
+          *bufptr++     = 0;
+          buffer->dloffset++;
+          datlen++;
+        }
+
+      buffer->dlsize   += padlen;
     }
 
   return OK;
@@ -450,30 +557,28 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     }
 
   /* Special case:  The new string won't fit into our local display list
+   * buffer.  Here we can assume the flush above occurred.  We can then
+   * work around by writing directly, unbuffered from the caller's
    * buffer.
    */
 
   if (padlen > FT80X_DL_BUFSIZE)
     {
       size_t writelen;
-      size_t nwritten;
 
       /* Write the aligned portion of the string directly to the FT80x
-       * hardware display list.  NOTE:  We have inside knowledge that the
-       * write will complete in a single operation so that no piecewise
-       * writes will ever be necessary.
+       * hardware display list.
        */
 
       writelen = datlen & ~3;
-      nwritten = write(fd, str, writelen);
-      if (nwritten < 0)
+      ret = ft80x_dl_append(fd, buffer, str, writelen);
+      if (ret < 0)
         {
-          int errcode = errno;
-          ft80x_err("ERROR: write failed: %d\n", errcode);
-          return -errcode;
+          ft80x_err("ERROR: ft80x_dl_append failed: %d\n", ret);
+          return ret;
         }
 
-      DEBUGASSERT(nwritten == writelen);
+      buffer->dlsize += writelen;
 
       /* There should always be an unaligned remainder  If the original
        * string length was aligned, then we should have writelen == datlen <
@@ -514,6 +619,7 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       datlen++;
     }
 
+  buffer->dlsize   += padlen;
   return OK;
 }
 
@@ -536,25 +642,20 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
 int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
-  size_t nwritten;
+  int ret;
 
-  ft80x_info("fd=%d buffer=%p\n", fd, buffer);
+  ft80x_info("fd=%d buffer=%p dloffset=%u\n", fd, buffer, buffer->dloffset);
   DEBUGASSERT(fd >= 0 && buffer != NULL);
 
-  /* Write the content of the local display buffer to hardware.  NOTE:  We
-   * have inside knowledge that the write will complete in a single
-   * operation so that no piecewise writes will ever be necessary.
-   */
+  /* Write the content of the local display buffer to hardware. */
 
-  nwritten = write(fd, buffer->dlbuffer, buffer->dloffset);
-  if (nwritten < 0)
+  ret = ft80x_dl_append(fd, buffer, buffer->dlbuffer,  buffer->dloffset);
+  if (ret < 0)
     {
-      int errcode = errno;
-      ft80x_err("ERROR: write failed: %d\n", errcode);
-      return -errcode;
+      ft80x_err("ERROR: ft80x_dl_append failed: %d\n", ret);
+      return ret;
     }
 
-  DEBUGASSERT(nwritten == buffer->dloffset);
   buffer->dloffset = 0;
   return OK;
 }
@@ -576,6 +677,7 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *   data   - Pointer to a uint32_t array containing the simple display list
  *   nwords - The number of 32-bit words in the array.
+ *   coproc - True: Use co-processor FIFO; false: Use DL memory.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -583,16 +685,18 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  ****************************************************************************/
 
 int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                    FAR const uint32_t *cmds, unsigned int nwords)
+                    FAR const uint32_t *cmds, unsigned int nwords,
+                    bool coproc)
 {
   int ret;
 
-  ft80x_info("fd=%d buffer=%p cmds=%p nwords=%u\n", fd, buffer, cmds, nwords);
+  ft80x_info("fd=%d buffer=%p cmds=%p nwords=%u coproc=%u\n",
+             fd, buffer, cmds, nwords, coproc);
   DEBUGASSERT(fd >= 0 && buffer != NULL && cmds != NULL && nwords > 0);
 
   /* Create the hardware display list */
 
-  ret = ft80x_dl_start(fd, buffer);
+  ret = ft80x_dl_start(fd, buffer, coproc);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);

@@ -66,34 +66,34 @@ struct ft80x_exampleinfo_s
 
 /* GPU Primitive display examples.  Most primitives are used, but not many of
  * their various options.
+ *
+ *  FUNCTION               PRIMITIVE USED  DESCRIPTION
+ *  ---------------------- --------------- ----------------------------------
+ *  ft80x_prim_bitmaps     BITMAPS         Bitmap drawing primitive
+ *  ft80x_prim_points      POINTS          Point drawing primitive
+ *  ft80x_prim_lines       LINES           Line drawing primitive
+ *  ft80x_prim_linestrip   LINE_STRIP      Line strip drawing primitive
+ *  ft80x_prim_edgestrip_r EDGE_STRIP_R    Edge strip right side drawing
+                                           primitive
+ *  --None--               EDGE_STRIP_L    Edge strip left side drawing
+                                           primitive
+ *  --None--               EDGE_STRIP_A    Edge strip above side drawing
+                                           primitive
+ *  --None--               EDGE_STRIP_B    Edge strip below side drawing
+                                           primitive
+ *  ft80x_prim_rectangles  RECTS           Rectangle drawing primitive
  */
 
 static const struct ft80x_exampleinfo_s g_primitives[] =
 {
-  /* NAME           EXAMPLE ENTRY           PRIMITIVE */
 #ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
-  { "Bitmaps",      ft80x_bitmaps },     /* BITMAPS         Bitmap drawing
-                                          *                 primitive */
+  { "Bitmaps",      ft80x_prim_bitmaps },
 #endif
-  { "Points",       ft80x_points },      /* POINTS          Point drawing
-                                          *                 primitive */
-  { "Lines",        ft80x_lines },       /* LINES           Line drawing */
-  { "Line Strip",   ft80x_linestrip },   /* LINE_STRIP      Line strip drawing
-                                          *                 primitive */
-  { "Edge Strip R", ft80x_edgestrip_r }, /* EDGE_STRIP_R    Edge strip right
-                                          *                 side drawing
-                                          *                 primitive */
-                                         /* EDGE_STRIP_L    Edge strip left
-                                          *                 side drawing
-                                          *                 primitive */
-                                         /* EDGE_STRIP_A    Edge strip above
-                                          *                 side drawing
-                                          *                 primitive */
-                                         /* EDGE_STRIP_B    Edge strip below
-                                          *                 side drawing
-                                          *                 primitive */
-  { "Rectangles",   ft80x_rectangles }   /* RECTS           Rectangle drawing
-                                          *                 primitive */
+  { "Points",       ft80x_prim_points },
+  { "Lines",        ft80x_prim_lines },
+  { "Line Strip",   ft80x_prim_linestrip },
+  { "Edge Strip R", ft80x_prim_edgestrip_r },
+  { "Rectangles",   ft80x_prim_rectangles }
 };
 
 #define NPRIMITIVES (sizeof(g_primitives) / sizeof(ft80x_example_t))
@@ -101,39 +101,36 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
 /* Co-processor display examples.  Only a small, but interesting, subset
  * here co-processor command are exercised and these with only a few of the
  * possible options.
+ *
+ *  FUNCTION                CoProc CMD USED DESCRIPTION
+ *  ----------------------- --------------- ----------------------------------
+ *  --None--                CMD_TEXT        Draw text
+ *  --None--                CMD_BUTTON      Draw a button
+ *  --None--                CMD_CLOCK       Draw an analog clock
+ *  --None--                CMD_GAUGE       Draw a gauge
+ *  --None--                CMD_KEYS        Draw a row of keys
+ *  ft80x_coproc_progressbar CMD_PROGRESS    Draw a progress bar
+ *  --None--                CMD_SCROLLBAR   Draw a scroll bar
+ *  --None--                CMD_SLIDER      Draw a slider
+ *  --None--                CMD_DIAL        Draw a rotary dial control
+ *  --None--                CMD_TOGGLE      Draw a toggle switch
+ *  --None--                CMD_NUMBER      Draw a decimal number
+ *  --None--                CMD_CALIBRATE   Execute the touch screen
+                                            calibration routine
+ *  --None--                CMD_SPINNER     Start an animated spinner
+ *  --None--                CMD_SCREENSAVER Start an animated screensaver
+ *  --None--                CMD_SKETCH      Start a continuous sketch update
+ *  --None--                CMD_SNAPSHOT    Take a snapshot of the current
+                                            screen
+ *  --None--                CMD_LOGO        Play device log animation
  */
 
-                                         /* CMD_TEXT        Draw text */
-                                         /* CMD_BUTTON      Draw a button */
-                                         /* CMD_CLOCK       Draw an analog
-                                          *                 clock */
-                                         /* CMD_GAUGE       Draw a gauge */
-                                         /* CMD_KEYS        Draw a row of
-                                          *                 keys */
-                                         /* CMD_PROGRESS    Draw a progress
-                                          *                 bar */
-                                         /* CMD_SCROLLBAR   Draw a scroll bar */
-                                         /* CMD_SLIDER      Draw a slider */
-                                         /* CMD_DIAL        Draw a rotary
-                                          *                 dial control */
-                                         /* CMD_TOGGLE      Draw a toggle
-                                          *                 switch */
-                                         /* CMD_NUMBER      Draw a decimal
-                                          *                 number */
-                                         /* CMD_CALIBRATE   Execute the touch
-                                          *                 screen calibration
-                                          *                 routine */
-                                         /* CMD_SPINNER     Start an animated
-                                          *                 spinner */
-                                         /* CMD_SCREENSAVER Start an animated
-                                          *                 screensaver */
-                                         /* CMD_SKETCH      Start a continuous
-                                          *                 sketch update */
-                                         /* CMD_SNAPSHOT    Take a snapshot
-                                          *                 of the current
-                                          *                 screen */
-                                         /* CMD_LOGO        Play device logo
-                                          *                 animation */
+static const struct ft80x_exampleinfo_s g_coproc[] =
+{
+  { "Progress Bar",   ft80x_coproc_progressbar }
+};
+
+#define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))
 
 /****************************************************************************
  * Private Functions
@@ -155,7 +152,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Create the display list */
 
-  ret = ft80x_dl_start(fd, buffer);
+  ret = ft80x_dl_start(fd, buffer, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
@@ -286,7 +283,11 @@ int ft80x_main(int argc, char *argv[])
     }
 
   /* Perform tests on a few of the FT80x Co-processor functions */
-#warning missing logic
+
+  for (i = 0; i < NCOPROC; i++)
+    {
+      (void)ft80x_example(fd, buffer, &g_coproc[i]);
+    }
 
   free(buffer);
   close(fd);

@@ -114,6 +114,8 @@ extern "C"
 #define EXTERN extern
 #endif
 
+struct ft80x_dlbuffer_s;  /* Forward reference3 */
+
 /****************************************************************************
  * Name: ft80x_getreg8/16/32
  *
@@ -155,6 +157,81 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
 int ft80x_putreg8(int fd, uint32_t addr, uint8_t value);
 int ft80x_putreg16(int fd, uint32_t addr, uint16_t value);
 int ft80x_putreg32(int fd, uint32_t addr, uint32_t value);
+
+/****************************************************************************
+ * Name: ft80x_ramdl_rewind
+ *
+ * Description:
+ *   Reset to the start of RAM DL memory
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+
+/****************************************************************************
+ * Name: ft80x_ramdl_append
+ *
+ * Description:
+ *   Append new display list data to RAM DL
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_ramdl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                       FAR const void *data, size_t len);
+
+/****************************************************************************
+ * Name: ft80x_ramcmd_append
+ *
+ * Description:
+ *   Append new display list data to RAM CMD
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                        FAR const void *data, size_t len);
+
+/****************************************************************************
+ * Name: ft80x_ramcmd_waitfifoempty
+ *
+ * Description:
+ *   Wait until co processor completes the operation and the FIFO is again
+ *   empty.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 
 /****************************************************************************
  * Name: ft80x_dl_swap
