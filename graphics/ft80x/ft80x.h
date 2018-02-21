@@ -58,40 +58,40 @@
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_ERROR
 #    define  ft80x_err(format, ...) \
        fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define  ft80x_err(format, ...)
 #  endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_WARN
 #    define  ft80x_warn(format, ...) \
        fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define  ft80x_warn(format, ...)
 #  endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_INFO
 #    define  ft80x_info(format, ...) \
        printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define  ft80x_info(format, ...)
 #  endif
 #else
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_ERROR
 #    define  ft80x_err printf
 #  else
 #    define  ft80x_err (void)
 #  endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_WARN
 #    define  ft80x_warn printf
 #  else
 #    define  ft80x_warn (void)
 #  endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
+#  ifdef CONFIG_GRAPHICS_FT80X_DEBUG_INFO
 #    define  ft80x_info printf
 #  else
 #    define  ft80x_info (void)

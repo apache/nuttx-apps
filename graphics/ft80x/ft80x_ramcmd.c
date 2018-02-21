@@ -240,7 +240,7 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
         {
           int errcode = errno;
           ft80x_err("ERROR: ioctl() FT80X_IOC_PUTRAMCMD failed: %d\n",
-                    errcode)
+                    errcode);
           return -errcode;
         }
 
@@ -358,7 +358,7 @@ int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ret = -errno;
-          ft80x_err("ERROR: ioctl(FT80X_IOC_EVENTNOTIFY) failed: %d\n", errcode);
+          ft80x_err("ERROR: ioctl(FT80X_IOC_EVENTNOTIFY) failed: %d\n", ret);
           break;
         }
 

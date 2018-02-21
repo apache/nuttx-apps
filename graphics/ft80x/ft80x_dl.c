@@ -72,7 +72,7 @@
  *
  ****************************************************************************/
 
-#ifdef GRAPHICS_FT80X_DEBUG_INFO
+#ifdef CONFIG_GRAPHICS_FT80X_DEBUG_INFO
 static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer,
                           FAR const void *data, size_t len)
 {
