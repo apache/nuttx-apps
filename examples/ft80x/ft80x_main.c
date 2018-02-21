@@ -102,32 +102,33 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  * here co-processor command are exercised and these with only a few of the
  * possible options.
  *
- *  FUNCTION                CoProc CMD USED DESCRIPTION
- *  ----------------------- --------------- ----------------------------------
- *  --None--                CMD_TEXT        Draw text
- *  --None--                CMD_BUTTON      Draw a button
- *  --None--                CMD_CLOCK       Draw an analog clock
- *  --None--                CMD_GAUGE       Draw a gauge
- *  --None--                CMD_KEYS        Draw a row of keys
+ *  FUNCTION                 CoProc CMD USED DESCRIPTION
+ *  ------------------------ --------------- ----------------------------------
+ *  --None--                 CMD_TEXT        Draw text
+ *  --None--                 CMD_BUTTON      Draw a button
+ *  --None--                 CMD_CLOCK       Draw an analog clock
+ *  --None--                 CMD_GAUGE       Draw a gauge
+ *  --None--                 CMD_KEYS        Draw a row of keys
  *  ft80x_coproc_progressbar CMD_PROGRESS    Draw a progress bar
- *  --None--                CMD_SCROLLBAR   Draw a scroll bar
- *  --None--                CMD_SLIDER      Draw a slider
- *  --None--                CMD_DIAL        Draw a rotary dial control
- *  --None--                CMD_TOGGLE      Draw a toggle switch
- *  --None--                CMD_NUMBER      Draw a decimal number
- *  --None--                CMD_CALIBRATE   Execute the touch screen
-                                            calibration routine
- *  --None--                CMD_SPINNER     Start an animated spinner
- *  --None--                CMD_SCREENSAVER Start an animated screensaver
- *  --None--                CMD_SKETCH      Start a continuous sketch update
- *  --None--                CMD_SNAPSHOT    Take a snapshot of the current
-                                            screen
- *  --None--                CMD_LOGO        Play device log animation
+ *  ft80x_coproc_scrollbar   CMD_SCROLLBAR   Draw a scroll bar
+ *  --None--                 CMD_SLIDER      Draw a slider
+ *  --None--                 CMD_DIAL        Draw a rotary dial control
+ *  --None--                 CMD_TOGGLE      Draw a toggle switch
+ *  --None--                 CMD_NUMBER      Draw a decimal number
+ *  --None--                 CMD_CALIBRATE   Execute the touch screen
+                                             calibration routine
+ *  --None--                 CMD_SPINNER     Start an animated spinner
+ *  --None--                 CMD_SCREENSAVER Start an animated screensaver
+ *  --None--                 CMD_SKETCH      Start a continuous sketch update
+ *  --None--                 CMD_SNAPSHOT    Take a snapshot of the current
+                                             screen
+ *  --None--                 CMD_LOGO        Play device log animation
  */
 
 static const struct ft80x_exampleinfo_s g_coproc[] =
 {
-  { "Progress Bar",   ft80x_coproc_progressbar }
+  { "Progress Bar",   ft80x_coproc_progressbar },
+  { "Scroll Bar",     ft80x_coproc_scrollbar }
 };
 
 #define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))
@@ -209,6 +210,8 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 {
   int ret;
 
+  ft80x_info("Example %s\n", example->name);
+
   /* Show the name of the example */
 
   ret = ft80x_showname(fd, buffer, example->name);
@@ -277,12 +280,16 @@ int ft80x_main(int argc, char *argv[])
 
   /* Perform tests on a few of the FT80x primitive functions */
 
+  ft80x_info("FT80x Primitive Functions\n");
+
   for (i = 0; i < NPRIMITIVES; i++)
     {
       (void)ft80x_example(fd, buffer, &g_primitives[i]);
     }
 
   /* Perform tests on a few of the FT80x Co-processor functions */
+
+  ft80x_info("FT80x Co-processor Functions\n");
 
   for (i = 0; i < NCOPROC; i++)
     {

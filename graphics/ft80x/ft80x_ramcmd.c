@@ -336,6 +336,8 @@ int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           break;
         }
 
+      ft80x_info("head=%u tail=%u\n", head, tail);
+
       if (head == tail)
         {
           /* The FIFO is empty... return success */

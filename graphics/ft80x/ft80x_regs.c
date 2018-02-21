@@ -255,7 +255,7 @@ int ft80x_dl_swap(int fd)
 
       if (++timeout > DLSWAP_TIMEOUT_CSEC)
         {
-          ft80x_err("ERROR: Timed out waiting for DLSWAP to complete\n");
+          ft80x_warn("WARNING: Timed out waiting for DLSWAP to complete\n");
           return -ETIMEDOUT;
         }
 
