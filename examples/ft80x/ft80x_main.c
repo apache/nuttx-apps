@@ -104,7 +104,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *
  *  FUNCTION                 CoProc CMD USED DESCRIPTION
  *  ------------------------ --------------- ----------------------------------
- *  ft80x_coproc_button       CMD_BUTTON      Draw a button
+ *  ft80x_coproc_button      CMD_BUTTON      Draw a button
  *  --None--                 CMD_CLOCK       Draw an analog clock
  *  --None--                 CMD_GAUGE       Draw a gauge
  *  --None--                 CMD_KEYS        Draw a row of keys
@@ -113,7 +113,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  ft80x_coproc_slider      CMD_SLIDER      Draw a slider
  *  ft80x_coproc_dial        CMD_DIAL        Draw a rotary dial control
  *  ft80x_coproc_toggle      CMD_TOGGLE      Draw a toggle switch
- *  --None--                 CMD_NUMBER      Draw a decimal number
+ *  ft80x_coproc_number      CMD_NUMBER      Draw a decimal number
  *  ft80x_coproc_calibrate   CMD_CALIBRATE   Execute the touch screen
                                              calibration routine
  *  --None--                 CMD_SPINNER     Start an animated spinner
@@ -132,6 +132,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Slider",         ft80x_coproc_slider },
   { "Dial",           ft80x_coproc_dial },
   { "Toggle",         ft80x_coproc_toggle },
+  { "Number",         ft80x_coproc_number },
   { "Calibrate",      ft80x_coproc_calibrate }
 };
 

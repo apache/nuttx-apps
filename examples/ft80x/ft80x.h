@@ -157,6 +157,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 
 #undef EXTERN

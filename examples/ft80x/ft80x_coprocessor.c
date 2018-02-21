@@ -322,7 +322,7 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* 3d effect with background color */
 
   xoffset                 += xdist;
-  yoffset                  = (FT80X_DISPLAY_HEIGHT/2 - 2*ydist);
+  yoffset                  = FT80X_DISPLAY_HEIGHT/ 2 - 2 * ydist;
 
   cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0xffff00;
@@ -1940,6 +1940,197 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_coproc_number
+ *
+ * Description:
+ *   Demonstrate the number widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd32_s         numcolor;
+      struct ft80x_cmd_number_s    number;
+      struct ft80x_cmd32_s         txtcolor;
+      struct ft80x_cmd_text_s      text;
+    } b;
+  } cmds;
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw number at 0,0 location */
+
+  cmds.b.numcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0x00, 0x00, 0x80);
+
+  cmds.b.number.cmd        = FT80X_CMD_NUMBER;
+  cmds.b.number.x          = 0;
+  cmds.b.number.y          = 40;
+  cmds.b.number.font       = 29;
+  cmds.b.number.options    = 0;
+  cmds.b.number.n          = 1234;
+
+  cmds.b.txtcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0xff, 0xff, 0xff);
+
+  cmds.b.text.cmd          = FT80X_CMD_TEXT;                   /* Text */
+  cmds.b.text.x            = 0;
+  cmds.b.text.y            = 40;
+  cmds.b.text.font         = 26;
+  cmds.b.text.options      = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Number29 at 0,0");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Number with centerx */
+
+  cmds.b.numcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0x80, 0x00, 0x00);
+  cmds.b.number.x          = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.number.y          = 50;
+  cmds.b.number.options    = FT80X_OPT_CENTERX | FT80X_OPT_SIGNED;
+  cmds.b.number.n          = -1234;
+  cmds.b.text.x            = FT80X_DISPLAY_WIDTH / 2 - 30;
+  cmds.b.text.y            = 90;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Number29 at CenterX");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Number with centery */
+
+  cmds.b.numcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0x41, 0x01, 0x05);
+  cmds.b.number.x          = FT80X_DISPLAY_WIDTH / 5;
+  cmds.b.number.y          = 120;
+  cmds.b.number.options    = FT80X_OPT_CENTERY;
+  cmds.b.number.n          = 1234;
+  cmds.b.text.x            = FT80X_DISPLAY_WIDTH / 5;
+  cmds.b.text.y            = 140;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Number29 at CenterY");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Number with center */
+
+  cmds.b.numcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0x0b, 0x07, 0x21);
+  cmds.b.number.x          = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.number.y          = 180;
+  cmds.b.number.options    = FT80X_OPT_CENTER | FT80X_OPT_SIGNED;
+  cmds.b.number.n          = -1234;
+  cmds.b.text.x            = FT80X_DISPLAY_WIDTH / 2 - 50;
+  cmds.b.text.y            = 200;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Number29 at Center");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Number with rightx */
+
+  cmds.b.numcolor.cmd      = FT80X_CLEAR_COLOR_RGB(0x57, 0x5e, 0x1b);
+  cmds.b.number.x          = FT80X_DISPLAY_WIDTH;
+  cmds.b.number.y          = 60;
+  cmds.b.number.options    = FT80X_OPT_RIGHTX;
+  cmds.b.number.n          = 1234;
+  cmds.b.text.x            = FT80X_DISPLAY_WIDTH - 100;
+  cmds.b.text.y            = 100;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Number29 at RightX");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Finally, terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_calibrate
  *
  * Description:
@@ -1980,7 +2171,7 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   cmds.a.text.cmd          = FT80X_CMD_TEXT;                   /* Text */
-  cmds.a.text.x            = FT80X_DISPLAY_WIDTH /2;
+  cmds.a.text.x            = FT80X_DISPLAY_WIDTH / 2;
   cmds.a.text.y            = FT80X_DISPLAY_HEIGHT / 2;
   cmds.a.text.font         = 27;
   cmds.a.text.options      = FT80X_OPT_CENTER;
