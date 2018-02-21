@@ -23,7 +23,7 @@ config GRAPHICS_FT80X_BUFSIZE
 config GRAPHICS_FT80X_CMDEMPTY_SIGNAL
 	int "CMDEMPTY event signal"
 	default 18
-	range l 31
+	range 1 31
 	---help---
 		This is the signal that will be received when the co-processor CMD
 		FIFO becomes empty.
