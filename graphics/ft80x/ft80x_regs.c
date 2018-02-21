@@ -75,7 +75,7 @@
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   addr   - The 32-bit aligned, 22-bit register value
+ *   addr   - The 32-bit aligned, 22-bit register address
  *   value  - The location to return the register value
  *
  * Returned Value:
@@ -95,10 +95,15 @@ int ft80x_getreg8(int fd, uint32_t addr, FAR uint8_t *value)
   reg.addr = addr;
   ret      = ioctl(fd, FT80X_IOC_GETREG8, (unsigned long)((uintptr_t)&reg));
 
-  if (ret >= 0)
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_GETREG8) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+  else
     {
       *value = reg.value.u8;
-      ret = OK;
     }
 
   return ret;
@@ -116,10 +121,15 @@ int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value)
   reg.addr = addr;
   ret      = ioctl(fd, FT80X_IOC_GETREG16, (unsigned long)((uintptr_t)&reg));
 
-  if (ret >= 0)
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_GETREG16) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+  else
     {
       *value = reg.value.u16;
-      ret = OK;
     }
 
   return ret;
@@ -137,10 +147,57 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value)
   reg.addr = addr;
   ret      = ioctl(fd, FT80X_IOC_GETREG32, (unsigned long)((uintptr_t)&reg));
 
-  if (ret >= 0)
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_GETREG32) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+  else
     {
       *value = reg.value.u32;
-      ret = OK;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: ft80x_getregs
+ *
+ * Description:
+ *   Read multiple 32-bit FT80x register values.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   addr   - The 32-bit aligned, 22-bit start register address
+ *   nregs  - The number of registers to read.
+ *   value  - The location to return the register values
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_getregs(int fd, uint32_t addr, uint8_t nregs, FAR uint32_t *value)
+{
+  struct ft80x_registers_s regs;
+  int ret;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  regs.addr  = addr;
+  regs.nregs = nregs;
+  regs.value = value;
+
+  ret = ioctl(fd, FT80X_IOC_GETREGS, (unsigned long)((uintptr_t)&regs));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_GETREGS) failed: %d\n", errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -155,7 +212,7 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value)
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   addr   - The 32-bit aligned, 22-bit register value
+ *   addr   - The 32-bit aligned, 22-bit register address
  *   value  - The register value to write.
  *
  * Returned Value:
@@ -166,6 +223,7 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value)
 int ft80x_putreg8(int fd, uint32_t addr, uint8_t value)
 {
   struct ft80x_register_s reg;
+  int ret;
 
   DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
 
@@ -173,12 +231,22 @@ int ft80x_putreg8(int fd, uint32_t addr, uint8_t value)
 
   reg.addr     = addr;
   reg.value.u8 = value;
-  return ioctl(fd, FT80X_IOC_PUTREG8, (unsigned long)((uintptr_t)&reg));
+
+  ret = ioctl(fd, FT80X_IOC_PUTREG8, (unsigned long)((uintptr_t)&reg));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_PUTREG8) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
 }
 
 int ft80x_putreg16(int fd, uint32_t addr, uint16_t value)
 {
   struct ft80x_register_s reg;
+  int ret;
 
   DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
 
@@ -186,12 +254,22 @@ int ft80x_putreg16(int fd, uint32_t addr, uint16_t value)
 
   reg.addr      = addr;
   reg.value.u16 = value;
-  return ioctl(fd, FT80X_IOC_PUTREG16, (unsigned long)((uintptr_t)&reg));
+
+  ret = ioctl(fd, FT80X_IOC_PUTREG16, (unsigned long)((uintptr_t)&reg));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_PUTREG16) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
 }
 
 int ft80x_putreg32(int fd, uint32_t addr, uint32_t value)
 {
   struct ft80x_register_s reg;
+  int ret;
 
   DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
 
@@ -199,7 +277,59 @@ int ft80x_putreg32(int fd, uint32_t addr, uint32_t value)
 
   reg.addr      = addr;
   reg.value.u32 = value;
-  return ioctl(fd, FT80X_IOC_PUTREG32, (unsigned long)((uintptr_t)&reg));
+
+  ret = ioctl(fd, FT80X_IOC_PUTREG32, (unsigned long)((uintptr_t)&reg));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_PUTREG32) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: ft80x_putregs
+ *
+ * Description:
+ *   Write multiple 32-bit FT80x register values.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   addr   - The 32-bit aligned, 22-bit start register address
+ *   nregs  - The number of registers to write.
+ *   value  - The of the register values to be written.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_putregs(int fd, uint32_t addr, uint8_t nregs,
+                  FAR const uint32_t *value)
+{
+  struct ft80x_registers_s regs;
+  int ret;
+
+  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+
+  /* Perform the IOCTL to get the register value */
+
+  regs.addr  = addr;
+  regs.nregs = nregs;
+  regs.value = (FAR uint32_t *)value;  /* Discard const qualifier */
+
+  ret = ioctl(fd, FT80X_IOC_PUTREGS, (unsigned long)((uintptr_t)&regs));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_PUTREGS) failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
 }
 
 /****************************************************************************

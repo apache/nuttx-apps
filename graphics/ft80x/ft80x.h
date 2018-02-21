@@ -138,6 +138,26 @@ int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value);
 int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
 
 /****************************************************************************
+ * Name: ft80x_getregs
+ *
+ * Description:
+ *   Read multiple 32-bit FT80x register values.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   addr   - The 32-bit aligned, 22-bit start register address
+ *   nregs  - The number of registers to read.
+ *   value  - The location to return the register values
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_getregs(int fd, uint32_t addr, uint8_t nregs, FAR uint32_t *value);
+
+/****************************************************************************
  * Name: ft80x_putreg8/16/32
  *
  * Description:
@@ -157,6 +177,27 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
 int ft80x_putreg8(int fd, uint32_t addr, uint8_t value);
 int ft80x_putreg16(int fd, uint32_t addr, uint16_t value);
 int ft80x_putreg32(int fd, uint32_t addr, uint32_t value);
+
+/****************************************************************************
+ * Name: ft80x_putregs
+ *
+ * Description:
+ *   Write multiple 32-bit FT80x register values.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   addr   - The 32-bit aligned, 22-bit start register address
+ *   nregs  - The number of registers to write.
+ *   value  - The of the register values to be written.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_putregs(int fd, uint32_t addr, uint8_t nregs,
+                  FAR const uint32_t *value);
 
 /****************************************************************************
  * Name: ft80x_ramdl_rewind

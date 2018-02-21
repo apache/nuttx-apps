@@ -39,8 +39,9 @@ include $(APPDIR)/Make.defs
 
 # FTDI/BridgeTek FT80x library
 
-ASRCS =
-CSRCS = ft80x_dl.c ft80x_ramg.c ft80x_ramdl.c ft80x_ramcmd.c ft80x_regs.c
+ASRCS  =
+CSRCS  = ft80x_dl.c ft80x_ramg.c ft80x_ramdl.c ft80x_ramcmd.c ft80x_touch.c
+CSRCS += ft80x_regs.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

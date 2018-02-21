@@ -258,6 +258,25 @@ int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
 int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
                      unsigned int nbytes);
+
+/****************************************************************************
+ * Name: ft80x_touch_gettransform
+ *
+ * Description:
+ *   Read the touch transfrom matrix
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   matrix - The location to return the transfrom matrix
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6]);
+
 #undef EXTERN
 #ifdef __cplusplus
 }

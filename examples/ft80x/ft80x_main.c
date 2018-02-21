@@ -111,11 +111,11 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  --None--                 CMD_KEYS        Draw a row of keys
  *  ft80x_coproc_progressbar CMD_PROGRESS    Draw a progress bar
  *  ft80x_coproc_scrollbar   CMD_SCROLLBAR   Draw a scroll bar
- *  --None--                 CMD_SLIDER      Draw a slider
- *  --None--                 CMD_DIAL        Draw a rotary dial control
- *  --None--                 CMD_TOGGLE      Draw a toggle switch
+ *  ft80x_coproc_slider      CMD_SLIDER      Draw a slider
+ *  ft80x_coproc_dial        CMD_DIAL        Draw a rotary dial control
+ *  ft80x_coproc_toggle      CMD_TOGGLE      Draw a toggle switch
  *  --None--                 CMD_NUMBER      Draw a decimal number
- *  --None--                 CMD_CALIBRATE   Execute the touch screen
+ *  ft80x_coproc_calibrate   CMD_CALIBRATE   Execute the touch screen
                                              calibration routine
  *  --None--                 CMD_SPINNER     Start an animated spinner
  *  --None--                 CMD_SCREENSAVER Start an animated screensaver
@@ -128,7 +128,11 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
 static const struct ft80x_exampleinfo_s g_coproc[] =
 {
   { "Progress Bar",   ft80x_coproc_progressbar },
-  { "Scroll Bar",     ft80x_coproc_scrollbar }
+  { "Scroll Bar",     ft80x_coproc_scrollbar },
+  { "Slider",         ft80x_coproc_slider },
+  { "Dial",           ft80x_coproc_dial },
+  { "Toggle",         ft80x_coproc_toggle },
+  { "Calibrate",      ft80x_coproc_calibrate }
 };
 
 #define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))
