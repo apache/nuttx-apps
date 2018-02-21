@@ -104,8 +104,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *
  *  FUNCTION                 CoProc CMD USED DESCRIPTION
  *  ------------------------ --------------- ----------------------------------
- *  --None--                 CMD_TEXT        Draw text
- *  --None--                 CMD_BUTTON      Draw a button
+ *  ft80x_coproc_button       CMD_BUTTON      Draw a button
  *  --None--                 CMD_CLOCK       Draw an analog clock
  *  --None--                 CMD_GAUGE       Draw a gauge
  *  --None--                 CMD_KEYS        Draw a row of keys
@@ -127,6 +126,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
 
 static const struct ft80x_exampleinfo_s g_coproc[] =
 {
+  { "Button",         ft80x_coproc_button },
   { "Progress Bar",   ft80x_coproc_progressbar },
   { "Scroll Bar",     ft80x_coproc_scrollbar },
   { "Slider",         ft80x_coproc_slider },

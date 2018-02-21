@@ -54,6 +54,467 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ft80x_coproc_button
+ *
+ * Description:
+ *   Demonstrate the button functionality
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  int16_t xoffset;
+  int16_t yoffset;
+  int16_t width;
+  int16_t height;
+  int16_t xdist;
+  int16_t ydist;
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_button_s    button;
+    } b;
+    struct
+    {
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_gradcolor_s gradcolor;
+      struct ft80x_cmd_button_s    button;
+    } c;
+    struct
+    {
+      struct ft80x_cmd_gradcolor_s gradcolor;
+      struct ft80x_cmd_button_s    button;
+    } d;
+    struct ft80x_cmd_button_s     button;
+    struct ft80x_cmd_text_s       text;
+  } cmds;
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  /* Copy the commands into the display list */
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  width                    = 60;
+  height                   = 30;
+  xdist                    = width + (FT80X_DISPLAY_WIDTH - 4 * width) / 5;
+  ydist                    = height + 5;
+  xoffset                  = 10;
+  yoffset                  = FT80X_DISPLAY_HEIGHT / 2 - 2 * ydist;
+
+  /* Construct a buttons with "ONE/TWO/THREE" text and default background */
+  /* Draw buttons 60x30 resolution at 10x40,10x75,10x110 */
+
+  /* Flat effect and default color background */
+
+  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
+  cmds.b.fgcolor.c         = 0x0000ff;
+
+  cmds.b.button.cmd        = FT80X_CMD_BUTTON;
+  cmds.b.button.x          = xoffset;
+  cmds.b.button.y          = yoffset;
+  cmds.b.button.w          = width;
+  cmds.b.button.h          = height;
+  cmds.b.button.font       = 28;
+  cmds.b.button.options    = FT80X_OPT_FLAT;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+
+  cmds.button.cmd          = FT80X_CMD_BUTTON;
+  cmds.button.x            = xoffset;
+  cmds.button.y            = yoffset;
+  cmds.button.w            = width;
+  cmds.button.h            = height;
+  cmds.button.font         = 28;
+  cmds.button.options      = FT80X_OPT_FLAT;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.button.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;
+  cmds.text.x              = 20;
+  cmds.text.y              = 40;
+  cmds.text.font           = 26;
+  cmds.text.options        = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Flat effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* 3D effect */
+
+  xoffset                 += xdist;
+  yoffset                  = FT80X_DISPLAY_HEIGHT / 2 - 2 * ydist;
+
+  cmds.button.cmd          = FT80X_CMD_BUTTON;
+  cmds.button.x            = xoffset;
+  cmds.button.y            = yoffset;
+  cmds.button.w            = width;
+  cmds.button.h            = height;
+  cmds.button.font         = 28;
+  cmds.button.options      = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.button.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.button.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.button.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;
+  cmds.text.x              = xoffset;
+  cmds.text.y              = yoffset + 40;
+  cmds.text.font           = 26;
+  cmds.text.options        = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "3D Effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* 3d effect with background color */
+
+  xoffset                 += xdist;
+  yoffset                  = (FT80X_DISPLAY_HEIGHT/2 - 2*ydist);
+
+  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
+  cmds.b.fgcolor.c         = 0xffff00;
+
+  cmds.b.button.cmd        = FT80X_CMD_BUTTON;
+  cmds.b.button.x          = xoffset;
+  cmds.b.button.y          = yoffset;
+  cmds.b.button.w          = width;
+  cmds.b.button.h          = height;
+  cmds.b.button.font       = 28;
+  cmds.b.button.options    = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.b.fgcolor.c         = 0xffff00;
+  cmds.b.button.y          = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.b.fgcolor.c         = 0xff00ff;
+  cmds.b.button.y          = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;
+  cmds.text.x              = xoffset;
+  cmds.text.y              = yoffset + 40;
+  cmds.text.font           = 26;
+  cmds.text.options        = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "3D Color");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* 3d effect with gradient color */
+
+  xoffset                 += xdist;
+  yoffset                  = FT80X_DISPLAY_HEIGHT / 2 - 2 * ydist;
+
+  cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
+  cmds.c.fgcolor.c         = 0x101010;
+
+  cmds.c.gradcolor.cmd     = FT80X_CMD_GRADCOLOR;
+  cmds.c.gradcolor.c       = 0xff0000;
+
+  cmds.c.button.cmd        = FT80X_CMD_BUTTON;
+  cmds.c.button.x          = xoffset;
+  cmds.c.button.y          = yoffset;
+  cmds.c.button.w          = width;
+  cmds.c.button.h          = height;
+  cmds.c.button.font       = 28;
+  cmds.c.button.options    = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+
+  cmds.d.gradcolor.cmd     = FT80X_CMD_GRADCOLOR;
+  cmds.d.gradcolor.c       = 0x00ff00;
+
+  cmds.d.button.cmd        = FT80X_CMD_BUTTON;
+  cmds.d.button.x          = xoffset;
+  cmds.d.button.y          = yoffset;
+  cmds.d.button.w          = width;
+  cmds.d.button.h          = height;
+  cmds.d.button.font       = 28;
+  cmds.d.button.options    = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                 += ydist;
+  cmds.d.gradcolor.c       = 0x0000ff;
+  cmds.d.button.y          = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABC");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;
+  cmds.text.x              = xoffset;
+  cmds.text.y              = yoffset + 40;
+  cmds.text.font           = 26;
+  cmds.text.options        = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "3D Gradient");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Finally, terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_progressbar
  *
  * Description:
@@ -168,26 +629,11 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* Draw progress bar with 3d effect */
 
   cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xff, 0x00);
-
-  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
   cmds.b.bgcolor.c        = 0x800000;
-
-  cmds.b.progress.cmd     = FT80X_CMD_PROGRESS;               /* Progress bar */
   cmds.b.progress.x       = 180;
-  cmds.b.progress.y       = 10;
-  cmds.b.progress.w       = 120;
-  cmds.b.progress.h       = 20;
   cmds.b.progress.options = 0;
   cmds.b.progress.val     = 75;
-  cmds.b.progress.range   = 100;
-
-  cmds.b.colora.cmd       = FT80X_COLOR_A(255);               /* Color A */
-
-  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
   cmds.b.text.x           = 180;
-  cmds.b.text.y           = 40;
-  cmds.b.text.font        = 26;
-  cmds.b.text.options     = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
@@ -206,26 +652,14 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* Draw progress bar with 3d effect and string on top */
 
   cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
-
-  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
   cmds.b.bgcolor.c        = 0x000080;
-
-  cmds.b.progress.cmd     = FT80X_CMD_PROGRESS;               /* Progress bar */
   cmds.b.progress.x       = 30;
   cmds.b.progress.y       = 60;
-  cmds.b.progress.w       = 120;
   cmds.b.progress.h       = 30;
-  cmds.b.progress.options = 0;
   cmds.b.progress.val     = 19660;
   cmds.b.progress.range   = 65535;
-
-  cmds.b.colora.cmd       = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
-
-  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
   cmds.b.text.x           = 78;
   cmds.b.text.y           = 68;
-  cmds.b.text.font        = 26;
-  cmds.b.text.options     = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
@@ -241,8 +675,8 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset = 20;
-  yoffset = 120;
+  xoffset                 = 20;
+  yoffset                 = 120;
 
   cmds.c.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xa0, 0x00);
 
@@ -275,18 +709,9 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.d.progress.cmd     = FT80X_CMD_PROGRESS;               /* Progress bar */
-  cmds.d.progress.x       = xoffset;
+  yoffset                += ydist;
   cmds.d.progress.y       = yoffset;
-  cmds.d.progress.w       = 150;
-  cmds.d.progress.h       = ysz;
-  cmds.d.progress.options = 0;
   cmds.d.progress.val     = 40;
-  cmds.d.progress.range   = 100;
-
-  cmds.d.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
   cmds.d.bgcolor.c        = 0xffff00;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
@@ -296,18 +721,9 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.d.progress.cmd     = FT80X_CMD_PROGRESS;               /* Progress bar */
-  cmds.d.progress.x       = xoffset;
+  yoffset                += ydist;
   cmds.d.progress.y       = yoffset;
-  cmds.d.progress.w       = 150;
-  cmds.d.progress.h       = ysz;
-  cmds.d.progress.options = 0;
   cmds.d.progress.val     = 70;
-  cmds.d.progress.range   = 100;
-
-  cmds.d.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
   cmds.d.bgcolor.c        = 0x808080;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
@@ -317,7 +733,7 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                += ydist;
 
   cmds.e.progress.cmd     = FT80X_CMD_PROGRESS;               /* Progress bar */
   cmds.e.progress.x       = xoffset;
@@ -500,29 +916,11 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw scroll bar with 3d effect */
 
-  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0x00ff00;
-
-  cmds.b.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.b.bgcolor.c         = 0x800000;
-
-  cmds.b.scrollbar.cmd     = FT80X_CMD_SCROLLBAR;
   cmds.b.scrollbar.x       = 180;
-  cmds.b.scrollbar.y       = 10;
-  cmds.b.scrollbar.w       = 120;
-  cmds.b.scrollbar.h       = 8;
   cmds.b.scrollbar.options = 0;
-  cmds.b.scrollbar.val     = 20;
-  cmds.b.scrollbar.size    = 30;
-  cmds.b.scrollbar.range   = 100;
-
-  cmds.b.colora.cmd       = FT80X_COLOR_A(255);
-
-  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
-  cmds.b.text.x           = 180;
-  cmds.b.text.y           = 40;
-  cmds.b.text.font        = 26;
-  cmds.b.text.options     = 0;
+  cmds.b.text.x            = 180;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
@@ -540,9 +938,9 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw horizontal scroll bars */
 
-  xoffset = 20;
-  yoffset = 120;
-  wsz     = FT80X_DISPLAY_WIDTH / 2 - 40;
+  xoffset                  = 20;
+  yoffset                  = 120;
+  wsz                      = FT80X_DISPLAY_WIDTH / 2 - 40;
 
   cmds.d.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.d.fgcolor.c         = 0x00a000;
@@ -567,7 +965,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                 += ydist;
 
   cmds.c.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.c.bgcolor.c         = 0x000080;
@@ -582,7 +980,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.c.scrollbar.size    = 30;
   cmds.c.scrollbar.range   = 100;
 
-  cmds.c.colora.cmd       = FT80X_COLOR_A(255);
+  cmds.c.colora.cmd        = FT80X_COLOR_A(255);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
@@ -591,7 +989,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                 += ydist;
 
   cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.f.bgcolor.c         = 0xffff00;
@@ -613,20 +1011,10 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  yoffset                 += ydist;
   cmds.f.bgcolor.c         = 0x808080;
-
-  cmds.f.scrollbar.cmd     = FT80X_CMD_SCROLLBAR;
-  cmds.f.scrollbar.x       = xoffset;
   cmds.f.scrollbar.y       = yoffset;
-  cmds.f.scrollbar.w       = wsz;
-  cmds.f.scrollbar.h       = 8;
-  cmds.f.scrollbar.options = 0;
   cmds.f.scrollbar.val     = 70;
-  cmds.f.scrollbar.size    = 30;
-  cmds.f.scrollbar.range   = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -637,22 +1025,17 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw vertical scroll bars */
 
-  xoffset = FT80X_DISPLAY_WIDTH / 2 + 40;
-  yoffset = 80;
-  wsz     = FT80X_DISPLAY_HEIGHT - 100;
+  xoffset                  = FT80X_DISPLAY_WIDTH / 2 + 40;
+  yoffset                  = 80;
+  wsz                      = FT80X_DISPLAY_HEIGHT - 100;
 
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.f.bgcolor.c         = 0x800000;
 
-  cmds.f.scrollbar.cmd     = FT80X_CMD_SCROLLBAR;
   cmds.f.scrollbar.x       = xoffset;
   cmds.f.scrollbar.y       = yoffset;
   cmds.f.scrollbar.w       = 8;
   cmds.f.scrollbar.h       = wsz;
-  cmds.f.scrollbar.options = 0;
   cmds.f.scrollbar.val     = 10;
-  cmds.f.scrollbar.size    = 30;
-  cmds.f.scrollbar.range   = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -661,7 +1044,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
+  xoffset                 += xdist;
 
   cmds.e.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.e.bgcolor.c         = 0x000080;
@@ -685,7 +1068,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
+  xoffset                 += xdist;
 
   cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.f.bgcolor.c         = 0xffff00;
@@ -707,20 +1090,10 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
-
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  xoffset                 += xdist;
   cmds.f.bgcolor.c         = 0x808080;
-
-  cmds.f.scrollbar.cmd     = FT80X_CMD_SCROLLBAR;
   cmds.f.scrollbar.x       = xoffset;
-  cmds.f.scrollbar.y       = yoffset;
-  cmds.f.scrollbar.w       = 8;
-  cmds.f.scrollbar.h       = wsz;
-  cmds.f.scrollbar.options = 0;
   cmds.f.scrollbar.val     = 70;
-  cmds.f.scrollbar.size    = 30;
-  cmds.f.scrollbar.range   = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -840,26 +1213,12 @@ int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw dial with 3d effect */
 
-  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0x00ff00;
-
-  cmds.b.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.b.bgcolor.c         = 0x800000;
-
-  cmds.b.dial.cmd          = FT80X_CMD_DIAL;                  /* Dial */
   cmds.b.dial.x            = 140;
-  cmds.b.dial.y            = 50;
-  cmds.b.dial.r            = 40;
   cmds.b.dial.options      = 0;
   cmds.b.dial.val          = 0.45 * 65535;                    /* 45% */
-
-  cmds.b.colora.cmd        = FT80X_COLOR_A(255);
-
-  cmds.b.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
   cmds.b.text.x            = 105;
-  cmds.b.text.y            = 90;
-  cmds.b.text.font         = 26;
-  cmds.b.text.options      = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
@@ -909,23 +1268,13 @@ int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.c.fgcolor.c         = 0x000080;
-
   cmds.c.colorrgb.cmd      = FT80X_COLOR_RGB(11, 7, 65);
-
-  cmds.c.dial.cmd          = FT80X_CMD_DIAL;                  /* Dial */
   cmds.c.dial.x            = 100;
-  cmds.c.dial.y            = 160;
   cmds.c.dial.r            = 40;
-  cmds.c.dial.options      = 0;
   cmds.c.dial.val          = 0.45 * 65535;                    /* 45% */
-
-  cmds.c.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
   cmds.c.text.x            = 90;
   cmds.c.text.y            = 200;
-  cmds.c.text.font         = 26;
-  cmds.c.text.options      = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
@@ -941,23 +1290,13 @@ int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.c.fgcolor.c         = 0xffff00;
-
   cmds.c.colorrgb.cmd      = FT80X_COLOR_RGB(87, 94, 9);
-
-  cmds.c.dial.cmd          = FT80X_CMD_DIAL;                  /* Dial */
   cmds.c.dial.x            = 210;
-  cmds.c.dial.y            = 160;
   cmds.c.dial.r            = 60;
-  cmds.c.dial.options      = 0;
   cmds.c.dial.val          = 0.60 * 65535;                    /* 60% */
-
-  cmds.c.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
   cmds.c.text.x            = 200;
   cmds.c.text.y            = 220;
-  cmds.c.text.font         = 26;
-  cmds.c.text.options      = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
@@ -974,23 +1313,14 @@ int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
 #ifndef CONFIG_LCD_FT80X_QVGA
-  cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.c.fgcolor.c         = 0x808080;
 
   cmds.c.colorrgb.cmd      = FT80X_COLOR_RGB(51, 50, 52);
-
-  cmds.c.dial.cmd          = FT80X_CMD_DIAL;                  /* Dial */
   cmds.c.dial.x            = 360;
-  cmds.c.dial.y            = 160;
   cmds.c.dial.r            = 80;
-  cmds.c.dial.options      = 0;
   cmds.c.dial.val          = 0.75 * 65535;                    /* 75% */
-
-  cmds.c.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
   cmds.c.text.x            = 350;
   cmds.c.text.y            = 240;
-  cmds.c.text.font         = 26;
-  cmds.c.text.options      = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
@@ -1134,28 +1464,13 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw scroll bar with 3d effect */
 
-  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0x00ff00;
-
-  cmds.b.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.b.bgcolor.c         = 0x800000;
-
-  cmds.b.slider.cmd        = FT80X_CMD_SLIDER;                /* Slider */
   cmds.b.slider.x          = 180;
-  cmds.b.slider.y          = 10;
-  cmds.b.slider.w          = 120;
-  cmds.b.slider.h          = 10;
   cmds.b.slider.options    = 0;
   cmds.b.slider.val        = 50;
-  cmds.b.slider.range      = 100;
-
   cmds.b.colora.cmd        = FT80X_COLOR_A(255);
-
-  cmds.b.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
   cmds.b.text.x            = 180;
-  cmds.b.text.y            = 40;
-  cmds.b.text.font         = 26;
-  cmds.b.text.options      = 0;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
@@ -1173,9 +1488,9 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw horizontal slider bars */
 
-  xoffset = 20;
-  yoffset = 120;
-  wsz     = FT80X_DISPLAY_WIDTH / 2 - 40;
+  xoffset                  = 20;
+  yoffset                  = 120;
+  wsz                      = FT80X_DISPLAY_WIDTH / 2 - 40;
 
   cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.c.fgcolor.c         = 0x00a000;
@@ -1201,7 +1516,7 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                 += ydist;
 
   cmds.d.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.d.bgcolor.c         = 0x000080;
@@ -1226,7 +1541,7 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                 += ydist;
 
   cmds.e.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.e.bgcolor.c         = 0xffff00;
@@ -1249,21 +1564,11 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.e.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  yoffset                 += ydist;
   cmds.e.bgcolor.c         = 0x808080;
-
   cmds.e.colorrgb.cmd      = FT80X_COLOR_RGB(51, 50, 52);
-
-  cmds.e.slider.cmd        = FT80X_CMD_SLIDER;                /* Slider */
-  cmds.e.slider.x          = xoffset;
   cmds.e.slider.y          = yoffset;
-  cmds.e.slider.w          = wsz;
-  cmds.e.slider.h          = 10;
-  cmds.e.slider.options    = 0;
   cmds.e.slider.val        = 70;
-  cmds.e.slider.range      = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
   if (ret < 0)
@@ -1272,9 +1577,9 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset = FT80X_DISPLAY_WIDTH / 2 + 40;
-  yoffset = 80;
-  wsz     = FT80X_DISPLAY_HEIGHT - 100;
+  xoffset                  = FT80X_DISPLAY_WIDTH / 2 + 40;
+  yoffset                  = 80;
+  wsz                      = FT80X_DISPLAY_HEIGHT - 100;
 
   /* Draw vertical slider bars */
 
@@ -1297,19 +1602,10 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
-
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  xoffset                 += xdist;
   cmds.f.bgcolor.c         = 0x000080;
-
-  cmds.f.slider.cmd        = FT80X_CMD_SLIDER;                /* Slider */
   cmds.f.slider.x          = xoffset;
-  cmds.f.slider.y          = yoffset;
-  cmds.f.slider.w          = 10;
-  cmds.f.slider.h          = wsz;
-  cmds.f.slider.options    = 0;
   cmds.f.slider.val        = 30;
-  cmds.f.slider.range      = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -1318,19 +1614,10 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
-
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  xoffset                 += xdist;
   cmds.f.bgcolor.c         = 0xffff00;
-
-  cmds.f.slider.cmd        = FT80X_CMD_SLIDER;                /* Slider */
   cmds.f.slider.x          = xoffset;
-  cmds.f.slider.y          = yoffset;
-  cmds.f.slider.w          = 10;
-  cmds.f.slider.h          = wsz;
-  cmds.f.slider.options    = 0;
   cmds.f.slider.val        = 50;
-  cmds.f.slider.range      = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -1339,19 +1626,10 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  xoffset += xdist;
-
-  cmds.f.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
+  xoffset                 += xdist;
   cmds.f.bgcolor.c         = 0x808080;
-
-  cmds.f.slider.cmd        = FT80X_CMD_SLIDER;                /* Slider */
   cmds.f.slider.x          = xoffset;
-  cmds.f.slider.y          = yoffset;
-  cmds.f.slider.w          = 10;
-  cmds.f.slider.h          = wsz;
-  cmds.f.slider.options    = 0;
   cmds.f.slider.val        = 70;
-  cmds.f.slider.range      = 100;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -1508,7 +1786,7 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.c.toggle.options    = 0;
   cmds.c.toggle.state      = 1 * 65535;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -1546,8 +1824,8 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw horizontal toggle bars */
 
-  xoffset = 40;
-  yoffset = 80;
+  xoffset                  = 40;
+  yoffset                  = 80;
 
   cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.c.fgcolor.c         = 0x800000;
@@ -1563,7 +1841,7 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.c.toggle.options    = 0;
   cmds.c.toggle.state      = 0 * 65535;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -1577,23 +1855,13 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.c.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
+  yoffset                 += ydist;
   cmds.c.fgcolor.c         = 0x0b0721;
-
-  cmds.c.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.c.bgcolor.c         = 0x000080;
-
-  cmds.c.toggle.cmd        = FT80X_CMD_TOGGLE;                 /* Toggle */
-  cmds.c.toggle.x          = xoffset;
   cmds.c.toggle.y          = yoffset;
-  cmds.c.toggle.w          = 30;
-  cmds.c.toggle.font       = 27;
-  cmds.c.toggle.options    = 0;
   cmds.c.toggle.state      = 0.25 * 65535;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -1607,7 +1875,7 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
+  yoffset                 += ydist;
 
   cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0x575e1b;
@@ -1639,22 +1907,11 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  yoffset += ydist;
-
-  cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
+  yoffset                 += ydist;
   cmds.b.fgcolor.c         = 0x333234;
-
-  cmds.b.bgcolor.cmd       = FT80X_CMD_BGCOLOR;
   cmds.b.bgcolor.c         = 0x808080;
-
   cmds.b.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
-
-  cmds.b.toggle.cmd        = FT80X_CMD_TOGGLE;                 /* Toggle */
-  cmds.b.toggle.x          = xoffset;
   cmds.b.toggle.y          = yoffset;
-  cmds.b.toggle.w          = 30;
-  cmds.b.toggle.font       = 27;
-  cmds.b.toggle.options    = 0;
   cmds.b.toggle.state      = 0.75 * 65535;
 
   ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
