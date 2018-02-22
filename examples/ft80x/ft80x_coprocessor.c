@@ -2222,3 +2222,50 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
              matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
   return OK;
 }
+
+/****************************************************************************
+ * Name: ft80x_coproc_logo
+ *
+ * Description:
+ *   Demonstrate the logo command.  The logo command causes the co-processor
+ *   engine to play back a short animation of the FTDI logo. During logo
+ *   playback the MCU should not access any FT800 resources.
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_logo(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  struct ft80x_cmd_logo_s logo;
+  int ret;
+
+  /* Enqueue the command (no display list is used) */
+
+  logo.cmd = FT80X_CMD_LOGO;
+ 
+  ret = ft80x_dl_data(fd, buffer, &logo, sizeof(struct ft80x_cmd_logo_s));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Flush the command to hardware */
+
+  ret = ft80x_dl_flush(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Wait for the logo animation to complete. */
+
+  ret = ft80x_coproc_waitlogo(fd);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_coproc_waitlogo failed: %d\n", ret);
+    }
+
+  return ret;
+}
+

@@ -82,6 +82,8 @@ struct ft80x_exampleinfo_s
  *  --None--               EDGE_STRIP_B    Edge strip below side drawing
                                            primitive
  *  ft80x_prim_rectangles  RECTS           Rectangle drawing primitive
+ *  ft80x_prim_scissor     SCISSOR         Scissor primitive
+ *  ft80x_prim_alphablend  COLOR_A         Additive blend
  */
 
 static const struct ft80x_exampleinfo_s g_primitives[] =
@@ -93,7 +95,9 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
   { "Lines",        ft80x_prim_lines },
   { "Line Strip",   ft80x_prim_linestrip },
   { "Edge Strip R", ft80x_prim_edgestrip_r },
-  { "Rectangles",   ft80x_prim_rectangles }
+  { "Rectangles",   ft80x_prim_rectangles },
+  { "Scissor",      ft80x_prim_scissor },
+  { "Alpha Blend",  ft80x_prim_alphablend }
 };
 
 #define NPRIMITIVES (sizeof(g_primitives) / sizeof(ft80x_example_t))
@@ -121,7 +125,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  --None--                 CMD_SKETCH      Start a continuous sketch update
  *  --None--                 CMD_SNAPSHOT    Take a snapshot of the current
                                              screen
- *  --None--                 CMD_LOGO        Play device log animation
+ *  ft80x_coproc_logo        CMD_LOGO        Play device log animation
  */
 
 static const struct ft80x_exampleinfo_s g_coproc[] =
@@ -133,7 +137,8 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Dial",           ft80x_coproc_dial },
   { "Toggle",         ft80x_coproc_toggle },
   { "Number",         ft80x_coproc_number },
-  { "Calibrate",      ft80x_coproc_calibrate }
+  { "Calibrate",      ft80x_coproc_calibrate },
+  { "Logo",           ft80x_coproc_logo }
 };
 
 #define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))

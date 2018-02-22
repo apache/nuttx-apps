@@ -367,3 +367,68 @@ int ft80x_prim_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   return OK;
 }
+
+/****************************************************************************
+ * Name: ft80x_prim_scissor
+ *
+ * Description:
+ *   Demonstrate the scissor primitive
+ *
+ ****************************************************************************/
+
+int ft80x_prim_scissor(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  uint32_t cmds[5];
+  int ret;
+
+  cmds[0] = FT80X_CLEAR(1, 1, 1);               /* Clear to black */
+  cmds[1] = FT80X_SCISSOR_XY(40, 20);           /* Scissor rectangle top left at (40, 20) */
+  cmds[2] = FT80X_SCISSOR_SIZE(40, 40);         /* Scissor rectangle is 40 x 40 pixels */
+  cmds[3] = FT80X_CLEAR_COLOR_RGB(255, 255, 0); /* Clear to yellow */
+  cmds[4] = FT80X_CLEAR(1, 1, 1);
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_create(fd, buffer, cmds, 5, false);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
+      return ret;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: ft80x_prim_alphablend
+ *
+ * Description:
+ *   Demonstrate additive blend
+ *
+ ****************************************************************************/
+
+int ft80x_prim_alphablend(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  uint32_t cmds[8];
+  int ret;
+
+  cmds[0] = FT80X_CLEAR(1, 1, 1);               /* Clear screen */
+  cmds[1] = FT80X_BEGIN(FT80X_PRIM_BITMAPS);
+  cmds[2] = FT80X_VERTEX2II(50, 30, 31, 0x47);
+  cmds[3] = FT80X_COLOR_A(128);
+  cmds[4] = FT80X_VERTEX2II(58, 38, 31, 0x47);
+  cmds[5] = FT80X_COLOR_A(64);
+  cmds[6] = FT80X_VERTEX2II(66, 46, 31, 0x47);
+  cmds[7] = FT80X_END();
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_create(fd, buffer, cmds, 8, false);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_create failed: %d\n", ret);
+      return ret;
+    }
+
+  return OK;
+}

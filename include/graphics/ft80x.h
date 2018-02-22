@@ -239,6 +239,29 @@ int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                     bool coproc);
 
 /****************************************************************************
+ * Name: ft80x_coproc_waitlogo
+ *
+ * Description:
+ *   Wait for the logo animation to complete.  The logo command causes the
+ *   co-processor engine to play back a short animation of the FTDI logo.
+ *   During logo playback the MCU should not access any FT800 resources.
+ *   After 2.5 seconds have elapsed, the co-processor engine writes zero to
+ *   REG_CMD_READ and REG_CMD_WRITE, and starts waiting for commands.  After
+ *   this command is complete, the MCU shall write the next command to the
+ *   starting address of RAM_CMD.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_waitlogo(int fd);
+
+/****************************************************************************
  * Name: ft80x_ramg_write
  *
  * Description:
