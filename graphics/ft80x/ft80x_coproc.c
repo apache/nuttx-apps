@@ -118,11 +118,11 @@ int ft80x_coproc_waitlogo(int fd)
 
               return OK;
             }
-
-          /* Wait for a half a second */
-
-          (void)usleep(500 * 1000 * 1000);
         }
+
+      /* Wait for a half a second */
+
+      (void)usleep(500 * 1000 * 1000);
     }
 
   ft80x_err("ERROR:  Timed out!  Last head/tail = %u/%u\n", head, tail);
