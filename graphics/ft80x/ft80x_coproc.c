@@ -51,6 +51,13 @@
 #include "ft80x.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define HALF_SECOND  (500 * 1000)  /* 500 milliseconds (units = microseconds) */
+#define FIVE_SECONDS (5 * 2)       /* 5 seconds (units = half seconds) */
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -86,7 +93,7 @@ int ft80x_coproc_waitlogo(int fd)
    * seconds elapses.
    */
 
-  for (elapsed = 0; elapsed < 10; elapsed++)
+  for (elapsed = 0; elapsed < FIVE_SECONDS; elapsed++)
     {
       /* Read REG_CMD_WRITE */
 
@@ -122,7 +129,7 @@ int ft80x_coproc_waitlogo(int fd)
 
       /* Wait for a half a second */
 
-      (void)usleep(500 * 1000 * 1000);
+      (void)usleep(HALF_SECOND);
     }
 
   ft80x_err("ERROR:  Timed out!  Last head/tail = %u/%u\n", head, tail);

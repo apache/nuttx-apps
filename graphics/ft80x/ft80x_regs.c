@@ -51,7 +51,7 @@
 #include "ft80x.h"
 
 /****************************************************************************
- * Pre-processor Defitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Sleep for 10 MS between each REG_DLSWAP poll */
