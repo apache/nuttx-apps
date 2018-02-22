@@ -62,6 +62,126 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ft80x_coproc_send
+ *
+ * Description:
+ *   Send commands to the co-processor via the CMD RAM FIFO.  This function
+ *   will not return until the command has been consumed by the co-processor.
+ *
+ *   This function is similar to ft80x_ramcmd_append() but does not depend
+ *   on a display list.
+ *
+ *   NOTE:  This command is not appropriate use while a display is being
+ *   formed.  It is will mess up the CMD RAM FIFO offsets managed by the
+ *   display list logic.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   cmds   - A list of 32-bit commands to be sent.
+ *   ncmds  - The number of commands in the list.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_send(int fd, FAR const uint32_t *cmds, size_t ncmds)
+{
+  struct ft80x_relmem_s wrdesc;
+  FAR const uint8_t *src;
+  ssize_t remaining;
+  size_t wrsize;
+  uint16_t offset;
+  uint16_t maxsize;
+  int ret;
+
+  /* Loop until all of the display list commands have been transferred to
+   * FIFO.
+   */
+
+  src       = (FAR const uint8_t *)cmds;
+  remaining = ncmds << 2;
+
+  do
+    {
+      /* Write the number of bytes remaining to be transferred */
+
+      wrsize = remaining;
+
+      /* Get the amount of free space in the FIFO. */
+
+      maxsize = 0;
+      ret     = ft80x_ramcmd_freespace(fd, &offset, &maxsize);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_ramcmd_freespace() failed: %d\n", ret);
+          return ret;
+        }
+
+      /* If the FIFO full? */
+
+      if (maxsize == 0)
+        {
+          /* Yes.. wait a bit and try again */
+
+          ft80x_warn("WARNING: FIFO is full: %d\n", ret);
+          usleep(50 * 1000);
+          continue;
+        }
+
+      /* Limit the write size to the size of the available FIFO memory */
+
+      if (wrsize > (size_t)maxsize)
+        {
+          wrsize = (size_t)maxsize;
+        }
+
+      /* Perform the transfer */
+
+      wrdesc.offset = offset;
+      wrdesc.nbytes = wrsize;
+      wrdesc.value  = (FAR void *)src;  /* Discards 'const' qualifier */
+
+      ret = ioctl(fd, FT80X_IOC_PUTRAMCMD,
+                  (unsigned long)((uintptr_t)&wrdesc));
+      if (ret < 0)
+        {
+          int errcode = errno;
+          ft80x_err("ERROR: ioctl() FT80X_IOC_PUTRAMCMD failed: %d\n",
+                    errcode);
+          return -errcode;
+        }
+
+      /* Update the command FIFO */
+
+      ret = ft80x_putreg16(fd, FT80X_REG_CMD_WRITE, offset + wrsize);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_putreg16() failed: %d\n", ret);
+          return ret;
+        }
+
+      /* Wait for the FIFO to empty */
+
+      ret = ft80x_ramcmd_waitfifoempty(fd);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty() failed: %d\n", ret);
+          return ret;
+        }
+
+      /* Set up for the next time through the loop */
+
+      remaining -= wrsize;
+      src       += wrsize;
+    }
+  while (remaining > 0);
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_waitlogo
  *
  * Description:
@@ -84,6 +204,7 @@
 
 int ft80x_coproc_waitlogo(int fd)
 {
+  uint32_t regs[2];
   uint16_t head;
   uint16_t tail;
   int elapsed;
@@ -95,39 +216,28 @@ int ft80x_coproc_waitlogo(int fd)
 
   for (elapsed = 0; elapsed < FIVE_SECONDS; elapsed++)
     {
-      /* Read REG_CMD_WRITE */
+      /* Read both the FT80X_REG_CMD_WRITE and FT80X_REG_CMD_READ registers. */
 
-      ret = ft80x_getreg16(fd, FT80X_REG_CMD_WRITE, &head);
+      ret = ft80x_getregs(fd, FT80X_REG_CMD_READ, 2, regs);
       if (ret < 0)
         {
-          ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
+          ft80x_err("ERROR: ft80x_getregs failed: %d\n", ret);
           return ret;
         }
 
-      /* Check if FT80X_REG_CMD_WRITE is zero */
+      /* Check if both have been reset to zero. */
 
-      if (head == 0)
+      head = regs[1] & FT80X_CMDFIFO_MASK;
+      tail = regs[0] & FT80X_CMDFIFO_MASK;
+
+      if (head == 0 && tail == 0)
         {
-          /* Read REG_CMD_READ */
+          /* The animation is done! */
 
-          ret = ft80x_getreg16(fd, FT80X_REG_CMD_READ, &tail);
-          if (ret < 0)
-            {
-              ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
-              return ret;
-            }
-
-          /* If REG_CMD_READ is also zero, then we are done */
-
-          if (tail == 0)
-            {
-              /* The animation is done! */
-
-              return OK;
-            }
+          return OK;
         }
 
-      /* Wait for a half a second */
+      /* Wait for a half of a second */
 
       (void)usleep(HALF_SECOND);
     }

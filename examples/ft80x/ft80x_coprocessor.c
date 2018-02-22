@@ -2202,10 +2202,10 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Terminate the display list */
 
-  ret = ft80x_dl_end(fd, buffer);
+  ret = ft80x_dl_flush(fd, buffer, true);
   if (ret < 0)
     {
-      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
       return ret;
     }
 
@@ -2224,6 +2224,367 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_coproc_spinner
+ *
+ * Description:
+ *   Demonstrate the spinner widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_spinner_s   spinner;
+    } b;
+    struct ft80x_cmd_spinner_s     spinner;
+    struct ft80x_cmd_text_s        text;
+    struct ft80x_cmd32_s           stop;
+  } cmds;
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;                   /* Text */
+  cmds.text.x              = FT80X_DISPLAY_WIDTH / 2;
+  cmds.text.y              = 20;
+  cmds.text.font           = 27;
+  cmds.text.options        = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Spinner circle");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.y              = 80;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Please Wait ...");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.spinner.cmd        = FT80X_CMD_SPINNER;
+  cmds.spinner.x          = FT80X_DISPLAY_WIDTH / 2;
+  cmds.spinner.y          = FT80X_DISPLAY_HEIGHT / 2;
+  cmds.spinner.style      = 0;
+  cmds.spinner.scale      = 1;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Flush the local display buffer to hardware and reset the display list. */
+
+  ret = ft80x_dl_flush(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+    }
+
+  sleep(1);
+
+  /* Spinner with style 1 and scale 1 */
+  /* Start a new the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;                   /* Text */
+  cmds.text.x              = FT80X_DISPLAY_WIDTH / 2;
+  cmds.text.y              = 20;
+  cmds.text.font           = 27;
+  cmds.text.options        = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Spinner line");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.y              = 80;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Please Wait ...");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.b.colorrgb.cmd      = FT80X_COLOR_RGB(0x00, 0x00, 0x80);
+
+  cmds.b.spinner.cmd       = FT80X_CMD_SPINNER;
+  cmds.b.spinner.x         = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.spinner.y         = FT80X_DISPLAY_HEIGHT / 2;
+  cmds.b.spinner.style     = 1;
+  cmds.b.spinner.scale     = 1;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Flush the local display buffer to hardware and reset the display list. */
+
+  ret = ft80x_dl_flush(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+    }
+
+  sleep(1);
+
+  /* Start a new the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;                   /* Text */
+  cmds.text.x              = FT80X_DISPLAY_WIDTH / 2;
+  cmds.text.y              = 20;
+  cmds.text.font           = 27;
+  cmds.text.options        = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Spinner clockhand");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.y              = 80;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Please Wait ...");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.b.colorrgb.cmd      = FT80X_COLOR_RGB(0x80, 0x00, 0x00);
+
+  cmds.b.spinner.cmd       = FT80X_CMD_SPINNER;
+  cmds.b.spinner.x         = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.spinner.y         = FT80X_DISPLAY_HEIGHT / 2 + 20;
+  cmds.b.spinner.style     = 2;
+  cmds.b.spinner.scale     = 1;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Flush the local display buffer to hardware and reset the display list. */
+
+  ret = ft80x_dl_flush(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+    }
+
+  sleep(1);
+
+  /* Start a new the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd            = FT80X_CMD_TEXT;                   /* Text */
+  cmds.text.x              = FT80X_DISPLAY_WIDTH / 2;
+  cmds.text.y              = 20;
+  cmds.text.font           = 27;
+  cmds.text.options        = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Spinner two dots");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.y              = 80;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.b.colorrgb.cmd      = FT80X_COLOR_RGB(0x80, 0x00, 0x00);
+
+  cmds.b.spinner.cmd       = FT80X_CMD_SPINNER;
+  cmds.b.spinner.x         = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.spinner.y         = FT80X_DISPLAY_HEIGHT / 2 + 20;
+  cmds.b.spinner.style     = 3;
+  cmds.b.spinner.scale     = 1;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Flush the local display buffer to hardware and reset the display list. */
+
+  ret = ft80x_dl_flush(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+    }
+
+  sleep(1);
+
+  /* Send the stop command */
+
+  cmds.stop.cmd = FT80X_CMD_STOP;
+  ret = ft80x_coproc_send(fd, &cmds.stop.cmd, 1);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+      return ret;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_logo
  *
  * Description:
@@ -2238,23 +2599,14 @@ int ft80x_coproc_logo(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   struct ft80x_cmd_logo_s logo;
   int ret;
 
-  /* Enqueue the command (no display list is used) */
+  /* Send the logo command (no display list is used) */
 
   logo.cmd = FT80X_CMD_LOGO;
- 
-  ret = ft80x_dl_data(fd, buffer, &logo, sizeof(struct ft80x_cmd_logo_s));
+
+  ret = ft80x_coproc_send(fd, &logo.cmd, 1);
   if (ret < 0)
     {
-      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-      return ret;
-    }
-
-  /* Flush the command to hardware */
-
-  ret = ft80x_dl_flush(fd, buffer);
-  if (ret < 0)
-    {
-      ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
+      ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
       return ret;
     }
 

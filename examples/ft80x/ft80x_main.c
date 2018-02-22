@@ -75,11 +75,11 @@ struct ft80x_exampleinfo_s
  *  ft80x_prim_linestrip   LINE_STRIP      Line strip drawing primitive
  *  ft80x_prim_edgestrip_r EDGE_STRIP_R    Edge strip right side drawing
                                            primitive
- *  --None--               EDGE_STRIP_L    Edge strip left side drawing
+ *  (To be provided)       EDGE_STRIP_L    Edge strip left side drawing
                                            primitive
- *  --None--               EDGE_STRIP_A    Edge strip above side drawing
+ *  (To be provided)       EDGE_STRIP_A    Edge strip above side drawing
                                            primitive
- *  --None--               EDGE_STRIP_B    Edge strip below side drawing
+ *  (To be provided)       EDGE_STRIP_B    Edge strip below side drawing
                                            primitive
  *  ft80x_prim_rectangles  RECTS           Rectangle drawing primitive
  *  ft80x_prim_scissor     SCISSOR         Scissor primitive
@@ -109,9 +109,9 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  FUNCTION                 CoProc CMD USED DESCRIPTION
  *  ------------------------ --------------- ----------------------------------
  *  ft80x_coproc_button      CMD_BUTTON      Draw a button
- *  --None--                 CMD_CLOCK       Draw an analog clock
- *  --None--                 CMD_GAUGE       Draw a gauge
- *  --None--                 CMD_KEYS        Draw a row of keys
+ *  (To be provided)         CMD_CLOCK       Draw an analog clock
+ *  (To be provided)         CMD_GAUGE       Draw a gauge
+ *  (To be provided)         CMD_KEYS        Draw a row of keys
  *  ft80x_coproc_progressbar CMD_PROGRESS    Draw a progress bar
  *  ft80x_coproc_scrollbar   CMD_SCROLLBAR   Draw a scroll bar
  *  ft80x_coproc_slider      CMD_SLIDER      Draw a slider
@@ -120,10 +120,10 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  ft80x_coproc_number      CMD_NUMBER      Draw a decimal number
  *  ft80x_coproc_calibrate   CMD_CALIBRATE   Execute the touch screen
                                              calibration routine
- *  --None--                 CMD_SPINNER     Start an animated spinner
- *  --None--                 CMD_SCREENSAVER Start an animated screensaver
- *  --None--                 CMD_SKETCH      Start a continuous sketch update
- *  --None--                 CMD_SNAPSHOT    Take a snapshot of the current
+ *  ft80x_coproc_spinner     CMD_SPINNER     Start an animated spinner
+ *  (To be provided)         CMD_SCREENSAVER Start an animated screensaver
+ *  (To be provided)         CMD_SKETCH      Start a continuous sketch update
+ *  (To be provided)         CMD_SNAPSHOT    Take a snapshot of the current
                                              screen
  *  ft80x_coproc_logo        CMD_LOGO        Play device log animation
  */
@@ -138,6 +138,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Toggle",         ft80x_coproc_toggle },
   { "Number",         ft80x_coproc_number },
   { "Calibrate",      ft80x_coproc_calibrate },
+  { "Spinner",        ft80x_coproc_spinner },
   { "Logo",           ft80x_coproc_logo }
 };
 

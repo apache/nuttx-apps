@@ -98,6 +98,8 @@
 #  endif
 #endif
 
+#define FT80X_CMDFIFO_MASK  (FT80X_CMDFIFO_SIZE - 1)
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -256,6 +258,28 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                         FAR const void *data, size_t len);
 
 /****************************************************************************
+ * Name: ft80x_ramcmd_freespace
+ *
+ * Description:
+ *   Return the free space in RAM CMD memory
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   offset - Pointer to location to return the write offset to use if the
+ *            FIFO is not full.
+ *   avail  - Pointer to location to return the FIFO free space
+ *
+ * Returned Value:
+ *   The (positive) number of free bytes in RAM CMD on success.  A negated
+ *   errno value is returned on any failure.
+ *
+ ****************************************************************************/
+
+uint16_t ft80x_ramcmd_freespace(int fd, FAR uint16_t *offset,
+                                FAR uint16_t *avail);
+
+/****************************************************************************
  * Name: ft80x_ramcmd_waitfifoempty
  *
  * Description:
@@ -265,14 +289,13 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_ramcmd_waitfifoempty(int fd);
 
 /****************************************************************************
  * Name: ft80x_dl_swap

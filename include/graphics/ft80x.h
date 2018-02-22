@@ -67,7 +67,6 @@ struct ft80x_dlbuffer_s
   bool coproc;       /* True: Use co-processor FIFO; false: Use DL memory */
   uint16_t dlsize;   /* Total sizeof the display list written to hardware */
   uint16_t dloffset; /* The number display list bytes buffered locally */
-  uint16_t hwoffset; /* Initial offset into FIFO memory */
   uint32_t dlbuffer[FT80X_DL_BUFWORDS];
 };
 
@@ -89,7 +88,7 @@ extern "C"
  * Description:
  *   Start a new display list.  This function will:
  *
- *   1) Set the total display size to zero
+ *   1) Set the total display list size to zero
  *   2) Set the display list buffer offset to zero
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
@@ -202,13 +201,16 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller with
  *            write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   wait   - True: wait until data has been consumed by the co-processor
+ *            (only for co-processor destination); false:  Send to hardware
+ *            and return immediately.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool wait);
 
 /****************************************************************************
  * Name: ft80x_dl_create
@@ -237,6 +239,30 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                     FAR const uint32_t *cmds, unsigned int nwords,
                     bool coproc);
+
+/****************************************************************************
+ * Name: ft80x_coproc_send
+ *
+ * Description:
+ *   Send commands to the co-processor via the CMD RAM FIFO.  This function
+ *   will not return until the command has been consumed by the co-processor.
+ *
+ *   NOTE:  This command is not appropriate use while a display is being
+ *   formed.  It is will mess up the CMD RAM FIFO offsets managed by the
+ *   display list logic.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   cmds   - A list of 32-bit commands to be sent.
+ *   ncmds  - The number of commands in the list.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_send(int fd, FAR const uint32_t *cmds, size_t ncmds);
 
 /****************************************************************************
  * Name: ft80x_coproc_waitlogo

@@ -174,7 +174,7 @@ static int ft80x_dl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  * Description:
  *   Start a new display list.  This function will:
  *
- *   1) Set the total display size to zero
+ *   1) Set the total display list size to zero
  *   2) Set the display list buffer offset to zero
  *   3) Reposition the VFS so that subsequent writes will be to the
  *      beginning of the hardware display list.
@@ -201,14 +201,13 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool coproc)
   ft80x_info("fd=%d buffer=%p\n", fd, buffer);
   DEBUGASSERT(fd >= 0 && buffer != NULL);
 
-  /* 1) Set the total display size to zero
+  /* 1) Set the total display list size to zero
    * 2) Set the display list buffer offset to zero
    */
 
   buffer->coproc   = coproc;
   buffer->dlsize   = 0;
   buffer->dloffset = 0;
-  buffer->hwoffset = 0;
 
   if (!coproc)
     {
@@ -224,26 +223,16 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool coproc)
     }
   else
     {
-      /* Get the initial RAM CMD FIFO offset */
+      /* 4) Write the CMD_DLSTART command into the local display list
+       *    buffer. (Only for co-processor commands)
+       */
 
-      ret = ft80x_getreg16(fd, FT80X_REG_CMD_READ, &buffer->hwoffset);
+      dlstart.cmd = FT80X_CMD_DLSTART;
+      ret = ft80x_dl_data(fd, buffer, &dlstart,
+                          sizeof(struct ft80x_cmd_dlstart_s));
       if (ret < 0)
         {
-          ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
-        }
-      else
-        {
-          /* 4) Write the CMD_DLSTART command into the local display list
-           *    buffer. (Only for co-processor commands)
-           */
-
-          dlstart.cmd = FT80X_CMD_DLSTART;
-          ret = ft80x_dl_data(fd, buffer, &dlstart,
-                              sizeof(struct ft80x_cmd_dlstart_s));
-          if (ret < 0)
-            {
-              ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-            }
+          ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
         }
     }
 
@@ -318,7 +307,7 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
    *    buffer offset to zero.
    */
 
-  ret = ft80x_dl_flush(fd, buffer);
+  ret = ft80x_dl_flush(fd, buffer, false);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
@@ -342,7 +331,7 @@ int ft80x_dl_end(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   if (buffer->coproc)
     {
-      ret = ft80x_ramcmd_waitfifoempty(fd, buffer);
+      ret = ft80x_ramcmd_waitfifoempty(fd);
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty failed: %d\n", ret);
@@ -404,7 +393,7 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
         {
           /* No... flush the local buffer */
 
-          ret = ft80x_dl_flush(fd, buffer);
+          ret = ft80x_dl_flush(fd, buffer, false);
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
@@ -548,7 +537,7 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     {
       /* No... flush the local buffer */
 
-      ret = ft80x_dl_flush(fd, buffer);
+      ret = ft80x_dl_flush(fd, buffer, false);
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_flush failed: %d\n", ret);
@@ -634,13 +623,16 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller with
  *            write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   wait   - True: wait until data has been consumed by the co-processor
+ *            (only for co-processor destination); false:  Send to hardware
+ *            and return immediately.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool wait)
 {
   int ret;
 
@@ -657,6 +649,21 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   buffer->dloffset = 0;
+
+  /* For the case of the co-processor RAM CMD, it will also wait for the
+   * FIFO to be emptied if wait == true.
+   */
+
+  if (wait && buffer->coproc)
+    {
+      ret = ft80x_ramcmd_waitfifoempty(fd);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty failed: %d\n", ret);
+          return ret;
+        }
+    }
+
   return OK;
 }
 

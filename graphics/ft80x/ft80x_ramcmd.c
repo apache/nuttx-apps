@@ -52,108 +52,6 @@
 #include "ft80x.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define FT80X_CMDFIFO_MASK    (FT80X_CMDFIFO_SIZE - 1)
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: ft80x_ramcmd_offset
- *
- * Description:
- *   Return the offset to next unused location in RAM CMD
- *
- * Input Parameters:
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
- *
- * Returned Value:
- *   The offset to the next unused location in RAM CMD.
- *
- ****************************************************************************/
-
-static inline uint16_t ft80x_ramcmd_offset(FAR struct ft80x_dlbuffer_s *buffer)
-{
-  register uint32_t tmp = buffer->dlsize + buffer->hwoffset;
-  return  (uint16_t)(tmp & FT80X_CMDFIFO_MASK);
-}
-
-/****************************************************************************
- * Name: ft80x_ramcmd_fifopos
- *
- * Description:
- *   Return the current FIFO position RAM CMD
- *
- * Input Parameters:
- *   fd  - The file descriptor of the FT80x device.  Opened by the caller
- *         with write access.
- *   pos - Pointer to location to return the FIFO position
- *
- * Returned Value:
- *   The current FIFO position in RAM CMD.
- *
- ****************************************************************************/
-
-static inline int ft80x_ramcmd_fifopos(int fd, FAR uint16_t *pos)
-{
-  int ret = ft80x_getreg16(fd, FT80X_REG_CMD_READ, pos);
-  if (ret < 0)
-    {
-      ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
-    }
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: ft80x_ramcmd_freespace
- *
- * Description:
- *   Return the free space in RAM CMD memory
- *
- * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
- *   avail  - Pointer to location to return the FIFO free space
- *
- * Returned Value:
- *   The (positive) number of free bytes in RAM CMD on success.  A negated
- *   errno value is returned on any failure.
- *
- ****************************************************************************/
-
-static uint16_t ft80x_ramcmd_freespace(int fd,
-                                       FAR struct ft80x_dlbuffer_s *buffer,
-                                       FAR uint16_t *avail)
-{
-  uint16_t head;
-  uint16_t tail;
-  int ret;
-
-  /* Index to the next available location in RAM CMD */
-
-  head = ft80x_ramcmd_offset(buffer);
-
-  /* The index to next unconsumed value in RAM CMD */
-
-  ret = ft80x_ramcmd_fifopos(fd, &tail);
-  if (ret < 0)
-    {
-      ft80x_err("ERROR: ft80x_ramcmd_fifopos failed: %d\n", ret);
-      return ret;
-    }
-
-  /* Return the free space in the FIFO.  NOTE that 4 bytes are not available */
-
-  *avail = (FT80X_CMDFIFO_SIZE - 4) - ((head - tail) & FT80X_CMDFIFO_MASK);
-  return OK;
-}
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -180,8 +78,9 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 {
   struct ft80x_relmem_s wrdesc;
   FAR const uint8_t *src;
-  ssize_t remaining = 0;
-  size_t wrsize = 0;
+  ssize_t remaining;
+  size_t wrsize;
+  uint16_t offset;
   uint16_t maxsize;
   int ret;
 
@@ -201,7 +100,7 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       /* Get the amount of free space in the FIFO. */
 
       maxsize = 0;
-      ret     = ft80x_ramcmd_freespace(fd, buffer, &maxsize);
+      ret     = ft80x_ramcmd_freespace(fd, &offset, &maxsize);
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_ramcmd_freespace() failed: %d\n", ret);
@@ -217,7 +116,7 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       if (maxsize == 0)
         {
-          ft80x_err("ERROR: ft80x_ramcmd_freespace() failed: %d\n", ret);
+          ft80x_err("ERROR: FIFO is full: %d\n", ret);
           return -ENOSPC;
         }
 
@@ -230,7 +129,7 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       /* Perform the transfer */
 
-      wrdesc.offset = ft80x_ramcmd_offset(buffer);
+      wrdesc.offset = offset;
       wrdesc.nbytes = wrsize;
       wrdesc.value  = (FAR void *)src;  /* Discards 'const' qualifier */
 
@@ -246,30 +145,75 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       /* Update the command FIFO */
 
-      buffer->dlsize += wrsize;
-      ret = ft80x_putreg16(fd, FT80X_REG_CMD_WRITE,
-                           ft80x_ramcmd_offset(buffer));
+      ret = ft80x_putreg16(fd, FT80X_REG_CMD_WRITE, offset + wrsize);
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_putreg16() failed: %d\n", ret);
           return ret;
         }
 
-      /* Wait for the FIFO to empty */
+      /* Wait for the FIFO to empty if there is more to be sent */
 
-      ret = ft80x_ramcmd_waitfifoempty(fd, buffer);
-      if (ret < 0)
+      if (remaining > wrsize)
         {
-          ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty() failed: %d\n", ret);
-          return ret;
+          ret = ft80x_ramcmd_waitfifoempty(fd);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty() failed: %d\n",
+                        ret);
+              return ret;
+            }
         }
 
       /* Set up for the next time through the loop */
 
-      remaining -= wrsize;
+      buffer->dlsize += wrsize;
+      remaining      -= wrsize;
+      src            += wrsize;
     }
   while (remaining > 0);
 
+  return OK;
+}
+
+/****************************************************************************
+ * Name: ft80x_ramcmd_freespace
+ *
+ * Description:
+ *   Return the free space in RAM CMD memory
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   offset - Pointer to location to return the write offset to use if the
+ *            FIFO is not full.
+ *   avail  - Pointer to location to return the FIFO free space
+ *
+ * Returned Value:
+ *   The (positive) number of free bytes in RAM CMD on success.  A negated
+ *   errno value is returned on any failure.
+ *
+ ****************************************************************************/
+
+uint16_t ft80x_ramcmd_freespace(int fd, FAR uint16_t *offset,
+                                FAR uint16_t *avail)
+{
+  uint32_t regs[2];
+  int ret;
+
+  /* Read both the FT80X_REG_CMD_WRITE and FT80X_REG_CMD_READ registers. */
+
+  ret = ft80x_getregs(fd, FT80X_REG_CMD_READ, 2, regs);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getregs failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Return the free space in the FIFO.  NOTE that 4 bytes are not available */
+
+  *offset = regs[1] & FT80X_CMDFIFO_MASK;
+  *avail  = (FT80X_CMDFIFO_SIZE - 4) - ((regs[1] - regs[0]) & FT80X_CMDFIFO_MASK);
   return OK;
 }
 
@@ -283,18 +227,18 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_ramcmd_waitfifoempty(int fd)
 {
   struct ft80x_notify_s notify;
   struct timespec timeout;
   sigset_t set;
+  uint32_t regs[2];
   uint16_t head;
   uint16_t tail;
   int ret;
@@ -320,21 +264,19 @@ int ft80x_ramcmd_waitfifoempty(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   for (; ; )
     {
+      /* Read both the FT80X_REG_CMD_WRITE and FT80X_REG_CMD_READ registers. */
+
+      ret = ft80x_getregs(fd, FT80X_REG_CMD_READ, 2, regs);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_getregs failed: %d\n", ret);
+          return ret;
+        }
+
       /* Check if the FIFO is already empty */
 
-      ret = ft80x_getreg16(fd, FT80X_REG_CMD_WRITE, &head);
-      if (ret < 0)
-        {
-          ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
-          break;
-        }
-
-      ret = ft80x_getreg16(fd, FT80X_REG_CMD_READ, &tail);
-      if (ret < 0)
-        {
-          ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
-          break;
-        }
+      head = regs[1] & FT80X_CMDFIFO_MASK;
+      tail = regs[0] & FT80X_CMDFIFO_MASK;
 
       ft80x_info("head=%u tail=%u\n", head, tail);
 
