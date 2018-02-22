@@ -1381,6 +1381,437 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_coproc_keys
+ *
+ * Description:
+ *   Demonstrate the keys widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  int16_t font;
+  int16_t width;
+  int16_t height;
+  int16_t ydist;
+  int16_t yoffset;
+  int16_t xoffset;
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_keys_s      keys;
+    } b;
+    struct
+    {
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_gradcolor_s gradcolor;
+      struct ft80x_cmd_keys_s      keys;
+    } c;
+    struct
+    {
+      struct ft80x_cmd_gradcolor_s gradcolor;
+      struct ft80x_cmd_keys_s      keys;
+    } d;
+    struct
+    {
+      struct ft80x_cmd32_s         colora;
+      struct ft80x_cmd_keys_s      keys;
+    } e;
+    struct ft80x_cmd_keys_s        keys;
+    struct ft80x_cmd_button_s      button;
+    struct ft80x_cmd_text_s        text;
+  } cmds;
+
+#ifdef CONFIG_LCD_FT80X_QVGA
+    font                 = 27;
+    width                = 22;
+    height               = 22;
+    ydist                = 3;
+#else
+    font                 = 29;
+    width                = 30;
+    height               = 30;
+    ydist                = 5;
+#endif
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd    = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd       = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd    = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  /* Copy the commands into the display list */
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw keys with flat effect */
+
+  cmds.b.fgcolor.cmd     = FT80X_CMD_FGCOLOR;               /* Foreground color */
+  cmds.b.fgcolor.c       = 0x404080;
+
+  cmds.b.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.b.keys.x          = 10;
+  cmds.b.keys.y          = 10;
+  cmds.b.keys.w          = 4 * width;
+  cmds.b.keys.h          = 30;
+  cmds.b.keys.font       = font;
+  cmds.b.keys.options    = FT80X_OPT_FLAT;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABCD");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
+  cmds.text.x            = 20;
+  cmds.text.y            = 40;
+  cmds.text.font         = 26;
+  cmds.text.options      = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Flat effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw keys with 3d effect */
+
+  xoffset                = 4 * width + 20;
+
+  cmds.b.fgcolor.cmd     = FT80X_CMD_FGCOLOR;               /* Foreground color */
+  cmds.b.fgcolor.c       = 0x800000;
+
+  cmds.b.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.b.keys.x          = xoffset;
+  cmds.b.keys.y          = 10;
+  cmds.b.keys.w          = 4 * width;
+  cmds.b.keys.h          = 30;
+  cmds.b.keys.font       = font;
+  cmds.b.keys.options    = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABCD");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd          = FT80X_CMD_TEXT;                  /* Text */
+  cmds.text.x            = xoffset;
+  cmds.text.y            = 40;
+  cmds.text.font         = 26;
+  cmds.text.options      = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "3D effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw keys with center option */
+
+  xoffset               += 4*width + 20;
+
+  cmds.b.fgcolor.cmd     = FT80X_CMD_FGCOLOR;               /* Foreground color */
+  cmds.b.fgcolor.c       = 0xffff000;
+
+  cmds.b.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.b.keys.x          = xoffset;
+  cmds.b.keys.y          = 10;
+  cmds.b.keys.w          = FT80X_DISPLAY_WIDTH - 230;
+  cmds.b.keys.h          = 30;
+  cmds.b.keys.font       = font;
+  cmds.b.keys.options    = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "ABCD");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.text.cmd           = FT80X_CMD_TEXT;                 /* Text */
+  cmds.text.x             = 20;
+  cmds.text.y             = 40;
+  cmds.text.font          = 26;
+  cmds.text.options       = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.text, sizeof(cmds.text));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Option Center");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Construct a simple keyboard - note that the tags associated with the
+   * keys are the character values given in the arguments.
+   */
+
+  yoffset                = 80 + 10;
+
+  cmds.c.fgcolor.cmd     = FT80X_CMD_FGCOLOR;               /* Foreground color */
+  cmds.c.fgcolor.c       = 0x404080;
+
+  cmds.c.gradcolor.cmd   = FT80X_CMD_GRADCOLOR;             /* Gradient color */
+  cmds.c.gradcolor.c     = 0x00ff00;
+
+  cmds.c.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.c.keys.x          = ydist;
+  cmds.c.keys.y          = yoffset;
+  cmds.c.keys.w          = 10 * width;
+  cmds.c.keys.h          = height;
+  cmds.c.keys.font       = font;
+  cmds.c.keys.options    = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "qwertyuiop");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset += height + ydist;
+
+  cmds.d.gradcolor.cmd   = FT80X_CMD_GRADCOLOR;             /* Gradient color */
+  cmds.d.gradcolor.c     = 0x00ffff;
+
+  cmds.d.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.d.keys.x          = ydist;
+  cmds.d.keys.y          = yoffset;
+  cmds.d.keys.w          = 10 * width;
+  cmds.d.keys.h          = height;
+  cmds.d.keys.font       = font;
+  cmds.d.keys.options    = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "asdfghijkl");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset               += height + ydist;
+
+  cmds.d.gradcolor.c     = 0xffff00;
+  cmds.d.keys.y          = yoffset;
+  cmds.d.keys.options    = FT80X_OPT_CENTER | 'z';
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "zxcvbnm");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.button.cmd        = FT80X_CMD_BUTTON;
+  cmds.button.x          = xoffset;
+  cmds.button.y          = yoffset;
+  cmds.button.w          = width;
+  cmds.button.h          = height;
+  cmds.button.font       = 28;
+  cmds.button.options    = FT80X_OPT_FLAT;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.button, sizeof(cmds.button));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, " ");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset                = 80 + 10;
+
+  cmds.keys.cmd          = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.keys.x            = 11 * width;
+  cmds.keys.y            = yoffset;
+  cmds.keys.w            = 3 * width;
+  cmds.keys.h            = height;
+  cmds.keys.font         = font;
+  cmds.keys.options      = 0;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.keys, sizeof(cmds.keys));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "789");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset               += height + ydist;
+  cmds.keys.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.keys, sizeof(cmds.keys));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "456");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset               += height + ydist;
+  cmds.keys.y            = yoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.keys, sizeof(cmds.keys));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "123");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  yoffset               += height + ydist;
+
+  cmds.e.colora.cmd      = FT80X_COLOR_A(255);
+
+  cmds.e.keys.cmd        = FT80X_CMD_KEYS;                  /* Keys */
+  cmds.e.keys.x          = 11 * width;
+  cmds.e.keys.y          = yoffset;
+  cmds.e.keys.w          = 3 * width;
+  cmds.e.keys.h          = height;
+  cmds.e.keys.font       = font;
+  cmds.e.keys.options    = 0 | '0';
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "0.");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Finally, terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_progressbar
  *
  * Description:
