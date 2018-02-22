@@ -154,6 +154,8 @@ int ft80x_prim_alphablend(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 /* Co-processor display examples */
 
 int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer);

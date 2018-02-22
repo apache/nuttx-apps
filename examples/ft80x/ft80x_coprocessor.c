@@ -515,6 +515,872 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_coproc_clock
+ *
+ * Description:
+ *   Demonstrate the clock widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
+  int16_t xoffset;
+  int16_t yoffset;
+  int16_t radius;
+  int16_t xdist;
+
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_clock_s     clock;
+      struct ft80x_cmd_text_s      text;
+    } b;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_clock_s     clock;
+      struct ft80x_cmd32_s         colora;
+      struct ft80x_cmd_text_s      text;
+    } c;
+    struct
+    {
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_clock_s     clock;
+    } d;
+    struct
+    {
+      struct ft80x_cmd32_s         linewidth;
+      struct ft80x_cmd32_s         colorrgb1;
+      struct ft80x_cmd32_s         begin1;
+      struct ft80x_cmd32_s         vertex2f1;
+      struct ft80x_cmd32_s         vertex2f2;
+      struct ft80x_cmd32_s         end1;
+      struct ft80x_cmd32_s         colora;
+      struct ft80x_cmd32_s         colorrgb2;
+      struct ft80x_cmd32_s         colormask1;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         begin2;
+      struct ft80x_cmd32_s         vertex2f3;
+      struct ft80x_cmd32_s         vertex2f4;
+      struct ft80x_cmd32_s         end2;
+      struct ft80x_cmd32_s         colormask2;
+      struct ft80x_cmd32_s         blend;
+    } e;
+    struct
+    {
+      struct ft80x_cmd_loadidentity_s loadidentity1;
+      struct ft80x_cmd_scale_s     scale;
+      struct ft80x_cmd_setmatrix_s setmatrix1;
+      struct ft80x_cmd32_s         begin;
+      struct ft80x_cmd32_s         bitmapsource;
+      struct ft80x_cmd32_s         bitmaplayout;
+      struct ft80x_cmd32_s         bitmapsize;
+      struct ft80x_cmd32_s         vertex2f;
+      struct ft80x_cmd32_s         end;
+      struct ft80x_cmd32_s         blend;
+      struct ft80x_cmd_loadidentity_s loadidentity2;
+      struct ft80x_cmd_setmatrix_s setmatrix2;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_clock_s     clock;
+    } f;
+  } cmds;
+
+  xdist  = FT80X_DISPLAY_WIDTH / 5;
+  radius = xdist / 2 - FT80X_DISPLAY_WIDTH / 64;
+
+  /* Copy the image into graphics ram for the Lena faced clock */
+
+  ret = ft80x_ramg_write(fd, 0, bmhdr->data, bmhdr->stride * bmhdr->height);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_ramg_write() failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd     = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd        = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  /* Copy the commands into the display list */
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw clock with blue as background and read as needle color */
+  /* Flat effect and default color background */
+
+  xoffset                 = xdist / 2;
+  yoffset                 = radius + 5;
+
+  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.b.bgcolor.c        = 0x0000ff;
+
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
+
+  cmds.b.clock.cmd        = FT80X_CMD_CLOCK;                  /* Clock */
+  cmds.b.clock.x          = xoffset;
+  cmds.b.clock.y          = yoffset;
+  cmds.b.clock.r          = radius;
+  cmds.b.clock.options    = FT80X_OPT_FLAT;
+  cmds.b.clock.h          = 30;
+  cmds.b.clock.m          = 100;
+  cmds.b.clock.s          = 5;
+  cmds.b.clock.ms         = 10;
+
+  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.b.text.x           = xoffset;
+  cmds.b.text.y           = yoffset + radius + 6;
+  cmds.b.text.font        = 26;
+  cmds.b.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Flat effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No seconds needle */
+
+  xoffset                += xdist;
+
+  cmds.c.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.c.bgcolor.c        = 0x00ff00;
+
+  cmds.c.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
+
+  cmds.c.fgcolor.cmd      = FT80X_CMD_FGCOLOR;
+  cmds.c.fgcolor.c        = 0xff0000;
+
+  cmds.c.clock.cmd        = FT80X_CMD_CLOCK;                  /* Clock */
+  cmds.c.clock.x          = xoffset;
+  cmds.c.clock.y          = yoffset;
+  cmds.c.clock.r          = radius;
+  cmds.c.clock.options    = FT80X_OPT_NOSECS;
+  cmds.c.clock.h          = 10;
+  cmds.c.clock.m          = 10;
+  cmds.c.clock.s          = 5;
+  cmds.c.clock.ms         = 10;
+
+  cmds.c.colora.cmd       = FT80X_COLOR_A(255);               /* Color A */
+
+  cmds.c.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.c.text.x           = xoffset;
+  cmds.c.text.y           = yoffset + radius + 6;
+  cmds.c.text.font        = 26;
+  cmds.c.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No Secs");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No background color */
+
+  xoffset                += xdist;
+
+  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.b.bgcolor.c        = 0x00ffff;
+
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0x00);
+
+  cmds.b.clock.cmd        = FT80X_CMD_CLOCK;                  /* Clock */
+  cmds.b.clock.x          = xoffset;
+  cmds.b.clock.y          = yoffset;
+  cmds.b.clock.r          = radius;
+  cmds.b.clock.options    = FT80X_OPT_NOBACK;
+  cmds.b.clock.h          = 10;
+  cmds.b.clock.m          = 10;
+  cmds.b.clock.s          = 5;
+  cmds.b.clock.ms         = 10;
+
+  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.b.text.x           = xoffset;
+  cmds.b.text.y           = yoffset + radius + 6;
+  cmds.b.text.font        = 26;
+  cmds.b.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No BG");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No ticks */
+
+  xoffset                += xdist;
+
+  cmds.b.bgcolor.c        = 0xff00ff;
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xff, 0xff);
+  cmds.b.clock.x          = xoffset;
+  cmds.b.clock.options    = FT80X_OPT_NOTICKS;
+  cmds.b.text.x           = xoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No Ticks");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No hands */
+
+  xoffset                += xdist;
+
+  cmds.b.bgcolor.c        = 0x808080;
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xff, 0x00);
+  cmds.b.clock.x          = xoffset;
+  cmds.b.clock.options    = FT80X_OPT_NOHANDS;
+  cmds.b.text.x           = xoffset;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No Hands");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Bigger clock */
+
+  yoffset                += radius + 10;
+  radius                  = FT80X_DISPLAY_HEIGHT - (2 * radius + 5 + 10);
+  radius                  = (radius - 5 - 20) / 2;
+  xoffset                 = radius + 10;
+  yoffset                += radius + 5;
+
+  cmds.d.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0x00, 0xff);
+
+  cmds.d.clock.cmd        = FT80X_CMD_CLOCK;                  /* Clock */
+  cmds.d.clock.x          = xoffset;
+  cmds.d.clock.y          = yoffset;
+  cmds.d.clock.r          = radius;
+  cmds.d.clock.options    = 0;
+  cmds.d.clock.h          = 10;
+  cmds.d.clock.m          = 10;
+  cmds.d.clock.s          = 5;
+  cmds.d.clock.ms         = 10;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Lena clock with no background and no ticks */
+
+  xoffset                += 2 * radius + 10;
+
+  cmds.e.linewidth.cmd    = FT80X_LINE_WIDTH(10 * 16);
+  cmds.e.colorrgb1.cmd    = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+  cmds.e.begin1.cmd       = FT80X_BEGIN(FT80X_PRIM_RECTS);
+  cmds.e.vertex2f1.cmd    = FT80X_VERTEX2F((xoffset - radius + 10) * 16,
+                                           (yoffset - radius + 10) * 16);
+  cmds.e.vertex2f2.cmd    = FT80X_VERTEX2F((xoffset + radius - 10) * 16,
+                                           (yoffset + radius - 10) * 16);
+  cmds.e.end1.cmd         = FT80X_END();
+  cmds.e.colora.cmd       = FT80X_COLOR_A(0xff);
+  cmds.e.colorrgb2.cmd    = FT80X_COLOR_RGB(0xff,0xff,0xff);
+  cmds.e.colormask1.cmd   = FT80X_COLOR_MASK(0, 0, 0, 1);
+  cmds.e.clear.cmd        = FT80X_CLEAR(1, 1, 1);
+  cmds.e.begin2.cmd       = FT80X_BEGIN(FT80X_PRIM_RECTS);
+  cmds.e.vertex2f3.cmd    = FT80X_VERTEX2F((xoffset - radius + 12) * 16,
+                                           (yoffset - radius + 12) * 16);
+  cmds.e.vertex2f4.cmd   = FT80X_VERTEX2F((xoffset + radius - 12) * 16,
+                                           (yoffset + radius - 12) * 16);
+  cmds.e.end2.cmd        = FT80X_END();
+  cmds.e.colormask2.cmd  = FT80X_COLOR_MASK(1, 1, 1, 1);
+  cmds.e.blend.cmd       = FT80X_BLEND_FUNC(FT80X_BLEND_DST_ALPHA,
+                                            FT80X_BLEND_ONE_MINUS_DST_ALPHA);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Lena bitmap - scale proportionately wrt output resolution */
+
+  cmds.f.loadidentity1.cmd = FT80X_CMD_LOADIDENTITY;
+
+  cmds.f.scale.cmd         = FT80X_CMD_SCALE;
+  cmds.f.scale.sx          = (65536 * 2 * radius) / bmhdr->width;
+  cmds.f.scale.sy          = (65536 * 2 * radius) / bmhdr->height;
+
+  cmds.f.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
+
+  cmds.f.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.f.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
+  cmds.f.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+                                                 bmhdr->height);
+  cmds.f.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
+                                               FT80X_WRAP_BORDER,
+                                               FT80X_WRAP_BORDER,
+                                               2 * radius, 2 * radius);
+  cmds.f.vertex2f.cmd      = FT80X_VERTEX2F((xoffset - radius) * 16,
+                                            (yoffset - radius) * 16);
+  cmds.f.end.cmd           = FT80X_END();
+  cmds.f.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_SRC_ALPHA,
+                                              FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
+  cmds.f.loadidentity2.cmd = FT80X_CMD_LOADIDENTITY;
+  cmds.f.setmatrix2.cmd    = FT80X_CMD_SETMATRIX;
+  cmds.f.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  cmds.f.clock.cmd         = FT80X_CMD_CLOCK;                  /* Clock */
+  cmds.f.clock.x           = xoffset;
+  cmds.f.clock.y           = yoffset;
+  cmds.f.clock.r           = radius;
+  cmds.f.clock.options     = FT80X_OPT_NOTICKS | FT80X_OPT_NOBACK;
+  cmds.f.clock.h           = 10;
+  cmds.f.clock.m           = 10;
+  cmds.f.clock.s           = 5;
+  cmds.f.clock.ms          = 10;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Finally, terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: ft80x_coproc_gauge
+ *
+ * Description:
+ *   Demonstrate the gauge widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
+  int16_t xoffset;
+  int16_t yoffset;
+  int16_t radius;
+  int16_t xdist;
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s        clearrgb;
+      struct ft80x_cmd32_s        clear;
+      struct ft80x_cmd32_s        colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_gauge_s     gauge;
+      struct ft80x_cmd_text_s      text;
+    } b;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_fgcolor_s   fgcolor;
+      struct ft80x_cmd_gauge_s     gauge;
+      struct ft80x_cmd_text_s      text;
+    } c;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_gauge_s     gauge;
+      struct ft80x_cmd32_s         colora;
+      struct ft80x_cmd_text_s      text;
+    } d;
+    struct
+    {
+      struct ft80x_cmd_bgcolor_s   bgcolor;
+      struct ft80x_cmd32_s         colorrgb1;
+      struct ft80x_cmd_gauge_s     gauge1;
+      struct ft80x_cmd32_s         colorrgb2;
+      struct ft80x_cmd_gauge_s     gauge2;
+    } e;
+    struct
+    {
+      struct ft80x_cmd32_s         pointsize1;
+      struct ft80x_cmd32_s         colorrgb1;
+      struct ft80x_cmd32_s         begin1;
+      struct ft80x_cmd32_s         vertex2f1;
+      struct ft80x_cmd32_s         end1;
+      struct ft80x_cmd32_s         colora;
+      struct ft80x_cmd32_s         colorrgb2;
+      struct ft80x_cmd32_s         colormask1;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         begin2;
+      struct ft80x_cmd32_s         pointsize2;
+      struct ft80x_cmd32_s         vertex2f2;
+      struct ft80x_cmd32_s         end2;
+      struct ft80x_cmd32_s         colormask2;
+      struct ft80x_cmd32_s         blend;
+    } f;
+    struct
+    {
+      struct ft80x_cmd_loadidentity_s loadidentity1;
+      struct ft80x_cmd_scale_s     scale;
+      struct ft80x_cmd_setmatrix_s setmatrix1;
+      struct ft80x_cmd32_s         begin;
+      struct ft80x_cmd32_s         bitmapsource;
+      struct ft80x_cmd32_s         bitmaplayout;
+      struct ft80x_cmd32_s         bitmapsize;
+      struct ft80x_cmd32_s         vertex2f;
+      struct ft80x_cmd32_s         end;
+      struct ft80x_cmd32_s         blend;
+      struct ft80x_cmd_loadidentity_s loadidentity2;
+      struct ft80x_cmd_setmatrix_s setmatrix2;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd_gauge_s     gauge;
+    } g;
+  } cmds;
+
+  xdist  = FT80X_DISPLAY_WIDTH / 5;
+  radius = xdist / 2 - FT80X_DISPLAY_WIDTH / 64;
+
+  /* Copy the image into graphics ram for the Lena faced gauge */
+
+  ret = ft80x_ramg_write(fd, 0, bmhdr->data, bmhdr->stride * bmhdr->height);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_ramg_write() failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd     = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
+  cmds.a.clear.cmd        = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  /* Copy the commands into the display list */
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Draw gauge with blue as background and read as needle color */
+  /* Flat effect and default color background */
+
+  xoffset                 = xdist / 2;
+  yoffset                 = radius + 5;
+
+  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.b.bgcolor.c        = 0x0000ff;
+
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
+
+  cmds.b.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.b.gauge.x          = xoffset;
+  cmds.b.gauge.y          = yoffset;
+  cmds.b.gauge.r          = radius;
+  cmds.b.gauge.options    = FT80X_OPT_FLAT;
+  cmds.b.gauge.major      = 5;
+  cmds.b.gauge.minor      = 4;
+  cmds.b.gauge.val        = 45;
+  cmds.b.gauge.range      = 100;
+
+  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.b.text.x           = xoffset;
+  cmds.b.text.y           = yoffset + radius + 6;
+  cmds.b.text.font        = 26;
+  cmds.b.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Flat effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* 3d effect */
+
+  xoffset                += xdist;
+
+  cmds.c.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.c.bgcolor.c        = 0x0000ff;
+
+  cmds.c.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
+
+  cmds.c.bgcolor.cmd      = FT80X_CMD_FGCOLOR;                /* Foreground color */
+  cmds.c.bgcolor.c        = 0xff0000;
+
+  cmds.c.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.c.gauge.x          = xoffset;
+  cmds.c.gauge.y          = yoffset;
+  cmds.c.gauge.r          = radius;
+  cmds.c.gauge.options    = 0;
+  cmds.c.gauge.major      = 5;
+  cmds.c.gauge.minor      = 1;
+  cmds.c.gauge.val        = 60;
+  cmds.c.gauge.range      = 100;
+
+  cmds.c.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.c.text.x           = xoffset;
+  cmds.c.text.y           = yoffset + radius + 6;
+  cmds.c.text.font        = 26;
+  cmds.c.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "3d effect");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* no background color */
+
+  xoffset                += xdist;
+
+  cmds.d.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.d.bgcolor.c        = 0x00ffff;
+
+  cmds.d.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0x00);
+
+  cmds.d.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.d.gauge.x          = xoffset;
+  cmds.d.gauge.y          = yoffset;
+  cmds.d.gauge.r          = radius;
+  cmds.d.gauge.options    = FT80X_OPT_NOBACK;
+  cmds.d.gauge.major      = 1;
+  cmds.d.gauge.minor      = 6;
+  cmds.d.gauge.val        = 90;
+  cmds.d.gauge.range      = 100;
+
+  cmds.d.colora.cmd       = FT80X_COLOR_A(255);
+
+  cmds.d.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.d.text.x           = xoffset;
+  cmds.d.text.y           = yoffset + radius + 6;
+  cmds.d.text.font        = 26;
+  cmds.d.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No BG");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No ticks */
+
+  xoffset += xdist;
+
+  cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.b.bgcolor.c        = 0xff00ff;
+
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00,0xff,0xff);
+
+  cmds.b.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.b.gauge.x          = xoffset;
+  cmds.b.gauge.y          = yoffset;
+  cmds.b.gauge.r          = radius;
+  cmds.b.gauge.options    = FT80X_OPT_NOTICKS;
+  cmds.b.gauge.major      = 5;
+  cmds.b.gauge.minor      = 4;
+  cmds.b.gauge.val        = 20;
+  cmds.b.gauge.range      = 100;
+
+  cmds.b.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.b.text.x           = xoffset;
+  cmds.b.text.y           = yoffset + radius + 6;
+  cmds.b.text.font        = 26;
+  cmds.b.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer,  "No Ticks");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* No hands */
+
+  xoffset                += xdist;
+
+  cmds.d.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.d.bgcolor.c        = 0x808080;
+
+  cmds.d.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xff, 0x00);
+
+  cmds.d.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.d.gauge.x          = xoffset;
+  cmds.d.gauge.y          = yoffset;
+  cmds.d.gauge.r          = radius;
+  cmds.d.gauge.options    = FT80X_OPT_NOHANDS;
+  cmds.d.gauge.major      = 5;
+  cmds.d.gauge.minor      = 4;
+  cmds.d.gauge.val        = 55;
+  cmds.d.gauge.range      = 100;
+
+  cmds.d.colora.cmd       = FT80X_COLOR_A(255);
+
+  cmds.d.text.cmd         = FT80X_CMD_TEXT;                   /* Text */
+  cmds.d.text.x           = xoffset;
+  cmds.d.text.y           = yoffset + radius + 6;
+  cmds.d.text.font        = 26;
+  cmds.d.text.options     = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "No Hands");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Bigger gauge */
+
+  yoffset                += radius + 10;
+  radius                  = FT80X_DISPLAY_HEIGHT - ( 2  *radius + 5 + 10);
+  radius                  = (radius - 5 - 20) / 2;
+  xoffset                 = radius + 10;
+  yoffset                += radius + 5;
+
+  cmds.e.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
+  cmds.e.bgcolor.c        = 0x808000;
+
+  cmds.e.colorrgb1.cmd    = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  cmds.e.gauge1.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.e.gauge1.x          = xoffset;
+  cmds.e.gauge1.y          = yoffset;
+  cmds.e.gauge1.r          = radius;
+  cmds.e.gauge1.options    = FT80X_OPT_NOPOINTER;
+  cmds.e.gauge1.major      = 5;
+  cmds.e.gauge1.minor      = 4;
+  cmds.e.gauge1.val        = 80;
+  cmds.e.gauge1.range      = 100;
+
+  cmds.e.colorrgb2.cmd    = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
+
+  cmds.e.gauge2.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.e.gauge2.x          = xoffset;
+  cmds.e.gauge2.y          = yoffset;
+  cmds.e.gauge2.r          = radius;
+  cmds.e.gauge2.options    = FT80X_OPT_NOTICKS;
+  cmds.e.gauge2.major      = 5;
+  cmds.e.gauge2.minor      = 4;
+  cmds.e.gauge2.val        = 30;
+  cmds.e.gauge2.range      = 100;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Lena gauge with no background and no ticks */
+
+  xoffset                 += 2 * radius + 10;
+
+  cmds.f.pointsize1.cmd    = FT80X_POINT_SIZE(radius * 16);
+  cmds.f.colorrgb1.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+  cmds.f.begin1.cmd        = FT80X_BEGIN(FT80X_PRIM_POINTS);
+  cmds.f.vertex2f1.cmd     = FT80X_VERTEX2F(xoffset * 16, yoffset * 16);
+  cmds.f.end1.cmd          = FT80X_END();
+  cmds.f.colora.cmd        = FT80X_COLOR_A(0xff);
+  cmds.f.colorrgb2.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+  cmds.f.colormask1.cmd    = FT80X_COLOR_MASK(0, 0, 0, 1);
+  cmds.f.clear.cmd         = FT80X_CLEAR(1, 1, 1);
+  cmds.f.begin2.cmd        = FT80X_BEGIN(FT80X_PRIM_POINTS);
+  cmds.f.pointsize2.cmd    = FT80X_POINT_SIZE((radius - 2) * 16);
+  cmds.f.vertex2f2.cmd     = FT80X_VERTEX2F(xoffset * 16, yoffset * 16);
+  cmds.f.end2.cmd          = FT80X_END();
+  cmds.f.colormask2.cmd    = FT80X_COLOR_MASK(1, 1, 1, 1);
+  cmds.f.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_DST_ALPHA,
+                                              FT80X_BLEND_ONE_MINUS_DST_ALPHA);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Lena bitmap - scale proportionately wrt output resolution */
+
+  cmds.g.loadidentity1.cmd = FT80X_CMD_LOADIDENTITY;
+
+  cmds.g.scale.cmd         = FT80X_CMD_SCALE;
+  cmds.g.scale.sx          = (65536 * 2 * radius) / bmhdr->width;
+  cmds.g.scale.sy          = (65536 * 2 * radius) / bmhdr->height;
+
+  cmds.g.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
+
+  cmds.g.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.g.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
+  cmds.g.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+                                                 bmhdr->height);
+  cmds.g.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
+                                               FT80X_WRAP_BORDER,
+                                               FT80X_WRAP_BORDER,
+                                               2 * radius, 2 * radius);
+  cmds.g.vertex2f.cmd      = FT80X_VERTEX2F((xoffset - radius) * 16,
+                                            (yoffset - radius) * 16);
+  cmds.g.end.cmd           = FT80X_END();
+  cmds.g.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_SRC_ALPHA,
+                                              FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
+  cmds.g.loadidentity2.cmd = FT80X_CMD_LOADIDENTITY;
+  cmds.g.setmatrix2.cmd    = FT80X_CMD_SETMATRIX;
+  cmds.g.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  cmds.g.gauge.cmd         = FT80X_CMD_GAUGE;                  /* Gauge */
+  cmds.g.gauge.x           = xoffset;
+  cmds.g.gauge.y           = yoffset;
+  cmds.g.gauge.r           = radius;
+  cmds.g.gauge.options     = FT80X_OPT_NOTICKS | FT80X_OPT_NOBACK;
+  cmds.g.gauge.major       = 5;
+  cmds.g.gauge.minor       = 4;
+  cmds.g.gauge.val         = 30;
+  cmds.g.gauge.range       = 100;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.g, sizeof(cmds.g));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Finally, terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_progressbar
  *
  * Description:
