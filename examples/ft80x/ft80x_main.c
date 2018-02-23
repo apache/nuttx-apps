@@ -166,6 +166,10 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   struct ft80x_cmd_text_s text;
   int ret;
 
+  /* Mkae sure that the backlight off */
+
+  (void)ft80x_backlight_set(fd, 0);
+
   /* Create the display list */
 
   ret = ft80x_dl_start(fd, buffer, false);
@@ -206,9 +210,10 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       return ret;
     }
 
-  /* Wait bit so that the user can read the name */
+  /* Fade on, then wait bit so that the user can read the name */
 
-  sleep(2);
+  (void)ft80x_backlight_fade(fd, 100, 1000);
+  (void)sleep(1);
   return OK;
 }
 
@@ -236,7 +241,7 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       return ret;
     }
 
-  /* Then executte the example */
+  /* Then execute the example */
 
   ret = example->func(fd, buffer);
   if (ret < 0)
@@ -245,9 +250,10 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       return ret;
     }
 
-  /* Wait a bit */
+  /* Wait a bit, then fade out */
 
-  sleep(4);
+  sleep(3);
+  (void)ft80x_backlight_fade(fd, 0, 1000);
   return OK;
 }
 

@@ -326,6 +326,44 @@ int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
 
 int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6]);
 
+/****************************************************************************
+ * Name: ft80x_backlight_set
+ *
+ * Description:
+ *   Set the backlight intensity via the PWM duty.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   duty   - The new backlight duty (as a percentage 0..100)
+ *   delay  - The duration of the fade in milliseconds.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_backlight_set(int fd, uint8_t duty);
+
+/****************************************************************************
+ * Name: ft80x_backlight_fade
+ *
+ * Description:
+ *   Change the backlight intensity with a controllable fade.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   duty   - The terminal duty (as a percentage 0..100)
+ *   delay  - The duration of the fade in milliseconds (10..16700).
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_backlight_fade(int fd, uint8_t duty, uint16_t delay);
+
 #undef EXTERN
 #ifdef __cplusplus
 }
