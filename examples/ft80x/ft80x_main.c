@@ -163,7 +163,14 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
 static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                           FAR const char *name)
 {
-  struct ft80x_cmd_text_s text;
+  struct
+  {
+    struct ft80x_cmd32_s    clearrgb;
+    struct ft80x_cmd32_s    clear;
+    struct ft80x_cmd32_s    colorrgb;
+    struct ft80x_cmd_text_s text;
+  } cmds;
+
   int ret;
 
   /* Mkae sure that the backlight off */
@@ -179,15 +186,23 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       return ret;
     }
 
-  /* Use the CMD_TEXT co-processor command */
+  /* Clear the display */
 
-  text.cmd     = FT80X_CMD_TEXT;
-  text.x       = 80;
-  text.y       = 60;
-  text.font    = 31;
-  text.options = FT80X_OPT_CENTER;
+  cmds.clearrgb.cmd = FT80X_CLEAR_COLOR_RGB(0, 0, 0x80);
+  cmds.clear.cmd    = FT80X_CLEAR(1 ,1, 1);
+  cmds.colorrgb.cmd = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
-  ret = ft80x_dl_data(fd, buffer, &text, sizeof(struct ft80x_cmd_text_s));
+  /* Use the CMD_TEXT co-processor command to show the name of the next
+   * example at the center of the display.
+   */
+
+  cmds.text.cmd     = FT80X_CMD_TEXT;
+  cmds.text.x       = FT80X_DISPLAY_WIDTH / 2;
+  cmds.text.y       = FT80X_DISPLAY_HEIGHT / 2;
+  cmds.text.font    = 31;
+  cmds.text.options = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds, sizeof(cmds));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -210,7 +225,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       return ret;
     }
 
-  /* Fade on, then wait bit so that the user can read the name */
+  /* Fade on then wait bit so that the user can read the example name */
 
   (void)ft80x_backlight_fade(fd, 100, 1000);
   (void)sleep(1);
