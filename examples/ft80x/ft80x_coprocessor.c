@@ -1435,15 +1435,15 @@ int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   } cmds;
 
 #ifdef CONFIG_LCD_FT80X_QVGA
-    font                 = 27;
-    width                = 22;
-    height               = 22;
-    ydist                = 3;
+  font                   = 27;
+  width                  = 22;
+  height                 = 22;
+  ydist                  = 3;
 #else
-    font                 = 29;
-    width                = 30;
-    height               = 30;
-    ydist                = 5;
+  font                   = 29;
+  width                  = 30;
+  height                 = 30;
+  ydist                  = 5;
 #endif
 
   /* Create the hardware display list */
@@ -3882,6 +3882,170 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 }
 
 /****************************************************************************
+ * Name: ft80x_coproc_screensaver
+ *
+ * Description:
+ *   Demonstrate the screensaver widget
+ *
+ ****************************************************************************/
+
+int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
+  int ret;
+
+  /* Formatted output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         colorrgb;
+    } a;
+    struct
+    {
+      struct ft80x_cmd_loadidentity_s loadidentity1;
+      struct ft80x_cmd_scale_s     scale;
+      struct ft80x_cmd_setmatrix_s setmatrix1;
+      struct ft80x_cmd32_s         begin;
+      struct ft80x_cmd32_s         bitmapsource;
+      struct ft80x_cmd32_s         bitmaplayout;
+      struct ft80x_cmd32_s         bitmapsize;
+      struct ft80x_cmd32_s         macro;
+      struct ft80x_cmd32_s         end;
+      struct ft80x_cmd_loadidentity_s loadidentity2;
+      struct ft80x_cmd_setmatrix_s setmatrix2;
+      struct ft80x_cmd_text_s      text;
+    } b;
+    struct ft80x_cmd_screensaver_s screensaver;
+    struct ft80x_cmd_memset_s      memset;
+    struct ft80x_cmd32_s           stop;
+  } cmds;
+
+  /* Copy the image into graphics ram for the Lena faced clock */
+
+  ret = ft80x_ramg_write(fd, 0, bmhdr->data, bmhdr->stride * bmhdr->height);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_ramg_write() failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Send the screen saver command */
+
+  cmds.screensaver.cmd = FT80X_CMD_SCREENSAVER;
+  ret = ft80x_coproc_send(fd, &cmds.screensaver.cmd, 1);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Create the hardware display list */
+
+  ret = ft80x_dl_start(fd, buffer, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+      return ret;
+    }
+
+  cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(0, 0, 0x80);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Lena bitmap */
+
+  cmds.b.loadidentity1.cmd = FT80X_CMD_LOADIDENTITY;
+
+  cmds.b.scale.cmd         = FT80X_CMD_SCALE;
+  cmds.b.scale.sx          = 3 * 65536;
+  cmds.b.scale.sy          = 3 * 65536;
+
+  cmds.b.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
+
+  cmds.b.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.b.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
+  cmds.b.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+                                                 bmhdr->height);
+  cmds.b.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
+                                               FT80X_WRAP_BORDER,
+                                               FT80X_WRAP_BORDER,
+                                               3 * bmhdr->width,
+                                               3 * bmhdr->height);
+  cmds.b.macro.cmd         = FT80X_MACRO(0);
+  cmds.b.end.cmd           = FT80X_END();
+
+  cmds.b.loadidentity2.cmd = FT80X_CMD_LOADIDENTITY;
+  cmds.b.setmatrix2.cmd    = FT80X_CMD_SETMATRIX;
+
+  cmds.b.text.cmd          = FT80X_CMD_TEXT;
+  cmds.b.text.x            = FT80X_DISPLAY_WIDTH / 2;
+  cmds.b.text.y            = FT80X_DISPLAY_HEIGHT / 2;
+  cmds.b.text.font         = 27;
+  cmds.b.text.options      = FT80X_OPT_CENTER;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_dl_string(fd, buffer, "Screen Saver ...");
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Display the text */
+
+  cmds.memset.cmd          = FT80X_CMD_MEMSET;
+  cmds.memset.ptr          = FT80X_RAM_G + 3200;
+  cmds.memset.value        = 0xff;
+  cmds.memset.num          = 160L *2 *120;
+
+  ret = ft80x_dl_data(fd, buffer, &cmds.memset, sizeof(cmds.memset));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Terminate the display list */
+
+  ret = ft80x_dl_end(fd, buffer);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+    }
+
+  /* Wait 3 seconds and send the stop command */
+
+  sleep(3);
+
+  cmds.stop.cmd = FT80X_CMD_STOP;
+  ret = ft80x_coproc_send(fd, &cmds.stop.cmd, 1);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+      return ret;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: ft80x_coproc_logo
  *
  * Description:
@@ -3917,4 +4081,3 @@ int ft80x_coproc_logo(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   return ret;
 }
-

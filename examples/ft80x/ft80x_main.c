@@ -121,7 +121,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  ft80x_coproc_calibrate   CMD_CALIBRATE   Execute the touch screen
                                              calibration routine
  *  ft80x_coproc_spinner     CMD_SPINNER     Start an animated spinner
- *  (To be provided)         CMD_SCREENSAVER Start an animated screensaver
+ *  ft80x_coproc_screensaver CMD_SCREENSAVER Start an animated screensaver
  *  (To be provided)         CMD_SKETCH      Start a continuous sketch update
  *  (To be provided)         CMD_SNAPSHOT    Take a snapshot of the current
                                              screen
@@ -142,6 +142,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Number",         ft80x_coproc_number },
   { "Calibrate",      ft80x_coproc_calibrate },
   { "Spinner",        ft80x_coproc_spinner },
+  { "Screen Saver",   ft80x_coproc_screensaver },
   { "Logo",           ft80x_coproc_logo }
 };
 
