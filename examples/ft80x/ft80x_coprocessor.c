@@ -524,7 +524,9 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
 int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
+#endif
   int16_t xoffset;
   int16_t yoffset;
   int16_t radius;
@@ -604,6 +606,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   xdist  = FT80X_DISPLAY_WIDTH / 5;
   radius = xdist / 2 - FT80X_DISPLAY_WIDTH / 64;
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   /* Copy the image into graphics ram for the Lena faced clock */
 
   ret = ft80x_ramg_write(fd, 0, bmhdr->data, bmhdr->stride * bmhdr->height);
@@ -612,6 +615,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       ft80x_err("ERROR: ft80x_ramg_write() failed: %d\n", ret);
       return ret;
     }
+#endif
 
   /* Create the hardware display list */
 
@@ -834,6 +838,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   /* Lena clock with no background and no ticks */
 
   xoffset                += 2 * radius + 10;
@@ -910,6 +915,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
       return ret;
     }
+#endif
 
   /* Finally, terminate the display list */
 
@@ -932,7 +938,9 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
 int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
+#endif
   int16_t xoffset;
   int16_t yoffset;
   int16_t radius;
@@ -1020,6 +1028,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   xdist  = FT80X_DISPLAY_WIDTH / 5;
   radius = xdist / 2 - FT80X_DISPLAY_WIDTH / 64;
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   /* Copy the image into graphics ram for the Lena faced gauge */
 
   ret = ft80x_ramg_write(fd, 0, bmhdr->data, bmhdr->stride * bmhdr->height);
@@ -1028,6 +1037,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       ft80x_err("ERROR: ft80x_ramg_write() failed: %d\n", ret);
       return ret;
     }
+#endif
 
   /* Create the hardware display list */
 
@@ -1297,6 +1307,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   /* Lena gauge with no background and no ticks */
 
   xoffset                 += 2 * radius + 10;
@@ -1368,6 +1379,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
       return ret;
     }
+#endif
 
   /* Finally, terminate the display list */
 
@@ -3889,6 +3901,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
 int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 {
   FAR const struct ft80x_bitmaphdr_s *bmhdr = &g_lenaface_bmhdr;
@@ -4044,6 +4057,7 @@ int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: ft80x_coproc_logo

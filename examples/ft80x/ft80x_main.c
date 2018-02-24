@@ -142,7 +142,9 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Number",         ft80x_coproc_number },
   { "Calibrate",      ft80x_coproc_calibrate },
   { "Spinner",        ft80x_coproc_spinner },
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   { "Screen Saver",   ft80x_coproc_screensaver },
+#endif
   { "Logo",           ft80x_coproc_logo }
 };
 
