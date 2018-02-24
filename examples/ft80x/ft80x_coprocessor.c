@@ -565,6 +565,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       struct ft80x_cmd32_s         colorrgb;
       struct ft80x_cmd_clock_s     clock;
     } d;
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
     struct
     {
       struct ft80x_cmd32_s         linewidth;
@@ -601,6 +602,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       struct ft80x_cmd32_s         colorrgb;
       struct ft80x_cmd_clock_s     clock;
     } f;
+#endif
   } cmds;
 
   xdist  = FT80X_DISPLAY_WIDTH / 5;
@@ -988,6 +990,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       struct ft80x_cmd32_s         colorrgb2;
       struct ft80x_cmd_gauge_s     gauge2;
     } e;
+#ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
     struct
     {
       struct ft80x_cmd32_s         pointsize1;
@@ -1023,6 +1026,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       struct ft80x_cmd32_s         colorrgb;
       struct ft80x_cmd_gauge_s     gauge;
     } g;
+#endif
   } cmds;
 
   xdist  = FT80X_DISPLAY_WIDTH / 5;
