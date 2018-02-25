@@ -30,7 +30,7 @@ config GRAPHICS_FT80X_CMDEMPTY_SIGNAL
 
 config GRAPHICS_FT80X_TAG_SIGNAL
 	int "TAG event signal"
-	default 18
+	default 19
 	range 1 31
 	---help---
 		This is the signal that will be received when the co-processor the

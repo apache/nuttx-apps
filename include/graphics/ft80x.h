@@ -422,6 +422,38 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag);
 int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info);
 
 /****************************************************************************
+ * Name: ft80x_audio_playfile
+ *
+ * Description:
+ *   Play an audio file
+ *
+ * Input Parameters:
+ *   fd        - The file descriptor of the FT80x device.  Opened by the
+ *               caller with write access.
+ *   buffer    - An instance of struct ft80x_dlbuffer_s allocated by the
+ *               caller.
+ *   filepath  - Absolute path to the audio file
+ *   format    - Audio format.  One of:
+ *
+ *               AUDIO_FORMAT_LINEAR  Linear Sample format
+ *               AUDIO_FORMAT_ULAW    uLaw Sample format
+ *               AUDIO_FORMAT_ADPCM   4-bit IMA ADPCM Sample format
+ *
+ *   frequency - Audio sample frequency (<65,536)
+ *   volume    - Playback volume (0=mute; 255=max)
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 3
+int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
+                         FAR const char *filepath, uint8_t format,
+                         uint16_t frequency, uint8_t volume);
+#endif
+
+/****************************************************************************
  * Name: ft80x_backlight_set
  *
  * Description:

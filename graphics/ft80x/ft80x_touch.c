@@ -385,14 +385,16 @@ int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info)
 
   /* Read the FT80X_REG_CTOUCH_TOUCH4_X and Y registers */
 
-  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_X, &info->pos[4].u.x);
+  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_X,
+                       (FAR uint16_t *)&info->pos[4].u.x);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
       return ret;
     }
 
-  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_Y, &info->pos[4].u.y);
+  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_Y,
+                       (FAR uint16_t *)&info->pos[4].u.y);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);

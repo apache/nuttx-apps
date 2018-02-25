@@ -41,7 +41,7 @@ include $(APPDIR)/Make.defs
 
 ASRCS  =
 CSRCS  = ft80x_dl.c ft80x_ramg.c ft80x_ramdl.c ft80x_ramcmd.c ft80x_coproc.c
-CSRCS += ft80x_touch.c ft80x_backlight.c ft80x_regs.c
+CSRCS += ft80x_touch.c ft80x_audio.c ft80x_backlight.c ft80x_regs.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
