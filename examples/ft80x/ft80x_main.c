@@ -126,6 +126,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  (To be provided)         CMD_SNAPSHOT    Take a snapshot of the current
                                              screen
  *  ft80x_coproc_logo        CMD_LOGO        Play device log animation
+ *  ft80x_coproc_interactive CMD_KEYS        Interactive keys
  */
 
 static const struct ft80x_exampleinfo_s g_coproc[] =
@@ -145,7 +146,8 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
 #ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   { "Screen Saver",   ft80x_coproc_screensaver },
 #endif
-  { "Logo",           ft80x_coproc_logo }
+  { "Logo",           ft80x_coproc_logo },
+  { "Interactive",    ft80x_coproc_interactive },
 };
 
 #define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))

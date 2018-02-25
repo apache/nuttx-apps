@@ -137,7 +137,7 @@ struct ft80x_dlbuffer_s;  /* Forward reference3 */
 
 int ft80x_getreg8(int fd, uint32_t addr, FAR uint8_t *value);
 int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value);
-int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value);
+int ft80x_getreg32(int fd, uint32_t addr, FAR uint32_t *value);
 
 /****************************************************************************
  * Name: ft80x_getregs

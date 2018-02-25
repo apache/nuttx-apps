@@ -135,7 +135,7 @@ int ft80x_getreg16(int fd, uint32_t addr, FAR uint16_t *value)
   return ret;
 }
 
-int ft80x_getreg32(int fd, uint32_t addr, FAR uint16_t *value)
+int ft80x_getreg32(int fd, uint32_t addr, FAR uint32_t *value)
 {
   struct ft80x_register_s reg;
   int ret;

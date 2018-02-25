@@ -70,6 +70,32 @@ struct ft80x_dlbuffer_s
   uint32_t dlbuffer[FT80X_DL_BUFWORDS];
 };
 
+/* Describes touch sample */
+
+union ft80x_touchpos_u
+{
+  uint32_t xy;       /* To force 32-bit alignment */
+  struct             /* Little-endian */
+  {
+    int16_t x;       /* Touch X position (-32768 if no touch) */
+    int16_t y;       /* Touch Y position (-32768 if no touch) */
+  } u;
+};
+
+struct ft80x_touchinfo_s
+{
+  uint8_t tag;                    /* Touch 0 tag */
+#if defined(CONFIG_LCD_FT800)
+  int16_t pressure;               /* Touch pressure (32767 if not touched) */
+#endif
+  union ft80x_touchpos_u tagpos;  /* Position associated with tag */
+#if defined(CONFIG_LCD_FT800) || !defined(CONFIG_LCD_FT801_MULTITOUCH)
+  union ft80x_touchpos_u pos;     /* Current touch position */
+#else
+  union ft80x_touchpos_u pos[4];  /* Current touch position for up to 4 touches */
+#endif
+};
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -325,6 +351,75 @@ int ft80x_ramg_write(int fd, unsigned int offset, FAR const void *data,
  ****************************************************************************/
 
 int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6]);
+
+/****************************************************************************
+ * Name: ft80x_touch_tag
+ *
+ * Description:
+ *   Read the current touch tag.  The touch tag is an 8-bit value
+ *   identifying the specific graphics object on the screen that is being
+ *   touched. The value zero indicates that there is no graphic object being
+ *   touched.
+ *
+ *   Only a single touch can be queried.  For the FT801 in "extended",
+ *   multi-touch mode, this value indicates only the tag associated with
+ *   touch 0.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *
+ * Returned Value:
+ *   A value of 1-255 is returned if a graphics object is touched.  Zero is
+ *   returned if no graphics object is touched.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_touch_tag(int fd);
+
+/****************************************************************************
+ * Name: ft80x_touch_waittag
+ *
+ * Description:
+ *   Wait until there is a change in the touch tag.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
+ *   oldtag - The previous tag value.  This function will return when the
+ *            current touch tag differs from this value.
+ *
+ * Returned Value:
+ *   A value of 1-255 is returned if a graphics object is touched.  Zero is
+ *   returned if no graphics object is touched.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_touch_waittag(int fd, uint8_t oldtag);
+
+/****************************************************************************
+ * Name: ft80x_touch_info
+ *
+ * Description:
+ *   Return the current touch tag and touch position information.
+ *
+ *   For the FT801 in "extended", multi-touch mode, the tag value indicates
+ *   only the tag associated with touch 0.
+ *
+ *   Touch positions of -32768 indicate that no touch is detected.
+ *
+ * Input Parameters:
+ *   fd   - The file descriptor of the FT80x device.  Opened by the caller
+ *          with write access.
+ *   info - Location in which to return the touch information
+ *
+ * Returned Value:
+ *   A value of 1-255 is returned if a graphics object is touched.  Zero is
+ *   returned if no graphics object is touched.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info);
 
 /****************************************************************************
  * Name: ft80x_backlight_set

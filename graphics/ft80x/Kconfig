@@ -28,6 +28,14 @@ config GRAPHICS_FT80X_CMDEMPTY_SIGNAL
 		This is the signal that will be received when the co-processor CMD
 		FIFO becomes empty.
 
+config GRAPHICS_FT80X_TAG_SIGNAL
+	int "TAG event signal"
+	default 18
+	range 1 31
+	---help---
+		This is the signal that will be received when the co-processor the
+		detected touch tag changes.
+
 config GRAPHICS_FT80X_DEBUG_ERROR
 	bool "Enable error output"
 	default y
