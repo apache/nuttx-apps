@@ -383,6 +383,22 @@ int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info)
       return ret;
     }
 
+  /* Read the FT80X_REG_CTOUCH_TOUCH4_X and Y registers */
+
+  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_X, &info->pos[4].u.x);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
+      return ret;
+    }
+
+  ret = ft80x_getreg16(fd, FT80X_REG_CTOUCH_TOUCH4_Y, &info->pos[4].u.y);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg16 failed: %d\n", ret);
+      return ret;
+    }
+
 #endif /* CONFIG_LCD_FT801_MULTITOUCH */
 #endif /* CONFIG_LCD_FT800/1 */
 

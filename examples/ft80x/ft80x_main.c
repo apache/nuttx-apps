@@ -112,6 +112,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  ft80x_coproc_clock       CMD_CLOCK       Draw an analog clock
  *  ft80x_coproc_gauge       CMD_GAUGE       Draw a gauge
  *  ft80x_coproc_keys        CMD_KEYS        Draw a row of keys
+ *  ft80x_coproc_interactive CMD_KEYS        Interactive keys
  *  ft80x_coproc_progressbar CMD_PROGRESS    Draw a progress bar
  *  ft80x_coproc_scrollbar   CMD_SCROLLBAR   Draw a scroll bar
  *  ft80x_coproc_slider      CMD_SLIDER      Draw a slider
@@ -126,7 +127,6 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  (To be provided)         CMD_SNAPSHOT    Take a snapshot of the current
                                              screen
  *  ft80x_coproc_logo        CMD_LOGO        Play device log animation
- *  ft80x_coproc_interactive CMD_KEYS        Interactive keys
  */
 
 static const struct ft80x_exampleinfo_s g_coproc[] =
@@ -135,6 +135,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Clock",          ft80x_coproc_clock },
   { "Gauge",          ft80x_coproc_gauge },
   { "Keys",           ft80x_coproc_keys },
+  { "Interactive",    ft80x_coproc_interactive },
   { "Progress Bar",   ft80x_coproc_progressbar },
   { "Scroll Bar",     ft80x_coproc_scrollbar },
   { "Slider",         ft80x_coproc_slider },
@@ -146,8 +147,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
 #ifndef CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS
   { "Screen Saver",   ft80x_coproc_screensaver },
 #endif
-  { "Logo",           ft80x_coproc_logo },
-  { "Interactive",    ft80x_coproc_interactive },
+  { "Logo",           ft80x_coproc_logo }
 };
 
 #define NCOPROC (sizeof(g_primitives) / sizeof(ft80x_example_t))

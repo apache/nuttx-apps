@@ -92,7 +92,7 @@ struct ft80x_touchinfo_s
 #if defined(CONFIG_LCD_FT800) || !defined(CONFIG_LCD_FT801_MULTITOUCH)
   union ft80x_touchpos_u pos;     /* Current touch position */
 #else
-  union ft80x_touchpos_u pos[4];  /* Current touch position for up to 4 touches */
+  union ft80x_touchpos_u pos[4];  /* Current touch position for up to 5 touches */
 #endif
 };
 
