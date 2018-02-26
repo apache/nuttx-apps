@@ -290,8 +290,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Mute the sound clearing by clearing RAM_G after the current offset.
    *
-   * REVISIT:  There is an ugly hack into the display list logic in the
-   * following 8(  I also suspect that the logic is not even correct.
+   * REVISIT:  I suspect that this logic is not correct.
    */
 
   memset.cmd       = FT80X_CMD_MEMSET;
@@ -299,22 +298,10 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   memset.value     = 0;
   memset.num       = RAMG_MAXOFFSET - offset;
 
-  buffer->coproc   = true;
-  buffer->dlsize   = 0;
-  buffer->dloffset = sizeof(struct ft80x_cmd_memset_s);
-
-  ret = ft80x_ramcmd_append(fd, buffer, &memset,
-                            sizeof(ft80x_ramcmd_append));
+  ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_ramcmd_append failed: %d\n", ret);
-      goto errout_with_fd;
-    }
-
-  ret = ft80x_ramcmd_waitfifoempty(fd);
-  if (ret < 0)
-    {
-      ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty failed: %d\n", ret);
       goto errout_with_fd;
     }
 

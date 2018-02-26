@@ -208,16 +208,15 @@ int ft80x_putregs(int fd, uint32_t addr, uint8_t nregs,
  *   Reset to the start of RAM DL memory
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer);
+int ft80x_ramdl_rewind(int fd);
 
 /****************************************************************************
  * Name: ft80x_ramdl_append
@@ -228,15 +227,15 @@ int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer);
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - A pointer to the start of the data to be written.
+ *   len    - The number of bytes to be written.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramdl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                       FAR const void *data, size_t len);
+int ft80x_ramdl_append(int fd, FAR const void *data, size_t len);
 
 /****************************************************************************
  * Name: ft80x_ramcmd_append
@@ -247,15 +246,15 @@ int ft80x_ramdl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   data   - A pointer to the start of the data to be append to RAM CMD.
+ *   len    - The number of bytes to be appended.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                        FAR const void *data, size_t len);
+int ft80x_ramcmd_append(int fd, FAR const void *data, size_t len);
 
 /****************************************************************************
  * Name: ft80x_ramcmd_freespace

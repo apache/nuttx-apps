@@ -152,13 +152,13 @@ static int ft80x_dl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     {
       /* Append data to RAM CMD */
 
-      ret = ft80x_ramcmd_append(fd, buffer, data, len);
+      ret = ft80x_ramcmd_append(fd, data, len);
     }
   else
     {
       /* Append data to RAM DL */
 
-      ret = ft80x_ramdl_append(fd, buffer, data, len);
+      ret = ft80x_ramdl_append(fd, data, len);
     }
 
   return ret;
@@ -215,7 +215,7 @@ int ft80x_dl_start(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool coproc)
        *    beginning of the hardware display list.
        */
 
-      ret = ft80x_ramdl_rewind(fd, buffer);
+      ret = ft80x_ramdl_rewind(fd);
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_ramdl_rewind failed: %d\n", ret);
@@ -641,7 +641,7 @@ int ft80x_dl_flush(int fd, FAR struct ft80x_dlbuffer_s *buffer, bool wait)
 
   /* Write the content of the local display buffer to hardware. */
 
-  ret = ft80x_dl_append(fd, buffer, buffer->dlbuffer,  buffer->dloffset);
+  ret = ft80x_dl_append(fd, buffer, buffer->dlbuffer, buffer->dloffset);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_append failed: %d\n", ret);

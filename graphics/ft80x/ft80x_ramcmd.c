@@ -64,17 +64,15 @@
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
- *   data   - A pointer to the start of the data to be written.
- *   len    - The number of bytes to be written.
+ *   data   - A pointer to the start of the data to be append to RAM CMD.
+ *   len    - The number of bytes to be appended.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                        FAR const void *data, size_t len)
+int ft80x_ramcmd_append(int fd, FAR const void *data, size_t len)
 {
   struct ft80x_relmem_s wrdesc;
   FAR const uint8_t *src;
@@ -83,6 +81,9 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   uint16_t offset;
   uint16_t maxsize;
   int ret;
+
+  DEBUGASSERT(data != NULL && ((uintptr_t)data & 3) == 0 &&
+              len > 0 && (len & 3) == 0);
 
   /* Loop until all of the display list commands have been transferred to
    * FIFO.
@@ -116,8 +117,27 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       if (maxsize == 0)
         {
+#if 1
+          /* Yes.. wait for the FIFO to empty, then try again.
+           *
+           * REVISIT:  Would it not be sufficient to wait only until the
+           * FIFO is not full?
+           */
+
+          ft80x_warn("WARNING: FIFO is full: %d\n", ret);
+          ret = ft80x_ramcmd_waitfifoempty(fd);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_ramcmd_waitfifoempty() failed: %d\n",
+                        ret);
+              return ret;
+            }
+
+          continue;
+#else
           ft80x_err("ERROR: FIFO is full: %d\n", ret);
           return -ENOSPC;
+#endif
         }
 
       /* Limit the write size to the size of the available FIFO memory */
@@ -152,7 +172,7 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           return ret;
         }
 
-      /* Wait for the FIFO to empty if there is more to be sent */
+      /* Wait for the FIFO to empty */
 
       if (remaining > wrsize)
         {
@@ -167,8 +187,8 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       /* Set up for the next time through the loop. */
 
-      remaining      -= wrsize;
-      src            += wrsize;
+      remaining -= wrsize;
+      src       += wrsize;
     }
   while (remaining > 0);
 

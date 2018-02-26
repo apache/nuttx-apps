@@ -61,20 +61,17 @@
  *   Reset to the start of RAM DL memory
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+int ft80x_ramdl_rewind(int fd)
 {
   off_t pos;
-
-  DEBUGASSERT(fd >= 0 && buffer != NULL);
 
   /* Reposition the VFSso that subsequent writes will be to the beginning of
    * the hardware display list.
@@ -100,7 +97,6 @@ int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *   data   - A pointer to the start of the data to be written.
  *   len    - The number of bytes to be written.
  *
@@ -109,13 +105,12 @@ int ft80x_ramdl_rewind(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  ****************************************************************************/
 
-int ft80x_ramdl_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
-                       FAR const void *data, size_t len)
+int ft80x_ramdl_append(int fd, FAR const void *data, size_t len)
 {
   size_t nwritten;
 
-  DEBUGASSERT(fd >= 0 && buffer != NULL && data != NULL &&
-              ((uintptr_t)data & 3) == 0 && len > 0 && (len & 3) == 0);
+  DEBUGASSERT(data != NULL && ((uintptr_t)data & 3) == 0 &&
+              len > 0 && (len & 3) == 0);
 
   /* Write the aligned data directly to the FT80x hardware display list.
    *
