@@ -85,10 +85,39 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ft80x_audio_playsound
+ *
+ * Description:
+ *   Play an short sound effect
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the
+ *            caller with write access.
+ *   effect - The sound effect to use (see FT80X_EFFECT_* definitions).
+ *   pitch  - Pitch associated with the sound effect (see FT80X_NOTE_*
+ *            definitions).  May be zero if there is no pitch associated
+ *            with the effect.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch)
+{
+  uint32_t cmds[2];
+
+  cmds[0] = effect | pitch;
+  cmds[1] = 1;
+
+  return ft80x_putregs(fd,FT80X_REG_SOUND, cmds, 2);
+}
+
+/****************************************************************************
  * Name: ft80x_audio_playfile
  *
  * Description:
- *   Play an audio file
+ *   Play an audio file.  Audio files must consist of raw sample data.
  *
  * Input Parameters:
  *   fd        - The file descriptor of the FT80x device.  Opened by the

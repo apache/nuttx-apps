@@ -50,6 +50,28 @@
 #include "ft80x.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define STENCIL_NUM_LINES   8
+#define STENCIL_NUM_POINTS  6
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static float lerp(float t, float a, float b)
+{
+  return (float)((1 - t) * a + t * b);
+}
+
+static float smoothlerp(float t, float a, float b)
+{
+  float lt = 3 * t * t - 2 * t * t * t;
+  return lerp(lt, a, b);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -397,6 +419,316 @@ int ft80x_prim_scissor(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   return OK;
+}
+
+/****************************************************************************
+ * Name: ft80x_prim_stencil
+ *
+ * Description:
+ *   Demonstrate additive blend
+ *
+ ****************************************************************************/
+
+int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
+{
+  int16_t xball = FT80X_DISPLAY_WIDTH / 2;
+  int16_t yball = 120;
+  int16_t rball = FT80X_DISPLAY_WIDTH / 8;
+  int16_t asize;
+  int16_t aradius;
+  int16_t gridsize = 20;
+  int32_t asmooth;
+  int32_t dispr = FT80X_DISPLAY_WIDTH - 10;
+  int32_t displ = 10;
+  int32_t dispa = 10;
+  int32_t dispb = FT80X_DISPLAY_HEIGHT - 10;
+  int8_t xflag = 1;
+  int8_t yflag = 1;
+  int ret;
+  int i;
+  int j;
+
+  /* Display output chunks */
+
+  union
+  {
+    struct
+    {
+      struct ft80x_cmd32_s         clearrgb;
+      struct ft80x_cmd32_s         clear;
+      struct ft80x_cmd32_s         stencil;
+      struct ft80x_cmd32_s         colorrgb;
+      struct ft80x_cmd32_s         linewidth;
+      struct ft80x_cmd32_s         begin;
+    } a;
+    struct
+    {
+      struct ft80x_cmd32_s         vertex2f1;
+      struct ft80x_cmd32_s         vertex2f2;
+    } b;
+    struct
+    {
+      struct ft80x_cmd32_s         end;
+      struct ft80x_cmd32_s         colormask;
+      struct ft80x_cmd32_s         pointsize;
+      struct ft80x_cmd32_s         begin;
+      struct ft80x_cmd32_s         vertex2f;
+      struct ft80x_cmd32_s         stencilop;
+      struct ft80x_cmd32_s         stencilfunc;
+    } c;
+    struct
+    {
+      struct ft80x_cmd32_s         pointsize;
+      struct ft80x_cmd32_s         vertex2f;
+      struct ft80x_cmd32_s         end;
+      struct ft80x_cmd32_s         begin;
+    } d;
+    struct
+    {
+      struct ft80x_cmd32_s         linewidth;
+      struct ft80x_cmd32_s         vertex2f1;
+      struct ft80x_cmd32_s         vertex2f2;
+    } e;
+    struct
+    {
+      struct ft80x_cmd32_s         end1;
+      struct ft80x_cmd32_s         colormask;
+      struct ft80x_cmd32_s         stencilfunc1;
+      struct ft80x_cmd32_s         stencilop1;
+      struct ft80x_cmd32_s         colorrgb1;
+      struct ft80x_cmd32_s         pointsize;
+      struct ft80x_cmd32_s         begin;
+      struct ft80x_cmd32_s         vertex2f1;
+      struct ft80x_cmd32_s         colorrgb2;
+      struct ft80x_cmd32_s         colora1;
+      struct ft80x_cmd32_s         vertex2f2;
+      struct ft80x_cmd32_s         colora2;
+      struct ft80x_cmd32_s         colorrgb3;
+      struct ft80x_cmd32_s         vertex2f3;
+      struct ft80x_cmd32_s         colorrgb4;
+      struct ft80x_cmd32_s         stencilfunc2;
+      struct ft80x_cmd32_s         stencilop2;
+      struct ft80x_cmd32_s         vertex2f4;
+      struct ft80x_cmd32_s         end2;
+    } f;
+  } cmds;
+
+  dispr -= (dispr - displ) % gridsize;
+  dispb -= (dispb - dispa) % gridsize;
+
+  for (i = 100; i > 0; i--)
+    {
+      if ((xball + rball + 2) >= dispr || (xball - rball - 2) <= displ)
+        {
+          xflag ^= 1;
+
+          ret = ft80x_audio_playsound(fd, 0, FT08X_EFFECT_CLICK);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
+              return ret;
+            }
+        }
+
+      if ((yball + rball + 8) >= dispb || (yball - rball - 8) <= dispa)
+        {
+          yflag ^= 1;
+
+          ret = ft80x_audio_playsound(fd, 0, FT08X_EFFECT_CLICK);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
+              return ret;
+            }
+        }
+
+      if (xflag != 0)
+        {
+          xball += 2;
+        }
+      else
+        {
+          xball -= 2;
+        }
+
+      if (yflag != 0)
+        {
+          yball += 8 ;
+        }
+      else
+        {
+          yball -= 8;
+        }
+
+      /* Create the hardware display list */
+
+      ret = ft80x_dl_start(fd, buffer, false);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
+          return ret;
+        }
+
+      cmds.a.clearrgb.cmd    = FT80X_CLEAR_COLOR_RGB(128, 128, 0);
+      cmds.a.clear.cmd       = FT80X_CLEAR(1, 1, 1);
+      cmds.a.stencil.cmd     = FT80X_STENCIL_OP(STENCIL_OP_INCR, STENCIL_OP_INCR);
+      cmds.a.colorrgb.cmd    = FT80X_COLOR_RGB(0, 0, 0);
+
+      /* Draw grid */
+
+      cmds.a.linewidth.cmd   = FT80X_LINE_WIDTH(16);
+      cmds.a.begin.cmd       = FT80X_BEGIN(FT80X_PRIM_LINES);
+
+      ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+          return ret;
+        }
+
+      for (j = 0; j <= ((dispr - displ) / gridsize); j++)
+        {
+          cmds.b.vertex2f1.cmd =
+            FT80X_VERTEX2F((displ + j * gridsize) * 16, dispa * 16);
+          cmds.b.vertex2f2.cmd =
+            FT80X_VERTEX2F((displ + j * gridsize) * 16, dispb * 16);
+
+          ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+              return ret;
+            }
+        }
+
+      for (j = 0; j <= ((dispb - dispa) / gridsize); j++)
+        {
+          cmds.b.vertex2f1.cmd =
+            FT80X_VERTEX2F(displ * 16, (dispa + j * gridsize) * 16);
+          cmds.b.vertex2f2.cmd =
+            FT80X_VERTEX2F(dispr * 16, (dispa + j * gridsize) * 16);
+
+          ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+              return ret;
+            }
+        }
+
+      cmds.c.end.cmd         = FT80X_END();
+      cmds.c.colormask.cmd   = FT80X_COLOR_MASK(0,0,0,0);
+      cmds.c.pointsize.cmd   = FT80X_POINT_SIZE(rball*16);
+      cmds.c.begin.cmd       = FT80X_BEGIN(FT80X_PRIM_POINTS);
+      cmds.c.vertex2f.cmd    = FT80X_VERTEX2F(xball*16,yball*16);
+      cmds.c.stencilop.cmd   = FT80X_STENCIL_OP(STENCIL_OP_INCR, STENCIL_OP_ZERO);
+      cmds.c.stencilfunc.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL,1,255);
+
+      ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+          return ret;
+        }
+
+      /* One side points */
+
+      for (j = 1; j <= STENCIL_NUM_LINES; j++)
+        {
+          asize   = j * rball * 2 / (STENCIL_NUM_LINES + 1);
+          asmooth = (int32_t)
+            smoothlerp((float)((float)asize /
+                       (2 * (float)rball)), 0, 2 * (float)rball);
+
+          if (asmooth > rball)
+            {
+              /* Change the offset to -ve */
+
+              int32_t tmp = asmooth - rball;
+              aradius = (rball * rball + tmp * tmp) / (2 * tmp);
+
+              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius*16);
+              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball - aradius + tmp)*16,yball*16);
+            }
+          else
+            {
+              int32_t tmp = rball - asmooth;
+              aradius = (rball * rball + tmp * tmp) / (2 * tmp);
+
+              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius*16);
+              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball+ aradius - tmp)*16,yball*16);
+            }
+        }
+
+      cmds.d.end.cmd         = FT80X_END();
+      cmds.d.begin.cmd       = FT80X_BEGIN(FT80X_PRIM_LINES);
+
+      ret = ft80x_dl_data(fd, buffer, &cmds.d, sizeof(cmds.d));
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+          return ret;
+        }
+
+      /* Draw lines - line should be at least radius diameter */
+
+      for (j = 1; j <= STENCIL_NUM_LINES; j++)
+        {
+          asize   = (j * rball * 2 / STENCIL_NUM_LINES);
+          asmooth = (int32_t)
+            smoothlerp((float)((float)asize /
+                       (2 * (float)rball)), 0, 2 * (float)rball);
+
+          cmds.e.linewidth.cmd = FT80X_LINE_WIDTH(asmooth * 16);
+          cmds.e.vertex2f1.cmd = FT80X_VERTEX2F((xball - rball)*16,(yball - rball )*16);
+          cmds.e.vertex2f2.cmd = FT80X_VERTEX2F((xball + rball)*16,(yball - rball )*16);
+
+          ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+              return ret;
+            }
+        }
+
+      cmds.f.end1.cmd         = FT80X_END();
+
+      cmds.f.colormask.cmd    = FT80X_COLOR_MASK(1, 1, 1, 1);
+      cmds.f.stencilfunc1.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_ALWAYS, 1, 255);
+      cmds.f.stencilop1.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP, STENCIL_OP_KEEP);
+      cmds.f.colorrgb1.cmd    = FT80X_COLOR_RGB(255, 255, 255);
+      cmds.f.pointsize.cmd    = FT80X_POINT_SIZE(rball * 16);
+      cmds.f.begin.cmd        = FT80X_BEGIN(FT80X_PRIM_POINTS);
+      cmds.f.vertex2f1.cmd    = FT80X_VERTEX2F((xball - 1) * 16, (yball - 1) * 16);
+      cmds.f.colorrgb2.cmd    = FT80X_COLOR_RGB(0, 0, 0);
+      cmds.f.colora1.cmd      = FT80X_COLOR_A(160);
+      cmds.f.vertex2f2.cmd    = FT80X_VERTEX2F((xball + 16) * 16, (yball + 8) * 16);
+      cmds.f.colora2.cmd      = FT80X_COLOR_A(255);
+      cmds.f.colorrgb3.cmd    = FT80X_COLOR_RGB(255, 255, 255);
+      cmds.f.vertex2f3.cmd    = FT80X_VERTEX2F(xball * 16, yball * 16);
+      cmds.f.colorrgb4.cmd    = FT80X_COLOR_RGB(255, 0, 0);
+      cmds.f.stencilfunc2.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL, 1, 1);
+      cmds.f.stencilop2.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP, STENCIL_OP_KEEP);
+      cmds.f.vertex2f4.cmd    = FT80X_VERTEX2F(xball * 16, yball * 16);
+      cmds.f.end2.cmd         = FT80X_END();
+
+      ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+          return ret;
+        }
+
+      /* Finally, terminate the display list */
+
+      ret = ft80x_dl_end(fd, buffer);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_dl_end failed: %d\n", ret);
+        }
+    }
+
+  return ret;
 }
 
 /****************************************************************************

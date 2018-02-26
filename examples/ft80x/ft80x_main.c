@@ -83,6 +83,7 @@ struct ft80x_exampleinfo_s
                                            primitive
  *  ft80x_prim_rectangles  RECTS           Rectangle drawing primitive
  *  ft80x_prim_scissor     SCISSOR         Scissor primitive
+ *  ft80x_prim_stencil     STENCIL         Stencil primitives
  *  ft80x_prim_alphablend  COLOR_A         Additive blend
  */
 
@@ -97,6 +98,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
   { "Edge Strip R", ft80x_prim_edgestrip_r },
   { "Rectangles",   ft80x_prim_rectangles },
   { "Scissor",      ft80x_prim_scissor },
+  { "Stencil",      ft80x_prim_stencil },
   { "Alpha Blend",  ft80x_prim_alphablend }
 };
 
