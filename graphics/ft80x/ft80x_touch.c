@@ -76,7 +76,12 @@ int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6])
 
   /* Read FT80X_REG_TOUCH_TRANSFORM_A through FT80X_REG_TOUCH_TRANSFORM_F */
 
+#ifdef CONFIG_LCD_FT800
   ret = ft80x_getregs(fd, FT80X_REG_TOUCH_TRANSFORM_A, 6, matrix);
+#else
+  ret = ft80x_getregs(fd, FT80X_REG_CTOUCH_TRANSFORM_A, 6, matrix);
+#endif
+
   if (ret < 0)
     {
       ft80x_err("ERROR:  ft80x_getregs failed: %d\n", ret);
@@ -320,7 +325,7 @@ int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info)
 #elif defined(CONFIG_LCD_FT801)
   /* Read REG_CTOUCH_TAG */
 
-  ret = ft80x_getreg8(fd, FT80X_REG_CTOUCH_TAG, &tag);
+  ret = ft80x_getreg8(fd, FT80X_REG_CTOUCH_TAG, &info->tag);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_getreg8 failed: %d\n", ret);

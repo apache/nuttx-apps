@@ -154,7 +154,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       readlen = remaining;
 
       /* Clip to the amount that will fit into the display buffer (which we
-       * are re-purposing for audio data for now)
+       * are re-purposing for audio data buffer for now)
        */
 
       if (readlen > MAX_DLBUFFER)
@@ -168,7 +168,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       if (nread < 0)
         {
           ret = -errno;
-          ft80x_err("ERROR: open of %s failed: %d\n", filepath, ret);
+          ft80x_err("ERROR: read from %s failed: %d\n", filepath, ret);
           goto errout_with_fd;
         }
 
