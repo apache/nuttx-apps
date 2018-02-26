@@ -73,10 +73,10 @@
  *   display list logic.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   cmds   - A list of 32-bit commands to be sent.
- *   ncmds  - The number of commands in the list.
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   cmds  - A list of 32-bit commands to be sent.
+ *   ncmds - The number of commands in the list.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -101,8 +101,8 @@ int ft80x_coproc_send(int fd, FAR const uint32_t *cmds, size_t ncmds)
  *   starting address of RAM_CMD.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.

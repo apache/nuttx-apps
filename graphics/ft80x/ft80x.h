@@ -125,10 +125,10 @@ struct ft80x_dlbuffer_s;  /* Forward reference3 */
  *   Read an 8-, 16-, or 32-bit FT80x register value.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   addr   - The 32-bit aligned, 22-bit register value
- *   value  - The location to return the register value
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   addr  - The 32-bit aligned, 22-bit register value
+ *   value - The location to return the register value
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -146,11 +146,11 @@ int ft80x_getreg32(int fd, uint32_t addr, FAR uint32_t *value);
  *   Read multiple 32-bit FT80x register values.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   addr   - The 32-bit aligned, 22-bit start register address
- *   nregs  - The number of registers to read.
- *   value  - The location to return the register values
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   addr  - The 32-bit aligned, 22-bit start register address
+ *   nregs - The number of registers to read.
+ *   value - The location to return the register values
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -166,10 +166,10 @@ int ft80x_getregs(int fd, uint32_t addr, uint8_t nregs, FAR uint32_t *value);
  *   Wtite an 8-, 16-, or 32-bit FT80x register value.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   addr   - The 32-bit aligned, 22-bit register value
- *   value  - The register value to write.
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   addr  - The 32-bit aligned, 22-bit register value
+ *   value - The register value to write.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -187,11 +187,11 @@ int ft80x_putreg32(int fd, uint32_t addr, uint32_t value);
  *   Write multiple 32-bit FT80x register values.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   addr   - The 32-bit aligned, 22-bit start register address
- *   nregs  - The number of registers to write.
- *   value  - The of the register values to be written.
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   addr  - The 32-bit aligned, 22-bit start register address
+ *   nregs - The number of registers to write.
+ *   value - The of the register values to be written.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -225,10 +225,10 @@ int ft80x_ramdl_rewind(int fd);
  *   Append new display list data to RAM DL
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   data   - A pointer to the start of the data to be written.
- *   len    - The number of bytes to be written.
+ *   fd   - The file descriptor of the FT80x device.  Opened by the caller
+ *          with write access.
+ *   data - A pointer to the start of the data to be written.
+ *   len  - The number of bytes to be written.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -244,10 +244,10 @@ int ft80x_ramdl_append(int fd, FAR const void *data, size_t len);
  *   Append new display list data to RAM CMD
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   data   - A pointer to the start of the data to be append to RAM CMD.
- *   len    - The number of bytes to be appended.
+ *   fd   - The file descriptor of the FT80x device.  Opened by the caller
+ *          with write access.
+ *   data - A pointer to the start of the data to be append to RAM CMD.
+ *   len  - The number of bytes to be appended.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -286,8 +286,8 @@ uint16_t ft80x_ramcmd_freespace(int fd, FAR uint16_t *offset,
  *   empty.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -303,8 +303,8 @@ int ft80x_ramcmd_waitfifoempty(int fd);
  *   Perform the display swap operation.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.

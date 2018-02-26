@@ -55,19 +55,29 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* We will use graphics memory starting at offset zero and through the
- * following offset.
- *
- * REVISIT:  Should these not be input parameters?
+/* These configuration settings define the graphics memory region that we
+ * will use for audio buffering.
  */
 
-#define RAMG_MAXOFFSET   (64 * 1024)
-#define RAMG_MAXMASK     (RAMG_MAXOFFSET - 1)
+#define AUDIO_BUFOFFSET    CONFIG_GRAPHICS_FT80X_AUDIO_BUFOFFSET
+#define AUDIO_BUFSIZE      CONFIG_GRAPHICS_FT80X_AUDIO_BUFSIZE
+#define AUDIO_BUFEND       (AUDIO_BUFOFFSET + AUDIO_BUFSIZE)
 
-#if FT80X_DL_BUFSIZE > RAMG_MAXOFFSET
-#  define MAX_DLBUFFER    RAMG_MAXOFFSET
+#if AUDIO_BUFEND > FT80X_RAM_G_SIZE
+#  error "Audio buffer extends beyond RAM G"
+#endif
+
+#define RAMG_STARTADDR     (FT80X_RAM_G + AUDIO_BUFOFFSET)
+#define RAMG_ENDADDR       (FT80X_RAM_G + AUDIO_BUFEND)
+
+/* The display list buffer will be re-purposed as an I/O buffer for the
+ * transfer of audio data to RAM G.
+ */
+
+#if FT80X_DL_BUFSIZE > AUDIO_BUFSIZE
+#  define MAX_DLBUFFER     AUDIO_BUFSIZE
 #else
-#  define MAX_DLBUFFER    FT80X_DL_BUFSIZE
+#  define MAX_DLBUFFER     FT80X_DL_BUFSIZE
 #endif
 
 /****************************************************************************
@@ -196,7 +206,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
           if (readptr <= offset)
             {
-              freespace = RAMG_MAXOFFSET - offset;
+              freespace = AUDIO_BUFSIZE - offset;
               break;
             }
 
@@ -229,7 +239,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
        }
       while (freespace < MAX_DLBUFFER &&
              freespace < remaining &&
-             freespace < (RAMG_MAXOFFSET - offset));
+             freespace < (AUDIO_BUFSIZE - offset));
 
       /* Clip to the amount that will fit at the tail of the RAM G buffer */
 
@@ -268,7 +278,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       /* Wrap the offset back to the beginning of the buffer if necessary */
 
-      if (offset >= RAMG_MAXOFFSET)
+      if (offset >= AUDIO_BUFSIZE)
         {
           offset = 0;
         }
@@ -284,7 +294,8 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           /* Start playing at the beginning of graphics memory */
           /* Set the audio playback start address */
 
-          ret = ft80x_putreg32(fd, FT80X_REG_PLAYBACK_START, FT80X_RAM_G);
+          ret = ft80x_putreg32(fd, FT80X_REG_PLAYBACK_START,
+                               RAMG_STARTADDR);
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_putreg32 failed: %d\n", ret);
@@ -294,7 +305,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           /* Set the length of the audio buffer */
 
           ret = ft80x_putreg32(fd, FT80X_REG_PLAYBACK_LENGTH,
-                               RAMG_MAXOFFSET);
+                               AUDIO_BUFSIZE);
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_putreg32 failed: %d\n", ret);
@@ -388,10 +399,10 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   if (readptr <= offset)
     {
-      if (offset < RAMG_MAXOFFSET)
+      if (offset < AUDIO_BUFSIZE)
         {
-          memset.ptr  = FT80X_RAM_G + offset;
-          memset.num  = RAMG_MAXOFFSET - offset;
+          memset.ptr  = RAMG_STARTADDR + offset;
+          memset.num  = AUDIO_BUFSIZE - offset;
 
           ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
           if (ret < 0)
@@ -403,7 +414,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       if (readptr > 0)
         {
-          memset.ptr  = FT80X_RAM_G;
+          memset.ptr  = RAMG_STARTADDR;
           memset.num  = readptr;
 
           ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
@@ -416,7 +427,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     }
   else /* if (readptr > offset) */
     {
-      memset.ptr  = FT80X_RAM_G + offset;
+      memset.ptr  = RAMG_STARTADDR + offset;
       memset.num  = readptr - offset;
 
       ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);

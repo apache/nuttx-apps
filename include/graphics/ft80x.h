@@ -278,10 +278,10 @@ int ft80x_dl_create(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   display list logic.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   cmds   - A list of 32-bit commands to be sent.
- *   ncmds  - The number of commands in the list.
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   cmds  - A list of 32-bit commands to be sent.
+ *   ncmds - The number of commands in the list.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -303,8 +303,8 @@ int ft80x_coproc_send(int fd, FAR const uint32_t *cmds, size_t ncmds);
  *   starting address of RAM_CMD.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -366,8 +366,8 @@ int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6]);
  *   touch 0.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
+ *   fd - The file descriptor of the FT80x device.  Opened by the caller
+ *        with write access.
  *
  * Returned Value:
  *   A value of 1-255 is returned if a graphics object is touched.  Zero is
@@ -425,7 +425,7 @@ int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info);
  * Name: ft80x_audio_playfile
  *
  * Description:
- *   Play an audio file
+ *   Play an audio file.  Audio files must consist of raw sample data.
  *
  * Input Parameters:
  *   fd        - The file descriptor of the FT80x device.  Opened by the
@@ -460,10 +460,10 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   Set the backlight intensity via the PWM duty.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   duty   - The new backlight duty (as a percentage 0..100)
- *   delay  - The duration of the fade in milliseconds.
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   duty  - The new backlight duty (as a percentage 0..100)
+ *   delay - The duration of the fade in milliseconds.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -479,10 +479,10 @@ int ft80x_backlight_set(int fd, uint8_t duty);
  *   Change the backlight intensity with a controllable fade.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller
- *            with write access.
- *   duty   - The terminal duty (as a percentage 0..100)
- *   delay  - The duration of the fade in milliseconds (10..16700).
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   duty  - The terminal duty (as a percentage 0..100)
+ *   delay - The duration of the fade in milliseconds (10..16700).
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.

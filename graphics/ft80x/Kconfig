@@ -36,6 +36,34 @@ config GRAPHICS_FT80X_TAG_SIGNAL
 		This is the signal that will be received when the co-processor the
 		detected touch tag changes.
 
+config GRAPHICS_FT80X_AUDIO_BUFOFFSET
+	hex "RAM G audio buffer start offset"
+	default 0x00000
+	range 0x00000 0x3f800
+	---help---
+		When playing an audio file, chunks of the audio file will be stored
+		in a circular buffer in graphics RAM (RAMG G, 256Kb).
+
+		CONFIG_GRAPHICS_FT80X_AUDIO_BUFOFFSET is the starting offset in RAM G for that
+		buffer and CONFIG_FT80x_AUDIO_BUFSIZE is the size of the buffer.
+
+		The buffer may, of course, be used for other purposes when not
+		playing an audio file.
+
+config GRAPHICS_FT80X_AUDIO_BUFSIZE
+	hex "RAM G audio buffer size"
+	default 0x10000
+	range 0x00800 0x38000
+	---help---
+		When playing an audio file, chunks of the audio file will be stored
+		in a circular buffer in graphics RAM (RAMG G, 256Kb).
+
+		CONFIG_GRAPHICS_FT80X_AUDIO_BUFOFFSET is the starting offset in RAM G for that
+		buffer and CONFIG_FT80x_AUDIO_BUFSIZE is the size of the buffer.
+
+		The buffer may, of course, be used for other purposes when not
+		playing an audio file.
+
 config GRAPHICS_FT80X_DEBUG_ERROR
 	bool "Enable error output"
 	default y
