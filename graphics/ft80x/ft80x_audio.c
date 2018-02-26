@@ -288,9 +288,10 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       while (freespace < MAX_DLBUFFER || freespace < remaining);
    }
 
-  /* Mute the sound clearing buffer.
+  /* Mute the sound clearing by clearing RAM_G after the current offset.
+   *
    * REVISIT:  There is an ugly hack into the display list logic in the
-   * following 8(
+   * following 8(  I also suspect that the logic is not even correct.
    */
 
   memset.cmd       = FT80X_CMD_MEMSET;

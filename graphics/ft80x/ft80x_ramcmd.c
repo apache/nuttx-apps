@@ -165,9 +165,8 @@ int ft80x_ramcmd_append(int fd, FAR struct ft80x_dlbuffer_s *buffer,
             }
         }
 
-      /* Set up for the next time through the loop */
+      /* Set up for the next time through the loop. */
 
-      buffer->dlsize += wrsize;
       remaining      -= wrsize;
       src            += wrsize;
     }
