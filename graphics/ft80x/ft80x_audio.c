@@ -162,6 +162,82 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           readlen = MAX_DLBUFFER;
         }
 
+      /* Check size of the buffer we can fit into RAM G */
+
+      do
+        {
+          /* Get the current playback position */
+
+          readptr = 0;
+          ret = ft80x_getreg32(fd, FT80X_REG_PLAYBACK_READPTR, &readptr);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_getreg32 failed: %d\n", ret);
+              goto errout_with_fd;
+            }
+
+          /* Check if the readptr is before the current offset.  In this
+           * case, we can use all of the RAM G from the current offset to
+           * the end of the buffer.
+           *
+           *   Case 1:  readptr <= offset
+           *
+           *     +--------+-------+-----+
+           *     |        |       |xxxxx|
+           *     +--------+-------+-----+
+           *     |        |       |     ^ end buffer
+           *     |        |       ^ offset
+           *     |        ^ readptr
+           *     ^ start buffer
+           *
+           * NOTE: There is a race condition here:  The readptr could
+           * overtake the offset before we can perform the write.
+           */
+
+          if (readptr <= offset)
+            {
+              freespace = RAMG_MAXOFFSET - offset;
+              break;
+            }
+
+          /* No, the readptr is after the offset.  In this case we can use
+           * all of the RAM G from the current offset to the readptr.
+           *
+           *   Case 2:  readptr > offset
+           *
+           *     +--------+-------+-----+
+           *     |        |xxxxxxx|     |
+           *     +--------+-------+-----+
+           *     |        |       |     ^ end buffer
+           *     |        |       ^ readptr
+           *     |        ^ offset
+           *     ^ start buffer
+           */
+
+          else
+            {
+              freespace = readptr - offset;
+            }
+
+          /* Terminate the poll when all the memory to end of the RAM G
+           * buffer is available (see the 'break' above), when an optimally
+           * sized space is available (MAX_DLBUFFER), there is space to
+           * write all of the 'remaining' file data, or all of the memory is
+           * free up to the end of the RAM G buffer (actually already
+           * handled by the above 'break')
+           */
+       }
+      while (freespace < MAX_DLBUFFER &&
+             freespace < remaining &&
+             freespace < (RAMG_MAXOFFSET - offset));
+
+      /* Clip to the amount that will fit at the tail of the RAM G buffer */
+
+      if (readlen > freespace)
+        {
+          readlen = freespace;
+        }
+
       /* Read the data into the available display list buffer */
 
       nread = read(audiofd, buffer->dlbuffer, readlen);
@@ -185,8 +261,17 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           goto errout_with_fd;
         }
 
+      /* Update pointers and counts */
+
       offset    += nread;
       remaining -= nread;
+
+      /* Wrap the offset back to the beginning of the buffer if necessary */
+
+      if (offset >= RAMG_MAXOFFSET)
+        {
+          offset = 0;
+        }
 
       /* If we have started playing the audio file in RAGM_G.  NOTE that
        * there is a race condition here.  If the chunk size is small or if
@@ -263,49 +348,87 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
           started = true;
         }
-
-      /* Check the freespace if we can fit bull buffer (or the remaining
-       * buffer) into RAM_G.
-       */
-
-      do
-        {
-          uint32_t inuse;
-
-          /* Get the current playback position */
-
-          readptr = 0;
-          ret = ft80x_getreg32(fd, FT80X_REG_PLAYBACK_READPTR, &readptr);
-          if (ret < 0)
-            {
-              ft80x_err("ERROR: ft80x_getreg32 failed: %d\n", ret);
-              goto errout_with_fd;
-            }
-
-          inuse     = (offset - readptr) & RAMG_MAXMASK;
-          freespace = RAMG_MAXOFFSET - inuse;
-       }
-      while (freespace < MAX_DLBUFFER || freespace < remaining);
    }
 
-  /* Mute the sound clearing by clearing RAM_G after the current offset.
+  /* Transfer is complete.  'offset' points to the end of the file in RAM G.
+   * Clear all of the RAM G at the end of the file so that audio is muted
+   * when the end of file is encountered.
    *
-   * REVISIT:  I suspect that this logic is not correct.
+   *   Case 1:  readptr <= offset
+   *
+   *     +--------+-------+-----+
+   *     |00000000|       |00000|
+   *     +--------+-------+-----+
+   *     |        |       |     ^ end buffer
+   *     |        |       ^ offset
+   *     |        ^ readptr
+   *     ^ start buffer
+   *
+   *   Case 2:  readptr > offset
+   *
+   *     +--------+-------+-----+
+   *     |        |0000000|     |
+   *     +--------+-------+-----+
+   *     |        |       |     ^ end buffer
+   *     |        |       ^ readptr
+   *     |        ^ offset
+   *     ^ start buffer
    */
 
   memset.cmd       = FT80X_CMD_MEMSET;
-  memset.ptr       = FT80X_RAM_G + offset;
   memset.value     = 0;
-  memset.num       = RAMG_MAXOFFSET - offset;
 
-  ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
+  readptr = 0;
+  ret = ft80x_getreg32(fd, FT80X_REG_PLAYBACK_READPTR, &readptr);
   if (ret < 0)
     {
-      ft80x_err("ERROR: ft80x_ramcmd_append failed: %d\n", ret);
+      ft80x_err("ERROR: ft80x_getreg32 failed: %d\n", ret);
       goto errout_with_fd;
     }
 
-  /* If the read pointer is already passed over write pointer */
+  if (readptr <= offset)
+    {
+      if (offset < RAMG_MAXOFFSET)
+        {
+          memset.ptr  = FT80X_RAM_G + offset;
+          memset.num  = RAMG_MAXOFFSET - offset;
+
+          ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+              goto errout_with_fd;
+            }
+        }
+
+      if (readptr > 0)
+        {
+          memset.ptr  = FT80X_RAM_G;
+          memset.num  = readptr;
+
+          ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
+          if (ret < 0)
+            {
+              ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+              goto errout_with_fd;
+            }
+        }
+    }
+  else /* if (readptr > offset) */
+    {
+      memset.ptr  = FT80X_RAM_G + offset;
+      memset.num  = readptr - offset;
+
+      ret = ft80x_coproc_send(fd, (FAR const uint32_t *)&memset, 4);
+      if (ret < 0)
+        {
+          ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
+          goto errout_with_fd;
+        }
+
+    }
+
+  /* Wait until the read pointer wraps back to the beginning of the buffer */
 
   do
     {
@@ -319,7 +442,11 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     }
   while (readptr > offset);
 
-  /* Wait till read pointer pass through write pointer */
+  /* Wait until the read pointer pass through write pointer into the zeroed
+   * area.
+   *
+   * REVISIT:  What if the offset is at the very end of the buffer?
+   */
 
   do
     {
