@@ -516,6 +516,12 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   dispr -= (dispr - displ) % gridsize;
   dispb -= (dispb - dispa) % gridsize;
 
+  ret = ft80x_audio_enable(fd, true);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_audio_enable(FT80X_IOC_AUDIO) failed: %d\n", ret);
+    }
+
   for (i = 100; i > 0; i--)
     {
       if ((xball + rball + 2) >= dispr || (xball - rball - 2) <= displ)
@@ -526,7 +532,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
-              return ret;
+              goto errout_with_sound;;
             }
         }
 
@@ -538,7 +544,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
-              return ret;
+              goto errout_with_sound;;
             }
         }
 
@@ -566,7 +572,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
-          return ret;
+          goto errout_with_sound;;
         }
 
       cmds.a.clearrgb.cmd    = FT80X_CLEAR_COLOR_RGB(128, 128, 0);
@@ -583,7 +589,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          return ret;
+          goto errout_with_sound;;
         }
 
       for (j = 0; j <= ((dispr - displ) / gridsize); j++)
@@ -597,7 +603,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              return ret;
+              goto errout_with_sound;;
             }
         }
 
@@ -612,7 +618,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              return ret;
+              goto errout_with_sound;;
             }
         }
 
@@ -628,7 +634,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          return ret;
+          goto errout_with_sound;;
         }
 
       /* One side points */
@@ -667,7 +673,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          return ret;
+          goto errout_with_sound;;
         }
 
       /* Draw lines - line should be at least radius diameter */
@@ -687,7 +693,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              return ret;
+              goto errout_with_sound;;
             }
         }
 
@@ -716,7 +722,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          return ret;
+          goto errout_with_sound;;
         }
 
       /* Finally, terminate the display list */
@@ -728,6 +734,8 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
         }
     }
 
+errout_with_sound:
+  (void)ft80x_audio_enable(fd, false);
   return ret;
 }
 

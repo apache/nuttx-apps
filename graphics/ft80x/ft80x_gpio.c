@@ -64,18 +64,75 @@
  *           with write access.
  *   gpio  - Identifies the GPIO pin {0,1}
  *   dir   - Direction:  0=input, 1=output
- *   drive - Common output drive strength for GPIO 0 and 1:
- *           0=4mA, 1=8mA, 2=12mA, 3=16mA (default is 4mA)
+ *   drive - Common output drive strength for GPIO 0 and 1 (see
+ *           FT80X_GPIO_DRIVE_* definitions).  Default is 4mA.
+ *   value - Initial value for output pins
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive)
+int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive,
+                         bool value)
 {
-#warning "Missing logic"
-  return OK;
+  uint8_t regval8;
+  int ret;
+
+  DEBUGASSERT(gpio == 0 || gpio == 1 || gpio == 7);
+  DEBUGASSERT(dir == 0 || dir == 1);
+  DEBUGASSERT((drive & ~FT80X_GPIO_DRIVE_MASK) == 0);
+
+  /* Set the pin drive strength and output value */
+
+  ret = ft80x_getreg8(fd, FT80X_REG_GPIO, &regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg8 failed; %d\n", ret);
+      return ret;
+    }
+
+  regval8 &= ~(FT80X_GPIO_DRIVE_MASK | (1 << gpio));
+  regval8 |= drive;
+
+  if (value)
+    {
+      regval8 |= (1 << gpio);
+    }
+
+  ret = ft80x_putreg8(fd, FT80X_REG_GPIO, regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_putreg8 failed; %d\n", ret);
+      return ret;
+    }
+
+  /* Set the pin direction */
+
+
+  ret = ft80x_getreg8(fd, FT80X_REG_GPIO_DIR, &regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg8 failed; %d\n", ret);
+      return ret;
+    }
+
+  if (dir == 0)
+    {
+      regval8 &= ~(1 << gpio);
+    }
+  else
+    {
+      regval8 |= (1 << gpio);
+    }
+
+  ret = ft80x_putreg8(fd, FT80X_REG_GPIO_DIR, regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_putreg8 failed; %d\n", ret);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -97,8 +154,36 @@ int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive)
 
 int ft80x_gpio_write(int fd, uint8_t gpio, bool value)
 {
-#warning "Missing logic"
-  return OK;
+  uint8_t regval8;
+  int ret;
+
+  DEBUGASSERT(gpio == 0 || gpio == 1 || gpio == 7);
+
+  /* Set the output value */
+
+  ret = ft80x_getreg8(fd, FT80X_REG_GPIO, &regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg8 failed; %d\n", ret);
+      return ret;
+    }
+
+  if (value)
+    {
+      regval8 |= (1 << gpio);
+    }
+  else
+    {
+      regval8 &= ~(1 << gpio);
+    }
+
+  ret = ft80x_putreg8(fd, FT80X_REG_GPIO, regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_putreg8 failed; %d\n", ret);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -119,6 +204,19 @@ int ft80x_gpio_write(int fd, uint8_t gpio, bool value)
 
 bool ft80x_gpio_read(int fd, uint8_t gpio)
 {
-#warning "Missing logic"
-  return OK;
+  uint8_t regval8;
+  int ret;
+
+  DEBUGASSERT(gpio == 0 || gpio == 1 || gpio == 7);
+
+  /* Return the input value */
+
+  ret = ft80x_getreg8(fd, FT80X_REG_GPIO, &regval8);
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_getreg8 failed; %d\n", ret);
+      return false;
+    }
+
+  return (regval8 & (1 << gpio)) != 0;
 }

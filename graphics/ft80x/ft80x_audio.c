@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <fcntl.h>
@@ -85,10 +86,50 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ft80x_audio_enable
+ *
+ * Description:
+ *   Play an short sound effect.  If there is a audio amplifier on board
+ *   (such as TPA6205A or LM4864), then there may also be an active low
+ *   audio shutdown output.  That output is controlled by this interface.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the
+ *            caller with write access.
+ *   enable - True: Enabled the audio amplifier; false: disable
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_audio_enable(int fd, bool enable)
+{
+#ifndef CONFIG_LCD_FT80X_AUDIO_NOSHUTDOWN
+  int ret;
+
+  ret = ioctl(fd, FT80X_IOC_AUDIO, (unsigned long)enable);
+  if (ret < 0)
+    {
+      ret = -errno;
+      ft80x_err("ERROR: ioctl(FT80X_IOC_AUDIO) failed: %d\n", ret);
+    }
+
+  return ret;
+
+#else
+  return OK;
+#endif
+}
+
+/****************************************************************************
  * Name: ft80x_audio_playsound
  *
  * Description:
- *   Play an short sound effect
+ *   Play an short sound effect.
+ *
+ *   NOTE:  It may be necessary to enable the audio amplifier with
+ *   ft80x_audio_enable() prior to calling this function.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the
@@ -110,7 +151,7 @@ int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch)
   cmds[0] = effect | pitch;
   cmds[1] = 1;
 
-  return ft80x_putregs(fd,FT80X_REG_SOUND, cmds, 2);
+  return ft80x_putregs(fd, FT80X_REG_SOUND, 2, cmds);
 }
 
 /****************************************************************************
@@ -118,6 +159,9 @@ int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch)
  *
  * Description:
  *   Play an audio file.  Audio files must consist of raw sample data.
+ *
+ *   NOTE:  It may be necessary to enable the audio amplifier with
+ *   ft80x_audio_enable() prior to calling this function.
  *
  * Input Parameters:
  *   fd        - The file descriptor of the FT80x device.  Opened by the

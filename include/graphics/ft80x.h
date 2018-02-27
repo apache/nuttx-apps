@@ -422,10 +422,33 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag);
 int ft80x_touch_info(int fd, FAR struct ft80x_touchinfo_s *info);
 
 /****************************************************************************
+ * Name: ft80x_audio_enable
+ *
+ * Description:
+ *   Play an short sound effect.  If there is a audio amplifier on board
+ *   (such as TPA6205A or LM4864), then there may also be an active low
+ *   audio shutdown output.  That output is controlled by this interface.
+ *
+ * Input Parameters:
+ *   fd     - The file descriptor of the FT80x device.  Opened by the
+ *            caller with write access.
+ *   enable - True: Enabled the audio amplifier; false: disable
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_audio_enable(int fd, bool enable);
+
+/****************************************************************************
  * Name: ft80x_audio_playsound
  *
  * Description:
- *   Play an short sound effect
+ *   Play an short sound effect.
+ *
+ *   NOTE:  It may be necessary to enable the audio amplifier with
+ *   ft80x_audio_enable() prior to calling this function.
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the
@@ -447,6 +470,9 @@ int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch);
  *
  * Description:
  *   Play an audio file.  Audio files must consist of raw sample data.
+ *
+ *   NOTE:  It may be necessary to enable the audio amplifier with
+ *   ft80x_audio_enable() prior to calling this function.
  *
  * Input Parameters:
  *   fd        - The file descriptor of the FT80x device.  Opened by the
@@ -523,15 +549,17 @@ int ft80x_backlight_fade(int fd, uint8_t duty, uint16_t delay);
  *           with write access.
  *   gpio  - Identifies the GPIO pin {0,1}
  *   dir   - Direction:  0=input, 1=output
- *   drive - Common output drive strength for GPIO 0 and 1:
- *           0=4mA, 1=8mA, 2=12mA, 3=16mA (default is 4mA)
+ *   drive - Common output drive strength for GPIO 0 and 1 (see
+ *           FT80X_GPIO_DRIVE_* definitions).  Default is 4mA.
+ *   value - Initial value for output pins
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive);
+int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive,
+                         bool value);
 
 /****************************************************************************
  * Name: ft80x_gpio_write
