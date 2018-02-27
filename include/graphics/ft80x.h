@@ -512,6 +512,64 @@ int ft80x_backlight_set(int fd, uint8_t duty);
 
 int ft80x_backlight_fade(int fd, uint8_t duty, uint16_t delay);
 
+/****************************************************************************
+ * Name: ft80x_gpio_configure
+ *
+ * Description:
+ *   Configure an FT80x GPIO pin
+ *
+ * Input Parameters:
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   gpio  - Identifies the GPIO pin {0,1}
+ *   dir   - Direction:  0=input, 1=output
+ *   drive - Common output drive strength for GPIO 0 and 1:
+ *           0=4mA, 1=8mA, 2=12mA, 3=16mA (default is 4mA)
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive);
+
+/****************************************************************************
+ * Name: ft80x_gpio_write
+ *
+ * Description:
+ *   Write a value to a pin configured for output
+ *
+ * Input Parameters:
+ *   fd    - The file descriptor of the FT80x device.  Opened by the caller
+ *           with write access.
+ *   gpio  - Identifies the GPIO pin {0,1}
+ *   value - True: high, false: low
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int ft80x_gpio_write(int fd, uint8_t gpio, bool value);
+
+/****************************************************************************
+ * Name: ft80x_gpio_read
+ *
+ * Description:
+ *   Read the value from a pin configured for input
+ *
+ * Input Parameters:
+ *   fd   - The file descriptor of the FT80x device.  Opened by the caller
+ *          with write access.
+ *   gpio - Identifies the GPIO pin {0,1}
+ *
+ * Returned Value:
+ *   True: high, false: low
+ *
+ ****************************************************************************/
+
+bool ft80x_gpio_read(int fd, uint8_t gpio);
+
 #undef EXTERN
 #ifdef __cplusplus
 }
