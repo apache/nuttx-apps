@@ -2544,7 +2544,7 @@
 	  geomtry  is better on very wide displays (wide with respect to the width
 	  of a character) (2017-11-30).
 
-7.24 2018-03-01 Gregory Nutt <gnutt@nuttx.org>
+7.24 2018-03-02 Gregory Nutt <gnutt@nuttx.org>
 
 	* i8shark: Fixes special XBee compensation by purposely chopping off the
 	  FCS.  From Anthony Merlino (2017-12-08).
@@ -2566,7 +2566,8 @@
 	* apps/nshlib:  Add irqinfo command.  From Gregory Nutt (2018-01-12).
 	* apps/system/usbmsc: Added Kconfig options to configure write
 	  protection for each LUN.  From Fabio D'Urso (2018-01-14).
-	* apps/examples/lvgldemo:  Add lvgldemo example
+	* apps/examples/lvgldemo:  Add lvgldemo example.  From Alan Carvalho
+	  de Assis (2018-01-16).
 	* apps/graphics/littlevgl:  Add littlevgl library.  From Alan Carvalho
 	  de Assis (2018-01-16).
 	* apps/examples/touchscreen:  Eliminate BOARDIOC_TSCTEST_SETUP.  From
@@ -2599,5 +2600,5 @@
 	* Added ECANCELED condition to DEBUGASSERT-s checking sem_wait result.
 	  From Dmitriy Linikov (2018-02-20).
 
-7.24 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.25 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
