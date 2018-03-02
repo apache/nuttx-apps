@@ -623,9 +623,28 @@
   (2016-12-01).
 * CNxServer: Can't use printf in this context (2016-12-01)
 
-1.19 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.19 2018-03-02 Gregory Nutt <gnutt@nuttx.org>
 
-* Correct NX Server message queue names.  Should not be /dev/nx*.  They
-  must be relative to /dev/mqueue so "nxabc" will appear at "/var/nxabc"
+* Correct NX Server message queue names.  Should not be /dev/nx*.  They must
+  be relative to /dev/mqueue so "nxabc" will appear at "/var/nxabc"
   (2017-01-08).
+* strcasecmp, strncasecmp, bzero, bcmp, and bcopy should be defined in
+  strings.h, not string.h.  bzero, bcmp, and bcopy are legacy functions; the
+  contemporary counterparts should be used instead (2017-02-16).
+* Unitests/nxwm:  Change includes because up_cxxinitialize() is now
+  prototyped in apps/include/platfor/cxxinitialize.h (2017-05-13).
+* Prototype of nsh_telnetstart() has changed (2017-07-05).
+* NxWidgets: fix work_s initialization in cwindowmessenger.hxx. From Sakari
+  Kapanen (2017-09-24).
+* Remove all support for single user mode (2017-10-14).
+* Remove unused CONFIG_NXWIDGETS_EXTERNINIT configuration variable
+  (2017-10-15).
+* CTaskBar: Fix type checking issue with GCC 6  From Sakari Kapanen
+  (2017-11-08).
+* nxwm:  Eliminate BOARDIOC_TSCTEST_SETUP (2018-01-17).
+* In NxWM unit test, call boardctl(BOARDIOC_INIT) if available and
+  appropriate (2018-01-17).
+* Fix a dependency in Kconfig:  CONFIG_NXWIDGET_SERVERINIT is definitely
+  supported in the PROTECTED and KERNEL build modes (2018-01-18).
 
+1.20 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>

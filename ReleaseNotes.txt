@@ -605,3 +605,38 @@ Bugfixes:
   of rows to show and in clearing the background.  From Petteri Aimonen.
 * CNxServer: Can't use printf in this context.
 
+NxWidgets-1.19
+==============
+
+The 20th release of the NxWidgets package was made on March 2, 2018.  This
+release depends on NuttX-7.24 or above and should not be used with older
+NuttX releases.
+
+The TAG for this release is nuttx-7.24
+
+Additional new features and extended functionality in Version 1.19:
+
+  (There are no new graphics features.  This release is for NuttX
+   compatibility only and includes a few additional bugfixes)
+
+Bugfixes and Updates for Compatibility with NuttX-7.24:
+
+* Correct NX Server message queue names.  Should not be /dev/nx*.  They must
+  be relative to /dev/mqueue so "nxabc" will appear at "/var/nxabc".
+* strcasecmp, strncasecmp, bzero, bcmp, and bcopy should be defined in
+  strings.h, not string.h.  bzero, bcmp, and bcopy are legacy functions; the
+  contemporary counterparts should be used instead.
+* Unitests/nxwm:  Change includes because up_cxxinitialize() is now
+  prototyped in apps/include/platfor/cxxinitialize.h.
+* Prototype of nsh_telnetstart() has changed.
+* NxWidgets:  Fix work_s initialization in cwindowmessenger.hxx. From Sakari
+  Kapanen.
+* Remove all support for single user mode.
+* Remove unused CONFIG_NXWIDGETS_EXTERNINIT configuration variable.
+* CTaskBar: Fix type checking issue with GCC 6  From Sakari Kapanen.
+* nxwm:  Eliminate BOARDIOC_TSCTEST_SETUP (2018-01-17).
+* In NxWM unit test, call boardctl(BOARDIOC_INIT) if available and
+  appropriate (2018-01-17).
+* Fix a dependency in Kconfig:  CONFIG_NXWIDGET_SERVERINIT is definitely
+  supported in the PROTECTED and KERNEL build modes (2018-01-18).
+
