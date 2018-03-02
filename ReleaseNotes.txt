@@ -490,14 +490,14 @@ NxWidgets-1.15
 ==============
 
 The 16th release of the NxWidgets package was made on April 14, 2015.  This
-release depends on NuttX-7.9 or above and should not be used with older
+release depends on NuttX-7.24 or above and should not be used with older
 NuttX releases.
 
 Additional new features and extended functionality in Version 1.15:
 
 * The primary purpose of this release is update the NxWidgets and NxWM
   implementations to reflect changes in naming and interfaces in the
-  NuttX 7.9 release
+  NuttX 7.24 release
 * NxWidgets:: INxWindow, CNxWindow, CBgWindow, CNxTkWindow, CNxToolbar,
   CGraphicsPort updated to include a "caps" parameter in all drawLine()
   methods.  This permits drawing a circular cap at the end of lines and

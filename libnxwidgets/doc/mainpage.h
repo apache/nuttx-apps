@@ -75,7 +75,7 @@
  *  many NSH sessions in windows as you want. (keybard input still comes
  *  through serial).
  *
- *  Note 1: The current release of NwWM requires NuttX-7.9 or above.
+ *  Note 1: The current release of NwWM requires NuttX-7.24 or above.
  *
  *  Note 2: Many of the fundamental classes in NxWidgets derive from the Antony
  *  Dzeryn's "Woopsi" project: http://woopsi.org/ which also has a BSD style
