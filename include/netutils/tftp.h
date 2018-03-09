@@ -1,8 +1,10 @@
 /****************************************************************************
  *  apps/include/netutils/tftp.h
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2018 Sebastien Lorquet. All rights reserved.
+ *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,16 +42,37 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdbool.h>
 #include <arpa/inet.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Type Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Type Definitions
+ * Name: tftp_callback_t
+ *
+ * Description:  This callback type is used for data exchange with the tftp
+ *   protocol handler.
+ *
+ * Input Parameters:
+ *   ctx    - pointer passed to the get or put TFTP function
+ *   offset - GET: Always zero
+ *            PUT: Data offset within the transmitted file
+ *   buf    - GET: Pointer to the received data
+ *            PUT: Location of data buffer that will be transferred
+ *   len    - GET: Size of the received data (usually 512)
+ *            PUT: Size of the provided buffer
+ * Return value:
+ *   GET: Number of bytes that were written to the destination by the user
+ *   PUT: Number of bytes that were retrieved from the user data source
+ *
  ****************************************************************************/
+
+typedef ssize_t (*tftp_callback_t)(FAR void *ctx, uint32_t offset,
+                                   FAR uint8_t *buf, size_t len);
 
 /****************************************************************************
  * Public Function Prototypes
@@ -63,8 +86,18 @@ extern "C"
 #define EXTERN extern
 #endif
 
-int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary);
-int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary);
+int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
+               tftp_callback_t cb, FAR void *ctx);
+
+int tftpput_cb(FAR const char *remote, in_addr_t addr, bool binary,
+               tftp_callback_t cb, FAR void *ctx);
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
+            bool binary);
+int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
+            bool binary);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus

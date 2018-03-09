@@ -1,8 +1,10 @@
 /****************************************************************************
  * netuils/tftp/tftpc_put.c
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2018 Sebastien Lorquet. All rights reserved.
+ *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -54,7 +56,7 @@
 
 #include "tftpc_internal.h"
 
-#if defined(CONFIG_NET) && defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#if defined(CONFIG_NET) && defined(CONFIG_NET_UDP)
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -69,53 +71,6 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: tftp_read
- ****************************************************************************/
-
-static inline ssize_t tftp_read(int fd, uint8_t *buf, size_t buflen)
-{
-  ssize_t nbytesread;
-  ssize_t totalread = 0;
-
-  while (totalread < buflen)
-    {
-      /* Read the data... repeating the read in the event that it was
-       * interrupted by a signal.
-       */
-
-      do
-        {
-          nbytesread = read(fd, buf, buflen - totalread);
-        }
-      while (nbytesread < 0 && errno == EINTR);
-
-      /* Check for non-EINTR errors */
-
-      if (nbytesread < 0)
-        {
-          nerr("ERROR: read failed: %d\n", errno);
-          return ERROR;
-        }
-
-      /* Check for end of file */
-
-      else if (nbytesread == 0)
-        {
-          break;
-        }
-
-      /* Handle partial reads.  Partial reads can happen normally
-       * when the source is some device driver that returns data
-       * in bits and pieces as received (such as a pipe)
-       */
-
-      totalread += nbytesread;
-      buf       += nbytesread;
-    }
-  return totalread;
-}
 
 /****************************************************************************
  * Name: tftp_mkdatapacket
@@ -139,9 +94,9 @@ static inline ssize_t tftp_read(int fd, uint8_t *buf, size_t buflen)
  *
  ****************************************************************************/
 
-int tftp_mkdatapacket(int fd, off_t offset, uint8_t *packet, uint16_t blockno)
+int tftp_mkdatapacket(off_t offset, FAR uint8_t *packet, uint16_t blockno,
+                      tftp_callback_t tftp_cb, FAR void *ctx)
 {
-  off_t tmp;
   int nbytesread;
 
   /* Format the DATA message header */
@@ -151,18 +106,8 @@ int tftp_mkdatapacket(int fd, off_t offset, uint8_t *packet, uint16_t blockno)
   packet[2] = blockno >> 8;
   packet[3] = blockno & 0xff;
 
-  /* Seek to the correct offset in the file */
-
-  tmp = lseek(fd, offset, SEEK_SET);
-  if (tmp == (off_t)-1)
-    {
-      nerr("ERROR: lseek failed: %d\n", errno);
-      return ERROR;
-    }
-
-  /* Read the file data into the packet buffer */
-
-  nbytesread = tftp_read(fd, &packet[TFTP_DATAHEADERSIZE], TFTP_DATASIZE);
+  nbytesread = tftp_cb(ctx, offset, &packet[TFTP_DATAHEADERSIZE],
+                       TFTP_DATASIZE);
   if (nbytesread < 0)
     {
       return ERROR;
@@ -191,10 +136,11 @@ int tftp_mkdatapacket(int fd, off_t offset, uint8_t *packet, uint16_t blockno)
  *
  ****************************************************************************/
 
-static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
-                       uint16_t *port, uint16_t *blockno)
+static int tftp_rcvack(int sd, FAR uint8_t *packet,
+                       FAR struct sockaddr_in *server, FAR uint16_t *port,
+                       FAR uint16_t *blockno)
 {
-  struct sockaddr_in from;     /* The address the last UDP message recv'd from */
+  struct sockaddr_in from;     /* The address the last UDP msg recv'd from */
   ssize_t nbytes;              /* The number of bytes received. */
   uint16_t opcode;             /* The received opcode */
   uint16_t rblockno;           /* The received block number */
@@ -235,7 +181,9 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
             }
           else
             {
-               /* Get the port being used by the server if that has not yet been established */
+               /* Get the port being used by the server if that has not yet
+                * been established.
+                */
 
                if (!*port)
                  {
@@ -243,7 +191,9 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
                    server->sin_port = from.sin_port;
                  }
 
-               /* Verify that the packet was received from the correct host and port */
+               /* Verify that the packet was received from the correct host and
+                * port.
+                */
 
                if (server->sin_addr.s_addr != from.sin_addr.s_addr)
                  {
@@ -254,7 +204,8 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
               if (*port != server->sin_port)
                 {
                   ninfo("Invalid port in DATA\n");
-                  packetlen = tftp_mkerrpacket(packet, TFTP_ERR_UNKID, TFTP_ERRST_UNKID);
+                  packetlen = tftp_mkerrpacket(packet, TFTP_ERR_UNKID,
+                                               TFTP_ERRST_UNKID);
                   (void)tftp_sendto(sd, packet, packetlen, server);
                   continue;
                 }
@@ -281,7 +232,8 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 #endif
                   if (opcode > TFTP_MAXRFC1350)
                     {
-                      packetlen = tftp_mkerrpacket(packet, TFTP_ERR_ILLEGALOP, TFTP_ERRST_ILLEGALOP);
+                      packetlen = tftp_mkerrpacket(packet, TFTP_ERR_ILLEGALOP,
+                                                   TFTP_ERRST_ILLEGALOP);
                       (void)tftp_sendto(sd, packet, packetlen, server);
                     }
 
@@ -310,35 +262,36 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
  ****************************************************************************/
 
 /****************************************************************************
- * Name: tftpput
+ * Name: tftpput_cb
  *
  * Input Parameters:
- *   local  - Path to the file system object to be sent.
  *   remote - The name of the file on the TFTP server.
  *   addr   - The IP address of the server in network order
  *   binary - TRUE:  Perform binary ('octect') transfer
  *            FALSE: Perform text ('netascii') transfer
+ *   cb     - callback that will be called with data packets
+ *   ctx    - pointer passed to the previous callback
  *
  ****************************************************************************/
 
-int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
+int tftpput_cb(FAR const char *remote, in_addr_t addr, bool binary,
+               tftp_callback_t cb, FAR void *ctx)
 {
   struct sockaddr_in server;         /* The address of the TFTP server */
-  uint8_t *packet;                   /* Allocated memory to hold one packet */
+  FAR uint8_t *packet;               /* Allocated memory to hold one packet */
   off_t offset;                      /* Offset into source file */
   uint16_t blockno;                  /* The current transfer block number */
   uint16_t rblockno;                 /* The ACK'ed block number */
-  uint16_t port = 0;                 /* This is the port number for the transfer */
+  uint16_t port = 0;                 /* This is the port nbr for the transfer */
   int packetlen;                     /* The length of the data packet */
   int sd;                            /* Socket descriptor for socket I/O */
-  int fd;                            /* File descriptor for file I/O */
   int retry;                         /* Retry counter */
   int result = ERROR;                /* Assume failure */
   int ret;                           /* Generic return status */
 
   /* Allocate the buffer to used for socket/disk I/O */
 
-  packet = (uint8_t*)zalloc(TFTP_IOBUFSIZE);
+  packet = (FAR uint8_t*)zalloc(TFTP_IOBUFSIZE);
   if (!packet)
     {
       nerr("ERROR: packet memory allocation failure\n");
@@ -346,21 +299,12 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
       goto errout;
     }
 
-  /* Open the file for reading */
-
-  fd = open(local, O_RDONLY);
-  if (fd < 0)
-    {
-      nerr("ERROR: open failed: %d\n", errno);
-      goto errout_with_packet;
-    }
-
   /* Initialize a UDP socket and setup the server addresss */
 
   sd = tftp_sockinit(&server, addr);
   if (sd < 0)
     {
-      goto errout_with_fd;
+      goto errout_with_packet;
     }
 
   /* Send the write request using the well known port.  This may need
@@ -410,7 +354,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
     {
       /* Construct the next data packet */
 
-      packetlen = tftp_mkdatapacket(fd, offset, packet, blockno);
+      packetlen = tftp_mkdatapacket(offset, packet, blockno, cb, ctx);
       if (packetlen < 0)
         {
           goto errout_with_sd;
@@ -435,8 +379,8 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
 
           if (rblockno == blockno)
             {
-               /* Yes.. If we are at the end of the file and if all of the packets
-                * have been ACKed, then we are done.
+               /* Yes.. If we are at the end of the file and if all of the
+                * packets have been ACKed, then we are done.
                 */
 
               if (packetlen < TFTP_PACKETSIZE)
@@ -446,9 +390,9 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
 
                /* Not the last block.. set up for the next block */
 
-               blockno++;
-               offset += TFTP_DATASIZE;
-               retry  = 0;
+               blockno += 1;
+               offset  += TFTP_DATASIZE;
+               retry    = 0;
 
                /* Skip the retry test */
 
@@ -474,12 +418,108 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
 
 errout_with_sd:
   close(sd);
-errout_with_fd:
-  close(fd);
 errout_with_packet:
   free(packet);
 errout:
   return result;
 }
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+/****************************************************************************
+ * Name: tftp_read
+ ****************************************************************************/
+
+static ssize_t tftp_read(FAR void *ctx, uint32_t offset, FAR uint8_t *buf,
+                         size_t buflen)
+{
+  int fd = (int)ctx;
+  off_t tmp;
+  ssize_t nbytesread;
+  ssize_t totalread = 0;
+
+  /* Seek to the correct offset in the file */
+
+  tmp = lseek(fd, offset, SEEK_SET);
+  if (tmp == (off_t)-1)
+    {
+      nerr("ERROR: lseek failed: %d\n", errno);
+      return ERROR;
+    }
+
+  /* Read the file data into the packet buffer */
+
+  while (totalread < buflen)
+    {
+      /* Read the data... repeating the read in the event that it was
+       * interrupted by a signal.
+       */
+
+      do
+        {
+          nbytesread = read(fd, buf, buflen - totalread);
+        }
+      while (nbytesread < 0 && errno == EINTR);
+
+      /* Check for non-EINTR errors */
+
+      if (nbytesread < 0)
+        {
+          nerr("ERROR: read failed: %d\n", errno);
+          return ERROR;
+        }
+
+      /* Check for end of file */
+
+      else if (nbytesread == 0)
+        {
+          break;
+        }
+
+      /* Handle partial reads.  Partial reads can happen normally
+       * when the source is some device driver that returns data
+       * in bits and pieces as received (such as a pipe)
+       */
+
+      totalread += nbytesread;
+      buf       += nbytesread;
+    }
+  return totalread;
+}
+
+/****************************************************************************
+ * Name: tftpput
+ *
+ * Input Parameters:
+ *   local  - Path to the file system object to be sent.
+ *   remote - The name of the file on the TFTP server.
+ *   addr   - The IP address of the server in network order
+ *   binary - TRUE:  Perform binary ('octect') transfer
+ *            FALSE: Perform text ('netascii') transfer
+ *
+ ****************************************************************************/
+
+int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
+            bool binary)
+{
+  int fd;                            /* File descriptor for file I/O */
+  int result = ERROR;                /* Assume failure */
+
+  /* Open the file for reading */
+
+  fd = open(local, O_RDONLY);
+  if (fd < 0)
+    {
+      nerr("ERROR: open failed: %d\n", errno);
+      goto errout;
+    }
+
+  result = tftpput_cb(remote, addr, binary, tftp_read, (void *)fd);
+
+  close(fd);
+
+errout:
+  return result;
+}
+#endif
 
 #endif /* CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 */
