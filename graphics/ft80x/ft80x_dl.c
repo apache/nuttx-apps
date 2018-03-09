@@ -96,7 +96,7 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer,
       max = i + 4;
       if (max >= nwords)
         {
-          max = nwords - i;
+          max = nwords;
         }
 
       for (j = i; j < max; j++)
@@ -107,9 +107,9 @@ static void ft80x_dl_dump(FAR struct ft80x_dlbuffer_s *buffer,
       putchar(' ');
 
       max = i + 8;
-      if (i + max >= nwords)
+      if (max >= nwords)
         {
-          max = nwords - i;
+          max = nwords;
         }
 
       for (j = i + 4; j < max; j++)

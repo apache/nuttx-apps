@@ -18,6 +18,13 @@ config EXAMPLES_FT80X_DEVPATH
 	default "/dev/ft800" if LCD_FT800
 	default "/dev/ft801" if LCD_FT801
 
+config EXAMPLES_FT80X_PRIMITIVES
+	bool "Enable primitive examples"
+	default n
+	---help---
+		Enable some low level tests of GPU primitives.  Not very interesting
+		for the most part.
+
 config EXAMPLES_FT80X_EXCLUDE_BITMAPS
 	bool "Exclude bitmaps"
 	default n

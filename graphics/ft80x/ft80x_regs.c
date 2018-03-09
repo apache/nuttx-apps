@@ -225,7 +225,7 @@ int ft80x_putreg8(int fd, uint32_t addr, uint8_t value)
   struct ft80x_register_s reg;
   int ret;
 
-  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+  DEBUGASSERT((addr & 3) == 0 && addr < 0xffc00000);
 
   /* Perform the IOCTL to get the register value */
 
@@ -248,7 +248,7 @@ int ft80x_putreg16(int fd, uint32_t addr, uint16_t value)
   struct ft80x_register_s reg;
   int ret;
 
-  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+  DEBUGASSERT((addr & 3) == 0 && addr < 0xffc00000);
 
   /* Perform the IOCTL to get the register value */
 
@@ -271,7 +271,7 @@ int ft80x_putreg32(int fd, uint32_t addr, uint32_t value)
   struct ft80x_register_s reg;
   int ret;
 
-  DEBUGASSERT(value != NULL && (addr & 3) == 0 && addr < 0xffc00000);
+  DEBUGASSERT((addr & 3) == 0 && addr < 0xffc00000);
 
   /* Perform the IOCTL to get the register value */
 

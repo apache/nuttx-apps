@@ -510,7 +510,6 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   fd    - The file descriptor of the FT80x device.  Opened by the caller
  *           with write access.
  *   duty  - The new backlight duty (as a percentage 0..100)
- *   delay - The duration of the fade in milliseconds.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.

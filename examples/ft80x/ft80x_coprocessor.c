@@ -1154,7 +1154,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  /* no background color */
+  /* No background color */
 
   xoffset                += xdist;
 
