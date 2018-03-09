@@ -187,7 +187,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Create the display list */
 
-  ret = ft80x_dl_start(fd, buffer, false);
+  ret = ft80x_dl_start(fd, buffer, true);
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
@@ -235,7 +235,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Fade on then wait bit so that the user can read the example name */
 
-  (void)ft80x_backlight_fade(fd, 100, 1000);
+  (void)ft80x_backlight_fade(fd, 100, 2000);
   (void)sleep(1);
   return OK;
 }
@@ -275,8 +275,8 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Wait a bit, then fade out */
 
-  sleep(3);
-  (void)ft80x_backlight_fade(fd, 0, 1000);
+  sleep(2);
+  (void)ft80x_backlight_fade(fd, 0, 2000);
   return OK;
 }
 
