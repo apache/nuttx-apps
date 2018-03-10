@@ -1121,8 +1121,8 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds.c.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0x00, 0x00);
 
-  cmds.c.bgcolor.cmd      = FT80X_CMD_FGCOLOR;                /* Foreground color */
-  cmds.c.bgcolor.c        = 0xff0000;
+  cmds.c.fgcolor.cmd      = FT80X_CMD_FGCOLOR;                /* Foreground color */
+  cmds.c.fgcolor.c        = 0xff0000;
 
   cmds.c.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
   cmds.c.gauge.x          = xoffset;
@@ -1588,7 +1588,7 @@ int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   /* Draw keys with center option */
 
-  xoffset               += 4*width + 20;
+  xoffset               += 4 * width + 20;
 
   cmds.b.fgcolor.cmd     = FT80X_CMD_FGCOLOR;               /* Foreground color */
   cmds.b.fgcolor.c       = 0xffff000;
@@ -1616,7 +1616,7 @@ int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.text.cmd           = FT80X_CMD_TEXT;                 /* Text */
-  cmds.text.x             = 20;
+  cmds.text.x             = xoffset;
   cmds.text.y             = 40;
   cmds.text.font          = 26;
   cmds.text.options       = 0;
@@ -1832,7 +1832,6 @@ int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   return ret;
 }
-
 
 /****************************************************************************
  * Name: ft80x_coproc_interactive
@@ -3109,6 +3108,13 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
+  ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
+  if (ret < 0)
+    {
+      ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
+      return ret;
+    }
+
   /* Draw slider with flat effect */
 
   cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
@@ -3465,7 +3471,7 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.c.bgcolor.c         = 0x800000;
 
   cmds.c.toggle.cmd        = FT80X_CMD_TOGGLE;                 /* Toggle */
-  cmds.c.toggle.x          = 40;
+  cmds.c.toggle.x          = 140;
   cmds.c.toggle.y          = 10;
   cmds.c.toggle.w          = 30;
   cmds.c.toggle.font       = 27;
@@ -3682,7 +3688,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds.b.number.cmd        = FT80X_CMD_NUMBER;
   cmds.b.number.x          = 0;
-  cmds.b.number.y          = 40;
+  cmds.b.number.y          = 0;
   cmds.b.number.font       = 29;
   cmds.b.number.options    = 0;
   cmds.b.number.n          = 1234;
@@ -3702,7 +3708,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ret = ft80x_dl_string(fd, buffer, "Number29 at 0,0");
+  ret = ft80x_dl_string(fd, buffer, "Number at 0,0");
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
@@ -3726,7 +3732,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ret = ft80x_dl_string(fd, buffer, "Number29 at CenterX");
+  ret = ft80x_dl_string(fd, buffer, "Number at CenterX");
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
@@ -3750,7 +3756,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ret = ft80x_dl_string(fd, buffer, "Number29 at CenterY");
+  ret = ft80x_dl_string(fd, buffer, "Number at CenterY");
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
@@ -3774,7 +3780,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ret = ft80x_dl_string(fd, buffer, "Number29 at Center");
+  ret = ft80x_dl_string(fd, buffer, "Number at Center");
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
@@ -3798,7 +3804,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ret = ft80x_dl_string(fd, buffer, "Number29 at RightX");
+  ret = ft80x_dl_string(fd, buffer, "Number at RightX");
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_string failed: %d\n", ret);
@@ -3821,6 +3827,9 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
  *
  * Description:
  *   Demonstrate the calibrate widget
+ *
+ *   REVISIT:  One soft resets, the touch positions come up with different
+ *   colors.  Probably need to select some proper fgcolor and bgcolor?
  *
  ****************************************************************************/
 
@@ -4085,7 +4094,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.b.spinner.style     = 1;
   cmds.b.spinner.scale     = 1;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -4166,7 +4175,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.b.spinner.style     = 2;
   cmds.b.spinner.scale     = 1;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
@@ -4240,7 +4249,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.b.spinner.style     = 3;
   cmds.b.spinner.scale     = 1;
 
-  ret = ft80x_dl_data(fd, buffer, &cmds.spinner, sizeof(cmds.spinner));
+  ret = ft80x_dl_data(fd, buffer, &cmds.b, sizeof(cmds.b));
   if (ret < 0)
     {
       ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);

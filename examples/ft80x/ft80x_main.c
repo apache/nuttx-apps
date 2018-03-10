@@ -140,7 +140,7 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
   { "Clock",          ft80x_coproc_clock },
   { "Gauge",          ft80x_coproc_gauge },
   { "Keys",           ft80x_coproc_keys },
-  { "Interactive",    ft80x_coproc_interactive },
+  { "Interactive",    ft80x_coproc_interactive },  /* Too long!!! */
   { "Progress Bar",   ft80x_coproc_progressbar },
   { "Scroll Bar",     ft80x_coproc_scrollbar },
   { "Slider",         ft80x_coproc_slider },

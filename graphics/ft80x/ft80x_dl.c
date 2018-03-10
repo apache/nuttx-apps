@@ -382,7 +382,7 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       padlen = (datlen + 3) & ~3;
       if (padlen != datlen)
         {
-          ft80x_warn("WARNING: Length padded to %u->%u\n", datlen, padlen);
+          ft80x_info("Length padded to %u->%u\n", datlen, padlen);
         }
 
       /* Is there enough space in the local display list buffer to hold the
@@ -526,7 +526,7 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   padlen = (datlen + 4) & ~3;
   if (padlen != (datlen + 1))
     {
-      ft80x_warn("WARNING: Length padded to %u->%u\n", datlen, padlen);
+      ft80x_info("Length padded to %u->%u\n", datlen, padlen);
     }
 
   /* Is there enough space in the local display list buffer to hold the new
