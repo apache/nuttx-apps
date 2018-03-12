@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -53,6 +54,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "netloop.h"
 
@@ -82,6 +84,11 @@ static int lo_client(void)
   int ret;
   int i;
 
+#ifdef CONFIG_EXAMPLES_NETLOOP_KEEPALIVE
+  struct timeval tv;
+  int value;
+#endif
+
   /* Create a new TCP socket */
 
   sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -91,6 +98,50 @@ static int lo_client(void)
       printf("lo_client: socket failure %d\n", ret);
       return ret;
     }
+
+#ifdef CONFIG_EXAMPLES_NETLOOP_KEEPALIVE
+  /* Enable TCP KeepAlive */
+
+  value = TRUE;
+  ret = setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &value, sizeof(int));
+  if (ret < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "setsockopt(SO_KEEPALIVE) failed: %d\n", ret);
+      return ret;
+    }
+
+  tv.tv_sec  = 5;
+  tv.tv_usec = 0;
+
+  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPIDLE, &tv, sizeof(struct timeval));
+  if (ret < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "setsockopt(TCP_KEEPIDLE) failed: %d\n", ret);
+      return ret;
+    }
+
+  tv.tv_sec  = 1;
+  tv.tv_usec = 0;
+
+  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPINTVL, &tv, sizeof(struct timeval));
+  if (ret < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "setsockopt(TCP_KEEPIDLE) failed: %d\n", ret);
+      return ret;
+    }
+
+  value = 3;
+  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPCNT, &value, sizeof(int));
+  if (ret < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "setsockopt(SO_KEEPALIVE) failed: %d\n", ret);
+      return ret;
+    }
+#endif
 
   /* Connect the socket to the server */
 
@@ -105,6 +156,7 @@ static int lo_client(void)
       printf("lo_client: connect failure: %d\n", ret);
       goto errout_with_socket;
     }
+
   printf("lo_client: Connected\n");
 
   /* Then send and receive messages */
@@ -163,8 +215,22 @@ static int lo_client(void)
           goto errout_with_socket;
         }
 
-      printf("lo_client: Sleeping\n");
-      sleep(8);
+#ifdef CONFIG_EXAMPLES_NETLOOP_KEEPALIVE
+      /* Send four messages, then wait a longer amount of time ... longer than
+       * TCP_KEEPIDLE + TCP_KEEPINTVL * TCP_KEEPCNT = 5 + 3 * 1 = 8 seconds.
+       */
+
+      if (i != 0 && (i & 3) == 0)
+        {
+          printf("lo_client: Long sleep\n");
+          sleep(12);
+        }
+      else
+#endif
+        {
+          printf("lo_client: Sleeping\n");
+          sleep(6);
+        }
     }
 
   close(sockfd);

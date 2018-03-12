@@ -13,6 +13,11 @@ config EXAMPLES_NETLOOP
 if EXAMPLES_NETLOOP
 if NSH_BUILTIN_APPS
 
+config EXAMPLES_NETLOOP_KEEPALIVE
+    bool "Enable TCP KeepAlive test"
+    default n
+    depends on NET_TCP_KEEPALIVE
+
 config EXAMPLES_NETLOOP_STACKSIZE
     int "Loopback test stack size"
     default 2048

@@ -433,6 +433,13 @@ examples/flowc
 
   A simple test of serial hardware flow control.
 
+examples/ft80x
+^^^^^^^^^^^^^^
+
+  This examples has ports of several FTDI demos for the FTDI/BridgeTek FT80x
+  GUI chip.  As an example configuration, see
+  nuttx/configs/viewtool-stm32f107/ft80x/defconfig.
+
 examples/fstest
 ^^^^^^^^^^^^^^
 
@@ -729,6 +736,7 @@ examples/json
 
 examples/leds
 ^^^^^^^^^^^^
+
   This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.
 
 examples/lis2csh_reader

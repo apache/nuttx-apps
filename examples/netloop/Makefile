@@ -35,7 +35,7 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Device Driver poll()/select() Example
+# Network loopback Example
 
 ASRCS =
 CSRCS = lo_listener.c
@@ -48,7 +48,7 @@ APPNAME = netloop
 PRIORITY = $(CONFIG_EXAMPLES_NETLOOP_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_NETLOOP_STACKSIZE)
 
-CONFIG_XYZ_PROGNAME ?= poll$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= netloop$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 include $(APPDIR)/Application.mk
