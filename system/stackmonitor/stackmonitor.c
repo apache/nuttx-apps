@@ -102,10 +102,10 @@ static const char g_stackused[] = "StackUsed:";
  ****************************************************************************/
 
 /****************************************************************************
- * Name: sktmon_isolate_value
+ * Name: stkmon_isolate_value
  ****************************************************************************/
 
-static FAR char *sktmon_isolate_value(FAR char *line)
+static FAR char *stkmon_isolate_value(FAR char *line)
 {
   FAR char *ptr;
 
@@ -174,7 +174,7 @@ static int stkmon_process_directory(FAR struct dirent *entryp)
       len = strlen(g_name);
       if (strncmp(g_stackmonitor.line, g_name, len) == 0)
         {
-          tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
+          tmpstr = stkmon_isolate_value(&g_stackmonitor.line[len]);
           if (*tmpstr == '\0')
             {
               ret = -EINVAL;
@@ -228,8 +228,8 @@ static int stkmon_process_directory(FAR struct dirent *entryp)
       len = strlen(g_stacksize);
       if (strncmp(g_stackmonitor.line, g_stacksize, len) == 0)
         {
-          tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
-          if (tmpstr == '\0')
+          tmpstr = stkmon_isolate_value(&g_stackmonitor.line[len]);
+          if (*tmpstr == '\0')
             {
               ret = -EINVAL;
               goto errout_with_stream;
@@ -248,8 +248,8 @@ static int stkmon_process_directory(FAR struct dirent *entryp)
           len = strlen(g_stackused);
           if (strncmp(g_stackmonitor.line, g_stackused, len) == 0)
             {
-              tmpstr = sktmon_isolate_value(&g_stackmonitor.line[len]);
-              if (tmpstr == '\0')
+              tmpstr = stkmon_isolate_value(&g_stackmonitor.line[len]);
+              if (*tmpstr == '\0')
                 {
                   ret = -EINVAL;
                   goto errout_with_stream;
