@@ -24,7 +24,7 @@
  *
  * Adapted to NuttX and re-released under a 3-clause BSD license:
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2018 Gregory Nutt. All rights reserved.
  *   Authors: Alan Carvalho de Assis <Alan Carvalho de Assis>
  *            Gregory Nutt <gnutt@nuttx.org>
  *
@@ -1922,9 +1922,7 @@ static struct Value *fn_tan(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_timei(struct Value *v, struct Auto *stack)
 {
-  return Value_new_INTEGER(v,
-                           (unsigned long)(clock_systimer() /
-                                           (CLK_TCK / 100.0)));
+  return Value_new_INTEGER(v, (unsigned long)(clock() / (CLK_TCK / 100.0)));
 }
 
 static struct Value *fn_times(struct Value *v, struct Auto *stack)

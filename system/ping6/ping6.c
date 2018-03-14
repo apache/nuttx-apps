@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/ping/ping.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <poll.h>
 #include <string.h>
 #include <errno.h>
@@ -189,7 +190,7 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
   struct pollfd recvfd;
   FAR uint8_t *ptr;
   int32_t elapsed;
-  systime_t start;
+  clock_t start;
   socklen_t addrlen;
   ssize_t nsent;
   ssize_t nrecvd;
@@ -235,7 +236,7 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
             }
         }
 
-      start   = clock_systimer();
+      start   = clock();
       outsize = SIZEOF_ICMPV6_ECHO_REPLY_S(0) + ICMPv6_PING6_DATALEN;
       nsent   = sendto(info->sockfd, info->iobuffer, outsize, 0,
                        (FAR struct sockaddr*)&destaddr,
@@ -299,7 +300,7 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
               return;
             }
 
-          elapsed = (unsigned int)TICK2MSEC(clock_systimer() - start);
+          elapsed = (unsigned int)TICK2MSEC(clock() - start);
           inhdr   = (FAR struct icmpv6_echo_reply_s *)info->iobuffer;
 
           if (inhdr->type == ICMPv6_ECHO_REPLY)
@@ -389,7 +390,7 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
 
       /* Wait if necessary to preserved the requested ping rate */
 
-      elapsed = (unsigned int)TICK2MSEC(clock_systimer() - start);
+      elapsed = (unsigned int)TICK2MSEC(clock() - start);
       if (elapsed < info->delay)
         {
           struct timespec rqt;
@@ -450,7 +451,7 @@ int ping6_main(int argc, char **argv)
 {
   FAR struct ping6_info_s *info;
   FAR char *endptr;
-  systime_t start;
+  clock_t start;
   int32_t elapsed;
   int exitcode;
   int option;
@@ -538,12 +539,12 @@ int ping6_main(int argc, char **argv)
       goto errout_with_info;
     }
 
-  start = clock_systimer();
+  start = clock();
   icmpv6_ping(info);
 
   /* Get the total elapsed time */
 
-  elapsed = (int32_t)TICK2MSEC(clock_systimer() - start);
+  elapsed = (int32_t)TICK2MSEC(clock() - start);
 
   if (info->nrequests > 0)
     {

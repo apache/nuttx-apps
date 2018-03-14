@@ -47,6 +47,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <time.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -321,7 +322,7 @@ static int i8shark_daemon(int argc, FAR char *argv[])
       struct mac802154dev_rxframe_s frame;
       enum ieee802154_frametype_e ftype;
       uint8_t zepframe[I8SHARK_MAX_ZEPFRAME];
-      systime_t systime;
+      clock_t systime;
       int ind = 0;
       int nbytes;
 
@@ -390,7 +391,7 @@ static int i8shark_daemon(int argc, FAR char *argv[])
 
           /* Need to use NTP to get time, but for now, include the system time */
 
-          systime = clock_systimer();
+          systime = clock();
           memcpy(&zepframe[ind], &systime, 8);
           ind += 8;
 
