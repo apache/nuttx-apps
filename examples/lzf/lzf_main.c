@@ -66,7 +66,7 @@ static off_t g_nread;
 static off_t g_nwritten;
 
 static FAR const char *g_imagename;
-static enum { COMPRESS, UNCOMPRESS, LZCAT } g_mode = COMPRESS;
+static enum { COMPRESS, UNCOMPRESS } g_mode = COMPRESS;
 static bool g_verbose = false;
 static bool g_force = 0;
 static long blocksize = BLOCKSIZE;
@@ -93,8 +93,6 @@ static void usage(int ret)
           "http://liblzf.plan9.de/\n"
           "\n"
           "usage: lzf [-dufhvb] [file ...]\n"
-          "       unlzf [file ...]\n"
-          "       lzcat [file ...]\n"
           "\n%s",
           opt);
 
@@ -382,12 +380,9 @@ static int run_file(const char *fname)
   struct stat mystat;
   char oname[PATH_MAX + 1];
 
-  if (g_mode != LZCAT)
+  if (compose_name(fname, oname))
     {
-      if (compose_name(fname, oname))
-        {
-          return -1;
-        }
+      return -1;
     }
 
   ret = stat(fname, &mystat);
@@ -404,13 +399,6 @@ static int run_file(const char *fname)
       fprintf(stderr, "%s: %s: not a regular file.\n", g_imagename, fname);
       close(fd);
       return -1;
-    }
-
-  if (g_mode == LZCAT)
-    {
-      ret = uncompress_fd(fd, 1);
-      close(fd);
-      return ret;
     }
 
   fd2 = open_out(oname);
@@ -468,6 +456,8 @@ int lzf_main(int argc, FAR char *argv[])
   int ret = 0;
 
 #ifndef CONFIG_DISABLE_ENVIRON
+  /* Block size may be specified as an environment variable */
+
   p = getenv("LZF_BLOCKSIZE");
   if (p)
     {
@@ -479,18 +469,16 @@ int lzf_main(int argc, FAR char *argv[])
     }
 #endif
 
+  /* Get the program name sans path */
+
   p = strrchr(argv[0], '/');
   g_imagename = p ? ++p : argv[0];
 
-  if (!strncmp(g_imagename, "un", 2) || !strncmp(g_imagename, "de", 2))
-    {
-      g_mode = UNCOMPRESS;
-    }
+  /* Assume compression mode */
 
-  if (strstr(g_imagename, "cat"))
-    {
-      g_mode = LZCAT;
-    }
+  g_mode = COMPRESS;
+
+  /* Handle command line options */
 
   while ((optc = getopt(argc, argv, "cdfhvb:")) != -1)
     {
@@ -517,9 +505,8 @@ int lzf_main(int argc, FAR char *argv[])
             break;
 
           case 'b':
-            errno = 0;
             blocksize = strtoul(optarg, 0, 0);
-            if (errno || !blocksize || blocksize > MAX_BLOCKSIZE)
+            if (!blocksize || blocksize > MAX_BLOCKSIZE)
               {
                 blocksize = BLOCKSIZE;
               }
@@ -539,7 +526,7 @@ int lzf_main(int argc, FAR char *argv[])
 #ifdef CONFIG_SERIAL_TERMIOS
       if (!g_force)
         {
-          if ((g_mode == UNCOMPRESS || g_mode == LZCAT) && isatty(0))
+          if ((g_mode == UNCOMPRESS) && isatty(0))
             {
               fprintf(stderr, "%s: compressed data not read from a terminal. "
                       "Use -f to force decompression.\n", g_imagename);
