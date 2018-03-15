@@ -70,6 +70,7 @@ static enum { COMPRESS, UNCOMPRESS, LZCAT } g_mode = COMPRESS;
 static bool g_verbose = false;
 static bool g_force = 0;
 static long blocksize = BLOCKSIZE;
+static lzf_state_t g_htab;
 
 static FAR const char *opt =
   "-c   compress\n"
@@ -167,7 +168,8 @@ static int compress_fd(int from, int to)
   g_nread = g_nwritten = 0;
   while ((us = rread(from, &buf1[MAX_HDR_SIZE], blocksize)) > 0)
     {
-      cs = lzf_compress(&buf1[MAX_HDR_SIZE], us, &buf2[MAX_HDR_SIZE], us > 4 ? us - 4 : us);
+      cs = lzf_compress(&buf1[MAX_HDR_SIZE], us, &buf2[MAX_HDR_SIZE],
+                        us > 4 ? us - 4 : us, g_htab);
       if (cs)
         {
           header    = &buf2[MAX_HDR_SIZE - TYPE1_HDR_SIZE];
