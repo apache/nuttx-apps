@@ -86,16 +86,16 @@ static FAR const char *opt =
 
 static void usage(int ret)
 {
-  fprintf (stderr, "\n"
-           "lzf, a very lightweight compression/decompression utility written by Stefan Traby.\n"
-           "uses liblzf written by Marc Lehmann <schmorp@schmorp.de> You can find more info at\n"
-           "http://liblzf.plan9.de/\n"
-           "\n"
-           "usage: lzf [-dufhvb] [file ...]\n"
-           "       unlzf [file ...]\n"
-           "       lzcat [file ...]\n"
-           "\n%s",
-           opt);
+  fprintf(stderr, "\n"
+          "lzf, a very lightweight compression/decompression utility written by Stefan Traby.\n"
+          "uses liblzf written by Marc Lehmann <schmorp@schmorp.de> You can find more info at\n"
+          "http://liblzf.plan9.de/\n"
+          "\n"
+          "usage: lzf [-dufhvb] [file ...]\n"
+          "       unlzf [file ...]\n"
+          "       lzcat [file ...]\n"
+          "\n%s",
+          opt);
 
   exit(ret);
 }
@@ -106,7 +106,7 @@ static inline ssize_t rread(int fd, FAR void *buf, size_t len)
   ssize_t ret = 0;
   ssize_t offset = 0;
 
-  while (len && (ret = read (fd, &p[offset], len)) > 0)
+  while (len && (ret = read(fd, &p[offset], len)) > 0)
     {
       offset += ret;
       len -= ret;
@@ -132,10 +132,10 @@ static inline ssize_t wwrite(int fd, void *buf, size_t len)
 
   while (l)
     {
-      ret = write (fd, b, l);
+      ret = write(fd, b, l);
       if (ret < 0)
         {
-          fprintf (stderr, "%s: write error: %d\n", g_imagename, errno);
+          fprintf(stderr, "%s: write error: %d\n", g_imagename, errno);
           return -1;
         }
 
@@ -155,7 +155,7 @@ static inline ssize_t wwrite(int fd, void *buf, size_t len)
  * "ZV\2" 4-byte-crc32-0xdebb20e3 (NYI)
  */
 
-static int compress_fd (int from, int to)
+static int compress_fd(int from, int to)
 {
   ssize_t us;
   ssize_t cs;
@@ -165,9 +165,9 @@ static int compress_fd (int from, int to)
   uint8_t *header;
 
   g_nread = g_nwritten = 0;
-  while ((us = rread (from, &buf1[MAX_HDR_SIZE], blocksize)) > 0)
+  while ((us = rread(from, &buf1[MAX_HDR_SIZE], blocksize)) > 0)
     {
-      cs = lzf_compress (&buf1[MAX_HDR_SIZE], us, &buf2[MAX_HDR_SIZE], us > 4 ? us - 4 : us);
+      cs = lzf_compress(&buf1[MAX_HDR_SIZE], us, &buf2[MAX_HDR_SIZE], us > 4 ? us - 4 : us);
       if (cs)
         {
           header    = &buf2[MAX_HDR_SIZE - TYPE1_HDR_SIZE];
@@ -193,7 +193,7 @@ static int compress_fd (int from, int to)
           len      = us + TYPE0_HDR_SIZE;
         }
 
-      if (wwrite (to, header, len) == -1)
+      if (wwrite(to, header, len) == -1)
         {
           return -1;
         }
@@ -219,11 +219,10 @@ static int uncompress_fd(int from, int to)
   g_nread = g_nwritten = 0;
   while (1)
     {
-      ret = rread (from, header + over, MAX_HDR_SIZE - over);
+      ret = rread(from, header + over, MAX_HDR_SIZE - over);
       if (ret < 0)
         {
-          fprintf (stderr, "%s: read error: ", g_imagename);
-          perror ("");
+          fprintf(stderr, "%s: read error: %d\n", g_imagename, errno);
           return -1;
         }
 
@@ -236,8 +235,8 @@ static int uncompress_fd(int from, int to)
 
       if (ret < MIN_HDR_SIZE || header[0] != 'Z' || header[1] != 'V')
         {
-          fprintf (stderr, "%s: invalid data stream - magic not found or short header\n",
-                   g_imagename);
+          fprintf(stderr, "%s: invalid data stream - magic not found or short header\n",
+                  g_imagename);
           return -1;
         }
 
@@ -261,7 +260,7 @@ static int uncompress_fd(int from, int to)
             break;
 
           default:
-            fprintf (stderr, "%s: unknown blocktype\n", g_imagename);
+            fprintf(stderr, "%s: unknown blocktype\n", g_imagename);
             return -1;
         }
 
@@ -270,20 +269,20 @@ static int uncompress_fd(int from, int to)
 
       if (l > 0)
         {
-          memcpy (buf1, p, l);
+          memcpy(buf1, p, l);
         }
 
       if (l > bytes)
         {
           over = l - bytes;
-          memmove (header, &p[bytes], over);
+          memmove(header, &p[bytes], over);
         }
 
       p  = &buf1[l];
       rd = bytes - l;
       if (rd > 0)
         {
-          if ((ret = rread (from, p, rd)) != rd)
+          if ((ret = rread(from, p, rd)) != rd)
             {
               goto short_read;
             }
@@ -298,14 +297,14 @@ static int uncompress_fd(int from, int to)
         }
       else
         {
-          if (lzf_decompress (buf1, cs, buf2, us) != us)
+          if (lzf_decompress(buf1, cs, buf2, us) != us)
             {
-              fprintf (stderr, "%s: decompress: invalid stream - data corrupted\n",
-                       g_imagename);
+              fprintf(stderr, "%s: decompress: invalid stream - data corrupted\n",
+                      g_imagename);
               return -1;
             }
 
-          if (wwrite (to, buf2, us))
+          if (wwrite(to, buf2, us))
             {
               return -1;
             }
@@ -315,7 +314,7 @@ static int uncompress_fd(int from, int to)
   return 0;
 
 short_read:
-  fprintf (stderr, "%s: short data\n", g_imagename);
+  fprintf(stderr, "%s: short data\n", g_imagename);
   return -1;
 }
 
@@ -329,45 +328,45 @@ static int open_out(FAR const char *name)
       m = 0;
     }
 
-  fd = open (name, O_CREAT | O_WRONLY | O_TRUNC | m, 600);
+  fd = open(name, O_CREAT | O_WRONLY | O_TRUNC | m, 600);
   return fd;
 }
 
-static int compose_name (FAR const char *fname, FAR char *oname)
+static int compose_name(FAR const char *fname, FAR char *oname)
 {
   FAR char *p;
 
   if (g_mode == COMPRESS)
     {
-      if (strlen (fname) > PATH_MAX - 4)
+      if (strlen(fname) > PATH_MAX - 4)
         {
-          fprintf (stderr, "%s: %s.lzf: name too long", g_imagename, fname);
+          fprintf(stderr, "%s: %s.lzf: name too long", g_imagename, fname);
           return -1;
         }
 
-      strcpy (oname, fname);
-      p = strchr (oname, '.');
+      strcpy(oname, fname);
+      p = strchr(oname, '.');
       *p = '_'; /* _ for dot */
-      strcat (oname, ".lzf");
+      strcat(oname, ".lzf");
     }
   else
     {
-      if (strlen (fname) > PATH_MAX)
+      if (strlen(fname) > PATH_MAX)
         {
-          fprintf (stderr, "%s: %s: name too long\n", g_imagename, fname);
+          fprintf(stderr, "%s: %s: name too long\n", g_imagename, fname);
           return -1;
         }
 
-      strcpy (oname, fname);
-      p = &oname[strlen (oname)] - 4;
-      if (p < oname || strcmp (p, ".lzf"))
+      strcpy(oname, fname);
+      p = &oname[strlen(oname)] - 4;
+      if (p < oname || strcmp(p, ".lzf"))
         {
-          fprintf (stderr, "%s: %s: unknown suffix\n", g_imagename, fname);
+          fprintf(stderr, "%s: %s: unknown suffix\n", g_imagename, fname);
           return -1;
         }
 
       *p = 0;
-      p = strchr (oname, '_');
+      p = strchr(oname, '_');
       *p = '.';
     }
 
@@ -383,40 +382,40 @@ static int run_file(const char *fname)
 
   if (g_mode != LZCAT)
     {
-      if (compose_name (fname, oname))
+      if (compose_name(fname, oname))
         {
           return -1;
         }
     }
 
-  ret = stat (fname, &mystat);
-  fd = open (fname, O_RDONLY);
+  ret = stat(fname, &mystat);
+  fd = open(fname, O_RDONLY);
 
   if (ret || fd == -1)
     {
-      fprintf (stderr, "%s: %s: %d\n", g_imagename, fname, errno);
+      fprintf(stderr, "%s: %s: %d\n", g_imagename, fname, errno);
       return -1;
     }
 
-  if (!S_ISREG (mystat.st_mode))
+  if (!S_ISREG(mystat.st_mode))
     {
-      fprintf (stderr, "%s: %s: not a regular file.\n", g_imagename, fname);
-      close (fd);
+      fprintf(stderr, "%s: %s: not a regular file.\n", g_imagename, fname);
+      close(fd);
       return -1;
     }
 
   if (g_mode == LZCAT)
     {
       ret = uncompress_fd(fd, 1);
-      close (fd);
+      close(fd);
       return ret;
     }
 
   fd2 = open_out(oname);
   if (fd2 == -1)
     {
-      fprintf (stderr, "%s: %s: %d\n", g_imagename, oname, errno);
-      close (fd);
+      fprintf(stderr, "%s: %s: %d\n", g_imagename, oname, errno);
+      close(fd);
       return -1;
     }
 
@@ -425,9 +424,9 @@ static int run_file(const char *fname)
       ret = compress_fd(fd, fd2);
       if (!ret && g_verbose)
         {
-          fprintf (stderr, "%s:  %5.1f%% -- replaced with %s\n",
-                   fname, g_nread == 0 ? 0 :
-                   100.0 - g_nwritten / ((double) g_nread / 100.0), oname);
+          fprintf(stderr, "%s:  %5.1f%% -- replaced with %s\n",
+                  fname, g_nread == 0 ? 0 :
+                  100.0 - g_nwritten / ((double) g_nread / 100.0), oname);
         }
     }
   else
@@ -435,18 +434,18 @@ static int run_file(const char *fname)
       ret = uncompress_fd(fd, fd2);
       if (!ret && g_verbose)
         {
-          fprintf (stderr, "%s:  %5.1f%% -- replaced with %s\n",
-                   fname, g_nwritten == 0 ? 0 :
-                   100.0 - g_nread / ((double) g_nwritten / 100.0), oname);
+          fprintf(stderr, "%s:  %5.1f%% -- replaced with %s\n",
+                  fname, g_nwritten == 0 ? 0 :
+                  100.0 - g_nread / ((double) g_nwritten / 100.0), oname);
         }
     }
 
-  close (fd);
-  close (fd2);
+  close(fd);
+  close(fd2);
 
   if (!ret)
     {
-      unlink (fname);
+      unlink(fname);
     }
 
   return ret;
@@ -467,10 +466,10 @@ int lzf_main(int argc, FAR char *argv[])
   int ret = 0;
 
 #ifndef CONFIG_DISABLE_ENVIRON
-  p = getenv ("LZF_BLOCKSIZE");
+  p = getenv("LZF_BLOCKSIZE");
   if (p)
     {
-      blocksize = strtoul (p, 0, 0);
+      blocksize = strtoul(p, 0, 0);
       if (!blocksize || blocksize > MAX_BLOCKSIZE)
         {
           blocksize = BLOCKSIZE;
@@ -478,20 +477,20 @@ int lzf_main(int argc, FAR char *argv[])
     }
 #endif
 
-  p = strrchr (argv[0], '/');
+  p = strrchr(argv[0], '/');
   g_imagename = p ? ++p : argv[0];
 
-  if (!strncmp (g_imagename, "un", 2) || !strncmp (g_imagename, "de", 2))
+  if (!strncmp(g_imagename, "un", 2) || !strncmp(g_imagename, "de", 2))
     {
       g_mode = UNCOMPRESS;
     }
 
-  if (strstr (g_imagename, "cat"))
+  if (strstr(g_imagename, "cat"))
     {
       g_mode = LZCAT;
     }
 
-  while ((optc = getopt (argc, argv, "cdfhvb:")) != -1)
+  while ((optc = getopt(argc, argv, "cdfhvb:")) != -1)
     {
       switch (optc)
         {
@@ -508,7 +507,7 @@ int lzf_main(int argc, FAR char *argv[])
             break;
 
           case 'h':
-            usage (0);
+            usage(0);
             break;
 
           case 'v':
@@ -540,16 +539,16 @@ int lzf_main(int argc, FAR char *argv[])
         {
           if ((g_mode == UNCOMPRESS || g_mode == LZCAT) && isatty(0))
             {
-              fprintf (stderr, "%s: compressed data not read from a terminal. "
-                       "Use -f to force decompression.\n", g_imagename);
-              exit (1);
+              fprintf(stderr, "%s: compressed data not read from a terminal. "
+                      "Use -f to force decompression.\n", g_imagename);
+              exit(1);
             }
 
-          if (g_mode == COMPRESS && isatty (1))
+          if (g_mode == COMPRESS && isatty(1))
             {
-              fprintf (stderr, "%s: compressed data not written to a terminal. "
-                       "Use -f to force compression.\n", g_imagename);
-              exit (1);
+              fprintf(stderr, "%s: compressed data not written to a terminal. "
+                      "Use -f to force compression.\n", g_imagename);
+              exit(1);
             }
         }
 #endif
@@ -563,13 +562,13 @@ int lzf_main(int argc, FAR char *argv[])
           ret = uncompress_fd(0, 1);
         }
 
-      exit (ret ? 1 : 0);
+      exit(ret ? 1 : 0);
     }
 
   while (optind < argc)
     {
-      ret |= run_file (argv[optind++]);
+      ret |= run_file(argv[optind++]);
     }
 
-  exit (ret ? 1 : 0);
+  exit(ret ? 1 : 0);
 }
