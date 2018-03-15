@@ -66,10 +66,10 @@ static off_t g_nread;
 static off_t g_nwritten;
 
 static FAR const char *g_imagename;
-static enum { COMPRESS, UNCOMPRESS } g_mode = COMPRESS;
-static bool g_verbose = false;
-static bool g_force = 0;
-static long blocksize = BLOCKSIZE;
+static enum { COMPRESS, UNCOMPRESS } g_mode;
+static bool g_verbose;
+static bool g_force;
+static long blocksize;
 static lzf_state_t g_htab;
 
 static FAR const char *opt =
@@ -332,7 +332,7 @@ static int open_out(FAR const char *name)
   return fd;
 }
 
-static int compose_name(FAR const char *fname, FAR char *oname)
+static int compose_name(FAR const char *fname, FAR char *oname, int namelen)
 {
   FAR char *p;
 
@@ -344,10 +344,14 @@ static int compose_name(FAR const char *fname, FAR char *oname)
           return -1;
         }
 
-      strcpy(oname, fname);
+      strncpy(oname, fname, namelen);
       p = strchr(oname, '.');
-      *p = '_'; /* _ for dot */
-      strcat(oname, ".lzf");
+      if (p != NULL)
+        {
+          *p = '_';  /* _ for dot */
+        }
+
+       strcat (oname, ".lzf");
     }
   else
     {
@@ -358,29 +362,34 @@ static int compose_name(FAR const char *fname, FAR char *oname)
         }
 
       strcpy(oname, fname);
-      p = &oname[strlen(oname)] - 4;
-      if (p < oname || strcmp(p, ".lzf"))
+      p = strstr(oname, ".lzf");
+      if (p == NULL)
         {
           fprintf(stderr, "%s: %s: unknown suffix\n", g_imagename, fname);
           return -1;
         }
 
       *p = 0;
-      p = strchr(oname, '_');
-      *p = '.';
+      p  = strchr(oname, '_');
+      if (p != NULL)
+        {
+          *p = '.';
+        }
     }
 
   return 0;
 }
 
-static int run_file(const char *fname)
+static int run_file(FAR const char *fname)
 {
-  int fd, fd2;
-  int ret;
   struct stat mystat;
   char oname[PATH_MAX + 1];
+  int fd;
+  int fd2;
+  int ret;
 
-  if (compose_name(fname, oname))
+  memset(oname, 0, sizeof(oname));
+  if (compose_name(fname, oname, PATH_MAX + 1))
     {
       return -1;
     }
@@ -455,6 +464,13 @@ int lzf_main(int argc, FAR char *argv[])
   int optc;
   int ret = 0;
 
+  /* Set defaults. */
+
+  g_mode    = COMPRESS;
+  g_verbose = false;
+  g_force   = 0;
+  blocksize = BLOCKSIZE;
+
 #ifndef CONFIG_DISABLE_ENVIRON
   /* Block size may be specified as an environment variable */
 
@@ -473,10 +489,6 @@ int lzf_main(int argc, FAR char *argv[])
 
   p = strrchr(argv[0], '/');
   g_imagename = p ? ++p : argv[0];
-
-  /* Assume compression mode */
-
-  g_mode = COMPRESS;
 
   /* Handle command line options */
 

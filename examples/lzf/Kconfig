@@ -25,6 +25,6 @@ config EXAMPLES_LZF_PRIORITY
 
 config EXAMPLES_LZF_STACKSIZE
 	int "LZF stack size"
-	default 20480
+	default 2048
 
 endif
