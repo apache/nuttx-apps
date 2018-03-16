@@ -50,13 +50,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define BLOCKSIZE (1024 * 1 - 1)
+#define BLOCKSIZE (512 - 1)
 #define MAX_BLOCKSIZE BLOCKSIZE
-
-#define TYPE0_HDR_SIZE 5
-#define TYPE1_HDR_SIZE 7
-#define MAX_HDR_SIZE 7
-#define MIN_HDR_SIZE 5
 
 /****************************************************************************
  * Private Data
@@ -157,42 +152,16 @@ static inline ssize_t wwrite(int fd, void *buf, size_t len)
 static int compress_fd(int from, int to)
 {
   ssize_t us;
-  ssize_t cs;
   ssize_t len;
-  uint8_t buf1[MAX_BLOCKSIZE + MAX_HDR_SIZE + 16];
-  uint8_t buf2[MAX_BLOCKSIZE + MAX_HDR_SIZE + 16];
+  uint8_t buf1[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
+  uint8_t buf2[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
   uint8_t *header;
 
   g_nread = g_nwritten = 0;
-  while ((us = rread(from, &buf1[MAX_HDR_SIZE], blocksize)) > 0)
+  while ((us = rread(from, &buf1[LZF_MAX_HDR_SIZE], blocksize)) > 0)
     {
-      cs = lzf_compress(&buf1[MAX_HDR_SIZE], us, &buf2[MAX_HDR_SIZE],
-                        us > 4 ? us - 4 : us, g_htab);
-      if (cs)
-        {
-          header    = &buf2[MAX_HDR_SIZE - TYPE1_HDR_SIZE];
-          header[0] = 'Z';
-          header[1] = 'V';
-          header[2] = 1;
-          header[3] = cs >> 8;
-          header[4] = cs & 0xff;
-          header[5] = us >> 8;
-          header[6] = us & 0xff;
-          len       = cs + TYPE1_HDR_SIZE;
-        }
-      else
-        {
-          /* Write uncompressed */
-
-          header    = &buf1[MAX_HDR_SIZE - TYPE0_HDR_SIZE];
-          header[0] = 'Z';
-          header[1] = 'V';
-          header[2] = 0;
-          header[3] = us >> 8;
-          header[4] = us & 0xff;
-          len      = us + TYPE0_HDR_SIZE;
-        }
-
+      len = lzf_compress(&buf1[LZF_MAX_HDR_SIZE], us, &buf2[LZF_MAX_HDR_SIZE],
+                         us > 4 ? us - 4 : us, g_htab, &header);
       if (wwrite(to, header, len) == -1)
         {
           return -1;
@@ -204,9 +173,9 @@ static int compress_fd(int from, int to)
 
 static int uncompress_fd(int from, int to)
 {
-  uint8_t header[MAX_HDR_SIZE];
-  uint8_t buf1[MAX_BLOCKSIZE + MAX_HDR_SIZE + 16];
-  uint8_t buf2[MAX_BLOCKSIZE + MAX_HDR_SIZE + 16];
+  uint8_t header[LZF_MAX_HDR_SIZE];
+  uint8_t buf1[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
+  uint8_t buf2[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
   FAR uint8_t *p;
   int l;
   int rd;
@@ -219,7 +188,7 @@ static int uncompress_fd(int from, int to)
   g_nread = g_nwritten = 0;
   while (1)
     {
-      ret = rread(from, header + over, MAX_HDR_SIZE - over);
+      ret = rread(from, header + over, LZF_MAX_HDR_SIZE - over);
       if (ret < 0)
         {
           fprintf(stderr, "%s: read error: %d\n", g_imagename, errno);
@@ -233,7 +202,7 @@ static int uncompress_fd(int from, int to)
           return 0;
         }
 
-      if (ret < MIN_HDR_SIZE || header[0] != 'Z' || header[1] != 'V')
+      if (ret < LZF_MIN_HDR_SIZE || header[0] != 'Z' || header[1] != 'V')
         {
           fprintf(stderr, "%s: invalid data stream - magic not found or short header\n",
                   g_imagename);
@@ -245,18 +214,18 @@ static int uncompress_fd(int from, int to)
           case 0:
             cs = -1;
             us = (header[3] << 8) | header[4];
-            p = &header[TYPE0_HDR_SIZE];
+            p = &header[LZF_TYPE0_HDR_SIZE];
             break;
 
           case 1:
-            if (ret < TYPE1_HDR_SIZE)
+            if (ret < LZF_TYPE1_HDR_SIZE)
               {
                 goto short_read;
               }
 
             cs = (header[3] << 8) | header[4];
             us = (header[5] << 8) | header[6];
-            p = &header[TYPE1_HDR_SIZE];
+            p = &header[LZF_TYPE1_HDR_SIZE];
             break;
 
           default:
