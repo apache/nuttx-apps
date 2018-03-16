@@ -300,7 +300,7 @@ int spawn_main(int argc, char *argv[])
 
   /* Make sure that we are using our symbol tablee */
 
-  symdesc.symtab   = exports;
+  symdesc.symtab   = (FAR struct symtab_s *)exports; /* Discard 'const' */
   symdesc.nsymbols = nexports;
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 
@@ -321,6 +321,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_init(&attr);
@@ -328,6 +329,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawnattr_init failed: %d\n", ret);
     }
+
   posix_spawnattr_dump(&attr);
 
   mm_update(&g_mmstep, "after file_action/attr init");
@@ -358,13 +360,14 @@ int spawn_main(int argc, char *argv[])
   sleep(4);
   mm_update(&g_mmstep, "after posix_spawn");
 
-  /* Free attibutes and file actions */
+  /* Free attributes and file actions */
 
   ret = posix_spawn_file_actions_destroy(&file_actions);
   if (ret != 0)
     {
       errmsg("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_destroy(&attr);
@@ -372,6 +375,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
     }
+
   posix_spawnattr_dump(&attr);
 
   mm_update(&g_mmstep, "after file_action/attr destruction");
@@ -393,6 +397,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_init(&attr);
@@ -400,6 +405,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawnattr_init failed: %d\n", ret);
     }
+
   posix_spawnattr_dump(&attr);
 
   mm_update(&g_mmstep, "after file_action/attr init");
@@ -411,6 +417,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawn_file_actions_addclose failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_data);
@@ -419,6 +426,7 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   mm_update(&g_mmstep, "after adding file_actions");
