@@ -3,15 +3,15 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_LZF
-	bool "\"LZF compression tool\" example"
+config SYSTEM_LZF
+	bool "LZF compression tool"
 	default n
 	---help---
-		Enable the \"LZF compression tool\" example
+		Enable theLZF compression tool
 
-if EXAMPLES_LZF
+if SYSTEM_LZF
 
-config EXAMPLES_LZF_PROGNAME
+config SYSTEM_LZF_PROGNAME
 	string "Program name"
 	default "lzf"
 	depends on BUILD_KERNEL
@@ -19,12 +19,12 @@ config EXAMPLES_LZF_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_LZF_PRIORITY
-	int "LZF task priority"
+config SYSTEM_LZF_PRIORITY
+	int "LZF tool task priority"
 	default 100
 
-config EXAMPLES_LZF_STACKSIZE
-	int "LZF stack size"
+config SYSTEM_LZF_STACKSIZE
+	int "LZF tool stack size"
 	default 2048
 
 endif

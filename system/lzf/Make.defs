@@ -1,5 +1,6 @@
 ############################################################################
-# apps/examples/lzf/Makefile
+# apps/system/lzf/Make.defs
+# Adds selected applications to apps/ build
 #
 #   Copyright (C) 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,24 +34,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-# LZF built-in application info
-
-CONFIG_EXAMPLES_LZF_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_LZF_STACKSIZE ?= 20480
-
-APPNAME = lzf
-PRIORITY = $(CONFIG_EXAMPLES_LZF_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_LZF_STACKSIZE)
-
-# LZF compression example tool
-
-ASRCS =
-CSRCS =
-MAINSRC = lzf_main.c
-
-CONFIG_EXAMPLES_LZF_PROGNAME ?= lzf$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_LZF_PROGNAME)
-
-include $(APPDIR)/Application.mk
+ifeq ($(CONFIG_SYSTEM_LZF),y)
+CONFIGURED_APPS += system/lzf
+endif
