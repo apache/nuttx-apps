@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nsh/nsh_main.c
  *
- *   Copyright (C) 2007-2013, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2017-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/stat.h>
+#include <sys/boardctl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sched.h>
@@ -60,6 +61,27 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* Kludge needed only for BINFS but should be harmless in other cases.  This
+ * setups up an empty symbol table.  You will need to add logic to create
+ * a "real" symbol table for your application elsewhere (see, for example
+ * apps/system/symtab)
+ */
+
+#define HAVE_DUMMY_SYMTAB 1
+#if !defined(CONFIG_LIBC_EXECFUNCS) || !defined(CONFIG_EXECFUNCS_SYMTAB)
+#  undef HAVE_DUMMY_SYMTAB
+#endif
+
+/* boardctl() support is also required  for this "feature" */
+
+#if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
+#  undef HAVE_DUMMY_SYMTAB
+#endif
+
+#if defined(CONFIG_FS_BINFS) && !defined(HAVE_DUMMY_SYMTAB)
+#  warning "Prequisites not met for BINFS dummy symbol table"
+#endif
 
 /* C++ initialization requires CXX initializer support */
 
@@ -84,22 +106,21 @@
 #endif
 
 /****************************************************************************
- * Public Data
+ * Private Data
  ****************************************************************************/
 
+#ifdef HAVE_DUMMY_SYMTAB
 /* If posix_spawn() is enabled as required for CONFIG_NSH_FILE_APPS, then
  * a symbol table is needed by the internals of posix_spawn().  The symbol
  * table is needed to support ELF and NXFLAT binaries to dynamically link to
  * the base code.  However, if only the BINFS file system is supported, then
- * no Makefile is needed.
+ * no symbol table is needed.
  *
- * This is a kludge to plug the missing file system in the case where BINFS
- * is used.  REVISIT:  This will, of course, be in the way if you want to
- * support ELF or NXFLAT binaries!
+ * This will, of course, have to be replaced with a valid symbol table if
+ * you want to support ELF or NXFLAT binaries!
  */
 
-#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
-const struct symtab_s CONFIG_EXECFUNCS_SYMTAB[1];
+static const struct symtab_s CONFIG_EXECFUNCS_SYMTAB[1];  /* Wasted memory! */
 #endif
 
 /****************************************************************************
@@ -116,24 +137,29 @@ int main(int argc, FAR char *argv[])
 int nsh_main(int argc, char *argv[])
 #endif
 {
+#ifdef HAVE_DUMMY_SYMTAB
+  struct boardioc_symtab_s symdesc;
+#endif
   int exitval = 0;
   int ret;
 
+#if defined(CONFIG_EXAMPLES_NSH_CXXINITIALIZE)
   /* Call all C++ static constructors */
 
-#if defined(CONFIG_EXAMPLES_NSH_CXXINITIALIZE)
   up_cxxinitialize();
 #endif
 
+#ifdef HAVE_DUMMY_SYMTAB
   /* Make sure that we are using our symbol table */
 
-#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
-  exec_setsymtab(CONFIG_EXECFUNCS_SYMTAB, 0);
+  symdesc.symtab   = (FAR struct symtab_s *)g_dummy_symtab; /* Discard 'const' */
+  symdesc.nsymbols = 0;
+  (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
 
+#if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
   /* Register the BINFS file system */
 
-#if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
   ret = builtin_initialize();
   if (ret < 0)
     {
@@ -146,6 +172,7 @@ int nsh_main(int argc, char *argv[])
 
   nsh_initialize();
 
+#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_NETLOCAL)
   /* If the Telnet console is selected as a front-end, then start the
    * Telnet daemon UNLESS network initialization is deferred via
    * CONFIG_NSH_NETLOCAL.  In that case, the telnet daemon must be
@@ -153,7 +180,6 @@ int nsh_main(int argc, char *argv[])
    * been initialized
    */
 
-#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_NETLOCAL)
   ret = nsh_telnetstart(ADDR_FAMILY);
   if (ret < 0)
     {
@@ -166,9 +192,9 @@ int nsh_main(int argc, char *argv[])
    }
 #endif
 
+#ifdef CONFIG_NSH_CONSOLE
   /* If the serial console front end is selected, then run it on this thread */
 
-#ifdef CONFIG_NSH_CONSOLE
   ret = nsh_consolemain(0, NULL);
 
   /* nsh_consolemain() should not return.  So if we get here, something

@@ -276,13 +276,13 @@ int elf_main(int argc, char *argv[])
   (void)setenv("PATH", MOUNTPT, 1);
 #endif
 
-  /* Now excercise every program in the ROMFS file system */
+  /* Now exercise every program in the ROMFS file system */
 
   for (i = 0; dirlist[i]; i++)
     {
       FAR const char *filename;
 
-      /* Output a seperated so that we can clearly discrinmate the output of
+      /* Output a separator so that we can clearly discriminate the output of
        * this program from the others.
        */
 
