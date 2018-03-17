@@ -12,6 +12,23 @@ config SYSTEM_LZF
 
 if SYSTEM_LZF
 
+config SYSTEM_LZF_BLOG
+	int "Log2 of block size"
+	default 10
+	range 9 12
+	---help---
+		This example uses two buffers of size a little more than
+		(1 << CONFIG_SYSTEM_LZF_BLOG) to compress and decompress data in
+		chunks. Slightly better compression should be obtainable with larger
+		chunks.
+
+		NOTE:  This is a static memory allocation and will take add a little
+		more than 2 * (1 << CONFIG_SYSTEM_LZF_BLOG) bytes to the size of the
+		.bss section used by the program.
+
+		NOTE:  This represents a maximum blocksize.  The use may select a
+		smaller blocksize using the 'lzf -b' option.
+
 config SYSTEM_LZF_PROGNAME
 	string "Program name"
 	default "lzf"
