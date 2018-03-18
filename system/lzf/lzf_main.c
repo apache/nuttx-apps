@@ -165,9 +165,9 @@ static inline ssize_t wwrite(int fd, void *buf, size_t len)
 
 static int compress_fd(int from, int to)
 {
+  FAR struct lzf_header_s *header;
   ssize_t us;
   ssize_t len;
-  uint8_t *header;
 
   g_nread = g_nwritten = 0;
   while ((us = rread(from, &g_buf1[LZF_MAX_HDR_SIZE], g_blocksize)) > 0)
