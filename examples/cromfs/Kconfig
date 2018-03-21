@@ -15,5 +15,9 @@ config EXAMPLES_CROMFS
 		the in-memory, compressed file system image used by the CROMFS file
 		system.
 
+		From the NSH command line, this file system can be mounted like:
+
+		  nsh> mount -t cromfs /mnt/cromfs
+
 		NOTE:  Since this example does export symbols used with the OS, it
 		can only be used in the FLAT build mode.
