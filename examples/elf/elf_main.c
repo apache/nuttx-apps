@@ -343,7 +343,6 @@ int elf_main(int argc, char *argv[])
        */
 
       args[0] = NULL;
-printf("Calling exec(%s, %p, %p, %u\n", filename, args, exports, (unsigned int)nexports); // REMOVE ME
       ret = exec(filename, args, exports, nexports);
 
       mm_update(&g_mmstep, "after exec");
