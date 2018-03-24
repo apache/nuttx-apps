@@ -89,5 +89,5 @@ clean:
 	$(call CLEAN)
 
 install:
-	$(Q) mkdir -p $(ROMFS_DIR)
-	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)

@@ -157,13 +157,13 @@ clean:
 	$(call CLEAN)
 
 install: $(ALL_BIN)
-	$(Q) mkdir -p $(ROMFS_DIR)
-	$(Q) install $(BIN1) $(ROMFS_DIR)/$(BIN1)
-	$(Q) install $(BIN2) $(ROMFS_DIR)/$(BIN2)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN1) $(FSIMG_DIR)/$(BIN1)
+	$(Q) install $(BIN2) $(FSIMG_DIR)/$(BIN2)
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
-	$(Q) install $(BIN3) $(ROMFS_DIR)/$(BIN3)
+	$(Q) install $(BIN3) $(FSIMG_DIR)/$(BIN3)
 ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
-	$(Q) install $(BIN4) $(ROMFS_DIR)/$(BIN4)
-	$(Q) install $(BIN5) $(ROMFS_DIR)/$(BIN5)
+	$(Q) install $(BIN4) $(FSIMG_DIR)/$(BIN4)
+	$(Q) install $(BIN5) $(FSIMG_DIR)/$(BIN5)
 endif
 endif

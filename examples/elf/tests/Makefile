@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/elf/tests/Makefile
 #
-#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -62,18 +62,28 @@ endif
 
 ELF_DIR = $(APPDIR)/examples/elf
 TESTS_DIR = $(ELF_DIR)/tests
-ROMFS_DIR = $(TESTS_DIR)/romfs
-ROMFS_IMG = $(TESTS_DIR)/romfs.img
-ROMFS_HDR = $(TESTS_DIR)/romfs.h
 DIRLIST_HDR = $(TESTS_DIR)/dirlist.h
 SYMTAB_SRC = $(TESTS_DIR)/symtab.c
 
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
+  FSIMG_DIR = $(TESTS_DIR)/romfs
+  ROMFS_IMG = $(TESTS_DIR)/romfs.img
+  FSIMG_HDR = $(TESTS_DIR)/romfs.h
+else
+  NXTOOLDIR = $(TOPDIR)/tools
+  GENCROMFSSRC = gencromfs.c
+  GENCROMFSEXE = gencromfs$(EXEEXT)
+
+  FSIMG_DIR = $(TESTS_DIR)/cromfs
+  FSIMG_HDR = $(TESTS_DIR)/cromfs.h
+endif
+
 define DIR_template
 $(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
+	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSIMG_DIR="$(FSIMG_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(ROMFS_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
+all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
 .PHONY: all build clean install populate
 .PRECIOUS: ../../../libapps$(LIBEXT)
 
@@ -85,41 +95,55 @@ $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,insta
 
 build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 
-# Install each program in the romfs directory
+# Install each program in the file system image directory
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
 
-# Create the romfs directory
+# Create the file system image directory
 
-$(ROMFS_DIR):
-	$(Q) mkdir $(ROMFS_DIR)
+$(FSIMG_DIR):
+	$(Q) mkdir $(FSIMG_DIR)
 
-# Populate the romfs directory
+# Populate the file system image directory
 
-populate:  $(ROMFS_DIR) build install
+populate:  $(FSIMG_DIR) build install
 
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
 # Create the romfs.img file from the populated romfs directory
 
 $(ROMFS_IMG): populate
-	$(Q) genromfs -f $@ -d $(ROMFS_DIR) -V "ELFTEST"
+	$(Q) genromfs -f $@ -d $(FSIMG_DIR) -V "ELFTEST"
 
 # Create the romfs.h header file from the romfs.img file
 
-$(ROMFS_HDR) : $(ROMFS_IMG)
+$(FSIMG_HDR) : $(ROMFS_IMG)
 	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 
-# Create the dirlist.h header file from the romfs directory
+else
+# Make sure that the NuttX gencromfs tool has been built
+
+$(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE): $(NXTOOLDIR)$(DELIM)$(GENCROMFSSRC)
+	$(Q) $(MAKE) -C $(NXTOOLDIR) -f Makefile.host $(GENCROMFSEXE)
+
+# Create the cromfs.h header file from the populated cromfs directory
+
+$(FSIMG_HDR) : populate $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE)
+	$(Q) $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE) $(FSIMG_DIR) $(FSIMG_HDR)
+
+endif
+
+# Create the dirlist.h header file from the file system image directory
 
 $(DIRLIST_HDR) : populate
-	$(Q) $(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@
+	$(Q) $(TESTS_DIR)/mkdirlist.sh $(FSIMG_DIR) >$@
 
 # Create the exported symbol table
 
 $(SYMTAB_SRC): build
-	$(Q) $(TESTS_DIR)/mksymtab.sh $(ROMFS_DIR) >$@
+	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(ROMFS_HDR) $(DIRLIST_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
-	$(Q) rm -rf $(ROMFS_DIR)
+	$(Q) rm -f $(FSIMG_HDR) $(DIRLIST_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -rf $(FSIMG_DIR)

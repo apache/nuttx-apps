@@ -7,11 +7,46 @@ config EXAMPLES_ELF
 	bool "ELF Loader Example"
 	default n
 	select LIBC_EXECFUNCS
-	depends on ELF && !BUILD_KERNEL
+	depends on ELF && (FS_ROMFS || FS_CROMFS) && !BUILD_KERNEL
 	---help---
 		Enable the ELF loader example
 
 if EXAMPLES_ELF
+
+choice
+	prompt "ROM File System"
+	default EXAMPLES_ELF_ROMFS if FS_ROMFS
+	default EXAMPLES_ELF_CROMFS if !FS_ROMFS && FS_CROMFS
+
+config EXAMPLES_ELF_ROMFS
+	bool "ROMFS"
+	depends on FS_ROMFS
+
+config EXAMPLES_ELF_CROMFS
+	bool "CROMFS"
+	depends on FS_CROMFS
+
+endchoice # ROM File System
+
+if EXAMPLES_ELF_ROMFS
+
+config EXAMPLES_ELF_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the ELF executables to be tested.  Default: 0
+
+config EXAMPLES_ELF_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match EXAMPLES_ELF_DEVMINOR.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the ELF executables to be tested.  Default: "/dev/ram0"
+
+endif # EXAMPLES_ELF_ROMFS
 
 config EXAMPLES_ELF_SYSCALL
 	bool "Link with SYSCALL library"
@@ -38,22 +73,6 @@ config EXAMPLES_ELF_LIBC
 		example, a separate copy of printf() would be linked with every
 		program greatly increasing the total code size.  This option is
 		primarily intended only for testing.
-
-config EXAMPLES_ELF_DEVMINOR
-	int "ROMFS Minor Device Number"
-	default 0
-	---help---
-		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the ELF executables to be tested.  Default: 0
-
-config EXAMPLES_ELF_DEVPATH
-	string "ROMFS Device Path"
-	default "/dev/ram0"
-	---help---
-		The path to the ROMFS block driver device.  This must match EXAMPLES_ELF_DEVMINOR.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the ELF executables to be tested.  Default: "/dev/ram0"
 
 config EXAMPLES_ELF_CXXINITIALIZE
 	bool "C++ Initialization"

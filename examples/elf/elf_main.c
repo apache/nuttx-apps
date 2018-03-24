@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/elf/elf_main.c
  *
- *   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2017-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,14 @@
 
 #include "platform/cxxinitialize.h"
 
-#include "tests/romfs.h"
+#if defined(CONFIG_EXAMPLES_ELF_ROMFS)
+#  include "tests/romfs.h"
+#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
+#  include "tests/cromfs.h"
+#else
+#  error "No file system selected"
+#endif
+
 #include "tests/dirlist.h"
 
 /****************************************************************************
@@ -79,26 +86,36 @@
 #  error "You must select CONFIG_ELF in your configuration file"
 #endif
 
-#ifndef CONFIG_FS_ROMFS
-#  error "You must select CONFIG_FS_ROMFS in your configuration file"
+#if !defined(CONFIG_FS_ROMFS) && !defined(CONFIG_FS_CROMFS)
+#  error "You must select CONFIG_FS_ROMFS or CONFIG_FS_CROMFS in your configuration file"
 #endif
 
 #ifdef CONFIG_DISABLE_MOUNTPOINT
 #  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #endif
 
+#if defined(CONFIG_EXAMPLES_ELF_ROMFS)
+
 /* Describe the ROMFS file system */
 
-#define SECTORSIZE   512
-#define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
-#define MOUNTPT      "/mnt/romfs"
+#  define SECTORSIZE   512
+#  define NSECTORS(b)  (((b) + SECTORSIZE - 1) / SECTORSIZE)
+#  define MOUNTPT      "/mnt/romfs"
 
-#ifndef CONFIG_EXAMPLES_ELF_DEVMINOR
-#  define CONFIG_EXAMPLES_ELF_DEVMINOR 0
-#endif
+#  ifndef CONFIG_EXAMPLES_ELF_DEVMINOR
+#    define CONFIG_EXAMPLES_ELF_DEVMINOR 0
+#  endif
 
-#ifndef CONFIG_EXAMPLES_ELF_DEVPATH
-#  define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
+#  ifndef CONFIG_EXAMPLES_ELF_DEVPATH
+#    define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
+#  endif
+
+/* Describe the CROMFS file system */
+
+#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
+#  define MOUNTPT      "/mnt/cromfs"
+#else
+#  error "No file system selected"
 #endif
 
 /* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
@@ -107,25 +124,25 @@
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  ifdef CONFIG_DEBUG_INFO
-#    define message(format, ...)    syslog(LOG_INFO, format, ##__VA_ARGS__)
+#    define message(format, ...)  syslog(LOG_INFO, format, ##__VA_ARGS__)
 #  else
-#    define message(format, ...)    printf(format, ##__VA_ARGS__)
+#    define message(format, ...)  printf(format, ##__VA_ARGS__)
 #  endif
 #  ifdef CONFIG_DEBUG_ERROR
-#    define errmsg(format, ...)     syslog(LOG_ERR, format, ##__VA_ARGS__)
+#    define errmsg(format, ...)   syslog(LOG_ERR, format, ##__VA_ARGS__)
 #  else
-#    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
+#    define errmsg(format, ...)   fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
 #  ifdef CONFIG_DEBUG_INFO
-#    define message                 _info
+#    define message               _info
 #  else
-#    define message                 printf
+#    define message               printf
 #  endif
 #  ifdef CONFIG_DEBUG_ERROR
-#    define errmsg                  _err
+#    define errmsg                _err
 #  else
-#    define errmsg                  printf
+#    define errmsg                printf
 #  endif
 #endif
 
@@ -238,6 +255,7 @@ int elf_main(int argc, char *argv[])
 
   mm_initmonitor();
 
+#if defined(CONFIG_EXAMPLES_ELF_ROMFS)
   /* Create a ROM disk for the ROMFS filesystem */
 
   message("Registering romdisk at /dev/ram%d\n",
@@ -253,7 +271,7 @@ int elf_main(int argc, char *argv[])
 
   mm_update(&g_mmstep, "after romdisk_register");
 
-  /* Mount the file system */
+  /* Mount the ROMFS file system */
 
   message("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_ELF_DEVPATH);
@@ -264,6 +282,20 @@ int elf_main(int argc, char *argv[])
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
     }
+
+#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
+  /* Mount the CROMFS file system */
+
+  message("Mounting CROMFS filesystem at target=%s\n", MOUNTPT);
+
+  ret = mount(NULL, MOUNTPT, "cromfs", MS_RDONLY, NULL);
+  if (ret < 0)
+    {
+      errmsg("ERROR: mount(%s,cromfs) failed: %s\n", MOUNTPT, errno);
+    }
+#else
+#  error "No file system selected"
+#endif
 
   mm_update(&g_mmstep, "after mount");
 
@@ -311,6 +343,7 @@ int elf_main(int argc, char *argv[])
        */
 
       args[0] = NULL;
+printf("Calling exec(%s, %p, %p, %u\n", filename, args, exports, (unsigned int)nexports); // REMOVE ME
       ret = exec(filename, args, exports, nexports);
 
       mm_update(&g_mmstep, "after exec");

@@ -1,6 +1,8 @@
 /romfs
 /romfs.h
 /romfs.img
+/cromfs
+/cromfs.h
 /dirlist.h
 /symtab.c
 /varlist.tmp
