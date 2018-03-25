@@ -63,6 +63,7 @@ redirect/redirect:
 	$(Q) $(MAKE) -C redirect redirect TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
 
 # Create the romfs.img file from the romfs directory
+# REVISIT: ELF binaries should be stripped so that they are not so big
 
 $(ROMFS_IMG): hello/hello redirect/redirect testdata.txt $(ROMFS_DIR)
 	$(Q) $(MAKE) -C hello install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"

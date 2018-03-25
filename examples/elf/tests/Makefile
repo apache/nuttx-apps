@@ -66,7 +66,8 @@ DIRLIST_HDR = $(TESTS_DIR)/dirlist.h
 SYMTAB_SRC = $(TESTS_DIR)/symtab.c
 
 ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
-  FSIMG_DIR = $(TESTS_DIR)/romfs
+  FSIMG_SUBDIR = romfs
+  FSIMG_DIR = $(TESTS_DIR)/$(FSIMG_SUBDIR)
   ROMFS_IMG = $(TESTS_DIR)/romfs.img
   FSIMG_HDR = $(TESTS_DIR)/romfs.h
 else
@@ -74,7 +75,8 @@ else
   GENCROMFSSRC = gencromfs.c
   GENCROMFSEXE = gencromfs$(EXEEXT)
 
-  FSIMG_DIR = $(TESTS_DIR)/cromfs
+  FSIMG_SUBDIR = cromfs
+  FSIMG_DIR = $(TESTS_DIR)/$(FSIMG_SUBDIR)
   FSIMG_HDR = $(TESTS_DIR)/cromfs.h
 endif
 
@@ -98,6 +100,11 @@ build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 # Install each program in the file system image directory
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
+ifneq ($(STRIP),)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(wildcard $(FSIMG_SUBDIR)/*)
+endif
+endif
 
 # Create the file system image directory
 
@@ -122,13 +129,13 @@ $(FSIMG_HDR) : $(ROMFS_IMG)
 else
 # Make sure that the NuttX gencromfs tool has been built
 
-$(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE): $(NXTOOLDIR)$(DELIM)$(GENCROMFSSRC)
+$(NXTOOLDIR)/$(GENCROMFSEXE): $(NXTOOLDIR)/$(GENCROMFSSRC)
 	$(Q) $(MAKE) -C $(NXTOOLDIR) -f Makefile.host $(GENCROMFSEXE)
 
 # Create the cromfs.h header file from the populated cromfs directory
 
-$(FSIMG_HDR) : populate $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE)
-	$(Q) $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE) $(FSIMG_DIR) $(FSIMG_HDR)
+$(FSIMG_HDR) : populate $(NXTOOLDIR)/$(GENCROMFSEXE)
+	$(Q) $(NXTOOLDIR)/$(GENCROMFSEXE) $(FSIMG_DIR) $(FSIMG_HDR)
 
 endif
 

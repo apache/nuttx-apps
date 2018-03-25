@@ -1,10 +1,10 @@
 #!/bin/bash
 
-usage="Usage: %0 <romfs-dir-path>"
+usage="Usage: %0 <fsimg-dir-path>"
 
 dir=$1
 if [ -z "$dir" ]; then
-	echo "ERROR: Missing <romfs-dir-path>"
+	echo "ERROR: Missing <fsimg-dir-path>"
 	echo ""
 	echo $usage
 	exit 1
