@@ -101,7 +101,7 @@ build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
 ifneq ($(STRIP),)
-ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+ifneq ($(CONFIG_EXAMPLES_ELF_NOSTRIP),y)
 	$(Q) $(STRIP) $(wildcard $(FSIMG_SUBDIR)/*)
 endif
 endif
