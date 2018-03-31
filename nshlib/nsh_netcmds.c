@@ -947,6 +947,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   UNUSED(hostip);
   UNUSED(mask);
   UNUSED(gwip);
+#endif
+#ifdef CONFIG_NET_IPv4
   UNUSED(gip);
 #endif
 
