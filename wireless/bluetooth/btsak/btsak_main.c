@@ -47,6 +47,7 @@
 #include <strings.h>
 #include <errno.h>
 
+#include <nuttx/wireless/bt_core.h>
 #include <nuttx/net/bluetooth.h>
 
 #include "btsak.h"
@@ -300,7 +301,7 @@ int bt_main(int argc, char *argv[])
  *
  ****************************************************************************/
 
-uint8_t btsak_char2nibble(char ch)
+int btsak_char2nibble(char ch)
 {
   if (ch >= '0' && ch <= '9')
     {
@@ -316,13 +317,13 @@ uint8_t btsak_char2nibble(char ch)
     }
   else if (ch == '\0')
     {
-      fprintf(stderr, "ERROR: Unexpected end hex\n");
-      exit(EXIT_FAILURE);
+      fprintf(stderr, "ERROR: Unexpected NUL terminator in hex string\n");
+      return -EPIPE;
     }
   else
     {
-      fprintf(stderr, "ERROR: Unexpected character in hex value: %02x\n", ch);
-      exit(EXIT_FAILURE);
+      fprintf(stderr, "ERROR: Unexpected end character in hex string\n");
+      return -EINVAL;
     }
 }
 
@@ -480,38 +481,114 @@ int btsak_str2payload(FAR const char *str, FAR uint8_t *buf)
  * Name: btsak_str2addr
  *
  * Description:
- *   Convert a string 8-byte EADDR array.
+ *   Convert a string of the form "xx:xx:xx:xx:xx:xx" 6-byte Bluetooth
+ *   address (where xx is a one or two character hexadecimal number sub-
+ *   string)
  *
  ****************************************************************************/
 
-void btsak_str2addr(FAR const char *str, FAR uint8_t *addr)
+int btsak_str2addr(FAR const char *str, FAR uint8_t *addr)
 {
   FAR const char *src = str;
-  uint8_t bvalue;
+  int nibble;
+  uint8_t hex;
   char ch;
   int i;
 
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 6; i++)
     {
       ch = (char)*src++;
-      bvalue = btsak_char2nibble(ch) << 4;
+      nibble = btsak_char2nibble(ch) << 4;
+      if (nibble < 0)
+        {
+          return nibble;
+        }
+
+      hex = (uint8_t)nibble << 4;
 
       ch = (char)*src++;
-      bvalue |= btsak_char2nibble(ch);
+      nibble = btsak_char2nibble(ch);
+      if (nibble < 0)
+        {
+          return nibble;
+        }
 
-      *addr++ = bvalue;
+      hex |= (uint8_t)nibble;
+      *addr++ = hex;
 
-      if (i < 7)
+      if (i < 5)
         {
           ch = (char)*src++;
           if (ch != ':')
             {
-              fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
-              fprintf(stderr, "       Expected xx:xx:xx:xx:xx:xx:xx:xx\n");
-              exit(EXIT_FAILURE);
+              return -EINVAL;
             }
         }
     }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: btsak_str2addrtype
+ *
+ * Description:
+ *   Convert a string to an address type.  String options are "public" or
+ *   "private".
+ *
+ ****************************************************************************/
+
+int btsak_str2addrtype(FAR const char *str, FAR uint8_t *addrtype)
+{
+  if (!strcasecmp(str, "public") == 0)
+    {
+      *addrtype = BT_ADDR_LE_PUBLIC;
+    }
+  else if (!strcasecmp(str, "random"))
+    {
+      *addrtype = BT_ADDR_LE_RANDOM;
+    }
+  else
+    {
+      return -EINVAL;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: btsak_str2seclevel
+ *
+ * Description:
+ *   Convert a string to a security level.  String options are "low",
+ *   "medium", "high", or "fips"
+ *
+ ****************************************************************************/
+
+int btsak_str2seclevel(FAR const char *str, FAR enum bt_security_e *level)
+{
+  if (!strcasecmp(str, "low") == 0)
+    {
+      *level = BT_SECURITY_LOW;
+    }
+  else if (!strcasecmp(str, "medium"))
+    {
+      *level = BT_SECURITY_MEDIUM;
+    }
+  else if (!strcasecmp(str, "high"))
+    {
+      *level = BT_SECURITY_HIGH;
+    }
+  else if (!strcasecmp(str, "fips"))
+    {
+      *level = BT_SECURITY_FIPS;
+    }
+  else
+    {
+      return -EINVAL;
+    }
+
+  return OK;
 }
 
 /****************************************************************************

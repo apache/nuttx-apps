@@ -197,9 +197,10 @@ static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
  ****************************************************************************/
 
 /****************************************************************************
- * Name:
+ * Name: btsak_cmd_advertise
  *
  * Description:
+ *   advertise [-h] <start [-d] |get|stop> command
  *
  ****************************************************************************/
 
@@ -226,7 +227,7 @@ void btsak_cmd_advertise(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
     {
       btsak_cmd_advertisestart(btsak, argv[0], argc - argind, &argv[argind]);
     }
-  else if (strcmp(argv[argind], "-h") == 0)
+  else if (strcmp(argv[argind], "stop") == 0)
     {
       btsak_cmd_advertisestop(btsak, argv[0], argc - argind, &argv[argind]);
     }

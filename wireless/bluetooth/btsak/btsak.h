@@ -118,7 +118,7 @@ static inline void btsak_update_ipv6addr(FAR struct btsak_s *btsak)
  *
  ****************************************************************************/
 
-uint8_t btsak_char2nibble(char ch);
+int btsak_char2nibble(char ch);
 
 /****************************************************************************
  * Name: btsak_str2long
@@ -177,11 +177,35 @@ int btsak_str2payload(FAR const char *str, FAR uint8_t *buf);
  * Name: btsak_str2addr
  *
  * Description:
- *   Convert a string 8-byte EADDR array.
+ *   Convert a string of the form "xx:xx:xx:xx:xx:xx" 6-byte Bluetooth
+ *   address (where xx is a one or two character hexadecimal number sub-
+ *   string)
  *
  ****************************************************************************/
 
-void btsak_str2addr(FAR const char *str, FAR uint8_t *addr);
+int btsak_str2addr(FAR const char *str, FAR uint8_t *addr);
+
+/****************************************************************************
+ * Name: btsak_str2addrtype
+ *
+ * Description:
+ *   Convert a string to an address type.  String options are "public" or
+ *   "private".
+ *
+ ****************************************************************************/
+
+int btsak_str2addrtype(FAR const char *str, FAR uint8_t *addrtype);
+
+/****************************************************************************
+ * Name: btsak_str2seclevel
+ *
+ * Description:
+ *   Convert a string to a security level.  String options are "low",
+ *   "medium", "high", or "fips"
+ *
+ ****************************************************************************/
+
+int btsak_str2seclevel(FAR const char *str, FAR enum bt_security_e *level);
 
 /****************************************************************************
  * Name: btsak_socket
