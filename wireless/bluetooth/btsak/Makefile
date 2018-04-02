@@ -1,9 +1,8 @@
 ############################################################################
-# apps/wireless/ieee802154/i8sak/Makefile
+# apps/wireless/bluetooth/btsak/Makefile
 #
-#   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
-#   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
-#   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+#   Copyright (C) 2018 Gregory Nutt. All rights reserved.
+#   Author:  Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -38,19 +37,17 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# IEEE 802.15.4  SAK (swiss army knife )
+# Bluetooth SAK (swiss army knife )
 
 APPNAME = i8
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 4096
 
-# IEEE 802.15.4 SAK (Swiss Army Knife)
+# Bluetooth SAK (Swiss Army Knife)
 
 ASRCS =
-CSRCS = i8sak_acceptassoc.c i8sak_assoc.c i8sak_scan.c i8sak_blaster.c i8sak_poll.c
-CSRCS += i8sak_sniffer.c i8sak_startpan.c i8sak_tx.c i8sak_get.c i8sak_set.c
-CSRCS += i8sak_reset.c i8sak_regdump.c i8sak_events.c
-MAINSRC = i8sak_main.c
+CSRCS = 
+MAINSRC = btsak_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -79,8 +76,8 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_IEEE802154_I8SAK_PROGNAME ?= i8$(EXEEXT)
-PROGNAME = $(CONFIG_IEEE802154_I8SAK_PROGNAME)
+CONFIG_BTSAK_PROGNAME ?= bt$(EXEEXT)
+PROGNAME = $(CONFIG_BTSAK_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
 

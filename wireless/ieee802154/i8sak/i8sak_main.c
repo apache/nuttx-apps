@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
