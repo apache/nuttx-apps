@@ -42,19 +42,11 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <strings.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <queue.h>
-#include <sys/ioctl.h>
-#include <arpa/inet.h>
-#include <nuttx/fs/ioctl.h>
 
-#include <nuttx/wireless/bt_ioctl.h>
 #include <nuttx/net/bluetooth.h>
 
 #include "btsak.h"
@@ -103,7 +95,7 @@ static const struct btsak_command_s g_btsak_commands[] =
   },
   {"scan",
     (CODE void *)btsak_cmd_scan,
-    "[-h] <on|off>"
+    "[-h] <start [-d]|get|stop>"
   },
   {
     "advertise",
@@ -611,7 +603,7 @@ void btsak_gatt_showusage(FAR const char *progname, FAR const char *cmd,
 
   fprintf(stderr, "%s:  Generic Attribute (GATT) commands:\n", cmd);
   fprintf(stderr, "Usage:\n\n");
-  fprintf(stderr, "  %s <ifname> %s [-h] <cmd> [option [option [option...]]]\n",
+  fprintf(stderr, "\t%s <ifname> %s [-h] <cmd> [option [option [option...]]]\n",
           progname, cmd);
   fprintf(stderr, "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
 

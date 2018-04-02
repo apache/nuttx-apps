@@ -61,10 +61,6 @@
 #define BTSAK_MAX_DAEMONNAME        BTSAK_DAEMONNAME_PREFIX_LEN + BTSAK_MAX_IFNAME
 #define BTSAK_DEFAULT_EPADDR        {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
 
-#define PRINTF_FORMAT_ADDR(addr) \
-  "%02x:%02x:%02x:%02x:%02x:%02x\n", \
-  addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -73,7 +69,6 @@ struct btsak_s
 {
   FAR char *progname;                /* Program name */
   FAR char *ifname;                  /* Interface name */
-  int sockfd;                        /* Socket descriptor */
   bt_addr_t ep_btaddr;               /* Blue tooth address */
 #if defined(CONFIG_NET_BLUETOOTH)
   struct sockaddr_bt_s ep_sockaddr;  /* AF_BLUETOOTH endpoint address */

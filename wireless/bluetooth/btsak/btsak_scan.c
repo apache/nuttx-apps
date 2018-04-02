@@ -1,0 +1,316 @@
+/****************************************************************************
+ * apps/wireless/bluetooth/btsak/btsak_scan.c
+ * Bluetooth Swiss Army Knife -- Scan command
+ *
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
+ *   Author:  Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Based loosely on the i8sak IEEE 802.15.4 program by Anthony Merlino and
+ * Sebastien Lorquet.  Commands inspired for btshell example in the
+ * Intel/Zephyr Arduino 101 package (BSD license).
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <sys/ioctl.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <errno.h>
+
+#include <nuttx/wireless/bt_ioctl.h>
+
+#include "btsak.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if !defined(CONFIG_BTSAK_NINSTANCES) || CONFIG_BTSAK_NINSTANCES <= 0
+#  undef CONFIG_BTSAK_NINSTANCES
+#  define CONFIG_BTSAK_NINSTANCES 3
+#endif
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+/* Describes one command */
+
+struct btsak_command_s
+{
+  FAR const char *name;
+  CODE void (*handler)(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
+  FAR const char *help;
+};
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: btsak_scan_showusage
+ *
+ * Description:
+ *   Show usage of the scan command
+ *
+ ****************************************************************************/
+
+static void btsak_scan_showusage(FAR const char *progname,
+                                 FAR const char *cmd, int exitcode)
+{
+  fprintf(stderr, "%s:  Scan commands:\n", cmd);
+  fprintf(stderr, "Usage:\n\n");
+  fprintf(stderr, "\t%s <ifname> %s [-h] <start [-d]|get|stop>\n",
+          progname, cmd);
+  fprintf(stderr, "\nWhere the options do the following:\n\n");
+  fprintf(stderr, "\tstart\t- Starts scanning.  The -d option enabled duplicate\n");
+  fprintf(stderr, "\t\t  filtering.\n");
+  fprintf(stderr, "\tget\t - Shows new accumulated scan results\n");
+  fprintf(stderr, "\tstop\t- Stops scanning\n");
+  exit(exitcode);
+}
+
+/****************************************************************************
+ * Name: btsak_cmd_scanstart
+ *
+ * Description:
+ *   Scan start command
+ *
+ ****************************************************************************/
+
+static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
+                                int argc, FAR char *argv[])
+{
+  struct bt_scanstart_s start;
+  int argind;
+  int sockfd;
+  int ret;
+
+  /* Check if an option was provided */
+
+  argind = 1;
+  start.ss_dupenable = false;
+
+  if (argc > 1)
+    {
+      if (strcmp(argv[argind], "-d") == 0)
+        {
+          start.ss_dupenable = true;
+        }
+      else
+        {
+          fprintf(stderr, "ERROR:  Unrecognized option: %s\n",
+                  argv[argind]);
+          btsak_scan_showusage(btsak->progname, cmd, EXIT_FAILURE);
+        }
+    }
+
+  /* Perform the IOCTL to start scanning */
+
+  strncpy(start.ss_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBT_SCANSTART,
+                  (unsigned long)((uintptr_t)&start));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTART) failed: %d\n",
+                  errno);
+        }
+    }
+
+  close(sockfd);
+}
+
+/****************************************************************************
+ * Name: btsak_cmd_scanget
+ *
+ * Description:
+ *   Scan get command
+ *
+ ****************************************************************************/
+
+static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
+                              int argc, FAR char *argv[])
+{
+  union
+  {
+    struct bt_scanresult_s result;
+    uint8_t b[SIZEOF_BT_SCANRESULT_S(5)];
+  } u;
+  int sockfd;
+  int ret;
+
+  /* Perform the IOCTL to get the scan results so far */
+
+  strncpy(u.result.sr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  u.result.sr_nrsp = 5;
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBT_SCANGET,
+                  (unsigned long)((uintptr_t)&u.result));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANGET) failed: %d\n",
+                  errno);
+        }
+
+      /* Show scan results */
+
+      else
+        {
+          FAR struct bt_scanresponse_s *rsp;
+          int i;
+          int j;
+          int k;
+
+          printf("Scan result:\n");
+          for (i = 0; i < u.result.sr_nrsp; i++)
+            {
+              rsp = &u.result.sr_rsp[i];
+              printf("%d.\tname:        %s\n", rsp->sr_name);
+              printf("\taddr:           "
+                     "%02x:%02x:%02x:%02x:%02x:%02x type: %d\n",
+                     rsp->sr_addr.val[0], rsp->sr_addr.val[1],
+                     rsp->sr_addr.val[2], rsp->sr_addr.val[3],
+                     rsp->sr_addr.val[4], rsp->sr_addr.val[5],
+                     rsp->sr_addr.type);
+              printf("\trssi:            %d\n", rsp->sr_rssi);
+              printf("\tresponse type:   %u\n", rsp->sr_type);
+              printf("\tadvertiser data:\n");
+
+              for (j = 0; j < rsp->sr_len; j += 16)
+                {
+                  printf("\t                ");
+                  for (k = 0; k < 16 && (j + k) < rsp->sr_len; k++)
+                    {
+                      printf(" %02x", rsp->sr_data[j + k]);
+                    }
+
+                  printf("\n");
+                }
+            }
+        }
+
+      close(sockfd);
+    }
+}
+
+/****************************************************************************
+ * Name: btsak_cmd_scanstop
+ *
+ * Description:
+ *   Scan stop command
+ *
+ ****************************************************************************/
+
+static void btsak_cmd_scanstop(FAR struct btsak_s *btsak, FAR char *cmd,
+                              int argc, FAR char *argv[])
+{
+  struct bt_scanstop_s stop;
+  int sockfd;
+  int ret;
+
+  /* Perform the IOCTL to start scanning */
+
+  strncpy(stop.st_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBT_SCANSTOP,
+                  (unsigned long)((uintptr_t)&stop));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTOP) failed: %d\n",
+                  errno);
+        }
+    }
+
+  close(sockfd);
+}
+
+/****************************************************************************
+ * Public functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name:
+ *
+ * Description:
+ *
+ ****************************************************************************/
+
+void btsak_cmd_scan(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+{
+  int argind;
+
+  /* Verify that an option was provided */
+
+  argind = 1;
+  if (argc < 2)
+    {
+      fprintf(stderr, "ERROR: Missing scan command\n");
+      btsak_scan_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  /* Check for command */
+
+  if (strcmp(argv[argind], "-h") == 0)
+    {
+      btsak_scan_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+    }
+  else if (strcmp(argv[argind], "-h") == 0)
+    {
+      btsak_cmd_scanstart(btsak, argv[0], argc - argind, &argv[argind]);
+    }
+  else if (strcmp(argv[argind], "-h") == 0)
+    {
+      btsak_cmd_scanget(btsak, argv[0], argc - argind, &argv[argind]);
+    }
+  else if (strcmp(argv[argind], "-h") == 0)
+    {
+      btsak_cmd_scanstop(btsak, argv[0], argc - argind, &argv[argind]);
+    }
+  else
+    {
+      fprintf(stderr, "ERROR:  Unrecognized scan command: %s\n", argv[argind]);
+      btsak_scan_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+}
