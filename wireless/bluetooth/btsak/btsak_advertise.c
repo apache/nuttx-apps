@@ -49,6 +49,8 @@
 #include <strings.h>
 #include <errno.h>
 
+#include <nuttx/wireless/bt_core.h>
+#include <nuttx/wireless/bt_hci.h>
 #include <nuttx/wireless/bt_ioctl.h>
 
 #include "btsak.h"
@@ -61,19 +63,6 @@
 #  undef CONFIG_BTSAK_NINSTANCES
 #  define CONFIG_BTSAK_NINSTANCES 3
 #endif
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/* Describes one command */
-
-struct btsak_command_s
-{
-  FAR const char *name;
-  CODE void (*handler)(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
-  FAR const char *help;
-};
 
 /****************************************************************************
  * Private Functions
@@ -141,7 +130,16 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
 
   memset(&start, 0, sizeof(struct bt_advertisestart_s));
   strncpy(start.as_name, btsak->ifname, HCI_DEVNAME_SIZE);
-  start.as_type = BT_LE_ADV_IND;
+
+  start.as_type       = BT_LE_ADV_IND;
+
+  start.as_ad.len     = 2;
+  start.as_ad.type    = BT_EIR_FLAGS;
+  start.as_ad.data[0] = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
+
+  start.as_sd.len     = sizeof("btsak");
+  start.as_sd.type    = BT_EIR_NAME_COMPLETE;
+  strcpy((FAR char *)start.as_sd.data, "btsak");
 
   /* Perform the IOCTL to start advertising */
 

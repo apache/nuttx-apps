@@ -54,28 +54,6 @@
 #include "btsak.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#if !defined(CONFIG_BTSAK_NINSTANCES) || CONFIG_BTSAK_NINSTANCES <= 0
-#  undef CONFIG_BTSAK_NINSTANCES
-#  define CONFIG_BTSAK_NINSTANCES 3
-#endif
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/* Describes one command */
-
-struct btsak_command_s
-{
-  FAR const char *name;
-  CODE void (*handler)(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
-  FAR const char *help;
-};
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
