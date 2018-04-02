@@ -46,7 +46,7 @@ STACKSIZE = 4096
 # Bluetooth SAK (Swiss Army Knife)
 
 ASRCS =
-CSRCS = btsak_scan.c
+CSRCS = btsak_advertise.c btsak_scan.c
 MAINSRC = btsak_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

@@ -100,7 +100,7 @@ static const struct btsak_command_s g_btsak_commands[] =
   {
     "advertise",
     (CODE void *)btsak_cmd_advertise,
-    "[-h] <on|off>"
+    "[-h] <start|stop>"
   },
   {
     "security",

@@ -1,6 +1,6 @@
 /****************************************************************************
- * apps/wireless/bluetooth/btsak/btsak_scan.c
- * Bluetooth Swiss Army Knife -- Scan command
+ * apps/wireless/bluetooth/btsak/btsak_advertise.c
+ * Bluetooth Swiss Army Knife -- Advertise command
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author:  Gregory Nutt <gnutt@nuttx.org>
@@ -80,75 +80,79 @@ struct btsak_command_s
  ****************************************************************************/
 
 /****************************************************************************
- * Name: btsak_scan_showusage
+ * Name: btsak_advertise_showusage
  *
  * Description:
- *   Show usage of the scan command
+ *   Show usage of the advertise command
  *
  ****************************************************************************/
 
-static void btsak_scan_showusage(FAR const char *progname,
-                                 FAR const char *cmd, int exitcode)
+static void btsak_advertise_showusage(FAR const char *progname,
+                                      FAR const char *cmd, int exitcode)
 {
-  fprintf(stderr, "%s:  Scan commands:\n", cmd);
+  fprintf(stderr, "%s:  Advertise commands:\n", cmd);
   fprintf(stderr, "Usage:\n\n");
-  fprintf(stderr, "\t%s <ifname> %s [-h] <start [-d]|get|stop>\n",
+  fprintf(stderr, "\t%s <ifname> %s [-h] <start|stop>\n",
           progname, cmd);
   fprintf(stderr, "\nWhere the options do the following:\n\n");
-  fprintf(stderr, "\tstart\t- Starts scanning.  The -d option enabled duplicate\n");
-  fprintf(stderr, "\t\t  filtering.\n");
-  fprintf(stderr, "\tget\t - Shows new accumulated scan results\n");
-  fprintf(stderr, "\tstop\t- Stops scanning\n");
+  fprintf(stderr, "\tstart\t- Starts advertising (type ADV_IND).\n");
+  fprintf(stderr, "\tstop\t- Stops advertising\n");
   exit(exitcode);
 }
 
 /****************************************************************************
- * Name: btsak_cmd_scanstart
+ * Name: btsak_cmd_advertisestart
  *
  * Description:
  *   Scan start command
  *
  ****************************************************************************/
 
-static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
-                                int argc, FAR char *argv[])
+static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
+                                     int argc, FAR char *argv[])
 {
-  struct bt_scanstart_s start;
-  int argind;
+  struct bt_advertisestart_s start;
   int sockfd;
   int ret;
 
-  /* Check if an option was provided */
+  /* REVISIT:  Should support all advertising type.  Only ADV_IND is
+   * supported:
+   *
+   * ADV_IND 
+   *   Known as Advertising Indications (ADV_IND), where a peripheral device
+   *   requests connection to any central device (i.e., not directed at a
+   *   particular central device).  
+   *   Example:  A smart watch requesting connection to any central device. 
+   * ADV_DIRECT_IND 
+   *   Similar to ADV_IND, yet the connection request is directed at a
+   *   specific central device.
+   *   Example: A smart watch requesting connection to a specific central
+   *   device.
+   * ADV_NONCONN_IND 
+   *   Non connectible devices, advertising information to any listening
+   *   device.
+   *   Example:  Beacons in museums defining proximity to specific exhibits.
+   * ADV_SCAN_IND 
+   *   Similar to ADV_NONCONN_IND, with the option additional information via
+   *   scan responses.  
+   *   Example:  A warehouse pallet beacon allowing a central device to
+   *   request additional information about the pallet.  
+   */
 
-  argind = 1;
-  start.ss_dupenable = false;
+  memset(&start, 0, sizeof(struct bt_advertisestart_s));
+  strncpy(start.as_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  start.as_type = BT_LE_ADV_IND;
 
-  if (argc > 1)
-    {
-      if (strcmp(argv[argind], "-d") == 0)
-        {
-          start.ss_dupenable = true;
-        }
-      else
-        {
-          fprintf(stderr, "ERROR:  Unrecognized option: %s\n",
-                  argv[argind]);
-          btsak_scan_showusage(btsak->progname, cmd, EXIT_FAILURE);
-        }
-    }
-
-  /* Perform the IOCTL to start scanning */
-
-  strncpy(start.ss_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  /* Perform the IOCTL to start advertising */
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SCANSTART,
+      ret = ioctl(sockfd, SIOCBT_ADVERTISESTART,
                   (unsigned long)((uintptr_t)&start));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTART) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT_ADVERTISESTART) failed: %d\n",
                   errno);
         }
     }
@@ -157,108 +161,32 @@ static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
 }
 
 /****************************************************************************
- * Name: btsak_cmd_scanget
- *
- * Description:
- *   Scan get command
- *
- ****************************************************************************/
-
-static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
-                              int argc, FAR char *argv[])
-{
-  union
-  {
-    struct bt_scanresult_s result;
-    uint8_t b[SIZEOF_BT_SCANRESULT_S(5)];
-  } u;
-  int sockfd;
-  int ret;
-
-  /* Perform the IOCTL to get the scan results so far */
-
-  strncpy(u.result.sr_name, btsak->ifname, HCI_DEVNAME_SIZE);
-  u.result.sr_nrsp = 5;
-
-  sockfd = btsak_socket(btsak);
-  if (sockfd >= 0)
-    {
-      ret = ioctl(sockfd, SIOCBT_SCANGET,
-                  (unsigned long)((uintptr_t)&u.result));
-      if (ret < 0)
-        {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANGET) failed: %d\n",
-                  errno);
-        }
-
-      /* Show scan results */
-
-      else
-        {
-          FAR struct bt_scanresponse_s *rsp;
-          int i;
-          int j;
-          int k;
-
-          printf("Scan result:\n");
-          for (i = 0; i < u.result.sr_nrsp; i++)
-            {
-              rsp = &u.result.sr_rsp[i];
-              printf("%d.\tname:        %s\n", rsp->sr_name);
-              printf("\taddr:           "
-                     "%02x:%02x:%02x:%02x:%02x:%02x type: %d\n",
-                     rsp->sr_addr.val[0], rsp->sr_addr.val[1],
-                     rsp->sr_addr.val[2], rsp->sr_addr.val[3],
-                     rsp->sr_addr.val[4], rsp->sr_addr.val[5],
-                     rsp->sr_addr.type);
-              printf("\trssi:            %d\n", rsp->sr_rssi);
-              printf("\tresponse type:   %u\n", rsp->sr_type);
-              printf("\tadvertiser data:\n");
-
-              for (j = 0; j < rsp->sr_len; j += 16)
-                {
-                  printf("\t                ");
-                  for (k = 0; k < 16 && (j + k) < rsp->sr_len; k++)
-                    {
-                      printf(" %02x", rsp->sr_data[j + k]);
-                    }
-
-                  printf("\n");
-                }
-            }
-        }
-
-      close(sockfd);
-    }
-}
-
-/****************************************************************************
- * Name: btsak_cmd_scanstop
+ * Name: btsak_cmd_advertisestop
  *
  * Description:
  *   Scan stop command
  *
  ****************************************************************************/
 
-static void btsak_cmd_scanstop(FAR struct btsak_s *btsak, FAR char *cmd,
+static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
                               int argc, FAR char *argv[])
 {
-  struct bt_scanstop_s stop;
+  struct bt_advertisestop_s stop;
   int sockfd;
   int ret;
 
-  /* Perform the IOCTL to stop scanning and flush any buffered responses. */
+  /* Perform the IOCTL to stop advertising */
 
-  strncpy(stop.st_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  strncpy(stop.at_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SCANSTOP,
+      ret = ioctl(sockfd, SIOCBT_ADVERTISESTOP,
                   (unsigned long)((uintptr_t)&stop));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTOP) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT_ADVERTISESTOP) failed: %d\n",
                   errno);
         }
     }
@@ -277,7 +205,7 @@ static void btsak_cmd_scanstop(FAR struct btsak_s *btsak, FAR char *cmd,
  *
  ****************************************************************************/
 
-void btsak_cmd_scan(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+void btsak_cmd_advertise(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 {
   int argind;
 
@@ -286,31 +214,27 @@ void btsak_cmd_scan(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
   argind = 1;
   if (argc < 2)
     {
-      fprintf(stderr, "ERROR: Missing scan command\n");
-      btsak_scan_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+      fprintf(stderr, "ERROR: Missing advertise command\n");
+      btsak_advertise_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
   /* Check for command */
 
   if (strcmp(argv[argind], "-h") == 0)
     {
-      btsak_scan_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+      btsak_advertise_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
     }
   else if (strcmp(argv[argind], "start") == 0)
     {
-      btsak_cmd_scanstart(btsak, argv[0], argc - argind, &argv[argind]);
+      btsak_cmd_advertisestart(btsak, argv[0], argc - argind, &argv[argind]);
     }
-  else if (strcmp(argv[argind], "get") == 0)
+  else if (strcmp(argv[argind], "-h") == 0)
     {
-      btsak_cmd_scanget(btsak, argv[0], argc - argind, &argv[argind]);
-    }
-  else if (strcmp(argv[argind], "stop") == 0)
-    {
-      btsak_cmd_scanstop(btsak, argv[0], argc - argind, &argv[argind]);
+      btsak_cmd_advertisestop(btsak, argv[0], argc - argind, &argv[argind]);
     }
   else
     {
-      fprintf(stderr, "ERROR:  Unrecognized scan command: %s\n", argv[argind]);
-      btsak_scan_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+      fprintf(stderr, "ERROR:  Unrecognized advertise command: %s\n", argv[argind]);
+      btsak_advertise_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 }
