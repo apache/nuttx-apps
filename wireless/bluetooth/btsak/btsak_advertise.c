@@ -56,15 +56,6 @@
 #include "btsak.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#if !defined(CONFIG_BTSAK_NINSTANCES) || CONFIG_BTSAK_NINSTANCES <= 0
-#  undef CONFIG_BTSAK_NINSTANCES
-#  define CONFIG_BTSAK_NINSTANCES 3
-#endif
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 

@@ -53,15 +53,6 @@
 #include "btsak.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#if !defined(CONFIG_BTSAK_NINSTANCES) || CONFIG_BTSAK_NINSTANCES <= 0
-#  undef CONFIG_BTSAK_NINSTANCES
-#  define CONFIG_BTSAK_NINSTANCES 3
-#endif
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -130,7 +121,7 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
   },
   {
     "characteristic",
-    (CODE void *)btsak_cmd_gatt_discover_characteristc,
+    (CODE void *)btsak_cmd_gatt_discover_characteristic,
     "[-h] <addr> <addr-type>"
   },
   {

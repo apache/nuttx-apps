@@ -27,7 +27,7 @@ config IEEE802154_I8SAK_PRIORITY
 
 config IEEE802154_I8SAK_STACKSIZE
 	int "i8sak stack size"
-	default 2048
+	default 4096
 
 if NET_6LOWPAN
 config IEEE802154_I8SAK_DEFAULT_PORT
