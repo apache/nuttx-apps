@@ -98,6 +98,8 @@
 #  define NETLIB_SOCK_FAMILY  AF_IEEE802154
 #elif defined(CONFIG_WIRELESS_PKTRADIO)
 #  define NETLIB_SOCK_FAMILY  AF_PKTRADIO
+#elif defined(CONFIG_NET_BLUETOOTH)
+#  define NETLIB_SOCK_FAMILY  AF_BLUETOOTH
 #elif defined(CONFIG_NET_USRSOCK)
 #  define NETLIB_SOCK_FAMILY  AF_INET
 #else
@@ -146,6 +148,8 @@
 #  define NETLIB_SOCK_TYPE SOCK_RAW
 #elif NETLIB_SOCK_FAMILY == AF_IEEE802154
 #  define NETLIB_SOCK_TYPE SOCK_DGRAM
+#elif NETLIB_SOCK_FAMILY == AF_BLUETOOTH
+#  define NETLIB_SOCK_TYPE SOCK_RAW
 #endif
 
 /****************************************************************************

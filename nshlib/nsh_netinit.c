@@ -189,6 +189,9 @@
 #elif defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)
 #  define NET_DEVNAME "wpan0"
 #  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_BLUETOOTH)
+#  define NET_DEVNAME "bnep0"
+#  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_SLIP)
 #  define NET_DEVNAME "sl0"
 #  ifndef CONFIG_NSH_NOMAC

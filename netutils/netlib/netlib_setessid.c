@@ -73,6 +73,9 @@
 #elif defined(CONFIG_NET_IEEE802154)
 #  define PF_FAMILY PF_IEEE802154
 #  define AF_FAMILY AF_IEEE802154
+#elif defined(CONFIG_NET_BLUETOOTH)
+#  define PF_FAMILY PF_BLUETOOTH
+#  define AF_FAMILY AF_BLUETOOTH
 #endif
 
 /****************************************************************************

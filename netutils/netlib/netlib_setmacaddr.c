@@ -1,7 +1,8 @@
 /****************************************************************************
  * netutils/netlib/netlib_setmacaddr.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2017-2018 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,6 +74,9 @@
 #elif defined(CONFIG_NET_IEEE802154)
 #  define PF_FAMILY  PF_IEEE802154
 #  define AF_FAMILY  AF_IEEE802154
+#elif defined(CONFIG_NET_BLUETOOTH)
+#  define PF_FAMILY  PF_BLUETOOTH
+#  define AF_FAMILY  AF_BLUETOOTH
 #elif defined(CONFIG_NET_USRSOCK)
 #  define PF_FAMILY  PF_INET
 #  define AF_FAMILY  AF_INET
