@@ -193,11 +193,6 @@ examples/canard
 
   Example application for canutils/libcarnard.
 
-examples/cc3000
-^^^^^^^^^^^^^^^
-
-  This is a test for the TI CC3000 wireless networking module.
-
 examples/cctype
 ^^^^^^^^^^^^^^^
 
