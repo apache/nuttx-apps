@@ -15,44 +15,54 @@ config EXAMPLES_SMPS_DEVPATH
 		The default path to the Smps device. Default: /dev/smps0
 
 config EXAMPLES_SMPS_TIME_DEFAULT
-	string "SMPS example run time default (sec)"
+	int "SMPS example run time default (sec)"
+	default 0
 
 config EXAMPLES_SMPS_OUT_VOLTAGE_DEFAULT
-	string "SMPS Output voltage default (mV)"
+	int "SMPS Output voltage default (mV)"
+	default 0
 
 config EXAMPLES_SMPS_OUT_CURRENT_DEFAULT
-	string "SMPS Output current default (mA)"
+	int "SMPS Output current default (mA)"
+	default 0
 
 config EXAMPLES_SMPS_OUT_POWER_DEFAULT
-	string "SMPS Output power default (mW)"
+	int "SMPS Output power default (mW)"
+	default 0
 
 config EXAMPLES_SMPS_IN_CURRENT_LIMIT
-	string "SMPS Input Current limit (mA)"
+	int "SMPS Input Current limit (mA)"
+	default 0
 	---help---
 		Input current limit for the SMPS driver in mA. Not used if 0
 
 config EXAMPLES_SMPS_OUT_CURRENT_LIMIT
-	string "SMPS Output Current limit (mA)"
+	int "SMPS Output Current limit (mA)"
+	default 0
 	---help---
 		Output current limit for the SMPS driver in mA. Not used if 0
 
 config EXAMPLES_SMPS_IN_VOLTAGE_LIMIT
-	string "SMPS Input Voltage limit (mV)"
+	int "SMPS Input Voltage limit (mV)"
+	default 0
 	---help---
 		Input voltage limit for the SMPS driver in mV. Not used if 0
 
 config EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT
-	string "SMPS Output Voltage limit (mV)"
+	int "SMPS Output Voltage limit (mV)"
+	default 0
 	---help---
 		Output voltage limit for the SMPS driver in mV. Not used if 0
 
 config EXAMPLES_SMPS_IN_POWER_LIMIT
-	string "SMPS Input Power limit (mW)"
+	int "SMPS Input Power limit (mW)"
+	default 0
 	---help---
 		Input power limit for the SMPS driver in mW. Not used if 0
 
 config EXAMPLES_SMPS_OUT_POWER_LIMIT
-	string "SMPS Output Power limit (mW)"
+	int "SMPS Output Power limit (mW)"
+	default 0
 	---help---
 		Output power limit for the SMPS driver in mW. Not used if 0
 
