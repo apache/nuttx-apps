@@ -84,14 +84,16 @@ static void btsak_advertise_showusage(FAR const char *progname,
  * Name: btsak_cmd_advertisestart
  *
  * Description:
- *   Scan start command
+ *   Advertise start command
  *
  ****************************************************************************/
 
 static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
                                      int argc, FAR char *argv[])
 {
-  struct bt_advertisestart_s start;
+  struct btreq_s start;
+  struct bt_eir_s ad[2];             /* Data for advertisement packets */
+  struct bt_eir_s sd[2];             /* Data for scan response packets */
   int sockfd;
   int ret;
 
@@ -119,29 +121,39 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
    *   request additional information about the pallet.  
    */
 
-  memset(&start, 0, sizeof(struct bt_advertisestart_s));
-  strncpy(start.as_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  /* The data for advertisement and response packets are provided as arrays
+   * terminated by an entry with len=2.
+   *
+   * REVISIT:  To be useful for anything other than testing, there must
+   * be some mechanism to specify the advertise and response data.
+   */
 
-  start.as_type       = BT_LE_ADV_IND;
+  memset(&ad, 0, 2 * sizeof(struct bt_eir_s));
+  ad[0].len     = 2;
+  ad[0].type    = BT_EIR_FLAGS;
+  ad[0].data[0] = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
 
-  start.as_ad.len     = 2;
-  start.as_ad.type    = BT_EIR_FLAGS;
-  start.as_ad.data[0] = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
+  memset(&sd, 0, 2 * sizeof(struct bt_eir_s));
+  sd[1].len         = sizeof("btsak");
+  sd[1].type        = BT_EIR_NAME_COMPLETE;
+  strcpy((FAR char *)sd[1].data, "btsak");
 
-  start.as_sd.len     = sizeof("btsak");
-  start.as_sd.type    = BT_EIR_NAME_COMPLETE;
-  strcpy((FAR char *)start.as_sd.data, "btsak");
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  btreq.btr_advtype = BT_LE_ADV_IND;
+  btreq.btr_advad   = ad;
+  btreq.btr_advsd   = sd;
 
   /* Perform the IOCTL to start advertising */
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_ADVERTISESTART,
-                  (unsigned long)((uintptr_t)&start));
+      ret = ioctl(sockfd, SIOCBTADVSTART,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_ADVERTISESTART) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTADVSTART) failed: %d\n",
                   errno);
         }
     }
@@ -153,29 +165,30 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
  * Name: btsak_cmd_advertisestop
  *
  * Description:
- *   Scan stop command
+ *   Advertise stop command
  *
  ****************************************************************************/
 
 static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
-                              int argc, FAR char *argv[])
+                                    int argc, FAR char *argv[])
 {
-  struct bt_advertisestop_s stop;
+  struct btreq_s btreq;
   int sockfd;
   int ret;
 
   /* Perform the IOCTL to stop advertising */
 
-  strncpy(stop.at_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_ADVERTISESTOP,
-                  (unsigned long)((uintptr_t)&stop));
+      ret = ioctl(sockfd, SIOCBTADVSTOP,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_ADVERTISESTOP) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTADVSTOP) failed: %d\n",
                   errno);
         }
     }

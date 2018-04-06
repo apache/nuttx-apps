@@ -126,7 +126,7 @@ static void btsak_security_showusage(FAR const char *progname,
 
 void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 {
-  struct bt_security_s sec;
+  struct btreq_s btreq;
   int sockfd;
   int ret;
 
@@ -153,7 +153,10 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   /* The first argument must be an address of the form xx:xx:xx:xx:xx:xx */
 
-  ret = btsak_str2addr(argv[1], sec.se_addr.val);
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
+  ret = btsak_str2addr(argv[1], btreq.btr_secaddr.val);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Invalid address string: %s/n", argv[1]);
@@ -162,7 +165,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   /* The second address is the address type, either "public" or "random" */
 
-  ret = btsak_str2addrtype(argv[2], &sec.se_addr.type);
+  ret = btsak_str2addrtype(argv[2], &btreq.btr_secaddr.type);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Invalid address type: %s/n", argv[2]);
@@ -171,19 +174,17 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   /* The third argument is the security level */
 
-  ret = btsak_str2seclevel(argv[3], &sec.se_level);
+  ret = btsak_str2seclevel(argv[3], &btreq.btr_seclevel);
 
   /* Perform the IOCTL to stop advertising */
-
-  strncpy(sec.se_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SECURITY, (unsigned long)((uintptr_t)&sec));
+      ret = ioctl(sockfd, SIOCBTSECURITY, (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SECURITY) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTSECURITY) failed: %d\n",
                   errno);
         }
     }

@@ -91,21 +91,24 @@ static void btsak_scan_showusage(FAR const char *progname,
 static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
                                 int argc, FAR char *argv[])
 {
-  struct bt_scanstart_s start;
+  struct btreq_s btreq;
   int argind;
   int sockfd;
   int ret;
 
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
   /* Check if an option was provided */
 
   argind = 1;
-  start.ss_dupenable = false;
+  btreq.btr_dupenable = false;
 
   if (argc > 1)
     {
       if (strcmp(argv[argind], "-d") == 0)
         {
-          start.ss_dupenable = true;
+          btreq.btr_dupenable = true;
         }
       else
         {
@@ -117,16 +120,14 @@ static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
 
   /* Perform the IOCTL to start scanning */
 
-  strncpy(start.ss_name, btsak->ifname, HCI_DEVNAME_SIZE);
-
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SCANSTART,
-                  (unsigned long)((uintptr_t)&start));
+      ret = ioctl(sockfd, SIOCBTSCANSTART,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTART) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTSCANSTART) failed: %d\n",
                   errno);
         }
     }
@@ -145,27 +146,26 @@ static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
 static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
                               int argc, FAR char *argv[])
 {
-  union
-  {
-    struct bt_scanresult_s result;
-    uint8_t b[SIZEOF_BT_SCANRESULT_S(5)];
-  } u;
+  struct btreq_s btreq;
+  struct bt_scanresponse_s result[5];
   int sockfd;
   int ret;
 
   /* Perform the IOCTL to get the scan results so far */
 
-  strncpy(u.result.sr_name, btsak->ifname, HCI_DEVNAME_SIZE);
-  u.result.sr_nrsp = 5;
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  btreq->btr_nrsp = 5;
+  btreq.btr_rsp   = result;
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SCANGET,
-                  (unsigned long)((uintptr_t)&u.result));
+      ret = ioctl(sockfd, SIOCBTSCANGET,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANGET) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTSCANGET) failed: %d\n",
                   errno);
         }
 
@@ -181,7 +181,7 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
           printf("Scan result:\n");
           for (i = 0; i < u.result.sr_nrsp; i++)
             {
-              rsp = &u.result.sr_rsp[i];
+              rsp = &result[i];
               printf("%d.\tname:        %s\n", rsp->sr_name);
               printf("\taddr:           "
                      "%02x:%02x:%02x:%02x:%02x:%02x type: %d\n",
@@ -221,22 +221,23 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
 static void btsak_cmd_scanstop(FAR struct btsak_s *btsak, FAR char *cmd,
                               int argc, FAR char *argv[])
 {
-  struct bt_scanstop_s stop;
+  struct btreq_s btreq;
   int sockfd;
   int ret;
 
   /* Perform the IOCTL to stop scanning and flush any buffered responses. */
 
-  strncpy(stop.st_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBT_SCANSTOP,
-                  (unsigned long)((uintptr_t)&stop));
+      ret = ioctl(sockfd, SIOCBTSCANSTOP,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(SIOCBT_SCANSTOP) failed: %d\n",
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTSCANSTOP) failed: %d\n",
                   errno);
         }
     }
