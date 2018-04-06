@@ -153,7 +153,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   /* The first argument must be an address of the form xx:xx:xx:xx:xx:xx */
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   ret = btsak_str2addr(argv[1], btreq.btr_secaddr.val);

@@ -96,7 +96,7 @@ static void btsak_cmd_scanstart(FAR struct btsak_s *btsak, FAR char *cmd,
   int sockfd;
   int ret;
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   /* Check if an option was provided */
@@ -153,10 +153,10 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
 
   /* Perform the IOCTL to get the scan results so far */
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
-  btreq->btr_nrsp = 5;
-  btreq.btr_rsp   = result;
+  btreq.btr_nrsp = 5;
+  btreq.btr_rsp  = result;
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
@@ -179,7 +179,7 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
           int k;
 
           printf("Scan result:\n");
-          for (i = 0; i < u.result.sr_nrsp; i++)
+          for (i = 0; i < btreq.btr_nrsp; i++)
             {
               rsp = &result[i];
               printf("%d.\tname:        %s\n", rsp->sr_name);
@@ -227,7 +227,7 @@ static void btsak_cmd_scanstop(FAR struct btsak_s *btsak, FAR char *cmd,
 
   /* Perform the IOCTL to stop scanning and flush any buffered responses. */
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);

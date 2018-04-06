@@ -139,7 +139,7 @@ void btsak_cmd_info(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   /* Perform the IOCTL to stop advertising */
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
@@ -158,18 +158,18 @@ void btsak_cmd_info(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
                 btreq.btr_bdaddr.val[0], btreq.btr_bdaddr.val[1],
                 btreq.btr_bdaddr.val[2], btreq.btr_bdaddr.val[3],
                 btreq.btr_bdaddr.val[4], btreq.btr_bdaddr.val[5]);
-        printf("Flags:  %04x\n", btsak.btr_flags);
-        printf("Free:   %u\n", btsak.btr_num_cmd);
-        printf("  ACL:  %u\n", btsak.btri_num_acl);
-        printf("  SCO:  %u\n", btsak.btri_num_sco);
+        printf("Flags:  %04x\n", btreq.btr_flags);
+        printf("Free:   %u\n", btreq.btr_num_cmd);
+        printf("  ACL:  %u\n", btreq.btr_num_acl);
+        printf("  SCO:  %u\n", btreq.btr_num_sco);
         printf("Max:\n");
-        printf("  ACL:  %u\n", btsak.btr_max_acl);
-        printf("  SCO:  %u\n", btsak.btr_max_sco);
+        printf("  ACL:  %u\n", btreq.btr_max_acl);
+        printf("  SCO:  %u\n", btreq.btr_max_sco);
         printf("MTU:\n");
-        printf("  ACL:  %u\n", btsak.btr_acl_mtu);
-        printf("  SCO:  %u\n", btsak.btr_sco_mtu);
-        printf("Policy: %u\n", btsak.btr_link_policy);
-        printf("Type:   %u\n", btsak.btr_packet_type);
+        printf("  ACL:  %u\n", btreq.btr_acl_mtu);
+        printf("  SCO:  %u\n", btreq.btr_sco_mtu);
+        printf("Policy: %u\n", btreq.btr_link_policy);
+        printf("Type:   %u\n", btreq.btr_packet_type);
        }
     }
 

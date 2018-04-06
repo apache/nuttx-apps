@@ -91,7 +91,7 @@ static void btsak_advertise_showusage(FAR const char *progname,
 static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
                                      int argc, FAR char *argv[])
 {
-  struct btreq_s start;
+  struct btreq_s btreq;
   struct bt_eir_s ad[2];             /* Data for advertisement packets */
   struct bt_eir_s sd[2];             /* Data for scan response packets */
   int sockfd;
@@ -138,7 +138,7 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
   sd[1].type        = BT_EIR_NAME_COMPLETE;
   strcpy((FAR char *)sd[1].data, "btsak");
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
   btreq.btr_advtype = BT_LE_ADV_IND;
   btreq.btr_advad   = ad;
@@ -178,7 +178,7 @@ static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
 
   /* Perform the IOCTL to stop advertising */
 
-  memset(&btreq, 0, sizeof(struct bt_advertisebtreq_s));
+  memset(&btreq, 0, sizeof(struct btreq_s));
   strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
 
   sockfd = btsak_socket(btsak);
