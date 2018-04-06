@@ -87,7 +87,11 @@ static const struct btsak_command_s g_btsak_commands[] =
   },
   {"info",
     (CODE void *)btsak_cmd_info,
-    NULL
+    "[-h]"
+  },
+  {"features",
+    (CODE void *)btsak_cmd_features,
+    "[-h] [le]"
   },
   {"scan",
     (CODE void *)btsak_cmd_scan,

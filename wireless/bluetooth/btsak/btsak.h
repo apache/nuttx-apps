@@ -243,6 +243,8 @@ void btsak_gatt_showusage(FAR const char *progname, FAR const char *cmd,
  ****************************************************************************/
 
 void btsak_cmd_info(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
+void btsak_cmd_features(FAR struct btsak_s *btsak, int argc,
+       FAR char *argv[]);
 void btsak_cmd_scan(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
 void btsak_cmd_advertise(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);

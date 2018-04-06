@@ -39,8 +39,8 @@
 # Bluetooth SAK (swiss army knife )
 
 ASRCS   =
-CSRCS   = btsak_advertise.c btsak_gatt.c btsak_info.c btsak_scan.c
-CSRCS  += btsak_security.c
+CSRCS   = btsak_advertise.c btsak_features.c btsak_gatt.c btsak_info.c
+CSRCS  += btsak_scan.c btsak_security.c
 MAINSRC = btsak_main.c
 
 # Application info
