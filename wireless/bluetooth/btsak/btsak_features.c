@@ -125,33 +125,30 @@ void btsak_cmd_features(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
       ret = ioctl(sockfd, cmd, (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR:  ioctl(%04x) failed: %d\n",
+          fprintf(stderr, "ERROR: ioctl(%04x) failed: %d\n",
                   cmd, errno);
         }
       else
-       {
-        printf("Page 0:\n");
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features0[0], btreq.btr_features0[1],
-               btreq.btr_features0[1], btreq.btr_features0[3]);
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features0[5], btreq.btr_features0[5],
-               btreq.btr_features0[6], btreq.btr_features0[7]);
-        printf("Page 1:\n");
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features1[0], btreq.btr_features1[1],
-               btreq.btr_features1[1], btreq.btr_features1[3]);
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features1[5], btreq.btr_features1[5],
-               btreq.btr_features1[6], btreq.btr_features1[7]);
-        printf("Page 2:\n");
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features2[0], btreq.btr_features2[1],
-               btreq.btr_features2[1], btreq.btr_features2[3]);
-        printf("\t%08x %08x %08x %08x\n",
-               btreq.btr_features2[5], btreq.btr_features2[5],
-               btreq.btr_features2[6], btreq.btr_features2[7]);
-       }
+        {
+          printf("Page 0:\n");
+          printf("\t%02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                 btreq.btr_features0[0], btreq.btr_features0[1],
+                 btreq.btr_features0[2], btreq.btr_features0[3],
+                 btreq.btr_features0[4], btreq.btr_features0[5],
+                 btreq.btr_features0[6], btreq.btr_features0[7]);
+          printf("Page 1:\n");
+          printf("\t%02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                 btreq.btr_features1[0], btreq.btr_features1[1],
+                 btreq.btr_features1[2], btreq.btr_features1[3],
+                 btreq.btr_features1[4], btreq.btr_features1[5],
+                 btreq.btr_features1[6], btreq.btr_features1[7]);
+          printf("Page 2:\n");
+          printf("\t%02x %02x %02x %02x  %02x %02x %02x %02x\n",
+                 btreq.btr_features2[0], btreq.btr_features2[1],
+                 btreq.btr_features2[2], btreq.btr_features2[3],
+                 btreq.btr_features2[4], btreq.btr_features2[5],
+                 btreq.btr_features2[6], btreq.btr_features2[7]);
+        }
     }
 
   close(sockfd);
