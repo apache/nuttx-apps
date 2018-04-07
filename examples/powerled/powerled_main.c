@@ -478,6 +478,12 @@ int powerled_main(int argc, char *argv[])
     }
 #endif
 
+#ifndef CONFIG_NSH_BUILTIN_APPS
+  /* Perform architecture-specific initialization (if configured) */
+
+  (void)boardctl(BOARDIOC_INIT, 0);
+#endif
+
   /* Set LED current limit */
 
   powerled_limits.current = (((float)CONFIG_EXAMPLES_POWERLED_CURRENT_LIMIT)/1000.0);

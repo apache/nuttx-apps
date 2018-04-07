@@ -366,31 +366,31 @@ errout:
 static void feedback_print(FAR struct smps_feedback_s *fb)
 {
 #ifdef CONFIG_SMPS_HAVE_INPUT_VOLTAGE
-  printf("v_out: %0.3f\t", fb->v_out);
+  printf("v_out: %.3f\t", fb->v_out);
 #endif
 #ifdef CONFIG_SMPS_HAVE_OUTPUT_VOLTAGE
-  printf("v_in: %0.3f\t", fb->v_in);
+  printf("v_in: %.3f\t", fb->v_in);
 #endif
 #ifdef CONFIG_SMPS_HAVE_OUTPUT_CURRENT
-  printf("i_out: %0.3f\t", fb->i_out);
+  printf("i_out: %.3f\t", fb->i_out);
 #endif
 #ifdef CONFIG_SMPS_HAVE_INPUT_CURRENT
-  printf("i_in: %0.3f\t", fb->i_in);
+  printf("i_in: %.3f\t", fb->i_in);
 #endif
 #ifdef CONFIG_SMPS_HAVE_OUTPUT_POWER
-  printf("p_in: %0.3f\t", fb->p_in);
+  printf("p_in: %.3f\t", fb->p_in);
 #endif
 #ifdef CONFIG_SMPS_HAVE_INPUT_POWER
-  printf("p_out: %0.3f\t", fb->p_out);
+  printf("p_out: %.3f\t", fb->p_out);
 #endif
 #ifdef CONFIG_SMPS_HAVE_EFFICIENCY
-  printf("eff: %0.3f\t", fb->eff);
+  printf("eff: %.3f\t", fb->eff);
 #endif
   printf("\n");
 }
 
-void print_info(struct smps_limits_s *limits, struct smps_params_s *params,
-                uint8_t *mode, struct args_s *args)
+static void print_info(struct smps_limits_s *limits, struct smps_params_s *params,
+                       uint8_t *mode, struct args_s *args)
 {
   printf("-------------------------------------\n");
   printf("Current SMPS settings:\n");
