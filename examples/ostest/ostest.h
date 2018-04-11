@@ -127,7 +127,7 @@ void fpu_test(void);
 
 /* aio.c ********************************************************************/
 
-#ifdef CONFIG_FS_AIO
+#ifdef CONFIG_EXAMPLES_OSTEST_AIO
 void aio_test(void);
 #endif
 

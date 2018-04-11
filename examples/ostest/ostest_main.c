@@ -334,7 +334,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#ifdef CONFIG_FS_AIO
+#ifdef CONFIG_EXAMPLES_OSTEST_AIO
       /* Check asynchronous I/O */
 
       printf("\nuser_main: AIO test\n");
