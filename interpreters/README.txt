@@ -89,9 +89,7 @@ micropython
   4. Micro Python needs the math library libm.a.  The math library built into
      NuttX is sufficient and that can be included with CONFIG_LIBM=y.  If you
      prefer a more highly tuned math library then refer to the discussion of
-     math.h in the top-level nuttx/README.txt file.  Also refer to the
-     discussions in the NuttX Yahoo! forum; people have found many creative
-     way to link with the newlib math library, for example.
+     math.h in the top-level nuttx/README.txt file.
 
   5. See errors like this?
 
