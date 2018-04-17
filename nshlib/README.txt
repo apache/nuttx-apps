@@ -1494,12 +1494,10 @@ NSH-Specific Configuration Settings
      is then set output of myprogram on stdout.  Because this feature commits
      significant resources, it is disabled by default.
 
-  * CONFIG_NSH_TMPDIR
-     If CONFIG_NSH_CMDPARMS is selected, then function output will be retained
-     in a temporary file.  In that case, this string must be provided to
-     specify the full path to a directory where temporary files can be
-     created.  This would be a good application of RAM disk: To provide
-     temporary storage for function output.
+     The CONFIG_NSH_CMDPARMS interim output will be retained in a temporary
+     file.  Full path to a directory where temporary files can be created is
+     taken from CONFIG_LIBC_TMPDIR and it defaults to /tmp if
+     CONFIG_LIBC_TMPDIR is not set.
 
   * CONFIG_NSH_MAXARGUMENTS
      The maximum number of NSH command arguments. Default: 6
