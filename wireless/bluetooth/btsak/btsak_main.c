@@ -643,7 +643,7 @@ void btsak_showusage(FAR const char *progname, int exitcode)
   int i;
 
   fprintf(stderr, "\nUsage:\n\n");
-  fprintf(stderr, "\t%s progname <ifname> <cmd> [option [option [option...]]]\n",
+  fprintf(stderr, "\t%s <ifname> <cmd> [option [option [option...]]]\n",
           progname);
   fprintf(stderr, "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
 

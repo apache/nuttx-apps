@@ -182,7 +182,7 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
           for (i = 0; i < btreq.btr_nrsp; i++)
             {
               rsp = &result[i];
-              printf("%d.\tname:        %s\n", rsp->sr_name);
+              printf("%d.\tname:        %s\n", i + 1, rsp->sr_name);
               printf("\taddr:           "
                      "%02x:%02x:%02x:%02x:%02x:%02x type: %d\n",
                      rsp->sr_addr.val[0], rsp->sr_addr.val[1],
@@ -191,11 +191,15 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
                      rsp->sr_addr.type);
               printf("\trssi:            %d\n", rsp->sr_rssi);
               printf("\tresponse type:   %u\n", rsp->sr_type);
-              printf("\tadvertiser data:\n");
+              printf("\tadvertiser data:");
 
               for (j = 0; j < rsp->sr_len; j += 16)
                 {
-                  printf("\t                ");
+                  if (j > 0)
+                    {
+                      printf("\t                ");
+                    }
+
                   for (k = 0; k < 16 && (j + k) < rsp->sr_len; k++)
                     {
                       printf(" %02x", rsp->sr_data[j + k]);
