@@ -688,7 +688,7 @@ void btsak_gatt_showusage(FAR const char *progname, FAR const char *cmd,
       FAR const struct btsak_command_s *gattcmd = &g_btsak_gatt_commands[i];
       if (gattcmd->help != NULL)
         {
-          fprintf(stderr, "\t%-10gdbs\t%s\n", gattcmd->name, gattcmd->help);
+          fprintf(stderr, "\t%-10s\t%s\n", gattcmd->name, gattcmd->help);
         }
       else
         {
