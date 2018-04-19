@@ -252,6 +252,8 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);
 void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);
+void btsak_cmd_gatt_exchange_mtu_result(FAR struct btsak_s *btsak, int argc,
+       FAR char *argv[]);
 void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);
 void btsak_cmd_gatt_discover_characteristic(FAR struct btsak_s *btsak,

@@ -91,14 +91,12 @@ static void btsak_security_showusage(FAR const char *progname,
   fprintf(stderr,
           "\toutput capabilities).\n\n");
   fprintf(stderr, "Usage:\n\n");
-  fprintf(stderr, "\t%s <ifname> %s [-h] <addr> <addr-type> <level>\n",
+  fprintf(stderr, "\t%s <ifname> %s [-h] <addr> public|private <level>\n",
           progname, cmd);
   fprintf(stderr,
           "\nWhere:\n\n");
   fprintf(stderr,
           "\t<addr>\t- The 6-byte address of the connected peer\n");
-  fprintf(stderr,
-          "\t<addr-type>\t- Either \"public\" or \"random\"\n");
   fprintf(stderr,
           "\t<level>\t- Security level, on of:\n\n");
   fprintf(stderr,

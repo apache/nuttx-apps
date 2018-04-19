@@ -105,7 +105,7 @@ static const struct btsak_command_s g_btsak_commands[] =
   {
     "security",
     (CODE void *)btsak_cmd_security,
-    "[-h] <addr> <addr-type> <level>"
+    "[-h] <addr> public|private <level>"
   },
   {
     "gatt",
@@ -120,22 +120,27 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
 {
   {"exchange-mtu",
     (CODE void *)btsak_cmd_gatt_exchange_mtu,
-    "[-h] <addr> <addr-type>"
+    "[-h] <addr> public|private"
+  },
+  {
+    "mget",
+    (CODE void *)btsak_cmd_gatt_exchange_mtu_result,
+    "[-h]"
   },
   {
     "discover",
     (CODE void *)btsak_cmd_discover,
-    "[-h] <addr> <addr-type> <uuid16> [<start> [<end>]]"
+    "[-h] <addr> public|private <uuid16> [<start> [<end>]]"
   },
   {
     "characteristic",
     (CODE void *)btsak_cmd_gatt_discover_characteristic,
-    "[-h] <addr> <addr-type> [<start> [<end>]]"
+    "[-h] <addr> public|private [<start> [<end>]]"
   },
   {
     "descriptor",
     (CODE void *)btsak_cmd_gat_discover_descriptor,
-    "[-h] <addr> <addr-type> [<start> [<end>]]"
+    "[-h] <addr> public|private [<start> [<end>]]"
   },
   {
     "dget",
@@ -145,17 +150,17 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
   {
     "read",
     (CODE void *)btsak_cmd_gatt_read,
-    "[-h] <addr> <addr-type> <handle> [<offset>]"
+    "[-h] <addr> public|private <handle> [<offset>]"
   },
   {
     "read-multiple",
     (CODE void *)btsak_cmd_gatt_read_multiple,
-    "[-h] <addr> <addr-type> <handle> <nitems>"
+    "[-h] <addr> public|private <handle> <nitems>"
   },
   {
     "write",
     (CODE void *)btsak_cmd_gatt_write,
-    "[-h] <addr> <addr-type> <handle> <datum>"
+    "[-h] <addr> public|private <handle> <datum>"
   }
 };
 

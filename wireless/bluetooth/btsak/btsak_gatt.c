@@ -61,7 +61,7 @@
  * Name: btsak_cmd_discover_common
  *
  * Description:
- *   gatt [-h] <discover-cmd> [-h] <addr> <addr-type> [<uuid16>]
+ *   gatt [-h] <discover-cmd> [-h] <addr> public|private [<uuid16>]
  *
  ****************************************************************************/
 
@@ -86,7 +86,7 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
     {
       fprintf(stderr,
               "ERROR:  Invalid number of arguments.  Found %d expected at least %u\n",
-              argc, argndx);
+              argc - 1, argndx - 1);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -102,7 +102,7 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_dpeer.type);
     {
-      fprintf(stderr, "ERROR:  Bad value for <addr-type>: %s\n", argv[2]);
+      fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -161,21 +161,115 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
  * Name: btsak_cmd_gatt_exchange_mtu
  *
  * Description:
- *   gatt [-h] exchange_mtu [-h] <addr> <addr-type> command
+ *   gatt [-h] exchange_mtu [-h] <addr> public|private command
  *
  ****************************************************************************/
 
 void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
                                  FAR char *argv[])
 {
-# warning Missing logic
+  struct btreq_s btreq;
+  int sockfd;
+  int ret;
+
+  if (argc == 2 && strcmp(argv[1], "-h") == 0)
+    {
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+    }
+
+  if (argc != 3)
+    {
+      fprintf(stderr,
+              "ERROR:  Invalid number of arguments.  Found %d expected 2\n",
+              argc - 1);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  ret = btsak_str2addr(argv[1], btreq.btr_expeer.val);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:  Bad value for <addr>: %s\n", argv[1]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  ret = btsak_str2addrtype(argv[2], &btreq.btr_expeer.type);
+    {
+      fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  /* Perform the IOCTL to start the MTU exchange */
+
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBTEXCHANGE, (unsigned long)((uintptr_t)&btreq));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTEXCHANGE) failed: %d\n",
+                  errno);
+        }
+      else
+        {
+          printf("MTU exchange pending...\n");
+        }
+    }
+
+  close(sockfd);
+}
+
+/****************************************************************************
+ * Name: btsak_cmd_gatt_exchange_mtu_result
+ *
+ * Description:
+ *   gatt [-h] mget [-h] command
+ *
+ ****************************************************************************/
+
+void btsak_cmd_gatt_exchange_mtu_result(FAR struct btsak_s *btsak, int argc,
+                                        FAR char *argv[])
+{
+  struct btreq_s btreq;
+  int sockfd;
+  int ret;
+
+  /* Perform the IOCTL to recover the result of the MTU exchange */
+
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBTEXRESULT, (unsigned long)((uintptr_t)&btreq));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTEXRESULT) failed: %d\n",
+                  errno);
+        }
+      else
+        {
+          printf("MTU Exchange Result:\n");
+          if (btreq.btr_expending)
+            {
+              printf("\tState:  Pending\n");
+              printf("\tResult: Not yet available\n");
+            }
+          else
+            {
+              printf("\tState:  Complete\n");
+              printf("\tResult: %u\n", btreq.btr_exresult);
+            }
+        }
+    }
 }
 
 /****************************************************************************
  * Name: btsak_cmd_discover
  *
  * Description:
- *   gatt [-h] discover [-h] <addr> <addr-type> <uuid16> command
+ *   gatt [-h] discover [-h] <addr> public|private <uuid16> command
  *
  ****************************************************************************/
 
@@ -188,7 +282,7 @@ void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
  * Name: btsak_cmd_gatt_discover_characteristic
  *
  * Description:
- *   gatt [-h] characteristic [-h] <addr> <addr-type> command
+ *   gatt [-h] characteristic [-h] <addr> public|private command
  *
  ****************************************************************************/
 
@@ -202,7 +296,7 @@ void btsak_cmd_gatt_discover_characteristic(FAR struct btsak_s *btsak,
  * Name: btsak_cmd_gat_discover_descriptor
  *
  * Description:
- *   gatt [-h] descriptor [-h] <addr> <addr-type> command
+ *   gatt [-h] descriptor [-h] <addr> public|private command
  *
  ****************************************************************************/
 
@@ -239,7 +333,7 @@ void btsak_cmd_gat_discover_get(FAR struct btsak_s *btsak,
 
   if (argc != 1)
     {
-      fprintf(stderr, "ERROR:  No arguements expected\n", argc);
+      fprintf(stderr, "ERROR:  No arguments expected\n");
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -278,7 +372,7 @@ void btsak_cmd_gat_discover_get(FAR struct btsak_s *btsak,
  * Name: btsak_cmd_gatt_read
  *
  * Description:
- *   gatt [-h] read [-h] <addr> <addr-type> <handle> [<offset>] command
+ *   gatt [-h] read [-h] <addr> public|private <handle> [<offset>] command
  *
  ****************************************************************************/
 
@@ -292,7 +386,7 @@ void btsak_cmd_gatt_read(FAR struct btsak_s *btsak, int argc,
  * Name: btsak_cmd_gatt_read_multiple
  *
  * Description:
- *   gatt [-h] read-multiple [-h] <addr> <addr-type> <handle> <nitems> command
+ *   gatt [-h] read-multiple [-h] <addr> public|private <handle> <nitems> command
  *
  ****************************************************************************/
 
@@ -306,7 +400,7 @@ void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,
  * Name: btsak_cmd_gatt_write
  *
  * Description:
- *   gatt [-h] write [-h] [-h] <addr> <addr-type> <handle> <datum> command
+ *   gatt [-h] write [-h] [-h] <addr> public|private <handle> <datum> command
  *
  ****************************************************************************/
 
