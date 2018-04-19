@@ -264,13 +264,13 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int i;
   int s = 1;
 
-  if (0 == strncmp(argv[1], "-n", 2))
+  if (argc > 1 && 0 == strncmp(argv[1], "-n", 2))
     {
       s = 2;
     }
 
   /* echo each argument, separated by a space as it must have been on the
-   * command line
+   * command line.
    */
 
   for (i = s; i < argc; i++)
