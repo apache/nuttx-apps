@@ -258,6 +258,8 @@ void btsak_cmd_gatt_discover_characteristic(FAR struct btsak_s *btsak,
        int argc, FAR char *argv[]);
 void btsak_cmd_gat_discover_descriptor(FAR struct btsak_s *btsak,
        int argc, FAR char *argv[]);
+void btsak_cmd_gat_discover_get(FAR struct btsak_s *btsak,
+       int argc, FAR char *argv[]);
 void btsak_cmd_gatt_read(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);
 void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,

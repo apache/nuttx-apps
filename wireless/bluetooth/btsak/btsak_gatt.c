@@ -213,6 +213,68 @@ void btsak_cmd_gat_discover_descriptor(FAR struct btsak_s *btsak,
 }
 
 /****************************************************************************
+ * Name: btsak_cmd_gat_discover_get
+ *
+ * Description:
+ *   gatt [-h] dget [-h]
+ *
+ ****************************************************************************/
+
+void btsak_cmd_gat_discover_get(FAR struct btsak_s *btsak,
+                                int argc, FAR char *argv[])
+{
+  FAR struct bt_discresonse_s *rsp;
+  struct bt_discresonse_s result[8];
+  struct btreq_s btreq;
+  int sockfd;
+  int ret;
+  int i;
+
+  /* Check for help command */
+
+  if (argc == 2 && strcmp(argv[1], "-h") == 0)
+    {
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+    }
+
+  if (argc != 1)
+    {
+      fprintf(stderr, "ERROR:  No arguements expected\n", argc);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  /* Perform the IOCTL to start the discovery */
+
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  btreq.btr_gnrsp = 8;
+  btreq.btr_grsp  = result;
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBTDISCGET, (unsigned long)((uintptr_t)&btreq));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTDISCGET) failed: %d\n", errno);
+        }
+      else
+        {
+          /* Show the results that we obtained */
+
+          printf("Discovered:\n");
+          for (i = 0; i < btreq.btr_gnrsp; i++)
+            {
+              rsp = &result[i];
+              printf("%d.\thandle 0x%04x perm: %02x\n",
+                     rsp->dr_handle, rsp->dr_perm);
+            }
+        }
+
+      close(sockfd);
+    }
+}
+
+/****************************************************************************
  * Name: btsak_cmd_gatt_read
  *
  * Description:

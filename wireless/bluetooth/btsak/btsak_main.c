@@ -138,6 +138,11 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h] <addr> <addr-type> [<start> [<end>]]"
   },
   {
+    "dget",
+    (CODE void *)btsak_cmd_gat_discover_get,
+    "[-h]"
+  },
+  {
     "read",
     (CODE void *)btsak_cmd_gatt_read,
     "[-h] <addr> <addr-type> <handle> [<offset>]"
