@@ -125,17 +125,17 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
   {
     "discover",
     (CODE void *)btsak_cmd_discover,
-    "[-h] <addr> <addr-type> <uuid-type>"
+    "[-h] <addr> <addr-type> <uuid16> [<start> [<end>]]"
   },
   {
     "characteristic",
     (CODE void *)btsak_cmd_gatt_discover_characteristic,
-    "[-h] <addr> <addr-type>"
+    "[-h] <addr> <addr-type> [<start> [<end>]]"
   },
   {
     "descriptor",
     (CODE void *)btsak_cmd_gat_discover_descriptor,
-    "[-h] <addr> <addr-type>"
+    "[-h] <addr> <addr-type> [<start> [<end>]]"
   },
   {
     "read",
@@ -340,7 +340,7 @@ long btsak_str2long(FAR const char *str)
   long value;
 
   value = strtol(str, &endptr, 0);
-  if (*endptr != '\0')
+  if (endptr == NULL || *endptr != '\0')
     {
       fprintf(stderr, "ERROR: Garbage after numeric argument\n");
       exit(EXIT_FAILURE);
@@ -377,14 +377,14 @@ uint8_t btsak_str2luint8(FAR const char *str)
 }
 
 /****************************************************************************
- * Name: btsak_str2luint16
+ * Name: btsak_str2uint16
  *
  * Description:
  *   Convert a string to an integer value
  *
  ****************************************************************************/
 
-uint16_t btsak_str2luint16(FAR const char *str)
+uint16_t btsak_str2uint16(FAR const char *str)
 {
   long value = btsak_str2long(str);
   if (value < 0 || value > UINT16_MAX)

@@ -141,14 +141,14 @@ long btsak_str2long(FAR const char *str);
 uint8_t btsak_str2luint8(FAR const char *str);
 
 /****************************************************************************
- * Name: btsak_str2luint16
+ * Name: btsak_str2uint16
  *
  * Description:
  *   Convert a string to an integer value
  *
  ****************************************************************************/
 
-uint16_t btsak_str2luint16(FAR const char *str);
+uint16_t btsak_str2uint16(FAR const char *str);
 
 /****************************************************************************
  * Name: btsak_str2bool

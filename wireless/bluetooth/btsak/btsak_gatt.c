@@ -42,11 +42,116 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/ioctl.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <nuttx/wireless/bt_core.h>
+#include <nuttx/wireless/bt_gatt.h>
+#include <nuttx/wireless/bt_ioctl.h>
 
 #include "btsak.h"
+
+/****************************************************************************
+ * Private functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: btsak_cmd_discover_common
+ *
+ * Description:
+ *   gatt [-h] <discover-cmd> [-h] <addr> <addr-type> [<uuid16>]
+ *
+ ****************************************************************************/
+
+static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
+                                      int argc, FAR char *argv[],
+                                      enum bt_gatt_discover_e type)
+{
+  struct btreq_s btreq;
+  unsigned int argndx;
+  int sockfd;
+  int ret;
+
+  /* Check for help command */
+
+  if (argc == 2 && strcmp(argv[1], "-h") == 0)
+    {
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+    }
+
+  argndx = (type == GATT_DISCOVER) ? 4 : 3;
+  if (argc < argndx)
+    {
+      fprintf(stderr,
+              "ERROR:  Invalid number of arguments.  Found %d expected at least %u\n",
+              argc, argndx);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  btreq.btr_dtype = (uint8_t)type;
+
+  ret = btsak_str2addr(argv[1], btreq.btr_dpeer.val);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:  Bad value for <addr>: %s\n", argv[1]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  ret = btsak_str2addrtype(argv[2], &btreq.btr_dpeer.type);
+    {
+      fprintf(stderr, "ERROR:  Bad value for <addr-type>: %s\n", argv[2]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  if (type == GATT_DISCOVER)
+    {
+      btreq.btr_duuid16 = btsak_str2uint16(argv[3]);
+    }
+  else
+    {
+      btreq.btr_duuid16 = 0;
+    }
+
+  btreq.btr_dstart = 0x0001;
+  btreq.btr_dend   = 0xffff;
+
+  if (argc > argndx)
+    {
+      btreq.btr_dstart = btsak_str2uint16(argv[argndx]);
+      argndx++;
+
+      if (argc > argndx)
+        {
+          btreq.btr_dend = btsak_str2uint16(argv[argndx]);
+          argndx++;
+        }
+
+      if (btreq.btr_dstart > btreq.btr_dend)
+        {
+          fprintf(stderr, "ERROR:  Invalid handle range: %u-%u\n",
+                  btreq.btr_dstart, btreq.btr_dend);
+          btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+        }
+    }
+
+  /* Perform the IOCTL to start the discovery */
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, SIOCBTDISCOVER, (unsigned long)((uintptr_t)&btreq));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBTDISCOVER) failed: %d\n",
+                  errno);
+        }
+    }
+
+  close(sockfd);
+}
 
 /****************************************************************************
  * Public functions
@@ -70,13 +175,13 @@ void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
  * Name: btsak_cmd_discover
  *
  * Description:
- *   gatt [-h] discover [-h] <addr> <addr-type> <uuid-type> command
+ *   gatt [-h] discover [-h] <addr> <addr-type> <uuid16> command
  *
  ****************************************************************************/
 
 void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 {
-# warning Missing logic
+  btsak_cmd_discover_common(btsak, argc, argv, GATT_DISCOVER);
 }
 
 /****************************************************************************
@@ -90,7 +195,7 @@ void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 void btsak_cmd_gatt_discover_characteristic(FAR struct btsak_s *btsak,
                                             int argc, FAR char *argv[])
 {
-# warning Missing logic
+  btsak_cmd_discover_common(btsak, argc, argv, GATT_DISCOVER_CHAR);
 }
 
 /****************************************************************************
@@ -101,9 +206,10 @@ void btsak_cmd_gatt_discover_characteristic(FAR struct btsak_s *btsak,
  *
  ****************************************************************************/
 
-void btsak_cmd_gat_discover_descriptor(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+void btsak_cmd_gat_discover_descriptor(FAR struct btsak_s *btsak,
+                                       int argc, FAR char *argv[])
 {
-# warning Missing logic
+  btsak_cmd_discover_common(btsak, argc, argv, GATT_DISCOVER_DESC);
 }
 
 /****************************************************************************
