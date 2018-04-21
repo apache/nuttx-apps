@@ -75,7 +75,7 @@ static void btsak_scan_showusage(FAR const char *progname,
   fprintf(stderr, "\nWhere the options do the following:\n\n");
   fprintf(stderr, "\tstart\t- Starts scanning.  The -d option enables duplicate\n");
   fprintf(stderr, "\t\t  filtering.\n");
-  fprintf(stderr, "\tget\t - Shows new accumulated scan results\n");
+  fprintf(stderr, "\tget\t- Shows new accumulated scan results\n");
   fprintf(stderr, "\tstop\t- Stops scanning\n");
   exit(exitcode);
 }
