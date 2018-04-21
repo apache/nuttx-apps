@@ -117,7 +117,7 @@ void btsak_cmd_features(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
   /* Perform the IOCTL to stop advertising */
 
   memset(&btreq, 0, sizeof(struct btreq_s));
-  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)

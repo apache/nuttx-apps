@@ -139,7 +139,7 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
   strcpy((FAR char *)sd[1].data, "btsak");
 
   memset(&btreq, 0, sizeof(struct btreq_s));
-  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
   btreq.btr_advtype = BT_LE_ADV_IND;
   btreq.btr_advad   = ad;
   btreq.btr_advsd   = sd;
@@ -179,7 +179,7 @@ static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
   /* Perform the IOCTL to stop advertising */
 
   memset(&btreq, 0, sizeof(struct btreq_s));
-  strncpy(btreq.btr_name, btsak->ifname, HCI_DEVNAME_SIZE);
+  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
