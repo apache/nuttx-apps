@@ -139,12 +139,12 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
   },
   {
     "descriptor",
-    (CODE void *)btsak_cmd_gat_discover_descriptor,
+    (CODE void *)btsak_cmd_gatt_discover_descriptor,
     "[-h] <addr> public|private [<start> [<end>]]"
   },
   {
     "dget",
-    (CODE void *)btsak_cmd_gat_discover_get,
+    (CODE void *)btsak_cmd_gatt_discover_get,
     "[-h]"
   },
   {
@@ -158,9 +158,19 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h] <addr> public|private <handle> [<handle> [<handle>]..]"
   },
   {
+    "rget",
+    (CODE void *)btsak_cmd_gatt_read_get,
+    "[-h]"
+  },
+  {
     "write",
     (CODE void *)btsak_cmd_gatt_write,
     "[-h] <addr> public|private <handle> <byte> [<byte> [<byte>]..]"
+  },
+  {
+    "wget",
+    (CODE void *)btsak_cmd_gatt_write_get,
+    "[-h]"
   }
 };
 
