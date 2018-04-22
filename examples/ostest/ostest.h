@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/examples/ostest/ostest.h
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2018 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,6 +92,10 @@
  * on each new line.  Otherwise, STDIO needs to be explicitly flushed to
  * see the output in context.
  */
+
+#ifndef CONFIG_STDIO_BUFFER_SIZE
+#  define CONFIG_STDIO_BUFFER_SIZE 0
+#endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && \
     CONFIG_STDIO_BUFFER_SIZE > 0 && !defined(CONFIG_STDIO_LINEBUFFER)
