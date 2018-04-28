@@ -1,0 +1,74 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXDEMO
+	bool "NX Demo \"Graphic test\" example"
+	default n
+	---help---
+		Enable the NX graphics \"Demo Test\" example
+
+if EXAMPLES_NXDEMO
+
+config EXAMPLES_NXDEMO_VPLANE
+	int "Video Plane"
+	default 0
+	---help---
+		The plane to select from the framebuffer driver for use in the test.
+		Default: 0
+
+config EXAMPLES_NXDEMO_DEVNO
+	int "Video Device Number"
+	default 0
+	---help---
+		The LCD device to select from the LCD driver for use in the test:
+		Default: 0
+
+config EXAMPLES_NXDEMO_BPP
+	int "Bits-Per-Pixel"
+	default 1
+	---help---
+		Pixels per pixel to use.  Valid options include 1, 2, 4, 8, 16, 24,
+		and 32.  Default is 32.
+
+
+comment "Example Color Configuration"
+
+config EXAMPLES_NXDEMO_DEFAULT_COLORS
+	bool "Use Default Colors"
+	default y
+
+if !EXAMPLES_NXDEMO_DEFAULT_COLORS
+
+config EXAMPLES_NXDEMO_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_NXDEMO_BPP.
+
+endif
+
+config EXAMPLES_NXDEMO_EXTERNINIT
+	bool "External Device Initialization"
+	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_GRAPHICS
+	---help---
+		The driver for the graphics device on this platform requires some
+		unusual initialization.  This is the case, for example, for SPI LCD/OLED
+		devices.  If this configuration is selected, then the platform code
+		must provide an LCD initialization function with a prototype like:
+
+		#ifdef CONFIG_NX_LCDDRIVER
+		FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
+		#else
+		FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
+		#endif
+
+		and must also define: CONFIG_LIB_BOARDCTL=y and
+		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+		will be available in order to access this function.
+
+endif
