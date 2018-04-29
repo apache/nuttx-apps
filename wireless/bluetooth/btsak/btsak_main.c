@@ -47,7 +47,7 @@
 #include <strings.h>
 #include <errno.h>
 
-#include <nuttx/wireless/bt_core.h>
+#include <nuttx/wireless/bluetooth/bt_core.h>
 #include <nuttx/net/bluetooth.h>
 
 #include "btsak.h"

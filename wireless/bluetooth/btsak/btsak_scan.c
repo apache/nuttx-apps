@@ -49,7 +49,7 @@
 #include <strings.h>
 #include <errno.h>
 
-#include <nuttx/wireless/bt_ioctl.h>
+#include <nuttx/wireless/bluetooth/bt_ioctl.h>
 
 #include "btsak.h"
 
