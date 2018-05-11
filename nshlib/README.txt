@@ -745,13 +745,21 @@ o mkdir <path>
      drw-rw-rw-       0 TMP/
     nsh>
 
-o mkfatfs [-F <fatsize>] <block-driver>
+o mkfatfs [-F <fatsize>] [-r <rootdirentries>] <block-driver>
 
   Format a fat file system on the block device specified by <block-driver>
   path.  The FAT size may be provided as an option.  Without the <fatsize>
   option, mkfatfs will select either the FAT12 or FAT16 format.  For
   historical reasons, if you want the FAT32 format, it must be explicitly
   specified on the command line.
+
+  The -r option may be specified to select the the number of entries in
+  the root directory.  Typical values for small volumes would be 112 or 224;
+  512 should be used for large volumes, such as hard disks or very large
+  SD cards.  The default is 512 entries in all cases.
+
+  The reported number of root directory entries used with FAT32 is zero
+  because the FAT32 root directory is a cluster chain.
 
   NSH provides this command to access the mkfatfs() NuttX API.
   This block device must reside in the NuttX pseudo file system and

@@ -305,7 +305,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
      defined(CONFIG_FSUTILS_MKFATFS)
 # ifndef CONFIG_NSH_DISABLE_MKFATFS
-  { "mkfatfs",  cmd_mkfatfs,  2, 4, "[-F <fatsize>] <block-driver>" },
+  { "mkfatfs",  cmd_mkfatfs,  2, 6, "[-F <fatsize>] [-r <rootdirentries>] <block-driver>" },
 # endif
 #endif
 
