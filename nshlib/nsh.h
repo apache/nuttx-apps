@@ -651,10 +651,10 @@
 #  define HAVE_DF_HUMANREADBLE 1
 #  define HAVE_DF_BLOCKOUTPUT  1
 #  if defined(CONFIG_FS_PROCFS_EXCLUDE_USAGE)
-#    undefine HAVE_DF_HUMANREADBLE
+#    undef HAVE_DF_HUMANREADBLE
 #  endif
 #  if defined(CONFIG_FS_PROCFS_EXCLUDE_BLOCKS)
-#    undefine HAVE_DF_BLOCKOUTPUT
+#    undef HAVE_DF_BLOCKOUTPUT
 #  endif
 #endif
 
