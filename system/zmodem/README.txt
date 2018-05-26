@@ -141,14 +141,14 @@ Using NuttX Zmodem with a Linux Host
 
     Then use the sz command on Linux to send the file to the target:
 
-      $ sudo sz <filename> t </dev/ttyS0 >/dev/ttyS0
+      $ sudo sz <filename> </dev/ttyS0 >/dev/ttyS0
 
     Where <filename> is the file that you want to send.
 
     The resulting file will be found where you have configured the Zmodem
     "sandbox" via CONFIG_SYSTEM_ZMODEM_MOUNTPOINT.
 
-    You can add the az -v option multiple times, each increases the level
+    You can add the sz -v option multiple times, each increases the level
     of debug output.  If you want to capture the Linux rz output, then
     re-direct stderr to a log file by adding 2>az.log to the end of the
     rz command.
