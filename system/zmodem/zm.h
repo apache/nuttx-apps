@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/zmodem/zm.h
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * References:
@@ -576,6 +576,18 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl);
  ****************************************************************************/
 
 uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename);
+
+/****************************************************************************
+ * Name: zm_flowc
+ *
+ * Description:
+ *   Enable hardware Rx/Tx flow control
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_ZMODEM_FLOWC
+void zm_flowc(int fd);
+#endif
 
 /****************************************************************************
  * Name: zm_putzdle

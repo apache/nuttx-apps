@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/zmodem/zm_utils.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <termios.h>
 #include <assert.h>
 #include <errno.h>
 #include <crc32.h>
@@ -430,7 +431,7 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl)
   return ret;
 }
 
-/************************************************************************************************
+/****************************************************************************
  * Name: zm_filecrc
  *
  * Description:
@@ -439,7 +440,7 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl)
  * Assumptions:
  *   The allocated I/O buffer is available to buffer file data.
  *
- ************************************************************************************************/
+ ****************************************************************************/
 
 uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename)
 {
@@ -471,3 +472,62 @@ uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename)
   close(fd);
   return ~crc;
 }
+
+/****************************************************************************
+ * Name: zm_flowc
+ *
+ * Description:
+ *   Enable hardware Rx/Tx flow control
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_ZMODEM_FLOWC
+void zm_flowc(int fd)
+{
+  struct termios term;
+
+  /* Get the termios */
+
+  tcgetattr(fd, &term);
+
+#ifdef CONFIG_SYSTEM_ZMODEM_IFLOW
+  /* Set input flow control */
+
+#ifdef CRTS_IFLOW
+  term.c_cflag |= CRTS_IFLOW;
+#else
+  term.c_cflag |= CRTSCTS;
+#endif
+#else /* CONFIG_SYSTEM_ZMODEM_IFLOW */
+  /* Clear input flow control */
+
+#ifdef CRTS_IFLOW
+  term.c_cflag &= ~CRTS_IFLOW;
+#else
+  term.c_cflag &= ~CRTSCTS;
+#endif
+#endif /* CONFIG_SYSTEM_ZMODEM_IFLOW */
+
+#ifdef CONFIG_SYSTEM_ZMODEM_OFLOW
+  /* Set output flow control */
+
+#ifdef CCTS_OFLOW
+  term.c_cflag |= CCTS_OFLOW;
+#else
+  term.c_cflag |= CRTSCTS;
+#endif
+#else /* CONFIG_SYSTEM_ZMODEM_OFLOW */
+  /* Clear output flow control */
+
+#ifdef CCTS_OFLOW
+  term.c_cflag &= ~CCTS_OFLOW;
+#else
+  term.c_cflag &= ~CRTSCTS;
+#endif
+#endif /* CONFIG_SYSTEM_ZMODEM_OFLOW */
+
+  /* Save the modified termios */
+
+  tcsetattr(fd, TCSANOW, &term);
+}
+#endif
