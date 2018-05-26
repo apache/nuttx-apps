@@ -159,7 +159,8 @@ Using NuttX Zmodem with a Linux Host
 Building the Zmodem Tools to Run Under Linux
 ============================================
 
-  Build support has been added so that the NuttX Zmodem implementation can be executed on a Linux host PC.  This can be done by
+  Build support has been added so that the NuttX Zmodem implementation
+  can be executed on a Linux host PC.  This can be done by
 
     - Change to the apps/systems/zmodem directory
     - Make using the special makefile, Makefile.host
@@ -196,8 +197,6 @@ Status
       buffer of data, a few bytes may be missing.  The symptom of this
       missing data is a CRC check failure.
 
-      Either (1) we need a more courteous host application, or (2) we
-      need to greatly improve the target side buffering capability!
       Either (1) we need a more courteous host application, or (2) we
       need to greatly improve the target side buffering capability!
 
