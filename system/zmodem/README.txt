@@ -127,6 +127,7 @@ Using NuttX Zmodem with a Linux Host
 
       $ sudo stty -F /dev/ttyS0 9600     # Select 9600 (or other) BAUD
       $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking *
+      $ sudo stty -F /dev/ttyS0 raw      # Puts the TTY in raw mode
       $ sudo stty -F /dev/ttyS0          # Show the TTY configuration
 
      * Only is hardware flow control is enabled.

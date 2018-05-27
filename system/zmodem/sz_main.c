@@ -45,11 +45,13 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <termios.h>
 #include <libgen.h>
 #include <time.h>
 #include <errno.h>
 
 #include "system/zmodem.h"
+#include "zm.h"
 
 /****************************************************************************
  * Private Functions
@@ -261,8 +263,16 @@ int sz_main(int argc, FAR char **argv)
 
 errout_with_zmodem:
   (void)zms_release(handle);
+
 errout_with_device:
+#ifdef CONFIG_SYSTEM_ZMODEM_FLOWC
+  /* Flush the serial output to assure do not hang trying to drain it */
+
+  tcflush(fd, TCIOFLUSH);
+#endif
+
   (void)close(fd);
+
 errout:
   return exitcode;
 }
