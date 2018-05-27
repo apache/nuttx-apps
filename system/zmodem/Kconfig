@@ -16,6 +16,14 @@ menuconfig SYSTEM_ZMODEM
 
 if SYSTEM_ZMODEM
 
+config SYSTEM_ZMODEM_PRIORITY
+	int "rz/sz task priority"
+	default 100
+
+config SYSTEM_ZMODEM_STACKSIZE
+	int "rz/ez stack size"
+	default 2048
+
 config SYSTEM_ZMODEM_DEVNAME
 	string "Default Zmodem device"
 	default "/dev/console"

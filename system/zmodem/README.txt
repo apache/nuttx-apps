@@ -142,9 +142,12 @@ Using NuttX Zmodem with a Linux Host
 
     Then use the sz command on Linux to send the file to the target:
 
-      $ sudo sz <filename> </dev/ttyS0 >/dev/ttyS0
+      $ sudo sz <filename> [-l nnnn] </dev/ttyS0 >/dev/ttyS0
 
-    Where <filename> is the file that you want to send.
+    Where <filename> is the file that you want to send. If -l nnnn is not
+    specified, then there will likely be packet buffer overflow errors.
+    nnnn should be set to a value less than or equal to
+    CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE
 
     The resulting file will be found where you have configured the Zmodem
     "sandbox" via CONFIG_SYSTEM_ZMODEM_MOUNTPOINT.
