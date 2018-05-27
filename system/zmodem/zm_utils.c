@@ -477,7 +477,10 @@ uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename)
  * Name: zm_flowc
  *
  * Description:
- *   Enable hardware Rx/Tx flow control
+ *   Enable hardware Rx/Tx flow control.
+ *
+ *   REVISIT:  Consider returning the original termios settings so that they
+ *   could be restored with rx/sz exits.
  *
  ****************************************************************************/
 

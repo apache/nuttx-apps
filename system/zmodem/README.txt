@@ -233,3 +233,10 @@ Status
       serial speeds and with much smaller buffers (although that has not
       been verified as of this writing).
 
+    2018-5-28:
+      Updates to checksum calculations.  Verified correct operation with
+      hardware flow control using the olimex-stm32-p407/zmodem
+      configuration.  Only the host-to-target transfer was verified.
+
+      There appears to be problems still host target-to-host transfers
+      and with use of the NuttX versions of rx/sz on the host.
