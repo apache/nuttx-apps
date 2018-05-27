@@ -235,11 +235,10 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
 
   *ptr++ = term;
 
-  /* Calcualate and transfer the final CRC value */
+  /* Calculate and transfer the final CRC value */
 
   if (zbin == ZBIN)
     {
-      crc = (uint32_t)crc16part(g_zeroes, 2, (uint16_t)crc);
       ptr = zm_putzdle(pzm, ptr, (crc >> 8) & 0xff);
       ptr = zm_putzdle(pzm, ptr, crc & 0xff);
     }
@@ -314,7 +313,6 @@ int zm_sendhexhdr(FAR struct zm_state_s *pzm, int type,
 
   /* crc-1 crc-2 */
 
-  crc = crc16part(g_zeroes, 2, crc);
   ptr = zm_puthex8(ptr, (crc >> 8) & 0xff);
   ptr = zm_puthex8(ptr, crc & 0xff);
 
@@ -391,7 +389,6 @@ int zm_sendbin16hdr(FAR struct zm_state_s *pzm, int type,
 
   /* crc-1 crc-2 */
 
-  crc = crc16part(g_zeroes, 2, crc);
   ptr = zm_putzdle(pzm, ptr, (crc >> 8) & 0xff);
   ptr = zm_putzdle(pzm, ptr, crc & 0xff);
 

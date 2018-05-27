@@ -1047,7 +1047,6 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       if (!bcrc32)
         {
-          crc = (uint32_t)crc16part(g_zeroes, 2, (uint16_t)crc);
           ptr = zm_putzdle(pzm, ptr, (crc >> 8) & 0xff);
           ptr = zm_putzdle(pzm, ptr, crc & 0xff);
         }
