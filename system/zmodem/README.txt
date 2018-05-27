@@ -8,10 +8,10 @@ Contents
     - Hardware Flow Control
     - RX Buffer Size
     - Buffer Recommendations
-  o Using NuttX Zmodem with a Linux Host
+  o Using NuttX ZModem with a Linux Host
     - Sending Files from the Target to the Linux Host PC
     - Receiving Files on the Target from the Linux Host PC
-  o Building the Zmodem Tools to Run Under Linux
+  o Building the ZModem Tools to Run Under Linux
   o Status
 
 Buffering Notes
@@ -31,21 +31,40 @@ Buffering Notes
   Those measures should be unnecessary if buffering and hardware flow
   control are set up and working correctly.
 
+  Software Flow Control
+  ---------------------
+  The ZModem protocol has XON/XOFF flow control built into it.  The protocol
+  requires that XON or XOFF be placed at certain parts of messages.  If
+  software flow control is enabled on the receiving end it will consume the
+  XONs and XOFFs.  Otherwise they will be ignored in the data by the ZModem
+  logic.
+
+  NuttX, however, does not implement XON/XOFF flow control so these do
+  nothing. On NuttX you will have to use hardware flow control in most cases. 
+
+  The XON/XOFF controls built into ZModem could be used if you enabled
+  software flow control in the host.  But that would only work in one
+  direction:  If would prevent the host from overrunning the the target Rx
+  buffing.  So you should be able to do host-to-target software flow
+  control.  But there would still be no target-to-host flow control.  That
+  might not be an issue because the host is usually so much faster than
+  that target.
+
   RX Buffer Size
   --------------
-  The Zmodem protocol supports a message that informs the file sender of
+  The ZModem protocol supports a message that informs the file sender of
   the maximum size of dat that you can buffer (ZRINIT).  However, my
   experience is that the Linux sz ignores this setting and always sends file
   data at the maximum size (1024) no matter what size of buffer you report.
   That is unfortunate because that, combined with the possibilities of data
-  overrun mean that you must use quite large buffering for Zmodem file
+  overrun mean that you must use quite large buffering for ZModem file
   receipt to be reliable (none of these issues effect sending of files).
 
   Buffer Recommendations
   ----------------------
   Based on the limitations of NuttX hardware flow control and of the Linux
   sz behavior, I have been testing with the following configuration
-  (assuming UART1 is the Zmodem device):
+  (assuming UART1 is the ZModem device):
 
     1) This setting determines that maximum size of a data packet frame:
 
@@ -56,7 +75,7 @@ Buffering Notes
 
        CONFIG_UART1_RXBUFSIZE=1024
 
-    3) With a larger driver input buffer, the Zmodem receive I/O buffer can be
+    3) With a larger driver input buffer, the ZModem receive I/O buffer can be
        smaller:
 
        CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE=256
@@ -67,12 +86,12 @@ Buffering Notes
        CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE=512
        CONFIG_UART1_TXBUFSIZE=256
 
-Using NuttX Zmodem with a Linux Host
+Using NuttX ZModem with a Linux Host
 ====================================
 
     Sending Files from the Target to the Linux Host PC
     --------------------------------------------------
-    The NuttX Zmodem commands have been verified against the rzsz programs
+    The NuttX ZModem commands have been verified against the rzsz programs
     running on a Linux PC.  To send a file to the PC, first make sure that
     the serial port is configured to work with the board (Assuming you are
     using 9600 baud for the data transfers -- high rates may result in data
@@ -94,12 +113,12 @@ Using NuttX Zmodem with a Linux Host
     re-direct stderr to a log file by adding 2>rz.log to the end of the
     rz command.
 
-    NOTE: The NuttX Zmodem does sends rz\n when it starts in compliance with
-    the Zmodem specification.  On Linux this, however, seems to start some
+    NOTE: The NuttX ZModem does sends rz\n when it starts in compliance with
+    the ZModem specification.  On Linux this, however, seems to start some
     other, incompatible version of rz.  You need to start rz manually to
     make sure that the correct version is selected.  You can tell when this
     evil rz/sz has inserted itself because you will see the '^' (0x5e)
-    character replacing the standard Zmodem ZDLE character (0x19) in the
+    character replacing the standard ZModem ZDLE character (0x19) in the
     binary data stream.
 
     If you don't have the rz command on your Linux box, the package to
@@ -150,7 +169,7 @@ Using NuttX Zmodem with a Linux Host
     nnnn should be set to a value less than or equal to
     CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE
 
-    The resulting file will be found where you have configured the Zmodem
+    The resulting file will be found where you have configured the ZModem
     "sandbox" via CONFIG_SYSTEM_ZMODEM_MOUNTPOINT.
 
     You can add the sz -v option multiple times, each increases the level
@@ -161,10 +180,10 @@ Using NuttX Zmodem with a Linux Host
     If you don't have the az command on your Linux box, the package to
     install rzsz (or possibily lrzsz).
 
-Building the Zmodem Tools to Run Under Linux
+Building the ZModem Tools to Run Under Linux
 ============================================
 
-  Build support has been added so that the NuttX Zmodem implementation
+  Build support has been added so that the NuttX ZModem implementation
   can be executed on a Linux host PC.  This can be done by
 
     - Change to the apps/systems/zmodem directory
@@ -215,7 +234,7 @@ Status
       I have verified that with debug off and at lower serial BAUD
       (2400), the transfers of large files succeed without errors.  I do
       not consider this a "solution" to the problem.  I also found that
-      the LPC17xx hardware flow control caused strange hangs; Zmodem
+      the LPC17xx hardware flow control caused strange hangs; ZModem
       works better with hardware flow control disabled on the LPC17xx.
 
       At this lower BAUD, RX buffer sizes could probably be reduced; Or
