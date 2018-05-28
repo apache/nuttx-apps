@@ -1052,6 +1052,8 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
         }
       else
         {
+          /* REVISIT: Why complemented? */
+
           crc = ~crc;
           for (i = 0; i < 4; i++, crc >>= 8)
             {
