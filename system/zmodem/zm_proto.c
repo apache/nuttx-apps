@@ -312,6 +312,7 @@ int zm_sendhexhdr(FAR struct zm_state_s *pzm, int type,
     }
 
   /* crc-1 crc-2 */
+  /* REVISIT:  Should this be zm_putzdle()? */
 
   ptr = zm_puthex8(ptr, (crc >> 8) & 0xff);
   ptr = zm_puthex8(ptr, crc & 0xff);

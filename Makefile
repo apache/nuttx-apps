@@ -63,7 +63,7 @@ $(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
 
 # Library path
 
-LIBPATH ?= $(TOPDIR)$(DELIM)libs
+LIBPATH ?= $(TOPDIR)$(DELIM)staging
 
 # The install path
 

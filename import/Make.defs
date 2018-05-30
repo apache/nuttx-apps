@@ -186,10 +186,10 @@ AFLAGS = $(CFLAGS) -D__ASSEMBLY__
 
 ifeq ($(WINTOOL),y)
   # Windows-native toolchains
-  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
+  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
 else
   # Linux/Cygwin-native toolchain
-  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
+  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)staging
 endif
 
 LDLIBS = -lapps -lnuttx

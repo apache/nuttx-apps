@@ -41,9 +41,9 @@ DELIM ?= /
 CELFFLAGS += -I.
 
 ifeq ($(WINTOOL),y)
-NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)lib}"
+NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
 else
-NUTTXLIB = "$(TOPDIR)$(DELIM)lib"
+NUTTXLIB = "$(TOPDIR)$(DELIM)staging"
 endif
 
 ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
