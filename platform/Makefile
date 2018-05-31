@@ -87,7 +87,7 @@ endif
 # Build targets
 
 all: .built
-.PHONY: context .depend depend clean distclean preconfig
+.PHONY: context .depend depend clean_context clean distclean preconfig
 .PRECIOUS: ../libapps$(LIBEXT)
 
 ifneq ($(ASRCS),)
@@ -135,14 +135,16 @@ depend: .depend
 
 # Clean targets
 
+clean_context:
+	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
+
 clean:
 	$(call DELFILE, .built)
 	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
-distclean: clean
+distclean: clean clean_context
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
-	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 
 preconfig:
 
