@@ -1,7 +1,7 @@
 ############################################################################
 # apps/platform/Makefile
 #
-#   Copyright (C) 2013-2014, 2016-2017 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013-2014, 2016-2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,23 +40,6 @@ CONFIG_ARCH_BOARD ?= dummy
 DELIM ?= $(strip /)
 
 include $(APPDIR)$(DELIM)Make.defs
-
-# Platform-specific Appliction Support
-# Tool stuff
-
-ifeq ($(DIRLINK),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.bat
-DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.bat
-else
-DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
-DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 # Directories
 
