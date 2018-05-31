@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/sotest/libs/sotest/sotest.c
+ * apps/examples/sotest/lib/sotest/sotest.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

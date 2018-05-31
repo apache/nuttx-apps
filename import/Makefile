@@ -61,4 +61,4 @@ distclean:
 
 # Library path
 
-LIBPATH = $(TOPDIR)/libs
+LIBPATH = $(TOPDIR)/staging
