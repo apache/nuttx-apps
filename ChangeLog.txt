@@ -1534,7 +1534,7 @@
 
 7.15 2016-03-27 Gregory Nutt <gnutt@nuttx.org>
 
-	* apps/exmaples/chat and apps/netutils/chat:  Contributed by
+	* apps/examples/chat and apps/netutils/chat:  Contributed by
 	  Vladimir Komendantskiy (2016-01-29).
 	* apps/examples/ubloxmodem:  app to control the power state of the
 	  modem in nsh.  From  Vladimir Komendantskiy (2016-01-31).
@@ -2600,7 +2600,7 @@
 	* Added ECANCELED condition to DEBUGASSERT-s checking sem_wait result.
 	  From Dmitriy Linikov (2018-02-20).
 
-7.25 2018-06-02 Gregory Nutt <gnutt@nuttx.org>
+7.25 2018-06-03 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/netutils/tftpc:  This commit modifies the TFTP client functions to
 	  use a data read/write callback instead of a file.  This allows TFTP to
@@ -2659,7 +2659,7 @@
 	  system image.  From Gregory Nutt (2018-03-20).
 	* Remove canutils/libuavcan and examples/uavcan.  libuavcan has not built
 	  for a year or so.  The basic problem is that as NuttX advances, the old
-	  frozen versino of libuavcan has become absolute because it violates the
+	  frozen version of libuavcan has become absolute because it violates the
 	  portable POSIX OS interface.  No one is maintaining the port so there is
 	  no alternative but to remove it.  From Gregory Nutt (2018-03-23).
 	* apps/examples/elf:  Extend the ELF program module demo so that you can
@@ -2673,7 +2673,7 @@
 	  with Bluetooth only.  From Gregory Nutt (2018-04-03).
 	* apps/examples/cc3000:  Remove the CC3000 example.  From Alan Carvalho de
 	  Assis (2018-04-04).
-	* apps/exmaples/smps:  Fix typos in Kconfig.  All power, voltage, current
+	* apps/examples/smps:  Fix typos in Kconfig.  All power, voltage, current
 	  values were strings with no default.  I assume they should be 'int' with
 	  what default?  From Gregory Nutt (2018-04-04).
 	* examples/powerled:  Add arch initialization; examples/smps: fixes in some
@@ -2703,8 +2703,8 @@
 	  tries to close the serial port.  But if there is buffered Tx data, then
 	  the close will hang when it tries to drain the buffered Tx data since
 	  there is no where it can go.  tcflush() discards the buffered data and
-	  permits the close to continue.  There additional logic in
-	  nuttx/drivers/serial needed tow work with this.  From Gregory Nutt
+	  permits the close to continue.  There is additional logic in
+	  nuttx/drivers/serial needed to work with this.  From Gregory Nutt
 	  (2018-05-27).
 	* apps/, Various Makefiles:  Fix mixed references to nuttx/lib.  These need
 	  to be changed to nuttx/staging.  From Gregory Nutt (2018-05-30).
