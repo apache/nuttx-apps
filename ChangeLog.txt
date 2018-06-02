@@ -2600,5 +2600,117 @@
 	* Added ECANCELED condition to DEBUGASSERT-s checking sem_wait result.
 	  From Dmitriy Linikov (2018-02-20).
 
-7.25 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.25 2018-06-02 Gregory Nutt <gnutt@nuttx.org>
 
+	* apps/netutils/tftpc:  This commit modifies the TFTP client functions to
+	  use a data read/write callback instead of a file.  This allows TFTP to
+	  write to arbitrary destination (in my case, a MTD device - for firmware
+	  update).  Two new functions are introduced for this, named tftpget_cb and
+	  tftpput_cb. They are just made of most of the existing code.  The
+	  previously existing tftpget/tftpput functions are now wrappers on the new
+	  ones, with callbacks that read/write from files, so my modifications are
+	  backwards compatible with existing applications, eg the associated nsh
+	  commands dont need to be changed.  From Sebastien Lorquet (2018-03-09).
+	* apps/examples/ft80x:  Fix some size calculations.  Add option to disable
+	  primitive tests... just too boring to have to watch over and over again.
+	  Fix a typo in backlight fade logic; Fix error in formatted display light
+	  debug dump output.  From Gregory Nutt (2018-03-09).
+	* apps/examples/ft80x:  Text is handled by the coprocessor and, hence, must
+	  use RAM_CMD, not RAM_DL.  From Gregory Nutt (2018-03-09).
+	* apps/examples/ft80x:  Fix some errors in co-processor demos.  Correct an
+	  error in the spinner demo.  From Gregory Nutt (2018-03-10).
+	* apps/examples/netloop:  Update network loopback example so that it can be
+	  used to test TCP KeepAlive.  From Gregory Nutt (2018-03-12).
+	* apps/system/stackmonitor:  Fix comparison between pointer and zero
+	  character constant.  From Juha Niskanen (2018-03-13).
+	* apps/system and wireless:  Applications should use the standard clock()
+	  interface, not the internal NuttX clock_systimer() interface.  From
+	  Gregory Nutt (2018-03-14).
+	* apps/examples/lzf:  Add the test case from Marc Alexander Lehmann's
+	  LIBLZF3.6 librrary  From Boris Astardzhiev (2018-03-14).
+	* apps/examples/lzf:  lzf_compress() now expects the hash table as user
+	  allocated input parmeter rather than declaring the huge array on the
+	  stack.  From Gregory Nutt (2018-03-15).
+	* apps/examples/lzf:  unlzf and lzcat are not supported.  From Gregory Nutt
+	  (2018-03-15).
+	* apps/examples/lzf: Fix name composition and set defaults early in main.
+	  From Boris Astardzhiev (2018-03-15).
+	* apps/examples/nsh and posix_spawn:  Must not call exec_setsymtab()
+	  directly.  That is a non-POSIX internal OS interface.  From Gregory Nutt
+	  (2018-03-16).
+	* apps/system/lzf:  Move the LZF tool from apps/examples/ to apps/system.
+	  From Gregory Nutt (2018-03-16).
+	* apps/system/lzf:  Don't build the LZF tool if the LZF library is not
+	  enabled.  From Gregory Nutt (2018-03-16).
+	* apps/system/lzf: Refactor so that the user is no longer required to
+	  generate the LZF header  From Boris Astardzhiev (2018-03-16).
+	* apps/system/lzf:  (1) The maximum block size is now configuration setting
+	  in order to give finer control over memory usage.  (2) The
+	  compression/decompression buffers have been moved out the stack and are
+	  now global variables.  This eliminates the need to set large stack sizes
+	  to use this utility.  (3) Added semaphore protection of all global
+	  variables for the case of the FLAT or PROTECTED builds.  Unlike the
+	  KERNEL build, the same global variables will be used by each instance of
+	  the LZF utility.  If you want thread safety, then you must either (a)
+	  serialize all access to the global variables, or (b) pack the global
+	  variables into a structure and allocate that structure on each execution
+	  of lzf_main().  From Gregory Nutt (2018-03-17).
+	* apps/examples/cromfs:  Add an example of how to build a CROMFS file
+	  system image.  From Gregory Nutt (2018-03-20).
+	* Remove canutils/libuavcan and examples/uavcan.  libuavcan has not built
+	  for a year or so.  The basic problem is that as NuttX advances, the old
+	  frozen versino of libuavcan has become absolute because it violates the
+	  portable POSIX OS interface.  No one is maintaining the port so there is
+	  no alternative but to remove it.  From Gregory Nutt (2018-03-23).
+	* apps/examples/elf:  Extend the ELF program module demo so that you can
+	  use compressed ELF programs with CROMFS.  From Gregory Nutt (2018-03-24).
+	* apps/examples/elf:  Use strip command to make ELF binaries MUCH smaller.
+	  Add an option to strip debug symbols even if the debug symbols are
+	  enabled in the base code.  From Gregory Nutt (2018-03-25).
+	* apps/wireless/bluetooth/btsak:  Add a Bluetooth debugt tool.  From
+	  Gregory Nutt (2018-04-02).
+	* apps/netutils/netlib:  Various fixes needed to get a clean netlib build
+	  with Bluetooth only.  From Gregory Nutt (2018-04-03).
+	* apps/examples/cc3000:  Remove the CC3000 example.  From Alan Carvalho de
+	  Assis (2018-04-04).
+	* apps/exmaples/smps:  Fix typos in Kconfig.  All power, voltage, current
+	  values were strings with no default.  I assume they should be 'int' with
+	  what default?  From Gregory Nutt (2018-04-04).
+	* examples/powerled:  Add arch initialization; examples/smps: fixes in some
+	  printf and in Kconfig  From Mateusz Szafoni (2018-04-07).
+	* apps/examples/adxl372_test and lxm330spi_test:  Add ADXL372 and LSM330
+	  tests.  From Bob Feretich (2018-04-09).
+	* apps/examples/max31855: Add an example to read multiple max31855 sensors
+	  From Tiago Almeida (2018-04-09).
+	* apps/examples/ostest:  Do not call AIO test without
+	  CONFIG_EXAMPLES_OSTEST_AIO  From Juha Niskanen (2018-04-11).
+	* apps/examples/nxdemo:  Add nxdemo application  From Alan Carvalho de
+	  Assis (2018-04-28).
+	* apps/system/embedlog:  Support for embedlog data loggin package from
+	  https://embedlog.kurwinet.pl/  From Michal Lyszczek (2018-05-06).
+	* nshlib/nsh_fscmds.c:  Add the mkfatfs -r option which can be used to
+	  specify the number of entries in the FAT12/FAT16 root directory.  From
+	  Boris Astardzhiev (2018-05-11).
+	* apps/system/zmodem:  Add an option to enable hardware flow control via
+	  termios.  Fix Makefile.host.  It was broken when zmodem.h was moved to
+	  apps/include/system.  Fix an incompatibility with the way that CRCs are
+	  calculated.  Allow stack size and priority to be configured.  From
+	  Gregory Nutt (2018-05-27).
+	* apps/system/zmodem:  Call tcflush() before closing the serial port.  This
+	  is necessary because that close operation may hang if hardware flow
+	  control is enabled.  Consider this scenario:  After the host sz runs on
+	  the host, it exits and leaves CTS high.  The target rz completes, and
+	  tries to close the serial port.  But if there is buffered Tx data, then
+	  the close will hang when it tries to drain the buffered Tx data since
+	  there is no where it can go.  tcflush() discards the buffered data and
+	  permits the close to continue.  There additional logic in
+	  nuttx/drivers/serial needed tow work with this.  From Gregory Nutt
+	  (2018-05-27).
+	* apps/, Various Makefiles:  Fix mixed references to nuttx/lib.  These need
+	  to be changed to nuttx/staging.  From Gregory Nutt (2018-05-30).
+	* Various fixes necessary to build the simulator under MSYS1.  From Gregory
+	  Nutt (2018-05-31).
+	* apps/Makefile and platform/Makefile:  At clean_context targets that are
+	  now invoked from the main nuttx/Makefile.  From Gregory Nutt (2018-05-31).
+
+7.26 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
