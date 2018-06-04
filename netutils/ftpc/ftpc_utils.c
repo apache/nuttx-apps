@@ -247,7 +247,7 @@ FAR char *ftpc_dequote(FAR const char *str)
                         {
                           /* Save the binary value and skip ahead by 3 */
 
-                          *ptr++ = (char)(ms << 8 | ls);
+                          *ptr++ = (char)(ms << 4 | ls);
                           str += 3;
                           len -= 3;
                           continue;
