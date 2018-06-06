@@ -1552,7 +1552,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* "Push" the old state and set the new state */
 
-          state  = whilematch == 0 ? NSH_LOOP_WHILE : NSH_LOOP_UNTIL;
+          state  = whilematch ? NSH_LOOP_WHILE : NSH_LOOP_UNTIL;
           enable = nsh_cmdenabled(vtbl);
 #ifdef NSH_DISABLE_SEMICOLON
           offset = np->np_foffs;
