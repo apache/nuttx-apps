@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_I2SLOOP
+	bool "I2S loopback test"
+	default n
+	depends on I2S && AUDIO && DRIVERS_AUDIO && AUDIO_I2SCHAR
+	---help---
+		Enable the I2S loopback test
