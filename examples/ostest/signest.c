@@ -227,7 +227,7 @@ void signest_test(void)
   prio = param.sched_priority + 1;
   printf("signest_test: Starting signal waiter task at priority %d\n", prio);
   waiterpid = task_create("waiter", param.sched_priority,
-                           PTHREAD_STACK_DEFAULT, waiter_main, NULL);
+                           STACKSIZE, waiter_main, NULL);
   if (waiterpid == ERROR)
     {
       printf("signest_test: ERROR failed to start waiter_main\n");
@@ -241,7 +241,7 @@ void signest_test(void)
   prio++;
   printf("signest_test: Starting interfering task at priority %d\n", prio);
   interferepid = task_create("interfere", param.sched_priority,
-                           PTHREAD_STACK_DEFAULT, interfere_main, NULL);
+                           STACKSIZE, interfere_main, NULL);
   if (interferepid == ERROR)
     {
       printf("signest_test: ERROR failed to start interfere_main\n");

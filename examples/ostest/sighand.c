@@ -279,7 +279,7 @@ void sighand_test(void)
     }
 
   waiterpid = task_create("waiter", param.sched_priority,
-                           PTHREAD_STACK_DEFAULT, waiter_main, NULL);
+                           STACKSIZE, waiter_main, NULL);
   if (waiterpid == ERROR)
     {
       printf("sighand_test: ERROR failed to start waiter_main\n" );
