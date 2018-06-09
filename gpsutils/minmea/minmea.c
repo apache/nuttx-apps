@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <wchar.h>
 #include <stdarg.h>
 
 #include "gpsutils/minmea.h"
