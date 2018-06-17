@@ -550,7 +550,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
-  in_addr_t gip;
+  in_addr_t gip = INADDR_ANY;
 #endif
 #ifdef CONFIG_NET_IPv6
   struct in6_addr addr6;
