@@ -6,7 +6,7 @@
 menuconfig WIRELESS_WAPI
 	bool "IEEE 802.11 Configuration Library"
 	default n
-	depends on NET && DRIVERS_WIRELESS && EXPERIMENTAL
+	depends on NET && DRIVERS_WIRELESS
 	---help---
 		Wapi is a tool by Volkan YAZICI <volkan.yazici@gmail.com> that can
 		be used to manage  802.11 network.
