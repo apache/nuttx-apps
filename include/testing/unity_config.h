@@ -50,6 +50,14 @@
 
 /* Exclude setjmp */
 
-#define UNITY_EXCLUDE_SETJMP_H 1
+#ifdef CONFIG_TESTING_UNITY_EXCLUDE_SETJMP
+#  define UNITY_EXCLUDE_SETJMP_H 1
+#endif
+
+/* Enable output coloring */
+
+#ifdef CONFIG_TESTING_UNITY_OUTPUT_COLOR
+#  define UNITY_OUTPUT_COLOR 1
+#endif
 
 #endif /* UNITY_CONFIG_H */

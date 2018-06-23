@@ -19,4 +19,16 @@ config TESTING_UNITY_VERSION
 	string "Version number"
 	default "2.4.3"
 
+config TESTING_UNITY_EXCLUDE_SETJMP
+	bool "Exclude SETJMP"
+	default y
+	---help---
+		Select this if your toolchain does not support setjmp
+
+config TESTING_UNITY_OUTPUT_COLOR
+	bool "Output color"
+	default n
+	---help---
+		Select this if your want to add some colors to your tests
+
 endif # TESTING_UNITY
