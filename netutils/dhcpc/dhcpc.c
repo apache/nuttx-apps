@@ -53,6 +53,7 @@
 #include <debug.h>
 
 #include <arpa/inet.h>
+#include <netinet/udp.h>
 
 #include "netutils/dhcpc.h"
 #include "netutils/netlib.h"
@@ -317,7 +318,8 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
               uint16_t tmp[2];
               memcpy(tmp, optptr + 2, 4);
-              presult->lease_time = ((uint32_t)ntohs(tmp[0])) << 16 | (uint32_t)ntohs(tmp[1]);
+              presult->lease_time = ((uint32_t)ntohs(tmp[0])) << 16 |
+                                     (uint32_t)ntohs(tmp[1]);
             }
             break;
 
@@ -397,7 +399,8 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
       addr.sin_port        = HTONS(DHCPC_CLIENT_PORT);
       addr.sin_addr.s_addr = INADDR_ANY;
 
-      ret = bind(pdhcpc->sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
+      ret = bind(pdhcpc->sockfd, (struct sockaddr*)&addr,
+                 sizeof(struct sockaddr_in));
       if (ret < 0)
         {
           ninfo("bind status %d\n",ret);
@@ -411,14 +414,34 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
       tv.tv_sec  = 10;
       tv.tv_usec = 0;
 
-      ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
+      ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv,
+                       sizeof(struct timeval));
       if (ret < 0)
         {
-          ninfo("setsockopt status %d\n",ret);
+          ninfo("setsockopt(RCVTIMEO) status %d\n",ret);
           close(pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;
         }
+
+#ifdef CONFIG_NET_UDP_BINDTODEVICE
+      /* Bind socket to interface, because UDP packets have to be sent to the
+       * broadcast address at a moment when it is not possible to decide the
+       * target network device using the local or remote address (which is,
+       * by definition and purpose of DHCP, undefined yet).
+       */
+
+      ret = setsockopt(pdhcpc->sockfd, SOL_UDP, UDP_BINDTODEVICE,
+                       pdhcpc->interface, strlen(pdhcpc->interface));
+      if (ret < 0)
+        {
+          ninfo("setsockopt(BINDTODEVICE) status %d\n",ret);
+          close(pdhcpc->sockfd);
+          free(pdhcpc);
+          return NULL;
+        }
+#endif
+
     }
 
   return (FAR void *)pdhcpc;
@@ -490,14 +513,15 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 
           /* Get the DHCPOFFER response */
 
-          result = recv(pdhcpc->sockfd, &pdhcpc->packet, sizeof(struct dhcp_msg), 0);
+          result = recv(pdhcpc->sockfd, &pdhcpc->packet,
+                        sizeof(struct dhcp_msg), 0);
           if (result >= 0)
             {
               msgtype = dhcpc_parsemsg(pdhcpc, result, presult);
               if (msgtype == DHCPOFFER)
                 {
-                  /* Save the servid from the presult so that it is not clobbered
-                   * by a new OFFER.
+                  /* Save the servid from the presult so that it is not
+                   * clobbered by a new OFFER.
                    */
 
                   ninfo("Received OFFER from %08x\n",
@@ -509,7 +533,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                    * out of the loop.
                    */
 
-                  (void)netlib_set_ipv4addr(pdhcpc->interface, &presult->ipaddr);
+                  (void)netlib_set_ipv4addr(pdhcpc->interface,
+                                            &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -534,7 +559,9 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
       retries = 0;
       do
         {
-          /* Send the REQUEST message to obtain the lease that was offered to us. */
+          /* Send the REQUEST message to obtain the lease that was offered to
+           * us.
+           */
 
           ninfo("Send REQUEST\n");
           if (dhcpc_sendmsg(pdhcpc, presult, DHCPREQUEST) < 0)
@@ -546,7 +573,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 
           /* Get the ACK/NAK response to the REQUEST (or timeout) */
 
-          result = recv(pdhcpc->sockfd, &pdhcpc->packet, sizeof(struct dhcp_msg), 0);
+          result = recv(pdhcpc->sockfd, &pdhcpc->packet,
+                        sizeof(struct dhcp_msg), 0);
           if (result >= 0)
             {
               /* Parse the response */
@@ -564,7 +592,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                 }
 
               /* NAK means the server has refused our request.  Break out of
-               * this loop with state == STATE_HAVE_OFFER and send DISCOVER again
+               * this loop with state == STATE_HAVE_OFFER and send DISCOVER
+               * again
                */
 
               else if (msgtype == DHCPNAK)
@@ -593,8 +622,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
             }
 
           /* An error has occurred.  If this was a timeout error (meaning
-           * that nothing was received on this socket for a long period of time).
-           * Then break out and send the DISCOVER command again (at most
+           * that nothing was received on this socket for a long period of
+           * time). Then break out and send the DISCOVER command again (at most
            * 3 times).
            */
 
