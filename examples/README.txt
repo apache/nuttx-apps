@@ -1841,6 +1841,13 @@ examples/system
 
     ret = system("ls -Rl /");
 
+examples/tcpblaster
+^^^^^^^^^^^^^^^^^^
+
+  The tcpblaster example derives from the nettest example and basically duplicatesi
+  that example when the nettest PERFORMANCE option is selected.  tcpblaster has a
+  little better reporting of performance stats, however.
+
 examples/tcpecho
 ^^^^^^^^^^^^^^^^
 
