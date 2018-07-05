@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -182,6 +183,8 @@ void tcpblaster_server(void)
   recvcount = 0;
   recvtotal = 0;
 
+  (void)clock_gettime(CLOCK_REALTIME, &start);
+
   for (; ; )
     {
       nbytesread = recv(acceptsd, buffer, SENDSIZE, 0);
@@ -220,7 +223,7 @@ void tcpblaster_server(void)
 
           fkbsent  = (float)recvtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Received %d packets:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kbps)\n",
+          printf("Received %d buffers:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kbps)\n",
                   recvcount, fkbsent, fkbsent/recvcount, felapsed, fkbsent/felapsed);
 
           recvcount       = 0;
