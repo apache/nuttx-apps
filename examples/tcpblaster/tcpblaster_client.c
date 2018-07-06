@@ -189,6 +189,7 @@ void tcpblaster_client(void)
           else
             {
               unsigned long borrow = 1000000000 - start.tv_nsec;
+              elapsed.tv_sec--;
               elapsed.tv_nsec = curr.tv_nsec + borrow;
             }
 
