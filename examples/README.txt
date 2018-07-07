@@ -338,6 +338,22 @@ examples/djoystick
     CONFIG_EXAMPLES_DJOYSTICK_SIGNO - Signal used to signal the test
       application.  Default 13.
 
+
+examples/dsptest
+^^^^^^^^^^^^^^^^^^
+
+  This is a Unit Test for the Nuttx DSP library. It use Unity testing framwork.
+
+  Dependencies:
+
+    CONFIG_LIBDSP=y
+    CONFIG_LIBDSP_DEBUG=y
+    CONFIG_TESTING_UNITY=y
+
+  Optional configuration:
+
+    CONFIG_TESTING_UNITY_OUTPUT_COLOR - enable colored output
+
 examples/elf
 ^^^^^^^^^^^^
 
