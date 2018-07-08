@@ -442,7 +442,7 @@ int powerled_main(int argc, char *argv[])
   bool terminate;
   bool config;
   int ret;
-  int fd;
+  int fd = -1;
 
   /* Initialize variables */
 
