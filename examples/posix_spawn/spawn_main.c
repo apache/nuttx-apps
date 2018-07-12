@@ -160,8 +160,8 @@ static char * const g_argv[4] =
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
-extern const struct symtab_s exports[];
-extern const int nexports;
+extern const struct symtab_s g_exports[];
+extern const int g_nexports;
 
 /****************************************************************************
  * Private Functions
@@ -300,8 +300,8 @@ int spawn_main(int argc, char *argv[])
 
   /* Make sure that we are using our symbol tablee */
 
-  symdesc.symtab   = (FAR struct symtab_s *)exports; /* Discard 'const' */
-  symdesc.nsymbols = nexports;
+  symdesc.symtab   = (FAR struct symtab_s *)g_exports; /* Discard 'const' */
+  symdesc.nsymbols = g_nexports;
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 
   /*************************************************************************

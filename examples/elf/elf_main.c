@@ -164,8 +164,8 @@ static char fullpath[128];
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
-extern const struct symtab_s exports[];
-extern const int nexports;
+extern const struct symtab_s g_exports[];
+extern const int g_nexports;
 
 /****************************************************************************
  * Private Functions
@@ -343,7 +343,7 @@ int elf_main(int argc, char *argv[])
        */
 
       args[0] = NULL;
-      ret = exec(filename, args, exports, nexports);
+      ret = exec(filename, args, g_exports, g_nexports);
 
       mm_update(&g_mmstep, "after exec");
 
