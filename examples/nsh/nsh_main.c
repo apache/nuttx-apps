@@ -50,7 +50,7 @@
 #  include <nuttx/binfmt/builtin.h>
 #endif
 
-#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
+#if defined(CONFIG_LIBC_EXECFUNCS)
 #  include <nuttx/binfmt/symtab.h>
 #endif
 
@@ -69,26 +69,48 @@
  */
 
 #define HAVE_DUMMY_SYMTAB 1
-#if !defined(CONFIG_LIBC_EXECFUNCS) || !defined(CONFIG_EXECFUNCS_SYMTAB)
+
+/* Symbol table is not needed if loadable binary modules are not supported */
+
+#if !defined(CONFIG_LIBC_EXECFUNCS)
 #  undef HAVE_DUMMY_SYMTAB
+#  undef CONFIG_EXAMPLES_NSH_SYMTAB
 #endif
 
-/* boardctl() support is also required  for this "feature" */
+/* boardctl() support is also required  for application-space symbol table
+ * support.
+ */
 
 #if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
 #  undef HAVE_DUMMY_SYMTAB
+#  undef CONFIG_EXAMPLES_NSH_SYMTAB
 #endif
 
-/* If we are going to use the application symbol table, then suppress
+/* If a symbol table is provided by board-specific logic, then we do not
+ * need to do anything from the application space.
+ */
+
+#ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
+#  undef HAVE_DUMMY_SYMTAB
+#  undef CONFIG_EXAMPLES_NSH_SYMTAB
+#endif
+
+/* If we are going to use the application-space symbol table, then suppress
  * the dummy symbol table.
  */
 
-#ifdef CONFIG_EXAMPLES_NSH_SYMTAB
+#if defined(CONFIG_EXAMPLES_NSH_SYMTAB)
 #  undef HAVE_DUMMY_SYMTAB
 #endif
 
+/* Check if we have met the BINFS requirement either via a board-provided
+ * symbol table, an application provided symbol table, or a dummy symbol
+ * table
+ */
+
 #if defined(CONFIG_FS_BINFS) && !defined(HAVE_DUMMY_SYMTAB) && \
-   !defined(CONFIG_EXAMPLES_NSH_SYMTAB)
+   !defined(CONFIG_EXAMPLES_NSH_SYMTAB) && \
+   !defined(CONFIG_EXECFUNCS_HAVE_SYMTAB)
 #  warning "Prequisites not met for BINFS symbol table"
 #endif
 
