@@ -127,7 +127,11 @@ static CHelloWorld g_HelloWorld;
 
 extern "C"
 {
+#ifdef CONFIG_BUILD_KERNEL
+  int main(int argc, FAR char *argv[])
+#else
   int helloxx_main(int argc, char *argv[])
+#endif
  {
     // If C++ initialization for static constructors is supported, then do
     // that first
