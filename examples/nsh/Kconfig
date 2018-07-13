@@ -13,6 +13,23 @@ config EXAMPLES_NSH
 
 if EXAMPLES_NSH
 
+config EXAMPLES_NSH_SYMTAB
+	bool "Register symbol table"
+	default n
+	depends on LIBC_EXECFUNCS && LIB_BOARDCTL && !EXECFUNCS_HAVE_SYMTAB
+	select BOARDCTL_APP_SYMTAB
+	---help---
+		Enable logic to automatically register an application symbol table
+		as part of NSH initialization.  If enabled, then application logic
+		must provide the following:
+
+			const struct symtab_s g_exports[];
+			const int g_nexports;
+
+		Where g_exports is the name of the exported application symbol table
+		and g_nexports holds the number of entries in the application symbol
+		table.
+
 config EXAMPLES_NSH_PROGNAME
 	string "Program name"
 	default "nsh"
