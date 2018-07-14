@@ -72,7 +72,7 @@ static const char g_msg1[] = "Hello to you too!";
 static const char g_msg2[] = "Not so bad so far.";
 static const char g_msg3[] = "Yes, don't be a stranger!";
 
-static const struct symtab_s g_exports[6] =
+static const struct symtab_s g_sotest_exports[6] =
 {
   {
     (FAR const char *)"testfunc1", (FAR const void *)testfunc1,
@@ -171,7 +171,7 @@ int module_initialize(FAR struct mod_info_s *modinfo)
 
   modinfo->uninitializer = module_uninitialize;
   modinfo->arg           = NULL;
-  modinfo->exports       = g_exports;
+  modinfo->exports       = g_sotest_exports;
   modinfo->nexports      = 6;
 
   return OK;

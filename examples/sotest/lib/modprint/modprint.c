@@ -57,7 +57,7 @@ static void modprint(FAR const char *fmt, ...);
  * Private Data
  ****************************************************************************/
 
-static const struct symtab_s g_exports[1] =
+static const struct symtab_s g_modprint_exports[1] =
 {
   {
     (FAR const char *)"modprint", (FAR const void *)modprint,
@@ -109,7 +109,7 @@ int module_initialize(FAR struct mod_info_s *modinfo)
 
   modinfo->uninitializer = module_uninitialize;
   modinfo->arg           = NULL;
-  modinfo->exports       = g_exports;
+  modinfo->exports       = g_modprint_exports;
   modinfo->nexports      = 1;
 
   return OK;

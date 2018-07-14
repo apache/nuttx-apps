@@ -233,7 +233,7 @@ int nxflat_main(int argc, char *argv[])
        */
 
       args[0] = NULL;
-      ret = exec(filename, args, g_exports, NEXPORTS);
+      ret = exec(filename, args, g_nxflat_exports, NEXPORTS);
       if (ret < 0)
         {
           errmsg("ERROR: exec(%s) failed: %d\n", dirlist[i], errno);
