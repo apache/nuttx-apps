@@ -155,8 +155,8 @@ static const struct symtab_s g_dummy_symtab[1];  /* Wasted memory! */
 
 #elif defined(CONFIG_EXAMPLES_NSH_SYMTAB)
 
-extern const struct symtab_s g_exports[];
-extern const int g_nexports;
+extern const struct symtab_s CONFIG_EXAMPLES_NSH_SYMTAB_ARRAYNAME[];
+extern const int CONFIG_EXAMPLES_NSH_SYMTAB_COUNTNAME;
 
 #endif
 
