@@ -24,7 +24,7 @@ echo "#define __EXAMPLES_NXFLAT_TESTS_SYMTAB_H"
 echo ""
 echo "#include <nuttx/binfmt/symtab.h>"
 echo ""
-echo "static const struct symtab_s exports[] = "
+echo "static const struct symtab_s g_exports[] = "
 echo "{"
 
 for string in $varlist; do
@@ -33,7 +33,7 @@ for string in $varlist; do
 done
 
 echo "};"
-echo "#define NEXPORTS (sizeof(exports)/sizeof(struct symtab_s))"
+echo "#define NEXPORTS (sizeof(g_exports)/sizeof(struct symtab_s))"
 echo ""
 echo "#endif /* __EXAMPLES_NXFLAT_TESTS_SYMTAB_H */"
 

@@ -30,6 +30,14 @@ config EXAMPLES_NSH_SYMTAB
 		and g_nexports holds the number of entries in the application symbol
 		table.
 
+		This is done very early in the NSH initialization sequence.
+
+		Why might you want to do this?  There is really only one reason:  You
+		would like to have the symbol tables in place early so that programs
+		started by NSH, perhaps via an initialization script, will have all
+		of the necessary symbols in place.  Otherwise, you probably do *not*
+		want this option!
+
 config EXAMPLES_NSH_PROGNAME
 	string "Program name"
 	default "nsh"

@@ -338,7 +338,7 @@ int thttp_main(int argc, char *argv[])
   /* Start THTTPD.  At present, symbol table info is passed via global variables */
 
 #ifdef CONFIG_THTTPD_NXFLAT
-  g_thttpdsymtab   = exports;
+  g_thttpdsymtab   = g_exports;
   g_thttpdnsymbols = NEXPORTS;
 #endif
 
