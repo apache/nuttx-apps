@@ -1468,10 +1468,12 @@ examples/posix_spawn
     CONFIG_BINFMT_DISABLE=n                   - Don't disable the binary loader
     CONFIG_ELF=y                              - Enable ELF binary loader
     CONFIG_LIBC_EXECFUNCS=y                   - Enable support for posix_spawn
-    CONFIG_EXECFUNCS_SYMTAB="g_spawn_exports" - The name of the symbol table
+    CONFIG_EXECFUNCS_SYMTAB_ARRAY="g_spawn_exports"
+                                              - The name of the symbol table
                                                 created by the test.
-    CONFIG_EXECFUNCS_NSYMBOLS=10              - Value does not matter, it will be
-                                                corrected at runtime.
+    CONFIG_EXECFUNCS_NSYMBOLS_VAR="g_spawn_nexports"
+                                              - Name of variable holding the
+                                                number of symbols
     CONFIG_POSIX_SPAWN_STACKSIZE=768          - This default setting.
 
   Test-specific configuration options:
