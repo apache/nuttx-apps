@@ -41,12 +41,14 @@
 SUBDIRS = arch build include libs startup tmp
 FILES   = .config System.map User.map
 
-
-define MKSYMTAB
 ifeq (,$(wildcard ./symtab.c))
+define MKSYMTAB
 	$(Q) $(MAKE) -f Makefile.symtab $1
-endif
 endef
+else
+define MKSYMTAB
+endef
+endif
 
 all: symtab
 .PHONY: context depend clean distclean
