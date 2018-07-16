@@ -78,8 +78,8 @@ config EXAMPLES_ELF_LIBC
 		Link with the C library (and also math library if it was built).
 		By default, all undefined symbols must be provided via a symbol
 		table.  But if this option is selected, then each ELF test program
-		will link with the SYSCALL library and will interface with the OS
-		system calls.  You probably will NOT want this option, however,
+		will link with the C library and will not require symbol table
+		entries.  You probably will NOT want this option, however,
 		because it will substantially increase the size of code.  For
 		example, a separate copy of printf() would be linked with every
 		program greatly increasing the total code size.  This option is
@@ -105,3 +105,4 @@ config EXAMPLES_ELF_UCLIBCXX
 		example will compile the demos using it.
 
 endif
+
