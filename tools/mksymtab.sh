@@ -83,7 +83,7 @@ for exec in ${execlist}; do
   nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist.dat
 done
 
-varlist `cat _tmplist | sort - | uniq -`
+varlist=`cat _tmplist | sort - | uniq -`
 rm -f _tmplist
 
 # Now output the symbol table as a structure in a C source file.  All

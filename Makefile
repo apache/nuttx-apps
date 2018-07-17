@@ -108,7 +108,8 @@ install: $(BIN_DIR) .install
 
 .import: $(BIN) install
 
-symtab:
+symtab: $(BIN_DIR)
+	$(Q) tools/mksymtab.sh $(BIN_DIR) $(APPDIR)$(DELIM)import/symtab.c
 	$(call MAKE_template,import,symtab)
 
 import:
