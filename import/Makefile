@@ -41,9 +41,9 @@
 SUBDIRS = arch build include libs startup tmp
 FILES   = .config System.map User.map
 
-ifeq (,$(wildcard ./symtab.c))
+ifneq (,$(wildcard ./symtab.c))
 define MKSYMTAB
-	$(Q) $(MAKE) -f Makefile.symtab $1
+	$(Q) $(MAKE) -f Makefile.symtab $1 TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 endef
 else
 define MKSYMTAB
@@ -51,7 +51,7 @@ endef
 endif
 
 all: symtab
-.PHONY: context depend clean distclean
+.PHONY: symtab context depend clean distclean
 .PRECIOUS: ../libapps$(LIBEXT)
 
 symtab:

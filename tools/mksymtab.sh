@@ -78,7 +78,13 @@ rm -f $outfile
 # Extract all of the undefined symbols from the ELF files and create a
 # list of sorted, unique undefined variable names.
 
-varlist=`find ${dir} -executable -type f | xargs nm | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+execlist=`find ${dir} -executable -type f`
+for exec in ${execlist}; do
+  nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist.dat
+done
+
+varlist `cat _tmplist | sort - | uniq -`
+rm -f _tmplist
 
 # Now output the symbol table as a structure in a C source file.  All
 # undefined symbols are declared as void* types.  If the toolchain does

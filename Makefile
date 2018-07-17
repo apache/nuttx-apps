@@ -76,7 +76,7 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: import install dirlinks context context_serialize clean_context context_rest .depdirs preconfig depend clean distclean
+.PHONY: import symtab install dirlinks context context_serialize clean_context context_rest .depdirs preconfig depend clean distclean
 .PRECIOUS: libapps$(LIBEXT)
 
 define MAKE_template
@@ -107,6 +107,9 @@ $(BIN_DIR):
 install: $(BIN_DIR) .install
 
 .import: $(BIN) install
+
+symtab:
+	$(call MAKE_template,import,symtab)
 
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"

@@ -186,10 +186,10 @@ AFLAGS = $(CFLAGS) -D__ASSEMBLY__
 
 ifeq ($(WINTOOL),y)
   # Windows-native toolchains
-  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
+  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
 else
   # Linux/Cygwin-native toolchain
-  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)staging
+  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
 endif
 
 LDLIBS = -lapps -lnuttx
@@ -199,7 +199,7 @@ LDLIBS = -lapps -lnuttx
 
 LIBGCC = "${shell "$(CC)" $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
 ifneq ($(LIBGCC),)
-  LDLIBPATH += -L ${shell dirname $(LIBGCC)}
+  LDLIBPATH += -L "${shell dirname $(LIBGCC)}"
   LDLIBS += -lgcc
 endif
 
@@ -211,3 +211,4 @@ ifeq ($(WINTOOL),y)
 else
   LDELFFLAGS += -T $(TOPDIR)/scripts/gnu-elf.ld
 endif
+

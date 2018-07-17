@@ -57,28 +57,49 @@ endef
 endif
 
 # Tools
+#
+# In a normal build, tools will reside in the nuttx/tools sub-directory and
+# TOPDIR will refer to that nuttx/ directory.  This, however, is not the
+# case when building apps/ with a NuttX export directory; there is no
+# apps/import/tools directory.  In that case copies of the NuttX tools in
+# the apps/tools directory are used.
+
+DELIM ?= $(strip /)
+ifneq (,$(wildcard $(TOPDIR)$(DELIM)tools))
+  TOOLDIR = $(TOPDIR)$(DELIM)tools
+else
+  TOOLDIR = $(APPDIR)$(DELIM)tools
+endif
 
 ifeq ($(DIRLINK),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  DIRLINK   = $(TOPDIR)\tools\link.bat
-  DIRUNLINK = $(TOPDIR)\tools\unlink.bat
+  DIRLINK   = $(TOOLDIR)$(DELIM)link.bat
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.bat
 else ifeq ($(CONFIG_WINDOWS_MSYS),y)
-  DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
-  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
+  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
 else
-  DIRUNLINK = $(TOPDIR)/tools/unlink.sh
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
 ifeq ($(WINTOOL),y)
-  DIRLINK = $(TOPDIR)/tools/copydir.sh
+  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
 else
-  DIRLINK   = $(TOPDIR)/tools/link.sh
+  DIRLINK   = $(TOOLDIR)$(DELIM)link.sh
 endif
 endif
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  MKKCONFIG = $(APPDIR)\tools\mkkconfig.bat
+  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.bat
 else
-  MKKCONFIG = $(APPDIR)/tools/mkkconfig.sh
+  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
+endif
+
+ifeq ($(INCDIR),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  INCDIR = $(TOOLDIR)$(DELIM)incdir.bat
+else
+  INCDIR = $(TOOLDIR)$(DELIM)incdir.sh
+endif
 endif
 
 ifeq ($(WINTOOL),y)
@@ -89,4 +110,3 @@ endif
 
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
-
