@@ -194,8 +194,8 @@ int nsh_main(int argc, char *argv[])
   symdesc.nsymbols = 0;
 
 #else  /* if defined(CONFIG_EXAMPLES_NSH_SYMTAB) */
-  symdesc.symtab   = (FAR struct symtab_s *)g_exports; /* Discard 'const' */
-  symdesc.nsymbols = g_nexports;
+  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_EXAMPLES_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
+  symdesc.nsymbols = CONFIG_EXAMPLES_NSH_SYMTAB_COUNTNAME;
 #endif
 
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
