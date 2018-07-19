@@ -80,7 +80,7 @@ rm -f $outfile
 
 execlist=`find ${dir} -executable -type f`
 for exec in ${execlist}; do
-  nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist.dat
+  nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist
 done
 
 varlist=`cat _tmplist | sort - | uniq -`
