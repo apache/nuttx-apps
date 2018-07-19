@@ -123,7 +123,7 @@ static lv_res_t btn_click_action(FAR lv_obj_t *scr)
       a.start          = 0;
       a.end            = LV_HOR_RES - CIRCLE_SIZE;
       a.fp             = (lv_anim_fp_t) lv_obj_set_x;
-      a.path           = lv_anim_get_path(LV_ANIM_PATH_LIN);
+      a.path           = lv_anim_path_linear;
       a.end_cb         = NULL;
       a.act_time       = 0;
       a.time           = 200;
@@ -167,7 +167,7 @@ static lv_res_t btn_click_action(FAR lv_obj_t *scr)
       a.start          = LV_HOR_RES - CIRCLE_SIZE;
       a.end            = LV_HOR_RES - CIRCLE_SIZE;
       a.fp             = (lv_anim_fp_t)lv_obj_set_x;
-      a.path           = lv_anim_get_path(LV_ANIM_PATH_LIN);
+      a.path           = lv_anim_path_linear;
       a.end_cb         = NULL;
       a.act_time       = 0;
       a.time           = 200;
@@ -211,7 +211,7 @@ static lv_res_t btn_click_action(FAR lv_obj_t *scr)
       a.start          = LV_HOR_RES - CIRCLE_SIZE;
       a.end            = 0;
       a.fp             = (lv_anim_fp_t)lv_obj_set_x;
-      a.path           = lv_anim_get_path(LV_ANIM_PATH_LIN);
+      a.path           = lv_anim_path_linear;
       a.end_cb         = NULL;
       a.act_time       = 0;
       a.time           = 200;
@@ -305,7 +305,7 @@ void tp_cal_create(void)
   lv_obj_set_size(big_btn, TP_MAX_VALUE, TP_MAX_VALUE);
   lv_btn_set_style(big_btn, LV_BTN_STYLE_REL, &lv_style_transp);
   lv_btn_set_style(big_btn, LV_BTN_STYLE_PR, &lv_style_transp);
-  lv_btn_set_action(big_btn, LV_BTN_ACTION_REL, btn_click_action);
+  lv_btn_set_action(big_btn, LV_BTN_ACTION_CLICK, btn_click_action);
   lv_btn_set_layout(big_btn, LV_LAYOUT_OFF);
 
   label_main = lv_label_create(lv_scr_act(), NULL);
@@ -328,7 +328,7 @@ void tp_cal_create(void)
   a.start          = LV_HOR_RES / 2;
   a.end            = 0;
   a.fp             = (lv_anim_fp_t) lv_obj_set_x;
-  a.path           = lv_anim_get_path(LV_ANIM_PATH_LIN);
+  a.path           = lv_anim_path_linear;
   a.end_cb         = NULL;
   a.act_time       = -500;
   a.time           = 200;

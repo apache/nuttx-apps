@@ -58,10 +58,10 @@ DEPPATH = --dep-path .
 
 WD := ${shell pwd | sed -e 's/ /\\ /g'}
 
-CONFIG_GRAPH_LVGL_URL ?= "https://archive.org/download/lvgl4.tar"
+CONFIG_GRAPH_LVGL_URL ?= "https://littlevgl.com/download/"
 
-LVGL_VERSION ?= 4
-LVGL_TARBALL = lvgl$(LVGL_VERSION).tar.gz
+LVGL_VERSION ?= v5_1_1
+LVGL_TARBALL = lvgl_$(LVGL_VERSION).tar.gz
 WGET ?= wget
 
 LVGL_UNPACKNAME = lvgl

@@ -185,7 +185,7 @@ int lvgldemo_main(int argc, char *argv[])
    * mouse position and state.
    */
 
-  indev_drv.read_fp = tp_read;
+  indev_drv.read = tp_read;
   lv_indev_drv_register(&indev_drv);
 
   /* Demo initialization */

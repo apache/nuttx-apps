@@ -15,7 +15,8 @@ config LV_MEM_SIZE
 	int "Heap size of the graphics library"
 	default 32768
 	---help---
-		The size of a memory pool where the grapohisc library dynamically allocates data
+		The size of a memory pool where the grapohisc library
+		dynamically allocates data
 
 menu "Graphics settings"
 
@@ -56,8 +57,10 @@ config LV_VDB_DOUBLE
 	bool "Use 2 internal buffers. One to render and an other to flush data to frame buffer in background"
 	default n
 	---help---
-		Enable to use one buffer for rendering an other to flush the ready content to the frame buffer.
-		The flushing should be done by a hardware modul (e.g. DMA) to make rendering and flushing parallel
+		Enable to use one buffer for rendering an other to flush the
+		ready content to the frame buffer.
+		The flushing should be done by a hardware modul (e.g. DMA) to
+		make rendering and flushing parallel
 
 if LV_VDB_DOUBLE
 
@@ -67,32 +70,26 @@ config LV_VDB2_ADR
 	---help---
 		Similarly to LV_VDB_ADR. the second VDB address can be specified as well.
 endif   # LV_VDB_DOUBLE
+
 config LV_ANTIALIAS
 	bool "Anti aliasing of the screen"
 	default n
-	---help---
-		Render everything in double size and filter to half to get a  smoother result.
-		You need to use double sized fonts and images to get the same result
 
 endif # LV_VDB_SIZE != 0
-
-config LV_FONT_ANTIALIAS
-	bool "Anti aliasing of fonts"
-	default y
-	---help---
-		Downscale the fonts with a filter to get smoother letters.
 
 config LV_REFR_PERIOD
 	int "Refresh period in milliseconds"
 	default 50
 	---help---
-		The graphics library will check for invalid areas an refresh them with this period time
+		The graphics library will check for invalid areas an refresh
+		them with this period time
 
 config LV_INV_FIFO_SIZE
 	int "Average number of object on the screen"
 	default 32
 	---help---
-		If too much area is invalidated (greater then this number) then the whole screen will be refreshed
+		If too much area is invalidated (greater then this number) then
+		the whole screen will be refreshed
 
 endmenu
 
@@ -165,6 +162,10 @@ config USE_LV_GPU
 	bool "Enable GPU (hardware acceleration) API"
 	default y
 
+config USE_LV_REAL_DRAW
+	bool "Enable function which draw directly to the frame buffer instead of VDB"
+	default y
+
 config USE_LV_FILESYSTEM
 	bool "Enable filesystem (required for images, lv_img)"
 	default y
@@ -207,207 +208,170 @@ menu "Font usage"
 # 10 PX FONTS
 
 config USE_LV_FONT_DEJAVU_10
-	bool "Dejavu 10 px"
-	default n
+	int "Dejavu 10 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_DEJAVU_10_SUP
-	bool "Dejavu 10 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_10_LATIN_EXT_A
-	bool "Dejavu 10 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_10_LATIN_EXT_B
-	bool "Dejavu 10 px - latin extanded B"
-	default n
+config USE_LV_FONT_DEJAVU_10_LATIN_SUP
+	int "Dejavu 10 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 config USE_LV_FONT_DEJAVU_10_CYRILLIC
-	bool "Dejavu 10 px - cyrillic"
-	default n
+	int "Dejavu 10 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_SYMBOL_10_BASIC
-	bool "Symbol 10 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_10_FILE
-	bool "Symbol 10 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_10_FEEDBACK
-	bool "Symbol 10 px - feedback"
-	default n
+config USE_LV_FONT_SYMBOL_10
+	int "Symbol 10 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 #20 PX FONTS
 
 config USE_LV_FONT_DEJAVU_20
-	bool "Dejavu 20 px"
-	default n
+	int "Dejavu 20 px"
+	default 4
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_DEJAVU_20_SUP
-	bool "Dejavu 20 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_20_LATIN_EXT_A
-	bool "Dejavu 20 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_20_LATIN_EXT_B
-	bool "Dejavu 20 px - latin extanded B"
-	default n
+config USE_LV_FONT_DEJAVU_20_LATIN_SUP
+	int "Dejavu 20 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 config USE_LV_FONT_DEJAVU_20_CYRILLIC
-	bool "Dejavu 20 px - cyrillic"
-	default n
+	int "Dejavu 20 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_SYMBOL_20_BASIC
-	bool "Symbol 20 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_20_FILE
-	bool "Symbol 20 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_20_FEEDBACK
-	bool "Symbol 20 px - feedback"
-	default n
+config USE_LV_FONT_SYMBOL_20
+	int "Symbol 20 px"
+	default 4
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 #30 PX FONTS
 
 config USE_LV_FONT_DEJAVU_30
-	bool "Dejavu 30 px"
-	default n
+	int "Dejavu 30 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_DEJAVU_30_SUP
-	bool "Dejavu 30 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_30_LATIN_EXT_A
-	bool "Dejavu 30 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_30_LATIN_EXT_B
-	bool "Dejavu 30 px - latin extended B"
-	default n
+config USE_LV_FONT_DEJAVU_30_LATIN_SUP
+	int "Dejavu 30 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 config USE_LV_FONT_DEJAVU_30_CYRILLIC
-	bool "Dejavu 30 px - cyrillic"
-	default n
+	int "Dejavu 30 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_SYMBOL_30_BASIC
-	bool "Symbol 30 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_30_FILE
-	bool "Symbol 30 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_30_FEEDBACK
-	bool "Symbol 30 px - feedback"
-	default n
+config USE_LV_FONT_SYMBOL_30
+	int "Symbol 30 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 #40 PX FONTS
 
 config USE_LV_FONT_DEJAVU_40
-	bool "Dejavu 40 px"
-	default y
+	int "Dejavu 40 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_DEJAVU_40_SUP
-	bool "Dejavu 40 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_40_LATIN_EXT_A
-	bool "Dejavu 40 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_40_LATIN_EXT_B
-	bool "Dejavu 40 px - latin extended B"
-	default n
+config USE_LV_FONT_DEJAVU_40_LATIN_SUP
+	int "Dejavu 40 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
 config USE_LV_FONT_DEJAVU_40_CYRILLIC
-	bool "Dejavu 40 px - cyrillic"
-	default n
+	int "Dejavu 40 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 
-config USE_LV_FONT_SYMBOL_40_BASIC
-	bool "Symbol 40 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_40_FILE
-	bool "Symbol 40 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_40_FEEDBACK
-	bool "Symbol 40 px - feedback"
-	default n
-
-#60 PX FONTS
-
-config USE_LV_FONT_DEJAVU_60
-	bool "Dejavu 60 px"
-	default n
-
-config USE_LV_FONT_DEJAVU_60_SUP
-	bool "Dejavu 60 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_60_LATIN_EXT_A
-	bool "Dejavu 60 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_60_LATIN_EXT_B
-	bool "Dejavu 60 px - latin extanded B"
-	default n
-
-config USE_LV_FONT_DEJAVU_60_CYRILLIC
-	bool "Dejavu 60 px - cyrillic"
-	default n
-
-config USE_LV_FONT_SYMBOL_60_BASIC
-	bool "Symbol 60 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_60_FILE
-	bool "Symbol 60 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_60_FEEDBACK
-	bool "Symbol 60 px - feedback"
-	default n
-
-#80 PX FONTS
-
-config USE_LV_FONT_DEJAVU_80
-	bool "Dejavu 80 px"
-	default n
-
-config USE_LV_FONT_DEJAVU_80_SUP
-	bool "Dejavu 80 px - latin supplement"
-	default n
-
-config USE_LV_FONT_DEJAVU_80_LATIN_EXT_A
-	bool "Dejavu 80 px - latin extended A"
-	default n
-
-config USE_LV_FONT_DEJAVU_80_LATIN_EXT_B
-	bool "Dejavu 80 px - latin extended B"
-	default n
-
-config USE_LV_FONT_DEJAVU_80_CYRILLIC
-	bool "Dejavu 80 px - cyrillic"
-	default n
-
-config USE_LV_FONT_SYMBOL_80_BASIC
-	bool "Symbol 80 px - basic"
-	default n
-
-config USE_LV_FONT_SYMBOL_80_FILE
-	bool "Symbol 80 px - file"
-	default n
-
-config USE_LV_FONT_SYMBOL_80_FEEDBACK
-	bool "Symbol 80 px - feedback"
-	default n
-
+config USE_LV_FONT_SYMBOL_40
+	int "Symbol 40 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
 endmenu
 
 menu "Base object settings"
