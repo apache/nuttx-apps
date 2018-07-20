@@ -211,7 +211,6 @@ int main(int argc, FAR char *argv[])
 int nxdemo_main(int argc, char *argv[])
 #endif
 {
-  nxgl_mxpixel_t color;
   int ret;
 
   /* Initialize NX */

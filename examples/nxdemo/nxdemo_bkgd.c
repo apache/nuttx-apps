@@ -493,7 +493,7 @@ static void nxdemo_demo_4(NXWINDOW hwnd)
   origin.x   = 0;
   origin.y   = 0;
 
-  src[0] = (FAR const void *)battery;
+  src[0] = (FAR const void *)g_battery;
 
   ret = nx_bitmap((NXWINDOW)hwnd,
                   &rect,
