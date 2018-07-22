@@ -146,11 +146,11 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   /* 3@0: Jump instruction to boot code */
 
-  memcpy(&var->fv_sect[BS_JUMP], var->fv_jump, 3);
+  memcpy(&var->fv_sect[MBR_JUMP], var->fv_jump, 3);
 
   /* 8@3: Usually "MSWIN4.1" */
 
-  strcpy((FAR char *)&var->fv_sect[BS_OEMNAME], "NUTTX   ");
+  strcpy((FAR char *)&var->fv_sect[MBR_OEMNAME], "NUTTX   ");
 
   /* 2@11: Bytes per sector: 512, 1024, 2048, 4096  */
 
@@ -172,7 +172,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   MBR_PUTROOTENTCNT(var->fv_sect, fmt->ff_rootdirentries);
 
-  /* 2@19: FAT12/16: Must be 0, see BS_TOTSEC32.
+  /* 2@19: FAT12/16: Must be 0, see MBR_TOTSEC32.
    * Handled with 4@32: Total count of sectors on the volume */
 
   if (fmt->ff_nsectors >= 65536)
@@ -188,7 +188,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   MBR_PUTMEDIA(var->fv_sect, FAT_DEFAULT_MEDIA_TYPE); /* Only "hard drive" supported */
 
-  /* 2@22: FAT12/16: Must be 0, see BS32_FATSZ32  -- handled in FAT specific logic */
+  /* 2@22: FAT12/16: Must be 0, see MBR32_FATSZ32  -- handled in FAT specific logic */
 
   /* 2@24: Sectors per track geometry value and 2@26: Number of heads geometry value */
 
@@ -205,7 +205,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   if (fmt->ff_fattype != 32)
     {
-      /* 2@22: FAT12/16: Must be 0, see BS32_FATSZ32 */
+      /* 2@22: FAT12/16: Must be 0, see MBR32_FATSZ32 */
 
       MBR_PUTFATSZ16(var->fv_sect, (uint16_t)var->fv_nfatsects);
 
@@ -222,22 +222,22 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* 11@43: Volume label */
 
-      memcpy(&var->fv_sect[BS16_VOLLAB], fmt->ff_volumelabel, 11);
+      memcpy(&var->fv_sect[MBR16_VOLLAB], fmt->ff_volumelabel, 11);
 
       /* 8@54: "FAT12  ", "FAT16  ", or "FAT    " */
 
       if (fmt->ff_fattype == 12)
         {
-          memcpy(&var->fv_sect[BS16_FILESYSTYPE], "FAT12   ", 8);
+          memcpy(&var->fv_sect[MBR16_FILESYSTYPE], "FAT12   ", 8);
         }
       else /* if (fmt->ff_fattype == 16) */
         {
-          memcpy(&var->fv_sect[BS16_FILESYSTYPE], "FAT16   ", 8);
+          memcpy(&var->fv_sect[MBR16_FILESYSTYPE], "FAT16   ", 8);
         }
 
       /* Boot code may be placed in the remainder of the sector */
 
-      memcpy(&var->fv_sect[BS16_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
+      memcpy(&var->fv_sect[MBR16_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
     }
   else
     {
@@ -273,15 +273,15 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* 11@71: Volume label */
 
-      memcpy(&var->fv_sect[BS32_VOLLAB], fmt->ff_volumelabel, 11);
+      memcpy(&var->fv_sect[MBR32_VOLLAB], fmt->ff_volumelabel, 11);
 
       /* 8@82: "FAT12  ", "FAT16  ", or "FAT    " */
 
-      memcpy(&var->fv_sect[BS32_FILESYSTYPE], "FAT32   ", 8);
+      memcpy(&var->fv_sect[MBR32_FILESYSTYPE], "FAT32   ", 8);
 
       /* Boot code may be placed in the remainder of the sector */
 
-      memcpy(&var->fv_sect[BS32_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
+      memcpy(&var->fv_sect[MBR32_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
     }
 
   /* The magic bytes at the end of the MBR are common to FAT12/16/32 */

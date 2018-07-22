@@ -912,15 +912,15 @@ int mkfatfs_configfatfs(FAR struct fat_format_s *fmt,
 
       /* Patch in the correct offset to the boot code */
 
-      var->fv_jump[1]   = BS16_BOOTCODE - 2;
-      g_bootcodeblob[3] = BS16_BOOTCODE + BOOTCODE_MSGOFFSET;
+      var->fv_jump[1]   = MBR16_BOOTCODE - 2;
+      g_bootcodeblob[3] = MBR16_BOOTCODE + BOOTCODE_MSGOFFSET;
     }
   else
     {
       /* Patch in the correct offset to the boot code */
 
-      var->fv_jump[1]   = BS32_BOOTCODE - 2;
-      g_bootcodeblob[3] = BS32_BOOTCODE + BOOTCODE_MSGOFFSET;
+      var->fv_jump[1]   = MBR32_BOOTCODE - 2;
+      g_bootcodeblob[3] = MBR32_BOOTCODE + BOOTCODE_MSGOFFSET;
 
       /* The root directory is a cluster chain... its is initialize size is one cluster */
 
