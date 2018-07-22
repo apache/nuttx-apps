@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/fsutils/mkfatfs/writefat.c
  *
- *   Copyright (C) 2008-2009, 2011, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011, 2017-2018 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -445,7 +446,11 @@ static inline int mkfatfs_writembr(FAR struct fat_format_s *fmt,
  * Name: mkfatfs_writefat
  *
  * Description:
- *   Write the FAT sectors
+ *   Write the FAT sectors.
+ *
+ *   NOTE:  The FAT FS created by this logic is an older style that includes
+ *   the FAT boot record in the master boot record (MBR) and does not support
+ *   a partition table.
  *
  * Input:
  *    fmt  - User specified format parameters
@@ -518,9 +523,11 @@ static inline int mkfatfs_writefat(FAR struct fat_format_s *fmt,
              {
                return ret;
              }
+
            offset++;
          }
      }
+
    return OK;
 }
 
@@ -563,8 +570,10 @@ static inline int mkfatfs_writerootdir(FAR struct fat_format_s *fmt,
         {
           return ret;
         }
+
       offset++;
     }
+
   return 0;
 }
 
@@ -610,6 +619,7 @@ int mkfatfs_writefatfs(FAR struct fat_format_s *fmt,
     {
       ret = mkfatfs_writerootdir(fmt, var);
     }
+
   return ret;
 }
 
