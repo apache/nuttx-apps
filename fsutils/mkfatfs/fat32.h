@@ -166,6 +166,58 @@
 #define PART_TYPE_EXTX      15  /* Same as 5, but uses LBA1 0x13 extensions */
 
 /****************************************************************************
+ * Fat Boot Record (FBR).
+ *
+ * The FBR is always the very first sector in the partition. Validity check
+ * is performed by comparing the 16 bit word at offset 1FE to AA55.  The
+ * structure of the FBR is shown below.
+ *
+ * NOTE that the fields of the FBR are equivalent to the MBR.
+ */
+
+#define FBR_OEMNAME          3 /*  8@3:  Usually "MSWIN4.1" */
+#define FBR_BYTESPERSEC     11 /*  2@11: Bytes per sector: 512, 1024, 2048, 4096  */
+#define FBR_SECPERCLUS      13 /*  1@13: Sectors per allocation unit: 2**n, n=0..7 */
+#define FBR_RESVDSECCOUNT   14 /*  2@14: Reserved sector count: Usually 32 */
+#define FBR_NUMFATS         16 /*  1@16: Number of FAT data structures: always 2 */
+#define FBR_ROOTENTCNT      17 /*  2@17: FAT12/16: Must be 0 for FAT32 */
+#define FBR_TOTSEC16        19 /*  2@19: FAT12/16: Must be 0, see FBR_TOTSEC32 */
+#define FBR_MEDIA           21 /*  1@21: Media code: f0, f8, f9-fa, fc-ff */
+#define FBR_FATSZ16         22 /*  2@22: FAT12/16: Must be 0, see FBR_FATSZ32 */
+#define FBR_SECPERTRK       24 /*  2@24: Sectors per track geometry value */
+#define FBR_NUMHEADS        26 /*  2@26: Number of heads geometry value */
+#define FBR_HIDSEC          28 /*  4@28: Count of hidden sectors preceding FAT */
+#define FBR_TOTSEC32        32 /*  4@32: Total count of sectors on the volume */
+#define FBR_FATSZ32         36 /*  4@36: Count of sectors occupied by one FAT (FAT32) */
+#define FBR_EXTFLAGS        40 /*  2@40: Ext Flags */
+#define FBR_FSVER           42 /*  2@42: FS Version */
+#define FBR_ROOTCLUS        44 /*  4@44: Cluster no. of 1st cluster of root dir */
+#define FBR_FSINFO          48 /*  2@48: FS Info Sector */
+#define FBR_BKBOOTSEC       50 /*  2@50: Sector number of boot record. Usually 6  */
+                               /*  52-301 Reserved */
+
+/* The following fields are only valid for FAT12/16 */
+
+#define FBR16_DRVNUM        36 /*  1@36: Drive number for MSDOS bootstrap */
+                               /*  1@37: Reserved (zero) */
+#define FBR16_BOOTSIG       38 /*  1@38: Extended boot signature: 0x29 if following valid */
+#define FBR16_VOLID         39 /*  4@39: Volume serial number */
+#define FBR16_VOLLAB        43 /* 11@43: Volume label */
+#define FBR16_FILESYSTYPE   54 /*  8@54: "FAT12  ", "FAT16  ", or "FAT    " */
+
+/* The following fields are only valid for FAT32 */
+
+#define FBR32_DRVNUM        64 /*  1@64: Drive number for MSDOS bootstrap */
+#define FBR32_BOOTSIG       65 /*  1@65: Extended boot signature: 0x29 if following valid */
+#define FBR32_VOLID         66 /*  4@66: Volume serial number */
+#define FBR32_VOLLAB        71 /* 11@71: Volume label */
+#define FBR32_FILESYSTYPE   82 /*  8@62: "FAT12  ", "FAT16  ", or "FAT    " */
+
+/* The magic bytes at the end of the MBR are common to FAT12/16/32 */
+
+#define FBR_SIGNATURE      510 /*  2@510: Valid MBRs have 0x55aa here */
+
+/****************************************************************************
  * Each FAT "short" 8.3 file name directory entry is 32-bytes long.
  *
  * Sizes and limits
@@ -400,6 +452,14 @@
 #define MBR_PUTBOOTSIG16(p,v)     UBYTE_PUT(p,MBR16_BOOTSIG,v)
 #define MBR_PUTBOOTSIG32(p,v)     UBYTE_PUT(p,MBR32_BOOTSIG,v)
 
+#define FBR_PUTSECPERCLUS(p,v)    UBYTE_PUT(p,FBR_SECPERCLUS,v)
+#define FBR_PUTNUMFATS(p,v)       UBYTE_PUT(p,FBR_NUMFATS,v)
+#define FBR_PUTMEDIA(p,v)         UBYTE_PUT(p,FBR_MEDIA,v)
+#define FBR_PUTDRVNUM16(p,v)      UBYTE_PUT(p,FBR16_DRVNUM,v)
+#define FBR_PUTDRVNUM32(p,v)      UBYTE_PUT(p,FBR32_DRVNUM,v)
+#define FBR_PUTBOOTSIG16(p,v)     UBYTE_PUT(p,FBR16_BOOTSIG,v)
+#define FBR_PUTBOOTSIG32(p,v)     UBYTE_PUT(p,FBR32_BOOTSIG,v)
+
 #define PART_PUTTYPE(n,p,v)       UBYTE_PUT(p,PART_ENTRY(n)+PART_TYPE,v)
 #define PART1_PUTTYPE(p,v)        UBYTE_PUT(p,PART_ENTRY1+PART_TYPE,v)
 #define PART2_PUTTYPE(p,v)        UBYTE_PUT(p,PART_ENTRY2+PART_TYPE,v)
@@ -429,6 +489,12 @@
 #define MBR_PUTTOTSEC16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,MBR_TOTSEC16),v)
 #define MBR_PUTVOLID16(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,MBR16_VOLID),v)
 #define MBR_PUTVOLID32(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,MBR32_VOLID),v)
+
+#define FBR_PUTBYTESPERSEC(p,v)    fat_putuint16(UBYTE_PTR(p,FBR_BYTESPERSEC),v)
+#define FBR_PUTROOTENTCNT(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_ROOTENTCNT),v)
+#define FBR_PUTTOTSEC16(p,v)       fat_putuint16(UBYTE_PTR(p,FBR_TOTSEC16),v)
+#define FBR_PUTVOLID16(p,v)        fat_putuint32(UBYTE_PTR(p,FBR16_VOLID),v)
+#define FBR_PUTVOLID32(p,v)        fat_putuint32(UBYTE_PTR(p,FBR32_VOLID),v)
 
 #define PART_PUTSTARTSECTOR(n,p,v) FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY(n)+PART_STARTSECTOR),v)
 #define PART_PUTSIZE(n,p,v)        FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY(n)+PART_SIZE),v)
@@ -471,6 +537,20 @@
 # define MBR_PUTFSINFO(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,MBR32_FSINFO),v)
 # define MBR_PUTBKBOOTSEC(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR32_BKBOOTSEC),v)
 # define MBR_PUTSIGNATURE(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR_SIGNATURE),v)
+
+# define FBR_PUTRESVDSECCOUNT(p,v) fat_putuint16(UBYTE_PTR(p,FBR_RESVDSECCOUNT),v)
+# define FBR_PUTFATSZ16(p,v)       fat_putuint16(UBYTE_PTR(p,FBR_FATSZ16),v)
+# define FBR_PUTSECPERTRK(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SECPERTRK),v)
+# define FBR_PUTNUMHEADS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_NUMHEADS),v)
+# define FBR_PUTHIDSEC(p,v)        fat_putuint32(UBYTE_PTR(p,FBR_HIDSEC),v)
+# define FBR_PUTTOTSEC32(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_TOTSEC32),v)
+# define FBR_PUTFATSZ32(p,v)       fat_putuint32(UBYTE_PTR(p,FBR_FATSZ32),v)
+# define FBR_PUTEXTFLAGS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_EXTFLAGS),v)
+# define FBR_PUTFSVER(p,v)         fat_putuint16(UBYTE_PTR(p,FBR_FSVER),v)
+# define FBR_PUTROOTCLUS(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_ROOTCLUS),v)
+# define FBR_PUTFSINFO(p,v)        fat_putuint16(UBYTE_PTR(p,FBR_FSINFO),v)
+# define FBR_PUTBKBOOTSEC(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_BKBOOTSEC),v)
+# define FBR_PUTSIGNATURE(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SIGNATURE),v)
 
 # define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
 # define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
@@ -515,7 +595,7 @@
 #else
 
 /* But nothing special has to be done for the little endian-case for access
- * to aligned mulitbyte values.
+ * to aligned multibyte values.
  */
 
 # define MBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,MBR_RESVDSECCOUNT,v)
@@ -531,6 +611,20 @@
 # define MBR_PUTFSINFO(p,v)        UINT16_PUT(p,MBR32_FSINFO,v)
 # define MBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,MBR32_BKBOOTSEC,v)
 # define MBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,MBR_SIGNATURE,v)
+
+# define FBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,FBR_RESVDSECCOUNT,v)
+# define FBR_PUTFATSZ16(p,v)       UINT16_PUT(p,FBR_FATSZ16,v)
+# define FBR_PUTSECPERTRK(p,v)     UINT16_PUT(p,FBR_SECPERTRK,v)
+# define FBR_PUTNUMHEADS(p,v)      UINT16_PUT(p,FBR_NUMHEADS,v)
+# define FBR_PUTHIDSEC(p,v)        UINT32_PUT(p,FBR_HIDSEC,v)
+# define FBR_PUTTOTSEC32(p,v)      UINT32_PUT(p,FBR_TOTSEC32,v)
+# define FBR_PUTFATSZ32(p,v)       UINT32_PUT(p,FBR_FATSZ32,v)
+# define FBR_PUTEXTFLAGS(p,v)      UINT16_PUT(p,FBR_EXTFLAGS,v)
+# define FBR_PUTFSVER(p,v)         UINT16_PUT(p,FBR_FSVER,v)
+# define FBR_PUTROOTCLUS(p,v)      UINT32_PUT(p,FBR_ROOTCLUS,v)
+# define FBR_PUTFSINFO(p,v)        UINT16_PUT(p,FBR_FSINFO,v)
+# define FBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,FBR_BKBOOTSEC,v)
+# define FBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,FBR_SIGNATURE,v)
 
 # define FSI_PUTLEADSIG(p,v)       UINT32_PUT(p,FSI_LEADSIG,v)
 # define FSI_PUTSTRUCTSIG(p,v)     UINT32_PUT(p,FSI_STRUCTSIG,v)
