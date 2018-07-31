@@ -67,7 +67,7 @@
 #include <dirent.h>
 #include <debug.h>
 
-
+#include <netutils/netlib.h>
 #include <nuttx/audio/audio.h>
 #include "system/nxplayer.h"
 
@@ -168,13 +168,12 @@ static const int g_known_ext_count = sizeof(g_known_ext) /
 
 static int _open_with_http(const char *fullurl)
 {
-  char relativeurl[32];
+  char relurl[32];
   char hostname[32];
   int  resp_chk = 0;
   char resp_msg[] = "\r\n\r\n";
   struct timeval tv;
-  int  a[4];
-  int  port;
+  uint16_t port = 80;
   char buf[64];
   int  s;
   int  n;
@@ -188,25 +187,17 @@ static int _open_with_http(const char *fullurl)
       return s;
     }
 
-  memset(relativeurl, 0, sizeof(relativeurl));
+  memset(relurl, 0, sizeof(relurl));
 
-#ifdef CONFIG_NET_IPv4
-  n = sscanf(fullurl, "http://%d.%d.%d.%d:%d/%s",
-             &a[0], &a[1], &a[2], &a[3], &port, relativeurl);
+  n = netlib_parsehttpurl(fullurl, &port,
+                          hostname, sizeof(hostname) - 1,
+                          relurl, sizeof(relurl) - 1);
 
-  if (6 != n)
+  if (OK != n)
     {
-      n = sscanf(fullurl, "http://%d.%d.%d.%d/%s",
-                 &a[0], &a[1], &a[2], &a[3], relativeurl);
-      ASSERT(n == 5);
-      port = 80;
+      printf("netlib_parsehttpurl() returned %d \n", n);
+      return n;
     }
-
-  snprintf(hostname, sizeof(hostname),
-           "%d.%d.%d.%d", a[0], a[1], a[2], a[3]);
-#else
-  #error "Only IPv4 is supported. "
-#endif
 
   s = socket(AF_INET, SOCK_STREAM, 0);
   ASSERT(s != -1);
@@ -241,7 +232,7 @@ static int _open_with_http(const char *fullurl)
 
   /* Send GET request */
 
-  snprintf(buf, sizeof(buf), "GET /%s HTTP/1.0\r\n\r\n", relativeurl);
+  snprintf(buf, sizeof(buf), "GET /%s HTTP/1.0\r\n\r\n", relurl);
   n = write(s, buf, strlen(buf));
 
   usleep(100 * 1000); /* TODO */
@@ -669,7 +660,6 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
         }
 
       apb->nbytes += ret;
-      usleep(10 * 1000);
     }
 #endif
 
