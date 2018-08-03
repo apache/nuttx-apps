@@ -156,7 +156,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           msg[0].frequency = i2ctool->freq;
           msg[0].addr      = addr;
-          msg[0].flags     = 0;
+          msg[0].flags     = I2C_M_NOSTOP;
           msg[0].buffer    = &regaddr;
           msg[0].length    = 1;
 

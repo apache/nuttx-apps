@@ -211,13 +211,14 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
 
   msg[0].frequency = i2ctool->freq;
   msg[0].addr      = i2ctool->addr;
-  msg[0].flags     = 0;
+  msg[0].flags     = I2C_M_NOSTOP;
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
   msg[1].frequency = i2ctool->freq;
   msg[1].addr      = i2ctool->addr;
   msg[1].flags     = 0;
+
   if (i2ctool->width == 8)
     {
       u.data8       = (uint8_t)value;
@@ -241,7 +242,7 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
     }
   else
     {
-      msg[1].flags |= I2C_M_NORESTART;
+      msg[1].flags |= I2C_M_NOSTART;
       ret = i2cdev_transfer(fd, msg, 2);
     }
 
