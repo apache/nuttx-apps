@@ -49,6 +49,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/socket.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
