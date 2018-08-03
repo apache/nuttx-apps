@@ -48,7 +48,12 @@ PROGNAME = $(CONFIG_EXAMPLES_HELLOXX_PROGNAME)
 # helloxx built-in application info
 
 APPNAME = helloxx
+
+ifeq ($(CONFIG_EXAMPLES_HELLOXX),m)
+LOADABLE  = y
+else
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+endif
 
 include $(APPDIR)/Application.mk

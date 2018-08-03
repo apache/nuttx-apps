@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_HELLOXX
-	bool "\"Hello, World!\" C++ example"
+	tristate "\"Hello, World!\" C++ example"
 	default n
 	depends on HAVE_CXX
 	---help---

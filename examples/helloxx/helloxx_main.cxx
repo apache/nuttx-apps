@@ -127,7 +127,7 @@ static CHelloWorld g_HelloWorld;
 
 extern "C"
 {
-#ifdef CONFIG_BUILD_KERNEL
+#if defined (CONFIG_BUILD_KERNEL) || defined (LOADABLE_APP)
   int main(int argc, FAR char *argv[])
 #else
   int helloxx_main(int argc, char *argv[])

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_HELLO
-	bool "\"Hello, World!\" example"
+	tristate "\"Hello, World!\" example"
 	default n
 	---help---
 		Enable the \"Hello, World!\" example

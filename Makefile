@@ -73,6 +73,11 @@ BIN_DIR = $(APPDIR)$(DELIM)bin
 
 BIN = libapps$(LIBEXT)
 
+# Symbol table for loadable apps.
+
+SYMTABSRC = $(APPDIR)$(DELIM)symtab_apps.c
+SYMTABOBJ = $(APPDIR)$(DELIM)symtab_apps.o
+
 # Build targets
 
 all: $(BIN)
@@ -97,7 +102,15 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+make_symbols:
+ifeq ($(CONFIG_EXAMPLES_NSH_SYMTAB),y)
+	mkdir -p $(BIN_DIR)
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BIN_DIR) $(SYMTABSRC)
+	$(call COMPILE, $(SYMTABSRC), $(SYMTABOBJ))
+	$(call ARCHIVE, $(APPDIR)$(DELIM)$(BIN), $(SYMTABOBJ))
+endif
+
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all) make_symbols
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
@@ -143,6 +156,7 @@ clean_context:
 	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
+	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
@@ -164,6 +178,7 @@ else
 	)
 endif
 	$(call DELFILE, .depend)
+	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))

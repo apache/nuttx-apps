@@ -56,6 +56,33 @@ define REGISTER
 endef
 endif
 
+# COMPILE - a macro to compile a loadable app in C
+
+ifeq ($(LOADABLE),y)
+define COMPILE
+	@echo "CC) $1"
+	$(Q) $(CC) -c $(CELFFLAGS) -DLOADABLE_APP $1 -o $2
+endef
+endif
+
+# COMPILEXX - a macro to compile a loadable app in C++
+
+ifeq ($(LOADABLE),y)
+define COMPILEXX
+	@echo "CXX: $1"
+	$(Q) $(CXX) -c $(CXXELFFLAGS) -DLOADABLE_APP $1 -o $2
+endef
+endif
+
+# ELFLD - a macro to link loadable app
+# Example: $(call ELFLD, entry point, in-file(s), out-file)
+
+define ELFLD
+	@echo "LD: $3"
+	$(Q) $(LD) $(LDELFFLAGS) $2 -o $3
+	$(Q) chmod +x $3
+endef
+
 # Tools
 #
 # In a normal build, tools will reside in the nuttx/tools sub-directory and

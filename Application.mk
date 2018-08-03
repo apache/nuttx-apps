@@ -89,9 +89,16 @@ $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 
+ifeq ($(LOADABLE),y)
+.built: $(OBJS)
+	$(call ELFLD, $(APPNAME)_main, $(OBJS), $(APPNAME))
+	$(Q) mkdir -p $(BIN_DIR)
+	$(Q) install $(APPNAME) $(BIN_DIR)$(DELIM)$(APPNAME)
+else
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch $@
+endif
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
