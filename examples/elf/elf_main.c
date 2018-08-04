@@ -41,6 +41,7 @@
 #include <nuttx/compiler.h>
 
 #include <sys/mount.h>
+#include <sys/stat.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -242,6 +243,9 @@ int main(int argc, FAR char *argv[])
 int elf_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_EXAMPLES_ELF_FSREMOVEABLE
+  struct stat buf;
+#endif
   FAR char *args[1];
   int ret;
   int i;
@@ -305,6 +309,41 @@ int elf_main(int argc, char *argv[])
       errmsg("ERROR: mount(%s, cromfs) failed: %d\n", MOUNTPT, errno);
     }
 #elif defined(CONFIG_EXAMPLES_ELF_EXTERN)
+  /* An external file system is being used */
+
+#if defined(CONFIG_EXAMPLES_ELF_FSMOUNT)
+#if defined(CONFIG_EXAMPLES_ELF_FSREMOVEABLE)
+  /* The file system is removable, wait until the block driver is available */
+
+  do
+    {
+      ret = stat(CONFIG_EXAMPLES_ELF_DEVPATH, &buf);
+      if (ret < 0)
+        {
+          int errcode = errno;
+          if (errcode == ENOENT)
+            {
+              printf("%s does not exist.  Waiting...\n",
+                     CONFIG_EXAMPLES_ELF_DEVPATH);
+              sleep(1);
+            }
+          else
+            {
+              printf("ERROR: stat(%s) failed: %d  Aborting...\n",
+                     CONFIG_EXAMPLES_ELF_DEVPATH, errcode);
+              exit(EXIT_FAILURE);
+            }
+        }
+      else if (!S_ISBLK(buf.st_mode))
+        {
+          printf("ERROR: stat(%s) exists but is not a block driver: %04x\n",
+                 CONFIG_EXAMPLES_ELF_DEVPATH, buf.st_mode);
+          exit(EXIT_FAILURE);
+        }
+    }
+  while (ret < 0);
+#endif
+
   /* Mount the external file system */
 
   message("Mounting %s filesystem at target=%s\n",
@@ -318,6 +357,7 @@ int elf_main(int argc, char *argv[])
              CONFIG_EXAMPLES_ELF_DEVPATH, CONFIG_EXAMPLES_ELF_FSTYPE,
              MOUNTPT, errno);
     }
+#endif
 #else
 #  Warning "No file system selected"
 #endif

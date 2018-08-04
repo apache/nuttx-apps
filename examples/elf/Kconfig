@@ -32,6 +32,16 @@ config EXAMPLES_ELF_EXTERN
 
 endchoice # ROM File System
 
+config EXAMPLES_ELF_FSMOUNT
+	bool "Mount external file system"
+	default y
+	depends on EXAMPLES_ELF_EXTERN
+
+config EXAMPLES_ELF_FSREMOVEABLE
+	bool "Removable file system"
+	default n
+	depends on EXAMPLES_ELF_FSMOUNT
+
 config EXAMPLES_ELF_DEVMINOR
 	int "ROMFS Minor Device Number"
 	default 0
@@ -45,7 +55,7 @@ config EXAMPLES_ELF_DEVMINOR
 config EXAMPLES_ELF_FSTYPE
 	string "External file system type"
 	default "vfat"
-	depends on EXAMPLES_ELF_EXTERN
+	depends on EXAMPLES_ELF_FSMOUNT
 	---help---
 		The minor device number of the ROMFS block. For example, the N in
 		/dev/ramN.  Used for registering the RAM block driver that will hold
@@ -55,8 +65,8 @@ config EXAMPLES_ELF_FSTYPE
 config EXAMPLES_ELF_DEVPATH
 	string "Block driver device path"
 	default "/dev/ram0" if EXAMPLES_ELF_ROMFS
-	default "/dev/mmcsd0" if EXAMPLES_ELF_EXTERN
-	depends on EXAMPLES_ELF_ROMFS || EXAMPLES_ELF_EXTERN
+	default "/dev/mmcsd0" if EXAMPLES_ELF_FSMOUNT
+	depends on EXAMPLES_ELF_ROMFS || EXAMPLES_ELF_FSMOUNT
 	---help---
 		The path to the ROMFS/External block driver device.  This must match
 		EXAMPLES_ELF_DEVMINOR for the case of ROMFS.  Used for mounting the
