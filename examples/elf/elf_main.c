@@ -60,7 +60,7 @@
 #  include "tests/romfs.h"
 #elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
 #  include "tests/cromfs.h"
-#else
+#elif !defined(CONFIG_EXAMPLES_ELF_EXTERN)
 #  error "No file system selected"
 #endif
 
@@ -86,16 +86,11 @@
 #  error "You must select CONFIG_ELF in your configuration file"
 #endif
 
-#if !defined(CONFIG_FS_ROMFS) && !defined(CONFIG_FS_CROMFS)
-#  error "You must select CONFIG_FS_ROMFS or CONFIG_FS_CROMFS in your configuration file"
-#endif
-
 #ifdef CONFIG_DISABLE_MOUNTPOINT
 #  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #endif
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
-
 /* Describe the ROMFS file system */
 
 #  define SECTORSIZE   512
@@ -110,10 +105,16 @@
 #    define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
 #  endif
 
+#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
 /* Describe the CROMFS file system */
 
-#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
 #  define MOUNTPT      "/mnt/cromfs"
+
+#elif defined(CONFIG_EXAMPLES_ELF_EXTERN)
+/* Describe the external file system */
+
+#  define MOUNTPT      "/mnt/" CONFIG_EXAMPLES_ELF_FSTYPE
+
 #else
 #  error "No file system selected"
 #endif
@@ -256,6 +257,15 @@ int elf_main(int argc, char *argv[])
   mm_initmonitor();
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
+#if defined(CONFIG_BUILD_FLAT)
+  /* This example violates the portable POSIX interface by calling the OS
+   * internal function romdisk_register() (aka ramdisk_register()).  We can
+   * squeak by in with this violation in the FLAT build mode, but not in
+   * other build modes.  In other build modes, the following logic must be
+   * performed in the OS board initialization logic (where it really belongs
+   * anyway).
+   */
+
   /* Create a ROM disk for the ROMFS filesystem */
 
   message("Registering romdisk at /dev/ram%d\n",
@@ -270,6 +280,7 @@ int elf_main(int argc, char *argv[])
     }
 
   mm_update(&g_mmstep, "after romdisk_register");
+#endif
 
   /* Mount the ROMFS file system */
 
@@ -291,10 +302,24 @@ int elf_main(int argc, char *argv[])
   ret = mount(NULL, MOUNTPT, "cromfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s,cromfs) failed: %s\n", MOUNTPT, errno);
+      errmsg("ERROR: mount(%s, cromfs) failed: %d\n", MOUNTPT, errno);
+    }
+#elif defined(CONFIG_EXAMPLES_ELF_EXTERN)
+  /* Mount the external file system */
+
+  message("Mounting %s filesystem at target=%s\n",
+          CONFIG_EXAMPLES_ELF_FSTYPE, MOUNTPT);
+
+  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT,
+              CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
+  if (ret < 0)
+    {
+      errmsg("ERROR: mount(%s, %s, %s) failed: %d\n",\
+             CONFIG_EXAMPLES_ELF_DEVPATH, CONFIG_EXAMPLES_ELF_FSTYPE,
+             MOUNTPT, errno);
     }
 #else
-#  error "No file system selected"
+#  Warning "No file system selected"
 #endif
 
   mm_update(&g_mmstep, "after mount");

@@ -7,46 +7,61 @@ config EXAMPLES_ELF
 	bool "ELF Loader Example"
 	default n
 	select LIBC_EXECFUNCS
-	depends on ELF && (FS_ROMFS || FS_CROMFS) && !BUILD_KERNEL
+	depends on ELF
 	---help---
 		Enable the ELF loader example
 
 if EXAMPLES_ELF
 
 choice
-	prompt "ROM File System"
-	default EXAMPLES_ELF_ROMFS if FS_ROMFS
-	default EXAMPLES_ELF_CROMFS if !FS_ROMFS && FS_CROMFS
+	prompt "ELF File System"
+	default EXAMPLES_ELF_ROMFS  if   FS_ROMFS && BUILD_FLAT
+	default EXAMPLES_ELF_CROMFS if  !FS_ROMFS && FS_CROMFS && BUILD_FLAT
+	default EXAMPLES_ELF_EXTERN if (!FS_ROMFS && !FS_CROMFS) || !BUILD_FLAT
 
 config EXAMPLES_ELF_ROMFS
 	bool "ROMFS"
-	depends on FS_ROMFS
+	depends on FS_ROMFS && BUILD_FLAT
 
 config EXAMPLES_ELF_CROMFS
 	bool "CROMFS"
-	depends on FS_CROMFS
+	depends on FS_CROMFS && BUILD_FLAT
+
+config EXAMPLES_ELF_EXTERN
+	bool "External File system"
 
 endchoice # ROM File System
-
-if EXAMPLES_ELF_ROMFS
 
 config EXAMPLES_ELF_DEVMINOR
 	int "ROMFS Minor Device Number"
 	default 0
+	depends on EXAMPLES_ELF_ROMFS
 	---help---
-		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the ELF executables to be tested.  Default: 0
+		The minor device number of the ROMFS block. For example, the N in
+		/dev/ramN.  Used for registering the RAM block driver that will hold
+		the ROMFS file system containing the ELF executables to be tested.
+		Default: 0
+
+config EXAMPLES_ELF_FSTYPE
+	string "External file system type"
+	default "vfat"
+	depends on EXAMPLES_ELF_EXTERN
+	---help---
+		The minor device number of the ROMFS block. For example, the N in
+		/dev/ramN.  Used for registering the RAM block driver that will hold
+		the ROMFS file system containing the ELF executables to be tested.
+		Default: 0
 
 config EXAMPLES_ELF_DEVPATH
-	string "ROMFS Device Path"
-	default "/dev/ram0"
+	string "Block driver device path"
+	default "/dev/ram0" if EXAMPLES_ELF_ROMFS
+	default "/dev/mmcsd0" if EXAMPLES_ELF_EXTERN
+	depends on EXAMPLES_ELF_ROMFS || EXAMPLES_ELF_EXTERN
 	---help---
-		The path to the ROMFS block driver device.  This must match EXAMPLES_ELF_DEVMINOR.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the ELF executables to be tested.  Default: "/dev/ram0"
-
-endif # EXAMPLES_ELF_ROMFS
+		The path to the ROMFS/External block driver device.  This must match
+		EXAMPLES_ELF_DEVMINOR for the case of ROMFS.  Used for mounting the
+		file system containing the ELF executables to be tested.  Default:
+		"/dev/ram0" for ROMFS, "/dev/mmcsd0" for the external file system.
 
 config EXAMPLES_ELF_NOSTRIP
 	bool "Do not strip debug symbols"
