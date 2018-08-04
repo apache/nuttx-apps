@@ -22,13 +22,27 @@ choice
 config EXAMPLES_ELF_ROMFS
 	bool "ROMFS"
 	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		Automatically generates and mounts an internal ROMFS file
+		system
 
 config EXAMPLES_ELF_CROMFS
 	bool "CROMFS"
 	depends on FS_CROMFS && BUILD_FLAT
+        ---help---
+		Automatically generates and mounts an internal CROMFS file
+		system
 
 config EXAMPLES_ELF_EXTERN
 	bool "External File system"
+	---help---
+		The file system is assumed to reside on some external media
+		such as an SD card or a USB FLASH drive.  In this case, that
+		external file system must be created manually by copying the
+		files in apps/examples/elf/tests/romfs to the volume.
+
+		The external volume can optionally be mounted by the test if
+		the CONFIG_EXAMPLES_FSMOUNT option is also selected.
 
 endchoice # ROM File System
 
@@ -36,11 +50,20 @@ config EXAMPLES_ELF_FSMOUNT
 	bool "Mount external file system"
 	default y
 	depends on EXAMPLES_ELF_EXTERN
+	---help---
+		Autmatically mount the external file system using the block
+		device provided by CONFIG_EXAMPLES_DEVPATH and the file
+		system type specified by CONFIG_EXAMPLES_ELF_FSTYPE.
 
 config EXAMPLES_ELF_FSREMOVEABLE
 	bool "Removable file system"
 	default n
 	depends on EXAMPLES_ELF_FSMOUNT
+	---help---
+		If the external file system is on removable media such as an
+		SD card or a USB FLASH driver, then this option may be selected
+		to build in logic to way for the media to be installed and
+		initialized before trying to open it.
 
 config EXAMPLES_ELF_DEVMINOR
 	int "ROMFS Minor Device Number"
@@ -57,10 +80,8 @@ config EXAMPLES_ELF_FSTYPE
 	default "vfat"
 	depends on EXAMPLES_ELF_FSMOUNT
 	---help---
-		The minor device number of the ROMFS block. For example, the N in
-		/dev/ramN.  Used for registering the RAM block driver that will hold
-		the ROMFS file system containing the ELF executables to be tested.
-		Default: 0
+		The type of the external file system as will be used in the mount()
+		command.  Default: "vfat"
 
 config EXAMPLES_ELF_DEVPATH
 	string "Block driver device path"
