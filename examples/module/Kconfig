@@ -16,7 +16,7 @@ if EXAMPLES_MODULE
 config EXAMPLES_MODULE_BUILTINFS
 	bool "Built-in File System"
 	default y
-	depends on FS_ROMFS && BUILD_FLAT
+	depends on (FS_ROMFS || FS_CROMFS) && BUILD_FLAT
 	---help---
 		This example supports a very, non-standard but also very convenient
 		way of testing with example using CONFIG_EXAMPLES_MODULE_BUILTINFS.
@@ -29,16 +29,39 @@ config EXAMPLES_MODULE_BUILTINFS
 
 		If this option is not selected, then the modules will be left in
 		the fsroot/ directory.  You can then copy them to, say an SD card,
-		for testing on the target.
+		for testing on the target.  That file system will need to be mounted
+		such that CONFIG_EXAMPLES_MODULE_BINDIR refers to the directory
+		containing the module binaries.
 
 		NOTE: This option can only be used in the FLAT build mode because
 		it makes an illegal OS call to ramdisk_register().
 
-if EXAMPLES_MODULE_BUILTINFS
+choice
+	prompt "Built-in file system type"
+	default EXAMPLES_MODULE_ROMFS  if  FS_ROMFS
+	default EXAMPLES_MODULE_CROMFS if !FS_ROMFS && FS_CROMFS
+	depends on EXAMPLES_MODULE_BUILTINFS
+
+config EXAMPLES_MODULE_ROMFS
+	bool "ROMFS"
+	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		 Automatically generates and mounts an internal ROMFS file
+		 system
+
+config EXAMPLES_MODULE_CROMFS
+	bool "CROMFS"
+	depends on FS_CROMFS && BUILD_FLAT
+	 ---help---
+		 Automatically generates and mounts an internal CROMFS file
+		 system
+
+endchoice # Built-in file system type
 
 config EXAMPLES_MODULE_DEVMINOR
 	int "ROMFS Minor Device Number"
 	default 0
+	depends on EXAMPLES_MODULE_ROMFS
 	---help---
 		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
 		Used for registering the RAM block driver that will hold the ROMFS file system
@@ -47,23 +70,30 @@ config EXAMPLES_MODULE_DEVMINOR
 config EXAMPLES_MODULE_DEVPATH
 	string "ROMFS Device Path"
 	default "/dev/ram0"
+	depends on EXAMPLES_MODULE_ROMFS
 	---help---
 		The path to the ROMFS block driver device.  This must match EXAMPLES_MODULE_DEVMINOR.
 		Used for registering the RAM block driver that will hold the ROMFS file system
 		containing the MODULE executables to be tested.  Default: "/dev/ram0"
 
-endif # EXAMPLES_MODULE_BUILTINFS
-
-if !EXAMPLES_MODULE_BUILTINFS
-
 config EXAMPLES_MODULE_BINDIR
 	string "Path to Test Modules"
 	default "/mnt/sdcard"
+	depends on !EXAMPLES_MODULE_BUILTINFS
 	---help---
 		The path to the directory on the mounted volume where the test
 		modules can found at runtime.
 
-endif # !EXAMPLES_MODULE_BUILTINFS
+config EXAMPLES_MODULE_NOSTRIP
+	bool "Do not strip debug symbols"
+	default n
+	depends on DEBUG_SYMBOLS
+	---help---
+		 By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
+		 ELF executables will also retain debug symbols in the resulting ELF binaries.
+		 Select this option if you do not want that behavior, this option will permit
+		 debug symbols in the base code but will strip debug symbols out of the ELF
+		 binaries for a smaller ROM file system image.
 
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
@@ -73,8 +103,8 @@ config EXAMPLES_MODULE_LIBC
 		Link with the C library (and also math library if it was built).
 		By default, all undefined symbols must be provided via a symbol
 		table.  But if this option is selected, then each MODULE test program
-		will link with the SYSCALL library and will interface with the OS
-		system calls.  You probably will NOT want this option, however,
+		will link with the C library and will not require symbol table
+		entries.  You probably will NOT want this option, however,
 		because it will substantially increase the size of code.  For
 		example, a separate copy of printf() would be linked with every
 		program greatly increasing the total code size.  This option is

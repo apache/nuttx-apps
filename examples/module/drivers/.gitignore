@@ -1,5 +1,6 @@
 /fsroot
 /romfs.h
+/cromfs.h
 /romfs.img
 /mod_symtab.c
 
