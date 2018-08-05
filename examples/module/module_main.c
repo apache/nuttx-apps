@@ -80,7 +80,7 @@
 #endif
 
 #if defined(CONFIG_EXAMPLES_MODULE_BUILTINFS)
-#  if !defined(CONFIG_FS_ROMFS) || !defined(CONFIG_FS_CROMFS)
+#  if !defined(CONFIG_FS_ROMFS) && !defined(CONFIG_FS_CROMFS)
 #    error "You must select CONFIG_FS_ROMFS or CONFIG_FS_CROMFS in your configuration file"
 #  endif
 
@@ -88,9 +88,9 @@
 #    error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #  endif
 
-  /* Describe the ROMFS file system */
+#  if defined(CONFIG_EXAMPLES_MODULE_ROMFS)
+/* Describe the ROMFS file system */
 
-#  if defined(CONFIG_EXAMPLES_MODULE_CROMFS)
 #    define SECTORSIZE   64
 #    define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
 #    define MOUNTPT      "/mnt/romfs"
@@ -102,6 +102,7 @@
 #    ifndef CONFIG_EXAMPLES_MODULE_DEVPATH
 #      define CONFIG_EXAMPLES_MODULE_DEVPATH "/dev/ram0"
 #    endif
+
 #  elif defined(CONFIG_EXAMPLES_MODULE_CROMFS)
 /* Describe the CROMFS file system */
 
@@ -111,10 +112,14 @@
 #  define BINDIR         MOUNTPT
 
 #elif defined(CONFIG_EXAMPLES_MODULE_FSMOUNT)
+/* Describe how to auto-mount the external file system */
+
 #  define MOUNTPT        "/mnt/" CONFIG_EXAMPLES_MODULE_FSTYPE
 #  define BINDIR         MOUNTPT
 
 #else
+/* Describe how to use the pre-mounted external file system */
+
 #  define BINDIR         CONFIG_EXAMPLES_MODULE_BINDIR
 
 #endif /* CONFIG_EXAMPLES_MODULE_BUILTINFS */
@@ -275,7 +280,7 @@ int module_main(int argc, char *argv[])
              MOUNTPT, errno);
     }
 
-#endif
+#endif /* CONFIG_EXAMPLES_MODULE_FSMOUNT */
 #endif /* CONFIG_EXAMPLES_MODULE_BUILTINFS */
 
   /* Install the character driver  */
@@ -284,7 +289,8 @@ int module_main(int argc, char *argv[])
   if (handle == NULL)
     {
       int errcode = errno;
-      fprintf(stderr, "ERROR: insmod failed: %d\n", errcode);
+      fprintf(stderr, "ERROR: insmod(%s/chardev, chardev) failed: %d\n",
+              BINDIR, errcode);
       exit(EXIT_FAILURE);
     }
 

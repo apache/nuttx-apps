@@ -32,7 +32,7 @@ config EXAMPLES_MODULE_BUILTINFS
 		for testing on the target.  That file system will need to be mounted
 		such that CONFIG_EXAMPLES_MODULE_BINDIR refers to the directory
 		containing the module binaries (unless the file system is auto-
-		automounted)
+		mounted)
 
 		NOTE: This option can only be used in the FLAT build mode because
 		it makes an illegal OS call to ramdisk_register().
