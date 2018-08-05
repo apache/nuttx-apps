@@ -31,7 +31,8 @@ config EXAMPLES_MODULE_BUILTINFS
 		the fsroot/ directory.  You can then copy them to, say an SD card,
 		for testing on the target.  That file system will need to be mounted
 		such that CONFIG_EXAMPLES_MODULE_BINDIR refers to the directory
-		containing the module binaries.
+		containing the module binaries (unless the file system is auto-
+		automounted)
 
 		NOTE: This option can only be used in the FLAT build mode because
 		it makes an illegal OS call to ramdisk_register().
@@ -67,22 +68,51 @@ config EXAMPLES_MODULE_DEVMINOR
 		Used for registering the RAM block driver that will hold the ROMFS file system
 		containing the MODULE executables to be tested.  Default: 0
 
-config EXAMPLES_MODULE_DEVPATH
-	string "ROMFS Device Path"
-	default "/dev/ram0"
-	depends on EXAMPLES_MODULE_ROMFS
-	---help---
-		The path to the ROMFS block driver device.  This must match EXAMPLES_MODULE_DEVMINOR.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the MODULE executables to be tested.  Default: "/dev/ram0"
-
-config EXAMPLES_MODULE_BINDIR
-	string "Path to Test Modules"
-	default "/mnt/sdcard"
+config EXAMPLES_MODULE_FSMOUNT
+	bool "Mount external file system"
+	default y
 	depends on !EXAMPLES_MODULE_BUILTINFS
 	---help---
-		The path to the directory on the mounted volume where the test
-		modules can found at runtime.
+		Automatically mount the external file system using the block
+		device provided by CONFIG_EXAMPLES_MODULE_DEVPATH and the file
+		system type specified by CONFIG_EXAMPLES_MODULE_FSTYPE.
+
+config EXAMPLES_MODULE_FSREMOVEABLE
+	bool "Removable file system"
+	default n
+	depends on EXAMPLES_MODULE_FSMOUNT
+	---help---
+		If the external file system is on removable media such as an
+		SD card or a USB FLASH driver, then this option may be selected
+		to build in logic to wait for the media to be installed and
+		initialized before trying to mount it.
+
+config EXAMPLES_MODULE_FSTYPE
+	string "External file system type"
+	default "vfat"
+	depends on EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The type of the external file system as will be used in the mount()
+		command.  Default: "vfat"
+
+config EXAMPLES_MODULE_DEVPATH
+	string "Block driver device path"
+	default "/dev/ram0" if EXAMPLES_MODULE_ROMFS
+	default "/dev/mmcsd0" if EXAMPLES_MODULE_FSMOUNT
+	depends on EXAMPLES_MODULE_ROMFS || EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The path to the ROMFS/External block driver device.  This must match
+		EXAMPLES_MODULE_DEVMINOR for the case of ROMFS.  Used for mounting the
+		file system containing the ELF executables to be tested.  Default:
+		"/dev/ram0" for ROMFS, "/dev/mmcsd0" for the external file system.
+
+config EXAMPLES_MODULE_BINDIR
+	string "Path to binaries"
+	default "/mnt/moddata"
+	depends on !EXAMPLES_MODULE_BUILTINFS && !EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The full, absolte path to the location for the binaries can be
+		located in a pre-mounted external file system.
 
 config EXAMPLES_MODULE_NOSTRIP
 	bool "Do not strip debug symbols"

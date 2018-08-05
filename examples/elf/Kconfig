@@ -51,8 +51,8 @@ config EXAMPLES_ELF_FSMOUNT
 	default y
 	depends on EXAMPLES_ELF_EXTERN
 	---help---
-		Autmatically mount the external file system using the block
-		device provided by CONFIG_EXAMPLES_DEVPATH and the file
+		Automatically mount the external file system using the block
+		device provided by CONFIG_EXAMPLES_ELF_DEVPATH and the file
 		system type specified by CONFIG_EXAMPLES_ELF_FSTYPE.
 
 config EXAMPLES_ELF_FSREMOVEABLE
@@ -62,8 +62,8 @@ config EXAMPLES_ELF_FSREMOVEABLE
 	---help---
 		If the external file system is on removable media such as an
 		SD card or a USB FLASH driver, then this option may be selected
-		to build in logic to way for the media to be installed and
-		initialized before trying to open it.
+		to build in logic to wait for the media to be installed and
+		initialized before trying to mount it.
 
 config EXAMPLES_ELF_DEVMINOR
 	int "ROMFS Minor Device Number"
