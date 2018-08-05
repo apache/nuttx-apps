@@ -21,6 +21,50 @@ menuconfig SYSTEM_CLE
 
 if SYSTEM_CLE
 
+config SYSTEM_CLE_CMD_HISTORY
+	bool "Command line history"
+	default n
+	---help---
+		Build in support for Unix-style command history using up and down
+		arrow keys.  This feature was originally provided by Nghia Ho.
+
+		NOTE: Command line history is kept in an in-memory array and is
+		shared.  In the FLAT or PROTECTED builds, this history is shared by
+		all threads; in the KERNEL build, the command line history is shared
+		by all threads in the process.  This means that in a FLAT build, for
+		example, a built-in application started from NSH will have the same
+		history as does NSH if it also uses the CLE.  This also means
+		that different NSH sessions on serial, USB, or Telnet will also
+		share the same history array.
+
+		In a KERNEL build, each process will have a separately allocated
+		history array so the issue is lessened.  History would still be
+		shared amount pthreads within the same process, however.
+
+if SYSTEM_CLE_CMD_HISTORY
+
+config SYSTEM_CLE_CMD_HISTORY_LINELEN
+	int "Command line history length"
+	default 64 if DEFAULT_SMALL
+	default 80 if !DEFAULT_SMALL
+	---help---
+		The maximum length of one command line in the in-memory array.  The
+		total memory usage for the command line array will be
+		SYSTEM_CLE_CMD_HISTORY_LINELEN x SYSTEM_CLE_CMD_HISTORY_LEN. Default:
+		64/80
+
+config SYSTEM_CLE_CMD_HISTORY_LEN
+	int "Command line history records"
+	default 4 if DEFAULT_SMALL
+	default 16 if !DEFAULT_SMALL
+	---help---
+		The number of lines of history that will be buffered in the in-
+		memory array.  The total memory usage for the command line array
+		will be SYSTEM_CLE_CMD_HISTORY_LINELEN x SYSTEM_CLE_CMD_HISTORY_LEN.
+		Default: 16
+
+endif # SYSTEM_CLE_CMD_HISTORY
+
 config SYSTEM_CLE_DEBUGLEVEL
 	int "Debug level"
 	default 0

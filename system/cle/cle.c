@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/cle/cle.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,30 @@
 #  endif
 #endif
 
+#ifdef CONFIG_SYSTEM_CLE_CMD_HISTORY
+/* Command history
+ *
+ *   g_cmd_history[][]             Circular buffer
+ *   g_cmd_history_head            Head of the circular buffer, most recent
+ *                                 command
+ *   g_cmd_history_steps_from_head Offset from head
+ *   g_cmd_history_len             Number of elements in the circular buffer
+ *
+ * REVISIT:  These globals will *not* work in an environment where there
+ * are multiple copies if the NSH shell!  Use of global variables is not
+ * thread safe!  These settings should, at least, be semaphore protected so
+ * that the integrity of the data is assured, even though commands from
+ * different sessions may be intermixed.
+ */
+
+static char g_cmd_history[CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN]
+                         [CONFIG_SYSTEM_CLE_CMD_HISTORY_LINELEN];
+static int g_cmd_history_head            = -1;
+static int g_cmd_history_steps_from_head = 1;
+static int g_cmd_history_len             = 0;
+
+#endif /* CONFIG_SYSTEM_CLE_CMD_HISTORY */
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -148,8 +172,10 @@ enum cle_key_e
   KEY_RIGHT       = CTRL('F'),  /* Move right one character */
   KEY_DELLEFT     = CTRL('H'),  /* Delete character, left (backspace)  */
   KEY_DELEOL      = CTRL('K'),  /* Delete to the end of the line */
+  KEY_DN          = CTRL('N'),  /* Cursor down */
+  KEY_UP          = CTRL('P'),  /* Cursor up   */
   KEY_DELLINE     = CTRL('U'),  /* Delete the entire line */
-  KEY_QUOTE       = '\\',       /* The next character is quote (use literal value) */
+  KEY_QUOTE       = '\\'        /* The next character is quote (use literal value) */
 };
 
 /* This structure describes the overall state of the editor */
@@ -249,8 +275,6 @@ static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
 {
   ssize_t nwritten;
   uint16_t  nremaining = buflen;
-
-  //cleinfo("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
   /* Loop until all bytes have been successfully written (or until a
    * unrecoverable error is encountered)
@@ -749,13 +773,201 @@ static int cle_editloop(FAR struct cle_s *priv)
 
       /* Get the next character from the input */
 
+#if  1 /* Perhaps here should be a config switch */
+      /* Simple decode of some VT100/xterm codes: left/right, up/dn,
+       * home/end, del
+       */
+
+      {
+        char state = 0;
+
+        /* loop till we have a ch */
+
+        for (; ; )
+          {
+            ch = cle_getch(priv);
+            if (ch < 0)
+              {
+                return -EIO;
+              }
+            else if (state != 0)
+              {
+                if (state == (char)1)  /* Got ESC */
+                  {
+                    if (ch == '[' || ch == 'O')
+                      {
+                        state = ch;
+                      }
+                    else
+                      {
+                        break;  /* break the for loop */
+                      }
+                  }
+
+                else if (state == '[')
+                  {
+                    /* Got ESC[ */
+
+                    switch (ch)
+                      {
+                        case '3':    /* ESC[3~  = DEL */
+                          {
+                            state = ch;
+                          }
+                          continue;
+
+                        case 'A':
+                          {
+                            ch = KEY_UP;
+                          }
+                          break;
+
+                        case 'B':
+                          {
+                            ch = KEY_DN;
+                          }
+                          break;
+
+                        case 'C':
+                          {
+                            ch = KEY_RIGHT;
+                          }
+                          break;
+
+                        case 'D':
+                          {
+                            ch = KEY_LEFT;
+                          }
+                          break;
+
+                        case 'F':
+                          {
+                            ch = KEY_ENDLINE;
+                          }
+                          break;
+
+                        case 'H':
+                          {
+                            ch = KEY_BEGINLINE;
+                          }
+                          break;
+
+                        default:
+                          break;
+                      }
+                    break;  /* Break the 'for' loop */
+                  }
+                else if (state == 'O')
+                  {
+                    /* got ESCO */
+
+                    if (ch=='F')
+                      {
+                        ch = KEY_ENDLINE;
+                      }
+                    break; /* Break the 'for' loop */
+                 }
+                else if (state == '3')
+                  {
+                    if (ch == '~')
+                      {
+                        ch = KEY_DEL;
+                      }
+                    break; /* Break the 'for' loop */
+                  }
+                else
+                  {
+                    break; /* Break the 'for' loop */
+                  }
+              }
+            else if (ch == ASCII_ESC)
+              {
+                ++state;
+              }
+            else
+              {
+                break; /* Break the 'for' loop, use the char */
+              }
+          }
+      }
+
+#else
       ch = cle_getch(priv);
       if (ch < 0)
         {
           return -EIO;
         }
 
+#endif
+
       /* Then handle the character. */
+
+#ifdef CONFIG_SYSTEM_CLE_CMD_HISTORY
+      if (g_cmd_history_len > 0)
+        {
+          int i = 1;
+
+          switch (ch)
+            {
+              case KEY_UP:
+                /* Go to the past command in history */
+
+                g_cmd_history_steps_from_head--;
+
+                if (-g_cmd_history_steps_from_head >= g_cmd_history_len)
+                  {
+                    g_cmd_history_steps_from_head = -(g_cmd_history_len - 1);
+                  }
+                break;
+
+              case KEY_DN:
+                /* Go to the recent command in history */
+
+                g_cmd_history_steps_from_head++;
+
+                if (g_cmd_history_steps_from_head > 1)
+                  {
+                    g_cmd_history_steps_from_head = 1;
+                  }
+                break;
+
+              default:
+                i = 0;
+                break;
+            }
+
+          if (i != 0)
+            {
+              priv->nchars = 0;
+              priv->curpos = 0;
+
+              if (g_cmd_history_steps_from_head != 1)
+                {
+                  int idx = g_cmd_history_head +
+                            g_cmd_history_steps_from_head;
+
+                  /* Circular buffer wrap around */
+
+                  if (idx < 0)
+                    {
+                      idx = idx + CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN;
+                    }
+                  else if (idx >= CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN)
+                    {
+                      idx = idx - CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN;
+                    }
+
+                  for (i = 0; g_cmd_history[idx][i] != '\0'; i++)
+                    {
+                      cle_insertch(priv, g_cmd_history[idx][i]);
+                    }
+
+                  priv->curpos = priv->nchars;
+                }
+              continue;
+            }
+        }
+#endif /* CONFIG_SYSTEM_CLE_CMD_HISTORY */
 
       switch (ch)
         {
@@ -962,5 +1174,35 @@ int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream)
   /* Make sure that the line is NUL terminated */
 
   line[priv.nchars] = '\0';
+
+#ifdef CONFIG_SYSTEM_CLE_CMD_HISTORY
+  /* Save history of command, only if there was something typed besides
+   * return character.
+   */
+
+  if (priv.nchars > 1)
+    {
+      int i;
+
+      g_cmd_history_head =
+        (g_cmd_history_head + 1) % CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN;
+
+      for (i = 0;
+           (i < priv.nchars - 1) && i < (CONFIG_SYSTEM_CLE_CMD_HISTORY_LINELEN - 1);
+           i++)
+        {
+          g_cmd_history[g_cmd_history_head][i] = line[i];
+        }
+
+      g_cmd_history[g_cmd_history_head][i] = '\0';
+      g_cmd_history_steps_from_head        = 1;
+
+      if (g_cmd_history_len < CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN)
+        {
+          g_cmd_history_len++;
+        }
+    }
+#endif /* CONFIG_SYSTEM_CLE_CMD_HISTORY */
+
   return ret;
 }

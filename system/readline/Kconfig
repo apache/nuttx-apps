@@ -71,7 +71,8 @@ config READLINE_CMD_HISTORY
 		share the same history array.
 
 		In a KERNEL build, each process will have a separately allocated
-		history array so the issue is lessened.
+		history array so the issue is lessened.  History would still be
+		shared amount pthreads within the same process, however.
 
 if READLINE_CMD_HISTORY
 
@@ -82,7 +83,8 @@ config READLINE_CMD_HISTORY_LINELEN
 	---help---
 		The maximum length of one command line in the in-memory array.  The
 		total memory usage for the command line array will be
-		READLINE_CMD_HISTORY_LINELEN x READLINE_CMD_HISTORY_LEN. Default: 64/80
+		READLINE_CMD_HISTORY_LINELEN x READLINE_CMD_HISTORY_LEN. Default:
+		64/80
 
 config READLINE_CMD_HISTORY_LEN
 	int "Command line history records"
