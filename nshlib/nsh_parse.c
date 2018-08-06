@@ -1112,6 +1112,9 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                                FAR char **allocation)
 {
   FAR char *working = cmdline;
+#ifdef CONFIG_NSH_QUOTE
+  FAR char *nextwork;
+#endif
   FAR char *argument = NULL;
   FAR char *ptr;
   size_t len;
@@ -1122,10 +1125,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
     {
       /* Look for interesting things within the command string. */
 
-      len    = strcspn(working, g_arg_separator);
-      ptr    = working + len;
-
+      len      = strcspn(working, g_arg_separator);
+      ptr      = working + len;
 #ifdef CONFIG_NSH_QUOTE
+      nextwork = ptr + 1;
+
       /* But ignore these interesting things if they are quoted */
 
       while (len > 0 && *ptr != '\0')
@@ -1147,8 +1151,9 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
             {
               /* Yes.. skip over it */
 
-              len += strcspn(ptr + 1, g_arg_separator) + 1;
-              ptr  = working + len;
+              len     += strcspn(ptr + 1, g_arg_separator) + 1;
+              ptr      = working + len;
+              nextwork = ptr + 1;
             }
           else
             {
@@ -1297,7 +1302,12 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
             }
           else
             {
-              /* Set working to the NUL terminator at the end of the string */
+              /* Set working to the NUL terminator at the end of the string.
+               *
+               * REVISIT:  Needs logic to get the size of the variable name
+               * based on parsing the name string which must be of the form
+               * [a-zA-Z_]+[a-zA-Z0-9_]*
+               */
 
               working = ptr + strlen(ptr);
             }
@@ -1330,7 +1340,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
            * cmdline.
            */
 
+#ifdef CONFIG_NSH_QUOTE
+          working = nextwork;
+#else
           working++;
+#endif
         }
     }
 }
