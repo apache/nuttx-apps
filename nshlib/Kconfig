@@ -106,6 +106,17 @@ config NSH_DISABLE_SEMICOLON
 		command separated by a semicolon.  You can disable this feature to
 		save a little memory on FLASH challenged platforms.
 
+config NSH_QUOTE
+	bool "Enable back-slash quoting of characters"
+	default n if DEFAULT_SMALL || !NSH_ARGCAT
+	default y if !DEFAULT_SMALL && NSH_ARGCAT
+	---help---
+		Force special characters like back-quotes, quotation marks, and the
+		back-slash character itself to be treat like normal text.
+
+		This feature is only implemented properly for the case where
+		CONFIG_NSH_ARGCAT is also selected.
+
 config NSH_CMDPARMS
 	bool "Enable commands as parameters"
 	default n if DEFAULT_SMALL

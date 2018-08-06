@@ -59,6 +59,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* If CONFIG_NSH_CMDPARMS or CONFIG_NSH_ARGCAT is enabled, then we will need
  * retain a list of memory allocations to be freed at the completion of
  * command processing.
@@ -151,9 +152,21 @@ static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
                FAR const char *s2);
 #endif
 
+#if defined(CONFIG_NSH_QUOTE) && defined(CONFIG_NSH_ARGCAT)
+static FAR char *nsh_strchr(FAR const char *str, int ch);
+#else
+#  define nsh_strchr(s,c) strchr(s,c)
+#endif
+
 #ifndef CONFIG_DISABLE_ENVIRON
 static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
+#endif
+
+#if defined(CONFIG_NSH_QUOTE) && defined(CONFIG_NSH_ARGCAT)
+static void nsh_dequote(FAR char *cmdline);
+#else
+#  define nsh_dequote(c)
 #endif
 
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
@@ -964,6 +977,38 @@ static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
 #endif
 
 /****************************************************************************
+ * Name: nsh_strchr
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_QUOTE) && defined(CONFIG_NSH_ARGCAT)
+static FAR char *nsh_strchr(FAR const char *str, int ch)
+{
+  FAR const char *ptr;
+  bool quoted = false;
+
+  for (ptr = str; ; ptr++)
+    {
+      if (*ptr == '\\' && !quoted)
+        {
+          quoted = true;
+        }
+      else if ((int)*ptr == ch && !quoted)
+        {
+          return (FAR char *)ptr;
+        }
+      else if (*ptr == '\0')
+        {
+          return NULL;
+        }
+      else
+        {
+          quoted = false;
+        }
+    }
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_envexpand
  ****************************************************************************/
 
@@ -1005,6 +1050,60 @@ static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
 #endif
 
 /****************************************************************************
+ * Name: nsh_dequote
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_QUOTE) && defined(CONFIG_NSH_ARGCAT)
+static void nsh_dequote(FAR char *cmdline)
+{
+  FAR char *ptr;
+  bool quoted;
+
+  quoted = false;
+
+  for (ptr = cmdline; *ptr != '\0'; )
+    {
+      if (*ptr == '\\' && !quoted)
+        {
+          FAR char *dest = ptr;
+          FAR const char *src = ptr + 1;
+          char ch;
+
+          /* Move the data to eliminate the quote from the command line */
+
+          do
+            {
+              ch      = *src++;
+              *dest++ = ch;
+            }
+          while (ch != '\0');
+
+          /* Remember that the next character is quote (in case it is
+           * another back-slash character).
+           */
+
+          quoted = true;
+          continue;
+        }
+      else
+        {
+          /* The next character is not quoted because either (1) it was not
+           * preceded by a back-slash, or (2) it was preceded by a quoted
+           * back-slash.
+           */
+
+          quoted = false;
+          ptr++;
+        }
+    }
+
+  /* Make sure that the new, possibly shorted string is NUL terminated */
+
+  *ptr = '\0';
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_argexpand
  ****************************************************************************/
 
@@ -1019,12 +1118,46 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   /* Loop until all of the commands on the command line have been processed */
 
-  for (;;)
+  for (; ; )
     {
       /* Look for interesting things within the command string. */
 
-      len = strcspn(working, g_arg_separator);
-      ptr = working + len;
+      len    = strcspn(working, g_arg_separator);
+      ptr    = working + len;
+
+#ifdef CONFIG_NSH_QUOTE
+      /* But ignore these interesting things if they are quoted */
+
+      while (len > 0 && *ptr != '\0')
+        {
+          FAR char *prev = working + len - 1;
+          int bcount;
+          bool quoted;
+
+          /* Check if the current character is quoted */
+
+          for (bcount = 0, quoted = false;
+               bcount < len && *prev == '\\';
+               bcount++, prev--)
+            {
+              quoted ^= true;
+            }
+
+          if (quoted)
+            {
+              /* Yes.. skip over it */
+
+              len += strcspn(ptr + 1, g_arg_separator) + 1;
+              ptr  = working + len;
+            }
+          else
+            {
+              /* Not quoted.. subject to normal processing */
+
+              break;
+            }
+        }
+#endif
 
       /* If ptr points to the NUL terminator, then there is nothing else
        * interesting in the argument.
@@ -1041,24 +1174,29 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                * argument.
                *
                * On failures to allocation memory, nsh_strcat will just return
-               * value value of argument
+               * old value of argument
                */
 
               argument    = nsh_strcat(vtbl, argument, working);
               *allocation = argument;
+
+              /* De-quote the returned string */
+
+              nsh_dequote(argument);
               return argument;
             }
           else
             {
               /* No.. just return the original string from the command line. */
 
+              nsh_dequote(cmdline);
               return cmdline;
             }
         }
       else
 
 #ifdef CONFIG_NSH_CMDPARMS
-      /* Check for a backquoted command embedded within the argument string. */
+      /* Check for a back-quoted command embedded within the argument string. */
 
       if (*ptr == '`')
         {
@@ -1066,7 +1204,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           FAR char *result;
           FAR char *rptr;
 
-          /* Replace the backquote with a NUL terminator and add the
+          /* Replace the back-quote with a NUL terminator and add the
            * intervening character to the concatenated string.
            */
 
@@ -1074,16 +1212,16 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           argument    = nsh_strcat(vtbl, argument, working);
           *allocation = argument;
 
-          /* Find the closing backquote */
+          /* Find the closing back-quote (must be unquoted) */
 
-          rptr = strchr(ptr, '`');
+          rptr = nsh_strchr(ptr, '`');
           if (!rptr)
             {
               nsh_output(vtbl, g_fmtnomatching, "`", "`");
               return (FAR char *)g_nullstring;
             }
 
-          /* Replace the final backquote with a NUL terminator */
+          /* Replace the final back-quote with a NUL terminator */
 
           *rptr = '\0';
 
@@ -1095,7 +1233,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
           /* Concatenate the result of the operation with the accumulated
            * string.  On failures to allocation memory, nsh_strcat will
-           * just return value value of argument
+           * just return old value of argument
            */
 
           argument    = nsh_strcat(vtbl, argument, result);
@@ -1143,7 +1281,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
               /* Find the closing right bracket */
 
-              rptr = strchr(ptr, '}');
+              rptr = nsh_strchr(ptr, '}');
               if (!rptr)
                 {
                   nsh_output(vtbl, g_fmtnomatching, "${", "}");
@@ -1179,7 +1317,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
           /* Concatenate the result of the operation with the accumulated
            * string.  On failures to allocation memory, nsh_strcat will
-           * just return value value of argument
+           * just return old value of argument
            */
 
           argument    = nsh_strcat(vtbl, argument, envstr);
@@ -1202,6 +1340,20 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                                FAR char **allocation)
 {
   FAR char *argument = (FAR char *)g_nullstring;
+#ifdef CONFIG_NSH_QUOTE
+  char ch = *cmdline;
+
+  /* A single backslash at the beginning of the line is support, nothing
+   * more.
+   */
+
+  nsh_dequote(cmdline);
+  if (ch == '\\')
+    {
+      argument = cmdline;
+    }
+  else
+#endif
 
 #ifdef CONFIG_NSH_CMDPARMS
   /* Are we being asked to use the output from another command or program
@@ -1210,16 +1362,16 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   if (*cmdline == '`')
     {
-      /* Verify that the final character is also a backquote */
+      /* Verify that the final character is also a back-quote */
 
-      FAR char *rptr = strchr(cmdline + 1, '`');
+      FAR char *rptr = nsh_strchr(cmdline + 1, '`');
       if (!rptr || rptr[1] != '\0')
         {
           nsh_output(vtbl, g_fmtnomatching, "`", "`");
           return (FAR char *)g_nullstring;
         }
 
-      /* Replace the final backquote with a NUL terminator */
+      /* Replace the final back-quote with a NUL terminator */
 
       *rptr = '\0';
 
@@ -1239,7 +1391,6 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
     }
   else
 #endif
-
     {
       /* The argument to be returned is simply the beginning of the
        * delimited string.
@@ -1264,6 +1415,10 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
   FAR char *allocation = NULL;
   FAR char *argument   = NULL;
   FAR const char *term;
+#ifdef CONFIG_NSH_QUOTE
+  FAR char *prev;
+  bool quoted;
+#endif
 #ifdef CONFIG_NSH_CMDPARMS
   bool backquote;
 #endif
@@ -1345,13 +1500,38 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 
 #ifdef CONFIG_NSH_CMDPARMS
       /* Some special care must be exercised to make sure that we do not break up
-       * any backquote delimited substrings.  NOTE that the absence of a closing
-       * backquote is not detected;  That case should be detected later.
+       * any back-quote delimited substrings.  NOTE that the absence of a closing
+       * back-quote is not detected;  That case should be detected later.
        */
 
-      for (backquote = false, pend = pbegin; *pend; pend++)
+#ifdef CONFIG_NSH_QUOTE
+      quoted    = false;
+      backquote = false;
+
+      for (prev = NULL, pend = pbegin; *pend != '\0'; prev = pend, pend++)
         {
-          /* Toggle the backquote flag when one is encountered? */
+          /* Check if the current character is quoted */
+
+          if (prev != NULL && *prev == '\\' && !quoted)
+            {
+              /* Do no special checks on the quoted character */
+
+              quoted = true;
+              continue;
+            }
+
+          quoted = false;
+
+          /* Check if the current character is an (unquoted) back-quote */
+
+          if (*pend == '\\' && !quoted)
+            {
+              /* Yes.. Do no special processing on the backspace character */
+
+              continue;
+            }
+
+          /* Toggle the back-quote flag when one is encountered? */
 
           if (*pend == '`')
             {
@@ -1359,12 +1539,12 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
             }
 
           /* Check for a delimiting character only if we are not in a
-           * backquoted sub-string.
+           * back-quoted sub-string.
            */
 
-          else if (!backquote && strchr(term, *pend) != NULL)
+          else if (!backquote && nsh_strchr(term, *pend) != NULL)
             {
-              /* We found a delimiter outside of anybackqouted substring.
+              /* We found a delimiter outside of any back-quoted substring.
                * Now we can break out of the loop.
                */
 
@@ -1372,16 +1552,85 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
             }
         }
 #else
-      /* Search the next occurence of a terminating character (or the end
+      backquote = false;
+
+      for (pend = pbegin; *pend != '\0'; pend++)
+        {
+          /* Toggle the back-quote flag when one is encountered? */
+
+          if (*pend == '`')
+            {
+              backquote = !backquote;
+            }
+
+          /* Check for a delimiting character only if we are not in a
+           * back-quoted sub-string.
+           */
+
+          else if (!backquote && nsh_strchr(term, *pend) != NULL)
+            {
+              /* We found a delimiter outside of any back-quoted substring.
+               * Now we can break out of the loop.
+               */
+
+              break;
+            }
+        }
+
+#endif /* CONFIG_NSH_QUOTE */
+#else  /* CONFIG_NSH_CMDPARMS */
+
+      /* Search the next occurrence of a terminating character (or the end
        * of the line).
        */
 
+#ifdef CONFIG_NSH_QUOTE
+      quoted = false;
+
+      for (prev = NULL, pend = pbegin; *pend != '\0'; prev = pend, pend++)
+        {
+          /* Check if the current character is quoted */
+
+          if (prev != NULL && *prev == '\\' && !quoted)
+            {
+
+              /* Do no special checks on the quoted character */
+
+              quoted = true;
+              continue;
+            }
+
+          quoted = false;
+
+          /* Check if the current character is an (unquoted) back-quote */
+
+          if (*pend == '\\' && !quoted)
+            {
+              /* Yes.. Do no special processing on the backspace character */
+
+              continue;
+            }
+
+          /* Check for a delimiting character */
+
+          if (nsh_strchr(term, *pend) != NULL)
+            {
+              /* We found a delimiter. Now we can break out of the loop. */
+
+              break;
+            }
+        }
+
+#else
+
       for (pend = pbegin;
-          *pend != '\0' && strchr(term, *pend) == NULL;
+          *pend != '\0' && nsh_strchr(term, *pend) == NULL;
            pend++)
         {
         }
-#endif
+
+#endif /* CONFIG_NSH_QUOTE */
+#endif /* CONFIG_NSH_CMDPARMS */
 
       /* pend either points to the end of the string or to the first
        * delimiter after the string.
@@ -2284,7 +2533,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
         {
           /* Find the closing quotation mark */
 
-          FAR char *tmp = strchr(ptr + 1, '"');
+          FAR char *tmp = nsh_strchr(ptr + 1, '"');
           if (!tmp)
             {
               /* No closing quotation mark! */
