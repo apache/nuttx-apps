@@ -211,4 +211,3 @@ ifeq ($(WINTOOL),y)
 else
   LDELFFLAGS += -T $(TOPDIR)/scripts/gnu-elf.ld
 endif
-

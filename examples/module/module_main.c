@@ -156,8 +156,7 @@ int module_main(int argc, char *argv[])
 #ifdef CONFIG_BUILD_FLAT
   struct boardioc_symtab_s symdesc;
 #endif
-#if defined(CONFIG_EXAMPLES_MODULE_EXTERN) && \
-    defined(CONFIG_EXAMPLES_MODULE_FSMOUNT) && \
+#if defined(CONFIG_EXAMPLES_MODULE_FSMOUNT) && \
     defined(CONFIG_EXAMPLES_MODULE_FSREMOVEABLE)
   struct stat buf;
 #endif
@@ -238,7 +237,7 @@ int module_main(int argc, char *argv[])
     }
 
 #endif /* CONFIG_EXAMPLES_MODULE_ROMFS */
-#elif defined(CONFIG_EXAMPLES_MODULE_EXTERN)
+#else /*  CONFIG_EXAMPLES_MODULE_BUILTINFS */
   /* An external file system is being used */
 
 #if defined(CONFIG_EXAMPLES_MODULE_FSMOUNT)
@@ -276,14 +275,14 @@ int module_main(int argc, char *argv[])
 
   /* Mount the external file system */
 
-  message("Mounting %s filesystem at target=%s\n",
-          CONFIG_EXAMPLES_MODULE_FSTYPE, MOUNTPT);
+  printf("Mounting %s filesystem at target=%s\n",
+         CONFIG_EXAMPLES_MODULE_FSTYPE, MOUNTPT);
 
   ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT,
               CONFIG_EXAMPLES_MODULE_FSTYPE, MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s, %s, %s) failed: %d\n",\
+      printf("ERROR: mount(%s, %s, %s) failed: %d\n",\
              CONFIG_EXAMPLES_MODULE_DEVPATH, CONFIG_EXAMPLES_MODULE_FSTYPE,
              MOUNTPT, errno);
     }
