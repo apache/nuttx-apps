@@ -50,8 +50,12 @@ STACKSIZE = 2048
 # Module Example
 
 ASRCS =
-CSRCS = mod_symtab.c
+CSRCS =
 MAINSRC = module_main.c
+
+ifeq ($(CONFIG_BUILD_FLAT),y)
+CSRCS += mod_symtab.c
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

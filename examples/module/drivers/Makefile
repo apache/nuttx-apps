@@ -45,6 +45,7 @@ MODULE_DIR = $(APPDIR)/examples/module
 DRIVER_DIR = $(MODULE_DIR)/drivers
 FSROOT_DIR = $(DRIVER_DIR)/fsroot
 SYMTAB_SRC = $(DRIVER_DIR)/mod_symtab.c
+PASS1_SYMTAB = $(TOPDIR)/pass1/mod_symtab.c
 
 ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
   ROMFS_IMG = $(DRIVER_DIR)/romfs.img
@@ -62,7 +63,7 @@ $(1)_$(2):
 	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
+all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC) $(PASS1_SYMTAB)
 .PHONY: all build clean install populate
 .PRECIOUS: ../../../libapps$(LIBEXT)
 
@@ -133,6 +134,13 @@ else
 $(SYMTAB_SRC): build populate
 	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
 
+endif
+
+# Copy the symbol table into the kernel pass1/ build directory
+
+$(PASS1_SYMTAB): $(SYMTAB_SRC)
+ifneq ($(CONFIG_BUILD_FLAT),y)
+	$(Q) install -m 0644 $(SYMTAB_SRC) $(PASS1_SYMTAB)
 endif
 
 # Clean each subdirectory

@@ -134,8 +134,10 @@ static const char g_write_string[] = "Hi there, installed driver\n";
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_FLAT
 extern const struct symtab_s g_mod_exports[];
 extern const int g_mod_nexports;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -151,8 +153,12 @@ int main(int argc, FAR char *argv[])
 int module_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_BUILD_FLAT
   struct boardioc_symtab_s symdesc;
-#ifdef CONFIG_EXAMPLES_MODULE_FSREMOVEABLE
+#endif
+#if defined(CONFIG_EXAMPLES_MODULE_EXTERN) && \
+    defined(CONFIG_EXAMPLES_MODULE_FSMOUNT) && \
+    defined(CONFIG_EXAMPLES_MODULE_FSREMOVEABLE)
   struct stat buf;
 #endif
   FAR void *handle;
@@ -161,6 +167,7 @@ int module_main(int argc, char *argv[])
   int ret;
   int fd;
 
+#ifdef CONFIG_BUILD_FLAT
   /* Set the OS symbol table indirectly through the boardctl() */
 
   symdesc.symtab   = (FAR struct symtab_s *)g_mod_exports;
@@ -171,6 +178,7 @@ int module_main(int argc, char *argv[])
       fprintf(stderr, "ERROR: boardctl(BOARDIOC_OS_SYMTAB) failed: %d\n", ret);
       exit(EXIT_FAILURE);
     }
+#endif
 
 #ifdef CONFIG_EXAMPLES_MODULE_BUILTINFS
 #if defined(CONFIG_EXAMPLES_MODULE_ROMFS)
