@@ -439,6 +439,8 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
   if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE)
     {
+      result ^= np->np_lpstate[np->np_lpndx].lp_inverted;
+
       np->np_fail = false;
       np->np_lpstate[np->np_lpndx].lp_enable = (result == OK);
       return OK;
@@ -455,6 +457,8 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
    else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
     {
+      result ^= np->np_lpstate[np->np_lpndx].lp_inverted;
+
       np->np_fail = false;
       np->np_lpstate[np->np_lpndx].lp_enable = (result != OK);
       return OK;
@@ -1770,6 +1774,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
   bool whilematch;
   bool untilmatch;
   bool enable;
+  bool inverted = false;
   int ret;
 
   if (cmd)
@@ -1788,8 +1793,24 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (!*ppcmd)
             {
-              nsh_output(vtbl, g_fmtarginvalid, "if");
+              nsh_output(vtbl, g_fmtarginvalid, cmd);
               goto errout;
+            }
+
+          /* Check for inverted logic */
+
+          if (strcmp(*ppcmd, "!") == 0)
+            {
+              inverted = true;
+
+              /* Get the next cmd */
+
+              *ppcmd = nsh_argument(vtbl, saveptr, memlist);
+              if (!*ppcmd)
+                {
+                  nsh_output(vtbl, g_fmtarginvalid, cmd);
+                  goto errout;
+                }
             }
 
           /* Verify that "while" or "until" is valid in this context */
@@ -1828,12 +1849,13 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           np->np_jump                             = false;
 #endif
           np->np_lpndx++;
-          np->np_lpstate[np->np_lpndx].lp_state   = state;
-          np->np_lpstate[np->np_lpndx].lp_enable  = enable;
+          np->np_lpstate[np->np_lpndx].lp_state    = state;
+          np->np_lpstate[np->np_lpndx].lp_enable   = enable;
+          np->np_lpstate[np->np_lpndx].lp_inverted = inverted;
 #ifndef CONFIG_NSH_DISABLE_ITEF
-          np->np_lpstate[np->np_lpndx].lp_iendx   = np->np_iendx;
+          np->np_lpstate[np->np_lpndx].lp_iendx    = np->np_iendx;
 #endif
-          np->np_lpstate[np->np_lpndx].lp_topoffs = offset;
+          np->np_lpstate[np->np_lpndx].lp_topoffs  = offset;
         }
 
       /* Check if the token is "do" */
@@ -1937,12 +1959,13 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
 errout:
 #ifndef NSH_DISABLE_SEMICOLON
-  np->np_jump                  = false;
+  np->np_jump                   = false;
 #endif
-  np->np_lpndx                 = 0;
-  np->np_lpstate[0].lp_state   = NSH_LOOP_NORMAL;
-  np->np_lpstate[0].lp_enable  = true;
-  np->np_lpstate[0].lp_topoffs = 0;
+  np->np_lpndx                  = 0;
+  np->np_lpstate[0].lp_state    = NSH_LOOP_NORMAL;
+  np->np_lpstate[0].lp_enable   = true;
+  np->np_lpstate[0].lp_inverted = false;
+  np->np_lpstate[0].lp_topoffs  = 0;
   return ERROR;
 }
 #endif
@@ -1958,7 +1981,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
   FAR struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
   bool disabled;
-  bool inverted_result = false;
+  bool inverted = false;
 
   if (cmd)
     {
@@ -1976,11 +1999,13 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
             }
 
           /* Check for inverted logic */
+
           if (strcmp(*ppcmd, "!") == 0)
             {
-              inverted_result = true;
+              inverted = true;
 
               /* Get the next cmd */
+
               *ppcmd = nsh_argument(vtbl, saveptr, memlist);
               if (!*ppcmd)
                 {
@@ -2012,7 +2037,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           np->np_iestate[np->np_iendx].ie_state    = NSH_ITEF_IF;
           np->np_iestate[np->np_iendx].ie_disabled = disabled;
           np->np_iestate[np->np_iendx].ie_ifcond   = false;
-          np->np_iestate[np->np_iendx].ie_inverted = inverted_result;
+          np->np_iestate[np->np_iendx].ie_inverted = inverted;
         }
 
       /* Check if the token is "then" */
