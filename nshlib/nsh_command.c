@@ -103,7 +103,7 @@ static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 static const struct cmdmap_s g_cmdmap[] =
 {
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
-  { "[",        cmd_lbracket, 4, CONFIG_NSH_MAXARGUMENTS, "[!] <expression> ]" },
+  { "[",        cmd_lbracket, 4, CONFIG_NSH_MAXARGUMENTS, "<expression> ]" },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_HELP
