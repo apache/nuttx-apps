@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_test.c
  *
- *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2011-2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,7 +227,9 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
 
   if (ret != 0)
     {
-       /* The file does not exist (or another error occurred) -- return FALSE */
+       /* The file does not exist (or another error occurred) -- return
+        * FALSE.
+        */
 
        return TEST_FALSE;
     }
@@ -283,7 +285,8 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
     {
       /* Return true if the file is readable */
 
-      return (buf.st_mode & (S_IRUSR|S_IRGRP|S_IROTH)) != 0 ? TEST_TRUE : TEST_FALSE;
+      return (buf.st_mode & (S_IRUSR|S_IRGRP|S_IROTH)) != 0 ?
+             TEST_TRUE : TEST_FALSE;
     }
 
   /* -s FILE */
@@ -301,7 +304,8 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
     {
       /* Return true if the file is write-able */
 
-      return (buf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) != 0 ? TEST_TRUE : TEST_FALSE;
+      return (buf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) != 0 ?
+             TEST_TRUE : TEST_FALSE;
     }
 
   /* Unrecognized operator */
@@ -326,7 +330,9 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           goto errout_syntax;
         }
-      return expression(vtbl, argc-1, &argv[1]) == TEST_TRUE ? TEST_FALSE : TEST_TRUE;
+
+      return expression(vtbl, argc-1, &argv[1]) == TEST_TRUE ?
+             TEST_FALSE : TEST_TRUE;
     }
 
   /* Check for unary operations on simple, typed arguments */
@@ -337,6 +343,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           goto errout_syntax;
         }
+
       i += 2;
       value = unaryexpression(vtbl, argv);
     }
@@ -349,6 +356,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           goto errout_syntax;
         }
+
       i += 3;
       value = binaryexpression(vtbl, argv);
     }
@@ -398,6 +406,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
            goto errout_syntax;
          }
     }
+
   return value;
 
 errout_syntax:
@@ -424,14 +433,36 @@ int cmd_test(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  if (strcmp(argv[argc-1], "]") != 0)
+  /* Verify that the closing right bracket is the last thing on the command
+   * line.
+   */
+
+  if (strcmp(argv[argc - 1], "]") != 0)
     {
       nsh_output(vtbl, g_fmtsyntax, argv[0]);
       return ERROR;
     }
   else
     {
-      return expression(vtbl, argc-2, &argv[1]);
+      bool inverted = false;
+      int index = 1;
+      int result;
+
+      /* Check if the expression is inverted */
+
+      if (strcmp(argv[index], "!") == 0)
+        {
+          index++;
+          inverted = true;
+        }
+
+      result = expression(vtbl, argc - index - 1, &argv[index]);
+      if (inverted && result != TEST_ERROR)
+        {
+          result = (result == TEST_TRUE ? TEST_FALSE : TEST_TRUE);
+        }
+
+      return result;
     }
 }
 
