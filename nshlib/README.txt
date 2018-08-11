@@ -92,6 +92,14 @@ Command Overview
   FLASH footprint results but then also only simple environment
   variables like $FOO can be used on the command line.
 
+  CONFIG_NSH_QUOTE enables back-slash quoting of certain characters within
+  the command. This option is useful for the case where an NSH script is
+  used to dynamically generate a new NSH script. In that case, commands
+  must be treated as simple text strings without interpretation of any
+  special characters. Special characters such as $, `, ", and others must
+  be retained intact as part of the test string. This option is currently
+  only available is CONFIG_NSH_ARGCAT is also selected.
+
 Conditional Command Execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -117,12 +125,15 @@ Looping
     while [!] <test-cmd>; do <cmd-sequence>; done
 
         Execute <cmd-sequence> as long as <test-cmd> has an exit status of
-        zero (OR nonzero if inverted with '!').
+        zero (OR non-zero if inverted with '!').
 
     until [!] <test-cmd>; do <cmd-sequence>; done
 
         Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
-        status (OR nonzero if inverted with '!').
+        status (OR zero if inverted with '!').
+
+  Note that 'while' is equivalent to 'until' if the command result is
+  inverted.
 
   A break command is also supported.  The break command is only meaningful
   within the body of the a while or until loop, between the do and done
@@ -1490,38 +1501,47 @@ NSH-Specific Configuration Settings
       Default: n
 
   * CONFIG_NSH_CMDPARMS
-     If selected, then the output from commands, from file applications, and
-     from NSH built-in commands can be used as arguments to other
-     commands.  The entity to be executed is identified by enclosing the
-     command line in back quotes.  For example,
+      If selected, then the output from commands, from file applications, and
+      from NSH built-in commands can be used as arguments to other
+      commands.  The entity to be executed is identified by enclosing the
+      command line in back quotes.  For example,
 
-       set FOO `myprogram $BAR`
+        set FOO `myprogram $BAR`
 
-     Will execute the program named myprogram passing it the value of the
-     environment variable BAR.  The value of the environment variable FOO
-     is then set output of myprogram on stdout.  Because this feature commits
-     significant resources, it is disabled by default.
+      Will execute the program named myprogram passing it the value of the
+      environment variable BAR.  The value of the environment variable FOO
+      is then set output of myprogram on stdout.  Because this feature commits
+      significant resources, it is disabled by default.
 
-     The CONFIG_NSH_CMDPARMS interim output will be retained in a temporary
-     file.  Full path to a directory where temporary files can be created is
-     taken from CONFIG_LIBC_TMPDIR and it defaults to /tmp if
-     CONFIG_LIBC_TMPDIR is not set.
+      The CONFIG_NSH_CMDPARMS interim output will be retained in a temporary
+      file.  Full path to a directory where temporary files can be created is
+      taken from CONFIG_LIBC_TMPDIR and it defaults to /tmp if
+      CONFIG_LIBC_TMPDIR is not set.
 
   * CONFIG_NSH_MAXARGUMENTS
-     The maximum number of NSH command arguments. Default: 6
+      The maximum number of NSH command arguments. Default: 6
 
   * CONFIG_NSH_ARGCAT
-     Support concatenation of strings with environment variables or command
-     output.  For example:
+      Support concatenation of strings with environment variables or command
+      output.  For example:
 
-       set FOO XYZ
-       set BAR 123
-       set FOOBAR ABC_${FOO}_${BAR}
+        set FOO XYZ
+        set BAR 123
+        set FOOBAR ABC_${FOO}_${BAR}
 
-     would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
-     to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
-     FLASH footprint results but then also only simple environment
-     variables like $FOO can be used on the command line.
+      would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
+      to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
+      FLASH footprint results but then also only simple environment
+      variables like $FOO can be used on the command line.
+
+  * CONFIG_NSH_QUOTE
+      Enables back-slash quoting of certain characters within the command.
+      This option is useful for the case where an NSH script is used to
+      dynamically generate a new NSH script. In that case, commands must
+      be treated as simple text strings without interpretation of any
+      special characters. Special characters such as $, `, ", and others
+      must be retained intact as part of the test string. This option is
+      currently only available is CONFIG_NSH_ARGCAT is also selected.
 
   * CONFIG_NSH_NESTDEPTH
       The maximum number of nested if-then[-else]-fi sequences that
