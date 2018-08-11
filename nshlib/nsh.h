@@ -754,7 +754,8 @@ struct nsh_itef_s
 {
   uint8_t   ie_ifcond   : 1;   /* Value of command in 'if' statement */
   uint8_t   ie_disabled : 1;   /* TRUE: Unconditionally disabled */
-  uint8_t   ie_unused   : 4;
+  uint8_t   ie_inverted : 1;   /* TRUE: inverted logic ('if ! <cmd>') */
+  uint8_t   ie_unused   : 3;
   uint8_t   ie_state    : 2;   /* If-then-else state (see enum nsh_itef_e) */
 };
 #endif
