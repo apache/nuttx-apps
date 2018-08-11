@@ -442,28 +442,12 @@ int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       nsh_output(vtbl, g_fmtsyntax, argv[0]);
       return ERROR;
     }
-  else
-    {
-      bool inverted = false;
-      int index = 1;
-      int result;
 
-      /* Check if the expression is inverted */
+  /* Then perform the test on the arguments enclosed by the left and right
+   * brackets.
+   */
 
-      if (strcmp(argv[index], "!") == 0)
-        {
-          index++;
-          inverted = true;
-        }
-
-      result = expression(vtbl, argc - index - 1, &argv[index]);
-      if (inverted && result != TEST_ERROR)
-        {
-          result = (result == TEST_TRUE ? TEST_FALSE : TEST_TRUE);
-        }
-
-      return result;
-    }
+  return expression(vtbl, argc - 2, &argv[1]);
 }
 
 #endif /* !CONFIG_NSH_DISABLESCRIPT && !CONFIG_NSH_DISABLE_TEST */

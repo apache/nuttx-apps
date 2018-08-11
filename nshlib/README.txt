@@ -268,7 +268,7 @@ file system image.
 Simple Commands
 ^^^^^^^^^^^^^^^
 
-o [ [!] <expression> ]
+o [ <expression> ]
 o test <expression>
 
    These are two alternative forms of the same command.  They support
