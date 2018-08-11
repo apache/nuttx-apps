@@ -1777,7 +1777,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
   bool inverted = false;
   int ret;
 
-  if (cmd)
+  if (cmd != NULL)
     {
       /* Check if the command is preceded by "while" or "until" */
 
@@ -1791,7 +1791,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           /* Get the cmd following the "while" or "until" */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-          if (!*ppcmd)
+          if (*ppcmd == NULL || **ppcmd == '\0')
             {
               nsh_output(vtbl, g_fmtarginvalid, cmd);
               goto errout;
@@ -1806,7 +1806,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
               /* Get the next cmd */
 
               *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-              if (!*ppcmd)
+              if (*ppcmd == NULL || **ppcmd == '\0')
                 {
                   nsh_output(vtbl, g_fmtarginvalid, cmd);
                   goto errout;
@@ -1983,7 +1983,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
   bool disabled;
   bool inverted = false;
 
-  if (cmd)
+  if (cmd != NULL)
     {
       /* Check if the command is preceded by "if" */
 
@@ -1992,7 +1992,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           /* Get the cmd following the if */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-          if (!*ppcmd)
+          if (*ppcmd == NULL || **ppcmd == '\0')
             {
               nsh_output(vtbl, g_fmtarginvalid, "if");
               goto errout;
@@ -2007,7 +2007,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
               /* Get the next cmd */
 
               *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-              if (!*ppcmd)
+              if (*ppcmd == NULL || **ppcmd == '\0')
                 {
                   nsh_output(vtbl, g_fmtarginvalid, "if");
                   goto errout;
