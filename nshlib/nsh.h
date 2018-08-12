@@ -776,8 +776,7 @@ enum nsh_lp_e
 struct nsh_loop_s
 {
   uint8_t   lp_enable   : 1;   /* Loop command processing is enabled */
-  uint8_t   lp_inverted : 1;   /* TRUE: inverted logic ('while ! <cmd>') */
-  uint8_t   lp_unused   : 4;
+  uint8_t   lp_unused   : 5;
   uint8_t   lp_state    : 2;   /* Loop state (see enume nsh_lp_e) */
 #ifndef CONFIG_NSH_DISABLE_ITEF
   uint8_t   lp_iendx;          /* Saved if-then-else-fi index */

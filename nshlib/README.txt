@@ -122,18 +122,15 @@ Looping
   These works from the command line but are primarily intended for use
   within NSH scripts (see the sh command).  The syntax is as follows:
 
-    while [!] <test-cmd>; do <cmd-sequence>; done
+    while <test-cmd>; do <cmd-sequence>; done
 
         Execute <cmd-sequence> as long as <test-cmd> has an exit status of
-        zero (OR non-zero if inverted with '!').
+        zero.
 
-    until [!] <test-cmd>; do <cmd-sequence>; done
+    until <test-cmd>; do <cmd-sequence>; done
 
         Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
-        status (OR zero if inverted with '!').
-
-  Note that 'while' is equivalent to 'until' if the command result is
-  inverted.
+        status.
 
   A break command is also supported.  The break command is only meaningful
   within the body of the a while or until loop, between the do and done
