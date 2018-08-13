@@ -644,7 +644,7 @@ static void vi_reverseon(FAR struct vi_s *vi)
 }
 
 /****************************************************************************
- * Name:
+ * Name: vi_attriboff
  *
  * Description:
  *   Disable all previously selected attributes.

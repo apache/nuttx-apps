@@ -1121,7 +1121,7 @@ static int lesp_parse_cwjap_ans_line(char *ptr, lesp_ap_t *ap)
 }
 
 /****************************************************************************
- * Name:
+ * Name: lesp_parse_cwlap_ans_line
  *
  * Description:
  *   Try to decode @b +CWLAP line.

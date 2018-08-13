@@ -127,8 +127,10 @@ static graphic_file_format_t wld_check_format(FILE * fp, char *filename)
  *************************************************************************/
 
 /*************************************************************************
- * Name:
+ * Name: wld_readgraphic_file
+ *
  * Description:
+ *
  ************************************************************************/
 
 graphic_file_t *wld_readgraphic_file(char *filename)

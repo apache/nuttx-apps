@@ -1256,7 +1256,7 @@ static int ftpd_pathignore(FAR struct ftpd_pathnode_s *currpath)
 }
 
 /****************************************************************************
- * Name:
+ * Name: ftpd_nodefree
  ****************************************************************************/
 
 static void ftpd_nodefree(FAR struct ftpd_pathnode_s *node)
@@ -3559,7 +3559,7 @@ static int ftpd_command_stru(FAR struct ftpd_session_s *session)
 }
 
 /****************************************************************************
- * Name:
+ * Name: ftpd_command_rnfr
  ****************************************************************************/
 
 static int ftpd_command_rnfr(FAR struct ftpd_session_s *session)

@@ -89,7 +89,7 @@ static char from_hex(char ch)
 #endif
 
 /****************************************************************************
- * Name:
+ * Name: to_hex
  *
  * Description:
  *   Converts an integer value to its hex character,
@@ -168,7 +168,7 @@ static unsigned char h2int(char c)
  ****************************************************************************/
 
 /****************************************************************************
- * Name:
+ * Name: url_encode
  *
  * Description:
  *   Returns a url-encoded version of str.

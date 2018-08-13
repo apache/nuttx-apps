@@ -105,7 +105,7 @@ void vt100_reverseon(int chn);
 #endif
 
 /****************************************************************************
- * Name:
+ * Name: vt100_attriboff
  *
  * Description:
  *   Disable all previously selected attributes.
