@@ -184,7 +184,7 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
       vtop = 0;
     }
 
-  /* Get the bottom side offset and verify that some part of the rectangle lies 
+  /* Get the bottom side offset and verify that some part of the rectangle lies
    * below the top of the display.
    */
 
@@ -200,7 +200,7 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
       vbottom = g_view_size - 1;
     }
 
-  /* If we are viewing the Z plane, then the vpos is "down" the screen from the 
+  /* If we are viewing the Z plane, then the vpos is "down" the screen from the
    * top.  Otherwise, it is "up" the screen from the bottom.
    */
 
@@ -236,12 +236,12 @@ static int tcl_check_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr, int
   int posstart;
   int posend;
 
-  /* Search the plane list for every place whose "level" component includes the 
+  /* Search the plane list for every place whose "level" component includes the
    * current map level.  This will be the vertical component of the rectangle
    * in every case except for EDITPLANE_X:
-   * 
+   *
    * w->plane vhead level component EDITPLANE_X g_zplane_list H (= X) EDITPLANE_Y
-   * g_zplane_list V (= Y) EDITPLANE_Z g_yplane_list V (= Z) 
+   * g_zplane_list V (= Y) EDITPLANE_Z g_yplane_list V (= Z)
    */
 
   if (w->plane != EDITPLANE_X)
@@ -275,9 +275,9 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   int vbottom;
 
   /* Get the "vertical" position of the horizontal line.  This will always be
-   * the plane component of the rectangle, but will have to be "flipped" if the 
+   * the plane component of the rectangle, but will have to be "flipped" if the
    * viewing plane is not EDITPLANE_Z:
-   * 
+   *
    * w->plane vhead vertical component EDITPLANE_X g_zplane_list plane (= Z)
    * EDITPLANE_Y g_zplane_list plane (= Z) EDITPLANE_Z g_yplane_list plane (= Y)
    */
@@ -297,8 +297,8 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   /* Get the extent of the horizontal line.  This will be the horizontal
    * component of the rectangle in every case except when the viewing plane if
    * EDITPLANE_X
-   * 
-   * w->plane vhead horizontal component EDITPLANE_X g_zplane_list V (= Y) EDITPLANE_X 
+   *
+   * w->plane vhead horizontal component EDITPLANE_X g_zplane_list V (= Y) EDITPLANE_X
    * g_zplane_list H (= X) EDITPLANE_X g_yplane_list H (= X)
    */
 
@@ -345,7 +345,7 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
       hright = g_view_size - 1;
     }
 
-  /* We now have some line segment that we know is to fully on the display. 
+  /* We now have some line segment that we know is to fully on the display.
    * Get the display positions of the line segment.
    */
 
@@ -384,10 +384,10 @@ static int tcl_check_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr, int p
   int posstart;
   int posend;
 
-  /* Search the plane list for every place whose "level" component includes the 
-   * current map level.  This will be the horizontal component of the rectangle 
+  /* Search the plane list for every place whose "level" component includes the
+   * current map level.  This will be the horizontal component of the rectangle
    * in every case except for EDITPLANE_Z
-   * 
+   *
    * x->plane hhead level component EDITPLANE_X g_yplane_list H (= X) EDITPLANE_Y
    * g_xplane_list H (= Y) EDITPLANE_Z g_xplane_list V (= Z)
    */
@@ -423,7 +423,7 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
 
   /* Get the "horizontal" position of the vertical line.  This will always be
    * the plane component of the rectangle:
-   * 
+   *
    * w->plane hhead horizontal component EDITPLANE_X g_yplane_list plane (= Y)
    * EDITPLANE_Y g_xplane_list plane (= X) EDITPLANE_Z g_xplane_list plane (= X)
    */
@@ -439,8 +439,8 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
    * of the rectangle in every case except when the viewing plane is
    * EDITPLANE_Z and will have to be "flipped" if the viewing plane is not
    * EDITPLANE_Z:
-   * 
-   * w->plane hhead horizontal component EDITPLANE_X g_yplane_list V (= Z) EDITPLANE_Y 
+   *
+   * w->plane hhead horizontal component EDITPLANE_X g_yplane_list V (= Z) EDITPLANE_Y
    * g_xplane_list V (= Z) EDITPLANE_Z g_xplane_list H (= Y)
    */
 
@@ -471,7 +471,7 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
       vtop = 0;
     }
 
-  /* Get the bottom side offset and verify that some part of the rectangle lies 
+  /* Get the bottom side offset and verify that some part of the rectangle lies
    * below the top of the display
    */
 
@@ -497,7 +497,7 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
       vtop = g_view_size - vtmp - 1;
     }
 
-  /* We now have some line segment that we know is to fully on the display. 
+  /* We now have some line segment that we know is to fully on the display.
    * Get the display positions of the line segment
    */
 
@@ -808,7 +808,7 @@ void tcl_paint_rectangles(tcl_window_t *w)
 
   /* Display the rectangles which are orthogonal and "horizontal" with respect
    * to the viewing plane.
-   * 
+   *
    * Process every plane in the vertical axis (these will be horizontal) This
    * will by the Z plane for every viewing plane except EDITPLANE_Z where it
    * will be the Y plane */
@@ -819,7 +819,7 @@ void tcl_paint_rectangles(tcl_window_t *w)
     {
       ptr = &list->d;
 
-      /* Search the plane list for every place whose "level" component includes 
+      /* Search the plane list for every place whose "level" component includes
        * the current map level.
        */
 
@@ -842,9 +842,9 @@ void tcl_paint_rectangles(tcl_window_t *w)
         }
     }
 
-  /* Display the rectangles which are orthogonal and "vertical" with respect to 
+  /* Display the rectangles which are orthogonal and "vertical" with respect to
    * the viewing plane.
-   * 
+   *
    * Process every plane in the horizontal axis (these will be vertical) This
    * will by the X plane for every viewing plane except EDITPLANE_X where it
    * will be the Y plane.
@@ -856,7 +856,7 @@ void tcl_paint_rectangles(tcl_window_t *w)
     {
       ptr = &list->d;
 
-      /* Search the plane list for every place whose "level" component includes 
+      /* Search the plane list for every place whose "level" component includes
        * the current map level.
        */
 

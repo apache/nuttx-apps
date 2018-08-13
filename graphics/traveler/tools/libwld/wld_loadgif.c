@@ -126,7 +126,7 @@ static char *id89 = "GIF89a";
  * maintain our location in the Rwld_er array as a BIT Offset.  We compute
  * the byte Offset into the rwld_er array by dividing this by 8, pick up
  * three bytes, compute the bit Offset into our 24-bit chunk, shift to
- * bring the desired code to the bottom, then mask it off and return it. 
+ * bring the desired code to the bottom, then mask it off and return it.
  ************************************************************************/
 
 static int ReadCode(void)
@@ -464,7 +464,7 @@ graphic_file_t *wld_LoadGIF(FILE * fp, char *fname)
 
           CurCode = InCode = Code;
 
-          /* If greater or equal to FreeCode, not in the hash table yet; repeat 
+          /* If greater or equal to FreeCode, not in the hash table yet; repeat
            * the lwld_ character decoded
            */
 

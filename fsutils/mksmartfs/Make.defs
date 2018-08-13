@@ -1,7 +1,7 @@
 ############################################################################
 # apps/fsutils/mksmartfs/Make.defs
 #
-#   Copyright (C) 2015 Ken Pettit 
+#   Copyright (C) 2015 Ken Pettit
 #   Author: Ken Pettit <pettitkd@gmail.com>
 #
 # Redistribution and use in source and binary forms, with or without

@@ -574,7 +574,7 @@ static void strng5(void)
   mvwaddstr(treescrn2, 12, 12, ",.:'");
 
   /* Save a fully lit tree */
- 
+
   overlay(treescrn2, treescrn);
 
   wrefresh(treescrn2);

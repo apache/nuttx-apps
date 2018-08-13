@@ -91,7 +91,7 @@ void pf_cmdline(int argc, char **argv)
   /* Forms:
    *
    * argc=1: progname
-   * argc=2: progname <address> 
+   * argc=2: progname <address>
    * argc=4: progname -p <panid> <address>
    */
 

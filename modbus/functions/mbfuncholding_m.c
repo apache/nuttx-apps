@@ -1,6 +1,6 @@
 /****************************************************************************
  * apps/modbus/functions/mbfuncholding_m.c
- * 
+ *
  * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.

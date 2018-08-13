@@ -40,7 +40,7 @@ Buffering Notes
   logic.
 
   NuttX, however, does not implement XON/XOFF flow control so these do
-  nothing. On NuttX you will have to use hardware flow control in most cases. 
+  nothing. On NuttX you will have to use hardware flow control in most cases.
 
   The XON/XOFF controls built into ZModem could be used if you enabled
   software flow control in the host.  But that would only work in one

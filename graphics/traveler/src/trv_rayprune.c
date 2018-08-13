@@ -207,7 +207,7 @@ static void trv_ray_yawxprune_14cw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "beyond" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane > g_camera.x)
@@ -235,7 +235,7 @@ static void trv_ray_yawxprune_14cw(FAR struct trv_rect_head_s *outlist,
             }
 
           /* Check if any part of this plane lies clockwise from this Y
-           * position.  In quadrants 1 & 4, clockwise corresponds to smaller Y 
+           * position.  In quadrants 1 & 4, clockwise corresponds to smaller Y
            * values
            */
 
@@ -296,7 +296,7 @@ static void trv_ray_yawxprune_14ccw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "beyond" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane > g_camera.x)
@@ -385,7 +385,7 @@ static void trv_ray_yawxprune_23cw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "before" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane < g_camera.x)
@@ -474,7 +474,7 @@ static void trv_ray_yawxprune_23ccw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "before" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane < g_camera.x)
@@ -564,7 +564,7 @@ static void trv_ray_yawyprune_12cw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "beyond" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane > g_camera.y)
@@ -655,7 +655,7 @@ static void trv_ray_yawyprune_12ccw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "beyond" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane > g_camera.y)
@@ -746,7 +746,7 @@ static void trv_ray_yawyprune_34cw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "before" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane < g_camera.y)
@@ -755,7 +755,7 @@ static void trv_ray_yawyprune_34cw(FAR struct trv_rect_head_s *outlist,
 
           rely = g_camera.y - rect->plane;
 
-          /* Calculate the X position at this relative Y position.  We can skip 
+          /* Calculate the X position at this relative Y position.  We can skip
            * this step if we are processing another rectangle at the same rely
            * distance.
            */
@@ -837,7 +837,7 @@ static void trv_ray_yawyprune_34ccw(FAR struct trv_rect_head_s *outlist,
       rect = &entry->d;
 
       /* Search for a rectangle which lies "before" the current camera
-       * position 
+       * position
        */
 
       if (rect->plane < g_camera.y)
@@ -1280,7 +1280,7 @@ void trv_ray_pitchprune(int16_t pitchstart, int16_t pitchend)
 
           g_working_planestate = WTOP;
         }
-    }    
+    }
   else if (pitchstart <= ANGLE_180)
     {
       /* The view is split between the upper and lower hemispheres */

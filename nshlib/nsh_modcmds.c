@@ -144,7 +144,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       FAR char *data;
       FAR char *datasize;
       FAR char *lasts;
-      
+
       /* Form of returned data is:
        *
        *  "%s,%p,%p,%p,%p,%lu,%p,%lu\n"

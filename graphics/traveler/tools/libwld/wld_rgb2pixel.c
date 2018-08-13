@@ -53,7 +53,7 @@ wld_pixel_t wld_rgb2pixel(color_rgb_t * pixel)
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
   color_lum_t lum;
 
-  /* Convert the RGB Value into a luminance value. Get the luminance associated 
+  /* Convert the RGB Value into a luminance value. Get the luminance associated
    * with the RGB value.
    */
 

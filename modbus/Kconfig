@@ -156,7 +156,7 @@ if 0
 config MB_ASCII_MASTER
 	bool "Modbus ASCII master"
 	default n
-endif 
+endif
 
 config MB_RTU_MASTER
 	bool "Modbus RTU master"
@@ -194,7 +194,7 @@ config MB_MASTER_TIMEOUT_MS_RESPOND
 		When master sends frame, which is not broadcast, it should wait for
 		given time duration for slave response. If slave doesn't respond
 		during give time period, the master will process timeout
-		error and only then it will be able to send new frame. 
+		error and only then it will be able to send new frame.
 
 config MB_MASTER_FUNC_READ_INPUT_ENABLED
 	bool "Read Input Registers function"

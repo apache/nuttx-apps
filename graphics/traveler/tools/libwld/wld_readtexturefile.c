@@ -65,7 +65,7 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: 
+ * Name:
  * Description:
  *   Return the log base 2 of the argument, or -1 if the argument is not
  *   an integer power of 2.

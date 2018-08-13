@@ -313,7 +313,7 @@ int gpio_main(int argc, char *argv[])
       default:
         fprintf(stderr, "ERROR: Unrecognized pintype: %d\n", (int)pintype);
         close(fd);
-        return EXIT_FAILURE;    
+        return EXIT_FAILURE;
     }
 
   close(fd);

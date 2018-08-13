@@ -1735,7 +1735,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
           ++thisnotindent; ++nextindent;
         }
         break;
-      } 
+      }
       case T_SELECTCASE: thisnotindent+=2; nextindent+=2; break;
       case T_EQ:
       {

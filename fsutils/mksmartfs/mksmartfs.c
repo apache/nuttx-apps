@@ -82,7 +82,7 @@
  *
  * Inputs:
  *   pathname   - the full path to a registered block driver
- *   sectorsize - the size of logical sectors on the device from 256-16384.  
+ *   sectorsize - the size of logical sectors on the device from 256-16384.
  *                Setting this to zero will cause the device to be formatted
  *                using the default CONFIG_MTD_SMART_SECTOR_SIZE value.
  *   nrootdirs  - Number of root directory entries to create.

@@ -236,7 +236,7 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
 }
 
 /* Closes a Buffered File */
- 
+
 int bfclose(FAR struct bfile_s *bf)
 {
   int r;

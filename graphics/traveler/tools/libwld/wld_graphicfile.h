@@ -35,7 +35,7 @@
 
 /*************************************************************************
  * FILE: wld_graphicfile.h
- * DESCRIPTION:  
+ * DESCRIPTION:
  *************************************************************************/
 
 #ifndef __APPS_GRAPHICS_TRAVELER_TOOLS_LIBWLD_WLD_GRAPHIFILE_H

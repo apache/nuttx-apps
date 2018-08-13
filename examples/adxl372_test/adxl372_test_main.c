@@ -140,7 +140,7 @@ static char subtest_prompt(FAR char *prompt)
  * Name: adxl372_test
  *
  * Description:
- *   This function is public so that it can be called by board diagnostic 
+ *   This function is public so that it can be called by board diagnostic
  *   programs that contain the ADXL372.
  *
  ******************************************************************************/

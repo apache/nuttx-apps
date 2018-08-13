@@ -277,7 +277,7 @@ static int trv_ini_filename(INIHANDLE inihandle, FAR const char *path,
  * Name: trv_manage_wldfile
  *
  * Description:
- *   This is the guts of trv_world_create.  It is implemented as a separate 
+ *   This is the guts of trv_world_create.  It is implemented as a separate
  *   function in order to simplify error handling
  *
  ****************************************************************************/
@@ -289,7 +289,7 @@ static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
 
   /* Read the initial camera/player position */
 
-  ret = trv_ini_short(inihandle, &g_initial_camera.x, 
+  ret = trv_ini_short(inihandle, &g_initial_camera.x,
                       g_camera_section_name, g_camera_initialx_name);
   if (ret < 0)
     {
@@ -319,7 +319,7 @@ static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
       return ret;
     }
 
-  ret = trv_ini_short(inihandle, &g_initial_camera.pitch, 
+  ret = trv_ini_short(inihandle, &g_initial_camera.pitch,
                       g_camera_section_name, g_camera_initialpitch_name);
   if (ret < 0)
     {

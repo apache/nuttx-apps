@@ -124,14 +124,14 @@ static FAR void *sem_waiter(FAR void *parameter)
   if (!parameter)
     {
       /* Release the mutex */
- 
+
       printf("sem_waiter: Releasing mutex\n");
       status = pthread_mutex_unlock(&mutex);
       if (status != 0)
         {
           printf("sem_waiter: ERROR pthread_mutex_unlock failed, status=%d\n", status);
         }
- 
+
       /* Set the cancelable state */
 
       printf("sem_waiter: Setting cancelable\n");

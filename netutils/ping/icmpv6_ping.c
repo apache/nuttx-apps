@@ -77,10 +77,10 @@
  * Name: icmpv6_echo_request
  *
  * Description:
- *   Format an ICMPv6 Echo Request message. 
+ *   Format an ICMPv6 Echo Request message.
  *
  * Parameters:
- *   
+ *
  *
  * Return:
  *   None
@@ -267,7 +267,7 @@ int ipv6_ping(FAR struct sockaddr_in6 *raddr,
               break;
             }
         }
-      else if (nrecvd >= PING6_BUFFER_SIZE && 
+      else if (nrecvd >= PING6_BUFFER_SIZE &&
                icmpv6->icmp6_type == ICMPv6_ECHO_REPLY)
         {
           ret = OK;

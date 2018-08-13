@@ -99,7 +99,7 @@ struct trv_raycast_s g_ray_hit[VGULP_SIZE][HGULP_SIZE + 1];
 
 FAR uint8_t *g_buffer_row[VGULP_SIZE];
 
-/* The is the "column" offset in g_buffer_row for the current cell being 
+/* The is the "column" offset in g_buffer_row for the current cell being
  * operated on.  This value is updated in a loop by trv_raycaster. */
 
 int16_t g_cell_column;
@@ -177,7 +177,7 @@ static void trv_resolve_cell(uint8_t toprow, uint8_t leftcol,
                   if (!SAME_CELL(toprow, (leftcol + width - 1),
                                  (toprow + height - 1), (leftcol + width - 1)))
                     {
-                      /* The right corners are not the same either.  Divide the 
+                      /* The right corners are not the same either.  Divide the
                        * cell into three cells, retaining the bottom half
                        * (whose corners might be the same).
                        */
@@ -248,7 +248,7 @@ static void trv_resolve_cell(uint8_t toprow, uint8_t leftcol,
                     }
 
                   /* The left corners are not the same, but the right are.
-                   * Divide the cell into three cells, retaining the right half 
+                   * Divide the cell into three cells, retaining the right half
                    */
 
                   else
@@ -362,7 +362,7 @@ static void trv_resolve_cell(uint8_t toprow, uint8_t leftcol,
 
           else if (!SAME_CELL(toprow, leftcol, (toprow + height - 1), leftcol))
             {
-              /* The top corners are the same, but left corners are not. Divide 
+              /* The top corners are the same, but left corners are not. Divide
                * the cell into two cells horizontally
                */
 
@@ -668,7 +668,7 @@ void trv_raycaster(FAR struct trv_camera_s *player,
   for (row = 0; (row < (IMAGE_HEIGHT - VGULP_SIZE + 1)); row += VGULP_SIZE)
     {
       /* Initialize the pitch angles that will be needed in the inner loop.
-       * These are pre-calculated so that once we get started, we need not have 
+       * These are pre-calculated so that once we get started, we need not have
        * to be concerned about zero crossing conditions.
        */
 
@@ -711,7 +711,7 @@ void trv_raycaster(FAR struct trv_camera_s *player,
 
           /* Perform Ray VGULP_SIZE x HGULP_SIZE Casting */
 
-          /* The hits at the right corners will be the same as the hits for for 
+          /* The hits at the right corners will be the same as the hits for for
            * the left hand corners on the next pass */
 
           g_ray_hit[TOP_ROW][RIGHT_COL] = g_ray_hit[TOP_ROW][LEFT_COL];
@@ -730,7 +730,7 @@ void trv_raycaster(FAR struct trv_camera_s *player,
           trv_resolve_cell(TOP_ROW, LEFT_COL, VGULP_SIZE, (HGULP_SIZE + 1));
         }
 
-      /* End of the pitch loop.  Bump up the pitch angle and the rending buffer 
+      /* End of the pitch loop.  Bump up the pitch angle and the rending buffer
        * pointer for the next time through the outer loop */
 
       pitch -= (VGULP_SIZE * VIDEO_ROW_ANGLE);

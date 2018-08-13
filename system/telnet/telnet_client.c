@@ -327,7 +327,7 @@ int telnet_main(int argc, char *argv[])
     {
       portno = DEFAULT_PORT;
     }
-    
+
   /* Convert the <server-IP-addr> argument into a binary address */
 
   memset(&local, 0, sizeof(local));

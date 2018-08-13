@@ -77,7 +77,7 @@ void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask)
    * Eg. preflen = 38
    *     NETMASK: ffff ffff fc00 0000  0000 0000 0000 0000
    *     bit:                                       1 1..1
-   *                 1 1..3 3..4 4..6  6..7 8..9 9..1 1..2  
+   *                 1 1..3 3..4 4..6  6..7 8..9 9..1 1..2
    *              0..5 6..1 2..7 8..3  4..9 0..5 6..1 2..7
    *     preflen:                                   1 1..1
    *                 1 1..3 3..4 4..6  6..8 8..9 9..1 1..2

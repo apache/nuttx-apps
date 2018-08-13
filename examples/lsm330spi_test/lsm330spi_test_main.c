@@ -151,7 +151,7 @@ static char subtest_prompt(FAR char *prompt)
  * Name: lsm330acl_test
  *
  * Description:
- *   This function is public so that it can be called by board diagnostic 
+ *   This function is public so that it can be called by board diagnostic
  *   programs that contain the LSM330.
  *
  ****************************************************************************/
@@ -384,7 +384,7 @@ quick_exit:
  * Name: lsm330gyro_test
  *
  * Description:
- *   This function is public so that it can be called by board diagnostic 
+ *   This function is public so that it can be called by board diagnostic
  *  programs that contain the LSM330.
  *
  ****************************************************************************/

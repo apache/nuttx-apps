@@ -119,8 +119,8 @@ struct obd_dev_s *obd_init(char *devfile, int baudate, int mode)
     }
 
   dev->can_mode = mode;
- 
+
   printf("OBD-II device initialized!\n");
- 
+
   return dev;
 }

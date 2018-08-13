@@ -1748,7 +1748,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
 
   if (ret >= 0)
     {
-      ret = lesp_send_cmd("AT+CIP%s_CUR?\r\n", 
+      ret = lesp_send_cmd("AT+CIP%s_CUR?\r\n",
                           (mode == lesp_eMODE_STATION)?"STA":"AP");
     }
 

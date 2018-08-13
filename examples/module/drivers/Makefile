@@ -37,8 +37,8 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ALL_SUBDIRS = chardev 
-BUILD_SUBDIRS = chardev 
+ALL_SUBDIRS = chardev
+BUILD_SUBDIRS = chardev
 FSIMG_SUBDIR = fsroot
 
 MODULE_DIR = $(APPDIR)/examples/module

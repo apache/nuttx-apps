@@ -842,7 +842,7 @@ int worm_main(int argc, char *argv[])
 
 #endif /* KEY_RESIZE */
 
-          /* Make it simple to put this into single-step mode, or resume normal 
+          /* Make it simple to put this into single-step mode, or resume normal
            * operation - T. Dickey
            */
 

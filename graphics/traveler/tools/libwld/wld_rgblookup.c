@@ -171,7 +171,7 @@ void wld_rgblookup_allocate(void)
 
   lut = g_rgb_lut;
 
-  /* Save the color information and color lookup table for use in color mapping 
+  /* Save the color information and color lookup table for use in color mapping
    * below. */
 
   g_lum_lut = (color_lum_t *)
@@ -245,7 +245,7 @@ void wld_rgblookup_allocate(void)
     }
 
   /* Calculate the cube to wld_pixel_t scale factor.  This factor will convert
-   * an RGB component in the range {0..RGB_CUBE_SIZE-1} to a value in the range 
+   * an RGB component in the range {0..RGB_CUBE_SIZE-1} to a value in the range
    * {0..WLD_PIXEL_MAX}. */
 
   g_wld_cube2pixel = (float)WLD_PIXEL_MAX / (float)(RGB_CUBE_SIZE - 1);

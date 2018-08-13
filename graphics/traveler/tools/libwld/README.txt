@@ -16,7 +16,7 @@ Build instuctions:
 
     3. cd apps/graphics/traveler/tools/nuttx
     4. make TOPDIR=<nuttx directory>
- 
+
   Then you can build the world library:
 
     5. cd apps/graphics/traveler/tools/libwld

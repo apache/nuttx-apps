@@ -100,25 +100,25 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
   /* REVISIT:  Should support all advertising type.  Only ADV_IND is
    * supported:
    *
-   * ADV_IND 
+   * ADV_IND
    *   Known as Advertising Indications (ADV_IND), where a peripheral device
    *   requests connection to any central device (i.e., not directed at a
-   *   particular central device).  
-   *   Example:  A smart watch requesting connection to any central device. 
-   * ADV_DIRECT_IND 
+   *   particular central device).
+   *   Example:  A smart watch requesting connection to any central device.
+   * ADV_DIRECT_IND
    *   Similar to ADV_IND, yet the connection request is directed at a
    *   specific central device.
    *   Example: A smart watch requesting connection to a specific central
    *   device.
-   * ADV_NONCONN_IND 
+   * ADV_NONCONN_IND
    *   Non connectible devices, advertising information to any listening
    *   device.
    *   Example:  Beacons in museums defining proximity to specific exhibits.
-   * ADV_SCAN_IND 
+   * ADV_SCAN_IND
    *   Similar to ADV_NONCONN_IND, with the option additional information via
-   *   scan responses.  
+   *   scan responses.
    *   Example:  A warehouse pallet beacon allowing a central device to
-   *   request additional information about the pallet.  
+   *   request additional information about the pallet.
    */
 
   /* The data for advertisement and response packets are provided as arrays

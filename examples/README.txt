@@ -1540,7 +1540,7 @@ examples/powerled
     1. Demo mode
 
     2. Continuous mode
-    
+
     3. Flash mode
 
 examples/pty_test

@@ -567,7 +567,7 @@ trv_pixel_t trv_color_rgb2pixel(struct trv_color_rgb_s *pixel)
      }
    else
      {
-       lum.red = lum.green = lum.blue = g_unit_vector[GREY_NDX].red; 
+       lum.red = lum.green = lum.blue = g_unit_vector[GREY_NDX].red;
      }
 
    return trv_color_lum2pixel(&lum);

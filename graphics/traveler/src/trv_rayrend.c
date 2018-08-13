@@ -121,7 +121,7 @@ static void trv_rend_wallpixel(uint8_t row, uint8_t col);
 static const uint8_t g_invsize[VGULP_SIZE] =
 {
   0xff, 0xff, 0x80, 0x55, 0x40, 0x33, 0x2b, 0x25,  /* 0..7 */
-  0x20, 0x1c, 0x1a, 0x17, 0x15, 0x14, 0x12, 0x11   /* 8..15 */ 
+  0x20, 0x1c, 0x1a, 0x17, 0x15, 0x14, 0x12, 0x11   /* 8..15 */
 };
 
 /****************************************************************************
@@ -210,7 +210,7 @@ static void trv_rend_zcell(uint8_t row, uint8_t col, uint8_t height, uint8_t wid
 
   endcol = col + width;
   endrow = row + height;
-   
+
   /* Calculate the horizontal interpolation values */
   /* This is the H starting position (first row, first column) */
 

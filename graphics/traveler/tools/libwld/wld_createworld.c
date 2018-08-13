@@ -280,7 +280,7 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
 /*************************************************************************
  * Name: wld_read_shortint
  * Description: Reads a long value from the INI file and assures that
- *              it is within range for an a int16_t 
+ *              it is within range for an a int16_t
  ************************************************************************/
 
 static uint8_t wld_read_shortint(INIHANDLE handle,
@@ -303,7 +303,7 @@ static uint8_t wld_read_shortint(INIHANDLE handle,
 
       *variable_value = 0;
 
-      /* Is this because the integer was not found? or because it is really out 
+      /* Is this because the integer was not found? or because it is really out
        * of range. */
 
       if (value != INT32_MAX)

@@ -96,7 +96,7 @@ static bool verify_tls_info(uintptr_t value)
           printf("tls: ERROR Element %d: Set %lx / read %lx\n",
                  i, (unsigned long)value,
                  (unsigned long)info->tl_elem[i]);
-          fail = true;  
+          fail = true;
         }
     }
 

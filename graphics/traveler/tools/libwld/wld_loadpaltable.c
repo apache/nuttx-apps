@@ -166,7 +166,7 @@ uint8_t wld_load_paltable(char *file)
 
           lum.luminance *= scale;
 
-          /* Then save the pixel associated with this scaled value in the range 
+          /* Then save the pixel associated with this scaled value in the range
            * palette table */
 
           *palptr++ = wld_lum2pixel(&lum);
@@ -257,7 +257,7 @@ uint8_t wld_load_paltable(char *file)
 
                           plotcolor -= zone;
 
-                          /* Check if we have exceeded the range of this color. 
+                          /* Check if we have exceeded the range of this color.
                            * If so, then set the color to the clipColor */
 
                           if (plotcolor <=

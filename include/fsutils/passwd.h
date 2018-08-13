@@ -60,7 +60,7 @@
 /****************************************************************************
  * Name: passwd_adduser
  *
- * Description: 
+ * Description:
  *   Add a new user to the /etc/passwd file.  If the user already exists,
  *   then this function will fail with -EEXIST.
  *
@@ -80,7 +80,7 @@ int passwd_adduser(FAR const char *username, FAR const char *password);
 /****************************************************************************
  * Name: passwd_deluser
  *
- * Description: 
+ * Description:
  *   Remove an existing user from the /etc/passwd file.  If the user does
  *   not exist, then this function will fail.
  *
@@ -98,7 +98,7 @@ int passwd_deluser(FAR const char *username);
 /****************************************************************************
  * Name: passwd_update
  *
- * Description: 
+ * Description:
  *   Change a new user to the /etc/passwd file.  If the user does not exist,
  *   then this function will fail.
  *
@@ -118,7 +118,7 @@ int passwd_update(FAR const char *username, FAR const char *password);
 /****************************************************************************
  * Name: passwd_verify
  *
- * Description: 
+ * Description:
  *   Return true if the username exists in the /etc/passwd file and if the
  *   password matches the user password in that faile.
  *

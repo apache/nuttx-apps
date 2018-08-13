@@ -61,11 +61,11 @@ extern "C"
           int lower = std::tolower(i);
           std::printf("%3d %c %d %d %d %d %d %d %d %d %d %d %d %d %d %c %c\n",
                       i, std::isprint(i) ? i : '.',
-                      std::isspace(i), std::isascii(i), std::isprint(i), std::isgraph(i), 
-                      std::iscntrl(i), std::islower(i), std::isupper(i), std::isalpha(i), 
-                      std::isblank(i), std::isdigit(i), std::isalnum(i), std::ispunct(i), 
+                      std::isspace(i), std::isascii(i), std::isprint(i), std::isgraph(i),
+                      std::iscntrl(i), std::islower(i), std::isupper(i), std::isalpha(i),
+                      std::isblank(i), std::isdigit(i), std::isalnum(i), std::ispunct(i),
                       std::isxdigit(i),
-                      std::isprint(upper) ? upper : '.', 
+                      std::isprint(upper) ? upper : '.',
                       std::isprint(lower) ? lower : '.');
        }
 

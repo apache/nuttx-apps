@@ -55,6 +55,6 @@ int main(int argc, char **envp)
           putchar(ch);
         }
     }
-  
+
   return 0;
 }

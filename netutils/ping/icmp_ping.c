@@ -77,7 +77,7 @@
  *   Setup to send an ICMP packet
  *
  * Input Parameters:
- *   
+ *
  *
  * Return:
  *   None

@@ -307,7 +307,7 @@ int stat_main(int argc, char *argv[])
         {
           dump_stat(&statbuf);
         }
-  
+
       /* Try fstatfs */
 
       printf("\nTest fstatfs(%s)\n", path);

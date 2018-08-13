@@ -143,7 +143,7 @@ FAR const char *readline_prompt(FAR const char *prompt);
  * Assumptions:
  *   The vtbl string is statically allocated a global.  readline() will
  *   simply remember the pointer to the structure.  The structure must stay
- *   allocated and available.  Only one instance of such a structure is 
+ *   allocated and available.  Only one instance of such a structure is
  *   supported.  If there are multiple clients of readline(), they must all
  *   share the same tab-completion logic (with exceptions in the case of
  *   the kernel build).

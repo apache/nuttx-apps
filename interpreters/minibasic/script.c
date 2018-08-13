@@ -126,7 +126,7 @@ static FAR char *loadfile(FAR char *path)
  * Name: leftstring
  *
  * Description:
- *   
+ *
  *
  ****************************************************************************/
 

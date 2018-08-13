@@ -93,7 +93,7 @@ static djoy_buttonset_t g_djoylast;
 
 /* Joystick discrete names */
 
-static const char *g_djoynames[DJOY_NDISCRETES] = 
+static const char *g_djoynames[DJOY_NDISCRETES] =
 {
   "UP", "DOWN", "LEFT", "RIGHT", "SELECT", "FIRE", "JUMP", "RUN"
 };

@@ -42,7 +42,7 @@ STACKSIZE = 2048
 # LIS3DSH reader example
 
 ASRCS =
-CSRCS = 
+CSRCS =
 MAINSRC = lis3dsh_reader_main.c
 
 CONFIG_FLOX_IMUTEST_PROGNAME ?= lis3dsh_reader$(EXEEXT)

@@ -106,8 +106,8 @@ static bool wld_read_filename(FILE * fp, char *fileName)
           break;
         }
 
-      /* Get the character for the next time through the loop.  Every file name 
-       * should be terminated with a space or a new line.  EOF is unexpected in 
+      /* Get the character for the next time through the loop.  Every file name
+       * should be terminated with a space or a new line.  EOF is unexpected in
        * this context. */
 
       ch = getc(fp);

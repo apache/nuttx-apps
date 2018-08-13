@@ -376,7 +376,7 @@ eMBErrorCode eMBMasterPoll(void)
                 }
             }
 
-          /* If master has exception, Master will send error process. Otherwise 
+          /* If master has exception, Master will send error process. Otherwise
            * the Master is idle.
            */
 

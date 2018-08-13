@@ -326,7 +326,7 @@ static double factorial(double x);
  *   Sets up all our globals, including the list of lines.
  *   Params: script - the script passed by the user
  *   Returns: 0 on success, -1 on failure
- *   
+ *
  *
  ****************************************************************************/
 
@@ -1010,7 +1010,7 @@ static int dogoto(void)
  *
  * Description:
  *   The FOR statement.
- * 
+ *
  *   Pushes the for stack.
  *   Returns line to jump to, or -1 to end program
  *
@@ -1266,7 +1266,7 @@ static void dorem(void)
  *   Get an lvalue from the environment
  *   Params: lv - structure to fill.
  *   Notes: missing variables (but not out of range subscripts)
- *          are added to the variable list.  
+ *          are added to the variable list.
  *
  ****************************************************************************/
 
@@ -2083,7 +2083,7 @@ static double instr(void)
  * Description:
  *   Get the value of a scalar variable from string
  *   matches FLTID
- *   
+ *
  *
  ****************************************************************************/
 

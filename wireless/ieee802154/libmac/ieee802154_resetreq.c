@@ -54,7 +54,7 @@
  ****************************************************************************/
 
 int ieee802154_reset_req(int fd, bool resetattr)
-{ 
+{
   FAR struct ieee802154_reset_req_s req;
   int ret;
 
