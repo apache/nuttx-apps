@@ -180,11 +180,13 @@ static int button_daemon(int argc, char *argv[])
 
 #ifdef CONFIG_EXAMPLES_BUTTONS_NAMES
   btn_buttonset_t oldsample = 0;
-  int i;
 #endif
 
   int ret;
   int fd;
+  int i;
+
+  UNUSED(i);
 
   /* Indicate that we are running */
 
