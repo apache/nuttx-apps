@@ -9,6 +9,9 @@ config EXAMPLES_CALIB_UDELAY
 	select CLOCK_MONOTONIC
 	select LIBC_FLOATINGPOINT
 	---help---
+		Note that libm support is also required by this tool.  You
+		may select CONFIG_LIBM to use the NuttX libm if you are not
+		using an external libm.
 
 if EXAMPLES_CALIB_UDELAY
 

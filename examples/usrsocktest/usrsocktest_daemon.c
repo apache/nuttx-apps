@@ -127,7 +127,7 @@ static struct daemon_priv_s
 
   struct test_socket_s test_sockets[TEST_SOCKET_COUNT];
   sq_queue_t delayed_cmd_threads;
-} daemon =
+} g_ub_daemon =
   {
     .joined = true,
     .conf = NULL,
@@ -1628,7 +1628,7 @@ static FAR void *delayed_cmd_thread(FAR void *priv)
 
 int usrsocktest_daemon_start(FAR const struct usrsocktest_daemon_conf_s *conf)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   pthread_attr_t attr;
   int ret;
 
@@ -1693,7 +1693,7 @@ out:
 
 int usrsocktest_daemon_stop(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   FAR struct delayed_cmd_s *item, *next;
   FAR pthread_addr_t retval;
   char stopped;
@@ -1765,7 +1765,7 @@ out:
 
 int usrsocktest_daemon_get_num_active_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_active, sizeof(ret));
@@ -1777,7 +1777,7 @@ int usrsocktest_daemon_get_num_active_sockets(void)
 
 int usrsocktest_daemon_get_num_connected_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_connected, sizeof(ret));
@@ -1789,7 +1789,7 @@ int usrsocktest_daemon_get_num_connected_sockets(void)
 
 int usrsocktest_daemon_get_num_waiting_connect_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_waiting_connect, sizeof(ret));
@@ -1801,7 +1801,7 @@ int usrsocktest_daemon_get_num_waiting_connect_sockets(void)
 
 int usrsocktest_daemon_get_num_recv_empty_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_recv_empty, sizeof(ret));
@@ -1813,7 +1813,7 @@ int usrsocktest_daemon_get_num_recv_empty_sockets(void)
 
 ssize_t usrsocktest_daemon_get_send_bytes(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   size_t ret;
   int err;
 
@@ -1826,7 +1826,7 @@ ssize_t usrsocktest_daemon_get_send_bytes(void)
 
 ssize_t usrsocktest_daemon_get_recv_bytes(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   size_t ret;
   int err;
 
@@ -1839,7 +1839,7 @@ ssize_t usrsocktest_daemon_get_recv_bytes(void)
 
 int usrsocktest_daemon_get_num_unreachable_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_not_connected_refused,
@@ -1852,7 +1852,7 @@ int usrsocktest_daemon_get_num_unreachable_sockets(void)
 
 int usrsocktest_daemon_get_num_remote_disconnected_sockets(void)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret, err;
 
   err = get_daemon_value(priv, &ret, &priv->sockets_remote_disconnected,
@@ -1865,7 +1865,7 @@ int usrsocktest_daemon_get_num_remote_disconnected_sockets(void)
 
 int usrsocktest_daemon_pause_usrsock_handling(bool pause)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   int ret;
   char cmd = '*';
 
@@ -1893,7 +1893,7 @@ int usrsocktest_daemon_pause_usrsock_handling(bool pause)
 
 bool usrsocktest_send_delayed_command(const char cmd, unsigned int delay_msec)
 {
-  FAR struct daemon_priv_s *priv = &daemon;
+  FAR struct daemon_priv_s *priv = &g_ub_daemon;
   pthread_attr_t attr;
   FAR struct delayed_cmd_s *delayed_cmd;
   int ret;
