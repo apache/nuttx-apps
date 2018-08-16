@@ -1,7 +1,7 @@
 ############################################################################
 # apps/builtin/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,9 +60,20 @@ endif
 ROOTDEPPATH	= --dep-path .
 VPATH		=
 
+# RWILDCARD - Recursive wildcard used to get lists of files
+
+define RWILDCARD
+   $(foreach d,$(wildcard $1/*),$(call RWILDCARD,$d/)$(filter $(subst *,%,$2),$d)) 
+endef
+
+# Registry entry lists
+
+PDATLIST = $(call RWILDCARD, registry, *.pdat)
+BDATLIST = $(call RWILDCARD, registry, *.bdat)
+
 # Build Targets
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean preconfig
 .PRECIOUS: ../libapps$(LIBEXT)
 
@@ -80,31 +91,13 @@ builtin_list$(OBJEXT): builtin_list.h builtin_proto.h
 builtin_list.h: registry$(DELIM).updated
 	$(call DELFILE, .xx_builtin_list.h)
 	$(Q) touch .xx_builtin_list.h
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) (for /f %%G in ('dir /b registry\*.bdat') do ( type registry\%%G >> .xx_builtin_list.h )) || echo ""
-else
-	$(Q) ( \
-		filelist=`ls registry/*.bdat 2>/dev/null || echo ""`; \
-		for file in $$filelist; \
-			do cat $$file >> .xx_builtin_list.h; \
-		done; \
-	)
-endif
+	$(call CATFILE, .xx_builtin_list.h, $(BDATLIST))
 	$(Q) mv .xx_builtin_list.h builtin_list.h
 
 builtin_proto.h: registry$(DELIM).updated
 	$(call DELFILE, .xx_builtin_proto.h)
 	$(Q) touch .xx_builtin_proto.h
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) (for /f %%G in ('dir /b registry\*.pdat') do ( type registry\%%G >> .xx_builtin_proto.h )) || echo ""
-else
-	$(Q) ( \
-		filelist=`ls registry/*.pdat 2>/dev/null || echo ""`; \
-		for file in $$filelist; \
-			do cat $$file >> .xx_builtin_proto.h; \
-		done; \
-	)
-endif
+	$(call CATFILE, .xx_builtin_proto.h, $(PDATLIST))
 	$(Q) mv .xx_builtin_proto.h builtin_proto.h
 
 .built: $(OBJS)
