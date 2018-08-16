@@ -38,33 +38,27 @@ include $(APPDIR)/Make.defs
 
 # Source and object files
 
-ASRCS		=
-CSRCS		= builtin_forindex.c builtin_list.c exec_builtin.c
+ASRCS =
+CSRCS = builtin_forindex.c builtin_list.c exec_builtin.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\libapps$(LIBEXT)
+  BIN = ..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\libapps$(LIBEXT)
+  BIN = ..\\libapps$(LIBEXT)
 else
-  BIN		= ../libapps$(LIBEXT)
+  BIN = ../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
-VPATH		=
-
-# RWILDCARD - Recursive wildcard used to get lists of files
-
-define RWILDCARD
-   $(foreach d,$(wildcard $1/*),$(call RWILDCARD,$d/)$(filter $(subst *,%,$2),$d)) 
-endef
+ROOTDEPPATH = --dep-path .
+VPATH =
 
 # Registry entry lists
 
