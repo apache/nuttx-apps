@@ -3,19 +3,20 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config SYSTEM_SYSTEM
-	bool "System Command"
+config SYSTEM_POPEN
+	bool "popen()/pclose() Functions"
 	default n
 	select SCHED_WAITPID
 	depends on NSH_LIBRARY
 	---help---
-		Enable support for the system() interface.  This will support
-		execution of NSH commands from C code.
+		Enable support for the popen() and pclose() interfaces.
+		This will support execution of NSH commands from C code with
+		pipe communications with the shell.
 
-if SYSTEM_SYSTEM
+if SYSTEM_POPEN
 
-config SYSTEM_SYSTEM_STACKSIZE
-	int "system stack size"
+config SYSTEM_POPEN_STACKSIZE
+	int "Shell stack size"
 	default 2048 if !ARCH_SIM
 	default 4096 if ARCH_SIM
 	---help---
@@ -27,8 +28,8 @@ config SYSTEM_SYSTEM_STACKSIZE
 		have not caught).  I assume that a smaller stack would be okay on
 		real hardware, but I have not yet verified that.
 
-config SYSTEM_SYSTEM_PRIORITY
-	int "system priority"
+config SYSTEM_POPEN_PRIORITY
+	int "Shell priority"
 	default 100
 	---help---
 		The priority of the shell.

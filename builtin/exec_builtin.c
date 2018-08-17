@@ -192,11 +192,11 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       goto errout_with_actions;
     }
 
-  /* Free attibutes and file actions.  Ignoring return values in the case
+  /* Free attributes and file actions.  Ignoring return values in the case
    * of an error.
    */
 
-  /* Return the task ID of the new task if the task was sucessfully
+  /* Return the task ID of the new task if the task was successfully
    * started.  Otherwise, ret will be ERROR (and the errno value will
    * be set appropriately).
    */
