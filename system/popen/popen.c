@@ -247,7 +247,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
 
   /* Redirect input or output as determined by the mode parameter */
 
-  errcode = posix_spawn_file_actions_adddup2(&file_actions, oldfd, newfd);
+  errcode = posix_spawn_file_actions_adddup2(&file_actions, newfd, oldfd);
   if (errcode != 0)
     {
       goto errout_with_actions;
@@ -266,6 +266,12 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       serr("ERROR: task_spawn failed: %d\n", result);
       goto errout_with_actions;
     }
+
+  /* We can close the 'newfd' now.  It is no longer useful on this side of
+   * the interface.
+   */
+
+  (void)close(newfd);
 
   /* Free attributes and file actions.  Ignoring return values in the case
    * of an error.
