@@ -145,6 +145,9 @@ endif
 depend: .depend
 
 clean:
+ifeq ($(LOADABLE),y)
+	$(call DELFILE, $(APPNAME))
+endif
 	$(call DELFILE, .built)
 	$(call CLEAN)
 
