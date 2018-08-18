@@ -62,8 +62,8 @@ VPATH =
 
 # Registry entry lists
 
-PDATLIST = $(call RWILDCARD, registry, *.pdat)
-BDATLIST = $(call RWILDCARD, registry, *.bdat)
+PDATLIST = $(strip $(call RWILDCARD, registry, *.pdat))
+BDATLIST = $(strip $(call RWILDCARD, registry, *.bdat))
 
 # Build Targets
 
@@ -85,13 +85,17 @@ builtin_list$(OBJEXT): builtin_list.h builtin_proto.h
 builtin_list.h: registry$(DELIM).updated
 	$(call DELFILE, .xx_builtin_list.h)
 	$(Q) touch .xx_builtin_list.h
+ifneq ($(BDATLIST),)
 	$(call CATFILE, .xx_builtin_list.h, $(BDATLIST))
+endif
 	$(Q) mv .xx_builtin_list.h builtin_list.h
 
 builtin_proto.h: registry$(DELIM).updated
 	$(call DELFILE, .xx_builtin_proto.h)
 	$(Q) touch .xx_builtin_proto.h
+ifneq ($(PDATLIST),)
 	$(call CATFILE, .xx_builtin_proto.h, $(PDATLIST))
+endif
 	$(Q) mv .xx_builtin_proto.h builtin_proto.h
 
 .built: $(OBJS)
