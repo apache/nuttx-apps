@@ -42,7 +42,9 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <sched.h>
+#include <spawn.h>
 #include <assert.h>
+#include <debug.h>
 
 #include "nshlib/nshlib.h"
 
@@ -57,13 +59,13 @@
  *   Use system to pass a command string to the NSH parser and wait for it
  *   to finish executing.
  *
- *   This is an experimental version with known incompatibilies:
+ *   This is an experimental version with known incompatibilities:
  *
  *   1. It is not a part of libc due to its close association with NSH.  The
  *      function is still prototyped in nuttx/include/stdlib.h, however.
  *   2. It cannot use /bin/sh since that program will not exist in most
  *      embedded configurations.  Rather, it will spawn a shell-specific
- *      system command -- currenly only NSH.
+ *      system command -- currently only NSH.
  *   3. REVISIT: There may be some issues with returned values.
  *   4. Of course, only NSH commands will be supported so that still means
  *      that many leveraged system() calls will still not be functional.
@@ -72,24 +74,90 @@
 
 int system(FAR char *cmd)
 {
-  FAR char *nshargv[2];
-  int pid;
+  FAR char *argv[2];
+  struct sched_param param;
+  posix_spawnattr_t attr;
+  pid_t pid;
+  int errcode;
   int rc;
   int ret;
 
+  /* REVISIT: If cmd is NULL, then system() should return a non-zero value to
+   * indicate if the command processor is available or zero if it is not.
+   */
+
   DEBUGASSERT(cmd != NULL);
 
-  /* Spawn nsh_system() which will execute the command under the shell */
+  /* Initialize attributes for task_spawn() (or posix_spawn()). */
 
-  nshargv[0] = cmd;
-  nshargv[1] = NULL;
-
-  pid = task_create("system", CONFIG_SYSTEM_SYSTEM_PRIORITY,
-                    CONFIG_SYSTEM_SYSTEM_STACKSIZE, nsh_system,
-                    (FAR char * const *)nshargv);
-  if (pid < 0)
+  errcode = posix_spawnattr_init(&attr);
+  if (errcode != 0)
     {
-      return EXIT_FAILURE;
+      goto errout;
+    }
+
+  /* Set the correct stack size and priority */
+
+  param.sched_priority = CONFIG_SYSTEM_SYSTEM_PRIORITY;
+  errcode = posix_spawnattr_setschedparam(&attr, &param);
+  if (errcode != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+  errcode = task_spawnattr_setstacksize(&attr, CONFIG_SYSTEM_SYSTEM_STACKSIZE);
+  if (errcode != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+   /* If robin robin scheduling is enabled, then set the scheduling policy
+    * of the new task to SCHED_RR before it has a chance to run.
+    */
+
+#if CONFIG_RR_INTERVAL > 0
+  errcode = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
+  if (errcode != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+  errcode = posix_spawnattr_setflags(&attr,
+                                     POSIX_SPAWN_SETSCHEDPARAM |
+                                     POSIX_SPAWN_SETSCHEDULER);
+  if (errcode != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+#else
+  errcode = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
+  if (errcode != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+#endif
+
+  /* Spawn nsh_system() which will execute the command under the shell. */
+
+  argv[0] = cmd;
+  argv[1] = NULL;
+
+#ifdef CONFIG_BUILD_KERNEL
+  errcode = posix_spawn(&pid, CONFIG_SYSTEM_OPEN_SHPATH,  NULL, &attr,
+                        argv, (FAR char * const *)NULL);
+#else
+  errcode = task_spawn(&pid, "popen", nsh_system, NULL, &attr,
+                       argv, (FAR char * const *)NULL);
+#endif
+
+  /* Release the attributes and check for an error from the spawn operation */
+
+  if (errcode != 0)
+    {
+      serr("ERROR: Spawn failed: %d\n", result);
+      goto errout_with_attrs;
     }
 
   /* Wait for the shell to return */
@@ -97,8 +165,18 @@ int system(FAR char *cmd)
   ret = waitpid(pid, &rc, 0);
   if (ret < 0)
     {
-      return EXIT_FAILURE;
+      /* The errno variable has already been set */
+
+      rc = ERROR;
     }
 
+  (void)posix_spawnattr_destroy(&attr);
   return rc;
+
+errout_with_attrs:
+  (void)posix_spawnattr_destroy(&attr);
+
+errout:
+  set_errno(errcode);
+  return ERROR;
 }

@@ -47,6 +47,7 @@
 #include <sched.h>
 #include <spawn.h>
 #include <assert.h>
+#include <debug.h>
 
 #include "nshlib/nshlib.h"
 
@@ -188,7 +189,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       goto errout_with_pipe;
     }
 
-  /* Initialize attributes for task_spawn(). */
+  /* Initialize attributes for task_spawn() (or posix_spawn()). */
 
   errcode = posix_spawnattr_init(&attr);
   if (errcode != 0)
@@ -202,7 +203,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       goto errout_with_attrs;
     }
 
-  /* Set the correct task size and priority */
+  /* Set the correct stack size and priority */
 
   param.sched_priority = CONFIG_SYSTEM_POPEN_PRIORITY;
   errcode = posix_spawnattr_setschedparam(&attr, &param);
@@ -229,8 +230,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
     }
 
   errcode = posix_spawnattr_setflags(&attr,
-                                 POSIX_SPAWN_SETSCHEDPARAM |
-                                 POSIX_SPAWN_SETSCHEDULER);
+                                     POSIX_SPAWN_SETSCHEDPARAM |
+                                     POSIX_SPAWN_SETSCHEDULER);
   if (errcode != 0)
     {
       goto errout_with_actions;
@@ -253,17 +254,25 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       goto errout_with_actions;
     }
 
-  /* Call task_spawn(), re-directing stdin or stdout appropriately */
-  /* Start the built-in */
+  /* Call task_spawn() (or posix_spawn), re-directing stdin or stdout
+   * appropriately.
+   */
 
   argv[0] = (FAR char *)command;
   argv[1] = NULL;
 
+#ifdef CONFIG_BUILD_KERNEL
+  errcode = posix_spawn(&container->shell, CONFIG_SYSTEM_POPEN_SHPATH,
+                        &file_actions, &attr, argv,
+                        (FAR char * const *)NULL);
+#else
   errcode = task_spawn(&container->shell, "popen", nsh_system, &file_actions,
                        &attr, argv, (FAR char * const *)NULL);
+#endif
+
   if (errcode != 0)
     {
-      serr("ERROR: task_spawn failed: %d\n", result);
+      serr("ERROR: Spawn failed: %d\n", result);
       goto errout_with_actions;
     }
 
@@ -389,6 +398,6 @@ int pclose(FILE *stream)
 
   return status;
 #else
-  return EXIT_SUCCESS;
+  return OK;
 #endif
 }

@@ -7,13 +7,22 @@ config SYSTEM_POPEN
 	bool "popen()/pclose() Functions"
 	default n
 	select SCHED_WAITPID
-	depends on NSH_LIBRARY && !BUILD_KERNEL
+	depends on NSH_LIBRARY
 	---help---
 		Enable support for the popen() and pclose() interfaces.
 		This will support execution of NSH commands from C code with
 		pipe communications with the shell.
 
 if SYSTEM_POPEN
+
+config SYSTEM_POPEN_SHPATH
+	string "Path to shell command"
+	default "/bin/sh"
+	depends on BUILD_KERNEL
+	---help---
+		This is the full path to the program in a mounted file system that
+		implements the system() command.  That is, a program that starts the
+		NSH shell, executes one command (in argv[1]), then exits.
 
 config SYSTEM_POPEN_STACKSIZE
 	int "Shell stack size"
