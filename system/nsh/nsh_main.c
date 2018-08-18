@@ -103,6 +103,18 @@
 #  undef HAVE_DUMMY_SYMTAB
 #endif
 
+/* Check if we need to build in support for the system() and/or popen()
+ * functions.  In the KERNEL build mode (only), NSH is build as a ELF
+ * program and must be capable of executing a single command provided
+ * on the command line.
+ */
+
+#undef HAVE_NSH_COMMAND
+#if (defined(CONFIG_SYSTEM_SYSTEM) || defined(CONFIG_SYSTEM_POPEN)) && \
+     defined(CONFIG_BUILD_KERNEL)
+#  define HAVE_NSH_COMMAND 1
+#endif
+
 /* Check if we have met the BINFS requirement either via a board-provided
  * symbol table, an application provided symbol table, or a dummy symbol
  * table
@@ -161,18 +173,20 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 #endif
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_main
+ * Name: nsh_task
+ *
+ * Description:
+ *   This is the main logic for the case of the NSH task.  It will perform
+ *   one-time NSH initialization and start an interactive session on the
+ *   current console device.
+ *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int nsh_main(int argc, char *argv[])
-#endif
+static int nsh_task(void)
 {
 #if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_SYSTEM_NSH_SYMTAB)
   struct boardioc_symtab_s symdesc;
@@ -255,4 +269,42 @@ int nsh_main(int argc, char *argv[])
 #endif
 
   return exitval;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: nsh_main
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int nsh_main(int argc, char *argv[])
+#endif
+{
+  /* There are two modes that NSH can be executed in:
+   *
+   * 1) As a normal, interactive shell.  In this case, no arguments are
+   *    expected on the command line.  OR
+   * 2) As a single command processor.  In this case, the single command is
+   *    is provided in argv[1].
+   *
+   * NOTE:  The latter mode is only available if CONFIG_BUILD_KERNEL=y.  In
+   * that cause, this main() function will be build as a process.  The process
+   * will be started with a command by the implementations of the system() and
+   * popen() interfaces.
+   */
+
+#ifdef HAVE_NSH_COMMAND
+  if (argc > 1)
+    {
+      return nsh_system(argc, argv);
+    }
+#endif
+    {
+      return nsh_task();
+    }
 }
