@@ -76,7 +76,7 @@ BIN = libapps$(LIBEXT)
 # Symbol table for loadable apps.
 
 SYMTABSRC = $(APPDIR)$(DELIM)symtab_apps.c
-SYMTABOBJ = $(APPDIR)$(DELIM)symtab_apps.o
+SYMTABOBJ = $(APPDIR)$(DELIM)symtab_apps$(OBJEXT)
 
 # Build targets
 
@@ -103,7 +103,7 @@ $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
 make_symbols:
-ifeq ($(CONFIG_EXAMPLES_NSH_SYMTAB),y)
+ifeq ($(CONFIG_SYSTEM_NSH_SYMTAB),y)
 	mkdir -p $(BIN_DIR)
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BIN_DIR) $(SYMTABSRC)
 	$(call COMPILE, $(SYMTABSRC), $(SYMTABOBJ))
