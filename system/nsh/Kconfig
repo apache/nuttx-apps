@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_NSH
+config SYSTEM_NSH
 	bool "NuttShell (NSH) example"
 	default n
 	select NSH_LIBRARY
@@ -11,9 +11,9 @@ config EXAMPLES_NSH
 	---help---
 		Enable the NuttShell (NSH) example
 
-if EXAMPLES_NSH
+if SYSTEM_NSH
 
-config EXAMPLES_NSH_SYMTAB
+config SYSTEM_NSH_SYMTAB
 	bool "Register symbol table"
 	default n
 	depends on LIBC_EXECFUNCS && LIB_BOARDCTL && !EXECFUNCS_HAVE_SYMTAB
@@ -38,8 +38,9 @@ config EXAMPLES_NSH_SYMTAB
 		of the necessary symbols in place.  Otherwise, you probably do *not*
 		want this option!
 
-if EXAMPLES_NSH_SYMTAB
-config EXAMPLES_NSH_SYMTAB_ARRAYNAME
+if SYSTEM_NSH_SYMTAB
+
+config SYSTEM_NSH_SYMTAB_ARRAYNAME
 	string "Symbol table used by exec[l|v]"
 	default "g_exports"
 	---help---
@@ -48,7 +49,7 @@ config EXAMPLES_NSH_SYMTAB_ARRAYNAME
 		code, and (2) the number of symbols in that table.  This selection
 		provides the name of that symbol table.
 
-config EXAMPLES_NSH_SYMTAB_COUNTNAME
+config SYSTEM_NSH_SYMTAB_COUNTNAME
 	string "Variable holding the number of symbols"
 	default "g_nexports"
 	---help---
@@ -58,9 +59,9 @@ config EXAMPLES_NSH_SYMTAB_COUNTNAME
 		provides the name of 'int' variable that holds the number of symbol
 		in the table.
 
-endif # EXAMPLES_NSH_SYMTAB
+endif # SYSTEM_NSH_SYMTAB
 
-config EXAMPLES_NSH_PROGNAME
+config SYSTEM_NSH_PROGNAME
 	string "Program name"
 	default "nsh"
 	depends on BUILD_KERNEL
@@ -68,7 +69,7 @@ config EXAMPLES_NSH_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_NSH_CXXINITIALIZE
+config SYSTEM_NSH_CXXINITIALIZE
 	bool "C++ Initialization"
 	default n
 	depends on HAVE_CXX && HAVE_CXXINITIALIZE

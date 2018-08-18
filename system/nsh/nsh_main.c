@@ -74,7 +74,7 @@
 
 #if !defined(CONFIG_LIBC_EXECFUNCS)
 #  undef HAVE_DUMMY_SYMTAB
-#  undef CONFIG_EXAMPLES_NSH_SYMTAB
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
 /* boardctl() support is also required  for application-space symbol table
@@ -83,7 +83,7 @@
 
 #if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
 #  undef HAVE_DUMMY_SYMTAB
-#  undef CONFIG_EXAMPLES_NSH_SYMTAB
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
 /* If a symbol table is provided by board-specific logic, then we do not
@@ -92,14 +92,14 @@
 
 #ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
 #  undef HAVE_DUMMY_SYMTAB
-#  undef CONFIG_EXAMPLES_NSH_SYMTAB
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
 /* If we are going to use the application-space symbol table, then suppress
  * the dummy symbol table.
  */
 
-#if defined(CONFIG_EXAMPLES_NSH_SYMTAB)
+#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
 #  undef HAVE_DUMMY_SYMTAB
 #endif
 
@@ -109,7 +109,7 @@
  */
 
 #if defined(CONFIG_FS_BINFS) && !defined(HAVE_DUMMY_SYMTAB) && \
-   !defined(CONFIG_EXAMPLES_NSH_SYMTAB) && \
+   !defined(CONFIG_SYSTEM_NSH_SYMTAB) && \
    !defined(CONFIG_EXECFUNCS_HAVE_SYMTAB)
 #  warning "Prequisites not met for BINFS symbol table"
 #endif
@@ -117,7 +117,7 @@
 /* C++ initialization requires CXX initializer support */
 
 #if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
-#  undef CONFIG_EXAMPLES_NSH_CXXINITIALIZE
+#  undef CONFIG_SYSTEM_NSH_CXXINITIALIZE
 #endif
 
 /* The NSH telnet console requires networking support (and TCP/IP) */
@@ -153,10 +153,10 @@
 
 static const struct symtab_s g_dummy_symtab[1];  /* Wasted memory! */
 
-#elif defined(CONFIG_EXAMPLES_NSH_SYMTAB)
+#elif defined(CONFIG_SYSTEM_NSH_SYMTAB)
 
-extern const struct symtab_s CONFIG_EXAMPLES_NSH_SYMTAB_ARRAYNAME[];
-extern const int CONFIG_EXAMPLES_NSH_SYMTAB_COUNTNAME;
+extern const struct symtab_s CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME[];
+extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 
 #endif
 
@@ -174,28 +174,28 @@ int main(int argc, FAR char *argv[])
 int nsh_main(int argc, char *argv[])
 #endif
 {
-#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_EXAMPLES_NSH_SYMTAB)
+#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_SYSTEM_NSH_SYMTAB)
   struct boardioc_symtab_s symdesc;
 #endif
   int exitval = 0;
   int ret;
 
-#if defined(CONFIG_EXAMPLES_NSH_CXXINITIALIZE)
+#if defined(CONFIG_SYSTEM_NSH_CXXINITIALIZE)
   /* Call all C++ static constructors */
 
   up_cxxinitialize();
 #endif
 
-#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_EXAMPLES_NSH_SYMTAB)
+#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_SYSTEM_NSH_SYMTAB)
 #if defined(HAVE_DUMMY_SYMTAB)
   /* Make sure that we are using our symbol table */
 
   symdesc.symtab   = (FAR struct symtab_s *)g_dummy_symtab; /* Discard 'const' */
   symdesc.nsymbols = 0;
 
-#else  /* if defined(CONFIG_EXAMPLES_NSH_SYMTAB) */
-  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_EXAMPLES_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
-  symdesc.nsymbols = CONFIG_EXAMPLES_NSH_SYMTAB_COUNTNAME;
+#else  /* if defined(CONFIG_SYSTEM_NSH_SYMTAB) */
+  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
+  symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 #endif
 
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);

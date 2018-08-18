@@ -16,7 +16,7 @@ if SYSTEM_SYSTEM
 
 config SYSTEM_SYSTEM_SHPATH
 	string "Path to shell command"
-	default "/bin/sh"
+	default "/bin/nsh"
 	depends on BUILD_KERNEL
 	---help---
 		This is the full path to the program in a mounted file system that
