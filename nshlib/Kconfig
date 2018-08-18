@@ -14,7 +14,7 @@ config NSH_LIBRARY
 	select READLINE_HAVE_EXTMATCH
 	---help---
 		Build the NSH support library.  This is used, for example, by
-		examples/nsh in order to implement the full NuttShell (NSH).
+		system/nsh in order to implement the full NuttShell (NSH).
 
 if NSH_LIBRARY
 

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/nsh/Make.defs
+# apps/system/nsh/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2015 Gregory Nutt. All rights reserved.
@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_NSH),y)
-CONFIGURED_APPS += examples/nsh
+CONFIGURED_APPS += system/nsh
 endif

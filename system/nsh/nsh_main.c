@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nsh/nsh_main.c
+ * system/nsh/nsh_main.c
  *
  *   Copyright (C) 2007-2013, 2017-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
