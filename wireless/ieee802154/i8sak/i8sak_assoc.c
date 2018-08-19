@@ -214,6 +214,8 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 #endif
 
+  i8sak_requestdaemon(i8sak);
+
   /* Register new callback for receiving the association notifications. */
 
   memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));
@@ -260,7 +262,6 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak->result = -EBUSY;
 
       ret = sem_wait(&i8sak->sigsem);
-      sem_post(&i8sak->exclsem);
       if (ret != OK)
         {
           i8sak->assoc = false;
@@ -311,6 +312,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   /* Clean up and return */
 
   (void)i8sak_eventlistener_removereceiver(i8sak, assoc_eventcb);
+  i8sak_releasedaemon(i8sak);
   close(fd);
 }
 

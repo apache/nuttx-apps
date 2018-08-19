@@ -171,6 +171,8 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   close(fd);
 
+  i8sak_requestdaemon(i8sak);
+
   /* Start the sniffer thread. We use the existing daemon thread so that this
    * thread belongs to the daemon task group.
    */

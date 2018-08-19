@@ -201,6 +201,8 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       tx.meta.flags.indirect = false;
     }
 
+  i8sak_requestdaemon(i8sak);
+
   /* Register new oneshot callback for receiving the association notifications */
 
   memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
@@ -296,4 +298,6 @@ static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *a
     }
 
   sem_post(&i8sak->sigsem);
+
+  i8sak_requestdaemon(i8sak);
 }

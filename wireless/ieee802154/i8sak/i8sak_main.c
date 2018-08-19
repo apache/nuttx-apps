@@ -141,6 +141,100 @@ static void i8sak_switch_instance(FAR char *ifname);
  ****************************************************************************/
 
 /****************************************************************************
+ * Name : i8sak_requestdaemon
+ *
+ * Description :
+ *
+ ****************************************************************************/
+
+int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
+{
+  char daemonname[I8SAK_MAX_DAEMONNAME];
+  int ret;
+  int len;
+
+  ret = sem_wait(&i8sak->daemonlock);
+  if (ret < 0)
+    {
+      DEBUGASSERT(ret == EINTR);
+      return ret;
+    }
+
+  if (++i8sak->daemonusers == 1)
+    {
+      /* Create strings for task based on device. i.e. i8_ieee0 */
+
+      if (i8sak->mode == I8SAK_MODE_CHAR)
+        {
+          len = strlen(i8sak->ifname);
+          snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + (len - 5),
+                   I8SAK_DAEMONNAME_FMT, &i8sak->ifname[5]);
+        }
+#ifdef CONFIG_NET_6LOWPAN
+      else if (i8sak->mode == I8SAK_MODE_NETIF)
+        {
+          len = strlen(i8sak->ifname);
+          snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + len,
+                   I8SAK_DAEMONNAME_FMT, i8sak->ifname);
+        }
+#endif
+
+      i8sak->daemon_started = true;
+      i8sak->daemon_pid = task_create(daemonname, CONFIG_IEEE802154_I8SAK_PRIORITY,
+                                      CONFIG_IEEE802154_I8SAK_STACKSIZE, i8sak_daemon,
+                                      NULL);
+      if (i8sak->daemon_pid < 0)
+        {
+          fprintf(stderr, "failed to start daemon\n");
+          sem_post(&i8sak->daemonlock);
+          return ERROR;
+        }
+
+      /* Use the signal semaphore to wait for daemon to start before returning */
+
+      ret = sem_wait(&i8sak->sigsem);
+      if (ret < 0)
+        {
+          fprintf(stderr, "i8sak:interrupted while daemon starting\n");
+          sem_post(&i8sak->daemonlock);
+          return ret;
+        }
+    }
+
+  sem_post(&i8sak->daemonlock);
+  return 0;
+}
+
+/****************************************************************************
+ * Name : i8sak_releasedaemon
+ *
+ * Description :
+ *
+ ****************************************************************************/
+
+int i8sak_releasedaemon(FAR struct i8sak_s *i8sak)
+{
+  int ret;
+
+  ret = sem_wait(&i8sak->daemonlock);
+  if (ret < 0)
+    {
+      DEBUGASSERT(ret == EINTR);
+      return ret;
+    }
+
+  /* If this was the last user, signal the daemon to shutdown */
+
+  if (--i8sak->daemonusers == 0)
+    {
+      i8sak->daemon_shutdown = true;
+      sem_post(&i8sak->updatesem);
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * Name : i8sak_str2payload
  *
  * Description :
@@ -496,10 +590,7 @@ static void i8sak_switch_instance(FAR char *ifname)
 
 static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
 {
-  char daemonname[I8SAK_MAX_DAEMONNAME];
   int i;
-  int ret;
-  int len;
   int fd = 0;
 
   if (i8sak->initialized)
@@ -507,22 +598,20 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
       return OK;
     }
 
-  i8sak->chan = 11;
-  i8sak->chpage = 0;
-
   if (strlen(ifname) > I8SAK_MAX_IFNAME)
     {
       fprintf(stderr, "ERROR: ifname too long\n");
       return ERROR;
     }
-
   strcpy(&i8sak->ifname[0], ifname);
 
+  i8sak->chan = 11;
+  i8sak->chpage = 0;
   i8sak->addrmode = IEEE802154_ADDRMODE_SHORT;
 
-  /* Initialize the default remote endpoint address */
-
   i8sak->ep_addr.mode = IEEE802154_ADDRMODE_SHORT;
+
+  /* Initialize the default remote endpoint address */
 
   for (i = 0; i < IEEE802154_EADDRSIZE; i++)
    {
@@ -610,8 +699,11 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
 
   sem_init(&i8sak->eventsem, 0, 1);
 
+  sem_init(&i8sak->daemonlock, 0, 1);
+
   i8sak->daemon_started = false;
   i8sak->daemon_shutdown = false;
+  i8sak->daemonusers = 0;
 
   i8sak->eventlistener_run = false;
   sq_init(&i8sak->eventreceivers);
@@ -622,41 +714,6 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
     }
 
   i8sak->blasterperiod = 1000;
-
-  /* Create strings for task based on device. i.e. i8_ieee0 */
-
-  if (i8sak->mode == I8SAK_MODE_CHAR)
-    {
-      len = strlen(ifname);
-      snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + (len - 5),
-               I8SAK_DAEMONNAME_FMT, &ifname[5]);
-    }
-#ifdef CONFIG_NET_6LOWPAN
-  else if (i8sak->mode == I8SAK_MODE_NETIF)
-    {
-      len = strlen(ifname);
-      snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + len,
-               I8SAK_DAEMONNAME_FMT, ifname);
-    }
-#endif
-
-  i8sak->daemon_pid = task_create(daemonname, CONFIG_IEEE802154_I8SAK_PRIORITY,
-                                  CONFIG_IEEE802154_I8SAK_STACKSIZE, i8sak_daemon,
-                                  NULL);
-  if (i8sak->daemon_pid < 0)
-    {
-      fprintf(stderr, "failed to start daemon\n");
-      return ERROR;
-    }
-
-  /* Use the signal semaphore to wait for daemon to start before returning */
-
-  ret = sem_wait(&i8sak->sigsem);
-  if (ret < 0)
-    {
-      fprintf(stderr, "i8sak:interrupted while daemon starting\n");
-      return ERROR;
-    }
 
   i8sak->initialized = true;
   return OK;
@@ -675,7 +732,6 @@ static int i8sak_daemon(int argc, FAR char *argv[])
   int ret;
 
   fprintf(stderr, "i8sak: daemon started\n");
-  i8sak->daemon_started = true;
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
     {
@@ -766,12 +822,12 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    acceptassoc [-h|e]\n"
           "    assoc [-h|p|e|s|w|r|t]\n"
           "    blaster [-h|q|f|p]\n"
-          "    get [-h] parameter"
+          "    get [-h] parameter\n"
           "    poll [-h]\n"
           "    regdump [-h]\n"
           "    reset [-h]\n"
           "    scan [-h|p|a|e] minch-maxch\n"
-          "    set [-h] param val"
+          "    set [-h] param val\n"
           "    sniffer [-h|d]\n"
           "    startpan [-h|b|s] xx:xx\n"
           "    tx [-h|d|m] <hex-payload>\n"

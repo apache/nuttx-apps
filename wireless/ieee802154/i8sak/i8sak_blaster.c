@@ -98,6 +98,8 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   int option;
 
+  i8sak_requestdaemon(i8sak);
+
   if (argc < 2)
     {
       i8sak_blaster_start(i8sak);

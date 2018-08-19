@@ -110,6 +110,8 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
+  i8sak_requestdaemon(i8sak);
+
   /* Register new oneshot callback for receiving the association notifications */
 
   memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
@@ -163,6 +165,8 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       printf("i8sak: poll cancelled\n");
       i8sak_cmd_error(i8sak);
     }
+
+  i8sak_releasedaemon(i8sak);
 }
 
 /****************************************************************************

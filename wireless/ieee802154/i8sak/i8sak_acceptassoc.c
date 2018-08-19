@@ -156,6 +156,8 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
       printf("i8sak: accepting all assoc requests\n");
     }
 
+  i8sak_requestdaemon(i8sak);
+
   /* Register new callback for receiving the association notifications */
 
   memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));

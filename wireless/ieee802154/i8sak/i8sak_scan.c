@@ -161,6 +161,8 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       scan.channels[i] = minchannel + i;
     }
 
+  i8sak_requestdaemon(i8sak);
+
   /* Register new callback for receiving the scan confirmation notification */
 
   memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));
@@ -257,4 +259,6 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void 
                  PRINTF_FORMAT_EADDR(scan->pandescs[i].coordaddr.eaddr));
         }
     }
+
+  i8sak_requestdaemon(i8sak);
 }

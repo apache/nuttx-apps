@@ -124,13 +124,16 @@ struct i8sak_s
   pid_t daemon_pid;
   FAR char ifname[I8SAK_MAX_IFNAME];
   int result;
-  int fd;          /* File/Socket descriptor. Only to be used by operations
-                    * occuring within the Daemon TCB
-                    */
+  int fd;            /* File/Socket descriptor. Only to be used by operations
+                      * occuring within the Daemon TCB
+                      */
 
-  sem_t exclsem;   /* For synchronizing access to the signaling semaphore */
-  sem_t sigsem;    /* For signaling various tasks */
-  sem_t updatesem; /* For signaling the daemon that it's settings have changed */
+  sem_t exclsem;     /* For synchronizing access to the signaling semaphore */
+  sem_t sigsem;      /* For signaling various tasks */
+  sem_t updatesem;   /* For signaling the daemon that it's settings have changed */
+  sem_t daemonlock;  /* For synchronizing access to managing the daemon */
+
+  int daemonusers;
 
   /* Fields related to event listener */
 
@@ -201,6 +204,9 @@ struct i8sak_s
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+int i8sak_requestdaemon(FAR struct i8sak_s *i8sak);
+int i8sak_releasedaemon(FAR struct i8sak_s *i8sak);
 
 uint8_t   i8sak_char2nibble (char ch);
 long      i8sak_str2long    (FAR const char *str);
