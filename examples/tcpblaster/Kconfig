@@ -20,8 +20,8 @@ config EXAMPLES_TCPBLASTER_SENDSIZE
 
 config EXAMPLES_TCPBLASTER_PROGNAME1
 	string "Target1 program name"
-	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER1
-	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER1
+	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
+	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
 	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be use when the TcpBlaster
@@ -47,7 +47,7 @@ config EXAMPLES_TCPBLASTER_LOOPBACK
 
 if !EXAMPLES_TCPBLASTER_LOOPBACK
 
-config EXAMPLES_TCPBLASTER_SERVER1
+config EXAMPLES_TCPBLASTER_SERVER
 	bool "Target1 is server"
 	default n
 	depends on !EXAMPLES_TCPBLASTER_LOOPBACK
@@ -69,8 +69,8 @@ if EXAMPLES_TCPBLASTER_TARGET2
 
 config EXAMPLES_TCPBLASTER_PROGNAME2
 	string "Target2 program name"
-	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER2
-	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER2
+	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
+	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
 	depends on BUILD_KERNEL
 	---help---
 		This is the name of the Target2 program that will be use when the
