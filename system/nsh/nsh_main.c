@@ -46,10 +46,6 @@
 #include <sched.h>
 #include <errno.h>
 
-#if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
-#  include <nuttx/binfmt/builtin.h>
-#endif
-
 #if defined(CONFIG_LIBC_EXECFUNCS)
 #  include <nuttx/binfmt/symtab.h>
 #endif
@@ -213,17 +209,6 @@ static int nsh_task(void)
 #endif
 
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
-#endif
-
-#if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
-  /* Register the BINFS file system */
-
-  ret = builtin_initialize();
-  if (ret < 0)
-    {
-     fprintf(stderr, "ERROR: builtin_initialize failed: %d\n", ret);
-     exitval = 1;
-   }
 #endif
 
   /* Initialize the NSH library */

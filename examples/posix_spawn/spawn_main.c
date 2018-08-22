@@ -53,7 +53,6 @@
 #include <errno.h>
 
 #include <nuttx/drivers/ramdisk.h>
-#include <nuttx/binfmt/elf.h>
 #include <nuttx/binfmt/symtab.h>
 
 #include "filesystem/romfs.h"
@@ -248,18 +247,6 @@ int spawn_main(int argc, char *argv[])
 
   mm_initmonitor();
 
-  /* Initialize the ELF binary loader */
-
-  message("Initializing the ELF binary loader\n");
-  ret = elf_initialize();
-  if (ret < 0)
-    {
-      errmsg("ERROR: Initialization of the ELF loader failed: %d\n", ret);
-      exit(1);
-    }
-
-  mm_update(&g_mmstep, "after elf_initialize");
-
   /* Create a ROM disk for the ROMFS filesystem */
 
   message("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_ELF_DEVMINOR);
@@ -268,7 +255,6 @@ int spawn_main(int argc, char *argv[])
   if (ret < 0)
     {
       errmsg("ERROR: romdisk_register failed: %d\n", ret);
-      elf_uninitialize();
       exit(1);
     }
 
@@ -284,7 +270,6 @@ int spawn_main(int argc, char *argv[])
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
-      elf_uninitialize();
     }
 
   mm_update(&g_mmstep, "after mount");
@@ -476,8 +461,6 @@ int spawn_main(int argc, char *argv[])
   mm_update(&g_mmstep, "after file_action/attr destruction");
 
   /* Clean-up */
-
-  elf_uninitialize();
 
   mm_update(&g_mmstep, "End-of-Test");
   return 0;

@@ -58,15 +58,9 @@
 #include "netutils/thttpd.h"
 
 #include <nuttx/drivers/ramdisk.h>
-#include <nuttx/binfmt/binfmt.h>
-
-#ifdef CONFIG_THTTPD_NXFLAT
-#  include <nuttx/binfmt/nxflat.h>
-#endif
 
 #ifdef CONFIG_THTTPD_BINFS
 #  include <nuttx/fs/unionfs.h>
-#  include <nuttx/binfmt/builtin.h>
 #endif
 
 #ifdef CONFIG_NET_SLIP
@@ -260,18 +254,6 @@ int thttp_main(int argc, char *argv[])
 
   netlib_ifup("eth0");
 
-#ifdef CONFIG_THTTPD_NXFLAT
-  /* Initialize the NXFLAT binary loader */
-
-  printf("Initializing the NXFLAT binary loader\n");
-  ret = nxflat_initialize();
-  if (ret < 0)
-    {
-      printf("ERROR: Initialization of the NXFLAT loader failed: %d\n", ret);
-      exit(2);
-    }
-#endif
-
   /* Create a ROM disk for the ROMFS filesystem */
 
   printf("Registering romdisk\n");
@@ -280,9 +262,6 @@ int thttp_main(int argc, char *argv[])
   if (ret < 0)
     {
       printf("ERROR: romdisk_register failed: %d\n", ret);
-#ifdef CONFIG_THTTPD_NXFLAT
-      nxflat_uninitialize();
-#endif
       exit(1);
     }
 
@@ -296,23 +275,9 @@ int thttp_main(int argc, char *argv[])
     {
       printf("ERROR: mount(%s,%s,romfs) failed: %d\n",
              ROMFSDEV, ROMFS_MOUNTPT, errno);
-#ifdef CONFIG_THTTPD_NXFLAT
-      nxflat_uninitialize();
-#endif
     }
 
 #ifdef CONFIG_THTTPD_BINFS
-  /* Initialize the BINFS binary loader */
-
-  printf("Initializing the Built-In binary loader\n");
-
-  ret = builtin_initialize();
-  if (ret < 0)
-    {
-      printf("ERROR: Initialization of the Built-In loader failed: %d\n", ret);
-      exit(2);
-    }
-
   /* Mount the BINFS file system */
 
   printf("Mounting BINFS filesystem at %s\n", BINFS_MOUNTPT);
