@@ -14,7 +14,7 @@ if SYSTEM_PING6
 config SYSTEM_PING6_PROGNAME
 	string "Ping program name"
 	default "ping6"
-	depends on BUILD_LOADABLE
+	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

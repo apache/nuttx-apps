@@ -163,7 +163,7 @@ static void fill_panel(PANEL *pan)
     }
 }
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int panel_main(int argc, char *argv[])

@@ -51,7 +51,7 @@
  * veml6070_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int veml6070_main(int argc, char *argv[])

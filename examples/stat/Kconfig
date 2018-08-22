@@ -14,7 +14,7 @@ if EXAMPLES_STAT
 config EXAMPLES_STAT_PROGNAME
 	string "Program name"
 	default "stat"
-	depends on BUILD_LOADABLE
+	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

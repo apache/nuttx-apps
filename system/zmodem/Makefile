@@ -68,7 +68,7 @@ RZ_MAINOBJ = $(RZ_MAINSRC:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(SZ_MAINSRC) $(RZ_MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
+ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(SZ_MAINOBJ) $(RZ_MAINOBJ)
 endif
 
@@ -108,7 +108,7 @@ $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
+ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(SZ_PROGNAME): $(OBJS) $(SZ_MAINOBJ)
 	@echo "LD: $(SZ_PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(SZ_PROGNAME) $(ARCHCRT0OBJ) $(SZ_MAINOBJ) $(LDLIBS)
@@ -130,10 +130,10 @@ endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)sz.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"sz",$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,sz_main))
+	$(call REGISTER,"sz",$(PRIORITY),$(STACKSIZE),sz_main)
 
 $(BUILTIN_REGISTRY)$(DELIM)rz.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"rz",$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,rz_main))
+	$(call REGISTER,"rz",$(PRIORITY),$(STACKSIZE),rz_main)
 
 context: $(BUILTIN_REGISTRY)$(DELIM)sz.bdat $(BUILTIN_REGISTRY)$(DELIM)rz.bdat
 else

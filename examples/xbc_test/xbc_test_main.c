@@ -83,7 +83,7 @@
  * hello_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int xbc_test_main(int argc, char *argv[])

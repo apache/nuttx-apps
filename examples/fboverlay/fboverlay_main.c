@@ -1010,7 +1010,7 @@ static void usage(const char * progname)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int fboverlay_main(int argc, char *argv[])

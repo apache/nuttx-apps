@@ -249,7 +249,7 @@ errout_with_socket:
  * Name: netloop_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int netloop_main(int argc, char *argv[])

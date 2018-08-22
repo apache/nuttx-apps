@@ -406,7 +406,7 @@ inline int ubloxmodem_exec(FAR struct ubloxmodem_cxt* cxt)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char** argv)
 #else
 int ubloxmodem_main(int argc, FAR char** argv)

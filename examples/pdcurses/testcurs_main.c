@@ -1198,7 +1198,7 @@ void display_menu(int old_option, int new_option)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int testcurs_main(int argc, char *argv[])

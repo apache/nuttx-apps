@@ -508,7 +508,7 @@ errout_with_dev:
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int canard_main(int argc, FAR char *argv[])

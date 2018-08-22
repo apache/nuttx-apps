@@ -147,7 +147,7 @@ extern const int g_mod_nexports;
  * Name: module_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int module_main(int argc, char *argv[])

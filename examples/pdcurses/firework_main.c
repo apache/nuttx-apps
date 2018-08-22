@@ -143,7 +143,7 @@ static void explode(int row, int col)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int firework_main(int argc, char *argv[])

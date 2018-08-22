@@ -591,7 +591,7 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char *parg)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int nxplayer_main(int argc, char *argv[])

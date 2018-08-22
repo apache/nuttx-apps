@@ -85,7 +85,7 @@
  * Name: relays_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int relays_main(int argc, char *argv[])

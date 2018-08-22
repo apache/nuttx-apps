@@ -62,7 +62,7 @@
  * Public Functions
  ******************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, char *argv[])
 #else
 int powermonitor_main(int argc, char *argv[])

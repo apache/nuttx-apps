@@ -261,7 +261,7 @@ static int cu_cmd(char bcmd)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int cu_main(int argc, FAR char *argv[])

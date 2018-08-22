@@ -124,7 +124,7 @@ static void get_blocksize(int fd, FAR struct media_info_s *info)
  * media_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int media_main(int argc, FAR char *argv[])

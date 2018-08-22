@@ -144,7 +144,7 @@ int system(FAR char *cmd)
   argv[0] = cmd;
   argv[1] = NULL;
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
   errcode = posix_spawn(&pid, CONFIG_SYSTEM_OPEN_SHPATH,  NULL, &attr,
                         argv, (FAR char * const *)NULL);
 #else

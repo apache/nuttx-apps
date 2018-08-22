@@ -791,7 +791,7 @@ static int smart_directory(void)
  * Name: smart_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int smart_main(int argc, char *argv[])

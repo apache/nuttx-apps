@@ -63,7 +63,7 @@
  * Name: null_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, char *argv[])
 #else
 int null_main(int argc, char *argv[])

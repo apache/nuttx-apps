@@ -79,7 +79,7 @@
  * dsptest_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
 int dsptest_main(int argc, char *argv[])
