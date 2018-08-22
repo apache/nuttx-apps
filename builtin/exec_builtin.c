@@ -181,19 +181,25 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
         }
     }
 
-  /* Start the built-in */
+#idef CONFIG_LIBC_EXECFUNCS
+  /* A NULL entry point implies that the task is a loadable application */
 
-  if (builtin->main)
+  if (builtin->main == NULL)
     {
-      ret = task_spawn(&pid, builtin->name, builtin->main, &file_actions,
-                       &attr, (argv) ? &argv[1] : (FAR char * const *)NULL,
-                       (FAR char * const *)NULL);
-    }
-  else
-    {
+      /* Load and execute the application. */
+
       ret = posix_spawn(&pid, builtin->name, &file_actions,
                         &attr, (argv) ? &argv[1] : (FAR char * const *)NULL,
                         NULL);
+    }
+  else
+#endif
+    {
+      /* Start the built-in */
+
+      ret = task_spawn(&pid, builtin->name, builtin->main, &file_actions,
+                       &attr, (argv) ? &argv[1] : (FAR char * const *)NULL,
+                       (FAR char * const *)NULL);
     }
 
   if (ret != 0)
