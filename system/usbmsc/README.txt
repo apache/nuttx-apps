@@ -79,4 +79,4 @@ system/usbmsc
   it relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this add-on cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
-  or CONFIG_BUILD_KERNEL).
+  or CONFIG_BUILD_LOADABLE).

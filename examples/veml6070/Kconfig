@@ -15,7 +15,7 @@ if EXAMPLES_VEML6070
 config EXAMPLES_VEML6070_PROGNAME
 	string "Program name"
 	default "veml6070"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

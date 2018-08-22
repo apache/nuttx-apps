@@ -24,7 +24,7 @@ config WIRELESS_WAPI_CMDTOOL
 config WIRELESS_WAPI_PROGNAME
 	string "Program Name"
 	default "wapi"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

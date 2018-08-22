@@ -15,7 +15,7 @@ if EXAMPLES_UDPBLASTER
 config EXAMPLES_UDPBLASTER_PROGNAME
 	string "Program name"
 	default "nettest"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the Nettest
 		program is installed.
@@ -51,7 +51,7 @@ config EXAMPLES_UDPBLASTER_INIT
 	bool "Initialize network"
 	default n if NSH_BUILTIN_APPS
 	default y if !NSH_BUILTIN_APPS
-	depends on !BUILD_KERNEL && !EXAMPLES_UDPBLASTER_LOOPBACK
+	depends on !BUILD_LOADABLE && !EXAMPLES_UDPBLASTER_LOOPBACK
 	---help---
 		Include logic to initialize the network.  This should not be done if
 		the network is already initialized when udpblaster runs.  This is

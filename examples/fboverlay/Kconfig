@@ -15,7 +15,7 @@ if EXAMPLES_FBOVERLAY
 config EXAMPLES_FBOVERLAY_PROGNAME
 	string "Program name"
 	default "fboverlay"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

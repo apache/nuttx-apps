@@ -217,7 +217,7 @@ static pthread_addr_t barrier_thread(pthread_addr_t parameter)
  * smp_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int smp_main(int argc, char *argv[])

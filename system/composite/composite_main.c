@@ -521,7 +521,7 @@ static int echo_serial(void)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int conn_main(int argc, char *argv[])
@@ -722,7 +722,7 @@ errout:
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char **argv)
 #else
 int disconn_main(int argc, char *argv[])

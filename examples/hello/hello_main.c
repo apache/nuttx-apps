@@ -48,7 +48,7 @@
  * hello_main
  ****************************************************************************/
 
-#if defined (CONFIG_BUILD_KERNEL) || defined (LOADABLE_APP)
+#if defined (CONFIG_BUILD_LOADABLE)
 int main(int argc, FAR char *argv[])
 #else
 int hello_main(int argc, char *argv[])

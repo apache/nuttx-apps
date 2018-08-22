@@ -37,6 +37,20 @@
 
 include $(APPDIR)/Make.defs
 
+ifneq ($(MAINSRC),)
+  ifneq ($(MODULE),)
+    ifeq ($(CONFIG_$(MODULE)), m)
+      BUILD_MODULE = y
+    endif
+  endif
+
+  ifeq ($(BUILD_MODULE),)
+    ifeq ($(CONFIG_BUILD_LOADABLE),y)
+      BUILD_MODULE = y
+    endif
+  endif
+endif
+
 CXXEXT ?= .cxx
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
@@ -52,7 +66,7 @@ endif
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
+ifneq ($(CONFIG_BUILD_LOADABLE),y)
   OBJS += $(MAINOBJ)
 endif
 
@@ -62,6 +76,10 @@ ifeq ($(WINTOOL),y)
 else
   BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
   INSTALL_DIR = $(BIN_DIR)
+endif
+
+ifeq ($(BUILD_MODULE),y)
+  LDLIBS += $(BIN)
 endif
 
 ROOTDEPPATH = --dep-path .
@@ -89,18 +107,11 @@ $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 
-ifeq ($(LOADABLE),y)
-.built: $(OBJS)
-	$(call ELFLD, $(APPNAME)_main, $(OBJS), $(APPNAME))
-	$(Q) mkdir -p $(BIN_DIR)
-	$(Q) install $(APPNAME) $(BIN_DIR)$(DELIM)$(APPNAME)
-else
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch $@
-endif
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(BUILD_MODULE), y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
@@ -118,7 +129,7 @@ ifneq ($(APPNAME),)
 ifneq ($(PRIORITY),)
 ifneq ($(STACKSIZE),)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(BUILD_MODULE),,$(APPNAME)_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
@@ -145,9 +156,6 @@ endif
 depend: .depend
 
 clean:
-ifeq ($(LOADABLE),y)
-	$(call DELFILE, $(APPNAME))
-endif
 	$(call DELFILE, .built)
 	$(call CLEAN)
 

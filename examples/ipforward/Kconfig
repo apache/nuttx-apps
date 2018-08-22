@@ -30,7 +30,7 @@ endchoice # L3 Protocol
 config EXAMPLES_IPFORWARD_PROGNAME
 	string "IP forwarding rogram name"
 	default "ipfwd"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

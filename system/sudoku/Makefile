@@ -56,7 +56,7 @@ MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
+ifneq ($(CONFIG_BUILD_LOADABLE),y)
   OBJS += $(MAINOBJ)
 endif
 
@@ -99,7 +99,7 @@ $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(CONFIG_BUILD_LOADABLE),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
@@ -116,7 +116,7 @@ endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)sudoku.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"sudoku",$(PRIORITY),$(STACKSIZE),sudoku_main)
+	$(call REGISTER,"sudoku",$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,sudoku_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)sudoku.bdat
 else

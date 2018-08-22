@@ -15,7 +15,7 @@ if EXAMPLES_PFIEEE802154
 config EXAMPLES_PFIEEE802154_PROGNAME1
 	string "Target1 program name"
 	default "pfserver"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the Target1 program that will be use when the
 		NSH ELF program is installed.
@@ -31,7 +31,7 @@ config EXAMPLES_PFIEEE802154_STACKSIZE1
 config EXAMPLES_PFIEEE802154_PROGNAME2
 	string "Target2 program name"
 	default "pfclient"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the Target2 program that will be use when the
 		NSH ELF program is installed.

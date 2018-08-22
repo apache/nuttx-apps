@@ -47,7 +47,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 /* In the kernel build mode, we need to use a named semaphore so that all
  * processes will share the same, named semaphore instance.
  */
@@ -59,7 +59,7 @@
  * Private Data
  ****************************************************************************/
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifndef CONFIG_BUILD_LOADABLE
 /* In the FLAT and PROTECTED build modes, we do not need to bother with a
  * named semaphore.  We use a single global semaphore in theses cases.
  */
@@ -92,7 +92,7 @@ int passwd_lock(FAR sem_t **semp)
 {
   FAR sem_t *sem;
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
   /* Open the shared, named semaphore */
 
   sem = sem_open(PASSWD_SEMNAME, O_CREAT, 0644, 1);
@@ -127,7 +127,7 @@ int passwd_unlock(FAR sem_t *sem)
 
   sem_post(sem);
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
   /* Close the named semaphore */
 
   (void)sem_close(sem);

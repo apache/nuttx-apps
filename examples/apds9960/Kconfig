@@ -15,7 +15,7 @@ if EXAMPLES_APDS9960
 config EXAMPLES_APDS9960_PROGNAME
 	string "APDS-9960 Test Program name"
 	default "apds9960"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

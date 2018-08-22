@@ -22,7 +22,7 @@ config EXAMPLES_UDP_PROGNAME1
 	string "Target1 program name"
 	default "udpserver" if EXAMPLES_UDP_SERVER1
 	default "udpclient" if !EXAMPLES_UDP_SERVER1
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the Target1 program that will be use when the
 		NSH ELF program is installed.
@@ -51,7 +51,7 @@ config EXAMPLES_UDP_PROGNAME2
 	string "Target2 program name"
 	default "udpserver" if !EXAMPLES_UDP_SERVER2
 	default "udpclient" if EXAMPLES_UDP_SERVER2
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the Target2 program that will be use when the
 		NSH ELF program is installed.

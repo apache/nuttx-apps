@@ -16,7 +16,7 @@ if SYSTEM_DHCPC_RENEW
 config DHCPC_RENEW_PROGNAME
 	string "Program name"
 	default "renew"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

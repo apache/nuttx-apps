@@ -77,7 +77,7 @@
  * Name: poll_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int poll_main(int argc, char *argv[])

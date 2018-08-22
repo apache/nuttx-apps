@@ -151,7 +151,7 @@ static void usage(void)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int basic_main(int argc, char *argv[])

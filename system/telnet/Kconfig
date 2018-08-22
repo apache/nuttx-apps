@@ -16,7 +16,7 @@ if SYSTEM_TELNET_CHATD
 config SYSTEM_TELNET_CHATD_PROGNAME
 	string "Chat daemon program name"
 	default "chatd"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 
 if NSH_BUILTIN_APPS
 
@@ -45,7 +45,7 @@ if SYSTEM_TELNET_CLIENT
 config SYSTEM_TELNET_CLIENT_PROGNAME
 	string "Telnet client program name"
 	default "chatd"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 
 if NSH_BUILTIN_APPS
 

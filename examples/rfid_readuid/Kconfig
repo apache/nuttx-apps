@@ -14,7 +14,7 @@ if EXAMPLES_RFID_READUID
 config EXAMPLES_RFID_READUID_PROGNAME
 	string "Program name"
 	default "rfid_readuid"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

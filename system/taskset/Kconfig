@@ -14,7 +14,7 @@ if SYSTEM_TASKSET
 config SYSTEM_TASKSET_PROGNAME
 	string "Taskset program name"
 	default "taskset"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

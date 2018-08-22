@@ -85,7 +85,7 @@ static void show_usage(FAR const char *progname, int exitcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int setlogmask_main(int argc, char **argv)

@@ -72,7 +72,7 @@ static struct cdcacm_state_s g_cdcacm;
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int sercon_main(int argc, char *argv[])
@@ -125,7 +125,7 @@ int sercon_main(int argc, char *argv[])
  *   device.
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char **argv)
 #else
 int serdis_main(int argc, char *argv[])

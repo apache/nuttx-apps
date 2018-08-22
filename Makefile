@@ -67,7 +67,8 @@ LIBPATH ?= $(TOPDIR)$(DELIM)staging
 
 # The install path
 
-BIN_DIR = $(APPDIR)$(DELIM)bin
+EXE_DIR = $(APPDIR)$(DELIM)exe
+BIN_DIR = $(EXE_DIR)$(DELIM)system$(DELIM)bin
 
 # The final build target
 
@@ -75,13 +76,13 @@ BIN = libapps$(LIBEXT)
 
 # Symbol table for loadable apps.
 
-SYMTABSRC = $(APPDIR)$(DELIM)symtab_apps.c
-SYMTABOBJ = $(APPDIR)$(DELIM)symtab_apps$(OBJEXT)
+SYMTABSRC = $(EXE_DIR)$(DELIM)symtab_apps.c
+SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
 # Build targets
 
 all: $(BIN)
-.PHONY: import symtab install dirlinks context context_serialize clean_context context_rest .depdirs preconfig depend clean distclean
+.PHONY: import install dirlinks context context_serialize clean_context context_rest .depdirs preconfig depend clean distclean
 .PRECIOUS: libapps$(LIBEXT)
 
 define MAKE_template
@@ -102,28 +103,28 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
-make_symbols:
-ifeq ($(CONFIG_SYSTEM_NSH_SYMTAB),y)
-	mkdir -p $(BIN_DIR)
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BIN_DIR) $(SYMTABSRC)
-	$(call COMPILE, $(SYMTABSRC), $(SYMTABOBJ))
-	$(call ARCHIVE, $(APPDIR)$(DELIM)$(BIN), $(SYMTABOBJ))
-endif
+ifeq ($(CONFIG_BUILD_LOADABLE),)
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+else
+$(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
 
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all) make_symbols
+$(SYMTABOBJ): %$(OBJEXT): %.c
+	$(call COMPILE, -fno-lto $<, $@)
+
+$(BIN): $(SYMTABOBJ)
+	$(call ARCHIVE, $(BIN), $^)
+endif
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 $(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+	$(Q) mkdir -p $(BIN_DIR)
 
 install: $(BIN_DIR) .install
 
 .import: $(BIN) install
-
-symtab: $(BIN_DIR)
-	$(Q) tools/mksymtab.sh $(BIN_DIR) $(APPDIR)$(DELIM)import/symtab.c
-	$(call MAKE_template,import,symtab)
 
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"

@@ -261,7 +261,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
   argv[0] = (FAR char *)command;
   argv[1] = NULL;
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
   errcode = posix_spawn(&container->shell, CONFIG_SYSTEM_POPEN_SHPATH,
                         &file_actions, &attr, argv,
                         (FAR char * const *)NULL);

@@ -681,7 +681,7 @@ errout_with_recvsd:
  * bridge_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int bridge_main(int argc, char *argv[])

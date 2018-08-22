@@ -13,7 +13,7 @@ if SYSTEM_SETLOGMASK
 config SYSTEM_SETLOGMASK_PROGNAME
 	string "setlogmask program name"
 	default "setlogmask"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
