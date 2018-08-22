@@ -181,7 +181,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
         }
     }
 
-#idef CONFIG_LIBC_EXECFUNCS
+#ifdef CONFIG_LIBC_EXECFUNCS
   /* A NULL entry point implies that the task is a loadable application */
 
   if (builtin->main == NULL)
