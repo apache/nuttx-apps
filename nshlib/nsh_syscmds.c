@@ -190,7 +190,14 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * off the board due to some constraints.
    */
 
-  (void)boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+  if (argc > 1)
+    {
+      (void)boardctl(BOARDIOC_POWEROFF, atoi(argv[1]));
+    }
+  else
+    {
+      (void)boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+    }
 
   /* boarctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown operaion.
@@ -213,7 +220,14 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * reset the board due to some constraints.
    */
 
-  (void)boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+  if (argc > 1)
+    {
+      (void)boardctl(BOARDIOC_RESET, atoi(argv[1]));
+    }
+  else
+    {
+      (void)boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+    }
 
   /* boarctl() will not return in this case.  It if does, it means that
    * there was a problem with the reset operaion.

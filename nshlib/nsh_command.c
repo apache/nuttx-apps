@@ -378,7 +378,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
-  { "poweroff", cmd_poweroff,  1, 1, NULL },
+  { "poweroff", cmd_poweroff,  1, 2, NULL },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_PRINTF
@@ -412,7 +412,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
-  { "reboot",   cmd_reboot,   1, 1, NULL },
+  { "reboot",   cmd_reboot,   1, 2, NULL },
 #endif
 
 #ifdef NSH_HAVE_DIROPTS

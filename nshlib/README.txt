@@ -919,10 +919,12 @@ o passwd <username> <password>
 
   Set the password for the existing user <username> to <password>
 
-o poweroff
+o poweroff [<n>]
 
-  Shutdown and power off the system.  This command depends on hardware
-  support to power down or reset the system.
+  Shutdown and power off the system.  This command depends on board-
+  specific hardware support to power down the system.  The optional,
+  decimal numeric argument <n> may be included to provide power off
+  mode to board-specific power off logic.
 
   NOTE: Supporting both the poweroff and shutdown commands is redundant.
 
@@ -975,10 +977,12 @@ o readlink <link>
 
   Show target of a soft link.
 
-o reboot
+o reboot [<n>]
 
   Reset and reboot the system immediately.  This command depends on hardware
-  support to reset the system.
+  support to reset the system.  The optional, decimal numeric argument <n>
+  may be included to provide reboot mode to board-specific reboot
+  logic.
 
   NOTE: Supporting both the reboot and shutdown commands is redundant.
 
