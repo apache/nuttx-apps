@@ -61,9 +61,17 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SIGINT  2
-#define SIGKILL 9
-#define SIGTERM 15
+#ifndef SIGINT
+#  define SIGINT  2
+#endif
+
+#ifndef SIGKILL
+#  define SIGKILL 9
+#endif
+
+#ifndef SIGTERM
+#  define SIGTERM 15
+#endif
 
 enum parity_mode
 {
@@ -119,6 +127,7 @@ static FAR void *cu_listener(FAR void *parameter)
 static void sigint(int sig)
 {
   pthread_cancel(g_cu.listener);
+  tcflush(g_cu.outfd, TCIOFLUSH);
   close(g_cu.outfd);
   close(g_cu.infd);
   exit(0);
