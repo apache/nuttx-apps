@@ -6,7 +6,7 @@
 config SYSTEM_PING
 	bool "ICMP 'ping' command"
 	default n
-	depends on NET_ICMP_SOCKET
+	depends on NET_ICMP_SOCKET || NET_USRSOCK
 	---help---
 		Enable support for the ICMP 'ping' command.
 
