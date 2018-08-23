@@ -202,7 +202,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
 
   memset(&outhdr, 0, sizeof(struct icmp_hdr_s));
   outhdr.type              = ICMP_ECHO_REQUEST;
-  outhdr.id                = ping_newid();
+  outhdr.id                = htons(ping_newid());
   outhdr.seqno             = 0;
 
   printf("PING %u.%u.%u.%u %d bytes of data\n",
@@ -240,7 +240,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
       if (nsent < 0)
         {
           fprintf(stderr, "ERROR: sendto failed at seqno %u: %d\n",
-                  outhdr.seqno, errno);
+                  ntohs(outhdr.seqno), errno);
           return;
         }
       else if (nsent != outsize)
@@ -276,7 +276,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
                      (info->dest.s_addr >> 8 ) & 0xff,
                      (info->dest.s_addr >> 16) & 0xff,
                      (info->dest.s_addr >> 24) & 0xff,
-                      outhdr.seqno, info->delay);
+                      ntohs(outhdr.seqno), info->delay);
               continue;
             }
 
@@ -307,15 +307,15 @@ static void icmp_ping(FAR struct ping_info_s *info)
                   fprintf(stderr,
                           "WARNING: Ignoring ICMP reply with ID %u.  "
                           "Expected %u\n",
-                          inhdr->id, outhdr.id);
+                          ntohs(inhdr->id), ntohs(outhdr.id));
                   retry = true;
                 }
-              else if (inhdr->seqno > outhdr.seqno)
+              else if (ntohs(inhdr->seqno) > ntohs(outhdr.seqno))
                 {
                   fprintf(stderr,
                           "WARNING: Ignoring ICMP reply to sequence %u.  "
                           "Expected <= &u\n",
-                          inhdr->seqno, outhdr.seqno);
+                          ntohs(inhdr->seqno), ntohs(outhdr.seqno));
                   retry = true;
                 }
               else
@@ -323,7 +323,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
                   bool verified = true;
                   int32_t pktdelay = elapsed;
 
-                  if (inhdr->seqno < outhdr.seqno)
+                  if (ntohs(inhdr->seqno) < ntohs(outhdr.seqno))
                     {
                       fprintf(stderr, "WARNING: Received after timeout\n");
                       pktdelay += info->delay;
@@ -336,7 +336,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
                          (info->dest.s_addr >> 8 ) & 0xff,
                          (info->dest.s_addr >> 16) & 0xff,
                          (info->dest.s_addr >> 24) & 0xff,
-                         inhdr->seqno, pktdelay);
+                         ntohs(inhdr->seqno), pktdelay);
 
                   /* Verify the payload data */
 
@@ -407,7 +407,7 @@ static void icmp_ping(FAR struct ping_info_s *info)
           (void)nanosleep(&rqt, NULL);
         }
 
-      outhdr.seqno++;
+      outhdr.seqno = htons(ntohs(outhdr.seqno) + 1);
     }
 }
 
@@ -422,8 +422,8 @@ static void show_usage(FAR const char *progname, int exitcode)
   printf("\nUsage: %s [-c <count>] [-i <interval>] <hostname>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
-  printf("  <hostname> is either an IPv6 address or the name of the remote host\n");
-  printf("   that is requested the ICMPv6 ECHO reply.\n");
+  printf("  <hostname> is either an IPv4 address or the name of the remote host\n");
+  printf("   that is requested the ICMPv4 ECHO reply.\n");
 #else
   printf("\nUsage: %s [-c <count>] [-i <interval>] <ip-address>\n", progname);
   printf("       %s -h\n", progname);
