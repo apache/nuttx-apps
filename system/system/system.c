@@ -72,9 +72,9 @@
  *
  ****************************************************************************/
 
-int system(FAR char *cmd)
+int system(FAR const char *cmd)
 {
-  FAR char *argv[2];
+  FAR const char *argv[2];
   struct sched_param param;
   posix_spawnattr_t attr;
   pid_t pid;
