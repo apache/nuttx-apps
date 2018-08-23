@@ -64,6 +64,8 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr, "\nWhere OPTIONS include the following:\n");
   fprintf(stderr, "\t-d <device>: Communication device to use.  Default: %s\n",
                   CONFIG_SYSTEM_ZMODEM_DEVNAME);
+  fprintf(stderr, "\t-p <path>: Folder to hold the received file.  Default: %s\n",
+                  CONFIG_SYSTEM_ZMODEM_MOUNTPOINT);
   fprintf(stderr, "\t-h: Show this text and exit\n");
   exit(errcode);
 }
@@ -80,6 +82,7 @@ int rz_main(int argc, FAR char **argv)
 {
   ZMRHANDLE handle;
   FAR const char *devname = CONFIG_SYSTEM_ZMODEM_DEVNAME;
+  FAR const char *pathname = CONFIG_SYSTEM_ZMODEM_MOUNTPOINT;
   int exitcode = EXIT_FAILURE;
   int option;
   int ret;
@@ -87,7 +90,7 @@ int rz_main(int argc, FAR char **argv)
 
   /* Parse input parameters */
 
-  while ((option = getopt(argc, argv, ":d:h")) != ERROR)
+  while ((option = getopt(argc, argv, ":d:hp:")) != ERROR)
     {
       switch (option)
         {
@@ -97,6 +100,10 @@ int rz_main(int argc, FAR char **argv)
 
           case 'h':
             show_usage(argv[0], EXIT_SUCCESS);
+            break;
+
+          case 'p':
+            pathname = optarg;
             break;
 
           case ':':
@@ -146,7 +153,7 @@ int rz_main(int argc, FAR char **argv)
 
   /* And begin reception of files */
 
-  ret = zmr_receive(handle);
+  ret = zmr_receive(handle, pathname);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: File reception failed: %d\n", ret);

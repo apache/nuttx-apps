@@ -229,8 +229,8 @@
  */
 
 #ifdef CONFIG_DEBUG_ZMODEM
-#  define zmprintf(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
-#  define zmdbg(format, ...)    fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#  define zmprintf(format, ...) syslog(LOG_INFO, format, ##__VA_ARGS__)
+#  define zmdbg(format, ...)    syslog(LOG_INFO, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #else
 #  undef CONFIG_SYSTEM_ZMODEM_DUMPBUFFER
 #  ifdef CONFIG_CPP_HAVE_VARARGS
@@ -379,6 +379,7 @@ struct zmr_state_s
 #endif
   uint8_t ntimeouts;         /* Number of timeouts */
   uint32_t crc;              /* Remove file CRC */
+  FAR const char *pathname;  /* Local pathname */
   FAR char *filename;        /* Local filename */
   FAR char *attn;            /* Attention string received from remote peer */
   off_t offset;              /* Current file offset */
@@ -804,7 +805,7 @@ int zm_timerrelease(FAR struct zm_state_s *pzm);
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_ZMODEM_DUMPBUFFER
-void zm_dumpbuffer(FAR const char *msg, FAR const void *buffer, size_t buflen);
+#  define zm_dumpbuffer(m,b,s) lib_dumpbuffer(m,b,s)
 #else
 #  define zm_dumpbuffer(m,b,s)
 #endif

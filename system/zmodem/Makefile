@@ -56,7 +56,7 @@ STACKSIZE = $(CONFIG_SYSTEM_ZMODEM_STACKSIZE)
 ASRCS  =
 
 CSRCS  = zm_send.c zm_receive.c zm_state.c zm_proto.c zm_watchdog.c
-CSRCS += zm_utils.c zm_dumpbuffer.c
+CSRCS += zm_utils.c
 SZ_MAINSRC = sz_main.c
 RZ_MAINSRC = rz_main.c
 
@@ -64,12 +64,13 @@ AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 SZ_MAINOBJ = $(SZ_MAINSRC:.c=$(OBJEXT))
 RZ_MAINOBJ = $(RZ_MAINSRC:.c=$(OBJEXT))
+MAINOBJ = $(SZ_MAINOBJ) $(RZ_MAINOBJ)
 
 SRCS = $(ASRCS) $(CSRCS) $(SZ_MAINSRC) $(RZ_MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(SZ_MAINOBJ) $(RZ_MAINOBJ)
+  OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)

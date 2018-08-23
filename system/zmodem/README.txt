@@ -162,10 +162,10 @@ Using NuttX ZModem with a Linux Host
 
     Then use the sz command on Linux to send the file to the target:
 
-      $ sudo sz <filename> [-l nnnn] </dev/ttyS0 >/dev/ttyS0
+      $ sudo sz <filename> [-l nnnn] [-w nnnn] </dev/ttyS0 >/dev/ttyS0
 
-    Where <filename> is the file that you want to send. If -l nnnn is not
-    specified, then there will likely be packet buffer overflow errors.
+    Where <filename> is the file that you want to send. If -l nnnn and -w nnnn
+    is not specified, then there will likely be packet buffer overflow errors.
     nnnn should be set to a value less than or equal to
     CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE
 
@@ -173,11 +173,11 @@ Using NuttX ZModem with a Linux Host
     "sandbox" via CONFIG_SYSTEM_ZMODEM_MOUNTPOINT.
 
     You can add the sz -v option multiple times, each increases the level
-    of debug output.  If you want to capture the Linux rz output, then
-    re-direct stderr to a log file by adding 2>az.log to the end of the
-    rz command.
+    of debug output.  If you want to capture the Linux sz output, then
+    re-direct stderr to a log file by adding 2>sz.log to the end of the
+    sz command.
 
-    If you don't have the az command on your Linux box, the package to
+    If you don't have the sz command on your Linux box, the package to
     install rzsz (or possibily lrzsz).
 
 Building the ZModem Tools to Run Under Linux
@@ -214,7 +214,7 @@ Status
       have been able to send large and small files with the target sz
       command. I have been able to receive small files, but there are
       problems receiving large files using the Linux sz command:  The
-      Linux SZ does not obey the buffering limits and continues to send
+      Linux sz does not obey the buffering limits and continues to send
       data while rz is writing the previously received data to the file
       and the serial driver's RX buffer is overrun by a few bytes while
       the write is in progress. As a result, when it reads the next
@@ -265,3 +265,7 @@ Status
       olimex-stm32-p407/zmodem configuration with target-to-host
       transfers was verified.  Again, there are issues remaining if
       I tried the NuttX rz utility running on Linux.
+
+    2018-6-26:
+      with -w nnnn option, the host-to-target transfer can work reliably
+      without hardware flow control.

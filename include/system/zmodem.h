@@ -250,14 +250,15 @@ ZMRHANDLE zmr_initialize(int remfd);
  *   Receive file(s) sent from the remote peer.
  *
  * Input Parameters:
- *   handle - The handler created by zmr_initialize().
+ *   handle    - The handler created by zmr_initialize().
+ *   pathname  - The name of the local path to hold the file
  *
  * Returned Value:
  *   Zero on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
-int zmr_receive(ZMRHANDLE handle);
+int zmr_receive(ZMRHANDLE handle, FAR const char *pathname);
 
 /****************************************************************************
  * Name: zmr_release

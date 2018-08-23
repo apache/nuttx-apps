@@ -148,7 +148,6 @@ static int zms_fileskip(FAR struct zm_state_s *pzm);
 static int zms_sendfiledata(FAR struct zm_state_s *pzm);
 static int zms_sendpacket(FAR struct zm_state_s *pzm);
 static int zms_filecrc(FAR struct zm_state_s *pzm);
-static int zms_sendack(FAR struct zm_state_s *pzm);
 static int zms_sendwaitack(FAR struct zm_state_s *pzm);
 static int zms_sendnak(FAR struct zm_state_s *pzm);
 static int zms_sendrpos(FAR struct zm_state_s *pzm);
@@ -258,7 +257,7 @@ static const struct zm_transition_s g_zms_crcwait[] =
 static const struct zm_transition_s g_zmr_sending[] =
 {
   {ZME_SINIT,     false, ZMS_START,    zms_attention},
-  {ZME_ACK,       false, ZMS_SENDING,  zms_sendack},
+  {ZME_ACK,       false, ZMS_SENDING,  zms_sendpacket},
   {ZME_RPOS,      true,  ZMS_SENDING,  zms_sendrpos},
   {ZME_SKIP,      true,  ZMS_FILEWAIT, zms_fileskip},
   {ZME_NAK,       true,  ZMS_SENDING,  zms_sendnak},
@@ -422,7 +421,6 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
 
   /* Set flags associated with the capabilities */
 
-  rcaps &= ~(ZM_FLAG_CRC32 | ZM_FLAG_ESCCTRL);
   if ((rcaps & CANFC32) != 0)
     {
       pzm->flags |= ZM_FLAG_CRC32;
@@ -1150,35 +1148,6 @@ static int zms_filecrc(FAR struct zm_state_s *pzm)
 
   zm_be32toby(crc, by);
   return zm_sendhexhdr(pzm, ZCRC, by);
-}
-
-/****************************************************************************
- * Name: zms_sendack
- *
- * Description:
- *   An ACK arrived while transmitting data.  Update last known receiver
- *   offset, and try to send more data.
- *
- ****************************************************************************/
-
-static int zms_sendack(FAR struct zm_state_s *pzm)
-{
-  FAR struct zms_state_s *pzms = (FAR struct zms_state_s *)pzm;
-  off_t offset;
-
-  /* Paragraph 11.4  ZACK.  Acknowledgment to a ZSINIT , ..., ZCRCQ or
-   * ZCRCW data subpacket.  ZP0 to ZP3 contain file offset.
-   */
-
-  offset = zm_bytobe32(pzm->hdrdata + 1);
-
-  if (offset > pzms->lastoffs)
-    {
-      pzms->lastoffs = offset;
-    }
-
-  zmdbg("ZMS_STATE %d: offset: %ld\n", pzm->state, (unsigned long)pzms->offset);
-  return OK;
 }
 
 /****************************************************************************

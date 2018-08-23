@@ -381,7 +381,7 @@ static int zmr_startto(FAR struct zm_state_s *pzm)
   zmdbg("ZMR_STATE %d: %d timeouts waiting for ZSINIT or ZFILE\n",
         pzm->state, pzmr->ntimeouts);
 
-  if (pzmr->ntimeouts > 4)
+  if (pzmr->ntimeouts < 4)
     {
       /* Send ZRINIT again */
 
@@ -1144,8 +1144,7 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
 
   /* Extend the relative path to the file storage directory */
 
-  asprintf(&pzmr->filename, "%s/%s", CONFIG_SYSTEM_ZMODEM_MOUNTPOINT,
-           namptr);
+  asprintf(&pzmr->filename, "%s/%s", pzmr->pathname, namptr);
   if (!pzmr->filename)
     {
       zmdbg("ERROR: Failed to allocate full path %s/%s\n",
@@ -1616,6 +1615,7 @@ ZMRHANDLE zmr_initialize(int remfd)
       pzm->pstate    = PSTATE_IDLE;
       pzm->psubstate = PIDLE_ZPAD;
       pzm->remfd     = remfd;
+      pzmr->rcaps    = CANFC32 | CANFDX;
       pzmr->outfd    = -1;
 
       /* Create a timer to handle timeout events */
@@ -1645,16 +1645,19 @@ ZMRHANDLE zmr_initialize(int remfd)
  *   Receive file(s) sent from the remote peer.
  *
  * Input Parameters:
- *   handle - The handler created by zmr_initialize().
+ *   handle    - The handler created by zmr_initialize().
+ *   pathname  - The name of the local path to hold the file
  *
  * Returned Value:
  *   Zero on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
-int zmr_receive(ZMRHANDLE handle)
+int zmr_receive(ZMRHANDLE handle, FAR const char *pathname)
 {
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s*)handle;
+
+  pzmr->pathname = pathname;
 
   /* The first thing that should happen is to receive ZRQINIT from the
    * remote sender.  This could take while so use a long timeout.
