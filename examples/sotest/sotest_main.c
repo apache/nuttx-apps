@@ -110,7 +110,7 @@ extern const int g_sot_nexports;
  * Name: sotest_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int sotest_main(int argc, char *argv[])

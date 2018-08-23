@@ -156,7 +156,7 @@ static void show_usage(FAR const char *progname)
  * Name: can_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int can_main(int argc, FAR char *argv[])

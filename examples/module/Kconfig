@@ -128,7 +128,7 @@ config EXAMPLES_MODULE_NOSTRIP
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
 	default n
-	depends on !BUILD_KERNEL && EXPERIMENTAL
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
 	---help---
 		Link with the C library (and also math library if it was built).
 		By default, all undefined symbols must be provided via a symbol
@@ -147,6 +147,6 @@ config EXAMPLES_MODULE_LIBC
 config EXAMPLES_MODULE_LIBGCC
 	bool "Link with LIBGCC"
 	default n
-	depends on !BUILD_KERNEL && EXPERIMENTAL
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
 
 endif

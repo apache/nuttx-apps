@@ -396,7 +396,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
  * Name: pwm_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int pwm_main(int argc, char *argv[])

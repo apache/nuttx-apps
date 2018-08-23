@@ -78,7 +78,7 @@ config EXAMPLES_I2SCHAR_BUFSIZE
 config EXAMPLES_I2SCHAR_DEVINIT
 	bool "Architecture-specific device initialization"
 	default 256
-	depends on !BUILD_PROTECTED && !BUILD_KERNEL
+	depends on !BUILD_PROTECTED && !BUILD_LOADABLE
 	---help---
 		Define if architecture-specific I2S device initialize is available.
 		If defined, the platform specific code must provide a function

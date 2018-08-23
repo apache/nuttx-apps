@@ -48,7 +48,7 @@
  * udp2_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_KERNEL)
+#if defined(CONFIG_BUILD_LOADABLE)
 int main(int argc, FAR char *argv[])
 #else
 int udp2_main(int argc, char *argv[])

@@ -132,7 +132,7 @@ extern FAR struct mtd_dev_s *mtdrwb_archinitialize(void);
  * Name: mtdrwb_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int mtdrwb_main(int argc, char *argv[])

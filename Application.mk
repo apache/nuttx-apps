@@ -37,7 +37,30 @@
 
 include $(APPDIR)/Make.defs
 
+# If this is an executable program (with MAINSRC), we must build it as a
+# loadable module for the KERNEL build (always) or if the tristate module
+# has the value "m"
+
+ifneq ($(MAINSRC),)
+  ifneq ($(MODULE),)
+    ifeq ($(CONFIG_$(MODULE)),m)
+      BUILD_MODULE = y
+    endif
+  endif
+endif
+
+# Pass the definition to the C/C++ code via the CFLAGS/CXXFLAGS
+
+ifeq ($(BUILD_MODULE),y)
+  CFLAGS += ${shell $(DEFINE) "$(CC)" BUILD_MODULE}
+  CXXFLAGS += ${shell $(DEFINE) "$(CC)" BUILD_MODULE}
+endif
+
+# File extensions
+
 CXXEXT ?= .cxx
+
+# Object files
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -52,9 +75,11 @@ endif
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
+ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINOBJ)
 endif
+
+# Module install directory
 
 ifeq ($(WINTOOL),y)
   BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
@@ -67,6 +92,8 @@ endif
 ROOTDEPPATH = --dep-path .
 
 VPATH =
+
+# Targets follow
 
 all: .built
 .PHONY: clean preconfig depend distclean
@@ -89,18 +116,11 @@ $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 
-ifeq ($(LOADABLE),y)
-.built: $(OBJS)
-	$(call ELFLD, $(APPNAME)_main, $(OBJS), $(APPNAME))
-	$(Q) mkdir -p $(BIN_DIR)
-	$(Q) install $(APPNAME) $(BIN_DIR)$(DELIM)$(APPNAME)
-else
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch $@
-endif
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(BUILD_MODULE), y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
@@ -118,7 +138,7 @@ ifneq ($(APPNAME),)
 ifneq ($(PRIORITY),)
 ifneq ($(STACKSIZE),)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(BUILD_MODULE),,$(APPNAME)_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
@@ -145,9 +165,6 @@ endif
 depend: .depend
 
 clean:
-ifeq ($(LOADABLE),y)
-	$(call DELFILE, $(APPNAME))
-endif
 	$(call DELFILE, .built)
 	$(call CLEAN)
 

@@ -84,7 +84,7 @@ static inline int check_buffer(unsigned char *buf)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int pfserver_main(int argc, char *argv[])

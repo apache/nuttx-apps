@@ -106,7 +106,7 @@ static void show_usage(FAR const char *progname)
  * Name: oneshot_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int oneshot_main(int argc, char *argv[])

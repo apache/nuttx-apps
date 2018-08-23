@@ -40,7 +40,7 @@ config EXAMPLES_UDGRAM_SERVER_PRIORITY
 config EXAMPLES_UDGRAM_SERVER_PROGNAME
     string "Server program name"
     default "server"
-    depends on BUILD_KERNEL
+    depends on BUILD_LOADABLE
     ---help---
         This is the name of the program that will be use when the NSH ELF
         server program is installed.
@@ -69,7 +69,7 @@ config EXAMPLES_UDGRAM_CLIENT_PRIORITY
 config EXAMPLES_UDGRAM_CLIENT_PROGNAME
     string "Client program name"
     default "client"
-    depends on BUILD_KERNEL
+    depends on BUILD_LOADABLE
     ---help---
         This is the name of the program that will be use when the NSH ELF
         client program is installed.

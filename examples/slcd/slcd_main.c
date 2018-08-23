@@ -246,7 +246,7 @@ static void slcd_puts(FAR struct lib_outstream_s *outstream,
  * slcd_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int slcd_main(int argc, char *argv[])

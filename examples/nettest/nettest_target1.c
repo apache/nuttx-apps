@@ -69,7 +69,7 @@ static int server_child(int argc, char *argv[])
  * nettest_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_KERNEL)
+#if defined(CONFIG_BUILD_LOADABLE)
 int main(int argc, FAR char *argv[])
 #elif defined(CONFIG_EXAMPLES_NETTEST_TARGET2)
 int nettest1_main(int argc, char *argv[])

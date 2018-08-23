@@ -221,7 +221,7 @@ static int nxterm_task(int argc, char **argv)
  * Name: nxterm_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int nxterm_main(int argc, char **argv)

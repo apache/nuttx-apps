@@ -90,7 +90,7 @@ install:
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)netdb.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"netdb",$(PRIORITY),$(STACKSIZE),netdb_main)
+	$(call REGISTER,"netdb",$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,netdb_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)netdb.bdat
 else

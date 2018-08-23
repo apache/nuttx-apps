@@ -372,7 +372,7 @@ static int xmlrpc_netinit(void)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int xmlrpc_main(int argc, char *argv[])

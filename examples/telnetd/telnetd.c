@@ -226,7 +226,7 @@ static void telnetd_netinit(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int telnetd_main(int argc, char *argv[])

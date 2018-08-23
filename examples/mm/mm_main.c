@@ -287,7 +287,7 @@ static void do_frees(void **mem, const int *size, const int *seq, int n)
  * Name: mm_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int mm_main(int argc, char *argv[])

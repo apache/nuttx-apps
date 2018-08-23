@@ -106,7 +106,7 @@ static void callback(FAR char **buffer, int offset, int datend,
  * Name: wget_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int wget_main(int argc, char *argv[])

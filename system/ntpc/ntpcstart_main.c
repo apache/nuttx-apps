@@ -52,7 +52,7 @@
  * ntpcstart_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int ntpcstart_main(int argc, char *argv[])

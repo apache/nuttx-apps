@@ -236,7 +236,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
  * Name: i2schar_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int i2schar_main(int argc, char *argv[])

@@ -288,7 +288,7 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  * ft80x_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int ft80x_main(int argc, char *argv[])

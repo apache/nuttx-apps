@@ -252,7 +252,7 @@ static void serial_out(struct term_pair_s *tp)
  * Name: pty_test_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int pty_test_main(int argc, char *argv[])

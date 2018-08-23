@@ -23,7 +23,7 @@ config EXAMPLES_NETTEST_SENDSIZE
 config EXAMPLES_NETTEST_PROGNAME1
 	string "Target1 program name"
 	default "nettest"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the Nettest
 		program is installed.
@@ -72,7 +72,7 @@ config EXAMPLES_NETTEST_PROGNAME2
 	string "Target2 program name"
 	default "tcpserver" if !EXAMPLES_NETTEST_SERVER2
 	default "tcpclient" if EXAMPLES_NETTEST_SERVER2
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the Target2 program that will be use when the
 		NSH ELF program is installed.
@@ -132,7 +132,7 @@ config EXAMPLES_NETTEST_INIT
 	bool "Initialize network"
 	default n if NSH_BUILTIN_APPS
 	default y if !NSH_BUILTIN_APPS
-	depends on !BUILD_KERNEL && !EXAMPLES_NETTEST_LOOPBACK
+	depends on !BUILD_LOADABLE && !EXAMPLES_NETTEST_LOOPBACK
 	---help---
 		Include logic to initialize the network.  This should not be done if
 		the network is already initialized when nettest runs.  This is

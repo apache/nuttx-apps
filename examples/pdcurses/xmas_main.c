@@ -783,7 +783,7 @@ static void reindeer(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int xmas_main(int argc, char *argv[])

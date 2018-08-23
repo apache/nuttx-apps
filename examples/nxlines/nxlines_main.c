@@ -204,7 +204,7 @@ static inline int nxlines_initialize(void)
  * Name: nxlines_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int nxlines_main(int argc, char *argv[])

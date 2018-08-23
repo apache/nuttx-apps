@@ -217,11 +217,7 @@ static void show_environment(bool var1_valid, bool var2_valid, bool var3_valid)
  * Name: user_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
 static int user_main(int argc, char *argv[])
-#endif
 {
   int i;
 
@@ -581,15 +577,15 @@ static void stdio_test(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
 /****************************************************************************
-int main(int argc, FAR char **argv)
  * ostest_main
-#else
  ****************************************************************************/
 
-#endif
+#ifdef BUILD_MODULE
+int main(int argc, FAR char **argv)
+#else
 int ostest_main(int argc, FAR char *argv[])
+#endif
 {
   int result;
 #ifdef CONFIG_EXAMPLES_OSTEST_WAITRESULT

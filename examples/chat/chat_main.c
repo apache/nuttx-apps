@@ -321,7 +321,7 @@ static int chat_parse_args(FAR struct chat_app* priv)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char** argv)
 #else
 int chat_main(int argc, FAR char** argv)

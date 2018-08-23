@@ -247,7 +247,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
  * Name: ftpd_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int ftpd_main(int s_argc, char **s_argv)

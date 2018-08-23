@@ -204,7 +204,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
  * Name: wdog_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int wdog_main(int argc, char *argv[])

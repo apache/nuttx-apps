@@ -67,7 +67,7 @@ config EXAMPLES_TIMER_PRIORITY
 config EXAMPLES_TIMER_PROGNAME
 	string "Timer program name"
 	default "timer"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

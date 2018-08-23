@@ -262,7 +262,7 @@ static int nxtext_initialize(void)
  * Name: nxtext_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int nxtext_main(int argc, char **argv)

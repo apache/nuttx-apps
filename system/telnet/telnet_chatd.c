@@ -321,7 +321,7 @@ static void _event_handler(struct telnet_s *telnet,
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int chatd_main(int argc, char *argv[])

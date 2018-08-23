@@ -58,7 +58,7 @@
  * Private Data
  ****************************************************************************/
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifndef CONFIG_BUILD_LOADABLE
 static sem_t g_exclsem = SEM_INITIALIZER(1);
 #endif
 
@@ -78,7 +78,7 @@ static uint8_t g_buf2[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
  * Private Functions
  ****************************************************************************/
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifndef CONFIG_BUILD_LOADABLE
 static void lzf_exit(int exitcode) noreturn_function;
 static void lzf_exit(int exitcode)
 {
@@ -433,7 +433,7 @@ static int run_file(FAR const char *fname)
  * lzf_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int lzf_main(int argc, FAR char *argv[])
@@ -443,7 +443,7 @@ int lzf_main(int argc, FAR char *argv[])
   int optc;
   int ret = 0;
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifndef CONFIG_BUILD_LOADABLE
   /* Get exclusive access to the global variables.  Global variables are
    * used because the hash table and buffers are too large to allocate on
    * the embedded stack.  But the use of global variables has the downside

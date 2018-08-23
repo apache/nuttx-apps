@@ -88,7 +88,7 @@
  * Name: tc_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int tc_main(int argc, char *argv[])

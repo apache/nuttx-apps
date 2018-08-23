@@ -150,7 +150,7 @@ static struct apa102_ledstrip_s hsvtorgb(uint16_t h, uint8_t s, uint8_t v)
  * apa102_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int apa102_main(int argc, char *argv[])

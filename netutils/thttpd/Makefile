@@ -99,7 +99,7 @@ MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(BINFS_CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(BINFS_COBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
+ifneq ($(CONFIG_BUILD_LOADABLE),y)
   OBJS += $(MAINOBJ)
 endif
 
@@ -146,7 +146,7 @@ endif
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(CONFIG_BUILD_LOADABLE),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
@@ -161,13 +161,13 @@ endif
 
 ifeq ($(CONFIG_THTTPD_BINFS),y)
 $(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),phf_main)
+	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,phf_main))
 
 $(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,redirect,$(PRIORITY),$(STACKSIZE),redirect_main)
+	$(call REGISTER,redirect,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,redirect_main))
 
 $(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,ssi,$(PRIORITY),$(STACKSIZE),ssi_main)
+	$(call REGISTER,ssi,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,ssi_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat $(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat $(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat
 

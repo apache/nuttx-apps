@@ -500,7 +500,7 @@ static inline void count_cells(void)
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
 int sudoku_main(int argc, char **argv, char **envp)

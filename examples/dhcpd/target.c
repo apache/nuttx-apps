@@ -89,7 +89,7 @@
  * Name: dhcpd_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int dhcpd_main(int argc, char *argv[])

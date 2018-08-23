@@ -56,7 +56,7 @@ MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
+ifneq ($(CONFIG_BUILD_LOADABLE),y)
   OBJS += $(MAINOBJ)
 endif
 
@@ -118,7 +118,7 @@ romfs_btestdir.h : btestdir.img
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(CONFIG_BUILD_LOADABLE),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
@@ -133,7 +133,7 @@ endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
 
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else

@@ -61,7 +61,7 @@ static short color_table[] =
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int charset_main(int argc, char *argv[])

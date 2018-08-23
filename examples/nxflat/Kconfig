@@ -7,7 +7,7 @@ config EXAMPLES_NXFLAT
 	bool "NXFLAT example"
 	default n
 	select LIBC_EXECFUNCS
-	depends on NXFLAT && !BUILD_KERNEL
+	depends on NXFLAT && !BUILD_LOADABLE
 	---help---
 		Enable the NXFLAT example
 

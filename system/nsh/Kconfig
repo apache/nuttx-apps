@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NSH
-	bool "NuttShell (NSH) example"
+	tristate "NuttShell (NSH) example"
 	default n
 	select NSH_LIBRARY
 	select SYSTEM_READLINE
@@ -12,6 +12,14 @@ config SYSTEM_NSH
 		Enable the NuttShell (NSH) example
 
 if SYSTEM_NSH
+
+config SYSTEM_NSH_PRIORITY
+	int "Nuttx shell thread priority"
+	default 100
+
+config SYSTEM_NSH_STACKSIZE
+	int "Nuttx shell stack size"
+	default 2048
 
 config SYSTEM_NSH_SYMTAB
 	bool "Register symbol table"
@@ -64,7 +72,7 @@ endif # SYSTEM_NSH_SYMTAB
 config SYSTEM_NSH_PROGNAME
 	string "Program name"
 	default "nsh"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

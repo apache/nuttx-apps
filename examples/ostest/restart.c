@@ -79,11 +79,7 @@ static bool g_restarted;
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
 static int restart_main(int argc, char *argv[])
-#endif
 {
 #ifndef CONFIG_DISABLE_ENVIRON
   char *actual;

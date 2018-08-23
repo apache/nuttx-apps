@@ -140,7 +140,7 @@ static void show_joystick(djoy_buttonset_t oldset, djoy_buttonset_t newset)
  * djoy_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int djoy_main(int argc, char *argv[])

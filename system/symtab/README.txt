@@ -18,7 +18,7 @@ Symbol tables have differing usefulness in different NuttX build modes:
      share resources with other user code (but should use system calls to
      interact with the OS).
 
-  3. But in the kernel build mode (CONFIG_BUILD_KERNEL), only fully linked
+  3. But in the kernel build mode (CONFIG_BUILD_LOADABLE), only fully linked
      executables loadable via execl(), execv(), or posix_spawan() can used.
      There is no use for a symbol table with the kernel build since all
      memory resources are separate; nothing is share-able with the newly

@@ -16,7 +16,7 @@ if EXAMPLES_LIS3DSH_READER
 config EXAMPLES_LIS3DSH_READER_PROGNAME
 	string "Program name"
 	default "lis3dsh_reader"
-	depends on BUILD_KERNEL
+	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.

@@ -391,7 +391,7 @@ errout:
  * buttons_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int buttons_main(int argc, FAR char *argv[])

@@ -389,7 +389,7 @@ static int ubloxmodem_parse(FAR struct ubloxmodem_cxt* cxt)
   return 0;
 }
 
-inline int ubloxmodem_exec(FAR struct ubloxmodem_cxt* cxt)
+static int ubloxmodem_exec(FAR struct ubloxmodem_cxt *cxt)
 {
   return (cmdmap[cxt->cmd].handler)(cxt);
 }
@@ -406,7 +406,7 @@ inline int ubloxmodem_exec(FAR struct ubloxmodem_cxt* cxt)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_LOADABLE
 int main(int argc, FAR char** argv)
 #else
 int ubloxmodem_main(int argc, FAR char** argv)
