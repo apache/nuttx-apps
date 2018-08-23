@@ -18,6 +18,12 @@ config NSH_LIBRARY
 
 if NSH_LIBRARY
 
+config NSH_PROMPT_STRING
+	string "Prompt String"
+	default "nsh> "
+	---help---
+		Provide the shell prompt string, default is "nsh> ".
+
 menuconfig NSH_MOTD
 	bool "Message of the Day (MOTD)"
 	default n
@@ -139,10 +145,10 @@ config NSH_CMDPARMS
 
 config NSH_MAXARGUMENTS
 	int "Maximum number of command arguments"
-	default 6
+	default 7
 	---help---
 		The maximum number of NSH command arguments.
-		Default: 6
+		Default: 7
 
 config NSH_ARGCAT
 	bool "Concatenation of argument strings"

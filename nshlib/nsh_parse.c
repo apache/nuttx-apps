@@ -259,7 +259,7 @@ const char g_loginfailure[]      = "Login failed!\n";
 
 /* The NSH prompt */
 
-const char g_nshprompt[]         = "nsh> ";
+const char g_nshprompt[]         = CONFIG_NSH_PROMPT_STRING;
 
 /* Common, message formats */
 

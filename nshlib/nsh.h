@@ -464,7 +464,7 @@
 
 /* This is the maximum number of arguments that will be accepted for a
  * command.  Here we attempt to select the smallest number possible depending
- * upon the of commands that are available.  Most commands use six or fewer
+ * upon the of commands that are available.  Most commands use seven or fewer
  * arguments, but there are a few that require more.
  *
  * This value is also configurable with CONFIG_NSH_MAXARGUMENTS.  This
@@ -472,24 +472,11 @@
  * commands that require more commands than NSH is aware of.
  */
 
-#ifndef CONFIG_NSH_MAXARGUMENTS
-#  define CONFIG_NSH_MAXARGUMENTS 6
-#endif
-
 #if CONFIG_NSH_MAXARGUMENTS < 11
 #  if defined(CONFIG_NET) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
 #    undef CONFIG_NSH_MAXARGUMENTS
 #    define CONFIG_NSH_MAXARGUMENTS 11
 #  endif
-#endif
-
-#if CONFIG_NSH_MAXARGUMENTS < 7
-#  if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#    if !defined(CONFIG_NSH_DISABLE_GET) || !defined(CONFIG_NSH_DISABLE_PUT)
-#      undef CONFIG_NSH_MAXARGUMENTS
-#      define CONFIG_NSH_MAXARGUMENTS 7
-#    endif
-# endif
 #endif
 
 /* Argument list size
