@@ -57,6 +57,28 @@ extern "C"
 #endif
 
 /****************************************************************************
+ * Name: issmartfs
+ *
+ * Description:
+ *   Check a SMART (Sector Mapped Allocation for Really Tiny) Flash file
+ *   system image on the specified block device (must be a SMART device).
+ *
+ * Inputs:
+ *   pathname - the full path to a registered block driver
+ *
+ * Return:
+ *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *
+ *   EINVAL - NULL block driver string
+ *   ENOENT - 'pathname' does not refer to anything in the filesystem.
+ *   ENOTBLK - 'pathname' does not refer to a block driver
+ *   EFTYPE - the block driver hasn't been formated yet
+ *
+ ****************************************************************************/
+
+int issmartfs(FAR const char *pathname);
+
+/****************************************************************************
  * Name: mksmartfs
  *
  * Description:

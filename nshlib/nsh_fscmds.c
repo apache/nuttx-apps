@@ -1449,8 +1449,9 @@ errout_with_fmt:
 int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = NULL;
-  int ret = ERROR;
+  int ret = OK;
   uint16_t  sectorsize = 0;
+  int force = 0;
   int opt;
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
   int nrootdirs = 1;
@@ -1459,10 +1460,14 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Process any options */
 
   optind = 0;
-  while ((opt = getopt(argc, argv, "s:")) != -1)
+  while ((opt = getopt(argc, argv, "fs:")) != -1)
     {
       switch (opt)
         {
+          case 'f':
+            force = 1;
+            break;
+
           case 's':
             sectorsize = atoi(optarg);
             if (sectorsize < 256 || sectorsize > 16384)
@@ -1504,6 +1509,7 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
       else
 #endif
+      if (force || issmartfs(fullpath) != OK)
         {
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
           ret = mksmartfs(fullpath, sectorsize, nrootdirs);
