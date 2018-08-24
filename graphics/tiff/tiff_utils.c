@@ -339,7 +339,7 @@ int tiff_putstring(int fd, FAR const char *string, int len)
 #ifdef CONFIG_DEBUG_GRAPHICS
   int actual = strlen(string);
 
-  ASSERT(len = actual+1);
+  DEBUGASSERT(len = actual+1);
 #endif
   return tiff_write(fd, string, len);
 }

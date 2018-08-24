@@ -62,8 +62,8 @@ void xMBUtilSetBits(uint8_t *ucByteBuf, uint16_t usBitOffset,
   uint16_t usNPreBits;
   uint16_t usValue = ucValue;
 
-  ASSERT(ucNBits <= 8);
-  ASSERT((size_t)BITS_uint8_t == sizeof(uint8_t) * 8);
+  DEBUGASSERT(ucNBits <= 8);
+  DEBUGASSERT((size_t)BITS_uint8_t == sizeof(uint8_t) * 8);
 
   /* Calculate byte offset for first byte containing the bit values starting
    * at usBitOffset.

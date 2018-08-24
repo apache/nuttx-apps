@@ -105,7 +105,7 @@ void vMBPortTimersEnable()
 {
   int res = gettimeofday(&xTimeLast, NULL);
 
-  ASSERT(res == 0);
+  DEBUGASSERT(res == 0);
   bTimeoutEnable = true;
 }
 

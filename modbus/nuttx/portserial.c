@@ -178,7 +178,7 @@ void vMBPortSerialEnable(bool bEnableRx, bool bEnableTx)
 {
   /* it is not allowed that both receiver and transmitter are enabled. */
 
-  ASSERT(!bEnableRx || !bEnableTx);
+  DEBUGASSERT(!bEnableRx || !bEnableTx);
 
   if (bEnableRx)
     {
@@ -387,7 +387,7 @@ bool xMBPortSerialPoll(void)
 
 bool xMBPortSerialPutByte(int8_t ucByte)
 {
-  ASSERT(uiTxBufferPos < BUF_SIZE);
+  DEBUGASSERT(uiTxBufferPos < BUF_SIZE);
   ucBuffer[uiTxBufferPos] = ucByte;
   uiTxBufferPos++;
   return true;
@@ -395,7 +395,7 @@ bool xMBPortSerialPutByte(int8_t ucByte)
 
 bool xMBPortSerialGetByte(int8_t *pucByte)
 {
-  ASSERT(uiRxBufferPos < BUF_SIZE);
+  DEBUGASSERT(uiRxBufferPos < BUF_SIZE);
   *pucByte = ucBuffer[uiRxBufferPos];
   uiRxBufferPos++;
   return true;

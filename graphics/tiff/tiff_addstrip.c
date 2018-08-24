@@ -145,7 +145,7 @@ int tiff_convstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
 
   ret = tiff_write(info->tmp2fd, info->iobuffer, nbytes);
 #ifdef CONFIG_DEBUG_GRAPHICS
-  ASSERT(ntotal == info->bps);
+  DEBUGASSERT(ntotal == info->bps);
 #endif
   return ret;
 }

@@ -121,7 +121,7 @@ int cpuhog_main(int argc, char *argv[])
 
       while (sem_wait(&g_state.sem) != 0)
         {
-          ASSERT(errno == EINTR || errno == ECANCELED);
+          DEBUGASSERT(errno == EINTR || errno == ECANCELED);
         }
 
       /* Burn some inside semlock */

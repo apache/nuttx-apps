@@ -200,7 +200,7 @@ static int _open_with_http(const char *fullurl)
     }
 
   s = socket(AF_INET, SOCK_STREAM, 0);
-  ASSERT(s != -1);
+  DEBUGASSERT(s != -1);
 
   tv.tv_sec  = 10; /* TODO */
   tv.tv_usec = 0;

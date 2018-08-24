@@ -349,7 +349,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
 #endif
     }
 #ifdef CONFIG_DEBUG_GRAPHICS
-  ASSERT(total == info->tmp1size);
+  DEBUGASSERT(total == info->tmp1size);
 #endif
 
   /* Rewind to the beginning of tmpfile2 */
@@ -399,7 +399,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
 #endif
     }
 #ifdef CONFIG_DEBUG_GRAPHICS
-  ASSERT(total == info->tmp2size);
+  DEBUGASSERT(total == info->tmp2size);
 #endif
 
   /* Close all files and return success */

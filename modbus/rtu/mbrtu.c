@@ -173,7 +173,7 @@ eMBErrorCode eMBRTUReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
   eMBErrorCode eStatus = MB_ENOERR;
 
   ENTER_CRITICAL_SECTION();
-  ASSERT(usRcvBufferPos < MB_SER_PDU_SIZE_MAX);
+  DEBUGASSERT(usRcvBufferPos < MB_SER_PDU_SIZE_MAX);
 
   /* Length and CRC check */
 
@@ -254,7 +254,7 @@ bool xMBRTUReceiveFSM(void)
   bool xTaskNeedSwitch = false;
   uint8_t ucByte;
 
-  ASSERT(eSndState == STATE_TX_IDLE);
+  DEBUGASSERT(eSndState == STATE_TX_IDLE);
 
   /* Always read the character. */
 
@@ -320,7 +320,7 @@ bool xMBRTUTransmitFSM(void)
 {
   bool xNeedPoll = false;
 
-  ASSERT(eRcvState == STATE_RX_IDLE);
+  DEBUGASSERT(eRcvState == STATE_RX_IDLE);
 
   switch (eSndState)
     {
@@ -388,7 +388,7 @@ bool xMBRTUTimerT35Expired(void)
       /* Function called in an illegal state. */
 
       default:
-        ASSERT((eRcvState == STATE_RX_INIT) ||
+        DEBUGASSERT((eRcvState == STATE_RX_INIT) ||
                (eRcvState == STATE_RX_RCV) ||
                (eRcvState == STATE_RX_ERROR));
     }

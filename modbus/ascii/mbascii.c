@@ -152,7 +152,7 @@ static uint8_t prvucMBBIN2int8_t(uint8_t ucByte)
     {
       /* Programming error. */
 
-      ASSERT(0);
+      DEBUGASSERT(0);
     }
 
   return '0';
@@ -225,7 +225,7 @@ eMBErrorCode eMBASCIIReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
   eMBErrorCode eStatus = MB_ENOERR;
 
   ENTER_CRITICAL_SECTION();
-  ASSERT(usRcvBufferPos < MB_SER_PDU_SIZE_MAX);
+  DEBUGASSERT(usRcvBufferPos < MB_SER_PDU_SIZE_MAX);
 
   /* Length and CRC check */
 
@@ -307,7 +307,7 @@ bool xMBASCIIReceiveFSM(void)
   uint8_t ucByte;
   uint8_t ucResult;
 
-  ASSERT(eSndState == STATE_TX_IDLE);
+  DEBUGASSERT(eSndState == STATE_TX_IDLE);
 
   (void)xMBPortSerialGetByte((int8_t *) & ucByte);
   switch (eRcvState)
@@ -435,7 +435,7 @@ bool xMBASCIITransmitFSM(void)
   bool xNeedPoll = false;
   uint8_t ucByte;
 
-  ASSERT(eRcvState == STATE_RX_IDLE);
+  DEBUGASSERT(eRcvState == STATE_RX_IDLE);
   switch (eSndState)
   {
   /* Start of transmission. The start of a frame is defined by sending
@@ -537,7 +537,7 @@ bool xMBASCIITimerT1SExpired(void)
     break;
 
   default:
-    ASSERT((eRcvState == STATE_RX_RCV) || (eRcvState == STATE_RX_WAIT_EOF));
+    DEBUGASSERT((eRcvState == STATE_RX_RCV) || (eRcvState == STATE_RX_WAIT_EOF));
     break;
   }
 

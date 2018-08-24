@@ -108,7 +108,7 @@ int i2sloop_main(int argc, char *argv[])
   /* Open the I2S character device */
 
   fd = open("/dev/i2schar0", O_RDWR);
-  ASSERT(0 < fd);
+  DEBUGASSERT(0 < fd);
 
   /* Setup sample freq for i2s */
 
@@ -127,7 +127,7 @@ int i2sloop_main(int argc, char *argv[])
   desc.u.ppBuffer = &apb;
 
   ret = apb_alloc(&desc);
-  ASSERT(ret == sizeof(desc));
+  DEBUGASSERT(ret == sizeof(desc));
 
   signal(1, _signal_handler);
   g_i2sloop_running = true;

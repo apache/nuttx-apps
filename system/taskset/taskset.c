@@ -72,7 +72,7 @@ static void show_usage(FAR const char *progname, int exitcode)
 
 static bool get_cpuset(const char *arg, cpu_set_t *cpu_set)
 {
-  ASSERT(NULL != arg);
+  DEBUGASSERT(NULL != arg);
 
   bool ret = false;
   int val  = atoi(arg);

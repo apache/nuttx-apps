@@ -3703,7 +3703,7 @@ void nximage_blitrow(FAR nxgl_mxpixel_t *run, FAR const void **state)
           *run++ = color;
         }
     }
-  ASSERT(width == SCALED_WIDTH);
+  DEBUGASSERT(width == SCALED_WIDTH);
 
   /* Save the start of the next row and return success */
 

@@ -214,7 +214,7 @@
 
 #ifdef CONFIG_DEBUG_TIFFOFFSETS
 #  define tiff_offset(o,l)      (o) += (l)
-#  define tiff_checkoffs(o,x)   ASSERT((o) == (x))
+#  define tiff_checkoffs(o,x)   DEBUGASSERT((o) == (x))
 #else
 #  define tiff_offset(o,l)
 #  define tiff_checkoffs(o,x)
