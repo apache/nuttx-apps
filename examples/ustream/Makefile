@@ -33,7 +33,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
@@ -69,7 +68,7 @@ CLIENT_MAINOBJ = $(CLIENT_MAINSRC:.c=$(OBJEXT))
 CLIENT_SRCS = $(CLIENT_ASRCS) $(CLIENT_CSRCS) $(CLIENT_MAINSRC)
 CLIENT_OBJS = $(CLIENT_AOBJS) $(CLIENT_COBJS)
 
-CLIENT_PROGNAME = server$(EXEEXT)
+CLIENT_PROGNAME = client$(EXEEXT)
 
 CLIENT_APPNAME = client
 CLIENT_PRIORITY = SCHED_PRIORITY_DEFAULT
@@ -121,7 +120,6 @@ $(COBJS): %$(OBJEXT): %.c
 	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_LOADABLE),y)
-
 $(BIN_DIR)$(DELIM)$(CLIENT_PROGNAME): $(CLIENT_OBJS)
 	@echo "LD: $(CLIENT_PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(CLIENT_PROGNAME) $(ARCHCRT0OBJ) $(CLIENT_MAINOBJ) $(LDLIBS)
