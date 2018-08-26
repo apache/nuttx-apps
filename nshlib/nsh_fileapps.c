@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #ifdef CONFIG_SCHED_WAITPID
+#  include <sys/ioctl.h>
 #  include <sys/wait.h>
 #endif
 
@@ -171,6 +172,13 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           int rc = 0;
 
+          /* Setup up to receive SIGKILL if control-C entered.  The return
+           * value is ignored because this console device may not support
+           * SIGKILL.
+           */
+
+          (void)ioctl(stdout->fs_fd, TIOCSCTTY, pid);
+
           /* Wait for the application to exit.  We did lock the scheduler
            * above, but that does not guarantee that the application did not
            * already run to completion in the case where I/O was redirected.
@@ -219,6 +227,8 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
               * the most recently executed task.
               */
             }
+
+          (void)ioctl(stdout->fs_fd, TIOCSCTTY, -1);
         }
 #  ifndef CONFIG_NSH_DISABLEBG
       else
