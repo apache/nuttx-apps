@@ -642,7 +642,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
   /* Read data into the buffer. */
 
-  apb->nbytes  = read(pPlayer->fd, &apb->samp, apb->nmaxbytes);
+  apb->nbytes  = read(pPlayer->fd, apb->samp, apb->nmaxbytes);
   apb->curbyte = 0;
   apb->flags   = 0;
 
@@ -1131,20 +1131,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 err_out:
   audinfo("Clean-up and exit\n");
 
-  /* Unregister the message queue and release the session */
-
-  ioctl(pPlayer->devFd, AUDIOIOC_UNREGISTERMQ, (unsigned long) pPlayer->mq);
-#ifdef CONFIG_AUDIO_MULTI_SESSION
-  ioctl(pPlayer->devFd, AUDIOIOC_RELEASE, (unsigned long) pPlayer->session);
-#else
-  ioctl(pPlayer->devFd, AUDIOIOC_RELEASE, 0);
-#endif
-
-  /* Cleanup */
-
-  while (sem_wait(&pPlayer->sem) < 0)
-    ;
-
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   if (pBuffers != NULL)
     {
@@ -1155,6 +1141,9 @@ err_out:
 
           if (pBuffers[x] != NULL)
             {
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+              buf_desc.session = pPlayer->session;
+#endif
               buf_desc.u.pBuffer = pBuffers[x];
               ioctl(pPlayer->devFd, AUDIOIOC_FREEBUFFER, (unsigned long) &buf_desc);
             }
@@ -1172,11 +1161,29 @@ err_out:
 
         if (pBuffers[x] != NULL)
           {
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+            buf_desc.session = pPlayer->session;
+#endif
             buf_desc.u.pBuffer = pBuffers[x];
             ioctl(pPlayer->devFd, AUDIOIOC_FREEBUFFER, (unsigned long) &buf_desc);
           }
       }
 #endif
+
+  /* Unregister the message queue and release the session */
+
+  ioctl(pPlayer->devFd, AUDIOIOC_UNREGISTERMQ, (unsigned long) pPlayer->mq);
+
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+  ioctl(pPlayer->devFd, AUDIOIOC_RELEASE, (unsigned long) pPlayer->session);
+#else
+  ioctl(pPlayer->devFd, AUDIOIOC_RELEASE, 0);
+#endif
+
+  /* Cleanup */
+
+  while (sem_wait(&pPlayer->sem) < 0)
+    ;
 
   /* Close the files */
 
@@ -1252,6 +1259,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
+          sem_post(&pPlayer->sem);
           return -errcode;
         }
     }
