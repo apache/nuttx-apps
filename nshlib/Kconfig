@@ -199,7 +199,6 @@ config NSH_BUILTIN_APPS
 
 config NSH_FILE_APPS
 	bool "Enable execution of program files"
-	option modules
 	default n
 	depends on LIBC_EXECFUNCS
 	---help---
