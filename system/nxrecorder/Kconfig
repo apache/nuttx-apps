@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXRECORDER
+	bool "NxRecorder pcm raw data Recorder"
+	default n
+	depends on AUDIO
+	---help---
+		Enable support for the NxRecorder pcm raw data recorder library
+                and optional command line interface.
+
+if SYSTEM_NXRECORDER
+
+config NXRECORDER_RECORDTHREAD_STACKSIZE
+	int "NxRecorder thread stack size"
+	default 1500
+	---help---
+		Stack size to use with the NxRecorder record thread.
+
+config NXRECORDER_COMMAND_LINE
+	bool "Include nxrecorder command line application"
+	default y
+	---help---
+		Compiles in code for the nxrecorder command line control.
+		This is a text-based command line interface that uses
+		the nxrecorder library to record pcm raw data, control the
+		volume, balance, bass, etc.
+
+if NXRECORDER_COMMAND_LINE
+
+config NXRECORDER_INCLUDE_HELP
+	bool "Include HELP command and text"
+	default y
+	---help---
+		Compiles in the NxRecorder help text to provide online help
+		for available commands with syntax.
+
+endif
+endif
