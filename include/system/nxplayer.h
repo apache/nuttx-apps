@@ -208,6 +208,30 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
                       FAR const char *filename, int filefmt, int subfmt);
 
 /****************************************************************************
+ * Name: nxplayer_playraw
+ *
+ *   Plays the specified media file (from the filesystem) using the
+ *   Audio system.  If a preferred device has been set, that device
+ *   will be used for the playback, otherwise the first suitable device
+ *   found in the /dev/audio directory will be used.
+ *
+ * Input Parameters:
+ *   pPlayer   - Pointer to the context to initialize
+ *   filename  - Pointer to pathname of the file to play
+ *   nchannels  channel num
+ *   bpsampe    bit width
+ *   samprate   sample rate
+ *
+ * Returned Value:
+ *   OK if file found, device found, and playback started.
+ *
+ ****************************************************************************/
+
+int nxplayer_playraw(FAR struct nxplayer_s *pPlayer,
+                     FAR const char *filename, uint8_t nchannels,
+                     uint8_t bpsamp, uint32_t samprate);
+
+/****************************************************************************
  * Name: nxplayer_stop
  *
  *   Stops current playback.

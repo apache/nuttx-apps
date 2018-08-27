@@ -81,6 +81,7 @@ struct mp_cmd_s {
 
 static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char *parg);
 static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char *parg);
+static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pPlayer, char *parg);
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char *parg);
@@ -144,6 +145,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
   { "mediadir", "path",     nxplayer_cmd_mediadir,  NXPLAYER_HELP_TEXT(Change the media directory) },
 #endif
   { "play",     "filename", nxplayer_cmd_play,      NXPLAYER_HELP_TEXT(Play a media file) },
+  { "playraw",  "filename", nxplayer_cmd_playraw,   NXPLAYER_HELP_TEXT(Play a raw data file) },
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
   { "pause",    "",         nxplayer_cmd_pause,     NXPLAYER_HELP_TEXT(Pause playback) },
 #endif
@@ -213,6 +215,66 @@ static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char *parg)
 
       case ENOENT:
         printf("File %s not found\n", parg);
+        break;
+
+      case ENOSYS:
+        printf("Unknown audio format\n");
+        break;
+
+      default:
+        printf("Error playing file: %d\n", -ret);
+        break;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxplayer_cmd_playraw
+ *
+ *   nxplayer_cmd_play() plays the raw data file using the nxplayer
+ *   context.
+ *
+ ****************************************************************************/
+
+static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pPlayer, char *parg)
+{
+  int ret;
+  int channels = 0;
+  int bpsamp = 0;
+  int samprate = 0;
+  char filename[128];
+
+  sscanf(parg, "%s %d %d %d", filename, &channels, &bpsamp, &samprate);
+
+  /* Try to play the file specified */
+
+  ret = nxplayer_playraw(pPlayer, filename, channels, bpsamp, samprate);
+
+  /* nxplayer_playfile returned values:
+   *
+   *   OK         File is being played
+   *   -EBUSY     The media device is busy
+   *   -ENOSYS    The media file is an unsupported type
+   *   -ENODEV    No audio device suitable to play the media type
+   *   -ENOENT    The media file was not found
+   */
+
+  switch (-ret)
+    {
+      case OK:
+        break;
+
+      case ENODEV:
+        printf("No suitable Audio Device found\n");
+        break;
+
+      case EBUSY:
+        printf("Audio device busy\n");
+        break;
+
+      case ENOENT:
+        printf("File %s not found\n", filename);
         break;
 
       case ENOSYS:
