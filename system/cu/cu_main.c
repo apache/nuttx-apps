@@ -284,7 +284,7 @@ int cu_main(int argc, FAR char *argv[])
 
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = sigint;
-  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGKILL, &sa, NULL);
 
   while ((option = getopt(argc, argv, "l:s:eor?")) != ERROR)
     {
