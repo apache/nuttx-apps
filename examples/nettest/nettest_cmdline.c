@@ -76,7 +76,7 @@ uint16_t g_nettestserver_ipv6[8] =
 
 #else
 
-#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
 uint32_t g_nettestserver_ipv4 = HTONL(0x7f000001);
 #else
 uint32_t g_nettestserver_ipv4 = HTONL(CONFIG_EXAMPLES_NETTEST_SERVERIP);

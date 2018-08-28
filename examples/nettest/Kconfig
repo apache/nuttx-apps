@@ -7,6 +7,7 @@ config EXAMPLES_NETTEST
 	bool "Network test example"
 	default n
 	depends on NET_TCP
+	depends on NET_SOCKOPTS
 	---help---
 		Enable the network test example
 
