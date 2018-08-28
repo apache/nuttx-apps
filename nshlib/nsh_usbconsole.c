@@ -317,6 +317,12 @@ int nsh_consolemain(int argc, char *argv[])
   (void)nsh_initscript(&pstate->cn_vtbl);
 #endif
 
+#ifdef CONFIG_BOARDCTL_FINALINIT
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  (void)boardctl(BOARDIOC_FINALINIT, 0);
+#endif
+
   /* Now loop, executing creating a session for each USB connection */
 
   for (;;)

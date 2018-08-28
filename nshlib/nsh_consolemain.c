@@ -42,6 +42,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <sys/boardctl.h>
+
 #include "nsh.h"
 #include "nsh_console.h"
 
@@ -97,6 +99,12 @@ int nsh_consolemain(int argc, char *argv[])
   /* Initialize any USB tracing options that were requested */
 
   usbtrace_enable(TRACE_BITSET);
+#endif
+
+#ifdef CONFIG_BOARDCTL_FINALINIT
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  (void)boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
   /* Execute the session */

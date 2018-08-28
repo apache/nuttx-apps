@@ -154,6 +154,12 @@ int lvgldemo_main(int argc, char *argv[])
   /* Perform board-specific driver initialization */
 
   (void)boardctl(BOARDIOC_INIT, 0);
+
+#ifdef CONFIG_BOARDCTL_FINALINIT
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  (void)boardctl(BOARDIOC_FINALINIT, 0);
+#endif
 #endif
 
   /* LittlevGL initialization */
