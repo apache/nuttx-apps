@@ -317,7 +317,7 @@ int nsh_consolemain(int argc, char *argv[])
   (void)nsh_initscript(&pstate->cn_vtbl);
 #endif
 
-#ifdef CONFIG_BOARDCTL_FINALINIT
+#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
   /* Perform architecture-specific final-initialization (if configured) */
 
   (void)boardctl(BOARDIOC_FINALINIT, 0);

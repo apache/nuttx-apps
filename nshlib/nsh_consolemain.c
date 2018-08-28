@@ -101,7 +101,7 @@ int nsh_consolemain(int argc, char *argv[])
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-#ifdef CONFIG_BOARDCTL_FINALINIT
+#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
   /* Perform architecture-specific final-initialization (if configured) */
 
   (void)boardctl(BOARDIOC_FINALINIT, 0);
