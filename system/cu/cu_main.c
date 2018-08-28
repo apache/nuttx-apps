@@ -61,18 +61,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef SIGINT
-#  define SIGINT  2
-#endif
-
-#ifndef SIGKILL
-#  define SIGKILL 9
-#endif
-
-#ifndef SIGTERM
-#  define SIGTERM 15
-#endif
-
 enum parity_mode
 {
   PARITY_NONE,
@@ -297,8 +285,6 @@ int cu_main(int argc, FAR char *argv[])
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = sigint;
   sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGTERM, &sa, NULL);
-  sigaction(SIGKILL, &sa, NULL);
 
   while ((option = getopt(argc, argv, "l:s:eor?")) != ERROR)
     {

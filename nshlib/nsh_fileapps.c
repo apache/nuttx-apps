@@ -172,9 +172,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           int rc = 0;
 
-          /* Setup up to receive SIGKILL if control-C entered.  The return
+          /* Setup up to receive SIGINT if control-C entered.  The return
            * value is ignored because this console device may not support
-           * SIGKILL.
+           * SIGINT.
            */
 
           (void)ioctl(stdout->fs_fd, TIOCSCTTY, pid);
