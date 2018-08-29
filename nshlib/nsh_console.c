@@ -440,22 +440,28 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       /* Initialize the call table */
 
 #ifndef CONFIG_NSH_DISABLEBG
-      pstate->cn_vtbl.clone      = nsh_consoleclone;
-      pstate->cn_vtbl.release    = nsh_consolerelease;
+      pstate->cn_vtbl.clone       = nsh_consoleclone;
+      pstate->cn_vtbl.release     = nsh_consolerelease;
 #endif
-      pstate->cn_vtbl.write      = nsh_consolewrite;
-      pstate->cn_vtbl.output     = nsh_consoleoutput;
-      pstate->cn_vtbl.linebuffer = nsh_consolelinebuffer;
-      pstate->cn_vtbl.exit       = nsh_consoleexit;
+      pstate->cn_vtbl.write       = nsh_consolewrite;
+      pstate->cn_vtbl.output      = nsh_consoleoutput;
+      pstate->cn_vtbl.linebuffer  = nsh_consolelinebuffer;
+      pstate->cn_vtbl.exit        = nsh_consoleexit;
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+      /* Set the initial option flags */
+
+      pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
+#endif
 
 #if CONFIG_NFILE_STREAMS > 0
-      pstate->cn_vtbl.redirect   = nsh_consoleredirect;
-      pstate->cn_vtbl.undirect   = nsh_consoleundirect;
+      pstate->cn_vtbl.redirect    = nsh_consoleredirect;
+      pstate->cn_vtbl.undirect    = nsh_consoleundirect;
 
       /* (Re-) open the console input device */
 
 #ifdef CONFIG_NSH_ALTCONDEV
-      pstate->cn_confd           = open(CONFIG_NSH_CONDEV, O_RDWR);
+      pstate->cn_confd            = open(CONFIG_NSH_CONDEV, O_RDWR);
       if (pstate->cn_confd < 0)
         {
           free(pstate);
@@ -475,16 +481,10 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 
       /* Initialize the output stream */
 
-      pstate->cn_outfd           = OUTFD(pstate);
-      pstate->cn_outstream       = OUTSTREAM(pstate);
+      pstate->cn_outfd            = OUTFD(pstate);
+      pstate->cn_outstream        = OUTSTREAM(pstate);
 #endif
     }
-
-#ifndef CONFIG_NSH_DISABLESCRIPT
-  /* Set the initial option flags */
-
-  pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
-#endif
 
   return pstate;
 }
