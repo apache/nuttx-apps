@@ -221,11 +221,19 @@ The 'dev' command will attempt to identify all of the I2C devices on the
 selected bus.  The <first> and <last> arguments are 7-bit, hexadecimal
 I2C addresses.  This command will examine a range of addresses beginning
 with <first> and continuing through <last>.  It will request the value
-of register zero from each device.
+of register address zero from each device.
 
-If the device at an address responds, then this command will display the
-address of the device.  If the device does not respond, this command will
-display "--".  The resulting display is like:
+The register address of zero is always used by default.  The previous
+"sticky" register address is ignored.  Some devices may not respond to
+ergister address zero, however.  To work around this, you can provide a
+new "sticky" register address on the command as an option to the 'dev'
+command.  Then that new "sticky" register address will be used instead
+of the address zero.
+
+If the device at an I2C address responds to the read request, then the
+'dev' command will display the I2C address of the device.  If the device
+does not respond, this command will display "--".  The resulting display
+looks like:
 
 nsh> i2c dev 03 77
      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/i2c/i2c_dev.c
  *
- *   Copyright (C) 2011, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2016, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   } u;
 
   uint8_t regaddr;
+  uint8_t saveaddr;
   long first;
   long last;
   int addr;
@@ -74,11 +75,20 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   int i;
   int j;
 
+  /* A register address other than zero may be provided on the command line.
+   * However, for backward compatibility, the address zero will be used
+   * unless the address is specifically included on the command line for
+   * this command.
+   */
+
+  saveaddr         = i2ctool->regaddr;
+  i2ctool->regaddr = 0;
+
   /* Parse any command line arguments */
 
   for (argndx = 1; argndx < argc; )
     {
-      /* Break out of the look when the last option has been parsed */
+      /* Break out of the loop when the last option has been parsed */
 
       ptr = argv[argndx];
       if (*ptr != '-')
@@ -91,8 +101,9 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
       nargs = i2ctool_common_args(i2ctool, &argv[argndx]);
       if (nargs < 0)
         {
-          return ERROR;
+          goto errout;
         }
+
       argndx += nargs;
     }
 
@@ -100,14 +111,14 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
    * last addresses to be probed.
    */
 
-  if (argndx+1 < argc)
+  if (argndx + 1 < argc)
     {
       first = strtol(argv[argndx], NULL, 16);
-      last  = strtol(argv[argndx+1], NULL, 16);
+      last  = strtol(argv[argndx + 1], NULL, 16);
       if (first < 0 || first > 0x7f || last < 0 || last > 0x7f || first > last)
         {
           i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
-          return ERROR;
+          goto errout;
         }
 
       argndx += 2;
@@ -115,13 +126,13 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   else
     {
       i2ctool_printf(i2ctool, g_i2cargrequired, argv[0]);
-      return ERROR;
+      goto errout;
     }
 
   if (argndx != argc)
     {
       i2ctool_printf(i2ctool, g_i2ctoomanyargs, argv[0]);
-      return ERROR;
+      goto errout;
     }
 
   /* Get a handle to the I2C bus */
@@ -130,7 +141,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   if (fd < 0)
     {
        i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       return ERROR;
+       goto errout;
     }
 
   /* Probe each address */
@@ -143,7 +154,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
         {
           /* Skip addresses that are out of the selected range */
 
-          addr = i+j;
+          addr = i + j;
           if (addr < first || addr > last)
             {
               i2ctool_printf(i2ctool, "   ");
@@ -152,7 +163,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           /* Set up data structures */
 
-          regaddr          = 0;
+          regaddr          = i2ctool->regaddr;
 
           msg[0].frequency = i2ctool->freq;
           msg[0].addr      = addr;
@@ -163,6 +174,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
           msg[1].frequency = i2ctool->freq;
           msg[1].addr      = addr;
           msg[1].flags     = I2C_M_READ;
+
           if (i2ctool->width == 8)
             {
               msg[1].buffer = &u.data8;
@@ -202,5 +214,18 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
     }
 
   (void)close(fd);
+
+errout:
+
+  /* Restore the previous "sticky" register address unless a new register
+   * address was provided on the command line.  In that case the new
+   * register address is retained.
+   */
+
+  if (i2ctool->regaddr == 0)
+    {
+      i2ctool->regaddr = saveaddr;
+    }
+
   return OK;
 }
