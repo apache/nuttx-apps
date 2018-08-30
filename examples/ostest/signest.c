@@ -77,6 +77,25 @@ static volatile int g_nest_level;
  * Private Functions
  ****************************************************************************/
 
+static bool signest_catchable(int signo)
+{
+#ifdef CONFIG_SIG_SIGSTOP_ACTION
+   if (signo == SIGSTOP || signo == SIGCONT)
+     {
+       return false;
+     }
+#endif
+
+#ifdef CONFIG_SIG_SIGKILL_ACTION
+   if (signo == SIGKILL)
+     {
+       return false;
+     }
+#endif
+
+  return true;
+}
+
 static void waiter_action(int signo)
 {
   int nest_level;
@@ -131,16 +150,22 @@ static int waiter_main(int argc, char *argv[])
   (void)sigemptyset(&act.sa_mask);
   for (i = 1; i < MAX_SIGNO; i += 2)
     {
-      (void)sigaddset(&act.sa_mask, i);
+      if (signest_catchable(i))
+        {
+          (void)sigaddset(&act.sa_mask, i);
+        }
     }
 
   for (i = 1; i < MAX_SIGNO; i++)
     {
-      ret = sigaction(i, &act, NULL);
-      if (ret < 0)
+      if (signest_catchable(i))
         {
-          printf("waiter_main: ERROR sigaction failed\n" , errno);
-          return EXIT_FAILURE;
+          ret = sigaction(i, &act, NULL);
+          if (ret < 0)
+            {
+              printf("waiter_main: WARNING sigaction failed\n" , errno);
+              return EXIT_FAILURE;
+            }
         }
     }
 
@@ -261,23 +286,33 @@ void signest_test(void)
     {
       for (j = 1; j < MAX_SIGNO; j += 2)
         {
-          /* Odd then even */
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
 
-          kill(waiterpid, j);
-          kill(waiterpid, j+1);
-
-          odd_signals++;
-          even_signals++;
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
 
           usleep(10*1000L);
 
           /* Even then odd */
 
-          kill(waiterpid, j+1);
-          kill(waiterpid, j);
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
 
-          odd_signals++;
-          even_signals++;
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
 
           usleep(10*1000L);
         }
@@ -309,11 +344,19 @@ void signest_test(void)
           /* Odd then even */
 
           sched_lock();
-          kill(waiterpid, j);
-          kill(waiterpid, j+1);
 
-          odd_signals++;
-          even_signals++;
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
+
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
+
           sched_unlock();
 
           usleep(10*1000L);
@@ -321,11 +364,19 @@ void signest_test(void)
           /* Even then odd */
 
           sched_lock();
-          kill(waiterpid, j+1);
-          kill(waiterpid, j);
 
-          odd_signals++;
-          even_signals++;
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
+
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
+
           sched_unlock();
 
           usleep(10*1000L);
@@ -355,12 +406,21 @@ void signest_test(void)
           /* Odd then even */
 
           sched_lock();
-          kill(waiterpid, j);
-          sem_post(&g_interferer_sem);
-          kill(waiterpid, j+1);
 
-          odd_signals++;
-          even_signals++;
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
+
+          sem_post(&g_interferer_sem);
+
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
+
           sched_unlock();
 
           usleep(10*1000L);
@@ -368,12 +428,20 @@ void signest_test(void)
           /* Even then odd */
 
           sched_lock();
-          kill(waiterpid, j+1);
-          sem_post(&g_interferer_sem);
-          kill(waiterpid, j);
+          if (signest_catchable(j + 1))
+            {
+              kill(waiterpid, j + 1);
+              even_signals++;
+            }
 
-          odd_signals++;
-          even_signals++;
+          sem_post(&g_interferer_sem);
+
+          if (signest_catchable(j))
+            {
+              kill(waiterpid, j);
+              odd_signals++;
+            }
+
           sched_unlock();
 
           usleep(10*1000L);
