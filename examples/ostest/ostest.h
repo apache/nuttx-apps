@@ -204,6 +204,10 @@ void sighand_test(void);
 
 void signest_test(void);
 
+/* suspend.c ****************************************************************/
+
+void suspend_test(void);
+
 /* posixtimers.c ************************************************************/
 
 void timer_test(void);

@@ -44,8 +44,17 @@ STACKSIZE = 2048
 # NuttX OS Test
 
 ASRCS =
-CSRCS = dev_null.c restart.c sigprocmask.c sighand.c signest.c
+CSRCS = dev_null.c restart.c sigprocmask.c
 MAINSRC = ostest_main.c
+
+ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+CSRCS +=  sighand.c signest.c
+ifeq ($(CONFIG_SIG_SIGSTOP_ACTION),y)
+ifeq ($(CONFIG_SIG_SIGKILL_ACTION),y)
+CSRCS += suspend.c
+endif
+endif
+endif
 
 ifeq ($(CONFIG_ARCH_FPU),y)
 ifneq ($(CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE),y)
