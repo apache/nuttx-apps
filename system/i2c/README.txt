@@ -207,7 +207,7 @@ List buses: bus [OPTIONS]
 This command will simply list all of the configured I2C buses and indicate
 which are supported by the driver and which are not:
 
-   BUS   EXISTS?
+  BUS   EXISTS?
   Bus 1: YES
   Bus 2: NO
 

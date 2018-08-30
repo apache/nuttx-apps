@@ -365,7 +365,7 @@ int i2c_main(int argc, char *argv[])
       g_i2ctool.addr = CONFIG_I2CTOOL_MINADDR;
     }
 
-  if (g_i2ctool.regaddr < CONFIG_I2CTOOL_MAXREGADDR)
+  if (g_i2ctool.regaddr > CONFIG_I2CTOOL_MAXREGADDR)
     {
       g_i2ctool.regaddr = 0;
     }
