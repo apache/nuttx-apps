@@ -185,9 +185,14 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * Here the scheduler will be unlocked while waitpid is waiting
            * and if the application has not yet run, it will now be able to
            * do so.
+           *
+           * NOTE: WUNTRACED does nothing in the default case, but in the
+           * case the where CONFIG_SIG_SIGSTOP_ACTION=y, the file app
+           * may also be stopped.  In that case WUNTRACED will force
+           * waitpid() to return with ECHILD.
            */
 
-          ret = waitpid(pid, &rc, 0);
+          ret = waitpid(pid, &rc, WUNTRACED);
           if (ret < 0)
             {
               /* If the child thread does not exist, waitpid() will return

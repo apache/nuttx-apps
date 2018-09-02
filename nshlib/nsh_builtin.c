@@ -153,9 +153,14 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * even if task is still active:  If the I/O was re-directed by a
            * proxy task, then the ask is a child of the proxy, and not this
            * task.  waitpid() fails with ECHILD in either case.
+           *
+           * NOTE: WUNTRACED does nothing in the default case, but in the
+           * case the where CONFIG_SIG_SIGSTOP_ACTION=y, the built-in app
+           * may also be stopped.  In that case WUNTRACED will force
+           * waitpid() to return with ECHILD.
            */
 
-          ret = waitpid(ret, &rc, 0);
+          ret = waitpid(pid, &rc, WUNTRACED);
           if (ret < 0)
             {
               /* If the child thread does not exist, waitpid() will return
