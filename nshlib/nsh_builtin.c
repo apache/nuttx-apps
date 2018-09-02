@@ -160,7 +160,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * waitpid() to return with ECHILD.
            */
 
-          ret = waitpid(pid, &rc, WUNTRACED);
+          ret = waitpid(ret, &rc, WUNTRACED);
           if (ret < 0)
             {
               /* If the child thread does not exist, waitpid() will return
