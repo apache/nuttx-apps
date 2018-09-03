@@ -839,7 +839,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
  * i8_main
  ****************************************************************************/
 
-#ifdef BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int i8ask_main(int argc, char *argv[])
