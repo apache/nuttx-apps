@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_HEX2BIN
-	bool "Intel HEX to binary conversion"
+	tristate "Intel HEX to binary conversion"
 	default n
 	select LIB_HEX2BIN
 	---help---

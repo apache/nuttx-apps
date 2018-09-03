@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_FSTEST),y)
+ifneq ($(CONFIG_EXAMPLES_FSTEST),)
 CONFIGURED_APPS += examples/fstest
 endif

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CCTYPE
-	bool "Verify C++ cctype operations"
+	tristate "Verify C++ cctype operations"
 	default n
 	---help---
 		Enable the a simple test to verify C++ cctype operations.

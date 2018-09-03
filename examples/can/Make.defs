@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_CAN),y)
+ifneq ($(CONFIG_EXAMPLES_CAN),)
 CONFIGURED_APPS += examples/can
 endif

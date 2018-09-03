@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FTPD
-	bool "FTP server example"
+	tristate "FTP server example"
 	default n
 	---help---
 		Enable the FTP server example

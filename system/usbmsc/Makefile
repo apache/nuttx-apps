@@ -33,118 +33,23 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
-
-# USB device mass storage add-on
-
-ASRCS =
-CSRCS =
-MAINSRC = usbmsc_main.c
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-CONFIG_XYZ_PROGNAME ?= usbmsc$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
-
-# USB storage built-in application info
 
 CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE ?= 768
 CONFIG_SYSTEM_USBMSC_CMD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 
-APPNAME1 = msconn
-PRIORITY1 = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
-STACKSIZE1 = $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
+PRIORITY = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
-APPNAME2 = msdis
-PRIORITY2 = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
-STACKSIZE2 = $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
+MAINSRC = usbmsc_main.c
+PROGNAME = usbmsc$(EXEEXT)
 
-# Common build
-
-VPATH =
-
-all: .built
-.PHONY: context clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
+ifeq ($(CONFIG_SYSTEM_USBMSC),m)
+APPNAME = usbmsc
 else
-install:
-
+APPNAME = msconn msdis
 endif
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME1)_main))
+MODULE = CONFIG_SYSTEM_USBMSC
 
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME2)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

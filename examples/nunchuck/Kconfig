@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NUNCHUCK
-	bool "Nunchuck joystick example"
+	tristate "Nunchuck joystick example"
 	default n
 	depends on INPUT_NUNCHUCK
 	---help---

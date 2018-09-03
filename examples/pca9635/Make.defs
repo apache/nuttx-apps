@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_PCA9635),y)
+ifneq ($(CONFIG_EXAMPLES_PCA9635),)
 CONFIGURED_APPS += examples/pca9635
 endif

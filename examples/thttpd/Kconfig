@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_THTTPD
-	bool "THTTPD web server example"
+	tristate "THTTPD web server example"
 	default n
 	depends on FS_ROMFS && BUILD_FLAT
 	---help---

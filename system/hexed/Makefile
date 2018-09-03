@@ -33,9 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # hexed Application
 
@@ -46,102 +44,18 @@ APPNAME = hexed
 PRIORITY = $(CONFIG_SYSTEM_HEXED_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_HEXED_STACKSIZE)
 
-ASRCS   =
 CSRCS   = bfile.c cmdargs.c hexcopy.c hexdump.c hexenter.c hexhelp.c
 CSRCS  += hexinsert.c hexmove.c hexremove.c hexword.c
 MAINSRC = hexed.c
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-CONFIG_XYZ_PROGNAME ?= install$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= hexed$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" include}
-ROOTDEPPATH = --dep-path src
 
-# Common build
+VPATH += :src
+ROOTDEPPATH += --dep-path src
 
-VPATH = src
+MODULE = CONFIG_SYSTEM_HEXED
 
-all: .built
-.PHONY: context depend clean distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
-# Register application
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-# Create dependencies
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

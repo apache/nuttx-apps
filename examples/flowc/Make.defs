@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_FLOWC),y)
+ifneq ($(CONFIG_EXAMPLES_FLOWC),)
 CONFIGURED_APPS += examples/flowc
 endif

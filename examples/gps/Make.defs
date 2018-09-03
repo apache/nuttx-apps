@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_GPS),y)
+ifneq ($(CONFIG_EXAMPLES_GPS),)
 CONFIGURED_APPS += examples/gps
 endif
 

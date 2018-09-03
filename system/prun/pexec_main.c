@@ -81,7 +81,7 @@ static void show_usage(FAR const char *progname, int errcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int pexec_main(int argc, FAR char **argv)

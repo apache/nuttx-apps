@@ -33,40 +33,17 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # CROMFS Example
 
 CSRCS = cromfs.c
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
 
 NXTOOLDIR = $(TOPDIR)/tools
 GENCROMFSSRC = gencromfs.c
 GENCROMFSEXE = gencromfs$(EXEEXT)
-ROOTDEPPATH = --dep-path .
 
 # Build targets
-
-VPATH = .
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(COBJS) : %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE): $(NXTOOLDIR)$(DELIM)$(GENCROMFSSRC)
 	$(Q) $(MAKE) -C $(NXTOOLDIR) -f Makefile.host $(GENCROMFSEXE)
@@ -74,31 +51,9 @@ $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE): $(NXTOOLDIR)$(DELIM)$(GENCROMFSSRC)
 cromfs.c: $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE)
 	$(Q) $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE) cromfs cromfs.c
 
-.built: cromfs.c $(COBJS)
-	$(call ARCHIVE, $(BIN), $(COBJS))
-	@touch .built
+context:: cromfs.c
 
-install:
-
-context:
-
-# We can't make dependencies in this directory because the required
-# header files may not yet exist.
-
-.depend:
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+distclean::
 	$(call DELFILE, cromfs.c)
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

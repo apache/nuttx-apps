@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_NETDB),y)
+ifneq ($(CONFIG_SYSTEM_NETDB),)
 CONFIGURED_APPS += system/netdb
 endif
 

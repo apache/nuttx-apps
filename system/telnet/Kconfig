@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_TELNET_CHATD
-	bool "Telnet chat deamon"
+	tristate "Telnet chat deamon"
 	default n
 	depends on NET && NET_TCP && !DISABLE_POLL
 	select NETUTILS_TELNETC
@@ -32,7 +32,7 @@ endif # NSH_BUILTIN_APPS
 endif # SYSTEM_TELNET_CHATD
 
 menuconfig SYSTEM_TELNET_CLIENT
-	bool "Telnet client"
+	tristate "Telnet client"
 	default n
 	depends on NET && NET_TCP && !DISABLE_POLL
 	select NETUTILS_TELNETC
@@ -44,7 +44,7 @@ if SYSTEM_TELNET_CLIENT
 
 config SYSTEM_TELNET_CLIENT_PROGNAME
 	string "Telnet client program name"
-	default "chatd"
+	default "telnet"
 	depends on BUILD_LOADABLE
 
 if NSH_BUILTIN_APPS

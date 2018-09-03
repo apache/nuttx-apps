@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CAN
-	bool "CAN example"
+	tristate "CAN example"
 	default n
 	depends on CAN
 	---help---

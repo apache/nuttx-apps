@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FLASH_TEST
-	bool "SMART FLASH block device test"
+	tristate "SMART FLASH block device test"
 	default n
 	depends on (!BUILD_PROTECTED && !BUILD_LOADABLE) && MTD_SMART && NSH_BUILTIN_APPS
 	---help---

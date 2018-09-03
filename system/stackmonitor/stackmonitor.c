@@ -418,7 +418,7 @@ static int stackmonitor_daemon(int argc, char **argv)
  * Public Functions
  ****************************************************************************/
 
-int stackmonitor_start(int argc, char **argv)
+int stackmonitor_start_main(int argc, char **argv)
 {
   /* Has the monitor already started? */
 
@@ -459,7 +459,7 @@ int stackmonitor_start(int argc, char **argv)
   return 0;
 }
 
-int stackmonitor_stop(int argc, char **argv)
+int stackmonitor_stop_main(int argc, char **argv)
 {
   /* Has the monitor already started? */
 

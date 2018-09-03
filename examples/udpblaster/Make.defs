@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_UDPBLASTER),y)
+ifneq ($(CONFIG_EXAMPLES_UDPBLASTER),)
 CONFIGURED_APPS += examples/udpblaster
 endif

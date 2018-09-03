@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_TASKSET),y)
+ifneq ($(CONFIG_SYSTEM_TASKSET),)
 CONFIGURED_APPS += system/taskset
 endif

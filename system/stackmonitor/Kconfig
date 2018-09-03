@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_STACKMONITOR
-	bool "Stack Monitor"
+	tristate "Stack Monitor"
 	default n
 	depends on FS_PROCFS && !_FS_PROCFS_EXCLUDE_PROCESS && STACK_COLORATION
 	---help---

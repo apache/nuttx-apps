@@ -5,7 +5,7 @@
 
 
 menuconfig SYSTEM_UBLOXMODEM
-	bool "u-blox modem configuration tool"
+	tristate "u-blox modem configuration tool"
 	default n
 	---help---
 		Enable the u-blox modem configuration tool.

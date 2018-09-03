@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_UDGRAM),y)
+ifneq ($(CONFIG_EXAMPLES_UDGRAM),)
 CONFIGURED_APPS += examples/udgram
 endif

@@ -34,48 +34,15 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Source and object files
 
-ASRCS =
 CSRCS = builtin_forindex.c builtin_list.c exec_builtin.c
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\libapps$(LIBEXT)
-else
-  BIN = ../libapps$(LIBEXT)
-endif
-endif
-
-ROOTDEPPATH = --dep-path .
-VPATH =
 
 # Registry entry lists
 
 PDATLIST = $(strip $(call RWILDCARD, registry, *.pdat))
 BDATLIST = $(strip $(call RWILDCARD, registry, *.bdat))
-
-# Build Targets
-
-all: .built
-.PHONY: context depend clean distclean preconfig
-.PRECIOUS: ../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 registry$(DELIM).updated:
 	$(Q) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
@@ -98,35 +65,19 @@ ifneq ($(PDATLIST),)
 endif
 	$(Q) mv .xx_builtin_proto.h builtin_proto.h
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-context:
+context::
 	$(Q) $(MAKE) -C registry context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-.depend: Makefile $(SRCS) builtin_list.h builtin_proto.h
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
+depend:: builtin_list.h builtin_proto.h
 
-depend: .depend
-
-clean:
+clean::
 	$(Q) $(MAKE) -C registry clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(call DELFILE, .built)
 	$(call DELFILE, .xx_builtin_list.h)
 	$(call DELFILE, .xx_builtin_proto.h)
-	$(call CLEAN)
 
-distclean: clean
+distclean::
 	$(Q) $(MAKE) -C registry distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
 	$(call DELFILE, builtin_list.h)
 	$(call DELFILE, builtin_proto.h)
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

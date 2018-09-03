@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_RGBLED
-	bool "RGB LED Test"
+	tristate "RGB LED Test"
 	default n
 	---help---
 		Enable the RGB LED example

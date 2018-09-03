@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_LM75
-	bool "Temperature"
+	tristate "Temperature"
 	default n
 	depends on LM75_I2C
 	---help---

@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_INSTALL
-	bool "FLASH Program Installation"
+	tristate "FLASH Program Installation"
 	default n
 	---help---
 		Enable support for the FLASH installation tool.

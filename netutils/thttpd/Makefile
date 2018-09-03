@@ -33,15 +33,9 @@
 #
 #############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
-DELIM = $(strip /)
-include $(APPDIR)$(DELIM)Make.defs
-
 # THTTPD Library
-
-ASRCS =
 CSRCS =
 
 ifeq ($(CONFIG_NET_TCP),y)
@@ -50,33 +44,10 @@ ifeq ($(CONFIG_NET_TCP),y)
   MAINSRC += thttpd.c
 endif
 
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
 CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-DEPPATHS = --dep-path .
-
 # CGI binaries (examples only, not used in the build)
-
-CGIBINDIR = $(APPDIR)$(DELIM)netutils$(DELIM)thttpd$(DELIM)cgi-bin
-
-BINFS_CSRCS =
-VPATH = .
 
 ifeq ($(CONFIG_THTTPD_NXFLAT),y)
   SUBDIR_BIN1 = phf
@@ -86,18 +57,10 @@ ifeq ($(CONFIG_THTTPD_NXFLAT),y)
 endif
 
 ifeq ($(CONFIG_THTTPD_BINFS),y)
-  BINFS_CSRCS =  phf.c redirect.c ssi.c
+  CSRCS +=  phf.c redirect.c ssi.c
   DEPPATHS += --dep-path cgi-src
   VPATH += :cgi-src
 endif
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-BINFS_COBJS = $(BINFS_CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(BINFS_CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS) $(BINFS_COBJS)
 
 ifneq ($(CONFIG_BUILD_LOADABLE),y)
   OBJS += $(MAINOBJ)
@@ -106,18 +69,11 @@ endif
 CONFIG_THTTPD_CGI_PRIORITY ?= 100
 CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
 
+APPNAME = phf redirect ssi
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
-all: $(SUBDIR_BIN) .built
-.PHONY: context depend clean distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
+context:: $(SUBDIR_BIN)
 
 ifeq ($(CONFIG_THTTPD_NXFLAT),y)
 cgi-bin:
@@ -142,54 +98,6 @@ cgi-bin$(DELIM)$(SUBDIR_BIN3): cgi-bin cgi-src$(DELIM)$(SUBDIR_BIN3)
 	$(Q) cp -a cgi-src$(DELIM)$(SUBDIR_BIN3) $@
 endif
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
+MODULE = CONFIG_NETUTILS_THTTPD
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_THTTPD_BINFS),y)
-$(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,phf_main))
-
-$(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,redirect,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,redirect_main))
-
-$(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,ssi,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,ssi_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat $(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat $(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat
-
-else
-context:
-
-endif
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATHS) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

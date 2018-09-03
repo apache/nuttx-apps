@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_NETPKT),y)
+ifneq ($(CONFIG_EXAMPLES_NETPKT),)
 CONFIGURED_APPS += examples/netpkt
 endif

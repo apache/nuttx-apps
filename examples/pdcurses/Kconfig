@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PDCURSES
-	bool "pdcurses demos"
+	tristate "pdcurses demos"
 	default n
 	---help---
 		Enable build the pdcurses demo programs

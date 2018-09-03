@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_OSTEST
-	bool "OS test example"
+	tristate "OS test example"
 	default n
 	depends on !DISABLE_SIGNALS
 	---help---

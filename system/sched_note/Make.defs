@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_NOTE),y)
+ifneq ($(CONFIG_SYSTEM_NOTE),)
 CONFIGURED_APPS += system/sched_note
 endif
 

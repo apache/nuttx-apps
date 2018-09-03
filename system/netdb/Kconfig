@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_NETDB
-	bool "netdb interface"
+	tristate "netdb interface"
 	default n
 	depends on LIBC_NETDB
 

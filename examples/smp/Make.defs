@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_SMP),y)
+ifneq ($(CONFIG_EXAMPLES_SMP),)
 CONFIGURED_APPS += examples/smp
 endif

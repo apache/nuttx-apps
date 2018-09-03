@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_HEX2BIN),y)
+ifneq ($(CONFIG_SYSTEM_HEX2BIN),)
 CONFIGURED_APPS += system/hex2bin
 endif
 

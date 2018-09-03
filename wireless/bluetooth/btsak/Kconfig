@@ -4,7 +4,7 @@
 #
 
 config BTSAK
-	bool "Bluetooth Swiss Army Knife"
+	tristate "Bluetooth Swiss Army Knife"
 	default n
 	---help---
 		Enable the Bluetooth Swiss Army Knife

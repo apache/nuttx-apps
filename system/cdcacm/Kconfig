@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_CDCACM
-	bool "USB CDC/ACM Device Commands"
+	tristate "USB CDC/ACM Device Commands"
 	default n
 	depends on LIB_BOARDCTL && CDCACM
 	select BOARDCTL_USBDEVCTRL

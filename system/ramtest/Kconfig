@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_RAMTEST
-	bool "RAM Test"
+	tristate "RAM Test"
 	default n
 	---help---
 		Enable a simple RAM test.

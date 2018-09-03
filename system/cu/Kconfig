@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_CUTERM
-	bool "CU minimal serial terminal"
+	tristate "CU minimal serial terminal"
 	default n
 	---help---
 		Enable the CU serial terminal.  This is a minimalistic

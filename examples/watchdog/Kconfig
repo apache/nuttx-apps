@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_WATCHDOG
-	bool "Watchdog Timer example"
+	tristate "Watchdog Timer example"
 	default n
 	---help---
 		Enable the watchdog timer example

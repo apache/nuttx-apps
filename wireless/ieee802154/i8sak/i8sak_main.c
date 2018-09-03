@@ -839,10 +839,10 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
  * i8_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_LOADABLE
 int main(int argc, FAR char *argv[])
 #else
-int i8_main(int argc, char *argv[])
+int i8ask_main(int argc, char *argv[])
 #endif
 {
   FAR const struct i8sak_command_s *i8sakcmd;

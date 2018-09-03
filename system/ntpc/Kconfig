@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NTPC
-	bool "NTP Daemon Commands"
+	tristate "NTP Daemon Commands"
 	default n
 	select NETUTILS_NTPCLIENT
 	depends on NET_UDP

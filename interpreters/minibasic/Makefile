@@ -33,84 +33,25 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Mini Basic Library
 
-ASRCS  =
-CSRCS  = basic.c script.c
+CSRCS  = basic.c
 
-DEPPATH = --dep-path .
-VPATH = .
+MAINSRC = script.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
+PROGNAME = basic
 
 # Mini Basic built-in application info
 
 CONFIG_INTERPRETER_MINIBASIC_PRIORITY ?= 100
 CONFIG_INTERPRETER_MINIBASIC_STACKSIZE ?= 4096
 
-APPNAME   = basic
+APPNAME   = basic$(EXEEXT)
 PRIORITY  = $(CONFIG_INTERPRETER_MINIBASIC_PRIORITY)
 STACKSIZE = $(CONFIG_INTERPRETER_MINIBASIC_STACKSIZE)
 
-# Build targets
+MODULE = CONFIG_INTERPRETERS_MINIBASIC
 
-all:	.built
-.PHONY: context .depend depend clean distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

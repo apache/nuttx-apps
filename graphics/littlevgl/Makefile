@@ -33,16 +33,13 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # LVGL graphic library
 
 ASRCS =
 CSRCS =
 VPATH =
-DEPPATH = --dep-path .
 
 # LVGL Libraries
 
@@ -69,29 +66,7 @@ UNPACK ?= tar -zxf
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/littlevgl}
-
-# Common build
-
-all: .built
-.PHONY: context clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(LVGL_TARBALL):
 	@echo "Downloading: $(LVGL_TARBALL)"
@@ -106,38 +81,14 @@ $(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME) lvgl/lvgl.h
 	@echo "CP: lvgl/lvgl.h"
 	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
 
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
+context:: $(LVGL_UNPACKNAME) $(APPDIR)/include/graphics/lvgl.h
 
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-context: $(LVGL_UNPACKNAME) $(APPDIR)/include/graphics/lvgl.h
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
+clean::
 	$(call DELDIR, build)
-	$(call DELFILE, .built)
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+distclean::
 	$(call DELDIR, $(LVGL_UNPACKNAME))
 	$(call DELFILE, $(LVGL_TARBALL))
 	$(call DELFILE, $(APPDIR)/include/graphics/lvgl.h)
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_WATCHDOG),y)
+ifneq ($(CONFIG_EXAMPLES_WATCHDOG),)
 CONFIGURED_APPS += examples/watchdog
 endif

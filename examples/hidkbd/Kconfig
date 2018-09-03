@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_HIDKBD
-	bool "USB HID keyboard example"
+	tristate "USB HID keyboard example"
 	default n
 	---help---
 		Enable the USB HID keyboard example

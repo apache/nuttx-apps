@@ -48,7 +48,7 @@
  * flowc1_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_LOADABLE)
+#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
 #elif defined(CONFIG_EXAMPLES_FLOWC_TARGET2)
 int flowc1_main(int argc, char *argv[])

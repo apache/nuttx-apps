@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_USBMSC),y)
+ifneq ($(CONFIG_SYSTEM_USBMSC),)
 CONFIGURED_APPS += system/usbmsc
 endif
 

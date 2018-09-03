@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_SENDMAIL),y)
+ifneq ($(CONFIG_EXAMPLES_SENDMAIL),)
 CONFIGURED_APPS += examples/sendmail
 endif

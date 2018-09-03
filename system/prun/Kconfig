@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_PRUN
-	bool "Pascal P-Code interpreter"
+	tristate "Pascal P-Code interpreter"
 	default n
 	depends on INTERPRETERS_PCODE
 	---help---

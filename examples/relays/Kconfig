@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_RELAYS
-	bool "wget JSON Example"
+	tristate "wget JSON Example"
 	default n
 	depends on NETUTILS_JSON
 	---help---

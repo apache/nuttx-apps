@@ -1,5 +1,4 @@
-############################################################################
-# apps/examples/powermonitor/Makefile
+############################################################################ # apps/examples/powermonitor/Makefile
 #
 #   Copyright (C) 2017 Giorgio Groß. All rights reserved.
 #   Author: Giorgio Groß <giorgio.gross@robodev.eu>
@@ -47,5 +46,7 @@ CFLAGS += -I../../../nuttx/arch/arm/src -I../../../nuttx/arch/arm/src/common
 
 CONFIG_EXAMPLES_POWERMONITOR_PROGNAME ?= temperature$(EXEEXT)
 PROGNAME = $(CONFIG_EXAMPLES_POWERMONITOR_PROGNAME)
+
+MODULE = CONFIG_EXAMPLES_POWERMONITOR
 
 include $(APPDIR)/Application.mk

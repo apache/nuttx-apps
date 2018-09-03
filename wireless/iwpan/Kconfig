@@ -4,7 +4,7 @@
 #
 
 menuconfig WIRELESS_IWPAN
-	bool "IEEE 802.15.4 Command Line Tool"
+	tristate "IEEE 802.15.4 Command Line Tool"
 	default n
 	depends on NET && DRIVERS_WIRELESS
 	select IEEE802154_LIBMAC

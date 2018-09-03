@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_NXPLAYER),y)
+ifneq ($(CONFIG_SYSTEM_NXPLAYER),)
 CONFIGURED_APPS += system/nxplayer
 endif
 

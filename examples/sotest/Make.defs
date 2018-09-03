@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_SOTEST),y)
+ifneq ($(CONFIG_EXAMPLES_SOTEST),)
 CONFIGURED_APPS += examples/sotest
 endif

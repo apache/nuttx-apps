@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_UNIONFS),y)
+ifneq ($(CONFIG_EXAMPLES_UNIONFS),)
 CONFIGURED_APPS += examples/unionfs
 endif

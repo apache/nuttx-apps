@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_CDCACM),y)
+ifneq ($(CONFIG_SYSTEM_CDCACM),)
 CONFIGURED_APPS += system/cdcacm
 endif
 

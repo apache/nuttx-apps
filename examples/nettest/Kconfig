@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NETTEST
-	bool "Network test example"
+	tristate "Network test example"
 	default n
 	depends on NET_TCP
 	depends on NET_SOCKOPTS

@@ -33,11 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
-
-ROOTDEPPATH = --dep-path .
 
 WGET = wget
 CP = cp -R
@@ -52,7 +48,7 @@ EMBEDLOG_TARBALL = $(EMBEDLOG_SOURCES).$(EMBEDLOG_EXT)
 
 CFLAGS += -I$(APPDIR)/include/system
 
-SRCS = embedlog/src/el-options.c \
+CSRCS = embedlog/src/el-options.c \
 	embedlog/src/el-perror.c \
 	embedlog/src/el-pmemory.c \
 	embedlog/src/el-print.c \
@@ -116,22 +112,22 @@ endif
 
 ifeq ($(CONFIG_EMBEDLOG_ENABLE_OUT_FILE),y)
 	CFLAGS += -DENABLE_OUT_FILE
-	SRCS += embedlog/src/el-file.c
+	CSRCS += embedlog/src/el-file.c
 else
 	CFLAGS += -DENABLE_OUT_FILE=0
 endif
 
 ifeq ($(CONFIG_EMBEDLOG_ENABLE_BINARY_LOGS),y)
 	CFLAGS += -DENABLE_BINARY_LOGS
-	SRCS += embedlog/src/el-pbinary.c
-	SRCS += embedlog/src/el-encode-number.c
+	CSRCS += embedlog/src/el-pbinary.c
+	CSRCS += embedlog/src/el-encode-number.c
 else
 	CFLAGS += -DENABLE_BINARY_LOGS=0
 endif
 
 ifeq ($(CONFIG_EMBEDLOG_ENABLE_OUT_TTY),y)
 	CFLAGS += -DENABLE_OUT_TTY
-	SRCS += embedlog/src/el-tty.c
+	CSRCS += embedlog/src/el-tty.c
 else
 	CFLAGS += -DENABLE_OUT_TTY=0
 endif
@@ -172,19 +168,6 @@ CFLAGS += -DENABLE_CLOCK=0
 
 # building of embedlog
 
-CCEXT = .c
-COBJS = $(SRCS:$(CCEXT)=$(OBJEXT))
-
-ifeq ($(WINTOOL),y)
-	BIN = "${shell cygpath -w $(APPDIR)/libapps$(LIBEXT)}"
-else
-	BIN = $(APPDIR)/libapps$(LIBEXT)
-endif
-DEPBIN = $(APPDIR)/libapps$(LIBEXT)
-
-all: .built
-.PHONY: clean depend distclean preconfig context
-
 $(EMBEDLOG_TARBALL):
 	@echo "Downloading: $@"
 	$(Q) $(WGET) -O $@ $(EMBEDLOG_URL)/$@
@@ -204,36 +187,16 @@ embedlog: $(EMBEDLOG_SOURCES)
 create_includes:
 	$(Q) $(CP) $(EMBEDLOG_SOURCES)/include/embedlog.h $(APPDIR)/include/system
 
-$(COBJS): %$(OBJEXT): %$(CCEXT)
-	$(Q) $(call COMPILE, $<, $@)
-
-.built: $(COBJS)
-	$(Q) $(call ARCHIVE, $(BIN), $(COBJS))
-	$(Q) touch $@
-
-context: embedlog
+context:: embedlog
 	$(Q) $(MAKE) create_includes
 
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(CSRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-install:
-
-clean:
-	$(Q) $(call DELFILE, .built)
+clean::
 	$(Q) $(call DELFILE, $(APPDIR)/include/system/embedlog.h)
 	$(Q) $(foreach COBJ, $(COBJS), $(call DELFILE, $(COBJ)))
 
-distclean: clean
-	$(Q) $(call DELFILE, Make.dep)
-	$(Q) $(call DELFILE, .depend)
+distclean::
 	$(Q) $(call DELDIR, embedlog)
 	$(Q) $(call DELDIR, $(EMBEDLOG_SOURCES))
 	$(Q) $(call DELDIR, $(EMBEDLOG_TARBALL))
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_GPIO),y)
+ifneq ($(CONFIG_EXAMPLES_GPIO),)
 CONFIGURED_APPS += examples/gpio
 endif

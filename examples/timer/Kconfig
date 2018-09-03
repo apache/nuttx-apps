@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_TIMER
-	bool "Timer example"
+	tristate "Timer example"
 	default n
 	depends on TIMER && BUILD_FLAT
 	---help---

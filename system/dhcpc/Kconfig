@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_DHCPC_RENEW
-	bool "DHCP Address Renewal"
+	tristate "DHCP Address Renewal"
 	default n
 	select NETUTILS_DHCPC
 	depends on NET_UDP && NET_BROADCAST && NET_IPv4 && NET_ETHERNET

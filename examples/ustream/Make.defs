@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_USTREAM),y)
+ifneq ($(CONFIG_EXAMPLES_USTREAM),)
 CONFIGURED_APPS += examples/ustream
 endif

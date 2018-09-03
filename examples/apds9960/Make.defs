@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_APDS9960),y)
+ifneq ($(CONFIG_EXAMPLES_APDS9960),)
 CONFIGURED_APPS += examples/apds9960
 endif

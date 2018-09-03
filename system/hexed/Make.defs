@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_HEXED),y)
+ifneq ($(CONFIG_SYSTEM_HEXED),)
 CONFIGURED_APPS += system/hexed
 endif
 

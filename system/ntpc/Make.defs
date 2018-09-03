@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_NTPC),y)
+ifneq ($(CONFIG_SYSTEM_NTPC),)
 CONFIGURED_APPS += system/ntpc
 endif

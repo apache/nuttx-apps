@@ -34,140 +34,17 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Basic Unix domain networking test
 
-SERVER_ASRCS =
-SERVER_AOBJS = $(SERVER_ASRCS:.S=$(OBJEXT))
+MAINSRC = ustream_client.c ustream_server.c
 
-SERVER_CSRCS =
-SERVER_COBJS = $(SERVER_CSRCS:.c=$(OBJEXT))
+PROGNAME = client$(EXEEXT) server$(EXEEXT)
+APPNAME = client server
 
-SERVER_MAINSRC = ustream_server.c
-SERVER_MAINOBJ = $(SERVER_MAINSRC:.c=$(OBJEXT))
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
-SERVER_SRCS = $(SERVER_ASRCS) $(SERVER_CSRCS) $(SERVER_MAINSRC)
-SERVER_OBJS = $(SERVER_AOBJS) $(SERVER_COBJS)
+MODULE = CONFIG_EXAMPLES_USTREAM
 
-SERVER_PROGNAME = server$(EXEEXT)
-
-SERVER_APPNAME = server
-SERVER_PRIORITY = SCHED_PRIORITY_DEFAULT
-SERVER_STACKSIZE = 2048
-
-CLIENT_ASRCS =
-CLIENT_AOBJS = $(CLIENT_ASRCS:.S=$(OBJEXT))
-
-CLIENT_CSRCS =
-CLIENT_COBJS = $(CLIENT_CSRCS:.c=$(OBJEXT))
-
-CLIENT_MAINSRC = ustream_client.c
-CLIENT_MAINOBJ = $(CLIENT_MAINSRC:.c=$(OBJEXT))
-
-CLIENT_SRCS = $(CLIENT_ASRCS) $(CLIENT_CSRCS) $(CLIENT_MAINSRC)
-CLIENT_OBJS = $(CLIENT_AOBJS) $(CLIENT_COBJS)
-
-CLIENT_PROGNAME = client$(EXEEXT)
-
-CLIENT_APPNAME = client
-CLIENT_PRIORITY = SCHED_PRIORITY_DEFAULT
-CLIENT_STACKSIZE = 2048
-
-AOBJS = $(CLIENT_AOBJS) $(SERVER_AOBJS)
-COBJS = $(CLIENT_COBJS) $(CLIENT_MAINOBJ) $(SERVER_COBJS) $(SERVER_MAINOBJ)
-
-SRCS = $(CLIENT_SRCS) $(SERVER_SRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  SERVER_OBJS += $(SERVER_MAINOBJ)
-  CLIENT_OBJS += $(CLIENT_MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  USTREAM_BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  USTREAM_BIN = ..\\..\\libapps$(LIBEXT)
-else
-  USTREAM_BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-# Common build
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(USTREAM_BIN), $(OBJS))
-	$(Q) touch .built
-
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(CLIENT_PROGNAME): $(CLIENT_OBJS)
-	@echo "LD: $(CLIENT_PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(CLIENT_PROGNAME) $(ARCHCRT0OBJ) $(CLIENT_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(CLIENT_PROGNAME)
-
-$(BIN_DIR)$(DELIM)$(SERVER_PROGNAME): $(OBJS) $(SERVER_MAINOBJ)
-	@echo "LD: $(SERVER_PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(SERVER_PROGNAME) $(ARCHCRT0OBJ) $(SERVER_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(SERVER_PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(CLIENT_PROGNAME) $(BIN_DIR)$(DELIM)$(SERVER_PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-
-$(BUILTIN_REGISTRY)$(DELIM)$(CLIENT_APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(CLIENT_APPNAME),$(CLIENT_PRIORITY),$(CLIENT_STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(CLIENT_APPNAME)_main))
-
-$(BUILTIN_REGISTRY)$(DELIM)$(SERVER_APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(SERVER_APPNAME),$(SERVER_PRIORITY),$(SERVER_STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(SERVER_APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(CLIENT_APPNAME)_main.bdat $(BUILTIN_REGISTRY)$(DELIM)$(SERVER_APPNAME)_main.bdat
-
-else
-
-context:
-
-endif
-
-.depend: Makefile $(SERVER_SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SERVER_SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call DELFILE, *.dSYM)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

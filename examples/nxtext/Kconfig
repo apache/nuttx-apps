@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXTEXT
-	bool "NX graphics text example"
+	tristate "NX graphics text example"
 	default n
 	depends on NX
 	---help---

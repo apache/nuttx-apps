@@ -34,8 +34,8 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_TELNET_CHATD),y)
+ifneq ($(CONFIG_SYSTEM_TELNET_CHATD),)
 CONFIGURED_APPS += system/telnet
-else ifeq ($(CONFIG_SYSTEM_TELNET_CLIENT),y)
+else ifneq ($(CONFIG_SYSTEM_TELNET_CLIENT),)
 CONFIGURED_APPS += system/telnet
 endif

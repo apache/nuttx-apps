@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_TIFF
-	bool "TIFF file generation example"
+	tristate "TIFF file generation example"
 	default n
 	---help---
 		Enable the TIFF file generation example

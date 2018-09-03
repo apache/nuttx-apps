@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_ZMODEM
-	bool "Zmodem Commands"
+	tristate "Zmodem Commands"
 	default n
 	---help---
 		This selection enables the 'sz' and 'rz' NSH commands.

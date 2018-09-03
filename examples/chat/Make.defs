@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_CHAT),y)
+ifneq ($(CONFIG_EXAMPLES_CHAT),)
   CONFIGURED_APPS += examples/chat
 endif

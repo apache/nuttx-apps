@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_NXRECORDER),y)
+ifneq ($(CONFIG_SYSTEM_NXRECORDER),)
 CONFIGURED_APPS += system/nxrecorder
 endif
 

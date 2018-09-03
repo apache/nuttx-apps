@@ -433,7 +433,7 @@ static void usbmsc_disconnect(FAR void *handle)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int msconn_main(int argc, char *argv[])
@@ -639,7 +639,7 @@ int msconn_main(int argc, char *argv[])
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char **argv)
 #else
 int msdis_main(int argc, char *argv[])

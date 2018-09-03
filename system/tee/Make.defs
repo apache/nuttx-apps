@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_TEE),y)
+ifneq ($(CONFIG_SYSTEM_TEE),)
 CONFIGURED_APPS += system/tee
 endif

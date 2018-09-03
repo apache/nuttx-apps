@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_USBMSC
-	bool "USB Mass Storage Device Commands"
+	tristate "USB Mass Storage Device Commands"
 	default n
 	depends on LIB_BOARDCTL && USBMSC && !KERNEL_BUILD
 	select BOARDCTL_USBDEVCTRL

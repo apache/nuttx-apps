@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_HEXED
-	bool "Hex editor"
+	tristate "Hex editor"
 	default n
 	---help---
 		Enable support for the hexed command line hexadecial file editor

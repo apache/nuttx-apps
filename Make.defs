@@ -123,4 +123,6 @@ endif
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
-LDLIBS = $(APPDIR)/libapps.a
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  LDLIBS = $(APPDIR)/libapps.a
+endif

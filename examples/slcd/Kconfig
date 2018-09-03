@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SLCD
-	bool "Segment LCD test"
+	tristate "Segment LCD test"
 	default n
 	---help---
 		Enables a simple test of an alphanumer, segment LCD

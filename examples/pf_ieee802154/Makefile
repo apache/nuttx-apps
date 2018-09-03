@@ -33,140 +33,28 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # PF_IEEE802154 Socket Test
 
-TARGCMN_CSRCS = pf_cmdline.c
-TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))
+CSRCS = pf_cmdline.c
 
-# Target 1
-
-TARG1_CRCS =
-TARG1_MAINSRC = pf_server.c
-
-TARG1_COBJS = $(TARG1_CRCS:.c=$(OBJEXT))
-TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
-
-CONFIG_EXAMPLES_PFIEEE802154_PROGNAME1 ?= pfserver
-APPNAME1 = pfserver
+MAINSRC = pf_server.c pf_client.c
+APPNAME = pfserver pfclient
+PROGNAME = pfserver$(EXEEXT) pfclient$(EXEEXT)
 
 CONFIG_EXAMPLES_PFIEEE802154_PRIORITY1 ?= 100
 CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE1 ?= 2048
 
-PROGNAME1 = $(CONFIG_EXAMPLES_PFIEEE802154_PROGNAME1)
-PRIORITY1 = $(CONFIG_EXAMPLES_PFIEEE802154_PRIORITY1)
-STACKSIZE1 = $(CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE1)
-
-# Target 2
-
-TARG2_CSRCS =
-TARG2_MAINSRC = pf_client.c
-
-TARG2_COBJS = $(TARG2_CSRCS:.c=$(OBJEXT))
-TARG2_MAINOBJ = $(TARG2_MAINSRC:.c=$(OBJEXT))
-
-CONFIG_EXAMPLES_PFIEEE802154_PROGNAME2 ?= pfclient
-APPNAME2 = pfclient
+PRIORITY = $(CONFIG_EXAMPLES_PFIEEE802154_PRIORITY1)
+STACKSIZE = $(CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE1)
 
 CONFIG_EXAMPLES_PFIEEE802154_PRIORITY2 ?= 100
 CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE2 ?= 2048
 
-PROGNAME2 = $(CONFIG_EXAMPLES_PFIEEE802154_PROGNAME2)
-PRIORITY2 = $(CONFIG_EXAMPLES_PFIEEE802154_PRIORITY2)
-STACKSIZE2 = $(CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE2)
+PRIORITY += $(CONFIG_EXAMPLES_PFIEEE802154_PRIORITY2)
+STACKSIZE += $(CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE2)
 
-SRCS = $(TARG1_CRCS) $(TARG1_MAINSRC) $(TARG2_CSRCS) $(TARG2_MAINSRC) $(TARGCMN_CSRCS)
-OBJS = $(TARG1_COBJS) $(TARG2_COBJS) $(TARGCMN_COBJS)
-MAINOBJS = $(TARG1_MAINOBJ) $(TARG2_MAINOBJ)
+MODULE = CONFIG_EXAMPLES_PFIEEE802154
 
-MAINNAME1 = pfserver_main
-MAINNAME2 = pfclient_main
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-ROOTDEPPATH = --dep-path .
-
-# Common build
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(OBJS) $(MAINOBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(BIN): $(OBJS) $(MAINOBJS)
-	$(call ARCHIVE, $@, $(OBJS) $(MAINOBJS))
-
-.built: $(BIN)
-	$(Q) touch .built
-
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(TARG1_MAINOBJ)
-	@echo "LD: $(PROGNAME1)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(TARG1_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME1)
-
-$(BIN_DIR)$(DELIM)$(PROGNAME2): $(OBJS) $(TARG2_MAINOBJ)
-	@echo "LD: $(PROGNAME2)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME2) $(ARCHCRT0OBJ) $(TARG2_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME2)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME1) $(BIN_DIR)$(DELIM)$(PROGNAME2)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(if $(CONFIG_BUILD_LOADABLE),,$(MAINNAME1)))
-
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(if $(CONFIG_BUILD_LOADABLE),,$(MAINNAME2)))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat \
-	$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile config.h $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call DELFILE, *.dSYM)
-	$(call DELFILE, config.h)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

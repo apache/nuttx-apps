@@ -35,7 +35,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_WIRELESS_IWPAN),y)
+ifneq ($(CONFIG_WIRELESS_IWPAN),)
 CONFIGURED_APPS += wireless/iwpan
 endif
 

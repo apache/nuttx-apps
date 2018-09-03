@@ -36,7 +36,6 @@
 BUILDDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Tools
 
@@ -56,64 +55,8 @@ ASRCS += $(FICL_ASRCS)
 CXXSRCS += $(FICL_CXXSRCS)
 CSRCS += $(FICL_CSRCS)
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
+ROOTDEPPATH += --dep-path src
 
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
+VPATH += :src:$(FICL_SUBDIR)
 
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
-
-ROOT_DEPPATH = --dep-path .
-SRC_DEPPATH = --dep-path src
-
-VPATH = src:$(FICL_SUBDIR)
-
-all: .built
-.PHONY: debug context depend clean distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-debug:
-	@#echo "FICL:   $(FICL_SUBDIR)"
-	@#echo "VPATH:  $(VPATH)"
-	@#echo "CFLAGS: $(CFLAGS)"
-
-.built: debug $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-context:
-
-.depend: debug Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOT_DEPPATH) $(SRC_DEPPATH) $(FICL_DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

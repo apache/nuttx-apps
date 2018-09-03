@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_WIRELESS_WAPI),y)
+ifneq ($(CONFIG_WIRELESS_WAPI),)
 
 CSRCS = network.c util.c wireless.c driver_wext.c
 

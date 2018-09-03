@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_DSPTEST
-	bool "LIBDSP library testing"
+	tristate "LIBDSP library testing"
 	default n
 	---help---
 		Enable the LIBDSP library testing

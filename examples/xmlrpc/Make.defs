@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_XMLRPC),y)
+ifneq ($(CONFIG_EXAMPLES_XMLRPC),)
 CONFIGURED_APPS += examples/xmlrpc
 endif

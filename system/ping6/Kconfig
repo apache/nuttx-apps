@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_PING6
-	bool "ICMPv6 'ping6' command"
+	tristate "ICMPv6 'ping6' command"
 	default n
 	depends on NET_ICMPv6_SOCKET || NET_USRSOCK
 	---help---

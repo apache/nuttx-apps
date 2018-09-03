@@ -183,7 +183,7 @@ static void parse_args(int argc, FAR char **argv)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int lm75_main(int argc, char *argv[])

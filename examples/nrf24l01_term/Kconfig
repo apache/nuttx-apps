@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NRF24L01TERM
-	bool "Basic nRF24L01 terminal"
+	tristate "Basic nRF24L01 terminal"
 	default n
 	depends on DRIVERS_WIRELESS
 

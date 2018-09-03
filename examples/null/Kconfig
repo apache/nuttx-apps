@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NULL
-	bool "NULL example"
+	tristate "NULL example"
 	default n
 	---help---
 		Enable the NULL example

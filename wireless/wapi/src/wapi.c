@@ -765,7 +765,7 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int wapi_main(int argc, char *argv[])

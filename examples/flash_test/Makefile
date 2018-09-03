@@ -53,4 +53,6 @@ MAINSRC = flash_test.c
 CONFIG_XYZ_PROGNAME ?= flash_test$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_FLASH_TEST
+
 include $(APPDIR)/Application.mk

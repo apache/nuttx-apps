@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_PDCURSES),y)
+ifneq ($(CONFIG_EXAMPLES_PDCURSES),)
 CONFIGURED_APPS += examples/pdcurses
 endif

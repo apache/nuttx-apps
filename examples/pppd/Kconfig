@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PPPD
-	bool "pppd client example"
+	tristate "pppd client example"
 	default n
 	---help---
 		Enable the pppd client example

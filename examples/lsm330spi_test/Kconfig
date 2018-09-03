@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_LSM330SPI_TEST
-	bool "LSM330 SPI test program"
+	tristate "LSM330 SPI test program"
 	default n
 	---help---
 		Enable the LSM330 sensor SPI test program.

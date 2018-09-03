@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MAX31855
-	bool "\"max31855\" example"
+	tristate "\"max31855\" example"
 	default n
 	---help---
 		Enable the \"max31855, World!\" example

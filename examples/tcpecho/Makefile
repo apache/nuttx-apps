@@ -51,4 +51,6 @@ MAINSRC = tcpecho_main.c
 CONFIG_XYZ_PROGNAME ?= tcpecho$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_TCPECHO
+
 include $(APPDIR)/Application.mk

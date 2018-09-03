@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_NETLOOP),y)
+ifneq ($(CONFIG_EXAMPLES_NETLOOP),)
 CONFIGURED_APPS += examples/netloop
 endif

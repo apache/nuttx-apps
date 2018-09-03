@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_BASTEST
-	bool "Setup Test Files for BAS"
+	tristate "Setup Test Files for BAS"
 	default n
 	depends on FS_ROMFS && INTERPRETERS_BAS
 	---help---

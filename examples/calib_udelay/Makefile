@@ -53,4 +53,6 @@ ASRCS =
 CSRCS =
 MAINSRC = calib_udelay_main.c
 
+MODULE = CONFIG_EXAMPLES_CALIB_UDELAY
+
 include $(APPDIR)/Application.mk

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_FT80X),y)
+ifneq ($(CONFIG_EXAMPLES_FT80X),)
 CONFIGURED_APPS += examples/ft80x
 endif

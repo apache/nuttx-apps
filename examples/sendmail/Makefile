@@ -46,4 +46,6 @@ MAINSRC = sendmail_main.c
 CONFIG_XYZ_PROGNAME ?= sendmail$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_SENDMAIL
+
 include $(APPDIR)/Application.mk

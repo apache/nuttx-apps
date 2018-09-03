@@ -48,4 +48,6 @@ MAINSRC = random_main.c
 CONFIG_XYZ_PROGNAME ?= random$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_RANDOM
+
 include $(APPDIR)/Application.mk

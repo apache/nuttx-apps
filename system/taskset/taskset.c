@@ -94,7 +94,7 @@ static bool get_cpuset(const char *arg, cpu_set_t *cpu_set)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int taskset_main(int argc, char **argv)

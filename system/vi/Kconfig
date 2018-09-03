@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_VI
-	bool "VI Work-Alike Text Editor"
+	tristate "VI Work-Alike Text Editor"
 	default n
 	---help---
 		Enable support for NuttX tiny VI work-alike editor.

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_POSIXSPAWN),y)
+ifneq ($(CONFIG_EXAMPLES_POSIXSPAWN),)
 CONFIGURED_APPS += examples/posix_spawn
 endif

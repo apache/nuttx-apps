@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_LM75),y)
+ifneq ($(CONFIG_SYSTEM_LM75),)
 CONFIGURED_APPS += system/lm75
 endif
 

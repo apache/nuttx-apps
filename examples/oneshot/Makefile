@@ -53,4 +53,6 @@ ASRCS =
 CSRCS =
 MAINSRC = oneshot_main.c
 
+MODULE = CONFIG_EXAMPLES_ONESHOT
+
 include $(APPDIR)/Application.mk

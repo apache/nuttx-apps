@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_STACKMONITOR),y)
+ifneq ($(CONFIG_SYSTEM_STACKMONITOR),)
 CONFIGURED_APPS += system/stackmonitor
 endif
 

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_FTPC),y)
+ifneq ($(CONFIG_EXAMPLES_FTPC),)
 CONFIGURED_APPS += examples/ftpc
 endif

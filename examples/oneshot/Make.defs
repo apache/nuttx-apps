@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_ONESHOT),y)
+ifneq ($(CONFIG_EXAMPLES_ONESHOT),)
 CONFIGURED_APPS += examples/oneshot
 endif

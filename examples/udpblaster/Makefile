@@ -33,37 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Basic TCP networking test
 
-TARG_ASRCS =
-TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
-
-TARG_CSRCS = udpblaster_text.c
-TARG_MAINSRC = udpblaster_target.c
-
-TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
-TARG_MAINOBJ = $(TARG_MAINSRC:.c=$(OBJEXT))
-
-TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_CSRCS)
-TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  TARG_OBJS += $(TARG_MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  TARG_BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  TARG_BIN = ..\\..\\libapps$(LIBEXT)
-else
-  TARG_BIN = ../../libapps$(LIBEXT)
-endif
-endif
+CSRCS = udpblaster_text.c
+MAINSRC = udpblaster_target.c
 
 HOSTCFLAGS += -DUDPBLASTER_HOST=1
 
@@ -73,16 +48,8 @@ HOSTOBJEXT ?= .hobj
 HOST_OBJS = $(HOST_SRCS:.c=$(HOSTOBJEXT))
 HOST_BIN = host
 
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
 CONFIG_UPBLASTER_PROGNAME ?= udpblaster$(EXEEXT)
 PROGNAME = $(CONFIG_UPBLASTER_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
 
 # NET test built-in application info
 
@@ -94,18 +61,6 @@ PRIORITY = $(CONFIG_EXAMPLES_UDPBLASTER_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_UDPBLASTER_STACKSIZE)
 
 # Common build
-
-VPATH =
-
-all: .built $(HOST_BIN)
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(TARG_AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 $(HOST_OBJS): %$(HOSTOBJEXT): %.c
@@ -123,52 +78,16 @@ $(HOST_BIN): config.h $(HOST_OBJS)
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 endif
 
-.built: config.h $(TARG_OBJS)
-	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
-	$(Q) touch .built
+context:: config.h $(HOST_BIN)
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG_MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile config.h $(TARG_SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
+clean::
 ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 	$(call DELFILE, *$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 endif
-	$(call DELFILE, .built)
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+MODULE = CONFIG_EXAMPLES_UDPBLASTER
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

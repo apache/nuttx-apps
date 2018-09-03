@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_TEE
-	bool "Tee Command"
+	tristate "Tee Command"
 	default n
 	---help---
 		Enable support for the tee command.

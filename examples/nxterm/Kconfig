@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXTERM
-	bool "NxTerm example"
+	tristate "NxTerm example"
 	default n
 	depends on NX
 	select LIB_BOARDCTL

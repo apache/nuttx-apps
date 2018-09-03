@@ -53,4 +53,6 @@ MAINSRC = smart_test.c
 CONFIG_XYZ_PROGNAME ?= smart_test$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_SMART_TEST
+
 include $(APPDIR)/Application.mk

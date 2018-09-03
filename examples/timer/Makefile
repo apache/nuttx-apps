@@ -53,4 +53,6 @@ ASRCS =
 CSRCS =
 MAINSRC = timer_main.c
 
+MODULE = CONFIG_EXAMPLES_TIMER
+
 include $(APPDIR)/Application.mk

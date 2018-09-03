@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXDEMO
-	bool "NX Demo \"Graphic test\" example"
+	tristate "NX Demo \"Graphic test\" example"
 	default n
 	---help---
 		Enable the NX graphics \"Demo Test\" example

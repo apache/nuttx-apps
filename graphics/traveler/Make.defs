@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_GRAPHICS_TRAVELER),y)
+ifneq ($(CONFIG_GRAPHICS_TRAVELER),)
 CONFIGURED_APPS += graphics/traveler
 endif
 

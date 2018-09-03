@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ONESHOT
-	bool "Oneshot timer example"
+	tristate "Oneshot timer example"
 	default n
 	depends on ONESHOT
 	---help---

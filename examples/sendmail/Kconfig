@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SENDMAIL
-	bool "Sendmail example"
+	tristate "Sendmail example"
 	default n
 	---help---
 		Enable the sendmail example

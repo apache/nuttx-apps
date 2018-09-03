@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SMP
-	bool "SMP example"
+	tristate "SMP example"
 	default n
 	---help---
 		Enable the SMP example.  This example basically extracts the pthread

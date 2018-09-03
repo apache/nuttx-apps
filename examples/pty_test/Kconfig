@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PTYTEST
-	bool "Pseudo Terminal test example"
+	tristate "Pseudo Terminal test example"
 	default n
 	depends on PSEUDOTERM
 	select PSEUDOTERM_SUSV1

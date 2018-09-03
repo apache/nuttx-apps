@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FB
-	bool "Framebuffer driver example"
+	tristate "Framebuffer driver example"
 	default n
 	select LCD_PACKEDMSFIRST if LCD
 	depends on VIDEO_FB

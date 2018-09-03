@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_NXLINES),y)
+ifneq ($(CONFIG_EXAMPLES_NXLINES),)
 CONFIGURED_APPS += examples/nxlines
 endif

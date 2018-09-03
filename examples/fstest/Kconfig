@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FSTEST
-	bool "Generic file system test"
+	tristate "Generic file system test"
 	default n
 	depends on FS_READABLE && FS_WRITABLE
 	---help---

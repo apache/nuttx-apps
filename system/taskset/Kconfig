@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_TASKSET
-	bool "Taskset Command"
+	tristate "Taskset Command"
 	default n
 	depends on SMP && NSH_LIBRARY && SCHED_WAITPID
 	---help---

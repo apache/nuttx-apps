@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_CUTERM),y)
+ifneq ($(CONFIG_SYSTEM_CUTERM),)
 CONFIGURED_APPS += system/cu
 endif
 

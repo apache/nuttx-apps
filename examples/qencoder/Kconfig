@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_QENCODER
-	bool "Quadrature encoder example"
+	tristate "Quadrature encoder example"
 	default n
 	depends on SENSORS_QENCODER
 	---help---

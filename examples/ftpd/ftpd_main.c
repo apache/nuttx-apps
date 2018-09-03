@@ -250,7 +250,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
 #ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
-int ftpd_main(int s_argc, char **s_argv)
+int ftpd_start_main(int s_argc, char **s_argv)
 #endif
 {
   /* Check if we have already initialized the network */
@@ -308,7 +308,7 @@ int ftpd_main(int s_argc, char **s_argv)
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-int ftpd_stop(int s_argc, char **s_argv)
+int ftpd_stop_main(int s_argc, char **s_argv)
 {
   if (!g_ftpdglob.initialized || !g_ftpdglob.running)
     {

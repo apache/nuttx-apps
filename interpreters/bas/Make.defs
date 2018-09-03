@@ -1,4 +1,4 @@
-ifeq ($(CONFIG_INTERPRETERS_BAS),y)
+ifneq ($(CONFIG_INTERPRETERS_BAS),)
 CONFIGURED_APPS += interpreters/bas
 endif
 

@@ -271,7 +271,7 @@ static void show_usage(const char *progname, int exitcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int telnet_main(int argc, char *argv[])

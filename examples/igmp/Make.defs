@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_IGMP),y)
+ifneq ($(CONFIG_EXAMPLES_IGMP),)
 CONFIGURED_APPS += examples/igmp
 endif

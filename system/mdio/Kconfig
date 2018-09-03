@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_MDIO
-	bool "PHY Tool"
+	tristate "PHY Tool"
 	default n
 	depends on NETDEV_PHY_IOCTL
 	---help---

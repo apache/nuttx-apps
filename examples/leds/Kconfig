@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_LEDS
-	bool "LED driver example"
+	tristate "LED driver example"
 	default n
 	depends on ARCH_HAVE_LEDS && !ARCH_LEDS
 	---help---

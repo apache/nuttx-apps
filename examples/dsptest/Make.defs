@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_DSPTEST),y)
+ifneq ($(CONFIG_EXAMPLES_DSPTEST),)
 CONFIGURED_APPS += examples/dsptest
 endif

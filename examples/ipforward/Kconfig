@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_IPFORWARD
-	bool "IP forwarding example"
+	tristate "IP forwarding example"
 	default n
 	depends on NET_TUN && (NET_TCP || NET_ICMPv6)
 	---help---

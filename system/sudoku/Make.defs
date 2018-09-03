@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_SUDOKU),y)
+ifneq ($(CONFIG_SYSTEM_SUDOKU),)
 CONFIGURED_APPS += system/sudoku
 endif
 

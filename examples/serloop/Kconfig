@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SERLOOP
-	bool "Serial loopback example"
+	tristate "Serial loopback example"
 	default n
 	---help---
 		Enable the serial loopback example

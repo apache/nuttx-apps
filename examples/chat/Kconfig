@@ -4,7 +4,7 @@
 #
 
 menuconfig EXAMPLES_CHAT
-	bool "AT modem chat utility"
+	tristate "AT modem chat utility"
 	default n
 	select NETUTILS_CHAT
 	---help---

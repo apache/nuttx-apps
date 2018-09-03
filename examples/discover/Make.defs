@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_DISCOVER),y)
+ifneq ($(CONFIG_EXAMPLES_DISCOVER),)
 CONFIGURED_APPS += examples/discover
 endif

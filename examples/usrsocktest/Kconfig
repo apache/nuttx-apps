@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_USRSOCKTEST
-	bool "USRSOCK test example"
+	tristate "USRSOCK test example"
 	default n
 	depends on NET && NET_USRSOCK && !DISABLE_POLL
 	select NET_USRSOCK_TCP

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SERIALRX
-	bool "Serial RX example"
+	tristate "Serial RX example"
 	default n
 	---help---
 		Enable the serial RX example

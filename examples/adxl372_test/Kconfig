@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ADXL372_TEST
-	bool "ADXL372 test program"
+	tristate "ADXL372 test program"
 	default n
 	---help---
 		Enable the ADXL372 sensor SPI test program.

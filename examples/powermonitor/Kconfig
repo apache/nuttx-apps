@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_POWERMONITOR
-	bool "LTC4151 powermonitor example"
+	tristate "LTC4151 powermonitor example"
 	default n
 
 if EXAMPLES_POWERMONITOR

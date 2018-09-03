@@ -330,7 +330,7 @@ static int install_remove(const char *scriptname)
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int install_main(int argc, char *argv[])

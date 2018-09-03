@@ -33,108 +33,24 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # DHCPC address renewal built-in application info
 
 CONFIG_DHCPC_RENEW_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 CONFIG_DHCPC_RENEW_STACKSIZE ?= 2048
 
-RENEW_APPNAME = renew
-RENEW_PRIORITY = $(CONFIG_DHCPC_RENEW_PRIORITY)
-RENEW_STACKSIZE = $(CONFIG_DHCPC_RENEW_STACKSIZE)
+APPNAME = renew
+PRIORITY = $(CONFIG_DHCPC_RENEW_PRIORITY)
+STACKSIZE = $(CONFIG_DHCPC_RENEW_STACKSIZE)
 
 CONFIG_DHCPC_RENEW_PROGNAME ?= renew$(EXEEXT)
-RENEW_PROGNAME = $(CONFIG_DHCPC_RENEW_PROGNAME)
+PROGNAME = $(CONFIG_DHCPC_RENEW_PROGNAME)
 
 # DHCPC address renewal
 
-RENEW_SRCS =
-RENEW_MAINSRC = renew_main.c
+MAINSRC = renew_main.c
 
-RENEW_OBJS = $(RENEW_SRCS:.c=$(OBJEXT))
-RENEW_MAINOBJ = $(RENEW_MAINSRC:.c=$(OBJEXT))
+MODULE = CONFIG_SYSTEM_DHCPC_RENEW
 
-# Other DHCPC commands go here
-
-SRCS = $(RENEW_SRCS) $(RENEW_MAINSRC)
-OBJS = $(RENEW_OBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(RENEW_MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-ROOTDEPPATH = --dep-path .
-
-# Common build
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(RENEW_OBJS) $(RENEW_MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(RENEW_PROGNAME): $(OBJS) $(RENEW_MAINOBJ)
-	@echo "LD: $(RENEW_PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(RENEW_PROGNAME) $(ARCHCRT0OBJ) $(RENEW_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(RENEW_PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(RENEW_PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(RENEW_APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(RENEW_APPNAME),$(RENEW_PRIORITY),$(RENEW_STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(RENEW_APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(RENEW_APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

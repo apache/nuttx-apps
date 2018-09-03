@@ -57,4 +57,6 @@ LVGLDIR=$(APPDIR)/graphics/littlevgl/lvgl
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LVGLDIR)"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LVGLDIR)"}
 
+MODULE = CONFIG_EXAMPLES_LVGLDEMO
+
 include $(APPDIR)/Application.mk

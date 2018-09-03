@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_COMPOSITE),y)
+ifneq ($(CONFIG_SYSTEM_COMPOSITE),)
 CONFIGURED_APPS += system/composite
 endif
 

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_JSON
-	bool "JSON example"
+	tristate "JSON example"
 	default n
 	select NETUTILS_JSON
 	---help---

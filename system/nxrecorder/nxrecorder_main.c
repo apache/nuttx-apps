@@ -391,7 +391,7 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder, char *parg)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int nxrecorder_main(int argc, char *argv[])

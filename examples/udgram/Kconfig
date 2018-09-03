@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_UDGRAM
-	bool "Unix domain datagram example"
+	tristate "Unix domain datagram example"
 	default n
 	depends on NET_LOCAL
 	---help---

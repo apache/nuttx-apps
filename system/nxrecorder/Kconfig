@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NXRECORDER
-	bool "NxRecorder pcm raw data Recorder"
+	tristate "NxRecorder pcm raw data Recorder"
 	default n
 	depends on AUDIO
 	---help---

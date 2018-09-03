@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXHELLO
-	bool "NX graphics \"Hello, World!\" example"
+	tristate "NX graphics \"Hello, World!\" example"
 	default n
 	depends on NX
 	select LIB_BOARDCTL

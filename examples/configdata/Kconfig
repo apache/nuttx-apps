@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CONFIGDATA
-	bool "Config Data example / unit test"
+	tristate "Config Data example / unit test"
 	default n
 	---help---
 		Enable the Config Data example

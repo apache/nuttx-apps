@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SOTEST
-	bool "Shared Library Example"
+	tristate "Shared Library Example"
 	default n
 	depends on LIBC_DLLFCN
 	---help---

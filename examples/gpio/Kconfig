@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_GPIO
-	bool "GPIO driver example"
+	tristate "GPIO driver example"
 	default n
 	depends on DEV_GPIO
 	---help---

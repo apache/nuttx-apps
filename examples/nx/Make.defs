@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_NX),y)
+ifneq ($(CONFIG_EXAMPLES_NX),)
 CONFIGURED_APPS += examples/nx
 endif

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_TCPBLASTER
-	bool "TCP Performance Test"
+	tristate "TCP Performance Test"
 	default n
 	depends on NET_TCP
 	---help---

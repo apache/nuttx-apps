@@ -50,4 +50,6 @@ MAINSRC = fstest_main.c
 CONFIG_XYZ_PROGNAME ?= fstest$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_FSTEST
+
 include $(APPDIR)/Application.mk

@@ -33,38 +33,20 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # BAS Library
 
-ASRCS  =
-CSRCS  = bas.c bas_auto.c bas_fs.c bas_global.c bas_main.c bas_program.c
+CSRCS  = bas.c bas_auto.c bas_fs.c bas_global.c bas_program.c
 CSRCS += bas_str.c bas_token.c bas_value.c bas_var.c
 
 ifeq ($(CONFIG_INTERPRETER_BAS_VT100),y)
 CSRCS += bas_vt100.c
 endif
 
-DEPPATH = --dep-path .
-VPATH = .
+MAINSRC = bas_main.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
+PROGNAME = bas$(EXEEXT)
 
 # BAS built-in application info
 
@@ -75,47 +57,6 @@ APPNAME   = bas
 PRIORITY  = $(CONFIG_INTERPRETER_BAS_PRIORITY)
 STACKSIZE = $(CONFIG_INTERPRETER_BAS_STACKSIZE)
 
-# Build targets
+MODULE = CONFIG_INTERPRETERS_BAS
 
-all:	.built
-.PHONY: context .depend depend clean distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

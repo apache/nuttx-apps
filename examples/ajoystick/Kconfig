@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_AJOYSTICK
-	bool "Analog joystick example"
+	tristate "Analog joystick example"
 	default n
 	depends on AJOYSTICK && !DISABLE_SIGNALS
 	---help---

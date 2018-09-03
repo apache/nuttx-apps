@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_SERIALRX),y)
+ifneq ($(CONFIG_EXAMPLES_SERIALRX),)
 CONFIGURED_APPS += examples/serialrx
 endif

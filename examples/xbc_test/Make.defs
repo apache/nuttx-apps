@@ -37,6 +37,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_XBC_TEST),y)
+ifneq ($(CONFIG_EXAMPLES_XBC_TEST),)
 CONFIGURED_APPS += examples/xbc_test
 endif

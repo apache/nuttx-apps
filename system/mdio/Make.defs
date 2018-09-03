@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_MDIO),y)
+ifneq ($(CONFIG_SYSTEM_MDIO),)
 CONFIGURED_APPS += system/mdio
 endif
 

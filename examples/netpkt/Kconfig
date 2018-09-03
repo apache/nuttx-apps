@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NETPKT
-	bool "Network packet socket example"
+	tristate "Network packet socket example"
 	default n
 	depends on NET_PKT
 	---help---

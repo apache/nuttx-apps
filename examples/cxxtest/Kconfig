@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CXXTEST
-	bool "C++ test program"
+	tristate "C++ test program"
 	default n
 	depends on HAVE_CXX
 	---help---

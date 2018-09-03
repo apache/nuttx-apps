@@ -69,7 +69,7 @@ static void dhcpc_showusage(FAR const char *progname, int exitcode)
  * renew_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int renew_main(int argc, char *argv[])

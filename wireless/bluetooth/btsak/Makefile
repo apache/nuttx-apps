@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
 # Bluetooth SAK (swiss army knife )
 
-ASRCS   =
 CSRCS   = btsak_advertise.c btsak_features.c btsak_gatt.c btsak_info.c
 CSRCS  += btsak_scan.c btsak_security.c
 MAINSRC = btsak_main.c
@@ -53,5 +51,7 @@ PROGNAME = $(CONFIG_BTSAK_PROGNAME)
 APPNAME = bt
 PRIORITY = $(CONFIG_BTSAK_PRIORITY)
 STACKSIZE = $(CONFIG_BTSAK_STACKSIZE)
+
+MODULE = CONFIG_BTSAK
 
 include $(APPDIR)/Application.mk

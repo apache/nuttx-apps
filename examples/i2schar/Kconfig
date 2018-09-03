@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_I2SCHAR
-	bool "I2S character driver test"
+	tristate "I2S character driver test"
 	default n
 	depends on I2S && AUDIO && DRIVERS_AUDIO && AUDIO_I2SCHAR
 	---help---

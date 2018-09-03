@@ -5,7 +5,7 @@
 
 
 menuconfig SYSTEM_I2CTOOL
-	bool "I2C tool"
+	tristate "I2C tool"
 	default n
 	depends on I2C
 	select I2C_DRIVER

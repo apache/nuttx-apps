@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_MODULE),y)
+ifneq ($(CONFIG_EXAMPLES_MODULE),)
 CONFIGURED_APPS += examples/module
 endif

@@ -104,7 +104,7 @@ static void show_usage(FAR const char *progname, int exitcode)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int hex2mem_main(int argc, char **argv)

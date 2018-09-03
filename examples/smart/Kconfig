@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SMART
-	bool "SMART file system example"
+	tristate "SMART file system example"
 	default n
 	---help---
 		Enable the SMART file system example

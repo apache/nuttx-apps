@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SMART_TEST
-	bool "SMART filesystem test tool"
+	tristate "SMART filesystem test tool"
 	default n
 	depends on NSH_BUILTIN_APPS
 	---help---

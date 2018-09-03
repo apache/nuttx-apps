@@ -3599,7 +3599,7 @@ static void vi_showusage(FAR struct vi_s *vi, FAR const char *progname,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int vi_main(int argc, char **argv)

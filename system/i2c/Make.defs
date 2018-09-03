@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_I2CTOOL),y)
+ifneq ($(CONFIG_SYSTEM_I2CTOOL),)
 CONFIGURED_APPS += system/i2c
 endif
 

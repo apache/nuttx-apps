@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NXPLAYER
-	bool "NxPlayer Media Player"
+	tristate "NxPlayer Media Player"
 	default n
 	depends on AUDIO
 	---help---

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FT80X
-	bool "FT80x example"
+	tristate "FT80x example"
 	default n
 	depends on LCD_FT80X
 	select GRAPHICS_FT80X

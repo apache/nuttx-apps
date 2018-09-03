@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_TOUCHSCREEN
-	bool "Touchscreen example"
+	tristate "Touchscreen example"
 	default n
 	---help---
 		Enable the touchscreen example

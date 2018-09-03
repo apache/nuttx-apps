@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NOTE
-	bool "Scheduler monitor"
+	tristate "Scheduler monitor"
 	default n
 	depends on DRIVER_NOTE
 	---help---

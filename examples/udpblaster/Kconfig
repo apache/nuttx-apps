@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_UDPBLASTER
-	bool "UDP blaster example"
+	tristate "UDP blaster example"
 	default n
 	depends on NET_UDP
 	---help---

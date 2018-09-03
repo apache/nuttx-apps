@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_BUTTONS
-	bool "Buttons driver example"
+	tristate "Buttons driver example"
 	default n
 	depends on ARCH_HAVE_BUTTONS
 	---help---

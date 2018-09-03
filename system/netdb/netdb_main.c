@@ -94,7 +94,11 @@ static void show_usage(FAR const char *progname, int exitcode)
  * Public Functions
  ****************************************************************************/
 
+#ifdef BUILD_MODULE
+int main(int argc, FAR char *argv[])
+#else
 int netdb_main(int argc, char **argv)
+#endif
 {
   FAR struct hostent *host;
   FAR const char *addrtype;

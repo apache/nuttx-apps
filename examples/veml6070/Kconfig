@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_VEML6070
-	bool "VEML6070 UltraViolet sensor example"
+	tristate "VEML6070 UltraViolet sensor example"
 	default n
 	depends on SENSORS_VEML6070
 	---help---

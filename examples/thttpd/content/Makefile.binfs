@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 CONFIG_THTTPD_CGI_PRIORITY ?= 100
 CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
 
+APPNAME = hello tasks
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
@@ -49,42 +48,12 @@ ROMFS_DIR = $(CONTENT_DIR)/romfs
 ROMFS_IMG = $(CONTENT_DIR)/romfs.img
 ROMFS_HDR = $(CONTENT_DIR)/romfs.h
 
-ASRCS =
 CSRCS = hello.c tasks.c
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
+PROGNAME = hello$(EXEEXT) tasks$(EXEEXT)
 
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-ROOTDEPPATH = --dep-path hello --dep-path tasks
-VPATH = hello:tasks
-
-all: .built
-.PHONY: context headers binaries depend clean
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
+ROOTDEPPATH += --dep-path hello --dep-path tasks
+VPATH += :hello:tasks
 
 # Create the romfs directory
 
@@ -111,37 +80,13 @@ $(ROMFS_IMG): populate
 $(ROMFS_HDR) : $(ROMFS_IMG)
 	@(cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 
-.built: $(ROMFS_HDR) $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
+context:: $(ROMFS_HDR)
 
-binaries: .built
-
-headers: $(ROMFS_HDR)
-
-$(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,hello,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,hello_main))
-
-$(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,tasks,$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,tasks_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
+clean::
 	$(call DELFILE$(ROMFS_HDR))
 	$(call DELFILE, $(ROMFS_IMG))
 	@rm -rf $(ROMFS_DIR)
-	$(call DELFILE, .built)
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+MODULE = CONFIG_EXAMPLES_THTTPD
 
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SYSTEM
-	bool "System() example"
+	tristate "System() example"
 	default n
 	depends on SYSTEM_SYSTEM
 	---help---

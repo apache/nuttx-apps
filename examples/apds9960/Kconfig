@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_APDS9960
-	bool "APDS-9960 Test Application"
+	tristate "APDS-9960 Test Application"
 	default n
 	depends on SENSORS_APDS9960
 	---help---

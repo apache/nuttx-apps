@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FBOVERLAY
-	bool "Framebuffer overlay test tool"
+	tristate "Framebuffer overlay test tool"
 	depends on FB_OVERLAY
 	default n
 	---help---

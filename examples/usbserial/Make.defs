@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_USBSERIAL),y)
+ifneq ($(CONFIG_EXAMPLES_USBSERIAL),)
 CONFIGURED_APPS += examples/usbserial
 endif

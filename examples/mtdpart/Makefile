@@ -46,4 +46,6 @@ MAINSRC = mtdpart_main.c
 CONFIG_XYZ_PROGNAME ?= mtdpart$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_MTDPART
+
 include $(APPDIR)/Application.mk

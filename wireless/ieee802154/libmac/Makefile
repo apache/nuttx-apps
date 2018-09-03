@@ -33,13 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # libmac source files
 
-ASRCS  =
 # Add IOCTL helpers
 CSRCS  = ieee802154_assocreq.c ieee802154_assocresp.c ieee802154_disassocreq.c
 CSRCS += ieee802154_getreq.c ieee802154_gtsreq.c ieee802154_orphanresp.c
@@ -57,58 +54,4 @@ CSRCS += sixlowpan_setreq.c sixlowpan_startreq.c sixlowpan_syncreq.c
 CSRCS += sixlowpan_pollreq.c
 endif
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../../libapps$(LIBEXT)
-endif
-endif
-
-ROOTDEPPATH = --dep-path .
-VPATH =
-
-# Build targets
-
-all: .built
-.PHONY: context .depend depend clean distclean
-.PRECIOUS: ../../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
-install:
-
-context:
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
--include Make.dep
-
+include $(APPDIR)/Application.mk

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_TCPECHO
-	bool "Simple TCP echo server"
+	tristate "Simple TCP echo server"
 	default n
 	---help---
 		Simple single threaded, poll based TCP echo server. This example

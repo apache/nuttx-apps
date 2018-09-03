@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_COMPOSITE
-	bool "USB Composite Device Commands"
+	tristate "USB Composite Device Commands"
 	default n
 	depends on LIB_BOARDCTL && USBDEV_COMPOSITE && !KERNEL_BUILD
 	select BOARDCTL_USBDEVCTRL

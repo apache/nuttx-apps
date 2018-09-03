@@ -4,7 +4,7 @@
 #
 
 config NETUTILS_THTTPD
-	bool "THTTPD webserver"
+	tristate "THTTPD webserver"
 	default n
 	depends on (NXFLAT || FS_BINFS) && !DISABLE_POLL
 	---help---

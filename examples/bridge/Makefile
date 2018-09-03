@@ -34,34 +34,18 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Discover built-in application info
 
-TARG_APPNAME = bridge
-TARG_PRIORITY = SCHED_PRIORITY_DEFAULT
-TARG_STACKSIZE = 2048
+APPNAME = bridge
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
-TARG_ASRCS =
-TARG_CSRCS =
 MAINSRC = bridge_main.c
-
-TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
-TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
-TARG_MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(MAINSRC)
-TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  TARG_OBJS += $(TARG_MAINOBJ)
-endif
 
 HOST_SRCS1 = host_net1.c
 HOST_SRCS2 = host_net2.c
-HOST_SRCS  = $(HOST_SRCS1) $(HOST_SRCS2)
 
 HOST_OBJS1 = $(HOST_SRCS1:.c=.o)
 HOST_OBJS2 = $(HOST_SRCS2:.c=.o)
@@ -70,47 +54,14 @@ HOST_OBJS  = $(HOST_OBJS1) $(HOST_OBJS2)
 HOST_BIN1 = host1
 HOST_BIN2 = host2
 
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  TARG_BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  TARG_BIN = ..\\..\\libapps$(LIBEXT)
-else
-  TARG_BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  TARG_INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  TARG_INSTALL_DIR = $(BIN_DIR)
-endif
-
 CONFIG_EXAMPLES_BRIDGE_PROGNAME ?= bridge$(EXEEXT)
-TARG_PROGNAME = $(CONFIG_EXAMPLES_BRIDGE_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
+PROGNAME = $(CONFIG_EXAMPLES_BRIDGE_PROGNAME)
 
 # Common build
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(TARG_AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 $(HOST_OBJS): %.o: %.c
 	@echo "CC: $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
-
-$(TARG_BIN): $(TARG_OBJS)
-	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
 
 bridge_config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP: brigetconfig.h"
@@ -124,48 +75,15 @@ $(HOST_BIN2): bridge_config.h $(HOST_OBJS2)
 	@echo "LD: $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS2) -o $@
 
-.built: $(TARG_BIN) $(HOST_BIN1) $(HOST_BIN2)
-	@touch .built
+context:: $(HOST_BIN1) $(HOST_BIN2)
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(TARG_PROGNAME): $(TARG_OBJS) $(TARG_MAINOBJ)
-	@echo "LD: $(TARG_PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(TARG_INSTALL_DIR)$(DELIM)$(TARG_PROGNAME) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(TARG_INSTALL_DIR)$(DELIM)$(TARG_PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(TARG_PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(TARG_APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(TARG_APPNAME),$(TARG_PRIORITY),$(TARG_STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(TARG_APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(TARG_APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(TARG_SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
+clean::
 	$(call DELFILE, $(HOST_BIN1))
 	$(call DELFILE, $(HOST_BIN2))
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+distclean::
 	$(call DELFILE, bridge_config.h)
 
-preconfig:
+MODULE = CONFIG_EXAMPLES_BRIDGE
 
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_INTERPRETERS_MINIBASIC),y)
+ifneq ($(CONFIG_INTERPRETERS_MINIBASIC),)
 CONFIGURED_APPS += interpreters/minibasic
 endif

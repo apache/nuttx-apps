@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_PING
-	bool "ICMP 'ping' command"
+	tristate "ICMP 'ping' command"
 	default n
 	depends on NET_ICMP_SOCKET || NET_USRSOCK
 	---help---

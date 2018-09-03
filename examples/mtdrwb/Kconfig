@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MTDRWB
-	bool "MTD R/W buffer test"
+	tristate "MTD R/W buffer test"
 	default n
 	depends on (MTD_WRBUFFER || MTD_READAHEAD) && !BUILD_PROTECTED && !BUILD_LOADABLE
 	---help---

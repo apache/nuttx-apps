@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_DHCPD),y)
+ifneq ($(CONFIG_EXAMPLES_DHCPD),)
 CONFIGURED_APPS += examples/dhcpd
 endif

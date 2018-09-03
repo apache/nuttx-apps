@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PWM
-	bool "Pulse width modulation (PWM) example"
+	tristate "Pulse width modulation (PWM) example"
 	default n
 	depends on PWM && NSH_BUILTIN_APPS
 	---help---

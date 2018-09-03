@@ -33,110 +33,71 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Basic TCP networking test
 
-TARGCMN_CSRCS = nettest_cmdline.c
+CSRCS = nettest_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_NETTEST_INIT),y)
-TARGCMN_CSRCS += nettest_netinit.c
+CSRCS += nettest_netinit.c
 endif
-
-TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))
 
 # Target 1 Files
 
-TARG1_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
-TARG1_CSRCS += nettest_server.c nettest_client.c
+CSRCS += nettest_server.c nettest_client.c
 else ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
-TARG1_CSRCS += nettest_server.c
+CSRCS += nettest_server.c
 else
-TARG1_CSRCS += nettest_client.c
+CSRCS += nettest_client.c
 endif
-TARG1_MAINSRC = nettest_target1.c
-
-TARG1_COBJS = $(TARG1_CSRCS:.c=$(OBJEXT))
-TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
-
-TARG_CSRCS = $(TARG1_CSRCS) $(TARG1_CSRCS) $(TARGCMN_CSRCS)
-TARG_OBJS = $(TARG1_COBJS) $(TARGCMN_COBJS)
+MAINSRC = nettest_target1.c
 
 # Target 1 Application Info
 
 ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER1),y)
 CONFIG_EXAMPLES_NETTEST_PROGNAME1 ?= tcpserver
-APPNAME1 = tcpserver
 else
 CONFIG_EXAMPLES_NETTEST_PROGNAME1 ?= tcpclient
-APPNAME1 = tcpclient
 endif
 CONFIG_EXAMPLES_NETTEST_PRIORITY1 ?= 100
 CONFIG_EXAMPLES_NETTEST_STACKSIZE1 ?= 2048
 
-PROGNAME1 = $(CONFIG_EXAMPLES_NETTEST_PROGNAME1)
-PRIORITY1 = $(CONFIG_EXAMPLES_NETTEST_PRIORITY1)
-STACKSIZE1 = $(CONFIG_EXAMPLES_NETTEST_STACKSIZE1)
+PROGNAME = $(CONFIG_EXAMPLES_NETTEST_PROGNAME1)
+PRIORITY = $(CONFIG_EXAMPLES_NETTEST_PRIORITY1)
+STACKSIZE = $(CONFIG_EXAMPLES_NETTEST_STACKSIZE1)
 
 # Target 2
 
 ifeq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 
-TARG2_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER1),y)
-TARG2_CSRCS += nettest_client.c
+CSRCS += nettest_client.c
 else
-TARG2_CSRCS += nettest_server.c
+CSRCS += nettest_server.c
 endif
-TARG2_MAINSRC = nettest_target2.c
-
-TARG2_COBJS = $(TARG2_CSRCS:.c=$(OBJEXT))
-TARG2_MAINOBJ = $(TARG2_MAINSRC:.c=$(OBJEXT))
+MAINSRC += nettest_target2.c
 
 # Target 2 Application Info
 
 ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER1),y)
 CONFIG_EXAMPLES_NETTEST_PROGNAME2 ?= tcpclient
-APPNAME2 = tcpclient
 else
 CONFIG_EXAMPLES_NETTEST_PROGNAME2 ?= tcpserver
-APPNAME2 = tcpserver
 endif
 CONFIG_EXAMPLES_NETTEST_PRIORITY2 ?= 100
 CONFIG_EXAMPLES_NETTEST_STACKSIZE2 ?= 2048
 
-PROGNAME2 = $(CONFIG_EXAMPLES_NETTEST_PROGNAME2)
-PRIORITY2 = $(CONFIG_EXAMPLES_NETTEST_PRIORITY2)
-STACKSIZE2 = $(CONFIG_EXAMPLES_NETTEST_STACKSIZE2)
+PROGNAME += $(CONFIG_EXAMPLES_NETTEST_PROGNAME2)
+PRIORITY += $(CONFIG_EXAMPLES_NETTEST_PRIORITY2)
+STACKSIZE += $(CONFIG_EXAMPLES_NETTEST_STACKSIZE2)
 
-endif
-
-# All targets
-
-TARG_SRCS = $(TARG1_CRCS) $(TARG1_MAINSRC) $(TARG2_CSRCS) $(TARG2_MAINSRC) $(TARGCMN_CSRCS)
-TARG_OBJS = $(TARG1_COBJS) $(TARG2_COBJS) $(TARGCMN_COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  TARG_OBJS += $(TARG1_MAINOBJ) $(TARG2_MAINOBJ)
 endif
 
 ifeq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
-MAINNAME1 = nettest1_main
-MAINNAME2 = nettest2_main
+APPNAME = nettest1 nettest2
 else
-MAINNAME1 = nettest_main
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  TARG_BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  TARG_BIN = ..\\..\\libapps$(LIBEXT)
-else
-  TARG_BIN = ../../libapps$(LIBEXT)
-endif
+APPNAME = nettest
 endif
 
 # Host
@@ -167,24 +128,7 @@ ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 endif
 endif
 
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-ROOTDEPPATH = --dep-path .
-
 # Common build
-
-VPATH =
-
-all: .built $(HOST_BIN)
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS) : %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
@@ -210,62 +154,18 @@ $(HOST_BIN): config.h $(HOST_OBJS)
 endif
 endif
 
-.built: config.h $(TARG_OBJS)
-	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
-	$(Q) touch .built
+context:: config.h $(HOST_BIN)
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(TARG1_MAINOBJ)
-	@echo "LD: $(PROGNAME1)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(TARG1_MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME1)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME1)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(if $(CONFIG_BUILD_LOADABLE),,$(MAINNAME1)))
-
-ifeq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(if $(CONFIG_BUILD_LOADABLE),,$(MAINNAME2)))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat \
-	$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat
-else
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat
-endif
-else
-context:
-endif
-
-.depend: Makefile config.h $(TARG_CSRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_CSRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
+clean::
 ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 	$(call DELFILE, *.$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 endif
 endif
-	$(call DELFILE, .built)
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+MODULE = CONFIG_EXAMPLES_NETTEST
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

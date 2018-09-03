@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_APA102
-	bool "APA102 LED Strip example"
+	tristate "APA102 LED Strip example"
 	default n
 	---help---
 		Enable the APA102 example

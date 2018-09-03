@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_INSTALL),y)
+ifneq ($(CONFIG_SYSTEM_INSTALL),)
 CONFIGURED_APPS += system/install
 endif
 

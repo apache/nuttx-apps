@@ -4,7 +4,7 @@
 #
 
 config GRAPHICS_TRAVELER
-	bool "Traveler game"
+	tristate "Traveler game"
 	default n
 	depends on NX || VIDEO_FB
 	select FSUTILS_INIFILE

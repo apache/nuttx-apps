@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_GRAPHICS_SCREENSHOT),y)
+ifneq ($(CONFIG_GRAPHICS_SCREENSHOT),)
 CONFIGURED_APPS += graphics/screenshot
 endif

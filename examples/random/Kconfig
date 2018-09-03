@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_RANDOM
-	bool "/dev/random test"
+	tristate "/dev/random test"
 	default n
 	depends on DEV_RANDOM
 	---help---

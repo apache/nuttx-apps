@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SERIALBLASTER
-    bool "Serial Blaster example"
+    tristate "Serial Blaster example"
     default n
     ---help---
         Enable the serial blaster example

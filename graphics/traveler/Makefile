@@ -33,14 +33,11 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Directories
 
 TRAVELER_DIR   = $(APPDIR)/graphics/traveler
-TRAVELER_SRC   = $(TRAVELER_DIR)/src
 TRAVELER_INC   = $(TRAVELER_DIR)/include
 TRAVELER_DEMO  = $(TRAVELER_DIR)/world
 TRAVELER_TOOLS = $(TRAVELER_DIR)/tools
@@ -53,7 +50,6 @@ STACKSIZE = 2048
 
 # Traveler files
 
-ASRCS   =
 CSRCS   = trv_bitmapfile.c trv_bitmaps.c trv_color.c trv_doors.c
 CSRCS  += trv_fsutils.c trv_graphicfile.c trv_graphics.c trv_input.c
 CSRCS  += trv_mem.c trv_paltbl.c trv_pcx.c trv_planefiles.c trv_planelists.c
@@ -71,36 +67,9 @@ ifeq ($(CONFIG_GRAPHICS_TRAVELER_NX),y)
 CSRCS  += trv_nxbkgd.c trv_nxlistener.c
 endif
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(MAINOBJ)
-endif
-
 ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
 ROMFS_IMG = trv_romfs.img
 ROMFS_HDR = trv_romfs.h
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
 endif
 
 CONFIG_GRAPHICS_TRAVELER_PROGNAME ?= hello$(EXEEXT)
@@ -108,20 +77,10 @@ PROGNAME = $(CONFIG_GRAPHICS_TRAVELER_PROGNAME)
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TRAVELER_INC)}
 
-DEPPATH = --dep-path . --dep-path src
-VPATH = .:src
+DEPPATH += --dep-path src
+VPATH += :src
 
 # Common build
-
-all: .built tools
-.PHONY: tools clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
 
 ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
 $(ROMFS_IMG):
@@ -131,51 +90,15 @@ $(ROMFS_HDR): $(ROMFS_IMG)
 	$(Q) (xxd -i $< | sed -e "s/^unsigned/static const unsigned/g" >$@)
 endif
 
-.built: $(ROMFS_HDR) $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
 tools:
 	$(Q) $(MAKE) -C  $(TRAVELER_TOOLS) -f Makefile.host TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+context:: $(ROMFS_HDR) $(OBJS) tools
 
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(if $(CONFIG_BUILD_LOADABLE),,$(APPNAME)_main))
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
+clean::
 	$(call DELFILE, $(ROMFS_IMG))
 	$(call DELFILE, $(ROMFS_HDR))
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+MODULE = CONFIG_GRAPHICS_TRAVELER
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_QENCODER),y)
+ifneq ($(CONFIG_EXAMPLES_QENCODER),)
 CONFIGURED_APPS += examples/qencoder
 endif

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_LIS3DSH_READER),y)
+ifneq ($(CONFIG_EXAMPLES_LIS3DSH_READER),)
 CONFIGURED_APPS += examples/lis3dsh_reader
 endif

@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SMPS
-	bool "Smps example"
+	tristate "Smps example"
 
 if EXAMPLES_SMPS
 

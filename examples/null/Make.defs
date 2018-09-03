@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_NULL),y)
+ifneq ($(CONFIG_EXAMPLES_NULL),)
 CONFIGURED_APPS += examples/null
 endif

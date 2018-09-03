@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_STAT
-	bool "Test of stat(), fstat(), and statfs()"
+	tristate "Test of stat(), fstat(), and statfs()"
 	default n
 	---help---
 		Enable the test of stat(), fstat(), and statfs().

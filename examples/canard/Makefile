@@ -49,4 +49,6 @@ CSRCS =
 CFLAGS += -I$(APPDIR)/include/canutils
 MAINSRC = canard_main.c
 
+MODULE = CONFIG_EXAMPLES_LIBCANARD
+
 include $(APPDIR)/Application.mk

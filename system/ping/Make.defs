@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_PING),y)
+ifneq ($(CONFIG_SYSTEM_PING),)
 CONFIGURED_APPS += system/ping
 endif
 

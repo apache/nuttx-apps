@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ROMFS
-	bool "ROMFS example"
+	tristate "ROMFS example"
 	default n
 	depends on FS_ROMFS && BUILD_FLAT
 	---help---

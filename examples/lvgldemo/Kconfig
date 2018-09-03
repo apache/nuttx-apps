@@ -4,7 +4,7 @@
 #
 
 menuconfig EXAMPLES_LVGLDEMO
-	bool "Littlev Graphics Library Demo"
+	tristate "Littlev Graphics Library Demo"
 	default n
 	---help---
 		Enable build the Littlev Graphics Library Demo programs

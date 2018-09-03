@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ALARM
-	bool "RTC alarm driver example"
+	tristate "RTC alarm driver example"
 	default n
 	depends on RTC_DRIVER && RTC_ALARM
 	---help---

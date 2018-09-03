@@ -34,7 +34,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 WGET = wget
 UNPACK = unzip
@@ -52,25 +51,6 @@ APPS_INCDIR = $(APPDIR)$(DELIM)include$(DELIM)canutils
 CFLAGS += -std=c99 -I$(APPS_INCDIR) -DCANARD_ASSERT=DEBUGASSERT
 
 CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.c
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(CSRCS)
-OBJS = $(COBJS)
-
-ifeq ($(WINTOOL),y)
-  BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
-else
-  BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
-endif
-DEPBIN = $(APPDIR)/libapps$(LIBEXT)
-
-ROOTDEPPATH = --dep-path .
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(LIBCANARD_PACKNAME):
 	@echo "Downloading: $@"
@@ -92,36 +72,15 @@ $(APPS_INCDIR)$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
 $(APPS_INCDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h
 	$(Q) cp $< $@
 
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
+context:: $(APPS_INCDIR)$(DELIM)canard.h $(APPS_INCDIR)$(DELIM)canard_nuttx.h
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch $@
-
-install:
-
-context: $(APPS_INCDIR)$(DELIM)canard.h $(APPS_INCDIR)$(DELIM)canard_nuttx.h
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
+clean::
 	$(foreach OBJ, $(OBJS), $(call DELFILE, $(OBJ)))
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+distclean::
 	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard.h)
 	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard_nuttx.h)
 	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
 	$(call DELFILE, $(LIBCANARD_PACKNAME))
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_VI),y)
+ifneq ($(CONFIG_SYSTEM_VI),)
 CONFIGURED_APPS += system/vi
 endif
 

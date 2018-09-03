@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_POWERLED
-	bool "Powerled example"
+	tristate "Powerled example"
 	default n
 	---help---
 		Enable the powerled driver example

@@ -4,7 +4,7 @@
 #
 
 config INTERPRETERS_BAS
-	bool "Basic Interpreter support"
+	tristate "Basic Interpreter support"
 	default n
 	select LIBC_FLOATINGPOINT
 	depends on FS_READABLE

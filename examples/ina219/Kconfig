@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_INA219
-	bool "INA219 example"
+	tristate "INA219 example"
 	default n
 	---help---
 		Enable the INA219 example

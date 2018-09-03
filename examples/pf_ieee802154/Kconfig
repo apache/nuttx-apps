@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PFIEEE802154
-	bool "PF_IEEE802154 example"
+	tristate "PF_IEEE802154 example"
 	default n
 	depends on NET_IEEE802154
 	---help---

@@ -467,7 +467,7 @@ static int i8shark_daemon(int argc, FAR char *argv[])
  * Name: i8shark_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_LOADABLE
+#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
 int i8shark_main(int argc, char *argv[])

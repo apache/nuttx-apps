@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CALIB_UDELAY
-	bool "Calibration tool for udelay"
+	tristate "Calibration tool for udelay"
 	default n
 	select CLOCK_MONOTONIC
 	select LIBC_FLOATINGPOINT

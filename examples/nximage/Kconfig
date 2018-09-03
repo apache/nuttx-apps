@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXIMAGE
-	bool "NX graphics image example"
+	tristate "NX graphics image example"
 	default n
 	depends on NX
 	select LIB_BOARDCTL

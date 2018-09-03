@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_IEEE802154_I8SHARK),y)
+ifneq ($(CONFIG_IEEE802154_I8SHARK),)
 CONFIGURED_APPS += wireless/ieee802154/i8shark
 endif

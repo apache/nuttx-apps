@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_SETLOGMASK),y)
+ifneq ($(CONFIG_SYSTEM_SETLOGMASK),)
 CONFIGURED_APPS += system/setlogmask
 endif
 

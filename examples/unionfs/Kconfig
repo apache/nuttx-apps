@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_UNIONFS
-	bool "Union file system example"
+	tristate "Union file system example"
 	default n
 	depends on (FS_ROMFS || FS_UNIONFS) && BUILD_FLAT
 	---help---

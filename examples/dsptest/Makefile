@@ -56,4 +56,6 @@ CSRCS += test_observer.c test_transform.c
 CONFIG_EXAMPLES_DSPTEST_PROGNAME ?= dsptest$(EXEEXT)
 PROGNAME = $(CONFIG_EXAMPLES_DSPTEST_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_DSPTEST
+
 include $(APPDIR)/Application.mk

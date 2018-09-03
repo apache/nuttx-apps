@@ -127,7 +127,7 @@ static CHelloWorld g_HelloWorld;
 
 extern "C"
 {
-#if defined (CONFIG_BUILD_LOADABLE)
+#if defined (BUILD_MODULE)
   int main(int argc, FAR char *argv[])
 #else
   int helloxx_main(int argc, char *argv[])

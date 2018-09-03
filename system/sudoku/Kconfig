@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_SUDOKU
-	bool "Sudoku"
+	tristate "Sudoku"
 	default n
 	select SYSTEM_READLINE
 	---help---

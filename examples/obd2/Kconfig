@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_OBD2
-	bool "OBD-II application example"
+	tristate "OBD-II application example"
 	default n
 	select CANUTILS_LIBOBD2
 	---help---

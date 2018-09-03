@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ADC
-	bool "ADC example"
+	tristate "ADC example"
 	default n
 	depends on ADC && LIB_BOARDCTL
 	select BOARDCTL_ADCTEST

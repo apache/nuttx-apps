@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_PCA9635
-	bool "PCA9635 PWM LED example"
+	tristate "PCA9635 PWM LED example"
 	default n
 	---help---
 		Enable the PCA9635 example

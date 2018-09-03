@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_POPEN
-	bool "popen() example"
+	tristate "popen() example"
 	default n
 	depends on SYSTEM_POPEN
 	---help---

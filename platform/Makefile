@@ -33,13 +33,9 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
 CONFIG_ARCH_BOARD ?= dummy
-DELIM ?= $(strip /)
-
-include $(APPDIR)$(DELIM)Make.defs
 
 # Directories
 
@@ -54,61 +50,15 @@ else
   LINKDIR   = $(if $(wildcard $(BOARDDIR)$(DELIM)Make.defs),$(BOARDDIR),$(DUMMYDIR))
 endif
 
-VPATH       = board
-DEPPATH     = --dep-path $(PLATFORMDIR)
+VPATH       += board
+ROOTDEPPATH += --obj-path bin
+ROOTDEPPATH += --obj-suffix $(OBJEXT)
+ROOTDEPPATH += --dep-path $(PLATFORMDIR)
 
 # Binaries
 
-ASRCS =
-CSRCS =
-
 -include $(GNUDIR)$(DELIM)Make.defs
 -include $(PLATFORMDIR)$(DELIM)Make.defs
-
-# REVISIT: Backslash causes problems in $(A/COBJS) patsubst
-# AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
-# COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
-AOBJS = $(patsubst %.S, bin/%$(OBJEXT), $(ASRCS))
-COBJS = $(patsubst %.c, bin/%$(OBJEXT), $(CSRCS))
-
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\libapps$(LIBEXT)
-else
-  BIN = ../libapps$(LIBEXT)
-endif
-endif
-
-# Build targets
-
-all: .built
-.PHONY: context .depend depend clean_context clean distclean preconfig
-.PRECIOUS: ../libapps$(LIBEXT)
-
-ifneq ($(ASRCS),)
-# REVISIT: Backslash causes problems in $(AOBJS) target
-# $(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
-$(AOBJS): bin/%$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-endif
-
-ifneq ($(CSRCS),)
-# REVISIT: Backslash causes problems in $(COBJS) target
-# $(COBJS): bin$(DELIM)%$(OBJEXT): %.c
-$(COBJS): bin/%$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-endif
-
-.built: $(OBJS)
-ifneq ($(SRCS),)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-endif
-	$(Q) touch .built
 
 # Build context setup
 
@@ -119,33 +69,14 @@ $(PLATFORMDIR): $(TOPDIR)$(DELIM).config
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 	$(Q) $(DIRLINK) $(LINKDIR) $(PLATFORMDIR)
 
-dirlinks:  $(PLATFORMDIR)
+dirlinks: $(PLATFORMDIR)
 
-install:
-
-context: dirlinks
-
-# Dependencies
-
-.depend: Makefile $(SRCS) $(PLATFORMDIR)
-	$(Q) $(MKDEP) --obj-path bin --obj-suffix  $(OBJEXT) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-# Clean targets
+context:: dirlinks
 
 clean_context:
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 
-clean:
-	$(call DELFILE, .built)
+clean::
 	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
-distclean: clean clean_context
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

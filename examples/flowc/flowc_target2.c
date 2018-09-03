@@ -48,7 +48,7 @@
  * flowc2_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_LOADABLE)
+#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
 #else
 int flowc2_main(int argc, char *argv[])

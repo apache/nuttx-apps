@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MEDIA
-	bool "Media test"
+	tristate "Media test"
 	default n
 	---help---
 		Enable the media test.  This test simply writes values onto the

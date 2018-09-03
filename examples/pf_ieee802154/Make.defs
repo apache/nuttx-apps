@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_PFIEEE802154),y)
+ifneq ($(CONFIG_EXAMPLES_PFIEEE802154),)
 CONFIGURED_APPS += examples/pf_ieee802154
 endif

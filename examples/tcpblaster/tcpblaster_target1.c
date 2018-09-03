@@ -69,7 +69,7 @@ static int server_child(int argc, char *argv[])
  * tcpblaster_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_LOADABLE)
+#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
 #elif defined(CONFIG_EXAMPLES_TCPBLASTER_TARGET2)
 int tcpblaster1_main(int argc, char *argv[])

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_I2SCHAR),y)
+ifneq ($(CONFIG_EXAMPLES_I2SCHAR),)
 CONFIGURED_APPS += examples/i2schar
 endif

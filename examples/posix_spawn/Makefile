@@ -33,9 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # ELF Example
 
@@ -43,96 +41,21 @@ ASRCS =
 CSRCS = symtab.c
 MAINSRC = spawn_main.c
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
-
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
 CONFIG_XYZ_PROGNAME ?= posix_spawn$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path . --dep-path filesystem
+ROOTDEPPATH	+= --dep-path filesystem
 
 # Build targets
 
-VPATH = filesystem
+VPATH += filesystem
 
-all: build
-.PHONY: build clean_filesystem clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-# This is a little messy.  The build is broken into two pieces:  (1) the
-# filesystem/ subdir build that auto-generates several files, and (2) the library
-# build.  This is done because we need a fresh build context after auto-
-# generating the source files.
-
-build_lib: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-
-build:
+context::
 	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" build_lib
 
-ifeq ($(CONFIG_BUILD_LOADABLE),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
-context:
-
-# We can't make dependencies in this directory because the required
-# header files may not yet exist.
-
-.depend:
-	@touch $@
-
-depend: .depend
-
-clean_filesystem:
+clean::
 	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-clean: clean_filesystem
 	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
 
 # There are no dependencies in this directory.  Some of more important
 # and more obvious dependencies are hard-coded here:
@@ -158,4 +81,4 @@ symtab.o: filesystem/symtab.c \
 	$(TOPDIR)/include/nuttx/compiler.h \
 	$(TOPDIR)/include/nuttx/binfmt/symtab.h
 
-preconfig:
+include $(APPDIR)/Application.mk

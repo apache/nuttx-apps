@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_FTPC
-	bool "FTP client example"
+	tristate "FTP client example"
 	default n
 	---help---
 		Enable the FTP client example

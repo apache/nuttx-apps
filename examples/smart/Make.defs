@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_SMART),y)
+ifneq ($(CONFIG_EXAMPLES_SMART),)
 CONFIGURED_APPS += examples/smart
 endif

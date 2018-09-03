@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_FLASH_TEST),y)
+ifneq ($(CONFIG_EXAMPLES_FLASH_TEST),)
 CONFIGURED_APPS += examples/flash_test
 endif

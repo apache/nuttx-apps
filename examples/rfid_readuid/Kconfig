@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_RFID_READUID
-	bool "RFID Read UID example"
+	tristate "RFID Read UID example"
 	default n
 	---help---
 		Enable the RFID READUID example

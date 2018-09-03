@@ -4,7 +4,7 @@
 #
 
 config INTERPRETERS_MINIBASIC
-	bool "Mini Basic Interpreter support"
+	tristate "Mini Basic Interpreter support"
 	default n
 	select LIBC_FLOATINGPOINT
 	---help---

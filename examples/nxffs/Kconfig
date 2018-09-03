@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXFFS
-	bool "NXFFS file system example"
+	tristate "NXFFS file system example"
 	default n
 	---help---
 		Enable the NXFFS file system example

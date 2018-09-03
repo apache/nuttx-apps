@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_USTREAM
-	bool "Unix domain stream example"
+	tristate "Unix domain stream example"
 	default n
 	depends on NET_LOCAL
 	---help---

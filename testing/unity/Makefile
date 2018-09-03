@@ -35,9 +35,7 @@
 
 # Standard includes
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Set up build configuration and environment
 
@@ -62,30 +60,6 @@ CFLAGS += -I$(APPS_INCDIR) -DUNITY_INCLUDE_CONFIG_H
 
 CSRCS = $(UNITY_SRCDIR)$(DELIM)unity.c
 
-VPATH =
-DEPPATH = --dep-path $(DELIM)
-
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(CSRCS)
-OBJS = $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-	BIN = ..\\..\\libapps$(LIBEXT)
-else
-	BIN = ../../libapps$(LIBEXT)
-endif
-endif
-
-# Common build
-
-all: .built
-.PHONY: clean depend distclean preconfig
-.PRECIOUS: ../../libapps$(LIBEXT)
-
 $(UNITY_TARBALL):
 	@echo "Downloading: $(UNITY_TARBALL)"
 	$(Q) $(WGET) $(CONFIG_TESTING_UNITY_URL)/$(UNITY_TARBALL)
@@ -105,37 +79,16 @@ $(APPS_INCDIR)$(DELIM)unity.h: $(UNITY_SRCDIR)$(DELIM)unity.h
 $(APPS_INCDIR)$(DELIM)unity_internals.h: $(UNITY_SRCDIR)$(DELIM)unity_internals.h
 	$(Q) cp $< $@
 
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
+context:: $(APPS_INCDIR)$(DELIM)unity.h $(APPS_INCDIR)$(DELIM)unity_internals.h
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) @touch $@
-
-install:
-
-context: $(APPS_INCDIR)$(DELIM)unity.h $(APPS_INCDIR)$(DELIM)unity_internals.h
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
+clean::
 	$(call DELDIR, build)
-	$(call DELFILE, .built)
-	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
+distclean::
 	$(call DELDIR, $(UNITY_UNPACKNAME))
 	$(call DELFILE, .downloaded)
 	$(call DELFILE, $(UNITY_TARBALL))
 	$(call DELFILE, $(APPDIR)/include/testing/unity.h)
 	$(call DELFILE, $(APPDIR)/include/testing/unity_internals.h)
 
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

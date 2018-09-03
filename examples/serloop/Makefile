@@ -46,4 +46,6 @@ MAINSRC = serloop_main.c
 CONFIG_XYZ_PROGNAME ?= serloop$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
+MODULE = CONFIG_EXAMPLES_SERLOOP
+
 include $(APPDIR)/Application.mk

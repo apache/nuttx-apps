@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ZEROCROSS
-	bool "Zero Cross Detection example"
+	tristate "Zero Cross Detection example"
 	default n
 	depends on SENSORS_ZEROCROSS && !DISABLE_SIGNALS
 	---help---

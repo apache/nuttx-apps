@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_XBC_TEST
-	bool "XBox Controller Test example"
+	tristate "XBox Controller Test example"
 	default n
 	---help---
 		Enable the XBox Controller Test example

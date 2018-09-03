@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_MTDPART),y)
+ifneq ($(CONFIG_EXAMPLES_MTDPART),)
 CONFIGURED_APPS += examples/mtdpart
 endif

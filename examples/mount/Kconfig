@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MOUNT
-	bool "File system mount example"
+	tristate "File system mount example"
 	default n
 	---help---
 		Enable the file system mount example

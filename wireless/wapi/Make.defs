@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_WIRELESS_WAPI),y)
+ifneq ($(CONFIG_WIRELESS_WAPI),)
 CONFIGURED_APPS += wireless/wapi
 endif
 

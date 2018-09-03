@@ -33,9 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # FreeModBus Library
 
@@ -44,82 +42,20 @@ CSRCS =
 
 ifeq ($(CONFIG_MODBUS),y)
 
-ifeq ($(CONFIG_MODBUS_SLAVE),y)
-CSRCS += mb.c
-endif
+  ifeq ($(CONFIG_MODBUS_SLAVE),y)
+    CSRCS += mb.c
+  endif
 
-ifeq ($(CONFIG_MB_RTU_MASTER),y)
-CSRCS += mb_m.c
-endif
+  ifeq ($(CONFIG_MB_RTU_MASTER),y)
+    CSRCS += mb_m.c
+  endif
 
-DEPPATH = --dep-path .
-VPATH = .
-
-include ascii/Make.defs
-include functions/Make.defs
-include nuttx/Make.defs
-include rtu/Make.defs
-include tcp/Make.defs
+  include ascii/Make.defs
+  include functions/Make.defs
+  include nuttx/Make.defs
+  include rtu/Make.defs
+  include tcp/Make.defs
 
 endif
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\libapps$(LIBEXT)
-else
-  BIN		= ../libapps$(LIBEXT)
-endif
-endif
-
-# Build targets
-
-all:	.built
-.PHONY: context .depend depend clean distclean preconfig
-.PRECIOUS: ../libapps$(LIBEXT)
-
-ifeq ($(CONFIG_MODBUS),y)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-endif
-
-.built: $(OBJS)
-ifeq ($(CONFIG_MODBUS),y)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-endif
-
-install:
-
-context:
-
-.depend: Makefile $(SRCS)
-ifeq ($(CONFIG_MODBUS),y)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-endif
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk

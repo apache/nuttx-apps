@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_USERFS
-	bool "UserFS test"
+	tristate "UserFS test"
 	default n
 	---help---
 		Enables a simple test of the UserFS
