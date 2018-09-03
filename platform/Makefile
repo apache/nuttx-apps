@@ -54,6 +54,7 @@ VPATH       += board
 ROOTDEPPATH += --obj-path bin
 ROOTDEPPATH += --obj-suffix $(OBJEXT)
 ROOTDEPPATH += --dep-path $(PLATFORMDIR)
+ROOTDEPPATH += --dep-path $(GNUDIR)
 
 # Binaries
 
