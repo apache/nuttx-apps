@@ -12,6 +12,7 @@ core
 cscope.out
 /Kconfig
 /bin
+/exe
 /external
 /.context
 /.config
