@@ -130,7 +130,7 @@ import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 dirlinks:
-	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"  BIN_DIR="$(BIN_DIR)"
 
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
@@ -154,7 +154,7 @@ preconfig: Kconfig
 depend: .depend
 
 clean_context:
-	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
