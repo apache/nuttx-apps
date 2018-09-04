@@ -111,10 +111,18 @@ $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
 
 $(SYMTABOBJ): %$(OBJEXT): %.c
+ifeq ($(WINTOOL),y)
+	$(call COMPILE, -fno-lto "${shell cygpath -w $<}", "${shell cygpath -w $@}")
+else
 	$(call COMPILE, -fno-lto $<, $@)
+endif
 
 $(BIN): $(SYMTABOBJ)
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, $(BIN), "${shell cygpath -w $^}")
+else
 	$(call ARCHIVE, $(BIN), $^)
+endif
 endif
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)

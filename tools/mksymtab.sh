@@ -69,12 +69,14 @@ rm -f $outfile
 # list of sorted, unique undefined variable names.
 
 execlist=`find ${dir} -type f`
-for exec in ${execlist}; do
-  nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist
-done
+if [ ! -z "${execlist}"]; then
+  for exec in ${execlist}; do
+    nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist
+  done
 
-varlist=`cat _tmplist | sort - | uniq -`
-rm -f _tmplist
+  varlist=`cat _tmplist | sort - | uniq -`
+  rm -f _tmplist
+fi
 
 # Now output the symbol table as a structure in a C source file.  All
 # undefined symbols are declared as void* types.  If the toolchain does
