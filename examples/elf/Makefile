@@ -50,7 +50,7 @@ ROOTDEPPATH := --dep-path tests
 
 VPATH += :tests
 
-context::
+tests/symtab.c:
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::
