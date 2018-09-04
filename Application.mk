@@ -98,7 +98,7 @@ VPATH += :.
 # Targets follow
 
 all:: .built
-.PHONY: clean preconfig depend distclean
+.PHONY: .proglist clean preconfig depend distclean
 .PRECIOUS: $(APPDIR)/libapps$(LIBEXT)
 
 ifneq ($(CONFIG_BUILD_LOADABLE),y)
@@ -186,13 +186,13 @@ endif
 PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
 PROGOBJ := $(MAINOBJ)
 
-$(PROGLIST): $(MAINOBJ) $(OBJS)
+.proglist: $(MAINOBJ) $(OBJS)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(firstword $(PROGLIST)) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS)
 	$(Q) $(NM) -u $(firstword $(PROGLIST))
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 
-install:: $(PROGLIST)
+install:: .proglist
 
 else
 install::

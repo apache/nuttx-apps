@@ -103,9 +103,12 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
-ifeq ($(CONFIG_BUILD_LOADABLE),)
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
-else
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+
+.install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
+
+install: $(BIN_DIR) .install
+
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
@@ -123,7 +126,40 @@ ifeq ($(WINTOOL),y)
 else
 	$(call ARCHIVE, $(BIN), $^)
 endif
+
+$(BIN_DIR):
+	$(Q) mkdir -p $(BIN_DIR)
+
+.import: $(BIN_DIR) $(SYMTABSRC) $(BIN)
+
+import:
+	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
+
+else
+ifeq ($(CONFIG_BUILD_LOADABLE),)
+
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+
+else
+
+$(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
+
+$(SYMTABOBJ): %$(OBJEXT): %.c
+ifeq ($(WINTOOL),y)
+	$(call COMPILE, -fno-lto "${shell cygpath -w $<}", "${shell cygpath -w $@}")
+else
+	$(call COMPILE, -fno-lto $<, $@)
 endif
+
+$(BIN): $(SYMTABOBJ)
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, $(BIN), "${shell cygpath -w $^}")
+else
+	$(call ARCHIVE, $(BIN), $^)
+endif
+endif # !CONFIG_BUILD_KERNEL && CONFIG_BUILD_LOADABLE
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
@@ -136,6 +172,8 @@ install: $(BIN_DIR) .install
 
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
+
+endif # CONFIG_BUILD_KERNEL
 
 dirlinks:
 	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"  BIN_DIR="$(BIN_DIR)"
