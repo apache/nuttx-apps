@@ -186,10 +186,6 @@ endif
 PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
 PROGOBJ := $(MAINOBJ)
 
-$(warning PROGLIST=$(PROGLIST))
-$(warning MAINOBJ=$(MAINOBJ))
-$(warning OBJS=$(OBJS))
-
 $(PROGLIST): $(MAINOBJ) $(OBJS)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(firstword $(PROGLIST)) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS)
 	$(Q) $(NM) -u $(firstword $(PROGLIST))
