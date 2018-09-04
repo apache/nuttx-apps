@@ -69,7 +69,7 @@ rm -f $outfile
 # list of sorted, unique undefined variable names.
 
 execlist=`find ${dir} -type f`
-if [ ! -z "${execlist}"]; then
+if [ ! -z "${execlist}" ]; then
   for exec in ${execlist}; do
     nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist
   done

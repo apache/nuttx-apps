@@ -103,39 +103,29 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
+# In the KERNEL build, we must build and install all of the modules.  No
+# symbol table is needed
+
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 install: $(BIN_DIR) .install
 
-$(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
-	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
-
-$(SYMTABOBJ): %$(OBJEXT): %.c
-ifeq ($(WINTOOL),y)
-	$(call COMPILE, -fno-lto "${shell cygpath -w $<}", "${shell cygpath -w $@}")
-else
-	$(call COMPILE, -fno-lto $<, $@)
-endif
-
-$(BIN): $(SYMTABOBJ)
-ifeq ($(WINTOOL),y)
-	$(call ARCHIVE, $(BIN), "${shell cygpath -w $^}")
-else
-	$(call ARCHIVE, $(BIN), $^)
-endif
-
 $(BIN_DIR):
 	$(Q) mkdir -p $(BIN_DIR)
 
-.import: $(BIN_DIR) $(SYMTABSRC) $(BIN)
+.import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-import:
+import: $(BIN_DIR)
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 else
+
+# In FLAT and protected modes, the modules have already been created.  A
+# symbol table is required.
+
 ifeq ($(CONFIG_BUILD_LOADABLE),)
 
 $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
@@ -204,6 +194,7 @@ clean_context:
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
+	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
@@ -227,6 +218,7 @@ else
 endif
 	$(call DELFILE, .depend)
 	$(call DELFILE, $(SYMTABSRC))
+	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))

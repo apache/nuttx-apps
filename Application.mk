@@ -190,6 +190,7 @@ PROGOBJ := $(MAINOBJ)
 ifneq ($(PROGOBJ),)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(firstword $(PROGLIST))
 	$(Q) $(NM) -u $(firstword $(PROGLIST))
+	$(Q) install -m 0755 -D $(firstword $(PROGLIST)) $(BIN_DIR)/$(firstword $(PROGLIST))
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 endif
