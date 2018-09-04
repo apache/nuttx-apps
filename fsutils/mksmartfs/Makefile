@@ -37,9 +37,10 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Web client library
+# SmartFS file utility
+
 ifeq ($(CONFIG_FSUTILS_MKSMARTFS),y)
-CSRCS		= mksmartfs.c
+CSRCS = mksmartfs.c
 endif
 
 include $(APPDIR)/Application.mk

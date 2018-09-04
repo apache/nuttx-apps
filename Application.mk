@@ -187,10 +187,12 @@ PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
 PROGOBJ := $(MAINOBJ)
 
 .proglist: $(MAINOBJ) $(OBJS)
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(firstword $(PROGLIST)) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS)
+ifneq ($(PROGOBJ),)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(firstword $(PROGLIST))
 	$(Q) $(NM) -u $(firstword $(PROGLIST))
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
+endif
 
 install:: .proglist
 

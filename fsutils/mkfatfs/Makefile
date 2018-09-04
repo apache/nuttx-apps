@@ -36,6 +36,7 @@
 -include $(TOPDIR)/Make.defs
 
 # mkfatfs utility
+
 ifeq ($(CONFIG_FSUTILS_MKFATFS),y)
 CSRCS = mkfatfs.c configfat.c writefat.c
 endif
