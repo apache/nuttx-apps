@@ -1,8 +1,8 @@
 ############################################################################
-# apps/system/install/Make.defs
+# apps/system/progmem/Make.defs
 # Adds selected applications to apps/ build
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_INSTALL),)
-CONFIGURED_APPS += system/install
+CONFIGURED_APPS += system/progmem
 endif
 

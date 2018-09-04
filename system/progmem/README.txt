@@ -11,7 +11,7 @@ the program memory (flash) area into free area and creates a start-up
 script into selected directory (i.e. /usr/bin/progname).
 
 Usage:
-    install [--stack RequiredStackSpace] [--priority Priority]
+    progmem [--stack RequiredStackSpace] [--priority Priority]
             source-file destination-directory
 
 If stackspace is not given default stack space of 4096 Bytes is used.

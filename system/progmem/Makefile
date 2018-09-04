@@ -1,8 +1,8 @@
 ############################################################################
-# apps/system/install/Makefile
+# apps/system/progmem/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2016, 2018 Gregory Nutt. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
 #           Gregory Nutt <gnutt@nuttx.org>
 #
@@ -40,16 +40,15 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Install Application
-# TODO: appname can be automatically extracted from the directory name
+# Install PROGMEM Application
 
-APPNAME = install
+APPNAME = progmem
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 1024
 
-MAINSRC = install.c
+MAINSRC = progmem.c
 
-CONFIG_XYZ_PROGNAME ?= install$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= progmem$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 MODULE = CONFIG_SYSTEM_INSTALL

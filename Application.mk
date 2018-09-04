@@ -176,8 +176,19 @@ endif
 	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE), y)
-PROGLIST := $(addprefix $(INSTALL_DIR)$(DELIM),$(PROGNAME))
+
+ifeq ($(WINTOOL), y)
+  PROGPRFX = ${cygpath -u $(INSTALL_DIR)$(DELIM)}
+else
+  PROGPRFX = $(INSTALL_DIR)$(DELIM)
+endif
+
+PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
 PROGOBJ := $(MAINOBJ)
+
+$(warning PROGLIST=$(PROGLIST))
+$(warning MAINOBJ=$(MAINOBJ))
+$(warning OBJS=$(OBJS))
 
 $(PROGLIST): $(MAINOBJ) $(OBJS)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(firstword $(PROGLIST)) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS)
@@ -186,9 +197,11 @@ $(PROGLIST): $(MAINOBJ) $(OBJS)
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 
 install:: $(PROGLIST)
+
 else
 install::
-endif
+
+endif # BUILD_MODULE
 
 preconfig::
 

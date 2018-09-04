@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/install/install.c
+ * apps/system/progmem/progmem.c
  *
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
  *   Author: Uros Platise <uros.platise@isotel.eu>
@@ -62,7 +62,7 @@
  * Private data
  ****************************************************************************/
 
-static const char *install_help =
+static const char *progmem_help =
     "Installs XIP program into flash and creates a start-up script in the\n"
     "destination directory.\n\n"
     "Usage:\t%s [options] source-file.xip destination-directory\n\n"
@@ -75,17 +75,18 @@ static const char *install_help =
     "\t--start <page>\t\tInstalls application at or after <page>\n"
     "\t--margin <pages>\tLeave some free space after the kernel (default 16)\n";
 
-static const char *install_script_text =
+static const char *progmem_script_text =
     "# XIP stacksize=%x priority=%x size=%x\n";
 
-static const char *install_script_exec =
+static const char *progmem_script_exec =
     "exec 0x%x\n";
 
 /****************************************************************************
  * Private functions
  ****************************************************************************/
 
-static int install_getstartpage(int startpage, int pagemargin, int desiredsize)
+static int progmem_getstartpage(int startpage, int pagemargin,
+                                int desiredsize)
 {
   size_t   page = 0, stpage = 0xffff;
   size_t   pagesize = 0;
@@ -146,7 +147,7 @@ static int install_getstartpage(int startpage, int pagemargin, int desiredsize)
   return -1;
 }
 
-static int install_programflash(int startaddr, const char *source)
+static int progmem_programflash(int startaddr, const char *source)
 {
   ssize_t status;
   size_t  count;
@@ -187,7 +188,8 @@ static int install_programflash(int startaddr, const char *source)
   return totalsize;
 }
 
-static void install_getscriptname(char *scriptname, const char *progname, const char *destdir)
+static void progmem_getscriptname(char *scriptname, const char *progname,
+                                  const char *destdir)
 {
   const char * progonly;
 
@@ -201,7 +203,7 @@ static void install_getscriptname(char *scriptname, const char *progname, const 
   strcat(scriptname, progonly);
 }
 
-static int install_getprogsize(const char *progname)
+static int progmem_getprogsize(const char *progname)
 {
   struct stat fileinfo;
 
@@ -213,7 +215,7 @@ static int install_getprogsize(const char *progname)
   return fileinfo.st_size;
 }
 
-static int install_alreadyexists(const char *scriptname)
+static int progmem_alreadyexists(const char *scriptname)
 {
   FILE *fp;
 
@@ -226,7 +228,7 @@ static int install_alreadyexists(const char *scriptname)
     return 1;
 }
 
-static int install_createscript(int addr, int stacksize, int progsize,
+static int progmem_createscript(int addr, int stacksize, int progsize,
                                 int priority, const char *scriptname)
 {
   FILE *fp;
@@ -236,8 +238,8 @@ static int install_createscript(int addr, int stacksize, int progsize,
       return -errno;
     }
 
-  fprintf(fp, install_script_text, stacksize, priority, progsize);
-  fprintf(fp, install_script_exec, addr);
+  fprintf(fp, progmem_script_text, stacksize, priority, progsize);
+  fprintf(fp, progmem_script_exec, addr);
 
   fflush(fp);
   fclose(fp);
@@ -245,7 +247,7 @@ static int install_createscript(int addr, int stacksize, int progsize,
   return 0;
 }
 
-static int install_getlasthexvalue(FILE *fp, char delimiter)
+static int progmem_getlasthexvalue(FILE *fp, char delimiter)
 {
   char buf[128];
   char *p;
@@ -261,7 +263,7 @@ static int install_getlasthexvalue(FILE *fp, char delimiter)
   return -1;
 }
 
-static int install_remove(const char *scriptname)
+static int progmem_remove(const char *scriptname)
 {
   FILE    *fp;
   int      progsize, addr, freedsize;
@@ -272,8 +274,8 @@ static int install_remove(const char *scriptname)
 
   if ((fp = fopen(scriptname, "r")))
     {
-      progsize  = install_getlasthexvalue(fp,'=');
-      addr      = install_getlasthexvalue(fp,' ');
+      progsize  = progmem_getlasthexvalue(fp,'=');
+      addr      = progmem_getlasthexvalue(fp,' ');
       freedsize = progsize;
     }
   else
@@ -333,7 +335,7 @@ static int install_remove(const char *scriptname)
 #ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
-int install_main(int argc, char *argv[])
+int progmem_main(int argc, char *argv[])
 #endif
 {
   int i;
@@ -351,7 +353,7 @@ int install_main(int argc, char *argv[])
 
   if (!up_progmem_isuniform())
     {
-      fprintf(stderr, "Error: install supports uniform organization only.\n");
+      fprintf(stderr, "Error: progmem supports uniform organization only.\n");
       return -1;
     }
 
@@ -404,7 +406,7 @@ int install_main(int argc, char *argv[])
             break;  /* are there sufficient parameters */
           }
 
-        if ((scrsta=install_remove(argv[i])) < 0)
+        if ((scrsta=progmem_remove(argv[i])) < 0)
           {
             fprintf(stderr, "Could not remove program: %s\n", strerror(-scrsta));
             return -1;
@@ -420,11 +422,11 @@ int install_main(int argc, char *argv[])
             break;  /* are there sufficient parameters */
           }
 
-        install_getscriptname(scriptname, argv[i], argv[i+1]);
+        progmem_getscriptname(scriptname, argv[i], argv[i+1]);
 
         /* script-exists? */
 
-        if (install_alreadyexists(scriptname) == 1)
+        if (progmem_alreadyexists(scriptname) == 1)
           {
             if (action != ACTION_REINSTALL)
               {
@@ -432,7 +434,7 @@ int install_main(int argc, char *argv[])
                 return -EEXIST;
               }
 
-            if ((scrsta = install_remove(scriptname)) < 0)
+            if ((scrsta = progmem_remove(scriptname)) < 0)
               {
                 fprintf(stderr, "Could not remove program: %s\n", strerror(-scrsta));
                 return -1;
@@ -441,14 +443,14 @@ int install_main(int argc, char *argv[])
             printf("Replacing %s\n", scriptname);
           }
 
-        startaddr = install_getstartpage(startpage, pagemargin, install_getprogsize(argv[i]));
+        startaddr = progmem_getstartpage(startpage, pagemargin, progmem_getprogsize(argv[i]));
         if (startpage < 0)
           {
             fprintf(stderr, "Not enough memory\n");
             return -ENOMEM;
           }
 
-        if ((progsize = install_programflash(startaddr, argv[i])) <= 0)
+        if ((progsize = progmem_programflash(startaddr, argv[i])) <= 0)
           {
             fprintf(stderr, "Error writing program memory: %s\n"
                     "Note: Flash pages are not released, so you may try again and program will be\n"
@@ -456,7 +458,7 @@ int install_main(int argc, char *argv[])
             return -EIO;
           }
 
-        if ((scrsta = install_createscript(startaddr, stacksize, progsize,
+        if ((scrsta = progmem_createscript(startaddr, stacksize, progsize,
                                              priority, scriptname)) < 0)
           {
             fprintf(stderr, "Error writing program script at %s: %s\n",
@@ -469,6 +471,6 @@ int install_main(int argc, char *argv[])
         return 0;
     }
 
-  fprintf(stderr, install_help, argv[0], argv[0]);
+  fprintf(stderr, progmem_help, argv[0], argv[0]);
   return -1;
 }
