@@ -188,9 +188,10 @@ PROGOBJ := $(MAINOBJ)
 
 .proglist: $(MAINOBJ) $(OBJS)
 ifneq ($(PROGOBJ),)
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(firstword $(PROGLIST))
-	$(Q) $(NM) -u $(firstword $(PROGLIST))
-	$(Q) install -m 0755 -D $(firstword $(PROGLIST)) $(BIN_DIR)/$(firstword $(PROGLIST))
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(strip $(firstword $(PROGLIST)))_
+	$(Q) $(NM) -u $(strip $(firstword $(PROGLIST)))_
+	$(Q) install -m 0755 -D $(strip $(firstword $(PROGLIST)))_ $(firstword $(PROGLIST))
+	$(call DELFILE, $(strip $(firstword $(PROGLIST)))_)
 #	$(Q) $(STRIP) $(BIN_DIR)/$(firstword $(PROGLIST)
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
