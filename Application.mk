@@ -140,32 +140,32 @@ endef
 $(AOBJS): %$(OBJEXT): %.S
 	$(if $(AELFFLAGS), \
 			$(call ELFASSEMBLE, $<, $@), \
-			$(call ASSEMBLE, $<, $@), \
+			$(call ASSEMBLE, $<, $@) \
 	)
 
 $(COBJS): %$(OBJEXT): %.c
 	$(if $(CELFFLAGS), \
 			$(call ELFCOMPILE, $<, $@), \
-			$(call COMPILE, $<, $@), \
+			$(call COMPILE, $<, $@) \
 	)
 
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 	$(if $(CXXELFFLAGS), \
 			$(call ELFCOMPILEXX, $<, $@), \
-			$(call COMPILEXX, $<, $@), \
+			$(call COMPILEXX, $<, $@) \
 	)
 
 ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
 $(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
 	$(if $(CXXELFFLAGS), \
 			$(call ELFCOMPILEXX, $<, $@), \
-			$(call COMPILEXX, $<, $@), \
+			$(call COMPILEXX, $<, $@) \
 	)
 else
 $(MAINOBJ): %$(OBJEXT): %.c
 	$(if $(CELFFLAGS), \
 			$(call ELFCOMPILE, $<, $@), \
-			$(call COMPILE, $<, $@), \
+			$(call COMPILE, $<, $@) \
 	)
 endif
 

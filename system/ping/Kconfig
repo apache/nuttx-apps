@@ -11,6 +11,7 @@ config SYSTEM_PING
 		Enable support for the ICMP 'ping' command.
 
 if SYSTEM_PING
+
 config SYSTEM_PING_PROGNAME
 	string "Ping program name"
 	default "ping"
