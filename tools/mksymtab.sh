@@ -110,7 +110,7 @@ echo "" >>$outfile
 echo "#if defined(CONFIG_EXECFUNCS_HAVE_SYMTAB)" >>$outfile
 echo "const int CONFIG_EXECFUNCS_NSYMBOLS_VAR = sizeof(CONFIG_EXECFUNCS_SYMTAB_ARRAY) / sizeof(struct symtab_s);" >>$outfile
 echo "#elif defined(CONFIG_SYSTEM_NSH_SYMTAB)" >>$outfile
-echo "const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME = sizeof(CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME) / sizeof(struct symtab_s);" >>$outfile
+echo "const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME = sizeof(CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME) / sizeof(struct symtab_s);" >>$outfile
 echo "#else" >>$outfile
 echo "const int dummy_nsymtabs = sizeof(dummy_symtab) / sizeof(struct symtab_s);" >>$outfile
 echo "#endif" >>$outfile

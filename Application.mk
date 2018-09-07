@@ -207,6 +207,7 @@ endif # BUILD_MODULE
 preconfig::
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+ifneq ($(BUILD_MODULE),y)
 REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(APPNAME)_main.bdat)
 APPLIST := $(APPNAME)
 
@@ -231,6 +232,7 @@ context::
 endif
 else
 context::
+endif
 endif
 
 .depend: Makefile $(SRCS)
