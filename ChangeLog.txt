@@ -2850,7 +2850,7 @@
 	  external media like SD card or USB drive instead.  From Gregory Nutt
 	  (2018-08-04).
 	* apps/examples/elf:  If the test ELF files are on media in removable
-	  meda such as SD or USB FLASH, the wait until the media has been
+	  media such as SD or USB FLASH, the wait until the media has been
 	  installed and initialized before starting the test.  From Gregory
 	  Nutt (2018-08-04).
 	* apps/examples/module:  Add support for CROMFS and for stripping
@@ -3064,7 +3064,9 @@
 	  anchao (2018-09-05).
 	* netutils/ping: remove unsupported ping.  netutils/ping is not
 	  supported anymore.  It's better to remove this folder for preventing
-	  confusing.
-	  ping is supported by system/ping.  From EunBong Song (2018-09-05).
+	  confusing.  ping is supported by system/ping.  From EunBong Song (2018-09-05).
+	* Application.mk: Fix to not register a builtin app when BUILD_MODULE=y
+	  apps/tools: Fix to generate CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME in
+	  mksymtab.sh.  From Masayuki Ishikawa (2018-09-07)
 
 7.27 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
