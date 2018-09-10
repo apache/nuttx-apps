@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <poll.h>
 #include <string.h>
 #include <errno.h>
 
@@ -147,6 +148,30 @@ void tcpblaster_client(void)
 
   for (; ; )
     {
+#ifdef CONFIG_EXAMPLES_TCPBLASTER_POLLOUT
+      struct pollfd fds[1];
+      int ret;
+
+      memset(fds, 0, 1 * sizeof(struct pollfd));
+      fds[0].fd     = sockfd;
+      fds[0].events = POLLOUT | POLLHUP;
+
+      /* Wait until we can send data or until the connection is lost */
+
+      ret = poll(fds, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: ERROR poll failed: %d\n", errno);
+          goto errout_with_socket;
+        }
+
+      if ((fds[0].revents & POLLHUP) != 0)
+        {
+          printf("client: WARNING poll returned POLLHUP\n");
+          goto errout_with_socket;
+        }
+#endif
+
       nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
       if (nbytessent < 0)
         {

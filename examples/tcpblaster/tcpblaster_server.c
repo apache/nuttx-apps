@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <poll.h>
 #include <netinet/in.h>
 
 #include <stdio.h>
@@ -187,6 +188,30 @@ void tcpblaster_server(void)
 
   for (; ; )
     {
+#ifdef CONFIG_EXAMPLES_TCPBLASTER_POLLIN
+      struct pollfd fds[1];
+      int ret;
+
+      memset(fds, 0, 1 * sizeof(struct pollfd));
+      fds[0].fd     = acceptsd;
+      fds[0].events = POLLIN | POLLHUP;
+
+      /* Wait until we can receive data or until the connection is lost */
+
+      ret = poll(fds, 1, -1);
+      if (ret < 0)
+        {
+          printf("server: ERROR poll failed: %d\n", errno);
+          goto errout_with_acceptsd;
+        }
+
+      if ((fds[0].revents & POLLHUP) != 0)
+        {
+          printf("server: WARNING poll returned POLLHUP\n");
+          goto errout_with_acceptsd;
+        }
+#endif
+
       nbytesread = recv(acceptsd, buffer, SENDSIZE, 0);
       if (nbytesread < 0)
         {
