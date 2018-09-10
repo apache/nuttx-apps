@@ -6,6 +6,7 @@
 config EXAMPLES_TCPBLASTER
 	tristate "TCP Performance Test"
 	default n
+	select LIBC_FLOATINGPOINT
 	depends on NET_TCP
 	---help---
 		Enable the network test example

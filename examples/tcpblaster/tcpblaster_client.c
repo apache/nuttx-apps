@@ -220,7 +220,7 @@ void tcpblaster_client(void)
 
           fkbrecvd  = (float)sendtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Sent %d buffers:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kbps)\n",
+          printf("Sent %d buffers:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kb/Sec)\n",
                   sendcount, fkbrecvd, fkbrecvd/sendcount, felapsed, fkbrecvd/felapsed);
 
           if (partials > 0)
