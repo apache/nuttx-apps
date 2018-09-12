@@ -98,7 +98,7 @@ VPATH += :.
 # Targets follow
 
 all:: .built
-.PHONY: .proglist clean preconfig depend distclean
+.PHONY: clean preconfig depend distclean
 .PRECIOUS: $(APPDIR)/libapps$(LIBEXT)
 
 ifneq ($(CONFIG_BUILD_LOADABLE),y)
@@ -186,18 +186,18 @@ endif
 PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
 PROGOBJ := $(MAINOBJ)
 
-.proglist: $(MAINOBJ) $(OBJS)
+$(PROGLIST): $(MAINOBJ) $(OBJS)
 ifneq ($(PROGOBJ),)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(strip $(firstword $(PROGLIST)))_
 	$(Q) $(NM) -u $(strip $(firstword $(PROGLIST)))_
 	$(Q) install -m 0755 -D $(strip $(firstword $(PROGLIST)))_ $(firstword $(PROGLIST))
 	$(call DELFILE, $(strip $(firstword $(PROGLIST)))_)
-#	$(Q) $(STRIP) $(BIN_DIR)/$(firstword $(PROGLIST)
+#	$(Q) $(STRIP) $(firstword $(PROGLIST))
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 endif
 
-install:: .proglist
+install:: $(PROGLIST)
 
 else
 install::
@@ -233,6 +233,8 @@ endif
 else
 context::
 endif
+else
+context::
 endif
 
 .depend: Makefile $(SRCS)
