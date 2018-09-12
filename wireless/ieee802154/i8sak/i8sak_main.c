@@ -842,7 +842,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
 #ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
-int i8ask_main(int argc, char *argv[])
+int i8sak_main(int argc, char *argv[])
 #endif
 {
   FAR const struct i8sak_command_s *i8sakcmd;
