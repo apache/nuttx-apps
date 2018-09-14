@@ -63,7 +63,7 @@
  ****************************************************************************/
 
 #define MAX_DEVNAME     8
-#define IPFWD_BUFSIZE   CONFIG_NET_TUN_MTU
+#define IPFWD_BUFSIZE   CONFIG_NET_TUN_PKTSIZE
 #define NBYTES_PER_LINE 32
 #define IPFWD_NPACKETS  3
 

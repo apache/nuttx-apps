@@ -2176,7 +2176,7 @@ examples/webserver
                                    (as well as various other UDP-related
                                    configuration settings).
     CONFIG_NET_BROADCAST=y       - UDP broadcast support is needed.
-    CONFIG_NET_ETH_MTU=650       - Per RFC2131 (p. 9), the DHCP client must be
+    CONFIG_NET_ETH_PKTSIZE=650   - Per RFC2131 (p. 9), the DHCP client must be
     (or larger)                    prepared to receive DHCP messages of up to
                                    576 bytes (excluding Ethernet, IP, or UDP
                                    headers and FCS).

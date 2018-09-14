@@ -132,7 +132,7 @@ required.  These include:
                              (as well as various other UDP-related
                              configuration settings).
   CONFIG_NET_BROADCAST=y     UDP broadcast support is needed.
-  CONFIG_NET_ETH_MTU=650     The client must be prepared to receive
+  CONFIG_NET_ETH_PKTSIZE=650 The client must be prepared to receive
   (or larger)                DHCP messages of up to 576 bytes (excluding
                              Ethernet, IP, or UDP headers and FCS).
                              NOTE: Note that the actual MTU setting will

@@ -1758,7 +1758,7 @@ NSH-Specific Configuration Settings
   * CONFIG_NET_BROADCAST=y
       UDP broadcast support is needed.
 
-  * CONFIG_NET_ETH_MTU=650 (or larger)
+  * CONFIG_NET_ETH_PKTSIZE=650 (or larger)
       Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
       messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
       NOTE: Note that the actual MTU setting will depend upon the specific
