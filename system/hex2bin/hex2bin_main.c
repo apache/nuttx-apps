@@ -105,7 +105,7 @@ static void show_usage(FAR const char *progname, int exitcode)
  *   Standard task inputs
  *
  * Returned Value
- *   EXIT_SUCESS on success; EXIT_FAILURE on failure
+ *   EXIT_SUCCESS on success; EXIT_FAILURE on failure
  *
  ****************************************************************************/
 

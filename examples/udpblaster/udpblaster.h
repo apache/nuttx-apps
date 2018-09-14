@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/udpblaster/udpblaster.h
  *
- *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,28 +88,28 @@
 #define UDP_HDRLEN          8    /* Size of UDP header */
 
 #if defined(CONFIG_NET_ETHERNET)
-#  define UDPBLASTER_MTU   CONFIG_NET_ETH_MTU
+#  define UDPBLASTER_PKTSIZE CONFIG_NET_ETH_PKTSIZE
 #  ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv6
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - ETH_HDRLEN - IPv6_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - ETH_HDRLEN - IPv6_HDRLEN - UDP_HDRLEN)
 #  else
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - ETH_HDRLEN - IPv4_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - ETH_HDRLEN - IPv4_HDRLEN - UDP_HDRLEN)
 #  endif
 #elif defined(CONFIG_NET_LOOPBACK)
-#  define UDPBLASTER_MTU   1518
+#  define UDPBLASTER_PKTSIZE 1518
 #  ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv6
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - IPv6_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - IPv6_HDRLEN - UDP_HDRLEN)
 #  else
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - IPv4_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - IPv4_HDRLEN - UDP_HDRLEN)
 #  endif
 #elif defined(CONFIG_NET_6LOWPAN)
-#  define UDPBLASTER_MTU   CONFIG_NET_6LOWPAN_PKTSIZE
-#  define UDPBLASTER_MSS  (CONFIG_NET_6LOWPAN_PKTSIZE - IPv6_HDRLEN - UDP_HDRLEN)
+#  define UDPBLASTER_PKTSIZE CONFIG_NET_6LOWPAN_PKTSIZE
+#  define UDPBLASTER_MSS     (CONFIG_NET_6LOWPAN_PKTSIZE - IPv6_HDRLEN - UDP_HDRLEN)
 #elif defined(CONFIG_NET_SLIP)
-#  define UDPBLASTER_MTU   CONFIG_NET_SLIP_MTU
+#  define UDPBLASTER_PKTSIZE CONFIG_NET_SLIP_PKTSIZE
 #  ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv6
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - IPv6_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - IPv6_HDRLEN - UDP_HDRLEN)
 #  else
-#    define UDPBLASTER_MSS (UDPBLASTER_MTU - IPv4_HDRLEN - UDP_HDRLEN)
+#    define UDPBLASTER_MSS   (UDPBLASTER_PKTSIZE - IPv4_HDRLEN - UDP_HDRLEN)
 #  endif
 #else
 #  error "Additional link layer definitions needed"

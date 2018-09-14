@@ -72,7 +72,7 @@
  *   pstate - Abstracts the underlying session.
  *
  * Returned Values:
- *   EXIT_SUCESS only
+ *   EXIT_SUCCESS only
  *
  ****************************************************************************/
 

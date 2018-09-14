@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/udpblaster/udpblaster_target.c
  *
- *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,10 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <poll.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -225,7 +228,8 @@ int udpblaster_main(int argc, char *argv[])
   if (sockfd < 0)
     {
       fprintf(stderr, "ERROR: socket() failed: %d\n", errno);
-      return 1;
+      ret = EXIT_FAILURE;
+      goto errout_with_socket;
     }
 
   target.sin_family             = AF_INET;
@@ -236,7 +240,8 @@ int udpblaster_main(int argc, char *argv[])
   if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
     {
       printf("server: ERROR bind failure: %d\n", errno);
-      return 1;
+      ret = EXIT_FAILURE;
+      goto errout_with_socket;
     }
 
 #else
@@ -255,7 +260,8 @@ int udpblaster_main(int argc, char *argv[])
   if (sockfd < 0)
     {
       fprintf(stderr, "ERROR: socket() failed: %d\n", errno);
-      return 1;
+      ret = EXIT_FAILURE;
+      goto errout_with_socket;
     }
 
   target.sin6_family            = AF_INET6;
@@ -272,8 +278,9 @@ int udpblaster_main(int argc, char *argv[])
 
   if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
     {
-      printf("server: ERROR bind failure: %d\n", errno);
-      return 1;
+      printf(stderr, "ERROR bind failure: %d\n", errno);
+      ret = EXIT_FAILURE;
+      goto errout_with_socket;
     }
 #endif
 
@@ -282,12 +289,37 @@ int udpblaster_main(int argc, char *argv[])
 
   for (;;)
     {
+#ifdef CONFIG_EXAMPLES_UDPBLASTER_POLLOUT
+      struct pollfd fds[1];
+
+      memset(fds, 0, 1 * sizeof(struct pollfd));
+      fds[0].fd     = sockfd;
+      fds[0].events = POLLOUT | POLLHUP;
+
+      /* Wait until we can send data or until the connection is lost */
+
+      ret = poll(fds, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: ERROR poll failed: %d\n", errno);
+          goto errout_with_socket;
+        }
+
+      if ((fds[0].revents & POLLHUP) != 0)
+        {
+          printf("client: WARNING poll returned POLLHUP\n");
+          ret = EXIT_SUCCESS;
+          goto errout_with_socket;
+        }
+#endif
+
       ret = sendto(sockfd, g_udpblaster_text, UDPBLASTER_SENDSIZE, 0,
                    (struct sockaddr *)&host, addrlen);
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: sendto() failed: %d\n", errno);
-          return 1;
+          ret = EXIT_FAILURE;
+          goto errout_with_socket;
         }
 
       if (++npackets >= 10)
@@ -303,5 +335,7 @@ int udpblaster_main(int argc, char *argv[])
         }
     }
 
-  return 0; /* Won't get here */
+errout_with_socket:
+  close(sockfd);
+  return ret;
 }

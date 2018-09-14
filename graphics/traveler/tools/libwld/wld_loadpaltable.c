@@ -346,7 +346,7 @@ uint8_t wld_load_paltable(char *file)
     }
 
   fclose(fp);
-  return WORLD_SUCESS;
+  return WORLD_SUCCESS;
 #  endif                               /* USE_PAL_RANGES */
 #endif                                 /* !MSWINDOWS */
 }

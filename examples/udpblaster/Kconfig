@@ -28,6 +28,16 @@ config EXAMPLES_UDPBLASTER_PRIORITY
 	int "Nettest priority"
 	default 100
 
+config EXAMPLES_UDPBLASTER_POLLOUT
+	bool "Use poll() to pace output"
+	default n
+	depends on !DISABLE_POLL
+	---help---
+		Client will use poll() to verify that sendto() will not block.  This
+		does not improve performance (in fact, it will degrade perform
+		slightly).  But it is useful for verifying that poll() can be used
+		to pace output.
+
 config EXAMPLES_UDPBLASTER_HOSTRATE
 	int "Host send rate (bits/second)"
 	default 800000
