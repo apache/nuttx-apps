@@ -1,0 +1,10 @@
+*.o
+*.a
+*.d
+*.i
+*~
+.swp
+.*.swp
+core
+.gdbinit
+cscope.out
