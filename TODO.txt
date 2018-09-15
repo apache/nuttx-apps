@@ -1,0 +1,131 @@
+NxWidgets
+---------
+
+  Title:        LARGE BITMAP SUPPORT
+  Description:  In CImage, m_origin.x and .y need to be allowed to go
+                negative so that you can pan through a large image.
+  Status:       Open
+  Priority:     Low
+
+  Title:        GLYPH BACKGROUNDS
+  Description:  For most glyphs, background could is set to the currently
+                selected background color.  An option should be to set the
+                background of glyphs (only) to transparent.
+  Status:       Open
+  Priority:     Low for now
+
+  Title:        MESSAGE BOX
+  Description:  Need the moral equivalent of a Windows message box:  A
+                simple, model window that provides a message a button to
+                dismiss the message.  This would be helpful, for example,
+                to handle behaviors on errors instead of just failing
+                quietly.
+  Status:       Open
+  Priority:     Low.  Nothing depends on this now.
+
+NxWM
+----
+
+ (4) General NxWMIssues
+ (0) NxTerm Issues
+ (0) CHexCalculator Issues
+ (3) CMediaPlayer Issues
+ (1) Platform specific Issues
+
+See also the NuttX TODO list graphics/ section for related issues.
+
+o General NxWM Issues
+  -------------------
+
+  Title:       DISPLAY INTIALIZATION
+  Description: During the initialization of the display, the basic frame of the
+               start window is drawn momentarily.  This is just the empty window
+               frame.  This is a consequence of how NX creates windows:  The
+               are enabled all of the time so the windows are visible when they
+               are being created. The solution would be to add some disable
+               logic in NX so that that nothing gets displayed when a window
+               is created until it is fully initialized and enable.
+  Status:      Open
+  Priority:    Medium
+
+  Title:       DRAGGING ACROSS WINDOWS
+  Description: Need some indication if the touch/mouse drags from one window to
+               another then is release.  Release event is lost in this case.
+  Status:      Open
+  Priority:    Low.  ICON just stays selected and must be touched again.
+
+  Title:       AUTO-RAISE DISABLED
+  Description: Auto-raise is currently disabled in nuttx for NX multi-server
+               mode.  The
+               reason is complex:
+               - Most touchscreen controls send touch data a high rates
+               - In multi-server mode, touch events get queued in a message
+                  queue.
+               - The logic that receives the messages performs the auto-raise.
+                 But it can do stupid things after the first auto-raise as
+                 it opperates on the stale data in the message queue.
+               I am thinking that auto-raise ought to be removed from NuttX
+               and moved out into a graphics layer (like NxWM) that knows
+               more about the appropriate context to do the autoraise.
+  Status:      Open
+  Priority:    Medium low
+
+  Title:       COMBINE CTouchscreen AND CKeyboard THREADS
+  Description: Right now, two separate threads handle touchscreen and keyboard/
+               console input.  Each just waits on read() and when toushcscreen
+               or keyboard input is received, it injects the data into NX.
+               These two threads should be combined into one thread that waits
+               on poll for read data from either device.  Then when read data
+               becomes ready for either device, it could perform the read and
+               data inject from a single thread.
+  Status:      Open
+  Priority:    Low, this is not a product but a  text example.  If NxWM were
+               to be productized, this change should be done in order to reduce
+               stack memory consumption.
+
+o NxTerm Issues
+  ----------------
+
+o CHexCalculator Issues
+  ---------------------
+
+o CMediaPlayer Issues
+  -------------------
+
+  Title:       SCROLLING FILE LIST
+  Description: Current implementation uses a CListBox which can only show a
+               fixed number of files.  Perhaps CMediaPlayer should use
+               something like CScrollingTextBox.
+  Status:      Open
+  Priority:    Low for now
+
+  Title:       PLAY PROGRESS FEEDBACK
+  Decription:  Need a way to know the position in the file, how long the
+               file is (in minutes), and an indication when playing
+               complete.
+  Status:      Open
+  Priorit:     Medium.  Certain affect usability.
+
+  Title:       NO BALANCE/TONE/EQUALIZER CONTORLS
+  Description: The title says it all
+  Status:      Open
+  Priority:    Medium.  That is big functional limitation.
+
+o Platform specific Issues
+  ------------------------
+
+  Title:       BUGS WHEN CANNOT READ FROM LCD
+  Description: There is a kludge in the code to handle the case where we cannot
+               read the background data because the LCD does not support read
+               operations.  You cannot read from the STM3240G-EVAL LCD right
+               now (it might be possible, but I have not figured out how yet).
+
+               In that case, we just use the default background color.  However,
+               that doesn't work either for the case where the background color
+               changes when the widget is selected.  Then the background color
+               in the font is wrong.  There is a hack in in CButtonArrary that
+               fixed this problem, but the problem certainly exists in other
+               places as well and begs for a better solution.
+  Status:      Open
+  Priority:    Medium-Low
+

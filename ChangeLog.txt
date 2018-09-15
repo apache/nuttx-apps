@@ -1,0 +1,650 @@
+1.0 2012-03-22 Gregory Nutt <gnutt@nuttx.org>
+
+* The initial release of the NxWidgets package
+
+1.1 2012-05-19 Gregory Nutt <gnutt@nuttx.org>
+
+* Updated and verified the NxWidgets DOxygen documentation.  Contributed
+  by Jose Pablo Carballo.
+* IBitmap, CRlePalettBitmap:  Extended class to support differnt LUTs
+  for selected and non-selected images.
+* CImage: If selected, uses different LUTs based, different borders.
+  CImage is now basically a button type.
+* CImage: Add logic to hightlight an CImage (using the selected LUT).
+* nxwm: The tiny NX window manager (NxWM) is being developed in this directory.
+* UnitTests/nxwm:  A unit test for the NX window manager.
+* CWidgetControl:  Add a semaphore to force clients to wait if the
+  size or position of the window is not yet known (multi-user mode only).
+* During integration of NxWM, corrected numerous problems with NxWidgets
+  running on toolbars and framed windows.  That capability was commented
+  out in the 1.0 release but is verfied functional in 1.1.
+* CRlePalettBitmap: Fix an error in the text that determines if we
+  need to "rewind" to the beginning of the image.
+* CRlePalettBitmap: Fixe a positioning problem.  It was actually losing
+  the last row of every image!
+* CNxWidget: Removed support for "shelving" widgets.  I will be removing
+  some lesser used feature over time in order to reduce the NxWidgets
+  footprint.
+* CNxWidget: Removed support for reference constants and close types.
+  The goal is to ge the base widget class as small as possible.
+* CNxTkWindow:  Fix uninitialized pointer value.
+* CNxToolbar:  Need to "fake" the fix position callback to avoid
+  deadlock waits for the callback that won't happen.
+* CNxTkWindow:  Fix toolbar background color
+* CWidgetControl:  Don't declare the the geometry is good until a non-NULL
+  window size is received.
+* CGraphicsPort and CWidgetControl:  If the underlying graphics device
+  is write-only, then we have to render fonts a little differently.
+* CNxWidgets, CWidgetControl, and CRectCache:  Big change!  Remove all support
+  for widgets in a "vertical" hierarchy.  Now widgets exist in a flat,
+  two-dimensional space and should not overlap.  This should greatly
+  reduce the memory requirements and, since, NuttX already supports
+  a hierarchical windowing system, does not result in loss of functionality.
+* CNxWidgets and CWidgetControl.  Remove specific built-in support for
+  modal loops.  There are too many different control mechanisms that might
+  be needed.  Replace with hooks to control widget events from totally
+  external logic.
+* CWindowEventHandler, CWindowEventHandlerList, CWidgetControl: New
+  callback classes to receive notifications about window events.
+* NxWM::CFullScreenWindow and NxWM::CTaskbar:  Add support in NxWM for full
+  screen window applications.
+* All application windows now use CWindowEventHandler and CWindowEventHandlerList
+  to get notifications about mouse and keyboard events.  These class will
+  then automatically handle polling (with no need for a modal loop).
+* NxWM::CTouchscreen and NxWM::CCalibration: Add touchscreen support (still a long
+  way to go).
+* NxWM::g_playBitmp: Change the play icon again.  These tiny touch icons
+  must be very simple.
+* NxWM::CCalibration: Beef up touch input handling logic.  Now changes the
+  color of the touch circle to yellow when it is touched.
+* NxWM::CTouchscreen: Do not read touchscreen data when there is no consumer.
+* NxWM::CWindowControl:  Add new class to wrap CWidgetControl and provide
+  some special mouse and keyboard input event handling.
+* NxWM::CTaskbar: Correct the calculation of the physical size of the
+  display.
+* NxWM::CCalibration: run method must clear m_stop when returning, or you can
+  never restart the Calibration window.
+* NxWM::CTaskbar: On a failure to start an application, the application icon
+  CImage was being deleted twice.
+* NXWidgets::CImage: Now handles mouse click callbacks.  CImage is now really
+  a button.  Probably should separate basic imaging functionality as CImage
+  and create a new CImageButton.
+* NxWM::CStartWindow:  Now ignores any close application button presses
+  (You can't close the start window).
+* NxWM::CCalibration:  The calibration application now has its own thread.
+  This was necessary for a proper integration with the taskbar.
+* NxWM::CCalibration and NxWM:CTouchscreen:  Changed the mechanism use
+  to report calbration data.  It is now reported directly from CCalibration
+  to CTouchscreen.  If external logic needs calibration, it can now get it
+  from CTouchscreen instead of CCalibration.  This change was necessary
+  to make the termination conditions of CCalibration clean (it used to
+  have to persist until some external logic got the Calibration data).
+* IApplication, IApplicationWindow, and all classes that inherit from
+  these:  Now support method to report if the application is a full-screen
+  or a normal application.  This is necessary to prevent CTaskbar from
+  displaying a task bar on top of a full-screen window.
+* NxWM::CTaskbar:  Ooops... minimizing the wrong application!
+* NxWM::CNxConsole:  Add a on_exit() exit handler that will close the
+  NxConsole window when the NSH thread exits.  A correct build now depends
+  on having CONFIG_SCHED_ONEXIT defined.
+* NXWidgets::CNxWidget: Add a new onPreRelease() method.
+* NXWidgets::CButton, CButtonArry, CImage now post action event at pre-release time.
+* NxWM: ICON touches are now drive by action events instead of click events.
+* NXWidgets::CNxTkWindow: Reported size of a framed window must exclude the
+  height of the tool bar (if present)
+* TODO.txt: Add a file to keep track of issues.
+* NxWM::CStartWindow and IApplicationFactory:  This is a substantial
+  redesign.  IApplication wraps an application. However, if we want to
+  be able to start multiple copies of an application, then we need to
+  be able to create multiple IApplication instances from the start window.
+  Enter IApplicationFactory.  Icons in the start window now correspond
+  to application factories; icons in the task bar no correspond to
+  application instances.
+* NxWM::CStartWindow and CWindowControl:  The above change necessitated
+  another architectural change:  When create applications, it is sometimes
+  necessary to wait for windows events.  The above change moved the
+  application creation to the window event thread, hence, causing deadlocks
+  wheneven the logic tried to wait for a window event.  The solution was
+  to create a new thread, called the start window thread, that runs
+  asynchronously and can wait for windoew events.
+* doc/NxWM-ThreadingModel.ppt:  Documented the now rather complex NxWM
+  threading model.
+
+1.2 2012-06-15 Gregory Nutt <gnutt@nuttx.org>
+
+* NXWidgets::CCallback: callback arguement is now type CCallback and not
+  CWidgetControl;  Added a method to redirect keyboard contacts to either
+  the widgets in the window (via CWidgetControl) or to an NxConsole (via
+  nxcon_kbdin()).
+* NXWidgets::INxWindow, CBgWindow, CNxTkWindow, CNxToolbar, CNxWindow:
+  Now pass the CCallback intances as the callback argument instead of
+  the CWidgetControl instance.  New method redirectNxConsole() will
+  support redirection of any window keyboard input to the NxConsole
+  (via CCallback).
+* NxWM:CNxConsole:  Configures the NxConsole window to redirection keyboard
+  input to the NxConsole; redirects standard input to the NxConsole
+  device driver.
+* NxWM:CKeyboard:  Add a new class that implements a keyboard listener
+  thread.  This thread reads from /dev/console and injects the keyboard
+  input into NX.  NX will determine which window is at the top of the
+  heirarchy and re-direct the keyboard input to only that top window.
+  This solves an important problem with, for example, running multiple
+  copies of the NxConsole:  On the copy of the NxConsole at the top of
+  the heirarchy should get the keyboard input.
+* UnitTests/nxwm/main.cxx: Now starts the keyboard thread if
+  CONFIG_NXWM_KEYBOARD is defined.
+* NxWM::CTaskbar:  After drawing the task bar, need to raise the
+  application window otherwise the taskbar will be on the top and
+  keyboard input will not be received by the top application.
+* NxWM::CTaskbar:  Bugfix... previous window should not be minimized
+  when a new window is started.  It should stay in a maximized state
+  so that it will re-appear with the window above it is closed or
+  minimized.
+* NxWM::CHexCalculator:  Add a hexadecimal/decimal calculator
+  example.
+* NXWidgets::CNxTkWindow:  Back out height adjustment in the getSize()
+  method.  The code was correct as it was before.
+* NXWidgets::CButtonArray and NXWidgets::CGraphicsPort:  There is
+  a kludge in there to handle the case where we cannot read the
+  background data because the LCD does not support read operations.
+  In that case, we just use the default background color.  However,
+  that doesn't work either for the case where the background color
+  changes when the widget is selected.  Then the background color
+  in the font is wrong.  Fixed in CButtonArrary, but the problem
+  probably exists in other places as well.
+* NxWM:  Increase default spacing of icons on the Start Window.
+* NxWM::CHexCalculator:  Fix some non-standard calculator behavior
+  after = is pressed.  Use upper case hex.  Increase font size.
+* nxwm/Makefile:  Fix error that creapt in during some other
+  recent check-ins.
+
+1.3 2012-09-29 Gregory Nutt <gnutt@nuttx.org>
+
+* UnitTests/*/main.cxx:  Change entry point name to be consistent
+  with with entry point naming conventions introduced in NuttX
+  6.22.
+* Kconfig:  Added a mconfig configuration file.  Eventually, NxWidgets
+  needs to get hooked into the NuttX mconf configuration.  Still not
+  exactly sure how to do that.
+* libnxwidgets/Makefile and NxWidgets/nxwm/Makefile:  Need updates
+  for consistency with recent changes to NuttX build system (>= 6.22)
+* Kconfig:  Add option to turn on the memory monitor feature of the
+  NxWidgets/NxWM unit tests.
+
+1.4 2012-12-20 Gregory Nutt <gnutt@nuttx.org>
+
+* libnxwidgets/Makefile, NxWidgets/nxwm/Makefile, and
+  NxWidgets/UnitTests/nxwm/Makefile:  Makefile improvements from
+  submitted by Petteri Aimonen.  Other Makefiles in the UnitTests
+  directory probably also need these changes.
+* libnxwidgets/src/ccallback.cxx: Fix misplaced #endif.  Provided
+  by Petteri Aimonen.
+* libnxwidgets/src/cnxserver.cxx:  Reduce delay to allow NX server
+  to start.  One second was un-necessarily long.  Reduced to 50 MS.
+  Reduction suggested by Petteri Aimonen.
+* tools/bitmap_converter.py:  This script converts from any image type
+  supported by Python imaging library to the RLE-encoded format used by
+  NxWidgets.
+* NxWidgets/nxwm/src/capplicationwindow.cxx: If the "desktop" is empty,
+  users have no need to minimize any windows. If the buttons are small,
+  it's easy to hit minimize button accidentally when trying to close an
+  application.  Contributed by Petteri Aimonen.
+* NxWidgets/nxwm/src/ctaskbar.cxx:  Add an option to eliminate the
+  background image.  Contributed by Petteri Aimonen.
+* NxWidgets/nxwm/src/chexcalculator.cxx and NxWidgets/nxwm/src/cstartwindow.cxx:
+  The config settings CONFIG_NXWM_STARTWINDOW_ICON and CONFIG_NXWM_HEXCALCULATOR_ICON
+  allow changing the icons used for these applications. However, to declare symbols
+  for these icons user would need to modify NxWidgets header files.
+  This commit adds a simple forward declaration to the relevant files, based on the
+  configured icon. If the icon does not exist, linker will give an error about it.
+  Contributed by Petteri Aimonen.
+* NxWidgets::CTaskBar: Highlight the current window in the task bar.
+  Contributed by Petteri Aimonen.
+* NxWidgets/libnxwidgets/src/glyph_cycle.cxx:  Width of glyph_cycle was wrong;
+  Destructor needs to by public.  From Petteri Aimonen.
+* NxWidgets::CNumericEdit.  This is basically a label with plus and minus buttons.
+  Contributed by Petteri, Aimonen.
+* NxWM::CStartWindow:  Fix mq_receive error handling with signal is recieved.
+  From Petteri Aimonen.
+* NxWidgets::CNxTimer:  Replace the original (apparently non-functional) signal-
+  based solution with a work queue-based solution.  This raises some isses about
+  using the internal work queues from user space.  I have decided to implemented
+  user-space work queues (someday) in order to accomplish that functionaliy.
+  Submitted by Petteri Aimonen.
+* NxWidgets:CText and NxWidgets:CNumericEdite:  Fix some memory freeing bugs
+  (from Petteri Aimonen).
+* NxWidgets::CScrollingPanel:  Usability improvements.  It is borderless for now,
+  because there was no easy way to redraw only the required part of the border.
+  Contributed by Petteri Aimonen.
+* NxWidgets::CNxWidgets and NxWM::CStartWindow: Small changes to make sub-
+  classing easier (from Petteri Aimonen).
+
+1.5 2013-02-01 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWidgets::CGraphicsPort::move():  Fix typo bug in bounding rectangle
+  calculation (from Petteri Aimonen).
+* NxWM::CScrollingPanel::scrollChildren(): Avoid unnecessary redraws in
+  CScrollingPanel (contributed by Petteri Aimonen).
+* NxWM::CCycleButton:  Remove the separator from CCycleButton. It draws in
+  wrong place, and doesnt look very good in the correct place either.
+  (from Petteri Aimonen).
+* NxWidgets::CGraphicsPort: Many times we only want a constant background.
+  In that case the old code fills the background, reads it back, renders
+  the text and then writes it back. When used with LCD's (instead of
+  framebuffers) this causes unnecessary delay and screen flicker.
+  This commit adds a variant of drawText that takes background color,
+  so that the background and text can both be rendered at one go.
+  The old functions still function as before (Petteri Aimonen).
+* NxWidgets::CLabel: The label was drawn as a single rectangular region,
+  then a text was added to the on top of this.  The result is that the
+  text would flicker when the CLabel was updated. With this change, the
+  two step update is replaced with a five step update:  The background
+  is updated as four rectangulear regions (leaving the previous text in
+  place), then the new text is updated.  This eliminates the flicker
+  (Petteri Aimonen).
+* Kconfig: Many NxWidgets/NxWM settings do not have meaningful, generic
+  default values.  Colors, for example, depend on pixel depth.  Some
+  geometry settings depending on other geometry settings.  Font IDs are
+  not know-able by the configuration system.  etc.  In these cases, it
+  is best if the settings are just not undefined so that the system can
+  calculate a reasonable default.  however, if no default is provided
+  in the .config file, mconf will complain and generate errors.  So work
+  around this, I added several "enabling" settings to override the
+  default setting.  This is awkward and I preferred the configuration as
+  it was before, but this avoids the mconf errors and warnings.
+* UnitTests:  Changed occurrences of lib_rawprintf() and lib_lowprintf()
+  to match recent changes to NuttX (will be in NuttX-6.25)
+* CGraphicsPort::_drawText:  Renamed from CGraphicsPort::drawText in order
+  to eliminate some naming collisions when overloaded in some configurations
+  (i.e., when both bool and nx_pixel_t are uint8_t).  From Petteri Aimonen.
+* CNxWidgets::drawContents: Change base drawContents from a do-nothing
+  function to a function that fills the widget with the background color.
+  This is useful when using CNxWidgets as a "panel" , i.e. a container
+  for other widgets. Subclasses will override drawContents and decide
+  themselves how to draw the background.
+* CNxWidgets::CTabPanel:  A new widget contributed by Petteri Aimonen.
+  This widget provides a tab panel, which has a button bar at the top
+  and panels below it. Pressing a button will select the corresponding
+  panel.
+
+1.6 2013-03-15 Gregory Nutt <gnutt@nuttx.org>
+
+* Type of argv[] has changed from const char ** to char * const *
+* NXWidgets::CNxWidget:  Add an inline function to get the current style.
+* NxWM::CTaskBar: Make a some methods of CTaskbar virtual to allow
+  customizations.  From Petteri Aimonen.
+* NXWidgets::CCycleButton: Make CCycleButton change state in onPreRelease().
+  This way the new value is already available when a listener gets the
+  action event.  From Petteri Aimonen.
+* NxWidgets/tools/bitmap_converter.py: Fix bitmap_converter.py so that
+  it works with indexed input images.
+* NxWidgets::CLabel: Fix backward conditional compilation in the
+  "flicker free" logic.
+* NxWidgets::CNxTimer:  Previously repeated timers were re-enabled after
+  the timer action event. Consequently, if the action event handler tried
+  to stop the timer, the request would be ignored.  Changes the order
+  so that the timer is re-enabled before the callback.  There is still
+  no risk of re-entrancy, because everything executes on the USRWORK work
+  queue.  From Petteri Aimonen.
+* NxWidgets::CMultiLineTestBox: Fix text placement error.  From Petteri
+  Aimonen.
+* NxWidgets::CWidgetControl:  Added another semaphore, boundssem, which
+  is set as soon as the screen bounds are known.  This corrects two
+  problems:
+  1) Due to the way nxgl_rectsize computes the size, it will never
+     be 0,0 like CWidgetControl expects. Therefore the size is considered
+     valid even though it has not been set yet.
+  2) After the check is fixed to test for > 1, NxWM window creation will
+     hang. This is due to the fact that it uses the screen bounds for
+     determining window size. This was being blocked on geosem, which
+     is only posted after the size has been set.
+  From Petteri Aimonen.
+* NxWidgets::CImage:  Two enhancements:
+  1) Allow changing the bitmap even after the control has been created.
+  2) Allow giving 'null' to have the control draw no image at all.
+  From Petteri Aimonen.
+* NxWM::CTaskBar:  Allow windows with null icon. This makes sense for e.g.
+  full screen windows.  From Petteri Aimonen.
+* NxWM::CApplicationWindow:  Add config options to override NxWM
+  stop/minimize icons.  From Petteri Aimonen.
+* NwWM::CStartWindow, NxWM::CWindowMessenger: Get rid of the start window
+  thread. Instead, handle all events through the USRWORK work queue.
+  For me, this was necessary because I would open some files in button
+  handlers and close them in NxTimer handlers. If these belonged to
+  different tasks, the close operation would fail.  Further benefits:
+  + Gets rid of one task and message queue.
+  + Reduces the amount of code required
+  + Decouples CStartWindow from everything else - now it is just a window
+    with application icons, not an integral part of the event logic.
+  + All events come from the same thread, which reduces the possibility of
+    multithreading errors in user code.
+  + The user code can also send events to USRWORK, so that everything gets
+    serialized nicely without having to use so many mutexes.
+  Drawbacks:
+  - Currently the work state structure is malloc()ed, causing one allocation
+    and free per each input event. Could add a memory pool for these later, but
+    the speed difference doesn't seem noticeable.
+  - The work queue will add ~50 ms latency to input events. This is however
+    configurable, and the delay is anyway short enough that it is unnoticeable.
+  From Petteri Aimonen.
+
+1.7 2013-04-28 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWidgets bitmap_converter.py: Fix bug when image width > 255.  From
+  Petteri Aimonen (2013-4-22).
+* NxWM::CScrollbarPanel:  Fix spelling error in class name: CScollbarPanel
+  should be CScrollbarPanel.  From Petteri Aimonen (2013-4-22).
+* NxWidgets:: CGlyphButton: Generate action event, like CButton does.
+  From Petteri Aimonen (2013-4-22).
+* NxWidgets:: CGlyphButton:  Prevent drawing outside of the bitmap size.
+  From Petteri Aimonen (2013-4-22).
+* NxWM::CTaskBar:  Add option CONFIG_NXWM_TASKBAR_NO_BORDER to suppress
+  drawing of the border on the taskbar.  From Petteri Aimonen (2013-4-22).
+* NxWidgets::CNxTimer:  Add function to check if CNxTimer is running.
+  From Petteri Aimonen (2013-4-22).
+* NxWidgets::CNxWidgets:  Allow overriding of the checkCollision() method.
+  From Petteri Aimonen (2013-4-22).
+
+1.8 2013-06-14 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM::CMediaPlayer: shell application for an MP3 Media Player with
+  Kconfig settings to enable it.  I plan to write this app to help
+  develop and test the MP3 codec chip driver.  It really doesn't do
+  anything yet except display a text box saying "Coming soon", and I
+  need to minimize the icon size a bit.  From Ken Pettit (2013-5-11).
+* NxWidgets/nxwm/src/glyph_mediaplayer.cxx:  Smaller version of the
+  media player glyph.  From Ken Pettit (2013-5-12).
+* NxWidgets/nxwm/include/ccalibration.hxx and src/ccalibration.cxx:
+  Fix a race condition that would cause the calibration screen
+  to fail to come up when its icon was touched (From Ken Pettit,
+  2013-5-12).
+* Kconfig:  Default priorities for NxWidget and NxWM threads
+  should be 100, not 50, to be consistent with other default priorities.
+* NxWidgets::CGlyphSliderHorizontal and NxWidgets::CGlyphSliderHorizontalGrip:
+  New widgets added by Ken Pettit (2013-5-15).
+* NxWidgets/UnitTests/CGlyphSliderHorizontal:  Adds a unit test for the
+  NxWidgets::CGlyphSliderHorizontal class. From Ken Pettit (2013-5-17) .
+* NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error.  From Ken
+  Pettit (2013-5-17).
+* UnitTests/*/Makefile and .gitignore:  Update the way that NSH
+  the Unit Tests are registered as built-in NSH applications (2013-5-30).
+* NxWidgets::CImage:  Allow a NULL pointer for a bitmap.  Add protection
+  to prevent dereferencing the NULL pointer.  From Petteri Aimonen
+  (2013-6-4).
+* NxWidgets::CNumericEdit:  Delay before auto-incrementing now varies:
+  A longer delay is required to start auto-incrementing and speed increases
+  while pressed.  From Petteri Aimonen (2013-6-4).
+* NxWM::CTaskbar: Add a method to redraw the taskbar and the current
+  application.  This should only be necessary if the display loses
+  state due to e.g. powerdown or other manual intervention.  From
+  Petteri Aimonen (2013-6-4).
+
+1.9 2013-10-28 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM::CCalibration.cxx/hxx:  If CONFIG_NXWM_CALIBRATION_MESSAGES is
+  defined then CCalibration will provide some instructions in the center
+  of the display (2013-10-14).
+* NxWM::CCalibration.cxx/hxx:  Add options to collect and average
+  multiple samples at each location.  Also logic to discard the most
+  extreme samples before averaging (2013-10-14).
+* NxWidgets::CScaledBitmap:  This new class is a wrapper for an class
+  the exports IBitMap.  It will perform scaling via bi-linear interpolation
+  so that images can be scaled to any size desired (2013-10-15).
+* NxWM::CTaskbar:: Can now be configured to scale taskbar icons using
+  NxWidgets::CScaledBitmap (2013-10-15)
+* NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx:  Add a big, 320x320
+  NuttX logo image.  The older, smaller NuttX logo was renamed from
+  nxlogo to nxlogo160x160 in all places (2015-10-15).
+* NxWM::CCalibration and NxWM::CTouchscreen:  Add a complex touchscreen
+  scaling algorithm to handling the case where the measured X values also
+  vary with y position (and vice versa) (2013-10-17).
+
+1.10 2013-12-07 Gregory Nutt <gnutt@nuttx.org>
+
+* Kconfig and UnitTests/nxwm:  Add logic to enable saving and recovering
+  touchscreen calibration data.  This depends upon having platform-dependent
+  support for storage of configuration data.  Portions suggested by
+  Ken Pettit (2013-10-30).
+* NxWM:Calibration:  Saving of calibration data must be performed in
+  CCalibration, not in UnitTests/nxwm.  Why?  Because the touchscreen
+  calibration could also be initiated from other ways other than through
+  the one-time, start-up initialization logic (2013-10-30).
+
+1.11 2014-01-30 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWidgets/Kconfig and NxWidgets::CNxServer:  Server initialization can
+  now be disabled in the configuration (in fact, it is disabled by default).
+  This is because in the kernel build mode, the NX server must be initialized
+  in kernel mode by the RTOS before applications using the server run in
+  user mode.
+* NxWm: Added CONFIG_NXWM_NXTERM that can be used to disable the NxConsole
+  window (2013-12-30).
+* NxWm::CTouchscreen: Added CONFIG_NXWM_TOUCHSCREEN_DEVINIT that can be used
+  to suppress calls to initialize the touchscreen device from the listener
+  thread.  This is necessary if the kernel mode build is used: In that case,
+  the touchscreen must be initialized in kernel space before NxWM is started
+  (2013-12-30).
+
+1.12 2014-08-15 Gregory Nutt <gnutt@nuttx.org>
+
+* libnxwidgets/include/nxconfig.hxx and libnxwidgets/src/cscaledbitmap.cxx:
+  Fix typo RBG -> RGB.  This makes NxWidgets incompatible with versions of
+  NuttX 7.2 and below.
+* nxwm/src/glyph_*.cxx: Rename all ICON glyph files to include the size of the
+  ICON as part of the file name.  This is in preparation for supporting a
+  set of larger ICONs (2014-7-12).
+* nxwm/src/glyph_play48x48.cxx:  Add a larger NxWM play icon (2014-7-12).
+* nxwm/src/glyph_caclulator47x49.cxx:  Add a larger NxWM calculator icon
+  (2014-7-13).
+* nxwm/src/glyph_cmd49x43.cxx: Add a larger NxWM NxConsole icon (2014-7-13).
+* nxwm/src/glyph_calibration48x42.cxx:  Add a larger NxWM Calibration icon
+  (2014-7-13).
+* nxwm/src/glyph_minimize42x42.cxx: Add a larger NxWM minimize icon
+  (2014-7-13).
+* nxwm/src/glyph_stop42x42.cxx: Add a larger NxWM close icon (2014-8-13).
+* nxwm/src/glyph_mediaplayer44x50.cxx: Add a larger NxWM media player icon
+  (2014-7-14).
+* Kconfig, nxwm/include/nxwmconfig.hxx, nxwm/src/capplicationwindow.cxx:
+  Toolbar font ID can now be separately configured (2014-7-14).
+* nxwm/src/cmediaplayer.cxx: Will now dynamically position player controls
+  based on the display and image sizes (2014-7-14).
+* nxwm/src/glyph_mediagrip30x30.cxx and glyph_mplayer_controls43x41.cxx: Add
+  larger images for the media player (2014-7-14).
+* Kconfig, nxwm/src/cmediaplayer.cxx: Add options to manage spacing of media
+  player buttons and borders vs. borderless buttons (2014-7-14).
+* NxWidgets::CImage: Fix setImageLeft and setImageTop methods (2014-7-14).
+* NxWidget::CImage: Now supports helper methods to align images in the
+  widget region (2014-7-14).
+* NxWM::CMediaPlayer now uses the new CImage methods to align media controls
+  in buttons (2014-7-14).
+* NxWidgets::CStickyImage:  A version of CImage that sticks in the selected
+  state when clicked (2014-7-15).
+* NxMW::CMediaPlayer: Now supports a pause button (2014-7-15).
+* NxMW::CMediaPlayer: Fix some memory leaks (2014-7-16).
+* NxMW::CMediaPlayer: Change spacing, make text region big enough to support
+  a multi-line, scrollable region (2014-7-16).
+* NxMW::CMediaPlayer: Correctly catch the volume level change event
+  (2014-7-16).
+* NxMW::CMediaPlayer: Convert CLabel to a CListBox to support selection of
+  one of many media files to play.  This should be a CScrollingTextBox to
+  support an indefinitely large number of media files (2014-7-16).
+* NxWidgets::CGraphicsPort:  Fix drawBitmapGreyScale method.  Actually drew
+  nothing because of several errors in positioning and buffer usage
+  (2014-7-17)
+* NxWidgets::CImage:  Should not attempt to draw the "empty" regions at the
+  top and the bottom of the image box in greyscale (2014-7-17).
+* NxWM::CMediaPlayer:  Fix some state-related bugs introduced yesterday.
+  Improved state-related button displayes.  Now correctly catches and
+  handles file selection events (2014-7-17).
+* NxWidgets::CImage:  Cannot use NxWidgets::CGraphicsPort:drawBitmapGreyScale()
+  because it does not respect transparent or background colors in its current
+  form.  The end result is that makes the image background grey as well as the
+  image (2014-7-17).
+* NxWM::CMediaPlayer:  State variable was left in a bad state and caused some
+  problems down the road (2014-7-17).
+* NxWidgets::CGlyphSliderHorizontal: No longer uses a hard-coded slider
+  height; the slider height is now provided as a parameter, replacing the
+  widget height which is now calculated from the glip image height
+  (2014-7-17).
+* NxWM::CMediaPlayer:  Now calculates the volume slider height from the grip
+  image height (2014-7-17).
+* NxWM::CApplicationWindow:  Created the custom font for the toolbar title,
+  but never used it! (2014-7-17).
+* NxWidgets::CNxString:  Make destructor virtual.  From Petteri Aimonen
+  (2014-7-22).
+* NxWidgets::CTaskbar:  Fix type of return value fromopenRawWindow()
+  method.  From Petteri Aimonen (2014-7-22).
+* NxWidgets::CTabPanel:  Modify behavior in showPage() method.  Eliminate a
+  duplicate redraw that caused flickering; re-order some logic so that
+  widgets are hidden before operated on.  From Petteri Aimonen (2014-7-22).
+* NxWidgets:CTabPanel:  Make CTabPanel raise action event when tab is
+  changed.  Also add a function for getting the currently selected tab
+  index.  From Petteri Aimonen (2014-7-22).
+* NxWidgets::CNxTimer:  Make CNxTimer stop itself before destruction.
+  Otherwise a call to an invalid work queue entry may occur.  From Petteri
+  Aimonen (2014-7-22).
+* NxWidgets/Kconfig: Add configuration options to filter CMediaPlayer files
+  based on extension (2014-7-23)
+* NxWM::CMediaPlayer:  Add logic to read files from the media mountpoint,
+  filter them by extension, and display the file names in the listbox (2014-7-23).
+* NxWM::CMediaPlayer:  Beginning integration of NxPlayer into Nxwm::MediaPlayer.
+  Gets handle, sets device, and releases handle.  Lots more to be done
+  (2014-7-23).
+* NxWidgets::CNxString: Add a getAllocSize() method to make it easier to
+  convert CNxStrings to NUL-terminated C strings (2014-7-24).
+* NxWM::IApplicationFactory: dd a do-nothing, virtual destructor to
+  eliminate a warning (2014-7-24).
+* NxWM::CMediaPlayer: Lots of changes to integrate with Ken's NxPlayer
+  (2014-7-24).
+* NxWM::CMediaPlayer: Revise state logic.  We need an additional state for
+  the case where a file is selected, but playing has not yet start.  Several
+  other state-related fixes (2014-7-25).
+* NxWM::CMediaPlayer:  Need to remember last text box selection or else each
+  new Value Change event from the volume slider is confused with a new file
+  selection (2014-7-27).
+* NxWM::CMediaPlayer: Correct handling of increments to sub-sampling rate
+  (2014-7-27).
+* NxWidgets::CNxWidget: Remove an unused bit field (2014-7-28).
+* NxWM::CMediaPlayer: Add a CLabel that show the current fast forward/rewind
+  speed (2014-7-28).
+* NxWM::CKeyboard: Add support for a USB keyboard as the NxConsole and text
+  widget input.  Not fully functional as of this initial check-in.  Basic
+  functionality is there, but there are conditions were the keyboard gets
+  lost (2014-7-30).
+
+1.13 2014-09-28 Gregory Nutt <gnutt@nuttx.org>
+
+* Change all references to NxConsole to NxTerm.  This introduces an
+  incompatibility with versions prior to NuttX-7.5 (2014-9-20).
+
+1.14 2014-11-26 Gregory Nutt <gnutt@nuttx.org>
+
+* Fix all UnitTest/ files to account for the corrected syslog() prototype.
+  This change to the NuttX syslog introduces an incompatibility between
+  NuttX 7.6 and previous versions of the UnitTest code.
+
+1.15 2015-04-14 Gregory Nutt <gnutt@nuttx.org>
+
+* In NuttX 7.9, the interface arch_tcinitialize() was replaced with the
+  boardctl() interface.  Old versions of NxWM will then be incompatible
+  with Versions of NuttX at 7.9 and beyond (2015-03-31).
+* NxWidgets::CNxServer:  More renaming: up_lcdinitialize->board_lcd_initialize,
+  up_lcdgetdev->board_lcd_getdev, up_lcduninitialize->board_lcd_uninitialize
+  (2015-04-04).
+* NxWidgets:: INxWindow, CNxWindow, CBgWindow, CNxTkWindow, CNxToolbar,
+  CGraphicsPort: Add a capped parameter to all drawLine() methods.  Pass on
+  to NX nx_drawline() and NXTK nxtk_drawlinetoolbar() and nxtk_drawlinewindow()
+  functions (2015-04-05).
+
+1.16 2016-06-01 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM::CTouchscreen: When boardctl() fails, need to print errno not the
+  returned value which will always be -1 (2015-04-16).
+* NxWidgets::CNxServer:  Correct use of the BOARDIOC_GRAPHICS_SETUP
+  boardctl() call (2015-04-16).
+* CListBox unit test:  Should use RAND_MAX, not MAX_RAND (2015-04-16).
+* The NxWidgets/ directory has been removed from the NuttX GIT repository
+  and now stands alone in its own repository (2015-06-27).
+* Framebuffer driver parameters have changed.  This introduces an
+  incompatibility with versions of NuttX prior to 7.16 (2016-04-14).
+* UnitTests: Add Make.defs files to all UnitTests directories.  This is
+  required by the current apps/Makefile.  Hmmm..  This means that no one
+  has built the NxWidgets packages in the last several realeases!
+  (2016-04-23).
+* UnitTests: Add some default definitions to handle the (unusual) case
+  where 'make clean' is called with no .config or Make.defs file installed
+  (2016-05-10).
+
+1.17 2016-07-25 Gregory Nutt <gnutt@nuttx.org>
+
+* UnitTests: Back conditional logic out of UnitTest Make.defs files.  It
+  does not belong there and causes link failures like "Cannot find nxwm_main"
+  (2016-06-05).
+* Change dbg() and vdbg() to err() and info() (2016-06-11).
+* Change some *err() message to *info() messages if what was a *dbg()
+  message does not indicate and error condition (2016-06-14).
+* Add _ to front of debug macros (2016-06-16).
+* Unittests:  All Makefiles must provided a (dummy) prefconfig target to be
+  compatible with changes to the apps/ configuration system that will be
+  be released in NuttX-7.17 (2016-06-29).
+* Changes to pre-processor include statments needed to handle reorganization
+  of the apps/include directory  (2016-07-01).
+* Update include paths to adapt to changes made to apps/ include path logic
+  (2016-07-22).
+
+1.18 2016-12-26 Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM needs the path to the apps/include directory (2016-07-28).
+* NxWidgets: Fix CListBox crash when clicked below the last item.  From
+  Petteri Aimonen (2016-09-22).
+* libnxwdigets: Fix memory leak in CNxWindow and make behaviour match
+  CNxTkWindow.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: Fix default text colors in NxWidgets::CListBox.  From
+  Petteri Aimonen (2016-09-22).
+* libnxwidgets: Avoid unnecessary redraw in NxWidgets::CListBox. The
+  ListData will raise an event that will cause a redraw anyway.  Redrawing
+  in click() caused double redraws.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets:  Fix coordinate handling in NxWidgets::CMultiLineTextBox.
+  Related to 'Thu Feb 21 16:47:01 2013 Fix text placement in
+  CMultiLineTextbox.' There was a few similar bugs remaining in calculating
+  of rows to show and in clearing the background.  From Petteri Aimonen
+  (2016-09-22).
+* libnxwidgets: Allow NxWidgets::CListDataItems subclasses access to text
+  and value.  From Petteri Aimonen (2016-09-22).
+* Add setting task name via prctl() to NxWidgets::CNxServer and
+  NxWM:CTouchScreen.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: In NxWidgets::CText, allow setting negative line spacing.
+  This is useful to have text take up less space, as quite many fonts have
+  large line spacings built-in.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: Allow setting line spacing in NxWidgets::CMultiLineTextBox.
+  From Petteri Aimonen (2016-09-22).
+* CNxServer: Remove NX server task.  Now calls nx_start (indirectly through
+  boardctrl(BOARDIOC_NX_START) to start the NX Server kernel thread
+  (2016-12-01).
+* CNxServer: Can't use printf in this context (2016-12-01)
+
+1.19 2018-03-02 Gregory Nutt <gnutt@nuttx.org>
+
+* Correct NX Server message queue names.  Should not be /dev/nx*.  They must
+  be relative to /dev/mqueue so "nxabc" will appear at "/var/nxabc"
+  (2017-01-08).
+* strcasecmp, strncasecmp, bzero, bcmp, and bcopy should be defined in
+  strings.h, not string.h.  bzero, bcmp, and bcopy are legacy functions; the
+  contemporary counterparts should be used instead (2017-02-16).
+* Unitests/nxwm:  Change includes because up_cxxinitialize() is now
+  prototyped in apps/include/platfor/cxxinitialize.h (2017-05-13).
+* Prototype of nsh_telnetstart() has changed (2017-07-05).
+* NxWidgets: fix work_s initialization in cwindowmessenger.hxx. From Sakari
+  Kapanen (2017-09-24).
+* Remove all support for single user mode (2017-10-14).
+* Remove unused CONFIG_NXWIDGETS_EXTERNINIT configuration variable
+  (2017-10-15).
+* CTaskBar: Fix type checking issue with GCC 6  From Sakari Kapanen
+  (2017-11-08).
+* nxwm:  Eliminate BOARDIOC_TSCTEST_SETUP (2018-01-17).
+* In NxWM unit test, call boardctl(BOARDIOC_INIT) if available and
+  appropriate (2018-01-17).
+* Fix a dependency in Kconfig:  CONFIG_NXWIDGET_SERVERINIT is definitely
+  supported in the PROTECTED and KERNEL build modes (2018-01-18).
+
+1.20 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
