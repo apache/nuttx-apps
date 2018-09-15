@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CTOUCHSCREEN_HXX
-#define __INCLUDE_CTOUCHSCREEN_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECTOUCHSCREEN_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECTOUCHSCREEN_HXX
 
 /****************************************************************************
  * Included Files
@@ -218,4 +218,4 @@ namespace NxWM
   };
 }
 
-#endif // __INCLUDE_CTOUCHSCREEN_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECTOUCHSCREEN_HXX

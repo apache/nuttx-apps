@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXFONT_HXX
-#define __INCLUDE_CNXFONT_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXFONT_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXFONT_HXX
 
 /****************************************************************************
  * Included Files
@@ -235,4 +235,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXFONT_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXFONT_HXX

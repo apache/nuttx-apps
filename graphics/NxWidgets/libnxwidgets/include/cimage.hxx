@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CIMAGE_HXX
-#define __INCLUDE_CIMAGE_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECIMAGE_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECIMAGE_HXX
 
 /****************************************************************************
  * Included Files
@@ -343,4 +343,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CIMAGE_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECIMAGE_HXX

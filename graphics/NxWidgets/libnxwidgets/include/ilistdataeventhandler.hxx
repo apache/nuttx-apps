@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ILISTDATAEVENTHANDLERR_HXX
-#define __INCLUDE_ILISTDATAEVENTHANDLERR_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDEILISTDATAEVENTHANDLERR_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDEILISTDATAEVENTHANDLERR_HXX
 
 /****************************************************************************
  * Included Files
@@ -133,4 +133,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_ILISTDATAEVENTHANDLERR_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDEILISTDATAEVENTHANDLERR_HXX

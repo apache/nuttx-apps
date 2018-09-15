@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CCYLEBUTTON_HXX
-#define __INCLUDE_CCYLEBUTTON_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECCYLEBUTTON_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECCYLEBUTTON_HXX
 
 /****************************************************************************
  * Included Files
@@ -353,4 +353,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CCYLEBUTTON_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECCYLEBUTTON_HXX

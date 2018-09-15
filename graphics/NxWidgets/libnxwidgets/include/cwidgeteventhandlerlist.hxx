@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CWIDGETEVENTHANDLERLIST_HXX
-#define __INCLUDE_CWIDGETEVENTHANDLERLIST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTHANDLERLIST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTHANDLERLIST_HXX
 
 /****************************************************************************
  * Included Files
@@ -355,4 +355,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CWIDGETEVENTHANDLERLIST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTHANDLERLIST_HXX

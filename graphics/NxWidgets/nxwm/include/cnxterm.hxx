@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXTERM_HXX
-#define __INCLUDE_CNXTERM_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECNXTERM_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECNXTERM_HXX
 
 /****************************************************************************
  * Included Files
@@ -242,4 +242,4 @@ namespace NxWM
 }
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXTERM_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECNXTERM_HXX

@@ -35,8 +35,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CMEDIAPLAYER_HXX
-#define __INCLUDE_CMEDIAPLAYER_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECMEDIAPLAYER_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECMEDIAPLAYER_HXX
 
 /****************************************************************************
  * Included Files
@@ -477,4 +477,4 @@ namespace NxWM
 }
 #endif // __cplusplus
 
-#endif // __INCLUDE_CMEDIAPLAYER_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECMEDIAPLAYER_HXX

@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSTICKIMAGE_HXX
-#define __INCLUDE_CSTICKIMAGE_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTICKIMAGE_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTICKIMAGE_HXX
 
 /****************************************************************************
  * Included Files
@@ -187,4 +187,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSTICKIMAGE_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTICKIMAGE_HXX

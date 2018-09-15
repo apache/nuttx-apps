@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NXWMGLYPHS_HXX
-#define __INCLUDE_NXWMGLYPHS_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDENXWMGLYPHS_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDENXWMGLYPHS_HXX
 
 /****************************************************************************
  * Included Files
@@ -74,4 +74,4 @@ namespace NxWM
 }
 
 #endif // __cplusplus
-#endif // __INCLUDE_NXWMGLYPHS_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDENXWMGLYPHS_HXX

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXTIMER_HXX
-#define __INCLUDE_CNXTIMER_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTIMER_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTIMER_HXX
 
 /****************************************************************************
  * Included Files
@@ -204,4 +204,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXTIMER_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTIMER_HXX

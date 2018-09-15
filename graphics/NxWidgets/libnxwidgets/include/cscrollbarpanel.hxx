@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSCROLLBARPANEL_HXX
-#define __INCLUDE_CSCROLLBARPANEL_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLBARPANEL_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLBARPANEL_HXX
 
 /****************************************************************************
  * Included Files
@@ -305,5 +305,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSCROLLBARPANEL_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLBARPANEL_HXX
 

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CBITMAP_HXX
-#define __INCLUDE_CBITMAP_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECBITMAP_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECBITMAP_HXX
 
 /****************************************************************************
  * Included Files
@@ -210,4 +210,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CBITMAP_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECBITMAP_HXX

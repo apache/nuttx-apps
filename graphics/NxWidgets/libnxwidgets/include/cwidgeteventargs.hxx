@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CWIDGETEVENTARGS_HXX
-#define __INCLUDE_CWIDGETEVENTARGS_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTARGS_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTARGS_HXX
 
 /****************************************************************************
  * Included Files
@@ -234,4 +234,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CWIDGETEVENTARGS_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETEVENTARGS_HXX

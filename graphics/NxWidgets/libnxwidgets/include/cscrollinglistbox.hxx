@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSCROLLINGLISTBOX_HXX
-#define __INCLUDE_CSCROLLINGLISTBOX_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGLISTBOX_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGLISTBOX_HXX
 
 /****************************************************************************
  * Included Files
@@ -477,4 +477,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSCROLLINGLISTBOX_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGLISTBOX_HXX

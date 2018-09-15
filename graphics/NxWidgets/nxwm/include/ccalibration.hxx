@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CCALIBRATION_HXX
-#define __INCLUDE_CCALIBRATION_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECCALIBRATION_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECCALIBRATION_HXX
 
 /****************************************************************************
  * Included Files
@@ -449,4 +449,4 @@ namespace NxWM
   };
 }
 
-#endif // __INCLUDE_CCALIBRATION_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECCALIBRATION_HXX

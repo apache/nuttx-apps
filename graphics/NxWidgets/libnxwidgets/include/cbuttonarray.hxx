@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CBUTTONARRAY_HXX
-#define __INCLUDE_CBUTTONARRAY_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTONARRAY_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTONARRAY_HXX
 
 /****************************************************************************
  * Included Files
@@ -323,4 +323,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CBUTTONARRAY_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTONARRAY_HXX

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CBUTTON_HXX
-#define __INCLUDE_CBUTTON_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTON_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTON_HXX
 
 /****************************************************************************
  * Included Files
@@ -241,4 +241,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CBUTTON_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECBUTTON_HXX

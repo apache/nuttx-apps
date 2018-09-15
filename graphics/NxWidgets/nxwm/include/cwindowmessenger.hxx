@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CWINDOWMESSENGER_HXX
-#define __INCLUDE_CWINDOWMESSENGER_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECWINDOWMESSENGER_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECWINDOWMESSENGER_HXX
 
 /****************************************************************************
  * Included Files
@@ -146,4 +146,4 @@ namespace NxWM
 }
 #endif // __cplusplus
 
-#endif // __INCLUDE_CWINDOWMESSENGER_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECWINDOWMESSENGER_HXX

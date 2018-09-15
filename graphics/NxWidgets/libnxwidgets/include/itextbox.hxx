@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ITEXTBOX_HXX
-#define __INCLUDE_ITEXTBOX_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDEITEXTBOX_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDEITEXTBOX_HXX
 
 /****************************************************************************
  * Included Files
@@ -214,4 +214,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_ITEXTBOX_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDEITEXTBOX_HXX

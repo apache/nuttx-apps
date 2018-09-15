@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CGLYPHBUTTON_HXX
-#define __INCLUDE_CGLYPHBUTTON_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECGLYPHBUTTON_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECGLYPHBUTTON_HXX
 
 /****************************************************************************
  * Included Files
@@ -235,4 +235,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CGLYPHBUTTON_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECGLYPHBUTTON_HXX

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CPROGRESSBAR_HXX
-#define __INCLUDE_CPROGRESSBAR_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECPROGRESSBAR_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECPROGRESSBAR_HXX
 
 /****************************************************************************
  * Included Files
@@ -248,4 +248,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CPROGRESSBAR_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECPROGRESSBAR_HXX

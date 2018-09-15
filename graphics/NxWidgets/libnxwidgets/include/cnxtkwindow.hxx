@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXTKWINDOW_HXX
-#define __INCLUDE_CNXTKWINDOW_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTKWINDOW_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTKWINDOW_HXX
 
 /****************************************************************************
  * Included Files
@@ -363,5 +363,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXTKWINDOW_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTKWINDOW_HXX
 

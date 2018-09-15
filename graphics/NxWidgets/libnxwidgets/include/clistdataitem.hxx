@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CLISTDATAITEM_HXX
-#define __INCLUDE_CLISTDATAITEM_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECLISTDATAITEM_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECLISTDATAITEM_HXX
 
 /****************************************************************************
  * Included Files
@@ -186,4 +186,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CLISTDATAITEM_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECLISTDATAITEM_HXX

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRECT_HXX
-#define __INCLUDE_CRECT_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECRECT_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECRECT_HXX
 
 /****************************************************************************
  * Included Files
@@ -433,4 +433,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CRECT_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECRECT_HXX

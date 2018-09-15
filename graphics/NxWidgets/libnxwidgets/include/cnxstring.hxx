@@ -68,8 +68,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXSTRING_HXX
-#define __INCLUDE_CNXSTRING_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXSTRING_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXSTRING_HXX
 
 /****************************************************************************
  * Included Files
@@ -493,4 +493,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXSTRING_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXSTRING_HXX

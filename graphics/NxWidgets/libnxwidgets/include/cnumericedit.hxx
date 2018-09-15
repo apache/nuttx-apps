@@ -68,8 +68,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNUMERICEDIT_HXX
-#define __INCLUDE_CNUMERICEDIT_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNUMERICEDIT_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNUMERICEDIT_HXX
 
 /****************************************************************************
  * Included Files
@@ -210,4 +210,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CLABEL_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECLABEL_HXX

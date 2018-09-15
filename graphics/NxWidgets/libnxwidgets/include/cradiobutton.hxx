@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRADIOBUTTON_HXX
-#define __INCLUDE_CRADIOBUTTON_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECRADIOBUTTON_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECRADIOBUTTON_HXX
 
 /****************************************************************************
  * Included Files
@@ -204,4 +204,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CRADIOBUTTON_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECRADIOBUTTON_HXX

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSCROLLINGPANEL_HXX
-#define __INCLUDE_CSCROLLINGPANEL_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGPANEL_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGPANEL_HXX
 
 /****************************************************************************
  * Included Files
@@ -369,5 +369,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSCROLLINGPANEL_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCROLLINGPANEL_HXX
 

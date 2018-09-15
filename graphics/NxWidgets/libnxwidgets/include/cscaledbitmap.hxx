@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSCALEDBITMAP_HXX
-#define __INCLUDE_CSCALEDBITMAP_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCALEDBITMAP_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCALEDBITMAP_HXX
 
 /****************************************************************************
  * Included Files
@@ -206,4 +206,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSCALEDBITMAP_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSCALEDBITMAP_HXX

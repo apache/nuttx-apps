@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_TNXARRAY_HXX
-#define __INCLUDE_TNXARRAY_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDETNXARRAY_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDETNXARRAY_HXX
 
 /****************************************************************************
  * Included Files
@@ -434,4 +434,4 @@ void TNxArray<T>::clear()
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_TNXARRAY_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDETNXARRAY_HXX

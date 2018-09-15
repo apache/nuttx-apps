@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_GLYPHS_HXX
-#define __INCLUDE_GLYPHS_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDEGLYPHS_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDEGLYPHS_HXX
 
 /****************************************************************************
  * Included Files
@@ -129,4 +129,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_GLYPHS_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDEGLYPHS_HXX

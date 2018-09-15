@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CKEYPAD_HXX
-#define __INCLUDE_CKEYPAD_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECKEYPAD_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECKEYPAD_HXX
 
 /****************************************************************************
  * Included Files
@@ -153,4 +153,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CKEYPAD_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECKEYPAD_HXX

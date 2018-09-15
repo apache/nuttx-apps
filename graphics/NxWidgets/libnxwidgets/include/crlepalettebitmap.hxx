@@ -34,8 +34,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRLEPALETTBITMAP_HXX
-#define __INCLUDE_CRLEPALETTBITMAP_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECRLEPALETTBITMAP_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECRLEPALETTBITMAP_HXX
 
 /****************************************************************************
  * Included Files
@@ -266,4 +266,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CRLEPALETTBITMAP_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECRLEPALETTBITMAP_HXX

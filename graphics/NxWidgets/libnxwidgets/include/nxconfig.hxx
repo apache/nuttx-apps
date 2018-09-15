@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NXCONFIG_HXX
-#define __INCLUDE_NXCONFIG_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDENXCONFIG_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDENXCONFIG_HXX
 
 /****************************************************************************
  * Included Files
@@ -463,4 +463,4 @@ namespace NXWidgets
  * Implementation Classes
  ****************************************************************************/
 
-#endif // __INCLUDE_NXCONFIG_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDENXCONFIG_HXX

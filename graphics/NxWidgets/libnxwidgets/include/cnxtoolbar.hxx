@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXTOOLBAR_HXX
-#define __INCLUDE_CNXTOOLBAR_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTOOLBAR_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTOOLBAR_HXX
 
 /****************************************************************************
  * Included Files
@@ -332,5 +332,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXTOOLBAR_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECNXTOOLBAR_HXX
 

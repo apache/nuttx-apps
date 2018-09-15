@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSLIDERVERTICAL_HXX
-#define __INCLUDE_CSLIDERVERTICAL_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSLIDERVERTICAL_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSLIDERVERTICAL_HXX
 
 /****************************************************************************
  * Included Files
@@ -340,5 +340,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSLIDERVERTICAL_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSLIDERVERTICAL_HXX
 

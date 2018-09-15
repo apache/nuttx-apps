@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CTABPANEL_HXX
-#define __INCLUDE_CTABPANEL_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECTABPANEL_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECTABPANEL_HXX
 
 /****************************************************************************
  * Included Files

@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CHEXCALCULATOR_HXX
-#define __INCLUDE_CHEXCALCULATOR_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDECHEXCALCULATOR_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDECHEXCALCULATOR_HXX
 
 /****************************************************************************
  * Included Files
@@ -327,4 +327,4 @@ namespace NxWM
 }
 #endif // __cplusplus
 
-#endif // __INCLUDE_CHEXCALCULATOR_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDECHEXCALCULATOR_HXX

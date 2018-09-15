@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NXWMCONFIG_HXX
-#define __INCLUDE_NXWMCONFIG_HXX
+#ifndef __APPS_GRAPHICS_NXWM_INCLUDENXWMCONFIG_HXX
+#define __APPS_GRAPHICS_NXWM_INCLUDENXWMCONFIG_HXX
 
 /****************************************************************************
  * Included Files
@@ -706,4 +706,4 @@ void showTestStepMemory(FAR const char *msg);
 #  define showTestStepMemory(msg)
 #endif
 
-#endif // __INCLUDE_NXWMCONFIG_HXX
+#endif // __APPS_GRAPHICS_NXWM_INCLUDENXWMCONFIG_HXX

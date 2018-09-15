@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ISCROLLABLE_HXX
-#define __INCLUDE_ISCROLLABLE_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDEISCROLLABLE_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDEISCROLLABLE_HXX
 
 /****************************************************************************
  * Included Files
@@ -213,5 +213,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_ISCROLLABLE_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDEISCROLLABLE_HXX
 

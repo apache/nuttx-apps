@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CGRAPHICSPORT_HXX
-#define __INCLUDE_CGRAPHICSPORT_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECGRAPHICSPORT_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECGRAPHICSPORT_HXX
 
 /****************************************************************************
  * Included Files
@@ -486,4 +486,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CGRAPHICSPORT_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECGRAPHICSPORT_HXX

@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CCALLBACK_HXX
-#define __INCLUDE_CCALLBACK_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECCALLBACK_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECCALLBACK_HXX
 
 /****************************************************************************
  * Included Files
@@ -266,5 +266,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CCALLBACK_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECCALLBACK_HXX
 

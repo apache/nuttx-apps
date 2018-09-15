@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CWIDGETCONTROLT_HXX
-#define __INCLUDE_CWIDGETCONTROLT_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETCONTROLT_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETCONTROLT_HXX
 
 /****************************************************************************
  * Included Files
@@ -798,4 +798,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CWIDGETCONTROLT_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECWIDGETCONTROLT_HXX

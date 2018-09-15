@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ISLIDER_HXX
-#define __INCLUDE_ISLIDER_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDEISLIDER_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDEISLIDER_HXX
 
 /****************************************************************************
  * Included Files
@@ -192,5 +192,5 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_ISLIDER_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDEISLIDER_HXX
 

@@ -67,8 +67,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CSTRINGITERATOR_HXX
-#define __INCLUDE_CSTRINGITERATOR_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTRINGITERATOR_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTRINGITERATOR_HXX
 
 /****************************************************************************
  * Included Files
@@ -189,4 +189,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CSTRINGITERATOR_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_INCLUDECSTRINGITERATOR_HXX
