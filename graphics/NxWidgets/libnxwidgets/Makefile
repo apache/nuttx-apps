@@ -1,7 +1,7 @@
 #################################################################################
-# NxWidgets/libnxwidgets/Makefile
+# appx/graphics/NxWidgets/libnxwidgets/Makefile
 #
-#   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2014, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -78,71 +78,7 @@ CXXSRCS += glyph_checkboxmu.cxx glyph_return.cxx glyph_windowdepthup.cxx
 CXXSRCS += glyph_checkboxoff.cxx glyph_screendepthdown.cxx
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-CXXOBJS = $(CXXSRCS:.cxx=$(OBJEXT))
-OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
-
-BIN = libnxwidgets$(LIBEXT)
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 
-DEPPATH = --dep-path src
-VPATH = src
-
-all: check_nuttx $(BIN)
-.PHONY = check_nuttx depend clean distclean export
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS): %$(OBJEXT): %.cxx
-	$(call COMPILEXX, $<, $@)
-
-check_nuttx:
-	$(Q) ( \
-		if [ -z "$(TOPDIR)" ]; then \
-			echo "The path to the nuttx directory must be provided on the command line."; \
-			echo "Usage: make -C $(NXWIDGETDIR) TOPDIR=\"<nuttx directory>\""; \
-			exit 1; \
-		fi; \
-		if [ ! -d "$(TOPDIR)" ]; then \
-			echo "The nuttx directory (TOPDIR) does not exist: $(TOPDIR)"; \
-			exit 1; \
-		fi; \
-		if [ ! -f "$(TOPDIR)$(DELIM).config" ]; then \
-			echo "The nuttx directory (TOPDIR) has not been configured"; \
-			echo "Please configure NuttX and try again"; \
-			exit 1; \
-		fi; \
-	)
-
-$(BIN): $(OBJS)
-	$(call ARCHIVE, $@, $(OBJS))
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-export: $(BIN)
-	zip -r  nxwidgets-export.zip include $(BIN) COPYING
-
--include Make.dep
+include $(APPDIR)/Application.mk

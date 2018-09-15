@@ -1,7 +1,7 @@
 #################################################################################
-# NxWidgets/nxwm/Makefile
+# apps/graphics/NxWidgets/nxwm/Makefile
 #
-#   Copyright (C) 2012, 2014, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014, 2016, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,7 @@
 #
 #################################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-
-# Control build verbosity
-
-ifeq ($(V),1)
-export Q :=
-else
-export Q := @
-endif
 
 NXWMDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 NXWIDGETDIR := $(NXWMDIR)$(DELIM)..$(DELIM)libnxwidgets
@@ -98,77 +89,9 @@ endif
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-CXXOBJS = $(CXXSRCS:.cxx=$(OBJEXT))
-OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
-
-BIN = libnxwm$(LIBEXT)
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 
-APPDIR    = $(TOPDIR)$(DELIM)$(CONFIG_APPS_DIR)
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
-
-DEPPATH = --dep-path src
-VPATH = src
-
-all: check_nuttx $(BIN)
-.PHONY = check_nuttx depend clean distclean export
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS): %$(OBJEXT): %.cxx
-	$(call COMPILEXX, $<, $@)
-
-check_nuttx:
-	$(Q) ( \
-		if [ -z "$(TOPDIR)" ]; then \
-			echo "The path to the nuttx directory must be provided on the command line."; \
-			echo "Usage: make -C $(NXWMDIR) TOPDIR=\"<nuttx directory>\""; \
-			exit 1; \
-		fi; \
-		if [ ! -d "$(TOPDIR)" ]; then \
-			echo "The nuttx directory (TOPDIR) does not exist: $(TOPDIR)"; \
-			exit 1; \
-		fi; \
-		if [ ! -f "$(TOPDIR)$(DELIM).config" ]; then \
-			echo "The nuttx directory (TOPDIR) has not been configured"; \
-			echo "Please configure NuttX and try again"; \
-			exit 1; \
-		fi; \
-	)
-
-$(BIN): $(OBJS)
-	$(call ARCHIVE, $@, $(OBJS))
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(DEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-export: $(BIN)
-	zip -r  nxwm-export.zip include $(BIN) COPYING
-
--include Make.dep
+include $(APPDIR)/Application.mk
