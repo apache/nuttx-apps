@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/cscrollingtextbox.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/cscrollingtextbox.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

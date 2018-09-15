@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/glyph_windowdepthup.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/glyph_windowdepthup.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

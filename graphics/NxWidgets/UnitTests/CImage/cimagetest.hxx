@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CImage/cimagetest.hxx
+// apps/graphics/NxWidgets/UnitTests/CImage/cimagetest.hxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

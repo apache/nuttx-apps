@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/UnitTests/CScrollbarVertical/Makefile
+# apps/graphics/NxWidgets/UnitTests/CScrollbarVertical/Makefile
 #
 #   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

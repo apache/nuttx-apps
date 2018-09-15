@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/glyph_arrowright.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/glyph_arrowright.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

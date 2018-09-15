@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/cnxserver.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/cnxserver.cxx
  *
  *   Copyright (C) 2012, 2013, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

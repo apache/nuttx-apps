@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/glyph_calibration48x42.cxx
+ * apps/graphics/NxWidgets/nxwm/src/glyph_calibration48x42.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

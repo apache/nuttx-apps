@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cglyphsliderhorizontal.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cglyphsliderhorizontal.hxx
  *
  *   Copyright (C) 2013, 2014 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>

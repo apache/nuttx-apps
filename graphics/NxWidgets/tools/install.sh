@@ -1,6 +1,6 @@
 #!/bin/bash
 #################################################################################
-# NxWidgets/tools/install.sh
+# apps/graphics/NxWidgets/tools/install.sh
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -90,7 +90,7 @@ else
 		UNITTEST_DIRPATH="${WD}/UnitTests"
 		TOOLS_DIRPATH="${WD}/tools"
 	else
-		echo "This script must be executed in the NxWidgets or NxWidgets/tools directory"
+		echo "This script must be executed in the NxWidgets or apps/graphics/NxWidgets/tools directory"
 		ShowUsage
 		exit 1
 	fi

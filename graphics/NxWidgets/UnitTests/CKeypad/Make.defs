@@ -1,5 +1,5 @@
 ############################################################################
-# NxWidgets/UnitTests/CKeypad/Make.defs
+# apps/graphics/NxWidgets/UnitTests/CKeypad/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.

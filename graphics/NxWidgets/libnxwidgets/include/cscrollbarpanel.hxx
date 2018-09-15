@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cscrollbarpanel.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cscrollbarpanel.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/glyph_mediaplayer24x24.cxx
+ * apps/graphics/NxWidgets/nxwm/src/glyph_mediaplayer24x24.cxx
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>

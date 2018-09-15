@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/cmediaplayer.hxx
+ * apps/graphics/NxWidgets/nxwm/include/cmediaplayer.hxx
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.

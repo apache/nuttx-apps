@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/ckeyboard.cxx
+ * apps/graphics/NxWidgets/nxwm/src/ckeyboard.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

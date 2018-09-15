@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CKeypad/ckeypadtest.hxx
+// apps/graphics/NxWidgets/UnitTests/CKeypad/ckeypadtest.hxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

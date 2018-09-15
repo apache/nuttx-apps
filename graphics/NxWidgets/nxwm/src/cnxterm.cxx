@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/cnxterm.cxx
+ * apps/graphics/NxWidgets/nxwm/src/cnxterm.cxx
  *
  *   Copyright (C) 2012. 2104 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

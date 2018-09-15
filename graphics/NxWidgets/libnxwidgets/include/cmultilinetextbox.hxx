@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cmultilinetextbox.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cmultilinetextbox.hxx
  *
  *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

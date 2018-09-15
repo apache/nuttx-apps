@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/UnitTests/CLatchButton/Makefile
+# apps/graphics/NxWidgets/UnitTests/CLatchButton/Makefile
 #
 #   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

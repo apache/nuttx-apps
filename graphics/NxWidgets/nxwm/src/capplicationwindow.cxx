@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/capplicationwindow.cxx
+ * apps/graphics/NxWidgets/nxwm/src/capplicationwindow.cxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

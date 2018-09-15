@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/glyph_radiobuttonoff.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/glyph_radiobuttonoff.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

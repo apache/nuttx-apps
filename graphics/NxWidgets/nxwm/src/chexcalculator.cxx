@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/chexcalculator.cxx
+ * apps/graphics/NxWidgets/nxwm/src/chexcalculator.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

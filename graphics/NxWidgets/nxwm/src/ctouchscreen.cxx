@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/ctouchscreen.cxx
+ * apps/graphics/NxWidgets/nxwm/src/ctouchscreen.cxx
  *
  *   Copyright (C) 2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -49,15 +49,6 @@ bitmap_converter.py
   - Save the image as PNG or other lossless format (NOT jpeg).
   - Then generate the image.
 
-indent.sh
----------
-
-  This script uses the Linux 'indent' utility to re-format C source files
-  to match the coding style that I use.  It differs from my coding style in that
-
-  - I normally put the trailing */ of a multi-line comment on a separate line,
-  - I usually align things vertically (like '='in assignments.
-
 install.sh
 ----------
 
@@ -69,9 +60,3 @@ install.sh
     <apps-directory-path> is the full, absolute path to the NuttX apps/ directory
     <test-sub-directory> is the name of a sub-directory in the UnitTests directory
 
-zipme.sh
---------
-
-  Pack up the NxWidgets tarball for release.
-
-  USAGE:  tools/zipme.sh <version>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/ilistdataeventhandler.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/ilistdataeventhandler.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

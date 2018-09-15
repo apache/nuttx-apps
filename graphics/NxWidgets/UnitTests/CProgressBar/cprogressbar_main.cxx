@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CProgressBar/cprogressbar_main.cxx
+// apps/graphics/NxWidgets/UnitTests/CProgressBar/cprogressbar_main.cxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

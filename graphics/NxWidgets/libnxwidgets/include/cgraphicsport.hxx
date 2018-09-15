@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cgraphicsport.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cgraphicsport.hxx
  *
  *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

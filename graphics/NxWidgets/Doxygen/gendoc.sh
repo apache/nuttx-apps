@@ -1,6 +1,6 @@
 #!/bin/bash
 #################################################################################
-# NxWidgets/Doxygen/gendoc.sh
+# apps/graphics/NxWidgets/Doxygen/gendoc.sh
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Jose Pablo Carballo <jcarballo@nx-engineering.com>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/nxconfig.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/nxconfig.hxx
  *
  *   Copyright (C) 2012-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

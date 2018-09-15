@@ -180,7 +180,7 @@ Installing and Building the Unit Tests
 6. Build the NxWM library.
 
    The NxWM library (libnxwm.a) is required only for the NxWM unit test at
-   NxWidgets/UnitTests/nxwm.  For other unit tests, skip to step 7.
+   apps/graphics/NxWidgets/UnitTests/nxwm.  For other unit tests, skip to step 7.
 
      cd <nxwidgets-directory>/nxwm
      make TOPDIR=<nuttx-directory-path>

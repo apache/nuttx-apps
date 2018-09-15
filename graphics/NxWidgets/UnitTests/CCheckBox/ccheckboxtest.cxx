@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CCheckBox/ccheckboxtest.cxx
+// apps/graphics/NxWidgets/UnitTests/CCheckBox/ccheckboxtest.cxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cimage.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cimage.hxx
  *
  *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

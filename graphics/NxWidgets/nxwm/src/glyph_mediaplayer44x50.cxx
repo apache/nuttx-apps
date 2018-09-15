@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/glyph_mediaplayer44x50.cxx
+ * apps/graphics/NxWidgets/nxwm/src/glyph_mediaplayer44x50.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

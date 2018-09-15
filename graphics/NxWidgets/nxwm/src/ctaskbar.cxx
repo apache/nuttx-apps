@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/ctaskbar.cxx
+ * apps/graphics/NxWidgets/nxwm/src/ctaskbar.cxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

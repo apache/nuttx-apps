@@ -1,5 +1,5 @@
 ############################################################################
-# NxWidgets/UnitTests/CImage/Make.defs
+# apps/graphics/NxWidgets/UnitTests/CImage/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.

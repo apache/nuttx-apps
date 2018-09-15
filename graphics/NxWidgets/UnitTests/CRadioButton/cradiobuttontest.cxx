@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CRadioButton/cradiobuttontest.cxx
+// apps/graphics/NxWidgets/UnitTests/CRadioButton/cradiobuttontest.cxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

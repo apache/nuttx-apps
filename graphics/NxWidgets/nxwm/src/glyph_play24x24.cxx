@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/glyph_play24x24.cxx
+ * apps/graphics/NxWidgets/nxwm/src/glyph_play24x24.cxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

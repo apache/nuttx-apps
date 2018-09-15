@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/ctabpanel.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/ctabpanel.hxx
  *
  *   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
  *   Author: Petteri Aimonen <jpa@kapsi.fi>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx
  *
  *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

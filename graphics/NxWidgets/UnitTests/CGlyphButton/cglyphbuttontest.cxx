@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CGlyphButton/cglyphbuttontest.cxx
+// apps/graphics/NxWidgets/UnitTests/CGlyphButton/cglyphbuttontest.cxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/src/ccalibration.cxx
+ * apps/graphics/NxWidgets/nxwm/src/ccalibration.cxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

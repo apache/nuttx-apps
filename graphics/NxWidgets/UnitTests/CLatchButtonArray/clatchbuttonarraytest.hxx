@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CLatchButtonArray/clatchbuttonarraytest.hxx
+// apps/graphics/NxWidgets/UnitTests/CLatchButtonArray/clatchbuttonarraytest.hxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

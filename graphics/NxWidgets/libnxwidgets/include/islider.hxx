@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/islider.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/islider.hxx
  *
  *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

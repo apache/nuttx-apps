@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/UnitTests/CCheckBox/Makefile
+# apps/graphics/NxWidgets/UnitTests/CCheckBox/Makefile
 #
 #   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

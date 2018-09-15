@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cscrollbarvertical.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cscrollbarvertical.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

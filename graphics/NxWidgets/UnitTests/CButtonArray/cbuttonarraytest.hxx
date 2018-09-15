@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CButtonArray/cbuttonarraytest.hxx
+// apps/graphics/NxWidgets/UnitTests/CButtonArray/cbuttonarraytest.hxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

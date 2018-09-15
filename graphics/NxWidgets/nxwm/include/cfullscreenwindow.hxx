@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/cfullscreenwindow.hxx
+ * apps/graphics/NxWidgets/nxwm/include/cfullscreenwindow.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

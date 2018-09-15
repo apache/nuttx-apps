@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/UnitTests/CRadioButton/Makefile
+# apps/graphics/NxWidgets/UnitTests/CRadioButton/Makefile
 #
 #   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

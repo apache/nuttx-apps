@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/keyboard.hxx
+ * apps/graphics/NxWidgets/nxwm/include/keyboard.hxx
  *
  *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

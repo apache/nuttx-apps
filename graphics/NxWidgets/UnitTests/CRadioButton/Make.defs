@@ -1,5 +1,5 @@
 ############################################################################
-# NxWidgets/UnitTests/CRadioButton/Make.defs
+# apps/graphics/NxWidgets/UnitTests/CRadioButton/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.

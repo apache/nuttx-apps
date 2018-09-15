@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CGlyphSliderHorizontal/cglyphsliderhorizontaltest.cxx
+// apps/graphics/NxWidgets/UnitTests/CGlyphSliderHorizontal/cglyphsliderhorizontaltest.cxx
 //
 //   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

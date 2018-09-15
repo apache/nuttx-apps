@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// NxWidgets/UnitTests/CScrollbarVertical/cscrollbarverticaltest.hxx
+// apps/graphics/NxWidgets/UnitTests/CScrollbarVertical/cscrollbarverticaltest.hxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

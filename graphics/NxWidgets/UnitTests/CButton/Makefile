@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/Unitests/CButton/Makefile
+# apps/graphics/NxWidgets/Unitests/CButton/Makefile
 #
 #   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/iapplication.hxx
+ * apps/graphics/NxWidgets/nxwm/include/iapplication.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

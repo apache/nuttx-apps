@@ -1,6 +1,6 @@
 #!/bin/bash
 #################################################################################
-# NxWidgets/tools/addobjs.sh
+# apps/graphics/NxWidgets/tools/addobjs.sh
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

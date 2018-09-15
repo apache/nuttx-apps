@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cscrollinglistbox.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cscrollinglistbox.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

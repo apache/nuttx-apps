@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cwidgetcontrol.hxx
+ * apps/graphics/NxWidgets/libnxwidgets/include/cwidgetcontrol.hxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

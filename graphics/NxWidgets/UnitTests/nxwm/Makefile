@@ -1,5 +1,5 @@
 #################################################################################
-# NxWidgets/Unitests/nxwm/Makefile
+# apps/graphics/NxWidgets/Unitests/nxwm/Makefile
 #
 #   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

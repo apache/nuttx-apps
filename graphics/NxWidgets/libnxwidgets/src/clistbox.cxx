@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/clistbox.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/clistbox.cxx
  *
  *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

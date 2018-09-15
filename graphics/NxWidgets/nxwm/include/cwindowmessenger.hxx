@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/cwindowmessenger.hxx
+ * apps/graphics/NxWidgets/nxwm/include/cwindowmessenger.hxx
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

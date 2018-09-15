@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/src/cslidervertical.cxx
+ * apps/graphics/NxWidgets/libnxwidgets/src/cslidervertical.cxx
  *
  *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
