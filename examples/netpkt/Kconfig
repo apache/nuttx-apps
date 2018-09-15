@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NETPKT
+	tristate "Network packet socket example"
+	default n
+	depends on NET_PKT
+	---help---
+		Enable the network packet socket example
+
+if EXAMPLES_NETPKT
+endif

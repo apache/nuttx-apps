@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_TASKSET
+	tristate "Taskset Command"
+	default n
+	depends on SMP && NSH_LIBRARY && SCHED_WAITPID
+	---help---
+		Enable support for the taskset command.
+
+if SYSTEM_TASKSET
+config SYSTEM_TASKSET_PROGNAME
+	string "Taskset program name"
+	default "taskset"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_TASKSET_PRIORITY
+	int "Taskset task priority"
+	default 50
+
+config SYSTEM_TASKSET_STACKSIZE
+	int "Taskset stack size"
+	default 2048
+
+endif

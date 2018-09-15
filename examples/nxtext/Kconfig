@@ -1,0 +1,127 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXTEXT
+	tristate "NX graphics text example"
+	default n
+	depends on NX
+	---help---
+		Enable the NX graphics text example
+
+if EXAMPLES_NXTEXT
+
+comment "Basic Configuration of the example"
+
+config EXAMPLES_NXTEXT_BPP
+	int "Bits-Per-Pixel"
+	default 32
+	---help---
+		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
+		and 32.  Default is 32.
+
+config EXAMPLES_NXTEXT_BMCACHE
+	int "Character cache size"
+	default 128
+	---help---
+		Size of the character cache.
+
+config EXAMPLES_NXTEXT_GLCACHE
+	int "Glyph cache size"
+	default 16
+	---help---
+		Size of the glyph cache.
+
+config EXAMPLES_NXTEXT_LINESPACING
+	int "Line spacing"
+	default 2
+	range 0 4
+	---help---
+		The vertical distance between lines is the sum of (1) the vertical
+		bounding box dimension of the font, and (2) this additional line
+		space.  This value may be zero, but not negative.
+
+comment "Example Color Configuration"
+
+config EXAMPLES_NXTEXT_DEFAULT_COLORS
+	bool "Use Default Colors"
+	default y
+
+if !EXAMPLES_NXTEXT_DEFAULT_COLORS
+
+config EXAMPLES_NXTEXT_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_BGFONTCOLOR
+	hex "Background font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the background window. Default
+		depends on config EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_PUCOLOR
+	hex "Pop-up color"
+	default 0x0
+	---help---
+		The color of the pop-up window.  Default depends on config
+		EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_PUFONTCOLOR
+	hex "Pop-up font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the pop-up window. Default
+		depends on config EXAMPLES_NXTEXT_BPP.
+
+endif # !EXAMPLES_NXTEXT_DEFAULT_COLORS
+
+comment "Example Font Configuration"
+
+config EXAMPLES_NXTEXT_DEFAULT_FONT
+	bool "Use Default Font"
+	default y
+
+if !EXAMPLES_NXTEXT_DEFAULT_FONT
+
+config EXAMPLES_NXTEXT_BGFONTID
+	int "Background font ID"
+	default 0
+	---help---
+		Selects the font used in the background window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+config EXAMPLES_NXTEXT_PUFONTID
+	int "Pop-up font ID"
+	default 0
+	---help---
+		Selects the font used in the pop-up window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+endif # !EXAMPLES_NXTEXT_DEFAULT_FONT
+
+comment "NX Server Options"
+
+config EXAMPLES_NXTEXT_STACKSIZE
+	int "Listener Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when starting the NX listener.  Default 2048
+
+config EXAMPLES_NXTEXT_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 100.
+
+config EXAMPLES_NXTEXT_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+endif # EXAMPLES_NXTEXT

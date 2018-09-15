@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_GPS
+	tristate "GPS example"
+	default n
+	select GPSUTILS_MINMEA_LIB
+	---help---
+		Enable the gps test example
+
+if EXAMPLES_GPS
+
+config EXAMPLES_GPS_PROGNAME
+	string "Program name"
+	default "gps"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_GPS_PRIORITY
+	int "GPS task priority"
+	default 100
+
+config EXAMPLES_GPS_STACKSIZE
+	int "GPS stack size"
+	default 2048
+
+endif
+

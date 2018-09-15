@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menu "Built-In Applications"
+	depends on BUILTIN
+
+config BUILTIN_PROXY_STACKSIZE
+	int "Builtin Proxy Stack Size"
+	default 1024
+	---help---
+		If exec_builtin uses I/O redirection options, then it will require
+		an intermediary/proxy task to muck with the file descriptors.  This
+		configuration item specifies the stack size used for the proxy. Default:
+		1024 bytes.
+
+endmenu # Built-In Applications

@@ -1,0 +1,65 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ONESHOT
+	tristate "Oneshot timer example"
+	default n
+	depends on ONESHOT
+	---help---
+		Enable the oneshot timer driver example
+
+if EXAMPLES_ONESHOT
+
+config EXAMPLES_ONESHOT_DEVNAME
+	string "Oneshot time device name"
+	default "/dev/oneshot"
+	---help---
+		This is the default name of the timer device that will be tested if
+		one is not specified on the command line.
+
+config EXAMPLES_ONESHOT_DELAY
+	int "Sample delay (microseconds)"
+	default 100000
+	---help---
+		This is the default delay samples in microseconds if one is not
+		specified on the command line
+
+config EXAMPLES_ONESHOT_SIGNO
+	int "Signal number"
+	default 13
+	---help---
+		This is the number of the signal that will be used in the oneshot
+		notification.
+
+config EXAMPLES_ONESHOT_APPNAME
+	string "Oneshot timer executable name"
+	default "oneshot"
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the name of the built-in application
+
+config EXAMPLES_ONESHOT_STACKSIZE
+	int "Oneshot timer stack size"
+	default 2048
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the stack size allocated when the oneshot timer task runs
+
+config EXAMPLES_ONESHOT_PRIORITY
+	int "Oneshot timer task priority"
+	default 100
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the priority of the oneshot timer task
+
+config EXAMPLES_ONESHOT_PROGNAME
+	string "Oneshot timer program name"
+	default "oneshot"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif

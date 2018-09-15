@@ -1,0 +1,63 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_MINIBASIC
+	tristate "Mini Basic Interpreter support"
+	default n
+	select LIBC_FLOATINGPOINT
+	---help---
+		This is a Basic interpreter written by Malcolm McLean
+
+		NOTE: This interpreter requires a usable math.h header file.  By
+		default, the math library (and hence, math.h) are not provided by
+		NuttX.  Therefore, when the Basic code includes math.h it will
+		either fail to find the math.h header file or, worse, will take an
+		incompatible version of math.h from your toolchain.  The toolchain's
+		version of math.h will be incompatible because it will have been
+		implemented to work with a different version of the C library.
+
+		Normally, developers will use an optimized math library for their
+		processor architecture and do the following:
+
+		- Save a customized copy of math.h from your tool chain in
+		  nuttx/arch/<arch>/include
+		- Set CONFIG_ARCH_MATH_H=y in your .config file to select this
+		  architecture-specific math.h header file.
+
+		An option is to use the built-in, generic, unoptimized NuttX math
+		library that is selected by simply by:
+
+		- Set CONFIG_LIBM=y in your .config file
+
+if INTERPRETERS_MINIBASIC
+
+config INTERPRETER_MINIBASIC_PRIORITY
+	int "Basic interpreter priority"
+	default 100
+	---help---
+		Task priority of the Basic interpreter main task
+
+config INTERPRETER_MINIBASIC_STACKSIZE
+	int "Basic interpreter stack size"
+	default 4096
+	---help---
+		Size of the stack allocated for the Basic interpreter main task
+
+config INTERPRETER_MINIBASIC_IOBUFSIZE
+	int "I/O buffer size"
+	default 1024
+	---help---
+		Size of the statically allocated I/O buffer.
+
+config INTERPRETER_MINIBASIC_TESTSCRIPT
+	bool "Test script"
+	default n
+	---help---
+		By default, the path to a basic program must provided on the command
+		line.  It this option is selected, then a built-in, canned script is
+		enabled and will be used if no path is provided on the command line.
+		This canned script can be used for testing purposes.
+
+endif

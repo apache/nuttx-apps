@@ -1,0 +1,112 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXHELLO
+	tristate "NX graphics \"Hello, World!\" example"
+	default n
+	depends on NX
+	select LIB_BOARDCTL
+	---help---
+		Enable the NX graphics \"Hello, World!\" example
+
+if EXAMPLES_NXHELLO
+
+config EXAMPLES_NXHELLO_PROGNAME
+	string "NX Hello Program name"
+	default "nxhello"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NXHELLO_PRIORITY
+	int "NX Hello task priority"
+	default 100
+
+config EXAMPLES_NXHELLO_STACKSIZE
+	int "NX Hello stack size"
+	default 2048
+
+config EXAMPLES_NXHELLO_BPP
+	int "Bits-Per-Pixel"
+	default 32
+	---help---
+		Pixels per pixel to use.  Valid options include 1, 2, 4, 8, 16, 24,
+		and 32.  Default is 32.
+
+comment "Example Color Configuration"
+
+config EXAMPLES_NXHELLO_DEFAULT_COLORS
+	bool "Use Default Colors"
+	default y
+
+if !EXAMPLES_NXHELLO_DEFAULT_COLORS
+
+config EXAMPLES_NXHELLO_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_NXHELLO_BPP.
+
+config EXAMPLES_NXHELLO_FONTCOLOR
+	hex "Background font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the background window. Default
+		depends on config EXAMPLES_NXHELLO_BPP.
+
+endif
+
+comment "Example Font Configuration"
+
+config EXAMPLES_NXHELLO_DEFAULT_FONT
+	bool "Use Default Font"
+	default y
+
+if !EXAMPLES_NXHELLO_DEFAULT_FONT
+
+config EXAMPLES_NXHELLO_FONTID
+	int "Background font ID"
+	default 0
+	---help---
+		Selects the font used in the background window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+endif
+
+comment "NX Server Options"
+
+config EXAMPLES_NXHELLO_LISTENER_STACKSIZE
+	int "NX Server/Listener Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when creating the NX server.  Default 2048
+
+config EXAMPLES_NXHELLO_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+config EXAMPLES_NXHELLO_SERVERPRIO
+	int "Server Priority"
+	default 120
+	---help---
+		The server priority.  Default: 120
+
+config EXAMPLES_NXHELLO_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 80.
+
+config EXAMPLES_NXHELLO_NOTIFYSIGNO
+	int "Notify Signal Number"
+	default 4
+	---help---
+		The signal number to use with nx_eventnotify().  Default: 4
+
+endif

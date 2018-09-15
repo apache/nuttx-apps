@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_SUDOKU
+	tristate "Sudoku"
+	default n
+	select SYSTEM_READLINE
+	---help---
+		Enable the sudoku game.
+
+if SYSTEM_SUDOKU
+
+config SYSTEM_SUDOKU_STACKSIZE
+	int "Sudoku stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the Sudoku task.
+
+config SYSTEM_SUDOKU_PRIORITY
+	int "Sudoku priority"
+	default 100
+	---help---
+		The priority of the Sudoku task.
+
+endif

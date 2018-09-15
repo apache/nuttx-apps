@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_XBC_TEST
+	tristate "XBox Controller Test example"
+	default n
+	---help---
+		Enable the XBox Controller Test example
+
+if EXAMPLES_XBC_TEST
+
+config EXAMPLES_XBC_TEST_PROGNAME
+	string "Program name"
+	default "xbc_test"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_XBC_DEVNAME
+	string "XBox Controller Device Name"
+	default "/dev/xboxa"
+	---help---
+		Name of XBox controller device to be used. Default: "/dev/xboxa"
+
+config EXAMPLES_XBC_TEST_PRIORITY
+	int "Xbc_test task priority"
+	default 100
+
+config EXAMPLES_XBC_TEST_STACKSIZE
+	int "XBox Controller Test stack size"
+	default 2048
+
+endif

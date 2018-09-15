@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WEBSERVER
+	tristate "uIP web server example"
+	default n
+	---help---
+		Enable the uIP web server example
+
+if EXAMPLES_WEBSERVER
+
+config EXAMPLES_WEBSERVER_IPADDR
+	hex "Device IP"
+	default 0x0a000002
+	---help---
+		This is the IP address of your board.
+
+config EXAMPLES_WEBSERVER_DRIPADDR
+	hex "Default Router IP"
+	default 0x0a000001
+	---help---
+		This is the IP address of your router/gateway.
+
+config EXAMPLES_WEBSERVER_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+	---help---
+		This is the network mask to use on this device.
+
+config EXAMPLES_WEBSERVER_NOMAC
+	bool "No hardware MAC"
+	default y
+	---help---
+		Some devices don't have hardware MAC then we need to define a
+		software MAC.
+
+endif

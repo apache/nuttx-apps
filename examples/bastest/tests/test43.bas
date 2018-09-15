@@ -1,0 +1,16 @@
+DIM a(3,3),b(3,1),c(3,3)
+MAT READ a
+MAT READ b
+MAT c=a*b
+MAT PRINT c
+DATA 1,2,3,4,5,6,7,8,9
+DATA 5,3,2
+
+erase b
+DIM b(3)
+RESTORE
+MAT READ a
+MAT READ b
+MAT c=a*b
+MAT PRINT c
+

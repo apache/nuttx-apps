@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TIFF
+	bool "TIFF file generation library"
+	default n
+	---help---
+		Enable support for the TIFF file generation program.
+
+if TIFF
+endif # TIFF
+

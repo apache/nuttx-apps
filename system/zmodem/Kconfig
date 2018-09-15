@@ -1,0 +1,195 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_ZMODEM
+	tristate "Zmodem Commands"
+	default n
+	---help---
+		This selection enables the 'sz' and 'rz' NSH commands.
+
+		NOTE:  Hardware flow control is required on the selected device in
+		order to throttle the rates of data transfer to fit within the
+		allocated buffers.  This cannot be checked here in the configuration
+		because the device that you use may be selected at runtime.
+
+if SYSTEM_ZMODEM
+
+config SYSTEM_ZMODEM_PRIORITY
+	int "rz/sz task priority"
+	default 100
+
+config SYSTEM_ZMODEM_STACKSIZE
+	int "rz/ez stack size"
+	default 2048
+
+config SYSTEM_ZMODEM_DEVNAME
+	string "Default Zmodem device"
+	default "/dev/console"
+	---help---
+		The default device used by the Zmodem commands if the -d option is
+		not provided on the sz or rz command line.  Default:  "/dev/console".
+
+		NOTE:  This device *MUST* support Hardware flow control in order to
+		throttle the rates of data transfer to fit within the allocated buffers.
+
+config SYSTEM_ZMODEM_RCVBUFSIZE
+	int "Receive buffer size"
+	default 512
+	---help---
+		The size of one buffer used to read data from the remote peer.  The
+		total buffering capability is SYSTEM_ZMODEM_RCVBUFSIZE plus the size
+		of the RX buffer in the device driver.  If you are using a serial
+		driver with, say, USART0.  That that buffering capability includes
+		USART0_RXBUFFERSIZE.  This total buffering capability must be
+		significantly larger than SYSTEM_ZMODEM_PKTBUFSIZE (larger due
+		streaming race conditions, data expansion due to escaping, and
+		possible protocol overhead).
+
+config SYSTEM_ZMODEM_PKTBUFSIZE
+	int "Maximum packet size"
+	default 512
+	---help---
+		Data may be received in gulps of varying size and alignment.
+		Received packets data is properly unescaped, aligned and packed
+		into a packet buffer of this size.
+
+config SYSTEM_ZMODEM_SNDBUFSIZE
+	int "Send buffer size"
+	default 512
+	---help---
+		The size of one transmit buffer used for composing messages sent to
+		the remote peer.
+
+config SYSTEM_ZMODEM_MOUNTPOINT
+	string "Zmodem sandbox"
+	default "/tmp"
+	---help---
+		Absolute pathes in received file names are not accepted.  This
+		configuration value must be set to provide the path to the file
+		storage directory (such as a mountpoint directory).
+
+		Names of file send by the sz commond, on the other hand, must be
+		absolute paths beginning with '/'.
+
+config SYSTEM_ZMODEM_FLOWC
+	bool
+	default n
+
+config SYSTEM_ZMODEM_IFLOW
+	bool "Rx flow control"
+	default n
+	select SYSTEM_ZMODEM_FLOWC
+	depends on SERIAL_TERMIOS
+	---help---
+		Enable H/W CTS flow control.
+
+config SYSTEM_ZMODEM_OFLOW
+	bool "Tx flow control"
+	default n
+	select SYSTEM_ZMODEM_FLOWC
+	depends on SERIAL_TERMIOS
+	---help---
+		Enable H/W RTS flow control.
+
+config SYSTEM_ZMODEM_RCVSAMPLE
+	bool "Reverse channel"
+	default n
+	---help---
+		Local sender can sample reverse channel while sending.  This means
+		in particular, that Zmodem can detect if data is received from the
+		remote receiver while streaming a file to the remote receiver.
+		Support for such asychronous incoming data notification is needed to
+		support interruption of the file transfer by the remote receiver.
+
+		This capapability is not yet supported.  There are only incomplete
+		hooks in the code now!  Enable only if you want to see the warning.
+
+config SYSTEM_ZMODEM_SENDATTN
+	bool "Attn interrupt"
+	default n
+	---help---
+		Local sender retains an attention string that will be sent to the remote receiver
+
+		This capapability is not yet supported.  There are only incomplete
+		hooks in the code now!  Enable only if you want to see the warning.
+
+config SYSTEM_ZMODEM_ALWAYSSINT
+	bool "Send ZSINIT"
+	default y
+	---help---
+		Always send ZSINIT header
+
+config SYSTEM_ZMODEM_TIMESTAMPS
+	bool "File timestamps"
+	default y
+	depends on RTC
+	---help---
+		File timestamps may be supported
+
+config SYSTEM_ZMODEM_SENDATTN
+	bool "Send Attn string"
+	default n
+	---help---
+		Send attention string not yet supported
+
+config SYSTEM_ZMODEM_SENDBRAK
+	bool "Can break"
+	default n
+	---help---
+		Can not yet send BREAK
+
+config SYSTEM_ZMODEM_RESPTIME
+	int "Response time"
+	default 10
+	---help---
+		Response time for remote peer to respond to requests.
+
+config SYSTEM_ZMODEM_CONNTIME
+	int "Rz startup time"
+	default 30
+	---help---
+		When rz starts, it must wait a for the remote end to start the file
+		transfer.  This may take longer than the normal response time.  This
+		value may be set to tune that longer timeout value.
+
+config SYSTEM_ZMODEM_SERIALNO
+	int "Serial number"
+	default 0
+	---help---
+		Receiver serial number
+
+config SYSTEM_ZMODEM_MAXERRORS
+	int "Max error"
+	default 20
+	---help---
+		Max receive errors before canceling the transfer.
+
+config SYSTEM_ZMODEM_WRITESIZE
+	int "Write size limit"
+	default 0
+	---help---
+		Some MMC/SD drivers may fail if large transfers are attempted.
+		As a bug workaround, you can set the maximum write size with
+		this configuration.  The default value of 0 means no write limit.
+
+config DEBUG_ZMODEM
+	bool "Zmodem debug"
+	default n
+	---help---
+		Enable Zmodem debug output.  This debug is unrelated to the internal
+		NuttX debug option; it does not use the SYSLOG channel but, instead,
+		outputs debug information on stderr.  Obviously, enabling this
+		option will likely cause you all kinds of problems if you intend to
+		use /dev/console to transfer files!
+
+config SYSTEM_ZMODEM_DUMPBUFFER
+	bool "Dump buffers"
+	default n
+	depends on DEBUG_ZMODEM
+	---help---
+		Dump the contents of all incoming and outgoing buffers that are
+		exchanged with the remote peer.
+
+endif

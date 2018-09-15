@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_CANLIB
+	bool "CAN utility library"
+	default n
+	depends on CAN
+	---help---
+		Enable the CAN utility library
+
+if CANUTILS_CANLIB
+
+endif

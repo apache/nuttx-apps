@@ -1,0 +1,78 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UDGRAM
+	tristate "Unix domain datagram example"
+	default n
+	depends on NET_LOCAL
+	---help---
+		Enable the Unix domain SOCK_DGRAM test example
+
+if EXAMPLES_UDGRAM
+
+config EXAMPLES_UDGRAM_ADDR
+	string "Unix domain address"
+	default "/dev/fifo"
+
+config EXAMPLES_UDGRAM_SERVER_APPNAME
+    string "Server executable name"
+    default "server"
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the name of the built-in server application
+
+config EXAMPLES_UDGRAM_SERVER_STACKSIZE
+    int "Server stack size"
+    default 4096
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the stack size allocated when the server task runs
+
+config EXAMPLES_UDGRAM_SERVER_PRIORITY
+    int "Server task priority"
+    default 100
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the priority of the server task
+
+config EXAMPLES_UDGRAM_SERVER_PROGNAME
+    string "Server program name"
+    default "server"
+    depends on BUILD_LOADABLE
+    ---help---
+        This is the name of the program that will be use when the NSH ELF
+        server program is installed.
+
+config EXAMPLES_UDGRAM_CLIENT_APPNAME
+    string "Client executable name"
+    default "client"
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the name of the built-in client application
+
+config EXAMPLES_UDGRAM_CLIENT_STACKSIZE
+    int "Client stack size"
+    default 4096
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the stack size allocated when the client task runs
+
+config EXAMPLES_UDGRAM_CLIENT_PRIORITY
+    int "Client task priority"
+    default 100
+    depends on NSH_BUILTIN_APPS
+    ---help---
+        This is the priority of the client task
+
+config EXAMPLES_UDGRAM_CLIENT_PROGNAME
+    string "Client program name"
+    default "client"
+    depends on BUILD_LOADABLE
+    ---help---
+        This is the name of the program that will be use when the NSH ELF
+        client program is installed.
+
+
+endif # EXAMPLES_UDGRAM

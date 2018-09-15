@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_ESP8266
+	bool "ESP8266"
+	select ARCH_HAVE_NET
+	default n
+	---help---
+		Enable support for ESP8266 application interface.
+
+if NETUTILS_ESP8266
+
+config NETUTILS_ESP8266_DEV_PATH
+	string "Serial device path"
+	default "/dev/ttyS1"
+
+config NETUTILS_ESP8266_BAUDRATE
+	int "Serial BAUD rate"
+	default 115200
+
+config NETUTILS_ESP8266_MAXTXLEN
+	int "Max. TX length"
+	default 256
+
+config NETUTILS_ESP8266_MAXRXLEN
+	int "Max. RX length"
+	default 256
+
+config NETUTILS_ESP8266_WORKER_BUF_LEN
+	int "Max. Worker RX length"
+	default 256
+
+config NETUTILS_ESP8266_THREADPRIO
+	int "Worker thread priority"
+	default 100
+
+endif

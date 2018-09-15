@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_CALIB_UDELAY
+	tristate "Calibration tool for udelay"
+	default n
+	select CLOCK_MONOTONIC
+	select LIBC_FLOATINGPOINT
+	---help---
+		Note that libm support is also required by this tool.  You
+		may select CONFIG_LIBM to use the NuttX libm if you are not
+		using an external libm.
+
+if EXAMPLES_CALIB_UDELAY
+
+config EXAMPLES_CALIB_UDELAY_NUM_MEASUREMENTS
+	int "Number of measurements to take for each loop iteration count"
+	default 3
+	---help---
+
+config EXAMPLES_CALIB_UDELAY_NUM_RESULTS
+	int "Number of results to generate for calibration slope"
+	default 20
+	---help---
+
+endif

@@ -1,0 +1,850 @@
+#!/usr/bin/wish -f
+#############################################################################
+# apps/graphics/traveler/tools/tcledit/tcl_edit.tk
+#
+#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+#############################################################################
+
+package require Tk
+
+# Control features for each element
+
+proc configentry {w option items} {
+    foreach i $items {
+        $w.$i configure -state $option
+    }
+}
+
+proc configeditplane { w } {
+    global editplane editpoint
+    if {$editplane == "x"} {
+    $w.x configure -state disabled
+    if {($editpoint == "1") || ($editpoint == "2")} {
+        $w.y configure -state normal
+    } else {
+        $w.y configure -state disabled
+    }
+    if {($editpoint == "1") || ($editpoint == "3")} {
+        $w.z configure -state normal
+    } else {
+        $w.z configure -state disabled
+    }
+    }
+    if {$editplane == "y"} {
+    if {($editpoint == "1") || ($editpoint == "2")} {
+        $w.x configure -state normal
+    } else {
+        $w.x configure -state disabled
+    }
+    $w.y configure -state disabled
+    if {($editpoint == "1") || ($editpoint == "3")} {
+        $w.z configure -state normal
+    } else {
+        $w.z configure -state disabled
+    }
+    }
+    if {$editplane == "z"} {
+    if {($editpoint == "1") || ($editpoint == "2")} {
+        $w.x configure -state normal
+    } else {
+        $w.x configure -state disabled
+    }
+    if {($editpoint == "1") || ($editpoint == "3")} {
+        $w.y configure -state normal
+    } else {
+        $w.y configure -state disabled
+    }
+    $w.z configure -state disabled
+    }
+}
+
+proc cget { w option } {
+    return "[lindex [$w configure $option] 4]"
+}
+
+proc bool {w text variable command} {
+    frame $w -relief sunken
+    radiobutton $w.y -text "yes" -variable $variable -value 1 -relief groove -width 3 -command $command
+    radiobutton $w.n -text "no"  -variable $variable -value 0 -relief groove -width 3 -command $command
+    button $w.l -text "$text" -relief groove -anchor w -width 10
+    $w.l configure -activefore [cget $w.l -fg] -activeback [cget $w.l -bg]
+    pack $w.l -side right -fill both -expand on
+    pack $w.n $w.y -side right -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+proc int {w text variable command} {
+    frame $w
+    entry $w.x -relief sunken -borderwidth 2 -textvariable $variable -width 8
+    button $w.l -text "$text" -relief groove -anchor w -width 8
+    $w.l configure -activefore [cget $w.l -fg] -activeback [cget $w.l -bg]
+    pack $w.l -anchor w -side right -fill y
+    pack $w.x -anchor w -side right -fill y
+    pack $w -anchor w -fill both -expand on
+    bind $w.x <Return> "eval \"$command \$$variable\""
+}
+
+proc minimenu {w text variable} {
+    frame $w
+    menubutton $w.x -relief raised -borderwidth 2 -textvariable $variable \
+    -menu $w.x.menu -anchor w -width 8
+    button $w.l -text "$text" -relief groove -anchor w -width 8
+    $w.l configure -activefore [cget $w.l -fg] -activeback [cget $w.l -bg]
+    pack $w.l -anchor w -side right -fill y
+    pack $w.x -anchor w -side right -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+# Report new attributes
+proc newattribute { } {
+    global shaded transparent door
+    global scaleno texture
+    tcl_attributes $shaded$transparent$door $texture $scaleno
+}
+
+# Handle edit mode settings
+proc seteditmode {mode plane} {
+    global editmode editplane
+    global xpos ypos zpos
+    global xpt1 ypt1 zpt1
+    global xpt2 ypt2 zpt2
+    global xpt3 ypt3 zpt3
+    global xpt4 ypt4 zpt4
+    global editwidth editheight
+    global shaded transparent door
+    global scaleno scaling texture
+    set editmode $mode; set editplane $plane
+    tcl_seteditmode $mode $plane
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    set xpt1 $xpos; set xpt2 $xpos; set xpt3 $xpos; set xpt4 $xpos
+    set ypt1 $ypos; set ypt2 $ypos; set ypt3 $ypos; set ypt4 $ypos
+    set zpt1 $zpos; set zpt2 $zpos; set zpt3 $zpos; set zpt4 $zpos
+    }
+    set editwidth 0; set editheight 0
+    set shaded 0; set transparent 0; set door 0
+    set scaleno 0; set scaling 1x; set texture 0
+    tcl_edit "x" $xpos 0
+    tcl_edit "y" $ypos 0
+    tcl_edit "z" $zpos 0
+    newattribute
+}
+
+# Handle changes in scale bars and/or numeric entries
+proc setxscale { xvalue } {
+    global xscale xmin xmax;
+    set screenwidth [expr $xmax - $xmin + 1]
+    set xoffset [expr $xvalue - $xmin]
+    set xscale [expr $xoffset * 32768 / $screenwidth]
+}
+
+proc getxscale { xvalue } {
+    global xmin xmax;
+    set screenwidth [expr $xmax - $xmin + 1]
+    set xoffset [expr $xvalue * $screenwidth / 32768]
+    return [expr $xoffset + $xmin]
+}
+
+proc clipx { xvalue } {
+    global xmin xmax
+    if {$xvalue > $xmax} {
+    set xvalue $xmax
+    }
+    if {$xvalue < $xmin} {
+    set xvalue $xmin
+    }
+    setxscale $xvalue
+    return $xvalue
+}
+
+proc neweditx { xvalue } {
+    global editmode editpoint editwidth
+    global xpt1 xpt2 xpt3 xpt4
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    if {$editpoint == "1"} {
+        if {$xvalue > $xpt2} {
+        set xvalue $xpt2
+        setxscale $xvalue
+        }
+        set xpt1 $xvalue
+        set xpt3 $xvalue
+    } else {
+        if {$xvalue < $xpt1} {
+        set xvalue $xpt1
+        setxscale $xvalue
+        }
+        set xpt2 $xvalue
+        set xpt4 $xvalue
+    }
+    set editwidth [expr $xpt2 - $xpt1]
+    tcl_edit "x" $xpt1 $editwidth
+    } else {
+    if {$editmode == "POS"} {
+        global xpos ypos zpos
+        set xpos $xvalue
+        tcl_position $xpos $ypos $zpos
+    }
+    }
+}
+
+proc newxscale { xvalue } {
+    set xvalue [eval "getxscale $xvalue"]
+    set xvalue [eval "clipx $xvalue"]
+    neweditx $xvalue
+}
+
+proc newxentry { xvarname } {
+    global $xvarname
+    eval "set xvalue \$$xvarname"
+    set xvalue [eval "clipx $xvalue"]
+    neweditx $xvalue
+}
+
+proc setyscale { yvalue } {
+    global yscale ymin ymax;
+    set screenwidth [expr $ymax - $ymin + 1]
+    set yoffset [expr $yvalue - $ymin]
+    set yscale [expr $yoffset * 32768 / $screenwidth]
+}
+
+proc getyscale { yvalue } {
+    global ymin ymax;
+    set screenwidth [expr $ymax - $ymin + 1]
+    set yoffset [expr $yvalue * $screenwidth / 32768]
+    return [expr $yoffset + $ymin]
+}
+
+proc clipy { yvalue } {
+    global ymin ymax
+    if {$yvalue > $ymax} {
+    set yvalue $ymax
+    }
+    if {$yvalue < $ymin} {
+    set yvalue $ymin
+    }
+    setyscale $yvalue
+    return $yvalue
+}
+
+proc newedity { yvalue } {
+    global editmode editplane editpoint editwidth editheight
+    global ypt1 ypt2 ypt3 ypt4
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    if {$editplane == "x"} {
+        if {$editpoint == "1"} {
+        if {$yvalue > $ypt2} {
+            set yvalue $ypt2
+            setyscale $yvalue
+        }
+        set ypt1 $yvalue
+        set ypt3 $yvalue
+        } else {
+        if {$yvalue < $ypt1} {
+            set yvalue $ypt1
+            setyscale $yvalue
+        }
+        set ypt2 $yvalue
+        set ypt4 $yvalue
+        }
+        set editwidth [expr $ypt2 - $ypt1]
+        tcl_edit "y" $ypt1 $editwidth
+    } else {
+        if {$editpoint == "1"} {
+        if {$yvalue > $ypt3} {
+            set yvalue $ypt3
+            setyscale $yvalue
+        }
+        set ypt1 $yvalue
+        set ypt2 $yvalue
+        } else {
+        if {$yvalue < $ypt1} {
+            set yvalue $ypt1
+            setyscale $yvalue
+        }
+        set ypt3 $yvalue
+        set ypt4 $yvalue
+        }
+        set editheight [expr $ypt3 - $ypt1]
+        tcl_edit "y" $ypt1 $editheight
+    }
+    } else {
+    if {$editmode == "POS"} {
+        global xpos ypos zpos
+        set ypos $yvalue
+        tcl_position $xpos $ypos $zpos
+    }
+    }
+}
+
+proc newyscale { yvalue } {
+    set yvalue [eval "getyscale $yvalue"]
+    set yvalue [eval "clipy $yvalue"]
+    newedity $yvalue
+}
+
+proc newyentry { yvarname } {
+    global $yvarname
+    eval "set yvalue \$$yvarname"
+    set yvalue [eval "clipy $yvalue"]
+    newedity $yvalue
+}
+
+proc setzscale { zvalue } {
+    global zscale zmin zmax;
+    set screenwidth [expr $zmax - $zmin + 1]
+    set zoffset [expr $zvalue - $zmin]
+    set zscale [expr $zoffset * 32768 / $screenwidth]
+}
+
+proc getzscale { zvalue } {
+    global zmin zmax;
+    set screenwidth [expr $zmax - $zmin + 1]
+    set zoffset [expr $zvalue * $screenwidth / 32768]
+    return [expr $zoffset + $zmin]
+}
+
+proc clipz { zvalue } {
+    global zmin zmax
+    if {$zvalue > $zmax} {
+    set zvalue $zmax
+    }
+    if {$zvalue < $zmin} {
+    set zvalue $zmin
+    }
+    setzscale $zvalue
+    return $zvalue
+}
+
+proc neweditz { zvalue } {
+    global editmode editpoint editheight
+    global zpt1 zpt2 zpt3 zpt4
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    if {$editpoint == "1"} {
+        if {$zvalue > $zpt3} {
+        set zvalue $zpt3
+        setzscale $zvalue
+        }
+        set zpt1 $zvalue
+        set zpt2 $zvalue
+    } else {
+        if {$zvalue < $zpt1} {
+        set zvalue $zpt1
+        setzscale $zvalue
+        }
+        set zpt3 $zvalue
+        set zpt4 $zvalue
+    }
+    set editheight [expr $zpt3 - $zpt1]
+    tcl_edit "z" $zpt1 $editheight
+    } else {
+    if {$editmode == "POS"} {
+        global xpos ypos zpos
+        set zpos $zvalue
+        tcl_position $xpos $ypos $zpos
+    }
+    }
+}
+
+proc newzscale { zvalue } {
+    set zvalue [eval "getzscale $zvalue"]
+    set zvalue [eval "clipz $zvalue"]
+    neweditz $zvalue
+}
+
+proc newzentry { zvarname } {
+    global $zvarname
+    eval "set zvalue \$$zvarname"
+    set zvalue [eval "clipz $zvalue"]
+    neweditz $zvalue
+}
+
+# changes to with and height settings
+proc newwidth { width } {
+    global editmode editplane editpoint editwidth
+    global xmax xpt1 xpt2 xpt3 xpt4
+    global ymax ypt1 ypt2 ypt3 ypt4
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    if {$width < 0} {
+        set editwidth 0
+        set width 0
+    }
+    switch -exact -- $editplane {
+        x {
+        set ypt2 [expr $ypt1 + $width]
+        if {$ypt2 > $ymax} {
+            set ypt2 $ymax
+            set editwidth [expr $ypt2 - $ypt1]
+        }
+        set ypt3 $ypt1
+        set ypt4 $ypt2
+        if {$editpoint == "2"} {
+            setyscale $ypt2
+        }
+        tcl_edit "y" $ypt1 $editwidth
+        }
+        default {
+        set xpt2 [expr $xpt1 + $width]
+        if {$xpt2 > $xmax} {
+            set xpt2 $xmax
+            set editwidth [expr $xpt2 - $xpt1]
+        }
+        set xpt3 $xpt1
+        set xpt4 $xpt2
+        if {$editpoint == "2"} {
+            setxscale $xpt2
+        }
+        tcl_edit "x" $xpt1 $editwidth
+        }
+    }
+    }
+}
+
+proc newheight { height } {
+    global editmode editplane editpoint editheight
+    global xmax xpt1 xpt2 xpt3 xpt4
+    global ymax ypt1 ypt2 ypt3 ypt4
+    global zmax zpt1 zpt2 zpt3 zpt4
+    if {($editmode == "NEW") || ($editmode == "EDIT")} {
+    if {$height < 0} {
+        set editheight 0
+        set height 0
+    }
+    switch -exact -- $editplane {
+        z {
+        set ypt3 [expr $ypt1 + $height]
+        if {$ypt3 > $ymax} {
+            set ypt3 $ymax
+            set editheight [expr $ypt3 - $ypt1]
+        }
+        set ypt2 $ypt1
+        set ypt4 $ypt3
+        if {$editpoint == "3"} {
+            setyscale $ypt3
+        }
+        tcl_edit "y" $ypt1 $editheight
+        }
+        default {
+        set zpt3 [expr $zpt1 + $height]
+        if {$zpt3 > $zmax} {
+            set zpt3 $zmax
+            set editheight [expr $zpt3 - $zpt1]
+        }
+        set zpt2 $zpt1
+        set zpt4 $zpt3
+        if {$editpoint == "3"} {
+            setzscale $zpt3
+        }
+        tcl_edit "z" $zpt1 $editheight
+        }
+    }
+    }
+}
+
+proc newscale { scale } {
+    global scaleno
+    set scaleno $scale
+    newattribute
+}
+
+proc newtexture { value } {
+    newattribute
+}
+
+proc newzoom { newzoom } {
+    global xscale xmin xmax xpos
+    global yscale ymin ymax ypos
+    global zscale zmin zmax zpos
+    set tmpxscale [eval "getxscale $xscale"]
+    set tmpyscale [eval "getyscale $yscale"]
+    set tmpzscale [eval "getzscale $zscale"]
+    set screenwidth [expr 32768 / $newzoom]
+    set halfwidth [expr $screenwidth / 2]
+    if { $xpos < $halfwidth } {
+    set xmin 0
+    set xmax [expr $screenwidth - 1]
+    } else {
+    if { [expr $xpos + $halfwidth] > 32767 } {
+        set xmax 32767
+        set xmin [expr $xmax - $screenwidth]
+    } else {
+        set xmin [expr $xpos - $halfwidth]
+        set xmax [expr $xmin + $screenwidth - 1]
+    }
+    }
+    if { $ypos < $halfwidth } {
+    set ymin 0
+    set ymax [expr $screenwidth - 1]
+    } else {
+    if { [expr $ypos + $halfwidth] > 32767 } {
+        set ymax 32767
+        set ymin [expr $ymax - $screenwidth]
+    } else {
+        set ymin [expr $ypos - $halfwidth]
+        set ymax [expr $ymin + $screenwidth - 1]
+    }
+    }
+    if { $zpos < $halfwidth } {
+    set zmin 0
+    set zmax [expr $screenwidth - 1]
+    } else {
+    if { [expr $zpos + $halfwidth] > 32767 } {
+        set zmax 32767
+        set zmin [expr $zmax - $screenwidth]
+    } else {
+        set zmin [expr $zpos - $halfwidth]
+        set zmax [expr $zmin + $screenwidth - 1]
+    }
+    }
+    setxscale $tmpxscale
+    setyscale $tmpyscale
+    setzscale $tmpzscale
+    tcl_zoom $screenwidth $xmin $ymin $zmin
+}
+
+# Set slider variables
+proc setvars { xvar yvar zvar } {
+    global $xvar $yvar $zvar
+    eval "setxscale \$$xvar"
+    eval "setyscale \$$yvar"
+    eval "setzscale \$$zvar"
+}
+
+# Setup to control position world
+proc selectpos {} {
+    global xpos ypos zpos
+    setvars xpos ypos zpos
+    configentry .c.scale normal {x y z}
+    configentry .c.coords.edt1 disabled {pos edit add del}
+    configentry .c.coords.edt2 normal {newx newy newz save}
+    configentry .c.coords.pt1 disabled {b}
+    configentry .c.coords.pos normal {x y z}
+    configentry .c.coords.pt1 disabled {b x y z}
+    configentry .c.coords.pt2 disabled {b x y z}
+    configentry .c.coords.pt3 disabled {b x y z}
+    configentry .c.coords.pt4 disabled {b x y z}
+    configentry .c.edit.edt3.w disabled {x l}
+    configentry .c.edit.edt3.h disabled {x l}
+    configentry .c.edit.edt4.shaded disabled {y n l}
+    configentry .c.edit.edt4.transp disabled {y n l}
+    configentry .c.edit.edt4.door disabled {y n l}
+    configentry .c.edit.edt5.scale disabled {x l}
+    configentry .c.edit.edt5.zoom normal {x l}
+    configentry .c.edit.edt5.texture disabled {x l}
+    seteditmode "POS" "ALL"
+}
+
+# Configure for edit mode
+proc configedit { mode plane } {
+    global xnull ynull znull
+    global editpoint
+    setvars xnull ynull znull
+    configentry .c.scale disabled {x y z}
+    configentry .c.coords.edt1 normal {pos add}
+    configentry .c.coords.edt1 disabled {edit del}
+    configentry .c.coords.edt2 disabled {newx newy newz save}
+    configentry .c.coords.pos normal {b}
+    configentry .c.coords.pos disabled {x y z}
+    configentry .c.coords.pt1 normal {b}
+    configentry .c.coords.pt1 disabled {x y z}
+    configentry .c.coords.pt2 normal {b}
+    configentry .c.coords.pt2 disabled {x y z}
+    configentry .c.coords.pt3 normal {b}
+    configentry .c.coords.pt3 disabled {x y z}
+    configentry .c.coords.pt4 disabled {b x y z}
+    configentry .c.edit.edt3.w normal {x l}
+    configentry .c.edit.edt3.h normal {x l}
+    configentry .c.edit.edt4.shaded normal {y n l}
+    configentry .c.edit.edt4.transp normal {y n l}
+    configentry .c.edit.edt4.door normal {y n l}
+    configentry .c.edit.edt5.scale normal {x l}
+    configentry .c.edit.edt5.zoom normal {x l}
+    configentry .c.edit.edt5.texture normal {x l}
+    seteditmode $mode $plane
+    set editpoint "NONE"
+}
+
+# Setup to add a new plane
+proc selectnew { plane } {
+    configedit "NEW" $plane
+}
+
+# Setup to edit the selected plane
+proc selectedit {} {
+    configedit "EDIT" "NONE"
+}
+
+# Add the current plane
+proc selectadd {} {
+    tcl_addrectangle
+    selectpos
+}
+
+# Setup to delete the selected plane
+proc selectdel {} {
+}
+
+# Select to control point 1-4 of the rectangle
+proc selectpt1 {} {
+    global xpt1 ypt1 zpt1
+    global editpoint
+    setvars xpt1 ypt1 zpt1
+    set editpoint "1"
+    configeditplane .c.scale
+    configentry .c.coords.pos disabled {x y z}
+    configentry .c.coords.pt1 disabled {b}
+    configeditplane .c.coords.pt1
+    configentry .c.coords.pt2 normal {b}
+    configentry .c.coords.pt2 disabled {x y z}
+    configentry .c.coords.pt3 normal {b}
+    configentry .c.coords.pt3 disabled {x y z}
+    configentry .c.coords.pt4 disabled {b x y z}
+}
+
+proc selectpt2 {} {
+    global xpt2 ypt2 zpt2
+    global editpoint
+    setvars xpt2 ypt2 zpt2
+    set editpoint "2"
+    configeditplane .c.scale
+    configentry .c.coords.pos disabled {x y z}
+    configentry .c.coords.pt1 normal {b}
+    configentry .c.coords.pt1 disabled {x y z}
+    configentry .c.coords.pt2 disabled {b}
+    configeditplane .c.coords.pt2
+    configentry .c.coords.pt3 normal {b}
+    configentry .c.coords.pt3 disabled {x y z}
+    configentry .c.coords.pt4 disabled {b x y z}
+}
+
+proc selectpt3 {} {
+    global xpt3 ypt3 zpt3
+    global editpoint
+    setvars xpt3 ypt3 zpt3
+    set editpoint "3"
+    configeditplane .c.scale
+    configentry .c.coords.pos disabled {x y z}
+    configentry .c.coords.pt1 normal {b}
+    configentry .c.coords.pt1 disabled {x y z}
+    configentry .c.coords.pt2 normal {b}
+    configentry .c.coords.pt2 disabled {x y z}
+    configentry .c.coords.pt3 disabled {b}
+    configeditplane .c.coords.pt3
+    configentry .c.coords.pt4 disabled {b x y z}
+}
+
+proc selectpt4 {} {
+    puts stderr "ERROR: We should never get here"
+}
+
+# Create one coordinate set
+proc coords { w label xvar yvar zvar command } {
+    global $xvar $yvar $zvar
+    frame $w
+    button $w.b -width 6 -text "$label" -relief raised -command "$command"
+    entry $w.x -width 8 -relief sunken -borderwidth 2 -textvariable $xvar
+    entry $w.y -width 8 -relief sunken -borderwidth 2 -textvariable $yvar
+    entry $w.z -width 8 -relief sunken -borderwidth 2 -textvariable $zvar
+    pack $w.b -anchor w -side top -fill y
+    pack $w.x -anchor w -side top -fill y
+    pack $w.y -anchor w -side top -fill y
+    pack $w.z -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+    bind $w.x <Return> "newxentry $xvar"
+    bind $w.y <Return> "newyentry $yvar"
+    bind $w.z <Return> "newzentry $zvar"
+}
+
+# Create edit buttons
+proc edit1 { w } {
+    frame $w
+    button $w.pos -width 8 -text "POS" -relief raised -command selectpos
+    button $w.edit -width 8 -text "EDIT" -relief raised -command selectedit
+    button $w.add -width 8 -text "ADD" -relief raised -command selectadd
+    button $w.del -width 8 -text "DEL" -relief raised -command selectdel
+    pack $w.pos -anchor w -side top -fill y
+    pack $w.edit -anchor w -side top -fill y
+    pack $w.add -anchor w -side top -fill y
+    pack $w.del -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+proc edit2 { w } {
+    frame $w
+    button $w.newx -width 8 -text "NEWX" -relief raised -command "selectnew x"
+    button $w.newy -width 8 -text "NEWY" -relief raised -command "selectnew y"
+    button $w.newz -width 8 -text "NEWZ" -relief raised -command "selectnew z"
+    button $w.save -width 8 -text "SAVE" -relief raised -command tcl_save
+    pack $w.newx -anchor w -side top -fill y
+    pack $w.newy -anchor w -side top -fill y
+    pack $w.newz -anchor w -side top -fill y
+    pack $w.save -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+proc edit3 { w } {
+    global editwidth editheight
+    frame $w
+    int $w.w "Width" editwidth newwidth
+    int $w.h "Height" editheight newheight
+    pack $w.w -anchor w -side top -fill y
+    pack $w.h -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+proc edit4 { w } {
+    global shaded transparent door
+    frame $w
+    bool $w.shaded "Shaded" shaded newattribute
+    bool $w.transp "Transparent" transparent newattribute
+    bool $w.door "Door" door newattribute
+    pack $w.shaded -anchor w -side top -fill y
+    pack $w.transp -anchor w -side top -fill y
+    pack $w.door -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+proc edit5 { w } {
+    global scaling
+    global zoom
+    frame $w
+    minimenu $w.scale "Scale" scaling
+    menu $w.scale.x.menu -title "Scaling"
+    $w.scale.x.menu add radiobutton -label "1x" -variable scaling \
+    -value "1x" -command "newscale 0"
+    $w.scale.x.menu add radiobutton -label "2x" -variable scaling \
+    -value "2x" -command "newscale 1"
+    $w.scale.x.menu add radiobutton -label "4x" -variable scaling \
+    -value "4x" -command "newscale 2"
+    minimenu $w.zoom "Zoom" zoom
+    menu $w.zoom.x.menu -title "Zoom"
+    $w.zoom.x.menu add radiobutton -label "1x" -variable zoom \
+    -value "1x" -command "newzoom 1"
+    $w.zoom.x.menu add radiobutton -label "2x" -variable zoom \
+    -value "2x" -command "newzoom 2"
+    $w.zoom.x.menu add radiobutton -label "4x" -variable zoom \
+    -value "4x" -command "newzoom 4"
+    $w.zoom.x.menu add radiobutton -label "8x" -variable zoom \
+    -value "8x" -command "newzoom 8"
+    $w.zoom.x.menu add radiobutton -label "16x" -variable zoom \
+    -value "16x" -command "newzoom 16"
+    $w.zoom.x.menu add radiobutton -label "32x" -variable zoom \
+    -value "32x" -command "newzoom 32"
+    $w.zoom.x.menu add radiobutton -label "64x" -variable zoom \
+    -value "64x" -command "newzoom 64"
+    $w.zoom.x.menu add radiobutton -label "128x" -variable zoom \
+    -value "128x" -command "newzoom 128"
+    int $w.texture "Texture" texture newtexture
+    pack $w.scale -anchor w -side top -fill y
+    pack $w.zoom -anchor w -side top -fill y
+    pack $w.texture -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+# Create Bottom part of edit controls
+proc xyzedit { w } {
+    frame $w
+    edit3 $w.edt3
+    edit4 $w.edt4
+    edit5 $w.edt5
+    pack $w.edt3 -anchor w -side left -fill y
+    pack $w.edt4 -anchor w -side left -fill y
+    pack $w.edt5 -anchor w -side left -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+# Create middle part of edit controls
+proc xyzcoords { w } {
+    global xpos ypos zpos
+    global xpt1 ypt1 zpt1
+    global xpt2 ypt2 zpt2
+    global xpt3 ypt3 zpt3
+    global xpt4 ypt4 zpt4
+    frame $w
+    coords $w.pos "POS" xpos ypos zpos selectpos
+    coords $w.pt1 "PT 1" xpt1 ypt1 zpt1 selectpt1
+    coords $w.pt2 "PT 2" xpt2 ypt2 zpt2 selectpt2
+    coords $w.pt3 "PT 3" xpt3 ypt3 zpt3 selectpt3
+    coords $w.pt4 "PT 4" xpt4 ypt4 zpt4 selectpt4
+    edit1 $w.edt1
+    edit2 $w.edt2
+    pack $w.pos -anchor w -side left -fill y
+    pack $w.pt1 -anchor w -side left -fill y
+    pack $w.pt2 -anchor w -side left -fill y
+    pack $w.pt3 -anchor w -side left -fill y
+    pack $w.pt4 -anchor w -side left -fill y
+    pack $w.edt1 -anchor w -side left -fill y
+    pack $w.edt2 -anchor w -side left -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+# Create sliders in upper part of edit controls
+proc xyzscale { w } {
+    global xscale yscale zscale
+    frame $w
+    scale $w.x -from 0 -to 32767 -length 512 -variable xscale \
+    -orient horizontal -showvalue false -command "newxscale"
+    scale $w.y -from 0 -to 32767 -length 512 -variable yscale \
+    -orient horizontal -showvalue false -command "newyscale"
+    scale $w.z -from 0 -to 32767 -length 512 -variable zscale \
+    -orient horizontal -showvalue false -command "newzscale"
+    pack $w.x -anchor w -side top -fill y
+    pack $w.y -anchor w -side top -fill y
+    pack $w.z -anchor w -side top -fill y
+    pack $w -anchor w -fill both -expand on
+}
+
+# Create edit controls
+proc editcontrols { w } {
+    frame $w
+    xyzscale $w.scale
+    xyzcoords $w.coords
+    xyzedit $w.edit
+    pack $w.scale -side top -fill both -expand true
+    pack $w.coords -side top -fill both -expand true
+    pack $w -side top -fill both -expand true
+}
+
+set xnull 0; set ynull 0; set znull 0
+set xpos 16384; set ypos 16384; set zpos 16384
+set zcurrent zpos
+set xpt1 0; set ypt1 0; set zpt1 0
+set xpt2 0; set ypt2 0; set zpt2 0
+set xpt3 0; set ypt3 0; set zpt3 0
+set xpt4 0; set ypt4 0; set zpt4 0
+set editwidth 0; set editheight 0
+set shaded 0; set transparent 0; set door 0
+set scaleno 0; set scaling 1x; set zoom 1x; set texture 0
+set xmin 0; set xmax 32767
+set ymin 0; set ymax 32767
+set zmin 0; set zmax 32767
+
+editcontrols .c
+selectpos

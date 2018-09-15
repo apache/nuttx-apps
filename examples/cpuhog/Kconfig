@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CPUHOG
+	tristate "CPU hog"
+	default n
+	depends on PIPES
+	---help---
+		Enable the cpuhog example
+
+if EXAMPLES_CPUHOG
+
+config EXAMPLES_CPUHOG_STACKSIZE
+	int "CPU hog stack size"
+	default 2048
+
+config EXAMPLES_CPUHOG_PRIORITY
+	int "CPU hog task priority"
+	default 50
+
+endif

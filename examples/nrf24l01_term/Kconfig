@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NRF24L01TERM
+	tristate "Basic nRF24L01 terminal"
+	default n
+	depends on DRIVERS_WIRELESS
+
+if EXAMPLES_NRF24L01TERM
+endif

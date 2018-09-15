@@ -1,0 +1,160 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_EMBEDLOG
+	bool "embedlog library"
+	default n
+	---help---
+		Highly configurable logger for embedded devices. Documentation and
+		more info available on: https://embedlog.kurwinet.pl (don't worry,
+		it's in english). Note: none of the options define how embedlog
+		will behave, it will simply configure whether given feature can be
+		enabled in runtime or no. So enabling CONFIG_EMBEDLOG_ENABLE_TIMESTAMP
+		won't make logger to add timestamp to every message - you will have to
+		also enable timestamp in runtime object. But when
+		CONFIG_EMBEDLOG_ENABLE_TIMESTAMP is disabled, setting timestamp print
+		in runtime will make no difference and timestamp still will not be
+		printed.
+
+		Library is licensed under BSD 2-clause license. See LICENSE file in
+		the downloaded code for license details
+
+if SYSTEM_EMBEDLOG
+
+config EMBEDLOG_ENABLE_OUT_FILE
+	bool "Enable logging to file"
+	default n
+	---help---
+		If enabled, you will be able to store logs in a file (like on
+		sdcard). Log rotation is available as well. LIbrary automatically
+		handles cases when files are deleted or mountpoint disappears and
+		appear again (like sd card switch). Disabling this will result in
+		smaller code.
+
+if EMBEDLOG_ENABLE_OUT_FILE
+
+config EMBEDLOG_ENABLE_BINARY_LOGS
+	bool "Enable binary logs"
+	default n
+	---help---
+		When enabled, you will be able to print binary data into file
+		to save space (on block device). Note: you will not be able to
+		read such logs with tools like 'less' or 'grep'. You will need to
+		create own reader or use 'hexdump'.
+
+endif
+
+config EMBEDLOG_ENABLE_OUT_STDERR
+	bool "Enable logging to standard error"
+	default y
+	---help---
+		If enabled, you will be able to log messages to standard error.
+
+config EMBEDLOG_ENABLE_OUT_TTY
+	bool "Enable printing to tty device"
+	default y
+	---help---
+		If enabled, you will be able to configure logger to print directly
+		to tty serial device (like /dev/ttyS1). This might be usefull if you
+		want to have nsh in one tty and logs on the other. This is suitable
+		if only one task will be printing logs to one tty, if you want
+		multiple tasks to print into one tty, it's better to enable syslog
+		printing and the syslog handle it.
+
+config EMBEDLOG_ENABLE_OUT_CUSTOM
+	bool "Enable custom logging function"
+	default n
+	---help---
+		When enabled, you will be able to define own function that accepts
+		fully constructed log message as 'const char *'
+
+config EMBEDLOG_ENABLE_TIMESTAMP
+	bool "Enable timestamp in messages"
+	default y
+	---help---
+		If enabled, you will be able to configure logger to add timestamp to
+		every loged message.
+
+if EMBEDLOG_ENABLE_TIMESTAMP
+
+config EMBEDLOG_ENABLE_FRACTIONS
+	bool "Enable fractions of seconds"
+	default y
+	---help---
+		If enabled, you will be able to configure logger to add fractions of
+		seconds to timestamp
+
+endif
+
+config EMBEDLOG_ENABLE_PREFIX
+	bool "Enable prefix"
+	default n
+	---help---
+		If enabled, you will be able to set prefix that will be added to
+		each message logged by embedlog. Usefull when multiple tasks print
+		to one tty (via syslog) and you need an easy way to know which program
+		printed given log message.
+
+if EMBEDLOG_ENABLE_PREFIX
+
+config EMBEDLOG_PREFIX_MAX
+	int "Max prefix length"
+	default 16
+	---help---
+		Maximum length of prefix that can be printed. If prefix exceeds this
+		value it will be truncated.
+
+endif #EMBEDLOG_ENABLE_PREFIX
+
+config EMBEDLOG_ENABLE_FINFO
+	bool "Enable file info"
+	default y
+	---help---
+		If enabled, you will be able to turn on information about location
+		of the log. This uses __FILE__ and __LINE__ macros.
+
+if EMBEDLOG_ENABLE_FINFO
+
+config EMBEDLOG_FLEN_MAX
+	int "max file name in finfo"
+	default 16
+	---help---
+		finfo look like this
+
+			[filename.c:123]
+
+		this parameter defines how long "filename.c" can be, if file name
+		exceeds this value it will be truncated.
+
+endif # EMBEDLOG_ENABLE_FINFO
+
+config EMBEDLOG_ENABLE_COLORS
+	bool "Enable output colors"
+	default n
+	---help---
+		If enabled, you will be able to turn on ANSI colors for messages
+		with different log severities. Disabling this will result in smaller
+		code.
+
+config EMBEDLOG_LOG_MAX
+	int "Max length of log message"
+	default 128
+	---help---
+		Maximum length of single log message. This defines length of finall
+		message, so message "foo() returned %s" may consume for example
+		200 bytes since '%s' may be a long string. Metadata like timestamp
+		or file info uses this space too. Output log will be truncated if
+		it exceeds this value. Lowering/increasing will result in
+		apropriate higher/lower stack usage.
+
+config EMBEDLOG_MEM_LINE_SIZE
+	int "Number of bytes in line"
+	default 16
+	---help---
+		How many bytes of memory to print in a single line of el_pmemory call.
+		Check https://embedlog.kurwinet.pl/manuals/el_pmemory.3.html
+		for more information about this.
+
+endif # SYSTEM_EMBEDLOG

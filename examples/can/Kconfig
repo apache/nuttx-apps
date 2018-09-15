@@ -1,0 +1,52 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CAN
+	tristate "CAN example"
+	default n
+	depends on CAN
+	---help---
+		Enable the CAN example
+
+if EXAMPLES_CAN
+
+config EXAMPLES_CAN_DEVPATH
+	string "Device Path"
+	default "/dev/can0"
+	---help---
+		The device path
+
+config EXAMPLES_CAN_NMSGS
+	int "Number of Messages"
+	default 32
+	depends on NSH_BUILTIN_APPS
+	---help---
+		The number of CAN messages to send before returning
+
+choice
+	prompt "Read-only, write-only or read-write"
+	default EXAMPLES_CAN_READWRITE
+	---help---
+		Choose to only read, only write, or read and write CAN messages
+
+config EXAMPLES_CAN_READ
+	bool "Read-only"
+	---help---
+		Only read CAN messages
+
+config EXAMPLES_CAN_WRITE
+	bool "Write-only"
+	---help---
+		Only write CAN messages
+
+config EXAMPLES_CAN_READWRITE
+	bool "Read-write"
+	---help---
+		Read and write CAN messages
+
+endchoice
+
+endif
+

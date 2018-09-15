@@ -1,0 +1,83 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GRAPHICS_FT80X
+	bool "FTDI/BridgeTek FT80x library"
+	default n
+	---help---
+		Enable support for the FTDI/BridgeTek FT80x library.
+
+if GRAPHICS_FT80X
+
+config GRAPHICS_FT80X_BUFSIZE
+	int "I/O buffer size"
+	default 512
+	range 32 8192
+	---help---
+		The size of the local display list I/O buffer.  Bigger is better!
+		This size should be an even multiple of 4 bytes (otherwise, the size
+		will be truncated to the next lower, aligned size).
+
+config GRAPHICS_FT80X_CMDEMPTY_SIGNAL
+	int "CMDEMPTY event signal"
+	default 18
+	range 1 31
+	---help---
+		This is the signal that will be received when the co-processor CMD
+		FIFO becomes empty.
+
+config GRAPHICS_FT80X_TAG_SIGNAL
+	int "TAG event signal"
+	default 19
+	range 1 31
+	---help---
+		This is the signal that will be received when the co-processor the
+		detected touch tag changes.
+
+config GRAPHICS_FT80X_AUDIO_BUFOFFSET
+	hex "RAM G audio buffer start offset"
+	default 0x00000
+	range 0x00000 0x3f800
+	---help---
+		When playing an audio file, chunks of the audio file will be stored
+		in a circular buffer in graphics RAM (RAMG G, 256Kb).
+
+		CONFIG_GRAPHICS_FT80X_AUDIO_BUFOFFSET is the starting offset in RAM G
+		for that buffer and CONFIG_FT80x_AUDIO_BUFSIZE is the size of the
+		buffer.
+
+		The buffer may, of course, be used for other purposes when not
+		playing an audio file.
+
+config GRAPHICS_FT80X_AUDIO_BUFSIZE
+	hex "RAM G audio buffer size"
+	default 0x10000
+	range 0x00800 0x38000
+	---help---
+		When playing an audio file, chunks of the audio file will be stored
+		in a circular buffer in graphics RAM (RAMG G, 256Kb).
+
+		CONFIG_GRAPHICS_FT80X_AUDIO_BUFOFFSET is the starting offset in RAM G
+		for that buffer and CONFIG_FT80x_AUDIO_BUFSIZE is the size of the
+		buffer.
+
+		The buffer may, of course, be used for other purposes when not
+		playing an audio file.
+
+config GRAPHICS_FT80X_DEBUG_ERROR
+	bool "Enable error output"
+	default y
+
+config GRAPHICS_FT80X_DEBUG_WARN
+	bool "Enable warning output"
+	default n
+	depends on GRAPHICS_FT80X_DEBUG_ERROR
+
+config GRAPHICS_FT80X_DEBUG_INFO
+	bool "Enable informational output"
+	default n
+	depends on GRAPHICS_FT80X_DEBUG_WARN
+
+endif # GRAPHICS_FT80X

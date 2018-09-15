@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_FLASH_ERASEALL
+	tristate "FLASH Erase-all Command"
+	default n
+	depends on MTD && NSH_BUILTIN_APPS
+	select FSUTILS_FLASH_ERASEALL
+	---help---
+		Enable support for the FLASH eraseall tool.
+
+if SYSTEM_FLASH_ERASEALL
+endif
+

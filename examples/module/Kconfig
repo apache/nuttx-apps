@@ -1,0 +1,152 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MODULE
+	tristate "Module Example"
+	default n
+	depends on MODULE && LIB_BOARDCTL
+	select BOARDCTL_OS_SYMTAB
+	---help---
+		Enable the module example
+
+if EXAMPLES_MODULE
+
+config EXAMPLES_MODULE_BUILTINFS
+	bool "Built-in File System"
+	default y
+	depends on (FS_ROMFS || FS_CROMFS) && BUILD_FLAT
+	---help---
+		This example supports a very, non-standard but also very convenient
+		way of testing with example using CONFIG_EXAMPLES_MODULE_BUILTINFS.
+		If this option is selected, the test modules will be built,
+		installed in the module/lib/fsroot, then converted to a built-in
+		ROMFS file system.
+
+		When the test runs, it will automatically create the ROMFS block
+		device and mount the test modules for testing.
+
+		If this option is not selected, then the modules will be left in
+		the fsroot/ directory.  You can then copy them to, say an SD card,
+		for testing on the target.  That file system will need to be mounted
+		such that CONFIG_EXAMPLES_MODULE_BINDIR refers to the directory
+		containing the module binaries (unless the file system is auto-
+		mounted)
+
+		NOTE: This option can only be used in the FLAT build mode because
+		it makes an illegal OS call to ramdisk_register().
+
+choice
+	prompt "Built-in file system type"
+	default EXAMPLES_MODULE_ROMFS  if  FS_ROMFS
+	default EXAMPLES_MODULE_CROMFS if !FS_ROMFS && FS_CROMFS
+	depends on EXAMPLES_MODULE_BUILTINFS
+
+config EXAMPLES_MODULE_ROMFS
+	bool "ROMFS"
+	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		 Automatically generates and mounts an internal ROMFS file
+		 system
+
+config EXAMPLES_MODULE_CROMFS
+	bool "CROMFS"
+	depends on FS_CROMFS && BUILD_FLAT
+	 ---help---
+		 Automatically generates and mounts an internal CROMFS file
+		 system
+
+endchoice # Built-in file system type
+
+config EXAMPLES_MODULE_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	depends on EXAMPLES_MODULE_ROMFS
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the MODULE executables to be tested.  Default: 0
+
+config EXAMPLES_MODULE_FSMOUNT
+	bool "Mount external file system"
+	default y
+	depends on !EXAMPLES_MODULE_BUILTINFS
+	---help---
+		Automatically mount the external file system using the block
+		device provided by CONFIG_EXAMPLES_MODULE_DEVPATH and the file
+		system type specified by CONFIG_EXAMPLES_MODULE_FSTYPE.
+
+config EXAMPLES_MODULE_FSREMOVEABLE
+	bool "Removable file system"
+	default n
+	depends on EXAMPLES_MODULE_FSMOUNT
+	---help---
+		If the external file system is on removable media such as an
+		SD card or a USB FLASH driver, then this option may be selected
+		to build in logic to wait for the media to be installed and
+		initialized before trying to mount it.
+
+config EXAMPLES_MODULE_FSTYPE
+	string "External file system type"
+	default "vfat"
+	depends on EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The type of the external file system as will be used in the mount()
+		command.  Default: "vfat"
+
+config EXAMPLES_MODULE_DEVPATH
+	string "Block driver device path"
+	default "/dev/ram0" if EXAMPLES_MODULE_ROMFS
+	default "/dev/mmcsd0" if EXAMPLES_MODULE_FSMOUNT
+	depends on EXAMPLES_MODULE_ROMFS || EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The path to the ROMFS/External block driver device.  This must match
+		EXAMPLES_MODULE_DEVMINOR for the case of ROMFS.  Used for mounting the
+		file system containing the ELF executables to be tested.  Default:
+		"/dev/ram0" for ROMFS, "/dev/mmcsd0" for the external file system.
+
+config EXAMPLES_MODULE_BINDIR
+	string "Path to binaries"
+	default "/mnt/moddata"
+	depends on !EXAMPLES_MODULE_BUILTINFS && !EXAMPLES_MODULE_FSMOUNT
+	---help---
+		The full, absolte path to the location for the binaries can be
+		located in a pre-mounted external file system.
+
+config EXAMPLES_MODULE_NOSTRIP
+	bool "Do not strip debug symbols"
+	default n
+	depends on DEBUG_SYMBOLS
+	---help---
+		 By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
+		 ELF executables will also retain debug symbols in the resulting ELF binaries.
+		 Select this option if you do not want that behavior, this option will permit
+		 debug symbols in the base code but will strip debug symbols out of the ELF
+		 binaries for a smaller ROM file system image.
+
+config EXAMPLES_MODULE_LIBC
+	bool "Link with LIBC"
+	default n
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
+	---help---
+		Link with the C library (and also math library if it was built).
+		By default, all undefined symbols must be provided via a symbol
+		table.  But if this option is selected, then each MODULE test program
+		will link with the C library and will not require symbol table
+		entries.  You probably will NOT want this option, however,
+		because it will substantially increase the size of code.  For
+		example, a separate copy of printf() would be linked with every
+		program greatly increasing the total code size.  This option is
+		primarily intended only for testing.
+
+		WARNING:  Libc will not be built with -mlong-calls and this may
+		result in runtime linking failures due to out-of-range functions
+		calls.
+
+config EXAMPLES_MODULE_LIBGCC
+	bool "Link with LIBGCC"
+	default n
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
+
+endif

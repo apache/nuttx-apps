@@ -1,0 +1,61 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SERIALRX
+	tristate "Serial RX example"
+	default n
+	---help---
+		Enable the serial RX example
+
+if EXAMPLES_SERIALRX
+
+config EXAMPLES_SERIALRX_STACKSIZE
+	int "Serial RX stack size"
+	default 2048
+
+config EXAMPLES_SERIALRX_PRIORITY
+	int "Serial RX task priority"
+	default 50
+
+config EXAMPLES_SERIALRX_BUFFERED
+	bool "Buffered I/O"
+	default y
+	---help---
+		Use buffered I/O
+
+config EXAMPLES_SERIALRX_BUFSIZE
+	int "Buffer size"
+	default 11520
+	---help---
+		Specifies the default buffer size
+
+config EXAMPLES_SERIALRX_DEVPATH
+	string "Serial device path"
+	default "/dev/ttyS0"
+	---help---
+		The default path to the serial device
+
+choice
+	prompt "Output method"
+	default EXAMPLES_SERIALRX_PRINTHYPHEN
+
+config EXAMPLES_SERIALRX_PRINTHYPHEN
+	bool "Hyphen"
+	---help---
+		Print a hyphen after receiving a full buffer
+
+config EXAMPLES_SERIALRX_PRINTHEX
+	bool "Hexadecimal"
+	---help---
+		Print the bytes received in hexadecimal
+
+config EXAMPLES_SERIALRX_PRINTSTR
+	bool "String"
+	---help---
+		Print the bytes received as a string
+
+endchoice
+
+endif

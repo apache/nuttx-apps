@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_PPPD
+	bool "PPP daemon"
+	default n
+	select NETUTILS_CHAT
+	select NET_TUN
+	depends on NET && NET_UDP
+	---help---
+		Enable support for the PPP daemon.
+
+if NETUTILS_PPPD
+
+config NETUTILS_PPPD_STACKSIZE
+	int "PPP daemon stack stack size"
+	default 2048
+
+config NETUTILS_PPPD_PAP
+	bool "PPP PAP Authentication Support"
+	default n
+	---help---
+		Enable PAP Authentication for ppp connection, this requires
+		authentication credentials to be supplied.
+
+endif # NETUTILS_PPPD

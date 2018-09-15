@@ -1,0 +1,40 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig WIRELESS_WAPI
+	tristate "IEEE 802.11 Configuration Library"
+	default n
+	depends on NET && DRIVERS_WIRELESS
+	---help---
+		Wapi is a tool by Volkan YAZICI <volkan.yazici@gmail.com> that can
+		be used to manage  802.11 network.
+
+if WIRELESS_WAPI
+
+config WIRELESS_WAPI_CMDTOOL
+	bool "IEEE 802.11 Command Line Tool"
+	default n
+	---help---
+		By default, Wapi is build as only a library.  If this option is
+		selected than a simple command line tool that can be ran from NSH
+		will also be generated.
+
+config WIRELESS_WAPI_PROGNAME
+	string "Program Name"
+	default "wapi"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config WIRELESS_WAPI_STACKSIZE
+	int "Stack Size (bytes)"
+	default 2048
+
+config WIRELESS_WAPI_PRIORITY
+	int "Command Priority"
+	default 100
+
+endif

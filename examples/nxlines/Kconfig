@@ -1,0 +1,121 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXLINES
+	tristate "NX graphics lines example"
+	default n
+	depends on NX
+	select LIB_BOARDCTL
+	---help---
+		Enable the X graphics lines example
+
+if EXAMPLES_NXLINES
+
+config EXAMPLES_NXLINES_PROGNAME
+	string "NX lines program name"
+	default "nxhello"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NXLINES_PRIORITY
+	int "NX lines task priority"
+	default 100
+
+config EXAMPLES_NXLINES_STACKSIZE
+	int "NX lines stack size"
+	default 2048
+
+config EXAMPLES_NXLINES_DEFAULT_COLORS
+	bool "Use default colors"
+	default y
+	---help---
+		Select this option to let the NXLINES example pick the colors.  Otherwise,
+		you may select the exact colors to use in hex format.
+
+config EXAMPLES_NXLINES_BGCOLOR
+	hex "Background Color"
+	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
+	---help---
+		The color of the background.  Default depends on EXAMPLES_NXLINES_BPP.
+
+config EXAMPLES_NXLINES_LINEWIDTH
+	int "Line Width"
+	default 16
+	---help---
+		Selects the width of the lines in pixels (default: 16)
+
+config EXAMPLES_NXLINES_LINECOLOR
+	hex "Line Color"
+	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
+	---help---
+		The color of the central lines drawn in the background window. Default
+		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
+
+config EXAMPLES_NXLINES_BORDERWIDTH
+	int "Border Width"
+	default 16
+	---help---
+		The width of the circular border drawn in the background window. (default: 16).
+
+config EXAMPLES_NXLINES_BORDERCOLOR
+	hex "Border Color"
+	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
+	---help---
+		The color of the circular border drawn in the background window. Default
+		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
+
+config EXAMPLES_NXLINES_CIRCLECOLOR
+	hex "Circle Color"
+	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
+	---help---
+		The color of the circular region filled in the background window. Default
+		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
+
+config EXAMPLES_NXLINES_BPP
+	int "Bits Per Pixel"
+	default 8
+	---help---
+		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24, and 32.
+		Default is 16.
+
+comment "NX Server Options"
+
+config EXAMPLES_NXLINES_LISTENER_STACKSIZE
+	int "NX Server/Listener Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when creating the NX server.  Default 2048
+
+config EXAMPLES_NXLINES_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+config EXAMPLES_NXLINES_SERVERPRIO
+	int "Server Priority"
+	default 120
+	---help---
+		The server priority.  Default: 120
+
+config EXAMPLES_NXLINES_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 80.
+
+config EXAMPLES_NXLINES_NOTIFYSIGNO
+	int "Notify Signal Number"
+	default 4
+	---help---
+		The signal number to use with nx_eventnotify().  Default: 4
+
+endif

@@ -1,0 +1,583 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NETTEST
+	tristate "Network test example"
+	default n
+	depends on NET_TCP
+	depends on NET_SOCKOPTS
+	---help---
+		Enable the network test example
+
+if EXAMPLES_NETTEST
+
+config EXAMPLES_NETTEST_SENDSIZE
+	int "Payload size"
+	default 4096
+	---help---
+		The test client sends well-known packets to ther server.  The server
+		will receive and verfity those packets.  This setting determines
+		size of each packet.
+
+config EXAMPLES_NETTEST_PROGNAME1
+	string "Target1 program name"
+	default "nettest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the Nettest
+		program is installed.
+
+config EXAMPLES_NETTEST_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
+
+config EXAMPLES_NETTEST_PRIORITY1
+	int "Target1 priority"
+	default 100
+
+config EXAMPLES_NETTEST_LOOPBACK
+	bool "Loopback test"
+	default n
+	depends on NET_LOOPBACK || IEEE802154_LOOPBACK || PKTRADIO_LOOPBACK
+	---help---
+		Perform the test using the local loopback device.  In this case,
+		both the client and the server reside on the target.
+
+# No server if loopback; No second target if loopback
+
+if !EXAMPLES_NETTEST_LOOPBACK
+
+config EXAMPLES_NETTEST_SERVER1
+	bool "Target1 is server"
+	default n
+	depends on !EXAMPLES_NETTEST_LOOPBACK
+	---help---
+		Select to use the host as the client side of the test.  Default:  The
+		target is the client side of the test
+
+config EXAMPLES_NETTEST_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		NETTEST.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with no host PC
+		involvement.
+
+if EXAMPLES_NETTEST_TARGET2
+
+config EXAMPLES_NETTEST_PROGNAME2
+	string "Target2 program name"
+	default "tcpserver" if !EXAMPLES_NETTEST_SERVER2
+	default "tcpclient" if EXAMPLES_NETTEST_SERVER2
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_NETTEST_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_NETTEST_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_NETTEST_TARGET2
+endif # !EXAMPLES_NETTEST_LOOPBACK
+
+if EXAMPLES_NETTEST_LOOPBACK
+config EXAMPLES_NETTEST_DAEMON_STACKSIZE
+	int "Server daemon stack size"
+	default 2048
+
+config EXAMPLES_NETTEST_DAEMON_PRIORITY
+	int "Server daemon priority"
+	default 100
+#endif
+
+endif # EXAMPLES_NETTEST_LOOPBACK
+
+config EXAMPLES_NETTEST_DEVNAME
+	string "Network device"
+	default "eth0"
+
+config EXAMPLES_NETTEST_PERFORMANCE
+	bool "Test for Performance"
+	default n
+	---help---
+		Configure the example to test for network performance.  Default:  Test
+		is for network functionality.
+
+choice
+	prompt "IP Domain"
+	default EXAMPLES_NETTEST_IPv4 if NET_IPv4
+	default EXAMPLES_NETTEST_IPv6 if NET_IPv6 && !NET_IPv4
+
+config EXAMPLES_NETTEST_IPv4
+	bool "IPv4"
+	depends on NET_IPv4
+
+config EXAMPLES_NETTEST_IPv6
+	bool "IPv6"
+	depends on NET_IPv6
+
+endchoice # IP Domain
+
+# No hardware initialization if loopback
+
+config EXAMPLES_NETTEST_INIT
+	bool "Initialize network"
+	default n if NSH_BUILTIN_APPS
+	default y if !NSH_BUILTIN_APPS
+	depends on !BUILD_LOADABLE && !EXAMPLES_NETTEST_LOOPBACK
+	---help---
+		Include logic to initialize the network.  This should not be done if
+		the network is already initialized when nettest runs.  This is
+		usually the case, for example, when nettest is run as an NSH built-
+		in task.
+
+config EXAMPLES_NETTEST_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	depends on EXAMPLES_NETTEST_INIT
+
+if EXAMPLES_NETTEST_IPv4
+
+comment "IPv4 addresses"
+
+if EXAMPLES_NETTEST_INIT
+
+config EXAMPLES_NETTEST_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_NETTEST_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_NETTEST_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif # EXAMPLES_NETTEST_INIT
+
+# No server if loopback
+
+if !EXAMPLES_NETTEST_LOOPBACK
+
+config EXAMPLES_NETTEST_SERVERIP
+	hex "Server IP Address"
+	default 0x0a000001 if !EXAMPLES_NETTEST_SERVER
+	default 0x0a000002 if EXAMPLES_NETTEST_SERVER
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+endif # !EXAMPLES_NETTEST_LOOPBACK
+endif # EXAMPLES_NETTEST_IPv4
+
+if EXAMPLES_NETTEST_IPv6
+if !NET_ICMPv6_AUTOCONF
+
+comment "Target IPv6 address"
+
+if EXAMPLES_NETTEST_INIT
+
+config EXAMPLES_NETTEST_IPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the first of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the second of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the third of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fourth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fifth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the sixth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the seventh of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_NETTEST_IPv6ADDR_8
+	hex "[7]"
+	default 0x0002
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the last of the 8-values.  The
+		default for all eight values is fc00::2.
+
+comment "Router IPv6 address"
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the first of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the second of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the third of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fourth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fifth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the sixth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the seventh of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_NETTEST_DRIPv6ADDR_8
+	hex "[7]"
+	default 0x0001
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the last of the
+		8-values.  The default for all eight values is fc00::1.
+
+comment "IPv6 Network mask"
+
+config EXAMPLES_NETTEST_IPv6NETMASK_1
+	hex "[0]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_2
+	hex "[1]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_3
+	hex "[2]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_4
+	hex "[3]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_5
+	hex "[4]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_6
+	hex "[5]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_7
+	hex "[6]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_NETTEST_IPv6NETMASK_8
+	hex "[7]"
+	default 0xff80
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the eighth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+endif # NET_ICMPv6_AUTOCONF
+endif # EXAMPLES_NETTEST_INIT
+
+# Addresses are well known if loopback is used.
+
+if !EXAMPLES_NETTEST_LOOPBACK || !NET_LOOPBACK
+
+comment "Server IPv6 address"
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the cleint,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the first of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the second of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the Third of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fourth of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fifth of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the sixth of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the seventh of the 8-values.
+
+config EXAMPLES_NETTEST_SERVERIPv6ADDR_8
+	hex "[7]"
+	default 0x0001 if !EXAMPLES_NETTEST_SERVER
+	default 0x0002 if EXAMPLES_NETTEST_SERVER
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_NETTEST_SERVERIP should be the same as
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the last of the 8-values.
+
+endif # !EXAMPLES_NETTEST_LOOPBACK
+endif # EXAMPLES_NETTEST_IPv6
+
+config EXAMPLES_NETTEST_SERVER_PORTNO
+	int "Server port number"
+	default 5471
+
+endif # EXAMPLES_NETTEST

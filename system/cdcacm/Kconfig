@@ -1,0 +1,78 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_CDCACM
+	tristate "USB CDC/ACM Device Commands"
+	default n
+	depends on LIB_BOARDCTL && CDCACM
+	select BOARDCTL_USBDEVCTRL
+	---help---
+		Enable the USB CDC/ACM class controls.  These controls include:
+
+		sercon:  Connect the mass storage device to the host
+		serdis:  Disconnect the mass storage device to the host
+
+if SYSTEM_CDCACM
+
+config SYSTEM_CDCACM_DEVMINOR
+	int "CDC/ACM Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the serial driver for the CDC/ACM device.
+		For example, N in /dev/ttyACMN.  Used for registering the serial
+		driver. Default is zero.
+
+config SYSTEM_CDCACM_TRACEINIT
+	bool "USB Trace Initialization"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB initialization events
+
+config SYSTEM_CDCACM_TRACECLASS
+	bool "USB Trace Class"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB class driver events
+
+config SYSTEM_CDCACM_TRACETRANSFERS
+	bool "USB Trace Transfers"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB data transfer events
+
+config SYSTEM_CDCACM_TRACECONTROLLER
+	bool "USB Trace Device Controller Events"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller events
+
+config SYSTEM_CDCACM_TRACEINTERRUPTS
+	bool "USB Trace Device Controller Interrupt Events"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller interrupt-related events.
+
+endif
+

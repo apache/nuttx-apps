@@ -1,0 +1,50 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CONFIGDATA
+	tristate "Config Data example / unit test"
+	default n
+	---help---
+		Enable the Config Data example
+
+if EXAMPLES_CONFIGDATA
+
+config EXAMPLES_CONFIGDATA_ARCHINIT
+	bool "Architecture-specific initialization"
+	default n
+	---help---
+		The default is to use the RAM MTD device at drivers/mtd/rammtd.c.
+		But an architecture-specific MTD driver can be used instead by
+		defining EXAMPLES_CONFIGDATA_ARCHINIT.  In this case, the
+		initialization logic will call configdata_archinitialize() to obtain
+		the MTD driver instance.
+
+config EXAMPLES_CONFIGDATA_NEBLOCKS
+	int "Number of erase blocks (simulated)"
+	default 4
+	depends on !EXAMPLES_CONFIGDATA_ARCHINIT
+	---help---
+		When EXAMPLES_CONFIGDATA_ARCHINIT is not defined, this test will use
+		the RAM MTD device at drivers/mtd/rammtd.c to simulate FLASH.  In
+		this case, this value must be provided to give the nubmer of erase
+		blocks in the MTD RAM device.
+
+		The size of the allocated RAM drive will be:
+
+			RAMMTD_ERASESIZE * EXAMPLES_CONFIGDATA_NEBLOCKS
+
+config EXAMPLES_CONFIGDATA_NLOOPS
+	int "Number of test loops"
+	default 1000
+
+config EXAMPLES_CONFIGDATA_VERBOSE
+	bool "Verbose output"
+	default n
+
+config EXAMPLES_CONFIGDATA_SILENT
+	bool "Silence the test details"
+	default n
+
+endif

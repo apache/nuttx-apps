@@ -1,0 +1,62 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WATCHDOG
+	tristate "Watchdog Timer example"
+	default n
+	---help---
+		Enable the watchdog timer example
+
+		In order to use this example, board specific logic must register the
+		watchdog timer driver.  That would be in the board bring-up logic
+		in the configs/<board>/src directory for the board.
+
+		The way that this is done depends on the underlying MCU architecture.
+		For STM32, this would be done like:
+
+			#include "stm32_wdg.h"
+
+			#if defined(CONFIG_STM32_WWDG)
+			  stm32_wwdginitialize(CONFIG_STM32_WDG_DEVPATH);
+			#elif defined(CONFIG_STM32_IWDG)
+			  stm32_iwdginitialize(CONFIG_STM32_WDG_DEVPATH, CONFIG_STM32_LSIFREQ);
+			#endif
+
+		For some Atmel SAM configurations, the board-specific initialization
+		sequence would be like:
+
+			#include "sam_wdt.h"
+
+			sam_wdt_initialize();
+
+if EXAMPLES_WATCHDOG
+
+config EXAMPLES_WATCHDOG_DEVPATH
+	string "Watchdog device path"
+	default "/dev/watchdog0"
+	---help---
+		The path to the watchdog device. Default: /dev/watchdog0
+
+config EXAMPLES_WATCHDOG_PINGTIME
+	int "Watchdog ping time"
+	default 5000
+	---help---
+		Time in milliseconds that the example will ping the watchdog before letting the
+		watchdog expire. Default: 5000 milliseconds.
+
+config EXAMPLES_WATCHDOG_PINGDELAY
+	int "Watchdog ping delay"
+	default 500
+	---help---
+		Time delay between pings in milliseconds. Default: 500 milliseconds.
+
+config EXAMPLES_WATCHDOG_TIMEOUT
+	int "Watchdog timeout"
+	default 2000
+	---help---
+		The watchdog timeout value in milliseconds before the watchdog timer
+		expires.  Default:  2000 milliseconds.
+
+endif

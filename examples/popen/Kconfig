@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_POPEN
+	tristate "popen() example"
+	default n
+	depends on SYSTEM_POPEN
+	---help---
+		Enable the popen() example
+
+if EXAMPLES_POPEN
+
+config EXAMPLES_POPEN_PROGNAME
+	string "Program name"
+	default "popen"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_POPEN_PRIORITY
+	int "Popen task priority"
+	default 100
+
+config EXAMPLES_POPEN_STACKSIZE
+	int "Popen stack size"
+	default 2048
+
+endif

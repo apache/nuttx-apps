@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_UNITY
+	bool "Unity testing support"
+	default n
+	---help---
+		Enable support for the Unity testing framework
+
+if TESTING_UNITY
+
+config TESTING_UNITY_URL
+	string "URL where Unity can be downloaded"
+	default "https://github.com/ThrowTheSwitch/Unity/archive"
+
+config TESTING_UNITY_VERSION
+	string "Version number"
+	default "2.4.3"
+
+config TESTING_UNITY_EXCLUDE_SETJMP
+	bool "Exclude SETJMP"
+	default y
+	---help---
+		Select this if your toolchain does not support setjmp
+
+config TESTING_UNITY_OUTPUT_COLOR
+	bool "Output color"
+	default n
+	---help---
+		Select this if your want to add some colors to your tests
+
+endif # TESTING_UNITY

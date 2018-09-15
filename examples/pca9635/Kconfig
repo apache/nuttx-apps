@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PCA9635
+	tristate "PCA9635 PWM LED example"
+	default n
+	---help---
+		Enable the PCA9635 example
+
+if EXAMPLES_PCA9635
+
+config EXAMPLES_PCA9635_PROGNAME
+	string "Program name"
+	default "pca9635"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif

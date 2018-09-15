@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NETLOOP
+	tristate "Local loopback example"
+	default n
+	depends on NET_LOOPBACK && NET_TCP && NET_TCPBACKLOG && NET_TCP_READAHEAD && NET_TCP_WRITE_BUFFERS && NET_IPv4
+	---help---
+		Enable the local loopback example
+
+if EXAMPLES_NETLOOP
+if NSH_BUILTIN_APPS
+
+config EXAMPLES_NETLOOP_KEEPALIVE
+    bool "Enable TCP KeepAlive test"
+    default n
+    depends on NET_TCP_KEEPALIVE
+
+config EXAMPLES_NETLOOP_STACKSIZE
+    int "Loopback test stack size"
+    default 2048
+
+config EXAMPLES_NETLOOP_PRIORITY
+    int "Loopback test task priority"
+    default 100
+
+endif # NSH_BUILTIN_APPS
+endif # EXAMPLES_NETLOOP

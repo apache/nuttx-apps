@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_PING
+	tristate "ICMP 'ping' command"
+	default n
+	depends on NET_ICMP_SOCKET || NET_USRSOCK
+	---help---
+		Enable support for the ICMP 'ping' command.
+
+if SYSTEM_PING
+
+config SYSTEM_PING_PROGNAME
+	string "Ping program name"
+	default "ping"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_PING_PRIORITY
+	int "Ping task priority"
+	default 100
+
+config SYSTEM_PING_STACKSIZE
+	int "Ping stack size"
+	default 2048
+
+endif
+

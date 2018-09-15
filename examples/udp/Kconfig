@@ -1,0 +1,530 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UDP
+	tristate "UDP example"
+	default n
+	depends on NET_UDP
+	---help---
+		Enable the UDP example
+
+if EXAMPLES_UDP
+
+config EXAMPLES_UDP_SERVER1
+	bool "Target1 is the server"
+	default n
+	---help---
+		By default Target1 is the client and the host PC is the server
+
+config EXAMPLES_UDP_PROGNAME1
+	string "Target1 program name"
+	default "udpserver" if EXAMPLES_UDP_SERVER1
+	default "udpclient" if !EXAMPLES_UDP_SERVER1
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target1 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_UDP_PRIORITY1
+	int "Target1 task priority"
+	default 100
+
+config EXAMPLES_UDP_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
+
+config EXAMPLES_UDP_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		UDP test.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with no host PC
+		involvement.
+
+if EXAMPLES_UDP_TARGET2
+
+config EXAMPLES_UDP_PROGNAME2
+	string "Target2 program name"
+	default "udpserver" if !EXAMPLES_UDP_SERVER2
+	default "udpclient" if EXAMPLES_UDP_SERVER2
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_UDP_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_UDP_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_UDP_TARGET2
+
+config EXAMPLES_UDP_DEVNAME
+	string "Network device"
+	default "eth0"
+
+config EXAMPLES_UDP_NETINIT
+	bool "Initialize network"
+	default n if NSH_NETINIT
+	default y if !NSH_NETINIT
+	---help---
+		Selecting this option will enable logic in the example to perform
+		some basic initialization of the network.  You would probably only
+		want to do this if the example is running stand-alone.  If the
+		example is running as an NSH command, then the network as already
+		been initialized.
+
+		This basic initialization currently only supports basic
+		initialization of Ethernet network devices.  For other exotic
+		network devices this initialization should be suppressed.  Such
+		devices will require other, external initialization.
+
+choice
+	prompt "IP Domain"
+	default EXAMPLES_UDP_IPv4 if NET_IPv4
+	default EXAMPLES_UDP_IPv6 if NET_IPv6 && !NET_IPv4
+
+config EXAMPLES_UDP_IPv4
+	bool "IPv4"
+	depends on NET_IPv4
+
+config EXAMPLES_UDP_IPv6
+	bool "IPv6"
+	depends on NET_IPv6
+
+endchoice # IP Domain
+
+config EXAMPLES_UDP_BROADCAST
+	bool "Broadcast outgoing messages"
+	default n
+	depends on NET_BROADCAST
+	---help---
+		Send and receive all UDP packets using the broadcast address.
+
+if EXAMPLES_UDP_IPv4
+
+comment "IPv4 addresses"
+
+if EXAMPLES_UDP_NETINIT
+
+config EXAMPLES_UDP_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_UDP_DRIPADDR
+	hex "Target default router address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_UDP_NETMASK
+	hex "Network mask"
+	default 0xffffff00
+
+endif # !EXAMPLES_UDP_NETINIT
+
+config EXAMPLES_UDP_SERVERIP
+	hex "Server IP address"
+	default 0x0a000001 if !EXAMPLES_UDP_SERVER1
+	default 0x0a000002 if EXAMPLES_UDP_SERVER1
+
+endif # EXAMPLES_UDP_IPv4
+
+if EXAMPLES_UDP_IPv6
+if !NET_ICMPv6_AUTOCONF && EXAMPLES_UDP_NETINIT
+
+comment "Target IPv6 address"
+
+config EXAMPLES_UDP_IPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the first of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the second of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the third of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fourth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fifth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the sixth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the seventh of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDP_IPv6ADDR_8
+	hex "[7]"
+	default 0x0002
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the last of the 8-values.  The
+		default for all eight values is fc00::2.
+
+comment "Router IPv6 address"
+
+config EXAMPLES_UDP_DRIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the first of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the second of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the third of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fourth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fifth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the sixth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the seventh of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDP_DRIPv6ADDR_8
+	hex "[7]"
+	default 0x0001
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the last of the
+		8-values.  The default for all eight values is fc00::1.
+
+comment "IPv6 Network mask"
+
+config EXAMPLES_UDP_IPv6NETMASK_1
+	hex "[0]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_2
+	hex "[1]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_3
+	hex "[2]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_4
+	hex "[3]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_5
+	hex "[4]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_6
+	hex "[5]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_7
+	hex "[6]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDP_IPv6NETMASK_8
+	hex "[7]"
+	default 0xff80
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the eighth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+endif # NET_ICMPv6_AUTOCONF
+
+comment "Default Server IPv6 address"
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the first of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the second of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the Third of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fourth of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fifth of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the sixth of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the seventh of the 8-values.
+
+config EXAMPLES_UDP_SERVERIPv6ADDR_8
+	hex "[7]"
+	default 0x0001 if !EXAMPLES_UDP_SERVER1
+	default 0x0002 if EXAMPLES_UDP_SERVER1
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_UDP_SERVERIP should be the same as
+		EXAMPLES_UDP_IPADDR (default).  If the target is the server,
+		then the default value of EXAMPLES_UDP_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_UDP_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the last of the 8-values.
+
+endif # EXAMPLES_UDP_IPv6
+
+config EXAMPLES_UDP_SERVER_PORTNO
+	int "Server port number"
+	default 5471
+
+config EXAMPLES_UDP_CLIENT_PORTNO
+	int "Client port number"
+	default 5472
+
+endif # EXAMPLES_UDP

@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LIS3DSH_READER
+	tristate "LIS3DSH acceleration reader example"
+	default n
+	depends on LIS3DSH
+	depends on SPI_EXCHANGE
+	---help---
+		Enable the LIS3DSH reader example
+
+if EXAMPLES_LIS3DSH_READER
+
+config EXAMPLES_LIS3DSH_READER_PROGNAME
+	string "Program name"
+	default "lis3dsh_reader"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif # EXAMPLES_LIS3DSH_READER

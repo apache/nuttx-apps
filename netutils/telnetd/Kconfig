@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_TELNETD
+	bool "Telnet daemon"
+	default n
+	depends on NET && NET_TCP
+	select NETDEV_TELNET
+	---help---
+		Enable support for the Telnet daemon.
+
+if NETUTILS_TELNETD
+endif

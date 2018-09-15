@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_GPIO
+	tristate "GPIO driver example"
+	default n
+	depends on DEV_GPIO
+	---help---
+		Enable the GPIO driver example
+
+if EXAMPLES_GPIO
+
+config EXAMPLES_GPIO_PROGNAME
+	string "Program name"
+	default "gpio"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_GPIO_PRIORITY
+	int "GPIO task priority"
+	default 100
+
+config EXAMPLES_GPIO_STACKSIZE
+	int "GPIO stack size"
+	default 2048
+
+endif

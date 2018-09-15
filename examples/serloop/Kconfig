@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SERLOOP
+	tristate "Serial loopback example"
+	default n
+	---help---
+		Enable the serial loopback example
+
+if EXAMPLES_SERLOOP
+endif

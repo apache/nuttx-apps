@@ -1,0 +1,152 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_WEBSERVER
+	bool "uIP web server"
+	default n
+	depends on NET_TCP
+	---help---
+		Enable support for the uIP web server.  This tiny web server was
+		from uIP 1.0, but has undergone many changes.  It is, however,
+		still referred to as the "uIP" web server.
+
+if NETUTILS_WEBSERVER
+
+config NETUTILS_HTTPD_SINGLECONNECT
+	bool "Single Connection"
+	default n if !DISABLE_PTHREAD
+	default y if DISABLE_PTHREAD
+	---help---
+		By default, the uIP web server will create a new, independent thread
+		for each connection.  This can, however, use a lot of stack space
+		if there are many connections and that can be a problem is RAM is
+		limited.  If this option is selected, then a single thread will
+		service all HTTP requests and, in this case, only a single connection
+		at a time is supported at a time.
+
+config NETUTILS_HTTPD_SCRIPT_DISABLE
+	bool "Disable %! scripting"
+	default y if NETUTILS_HTTPD_SENDFILE
+	default n if !NETUTILS_HTTPD_SENDFILE
+	---help---
+		This option, if selected, will elide the %! scripting
+
+config NETUTILS_HTTPD_MAXPATH
+	int "Maximum size of a path"
+	default 64
+	---help---
+		This is the maximum size of a PATH used in the web server.  This setting
+		is the logically the same as the PATH_MAX setting that (and in fact, if
+		not defined, the MAX_PATH setting will be used).  This setting allows
+		more conservative memory allocation.
+
+config NETUTILS_HTTPD_CGIPATH
+	bool "URL/CGI function mapping"
+	default n
+	---help---
+		This option enables mappings from URLs to call CGI functions.  The
+		effect is that the existing httpd_cgi_register() interface can be
+		used thus:
+
+		const static struct httpd_cgi_call a[] = {
+		{ NULL, "/abc", cgi_abc },
+		{ NULL, "/xyz", cgi_xyz }
+		};
+
+		for (i = 0; i < sizeof a / sizeof *a; i++) {
+		httpd_cgi_register(&a[i]);
+		}
+
+		Where (under NETUTILS_HTTPD_CGIPATH) the "/xyz" is a URL path,
+		rather than a %! xyz style call in the existing manner.
+
+		This is useful when NETUTILS_HTTPD_SCRIPT_DISABLE is defined.
+
+		In other words, this provides a way to get your CGI functions called
+		without needing the scripting language. I'm using this to provide a
+		REST style interface over HTTP, where my CGI handlers just return a
+		HTTP status code with a content length of 0.
+
+config NETUTILS_HTTPD_ERRPATH
+	string "Error Path"
+	default ""
+	---help---
+		Path used in error return packets.
+
+config NETUTILS_HTTPD_SERVERHEADER_DISABLE
+	bool "Disabled the SERVER header"
+	default n
+	---help---
+		This option, if selected, will elide the Server\: header
+
+config NETUTILS_HTTPD_TIMEOUT
+	int "Receive Timeout (sec)"
+	default 0
+	depends on NET_SOCKOPTS
+	---help---
+		Receive timeout setting (in seconds).  A timeout value of zero
+		disables the timeout.  An HTTP 408 error is generated if the timeout
+		expires.  This option depends on support for socket options (sockopts).
+
+choice
+	prompt "File Transfer Method"
+	default NETUTILS_HTTPD_CLASSIC
+
+config NETUTILS_HTTPD_CLASSIC
+	bool "Pre-processed files"
+	---help---
+		Traditionally, the uIP-based webserver only sends "files" that have
+		been prepared as a data structure using nutts/tools/mkfsdata.pl
+
+config NETUTILS_HTTPD_MMAP
+	bool "File mmap-ing"
+	---help---
+		Traditionally, the uIP-based webserver only sends "files" that have
+		been prepared as a data structure using nutts/tools/mkfsdata.pl
+		However, extensions have been contributed.  If this option is
+		selected, then files can be accessed from the NuttX file system
+		as well.  This selection will map the files into memory (using mmap)
+		so that the logic is still basically compatible with the classic
+		approach.  NOTE, however, that since files are copied into memory,
+		this limits solution to small files that will fit into available RAM.
+
+config NETUTILS_HTTPD_SENDFILE
+	bool "sendfile()"
+	select NETUTILS_HTTPD_SCRIPT_DISABLE
+	---help---
+		Traditionally, the uIP-based webserver only sends "files" that have
+		been prepared as a data structure using nutts/tools/mkfsdata.pl
+		However, extensions have been contributed.  If this option is
+		selected, then files can be accessed from the NuttX file system
+		as well.  This selection will use the NuttX sendfile() interface
+		to send files.  NOTE: If this option is selected, then scripting
+		must be disabled since it depends on the classic, in-memory
+		representation.
+
+endchoice
+
+config NETUTILS_HTTPD_PATH
+	string "Location of the files"
+	depends on NETUTILS_HTTPD_MMAP || NETUTILS_HTTPD_SENDFILE
+	default "/mnt"
+
+config NETUTILS_HTTPD_KEEPALIVE_DISABLE
+	bool "Keepalive Disable"
+	default y if !NETUTILS_HTTPD_TIMEOUT
+	default n if NETUTILS_HTTPD_TIMEOUT
+	---help---
+		Disabled HTTP keep-alive for HTTP clients.  Keep-alive permits a
+		client to make multiple requests over the same connection, rather
+		than closing and opening a new socket for each request.
+
+		This depends on the content-length being known, and is automatically
+		disabled for situations where that header isn't produced (i.e.
+		scripting, CGI). Keep-alive is also disabled for certain error
+		responses.
+
+		Keep-alive should normally be disabled if timeouts are enabled,
+		otherwise a rogue HTTP client could block the httpd indefinitely.
+
+endif # NETUTILS_WEBSERVER

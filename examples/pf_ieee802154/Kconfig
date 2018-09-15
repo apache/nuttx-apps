@@ -1,0 +1,47 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PFIEEE802154
+	tristate "PF_IEEE802154 example"
+	default n
+	depends on NET_IEEE802154
+	---help---
+		Enable the PF_IEEE802154 socket example
+
+if EXAMPLES_PFIEEE802154
+
+config EXAMPLES_PFIEEE802154_PROGNAME1
+	string "Target1 program name"
+	default "pfserver"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target1 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_PFIEEE802154_PRIORITY1
+	int "Target1 task priority"
+	default 100
+
+config EXAMPLES_PFIEEE802154_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
+
+config EXAMPLES_PFIEEE802154_PROGNAME2
+	string "Target2 program name"
+	default "pfclient"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_PFIEEE802154_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_PFIEEE802154_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_PFIEEE802154

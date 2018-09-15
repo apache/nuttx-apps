@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+if ARCH_BOARD_MIKROE_STM32F4
+
+if PLATFORM_CONFIGDATA
+
+choice
+	prompt "Config Data save location"
+	default MIKROE_STM32F4_CONFIGDATA_PART
+
+config MIKROE_STM32F4_CONFIGDATA_PART
+	bool "Dedicated FLASH partition using /dev/config"
+
+config MIKROE_STM32F4_CONFIGDATA_FS
+	bool "File system file"
+
+config MIKROE_STM32F4_CONFIGDATA_ROM
+	bool "Program ROM (R/O)"
+
+endchoice
+
+if MIKROE_STM32F4_CONFIGDATA_FS
+
+config MIKROE_STM32F4_CONFIGDATA_FILENAME
+	string "Path of file to save config data"
+	---help---
+		Specifies the fully qualified filename where application configuration
+		data is stored on the filesystem.
+
+endif
+
+endif
+
+endif

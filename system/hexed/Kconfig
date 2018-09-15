@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_HEXED
+	tristate "Hex editor"
+	default n
+	---help---
+		Enable support for the hexed command line hexadecial file editor
+
+if SYSTEM_HEXED
+
+config SYSTEM_HEXED_STACKSIZE
+	int "hexed stack size"
+	default 2048
+	---help---
+		The size of stack allocated for the hexed task.
+
+config SYSTEM_HEXED_PRIORITY
+	int "hexed priority"
+	default 100
+	---help---
+		The priority of the hexed task.
+
+endif # SYSTEM_HEXED

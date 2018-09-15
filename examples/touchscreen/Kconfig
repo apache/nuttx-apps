@@ -1,0 +1,46 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TOUCHSCREEN
+	tristate "Touchscreen example"
+	default n
+	---help---
+		Enable the touchscreen example
+
+if EXAMPLES_TOUCHSCREEN
+
+config EXAMPLES_TOUCHSCREEN_MINOR
+	int "Touchscreen minor device number"
+	default 0
+	---help---
+		The minor device number.  Minor=N corresponds to touchscreen device
+		/dev/inputN.  Note this value must with EXAMPLES_TOUCHSCREEN_DEVPATH.
+		Default 0.
+
+config EXAMPLES_TOUCHSCREEN_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	---help---
+		The path to the touchscreen device.  This must be consistent with
+		EXAMPLES_TOUCHSCREEN_MINOR. Default: "/dev/input0"
+
+config EXAMPLES_TOUCHSCREEN_NSAMPLES
+	int "Number of samples"
+	default 0
+	depends on !NSH_BUILTIN_APPS
+	---help---
+		If NSH_BUILTIN_APPS is defined, then the number of touchscreen
+		samples is provided on the command line and this value is ignored.
+		Otherwise, this number of samples is collected and the program
+		terminates.  Default:  Zero (Samples are collected indefinitely).
+
+config EXAMPLES_TOUCHSCREEN_MOUSE
+	bool "Mouse interface"
+	default n
+	---help---
+		The touchscreen test can also be configured to work with a mouse
+		driver by setting this option.
+
+endif

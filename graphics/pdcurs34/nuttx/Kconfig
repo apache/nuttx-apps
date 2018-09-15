@@ -1,0 +1,191 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config PDCURSES_FBDEV
+	string "Framebuffer device"
+	default "/dev/fb0"
+
+choice
+	prompt "TUI Font Selection"
+	default PDCURSES_FONT_6X13
+
+config PDCURSES_FONT_4X6
+	bool "4x6"
+	select NXFONT_X11_MISC_FIXED_4X6
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_4X6 == 21.
+
+config PDCURSES_FONT_5X7
+	bool "5x7"
+	select NXFONT_X11_MISC_FIXED_5X7
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_5X7 == 22.
+
+config PDCURSES_FONT_5X8
+	bool "5x8"
+	select NXFONT_X11_MISC_FIXED_5X8
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_5X8 == 23.
+
+config PDCURSES_FONT_6X9
+	bool "6x9"
+	select NXFONT_X11_MISC_FIXED_6X9
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X9 == 24.
+
+config PDCURSES_FONT_6X10
+	bool "6x10"
+	select NXFONT_X11_MISC_FIXED_6X10
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X10 == 25.
+
+config PDCURSES_FONT_6X12
+	bool "6x12"
+	select NXFONT_X11_MISC_FIXED_6X12
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X12 == 26.
+
+config PDCURSES_FONT_6X13
+	bool "6x13"
+	select NXFONT_X11_MISC_FIXED_6X13
+	select NXFONT_X11_MISC_FIXED_6X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X13 == 27 and
+		bold font ID FONTID_X11_MISC_FIXED_6X13B == 28.
+
+config PDCURSES_FONT_7X13
+	bool "7x13"
+	select NXFONT_X11_MISC_FIXED_7X13
+	select NXFONT_X11_MISC_FIXED_7X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X13 == 30 and
+		bold font ID FONTID_X11_MISC_FIXED_7X13B == 31.
+
+config PDCURSES_FONT_7X14
+	bool "7x14"
+	select NXFONT_X11_MISC_FIXED_7X14
+	select NXFONT_X11_MISC_FIXED_7X14B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X14 == 33 and
+		bold font ID FONTID_X11_MISC_FIXED_7X14B == 34.
+
+config PDCURSES_FONT_8X13
+	bool "8x13"
+	select NXFONT_X11_MISC_FIXED_8X13
+	select NXFONT_X11_MISC_FIXED_8X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_8X13 == 35 and
+		bold font ID FONTID_X11_MISC_FIXED_8X13B == 36.
+
+config PDCURSES_FONT_9X15
+	bool "9x15"
+	select NXFONT_X11_MISC_FIXED_9X15
+	select NXFONT_X11_MISC_FIXED_9X15B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X15 == 38 and
+		bold font ID FONTID_X11_MISC_FIXED_9X15B == 39.
+
+config PDCURSES_FONT_9X18
+	bool "9x18"
+	select NXFONT_X11_MISC_FIXED_9X18
+	select NXFONT_X11_MISC_FIXED_9X18B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X18 == 40 and
+		bold font ID FONTID_X11_MISC_FIXED_9X18B == 41.
+
+config PDCURSES_FONT_10X20
+	bool "10x20"
+	select NXFONT_X11_MISC_FIXED_10X20
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_10X20 == 42.
+
+endchoice # TUI Font Selection
+
+config PDCURSES_MONO
+	bool
+	default n
+
+choice
+	prompt "Color Format Selection"
+	default PDCURSES_COLORFMT_RGB565
+
+config PDCURSES_COLORFMT_Y1
+	bool "BPP=1 Monochrome"
+	select PDCURSES_MONO
+
+config PDCURSES_COLORFMT_Y2
+	bool "BPP=2 Greyscale"
+	select PDCURSES_MONO
+
+config PDCURSES_COLORFMT_Y4
+	bool "BPP=4 Greyscale"
+	select PDCURSES_MONO
+
+config PDCURSES_COLORFMT_RGB332
+	bool "BPP=8 RGB332"
+
+config PDCURSES_COLORFMT_RGB565
+	bool "BPP=16 RGB565"
+
+config PDCURSES_COLORFMT_RGB888
+	bool "BPP=32 RGB888"
+
+endchoice # Color Format Selection
+
+menu "Initial Screen Color"
+
+config PDCURSES_BGCOLOR_GREYLEVEL
+	int "Grey Level"
+	default 0
+	depends on PDCURSES_MONO
+
+config PDCURSES_BGCOLOR_RED
+	int "Red Component"
+	default 0
+	depends on !PDCURSES_MONO
+
+config PDCURSES_BGCOLOR_GREEN
+	int "Green Component"
+	default 0
+	depends on !PDCURSES_MONO
+
+config PDCURSES_BGCOLOR_BLUE
+	int "Blue Component"
+	default 0
+	depends on !PDCURSES_MONO
+
+endmenu # Initial Screen Color
+
+config PDCURSES_HAVE_INPUT
+	bool
+	default n
+
+menu "Input Devices"
+
+config PDCURSES_DJOYSTICK
+	bool "Discrete Joystick"
+	default n
+	select PDCURSES_HAVE_INPUT
+	depends on DJOYSTICK && !DISABLE_POLL
+
+config PDCURSES_DJOYDEV
+	string "Discrete Joystick Device"
+	default "/dev/djoy0"
+	depends on PDCURSES_DJOYSTICK
+
+config PDCURSES_KEYBOARD
+	bool "Discrete Joystick"
+	default n
+	select PDCURSES_HAVE_INPUT
+	depends on USBHOST_HIDKBD && !DISABLE_POLL && EXPERIMENTAL
+
+config PDCURSES_MOUSE
+	bool "Discrete Joystick"
+	default n
+	select PDCURSES_HAVE_INPUT
+	depends on MOUSE && !DISABLE_POLL && EXPERIMENTAL
+
+endmenu # Input Devices
+

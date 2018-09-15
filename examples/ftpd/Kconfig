@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FTPD
+	tristate "FTP server example"
+	default n
+	---help---
+		Enable the FTP server example
+
+if EXAMPLES_FTPD
+
+config EXAMPLES_FTPD_STACKSIZE
+	int "FTP Daemon Stack Size"
+	default 2048
+
+endif

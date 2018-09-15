@@ -1,0 +1,52 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FT80X
+	tristate "FT80x example"
+	default n
+	depends on LCD_FT80X
+	select GRAPHICS_FT80X
+	---help---
+		Enable the FT80X example
+
+if EXAMPLES_FT80X
+
+config EXAMPLES_FT80X_DEVPATH
+	string "FT80x device path"
+	default "/dev/ft800" if LCD_FT800
+	default "/dev/ft801" if LCD_FT801
+
+config EXAMPLES_FT80X_PRIMITIVES
+	bool "Enable primitive examples"
+	default n
+	---help---
+		Enable some low level tests of GPU primitives.  Not very interesting
+		for the most part.
+
+config EXAMPLES_FT80X_EXCLUDE_BITMAPS
+	bool "Exclude bitmaps"
+	default n
+	---help---
+		On some very minimal platforms, you might want to exclude bitmaps
+		which will require 10's of kilobytes of memory (probably FLASH
+		memory, depending on the CPU and the linker script.)
+
+config EXAMPLES_FT80X_PROGNAME
+	string "FT80x program name"
+	default "ft80x"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_FT80X_PRIORITY
+	int "FT80x task priority"
+	default 100
+
+config EXAMPLES_FT80X_STACKSIZE
+	int "FT80x stack size"
+	default 2048
+
+endif

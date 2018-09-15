@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SLCD
+	tristate "Segment LCD test"
+	default n
+	---help---
+		Enables a simple test of an alphanumer, segment LCD
+
+if EXAMPLES_SLCD
+
+config EXAMPLES_SLCD_DEVNAME
+	string "SLCD device path"
+	default "/dev/slcd"
+	---help---
+		The full path to the SLCD device to be tested
+
+config EXAMPLES_SLCD_BUFSIZE
+	int "I/O buffer size"
+	default 64
+	---help---
+		The size of the I/O buffer to use in the test (not a critical setting)
+
+endif

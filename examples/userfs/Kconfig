@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_USERFS
+	tristate "UserFS test"
+	default n
+	---help---
+		Enables a simple test of the UserFS
+
+if EXAMPLES_USERFS
+
+config EXAMPLES_USERFS_PROGNAME
+	string "Program name"
+	default "userfs"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_USERFS_PRIORITY
+	int "UserFS task priority"
+	default 100
+
+config EXAMPLES_USERFS_STACKSIZE
+	int "UserFS stack size"
+	default 2048
+
+endif

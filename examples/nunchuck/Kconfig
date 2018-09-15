@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NUNCHUCK
+	tristate "Nunchuck joystick example"
+	default n
+	depends on INPUT_NUNCHUCK
+	---help---
+		Enable the nunchuck joystick example
+
+if EXAMPLES_NUNCHUCK
+
+config EXAMPLES_NUNCHUCK_DEVNAME
+	string "Joystick device name"
+	default "/dev/nunchuck0"
+
+endif

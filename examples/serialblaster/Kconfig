@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SERIALBLASTER
+    tristate "Serial Blaster example"
+    default n
+    ---help---
+        Enable the serial blaster example
+
+if EXAMPLES_SERIALBLASTER
+
+config EXAMPLES_SERIALBLASTER_STACKSIZE
+	int "CPU hog stack size"
+	default 2048
+
+config EXAMPLES_SERIALBLASTER_PRIORITY
+	int "CPU hog task priority"
+	default 50
+
+endif

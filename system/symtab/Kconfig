@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SYMTAB
+	bool "User-provided symbol table"
+	default n
+	depends on EXECFUNCS_HAVE_SYMTAB && LIB_BOARDCTL
+	select BOARDCTL_APP_SYMTAB
+	---help---
+		Build and include default symbol table in the NuttX application.
+		The symbol table is selected by call symtab_initialize().  The
+		table apps/system/symtab/symtab.inc has to be generated using
+		mksymtab manually before this option is selected.

@@ -1,0 +1,101 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config READLINE_HAVE_EXTMATCH
+	bool
+	default n
+
+menuconfig SYSTEM_READLINE
+	bool "readline() Support"
+	default n
+	---help---
+		Enable support for the readline() function.
+
+if SYSTEM_READLINE
+
+config READLINE_ECHO
+	bool "Echo character input"
+	default y
+	---help---
+		Echo received character input back via stdout.  This is normal
+		behavior and should be selected unless the source of stdin input
+		already has local echo support or you need to suppress the back-channel
+		responses for any other reason.
+
+if READLINE_ECHO
+
+config READLINE_TABCOMPLETION
+	bool "Tab completion"
+	default n
+	depends on (BUILD_FLAT && BUILTIN) || READLINE_HAVE_EXTMATCH
+	---help---
+		Build in support for Unix-style tab completion.  This feature was
+		originally provided by Nghia Ho.
+
+if READLINE_TABCOMPLETION
+
+config READLINE_MAX_BUILTINS
+	int "Maximum built-in matches"
+	default 64
+	depends on BUILTIN
+	---help---
+		This the maximum number of matching names of builtin commands that
+		will be displayed.
+
+config READLINE_MAX_EXTCMDS
+	int "Maximum external command matches"
+	default 64
+	depends on READLINE_HAVE_EXTMATCH
+	---help---
+		This the maximum number of matching names of external commands that
+		will be displayed.
+
+endif # READLINE_TABCOMPLETION
+
+config READLINE_CMD_HISTORY
+	bool "Command line history"
+	default n
+	---help---
+		Build in support for Unix-style command history using up and down
+		arrow keys.  This feature was originally provided by Nghia Ho.
+
+		NOTE: Command line history is kept in an in-memory array and is
+		shared.  In the FLAT or PROTECTED builds, this history is shared by
+		all threads; in the KERNEL build, the command line history is shared
+		by all threads in the process.  This means that in a FLAT build, for
+		example, a built-in application started from NSH will have the same
+		history as does NSH if it also uses readline().  This also means
+		that different NSH sessions on serial, USB, or Telnet will also
+		share the same history array.
+
+		In a KERNEL build, each process will have a separately allocated
+		history array so the issue is lessened.  History would still be
+		shared amount pthreads within the same process, however.
+
+if READLINE_CMD_HISTORY
+
+config READLINE_CMD_HISTORY_LINELEN
+	int "Command line history length"
+	default 64 if DEFAULT_SMALL
+	default 80 if !DEFAULT_SMALL
+	---help---
+		The maximum length of one command line in the in-memory array.  The
+		total memory usage for the command line array will be
+		READLINE_CMD_HISTORY_LINELEN x READLINE_CMD_HISTORY_LEN. Default:
+		64/80
+
+config READLINE_CMD_HISTORY_LEN
+	int "Command line history records"
+	default 4 if DEFAULT_SMALL
+	default 16 if !DEFAULT_SMALL
+	---help---
+		The number of lines of history that will be buffered in the in-
+		memory array.  The total memory usage for the command line array
+		will be READLINE_CMD_HISTORY_LINELEN x READLINE_CMD_HISTORY_LEN.
+		Default: 16
+
+endif # READLINE_CMD_HISTORY
+endif # READLINE_ECHO
+endif # SYSTEM_READLINE

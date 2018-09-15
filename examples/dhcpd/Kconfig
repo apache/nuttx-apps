@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_DHCPD
+	tristate "DHCP server example"
+	default n
+	---help---
+		Enable the DHCP server example
+
+if EXAMPLES_DHCPD
+
+config EXAMPLES_DHCPD_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+
+config EXAMPLES_DHCPD_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_DHCPD_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_DHCPD_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif
+

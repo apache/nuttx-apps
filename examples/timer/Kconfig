@@ -1,0 +1,75 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TIMER
+	tristate "Timer example"
+	default n
+	depends on TIMER && BUILD_FLAT
+	---help---
+		Enable the timer example
+
+if EXAMPLES_TIMER
+
+config EXAMPLES_TIMER_DEVNAME
+	string "Timer device name"
+	default "/dev/timer0"
+	---help---
+		This is the name of the timer device that will be tested.
+
+config EXAMPLES_TIMER_INTERVAL
+	int "Timer interval (microseconds)"
+	default 1000000
+	---help---
+		This is the timer interval in microseconds.
+
+config EXAMPLES_TIMER_DELAY
+	int "Sample delay (microseconds)"
+	default 100000
+	---help---
+		This is the delay between timer samples in microseconds
+
+config EXAMPLES_TIMER_NSAMPLES
+	int "Number of samples"
+	default 20
+	---help---
+		This is the number of timer samples that will be collected
+
+config EXAMPLES_TIMER_SIGNO
+	int "Notification signal number"
+	default 17
+	---help---
+		This is the signal number that is used to notify the test of
+		timer expiration events.
+
+config EXAMPLES_TIMER_APPNAME
+	string "Timer executable name"
+	default "timer"
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the name of the built-in application
+
+config EXAMPLES_TIMER_STACKSIZE
+	int "Timer stack size"
+	default 2048
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the stack size allocated when the timer task runs
+
+config EXAMPLES_TIMER_PRIORITY
+	int "Timer task priority"
+	default 100
+	depends on NSH_BUILTIN_APPS
+	---help---
+		This is the priority of the timer task
+
+config EXAMPLES_TIMER_PROGNAME
+	string "Timer program name"
+	default "timer"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif

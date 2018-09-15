@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ZEROCROSS
+	tristate "Zero Cross Detection example"
+	default n
+	depends on SENSORS_ZEROCROSS && !DISABLE_SIGNALS
+	---help---
+		Enable the zero cross detection example
+
+if EXAMPLES_ZEROCROSS
+
+config EXAMPLES_ZEROCROSS_DEVNAME
+	string "Zero Cross device name"
+	default "/dev/zc0"
+
+config EXAMPLES_ZEROCROSS_SIGNO
+	int "Zero Cross signal"
+	default 13
+
+endif

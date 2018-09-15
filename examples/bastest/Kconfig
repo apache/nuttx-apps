@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BASTEST
+	tristate "Setup Test Files for BAS"
+	default n
+	depends on FS_ROMFS && INTERPRETERS_BAS
+	---help---
+		Mount the ROMFS file system containing the BAS test files at
+		/mnt/romfs.  This selection depends both on INTERPRETER_BAS to provide
+		the BASIC interpreter and and upon FS_ROMFS to provide support for the
+		ROMFS file system.
+
+		The logic in certain tests (test33.bas and test36.bas will also fail
+		if there is no writable file system mount at /tmp.
+
+if EXAMPLES_BASTEST
+
+config EXAMPLES_BASTEST_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in
+		/dev/ramN. Used for registering the RAM block driver that will hold
+		the ROMFS file system containing the BASIC files to be tested.
+		Default: 0
+
+config EXAMPLES_BASTEST_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match
+		EXAMPLES_BASTEST_DEVMINOR. Used for registering the RAM block driver
+		that will hold the ROMFS file system containing the BASIC files to
+		be tested.  Default: "/dev/ram0"
+
+endif

@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config IEEE802154_I8SAK
+	tristate "IEEE 802.15.4 Swiss Army Knife"
+	default n
+	select IEEE802154_LIBUTILS
+	select IEEE802154_LIBMAC
+	---help---
+		Enable the IEEE 802.15.4 Swiss Army Knife
+
+if IEEE802154_I8SAK
+
+config IEEE802154_I8SAK_PROGNAME
+	string "Program name"
+	default "i8"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config IEEE802154_I8SAK_PRIORITY
+	int "i8sak task priority"
+	default 100
+
+config IEEE802154_I8SAK_STACKSIZE
+	int "i8sak stack size"
+	default 4096
+
+if NET_6LOWPAN
+config IEEE802154_I8SAK_DEFAULT_PORT
+	int "Default Port"
+	default 61616
+	---help---
+		The default port to be used for blaster/tx/sniffer commands when using
+		i8sak through a network interface (ex. wpan0). Port is 61616 because
+		6LoWPAN has special compression for port 61616-61631
+endif
+
+endif

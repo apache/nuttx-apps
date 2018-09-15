@@ -1,0 +1,92 @@
+############################################################################
+# apps/examples/thttpd/content/Makefile.binfs
+#
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+-include $(TOPDIR)/Make.defs
+
+CONFIG_THTTPD_CGI_PRIORITY ?= 100
+CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
+
+APPNAME = hello tasks
+PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
+STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
+
+THTTPD_DIR = $(APPDIR)/examples/thttpd
+CONTENT_DIR = $(THTTPD_DIR)/content
+ROMFS_DIR = $(CONTENT_DIR)/romfs
+ROMFS_IMG = $(CONTENT_DIR)/romfs.img
+ROMFS_HDR = $(CONTENT_DIR)/romfs.h
+
+CSRCS = hello.c tasks.c
+
+PROGNAME = hello$(EXEEXT) tasks$(EXEEXT)
+
+ROOTDEPPATH += --dep-path hello --dep-path tasks
+VPATH += :hello:tasks
+
+# Create the romfs directory
+
+$(ROMFS_DIR):
+	@mkdir -p $(ROMFS_DIR)
+
+# Populate the romfs directory
+
+$(ROMFS_DIR)/index.html : $(CONTENT_DIR)/index.html
+	@cp -a $< $@ || { echo "cp of index.html failed"; exit 1; }
+
+$(ROMFS_DIR)/style.css : $(CONTENT_DIR)/style.css
+	@cp -a $< $@ || { echo "cp of $< failed"; exit 1; }
+
+populate: $(ROMFS_DIR) $(ROMFS_DIR)/index.html  $(ROMFS_DIR)/style.css
+
+# Create the romfs.img file from the populated romfs directory
+
+$(ROMFS_IMG): populate
+	@genromfs -f $@ -d $(ROMFS_DIR) -V "THTTPDTEST"
+
+# Create the romfs.h header file from the romfs.img file
+
+$(ROMFS_HDR) : $(ROMFS_IMG)
+	@(cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+
+context:: $(ROMFS_HDR)
+
+clean::
+	$(call DELFILE$(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_IMG))
+	@rm -rf $(ROMFS_DIR)
+
+MODULE = CONFIG_EXAMPLES_THTTPD
+
+include $(APPDIR)/Application.mk

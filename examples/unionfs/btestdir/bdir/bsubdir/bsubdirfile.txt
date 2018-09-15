@@ -1,0 +1,2 @@
+This is a file in directory bdir/bsubdir on file system 2
+

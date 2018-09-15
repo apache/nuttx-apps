@@ -1,0 +1,110 @@
+############################################################################
+# apps/system/zmodem/Makefile.host
+#
+#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+############################################################################
+# USAGE:
+#
+#   1. TOPDIR and APPDIR must be defined on the make command line:  TOPDIR
+#      is the full path to the nuttx/ directory; APPDIR is the full path to
+#      the apps/ directory.  For example:
+#
+#        make -f Makefile.host TOPDIR=/home/me/projects/nuttx
+#          APPDIR=/home/me/projects/apps
+#
+#   2. Add CONFIG_DEBUG_FEATURES=1 to the make command line to enable debug output
+#   3. Make sure to clean old target .o files before making new host .o
+#      files.
+#
+############################################################################
+
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+NUTTXINC = $(TOPDIR)/include
+APPSINC  = $(APPDIR)/include
+
+ZMODEM   = $(APPDIR)/system/zmodem
+HOSTDIR  = $(ZMODEM)/host
+HOSTAPPS = $(ZMODEM)/host/apps
+
+HOSTCFLAGS  += -isystem $(HOSTDIR) -I $(ZMODEM) -I $(HOSTAPPS)
+HOSTCFLAGS  += -Dsz_main=main -Drz_main=main
+ifeq ($(CONFIG_DEBUG_FEATURES),y)
+HOSTCFLAGS  += -DCONFIG_DEBUG_ZMODEM=1 -DCONFIG_SYSTEM_ZMODEM_DUMPBUFFER=1
+endif
+
+# Zmodem sz and rz commands
+
+SZSRCS   = sz_main.c zm_send.c
+RZSRCS   = rz_main.c zm_receive.c
+CMNSRCS  = zm_state.c zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
+CMNSRCS += crc16.c crc32.c
+SRCS     = $(SZSRCS) $(RZSRCS) $(CMNSRCS)
+
+SZOBJS   = $(SZSRCS:.c=$(OBJEXT))
+RZOBJS   = $(RZSRCS:.c=$(OBJEXT))
+CMNOBJS  = $(CMNSRCS:.c=$(OBJEXT))
+OBJS     = $(SRCS:.c=$(OBJEXT))
+
+RZBIN    = rz$(EXEEXT)
+SZBIN    = sz$(EXEEXT)
+
+VPATH    = host
+
+all: $(RZBIN) $(SZBIN)
+.PHONY: clean
+
+$(OBJS): %$(OBJEXT): %.c
+	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) -o $@ $<
+
+$(HOSTAPPS)/system:
+	$(Q) mkdir $(HOSTAPPS)/system
+
+$(HOSTAPPS)/system/zmodem.h: $(HOSTAPPS)/system $(APPSINC)/system/zmodem.h
+	$(Q) cp $(APPSINC)/system/zmodem.h $(HOSTAPPS)/system/zmodem.h
+
+$(RZBIN): $(HOSTAPPS)/system/zmodem.h $(RZOBJS) $(CMNOBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(RZOBJS) $(CMNOBJS) -lrt
+
+$(SZBIN): $(HOSTAPPS)/system/zmodem.h $(SZOBJS) $(CMNOBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(SZOBJS) $(CMNOBJS) -lrt
+
+clean:
+ifneq ($(OBJEXT),)
+	rm -f *$(OBJEXT)
+endif
+	rm -f $(RZBIN) $(SZBIN)
+	rm -rf $(HOSTAPPS)/system

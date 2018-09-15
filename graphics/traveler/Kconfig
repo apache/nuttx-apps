@@ -1,0 +1,195 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GRAPHICS_TRAVELER
+	tristate "Traveler game"
+	default n
+	depends on NX || VIDEO_FB
+	select FSUTILS_INIFILE
+	---help---
+		Enable or disable the graphic Traveler game
+
+if GRAPHICS_TRAVELER
+
+choice
+	prompt "Video interface"
+	default GRAPHICS_TRAVELER_FB if VIDEO_FB
+	default GRAPHICS_TRAVELER_NX if !VIDEO_FB
+
+config GRAPHICS_TRAVELER_FB
+	bool "Framebuffer Driver"
+	depends on VIDEO_FB
+
+config GRAPHICS_TRAVELER_NX
+	bool "NX Graphics"
+	depends on NX
+
+endchoice # Video interface
+
+if GRAPHICS_TRAVELER_FB
+
+config GRAPHICS_TRAVELER_FBDEV
+	string "Framebuffer Device"
+	default "/dev/fb0"
+
+endif # GRAPHICS_TRAVELER_FB
+
+if GRAPHICS_TRAVELER_NX
+
+comment "NX Server Configuration Options"
+
+config GRAPHICS_TRAVELER_STACKSIZE
+	int "Listener Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when starting the NX listener.  Default 2048
+
+config GRAPHICS_TRAVELER_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 100.
+
+config GRAPHICS_TRAVELER_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+endif # GRAPHICS_TRAVELER_NX
+
+comment "Color configuration"
+
+choice
+	prompt "Color format"
+	default GRAPHICS_TRAVELER_RGB16_565
+
+config GRAPHICS_TRAVELER_RGB16_565
+	bool "RGB16 565"
+
+config GRAPHICS_TRAVELER_RGB32_888
+	bool "RGB32 888 (no transparency)"
+
+endchoice # Color format
+
+config GRAPHICS_TRAVELER_DEFPATH
+	string "Default path to world data"
+	default "/mnt/world"
+	---help---
+		This is the default path to the directory where the world file data
+		can be found.  The default world file name is transfrom.wld (not
+		configurable).
+
+config GRAPHICS_TRAVELER_LIMITFPS
+	bool "Limit frame rate"
+	default y if ARCH_SIM
+	default n if !ARCH_SIM
+	---help---
+		In the UNLIKELY event that the frame rate is too high, this option
+		may to selected to limit the frame rate to upper limit.  This is
+		most likely not something that you either want or need to do.
+		However, in the special case of the PC-based simulation environment,
+		it turns out to be necessary to limit the frame rate in order to
+		allow other processing to occur.  This is a consequence of the low
+		fidelity timing in the simulation.
+
+config GRAPHICS_TRAVELER_MAXFPS
+	int "Max frame rate"
+	default 30
+	depends on GRAPHICS_TRAVELER_LIMITFPS
+	---help---
+		if GRAPHICS_TRAVELER_LIMITFPS is selected, then this is the maximum
+		frame rate that will be permitted.
+
+
+config GRAPHICS_TRAVELER_PALRANGES
+	bool "Use ranged palette"
+	default y
+	---help---
+		If this option is false, then the whole palette table is loaded from
+		the graphics file.  Otherwise, the palette table will be calculated
+		from a range table.  Default y, this is a good thing.
+
+comment "Input device selection"
+
+config GRAPHICS_TRAVELER_JOYSTICK
+	bool
+	default n
+
+choice
+	prompt "Input device"
+	default GRAPHICS_TRAVELER_AJOYSTICK if AJOYSTICK
+	default GRAPHICS_TRAVELER_DJOYSTICK if DJOYSTICK && !AJOYSTICK
+	default GRAPHICS_TRAVELER_NX_XYINPUT if GRAPHICS_TRAVELER_NX && NX_XYINPUT && !AJOYSTICK && !DJOYSTICK
+
+config GRAPHICS_TRAVELER_AJOYSTICK
+	bool "Analog joystick"
+	depends on AJOYSTICK
+	select GRAPHICS_TRAVELER_JOYSTICK
+
+config GRAPHICS_TRAVELER_DJOYSTICK
+	bool "Discrete joystick"
+	depends on DJOYSTICK
+	select GRAPHICS_TRAVELER_JOYSTICK
+
+config GRAPHICS_TRAVELER_NX_XYINPUT
+	bool "NX X/Y input"
+	depends on GRAPHICS_TRAVELER_NX && NX_XYINPUT
+
+endchoice # Input device
+
+if GRAPHICS_TRAVELER_AJOYSTICK || GRAPHICS_TRAVELER_DJOYSTICK
+
+config GRAPHICS_TRAVELER_JOYSTICK_SIGNO
+	int "Joystick signal"
+	default 13
+	---help---
+		Signal number used by joystick driver to signal button events.
+
+endif
+
+config GRAPHICS_TRAVELER_JOYDEV
+	string "Joystick device name"
+	default "/dev/ajoy0" if GRAPHICS_TRAVELER_AJOYSTICK
+	default "/dev/djoy0" if GRAPHICS_TRAVELER_DJOYSTICK
+	depends on GRAPHICS_TRAVELER_JOYSTICK
+
+comment "Debug options"
+
+config GRAPHICS_TRAVELER_ROMFSDEMO
+	bool "Build ROMFS demo world"
+	default y
+	depends on FS_ROMFS
+	---help---
+		The traveller code will do nothing unless you also provide a world
+		data set for it to work on.  The world/ sub-directory contains a
+		demo world suitable for testing.  If this option is selected, then
+		the demo world is build as a mountable ROMFS file system.  This new
+		function is then exported that can be used to mount the demo world:
+
+			int trv_mount_world(int minor, FAR const char *mountpoint)
+
+		This function must be called somewhere in your board-specific start-
+		up logic in order to mount the world at 'mountpoint'
+
+config GRAPHICS_TRAVELER_PERFMON
+	bool "Performance monitor"
+	default y
+	---help---
+		Enable or disable performance monitoring instrumentation and output.
+
+config GRAPHICS_TRAVELER_DEBUG_LEVEL
+	int "Debug output level"
+	default 0
+	range 0 3
+	---help---
+		DEBUG_LEVEL == 3 turns off sound and video and enables verbose debug
+			messages on stdout.
+		DEBUG_LEVEL == 2 turns off sound and video and enables normal debug
+			output
+		DEBUG_LEVEL == 1 turns off sound and enables normal debug output
+		OTHERWISE, all debugging features are disabled.
+
+endif # GRAPHICS_TRAVELER

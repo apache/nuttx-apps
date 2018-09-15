@@ -1,0 +1,118 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_HEX2BIN
+	tristate "Intel HEX to binary conversion"
+	default n
+	select LIB_HEX2BIN
+	---help---
+		Enable support for a logic to convert Intel HEX format to binary.
+
+if SYSTEM_HEX2BIN
+
+config SYSTEM_HEX2BIN_BUILTIN
+	bool "NSH hex2bin Built-In"
+	default n
+	depends on NSH_BUILTIN_APPS
+	---help---
+		By default, a flexible hex2bin library function built.  An NSH
+		builtin function can also be generated to convert Intel HEX file
+		to binary files.
+
+if SYSTEM_HEX2BIN_BUILTIN
+
+config SYSTEM_HEX2BIN_STACKSIZE
+	int "hex2bin stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the hex2bin task.
+
+config SYSTEM_HEX2BIN_PRIORITY
+	int "hex2bin priority"
+	default 100
+	---help---
+		The priority of the hex2bin task.
+
+config SYSTEM_HEX2BIN_BASEADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the base address argument.  Saves typing.
+
+config SYSTEM_HEX2BIN_ENDPADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the end (plus 1) address argument.  Saves typing.
+
+config SYSTEM_HEX2BIN_SWAP
+	int "Swap bytes"
+	default 0
+	range 0 2
+	---help---
+		The default value of the swap argument.  (0) No swap, (1) swap bytes
+		in 16-bit values, or (2) swap bytes in 32-bit values.
+
+config SYSTEM_HEX2BIN_USAGE
+	bool "hex2bin usage"
+	default y
+	---help---
+		You can save a little FLASH memory by suppressing usage
+		instructions.
+
+endif # SYSTEM_HEX2BIN_BUILTIN
+
+config SYSTEM_HEX2MEM_BUILTIN
+	bool "NSH hex2mem Built-In"
+	default n
+	depends on NSH_BUILTIN_APPS
+	---help---
+		By default, a flexible hex2bin library function built.  An NSH
+		builtin function can also be generated to copy Intel HEX files
+		to memory.
+
+if SYSTEM_HEX2MEM_BUILTIN
+
+config SYSTEM_HEX2MEM_STACKSIZE
+	int "hex2mem stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the hex2bin task.
+
+config SYSTEM_HEX2MEM_PRIORITY
+	int "hex2mem priority"
+	default 100
+	---help---
+		The priority of the hex2bin task.
+
+config SYSTEM_HEX2MEM_BASEADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the base address argument.  Saves typing.
+
+config SYSTEM_HEX2MEM_ENDPADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the end (plus 1) address argument.  Saves typing.
+
+config SYSTEM_HEX2MEM_SWAP
+	int "Binary base address"
+	default 0
+	range 0 2
+	---help---
+		The default value of the swap argument.  (0) No swap, (1) swap bytes
+		in 16-bit values, or (2) swap tbytes in 32-bit values.
+
+config SYSTEM_HEX2MEM_USAGE
+	bool "hex2mem usage"
+	default y
+	---help---
+		You can save a little FLASH memory by suppressing usage
+		instructions.
+
+endif # SYSTEM_HEX2MEM_BUILTIN
+endif # SYSTEM_HEX2BIN

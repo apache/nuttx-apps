@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PDCURSES
+	tristate "pdcurses demos"
+	default n
+	---help---
+		Enable build the pdcurses demo programs
+
+if EXAMPLES_PDCURSES
+
+config EXAMPLES_PDCURSES_PRIORITY
+	int "pdcurses task priority"
+	default 100
+
+config EXAMPLES_PDCURSES_STACKSIZE
+	int "pdcurses stack size"
+	default 2048
+
+endif

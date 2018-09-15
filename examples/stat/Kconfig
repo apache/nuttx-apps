@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_STAT
+	tristate "Test of stat(), fstat(), and statfs()"
+	default n
+	---help---
+		Enable the test of stat(), fstat(), and statfs().
+
+if EXAMPLES_STAT
+
+config EXAMPLES_STAT_PROGNAME
+	string "Program name"
+	default "stat"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_STAT_PRIORITY
+	int "Stat task priority"
+	default 100
+
+config EXAMPLES_STAT_STACKSIZE
+	int "Stat stack size"
+	default 2048
+
+endif

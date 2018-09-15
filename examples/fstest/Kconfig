@@ -1,0 +1,47 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FSTEST
+	tristate "Generic file system test"
+	default n
+	depends on FS_READABLE && FS_WRITABLE
+	---help---
+		Enable the generic file system test
+
+if EXAMPLES_FSTEST
+
+config EXAMPLES_FSTEST_MAXNAME
+	int "Max name size"
+	default 32
+	range 1 255
+	---help---
+		Determines the maximum size of names used in the filesystem
+
+config EXAMPLES_FSTEST_MAXFILE
+	int "Max file size"
+	default 8192
+	---help---
+		Determines the maximum size of a file
+
+config EXAMPLES_FSTEST_MAXIO
+	int "Max I/O"
+	default 347
+
+config EXAMPLES_FSTEST_MAXOPEN
+	int "Max open files"
+	default 512
+
+config EXAMPLES_FSTEST_MOUNTPT
+	string "FSTEST mountpoint"
+
+config EXAMPLES_FSTEST_NLOOPS
+	int "Number of test loops"
+	default 100
+
+config EXAMPLES_FSTEST_VERBOSE
+	bool "Verbose output"
+	default n
+
+endif

@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_JSON
+	tristate "JSON example"
+	default n
+	select NETUTILS_JSON
+	---help---
+		An example for the netutils/json library.
+
+if EXAMPLES_JSON
+endif

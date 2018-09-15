@@ -1,0 +1,48 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_LZF
+	tristate "LZF compression tool"
+	default n
+	depends on LIBC_LZF
+	---help---
+		Enable theLZF compression tool
+
+if SYSTEM_LZF
+
+config SYSTEM_LZF_BLOG
+	int "Log2 of block size"
+	default 10
+	range 9 12
+	---help---
+		This example uses two buffers of size a little more than
+		(1 << CONFIG_SYSTEM_LZF_BLOG) to compress and decompress data in
+		chunks. Slightly better compression should be obtainable with larger
+		chunks.
+
+		NOTE:  This is a static memory allocation and will take add a little
+		more than 2 * (1 << CONFIG_SYSTEM_LZF_BLOG) bytes to the size of the
+		.bss section used by the program.
+
+		NOTE:  This represents a maximum blocksize.  The use may select a
+		smaller blocksize using the 'lzf -b' option.
+
+config SYSTEM_LZF_PROGNAME
+	string "Program name"
+	default "lzf"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_LZF_PRIORITY
+	int "LZF tool task priority"
+	default 100
+
+config SYSTEM_LZF_STACKSIZE
+	int "LZF tool stack size"
+	default 2048
+
+endif

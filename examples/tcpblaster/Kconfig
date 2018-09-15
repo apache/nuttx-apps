@@ -1,0 +1,595 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TCPBLASTER
+	tristate "TCP Performance Test"
+	default n
+	select LIBC_FLOATINGPOINT
+	depends on NET_TCP
+	---help---
+		Enable the network test example
+
+if EXAMPLES_TCPBLASTER
+
+config EXAMPLES_TCPBLASTER_SENDSIZE
+	int "Payload size"
+	default 4096
+	---help---
+		This setting determines size of each test packet sent to the server.
+
+config EXAMPLES_TCPBLASTER_PROGNAME1
+	string "Target1 program name"
+	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
+	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the TcpBlaster
+		program is installed for target1.
+
+config EXAMPLES_TCPBLASTER_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
+
+config EXAMPLES_TCPBLASTER_PRIORITY1
+	int "Target1 priority"
+	default 100
+
+config EXAMPLES_TCPBLASTER_POLLOUT
+	bool "Use poll() to pace output"
+	default n
+	depends on !DISABLE_POLL
+	---help---
+		Client will use poll() to verify that send() will not block.  This
+		does not improve performance (in fact, it will degrade perform
+		slightly).  But it is useful for verifying that poll() can be used
+		to pace output.
+
+config EXAMPLES_TCPBLASTER_POLLIN
+	bool "Use poll() to pace input"
+	default n
+	depends on !DISABLE_POLL
+	---help---
+		Client will use poll() to verify that recv() will not block.  This
+		does not improve performance (in fact, it will degrade perform
+		slightly).  But it is useful for verifying that poll() can be used
+		to pace input.
+
+config EXAMPLES_TCPBLASTER_LOOPBACK
+	bool "Loopback test"
+	default n
+	depends on NET_LOOPBACK || IEEE802154_LOOPBACK || PKTRADIO_LOOPBACK
+	---help---
+		Perform the test using the local loopback device.  In this case,
+		both the client and the server reside on the target.
+
+# No server if loopback; No second target if loopback
+
+if !EXAMPLES_TCPBLASTER_LOOPBACK
+
+config EXAMPLES_TCPBLASTER_SERVER
+	bool "Target1 is server"
+	default n
+	depends on !EXAMPLES_TCPBLASTER_LOOPBACK
+	---help---
+		Select to use the host as the client side of the test.  Default:  The
+		target is the client side of the test
+
+config EXAMPLES_TCPBLASTER_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		TCPBLASTER.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with no host PC
+		involvement.
+
+if EXAMPLES_TCPBLASTER_TARGET2
+
+config EXAMPLES_TCPBLASTER_PROGNAME2
+	string "Target2 program name"
+	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
+	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_TCPBLASTER_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_TCPBLASTER_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_TCPBLASTER_TARGET2
+endif # !EXAMPLES_TCPBLASTER_LOOPBACK
+
+if EXAMPLES_TCPBLASTER_LOOPBACK
+config EXAMPLES_TCPBLASTER_DAEMON_STACKSIZE
+	int "Server daemon stack size"
+	default 2048
+
+config EXAMPLES_TCPBLASTER_DAEMON_PRIORITY
+	int "Server daemon priority"
+	default 100
+#endif
+
+endif # EXAMPLES_TCPBLASTER_LOOPBACK
+
+config EXAMPLES_TCPBLASTER_DEVNAME
+	string "Network device"
+	default "eth0"
+
+choice
+	prompt "IP Domain"
+	default EXAMPLES_TCPBLASTER_IPv4 if NET_IPv4
+	default EXAMPLES_TCPBLASTER_IPv6 if NET_IPv6 && !NET_IPv4
+
+config EXAMPLES_TCPBLASTER_IPv4
+	bool "IPv4"
+	depends on NET_IPv4
+
+config EXAMPLES_TCPBLASTER_IPv6
+	bool "IPv6"
+	depends on NET_IPv6
+
+endchoice # IP Domain
+
+# No hardware initialization if loopback
+
+config EXAMPLES_TCPBLASTER_INIT
+	bool "Initialize network"
+	default n if NSH_BUILTIN_APPS
+	default y if !NSH_BUILTIN_APPS
+	depends on !BUILD_LOADABLE && !EXAMPLES_TCPBLASTER_LOOPBACK
+	---help---
+		Include logic to initialize the network.  This should not be done if
+		the network is already initialized when tcpblaster runs.  This is
+		usually the case, for example, when tcpblaster is run as an NSH built-
+		in task.
+
+config EXAMPLES_TCPBLASTER_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	depends on EXAMPLES_TCPBLASTER_INIT
+
+if EXAMPLES_TCPBLASTER_IPv4
+
+comment "IPv4 addresses"
+
+if EXAMPLES_TCPBLASTER_INIT
+
+config EXAMPLES_TCPBLASTER_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_TCPBLASTER_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_TCPBLASTER_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif # EXAMPLES_TCPBLASTER_INIT
+
+# No server if loopback
+
+if !EXAMPLES_TCPBLASTER_LOOPBACK
+
+config EXAMPLES_TCPBLASTER_SERVERIP
+	hex "Server IP Address"
+	default 0x0a000001 if !EXAMPLES_TCPBLASTER_SERVER
+	default 0x0a000002 if EXAMPLES_TCPBLASTER_SERVER
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+endif # !EXAMPLES_TCPBLASTER_LOOPBACK
+endif # EXAMPLES_TCPBLASTER_IPv4
+
+if EXAMPLES_TCPBLASTER_IPv6
+if !NET_ICMPv6_AUTOCONF
+
+comment "Target IPv6 address"
+
+if EXAMPLES_TCPBLASTER_INIT
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the first of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the second of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the third of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fourth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fifth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the sixth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the seventh of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_TCPBLASTER_IPv6ADDR_8
+	hex "[7]"
+	default 0x0002
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the last of the 8-values.  The
+		default for all eight values is fc00::2.
+
+comment "Router IPv6 address"
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the first of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the second of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the third of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fourth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fifth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the sixth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the seventh of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_TCPBLASTER_DRIPv6ADDR_8
+	hex "[7]"
+	default 0x0001
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the last of the
+		8-values.  The default for all eight values is fc00::1.
+
+comment "IPv6 Network mask"
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_1
+	hex "[0]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_2
+	hex "[1]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_3
+	hex "[2]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_4
+	hex "[3]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_5
+	hex "[4]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_6
+	hex "[5]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_7
+	hex "[6]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_TCPBLASTER_IPv6NETMASK_8
+	hex "[7]"
+	default 0xff80
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the eighth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+endif # NET_ICMPv6_AUTOCONF
+endif # EXAMPLES_TCPBLASTER_INIT
+
+# Addresses are well known if loopback is used.
+
+if !EXAMPLES_TCPBLASTER_LOOPBACK || !NET_LOOPBACK
+
+comment "Server IPv6 address"
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the cleint,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the first of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the second of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the Third of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fourth of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the fifth of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the sixth of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the seventh of the 8-values.
+
+config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_8
+	hex "[7]"
+	default 0x0001 if !EXAMPLES_TCPBLASTER_SERVER
+	default 0x0002 if EXAMPLES_TCPBLASTER_SERVER
+	range 0x0 0xffff
+	---help---
+		IP address of the server.  If the target is the server, then
+		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
+		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_TCPBLASTER_DRIPADDR?).
+
+		This is a 16-bit integer value in host order. Each of the eight
+		values forming the full IP address must be specified individually.
+		This is the last of the 8-values.
+
+endif # !EXAMPLES_TCPBLASTER_LOOPBACK
+endif # EXAMPLES_TCPBLASTER_IPv6
+
+config EXAMPLES_TCPBLASTER_SERVER_PORTNO
+	int "Server port number"
+	default 5471
+
+endif # EXAMPLES_TCPBLASTER

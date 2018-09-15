@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menu "Platform-specific Support"
+
+config PLATFORM_CONFIGDATA
+	bool "Platform configuration data"
+	default n
+	---help---
+		Set this option if the platform retention of configuration data.
+		This storage mechanism is platform dependent and must be implemented
+		in the platform specific directory under apps/platform/.  The
+		storage mechanism is not visible to applications so underlying non-
+		volatile storage can be used:  A file, EEPROM, hardcoded values in
+		FLASH, etc.
+
+source "$APPSDIR/platform/gnu/Kconfig"
+source "$APPSDIR/platform/board/Kconfig"
+
+endmenu # Platform-specific Support

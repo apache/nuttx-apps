@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_PASSWD
+	bool "Password file support"
+	default n
+	depends on FS_READABLE
+	---help---
+		Enables support for /etc/passwd file access routines
+
+if FSUTILS_PASSWD
+
+config FSUTILS_PASSWD_PATH
+	string "Path to the passwd file"
+	default "/etc/passwd"
+
+config FSUTILS_PASSWD_READONLY
+	bool "Read-only /etc/passwd file?"
+	default n
+	depends on FS_WRITABLE
+
+config FSUTILS_PASSWD_IOBUFFER_SIZE
+	int "Allocated I/O buffer size"
+	default 512
+
+config FSUTILS_PASSWD_KEY1
+	hex "Encryption key value 1"
+	default 0x12345678
+
+config FSUTILS_PASSWD_KEY2
+	hex "Encryption key value 2"
+	default 0x9abcdef0
+
+config FSUTILS_PASSWD_KEY3
+	hex "Encryption key value 3"
+	default 0x12345678
+
+config FSUTILS_PASSWD_KEY4
+	hex "Encryption key value 4"
+	default 0x9abcdef0
+
+endif # FSUTILS_PASSWD

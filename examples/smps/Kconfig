@@ -1,0 +1,69 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SMPS
+	tristate "Smps example"
+
+if EXAMPLES_SMPS
+
+config EXAMPLES_SMPS_DEVPATH
+	string "Smps device path"
+	default "dev/smps0"
+	---help---
+		The default path to the Smps device. Default: /dev/smps0
+
+config EXAMPLES_SMPS_TIME_DEFAULT
+	int "SMPS example run time default (sec)"
+	default 0
+
+config EXAMPLES_SMPS_OUT_VOLTAGE_DEFAULT
+	int "SMPS Output voltage default (mV)"
+	default 0
+
+config EXAMPLES_SMPS_OUT_CURRENT_DEFAULT
+	int "SMPS Output current default (mA)"
+	default 0
+
+config EXAMPLES_SMPS_OUT_POWER_DEFAULT
+	int "SMPS Output power default (mW)"
+	default 0
+
+config EXAMPLES_SMPS_IN_CURRENT_LIMIT
+	int "SMPS Input Current limit (mA)"
+	default 0
+	---help---
+		Input current limit for the SMPS driver in mA. Not used if 0
+
+config EXAMPLES_SMPS_OUT_CURRENT_LIMIT
+	int "SMPS Output Current limit (mA)"
+	default 0
+	---help---
+		Output current limit for the SMPS driver in mA. Not used if 0
+
+config EXAMPLES_SMPS_IN_VOLTAGE_LIMIT
+	int "SMPS Input Voltage limit (mV)"
+	default 0
+	---help---
+		Input voltage limit for the SMPS driver in mV. Not used if 0
+
+config EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT
+	int "SMPS Output Voltage limit (mV)"
+	default 0
+	---help---
+		Output voltage limit for the SMPS driver in mV. Not used if 0
+
+config EXAMPLES_SMPS_IN_POWER_LIMIT
+	int "SMPS Input Power limit (mW)"
+	default 0
+	---help---
+		Input power limit for the SMPS driver in mW. Not used if 0
+
+config EXAMPLES_SMPS_OUT_POWER_LIMIT
+	int "SMPS Output Power limit (mW)"
+	default 0
+	---help---
+		Output power limit for the SMPS driver in mW. Not used if 0
+
+endif

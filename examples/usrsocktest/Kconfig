@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_USRSOCKTEST
+	tristate "USRSOCK test example"
+	default n
+	depends on NET && NET_USRSOCK && !DISABLE_POLL
+	select NET_USRSOCK_TCP
+	select NET_USRSOCK_UDP
+	select NET_SOCKOPTS
+	select PIPES
+	---help---
+		Enable the User Socket test example. This example application runs
+		unit-tests for /dev/usrsock.
+
+if EXAMPLES_USRSOCKTEST
+
+config EXAMPLES_USRSOCKTEST_PROGNAME
+	string "Program name"
+	default "usrsocktest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_USRSOCKTEST_PRIORITY
+	int "usrsocktest task priority"
+	default 100
+
+config EXAMPLES_USRSOCKTEST_STACKSIZE
+	int "usrsocktest stack size"
+	default 4096
+
+endif

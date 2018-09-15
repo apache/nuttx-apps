@@ -1,0 +1,57 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MOUNT
+	tristate "File system mount example"
+	default n
+	---help---
+		Enable the file system mount example
+
+if EXAMPLES_MOUNT
+
+config EXAMPLES_MOUNT_BLOCKDEVICE
+	bool "Use block device"
+	default n
+	---help---
+		Use an existing block device to mount. If EXAMPLES_MOUNT_BLOCKDEVICE
+		is not selected, then a RAM disk will be configured for the test.
+
+if EXAMPLES_MOUNT_BLOCKDEVICE
+
+config EXAMPLES_MOUNT_DEVNAME
+	string "Block device name"
+	default "/dev/mtdblock0"
+	---help---
+		The name of the user-provided block device to mount.  Must be
+		provided if EXAMPLES_MOUNT_BLOCKDEVICE is selected.
+
+endif # EXAMPLES_MOUNT_BLOCKDEVICE
+
+if !EXAMPLES_MOUNT_BLOCKDEVICE
+
+config EXAMPLES_MOUNT_NSECTORS
+	int "RAM disk number of sectors"
+	default 2048
+	---help---
+		The number of "sectors" in the RAM disk used when
+		EXAMPLES_MOUNT_BLOCKDEVICE is not selected.
+
+config EXAMPLES_MOUNT_SECTORSIZE
+	int "RAM disk sector size"
+	default 512
+	---help---
+		The size of each sectors in the RAM disk used when
+		EXAMPLES_MOUNT_BLOCKDEVICE is not selected.
+
+config EXAMPLES_MOUNT_RAMDEVNO
+	int "RAM disk device number"
+	default 0
+	---help---
+		The RAM device minor number used to mount the RAM disk used when
+		EXAMPLES_MOUNT_BLOCKDEVICE is not selected.  The default is zero
+		(meaning that "/dev/ram0" will be used).
+
+endif # !EXAMPLES_MOUNT_BLOCKDEVICE
+endif # EXAMPLES_MOUNT

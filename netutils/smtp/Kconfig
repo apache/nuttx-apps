@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_SMTP
+	bool "SMTP"
+	default n
+	---help---
+		Enable support for SMTP.
+
+if NETUTILS_SMTP
+endif

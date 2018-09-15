@@ -1,0 +1,477 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig GRAPHICS_LVGL
+	bool "Littlev Graphic Library (LVGL)"
+	default n
+	---help---
+		Enable support for the LVGL GUI libray.
+
+if GRAPHICS_LVGL
+
+config LV_MEM_SIZE
+	int "Heap size of the graphics library"
+	default 32768
+	---help---
+		The size of a memory pool where the grapohisc library
+		dynamically allocates data
+
+menu "Graphics settings"
+
+config LV_HOR_RES
+	int "Horizontal resolution."
+	default 320
+	---help---
+		Number of pixels in horizontally.
+
+config LV_VER_RES
+	int "Vertical resolution."
+	default 240
+	---help---
+		Number of pixels vertically. Double it if anti aliasing is used
+
+config LV_DPI
+	int "DPI (px/inch)"
+	default 100
+	---help---
+		Number of pixels in 1 inch
+
+config LV_VDB_SIZE
+	int "Size of the internal graphics buffer (VDB) (0: no buffering)"
+	default 10240
+
+if LV_VDB_SIZE != 0
+
+config LV_VDB_ADR
+	int "Internal buffer's (VDB) memory address. 0: allocate automatically"
+	default 0
+	---help---
+		You can place the graphics buffer int a specific memory location.
+		E.g. into a mapped external RAM
+		Zero to allocate automatically into the RAM
+		Note: it's slower to access the data from a external memory
+
+config LV_VDB_DOUBLE
+	bool "Use 2 internal buffers. One to render and an other to flush data to frame buffer in background"
+	default n
+	---help---
+		Enable to use one buffer for rendering an other to flush the
+		ready content to the frame buffer.
+		The flushing should be done by a hardware modul (e.g. DMA) to
+		make rendering and flushing parallel
+
+if LV_VDB_DOUBLE
+
+config LV_VDB2_ADR
+	int "Second internal buffer's (VDB) memory address. 0: allocate automatically"
+	default 0
+	---help---
+		Similarly to LV_VDB_ADR. the second VDB address can be specified as well.
+endif   # LV_VDB_DOUBLE
+
+config LV_ANTIALIAS
+	bool "Anti aliasing of the screen"
+	default n
+
+endif # LV_VDB_SIZE != 0
+
+config LV_REFR_PERIOD
+	int "Refresh period in milliseconds"
+	default 50
+	---help---
+		The graphics library will check for invalid areas an refresh
+		them with this period time
+
+config LV_INV_FIFO_SIZE
+	int "Average number of object on the screen"
+	default 32
+	---help---
+		If too much area is invalidated (greater then this number) then
+		the whole screen will be refreshed
+
+endmenu
+
+menu "Input device settings"
+
+config LV_INDEV_READ_PERIOD
+	int "Input device read period in milliseconds"
+	default 50
+
+config LV_INDEV_POINT_MARKER
+	int "Mark the pressed points on the screen"
+	default 0
+
+config LV_INDEV_DRAG_LIMIT
+	int "Drag limit in pixels"
+	default 10
+
+config LV_INDEV_DRAG_THROW
+	int "Slow down ration when throwing on object by drag [%]"
+	default 20
+
+config LV_INDEV_LONG_PRESS_TIME
+	int "Long press time [ms]"
+	default 400
+
+config LV_INDEV_LONG_PRESS_REP_TIME
+	int "Repeated trigger period in long press [ms]"
+	default 100
+
+endmenu
+
+menu "Color settings"
+
+config LV_COLOR_DEPTH
+	int "Color depth (8/16/24)"
+	default 16
+
+config LV_COLOR_TRANSP
+	hex "Chroma key color (pixels with this color will be transparent on images)"
+	default 0x00ff00
+
+endmenu
+
+menu "Text (font) settings"
+
+config LV_TXT_UTF8
+	bool "Unicode support"
+	default n
+
+config LV_TXT_BREAK_CHARS
+	string "Characters where the words/line cab be wrapped"
+	default " ,.;:-_"
+
+endmenu
+
+menu "Feature usage"
+config USE_LV_ANIMATION
+	bool "Enable animations"
+	default y
+
+config USE_LV_SHADOW
+	bool "Enable shadows"
+	default y
+
+config USE_LV_GROUP
+	bool "Enable object groups (for keyboard)"
+	default y
+
+config USE_LV_GPU
+	bool "Enable GPU (hardware acceleration) API"
+	default y
+
+config USE_LV_REAL_DRAW
+	bool "Enable function which draw directly to the frame buffer instead of VDB"
+	default y
+
+config USE_LV_FILESYSTEM
+	bool "Enable filesystem (required for images, lv_img)"
+	default y
+endmenu
+
+menu "Theme usage"
+
+config USE_LV_THEME_TEMPL
+	bool "Use Template theme: just for test"
+	default n
+
+config USE_LV_THEME_DEFAULT
+	bool "Use Default theme: uses the built-in style"
+	default n
+
+config USE_LV_THEME_ALIEN
+	bool "Use Alien theme: dark futuristic theme"
+	default n
+
+config USE_LV_THEME_NIGHT
+	bool "Use Night theme: dark elegant theme"
+	default n
+
+config USE_LV_THEME_MONO
+	bool "Use Mono theme: mono color theme"
+	default n
+	
+config USE_LV_THEME_MATERIAL
+	bool "Use Mono theme: material theme with bold colors"
+	default n
+	
+config USE_LV_THEME_ZEN
+	bool "Use Mono theme: light, peaceful theme"
+	default n
+
+endmenu
+
+menu "Font usage"
+
+# 10 PX FONTS
+
+config USE_LV_FONT_DEJAVU_10
+	int "Dejavu 10 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_10_LATIN_SUP
+	int "Dejavu 10 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_10_CYRILLIC
+	int "Dejavu 10 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_SYMBOL_10
+	int "Symbol 10 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+#20 PX FONTS
+
+config USE_LV_FONT_DEJAVU_20
+	int "Dejavu 20 px"
+	default 4
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_20_LATIN_SUP
+	int "Dejavu 20 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_20_CYRILLIC
+	int "Dejavu 20 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_SYMBOL_20
+	int "Symbol 20 px"
+	default 4
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+#30 PX FONTS
+
+config USE_LV_FONT_DEJAVU_30
+	int "Dejavu 30 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_30_LATIN_SUP
+	int "Dejavu 30 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_30_CYRILLIC
+	int "Dejavu 30 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_SYMBOL_30
+	int "Symbol 30 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+#40 PX FONTS
+
+config USE_LV_FONT_DEJAVU_40
+	int "Dejavu 40 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_40_LATIN_SUP
+	int "Dejavu 40 px - latin supplement"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_DEJAVU_40_CYRILLIC
+	int "Dejavu 40 px - cyrillic"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+config USE_LV_FONT_SYMBOL_40
+	int "Symbol 40 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+endmenu
+
+menu "Base object settings"
+
+config LV_OBJ_FREE_PTR
+	bool "Free pointer enable/disable"
+	default y
+
+endmenu
+
+menu "Object type usage settings"
+
+config USE_LV_LABEL
+	bool "Label usage"
+	default y
+
+config USE_LV_IMG
+	bool "Image usage"
+	default y
+
+config USE_LV_LINE
+	bool "Line usage"
+	default y
+
+config USE_LV_CONT
+	bool "Container usage"
+	default y
+
+config USE_LV_PAGE
+	bool "Page usage"
+	default y
+
+config USE_LV_WIN
+	bool "Window usage"
+	default y
+
+config USE_LV_TABVIEW
+	bool "Tabview usage"
+	default y
+
+config USE_LV_BAR
+	bool "Bar usage"
+	default y
+
+config USE_LV_LMETER
+	bool "Line meter usage"
+	default y
+
+config USE_LV_CHART
+	bool "Chart usage"
+	default y
+
+config USE_LV_LED
+	bool "LED usage"
+	default y
+
+config USE_LV_MBOX
+	bool "Messagebox usage"
+	default y
+
+config USE_LV_TA
+	bool "Text area usage"
+	default y
+
+config USE_LV_BTN
+	bool "Button usage"
+	default y
+
+config USE_LV_BTNM
+	bool "Button matrix usage"
+	default y
+
+config USE_LV_KB
+	bool "Keyboard"
+	default y
+
+config USE_LV_CB
+	bool "Chekbox usage"
+	default y
+
+config USE_LV_SW
+	bool "Switch usage"
+	default y
+
+config USE_LV_LIST
+	bool "List usage"
+	default y
+
+config USE_LV_DDLIST
+	bool "Drop down list usage"
+	default y
+
+config USE_LV_ROLLER
+	bool "Roller usage"
+	default y
+
+config USE_LV_SLIDER
+	bool "Slider usage"
+	default y
+
+endmenu
+
+endif # GRAPHICS_LVGL

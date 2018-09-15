@@ -1,0 +1,49 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ADC
+	tristate "ADC example"
+	default n
+	depends on ADC && LIB_BOARDCTL
+	select BOARDCTL_ADCTEST
+	---help---
+		Enable the ADC example
+
+if EXAMPLES_ADC
+
+config EXAMPLES_ADC_DEVPATH
+	string "ADC device path"
+	default "/dev/adc0"
+	---help---
+		The default path to the ADC device. Default: /dev/adc0
+
+config EXAMPLES_ADC_NSAMPLES
+	int "Number of Sample Groups"
+	default 0
+	depends on !NSH_BUILTIN_APPS
+	---help---
+		If NSH_BUILTIN_APPS is defined, then the number of samples is provided
+		on the command line and this value is ignored.  Otherwise, this number
+		of samples is collected and the program terminates.  Default:  0 (samples
+		are collected indefinitely).
+
+config EXAMPLES_ADC_GROUPSIZE
+	int "Number of Samples per Group"
+	default 4
+	---help---
+		The number of samples to read at once. Default: 4
+
+config EXAMPLES_ADC_SWTRIG
+	bool "Use software trigger"
+	default n
+	---help---
+		Some ADCs may be configured so there is no automatic or periodic
+		conversion of samples.  Rather, the ADC sampling must be trigger by
+		software via an ioctl command.  Select this option only if
+		applicable for your ADC configuration.  In this case, the test will
+		issue the software trigger ioctl before attempting to read from the
+		ADC.
+
+endif

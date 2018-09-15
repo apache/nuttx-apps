@@ -1,0 +1,45 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SYSTEM
+	bool "System Command"
+	default n
+	select SCHED_WAITPID
+	depends on NSH_LIBRARY
+	---help---
+		Enable support for the system() interface.  This will support
+		execution of NSH commands from C code.
+
+if SYSTEM_SYSTEM
+
+config SYSTEM_SYSTEM_SHPATH
+	string "Path to shell command"
+	default "/bin/nsh"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the full path to the program in a mounted file system that
+		implements the system() command.  That is, a program that starts the
+		NSH shell, executes one command (in argv[1]), then exits.
+
+config SYSTEM_SYSTEM_STACKSIZE
+	int "system stack size"
+	default 2048 if !ARCH_SIM
+	default 4096 if ARCH_SIM
+	---help---
+		The size of stack allocated for the shell.
+
+		NOTE: I needed to set the stack size quite large to get this example
+		working on the simulated target (perhaps because of the 64-bit
+		stack?  Or perhaps that is a sneak call into the host libc that I
+		have not caught).  I assume that a smaller stack would be okay on
+		real hardware, but I have not yet verified that.
+
+config SYSTEM_SYSTEM_PRIORITY
+	int "system priority"
+	default 100
+	---help---
+		The priority of the shell.
+
+endif

@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UNIONFS
+	tristate "Union file system example"
+	default n
+	depends on (FS_ROMFS || FS_UNIONFS) && BUILD_FLAT
+	---help---
+		Enable the Union File System example
+
+if EXAMPLES_UNIONFS
+
+config EXAMPLES_UNIONFS_MOUNTPT
+	string "Union FS mount point"
+	default "/mnt/unionfs"
+
+config EXAMPLES_UNIONFS_RAMDEVNO_A
+	int "File system 1 RAM disk device number"
+	default 1
+
+config EXAMPLES_UNIONFS_RAMDEVNO_B
+	int "File system 1 RAM disk device number"
+	default 2
+
+config EXAMPLES_UNIONFS_SECTORSIZE
+	int "ROMFS sector size"
+	default 64
+
+config EXAMPLES_UNIONFS_TMPA
+	string "File system 1 temporary point"
+	default "/mnt/a"
+
+config EXAMPLES_UNIONFS_TMPB
+	string "File system 2 temporary point"
+	default "/mnt/b"
+
+endif

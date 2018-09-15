@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config BTSAK
+	tristate "Bluetooth Swiss Army Knife"
+	default n
+	---help---
+		Enable the Bluetooth Swiss Army Knife
+
+if BTSAK
+
+config BTSAK_PROGNAME
+	string "Program name"
+	default "bt"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config BTSAK_PRIORITY
+	int "btsak task priority"
+	default 100
+
+config BTSAK_STACKSIZE
+	int "btsak stack size"
+	default 2048
+
+if NET_6LOWPAN && !NET_BLUETOOTH
+
+config BTSAK_DEFAULT_PORT
+	int "Default Port"
+	default 61616
+	---help---
+		The default port to be used for commands when using btsak through a
+		Pv6 network interface (ex. wpan0). Port is 61616 because 6LoWPAN has
+		special compression for port 61616-61631
+
+endif
+
+endif

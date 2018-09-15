@@ -1,0 +1,128 @@
+############################################################################
+# apps/Make.defs
+# Common make definitions provided to all applications
+#
+#   Copyright (C) 2011, 2014, 2016, 2018 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+# Builtin Registration
+
+BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
+
+DEPCONFIG = $(TOPDIR)$(DELIM).config
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+define REGISTER
+	$(Q) echo Register: $1
+	$(Q) echo { "$1", $2, $3, $4 }, > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"
+	$(Q) if [ ! -z $4 ]; then \
+	        echo "int $4(int argc, char *argv[]);" > "$(BUILTIN_REGISTRY)$(DELIM)$1.pdat"; \
+	     fi;
+	$(Q) touch $(BUILTIN_REGISTRY)$(DELIM).updated"
+endef
+else
+define REGISTER
+	$(Q) echo "Register: $1  $4"
+	$(Q) echo "{ \"$1\", $2, $3, $4 }," > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"
+	$(Q) if [ ! -z $4 ]; then \
+	        echo "int $4(int argc, char *argv[]);" > "$(BUILTIN_REGISTRY)$(DELIM)$1.pdat"; \
+	     fi;
+	$(Q) touch "$(BUILTIN_REGISTRY)$(DELIM).updated"
+endef
+endif
+
+# Tools
+#
+# In a normal build, tools will reside in the nuttx/tools sub-directory and
+# TOPDIR will refer to that nuttx/ directory.  This, however, is not the
+# case when building apps/ with a NuttX export directory; there is no
+# apps/import/tools directory.  In that case copies of the NuttX tools in
+# the apps/tools directory are used.
+
+DELIM ?= $(strip /)
+ifneq (,$(wildcard $(TOPDIR)$(DELIM)tools))
+  TOOLDIR = $(TOPDIR)$(DELIM)tools
+else
+  TOOLDIR = $(APPDIR)$(DELIM)tools
+endif
+
+ifeq ($(DIRLINK),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  DIRLINK   = $(TOOLDIR)$(DELIM)link.bat
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.bat
+else ifeq ($(CONFIG_WINDOWS_MSYS),y)
+  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
+else
+  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
+ifeq ($(WINTOOL),y)
+  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
+else
+  DIRLINK   = $(TOOLDIR)$(DELIM)link.sh
+endif
+endif
+endif
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.bat
+else
+  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
+endif
+
+ifeq ($(INCDIR),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  INCDIR = $(TOOLDIR)$(DELIM)incdir.bat
+else
+  INCDIR = $(TOOLDIR)$(DELIM)incdir.sh
+endif
+endif
+
+ifeq ($(DEFINE),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  DEFINE = $(APPDIR)$(DELIM)tools$(DELIM)define.bat
+else
+  DEFINE = $(APPDIR)$(DELIM)tools$(DELIM)define.sh
+endif
+endif
+
+ifeq ($(WINTOOL),y)
+  INCDIROPT = -w
+endif
+
+# Standard include path
+
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  LDLIBS = $(APPDIR)/libapps.a
+endif

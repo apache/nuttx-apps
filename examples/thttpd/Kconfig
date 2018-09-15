@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_THTTPD
+	tristate "THTTPD web server example"
+	default n
+	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		Enable the THTTPD web server example
+
+if EXAMPLES_THTTPD
+
+config EXAMPLES_THTTPD_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	---help---
+		May be defined to use a hard-coded, software assigned MAC of
+		00:0e:de:ad:be:ef
+
+config EXAMPLES_THTTPD_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_THTTPD_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif

@@ -1,0 +1,91 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SOTEST
+	tristate "Shared Library Example"
+	default n
+	depends on LIBC_DLLFCN
+	---help---
+		Enable the shared library example
+
+if EXAMPLES_SOTEST
+
+config EXAMPLES_SOTEST_BUILTINFS
+	bool "Built-in File System"
+	default y
+	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		This example supports a very, non-standard but also very convenient
+		way of testing with example using CONFIG_EXAMPLES_SOTEST_BUILTINFS.
+		If this option is selected, the test shared libraries will be built,
+		installed in the sotest/lib/fsroot, then converted to a built-in
+		ROMFS file system.
+
+		When the test runs, it will automatically create the ROMFS block
+		device and mount the test shared libraries for testing.
+
+		If this option is not selected, then the shared libraries will be
+		left in the fsroot/ directory.  You can then copy them to, say an SD
+		card, for testing on the target.
+
+		NOTE: This option can only be used in the FLAT build mode because
+		it makes an illegal OS call to ramdisk_register().
+
+if EXAMPLES_SOTEST_BUILTINFS
+
+config EXAMPLES_SOTEST_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the SOTEST executables to be tested.  Default: 0
+
+config EXAMPLES_SOTEST_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match EXAMPLES_SOTEST_DEVMINOR.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the SOTEST executables to be tested.  Default: "/dev/ram0"
+
+endif # EXAMPLES_SOTEST_BUILTINFS
+
+if !EXAMPLES_SOTEST_BUILTINFS
+
+config EXAMPLES_SOTEST_BINDIR
+	string "Path to Test Shared Libraries"
+	default "/mnt/sdcard"
+	---help---
+		The path to the directoy on the mounted volume where the test shared
+		libraries can found at runtime.
+
+endif # !EXAMPLES_SOTEST_BUILTINFS
+
+config EXAMPLES_SOTEST_LIBC
+	bool "Link with LIBC"
+	default n
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
+	---help---
+		Link with the C library (and also math library if it was built).
+		By default, all undefined symbols must be provided via a symbol
+		table.  But if this option is selected, then each SOTEST test program
+		will link with the SYSCALL library and will interface with the OS
+		system calls.  You probably will NOT want this option, however,
+		because it will substantially increase the size of code.  For
+		example, a separate copy of printf() would be linked with every
+		program greatly increasing the total code size.  This option is
+		primarily intended only for testing.
+
+		WARNING:  Libc will not be built with -mlong-calls and this may
+		result in runtime linking failures due to out-of-range functions
+		calls.
+
+config EXAMPLES_SOTEST_LIBGCC
+	bool "Link with LIBGCC"
+	default n
+	depends on !BUILD_LOADABLE && EXPERIMENTAL
+
+endif

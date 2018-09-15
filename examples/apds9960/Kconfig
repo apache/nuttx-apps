@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_APDS9960
+	tristate "APDS-9960 Test Application"
+	default n
+	depends on SENSORS_APDS9960
+	---help---
+		Enable the APDS-9960 test application.
+
+if EXAMPLES_APDS9960
+
+config EXAMPLES_APDS9960_PROGNAME
+	string "APDS-9960 Test Program name"
+	default "apds9960"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_APDS9960_DEVNAME
+	string "APDS-9960 device file name"
+	default "/dev/gest0"
+	---help---
+		This is the name of device file name created by APDS9960 driver.
+
+config EXAMPLES_APDS9960_PRIORITY
+	int "APDS-9960 Test task priority"
+	default 100
+
+config EXAMPLES_APDS9960_STACKSIZE
+	int "APDS-9960 Test stack size"
+	default 2048
+
+endif

@@ -1,0 +1,91 @@
+/****************************************************************************
+ * apps/graphics/traveler/tools/tcledit/Imakefile
+ *
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/* Here's how to build a Makefile from this Imakefile:
+* Either:  xmkmf, or
+ * imake -DUseInstalled -I/usr/lib/X11/config
+ */
+
+/****************** CONFIGURATION DEFINITIONS ***************************/
+
+     DEBUG_LEVEL = 0
+     CDEBUGFLAGS = -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
+ifneq ($(DEBUG_LEVEL),0)
+    CDEBUGFLAGS += -g
+else
+    CDEBUGFLAGS += -O2 -fomit-frame-pointer
+endif
+
+/* Choose the first line if your X server supports the shared memory
+ * extension, and the second line if it does not.
+ */
+
+       #SHM_DEFS =
+        SHM_DEFS = -DNO_XSHM
+
+/* Set TCL_LIB and TCL_INC,  the library and include paths for Tcl. */
+
+         TCL_LIB = -ltk -ltcl
+         TCL_INC =
+
+/* Define the path to the various files. */
+
+          APPDIR = /home/patacongo/projects/nuttx/master/apps
+            HOME = $(APPDIR)/graphics/
+        TRAVELER = $(HOME)/traveler
+           TOOLS = $(TRAVELER)/tools
+          LIBWLD = $(TOOLS)/libwld
+
+        NUTTXINC = $(TOOLS)/include
+        INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD) -isystem $(NUTTXINC)
+
+           VPATH = $(TOOLS)/tcledit
+
+/* Customization */
+
+   EXTRA_DEFINES = -DX11GRAPHICS -DMSWINDOWS=0 -DDEBUG_LEVEL=$(DEBUG_LEVEL) \
+	$(ARCH_DEFS) $(SHM_DEFS) $(INC_PATH) $(TCL_INC)
+EXTRA_LIBRARIES  =  -L$(LIBWLD) -lwld $(TCL_LIB) -lm
+
+         DEFINES = $(RESOURCE_DEFINES) $(LOCAL_DEFINES)
+
+         DEPLIBS = $(DEPXLIB)
+ LOCAL_LIBRARIES = $(XLIB)
+
+            SRCS = tcl_edit.c tcl_paint.c tcl_x11graphics.c
+            OBJS = tcl_edit.o tcl_paint.o tcl_x11graphics.o
+
+ComplexProgramTarget(tcledit)
+

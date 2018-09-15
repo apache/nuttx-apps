@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_DHCPC_RENEW
+	tristate "DHCP Address Renewal"
+	default n
+	select NETUTILS_DHCPC
+	depends on NET_UDP && NET_BROADCAST && NET_IPv4 && NET_ETHERNET
+	---help---
+		Enble the DHCP client 'renew' command
+
+if SYSTEM_DHCPC_RENEW
+
+config DHCPC_RENEW_PROGNAME
+	string "Program name"
+	default "renew"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config DHCPC_RENEW_PRIORITY
+	int "DHCPC task priority"
+	default 100
+
+config DHCPC_RENEW_STACKSIZE
+	int "DHCPC stack size"
+	default 2048
+
+endif

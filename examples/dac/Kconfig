@@ -1,0 +1,15 @@
+config EXAMPLES_DAC
+	tristate "DAC tool"
+	default n
+	depends on DAC
+	---help---
+		Enable support for the DAC tool.
+
+if EXAMPLES_DAC
+
+config EXAMPLES_DAC_DEVPATH
+	string "DAC device path"
+	default "/dev/dac0"
+	---help---
+		The default path to the DAC device. Default: /dev/dac0
+endif

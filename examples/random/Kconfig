@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RANDOM
+	tristate "/dev/random test"
+	default n
+	depends on DEV_RANDOM
+	---help---
+		Enable a simple test of /dev/random
+
+if EXAMPLES_RANDOM
+
+config EXAMPLES_MAXSAMPLES
+	int "I/O buffer size"
+	default 64
+	---help---
+		This is the size of the /dev/random I/O buffer in units of 32-bit
+		samples.  Careful!  This buffer is allocated on the stack as needed!
+
+config EXAMPLES_NSAMPLES
+	int "Default samples"
+	default 8
+	---help---
+		When you execute the rand command, a number of samples ranging from
+		1 to EXAMPLES_MAXSAMPLES may be specified.  If no argument is
+		specified, this is the default number of samples that will be
+		collected and displayed.
+
+endif

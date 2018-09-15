@@ -1,0 +1,47 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_FTPC
+	bool "FTP client"
+	default n
+	---help---
+		Enable support for the FTP client.
+
+if NETUTILS_FTPC
+
+config DEBUG_FTPC
+	bool "Debug FTP client"
+	default n
+	depends on DEBUG_FEATURES
+	---help---
+		Enable debug support for the FTP client.  This option simple forces
+		CONFIG_DEBUG_NET to be on, but only for the files within this directory.
+
+config FTP_TMPDIR
+	string "TMP directory path for FTP"
+	default "/tmp"
+	---help---
+		The path to use for storing temporary files used in the transfer process
+		by the FTP client.
+
+config FTPC_DISABLE_EPRT
+	bool "Disable EPRT and use PORT instead"
+	default n
+	---help---
+		FTP uses PORT and EPRT when in active mode. EPRT replaced PORT to allow
+		for IPv6 support. EPRT is supported in most FTP implementations now. However,
+		if you need to use PORT instead, use this option to disable EPRT and
+		fallback to using PORT.
+
+config FTPC_DISABLE_EPSV
+	bool "Disable EPSV and use PASV instead"
+	default n
+	---help---
+		FTP uses EPSV or PASV when in passive mode. EPSV replaced PASV to allow
+		for IPv6 support. EPSV is supported in most FTP implementations now. However,
+		if you need to use PASV instead, use this option to disable EPSV and
+		fallback to using PASV.
+
+endif

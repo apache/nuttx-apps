@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FBOVERLAY
+	tristate "Framebuffer overlay test tool"
+	depends on FB_OVERLAY
+	default n
+	---help---
+		Enable framebuffer overlay test.
+
+if EXAMPLES_FBOVERLAY
+
+config EXAMPLES_FBOVERLAY_PROGNAME
+	string "Program name"
+	default "fboverlay"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_FBOVERLAY_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_FBOVERLAY_STACKSIZE
+	int "Stack size"
+	default 2048
+
+endif

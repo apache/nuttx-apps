@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_RAMTEST
+	tristate "RAM Test"
+	default n
+	---help---
+		Enable a simple RAM test.
+
+if SYSTEM_RAMTEST
+
+config SYSTEM_RAMTEST_PROGNAME
+	string "Program name"
+	default "ramtest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_RAMTEST_PRIORITY
+	int "RAM test task priority"
+	default 100
+
+config SYSTEM_RAMTEST_STACKSIZE
+	int "RAM test stack size"
+	default 1024
+
+endif

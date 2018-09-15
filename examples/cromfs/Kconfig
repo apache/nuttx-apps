@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CROMFS
+	bool "CROMFS Example"
+	default n
+	depends on FS_CROMFS && BUILD_FLAT
+	---help---
+		Enable the CROMFS loader example
+
+		NOTE:  This example simple creates a CROMFS image.  There is no
+		program to be executed.  If properly constructed, it should provide
+		the in-memory, compressed file system image used by the CROMFS file
+		system.
+
+		From the NSH command line, this file system can be mounted like:
+
+		  nsh> mount -t cromfs /mnt/cromfs
+
+		NOTE:  Since this example does export symbols used with the OS, it
+		can only be used in the FLAT build mode.

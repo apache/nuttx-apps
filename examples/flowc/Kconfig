@@ -1,0 +1,117 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FLOWC
+	tristate "Serial flow control example"
+	default n
+	depends on SERIAL_TERMIOS
+	---help---
+		Enable the serial hardware flow control test.
+
+		Serial termios support must be enabled.
+
+			CONFIG_SERIAL_TERMIOS=y
+
+		In addtion, you will need these related serial driver settings (the
+		actual values of the watermark setting may be tuned to suit your
+		preferences)
+
+			CONFIG_SERIAL_IFLOWCONTROL=y
+			CONFIG_SERIAL_IFLOWCONTROL_WATERMARKS=y
+			CONFIG_SERIAL_IFLOWCONTROL_LOWER_WATERMARK=25
+			CONFIG_SERIAL_IFLOWCONTROL_UPPER_WATERMARK=75
+
+		And for the CDC/ACM driver in particular:
+
+			CONFIG_CDCACM_IFLOWCONTROL=y
+
+		There are hooks in place for output flow control but these have not
+		been exercised.
+
+if EXAMPLES_FLOWC
+
+config EXAMPLES_FLOWC_INPUT
+	bool "Verify input flow control"
+	default y
+#	depends on SERIAL_IFLOWCONTROL
+
+config EXAMPLES_FLOWC_OUTPUT
+	bool "Verify output flow control"
+	default y
+#	depends on SERIAL_OFLOWCONTROL
+
+config EXAMPLES_FLOWC_SENDER1
+	bool "Target1 is the sender"
+	default n
+	---help---
+		By default Target1 is the receiver and the host PC (or Target2) is
+		the sender.  That is the configuration you would to test RX flow
+		control on the target.
+
+config EXAMPLES_FLOWC_PROGNAME1
+	string "Target1 program name"
+	default "receiver" if !EXAMPLES_FLOWC_SENDER1
+	default "sender" if EXAMPLES_FLOWC_SENDER1
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target1 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_FLOWC_PRIORITY1
+	int "Target1 task priority"
+	default 100
+
+config EXAMPLES_FLOWC_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
+
+config EXAMPLES_FLOWC_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		FLOWC test.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with no host PC
+		involvement.
+
+if EXAMPLES_FLOWC_TARGET2
+
+config EXAMPLES_FLOWC_PROGNAME2
+	string "Target2 program name"
+	default "receiver" if !EXAMPLES_FLOWC_RECEIVER2
+	default "sender" if EXAMPLES_FLOWC_RECEIVER2
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_FLOWC_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_FLOWC_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_FLOWC_TARGET2
+
+config EXAMPLES_FLOWC_RECEIVER_BUFSIZE
+	int "Receiver buffer size"
+	default 64
+
+config EXAMPLES_FLOWC_RECEIVER_DELAY
+	int "Receiver read delay (msec)"
+	default 100
+
+config EXAMPLES_FLOWC_RECEVER_DEVNAME
+	string "Default TTY device for receiver"
+	default "/dev/ttyACM0"
+
+config EXAMPLES_FLOWC_SENDER_DEVNAME
+	string "Default TTY device for sender"
+	default "/dev/ttyACM0"
+
+endif # EXAMPLES_FLOWC

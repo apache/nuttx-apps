@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+menu "IEEE 802.15.4 applications"
+
+source "$APPSDIR/wireless/ieee802154/libmac/Kconfig"
+source "$APPSDIR/wireless/ieee802154/libutils/Kconfig"
+source "$APPSDIR/wireless/ieee802154/i8sak/Kconfig"
+source "$APPSDIR/wireless/ieee802154/i8shark/Kconfig"
+
+endmenu #ieee 802.15.4 apps

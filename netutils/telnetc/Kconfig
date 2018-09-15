@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_TELNETC
+	bool "Telnet client library"
+	default n
+	depends on NET && NET_TCP
+	---help---
+		Enable support for the libtelnet.  This is a public domain
+		Telnet client library available from https://github.com/seanmiddleditch/libtelnet
+		modified for use with NuttX.  Original Authors:
+
+			Sean Middleditch <sean@sourcemud.org>
+			Jack Kelly <endgame.dos@gmail.com>
+			Katherine Flavel <kate@elide.org>
+
+if NETUTILS_TELNETC
+endif

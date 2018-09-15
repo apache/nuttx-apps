@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RFID_READUID
+	tristate "RFID Read UID example"
+	default n
+	---help---
+		Enable the RFID READUID example
+
+if EXAMPLES_RFID_READUID
+
+config EXAMPLES_RFID_READUID_PROGNAME
+	string "Program name"
+	default "rfid_readuid"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_RFID_READUID_PRIORITY
+	int "RFID Read UID task priority"
+	default 100
+
+config EXAMPLES_RFID_READUID_STACKSIZE
+	int "RFID Read UID stack size"
+	default 2048
+
+endif

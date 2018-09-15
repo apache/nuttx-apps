@@ -1,0 +1,67 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MTDRWB
+	tristate "MTD R/W buffer test"
+	default n
+	depends on (MTD_WRBUFFER || MTD_READAHEAD) && !BUILD_PROTECTED && !BUILD_LOADABLE
+	---help---
+		Enable the MTD R/W buffer test example.
+
+		NOTE: This example uses some internal NuttX interfaces and, hence,
+		is not available in the kernel build.
+
+if EXAMPLES_MTDRWB
+
+config EXAMPLES_MTDRWB_PROGNAME
+	string "Program name"
+	default "mtdrwb"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MTDRWB_ARCHINIT
+	bool "Architecture-specific initialization"
+	default n
+	---help---
+		The default is to use the RAM MTD device at drivers/mtd/rammtd.c.
+		But an architecture-specific MTD driver can be used instead by
+		defining EXAMPLES_MTDRWB_ARCHINIT.  In this case, the
+		initialization logic will call mtdrwb_archinitialize() to obtain
+		the MTD driver instance.
+
+if !EXAMPLES_MTDRWB_ARCHINIT
+
+config EXAMPLES_MTDRWB_ERASESIZE
+	int "Size of one erase blocks (simulated)"
+	default 4096
+	depends on !EXAMPLES_MTDRWB_ARCHINIT
+	---help---
+		When EXAMPLES_MTDRWB_ARCHINIT is not defined, this test will use
+		the RAM MTD device at drivers/mtd/rammtd.c to simulate FLASH.  In
+		this case, this value must be provided to give the size of one erase
+		simulated erase blocks one MTD RAM device.
+
+		The size of the allocated RAM drive will be:
+
+			EXAMPLES_MTDRWB_ERASESIZE * EXAMPLES_MTDRWB_NEBLOCKS
+
+config EXAMPLES_MTDRWB_NEBLOCKS
+	int "Number of erase blocks (simulated)"
+	default 32
+	depends on !EXAMPLES_MTDRWB_ARCHINIT
+	---help---
+		When EXAMPLES_MTDRWB_ARCHINIT is not defined, this test will use
+		the RAM MTD device at drivers/mtd/rammtd.c to simulate FLASH.  In
+		this case, this value must be provided to give the number of erase
+		blocks in MTD RAM device.
+
+		The size of the allocated RAM drive will be:
+
+			EXAMPLES_MTDRWB_ERASESIZE * EXAMPLES_MTDRWB_NEBLOCKS
+
+endif # EXAMPLES_MTDRWB_ARCHINIT
+endif # EXAMPLES_MTDRWB

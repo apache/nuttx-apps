@@ -1,0 +1,80 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BUTTONS
+	tristate "Buttons driver example"
+	default n
+	depends on ARCH_HAVE_BUTTONS
+	---help---
+		Enable the Buttons drivers example
+
+if EXAMPLES_BUTTONS
+
+config EXAMPLES_BUTTONS_PROGNAME
+	string "Program name"
+	default "buttons"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BUTTONS_PRIORITY
+	int "Button task priority"
+	default 100
+
+config EXAMPLES_BUTTONS_STACKSIZE
+	int "Button stack size"
+	default 2048
+
+config EXAMPLES_BUTTONS_DEVPATH
+	string "Button device path"
+	default "/dev/buttons"
+
+config EXAMPLES_BUTTONS_NAMES
+	bool "Show Buttons Names"
+	default n
+	---help---
+		Enable to show the button's name in the application.
+
+if EXAMPLES_BUTTONS_NAMES
+
+config EXAMPLES_BUTTONS_QTD
+	int "Number of Buttons in the Board"
+	default 8
+
+config EXAMPLES_BUTTONS_NAME0
+	string "Button 0 Name"
+	default "BUTTON0"
+
+config EXAMPLES_BUTTONS_NAME1
+	string "Button 1 Name"
+	default "BUTTON1"
+
+config EXAMPLES_BUTTONS_NAME2
+	string "Button 2 Name"
+	default "BUTTON2"
+
+config EXAMPLES_BUTTONS_NAME3
+	string "Button 3 Name"
+	default "BUTTON3"
+
+config EXAMPLES_BUTTONS_NAME4
+	string "Button 4 Name"
+	default "BUTTON4"
+
+config EXAMPLES_BUTTONS_NAME5
+	string "Button 5 Name"
+	default "BUTTON5"
+
+config EXAMPLES_BUTTONS_NAME6
+	string "Button 6 Name"
+	default "BUTTON6"
+
+config EXAMPLES_BUTTONS_NAME7
+	string "Button 7 Name"
+	default "BUTTON7"
+
+endif # EXAMPLES_BUTTONS_NAMES
+endif # EXAMPLES_BUTTONS

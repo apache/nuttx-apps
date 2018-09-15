@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SETLOGMASK
+	tristate "'setlogmask' command"
+	default n
+	---help---
+		Enable support for 'setlogmask' command used to set syslog level.
+
+if SYSTEM_SETLOGMASK
+config SYSTEM_SETLOGMASK_PROGNAME
+	string "setlogmask program name"
+	default "setlogmask"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_SETLOGMASK_PRIORITY
+	int "setlogmask task priority"
+	default 100
+
+config SYSTEM_SET_LOGMASK_STACKSIZE
+	int "setlogmask stack size"
+	default 2048
+
+endif
+

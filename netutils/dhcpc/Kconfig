@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_DHCPC
+	bool "DHCP client"
+	default n
+	depends on NET_UDP && NET_BROADCAST && NET_IPv4
+	---help---
+		Enable support for the DHCP client.
+
+if NETUTILS_DHCPC
+
+endif

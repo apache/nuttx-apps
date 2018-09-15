@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FB
+	tristate "Framebuffer driver example"
+	default n
+	select LCD_PACKEDMSFIRST if LCD
+	depends on VIDEO_FB
+	---help---
+		Enable the Framebuffer driver example.
+
+		This example currently supports only framebuffer devices with 1, 8,
+		16, or 24/32 pixel depth with only Mono, RGB323, RGB565, and RGB888
+		color formats, respectively.  The example would have be extended to
+		support other bits-per-pixels or other color formats.
+
+if EXAMPLES_FB
+
+config EXAMPLES_FB_DEFAULTFB
+	string "Default framebuffer driver"
+	default "/dev/fb0"
+	---help---
+		Default framebuffer drivers.  This selection can be overridden from
+		the command line.
+
+config EXAMPLES_FB_PROGNAME
+	string "Program name"
+	default "fb"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_FB_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_FB_STACKSIZE
+	int "Stack size"
+	default 2048
+
+endif

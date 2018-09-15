@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_DSPTEST
+	tristate "LIBDSP library testing"
+	default n
+	---help---
+		Enable the LIBDSP library testing
+
+if EXAMPLES_DSPTEST
+
+config EXAMPLES_DSPTEST_PROGNAME
+	string "Program name"
+	default "dsptest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_DSPTEST_PRIORITY
+	int "Dsptest task priority"
+	default 100
+
+config EXAMPLES_DSPTEST_STACKSIZE
+	int "Dsptest stack size"
+	default 2048
+
+endif

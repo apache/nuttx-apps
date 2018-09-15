@@ -1,0 +1,61 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_TELNET_CHATD
+	tristate "Telnet chat deamon"
+	default n
+	depends on NET && NET_TCP && !DISABLE_POLL
+	select NETUTILS_TELNETC
+	---help---
+		Enable the Telnet Chat daemon.
+
+if SYSTEM_TELNET_CHATD
+
+config SYSTEM_TELNET_CHATD_PROGNAME
+	string "Chat daemon program name"
+	default "chatd"
+	depends on BUILD_LOADABLE
+
+if NSH_BUILTIN_APPS
+
+config SYSTEM_TELNET_CHATD_STACKSIZE
+	int "Chat daemon stacksize"
+	default 2048
+
+config SYSTEM_TELNET_CHATD_PRIORITY
+	int "Chat daemon priority"
+	default 100
+
+endif # NSH_BUILTIN_APPS
+endif # SYSTEM_TELNET_CHATD
+
+menuconfig SYSTEM_TELNET_CLIENT
+	tristate "Telnet client"
+	default n
+	depends on NET && NET_TCP && !DISABLE_POLL
+	select NETUTILS_TELNETC
+	select SYSTEM_READLINE
+	---help---
+		Enable the Telnet client program.
+
+if SYSTEM_TELNET_CLIENT
+
+config SYSTEM_TELNET_CLIENT_PROGNAME
+	string "Telnet client program name"
+	default "telnet"
+	depends on BUILD_LOADABLE
+
+if NSH_BUILTIN_APPS
+
+config SYSTEM_TELNET_CLIENT_STACKSIZE
+	int "Telnet client stacksize"
+	default 2048
+
+config SYSTEM_TELNET_CLIENT_PRIORITY
+	int "Telnet client priority"
+	default 100
+
+endif # NSH_BUILTIN_APPS
+endif # SYSTEM_TELNET_CLIENT

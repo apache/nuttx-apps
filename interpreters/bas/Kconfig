@@ -1,0 +1,89 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_BAS
+	tristate "Basic Interpreter support"
+	default n
+	select LIBC_FLOATINGPOINT
+	depends on FS_READABLE
+	---help---
+		This is a Basic interpreter written by Michael Haardt
+
+		NOTE: This interpreter requires a usable math.h header file.  By
+		default, the math library (and hence, math.h) are not provided by
+		NuttX.  Therefore, when the Basic code includes math.h it will
+		either fail to find the math.h header file or, worse, will take an
+		incompatible version of math.h from your toolchain.  The toolchain's
+		version of math.h will be incompatible because it will have been
+		implemented to work with a different version of the C library.
+
+		Normally, developers will use an optimized math library for their
+		processor architecture and do the following:
+
+		- Save a customized copy of math.h from your tool chain in
+		  nuttx/arch/<arch>/include
+		- Set CONFIG_ARCH_MATH_H=y in your .config file to select this
+		  architecture-specific math.h header file.
+
+		An option is to use the built-in, generic, unoptimized NuttX math
+		library that is selected by simply by:
+
+		- Set CONFIG_LIBM=y in your .config file
+
+if INTERPRETERS_BAS
+
+config INTERPRETER_BAS_VERSION
+	string "Version number"
+	default "2.4"
+
+config INTERPRETER_BAS_PRIORITY
+	int "Basic interpreter priority"
+	default 100
+	---help---
+		Task priority of the Basic interpreter main task
+
+config INTERPRETER_BAS_STACKSIZE
+	int "Basic interpreter stack size"
+	default 4096
+	---help---
+		Size of the stack allocated for the Basic interpreter main task
+
+config INTERPRETER_BAS_VT100
+	bool "VT100 terminal support"
+	default y
+
+config INTERPRETER_BAS_USE_LR0
+	bool "LR0 parser"
+	default n
+	---help---
+		Select if you want LR0 parser.
+
+config INTERPRETER_BAS_USE_SELECT
+	bool "Use select()"
+	default n
+
+config INTERPRETER_BAS_HAVE_FTRUNCATE
+	bool
+	default n
+	---help---
+		NuttX does not currently support the ftruncate interface
+
+config EXAMPLES_BAS_SHELL
+	bool "Shell support"
+	default n
+	depends on ARCH_HAVE_VFORK && EXPERIMENTAL
+	select LIBC_EXECFUNCS
+	select SCHED_WAITPID
+	---help---
+		Support execution of shell commands from BASIC.
+
+config EXAMPLES_BAS_EDITOR
+	bool "Editor support"
+	default n
+	depends on EXAMPLES_BAS_SHELL
+	---help---
+		Support execution of an editor from BASIC.
+
+endif

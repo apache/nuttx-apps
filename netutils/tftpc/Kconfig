@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_TFTPC
+	bool "TFTP client"
+	default n
+	depends on NET_UDP && NET_IPv4
+	---help---
+		Enable support for the TFTP client.
+
+if NETUTILS_TFTPC
+endif

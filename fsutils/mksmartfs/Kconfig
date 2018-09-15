@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_MKSMARTFS
+	bool "mksmartfs utility"
+	default y
+	depends on FS_SMARTFS && !DISABLE_PSEUDOFS_OPERATIONS
+	---help---
+		Enables support for the mksmartfs utility
+

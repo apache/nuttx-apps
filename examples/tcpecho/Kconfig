@@ -1,0 +1,54 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TCPECHO
+	tristate "Simple TCP echo server"
+	default n
+	---help---
+		Simple single threaded, poll based TCP echo server. This example
+		implements the TCP Echo Server from W. Richard Stevens
+		UNIX Network Programming Book.
+
+config EXAMPLES_TCPECHO_PORT
+	int "Server Port"
+	default 80
+	depends on EXAMPLES_TCPECHO
+
+config EXAMPLES_TCPECHO_BACKLOG
+	int "Listen Backlog"
+	default 8
+	depends on EXAMPLES_TCPECHO
+
+config EXAMPLES_TCPECHO_NCONN
+	int "Number of Connections"
+	default 8
+	depends on EXAMPLES_TCPECHO
+
+config EXAMPLES_TCPECHO_DHCPC
+	bool "DHCP Client"
+	default n
+	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+	select NETUTILS_DHCPC
+	select NETDB_DNSCLIENT
+
+config EXAMPLES_TCPECHO_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+
+config EXAMPLES_TCPECHO_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS && !EXAMPLES_TCPECHO_DHCPC
+
+config EXAMPLES_TCPECHO_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+
+config EXAMPLES_TCPECHO_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS

@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_NETDB
+	tristate "netdb interface"
+	default n
+	depends on LIBC_NETDB
+
+if SYSTEM_NETDB
+
+config SYSTEM_NETDB_STACKSIZE
+	int "netdb task stack size"
+	default 2048
+
+config SYSTEM_NETDB_PRIORITY
+	int "netdb task priority"
+	default 100
+
+endif

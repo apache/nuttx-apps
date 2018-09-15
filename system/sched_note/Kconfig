@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NOTE
+	tristate "Scheduler monitor"
+	default n
+	depends on DRIVER_NOTE
+	---help---
+		Enable the schedler instrumentation monitor
+
+if SYSTEM_NOTE
+
+config SYSTEM_NOTE_PROGNAME
+	string "Program name"
+	default "note"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config SYSTEM_NOTE_PRIORITY
+	int "Note daemon task priority"
+	default 100
+
+config SYSTEM_NOTE_STACKSIZE
+	int "Note daemon stack size"
+	default 2048
+
+config SYSTEM_NOTE_BUFFERSIZE
+	int "Note daemon I/O buffer size"
+	default 1024
+
+config SYSTEM_NOTE_DELAY
+	int "Note daemon sample delay (msec)"
+	default 1000
+
+endif # SYSTEM_NOTE

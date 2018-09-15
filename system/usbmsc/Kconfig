@@ -1,0 +1,175 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_USBMSC
+	tristate "USB Mass Storage Device Commands"
+	default n
+	depends on LIB_BOARDCTL && USBMSC && !KERNEL_BUILD
+	select BOARDCTL_USBDEVCTRL
+	---help---
+		Enable the USB mass storage class controls.  These controls include:
+
+		msconn:  Connect the mass storage device to the host
+		msdis :  Disconnect the mass storage device to the host
+
+if SYSTEM_USBMSC
+
+config SYSTEM_USBMSC_NLUNS
+	int "Number of LUNs"
+	default 1
+	---help---
+		Defines the number of logical units (LUNs) exported by the USB
+		storage driver.  Each LUN corresponds to one exported block driver
+		(or partition of a block driver).  May be 1, 2, or 3.  Default is 1.
+
+config SYSTEM_USBMSC_DEVMINOR1
+	int "LUN1 Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the block driver for the first LUN. For
+		example, N in /dev/mmcsdN.  Used for registering the block driver.
+		Default is zero.
+
+config SYSTEM_USBMSC_DEVPATH1
+	string "LUN1 Device Path"
+	default "/dev/mmcsd0"
+	---help---
+		The full path to the registered block driver.  Default is
+		"/dev/mmcsd0"
+
+config SYSTEM_USBMSC_WRITEPROTECT1
+	bool "LUN1 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the first LUN. Default is
+		off.
+
+config SYSTEM_USBMSC_DEVMINOR2
+	int "LUN2 Minor Device Number"
+	default 1
+	---help---
+		The minor device number of the block driver for the second LUN. For
+		example, N in /dev/mmcsdN.  Used for registering the block driver.
+		Ignored if SYSTEM_USBMSC_NLUNS < 2. Default is one.
+
+config SYSTEM_USBMSC_DEVPATH2
+	string "LUN2 Device Path"
+	default "/dev/mmcsd1"
+	---help---
+		The full path to the registered block driver.  Ignored if
+		SYSTEM_USBMSC_NLUNS < 2. Default is "/dev/mmcsd1"
+
+config SYSTEM_USBMSC_WRITEPROTECT2
+	bool "LUN2 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the second LUN. Ignored if
+		SYSTEM_USBMSC_NLUNS < 2. Default is off.
+
+config SYSTEM_USBMSC_DEVMINOR3
+	int "LUN3 Minor Device Number"
+	default 2
+	---help---
+		The minor device number of the block driver for the third LUN. For
+		example, N in /dev/mmcsdN.  Used for registering the block driver.
+		Ignored if SYSTEM_USBMSC_NLUNS < 3. Default is two.
+
+config SYSTEM_USBMSC_DEVPATH3
+	string "LUN3 Device Path"
+	default "/dev/mmcsd2"
+	---help---
+		The full path to the registered block driver.  Ignored if
+		SYSTEM_USBMSC_NLUNS < 3. Default is "/dev/mmcsd2"
+
+config SYSTEM_USBMSC_WRITEPROTECT3
+	bool "LUN3 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the third LUN. Ignored if
+		SYSTEM_USBMSC_NLUNS < 3. Default is off.
+
+config SYSTEM_USBMSC_DEBUGMM
+	bool "USB MSC MM Debug"
+	default n
+	---help---
+		Enables some debug tests to check for memory usage and memory leaks.
+
+config SYSTEM_USBMSC_TRACE
+	bool "Trace USB activity"
+	default n
+	depends on (USBDEV_TRACE || DEBUG_USB) && !NSH_BUILTIN_APPS
+	---help---
+		If this add-on is built as a standalone task and if USB device tracing is
+		enabled, then this add-on can be configured to unobtrusively monitor
+		USB activity by selecting this option.
+
+if SYSTEM_USBMSC_TRACE
+
+config SYSTEM_USBMSC_TRACEINIT
+	bool "USB Trace Initialization"
+	default n
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB initialization events
+
+config SYSTEM_USBMSC_TRACECLASS
+	bool "USB Trace Class"
+	default n
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB class driver events
+
+config SYSTEM_USBMSC_TRACETRANSFERS
+	bool "USB Trace Transfers"
+	default n
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB data transfer events
+
+config SYSTEM_USBMSC_TRACECONTROLLER
+	bool "USB Trace Device Controller Events"
+	default n
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller events
+
+config SYSTEM_USBMSC_TRACEINTERRUPTS
+	bool "USB Trace Device Controller Interrupt Events"
+	default n
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the add-on code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller interrupt-related events.
+
+endif # SYSTEM_USBMSC_TRACE
+
+if NSH_BUILTIN_APPS
+
+config SYSTEM_USBMSC_CMD_STACKSIZE
+	int "Stacksize of msconn and msdis commands"
+	default 768
+	---help---
+		Size of the stack used by the small 'msconn' and 'msdis' command
+		applications.  Warning, just because the applications are small,
+		the stack usage could still be deep!
+
+config SYSTEM_USBMSC_CMD_PRIORITY
+	int "Priority of the msconn and msdis commands"
+	default 100
+	---help---
+		Priority of the small 'msconn' and 'msdis' command applications.
+
+endif # NSH_BUILTIN_APPS
+endif # SYSTEM_USBMSC
+

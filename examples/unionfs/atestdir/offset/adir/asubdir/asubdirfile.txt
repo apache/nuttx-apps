@@ -1,0 +1,2 @@
+This is a file in directory offset/adir/asubdir on file system 1
+

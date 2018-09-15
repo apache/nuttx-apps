@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_FTPD
+	bool "FTP server"
+	default n
+	depends on NET_TCP && !DISABLE_POLL
+	---help---
+		Enable support for the FTP server.
+
+if NETUTILS_FTPD
+
+config FTPD_WORKERSTACKSIZE
+	int "FTPD client thread stack size"
+	default 2048
+
+endif

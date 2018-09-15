@@ -1,0 +1,15 @@
+/Make.dep
+/.depend
+/.built
+/bridge_config.h
+/host1
+/host2
+/*.exe
+/*.asm
+/*.obj
+/*.rel
+/*.lst
+/*.sym
+/*.adb
+/*.lib
+/*.src

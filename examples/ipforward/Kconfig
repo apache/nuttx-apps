@@ -1,0 +1,46 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_IPFORWARD
+	tristate "IP forwarding example"
+	default n
+	depends on NET_TUN && (NET_TCP || NET_ICMPv6)
+	---help---
+		Enable the IP forwarding example
+
+if EXAMPLES_IPFORWARD
+
+choice
+	prompt "L3 protocol"
+	default EXAMPLES_IPFORWARD_TCP if NET_TCP
+	default EXAMPLES_IPFORWARD_ICMPv6 if !NET_TCP
+
+config EXAMPLES_IPFORWARD_TCP
+	bool "TCP"
+	depends on NET_TCP
+
+config EXAMPLES_IPFORWARD_ICMPv6
+	bool "ICMPv6"
+	depends on NET_ICMPv6
+
+endchoice # L3 Protocol
+
+config EXAMPLES_IPFORWARD_PROGNAME
+	string "IP forwarding rogram name"
+	default "ipfwd"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_IPFORWARD_PRIORITY
+	int "IP forwarding task priority"
+	default 100
+
+config EXAMPLES_IPFORWARD_STACKSIZE
+	int "IP forwarding stack size"
+	default 2048
+
+endif

@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_STACKMONITOR
+	tristate "Stack Monitor"
+	default n
+	depends on FS_PROCFS && !_FS_PROCFS_EXCLUDE_PROCESS && STACK_COLORATION
+	---help---
+		If the stack coloration feature is enabled (STACK_COLORATION) this
+		option will select the Stack Monitor.  The stack monitor is a daemon
+		that will periodically assess stack usage by all tasks and threads
+		in the system.
+
+if SYSTEM_STACKMONITOR
+
+config SYSTEM_STACKMONITOR_STACKSIZE
+	int "Stack monitor daemon stack size"
+	default 2048
+	---help---
+		The stack size to use the stack monitor daemon.  Default: 2048
+
+config SYSTEM_STACKMONITOR_PRIORITY
+	int "Stack monitor daemon priority"
+	default 50
+	---help---
+		The priority to use the stack monitor daemon.  Default: 50
+
+config SYSTEM_STACKMONITOR_INTERVAL
+	int "Stack monitor dump frequency"
+	default 2
+	---help---
+		The rate in seconds that the stack monitor will wait before dumping
+		the next set stack usage information.  Default:  2 seconds.
+
+config SYSTEM_STACKMONITOR_MOUNTPOINT
+	string "procfs mountpoint"
+	default "/proc"
+
+endif
+

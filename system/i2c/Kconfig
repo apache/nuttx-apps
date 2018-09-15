@@ -1,0 +1,53 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+
+menuconfig SYSTEM_I2CTOOL
+	tristate "I2C tool"
+	default n
+	depends on I2C
+	select I2C_DRIVER
+	---help---
+		Enable support for the I2C tool.
+
+if SYSTEM_I2CTOOL
+
+config I2CTOOL_MINBUS
+	int "Minimum bus number"
+	default 0
+	---help---
+		Smallest bus index supported by the hardware (default 0).
+
+config I2CTOOL_MAXBUS
+	int "Maximum bus number"
+	default 3
+	---help---
+		Largest bus index supported by the hardware (default 3)
+
+config I2CTOOL_MINADDR
+	hex "Minimum I2C address"
+	default 0x03
+	---help---
+		Minium 7-bit device address (default: 0x03)
+
+config I2CTOOL_MAXADDR
+	hex "Maximum I2C address"
+	default 0x77
+	---help---
+		Largest 7-bit device address (default: 0x77)
+
+config I2CTOOL_MAXREGADDR
+	hex "Maximum I2C register address"
+	default 0xff
+	---help---
+		Largest I2C register address (default: 0xff)
+
+config I2CTOOL_DEFFREQ
+	int "Default I2C frequency"
+	default 400000
+	---help---
+		Default I2C frequency (default: 400000)
+
+endif # SYSTEM_I2CTOOL

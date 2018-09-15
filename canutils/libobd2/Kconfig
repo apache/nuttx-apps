@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_LIBOBD2
+	bool "OBD-II Library"
+	default n
+	depends on CAN
+	---help---
+		Enable the OBD-II Library
+
+if CANUTILS_LIBOBD2
+
+config LIBOBD2_MULTIFRAME
+	bool "Enable to Multi-Frame support (increases 4KB RAM)"
+	default n
+	---help---
+		Enable the support for multi-frames of the OBD-II protocol.
+		In the multi-frame mode the ECU can send frame up to 4096 bytes.
+
+endif

@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig FSUTILS_INIFILE
+	bool "INI File Parser"
+	default n
+	---help---
+		Enable support for a simple INI file parser.
+
+if FSUTILS_INIFILE
+
+config FSUTILS_INIFILE_MAXLINE
+	int "Max line length"
+	default 256
+	---help---
+		The largest line that the parser can expect to see in an INI file.
+
+config FSUTILS_INIFILE_DEBUGLEVEL
+	int "Debug level"
+	default 0
+	range 0 2
+	---help---
+		0=Debug off; 1=Print errors on console; 2=Print debug information
+		on the console.
+
+endif # FSUTILS_INIFILE

@@ -1,0 +1,14 @@
+/Make.dep
+/.depend
+/.built
+/net
+/nuttx
+/*.o1
+/*.asm
+/*.obj
+/*.rel
+/*.lst
+/*.sym
+/*.adb
+/*.lib
+/*.src

@@ -1,0 +1,3072 @@
+5.19 2011-03-12 Gregory Nutt <gnutt@nuttx.org>
+
+	* Initial version of the apps/ directory was released as contributed by
+	  Uros Platise.
+
+6.0 2011-03-21 Gregory Nutt <gnutt@nuttx.org>
+
+	* README.txt -- README cosmetics
+	* hello/ -- hello world minor changes
+	* Makefile -- Makefile cosmetics (I am slowly adding the Darjeeling JVM)
+	* Make.defs -- New file adds common make definitions for applications.
+	* hello/Makefile -- Now uses new Make.defs definitions.  Added README.txt.
+	* apps/poweroff -- New application to turn off board power.
+	* Moved NSH library, netutils, and examples from the nuttx/ directory to
+	  the apps/ directory
+	* Moved exec_nuttapp machinery into the nuttapp/ directory.
+
+6.1 2011-04-10 Gregory Nutt <gnutt@nuttx.org>
+
+	* Creation of auto-generated header files now occurs during the context
+	  build phase.
+	* Added sdcard insert and eject, nsh command '?' and some code remarks
+	* Renamed nuttapp to namedapp
+	* namedapp/binfs.c -- Create a tiny filesystem that can be used
+	  to show the internal named apps under /bin.
+	* Numerous fixes to build system required to support building with native
+	  Windows toolchain.
+
+6.2 2011-05-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nxffs:  Add a test a a configuration that will be used to
+	  verify NXFFS.
+
+6.3 2011-05-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/interpreter: Add a directory to hold interpreters.  The Pascal add-
+	  on module now installs and builds under this directory.
+	* apps/interpreter/ficl: Added logic to build Ficl (the "Forth Inspired
+	  Command Language").  See http://ficl.sourceforge.net/.
+	* apps/netutils/dhcpc, dhcpcd, and tftp.  If these directories are included
+	  in the configuration but CONFIG_NET_UDP is disable (which is not very wise),
+	  then a make error occurs because tools/mkdep.sh is called with no files.
+	* system/free: Move Uros' custom free command from vsn/free
+	* system/install: Add a new install command submitted by Uros Platise.
+	* examples/rgmp.  Add a placeholder for an RGMP build example.
+	  RGMP is a project for running GPOS and RTOS simultaneously on
+	  multi-processor platforms. See http://rgmp.sourceforge.net/wiki/index.php/Main_Page
+	  for further information about RGMP.  NOTE:  This is an empty example
+	  on initial check-in.
+
+6.4 2011-06-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* nshlib/nsh_netcmds.c: If a network device name and IP address are provided
+	  with the ifconfig command, then this command will now set the network address.
+	  (Contributed by Yu Qiang).
+	* netutils/ftpc: A library to support client-side FTP.
+	* examples/ftpc: A simple add-on to the NSH.  From NSH, you can start
+	  this simple FTP shell to transfer files to/from a remote FTP server.
+
+6.5 2011-06-21 Gregory Nutt <gnutt@nuttx.org>
+
+	* netutils/ftpc:  Simpflication and size reduction.
+
+6.6 2011-07-11 Gregory Nutt <gnutt@nuttx.org>
+
+	* Make.defs, namedapp/namedapp.c: Several structural changes made to get a
+	  clean compile under the ez80 ZDS-II toolchain (no design changes).
+	* apps/examples/buttons: Add a test for the new standardized button interfaces
+	* apps/examples/nxtext: Add another NX graphics test.  This one focus on
+	  placing text on the background while pop-up windows occur.  Text should
+	  continue to update normally with or without the popup windows present.
+
+6.7 2011-08-02 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nx and nxtext:  These examples can now be built as NSH
+	  "built-in" commands.
+	* apps/examples/nxhello:  The simplest graphics example:  It just says
+	  "Hello, World!" in the center of the display. This example can also be
+	  built as an NSH "built-in" command.
+	* apps/examples/nx, ntext, and nxhello:  All updated to use the new
+	  NuttX font interfaces.
+	* apps/examples/nximage:  Another super simple  graphics example:  It just puts
+	  the NuttX logo in the center of the display. This example can also be
+	  built as an NSH "built-in" command.
+	* apps/examples/usbstorage: Can now be built as two NSH "built-in" commands:
+	  'msconn' will connect the USB mass storage device; 'msdis' will disconnect
+	  the USB storage device.
+	* apps/examples/nx*:  All NX header files moved from nuttx/include/nuttx to
+	  nuttx/include/nuttx/nx.
+	* apps/examples/usbstorage: Added instrumentation to monitor memory usage
+	  to check for memory leaks in the USB storage driver.
+	* apps/examples/nxhello/nxhello_bkgd.c:  Fix handling of allocated glyph
+	  memory.
+
+6.8 2011-08-11 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nxlines:  Added a test for NX line drawing capabilities.
+
+6.9 2011-09-11 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nxlines:  Extend the line drawing text to include drawing
+	  of circles.
+	* apps/system/i2c:  Add an I2C test tool that should help to bring up I2C
+	  devices (when it is fully functional).
+	* apps/nshlib/nsh_timcmds.c:  Add the date command that can be used to
+	  show or set the time (only if CONFIG_RTC is set).
+
+6.10 2011-10-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/i2c:  Add repitition and address auto-incrementing so that
+	  and command can be executed numerous times.  Add a new verify command
+	  that will write to a register, read from register, and verify that
+	  returned value.
+	* apps/graphics/tiff:  Add a library that can be used to create TIFF files.
+	* apps/examples/tiff:  Add a unit test for the TIFF file creation logic
+	* apps/examples/lcdrw:  Add a test to verify if you can or can or read
+	  data from an LCD correctly.
+	* apps/examples/usbterm:  A USB terminal example.. more of a USB chat or
+	  serial bridge:  Data received on local console echoed via USB serial;
+	  data received on USB serial is echoed on the local console.
+	* apps/examples/touchscreen:  Add a simple, generic test for any
+	  touschscreen driver.
+	* Makefile:  The apps/ Makefile now checks for an apps/external directory
+	  or symbolic link.  If such a directory/link exists (and has a Makefile),
+	  it will be added to the apps/ build.  This allows external directories
+	  to be included into the apps/ build by simply creating a symbolic link.
+
+6.11 2011-11-12 Gregory Nutt <gnutt@nuttx.org>
+
+	(No major changes from 6.10)
+
+6.12 2011-12-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/buttons:  The button test can now be executed as an NSH
+	  built in command.
+
+6.13 2012-12-26 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/dhcpd: May now be built as an NSH built-in application
+	  by setting CONFIG_NSH_BUILTIN_APPS.
+	* apps/netutils/dhcpd/dhcpd.c: Fix several problems using host order address
+	  where network addresses expected (and vice versa).
+	* apps/examples/nettest: May now be built as an NSH built-in application
+	  by setting CONFIG_NSH_BUILTIN_APPS.
+	* apps/examples/nettest: Correct some build issues with the nettest is
+	  built for performance evaluation.
+	* apps/examples/adc:  Add a very simple test to drive and test an ADC
+	  driver.
+	* apps/examples/pwm:  Add an NSH PWM command to drive and test a PWM
+	  driver.
+	* apps/examples/can:  Add an NSH CAN command to drive and test a CAN
+	  driver in loopback mode.
+
+6.14 2012-01-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/buttons/main.c:  The test needs to call up_buttoninit() to
+	  properly configure the button interrupt GPIOs.
+	* apps/examples/pwm:  Add support to test the pulse count option recently
+	  added to the PWM interface.
+
+6.15 2012-02-12 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_serial.c and nsh_usbdev.c:  If NuttX is configured to use
+	  a USB serial console, then NSH needs to wait until the USB console is
+	  connected and available.
+	* apps/examples/composite:  Add a test of the USB composite device.
+	* apps/examples/Telnetd:  Move the tiny uIP shell example from
+	  netutils/Telnetd to examples/Telnetd.  Enhanced the Telnetd daemon so that
+	  it supports Telnetd via a TTY device driver: A new TTY device driver is
+	  created when each new Telnet connection is created.  The shell thread
+	  is started with stdin, stdout, and stderr mapped to the TTY device.
+	* netutils/Telnetd:  The old uIP Telnet demo is gone.  In its place is a new
+	  Telnet infrastructure. The new Telnet daemon creates sessions that are
+	  "wrapped" as character devices and mapped to stdin, stdout, and stderr.
+	  Now the Telnet session can be inherited by spawned tasks.
+	* examples/Telnetd:  Add a test for the new Telnet daemon.
+	* examples/Telnetd/telnetd_driver.c: Move the internal socket structure from
+	  the daemon's socket array into the driver's state data so that it will be
+	  independent from the Telnetd daemon.
+	* apps/system/readline:  Moved the old nuttx/lib/stdio/lib_fgets.c here
+	  and renamed it as readline().  The old fgets was simplied and the overloaded
+	  readline functionality was removed.
+	* apps/netutils/ftpd:  Add an FTPD server (does not even compile on initial
+	  checkin).
+	* apps/examples/ftpd:  Add a test for the FTPD server (untest on initial
+	  check-in).
+	* apps/nshlib/nsh_fscmds.c:  Add support for a 'dmesg' command that will
+	  dump the system log if CONFIG_SYSLOG is selected.
+
+6.16 2012-03-10 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/qencoder:  Add a quadrature driver test.
+	* apps/examples/ostest/fpu.c:  Add a test to verify that FPU registers
+	  are properly saved and restored on context switches.
+	* apps/system/readline/readline.c:  readline() will now treat either a
+	  backspace or a DEL character as a backspace (i.e., deleting the character
+	  to the left of the cursor).  This makes NSH less dependent on particular
+	  keyboard mappings of the Backspace key.  Submitted by Mike Smith.
+	* apps/system/cdcacm:  An example that illustrates how the CDC/ACM driver
+	  may to connected and disconnected through software control.
+	* apps/examples/nsh/nsh_main.c:  If available, call up_cxxinitialize() to
+	  initialize all statically defined C++ classes.
+	* apps/nshlib:  Now supports a USB serial device for NSH console I/O.  This
+	  allows NSH to be used on boards that have USB but no serial connectors.
+
+6.17 2012-04-14 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/can:  Add conditional compilation so that the test can be
+	  configured to only send messages or to only receive messages.  This will
+	  let the test work in other modes than simple loopback testing.
+	* apps/examples/hello and apps/examples/ostest:  Can now be built as NSH
+	  built-int functions.
+	* vsn/hello:  Removed.  The modified apps/examples/hello is enough "Hello,
+	  World!"
+	* apps/examples/nxconsole:  Add a test of the NX console device.
+	* apps/examples/nxconsole:  The NX console example now supports running
+	  the NuttShell (NSH) within an NX window.
+	* apps/system/readline:  Now uses standard definitions from
+	  include/nuttx/ascii.h and vt100.h
+	* Kconfig, */Kconfig:  Added skeleton Kconfig files to all directories that
+	  may need them.
+
+6.18 2012-05-19 Gregory Nutt <gnutt@nuttx.org>
+
+	* Kconfig:  Continued Kconfig file updates (no longer tracking on a per-file
+	  basis in the ChangeLog)
+	* apps/examples/watchdog:  Add a watchdog timer example.
+	* apps/examples/tiff:  Fix wrong path used for temporary file.
+	* apps/examples/touchscreen:  Standardize the board-specific, touchscreen
+	  initialization interfaces.
+
+6.19 2012-06-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_usbdev.c:  Add the capability to use an arbitrary USB
+	  device as the console (not necessarily /dev/console).  This is a useful
+	  option because then you can still use the serial console to debug with.
+	* apps/nshlib/nsh_usbdev.c:  User now has to press ENTER 3 times before
+	  USB console will start.  Otherwise, the USB console starts before there
+	  is anyone at the other end to listen.
+	* apps/nshlib/nsh_usbdev.c and nsh_consolemain.c:  Add support for the USB
+	  capability when a USB console is used.
+	* apps/nshlib/nsh_fscmds.c:  Add the 'mv' command
+
+6.20 2012-07-12 Gregory Nutt <gnutt@nuttx.org>
+
+	* namedapp/exec_namedapp.c - Correct an error when round robin scheduling
+	  is enabled.  The priority of the new, named application was erroneously
+	  being set to the priority of the parent thread; losing its configured
+	  priority.  Reported by Mike Smith.
+
+6.21 2012-08-25 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/include/: Stylistic clean-up of all header files.
+	* apps/modbus and apps/include/modbus:  A port of freemodbus-v1.5.0
+	  has been added to the NuttX apps/ source tree.
+	* apps/examples/modbus:  A port of the freemodbus-v1.5.0 "demo"
+	  program that will be used to verify the FreeModBus port
+	* apps/modbus:  Don't use strerror().  It is just too big.
+	* apps/modbus:  Add CONFIG_MB_TERMIOS.  If the driver doesn't support
+	  termios ioctls, then don't bother trying to configure the baud, parity
+	  etc.
+	* apps/nshlib:  If waitpid() is supported, then NSH now catches the
+	  return value from spawned applications (provided by Mike Smith)
+	* apps/nshlib:  Lock the scheduler while starting built-in applications
+	  in order to eliminate race conditions (also from Mike Smith).
+	* apps/examples/adc, pwm, and qencoder:  Add support for testing
+	  devices with multiple ADC, PWM, and QE devices.
+	* apps/nshlib/nsh_mntcmds.c:  Separated mount-related commands out of
+	  nsh_fscmds.c.  Extended to the mount command so that if no arguments
+	  are provided, then the current mountpoints are enumerated.
+	* apps/nshlib/nsh_mntcmds.c:  Add an NSH df command to list the
+	  properties of mounted file systems.
+	* apps/nshlib/nsh_parse.c:  Extend help command options.  'help' with
+	  no arguments outputs a short list of commands.  With -v lists all
+	  command line details.  A command name can be added to just get
+	  help on one command.
+	* system/readline.c:  If character input/output is interrupted by a
+	  signal, then readline() will try the read/write again.
+	* apps/*/Make.defs:  Numerous fixes needed to use the automated
+	  configuration (from Richard Cochran).
+
+6.22 2012-09-29 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/netutils/thttpd/thttpd_cgi.c:  Missing NULL in argv[]
+	  list (contributed by Kate).
+	* apps/nshlib/nsh_parse.c: CONFIG_NSH_DISABLE_WGET not CONFIG_NSH_DISABLE_GET
+	  in one location (found by Kate).
+	* apps/examples/ostest/prioinherit.c:  Limit the number of test
+	  threads to no more than 3 of each priority.  Bad things happen
+	  when the existing logic tried to created several hundred test
+	  treads!
+	* apps/nshlib/nsh.h:  Both CONFIG_LIBC_STRERROR and CONFIG_NSH_STRERROR
+	  must be defined to use strerror() with NSH.
+	* apps/examples/*/*_main.c, system/i2c/i2c_main.c, and others:  Added
+	  configuration variable CONFIG_USER_ENTRYPOINT that may be used to change
+	  the default entry from user_start to some other symbol.  Contributed by
+	  Kate.
+	* apps/netutils/webserver/httpd/c:  Fix a typo that as introduced in
+	  version r4402:  'lese' instead of 'else' (Noted by Max Holtzberg).
+	* tools/mkfsdata.pl: The uIP web server CGI image making perl script was
+	  moved from apps/netutils/webserver/makefsdata to nuttx/tools/mkfsdata.pl
+	  (Part of a larger change submitted by Max Holtzberg).
+	* apps/netutils/webserver, apps/examples/uip, and apps/include/netutils/httpd.h:
+	  The "canned" version of the uIP web servers content that was at
+	  netutils/webserver/httpd_fsdata.c has been replaced with a dynamically
+	  built configuration located at apps/examples/uip (Contributed by
+	  Max Holtzberg).
+	* apps/netutils/webserver:  Several inenhancements from Kate including the
+	  ability to elide scripting and SERVER headers and the ability to map
+	  files into memory before transferring them.
+	* apps/netutils/webserver:  Add ability to map a URL to CGI function.
+	  Contributed by Kate.
+	* apps/nshlib/nsh_mntcmds.c: The changes of 6.21 introduced holes in the
+	  error handling:  Now the number of arguments to mount can be 0 or 4.
+	  Additional parameter checking is required to prevent mysterious errors
+	  (submiteed by Kate).
+	* apps/netutils/webserver/httpd_mmap.c:  Fix errors when the mmap()
+	  length is zero (submitted by Kate).
+	* apps/netutils/webserver/httpd_sendfile.c:  Add and option,
+	  CONFIG_NETUTILS_HTTPD_SENDFILE to transfer files using the NuttX
+	  sendfile() interface.
+	* apps/netutils/discover:  A UDP network discovery utility contributed
+	  by Max Holtzberg.
+	* apps/examples/discover:  A test example for the UDP network discovery
+	  utility (also contribed by Max Holtzberg).
+	* apps/examples/*/main.c:  Too many files called main.c.  Each renamed
+	  to something unique so that they will not collide in the archive.
+	* apps/netutils/xmlrpc: The Embeddable Lightweight XML-RPC Server
+	  discussed at http://www.drdobbs.com/web-development/\
+	  an-embeddable-lightweight-xml-rpc-server/184405364.  Contributed by
+	  Max Holtzberg.
+	* apps/netutils/uip_listenon.c:  Logic in uip_server.c that creates
+	  the listening socket was moved to this new file to support re-use.
+	  Contributed by Kate.
+	* apps/netutils/webserver/httpd.c:  The option CONFIG_NETUTILS_HTTPD_SINGLECONNECT
+	  can now be used to limit the server to a single thread.  Option
+	  CONFIG_NETUTILS_HTTPD_TIMEOUT can be used to generate HTTP 408 errors.
+	  Both from Kate.
+	* apps/netutils/webserver/httpd.c:  Improvements to HTTP parser from
+	  Kate.
+	* apps/netutils/webserver/httpd.c:  Add support for Keep-alive connections
+	  (from Kate).
+	* apps/NxWidget/Kconfig:  This is a kludge.  I created this NxWidgets
+	  directory that ONLY contains Kconfig.  NxWidgets does not live in
+	  either the nuttx/ or the apps/ source trees.  This kludge makes it
+	  possible to configure NxWidgets/NxWM without too much trouble (with
+	  the tradeoff being a kind ugly structure and some maintenance issues).
+	* apps/examples/Make.defs: Missing support for apps/examples/watchdog.
+	* apps/NxWidgets/Kconfig:  Add option to turn on the memory monitor
+	  feature of the NxWidgets/NxWM unit tests.
+
+6.23 2012-11-05 Gregory Nutt <gnutt@nuttx.org>
+
+	* vsn: Moved all NSH commands from vsn/ to system/.  Deleted the vsn/
+	  directory.
+	* Makefile:  Change order of includes when CONFIG_NEWCONFIG=y.  In
+	  that case, namedapp must be included first so that the namedapp
+	  context is established first.  If the namedapp context is established
+	  later, it will overwrite any existing namedapp_list.h and nameapp_proto.h
+	  files.
+	* CONFIG_EXAMPLES_*: To make things consistent, changed all occurrences
+	  of CONFIG_EXAMPLE_* to CONFIG_EXAMPLES_*.
+	* Kconfig:  Fleshed out apps/examples/adc/Kconfig and apps/examples/wget/Kconfig.
+	  There are still a LOT of empty, stub Kconfig files.
+	* Kconfig:  Fleshed out apps/examples/buttons/Kconfig. There are still a LOT
+	  of empty, stub Kconfig files.
+	* apps/netutils/webserver/httpd.c:  Fix a bug that I introduced in
+	  recent check-ins (Darcy Gong).
+	* apps/netutils/webclient/webclient.c:  Fix another but that I introduced
+	  when I was trying to add correct handling for loss of connection (Darcy Gong)
+	* apps/nshlib/nsh_telnetd.c:  Add support for login to Telnet session via
+	  username and password (Darcy Gong).
+	* apps/netutils/resolv/resolv.c (and files using the DNS resolver): Various
+	  DNS address resolution improvements from Darcy Gong.
+	* apps/nshlib/nsh_netcmds.c:  The ping command now passes a maximum round
+	  trip time to uip_icmpping().  This allows pinging of hosts on complex
+	  networks where the ICMP ECHO round trip time may exceed the ping interval.
+	* apps/examples/nxtext/nxtext_main.c:  Fix bad conditional compilation
+	  when CONFIG_NX_KBD is not defined.  Submitted by Petteri Aimonen.
+	* apps/examples/nximage/nximage_main.c:  Add a 5 second delay after the
+	  NX logo is presented so that there is time for the image to be verified.
+	  Suggested by Petteri Aimonen.
+	* apps/Makefile: Small change that reduces the number of shell invocations
+	  by one (Mike Smith).
+	* apps/examples/elf:  Test example for the ELF loader.
+	* apps/examples/elf:  The ELF module test example appears fully functional.
+	* apps/netutils/json:  Add a snapshot of the cJSON project.  Contributed by
+	  Darcy Gong.
+	* apps/examples/json:  Test example for cJSON from Darcy Gong
+	* apps/nshlib/nsh_netinit.c: Fix static IP DNS problem (Darcy Gong)
+	* apps/netutils/resolv/resolv.c: DNS fixes from Darcy Gong.
+	* COPYING: Licensing information added.
+	* apps/netutils/codec and include/netutils/urldecode.h, base64.h, and md5.h:
+	  A port of the BASE46, MD5 and URL CODEC library from Darcy Gong.
+	* nsnlib/nsh_codeccmd.c:  NSH commands to use the CODEC library.
+	  Contributed by Darcy Gong.
+	* apps/examples/wgetjson: Test example contributed by Darcy Gong
+	* apps/examples/cxxtest:  A test for the uClibc++ library provided by
+	  Qiang Yu and the RGMP team.
+	* apps/netutils/webclient, apps/netutils.codes, and apps/examples/wgetjson:
+	  Add support for wget POST interface.  Contributed by Darcy Gong.
+	* apps/examples/relays:  A relay example contributed by Darcy Gong.
+	* apps/nshlib/nsh_netcmds: Add ifup and ifdown commands (from Darcy
+	  Gong).
+	* apps/nshlib/nsh_netcmds: Extend the ifconfig command so that it
+	  supports setting IP addresses, network masks, name server addresses,
+	  and hardware address (from Darcy Gong).
+
+6.24 2012-12-20 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/ostest/roundrobin.c:  Replace large tables with
+	  algorithmic prime number generation.  This allows the roundrobin
+	  test to run on platforms with minimal SRAM (Freddie Chopin).
+	* apps/nshlib/nsh_dbgcmds.c:  Add hexdump command to dump the contents
+	  of a file (or character device) to the console  Contributed by Petteri
+	  Aimonen.
+	* apps/examples/modbus:  Fixes from Freddie Chopin
+	* apps/examples/modbus/Kconfig: Kconfig logic for FreeModBus contributed
+	  by Freddie Chopin.
+	* Makefile, */Makefile:  Various fixes for Windows native build.  Now uses
+	  make foreach loops instead of shell loops.
+	* apps/examples/elf/test/*/Makefile: OSX doesn't support install -D, use
+	  mkdir -p then install without the -D.  From Mike Smith.
+	* apps/examples/relays/Makefile: Reduced stack requirement (Darcy Gong).
+	* apps/nshlib and apps/netutils/dhcpc:  Extend the NSH ifconfig command plus
+	  various DHCPC improvements(Darcy Gong).
+	* apps/nshlib/nsh_apps.c: Fix compilation errors when CONFIG_NSH_DISABLEBG=y.
+	  From Freddie Chopin.
+	* Rename CONFIG_PCODE and CONFIG_FICL as CONFIG_INTERPRETERS_PCODE and
+	  CONFIG_INTERPRETERS_FICL for consistency with other configuration naming.
+	* apps/examples/keypadtest:  A keypad test example contributed by Denis
+	  Carikli.
+	* apps/examples/elf and nxflat:  If CONFIG_BINFMT_EXEPATH is defined, these
+	  tests will now use a relative path to the program and expect the binfmt/
+	  logic to find the absolute path to the program using the PATH variable.
+
+6.25 2013-02-01 Gregory Nutt <gnutt@nuttx.org>
+
+	* Makefiles: Removed dependency of distclean on clean in most top-level
+	  files.  It makes sense for 'leaf' Makefiles to have this dependency,
+	  but it does not make sense for upper-level Makefiles.
+	* apps/namedapp/: Renamed to builtins in preparation for another change.
+	* .context:  Removed the .context kludge.  This caused lots of problems
+	  when changing configurations because there is no easy way to get the
+	  system to rebuild the context.  Now, the context will be rebuilt
+	  whenever there is a change in either .config or the Makefile.
+	* apps/builtin/registry:  Updated new built-in registration logic to handle
+	  cases where (1) old apps/.config is used, and (2) applications ared
+	  removed, not just added.
+	* apps/examples/nettest/Makefile:  Fix an error that crept in during
+	  some of the recent, massive build system changes.
+	* apps/builtin/Makefile:  Need to have auto-generated header files
+	  in place early in the dependency generation phase to avoid warnings.
+	  It is not important if they are only stubbed out header files at
+	  this build phase.
+	* apps/examples/hidbkd: Now supports decoding of encoded special keys
+	  if CONFIG_EXAMPLES_HIDKBD_ENCODED is defined.
+	* apps/examples/hidbkd:  Add support for decoding key release events
+	  as well.  However, the USB HID keyboard drier has not yet been
+	  updated to detect key release events.  That is kind of tricky in
+	  the USB HID keyboard report data.
+	* apps/examples/wlan: Remove non-functional example.
+	* apps/examples/ostest/vfork.c:  Added a test of vfork().
+	* apps/exampes/posix_spawn: Added a test of posix_spawn().
+	* apps/examples/ostest:  Extend signal handler test to catch
+	  death-of-child signals (SIGCHLD).
+	* apps/examples/ostest/waitpid.c:  Add a test for waitpid(), waitid(),
+	  and wait().
+	* builtin/binfs.c:  Add hooks for dup() method (not implemented).
+	* builtin/exec_builtin.c, nshlib/nsh_parse.c, and nshlib/nsh_builtin.c:
+	  NSH now supports re-direction of I/O to files (but still not from).
+	* builtin/binfs.c:  Greatly simplified (it is going to need to be
+	  very lightweight).  Now supports open, close, and a new ioctl to recover
+	  the builtin filename.  The latter will be needed to support a binfs
+	  binfmt.
+	* builtin/binfs.c:  Move apps/builtin/binfs.c to fs/binfs/fs_binfs.c
+	  CONFIG_APPS_BINDIR rename CONFIG_FS_BINFS
+	* apps/include/builtin.h:  Some of the content of
+	  apps/include/apps.h moved to include/nuttx/binfmt/builtin.h.
+	  apps/include/apps.h renamed builtin.h
+	* apps/builtin/exec_builtins.c:  Move builtin
+	  utility functions from apps/builtin/exec_builtins.c to
+	  binfmt/libbuiltin/libbuiltin_utils.c
+	* apps/nshlib/nsh_mountcmds.c:  The block driver/source
+	  argument is now optional.  Many files systems do not need
+	  a source and it is really stupid to have to enter a bogus
+	  source parameter.
+	* apps/nshlib/nsh_fileapp.c:  Add the ability to execute a file
+	  from a file system using posix_spawn().
+	* apps/builtin/: Extensions from Mike Smith.
+	* apps/examples/ftpd/Makefile: Name ftpd_start is not the name of
+	  the entrypoint.  Should be ftpd_main (from Yan T.)
+	* apps/netutils/telnetd/telnetd_driver: Was stuck in a loop if
+	  recv[from]() ever returned a value <= 0.
+	* apps/examples/nettest and poll:  Complete Kconfig files.
+	* apps/examples/ostest/waitpid.c:  Need to use WEXITSTATUS()
+	  to decode the correct exit status.
+	* apps/system/usbmonitor:  A daemon that can be used to monitor USB
+	  trace outpout.
+	* apps/nshlib/nsh_usbdev.c, nsh_consolemain.c, nsh_session.c, nsh_script.c:
+	  Add support for a login script.  The init.d/rcS script will be executed
+	  once when NSH starts; the .nshrc script will be executed for each session:
+	  Once for serial, once for each USB connection, once for each Telnet
+	  session.
+	* apps/system/readline: Correct readline() return value.  Was not
+	  any returning special values when end-of-file or read errors
+	  occur (it would return an empty string which is not very useful).
+
+6.26 2013-03-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/builtin/exec_builtin.c:  Now uses task_spawn() to start
+	  builtin applications.
+	* Type of argv has changed from const char ** to char * const *
+	* apps/nshlib/nsh_parse.c:  Fix memory lead: Need to detach after
+	  creating a pthread.
+	* apps/examples and nshlib:  Change name of _TCB to struct tcb_s to
+	  match NuttX name change.
+	* apps/examples/ostest/restart.c:  Add a test case to verify
+	  task_restart().
+	* apps/system/readline.c:  readline() now returns EOF on any failure
+	  (instead of a negated errno value).  This is because the underlying
+	  read is based on logic similar to getc.  The value zero was being
+	  confused with a NUL.  So if a NUL was received, the NSH session
+	  would terminate because it thought it was the end of file.
+
+6.27 2013-04-28 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/ramtest:  Add a simple memory test (2013-03-26).
+	* apps/examples/ostest:  In the non-cancelable thread test, we need
+	  to give the thread an opportunity to run and to set the non-
+	  cancelable state.
+	* apps/nshlib/nsh_ddcmd.c: Correct the test of the skip input
+	  parameter.  Was limiting the range to <= count.  From Ken
+	  Pettit (2014-4-24).
+
+6.28 2013-06-14 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/mtdpart:  Provides a simple test of MTD partitions.
+	* apps/nshlib/nsh_mntcmds.c:  Add a -h option to the df command to show
+	  the volume information in human readable form (Ken Pettit, 2013-4-30).
+	* apps/nshlib/nsh_fscmds.c: Add support for the mksmartfs command.
+	  (Ken Pettit, 2013-4-30).
+	* apps/system/flash_eraseall:  Add an interface to erase FLASH using a
+	  flash_eraseall NSH command  (Ken Pettit, 2013-5-1).
+	* apps/examples/flash_test and apps/examples/smart_test:  Add tests of
+	  the SMART block driver and file system  (Ken Pettit, 2013-5-1).
+	* apps/examples/mtdpart:  Extended the test.  The original test
+	  coverage was superficial (2013-5-3).
+	* apps/examples/smart:  This is an adaptation of the NXFFS stress
+	  test for the SMART file system (Ken Pettit, 2013-5-3).
+	* apps/examplex/nxtext:  Remove the CONFIG_EXAMPLES_NXTEXT_NOGETRUN
+	  option.  The test logic was bad for the case where this options
+	  is not selected.  Also, complete the empty Kconfig file (2013-5-7).
+	* apps/NxWidgets/Kconfig:  Updated to match NxWidgets/Kconfig by
+	  Ken Pettit (2013-5-11).
+	* apps/examples/helloxx:  C++ name mangling was occurring when this
+	  example is built as an NSH built-in application.  (2013-5-16).
+	* apps/netutils/discover:  Added a runtime configuration for the
+	  UDP discover utility.  From Max Holtzberg (2013-5-21).
+	* apps/examples/tcpecho:  Added a simple single threaded, poll based
+	  TCP echo server based on W. Richard Stevens UNIX Network Programming
+	  Book.  Contributed by Max Holtzberg (2013-5-22).
+	* apps/examples/slcd:  Add an example for testing alphanumeric,
+	  segment LCDs (2013-5-24).
+	* apps/examples/slcd:  Extend SLCD test to handle multi-line displays
+	  (2013-5-26).
+	* apps/examples/slcd:  This test now sets the SLCD brightness level to
+	  the mid-point as part of its initialization (2013-5-27).
+	* .gitignore:  Clean-up of most all .gitignore files:  Make scope of
+	  ignore to be only the current directory; Ignore .dSYM files in
+	  directories where .exe's may be build.  Also, in Makefiles,
+	  clean .dSYM files in directories where .exe may be built (2013-5-30).
+	* apps/examples/nrf35l01_term: Add an example application to demo the
+	  nRF24L01 driver.  From Laurent Latil (2013-6-1).
+	* apps/nshlib/Kconfig:  Add some missing NSH configuration values.
+	  From Lorenz Meier (2013-6-2).
+	* Standardize on CONFIG_NSH_BUILTIN_APPS.  Remove all other variants
+	  of the build-as-an-NSH-application configuration settings
+	  (2013-6-12).
+
+6.29 2013-07-31 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nsh, cxxtest, and helloxx:  C++ initializers should be
+	  set once and, preferably, in the context of the task that uses any C++
+	  statically initialized classes.  These only becomes an issue if cxxtest
+	  or helloxx are built as NSH builtin applications.  Then you want the
+	  initialization done in cxxtext or helloxx and not in NSH (and certainly
+	  not twice).  Added configuration options to control who does the C++
+	  initialization.  NSH now does not do C++ initialization be default and
+	  must be configured to do otherwise.  Converely, cxxtest and helloxx
+	  will do C++ initialization unless configured do otherwise (2013-6-21).
+	* apps/examples/cxxtext:  Add ostream test as provided by Michael
+	  (2013-6-21).
+	* apps/examples/nxhello:  Minor fix for compilation error when the
+	  display resolution is low (< 8bpp) due to a typo that has been there
+	  for a long time (2013-6-23).
+	* apps/examplex/nxhello:  Correct default colors when in Y1 code mode.
+	  (2013-6-24).
+	* apps/system/Make.defs and Kconfig:  The RAM test was not correctly built
+	  into the configuration and build system (2013-6-26).
+	* apps/examples/composite/composite_main.c:  SourceForge But Ticket #19.
+	  Change to prevent some false alarm debug assertions (From Chia Cheng
+	  Tao, 2013-7-9).
+	* apps/system/zmodem:  Add configuration support and a build framework
+	  for the Zmodem sz and rz command (which exist but have not yet been
+	  checked in) (2013-7-12).
+	* apps/system/zmodem:  The 'sz' command is now complete and seems
+	  functional (given on light testing).  The rz command logic exists but
+	  is still untested and not yet checked in  (2013-7-13).
+	* apps/system/zmodem:  The 'rz' command is now complete and functional
+	  under certain conditaions.  There are, however, some data overrun
+	  issues that I am still uncertain how should be handled (2012-7-15).
+	* apps/system/zmodem/Makefile.host and host/: The Zmodem utilities
+	  can now be built to execute on a Linux host.
+	* apps/nshlib/nsh_fscmds.c:  Add a 'cmp' command that can be used to
+	  compare two files for equivalence.  Returns an indication if the files
+	  differ.  Contributed by Andrew Tridgell (via Lorenz Meier) (2013-7-18).
+
+6.30 2013-09-14 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/composite/:  SourceForge bug #19: Fix a typo that can
+	  cause a configuration error.  From CCTSAO (2013-9-4).
+	* apps/examples/cc3000.  Initial support for the TI CC3000 network module
+	  on the Freescale Freedom-KL25Z board from Alan Carvalho de Assis.
+	  Includes the test to verify the CC3000 (2013-9-3).
+	* apps/examples/usbmsc:  apps/examples/usbstorage renamed usbmsc.
+	  Change submitted by CCTSAO (2013-6-5).
+	* apps/examples/pwm:  Clean-up some configuration confusion (2013-9-5).
+	* apps/netutils/dhcpd/dhcpd.c:  Fix calculation of the next lease
+	  address.  SourceForge bug #21 from Paolo Messina (2013-9-6).
+	* apps/examples/usbmsc:  Don't try to control USB trace if we are
+	  an NSH built-in task.  In that case our attempts are inadequate
+	  and only interfere with with other logic that is attempting to
+	  to do the same thing (in NSH or in the USB monitor) (2013-9-6).
+	* apps/examples/usbmsc:  IMPORTANT bug fix: Change how the msconn
+	  works.  Because of recent changes the msconn command was hanging.
+	  This was because the USB MSC start-up logic creates a pthread;
+	  Now waitpid() will wait until all members of the task group
+	  exit.  So NSH was hanging in waitpid when msconn started even
+	  though msconn returned.  The USB MSC logic really should not use
+	  a pthread, but we are stuck with that for now.  The work-around
+	  is that msconn now daemonizes itself so that it so that the pthread
+	  is created in a different task group (2013-9-7).
+	* apps/system/usbmonitor:  The USB monitor has been extended so
+	  that it can be used with USB device or host trace data (2013-9-9).
+	* apps/nshlib/nsh_fscmds.c:  Fix NSH listing output for the case
+	  of a single file.  Provided by Lorenz Meier (2013-9-13).
+
+6.31 2013-10-28 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_netcmds.c:  Remove a warning when DHCP is not
+	  enabled (2013-9-17).
+	* apps/nshlib/Kconfig:  Default IP address should be 0x0a000001
+	  (10.0.0.1), not 0xa0000001 (160.0.0.1).  Ditto for the gateway
+	  (2013-9017).
+	* apps/examples/ostest/Kconfig:  Add configuration options for
+	  the FPU test.  There are still many OS test configuration
+	  options that do not appear in Kconfig (2013-9-18).
+	* apps/examples/cc3000:  Condition the CC3000 example on having
+	  selected the CC3000 device.  Otherwise, you are prompted for
+	  this option on each 'make oldconfig' (2013-9-18).
+	* apps/system/usbmonitor/usbmonitor.c:  Fix some bad conditional
+	  compilation probably introduced on 2013-9-9 (2013-9-23).
+	* apps/system/stackmonitor:  Add a daemon that can be used to
+	  monitor stack usage by all threads (2013-9-24).
+	* system/usbmsc:  Move examples/usbmsc to system/usbmsc (2013-9-25).
+	* system/cdcacm:  Move examples/cdcacm to system/cdcacm (2013-9-25).
+	* system/composite:  Move examples/composite to system/composite
+	  (2013-9-25).
+	* apps/nshlib and apps/readline:  Numerous changes to get NSH
+	  working with no file system.  Basically this suppresses I/O
+	  redirection and replaces file I/O with calls to low-level
+	  console read/write functions.  Suggested by Alan Carvalho de Assis
+	  in a somewhat different form. (2013-9-30).
+	* apps/nshlib/nsm_routecmds.c:  Add addroute and delroute
+	  commands (2013-10-5).
+	* apps/system/i2ctool/Kconfig:  Fix default I2C frequency:  400KHz
+	  instead of 4MHz.  Suggested by Max Kriegleder (2013-10-10).
+	* apps/system/info/Kconfig and Makefile:  Increase stack size.
+	  Ken Pettit reports that this simple command can exceed its 768
+	  stack size under certain conditions.  The size is marginal and
+	  has been increased to 1024 by default but is also now configurable
+	  (2013-10-14).
+	* apps/Makefile:  Need to include external/Make.defs if we want
+	  allow external applications to participate in the NuttX
+	  configuration.  Suggested by gdi@embedders.org (2013-10-14).
+	* apps/examples/cc3300: Updates as part of larger re-organizaion
+	  of CC3000 logic by David Sidrane (2013-10-16).
+	* apps/examples/random:  Add a simple test that dumps values from
+	  /dev/random (2013-10-20).
+	* apps/examples/cc3000:  Extensions and enhancements from David
+	  Sidrane (2013-10-23).
+	* apps/netutils/telnetd/telnetd_driver.c:  Missing argument to
+	  debug statement can cause crashes in certain error conditions.
+	  From David Sidrane (2013-10-24).
+	* apps/examples/cc3000:  Updates from David Sidrane.  Plus
+	  some kruft removal (2013-10-24).
+	* apps/examples/can/can_main.c:  Correct an error in a debug
+	  statement.  From Martin Lederhilger (2013-10-24).
+	* apps/examples/adc:  Add support so that a ADC driven by
+	  software triggering can be tested (2013-10-25).
+	* apps/examples/cc3000:  Updates from David Sidrane (2013-10-25).
+	* apps/system/nxplayer:  Implements a command line media
+	  player.  From Ken Pettit (2013-10-27).
+	* apps/system/nxplayer: Add logic to verify the audio sub-format.
+	  From Ken Pettit (2013-10-28).
+
+6.32 2013-12-07 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/platform:  A new home for board-specific application code
+	  (2013-10-30).
+	* apps/include/platform/configdata.h:  Define an interface that can be
+	  used to manage platform-specific storage of configuration data
+	  (2013-10-30).
+	* apps/examples/cc3000: Fine tuning of memory usage from David Sidrane
+	  (2013-10-30).
+	* apps/platform/mikroe-stm32f4: Now supports storage of configuration
+	  data.  From Ken Pettit (2013-10-30).
+	* apps/nshlib/nsh_dbgcmds.c and others:  Add skip= and count=
+	  options to the hexdump command.  From Ken Pettit (2013-11-1).
+	* apps/platform/mikroe-stm32f4:  Now uses /dev/config for configuration
+	  data storage.  From Ken Pettit (2013-11-1).
+	* apps/platform/Makefile:  Was not dealing with the bin sub-directory
+	  correctly (2013-11-2).
+	* apps/examples/configdata:  A unit test for the MTD configuration
+	  data driver from Ken Pettit (2013-11-4).
+	* apps/platform/mikroe-stm32f4:  Updated to use new MTD configuration
+	  driver features.  From Ken Pettit (2013-11-1).
+	* apps/nshlib/nsh.h:  Allow USB trace without a USB console. From
+	  David Sidrane (2013-11-06).
+	* apps/system/composite/composite_main.c:  The wrong handle was getting
+	  nullified.  From David Sidrane (2013-11-7).
+	* apps/system/nxplayer: Play thread stack size is now configurable.  All
+	  NxPlayer threads now have names assigned via pthread_setname_np().
+	  From Ken Pettit (2013-11-10).
+	* apps/examples/i2schar:  The beginning of an I2S test based on the I2S
+	  character driver (2013-11-10).
+	* apps/nshlib/nsh_mntcmds.c:  Mount command updates from Ken Pettit
+	  (2013-11-17).
+	* apps/examples/hidkbd/hidkbd_main.c:  Now calls a function named
+	  arch_usbhost_initialize() that must be provided by the platform-
+	  specific code (2013-11-29).
+	* apps/nshlib/nsh_fscmds.c:  Add an option to the mkfatfs command to
+	  specify FAT12, FAT16, or FAT32 (2013-12-5).
+
+6.33 2014-01-30 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_mntcmds.c:  Modified the df -h logic to eliminate
+	  truncating numbers in conversion (like 7900 -> 7M).  From Ken
+	  Pettit (2013-12-12).
+	* Moved configs/stm3240g-eval/src/up_cxxinitialize.c to
+	  apps/platform/stm3240g-eval/up_cxxinitialize.c:  Now it is available
+	  in user-space in the kernel mode build (2013-12-29).
+	* apps/examples/mount/Kconfig:  Fill in empty Kconfig file (2013-12-31).
+	* builtin/Makefile: Fixes for native Windows build from Max Holtzberg
+	  (2014-1-4).
+	* apps/netutils/dhcpc/Kconfig, resolv/Kconfig, telnetd/Kconfig, and
+	  apps/nshlib/Kconfig:  Refactor some configuration dependencies:  NSH
+	  features should depend on netutil selections; netutil selections
+	  should depend on networking selections. (2014-1-9).
+	* apps/nshlib/nsh_command.c:  Separate NSH command handling from NSH
+	  line parsing.  This re-partitioning simplifies the logic and will
+	  enable some things to come (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Will now support multiple commands on a
+	  command line, each separated with a semi-colon (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Put the logic that executes a command
+	  after parsing parameters into a separate file so that it can be
+	  reused (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Add initial support of commands enclosed
+	  in back quotes as command arguments.  Functionality still incomplete
+	  on initial commit (2014-1-10).
+	* Logic to support commands enclosed in back quotes is functional
+	  but not thoroughly tested (2014-1-11).
+	* apps/nshlib/nsh_parse.c:  Can now handle arguments that are
+	  concatenations of constant strings, command return data, application
+	  return data, and environment variables (2014-1-11).
+	* apps/nshlib/nsh_parse.c:  Fix a memory leak ... forgot to close
+	  a temporary file (2013-1-12).
+	* apps/system/inifile:  A simple INI file parser (perhaps too simple).
+	  This is code that I wrote a long time ago and have used many time but
+	  is untested in its current incarnation (2014-1-15).
+	* aps/nshlib/nsh_parse.c:  Recent changes broke redirection of output
+	  (2014-1-14).
+	* apps/nshlib/nsh_parse.c:  Add true and false commands (2014-1-17)
+	* apps/nshlib/nsh.h and nsh_parse.c:  Re-name and re-organize some
+	  if-then-else related structures to better support forthcoming until
+	  and while loops (2014-1-17).
+	* apps/nshlib/nsh_script.c:  Now saves the FILE stream for the script
+	  file in the vtbl structure so that it can be accessed by forthcoming
+	  while and until logic (2014-1-17).
+	* apps/nshlib/nsh.h, nsh_command.c, nsh_parse.c, and nsh_script.c:  Add
+	  support for while-do-done and until-do-done loops.  These only work
+	  when executing a script file because they depend on the ability to seek
+	  in the file to implement the looping behaviors (2014-1-17).
+	* apps/nshlib/nsh_parse.c:  Loosen up if-then-else-fi syntax to allow
+	  a command to be on the same line as the then and else tokens like:
+	  "if true; then echo true; else echo false; fi".  Much more like bash!
+	  (2014-1-17).
+	* apps/nshlib/Kconfig, README.txt, nsh.h, nsh_command.c, and
+	  nsh_script.c:  Add an option to conditionally compile out support for
+	  loop and for if-then-else-fi sequence (2014-1-17).
+	* apps/nshlib/nsh.h, nsh_command.c, and nsh_parse.c:  Add a break
+	  command that can be executed with a loop to terminate the loop
+	  immediately (2014-1-17).
+	* apps/system/vi:  Add support for a tiny, VI work-alike editor.  This
+	  is still very much a work-in-progress on initial check-in (2014-1-20).
+	* apps/netutils/uiplib:  Support new definitions and state passing for
+	  network device status. From Maz Holtzberg (2014-1-21).
+	* apps/system/vi:  Tiny VI is basically functional.  All commands seem
+	  to work.  There are still some display artifacts and probably several
+	  untested conditions (2014-1-21).
+
+7.1 2014-03-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/cle:  Add a EMACS-like command line editor.  This CLE,
+	  is really more like readline than the NuttX readline is!  (2014-02-02).
+	* apps/nshlib: Use of the standard tiny readline (about .25KB) is now
+	  an option and can be replaces with the EMACX-like CLE (about 2KB)
+	  (2014-02-02).
+	* Several changes to restore Windows native build (2014-2-7)
+	* apps/examples/touchscreen:  Can now be configured to work with a mouse
+	  interface as well (2014-2-10).
+	* Several files changes based on complaints from the tool CppCheck.  Some
+	  latent bugs were fixed (and most likely some new typos were introduced)
+	  (2014-2-10).
+	* apps/examples/nximage/Kconfig and apps/examples/uip/Kconfig: Incomplete
+	  Kconfig files fleshed out by Alan Carvalho de Assis (2014-2-18).
+	* apps/nshlib: 'rmdir' can now be used in the pseudo-filesystem.  Hence,
+	  the command needs to be available even if there are no write-able
+	  filesystem enabled (2014-2-19).
+	* apps/nshlib: 'mkdir' can now be used in the pseudo-filesystem.  Hence,
+	  the command needs to be available even if there are no write-able
+	  filesystem enabled (2014-2-19).
+	* apps/nshlib: 'mv' can now be used in the pseudo-filesystem.  Hence,
+	  the 'mv' command needs to be available even if there are no write-able
+	  filesystem enabled (2014-2-19).
+	* apps/nshlib: 'rm' can now be used to remove nodes from the pseudo-
+	  filesystem.  Hence, the 'rm' command needs to be available even if there
+	  are no write-able filesystem enabled (2014-2-20).
+	* CONFIG_DISABLE_PSEUDOFS_OPERATIONS: This new configuration setting
+	  basically backs out the recent changes to mv, rm, mkdir, and rmdir
+	  (2014-2-20).
+	* nshlib/Kconfig:  Use CONFIG_DEFAULT_SMALL in selecting default
+	  settings (2014-2-20).
+	* nshlib/nsh_telnetd.c:  Use strncpy vs strcpy to avoid overruning the
+	  username and password buffers.  From Bertold Van den Bergh (2014-2-22).
+	* nshlib/Kconfig, nsh_proccmds.c:  If the CPU load feature and the procfs
+	  features are enabled, then show CPU load used by each thread in the
+	  'ps' command (2014-2-27).
+	* nshlib/nsh_fscmds.c:  Add a newline after printing the file in the
+	  'cat' command.  This prevents the NSH prompt from be in the same line
+	  as the final line of the file in the case where there is no newline
+	  at the end of the file (2014-2-27).
+	* netutils/dhcpd/dhcpd.c: allocipaddr() should not call ntohl(), the
+	  returned IP address is already in host order.
+	* apps/netutils/dhcpd/Kconfig: Add missing DHCPD configuration
+	  settings(2014-3-3).
+	* Support for the legacy configuration mechanism (using appconfig files)
+	  is removed.  Only the newer configuration using the kconfig-frontends
+	  tools is now supported (2014-3-6).
+
+7.2 2014-04-29 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_parse.c: Fix NuttShell version number display in
+	  welcome message.  version.h was not being included (2014-3-23).
+	* apps/examples/igmp:  Fill out Kconfig file; update makefile so
+	  that the IGMP example can be used as an NSH built-in application.
+	  From Manuel Stühn (2014-3-24).
+	* apps/system/usbmsc:  Back out the USBMSC daemon... it is no longer
+	  needed with the recent fix to the USBMSC class driver (2014-3-25).
+	* apps/examples/lcdrw:  Fill out empty Kconfig file (2014-2-27).
+	* apps/netutils/dhcpd/dhcpd.c:  The correct value of the PAD option
+	  is zero, not one.  From Brennan Ashton (2014-3-31).
+	* apps/sysinfo:   CONFIG_VERSION_BUILD is a string an needs to be
+	  printed with %s, not %d.  Noted by Librae (2014-4-8).
+	* apps/netutils/ntpclient/ and apps/include/netufils/ntpclient.h:  Add
+	  a very primitive NTP client.  The initial check-in is untested and
+	  probably incomplete (2014-4-10).
+	* apps/netutils/resolv:  Long needed major clean up for coding style
+	  and unification of naming conventions (resolv vs dns) (2014-4-11).
+	* apps/netutils/dnsclient and include/netutils/dnsclient.h:  File name
+	  changes that are part of the overal resolv->dns renaming (2014-4-11).
+	* apps/netutils/dnsclient:  Break the one big monolithic file into
+	  three smaller files (2014-4-11).
+	* apps/netutils/ntpclient/ntpclient.c: Corrections to the NTP client
+	  from Manuel Stuehn (2014-4-12).
+	* apps/examples/touchscreen:  Add a configuration option to indicate if
+	  architecture-specific initialized is required, yes or no (2014-4-14).
+	* apps/system/nxplayer/nxplayer.c:  Compilation failure in one
+	  configuration reported by Manuel Stuhn (2014-4-21).
+	* apps/system/sdcard:  Remove an STM32 dependency.  From Bob Doiron
+	  (2014-4-21).
+	* apps/nshlib: malloc/free IOBUFFER for 'cat' and 'hexdump' commands
+	  instead of using the stack.  From Bob Doiron (2014-4-21).
+	* apps/examples/cpuhog, serialblaster, and serialrx:  Stress test
+	  examples added by Bob Doiron (2014-4-22).
+	* apps/examples/telnetd:  Naming is confused.  In someplaces 'telnetd',
+	  and in others 'shell.'  All changes to telnetd.  Noted by Pelle
+	  Windestam (2014-4-38).
+
+7.3 2014-06-25 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/serialblaster:  Update configuration an make logic in
+	  order to select that the serial blaster task priority and stack size.
+	  From Bob Doiron (2014-4-30).
+	* apps/nshlib/Kconfig and other NSH files:  The alternate console device
+	  CONFIG_NSH_CONDEV must not be defined unconditionally.  This causes errors
+	  when using Telnet sessions.  This was solved by adding CONFIG_NSH_ALTCONDEV:
+	  CONFIG_NSH_ALTCONDEV enables or disables the feature then, if enabled,
+	  CONFIG_NSH_CONDEV provides the alternative console device name (2014-5-5).
+	* apps/system/i2c/i2c_get.c:  Fix to show the updated register address on
+	  each fetch (vs. showing the same starting address each time).  From
+	  Ryan VanSickle (2014-5-8).
+	* apps/interpreters/prun and apps/include/interpreters/prun.h:  Broke out
+	  the P-code execution logic from apps/examples/pashello and moved it to
+	  these directory where it can be used more generally (2014-5-9).
+	* apps/system/prun and apps/include/interpreters/pexec_main.c:  Move the
+	  P-Code execution logic from apps/interpreters/prun to
+	  apps/system/prun; Add pexec_main.c which is an NSH built-in
+	  application that can be used to run P-Code programs from the NSH
+	  command line (2014-5-9).
+	* Several files: Convert all old-style variadic macros to the C99 form.
+	  Recent GCC changes tightens up that behavior and can cause some problems
+	  (at least for the IAR compiler for some reason).  See
+	  https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros.
+	  Noted by Bob Grimes (2014-5-22).
+	* apps/system/cle:  CLE was not returning the terminating newline character.
+	  But reported by Max kriegleder; work-around reported by Lorenz Meier
+	  (2015-5-23).
+	* Misc changes due to moving nuttx/net/uip/uip-arp.h to nuttx/net/arp.h
+	  (2015-5-30).
+	* apps/examples/netpkt/:  A "raw" socket test from Lazlo Sitzer
+	  (2014-6-12).
+	* apps/system/hex2bin/:  A library and built-in task to convert from
+	  Intel HEX to binary format.  Untested on initial commit (2014-6-15).
+	* apps/system/hex2bin/: Appears to be functional but testing is still
+	  light (2014-6-16).
+	* apps/system/hex2bin/hex2mem_main: Add a variant application that will
+	  write Intel HEX files directly to memory (2014-6-16).
+	* netutils/webserver: httpd_fs_open() should return OK on success and
+	  ERROR on failure, not 1 and 0 (2014-6-23)
+
+7.4 2014-08-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/mdio:  PHY tool from Daniel Lazlo Sizter (2014-6-27).
+	* apps/nshlib:  Networking logic modified to handler the case of SLIP
+	  transport.  From Max Neklyudov (2014-6-27).
+	* apps/nshlib:  if # appears on line, need to comment ignore additional
+	  commands on the line (2014-7-1).
+	* apps/netlib: Renamed all occurrences of uiplib to netlib.  Renamed
+	  files under netutils/uiplib/uip_*.c to netutils/netlib/netlib_*.c.
+	  Renamed all functions defined in netutils/netlib/ to begin with netlib_,
+	  instead of uip_. (2014-7-2).
+	* apps/nshlib/nsh_usbkeyboard.c:  Add a configuration to use a USB
+	  keyboard for the stdin device (2014-7-3).
+	* apps/neturils/webclient/webclient.c:  Fix to offset calculation from
+	  Rony Xln.  Prevents 0x0a at the beginning of lines (2014-7-7).
+	* netutils/webserver (and other files):  Fix some configuration usage:
+	  CONFIG_NETUTILS_HTTPD_SENDFILE was missing from Kconfig; CONFIG_NET_HAVE_SOLINGER
+	  should be CONFIG_NET_SOLINGER; Type of CONFIG_NET_HTTPD_MAXPATH was wrong
+	  in Kconfig file.  From Max (2014-7-11).
+	* apps/system/nxplayer/nxplayer.c:  Check for file read errors and end-of-file
+	  with zero bytes read (2014-7-23).
+	* apps/system/nxplayer: Misc changes to better integrate with
+	  NxWM::CMediaPlayer (2014-7-23).
+	* apps/system/nxplayer/nxplayer.c and apps/include/nxplayer.h: Add hooks
+	  for fast-forward and rewind needed by CMediaPlayer; add hooks for
+	  equalizer settings needed by the WM8904  (2014-7-24).
+	* apps/include/nxplayer.h and apps/system/nxplayer/nxplayer.c: Changes to
+	  integrate with Ken's NxWM::CMediaPlayer (2014-7-24).
+	* apps/include/nxplayer.h: Move subsampling rate definitions from nxplayer.h
+	  to audio.h *2014-7-27).
+	* apps/system/nxplayer/nxplayer.c: NxPlayer needs to set curbyte field to
+	  zero before enqueuing a buffer.  Otherwise, it looks like beginning of
+	  the buffer has already been consumed. (2014-7-27).
+	* apps/netutils/webserver/httpd.c:  Missing logic to close sockets on loop
+	  termination.  From Max (2014-7-28).
+	* apps/system/nxplayer/nxplayer.c:  Fix some error handling, update
+	  comments, more debug output (2014-7-31).
+	* apps/system/nxplayer/nxplayer.c: Change how the end of the audio
+	  stream is detected by the leaf audio component.  This used by be done
+	  by looking for the first partial buffer.  That does not work with the
+	  in-place sub-sampling performed by the PCM decoder:  That always reduces
+	  the size of the buffer so that all buffers only partially filled by the
+	  time they get to the leaf.  Now, a flag is set in the audio buffer
+	  flags set to indicate the final buffer in the stream (2014-7-31).
+	* apps/system/nxplayer/nxplayer.c: Fix an error I introduced:  Need to
+	  pass through final buffer even if is it zero length because it contains
+	  the end of audio stream flag (2014-8-1).
+	* apps/system/nxplayer/nxplayer.c: Break reading and enqueueing of audio
+	  buffers into two steps so that errors in enqueueing can be
+	  distinguished from errors in reading.  Errors in enqueueing signal a
+	  downstream decoder error.  Add logic to gracefully recover from
+	  downstream decoder errors (2014-8-5).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c: Software assigned MAC
+	  address is now configurable. From Lazlo (2014-8-6).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c: Also add an option to
+	  let platform-specific logic select the MAC address (2014-8-5).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c:  There is now a
+	  configuration option that will bring up the network on an separate
+	  thread.  Since the network bring-up is asynchronous, there are not
+	  serial console start-up delays due to the network negotiation time
+	  (2014-8-6).
+	* apps/system/sudoku:  Add a sudoku game (2014-8-11).
+
+7.5 2014-09-28 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c:  Extend the NSH network
+	  initialization logic.  There is now an option that will create a
+	  network monitor thread that will monitor the state of the link.  When
+	  the link goes down, the code will attempt to gracefully put the
+	  Ethernet driver in a down state; When the link comes back, the code
+	  will attempt to bring the network back up (2014-8-17).
+	* apps/system/free/free.c and install/install.c: STM32 FLASH fixes:
+	  use size_t instead of uint16_t, make interface more generic.  From
+	  Freddie Chopin (2014-8-28).
+	* apps/examples/elf:  The ELF test/example has been extended so the
+	  individual ELF test programs can link against the SYSCALL library
+	  (if it is available) or against the C library to eliminate or
+	  minimize the need for symbol tables (2014-8-29).
+	* apps/nshlib/nsh_proccmds.c: Fix NSH PS command:  If there are no
+	  arguments, it would print garbage for argument list (2014-9-1).
+	* apps/import/, apps/tools/, apps/Makefile: Beginning of logic that
+	  will, hopefully, allow me to build applications against a NuttX export
+	  package (vs. the nuttx/ source tree) (2014-9-4).
+	* apps/tools/mkimport.sh and apps/import/Makefile: Add .config file to
+	  export package (2014-9-5).
+	* apps/Makefile: Add a 'make import' target.  More is needed before
+	  it will be usable (2014-9-5).
+	* apps/import/Make.defs and .gitignore: Added mostly empty Make.defs
+	  file.  Something like this will be bee needed for the 'make import'
+	  build (2014-9-5).
+	* apps/Makefile, examples/elf/Kconfig, and import/Make.defs: Copy more
+	  logic from nuttx/tools/Config.mk into the Make.defs file (2014-9-5).
+	* apps/import/Make.defs: Also need to define CFLAGS (2015-9-5)
+	* apps/import/scripts/gnu-elf.ld:  Add GCC linker script for ELF
+	  import builds (2014-9-5).
+	* All Makefiles:  Add an install target to all makefiles.  For the
+	  import build, the top-level Makefile now does two passes: (1) builds
+	  libapp.a, then (2) installs the programs (not yet finished) (2014-9-6).
+	* Many files:  With kernel build (CONFIG_BUILD_KERNEL), entry point to
+	  all tasks is main, not some xyz_main (2014-9-6).
+	* Many Makefiles: Add program installation for CONFIG_BUILD_KERNEL in
+	  all Makefiles that build a main() (2014-9-6).
+	* Many Makefiles.  For kernel build, the object file containing main
+	  cannot go into library because of name collisions.  The object file
+	  must be handled as a special case in every Makefile (2014-9-7).
+	* apps/import/Make.defs: libapps.a needs to be added to the list of
+	  libraries to link against (2014-9-7).
+	* apps/nshlib/nsh.h and nsh_ddcmd.c: Several commands must be disabled
+	  in the kernel build because they depend on interfaces that are not
+	  available outside of the kernel: dd, df, losetup, mkfatfs, mkdr, and
+	  ps (2014-9-7).
+	* apps/import/Make.defs: ELF build requires -fno-common in CFLAGS
+	  (2014-9-8).
+	* apps/tools/mkromfsimg.sh:  Add a script to create a BOOT ROMFS
+	  filesystem image (2014-9-9).
+	* Many makefiles:  All makefiles that have separated the MAINOBJ
+	  need to include MAINOBJ in list of C objects to be compiled.
+	  SourceForge tick #31 from Aton (2014-9-11).
+	* apps/examples/elf/tests/Makefile and nxflat/tests/Makefile: Do
+	  not build test cases that use task_create if there is an address
+	  environment (2014-9-14).
+	* apps/examples/null/null_main.c:  Need to include config.h it order know
+	  if this is or is not a kernel build (2014-9-16).
+	* Change all occurrences of NxConsole to NxTerm (2014-9-20).
+	* apps/examples/Konfig, Makefile, README.txt and all of mdrwb/: Add an
+	  example to test MTD R/W buffering (2014-9-25).
+	* apps/examples/ostest:  Add a trivial test of sem_timedwait (2014-9-16).
+
+7.6 2014-11-26 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/ostest:  Add a simple test of named semaphores
+	  (2014-9-23).
+	* apps/netutils/webclient/Kconfig and webclient.c: Add implementation of
+	  timeouts for the apps/netutils/webclient.  From Brennan Ashton
+	* apps/nshlib/Kconfig and nsh_romfsetc.c: Add support for a custom NSH
+	  ROMFS startup image header file location.  From Martin Lederhilger
+	  (2014-9-30).
+	* apps/nshlib/nsh_fscmds.c:  Fix ls -l output for regular files (14-9-30).
+	* apps/nshlib/nsh_ddcmd.c: Fix reversed in/out file closing when an
+	  error occurs.  From Ken Pettit (2014-10-2).
+	* apps/examples/ostest/aio.c, Kconfig, Makefile, and ostest_main.c: Add
+	  AIO test case in OS test (2014-10-5).
+	* apps/examples and system:  Remove non-portable uses of syslog
+	  (014-10-8).
+	* apps/: Correct everything under apps to use the corrected syslog
+	  interfaces (2014-10-8).
+	* apps/netutils/netlib/netlib_gethostaddr.c: Fix memcpy of host address
+	  in netlib_gethostaddr().  From Brennan Ashton (2014-10-17).
+	* apps/system/stackmonitor.c and stackmonitor/Makefile: Fix compile
+	  problems introduced when the syslog() prototype changed; Also update
+	  Makefile for kernel build From Radoslaw Adamczyk (2014-10-23).
+	* apps/examples/nxterm/Makefile: Update makefile for kernel-build
+	  issues. From Radoslaw Adamczyk (2014-10-23).
+	* apps/examples/keypadtest/keypadtest_main.c: Fixes to keypadtest from
+	  Pierre-Noel Bouteville (2014-10-23).
+	* apps/nshlib/nsh_parse.c, nsh.h, and Kconfig: Move CONFIG_NSH_TMPDIR
+	  to CONFIG_LIBC_TMPDIR (2014-11-05).
+	* apps/interpreter/bas:  Merged in the Michael Haardt's BAS 2.4 adapted
+	  for use by NuttX by Alan Carvalho de Assis.  The bas24 branch was merged
+	  into the master branch on this date (2014-11-7).
+	* apps/examples/bastest:  This is a special version of Michael
+	  Haardt's BAS 2.4 test files adapted for use by NuttX on a ROMFS file
+	  system (2014-11-7).
+	* apps/interpreter/bas: Add VT100 support for color command (2014-11-10).
+	* nshlib/: Remove use of CONFIG_MAX_TASKS in ps command and in range
+	  checkout (2014-11-13).
+	* netutils/thttpd:  Remove use of CONFIG_MAX_TASKS in in 'task' CGI
+	  example (2014-11-13).
+	* sysm/i2c: Remove use of CONFIG_MAX_TASKS for maximum argument I2C
+	  tool size (2014-11-13).
+	* apps/netutils/dnsclient/dns_socket.c:  Right now if you make a DNS
+	  request before the dns address it set you will get an assertion. The
+	  state of the IP setting is not something the application should be
+	  aware of, it should only be concerned with whether or not the name
+	  was resolved.  From Brennan Ashton (2014-11-13).
+	* apps/nshlib/, apps/netutils, and apps/include/netutils:  Misc
+	  changes to support multiple networks with different link layers.  For
+	  example, ETHERNET + SLIP (2014-11-15).
+	* apps/nshlib/nsh_usbconsole.c:  Add logic to restart the console wait
+	  if an error occurs while reading from the console.In USB console
+	  startup, the logic must be able to open the USB serial and receive 3
+	  newlines.  However, it the USB driver is disconnected or otherwise
+	  fails before the 3 newlines are received, the receive loop becomes a
+	  killer, infinite loop, CPU hog.  Noted by spasbyspas (2014-11-16).
+	* examples/, netutils/, nshlib/, various files:  Rename
+	  CONFIG_NET_BUFSIZE to CONFIG_NET_ETH_MTU; Add CONFIG_NET_SLIP_MTU.
+	  Modify logic to handle different MTUs when both Ethernet and SLIP
+	  are enabled (2014-11-16).
+	* apps/examples/discover, tcpecho, webserver, xmlrpc:  These examples
+	  all set the IP address of eth1 but the netmask and gateway of eth0
+	  if DHCP is enabled.  That can't be right???? (2014-11-17).
+	* apps/examples/bridge:  Add a simple UDP relay bridge for testing
+	  configurations with multiple networks.  Initial checkin is not
+	  very usuable because it lacks a host-side test driver for the
+	  bridge (2014-11-17).
+	* apps/netutils/codecs/md5.c: Fix md5 hashing when digest[$i] lower
+	  that 16. From Sergey (2015-11-20).
+	* apps/examples/bridge/host_main.c, host_net1.c, host_net2.c, Kconfig,
+	  and Makefile:  Add host-side test driver (2014-11-21).
+
+7.7 2015-01-26 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/romfs/Makefile: fix romfs example builtin app registry
+	  issue.  From Librae (2014-11-27).
+	* apps/examples/djoystick and support files:  Add a test of the discrete
+	  joystick driver (2014-11-28).
+	* apps/examples/ajoystick and support files:  Add a test of the analog
+	  joystick driver (2014-12-03).
+	* apps/nshlib/nsh_netcmds.c: NSH TFTP get command:  Wrong file namei
+	  used for the destination.  From Lazlo (2014-12-10).
+	* apps/system/cu: Add a minimalist implementation  of the 'cu' terminal
+	  program (part of Taylor UUCP for ages). Using it, you can simply open
+	  a serial port and interact with it. Using '~.' you can leave the
+	  terminal program and drop back to nsh.  This  might come in handy for
+	  people that have e.g. GSM modems, GPS receivers or other devices with
+	  text based serial communications attached to their Nuttx systems. From
+	  Harald Welte (2014-12-13).
+	* apps/examples/ltdc and build-related file: Add ltdc test example. From
+	  Marco Krahl (2014-12-19).
+	* apps/system/cdcacm, composite and usbmsc:  Fix some strangely placed
+	  conditional compilation.  Looks like an automated update gone awry
+	  (2014-12-28).
+	* apps/examples/ltdc/ltdc_main.c:  Clean up documentation, some formatting
+	  improvements.  From Marco Krahl (2014-12-29).
+	* apps/system/lm75 and build-related files:  Add a tiny application to
+	  read the temperature from an LM-75 (or compatible) temperature sensor
+	  (2015-01-06).
+	* apps/interpreters/micropython:  A port of Micro Python to NuttX.
+	  Contributed by Dave Marples (2015-01-11).
+	* apps/examples/timer:  Add a trivial test of the timer driver
+	  (2015-01-13).
+	* apps/netutils/dnsclient:  Can select to be either IPv4 or IPv6, but
+	  not both (IPv6 still does not compile) (2015-01-18).
+	* apps/netutils/netlib:  Add new library functions to manipulate IPv6
+	  addresses (2015-01-13).
+	* apps/nshlib/Kconfig and nsh_netinit.c:  Add logic to initialize
+	  IPv6 addresses (2015-01-19).
+	* apps/netutils/netlib:  All IOCTLs must use a valid address family --
+	  even if the address family does not matter such as when getting the
+	  MAC address or the network flags (2015-01-19).
+	* apps/examples/nettest:  Update test so that it can be used to test
+	  IPv6 TCP sockets (2015-01-20).
+	* Many files: Correct name of fields in struct sockaddr_in6:  sin6_port
+	  and sin6_family, not sin_port and sin_family (2015-01-20).
+	* apps/netutils/telnetd:  Add protection when CONFIG_SCHED_HAVE_PARENT
+	  is enabled:  Call sigaction with SA_NOCLDWAIT so that exit status is
+	  not retained (no zombies) and block receipt of SIGCHLD so that accept
+	  is not awakened by a signal.  If accept() is awakened by a signal, do
+	  not do anything crazy like exit.  Most from Rony Xln (2015-01-22).
+	*  apps/examples/udp:  The UDP test example has been extend to support
+	  IPv6 domain sockets (2015-01-22).
+	* apps/nshlib:  Add the ping6 command to support checking IPv6 networks.
+	  (2015-01-23).
+	* apps/nsh: Clean up network status presentation for IPv6 (2015-01-24).
+
+7.8 2015-02-11 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/interpreters/micropython: Add math library defines for nan(),
+	  copysign(), and trunc() functions.  From Brennan Ashton (2015-01-26).
+	* apps/examples/ustream:  Add a simple test of Unix domain sockets
+	  (2015-01-27).
+	* apps/examples/udgram:  Add a simple test of Unix domain datagram
+	  sockets (2015-01-28)
+	* apps/Makefile and builtin/Makefile: Fix for building with parallel
+	  make. Build-server sometimes failed 'make -j24' with errors in the
+	  builtin line or or sometimes silently succeeds but generated builds
+	  that contain a random subset of configured NuttX applications. There
+	  are two root causes for this: (1) Recipes for building builtin_list.h
+	  and builtin_proto.h are not linearizable, and (2) Nothing ensures
+	  that 'make context' is run first for apps/builtin.  This change
+	  address both issues. From Juha Niskanen (2015-02-03).
+	* apps/netutils/netlib:  Add utilities to convert to/from prefix lengths
+	  from/to 128-bit network masks (2015-02-06).
+	* apps/nshlib: Modify the NSH IPv6 ifconfig command to show the more
+	  standard post-pended prefix value, rather than the full 128-bit netmask
+	  (2015-02-06).
+
+7.9 2015-04-14 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/ostest: Improved error checking for sem_timedwait()
+	  from Juha Niskanen (2015-02-20).
+	* apps/netutils/Kconfig, Make.defs, and pppd/: Add a PPP daemon.  From
+	  Max Neklyudov (2015-03-11).
+	* Rename arch_nshinitialize() to board_app_initialize() (2015-03-30).
+	* apps/nshlib:  NSH initialization now calls boardctl(BOARDIOC_INIT)
+	  instead of board_app_initaliaze().   Remove support for
+	  CONFIG_NSH_ARCHMAC.  It is not used and there are better ways to do
+	  that operation (2015-03-31).
+	* apps/examples/touchscreen:  No longer calls arch_tcinitialize() or
+	  arch_tcuninitialize().  Instead the new OS interface boardctl() is
+	  called to perform these test operations on the touchscreen driver
+	  (2015-03-31).
+	* apps/examples/adc: Change apps/examples/adc to that is now calls
+	  boardctl() instead of adc_devinit() in order to initalize the ADC
+	  device(2015-03-31).
+	* apps/examples/pwm/: Replace calls to pwm_devinit() in
+	  apps/examples/pwm with calls to boardctl() (2015-03-31).
+	* apps/examples/:  More renaming: up_lcdinitialize->board_lcd_initialize,
+	  up_lcdgetdev->board_lcd_getdev, up_lcduninitialize->board_lcd_uninitialize
+	  (2015-04-04).
+	* apps/examples/nxlines/: Add the new 'capped' parameter to nx_drawline()
+	  calls (2015-04-05).
+	* apps/modbus/tcp:  Fix some complile problems when TCP is enabled
+	  (2015-04-06).
+	* apps/system: Clean up Kconfig menus.  The way it worked before, it was
+	  difficult to see what was enabled and what was not.  menus replaced
+	  with menuconfig (2015-04-07).
+	* apps/examples/ostest/sigprocmask.c: Add a simple test of sigprocmask,
+	  sighold, and sigrelse (2015-04-09).
+	* apps/modbus: Includes extensions to support RTU master mode by
+	  Armink(383016632@qq.com):
+	  https://github.com/armink/FreeModbus_Slave-Master-RTT-STM32.  Ported
+	  to NuttX by Darcy Gong.
+	* apps/nshlib:  Allow NSH 'date' command with no hardware RTC.  Thisi
+	  command is useful without an RTC too.  Also, this permits testing on
+	  the simulator which never has an RTC (2015-04-11).
+	* apps/netutils/ppp: Make pppd PAP authentication optional.  From
+	  Brennan Ashton
+	* apps/examples/pppd:  Add PPPD test case.  Split out from
+	  apps/netutils/pppd by Brennan Ashton.
+	* apps/netutils/pppd: Spit up pppd utils.  From Brennan Ashton.
+	* apps/system/zoneinfo:  All logic to build timezone info.  Does not do
+	  much else yet (2015-04-14).
+
+7.10 2015-06-09 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/zoneinfo:  Add logic to build a ROMFS file system
+	  containing the timezone data (2015-04-15).
+	* apps/nshlib/nsh_timcmds.c: Check return values from time functions
+	  (2015-04-15).
+	* apps/examples/nxlines:  Fix missing right bracket that causes
+	  compile error when CONFIG_NX_XYINPUT=y.  From Librae (2015-04-16).
+	* apps/examples: When boardctl() fails, need to print errno not the
+	  returned value which will always be -1 (2015-04-16).
+	* apps/examples: Correct use of the BOARDIOC_GRAPHICS_SETUP boardctl()
+	  call (2015-04-16).
+	* apps/examples/ltdc:  Add testing support for the STM32 LTDC's 2D
+	  DMA. From Marco Krahl (2015-04-16).
+	* apps/nshlib/: Fix handling of gmtime_r return value in time commands.
+	  gmtime_r returns a pointer, not an int (2015-04-21).
+	* apps/netutils/ntp: Fix mismatched sched_lock/unlock.  Noted by
+	  Juha Niskanen (2015-05-06).
+	* apps/examples:  Modify/simpify apps/examples build files.  From Roman
+	  Saveljev (2015-05-06).
+	* apps/nshlib/nsh_netinit.c and apps/examples/ustream/: Add poll
+	  support for Unix stream sockets.  From Jussi Kivilinna (2015-05-12).
+	* apps/examples/ostest: Add a test of nested signals.  There are no
+	  failures to handle signals but neither am I getting any nested
+	  signal handling (2015-05-12).
+	* apps/nshlib: Enhancements to NSH ifconfig for case of multi-link
+	  operation, TUN device and local connections.  From Max Neklyudov
+	  (2015-05-19).
+	* apps/nshlib: Enhanced output to NSH ping command from Max Neklyudov
+	  (2015-05-27).
+	* apps/examples/elf: Add configuration options to support building the
+	  hello++4 example that depends upon having uClibc++ available.  From
+	  Leo aloe3132 (2015-05-29).
+	* apps/platform/stm32f4discovery: Move up_cxxinitialize from
+	  nuttx/configs/stm32f4discovery/src to apps/platform/stm32f4discovery
+	  where it belongs (2015-05-29).
+	* apps/examples/elf/tests/helloxx: Add hello++5 to ELF example.  From
+	  Leo Aloe3132 (2015-06-01).
+	* apps/netutils/thttpd/ and apps/examples/thttpd/: Add support for using
+	  binfs/ instead of NXFLAT.  NXFLAT is probably the better solution but
+	  recently compiler changes make it unusable.  binfs or ELF are fallback
+	  binary formats.  This commit adds an option to use binfs (2015-06-02).
+	* apps/examples/unionfs: Add a test of the union file system to
+	  apps/examples (2015-06-05).
+	* apps/examples/thttpd now uses the Union File System if BINFS is
+	  selected for CGI binaries (2015-06-06).
+	* apps/nshlib/: The NSH mount command now recognizes the Union file
+	  system type when listing mounted file systems (2015-06-07).
+
+7.11 2015-08-13 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/netutils/thttpd:  Fix compilation problems when
+	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
+	* apps/include: Clean up and review of header files for conformance to
+	  standards (2015-06-12).
+	* apps/examples/ostest/:  Extend the OS test to include a test of
+	  pthread_mutex_trylock() for recursive mutexes. From Juha Niskanen
+	  (2015-06-16).
+	* apps/netutils/thttpd: Missing gci-src as a dependency path when
+	  building with BINFS enabled (2015-06-18).
+	* The apps/ directory has been removed from the NuttX GIT repository
+	  and now stands alone in its own repository (2015-06-27).
+	* apps/examples/poll: Fix a few bit-rot compilation errors (2015-07-01).
+	* apps/nshlib: NSH will now support an (optional) shutdown command if
+	  the board provides the option CONFIG_BOARDCTL_POWEROFF.  The command can
+	  also be used to reset the system if CONFIG_BOARDCTL_RESET=y.
+	  (2015-07-04).
+	* apps/system/poweroff:  Remove the system poweroff command.  This is
+	  replaced with the NSH shutdown command (2015-07-02).
+	* apps/nshlib:  Add support for a uname command (2015-07-04).
+	* apps/system/sysinfo:  Remove the system sysinfo command.  This is
+	  replaced with the NSH uname command (2015-07-04).
+	* apps/syste/netdb:  Add a command to access the network database
+	  (2015-07-08).
+	* apps/netutils/dnsclient and include/netutils/dnsclient.h:  Move the
+	  DNS client logic into the NuttX C library.  It is a necessary part
+	  for the full implementation of the netdb logic and provides more
+	  flexibility in that location (2015-07-10).
+	* apps/examples/ and apps/netutils: Remove calls to obsolete, non-
+	  functional DNS interfaces (2015-07-11).
+	* apps/netutils and apps/nshlib: Replace calls to the non-standard
+	  dns_gethotip with calls to standard gethostbyname (2015-07-11).
+	* apps/netutils/netlib and other files: Create netlib wrapper functions
+	  around dns_getserver() and dns_setserver() to isolate application
+	  code from changes to those interfaces (2015-07-12).
+	* apps/nshlib:  Add an nslookup command (2015-07-13).
+	* apps/examples/nxlines:  If CONFIG_NX_ANTIALIASING=y, then the nxlines
+	  example now erases a line that is 2 pixels longer and 2 pixels wideri
+	  than the line it drew.  That eliminates edges effects due to applying
+	  the anti-aliasing algorithm twice.  A better solution would be to makei
+	  anti-aliasing an option for each graphics call so you would rend the
+	  line with anti-aliasing ON and clear it with anti-aliasing OFF. but I
+	  don't have the wherewithal for that change today (2015-04-14)`.
+	* apps/nshlib and apps/examaples/thttpd:  Change decoding to handle the
+	  increased size of the scheduling policy field in the TCB (2015-07-23).
+	* apps/examples/ostest: Improve synchronization in round robin tests.
+	  On very fast processors, there are race conditions that make the test
+	  failure.  Need better interlocking to assure that the threads actually
+	  do start at the same time (2015-07-24).
+	* apps/examples/ostest: Add a test for the sporadic scheduler.  This
+	  test is failing as of this commit (2015-07-24).
+	* apps/system/readline:  Add support for Unix-style tab complete toi
+	  readline.  This currently works only for built-in functions.
+	  Contributed by Nghia Ho (2015-07-28).
+	* apps/system/readline and apps/nshlib:  Extended the tab-completion
+	  support to also expand NSH command names (2015-07-30).
+	* apps/system/readline and apps/nshlib:  Add support for an in-memory
+	  command line history that can be retrieved using the up and down
+	  arrows.  Contributed by Nghia Ho (2015-08-09).
+	* apps/Makefile:  No longer depends on hardcoded lists of directories.
+	  Instead, it does a wildcard search to find all appropriate
+	  directories.  This means that to install a new application, you
+	  simply have to copy the directory (or link it) into the apps/
+	  directory.  If the new directory includes a Makefile and Make.defs
+	  file, then it will automatically be included in the build (2015-08-11).
+	* apps/Makefile, Kconfig, */Kconfig, tools/mkkconfig.sh: Add the tool
+	  mkkconfig.sh that dynamically builds the apps/Kconfig file at
+	  configuration time.  The hardcoded configuration file has been removed
+	  and now the top-level Makefile executes tools/mkkconfig.sh to auto-
+	  generate the top-level Kconfig file.  A new apps/ make target call
+	  preconfig: was added to support this operation.  Now you do not have
+	  to modify the top-level Kconfig file to add a new directory into the
+	  configuration; the top-level subdirectory simply needs to include a
+	  Kconfig file and it will automatically be included in the
+	  configuration.  The native Windows build is temporarily broken until
+	  a new apps/tools/mkconfig.bat script is generated (2015-08-11).
+	* apps/tools/mkkconfig.bat:  Add the Windows script corresponding to
+	  apps/tools/mkkconfig.sh.  Needed for a Windows native build.  Untested
+	  on initial commit (2015-08-12).
+
+7.12 2015-10-01 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/can:  Extend the CAN loopback test by adding more
+	  command line options (2015-08-17).
+	* apps/examples/usbserial: Can now be run as an NSH builtin-function.
+	  Now uses a configurable IO buffer size (2015-08-20).
+	* Various Kconfig files in netutils:  Fix some changes from from
+	  NETUTILS_DNSCLIENT to NETDB_DNSCLIENT.  From Pavel Pisa (2015-08-20).
+	* system/netdb:  Failed to build if CONFIG_NET_HOSTFILE was not defined
+	  because gethostbyaddr() was not available.  Noted by OrbitalFox
+	  (2015-08-21).
+	* apps/system/symtab: Optional canned symtab inclusion to the build. When
+	  option CONFIG_SYSTEM_SYMTAB is selected and symbol table file
+	  libc/symtab/canned_symtab.inc is prepared then application can
+	  use system provided complete symbol table. The option has
+	  substantial effect on system image size. Mainly code/text. If
+	  loading of applications at runtime is not planned do not select
+	  this.  From Pavel Pisa (2015-08-23).
+	* apps/examples/nettest: Add option to suppress network initialization.
+	  This is necessary if the nettest is run from NSH which has already
+	  initialized the network (2015-08-26).
+	* apps/examples/nettest: Extend test so that can be performed using the
+	  local loopback device (2015-08-26).
+	* apps/nshlib: Fix error handling in 'cat' command.  On a failure to
+	  allocate memory, a file was not being closed.  From Bruno Herrera
+	  (2015-08-26).
+	* apps/nshlib: Fix error handling in 'mv' command.  On a failure to
+	  expand the second path, the memory allocated for the expansion of the
+	  first path was not being freed.  From Bruno Herrera (2015-08-26).
+	* apps/examples/netloop:  Add a test of the local loopback device
+	  (2015-09-02).
+	* apps/modbus and apps/include/modbus:  Macros PR_BEGIN_EXTERN_C and
+	  PR_END_EXTERN_C were not defined in all contexts.  Replace with
+	  explicit expansion in all cases. From Stefan Kolb (2015-09-03).
+	* apps/canutils/uavcan: Add support for libuavcan.  From  Paul
+	  Alexander Patience (2015-09-25).
+	* apps/examples/udpblaster: Add a test to stress the network by
+	  sending UDP packets at a very high rate.  (2015-09-30).
+	* apps/examples/uavcan: libuavcan example from Paul Alexander
+	  Patience (2015-10-01).
+
+7.13 2015-12-05 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/fstest:  Add a generic file system test.  This is
+	  essentially the same as examples/smart, but has all of the SmartFS
+	  specific logic ripped out.  This was created for testing the new
+	  tmpfs (2015-10-10).
+	* apps/examples/zerocross: Add a Zero Cross application example.
+	  From Alan Carvalho de Assis (2015-10-13).
+	* apps/examples/media:  Add a simple test for access of media via
+	  a block driver or MTD driver (2015-11-09).
+	* apps/nshlib/nsh_ddcmd.c:  Now that NuttX automatically converts
+	  block devices to character devices, all of the BCH stuff in NSH
+	  can be removed (2015-11-21).
+	* apps/system/hexed:  Port the hexed command line hexadeciamal
+	  editor to Nuttx.  See http://apps.venomdev.net/hexed/.
+	  Initial port is not functional (2015-11-21).
+	* apps/fsutils/smartfs: Move into apps/fsutils from kernel, now
+	  uses only open and ioctl.  From Ken Pettit (2015-11-23).
+	* apps/fsutils/smartfs/ and apps/nshlib/: Add configuration option
+	  to supported multiple root directories. From Ken Pettit (2015-11-23).
+	* apps/nshlib:  Add support for 'basename' and 'dirname' commands
+	  (2015-11-23).
+	* apps/nshlib:  Like bash, NSH set command should strip off any
+	  leading or trailing whitespace (2015-11-23).
+	* apps/nshlib: The mount commands now accepts mount options (currently
+	  needed only for the hostfs file system).  From Ken Pettit (2015-11-25).
+	* apps/nshlib:  NSH no longer calls losetup() and loteardown directly.
+	  Now it opens /dev/loop and accomplishes these things using ioctl()
+	  calls (2015-11-25).
+	* apps/nshlib:  If CONFIG_NETDEV_STATISTICS=y, then print the network
+	  driver statistics in the ifconfig (15-11-26).
+	* apps/nshlib:  The 'ifconfig' command now uses /proc/net/<dev> to view
+	  network device configuration and status and /proc/net/stat to show
+	  network statistics.  A consequence of this is that you cannot view
+	  this network information if the procfs is not enabled and mounted at
+	  /proc (2015-11-27).
+	* apps/nshlib:  Remove all references to internal OS interface
+	  netdev_foreach().  Logic in ifconfig, ifup, and ifown now use the
+	  procfs file system to examine networking status.  (2015-11-27).
+	* apps/nshlib:  Add a new NSH losmart command.  losmart setups up
+	  a loop device for the smart MTD driver similar to losetup but
+	  with different syntax.  From Ken Pettit (2015-11-28).
+	* apps/nshlib:  The I/O buffer, g_iobuffer, should not be a global
+	  buffer.  That will not work in an environment where there are multiple
+	  NSH sessions.  The I/O buffer must, instead, be a part part of the
+	  session-specific data defined in nsh_console.h (2015-11-28).
+	* apps/nshlib:  The 'ps' command now uses /proc/<pid>/ to obtain
+	  task status information.  A consequence of this is that you cannot use
+	  the 'ps' command if the procfs is not enabled and mounted at
+	  /proc (2015-11-28).
+
+7.14 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* netutils/telnetd:  Move the Telnet driver from netutils/telnetd to
+	  nuttx/drivers/net.  It is a driver an belongs in the OS.  There are
+	  still some partitioning issues with the interface to the Telnet
+	  driver (2015-12-07).
+	* netutils/telnetd:  No longer calls OS interface telnet_driver.  Now
+	  creates Telnet sessions by opening a new factory device at /dev/telnet
+	  and then using ioctl calls to create the session character drivers
+	  at /dev/telnetN (2015-12-07).
+	* netutils/ping: Unfinished implementation of ping/ping6 using raw
+	  sockets (2015-12-11).
+	* examples/module:  Add a test harness for verifying NuttX kernel
+	  modules (2015-12-12).
+	* apps/nshlib:  Add module commands: insmod, rmmod, and lsmod
+	  (2015-12-13).
+	* apps/examples/pca9635:  Add a simple test of PCA9635PW PWM LED
+	  driver.  From Alan Carvalho de Assis (2015-12-15).
+	* apps/examples/ostest:  Add a test of POSIX timers using
+	  SIGEV_THREAD (2015-12-30).
+	* apps/nshlib:  Add a 'time' command that may be used to time the
+	  execution of other commands (2015-12-31).
+	* apps/netutils/netlib:  Add netlib_get_dripv4addr() and
+	  netlib_get_ipv4netmask().  From Pelle Windestam (2016-01-14).
+	* apps/fsutils/passwd: Utility library for accessing a password
+	  file like /etc/passwd (2016-01-19).
+	* apps/nshlib/nsh_passwdcmds.c:  Add useradd, userdel, and passwd
+	  commands (2016-01-20).
+	* apps/nshlib:  Now supports a Message of the Day (MOTD) that will
+	  be presented after the NSH greeting (2015-01-20).
+	* apps/nshlib:  All sessions may be protected with logins using
+	  the encrypted password in /etc/passwd (2016-01-20).
+	* apps/fsutils/inifile:  Move system/inifile to fsutils/inifile
+	  where it seems to fit in better (2016-01-20).
+	* apps/nshlib: Extend logins.  Added: Optional platform-specific
+	  function to perform password verification and optional delay
+	  after each failed login attempt (2016-01-22).
+	* system/ramtron:  Removed completely.  It inappropriately used
+	  an internal OS interface (up_spiinitialize), that has been
+	  obsoleted.  That's what happens when you violate interface
+	  boundaries between the application and the OS (2016-01-27).
+	* apps/platform/Makefile:  Use a relative path to the board
+	  directory link rather than the absolute path.  For Cygwin, the
+	  absolute would would need converted with cygpath.  But just using
+	  the relative path is a simpler solution (2016-01-27).
+
+7.15 2016-03-27 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/chat and apps/netutils/chat:  Contributed by
+	  Vladimir Komendantskiy (2016-01-29).
+	* apps/examples/ubloxmodem:  app to control the power state of the
+	  modem in nsh.  From  Vladimir Komendantskiy (2016-01-31).
+	* apps/system/ubloxmodem:  Moved the modem application from
+	  examples/ to system/ (2016-01-31).
+	* apps/system/i2c:  The I2C tool now obeys it OS interfacing:
+	  it now uses an I2C character driver to access the I2C bus
+	  (2016-02-02).
+	* apps/netutils/netlib:  Add utility functions to support accesses
+	  to the ARP table (2016-02-08).
+	* apps/netutils/dhcpd: DHCPD no longer calls directly into the
+	  OS but uses the new network IOCTL commands to modify the ARP
+	  table (2016-02-08).
+	* apps/nshlib:  Add an 'arp' command that will support access to
+	  the OS ARP table (2016-02-08).
+	* apps/nshlib: 'ps' command will show CPU if SMP is enabled
+	  (2016-02-19).
+	* apps/examples/leds: An example to demonstrate use of LED
+	  driver (2016-02-20).
+	* apps/examples/smp:  Add a test to verify SMP configurations
+	  (2016-02-21).
+	* apps/examples/rgbled:  Example using the RGB LED driver to
+	  drive an RGB LED via PWM.  From Alan Carvalho de Assis
+	  (2016-02-23).
+	* apps/platform/sabre-6quad:  Add a platform directory for the
+	  Sabre 6Quad board (2016-03-01).
+	* apps/examples/ostest:  Add a test of TLS (2016-03-11).
+	* apps/modbus/nuttx/portserial.c:  Was not returning an error
+	  on failure to open the device driver.  From Olololshka kokoko
+	  (2016-03-16).
+	* apps/examples/sched_note:  Add a simple example to exercise
+	  the scheduler instrumentation logic.  Kind of buggy right now
+	  (2016-03-17).
+	* apps/system/cdcacm, usbmsc, and composite, apps/examples/usbserial,
+	  composite, usbterm:  Use new boardctl() instead of calling directly
+	  in the OS when possible.  There are still a few bad OS calls for
+	  USB device interfaces that do not yet have boardctl() commands
+	  (2016-03-25).
+
+7.16 2016-06-01 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/sdcard:  Remove the SD card application.  This
+	  application violates OS/application interface rules and has been
+	  moved to Obsoleted/apps/system/sdcard (2016-03-29).
+	* apps/examples/alarm:  Add a simple test of the ALARM iotcl calls
+	  of the RTC driver (2016-04-03).
+	* apps/examples/nximage:  No configuration option to select
+	  greyscale.
+	* apps/canutils/uavcan: Update UAVCAN version.  From Paul Alexander
+	  Patience (2016-05-03)
+	* Several Makefiles: Add .PHONY definitions to prevent 'clean up to date'
+	  message weirdness; Add default definitions for some commonly used
+	  things when 'make clean' is used without .config or Make.defs files
+	  installed (2016-05-10).
+	* apps/canutils/libcanard:  Add libcanard UAVCAN library. From Paul
+	  Alexander Patience (2016-05-12)
+	* apps/examples/watchdog: Remove call to up_wdginitialize().  This
+	  interface should not be accessed from application code (2016-05-18).
+	* apps/system/sched_note: Move the schduler note monitor from examples/
+	  to system/ (2016-05-18).
+	* apps/platform/nucleo-144: Add platform files for NUCLEO-144
+	  (NUCLEO-F746ZG).  From Mark Olsson (2016-05-19).
+	* apps/netutils/esp8266:  ESP8266 driver application.  From Pierre-noel
+	  Bouteville (2016-05-21).
+	* apps/canutils/: Rename uavcan to libuavcan.  From Paul Alexander
+	  Patience (2016-05-25).
+	* apps/examples/media:  You can now override the default device driver
+	  path by providing an alternal path on the command line.  From Sébastien
+	  Lorquet (2016-06-01).
+
+7.17 2016-07-25 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/alarm: ioctl call was clobbering file descriptor
+	  (2016-06-02).
+	* apps/system/flash_eraseall:  Removed!  This logic violates the OS/
+	  application interface and cannot be supported.  The old code can still
+	  be found in the 'Obsoleted' repository (2016-06-03).
+	* apps/fsutils/flash_eraseall: IOCTL wrapper for MDCIO_BULKERASE command
+	  (2016-06-04).
+	* apps/system/flash_eraseall: Restored!  Using the new IOCTL wrapper at
+	  apps/fsutils/flash_eraseall (2016-06-04).
+	* apps/canutils/libuavcan: Fix for recent change to STM32 timer frequency
+	  definiitions (2016-06-05).
+	* Many files:  Change to the way that Kconfig files are generated in order
+	  to better support reuse of the apps/ directory in NuttX products.  Changes
+	  include: Make the full tree use wildcards make.defs, Add empty preconfig
+	  rules to 'leaf' makefiles, Use directory.mk for recursive dir makefiles,
+	  Individual app kconfig fixes, Recursive Kconfig autogeneration, Add
+	  kconfig files for pcode and tiff, and fix a gitignore rule,  From
+	  Sébastien Lorquet (2016-06-06).
+	* apps/nshlib: Make NSH net-initialization be a configuration option. From
+	  Marten Svanfeld (2016-06-09).
+	* netutils/ntpc and nshlib:  NTP Client: All retries; Add initialization
+	  in NSH network startup logic.  From David S. Alessio (2016-06-09) .
+	* Rearrange make to eliminate Kmenu files  From Sebastien Lorquet
+	  (2016-06-09).
+	* apps/nshlib: Make NSH net-initialization be a configuration option.
+	  From Marten Svanfeldt (2016-06-09).
+	* Make sure that APPNAME is defined in all Makefiles that generate
+	  applications.  From Sebastien Lorquet (2016-06-09).
+	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierre-
+	  noel Bouteville (2016-06-11).
+	* apps/netutils/esp8266/: CONFIG_SERIAL_TERMIOS must be defined in
+	  order to set BAUD (2016-06-11).
+	* Change dbg() and vdbg() to err() and info() (2016-06-11).
+	* Change some *err() message to *info() messages if what was a *dbg()
+	  message does not indicate and error condition (2016-06-14).
+	* Add _ to front of debug macros (2016-06-16).
+	* SYSLOG: Remove llinfo(), *llwarn(), and llerr().  These are no longer
+	  supported in the redesigned syslog() logic (2016-06-20).
+	* apps/canutils/libcanard: update version.  From Paul Alexander Patience
+	  (2016-06-22).
+	* apps/examples/can: Some variables were not declared in all required
+	  cases. From Sebastien Lorquet (2016-06-23).
+	* apps/gpsutils/minmean: Fix minmea Makefile to find the libapp at the
+	  apps/.  From Alan Carvalho de Assis (2016-06-23).
+	* apps/canutils/canlib: Basic CAN utility library. From Sebastien Lorquet
+	  (2016-06-24).
+	* apps/nshlib/Kconfig: Move some NSH settings out of nuttx/configs/Kconfig
+	  to here.  Why was it in the NuttX tree (2016-06-24).
+	* apps/platform/olimex-stm32-e407: Add platform files for Olimex STM32
+	  E407.  From Mateusz Szafoni (2016-06-27).
+	* apps/system/hex2bin:  Move the portable library portion of hex2bin to
+	  nuttx/libc/hex2bin where it can be shared with the OS internals
+	  (2016-06-27).
+	* apps/nshlib: 'ps' command now prints out the stack usage if stack
+	  coloration is enabled.  From Frank Benkert (2016-06-30).
+	* All inclusion of apps/ header files were removed from the nuttx/
+	  repository. This caused a lot of reshuffling of logic:  binfmt pcode
+	  support, usbmonitor is now a kernel thread, TZ/Olson database moved to
+	  libc/zoneinfo (2016-06-29).
+	* apps/include directory structure reorganized.  There are no longer any
+	  header files in the apps/include/. directory.  Rather, sub-directories
+	  were added to match the partitioning of apps/ sub-directories and the
+	  header files were moved into the appropriate sub-directory.  This
+	  change is intended to help with some changes be considered by
+	  Sébastien Lorquet (2016-07-01).
+	* apps/nshlib: Allow stack usage to be disabled on constrained systems.
+	  From David Sidrane (2016-07-01).
+	* apps/examples/canard:  Add canard example application.  From Matthias
+	  Renner (2016-07-08).
+	* apps/builtins: exec_builtin was not using the provided open flags.  As
+	  a result >> redirection was not working (2016-07-10).
+	* apps/netutils/ntpclient:  The NTP client will now optionally use
+	  pool.ntp.org as the NTP server; and reset the retry count upon success
+	  -- more robust.  From David Alessio (2016-07-10).
+	* apps/nshlib/nsh_proccmds.c:  Recent enhancements to cmd_ps trips a
+	  floating point exception if LIBC_FLOATINGPOINT is not defined (at
+	  least on Cortex M4 w/ hardfloat).  I’m using a buildroot gcc
+	  configured to support Cortex-M4F and the hard float ABI, target files
+	  are compiles with: -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16
+	  -mfloat-abi=hard.  I’m not sure the best way to address this, but the
+	  this chage is the first that comes to mind.  Note, I added the float
+	  qualifier ‘F’ after a few constants to prevent the compiler from
+	  promoting the multiplication and division to double (expensive on
+	  M4F) then demoting to single float for the store.  From David
+	  Alessio (2016-07-10).
+	* Call all includes fronm <apps/bla/bla.h> to "bla/bla.h". From
+	  Sebastien Lorquet (2016-07-11).
+	* Build System:  Add apps/include to include path in top-level
+	  Make.defs file.  Remove multiple definitions of INCDIR opt
+	  (2016-07-11).
+	* apps/netutils, uIP webserver:  Fix a data declaration in a header file
+	  (2016-07-11).
+	* apps/nshlib:  In ps command, don't show stack usage if
+	  CONFIG_STACK_COLORATION is not enabled (2016-07-13).
+	* apps/netutils/esp8266: In Kconfig, select ARCH_HAVE_NET when
+	  NETUTILS_ESP8266 is selected.  This allows, among other things,
+	  support for network debug output.  From Pierre-noel Bouteville
+	  (2016-07-14).
+	* apps/nshlib: PS Command: When Priority Inheritance is enabled, the
+	  format of /proc/<PID>/status changes to show both the current priority
+	  and the thread’s base priority.  This messes up the format of cmd_ps.
+	  From David Alessio (2016-07-15).
+	* apps/examples/pty_test: PTY test program.  From Alan Carvalho de Assis
+	  (2016-07-15).
+	* apps/examples/media: media example was intended to take either a
+	  command line argument, or a compiled-in default value from config.
+	  However, the default was ignored, leading to confusing error messages.
+	  From ziggurat29 (2016-07-17).
+
+7.18 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/canutils/libuavcan: Under certain circumstances, DELIM make not
+	  be defined in Makefile (2016-07-28).
+	* Add the dirlinks target to some Makefiles.  This plugs some holes
+	  opened by last chicken-and-egg build fix (2016-07-28).
+	* apps/examples/gpio:  Add a simple test of the GPIO driver (2016-08-01).
+	* Add definition for APPNAME in apps/canutils/canlib.  From Sebastien
+	  Lorquet (2016-08-01).
+	* Add DIRLINK and DIRUNLOBK tool definitions to Make.defs (2016-08-02).
+	* apps/exmples/gpio: Should not claim an error if we are only asked to
+	  read an output pin (2016-08-03).
+	* apps/nshlib/: Fix FIFO_SIZE vs PIPE_SIZE (2016-08-04).
+	* apps/examples/rfid-readuid: Add RFID_READUID sample application. From
+	  Alan Carvalho de Assis (2016-08-06).
+	* apps/interpreters/minibasic:  Add a port of Mini Basic, version 1.0,
+	  written by Malcom McLean and released under the Creative Commons
+	  Attribution license (2016-08-11).
+	* apps/examples: Add Oneshot timer example (2016-08-12).
+	* apps/system/tee: Port tee command from NetBSD (2016-08-12).
+	* apps/examples/oneshot:  If the requested delay is > max_delay, then
+	  break the delay up into several pieces (2016-08-15).
+	* apps/examples/oneshot: A thought about how we might improve accuracy
+	  of long delays (2016-08-15).
+	* nshlib/Kconfig: Fix hex representation of IP address.  Noted by
+	  Michal Lyszczek (2016-08-19).
+	* apps/gpsutils:  Fix an error min minmea.  From Aleksandr Vyhovanec
+	  (2016-08-24).
+	* apps/nshlib/nsh_syscmds.c: missing semicolon.  From Mateusz Szafoni
+	  (2016-08-25).
+	* nshlib/:  Add logic to support an NSH-specific system command
+	  (2016-08-25).
+	* apps/system/system:  Add a generic system command.  Current
+	  implentation cannot use /bin/sh and spawns the custom NSH system
+	  command directly (2016-08-25).
+	* apps/examples/system:  Add a simple test of the system command.  Fix
+	  the first bug discovered by the test (2016-08-25).
+	* apps/nshlib: Add printf command to NSH, e.g., controlling
+	  /dev/userleds from command line: nsh> printf \x01 > /dev/userleds.
+	  From Alan Carvalho de Assis (2016-10-01).
+	* apps/platform: Add support for STM32L476-MDK (2016-10-06).
+	* apps/nshlib: Don't try to flush output streams if stdio buffered
+	  I/O is not supported (2016-10-06).
+
+7.19 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* Rename examples/buttons to examples/archbuttons.  From Alan Carvalho
+	  de Assis (2016-10-11).
+	* Add a new buttons example that uses the button character driver
+	  instead of the architecture buttons directly. From Alan Carvalho de
+	  Assis (2016-10-11).
+	* apps/nshlib: nsh_getdirpath(), use snprint instead of sprintf to avoid
+	  possibility of buffer overrun.  Noted by Chung Hwan Kim (2016-10-11).
+	* examples/cctype:  Add an example to verify cctype functions
+	  (2016-10-22).
+	* Add platform support for the ESP32 core v2 board (2016-10-31).
+	* Modbus Master is missing many files and doesn't compile at all. More
+	  details in https://groups.yahoo.com/neo/groups/nuttx/conversations/topics/13734.
+	  From Vytautas Lukenskas (2016-11-03).
+	* graphics/traveler/tcledit and libwld:  Add an X11 Tcl/Tk tool that can
+	  be used to edit Traveler world files (2016-11-12).
+	* platform/esp32-core:  Fix some naming that prenvented building the C++
+	  support (2016-11-14).
+	* Make.defs:  Using wrong link script if native window tool used with
+	  Cygwin (2016-11-17).
+	* apps/examples/timer: Should detach signal handler before exiting
+	  (2016-11-18).
+	* Fixed bug that didn't free ftpd ressources on exit.  From Pascal
+	  Speck (2016-11-21).
+	* The examples/qencoder app was trying to init the encoder by a direct
+	  call into the board, cheating in a local header to declare the
+	  normally unavailable function prototype.  From Sebastien Lorquet
+	  (2016-11-22).
+	* apps/examples/archbuttons:  Removed becaue it violates OS interface
+	  principles (2016-11-22).
+	* apps/system/sched_note:  Extend to include additions to instumentation
+	  for SMP (2016-11-27).
+	* apps/system/sched_lock:  Add support for spinlock notes (2016-12-01).
+	* Graphics: Remove all NX server taks.  Instead, call boardctl() to the
+	  NX server kernel thread (2016-12-01).
+	* Remove RGMP example (2016-12-02).
+	* Remove some garbage characters added by error.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* netutils/ntpclient: Fix missing left parenthesis.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* Import patch to fix:cJSON_PrintUnformatted() behaves unexpected if an
+	  empty array shall be printed to text. from Jerome Lang 2012-04-19.
+	  From Pierre-Noel Bouteville (2016-12-04).
+	* esp8266 update cosmetic and many bug fix.  From Pierre-Noel Bouteville
+	  (2016-12-04).
+	* fix bug un ftpd file or socket may be not closed.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* Remove all usage of BOARDIOC_ADCTEST_SETUP, BIOARDIOC_PWMSETUP
+	  (2016-12-05).
+	* Remove BOARDIOC_CAN_INITIALIZE.  CAN initialization is now done in the
+	  board initialization logic just like every other device driver
+	  (2016-12-06).
+	* Add support for new scheduler instrumentation (2016-12-07).
+	* examples/ostest:  Extend the pthread cancellation test to exercise
+	  pthread_cleanup_push() (and pthread_cleanup_pop() indirectly via
+	  pthread_cancel() and pthread_exit() (2016-12-08).
+	* examples/ostest: Add some delays to the pthread cancellation test.
+	  With deferred cancellation enabled, things happen more asynchronously
+	  (2016-12-10).
+	* OS test: enhance pthread cancellation test some (2016-12-11).
+	* Remove std_readline().  This called up_getc() and up_putc() directly,
+	  violating the POSIX OS interface (2016-12-13).
+	* NSH: dd command will show statistics.  From  Masayuki Ishikawa
+	  (2016-12-19).
+	* Add platform support for the Olimex STM32 P407 (2016-12-21).
+
+7.20 2017-03-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* OS test: Was ignoring CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE (2016-12-29).
+	* apps/examples/nxtext: Make line spacing configurable (2017-01-03).
+	* apps/graphics/traveler/tools: Fix linkage issue. The -lm should come
+	  after -o binname.  From Alan Carvalho de Assis (2017-01-07).
+	* apps/system/zmodem/host/nuttx/compiler.h synchronized with
+	  nuttx/nuttx/include/nuttx/compiler.h.  From Aleksandr Vyhovanec
+	  (2017-01-09).
+	* examples/sotest:  Add a test for shared libraries (2017-01-23).
+	* examples/ostest:  Add new error print and modify comments in cancel
+	  test.  From Juha Niskanen (2017-01-24)
+	* In apps/examples/mtdpart/mtdpart_main.c where
+	  CONFIG_EXAMPLES_MTDPART_NPARTITIONS defining is checked should be
+	  #ifndef instead of #ifdef.  Noted by Oleg Evseev (2017-01-30).
+	* NSH: Add support for the 'ln' command (2017-02-02).
+	* NSH ls command: if node is a symobolic link, use readlink() to get and
+	  the display the target of the symblic link (2017-02-03).
+	* NSH: Add readlink command (2017-02-05).
+	* examples/ostest:  Add a test of setvbuf() (2017-02-09).
+	* apps/examples/stat:  Add a simple test for stat(), fstat(), and
+	  statfs() (2017-02-13).
+	* strcasecmp, strncasecmp, bzero, bcmp, and bcopy should be defined in
+	  strings.h, not string.h.  bzero, bcmp, and bcopy are legacy functions;
+	  the contemporary counterparts should be used instead (2017-02-16).
+	* examples/stat:  Add test for fstatfs() (2017-02-17).
+	* C files that reference ANIOC_TRIGGER now need to include
+	  nuttx/analog/ioctl.h (2017-02-25).
+	* Add platform files for nucleo-f334r8.  From Mateusz Szafoni (2017-02-26).
+	* NSH: Eliminate a warning when all memory inspection commands are
+	  disabled (2017-02-27).
+	* netutils/webserver: Needs to include strings.h for strcasecmp()
+	  (2017-02-27).
+	* nxplayer:  Needs to include strings.h for strcasecp() (2017-02-27).
+	* Remove an unused variable when calling sigwaitinfo() and
+	  sigtimedwait().  From Masayuki Ishikawa (2017-03-02).
+	* The CONFIG_NETUTILS_HTTPD_PATH constant is used by httpd_mmap.c and
+	  httpd_sendfile.c but It was not present in Kconfig menu.  From Maciej
+	  Wójcik (2017-03-05).
+
+7.21 2017-06-05 Gregory Nutt <gnutt@nuttx.org>
+
+	* Add c++ platform/bambino-200e with C++ initialization.  From Alan
+	  Carvalho de Assis (2017-03-08).
+	* increase number of supported PWM channels from 4 to 6.  From Andreas
+	  Bihlmaier (2017-03-09).
+	* NSH library:  In nsh_argexand(), if CONFIG_NSH_ARGCAT is defined but
+	  CONFIG_NSH_CMDPARMS defined and/or CONFIG_DISABLE_ENVIRON not
+	  defined, then there is a situation that causes an infinite loop in
+	  the parser.  Noted by Freddie Chopin (2017-03-09).
+	* apps/examples/hidkbd:  Remove call to arch_usbhost_initialize().
+	  That is violation of the OS interfacing rules and will no longer be
+	  supported.  USB host should be initialized as part of the normal
+	  board bring-up logic as with any other devices and should not involve
+	  illegal calls from applications into the OS (2017-03-09).
+	* apps/examples/usbterm:  Removed because it is not very useful and
+	  because it can be configured to use an illegal call into the OS
+	  (2017-03-09).
+	* netutils/netlib:  Add one wireless IOCTL wrapper.  For now, this is
+	  just a test to be sure that the wireless IOCTL definitions are in
+	  place (2017-03-13).
+	* netutils/nshlib:  Add wrapper to get the wireless ESSID (2017-03-13).
+	* Adds a test program for the XBox One controller driver (xbc_test).
+	  From Brian Webb (2017-03-18).
+	* built-in libc defect workaround: replace '%6.6u' format with an
+	  equivalent '%06u'.  From Tomasz Wozniak (2017-03-21).
+	* Clicker-STM32:  Add platform directory w/ C++ support (2017-03-22).
+	* examples/ostest:  Add a test of robust mutexes (2017-03-26).
+	* examples/ostest: Robust mutex test needs to call
+	  pthread_mutexattr_setrobust() (2017-03-27).
+	* Rename CONFIG_MUTEX_TYPES to CONFIG_PTHREAD_MUTEX_TYPES (2017-03-27).
+	* examples/mm: Fix Makefile.  Built-in was not being registered
+	  (2017-03-28).
+	* nshlib: fix building when CONFIG_NET_USRSOCK enabled with other
+	  link-layer.  From Jussi Kivilinna (2017-03-31).
+	* Add examples/usrsocktest application for USRSOCK testing.  From Jussi
+	  Kivilinna (2017-04-03).
+	* NSH: Fix some warnings about integer/pointer casts of different sizes
+	  (probably only effects 64-bit simulation) (2017-04-03).
+	* examples/nettest: Trying to adapt to use for testing 6LoWPAN
+	  (2017-04-03).
+	* examples/nettest:  If doing loopback, but not using the official
+	  loopback device, then use the server should use the configured client
+	  IP address (2017-04-04).
+	* Added support for set [{+|-}{e|x|xe|ex}] [<name> <value>].  Set the
+	  'exit on error control' and/or 'print a trace' of commands when
+	  parsing scripts in NSH.  The settinngs are in effect from the point
+	  of exection, until they are changed again, or in the case of the init
+	  script, the settings are returned to the default settings when it
+	  exits.  Included child scripts will run with the parents settings and
+	  changes made in the child script will effect the parent on return.
+	  Use 'set -e' to enable and 'set +e' to disable (ignore) the exit
+	  condition on commands. The default is -e. Errors cause script to
+	  exit.  Use 'set -x' to enable and 'set +x' to disable (silence)
+	  printing a trace of the script commands as they are ececuted. The
+	  default is +x. No printing of a trace of script commands as they are
+	  executed.  From David Sidrane (2017-04-05).
+	* Print expanded variables if -x.  From David Sidrane (2017-04-05).
+	* examples/udpblaster:  Several fixes to work with 6LoWPAN (2017-04-06).
+	* examples/udpblaster:  Add logic to bind the local UDP socket to a
+	  well-known address (2017-04-06).
+	* 6LoWPAN:  Add network IOCTL support to set the node address
+	  (2017-04-06).
+	* examples/ostest: Add tests for pthread_rwlock.  Adding tests to be
+	  used to verify the pthread_rwlock lock works.  From Mark Schulte
+	  (2017-04-07).
+	* Remove CONFIG_PTHREAD_RWLOCK.  Rwlock interfaces built
+	  unconditionally (2017-04-07).
+	* examples/ostest: pthread rwlock additional tests and bugfixes.  From
+	  Mark Schulte (2017-04-07).
+	* netutils: Add a helper function to convert a string to a 6LoWPAN node
+	  address (2017-04-08).
+	* NSH library: Extend ifconfig to support 6LoWPAN.  Adapt to some
+	  changes in configuration variable usage (2017-04-08).
+	* NSH set command:  Eliminate useless argc check of SCRIPTS are enabled
+	  but ENVIRONMENT is disabled (2017-04-09).
+	* examples/ostest: additional test for rwlock and one for cancel
+	  cleanup handlers.  From Juha Niskanen (2017-04-10).
+	* wireless/wapi:  Quick port of Wapi wireless services.  No build
+	  support yet.  This also depends on features not supported by NuttX.
+	  This is a work in progress (2017-04-10).
+	* wireless/wapi:  Remove logic that depnds on Linux netlink.  Add
+	  (untested) build support (2017-04-10).
+	* wireless/wapi:  Remove functionality that depends on the Linux
+	  procfs:  This includes only 1) listing of available interfaces and 2)
+	  listing of all routes (2017-04-10).
+	* Beginning real design of wapi application based on Wapi sample code
+	  (2017-04-10).
+	* wireless/wapi: Re-write of wapi tool UI (2017-04-11).
+	* examples/ostest: clarify when pthread clean-up test mutex need to
+	  remain usable.  From Juha Niskanen (2017-04-12).
+	* examples/hidkbd:  Add some missing configuration settings (2017-04-18).
+	* NSH library: Fix open flags in nsh_codeccmd.c.  From Masayuki
+	  Ishikawa (2017-04-19).
+	* netlib and NSH: Add logic to set the IEEE802.15.4 PAN ID (2017-04-18).
+	* wireless/ieee802154: Starts framing out iwpan tool, similar in
+	  concept to wapi.  From Anthony Merlino (2017-04-20).
+	* ieee802154: Move non-radio files from libradio to libutils.  Add
+	  ieee802154_getpanid() (2017-04-21).
+	* wireless/ieee802154:  Beginning of support for IEEE 802.15.4 MAC
+	  library (2017-04-21).
+	* wireless/ieee802154/libmac:  Finishes all defined MAC IOCTL helpers
+	  (there are a few that are not defined) (2017-04-21).
+	* netlib: Get and/or set PAN ID of IEEE 802.15.4 radio (2017-04-21).
+	* wireless/ieee802154: libaudio and libmac need to return the correct
+	  error codes (2017-04-22).
+	* nshlib: nsh_netcmds.c should include netlib.h even if neither TCP nor
+	  UDP are enabled (2017-04-25).
+	* apps/wireless/wapi:  Correct an error in dependency generation
+	  (2017-04-25).
+	* examples: random: avoid stack overflows.  From Juha Niskanen
+	  (2017-04-26).
+	* wireless/wapi: Improve error reporting IOCTL failures (2017-04-26).
+	* I need to look at the registers that are at or around 0xe000ef90.
+	  Using mw and xd, I see that nsh does not support pointers greater
+	  than 0x7fffffff.  A quick look at the source shows that the pointers
+	  for those two commands are set with calls to strtol() rather than
+	  strtoul().  Changing the two pointer-setting instances to strtoul()
+	  fixes the problem, at least for my architecture/config.  From Ian
+	  McAfee (2017-04-26).
+	* NSH: Needs to include tftp.h if TFTP not disabled (2017-04-29).
+	* netutils/dhcpc:  Make the network device name a configuration
+	  option.  Was hardcoded to eth0 but may, instead, need to be wlan0
+	  (2017-05-02).
+	* nshlib/nsh_netinit.c: If IEEE802.11 selected use wlan0 instead of
+	  eth0 for network device name (2017-05-02).
+	* wireless/wext:  Add drivers_wext from the WPA supplicant; Integrate
+	  into NSH.  From Simon Piriou (2017-05-02).
+	* 6LoWPAN: Replace some Rime address naming with more consistent
+	  short/exended address terminology (2017-05-04).
+	* wireless/ieee802154:  Removes libradio to coincide with removal of
+	  ioctl with radio. Moves all functionality from libradio to libmac.
+	  From Anthony Merlino (2017-05-05).
+	* wireless/wapi: wpa_driver_wext_associate() now accepts a
+	  configuration parameter that can be used to specify the wireless
+	  properties (2017-05-06).
+	* nshlib:  NSH now has configuration options to select the
+	  wireless properties.  It builds the configuration structure and
+	  passes this to wpa_driver_wext_associate() so that it will set the
+	  network as configured (2017-05-06).
+	* Add platform files for nucleo-l452re and nucleo-l496zg.  From Juha
+	  Niskanen (2017-05-08).
+	* wireless/ieee802154:  Adds rxonidle attribute helpers.  From Anthony
+	  Merlino (2017-05-08).
+	* wireless/ieee802154:  Adds sniffer functionality back in to I8SAK
+	  app.  From Anthony Merlino (2017-05-08).
+	* NSH wireless setup:  Move call to nsh_associate().  It should be
+	  possible to associate with an AP when DHCPC is disabled (2017-05-09).
+	* Fix some calls to task_create():  argv[0] is the first parameter, not
+	  the name of the task (2017-05-09).
+	* wireless/ieee802154: Restructures i8sak app and adds blaster
+	  functionality.  From Anthony Merlino (2017-05-09).
+	* examples/configdata: add stacksize and priority.  From Juha Niskanen
+	  (2017-05-10).
+	* Bitbucket Issue 5:  I found an unexpected behavior in apps/
+	  configuration generation. Adding external symbolic link in apps/
+	  directory and using Make.defs for Kconfig generation, Kconfig file
+	  has a wrong path in the source argument. It contains original dir
+	  path outside of the source tree instead path to sub-directory in
+	  apps/.  The problem is connected with make/system symbolic link path
+	  resolution.  Corrected by a patch submitted by Artur Madrzak with
+	  Issue 5 (2017-05-11).
+	* Bitbucket Issue 5, apps build system: The previous patch wasn't
+	  complete, it was just idea how to resolve issue.  Please, find
+	  attached issue5.patch to resolve it. It can be applied on top current
+	  apps/master. From Artur Madrzak (2017-05-12).
+	* Fix the new can.h header location.  From Alan Carvalho de Assis
+	  (2017-05-12).
+	* Fix libcanard github download link to get it compiling correctly.
+	  From Alan Carvalho de Assis (2017-05-12).
+	* Fix to use the new canardInit() function.  From Alan Carvalho de
+	  Assis (2017-05-12).
+	* apps/platform:  Create gnu/ subdirectory that contains the one and
+	  only GNU C++ initialization function.  Remove all other C++
+	  initialization functions (2017-05-13).
+	* Move up_cxxinitialize() prototype from nuttx/include/nuttx/arch.h to
+	  apps/include/platform/cxxinitialize.h (2017-05-13).
+	* apps/examples/nettest: Fix an error in pre-processor expression
+	  (2017-05-13).
+	* wireless/ieee802154: i8sak adds event handling from MAC char driver.
+	  From Anthony Merlino (2017-05-16).
+	* apps/examples/mtdpart: Prevent part array overflow.  mtdpart examples
+	  create partions and allocate from 1 index not a 0 index to part[]
+	  array. This cause buffer overflow for part array.  This change fixes
+	  this problem.  From  EunBong Song (2017-05-17).
+	* apps/examples/can:  Fix can example app to print data when
+	  CONFIG_EXAMPLES_CAN_READ is defined.  From Alan Carvalho de Assis
+	  (2017-05-17).
+	* apps/: Make more globals static to avoid name clashes.  From Juha
+	  Niskanen (2017-05-19).
+	* Ensure netlib will not be broken when setip will not bring the
+	  network up anymore.  From Sebastien Lorquet (2017-05-19).
+	* DHCPC: Remove hard-coded interface device.  Now passed as a parameter
+	  to dhcpc_open().  From Sebastien Lorquet (2017-05-19).
+	* nshlib: Fix a resource leak in cmd_hexdump().  From Nobutaka
+	  Toyoshima (2017-05-22).
+	* wapi: add basic wapi_event_stream_extract implementation.  From Simon
+	  Piriou (2017-05-21).
+	* apps/system/dhcpc:  Add a command to renew or establish a lease on an
+	  IPv4 address (2017-05-21).
+	* apps/system/ntpc:  Add a command to start or stop the NTPC daemon
+	  (2017-05-21).
+	* apps/system/dhcpc: Add missing argument of fprintf (2017-05-21).
+	* apps/nshlib:  Add a new option CONFIG_NSH_NETLOCAL that will suppress
+	  some built in operations and will support manual configuration of a
+	  wireless network (2017-05-21).
+	* apps/system/ramtest: Make stacksize and priority conigurable
+	  (2017-05-22).
+	* The dedicated windows tool at tools/mkkconfig.bat uses $APPSDIR,
+	  which is not a windows shell variable, and is left uninitialized, but
+	  in fact should be the current directory.  From Sebastien Lorquet
+	  (2017-05-22).
+
+7.22 2017-09-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/composite: Update to apps/system/composite assocated with
+	  big changes to the composite device logic.  From Frank Benkert
+	  (2017-06-01).
+	* wireless/ieee802154: Modifies i8 to support running various routines.
+	  From Anthony Merlino (2017-06-14).
+	* wireless/ieee802154: Rewrites i8sak to be test CLI for IEEE 802.15.4
+	  MAC layer.  From Anthony Merlino (2017-06-14).
+	* NSH network initialization: Fix some ieee 802.15.4 initialization
+	  logic.  It should not set the saddr or panid; those cannot be
+	  hard-coded but must come from the coordinator.  Re-factor a function
+	  that has gotten too big and too complex.  Do not set the IP address
+	  for 6loWPAN.  The 6loWPAN stack uses IP address that derive from the
+	  ieee 802.15.4 addressing and cannot be (safely) configured by the
+	  user (2017-06-17).
+	* i8sak:  Missing newline in fprintf output (2017-06-18).
+	* correct copy-paste typo in comments in composite_main.c  From Oleg
+	  Evseev (2017-06-18).
+	* Switches IEEE 802.15.4 based code to using byte arrays instead of
+	  uint16_t values for short address and PAN ID.  From Anthony Merlino
+	  (2017-06-19).
+	* fix copy-paste typo in nsh_usbconsole.c.  From Oleg Evseev
+	  (2017-06-19).
+	* examples/udp: Add configurable network device name; Add option to
+	  suppress network initialization which is not needed if started by NSH
+	  or for 6LoWPAN (2017-06-19).
+	* nshlib: fix size of 6LoWPAN extended address (2017-06-18).
+	* examples/udp:  Fix registration as a built-in program; Change some
+	  naming to make room for a second target.  Current one endpoint is the
+	  target and one is the host.  This will (eventually) allow two targets
+	  to be both endpoints of the test.  Change build so that both server
+	  and client can be on a target, rather than one on the target one on
+	  the host PC.  Server IP address may not be provided on the command
+	  line (2017-06-19).
+	* examples/smart: Fix some compilation errors.  Obviously this test has
+	  not been used in a LONG time (2017-06-20).
+	* examples/udp:  Port numbers need to be configurable to work with
+	  6LoWPAN.  Need to bind the client socket to a port number.  This was
+	  not required before so is a apparently a change in the UDP packet
+	  dispatch logic (2017-06-20).
+	* ieee802154: Changes to support beacon-enabled networks.  From Anthony
+	  Merlino (2017-06-21).
+	* wireless/ieee802154: Adds option to make it easy to send large frame
+	  for testing purposes.  From Anthony Merlino (2017-06-21).
+	* examples/udp:  Renaming some files to prevent name collision in
+	  libapps.a.  Fix naming of a configuration setting (2017-06-23).
+	* examples/nettest:  Renaming some files to prevent name collision in
+	  libapps.a and to prepare to support target boards on both ends of the
+	  test.  Separate out network initialization so that it may,
+	  eventually, be used by both a target server and a target client.  Fix
+	  client/server naming confusion; add command line option to select the
+	  server address on the target.  Add support for both enpoints on
+	  target boards vs. one on a target and one on the host PC
+	  (2017-06-23).
+	* system/dhcpc:  The DHCPC renew command did not build correctly due to
+	  naming problems.  Noted by Masayuki Ishikawa (2017-06-23).
+	* examples/nettest: Fixes for building with loopback device again after
+	  the last changes (2017-06-23).
+	* examples/nettest:  The send buffer size is now a configuration option
+	  (2017-06-24).
+	* examples/udp and examples/nettest: Fix some naming collisions;
+	  examples/nettest:  Fix some build issues with two targets
+	  (2017-06-25).
+	* ieee802154: Adds scan command.   From Anthony Merlino (2017-06-25).
+	* ieee802154: Minor fix to setup logic for i8sak.  From Anthony Merlino
+	  (2017-06-25).
+	* ieee802154: start of scan/beacon-enabled network.  From Anthony
+	  Merlino (2017-06-26).
+	* netutils/telnetc:  This a port of libtelnet to NuttX (2017-06-26).
+	* system/telnet:  Add Telnet Chat deamon and and client from libtelent
+	  (2017-06-26).
+	* NSH library:  Add a Telnetd command.  This is needed when network
+	  initialization is deferred.  In that case, telnet daemon cannot be
+	  started until the network is finally initialized.  The telnetd
+	  command was added just for that case:  So that the telnet daemon can
+	  be started from the NSH command line after the network is configured
+	  (2017-06-26).
+	* revise some of the state handling in the previous commit
+	  (2017-06-26).
+	* system/telnet: POLL must not be disabled in configuration.  Telnet
+	  client port argument is no optional (2017-06-27).
+	* netutils/telnetd and users of telnetd:  Add support for IPv6
+	  (2017-06-27).
+	* ieee802154/i8sak: Adds coordinfo command allowing you to poll various
+	  attributes related to the coordinator.  From Anthony Merlino
+	  (2017-06-27).
+	* i8sak:  Need to increment the next_saddr after each successful
+	  association (2017-06-29).
+	* i8sak:  Add a option to retry on failures to the assoc command
+	  (2017-06-29).
+	* apps/examples/thttpd:  Remove the netstats demo.  This depends on an
+	  illegal function call and cannot be supported.  That example could be
+	  replaced with logic that uses the procfs network entries as was done
+	  for NSH which had the same issue.  But I am too lazy to implement
+	  that (2017-07-01).
+	* i8sak: Adds reset command to reset the MAC layer.  Adds option to
+	  assoc command -t to specify how long to wait for a response from the
+	  Coordinator.  From Anthony Merlino (2017-07-01).
+	* Eliminate a warning when both Ethernet and 6LoWPAN are enabled;
+	  improve some naming (2017-05-02).
+	* ieee802154: Adds reset command, adds resp_waittime option to
+	  associate, and a few other minor tweaks.  From Anthony
+	  Merlino(2017-07-02).
+	* NSH library: Fix build break in nsh_command.c with IPv4/IPv6 dual
+	  stack.  From Masayuki Ishikawa (2017-07-04).
+	* apps/examples/keypadtest: REMOVED and warehoused in the Obsoleted
+	  repository.  This was just a bad clone of apps/examples/hidkbd for a
+	  keypad driver that was removed years ago.  It also uses illegal
+	  function calls into the OS.  So it has no purpse:  It is
+	  redundant, it uses illegal interfaces, and is a test for non-existent
+	  code (2017-07-04).
+	* tools/mkkconfig.bat: Use %cd% instead of %~dp0 for usage of APPSDIR
+	  in this batch file (2017-07-05).
+	* system/dhcpc: Fix warning about renew_main.o appear twice in rule
+	  (2017-07-05).
+	* tools/mkkconfig.bat:  Remove quotes in echo.  These were begin
+	  Echo'ed and generating double quots in the output.  From Jeff
+	  (2017-07-05).
+	* Windows build fixes:  tools/mkkconfig.bat - switch APPSDIR path to
+	  use forward slashes for kconfig-frontends. interpreters/ficl -
+	  Reorder some targets that causes GNUwin32 make to behave badly.  From
+	  Jeff (2017-07-06).
+	* platform/Makefile: More attempts to fix for Windows native build.
+	  Backslash as a delimiter causes problems in pattern subsitutions
+	  (2017-07-06).
+	* apps/examples/ipforward: Add beginning of an IP forwarding example
+	  using only TUN devices.  Test extended to test forwarding of ICMPv6
+	  multicast messages.  Completes code for apps/examples/ipforward.
+	  Still untested (2017-07-09).
+	* apps/netutils/tftpc: Missing header file causes errors in some
+	  configurations (2017-07-10).
+	* Socket I/F: Cleanup for good CONFIG_NET_PKT build (2017-07-14).
+	* netutils/netlib:  Fixes to work when only USRSOCK is enabled
+	  (2017-07-14).
+	* apps/system/composite:  Remove CDC/ACM and MSC configuration logic.
+	  This belongs in the OS composite initialization.  Add and argument so
+	  that you can select the USB composite configuration to be attached.
+	  Restore USB tracing; remove unused field in a structure.  Remove
+	  configuration settings that are no longer used.  Fix configuration
+	  selecting.. was setting the port number, not the configure ID.  Also
+	  add a configuration option to select the default configuration
+	  (2017-07-15).
+	* apps/system/composite: Add a configuration option to the boardctl()
+	  calls to support multiple composite device configurations dynamically
+	  (2017-07-16).
+	* i8sak: Minor formatting fix.  From Anthony Merlino (2017-07-10).
+	* wireless/ieee802154/i8sak: Minor setting changes.  From Anthony
+	  Merlino (2017-07-17).
+	* ieee802154/i8sak:  Adds command to trigger regdump of radio.  From
+	  Anthony Merlino (2017-07-18).
+	* apps/system/composite:  Remove references to USBMSC.  There still
+	  dependencies on CDC/ACM in the serial USB trace output.  That really
+	  should be removed (2017-08-21).
+	* netutils/ftpc:  Fix some memory leaks.  From Boris Astardzhiev
+	  (2017-07-27).
+	* Implement powermonitor example for ltc4151 current and voltage
+	  monitor.  From Giorgio Groß (2017-07-28).
+	* NSH: Misc changes needed for PktRadio support (2017-07-30).
+	* examples/nettest/:  Loopback option should be available in Kconfig
+	  for PktRadio (2017-08-01).
+	* apps/netutils/netlib:  Add support for PktRadio IOCTL commands
+	  (2017-08-02).
+	* NSH library: Extend ifconfig command so that it can set variable
+	  length packet radio addresss (2017-08-02).
+	* netutils/netlib: Fix netlib_nodaddrconv() so that its return type is
+	  the same as other address conversion functions.  NSH: Correct parsing
+	  of ifconfig so that you can specify the HW address without specifying
+	  the IP address (2017-08-02).
+	* apps/examples/udp:  Enable testing with the broadcast address
+	  (2017-08-08).
+	* Remove references to obsoleted CONFIG_NETDEV_MULTINIC and
+	  CONFIG_NETDEV_MULILINK (2017-08-08).
+	* NSH library:  Update addroute and delroute command.  The would
+	  support either IPv4 or IPv6, but not both.  Allow expression of the
+	  netmask in IPv4 CIDR or IPv6 slash notation.  This really reduces the
+	  pain of using the commands, especially for IPv6 (2017-08-10).
+	* NSH Library: Add a route command that will dump the content of
+	  routing table (2017-08-11).
+	* apps/netutils/tftpc depends on CONFIG_NET_IPv4 (2017-08-12).
+	* Application.mk:  Add the .PRECIOUS target to prevent libapps.a from
+	  being deleted when the make is interrupted (2017-08-12).
+	* apps/examples/nximage: Remove unused global variable (2017-08-12).
+	* netutils/thttpd: Fix a malformed if condition detected by GCC 6.x.x
+	  (2017-08-12).
+	* All Makefiles:  Add .PRECIOUS: apps/libapps.a to every Makefile.
+	  Hopefully this will end awkward problems when you Control-C out of a
+	  build and libapps.a is deleted (2017-08-13).
+	* The last change added .PRECIOUS: $(BIN) to everyway Makefile in hopes
+	  the libapps.a will not be deleted on Control-C (unproven so far).
+	  However, $(BIN) may contain back slashes in some build platforms and
+	  that causes problems for make:  It can't handle the backslashes in
+	  the .PRECIOUS dependency list.  $(BIN) replaced with ../../libapp.a,
+	  where the number of ../ depends on the depth of the Makefile in the
+	  apps/ source tree (2017-08-13).
+	* netutils/netlib: Add a helper to decode short addresses
+	  (2017-08-18).
+	* apps/examples/pf_ieee802154:  Add for testing PF_IEEE802154 sockets.
+	  Add PANID to command line options; Cannot bind to address zero...
+	  There is no counterpart to INADDR_ANY for these radios (not now at
+	  least) (2017-08-19).
+	* Changes to netlib and nsh so that you build build with PF_IEEE802154
+	  enabled and 6LoWPAN disabled (2017-08-20).
+	* netutils/netlib: If only PF_IEEE802154 socket family is enabled, then
+	  must use SOCK_DGRAM (2017-08-21).
+	* NSH:  Add conditions so that ifconfig and ifup will not be disabled
+	  if we are using only PF_IEEE802154 (2017-08-21).
+	* dhcpd: Prevent buffer overflow in dhcpd_addoption.  offset represents
+	  distance from start of option buffer.  So this should be changed
+	  current option pointer minus start of buffer.  From EunBong Song
+	  (2017-08-25).
+	* apps/examples/nsh: Remove APPNAME, PRIORITY, and STACKSIZE settings
+	  from Makefile to avoid showing nsh in Builtin Apps.  From Masayuki
+	  Ishikawa (2017-08-26).
+	* examples: add DAC example.  From Juha Niskanen (2017-09-1).
+
+7.23 2017-12-04 Gregory Nutt <gnutt@nuttx.org>
+
+	* examples/ostest: sem_open() now returns SEM_FAILED in the event of a
+	  failure (2017-09-08).
+	* examples/adc: Fix g_adcstate.count initialization.  From Masayuki
+	  Ishikawa (2017-09-11).
+	* examples/fb:  Flesh out the framebuffer driver test.  examples/fb:
+	  Add a simple test for the framebuffer character driver.  This initial
+	  commit just verfies some interfaces and initialization logic.  Still
+	  need to add to graphics update logic (2017-09-12).
+	* Rename CONFIG_AUDIO_DEVICES to CONFIG_DRIVERS_AUDIO to conform better
+	  to the evolving configuration naming standard (2017-09-12).
+	* examples/fb:  Extend test to include 1-bpp monochrome (2017-09-13).
+	* Added a simple reader example for the LIS3DSH acceleration sensor on
+	  STM32F4Discovery.  From Florian Olbrich (2017-09-14).
+	* wireless/ieee802154/i8sak: Adds socket interface support. You can now
+	  use both socket or char driver to control the MAC layer.  From Anthony
+	  Merlino (2017-09-15).
+	* wireless/ieee802154/i8sak:  Fixes several bugs.  Adds sniffer port
+	  option and a few other get/set parameters.  From Anthony Merlino
+	  (2017-09-15).
+	* i8sak: Updates README to include details about socket interface and
+	  new addressing setup and fixes warning.  Fix warning about
+	  uninitialized variable.  From Anthony Merlino (2017-09-15).
+	* apps/examples/apa102: Add a Rainbow example for APA102 LED Strip.
+	  From Alan Carvalho de Assis (2017-09-18).
+	* netutils/netlib:  Add netlib_ipv6adaptor() and netlib_ipv4adaptor()
+	  (2017-09-19).
+	* netlib_ipv[4|6]adaptor: Add a check to handle the case where the
+	  network device configuration changed asynchronously and the second IOCTL
+	  returns more data than the allocated buffer (2017-09-20).
+	* apps/netutils/netlib:  Add helpers for reading the routing table:
+	  netlib_read_ipv4route() and netlib_read_ipv6route() (2017-09-20).
+	* apps/netutils/netlib:  Add new utilities netlib_ipv[4|6]router() that
+	  can be used to determine the IP address of a router that would be used
+	  some some destination IP address that is not locally accessible
+	  (2017-09-20).
+	* apps/netutils/netlib:  netlib_ipv[4|6]adaptor() will now use the new
+	  routing table interfaces if they are available:  If the destination IP
+	  address does not correspond to the network served by any device, then
+	  the address of the router that should get us to the correct sub-net is
+	  is determined.  Then the network adaptor that can communicate with the
+	  that router has the IP address that will returned (2017-09-20).
+	* apps/examples/flowc:  Add a simple test of serial hardware flow control
+	  (2017-09-23).
+	* apps/examples/qencode: The QENCODER name was changed to
+	  SENSORS_QENCODER fix it here.  From Alan Carvalho de Assis (2017-09-24).
+	* nshlib/nsh_parse.c: Avoid truncating the strcmp result into a unsigned
+	  char variable.  nshlib/nsh_netcmds.c: Check for valid hostip before
+	  using it.  nshlib/nsh_ddcmd.c: Fix resouce leak when 'if=' or 'of='
+	  params are repeated in the command line.  For example:
+	    - dd if=/dev/null if=/dev/zero of=/dev/null or
+	    - dd if=/dev/zero of=/dev/zero of=/dev/null
+	  From Bruno Herrera (2017-09-25).
+	* nshlib/nsh_netcmds.c: Fix a compilation error when IPv4/IPv6 dual
+	  stack is enabled.  From Masayuki Ishikawa (2017-09-26).
+	* apps/examples/flowc:  Add a delay between received packets in order to
+	  force input flow control (2017-09-26).
+	* apps/examples/flowc: Fix some errors in receiver's verificationg
+	  logic.  Add a 'canned' data file so that we don't need to deal with the
+	  sender program; we can just 'cat' the canned data file (2017-09-26).
+	* apps/examples/flowc:  Add some syslog output to flush the syslog
+	  interrupt buffer (2017-09-27).
+	* apps/examples/flowc: Small improvement to break line if more than 80 .
+	  were printed.  From Alan Carvalho de Assis (2017-09-27).
+	* apps/examples:  In elf and nxflat examples, remove low-level
+	  interfaces and replace with call to exec() (2017-10-02).
+	* examples/elf and nxff: Won't build with CONFIG_BUILD_KERNEL because
+	  the interface exec() is not available in that configuration.  Also,
+	  remove a stray comma and a stray semacolon in examples/pty_test/Kconfig
+	  and examples/random/Kconfig (2017-10-06).
+	* Add powerled driver example.  From Mateusz Szafoni (2017-10-08).
+	* examples/ostest:  Works around a bug in printf() when cancellation
+	  points are enabled.  printf() is a cancellation point because it calls
+	  write().  This is correct according to OpenGroup.org.  However, printf
+	  holds the stdio library semaphore when it is canceled and this leaves
+	  the semaphore in a bad state.  No fix for the printf bug yet (2017-10-10).
+	* examples/ina219: A simple infinite loop that polls the INA219 sensor
+	  and displays the measurements.  From Sebastien Lorquet (2017-10-11).
+	* examples/ostest: Extend cancellation test to make sure that cancelable
+	  threads waiting on a message queue or on a signal can be canceled
+	  (2017-10-12).
+	* netutils/ftpc:  Fix some crazy comparisons to determine is a file is
+	  an absolute path.  Noted by Anthony Merlino (2017-10-13).
+	* examples/nx:  The NX example no longer supports single user mode
+	  (2017-10-14).
+	* examples/nxtext:  The nxtext example no longer supports single user
+	  mode (2017-10-14).
+	* examples/lcdrw:  Remove this example.  It violates the portable OS
+	  interface and cannot be retained (2017-10-14).
+	* graphics/traveler:  Restore most of what was removed in the previous
+	  commit.  That non-standard logic is currently needed by the simulation.
+	  It should be replaced with use of a framebuffer driver.  No longer
+	  supports single user graphics mode (2017-10-14).
+	* examples/nxhello now supports only multiuser mode (2017-10-14).
+	* examples/nximage now supports only multiuser mode (2017-10-14).
+	* system/lm75:  Fix a naming error in a dependency.  From Alan Carvalho
+	  de Assis (2017-10-14).
+	* examples/nxlines now supports only multiuser mode (2017-10-14).
+	* exampls/nxhello:  Increase the amount of time that the text is
+	  displayed before erasing it (2017-10-15).
+	* Add -n samples to lm75 app and replace Centigrade with Celsius.  From
+	  Alan Carvalho de Assis (2017-10-15).
+	* graphics/traveler: Convert to use the framebuffer driver (2017-10-16).
+	* examples/alarm: add options for reading alarm value and canceling it.
+	  From Juha Niskanen (2017-10-17).
+	* apps/fsutils/mkfatfs:  Move mkfatfs from the OS to here.  Not fully
+	  integrated on the intial commit (2017-10-20).
+	* apps/examples/adps9960:  Add ADPS-9960 example.  From Alan Carvalho de
+	  Assis (2017-10-23).
+	* This commit eliminates the ping command from NSH and replaces it with
+	  a ping 'built-in' at apps/system/ping.  The original NSH version of ping
+	  violated the portable POSIX interface and, hence, had to be removed.
+	  The new system/ping command uses the new IPPROTO_ICMP AF_INET datagram
+	  sockets to implement ping (2017-10-23).
+	* apps/system/ping6:  Use inet_ntop() to improve the appearance of the
+	  ping6 IPv6 address output.  Fix a typo and also a place where = used
+	  when == intended.  This commit removes the ping6 command from NSH and
+	  replaces it with the apps/system/ping6 built-in command.  The NSH ping6
+	  command had to be removed because it violated the portable POSIX OS
+	  interface.  The apps/system/ping6 command uses the sem-standard
+	  IPPROTO_ICMP6 socket interface (2017-10-24).
+	* apps/nshlib:  ifconfig improvements.  From Anthony Merlino (2017-10-24).
+	* nshlib:  mount command no long uses the non-standard OS interface
+	  foreach_mountpoint().  Now simply cats /proc/fs/mount when there are no
+	  arguments to the mount command (2017-10-26).
+	* nshlib:  df command no long uses the non-standard OS interface
+	  foreach_mountpoint().  Now simply cats /proc/fs/blocks or /proc/fs/usage
+	  (2017-10-26).
+	* Fix parsing of empty strings when CONFIG_NSH_CMDPARMS is not defined.
+	  Problem noted by Juha Niskanen (2017-10-27).
+	* apps/canutils/libobd2:  Add libobd2 for NuttX.  From Alan Carvalho de
+	  Assis (2017-10-28).
+	* apps/examples/obd2:  Add OBD2 example application.  From Alan Carvalho
+	  de Assis (2017-10-28).
+	* include/netutils/netlib.h:  Broaden socket definitions of previous
+	  commit.  Add definitions needed when only local Unix domain sockets are
+	  supported (2017-10-30).
+	* apps/examples/userfs:  Add a test case for verifying UserFS
+	  (2017-10-31).
+	* Fixed i2ctool write operation in `no restart` mode (flag `-n`).  It
+	  seems that I2C driver has changed a bit since i2ctool was written, so
+	  now i2ctool sends repeated start even if `no restart` flag (-n) was
+	  passed to it.  From Dmitriy Linikov (2017-11-01).
+	* Fixed misprint in cmd_wget.  From Dmitriy Linikov (2017-11-01).
+	* apps/examples/userfs:  Fix bad logic in test stat() implementation
+	  (2017-11-01).
+	* i8sak: Changes 'notif' to 'primitive' corresponding to the changes in
+	  the Kernel.  From Anthony Merlino (2017-11-01).
+	* Adds i8shark, a sniffer "adapter" that captures all 802.15.4 traffic,
+	  packages it into a Wireshark ZEP packet, and sends it to a host running
+	  Wireshark  From Anthony Merlino (2017-11-01).
+	* apps/examples/userfs:  Fix check for open with write+append mode
+	  (2017-11-01).
+	* apps/fsutils/mkfatfs:  When fsutils/mkfats was split off from the
+	  operating system, there were a few dangling things left.  Some
+	  references to functions in the OS (which are not available in the
+	  protected and kernel modes) and several types and function prototeypes
+	  that don't exist is apps/fsutils/mkfatfs (2017-11-02).
+	* Fixed the compilation of nsh_routecmds.c, broken after commit
+	  6b9d23c6aa0247c701acf1d0ecdaececf546342a.  From Dmitriy Linikov
+	  (2017-11-03).
+	* include/netutils/netlib.h:  In order to avoid pre-processing warnings,
+	  NETLIB_SOCK_FAMILY must always be assigned a value, even if there is no
+	  real meaning value for it (2017-11-03).
+	* i8sak: Channel setting is now saved locally, so when performing a
+	  startpan or assoc, the channel previously set is still used, even though
+	  the MAC layer gets reset.  Also fixes a few build issues.  From Anthony
+	  Merlino (2017-11-03).
+	* examples: add SMPS driver example.  From Mateusz Szafoni (2017-11-05).
+	* smps, powerled examples: fix floating point format in printf.  From
+	  Mateusz Szafoni (2017-11-05).
+	* apps/examples/userfs:  Handle the O_TRUNC open flag.  Fixes a bug with
+	  double freeing open data when dup'ed files are closed (2017-11-06).
+	* apps/examples/ltdc:  Remove apps/examples/ltdc.  It violates the
+	  portable POSIX interface by calling directly into OS code (2017-11-06).
+	* FTP: Adds support for IPv6 and fixes various transfer issues.   From
+	  Anthony Merlino (2017-11-06).
+	* netutils/ftpc:  Eliminate warnings about types of inputs to
+	  netlib_ipv4adaptr() and about ftp_cmd_pasv() being defined but not used
+	  (2017-11-12).
+	* apps/system/free:  Removed because it violates the portable POSIX OS
+	  interface (2017-11-13).
+	* apps/nshlib:  The free commands no longer used mallinfo() to get the
+	  state of the use heap.  Two reasons:  That is not useful information in
+	  the kernel build.  And (2) there are other memory resources of interest
+	  in other configurations such as the Kernel heap in PROTECTED and KERNEL
+	  builds, and the prog mem uses when FLASH is used to hold modifiable
+	  data.  The free command has been extended to just dump the content of
+	  procfs entries and to include all of these other memory resources of the
+	  procfs entries are available (2017-11-13).
+	* apps/nshlib:  Big simplification of last change.  /proc/kmm, umm, and
+	  progmem have been replaced with a single procfs file called
+	  /proc/meminfo.  The NSH free command now degenerates to a simple dump of
+	  /proc/meminfo (2017-11-13).
+	* apps/graphics/pdcurs34:  This commit brings the basic public domain
+	  pdcurses library into NuttX.  This library is complete but not yet
+	  usuable because it still requires the NuttX interfacing code needed hook
+	  pdcurses into the NuttX graphics drivers.  Also test cases are needed to
+	  verify the pdcurses integration (2017-11-17).
+	* apps/examples/pdcurses:  Bring in pdcurses demos and make them conform
+	  to the NuttX coding style (not yet hooked into the build system)
+	  (2017-11-18).
+	* apps/graphics/pdcurs34:  Extend configuration to select the font size
+	  (2017-11-18).
+	* apps/example/pdcurses:  Add logic to build one of the several pdcurses
+	  demo/test programs (2017-11-18).
+	* apps/graphics/pdcurs34/nuttx:  Completes first cut at framebuffer
+	  rendering logic.  Add NuttX framebuffer color managment and beginning of
+	  some rendering logic (2017-11-19).
+	* apps/examples/pdcurses/: Fix a few more bugs found in testing;  Brings
+	  in the remaining pdcurses demo programs (2017-11-19).
+	* apps/graphics/pdcurs34:  Add support for discrete joystick input.
+	  This is sufficient to get through all menuing tests that do not require
+	  text input (2017-11-22).
+	* apps/graphics/pdcurs34:  Add support for greylevels vs. RGB.  Define
+	  pdc_color_t based on pixel depth, not on specific color format.  Need to
+	  set the global COLORS or else all displays on monochrome (2017-11-22).
+	* i8shark:  Adds CONFIG_IEEE802154_I8SHARK_XBEE_APPHDR option to remove
+	  XBee's application header before sending to Wireshark. This option will
+	  corrupt any traffic received that does not include this application
+	  header.  From Anthony Merlino (2017-11-22).
+	* apps/wireless/ieee802154/i8sak: Adds ability to get/set rxonidle
+	  setting for MAC layer.  From Anthony Merlino (2017-11-xx).
+	* apps/examples/fb:  Fix calculation of a mask value (2017-11-22).
+	* NxWidgets:  Move from apps/NxWidgts to apps/graphics/NxWidgets
+	  (2017-11-24).
+	* apps/examples/pdcurses:  Add a very simple example that just shows the
+	  entire character set (7-bit only).  It adapts to the size of the
+	  framebuffer and, hence, can be used with very tiny displays.  In fact it
+	  looks really dumb on big displays (2017-11-24).
+	* apps/examples/fb:  Add a small delay between updating each rectangular
+	  region (2017-11-25).
+	* apps/examples: CONFIG_QENCODER was renamed to CONFIG_SENSORS_QENCODER:
+	  update README.txt.  From Fabio D'Urso (2017-11-25).
+	* apps/graphics/pdcurs34: Initial steps to support less than 8-pixel
+	  fonts on less than 8-bit display.  Calculation of font buffer stride
+	  must depend on the configured BPP.  Add first cut at function to copy a
+	  font into the font buffer; Make better use of macros to reduce code
+	  complexity (2017-11-27).
+	* apps/examples/nunchuck: Add Nunchuck example application.  From Alan
+	  Carvalho de Assis (2017-11-28).
+	* apps/graphics/pdcurs34:  Correct logic that sets the font buffer to
+	  the background color for the case of BPP < 8 (2017-11-29).
+	* apps/examples/pdcurses:  Clean up charset example so that the display
+	  geomtry  is better on very wide displays (wide with respect to the width
+	  of a character) (2017-11-30).
+
+7.24 2018-03-02 Gregory Nutt <gnutt@nuttx.org>
+
+	* i8shark: Fixes special XBee compensation by purposely chopping off the
+	  FCS.  From Anthony Merlino (2017-12-08).
+	* nxplayer: Add support for http streaming in nxplayer.  From Masayuki
+	  Ishikawa (2017-12-19).
+	* Adds 'setlogmask' application that allows you to set the syslog
+	  priority via a simple command.  From Anthony Merlino (2017-12-19).
+	* apps/netutils/ftpc:  Fix some cornercases that could cause FTP to
+	  access past the end of valid data.  From Gregory Nutt (2017-12-21).
+	* examples/userfs: Add truncate() support for userfs.  From Gregory Nutt
+	  (2018-01-03).
+	* apps/nshlib:  Add support for a truncate command.  This will be used
+	  to test the new ftruncate file system support.  From Gregory Nutt
+	  (2018-01-04).
+	* nshlib/nsh_telnetd.c: Add support for telnet character mode.  From
+	  Masayuki Ishikawa (2018-01-10).
+	* apps/nshlib: Add support for '-n' option to the echo command.  From
+	  Masayuki Ishikawa (2018-01-10).
+	* apps/nshlib:  Add irqinfo command.  From Gregory Nutt (2018-01-12).
+	* apps/system/usbmsc: Added Kconfig options to configure write
+	  protection for each LUN.  From Fabio D'Urso (2018-01-14).
+	* apps/examples/lvgldemo:  Add lvgldemo example.  From Alan Carvalho
+	  de Assis (2018-01-16).
+	* apps/graphics/littlevgl:  Add littlevgl library.  From Alan Carvalho
+	  de Assis (2018-01-16).
+	* apps/examples/touchscreen:  Eliminate BOARDIOC_TSCTEST_SETUP.  From
+	  Gregory Nutt (2018-01-17).
+	* apps/examples/lvgldemo: Can no longer call boardctl() to initialize
+	  graphics hardware if needed.  From Gregory Nutt (2018-01-18).
+	* apps/netutils/netlib: Add default route in netlib_set_dripv4addr().
+	  From Masayuki Ishikawa (2018-01-19).
+	* system/stackmonitor:  Re-design the stack monitor so that it does not
+	  make forbidden calls directly into the OS, breaking the portable POSIX
+	  OS interface.  It now properly uses the PROCFS file system to glean
+	  information about stack usage.  From Gregory Nutt (2018-01-20).
+	* apps/nshlib:  Fix compile error when CONFIG_NSH_DISABLESCRIPT is not
+	  defined.  The field np_flags does not exist if scripting is disabled.
+	  From Gregory Nutt (2018-01-22).
+	* apps/examples/veml6070:  Add VEML6070 Application Example.  From Alan
+	  Carvalho de Assis (2018-01-28).
+	* examples/bmp180: Add BMP180 application example.  From Alan Carvalho
+	  de Assis (2018-02-04).
+	* apps/graphics/ft80x:  Add the FTDU FT80x GUI support library.
+	  Consists of some dispaly list helpers, audio helpers, touch helpers, RAM
+	  access, register access etc.  From Gregory Nutt (2018-02-18).
+	* apps/examples/ft80x:  Add a test of the FT80x based on FTDI
+	  SampleApp.  Includes tests of GPU primitives and graphics co-processor
+	  commands From Gregory Nutt (2018-02-18).
+	* apps/graphics/ft80x and apps/examples/ft80x:  Fix a few compile-relate
+	  issues introduced with last merge.  From Gregory Nutt (2018-02-19).
+	* apps/examples/ft80x:  Add a few more demos of GPU primitive
+	  operations.  From Gregory Nutt (2018-02-19).
+	* Added ECANCELED condition to DEBUGASSERT-s checking sem_wait result.
+	  From Dmitriy Linikov (2018-02-20).
+
+7.25 2018-06-03 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/netutils/tftpc:  This commit modifies the TFTP client functions to
+	  use a data read/write callback instead of a file.  This allows TFTP to
+	  write to arbitrary destination (in my case, a MTD device - for firmware
+	  update).  Two new functions are introduced for this, named tftpget_cb and
+	  tftpput_cb. They are just made of most of the existing code.  The
+	  previously existing tftpget/tftpput functions are now wrappers on the new
+	  ones, with callbacks that read/write from files, so my modifications are
+	  backwards compatible with existing applications, eg the associated nsh
+	  commands dont need to be changed.  From Sebastien Lorquet (2018-03-09).
+	* apps/examples/ft80x:  Fix some size calculations.  Add option to disable
+	  primitive tests... just too boring to have to watch over and over again.
+	  Fix a typo in backlight fade logic; Fix error in formatted display light
+	  debug dump output.  From Gregory Nutt (2018-03-09).
+	* apps/examples/ft80x:  Text is handled by the coprocessor and, hence, must
+	  use RAM_CMD, not RAM_DL.  From Gregory Nutt (2018-03-09).
+	* apps/examples/ft80x:  Fix some errors in co-processor demos.  Correct an
+	  error in the spinner demo.  From Gregory Nutt (2018-03-10).
+	* apps/examples/netloop:  Update network loopback example so that it can be
+	  used to test TCP KeepAlive.  From Gregory Nutt (2018-03-12).
+	* apps/system/stackmonitor:  Fix comparison between pointer and zero
+	  character constant.  From Juha Niskanen (2018-03-13).
+	* apps/system and wireless:  Applications should use the standard clock()
+	  interface, not the internal NuttX clock_systimer() interface.  From
+	  Gregory Nutt (2018-03-14).
+	* apps/examples/lzf:  Add the test case from Marc Alexander Lehmann's
+	  LIBLZF3.6 librrary  From Boris Astardzhiev (2018-03-14).
+	* apps/examples/lzf:  lzf_compress() now expects the hash table as user
+	  allocated input parmeter rather than declaring the huge array on the
+	  stack.  From Gregory Nutt (2018-03-15).
+	* apps/examples/lzf:  unlzf and lzcat are not supported.  From Gregory Nutt
+	  (2018-03-15).
+	* apps/examples/lzf: Fix name composition and set defaults early in main.
+	  From Boris Astardzhiev (2018-03-15).
+	* apps/examples/nsh and posix_spawn:  Must not call exec_setsymtab()
+	  directly.  That is a non-POSIX internal OS interface.  From Gregory Nutt
+	  (2018-03-16).
+	* apps/system/lzf:  Move the LZF tool from apps/examples/ to apps/system.
+	  From Gregory Nutt (2018-03-16).
+	* apps/system/lzf:  Don't build the LZF tool if the LZF library is not
+	  enabled.  From Gregory Nutt (2018-03-16).
+	* apps/system/lzf: Refactor so that the user is no longer required to
+	  generate the LZF header  From Boris Astardzhiev (2018-03-16).
+	* apps/system/lzf:  (1) The maximum block size is now configuration setting
+	  in order to give finer control over memory usage.  (2) The
+	  compression/decompression buffers have been moved out the stack and are
+	  now global variables.  This eliminates the need to set large stack sizes
+	  to use this utility.  (3) Added semaphore protection of all global
+	  variables for the case of the FLAT or PROTECTED builds.  Unlike the
+	  KERNEL build, the same global variables will be used by each instance of
+	  the LZF utility.  If you want thread safety, then you must either (a)
+	  serialize all access to the global variables, or (b) pack the global
+	  variables into a structure and allocate that structure on each execution
+	  of lzf_main().  From Gregory Nutt (2018-03-17).
+	* apps/examples/cromfs:  Add an example of how to build a CROMFS file
+	  system image.  From Gregory Nutt (2018-03-20).
+	* Remove canutils/libuavcan and examples/uavcan.  libuavcan has not built
+	  for a year or so.  The basic problem is that as NuttX advances, the old
+	  frozen version of libuavcan has become absolute because it violates the
+	  portable POSIX OS interface.  No one is maintaining the port so there is
+	  no alternative but to remove it.  From Gregory Nutt (2018-03-23).
+	* apps/examples/elf:  Extend the ELF program module demo so that you can
+	  use compressed ELF programs with CROMFS.  From Gregory Nutt (2018-03-24).
+	* apps/examples/elf:  Use strip command to make ELF binaries MUCH smaller.
+	  Add an option to strip debug symbols even if the debug symbols are
+	  enabled in the base code.  From Gregory Nutt (2018-03-25).
+	* apps/wireless/bluetooth/btsak:  Add a Bluetooth debugt tool.  From
+	  Gregory Nutt (2018-04-02).
+	* apps/netutils/netlib:  Various fixes needed to get a clean netlib build
+	  with Bluetooth only.  From Gregory Nutt (2018-04-03).
+	* apps/examples/cc3000:  Remove the CC3000 example.  From Alan Carvalho de
+	  Assis (2018-04-04).
+	* apps/examples/smps:  Fix typos in Kconfig.  All power, voltage, current
+	  values were strings with no default.  I assume they should be 'int' with
+	  what default?  From Gregory Nutt (2018-04-04).
+	* examples/powerled:  Add arch initialization; examples/smps: fixes in some
+	  printf and in Kconfig  From Mateusz Szafoni (2018-04-07).
+	* apps/examples/adxl372_test and lxm330spi_test:  Add ADXL372 and LSM330
+	  tests.  From Bob Feretich (2018-04-09).
+	* apps/examples/max31855: Add an example to read multiple max31855 sensors
+	  From Tiago Almeida (2018-04-09).
+	* apps/examples/ostest:  Do not call AIO test without
+	  CONFIG_EXAMPLES_OSTEST_AIO  From Juha Niskanen (2018-04-11).
+	* apps/examples/nxdemo:  Add nxdemo application  From Alan Carvalho de
+	  Assis (2018-04-28).
+	* apps/system/embedlog:  Support for embedlog data loggin package from
+	  https://embedlog.kurwinet.pl/  From Michal Lyszczek (2018-05-06).
+	* nshlib/nsh_fscmds.c:  Add the mkfatfs -r option which can be used to
+	  specify the number of entries in the FAT12/FAT16 root directory.  From
+	  Boris Astardzhiev (2018-05-11).
+	* apps/system/zmodem:  Add an option to enable hardware flow control via
+	  termios.  Fix Makefile.host.  It was broken when zmodem.h was moved to
+	  apps/include/system.  Fix an incompatibility with the way that CRCs are
+	  calculated.  Allow stack size and priority to be configured.  From
+	  Gregory Nutt (2018-05-27).
+	* apps/system/zmodem:  Call tcflush() before closing the serial port.  This
+	  is necessary because that close operation may hang if hardware flow
+	  control is enabled.  Consider this scenario:  After the host sz runs on
+	  the host, it exits and leaves CTS high.  The target rz completes, and
+	  tries to close the serial port.  But if there is buffered Tx data, then
+	  the close will hang when it tries to drain the buffered Tx data since
+	  there is no where it can go.  tcflush() discards the buffered data and
+	  permits the close to continue.  There is additional logic in
+	  nuttx/drivers/serial needed to work with this.  From Gregory Nutt
+	  (2018-05-27).
+	* apps/, Various Makefiles:  Fix mixed references to nuttx/lib.  These need
+	  to be changed to nuttx/staging.  From Gregory Nutt (2018-05-30).
+	* Various fixes necessary to build the simulator under MSYS1.  From Gregory
+	  Nutt (2018-05-31).
+	* apps/Makefile and platform/Makefile:  At clean_context targets that are
+	  now invoked from the main nuttx/Makefile.  From Gregory Nutt (2018-05-31).
+
+7.26 2018-09-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/netutils/ftpc:  Fix handling of url-encoded strings  From
+	  Dmitriy Linikov (2018-06-04).
+	* apps/examples/i2sloop:  Add i2sloop application.  This application
+	  can be used to test I2S loopback like:  nsh> i2sloop &
+	  From Masayuki Ishikawa (2018-06-06).
+	* nsh_parse.c: fix 'while' and 'until' loop condition
+	  The loop condition logic was inverted:  while true; do echo "test";
+	  done
+	  would exit immediately, while using 'until' would stay in the loop.
+	  This is the opposite of how it is supposed to work.
+	  The reason is that 'state' was set wrong because 'whilematch' is a
+	  bool.  From Beat Küng (2018-06-06).
+	* examples: Adds example to test framebuffer overlay  From Marco Krahl
+	  (2018-06-06).
+	* apps/examples/ostest:  Signal handling tests should use the same
+	  configurable stack size as used in other tests, not
+	  PTHREAD_STACK_DEFAULT.  From Gregory Nutt (2018-06-07).
+	* apps/system/taskset:  Add taskset command for SMP systems.  This
+	  command can be used to retrieve or set a process's CPU affinity.
+	  For example,
+
+	    nsh> taskset -p 4
+	    pid 4's current affinity mask: 2
+
+	    nsh> taskset -p 3 4
+	    pid 4's current affinity mask: 3
+
+	    nsh> taskset -p 1 busyloop &
+
+	  From Masayuki Ishikawa (2018-06-08).
+	* apps/gpsutils/minmea:  Include wchar.h in minmea.c file to fix wint_t
+	  error  From Alan Carvalho de Assis (2018-06-09).
+	* apps/examples/gps:  Add GPS example using MINMEA lib  From Alan
+	  Carvalho de Assis (2018-06-09).
+	* apps/Make.defs:  Fix an error introduced with recent chagne.
+	  MKKCONFIG may not be defined resulting in failure to create
+	  apps/Kconfig.  From Gregory Nutt (2018-06-11).
+	* examples/powerled: add arch initialization; examples/smps: fixes in
+	  some printf and in Kconfig
+	  testing: add Unity - unit testing library from ThrowTheSwitch.org
+	  From Mateusz Szafoni (2018-06-15).
+	* apps/wireless/wapi:  Remove dependency on CONFIG_EXPERIMENTAL from
+	  Kconfig  From Gregory Nutt (2018-06-17).
+	* Remove apps/interpreters/micropthon.  There are several reasons for
+	  this.  (1) the current version 1.3.8 is very old and no one is
+	  supporting it.  (2) the port only includes the core micropython logic
+	  and none of the Python libraries.  As such it is useless in any real
+	  application.  (3) There have recently been compile failures
+	  reported.  It looks like this is due to changes in newlib based
+	  toolchains that now bring in incompatible newlib header files.  See
+	  issue 104 at
+	  https://bitbucket.org/nuttx/nuttx/issues/104/build-micropython-138-error.
+	  With no one dedicated to the support of micropython, it can no longer
+	  be carried in the NuttX apps/ repository.  From Gregory Nutt
+	  (2018-06-18).
+	* apps/nshlib/README.txt:  Clarify arguments to the mkrd command. From
+	  Gregory Nutt (2018-06-22).
+	* testing/unity: add configuration options for exclude setjmp and
+	  output color  From Mateusz Szafoni (2018-06-23).
+	* apps/netutils/dhcpc:  Activates BINDTODEVICE if available, and break
+	  up some long lines  From Gregory Nutt (2018-06-25).
+	* apps/examples/tcpblaster:  Add TCP performance measurement test.
+	  From Gregory Nutt (2018-07-05).
+	* apps/examples/dsptest:  Add unit test for Nuttx DSP library  From
+	  Mateusz Szafoni (2018-07-07).
+	* apps/examples/helloxx: Add main() for CONFIG_BUILD_KERNEL  From
+	  Masayuki Ishikawa (2018-07-13).
+	* apps/examples/nsh:  Add logic to automatically register an
+	  application symbol table as part of NSH initialization.  From
+	  Masayuki Ishikawa (2018-07-13).
+	* There many occurrences of the global variable g_exports and the
+	  opportunity for collisions.  Make the global variable names unique.
+	  From Gregory Nutt (2018-07-14).
+	* apps/examples/nsh:  The symbol table name and size variable names can
+	  now be configured.  From Gregory Nutt (2018-07-14).
+	* import/:  Add Makefile.symtab which can be used to compile the
+	  dynamically created symbol table C file.  Add tools/mksymtab.sh.
+	  From Gregory Nutt (2018-07-15).
+	* apps/tools: Add +x to mksymtab.sh.
+	  apps/examples/nsh: Fix compile errors with
+	  CONFIG_EXAMPLES_NSH_SYMTAB=y  From Masayuki Ishikawa (2018-07-17).
+	* apps Makesystem:  Fix an error when building apps/ without nuttx/,
+	  using only the NuttX export package and assuming that the nuttx/
+	  directory in not even present.  In this case, the problem fixed where
+	  the apps/Make.defs file was selecting tools from the /tools directory
+	  which does not exist because TOPDIR=apps/import.  Instead, for this
+	  build case, I have not thought of any option but to duplicate scripts
+	  as necessary in the apps/tools directory.  Also added a top-level
+	  target to compile the symbol table.  Misc fixes: quoting in scripts,
+	  some errors in script syntax.  From Gregory Nutt (2018-07-17).
+	* apps/tools: Fix an error in mksymtab.sh  From Masayuki Ishikawa
+	  (2018-07-19).
+	* examples/lvgldemo/ and graphics/littlevgl/:  Update LVGL to version
+	  5.1.1  From Alan Carvalho de Assis (2018-07-19).
+	* fs/fat:  Clean up some name BS_ and MBR_ refer to the same record and
+	  should use the same naming (MBR_).  From Gregory Nutt (2018-07-22).
+	* Add definitions for the FAT boot record (FBR).  From Gregory Nutt
+	  (2018-07-22).
+	* nxplayer: Refactor nxplayer.c.  Apply netlib_parsehttpurl() and
+	  remove unnecessary usleep().  From Masayuki Ishikawa (2018-07-31).
+	* apps/system/i2c:  Adapt to rename I2C_M_RESTART->i2C_M_START.
+	  I2C_M_NOSTOP should be in flags of first message in every write-read
+	  and write-write mesage sequence.  From Gregory Nutt (2018-08-03).
+	* include/netutils/netlib.h:  Eliminate a warning about AF_UNSPEC and
+	  AF_INET not defined.  From Gregory Nutt (2018-08-03).
+	* Introduce a build system for loadable apps for nsh.
+	  apps/Make.defs:  Override COMPILE and COMPILEXX macros to compile
+	  loadable apps.  To make loadable apps, -DLOADABLE_APP is added to the
+	  flags.  Also, introduce ELFLD to link a lodable app.
+	  apps/Application.mk:  Add .build target in case of 'LOADABLE=y' which
+	  is used to link a final loadable application and install the app to
+	  apps/bin.
+	  apps/Makefile: Add SYMTABSRC and SYMTABOBJ variables for loadable
+	  apps which will be generated under the apps directory.  Add
+	  make_symbols target which will be called when all applications are
+	  installed to generate symtab_app.c which is used for nsh to inform
+	  symbol information to the NuttX kernel.  If the application is
+	  specified to 'm', the variable 'LOADABLE' must be defined here. Also
+	  note that other variables (PRIORITY and STACKSIZE) can only be used
+	  for built-in apps.
+	  apps/nshlib/Kconfig: Add 'option modules' to NSH_FILE_APPS so that a
+	  user can change an application configuration to tristate (y/n/m)
+	  apps/examples/hello and helloxx:  Apply changes to support a loadable
+	  app.  Makefile: Change the condition to build. By default, the
+	  application is not selected (i.e. 'n'), so if other states (i.e. y/m)
+	  are selected, the application will be compiled.    Please note that
+	  the variable 'LOADABLE' must be defined in each application Makefile
+	  if you want to make a loadable app.  Change the application state
+	  from bool to tristate in the Kconfig file.  Add LOADABLE_APP
+	  condition to main().  From Gregory Nutt (2018-08-03).
+	* apps/examples/elf:  CROMFS and ROMFS configuration currently only
+	  usable in FLAT build.  Add configuration to use ELF objects on
+	  external media like SD card or USB drive instead.  From Gregory Nutt
+	  (2018-08-04).
+	* apps/examples/elf:  If the test ELF files are on media in removable
+	  media such as SD or USB FLASH, the wait until the media has been
+	  installed and initialized before starting the test.  From Gregory
+	  Nutt (2018-08-04).
+	* apps/examples/module:  Add support for CROMFS and for stripping
+	  symbols from ELF module binaries.  From Gregory Nutt (2018-08-05).
+	* examples/module:  Add support for automounting removable media.  This
+	  involves a wait for the block driver to become available before
+	  performing the mount.  From Gregory Nutt (2018-08-05).
+	* apps/system/cle:  Usage improvements including command line history
+	  (taken from readline) and support for addition control characters.
+	  From mst (2018-08-05).
+	* apps/nshlib:  Add parsing support for back-slash quoted characters.
+	  Currently only implemented properly if CONFIG_NSH_ARGCAT is also
+	  selected.  This commit is in response to Bitbucket Issue 11 opened by
+	  Maciej Wójcik  From Gregory Nutt (2018-08-06).
+	* apps/examples/module:  When built in the PROTECTED or KERNEL modes,
+	  the symbol table is not built by the application.  That is because
+	  the build will fail since the kernel module depends on internal OS
+	  symbols thar are not available to the application build.  With this
+	  change the examples does not attempt to build the kernel symbol table
+	  in these modes.  Instead it just copies the kernel module symbol
+	  table into the nuttx/pass1 directory where it can be build directly
+	  into the OS during pass2 of the build.  From Gregory Nutt (2018-08-07).
+	* nsh: add inverted logic support in the form of 'if ! <cmd>'  From
+	  Beat Küng (2018-08-11).
+	* apps/nshlib:  I was able to cause an assertion with some typos in
+	  testing the 'fi' command.  Not an important thing, but this will
+	  protect against the assertion.  From Gregory Nutt (2018-08-11).
+	* examples/calib_udelay:  Add tool for calibrating
+	  CONFIG_BOARD_LOOPSPERMSEC  From Juha Niskanen (2018-08-14).
+	* apps/builtin/Makefile.  This commit changes apps/builtin to search
+	  the registry recursively. By supporting directories, external
+	  projects can install the hooks into the registry and easily clean
+	  them up and reinstall if something needs to be updated.  Based on an
+	  idea from Anthony Merlino.  From Gregory Nutt (2018-08-15).
+	* apps/system/popen:  Add an implementation of the standard popen() and
+	  pclose() OS interfaces.  These are implemented as applications vs.
+	  part of the OS because they depend on NSH.  Untested on initial
+	  commit.  From Gregory Nutt (2018-08-17).
+	* apps/examples/popen:  Add a test of popen/pclose.
+	  apps/system/popen:  Fix some errors found using the new popen/pclose
+	  test.  From Gregory Nutt (2018-08-17).
+	* apps/Application.mk:  If a loadable module is generated the we need
+	  to add logic to remove the loadable module in the 'make clean'
+	  logic.  From Gregory Nutt (2018-08-17).
+	* apps/system/system and popen:  Adapt so that these can be used in the
+	  KERNEL build mode.  In this case, simply replace task_spawn() with
+	  posix_spawn().  This depends on the existence of some environment
+	  where /bin/sh exists and can be used to execute one NSH command.  For
+	  the case of system(), this change was more complete because it
+	  previously used task_create().  Now it uses either task_spawn() or
+	  posix_spawn(), depending upon the configuration.  From Gregory Nutt
+	  (2018-08-18).
+	* apps/system/nsh:  Move apps/examples/nsh to apps/system/nsh.  It has
+	  become so entrenched that it is hardly an example these days.  May as
+	  well formalized it as a system task.  From Gregory Nutt (2018-08-18).
+	* i8sak: i8sak daemon now gets shutdown if not in use. Previously, once
+	  the i8sak daemon was started, by running any command, it would stay
+	  running. This means that if you want to use i8sak to setup your
+	  network, but then want exclusive access to the char device, or
+	  network device, you have to manually shutdown the i8sak daemon. Now
+	  the daemon stays active as long as required to finish any commands,
+	  or stays open if a new command keeps it on, but when all work is
+	  finished, it shuts down.  From Anthony Merlino (2018-08-19).
+	* Remove illegal calls into OS to initialize BINFMT support.  This must
+	  be moved to the board initialization logic within the OS.  From
+	  anchao (2018-08-22).
+	* Move a copy of define.bat and sh from nuttx/tools to apps/tools so
+	  that they will be available for the import build.  From Gregory Nutt
+	  (2018-08-22).
+	* apps/nshlib:  Expand reboot and poweroff commands to include a
+	  second, optional mode argument  From ligd (2018-08-22).
+	* apps/system/zmodem:
+	  fix error "sz_main.o: No such file or directory"
+	  support -p <path> for rz to change the folder for the received file
+	  switch debug output from printf to syslog
+	  send the next packet for ZME_ACK in ZMS_SENDING to avoid rz on the
+	  host side stuck
+	  make send work reliable even without hardware flow control  From
+	  Xiang Xiao (2018-08-23).
+	* apps/system/system/system.c:  Add 'const' to make function signature
+	  compatible with OpenGroup.org  From Xiang Xiao (2018-08-23).
+	* apps/system/ping and ping6:  Send ID and seqno in network byte
+	  order.  From Xiang Xiao (2018-08-23).
+	* apps/system/ping and ping6:  Change dependency in ping and ping6
+	  Kconfig.  These may be implemented in users sockets and, hence, may
+	  need to be avaiable even if ICMP and ICMPv6 sockets are not support.
+	  From Xiang Xiao (2018-08-23).
+	* apps/system/cu/cu_main.c: (1) Protect from possible re-definition of
+	  signal values, (2) Fix CU ctrl-C hand when remote core hang.  From
+	  ligd (2018-08-23).
+	* apps/fsutils/mksmartfs:  Add a check to see if the SmartFS is already
+	  formatted.  apps/nshlib:  Add a force flag (-f) to mksmartfs.  SmartFS
+	  will be formatted only if (1) the FLASH does not already hold
+	  a SmartFS, or (2) the force flag is set  From Xiang Xiao (2018-08-23).
+	* apps/nshlib: (1) NSH prompt string is now configurable. nsh> is still
+	  the default.  (2) Increase the default configuration for the maximum
+	  number of command line arguments to 7 (CONFIG_NSH_MAXARGUMENTS).
+	  This is needed for 'mount' with the -o option.  From Xiang Xiao
+	  (2018-08-23).
+	* apps/examples/module/Makefile:  Correct module example build.  Change
+	  to LDLIBs were causing a failure due to a non-existent (any
+	  unnecessary) library in this case.  From Gregory Nutt (2018-08-23).
+	* apps/, most main() function: Correct CONFIG_BUILD_LOADABLE usage
+	  Loadable apps/: Correct loadable symbol table generate
+	  apps/system/ubloxmodem:  Fix build break
+	  apps/examples/ostest: start restart/waitpid/user test from main loop
+	  apps/nshlib:  Expand reboot and poweroff commands to include a
+	  second, optional mode argument
+	  An attempt to fix build issues.  Does not work.
+	  apps/examples/ostest:  Fix some inappropriate renaming of static
+	  functions introduced with recent patches.
+	  apps/builtin/exec_builtin.c:  Fix a error introduced by recent
+	  comments.  Found in build testing.
+	  apps/builtin/exec_builtin.c:  Try posix_spawn if builtin apps do not
+	  have have an entry point.
+	  apps/Application.mk: introduce MODULE config to simplify tristate(m)
+	  apps/nsh:  Change the nuttx shell module type to tristate
+	  apps:  Add loadable application support
+	  script/mksymtab:  Generate symbol table name by default
+	  apps/builtin:  Allow loadable applications can register with
+	  apps/builtin.  From anchao (2018-08-23).
+	* Replace all ASSERT calls to DEBUGASSERT  From Xiang Xiao (2018-08-24).
+	* apps/examples/sotest and modules:  With recent changes, LDLIBS is
+	  initialized to bad value, at least in certain contexts.  From Gregory
+	  Nutt (2018-08-24).
+	* apps/nshlib:  Add control-C support for terminating built-in and
+	  exec'ed file tasks.  From ligd (2018-08-26).
+	* apps/nshlib/Kconfig:  Move 'option modules' from NSH_FILE_APPS to
+	  BUILD_LOADABLE  From anchao (2018-08-27).
+	* apps/system/nxplayer:  Release buffer before session and release
+	  semaphore in nxplayer_setvolume
+	  system/nxplayer/nxplayer.c:  Remove & for apb->samp reference. It is
+	  already a pointer.  From Xiang Xiao (2018-08-27).
+	* system/nxplayer/nxplayer.c:  Add playraw command  From ZhongAn
+	  (2018-08-27).
+	* apps/system/nxrecorder:  Add nxrecorder application  From ZhongAn
+	  (2018-08-27).
+	* nettest: fix typo: NET_LOOPBACK -> CONFIG_NET_LOOPBACK
+	  nettest: fix compilation error. Should enable NET_SETSOCKOPT for
+	  preventing compilation error.  From EunBong Song (2018-08-28).
+	* apps/system/cu:  SIGKILL is more appropriate that SIGINT in this
+	  circustance.  From Gregory Nutt (2018-08-28).
+	* apps/: Call BOARDIOC_FINALINIT after start-up script (or immediately
+	  after BOARIOC_INIT is there is no start-up script).  From ligd
+	  (2018-08-28).
+	* apps/system/cu:  Fix undefined SIGKILL if CONFIG_SIG_DEFUALT is not
+	  defined.  From Gregory Nutt (2018-08-29).
+	* apps/nshlib/nsh_console.c: Do not dereference NULL 'pstate'  From
+	  Juha Niskanen (2018-08-29).
+	* apps/system/i2c: Allow registers besides 0x00 in the dev command.
+	  From akob Haufe (2018-08-30).
+	* system/i2c/i2c_main.c:  Fix a backward comparison.  Noted by Jakob
+	  Haufe.  From Gregory Nutt (2018-08-30).
+	* apps/ostest/suspend.c:  Add a small test for SIGSTOP, SIGCONT, and
+	  SIGKILL actions.  From Gregory Nutt (2018-08-30).
+	* examples/ostest/signest.c:  Attempt to make the nested signal test
+	  compatible with the suspend/resume test.  Some signals cannot be
+	  caught when the suspend/resume configuration is in place.  From
+	  Gregory Nutt (2018-08-30).
+	* apps/ examples/dhtxx: Example for the DHTxx sensor.  From Ouss4
+	  (2018-09-01).
+	* apps/nshlib:  When using waitpid() to wait for a built-in application
+	  or a file application to exit.  Add the WUNTRACED options to so the
+	  the waitpid() call will also be awakened if the waited-for task is
+	  stopped as well.  From Gregory Nutt (2018-09-02).
+	* apps/: Modification to build system: Unified application compilation
+	  rules  From anchao (2018-09-03).
+	* apps/:  Resolve some make dependency failures.  From anchao
+	  (2018-09-03).
+	* apps/platform/Makefile:  Fix missing dependency path in Makefile.
+	  From Gregory Nutt (2018-09-03).
+	* apps/:  Fix build break in case sama5d4-ek/elf configuration.  Also
+	  fix a patch problem in mkromfsimg.h.  From anchao (2018-09-04).
+	* Application.mk:  Even on Cygwin, GNU make insists that targets use
+	  Unix style paths.  System/progmem:  Rename the install application to
+	  progmem.  This generates a target install: which collides with the
+	  install:: target in Application.mk.  From Gregory Nutt (2018-09-04).
+	* Makefile:  platform/Makefile must have BIN_DIR defined on command
+	  line even though it is not used.  This is because in the Cygwin
+	  build, the value of 'BIN_DIR' is passed to 'cygpath'.  'cygpath will
+	  fail if BIN_DIR is not defined.  From Gregory Nutt (2018-09-04).
+	* Makefile:  Fix more places where attempts to use Unix-style paths
+	  with native Windows toolchain.  tools/mksymtab.sh:  Add a check just
+	  to prevent 'cat' of an empty file list from failing.  Right not the
+	  root problem is that the are not executables being built or installed
+	  in the exe/ directory.  That needs to be done by 'make import' but is
+	  not happening.  From Gregory Nutt (2018-09-04).
+	* Makefile:  In the make import target for kernel build, we must make
+	  all objects and populate libapps.a.  Application.mk:  the PROGIST
+	  must be executed unconditionally to support the kernel build.  From
+	  Gregory Nutt (2018-09-04).
+	* Application.mk:  Fix some issues when building directories such as
+	  fsutils/mkfatfs that have no mainobj.  In this case, the MAINSRC is
+	  undefined and it would generate a bad linker command line.  From
+	  Gregory Nutt (2018-09-04).
+	* Application.mk:  Add module install logic.  Possibly only needed in
+	  KERNEL build mode? Makefile:  Simplify import target for KERNEL
+	  build.  A symbol table is not needed because the KERNEL-mode programs
+	  are completely linked.  Also fix missing deletion in clean and
+	  distclean targets.  tools/mksymtab.sh:  Fix a typo introduced in
+	  previous commit.  From Gregory Nutt (2018-09-04).
+	* Makefile: 'make distclean' should remove the exe subdirectory  That
+	  target must return the directory back to the state is was in when
+	  freshly cloned.  Application.mk:  Add logic to strip unnecessary
+	  symbols after installing a module.  But then I commented it out.
+	  Wouldn't we want to keep the symbols if we planned to debug the
+	  module?  In apps/examples/elf, there is configuration option to
+	  determine if the symbols should be stripped or not.  Perhaps that is
+	  needed here too?  From Gregory Nutt (2018-09-04).
+	* Application.mk: Generate temporary name for linker object  From
+	  anchao (2018-09-05).
+	* netutils/ping: remove unsupported ping.  netutils/ping is not
+	  supported anymore.  It's better to remove this folder for preventing
+	  confusing.  ping is supported by system/ping.  From EunBong Song (2018-09-05).
+	* Application.mk: Fix to not register a builtin app when BUILD_MODULE=y
+	  apps/tools: Fix to generate CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME in
+	  mksymtab.sh.  From Masayuki Ishikawa (2018-09-07)
+
+7.27 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>

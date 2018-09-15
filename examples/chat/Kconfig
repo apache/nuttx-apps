@@ -1,0 +1,59 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_CHAT
+	tristate "AT modem chat utility"
+	default n
+	select NETUTILS_CHAT
+	---help---
+		Enable the AT chat utility.
+
+if EXAMPLES_CHAT
+
+config EXAMPLES_CHAT_TTY_DEVNODE
+	string "default modem chat TTY device node"
+	default "/dev/ttyS1"
+	---help---
+		TTY device node used by modem chat.
+
+config EXAMPLES_CHAT_TIMEOUT_SECONDS
+	int "default modem timeout (sec)"
+	default 20
+	---help---
+		The default timeout in seconds for the expected string to be
+		received.
+
+config EXAMPLES_CHAT_SIZE
+	int "maximum chat script file size"
+	default 1024
+	---help---
+		Maximum size of a chat script file, in bytes. Used for run-time
+		buffer allocation when reading from file.
+
+config EXAMPLES_CHAT_PRESET0
+	string "preset script 0"
+	default ""
+	---help---
+		Preset chat script number 0.
+
+config EXAMPLES_CHAT_PRESET1
+	string "preset script 1"
+	default ""
+	---help---
+		Preset chat script number 1.
+
+config EXAMPLES_CHAT_PRESET2
+	string "preset script 2"
+	default ""
+	---help---
+		Preset chat script number 2.
+
+config EXAMPLES_CHAT_PRESET3
+	string "preset script 3"
+	default ""
+	---help---
+		Preset chat script number 3.
+
+endif # EXAMPLES_CHAT

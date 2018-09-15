@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PASHELLO
+	tristate "Pascal \"Hello, World!\" example"
+	default n
+	depends on INTERPRETERS_PCODE
+	select INTERPRETERS_PRUN
+	---help---
+		Enable the Pascal \"Hello, World!\" example
+
+if EXAMPLES_PASHELLO
+
+config EXAMPLES_PASHELLO_VARSTACKSIZE
+	int "P-Code variable stack size"
+	default 1024
+	---help---
+		This size of the P-Code variable storage area to be allocated by the
+		P-Code runtime.
+
+config EXAMPLES_PASHELLO_STRSTACKSIZE
+	int "P-Code string stack size"
+	default 128
+	---help---
+		This size of the P-Code string stack area to be allocated by the
+		P-Code runtime.
+
+endif

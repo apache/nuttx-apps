@@ -1,0 +1,4 @@
+ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
+CONFIGURED_APPS += interpreters/pcode
+endif
+

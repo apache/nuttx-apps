@@ -1,0 +1,186 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BRIDGE
+	tristate "UDP bridge example"
+	default n
+	depends on NET_UDP && !NET_IPv6
+	---help---
+		Simple test of a system with multiple networks.  It simply echoes all
+		UDP packets received on network 1 and network 2 to network 2 and
+		network 1, respectively.  Interface 1 and interface may or may not
+		lie on the same network.
+
+		If used as a NSH add-on, then it is assumed that initialization of
+		both networks was performed externally prior to the time that this
+		test was started.
+
+if EXAMPLES_BRIDGE
+
+comment "Network 1 configuration"
+
+config EXAMPLES_BRIDGE_NET1_IFNAME
+	string "Device name"
+	default "eth0"
+	---help---
+		The register name of the network 1 device.  Must match the previously
+		registered driver name and must not be the same as
+		EXAMPLES_BRIDGE_NET2_IFNAME
+
+config EXAMPLES_BRIDGE_NET1_RECVPORT
+	int "UDP receive port"
+	default 5471
+	---help---
+		Network 1 listen port number
+
+config EXAMPLES_BRIDGE_NET1_IOBUFIZE
+	int "UDP I/O buffer size"
+	default 1024
+	---help---
+		Size of the UDP send/receive I/O buffer
+
+if !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET1_DHCPC
+	bool "DHCP Client"
+	default n
+	select NETUTILS_DHCPC
+	select NETDB_DNSCLIENT
+
+config EXAMPLES_BRIDGE_NET1_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	---help---
+		Select if the hardware has no built-in MAC address.
+
+config EXAMPLES_BRIDGE_NET1_MACADDR
+	hex "Canned MAC address"
+	default 0x00e0deadbeef
+	depends on EXAMPLES_BRIDGE_NET1_NOMAC
+	---help---
+		If the hardware has no built-in MAC address then the fixed,
+		software-assigned MAC address MAC address must provided
+		with this selection.
+
+config EXAMPLES_BRIDGE_NET1_IPADDR
+	hex "IP address"
+	default 0x0a000002
+	depends on !EXAMPLES_BRIDGE_NET1_DHCPC
+	---help---
+		IP address of network 1 for the target
+
+config EXAMPLES_BRIDGE_NET1_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_BRIDGE_NET1_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif # !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET1_IPHOST
+	hex "Host IP address"
+	default 0x0a000001
+	---help---
+		IP address of network 1 for the host
+
+config EXAMPLES_BRIDGE_NET1_HOSTPORT
+	int "Host listen port"
+	default 5472
+	---help---
+		Port number used by the host on network 1
+
+config EXAMPLES_BRIDGE_NET1_STACKSIZE
+	int "Network 1 daemon stacksize"
+	default 2048
+
+config EXAMPLES_BRIDGE_NET1_PRIORITY
+	int "Network 1 daemon task priority"
+	default 100
+
+comment "Network 2 configuration"
+
+config EXAMPLES_BRIDGE_NET2_IFNAME
+	string "Device name"
+	default "eth1"
+	---help---
+		The register name of the network 2 device.  Must match the previously
+		registered driver name and must not be the same as
+		EXAMPLES_BRIDGE_NET2_IFNAME
+
+config EXAMPLES_BRIDGE_NET2_RECVPORT
+	int "UDP receive port"
+	default 5473
+	---help---
+		Network 1 listen port number
+
+config EXAMPLES_BRIDGE_NET2_IOBUFIZE
+	int "UDP I/O buffer size"
+	default 1024
+	---help---
+		Size of the UDP send/receive I/O buffer
+
+if !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET2_DHCPC
+	bool "DHCP Client"
+	default n
+	select NETUTILS_DHCPC
+	select NETDB_DNSCLIENT
+
+config EXAMPLES_BRIDGE_NET2_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	---help---
+		Select if the hardware has no built-in MAC address.
+
+config EXAMPLES_BRIDGE_NET2_MACADDR
+	hex "Canned MAC address"
+	default 0x00e0f00dface
+	depends on EXAMPLES_BRIDGE_NET2_NOMAC
+	---help---
+		If the hardware has no built-in MAC address then the fixed,
+		software-assigned MAC address MAC address must provided
+		with this selection.
+
+config EXAMPLES_BRIDGE_NET2_IPADDR
+	hex "IP address"
+	default 0x0a000003
+	depends on !EXAMPLES_BRIDGE_NET2_DHCPC
+	---help---
+		IP address of network 2 for the target
+
+config EXAMPLES_BRIDGE_NET2_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_BRIDGE_NET2_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif # !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET2_IPHOST
+	hex "Host IP address"
+	default 0x0a000001
+	---help---
+		IP address of network 2 for the host
+
+config EXAMPLES_BRIDGE_NET2_HOSTPORT
+	int "Host listen port"
+	default 5474
+	---help---
+		Port number used by the host on network 2
+
+config EXAMPLES_BRIDGE_NET2_STACKSIZE
+	int "Network 2 daemon stacksize"
+	default 2048
+
+config EXAMPLES_BRIDGE_NET2_PRIORITY
+	int "Network 2 daemon task priority"
+	default 100
+
+endif # EXAMPLES_BRIDGE

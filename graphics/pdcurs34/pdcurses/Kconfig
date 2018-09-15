@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config PDCURSES_WIDE
+	bool "Wide character support"
+	default n
+	depends on EXPERIMENTAL
+
+config PDCURSES_FORCE_UTF8
+	bool "Force UTF8 character set"
+	default n
+	depends on PDCURSES_WIDE
+
+config PDCURSES_CHTYPE_LONG
+	bool "32-bit chtype"
+	default n
+
+config PDCURSES_DEBUG
+	bool "Enable pdcurses debug ouput"
+	default n
+
+config PDCURSES_PANEL_DEBUG
+	bool "Enable special debug output for panels"
+	default n

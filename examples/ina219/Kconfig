@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_INA219
+	tristate "INA219 example"
+	default n
+	---help---
+		Enable the INA219 example
+
+if EXAMPLES_INA219
+
+config EXAMPLES_INA219_PROGNAME
+	string "Program name"
+	default "ina219"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_INA219_PRIORITY
+	int "INA219 task priority"
+	default 100
+
+config EXAMPLES_INA219_STACKSIZE
+	int "INA219 stack size"
+	default 2048
+
+endif

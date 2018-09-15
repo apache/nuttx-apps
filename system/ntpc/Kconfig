@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NTPC
+	tristate "NTP Daemon Commands"
+	default n
+	select NETUTILS_NTPCLIENT
+	depends on NET_UDP
+	---help---
+		Enble the NTP client 'start' and 'stop' commands
+
+
+if SYSTEM_NTPC
+
+config SYSTEM_NTPC_PRIORITY
+	int "NTPC task priority"
+	default 100
+
+config SYSTEM_NTPC_STACKSIZE
+	int "NTPC stack size"
+	default 2048
+
+endif

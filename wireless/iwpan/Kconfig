@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig WIRELESS_IWPAN
+	tristate "IEEE 802.15.4 Command Line Tool"
+	default n
+	depends on NET && DRIVERS_WIRELESS
+	select IEEE802154_LIBMAC
+	select IEEE802154_LIBUTILS
+	---help---
+		IWPAN is a tool similar to wapi and inspired by iwpan on Linux that can
+		be used to manage 802.15.4 PAN.
+
+if WIRELESS_IWPAN
+
+config WIRELESS_IWPAN_PROGNAME
+	string "Program Name"
+	default "iwpan"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config WIRELESS_IWPAN_STACKSIZE
+	int "Stack Size (bytes)"
+	default 2048
+
+config WIRELESS_IWPAN_PRIORITY
+	int "Command Priority"
+	default 100
+
+endif

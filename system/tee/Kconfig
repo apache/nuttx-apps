@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_TEE
+	tristate "Tee Command"
+	default n
+	---help---
+		Enable support for the tee command.
+
+if SYSTEM_TEE
+
+config SYSTEM_TEE_STACKSIZE
+	int "tee stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the tee task.
+
+config SYSTEM_TEE_PRIORITY
+	int "tee priority"
+	default 100
+	---help---
+		The priority of the tee task.
+
+endif

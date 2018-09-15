@@ -1,3 +1,5 @@
+.depend
+Make.dep
 *.o
 *.a
 *.d
@@ -8,3 +10,15 @@
 core
 .gdbinit
 cscope.out
+/Kconfig
+/bin
+/exe
+/external
+/.context
+/.config
+/.depend
+/*.lib
+/romfs.img
+/boot_romfsimg.h
+/*/*/.built
+

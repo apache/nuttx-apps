@@ -1,0 +1,14 @@
+/Make.dep
+/Makefile
+/.depend
+/.built
+/tcledit
+/tcledit.exe
+/*.asm
+/*.rel
+/*.lst
+/*.sym
+/*.adb
+/*.lib
+/*.src
+/*.obj

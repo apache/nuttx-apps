@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_FICL
+	bool "Ficl Forth interpreter"
+	default n
+	---help---
+		Enable support for the Ficl interpreter interpreter.  See README.txt file in the
+		apps/interpreters/ficl directory.  Use of this configuration assumes
+		that you have performed the required installation of the Ficl run-time code.
+
+if INTERPRETERS_FICL
+endif
+

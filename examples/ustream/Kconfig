@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_USTREAM
+	tristate "Unix domain stream example"
+	default n
+	depends on NET_LOCAL
+	---help---
+		Enable the Unix domain SOCK_STREAM test example
+
+if EXAMPLES_USTREAM
+
+config EXAMPLES_USTREAM_ADDR
+	string "Unix domain address"
+	default "/dev/fifo"
+
+config EXAMPLES_USTREAM_USE_POLL
+	bool "Use poll for checking socket readiness"
+	default n
+
+endif # EXAMPLES_USTREAM

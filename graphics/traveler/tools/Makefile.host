@@ -1,0 +1,131 @@
+############################################################################
+# apps/graphics/traveler/tools/Makefile.host
+#
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+-include $(TOPDIR)/Make.defs
+include ${TOPDIR}/tools/Config.mk
+
+# Directories
+
+TRAVELER_DIR = $(APPDIR)/graphics/traveler
+TRAVELER_INC = $(TRAVELER_DIR)/include
+
+VPATH = misc
+
+# Tools
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+
+# In the Windows native environment, the MinGW GCC compiler is assumed
+
+HOSTCC ?= mingw-gcc.exe
+HOSTCFLAGS ?= -O2 -Wall -Wstrict-prototypes -Wshadow
+HOSTCFLAGS += -I. ${shell $(INCDIR) -w "$(HOSTCC)" $(TRAVELER_INC)} -D__HOST_BUILD__  -DWINDOWS_NATIVE=y
+
+else
+
+# GCC is assumed in the POSIX environment.
+# strtok_r is used in some tools, but does not seem to be available in
+# the MinGW environment.
+
+HOSTCC ?= gcc
+HOSTCFLAGS ?= -O2 -Wall -Wstrict-prototypes -Wshadow
+HOSTCFLAGS += -I. -I $(TRAVELER_INC) -D__HOST_BUILD__ -DHAVE_STRTOK_C
+
+endif
+
+# Files
+
+PLL2TXT_SRCS = pll2txt.c
+PLL2TXT_OBJS = $(PLL2TXT_SRCS:.c=$(OBJEXT))
+
+TXT2PLL_SRCS = txt2pll.c
+TXT2PLL_OBJS = $(TXT2PLL_SRCS:.c=$(OBJEXT))
+
+MKTRIG_SRCS = mktrig.c
+MKTRIG_OBJS = $(MKTRIG_SRCS:.c=$(OBJEXT))
+
+OBJS = $(PLL2TXT_OBJS) $(TXT2PLL_OBJS) $(MKTRIG_OBJS)
+
+# Targets
+
+all: pll2txt$(HOSTEXEEXT) txt2pll$(HOSTEXEEXT) mktrig$(HOSTEXEEXT)
+
+default: all
+
+ifdef HOSTEXEEXT
+.PHONY: pll2txt txt2pll mktrig clean
+else
+.PHONY: clean
+endif
+
+$(OBJS): %$(OBJEXT): %.c
+	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+
+# pll2txt - Convert world plane file to a text file
+
+pll2txt$(HOSTEXEEXT): $(PLL2TXT_OBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+ifdef HOSTEXEEXT
+pll2txt: pll2txt$(HOSTEXEEXT)
+endif
+
+# txt2pll - Convert a text file into a world plane file
+
+txt2pll$(HOSTEXEEXT): $(TXT2PLL_OBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+ifdef HOSTEXEEXT
+txt2pll: txt2pll$(HOSTEXEEXT)
+endif
+
+# mktrig - Regenerate trigonometry look-up tables
+
+mktrig$(HOSTEXEEXT): $(MKTRIG_OBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@ -lm
+
+ifdef HOSTEXEEXT
+mktrig: mktrig$(HOSTEXEEXT)
+endif
+
+clean:
+	$(call DELFILE, pll2txt$(HOSTEXEEXT))
+	$(call DELFILE, txt2pll$(HOSTEXEEXT))
+	$(call DELFILE, mktrig$(HOSTEXEEXT))
+	$(call DELFILE, trigtbl.tmp)
+ifneq ($(CONFIG_WINDOWS_NATIVE),y)
+	$(Q) rm -rf *.dSYM
+endif
+	$(call CLEAN)

@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MAX31855
+	tristate "\"max31855\" example"
+	default n
+	---help---
+		Enable the \"max31855, World!\" example
+
+if EXAMPLES_MAX31855
+
+config EXAMPLES_MAX31855_PROGNAME
+	string "Program name"
+	default "max31855"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MAX31855_PRIORITY
+	int "max31855 task priority"
+	default 100
+
+config EXAMPLES_MAX31855_STACKSIZE
+	int "max31855 stack size"
+	default 2048
+
+endif

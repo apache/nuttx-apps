@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_INSTALL
+	tristate "FLASH Program Installation"
+	default n
+	---help---
+		Enable support for the FLASH installation tool.
+
+if SYSTEM_INSTALL
+endif
+

@@ -1,0 +1,73 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MEDIA
+	tristate "Media test"
+	default n
+	---help---
+		Enable the media test.  This test simply writes values onto the
+		media hidden behind a character driver and verifies that the media
+		can be successfully written and read.  This low level test is
+		useful in the early phases of the bringup of a new block or mtd
+		driver because it avoids the complexity of a file system.
+
+		This test uses a character driver and cannot directly access block
+		or mtd drivers.  This test is suitable for use EEPROM character
+		drivers (see nuttx/drivers/eeprom), or with block drivers wrapped
+		as character drivers (see nuttx/drivers/bch)
+
+			int ret = bchdev_register(<path-to-block-dirver>,
+			                          <path-to-character-driver>, false);
+
+		MTD drivers need an additional wrapper layer, the FTL wrapper must
+		first be used to convert the MTD driver to a block device:
+
+			int ret = ftl_initialize(<N>, mtd);
+			ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
+			                      false);
+
+if EXAMPLES_MEDIA
+
+config EXAMPLES_MEDIA_DEVPATH
+	string "Character driver path"
+	default "/dev/mtd0"
+	---help---
+		This is the full path to the character driver that is used to
+		access the media.  This test is suitable for use EEPROM character
+		drivers (see nuttx/drivers/eeprom), or with block drivers wrapped as
+		character drivers (see nuttx/drivers/bch)
+
+			int ret = bchdev_register(<path-to-block-dirver>,
+			                          <path-to-character-driver>, false);
+
+		MTD drivers need an additional wrapper layer, the FTL wrapper must
+		first be used to convert the MTD driver to a block device:
+
+			int ret = ftl_initialize(<N>, mtd);
+			ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
+			                      false);
+
+		NOTE: This drivr path can be overridden when the application is
+		executed by providing a differ device path on the 'media' command line.
+
+config EXAMPLES_MEDIA_BLOCKSIZE
+	int "Block size"
+	default 512
+	---help---
+		This test will attempt to determine the block size of the underlying
+		block or MTD driver using ioctl calls.  This default value will only
+		be used in the event that the test logic is unable to determine the
+		underlying block size of the media.  This value should match the
+		block/MTD device's (erase) block size.
+
+config EXAMPLES_MEDIA_PROGNAME
+	string "Program name"
+	default "media"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif

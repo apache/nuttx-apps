@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BMP180
+	tristate "BMP180 Barometer sensor example"
+	default n
+	depends on SENSORS_BMP180
+	---help---
+		Enable the BMP180 example
+
+if EXAMPLES_BMP180
+
+config EXAMPLES_BMP180_PROGNAME
+	string "Program name"
+	default "bmp180"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BMP180_PRIORITY
+	int "BMP180 task priority"
+	default 100
+
+config EXAMPLES_BMP180_STACKSIZE
+	int "BMP180 stack size"
+	default 2048
+
+endif

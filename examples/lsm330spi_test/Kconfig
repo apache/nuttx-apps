@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LSM330SPI_TEST
+	tristate "LSM330 SPI test program"
+	default n
+	---help---
+		Enable the LSM330 sensor SPI test program.
+
+if EXAMPLES_LSM330SPI_TEST
+
+config EXAMPLES_LSM330SPI_TEST_PROGNAME
+	string "Program name"
+	default "lsm330spi_test"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_LSM330SPI_TEST_PRIORITY
+	int "lsm330spi_test task priority"
+	default 100
+
+config EXAMPLES_LSM330SPI_TEST_STACKSIZE
+	int "lsm330spi_test stack size"
+	default 2048
+
+endif

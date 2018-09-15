@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_QENCODER
+	tristate "Quadrature encoder example"
+	default n
+	depends on SENSORS_QENCODER
+	---help---
+		Enable the quadrature encoder example
+
+if EXAMPLES_QENCODER
+
+config EXAMPLES_QENCODER_DEVPATH
+	string "QE device path"
+	default "/dev/qe0"
+	---help---
+		The default path to the QE device
+
+config EXAMPLES_QENCODER_NSAMPLES
+	int "Number of samples"
+	default 0
+	depends on !NSH_BUILTIN_APPS
+	---help---
+		If CONFIG_NSH_BUILTIN_APPS is defined, then the number of
+		samples is provided on the command line and this value is ignored.
+		Otherwise, this number of samples is collected and the program
+		terminates. If the value is 0, samples are collected indefinitely.
+
+config EXAMPLES_QENCODER_DELAY
+	int "Delay between samples"
+	default 100
+	---help---
+		This value provides the delay (in milliseconds) between each sample.
+		If CONFIG_NSH_BUILTIN_APPS is defined, then this value is the default
+		delay if no other delay is provided on the command line.
+
+endif

@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config IEEE802154_I8SHARK
+	tristate "IEEE 802.15.4 Wireshark adapter"
+	default n
+	select IEEE802154_LIBUTILS
+	select IEEE802154_LIBMAC
+	depends on IEEE802154_MACDEV && NET_UDP && NET_IPv4
+
+if IEEE802154_I8SHARK
+
+config IEEE802154_I8SHARK_DEVPATH
+	string "MAC char driver path"
+	default "/dev/ieee0"
+	---help---
+		The default path to MAC character driver. Default: /dev/ieee0
+
+config IEEE802154_I8SHARK_HOST_IPADDR
+	hex "Host IP address where Wireshark is running"
+	default 0x0a000001
+
+config IEEE802154_I8SHARK_XBEE_APPHDR
+	bool "XBee App Header compensation"
+	default n
+	---help---
+		XBee radios use an optional "application header" to support duplicate
+		frame detection. Wireshark does not know about this header and it causes
+		packets not to be recognized appropriately (6LoWPAN etc.). This option
+		blindly chops the first 2 bytes of payload from all incoming frames to
+		remove the header. This option can only be used when sniffing XBee-only
+		networks, as any frames not containing the application header will have
+		2 arbitrary bytes removed from it.
+
+endif

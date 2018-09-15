@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXTERM
+	tristate "NxTerm example"
+	default n
+	depends on NX
+	select LIB_BOARDCTL
+	---help---
+		Enable the NxTerm example
+
+if EXAMPLES_NXTERM
+endif

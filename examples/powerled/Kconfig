@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_POWERLED
+	tristate "Powerled example"
+	default n
+	---help---
+		Enable the powerled driver example
+
+if EXAMPLES_POWERLED
+
+config EXAMPLES_POWERLED_DEVPATH
+  string "Powerled device path"
+	default "dev/powerled0"
+	---help---
+		The default path to the Powerled device. Default: /dev/powerled0
+
+config EXAMPLES_POWERLED_CURRENT_LIMIT
+	int "LED current limit (mA)"
+	default 50
+	---help---
+		Current limit for LED driver in mA. This current value is used to achieve maximum LED brightness.
+		Make sure it does not exceed LED maximum forward current!
+
+endif

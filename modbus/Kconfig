@@ -1,0 +1,256 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menu "FreeModBus"
+config MODBUS
+	bool "Modbus support using FreeModbus"
+	default n
+
+if MODBUS
+
+config MB_FUNC_HANDLERS_MAX
+	int "Maximum number of Modbus functions"
+	default 16
+	---help---
+		Maximum number of Modbus functions codes the protocol stack should support.
+
+		The maximum number of supported Modbus functions must be greater than
+		the sum of all enabled functions in this file and custom function
+		handlers. If set to small adding more functions will fail.
+
+config MODBUS_SLAVE
+	bool "Modbus slave support via FreeModBus"
+	default n
+
+if MODBUS_SLAVE
+config MB_ASCII_ENABLED
+	bool "Modbus ASCII support"
+	default y
+
+config MB_RTU_ENABLED
+	bool "Modbus RTU support"
+	default y
+
+config MB_TCP_ENABLED
+	bool "Modbus TCP support"
+	default y
+
+config MB_HAVE_CLOSE
+	bool "Platform close callbacks"
+	default n
+	depends on MB_TCP_ENABLED
+	---help---
+		A port which wants to get an callback must select
+		CONFIG_MB_HAVE_CLOSE and provide vMBPortClose() as
+		as vMBTCPPortClose() (if CONFIG_MB_TCP_ENABLED)
+
+config MB_ASCII_TIMEOUT_SEC
+	int "Character timeout"
+	depends on MB_ASCII_ENABLED
+	default 1
+	---help---
+		Character timeout value for Modbus ASCII
+
+		The character timeout value is not fixed for Modbus ASCII and is therefore
+		a configuration option. It should be set to the maximum expected delay
+		time of the network.
+
+
+config MB_ASCII_TIMEOUT_WAIT_BEFORE_SEND_MS
+	int "Timeout to wait before sending"
+	depends on MB_ASCII_ENABLED
+	default 0
+	---help---
+		Timeout to wait in ASCII prior to enabling transmitter
+
+		If defined the function calls vMBPortSerialDelay with the argument
+		MB_ASCII_TIMEOUT_WAIT_BEFORE_SEND_MS to allow for a delay before
+		the serial transmitter is enabled. This is required because some
+		targets are so fast that there is no time between receiving and
+		transmitting the frame. If the master is to slow with enabling its
+		receiver then he will not receive the response correctly.
+
+config MB_FUNC_OTHER_REP_SLAVEID_BUF
+	int "Size of Slave ID report buffer"
+	depends on MB_FUNC_OTHER_REP_SLAVEID_ENABLED
+	default 32
+	---help---
+		Number of bytes which should be allocated for the Report Slave ID command.
+
+		This number limits the maximum size of the additional segment in the
+		report slave id function. See eMBSetSlaveID() for more information on
+		how to set this value. It is only used if MB_FUNC_OTHER_REP_SLAVEID_ENABLED
+		is set to 1.
+
+config MB_FUNC_OTHER_REP_SLAVEID_ENABLED
+	bool "Report Slave ID function"
+	default y
+	---help---
+		If the Report Slave ID function should be enabled.
+
+config MB_FUNC_READ_INPUT_ENABLED
+	bool "Read Input Registers function"
+	default y
+	---help---
+		If the Read Input Registers function should be enabled.
+
+config MB_FUNC_READ_HOLDING_ENABLED
+	bool "Read Holding Registers function"
+	default y
+	---help---
+		If the Read Holding Registers function should be enabled.
+
+config MB_FUNC_WRITE_HOLDING_ENABLED
+	bool "Write Single Register function"
+	default y
+	---help---
+		If the Write Single Register function should be enabled.
+
+config MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
+	bool "Write Multiple registers function"
+	default y
+	---help---
+		If the Write Multiple registers function should be enabled.
+
+config MB_FUNC_READ_COILS_ENABLED
+	bool "Read Coils function"
+	default y
+	---help---
+		If the Read Coils function should be enabled.
+
+config MB_FUNC_WRITE_COIL_ENABLED
+	bool "Write Coils function"
+	default y
+	---help---
+		If the Write Coils function should be enabled.
+
+config MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
+	bool "Write Multiple Coils function"
+	default y
+	---help---
+		If the Write Multiple Coils function should be enabled.
+
+config MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
+	bool "Read Discrete Inputs function"
+	default y
+	---help---
+		If the Read Discrete Inputs function should be enabled.
+
+config MB_FUNC_READWRITE_HOLDING_ENABLED
+	bool "Read/Write Multiple Registers function"
+	default y
+	---help---
+		If the Read/Write Multiple Registers function should be enabled.
+
+endif # MODBUS_SLAVE
+
+config MODBUS_MASTER
+	bool "Modbus Master support via FreeModBus"
+	default n
+
+if MODBUS_MASTER
+
+if 0
+config MB_ASCII_MASTER
+	bool "Modbus ASCII master"
+	default n
+endif
+
+config MB_RTU_MASTER
+	bool "Modbus RTU master"
+	default n
+
+config MB_PORT_HAS_CLOSE
+	bool "Platform close callbacks"
+	default n
+	---help---
+		A port which wants to get an callback must select
+		CONFIG_MB_HAS_CLOSE and provide vMBMasterPortClose() as
+		as pvMBMasterFrameCloseCur() (if CONFIG_MB_RTU_MASTER)
+
+if MB_ASCII_MASTER || MB_RTU_MASTER
+
+config MB_MASTER_TOTAL_SLAVE_NUM
+	int "Total number slaves"
+	default 16
+	---help---
+		The total slaves in Modbus Master system. Default 16.
+		NOTE: The slave ID must be continuous from 1.
+
+config MB_MASTER_DELAY_MS_CONVERT
+    int "Convert Delay value"
+	default 200
+	---help---
+		When master sends a broadcast frame, it should allow slaves to process
+		current frame before sending new frame. New frame will be send only
+		after Convert Delay time duration.
+
+config MB_MASTER_TIMEOUT_MS_RESPOND
+    int "Respond timeout value"
+	default 1000
+	---help---
+		When master sends frame, which is not broadcast, it should wait for
+		given time duration for slave response. If slave doesn't respond
+		during give time period, the master will process timeout
+		error and only then it will be able to send new frame.
+
+config MB_MASTER_FUNC_READ_INPUT_ENABLED
+	bool "Read Input Registers function"
+	default y
+	---help---
+		If the Read Input Registers function should be enabled.
+
+config MB_MASTER_FUNC_READ_HOLDING_ENABLED
+	bool "Read Holding Registers function"
+	default y
+	---help---
+		If the Read Holding Registers function should be enabled.
+
+config MB_MASTER_FUNC_WRITE_HOLDING_ENABLED
+	bool "Write Single Register function"
+	default y
+	---help---
+		If the Write Single Register function should be enabled.
+
+config MB_MASTER_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
+	bool "Write Multiple registers function"
+	default y
+	---help---
+		If the Write Multiple registers function should be enabled.
+
+config MB_MASTER_FUNC_READ_COILS_ENABLED
+	bool "Read Coils function"
+	default y
+	---help---
+		If the Read Coils function should be enabled.
+
+config MB_MASTER_FUNC_WRITE_COIL_ENABLED
+	bool "Write Coils function"
+	default y
+	---help---
+		If the Write Coils function should be enabled.
+
+config MB_MASTER_FUNC_WRITE_MULTIPLE_COILS_ENABLED
+	bool "Write Multiple Coils function"
+	default y
+	---help---
+		If the Write Multiple Coils function should be enabled.
+
+config MB_MASTER_FUNC_READ_DISCRETE_INPUTS_ENABLED
+	bool "Read Discrete Inputs function"
+	default y
+	---help---
+		If the Read Discrete Inputs function should be enabled.
+
+config MB_MASTER_FUNC_READWRITE_HOLDING_ENABLED
+	bool "Read/Write Multiple Registers function"
+	default y
+	---help---
+		If the Read/Write Multiple Registers function should be enabled.
+
+endif # MB_ASCII_MASTER || MB_RTU_MASTER
+endif # MODBUS_MASTER
+endif # MODBUS
+endmenu # FreeModBus

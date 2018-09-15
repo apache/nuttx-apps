@@ -1,0 +1,73 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_USBSERIAL
+	tristate "USB serial test example"
+	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_USBDEVCTRL
+	---help---
+		Enable the USB serial test example
+
+if EXAMPLES_USBSERIAL
+
+config EXAMPLES_USBSERIAL_BUFSIZE
+	int "Target I/O Buffer Size"
+	default 512
+	---help---
+		The size of the array that is used as an I/O buffer for USB serial
+		data transfers.
+
+config EXAMPLES_USBSERIAL_TRACEINIT
+	bool "USB Trace Initialization"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the example code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB initialization events
+
+config EXAMPLES_USBSERIAL_TRACECLASS
+	bool "USB Trace Class"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the example code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB class driver events
+
+config EXAMPLES_USBSERIAL_TRACETRANSFERS
+	bool "USB Trace Transfers"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the example code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB data transfer events
+
+config EXAMPLES_USBSERIAL_TRACECONTROLLER
+	bool "USB Trace Device Controller Events"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the example code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller events
+
+config EXAMPLES_USBSERIAL_TRACEINTERRUPTS
+	bool "USB Trace Device Controller Interrupt Events"
+	default n
+	depends on USBDEV_TRACE || DEBUG_USB
+	---help---
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
+		then the example code will also manage the USB trace output.  The
+		amount of trace output can be controlled this configuration value:
+		This setting will show USB device controller interrupt-related events.
+
+endif
