@@ -97,7 +97,7 @@ config NXWIDGETS_UNITTEST_CTEXTBOX
 
 config NXWIDGETS_UNITTEST_NXWM
 	tristate "NxWM"
-	default n
+	default y
 	depends on NXWM
 
 endmenu # Unit Tests

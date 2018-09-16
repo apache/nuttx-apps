@@ -60,7 +60,9 @@ nothing:
 install:
 
 preconfig: $(foreach SDIR, $(SUBDIRS), $(SDIR)_preconfig)
+ifneq ($(MENUDESC),)
 	$(Q) $(MKKCONFIG) -m $(MENUDESC)
+endif
 
 context: $(foreach SDIR, $(SUBDIRS), $(SDIR)_context)
 
