@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CCHECKBOX)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CCHECKBOX),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CCheckBox
 endif
 

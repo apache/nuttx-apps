@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CGLYPHSLIDERHORIZONTAL)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CGLYPHSLIDERHORIZONTAL),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CGlyphSliderHorizontal
 endif
 

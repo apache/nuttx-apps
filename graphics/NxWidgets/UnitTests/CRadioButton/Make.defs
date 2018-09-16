@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CRADIOBUTTON)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CRADIOBUTTON),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CRadioButton
 endif

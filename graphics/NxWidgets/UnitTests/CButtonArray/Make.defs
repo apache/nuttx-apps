@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CBUTTONARRAY)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CBUTTONARRAY),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CButtonArray
 endif
 

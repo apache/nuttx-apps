@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CSCROLLBARVERTICAL)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CSCROLLBARVERTICAL),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CScrollbarVertical
 endif
 

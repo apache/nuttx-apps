@@ -87,11 +87,11 @@ CXXSRCS += glyph_mediaplayer24x24.cxx glyph_mplayer_controls32x32.cxx
 endif
 endif
 
-SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
-
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+
+VPATH = $(NXWIDGETDIR)$(DELIM)src
 
 include $(APPDIR)/Application.mk

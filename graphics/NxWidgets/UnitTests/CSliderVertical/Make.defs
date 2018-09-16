@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CSLIDERVERTICAL)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CSLIDERVERTICAL),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CSliderVertical
 endif

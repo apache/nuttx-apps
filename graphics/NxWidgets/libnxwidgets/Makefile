@@ -35,26 +35,22 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Control build verbosity
-
-ifeq ($(V),1)
-export Q :=
-else
-export Q := @
-endif
-
 NXWIDGETDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 
 ASRCS =
 CSRCS =
+
 # Infrastructure
+
 CXXSRCS  = cbitmap.cxx cbgwindow.cxx ccallback.cxx cgraphicsport.cxx
 CXXSRCS += clistdata.cxx clistdataitem.cxx cnxfont.cxx
 CXXSRCS += cnxserver.cxx cnxstring.cxx cnxtimer.cxx cnxwidget.cxx cnxwindow.cxx
 CXXSRCS += cnxtkwindow.cxx cnxtoolbar.cxx crect.cxx crlepalettebitmap.cxx
-CXXSRCS += cscaledbitmap.cxx cstringiterator.cxx ctext.cxx cwidgetcontrol.cxx  cwidgeteventhandlerlist.cxx
-CXXSRCS += cwindoweventhandlerlist.cxx singletons.cxx
+CXXSRCS += cscaledbitmap.cxx cstringiterator.cxx ctext.cxx cwidgetcontrol.cxx
+CXXSRCS += cwidgeteventhandlerlist.cxx cwindoweventhandlerlist.cxx singletons.cxx
+
 # Widget APIs
+
 CXXSRCS += cbutton.cxx cbuttonarray.cxx ccheckbox.cxx ccyclebutton.cxx
 CXXSRCS += cglyphbutton.cxx cglyphsliderhorizontal.cxx cglyphsliderhorizontalgrip.cxx
 CXXSRCS += cimage.cxx ckeypad.cxx clabel.cxx clatchbutton.cxx
@@ -66,7 +62,9 @@ CXXSRCS += cscrollingpanel.cxx cscrollingtextbox.cxx csliderhorizontal.cxx
 CXXSRCS += csliderhorizontalgrip.cxx cslidervertical.cxx csliderverticalgrip.cxx
 CXXSRCS += cstickybutton.cxx cstickybuttonarray.cxx cstickyimage.cxx ctabpanel.cxx
 CXXSRCS += ctextbox.cxx
+
 # Images
+
 CXXSRCS += glyph_nxlogo160x160.cxx glyph_nxlogo320x320.cxx
 CXXSRCS += glyph_arrowdown.cxx glyph_checkboxon.cxx glyph_screendepthup.cxx
 CXXSRCS += glyph_arrowleft.cxx glyph_control.cxx glyph_screenflipdown.cxx
@@ -76,9 +74,11 @@ CXXSRCS += glyph_backspace.cxx glyph_radiobuttonmu.cxx glyph_windowclose.cxx
 CXXSRCS += glyph_capslock.cxx glyph_radiobuttonon.cxx glyph_windowdepthdown.cxx
 CXXSRCS += glyph_checkboxmu.cxx glyph_return.cxx glyph_windowdepthup.cxx
 CXXSRCS += glyph_checkboxoff.cxx glyph_screendepthdown.cxx
-SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
 
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 
+VPATH = $(NXWIDGETDIR)$(DELIM)src
+
 include $(APPDIR)/Application.mk
+

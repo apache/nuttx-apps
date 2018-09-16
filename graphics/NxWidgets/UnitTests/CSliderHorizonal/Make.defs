@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CSLIDERHORIZONAL)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CSLIDERHORIZONAL),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CSliderHorizonal
 endif

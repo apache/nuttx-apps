@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTONARRAY)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTONARRAY),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CLatchButtonArray
 endif
 

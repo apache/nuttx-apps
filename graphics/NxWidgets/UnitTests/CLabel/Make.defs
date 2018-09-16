@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CLABEL)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CLABEL),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CLabel
 endif

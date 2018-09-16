@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CBUTTON)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CBUTTON),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CButton
 endif
 

@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-if ($(CONFIG_NXWIDGETS_UNITTEST_CGLYPHBUTTON)
+ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CGLYPHBUTTON),y)
 CONFIGURED_APPS += graphics/NxWidgets/UnitTests/CGlyphButton
 endif
