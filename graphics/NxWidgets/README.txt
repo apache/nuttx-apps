@@ -59,7 +59,7 @@ Kconfig
   When copied to that location, it will be used by the NuttX configuration
   systems to configure settings for NxWidgets and NxWM
 
-libnxwidgets
+nxwidgets
 
   The source code, header files, and build environment for NxWidgets is
   provided in this directory.
@@ -67,7 +67,7 @@ libnxwidgets
 UnitTests
 
   Provides a collection of unit-level tests for many of the individual
-  widgets provided by libnxwidgets.
+  widgets provided by nxwidgets.
 
 nxwm
 

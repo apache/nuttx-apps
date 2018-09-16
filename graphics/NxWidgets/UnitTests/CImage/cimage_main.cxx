@@ -48,9 +48,9 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "crlepalettebitmap.hxx"
-#include "glyphs.hxx"
-#include "cimagetest.hxx"
+#include "nxwidgets/crlepalettebitmap.hxx"
+#include "nxwidgets/glyphs.hxx"
+#include "nxwidgets/cimagetest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

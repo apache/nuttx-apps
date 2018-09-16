@@ -35,17 +35,6 @@
 
 -include $(TOPDIR)/Make.defs
 
-NXWIDGETS_DIR = "$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
-NXWIDGETS_INC = "$(NXWIDGETS_DIR)$(DELIM)include"
-
-ifeq ($(WINTOOL),y)
-  CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWIDGETS_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) -w "$(CXX)" "$(NXWIDGETS_INC)"}
-else
-  CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXWIDGETS_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWIDGETS_INC)"}
-endif
-
 # CCheckBox unit test
 
 ASRCS =

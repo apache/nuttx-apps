@@ -47,12 +47,12 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "ckeypadtest.hxx"
-#include "cbgwindow.hxx"
-#include "cnxstring.hxx"
-#include "cnxfont.hxx"
-#include "crect.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/ckeypadtest.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/cnxstring.hxx"
+#include "nxwidgets/cnxfont.hxx"
+#include "nxwidgets/crect.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

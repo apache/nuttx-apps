@@ -48,9 +48,9 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "crlepalettebitmap.hxx"
-#include "glyphs.hxx"
-#include "cradiobuttontest.hxx"
+#include "nxwidgets/crlepalettebitmap.hxx"
+#include "nxwidgets/glyphs.hxx"
+#include "nxwidgets/cradiobuttontest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

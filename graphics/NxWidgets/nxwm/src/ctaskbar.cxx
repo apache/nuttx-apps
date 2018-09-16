@@ -43,13 +43,13 @@
 
 #include <nuttx/nx/nxglib.h>
 
-#include "crect.hxx"
-#include "cwidgetcontrol.hxx"
-#include "cnxtkwindow.hxx"
-#include "cscaledbitmap.hxx"
+#include "graphics/nxwidgets/crect.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cnxtkwindow.hxx"
+#include "graphics/nxwidgets/cscaledbitmap.hxx"
 
-#include "cwindowmessenger.hxx"
-#include "ctaskbar.hxx"
+#include "graphics/nxwm/cwindowmessenger.hxx"
+#include "graphics/nxwm/ctaskbar.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

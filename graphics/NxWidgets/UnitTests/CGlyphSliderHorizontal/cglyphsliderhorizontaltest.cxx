@@ -47,10 +47,10 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "crlepalettebitmap.hxx"
-#include "cbgwindow.hxx"
-#include "cglyphsliderhorizontaltest.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/crlepalettebitmap.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/cglyphsliderhorizontaltest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

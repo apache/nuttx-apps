@@ -35,24 +35,6 @@
 
 -include $(TOPDIR)/Make.defs
 
-NXWIDGETS_DIR = "$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
-NXWIDGETS_INC = "$(NXWIDGETS_DIR)$(DELIM)include"
-
-NXWM_DIR = "$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)nxwm"
-NXWM_INC = "$(NXWM_DIR)$(DELIM)include"
-
-ifeq ($(WINTOOL),y)
-  CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWIDGETS_INC)"}
-  CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWM_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) -w "$(CXX)" "$(NXWIDGETS_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) -w "$(CXX)" "$(NXWM_INC)"}
-else
-  CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXWIDGETS_INC)"}
-  CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXWM_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWIDGETS_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWM_INC)"}
-endif
-
 # NxWM unit test
 
 ASRCS =

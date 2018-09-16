@@ -53,26 +53,26 @@
 #  include "platform/cxxinitialize.h"
 #endif
 
-#include "ctaskbar.hxx"
-#include "cstartwindow.hxx"
+#include "graphics/nxwm/ctaskbar.hxx"
+#include "graphics/nxwm/cstartwindow.hxx"
 
 #ifdef CONFIG_NXWM_NXTERM
-#  include "cnxterm.hxx"
+#  include "graphics/nxwm/cnxterm.hxx"
 #endif
 
-#include "chexcalculator.hxx"
+#include "graphics/nxwm/chexcalculator.hxx"
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER
-#  include "cmediaplayer.hxx"
+#  include "graphics/nxwm/cmediaplayer.hxx"
 #endif
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN
-#  include "ctouchscreen.hxx"
-#  include "ccalibration.hxx"
+#  include "graphics/nxwm/ctouchscreen.hxx"
+#  include "graphics/nxwm/ccalibration.hxx"
 #endif
 
 #ifdef CONFIG_NXWM_KEYBOARD
-#  include "ckeyboard.hxx"
+#  include "graphics/nxwm/ckeyboard.hxx"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

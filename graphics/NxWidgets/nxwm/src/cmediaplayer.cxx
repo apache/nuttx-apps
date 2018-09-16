@@ -50,14 +50,14 @@
 #include <dirent.h>
 #include <debug.h>
 
-#include "system/nxplayer.h"
+#include "graphics/nxwidgets/system/nxplayer.h"
 #include <nuttx/audio/audio.h>
 
-#include "cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "cmediaplayer.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/cmediaplayer.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

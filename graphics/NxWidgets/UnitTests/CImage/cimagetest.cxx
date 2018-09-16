@@ -47,10 +47,10 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "ibitmap.hxx"
-#include "cbgwindow.hxx"
-#include "cimagetest.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/ibitmap.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/cimagetest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

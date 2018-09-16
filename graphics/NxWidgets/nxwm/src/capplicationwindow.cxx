@@ -41,14 +41,14 @@
 
 #include <nuttx/nx/nxglib.h>
 
-#include "nxconfig.hxx"
-#include "cwidgetcontrol.hxx"
-#include "cgraphicsport.hxx"
+#include "graphics/nxwidgets/nxconfig.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cgraphicsport.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "cwindowmessenger.hxx"
-#include "capplicationwindow.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/cwindowmessenger.hxx"
+#include "graphics/nxwm/capplicationwindow.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

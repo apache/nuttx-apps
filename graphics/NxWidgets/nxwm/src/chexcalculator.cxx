@@ -42,11 +42,11 @@
 #include <cstdio>
 #include <debug.h>
 
-#include "cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "chexcalculator.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/chexcalculator.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

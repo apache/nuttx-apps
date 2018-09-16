@@ -47,8 +47,8 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cnxstring.hxx"
-#include "cbuttonarraytest.hxx"
+#include "nxwidgets/cnxstring.hxx"
+#include "nxwidgets/cbuttonarraytest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

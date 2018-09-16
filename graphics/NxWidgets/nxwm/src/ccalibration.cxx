@@ -49,10 +49,10 @@
 #  include "platform/configdata.h"
 #endif
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "ctouchscreen.hxx"
-#include "ccalibration.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/ctouchscreen.hxx"
+#include "graphics/nxwm/ccalibration.hxx"
 
 /****************************************************************************
  * Pre-processor Definitions

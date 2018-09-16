@@ -48,7 +48,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cglyphsliderhorizontaltest.hxx"
+#include "nxwidgets/cglyphsliderhorizontaltest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

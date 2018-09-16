@@ -44,12 +44,12 @@
 #include <csched>
 #include <cerrno>
 
-#include "cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "ctaskbar.hxx"
-#include "cstartwindow.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/ctaskbar.hxx"
+#include "graphics/nxwm/cstartwindow.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

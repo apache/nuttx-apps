@@ -49,14 +49,14 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "nxconfig.hxx"
-#include "cwidgetcontrol.hxx"
-#include "ccallback.hxx"
-#include "cbgwindow.hxx"
-#include "cnxserver.hxx"
-#include "cnxfont.hxx"
-#include "cnxstring.hxx"
-#include "cimage.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/cwidgetcontrol.hxx"
+#include "nxwidgets/ccallback.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/cnxserver.hxx"
+#include "nxwidgets/cnxfont.hxx"
+#include "nxwidgets/cnxstring.hxx"
+#include "nxwidgets/cimage.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

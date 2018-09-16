@@ -48,7 +48,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cprogressbartest.hxx"
+#include "nxwidgets/cprogressbartest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

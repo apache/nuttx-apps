@@ -48,8 +48,8 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cglyphbuttontest.hxx"
-#include "glyphs.hxx"
+#include "nxwidgets/cglyphbuttontest.hxx"
+#include "nxwidgets/glyphs.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

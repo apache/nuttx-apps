@@ -44,9 +44,9 @@
 
 #include <debug.h>
 
-#include "nxwmconfig.hxx"
-#include "cstartwindow.hxx"
-#include "cwindowmessenger.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/cstartwindow.hxx"
+#include "graphics/nxwm/cwindowmessenger.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

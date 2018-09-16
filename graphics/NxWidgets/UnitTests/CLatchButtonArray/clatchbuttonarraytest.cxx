@@ -47,9 +47,9 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "clatchbuttonarraytest.hxx"
-#include "cbgwindow.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/clatchbuttonarraytest.hxx"
+#include "nxwidgets/cbgwindow.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

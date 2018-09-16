@@ -51,11 +51,11 @@
 
 #include "nshlib/nshlib.h"
 
-#include "cwidgetcontrol.hxx"
+#include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
-#include "cnxterm.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxwm/cnxterm.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

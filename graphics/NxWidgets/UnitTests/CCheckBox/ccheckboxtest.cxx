@@ -47,11 +47,11 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "cbgwindow.hxx"
-#include "ccheckboxtest.hxx"
-#include "cbitmap.hxx"
-#include "glyphs.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/ccheckboxtest.hxx"
+#include "nxwidgets/cbitmap.hxx"
+#include "nxwidgets/glyphs.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

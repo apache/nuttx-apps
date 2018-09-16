@@ -46,7 +46,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "clabeltest.hxx"
+#include "nxwidgets/clabeltest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

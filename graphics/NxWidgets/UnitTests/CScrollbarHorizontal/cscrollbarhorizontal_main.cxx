@@ -48,7 +48,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cscrollbarhorizontaltest.hxx"
+#include "nxwidgets/cscrollbarhorizontaltest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

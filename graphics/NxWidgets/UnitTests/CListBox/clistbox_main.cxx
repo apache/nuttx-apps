@@ -48,7 +48,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "clistboxtest.hxx"
+#include "nxwidgets/clistboxtest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

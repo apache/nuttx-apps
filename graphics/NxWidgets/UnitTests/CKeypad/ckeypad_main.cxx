@@ -47,8 +47,8 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "cnxstring.hxx"
-#include "ckeypadtest.hxx"
+#include "nxwidgets/cnxstring.hxx"
+#include "nxwidgets/ckeypadtest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

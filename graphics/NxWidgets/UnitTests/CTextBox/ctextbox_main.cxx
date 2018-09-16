@@ -46,7 +46,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "ctextboxtest.hxx"
+#include "nxwidgets/ctextboxtest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

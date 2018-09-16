@@ -48,8 +48,8 @@
 #include <assert.h>
 #include <debug.h>
 
-#include "nxwmconfig.hxx"
-#include "ckeyboard.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/ckeyboard.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

@@ -47,9 +47,9 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxconfig.hxx"
-#include "cbgwindow.hxx"
-#include "cscrollbarhorizontaltest.hxx"
+#include "nxwidgets/nxconfig.hxx"
+#include "nxwidgets/cbgwindow.hxx"
+#include "nxwidgets/cscrollbarhorizontaltest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions

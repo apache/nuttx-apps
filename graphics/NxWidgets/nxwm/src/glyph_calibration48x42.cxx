@@ -47,10 +47,10 @@
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
 
-#include "crlepalettebitmap.hxx"
+#include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "nxwmconfig.hxx"
-#include "nxwmglyphs.hxx"
+#include "graphics/nxwm/nxwmconfig.hxx"
+#include "graphics/nxwm/nxwmglyphs.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions

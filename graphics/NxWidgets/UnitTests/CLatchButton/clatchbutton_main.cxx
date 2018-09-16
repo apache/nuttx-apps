@@ -46,7 +46,7 @@
 
 #include <nuttx/nx/nx.h>
 
-#include "clatchbuttontest.hxx"
+#include "nxwidgets/clatchbuttontest.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Definitions
