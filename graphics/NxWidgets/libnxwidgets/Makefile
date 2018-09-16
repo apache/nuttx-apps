@@ -78,7 +78,7 @@ CXXSRCS += glyph_checkboxoff.cxx glyph_screendepthdown.cxx
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 
-VPATH = $(NXWIDGETDIR)$(DELIM)src
+VPATH = src
 
 include $(APPDIR)/Application.mk
 

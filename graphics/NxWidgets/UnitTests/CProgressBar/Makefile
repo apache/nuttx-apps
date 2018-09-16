@@ -35,8 +35,8 @@
 
 -include $(TOPDIR)/Make.defs
 
-NXWIDGETS_DIR="$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
-NXWIDGETS_INC="$(NXWIDGETS_DIR)$(DELIM)include"
+NXWIDGETS_DIR = "$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
+NXWIDGETS_INC = "$(NXWIDGETS_DIR)$(DELIM)include"
 
 ifeq ($(WINTOOL),y)
   CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWIDGETS_INC)"}
