@@ -578,7 +578,7 @@ void CText::wrap(int charIndex)
   // Add marker indicating end of text
   // If we reached the end of the text, append the stopping point
 
-  if (m_linePositions[m_linePositions.size() - 1] != getLength() + 1)
+  if ((unsigned int)m_linePositions[m_linePositions.size() - 1] != getLength() + 1)
     {
       m_linePositions.push_back(getLength());
     }

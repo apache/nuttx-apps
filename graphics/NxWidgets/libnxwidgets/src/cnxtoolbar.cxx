@@ -247,7 +247,8 @@ bool CNxToolbar::setPixel(FAR const struct nxgl_point_s *pPos,
 
   return nxtk_setpixel(m_hNxTkWindow, pPos, &color) == OK;
 #else
-#  warning "Revisit"
+  // REVISIT
+
   return false;
 #endif
 }

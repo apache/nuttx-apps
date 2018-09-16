@@ -148,7 +148,7 @@ bool CStringIterator::moveToLast(void)
 
 bool CStringIterator::moveToNext(void)
 {
-  if (m_currentIndex < m_pString->getLength() - 1)
+  if ((unsigned int)m_currentIndex < m_pString->getLength() - 1)
     {
       m_pCurrentChar++;
       m_currentIndex++;
@@ -186,7 +186,7 @@ bool CStringIterator::moveTo(int index)
 {
   // Abort if index exceeds the size of the string
 
-  if (index < m_pString->getLength())
+  if ((unsigned int)index < m_pString->getLength())
     {
       // Move to the requested position
 
