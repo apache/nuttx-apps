@@ -3,7 +3,9 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menuconfig NXWIDGETS
+menu "NxWidgets"
+
+config NXWIDGETS
 	bool "Enable NxWidgets"
 	default n
 	depends on NX && HAVE_CXX
@@ -256,5 +258,6 @@ config NXWIDGET_MEMMONITOR
 		Enable memory usage monitor instrumentation.  This feature is only
 		used by the NxWidget/NxWM unit tests.
 
-endmenu # NXWidget Configuration
+endmenu # NxWidgets Configuration
 endif # NxWidgets
+endmenu # NxWidgets

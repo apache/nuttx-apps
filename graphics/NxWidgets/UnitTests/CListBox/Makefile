@@ -1,7 +1,7 @@
 #################################################################################
 # apps/graphics/NxWidgets/UnitTests/CListBox/Makefile
 #
-#   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013, 2016, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,20 +33,10 @@
 #
 #################################################################################
 
-TESTDIR := ${shell pwd | sed -e 's/ /\\ /g'}
-
 -include $(TOPDIR)/Make.defs
 
-OBJEXT ?= .o
-DELIM ?= /
-
-include $(APPDIR)$(DELIM)Make.defs
-
-# Add the path to the NXWidget include directory to the CFLAGS
-
-NXWIDGETS_DIR="$(TESTDIR)$(DELIM)..$(DELIM)..$(DELIM)libnxwidgets"
+NXWIDGETS_DIR="$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
 NXWIDGETS_INC="$(NXWIDGETS_DIR)$(DELIM)include"
-NXWIDGETS_LIB="$(NXWIDGETS_DIR)$(DELIM)libnxwidgets$(LIBEXT)"
 
 ifeq ($(WINTOOL),y)
   CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWIDGETS_INC)"}
@@ -56,124 +46,17 @@ else
   CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWIDGETS_INC)"}
 endif
 
-# Get the path to the archiver tool
+# CListBox unit test
 
-TESTTOOL_DIR="$(TESTDIR)$(DELIM)..$(DELIM)..$(DELIM)tools"
-ARCHIVER=$(TESTTOOL_DIR)$(DELIM)addobjs.sh
+ASRCS =
+CSRCS =
+CXXSRCS = clistboxtest.cxx
+MAINSRC = clistbox_main.cxx
 
-# Hello, World! C++ Example
+APPNAME = clistbox
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
-ASRCS		=
-CSRCS		=
-CXXSRCS		= clistbox_main.cxx clistboxtest.cxx
+MODULE = CONFIG_NXWIDGETS_UNITTEST_CLISTBOX
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-CXXOBJS		= $(CXXSRCS:.cxx=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS)
-OBJS		= $(AOBJS) $(COBJS) $(CXXOBJS)
-
-POSIX_BIN	= "$(APPDIR)$(DELIM)libapps$(LIBEXT)"
-ifeq ($(WINTOOL),y)
-  BIN		= "${shell cygpath -w  $(POSIX_BIN)}"
-else
-  BIN		= $(POSIX_BIN)
-endif
-
-ROOTDEPPATH	= --dep-path .
-
-# helloxx built-in application info
-
-APPNAME		= clistbox
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 2048
-
-# Common build
-
-VPATH		=
-
-all: .built
-.PHONY:	clean depend context disclean chkcxx chklib
-
-# Object file creation targets
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS): %$(OBJEXT): %.cxx
-	$(call COMPILEXX, $<, $@)
-
-# Verify that the NuttX configuration is setup to support C++
-
-chkcxx:
-ifneq ($(CONFIG_HAVE_CXX),y)
-	@echo ""
-	@echo "In order to use this example, you toolchain must support must"
-	@echo ""
-	@echo "  (1) Explicitly select CONFIG_HAVE_CXX to build in C++ support"
-	@echo "  (2) Define CXX, CXXFLAGS, and COMPILEXX in the Make.defs file"
-	@echo "      of the configuration that you are using."
-	@echo ""
-	@exit 1
-endif
-
-# Verify that the NXWidget library has been built
-
-chklib:
-	$(Q) ( \
-		if [ ! -e "$(NXWIDGETS_LIB)" ]; then \
-			echo "$(NXWIDGETS_LIB) does not exist."; \
-			echo "Please go to $(NXWIDGETS_DIR)"; \
-			echo "and rebuild the library"; \
-			exit 1; \
-		fi; \
-	  )
-
-# Library creation targets
-
-$(NXWIDGETS_LIB): # Just to keep make happy.  chklib does the work.
-
-.built: chkcxx chklib $(OBJS) $(NXWIDGETS_LIB)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-ifeq ($(WINTOOL),y)
-	$(Q) $(ARCHIVER) -w -p "$(CROSSDEV)" $(BIN) $(NXWIDGETS_DIR)
-else
-	$(Q) $(ARCHIVER) -p "$(CROSSDEV)" $(BIN) $(NXWIDGETS_DIR)
-endif
-	$(Q) touch .built
-
-# Register NSH built-in application
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-preconfig:
-
-# Standard housekeeping targets
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) $(CXX) -- $(CXXFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat)
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
--include Make.dep
+include $(APPDIR)/Application.mk

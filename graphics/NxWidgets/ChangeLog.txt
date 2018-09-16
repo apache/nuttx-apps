@@ -647,4 +647,6 @@
 * Fix a dependency in Kconfig:  CONFIG_NXWIDGET_SERVERINIT is definitely
   supported in the PROTECTED and KERNEL build modes (2018-01-18).
 
-1.20 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
+After Nuttx-7.26, the NxWidgets repository was merged into the apps/
+repository.  See the apps/ChangeLot.txt for changes since that time.
+

@@ -1,22 +1,6 @@
 NxWidgets/tools README File
 ===========================
 
-addobjs.sh
-----------
-
-  $0 will add all object (.o) files in directory to an archive.
-
-  Usage: tools/addobjs.sh [OPTIONS] <lib-path> <obj-dir>
-
-  Where:
-    <lib-path> is the full, absolute path to the library to use
-    <obj-dir> is full path to the directory containing the object files to be added
-  OPTIONS include:
-    -p Prefix to use.  For example, to use arm-elf-ar, add '-p arm-elf-'
-    -w Use Windows style paths instead of POSIX paths
-    -d Enable script debug
-    -h Show this usage information
-
 bitmap_converter.py
 -------------------
 
@@ -48,15 +32,4 @@ bitmap_converter.py
     or 8 colors.
   - Save the image as PNG or other lossless format (NOT jpeg).
   - Then generate the image.
-
-install.sh
-----------
-
-  Install a unit test in the NuttX source tree"
-
-  USAGE: tools/install.sh <apps-directory-path> <test-sub-directory>
-
-  Where:
-    <apps-directory-path> is the full, absolute path to the NuttX apps/ directory
-    <test-sub-directory> is the name of a sub-directory in the UnitTests directory
 

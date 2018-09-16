@@ -3,7 +3,9 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menuconfig NXWM
+menu "NxWM"
+
+config NXWM
 	bool "Enable NxWM"
 	default n
 	depends on NXWIDGETS
@@ -963,6 +965,6 @@ config NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT
 endmenu # Volume Configuration"
 endif # NXWM_MEDIAPLAYER
 endmenu # NxWM Media Player Display Settings
-
 endif # NXWM
+endmenu # NxWM
 

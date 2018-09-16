@@ -1,7 +1,7 @@
 #################################################################################
 # apps/graphics/NxWidgets/Unitests/nxwm/Makefile
 #
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013, 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,20 +33,10 @@
 #
 #################################################################################
 
-TESTDIR := ${shell pwd | sed -e 's/ /\\ /g'}
-
 -include $(TOPDIR)/Make.defs
 
-OBJEXT ?= .o
-DELIM ?= /
-
-include $(APPDIR)$(DELIM)Make.defs
-
-# Add the path to the NXWidget include directory to the CFLAGS
-
-NXWIDGETS_DIR="$(TESTDIR)$(DELIM)..$(DELIM)..$(DELIM)libnxwidgets"
+NXWIDGETS_DIR="$(APPDIR)$(DELIM)graphics$(DELIM)NxWidgets$(DELIM)libnxwidgets"
 NXWIDGETS_INC="$(NXWIDGETS_DIR)$(DELIM)include"
-NXWIDGETS_LIB="$(NXWIDGETS_DIR)$(DELIM)libnxwidgets$(LIBEXT)"
 
 ifeq ($(WINTOOL),y)
   CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWIDGETS_INC)"}
@@ -56,155 +46,17 @@ else
   CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWIDGETS_INC)"}
 endif
 
-# Add the path to the NxWM include directory to the CFLAGS
-
-NXWM_DIR="$(TESTDIR)$(DELIM)..$(DELIM)..$(DELIM)nxwm"
-NXWM_INC="$(NXWM_DIR)$(DELIM)include"
-NXWM_LIB="$(NXWM_DIR)$(DELIM)libnxwm$(LIBEXT)"
-
-ifeq ($(WINTOOL),y)
-  CFLAGS += ${shell $(INCDIR) -w "$(CC)" "$(NXWM_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) -w "$(CXX)" "$(NXWM_INC)"}
-else
-  CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXWM_INC)"}
-  CXXFLAGS += ${shell $(INCDIR) "$(CXX)" "$(NXWM_INC)"}
-endif
-
-# Get the path to the archiver tool
-
-TESTTOOL_DIR="$(TESTDIR)$(DELIM)..$(DELIM)..$(DELIM)tools"
-ARCHIVER=$(TESTTOOL_DIR)$(DELIM)addobjs.sh
-
 # NxWM unit test
 
-ASRCS		=
-CSRCS		=
-CXXSRCS		= nxwm_main.cxx
+ASRCS =
+CSRCS =
+CXXSRCS =
+MAINSRC = nxwm_main.cxx
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-CXXOBJS		= $(CXXSRCS:.cxx=$(OBJEXT))
+APPNAME = nxwm
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
-SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS)
-OBJS		= $(AOBJS) $(COBJS) $(CXXOBJS)
+MODULE = CONFIG_NXWIDGETS_UNITTEST_NXWM
 
-POSIX_BIN	= "$(APPDIR)$(DELIM)libapps$(LIBEXT)"
-ifeq ($(WINTOOL),y)
-  BIN		= "${shell cygpath -w  $(POSIX_BIN)}"
-else
-  BIN		= $(POSIX_BIN)
-endif
-
-ROOTDEPPATH	= --dep-path .
-
-# helloxx built-in application info
-
-APPNAME		= nxwm
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 2048
-
-# Common build
-
-VPATH		=
-
-all: chkcxx chklibnxwidgets chklibnxwm .built
-.PHONY:	clean depend context disclean chkcxx chklibnxwidgets chklibnxwm
-
-# Object file creation targets
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS): %$(OBJEXT): %.cxx
-	$(call COMPILEXX, $<, $@)
-
-# Verify that the NuttX configuration is setup to support C++
-
-chkcxx:
-ifneq ($(CONFIG_HAVE_CXX),y)
-	@echo ""
-	@echo "In order to use this example, you toolchain must support must"
-	@echo ""
-	@echo "  (1) Explicitly select CONFIG_HAVE_CXX to build in C++ support"
-	@echo "  (2) Define CXX, CXXFLAGS, and COMPILEXX in the Make.defs file"
-	@echo "      of the configuration that you are using."
-	@echo ""
-	@exit 1
-endif
-
-# Verify that the NXWidget library has been built
-
-chklibnxwidgets:
-	$(Q) ( \
-		if [ ! -e "$(NXWIDGETS_LIB)" ]; then \
-			echo "$(NXWIDGETS_LIB) does not exist."; \
-			echo "Please go to $(NXWIDGETS_DIR)"; \
-			echo "and rebuild the library"; \
-			exit 1; \
-		fi; \
-	  )
-
-# Verify that the NxWM library has been built
-
-chklibnxwm:
-	$(Q) ( \
-		if [ ! -e "$(NXWM_LIB)" ]; then \
-			echo "$(NXWM_LIB) does not exist."; \
-			echo "Please go to $(NXWM_LIB)"; \
-			echo "and rebuild the library"; \
-			exit 1; \
-		fi; \
-	  )
-
-# Library creation targets
-
-$(NXWIDGETS_LIB): # Just to keep make happy.  chklibnxwidgets does the work.
-
-$(NXWM_LIB): # Just to keep make happy.  chklibnxwm does the work.
-
-.built: $(OBJS) $(NXWIDGETS_LIB)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-ifeq ($(WINTOOL),y)
-	$(Q) $(ARCHIVER) -w -p "$(CROSSDEV)" $(BIN) $(NXWIDGETS_DIR)
-	$(Q) $(ARCHIVER) -w -p "$(CROSSDEV)" $(BIN) $(NXWM_DIR)
-else
-	$(Q) $(ARCHIVER) -p "$(CROSSDEV)" $(BIN) $(NXWIDGETS_DIR)
-	$(Q) $(ARCHIVER) -p "$(CROSSDEV)" $(BIN) $(NXWM_DIR)
-endif
-	$(Q) touch .built
-
-# Register NSH built-in application
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-preconfig:
-
-# Standard housekeeping targets
-
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) $(CXX) -- $(CXXFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat)
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat)
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
--include Make.dep
+include $(APPDIR)/Application.mk
