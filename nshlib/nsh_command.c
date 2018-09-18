@@ -326,9 +326,9 @@ static const struct cmdmap_s g_cmdmap[] =
      defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
 # ifndef CONFIG_NSH_DISABLE_MKSMARTFS
 #  ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-  { "mksmartfs",  cmd_mksmartfs,  2, 5, "[-s sector-size] <path> [<num-root-directories>]" },
+  { "mksmartfs",  cmd_mksmartfs,  2, 6, "[-s <sector-size>] [-f] <path> [<num-root-directories>]" },
 #  else
-  { "mksmartfs",  cmd_mksmartfs,  2, 4, "[-s sector-size] <path>" },
+  { "mksmartfs",  cmd_mksmartfs,  2, 5, "[-s <sector-size>] [-f] <path>" },
 #  endif
 # endif
 #endif
