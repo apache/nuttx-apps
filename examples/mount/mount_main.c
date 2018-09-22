@@ -102,6 +102,7 @@ static void show_stat(const char *path, struct stat *ps)
 {
   printf("%s stat:\n", path);
   printf("\tmode        : %08x\n", ps->st_mode);
+
   if (S_ISREG(ps->st_mode))
     {
       printf("\ttype        : File\n");
@@ -117,6 +118,30 @@ static void show_stat(const char *path, struct stat *ps)
   else if (S_ISBLK(ps->st_mode))
     {
       printf("\ttype        : Block driver\n");
+    }
+  else if (S_ISMQ(ps->st_mode))
+    {
+      printf("\ttype        : Message queue\n");
+    }
+  else if (S_ISSEM(ps->st_mode))
+    {
+      printf("\ttype        : Named semaphore\n");
+    }
+  else if (S_ISSHM(ps->st_mode))
+    {
+      printf("\ttype        : Shared memory\n");
+    }
+  else if (S_ISSOCK(ps->st_mode))
+    {
+      printf("\ttype        : Socket\n");
+    }
+  else if (S_ISMTD(ps->st_mode))
+    {
+      printf("\ttype        : Named MTD driver\n");
+    }
+  else if (S_ISLNK(ps->st_mode))
+    {
+      printf("\ttype        : Symbolic link\n");
     }
   else
     {

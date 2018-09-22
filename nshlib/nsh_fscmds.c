@@ -192,18 +192,48 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
             }
           else
 #endif
-          if (S_ISDIR(buf.st_mode))
+          if (S_ISBLK(buf.st_mode))
             {
-              details[0] = 'd';
+              details[0] = 'b';
             }
           else if (S_ISCHR(buf.st_mode))
             {
               details[0] = 'c';
             }
-          else if (S_ISBLK(buf.st_mode))
+          else if (S_ISDIR(buf.st_mode))
             {
-              details[0] = 'b';
+              details[0] = 'd';
             }
+#ifdef CONFIG_MTD
+          else if (S_ISMTD(buf.st_mode))
+            {
+              details[0] = 'f';
+            }
+#endif
+#ifdef CONFIG_FS_SHM
+          else if (S_ISSHM(buf.st_mode))
+            {
+              details[0] = 'h';
+            }
+#endif
+#ifndef CONFIG_DISABLE_MQUEUE
+          else if (S_ISMQ(buf.st_mode))
+            {
+              details[0] = 'm';
+            }
+#endif
+#ifdef CONFIG_NET
+          else if (S_ISSOCK(buf.st_mode))
+            {
+              details[0] = 'n';
+            }
+#endif
+#ifdef CONFIG_FS_NAMED_SEMAPHORES
+          else if (S_ISSEM(buf.st_mode))
+            {
+              details[0] = 's';
+            }
+#endif
           else if (!S_ISREG(buf.st_mode))
             {
               details[0] = '?';

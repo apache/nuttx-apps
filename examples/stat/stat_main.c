@@ -115,6 +115,10 @@ static void dump_stat(FAR struct stat *buf)
     {
       details[0] = 'l';  /* Takes precedence over type of the target */
     }
+  else if (S_ISBLK(buf->st_mode))
+    {
+      details[0] = 'b';
+    }
   else if (S_ISCHR(buf->st_mode))
     {
       details[0] = 'c';
@@ -123,9 +127,25 @@ static void dump_stat(FAR struct stat *buf)
     {
       details[0] = 'd';
     }
-  else if (S_ISBLK(buf->st_mode))
+  else if (S_ISMTD(buf->st_mode))
     {
-      details[0] = 'b';
+      details[0] = 'f';
+    }
+  else if (S_ISSHM(buf->st_mode))
+    {
+      details[0] = 'h';
+    }
+  else if (S_ISMQ(buf->st_mode))
+    {
+      details[0] = 'm';
+    }
+  else if (S_ISSOCK(buf->st_mode))
+    {
+      details[0] = 'n';
+    }
+  else if (S_ISSEM(buf->st_mode))
+    {
+      details[0] = 's';
     }
   else if (!S_ISREG(buf->st_mode))
     {
