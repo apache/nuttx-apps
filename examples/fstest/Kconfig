@@ -42,7 +42,7 @@ config EXAMPLES_FSTEST_NLOOPS
 
 config EXAMPLES_FSTEST_SPIFFS
 	bool "Enable SPIFFS testing"
-	default n
+	default y
 	depends on FS_SPIFFS
 	---help---
 		SPIFFS garbage collection and integrity checking will be performed
@@ -50,7 +50,6 @@ config EXAMPLES_FSTEST_SPIFFS
 
 		If this option is not selected then the SPIFFS FLASH will likely
 		become full before you finish the test.
-
 
 config EXAMPLES_FSTEST_VERBOSE
 	bool "Verbose output"

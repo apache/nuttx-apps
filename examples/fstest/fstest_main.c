@@ -41,6 +41,7 @@
 
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#include <sys/statfs.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -823,6 +824,7 @@ int main(int argc, FAR char *argv[])
 int fstest_main(int argc, char *argv[])
 #endif
 {
+  struct statfs buf;
   unsigned int i;
   int ret;
 
@@ -921,6 +923,24 @@ int fstest_main(int argc, char *argv[])
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
 #endif
+        }
+
+      /* Show file system usage */
+
+      ret = statfs(g_mountdir, &buf);
+      if (ret < 0)
+        {
+           printf("ERROR: statfs failed: %d\n", errno);
+        }
+      else
+        {
+           printf("File System:\n");
+           printf("  Block Size:      &lu\n", (unsigned long)buf.f_bsize);
+           printf("  No. Blocks:      %lu\n", (unsigned long)buf.f_blocks);
+           printf("  Free Blocks:     %ld\n", (long)buf.f_bfree);
+           printf("  Avail. Blocks:   %ld\n", (long)buf.f_bavail);
+           printf("  No. File Nodes:  %ld\n", (long)buf.f_files);
+           printf("  Free File Nodes: %ld\n", (long)buf.f_ffree);
         }
 
       /* Show memory usage */
