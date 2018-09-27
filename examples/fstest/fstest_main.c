@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/mount.h>
+#include <sys/ioctl.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -271,6 +272,52 @@ static void fstest_freefile(FAR struct fstest_filedesc_s *file)
 }
 
 /****************************************************************************
+ * Name: fstest_gc
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_FSTEST_SPIFFS
+static int fstest_gc(int fd, size_t nbytes)
+{
+  int ret;
+
+  /* Perform SPIFFS garbage collection */
+
+  printf("SPIFFS Garbage Collection:  %lu bytes\n", (unsigned long)nbytes);
+
+  ret = ioctl(fd, FIOC_OPTIMIZE, (unsigned long)nbytes);
+  if (ret < 0)
+    {
+      int ret2;
+
+      printf("ERROR: ioctl(FIOC_OPTIMIZE) failed: %d\n", errno);
+      printf("SPIFFS Integrity Test\n");
+
+      ret2 = ioctl(fd, FIOC_INTEGRITY, 0);
+      if (ret2 < 0)
+        {
+          printf("ERROR: ioctl(FIOC_INTEGRITY) failed: %d\n", errno);
+        }
+    }
+  else
+    {
+      /* Check the integrity of the SPIFFS file system */
+
+      printf("SPIFFS Integrity Test\n");
+
+      ret = ioctl(fd, FIOC_INTEGRITY, 0);
+      if (ret < 0)
+        {
+          printf("ERROR: ioctl(FIOC_INTEGRITY) failed: %d\n", errno);
+        }
+    }
+
+  return ret;
+}
+#else
+#  define fstest_gc(f,n) (-ENOSYS)
+#endif
+
+/****************************************************************************
  * Name: fstest_wrfile
  ****************************************************************************/
 
@@ -284,6 +331,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
 
   fstest_randname(file);
   fstest_randfile(file);
+
   fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
@@ -333,6 +381,18 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
               printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
             }
+          else
+            {
+              int ret2;
+
+              /* Try to recover some space on the FLASH */
+
+              ret2 = fstest_gc(fd, nbytestowrite);
+              if (ret2 >= 0)
+                {
+                  continue;
+                }
+            }
 
           close(fd);
 
@@ -366,6 +426,11 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
       offset += nbyteswritten;
     }
 
+  /* Try to recover some space on the FLASH to write another file of this
+   * size.
+   */
+
+  (void)fstest_gc(fd, file->len);
   close(fd);
   return OK;
 }
