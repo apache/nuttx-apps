@@ -46,10 +46,10 @@ config EXAMPLES_FSTEST_SPIFFS
 	depends on FS_SPIFFS
 	---help---
 		SPIFFS garbage collection and integrity checking will be performed
-		after a write fails with ENOSPC.
+		after each pass through the test and if a write fails with ENOSPC.
 
-		If this option is not selected then the SPIFFS FLASH will likely
-		become full before you finish the test.
+		If this option is not selected then the SPIFFS FLASH will be be
+		reclaimed on-demand when there is no longer any available FLASH.
 
 config EXAMPLES_FSTEST_VERBOSE
 	bool "Verbose output"

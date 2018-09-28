@@ -275,13 +275,25 @@ static void fstest_freefile(FAR struct fstest_filedesc_s *file)
 }
 
 /****************************************************************************
- * Name: fstest_gc
+ * Name: fstest_gc and fstest_gc_withfd
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_FSTEST_SPIFFS
-static int fstest_gc(int fd, size_t nbytes)
+static int fstest_gc_withfd(int fd, size_t nbytes)
 {
   int ret;
+
+#ifdef CONFIG_SPIFFS_DUMP
+  /* Dump the logic content of FLASH before garbage collection */
+
+  printf("SPIFFS Content (before GC):\n");
+
+  ret = ioctl(fd, FIOC_DUMP, (unsigned long)nbytes);
+  if (ret < 0)
+    {
+      printf("ERROR: ioctl(FIOC_DUMP) failed: %d\n", errno);
+    }
+#endif
 
   /* Perform SPIFFS garbage collection */
 
@@ -314,10 +326,60 @@ static int fstest_gc(int fd, size_t nbytes)
         }
     }
 
+#ifdef CONFIG_SPIFFS_DUMP
+  /* Dump the logic content of FLASH after garbage collection */
+
+  printf("SPIFFS Content (After GC):\n");
+
+  ret = ioctl(fd, FIOC_DUMP, (unsigned long)nbytes);
+  if (ret < 0)
+    {
+      printf("ERROR: ioctl(FIOC_DUMP) failed: %d\n", errno);
+    }
+#endif
+
+  return ret;
+}
+
+static int fstest_gc(size_t nbytes)
+{
+  FAR struct fstest_filedesc_s *file;
+  int ret = OK;
+  int fd;
+  int i;
+
+  /* Find the first valid file */
+
+  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name != NULL && !file->deleted)
+        {
+          /* Open the file for reading */
+
+          fd = open(file->name, O_RDONLY);
+          if (fd < 0)
+            {
+              printf("ERROR: Failed to open file for reading: %d\n", errno);
+              ret = ERROR;
+            }
+          else
+            {
+              /* Use this file descriptor to support the garbage collection */
+
+              ret = fstest_gc_withfd(fd, nbytes);
+              close(fd);
+            }
+
+          break;
+        }
+    }
+
   return ret;
 }
 #else
-#  define fstest_gc(f,n) (-ENOSYS)
+#  define fstest_gc_withfd(f,n) (-ENOSYS)
+#  define fstest_gc(n)          (-ENOSYS)
 #endif
 
 /****************************************************************************
@@ -390,7 +452,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
 
               /* Try to recover some space on the FLASH */
 
-              ret2 = fstest_gc(fd, nbytestowrite);
+              ret2 = fstest_gc_withfd(fd, nbytestowrite);
               if (ret2 >= 0)
                 {
                   continue;
@@ -429,11 +491,6 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
       offset += nbyteswritten;
     }
 
-  /* Try to recover some space on the FLASH to write another file of this
-   * size.
-   */
-
-  (void)fstest_gc(fd, file->len);
   close(fd);
   return OK;
 }
@@ -957,6 +1014,10 @@ int fstest_main(int argc, char *argv[])
            printf("  No. File Nodes:  %ld\n", (long)buf.f_files);
            printf("  Free File Nodes: %ld\n", (long)buf.f_ffree);
         }
+
+      /* Perform garbage collection, integrity checks */
+
+      (void)fstest_gc(buf.f_bfree);
 
       /* Show memory usage */
 
