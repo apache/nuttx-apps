@@ -100,6 +100,7 @@ struct fstest_filedesc_s
 {
   FAR char *name;
   bool deleted;
+  bool failed;
   size_t len;
   uint32_t crc;
 };
@@ -114,6 +115,7 @@ static struct fstest_filedesc_s g_files[CONFIG_EXAMPLES_FSTEST_MAXOPEN];
 static const char g_mountdir[] = CONFIG_EXAMPLES_FSTEST_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
+static int g_nfailed;
 
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
@@ -668,8 +670,8 @@ static int fstest_delfiles(void)
 
   /* Are there any files to be deleted? */
 
-  int nfiles = g_nfiles - g_ndeleted;
-  if (nfiles < 1)
+  int nfiles = g_nfiles - g_ndeleted - g_nfailed;
+  if (nfiles <= 1)
     {
       return 0;
     }
@@ -709,6 +711,19 @@ static int fstest_delfiles(void)
                   printf("  File name:  %s\n", file->name);
                   printf("  File size:  %d\n", file->len);
                   printf("  File index: %d\n", j);
+
+                  /* If we don't do this we can get stuck in an infinite
+                   * loop on certain failures to unlink a file.
+                   */
+
+                  file->failed = true;
+                  g_nfailed++;
+                  nfiles--;
+
+                  if (nfiles < 1)
+                    {
+                      return ret;
+                    }
                 }
               else
                 {
@@ -935,7 +950,7 @@ int fstest_main(int argc, char *argv[])
       else
         {
            printf("File System:\n");
-           printf("  Block Size:      &lu\n", (unsigned long)buf.f_bsize);
+           printf("  Block Size:      %lu\n", (unsigned long)buf.f_bsize);
            printf("  No. Blocks:      %lu\n", (unsigned long)buf.f_blocks);
            printf("  Free Blocks:     %ld\n", (long)buf.f_bfree);
            printf("  Avail. Blocks:   %ld\n", (long)buf.f_bavail);
