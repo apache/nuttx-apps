@@ -43,13 +43,15 @@ config EXAMPLES_FSTEST_NLOOPS
 config EXAMPLES_FSTEST_SPIFFS
 	bool "Enable SPIFFS testing"
 	default y
-	depends on FS_SPIFFS
+	depends on FS_SPIFFS && EXPERIMENTAL
 	---help---
 		SPIFFS garbage collection and integrity checking will be performed
 		after each pass through the test and if a write fails with ENOSPC.
 
 		If this option is not selected then the SPIFFS FLASH will be be
 		reclaimed on-demand when there is no longer any available FLASH.
+
+		Marked EXPERIMENTAL because it interferes with test performance.
 
 config EXAMPLES_FSTEST_VERBOSE
 	bool "Verbose output"
