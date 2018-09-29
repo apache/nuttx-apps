@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/fstest/fstest_main.c
  *
- *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -446,6 +446,10 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
               printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
             }
+          else if (errcode == EINTR)
+            {
+              continue;
+            }
           else
             {
               int ret2;
@@ -546,38 +550,46 @@ static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
       len = maxio;
     }
 
-  nbytesread = read(fd, &g_fileimage[offset], len);
-  if (nbytesread < 0)
+  for (; ; )
     {
-      printf("ERROR: Failed to read file: %d\n", errno);
-      printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
-      printf("  Read offset:  %ld\n", (long)offset);
-      printf("  Read size:    %ld\n", (long)len);
-      return ERROR;
-    }
-  else if (nbytesread == 0)
-    {
-#if 0 /* No... we do this on purpose sometimes */
-      printf("ERROR: Unexpected end-of-file:\n");
-      printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
-      printf("  Read offset:  %ld\n", (long)offset);
-      printf("  Read size:    %ld\n", (long)len);
-#endif
-      return ERROR;
-    }
-  else if (nbytesread != len)
-    {
-      printf("ERROR: Partial read:\n");
-      printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
-      printf("  Read offset:  %ld\n", (long)offset);
-      printf("  Read size:    %ld\n", (long)len);
-      printf("  Bytes read:   %ld\n", (long)nbytesread);
-    }
+      nbytesread = read(fd, &g_fileimage[offset], len);
+      if (nbytesread < 0)
+        {
+          int errcode = errno;
 
-  return nbytesread;
+          if (errcode != EINTR)
+            {
+              printf("ERROR: Failed to read file: %d\n", errno);
+              printf("  File name:    %s\n", file->name);
+              printf("  File size:    %d\n", file->len);
+              printf("  Read offset:  %ld\n", (long)offset);
+              printf("  Read size:    %ld\n", (long)len);
+              return ERROR;
+            }
+        }
+      else if (nbytesread == 0)
+        {
+#if 0 /* No... we do this on purpose sometimes */
+          printf("ERROR: Unexpected end-of-file:\n");
+          printf("  File name:    %s\n", file->name);
+          printf("  File size:    %d\n", file->len);
+          printf("  Read offset:  %ld\n", (long)offset);
+          printf("  Read size:    %ld\n", (long)len);
+#endif
+          return ERROR;
+        }
+      else if (nbytesread != len)
+        {
+          printf("ERROR: Partial read:\n");
+          printf("  File name:    %s\n", file->name);
+          printf("  File size:    %d\n", file->len);
+          printf("  Read offset:  %ld\n", (long)offset);
+          printf("  Read size:    %ld\n", (long)len);
+          printf("  Bytes read:   %ld\n", (long)nbytesread);
+        }
+
+      return nbytesread;
+    }
 }
 
 /****************************************************************************
@@ -606,7 +618,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
       return ERROR;
     }
 
-  /* Read all of the data info the fileimage buffer using random read sizes */
+  /* Read all of the data info the file image buffer using random read sizes */
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
