@@ -116,6 +116,7 @@ static const char g_mountdir[] = CONFIG_EXAMPLES_FSTEST_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
 static int g_nfailed;
+static bool g_media_full;
 
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
@@ -433,34 +434,25 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
         {
           int errcode = errno;
 
-          /* If the write failed because there is no space on the device,
-           * then don't complain.
+          /* If the write failed because an interrupt occurred or because there
+           * there is no space on the device, then don't complain.
            */
 
-          if (errcode != ENOSPC)
+          if (errcode == EINTR)
+            {
+              continue;
+            }
+          else if (errcode == ENOSPC)
+            {
+              g_media_full = true;
+            }
+          else
             {
               printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
               printf("  File size:    %d\n", file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
-              ret = ERROR;
-            }
-          else if (errcode == EINTR)
-            {
-              continue;
-            }
-          else
-            {
-              int ret2;
-
-              /* Try to recover some space on the FLASH */
-
-              ret2 = fstest_gc_withfd(fd, nbytestowrite);
-              if (ret2 >= 0)
-                {
-                  continue;
-                }
             }
 
           close(fd);
@@ -511,6 +503,8 @@ static int fstest_fillfs(void)
 
   /* Create a file for each unused file structure */
 
+  g_media_full = false;
+
   for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
     {
       file = &g_files[i];
@@ -529,6 +523,11 @@ static int fstest_fillfs(void)
          printf("  Created file %s\n", file->name);
 #endif
          g_nfiles++;
+
+         if (g_media_full)
+           {
+             break;
+           }
         }
     }
 
@@ -666,6 +665,52 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
 }
 
 /****************************************************************************
+ * Name: fstest_filesize
+ ****************************************************************************/
+
+#ifdef CONFIG_HAVE_LONG_LONG
+static unsigned long long fstest_filesize(void)
+{
+  unsigned long long bytes_used;
+  FAR struct fstest_filedesc_s *file;
+  int i;
+
+  bytes_used = 0;
+
+  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name != NULL && !file->deleted)
+        {
+          bytes_used += file->len;
+        }
+    }
+
+  return bytes_used;
+}
+#else
+static unsigned long fstest_filesize(void)
+{
+  unsigned long bytes_used;
+  FAR struct fstest_filedesc_s *file;
+  int i;
+
+  bytes_used = 0;
+
+  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name != NULL && !file->deleted)
+        {
+          bytes_used += file->len;
+        }
+    }
+
+  return bytes_used;
+}
+#endif
+
+/****************************************************************************
  * Name: fstest_verifyfs
  ****************************************************************************/
 
@@ -707,7 +752,7 @@ static int fstest_verifyfs(void)
               if (file->deleted)
                 {
 #if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
-                  printf("Succesffully read a deleted file\n");
+                  printf("ERROR: Successfully read a deleted file\n");
                   printf("  File name: %s\n", file->name);
                   printf("  File size: %d\n", file->len);
 #endif
@@ -719,7 +764,7 @@ static int fstest_verifyfs(void)
               else
                 {
 #if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
-                  printf("  Verifed file %s\n", file->name);
+                  printf("  Verified file %s\n", file->name);
 #endif
                 }
             }
@@ -955,6 +1000,11 @@ int fstest_main(int argc, char *argv[])
       /* Directory listing */
 
       fstest_directory();
+#ifdef CONFIG_HAVE_LONG_LONG
+      printf("Total file size: %llu\n", fstest_filesize());
+#else
+      printf("Total file size: %lu\n", fstest_filesize());
+#endif
 
       /* Verify all files written to FLASH */
 
@@ -994,6 +1044,11 @@ int fstest_main(int argc, char *argv[])
       /* Directory listing */
 
       fstest_directory();
+#ifdef CONFIG_HAVE_LONG_LONG
+      printf("Total file size: %llu\n", fstest_filesize());
+#else
+      printf("Total file size: %lu\n", fstest_filesize());
+#endif
 
       /* Verify all files written to FLASH */
 

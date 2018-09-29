@@ -12,6 +12,22 @@ config EXAMPLES_FSTEST
 
 if EXAMPLES_FSTEST
 
+config EXAMPLES_FSTEST_PROGNAME
+	string "Program name"
+	default "fstest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_FSTEST_PRIORITY
+	int "FS test task priority"
+	default 100
+
+config EXAMPLES_FSTEST_STACKSIZE
+	int "FS test stack size"
+	default 2048
+
 config EXAMPLES_FSTEST_MAXNAME
 	int "Max name size"
 	default 32
@@ -46,7 +62,7 @@ config EXAMPLES_FSTEST_SPIFFS
 	depends on FS_SPIFFS && EXPERIMENTAL
 	---help---
 		SPIFFS garbage collection and integrity checking will be performed
-		after each pass through the test and if a write fails with ENOSPC.
+		after each pass through the test.
 
 		If this option is not selected then the SPIFFS FLASH will be be
 		reclaimed on-demand when there is no longer any available FLASH.
