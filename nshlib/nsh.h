@@ -677,14 +677,20 @@
 #  undef NSH_HAVE_TRIMDIR
 #endif
 
-/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, irqinfo, and mount (with
- * no arguments).
+#if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_DISABLE_ENVIRON) || \
+     defined(CONFIG_FS_PROCFS_EXCLUDE_ENVIRON) || !defined(NSH_HAVE_CATFILE)
+#  undef CONFIG_NSH_DISABLE_ENV
+#  define CONFIG_NSH_DISABLE_ENV 1
+#endif
+
+/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, env, irqinfo, and
+ * mount (with no arguments).
  */
 
 #if !defined(CONFIG_NSH_DISABLE_CAT) && !defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
     !defined(CONFIG_NSH_DISABLE_IFUPDOWN) && !defined(CONFIG_NSH_DISABLE_DF) && \
-    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(HAVE_IRQINFO) && \
-    !defined(HAVE_MOUNT_LIST)
+    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(CONFIG_NSH_DISABLE_ENV) && \
+    !defined(HAVE_IRQINFO) && !defined(HAVE_MOUNT_LIST)
 #  undef NSH_HAVE_CATFILE
 #endif
 
@@ -1165,6 +1171,10 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
 # endif /* !CONFIG_DISABLE_MOUNTPOINT */
 #endif /* CONFIG_NFILE_DESCRIPTORS */
+
+#ifndef CONFIG_NSH_DISABLE_ENV
+int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 
 #if defined(CONFIG_NET)
 #  if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)

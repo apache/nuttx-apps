@@ -284,6 +284,10 @@ config NSH_DISABLE_ECHO
 	bool "Disable echo"
 	default n
 
+config NSH_DISABLE_ENV
+	bool "Disable env"
+	default n
+
 config NSH_DISABLE_EXEC
 	bool "Disable exec"
 	default y if DEFAULT_SMALL

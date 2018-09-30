@@ -293,6 +293,18 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
 
 /****************************************************************************
+ * Name: cmd_env
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_ENV
+int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  return nsh_catfile(vtbl, argv[0],
+                     CONFIG_NSH_PROC_MOUNTPOINT "/self/group/env");
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_pwd
  ****************************************************************************/
 

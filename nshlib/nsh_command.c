@@ -192,6 +192,10 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_ENV
+  { "env",      cmd_env,      1, 1, NULL },
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_EXEC
   { "exec",     cmd_exec,     2, 3, "<hex-address>" },
 #endif
