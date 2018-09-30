@@ -91,15 +91,25 @@ int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
 
       while (*src != '\0' && *src != '/' && *src != ' ' && *src != ':')
         {
-          /* Make sure that there is space for another character in the hostname.
-           * (reserving space for the null terminator)
+          /* Make sure that there is space for another character in the
+           * hostname (reserving space for the null terminator).
            */
 
-          *dest++ = *src++;
-          if (--bytesleft <= 1)
+          if (bytesleft > 1)
             {
+              /* Copy the byte */
+
+              *dest++ = *src++;
+              bytesleft--;
+            }
+          else
+            {
+              /* Note the error, but continue parsing until the end of the
+               * hostname
+               */
+
+              src++;
               ret = -E2BIG;
-              break;
             }
         }
 
