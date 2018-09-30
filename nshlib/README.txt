@@ -495,7 +495,6 @@ o env
 
   nsh> unset PATH
   nsh> env
-  env
   foo=bar
 
   nsh>
