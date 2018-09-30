@@ -60,12 +60,12 @@ static const char g_http[] = "http://";
  * Name: netlib_parsehttpurl
  ****************************************************************************/
 
-int netlib_parsehttpurl(const char *url, uint16_t *port,
-                     char *hostname, int hostlen,
-                     char *filename, int namelen)
+int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
+                        FAR char *hostname, int hostlen,
+                        FAR char *filename, int namelen)
 {
-  const char *src = url;
-  char *dest;
+  FAR const char *src = url;
+  FAR char *dest;
   int bytesleft;
   int ret = OK;
 
@@ -88,22 +88,21 @@ int netlib_parsehttpurl(const char *url, uint16_t *port,
 
       dest      = hostname;
       bytesleft = hostlen;
+
       while (*src != '\0' && *src != '/' && *src != ' ' && *src != ':')
         {
           /* Make sure that there is space for another character in the hostname.
            * (reserving space for the null terminator)
            */
 
-          if (bytesleft > 1)
-            {
-              *dest++ = *src++;
-              bytesleft--;
-            }
-          else
+          *dest++ = *src++;
+          if (--bytesleft <= 1)
             {
               ret = -E2BIG;
+              break;
             }
         }
+
       *dest = '\0';
 
       /* Check if the hostname is following by a port number */
@@ -118,6 +117,7 @@ int netlib_parsehttpurl(const char *url, uint16_t *port,
               accum = 10*accum + *src - '0';
               src++;
             }
+
           *port = accum;
         }
     }
@@ -133,10 +133,12 @@ int netlib_parsehttpurl(const char *url, uint16_t *port,
 
   dest      = filename;
   bytesleft = namelen;
+
   while (*src == '/')
     {
       src++;
     }
+
   *dest++ = '/';
   bytesleft--;
 
@@ -146,4 +148,3 @@ int netlib_parsehttpurl(const char *url, uint16_t *port,
   filename[namelen-1] = '\0';
   return ret;
 }
-
