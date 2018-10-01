@@ -540,7 +540,7 @@ o export <name> [<value>]
     foo=bar
     dog=poop
 
-  The export is command is not supported by NSH unless both CONFIG_NSH_VARS=y
+  The export command is not supported by NSH unless both CONFIG_NSH_VARS=y
   and CONFIG_DISABLE_ENVIRON is not set.
 
 o free
@@ -1104,7 +1104,7 @@ o route ipv4|ipv6
 
 o set [{+|-}{e|x|xe|ex}] [<name> <value>]
 
-  Set the variable <name> to the sting <value> and or set NSH parser control
+  Set the variable <name> to the string <value> and or set NSH parser control
   options.
 
   For example, a variable may be set like this:
@@ -1116,7 +1116,7 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     foovalue
     nsh>
 
-  If CONFIG_NSH_VARS is set, the effect of the 'set' command is to set the local
+  If CONFIG_NSH_VARS is set, the effect of this 'set' command is to set the local
   NSH variable.  Otherwise, the group-wide environment variable will be set.
 
   Set the 'exit on error control' and/or 'print a trace' of commands when parsing
@@ -1264,7 +1264,7 @@ o umount <dir-path>
 o unset <name>
 
   Remove the value associated with the variable <name>.  This will remove
-  the name-value pairt from both the NSH local variables and the group-wide
+  the name-value pair from both the NSH local variables and the group-wide
   environment variables.  For example:
 
     nsh> echo $foobar
@@ -1591,6 +1591,36 @@ NSH-Specific Configuration Settings
       to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
       FLASH footprint results but then also only simple environment
       variables like $FOO can be used on the command line.
+
+  * CONFIG_NSH_VARS
+      By default, there are no internal NSH variables.  NSH will use OS
+      environment variables for all variable storage.  If this option, NSH
+      will also support local NSH variables.  These variables are, for the
+      most part, transparent and work just like the OS environment
+      variables.  The difference is that when you create new tasks, all of
+      environment variables are inherited by the created tasks.  NSH local
+      variables are not.
+
+      If this option is enabled (and CONFIG_DISABLE_ENVIRON is not), then a
+      new command called 'export' is enabled.  The export command works very
+      must like the set command except that is operates on environment
+      variables.  When CONFIG_NSH_VARS is enabled, there are changes in the
+      behavior of certain commands
+
+      ============== =========================== ===========================
+      CMD             w/o CONFIG_NSH_VARS        w/CONFIG_NSH_VARS
+      ============== =========================== ===========================
+      set <a> <b>    Set environment var a to b  Set NSH var a to b
+      unset <a>      Unsets environment var a    Unsets both environment var
+                                                 and NSH var a
+      export <a> <b> Causes an error             Unsets NSH var a.  Sets
+                                                 environment var a to b.
+      export <a>     Causes an error             Sets environment var a to
+                                                 NSH var b (or "").  Unsets
+                                                 local var a.
+      env            Lists all environment       Lists all environment
+                     variables                   variables
+      ============== =========================== ===========================
 
   * CONFIG_NSH_QUOTE
       Enables back-slash quoting of certain characters within the command.
