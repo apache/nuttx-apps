@@ -18,12 +18,6 @@ config NSH_LIBRARY
 
 if NSH_LIBRARY
 
-config NSH_PROMPT_STRING
-	string "Prompt String"
-	default "nsh> "
-	---help---
-		Provide the shell prompt string, default is "nsh> ".
-
 menuconfig NSH_MOTD
 	bool "Message of the Day (MOTD)"
 	default n
@@ -68,6 +62,12 @@ config NSH_MOTD_STRING
 endif # NSH_MOTD
 
 menu "Command Line Configuration"
+
+config NSH_PROMPT_STRING
+	string "Prompt String"
+	default "nsh> "
+	---help---
+		Provide the shell prompt string, default is "nsh> ".
 
 choice
 	prompt "Command Line Editor"
@@ -297,6 +297,10 @@ config NSH_DISABLE_EXIT
 	bool "Disable exit"
 	default y if DEFAULT_SMALL && !NSH_TELNET
 	default n if !DEFAULT_SMALL || NSH_TELNET
+
+config NSH_DISABLE_EXPORT
+	bool "Disable export"
+	default n
 
 config NSH_DISABLE_FREE
 	bool "Disable free"
@@ -596,6 +600,39 @@ config NSH_MMCSDSPIPORTNO
 endif # MMCSD
 
 menu "Configure Command Options"
+
+config NSH_VARS
+	bool "NSH variables"
+	default n
+	---help---
+		By default, there are no internal NSH variables.  NSH will use OS
+		environment variables for all variable storage.  If this option, NSH
+		will also support local NSH variables.  These variables are, for the
+		most part, transparent and work just like the OS environment
+		variables.  The difference is that when you create new tasks, all of
+		environment variables are inherited by the created tasks.  NSH local
+		variables are not.
+
+		If this option is enabled (and CONFIG_DISABLE_ENVIRON is not), then a
+		new command called 'export' is enabled.  The export command works very
+		must like the set command except that is operates on environment
+		variables.  When CONFIG_NSH_VARS is enabled, there are changes in the
+		behavior of certains commands
+
+		============== =========================== ===========================
+		CMD             w/o CONFIG_NSH_VARS        w/CONFIG_NSH_VARS
+		============== =========================== ===========================
+		set <a> <b>    Set environment var a to b  Set NSH var a to b
+		unset <a>      Unsets environment var a    Unsets both environment var
+		                                           and NSH var a
+		export <a> <b> Causes an error             Unsets NSH var a.  Sets
+		                                           environment var a to b.
+		export <a>     Causes an error             Sets environment var a to
+		                                           NSH var b (or "").  Unsets
+		                                           local var a.
+		env            Lists all environment       Lists all environment
+		               variables                   variables
+		============== =========================== ===========================
 
 config NSH_CMDOPT_DD_STATS
 	bool "dd: Support transfer statistics"

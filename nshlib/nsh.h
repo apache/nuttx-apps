@@ -544,6 +544,11 @@
 # define CONFIG_LIB_HOMEDIR "/"
 #endif
 
+#undef NSH_HAVE_VARS
+#if defined(CONFIG_NSH_VARS) || !defined(CONFIG_DISABLE_ENVIRON)
+#  define NSH_HAVE_VARS
+#endif
+
 /* Stubs used when working directory is not supported */
 
 #if CONFIG_NFILE_DESCRIPTORS <= 0 || defined(CONFIG_DISABLE_ENVIRON)
@@ -683,6 +688,11 @@
 #  define CONFIG_NSH_DISABLE_ENV 1
 #endif
 
+#if !defined(CONFIG_NSH_VARS) || defined(CONFIG_DISABLE_ENVIRON)
+#  undef CONFIG_NSH_DISABLE_EXPORT
+#  define CONFIG_NSH_DISABLE_EXPORT 1
+#endif
+
 /* nsh_catfile used by cat, ifconfig, ifup/down, df, free, env, irqinfo, and
  * mount (with no arguments).
  */
@@ -721,9 +731,11 @@
 #  define NSH_NP_SET_OPTIONS_INIT    (NSH_PFLAG_SILENT)
 #endif
 
-#if defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
+#if !defined(NSH_HAVE_VARS) && defined(CONFIG_NSH_DISABLESCRIPT)
 #  undef  CONFIG_NSH_DISABLE_SET
 #  define CONFIG_NSH_DISABLE_SET 1
+#  undef  CONFIG_NSH_DISABLE_UNSET
+#  define CONFIG_NSH_DISABLE_UNSET 1
 #endif
 
 /****************************************************************************
@@ -1015,6 +1027,9 @@ void nsh_usbtrace(void);
 #ifndef CONFIG_NSH_DISABLE_EXEC
   int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
+#ifndef CONFIG_NSH_DISABLE_EXPORT
+   int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 #ifndef CONFIG_NSH_DISABLE_MB
   int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
@@ -1247,13 +1262,12 @@ int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_SET
-      int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+   int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
-#ifndef CONFIG_DISABLE_ENVIRON
-#  ifndef CONFIG_NSH_DISABLE_UNSET
-      int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#endif /* CONFIG_DISABLE_ENVIRON */
+
+#ifndef CONFIG_NSH_DISABLE_UNSET
+   int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
 #  ifndef CONFIG_NSH_DISABLE_KILL
@@ -1442,6 +1456,32 @@ void nsh_trimdir(FAR char *dirpath);
 
 #ifdef NSH_HAVE_TRIMSPACES
 FAR char *nsh_trimspaces(FAR char *str);
+#endif
+
+/****************************************************************************
+ * Name: nsh_getvar and nsh_setvar
+ *
+ * Description:
+ *   Get or set an NSH variable.
+ *
+ * Input Parmeters:
+ *   vtbl - NSH session data
+ *   name - The name of the variable to get or set
+ *
+ * Returned value:
+ *   nsh_getvar() returns a read-only reference to the variable value on
+ *   success or NULL on failure.
+ *   nset_unsetvar() returns OK on success or an netaged errno value on
+ *   failure.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_VARS
+FAR const char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,
+                          FAR const char *name);
+int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
+               FAR const char *value);
+int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name);
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */

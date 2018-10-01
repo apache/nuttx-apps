@@ -204,8 +204,12 @@ static const struct cmdmap_s g_cmdmap[] =
   { "exit",     cmd_exit,     1, 1, NULL },
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_EXPORT
+  { "export",   cmd_export,   2, 3, "[<name> [<value>]]" },
+#endif
+
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  { "false",     cmd_false,   1, 1, NULL },
+  { "false",    cmd_false,    1, 1, NULL },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_FREE
@@ -517,10 +521,8 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-# ifndef CONFIG_NSH_DISABLE_UNSET
+#ifndef CONFIG_NSH_DISABLE_UNSET
   { "unset",    cmd_unset,    2, 2, "<name>" },
-# endif
 #endif
 
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_URLCODE)

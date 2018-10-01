@@ -483,7 +483,7 @@ o echo [-n] [<string|$name> [<string|$name>...]]
 
 o env
 
-  Show the current address environment.  Example:
+  Show the current name-value pairs in the environment.  Example:
 
   nsh> env
   PATH=/bin
@@ -499,6 +499,8 @@ o env
 
   nsh>
 
+  NOTE:  NSH variables are *not* shown by the env command.
+
 o exec <hex-address>
 
   Execute the user logic at address <hex-address>.  NSH will pause
@@ -510,6 +512,36 @@ o exit
   Exit NSH.  Only useful if you have started some other tasks (perhaps
   using the 'exec' command') and you would like to have NSH out of the
   way.
+
+o export <name> [<value>]
+
+  The 'export' command sets an environment variable, or promotes an
+  NSH variable to an environment variable.  As examples:
+
+  1. Using 'export' to promote an NSH variable to an environment variable.
+
+    nsh> env
+    PATH=/bin
+
+    nsh> set foo bar
+    nsh> env
+    PATH=/bin
+
+    nsh> export foo
+    nsh> env
+    PATH=/bin
+    foo=bar
+
+  2. Using 'export' to set an environment variable
+
+    nsh> export dog poop
+    nsh> env
+    PATH=/bin
+    foo=bar
+    dog=poop
+
+  The export is command is not supported by NSH unless both CONFIG_NSH_VARS=y
+  and CONFIG_DISABLE_ENVIRON is not set.
 
 o free
 
@@ -1072,8 +1104,10 @@ o route ipv4|ipv6
 
 o set [{+|-}{e|x|xe|ex}] [<name> <value>]
 
-  Set the environment variable <name> to the sting <value> and or set NSH
-  parser control options. For example,
+  Set the variable <name> to the sting <value> and or set NSH parser control
+  options.
+
+  For example, a variable may be set like this:
 
     nsh> echo $foobar
 
@@ -1081,6 +1115,9 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     nsh> echo $foobar
     foovalue
     nsh>
+
+  If CONFIG_NSH_VARS is set, the effect of the 'set' command is to set the local
+  NSH variable.  Otherwise, the group-wide environment variable will be set.
 
   Set the 'exit on error control' and/or 'print a trace' of commands when parsing
   scripts in NSH.  The settinngs are in effect from the point of exection, until
@@ -1112,7 +1149,6 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     set -ex foobar foovalue
     nsh> echo $foobar
     foovalue
-
 
 o sh <script-path>
 
@@ -1227,8 +1263,9 @@ o umount <dir-path>
 
 o unset <name>
 
-  Remove the value associated with the environment variable
-  <name>.  Example:
+  Remove the value associated with the variable <name>.  This will remove
+  the name-value pairt from both the NSH local variables and the group-wide
+  environment variables.  For example:
 
     nsh> echo $foobar
     foovalue
@@ -1368,6 +1405,7 @@ Command Dependencies on Configuration Settings
   env        -- CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_PROCFS && !CONFIG_DISABLE_ENVIRON && !CONFIG_PROCFS_EXCLUDE_ENVIRON
   exec       --
   exit       --
+  export    CONFIG_NSH_VARS && !CONFIG_DISABLE_ENVIRON
   free       --
   get        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && MTU >= 558  (see note 1)
   help       --
@@ -1405,7 +1443,7 @@ Command Dependencies on Configuration Settings
   route      CONFIG_FS_PROCFS && CONFIG_FS_PROCFS_EXCLUDE_NET &&
              !CONFIG_FS_PROCFS_EXCLUDE_ROUTE && CONFIG_NET_ROUTE &&
              !CONFIG_NSH_DISABLE_ROUTE && (CONFIG_NET_IPv4 || CONFIG_NET_IPv6)
-  set        !CONFIG_DISABLE_ENVIRON
+  set        CONFIG_NSH_VARS || !CONFIG_DISABLE_ENVIRON
   sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
   sleep      !CONFIG_DISABLE_SIGNALS
@@ -1415,7 +1453,7 @@ Command Dependencies on Configuration Settings
   truncate   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE
   uname      !CONFIG_NSH_DISABLE_UNAME
-  unset      !CONFIG_DISABLE_ENVIRON
+  unset      CONFIG_NSH_VARS || !CONFIG_DISABLE_ENVIRON
   urldecode  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_URLCODE
   urlencode  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_URLCODE
   useradd    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
@@ -1444,23 +1482,23 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_CP,        CONFIG_NSH_DISABLE_DD,        CONFIG_NSH_DISABLE_DELROUTE,
   CONFIG_NSH_DISABLE_DF,        CONFIG_NSH_DISABLE_DIRNAME,   CONFIG_NSH_DISABLE_ECHO,
   CONFIG_NSH_DISABLE_ENV,       CONFIG_NSH_DISABLE_EXEC,      CONFIG_NSH_DISABLE_EXIT,
-  CONFIG_NSH_DISABLE_FREE,      CONFIG_NSH_DISABLE_GET,       CONFIG_NSH_DISABLE_HELP,
-  CONFIG_NSH_DISABLE_HEXDUMP,   CONFIG_NSH_DISABLE_IFCONFIG,  CONFIG_NSH_DISABLE_IFUPDOWN,
-  CONFIG_NSH_DISABLE_KILL,      CONFIG_NSH_DISABLE_LOSETUP,   CONFIG_NSH_DISABLE_LN,
-  CONFIG_NSH_DISABLE_LS,        CONFIG_NSH_DISABLE_MD5,       CONFIG_NSH_DISABLE_MB,
-  CONFIG_NSH_DISABLE_MKDIR,     CONFIG_NSH_DISABLE_MKFATFS,   CONFIG_NSH_DISABLE_MKFIFO,
-  CONFIG_NSH_DISABLE_MKRD,      CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MODCMDS,
-  CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,        CONFIG_NSH_DISABLE_MV,
-  CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_NSLOOKUP,  CONFIG_NSH_DISABLE_PASSWD,
-  CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PS,
-  CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_READLINK,
-  CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
-  CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,
-  CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,
-  CONFIG_NSH_DIABLE_TIME,       CONFIG_NSH_DISABLE_TRUNCATE,  CONFIG_NSH_DISABLE_UMOUNT,
-  CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE,
-  CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,   CONFIG_NSH_DISABLE_USLEEP,
-  CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_EXPORT,    CONFIG_NSH_DISABLE_FREE,      CONFIG_NSH_DISABLE_GET,
+  CONFIG_NSH_DISABLE_HELP,      CONFIG_NSH_DISABLE_HEXDUMP,   CONFIG_NSH_DISABLE_IFCONFIG,
+  CONFIG_NSH_DISABLE_IFUPDOWN,  CONFIG_NSH_DISABLE_KILL,      CONFIG_NSH_DISABLE_LOSETUP,
+  CONFIG_NSH_DISABLE_LN,        CONFIG_NSH_DISABLE_LS,        CONFIG_NSH_DISABLE_MD5,
+  CONFIG_NSH_DISABLE_MB,        CONFIG_NSH_DISABLE_MKDIR,     CONFIG_NSH_DISABLE_MKFATFS,
+  CONFIG_NSH_DISABLE_MKFIFO,    CONFIG_NSH_DISABLE_MKRD,      CONFIG_NSH_DISABLE_MH,
+  CONFIG_NSH_DISABLE_MODCMDS,   CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,
+  CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_NSLOOKUP,
+  CONFIG_NSH_DISABLE_PASSWD,    CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_POWEROFF,
+  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,
+  CONFIG_NSH_DISABLE_READLINK,  CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,
+  CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,
+  CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,
+  CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DIABLE_TIME,       CONFIG_NSH_DISABLE_TRUNCATE,
+  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
+  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,
+  CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.

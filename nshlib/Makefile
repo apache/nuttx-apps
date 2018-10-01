@@ -65,6 +65,10 @@ ifeq ($(CONFIG_NSH_FILE_APPS),y)
 CSRCS += nsh_fileapps.c
 endif
 
+ifeq ($(CONFIG_NSH_VARS),y)
+CSRCS += nsh_vars.c
+endif
+
 ifeq ($(CONFIG_NSH_ROMFSETC),y)
 CSRCS += nsh_romfsetc.c
 endif

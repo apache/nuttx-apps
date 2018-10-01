@@ -201,9 +201,9 @@ void nsh_freefullpath(FAR char *fullpath)
 #ifndef CONFIG_NSH_DISABLE_CD
 int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  const char *path = argv[1];
-  char *alloc = NULL;
-  char *fullpath = NULL;
+  FAR const char *path = argv[1];
+  FAR char *alloc = NULL;
+  FAR char *fullpath = NULL;
   int ret = OK;
 
   /* Check for special arguments */
@@ -228,7 +228,7 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       path     = fullpath;
     }
 
-  /* Set the new workding directory */
+  /* Set the new working directory */
 
   ret = chdir(path);
   if (ret != 0)
@@ -327,15 +327,18 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *value;
   int ret = OK;
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef NSH_HAVE_VARS
   int ndx = 1;
 #endif
+
 #ifndef CONFIG_NSH_DISABLESCRIPT
   FAR char *popt;
   const char opts[] = NSH_NP_SET_OPTIONS;
   int op;
 
-#ifndef CONFIG_DISABLE_ENVIRON
+  /* REVISIT:  set with no arguments should show all of the NSH variables */
+
+#ifdef NSH_HAVE_VARS
   /* Support set [{+|-}{e|x|xe|ex}] [<name> <value>] */
 
   if (argc == 2 || argc == 4)
@@ -380,7 +383,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     }
                 }
 
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef NSH_HAVE_VARS
               if (ret == OK)
                 {
                   ndx = 2;
@@ -390,16 +393,27 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
          }
       }
 
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef NSH_HAVE_VARS
   if (ret == OK && (argc == 3 || argc == 4))
 #endif
 #endif /* CONFIG_NSH_DISABLESCRIPT */
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef NSH_HAVE_VARS
     {
       /* Trim whitespace from the value */
 
       value = nsh_trimspaces(argv[ndx+1]);
 
+#if defined(CONFIG_NSH_VARS)
+      /* Set NSH variable (may shadow a environment variable) */
+
+      ret = nsh_setvar(vtbl, argv[ndx], value);
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_setvar",
+                     NSH_ERRNO_OF(-ret));
+        }
+
+#elif !defined(CONFIG_DISABLE_ENVIRON)
       /* Set the environment variable */
 
       ret = setenv(argv[ndx], value, TRUE);
@@ -407,27 +421,104 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
         }
-    }
 #endif
+    }
+#endif /* NSH_HAVE_VARS */
+
   return ret;
 }
-#endif
+#endif /* CONFIG_NSH_DISABLE_SET */
 
 /****************************************************************************
  * Name: cmd_unset
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_UNSET
 int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  int ret = unsetenv(argv[1]);
-  if (ret < 0)
+  int status;
+  int ret = OK;
+
+#if defined(CONFIG_NSH_VARS)
+  /* Unset NSH variable */
+
+  status = nsh_unsetvar(vtbl, argv[1]);
+  if (status < 0 && status != -ENOENT)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
+                 NSH_ERRNO_OF(-status));
+      ret = ERROR;
+    }
+#endif
+
+#if !defined(CONFIG_DISABLE_ENVIRON)
+  /* Unset environment variable */
+
+  status = unsetenv(argv[1]);
+  if (status < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
+      ret = ERROR;
     }
+#endif
 
   return ret;
 }
 #endif
+
+/****************************************************************************
+ * Name: cmd_export
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_UNSET
+int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR const char *value = "";
+  int status;
+  int ret = OK;
+
+  /* Get the value from the command line if provided.  argc may be either 2
+   * or 3
+   */
+
+  if (argc == 3)
+    {
+      value = argv[2];
+    }
+  else
+    {
+      FAR const char *tmp;
+
+      /* Try to get the value from the NSH variable */
+
+      tmp = nsh_getvar(vtbl, argv[1]);
+      if (tmp != NULL)
+        {
+          value = tmp;
+        }
+    }
+
+  /* Set the environment variable to the selected value */
+
+  status = setenv(argv[1], value, TRUE);
+  if (status < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
+      ret = ERROR;
+    }
+  else
+    {
+      /* Unset NSH variable */
+
+      status = nsh_unsetvar(vtbl, argv[1]);
+      if (status < 0 && status != -ENOENT)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
+                     NSH_ERRNO_OF(-status));
+          ret = ERROR;
+        }
+    }
+
+  return ret;
+}
 #endif

@@ -158,6 +158,13 @@ struct console_stdio_s
   FILE  *cn_outstream; /* Output stream */
 #endif
 
+#ifdef CONFIG_NSH_VARS
+  /* Allocation and size of NSH variables */
+
+  FAR char *varp;
+  size_t varsz;
+#endif
+
   /* Line input buffer */
 
   char   cn_line[CONFIG_NSH_LINELEN];

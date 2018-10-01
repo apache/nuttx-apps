@@ -158,8 +158,8 @@ static FAR char *nsh_strchr(FAR const char *str, int ch);
 #  define nsh_strchr(s,c) strchr(s,c)
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
+#ifdef NSH_HAVE_VARS
+static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
 #endif
 
@@ -217,7 +217,7 @@ static const char g_arg_separator[]   = "`$";
 #endif
 static const char g_redirect1[]       = ">";
 static const char g_redirect2[]       = ">>";
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef CONFIG_NSH_VARS
 static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
@@ -1013,9 +1013,9 @@ static FAR char *nsh_strchr(FAR const char *str, int ch)
  * Name: nsh_envexpand
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
-static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
-                               FAR char *varname)
+#ifdef NSH_HAVE_VARS
+static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
+                                     FAR char *varname)
 {
   /* Check for built-in variables */
 
@@ -1030,22 +1030,35 @@ static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
           return (FAR char *)g_success;
         }
     }
-
-  /* Not a built-in? Return the value of the environment variable with this
-   * name.
-   */
-
   else
     {
-      FAR char *value = getenv(varname);
-      if (value)
+      FAR const char *value;
+
+      /* Not a built-in? Return the value of the NSH variable with this
+       * name.
+       */
+
+#ifdef CONFIG_NSH_VARS
+      value = nsh_getvar(vtbl, varname);
+      if (value != NULL)
         {
           return value;
         }
-      else
+#endif
+
+  /* Not an NSH variable? Return the value of the NSH variable environment variable with this
+   * name.
+   */
+
+#ifndef CONFIG_DISABLE_ENVIRON
+      value = getenv(varname);
+      if (value != NULL)
         {
-          return (FAR char *)g_nullstring;
+          return value;
         }
+#endif
+
+      return (FAR char *)g_nullstring;
     }
 }
 #endif
@@ -1256,12 +1269,12 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
       else
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef CONFIG_NSH_VARS
       /* Check if we encountered a reference to an environment variable */
 
       if (*ptr == '$')
         {
-          FAR char *envstr;
+          FAR const char *envstr;
           FAR char *rptr;
 
           /* Replace the dollar sign with a NUL terminator and add the
@@ -1397,7 +1410,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   else
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
+#ifdef NSH_HAVE_VARS
   /* Check for references to environment variables */
 
   if (*cmdline == '$')

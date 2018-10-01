@@ -307,6 +307,15 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 #endif
 #endif
 
+#ifdef CONFIG_NSH_VARS
+  /* Free any NSH variables */
+
+  if (pstate->varp != NULL)
+    {
+      free(pstate->varp);
+    }
+#endif
+
   /* Then release the vtable container */
 
   free(pstate);
@@ -343,7 +352,8 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save)
+static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
+                                FAR uint8_t *save)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
