@@ -470,7 +470,7 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_export
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLE_UNSET
+#ifndef CONFIG_NSH_DISABLE_EXPORT
 int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR const char *value = "";

@@ -182,14 +182,15 @@ int nsh_removevar(FAR struct console_stdio_s *pstate, FAR char *pair)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_getvar and nsh_setvar
+ * Name: nsh_getvar, nsh_setvar, and nsh_setvar
  *
  * Description:
- *   Get or set an NSH variable.
+ *   Get, set, or unset an NSH variable.
  *
  * Input Parmeters:
- *   vtbl - NSH session data
- *   name - The name of the variable to get or set
+ *   vtbl  - NSH session data
+ *   name  - The name of the variable to get or set
+ *   value - The value to use with nsh_setvar()
  *
  * Returned value:
  *   nsh_getvar() returns a read-only reference to the variable value on
@@ -234,6 +235,7 @@ FAR const char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,
  * Name: nsh_setvar
  ****************************************************************************/
 
+#ifndef CONFIG_NSH_DISABLE_SET
 int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                FAR const char *value)
 {
@@ -298,11 +300,13 @@ int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
   sprintf(pair, "%s=%s", name, value);
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_unsetvar
  ****************************************************************************/
 
+#if !defined(CONFIG_NSH_DISABLE_UNSET) || !defined(CONFIG_NSH_DISABLE_EXPORT)
 int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
@@ -359,5 +363,6 @@ int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
   sched_unlock();
   return ret;
 }
+#endif
 
 #endif /* CONFIG_NSH_VARS */

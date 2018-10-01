@@ -1459,14 +1459,15 @@ FAR char *nsh_trimspaces(FAR char *str);
 #endif
 
 /****************************************************************************
- * Name: nsh_getvar and nsh_setvar
+ * Name: nsh_getvar, nsh_setvar, and nsh_setvar
  *
  * Description:
- *   Get or set an NSH variable.
+ *   Get, set, or unset an NSH variable.
  *
  * Input Parmeters:
- *   vtbl - NSH session data
- *   name - The name of the variable to get or set
+ *   vtbl  - NSH session data
+ *   name  - The name of the variable to get or set
+ *   value - The value to use with nsh_setvar()
  *
  * Returned value:
  *   nsh_getvar() returns a read-only reference to the variable value on
@@ -1479,9 +1480,13 @@ FAR char *nsh_trimspaces(FAR char *str);
 #ifdef CONFIG_NSH_VARS
 FAR const char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *name);
+#ifndef CONFIG_NSH_DISABLE_SET
 int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                FAR const char *value);
+#endif
+#if !defined(CONFIG_NSH_DISABLE_UNSET) || !defined(CONFIG_NSH_DISABLE_EXPORT)
 int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name);
+#endif
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */
