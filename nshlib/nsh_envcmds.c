@@ -76,7 +76,7 @@ static inline FAR const char *nsh_getwd(const char *wd)
   /* If no working directory is defined, then default to the home directory */
 
   val = getenv(wd);
-  if (!val)
+  if (val == NULL)
     {
       val = g_home;
     }
@@ -399,29 +399,50 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif /* CONFIG_NSH_DISABLESCRIPT */
 #ifdef NSH_HAVE_VARS
     {
+#if defined(CONFIG_NSH_VARS) && !defined(CONFIG_DISABLE_ENVIRON)
+      FAR char *oldvalue;
+#endif
+
       /* Trim whitespace from the value */
 
       value = nsh_trimspaces(argv[ndx+1]);
 
-#if defined(CONFIG_NSH_VARS)
-      /* Set NSH variable (may shadow a environment variable) */
+#ifdef CONFIG_NSH_VARS
+#ifndef CONFIG_DISABLE_ENVIRON
+      /* Check if the NSH variable has already been promoted to an group-
+       * wide environment variable.
+       */
 
-      ret = nsh_setvar(vtbl, argv[ndx], value);
-      if (ret < 0)
-        {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_setvar",
-                     NSH_ERRNO_OF(-ret));
-        }
-
-#elif !defined(CONFIG_DISABLE_ENVIRON)
-      /* Set the environment variable */
-
-      ret = setenv(argv[ndx], value, TRUE);
-      if (ret < 0)
-        {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
-        }
+     oldvalue = getenv(argv[ndx]);
+     if (oldvalue == NULL)
 #endif
+        {
+          /* Set the NSH variable */
+
+          ret = nsh_setvar(vtbl, argv[ndx], value);
+          if (ret < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_setvar",
+                         NSH_ERRNO_OF(-ret));
+            }
+        }
+#endif /* CONFIG_NSH_VARS */
+
+#if !defined(CONFIG_DISABLE_ENVIRON)
+#ifdef CONFIG_NSH_VARS
+      else
+#endif
+        {
+          /* Set the environment variable */
+
+          ret = setenv(argv[ndx], value, TRUE);
+          if (ret < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv",
+                               NSH_ERRNO);
+            }
+        }
+#endif /* !CONFIG_DISABLE_ENVIRON */
     }
 #endif /* NSH_HAVE_VARS */
 
