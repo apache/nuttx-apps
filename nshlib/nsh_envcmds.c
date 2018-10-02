@@ -411,6 +411,9 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_DISABLE_ENVIRON
       /* Check if the NSH variable has already been promoted to an group-
        * wide environment variable.
+       *
+       * REVISIT:  Is this the correct behavior?  Bash would create/modify
+       * a local variable that shadows the environment variable.
        */
 
      oldvalue = getenv(argv[ndx]);
@@ -529,7 +532,11 @@ int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-      /* Unset NSH variable */
+      /* Unset NSH variable.
+       *
+       * REVISIT:  Is this the correct behavior?  Bash would retain
+       * a local variable that shadows the environment variable.
+       */
 
       status = nsh_unsetvar(vtbl, argv[1]);
       if (status < 0 && status != -ENOENT)

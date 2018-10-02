@@ -520,25 +520,32 @@ o export <name> [<value>]
 
   1. Using 'export' to promote an NSH variable to an environment variable.
 
-    nsh> env
-    PATH=/bin
+       nsh> env
+       PATH=/bin
 
-    nsh> set foo bar
-    nsh> env
-    PATH=/bin
+       nsh> set foo bar
+       nsh> env
+       PATH=/bin
 
-    nsh> export foo
-    nsh> env
-    PATH=/bin
-    foo=bar
+       nsh> export foo
+       nsh> env
+       PATH=/bin
+       foo=bar
+
+     A group-wide environment variable is created with the same value as the
+     local NSH variable; the local NSH variable is removed.
+
+     NOTE: This behavior differs from the Bash shell.  Bash will retain the
+     local Bash variable which will shadow the environment variable of the
+     same name.
 
   2. Using 'export' to set an environment variable
 
-    nsh> export dog poop
-    nsh> env
-    PATH=/bin
-    foo=bar
-    dog=poop
+       nsh> export dog poop
+       nsh> env
+       PATH=/bin
+       foo=bar
+       dog=poop
 
   The export command is not supported by NSH unless both CONFIG_NSH_VARS=y
   and CONFIG_DISABLE_ENVIRON is not set.
@@ -1116,8 +1123,18 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     foovalue
     nsh>
 
-  If CONFIG_NSH_VARS is set, the effect of this 'set' command is to set the local
-  NSH variable.  Otherwise, the group-wide environment variable will be set.
+  If CONFIG_NSH_VARS is selected, the effect of this 'set' command is to set
+  the local NSH variable.  Otherwise, the group-wide environment variable
+  will be set.
+
+  If the local NSH variable has already been 'promoted' to an environment
+  variable, then the 'set' command will set the value of the environment
+  variable rather than the local NSH variable.
+
+  NOTE:  The Bash shell does not work this way.  Bash would set the value of
+  the local Bash variable and would not modify the environment variable.
+  The local Bash variable would that then shadow the environment variable
+  with a differing value.
 
   Set the 'exit on error control' and/or 'print a trace' of commands when parsing
   scripts in NSH.  The settinngs are in effect from the point of exection, until
