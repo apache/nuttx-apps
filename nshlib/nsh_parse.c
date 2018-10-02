@@ -217,7 +217,7 @@ static const char g_arg_separator[]   = "`$";
 #endif
 static const char g_redirect1[]       = ">";
 static const char g_redirect2[]       = ">>";
-#ifdef CONFIG_NSH_VARS
+#ifdef NSH_HAVE_VARS
 static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
@@ -1034,11 +1034,11 @@ static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
     {
       FAR const char *value;
 
+#ifdef CONFIG_NSH_VARS
       /* Not a built-in? Return the value of the NSH variable with this
        * name.
        */
 
-#ifdef CONFIG_NSH_VARS
       value = nsh_getvar(vtbl, varname);
       if (value != NULL)
         {
@@ -1046,11 +1046,11 @@ static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
         }
 #endif
 
-  /* Not an NSH variable? Return the value of the NSH variable environment variable with this
-   * name.
-   */
-
 #ifndef CONFIG_DISABLE_ENVIRON
+      /* Not an NSH variable? Return the value of the NSH variable
+       * environment variable with this name.
+       */
+
       value = getenv(varname);
       if (value != NULL)
         {
