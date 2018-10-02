@@ -1633,6 +1633,7 @@ NSH-Specific Configuration Settings
       CMD             w/o CONFIG_NSH_VARS        w/CONFIG_NSH_VARS
       ============== =========================== ===========================
       set <a> <b>    Set environment var a to b  Set NSH var a to b
+      set            Causes an error             Lists all NSH variables
       unset <a>      Unsets environment var a    Unsets both environment var
                                                  and NSH var a
       export <a> <b> Causes an error             Unsets NSH var a.  Sets
@@ -1641,7 +1642,7 @@ NSH-Specific Configuration Settings
                                                  NSH var b (or "").  Unsets
                                                  local var a.
       env            Lists all environment       Lists all environment
-                     variables                   variables
+                     variables                   variables (only)
       ============== =========================== ===========================
 
   * CONFIG_NSH_QUOTE
