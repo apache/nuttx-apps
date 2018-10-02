@@ -1269,7 +1269,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
       else
 #endif
 
-#ifdef CONFIG_NSH_VARS
+#ifdef NSH_HAVE_VARS
       /* Check if we encountered a reference to an environment variable */
 
       if (*ptr == '$')
