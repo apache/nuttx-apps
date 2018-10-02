@@ -863,6 +863,13 @@ typedef CODE int (*nsh_direntry_handler_t)(FAR struct nsh_vtbl_s *vtbl,
                                            FAR struct dirent *entryp,
                                            FAR void *pvarg);
 
+#if defined(CONFIG_NSH_VARS) && !defined(CONFIG_NSH_DISABLE_SET)
+/* Used with nsh_foreach_var() */
+
+typedef int (*nsh_foreach_var_t)(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
+                                 FAR const char *pair);
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -1464,7 +1471,7 @@ FAR char *nsh_trimspaces(FAR char *str);
  * Description:
  *   Get, set, or unset an NSH variable.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   vtbl  - NSH session data
  *   name  - The name of the variable to get or set
  *   value - The value to use with nsh_setvar()
@@ -1472,7 +1479,7 @@ FAR char *nsh_trimspaces(FAR char *str);
  * Returned value:
  *   nsh_getvar() returns a read-only reference to the variable value on
  *   success or NULL on failure.
- *   nset_unsetvar() returns OK on success or an netaged errno value on
+ *   nset_unsetvar() returns OK on success or an negated errno value on
  *   failure.
  *
  ****************************************************************************/
@@ -1486,6 +1493,29 @@ int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
 #if !defined(CONFIG_NSH_DISABLE_UNSET) || !defined(CONFIG_NSH_DISABLE_EXPORT)
 int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name);
 #endif
+#endif
+
+/****************************************************************************
+ * Name: nsh_foreach_var
+ *
+ * Description:
+ *   Visit each name-value pair in the environment.
+ *
+ * Input Parameters:
+ *   vtbl  - NSH session data
+ *   cb    - The callback function to be invoked for each environment
+ *           variable.
+ *
+ * Returned Value:
+ *   Zero if the all NSH variables have been traversed.  A non-zero value
+ *   means that the callback function requested early termination by
+ *   returning a nonzero value.
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_VARS) && !defined(CONFIG_NSH_DISABLE_SET)
+int nsh_foreach_var(FAR struct nsh_vtbl_s *vtbl, nsh_foreach_var_t cb,
+                    FAR void *arg);
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */

@@ -187,7 +187,7 @@ int nsh_removevar(FAR struct console_stdio_s *pstate, FAR char *pair)
  * Description:
  *   Get, set, or unset an NSH variable.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   vtbl  - NSH session data
  *   name  - The name of the variable to get or set
  *   value - The value to use with nsh_setvar()
@@ -195,7 +195,7 @@ int nsh_removevar(FAR struct console_stdio_s *pstate, FAR char *pair)
  * Returned value:
  *   nsh_getvar() returns a read-only reference to the variable value on
  *   success or NULL on failure.
- *   nset_unsetvar() returns OK on success or an netaged errno value on
+ *   nset_unsetvar() returns OK on success or an negated errno value on
  *   failure.
  *
  ****************************************************************************/
@@ -204,8 +204,7 @@ int nsh_removevar(FAR struct console_stdio_s *pstate, FAR char *pair)
  * Name: nsh_getvar
  ****************************************************************************/
 
-FAR const char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,
-                          FAR const char *name)
+FAR char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,FAR const char *name)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR char *pair;
@@ -361,6 +360,60 @@ int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
     }
 
   sched_unlock();
+  return ret;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_foreach_var
+ *
+ * Description:
+ *   Visit each name-value pair in the environment.
+ *
+ * Input Parameters:
+ *   vtbl  - NSH session data
+ *   cb    - The callback function to be invoked for each environment
+ *           variable.
+ *
+ * Returned Value:
+ *   Zero if the all NSH variables have been traversed.  A non-zero value
+ *   means that the callback function requested early termination by
+ *   returning a nonzero value.
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_SET
+int nsh_foreach_var(FAR struct nsh_vtbl_s *vtbl, nsh_foreach_var_t cb,
+                    FAR void *arg)
+{
+  FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
+  FAR char *ptr;
+  FAR char *end;
+  int ret = OK;
+
+  /* Verify input parameters */
+
+  DEBUGASSERT(pstate != NULL && cb != NULL);
+
+  /* Search for a name=value string with matching name */
+
+  end = &pstate->varp[pstate->varsz];
+  for (ptr = pstate->varp; ptr < end; ptr += (strlen(ptr) + 1))
+    {
+      /* Perform the callback */
+
+      ret = cb(vtbl, arg, ptr);
+
+      /* Terminate the traversal early if the callback so requests by
+       * returning a non-zero value.
+       */
+
+      if (ret != 0)
+        {
+          break;
+        }
+    }
+
   return ret;
 }
 #endif

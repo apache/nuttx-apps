@@ -450,6 +450,15 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_SET
+#ifdef CONFIG_NSH_VARS
+#  if !defined(CONFIG_DISABLE_ENVIRON) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  { "set",      cmd_set,      1, 4, "[{+|-}{e|x|xe|ex}] [<name> <value>]" },
+#  elif !defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
+  { "set",      cmd_set,      1, 3, "[<name> <value>]" },
+#  elif defined(CONFIG_DISABLE_ENVIRON) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  { "set",      cmd_set,      1, 2, "[{+|-}{e|x|xe|ex}]" },
+#  endif
+#else
 #  if !defined(CONFIG_DISABLE_ENVIRON) && !defined(CONFIG_NSH_DISABLESCRIPT)
   { "set",      cmd_set,      2, 4, "[{+|-}{e|x|xe|ex}] [<name> <value>]" },
 #  elif !defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
@@ -458,6 +467,7 @@ static const struct cmdmap_s g_cmdmap[] =
   { "set",      cmd_set,      2, 2, "{+|-}{e|x|xe|ex}" },
 #  endif
 #endif
+#endif /* CONFIG_NSH_DISABLE_SET */
 
 #if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
 # ifndef CONFIG_NSH_DISABLE_SH

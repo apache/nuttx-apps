@@ -125,6 +125,19 @@ static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
 }
 
 /****************************************************************************
+ * Name: nsh_dumpvar
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_VARS) && !defined(CONFIG_NSH_DISABLE_SET)
+static int nsh_dumpvar(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
+                       FAR const char *pair)
+{
+  nsh_output(vtbl, "%s\n", pair);
+  return OK;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -336,8 +349,17 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   const char opts[] = NSH_NP_SET_OPTIONS;
   int op;
 
-  /* REVISIT:  set with no arguments should show all of the NSH variables */
+#ifdef CONFIG_NSH_VARS
+  /* Set with no arguments will show all of the NSH variables */
 
+  if (argc == 1)
+    {
+      ret = nsh_foreach_var(vtbl, nsh_dumpvar, NULL);
+      nsh_output(vtbl, "\n");
+      return ret < 0 ? ERROR : OK;
+    }
+  else
+#endif
 #ifdef NSH_HAVE_VARS
   /* Support set [{+|-}{e|x|xe|ex}] [<name> <value>] */
 

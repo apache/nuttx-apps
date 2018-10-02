@@ -1136,6 +1136,12 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
   The local Bash variable would that then shadow the environment variable
   with a differing value.
 
+  If CONFIG_NSH_VARS is selected and no arguments are provided, then the
+  'set' command will list all list all NSH variables.
+
+    nsh> set
+    foolbar=foovalue
+
   Set the 'exit on error control' and/or 'print a trace' of commands when parsing
   scripts in NSH.  The settinngs are in effect from the point of exection, until
   they are changed again, or in the case of the init script, the settings are
