@@ -159,7 +159,7 @@ static FAR char *nsh_strchr(FAR const char *str, int ch);
 #endif
 
 #ifdef NSH_HAVE_VARS
-static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
+static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
 #endif
 
@@ -1014,8 +1014,7 @@ static FAR char *nsh_strchr(FAR const char *str, int ch)
  ****************************************************************************/
 
 #ifdef NSH_HAVE_VARS
-static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
-                                     FAR char *varname)
+static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *varname)
 {
   /* Check for built-in variables */
 
@@ -1032,7 +1031,7 @@ static FAR const char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
     }
   else
     {
-      FAR const char *value;
+      FAR char *value;
 
 #ifdef CONFIG_NSH_VARS
       /* Not a built-in? Return the value of the NSH variable with this

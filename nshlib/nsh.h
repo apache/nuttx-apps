@@ -1478,8 +1478,7 @@ FAR char *nsh_trimspaces(FAR char *str);
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_VARS
-FAR const char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl,
-                          FAR const char *name);
+FAR char *nsh_getvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name);
 #ifndef CONFIG_NSH_DISABLE_SET
 int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                FAR const char *value);

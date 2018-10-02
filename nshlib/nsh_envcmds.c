@@ -460,7 +460,9 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_UNSET
 int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+#if defined(CONFIG_NSH_VARS) || !defined(CONFIG_DISABLE_ENVIRON)
   int status;
+#endif
   int ret = OK;
 
 #if defined(CONFIG_NSH_VARS)
