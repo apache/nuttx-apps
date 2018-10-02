@@ -537,7 +537,7 @@ o export <name> [<value>]
 
      NOTE: This behavior differs from the Bash shell.  Bash will retain the
      local Bash variable which will shadow the environment variable of the
-     same name.
+     same name and same value.
 
   2. Using 'export' to set an environment variable
 
@@ -1132,9 +1132,8 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
   variable rather than the local NSH variable.
 
   NOTE:  The Bash shell does not work this way.  Bash would set the value of
-  the local Bash variable and would not modify the environment variable.
-  The local Bash variable would that then shadow the environment variable
-  with a differing value.
+  both the local Bash variable and of the environment variable of the same
+  name to the same value.
 
   If CONFIG_NSH_VARS is selected and no arguments are provided, then the
   'set' command will list all list all NSH variables.
