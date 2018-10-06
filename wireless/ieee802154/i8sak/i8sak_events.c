@@ -80,7 +80,7 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 #endif
   FAR struct i8sak_eventreceiver_s *receiver;
   FAR struct ieee802154_primitive_s *primitive = NULL;
-  int ret;
+  int ret = OK;
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
     {
@@ -117,13 +117,15 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 
       if (ret != OK)
         {
-          return NULL;
+          i8sak->eventlistener_run = false;
+          continue;
         }
 
       ret = sem_wait(&i8sak->eventsem);
       if (ret != OK)
         {
-          return NULL;
+          i8sak->eventlistener_run = false;
+          continue;
         }
 
       /* Loop through event receivers and call callbacks for those receivers
@@ -188,6 +190,22 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
       sem_post(&i8sak->eventsem);
     }
 
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      macarg.enable = false;
+      ioctl(i8sak->fd, MAC802154IOC_ENABLE_EVENTS,
+                  (unsigned long)((uintptr_t)&macarg));
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      netarg.u.enable = false;
+      strncpy(netarg.ifr_name, i8sak->ifname, IFNAMSIZ);
+      ioctl(i8sak->fd, MAC802154IOC_ENABLE_EVENTS,
+                  (unsigned long)((uintptr_t)&netarg));
+    }
+#endif
+
   return NULL;
 }
 
@@ -246,7 +264,18 @@ int i8sak_eventlistener_start(FAR struct i8sak_s *i8sak)
 
 int i8sak_eventlistener_stop(FAR struct i8sak_s *i8sak)
 {
-  return -ENOTTY;
+  int ret;
+  FAR void *value;
+
+  i8sak->eventlistener_run = false;
+  pthread_kill(i8sak->eventlistener_threadid, 2);
+  ret = pthread_join(i8sak->eventlistener_threadid, &value);
+  if (ret != OK)
+    {
+      fprintf(stderr, "ERROR: pthread_join() failed: %d\n", ret);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
