@@ -290,21 +290,17 @@ static unsigned char *_base64_decode(const unsigned char *src, size_t len,
       if (count == 4)
         {
           *pos++ = (block[0] << 2) | (block[1] >> 4);
+          if (in[2] == ch)  /* if (in[2] == '=') */
+            {
+              break;
+            }          
           *pos++ = (block[1] << 4) | (block[2] >> 2);
+          if (in[3] == ch)  /* if (in[3] == '=') */
+            {
+              break;
+            }
           *pos++ = (block[2] << 6) | block[3];
           count = 0;
-        }
-    }
-
-  if (pos > out)
-    {
-      if (in[2] == ch)          /* if (in[2] == '=') */
-        {
-          pos -= 2;
-        }
-      else if (in[3] == ch)     /* else if (in[3] == '=') */
-        {
-          pos--;
         }
     }
 
