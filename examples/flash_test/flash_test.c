@@ -38,13 +38,13 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/progmem.h>
-#include <sys/stat.h>
 
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/smart.h>
 #include <nuttx/fs/ioctl.h>

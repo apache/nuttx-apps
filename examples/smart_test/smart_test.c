@@ -38,9 +38,8 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/progmem.h>
-#include <sys/stat.h>
 
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

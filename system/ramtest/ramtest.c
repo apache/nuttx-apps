@@ -38,7 +38,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/progmem.h>
 
 #include <sys/types.h>
 
