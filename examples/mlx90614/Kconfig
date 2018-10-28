@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MLX90614
+	tristate "MLX90614 Test Example"
+	default n
+	select  LIBC_FLOATINGPOINT
+	---help---
+		Enable the MLX90614 example
+
+if EXAMPLES_MLX90614
+
+config EXAMPLES_MLX90614_PROGNAME
+	string "Program name"
+	default "MLX90614 Test Example"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif
