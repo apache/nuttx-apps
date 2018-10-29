@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/igmp/igmp.c
  *
- *   Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2011, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,7 @@ int igmp_main(int argc, char *argv[])
 #endif
 {
   struct in_addr addr;
+  struct in_addr mcast;
 #if defined(CONFIG_EXAMPLES_IGMP_NOMAC)
   uint8_t mac[IFHWADDRLEN];
 #endif
@@ -130,11 +131,14 @@ int igmp_main(int argc, char *argv[])
   netlib_ifup("eth0");
 
   /* Not much of a test for now */
+
+  addr.s_addr  = HTONL(CONFIG_EXAMPLES_IGMP_IPADDR);
+  mcast.s_addr = HTONL(CONFIG_EXAMPLES_IGMP_GRPADDR);
+
   /* Join the group */
 
   printf("Join group...\n");
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_IGMP_GRPADDR);
-  ipmsfilter("eth0", &addr, MCAST_INCLUDE);
+  ipmsfilter(&addr, &mcast, MCAST_INCLUDE);
 
   /* Wait a while */
 
@@ -144,7 +148,7 @@ int igmp_main(int argc, char *argv[])
   /* Leave the group */
 
   printf("Leave group...\n");
-  ipmsfilter("eth0", &addr, MCAST_EXCLUDE);
+  ipmsfilter(&addr, &mcast, MCAST_EXCLUDE);
 
   /* Wait a while */
 

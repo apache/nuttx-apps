@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/netlib/netlib_setipmsfilter.c
  *
- *   Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2011, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@
  *   Add or remove an IP address from a multicast filter set.
  *
  * Parameters:
- *   ifname     The name of the interface to use, size must less than IMSFNAMSIZ
+ *   interface  The local address of the local interface to use.
  *   multiaddr  Multicast group address to add/remove (network byte order)
  *   fmode      MCAST_INCLUDE: Add multicast address
  *              MCAST_EXCLUDE: Remove multicast address
@@ -80,13 +80,14 @@
  *
  ****************************************************************************/
 
-int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
+int ipmsfilter(FAR const struct in_addr *interface,
+               FAR const struct in_addr *multiaddr,
                uint32_t fmode)
 {
   int ret = ERROR;
 
-  ninfo("ifname: %s muliaddr: %08x fmode: %ld\n", ifname, *multiaddr, fmode);
-  if (ifname && multiaddr)
+  ninfo("interface: %08x muliaddr: %08x fmode: %ld\n", interface, *multiaddr, fmode);
+  if (interface != NULL && multiaddr != NULL)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
@@ -95,21 +96,29 @@ int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
         {
           struct ip_msfilter imsf;
 
-          /* Put the driver name into the request */
-
-          strncpy(imsf.imsf_name, ifname, IMSFNAMSIZ);
-
-          /* Put the new address into the request */
+          /* Put the multicast group address into the request */
 
           imsf.imsf_multiaddr.s_addr = multiaddr->s_addr;
 
-          /* Perforom the ioctl to set the MAC address */
+          /* Put the address of the local interface into the request */
+
+          imsf.imsf_interface.s_addr = interface->s_addr;
+
+          /* Put the filter mode into the request */
 
           imsf.imsf_fmode = fmode;
+
+          /* No source address */
+
+          imsf.imsf_numsrc = 0;
+
+          /* Perform the ioctl to set the MAC address */
+
           ret = ioctl(sockfd, SIOCSIPMSFILTER, (unsigned long)&imsf);
           close(sockfd);
         }
     }
+
   return ret;
 }
 
