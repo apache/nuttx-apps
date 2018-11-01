@@ -103,6 +103,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    ep_eaddr = i8sak endpoint extended address\n"
                     "    ep_addrmode = destination address mode"
                     "    rxonidle = Receiver on when idle\n"
+                    "    txpwr = Transmit power\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
@@ -245,6 +246,11 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                   printf("i8sak: Receive on Idle: false\n");
                 }
             }
+          else if (strcmp(argv[argind], "txpwr") == 0)
+            {
+              ieee802154_gettxpwr(fd, &u.attr.phy.txpwr);
+              printf("i8sak: Transmit Power: %d\n", (int)u.attr.phy.txpwr);
+            }
           else
             {
               fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
@@ -307,6 +313,11 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                 {
                   printf("i8sak: Receive on Idle: false\n");
                 }
+            }
+          else if (strcmp(argv[argind], "txpwr") == 0)
+            {
+              sixlowpan_gettxpwr(fd, i8sak->ifname, &u.attr.phy.txpwr);
+              printf("i8sak: Transmit Power: %d\n", (int)u.attr.phy.txpwr);
             }
           else
             {

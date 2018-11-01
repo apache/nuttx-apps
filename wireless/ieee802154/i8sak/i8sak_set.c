@@ -102,6 +102,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    ep_addrmode s|e = destination addressing mode\n"
                     "    ep_port 1-65535 = port to send to\n"
                     "    rxonidle = Receiver on when idle\n"
+                    "    txpwr = Transmit Power\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
@@ -235,6 +236,10 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             {
               ieee802154_setrxonidle(fd, i8sak_str2bool(argv[argind + 1]));
             }
+          else if (strcmp(argv[argind], "txpwr") == 0)
+            {
+              ieee802154_settxpwr(fd, i8sak_str2long(argv[argind + 1]));
+            }
           else
             {
               fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
@@ -274,6 +279,10 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           else if (strcmp(argv[argind], "rxonidle") == 0)
             {
               sixlowpan_setrxonidle(fd, i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
+            }
+          else if (strcmp(argv[argind], "txpwr") == 0)
+            {
+              sixlowpan_settxpwr(fd, i8sak->ifname, i8sak_str2long(argv[argind + 1]));
             }
           else
             {
