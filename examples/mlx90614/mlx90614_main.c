@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
@@ -101,6 +102,42 @@ int mlx90614_main(int argc, char *argv[])
       return -1;
     }
 
+  /* If user passed a new address */
+
+  if (argc == 2)
+    {
+      FAR char *buffer;
+      uint8_t newaddr;
+
+      buffer = argv[1];
+
+      if (buffer[0] != '0' && buffer[1] != 'x')
+        {
+          fprintf(stderr, "You need to pass the I2C address in hexa: 0xNN\n");
+          goto out;
+        }
+
+      newaddr = strtol(buffer, NULL, 16);
+
+      if (newaddr == 0 || newaddr > 0x7f)
+        {
+          fprintf(stderr, "Inform a valid I2C address: 0x01 to 0x7f\n");
+          goto out;
+        }
+
+      ret = ioctl(fd, SNIOC_CHANGE_SMBUSADDR,  (unsigned long)((uintptr_t)&newaddr));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: ioctl(SNIOC_CHANGE_SMBUSADDR) failed: %d\n", errno);
+          goto out;
+        }
+
+      printf("Address 0x%02x stored on your device!\n", newaddr);
+      printf("Please do a power cycle and update the I2C board address!\n");
+
+      goto out;
+    }
+
   for (; ; )
     {
       /* Read new temperature from sensor */
@@ -126,6 +163,8 @@ int mlx90614_main(int argc, char *argv[])
 
       usleep(MILISEC_DELAY * 1000);
     }
+
+out:
 
   close(fd);
   return 0;
