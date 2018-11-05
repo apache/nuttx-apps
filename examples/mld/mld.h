@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/igmp/igmp.h
+ * examples/mld/mld.h
  *
- *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_IGMP_IGMP_H
-#define __APPS_EXAMPLES_IGMP_IGMP_H
+#ifndef __APPS_EXAMPLES_MLD_MLD_H
+#define __APPS_EXAMPLES_MLD_MLD_H
 
 /****************************************************************************
  * Included Files
@@ -50,4 +50,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_EXAMPLES_IGMP_IGMP_H */
+#endif /* __APPS_EXAMPLES_MLD_MLD_H */

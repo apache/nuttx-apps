@@ -1,0 +1,91 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MLD
+	tristate "MLD example"
+	default n
+	depends on NET_UDP && NET_MLD
+	---help---
+		Enable the MLD example
+
+if EXAMPLES_MLD
+
+config EXAMPLES_MLD_PROGNAME
+	string "Program name"
+	default "mld"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MLD_APPNAME
+	string "NSH builtin name"
+	default "mld"
+	depends on CONFIG_NSH_BUILTIN_APPS
+	---help---
+		This is the name of the application that will be use when running
+		from the NSH command line
+
+config EXAMPLES_MLD_PRIORITY
+	int "MLD example task priority"
+	default 100
+
+config EXAMPLES_MLD_STACKSIZE
+	int "MLD example stack size"
+	default 2048
+
+config EXAMPLES_MLD_INIT
+	bool "Initialize network"
+	default n if NSH_BUILTIN_APPS
+	default y if !NSH_BUILTIN_APPS
+	depends on !BUILD_LOADABLE
+	---help---
+		Include logic to initialize the network.  This should not be done if
+		the network is already initialized when nettest runs.  This is
+		usually the case, for example, when nettest is run as an NSH built-
+		in task.
+
+if EXAMPLES_MLD_INIT
+
+config EXAMPLES_MLD_IPADDR
+	hex "Target Link-Local address"
+	default 0x00000002
+	range 0x0 0xffff
+	---help---
+		Last 16-bits of the target link-local, unicast in host order.  Given
+
+			CONFIG_EXAMPLES_MLD_IPADDR=0xXXXX
+
+		the full IPv6 link local address will be fe80::00ff:fe00:XXXX (host order)
+
+config EXAMPLES_MLD_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x00000001
+	range 0x0 0xffff
+	---help---
+		Last 16-bits of the default link-local, unicast in host order.  Given
+
+			CONFIG_EXAMPLES_MLD_DRIPADDR=0xXXXX
+
+		the full IPv6 link local address will be fe80::00ff:fe00:XXXX (host order)
+
+config EXAMPLES_MLD_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+
+endif # EXAMPLES_MLD_INIT
+
+config EXAMPLES_MLD_GRPADDR
+	hex "Group address"
+	default 0xE0000181
+	range 0x0 0xffff
+	---help---
+		Last 16-bits of the group link-local, unicast in host order.  Given
+
+			CONFIG_EXAMPLES_MLD_GRPADDR=0xXXXX
+
+		the full IPv6 link local address will be fe80::00ff:fe00:XXXX (host order)
+
+endif
