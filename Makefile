@@ -35,10 +35,15 @@
 #
 ############################################################################
 
-APPDIR = ${shell pwd}
 TOPDIR ?= $(APPDIR)/import
-
 -include $(TOPDIR)/Make.defs
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  APPDIR = ${shell echo %CD%}
+else
+  APPDIR = ${shell pwd}
+endif
+
 -include $(APPDIR)/Make.defs
 
 # Application Directories
