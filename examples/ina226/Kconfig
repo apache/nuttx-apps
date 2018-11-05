@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_INA226
+	bool "INA226 example"
+	default n
+	---help---
+		Enable the INA226 example
+
+if EXAMPLES_INA226
+
+config EXAMPLES_INA226_PROGNAME
+	string "Program name"
+	default "ina226"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config INA226_SHUNTVAL
+	int "Shunt resistor value in micro-ohms"
+	default 5000
+	---help---
+		The shunt resistor value in micro-ohms.
+
+config INA226_DEVICE_PATH
+	string "INA226 device name"
+	default "/dev/ina226"
+	---help---
+		This is the name of the timer device that will be tested.
+
+config EXAMPLES_INA226_PRIORITY
+	int "INA226 task priority"
+	default 100
+
+config EXAMPLES_INA226_STACKSIZE
+	int "INA226 stack size"
+	default 2048
+
+endif
