@@ -127,7 +127,9 @@ int mld_main(int argc, char *argv[])
 #endif
 {
   struct sockaddr_in6 host;
+#if 0
   struct sockaddr_in6 mcast;
+#endif
   struct ipv6_mreq mrec;
   int sockfd;
   int ret;
@@ -199,6 +201,7 @@ int mld_main(int argc, char *argv[])
   printf("Wait a bit...\n");
   sleep(5);
 
+#if 0 /* REVISIT:  This is not right */
   /* Send a garbage packet */
 
   memset(&mcast, 0, sizeof(struct sockaddr_in6));
@@ -219,6 +222,7 @@ int mld_main(int argc, char *argv[])
 
   printf("Wait a bit...\n");
   sleep(5);
+#endif
 
   /* Leave the group */
 
