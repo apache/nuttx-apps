@@ -43,6 +43,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <debug.h>
@@ -54,6 +55,21 @@
 #include "netutils/netlib.h"
 
 #include "mld.h"
+
+/****************************************************************************
+ * Preprocessor Definitions
+ ****************************************************************************/
+
+/* REVISIT:  There appears to be a problem with the multicast routing now so
+ * attempts to send to the multicast address result in Neighbor Solicitations
+ * and nothing is sent.
+ */
+
+#undef TEST_MCAST_SENDTO
+
+/* Size of allocated I/O buffer for dumping /proc/net/mld */
+
+#define IOBUFFERSIZE 512
 
 /****************************************************************************
  * Private Data
@@ -109,8 +125,119 @@ static const uint16_t g_grp_addr[8] =
   HTONS(CONFIG_EXAMPLES_MLD_GRPADDR)
 };
 
+#ifdef TEST_MCAST_SENDTO
 static const uint8_t g_garbage[] = "abcdefghijklmnopqrstuvwxyz"
                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: mld_dumpstats
+ *
+ * Description:
+ *   Dump the contents of a file to the current NSH terminal.
+ *
+ * Input Paratemets:
+ *   vtbl     - session vtbl
+ *   cmd      - NSH command name to use in error reporting
+ *   filepath - The full path to the file to be dumped
+ *
+ * Returned Value:
+ *   Zero (OK) on success; -1 (ERROR) on failure.
+ *
+ ****************************************************************************/
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_NET) && defined(CONFIG_NET_STATISTICS)
+void mld_dumpstats(FAR char **iobuffer)
+{
+  int fd;
+
+  /* Open the file for reading.
+   * REVISIT: Assume procfs is mounted at /proc
+   */
+
+  fd = open("/proc/net/mld", O_RDONLY);
+  if (fd < 0)
+    {
+      fprintf(stderr, "Failed to open /proc/net/mld:  %d\n", errno);
+      return;
+    }
+
+  if (*iobuffer == NULL)
+    {
+      *iobuffer = (FAR char *)malloc(IOBUFFERSIZE);
+      if (*iobuffer == NULL)
+        {
+          (void)close(fd);
+          fprintf(stderr, "Failed to allocation I/O buffer\n");
+          return;
+        }
+    }
+
+  /* And just dump it byte for byte into stdout */
+
+  for (;;)
+    {
+      int nbytesread = read(fd, *iobuffer, IOBUFFERSIZE);
+
+      /* Check for read errors */
+
+      if (nbytesread < 0)
+        {
+          int errval = errno;
+
+          if (errval == EINTR)
+            {
+              continue;
+            }
+
+          fprintf(stderr, "Read from /proc/net/mld failed:  %d\n", errval);
+          return;
+        }
+
+      /* Check for data successfully read */
+
+      else if (nbytesread > 0)
+        {
+          int nbyteswritten = 0;
+
+          while (nbyteswritten < nbytesread)
+            {
+              ssize_t n = write(1, *iobuffer, nbytesread);
+              if (n < 0)
+                {
+                  int errval = errno;
+
+                  if (errval == EINTR)
+                    {
+                      continue;
+                    }
+
+                  fprintf(stderr, "Write to stdout failed:  %d\n", errval);
+                  return;
+                }
+              else
+                {
+                  nbyteswritten += n;
+                }
+            }
+        }
+
+      /* Otherwise, it is the end of file */
+
+      else
+        {
+          break;
+        }
+    }
+
+  (void)close(fd);
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -126,11 +253,13 @@ int main(int argc, FAR char *argv[])
 int mld_main(int argc, char *argv[])
 #endif
 {
+  FAR char *iobuffer = NULL;
   struct sockaddr_in6 host;
-#if 0
+#ifdef TEST_MCAST_SENDTO
   struct sockaddr_in6 mcast;
 #endif
   struct ipv6_mreq mrec;
+  int nsec;
   int sockfd;
   int ret;
 
@@ -183,6 +312,7 @@ int mld_main(int argc, char *argv[])
   /* Join the group */
 
   printf("Join group...\n");
+  mld_dumpstats(&iobuffer);
 
   memcpy(mrec.ipv6mr_multiaddr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
   mrec.ipv6mr_interface = if_nametoindex("eth0");
@@ -196,12 +326,30 @@ int mld_main(int argc, char *argv[])
       goto errout_with_socket;
     }
 
-  /* Wait a while */
+  /* Wait a while.  Here is assume you are monitoring the network traffic
+   * with a tool like WireShark.  This is what you should expect after the
+   * join (assuming default values for MLD delay and count settings):
+   *
+   * 1. A outgoing Report message immediately upon joining.
+   * 2. Another Report message after a delay of 1 second
+   * 3. Thereafter, periodic Query messages separated by delays of
+   *    125 seconds
+   *
+   * So the following delay is set so that we can verify all of the possible
+   * timed events.
+   */
 
-  printf("Wait a bit...\n");
-  sleep(5);
+  printf("Waiting 300 seconds...\n");
+  mld_dumpstats(&iobuffer);
 
-#if 0 /* REVISIT:  This is not right */
+  for (nsec = 0; nsec < 300; nsec += 10)
+    {
+      sleep(10);
+      printf("\nElapsed: %d sec\n", nsec + 10);
+      mld_dumpstats(&iobuffer);
+    }
+
+#ifdef TEST_MCAST_SENDTO /* REVISIT:  This is not right */
   /* Send a garbage packet */
 
   memset(&mcast, 0, sizeof(struct sockaddr_in6));
@@ -222,6 +370,7 @@ int mld_main(int argc, char *argv[])
 
   printf("Wait a bit...\n");
   sleep(5);
+  mld_dumpstats(&iobuffer);
 #endif
 
   /* Leave the group */
@@ -236,14 +385,24 @@ int mld_main(int argc, char *argv[])
       goto errout_with_socket;
     }
 
-  /* Wait a while */
+  /* Wait a while.  Here we should see a Done message sent immediately
+   * when leaving the group.
+   */
 
+  mld_dumpstats(&iobuffer);
   printf("Wait a bit...\n");
   sleep(5);
+
+  mld_dumpstats(&iobuffer);
   printf("Exiting...\n");
   ret = EXIT_SUCCESS;
 
 errout_with_socket:
   close(sockfd);
+  if (iobuffer != NULL)
+    {
+      free(iobuffer);
+    }
+
   return ret;
 }
