@@ -75,7 +75,7 @@ struct chat_token
  * Private Functions
  ****************************************************************************/
 
-void chat_init(FAR struct chat* priv, FAR struct chat_ctl* ctl)
+void chat_init(FAR struct chat *priv, FAR struct chat_ctl *ctl)
 {
   DEBUGASSERT(priv != NULL && ctl != NULL && ctl->timeout >= 0);
 
@@ -85,20 +85,20 @@ void chat_init(FAR struct chat* priv, FAR struct chat_ctl* ctl)
 
 /* Linear one-pass tokenizer. */
 
-static int chat_tokenise(FAR struct chat* priv,
-                         FAR char* script,
-                         FAR struct chat_token** first_tok)
+static int chat_tokenise(FAR struct chat *priv,
+                         FAR const char *script,
+                         FAR struct chat_token **first_tok)
 {
-  FAR char *cursor = script;     /* pointer to the current character */
-  unsigned int quoted = 0;       /* two-valued:
-                                  * 1: quoted (expecting a closing quote)
-                                  * 0: not quoted */
-  unsigned int escaped = 0;      /* two-valued */
-  char tok_str[CHAT_TOKEN_SIZE]; /* current token buffer */
-  int tok_pos = 0;               /* current length of the current token */
+  FAR const char *cursor = script;   /* pointer to the current character */
+  unsigned int quoted = 0;           /* two-valued:
+                                      * 1: quoted (expecting a closing quote)
+                                      * 0: not quoted */
+  unsigned int escaped = 0;          /* two-valued */
+  char tok_str[CHAT_TOKEN_SIZE];     /* current token buffer */
+  int tok_pos = 0;                   /* current length of the current token */
   FAR struct chat_token *tok = NULL; /* the last complete token */
-  bool no_termin;                /* line termination property:
-                                  * true iff line terminator is deasserted */
+  bool no_termin;                    /* line termination property:
+                                      * true iff line terminator is deasserted */
   int ret = 0;
 
   /* Delimiter handler */
@@ -285,12 +285,12 @@ static int chat_tokenise(FAR struct chat* priv,
 
 /* Creates the internal representation of a tokenised chat script. */
 
-static int chat_internalise(FAR struct chat* priv,
-                            FAR struct chat_token* tok)
+static int chat_internalise(FAR struct chat *priv,
+                            FAR struct chat_token *tok)
 {
   unsigned int rhs = 0;  /* 1 iff processing the right-hand side,
                           * 0 otherwise */
-  FAR struct chat_line* line = NULL;
+  FAR struct chat_line *line = NULL;
   int len; /* length of the destination string when variable */
   int ret = 0;
 
@@ -412,7 +412,7 @@ static int chat_internalise(FAR struct chat* priv,
 
 /* Chat token list deallocator */
 
-static void chat_tokens_free(FAR struct chat_token* first_tok)
+static void chat_tokens_free(FAR struct chat_token *first_tok)
 {
   FAR struct chat_token* next_tok;
 
@@ -431,9 +431,9 @@ static void chat_tokens_free(FAR struct chat_token* first_tok)
 
 /* Main parsing function. */
 
-static int chat_script_parse(FAR struct chat* priv, FAR char* script)
+static int chat_script_parse(FAR struct chat *priv, FAR const char *script)
 {
-  FAR struct chat_token* first_tok;
+  FAR struct chat_token *first_tok;
   int ret;
 
   ret = chat_tokenise(priv, script, &first_tok);
@@ -451,7 +451,7 @@ static int chat_script_parse(FAR struct chat* priv, FAR char* script)
  * returns a negative error code.
  */
 
-static int chat_readb(FAR struct chat* priv, FAR char* c, int timeout_ms)
+static int chat_readb(FAR struct chat *priv, FAR char *c, int timeout_ms)
 {
   struct pollfd fds;
   int ret;
@@ -483,16 +483,16 @@ static int chat_readb(FAR struct chat* priv, FAR char* c, int timeout_ms)
   return 0;
 }
 
-static void chat_flush(FAR struct chat* priv)
+static void chat_flush(FAR struct chat *priv)
 {
   char c;
 
   _info("starting\n");
-  while (chat_readb(priv, (FAR char*) &c, 0) == 0);
+  while (chat_readb(priv, (FAR char *) &c, 0) == 0);
   _info("done\n");
 }
 
-static int chat_expect(FAR struct chat* priv, FAR const char* s)
+static int chat_expect(FAR struct chat *priv, FAR const char *s)
 {
   char c;
   struct timespec abstime;
@@ -545,7 +545,7 @@ static int chat_expect(FAR struct chat* priv, FAR const char* s)
   return ret;
 }
 
-static int chat_send(FAR struct chat* priv, FAR const char* s)
+static int chat_send(FAR struct chat *priv, FAR const char *s)
 {
   int ret = 0;
   int len = strlen(s);
@@ -658,9 +658,9 @@ static int chat_line_run(FAR struct chat* priv,
   return ret;
 }
 
-static int chat_script_run(FAR struct chat* priv)
+static int chat_script_run(FAR struct chat *priv)
 {
-  FAR struct chat_line* line = priv->script;
+  FAR struct chat_line *line = priv->script;
   int ret = 0;
 #ifdef CONFIG_DEBUG_INFO
   int line_num = 0;
@@ -682,7 +682,7 @@ static int chat_script_run(FAR struct chat* priv)
   return ret;
 }
 
-static int chat_script_free(FAR struct chat* priv)
+static int chat_script_free(FAR struct chat *priv)
 {
   FAR struct chat_line* line = priv->script;
   FAR struct chat_line* next_line;
@@ -709,7 +709,7 @@ static int chat_script_free(FAR struct chat* priv)
  * Public Functions
  ****************************************************************************/
 
-int chat(FAR struct chat_ctl* ctl, FAR char* script)
+int chat(FAR struct chat_ctl *ctl, FAR const char *script)
 {
   int ret = 0;
   struct chat priv;

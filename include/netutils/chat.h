@@ -69,7 +69,7 @@ extern "C"
 #define EXTERN extern
 #endif
 
-int chat(FAR struct chat_ctl* ctl, FAR char* script);
+int chat(FAR struct chat_ctl *ctl, FAR const char *script);
 
 #undef EXTERN
 #ifdef __cplusplus
