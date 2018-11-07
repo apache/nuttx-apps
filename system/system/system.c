@@ -74,7 +74,7 @@
 
 int system(FAR const char *cmd)
 {
-  FAR const char *argv[2];
+  FAR char *argv[2];
   struct sched_param param;
   posix_spawnattr_t attr;
   pid_t pid;
@@ -141,7 +141,7 @@ int system(FAR const char *cmd)
 
   /* Spawn nsh_system() which will execute the command under the shell. */
 
-  argv[0] = cmd;
+  argv[0] = (FAR char *)cmd;
   argv[1] = NULL;
 
 #ifdef CONFIG_BUILD_LOADABLE
