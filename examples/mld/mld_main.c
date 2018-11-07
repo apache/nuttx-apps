@@ -50,6 +50,7 @@
 
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <net/route.h>
 #include <netinet/in.h>
 
 #include "netutils/netlib.h"
@@ -60,16 +61,26 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
-/* REVISIT:  There appears to be a problem with the multicast routing now so
- * attempts to send to the multicast address result in Neighbor Solicitations
- * and nothing is sent.
- */
-
-#undef TEST_MCAST_SENDTO
-
 /* Size of allocated I/O buffer for dumping /proc/net/mld */
 
-#define IOBUFFERSIZE 512
+#define IOBUFFERSIZE      512
+
+/* procfs paths */
+
+#define PROCFS_MLD_PATH   "/proc/net/mld"
+#define PROCFS_ROUTE_PATH "/proc/net/route/ipv6"
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_NET)
+
+#  ifdef CONFIG_NET_STATISTICS
+#    define HAVE_PROC_NET_STATS
+#  endif
+
+#  ifdef CONFIG_NET_ROUTE
+#    define HAVE_PROC_NET_ROUTE
+#  endif
+#endif
 
 /****************************************************************************
  * Private Data
@@ -125,7 +136,7 @@ static const uint16_t g_grp_addr[8] =
   HTONS(CONFIG_EXAMPLES_MLD_GRPADDR)
 };
 
-#ifdef TEST_MCAST_SENDTO
+#ifdef CONFIG_NET_ROUTE
 static const uint8_t g_garbage[] = "abcdefghijklmnopqrstuvwxyz"
                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 #endif
@@ -135,24 +146,22 @@ static const uint8_t g_garbage[] = "abcdefghijklmnopqrstuvwxyz"
  ****************************************************************************/
 
 /****************************************************************************
- * Name: mld_dumpstats
+ * Name: mld_catfile
  *
  * Description:
  *   Dump the contents of a file to the current NSH terminal.
  *
  * Input Paratemets:
- *   vtbl     - session vtbl
- *   cmd      - NSH command name to use in error reporting
- *   filepath - The full path to the file to be dumped
+ *   filepath - The path to the file to dump
+ *   iobuffer - An I/O buffer to use for the data transfer
  *
  * Returned Value:
- *   Zero (OK) on success; -1 (ERROR) on failure.
+ *   None
  *
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_PROCFS) && \
-    !defined(CONFIG_FS_PROCFS_EXCLUDE_NET) && defined(CONFIG_NET_STATISTICS)
-void mld_dumpstats(FAR char **iobuffer)
+#if defined(HAVE_PROC_NET_STATS) || defined(HAVE_PROC_NET_ROUTE)
+void mld_catfile(FAR const char *filepath, FAR char **iobuffer)
 {
   int fd;
 
@@ -160,10 +169,10 @@ void mld_dumpstats(FAR char **iobuffer)
    * REVISIT: Assume procfs is mounted at /proc
    */
 
-  fd = open("/proc/net/mld", O_RDONLY);
+  fd = open(filepath, O_RDONLY);
   if (fd < 0)
     {
-      fprintf(stderr, "Failed to open /proc/net/mld:  %d\n", errno);
+      fprintf(stderr, "Failed to open %s:  %d\n", filepath, errno);
       return;
     }
 
@@ -182,7 +191,7 @@ void mld_dumpstats(FAR char **iobuffer)
 
   for (;;)
     {
-      int nbytesread = read(fd, *iobuffer, IOBUFFERSIZE);
+      ssize_t nbytesread = read(fd, *iobuffer, IOBUFFERSIZE);
 
       /* Check for read errors */
 
@@ -195,7 +204,7 @@ void mld_dumpstats(FAR char **iobuffer)
               continue;
             }
 
-          fprintf(stderr, "Read from /proc/net/mld failed:  %d\n", errval);
+          fprintf(stderr, "Read from %s failed:  %d\n", filepath, errval);
           return;
         }
 
@@ -239,6 +248,18 @@ void mld_dumpstats(FAR char **iobuffer)
 }
 #endif
 
+#ifdef HAVE_PROC_NET_STATS
+#  define mld_dumpstats(iobuffer) mld_catfile(PROCFS_MLD_PATH, iobuffer)
+#else
+#  define mld_dumpstats(iobuffer) mld_catfile(PROCFS_MLD_PATH, iobuffer)
+#endif
+
+#ifdef HAVE_PROC_NET_ROUTE
+#  define mld_dumproute(iobuffer) mld_catfile(PROCFS_ROUTE_PATH, iobuffer)
+#else
+#  define mld_dumproute(iobuffer)
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -255,8 +276,10 @@ int mld_main(int argc, char *argv[])
 {
   FAR char *iobuffer = NULL;
   struct sockaddr_in6 host;
-#ifdef TEST_MCAST_SENDTO
-  struct sockaddr_in6 mcast;
+#ifdef CONFIG_NET_ROUTE
+  struct sockaddr_in6 target;
+  struct sockaddr_in6 router;
+  struct sockaddr_in6 netmask;
 #endif
   struct ipv6_mreq mrec;
   int nsec;
@@ -305,8 +328,7 @@ int mld_main(int argc, char *argv[])
   if (sockfd < 0)
     {
       fprintf(stderr, "ERROR: socket() failed: %d\n", errno);
-      ret = EXIT_FAILURE;
-      goto errout_with_socket;
+      return EXIT_FAILURE;
     }
 
   /* Join the group */
@@ -349,22 +371,66 @@ int mld_main(int argc, char *argv[])
       mld_dumpstats(&iobuffer);
     }
 
-#ifdef TEST_MCAST_SENDTO /* REVISIT:  This is not right */
-  /* Send a garbage packet */
+#ifdef CONFIG_NET_ROUTE
+  printf("\nSet up route for the multicast address...\n");
+  mld_dumproute(&iobuffer);
 
-  memset(&mcast, 0, sizeof(struct sockaddr_in6));
-  mcast.sin6_family  = AF_INET6;
-  mcast.sin6_port    = HTONS(0x4321);
-  memcpy(mcast.sin6_addr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
+  /* Set up a routing table entry for the address of the multicast group */
 
-  ret = sendto(sockfd, g_garbage, sizeof(g_garbage), 0,
-               (FAR struct sockaddr *)&mcast, sizeof(struct sockaddr_in6));
+  memset(&target, 0, sizeof(struct sockaddr_in6));
+  target.sin6_family  = AF_INET6;
+  target.sin6_port    = HTONS(0x4321);
+  memcpy(target.sin6_addr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
+
+  memset(&netmask, 0, sizeof(struct sockaddr_in6));
+  netmask.sin6_family  = AF_INET6;
+  netmask.sin6_port    = HTONS(0x4321);
+  memset(netmask.sin6_addr.s6_addr16, 0xff, sizeof(struct in6_addr));
+
+  memset(&router, 0, sizeof(struct sockaddr_in6));
+  router.sin6_family  = AF_INET6;
+  router.sin6_port    = HTONS(0x4321);
+
+  ret = netlib_get_ipv6addr("eth0", &router.sin6_addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: sendto() failed: %d\n", errno);
-      ret = EXIT_FAILURE;
-      goto errout_with_socket;
+      fprintf(stderr, "ERROR: netlib_get_ipv6addr() failed: %d\n", ret);
     }
+  else
+    {
+      ret = addroute(sockfd,
+                     (FAR struct sockaddr_storage *)&target,
+                     (FAR struct sockaddr_storage *)&netmask,
+                     (FAR struct sockaddr_storage *)&router);
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: addroute() failed: %d\n", errno);
+        }
+    }
+
+  mld_dumproute(&iobuffer);
+
+  if (ret >= 0)
+    {
+      /* Send a garbage packet */
+
+      ret = sendto(sockfd, g_garbage, sizeof(g_garbage), 0,
+                   (FAR struct sockaddr *)&target, sizeof(struct sockaddr_in6));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: sendto() failed: %d\n", errno);
+        }
+    }
+
+  ret = delroute(sockfd,
+                 (FAR struct sockaddr_storage *)&target,
+                 (FAR struct sockaddr_storage *)&netmask);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: delroute() failed: %d\n", errno);
+    }
+
+  mld_dumproute(&iobuffer);
 
   /* Wait a while */
 
