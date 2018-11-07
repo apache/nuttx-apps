@@ -186,6 +186,11 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
       _err("ERROR: [%d] Failed to send buffer: %d\n",
           pstate->cn_outfd, errno);
     }
+
+  /* Flush the data to the output stream */
+
+  fflush(pstate->cn_outstream);
+
   return ret;
 #else
   /* REVISIT: buffer may not be NUL-terminated */
