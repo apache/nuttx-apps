@@ -76,6 +76,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR const char *filepath)
 {
   FAR char *buffer;
+  char last = 0;
   int fd;
   int ret = OK;
 
@@ -131,9 +132,10 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           int nbyteswritten = 0;
 
+          last = buffer[nbytesread - 1];
           while (nbyteswritten < nbytesread)
             {
-              ssize_t n = nsh_write(vtbl, buffer, nbytesread);
+              ssize_t n = nsh_write(vtbl, buffer + nbyteswritten, nbytesread - nbyteswritten);
               if (n < 0)
                 {
                   int errcode = errno;
@@ -177,7 +179,10 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     * file.
     */
 
-   nsh_output(vtbl, "\n");
+   if (ret == OK && last != '\n')
+     {
+       nsh_output(vtbl, "\n");
+     }
 
    /* Close the input file and return the result */
 
