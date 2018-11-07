@@ -5,10 +5,15 @@
 
 config EXAMPLES_PPPD
 	tristate "pppd client example"
+	select NETUTILS_PPPD
 	default n
 	---help---
 		Enable the pppd client example
 
 if EXAMPLES_PPPD
+
+config EXAMPLES_PPPD_STACKSIZE
+	int "pppd example stack stack size"
+	default 2048
 
 endif

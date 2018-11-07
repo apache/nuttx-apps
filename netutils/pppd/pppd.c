@@ -63,7 +63,7 @@
 #include "netutils/pppd.h"
 
 /****************************************************************************
- * Extenal Functions
+ * External Functions
  ****************************************************************************/
 
 #ifdef PPP_ARCH_HAVE_MODEM_RESET
@@ -110,7 +110,7 @@ static int tun_alloc(char *dev)
       return fd;
     }
 
-  printf("tun fd:%i\n", fd);
+  debug_printf("tun fd:%i\n", fd);
 
   if ((errcode = make_nonblock(fd)) < 0)
     {
@@ -140,7 +140,7 @@ static int tun_alloc(char *dev)
  * Name: open_tty
  ****************************************************************************/
 
-static int open_tty(char *dev)
+static int open_tty(const char *dev)
 {
   int fd;
   int errcode;
@@ -156,7 +156,7 @@ static int open_tty(char *dev)
       return errcode;
     }
 
-  printf("tty fd:%i\n", fd);
+  debug_printf("tty fd:%i\n", fd);
 
   return fd;
 }
@@ -165,9 +165,9 @@ static int open_tty(char *dev)
  * Name: ppp_check_errors
  ****************************************************************************/
 
-static u8_t ppp_check_errors(struct ppp_context_s *ctx)
+static uint8_t ppp_check_errors(FAR struct ppp_context_s *ctx)
 {
-  u8_t ret = 0;
+  uint8_t ret = 0;
 
   /* Check Errors */
 
@@ -182,7 +182,7 @@ static u8_t ppp_check_errors(struct ppp_context_s *ctx)
     {
       ret = 2;
     }
-#endif /* CONFIG_NETUTILS_PPPD_PAP */
+#endif
 
   if (ctx->ipcp_state & (IPCP_TX_TIMEOUT))
     {
@@ -200,12 +200,12 @@ static u8_t ppp_check_errors(struct ppp_context_s *ctx)
  * Name: ppp_reconnect
  ****************************************************************************/
 
-void ppp_reconnect(struct ppp_context_s *ctx)
+void ppp_reconnect(FAR struct ppp_context_s *ctx)
 {
   int ret;
   int retry = PPP_MAX_CONNECT;
-  struct pppd_settings_s *pppd_settings = ctx->settings;
-  netlib_ifdown((char*)ctx->ifname);
+  const struct pppd_settings_s *pppd_settings = ctx->settings;
+  netlib_ifdown((char *)ctx->ifname);
 
   lcp_disconnect(ctx, ++ctx->ppp_id);
   sleep(1);
@@ -220,7 +220,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
       ret = chat(&ctx->ctl, pppd_settings->disconnect_script);
       if (ret < 0)
         {
-          printf("ppp: disconnect script failed\n");
+          debug_printf("ppp: disconnect script failed\n");
         }
     }
 
@@ -231,7 +231,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
           ret = chat(&ctx->ctl, pppd_settings->connect_script);
           if (ret < 0)
             {
-              printf("ppp: connect script failed\n");
+              debug_printf("ppp: connect script failed\n");
               --retry;
               if (retry == 0)
                 {
@@ -276,7 +276,7 @@ time_t ppp_arch_clock_seconds(void)
  * Name: ppp_arch_getchar
  ****************************************************************************/
 
-int ppp_arch_getchar(struct ppp_context_s *ctx, u8_t *c)
+int ppp_arch_getchar(FAR struct ppp_context_s *ctx, FAR uint8_t * c)
 {
   int ret;
 
@@ -288,7 +288,7 @@ int ppp_arch_getchar(struct ppp_context_s *ctx, u8_t *c)
  * Name: ppp_arch_putchar
  ****************************************************************************/
 
-int ppp_arch_putchar(struct ppp_context_s *ctx, u8_t c)
+int ppp_arch_putchar(FAR struct ppp_context_s *ctx, uint8_t c)
 {
   int ret;
   struct pollfd fds;
@@ -314,18 +314,18 @@ int ppp_arch_putchar(struct ppp_context_s *ctx, u8_t c)
  * Name: pppd
  ****************************************************************************/
 
-int pppd(struct pppd_settings_s *pppd_settings)
+int pppd(const struct pppd_settings_s *pppd_settings)
 {
   struct pollfd fds[2];
   int ret;
-  struct ppp_context_s *ctx;
+  FAR struct ppp_context_s *ctx;
 
-  ctx = (struct ppp_context_s*)malloc(sizeof(struct ppp_context_s));
+  ctx = (struct ppp_context_s *)malloc(sizeof(struct ppp_context_s));
   memset(ctx, 0, sizeof(struct ppp_context_s));
-  strcpy((char*)ctx->ifname, "ppp%d");
+  strcpy((char *)ctx->ifname, "ppp%d");
 
   ctx->settings = pppd_settings;
-  ctx->if_fd = tun_alloc((char*)ctx->ifname);
+  ctx->if_fd = tun_alloc((char *)ctx->ifname);
   if (ctx->if_fd < 0)
     {
       free(ctx);
@@ -335,12 +335,12 @@ int pppd(struct pppd_settings_s *pppd_settings)
   ctx->ctl.fd = open_tty(pppd_settings->ttyname);
   if (ctx->ctl.fd < 0)
     {
-      close(ctx->ctl.fd);
+      close(ctx->if_fd);
       free(ctx);
       return 2;
     }
 
-  ctx->ctl.echo    = true;
+  ctx->ctl.echo = true;
   ctx->ctl.verbose = true;
   ctx->ctl.timeout = 30;
 
@@ -362,7 +362,7 @@ int pppd(struct pppd_settings_s *pppd_settings)
       if (ret > 0 && fds[0].revents & POLLIN)
         {
           ret = read(ctx->if_fd, ctx->ip_buf, PPP_RX_BUFFER_SIZE);
-          printf("read from tun :%i\n", ret);
+          debug_printf("read from tun :%i\n", ret);
           if (ret > 0)
             {
               ctx->ip_len = ret;

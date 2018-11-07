@@ -47,6 +47,8 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
+
 #include "netutils/chat.h"
 
 #include "ppp_conf.h"
@@ -57,7 +59,7 @@
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
 #  include "pap.h"
-#endif /* CONFIG_NETUTILS_PPPD_PAP */
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -74,7 +76,7 @@
 
 #define PPP_ESCAPED         0x1
 #define PPP_RX_READY        0x2
-#define PPP_RX_ASYNC_MAP    0x8
+#define PPP_RX_ASYNC_MAP    0x4
 #define PPP_TX_ASYNC_MAP    0x8
 #define PPP_PFC             0x10
 #define PPP_ACFC            0x20
@@ -98,12 +100,6 @@
 #define ECHO_REQ            0x9
 #define ECHO_REP            0xa
 
-/* Raise PPP config bits */
-
-#define USE_PAP             0x1
-#define USE_NOACCMBUG       0x2
-#define USE_GETDNS          0x4
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -114,24 +110,23 @@ struct ppp_context_s
 {
   /* IP Buffer */
 
-  u8_t  ip_buf[PPP_RX_BUFFER_SIZE];
-  u16_t ip_len;
+  uint8_t  ip_buf[PPP_RX_BUFFER_SIZE];
+  uint16_t ip_len;
 
   /* Main status */
 
-  u8_t  ppp_flags;
-  u8_t  ppp_status;
-  u16_t ppp_tx_mru;
-  u8_t  ppp_id;
+  uint8_t  ppp_flags;
+  uint16_t ppp_tx_mru;
+  uint8_t  ppp_id;
 
   /* IP timeout */
 
-  u16_t ip_no_data_time;
+  uint16_t ip_no_data_time;
 
   /* Interfaces */
 
   int   if_fd;
-  u8_t  ifname[IFNAMSIZ];
+  uint8_t  ifname[IFNAMSIZ];
 
   /* Addresses */
 
@@ -148,41 +143,40 @@ struct ppp_context_s
 
   /* LCP */
 
-  u8_t   lcp_state;
-  u16_t  lcp_tx_mru;
-  u8_t   lcp_retry;
+  uint8_t   lcp_state;
+  uint8_t   lcp_retry;
   time_t lcp_prev_seconds;
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
   /* PAP */
 
-  u8_t   pap_state;
-  u8_t   pap_retry;
+  uint8_t   pap_state;
+  uint8_t   pap_retry;
   time_t pap_prev_seconds;
 #endif /* CONFIG_NETUTILS_PPPD_PAP */
 
   /* IPCP */
 
-  u8_t   ipcp_state;
-  u8_t   ipcp_retry;
+  uint8_t   ipcp_state;
+  uint8_t   ipcp_retry;
   time_t ipcp_prev_seconds;
 
   /* AHDLC */
 
-  u8_t  ahdlc_rx_buffer[PPP_RX_BUFFER_SIZE];
-  u16_t ahdlc_tx_crc;     /* Running tx CRC */
-  u16_t ahdlc_rx_crc;     /* Running rx CRC */
-  u16_t ahdlc_rx_count;   /* Number of rx bytes processed, cur frame */
-  u8_t  ahdlc_flags;      /* ahdlc state flags, see above */
-  u8_t  ahdlc_tx_offline;
+  uint8_t  ahdlc_rx_buffer[PPP_RX_BUFFER_SIZE];
+  uint16_t ahdlc_tx_crc;     /* Running tx CRC */
+  uint16_t ahdlc_rx_crc;     /* Running rx CRC */
+  uint16_t ahdlc_rx_count;   /* Number of rx bytes processed, cur frame */
+  uint8_t  ahdlc_flags;      /* ahdlc state flags, see above */
+  uint8_t  ahdlc_tx_offline;
 
   /* Statistics counters */
 
 #ifdef PPP_STATISTICS
-  u16_t ahdlc_crc_error;
-  u16_t ahdlc_rx_tobig_error;
-  u32_t ppp_rx_frame_count;
-  u32_t ppp_tx_frame_count;
+  uint16_t ahdlc_crc_error;
+  uint16_t ahdlc_rx_tobig_error;
+  uint32_t ppp_rx_frame_count;
+  uint32_t ppp_tx_frame_count;
 #endif
 
   /* Chat controls */
@@ -191,7 +185,7 @@ struct ppp_context_s
 
   /* PPPD Settings */
 
-  struct pppd_settings_s *settings;
+  const struct pppd_settings_s *settings;
 };
 
 /****************************************************************************
@@ -207,20 +201,19 @@ extern "C"
 #define EXTERN extern
 #endif
 
-/*
- * Function Prototypes
- */
-void ppp_init(struct ppp_context_s *ctx);
-void ppp_connect(struct ppp_context_s *ctx);
+void ppp_init(FAR struct ppp_context_s *ctx);
+void ppp_connect(FAR struct ppp_context_s *ctx);
 
-extern void ppp_reconnect(struct ppp_context_s *ctx);
+extern void ppp_reconnect(FAR struct ppp_context_s *ctx);
 
-void ppp_send(struct ppp_context_s *ctx);
-void ppp_poll(struct ppp_context_s *ctx);
+void ppp_send(FAR struct ppp_context_s *ctx);
+void ppp_poll(FAR struct ppp_context_s *ctx);
 
-void ppp_upcall(struct ppp_context_s *ctx, u16_t, u8_t *, u16_t);
-u16_t scan_packet(struct ppp_context_s *ctx, u16_t, const u8_t *list,
-                  u8_t *buffer, u8_t *options, u16_t len);
+void ppp_upcall(FAR struct ppp_context_s *ctx, uint16_t,
+                FAR uint8_t *, uint16_t);
+uint16_t scan_packet(FAR struct ppp_context_s *ctx, uint16_t,
+                     FAR const uint8_t *list, FAR uint8_t *buffer,
+                     FAR uint8_t *options, uint16_t len);
 
 #undef EXTERN
 #ifdef __cplusplus

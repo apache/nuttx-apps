@@ -4,7 +4,7 @@
 #
 
 config NETUTILS_PPPD
-	bool "PPP daemon"
+	bool "PPP server"
 	default n
 	select NETUTILS_CHAT
 	select NET_TUN
@@ -13,10 +13,6 @@ config NETUTILS_PPPD
 		Enable support for the PPP daemon.
 
 if NETUTILS_PPPD
-
-config NETUTILS_PPPD_STACKSIZE
-	int "PPP daemon stack stack size"
-	default 2048
 
 config NETUTILS_PPPD_PAP
 	bool "PPP PAP Authentication Support"

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/pppd.c
+ * netutils/pppd/ppp_arch.h
  *
  *   Copyright (C) 2015 Max Nekludov. All rights reserved.
  *   Author: Max Nekludov <macscomp@gmail.com>
@@ -62,10 +62,6 @@
 
 struct ppp_context_s;
 
-typedef uint8_t  u8_t;
-typedef uint16_t u16_t;
-typedef uint32_t u32_t;
-
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -81,8 +77,8 @@ extern "C"
 
 time_t ppp_arch_clock_seconds(void);
 
-int ppp_arch_getchar(struct ppp_context_s *ctx, u8_t *p);
-int ppp_arch_putchar(struct ppp_context_s *ctx, u8_t c);
+int ppp_arch_getchar(FAR struct ppp_context_s *ctx, FAR uint8_t *p);
+int ppp_arch_putchar(FAR struct ppp_context_s *ctx, uint8_t c);
 
 #undef EXTERN
 #ifdef __cplusplus

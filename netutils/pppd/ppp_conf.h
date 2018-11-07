@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/ppp-conf.c
+ * netutils/pppd/ppp_conf.h
  *
  *   Copyright (C) 2015 Max Nekludov. All rights reserved.
  *   Author: Max Nekludov <macscomp@gmail.com>
@@ -53,21 +53,16 @@
 #define PPP_IP_TIMEOUT          (6*3600)
 #define PPP_MAX_CONNECT         15
 
-#define PAP_USERNAME_SIZE       16
-#define PAP_PASSWORD_SIZE       16
-
-#define xxdebug_printf          printf
-#define debug_printf            printf
+#define xxdebug_printf          ninfo
+#define debug_printf            ninfo
 
 #define PPP_RX_BUFFER_SIZE      1024 //1024  //GD 2048 for 1280 IPv6 MTU
-#define PPP_TX_BUFFER_SIZE      64
 
 #define AHDLC_TX_OFFLINE        5
-//#define AHDLC_COUNTERS          1 //defined for AHDLC stats support, Guillaume Descamps, September 19th, 2011
 
 #define IPCP_GET_PEER_IP        1
 
 #define PPP_STATISTICS          1
-#define PPP_DEBUG               1
+#define PPP_DEBUG               defined(CONFIG_DEBUG_NET_INFO)
 
 #endif /* __APPS_NETUTILS_PPPD_PPP_CONF_H */

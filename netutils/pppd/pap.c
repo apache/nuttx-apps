@@ -83,39 +83,41 @@ void pap_init(struct ppp_context_s *ctx)
  *
  ****************************************************************************/
 
-void pap_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
+void pap_rx(struct ppp_context_s *ctx, FAR uint8_t * buffer, uint16_t count)
 {
-  u8_t *bptr=buffer;
-  u8_t len;
+  FAR uint8_t *bptr = buffer;
+  uint8_t len;
 
   switch (*bptr++)
-  {
-  case CONF_REQ:
-    DEBUG1(("CONF REQ - only for server, no support\n"));
-    break;
+    {
+    case CONF_REQ:
+      DEBUG1(("CONF REQ - only for server, no support\n"));
+      break;
 
-  case CONF_ACK: /* config Ack */
-    DEBUG1(("CONF ACK - PAP good - "));
+    case CONF_ACK:             /* config Ack */
+      DEBUG1(("CONF ACK - PAP good - "));
 
-    /* Display message if debug */
+      /* Display message if debug */
 
-    len = *bptr++;
-    *(bptr + len) = 0;
-    DEBUG1((" %s \n",bptr));
-    ctx->pap_state |= PAP_TX_UP;
-    break;
+      bptr += 3;
+      len = *bptr++;
+      *(bptr + len) = 0;
+      DEBUG1((" %s \n", bptr));
+      ctx->pap_state |= PAP_TX_UP;
+      break;
 
-  case CONF_NAK:
-    DEBUG1(("CONF NAK - Failed Auth - "));
-    ctx->pap_state |= PAP_TX_AUTH_FAIL;
+    case CONF_NAK:
+      DEBUG1(("CONF NAK - Failed Auth - "));
+      ctx->pap_state |= PAP_TX_AUTH_FAIL;
 
-    /* Display message if debug */
+      /* Display message if debug */
 
-    len = *bptr++;
-    *(bptr + len)=0;
-    DEBUG1((" %s \n",bptr));
-    break;
-  }
+      bptr += 3;
+      len = *bptr++;
+      *(bptr + len) = 0;
+      DEBUG1((" %s \n", bptr));
+      break;
+    }
 }
 
 /****************************************************************************
@@ -124,18 +126,18 @@ void pap_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
  *
  ****************************************************************************/
 
-void pap_task(struct ppp_context_s *ctx, u8_t *buffer)
+void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 {
-  u8_t *bptr;
-  u16_t t;
+  FAR uint8_t *bptr;
+  uint16_t t;
   PAPPKT *pkt;
 
   /* If LCP is up and PAP negotiated, try to bring up PAP */
 
   if (!(ctx->pap_state & PAP_TX_UP) && !(ctx->pap_state & PAP_TX_TIMEOUT))
     {
-      /* Do we need to send a PAP auth packet?
-        Check if we have a request pending*/
+      /* Do we need to send a PAP auth packet? Check if we have a request
+       * pending */
 
       if ((ppp_arch_clock_seconds() - ctx->pap_prev_seconds) > PAP_TIMEOUT)
         {
@@ -147,7 +149,7 @@ void pap_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           /* Build a PAP request packet */
 
-          pkt = (PAPPKT *)buffer;
+          pkt = (PAPPKT *) buffer;
 
           /* Configure-Request only here, write id */
 
@@ -157,26 +159,26 @@ void pap_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           /* Write options */
 
-          t = strlen((char*)ctx->settings->pap_username);
+          t = strlen((char *)ctx->settings->pap_username);
 
           /* Write peer length */
 
-          *bptr++ = (u8_t)t;
+          *bptr++ = (uint8_t) t;
           bptr = memcpy(bptr, ctx->settings->pap_username, t);
 
-          t = strlen((char*)ctx->settings->pap_password);
-          *bptr++ = (u8_t)t;
+          t = strlen((char *)ctx->settings->pap_password);
+          *bptr++ = (uint8_t) t;
           bptr = memcpy(bptr, ctx->settings->pap_password, t);
 
           /* Write length */
 
           t = bptr - buffer;
 
-          /* length here -  code and ID +  */
+          /* length here - code and ID + */
 
           pkt->len = htons(t);
 
-          DEBUG1((" Len %d\n",t));
+          DEBUG1((" Len %d\n", t));
 
           /* Send packet */
 
@@ -189,7 +191,7 @@ void pap_task(struct ppp_context_s *ctx, u8_t *buffer)
           if (ctx->pap_retry > PAP_RETRY_COUNT)
             {
               DEBUG1(("PAP - timout\n"));
-              ctx->pap_state &= PAP_TX_TIMEOUT;
+              ctx->pap_state |= PAP_TX_TIMEOUT;
             }
         }
     }

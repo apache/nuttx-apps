@@ -76,8 +76,8 @@ struct pppd_settings_s
 
   /* Chat Scripts */
 
-  FAR char* connect_script;
-  FAR char* disconnect_script;
+  FAR const char* connect_script;
+  FAR const char* disconnect_script;
 };
 
   /****************************************************************************
@@ -110,7 +110,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int pppd(struct pppd_settings_s *ppp_settings);
+int pppd(const struct pppd_settings_s *ppp_settings);
 
 #undef EXTERN
 #ifdef __cplusplus

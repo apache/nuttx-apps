@@ -66,7 +66,7 @@
 
 #define PAP_RX_AUTH_FAIL  0x10
 #define PAP_TX_AUTH_FAIL  0x20
-#define PAP_RX_TIMEOUT    0x80
+#define PAP_RX_TIMEOUT    0x40
 #define PAP_TX_TIMEOUT    0x80
 
 /****************************************************************************
@@ -77,10 +77,10 @@ struct ppp_context_s;
 
 typedef struct _pappkt
 {
-  u8_t code;
-  u8_t id;
-  u16_t len;
-  u8_t data[0];
+  uint8_t code;
+  uint8_t id;
+  uint16_t len;
+  uint8_t data[0];
 } PAPPKT;
 
 /****************************************************************************
@@ -97,9 +97,10 @@ extern "C"
 #endif
 
 /* Function prototypes */
-void pap_init(struct ppp_context_s *ctx);
-void pap_rx(struct ppp_context_s *ctx, u8_t *, u16_t);
-void pap_task(struct ppp_context_s *ctx, u8_t *buffer);
+
+void pap_init(FAR struct ppp_context_s *ctx);
+void pap_rx(FAR struct ppp_context_s *ctx, FAR uint8_t *, uint16_t);
+void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t *buffer);
 
 #undef EXTERN
 #ifdef __cplusplus

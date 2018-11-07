@@ -54,22 +54,8 @@
 #  define PACKET_TX_DEBUG 1
 #else
 #  define DEBUG1(x)
-#  undef  PACKET_TX_DEBUG
+#  define PACKET_TX_DEBUG 0
 #endif
-
-/* ahdlc flags bit defins, for ahdlc_flags variable */
-
-/* Escaped mode bit */
-
-#define AHDLC_ESCAPED        0x1
-
-/* Frame is ready bit */
-
-#define AHDLC_RX_READY       0x2
-#define AHDLC_RX_ASYNC_MAP   0x4
-#define AHDLC_TX_ASYNC_MAP   0x8
-#define AHDLC_PFC            0x10
-#define AHDLC_ACFC           0x20
 
 /****************************************************************************
  * Private Functions
@@ -89,9 +75,9 @@
  *
  ****************************************************************************/
 
-static u16_t crcadd(u16_t crcvalue, u8_t c)
+static uint16_t crcadd(uint16_t crcvalue, uint8_t c)
 {
-  u16_t b;
+  uint16_t b;
 
   b = (crcvalue ^ c) & 0xFF;
   b = (b ^ (b << 4)) & 0xFF;
@@ -112,11 +98,12 @@ static u16_t crcadd(u16_t crcvalue, u8_t c)
 
 void ahdlc_init(struct ppp_context_s *ctx)
 {
-  ctx->ahdlc_flags      = 0 | AHDLC_RX_ASYNC_MAP;
-  ctx->ahdlc_rx_count   = 0;
+  ctx->ahdlc_flags = PPP_RX_ASYNC_MAP;
+  ctx->ahdlc_rx_count = 0;
   ctx->ahdlc_tx_offline = 0;
 
 #ifdef PPP_STATISTICS
+  ctx->ahdlc_crc_error = 0;
   ctx->ahdlc_rx_tobig_error = 0;
 #endif
 }
@@ -131,7 +118,7 @@ void ahdlc_rx_ready(struct ppp_context_s *ctx)
 {
   ctx->ahdlc_rx_count = 0;
   ctx->ahdlc_rx_crc = 0xffff;
-  ctx->ahdlc_flags |= AHDLC_RX_READY;
+  ctx->ahdlc_flags |= PPP_RX_READY;
 }
 
 /****************************************************************************
@@ -144,21 +131,21 @@ void ahdlc_rx_ready(struct ppp_context_s *ctx)
  *
  ****************************************************************************/
 
-u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
+uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
 {
-  //static u16_t protocol;
+  /* Check to see if PPP packet is useable, we should have hardware flow
+   * control set, but if host ignores it and sends us a char when the PPP
+   * Receive packet is in use, discard the character.
+   */
 
-  /* Check to see if PPP packet is useable, we should have hardware
-     flow control set, but if host ignores it and sends us a char when
-     the PPP Receive packet is in use, discard the character. */
-
-  if (ctx->ahdlc_flags & AHDLC_RX_READY)
+  if ((ctx->ahdlc_flags & PPP_RX_READY) != 0)
     {
-      /* Check to see if character is less than 0x20 hex we really
-         should set AHDLC_RX_ASYNC_MAP on by default and only turn it
-         off when it is negotiated off to handle some buggy stacks. */
+      /* Check to see if character is less than 0x20 hex we really should set
+       * AHDLC_RX_ASYNC_MAP on by default and only turn it off when it is
+       * negotiated off to handle some buggy stacks.
+       */
 
-      if ((c < 0x20) && ((ctx->ahdlc_flags & AHDLC_RX_ASYNC_MAP) == 0))
+      if ((c < 0x20) && ((ctx->ahdlc_flags & PPP_RX_ASYNC_MAP) == 0))
         {
           /* Discard character */
 
@@ -168,11 +155,11 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
 
       /* Are we in escaped mode? */
 
-      if (ctx->ahdlc_flags & AHDLC_ESCAPED)
+      if ((ctx->ahdlc_flags & PPP_ESCAPED) != 0)
         {
           /* Set escaped to FALSE */
 
-          ctx->ahdlc_flags &= ~AHDLC_ESCAPED;
+          ctx->ahdlc_flags &= ~PPP_ESCAPED;
 
           /* If value is 0x7e then silently discard and reset receive packet */
 
@@ -193,11 +180,13 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
           if (ctx->ahdlc_rx_crc == CRC_GOOD_VALUE)
             {
               DEBUG1(("\nReceiving packet with good crc value, len %d\n",
-                     ctx->ahdlc_rx_count));
+                      ctx->ahdlc_rx_count));
 
-              /* we hae a good packet, turn off CTS until we are done with
-                this packet */
-              /*CTS_OFF();*/
+              /* we have a good packet, turn off CTS until we are done with this
+               * packet
+               */
+
+              /* CTS_OFF(); */
 
 #if PPP_STATISTICS
               /* Update statistics */
@@ -205,35 +194,39 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
               ++ctx->ppp_rx_frame_count;
 #endif
 
-              /* Femove CRC bytes from packet */
+              /* Remove CRC bytes from packet */
 
               ctx->ahdlc_rx_count -= 2;
 
               /* Lock PPP buffer */
 
-              ctx->ahdlc_flags &= ~AHDLC_RX_READY;
+              ctx->ahdlc_flags &= ~PPP_RX_READY;
 
-             /*upcall routine must fully process frame before return
-              *    as returning signifies that buffer belongs to AHDLC again.
-              */
+              /* upcall routine must fully process frame before return as
+               * returning signifies that buffer belongs to AHDLC again.
+               */
 
-              if ((c & 0x1) && (ctx->ahdlc_flags & PPP_PFC))
+              if ((ctx->ahdlc_rx_buffer[0] & 0x1) != 0 &&
+                  (ctx->ahdlc_flags & PPP_PFC) != 0)
                 {
                   /* Send up packet */
 
-                  ppp_upcall(ctx, (u16_t)ctx->ahdlc_rx_buffer[0],
-                      (u8_t *)&ctx->ahdlc_rx_buffer[1],
-                      (u16_t)(ctx->ahdlc_rx_count - 1));
+                  ppp_upcall(ctx, (uint16_t) ctx->ahdlc_rx_buffer[0],
+                             (FAR uint8_t *) & ctx->ahdlc_rx_buffer[1],
+                             (uint16_t) (ctx->ahdlc_rx_count - 1));
                 }
               else
                 {
                   /* Send up packet */
 
-                  ppp_upcall(ctx, (u16_t)(ctx->ahdlc_rx_buffer[0] << 8 | ctx->ahdlc_rx_buffer[1]),
-                      (u8_t *)&ctx->ahdlc_rx_buffer[2], (u16_t)(ctx->ahdlc_rx_count - 2));
+                  ppp_upcall(ctx,
+                             (uint16_t) (ctx->ahdlc_rx_buffer[0] << 8 | ctx->
+                                         ahdlc_rx_buffer[1]),
+                             (FAR uint8_t *) & ctx->ahdlc_rx_buffer[2],
+                             (uint16_t) (ctx->ahdlc_rx_count - 2));
                 }
 
-              ctx->ahdlc_tx_offline = 0;    /* The remote side is alive */
+              ctx->ahdlc_tx_offline = 0;        /* The remote side is alive */
               ahdlc_rx_ready(ctx);
               return 0;
             }
@@ -246,9 +239,10 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
 #endif
               /* Shouldn't we dump the packet and not pass it up? */
 
-              /*ppp_upcall((u16_t)ahdlc_rx_buffer[0],
-                (u8_t *)&ahdlc_rx_buffer[0], (u16_t)(ahdlc_rx_count+2));
-                dump_ppp_packet(&ahdlc_rx_buffer[0],ahdlc_rx_count);*/
+              /* ppp_upcall((uint16_t)ahdlc_rx_buffer[0], (FAR uint8_t
+               * *)&ahdlc_rx_buffer[0], (uint16_t)(ahdlc_rx_count+2));
+               * dump_ppp_packet(&ahdlc_rx_buffer[0],ahdlc_rx_count);
+               */
             }
 
           ahdlc_rx_ready(ctx);
@@ -256,13 +250,13 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
         }
       else if (c == 0x7d)
         {
-          /* Handle escaped chars*/
+          /* Handle escaped chars */
 
           ctx->ahdlc_flags |= PPP_ESCAPED;
           return 0;
         }
 
-      /* Rry to store char if not too big */
+      /* Try to store char if not too big */
 
       if (ctx->ahdlc_rx_count >= PPP_RX_BUFFER_SIZE)
         {
@@ -295,6 +289,7 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
   else
     {
       /* we are busy and didn't process the character. */
+
       DEBUG1(("Busy/not active\n"));
       return 1;
     }
@@ -311,7 +306,7 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
  *
  ****************************************************************************/
 
-void ahdlc_tx_char(struct ppp_context_s *ctx, u16_t protocol, u8_t c)
+void ahdlc_tx_char(struct ppp_context_s *ctx, uint16_t protocol, uint8_t c)
 {
   /* Add in crc */
 
@@ -324,7 +319,9 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, u16_t protocol, u8_t c)
    */
 
   if ((c == 0x7d) || (c == 0x7e) || ((c < 0x20) && ((protocol == LCP) ||
-      (ctx->ahdlc_flags & PPP_TX_ASYNC_MAP) == 0)))
+                                                    (ctx->
+                                                     ahdlc_flags &
+                                                     PPP_TX_ASYNC_MAP) == 0)))
     {
       /* Send escape char and xor byte by 0x20 */
 
@@ -346,14 +343,15 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, u16_t protocol, u8_t c)
  *
  ****************************************************************************/
 
-u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
-              u8_t *buffer, u16_t headerlen, u16_t datalen)
+uint8_t ahdlc_tx(struct ppp_context_s *ctx, uint16_t protocol,
+                 FAR uint8_t * header, FAR uint8_t * buffer, uint16_t headerlen,
+                 uint16_t datalen)
 {
-  u16_t i;
-  u8_t c;
+  uint16_t i;
+  uint8_t c;
 
   DEBUG1(("\nAHDLC_TX - transmit frame, protocol 0x%04x, length %d  offline %d\n",
-          protocol, datalen + headerlen, ctx->ahdlc_tx_offline));
+         protocol, datalen + headerlen, ctx->ahdlc_tx_offline));
 
   if (AHDLC_TX_OFFLINE && (ctx->ahdlc_tx_offline++ > AHDLC_TX_OFFLINE))
     {
@@ -378,8 +376,7 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
   DEBUG1(("\n\n"));
 #endif
 
-  /* Check to see that physical layer is up, we can assume is some
-     cases */
+  /* Check to see that physical layer is up, we can assume is some cases */
 
   /* Write leading 0x7e */
 
@@ -391,7 +388,10 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
   /* send HDLC control and address if not disabled or of LCP frame type */
 
-  /*if ((0==(ahdlc_flags & PPP_ACFC)) || ((0xc0==buffer[0]) && (0x21==buffer[1]))) */
+  /* if ((0==(ahdlc_flags & PPP_ACFC)) || ((0xc0==buffer[0]) &&
+   * (0x21==buffer[1])))
+   */
+
   if ((0 == (ctx->ahdlc_flags & PPP_ACFC)) || (protocol == LCP))
     {
       ahdlc_tx_char(ctx, protocol, 0xff);
@@ -400,8 +400,8 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
   /* Write Protocol */
 
-  ahdlc_tx_char(ctx, protocol,(u8_t)(protocol >> 8));
-  ahdlc_tx_char(ctx, protocol,(u8_t)(protocol & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t) (protocol >> 8));
+  ahdlc_tx_char(ctx, protocol, (uint8_t) (protocol & 0xff));
 
   /* Write header if it exists */
 
@@ -411,7 +411,7 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
       c = header[i];
 
-      /* Write it...*/
+      /* Write it... */
 
       ahdlc_tx_char(ctx, protocol, c);
     }
@@ -424,7 +424,7 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
       c = buffer[i];
 
-      /* Write it...*/
+      /* Write it... */
 
       ahdlc_tx_char(ctx, protocol, c);
     }
@@ -432,8 +432,8 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
   /* Send crc, lsb then msb */
 
   i = ctx->ahdlc_tx_crc ^ 0xffff;
-  ahdlc_tx_char(ctx, protocol, (u8_t)(i & 0xff));
-  ahdlc_tx_char(ctx, protocol, (u8_t)((i >> 8) & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t) (i & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t) ((i >> 8) & 0xff));
 
   /* Write trailing 0x7e, probably not needed but it doesn't hurt */
 

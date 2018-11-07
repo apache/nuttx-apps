@@ -66,9 +66,9 @@
  * only)
  */
 
-static const u8_t ipcplist[] =
+static const uint8_t ipcplist[] =
 {
-  0x3,
+  IPCP_IPADDRESS,
   0
 };
 
@@ -84,11 +84,11 @@ static const u8_t ipcplist[] =
  * Name: printip
  ****************************************************************************/
 
-#if 0
-void printip(uip_ipaddr_t ip2)
+#if PPP_DEBUG
+void printip(struct in_addr ip2)
 {
-  char *ip = (u8_t*)ip2;
-  DEBUG1((" %d.%d.%d.%d ",ip[0],ip[1],ip[2],ip[3]));
+  char *ip = (FAR uint8_t *) & ip2.s_addr;
+  DEBUG1((" %d.%d.%d.%d ", ip[0], ip[1], ip[2], ip[3]));
 }
 #else
 #  define printip(x)
@@ -98,7 +98,7 @@ void printip(uip_ipaddr_t ip2)
  * Name: ipcp_init
  ****************************************************************************/
 
-void ipcp_init(struct ppp_context_s *ctx)
+void ipcp_init(FAR struct ppp_context_s *ctx)
 {
   DEBUG1(("ipcp init\n"));
 
@@ -126,317 +126,335 @@ void ipcp_init(struct ppp_context_s *ctx)
  *
  ****************************************************************************/
 
-void ipcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
+void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
+             uint16_t count)
 {
-  u8_t *bptr = buffer;
-  //IPCPPKT *pkt=(IPCPPKT *)buffer;
-  u16_t len;
+  FAR uint8_t *bptr = buffer;
+  uint16_t len;
 
-  DEBUG1(("IPCP len %d\n",count));
+  DEBUG1(("IPCP len %d\n", count));
 
   switch (*bptr++)
-  {
-  case CONF_REQ:
-    /* Parse request and see if we can ACK it */
+    {
+    case CONF_REQ:
+      /* Parse request and see if we can ACK it */
 
-    ++bptr;
-    len = (*bptr++ << 8);
-    len |= *bptr++;
-    /* len-=2; */
+      ++bptr;
+      len = (*bptr++ << 8);
+      len |= *bptr++;
 
-    DEBUG1(("check lcplist\n"));
-    if (scan_packet(ctx, IPCP, ipcplist, buffer, bptr, (u16_t)(len - 4)))
-      {
-        DEBUG1(("option was bad\n"));
-      }
-    else
-      {
-        DEBUG1(("IPCP options are good\n"));
+      /* len-=2; */
 
-        /* Parse out the results */
-        /* lets try to implement what peer wants */
-        /* Reject any protocol not */
-        /* Error? if we we need to send a config Reject ++++ this is good for a subroutine*/
-        /* All we should get is the peer IP address */
+      DEBUG1(("check lcplist\n"));
+      if (scan_packet(ctx, IPCP, ipcplist, buffer, bptr, (uint16_t) (len - 4)))
+        {
+          DEBUG1(("option was bad\n"));
+        }
+      else
+        {
+          DEBUG1(("IPCP options are good\n"));
 
-        if (IPCP_IPADDRESS == *bptr++)
-          {
-            /* Dump length */
+          /* Parse out the results */
 
-            ++bptr;
+          /* lets try to implement what peer wants */
+
+          /* Reject any protocol not */
+
+          /* Error? if we we need to send a config Reject ++++ this is good for
+           * a subroutine.
+           */
+
+           /* All we should get is the peer IP address */
+
+          if (IPCP_IPADDRESS == *bptr++)
+            {
+              /* Dump length */
+
+              ++bptr;
 #ifdef IPCP_GET_PEER_IP
-            ((u8_t*)&ctx->peer_ip)[0] = *bptr++;
-            ((u8_t*)&ctx->peer_ip)[1] = *bptr++;
-            ((u8_t*)&ctx->peer_ip)[2] = *bptr++;
-            ((u8_t*)&ctx->peer_ip)[3] = *bptr++;
+              ((FAR uint8_t *) & ctx->peer_ip)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->peer_ip)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->peer_ip)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->peer_ip)[3] = *bptr++;
 
-            DEBUG1(("Peer IP "));
-            /* printip(peer_ip_addr); */
-            DEBUG1(("\n"));
+              DEBUG1(("Peer IP "));
+              printip(ctx->peer_ip);
+              DEBUG1(("\n"));
 
-            netlib_set_dripv4addr((char*)ctx->ifname, &ctx->peer_ip);
+              netlib_set_dripv4addr((char *)ctx->ifname, &ctx->peer_ip);
 #else
-            bptr += 4;
+              bptr += 4;
 #endif
-          }
-        else
-          {
-            DEBUG1(("HMMMM this shouldn't happen IPCP1\n"));
-          }
+            }
+          else
+            {
+              DEBUG1(("HMMMM this shouldn't happen IPCP1\n"));
+            }
 
 #if 0
-        if (error)
-          {
-            /* Write the config NAK packet we've built above, take on the header */
+          if (error)
+            {
+              /* Write the config NAK packet we've built above, take on the
+               * header
+               */
 
-            bptr = buffer;
-            *bptr++ = CONF_NAK;        /* Write Conf_rej */
-            *bptr++;
-            /*tptr++;*/  /* skip over ID */
+              bptr = buffer;
+              *bptr++ = CONF_NAK;       /* Write Conf_rej */
+              *bptr++;
 
-            /* Write new length */
+              /* tptr++; *//* skip over ID */
 
-            *bptr++ = 0;
-            *bptr = tptr - buffer;
+              /* Write new length */
 
-            /* Write the reject frame */
+              *bptr++ = 0;
+              *bptr = tptr - buffer;
 
-            DEBUG1(("Writing NAK frame \n"));
-            ahdlc_tx(IPCP, buffer, (u16_t)(tptr - buffer));
-            DEBUG1(("- End NAK Write frame\n"));
-          }
-        else
-          {
-          }
+              /* Write the reject frame */
+
+              DEBUG1(("Writing NAK frame \n"));
+              ahdlc_tx(IPCP, buffer, (uint16_t) (tptr - buffer));
+              DEBUG1(("- End NAK Write frame\n"));
+            }
+          else
+            {
+            }
 #endif
-        /* If we get here then we are OK, lets send an ACK and tell the rest
-         * of our modules our negotiated config.
-         */
+          /* If we get here then we are OK, lets send an ACK and tell the rest
+           * of our modules our negotiated config.
+           */
 
-        ctx->ipcp_state |= IPCP_RX_UP;
-        DEBUG1(("Send IPCP ACK!\n"));
-        bptr = buffer;
-        *bptr++ = CONF_ACK; /* Write Conf_ACK */
-        bptr++;             /* Skip ID (send same one) */
+          ctx->ipcp_state |= IPCP_RX_UP;
+          DEBUG1(("Send IPCP ACK!\n"));
+          bptr = buffer;
+          *bptr++ = CONF_ACK;   /* Write Conf_ACK */
+          bptr++;               /* Skip ID (send same one) */
 
-        /* Set stuff */
+          /* Set stuff */
 
-        /* ppp_flags |= tflag; */
-        DEBUG1(("SET- stuff -- are we up? c=%d dif=%d \n", count, (u16_t)(bptr - buffer)));
+          /* ppp_flags |= tflag; */
 
-        /* Write the ACK frame */
+          DEBUG1(("SET- stuff -- are we up? c=%d dif=%d \n",
+                  count, (uint16_t) (bptr - buffer)));
 
-        DEBUG1(("Writing ACK frame \n"));
+          /* Write the ACK frame */
 
-        /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
+          DEBUG1(("Writing ACK frame \n"));
 
-        ahdlc_tx(ctx, IPCP, 0, buffer, 0, count /*bptr-buffer*/);
-        DEBUG1(("- End ACK Write frame\n"));
-      }
-    break;
+          /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
-  case CONF_ACK: /* config Ack */
-    DEBUG1(("CONF ACK\n"));
-    /* Parse out the results
-     *
-     * Dump the ID and get the length.
-     */
+          ahdlc_tx(ctx, IPCP, 0, buffer, 0, count /* bptr-buffer */);
+          DEBUG1(("- End ACK Write frame\n"));
+        }
+      break;
 
-    /* Dump the ID */
+    case CONF_ACK:             /* config Ack */
+      DEBUG1(("CONF ACK\n"));
 
-    bptr++;
+      /* Parse out the results Dump the ID and get the length. */
 
-    /* Get the length */
+      /* Dump the ID */
 
-    len = (*bptr++ << 8);
-    len |= *bptr++;
+      bptr++;
+
+      /* Get the length */
+
+      len = (*bptr++ << 8);
+      len |= *bptr++;
 
 #if 0
-    /* Parse ACK and set data */
+      /* Parse ACK and set data */
 
-    while (bptr < buffer + len)
-      {
-        switch (*bptr++)
+      while (bptr < buffer + len)
         {
-        case IPCP_IPADDRESS:
-          /* Dump length */
+          switch (*bptr++)
+            {
+            case IPCP_IPADDRESS:
+              /* Dump length */
 
-          bptr++;
-          ((u8_t*)ipaddr)[0] = *bptr++;
-          ((u8_t*)ipaddr)[1] = *bptr++;
-          ((u8_t*)ipaddr)[2] = *bptr++;
-          ((u8_t*)ipaddr)[3] = *bptr++;
-          break;
+              bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[3] = *bptr++;
+              break;
 
-        case IPCP_PRIMARY_DNS:
-          bptr++;
-          ((u8_t*)pri_dns_addr)[0] = *bptr++;
-          ((u8_t*)pri_dns_addr)[1] = *bptr++;
-          ((u8_t*)pri_dns_addr)[2] = *bptr++;
-          ((u8_t*)pri_dns_addr)[3] = *bptr++;
-          break;
+#  ifdef IPCP_GET_PRI_DNS
+            case IPCP_PRIMARY_DNS:
+              bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[3] = *bptr++;
+              break;
+#  endif
 
-        case IPCP_SECONDARY_DNS:
-          bptr++;
-          ((u8_t*)sec_dns_addr)[0] = *bptr++;
-          ((u8_t*)sec_dns_addr)[1] = *bptr++;
-          ((u8_t*)sec_dns_addr)[2] = *bptr++;
-          ((u8_t*)sec_dns_addr)[3] = *bptr++;
-          break;
+#  ifdef IPCP_GET_SEC_DNS
+            case IPCP_SECONDARY_DNS:
+              bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[3] = *bptr++;
+              break;
+#  endif
 
-        default:
-           DEBUG1(("IPCP CONFIG_ACK problem1\n"));
+            default:
+              DEBUG1(("IPCP CONFIG_ACK problem1\n"));
+            }
         }
-      }
 #endif
 
-    ctx->ipcp_state |= IPCP_TX_UP;
-    /*ppp_ipcp_state &= ~IPCP_RX_UP;*/
+      ctx->ipcp_state |= IPCP_TX_UP;
 
-    DEBUG1(("were up! \n"));
-    //printip(pppif.ipaddr);
+      /* ppp_ipcp_state &= ~IPCP_RX_UP; */
+
+      DEBUG1(("were up! \n"));
+      printip(ctx->local_ip);
 #ifdef IPCP_GET_PRI_DNS
-    printip(pri_dns_addr);
+      printip(ctx->pri_dns_addr);
 #endif
 #ifdef IPCP_GET_SEC_DNS
-    printip(sec_dns_addr);
+      printip(ctx->sec_dns_addr);
 #endif
-    DEBUG1(("\n"));
-    break;
+      DEBUG1(("\n"));
+      break;
 
-  case CONF_NAK: /* Config Nack */
-    DEBUG1(("CONF NAK\n"));
+    case CONF_NAK:             /* Config Nack */
+      DEBUG1(("CONF NAK\n"));
 
-    /* Dump the ID */
+      /* Dump the ID */
 
-    bptr++;
+      bptr++;
 
-    /* Get the length */
+      /* Get the length */
 
-    len = (*bptr++ << 8);
-    len |= *bptr++;
+      len = (*bptr++ << 8);
+      len |= *bptr++;
 
-    /* Parse ACK and set data */
+      /* Parse ACK and set data */
 
-    while (bptr < buffer + len)
-      {
-        switch (*bptr++)
+      while (bptr < buffer + len)
         {
-        case IPCP_IPADDRESS:
-          /* dump length */
-          bptr++;
+          switch (*bptr++)
+            {
+            case IPCP_IPADDRESS:
+              /* Dump length */
 
-          ((u8_t*)&ctx->local_ip)[0] = (char)*bptr++;
-          ((u8_t*)&ctx->local_ip)[1] = (char)*bptr++;
-          ((u8_t*)&ctx->local_ip)[2] = (char)*bptr++;
-          ((u8_t*)&ctx->local_ip)[3] = (char)*bptr++;
+              bptr++;
 
-          netlib_ifup((char*)ctx->ifname);
-          netlib_set_ipv4addr((char*)ctx->ifname, &ctx->local_ip);
-          //DEBUG1(("My PPP-ipno: (%d.%d.%d.%d)\n", ((u8_t*)pppif.ipaddr)[0], ((u8_t*)pppif.ipaddr)[1], ((u8_t*)pppif.ipaddr)[2], ((u8_t*)pppif.ipaddr)[3]));
-          break;
+              ((FAR uint8_t *) & ctx->local_ip)[0] = (char)*bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[1] = (char)*bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[2] = (char)*bptr++;
+              ((FAR uint8_t *) & ctx->local_ip)[3] = (char)*bptr++;
+
+              netlib_ifup((char *)ctx->ifname);
+              netlib_set_ipv4addr((char *)ctx->ifname, &ctx->local_ip);
+              break;
 
 #ifdef IPCP_GET_PRI_DNS
-        case IPCP_PRIMARY_DNS:
-          bptr++;
-          ((u8_t*)&ctx->pri_dns_addr)[0] = *bptr++;
-          ((u8_t*)&ctx->pri_dns_addr)[1] = *bptr++;
-          ((u8_t*)&ctx->pri_dns_addr)[2] = *bptr++;
-          ((u8_t*)&ctx->pri_dns_addr)[3] = *bptr++;
-          break;
+            case IPCP_PRIMARY_DNS:
+              bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->pri_dns_addr)[3] = *bptr++;
+              netlib_set_ipv4dnsaddr(&ctx->pri_dns_addr);
+              break;
 #endif
 
 #ifdef IPCP_GET_SEC_DNS
-        case IPCP_SECONDARY_DNS:
-          bptr++;
-          ((u8_t*)&ctx->sec_dns_addr)[0] = *bptr++;
-          ((u8_t*)&ctx->sec_dns_addr)[1] = *bptr++;
-          ((u8_t*)&ctx->sec_dns_addr)[2] = *bptr++;
-          ((u8_t*)&ctx->sec_dns_addr)[3] = *bptr++;
-          break;
+            case IPCP_SECONDARY_DNS:
+              bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *) & ctx->sec_dns_addr)[3] = *bptr++;
+              netlib_set_ipv4dnsaddr(&ctx->sec_dns_addr);
+              break;
 #endif
 
-        default:
-          DEBUG1(("IPCP CONFIG_ACK problem 2\n"));
+            default:
+              DEBUG1(("IPCP CONFIG_ACK problem 2\n"));
+            }
         }
-      }
 
-    ctx->ppp_id++;
+      ctx->ppp_id++;
 
-    printip(pppif.ipaddr);
+      printip(ctx->local_ip);
 #ifdef IPCP_GET_PRI_DNS
-    printip(pri_dns_addr);
+      printip(ctx->pri_dns_addr);
 #endif
 #ifdef IPCP_GET_PRI_DNS
-    printip(sec_dns_addr);
+      printip(ctx->sec_dns_addr);
 #endif
-    DEBUG1(("\n"));
-    break;
+      DEBUG1(("\n"));
+      break;
 
-  case CONF_REJ: /* Config Reject */
-    DEBUG1(("CONF REJ\n"));
+    case CONF_REJ:             /* Config Reject */
+      DEBUG1(("CONF REJ\n"));
 
-    /* Remove the offending options*/
+      /* Remove the offending options */
 
-    ctx->ppp_id++;
+      ctx->ppp_id++;
 
-    /* Dump the ID */
+      /* Dump the ID */
 
-    bptr++;
+      bptr++;
 
-    /* Get the length */
+      /* Get the length */
 
-    len = (*bptr++ << 8);
-    len |= *bptr++;
+      len = (*bptr++ << 8);
+      len |= *bptr++;
 
-    /* Parse ACK and set data */
+      /* Parse ACK and set data */
 
-    while (bptr < buffer + len)
-      {
-        switch (*bptr++)
+      while (bptr < buffer + len)
         {
-        case IPCP_IPADDRESS:
-          ctx->ipcp_state |= IPCP_IP_BIT;
-          bptr += 5;
-          break;
+          switch (*bptr++)
+            {
+            case IPCP_IPADDRESS:
+              ctx->ipcp_state |= IPCP_IP_BIT;
+              bptr += 5;
+              break;
 
 #ifdef IPCP_GET_PRI_DNS
-        case IPCP_PRIMARY_DNS:
-          ctx->ipcp_state |= IPCP_PRI_DNS_BIT;
-          bptr += 5;
-          break;
+            case IPCP_PRIMARY_DNS:
+              ctx->ipcp_state |= IPCP_PRI_DNS_BIT;
+              bptr += 5;
+              break;
 #endif
 
 #ifdef IPCP_GET_PRI_DNS
-        case IPCP_SECONDARY_DNS:
-          ctx->ipcp_state |= IPCP_SEC_DNS_BIT;
-          bptr += 5;
-          break;
+            case IPCP_SECONDARY_DNS:
+              ctx->ipcp_state |= IPCP_SEC_DNS_BIT;
+              bptr += 5;
+              break;
 #endif
 
-        default:
-          DEBUG1(("IPCP this shoudln't happen 3\n"));
+            default:
+              DEBUG1(("IPCP this shoudln't happen 3\n"));
+            }
         }
-      }
-    break;
+      break;
 
-  default:
-    DEBUG1(("-Unknown 4\n"));
-  }
+    default:
+      DEBUG1(("-Unknown 4\n"));
+    }
 }
 
 /****************************************************************************
  * Name: ipcp_task
  ****************************************************************************/
 
-void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
+void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 {
-  u8_t *bptr;
-  u16_t    t;
+  FAR uint8_t *bptr;
+  uint16_t t;
   IPCPPKT *pkt;
 
-  /* IPCP tx not up and hasn't timed out then lets see if we need to
-     send a request */
+  /* IPCP tx not up and hasn't timed out then lets see if we need to send a
+   * request
+   */
 
   if (!(ctx->ipcp_state & IPCP_TX_UP) && !(ctx->ipcp_state & IPCP_TX_TIMEOUT))
     {
@@ -448,7 +466,7 @@ void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           /* No pending request, lets build one */
 
-          pkt=(IPCPPKT *)buffer;
+          pkt = (IPCPPKT *) buffer;
 
           /* Configure-Request only here, write id */
 
@@ -457,41 +475,42 @@ void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           bptr = pkt->data;
 
-          /* Write options, we want IP address, and DNS addresses if set. */
-          /* Write zeros for IP address the first time */
+          /* Write options, we want IP address, and DNS addresses if set.
+           * Write zeros for IP address the first time
+           */
 
           *bptr++ = IPCP_IPADDRESS;
           *bptr++ = 0x6;
-          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[0];
-          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[1];
-          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[2];
-          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[3];
+          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[0];
+          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[1];
+          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[2];
+          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[3];
 
 #ifdef IPCP_GET_PRI_DNS
-          if (!(ppp_ipcp_state & IPCP_PRI_DNS_BIT))
+          if ((ctx->ipcp_state & IPCP_PRI_DNS_BIT) == 0)
             {
               /* Write zeros for IP address the first time */
 
               *bptr++ = IPCP_PRIMARY_DNS;
               *bptr++ = 0x6;
-              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[0];
-              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[1];
-              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[2];
-              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[3];
+              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[0];
+              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[1];
+              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[2];
+              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[3];
             }
 #endif
 
 #ifdef IPCP_GET_SEC_DNS
-          if (!(ppp_ipcp_state & IPCP_SEC_DNS_BIT))
+          if ((ctx->ipcp_state & IPCP_SEC_DNS_BIT) == 0)
             {
               /* Write zeros for IP address the first time */
 
               *bptr++ = IPCP_SECONDARY_DNS;
               *bptr++ = 0x6;
-              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[0];
-              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[1];
-              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[2];
-              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[3];
+              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[0];
+              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[1];
+              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[2];
+              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[3];
             }
 #endif
 
@@ -499,7 +518,7 @@ void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           t = bptr - buffer;
 
-          /* length here -  code and ID + */
+          /* length here - code and ID + */
 
           pkt->len = htons(t);
 
@@ -517,7 +536,7 @@ void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           if (ctx->ipcp_retry > IPCP_RETRY_COUNT)
             {
-              ctx->ipcp_state &= IPCP_TX_TIMEOUT;
+              ctx->ipcp_state |= IPCP_TX_TIMEOUT;
             }
         }
     }

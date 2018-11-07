@@ -50,7 +50,7 @@
  * Private Data
  ****************************************************************************/
 
-static FAR char connect_script[] =
+static FAR const char connect_script[] =
   "ECHO ON "
   "TIMEOUT 30 "
   "\"\" ATE1 "
@@ -58,7 +58,7 @@ static FAR char connect_script[] =
   "OK ATD*99***1# "
   "CONNECT \\c";
 
-static FAR char disconnect_script[] =
+static FAR const char disconnect_script[] =
   "\"\" ATZ "
   "OK \\c";
 
@@ -72,7 +72,7 @@ static FAR char disconnect_script[] =
 
 int pppd_main(int argc, char *argv[])
 {
-  struct pppd_settings_s pppd_settings =
+  const struct pppd_settings_s pppd_settings =
   {
     .disconnect_script = disconnect_script,
     .connect_script = connect_script,

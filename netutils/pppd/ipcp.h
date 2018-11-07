@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/ipcp.c
+ * netutils/pppd/ipcp.h
  * Internet Protocol Control Protocol header file
  *
  *   Version: 0.1 Original Version June 3, 2000
@@ -51,11 +51,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Config options (move to pppconfig)
-   #define  IPCP_RETRY_COUNT  5
-   #define  IPCP_TIMEOUT      5
-*/
-
 /* IPCP Option Types */
 
 #define IPCP_IPADDRESS        0x03
@@ -68,8 +63,8 @@
 #define IPCP_RX_UP            0x02
 #define IPCP_IP_BIT           0x04
 #define IPCP_TX_TIMEOUT       0x08
-#define IPCP_PRI_DNS_BIT      0x08
-#define IPCP_SEC_DNS_BIT      0x10
+#define IPCP_PRI_DNS_BIT      0x10
+#define IPCP_SEC_DNS_BIT      0x20
 
 /****************************************************************************
  * Public Types
@@ -79,10 +74,10 @@ struct ppp_context_s;
 
 typedef struct  _ipcp
 {
-  u8_t  code;
-  u8_t  id;
-  u16_t len;
-  u8_t  data[0];
+  uint8_t  code;
+  uint8_t  id;
+  uint16_t len;
+  uint8_t  data[0];
 } IPCPPKT;
 
 /****************************************************************************
@@ -98,9 +93,9 @@ extern "C"
 #define EXTERN extern
 #endif
 
-void ipcp_init(struct ppp_context_s *ctx);
-void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer);
-void ipcp_rx(struct ppp_context_s *ctx, u8_t *, u16_t);
+void ipcp_init(FAR struct ppp_context_s *ctx);
+void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t *buffer);
+void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t *, uint16_t);
 
 #undef EXTERN
 #ifdef __cplusplus

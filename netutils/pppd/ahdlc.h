@@ -62,13 +62,14 @@ extern "C"
 #define EXTERN extern
 #endif
 
-void ahdlc_init(struct ppp_context_s *ctx);
+void ahdlc_init(FAR struct ppp_context_s *ctx);
 
-void ahdlc_rx_ready(struct ppp_context_s *ctx);
+void ahdlc_rx_ready(FAR struct ppp_context_s *ctx);
 
-u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t);
-u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
-              u8_t *buffer, u16_t headerlen, u16_t datalen);
+uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t);
+uint8_t ahdlc_tx(FAR struct ppp_context_s *ctx, uint16_t protocol,
+                 FAR uint8_t *header, FAR uint8_t *buffer, uint16_t headerlen,
+                 uint16_t datalen);
 
 #undef EXTERN
 #ifdef __cplusplus
