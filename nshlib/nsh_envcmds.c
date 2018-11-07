@@ -56,7 +56,9 @@
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
 static const char g_pwd[]    = "PWD";
+#ifndef CONFIG_NSH_DISABLE_CD
 static const char g_oldpwd[] = "OLDPWD";
+#endif
 static const char g_home[]   = CONFIG_LIB_HOMEDIR;
 #endif
 
