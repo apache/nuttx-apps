@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/vi/vi.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,11 @@
 
 #define CMD_FILE_MASK   (CMD_READ | CMD_WRITE)
 #define USES_FILE(a)    (((uint8_t)(a) & CMD_FILE_MASK) != 0)
+
+/* Output */
+
+#define vi_error(vi, fmt, ...)   vi_printf(vi, "ERROR: ", fmt, ##__VA_ARGS__)
+#define vi_message(vi, fmt, ...) vi_printf(vi, NULL, fmt, ##__VA_ARGS__)
 
 /* Debug */
 
@@ -320,9 +325,10 @@ static void     vi_clrtoeol(FAR struct vi_s *vi);
 static void     vi_clrscreen(FAR struct vi_s *vi);
 #endif
 
-/* Error display */
+/* Final Line display */
 
-static void     vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...);
+static void     vi_printf(FAR struct vi_s *vi, FAR const char *prefix,
+                  FAR const char *fmt, ...);
 
 /* Line positioning */
 
@@ -807,14 +813,15 @@ static void vi_scrolldown(FAR struct vi_s *vi, uint16_t nlines)
 }
 
 /****************************************************************************
- * Name: vi_error
+ * Name: vi_printf
  *
  * Description:
- *   Show a highlighted error message at the final line of the display.
+ *   Show a highlighted message at the final line of the display.
  *
  ****************************************************************************/
 
-static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
+static void vi_printf(FAR struct vi_s *vi, FAR const char *prefix,
+                      FAR const char *fmt, ...)
 {
   struct vi_pos_s cursor;
   va_list ap;
@@ -830,9 +837,9 @@ static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
   vi_setcursor(vi, vi->display.row - 1, 0);
   vi_reverseon(vi);
 
-  /* Expand the error message in the scratch buffer */
+  /* Expand the prefix message in the scratch buffer */
 
-  len  = snprintf(vi->scratch, SCRATCH_BUFSIZE, "ERROR: ");
+  len = prefix ? snprintf(vi->scratch, SCRATCH_BUFSIZE, prefix) : 0;
 
   va_start(ap, fmt);
   len += vsnprintf(vi->scratch + len, SCRATCH_BUFSIZE - len, fmt, ap);
@@ -1144,7 +1151,7 @@ static bool vi_insertfile(FAR struct vi_s *vi, off_t pos,
   result = stat(filename, &buf);
   if (result < 0)
     {
-      vi_error(vi, g_fmtcmdfail, "stat", errno);
+      vi_message(vi, "\"%s\" [New File]\n", filename);
       return false;
     }
 
