@@ -51,6 +51,8 @@
 
 static FAR void *bfallocbuf(FAR struct bfile_s *bf, long sz)
 {
+  FAR char *buf;
+
   if (bf == NULL)
     {
       return NULL;
@@ -59,10 +61,12 @@ static FAR void *bfallocbuf(FAR struct bfile_s *bf, long sz)
   /* Allocate buffer */
 
   sz = BFILE_BUF_ALIGN(sz);
-  if ((bf->buf = realloc(bf->buf, sz)) == NULL)
+  if ((buf = realloc(bf->buf, sz)) == NULL)
     {
       return NULL;
     }
+
+  bf->buf = buf;
 
   /* Clear new memory */
 
@@ -229,6 +233,7 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
   bf->size = fsize(bf->fp);
   if (bfallocbuf(bf, bf->size) == NULL)
     {
+      bfclose(bf);
       return NULL;
     }
 
@@ -329,7 +334,10 @@ long bfinsert(FAR struct bfile_s *bf, long off, void *mem, long sz)
 
   if (bf->bufsz < (bf->size + off + sz))
     {
-      bfallocbuf(bf, bf->size + off + sz);
+      if (bfallocbuf(bf, bf->size + off + sz) == NULL)
+        {
+          return EOF;
+        }
     }
 
   /* Move data */
@@ -510,7 +518,10 @@ long bfwrite(FAR struct bfile_s *bf, long off, void *mem, long sz)
 
   if (bf->bufsz < off + sz)
     {
-      bfallocbuf(bf, off + sz);
+      if (bfallocbuf(bf, off + sz) == NULL)
+        {
+          return EOF;
+        }
     }
 
   memmove(bf->buf + off, mem, sz);
