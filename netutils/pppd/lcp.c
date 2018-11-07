@@ -74,7 +74,8 @@
 
 /* Define the supported parameters for this module here. */
 
-static const uint8_t lcplist[] = {
+static const uint8_t g_lcplist[] =
+{
   LPC_MAGICNUMBER,
   LPC_PFC,
   LPC_ACFC,
@@ -137,7 +138,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
       DEBUG1(("received [LCP Config Request id %u\n", id));
       if (scan_packet
-          (ctx, (uint16_t) LCP, lcplist, buffer, bptr, (uint16_t) (len - 4)))
+          (ctx, (uint16_t) LCP, g_lcplist, buffer, bptr, (uint16_t) (len - 4)))
         {
           /* Must do the -4 here, !scan packet */
 

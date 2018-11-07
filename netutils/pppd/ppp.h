@@ -204,7 +204,7 @@ extern "C"
 void ppp_init(FAR struct ppp_context_s *ctx);
 void ppp_connect(FAR struct ppp_context_s *ctx);
 
-extern void ppp_reconnect(FAR struct ppp_context_s *ctx);
+void ppp_reconnect(FAR struct ppp_context_s *ctx);
 
 void ppp_send(FAR struct ppp_context_s *ctx);
 void ppp_poll(FAR struct ppp_context_s *ctx);

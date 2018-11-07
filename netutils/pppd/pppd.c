@@ -67,7 +67,7 @@
  ****************************************************************************/
 
 #ifdef PPP_ARCH_HAVE_MODEM_RESET
-extern void ppp_arch_modem_reset(const char *tty);
+void ppp_arch_modem_reset(const char *tty);
 #endif
 
 /****************************************************************************

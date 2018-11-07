@@ -66,7 +66,7 @@
  * only)
  */
 
-static const uint8_t ipcplist[] =
+static const uint8_t g_ipcplist[] =
 {
   IPCP_IPADDRESS,
   0
@@ -146,7 +146,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
       /* len-=2; */
 
       DEBUG1(("check lcplist\n"));
-      if (scan_packet(ctx, IPCP, ipcplist, buffer, bptr, (uint16_t) (len - 4)))
+      if (scan_packet(ctx, IPCP, g_ipcplist, buffer, bptr, (uint16_t) (len - 4)))
         {
           DEBUG1(("option was bad\n"));
         }
