@@ -163,11 +163,11 @@ void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           /* Write peer length */
 
-          *bptr++ = (uint8_t) t;
+          *bptr++ = (uint8_t)t;
           bptr = memcpy(bptr, ctx->settings->pap_username, t);
 
           t = strlen((char *)ctx->settings->pap_password);
-          *bptr++ = (uint8_t) t;
+          *bptr++ = (uint8_t)t;
           bptr = memcpy(bptr, ctx->settings->pap_password, t);
 
           /* Write length */

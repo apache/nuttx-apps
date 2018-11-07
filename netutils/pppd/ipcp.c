@@ -146,7 +146,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
       /* len-=2; */
 
       DEBUG1(("check lcplist\n"));
-      if (scan_packet(ctx, IPCP, g_ipcplist, buffer, bptr, (uint16_t) (len - 4)))
+      if (scan_packet(ctx, IPCP, g_ipcplist, buffer, bptr, (uint16_t)(len - 4)))
         {
           DEBUG1(("option was bad\n"));
         }
@@ -212,7 +212,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
               /* Write the reject frame */
 
               DEBUG1(("Writing NAK frame \n"));
-              ahdlc_tx(IPCP, buffer, (uint16_t) (tptr - buffer));
+              ahdlc_tx(IPCP, buffer, (uint16_t)(tptr - buffer));
               DEBUG1(("- End NAK Write frame\n"));
             }
           else
@@ -234,7 +234,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
           /* ppp_flags |= tflag; */
 
           DEBUG1(("SET- stuff -- are we up? c=%d dif=%d \n",
-                  count, (uint16_t) (bptr - buffer)));
+                  count, (uint16_t)(bptr - buffer)));
 
           /* Write the ACK frame */
 
@@ -481,10 +481,10 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           *bptr++ = IPCP_IPADDRESS;
           *bptr++ = 0x6;
-          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[0];
-          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[1];
-          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[2];
-          *bptr++ = (uint8_t) ((FAR uint8_t *) & ctx->local_ip)[3];
+          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[0];
+          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[1];
+          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[2];
+          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[3];
 
 #ifdef IPCP_GET_PRI_DNS
           if ((ctx->ipcp_state & IPCP_PRI_DNS_BIT) == 0)

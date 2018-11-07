@@ -211,19 +211,19 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
                 {
                   /* Send up packet */
 
-                  ppp_upcall(ctx, (uint16_t) ctx->ahdlc_rx_buffer[0],
+                  ppp_upcall(ctx, (uint16_t)ctx->ahdlc_rx_buffer[0],
                              (FAR uint8_t *) & ctx->ahdlc_rx_buffer[1],
-                             (uint16_t) (ctx->ahdlc_rx_count - 1));
+                             (uint16_t)(ctx->ahdlc_rx_count - 1));
                 }
               else
                 {
                   /* Send up packet */
 
                   ppp_upcall(ctx,
-                             (uint16_t) (ctx->ahdlc_rx_buffer[0] << 8 | ctx->
-                                         ahdlc_rx_buffer[1]),
+                             (uint16_t)(ctx->ahdlc_rx_buffer[0] << 8 | ctx->
+                                        ahdlc_rx_buffer[1]),
                              (FAR uint8_t *) & ctx->ahdlc_rx_buffer[2],
-                             (uint16_t) (ctx->ahdlc_rx_count - 2));
+                             (uint16_t)(ctx->ahdlc_rx_count - 2));
                 }
 
               ctx->ahdlc_tx_offline = 0;        /* The remote side is alive */
@@ -400,8 +400,8 @@ uint8_t ahdlc_tx(struct ppp_context_s *ctx, uint16_t protocol,
 
   /* Write Protocol */
 
-  ahdlc_tx_char(ctx, protocol, (uint8_t) (protocol >> 8));
-  ahdlc_tx_char(ctx, protocol, (uint8_t) (protocol & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t)(protocol >> 8));
+  ahdlc_tx_char(ctx, protocol, (uint8_t)(protocol & 0xff));
 
   /* Write header if it exists */
 
@@ -432,8 +432,8 @@ uint8_t ahdlc_tx(struct ppp_context_s *ctx, uint16_t protocol,
   /* Send crc, lsb then msb */
 
   i = ctx->ahdlc_tx_crc ^ 0xffff;
-  ahdlc_tx_char(ctx, protocol, (uint8_t) (i & 0xff));
-  ahdlc_tx_char(ctx, protocol, (uint8_t) ((i >> 8) & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t)(i & 0xff));
+  ahdlc_tx_char(ctx, protocol, (uint8_t)((i >> 8) & 0xff));
 
   /* Write trailing 0x7e, probably not needed but it doesn't hurt */
 

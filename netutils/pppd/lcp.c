@@ -138,7 +138,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
       DEBUG1(("received [LCP Config Request id %u\n", id));
       if (scan_packet
-          (ctx, (uint16_t) LCP, g_lcplist, buffer, bptr, (uint16_t) (len - 4)))
+          (ctx, (uint16_t)LCP, g_lcplist, buffer, bptr, (uint16_t)(len - 4)))
         {
           /* Must do the -4 here, !scan packet */
 
@@ -284,7 +284,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
               /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
-              ahdlc_tx(ctx, LCP, 0, buffer, 0, (uint16_t) (tptr - buffer));
+              ahdlc_tx(ctx, LCP, 0, buffer, 0, (uint16_t)(tptr - buffer));
               DEBUG1(("- end NAK Write frame\n"));
             }
           else

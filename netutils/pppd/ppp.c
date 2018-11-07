@@ -114,7 +114,7 @@ static void ppp_reject_protocol(FAR struct ppp_context_s *ctx,
   pkt->len = htons(count + 6);
   *((FAR uint16_t *) (&pkt->data[0])) = htons(protocol);
 
-  ahdlc_tx(ctx, LCP, buffer, 0, (uint16_t) (count + 6), 0);
+  ahdlc_tx(ctx, LCP, buffer, 0, (uint16_t)(count + 6), 0);
 }
 
 /****************************************************************************
@@ -428,7 +428,7 @@ uint16_t scan_packet(FAR struct ppp_context_s *ctx, uint16_t protocol,
       /* Write the reject frame */
 
       DEBUG1(("Writing Reject frame --\n"));
-      ahdlc_tx(ctx, protocol, buffer, 0, (uint16_t) (tptr - buffer), 0);
+      ahdlc_tx(ctx, protocol, buffer, 0, (uint16_t)(tptr - buffer), 0);
       DEBUG1(("\nEnd writing reject \n"));
     }
 
