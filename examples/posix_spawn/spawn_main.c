@@ -279,7 +279,7 @@ int spawn_main(int argc, char *argv[])
    * the ROMFS mountpoint.
    */
 
-#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
+#if defined(CONFIG_LIB_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
   (void)setenv("PATH", MOUNTPT, 1);
 #endif
 
@@ -325,7 +325,7 @@ int spawn_main(int argc, char *argv[])
    * search the PATH variable to find the executable.
    */
 
-#ifdef CONFIG_BINFMT_EXEPATH
+#ifdef CONFIG_LIB_ENVPATH
   filepath = g_hello;
 #else
   snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_hello);
@@ -422,7 +422,7 @@ int spawn_main(int argc, char *argv[])
    * search the PATH variable to find the executable.
    */
 
-#ifdef CONFIG_BINFMT_EXEPATH
+#ifdef CONFIG_LIB_ENVPATH
   filepath = g_redirect;
 #else
   snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_redirect);

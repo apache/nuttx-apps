@@ -131,7 +131,7 @@
 static const char delimiter[] =
   "****************************************************************************";
 
-#ifndef CONFIG_BINFMT_EXEPATH
+#ifndef CONFIG_LIB_ENVPATH
 static char fullpath[128];
 #endif
 
@@ -189,7 +189,7 @@ int nxflat_main(int argc, char *argv[])
              ROMFSDEV, MOUNTPT, errno);
     }
 
-#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
+#if defined(CONFIG_LIB_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
   /* Does the system support the PATH variable?  Has the PATH variable
    * already been set?  If YES and NO, then set the PATH variable to
    * the ROMFS mountpoint.
@@ -216,7 +216,7 @@ int nxflat_main(int argc, char *argv[])
        * search the PATH variable to find the executable.
        */
 
-#ifdef CONFIG_BINFMT_EXEPATH
+#ifdef CONFIG_LIB_ENVPATH
       filename = dirlist[i];
 #else
       snprintf(fullpath, 128, "%s/%s", MOUNTPT, dirlist[i]);
