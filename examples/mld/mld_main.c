@@ -126,7 +126,7 @@ static const uint16_t g_netmask[8] =
 
 static const uint16_t g_grp_addr[8] =
 {
-  HTONS(0xfc00),
+  HTONS(0xff02),
   HTONS(0),
   HTONS(0),
   HTONS(0),

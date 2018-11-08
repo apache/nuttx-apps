@@ -82,10 +82,10 @@ config EXAMPLES_MLD_GRPADDR
 	default 0xE0000181
 	range 0x0 0xffff
 	---help---
-		Last 16-bits of the group link-local, unicast in host order.  Given
+		Last 16-bits of the group link-local, multicast address in host order.  Given
 
 			CONFIG_EXAMPLES_MLD_GRPADDR=0xXXXX
 
-		the full IPv6 link local address will be fe80::00ff:fe00:XXXX (host order)
+		the full IPv6 link local address will be ff02::0000:0000:XXXX (host order)
 
 endif
