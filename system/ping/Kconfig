@@ -6,7 +6,8 @@
 config SYSTEM_PING
 	tristate "ICMP 'ping' command"
 	default n
-	depends on NET_ICMP_SOCKET || NET_USRSOCK
+	depends on NET_ICMP
+	select NETUTILS_PING
 	---help---
 		Enable support for the ICMP 'ping' command.
 
