@@ -249,17 +249,23 @@ int gpio_main(int argc, char *argv[])
 
           if (havesigno)
             {
+              struct sigevent notify;
               struct timespec ts;
               sigset_t set;
 
+              notify.sigev_notify = SIGEV_SIGNAL;
+              notify.sigev_signo  = signo;
+
               /* Set up to receive signal */
 
-              ret = ioctl(fd, GPIOC_REGISTER, (unsigned long)signo);
+              ret = ioctl(fd, GPIOC_REGISTER, (unsigned long)&notify);
               if (ret < 0)
                 {
                   int errcode = errno;
+
                   fprintf(stderr, "ERROR: Failed to setup for signal from %s: %d\n",
                           devpath, errcode);
+
                   close(fd);
                   return EXIT_FAILURE;
                 }
