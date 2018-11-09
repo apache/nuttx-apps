@@ -1,7 +1,7 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/clabelgrid.hxx
+ * apps/graphics/NxWkidgets/nwidgets/src/clabelgrid.cxx
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -72,10 +72,11 @@
  * Included Files
  ****************************************************************************/
 
-#include "clabelgrid.hxx"
-#include "clabel.hxx"
 #include <assert.h>
 #include <debug.h>
+
+#include "graphics/nxwidgets/clabelgrid.hxx"
+#include "graphics/nxwidgets/clabel.hxx"
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -98,25 +99,25 @@ CLabelGrid::CLabelGrid(CWidgetControl* pWidgetControl, nxgl_coord_t x, nxgl_coor
   int cell_height = height / m_cols;
 
   for (int row = 0; row < m_rows; row++)
-  {
-    m_rowheights.push_back(-1); // -1 signifies automatic sizing
-  }
+    {
+      m_rowheights.push_back(-1); // -1 signifies automatic sizing
+    }
 
   for (int col = 0; col < m_cols; col++)
-  {
-    m_colwidths.push_back(-1);
-  }
+    {
+      m_colwidths.push_back(-1);
+    }
 
   for (int row = 0; row < m_rows; row++)
-  {
-    for (int col = 0; col < m_cols; col++)
     {
-      CLabel *label = new CLabel(pWidgetControl, col * cell_width, row * cell_height,
-                                 cell_width, cell_height, "");
-      this->addWidget(label);
-      m_labels.push_back(label);
+      for (int col = 0; col < m_cols; col++)
+        {
+          CLabel *label = new CLabel(pWidgetControl, col * cell_width, row * cell_height,
+                                     cell_width, cell_height, "");
+          this->addWidget(label);
+          m_labels.push_back(label);
+        }
     }
-  }
 }
 
 CLabel& CLabelGrid::at(int col, int row)
@@ -132,70 +133,80 @@ void CLabelGrid::onResize(nxgl_coord_t width, nxgl_coord_t height)
 
   // Count the number of automatically sized columns and rows and
   // space available to them.
+
   int autocols = 0;
   int fixedwidth = 0;
+
   for (int i = 0; i < m_cols; i++)
-  {
-    if (m_colwidths.at(i) < 0)
     {
-      autocols++;
+      if (m_colwidths.at(i) < 0)
+        {
+          autocols++;
+        }
+      else
+        {
+          fixedwidth += m_colwidths.at(i);
+        }
     }
-    else
-    {
-      fixedwidth += m_colwidths.at(i);
-    }
-  }
 
   int autorows = 0;
   int fixedheight = 0;
+
   for (int i = 0; i < m_rows; i++)
-  {
-    if (m_rowheights.at(i) < 0)
     {
-      autorows++;
+      if (m_rowheights.at(i) < 0)
+        {
+          autorows++;
+        }
+      else
+        {
+          fixedheight += m_rowheights.at(i);
+        }
     }
-    else
-    {
-      fixedheight += m_rowheights.at(i);
-    }
-  }
 
   // Avoid divide by zero
+
   if (autocols == 0)
-    autocols = 1;
+    {
+      autocols = 1;
+    }
 
   if (autorows == 0)
-    autorows = 1;
+    {
+      autorows = 1;
+    }
 
   // Divide the space among the rows and columns
+
   int auto_width = (width - fixedwidth) / autocols;
   int auto_height = (height - fixedheight) / autorows;
   int y = 0;
+
   for (int row = 0; row < m_rows; row++)
-  {
-    int h = m_rowheights.at(row);
-    if (h < 0)
     {
-      h = auto_height;
+      int h = m_rowheights.at(row);
+      if (h < 0)
+        {
+          h = auto_height;
+        }
+
+      int x = 0;
+      for (int col = 0; col < m_cols; col++)
+        {
+          int w = m_colwidths.at(col);
+          if (w < 0)
+            {
+              w = auto_width;
+            }
+
+          this->at(col, row).changeDimensions(x, y, w, h);
+
+          dbg("G %d %d: %d %d %d %d\n", col, row, x, y, w, h);
+          x += w;
+        }
+
+      y += h;
     }
-
-    int x = 0;
-    for (int col = 0; col < m_cols; col++)
-    {
-      int w = m_colwidths.at(col);
-      if (w < 0)
-      {
-        w = auto_width;
-      }
-
-      this->at(col, row).changeDimensions(x, y, w, h);
-
-      dbg("G %d %d: %d %d %d %d\n", col, row, x, y, w, h);
-      x += w;
-    }
-
-    y += h;
-  }
 
   this->enableDrawing();
   redraw();
@@ -218,12 +229,12 @@ void CLabelGrid::setBackgroundColor(nxgl_mxpixel_t color)
   CNxWidget::setBackgroundColor(color);
 
   for (int row = 0; row < m_rows; row++)
-  {
-    for (int col = 0; col < m_cols; col++)
     {
-      this->at(col, row).setBackgroundColor(color);
+      for (int col = 0; col < m_cols; col++)
+      {
+        this->at(col, row).setBackgroundColor(color);
+      }
     }
-  }
 }
 
 void CLabelGrid::setBorderless(bool borderless)
@@ -231,12 +242,12 @@ void CLabelGrid::setBorderless(bool borderless)
   CNxWidget::setBorderless(borderless);
 
   for (int row = 0; row < m_rows; row++)
-  {
-    for (int col = 0; col < m_cols; col++)
     {
-      this->at(col, row).setBorderless(borderless);
+      for (int col = 0; col < m_cols; col++)
+        {
+          this->at(col, row).setBorderless(borderless);
+        }
     }
-  }
 }
 
 void CLabelGrid::useWidgetStyle(const CWidgetStyle* style)
@@ -244,14 +255,10 @@ void CLabelGrid::useWidgetStyle(const CWidgetStyle* style)
   CNxWidget::useWidgetStyle(style);
 
   for (int row = 0; row < m_rows; row++)
-  {
-    for (int col = 0; col < m_cols; col++)
     {
-      this->at(col, row).useWidgetStyle(style);
+      for (int col = 0; col < m_cols; col++)
+        {
+          this->at(col, row).useWidgetStyle(style);
+        }
     }
-  }
 }
-
-
-
-

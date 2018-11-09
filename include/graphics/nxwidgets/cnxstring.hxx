@@ -2,7 +2,7 @@
  * include/cnxtring.hxx
  *apps/include/graphics/nxwidgets/
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -480,6 +480,7 @@ namespace NXWidgets
     /**
      * Overloaded sum operator. Appends the string to current string.
      */
+
     inline CNxString &operator+=(const CNxString &other)
     {
       append(other);
@@ -489,6 +490,7 @@ namespace NXWidgets
     /**
      * Overloaded sum operator. Concatenates two strings.
      */
+
     inline CNxString operator+(const CNxString &other)
     {
       CNxString result = *this;
@@ -515,6 +517,7 @@ namespace NXWidgets
      * @param fmt printf format string.
      * @return New CNxString instance.
      */
+
     static CNxString format(const char *fmt, ...);
   };
 }

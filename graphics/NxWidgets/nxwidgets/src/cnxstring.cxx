@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/NxWidgets/nxwidgets/src/cnxstring.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,10 +82,6 @@
 
 #include "graphics/nxwidgets/cnxstring.hxx"
 #include "graphics/nxwidgets/cstringiterator.hxx"
-
-/****************************************************************************
- * Pre-Processor Definitions
- ****************************************************************************/
 
 /****************************************************************************
  * CNxString Method Implementations
@@ -372,6 +368,7 @@ void CNxString::insert(const CNxString &text, int index)
 
       FAR nxwidget_char_t       *dest = &m_text[newLength - 1];
       FAR const nxwidget_char_t *src  = &m_text[m_stringLength - 1];
+
       for (int i = 0; i < m_stringLength - index; i++)
         {
           *dest-- = *src--;
@@ -822,15 +819,16 @@ CNxString CNxString::format(const char *fmt, ...)
   va_end(args);
 
   if (sizeof(nxwidget_char_t) > sizeof(char))
-  {
-    // Expand the string to full width, beginning from the last
-    // character so that we don't overwrite characters before
-    // we have converted them.
-    for (int i = len - 1; i >= 0; i--)
     {
-      result.m_text[i] = (nxwidget_char_t)buf[i];
+      // Expand the string to full width, beginning from the last
+      // character so that we don't overwrite characters before
+      // we have converted them.
+
+      for (int i = len - 1; i >= 0; i--)
+        {
+          result.m_text[i] = (nxwidget_char_t)buf[i];
+        }
     }
-  }
 
   result.m_stringLength = len - 1;
   return result;

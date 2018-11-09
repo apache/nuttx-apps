@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/NxWidgets/nxwidgets/src/cscrollingpanel.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,21 +192,21 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
           CGraphicsPort *port = m_widgetControl->getGraphicsPort();
 
           if (dx >= 0 && dy >= 0)
-          {
-            port->move(getX(), getY(), dx, dy, rect.getWidth() - dx, rect.getHeight() - dy);
-          }
+            {
+              port->move(getX(), getY(), dx, dy, rect.getWidth() - dx, rect.getHeight() - dy);
+            }
           else if (dx <= 0 && dy >= 0)
-          {
-            port->move(getX() - dx, getY(), dx, dy, rect.getWidth() + dx, rect.getHeight() - dy);
-          }
+            {
+              port->move(getX() - dx, getY(), dx, dy, rect.getWidth() + dx, rect.getHeight() - dy);
+            }
           else if (dx >= 0 && dy <= 0)
-          {
-            port->move(getX(), getY() - dy, dx, dy, rect.getWidth() - dx, rect.getHeight() + dy);
-          }
+            {
+              port->move(getX(), getY() - dy, dx, dy, rect.getWidth() - dx, rect.getHeight() + dy);
+            }
           else if (dx <= 0 && dy <= 0)
-          {
-            port->move(getX() - dx, getY() - dy, dx, dy, rect.getWidth() + dx, rect.getHeight() + dy);
-          }
+            {
+              port->move(getX() - dx, getY() - dy, dx, dy, rect.getWidth() + dx, rect.getHeight() + dy);
+            }
 
           if (dx > 0)
             {

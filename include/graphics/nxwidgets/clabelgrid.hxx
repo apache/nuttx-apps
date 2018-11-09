@@ -1,7 +1,7 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/clabelgrid.hxx
+ * apps/include/nxwidgets/include/clabelgrid.hxx
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -68,8 +68,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CLABELGRID_HXX
-#define __INCLUDE_CLABELGRID_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CLABELGRIG_HXX
+#define __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CLABELGRIG_HXX
 
 /****************************************************************************
  * Included Files
@@ -82,9 +82,9 @@
 
 #include <nuttx/nx/nxglib.h>
 
-#include "cnxwidget.hxx"
-#include "cwidgetstyle.hxx"
-#include "tnxarray.hxx"
+#include "graphics/nxwidgets/cnxwidget.hxx"
+#include "graphics/nxwidgets/cwidgetstyle.hxx"
+#include "graphics/nxwidgets/tnxarray.hxx"
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -110,6 +110,7 @@ namespace NXWidgets
    * 2-dimensional grid of labels. Each row and column can have custom
    * label styles applied.
    */
+
   class CLabelGrid : public CNxWidget
   {
   protected:
@@ -142,6 +143,7 @@ namespace NXWidgets
      * @param cols Number of colums in the grid.
      * @param rows Number of rows in the grid.
      */
+
     CLabelGrid(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
            nxgl_coord_t width, nxgl_coord_t height, int cols, int rows);
 
@@ -154,6 +156,7 @@ namespace NXWidgets
      * @param row Zero-based index of the row.
      * @returns Reference to CLabel.
      */
+
     virtual CLabel &at(int col, int row);
 
     /**
@@ -162,6 +165,7 @@ namespace NXWidgets
      * @param col Zero-based index of the column.
      * @param width Width of column in pixels, or -1 to size automatically.
      */
+
     void setColumnWidth(int col, int width);
 
     /**
@@ -170,6 +174,7 @@ namespace NXWidgets
      * @param row Zero-based index of the row.
      * @param height Height of row in pixels, or -1 to size automatically.
      */
+
     void setRowHeight(int row, int height);
 
     void setBackgroundColor(nxgl_mxpixel_t color);
@@ -182,4 +187,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CLABELGRID_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CLABELGRIG_HXX

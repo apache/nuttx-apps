@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/graphics/nxwidgets/cnumericedit.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -199,6 +199,7 @@ namespace NXWidgets
     /**
      * Sets the text to display after the numeric value.
      */
+
     void setUnit(const CNxString& text);
 
     inline int getValue() const { return m_value; }
@@ -212,7 +213,6 @@ namespace NXWidgets
 
     inline int getIncrement() const { return m_increment; }
     inline void setIncrement(int value) { m_increment = value; setValue(m_value); }
-
   };
 }
 
