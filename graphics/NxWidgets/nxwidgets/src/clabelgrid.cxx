@@ -201,7 +201,7 @@ void CLabelGrid::onResize(nxgl_coord_t width, nxgl_coord_t height)
 
           this->at(col, row).changeDimensions(x, y, w, h);
 
-          dbg("G %d %d: %d %d %d %d\n", col, row, x, y, w, h);
+          ginfo("G %d %d: %d %d %d %d\n", col, row, x, y, w, h);
           x += w;
         }
 
