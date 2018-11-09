@@ -29,6 +29,12 @@ config EXAMPLES_WEBSERVER_NETMASK
 	---help---
 		This is the network mask to use on this device.
 
+config EXAMPLES_WEBSERVER_DHCPC
+	bool "Enable DHCPC"
+	default n
+	---help---
+		Enable DHCP client.
+
 config EXAMPLES_WEBSERVER_NOMAC
 	bool "No hardware MAC"
 	default y
