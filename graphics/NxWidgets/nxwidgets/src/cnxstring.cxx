@@ -77,6 +77,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include "graphics/nxwidgets/cnxstring.hxx"
 #include "graphics/nxwidgets/cstringiterator.hxx"
@@ -803,4 +805,33 @@ FAR nxwidget_char_t *CNxString::getCharPointer(const int index) const
     }
 
   return &m_text[index];
+}
+
+CNxString CNxString::format(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  size_t len = vsnprintf(nullptr, 0, fmt, args) + 1;
+  va_end(args);
+
+  va_start(args, fmt);
+  CNxString result;
+  result.allocateMemory(len, false);
+  char *buf = reinterpret_cast<char*>(result.m_text);
+  vsnprintf(buf, len, fmt, args);
+  va_end(args);
+
+  if (sizeof(nxwidget_char_t) > sizeof(char))
+  {
+    // Expand the string to full width, beginning from the last
+    // character so that we don't overwrite characters before
+    // we have converted them.
+    for (int i = len - 1; i >= 0; i--)
+    {
+      result.m_text[i] = (nxwidget_char_t)buf[i];
+    }
+  }
+
+  result.m_stringLength = len - 1;
+  return result;
 }

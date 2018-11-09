@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/graphics/nxwidgets/cnumericedit.hxx
+ * NxWidgets/libnxwidgets/include/clabelgrid.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -68,8 +68,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CNUMERICEDIT_HXX
-#define __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CNUMERICEDIT_HXX
+#ifndef __INCLUDE_CLABELGRID_HXX
+#define __INCLUDE_CLABELGRID_HXX
 
 /****************************************************************************
  * Included Files
@@ -82,9 +82,9 @@
 
 #include <nuttx/nx/nxglib.h>
 
-#include "graphics/nxwidgets/cnxwidget.hxx"
-#include "graphics/nxwidgets/cwidgetstyle.hxx"
-#include "graphics/nxwidgets/cnxstring.hxx"
+#include "cnxwidget.hxx"
+#include "cwidgetstyle.hxx"
+#include "tnxarray.hxx"
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -105,26 +105,20 @@ namespace NXWidgets
   class CWidgetControl;
   class CRect;
   class CLabel;
-  class CButton;
-  class CNxTimer;
 
   /**
-   * Numeric edit control, with plus and minus buttons.
+   * 2-dimensional grid of labels. Each row and column can have custom
+   * label styles applied.
    */
-
-  class CNumericEdit : public CNxWidget, public CWidgetEventHandler
+  class CLabelGrid : public CNxWidget
   {
   protected:
-    CLabel *m_label;
-    CButton *m_button_minus;
-    CButton *m_button_plus;
-    CNxTimer *m_timer;
-    CNxString m_unittext;
-    int m_value;
-    int m_minimum;
-    int m_maximum;
-    int m_increment;
-    int m_timercount;
+    int m_cols;
+    int m_rows;
+
+    TNxArray<CLabel*> m_labels;
+    TNxArray<int> m_colwidths;
+    TNxArray<int> m_rowheights;
 
     /**
      * Resize the widget to the new dimensions.
@@ -135,87 +129,57 @@ namespace NXWidgets
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
 
-    virtual void handleClickEvent(const CWidgetEventArgs &e);
-
-    virtual void handleReleaseEvent(const CWidgetEventArgs &e);
-
-    virtual void handleReleaseOutsideEvent(const CWidgetEventArgs &e);
-
-    virtual void handleActionEvent(const CWidgetEventArgs &e);
-
-    virtual void handleDragEvent(const CWidgetEventArgs &e);
-
-    /**
-     * Copy constructor is protected to prevent usage.
-     */
-
-    inline CNumericEdit(const CNumericEdit &num) : CNxWidget(num) { };
-
-    void updateText();
-
   public:
 
     /**
-     * Constructor for a numeric edit control.
+     * Constructor for a grid of labels
      *
      * @param pWidgetControl The controlling widget for the display
      * @param x The x coordinate of the text box, relative to its parent.
      * @param y The y coordinate of the text box, relative to its parent.
      * @param width The width of the textbox.
      * @param height The height of the textbox.
-     * @param style The style that the button should use.  If this is not
-     *        specified, the button will use the global default widget
-     *        style.
+     * @param cols Number of colums in the grid.
+     * @param rows Number of rows in the grid.
      */
+    CLabelGrid(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
+           nxgl_coord_t width, nxgl_coord_t height, int cols, int rows);
 
-    CNumericEdit(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
-           nxgl_coord_t width, nxgl_coord_t height,
-           CWidgetStyle *style = (CWidgetStyle *)NULL);
+    virtual inline ~CLabelGrid() { }
 
     /**
-     * Destructor.
-     */
-
-    virtual ~CNumericEdit();
-
-    /**
-     * Insert the dimensions that this widget wants to have into the rect
-     * passed in as a parameter.  All coordinates are relative to the
-     * widget's parent.
+     * Get reference to the label at particular position of the grid.
      *
-     * @param rect Reference to a rect to populate with data.
+     * @param col Zero-based index of the column.
+     * @param row Zero-based index of the row.
+     * @returns Reference to CLabel.
      */
-
-    virtual void getPreferredDimensions(CRect &rect) const;
+    virtual CLabel &at(int col, int row);
 
     /**
-     * Sets the font.
+     * Set width of a column.
      *
-     * @param font A pointer to the font to use.
+     * @param col Zero-based index of the column.
+     * @param width Width of column in pixels, or -1 to size automatically.
      */
-
-    virtual void setFont(CNxFont *font);
+    void setColumnWidth(int col, int width);
 
     /**
-     * Sets the text to display after the numeric value.
+     * Set height of a row.
+     *
+     * @param row Zero-based index of the row.
+     * @param height Height of row in pixels, or -1 to size automatically.
      */
-    void setUnit(const CNxString& text);
+    void setRowHeight(int row, int height);
 
-    inline int getValue() const { return m_value; }
-    void setValue(int value);
+    void setBackgroundColor(nxgl_mxpixel_t color);
 
-    inline int getMaximum() const { return m_maximum; }
-    inline void setMaximum(int value) { m_maximum = value; setValue(m_value); }
+    void setBorderless(bool borderless);
 
-    inline int getMinimum() const { return m_minimum; }
-    inline void setMinimum(int value) { m_minimum = value; setValue(m_value); }
-
-    inline int getIncrement() const { return m_increment; }
-    inline void setIncrement(int value) { m_increment = value; setValue(m_value); }
-
+    void useWidgetStyle(const CWidgetStyle *style);
   };
 }
 
 #endif // __cplusplus
 
-#endif // __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CLABEL_HXX
+#endif // __INCLUDE_CLABELGRID_HXX

@@ -478,6 +478,25 @@ namespace NXWidgets
     CNxString &operator=(nxwidget_char_t letter);
 
     /**
+     * Overloaded sum operator. Appends the string to current string.
+     */
+    inline CNxString &operator+=(const CNxString &other)
+    {
+      append(other);
+      return *this;
+    }
+
+    /**
+     * Overloaded sum operator. Concatenates two strings.
+     */
+    inline CNxString operator+(const CNxString &other)
+    {
+      CNxString result = *this;
+      result.append(other);
+      return result;
+    }
+
+    /**
      * Compares this string to the argument.
      *
      * @param string String to compare to.
@@ -488,6 +507,15 @@ namespace NXWidgets
      */
 
     int compareTo(const CNxString &string) const;
+
+    /**
+     * snprintf()-style string formatting. Automatically allocates correct
+     * amount of memory.
+     *
+     * @param fmt printf format string.
+     * @return New CNxString instance.
+     */
+    static CNxString format(const char *fmt, ...);
   };
 }
 

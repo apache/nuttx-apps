@@ -279,7 +279,8 @@ namespace NXWidgets
 
     inline const uint32_t getValue(void) const
     {
-      return getSelectedOption()->getValue();
+      const NXWidgets::CListDataItem *item = getSelectedOption();
+      return item ? item->getValue() : 0;
     }
 
     /**

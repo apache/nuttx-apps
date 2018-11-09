@@ -208,12 +208,6 @@ namespace NXWidgets
     WidgetBorderSize m_borderSize;    /**< Size of the widget borders. */
 
     /**
-     * Use the provided widget style
-     */
-
-    void useWidgetStyle(const CWidgetStyle *style);
-
-    /**
      * Draw the area of this widget that falls within the clipping region.
      * Called by the redraw() function to draw all visible regions.
      *
@@ -802,6 +796,12 @@ namespace NXWidgets
      */
 
     inline const CWidgetStyle *getWidgetStyle() const { return &m_style; }
+
+    /**
+     * Use the provided widget style
+     */
+
+    void useWidgetStyle(const CWidgetStyle *style);
 
     /**
      * Sets this widget's border state.

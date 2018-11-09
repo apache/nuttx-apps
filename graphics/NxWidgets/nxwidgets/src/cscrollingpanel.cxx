@@ -190,7 +190,23 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
 
           TNxArray<CRect> revealedRects;
           CGraphicsPort *port = m_widgetControl->getGraphicsPort();
-          port->move(getX(), getY(), dx, dy, rect.getWidth(), rect.getHeight());
+
+          if (dx >= 0 && dy >= 0)
+          {
+            port->move(getX(), getY(), dx, dy, rect.getWidth() - dx, rect.getHeight() - dy);
+          }
+          else if (dx <= 0 && dy >= 0)
+          {
+            port->move(getX() - dx, getY(), dx, dy, rect.getWidth() + dx, rect.getHeight() - dy);
+          }
+          else if (dx >= 0 && dy <= 0)
+          {
+            port->move(getX(), getY() - dy, dx, dy, rect.getWidth() - dx, rect.getHeight() + dy);
+          }
+          else if (dx <= 0 && dy <= 0)
+          {
+            port->move(getX() - dx, getY() - dy, dx, dy, rect.getWidth() + dx, rect.getHeight() + dy);
+          }
 
           if (dx > 0)
             {
@@ -226,6 +242,7 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
               for (int i = 0; i < revealedRects.size(); ++i)
                 {
                   CRect &rrect = revealedRects[i];
+                  rrect.clipToIntersect(rect);
 
                   ginfo("Redrawing %d,%d,%d,%d after scroll\n",
                         rrect.getX(), rrect.getY(),

@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/graphics/nxwidgets/cnumericedit.hxx
+ * NxWidgets/libnxwidgets/include/clabelgrid.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -68,154 +68,190 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CNUMERICEDIT_HXX
-#define __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CNUMERICEDIT_HXX
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
-
-#include "graphics/nxwidgets/cnxwidget.hxx"
-#include "graphics/nxwidgets/cwidgetstyle.hxx"
-#include "graphics/nxwidgets/cnxstring.hxx"
+#include "clabelgrid.hxx"
+#include "clabel.hxx"
+#include <assert.h>
+#include <debug.h>
 
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Implementation Classes
+ * CLabelGrid Method Implementations
  ****************************************************************************/
 
-#if defined(__cplusplus)
+using namespace NXWidgets;
 
-namespace NXWidgets
+CLabelGrid::CLabelGrid(CWidgetControl* pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
+                       nxgl_coord_t width, nxgl_coord_t height, int cols, int rows):
+                       CNxWidget(pWidgetControl, x, y, width, height, 0, 0),
+                       m_cols(cols), m_rows(rows)
 {
-  /**
-   * Forward references
-   */
+  setPermeable(true); // To allow easier relayouting
 
-  class CWidgetControl;
-  class CRect;
-  class CLabel;
-  class CButton;
-  class CNxTimer;
+  int cell_width = width / m_cols;
+  int cell_height = height / m_cols;
 
-  /**
-   * Numeric edit control, with plus and minus buttons.
-   */
-
-  class CNumericEdit : public CNxWidget, public CWidgetEventHandler
+  for (int row = 0; row < m_rows; row++)
   {
-  protected:
-    CLabel *m_label;
-    CButton *m_button_minus;
-    CButton *m_button_plus;
-    CNxTimer *m_timer;
-    CNxString m_unittext;
-    int m_value;
-    int m_minimum;
-    int m_maximum;
-    int m_increment;
-    int m_timercount;
+    m_rowheights.push_back(-1); // -1 signifies automatic sizing
+  }
 
-    /**
-     * Resize the widget to the new dimensions.
-     *
-     * @param width The new width.
-     * @param height The new height.
-     */
+  for (int col = 0; col < m_cols; col++)
+  {
+    m_colwidths.push_back(-1);
+  }
 
-    virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-
-    virtual void handleClickEvent(const CWidgetEventArgs &e);
-
-    virtual void handleReleaseEvent(const CWidgetEventArgs &e);
-
-    virtual void handleReleaseOutsideEvent(const CWidgetEventArgs &e);
-
-    virtual void handleActionEvent(const CWidgetEventArgs &e);
-
-    virtual void handleDragEvent(const CWidgetEventArgs &e);
-
-    /**
-     * Copy constructor is protected to prevent usage.
-     */
-
-    inline CNumericEdit(const CNumericEdit &num) : CNxWidget(num) { };
-
-    void updateText();
-
-  public:
-
-    /**
-     * Constructor for a numeric edit control.
-     *
-     * @param pWidgetControl The controlling widget for the display
-     * @param x The x coordinate of the text box, relative to its parent.
-     * @param y The y coordinate of the text box, relative to its parent.
-     * @param width The width of the textbox.
-     * @param height The height of the textbox.
-     * @param style The style that the button should use.  If this is not
-     *        specified, the button will use the global default widget
-     *        style.
-     */
-
-    CNumericEdit(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
-           nxgl_coord_t width, nxgl_coord_t height,
-           CWidgetStyle *style = (CWidgetStyle *)NULL);
-
-    /**
-     * Destructor.
-     */
-
-    virtual ~CNumericEdit();
-
-    /**
-     * Insert the dimensions that this widget wants to have into the rect
-     * passed in as a parameter.  All coordinates are relative to the
-     * widget's parent.
-     *
-     * @param rect Reference to a rect to populate with data.
-     */
-
-    virtual void getPreferredDimensions(CRect &rect) const;
-
-    /**
-     * Sets the font.
-     *
-     * @param font A pointer to the font to use.
-     */
-
-    virtual void setFont(CNxFont *font);
-
-    /**
-     * Sets the text to display after the numeric value.
-     */
-    void setUnit(const CNxString& text);
-
-    inline int getValue() const { return m_value; }
-    void setValue(int value);
-
-    inline int getMaximum() const { return m_maximum; }
-    inline void setMaximum(int value) { m_maximum = value; setValue(m_value); }
-
-    inline int getMinimum() const { return m_minimum; }
-    inline void setMinimum(int value) { m_minimum = value; setValue(m_value); }
-
-    inline int getIncrement() const { return m_increment; }
-    inline void setIncrement(int value) { m_increment = value; setValue(m_value); }
-
-  };
+  for (int row = 0; row < m_rows; row++)
+  {
+    for (int col = 0; col < m_cols; col++)
+    {
+      CLabel *label = new CLabel(pWidgetControl, col * cell_width, row * cell_height,
+                                 cell_width, cell_height, "");
+      this->addWidget(label);
+      m_labels.push_back(label);
+    }
+  }
 }
 
-#endif // __cplusplus
+CLabel& CLabelGrid::at(int col, int row)
+{
+  assert(col >= 0 && col < m_cols);
+  assert(row >= 0 && row < m_rows);
+  return *m_labels.at(row * m_cols + col);
+}
 
-#endif // __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CLABEL_HXX
+void CLabelGrid::onResize(nxgl_coord_t width, nxgl_coord_t height)
+{
+  this->disableDrawing();
+
+  // Count the number of automatically sized columns and rows and
+  // space available to them.
+  int autocols = 0;
+  int fixedwidth = 0;
+  for (int i = 0; i < m_cols; i++)
+  {
+    if (m_colwidths.at(i) < 0)
+    {
+      autocols++;
+    }
+    else
+    {
+      fixedwidth += m_colwidths.at(i);
+    }
+  }
+
+  int autorows = 0;
+  int fixedheight = 0;
+  for (int i = 0; i < m_rows; i++)
+  {
+    if (m_rowheights.at(i) < 0)
+    {
+      autorows++;
+    }
+    else
+    {
+      fixedheight += m_rowheights.at(i);
+    }
+  }
+
+  // Avoid divide by zero
+  if (autocols == 0)
+    autocols = 1;
+
+  if (autorows == 0)
+    autorows = 1;
+
+  // Divide the space among the rows and columns
+  int auto_width = (width - fixedwidth) / autocols;
+  int auto_height = (height - fixedheight) / autorows;
+  int y = 0;
+  for (int row = 0; row < m_rows; row++)
+  {
+    int h = m_rowheights.at(row);
+    if (h < 0)
+    {
+      h = auto_height;
+    }
+
+    int x = 0;
+    for (int col = 0; col < m_cols; col++)
+    {
+      int w = m_colwidths.at(col);
+      if (w < 0)
+      {
+        w = auto_width;
+      }
+
+      this->at(col, row).changeDimensions(x, y, w, h);
+
+      dbg("G %d %d: %d %d %d %d\n", col, row, x, y, w, h);
+      x += w;
+    }
+
+    y += h;
+  }
+
+  this->enableDrawing();
+  redraw();
+}
+
+void CLabelGrid::setColumnWidth(int col, int width)
+{
+  m_colwidths.at(col) = width;
+  onResize(getWidth(), getHeight());
+}
+
+void CLabelGrid::setRowHeight(int row, int height)
+{
+  m_rowheights.at(row) = height;
+  onResize(getWidth(), getHeight());
+}
+
+void CLabelGrid::setBackgroundColor(nxgl_mxpixel_t color)
+{
+  CNxWidget::setBackgroundColor(color);
+
+  for (int row = 0; row < m_rows; row++)
+  {
+    for (int col = 0; col < m_cols; col++)
+    {
+      this->at(col, row).setBackgroundColor(color);
+    }
+  }
+}
+
+void CLabelGrid::setBorderless(bool borderless)
+{
+  CNxWidget::setBorderless(borderless);
+
+  for (int row = 0; row < m_rows; row++)
+  {
+    for (int col = 0; col < m_cols; col++)
+    {
+      this->at(col, row).setBorderless(borderless);
+    }
+  }
+}
+
+void CLabelGrid::useWidgetStyle(const CWidgetStyle* style)
+{
+  CNxWidget::useWidgetStyle(style);
+
+  for (int row = 0; row < m_rows; row++)
+  {
+    for (int col = 0; col < m_cols; col++)
+    {
+      this->at(col, row).useWidgetStyle(style);
+    }
+  }
+}
+
+
+
+

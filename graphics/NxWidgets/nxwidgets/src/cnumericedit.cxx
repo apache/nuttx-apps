@@ -260,13 +260,25 @@ void CNumericEdit::setValue(int value)
 
   m_value = value;
 
+  updateText();
+}
+
+void CNumericEdit::updateText()
+{
   char buf[10];
   snprintf(buf, sizeof(buf), "%d", m_value);
-  CNxString text(buf);
 
+  CNxString text(buf);
+  text.append(m_unittext);
   m_label->setText(text);
 
   m_widgetEventHandlers->raiseValueChangeEvent();
 
   redraw();
+}
+
+void CNumericEdit::setUnit(const CNxString& text)
+{
+  m_unittext = text;
+  updateText();
 }
