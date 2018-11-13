@@ -3069,4 +3069,202 @@
 	  apps/tools: Fix to generate CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME in
 	  mksymtab.sh.  From Masayuki Ishikawa (2018-09-07)
 
-7.27 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.27 2018-11-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* Directory.mk:  Fix distclean targets of directory makefiles was not
+	  removing generated Kconfig files.  There is then no way to remove this
+	  Kconfig files without manually deleting them one at a time.  From Gregory
+	  Nutt (2018-09-08).
+	* apps/examples/tcpblaster:  Add an option to use poll() to pace input or
+	  output.  From Gregory Nutt (2018-09-10).
+	* apps/examples/tcpblaster:  Select CONFIG_LIBC_FLOATINGPOINT
+	  automatically.  Units in output are wrong:  Not Kbps bus Kb/Sec.  From
+	  Gregory Nutt (2018-09-10).
+	* apps/Application.mk:  Fix some build issues.  (1) Unable to found target
+	  'context' when CONFIG_NSH_BUILTIN_APPS disabled. (2) Unable to generate
+	  multiple programs.  From Chao An (2018-09-12).
+	* Fixes i8sak name. Accidentally renamed to i8ask in recent changes  From
+	  Anthony Merlino (2018-09-12).
+	* apps/examples/udpblaster:  Add option to use poll() on output (only). 
+	  Also picks up some fixes to various typographical errors.  From Gregory
+	  Nutt (2018-09-14).
+	* Correct some network-related configuration variable names.  All *_MTU
+	  defines were changes to *_PKTSIZE gut that was not reflected in apps/ 
+	  From Gregory Nutt (2018-09-14).
+	* Combine the NxWidgets repository into the apps/ repository:
+
+	  - Remove old NxWidgets directory
+	  - Merge remote-tracking branch 'NxWidgets/master'
+	  - Move NxWidgets files into graphics/NxWidgets
+	  - Integrate configuration/build system
+	  - Fix file paths in file headers.  Remove some duplicate tools.
+	  - Add new NxWidgets Unit Test configuration and build logic.
+	  
+	  From Gregory Nutt (2018-09-15).
+	* Directory.mk:  If the current directory contains a Kconfig file and
+	  MENUDESC is not defined, then Directory.mk must not trash the Kconfig in
+	  the current directory.  From Gregory Nutt (2018-09-16).
+	* This commit moves the NxWidgets include directories into the correct
+	  position in the apps/ source tree.
+
+	  - Clean-up some include path problems introduced with the previous set of
+	    changes.
+	  - app/include/graphics, apps/NxWidgets/UnitTests:  Update include paths
+	    for file in new location.
+	  - apps/NxWidgets/nxwidgets and nxwm:  Update include paths for file in new
+	    location.
+	  - apps/graphics/NxWidgets:  Move nxwidgets and nxwm include/ directories
+	    to apps/include/graphics
+
+	  From Gregory Nutt (2018-09-16).
+	* apps/nshlib:  Correct maximum number of arguments that can be provided to
+	  the mksmartfs command.  From Eunbong Song (2018-09-18).
+	* apps/examples/adc/Kconfig:  CONFIG_BOARDCTL_ADCTEST does not exist anymore
+	  and should removed as a dependency.  From Eunbong Song (2018-09-18).
+	* nshlib/, examples/:  Update to show newer file system object types
+	  returned by stat().  From Gregory Nutt (2018-09-22).
+	* Adapt the existing fstest example for SPIFFS:
+
+	  - examples/fstest:  For SPIFFS, add garbage collection and file system
+	    integrity IOCTL calls.  This was to avoid running out of FLASH space
+	    while running the fstest (ENOSPC=28).  However, it does not work.. still
+	    runs out of memory.
+	  - apps/examples/fstest:  Call statfs() and show state of file system on
+	    each loop.
+	  - apps/examples/fstest:  Fix a situation where a file system under test
+	    could cause the fstest to get stuck in an infinit loop.  From Gregory
+	    Nutt (2018-09-27).
+	* - apps/examples/fstest:  Add logic to dump logic content of SPIFFS
+	  - apps/examples/fstest/Kconfig: SPIFFS GC and integrity check option
+	    interferes SPIFFS.  Appears to corrupt the file system.  Now marked
+	    EXPERIMENTAL.  From Gregory Nutt (2018-09-28).
+	* - apps/examples/fstest:  Ignore EINTR errors while reading or writing.
+	  - apps/examples/fstest:  Add configuration option to customize stack
+	    size.  Detect when the media is full and stop writing files.  Report
+	    total file size.  From Gregory Nutt (2018-09-29).
+	* apps/netutils/netlib/netlib_parsehttpurl.c:  Correct handling of long URLs
+	  as noted in Bitbucket issue #119 (in the nuttx/ repository, not the apps/
+	  repository).  From Gregory Nutt (2018-09-30).
+	* apps/nshlib:  Add support for the 'env' command.  From Gregory Nutt
+	 (2018-09-30).
+	* apps/nshlib:  Add support for NSH local variables if CONFIG_NSH_VARS are
+	  set.  These are like environment variables but are local to NSH.  The
+	  importance of this is that these variables are *not* inherited when NSH
+	  creates a new task.  The new command 'export' was added.  In this case,
+	  the NSH variable will be promoted to an environment variable and will then
+	  be inherited by any tasks executed by NSH.  From Gregory Nutt (2018-10-01).
+	* apps/nshlib:  If CONFIG_NSH_VARS=y, the NSH 'set' command with no argument
+	  will list all of the local NSH variables.  From Gregory Nutt (2018-10-02).
+	* i8sak: Properly shuts down event thread.  From Anthony Merlino (2018-10-06).
+	* "dst" overflow protection when base64 string ends with "="  From Aleksandr
+	  Vyhovanec (2018-10-19).
+	* apps/system/progmem:  Remove this utility.  It makes illegal direct calls
+	  into the OS.  From Gregory Nutt (2018-10-19).
+	* apps/examples/mlx90614:  Add mlx90614 test example  From Alan Carvalho de
+	  Assis (2018-10-28).
+	* apps/netutils/netlib and apps/examples/igmp:  Adapt to use the corrected,
+	  semi-standard version of struct ip_msfilter.  From Gregory Nutt
+	  (2018-10-29).
+	* wireless/ieee802154/i8sak: Adds support for getting/setting transmit
+	  power.  From Anthony Merlino (2018-11-01).
+	* examples/mlx90614/mlx90614_main.c:  Include support to change device
+	  address on mlx90614  From Alan Carvalho de Assis (2018-11-02).
+	* apps/include/netutils/ipmsfilter.h:  Eliminate error generated by bad
+	  pre-processor logic.  From Gregory Nutt (2018-11-02).
+	* apps/examples/mld:  Add a test of MLD.  Provides a mechanism for some
+	  low-level bring-up of MLD.  From Gregory Nutt (2018-11-04).
+	* apps/Makefile:  Fix Windows native build patch extension.  From Anatol
+	  Ivanov (2018-11-05).
+	* apps/examples/ina226:  Added INA226 example  From Daniel P. Carvalho
+	  (2018-11-05).
+	* apps/examples/mld/mld_main.c:  Improve test by periodically dumping the
+	  content of /proc/net/mld (if available).  From Gregory Nutt (2018-11-06).
+	* apps/examples/mld:  Add logic to set up the routing table before
+	  attempting to send the multicast packet.  From Gregory Nutt (2018-11-07).
+	* nshlib/nsh_console.c: Add fflush to nsh_consolewrite().  This resolves
+	  this problem:
+
+	  > cat /dev/ttyCP &
+	  > echo ls >/dev/ttyCP
+
+	  Can't get the 'ls' result immediately, because 'cat' cmd uses
+	  nsh_consolewrite() and that uses fwrite with no fflush. We can get the
+	  'ls' result after type '\n', because nsh will fflush output when get
+	  '\n'.  From ligd (2018-11-07).
+	* nshlib/nsh_fsutils.c:  nsh_catfile() should not append '\n' if the last
+	  char in file is already '\n'  From Xiang Xiao (2018-11-07).
+	* nshlib/nsh_netinit.c:  Move call netlib_icmpv6_autoconfiguration() into
+	  nsh_net_bringup() like DHCP  From Xiang Xiao (2018-11-07).
+	* nshlib/nsh_envcmds.c:  Fix warning g_oldpwd defined but not used
+	  [-Wunused-const-variable]  From Xiang Xiao (2018-11-07).
+	* apps/system/hexed/src/bfile.c:  Fix memory leak  From zhuyanlin
+	  (2018-11-07).
+	* apps/system/i2c/i2c_get.c:  Fix i2c_msg freq initialization problem.  Typo
+	  prevent I2C frequency initialization in a struct i2c_msg.  From From:
+	  dongjiuzhu (2018-11-07).
+	* apps/system/system.c:  Fix warning when passing argument 6 of 'task_spawn'
+	  from incompatible pointer type [-Wincompatible-pointer-types]  From Xiang
+	  Xiao (2018-11-07).
+	* apps/system/vi/vi.c:  Do not print error if the file does not exist.  From
+	  anchao (2018-11-07).
+	* apps/netutils/chat and apps/examples/chat:  'constify' chat variables and
+	  parameters  From Xiang Xiao (2018-11-07).
+	* apps/netutils/pppd:  Refine and fix pppd code.  From Xiang Xiao
+	  (2018-11-07).
+	* apps/examples/mld:  Fix incorrect format of IPv6 Multicast address.  This
+	  resolves the UDP sendto() problem.  From Gregory Nutt (2018-11-07).
+	* apps/:  Rename BINFMT_EXEPATH to LIB_ENVPATH.  From anchao (2018-11-08).
+	* apps/examples/gpio:  Align with GPIO driver update  From wangyanjiong
+	  (2018-11-08).
+	* - system/ping/ping.c and system/ping6/ping6.c:  Set optind to zero in the
+	    error case
+	  - system/ping/ping.c and system/ping6/ping6.c:  Move all ping preparation
+	    work into icmp_ping
+	  - system/ping/ping.c and system/ping6/ping6.c:  Support -W <timeout> and
+	    -s <size> option
+	  - system/ping/ping.c and system/ping6/ping6.c:  Decouple the output from
+	    ping logic
+
+	  From Xiang Xiao (2018-11-08).
+	* apps/system/ping and pings and apps/netutils/ping:  Extract icmp ping and
+	  icmpv6 ping6 logic from system/ to C-callable library in netutils/.  From
+	  ligd (2018-11-08).
+	* apps/examples/webserver/Kconfig:  The webserver "app" allows for DHCP
+	  client to be enabled. However, the Kconfig infrastructure does not contain
+	  EXAMPLES_WEBSERVER_DHCPC config.
+
+	  Based on patch from "Anonymous" attached to Bitbucket Issue #130  From
+	  Gregory Nutt (2018-11-08).
+	* NxWidgets improvements
+
+	  - NxWidgets: fix garbage returned when CCycleButton::getValue() is called
+	    after removeAllOptions().
+
+	    It's a bit questionable whether returning 0 here is reasonable or
+	    if it would be better to assert(). But either is better than reading
+	    into random memory and returning a garbage value.
+
+	  - NXWidgets CScrollingPanel: Don't draw outside the widget area.
+
+	    The port->move() function doesn't support clipping the
+	    copied area to the client area, so we have to manually
+	    calculate the part that can be moved without going outside
+	    the widget.
+
+	  - CNxString: Add string + operator and ::format() function
+
+	  - CNumericEdit: Add option to include unit name after the value
+
+	  - NxWidgets: CNxWidget: Make useWidgetStyle() public
+
+	    Makes it easier to update styles when multiple controls are nested.
+
+	  - NxWidgets: Add CLabelGrid control for displaying text in grid format.
+
+	  From Petteri Aimonen (2018-11-09).
+	* apps/system/ping6:  Remove NET_USRSOCK from Kconfig dependence list  From
+	  Xiang Xiao (2018-11-09).
+	* graphics/NxWidgets/nxwidgets/src/clabelgrid.cxx:  Change old-style dbg()
+	  to current ginfo().  From Gregory Nutt (2018-11-09).
+
+7.28 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
