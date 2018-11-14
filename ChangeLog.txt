@@ -3069,7 +3069,7 @@
 	  apps/tools: Fix to generate CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME in
 	  mksymtab.sh.  From Masayuki Ishikawa (2018-09-07)
 
-7.27 2018-11-15 Gregory Nutt <gnutt@nuttx.org>
+7.27 2018-11-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* Directory.mk:  Fix distclean targets of directory makefiles was not
 	  removing generated Kconfig files.  There is then no way to remove this
