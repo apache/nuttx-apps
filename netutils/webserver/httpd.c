@@ -212,8 +212,7 @@ static int httpd_close(struct httpd_fs_file *file)
  *
  ****************************************************************************/
 
-static int httpd_send_datachunk(int sockfd, void * data, int len,
-                                bool chunked)
+int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
 {
   int ret = 0;
 #if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)

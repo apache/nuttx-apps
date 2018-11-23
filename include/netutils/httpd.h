@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/include/netutils/httpd.h
  *
- *   Copyright (C) 2007, 2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011-2012, 2014, 2018 Gregory Nutt. All
+ *     rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
@@ -98,7 +99,7 @@
  */
 
 #define HTTPD_MAX_CONTENTLEN  32
-#define HTTPD_MAX_HEADERLEN   180
+#define HTTPD_MAX_HEADERLEN   220
 #define HTTPD_MAX_CHUNKEDLEN  16
 
 /****************************************************************************
@@ -109,7 +110,8 @@ struct httpd_fs_file
 {
   char *data;
   int len;
-#if defined(CONFIG_NETUTILS_HTTPD_MMAP) || defined(CONFIG_NETUTILS_HTTPD_SENDFILE)
+#if defined(CONFIG_NETUTILS_HTTPD_MMAP) || \
+    defined(CONFIG_NETUTILS_HTTPD_SENDFILE)
   int fd;
 #endif
 };
@@ -166,8 +168,8 @@ struct httpd_cgi_call
  *
  * Description:
  *   This macro is used for declaring a HTTPD CGI function. This function is
- *   then added to the list of HTTPD CGI functions with the httpd_cgi_register()
- *   function.
+ *   then added to the list of HTTPD CGI functions with the
+ *   httpd_cgi_register() function.
 
  * Input Parameters:
  *
@@ -203,6 +205,7 @@ void httpd_init(void);
 int httpd_listen(void);
 void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
 uint16_t httpd_fs_count(char *name);
+int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked);
 
 #undef EXTERN
 #ifdef __cplusplus
