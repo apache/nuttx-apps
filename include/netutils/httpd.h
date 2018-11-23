@@ -99,6 +99,7 @@
 
 #define HTTPD_MAX_CONTENTLEN  32
 #define HTTPD_MAX_HEADERLEN   180
+#define HTTPD_MAX_CHUNKEDLEN  16
 
 /****************************************************************************
  * Public types
@@ -119,6 +120,9 @@ struct httpd_state
   char     ht_filename[HTTPD_MAX_FILENAME]; /* filename from GET command */
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
   bool     ht_keepalive;                    /* Connection: keep-alive */
+#endif
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  bool     ht_chunked;                      /* Server uses chunked encoding for tx */
 #endif
   struct httpd_fs_file ht_file;             /* Fake file data to send */
   int      ht_sockfd;                       /* The socket descriptor from accept() */

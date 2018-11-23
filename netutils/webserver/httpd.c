@@ -167,8 +167,9 @@ static int httpd_openindex(struct httpd_state *pstate)
 #  if defined(CONFIG_NETUTILS_HTTPD_INDEX)
   if (ret == ERROR && errno == EISDIR)
     {
-      (void) snprintf(pstate->ht_filename + z, sizeof pstate->ht_filename - z, "/%s",
-        CONFIG_NETUTILS_HTTPD_INDEX);
+      (void) snprintf(pstate->ht_filename + z,
+                      sizeof pstate->ht_filename - z, "/%s",
+                      CONFIG_NETUTILS_HTTPD_INDEX);
 
       ret = httpd_open(pstate->ht_filename, &pstate->ht_file);
     }
@@ -191,14 +192,86 @@ static int httpd_close(struct httpd_fs_file *file)
 #endif
 }
 
+/****************************************************************************
+ * Name: httpd_send_datachunk
+ *
+ * Description:
+ *   Sends a chunk of HTML data using either chunked or non-chunked encoding.
+ *
+ * Input Parameters:
+ *   sockfd   Socket to which to send the data.
+ *   data     Data to send
+ *   len      Length of data to send
+ *   chunked  If True, sends an HTTP Chunked-Encoding prolog before the data
+ *            block, and a HTTP Chunked-Encoding epilog ("\r\n") after the
+ *            data block. If False, just sends the data.
+ *
+ * Returned Value:
+ *   On success, returns >=0. On failure, returns a negative number indicating
+ *   the failure code.
+ *
+ ****************************************************************************/
+
+static int httpd_send_datachunk(int sockfd, void * data, int len,
+                                bool chunked)
+{
+  int ret = 0;
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  char chunked_info[HTTPD_MAX_CHUNKEDLEN];
+#endif
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  /* Chunk prolog */
+
+  if (chunked)
+    {
+      int chunked_info_len = snprintf(chunked_info, HTTPD_MAX_CHUNKEDLEN,
+           "%X\r\n", len);
+      ret = send(sockfd, chunked_info, chunked_info_len, 0);
+      DEBUGASSERT(ret == chunked_info_len);
+    }
+#endif
+
+  if (ret >= 0)
+    {
+      if (len == 0)
+        {
+          /* Lower layer does not tolerate buf = NULL even if len = 0
+           * so just pass a dummy pointer.
+           */
+
+          data = &len;
+        }
+
+      ret = send(sockfd, data, len, 0);
+      DEBUGASSERT(ret == len);
+    }
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  /* Chunk epilog */
+
+  if (ret >= 0)
+    {
+      if (chunked)
+        {
+          ret = send(sockfd, "\r\n", 2, 0);
+          DEBUGASSERT(ret == 2);
+        }
+    }
+#endif
+
+  return ret;
+}
+
 #ifdef CONFIG_NETUTILS_HTTPD_DUMPBUFFER
-static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer, unsigned int nbytes)
+static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer,
+                             unsigned int nbytes)
 {
   /* CONFIG_DEBUG_FEATURES, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
    * defined or the following does nothing.
    */
 
-  ninfodumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
+  ninfodumpbuffer(msg, (FAR const uint8_t *)buffer, nbytes);
 }
 #else
 # define httpd_dumpbuffer(msg,buffer,nbytes)
@@ -238,23 +311,35 @@ static int handle_script(struct httpd_state *pstate)
 {
   int len;
   char *ptr;
+  int status;
+  bool chunked_http_tx = 0;
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  chunked_http_tx = pstate->ht_chunked;
+#endif
 
   while (pstate->ht_file.len > 0)
     {
       /* Check if we should start executing a script */
 
-      if (*pstate->ht_file.data == ISO_percent && *(pstate->ht_file.data + 1) == ISO_bang)
+      if (*pstate->ht_file.data == ISO_percent &&
+          *(pstate->ht_file.data + 1) == ISO_bang)
         {
           pstate->ht_scriptptr = pstate->ht_file.data + 3;
           pstate->ht_scriptlen = pstate->ht_file.len - 3;
           if (*(pstate->ht_scriptptr - 1) == ISO_colon)
             {
-              if (httpd_open(pstate->ht_scriptptr + 1, &pstate->ht_file) != OK)
+              if (httpd_open(pstate->ht_scriptptr + 1,
+                             &pstate->ht_file) != OK)
                 {
                    return ERROR;
                 }
 
-              send(pstate->ht_sockfd, pstate->ht_file.data, pstate->ht_file.len, 0);
+              status = httpd_send_datachunk(pstate->ht_sockfd,
+                                            pstate->ht_file.data,
+                                            pstate->ht_file.len,
+                                            chunked_http_tx);
+              DEBUGASSERT(status >= 0);
 
               (void)httpd_close(&pstate->ht_file);
             }
@@ -311,11 +396,22 @@ static int handle_script(struct httpd_state *pstate)
                 }
             }
 
-          send(pstate->ht_sockfd, pstate->ht_file.data, len, 0);
+          status = httpd_send_datachunk(pstate->ht_sockfd,
+                                        pstate->ht_file.data,
+                                        len, chunked_http_tx);
+          DEBUGASSERT(status >= 0);
+
           pstate->ht_file.data += len;
           pstate->ht_file.len  -= len;
         }
     }
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  /* Chunked encoding terminator */
+
+  status = httpd_send_datachunk(pstate->ht_sockfd, 0, 0, chunked_http_tx);
+  DEBUGASSERT(status >= 0);
+#endif
 
   return OK;
 }
@@ -346,7 +442,7 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
 {
   const char *mime;
   const char *ptr;
-  char contentlen[HTTPD_MAX_CONTENTLEN];
+  char contentlen[HTTPD_MAX_CONTENTLEN] = { 0 };
   char header[HTTPD_MAX_HEADERLEN];
   int hdrlen;
   int i;
@@ -395,12 +491,21 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
       (void)snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
                      "Content-Length: %d\r\n", len);
     }
-#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
   else
     {
+#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
+      /* Length unknown ahead of time */
+
       pstate->ht_keepalive = false;
-    }
 #endif
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+      /* Turn on chunked encoding */
+
+      (void)snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+                     "Transfer-Encoding: chunked\r\n");
+      pstate->ht_chunked = true;
+#endif
+    }
 
   if (status == 413)
     {
@@ -430,7 +535,8 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
                     "close",
 #endif
                     mime,
-                    len >= 0 ? contentlen : "");
+                    contentlen
+                    );
 
   return send_chunk(pstate, header, hdrlen);
 }
@@ -460,7 +566,8 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
 
   ret = httpd_openindex(pstate);
 
-  if (send_headers(pstate, status, ret == OK ? pstate->ht_file.len : sizeof msg - 1) != OK)
+  if (send_headers(pstate, status,
+                   ret == OK ? pstate->ht_file.len : sizeof msg - 1) != OK)
     {
       return ERROR;
     }
@@ -540,7 +647,8 @@ static int httpd_sendfile(struct httpd_state *pstate)
     }
 #endif
 
-  if (send_headers(pstate, pstate->ht_file.len == 0 ? 204 : 200, pstate->ht_file.len) != OK)
+  if (send_headers(pstate, pstate->ht_file.len == 0 ? 204 : 200,
+                   pstate->ht_file.len) != OK)
     {
       goto done;
     }
@@ -611,8 +719,9 @@ static inline int httpd_parse(struct httpd_state *pstate)
         o += r;
       }
 
-      /* Here o marks the end of the total block currently awaiting processing.
-       * There may be multiple lines in a block; next we deal with each in turn.
+      /* Here o marks the end of the total block currently awaiting
+       * processing.  There may be multiple lines in a block; next we deal
+       * with each in turn.
        */
 
       for (start = pstate->ht_buffer;
@@ -687,7 +796,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
                 return 400;
               }
 
-            ninfo("[%d] Request header %s: %s\n", pstate->ht_sockfd, start, v);
+            ninfo("[%d] Request header %s: %s\n",
+                  pstate->ht_sockfd, start, v);
 
             if (0 == strcasecmp(start, "Content-Length") && 0 != atoi(v))
               {
@@ -695,7 +805,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
                 return 413;
               }
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-            else if (0 == strcasecmp(start, "Connection") && 0 == strcasecmp(v, "keep-alive"))
+            else if (0 == strcasecmp(start, "Connection") &&
+                     0 == strcasecmp(v, "keep-alive"))
               {
                 pstate->ht_keepalive = true;
               }
@@ -704,6 +815,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
           case STATE_BODY:
             /* Not implemented */
+
             break;
           }
        }
@@ -718,7 +830,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
 #ifdef CONFIG_NETUTILS_HTTPD_CLASSIC
   if (0 == strcmp(pstate->ht_filename, "/"))
     {
-      strncpy(pstate->ht_filename, "/" CONFIG_NETUTILS_HTTPD_INDEX, strlen("/" CONFIG_NETUTILS_HTTPD_INDEX));
+      strncpy(pstate->ht_filename, "/" CONFIG_NETUTILS_HTTPD_INDEX,
+              strlen("/" CONFIG_NETUTILS_HTTPD_INDEX));
     }
 #endif
 
@@ -739,7 +852,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
 static void *httpd_handler(void *arg)
 {
-  struct httpd_state *pstate = (struct httpd_state *)malloc(sizeof(struct httpd_state));
+  struct httpd_state *pstate =
+    (struct httpd_state *)malloc(sizeof(struct httpd_state));
   int sockfd = (int)arg;
 
   ninfo("[%d] Started\n", sockfd);
@@ -790,7 +904,8 @@ static void *httpd_handler(void *arg)
 }
 
 #ifdef CONFIG_NETUTILS_HTTPD_SINGLECONNECT
-static void single_server(uint16_t portno, pthread_startroutine_t handler, int stacksize)
+static void single_server(uint16_t portno, pthread_startroutine_t handler,
+                          int stacksize)
 {
   struct sockaddr_in myaddr;
   socklen_t addrlen;
@@ -811,10 +926,10 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 
   /* Begin serving connections */
 
-  for (;;)
+  for (; ; )
     {
       addrlen = sizeof(struct sockaddr_in);
-      acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
+      acceptsd = accept(listensd, (FAR struct sockaddr *)&myaddr, &addrlen);
 
       if (acceptsd < 0)
         {
@@ -829,11 +944,12 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 #ifdef CONFIG_NET_SOLINGER
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
-      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
+      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling,
+                     sizeof(struct linger)) < 0)
         {
           close(acceptsd);
           nerr("ERROR: setsockopt SO_LINGER failure: %d\n", errno);
-          break;;
+          break;
         }
 #endif
 
@@ -842,17 +958,18 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 
       tv.tv_sec  = CONFIG_NETUTILS_HTTPD_TIMEOUT;
       tv.tv_usec = 0;
-      if (setsockopt(acceptsd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval)) < 0)
+      if (setsockopt(acceptsd, SOL_SOCKET, SO_RCVTIMEO, &tv,
+                     sizeof(struct timeval)) < 0)
         {
           close(acceptsd);
           nerr("ERROR: setsockopt SO_RCVTIMEO failure: %d\n", errno);
-          break;;
+          break;
         }
 #endif
 
       /* Handle the request. This blocks until complete. */
 
-      (void)httpd_handler((void*)acceptsd);
+      (void)httpd_handler((FAR void *)acceptsd);
     }
 
   /* Close the sockets */

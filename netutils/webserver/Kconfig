@@ -33,6 +33,15 @@ config NETUTILS_HTTPD_SCRIPT_DISABLE
 	---help---
 		This option, if selected, will elide the %! scripting
 
+config NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING
+	bool "Enable HTTP chunked encoding"
+	default y if !NETUTILS_HTTPD_SCRIPT_DISABLE
+	default n if NETUTILS_HTTPD_SCRIPT_DISABLE
+	---help---
+		This option, if selected, will cause transmissions of blocks of
+		initially unknown size (e.g. dynamic content creation) to be sent
+		using "Transfer-Encoding: chunked".
+
 config NETUTILS_HTTPD_MAXPATH
 	int "Maximum size of a path"
 	default 64
