@@ -16,23 +16,35 @@ menuconfig SYSTEM_CRITMONITOR
 if SYSTEM_CRITMONITOR
 
 config SYSTEM_CRITMONITOR_STACKSIZE
-	int "Stack monitor daemon stack size"
+	int "Critical section monitor stop/stop stack size"
 	default 2048
 	---help---
-		The stack size to use the stack monitor daemon.  Default: 2048
+		The stack size to use the critmon_start/critmon_stop task.  Default: 2048
 
 config SYSTEM_CRITMONITOR_PRIORITY
-	int "Stack monitor daemon priority"
+	int "Critical section monitor stop/stop priority"
+	default 100
+	---help---
+		The priority to use the critmon_start/critmon_stop task.  Default: 100
+
+config SYSTEM_CRITMONITOR_DAEMON_STACKSIZE
+	int "Critical section monitor daemon stack size"
+	default 2048
+	---help---
+		The stack size to use the critical section monitor daemon.  Default: 2048
+
+config SYSTEM_CRITMONITOR_DAEMON_PRIORITY
+	int "Critical section monitor daemon priority"
 	default 50
 	---help---
 		The priority to use the stack monitor daemon.  Default: 50
 
 config SYSTEM_CRITMONITOR_INTERVAL
-	int "Stack monitor dump frequency"
+	int "Critical section monitor dump frequency"
 	default 2
 	---help---
-		The rate in seconds that the stack monitor will wait before dumping
-		the next set stack usage information.  Default:  2 seconds.
+		The rate in seconds that the Critical section monitor will wait before
+		dumping the next set Critical section information.  Default:  2 seconds.
 
 config SYSTEM_CRITMONITOR_MOUNTPOINT
 	string "procfs mountpoint"

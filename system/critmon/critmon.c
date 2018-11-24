@@ -58,12 +58,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_SYSTEM_CRITMONITOR_STACKSIZE
-#  define CONFIG_SYSTEM_CRITMONITOR_STACKSIZE 2048
+#ifndef CONFIG_SYSTEM_CRITMONITOR_DAEMON_STACKSIZE
+#  define CONFIG_SYSTEM_CRITMONITOR_DAEMON_STACKSIZE 2048
 #endif
 
-#ifndef CONFIG_SYSTEM_CRITMONITOR_PRIORITY
-#  define CONFIG_SYSTEM_CRITMONITOR_PRIORITY 50
+#ifndef CONFIG_SYSTEM_CRITMONITOR_DAEMON_PRIORITY
+#  define CONFIG_SYSTEM_CRITMONITOR_DAEMON_PRIORITY 50
 #endif
 
 #ifndef CONFIG_SYSTEM_CRITMONITOR_INTERVAL
@@ -228,7 +228,7 @@ static int critmon_process_directory(FAR struct dirent *entryp)
       goto errout_with_filepath;
     }
 
-  /* Format:  X.XXXXXXXXXXXX,X.XXXXXXXXX */
+  /* Format:  X.XXXXXXXXX,X.XXXXXXXXX */
 
   maxpreemp = g_critmon.line;
   maxcrit   = strchr(g_critmon.line, ',');
@@ -249,8 +249,8 @@ static int critmon_process_directory(FAR struct dirent *entryp)
 #else
   printf("Thread ID %s:\n", entryp->d_name);
 #endif
-  printf("  Max Pre-emption Disable: %s%12s\n", maxpreemp);
-  printf("     Max Critical Section: %s%12s\n", maxcrit);
+  printf("  Max Pre-emption Disable: %s\n", maxpreemp);
+  printf("     Max Critical Section: %s\n", maxcrit);
 
   ret = OK;
 
@@ -312,7 +312,7 @@ static void critmon_global_crit(void)
 
   filepath = NULL;
 
-  ret = asprintf(&filepath, CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "critmon");
+  ret = asprintf(&filepath, CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/critmon");
   if (ret < 0 || filepath == NULL)
     {
       errcode = errno;
@@ -336,7 +336,7 @@ static void critmon_global_crit(void)
 
   while (fgets(g_critmon.line, 80, stream) != NULL)
     {
-      /* Format:  X,X.XXXXXXXXXXXX,X.XXXXXXXXX */
+      /* Format:  X,X.XXXXXXXXX,X.XXXXXXXXX */
 
       cpu       = g_critmon.line;
       maxpreemp = strchr(g_critmon.line, ',');
@@ -344,7 +344,7 @@ static void critmon_global_crit(void)
       if (maxpreemp != NULL)
         {
           *maxpreemp++ = '\0';
-          maxcrit   = strchr(g_critmon.line, ',');
+          maxcrit = strchr(maxpreemp, ',');
           if (maxcrit != NULL)
             {
               *maxcrit++ = '\0';
@@ -363,8 +363,8 @@ static void critmon_global_crit(void)
       /* Finally, output the stack info that we gleaned from the procfs */
 
       printf("CPU %s:\n", cpu);
-      printf("  Max Pre-emption Disable: %s%12s\n", maxpreemp);
-      printf("     Max Critical Section: %s%12s\n", maxcrit);
+      printf("  Max Pre-emption Disable: %s\n", maxpreemp);
+      printf("     Max Critical Section: %s\n", maxcrit);
     }
 
   fclose(stream);
@@ -488,8 +488,8 @@ int critmon_start_main(int argc, char **argv)
       g_critmon.started = true;
       g_critmon.stop    = false;
 
-      ret = task_create("Csection Monitor", CONFIG_SYSTEM_CRITMONITOR_PRIORITY,
-                        CONFIG_SYSTEM_CRITMONITOR_STACKSIZE,
+      ret = task_create("Csection Monitor", CONFIG_SYSTEM_CRITMONITOR_DAEMON_PRIORITY,
+                        CONFIG_SYSTEM_CRITMONITOR_DAEMON_STACKSIZE,
                         (main_t)critmon_daemon, (FAR char * const *)NULL);
       if (ret < 0)
         {
