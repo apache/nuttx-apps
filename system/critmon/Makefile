@@ -1,7 +1,7 @@
 ############################################################################
-# apps/system/stackmonitor/Makefile
+# apps/system/critmon/Makefile
 #
-#   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-MAINSRC = stackmonitor.c
+MAINSRC = critmon.c
 
-CONFIG_XYZ_PROGNAME ?= stackmon$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= critmon$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-APPNAME = stackmonitor_start stackmonitor_stop
+APPNAME = critmon_start critmon_stop
 
-MODULE = CONFIG_SYSTEM_STACKMONITOR
+MODULE = CONFIG_SYSTEM_CRITMONITOR
 
 include $(APPDIR)/Application.mk

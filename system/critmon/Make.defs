@@ -1,7 +1,8 @@
 ############################################################################
-# apps/system/stackmonitor/Makefile
+# apps/system/critmon/Make.defs
+# Adds selected applications to apps/ build
 #
-#   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2018 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,20 +34,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-# Stack Monitor Application
-
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
-
-MAINSRC = stackmonitor.c
-
-CONFIG_XYZ_PROGNAME ?= stackmon$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-APPNAME = stackmonitor_start stackmonitor_stop
-
-MODULE = CONFIG_SYSTEM_STACKMONITOR
-
-include $(APPDIR)/Application.mk
+ifneq ($(CONFIG_SYSTEM_CRITMONITOR),)
+CONFIGURED_APPS += system/critmon
+endif
