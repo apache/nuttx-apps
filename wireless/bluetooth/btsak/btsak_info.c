@@ -120,9 +120,9 @@ void btsak_cmd_info(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
        {
         printf("Device: %s\n", btsak->ifname);
         printf("BDAddr: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                btreq.btr_bdaddr.val[0], btreq.btr_bdaddr.val[1],
-                btreq.btr_bdaddr.val[2], btreq.btr_bdaddr.val[3],
-                btreq.btr_bdaddr.val[4], btreq.btr_bdaddr.val[5]);
+                btreq.btr_bdaddr.val[5], btreq.btr_bdaddr.val[4],
+                btreq.btr_bdaddr.val[3], btreq.btr_bdaddr.val[2],
+                btreq.btr_bdaddr.val[1], btreq.btr_bdaddr.val[0]);
         printf("Flags:  %04x\n", btreq.btr_flags);
         printf("Free:   %u\n", btreq.btr_num_cmd);
         printf("  ACL:  %u\n", btreq.btr_num_acl);
