@@ -230,7 +230,7 @@ static int critmon_process_directory(FAR struct dirent *entryp)
     }
 
   /* Input Format:   X.XXXXXXXXX,X.XXXXXXXXX
-   * Output Format:  X.XXXXXXXXX X.XXXXXXXXX <name> (ID nn)
+   * Output Format:  X.XXXXXXXXX X.XXXXXXXXX NNNNN <name>
    */
 
   maxpreemp = g_critmon.line;
@@ -253,10 +253,10 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   /* Finally, output the stack info that we gleaned from the procfs */
 
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("%11s %11s Thread %s (ID %s)\n",
-         maxpreemp, maxcrit, name, entryp->d_name);
+  printf("%11s %11s %5s %s\n",
+         maxpreemp, maxcrit, entryp->d_name, name);
 #else
-  printf("%11s %11s Thread ID %s\n",
+  printf("%11s %11s %5s\n",
          maxpreemp, maxcrit, entryp->d_name);
 #endif
 
@@ -346,7 +346,7 @@ static void critmon_global_crit(void)
   while (fgets(g_critmon.line, 80, stream) != NULL)
     {
       /* Input Format:  X,X.XXXXXXXXX,X.XXXXXXXXX
-       * Output Format: X.XXXXXXXXX X.XXXXXXXXX CPU X
+       * Output Format: X.XXXXXXXXX X.XXXXXXXXX       CPU X
        */
 
       cpu       = g_critmon.line;
@@ -378,7 +378,7 @@ static void critmon_global_crit(void)
   
       /* Finally, output the stack info that we gleaned from the procfs */
 
-      printf("%11s %11s CPU %s\n", maxpreemp, maxcrit, cpu);
+      printf("%11s %11s  ---  CPU %s\n", maxpreemp, maxcrit, cpu);
     }
 
   fclose(stream);
@@ -410,7 +410,11 @@ static int critmon_daemon(int argc, char **argv)
 
       /* Output a Header */
 
-      printf("PRE-EMPTION CSECTION    DESCRIPTION\n");
+#if CONFIG_TASK_NAME_SIZE > 0
+      printf("PRE-EMPTION CSECTION    PID   DESCRIPTION\n");
+#else
+      printf("PRE-EMPTION CSECTION    PID\n");
+#endif
       printf("MAX DISABLE MAX TIME\n");
 
       /* Should global usage first */
