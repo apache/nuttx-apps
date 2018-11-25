@@ -13,7 +13,7 @@ if EXAMPLES_SLCD
 
 config EXAMPLES_SLCD_DEVNAME
 	string "SLCD device path"
-	default "/dev/slcd"
+	default "/dev/slcd0"
 	---help---
 		The full path to the SLCD device to be tested
 

@@ -55,7 +55,7 @@
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_SLCD_DEVNAME
-#  define CONFIG_EXAMPLES_SLCD_DEVNAME "/dev/slcd"
+#  define CONFIG_EXAMPLES_SLCD_DEVNAME "/dev/slcd0"
 #endif
 
 /****************************************************************************
