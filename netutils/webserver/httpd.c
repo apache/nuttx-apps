@@ -339,6 +339,7 @@ static int handle_script(struct httpd_state *pstate)
                                             pstate->ht_file.len,
                                             chunked_http_tx);
               DEBUGASSERT(status >= 0);
+              UNUSED(status);
 
               (void)httpd_close(&pstate->ht_file);
             }
@@ -399,6 +400,7 @@ static int handle_script(struct httpd_state *pstate)
                                         pstate->ht_file.data,
                                         len, chunked_http_tx);
           DEBUGASSERT(status >= 0);
+          UNUSED(status);
 
           pstate->ht_file.data += len;
           pstate->ht_file.len  -= len;
@@ -410,6 +412,7 @@ static int handle_script(struct httpd_state *pstate)
 
   status = httpd_send_datachunk(pstate->ht_sockfd, 0, 0, chunked_http_tx);
   DEBUGASSERT(status >= 0);
+  UNUSED(status);
 #endif
 
   return OK;
