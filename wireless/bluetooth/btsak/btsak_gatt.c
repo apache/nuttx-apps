@@ -105,6 +105,7 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
     }
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_dpeer.type);
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
@@ -201,6 +202,7 @@ void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
     }
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_expeer.type);
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
@@ -414,6 +416,7 @@ void btsak_cmd_gatt_read(FAR struct btsak_s *btsak, int argc,
     }
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_rdpeer.type);
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
@@ -487,6 +490,7 @@ void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,
     }
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_rdpeer.type);
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
@@ -637,6 +641,7 @@ void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
     }
 
   ret = btsak_str2addrtype(argv[2], &btreq.btr_wrpeer.type);
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);

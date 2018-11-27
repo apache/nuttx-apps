@@ -491,7 +491,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
       else
         {
-          break; // EOF
+          break; /* EOF */
         }
     }
 

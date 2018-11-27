@@ -572,7 +572,7 @@ int btsak_str2addr(FAR const char *str, FAR uint8_t *addr)
 
 int btsak_str2addrtype(FAR const char *str, FAR uint8_t *addrtype)
 {
-  if (!strcasecmp(str, "public") == 0)
+  if (!strcasecmp(str, "public"))
     {
       *addrtype = BT_ADDR_LE_PUBLIC;
     }
@@ -599,7 +599,7 @@ int btsak_str2addrtype(FAR const char *str, FAR uint8_t *addrtype)
 
 int btsak_str2seclevel(FAR const char *str, FAR enum bt_security_e *level)
 {
-  if (!strcasecmp(str, "low") == 0)
+  if (!strcasecmp(str, "low"))
     {
       *level = BT_SECURITY_LOW;
     }
