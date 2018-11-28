@@ -156,7 +156,7 @@ int system(FAR const char *cmd)
 
   if (errcode != 0)
     {
-      serr("ERROR: Spawn failed: %d\n", result);
+      serr("ERROR: Spawn failed: %d\n", errcode);
       goto errout_with_attrs;
     }
 
