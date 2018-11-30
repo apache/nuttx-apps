@@ -291,6 +291,19 @@
 #  endif
 #endif /* HAVE_USB_KEYBOARD */
 
+#undef HAVE_SLCD_CONSOLE
+
+/* Check if SLCD is configured as alternative console */
+
+#if defined(CONFIG_SLCD) && defined(CONFIG_NSH_ALTCONDEV)
+
+#  define HAVE_SLCD_CONSOLE 1
+
+#  ifndef CONFIG_NSH_CONDEV
+#    define CONFIG_NSH_CONDEV "/dev/slcd0"
+#  endif
+#endif /* HAVE_SLCD_CONSOLE */
+
 /* USB trace settings */
 
 #ifndef CONFIG_USBDEV_TRACE

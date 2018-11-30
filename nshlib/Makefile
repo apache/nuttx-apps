@@ -126,6 +126,10 @@ ifeq ($(CONFIG_USBHOST),y)
 CSRCS += nsh_usbkeyboard.c
 endif
 
+ifeq ($(CONFIG_SLCD),y)
+CSRCS += nsh_slcd.c
+endif
+
 ifeq ($(CONFIG_NSH_USBDEV_TRACE),y)
 CSRCS += nsh_usbtrace.c
 endif
