@@ -93,7 +93,7 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
 
   /* Use /dev/console as console input */
 
-  pstate->cn_confd = fd;
+  pstate->cn_confd = 0;
 
   /* Create a standard C stream on the console device */
 
