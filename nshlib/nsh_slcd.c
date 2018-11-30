@@ -137,7 +137,9 @@ int nsh_consolemain(int argc, char *argv[])
 
   DEBUGASSERT(pstate);
 
-  /* Execute the one-time start-up script.  Any output will go to /dev/console. */
+  /* Execute the one-time start-up script.  Any output will go to
+   * /dev/console.
+   */
 
 #ifdef CONFIG_NSH_ROMFSETC
   (void)nsh_initscript(&pstate->cn_vtbl);
@@ -149,7 +151,9 @@ int nsh_consolemain(int argc, char *argv[])
   (void)boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
-  /* Try to associate /dev/console as stdin because otherwise /dev/slcd0 will be it */
+  /* Try to associate /dev/console as stdin because otherwise /dev/slcd0
+   * will be it
+   */
 
   ret = nsh_clone_console(pstate);
 

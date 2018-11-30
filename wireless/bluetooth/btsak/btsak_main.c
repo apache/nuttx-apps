@@ -530,7 +530,7 @@ int btsak_str2addr(FAR const char *str, FAR uint8_t *addr)
   for (i = 0; i < 6; i++)
     {
       ch = (char)*src++;
-      nibble = btsak_char2nibble(ch) << 4;
+      nibble = btsak_char2nibble(ch);
       if (nibble < 0)
         {
           return nibble;
@@ -545,8 +545,8 @@ int btsak_str2addr(FAR const char *str, FAR uint8_t *addr)
           return nibble;
         }
 
-      hex |= (uint8_t)nibble;
-      *addr++ = hex;
+      hex        |= (uint8_t)nibble;
+      addr[5 - i] = hex;
 
       if (i < 5)
         {
