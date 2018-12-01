@@ -70,19 +70,21 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
 
   /* Close stdin */
 
-  (void)close(0);
+  (void)fclose(stdout);
+  (void)fclose(stderr);
 
   /* Open the console */
 
-  fd = open("/dev/console", O_RDONLY);
+  fd = open(CONFIG_NSH_SLCDCONDEV, O_WRONLY);
   if (fd < 0)
     {
       return -ENODEV;
     }
 
-  /* Associate /dev/console as stdin */
+  /* Associate /dev/slcd0 to stdout/stderr */
 
-  (void)dup2(fd, 0);
+  (void)dup2(fd, 1);
+  (void)dup2(fd, 2);
 
   /* Close the console device that we just opened */
 
@@ -91,13 +93,8 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       close(fd);
     }
 
-  /* Use /dev/console as console input */
-
-  pstate->cn_confd = 0;
-
-  /* Create a standard C stream on the console device */
-
-  pstate->cn_constream = fdopen(pstate->cn_confd, "r+");
+  (void)fdopen(1, "a");
+  (void)fdopen(2, "a");
 
   return OK;
 }
@@ -165,6 +162,8 @@ int nsh_consolemain(int argc, char *argv[])
   /* Execute the session */
 
   (void)nsh_session(pstate);
+
+  return OK;
 }
 
 #endif /* HAVE_SLCD_CONSOLE */

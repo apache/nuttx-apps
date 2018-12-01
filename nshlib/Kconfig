@@ -886,6 +886,26 @@ config NSH_CONSOLE
 		NSH_USBCONSOLE and NSH_USBCONDEV - Sets up some other USB
 		serial device as the NSH console (not necessarily dev/console).
 
+config NSH_SLCDCONSOLE
+	bool "Use a SLCD as console"
+	default n if !SLCD_CONSOLE
+	default y if SLCD_CONSOLE
+	depends on SLCD && NSH_CONSOLE
+	---help---
+		If defined, then the a configured SLCD display could be used as
+		output console to NuttShell (nsh>).
+
+if NSH_SLCDCONSOLE
+
+config NSH_SLCDCONDEV
+	string "SLCD console display device"
+	default "/dev/slcd0"
+	---help---
+		If NSH_SLCDCONSOLE is set to 'y', then NSH_SLCDCONDEV must
+		also be set to select the SLCD device used as output display.
+
+endif # NSH_SLCDCONSOLE
+
 config NSH_USBCONSOLE
 	bool "Use a USB serial console"
 	default n
