@@ -163,6 +163,70 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
 }
 
 /****************************************************************************
+ * Name: btsak_cmd_connect_common
+ *
+ * Description:
+ *   Function used by the connect and disconnect commands.
+ *
+ ****************************************************************************/
+
+static void btsak_cmd_connect_common(FAR struct btsak_s *btsak, int argc,
+                                     FAR char *argv[], int cmd)
+{
+  static  struct btreq_s btreq;
+  int sockfd;
+  int ret;
+
+  if (argc == 2 && strcmp(argv[1], "-h") == 0)
+    {
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
+    }
+
+  if (argc != 3)
+    {
+      fprintf(stderr,
+              "ERROR:  Invalid number of arguments.  Found %d expected 2\n",
+              argc - 1);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  ret = btsak_str2addr(argv[1], &btreq.btr_rmtpeer.val[0]);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:  Bad value for <addr>: %s\n", argv[1]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  ret = btsak_str2addrtype(argv[2], &btreq.btr_rmtpeer.type);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:  Bad value for address type: %s\n", argv[2]);
+      btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
+    }
+
+  /* Perform the IOCTL to start/end the connection */
+
+  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+
+  sockfd = btsak_socket(btsak);
+  if (sockfd >= 0)
+    {
+      ret = ioctl(sockfd, cmd, (unsigned long)((uintptr_t)&btreq));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR:  ioctl(SIOCBT%sCONNECT) failed: %d\n",
+                  cmd == SIOCBTCONNECT ? "" : "DIS", errno);
+        }
+      else
+        {
+          printf("Connect pending...\n");
+        }
+
+      close(sockfd);
+    }
+}
+
+/****************************************************************************
  * Public functions
  ****************************************************************************/
 
@@ -729,4 +793,33 @@ void btsak_cmd_gatt_write_get(FAR struct btsak_s *btsak, int argc,
 
       close(sockfd);
     }
+}
+
+/****************************************************************************
+ * Name: btsak_cmd_gatt_connect
+ *
+ * Description:
+ *   gatt [-h] connect [-h] <addr> public|private
+ *
+ ****************************************************************************/
+
+void btsak_cmd_connect(FAR struct btsak_s *btsak, int argc,
+                         FAR char *argv[])
+{
+  btsak_cmd_connect_common(btsak, argc, argv, SIOCBTCONNECT);
+}
+
+
+/****************************************************************************
+ * Name: btsak_cmd_gatt_connect
+ *
+ * Description:
+ *   gatt [-h] disconnect [-h] <addr> public|private
+ *
+ ****************************************************************************/
+
+void btsak_cmd_disconnect(FAR struct btsak_s *btsak, int argc,
+                         FAR char *argv[])
+{
+  btsak_cmd_connect_common(btsak, argc, argv, SIOCBTDISCONNECT);
 }

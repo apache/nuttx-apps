@@ -128,6 +128,16 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h]"
   },
   {
+    "connect",
+    (CODE void *)btsak_cmd_connect,
+    "[-h] <addr> public|private"
+  },
+  {
+    "disconnect",
+    (CODE void *)btsak_cmd_disconnect,
+    "[-h] <addr> public|private"
+  },
+  {
     "discover",
     (CODE void *)btsak_cmd_discover,
     "[-h] <addr> public|private <uuid16> [<start> [<end>]]"
