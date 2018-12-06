@@ -97,6 +97,7 @@ int nsh_romfsetc(void)
 {
   int  ret;
 
+#if !defined(CONFIG_NSH_CROMFSETC)
   /* Create a ROM disk for the /etc filesystem */
 
   ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
@@ -106,13 +107,18 @@ int nsh_romfsetc(void)
       ferr("ERROR: romdisk_register failed: %d\n", -ret);
       return ERROR;
     }
+#endif
 
   /* Mount the file system */
 
   finfo("Mounting ROMFS filesystem at target=%s with source=%s\n",
         CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
 
+#if defined(CONFIG_NSH_CROMFSETC)
+  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "cromfs", MS_RDONLY, NULL);
+#else
   ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
+#endif
   if (ret < 0)
     {
       ferr("ERROR: mount(%s,%s,romfs) failed: %d\n",

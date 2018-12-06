@@ -730,6 +730,14 @@ config NSH_ROMFSETC
 
 if NSH_ROMFSETC
 
+config NSH_CROMFSETC
+	bool "Support CROMFS (compressed) start-up script"
+	default n
+	depends on NSH_ROMFSETC && FS_CROMFS
+	---help---
+		Mount a CROMFS filesystem at /etc and provide a compressed startup
+		script at /etc/init.d/rcS.
+
 config NSH_ROMFSRC
 	bool "Support ROMFS login script"
 	default n
