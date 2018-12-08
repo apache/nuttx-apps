@@ -123,11 +123,6 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h] <addr> public|private"
   },
   {
-    "mget",
-    (CODE void *)btsak_cmd_gatt_exchange_mtu_result,
-    "[-h]"
-  },
-  {
     "connect",
     (CODE void *)btsak_cmd_connect,
     "[-h] <addr> public|private"
@@ -153,11 +148,6 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h] <addr> public|private [<start> [<end>]]"
   },
   {
-    "dget",
-    (CODE void *)btsak_cmd_gatt_discover_get,
-    "[-h]"
-  },
-  {
     "read",
     (CODE void *)btsak_cmd_gatt_read,
     "[-h] <addr> public|private <handle> [<offset>]"
@@ -168,19 +158,9 @@ static const struct btsak_command_s g_btsak_gatt_commands[] =
     "[-h] <addr> public|private <handle> [<handle> [<handle>]..]"
   },
   {
-    "rget",
-    (CODE void *)btsak_cmd_gatt_read_get,
-    "[-h]"
-  },
-  {
     "write",
     (CODE void *)btsak_cmd_gatt_write,
     "[-h] <addr> public|private <handle> <byte> [<byte> [<byte>]..]"
-  },
-  {
-    "wget",
-    (CODE void *)btsak_cmd_gatt_write_get,
-    "[-h]"
   }
 };
 
