@@ -60,7 +60,9 @@
 #if CONFIG_NFILE_STREAMS > 0
 struct serialsave_s
 {
+  int    cn_errfd;     /* Re-directed error output file descriptor */
   int    cn_outfd;     /* Re-directed output file descriptor */
+  FILE  *cn_errstream; /* Re-directed error output stream */
   FILE  *cn_outstream; /* Re-directed output stream */
 };
 #endif
@@ -76,6 +78,8 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl);
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   FAR const void *buffer, size_t nbytes);
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
+  FAR const char *fmt, ...);
+static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
   FAR const char *fmt, ...);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
 
@@ -111,6 +115,13 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
         {
           return ERROR;
         }
+
+#if !defined(CONFIG_NSH_ALTCONDEV)
+      /* If the alternative console is not enabled then stderr = stdout */
+
+      pstate->cn_errfd     = pstate->cn_outfd;
+      pstate->cn_errstream = pstate->cn_outstream;
+#endif
     }
 
   return 0;
@@ -145,7 +156,9 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
           close(pstate->cn_outfd);
         }
 
+      pstate->cn_errfd     = -1;
       pstate->cn_outfd     = -1;
+      pstate->cn_errstream = NULL;
       pstate->cn_outstream = NULL;
     }
 }
@@ -228,6 +241,64 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
 
   va_start(ap, fmt);
   ret = vfprintf(pstate->cn_outstream, fmt, ap);
+  va_end(ap);
+
+  return ret;
+#else
+  va_list ap;
+  char *str;
+
+  /* Use vasprintf() to allocate a buffer and fill it with the formatted
+   * data
+   */
+
+  va_start(ap, fmt);
+  str = NULL;
+  (void)vasprintf(&str, fmt, ap);
+
+  /* Was a string allocated? */
+
+  if (str)
+    {
+      /* Yes.. Print then free the allocated string */
+
+      printf("%s", str);
+      free(str);
+    }
+
+  va_end(ap);
+  return 0;
+#endif
+}
+
+/****************************************************************************
+ * Name: nsh_erroroutput
+ *
+ * Description:
+ *   Print a string to the currently selected error stream.
+ *
+ ****************************************************************************/
+
+static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
+                           FAR const char *fmt, ...)
+{
+#if CONFIG_NFILE_DESCRIPTORS > 0
+  FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
+  va_list ap;
+  int ret;
+
+  /* The stream is open in a lazy fashion.  This is done because the file
+   * descriptor may be opened on a different task than the stream.  The
+   * actual open will then occur with the first output from the new task.
+   */
+
+  if (nsh_openifnotopen(pstate) != 0)
+   {
+     return ERROR;
+   }
+
+  va_start(ap, fmt);
+  ret = vfprintf(pstate->cn_errstream, fmt, ap);
   va_end(ap);
 
   return ret;
@@ -374,6 +445,7 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
 
       if (pstate->cn_outstream)
         {
+          fflush(pstate->cn_errstream);
           fflush(pstate->cn_outstream);
         }
 
@@ -381,7 +453,9 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
        * when nsh_consoleundirect() is called.
        */
 
+      ssave->cn_errfd     = pstate->cn_errfd;
       ssave->cn_outfd     = pstate->cn_outfd;
+      ssave->cn_errstream = pstate->cn_errstream;
       ssave->cn_outstream = pstate->cn_outstream;
     }
   else
@@ -416,7 +490,9 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
 
   nsh_closeifnotclosed(pstate);
+  pstate->cn_errfd     = ssave->cn_errfd;
   pstate->cn_outfd     = ssave->cn_outfd;
+  pstate->cn_errstream = ssave->cn_errstream;
   pstate->cn_outstream = ssave->cn_outstream;
 }
 #endif
@@ -460,6 +536,7 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 #endif
       pstate->cn_vtbl.write       = nsh_consolewrite;
       pstate->cn_vtbl.output      = nsh_consoleoutput;
+      pstate->cn_vtbl.error       = nsh_erroroutput;
       pstate->cn_vtbl.linebuffer  = nsh_consolelinebuffer;
       pstate->cn_vtbl.exit        = nsh_consoleexit;
 
@@ -473,10 +550,11 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_vtbl.redirect    = nsh_consoleredirect;
       pstate->cn_vtbl.undirect    = nsh_consoleundirect;
 
+#if 0
       /* (Re-) open the console input device */
 
 #ifdef CONFIG_NSH_ALTCONDEV
-      pstate->cn_confd            = open(CONFIG_NSH_CONDEV, O_RDWR);
+      pstate->cn_confd            = open(CONFIG_NSH_ALTSTDIN, O_RDWR);
       if (pstate->cn_confd < 0)
         {
           free(pstate);
@@ -493,6 +571,12 @@ FAR struct console_stdio_s *nsh_newconsole(void)
           return NULL;
         }
 #endif
+#endif /* if 0 */
+
+      /* Initialize the error stream */
+
+      pstate->cn_errfd            = ERRFD(pstate);
+      pstate->cn_errstream        = ERRSTREAM(pstate);
 
       /* Initialize the output stream */
 

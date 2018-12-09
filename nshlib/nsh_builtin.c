@@ -179,8 +179,8 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 }
               else
                 {
-                  nsh_output(vtbl, g_fmtcmdfailed, cmd, "waitpid",
-                             NSH_ERRNO_OF(errcode));
+                  nsh_error(vtbl, g_fmtcmdfailed, cmd, "waitpid",
+                            NSH_ERRNO_OF(errcode));
                 }
             }
 

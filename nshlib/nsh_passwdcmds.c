@@ -64,8 +64,8 @@ int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = passwd_adduser(argv[1], argv[2]);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "passwd_adduser",
-                 NSH_ERRNO_OF(-ret));
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_adduser",
+                NSH_ERRNO_OF(-ret));
       return ERROR;
     }
 
@@ -85,7 +85,7 @@ int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = passwd_deluser(argv[1]);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "passwd_deluser",
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_deluser",
                  NSH_ERRNO_OF(-ret));
       return ERROR;
     }
@@ -106,7 +106,7 @@ int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = passwd_update(argv[1], argv[2]);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "passwd_update",
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_update",
                  NSH_ERRNO_OF(-ret));
       return ERROR;
     }

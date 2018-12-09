@@ -162,12 +162,12 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (shift > 0 && argc  != 3)
     {
-      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
       goto errout;
     }
   else if (shift < 0 && argc != 4)
     {
-      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
       goto errout;
     }
 
@@ -187,7 +187,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (ret != 1)
 #endif
         {
-          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
           goto errout;
         }
     }
@@ -197,7 +197,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   sockfd = socket(family, NETLIB_SOCK_TYPE, 0);
   if (sockfd < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
       goto errout;
     }
 
@@ -243,7 +243,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 32)
             {
-              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
@@ -273,7 +273,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 16 || (shift > 0 && i >= 8))
             {
-              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
@@ -299,7 +299,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       ret = inet_pton(family, argv[2], &inaddr);
       if (ret != 1)
         {
-          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
           goto errout_with_sockfd;
         }
 
@@ -336,7 +336,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = inet_pton(family, argv[rtrndx], &inaddr);
   if (ret != 1)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       goto errout_with_sockfd;
     }
 
@@ -373,7 +373,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                  (FAR struct sockaddr_storage *)&router);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "addroute", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "addroute", NSH_ERRNO);
       goto errout_with_sockfd;
     }
 
@@ -442,12 +442,12 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (shift > 0 && argc  != 2)
     {
-      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
       goto errout;
     }
   else if (shift < 0 && argc != 3)
     {
-      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
       goto errout;
     }
 
@@ -467,7 +467,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (ret != 1)
 #endif
         {
-          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
           goto errout;
         }
     }
@@ -477,7 +477,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   sockfd = socket(family, NETLIB_SOCK_TYPE, 0);
   if (sockfd < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
       goto errout;
     }
 
@@ -523,7 +523,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 32)
             {
-              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
@@ -553,7 +553,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 16 || (shift > 0 && i >= 8))
             {
-              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
@@ -578,7 +578,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       ret = inet_pton(family, argv[2], &inaddr);
       if (ret != 1)
         {
-          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
           goto errout_with_sockfd;
         }
     }
@@ -615,7 +615,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                  (FAR struct sockaddr_storage *)&netmask);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "delroute", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "delroute", NSH_ERRNO);
       goto errout_with_sockfd;
     }
 
@@ -660,19 +660,19 @@ int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   else
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 #elif defined(CONFIG_NET_IPv4)
   if (argc == 2 && strcmp(argv[1], "ipv4") != 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 #else
   if (argc == 2 && strcmp(argv[1], "ipv6") != 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 #endif

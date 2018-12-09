@@ -96,7 +96,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        * failure.
        */
 
-      nsh_output(vtbl, g_fmtcmdfailed, cmd, "posix_spawn_file_actions_init",
+      nsh_error(vtbl, g_fmtcmdfailed, cmd, "posix_spawn_file_actions_init",
                 NSH_ERRNO_OF(ret));
       goto errout;
     }
@@ -106,8 +106,8 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* posix_spawnattr_init returns a positive errno value on failure. */
 
-      nsh_output(vtbl, g_fmtcmdfailed, cmd, "posix_spawnattr_init",
-                 NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, cmd, "posix_spawnattr_init",
+                NSH_ERRNO);
       goto errout_with_actions;
     }
 
@@ -123,7 +123,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
             * value on failure.
             */
 
-          nsh_output(vtbl, g_fmtcmdfailed, cmd,
+          nsh_error(vtbl, g_fmtcmdfailed, cmd,
                      "posix_spawn_file_actions_addopen",
                      NSH_ERRNO);
           goto errout_with_attrs;
@@ -211,7 +211,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 }
               else
                 {
-                  nsh_output(vtbl, g_fmtcmdfailed, cmd, "waitpid",
+                  nsh_error(vtbl, g_fmtcmdfailed, cmd, "waitpid",
                             NSH_ERRNO_OF(errcode));
                 }
             }

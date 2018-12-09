@@ -88,7 +88,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       vtbl->np.np_stream = fopen(fullpath, "r");
       if (!vtbl->np.np_stream)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, cmd, "fopen", NSH_ERRNO);
+          nsh_error(vtbl, g_fmtcmdfailed, cmd, "fopen", NSH_ERRNO);
 
           /* Free the allocated path */
 
@@ -122,7 +122,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           if (vtbl->np.np_foffs < 0)
             {
-              nsh_output(vtbl, g_fmtcmdfailed, "loop", "ftell", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtcmdfailed, "loop", "ftell", NSH_ERRNO);
             }
 #endif
 

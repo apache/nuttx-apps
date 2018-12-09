@@ -121,7 +121,7 @@ static int dd_write(struct dd_s *dd)
       if (nbytes < 0)
         {
            FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-           nsh_output(vtbl, g_fmtcmdfailed, g_dd, "write", NSH_ERRNO_OF(-nbytes));
+           nsh_error(vtbl, g_fmtcmdfailed, g_dd, "write", NSH_ERRNO_OF(-nbytes));
            return ERROR;
         }
 
@@ -149,7 +149,7 @@ static int dd_read(struct dd_s *dd)
       if (nbytes < 0)
         {
            FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-           nsh_output(vtbl, g_fmtcmdfailed, g_dd, "read", NSH_ERRNO_OF(-nbytes));
+           nsh_error(vtbl, g_fmtcmdfailed, g_dd, "read", NSH_ERRNO_OF(-nbytes));
            return ERROR;
         }
 
@@ -172,7 +172,7 @@ static inline int dd_infopen(const char *name, struct dd_s *dd)
   if (dd->infd < 0)
     {
       FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-      nsh_output(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
       return ERROR;
     }
 
@@ -188,7 +188,7 @@ static inline int dd_outfopen(const char *name, struct dd_s *dd)
   dd->outfd = open(name, O_WRONLY|O_CREAT|O_TRUNC, 0644);
   if (dd->outfd < 0)
     {
-      nsh_output(dd->vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
+      nsh_error(dd->vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
       return ERROR;
     }
 
@@ -279,7 +279,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CAN_PIPE_FROM_STD
   if (infile == NULL || outfile == NULL)
     {
-      nsh_output(vtbl, g_fmtargrequired, g_dd);
+      nsh_error(vtbl, g_fmtargrequired, g_dd);
       goto errout_with_paths;
     }
 #endif
@@ -289,7 +289,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   dd.buffer = malloc(dd.sectsize);
   if (!dd.buffer)
     {
-      nsh_output(vtbl, g_fmtcmdoutofmemory, g_dd);
+      nsh_error(vtbl, g_fmtcmdoutofmemory, g_dd);
       goto errout_with_paths;
     }
 

@@ -115,7 +115,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       if (strcmp(argv[1], "--reboot") != 0)
         {
-          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
           return ERROR;
         }
 
@@ -145,7 +145,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (strcmp(argv[1], "--reboot") != 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 
@@ -173,7 +173,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * there was a problem with the shutdown/resaet operaion.
    */
 
-  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
   return ERROR;
 }
 #endif /* CONFIG_BOARDCTL_POWEROFF && !CONFIG_NSH_DISABLE_SHUTDOWN */
@@ -203,7 +203,7 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * there was a problem with the shutdown operaion.
    */
 
-  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
   return ERROR;
 }
 #endif
@@ -233,7 +233,7 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * there was a problem with the reset operaion.
    */
 
-  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
   return ERROR;
 }
 #endif
@@ -303,7 +303,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           case '?':
           default:
-            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
             badarg = true;
             break;
         }
@@ -330,7 +330,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = uname(&info);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "uname", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "uname", NSH_ERRNO);
       return ERROR;
     }
 
@@ -375,7 +375,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 break;
 
               default:
-                nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+                nsh_error(vtbl, g_fmtarginvalid, argv[0]);
                 return ERROR;
             }
 

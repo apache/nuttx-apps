@@ -120,7 +120,7 @@ static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
 
   if (!alloc)
     {
-      nsh_output(vtbl, g_fmtcmdoutofmemory, "nsh_getdirpath");
+      nsh_error(vtbl, g_fmtcmdoutofmemory, "nsh_getdirpath");
     }
 
   return alloc;
@@ -248,7 +248,7 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = chdir(path);
   if (ret != 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
       ret = ERROR;
     }
 
@@ -374,7 +374,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (strlen(argv[1]) < 2)
         {
           ret = -EINVAL;
-          nsh_output(vtbl, g_fmtargrequired, argv[0], "set", NSH_ERRNO);
+          nsh_error(vtbl, g_fmtargrequired, argv[0], "set", NSH_ERRNO);
         }
       else
         {
@@ -382,7 +382,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           if (op != '-' && op != '+')
             {
               ret = -EINVAL;
-              nsh_output(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
             }
           else
             {
@@ -392,7 +392,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                   popt = strchr(opts, *value++);
                   if (popt == NULL)
                     {
-                      nsh_output(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
+                      nsh_error(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
                       ret = -EINVAL;
                       break;
                     }
@@ -449,7 +449,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           ret = nsh_setvar(vtbl, argv[ndx], value);
           if (ret < 0)
             {
-              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_setvar",
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "nsh_setvar",
                          NSH_ERRNO_OF(-ret));
             }
         }
@@ -465,7 +465,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           ret = setenv(argv[ndx], value, TRUE);
           if (ret < 0)
             {
-              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv",
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "setenv",
                                NSH_ERRNO);
             }
         }
@@ -495,8 +495,8 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   status = nsh_unsetvar(vtbl, argv[1]);
   if (status < 0 && status != -ENOENT)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
-                 NSH_ERRNO_OF(-status));
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
+                NSH_ERRNO_OF(-status));
       ret = ERROR;
     }
 #endif
@@ -507,7 +507,7 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   status = unsetenv(argv[1]);
   if (status < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
       ret = ERROR;
     }
 #endif
@@ -553,7 +553,7 @@ int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   status = setenv(argv[1], value, TRUE);
   if (status < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
       ret = ERROR;
     }
   else
@@ -567,7 +567,7 @@ int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       status = nsh_unsetvar(vtbl, argv[1]);
       if (status < 0 && status != -ENOENT)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
                      NSH_ERRNO_OF(-status));
           ret = ERROR;
         }

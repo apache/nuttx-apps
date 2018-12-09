@@ -410,7 +410,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return value;
 
 errout_syntax:
-  nsh_output(vtbl, g_fmtsyntax, "test");
+  nsh_error(vtbl, g_fmtsyntax, "test");
   return TEST_FALSE;
 }
 
@@ -439,7 +439,7 @@ int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (strcmp(argv[argc - 1], "]") != 0)
     {
-      nsh_output(vtbl, g_fmtsyntax, argv[0]);
+      nsh_error(vtbl, g_fmtsyntax, argv[0]);
       return ERROR;
     }
 

@@ -289,21 +289,13 @@
 #  ifndef NSH_USBKBD_DEVNAME
 #    define NSH_USBKBD_DEVNAME "/dev/kbda"
 #  endif
+
+/* In this case NSH_ALTSTDIN should be "/dev/kbda" */
+
+#  undef CONFIG_NSH_ALTSTDIN
+#  define CONFIG_NSH_ALTSTDIN NSH_USBKBD_DEVNAME
+
 #endif /* HAVE_USB_KEYBOARD */
-
-#undef HAVE_SLCD_CONSOLE
-
-/* Check if SLCD is configured as console */
-
-#if defined(CONFIG_SLCD) && defined(CONFIG_NSH_SLCDCONSOLE)
-
-#  define HAVE_SLCD_CONSOLE 1
-
-#  ifndef CONFIG_NSH_SLCDCONDEV
-#    define CONFIG_NSH_SLCDCONDEV "/dev/slcd0"
-#  endif
-
-#endif /* HAVE_SLCD_CONSOLE */
 
 /* USB trace settings */
 

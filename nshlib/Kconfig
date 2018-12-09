@@ -894,26 +894,6 @@ config NSH_CONSOLE
 		NSH_USBCONSOLE and NSH_USBCONDEV - Sets up some other USB
 		serial device as the NSH console (not necessarily dev/console).
 
-config NSH_SLCDCONSOLE
-	bool "Use a SLCD as console"
-	default n if !SLCD_CONSOLE
-	default y if SLCD_CONSOLE
-	depends on SLCD && NSH_CONSOLE
-	---help---
-		If defined, then the a configured SLCD display could be used as
-		output console to NuttShell (nsh>).
-
-if NSH_SLCDCONSOLE
-
-config NSH_SLCDCONDEV
-	string "SLCD console display device"
-	default "/dev/slcd0"
-	---help---
-		If NSH_SLCDCONSOLE is set to 'y', then NSH_SLCDCONDEV must
-		also be set to select the SLCD device used as output display.
-
-endif # NSH_SLCDCONSOLE
-
 config NSH_USBCONSOLE
 	bool "Use a USB serial console"
 	default n
@@ -953,11 +933,13 @@ config NSH_ALTCONDEV
 		If CONFIG_NSH_CONSOLE is set to y, then CONFIG_NSH_ALTCONDEV may
 		also be selected to enable use of an alternate character device
 		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
-		then NSH_CONDEV must be set to select the serial device used to
-		support the NSH console.  This may be useful, for example, to
-		separate the NSH command line from the system console when the
-		system console is used to provide debug output.  Default: stdin
-		and stdout (probably "/dev/console")
+		then NSH_ALTSTDIN, NSH_ALTSTDOUT and NSH_ALTSTDERR must be set
+		to select the serial devices used to support the NSH console.
+		This may be useful, for example, to separate the NSH command
+		line from the system console when the system console is used to
+		provide debug output.
+
+		Default: stdin, stderr and stdout (probably "/dev/console")
 
 		NOTE 1: When any other device other than /dev/console is used
 		for a user interface, (1) linefeeds (\n) will not be expanded to
@@ -966,39 +948,59 @@ config NSH_ALTCONDEV
 		not automatically echoed so you will have to turn local echo on.
 
 		NOTE 2:  This option forces the console of all sessions to use
-		NSH_CONDEV.  Hence, this option only makes sense for a system
-		that supports only a single session.  This option is, in
-		particular, incompatible with Telnet sessions because each Telnet
-		session must use a different console device.
+		NSH_ALTSTD(IN/OUT/ERR).  Hence, this option only makes sense for
+		a system that supports only a single session.  This option is,
+		in particular, incompatible with Telnet sessions because each
+		Telnet session must use a different console device.
 
 if NSH_ALTCONDEV
 
-config NSH_CONDEV
-	string "Alternative console device name"
+config NSH_ALTSTDIN
+	string "Alternative console \"stdin\" device name"
 	default "/dev/console"
 	---help---
 		If CONFIG_NSH_CONSOLE is set to y, then CONFIG_NSH_ALTCONDEV may
 		also be selected to enable use of an alternate character device
 		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
-		then NSH_CONDEV must be set to select the serial device used to
+		then NSH_ALTSTDIN must be set to select the "stdin" device to
 		support the NSH console.   This should be set to the quoted name
-		of a readable/write-able character driver such as:
-		NSH_CONDEV="/dev/ttyS1".  This is useful, for example, to separate
-		the NSH command line from the system console when the system console
-		is used to provide debug output.  Default: stdin and stdout
-		(probably "/dev/console")
+		of a readable character driver such as:
 
-		NOTE 1: When any other device other than /dev/console is used
-		for a user interface, (1) linefeeds (\n) will not be expanded to
-		carriage return / linefeeds (\r\n).  You will need to set
-		your terminal program to account for this.  And (2) input is
-		not automatically echoed so you will have to turn local echo on.
+			NSH_ALTSTDIN="/dev/ttyS1".
 
-		NOTE 2:  This option forces the console of all sessions to use
-		NSH_CONDEV.  Hence, this option only makes sense for a system
-		that supports only a single session.  This option is, in
-		particular, incompatible with Telnet sessions because each Telnet
-		session must use a different console device.
+		This way the input will come from "/dev/ttyS1".
+
+config NSH_ALTSTDOUT
+	string "Alternative console \"stdout\" device name"
+	default "/dev/console" if !SLCD_CONSOLE
+	default "/dev/slcd0"   if SLCD_CONSOLE
+	---help---
+		If CONFIG_NSH_CONSOLE is set to y, then CONFIG_NSH_ALTCONDEV may
+		also be selected to enable use of an alternate character device
+		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
+		then NSH_ALTSTDOUT must be set to select the "stdout" device to
+		support the NSH console.   This should be set to the quoted name
+		of a write-able character driver such as:
+
+			NSH_ALTSTDIN="/dev/ttyS1".
+
+		This way the standard output will go to "/dev/ttyS1".
+
+config NSH_ALTSTDERR
+	string "Alternative console \"stderr\" device name"
+	default "/dev/console" if !SLCD_CONSOLE
+	default "/dev/slcd0"   if SLCD_CONSOLE
+	---help---
+		If CONFIG_NSH_CONSOLE is set to y, then CONFIG_NSH_ALTCONDEV may
+		also be selected to enable use of an alternate character device
+		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
+		then NSH_ALTSTDERR must be set to select the "stderr" device to
+		support the NSH console.   This should be set to the quoted name
+		of a write-able character driver such as:
+
+			NSH_ALTSTDIN="/dev/ttyS1".
+
+		This way the standard error output will go to "/dev/ttyS1".
 
 endif # NSH_ALTCONDEV
 

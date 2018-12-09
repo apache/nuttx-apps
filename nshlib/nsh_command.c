@@ -693,7 +693,7 @@ static int help_cmd(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd)
         }
     }
 
-  nsh_output(vtbl, g_fmtcmdnotfound, cmd);
+  nsh_error(vtbl, g_fmtcmdnotfound, cmd);
   return ERROR;
 }
 #endif
@@ -828,7 +828,7 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  nsh_output(vtbl, g_fmtcmdnotfound, argv[0]);
+  nsh_error(vtbl, g_fmtcmdnotfound, argv[0]);
   return ERROR;
 }
 
@@ -915,14 +915,14 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
             {
               /* Fewer than the minimum number were provided */
 
-              nsh_output(vtbl, g_fmtargrequired, cmd);
+              nsh_error(vtbl, g_fmtargrequired, cmd);
               return ERROR;
             }
           else if (argc > cmdmap->maxargs)
             {
               /* More than the maximum number were provided */
 
-              nsh_output(vtbl, g_fmttoomanyargs, cmd);
+              nsh_error(vtbl, g_fmttoomanyargs, cmd);
               return ERROR;
             }
           else

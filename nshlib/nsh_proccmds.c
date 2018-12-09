@@ -344,7 +344,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   ret = asprintf(&filepath, "%s/%s/status", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
     }
   else
     {
@@ -420,7 +420,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   ret = asprintf(&filepath, "%s/%s/stack", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
       vtbl->iobuffer[0] = '\0';
     }
   else
@@ -506,7 +506,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   ret = asprintf(&filepath, "%s/%s/loadavg", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
       vtbl->iobuffer[0] = '\0';
     }
   else
@@ -530,7 +530,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   if (ret < 0 || filepath == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
       return ERROR;
     }
 
@@ -564,7 +564,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   addr = (uintptr_t)strtol(argv[1], &endptr, 0);
   if (!addr || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
        return ERROR;
     }
 
@@ -676,18 +676,18 @@ int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       goto invalid_arg;
 
     case ESRCH:
-      nsh_output(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
+      nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
       return ERROR;
 
     case EPERM:
     case ENOSYS:
     default:
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
       return ERROR;
     }
 
 invalid_arg:
-  nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+  nsh_error(vtbl, g_fmtarginvalid, argv[0]);
   return ERROR;
 }
 #endif
@@ -707,7 +707,7 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   secs = strtol(argv[1], &endptr, 0);
   if (!secs || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
        return ERROR;
     }
 
@@ -731,7 +731,7 @@ int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   usecs = strtol(argv[1], &endptr, 0);
   if (!usecs || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
        return ERROR;
     }
 

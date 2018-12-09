@@ -169,7 +169,7 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
               if (mem.dm_value > 0x000000ff)
                 {
-                  nsh_output(vtbl, g_fmtargrange, argv[0]);
+                  nsh_error(vtbl, g_fmtargrange, argv[0]);
                   return ERROR;
                 }
 
@@ -225,7 +225,7 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
               if (mem.dm_value > 0x0000ffff)
                 {
-                  nsh_output(vtbl, g_fmtargrange, argv[0]);
+                  nsh_error(vtbl, g_fmtargrange, argv[0]);
                   return ERROR;
                 }
 
@@ -389,7 +389,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   fd = open(argv[1], O_RDONLY);
   if (fd < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "open", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "hexdump", "open", NSH_ERRNO);
       return ERROR;
     }
 
@@ -397,7 +397,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if(buffer == NULL)
     {
       (void)close(fd);
-      nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "malloc", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "hexdump", "malloc", NSH_ERRNO);
       return ERROR;
     }
 
@@ -425,7 +425,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (nbytesread < 0)
         {
           int errval = errno;
-          nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "read",
+          nsh_error(vtbl, g_fmtcmdfailed, "hexdump", "read",
                      NSH_ERRNO_OF(errval));
           ret = ERROR;
           break;

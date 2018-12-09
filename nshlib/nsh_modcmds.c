@@ -67,7 +67,7 @@ int cmd_insmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   handle = insmod(argv[1], argv[2]);
   if (handle == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "insmod", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "insmod", NSH_ERRNO);
       return ERROR;
     }
 
@@ -89,7 +89,7 @@ int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   handle = modhandle(argv[1]);
   if (handle == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "modhandle", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "modhandle", NSH_ERRNO);
       return ERROR;
     }
 
@@ -98,7 +98,7 @@ int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = rmmod(handle);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "rmmod", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "rmmod", NSH_ERRNO);
       return ERROR;
     }
 
@@ -120,7 +120,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   stream = fopen("/proc/modules", "r");
   if (stream == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "fopen", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "fopen", NSH_ERRNO);
       return ERROR;
     }
 

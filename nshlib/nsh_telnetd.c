@@ -180,7 +180,7 @@ static int nsh_telnetmain(int argc, char *argv[])
         }
       else
         {
-          fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_telnetmain",
+          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
                   "cle/readline/fgets", NSH_ERRNO);
           nsh_exit(vtbl, 1);
         }

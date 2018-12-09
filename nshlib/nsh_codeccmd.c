@@ -296,13 +296,13 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
             break;
 #endif
           case ':':
-            nsh_output(vtbl, g_fmtargrequired, argv[0]);
+            nsh_error(vtbl, g_fmtargrequired, argv[0]);
             badarg = true;
             break;
 
           case '?':
           default:
-            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
             badarg = true;
             break;
         }
@@ -354,7 +354,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       fd = open(fullpath, O_RDONLY);
       if (fd < 0)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
           ret = ERROR;
           goto exit;
         }
@@ -379,7 +379,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           ret=read(fd, srcbuf, srclen);
           if (ret < 0)
             {
-              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
               ret = ERROR;
               goto exit;
             }

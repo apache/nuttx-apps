@@ -1,8 +1,9 @@
 /****************************************************************************
- * apps/nshlib/nsh_usbkeyboard.c
+ * apps/nshlib/nsh_altconsole.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Author: Alan Carvalho de Assis <acassis@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,46 +50,121 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if defined(HAVE_USB_KEYBOARD) && !defined(HAVE_USB_CONSOLE)
+#if defined(CONFIG_NSH_ALTCONDEV) && !defined(HAVE_USB_CONSOLE)
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_wait_usbready
+ * Name: nsh_clone_console
  *
  * Description:
- *   Wait for the USB keyboard device to be ready
+ *   Clone stdout and stderr to alternatives devices
  *
  ****************************************************************************/
 
-static int nsh_wait_usbready(FAR const char *msg)
+static int nsh_clone_console(FAR struct console_stdio_s *pstate)
 {
   int fd;
 
-  /* Don't start the NSH console until the keyboard device is ready.  Chances
-   * are, we get here with no functional stdin.  The USB keyboard device will
-   * not be available until the device is connected to the host and enumerated.
-   */
+  /* Open the alternative standard error device */
 
-  /* Close standard fd 0.  Unbeknownst to stdin.  We do this here in case we
-   * had the USB keyboard device open.  In that case, the driver will exist
-   * we will get an ENODEV error when we try to open it (instead of ENOENT).
-   *
-   * NOTE: This might not be portable behavior!
-   */
+  fd = open(CONFIG_NSH_ALTSTDERR, O_WRONLY);
+  if (fd < 0)
+    {
+      return -ENODEV;
+    }
 
-  (void)close(0);
-  sleep(1);
+  /* Close stderr: note we only close stderr if we opened the alternative one */
+
+  (void)fclose(stderr);
+
+  /* Associate the new opened file descriptor to stderr */
+
+  (void)dup2(fd, 2);
+
+  /* Close the console device that we just opened */
+
+  if (fd != 0)
+    {
+      close(fd);
+    }
+
+  /* Open the alternative standard output device */
+
+  fd = open(CONFIG_NSH_ALTSTDOUT, O_WRONLY);
+  if (fd < 0)
+    {
+      return -ENODEV;
+    }
+
+  /* Close stdout: note we only close stdout if we opened the alternative one */
+
+  (void)fclose(stdout);
+
+  /* Associate the new opened file descriptor to stdout */
+
+  (void)dup2(fd, 1);
+
+  /* Close the console device that we just opened */
+
+  if (fd != 0)
+    {
+      close(fd);
+    }
+
+  /* Setup the stderr */
+
+  pstate->cn_errfd     = 2;
+  pstate->cn_errstream = fdopen(pstate->cn_errfd, "a");
+  if (!pstate->cn_errstream)
+    {
+      close(pstate->cn_errfd);
+      free(pstate);
+      return -EIO;
+    }
+
+  /* Setup the stdout */
+
+  pstate->cn_outfd     = 1;
+  pstate->cn_outstream = fdopen(pstate->cn_outfd, "a");
+  if (!pstate->cn_outstream)
+    {
+      close(pstate->cn_outfd);
+      free(pstate);
+      return -EIO;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nsh_wait_inputdev
+ *
+ * Description:
+ *   Wait for the input device to be ready
+ *
+ ****************************************************************************/
+
+static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
+                             FAR const char *msg)
+{
+  int fd;
+
+  /* Don't start the NSH console until the input device is ready.  Chances
+   * are, we get here with no functional stdin. For example a USB keyboard
+   * device will not be available until the device is connected to the host
+   * and enumerated.
+   */
 
   /* Open the USB keyboard device for read-only access */
 
   do
     {
-      /* Try to open the console */
+      /* Try to open the alternative stdin device */
 
-      fd = open(NSH_USBKBD_DEVNAME, O_RDONLY);
+      fd = open(CONFIG_NSH_ALTSTDIN, O_RDWR);
       if (fd < 0)
         {
 #ifdef CONFIG_DEBUG_FEATURES
@@ -124,7 +200,11 @@ static int nsh_wait_usbready(FAR const char *msg)
     }
   while (fd < 0);
 
-  /* Okay.. we have successfully opened a keyboard device.  Did
+  /* Close stdin: note we only closed stdin if we opened the alternative one */
+
+  (void)fclose(stdin);
+
+  /* Okay.. we have successfully opened the input device.  Did
    * we just re-open fd 0?
    */
 
@@ -134,7 +214,21 @@ static int nsh_wait_usbready(FAR const char *msg)
 
       (void)dup2(fd, 0);
 
-      /* Close the keyboard device that we just opened */
+      /* Setup the input console */
+
+      pstate->cn_confd = 0;
+
+      /* Create a standard C stream on the console device */
+
+      pstate->cn_constream = fdopen(pstate->cn_confd, "r+");
+      if (!pstate->cn_constream)
+        {
+          close(pstate->cn_confd);
+          free(pstate);
+          return -EIO;
+        }
+
+      /* Close the input device that we just opened */
 
       close(fd);
     }
@@ -196,16 +290,25 @@ int nsh_consolemain(int argc, char *argv[])
   (void)boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
+  /* First map stderr and stdout to alternative devices */
+
+  ret = nsh_clone_console(pstate);
+
+  if (ret < 0)
+    {
+      return ret;
+    }
+
   /* Now loop, executing creating a session for each USB connection */
 
   msg = "Waiting for a keyboard...\n";
-  for (;;)
+  for (; ; )
     {
       /* Wait for the USB to be connected to the host and switch
        * standard I/O to the USB serial device.
        */
 
-      ret = nsh_wait_usbready(msg);
+      ret = nsh_wait_inputdev(pstate, msg);
 
       DEBUGASSERT(ret == OK);
       UNUSED(ret);

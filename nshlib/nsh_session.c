@@ -163,7 +163,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       else
         {
-          fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_session",
+          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_session",
                   "readline", NSH_ERRNO_OF(-ret));
           return ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
         }

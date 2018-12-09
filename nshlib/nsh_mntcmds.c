@@ -140,13 +140,13 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             break;
 
           case ':':
-            nsh_output(vtbl, g_fmtargrequired, argv[0]);
+            nsh_error(vtbl, g_fmtargrequired, argv[0]);
             badarg = true;
             break;
 
           case '?':
           default:
-            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
             badarg = true;
             break;
         }
@@ -168,7 +168,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (optind >= argc)
     {
-      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
       return ERROR;
     }
 
@@ -184,7 +184,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       if (optind < argc)
         {
-          nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+          nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
           return ERROR;
         }
     }
@@ -195,7 +195,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (!filesystem)
     {
-      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
       return ERROR;
     }
 
@@ -227,7 +227,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = mount(fullsource, fulltarget, filesystem, 0, options);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);
     }
 
 errout:
@@ -340,7 +340,7 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = mount(NULL, lpath, "nfs", 0, (FAR void *)&data);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);
     }
 
   /* We no longer need the allocated mount point path */
@@ -368,7 +368,7 @@ int cmd_umount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       ret = umount(fullpath);
       if (ret < 0)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "umount", NSH_ERRNO);
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "umount", NSH_ERRNO);
         }
 
       nsh_freefullpath(fullpath);
