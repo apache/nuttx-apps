@@ -8,7 +8,7 @@ config EXAMPLES_SMP
 	default n
 	---help---
 		Enable the SMP example.  This example basically extracts the pthread
-		barrier test from apps/examples/ostest and adds some instrumentation
+		barrier test from apps/testing/ostest and adds some instrumentation
 		useful for debugging SMP implementations.
 
 if EXAMPLES_SMP
