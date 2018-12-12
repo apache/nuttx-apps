@@ -1,7 +1,8 @@
 apps/testing README file
 ========================
 
-  The apps/testing directory is used to include external testing frameworks
+  The apps/testing directory is used to build NuttX-specific tests and to
+  include external testing frameworks
 
 examples/ostest
 ^^^^^^^^^^^^^^^
