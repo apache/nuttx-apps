@@ -270,6 +270,19 @@ int main(int argc, FAR char *argv[])
 int nsh_main(int argc, char *argv[])
 #endif
 {
+  struct sched_param param;
+
+  /* Check the task priority that we were started with */
+
+  (void)sched_getparam(0, &param);
+  if (param.sched_priority != CONFIG_SYSTEM_NSH_PRIORITY)
+    {
+      /* If not then set the priority to the configured priority */
+
+      param.sched_priority = CONFIG_SYSTEM_NSH_PRIORITY;
+      (void)sched_setparam(0, &param);
+    }
+
   /* There are two modes that NSH can be executed in:
    *
    * 1) As a normal, interactive shell.  In this case, no arguments are
@@ -277,10 +290,10 @@ int nsh_main(int argc, char *argv[])
    * 2) As a single command processor.  In this case, the single command is
    *    is provided in argv[1].
    *
-   * NOTE:  The latter mode is only available if CONFIG_BUILD_LOADABLE=y.  In
-   * that cause, this main() function will be build as a process.  The process
-   * will be started with a command by the implementations of the system() and
-   * popen() interfaces.
+   * NOTE:  The latter mode is only available if CONFIG_BUILD_LOADABLE=y.
+   * In that case, this main() function will be built as a process.  The
+   * process will be started with a command by the implementations of the
+   * system() and popen() interfaces.
    */
 
 #ifdef HAVE_NSH_COMMAND
