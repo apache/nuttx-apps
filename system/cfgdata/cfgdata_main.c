@@ -1,0 +1,747 @@
+/****************************************************************************
+ * apps/system/cfgdata/cfgdata_main.c
+ *
+ *   Copyright (C) 2018 Ken Pettit. All rights reserved.
+ *   Author: Ken Pettit <pettitkd@gmail.com>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+#include <nuttx/mtd/configdata.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+/****************************************************************************
+ * Private data
+ ****************************************************************************/
+
+static const char *g_config_dev = "/dev/config";
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Print usage information
+ ****************************************************************************/
+
+static void cfgdatacmd_help(void)
+{
+  printf("\nUsage: cfgdata <cmd> [argumens]\n");
+  printf("Where <cmd> is one of:\n\n");
+  printf("  all:   show all config entries\n");
+  printf("  print: display a specific config entry\n");
+  printf("  set:   set or change a config entry\n");
+  printf("  unset: delete a config entry\n\n");
+
+  printf("Syntax for 'set' cmd:\n");
+#ifdef CONFIG_MTD_CONFIG_NAMED
+  printf("  set name [hex_byte,hex_byte,etc.]\n");
+  printf("  set name \"string\"\n\n");
+#else
+  printf("  set id,instance [bytes]\n");
+  printf("  set id,instance \"string\"\n\n");
+#endif
+
+  printf("Syntax for 'print' cmd:\n");
+#ifdef CONFIG_MTD_CONFIG_NAMED
+  printf("  print name\n");
+#else
+  printf("  print id,instance\n");
+#endif
+
+  printf("Syntax for 'unset' cmd:\n");
+#ifdef CONFIG_MTD_CONFIG_NAMED
+  printf("  unset name\n");
+#else
+  printf("  unset id,instance\n");
+#endif
+
+}
+
+/****************************************************************************
+ * Parse out the id,inst,name tokens
+ ****************************************************************************/
+
+#ifndef CONFIG_MTD_CONFIG_NAMED
+static int cfgdatacmd_idtok(int startpos, char *token)
+{
+  while (token[startpos] != ',' && token[startpos] != '\0')
+    startpos++;
+
+  if (token[startpos] != ',')
+    {
+      /* Error in format */
+
+      printf("Expected config identifer in 'id,instance' format\n");
+      return 0;
+    }
+
+  /* return, skipping the ',' */
+
+  return startpos + 1;
+}
+#endif
+
+/****************************************************************************
+ * Set a config item value
+ *
+ * config set 1,0,wr_width_cs0 [0x3]
+ * config set 1,1,wr_width_cs1 [0x2]
+ *
+ ****************************************************************************/
+
+static void cfgdatacmd_parse_byte_array(struct config_data_s *cfg,
+        int argc, char *argv[])
+{
+  int   x;
+  int   c;
+  int   count;
+  int   val;
+
+  /* Start with arg3 */
+
+  x = 3;
+  c = 1;
+  count = 0;
+
+  /* Loop for all remaining arguments until ']' found */
+
+  while (x < argc && argv[x][c] != ']' && argv[x][c] != '\0')
+    {
+      /* Count this item */
+
+      count++;
+
+      /* Skip to next item */
+
+      while (argv[x][c] != ',' && argv[x][c] != ']' && argv[x][c] != 0)
+        {
+          c++;
+        }
+
+      /* Test for comma separator */
+
+      if (argv[x][c] == ',')
+        {
+          c++;
+        }
+
+      /* Test for space separated items */
+
+      if (argv[x][c] == 0)
+        {
+          x++;
+          c = 0;
+        }
+    }
+
+  /* Test if static stack space allocation is big enough for data */
+
+  if (count > cfg->len)
+    {
+      /* Perform dynamic memory allocation */
+
+      cfg->configdata = (FAR uint8_t *) malloc(count);
+      cfg->len = count;
+    }
+
+  /* Count determined. Start with arg3 again and parse the bytes */
+
+  x = 3;
+  c = 1;
+  count = 0;
+
+  /* Loop for all remaining arguments until ']' found */
+
+  while (x < argc && argv[x][c] != ']' && argv[x][c] != '\0')
+    {
+      /* Parse this item */
+
+      if (strncmp(&argv[x][c], "0x", 2) == 0)
+        {
+          /* Hex byte */
+
+          sscanf(&argv[x][c+2], "%x", &val);
+          cfg->configdata[count] = (uint8_t) val;
+        }
+      else
+        {
+          /* Decimal value */
+
+          cfg->configdata[count] = (uint8_t) atoi(&argv[x][c]);
+        }
+
+      /* Increment the count */
+
+      count++;
+
+      /* Skip to next item */
+
+      while (argv[x][c] != ',' && argv[x][c] != ']' && argv[x][c] != 0)
+        {
+          c++;
+        }
+
+      /* Test for comma separator */
+
+      if (argv[x][c] == ',')
+        {
+          c++;
+        }
+
+      /* Test for space separated items */
+
+      if (argv[x][c] == 0)
+        {
+          x++;
+          c = 0;
+        }
+    }
+
+  cfg->len = count;
+}
+
+/****************************************************************************
+ * Set a config item value
+ *
+ * config set 1,0,wr_width_cs0 [0x3]
+ * config set 1,1,wr_width_cs1 [0x2]
+ *
+ ****************************************************************************/
+
+static void cfgdatacmd_set(int argc, char *argv[])
+{
+  int                   x;
+  int                   ret;
+  int                   fd;
+  struct config_data_s  cfg;
+  uint8_t               data[32];
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+
+  /* Copy the name to the cfg struct */
+
+  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  (void) x;
+
+#else
+  /* Parse the id and instance */
+
+  cfg.id = atoi(argv[2]);
+
+  /* Advance past ',' to instance number */
+
+  x = cfgdatacmd_idtok(0, argv[2]);
+  if (x == 0)
+    {
+      return;
+    }
+
+  /* Convert instance to integer */
+
+  cfg.instance = atoi(&argv[2][x]);
+#endif
+
+  /* Test if data is an array of bytes or simple string */
+
+  if (argv[3][0] == '[')
+    {
+      /* It is an array of bytes.  Count the number of bytes */
+
+      cfg.configdata = data;
+      cfg.len = sizeof(data);
+      cfgdatacmd_parse_byte_array(&cfg, argc, argv);
+    }
+  else
+    {
+      bool isnumber = true;
+
+      /* It is a simple string.  Test if it looks like a number */
+
+      cfg.configdata = data;
+      if (strncmp(argv[3], "0x", 2) == 0)
+        {
+          /* Test for all hex digit values */
+
+          for (x = 2; x < strlen(argv[3]); x++)
+            {
+              if (!isxdigit(argv[3][x]))
+                {
+                  isnumber = false;
+                  break;
+                }
+            }
+
+          if (isnumber)
+            {
+              sscanf(&argv[3][2], "%x", (int32_t *) &cfg.configdata);
+              cfg.len = 4;
+            }
+        }
+      else
+        {
+          /* Test for all hex digit values */
+
+          for (x = 0; x < strlen(argv[3]); x++)
+            {
+              if (!isdigit(argv[3][x]))
+                {
+                  isnumber = false;
+                  break;
+                }
+            }
+
+          if (isnumber)
+            {
+              int32_t temp = atoi(argv[3]);
+              *((int32_t *) cfg.configdata) = temp;
+              cfg.len = 4;
+            }
+        }
+
+      if (!isnumber)
+        {
+          /* Point to the string and calculate the length */
+
+          cfg.configdata = (FAR uint8_t *) argv[3];
+          cfg.len = strlen(argv[3]) + 1;
+        }
+    }
+
+  /* Now open the /dev/config file and set the config item */
+
+  if ((fd = open(g_config_dev, O_RDONLY)) < 2)
+    {
+      /* Display error */
+
+      printf("error: unable to open %s\n", g_config_dev);
+      return;
+    }
+
+  ret = ioctl(fd, CFGDIOC_SETCONFIG, (unsigned long) &cfg);
+
+  /* Close the file and report error if any */
+
+  close(fd);
+  if (ret != OK)
+    {
+      printf("Error %d setting config entry\n", errno);
+    }
+
+  /* Free the cfg.configdata if needed */
+
+  if (cfg.configdata != (FAR uint8_t *) argv[3] &&
+      cfg.configdata != data)
+    {
+      free(cfg.configdata);
+    }
+}
+
+/****************************************************************************
+ * Unset a config item value
+ ****************************************************************************/
+
+static void cfgdatacmd_unset(int argc, char *argv[])
+{
+  int                   x;
+  int                   ret;
+  int                   fd;
+  struct config_data_s  cfg;
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+  /* Copy the name to the cfg struct */
+
+  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  (void) x;
+
+#else
+  /* Parse the id and instance */
+
+  cfg.id = atoi(argv[2]);
+
+  /* Advance past ',' to instance number */
+
+  x = cfgdatacmd_idtok(0, argv[2]);
+  if (x == 0)
+    {
+      return;
+    }
+
+  /* Convert instance to integer */
+
+  cfg.instance = atoi(&argv[2][x]);
+#endif
+
+  cfg.configdata = NULL;
+  cfg.len = 0;
+
+  /* Try to open the /dev/config file */
+
+  if ((fd = open(g_config_dev, O_RDONLY)) < 2)
+    {
+      /* Display error */
+
+      printf("error: unable to open %s\n", g_config_dev);
+      return;
+    }
+
+  /* Delete the config item */
+
+  ret = ioctl(fd, CFGDIOC_DELCONFIG, (unsigned long) &cfg);
+  close(fd);
+
+  if (ret != OK)
+    {
+      printf("Error deletign config entry '%s'\n", argv[2]);
+    }
+}
+
+/****************************************************************************
+ * Print a config item value
+ *
+ * config print 1,1
+ * config print wr_width_cs0
+ *
+ ****************************************************************************/
+
+static void cfgdatacmd_print(int argc, char *argv[])
+{
+  struct config_data_s  cfg;
+  int                   x, ret;
+  int                   fd;
+  bool                  isstring;
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+
+  /* Copy the name to the cfg struct */
+
+  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  (void)x;
+
+#else
+  /* Parse the id and instance */
+
+  cfg.id = atoi(argv[2]);
+
+  /* Advance past ',' to instance number */
+ 
+  x = cfgdatacmd_idtok(0, argv[2]);
+  if (x == 0)
+    {
+      return;
+    }
+
+  /* Convert instance to integer */
+
+  cfg.instance = atoi(&argv[2][x]);
+#endif
+
+  /* Try to open the /dev/config file */
+
+  if ((fd = open(g_config_dev, O_RDONLY)) < 2)
+    {
+      /* Display error */
+
+      printf("error: unable to open %s\n", g_config_dev);
+      return;
+    }
+
+  cfg.configdata = (FAR uint8_t *) malloc(256);
+  cfg.len = 256;
+  if (cfg.configdata == NULL)
+    {
+      printf("Error allocating buffer\n");
+      return;
+    }
+
+  /* Get the config item */
+
+  ret = ioctl(fd, CFGDIOC_GETCONFIG, (unsigned long) &cfg);
+  close(fd);
+
+  if (ret != OK)
+    {
+      printf("Error reading config entry '%s'\n", argv[2]);
+      free(cfg.configdata);
+      return;
+    }
+
+  /* Display the data */
+
+  isstring = cfg.configdata[cfg.len-1] == 0;
+  for (x = 0; x < cfg.len - 1; x++)
+    {
+      /* Test for all ascii characters */
+
+      if (cfg.configdata[x] < ' ' || cfg.configdata[x] > '~')
+        {
+          isstring = false;
+          break;
+        }
+    }
+
+  /* Display the data */
+
+  if (isstring)
+    {
+      printf("%s\n", cfg.configdata);
+    }
+  else
+    {
+      /* Loop though all bytes and display them */
+
+      for (x = 0; x < cfg.len; x++)
+        {
+          /* Print the next byte */
+
+          printf("0x%02X ", cfg.configdata[x]);
+
+          if (((x + 1) & 7) == 0 && x+1 != cfg.len)
+            {
+              printf("\n");
+            }
+        }
+
+      printf("\n");
+    }
+
+  free(cfg.configdata);
+}
+
+/****************************************************************************
+ * Enumerate and display all config items
+ ****************************************************************************/
+
+static void cfgdatacmd_show_all_config_items(void)
+{
+  int                   fd;
+  int                   ret, x;
+  struct config_data_s  cfg;
+  char                  fmtstr[24];
+  bool                  isstring;
+
+  /* Try to open the /dev/config file */
+
+  if ((fd = open(g_config_dev, O_RDONLY)) < 2)
+    {
+      /* Display error */
+
+      printf("error: unable to open %s\n", g_config_dev);
+      return;
+    }
+
+  /* Print header */
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+  sprintf(fmtstr, "%%-%ds%%-6sData\n", CONFIG_MTD_CONFIG_NAME_LEN);
+  printf(fmtstr, "Name", "Len");
+  sprintf(fmtstr, "%%-%ds%%-6d", CONFIG_MTD_CONFIG_NAME_LEN);
+#else
+  strcpy(fmtstr, "%-6s%-6s%-6sData\n");
+  printf(fmtstr, "ID", "Inst", "Len");
+  strcpy(fmtstr, "%-6d%-6d%-6d");
+#endif
+
+  /* Get the first config item */
+
+  cfg.configdata = (FAR uint8_t *) malloc(256);
+  cfg.len = 256;
+  if (cfg.configdata == NULL)
+    {
+      printf("Error allocating buffer\n");
+      return;
+    }
+
+  ret = ioctl(fd, CFGDIOC_FIRSTCONFIG, (unsigned long) &cfg);
+
+  while (ret != -1)
+    {
+      /* Print this entry */
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+      printf(fmtstr, cfg.name, cfg.len);
+#else
+      printf(fmtstr, cfg.id, cfg.instance, cfg.len);
+#endif
+
+      /* Test if data is a string */
+
+      isstring = cfg.configdata[cfg.len-1] == 0;
+      for (x = 0; x < cfg.len - 1; x++)
+        {
+          /* Test for all ascii characters */
+
+          if (cfg.configdata[x] < ' ' || cfg.configdata[x] > '~')
+            {
+              isstring = false;
+              break;
+            }
+        }
+
+      /* Display the data */
+
+      if (isstring)
+        {
+          printf("%s\n", cfg.configdata);
+        }
+      else
+        {
+          char fmtstr2[10];
+
+#ifdef CONFIG_MTD_CONFIG_NAMED
+          sprintf(fmtstr2, "\n%ds", CONFIG_MTD_CONFIG_NAME_LEN+6);
+#else
+          strcpy(fmtstr2, "\n%18s");
+#endif
+          /* Loop though all bytes and display them */
+
+          for (x = 0; x < cfg.len; x++)
+            {
+              /* Print the next byte */
+
+              printf("0x%02X ", cfg.configdata[x]);
+
+              if (((x + 1) & 7) == 0 && x+1 != cfg.len)
+                {
+                  printf(fmtstr2, " ");
+                }
+            }
+
+          printf("\n");
+        }
+
+      /* Get the next config item */
+
+      cfg.len = 256;
+      ret = ioctl(fd, CFGDIOC_NEXTCONFIG, (unsigned long) &cfg);
+    }
+
+  close(fd);
+  free(cfg.configdata);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+#ifdef BUILD_MODULE
+int main(int argc, FAR char *argv[])
+#else
+int cfgdata_main(int argc, char *argv[])
+#endif
+{
+  /* Argument given? */
+
+  if (argc == 1)
+    {
+      /* Show usage info and exit */
+
+      cfgdatacmd_help();
+      return 0;
+    }
+
+  /* Test for "all" cmd */
+
+  if (strcmp(argv[1], "all") == 0)
+    {
+      /* Print the existing config items */
+
+      cfgdatacmd_show_all_config_items();
+      return 0;
+    }
+
+  /* Test for "set" cmd */
+
+  if (strcmp(argv[1], "set") == 0)
+    {
+      if (argc < 4)
+        {
+          printf("At least 2 arguments needed for 'set' command\n");
+          return 0;
+        }
+
+      /* Call the routine to set a config item */
+
+      cfgdatacmd_set(argc, argv);
+      return 0;
+    }
+
+  /* Test for "print" cmd */
+
+  if (strcmp(argv[1], "print") == 0)
+    {
+      /* Test for print all */
+
+      if (strcmp(argv[2], "all") == 0)
+        {
+          cfgdatacmd_show_all_config_items();
+        }
+      else
+        {
+          /* Call the routine to print a config item */
+
+          cfgdatacmd_print(argc, argv);
+        }
+
+      return 0;
+    }
+
+  /* Test for "unset" cmd */
+
+  if (strcmp(argv[1], "unset") == 0)
+    {
+      if (argc < 3)
+        {
+          printf("Need 1 argument for 'unset' command\n");
+          return 0;
+        }
+
+      /* Call the routine to set a config item */
+
+      cfgdatacmd_unset(argc, argv);
+      return 0;
+    }
+
+  /* Unknown cmd */
+
+  printf("Unknown config command: %s\n", argv[1]);
+
+  return 0;
+}

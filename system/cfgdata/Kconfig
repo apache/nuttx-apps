@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_CFGDATA
+	tristate "Cfgdata Command"
+	default n
+	depends on MTD_CONFIG && NSH_BUILTIN_APPS
+	---help---
+		Enable support for the CFGDATA tool.
+
+if SYSTEM_CFGDATA
+endif
+
