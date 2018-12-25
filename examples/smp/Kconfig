@@ -6,6 +6,7 @@
 config EXAMPLES_SMP
 	tristate "SMP example"
 	default n
+	depends on SMP
 	---help---
 		Enable the SMP example.  This example basically extracts the pthread
 		barrier test from apps/testing/ostest and adds some instrumentation
