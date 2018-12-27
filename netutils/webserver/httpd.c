@@ -900,7 +900,7 @@ static void *httpd_handler(void *arg)
 
   /* Exit the task */
 
-  ninfo("[%d] Exitting\n", sockfd);
+  ninfo("[%d] Exiting\n", sockfd);
   close(sockfd);
   return NULL;
 }

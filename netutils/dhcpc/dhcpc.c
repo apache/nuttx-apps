@@ -230,6 +230,10 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
       /* Broadcast DISCOVER message to all servers */
 
       case DHCPDISCOVER:
+        /* REVISIT: We don't need the broadcast flag since we can receive
+         * unicast traffic before being fully configured.
+         */
+
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
         pend     = dhcpc_addreqoptions(pend);
         break;
@@ -237,6 +241,10 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
       /* Send REQUEST message to the server that sent the *first* OFFER */
 
       case DHCPREQUEST:
+        /* REVISIT: We don't need the broadcast flag since we can receive
+         * unicast traffic before being fully configured.
+         */
+
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
         memcpy(pdhcpc->packet.ciaddr, &pdhcpc->ipaddr.s_addr, 4);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);

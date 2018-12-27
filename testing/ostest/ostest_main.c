@@ -556,7 +556,7 @@ static int user_main(int argc, char *argv[])
       show_memory_usage(&g_mmbefore, &g_mmafter);
     }
 
-  printf("user_main: Exitting\n");
+  printf("user_main: Exiting\n");
   return 0;
 }
 

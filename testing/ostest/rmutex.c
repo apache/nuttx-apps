@@ -110,7 +110,7 @@ static FAR void *thread_outer(FAR void *parameter)
       thread_inner((int)((intptr_t)parameter), 0);
     }
 
-  printf("thread_outer[%d]: Exitting\n", (int)((intptr_t)parameter));
+  printf("thread_outer[%d]: Exiting\n", (int)((intptr_t)parameter));
   pthread_exit(NULL);
   return NULL; /* Non-reachable -- needed for some compilers */
 }

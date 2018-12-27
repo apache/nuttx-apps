@@ -75,7 +75,7 @@ static FAR void *robust_waiter(FAR void *parameter)
     }
   else
     {
-      printf("robust_waiter: Exitting with mutex\n");
+      printf("robust_waiter: Exiting with mutex\n");
     }
 
   sleep(2);
