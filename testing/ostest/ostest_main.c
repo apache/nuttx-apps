@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/testing/ostest/ostest_main.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2014-2015, 2018 Gregory Nutt. All
+ *     rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -373,6 +374,14 @@ static int user_main(int argc, char *argv[])
 
       printf("\nuser_main: recursive mutex test\n");
       recursive_mutex_test();
+      check_test_memory_usage();
+#endif
+
+#if !defined(CONFIG_DISABLE_PTHREAD) && CONFIG_NPTHREAD_KEYS > 0
+      /* Verify pthread-specific data */
+
+      printf("\nuser_main: pthread-specific data test\n");
+      specific_test();
       check_test_memory_usage();
 #endif
 

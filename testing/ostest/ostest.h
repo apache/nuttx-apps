@@ -170,6 +170,10 @@ void nsem_test(void);
 
 void cond_test(void);
 
+/* specific.c ***************************************************************/
+
+void specific_test(void);
+
 /* mqueue.c *****************************************************************/
 
 void mqueue_test(void);

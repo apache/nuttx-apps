@@ -1,7 +1,7 @@
 /****************************************************************************
- * mutex.c
+ * apps/testing/ostest/specific.c
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,10 +55,7 @@
  * Private Data
  ****************************************************************************/
 
-static pthread_mutex_t mut;
-static volatile int my_mutex = 0;
-static unsigned long nloops[2] = {0, 0};
-static unsigned long nerrors[2] = {0, 0};
+static pthread_key_t g_pthread_key;
 
 /****************************************************************************
  * Private Functions
@@ -66,100 +63,104 @@ static unsigned long nerrors[2] = {0, 0};
 
 static void *thread_func(FAR void *parameter)
 {
-  int id  = (int)((intptr_t)parameter);
-  int ndx = id - 1;
-  int i;
+  FAR void *data;
+  int ret;
 
-  for (nloops[ndx] = 0; nloops[ndx] < NLOOPS; nloops[ndx]++)
+  /* Set the pthread specific data for the main thead */
+
+  ret = pthread_setspecific(g_pthread_key, (FAR const void *)0xcafebabe);
+  if (ret != 0)
     {
-      int status = pthread_mutex_lock(&mut);
-      if (status != 0)
-        {
-          printf("ERROR thread %d: pthread_mutex_lock failed, status=%d\n",
-                  id, status);
-        }
-
-      if (my_mutex == 1)
-        {
-          printf("ERROR thread=%d: "
-                 "my_mutex should be zero, instead my_mutex=%d\n",
-                  id, my_mutex);
-          nerrors[ndx]++;
-        }
-
-      my_mutex = 1;	
-      for (i = 0; i < 10; i++)
-        {
-          pthread_yield();
-        }
-
-      my_mutex = 0;
-
-      status = pthread_mutex_unlock(&mut);
-      if (status != 0)
-        {
-          printf("ERROR thread %d: pthread_mutex_unlock failed, status=%d\n",
-                 id, status);
-        }
+      printf("ERROR: pthread_setspecific() failed: %d\n", ret);
     }
-  pthread_exit(NULL);
-  return NULL; /* Non-reachable -- needed for some compilers */
+
+  /* Check the thread-specific data */
+
+  data = pthread_getspecific(g_pthread_key);
+  if (data != (FAR void *)0xcafebabe)
+    {
+      printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
+             data, (FAR void *)0xcafebabe);
+    }
+
+  return NULL;
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-void mutex_test(void)
+void specific_test(void)
 {
-  pthread_t thread1;
-  pthread_t thread2;
+  FAR void *data;
+  pthread_t thread;
 #ifdef SDCC
-  pthread_addr_t result1;
-  pthread_addr_t result2;
+  pthread_addr_t result;
   pthread_attr_t attr;
 #endif
-  int status;
+  int ret;
 
-  /* Initialize the mutex */
+  /* Create the pthread key */
 
-  printf("Initializing mutex\n");
-  pthread_mutex_init(&mut, NULL);
+  ret = pthread_key_create(&g_pthread_key, NULL);
+  if (ret != 0)
+    {
+      printf("ERROR: pthread_key_create() failed: %d\n", ret);
+    }
 
-  /* Start two thread instances */
+  /* Set the pthread specific data for the main thead */
 
-  printf("Starting thread 1\n");
+  ret = pthread_setspecific(g_pthread_key, (FAR const void *)0xf00dface);
+  if (ret != 0)
+    {
+      printf("ERROR: pthread_setspecific() failed: %d\n", ret);
+    }
+
+  /* Check the thread-specific data */
+
+  data = pthread_getspecific(g_pthread_key);
+  if (data != (FAR void *)0xf00dface)
+    {
+      printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
+             data, (FAR void *)0xf00dface);
+    }
+
+  /* Start a thread */
+
+  printf("Starting thread\n");
 #ifdef SDCC
   (void)pthread_attr_init(&attr);
-  status = pthread_create(&thread1, &attr, thread_func, (pthread_addr_t)1);
+  ret = pthread_create(&thread, &attr, thread_func, (pthread_addr_t)0);
 #else
-  status = pthread_create(&thread1, NULL, thread_func, (pthread_addr_t)1);
+  ret = pthread_create(&thread, NULL, thread_func, (pthread_addr_t)0);
 #endif
-  if (status != 0)
+  if (ret != 0)
     {
-      printf("Error in thread#1 creation\n");
+      printf("ERROR: pthread_create() failed: %d\n", ret);
     }
 
-  printf("Starting thread 2\n");
+  /* Wait for the thread to terminate */
+
 #ifdef SDCC
-  status = pthread_create(&thread2, &attr, thread_func, (pthread_addr_t)2);
+  pthread_join(thread, result);
 #else
-  status = pthread_create(&thread2, NULL, thread_func, (pthread_addr_t)2);
+  pthread_join(thread, NULL);
 #endif
-  if (status != 0)
+
+  /* Re-check the thread-specific data */
+
+  data = pthread_getspecific(g_pthread_key);
+  if (data != (FAR void *)0xf00dface)
     {
-      printf("Error in thread#2 creation\n");
+      printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
+             data, (FAR void *)0xf00dface);
     }
 
-#ifdef SDCC
-  pthread_join(thread1, &result1);
-  pthread_join(thread2, &result2);
-#else
-  pthread_join(thread1, NULL);
-  pthread_join(thread2, NULL);
-#endif
+  /* Destroy the pthread key */
 
-  printf("\t\tThread1\tThread2\n");
-  printf("\tLoops\t%lu\t%lu\n", nloops[0], nloops[1]);
-  printf("\tErrors\t%lu\t%lu\n", nerrors[0], nerrors[1]);
+  ret = pthread_key_delete(g_pthread_key);
+  if (ret != 0)
+    {
+      printf("ERROR: pthread_key_delete() failed: %d\n", ret);
+    }
 }
