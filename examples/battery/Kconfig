@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BATTERY
+	tristate "Battery monitor example"
+	default n
+	---help---
+		Enable the battery monitor example
+
+if EXAMPLES_BATTERY
+
+config EXAMPLES_BATTERY_PROGNAME
+	string "Program name"
+	default "batt"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BATTERY_DEVNAME
+	string "Battery charger device name"
+	default "/dev/batt0"
+
+config EXAMPLES_BATTERY_PRIORITY
+	int "Battery task priority"
+	default 100
+
+config EXAMPLES_BATTERY_STACKSIZE
+	int "Battery stack size"
+	default 2048
+endif
