@@ -97,6 +97,9 @@ chtype winch(WINDOW *win)
 
 chtype inch(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("inch() - called\n"));
 
   return winch(stdscr);
@@ -104,6 +107,9 @@ chtype inch(void)
 
 chtype mvinch(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinch() - called\n"));
 
   if (move(y, x) == ERR)
@@ -143,6 +149,9 @@ int win_wch(WINDOW *win, cchar_t *wcval)
 
 int in_wch(cchar_t *wcval)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("in_wch() - called\n"));
 
   return win_wch(stdscr, wcval);

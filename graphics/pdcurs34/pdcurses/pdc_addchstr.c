@@ -164,6 +164,9 @@ int waddchnstr(WINDOW *win, const chtype *ch, int n)
 
 int addchstr(const chtype *ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("addchstr() - called\n"));
 
   return waddchnstr(stdscr, ch, -1);
@@ -171,6 +174,9 @@ int addchstr(const chtype *ch)
 
 int addchnstr(const chtype *ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("addchnstr() - called\n"));
 
   return waddchnstr(stdscr, ch, n);
@@ -185,6 +191,9 @@ int waddchstr(WINDOW *win, const chtype *ch)
 
 int mvaddchstr(int y, int x, const chtype *ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvaddchstr() - called: y %d x %d\n", y, x));
 
   if (move(y, x) == ERR)
@@ -197,6 +206,9 @@ int mvaddchstr(int y, int x, const chtype *ch)
 
 int mvaddchnstr(int y, int x, const chtype *ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvaddchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (move(y, x) == ERR)
@@ -241,6 +253,9 @@ int wadd_wchnstr(WINDOW *win, const cchar_t *wch, int n)
 
 int add_wchstr(const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("add_wchstr() - called\n"));
 
   return wadd_wchnstr(stdscr, wch, -1);
@@ -248,6 +263,9 @@ int add_wchstr(const cchar_t *wch)
 
 int add_wchnstr(const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("add_wchnstr() - called\n"));
 
   return wadd_wchnstr(stdscr, wch, n);
@@ -262,6 +280,9 @@ int wadd_wchstr(WINDOW *win, const cchar_t *wch)
 
 int mvadd_wchstr(int y, int x, const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvadd_wchstr() - called: y %d x %d\n", y, x));
 
   if (move(y, x) == ERR)
@@ -274,6 +295,9 @@ int mvadd_wchstr(int y, int x, const cchar_t *wch)
 
 int mvadd_wchnstr(int y, int x, const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvadd_wchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (move(y, x) == ERR)

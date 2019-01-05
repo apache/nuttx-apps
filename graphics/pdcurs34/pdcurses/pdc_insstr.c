@@ -172,6 +172,9 @@ int winsnstr(WINDOW *win, const char *str, int n)
 
 int insstr(const char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insstr() - called: string=\"%s\"\n", str));
 
   return winsnstr(stdscr, str, -1);
@@ -186,6 +189,9 @@ int winsstr(WINDOW *win, const char *str)
 
 int mvinsstr(int y, int x, const char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsstr() - called: y %d x %d string=\"%s\"\n", y, x, str));
 
   if (move(y, x) == ERR)
@@ -210,6 +216,9 @@ int mvwinsstr(WINDOW *win, int y, int x, const char *str)
 
 int insnstr(const char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insnstr() - called: string=\"%s\" n %d \n", str, n));
 
   return winsnstr(stdscr, str, n);
@@ -217,6 +226,9 @@ int insnstr(const char *str, int n)
 
 int mvinsnstr(int y, int x, const char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsnstr() - called: y %d x %d string=\"%s\" n %d \n",
            y, x, str, n));
 
@@ -277,6 +289,9 @@ int wins_nwstr(WINDOW *win, const wchar_t *wstr, int n)
 
 int ins_wstr(const wchar_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("ins_wstr() - called\n"));
 
   return wins_nwstr(stdscr, wstr, -1);
@@ -291,6 +306,9 @@ int wins_wstr(WINDOW *win, const wchar_t *wstr)
 
 int mvins_wstr(int y, int x, const wchar_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvins_wstr() - called\n"));
 
   if (move(y, x) == ERR)
@@ -315,6 +333,9 @@ int mvwins_wstr(WINDOW *win, int y, int x, const wchar_t *wstr)
 
 int ins_nwstr(const wchar_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("ins_nwstr() - called\n"));
 
   return wins_nwstr(stdscr, wstr, n);
@@ -322,6 +343,9 @@ int ins_nwstr(const wchar_t *wstr, int n)
 
 int mvins_nwstr(int y, int x, const wchar_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsnstr() - called\n"));
 
   if (move(y, x) == ERR)

@@ -78,12 +78,6 @@
 
 /* Internal macros for attributes */
 
-#ifdef CONFIG_PDCURSES_CHTYPE_LONG
-# define PDC_COLOR_PAIRS 256
-#else
-# define PDC_COLOR_PAIRS  32
-#endif
-
 #ifndef max
 # define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
@@ -108,21 +102,17 @@ extern "C"
 #  define EXTERN extern
 #endif
 
-typedef struct           /* Structure for ripped off lines */
-{
-  int line;
-  int (*init)(WINDOW *, int);
-} RIPPEDOFFLINE;
-
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 EXTERN WINDOW *pdc_lastscr;
 EXTERN bool pdc_trace_on;   /* Tracing flag */
 EXTERN bool pdc_color_started;
 EXTERN unsigned long pdc_key_modifiers;
 EXTERN MOUSE_STATUS pdc_mouse_status;
+#endif
 
 /****************************************************************************
  * Public Function Prototypes

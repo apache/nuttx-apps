@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nuttx/pdcdisp.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,11 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 
+#ifdef CONFIG_SYSTEM_TERMCURSES
+#include <system/termcurses.h>
+#endif
+
+#include <graphics/curses.h>
 #include "pdcnuttx.h"
 
 /****************************************************************************
@@ -552,6 +557,9 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
 #ifdef HAVE_BOLD_FONT
   bool bold = ((ch & A_BOLD) != 0);
 #endif
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   /* Clip */
 
@@ -649,6 +657,259 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
 }
 
 /****************************************************************************
+ * Name: PDC_gotoyx
+ *
+ * Description:
+ *   Move the physical cursor (as opposed to the logical cursor affected by
+ *   wmove()) to the given location. T his is called mainly from doupdate().
+ *   In general, this function need not compare the old location with the
+ *   new one, and should just move the cursor unconditionally.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_gotoyx_term(FAR SCREEN *sp, int row, int col)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termstate_s *termstate;
+
+  termstate = &termscreen->termstate;
+  termcurses_moveyx(termstate->tcurs, row, col);
+}
+#endif
+
+/****************************************************************************
+ * Name: PDC_set_char_attrib_term
+ *
+ * Description:
+ *   Sets the specified character attributes.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_set_char_attrib_term(FAR struct pdc_termscreen_s *termscreen,
+              chtype ch)
+{
+  FAR struct pdc_termstate_s *termstate = &termscreen->termstate;
+  struct termcurses_colors_s   colors;
+  short fg;
+  short bg;
+  long  attrib;
+  long  term_attrib;
+
+  /* Handle the attributes */
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+  attrib = ch & (A_BOLD | A_BLINK | A_UNDERLINE | A_INVIS);
+#else
+  attrib = ch & (A_BOLD | A_BLINK);
+#endif
+
+  if (attrib != termstate->attrib)
+    {
+      /* Send the ioctl to set the attributes */
+
+      term_attrib = 0;
+      if (attrib & A_BOLD)
+        {
+          term_attrib |= TCURS_ATTRIB_BOLD;
+        }
+
+      if (attrib & A_BLINK)
+        {
+          term_attrib |= TCURS_ATTRIB_BLINK;
+        }
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+      if (attrib & A_UNDERLINE)
+        {
+          term_attrib |= TCURS_ATTRIB_UNDERLINE;
+        }
+
+      if (attrib & A_INVIS)
+        {
+          term_attrib |= TCURS_ATTRIB_INVIS;
+        }
+
+      termcurses_setattribute(termstate->tcurs, term_attrib);
+#endif
+
+      termstate->attrib = attrib;
+    }
+
+  /* Get the character colors */
+
+  PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
+
+ /* Handle the A_REVERSE attribute. */
+
+ if ((ch & A_REVERSE) != 0)
+   {
+     /* Swap the foreground and background colors if reversed */
+
+     short tmp = fg;
+     fg = bg;
+     bg = tmp;
+   }
+
+  /* Set the color */
+
+  colors.color_mask = 0;
+
+#ifdef PDCURSES_MONOCHROME
+  if (fg != termstate->fg)
+    {
+      colors.fg_red      = termstate->graylevel[fg];
+      colors.fg_green    = termstate->graylevel[fg];
+      colors.fg_blue     = termstate->graylevel[fg];
+      colors.color_mask |= TCURS_COLOR_FG;
+    }
+
+  if (bg != termstate->bg)
+    {
+      colors.bg_red      = termstate->graylevel[bg];
+      colors.bg_green    = termstate->graylevel[bg];
+      colors.bg_blue     = termstate->graylevel[bg];
+      colors.color_mask |= TCURS_COLOR_BG;
+    }
+#else
+  if (termstate->rgbcolor[fg].red   != termstate->fg_red ||
+      termstate->rgbcolor[fg].green != termstate->fg_green ||
+      termstate->rgbcolor[fg].blue  != termstate->fg_blue)
+    {
+      colors.fg_red      = termstate->rgbcolor[fg].red;
+      colors.fg_green    = termstate->rgbcolor[fg].green;
+      colors.fg_blue     = termstate->rgbcolor[fg].blue;
+      colors.color_mask |= TCURS_COLOR_FG;
+    }
+
+  if (termstate->rgbcolor[bg].red   != termstate->bg_red ||
+      termstate->rgbcolor[bg].green != termstate->bg_green ||
+      termstate->rgbcolor[bg].blue  != termstate->bg_blue)
+    {
+      colors.bg_red      = termstate->rgbcolor[bg].red;
+      colors.bg_green    = termstate->rgbcolor[bg].green;
+      colors.bg_blue     = termstate->rgbcolor[bg].blue;
+      colors.color_mask |= TCURS_COLOR_BG;
+    }
+#endif
+
+  if (colors.color_mask)
+    {
+      /* Set selected colors with the terminal emulation */
+
+      termcurses_setcolors(termstate->tcurs, &colors);
+
+      /* Save a reference to the last colors sent */
+
+      termstate->fg_red   = termstate->rgbcolor[fg].red;
+      termstate->fg_green = termstate->rgbcolor[fg].green;
+      termstate->fg_blue  = termstate->rgbcolor[fg].blue;
+      termstate->bg_red   = termstate->rgbcolor[bg].red;
+      termstate->bg_green = termstate->rgbcolor[bg].green;
+      termstate->bg_blue  = termstate->rgbcolor[bg].blue;
+    }
+
+}
+#endif   /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
+ * Name: PDC_transform_line_term
+ *
+ * Description:
+ *   The core output routine.  It takes len chtype entities from srcp (a
+ *   pointer into curscr) and renders them to the physical screen at line
+ *   lineno, column x.  It must also translate characters 0-127 via acs_map[],
+ *   if they're flagged with A_ALTCHARSET in the attribute portion of the
+ *   chtype.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
+                                    int len, FAR const chtype *srcp)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termstate_s *termstate = &termscreen->termstate;
+  int   c;
+  int   i;
+  char  ch;
+  char  buffer[128];
+
+  /* Move to the specified line / col */
+
+  PDC_gotoyx_term(sp, lineno, x);
+
+  /* Loop through all characters to be displayed */
+
+  for (c = 0; c < len;)
+    {
+      /* Get the foreground and background colors of the character */
+
+      PDC_set_char_attrib_term(termscreen, *srcp);
+
+      /* Write next character(s) */
+
+      ch = *srcp;
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+      /* Translate characters 0-127 via acs_map[], if they're flagged with
+       * A_ALTCHARSET in the attribute portion of the chtype.
+       */
+
+      if (*srcp & A_ALTCHARSET && !(*srcp & 0xff80))
+        {
+          ch = acs_map[(*srcp) & 0x7f];
+        }
+      else
+        {
+          ch = *srcp & 0x7F;
+        }
+#else
+      ch = *srcp & 0x7F;
+#endif
+
+      buffer[0] = ch;
+
+      for (i = 1; i < sizeof(buffer) && c+i < len; i++)
+        {
+          /* Break if the attributes change */
+
+          if ((*(srcp + i) & A_ATTRIBUTES) != (*srcp & A_ATTRIBUTES))
+            {
+              break;
+            }
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+          /* Translate characters 0-127 via acs_map[], if they're flagged with
+           * A_ALTCHARSET in the attribute portion of the chtype.
+           */
+
+          if (*(srcp + i) & A_ALTCHARSET && !(*(srcp + i) & 0xff80))
+            {
+              ch = acs_map[(*(srcp+i)) & 0x7f];
+            }
+          else
+            {
+              ch = *(srcp + i) & 0x7F;
+            }
+#else
+          ch = *(srcp + i) & 0x7F;
+#endif
+
+          buffer[i] = ch;
+        }
+
+      /* Update source pointer and write data */
+
+      srcp += i;
+      c += i;
+      write(termstate->out_fd, buffer, i);
+    }
+}
+#endif   /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -665,6 +926,9 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
 
 void PDC_gotoyx(int row, int col)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
   int oldrow;
@@ -672,6 +936,14 @@ void PDC_gotoyx(int row, int col)
   chtype ch;
 
   PDC_LOG(("PDC_gotoyx() - called: row %d col %d\n", row, col));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      PDC_gotoyx_term(SP, row, col);
+      return;
+    }
+#endif
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;
@@ -710,6 +982,9 @@ void PDC_gotoyx(int row, int col)
 
 void PDC_transform_line(int lineno, int x, int len, const chtype *srcp)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
   int nextx;
@@ -717,6 +992,16 @@ void PDC_transform_line(int lineno, int x, int len, const chtype *srcp)
 
   PDC_LOG(("PDC_transform_line() - called: lineno=%d x=%d len=%d\n",
            lineno, x, len));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      /* User terminal transformation routine */
+
+      PDC_transform_line_term(SP, lineno, x, len, srcp);
+      return;
+    }
+#endif
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;

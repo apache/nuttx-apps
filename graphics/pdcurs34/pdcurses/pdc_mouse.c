@@ -192,7 +192,9 @@
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 static bool ungot = false;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -200,6 +202,9 @@ static bool ungot = false;
 
 int mouse_set(unsigned long mbe)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mouse_set() - called: event %x\n", mbe));
 
   SP->_trap_mbe = mbe;
@@ -208,6 +213,9 @@ int mouse_set(unsigned long mbe)
 
 int mouse_on(unsigned long mbe)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mouse_on() - called: event %x\n", mbe));
 
   SP->_trap_mbe |= mbe;
@@ -216,6 +224,9 @@ int mouse_on(unsigned long mbe)
 
 int mouse_off(unsigned long mbe)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mouse_off() - called: event %x\n", mbe));
 
   SP->_trap_mbe &= ~mbe;
@@ -224,6 +235,9 @@ int mouse_off(unsigned long mbe)
 
 int map_button(unsigned long button)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("map_button() - called: button %x\n", button));
 
   /* This does nothing at the moment */
@@ -234,6 +248,9 @@ int map_button(unsigned long button)
 
 int request_mouse_pos(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("request_mouse_pos() - called\n"));
 
   Mouse_status = pdc_mouse_status;
@@ -242,6 +259,9 @@ int request_mouse_pos(void)
 
 void wmouse_position(WINDOW *win, int *y, int *x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("wmouse_position() - called\n"));
 
   if (win && wenclose(win, MOUSE_Y_POS, MOUSE_X_POS))
@@ -272,6 +292,9 @@ void wmouse_position(WINDOW *win, int *y, int *x)
 
 unsigned long getmouse(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("getmouse() - called\n"));
 
   return SP->_trap_mbe;
@@ -279,6 +302,9 @@ unsigned long getmouse(void)
 
 unsigned long getbmap(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("getbmap() - called\n"));
 
   return SP->_map_mbe_to_key;
@@ -288,6 +314,9 @@ unsigned long getbmap(void)
 
 int mouseinterval(int wait)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   int old_wait;
 
   PDC_LOG(("mouseinterval() - called: %d\n", wait));
@@ -355,6 +384,9 @@ bool wmouse_trafo(const WINDOW *win, int *y, int *x, bool to_screen)
 
 bool mouse_trafo(int *y, int *x, bool to_screen)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mouse_trafo() - called\n"));
 
   return wmouse_trafo(stdscr, y, x, to_screen);
@@ -362,6 +394,9 @@ bool mouse_trafo(int *y, int *x, bool to_screen)
 
 mmask_t mousemask(mmask_t mask, mmask_t * oldmask)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mousemask() - called\n"));
 
   if (oldmask)
@@ -380,6 +415,9 @@ mmask_t mousemask(mmask_t mask, mmask_t * oldmask)
 int nc_getmouse(MEVENT * event)
 {
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   mmask_t bstate = 0;
 
   PDC_LOG(("nc_getmouse() - called\n"));
@@ -461,6 +499,9 @@ int ungetmouse(MEVENT * event)
 {
   int i;
   unsigned long bstate;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("ungetmouse() - called\n"));
 

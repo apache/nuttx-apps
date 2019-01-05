@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nuttx/pdcsetsc.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,47 @@
 #include <string.h>
 
 #include "pdcnuttx.h"
+#ifdef CONFIG_SYSTEM_TERMCURSES
+#include <system/termcurses.h>
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: PDC_curs_set_term
+ *
+ * Description:
+ *   Called from curs_set(). Changes the appearance of the cursor -- 0 turns
+ *   it off, 1 is normal (the terminal's default, if applicable, as
+ *   determined by SP->orig_cursor), and 2 is high visibility. The exact
+ *   appearance of these modes is not specified.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_curs_set_term(int visibility)
+{
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)SP;
+  FAR struct pdc_termstate_s  *termstate = &termscreen->termstate;
+  unsigned long attrib;
+
+  if (visibility)
+    {
+      attrib = TCURS_ATTRIB_CURS_SHOW;
+    }
+  else
+    {
+      attrib = TCURS_ATTRIB_CURS_HIDE;
+    }
+
+  termcurses_setattribute(termstate->tcurs, attrib);
+}
+#endif   /* CONFIG_SYSTEM_TERMCURSES */
 
 /****************************************************************************
  * Public Functions
@@ -58,6 +99,9 @@
 
 int PDC_curs_set(int visibility)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   int ret;
 
   PDC_LOG(("PDC_curs_set() - called: visibility=%d\n", visibility));
@@ -78,6 +122,13 @@ int PDC_curs_set(int visibility)
     }
 
   SP->visibility = visibility;
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      PDC_curs_set_term(visibility);
+    }
+#endif
 
   /* Redraw the cursor of the visiblity has change.  For our purses 1 and 2
    * are currently treated the same.
@@ -122,6 +173,9 @@ void PDC_set_title(const char *title)
 
 int PDC_set_blink(bool blinkon)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   COLORS = 16;
   return blinkon ? ERR : OK;
 }

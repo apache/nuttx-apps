@@ -107,6 +107,9 @@ int winsch(WINDOW *win, chtype ch)
   bool xlat;
   int x;
   int y;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("winsch() - called: win=%p ch=%x (text=%c attr=0x%x)\n",
            win, ch, ch & A_CHARTEXT, ch & A_ATTRIBUTES));
@@ -227,6 +230,9 @@ int winsch(WINDOW *win, chtype ch)
 
 int insch(chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insch() - called\n"));
 
   return winsch(stdscr, ch);
@@ -234,6 +240,9 @@ int insch(chtype ch)
 
 int mvinsch(int y, int x, chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsch() - called\n"));
 
   if (move(y, x) == ERR)
@@ -272,6 +281,9 @@ int winsrawch(WINDOW *win, chtype ch)
 
 int insrawch(chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insrawch() - called\n"));
 
   return winsrawch(stdscr, ch);
@@ -279,6 +291,9 @@ int insrawch(chtype ch)
 
 int mvinsrawch(int y, int x, chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsrawch() - called\n"));
 
   if (move(y, x) == ERR)
@@ -311,6 +326,9 @@ int wins_wch(WINDOW *win, const cchar_t *wch)
 
 int ins_wch(const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("ins_wch() - called\n"));
 
   return wins_wch(stdscr, wch);
@@ -318,6 +336,9 @@ int ins_wch(const cchar_t *wch)
 
 int mvins_wch(int y, int x, const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvins_wch() - called\n"));
 
   if (move(y, x) == ERR)

@@ -103,6 +103,9 @@ int wnoutrefresh(WINDOW *win)
   int begy;
   int i;
   int j;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("wnoutrefresh() - called: win=%p\n", win));
 
@@ -184,6 +187,9 @@ int doupdate(void)
 {
   int y;
   bool clearall;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("doupdate() - called\n"));
 
@@ -289,6 +295,9 @@ int doupdate(void)
 int wrefresh(WINDOW *win)
 {
   bool save_clear;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("wrefresh() - called\n"));
 
@@ -318,6 +327,9 @@ int wrefresh(WINDOW *win)
 
 int refresh(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("refresh() - called\n"));
 
   return wrefresh(stdscr);

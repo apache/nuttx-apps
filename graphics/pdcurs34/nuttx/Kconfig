@@ -187,5 +187,11 @@ config PDCURSES_MOUSE
 	select PDCURSES_HAVE_INPUT
 	depends on MOUSE && !DISABLE_POLL && EXPERIMENTAL
 
+config PDCURSES_TERMINPUT
+	bool "Terminal Input"
+	default y
+	select PDCURSES_HAVE_INPUT
+	depends on SYSTEM_TERMCURSES && !DISABLE_POLL
+
 endmenu # Input Devices
 

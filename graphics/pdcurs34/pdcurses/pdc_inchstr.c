@@ -127,6 +127,9 @@ int winchnstr(WINDOW *win, chtype *ch, int n)
 
 int inchstr(chtype *ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("inchstr() - called\n"));
 
   return winchnstr(stdscr, ch, stdscr->_maxx - stdscr->_curx);
@@ -141,6 +144,9 @@ int winchstr(WINDOW *win, chtype *ch)
 
 int mvinchstr(int y, int x, chtype *ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinchstr() - called: y %d x %d\n", y, x));
 
   if (move(y, x) == ERR)
@@ -165,6 +171,9 @@ int mvwinchstr(WINDOW *win, int y, int x, chtype *ch)
 
 int inchnstr(chtype *ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("inchnstr() - called\n"));
 
   return winchnstr(stdscr, ch, n);
@@ -172,6 +181,9 @@ int inchnstr(chtype *ch, int n)
 
 int mvinchnstr(int y, int x, chtype *ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (move(y, x) == ERR)
@@ -218,6 +230,9 @@ int win_wchstr(WINDOW *win, cchar_t *wch)
 
 int mvin_wchstr(int y, int x, cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvin_wchstr() - called: y %d x %d\n", y, x));
 
   if (move(y, x) == ERR)
@@ -242,6 +257,9 @@ int mvwin_wchstr(WINDOW *win, int y, int x, cchar_t *wch)
 
 int in_wchnstr(cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("in_wchnstr() - called\n"));
 
   return win_wchnstr(stdscr, wch, n);
@@ -249,6 +267,9 @@ int in_wchnstr(cchar_t *wch, int n)
 
 int mvin_wchnstr(int y, int x, cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvin_wchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (move(y, x) == ERR)

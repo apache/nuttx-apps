@@ -169,6 +169,9 @@ int getmaxx(WINDOW *win)
 
 int setsyx(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("setsyx() - called\n"));
 
   if (y == -1 && x == -1)

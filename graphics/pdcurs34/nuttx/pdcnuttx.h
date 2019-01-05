@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nuttx/pdcnuttx.h
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,9 @@
 #include <nuttx/video/rgbcolors.h>
 
 #include "curspriv.h"
+#ifdef CONFIG_SYSTEM_TERMCURSES
+#include <system/termcurses.h>
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -288,6 +291,53 @@ struct pdc_fbscreen_s
   SCREEN screen;
   struct pdc_fbstate_s fbstate;
 };
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+
+/* This structure provides the overall state of the termcurses device */
+
+struct pdc_termstate_s
+{
+  /* Terminal fd numbers (typcially 0 and 1) */
+
+  int    out_fd;
+  int    in_fd;
+
+  /* Colors */
+
+  short  fg_red;
+  short  fg_green;
+  short  fg_blue;
+  short  bg_red;
+  short  bg_green;
+  short  bg_blue;
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+  long   attrib;
+#else
+  short  attrib;
+#endif
+
+  struct pdc_colorpair_s colorpair[PDC_COLOR_PAIRS];
+#ifdef PDCURSES_MONOCHROME
+  uint8_t greylevel[16];
+#else
+  struct pdc_rgbcolor_s rgbcolor[16];
+#endif
+
+  FAR struct termcurses_s *tcurs;
+};
+
+/* This structure contains the termstate structure and is a cast
+ * compatible with type SCREEN.
+ */
+
+struct pdc_termscreen_s
+{
+  SCREEN screen;
+  struct pdc_termstate_s termstate;
+};
+#endif   /* CONFIG_SYSTEM_TERMCURSES */
 
 /****************************************************************************
  * Public Data

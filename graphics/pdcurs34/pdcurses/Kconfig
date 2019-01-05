@@ -24,3 +24,11 @@ config PDCURSES_DEBUG
 config PDCURSES_PANEL_DEBUG
 	bool "Enable special debug output for panels"
 	default n
+
+config PDCURSES_MULTITHREAD
+	bool "Enable code for running pdcurses from multiple threads (removes global variables)."
+	default n
+
+config PDCURSES_MULTITHREAD_HASH
+	bool "Use PID HASH lookup for thread specific pdcurses context data."
+	default n

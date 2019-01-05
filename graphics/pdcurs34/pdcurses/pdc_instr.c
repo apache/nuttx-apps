@@ -147,6 +147,9 @@ int winnstr(WINDOW *win, char *str, int n)
 
 int instr(char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("instr() - called: string=\"%s\"\n", str));
 
   return (ERR == winnstr(stdscr, str, stdscr->_maxx)) ? ERR : OK;
@@ -161,6 +164,9 @@ int winstr(WINDOW *win, char *str)
 
 int mvinstr(int y, int x, char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinstr() - called: y %d x %d \n", y, x));
 
   if (move(y, x) == ERR)
@@ -185,6 +191,9 @@ int mvwinstr(WINDOW *win, int y, int x, char *str)
 
 int innstr(char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("innstr() - called: n %d \n", n));
 
   return winnstr(stdscr, str, n);
@@ -192,6 +201,9 @@ int innstr(char *str, int n)
 
 int mvinnstr(int y, int x, char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinnstr() - called: y %d x %d n %d \n", y, x, n));
 
   if (move(y, x) == ERR)
@@ -245,6 +257,9 @@ int winnwstr(WINDOW *win, wchar_t *wstr, int n)
 
 int inwstr(wchar_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("inwstr() - called\n"));
 
   return (ERR == winnwstr(stdscr, wstr, stdscr->_maxx)) ? ERR : OK;
@@ -259,6 +274,9 @@ int winwstr(WINDOW *win, wchar_t *wstr)
 
 int mvinwstr(int y, int x, wchar_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinwstr() - called\n"));
 
   if (move(y, x) == ERR)
@@ -283,6 +301,9 @@ int mvwinwstr(WINDOW *win, int y, int x, wchar_t *wstr)
 
 int innwstr(wchar_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("innwstr() - called\n"));
 
   return winnwstr(stdscr, wstr, n);
@@ -290,6 +311,9 @@ int innwstr(wchar_t *wstr, int n)
 
 int mvinnwstr(int y, int x, wchar_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinnstr() - called\n"));
 
   if (move(y, x) == ERR)

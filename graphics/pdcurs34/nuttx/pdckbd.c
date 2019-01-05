@@ -37,7 +37,14 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/ioctl.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/select.h>
+#include <unistd.h>
 
 #include "pdcnuttx.h"
 
@@ -62,7 +69,9 @@
  *   PDC_KEY_MODIFIER_NUMLOCK;
  */
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 unsigned long pdc_key_modifiers;
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -127,6 +136,9 @@ bool PDC_check_key(void)
 
 #elif defined(CONFIG_PDCURSES_DJOYSTICK)
   {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+    FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
     FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
     FAR struct pdc_fbstate_s *fbstate;
     djoy_buttonset_t newset;
@@ -144,6 +156,35 @@ bool PDC_check_key(void)
     return (fbstate->djlast ^ newset) != 0;
   }
 
+#elif defined(CONFIG_PDCURSES_TERMINPUT)
+  {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+    FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+    FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *) SP;
+    FAR struct pdc_termstate_s  *termstate = &termscreen->termstate;
+    int ret;
+    fd_set rfds;
+    struct timeval tv;
+
+    /* Watch stdin (fd 0) to see when it has input. */
+
+    FD_ZERO(&rfds);
+    FD_SET(termstate->in_fd, &rfds);
+
+    /* Wait up to five seconds. */
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    ret = select(1, &rfds, NULL, NULL, &tv);
+    if (ret > 0)
+      {
+        return true;
+      }
+
+    return false;
+  }
 #else
   return false;
 #endif
@@ -184,6 +225,9 @@ int PDC_get_key(void)
 
 #elif defined(CONFIG_PDCURSES_DJOYSTICK)
   {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+    FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
     FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
     FAR struct pdc_fbstate_s *fbstate;
     djoy_buttonset_t sample;
@@ -246,6 +290,25 @@ int PDC_get_key(void)
     return ERR;
   }
 
+#elif defined(CONFIG_PDCURSES_TERMINPUT)
+  {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+    FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+    FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)SP;
+    FAR struct pdc_termstate_s  *termstate = &termscreen->termstate;
+    int specialkey;
+    int keymodifiers;
+    int keycode;
+
+    /* Call termcurses library routine to get keycode */
+
+    keycode = termcurses_getkeycode(termstate->tcurs, &specialkey, &keymodifiers);
+    SP->key_code = specialkey;
+    pdc_key_modifiers = keymodifiers;
+
+    return keycode;
+  }
 #else
   return false;
 #endif
@@ -263,13 +326,21 @@ int PDC_get_key(void)
 unsigned long PDC_get_input_fd(void)
 {
 #ifdef CONFIG_PDCURSES_HAVE_INPUT
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+#ifdef CONFIG_PDCURSES_DJOYSTICK
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
+#endif
 
-  PDC_LOG(("PDC_get_input_fd() - called\n"));
-
-  DEBUGASSERT(fbscreen != NULL);
-  fbstate = &fbscreen->fbstate;
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)SP;
+      return termscreen->termstate.in_fd;
+    }
+#endif
 
 #if defined(CONFIG_PDCURSES_KEYBOARD)
 #  warning Missing logic
@@ -279,9 +350,16 @@ unsigned long PDC_get_input_fd(void)
 #  warning Missing logic
   return -1;
 
-#else /* if defined(CONFIG_PDCURSES_DJOYSTICK) */
+#elif defined(CONFIG_PDCURSES_DJOYSTICK)
+  PDC_LOG(("PDC_get_input_fd() - called\n"));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
   return fbstate->djfd;
 
+#else
+  return -1;
 #endif
 #else
   PDC_LOG(("PDC_get_input_fd() - called:  No input device\n"));

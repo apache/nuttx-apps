@@ -138,6 +138,9 @@ int wgetnstr(WINDOW *win, char *str, int n)
   bool oldecho;
   bool oldcbreak;
   bool oldnodelay;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("wgetnstr() - called\n"));
 
@@ -302,6 +305,9 @@ int wgetnstr(WINDOW *win, char *str, int n)
 
 int getstr(char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("getstr() - called\n"));
 
   return wgetnstr(stdscr, str, MAXLINE);
@@ -316,6 +322,9 @@ int wgetstr(WINDOW *win, char *str)
 
 int mvgetstr(int y, int x, char *str)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvgetstr() - called\n"));
 
   if (move(y, x) == ERR)
@@ -340,6 +349,9 @@ int mvwgetstr(WINDOW *win, int y, int x, char *str)
 
 int getnstr(char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("getnstr() - called\n"));
 
   return wgetnstr(stdscr, str, n);
@@ -347,6 +359,9 @@ int getnstr(char *str, int n)
 
 int mvgetnstr(int y, int x, char *str, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvgetnstr() - called\n"));
 
   if (move(y, x) == ERR)
@@ -382,6 +397,9 @@ int wgetn_wstr(WINDOW *win, wint_t *wstr, int n)
   bool oldecho;
   bool oldcbreak;
   bool oldnodelay;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("wgetn_wstr() - called\n"));
 
@@ -543,6 +561,9 @@ int wgetn_wstr(WINDOW *win, wint_t *wstr, int n)
 
 int get_wstr(wint_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("get_wstr() - called\n"));
 
   return wgetn_wstr(stdscr, wstr, MAXLINE);
@@ -557,6 +578,9 @@ int wget_wstr(WINDOW *win, wint_t *wstr)
 
 int mvget_wstr(int y, int x, wint_t *wstr)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvget_wstr() - called\n"));
 
   if (move(y, x) == ERR)
@@ -581,6 +605,9 @@ int mvwget_wstr(WINDOW *win, int y, int x, wint_t *wstr)
 
 int getn_wstr(wint_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("getn_wstr() - called\n"));
 
   return wgetn_wstr(stdscr, wstr, n);
@@ -588,6 +615,9 @@ int getn_wstr(wint_t *wstr, int n)
 
 int mvgetn_wstr(int y, int x, wint_t *wstr, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvgetn_wstr() - called\n"));
 
   if (move(y, x) == ERR)

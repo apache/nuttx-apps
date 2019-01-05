@@ -1,13 +1,14 @@
 /****************************************************************************
  * apps/graphics/pdcurses/term.h
  * Public Domain Curses
+ *
  * PDCurses doesn't operate with terminfo, but we need these functions for
  * compatibility, to allow some things (notably, interface libraries for
  * other languages) to be compiled. Anyone who tries to actually _use_
  * them will be disappointed, since they only return ERR.
  * $Id: term.h,v 1.16 2008/07/13 16:08:16 wmcbrine Exp $
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Adapted by: Gregory Nutt <gnutt@nuttx.org>
  *
  * Adapted from the original public domain pdcurses by Gregory Nutt and
@@ -65,19 +66,22 @@ extern "C"
 
 typedef struct
 {
-  const char *_termname;
+  FAR const char *_termname;
 } TERMINAL;
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 EXTERN TERMINAL *cur_term;
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
+FAR void *pdc_alloc_terminal_ctx(void);
 int     del_curterm(TERMINAL *);
 int     putp(const char *);
 int     restartterm(const char *, int, int *);

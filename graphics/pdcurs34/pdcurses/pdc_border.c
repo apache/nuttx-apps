@@ -237,6 +237,9 @@ int wborder(WINDOW *win, chtype ls, chtype rs, chtype ts, chtype bs,
 int border(chtype ls, chtype rs, chtype ts, chtype bs, chtype tl,
            chtype tr, chtype bl, chtype br)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("border() - called\n"));
 
   return wborder(stdscr, ls, rs, ts, bs, tl, tr, bl, br);
@@ -290,6 +293,9 @@ int whline(WINDOW *win, chtype ch, int n)
 
 int hline(chtype ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("hline() - called\n"));
 
   return whline(stdscr, ch, n);
@@ -297,6 +303,9 @@ int hline(chtype ch, int n)
 
 int mvhline(int y, int x, chtype ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvhline() - called\n"));
 
   if (move(y, x) == ERR)
@@ -358,6 +367,9 @@ int wvline(WINDOW *win, chtype ch, int n)
 
 int vline(chtype ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("vline() - called\n"));
 
   return wvline(stdscr, ch, n);
@@ -365,6 +377,9 @@ int vline(chtype ch, int n)
 
 int mvvline(int y, int x, chtype ch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvvline() - called\n"));
 
   if (move(y, x) == ERR)
@@ -403,6 +418,9 @@ int border_set(const cchar_t *ls, const cchar_t *rs, const cchar_t *ts,
                const cchar_t *bs, const cchar_t *tl, const cchar_t *tr,
                const cchar_t *bl, const cchar_t *br)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("border_set() - called\n"));
 
   return wborder_set(stdscr, ls, rs, ts, bs, tl, tr, bl, br);
@@ -426,6 +444,9 @@ int whline_set(WINDOW *win, const cchar_t *wch, int n)
 
 int hline_set(const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("hline_set() - called\n"));
 
   return whline_set(stdscr, wch, n);
@@ -433,6 +454,9 @@ int hline_set(const cchar_t *wch, int n)
 
 int mvhline_set(int y, int x, const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvhline_set() - called\n"));
 
   if (move(y, x) == ERR)
@@ -464,6 +488,9 @@ int wvline_set(WINDOW *win, const cchar_t *wch, int n)
 
 int vline_set(const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("vline_set() - called\n"));
 
   return wvline_set(stdscr, wch, n);
@@ -471,6 +498,9 @@ int vline_set(const cchar_t *wch, int n)
 
 int mvvline_set(int y, int x, const cchar_t *wch, int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvvline_set() - called\n"));
 
   if (move(y, x) == ERR)

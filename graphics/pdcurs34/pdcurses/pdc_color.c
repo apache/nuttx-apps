@@ -135,10 +135,12 @@
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 int COLORS = 0;
 int COLOR_PAIRS = PDC_COLOR_PAIRS;
 
 bool pdc_color_started = false;
+#endif
 
 /****************************************************************************
  * Private Data
@@ -146,9 +148,11 @@ bool pdc_color_started = false;
 
 /* pair_set[] tracks whether a pair has been set via init_pair() */
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 static bool pair_set[PDC_COLOR_PAIRS];
 static bool default_colors = false;
 static short first_col = 0;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -156,6 +160,9 @@ static short first_col = 0;
 
 int start_color(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("start_color() - called\n"));
 
   if (SP->mono)
@@ -184,6 +191,10 @@ int start_color(void)
 
 static void _normalize(short *fg, short *bg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   if (*fg == -1)
     {
       *fg = SP->orig_attr ? SP->orig_fore : COLOR_WHITE;
@@ -197,6 +208,9 @@ static void _normalize(short *fg, short *bg)
 
 int init_pair(short pair, short fg, short bg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("init_pair() - called: pair %d fg %d bg %d\n", pair, fg, bg));
 
   if (!pdc_color_started || pair < 1 || pair >= COLOR_PAIRS ||
@@ -230,6 +244,9 @@ int init_pair(short pair, short fg, short bg)
 
 bool has_colors(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("has_colors() - called\n"));
 
   return !(SP->mono);
@@ -237,6 +254,9 @@ bool has_colors(void)
 
 int init_color(short color, short red, short green, short blue)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("init_color() - called\n"));
 
   if (color < 0 || color >= COLORS || !PDC_can_change_color() ||
@@ -251,6 +271,9 @@ int init_color(short color, short red, short green, short blue)
 
 int color_content(short color, short *red, short *green, short *blue)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("color_content() - called\n"));
 
   if (color < 0 || color >= COLORS || !red || !green || !blue)
@@ -285,6 +308,9 @@ bool can_change_color(void)
 
 int pair_content(short pair, short *fg, short *bg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("pair_content() - called\n"));
 
   if (pair < 0 || pair >= COLOR_PAIRS || !fg || !bg)
@@ -297,6 +323,9 @@ int pair_content(short pair, short *fg, short *bg)
 
 int assume_default_colors(int f, int b)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("assume_default_colors() - called: f %d b %d\n", f, b));
 
   if (f < -1 || f >= COLORS || b < -1 || b >= COLORS)
@@ -328,6 +357,9 @@ int assume_default_colors(int f, int b)
 
 int use_default_colors(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("use_default_colors() - called\n"));
 
   default_colors = true;
@@ -338,6 +370,9 @@ int use_default_colors(void)
 
 int PDC_set_line_color(short color)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("PDC_set_line_color() - called: %d\n", color));
 
   if (color < -1 || color >= COLORS)
@@ -354,6 +389,9 @@ void PDC_init_atrtab(void)
   int i;
   short fg;
   short bg;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (pdc_color_started && !default_colors)
     {

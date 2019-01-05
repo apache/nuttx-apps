@@ -157,6 +157,9 @@ int leaveok(WINDOW *win, bool bf)
 
 int setscrreg(int top, int bottom)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("setscrreg() - called: top %d bottom %d\n", top, bottom));
 
   return wsetscrreg(stdscr, top, bottom);
@@ -195,6 +198,9 @@ int scrollok(WINDOW *win, bool bf)
 
 int raw_output(bool bf)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("raw_output() - called\n"));
 
   SP->raw_out = bf;

@@ -45,8 +45,286 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
+#include <string.h>
 
+#include <graphics/curses.h>
 #include "pdcnuttx.h"
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+#ifndef CONFIG_PDCURSES_MULTITHREAD
+bool graphic_screen = false;
+#endif
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: PDC_scr_free_term
+ *
+ * Description:
+ *   Frees the memory for SP allocated by PDC_scr_open(). Called by
+ *   delscreen().
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_scr_free_term(FAR SCREEN *sp)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termstate_s  *termstate = &termscreen->termstate;
+
+  /* Deinitialize termcurses */
+
+  termcurses_deinitterm(termstate->tcurs);
+
+  /* Free the memory */
+
+  free(termscreen);
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  PDC_ctx_free();
+#endif
+}
+#endif
+
+/****************************************************************************
+ * Name: PDC_scr_open_term
+ *
+ * Description:
+ *   The platform-specific part of initscr().  It's actually called from
+ *   Xinitscr(); the arguments, if present, correspond to those used with
+ *   main(), and may be used to set the title of the terminal window, or for
+ *   other, platform-specific purposes.  This opens a terminal type screen
+ *   backed by the NuttX termcurses interface.)  PDC_scr_open() must allocate
+ *   memory for SP, and must initialize acs_map[] (unless it's preset) and
+ *   several members of SP, *   including lines, cols, mouse_wait, orig_attr
+ *   (and if orig_attr is true, orig_fore and orig_back), mono, _restore and
+ *   _preserve.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static int PDC_scr_open_term(int argc, char **argv)
+{
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+  int             ret;
+  int             i;
+  struct winsize  winsz;
+  FAR struct pdc_termscreen_s *termscreen;
+  FAR struct pdc_termstate_s  *termstate;
+  FAR char *term_type;
+
+  /* Determine the terminal type */
+
+  if (argc > 1)
+    {
+      term_type = argv[1];
+    }
+  else
+    {
+      term_type = NULL;
+    }
+
+  /* Allocate the SP */
+
+  termscreen = (FAR struct pdc_termscreen_s *)
+    zalloc(sizeof(struct pdc_termscreen_s));
+
+  if (termscreen == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to allocate SP\n"));
+      return ERR;
+    }
+
+  termstate = &termscreen->termstate;
+
+  /* Try to initialize termcurses on stdout */
+
+  ret = termcurses_initterm(term_type, 0, 1, &termstate->tcurs);
+  if (ret != OK)
+    {
+      PDC_LOG(("ERROR: Failed to initialize termcurses based SP\n"));
+      free(termscreen);
+      return ERR;
+    }
+
+  /* Try to get the terminal size in rows / cols */
+
+  ret = termcurses_getwinsize(termstate->tcurs, &winsz);
+  if (ret != OK)
+    {
+      PDC_LOG(("ERROR: Terminal termcurses driver doesn't support size reporting\n"));
+      free(termscreen);
+      return ERR;
+    }
+
+  graphic_screen               = false;
+  SP                           = &termscreen->screen;
+  SP->lines                    = winsz.ws_row;
+  SP->cols                     = winsz.ws_col;
+  termscreen->termstate.out_fd = 1;
+  termscreen->termstate.in_fd  = 0;
+  termscreen->termstate.fg_red = 0xFFFE;
+  termscreen->termstate.bg_red = 0xFFFE;
+  termstate                    = &termscreen->termstate;
+
+  /* Setup initial RGB colors */
+
+  for (i = 0; i < 8; i++)
+    {
+#ifdef PDCURSES_MONOCHROME
+      uint8_t greylevel;
+
+      greylevel                        = (i & COLOR_RED)   ? 0x40 : 0;
+      greylevel                       += (i & COLOR_GREEN) ? 0x40 : 0;
+      greylevel                       += (i & COLOR_BLUE)  ? 0x40 : 0;
+
+      termstate->greylevel[i]          = greylevel;
+      termstate->greylevel[i+8]        = greylevel | 0x3f;
+#else
+      termstate->rgbcolor[i].red       = (i & COLOR_RED)   ? 0xc0 : 0;
+      termstate->rgbcolor[i].green     = (i & COLOR_GREEN) ? 0xc0 : 0;
+      termstate->rgbcolor[i].blue      = (i & COLOR_BLUE)  ? 0xc0 : 0;
+
+      termstate->rgbcolor[i + 8].red   = (i & COLOR_RED)   ? 0xff : 0x40;
+      termstate->rgbcolor[i + 8].green = (i & COLOR_GREEN) ? 0xff : 0x40;
+      termstate->rgbcolor[i + 8].blue  = (i & COLOR_BLUE)  ? 0xff : 0x40;
+#endif
+    }
+
+  COLORS = 16;
+
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+  ret = PDC_input_open(NULL);
+  if (ret != OK)
+    {
+      /* Free the memory ... can't open input */
+
+      PDC_ctx_free();
+      free(termscreen);
+    }
+#endif
+
+  return ret;
+}
+#endif /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
+ * Name: PDC_init_pair_term
+ *
+ * Description:
+ *   The core of init_pair().  This does all the work of that function, except
+ *   checking for values out of range.  The values passed to this function
+ *   should be returned by a call to PDC_pair_content() with the same pair
+ *   number.  PDC_transform_line() should use the specified colors when
+ *   rendering a chtype with the given pair number.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static void PDC_init_pair_term(FAR SCREEN *sp, short pair, short fg, short bg)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+
+  termscreen->termstate.colorpair[pair].fg = fg;
+  termscreen->termstate.colorpair[pair].bg = bg;
+}
+#endif /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
+ * Name: PDC_init_color
+ *
+ * Description:
+ *   The core of init_color().  This does all the work of that function,
+ *   except checking for values out of range.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+int PDC_init_color_term(FAR SCREEN *sp, short color, short red, short green,
+                        short blue)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termstate_s  *termstate;
+
+  DEBUGASSERT(termscreen != NULL);
+  termstate = &termscreen->termstate;
+
+#ifdef PDCURSES_MONOCHROME
+  greylevel                        = (DIVROUND(red * 255, 1000) +
+                                      DIVROUND(green * 255, 1000) +
+                                      DIVROUND(blue * 255, 1000)) / 3;
+  termstate->greylevel[color]      = (uint8_t)greylevel;
+#else
+  termstate->rgbcolor[color].red   = DIVROUND(red * 255, 1000);
+  termstate->rgbcolor[color].green = DIVROUND(green * 255, 1000);
+  termstate->rgbcolor[color].blue  = DIVROUND(blue * 255, 1000);
+#endif
+
+  return OK;
+}
+#endif   /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
+ * Name: PDC_color_content_term
+ *
+ * Description:
+ *   The core of color_content().  This does all the work of that function,
+ *   except checking for values out of range and null pointers.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+int PDC_color_content_term(FAR SCREEN *sp, short color,
+                           FAR short *red, FAR short *green, FAR short *blue)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termstate_s  *termstate;
+
+  DEBUGASSERT(termscreen != NULL);
+  termstate = &termscreen->termstate;
+
+#ifdef PDCURSES_MONOCHROME
+  greylevel = DIVROUND(termstate->greylevel[color] * 1000, 255);
+  *red      = greylevel;
+  *green    = greylevel;
+  *blue     = greylevel;
+#else
+  *red      = DIVROUND(termstate->rgbcolor[color].red * 1000, 255);
+  *green    = DIVROUND(termstate->rgbcolor[color].green * 1000, 255);
+  *blue     = DIVROUND(termstate->rgbcolor[color].blue * 1000, 255);
+#endif
+
+  return OK;
+}
+#endif /* CONFIG_SYSTEM_TERMCURSES */
+
+/****************************************************************************
+ * Name: PDC_pair_content_term
+ *
+ * Description:
+ *   The core of pair_content().  This does all the work of that function,
+ *   except checking for values out of range and null pointers.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+static int PDC_pair_content_term(FAR SCREEN *sp, short pair, short *fg, short *bg)
+{
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+
+  *fg = termscreen->termstate.colorpair[pair].fg;
+  *bg = termscreen->termstate.colorpair[pair].bg;
+  return OK;
+}
+#endif /* CONFIG_SYSTEM_TERMCURSES */
 
 /****************************************************************************
  * Public Functions
@@ -66,7 +344,19 @@
 
 void PDC_scr_close(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("PDC_scr_close() - called\n"));
+
+  /* Ensure cursor is visible */
+
+  curs_set(1);
+  attrset(COLOR_PAIR(0));
+
+  /* Delete the screen */
+
+  delscreen(SP);
 }
 
 /****************************************************************************
@@ -80,8 +370,20 @@ void PDC_scr_close(void)
 
 void PDC_scr_free(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      PDC_scr_free_term(SP);
+      return;
+    }
+
+#endif
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;
@@ -92,6 +394,10 @@ void PDC_scr_free(void)
 #endif
   free(fbscreen);
   SP = NULL;
+
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  PDC_ctx_free();
+#endif
 }
 
 /****************************************************************************
@@ -116,6 +422,12 @@ void PDC_scr_free(void)
 
 int PDC_scr_open(int argc, char **argv)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  FAR char *env_display;
+#endif
   FAR struct pdc_fbscreen_s *fbscreen;
   FAR const struct nx_font_s *fontset;
   FAR struct pdc_fbstate_s *fbstate;
@@ -125,6 +437,21 @@ int PDC_scr_open(int argc, char **argv)
   int i;
 
   PDC_LOG(("PDC_scr_open() - called\n"));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  /* When termcurses is compiled in, we must allow opening terminal
+   * type screens also.  Check if the DISPLAY environment variable is
+   * set to ":0" indicating we should open the graphic screen.
+   */
+
+  env_display = getenv("DISPLAY");
+  if (!env_display || strcmp(env_display, ":0") != 0)
+    {
+      /* Perform terminal open operation */
+
+      return PDC_scr_open_term(argc, argv);
+    }
+#endif
 
   /* Allocate the global instance of SP */
 
@@ -137,6 +464,9 @@ int PDC_scr_open(int argc, char **argv)
 
   SP      = &fbscreen->screen;
   fbstate = &fbscreen->fbstate;
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  graphic_screen = true;
+#endif
 
   /* Number of RGB colors/greyscale levels.  This is the same as the
    * dimension of rgbcolor[] or greylevel[]).
@@ -456,10 +786,23 @@ void PDC_save_screen_mode(int i)
 
 void PDC_init_pair(short pair, short fg, short bg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
 
   PDC_LOG(("PDC_init_pair().  pair=%d, fg=%d, bg=%d\n", pair, fg, bg));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      /* Process as terminal mode screen */
+
+      PDC_init_pair_term(SP, pair, fg, bg);
+      return;
+    }
+#endif /* CONFIG_SYSTEM_TERMCURSES */
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;
@@ -479,10 +822,22 @@ void PDC_init_pair(short pair, short fg, short bg)
 
 int PDC_pair_content(short pair, short *fg, short *bg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
 
   PDC_LOG(("PDC_pair_content().  pair=%d\n", pair));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      /* Process as terminal mode screen */
+
+      return PDC_pair_content_term(SP, pair, fg, bg);
+    }
+#endif /* CONFIG_SYSTEM_TERMCURSES */
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;
@@ -517,6 +872,9 @@ bool PDC_can_change_color(void)
 
 int PDC_color_content(short color, short *red, short *green, short *blue)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
 #ifdef PDCURSES_MONOCHROME
@@ -524,6 +882,15 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
 #endif
 
   PDC_LOG(("PDC_init_color().  color=%d\n", color));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      /* Process as terminal mode screen */
+
+      return PDC_color_content_term(SP, color, red, green, blue);
+    }
+#endif
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;
@@ -553,6 +920,9 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
 
 int PDC_init_color(short color, short red, short green, short blue)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
 #ifdef PDCURSES_MONOCHROME
@@ -561,6 +931,15 @@ int PDC_init_color(short color, short red, short green, short blue)
 
   PDC_LOG(("PDC_init_color().  color=%d, red=%d, green=%d, blue=%d\n",
            color, red, green, blue));
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  if (!graphic_screen)
+    {
+      /* Process as terminal mode screen */
+
+      return PDC_init_color_term(SP, color, red, green, blue);
+    }
+#endif
 
   DEBUGASSERT(fbscreen != NULL);
   fbstate = &fbscreen->fbstate;

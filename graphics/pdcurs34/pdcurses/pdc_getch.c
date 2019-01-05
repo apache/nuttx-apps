@@ -122,17 +122,21 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 #define _INBUFSIZ   512         /* size of terminal input buffer */
 #define NUNGETCH    256         /* max # chars to ungetch() */
+#endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 static int c_pindex = 0;        /* putter index */
 static int c_gindex = 1;        /* getter index */
 static int c_ungind = 0;        /* ungetch() push index */
 static int c_ungch[NUNGETCH];   /* array of ungotten chars */
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -140,6 +144,9 @@ static int c_ungch[NUNGETCH];   /* array of ungotten chars */
 
 static int _mouse_key(WINDOW *win)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   unsigned long mbe = SP->_trap_mbe;
   int key = KEY_MOUSE;
   int i;
@@ -216,8 +223,13 @@ static int _mouse_key(WINDOW *win)
 
 int wgetch(WINDOW *win)
 {
+#ifndef CONFIG_PDCURSES_MULTITHREAD
   static int buffer[_INBUFSIZ]; /* character buffer */
+#endif
   int key, waitcount;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("wgetch() - called\n"));
 
@@ -271,7 +283,11 @@ int wgetch(WINDOW *win)
 
   if ((!SP->raw_inp && !SP->cbreak) && (c_gindex < c_pindex))
     {
+#ifndef CONFIG_PDCURSES_MULTITHREAD
       return buffer[c_gindex++];
+#else
+      return c_buffer[c_gindex++];
+#endif
     }
 
   /* prepare to buffer data */
@@ -370,20 +386,31 @@ int wgetch(WINDOW *win)
         }
       else if (c_pindex < _INBUFSIZ - 2)
         {
+#ifndef CONFIG_PDCURSES_MULTITHREAD
           buffer[c_pindex++] = key;
+#else
+          c_buffer[c_pindex++] = key;
+#endif
         }
 
       /* If we got a line */
 
       if (key == '\n' || key == '\r')
         {
+#ifndef CONFIG_PDCURSES_MULTITHREAD
           return buffer[c_gindex++];
+#else
+          return c_buffer[c_gindex++];
+#endif
         }
     }
 }
 
 int mvgetch(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvgetch() - called\n"));
 
   if (move(y, x) == ERR)
@@ -408,6 +435,9 @@ int mvwgetch(WINDOW *win, int y, int x)
 
 int PDC_ungetch(int ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("ungetch() - called\n"));
 
   if (c_ungind >= NUNGETCH)     /* Pushback stack full */
@@ -422,6 +452,9 @@ int PDC_ungetch(int ch)
 
 int flushinp(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("flushinp() - called\n"));
 
   PDC_flushinp();
@@ -435,6 +468,9 @@ int flushinp(void)
 
 unsigned long PDC_get_key_modifiers(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("PDC_get_key_modifiers() - called\n"));
 
   return pdc_key_modifiers;
@@ -442,6 +478,9 @@ unsigned long PDC_get_key_modifiers(void)
 
 int PDC_save_key_modifiers(bool flag)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("PDC_save_key_modifiers() - called\n"));
 
   SP->save_key_modifiers = flag;
@@ -450,6 +489,9 @@ int PDC_save_key_modifiers(bool flag)
 
 int PDC_return_key_modifiers(bool flag)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("PDC_return_key_modifiers() - called\n"));
 
   SP->return_key_modifiers = flag;
@@ -482,6 +524,9 @@ int wget_wch(WINDOW *win, wint_t *wch)
 
 int get_wch(wint_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("get_wch() - called\n"));
 
   return wget_wch(stdscr, wch);
@@ -489,6 +534,9 @@ int get_wch(wint_t *wch)
 
 int mvget_wch(int y, int x, wint_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvget_wch() - called\n"));
 
   if (move(y, x) == ERR)

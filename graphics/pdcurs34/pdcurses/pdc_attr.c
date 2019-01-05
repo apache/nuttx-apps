@@ -154,6 +154,9 @@ int wattroff(WINDOW *win, chtype attrs)
 
 int attroff(chtype attrs)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attroff() - called\n"));
 
   return wattroff(stdscr, attrs);
@@ -192,6 +195,9 @@ int wattron(WINDOW *win, chtype attrs)
 
 int attron(chtype attrs)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attron() - called\n"));
 
   return wattron(stdscr, attrs);
@@ -213,6 +219,9 @@ int wattrset(WINDOW *win, chtype attrs)
 
 int attrset(chtype attrs)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attrset() - called\n"));
 
   return wattrset(stdscr, attrs);
@@ -220,6 +229,9 @@ int attrset(chtype attrs)
 
 int standend(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("standend() - called\n"));
 
   return wattrset(stdscr, A_NORMAL);
@@ -227,6 +239,9 @@ int standend(void)
 
 int standout(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("standout() - called\n"));
 
   return wattrset(stdscr, A_STANDOUT);
@@ -267,6 +282,9 @@ int wcolor_set(WINDOW *win, short color_pair, void *opts)
 
 int color_set(short color_pair, void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("color_set() - called\n"));
 
   return wcolor_set(stdscr, color_pair, opts);
@@ -296,6 +314,9 @@ int wattr_get(WINDOW *win, attr_t *attrs, short *color_pair, void *opts)
 
 int attr_get(attr_t *attrs, short *color_pair, void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attr_get() - called\n"));
 
   return wattr_get(stdscr, attrs, color_pair, opts);
@@ -310,6 +331,9 @@ int wattr_off(WINDOW *win, attr_t attrs, void *opts)
 
 int attr_off(attr_t attrs, void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attr_off() - called\n"));
 
   return wattroff(stdscr, attrs);
@@ -324,6 +348,9 @@ int wattr_on(WINDOW *win, attr_t attrs, void *opts)
 
 int attr_on(attr_t attrs, void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attr_on() - called\n"));
 
   return wattron(stdscr, attrs);
@@ -345,6 +372,9 @@ int wattr_set(WINDOW *win, attr_t attrs, short color_pair, void *opts)
 
 int attr_set(attr_t attrs, short color_pair, void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("attr_get() - called\n"));
 
   return wattr_set(stdscr, attrs, color_pair, opts);
@@ -394,6 +424,9 @@ int wchgat(WINDOW *win, int n, attr_t attr, short color, const void *opts)
 
 int chgat(int n, attr_t attr, short color, const void *opts)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("chgat() - called\n"));
 
   return wchgat(stdscr, n, attr, color, opts);
@@ -402,6 +435,9 @@ int chgat(int n, attr_t attr, short color, const void *opts)
 int mvchgat(int y, int x, int n, attr_t attr, short color, const void *opts)
 {
   PDC_LOG(("mvchgat() - called\n"));
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (move(y, x) == ERR)
     {

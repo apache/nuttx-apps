@@ -3,7 +3,7 @@
  * Public Domain Curses
  * RCSID("$Id: initscr.c,v 1.114 2008/07/13 16:08:18 wmcbrine Exp $")
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Adapted by: Gregory Nutt <gnutt@nuttx.org>
  *
  * Adapted from the original public domain pdcurses by Gregory Nutt and
@@ -131,9 +131,11 @@
  * Public Data
  ****************************************************************************/
 
-char ttytype[128];
-
 const char *_curses_notice = "PDCurses 3.4 - Public Domain 2008";
+
+#ifndef CONFIG_PDCURSES_MULTITHREAD
+
+char ttytype[128];
 
 SCREEN *SP = (SCREEN *) NULL;   /* curses variables */
 WINDOW *curscr = (WINDOW *) NULL;       /* the current screen image */
@@ -149,6 +151,8 @@ MOUSE_STATUS Mouse_status, pdc_mouse_status;
 extern RIPPEDOFFLINE linesripped[5];
 extern char linesrippedoff;
 
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -156,6 +160,9 @@ extern char linesrippedoff;
 WINDOW *Xinitscr(int argc, char *argv[])
 {
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("Xinitscr() - called\n"));
 
@@ -167,7 +174,7 @@ WINDOW *Xinitscr(int argc, char *argv[])
   if (PDC_scr_open(argc, argv) == ERR)
     {
       fprintf(stderr, "initscr(): Unable to create SP\n");
-      exit(8);
+      return NULL;
     }
 
   SP->autocr               = true;   /* cr -> lf by default */
@@ -181,7 +188,7 @@ WINDOW *Xinitscr(int argc, char *argv[])
   SP->resized              = false;
   SP->_trap_mbe            = 0L;
   SP->_map_mbe_to_key      = 0L;
-  SP->linesrippedoff       = 0;
+  SP->linesrippedoffcnt    = 0;
   SP->linesrippedoffontop  = 0;
   SP->delaytenths          = 0;
   SP->line_color           = -1;
@@ -230,7 +237,7 @@ WINDOW *Xinitscr(int argc, char *argv[])
                                   SP->linesrippedoffontop++, 0), COLS);
         }
 
-      SP->linesrippedoff++;
+      SP->linesrippedoffcnt++;
       LINES--;
     }
 
@@ -284,6 +291,9 @@ WINDOW *initscr(void)
 
 int endwin(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("endwin() - called\n"));
 
   /* Allow temporary exit from curses using endwin() */
@@ -298,6 +308,9 @@ int endwin(void)
 
 bool isendwin(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("isendwin() - called\n"));
 
   return SP ? !(SP->alive) : false;
@@ -305,6 +318,9 @@ bool isendwin(void)
 
 SCREEN *newterm(const char *type, FILE *outfd, FILE *infd)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("newterm() - called\n"));
 
   return Xinitscr(0, NULL) ? SP : NULL;
@@ -312,6 +328,9 @@ SCREEN *newterm(const char *type, FILE *outfd, FILE *infd)
 
 SCREEN *set_term(SCREEN *new)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("set_term() - called\n"));
 
   /* We only support one screen */
@@ -321,6 +340,9 @@ SCREEN *set_term(SCREEN *new)
 
 void delscreen(SCREEN *sp)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("delscreen() - called\n"));
 
   if (sp != SP)
@@ -342,10 +364,20 @@ void delscreen(SCREEN *sp)
   PDC_scr_free();               /* Free SP and pdc_atrtab */
 
   SP = (SCREEN *)NULL;
+
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+
+  /* Free the context */
+
+  PDC_ctx_free();
+#endif
 }
 
 int resize_term(int nlines, int ncols)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("resize_term() - called: nlines %d\n", nlines));
 
   if (!stdscr || PDC_resize_screen(nlines, ncols) == ERR)
@@ -354,7 +386,7 @@ int resize_term(int nlines, int ncols)
     }
 
   SP->lines = PDC_get_rows();
-  LINES     = SP->lines - SP->linesrippedoff - SP->slklines;
+  LINES     = SP->lines - SP->linesrippedoffcnt - SP->slklines;
   SP->cols  = COLS = PDC_get_columns();
 
   if (wresize(curscr, SP->lines, SP->cols) == ERR ||
@@ -387,6 +419,9 @@ int resize_term(int nlines, int ncols)
 
 bool is_termresized(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("is_termresized() - called\n"));
 
   return SP->resized;

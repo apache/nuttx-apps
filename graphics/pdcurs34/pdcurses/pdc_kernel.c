@@ -135,18 +135,18 @@ enum
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 RIPPEDOFFLINE linesripped[5];
 char linesrippedoff = 0;
+#endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static struct cttyset
-{
-  bool been_set;
-  SCREEN saved;
-} ctty[3];
+#ifndef CONFIG_PDCURSES_MULTITHREAD
+static struct cttyset ctty[3];
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -154,6 +154,9 @@ static struct cttyset
 
 static void _save_mode(int i)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   ctty[i].been_set = true;
 
   memcpy(&(ctty[i].saved), SP, sizeof(SCREEN));
@@ -163,6 +166,9 @@ static void _save_mode(int i)
 
 static int _restore_mode(int i)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   if (ctty[i].been_set == true)
     {
       memcpy(SP, &(ctty[i].saved), sizeof(SCREEN));
@@ -238,6 +244,9 @@ int savetty(void)
 int curs_set(int visibility)
 {
   int ret_vis;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("curs_set() - called: visibility=%d\n", visibility));
 
@@ -274,6 +283,9 @@ int napms(int ms)
 
 int ripoffline(int line, int (*init) (WINDOW *, int))
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("ripoffline() - called: line=%d\n", line));
 
   if (linesrippedoff < 5 && line && init)

@@ -111,12 +111,14 @@
 
 /* Save values for pechochar() */
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 static int save_pminrow;
 static int save_pmincol;
 static int save_sminrow;
 static int save_smincol;
 static int save_smaxrow;
 static int save_smaxcol;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -125,6 +127,9 @@ static int save_smaxcol;
 WINDOW *newpad(int nlines, int ncols)
 {
   WINDOW *win;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("newpad() - called: lines=%d cols=%d\n", nlines, ncols));
 
@@ -155,6 +160,9 @@ WINDOW *subpad(WINDOW *orig, int nlines, int ncols, int begy, int begx)
   int i;
   int j = begy;
   int k = begx;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("subpad() - called: lines=%d cols=%d begy=%d begx=%d\n",
            nlines, ncols, begy, begx));
@@ -238,6 +246,9 @@ int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1, int sy2,
   int num_cols;
   int sline = sy1;
   int pline = py;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("pnoutrefresh() - called\n"));
 
@@ -322,6 +333,9 @@ int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1, int sy2,
 
 int pechochar(WINDOW *pad, chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("pechochar() - called\n"));
 
   if (waddch(pad, ch) == ERR)
@@ -336,6 +350,9 @@ int pechochar(WINDOW *pad, chtype ch)
 #ifdef CONFIG_PDCURSES_WIDE
 int pecho_wchar(WINDOW *pad, const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("pecho_wchar() - called\n"));
 
   if (!wch || (waddch(pad, *wch) == ERR))

@@ -176,6 +176,9 @@
 WINDOW *PDC_makenew(int nlines, int ncols, int begy, int begx)
 {
   WINDOW *win;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("PDC_makenew() - called: lines %d cols %d begy %d begx %d\n",
            nlines, ncols, begy, begx));
@@ -288,6 +291,9 @@ void PDC_sync(WINDOW *win)
 WINDOW *newwin(int nlines, int ncols, int begy, int begx)
 {
   WINDOW *win;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("newwin() - called:lines=%d cols=%d begy=%d begx=%d\n",
            nlines, ncols, begy, begx));
@@ -346,6 +352,9 @@ int delwin(WINDOW *win)
 
 int mvwin(WINDOW *win, int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvwin() - called\n"));
 
   if (!win || (y + win->_maxy > LINES || y < 0) ||
@@ -525,6 +534,9 @@ WINDOW *resize_window(WINDOW *win, int nlines, int ncols)
   int new_begx;
   int new_begy;
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("resize_window() - called: nlines %d ncols %d\n", nlines, ncols));
 

@@ -137,6 +137,9 @@ int wscrl(WINDOW *win, int n)
 
 int scrl(int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("scrl() - called\n"));
 
   return wscrl(stdscr, n);

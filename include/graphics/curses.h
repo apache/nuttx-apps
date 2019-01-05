@@ -55,6 +55,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#define PDC_RGB   1
+
 #ifdef CONFIG_PDCURSES_WIDE
 # include <wchar.h>
 #endif
@@ -75,6 +77,12 @@
 #endif
 #ifndef OK
 #  define OK 0
+#endif
+
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
+# define PDC_COLOR_PAIRS 256
+#else
+# define PDC_COLOR_PAIRS  32
 #endif
 
 #define BUTTON_RELEASED         0x0000
@@ -683,8 +691,33 @@
 #define KEY_SUP         0x223  /* Shifted up arrow */
 #define KEY_SDOWN       0x224  /* Shifted down arrow */
 
+#define ALT_PLUS        0x225  /* alt-+ key */
+#define ALT_PERIOD      0x226  /* alt-. key */
+#define ALT_QUESTION    0x227  /* alt-? key */
+#define ALT_LBRACE      0x228  /* alt-{ key */
+#define ALT_RBRACE      0x229  /* alt-} key */
+#define ALT_COLON       0x22a  /* alt-: key */
+#define ALT_TICK        0x22b  /* alt-' key */
+#define ALT_QUOTE       0x22c  /* alt-" key */
+#define ALT_LESS        0x22d  /* alt-< key */
+#define ALT_GREATER     0x22e  /* alt-> key */
+#define ALT_UNDERSCORE  0x22f  /* alt-_ key */
+#define ALT_VBAR        0x230  /* alt-| key */
+#define ALT_EXCL        0x231  /* alt-! key */
+#define ALT_AT          0x232  /* alt-@ key */
+#define ALT_POUND       0x233  /* alt-# key */
+#define ALT_DOLLAR      0x234  /* alt-$ key */
+#define ALT_PERCENT     0x235  /* alt-% key */
+#define ALT_CARET       0x236  /* alt-^ key */
+#define ALT_AMP         0x237  /* alt-& key */
+#define ALT_STAR        0x238  /* alt-* key */
+#define ALT_LPAREN      0x239  /* alt-( key */
+#define ALT_RPAREN      0x23a  /* alt-) key */
+
+#define ALT_SPACE       0x23b  /* alt-space key */
+
 #define KEY_MIN         KEY_BREAK  /* Minimum curses key value */
-#define KEY_MAX         KEY_SDOWN  /* Maximum curses key */
+#define KEY_MAX         ALT_SPACE  /* Maximum curses key */
 
 #define KEY_F(n)        (KEY_F0 + (n))
 
@@ -833,7 +866,7 @@ typedef struct
                                   * order to count it as a click */
   int   slklines;                /* lines in use by slk_init() */
   WINDOW *slk_winptr;            /* window for slk */
-  int   linesrippedoff;          /* lines ripped off via ripoffline() */
+  int   linesrippedoffcnt;       /* lines ripped off via ripoffline() */
   int   linesrippedoffontop;     /* lines ripped off on
                                   * top via ripoffline() */
   int   delaytenths;             /* 1/10ths second to wait block
@@ -851,9 +884,153 @@ typedef struct
   short line_color;              /* color of line attributes - default -1 */
 } SCREEN;
 
+typedef struct           /* Structure for ripped off lines */
+{
+  int line;
+  int (*init)(WINDOW *, int);
+} RIPPEDOFFLINE;
+
+struct SLK
+{
+  chtype label[32];
+  int len;
+  int format;
+  int start_col;
+};
+
+struct cttyset
+{
+  bool been_set;
+  SCREEN saved;
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
+
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+
+#define _INBUFSIZ   512         /* size of terminal input buffer */
+#define NUNGETCH    256         /* max # chars to ungetch() */
+
+struct pdc_context_s
+{
+#ifndef CONFIG_PDCURSES_MULTITHREAD_HASH
+  int           pid;
+  FAR struct pdc_context_s *next;
+  FAR struct pdc_context_s *prev;
+#endif
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+  bool          graphic_screen;
+#endif
+  uint8_t       pdc_color_started;
+  uint8_t       default_colors;
+  uint8_t       hidden;
+  uint8_t       ungot;
+  uint8_t       pair_set[PDC_COLOR_PAIRS];
+  short         LINES;        /* terminal height */
+  short         COLS;         /* terminal width */
+  WINDOW        *stdscr;      /* the default screen window */
+  WINDOW        *curscr;      /* the current screen image */
+  WINDOW        *pdc_lastscr;
+  SCREEN        *SP;          /* curses variables */
+  MOUSE_STATUS  Mouse_status;
+  MOUSE_STATUS  pdc_mouse_status;
+  unsigned long pdc_key_modifiers;
+  char          ttytype[64];  /* terminal name/description */
+  int           COLORS;
+  short         COLOR_PAIRS;
+  short         TABSIZE;
+  short         first_col;
+  short         c_pindex;        /* putter index */
+  short         c_gindex;        /* getter index */
+  short         c_ungind;        /* ungetch() push index */
+  short         c_ungch[NUNGETCH];   /* array of ungotten chars */
+  short         c_buffer[_INBUFSIZ]; /* character buffer */
+  RIPPEDOFFLINE linesripped[5];
+  short         linesrippedoff;
+  short         label_length;
+  short         labels;
+  short         label_fmt;
+  int           label_line;
+  struct SLK    *slk;
+  short         save_pminrow;
+  short         save_pmincol;
+  short         save_sminrow;
+  short         save_smincol;
+  short         save_smaxrow;
+  short         save_smaxcol;
+  uint8_t       pdc_trace_on;   /* Tracing flag */
+  char          strbuf[3];
+  char          strbuf2[3];
+  struct cttyset ctty[3];
+  void          *panel_ctx;
+  void          *term_ctx;
+  char          slk_temp[33];
+  char          slk_temp2[33];
+};
+
+FAR struct pdc_context_s * PDC_ctx(void);
+void                       PDC_ctx_free(void);
+
+#define LINES              ctx->LINES
+#define COLS               ctx->COLS
+#define stdscr             ctx->stdscr
+#define curscr             ctx->curscr
+#define pdc_lastscr        ctx->pdc_lastscr
+#define SP                 ctx->SP
+#define Mouse_status       ctx->Mouse_status
+#define pdc_mouse_status   ctx->pdc_mouse_status
+#define COLORS             ctx->COLORS
+#define COLOR_PAIRS        ctx->COLOR_PAIRS
+#define TABSIZE            ctx->TABSIZE
+#define ttytype            ctx->ttytype
+#define pdc_color_started  ctx->pdc_color_started
+#define pair_set           ctx->pair_set
+#define default_colors     ctx->default_colors
+#define first_col          ctx->first_col
+#define pdc_trace_on       ctx->pdc_trace_on
+#define pdc_key_modifiers  ctx->pdc_key_modifiers
+#define c_pindex           ctx->c_pindex
+#define c_gindex           ctx->c_gindex
+#define c_ungind           ctx->c_ungind
+#define c_ungch            ctx->c_ungch
+#define c_ungch            ctx->c_ungch
+#define c_buffer           ctx->c_buffer
+#define linesripped        ctx->linesripped
+#define linesrippedoff     ctx->linesrippedoff
+#define label_length       ctx->label_length
+#define labels             ctx->labels
+#define label_fmt          ctx->label_fmt
+#define label_line         ctx->label_line
+#define hidden             ctx->hidden
+#define slk                ctx->slk
+#define slk_temp           ctx->slk_temp
+#define slk_temp2          ctx->slk_temp2
+#define ctty               ctx->ctty
+#define ungot              ctx->ungot
+#define strbuf             ctx->strbuf
+#define strbuf2            ctx->strbuf2
+#define save_pminrow       ctx->save_pminrow
+#define save_pmincol       ctx->save_pmincol
+#define save_sminrow       ctx->save_sminrow
+#define save_smincol       ctx->save_smincol
+#define save_smaxrow       ctx->save_smaxrow
+#define save_smaxcol       ctx->save_smaxcol
+#define _bottom_panel      ((PANEL_CTX *)(ctx->panel_ctx))->bottom_panel
+#define _top_panel         ((PANEL_CTX *)(ctx->panel_ctx))->top_panel
+#define _stdscr_pseudo_panel   ((PANEL_CTX *)(ctx->panel_ctx))->stdscr_pseudo_panel
+#define cur_term           ((TERMINAL_CTX *)(ctx->term_ctx))->cur_term
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+#define graphic_screen     ctx->graphic_screen
+#endif
+
+void* pdc_alloc_panel_ctx(void);
+void* pdc_alloc_term_ctx(void);
+
+#else
 
 EXTERN  int          LINES;        /* terminal height */
 EXTERN  int          COLS;         /* terminal width */
@@ -864,8 +1041,15 @@ EXTERN  MOUSE_STATUS Mouse_status;
 EXTERN  int          COLORS;
 EXTERN  int          COLOR_PAIRS;
 EXTERN  int          TABSIZE;
-EXTERN  chtype       acs_map[];    /* alternate character set map */
 EXTERN  char         ttytype[];    /* terminal name/description */
+
+#ifdef CONFIG_SYSTEM_TERMCURSES
+EXTERN  bool         graphic_screen;
+#endif
+
+#endif
+
+EXTERN  chtype       acs_map[];    /* alternate character set map */
 
 /****************************************************************************
  * Public Function Prototypes

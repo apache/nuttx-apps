@@ -214,6 +214,9 @@ WINDOW *getwin(FILE *filep)
 int scr_dump(const char *filename)
 {
   FILE *filep;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("scr_dump() - called: filename %s\n", filename));
 
@@ -237,6 +240,9 @@ int scr_init(const char *filename)
 int scr_restore(const char *filename)
 {
   FILE *filep;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("scr_restore() - called: filename %s\n", filename));
 

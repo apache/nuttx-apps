@@ -177,7 +177,7 @@ static int _copy_win(const WINDOW *src_w, WINDOW *dst_w, int src_tr,
 int overlay(const WINDOW *src_w, WINDOW *dst_w)
 {
   int first_line;
-  int first_col;
+  int first_c;
   int last_line;
   int last_col;
   int src_start_x;
@@ -194,7 +194,7 @@ int overlay(const WINDOW *src_w, WINDOW *dst_w)
       return ERR;
     }
 
-  first_col  = max(dst_w->_begx, src_w->_begx);
+  first_c    = max(dst_w->_begx, src_w->_begx);
   first_line = max(dst_w->_begy, src_w->_begy);
 
   last_col   = min(src_w->_begx + src_w->_maxx, dst_w->_begx + dst_w->_maxx);
@@ -204,14 +204,14 @@ int overlay(const WINDOW *src_w, WINDOW *dst_w)
 
   /* If no overlapping region, do nothing */
 
-  if ((last_col < first_col) || (last_line < first_line))
+  if ((last_col < first_c) || (last_line < first_line))
     {
       return OK;
     }
 
   /* Size of overlapping region */
 
-  xdiff = last_col - first_col;
+  xdiff = last_col - first_c;
   ydiff = last_line - first_line;
 
   if (src_w->_begx <= dst_w->_begx)
@@ -244,7 +244,7 @@ int overlay(const WINDOW *src_w, WINDOW *dst_w)
 int overwrite(const WINDOW *src_w, WINDOW *dst_w)
 {
   int first_line;
-  int first_col;
+  int first_c;
   int last_line;
   int last_col;
   int src_start_x;
@@ -261,7 +261,7 @@ int overwrite(const WINDOW *src_w, WINDOW *dst_w)
       return ERR;
     }
 
-  first_col  = max(dst_w->_begx, src_w->_begx);
+  first_c    = max(dst_w->_begx, src_w->_begx);
   first_line = max(dst_w->_begy, src_w->_begy);
 
   last_col   = min(src_w->_begx + src_w->_maxx, dst_w->_begx + dst_w->_maxx);
@@ -271,14 +271,14 @@ int overwrite(const WINDOW *src_w, WINDOW *dst_w)
 
   /* If no overlapping region, do nothing */
 
-  if ((last_col < first_col) || (last_line < first_line))
+  if ((last_col < first_c) || (last_line < first_line))
     {
       return OK;
     }
 
   /* Size of overlapping region */
 
-  xdiff = last_col - first_col;
+  xdiff = last_col - first_c;
   ydiff = last_line - first_line;
 
   if (src_w->_begx <= dst_w->_begx)
@@ -319,6 +319,9 @@ int copywin(const WINDOW *src_w, WINDOW *dst_w, int src_tr, int src_tc,
   int dst_cols;
   int min_rows;
   int min_cols;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("copywin() - called\n"));
 

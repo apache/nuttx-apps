@@ -135,6 +135,9 @@ int wdeleteln(WINDOW *win)
 
 int deleteln(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("deleteln() - called\n"));
 
   return wdeleteln(stdscr);
@@ -142,6 +145,9 @@ int deleteln(void)
 
 int mvdeleteln(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvdeleteln() - called\n"));
 
   if (move(y, x) == ERR)
@@ -202,6 +208,9 @@ int winsdelln(WINDOW *win, int n)
 
 int insdelln(int n)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insdelln() - called\n"));
 
   return winsdelln(stdscr, n);
@@ -247,6 +256,9 @@ int winsertln(WINDOW *win)
 
 int insertln(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("insertln() - called\n"));
 
   return winsertln(stdscr);
@@ -254,6 +266,9 @@ int insertln(void)
 
 int mvinsertln(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvinsertln() - called\n"));
 
   if (move(y, x) == ERR)

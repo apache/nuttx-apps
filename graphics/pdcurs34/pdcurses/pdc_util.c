@@ -126,7 +126,11 @@
 
 char *unctrl(chtype c)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#else
   static char strbuf[3] = { 0, 0, 0 };
+#endif
 
   chtype ic;
 
@@ -218,7 +222,11 @@ int setcchar(cchar_t *wcval, const wchar_t *wch, const attr_t attrs,
 
 wchar_t *wunctrl(cchar_t *wc)
 {
-  static wchar_t strbuf[3] = { 0, 0, 0 };
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#else
+  static wchar_t strbuf2[3] = { 0, 0, 0 };
+#endif
 
   cchar_t ic;
 
@@ -228,23 +236,23 @@ wchar_t *wunctrl(cchar_t *wc)
 
   if (ic >= 0x20 && ic != 0x7f) /* normal characters */
     {
-      strbuf[0] = (wchar_t) ic;
-      strbuf[1] = L'\0';
+      strbuf2[0] = (wchar_t) ic;
+      strbuf2[1] = L'\0';
       return strbuf;
     }
 
-  strbuf[0] = '^';              /* '^' prefix */
+  strbuf2[0] = '^';              /* '^' prefix */
 
   if (ic == 0x7f)               /* 0x7f == DEL */
     {
-      strbuf[1] = '?';
+      strbuf2[1] = '?';
     }
   else                          /* other control */
     {
-      strbuf[1] = (wchar_t) (ic + '@');
+      strbuf2[1] = (wchar_t) (ic + '@');
     }
 
-  return strbuf;
+  return strbuf2;
 }
 
 int PDC_mbtowc(wchar_t *pwc, const char *s, size_t n)

@@ -81,6 +81,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdlib.h>
 #include "term.h"
 #include "curspriv.h"
 
@@ -88,14 +89,26 @@
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 TERMINAL *cur_term = NULL;
+#endif
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+void *pdc_alloc_term_ctx(void)
+{
+  return (void *) zalloc(sizeof(TERMINAL));
+}
+#endif
+
 int mvcur(int oldrow, int oldcol, int newrow, int newcol)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvcur() - called: oldrow %d oldcol %d newrow %d newcol %d\n",
            oldrow, oldcol, newrow, newcol));
 

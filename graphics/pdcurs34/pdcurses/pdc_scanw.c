@@ -96,6 +96,9 @@ int scanw(const char *fmt, ...)
 {
   va_list args;
   int retval;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("scanw() - called\n"));
 
@@ -124,6 +127,9 @@ int mvscanw(int y, int x, const char *fmt, ...)
 {
   va_list args;
   int retval;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("mvscanw() - called\n"));
 

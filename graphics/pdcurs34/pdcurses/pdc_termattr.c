@@ -149,6 +149,9 @@ char killchar(void)
 
 char *longname(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("longname() - called\n"));
 
   return ttytype + 9;           /* skip "pdcurses|" */
@@ -156,6 +159,9 @@ char *longname(void)
 
 chtype termattrs(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   chtype temp = A_BLINK | A_BOLD | A_INVIS | A_REVERSE | A_UNDERLINE;
 
   /* note: blink is bold background on some platforms */

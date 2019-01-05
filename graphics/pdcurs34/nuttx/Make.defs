@@ -36,6 +36,10 @@
 CSRCS += pdcclip.c pdcdisp.c pdcgetsc.c pdckbd.c pdcscrn.c pdcsetsc.c
 CSRCS += pdcutil.c
 
+ifneq ($(CONFIG_PDCURSES_MULTITHREAD),)
+CSRCS += pdcthread.c
+endif
+
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/pdcurs34/nuttx}

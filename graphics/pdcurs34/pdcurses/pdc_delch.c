@@ -114,6 +114,9 @@ int wdelch(WINDOW *win)
 
 int delch(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("delch() - called\n"));
 
   return wdelch(stdscr);
@@ -121,6 +124,9 @@ int delch(void)
 
 int mvdelch(int y, int x)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvdelch() - called\n"));
 
   if (move(y, x) == ERR)

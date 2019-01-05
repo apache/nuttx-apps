@@ -158,6 +158,9 @@ int waddch(WINDOW *win, const chtype ch)
   int x;
   int y;
   bool xlat;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("waddch() - called: win=%p ch=%x (text=%c attr=0x%x)\n",
            win, ch, ch & A_CHARTEXT, ch & A_ATTRIBUTES));
@@ -356,6 +359,9 @@ int waddch(WINDOW *win, const chtype ch)
 
 int addch(const chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("addch() - called: ch=%x\n", ch));
 
   return waddch(stdscr, ch);
@@ -363,6 +369,9 @@ int addch(const chtype ch)
 
 int mvaddch(int y, int x, const chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvaddch() - called: y=%d x=%d ch=%x\n", y, x, ch));
 
   if (move(y, x) == ERR)
@@ -387,6 +396,9 @@ int mvwaddch(WINDOW *win, int y, int x, const chtype ch)
 
 int echochar(const chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("echochar() - called: ch=%x\n", ch));
 
   return wechochar(stdscr, ch);
@@ -419,6 +431,9 @@ int waddrawch(WINDOW *win, chtype ch)
 
 int addrawch(chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("addrawch() - called: ch=%x\n", ch));
 
   return waddrawch(stdscr, ch);
@@ -426,6 +441,9 @@ int addrawch(chtype ch)
 
 int mvaddrawch(int y, int x, chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvaddrawch() - called: y=%d x=%d ch=%d\n", y, x, ch));
 
   if (move(y, x) == ERR)
@@ -465,6 +483,9 @@ int add_wch(const cchar_t *wch)
 
 int mvadd_wch(int y, int x, const cchar_t *wch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("mvaddch() - called: y=%d x=%d wch=%x\n", y, x, *wch));
 
   if (move(y, x) == ERR)

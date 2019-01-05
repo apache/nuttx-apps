@@ -74,7 +74,9 @@
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 bool pdc_trace_on = false;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -83,6 +85,9 @@ bool pdc_trace_on = false;
 void PDC_debug(const char *fmt, ...)
 {
   va_list args;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (pdc_trace_on)
     {
@@ -94,6 +99,9 @@ void PDC_debug(const char *fmt, ...)
 
 void traceon(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("traceon() - called\n"));
 
   pdc_trace_on = true;
@@ -101,6 +109,9 @@ void traceon(void)
 
 void traceoff(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("traceoff() - called\n"));
 
   pdc_trace_on = false;

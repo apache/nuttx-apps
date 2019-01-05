@@ -128,6 +128,9 @@ int wclrtoeol(WINDOW *win)
 
 int clrtoeol(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("clrtoeol() - called\n"));
 
   return wclrtoeol(stdscr);
@@ -169,6 +172,9 @@ int wclrtobot(WINDOW *win)
 
 int clrtobot(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("clrtobot() - called\n"));
 
   return wclrtobot(stdscr);
@@ -188,6 +194,9 @@ int werase(WINDOW *win)
 
 int erase(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("erase() - called\n"));
 
   return werase(stdscr);
@@ -208,6 +217,9 @@ int wclear(WINDOW *win)
 
 int clear(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("clear() - called\n"));
 
   return wclear(stdscr);

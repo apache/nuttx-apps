@@ -196,6 +196,9 @@ int wbkgd(WINDOW *win, chtype ch)
 
 int bkgd(chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("bkgd() - called\n"));
 
   return wbkgd(stdscr, ch);
@@ -218,6 +221,9 @@ void wbkgdset(WINDOW *win, chtype ch)
 
 void bkgdset(chtype ch)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("bkgdset() - called\n"));
 
   wbkgdset(stdscr, ch);

@@ -133,19 +133,15 @@ enum
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 static int label_length = 0;
 static int labels = 0;
 static int label_fmt = 0;
 static int label_line = 0;
 static bool hidden = false;
 
-static struct SLK
-{
-  chtype label[32];
-  int len;
-  int format;
-  int start_col;
-} *slk = (struct SLK *)NULL;
+static struct SLK *slk = (struct SLK *)NULL;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -165,6 +161,9 @@ static struct SLK
 
 int slk_init(int fmt)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_init() - called\n"));
 
   if (SP)
@@ -216,6 +215,9 @@ static void _drawone(int num)
   int col;
   int slen;
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (hidden)
     {
@@ -258,6 +260,9 @@ static void _drawone(int num)
 
 static void _redraw(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   int i;
 
   for (i = 0; i < labels; ++i)
@@ -281,6 +286,9 @@ int slk_set(int labnum, const char *label, int justify)
   PDC_mbstowcs(wlabel, label, 31);
   return slk_wset(labnum, wlabel, justify);
 #else
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_set() - called\n"));
 
   if (labnum < 1 || labnum > labels || justify < 0 || justify > 2)
@@ -350,6 +358,9 @@ int slk_refresh(void)
 
 int slk_noutrefresh(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_noutrefresh() - called\n"));
 
   return wnoutrefresh(SP->slk_winptr);
@@ -357,7 +368,11 @@ int slk_noutrefresh(void)
 
 char *slk_label(int labnum)
 {
-  static char temp[33];
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#else
+  static char slk_temp2[33];
+#endif
 #ifdef CONFIG_PDCURSES_WIDE
   wchar_t *wtemp = slk_wlabel(labnum);
 
@@ -375,17 +390,20 @@ char *slk_label(int labnum)
 
   for (i = 0, p = slk[labnum - 1].label; *p; i++)
     {
-      temp[i] = *p++;
+      slk_temp2[i] = *p++;
     }
 
-  temp[i] = '\0';
+  slk_temp2[i] = '\0';
 #endif
 
-  return temp;
+  return slk_temp2;
 }
 
 int slk_clear(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_clear() - called\n"));
 
   hidden = true;
@@ -395,6 +413,9 @@ int slk_clear(void)
 
 int slk_restore(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_restore() - called\n"));
 
   hidden = false;
@@ -404,6 +425,9 @@ int slk_restore(void)
 
 int slk_touch(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("slk_touch() - called\n"));
 
   return touchwin(SP->slk_winptr);
@@ -412,6 +436,9 @@ int slk_touch(void)
 int slk_attron(const chtype attrs)
 {
   int rc;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("slk_attron() - called\n"));
 
@@ -430,6 +457,9 @@ int slk_attr_on(const attr_t attrs, void *opts)
 int slk_attroff(const chtype attrs)
 {
   int rc;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("slk_attroff() - called\n"));
 
@@ -448,6 +478,9 @@ int slk_attr_off(const attr_t attrs, void *opts)
 int slk_attrset(const chtype attrs)
 {
   int rc;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("slk_attrset() - called\n"));
 
@@ -459,6 +492,9 @@ int slk_attrset(const chtype attrs)
 int slk_color(short color_pair)
 {
   int rc;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("slk_color() - called\n"));
 
@@ -477,6 +513,9 @@ int slk_attr_set(const attr_t attrs, short color_pair, void *opts)
 static void _slk_calc(void)
 {
   int i, center, col = 0;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   label_length = COLS / labels;
 
   if (label_length > 31)
@@ -570,6 +609,9 @@ static void _slk_calc(void)
 
 void PDC_slk_initialize(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   if (slk)
     {
       if (label_fmt == 3)
@@ -621,6 +663,9 @@ void PDC_slk_initialize(void)
 
 void PDC_slk_free(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   if (slk)
     {
       if (SP->slk_winptr)
@@ -643,6 +688,9 @@ void PDC_slk_free(void)
 int PDC_mouse_in_slk(int y, int x)
 {
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("PDC_mouse_in_slk() - called: y->%d x->%d\n", y, x));
 
@@ -669,6 +717,10 @@ int PDC_mouse_in_slk(int y, int x)
 #ifdef CONFIG_PDCURSES_WIDE
 int slk_wset(int labnum, const wchar_t *label, int justify)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   PDC_LOG(("slk_wset() - called\n"));
 
   if (labnum < 1 || labnum > labels || justify < 0 || justify > 2)
@@ -729,7 +781,11 @@ int slk_wset(int labnum, const wchar_t *label, int justify)
 
 wchar_t *slk_wlabel(int labnum)
 {
-  static wchar_t temp[33];
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#else
+  static wchar_t slk_temp[33];
+#endif
   chtype *p;
   int i;
 
@@ -742,10 +798,10 @@ wchar_t *slk_wlabel(int labnum)
 
   for (i = 0, p = slk[labnum - 1].label; *p; i++)
     {
-      temp[i] = *p++;
+      slk_temp[i] = *p++;
     }
 
-  temp[i] = '\0';
-  return temp;
+  slk_temp[i] = '\0';
+  return slk_temp;
 }
 #endif

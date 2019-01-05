@@ -72,6 +72,9 @@
 
 int beep(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("beep() - called\n"));
 
   if (SP->audible)
@@ -91,6 +94,9 @@ int flash(void)
   int x;
   int y;
   int z;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("flash() - called\n"));
 

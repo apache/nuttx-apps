@@ -157,6 +157,9 @@
 
 int cbreak(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("cbreak() - called\n"));
 
   SP->cbreak = true;
@@ -165,6 +168,9 @@ int cbreak(void)
 
 int nocbreak(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("nocbreak() - called\n"));
 
   SP->cbreak = false;
@@ -175,6 +181,9 @@ int nocbreak(void)
 
 int echo(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("echo() - called\n"));
 
   SP->echo = true;
@@ -183,6 +192,9 @@ int echo(void)
 
 int noecho(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("noecho() - called\n"));
 
   SP->echo = false;
@@ -191,6 +203,9 @@ int noecho(void)
 
 int halfdelay(int tenths)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("halfdelay() - called\n"));
 
   if (tenths < 1 || tenths > 255)
@@ -224,6 +239,9 @@ int keypad(WINDOW *win, bool bf)
 
 int meta(WINDOW *win, bool bf)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("meta() - called\n"));
 
   SP->raw_inp = bf;
@@ -232,6 +250,9 @@ int meta(WINDOW *win, bool bf)
 
 int nl(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("nl() - called\n"));
 
   SP->autocr = true;
@@ -240,6 +261,9 @@ int nl(void)
 
 int nonl(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("nonl() - called\n"));
 
   SP->autocr = false;
@@ -268,6 +292,9 @@ int notimeout(WINDOW *win, bool flag)
 
 int raw(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("raw() - called\n"));
 
   PDC_set_keyboard_binary(true);
@@ -277,6 +304,9 @@ int raw(void)
 
 int noraw(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("noraw() - called\n"));
 
   PDC_set_keyboard_binary(false);
@@ -337,6 +367,9 @@ void wtimeout(WINDOW *win, int delay)
 
 void timeout(int delay)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PDC_LOG(("timeout() - called\n"));
 
   wtimeout(stdscr, delay);

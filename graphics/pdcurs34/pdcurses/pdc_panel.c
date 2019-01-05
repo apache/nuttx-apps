@@ -165,9 +165,25 @@
  * Public Data
  ****************************************************************************/
 
+#ifndef CONFIG_PDCURSES_MULTITHREAD
 PANEL *_bottom_panel = (PANEL *) 0;
 PANEL *_top_panel = (PANEL *) 0;
 PANEL _stdscr_pseudo_panel = { (WINDOW *) 0 };
+#else
+typedef struct panel_ctx_s
+{
+  PANEL         *bottom_panel;
+  PANEL         *top_panel;
+  PANEL         stdscr_pseudo_panel;
+} PANEL_CTX;
+#endif
+
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+void *pdc_alloc_panel_ctx()
+{
+  return (void *) zalloc(sizeof(struct panel_ctx_s));
+}
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -267,6 +283,9 @@ static void _override(PANEL *pan, int show)
   int y;
   PANEL *pan2;
   PANELOBS *tobs = pan->obscure;        /* "this" one */
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (show == 1)
     {
@@ -306,6 +325,9 @@ static void _override(PANEL *pan, int show)
 
 static void _calculate_obscure(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PANEL *pan, *pan2;
   PANELOBS *tobs;               /* "this" one */
   PANELOBS *lobs;               /* last one */
@@ -359,6 +381,9 @@ static void _calculate_obscure(void)
 
 static bool _panel_is_linked(const PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PANEL *pan2 = _bottom_panel;
 
   while (pan2)
@@ -378,6 +403,9 @@ static bool _panel_is_linked(const PANEL *pan)
 
 static void _panel_link_top(PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 #ifdef CONFIG_PDCURSES_PANEL_DEBUG
   dstack("<lt%d>", 1, pan);
   if (_panel_is_linked(pan))
@@ -410,6 +438,9 @@ static void _panel_link_top(PANEL *pan)
 
 static void _panel_link_bottom(PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 #ifdef CONFIG_PDCURSES_PANEL_DEBUG
   dstack("<lb%d>", 1, pan);
   if (_panel_is_linked(pan))
@@ -440,6 +471,9 @@ static void _panel_link_bottom(PANEL *pan)
 
 static void _panel_unlink(PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   PANEL *prev;
   PANEL *next;
 
@@ -495,6 +529,9 @@ static void _panel_unlink(PANEL *pan)
 
 int bottom_panel(PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   if (!pan)
     {
       return ERR;
@@ -587,6 +624,9 @@ int move_panel(PANEL *pan, int starty, int startx)
 PANEL *new_panel(WINDOW *win)
 {
   PANEL *pan = malloc(sizeof(PANEL));
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (!_stdscr_pseudo_panel.win)
     {
@@ -625,11 +665,17 @@ PANEL *new_panel(WINDOW *win)
 
 PANEL *panel_above(const PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   return pan ? pan->above : _bottom_panel;
 }
 
 PANEL *panel_below(const PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   return pan ? pan->below : _top_panel;
 }
 
@@ -696,6 +742,9 @@ int set_panel_userptr(PANEL *pan, const void *uptr)
 
 int show_panel(PANEL *pan)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   if (!pan)
     {
       return ERR;
@@ -723,6 +772,9 @@ int top_panel(PANEL *pan)
 void update_panels(void)
 {
   PANEL *pan;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   PDC_LOG(("update_panels() - called\n"));
 
