@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+if SERIAL || TELNET
+
+config SYSTEM_TERMCURSES
+	bool "Terminal Curses control support"
+	default n
+	---help---
+		Terminal emulation library for curses support on TTY type consoles
+		such as serial port, CDCACM, telnet, etc.
+
+config SYSTEM_TERMCURSES_VT100
+	bool "Terminal pdcurses support for VT-100"
+	depends on SYSTEM_TERMCURSES
+	default y
+
+config SYSTEM_TERMCURSES_VT100_OSX_ALT_CODES
+	bool "Support Mac OSX ALT keycodes in vt100 emulation."
+	depends on SYSTEM_TERMCURSES_VT100
+	default y
+
+config SYSTEM_TERMCURSES_DEBUG_KEYCODES
+	bool "Print raw terminal escape sequences for debug."
+	depends on SYSTEM_TERMCURSES
+	default n
+
+config SYSTEM_TERMCURSES_INCLUDE_TERMINFO_NAME
+	bool "Compile in static const 'terminfo' key names (for future use)."
+	depends on SYSTEM_TERMCURSES
+	default n
+
+endif # SYSTEM_TERMCURSES
