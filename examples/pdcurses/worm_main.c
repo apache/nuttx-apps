@@ -619,6 +619,9 @@ int worm_main(int argc, char *argv[])
   int last;
   int bottom;
   int seed;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   for (x = 1; x < argc; x++)
     {

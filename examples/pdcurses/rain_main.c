@@ -83,6 +83,9 @@ int rain_main(int argc, char *argv[])
 {
   int x, y, j, r, c, seed;
   static int xpos[5], ypos[5];
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   traceon();
   initscr();

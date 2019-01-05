@@ -79,6 +79,9 @@ static void backfill(void)
 {
   int x;
   int y;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   erase();
 
@@ -94,6 +97,9 @@ static void backfill(void)
 static void wait_a_while(long msec)
 {
   int c;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (msec != 1)
     {
@@ -110,6 +116,9 @@ static void wait_a_while(long msec)
 
 static void saywhat(const char *text)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   mvprintw(LINES - 1, 0, "%-20.20s", text);
 }
 

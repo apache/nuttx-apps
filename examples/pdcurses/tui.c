@@ -138,6 +138,10 @@ static char *prepad(char *s, int length)
 
 static void rmline(WINDOW *win, int nr)        /* keeps box lines intact */
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   mvwaddstr(win, nr, 1, padstr(" ", bw - 2));
   wrefresh(win);
 }
@@ -212,6 +216,9 @@ static void idle(void)
   char buf[MAXSTRLEN];
   time_t t;
   struct tm *tp;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (time(&t) == -1)
     {
@@ -453,6 +460,10 @@ void rmstatus(void)
 
 void titlemsg(char *msg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   mvwaddstr(wtitl, 0, 2, padstr(msg, bw - 3));
   wrefresh(wtitl);
 }
@@ -465,6 +476,10 @@ void bodymsg(char *msg)
 
 void errormsg(char *msg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   beep();
   mvwaddstr(wstat, 0, 2, padstr(msg, bw - 3));
   wrefresh(wstat);
@@ -472,6 +487,10 @@ void errormsg(char *msg)
 
 void statusmsg(char *msg)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   mvwaddstr(wstat, 1, 2, padstr(msg, bw - 3));
   wrefresh(wstat);
 }
@@ -617,8 +636,13 @@ void domenu(const menu *mp)
 
 void startmenu(menu *mp, char *mtitle)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   traceon();
   initscr();
+  quit = false;
   incurses = true;
   initcolor();
 
@@ -751,6 +775,13 @@ int weditstr(WINDOW *win, char *buf, int field)
           insert = !insert;
 
           curs_set(insert ? 2 : 1);
+          break;
+
+        case KEY_DC:
+          if (*bp != 0)
+            {
+              memmove((void *)(bp), (const void *)(bp+1), strlen(bp));
+            }
           break;
 
         default:

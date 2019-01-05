@@ -790,6 +790,9 @@ int xmas_main(int argc, char *argv[])
 #endif
 {
   int loopy;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   traceon();
   initscr();
@@ -1077,6 +1080,38 @@ int xmas_main(int argc, char *argv[])
 
   clear();
   refresh();
+
+  delwin(treescrn);
+  delwin(treescrn2);
+  delwin(treescrn3);
+  delwin(treescrn4);
+  delwin(treescrn5);
+  delwin(treescrn6);
+  delwin(treescrn7);
+  delwin(treescrn8);
+  delwin(dotdeer0);
+  delwin(stardeer0);
+  delwin(lildeer0);
+  delwin(lildeer1);
+  delwin(lildeer2);
+  delwin(lildeer3);
+  delwin(middeer0);
+  delwin(middeer1);
+  delwin(middeer2);
+  delwin(middeer3);
+  delwin(bigdeer0);
+  delwin(bigdeer1);
+  delwin(bigdeer2);
+  delwin(bigdeer3);
+  delwin(bigdeer4);
+  delwin(lookdeer0);
+  delwin(lookdeer1);
+  delwin(lookdeer2);
+  delwin(lookdeer3);
+  delwin(lookdeer4);
+  delwin(w_holiday);
+  delwin(w_del_msg);
+
   endwin();
   return 0;
 }

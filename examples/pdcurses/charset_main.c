@@ -76,6 +76,9 @@ int charset_main(int argc, char *argv[])
   int row;
   int col;
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   /* Initialize */
 

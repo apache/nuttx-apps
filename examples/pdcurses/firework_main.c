@@ -79,6 +79,10 @@ static short color_table[] =
 
 static void myrefresh(void)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   napms(DELAYSIZE);
   move(LINES - 1, COLS - 1);
   refresh();
@@ -157,6 +161,9 @@ int firework_main(int argc, char *argv[])
   int direction;
   int seed;
   int i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   traceon();
   initscr();

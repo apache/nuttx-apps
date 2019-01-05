@@ -102,6 +102,9 @@ static char *messages[] =
 static int wait_for_user(void)
 {
   chtype ch;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   nodelay(stdscr, true);
   halfdelay(50);
@@ -198,6 +201,9 @@ static int bouncing_balls(WINDOW *win)
   int xd3;
   int yd3;
   int c;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   curs_set(0);
 
@@ -313,6 +319,9 @@ int newdemo_main(int argc, char *argv[])
   int i;
   int j;
   int seed;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   traceon();
   initscr();

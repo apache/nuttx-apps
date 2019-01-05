@@ -246,6 +246,10 @@ static void continue2(void)
 
 static int init_test(WINDOW ** win, int argc, char *argv[])
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
+
   traceon();
   initscr();
 #ifdef A_COLOR
@@ -359,6 +363,9 @@ static void input_test(WINDOW *win)
   WINDOW *subWin;
   static const char spinner[4] = "/-\\|";
   int spinner_count = 0;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   wclear(win);
 
@@ -629,6 +636,9 @@ static void output_test(WINDOW *win)
   chtype ch;
   int bx;
   int by;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   nl();
   wclear(win);
@@ -799,6 +809,9 @@ static void resize_test(WINDOW *dummy)
   WINDOW *win1;
   int nwidth = 135;
   int nheight = 52;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   int owidth = COLS;
   int oheight = LINES;
 
@@ -891,6 +904,9 @@ static void clipboard_test(WINDOW *win)
   char *ptr = NULL;
   long length = 0;
   long i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   mvaddstr(1, 1, "This test will display the contents of the system clipboard");
 
@@ -950,6 +966,9 @@ static void clipboard_test(WINDOW *win)
 
 static void acs_test(WINDOW *win)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   chtype acs_values[ACSNUM];
   int tmarg = (LINES - 22) / 2;
   int i;
@@ -1046,6 +1065,9 @@ static void color_test(WINDOW *win)
   int col3;
   int i;
   int j;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   if (!has_colors())
     {
@@ -1137,6 +1159,9 @@ static void wide_test(WINDOW *win)
 {
   wchar_t tmp[513];
   size_t i;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
   attrset(A_BOLD);
   mvaddstr(1, (COLS - 25) / 2, "Wide Character Input Test");
@@ -1165,6 +1190,9 @@ static void wide_test(WINDOW *win)
 
 void display_menu(int old_option, int new_option)
 {
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
   int lmarg = (COLS - 14) / 2, tmarg = (LINES - (MAX_OPTIONS + 2)) / 2;
 
   if (old_option == -1)
@@ -1209,6 +1237,9 @@ int testcurs_main(int argc, char *argv[])
   int old_option = -1;
   int new_option = 0;
   bool quit = false;
+#ifdef CONFIG_PDCURSES_MULTITHREAD
+  FAR struct pdc_context_s *ctx = PDC_ctx();
+#endif
 
 #ifdef CONFIG_LIBC_LOCALE
   setlocale(LC_ALL, "");
