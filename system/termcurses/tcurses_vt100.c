@@ -438,7 +438,7 @@ static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type, int col,
   int   fd;
   char  str[16];
 
-  priv = (FAR struct tcurses_vt100_s * dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
 
   /* Perform operation based on type */
