@@ -170,9 +170,9 @@ static void nsh_dequote(FAR char *cmdline);
 #endif
 
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-               FAR char **allocation, int* isenvvar);
+               FAR char **allocation, FAR int *isenvvar);
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
-               FAR NSH_MEMLIST_TYPE *memlist, int* isenvvar);
+               FAR NSH_MEMLIST_TYPE *memlist, FAR int *isenvvar);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 #ifndef CONFIG_NSH_DISABLE_LOOPS
@@ -1122,7 +1122,7 @@ static void nsh_dequote(FAR char *cmdline)
 
 #if defined(CONFIG_NSH_ARGCAT) && defined(HAVE_MEMLIST)
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-                               FAR char **allocation, int* isenvvar)
+                               FAR char **allocation, FAR int *isenvvar)
 {
   FAR char *working = cmdline;
 #ifdef CONFIG_NSH_QUOTE
@@ -1329,9 +1329,10 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
            * nsh_envexpand will return the NULL string.
            */
 
-          if (isenvvar) {
+          if (isenvvar != NULL)
+            {
               *isenvvar = 1;
-          }
+            }
 
           envstr = nsh_envexpand(vtbl, ptr);
 
@@ -1368,7 +1369,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
 #else
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-                               FAR char **allocation, int* isenvvar)
+                               FAR char **allocation, FAR int *isenvvar)
 {
   FAR char *argument = (FAR char *)g_nullstring;
 #ifdef CONFIG_NSH_QUOTE
@@ -1418,9 +1419,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   if (*cmdline == '$')
     {
-      if (isenvvar) {
+      if (isenvvar != NULL)
+        {
           *isenvvar = 1;
-      }
+        }
+
       argument = nsh_envexpand(vtbl, cmdline + 1);
     }
   else
@@ -1442,7 +1445,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
  ****************************************************************************/
 
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
-                              FAR NSH_MEMLIST_TYPE *memlist, int* isenvvar)
+                              FAR NSH_MEMLIST_TYPE *memlist, FAR int *isenvvar)
 {
   FAR char *pbegin     = *saveptr;
   FAR char *pend       = NULL;
@@ -1520,10 +1523,12 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
           pbegin++;
           term = "\"";
 
-          /* If this is an environment variable in double quotes, we don't want it split into
-           * multiple arguments. So just invalidate the flag pointer which would otherwise
-           * communictate such back up the call tree.
+          /* If this is an environment variable in double quotes, we don't
+           * want it split into multiple arguments. So just invalidate the
+           * flag pointer which would otherwise communicate such back up
+           * the call tree.
            */
+
           isenvvar = NULL;
         }
       else
@@ -1867,7 +1872,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "do" -- there may or may not be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
 
           /* Verify that "do" is valid in this context */
 
@@ -1887,7 +1892,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "done" -- there should be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
           if (*ppcmd)
             {
               nsh_error(vtbl, g_fmtarginvalid, "done");
@@ -1993,7 +1998,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the if */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
           if (*ppcmd == NULL || **ppcmd == '\0')
             {
               nsh_error(vtbl, g_fmtarginvalid, "if");
@@ -2048,7 +2053,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "then" -- there may or may not be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
 
           /* Verify that "then" is valid in this context */
 
@@ -2067,7 +2072,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "else" -- there may or may not be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
 
           /* Verify that "else" is valid in this context */
 
@@ -2086,7 +2091,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the fi -- there should be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
           if (*ppcmd)
             {
               nsh_error(vtbl, g_fmtarginvalid, "fi");
@@ -2159,10 +2164,10 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Get the cmd (or -d option of nice command) */
 
-          cmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          cmd = nsh_argument(vtbl, saveptr, memlist, NULL);
           if (cmd && strcmp(cmd, "-d") == 0)
             {
-              FAR char *val = nsh_argument(vtbl, saveptr, memlist, 0);
+              FAR char *val = nsh_argument(vtbl, saveptr, memlist, NULL);
               if (val)
                 {
                   char *endptr;
@@ -2173,7 +2178,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                       nsh_error(vtbl, g_fmtarginvalid, "nice");
                       return ERROR;
                     }
-                  cmd = nsh_argument(vtbl, saveptr, memlist, 0);
+                  cmd = nsh_argument(vtbl, saveptr, memlist, NULL);
                 }
             }
 
@@ -2243,7 +2248,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr, &memlist, 0);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist, NULL);
 
   /* Check if any command was provided -OR- if command processing is
    * currently disabled.
@@ -2277,7 +2282,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES-1; argc++)
     {
-      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, 0);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, NULL);
       if (!argv[argc])
         {
           break;
@@ -2344,7 +2349,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr, &memlist, 0);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist, NULL);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 #ifndef CONFIG_NSH_DISABLE_LOOPS
@@ -2414,8 +2419,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES-1; argc++)
     {
-
-      int isenvvar = 0; /* flag for if an enviroment variable gets expanded */
+      int isenvvar = 0; /* flag for if an environment variable gets expanded */
 
       argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &isenvvar);
 
@@ -2424,40 +2428,56 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           break;
         }
 
-      if (isenvvar)
+      if (isenvvar != 0)
         {
           while (argc < MAX_ARGV_ENTRIES-1)
             {
               FAR char *pbegin = argv[argc];
 
               /* Find the end of the current token */
-              for (; *pbegin && !strchr(g_token_separator, *pbegin); pbegin++);
 
-              /* If end of string, we've processed the last token and we're done */
+              for (; *pbegin && !strchr(g_token_separator, *pbegin);
+                   pbegin++)
+                {
+                }
+
+              /* If end of string, we've processed the last token and we're
+               * done.
+               */
+
               if ('\0' == *pbegin)
                 {
                   break;
                 }
 
               /* Terminate the token to complete the argv variable */
+
               *pbegin = '\0';
 
               /* We've inserted an extra parameter, so bump the count */
+
               argc++;
 
               /* Move to the next character in the string of tokens */
+
               pbegin++;
 
               /* Throw away any extra separator chars between tokens */
-              for (; *pbegin && strchr(g_token_separator, *pbegin) != NULL; pbegin++);
+
+              for (; *pbegin && strchr(g_token_separator, *pbegin) != NULL;
+                   pbegin++)
+                {
+                }
 
               /* Prepare to loop again on the next argument token */
+
               argv[argc] = pbegin;
             }
         }
     }
 
   /* Last argument vector must be empty */
+
   argv[argc] = NULL;
 
   /* Check if the command should run in background */
