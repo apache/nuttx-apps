@@ -167,12 +167,20 @@ bool PDC_check_key(void)
     fd_set rfds;
     struct timeval tv;
 
+    /* Test the registered tcurs interface for cached characters */
+
+    ret = termcurses_checkkey(termstate->tcurs);
+    if (ret)
+      {
+        return true;
+      }
+
     /* Watch stdin (fd 0) to see when it has input. */
 
     FD_ZERO(&rfds);
     FD_SET(termstate->in_fd, &rfds);
 
-    /* Wait up to five seconds. */
+    /* Do not wait. */
 
     tv.tv_sec = 0;
     tv.tv_usec = 0;

@@ -117,6 +117,10 @@ struct termcurses_ops_s
   /* Get a keycode value */
 
   CODE int (*getkeycode)(FAR struct termcurses_s *dev, int *specialkey, int *keymodifers);
+
+  /* Check for cached keycode value */
+
+  CODE bool (*checkkey)(FAR struct termcurses_s *dev);
 };
 
 struct termcurses_dev_s
@@ -228,6 +232,16 @@ int termcurses_getwinsize(FAR struct termcurses_s *term, FAR struct winsize *win
 
 int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
                           FAR int *keymodifiers);
+
+/************************************************************************************
+ * Name: termcurses_checkkey
+ *
+ * Description:
+ *   Check if there is a key waiting to be processed.
+ *
+ ************************************************************************************/
+
+bool termcurses_checkkey(FAR struct termcurses_s *term);
 
 #undef EXTERN
 #ifdef __cplusplus

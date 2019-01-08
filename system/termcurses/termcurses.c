@@ -272,3 +272,25 @@ int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
 
   return -1;
 }
+
+/************************************************************************************
+ * Name: termcurses_checkkey
+ *
+ * Description:
+ *   Check if there is a key waiting to be processed.
+ *
+ ************************************************************************************/
+
+bool termcurses_checkkey(FAR struct termcurses_s *term)
+{
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+
+  /* Call the dev function */
+
+  if (dev->ops->checkkey)
+    {
+      return dev->ops->checkkey(term);
+    }
+
+  return 0;
+}

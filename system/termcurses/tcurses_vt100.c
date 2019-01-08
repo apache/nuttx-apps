@@ -107,6 +107,7 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
               unsigned long attrib);
 static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
               FAR int *specialkey, FAR int *keymodifers);
+static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev);
 
 /************************************************************************************
  * Private Data
@@ -120,7 +121,8 @@ static const struct termcurses_ops_s g_vt100_ops =
   tcurses_vt100_getwinsize,
   tcurses_vt100_setcolors,
   tcurses_vt100_setattributes,
-  tcurses_vt100_getkeycode
+  tcurses_vt100_getkeycode,
+  tcurses_vt100_checkkey
 };
 
 /* VT100 terminal codes */
@@ -831,7 +833,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
         {
           /* Get next bytes from input stream */
 
-          priv->keycount = read(fd, priv->keybuf, sizeof(priv->keybuf));
+          priv->keycount = read(fd, priv->keybuf, sizeof(priv->keybuf)-1);
           if (priv->keycount <= 0)
             {
               return -1;
@@ -1045,6 +1047,48 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
     }
 
   return keycode;
+}
+
+/************************************************************************************
+ * Check if a key is cached for processing.
+ *
+ ************************************************************************************/
+
+static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev)
+{
+  FAR struct tcurses_vt100_s  *priv;
+  int                         ret;
+  int                         fd;
+  fd_set                      rfds;
+  struct                      timeval tv;
+
+  priv = (FAR struct tcurses_vt100_s *) dev;
+  fd   = priv->in_fd;
+
+  /* Test for queued characters */
+
+  if (priv->keycount > 0)
+    {
+      return true;
+    }
+
+  /* Watch stdin (fd 0) to see when it has input. */
+
+  FD_ZERO(&rfds);
+  FD_SET(fd, &rfds);
+
+  /* Wait up to 1000us for next character after ESC */
+
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+
+  ret = select(1, &rfds, NULL, NULL, &tv);
+  if (ret > 0)
+    {
+      return true;
+    }
+
+  return false;
 }
 
 /************************************************************************************
