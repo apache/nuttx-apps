@@ -251,11 +251,19 @@
 #  define A_REVERSE    (chtype)0x0200  /* X/Open */
 #  define A_BLINK      (chtype)0x0400  /* X/Open */
 
+#ifdef CONFIG_PDCURSES_SHORT_ALTCHARSET
+#  define A_ATTRIBUTES (chtype)0xff80  /* X/Open */
+#else
 #  define A_ATTRIBUTES (chtype)0xff00  /* X/Open */
+#endif
 #  define A_CHARTEXT   (chtype)0x00ff  /* X/Open */
 #  define A_COLOR      (chtype)0xf800  /* System V */
 
+#ifdef CONFIG_PDCURSES_SHORT_ALTCHARSET
+#  define A_ALTCHARSET (chtype)0x0080  /* X/Open */
+#else
 #  define A_ALTCHARSET A_NORMAL        /* X/Open */
+#endif
 #  define A_PROTECT    A_NORMAL        /* X/Open */
 #  define A_UNDERLINE  A_NORMAL        /* X/Open */
 
@@ -306,7 +314,11 @@
 #ifdef CONFIG_PDCURSES_CHTYPE_LONG
 #  define ACS_PICK(w, n) ((chtype)w | A_ALTCHARSET)
 #else
-#  define ACS_PICK(w, n) ((chtype)n)
+#  ifdef CONFIG_PDCURSES_SHORT_ALTCHARSET
+#    define ACS_PICK(w, n) ((chtype)w | A_ALTCHARSET)
+#  else
+#    define ACS_PICK(w, n) ((chtype)n)
+#  endif
 #endif
 
 /* VT100-compatible symbols -- box chars */

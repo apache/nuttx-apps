@@ -850,25 +850,7 @@ static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
 
       /* Write next character(s) */
 
-      ch = *srcp;
-
-#ifdef CONFIG_PDCURSES_CHTYPE_LONG
-      /* Translate characters 0-127 via acs_map[], if they're flagged with
-       * A_ALTCHARSET in the attribute portion of the chtype.
-       */
-
-      if (*srcp & A_ALTCHARSET && !(*srcp & 0xff80))
-        {
-          ch = acs_map[(*srcp) & 0x7f];
-        }
-      else
-        {
-          ch = *srcp & 0x7F;
-        }
-#else
       ch = *srcp & 0x7F;
-#endif
-
       buffer[0] = ch;
 
       for (i = 1; i < sizeof(buffer) && c+i < len; i++)
@@ -880,31 +862,25 @@ static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
               break;
             }
 
-#ifdef CONFIG_PDCURSES_CHTYPE_LONG
-          /* Translate characters 0-127 via acs_map[], if they're flagged with
-           * A_ALTCHARSET in the attribute portion of the chtype.
-           */
-
-          if (*(srcp + i) & A_ALTCHARSET && !(*(srcp + i) & 0xff80))
-            {
-              ch = acs_map[(*(srcp+i)) & 0x7f];
-            }
-          else
-            {
-              ch = *(srcp + i) & 0x7F;
-            }
-#else
           ch = *(srcp + i) & 0x7F;
-#endif
-
           buffer[i] = ch;
         }
 
       /* Update source pointer and write data */
 
+      if (*srcp & A_ALTCHARSET)
+        {
+          write(termstate->out_fd, "\x1b(0", 3);
+          write(termstate->out_fd, buffer, i);
+          write(termstate->out_fd, "\x1b(B", 3);
+        }
+      else
+        {
+          write(termstate->out_fd, buffer, i);
+        }
+
       srcp += i;
       c += i;
-      write(termstate->out_fd, buffer, i);
     }
 }
 #endif   /* CONFIG_SYSTEM_TERMCURSES */
