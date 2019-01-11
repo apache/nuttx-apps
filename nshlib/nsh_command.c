@@ -587,9 +587,24 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_NSH_DISABLE_HELP
 static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
 {
+  unsigned int colwidth;
+  unsigned int cmdwidth;
   unsigned int i;
   unsigned int j;
   unsigned int k;
+
+  /* Pick an optimal column width */
+
+  for (k = 0, colwidth = 0; k < NUM_CMDS; k++)
+    {
+      cmdwidth = strlen(g_cmdmap[k].cmd);
+      if (cmdwidth > colwidth)
+        {
+          colwidth = cmdwidth;
+        }
+    }
+
+  colwidth += 2;
 
   /* Print the command name in NUM_CMD_ROWS rows with CMDS_PER_LINE commands
    * on each line.
@@ -602,11 +617,14 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
            j < CMDS_PER_LINE && k < NUM_CMDS;
            j++, k += NUM_CMD_ROWS)
         {
-#ifdef CONFIG_NOPRINTF_FIELDWIDTH
-          nsh_output(vtbl, "%s\t", g_cmdmap[k].cmd);
-#else
-          nsh_output(vtbl, "%-12s", g_cmdmap[k].cmd);
-#endif
+          nsh_output(vtbl, "%s", g_cmdmap[k].cmd);
+
+          for (cmdwidth = strlen(g_cmdmap[k].cmd);
+               cmdwidth < colwidth;
+               cmdwidth++)
+            {
+              nsh_output(vtbl, " ");
+            }
         }
 
       nsh_output(vtbl, "\n");
@@ -731,17 +749,29 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   FAR const char *name;
   int num_builtins;
   int num_builtin_rows;
+  unsigned int colwidth;
+  unsigned int cmdwidth;
   unsigned int i;
   unsigned int j;
   unsigned int k;
 
-  /* Count the number of built-in commands */
+  /* Count the number of built-in commands and get the optimal column width */
 
   num_builtins = 0;
-  for (i = 0; builtin_getname(i) != NULL; i++)
+  colwidth     = 0;
+
+  for (i = 0; (name = builtin_getname(i)) != NULL; i++)
     {
       num_builtins++;
+
+      cmdwidth = strlen(name);
+      if (cmdwidth > colwidth)
+        {
+          colwidth = cmdwidth;
+        }
     }
+
+  colwidth += 2;
 
   /* Calculate the number of rows */
 
@@ -759,11 +789,14 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
            j++, k += num_builtin_rows)
         {
           name = builtin_getname(k);
-#ifdef CONFIG_NOPRINTF_FIELDWIDTH
           nsh_output(vtbl, "%s", name);
-#else
-          nsh_output(vtbl, "%-20s", name);
-#endif
+
+          for (cmdwidth = strlen(name);
+               cmdwidth < colwidth;
+               cmdwidth++)
+            {
+              nsh_output(vtbl, " ");
+            }
         }
 
       nsh_output(vtbl, "\n");
