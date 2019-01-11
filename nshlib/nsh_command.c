@@ -95,7 +95,8 @@ static int  cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 static int  cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
+                             char **argv);
 
 /****************************************************************************
  * Private Data
@@ -597,7 +598,9 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
   for (i = 0; i < NUM_CMD_ROWS; i++)
     {
       nsh_output(vtbl, "  ");
-      for (j = 0, k = i; j < CMDS_PER_LINE && k < NUM_CMDS; j++, k += NUM_CMD_ROWS)
+      for (j = 0, k = i;
+           j < CMDS_PER_LINE && k < NUM_CMDS;
+           j++, k += NUM_CMD_ROWS)
         {
 #ifdef CONFIG_NOPRINTF_FIELDWIDTH
           nsh_output(vtbl, "%s\t", g_cmdmap[k].cmd);
@@ -857,7 +860,8 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_unrecognized
  ****************************************************************************/
 
-static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
+                            char **argv)
 {
   nsh_error(vtbl, g_fmtcmdnotfound, argv[0]);
   return ERROR;
