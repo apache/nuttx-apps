@@ -58,12 +58,8 @@
 
 /* Help command summary layout */
 
-#define MAX_CMDLEN        12
-#define CMDS_PER_LINE     6
-#define BUILTINS_PER_LINE 4
-
+#define HELP_LINELEN  80
 #define NUM_CMDS      ((sizeof(g_cmdmap)/sizeof(struct cmdmap_s)) - 1)
-#define NUM_CMD_ROWS  ((NUM_CMDS + (CMDS_PER_LINE-1)) / CMDS_PER_LINE)
 
 /****************************************************************************
  * Private Types
@@ -589,6 +585,8 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
 {
   unsigned int colwidth;
   unsigned int cmdwidth;
+  unsigned int cmdsperline;
+  unsigned int ncmdrows;
   unsigned int i;
   unsigned int j;
   unsigned int k;
@@ -606,16 +604,31 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
 
   colwidth += 2;
 
-  /* Print the command name in NUM_CMD_ROWS rows with CMDS_PER_LINE commands
+  /* Determine the number of commands to put on one line */
+
+  if (colwidth > HELP_LINELEN)
+    {
+      cmdsperline = 1;
+    }
+  else
+    {
+      cmdsperline = HELP_LINELEN / colwidth;
+    }
+
+  /* Determine the total number of lines to output */
+
+  ncmdrows = (NUM_CMDS + (cmdsperline - 1)) / cmdsperline;
+
+  /* Print the command name in 'ncmdrows' rows with 'cmdsperline' commands
    * on each line.
    */
 
-  for (i = 0; i < NUM_CMD_ROWS; i++)
+  for (i = 0; i < ncmdrows; i++)
     {
       nsh_output(vtbl, "  ");
       for (j = 0, k = i;
-           j < CMDS_PER_LINE && k < NUM_CMDS;
-           j++, k += NUM_CMD_ROWS)
+           j < cmdsperline && k < NUM_CMDS;
+           j++, k += ncmdrows)
         {
           nsh_output(vtbl, "%s", g_cmdmap[k].cmd);
 
@@ -747,10 +760,11 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
 {
 #ifdef CONFIG_NSH_BUILTIN_APPS
   FAR const char *name;
-  int num_builtins;
-  int num_builtin_rows;
-  unsigned int colwidth;
-  unsigned int cmdwidth;
+  unsigned int num_builtins;
+  unsigned int column_width;
+  unsigned int builtin_width;
+  unsigned int builtins_per_line;
+  unsigned int num_builtin_rows;
   unsigned int i;
   unsigned int j;
   unsigned int k;
@@ -758,25 +772,36 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   /* Count the number of built-in commands and get the optimal column width */
 
   num_builtins = 0;
-  colwidth     = 0;
+  column_width = 0;
 
   for (i = 0; (name = builtin_getname(i)) != NULL; i++)
     {
       num_builtins++;
 
-      cmdwidth = strlen(name);
-      if (cmdwidth > colwidth)
+      builtin_width = strlen(name);
+      if (builtin_width > column_width)
         {
-          colwidth = cmdwidth;
+          column_width = builtin_width;
         }
     }
 
-  colwidth += 2;
+  column_width += 2;
 
-  /* Calculate the number of rows */
+  /* Determine the number of commands to put on one line */
 
-  num_builtin_rows = ((num_builtins + (BUILTINS_PER_LINE - 1)) /
-                      BUILTINS_PER_LINE);
+  if (column_width > HELP_LINELEN)
+    {
+      builtins_per_line = 1;
+    }
+  else
+    {
+      builtins_per_line = HELP_LINELEN / column_width;
+    }
+
+  /* Determine the total number of lines to output */
+
+  num_builtin_rows = ((num_builtins + (builtins_per_line - 1)) /
+                      builtins_per_line);
 
   /* List the set of available built-in commands */
 
@@ -785,15 +810,15 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
     {
       nsh_output(vtbl, "  ");
       for (j = 0, k = i;
-           j < BUILTINS_PER_LINE && k < num_builtins;
+           j < builtins_per_line && k < num_builtins;
            j++, k += num_builtin_rows)
         {
           name = builtin_getname(k);
           nsh_output(vtbl, "%s", name);
 
-          for (cmdwidth = strlen(name);
-               cmdwidth < colwidth;
-               cmdwidth++)
+          for (builtin_width = strlen(name);
+               builtin_width < column_width;
+               builtin_width++)
             {
               nsh_output(vtbl, " ");
             }
