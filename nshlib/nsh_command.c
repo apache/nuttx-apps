@@ -58,8 +58,9 @@
 
 /* Help command summary layout */
 
-#define MAX_CMDLEN    12
-#define CMDS_PER_LINE 6
+#define MAX_CMDLEN        12
+#define CMDS_PER_LINE     6
+#define BUILTINS_PER_LINE 4
 
 #define NUM_CMDS      ((sizeof(g_cmdmap)/sizeof(struct cmdmap_s)) - 1)
 #define NUM_CMD_ROWS  ((NUM_CMDS + (CMDS_PER_LINE-1)) / CMDS_PER_LINE)
@@ -725,14 +726,44 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
 {
 #ifdef CONFIG_NSH_BUILTIN_APPS
   FAR const char *name;
-  int i;
+  int num_builtins;
+  int num_builtin_rows;
+  unsigned int i;
+  unsigned int j;
+  unsigned int k;
+
+  /* Count the number of built-in commands */
+
+  num_builtins = 0;
+  for (i = 0; builtin_getname(i) != NULL; i++)
+    {
+      num_builtins++;
+    }
+
+  /* Calculate the number of rows */
+
+  num_builtin_rows = ((num_builtins + (BUILTINS_PER_LINE - 1)) /
+                      BUILTINS_PER_LINE);
 
   /* List the set of available built-in commands */
 
   nsh_output(vtbl, "\nBuiltin Apps:\n");
-  for (i = 0; (name = builtin_getname(i)) != NULL; i++)
+  for (i = 0; i < num_builtin_rows; i++)
     {
-      nsh_output(vtbl, "  %s\n", name);
+      nsh_output(vtbl, "  ");
+      for (j = 0, k = i;
+           j < BUILTINS_PER_LINE && k < num_builtins;
+           j++, k += num_builtin_rows)
+        {
+          name = builtin_getname(k);
+#ifdef CONFIG_NOPRINTF_FIELDWIDTH
+          nsh_output(vtbl, "%s", name);
+#else
+          nsh_output(vtbl, "%-20s", name);
+#endif
+        }
+
+      nsh_output(vtbl, "\n");
     }
 #endif
 }
