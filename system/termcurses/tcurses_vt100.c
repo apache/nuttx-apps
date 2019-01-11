@@ -847,9 +847,10 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
       for (x = 0; x < priv->keycount && keycode == -1; x++)
         {
           ch = priv->keybuf[x];
-          if (ch == 0)
+          if (ch == 0 && x + 1 == priv->keycount)
             {
-              continue;
+              priv->keycount = 0;
+              return -1;
             }
 
           /* Test for escape sequence */
