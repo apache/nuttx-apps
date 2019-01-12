@@ -2332,6 +2332,9 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   int       oflags = 0;
   int       argc;
   int       ret;
+#if CONFIG_NFILE_STREAMS > 0
+  bool      redirect_save;
+#endif
 
   /* Initialize parser state */
 
@@ -2500,6 +2503,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
       if (strcmp(argv[argc-2], g_redirect1) == 0)
         {
+          redirect_save        = vtbl->np.np_redirect;
           vtbl->np.np_redirect = true;
           oflags               = O_WRONLY|O_CREAT|O_TRUNC;
           redirfile            = nsh_getfullpath(vtbl, argv[argc-1]);
@@ -2510,6 +2514,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
       else if (strcmp(argv[argc-2], g_redirect2) == 0)
         {
+          redirect_save        = vtbl->np.np_redirect;
           vtbl->np.np_redirect = true;
           oflags               = O_WRONLY|O_CREAT|O_APPEND;
           redirfile            = nsh_getfullpath(vtbl, argv[argc-1]);
@@ -2537,6 +2542,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   if (redirfile)
     {
       nsh_freefullpath(redirfile);
+      vtbl->np.np_redirect = redirect_save;
     }
 #endif
 
