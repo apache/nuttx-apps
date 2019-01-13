@@ -115,7 +115,6 @@ struct i8sak_s
   enum i8sak_mode_e mode;
 
   bool initialized      : 1;
-  bool daemon_started   : 1;
   bool daemon_shutdown  : 1;
   bool verbose          : 1;
   bool acceptall        : 1;

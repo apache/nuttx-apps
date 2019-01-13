@@ -179,7 +179,7 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
         }
 #endif
 
-      i8sak->daemon_started = true;
+      i8sak->daemon_shutdown = false;
       i8sak->daemon_pid = task_create(daemonname, CONFIG_IEEE802154_I8SAK_PRIORITY,
                                       CONFIG_IEEE802154_I8SAK_STACKSIZE, i8sak_daemon,
                                       NULL);
@@ -231,6 +231,7 @@ int i8sak_releasedaemon(FAR struct i8sak_s *i8sak)
       sem_post(&i8sak->updatesem);
     }
 
+  sem_post(&i8sak->daemonlock);
   return 0;
 }
 
@@ -701,8 +702,6 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
 
   sem_init(&i8sak->daemonlock, 0, 1);
 
-  i8sak->daemon_started = false;
-  i8sak->daemon_shutdown = false;
   i8sak->daemonusers = 0;
 
   i8sak->eventlistener_run = false;
@@ -739,7 +738,6 @@ static int i8sak_daemon(int argc, FAR char *argv[])
       if (i8sak->fd < 0)
         {
           fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
-          i8sak->daemon_started = false;
           ret = errno;
           return ret;
         }
@@ -751,7 +749,6 @@ static int i8sak_daemon(int argc, FAR char *argv[])
       if (i8sak->fd < 0)
         {
           fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
-          i8sak->daemon_started = false;
           ret = errno;
           return ret;
         }
@@ -802,7 +799,6 @@ static int i8sak_daemon(int argc, FAR char *argv[])
     }
 
   i8sak_eventlistener_stop(i8sak);
-  i8sak->daemon_started = false;
   close(i8sak->fd);
   printf("i8sak: daemon closing\n");
   return OK;
