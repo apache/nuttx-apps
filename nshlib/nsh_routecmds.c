@@ -152,6 +152,71 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int sockfd;
   int ret;
 
+  /* First, check if we are setting the default route */
+
+  if (strcmp(argv[1], "default") == 0)
+    {
+      /* We are expecting an ip and an interface name to follow. */
+
+      if (argc < 4)
+        {
+          nsh_error(vtbl, g_fmtargrequired, argv[0]);
+          goto errout;
+        }
+      else if (argc > 4)
+        {
+          nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
+          goto errout;
+        }
+
+      /* Convert the target IP address string into its binary form */
+
+#ifdef CONFIG_NET_IPv4
+      family = PF_INET;
+
+      ret = inet_pton(AF_INET, argv[2], &inaddr.ipv4);
+      if (ret != 1)
+#endif
+        {
+#ifdef CONFIG_NET_IPv6
+          family = PF_INET6;
+
+          ret = inet_pton(AF_INET6, argv[2], &inaddr.ipv6);
+          if (ret != 1)
+#endif
+            {
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+              goto errout;
+            }
+        }
+
+#ifdef CONFIG_NET_IPv4
+        if (family == PF_INET)
+          {
+            ret = netlib_set_dripv4addr(argv[3], &inaddr.ipv4);
+            if (ret != 0)
+              {
+                nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
+                goto errout;
+              }
+          }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+        if (family == PF_INET6)
+          {
+            ret = netlib_set_dripv6addr(argv[3], &inaddr.ipv6);
+            if (ret != 0)
+              {
+                nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
+                goto errout;
+              }
+          }
+#endif
+
+        return OK;
+    }
+
   /* Check if slash notation is used with the target address */
 
   shift = slash_notation(argv[1]);
