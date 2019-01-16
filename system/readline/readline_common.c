@@ -90,7 +90,7 @@ static int g_cmd_history_len = 0;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: count_builtin_maches
+ * Name: count_builtin_matches
  *
  * Description:
  *   Count the number of builtin commands
@@ -105,7 +105,7 @@ static int g_cmd_history_len = 0;
  ****************************************************************************/
 
 #if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_BUILTIN)
-static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
+static int count_builtin_matches(FAR char *buf, FAR int *matches, int namelen)
 {
 #if CONFIG_READLINE_MAX_BUILTINS > 0
   FAR const char *name;
@@ -175,7 +175,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 #ifdef CONFIG_BUILTIN
       /* Count the matching builtin commands */
 
-      nr_builtin_matches = count_builtin_maches(buf, builtin_matches, len);
+      nr_builtin_matches = count_builtin_matches(buf, builtin_matches, len);
       nr_matches         = nr_builtin_matches;
 #else
       nr_matches         = 0;
