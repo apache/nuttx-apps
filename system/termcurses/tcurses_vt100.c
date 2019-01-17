@@ -815,15 +815,15 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
 
   /* Wait up to 1000us for next character after ESC */
 
-  tv.tv_sec = 0;
-  tv.tv_usec = 1000;
+  tv.tv_sec     = 0;
+  tv.tv_usec    = 1000;
 
   /* Loop until we have a valid key code, taking escape sequences into account */
 
-  keycode = -1;
+  keycode       = -1;
   *keymodifiers = 0;
-  *specialkey = 0;
-  ismodifier = false;
+  *specialkey   = 0;
+  ismodifier    = false;
 
   while (keycode == -1)
     {
@@ -864,10 +864,11 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
 
               /* Mark as ESC sequence */
 
-              esc_seq = true;
-              ctrl_seq = false;
-              buildkey[0] = ch;
+              esc_seq       = true;
+              ctrl_seq      = false;
+              buildkey[0]   = ch;
               keybuildcount = 1;
+
               if (x + 1 != priv->keycount)
                 {
                   continue;
@@ -911,7 +912,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
                 {
                   /* Test if previous char was '1' */
 
-                  if (buildkey[keybuildcount-1] == '1')
+                  if (buildkey[keybuildcount - 1] == '1')
                     {
                       buildkey[--keybuildcount] = 0;
                     }
@@ -940,7 +941,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
               /* Add character to the buildkey */
 
               buildkey[keybuildcount++] = ch;
-              buildkey[keybuildcount] = 0;
+              buildkey[keybuildcount]   = 0;
 
               /* If there are more bytes in the sequence, then
                * process them prior to searching the keycode
@@ -1025,9 +1026,9 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
             {
               /* It is a special control code */
 
-              buildkey[0] = ch;
+              buildkey[0]   = ch;
               keybuildcount = 1;
-              ctrl_seq = 1;
+              ctrl_seq      = 1;
 
 #ifdef CONFIG_SYSTEM_TERMCURSES_DEBUG_KEYCODES
               /* Print all bytes in ctrl seq */
@@ -1087,7 +1088,7 @@ static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev)
 
   /* Wait up to 1000us for next character after ESC */
 
-  tv.tv_sec = 0;
+  tv.tv_sec  = 0;
   tv.tv_usec = 0;
 
   ret = select(1, &rfds, NULL, NULL, &tv);
