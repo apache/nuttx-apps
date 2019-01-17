@@ -5,6 +5,7 @@
 
 menuconfig SYSTEM_VI
 	tristate "VI Work-Alike Text Editor"
+	select SYSTEM_TERMCURSES
 	default n
 	---help---
 		Enable support for NuttX tiny VI work-alike editor.
@@ -83,6 +84,24 @@ config SYSTEM_VI_PRIORITY
 	default 100
 	---help---
 		Priority of the task to configure when started VI from NSH
+
+config SYSTEM_VI_INCLUDE_COMMAND_REPEAT
+	bool "Include support for '.' command repeat key"
+	default y
+
+# These are placeholders and will be implemented soon
+#config SYSTEM_VI_INCLUDE_UNDO
+#	bool "Include undo/redo support"
+#	default y
+#	---help---
+#		Adds multi-level undo / redo support.
+#
+#config SYSTEM_VI_UNDO_LEVELS
+#	int "Undo / Redo stack size"
+#	depends on SYSTEM_VI_INCLUDE_UNDO
+#	default 10
+#	---help---
+#		Number of undo / redo operations saved.
 
 endif # NSH_BUILTIN_APPS
 endif # SYSTEM_VI
