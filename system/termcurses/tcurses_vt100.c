@@ -1041,6 +1041,13 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
       /* Update keycount and keybuf */
 
       priv->keycount -= x;
+      if (priv->keycount < 0)
+        {
+          /* Hmm, some bug.  Better to simply ignore than to crash */
+
+          priv->keycount = 0;
+        }
+
       if (priv->keycount != 0)
         {
           memmove(priv->keybuf, &priv->keybuf[x], priv->keycount);
