@@ -476,7 +476,10 @@ static uint8_t tcurses_vt100_getcolorindex(int red, int green, int blue)
   int g;
   int b;
   int index;
-  const uint8_t rgbvals[6] = {0, 95, 135, 175, 215, 255};
+  const uint8_t rgbvals[6] =
+  {
+    0, 95, 135, 175, 215, 255
+  };
 
   /* Test for colors 0-7 */
 
@@ -704,8 +707,8 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
                                        unsigned long attrib)
 {
   FAR struct tcurses_vt100_s *priv;
-  int  ret;
-  int  fd;
+  int ret;
+  int fd;
   char str[48];
 
   priv = (FAR struct tcurses_vt100_s *) dev;
@@ -824,6 +827,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
   *keymodifiers = 0;
   *specialkey   = 0;
   ismodifier    = false;
+  buildkeycount = 0;
 
   while (keycode == -1)
     {
