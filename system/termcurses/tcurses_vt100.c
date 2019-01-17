@@ -827,7 +827,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *speci
   *keymodifiers = 0;
   *specialkey   = 0;
   ismodifier    = false;
-  buildkeycount = 0;
+  keybuildcount = 0;
 
   while (keycode == -1)
     {
