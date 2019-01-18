@@ -3267,4 +3267,289 @@
 	* graphics/NxWidgets/nxwidgets/src/clabelgrid.cxx:  Change old-style dbg()
 	  to current ginfo().  From Gregory Nutt (2018-11-09).
 
+7.28 2019-01-19 Gregory Nutt <gnutt@nuttx.org>
+
+	* netutils/webserver:  Contributed by "Anonymous" via attachment to
+	  Bitbucket issue #135: "webserver broken when scripting support enabled
+	  - support for chunked encoding fixes it"
+
+	  The webserver/httpd app is currently broken when script support is
+	  enabled (CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE). The root cause has been
+	  tracked down to the "Content-length" not being available ahead of time
+	  in this case (length of -1 passed to send_headers() ).  On the other
+	  hand, the server closing the socket does not result in FIN being sent
+	  to the browser either (FIN not supported by NuttX yet).
+
+	  Simple solution: Add support for HTTP Chunked Encoding to
+	  webserver/httpd (attached patch).
+
+	  The attached patch is simple. It adds a configuration option to enable
+	  chunked encoding. When enabled, the implementation will auto-detect the
+	  cases where content length is not available ahead of time, and will
+	  automatically engage chunked encoding transfers.
+
+	  Without this patch, the browser/client hangs forever, as it is
+	  expecting more data. With this patch, the browser displays the
+	  content.  From Gregory Nutt (2018-11-23).
+	* From patch attached to nuttx/ Bitbucket Issue #136 from Vlado Vidovic:
+
+	  The patch provided in issue 135, which adds support for HTTP Chunked
+	  Encoding, covers all paths in the webserver app except CGI callbacks.
+	  As a result, if a page being served happens to use CGI, it could
+	  generate stream content that does not comply with HTTP Chunked Encoding.
+
+	  The patch attached amends the webserver app's CGI callbacks to use the
+	  HTTP Chunked Encoding sender function instead of using send()
+	  directly.  From Gregory Nutt (2018-11-23).
+	* apps/system/critmon:  Add a daemon to monitor critical section usage.
+	  From Gregory Nutt (2018-11-24).
+	* apps/wireless/bluetooth/btsak: 'bt bnep0 info' outputs a reversed addr.
+	  It should print BDAddr: aa:bb:cc:dd:ee:ff instead of BDAddr:
+	  ff:ee:dd:cc:bb:aa  From Lwazi (2018-11-25).
+	* Various initialization functions in configs/:  Change /dev/slcd to
+	  /dev/slcd0 for consistency  From Alan Carvalho de Assis (2018-11-25).
+	* wireless/bluetooth/btsak:  Fix some errors in btsak  From Lwazi Dube
+	  (2018-11-27).
+	* system: Fixes build error; There is no result variable, use errcode
+	  instead.  From Anthony Merlino (2018-11-28).
+	* apps/system/critmon/Makefile:  Stack size and priority reversed.  From
+	  Daniel Pereira Carvalho (2018-11-29).
+	* apps/nshlib: Add support to use SLCD as NSH Console  From Alan Carvalho
+	  de Assis (2018-11-29).
+	* wireless/bluetooth/btsak/btsak_main.c: Fix address parsing  From Lwazi
+	  Dube (2018-11-30).
+	* apps/wireless/bluetooth/btsak: Add connect and disconnect commands to
+	  btsak  From Lwazi Dube (2018-12-02).
+	* apps/nshlib/nsh_romfsetc.c:  Add support for CROMFS start-up script.
+	  From David Sidrane (2018-12-06).
+	* apps/wireless/bluetooth/btsak: Remove unnecessary gatt get commands.
+	  From Lwazi Dube (2018-12-08).
+	* apps/testing:  Move apps/examples/ostest to apps/testing/ostest.  From
+	  Gregory Nutt (2018-12-12).
+	* apps/wireless/bluetooth/btsak/btsak_scan.c: Fix reversed address  From
+	  Lwazi Dube (2018-12-17).
+	* apps/system/nsh/nsh_main.c:  Set NSH priorirty if the NSH task was
+	  scheduled at a different priority than the configured priority.  From
+	  Gregory Nutt (2018-12-20).
+	* apps/system/configdata:  Adds an "cfgdata" command which allows
+	  manipulation of the /dev/config items via the command line.  One such
+	  use for this utility would be to set a "macaddr" configdata item, etc.
+	  The utility is sort-of like a u-boot env variable edit function:
+
+	  For instance, to set a "macaddr" when the new CONFIG_MTD_CONFIG_NAMED
+	  option is selected, you would do:
+
+	  nsh> cfgdata set macaddr [0xfc 0x01 0x0b 0x45 0xa1 0x12]
+	  (The brackets denotes an array of bytes)
+	  nsh> cfgdata set hostname myboard
+
+	  or using the old ID,INSTANCE numeric method:
+
+	  nsh> cfgdata set 0,0 [0xfc 0x01 0x0b 0x45 0xa1 0x12]
+	  (The brackets denotes an array of bytes)
+	  nsh> cfgdata set 1,0 myboard
+
+	  You can also display all config items:
+
+	  nsh> cfgdata print all
+	  Name                    Len   Data
+	  macaddr                 6     0xFC 0x01 0x0B 0x45 0xA1 0x12
+	  hostname                8     myboard
+
+	  From Ken Pettit (2018-12-20).
+	* apps/examples/smp: Add dependency on SMP in Kconfig  From Masayuki
+	  Ishikawa (2018-12-25).
+	* apps/testing/ostest:  Add test for pthread-specific data.  From Gregory
+	  Nutt (2018-12-28).
+	* apps/examples/battery:  Add Battery Charger Monitor Example  From Alan
+	  Carvalho de Assis (2019-01-04).
+	* apps/system/termcurses:  Addition of termcurses libraries in
+	  apps/system/termcurses  From Ken Pettit (2019-01-05).
+	* apps/graphics/pdcurs34: Integration of termcurses into pdcurses, plus
+	  pdcurses updates for multi-thread support  From Ken Pettit (2019-01-05).
+	* [WIP] nshlib add var expansion in nsh parse  From Daniel Agar
+	  (2019-01-06).
+	* apps/system/nxplayer: Introduce CONFIG_NXPLAYER_MAINTHREAD_STACKSIZE
+	  From Masayuki Ishikawa (2019-01-07).
+	* apps/graphics/pdcurs34/nuttx and system/termcurses:  This commit fixes
+	  two issues:
+	  1. A memory corruption issue that occurs from a paste operation that
+	     would overflow the fixed buffer size for keyboard processing.
+	  2. A stall in getch() processing when there are cached keycodes in the
+	     termcurses emulation (tcurses_vt100.c)
+	  From Ken Pettit (2019-01-08).
+	* graphics/pdcurs34: This commit adds a configuration option to pdcurses
+	  to enable line-drawing character (ALTCHARSET) when using the short
+	  16-bit chtype.  This is done by limiting the characters to 7-bit ASCII
+	  values and using the 8-th bit as the A_ALTCHARSET bit.  This allows a
+	  significant RAM savings 4K - 20K depending on terminal size) while
+	  still allowing the nicer line-graphic characters for border drawing.
+	  From Ken Pettit (2019-01-08).
+	* apps/nshlib/nsh_command.c:  display built-in apps using multi-column
+	  mode like the nsh commands  From Ken Pettit (2019-01-11).
+	* apps/system/termcurses/tcurses_vt100.c: Fix an issue where the first
+	  curses 'getch()' call sometimes (usually) hangs waiting for a keypress.
+	  This bug was introduced when I fixed the keyboard 'paste' overflow
+	  error.  From Ken Pettit (2019-01-11).
+	* apps/nshlib/nsh_command.c:  In all multi-column help output, calculate
+	  an optimal column width rather than using a hard-coded width that may
+	  or may not be appropriate.  Also make the number of rows presented
+	  dependent upon the maximum width of the widest column.  From Gregory
+	  Nutt (2019-01-11).
+	* apps/nshlib/nsh_parse.c:  Fixes an error in the NSH parser.  There was
+	  a bug when executing an nsh shell script which contains a redirection.
+	  When the command in the script is executed, it sets the
+	  vtbl->np.np_redirect flag (as it should), but then doesn't restore it,
+	  leaving it set at the end of the script execution.  Then the
+	  vtbl->np.np_redirect flag is set when the 'sh' command completes,
+	  causing a restore from un-initialized variables, thus leading to a
+	  crash.  See the code snippet below for an example test case.
+
+	  Test case:
+
+	  NuttShell (NSH)
+	  nsh> mkrd -s 1024 40
+	  nsh> mkfatfs /dev/ram0
+	  nsh> mount -t vfat /dev/ram0 /tmp
+	  nsh> echo "echo 1 > /dev/null" > /tmp/test.sh
+	  nsh> cat /tmp/test.sh
+	  echo 1 > /dev/null
+	  nsh> sh /tmp/test.sh
+	  ...
+
+	  The nsh prompt doesn't get printed.  You can type a couple of commands,
+	  but then the system will crash because of bad pointers.  From Ken
+	  Pettit (2019-01-12).
+	* wireless/ieee802154/i8sak: Fixes issues related to re-running daemon.
+	  Releases lock when releasing daemon. Re-sets daemon_shutdown so that a
+	  subsequent daemon launch does not immediately return.  From Anthony
+	  Merlino (2019-01-13).
+	* NSH addroute: Adds command for setting default gateway. addroute
+	  default <ipaddr> <interface>  From Anthony Merlino (2019-01-13).
+	* apps/system/termcurses: Perform a bounds check to fix a random
+	  Termcurses crash that I haven't been able to track down.  The result of
+	  of the subtraction for priv->keycount should never be negative, but I
+	  think sometimes it is, so better to catch it and avoid a crash until I
+	  can track it down.  From Ken Pettit ? (2019-01-16).
+	* apps/system/vi:
+
+	  Bug fixes and changes to existing functionality
+
+	  1.  Deletion of last line in file using 'dd' caused infinite loop
+	      searching for 'nextline'.  Fixed.
+	  2.  Insertion of line above 1st line using 'O' caused line to be
+	      inserted on 2nd line.  Fixed.
+	  3.  Paste buffer from 'dd' was being free'd after the 'p'aste operation,
+	      preventing multiple paste opportunity.  Fixed.
+	  4.  The cursor was not being bound to the line end and was allowed to
+	      'hover' over the '\n' EOL character.  This caused wierd (relative to
+	      standard vi) insertion locations and cursor movement with 'a'ppend
+	      and 'i'nsert.  Fixed.
+	  5.  The 'vi_shrinkpos' position didn't take the end of file pointer into
+	      account when calculating 'curpos', 'prevpos' variables causing
+	      wierdness when deleting things near the end of the file.  Fixed.
+	  6.  The 'yy'ank command was improperly deleting the text from the
+	      document instead of simply yanking to the paste buffer.  Fixed.
+	  7.  The 'dd'elete line funciton was not copying the deleted line to the
+	      paste buffer as part of the delete operation.  Fixed.
+	  8.  The bottom line of the screen was sometimes being used for document
+	      text and other times for command / find entry.  Fixed by reserving
+	      the bottom the bottom line for status / command only.
+	  9.  When scrolling up / down through a file, the cursor position was not
+	      preserved and moved further and further to the left column based on
+	      the line lengths of the lines visited.  Fixed.
+	  10. The display was being COMPLETELY redrawn with each keystroke,
+	      causing the responsiveness to be unbearable.  Fixed.  Added logic
+	      to dynamicall indicated which portions of the screen need to be
+	      updated (full display, current line to end of screen, current line
+	      only, none).
+	  11. The individual display line updates were being performed a
+	      character at a time by calling the vi_putch() function, causing slow
+	      performance, especially in telnet or USBCDC sessions where there is
+	      a lot of overhead per packet.  Fixed by calling vi_write() instead
+	      with a block of characters with breaks as needed for TAB exansion.
+	  12. The forward delete 'x' operation allowed deletion through '\n'
+	      characters causing lines to be joined.  This is different from
+	      standard vi where 'x' at the end of a line performs a delete
+	      backward operation.  Fixed.
+	  13. When in 'ex' or find sub-modes (':' or '/' bottom line modes),
+	      hitting backspace with empty text did not return the operation to
+	      command mode like it does in standard vi.  Fixed.
+	  14. Performing a 'find' opertation would only search from the current
+	      cursor position to the end of the file and did not wrap like in
+	      standard vi.  Fixed.
+	  15. Loading a file that was larger than the initial text allocation
+	      would force a call to 'vi_extendtext', marking the file as modified
+	      when in fact it hadn't even been loaded yet.  Fixed.
+	  16. Combined vi_insert_mode and vi_replace_mode into a single function
+	      to save code space since they are nearly identical routines.
+	  17. In command mode, backspace was deleting characters which is different
+	      from standard vi.  Backspace in command mode normally simply moves
+	      the cursor left / to the previous line.  Fixed.
+	  18. Added code to handle boundry conditions when the file is new and
+	      commands are applied to an empty file.
+	  19. Fixed vi_shrinktext so it doesn't allocate a zero-length buffer when
+	      the last character in the file is deleted.
+	  20. The 'x' command was not copying to the paste buffer.  Fixed.
+	  21. Fixed parsecolon routine to properly deal with ":wq" command
+	      sequence.
+
+	  New feature additions
+
+	  1.  Vi startup feature to prepend the current working directory to the
+	      supplied filename if it does not start with '/' absolute path
+	      specifier.  This allows editing files in the current directory
+	      without needing to fully qualify the filename.
+	  2.  Standard '~' empty screen line characters for proper identification
+	      of empty '\n' only lines at the end of the file.
+	  3.  Moving into insert or append mode now prints '--INSERT--' in the
+	      status line and clears it upon exit.
+	  4.  Integration with termcurses to detect special keystrokes and to
+	      handle terminal type differences.  Haven't yet converted all vt100
+	      print codes to termcurses equivalents.
+	  5.  Support for up, down, left, right arrows, page-up, page-down keys
+	      in command mode.
+	  6.  Added 'b' command to move cursor 'b'ack to previous word.  Honors
+	      the command repeat value for multiple word moves.
+	  7.  Added 'w' command to move cursor to next 'w'ord.  Honors the command
+	      repeat value for multiple word moves.
+	  8.  Added 'f' and 't' commands to find characters on the current line.
+	      Honors the command repeat value.
+	  9.  Added the find 'n'ext command to repeat the previous find operation.
+	  10. Added the 'H', 'M', and 'L' commands to move the cursor to top,
+	      middle and bottom of the display.
+	  11. Extended yank/paste to manage a paste buffer with character mode in
+	      addition to line mode.  Character mode allows cut / paste of
+	      individual characters or groups of characters vs. full lines.
+	  12. Added support in the 'd'elete and 'y'ank commands for character mode
+	      deletions such as 'dw', 'dfa', '2yw', etc.
+	  13. Added support in paste routine for multiple paste using command value
+	      argument.
+	  14. Added support for the 'D' and 'C' delete and change to end of line
+	      commands.
+	  15. Added support for 's'ubstitute key ('x' followed by insert mode).
+	  16. Modified yank / paste allocation scheme to avoid repeated alloc
+	      and free of paste buffer.  Uses a minimum allocation size scheme and
+	      only does free / realloc when paste does not fit.  If the paste is
+	      smaller than the current allocation and the current allocation is
+	      larger than the threshold, then the buffer is freed and a smaller
+	      buffer allocated.  Otherwise the existing buffer is used.
+	  17. Support for 'P'aste before current cursor position.
+	  18. Support for '?' reverse search mode.
+	  19. Support for 'J'oin next line with current line command.
+	  20. Printing of current row,col in status line of display.
+	  21. Command repeat '.' support for commands that modifiy text.
+	  22. Support in replace  / insert mode for arrow keys, PGUP / PGDN, HOME,
+	     and END.  Using these will cause the command repeat buffer to
+	     reset such that only the last text addition after a cursor movement
+	     is saved.
+	  23. Added 'X' delete previous command.
+	  24. Added "gg" go to top of document command sequence.
+	  25. Added "ZZ" save and quit command (equivalent to :wq).
+	  26. Implemented '^' goto first non-whitespace on current line, along
+	      with '+' and '-' goto first non-whitespace on next / previous line.
+	  27. Added CR / LF goto first non-whitespace on next line in command
+	      mode.
+	  From Ken Pettit ? (2019-01-16).
+
 7.28 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
