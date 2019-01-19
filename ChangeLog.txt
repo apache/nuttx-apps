@@ -3269,14 +3269,10 @@
 
 7.28 2019-01-19 Gregory Nutt <gnutt@nuttx.org>
 
-	* netutils/webserver:  Contributed by "Anonymous" via attachment to
-	  Bitbucket issue #135: "webserver broken when scripting support enabled
-	  - support for chunked encoding fixes it"
-
-	  The webserver/httpd app is currently broken when script support is
-	  enabled (CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE). The root cause has been
-	  tracked down to the "Content-length" not being available ahead of time
-	  in this case (length of -1 passed to send_headers() ).  On the other
+	* netutils/webserver:  The webserver/httpd app is currently broken when script
+	  support is enabled (CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE). The root cause
+	  has been tracked down to the "Content-length" not being available ahead of
+	  time in this case (length of -1 passed to send_headers() ).  On the other
 	  hand, the server closing the socket does not result in FIN being sent
 	  to the browser either (FIN not supported by NuttX yet).
 
@@ -3290,7 +3286,7 @@
 
 	  Without this patch, the browser/client hangs forever, as it is
 	  expecting more data. With this patch, the browser displays the
-	  content.  From Gregory Nutt (2018-11-23).
+	  content.  From Vlado Vidovic (2018-11-23).
 	* From patch attached to nuttx/ Bitbucket Issue #136 from Vlado Vidovic:
 
 	  The patch provided in issue 135, which adds support for HTTP Chunked
@@ -3549,7 +3545,9 @@
 	  26. Implemented '^' goto first non-whitespace on current line, along
 	      with '+' and '-' goto first non-whitespace on next / previous line.
 	  27. Added CR / LF goto first non-whitespace on next line in command
-	      mode.
-	  From Ken Pettit ? (2019-01-16).
+	      mode. From Ken Pettit (2019-01-16).
+	* apps/nshlib:  Fix buffer overrun when redirected to a file.  SAVE_SIZE must
+	  be the same as sizeof(struct serialsave_s).  From Masayuki Ishikawa
+	  (2019-01-19).
 
 7.28 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
