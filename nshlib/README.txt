@@ -297,6 +297,7 @@ o test <expression>
                       integer -lt integer | integer -ne integer
 
 o addroute <target> [<netmask>] <router>
+  addroute default <ipaddr> <interface>
 
   This command adds an entry in the routing table.  The new entry
   will map the IP address of a router on a local network(<router>)
@@ -313,6 +314,9 @@ o addroute <target> [<netmask>] <router>
   which is equivalent to
 
     nsh> addroute 11.0.0.0/24 10.0.0.2
+
+  The second form of the addroute command can be used to set the default
+  gateway.
 
 o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
 
