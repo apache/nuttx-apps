@@ -71,8 +71,9 @@
 #endif
 
 /* Size of info to be saved in call to nsh_redirect */
+/* See struct serialsave_s in nsh_console.c */
 
-#define SAVE_SIZE (sizeof(int) + sizeof(FILE*) + sizeof(bool))
+#define SAVE_SIZE (2 * sizeof(int) + 2 * sizeof(FILE*))
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
