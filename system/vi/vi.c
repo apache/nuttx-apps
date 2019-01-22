@@ -220,6 +220,7 @@ enum vi_cmdmode_key_e
   KEY_CMDMODE_BEGINLINE   = '0',  /* Move cursor to start of current line */
   KEY_CMDMODE_APPEND      = 'a',  /* Enter insertion mode after current character */
   KEY_CMDMODE_WORDBACK    = 'b',  /* Scan to previous word */
+  KEY_CMDMODE_CHANGE      = 'c',  /* Delete text and enter insert mode */
   KEY_CMDMODE_DEL_LINE    = 'd',  /* "dd" deletes a lines */
   KEY_CMDMODE_FINDINLINE  = 'f',  /* Find within current line */
   KEY_CMDMODE_GOTOTOP     = 'g',  /* Two of these sends cursor to the top */
@@ -351,8 +352,9 @@ struct vi_s
   uint8_t cmdlen;           /* Length of the command in the scratch[] buffer */
   bool modified;            /* True: The file has modified */
   bool error;               /* True: There is an error message on the last line */
-  bool delarm;              /* One more 'd' and the line(s) will be deleted */
-  bool yankarm;             /* One more 'y' and the line(s) will be yanked */
+  bool delarm;              /* Delete text arm flag */
+  bool chgarm;              /* Change text arm flag */
+  bool yankarm;             /* Yank text arm flag */
   bool toparm;              /* One more 'g' and the cursor moves to the top */
   bool wqarm;               /* One more 'Z' is the same as :wq */
   bool fullredraw;          /* True to draw all lines on screen */
@@ -1453,6 +1455,7 @@ static void vi_setmode(FAR struct vi_s *vi, uint8_t mode, long value)
   vi->delarm         = false;
   vi->yankarm        = false;
   vi->toparm         = false;
+  vi->chgarm         = false;
   vi->wqarm          = false;
   vi->value          = value;
   vi->cmdlen         = 0;
@@ -1640,6 +1643,13 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
   uint16_t tmp;
   int column;
   int nlines;
+
+  /* Sanity test */
+
+  if (vi->curpos > vi->textsize)
+    {
+      vi->curpos = vi->textsize;
+    }
 
   /* Get the text buffer offset to the beginning of the current line */
 
@@ -2470,7 +2480,7 @@ static void vi_deltoeol(FAR struct vi_s *vi)
   /* Yank and remove text from the buffer */
 
   vi_yanktext(vi, start, end, true, true);
-  if (start != vi->textsize && vi->text[start] != '\n')
+  if (start > 0 && start != vi->textsize && vi->text[start - 1] != '\n')
     {
       vi->curpos = start-1;
     }
@@ -2589,6 +2599,7 @@ static void vi_yank(FAR struct vi_s *vi, bool del_after_yank)
   off_t yank_end;
   off_t textsize;
   int pos_increment = 0;
+  bool empty_last_line = false;
 
   /* Get the offset in the text buffer corresponding to the range of lines to
    * be yanked
@@ -2621,6 +2632,15 @@ static void vi_yank(FAR struct vi_s *vi, bool del_after_yank)
 
   viinfo("start=%ld end=%ld\n", (long)start, (long)end);
 
+  /* Test if deleting last line with empty line above it */
+
+  if ((end > 0 && start == end && end == vi->textsize -1 &&
+      vi->text[end-1] == '\n') || (start > 1 && end + 1 ==
+      vi->textsize && vi->text[start-2] == '\n'))
+    {
+      empty_last_line = true;
+    }
+
   vi_yanktext(vi, start, yank_end, 0, del_after_yank);
 
   /* If the last line was yanked, then remove the '\n' on the
@@ -2634,7 +2654,17 @@ static void vi_yank(FAR struct vi_s *vi, bool del_after_yank)
 
   /* Place cursor at beginning of the line */
 
-  vi->curpos = vi_linebegin(vi, vi->curpos + pos_increment);
+  if (del_after_yank)
+    {
+      if (empty_last_line)
+        {
+          vi->curpos = vi->textsize;
+        }
+      else
+        {
+          vi->curpos = vi_linebegin(vi, vi->curpos + pos_increment);
+        }
+    }
 }
 
 /****************************************************************************
@@ -2654,7 +2684,7 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
 
   viinfo("curpos=%ld yankalloc=%d\n", (long)vi->curpos, (long)vi->yankalloc);
 
-  /* Make sure there is something to be yanked */
+  /* Make sure there is something to be pasted */
 
   if (!vi->yank || vi->yanksize <= 0)
     {
@@ -2726,9 +2756,11 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
           /* Test if pasting at end of file */
 
           new_curpos = start;
-          if (start >= vi->textsize && vi->text[vi->textsize-1] != '\n')
+          if ((start >= vi->textsize && vi->text[vi->textsize-1] != '\n') ||
+              vi->curpos == vi->textsize)
             {
               off_t textsize = vi->textsize;
+              bool at_end = vi->curpos == vi->textsize;
 
               vi->curpos = vi->textsize;
               vi_insertch(vi, '\n');
@@ -2737,7 +2769,7 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
 
               /* Don't append the \n' in the yank buffer */
 
-              if (vi->text[textsize-1] != '\n')
+              if (vi->text[textsize-1] != '\n' || at_end)
                 {
                   size--;
                 }
@@ -2748,7 +2780,7 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
           else if (start >= vi->textsize)
             {
               start          = vi->textsize;
-              new_curpos     = start + size;
+              new_curpos     = start;
               vi->fullredraw = true;
             }
 
@@ -3031,9 +3063,9 @@ static void vi_gotonextword(FAR struct vi_s *vi)
       vi->curpos = vi_findnextword(vi);
     }
 
-  /* Test if yank or delete are armed */
+  /* Test if yank,  delete or change are armed */
 
-  if (vi->yankarm || vi->delarm)
+  if (vi->yankarm || vi->delarm || vi->chgarm)
     {
       /* Rewind so we don't yank skipped whitespace */
 
@@ -3083,14 +3115,25 @@ static void vi_gotonextword(FAR struct vi_s *vi)
         {
           /* Multi-line delete? */
 
-          vi->fullredraw = vi->delarm;
+          vi->fullredraw = vi->delarm || vi->chgarm;
         }
 
       /* Perform the yank */
 
       end = vi->curpos + 1 == vi->textsize ? vi->curpos : vi->curpos - 1;
-      vi_yanktext(vi, start, end, 1, vi->delarm);
-      if (vi->delarm)
+      if (vi->chgarm)
+        {
+          end--;
+        }
+
+      /* Yank text if it isn't a single \n character */
+
+      if (!(start == end && vi->text[start] == '\n'))
+        {
+          vi_yanktext(vi, start, end, 1, vi->delarm | vi->chgarm);
+        }
+
+      if (vi->delarm | vi->chgarm)
         {
           /* Redraw line if text deleted */
 
@@ -3104,14 +3147,22 @@ static void vi_gotonextword(FAR struct vi_s *vi)
 #ifdef CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT
       /* Setup command repeat */
 
-      if (vi->delarm)
+      if (vi->delarm | vi->chgarm)
         {
-          vi_saverepeat(vi, 'd');
+          vi_saverepeat(vi, vi->delarm ? 'd' : 'c');
           vi_appendrepeat(vi, 'w');
         }
 #endif
 
+      /* If change text is armed, then enter insert mode */
+
+      if (vi->chgarm)
+        {
+          vi_setmode(vi, MODE_INSERT, 0);
+        }
+
       vi->delarm = false;
+      vi->chgarm = false;
       vi->yankarm = false;
     }
 }
@@ -3506,6 +3557,13 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             {
               vi->yankarm = false;
             }
+
+          /* Anything other than 'c' disarms line yanking */
+
+          if (ch != 'c')
+            {
+              vi->chgarm = false;
+            }
         }
 
       /* Anything other than'g' disarms goto top */
@@ -3738,6 +3796,36 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             else
               {
                 vi->delarm = true;
+                preserve = true;
+              }
+          }
+          break;
+
+        case KEY_CMDMODE_CHANGE:
+          {
+            if (vi->chgarm)
+              {
+#ifdef CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT
+                vi_saverepeat(vi, ch);
+                vi_appendrepeat(vi, ch);
+#endif
+                vi_gotofirstnonwhite(vi);
+                vi_deltoeol(vi);
+                vi_setmode(vi, MODE_INSERT, 0);
+                if (vi->curpos == vi->textsize)
+                  {
+                    vi->curpos = vi_cursorright(vi, vi->curpos, 1) + 1;
+                  }
+                else
+                  {
+                    vi->curpos = vi_cursorright(vi, vi->curpos, 1);
+                  }
+
+                vi->chgarm = false;
+              }
+            else
+              {
+                vi->chgarm = true;
                 preserve = true;
               }
           }
@@ -4117,7 +4205,14 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         case KEY_CMDMODE_MARK:    /* Place a mark beginning at the current cursor position */
         default:
           {
-            VI_BEL(vi);
+            if (ch == -1)
+              {
+                continue;
+              }
+            else
+              {
+                VI_BEL(vi);
+              }
           }
           break;
         }
@@ -5186,12 +5281,12 @@ static void vi_findinline_mode(FAR struct vi_s *vi)
 
       /* Test if yank or del armed */
 
-      if (vi->yankarm || vi->delarm)
+      if (vi->yankarm || vi->delarm || vi->chgarm)
         {
           /* Yank the text and possibly delete */
 
-          vi_yanktext(vi, vi->curpos, pos, 1, vi->delarm);
-          if (vi->delarm)
+          vi_yanktext(vi, vi->curpos, pos, 1, vi->delarm || vi->chgarm);
+          if (vi->delarm || vi->chgarm)
             {
               /* Redraw line if text deleted */
 
@@ -5201,13 +5296,22 @@ static void vi_findinline_mode(FAR struct vi_s *vi)
 #ifdef CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT
           /* Setup command repeat */
 
-          if (vi->delarm)
+          if (vi->delarm || vi->chgarm)
             {
-              vi_saverepeat(vi, 'd');
+              vi_saverepeat(vi, vi->delarm ? 'd' : 'c');
               vi_appendrepeat(vi, vi->tfind ? 't' : 'f');
               vi_appendrepeat(vi, ch);
             }
 #endif
+
+          /* If change text is armed, then enter insert mode */
+
+          if (vi->chgarm)
+            {
+              vi->chgarm = false;
+              vi_setmode(vi, MODE_INSERT, 0);
+              return;
+            }
 
           vi->delarm = false;
           vi->yankarm = false;
