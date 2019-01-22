@@ -11,5 +11,18 @@ config SYSTEM_CFGDATA
 		Enable support for the CFGDATA tool.
 
 if SYSTEM_CFGDATA
+
+config SYSTEM_CFGDATA_STACKSIZE
+	int "Builtin task stack size"
+	default 2048
+	---help---
+		Size of the task to configure when started cfgdata from NSH
+
+config SYSTEM_CFGDATA_PRIORITY
+	int "Builtin task priority"
+	default 100
+	---help---
+		Priority of the task to configure when started cfgdata from NSH
+
 endif
 
