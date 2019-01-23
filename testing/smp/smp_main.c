@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/smp/smp_main.c
+ * apps/testing/smp/smp_main.c
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -58,7 +58,7 @@
 static pthread_barrier_t g_smp_barrier;
 
 #if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
-static volatile int g_thread_cpu[CONFIG_EXAMPLES_SMP_NBARRIER_THREADS+1];
+static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS+1];
 #endif
 
 /****************************************************************************
@@ -223,7 +223,7 @@ int main(int argc, FAR char *argv[])
 int smp_main(int argc, char *argv[])
 #endif
 {
-  pthread_t threadid[CONFIG_EXAMPLES_SMP_NBARRIER_THREADS];
+  pthread_t threadid[CONFIG_TESTING_SMP_NBARRIER_THREADS];
   pthread_addr_t result;
   pthread_attr_t attr;
   pthread_barrierattr_t barrierattr;
@@ -233,13 +233,13 @@ int smp_main(int argc, char *argv[])
 
   /* Initialize data */
 
-  memset(threadid, 0, sizeof(pthread_t) * CONFIG_EXAMPLES_SMP_NBARRIER_THREADS);
-  for (i = 0; i <= CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
+  memset(threadid, 0, sizeof(pthread_t) * CONFIG_TESTING_SMP_NBARRIER_THREADS);
+  for (i = 0; i <= CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
 #if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
       g_thread_cpu[i] = IMPOSSIBLE_CPU;
 #endif
-      if (i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS)
+      if (i < CONFIG_TESTING_SMP_NBARRIER_THREADS)
         {
           threadid[i] = 0;
         }
@@ -258,7 +258,7 @@ int smp_main(int argc, char *argv[])
     }
 
   ret = pthread_barrier_init(&g_smp_barrier, &barrierattr,
-                             CONFIG_EXAMPLES_SMP_NBARRIER_THREADS);
+                             CONFIG_TESTING_SMP_NBARRIER_THREADS);
   if (ret != OK)
     {
       printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n", ret);
@@ -271,7 +271,7 @@ int smp_main(int argc, char *argv[])
 
   (void)pthread_barrierattr_init(&barrierattr);
 
-  /* Start CONFIG_EXAMPLES_SMP_NBARRIER_THREADS thread instances */
+  /* Start CONFIG_TESTING_SMP_NBARRIER_THREADS thread instances */
 
   ret = pthread_attr_init(&attr);
   if (ret != OK)
@@ -282,7 +282,7 @@ int smp_main(int argc, char *argv[])
       goto errout_with_barrier;
     }
 
-  for (i = 0; i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
+  for (i = 0; i < CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
       ret = pthread_create(&threadid[i], &attr, barrier_thread,
                            (pthread_addr_t)((uintptr_t)i+1));
@@ -307,7 +307,7 @@ int smp_main(int argc, char *argv[])
 
   /* Wait for all thread instances to complete */
 
-  for (i = 0; i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
+  for (i = 0; i < CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
       if (threadid[i] != 0)
         {

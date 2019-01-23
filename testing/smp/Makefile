@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/smp/Makefile
+# apps/testing/smp/Makefile
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,12 +37,12 @@
 
 # SMP built-in application info
 
-CONFIG_EXAMPLES_SMP_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_SMP_STACKSIZE ?= 2048
+CONFIG_TESTING_SMP_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_TESTING_SMP_STACKSIZE ?= 2048
 
 APPNAME = smp
-PRIORITY = $(CONFIG_EXAMPLES_SMP_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_SMP_STACKSIZE)
+PRIORITY = $(CONFIG_TESTING_SMP_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SMP_STACKSIZE)
 
 # SMP Example
 
@@ -50,9 +50,9 @@ ASRCS =
 CSRCS =
 MAINSRC = smp_main.c
 
-CONFIG_EXAMPLES_SMP_PROGNAME ?= smp$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_SMP_PROGNAME)
+CONFIG_TESTING_SMP_PROGNAME ?= smp$(EXEEXT)
+PROGNAME = $(CONFIG_TESTING_SMP_PROGNAME)
 
-MODULE = CONFIG_EXAMPLES_SMP
+MODULE = CONFIG_TESTING_SMP
 
 include $(APPDIR)/Application.mk

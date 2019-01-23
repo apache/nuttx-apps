@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_SMP
+config TESTING_SMP
 	tristate "SMP example"
 	default n
 	depends on SMP
@@ -12,9 +12,9 @@ config EXAMPLES_SMP
 		barrier test from apps/testing/ostest and adds some instrumentation
 		useful for debugging SMP implementations.
 
-if EXAMPLES_SMP
+if TESTING_SMP
 
-config EXAMPLES_SMP_NBARRIER_THREADS
+config TESTING_SMP_NBARRIER_THREADS
 	int "Number of barrier threads"
 	default 8
 	---help---
@@ -22,7 +22,7 @@ config EXAMPLES_SMP_NBARRIER_THREADS
 		is 8 but a smaller number may be needed on systems without sufficient memory
 		to start so many threads.
 
-config EXAMPLES_SMP_PROGNAME
+config TESTING_SMP_PROGNAME
 	string "Program name"
 	default "smp"
 	depends on BUILD_LOADABLE
@@ -30,11 +30,11 @@ config EXAMPLES_SMP_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_SMP_PRIORITY
+config TESTING_SMP_PRIORITY
 	int "SMP task priority"
 	default 100
 
-config EXAMPLES_SMP_STACKSIZE
+config TESTING_SMP_STACKSIZE
 	int "SMP stack size"
 	default 2048
 

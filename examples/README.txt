@@ -1684,12 +1684,6 @@ examples/smart_test
     * CONFIG_NSH_BUILTIN_APPS=y: This test can be built only as an NSH
       command
 
-examples/smp
-^^^^^^^^^^^^
-
-  This is a simple test for SMP functionality.  It is basically just the
-  pthread barrier test with some custom instrumentation.
-
 examples/smps
 ^^^^^^^^^^^^^
 

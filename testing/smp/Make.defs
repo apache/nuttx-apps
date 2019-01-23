@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/smp/Make.defs
+# apps/testing/smp/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.
@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_SMP),)
-CONFIGURED_APPS += examples/smp
+ifneq ($(CONFIG_TESTING_SMP),)
+CONFIGURED_APPS += testing/smp
 endif
