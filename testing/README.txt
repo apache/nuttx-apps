@@ -4,8 +4,37 @@ apps/testing README file
   The apps/testing directory is used to build NuttX-specific tests and to
   include external testing frameworks
 
-examples/ostest
-^^^^^^^^^^^^^^^
+testing/fstest
+==============
+
+  This is a generic file system test that derives from testing/nxffs.  It
+  was created to test the tmpfs file system, but should work with any file
+  system provided that all initialization has already been performed prior
+  to starting the test.
+
+  This test a a general test for any file system, but includes some specific
+  hooks for the SPIFFS file system.
+
+  * CONFIG_TESTING_FSTEST: Enable the file system example
+  * CONFIG_TESTING_FSTEST_MAXNAME: Determines the maximum size of names used
+    in the filesystem
+  * CONFIG_TESTING_FSTEST_MAXFILE: Determines the maximum size of a file
+  * CONFIG_TESTING_FSTEST_MAXIO: Max I/O, default 347.
+  * CONFIG_TESTING_FSTEST_MAXOPEN: Max open files.
+  * CONFIG_TESTING_FSTEST_MOUNTPT: Path where the file system is mounted.
+  * CONFIG_TESTING_FSTEST_NLOOPS: Number of test loops. default 100
+  * CONFIG_TESTING_FSTEST_VERBOSE: Verbose output
+
+testing/nxffs
+=============
+
+  This is a test of the NuttX NXFFS FLASH file system.  This is an NXFFS
+  stress test and beats on the file system very hard.  It should only
+  be used in a simulation environment!  Putting this NXFFS test on real
+  hardware will most likely destroy your FLASH.  You have been warned.
+
+testing/ostest
+==============
 
   This is the NuttX 'qualification' suite.  It attempts to exercise
   a broad set of OS functionality.  Its coverage is not very extensive
@@ -38,8 +67,68 @@ examples/ostest
       searches for prime numbers in the configurable range, doing that configurable
       number of times.
 
+testing/smart
+=============
+
+  This is a test of the SMART file system that derives from
+  testing/nxffs.
+
+  * CONFIG_TESTING_SMART: - Enable the SMART file system example
+  * CONFIG_TESTING_SMART_ARCHINIT: The default is to use the RAM MTD
+    device at drivers/mtd/rammtd.c.  But an architecture-specific MTD
+    driver can be used instead by defining CONFIG_TESTING_SMART_ARCHINIT.  In
+    this case, the initialization logic will call smart_archinitialize()
+    to obtain the MTD driver instance.
+  * CONFIG_TESTING_SMART_NEBLOCKS: When CONFIG_TESTING_SMART_ARCHINIT is not
+    defined, this test will use the RAM MTD device at drivers/mtd/rammtd.c
+    to simulate FLASH.  In this case, this value must be provided to give
+    the nubmer of erase blocks in MTD RAM device.  The size of the allocated
+    RAM drive will be: CONFIG_RAMMTD_ERASESIZE * CONFIG_TESTING_SMART_NEBLOCKS
+  * CONFIG_TESTING_SMART_MAXNAME: Determines the maximum size of names used
+    in the filesystem
+  * CONFIG_TESTING_SMART_MAXFILE: Determines the maximum size of a file
+  * CONFIG_TESTING_SMART_MAXIO: Max I/O, default 347.
+  * CONFIG_TESTING_SMART_MAXOPEN: Max open files.
+  * CONFIG_TESTING_SMART_MOUNTPT: SMART mountpoint
+  * CONFIG_TESTING_SMART_NLOOPS: Number of test loops. default 100
+  * CONFIG_TESTING_SMART_VERBOSE: Verbose output
+
+testing/smart_test
+==================
+
+  Performs a file-based test on a SMART (or any) filesystem. Validates
+  seek, append and seek-with-write operations.
+
+    * CONFIG_TESTING_SMART_TEST=y
+
+  Dependencies:
+
+    * CONFIG_NSH_BUILTIN_APPS=y: This test can be built only as an NSH
+      command
+
+    Source: NuttX
+    Author: Ken Pettit
+    Date: April 24, 2013
+
+  Performs a file-based test on a SMART (or any) filesystem. Validates seek,
+  append and seek-with-write operations.
+
+  Usage:
+
+    flash_test mtdblock_device
+
+  Additional options:
+
+    --force                     to replace existing installation
+
+testing/smp
+===========
+
+  This is a simple test for SMP functionality.  It is basically just the
+  pthread barrier test with some custom instrumentation.
+
 testing/unity
-^^^^^^^^^^^^^^
+=============
 
   Unity is a unit testing framework for C developed by ThrowTheSwitch.org:
 

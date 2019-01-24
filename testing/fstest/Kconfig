@@ -3,16 +3,16 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_FSTEST
+config TESTING_FSTEST
 	tristate "Generic file system test"
 	default n
 	depends on FS_READABLE && FS_WRITABLE
 	---help---
 		Enable the generic file system test
 
-if EXAMPLES_FSTEST
+if TESTING_FSTEST
 
-config EXAMPLES_FSTEST_PROGNAME
+config TESTING_FSTEST_PROGNAME
 	string "Program name"
 	default "fstest"
 	depends on BUILD_LOADABLE
@@ -20,43 +20,43 @@ config EXAMPLES_FSTEST_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_FSTEST_PRIORITY
+config TESTING_FSTEST_PRIORITY
 	int "FS test task priority"
 	default 100
 
-config EXAMPLES_FSTEST_STACKSIZE
+config TESTING_FSTEST_STACKSIZE
 	int "FS test stack size"
 	default 2048
 
-config EXAMPLES_FSTEST_MAXNAME
+config TESTING_FSTEST_MAXNAME
 	int "Max name size"
 	default 32
 	range 1 255
 	---help---
 		Determines the maximum size of names used in the filesystem
 
-config EXAMPLES_FSTEST_MAXFILE
+config TESTING_FSTEST_MAXFILE
 	int "Max file size"
 	default 8192
 	---help---
 		Determines the maximum size of a file
 
-config EXAMPLES_FSTEST_MAXIO
+config TESTING_FSTEST_MAXIO
 	int "Max I/O"
 	default 347
 
-config EXAMPLES_FSTEST_MAXOPEN
+config TESTING_FSTEST_MAXOPEN
 	int "Max open files"
 	default 512
 
-config EXAMPLES_FSTEST_MOUNTPT
+config TESTING_FSTEST_MOUNTPT
 	string "FSTEST mountpoint"
 
-config EXAMPLES_FSTEST_NLOOPS
+config TESTING_FSTEST_NLOOPS
 	int "Number of test loops"
 	default 100
 
-config EXAMPLES_FSTEST_SPIFFS
+config TESTING_FSTEST_SPIFFS
 	bool "Enable SPIFFS testing"
 	default y
 	depends on FS_SPIFFS && EXPERIMENTAL
@@ -69,7 +69,7 @@ config EXAMPLES_FSTEST_SPIFFS
 
 		Marked EXPERIMENTAL because it interferes with test performance.
 
-config EXAMPLES_FSTEST_VERBOSE
+config TESTING_FSTEST_VERBOSE
 	bool "Verbose output"
 	default n
 

@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/fstest/fstest_main.c
+ * testing/smart/smart_main.c
  *
- *   Copyright (C) 2015, 2018 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,6 @@
 #include <nuttx/config.h>
 
 #include <sys/mount.h>
-#include <sys/ioctl.h>
-#include <sys/statfs.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -54,53 +52,79 @@
 #include <crc32.h>
 #include <debug.h>
 
+#include <nuttx/mtd/mtd.h>
+#include <nuttx/fs/smart.h>
+#include <nuttx/fs/ioctl.h>
+
+#include "fsutils/mksmartfs.h"
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
+/* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
+ * an architecture-specific MTD driver can be used instead by defining
+ * CONFIG_TESTING_SMART_ARCHINIT.  In this case, the initialization logic
+ * will call smart_archinitialize() to obtain the MTD driver instance.
+ */
 
-#ifndef CONFIG_EXAMPLES_FSTEST_MAXNAME
-#  define CONFIG_EXAMPLES_FSTEST_MAXNAME 128
+#ifndef CONFIG_TESTING_SMART_ARCHINIT
+
+/* This must exactly match the default configuration in drivers/mtd/rammtd.c */
+
+#  ifndef CONFIG_RAMMTD_ERASESIZE
+#    define CONFIG_RAMMTD_ERASESIZE 4096
+#  endif
+
+#  ifndef CONFIG_TESTING_SMART_NEBLOCKS
+#    define CONFIG_TESTING_SMART_NEBLOCKS (256)
+#  endif
+
+#  define TESTING_SMART_BUFSIZE \
+  (CONFIG_RAMMTD_ERASESIZE * CONFIG_TESTING_SMART_NEBLOCKS)
 #endif
 
-#if CONFIG_EXAMPLES_FSTEST_MAXNAME > 255
-#  undef CONFIG_EXAMPLES_FSTEST_MAXNAME
-#  define CONFIG_EXAMPLES_FSTEST_MAXNAME 255
+#ifndef CONFIG_TESTING_SMART_MAXNAME
+#  define CONFIG_TESTING_SMART_MAXNAME 128
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_MAXFILE
-#  define CONFIG_EXAMPLES_FSTEST_MAXFILE 8192
+#if CONFIG_TESTING_SMART_MAXNAME > 255
+#  undef CONFIG_TESTING_SMART_MAXNAME
+#  define CONFIG_TESTING_SMART_MAXNAME 255
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_MAXIO
-#  define CONFIG_EXAMPLES_FSTEST_MAXIO 347
+#ifndef CONFIG_TESTING_SMART_MAXFILE
+#  define CONFIG_TESTING_SMART_MAXFILE 8192
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_MAXOPEN
-#  define CONFIG_EXAMPLES_FSTEST_MAXOPEN 512
+#ifndef CONFIG_TESTING_SMART_MAXIO
+#  define CONFIG_TESTING_SMART_MAXIO 347
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_MOUNTPT
-#  error CONFIG_EXAMPLES_FSTEST_MOUNTPT must be provided
+#ifndef CONFIG_TESTING_SMART_MAXOPEN
+#  define CONFIG_TESTING_SMART_MAXOPEN 512
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_NLOOPS
-#  define CONFIG_EXAMPLES_FSTEST_NLOOPS 100
+#ifndef CONFIG_TESTING_SMART_MOUNTPT
+#  define CONFIG_TESTING_SMART_MOUNTPT "/mnt/smart"
 #endif
 
-#ifndef CONFIG_EXAMPLES_FSTEST_VERBOSE
-#  define CONFIG_EXAMPLES_FSTEST_VERBOSE 0
+#ifndef CONFIG_TESTING_SMART_NLOOPS
+#  define CONFIG_TESTING_SMART_NLOOPS 100
+#endif
+
+#ifndef CONFIG_TESTING_SMART_VERBOSE
+#  define CONFIG_TESTING_SMART_VERBOSE 0
 #endif
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct fstest_filedesc_s
+struct smart_filedesc_s
 {
   FAR char *name;
   bool deleted;
-  bool failed;
   size_t len;
   uint32_t crc;
 };
@@ -110,28 +134,38 @@ struct fstest_filedesc_s
  ****************************************************************************/
 /* Pre-allocated simulated flash */
 
-static uint8_t g_fileimage[CONFIG_EXAMPLES_FSTEST_MAXFILE];
-static struct fstest_filedesc_s g_files[CONFIG_EXAMPLES_FSTEST_MAXOPEN];
-static const char g_mountdir[] = CONFIG_EXAMPLES_FSTEST_MOUNTPT "/";
+#ifndef CONFIG_TESTING_SMART_ARCHINIT
+static uint8_t g_simflash[TESTING_SMART_BUFSIZE];
+#endif
+
+static uint8_t g_fileimage[CONFIG_TESTING_SMART_MAXFILE];
+static struct smart_filedesc_s g_files[CONFIG_TESTING_SMART_MAXOPEN];
+static const char g_mountdir[] = CONFIG_TESTING_SMART_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
-static int g_nfailed;
-static bool g_media_full;
 
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
 static struct mallinfo g_mmafter;
 
 /****************************************************************************
+ * External Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_SMART_ARCHINIT
+extern FAR struct mtd_dev_s *smart_archinitialize(void);
+#endif
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: fstest_memusage
+ * Name: smart_memusage
  ****************************************************************************/
 
-static void fstest_showmemusage(struct mallinfo *mmbefore,
-                                struct mallinfo *mmafter)
+static void smart_showmemusage(struct mallinfo *mmbefore,
+                               struct mallinfo *mmafter)
 {
   printf("VARIABLE  BEFORE   AFTER\n");
   printf("======== ======== ========\n");
@@ -143,10 +177,10 @@ static void fstest_showmemusage(struct mallinfo *mmbefore,
 }
 
 /****************************************************************************
- * Name: fstest_loopmemusage
+ * Name: smart_loopmemusage
  ****************************************************************************/
 
-static void fstest_loopmemusage(void)
+static void smart_loopmemusage(void)
 {
   /* Get the current memory usage */
 
@@ -159,7 +193,7 @@ static void fstest_loopmemusage(void)
   /* Show the change from the previous loop */
 
   printf("\nEnd of loop memory usage:\n");
-  fstest_showmemusage(&g_mmprevious, &g_mmafter);
+  smart_showmemusage(&g_mmprevious, &g_mmafter);
 
   /* Set up for the next test */
 
@@ -171,10 +205,10 @@ static void fstest_loopmemusage(void)
 }
 
 /****************************************************************************
- * Name: fstest_endmemusage
+ * Name: smart_endmemusage
  ****************************************************************************/
 
-static void fstest_endmemusage(void)
+static void smart_endmemusage(void)
 {
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
@@ -182,14 +216,14 @@ static void fstest_endmemusage(void)
   (void)mallinfo(&g_mmafter);
 #endif
   printf("\nFinal memory usage:\n");
-  fstest_showmemusage(&g_mmbefore, &g_mmafter);
+  smart_showmemusage(&g_mmbefore, &g_mmafter);
 }
 
 /****************************************************************************
- * Name: fstest_randchar
+ * Name: smart_randchar
  ****************************************************************************/
 
-static inline char fstest_randchar(void)
+static inline char smart_randchar(void)
 {
   int value = rand() % 63;
   if (value == 0)
@@ -211,10 +245,10 @@ static inline char fstest_randchar(void)
 }
 
 /****************************************************************************
- * Name: fstest_randname
+ * Name: smart_randname
  ****************************************************************************/
 
-static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
+static inline void smart_randname(FAR struct smart_filedesc_s *file)
 {
   int dirlen;
   int maxname;
@@ -223,7 +257,7 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
   int i;
 
   dirlen   = strlen(g_mountdir);
-  maxname  = CONFIG_EXAMPLES_FSTEST_MAXNAME - dirlen;
+  maxname  = CONFIG_TESTING_SMART_MAXNAME - dirlen;
   namelen  = (rand() % maxname) + 1;
   alloclen = namelen + dirlen;
 
@@ -238,156 +272,48 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
   memcpy(file->name, g_mountdir, dirlen);
   for (i = dirlen; i < alloclen; i++)
     {
-      file->name[i] = fstest_randchar();
+      file->name[i] = smart_randchar();
     }
 
   file->name[alloclen] = '\0';
 }
 
 /****************************************************************************
- * Name: fstest_randfile
+ * Name: smart_randfile
  ****************************************************************************/
 
-static inline void fstest_randfile(FAR struct fstest_filedesc_s *file)
+static inline void smart_randfile(FAR struct smart_filedesc_s *file)
 {
   int i;
 
-  file->len = (rand() % CONFIG_EXAMPLES_FSTEST_MAXFILE) + 1;
+  file->len = (rand() % CONFIG_TESTING_SMART_MAXFILE) + 1;
   for (i = 0; i < file->len; i++)
     {
-      g_fileimage[i] = fstest_randchar();
+      g_fileimage[i] = smart_randchar();
     }
 
   file->crc = crc32(g_fileimage, file->len);
 }
 
 /****************************************************************************
- * Name: fstest_freefile
+ * Name: smart_freefile
  ****************************************************************************/
 
-static void fstest_freefile(FAR struct fstest_filedesc_s *file)
+static void smart_freefile(FAR struct smart_filedesc_s *file)
 {
   if (file->name)
     {
       free(file->name);
     }
 
-  memset(file, 0, sizeof(struct fstest_filedesc_s));
+  memset(file, 0, sizeof(struct smart_filedesc_s));
 }
 
 /****************************************************************************
- * Name: fstest_gc and fstest_gc_withfd
+ * Name: smart_wrfile
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_FSTEST_SPIFFS
-static int fstest_gc_withfd(int fd, size_t nbytes)
-{
-  int ret;
-
-#ifdef CONFIG_SPIFFS_DUMP
-  /* Dump the logic content of FLASH before garbage collection */
-
-  printf("SPIFFS Content (before GC):\n");
-
-  ret = ioctl(fd, FIOC_DUMP, (unsigned long)nbytes);
-  if (ret < 0)
-    {
-      printf("ERROR: ioctl(FIOC_DUMP) failed: %d\n", errno);
-    }
-#endif
-
-  /* Perform SPIFFS garbage collection */
-
-  printf("SPIFFS Garbage Collection:  %lu bytes\n", (unsigned long)nbytes);
-
-  ret = ioctl(fd, FIOC_OPTIMIZE, (unsigned long)nbytes);
-  if (ret < 0)
-    {
-      int ret2;
-
-      printf("ERROR: ioctl(FIOC_OPTIMIZE) failed: %d\n", errno);
-      printf("SPIFFS Integrity Test\n");
-
-      ret2 = ioctl(fd, FIOC_INTEGRITY, 0);
-      if (ret2 < 0)
-        {
-          printf("ERROR: ioctl(FIOC_INTEGRITY) failed: %d\n", errno);
-        }
-    }
-  else
-    {
-      /* Check the integrity of the SPIFFS file system */
-
-      printf("SPIFFS Integrity Test\n");
-
-      ret = ioctl(fd, FIOC_INTEGRITY, 0);
-      if (ret < 0)
-        {
-          printf("ERROR: ioctl(FIOC_INTEGRITY) failed: %d\n", errno);
-        }
-    }
-
-#ifdef CONFIG_SPIFFS_DUMP
-  /* Dump the logic content of FLASH after garbage collection */
-
-  printf("SPIFFS Content (After GC):\n");
-
-  ret = ioctl(fd, FIOC_DUMP, (unsigned long)nbytes);
-  if (ret < 0)
-    {
-      printf("ERROR: ioctl(FIOC_DUMP) failed: %d\n", errno);
-    }
-#endif
-
-  return ret;
-}
-
-static int fstest_gc(size_t nbytes)
-{
-  FAR struct fstest_filedesc_s *file;
-  int ret = OK;
-  int fd;
-  int i;
-
-  /* Find the first valid file */
-
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
-    {
-      file = &g_files[i];
-      if (file->name != NULL && !file->deleted)
-        {
-          /* Open the file for reading */
-
-          fd = open(file->name, O_RDONLY);
-          if (fd < 0)
-            {
-              printf("ERROR: Failed to open file for reading: %d\n", errno);
-              ret = ERROR;
-            }
-          else
-            {
-              /* Use this file descriptor to support the garbage collection */
-
-              ret = fstest_gc_withfd(fd, nbytes);
-              close(fd);
-            }
-
-          break;
-        }
-    }
-
-  return ret;
-}
-#else
-#  define fstest_gc_withfd(f,n) (-ENOSYS)
-#  define fstest_gc(n)          (-ENOSYS)
-#endif
-
-/****************************************************************************
- * Name: fstest_wrfile
- ****************************************************************************/
-
-static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
+static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 {
   size_t offset;
   int fd;
@@ -395,9 +321,8 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
 
   /* Create a random file */
 
-  fstest_randname(file);
-  fstest_randfile(file);
-
+  smart_randname(file);
+  smart_randfile(file);
   fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
@@ -412,7 +337,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
           printf("  File size: %d\n", file->len);
         }
 
-      fstest_freefile(file);
+      smart_freefile(file);
       return ERROR;
     }
 
@@ -420,7 +345,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
 
   for (offset = 0; offset < file->len; )
     {
-      size_t maxio = (rand() % CONFIG_EXAMPLES_FSTEST_MAXIO) + 1;
+      size_t maxio = (rand() % CONFIG_TESTING_SMART_MAXIO) + 1;
       size_t nbytestowrite = file->len - offset;
       ssize_t nbyteswritten;
 
@@ -434,25 +359,18 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
         {
           int errcode = errno;
 
-          /* If the write failed because an interrupt occurred or because there
-           * there is no space on the device, then don't complain.
+          /* If the write failed because there is no space on the device,
+           * then don't complain.
            */
 
-          if (errcode == EINTR)
-            {
-              continue;
-            }
-          else if (errcode == ENOSPC)
-            {
-              g_media_full = true;
-            }
-          else
+          if (errcode != ENOSPC)
             {
               printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
               printf("  File size:    %d\n", file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
+              ret = ERROR;
             }
 
           close(fd);
@@ -466,12 +384,12 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
             }
           else
             {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
               printf("  Successfully removed partial file\n");
 #endif
             }
 
-          fstest_freefile(file);
+          smart_freefile(file);
           return ERROR;
         }
       else if (nbyteswritten != nbytestowrite)
@@ -492,42 +410,35 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
 }
 
 /****************************************************************************
- * Name: fstest_fillfs
+ * Name: smart_fillfs
  ****************************************************************************/
 
-static int fstest_fillfs(void)
+static int smart_fillfs(void)
 {
-  FAR struct fstest_filedesc_s *file;
+  FAR struct smart_filedesc_s *file;
   int ret;
   int i;
 
   /* Create a file for each unused file structure */
 
-  g_media_full = false;
-
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_SMART_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name == NULL)
         {
-          ret = fstest_wrfile(file);
+          ret = smart_wrfile(file);
           if (ret < 0)
             {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
               printf("ERROR: Failed to write file %d\n", i);
 #endif
               return ERROR;
             }
 
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
          printf("  Created file %s\n", file->name);
 #endif
          g_nfiles++;
-
-         if (g_media_full)
-           {
-             break;
-           }
         }
     }
 
@@ -535,13 +446,13 @@ static int fstest_fillfs(void)
 }
 
 /****************************************************************************
- * Name: fstest_rdblock
+ * Name: smart_rdblock
  ****************************************************************************/
 
-static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
-                              size_t offset, size_t len)
+static ssize_t smart_rdblock(int fd, FAR struct smart_filedesc_s *file,
+                             size_t offset, size_t len)
 {
-  size_t maxio = (rand() % CONFIG_EXAMPLES_FSTEST_MAXIO) + 1;
+  size_t maxio = (rand() % CONFIG_TESTING_SMART_MAXIO) + 1;
   ssize_t nbytesread;
 
   if (len > maxio)
@@ -549,57 +460,45 @@ static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
       len = maxio;
     }
 
-  for (; ; )
+  nbytesread = read(fd, &g_fileimage[offset], len);
+  if (nbytesread < 0)
     {
-      nbytesread = read(fd, &g_fileimage[offset], len);
-      if (nbytesread < 0)
-        {
-          int errcode = errno;
-
-          if (errcode == EINTR)
-            {
-              continue;
-            }
-          else
-            {
-              printf("ERROR: Failed to read file: %d\n", errno);
-              printf("  File name:    %s\n", file->name);
-              printf("  File size:    %d\n", file->len);
-              printf("  Read offset:  %ld\n", (long)offset);
-              printf("  Read size:    %ld\n", (long)len);
-              return ERROR;
-            }
-        }
-      else if (nbytesread == 0)
-        {
-#if 0 /* No... we do this on purpose sometimes */
-          printf("ERROR: Unexpected end-of-file:\n");
-          printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
-          printf("  Read offset:  %ld\n", (long)offset);
-          printf("  Read size:    %ld\n", (long)len);
-#endif
-          return ERROR;
-        }
-      else if (nbytesread != len)
-        {
-          printf("ERROR: Partial read:\n");
-          printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
-          printf("  Read offset:  %ld\n", (long)offset);
-          printf("  Read size:    %ld\n", (long)len);
-          printf("  Bytes read:   %ld\n", (long)nbytesread);
-        }
-
-      return nbytesread;
+      printf("ERROR: Failed to read file: %d\n", errno);
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
+      return ERROR;
     }
+  else if (nbytesread == 0)
+    {
+#if 0 /* No... we do this on purpose sometimes */
+      printf("ERROR: Unexpected end-of-file:\n");
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
+#endif
+      return ERROR;
+    }
+  else if (nbytesread != len)
+    {
+      printf("ERROR: Partial read:\n");
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
+      printf("  Bytes read:   %ld\n", (long)nbytesread);
+    }
+
+  return nbytesread;
 }
 
 /****************************************************************************
- * Name: fstest_rdfile
+ * Name: smart_rdfile
  ****************************************************************************/
 
-static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
+static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
 {
   size_t ntotalread;
   ssize_t nbytesread;
@@ -621,11 +520,11 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
       return ERROR;
     }
 
-  /* Read all of the data info the file image buffer using random read sizes */
+  /* Read all of the data info the fileimage buffer using random read sizes */
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
-      nbytesread = fstest_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      nbytesread = smart_rdblock(fd, file, ntotalread, file->len - ntotalread);
       if (nbytesread < 0)
         {
           close(fd);
@@ -649,7 +548,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
 
   /* Try reading past the end of the file */
 
-  nbytesread = fstest_rdblock(fd, file, ntotalread, 1024) ;
+  nbytesread = smart_rdblock(fd, file, ntotalread, 1024) ;
   if (nbytesread > 0)
     {
       printf("ERROR: Read past the end of file\n");
@@ -665,77 +564,31 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
 }
 
 /****************************************************************************
- * Name: fstest_filesize
+ * Name: smart_verifyfs
  ****************************************************************************/
 
-#ifdef CONFIG_HAVE_LONG_LONG
-static unsigned long long fstest_filesize(void)
+static int smart_verifyfs(void)
 {
-  unsigned long long bytes_used;
-  FAR struct fstest_filedesc_s *file;
-  int i;
-
-  bytes_used = 0;
-
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
-    {
-      file = &g_files[i];
-      if (file->name != NULL && !file->deleted)
-        {
-          bytes_used += file->len;
-        }
-    }
-
-  return bytes_used;
-}
-#else
-static unsigned long fstest_filesize(void)
-{
-  unsigned long bytes_used;
-  FAR struct fstest_filedesc_s *file;
-  int i;
-
-  bytes_used = 0;
-
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
-    {
-      file = &g_files[i];
-      if (file->name != NULL && !file->deleted)
-        {
-          bytes_used += file->len;
-        }
-    }
-
-  return bytes_used;
-}
-#endif
-
-/****************************************************************************
- * Name: fstest_verifyfs
- ****************************************************************************/
-
-static int fstest_verifyfs(void)
-{
-  FAR struct fstest_filedesc_s *file;
+  FAR struct smart_filedesc_s *file;
   int ret;
   int i;
 
   /* Create a file for each unused file structure */
 
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_SMART_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name != NULL)
         {
-          ret = fstest_rdfile(file);
+          ret = smart_rdfile(file);
           if (ret < 0)
             {
               if (file->deleted)
                 {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
                   printf("Deleted file %d OK\n", i);
 #endif
-                  fstest_freefile(file);
+                  smart_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
                 }
@@ -751,20 +604,20 @@ static int fstest_verifyfs(void)
             {
               if (file->deleted)
                 {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
-                  printf("ERROR: Successfully read a deleted file\n");
+#if CONFIG_TESTING_SMART_VERBOSE != 0
+                  printf("Succesffully read a deleted file\n");
                   printf("  File name: %s\n", file->name);
                   printf("  File size: %d\n", file->len);
 #endif
-                  fstest_freefile(file);
+                  smart_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
                   return ERROR;
                 }
               else
                 {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
-                  printf("  Verified file %s\n", file->name);
+#if CONFIG_TESTING_SMART_VERBOSE != 0
+                  printf("  Verifed file %s\n", file->name);
 #endif
                 }
             }
@@ -775,12 +628,12 @@ static int fstest_verifyfs(void)
 }
 
 /****************************************************************************
- * Name: fstest_delfiles
+ * Name: smart_delfiles
  ****************************************************************************/
 
-static int fstest_delfiles(void)
+static int smart_delfiles(void)
 {
-  FAR struct fstest_filedesc_s *file;
+  FAR struct smart_filedesc_s *file;
   int ndel;
   int ret;
   int i;
@@ -788,8 +641,8 @@ static int fstest_delfiles(void)
 
   /* Are there any files to be deleted? */
 
-  int nfiles = g_nfiles - g_ndeleted - g_nfailed;
-  if (nfiles <= 1)
+  int nfiles = g_nfiles - g_ndeleted;
+  if (nfiles < 1)
     {
       return 0;
     }
@@ -814,7 +667,7 @@ static int fstest_delfiles(void)
         {
           /* Test for wrap-around */
 
-          if (j >= CONFIG_EXAMPLES_FSTEST_MAXOPEN)
+          if (j >= CONFIG_TESTING_FSTEST_MAXOPEN)
             {
               j = 0;
             }
@@ -829,23 +682,10 @@ static int fstest_delfiles(void)
                   printf("  File name:  %s\n", file->name);
                   printf("  File size:  %d\n", file->len);
                   printf("  File index: %d\n", j);
-
-                  /* If we don't do this we can get stuck in an infinite
-                   * loop on certain failures to unlink a file.
-                   */
-
-                  file->failed = true;
-                  g_nfailed++;
-                  nfiles--;
-
-                  if (nfiles < 1)
-                    {
-                      return ret;
-                    }
                 }
               else
                 {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
                   printf("  Deleted file %s\n", file->name);
 #endif
                   file->deleted = true;
@@ -860,16 +700,16 @@ static int fstest_delfiles(void)
 }
 
 /****************************************************************************
- * Name: fstest_delallfiles
+ * Name: smart_delallfiles
  ****************************************************************************/
 
-static int fstest_delallfiles(void)
+static int smart_delallfiles(void)
 {
-  FAR struct fstest_filedesc_s *file;
+  FAR struct smart_filedesc_s *file;
   int ret;
   int i;
 
-  for (i = 0; i < CONFIG_EXAMPLES_FSTEST_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_SMART_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name)
@@ -884,10 +724,10 @@ static int fstest_delallfiles(void)
             }
           else
             {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
               printf("  Deleted file %s\n", file->name);
 #endif
-              fstest_freefile(file);
+              smart_freefile(file);
             }
         }
     }
@@ -898,10 +738,10 @@ static int fstest_delallfiles(void)
 }
 
 /****************************************************************************
- * Name: fstest_directory
+ * Name: smart_directory
  ****************************************************************************/
 
-static int fstest_directory(void)
+static int smart_directory(void)
 {
   DIR *dirp;
   FAR struct dirent *entryp;
@@ -909,14 +749,14 @@ static int fstest_directory(void)
 
   /* Open the directory */
 
-  dirp = opendir(CONFIG_EXAMPLES_FSTEST_MOUNTPT);
+  dirp = opendir(CONFIG_TESTING_SMART_MOUNTPT);
 
   if (!dirp)
     {
       /* Failed to open the directory */
 
       printf("ERROR: Failed to open directory '%s': %d\n",
-             CONFIG_EXAMPLES_FSTEST_MOUNTPT, errno);
+             CONFIG_TESTING_SMART_MOUNTPT, errno);
       return ERROR;
     }
 
@@ -948,22 +788,65 @@ static int fstest_directory(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: fstest_main
+ * Name: smart_main
  ****************************************************************************/
 
 #ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
-int fstest_main(int argc, char *argv[])
+int smart_main(int argc, char *argv[])
 #endif
 {
-  struct statfs buf;
+  FAR struct mtd_dev_s *mtd;
   unsigned int i;
   int ret;
 
   /* Seed the random number generated */
 
   srand(0x93846);
+
+  /* Create and initialize a RAM MTD device instance */
+
+#ifdef CONFIG_TESTING_SMART_ARCHINIT
+  mtd = smart_archinitialize();
+#else
+  mtd = rammtd_initialize(g_simflash, TESTING_SMART_BUFSIZE);
+#endif
+  if (!mtd)
+    {
+      printf("ERROR: Failed to create RAM MTD instance\n");
+      fflush(stdout);
+      exit(1);
+    }
+
+  /* Initialize to provide SMART on an MTD interface */
+
+  MTD_IOCTL(mtd, MTDIOC_BULKERASE, 0);
+  ret = smart_initialize(1, mtd, "SmartTest");
+  if (ret < 0)
+    {
+      printf("ERROR: SMART initialization failed: %d\n", -ret);
+      fflush(stdout);
+      exit(2);
+    }
+
+  /* Create a SMARTFS filesystem */
+
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+  (void)mksmartfs("/dev/smart1", 1024, 1);
+#else
+  (void)mksmartfs("/dev/smart1", 1024);
+#endif
+
+  /* Mount the file system */
+
+  ret = mount("/dev/smart1", CONFIG_TESTING_SMART_MOUNTPT, "smartfs", 0, NULL);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to mount the SMART volume: %d\n", errno);
+      fflush(stdout);
+      exit(3);
+    }
 
   /* Set up memory monitoring */
 
@@ -980,35 +863,30 @@ int fstest_main(int argc, char *argv[])
    * delete, etc.  This beats the FLASH very hard!
    */
 
-#if CONFIG_EXAMPLES_FSTEST_NLOOPS == 0
+#if CONFIG_TESTING_SMART_NLOOPS == 0
   for (i = 0; ; i++)
 #else
-  for (i = 1; i <= CONFIG_EXAMPLES_FSTEST_NLOOPS; i++)
+  for (i = 1; i <= CONFIG_TESTING_SMART_NLOOPS; i++)
 #endif
     {
-      /* Write a files to the file system until either (1) all of the open
-       * file structures are utilized or until (2) the file system reports an
-       * error (hopefully meaning that the file system is full)
+      /* Write a files to the SMART file system until either (1) all of the
+       * open file structures are utilized or until (2) SMART reports an error
+       * (hopefully that the file system is full)
        */
 
       printf("\n=== FILLING %u =============================\n", i);
-      (void)fstest_fillfs();
+      (void)smart_fillfs();
       printf("Filled file system\n");
       printf("  Number of files: %d\n", g_nfiles);
       printf("  Number deleted:  %d\n", g_ndeleted);
 
       /* Directory listing */
 
-      fstest_directory();
-#ifdef CONFIG_HAVE_LONG_LONG
-      printf("Total file size: %llu\n", fstest_filesize());
-#else
-      printf("Total file size: %lu\n", fstest_filesize());
-#endif
+      smart_directory();
 
       /* Verify all files written to FLASH */
 
-      ret = fstest_verifyfs();
+      ret = smart_verifyfs();
       if (ret < 0)
         {
           printf("ERROR: Failed to verify files\n");
@@ -1017,7 +895,7 @@ int fstest_main(int argc, char *argv[])
         }
       else
         {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
           printf("Verified!\n");
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
@@ -1027,7 +905,7 @@ int fstest_main(int argc, char *argv[])
       /* Delete some files */
 
       printf("\n=== DELETING %u ============================\n", i);
-      ret = fstest_delfiles();
+      ret = smart_delfiles();
       if (ret < 0)
         {
           printf("ERROR: Failed to delete files\n");
@@ -1043,16 +921,11 @@ int fstest_main(int argc, char *argv[])
 
       /* Directory listing */
 
-      fstest_directory();
-#ifdef CONFIG_HAVE_LONG_LONG
-      printf("Total file size: %llu\n", fstest_filesize());
-#else
-      printf("Total file size: %lu\n", fstest_filesize());
-#endif
+      smart_directory();
 
       /* Verify all files written to FLASH */
 
-      ret = fstest_verifyfs();
+      ret = smart_verifyfs();
       if (ret < 0)
         {
           printf("ERROR: Failed to verify files\n");
@@ -1061,45 +934,23 @@ int fstest_main(int argc, char *argv[])
         }
       else
         {
-#if CONFIG_EXAMPLES_FSTEST_VERBOSE != 0
+#if CONFIG_TESTING_SMART_VERBOSE != 0
           printf("Verified!\n");
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
 #endif
         }
 
-      /* Show file system usage */
-
-      ret = statfs(g_mountdir, &buf);
-      if (ret < 0)
-        {
-           printf("ERROR: statfs failed: %d\n", errno);
-        }
-      else
-        {
-           printf("File System:\n");
-           printf("  Block Size:      %lu\n", (unsigned long)buf.f_bsize);
-           printf("  No. Blocks:      %lu\n", (unsigned long)buf.f_blocks);
-           printf("  Free Blocks:     %ld\n", (long)buf.f_bfree);
-           printf("  Avail. Blocks:   %ld\n", (long)buf.f_bavail);
-           printf("  No. File Nodes:  %ld\n", (long)buf.f_files);
-           printf("  Free File Nodes: %ld\n", (long)buf.f_ffree);
-        }
-
-      /* Perform garbage collection, integrity checks */
-
-      (void)fstest_gc(buf.f_bfree);
-
       /* Show memory usage */
 
-      fstest_loopmemusage();
+      smart_loopmemusage();
       fflush(stdout);
     }
 
   /* Delete all files then show memory usage again */
 
-  fstest_delallfiles();
-  fstest_endmemusage();
+  smart_delallfiles();
+  smart_endmemusage();
   fflush(stdout);
   return 0;
 }

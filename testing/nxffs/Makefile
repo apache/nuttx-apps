@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/nxffs/Makefile
+# apps/testing/nxffs/Makefile
 #
 #   Copyright (C) 2011-2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -46,6 +46,6 @@ MAINSRC = nxffs_main.c
 CONFIG_XYZ_PROGNAME ?= nxffs$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-MODULE = CONFIG_EXAMPLES_NXFFS
+MODULE = CONFIG_TESTING_NXFFS
 
 include $(APPDIR)/Application.mk

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/nxffs/Make.defs
+# apps/testing/smart/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2015 Gregory Nutt. All rights reserved.
@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_NXFFS),)
-CONFIGURED_APPS += examples/nxffs
+ifneq ($(CONFIG_TESTING_SMART),)
+CONFIGURED_APPS += testing/smart
 endif

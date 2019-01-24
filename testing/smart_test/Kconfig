@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_SMART_TEST
+config TESTING_SMART_TEST
 	tristate "SMART filesystem test tool"
 	default n
 	depends on NSH_BUILTIN_APPS
@@ -12,5 +12,5 @@ config EXAMPLES_SMART_TEST
 		seek, append and seek-with-write operations.  This test can be built
 		only as an NSH command
 
-if EXAMPLES_SMART_TEST
+if TESTING_SMART_TEST
 endif

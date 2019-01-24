@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/smart/Makefile
+# apps/testing/fstest/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,17 +35,24 @@
 
 -include $(TOPDIR)/Make.defs
 
-# SMART file system stress test
+# Generic file system stress test application info
 
-APPNAME = smart
+CONFIG_TESTING_FSTEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_TESTING_FSTEST_STACKSIZE ?= 2048
+
+APPNAME = fstest
+PRIORITY = $(CONFIG_TESTING_FSTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_FSTEST_STACKSIZE)
+
+# Generic file system stress test
 
 ASRCS =
 CSRCS =
-MAINSRC = smart_main.c
+MAINSRC = fstest_main.c
 
-CONFIG_XYZ_PROGNAME ?= smart$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_TESTING_FSTEST_PROGNAME ?= hello$(EXEEXT)
+PROGNAME = $(CONFIG_TESTING_FSTEST_PROGNAME)
 
-MODULE = CONFIG_EXAMPLES_SMART
+MODULE = CONFIG_TESTING_FSTEST
 
 include $(APPDIR)/Application.mk

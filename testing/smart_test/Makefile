@@ -1,9 +1,9 @@
 ############################################################################
-# apps/examples/fstest/Make.defs
-# Adds selected applications to apps/ build
+# apps/system/smart_test/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2013 Ken Pettit. All rights reserved.
+#   Author: Ken Pettit <pettitkd@gmail.com>
+#           Greg Nutt
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -34,6 +34,25 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_FSTEST),)
-CONFIGURED_APPS += examples/fstest
+-include $(TOPDIR)/Make.defs
+
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
 endif
+
+# SMART filesystem test tool
+
+APPNAME = smart_test
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 4096
+
+ASRCS =
+CSRCS =
+MAINSRC = smart_test.c
+
+CONFIG_XYZ_PROGNAME ?= smart_test$(EXEEXT)
+PROGNAME = $(CONFIG_XYZ_PROGNAME)
+
+MODULE = CONFIG_TESTING_SMART_TEST
+
+include $(APPDIR)/Application.mk

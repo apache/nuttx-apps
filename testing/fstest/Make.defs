@@ -1,5 +1,6 @@
 ############################################################################
-# apps/examples/fstest/Makefile
+# apps/testing/fstest/Make.defs
+# Adds selected applications to apps/ build
 #
 #   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,26 +34,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-# Generic file system stress test application info
-
-CONFIG_EXAMPLES_FSTEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_FSTEST_STACKSIZE ?= 2048
-
-APPNAME = fstest
-PRIORITY = $(CONFIG_EXAMPLES_FSTEST_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_FSTEST_STACKSIZE)
-
-# Generic file system stress test
-
-ASRCS =
-CSRCS =
-MAINSRC = fstest_main.c
-
-CONFIG_EXAMPLES_FSTEST_PROGNAME ?= hello$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_FSTEST_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_FSTEST
-
-include $(APPDIR)/Application.mk
+ifneq ($(CONFIG_TESTING_FSTEST),)
+CONFIGURED_APPS += testing/fstest
+endif

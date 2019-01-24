@@ -535,6 +535,7 @@ static int smart_circular_log_test(char *filename)
  * Description: Displays usage information for the command.
  *
  ****************************************************************************/
+
 static void smart_usage(void)
 {
   fprintf(stderr, "usage: smart_test [-c COUNT] [-s SEEKCOUNT] [-w WRITECOUNT] smart_mounted_filename\n\n");

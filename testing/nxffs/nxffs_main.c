@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/smart/smart_main.c
+ * testing/nxffs/nxffs_main.c
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,10 +53,7 @@
 #include <debug.h>
 
 #include <nuttx/mtd/mtd.h>
-#include <nuttx/fs/smart.h>
-#include <nuttx/fs/ioctl.h>
-
-#include "fsutils/mksmartfs.h"
+#include <nuttx/fs/nxffs.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -64,11 +61,11 @@
 /* Configuration ************************************************************/
 /* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
  * an architecture-specific MTD driver can be used instead by defining
- * CONFIG_EXAMPLES_SMART_ARCHINIT.  In this case, the initialization logic
- * will call smart_archinitialize() to obtain the MTD driver instance.
+ * CONFIG_TESTING_NXFFS_ARCHINIT.  In this case, the initialization logic
+ * will call nxffs_archinitialize() to obtain the MTD driver instance.
  */
 
-#ifndef CONFIG_EXAMPLES_SMART_ARCHINIT
+#ifndef CONFIG_TESTING_NXFFS_ARCHINIT
 
 /* This must exactly match the default configuration in drivers/mtd/rammtd.c */
 
@@ -76,52 +73,52 @@
 #    define CONFIG_RAMMTD_ERASESIZE 4096
 #  endif
 
-#  ifndef CONFIG_EXAMPLES_SMART_NEBLOCKS
-#    define CONFIG_EXAMPLES_SMART_NEBLOCKS (256)
+#  ifndef CONFIG_TESTING_NXFFS_NEBLOCKS
+#    define CONFIG_TESTING_NXFFS_NEBLOCKS (32)
 #  endif
 
-#  define EXAMPLES_SMART_BUFSIZE \
-  (CONFIG_RAMMTD_ERASESIZE * CONFIG_EXAMPLES_SMART_NEBLOCKS)
+#  define TESTING_NXFFS_BUFSIZE \
+  (CONFIG_RAMMTD_ERASESIZE * CONFIG_TESTING_NXFFS_NEBLOCKS)
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_MAXNAME
-#  define CONFIG_EXAMPLES_SMART_MAXNAME 128
+#ifndef CONFIG_TESTING_NXFFS_MAXNAME
+#  define CONFIG_TESTING_NXFFS_MAXNAME 128
 #endif
 
-#if CONFIG_EXAMPLES_SMART_MAXNAME > 255
-#  undef CONFIG_EXAMPLES_SMART_MAXNAME
-#  define CONFIG_EXAMPLES_SMART_MAXNAME 255
+#if CONFIG_TESTING_NXFFS_MAXNAME > 255
+#  undef CONFIG_TESTING_NXFFS_MAXNAME
+#  define CONFIG_TESTING_NXFFS_MAXNAME 255
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_MAXFILE
-#  define CONFIG_EXAMPLES_SMART_MAXFILE 8192
+#ifndef CONFIG_TESTING_NXFFS_MAXFILE
+#  define CONFIG_TESTING_NXFFS_MAXFILE 8192
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_MAXIO
-#  define CONFIG_EXAMPLES_SMART_MAXIO 347
+#ifndef CONFIG_TESTING_NXFFS_MAXIO
+#  define CONFIG_TESTING_NXFFS_MAXIO 347
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_MAXOPEN
-#  define CONFIG_EXAMPLES_SMART_MAXOPEN 512
+#ifndef CONFIG_TESTING_NXFFS_MAXOPEN
+#  define CONFIG_TESTING_NXFFS_MAXOPEN 512
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_MOUNTPT
-#  define CONFIG_EXAMPLES_SMART_MOUNTPT "/mnt/smart"
+#ifndef CONFIG_TESTING_NXFFS_MOUNTPT
+#  define CONFIG_TESTING_NXFFS_MOUNTPT "/mnt/nxffs"
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_NLOOPS
-#  define CONFIG_EXAMPLES_SMART_NLOOPS 100
+#ifndef CONFIG_TESTING_NXFFS_NLOOPS
+#  define CONFIG_TESTING_NXFFS_NLOOPS 100
 #endif
 
-#ifndef CONFIG_EXAMPLES_SMART_VERBOSE
-#  define CONFIG_EXAMPLES_SMART_VERBOSE 0
+#ifndef CONFIG_TESTING_NXFFS_VERBOSE
+#  define CONFIG_TESTING_NXFFS_VERBOSE 0
 #endif
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct smart_filedesc_s
+struct nxffs_filedesc_s
 {
   FAR char *name;
   bool deleted;
@@ -134,13 +131,13 @@ struct smart_filedesc_s
  ****************************************************************************/
 /* Pre-allocated simulated flash */
 
-#ifndef CONFIG_EXAMPLES_SMART_ARCHINIT
-static uint8_t g_simflash[EXAMPLES_SMART_BUFSIZE];
+#ifndef CONFIG_TESTING_NXFFS_ARCHINIT
+static uint8_t g_simflash[TESTING_NXFFS_BUFSIZE];
 #endif
 
-static uint8_t g_fileimage[CONFIG_EXAMPLES_SMART_MAXFILE];
-static struct smart_filedesc_s g_files[CONFIG_EXAMPLES_SMART_MAXOPEN];
-static const char g_mountdir[] = CONFIG_EXAMPLES_SMART_MOUNTPT "/";
+static uint8_t g_fileimage[CONFIG_TESTING_NXFFS_MAXFILE];
+static struct nxffs_filedesc_s g_files[CONFIG_TESTING_NXFFS_MAXOPEN];
+static const char g_mountdir[] = CONFIG_TESTING_NXFFS_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
 
@@ -152,8 +149,8 @@ static struct mallinfo g_mmafter;
  * External Functions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_SMART_ARCHINIT
-extern FAR struct mtd_dev_s *smart_archinitialize(void);
+#ifdef CONFIG_TESTING_NXFFS_ARCHINIT
+extern FAR struct mtd_dev_s *nxffs_archinitialize(void);
 #endif
 
 /****************************************************************************
@@ -161,10 +158,10 @@ extern FAR struct mtd_dev_s *smart_archinitialize(void);
  ****************************************************************************/
 
 /****************************************************************************
- * Name: smart_memusage
+ * Name: nxffs_memusage
  ****************************************************************************/
 
-static void smart_showmemusage(struct mallinfo *mmbefore,
+static void nxffs_showmemusage(struct mallinfo *mmbefore,
                                struct mallinfo *mmafter)
 {
   printf("VARIABLE  BEFORE   AFTER\n");
@@ -177,10 +174,10 @@ static void smart_showmemusage(struct mallinfo *mmbefore,
 }
 
 /****************************************************************************
- * Name: smart_loopmemusage
+ * Name: nxffs_loopmemusage
  ****************************************************************************/
 
-static void smart_loopmemusage(void)
+static void nxffs_loopmemusage(void)
 {
   /* Get the current memory usage */
 
@@ -193,7 +190,7 @@ static void smart_loopmemusage(void)
   /* Show the change from the previous loop */
 
   printf("\nEnd of loop memory usage:\n");
-  smart_showmemusage(&g_mmprevious, &g_mmafter);
+  nxffs_showmemusage(&g_mmprevious, &g_mmafter);
 
   /* Set up for the next test */
 
@@ -205,30 +202,30 @@ static void smart_loopmemusage(void)
 }
 
 /****************************************************************************
- * Name: smart_endmemusage
+ * Name: nxffs_endmemusage
  ****************************************************************************/
 
-static void smart_endmemusage(void)
+static void nxffs_endmemusage(void)
 {
 #ifdef CONFIG_CAN_PASS_STRUCTS
-  g_mmafter = mallinfo();
+      g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+      (void)mallinfo(&g_mmafter);
 #endif
-  printf("\nFinal memory usage:\n");
-  smart_showmemusage(&g_mmbefore, &g_mmafter);
+      printf("\nFinal memory usage:\n");
+      nxffs_showmemusage(&g_mmbefore, &g_mmafter);
 }
 
 /****************************************************************************
- * Name: smart_randchar
+ * Name: nxffs_randchar
  ****************************************************************************/
 
-static inline char smart_randchar(void)
+static inline char nxffs_randchar(void)
 {
   int value = rand() % 63;
   if (value == 0)
     {
-      return '0';
+      return '/';
     }
   else if (value <= 10)
     {
@@ -245,10 +242,10 @@ static inline char smart_randchar(void)
 }
 
 /****************************************************************************
- * Name: smart_randname
+ * Name: nxffs_randname
  ****************************************************************************/
 
-static inline void smart_randname(FAR struct smart_filedesc_s *file)
+static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
 {
   int dirlen;
   int maxname;
@@ -257,7 +254,7 @@ static inline void smart_randname(FAR struct smart_filedesc_s *file)
   int i;
 
   dirlen   = strlen(g_mountdir);
-  maxname  = CONFIG_EXAMPLES_SMART_MAXNAME - dirlen;
+  maxname  = CONFIG_TESTING_NXFFS_MAXNAME - dirlen;
   namelen  = (rand() % maxname) + 1;
   alloclen = namelen + dirlen;
 
@@ -272,48 +269,46 @@ static inline void smart_randname(FAR struct smart_filedesc_s *file)
   memcpy(file->name, g_mountdir, dirlen);
   for (i = dirlen; i < alloclen; i++)
     {
-      file->name[i] = smart_randchar();
+      file->name[i] = nxffs_randchar();
     }
 
   file->name[alloclen] = '\0';
 }
 
 /****************************************************************************
- * Name: smart_randfile
+ * Name: nxffs_randfile
  ****************************************************************************/
 
-static inline void smart_randfile(FAR struct smart_filedesc_s *file)
+static inline void nxffs_randfile(FAR struct nxffs_filedesc_s *file)
 {
   int i;
 
-  file->len = (rand() % CONFIG_EXAMPLES_SMART_MAXFILE) + 1;
+  file->len = (rand() % CONFIG_TESTING_NXFFS_MAXFILE) + 1;
   for (i = 0; i < file->len; i++)
     {
-      g_fileimage[i] = smart_randchar();
+      g_fileimage[i] = nxffs_randchar();
     }
-
   file->crc = crc32(g_fileimage, file->len);
 }
 
 /****************************************************************************
- * Name: smart_freefile
+ * Name: nxffs_freefile
  ****************************************************************************/
 
-static void smart_freefile(FAR struct smart_filedesc_s *file)
+static void nxffs_freefile(FAR struct nxffs_filedesc_s *file)
 {
   if (file->name)
     {
       free(file->name);
     }
-
-  memset(file, 0, sizeof(struct smart_filedesc_s));
+  memset(file, 0, sizeof(struct nxffs_filedesc_s));
 }
 
 /****************************************************************************
- * Name: smart_wrfile
+ * Name: nxffs_wrfile
  ****************************************************************************/
 
-static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
+static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
 {
   size_t offset;
   int fd;
@@ -321,8 +316,8 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 
   /* Create a random file */
 
-  smart_randname(file);
-  smart_randfile(file);
+  nxffs_randname(file);
+  nxffs_randfile(file);
   fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
@@ -334,10 +329,9 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for writing: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %lu\n", (unsigned long)file->len);
         }
-
-      smart_freefile(file);
+      nxffs_freefile(file);
       return ERROR;
     }
 
@@ -345,7 +339,7 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 
   for (offset = 0; offset < file->len; )
     {
-      size_t maxio = (rand() % CONFIG_EXAMPLES_SMART_MAXIO) + 1;
+      size_t maxio = (rand() % CONFIG_TESTING_NXFFS_MAXIO) + 1;
       size_t nbytestowrite = file->len - offset;
       ssize_t nbyteswritten;
 
@@ -367,7 +361,7 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
             {
               printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
-              printf("  File size:    %d\n", file->len);
+              printf("  File size:    %lu\n", (unsigned long)file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
@@ -384,19 +378,19 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
             }
           else
             {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
               printf("  Successfully removed partial file\n");
 #endif
             }
 
-          smart_freefile(file);
+          nxffs_freefile(file);
           return ERROR;
         }
       else if (nbyteswritten != nbytestowrite)
         {
           printf("ERROR: Partial write:\n");
           printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
+          printf("  File size:    %lu\n", (unsigned long)file->len);
           printf("  Write offset: %ld\n", (long)offset);
           printf("  Write size:   %ld\n", (long)nbytestowrite);
           printf("  Written:      %ld\n", (long)nbyteswritten);
@@ -410,32 +404,32 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 }
 
 /****************************************************************************
- * Name: smart_fillfs
+ * Name: nxffs_fillfs
  ****************************************************************************/
 
-static int smart_fillfs(void)
+static int nxffs_fillfs(void)
 {
-  FAR struct smart_filedesc_s *file;
+  FAR struct nxffs_filedesc_s *file;
   int ret;
   int i;
 
   /* Create a file for each unused file structure */
 
-  for (i = 0; i < CONFIG_EXAMPLES_SMART_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_NXFFS_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name == NULL)
         {
-          ret = smart_wrfile(file);
+          ret = nxffs_wrfile(file);
           if (ret < 0)
             {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
               printf("ERROR: Failed to write file %d\n", i);
 #endif
               return ERROR;
             }
 
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
          printf("  Created file %s\n", file->name);
 #endif
          g_nfiles++;
@@ -446,13 +440,13 @@ static int smart_fillfs(void)
 }
 
 /****************************************************************************
- * Name: smart_rdblock
+ * Name: nxffs_rdblock
  ****************************************************************************/
 
-static ssize_t smart_rdblock(int fd, FAR struct smart_filedesc_s *file,
+static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
                              size_t offset, size_t len)
 {
-  size_t maxio = (rand() % CONFIG_EXAMPLES_SMART_MAXIO) + 1;
+  size_t maxio = (rand() % CONFIG_TESTING_NXFFS_MAXIO) + 1;
   ssize_t nbytesread;
 
   if (len > maxio)
@@ -465,7 +459,7 @@ static ssize_t smart_rdblock(int fd, FAR struct smart_filedesc_s *file,
     {
       printf("ERROR: Failed to read file: %d\n", errno);
       printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
+      printf("  File size:    %lu\n", (unsigned long)file->len);
       printf("  Read offset:  %ld\n", (long)offset);
       printf("  Read size:    %ld\n", (long)len);
       return ERROR;
@@ -485,20 +479,19 @@ static ssize_t smart_rdblock(int fd, FAR struct smart_filedesc_s *file,
     {
       printf("ERROR: Partial read:\n");
       printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
+      printf("  File size:    %lu\n", (unsigned long)file->len);
       printf("  Read offset:  %ld\n", (long)offset);
       printf("  Read size:    %ld\n", (long)len);
       printf("  Bytes read:   %ld\n", (long)nbytesread);
     }
-
   return nbytesread;
 }
 
 /****************************************************************************
- * Name: smart_rdfile
+ * Name: nxffs_rdfile
  ****************************************************************************/
 
-static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
+static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
 {
   size_t ntotalread;
   ssize_t nbytesread;
@@ -514,9 +507,8 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for reading: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %lu\n", (unsigned long)file->len);
         }
-
       return ERROR;
     }
 
@@ -524,7 +516,7 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
-      nbytesread = smart_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      nbytesread = nxffs_rdblock(fd, file, ntotalread, file->len - ntotalread);
       if (nbytesread < 0)
         {
           close(fd);
@@ -539,21 +531,22 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("ERROR: Bad CRC: %u vs %u\n",
+             (unsigned int)crc, (unsigned int)file->crc);
       printf("  File name: %s\n", file->name);
-      printf("  File size: %d\n", file->len);
+      printf("  File size: %lu\n", (unsigned long)file->len);
       close(fd);
       return ERROR;
     }
 
   /* Try reading past the end of the file */
 
-  nbytesread = smart_rdblock(fd, file, ntotalread, 1024) ;
+  nbytesread = nxffs_rdblock(fd, file, ntotalread, 1024) ;
   if (nbytesread > 0)
     {
       printf("ERROR: Read past the end of file\n");
       printf("  File name:  %s\n", file->name);
-      printf("  File size:  %d\n", file->len);
+      printf("  File size:  %lu\n", (unsigned long)file->len);
       printf("  Bytes read: %ld\n", (long)nbytesread);
       close(fd);
       return ERROR;
@@ -564,31 +557,31 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
 }
 
 /****************************************************************************
- * Name: smart_verifyfs
+ * Name: nxffs_verifyfs
  ****************************************************************************/
 
-static int smart_verifyfs(void)
+static int nxffs_verifyfs(void)
 {
-  FAR struct smart_filedesc_s *file;
+  FAR struct nxffs_filedesc_s *file;
   int ret;
   int i;
 
   /* Create a file for each unused file structure */
 
-  for (i = 0; i < CONFIG_EXAMPLES_SMART_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_NXFFS_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name != NULL)
         {
-          ret = smart_rdfile(file);
+          ret = nxffs_rdfile(file);
           if (ret < 0)
             {
               if (file->deleted)
                 {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
                   printf("Deleted file %d OK\n", i);
 #endif
-                  smart_freefile(file);
+                  nxffs_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
                 }
@@ -596,7 +589,7 @@ static int smart_verifyfs(void)
                 {
                   printf("ERROR: Failed to read a file: %d\n", i);
                   printf("  File name: %s\n", file->name);
-                  printf("  File size: %d\n", file->len);
+                  printf("  File size: %lu\n", (unsigned long)file->len);
                   return ERROR;
                 }
             }
@@ -604,19 +597,19 @@ static int smart_verifyfs(void)
             {
               if (file->deleted)
                 {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
                   printf("Succesffully read a deleted file\n");
                   printf("  File name: %s\n", file->name);
                   printf("  File size: %d\n", file->len);
 #endif
-                  smart_freefile(file);
+                  nxffs_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
                   return ERROR;
                 }
               else
                 {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
                   printf("  Verifed file %s\n", file->name);
 #endif
                 }
@@ -628,12 +621,12 @@ static int smart_verifyfs(void)
 }
 
 /****************************************************************************
- * Name: smart_delfiles
+ * Name: nxffs_delfiles
  ****************************************************************************/
 
-static int smart_delfiles(void)
+static int nxffs_delfiles(void)
 {
-  FAR struct smart_filedesc_s *file;
+  FAR struct nxffs_filedesc_s *file;
   int ndel;
   int ret;
   int i;
@@ -667,7 +660,7 @@ static int smart_delfiles(void)
         {
           /* Test for wrap-around */
 
-          if (j >= CONFIG_EXAMPLES_FSTEST_MAXOPEN)
+          if (j >= CONFIG_TESTING_NXFFS_MAXOPEN)
             {
               j = 0;
             }
@@ -680,12 +673,12 @@ static int smart_delfiles(void)
                 {
                   printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
                   printf("  File name:  %s\n", file->name);
-                  printf("  File size:  %d\n", file->len);
+                  printf("  File size:  %lu\n", (unsigned long)file->len);
                   printf("  File index: %d\n", j);
                 }
               else
                 {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
                   printf("  Deleted file %s\n", file->name);
 #endif
                   file->deleted = true;
@@ -700,16 +693,16 @@ static int smart_delfiles(void)
 }
 
 /****************************************************************************
- * Name: smart_delallfiles
+ * Name: nxffs_delallfiles
  ****************************************************************************/
 
-static int smart_delallfiles(void)
+static int nxffs_delallfiles(void)
 {
-  FAR struct smart_filedesc_s *file;
+  FAR struct nxffs_filedesc_s *file;
   int ret;
   int i;
 
-  for (i = 0; i < CONFIG_EXAMPLES_SMART_MAXOPEN; i++)
+  for (i = 0; i < CONFIG_TESTING_NXFFS_MAXOPEN; i++)
     {
       file = &g_files[i];
       if (file->name)
@@ -719,15 +712,15 @@ static int smart_delallfiles(void)
             {
                printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
                printf("  File name:  %s\n", file->name);
-               printf("  File size:  %d\n", file->len);
+               printf("  File size:  %lu\n", (unsigned long)file->len);
                printf("  File index: %d\n", i);
             }
           else
             {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
               printf("  Deleted file %s\n", file->name);
 #endif
-              smart_freefile(file);
+              nxffs_freefile(file);
             }
         }
     }
@@ -738,10 +731,10 @@ static int smart_delallfiles(void)
 }
 
 /****************************************************************************
- * Name: smart_directory
+ * Name: nxffs_directory
  ****************************************************************************/
 
-static int smart_directory(void)
+static int nxffs_directory(void)
 {
   DIR *dirp;
   FAR struct dirent *entryp;
@@ -749,14 +742,14 @@ static int smart_directory(void)
 
   /* Open the directory */
 
-  dirp = opendir(CONFIG_EXAMPLES_SMART_MOUNTPT);
+  dirp = opendir(CONFIG_TESTING_NXFFS_MOUNTPT);
 
   if (!dirp)
     {
       /* Failed to open the directory */
 
       printf("ERROR: Failed to open directory '%s': %d\n",
-             CONFIG_EXAMPLES_SMART_MOUNTPT, errno);
+             CONFIG_TESTING_NXFFS_MOUNTPT, errno);
       return ERROR;
     }
 
@@ -774,7 +767,6 @@ static int smart_directory(void)
                  entryp->d_type == DTYPE_FILE ? "File " : "Error",
                  entryp->d_name);
         }
-
       number++;
     }
   while (entryp != NULL);
@@ -788,13 +780,13 @@ static int smart_directory(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: smart_main
+ * Name: nxffs_main
  ****************************************************************************/
 
 #ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
 #else
-int smart_main(int argc, char *argv[])
+int nxffs_main(int argc, char *argv[])
 #endif
 {
   FAR struct mtd_dev_s *mtd;
@@ -807,10 +799,10 @@ int smart_main(int argc, char *argv[])
 
   /* Create and initialize a RAM MTD device instance */
 
-#ifdef CONFIG_EXAMPLES_SMART_ARCHINIT
-  mtd = smart_archinitialize();
+#ifdef CONFIG_TESTING_NXFFS_ARCHINIT
+  mtd = nxffs_archinitialize();
 #else
-  mtd = rammtd_initialize(g_simflash, EXAMPLES_SMART_BUFSIZE);
+  mtd = rammtd_initialize(g_simflash, TESTING_NXFFS_BUFSIZE);
 #endif
   if (!mtd)
     {
@@ -819,31 +811,22 @@ int smart_main(int argc, char *argv[])
       exit(1);
     }
 
-  /* Initialize to provide SMART on an MTD interface */
+  /* Initialize to provide NXFFS on an MTD interface */
 
-  MTD_IOCTL(mtd, MTDIOC_BULKERASE, 0);
-  ret = smart_initialize(1, mtd, "SmartTest");
+  ret = nxffs_initialize(mtd);
   if (ret < 0)
     {
-      printf("ERROR: SMART initialization failed: %d\n", -ret);
+      printf("ERROR: NXFFS initialization failed: %d\n", -ret);
       fflush(stdout);
       exit(2);
     }
 
-  /* Create a SMARTFS filesystem */
-
-#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-  (void)mksmartfs("/dev/smart1", 1024, 1);
-#else
-  (void)mksmartfs("/dev/smart1", 1024);
-#endif
-
   /* Mount the file system */
 
-  ret = mount("/dev/smart1", CONFIG_EXAMPLES_SMART_MOUNTPT, "smartfs", 0, NULL);
+  ret = mount(NULL, CONFIG_TESTING_NXFFS_MOUNTPT, "nxffs", 0, NULL);
   if (ret < 0)
     {
-      printf("ERROR: Failed to mount the SMART volume: %d\n", errno);
+      printf("ERROR: Failed to mount the NXFFS volume: %d\n", errno);
       fflush(stdout);
       exit(3);
     }
@@ -863,30 +846,31 @@ int smart_main(int argc, char *argv[])
    * delete, etc.  This beats the FLASH very hard!
    */
 
-#if CONFIG_EXAMPLES_SMART_NLOOPS == 0
+#if CONFIG_TESTING_NXFFS_NLOOPS == 0
   for (i = 0; ; i++)
 #else
-  for (i = 1; i <= CONFIG_EXAMPLES_SMART_NLOOPS; i++)
+  for (i = 1; i <= CONFIG_TESTING_NXFFS_NLOOPS; i++)
 #endif
     {
-      /* Write a files to the SMART file system until either (1) all of the
-       * open file structures are utilized or until (2) SMART reports an error
+      /* Write a files to the NXFFS file system until either (1) all of the
+       * open file structures are utilized or until (2) NXFFS reports an error
        * (hopefully that the file system is full)
        */
 
       printf("\n=== FILLING %u =============================\n", i);
-      (void)smart_fillfs();
+      (void)nxffs_fillfs();
       printf("Filled file system\n");
       printf("  Number of files: %d\n", g_nfiles);
       printf("  Number deleted:  %d\n", g_ndeleted);
+      nxffs_dump(mtd, CONFIG_TESTING_NXFFS_VERBOSE);
 
       /* Directory listing */
 
-      smart_directory();
+      nxffs_directory();
 
       /* Verify all files written to FLASH */
 
-      ret = smart_verifyfs();
+      ret = nxffs_verifyfs();
       if (ret < 0)
         {
           printf("ERROR: Failed to verify files\n");
@@ -895,7 +879,7 @@ int smart_main(int argc, char *argv[])
         }
       else
         {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
           printf("Verified!\n");
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
@@ -905,7 +889,7 @@ int smart_main(int argc, char *argv[])
       /* Delete some files */
 
       printf("\n=== DELETING %u ============================\n", i);
-      ret = smart_delfiles();
+      ret = nxffs_delfiles();
       if (ret < 0)
         {
           printf("ERROR: Failed to delete files\n");
@@ -918,14 +902,15 @@ int smart_main(int argc, char *argv[])
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
         }
+      nxffs_dump(mtd, CONFIG_TESTING_NXFFS_VERBOSE);
 
       /* Directory listing */
 
-      smart_directory();
+      nxffs_directory();
 
       /* Verify all files written to FLASH */
 
-      ret = smart_verifyfs();
+      ret = nxffs_verifyfs();
       if (ret < 0)
         {
           printf("ERROR: Failed to verify files\n");
@@ -934,7 +919,7 @@ int smart_main(int argc, char *argv[])
         }
       else
         {
-#if CONFIG_EXAMPLES_SMART_VERBOSE != 0
+#if CONFIG_TESTING_NXFFS_VERBOSE != 0
           printf("Verified!\n");
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
@@ -943,14 +928,14 @@ int smart_main(int argc, char *argv[])
 
       /* Show memory usage */
 
-      smart_loopmemusage();
+      nxffs_loopmemusage();
       fflush(stdout);
     }
 
   /* Delete all files then show memory usage again */
 
-  smart_delallfiles();
-  smart_endmemusage();
+  nxffs_delallfiles();
+  nxffs_endmemusage();
   fflush(stdout);
   return 0;
 }
