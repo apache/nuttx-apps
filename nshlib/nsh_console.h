@@ -80,8 +80,8 @@
 #if CONFIG_NFILE_STREAMS > 0
 #  ifdef CONFIG_NSH_ALTCONDEV
 
-#    if !defined(CONFIG_NSH_ALTSTDIN) && !defined(NSH_ALTSTDOUT) && \
-        !defined(CONFIGNSH_ALTSTDERR)
+#    if !defined(CONFIG_NSH_ALTSTDIN) && !defined(CONFIG_NSH_ALTSTDOUT) && \
+        !defined(CONFIG_NSH_ALTSTDERR)
 #      error CONFIG_NSH_ALTCONDEV selected but CONFIG_NSH_ALTSTDxxx not provided
 #    endif
 
