@@ -3,16 +3,16 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_CXXTEST
+config TESTINGCXXTEST
 	tristate "C++ test program"
 	default n
 	depends on HAVE_CXX
 	---help---
 		Enable the C++ test program
 
-if EXAMPLES_CXXTEST
+if TESTINGCXXTEST
 
-config EXAMPLES_CXXTEST_CXXINITIALIZE
+config TESTINGCXXTEST_CXXINITIALIZE
 	bool "C++ Initialization"
 	default y
 	depends on HAVE_CXX && HAVE_CXXINITIALIZE

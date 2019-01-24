@@ -1,9 +1,8 @@
 ############################################################################
-# apps/examples/cxxtest/Make.defs
-# Adds selected applications to apps/ build
+# apps/testing/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2009-2012 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -34,6 +33,24 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_CXXTEST),)
-CONFIGURED_APPS += examples/cxxtest
-endif
+-include $(TOPDIR)/Make.defs
+
+# CXX test program
+
+ASRCS =
+CSRCS =
+CXXSRCS =
+MAINSRC = cxxtest_main.cxx
+
+CONFIG_XYZ_PROGNAME ?= cxxtest$(EXEEXT)
+PROGNAME = $(CONFIG_XYZ_PROGNAME)
+
+# cxxtest built-in application info
+
+APPNAME = cxxtest
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 4096
+
+MODULE = CONFIG_TESTINGCXXTEST
+
+include $(APPDIR)/Application.mk

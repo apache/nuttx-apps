@@ -1,5 +1,5 @@
 //***************************************************************************
-// examples/cxxtest/main.cxx
+// testing/main.cxx
 //
 //   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
 //   Author: Qiang Yu, http://rgmp.sourceforge.net/wiki/index.php/Main_Page
@@ -61,7 +61,7 @@ using namespace std;
 
 #if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
 #  warning Support for static initializers is NOT enabled
-#  undef CONFIG_EXAMPLES_CXXTEST_CXXINITIALIZE
+#  undef CONFIG_TESTINGCXXTEST_CXXINITIALIZE
 #endif
 
 //***************************************************************************
@@ -250,7 +250,7 @@ extern "C"
     // If C++ initialization for static constructors is supported, then do
     // that first
 
-#ifdef CONFIG_EXAMPLES_CXXTEST_CXXINITIALIZE
+#ifdef CONFIG_TESTINGCXXTEST_CXXINITIALIZE
     up_cxxinitialize();
 #endif
 
