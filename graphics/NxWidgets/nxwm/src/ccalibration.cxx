@@ -590,7 +590,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
   if (!This->createWidgets())
     {
       gerr("ERROR: failed to create widgets\n");
-      return false;
+      return (FAR void *)0;
     }
 
   // No samples have yet been collected
