@@ -179,9 +179,11 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag)
       return ret;
     }
 
-  notify.signo  = CONFIG_GRAPHICS_FT80X_TAG_SIGNAL;
+  notify.event.sigev_notify = SIGEV_SIGNAL;
+  notify.event.sigev_signo  = CONFIG_GRAPHICS_FT80X_TAG_SIGNAL;
+
   notify.pid    = getpid();
-  notify.event  = FT80X_NOTIFY_TAG;
+  notify.id     = FT80X_NOTIFY_TAG;
   notify.enable = false;
 
   for (; ; )

@@ -183,7 +183,9 @@ int djoy_main(int argc, char *argv[])
 
   notify.dn_press   = g_djoysupported;
   notify.dn_release = g_djoysupported;
-  notify.dn_signo   = CONFIG_EXAMPLES_DJOYSTICK_SIGNO;
+
+  notify.dn_event.sigev_notify = SIGEV_SIGNAL;
+  notify.dn_event.sigev_signo  = CONFIG_EXAMPLES_DJOYSTICK_SIGNO;
 
   ret = ioctl(fd, DJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)

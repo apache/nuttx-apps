@@ -209,9 +209,11 @@ int timer_main(int argc, char *argv[])
 
   printf("Attach timer handler\n");
 
-  notify.arg   = NULL;
   notify.pid   = getpid();
-  notify.signo = CONFIG_EXAMPLES_TIMER_SIGNO;
+
+  notify.event.sigev_notify = SIGEV_SIGNAL;
+  notify.event.sigev_signo  = CONFIG_EXAMPLES_TIMER_SIGNO;
+  notify.event.sigev_value.sival_ptr = NULL;
 
   ret = ioctl(fd, TCIOC_NOTIFICATION, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)

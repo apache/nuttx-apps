@@ -202,14 +202,16 @@ int oneshot_main(int argc, char *argv[])
                  usecs);
 
           start.pid        = 0;
-          start.signo      = CONFIG_EXAMPLES_ONESHOT_SIGNO;
-          start.arg        = NULL;
 
           secs             = usecs / 1000000;
           usecs           -= 1000000 * secs;
 
           start.ts.tv_sec  = secs;
           start.ts.tv_nsec = usecs * 1000;
+
+          start.event.sigev_notify = SIGEV_SIGNAL;
+          start.event.sigev_signo  = CONFIG_EXAMPLES_ONESHOT_SIGNO;
+          start.event.sigev_value.sival_ptr = NULL;
 
           /* Zero usecs to terminate the loop */
 

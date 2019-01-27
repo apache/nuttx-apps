@@ -485,7 +485,9 @@ void trv_input_initialize(void)
 
   notify.an_press   = BUTTON_SET;
   notify.an_release = 0;
-  notify.an_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
+
+  notify.an_event.sigev_notify = SIGEV_SIGNAL;
+  notify.an_event.sigev_signo  = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
 
   ret = ioctl(g_trv_joystick.fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)
@@ -507,7 +509,9 @@ void trv_input_initialize(void)
 
   notify.an_press   = 0;
   notify.an_release = 0;
-  notify.an_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
+
+  notify.an_event.sigev_notify = SIGEV_SIGNAL;
+  notify.an_event.sigev_signo  = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
 
   ret = ioctl(g_trv_joystick.fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)

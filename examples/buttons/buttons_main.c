@@ -224,7 +224,9 @@ static int button_daemon(int argc, char *argv[])
 
   btnevents.bn_press   = supported;
   btnevents.bn_release = supported;
-  btnevents.bn_signo   = CONFIG_EXAMPLES_BUTTONS_SIGNO;
+
+  btnevents.bn_event.sigev_notify = SIGEV_SIGNAL;
+  btnevents.bn_event.sigev_signo  = CONFIG_EXAMPLES_BUTTONS_SIGNO;
 
   /* Register to receive a signal when buttons are pressed/released */
 

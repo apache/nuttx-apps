@@ -88,7 +88,7 @@ int main(int argc, FAR char *argv[])
 int zerocross_main(int argc, char *argv[])
 #endif
 {
-  struct zc_notify_s notify;
+  struct sigevent event;
   int fd;
   int tmp;
   int ret;
@@ -106,9 +106,10 @@ int zerocross_main(int argc, char *argv[])
 
   /* Register to receive a signal on every zero cross event */
 
-  notify.zc_signo   = CONFIG_EXAMPLES_ZEROCROSS_SIGNO;
+  event.sigev_notify = SIGEV_SIGNAL;
+  event.sigev_signo  = CONFIG_EXAMPLES_ZEROCROSS_SIGNO;
 
-  ret = ioctl(fd, ZCIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
+  ret = ioctl(fd, ZCIOC_REGISTER, (unsigned long)((uintptr_t)&event));
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: ioctl(ZCIOC_REGISTER) failed: %d\n", errno);

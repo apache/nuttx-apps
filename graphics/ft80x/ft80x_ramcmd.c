@@ -276,9 +276,11 @@ int ft80x_ramcmd_waitfifoempty(int fd)
       return ret;
     }
 
-  notify.signo  = CONFIG_GRAPHICS_FT80X_CMDEMPTY_SIGNAL;
+  notify.event.sigev_notify = SIGEV_SIGNAL;
+  notify.event.sigev_signo  = CONFIG_GRAPHICS_FT80X_CMDEMPTY_SIGNAL;
+
   notify.pid    = getpid();
-  notify.event  = FT80X_NOTIFY_CMDEMPTY;
+  notify.id     = FT80X_NOTIFY_CMDEMPTY;
   notify.enable = false;
 
   for (; ; )

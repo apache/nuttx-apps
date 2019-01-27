@@ -398,11 +398,12 @@ int alarm_main(int argc, FAR char *argv[])
       /* Set the alarm */
 
       setrel.id      = alarmid;
-      setrel.signo   = CONFIG_EXAMPLES_ALARM_SIGNO;
       setrel.pid     = g_alarm_daemon_pid;
       setrel.reltime = (time_t)seconds;
 
-      setrel.sigvalue.sival_int = alarmid;
+      setrel.event.sigev_notify = SIGEV_SIGNAL;
+      setrel.event.sigev_signo  = CONFIG_EXAMPLES_ALARM_SIGNO;
+      setrel.event.sigev_value.sival_int = alarmid;
 
       ret = ioctl(fd, RTC_SET_RELATIVE, (unsigned long)((uintptr_t)&setrel));
       if (ret < 0)

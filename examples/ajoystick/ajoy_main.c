@@ -420,7 +420,9 @@ int ajoy_main(int argc, char *argv[])
 
   notify.an_press   = g_ajoysupported;
   notify.an_release = g_ajoysupported;
-  notify.an_signo   = CONFIG_EXAMPLES_AJOYSTICK_SIGNO;
+
+  notify.an_event.sigev_notify = SIGEV_SIGNAL;
+  notify.an_event.sigev_signo  = CONFIG_EXAMPLES_AJOYSTICK_SIGNO;
 
   ret = ioctl(fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)
