@@ -614,11 +614,11 @@ static int nsh_netinit_monitor(void)
     {
       /* Configure to receive a signal on changes in link status */
 
+      memset(&ifr, 0, sizeof(struct ifreq));
       strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
 
-      ifr.ifr_mii_notify_pid   = 0; /* PID=0 means this task */
-      ifr.ifr_mii_notify_signo = CONFIG_NSH_NETINIT_SIGNO;
-      ifr.ifr_mii_notify_arg   = NULL;
+      ifr.ifr_mii_notify_event.sigev_notify = SIGEV_SIGNAL;
+      ifr.ifr_mii_notify_event.sigev_signo  = CONFIG_NSH_NETINIT_SIGNO;
 
       ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
       if (ret < 0)
