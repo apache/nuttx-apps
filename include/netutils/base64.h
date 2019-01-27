@@ -68,8 +68,10 @@ extern "C"
  ****************************************************************************/
 
 #ifdef CONFIG_CODECS_BASE64
+size_t    base64_encode_length(size_t len);
 FAR void *base64_encode(FAR const void *src, size_t len, FAR void *dst,
                         FAR size_t *out_len);
+size_t base64_decode_length(size_t len);
 FAR void *base64_decode(FAR const void *src, size_t len, FAR void *dst,
                         FAR size_t *out_len);
 FAR void *base64w_encode(FAR const void *src, size_t len, FAR void *dst,
