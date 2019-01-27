@@ -969,10 +969,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
       (void)nxplayer_setvolume(pPlayer, pPlayer->volume);
-#endif
-
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
       nxplayer_setbalance(pPlayer, pPlayer->balance);
+#endif
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
@@ -1411,6 +1410,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
  *
  ****************************************************************************/
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
 int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
 {
@@ -1449,6 +1449,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
 
   return -ENOENT;
 }
+#endif
 #endif
 
 /****************************************************************************
@@ -2155,12 +2156,11 @@ FAR struct nxplayer_s *nxplayer_create(void)
   pPlayer->treble = 50;
 #endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
+  pPlayer->volume = 400;
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
   pPlayer->balance = 500;
 #endif
-
-#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-  pPlayer->volume = 400;
 #endif
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
