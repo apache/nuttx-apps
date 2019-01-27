@@ -579,13 +579,22 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl);
 uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename);
 
 /****************************************************************************
+ * Name: zm_rawmode
+ *
+ * Description:
+ *   Set the terminal to the raw mode
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SERIAL_TERMIOS
+void zm_rawmode(int fd);
+#endif
+
+/****************************************************************************
  * Name: zm_flowc
  *
  * Description:
  *   Enable hardware Rx/Tx flow control.
- *
- *   REVISIT:  Consider returning the original termios settings so that they
- *   could be restored with rx/sz exits.
  *
  ****************************************************************************/
 
