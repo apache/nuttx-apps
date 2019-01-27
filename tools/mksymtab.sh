@@ -34,6 +34,8 @@
 #
 ############################################################################
 
+export LC_ALL=C
+
 usage="Usage: $0 <imagedirpath> <outfilepath>"
 
 # Check for the required directory path
