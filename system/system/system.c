@@ -145,7 +145,7 @@ int system(FAR const char *cmd)
   argv[1] = NULL;
 
 #ifdef CONFIG_BUILD_LOADABLE
-  errcode = posix_spawn(&pid, CONFIG_SYSTEM_OPEN_SHPATH,  NULL, &attr,
+  errcode = posix_spawn(&pid, CONFIG_SYSTEM_SYSTEM_SHPATH,  NULL, &attr,
                         argv, (FAR char * const *)NULL);
 #else
   errcode = task_spawn(&pid, "popen", nsh_system, NULL, &attr,
