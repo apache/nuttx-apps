@@ -150,21 +150,20 @@ config MODBUS_MASTER
 	bool "Modbus Master support via FreeModBus"
 	default n
 
-if MODBUS_MASTER
-
-if 0
 config MB_ASCII_MASTER
 	bool "Modbus ASCII master"
 	default n
-endif
+	depends on MODBUS_MASTER
 
 config MB_RTU_MASTER
 	bool "Modbus RTU master"
 	default n
+	depends on MODBUS_MASTER
 
 config MB_PORT_HAS_CLOSE
 	bool "Platform close callbacks"
 	default n
+	depends on MODBUS_MASTER
 	---help---
 		A port which wants to get an callback must select
 		CONFIG_MB_HAS_CLOSE and provide vMBMasterPortClose() as
@@ -251,6 +250,5 @@ config MB_MASTER_FUNC_READWRITE_HOLDING_ENABLED
 		If the Read/Write Multiple Registers function should be enabled.
 
 endif # MB_ASCII_MASTER || MB_RTU_MASTER
-endif # MODBUS_MASTER
 endif # MODBUS
 endmenu # FreeModBus
