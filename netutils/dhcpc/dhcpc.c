@@ -246,7 +246,6 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          */
 
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
-        memcpy(pdhcpc->packet.ciaddr, &pdhcpc->ipaddr.s_addr, 4);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
         pend     = dhcpc_addreqipaddr(&pdhcpc->ipaddr, pend);
         break;
