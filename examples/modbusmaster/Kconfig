@@ -1,0 +1,62 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MODBUSMASTER
+	bool "Modbus Master example"
+	default n
+	---help---
+		Enable the Modbus Master example
+
+if EXAMPLES_MODBUSMASTER
+
+config EXAMPLES_MODBUSMASTER_PROGNAME
+	string "Program name"
+	default "modbusmaster"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MODBUSMASTER_PRIORITY
+	int "Modbus Master task priority"
+	default 100
+
+config EXAMPLES_MODBUSMASTER_STACKSIZE
+	int "Modbus Master stack size"
+	default 2048
+
+config EXAMPLES_MODBUSMASTER_PORT
+	int "Modbus Master port (1 for /dev/ttyS1)"
+	default 1
+	---help---
+		Choose Modbus master communications port. 0 corresponds
+		/dev/ttyS0, 1 -- /dev/ttyS1, etc.
+
+config EXAMPLES_MODBUSMASTER_BAUDRATE
+	int "Modbus Master port Baudrate"
+	default 38400
+	---help---
+		Choose modbus master serial port baudrate.
+
+config EXAMPLES_MODBUSMASTER_PARITY
+	int "Modbus Master port Parity"
+	default 2
+	---help---
+		Choose Modbus master serial port parity.
+		0 = NONE ; 1 = ODD; 2 = EVEN
+
+config EXAMPLES_MODBUSMASTER_SLAVEADDR
+    int "Modbus Slave Address (master will query this slave)"
+	default 1
+
+config EXAMPLES_MODBUSMASTER_SLAVEREG
+    int "Modbus Slave Holding Register address to query"
+	default 1
+
+config EXAMPLES_MODBUSMASTER_TESTCOUNT
+	int "Reads count to perform"
+	default 100
+
+endif
