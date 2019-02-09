@@ -6,7 +6,7 @@
 config EXAMPLES_SOTEST
 	tristate "Shared Library Example"
 	default n
-	depends on LIBC_DLLFCN
+	depends on LIBC_DLFCN
 	---help---
 		Enable the shared library example
 

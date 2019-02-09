@@ -1596,7 +1596,7 @@ examples/sotest
 
   This example builds a small shared library module test case.  The test
   shared library is built using the relocatable ELF format and installed
-  in a ROMFS file system.  At run time, the shared library is installed and exercised.  Requires CONFIG_LIBC_DLLFCN.  Other configuration options:
+  in a ROMFS file system.  At run time, the shared library is installed and exercised.  Requires CONFIG_LIBC_DLFCN.  Other configuration options:
 
     CONFIG_EXAMPLES_SOTEST_DEVMINOR - The minor device number of the ROMFS block
       driver. For example, the N in /dev/ramN. Used for registering the RAM

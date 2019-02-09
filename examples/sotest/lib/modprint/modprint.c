@@ -41,7 +41,7 @@
 
 #include <sys/types.h>
 #include <stdarg.h>
-#include <dllfcn.h>
+#include <dlfcn.h>
 #include <syslog.h>
 
 #include <nuttx/symtab.h>

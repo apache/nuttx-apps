@@ -46,7 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
-#include <dllfcn.h>
+#include <dlfcn.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -65,8 +65,8 @@
  * are required -- only the more obvious.
  */
 
-#ifndef CONFIG_LIBC_DLLFCN
-#  error "You must select CONFIG_LIBC_DLLFCN in your configuration file"
+#ifndef CONFIG_LIBC_DLFCN
+#  error "You must select CONFIG_LIBC_DLFCN in your configuration file"
 #endif
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
