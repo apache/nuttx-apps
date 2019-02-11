@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET_IPv6) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#ifdef CONFIG_NET_IPv6
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -103,4 +103,5 @@ int netlib_set_dripv6addr(FAR const char *ifname,
   return ret;
 }
 
-#endif /* CONFIG_NET_IPv6 && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_IPv6 */
+

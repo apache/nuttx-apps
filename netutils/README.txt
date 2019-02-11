@@ -126,8 +126,6 @@ If you use DHCPC/D, then some special configuration network options are
 required.  These include:
 
   CONFIG_NET=y               Of course
-  CONFIG_NSOCKET_DESCRIPTORS And, of course, you must allocate some
-                             socket descriptors.
   CONFIG_NET_UDP=y           UDP support is required for DHCP
                              (as well as various other UDP-related
                              configuration settings).

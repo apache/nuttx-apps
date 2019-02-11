@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET_ARP) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#ifdef CONFIG_NET_ARP
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -100,4 +100,4 @@ int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr)
   return ret;
 }
 
-#endif /* CONFIG_NET_ARP && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_ARP */

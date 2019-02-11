@@ -247,8 +247,6 @@ examples/dhcpd
   NuttX configuration settings:
 
     CONFIG_NET=y                   - Of course
-    CONFIG_NSOCKET_DESCRIPTORS     - And, of course, you must allocate some
-                                     socket descriptors.
     CONFIG_NET_UDP=y               - UDP support is required for DHCP
                                      (as well as various other UDP-related
                                      configuration settings)
@@ -1261,7 +1259,6 @@ examples/poll
 
   CONFIG_NET                        - Defined for general network support
   CONFIG_NET_TCP                    - Defined for TCP/IP support
-  CONFIG_NSOCKET_DESCRIPTORS        - Defined to be greater than 0
   CONFIG_NET_TCP_READAHEAD          - Defined
   CONFIG_NET_NTCP_READAHEAD_BUFFERS - Defined to be greater than zero
 
@@ -2031,8 +2028,6 @@ examples/webserver
   required.  These include:
 
     CONFIG_NET=y                 - Of course
-    CONFIG_NSOCKET_DESCRIPTORS   - And, of course, you must allocate some
-                                   socket descriptors.
     CONFIG_NET_UDP=y             - UDP support is required for DHCP
                                    (as well as various other UDP-related
                                    configuration settings).

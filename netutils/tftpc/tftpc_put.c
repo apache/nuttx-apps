@@ -512,7 +512,7 @@ int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
       goto errout;
     }
 
-  result = tftpput_cb(remote, addr, binary, tftp_read, (void *)fd);
+  result = tftpput_cb(remote, addr, binary, tftp_read, (FAR void *)fd);
 
   close(fd);
 

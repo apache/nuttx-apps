@@ -58,14 +58,13 @@
  * poll/select support.  This kind of looks like overkill.
  *
  * CONFIG_NET                  - Network support must be enabled
- * CONFIG_NSOCKET_DESCRIPTORS  - Socket descriptors must be allocated
  * CONFIG_NET_TCP              - Only support on TCP (because read-ahead
  *                               buffering s not yet support for UDP)
  * CONFIG_NET_TCP_READAHEAD    - TCP/IP read-ahead buffering must be enabled
  */
 
 
-#if !defined(CONFIG_NET) || CONFIG_NSOCKET_DESCRIPTORS <= 0
+#ifndef CONFIG_NET
 #  error Network socket support not enabled
 #endif
 

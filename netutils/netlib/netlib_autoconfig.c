@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET_ICMPv6_AUTOCONF) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -105,4 +105,4 @@ int netlib_icmpv6_autoconfiguration(FAR const char *ifname)
   return ret;
 }
 
-#endif /* CONFIG_NET_ICMPv6_AUTOCONF && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_ICMPv6_AUTOCONF */

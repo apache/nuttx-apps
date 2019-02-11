@@ -53,7 +53,7 @@
 
 #include "netutils/netlib.h"
 
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#ifdef CONFIG_NET
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -131,4 +131,4 @@ int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen)
   return ret;
 }
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET */

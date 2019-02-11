@@ -52,8 +52,7 @@
 #include "nuttx/wireless/pktradio.h"
 #include "netutils/netlib.h"
 
-#if (defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)) && \
-    CONFIG_NSOCKET_DESCRIPTORS > 0
+#if defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)
 
 /****************************************************************************
  * Private Functions
@@ -190,5 +189,5 @@ bool netlib_nodeaddrconv(FAR const char *addrstr,
   return false;
 }
 
-#endif /* (CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154) && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
 

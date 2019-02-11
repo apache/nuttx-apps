@@ -52,7 +52,7 @@
 
 #include "netutils/netlib.h"
 
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#ifdef CONFIG_NET
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -127,4 +127,5 @@ int netlib_getmacaddr(const char *ifname, uint8_t *macaddr)
   return ret;
 }
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET */
+

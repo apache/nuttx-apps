@@ -1828,9 +1828,6 @@ NSH-Specific Configuration Settings
   * CONFIG_NET=y
       Of course, networking must be enabled
 
-  * CONFIG_NSOCKET_DESCRIPTORS
-      And, of course, you must allocate some socket descriptors.
-
   * CONFIG_NET_TCP=y
       TCP/IP support is required for telnet (as well as various other TCP-related
       configuration settings).
@@ -1861,9 +1858,6 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NET=y
       Of course, networking must be enabled
-
-  * CONFIG_NSOCKET_DESCRIPTORS
-      And, of course, you must allocate some socket descriptors.
 
   * CONFIG_NET_UDP=y
       UDP support is required for DHCP (as well as various other UDP-related
