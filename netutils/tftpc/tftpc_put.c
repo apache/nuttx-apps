@@ -519,6 +519,5 @@ int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
 errout:
   return result;
 }
-#endif
 
 #endif /* CONFIG_NET && CONFIG_NET_UDP */
