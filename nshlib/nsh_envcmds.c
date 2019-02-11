@@ -54,7 +54,7 @@
  * Private Data
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 static const char g_pwd[]    = "PWD";
 #ifndef CONFIG_NSH_DISABLE_CD
 static const char g_oldpwd[] = "OLDPWD";
@@ -70,7 +70,7 @@ static const char g_home[]   = CONFIG_LIB_HOMEDIR;
  * Name: nsh_getwd
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 static inline FAR const char *nsh_getwd(const char *wd)
 {
   const char *val;
@@ -147,7 +147,7 @@ static int nsh_dumpvar(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
  * Name: nsh_getwd
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 FAR const char *nsh_getcwd(void)
 {
   return nsh_getwd(g_pwd);
@@ -158,7 +158,7 @@ FAR const char *nsh_getcwd(void)
  * Name: nsh_getfullpath
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *relpath)
 {
@@ -198,7 +198,7 @@ FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
  * Name: nsh_freefullpath
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 void nsh_freefullpath(FAR char *fullpath)
 {
   if (fullpath)
@@ -212,7 +212,7 @@ void nsh_freefullpath(FAR char *fullpath)
  * Name: cmd_cd
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_CD
 int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -323,7 +323,7 @@ int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_pwd
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
+#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_PWD
 int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {

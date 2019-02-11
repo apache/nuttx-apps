@@ -89,14 +89,14 @@
 #  include "netutils/netlib.h"
 #endif
 
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_UDP
 #  include "netutils/netlib.h"
 #  if !defined(CONFIG_NSH_DISABLE_GET) || !defined(CONFIG_NSH_DISABLE_PUT)
 #    include "netutils/tftp.h"
 #  endif
 #endif
 
-#if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifidef CONFIG_NET_TCP
 #  ifndef CONFIG_NSH_DISABLE_WGET
 #    include "netutils/webclient.h"
 #  endif
@@ -151,7 +151,7 @@ typedef struct pktradio_addr_s mac_addr_t;
 #endif
 #endif
 
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_UDP
 struct tftpc_args_s
 {
   bool            binary;    /* true:binary ("octet") false:text ("netascii") */
@@ -212,7 +212,7 @@ static int ifconfig_callback(FAR struct nsh_vtbl_s *vtbl, FAR char *devname)
  * Name: tftpc_parseargs
  ****************************************************************************/
 
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_UDP
 int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
                     struct tftpc_args_s *args)
 {
@@ -349,7 +349,7 @@ errout:
  * Name: wget_callback
  ****************************************************************************/
 
-#if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_TCP
 #ifndef CONFIG_NSH_DISABLE_WGET
 static void wget_callback(FAR char **buffer, int offset, int datend,
                           FAR int *buflen, FAR void *arg)
@@ -457,7 +457,7 @@ static inline void nsh_sethwaddr(FAR const char *ifname, FAR mac_addr_t *macaddr
  * Name: cmd_get
  ****************************************************************************/
 
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_UDP
 #ifndef CONFIG_NSH_DISABLE_GET
 int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1159,7 +1159,7 @@ errout_invalid:
  * Name: cmd_put
  ****************************************************************************/
 
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_UDP
 #ifndef CONFIG_NSH_DISABLE_PUT
 int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1201,7 +1201,7 @@ int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_wget
  ****************************************************************************/
 
-#if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef CONFIG_NET_TCP
 #ifndef CONFIG_NSH_DISABLE_WGET
 int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {

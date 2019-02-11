@@ -197,9 +197,7 @@ int webserver_main(int argc, char *argv[])
     {
       sleep(3);
       printf("webserver_main: Still running\n");
-#if CONFIG_NFILE_DESCRIPTORS > 0
       fflush(stdout);
-#endif
     }
 
   return 0;

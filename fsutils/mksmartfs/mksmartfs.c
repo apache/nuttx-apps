@@ -36,23 +36,21 @@
  * Included Files
  ****************************************************************************/
 
-#  include <nuttx/config.h>
+#include <nuttx/config.h>
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-# include <sys/stat.h>
-# include <sys/ioctl.h>
-# include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
 #include <errno.h>
-# if !defined(CONFIG_DISABLE_MOUNTPOINT)
-#   ifdef CONFIG_FS_SMARTFS
-#     include "fsutils/mksmartfs.h"
-#     include <nuttx/fs/ioctl.h>
-#     include <nuttx/fs/smart.h>
-#   endif
-#endif
+#if !defined(CONFIG_DISABLE_MOUNTPOINT)
+#  ifdef CONFIG_FS_SMARTFS
+#    include "fsutils/mksmartfs.h"
+#    include <nuttx/fs/ioctl.h>
+#    include <nuttx/fs/smart.h>
+#  endif
 #endif
 
-# include <unistd.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Pre-processor Definitions

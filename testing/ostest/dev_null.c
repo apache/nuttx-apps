@@ -47,8 +47,6 @@
  * Private Data
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-
 static FAR char buffer[1024];
 
 /****************************************************************************
@@ -91,4 +89,3 @@ int dev_null(void)
   return 0;
 }
 
-#endif /*CONFIG_NFILE_DESCRIPTORS */

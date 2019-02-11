@@ -71,10 +71,6 @@
  * are required -- only the more obvious.
  */
 
-#if CONFIG_NFILE_DESCRIPTORS < 1
-#  error "You must provide file descriptors via CONFIG_NFILE_DESCRIPTORS in your configuration file"
-#endif
-
 #ifndef CONFIG_MODULE
 #  error "You must select CONFIG_MODULE in your configuration file"
 #endif

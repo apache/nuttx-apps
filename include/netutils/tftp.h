@@ -88,16 +88,12 @@ extern "C"
 
 int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
                tftp_callback_t cb, FAR void *ctx);
-
 int tftpput_cb(FAR const char *remote, in_addr_t addr, bool binary,
                tftp_callback_t cb, FAR void *ctx);
-
-#if CONFIG_NFILE_DESCRIPTORS > 0
 int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
             bool binary);
 int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
             bool binary);
-#endif
 
 #undef EXTERN
 #ifdef __cplusplus

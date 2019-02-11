@@ -66,10 +66,6 @@
 #  error "Interrupt endpoints are disabled (CONFIG_USBHOST_INT_DISABLE)"
 #endif
 
-#ifndef CONFIG_NFILE_DESCRIPTORS
-#  error "CONFIG_NFILE_DESCRIPTORS > 0 needed"
-#endif
-
 /* Provide some default values for other configuration settings */
 
 #ifndef CONFIG_EXAMPLES_HIDKBD_DEVNAME

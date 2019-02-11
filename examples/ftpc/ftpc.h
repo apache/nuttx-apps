@@ -66,8 +66,8 @@
  * see the output in context.
  */
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && \
-    CONFIG_STDIO_BUFFER_SIZE > 0 && !defined(CONFIG_STDIO_LINEBUFFER)
+#if CONFIG_NFILE_STREAMS > 0 && CONFIG_STDIO_BUFFER_SIZE > 0 && \
+    !defined(CONFIG_STDIO_LINEBUFFER)
 #  define FFLUSH() fflush(stdout)
 #else
 #  define FFLUSH()

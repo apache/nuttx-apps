@@ -297,7 +297,6 @@ errout:
   return result;
 }
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 /****************************************************************************
  * Name: tftp_write
  ****************************************************************************/
@@ -375,4 +374,4 @@ errout:
 }
 #endif
 
-#endif /* CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 */
+#endif /* CONFIG_NET && CONFIG_NET_UDP */

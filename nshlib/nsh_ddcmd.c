@@ -55,7 +55,7 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_DD)
+#ifndef CONFIG_NSH_DISABLE_DD
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -404,4 +404,4 @@ errout_with_paths:
   return ret;
 }
 
-#endif /* CONFIG_NFILE_DESCRIPTORS && !CONFIG_NSH_DISABLE_DD */
+#endif /* !CONFIG_NSH_DISABLE_DD */

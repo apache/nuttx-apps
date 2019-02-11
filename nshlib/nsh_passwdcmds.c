@@ -44,8 +44,8 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_NSH_LOGIN_PASSWD) && \
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_WRITABLE) && \
+    defined(CONFIG_NSH_LOGIN_PASSWD) && \
     !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 
 /****************************************************************************
@@ -115,6 +115,5 @@ int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 #endif /* !CONFIG_NSH_DISABLE_USERADD */
 
-#endif /* !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 &&
-        * CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD &&
-        * !CONFIG_FSUTILS_PASSWD_READONLY */
+#endif /* !CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE &&
+        * CONFIG_NSH_LOGIN_PASSWD && !CONFIG_FSUTILS_PASSWD_READONLY */

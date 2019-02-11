@@ -127,10 +127,8 @@ struct nsh_vtbl_s
   int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
   int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
-#if CONFIG_NFILE_DESCRIPTORS > 0
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save);
   void (*undirect)(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save);
-#endif
   void (*exit)(FAR struct nsh_vtbl_s *vtbl, int exitstatus) noreturn_function;
 
 #ifdef NSH_HAVE_IOBUFFER

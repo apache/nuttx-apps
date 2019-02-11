@@ -46,10 +46,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#if CONFIG_NFILE_DESCRIPTORS > 0
-# include <fcntl.h>
-#endif
+#include <fcntl.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -368,7 +365,6 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  * Name: cmd_hexdump, hex dump of files
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
 int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
@@ -499,7 +495,6 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   free(buffer);
   return ret;
 }
-#endif
 #endif
 
 /****************************************************************************

@@ -1254,7 +1254,6 @@ examples/poll
   stdin, and a TCP/IP socket.  In order to build this test, you must the
   following selected in your NuttX configuration file:
 
-  CONFIG_NFILE_DESCRIPTORS          - Defined to be greater than 0
   CONFIG_DISABLE_POLL               - NOT defined
 
   In order to use the TCP/IP select test, you have also the following
@@ -1863,7 +1862,7 @@ examples/unionfs
   nuttx/fs/unionfs/README.txt.  Dependencies:
 
     CONFIG_DISABLE_MOUNTPOINT          - Mountpoint support must not be disabled
-    CONFIG_NFILE_DESCRIPTORS < 4       - Some file descriptors must be allocated
+    CONFIG_NFILE_DESCRIPTORS > 4       - Some file descriptors must be allocated
     CONFIG_FS_ROMFS                    - ROMFS support is required
     CONFIG_FS_UNIONFS                  - Union File System support is required
 

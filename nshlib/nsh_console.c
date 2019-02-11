@@ -82,14 +82,10 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
 static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
   FAR const char *fmt, ...);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
-
-#if CONFIG_NFILE_DESCRIPTORS > 0
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
   FAR uint8_t *save);
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
   FAR uint8_t *save);
-#endif
-
 static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
   noreturn_function;
 
@@ -101,7 +97,6 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
  * Name: nsh_openifnotopen
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 static int nsh_openifnotopen(struct console_stdio_s *pstate)
 {
   /* The stream is open in a lazy fashion.  This is done because the file
@@ -126,7 +121,6 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
 
   return 0;
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_closeifnotclosed
@@ -177,7 +171,6 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
                                 FAR const void *buffer, size_t nbytes)
 {
-#if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   ssize_t ret;
 
@@ -205,12 +198,6 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   fflush(pstate->cn_outstream);
 
   return ret;
-#else
-  /* REVISIT: buffer may not be NUL-terminated */
-
-  printf("%s", buffer);
-  return nbytes;
-#endif
 }
 
 /****************************************************************************
@@ -224,7 +211,6 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
                              FAR const char *fmt, ...)
 {
-#if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   va_list ap;
   int ret;
@@ -244,31 +230,6 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
   va_end(ap);
 
   return ret;
-#else
-  va_list ap;
-  char *str;
-
-  /* Use vasprintf() to allocate a buffer and fill it with the formatted
-   * data
-   */
-
-  va_start(ap, fmt);
-  str = NULL;
-  (void)vasprintf(&str, fmt, ap);
-
-  /* Was a string allocated? */
-
-  if (str)
-    {
-      /* Yes.. Print then free the allocated string */
-
-      printf("%s", str);
-      free(str);
-    }
-
-  va_end(ap);
-  return 0;
-#endif
 }
 
 /****************************************************************************
@@ -282,7 +243,6 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
 static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
                            FAR const char *fmt, ...)
 {
-#if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   va_list ap;
   int ret;
@@ -302,31 +262,6 @@ static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
   va_end(ap);
 
   return ret;
-#else
-  va_list ap;
-  char *str;
-
-  /* Use vasprintf() to allocate a buffer and fill it with the formatted
-   * data
-   */
-
-  va_start(ap, fmt);
-  str = NULL;
-  (void)vasprintf(&str, fmt, ap);
-
-  /* Was a string allocated? */
-
-  if (str)
-    {
-      /* Yes.. Print then free the allocated string */
-
-      printf("%s", str);
-      free(str);
-    }
-
-  va_end(ap);
-  return 0;
-#endif
 }
 
 /****************************************************************************
@@ -371,7 +306,6 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
   /* Close the output stream */
 
   nsh_closeifnotclosed(pstate);
@@ -380,7 +314,6 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 
 #ifdef CONFIG_NSH_ALTCONDEV
   (void)fclose(pstate->cn_constream);
-#endif
 #endif
 
 #ifdef CONFIG_NSH_VARS
@@ -427,7 +360,6 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
                                 FAR uint8_t *save)
 {
@@ -473,7 +405,6 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
   pstate->cn_outfd     = fd;
   pstate->cn_outstream = NULL;
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_consoleundirect
@@ -483,8 +414,8 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
+static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
+                                FAR uint8_t *save)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
@@ -495,7 +426,6 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
   pstate->cn_errstream = ssave->cn_errstream;
   pstate->cn_outstream = ssave->cn_outstream;
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_consoleexit

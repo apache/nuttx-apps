@@ -50,13 +50,10 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Check configuration.  This is not all of the configuration settings that
  * are required -- only the more obvious.
  */
-
-#if CONFIG_NFILE_DESCRIPTORS < 1
-#  error "You must provide file descriptors via CONFIG_NFILE_DESCRIPTORS in your configuration file"
-#endif
 
 #ifndef CONFIG_FS_ROMFS
 #  error "You must select CONFIG_FS_ROMFS in your configuration file"

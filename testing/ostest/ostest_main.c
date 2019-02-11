@@ -75,10 +75,8 @@ static const char arg2[] = "Arg2";
 static const char arg3[] = "Arg3";
 static const char arg4[] = "Arg4";
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 static const char write_data1[] = "stdio_test: write fd=1\n";
 static const char write_data2[] = "stdio_test: write fd=2\n";
-#endif
 
 #ifdef SDCC
 /* I am not yet certain why SDCC does not like the following
@@ -323,13 +321,11 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
       /* Checkout /dev/null */
 
       printf("\nuser_main: /dev/null test\n");
       dev_null();
       check_test_memory_usage();
-#endif
 
 #ifdef CONFIG_TESTING_OSTEST_AIO
       /* Check asynchronous I/O */
@@ -577,14 +573,10 @@ static void stdio_test(void)
 {
   /* Verify that we can communicate */
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
   write(1, write_data1, sizeof(write_data1)-1);
-#endif
   printf("stdio_test: Standard I/O Check: printf\n");
 
-#if CONFIG_NFILE_DESCRIPTORS > 1
   write(2, write_data2, sizeof(write_data2)-1);
-#endif
 #if CONFIG_NFILE_STREAMS > 0
   fprintf(stderr, "stdio_test: Standard I/O Check: fprintf to stderr\n");
 #endif

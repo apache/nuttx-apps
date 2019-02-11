@@ -44,34 +44,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-# include <sys/stat.h>
-# include <fcntl.h>
-# if !defined(CONFIG_DISABLE_MOUNTPOINT)
-#   ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
-#     include <sys/mount.h>
-#     include <nuttx/drivers/ramdisk.h>
-#   endif
-#   ifdef CONFIG_DEV_LOOP
-#     include <sys/ioctl.h>
-#     include <nuttx/fs/loop.h>
-#   endif
-#   ifdef CONFIG_FS_SMARTFS
-#     include "fsutils/mksmartfs.h"
-#   endif
-#   ifdef CONFIG_SMART_DEV_LOOP
-#     include <sys/ioctl.h>
-#     include <nuttx/fs/smart.h>
-#   endif
-#   ifdef CONFIG_NFS
-#     include <sys/socket.h>
-#     include <netinet/in.h>
-#     include <nuttx/fs/nfs.h>
-#   endif
-#   ifdef CONFIG_RAMLOG_SYSLOG
-#     include <nuttx/syslog/ramlog.h>
-#   endif
-#endif
+#include <sys/stat.h>
+#include <fcntl.h>
+#if !defined(CONFIG_DISABLE_MOUNTPOINT)
+#  ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
+#    include <sys/mount.h>
+#    include <nuttx/drivers/ramdisk.h>
+#  endif
+#  ifdef CONFIG_DEV_LOOP
+#    include <sys/ioctl.h>
+#    include <nuttx/fs/loop.h>
+#  endif
+#  ifdef CONFIG_FS_SMARTFS
+#    include "fsutils/mksmartfs.h"
+#  endif
+#  ifdef CONFIG_SMART_DEV_LOOP
+#    include <sys/ioctl.h>
+#    include <nuttx/fs/smart.h>
+#  endif
+#  ifdef CONFIG_NFS
+#    include <sys/socket.h>
+#    include <netinet/in.h>
+#    include <nuttx/fs/nfs.h>
+#  endif
+#  ifdef CONFIG_RAMLOG_SYSLOG
+#    include <nuttx/syslog/ramlog.h>
+#  endif
 #endif
 
 #include <stdio.h>
@@ -107,8 +105,7 @@
  * Name: nsh_getdirpath
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && \
-    (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
+#if !defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP)
 static char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
                             FAR const char *path, FAR const char *file)
 {
@@ -143,7 +140,7 @@ static inline int ls_specialdir(const char *dir)
  * Name: ls_handler
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_LS)
+#if !defined(CONFIG_NSH_DISABLE_LS)
 static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                       FAR struct dirent *entryp, FAR void *pvarg)
 {
@@ -353,7 +350,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
  * Name: ls_recursive
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_LS)
+#if !defined(CONFIG_NSH_DISABLE_LS)
 static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
                         struct dirent *entryp, void *pvarg)
 {
@@ -388,7 +385,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
   return ret;
 }
 
-#endif /* CONFIG_NFILE_DESCRIPTORS > 0 && !CONFIG_NSH_DISABLE_LS */
+#endif /* !CONFIG_NSH_DISABLE_LS */
 
 /****************************************************************************
  * Public Functions
@@ -458,7 +455,6 @@ int cmd_dirname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_cat
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_CAT
 int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -493,14 +489,12 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return ret;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_dmesg
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_RAMLOG_SYSLOG) && \
-   !defined(CONFIG_NSH_DISABLE_DMESG)
+#if defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
 int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
@@ -511,7 +505,6 @@ int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_cp
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_CP
 int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -689,13 +682,12 @@ errout:
   return ret;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_losetup
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
+#ifndef CONFIG_DISABLE_MOUNTPOINT
 #   if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
 int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -849,7 +841,7 @@ errout_with_paths:
  * Name: cmd_losmart
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
+#ifndef CONFIG_DISABLE_MOUNTPOINT
 #   if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
 int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1016,8 +1008,7 @@ errout_with_paths:
  * Name: cmd_ln
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-#  if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
 int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *linkpath;
@@ -1076,13 +1067,11 @@ errout_with_nomemory:
   return ERROR;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_ls
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_LS
 int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1203,7 +1192,6 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return ret;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_mkdir
@@ -1236,8 +1224,7 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkfatfs
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-     defined(CONFIG_FSUTILS_MKFATFS)
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FSUTILS_MKFATFS)
 #ifndef CONFIG_NSH_DISABLE_MKFATFS
 int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1333,8 +1320,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkfifo
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-# if defined(CONFIG_PIPES) && CONFIG_DEV_FIFO_SIZE > 0 && \
+#if defined(CONFIG_PIPES) && CONFIG_DEV_FIFO_SIZE > 0 && \
     !defined(CONFIG_NSH_DISABLE_MKFIFO)
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1355,7 +1341,6 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return ret;
 }
 #endif /* CONFIG_PIPES && CONFIG_DEV_FIFO_SIZE > 0 && !CONFIG_NSH_DISABLE_MKFIFO */
-#endif /* CONFIG_NFILE_DESCRIPTORS > 0 */
 
 /****************************************************************************
  * Name: cmd_mkrd
@@ -1473,8 +1458,8 @@ errout_with_fmt:
  * Name: cmd_mksmartfs
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-     defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_SMARTFS) && \
+    defined(CONFIG_FSUTILS_MKSMARTFS)
 #ifndef CONFIG_NSH_DISABLE_MKSMARTFS
 int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1612,8 +1597,7 @@ errout_with_oldpath:
  * Name: cmd_readlink
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
-#  if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
 int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *fullpath;
@@ -1641,7 +1625,6 @@ int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   nsh_output(vtbl, "%s\n", vtbl->iobuffer);
   return OK;
 }
-#endif
 #endif
 
 /****************************************************************************
@@ -1702,7 +1685,7 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_sh
  ****************************************************************************/
 
-#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
 #ifndef CONFIG_NSH_DISABLE_SH
 int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1715,7 +1698,6 @@ int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_cmp
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_CMP
 int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1821,13 +1803,12 @@ errout:
   return ret;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_truncate
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifndef CONFIG_DISABLE_MOUNTPOINT
 #ifndef CONFIG_NSH_DISABLE_TRUNCATE
 int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
