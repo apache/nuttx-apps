@@ -96,7 +96,7 @@
 #  endif
 #endif
 
-#ifidef CONFIG_NET_TCP
+#ifdef CONFIG_NET_TCP
 #  ifndef CONFIG_NSH_DISABLE_WGET
 #    include "netutils/webclient.h"
 #  endif
@@ -1339,3 +1339,4 @@ errout:
 #endif
 
 #endif /* CONFIG_NET */
+
