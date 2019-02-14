@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SCANFTEST
+	tristate "sscanf() test"
+	default n
+	---help---
+		Enable sscanf() test
+
+if TESTING_SCANFTEST
+
+config TESTING_SCANFTEST_PROGNAME
+	string "Program name"
+	default "scanftest"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config TESTING_SCANFTEST_PRIORITY
+	int "Scanftest task priority"
+	default 100
+
+config TESTING_SCANFTEST_STACKSIZE
+	int "Scanftest stack size"
+	default 2048
+
+endif
