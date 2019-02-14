@@ -704,7 +704,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 54 */
+  },                           /* 55 */
   {
     "qwerty   -9.87654321", "qwerty  %f%i", 1, FLOAT,
     {
@@ -714,7 +714,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 55 */
+  },                           /* 56 */
   {
     "qwerty   9.87654321E8", "qwerty  %f%i", 1, FLOAT,
     {
@@ -724,7 +724,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 56 */
+  },                           /* 57 */
   {
     "qwerty   +9.87654321E+8", "qwerty  %f%i", 1, FLOAT,
     {
@@ -734,7 +734,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 56 */
+  },                           /* 58 */
   {
     "qwerty   -9.87654321e8", "qwerty  %f%i", 1, FLOAT,
     {
@@ -744,7 +744,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 57 */
+  },                           /* 59 */
   {
     "qwerty   9.87654321E-8", "qwerty  %f%i", 1, FLOAT,
     {
@@ -754,7 +754,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 58 */
+  },                           /* 60 */
   {
     "qwerty   -9.87654321e-8", "qwerty  %f%i", 1, FLOAT,
     {
@@ -764,7 +764,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 59 */
+  },                           /* 61 */
   {
     "qwerty   9.87654321", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -774,7 +774,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 60 */
+  },                           /* 62 */
   {
     "qwerty   +9.87654321", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -784,7 +784,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 60 */
+  },                           /* 63 */
   {
     "qwerty   -9.87654321", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -794,7 +794,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 61 */
+  },                           /* 64 */
   {
     "qwerty   9.87654321e8", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -804,7 +804,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 62 */
+  },                           /* 65 */
   {
     "qwerty   +9.87654321e+8", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -814,7 +814,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 62 */
+  },                           /* 66 */
   {
     "qwerty   -9.87654321E8", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -824,7 +824,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 63 */
+  },                           /* 67 */
   {
     "qwerty   9.87654321e-8", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -834,7 +834,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 64 */
+  },                           /* 68 */
   {
     "qwerty   -9.87654321E-8", "qwerty  %lf%i", 1, DOUBLE,
     {
@@ -844,7 +844,7 @@ test_data[] =
     {
       .nvalue = 0
     }
-  },                           /* 65 */
+  },                           /* 69 */
 };
 
 /* Test the char, short, and long specification-modifiers. */
@@ -879,175 +879,175 @@ type_data[] =
       .s = (signed char)123456789L
     },
     HH_MOD_S
-  },
+  },                           /*  1 */
   {
     "+123456789", "%hhd",
     {
       .s = (signed char)123456789L
     },
     HH_MOD_S
-  },
+  },                           /*  2 */
   {
     "-123456789", "%hhd",
     {
       .s = (signed char)-123456789L
     },
     HH_MOD_S
-  },
+  },                           /*  3 */
   {
     "+123456789", "%hhu",
     {
       .u = (unsigned char)123456789L
     },
     HH_MOD_U
-  },
+  },                           /*  4 */
   {
     "-123456789", "%hhu",
     {
       .u = (unsigned char)-123456789L
     },
     HH_MOD_U
-  },
+  },                           /*  5 */
   {
     " 123456789", "%hd",
     {
       .s = (signed short)123456789L
     },
     H_MOD_S
-  },
+  },                           /*  6 */
   {
     "+123456789", "%hd",
     {
       .s = (signed short)123456789L
     },
     H_MOD_S
-  },
+  },                           /*  7 */
   {
     "-123456789", "%hd",
     {
       .s = (signed short)-123456789L
     },
     H_MOD_S
-  },
+  },                           /*  8 */
   {
     "+123456789", "%hu",
     {
       .u = (unsigned short)123456789L
     },
     H_MOD_U
-  },
+  },                           /*  9 */
   {
     "-123456789", "%hu",
     {
       .u = (unsigned short)-123456789L
     },
     H_MOD_U
-  },
+  },                           /* 10 */
   {
     " 123456789", "%d",
     {
       .s = (signed int)123456789L
     },
     NO_MOD_S
-  },
+  },                           /* 11 */
   {
     "+123456789", "%d",
     {
       .s = (signed int)123456789L
     },
     NO_MOD_S
-  },
+  },                           /* 12 */
   {
     "-123456789", "%d",
     {
       .s = (signed int)-123456789L
     },
     NO_MOD_S
-  },
+  },                           /* 13 */
   {
     "+123456789", "%u",
     {
       .u = (unsigned int)123456789L
     },
     NO_MOD_U
-  },
+  },                           /* 14 */
   {
     "-123456789", "%u",
     {
       .u = (unsigned int)-123456789L
     },
     NO_MOD_U
-  },
+  },                           /* 15 */
   {
     " 123456789", "%ld",
     {
       .s = (signed long)123456789L
     },
     L_MOD_S
-  },
+  },                           /* 16 */
   {
     "+123456789", "%ld",
     {
       .s = (signed long)123456789L
     },
     L_MOD_S
-  },
+  },                           /* 17 */
   {
     "-123456789", "%ld",
     {
       .s = (signed long)-123456789L
     },
     L_MOD_S
-  },
+  },                           /* 18 */
   {
     "+123456789", "%lu",
     {
       .u = (unsigned long)123456789L
     },
     L_MOD_U
-  },
+  },                           /* 19 */
   {
     "-123456789", "%lu",
     {
       .u = (unsigned long)-123456789L
     },
     L_MOD_U
-  },
+  },                           /* 20 */
   {
     " 123456789123456789", "%lld",
     {
       .s = (signed long long)123456789123456789LL
     },
     LL_MOD_S
-  },
+  },                           /* 21 */
   {
     "+123456789123456789", "%lld",
     {
       .s = (signed long long)123456789123456789LL
     },
     LL_MOD_S
-  },
+  },                           /* 22 */
   {
     "-123456789123456789", "%lld",
     {
       .s = (signed long long)-123456789123456789LL
     },
     LL_MOD_S
-  },
+  },                           /* 23 */
   {
     "+123456789123456789", "%llu",
     {
       .u = (unsigned long long)123456789123456789LL
     },
     LL_MOD_U
-  },
+  },                           /* 24 */
   {
     "-123456789123456789", "%llu",
     {
       .u = (unsigned long long)-123456789123456789LL
     },
     LL_MOD_U
-  },
+  },                           /* 25 */
 };
 
 /****************************************************************************
@@ -1066,11 +1066,20 @@ int scanftest_main(int argc, char *argv[])
 {
   int t;
   int i;
-  int c, n1 = 12345, n2;
-  char s1[80], s2[80];
-  float f1, f2;
-  double d1, d2;
-  FILE *fp;
+  int c;
+  int n1 = 12345;
+  int n2;
+  bool ok;
+  char s1[80];
+  char s2[80];
+  float f1;
+  float f2;
+  double d1;
+  double d2;
+  FAR FILE *fp;
+
+  FAR const char *teststring = "teststring a";
+  FAR const char *fname = "/mnt/fs/test.txt";
 
   /* Test that scanf() can recognize percent-signs in the input. ** Test that
    * integer converters skip white-space. ** Test that "%i" can scan a single
@@ -1091,39 +1100,51 @@ int scanftest_main(int argc, char *argv[])
 
   for (i = 0; i < 2; i++)
     {
-      printf
-        ("Testing %cscanf()'s return-value,\nconversions, and assignments...\n",
-         i ? 'f' : 's');
-
       if (i)
         {
+          printf("\nBack to Back Test...\n");
+
           memset(s1, '\0', sizeof s1);
           memset(s2, '\0', sizeof s2);
 
-          fp = fopen("/mnt/fs/test.txt", "wb");
+          fp = fopen(fname, "wb");
           if (fp)
             {
-              fputs("teststring a", fp);
+              fputs(teststring, fp);
               fclose(fp);
-            }
-          else
-            {
-              printf("Filesystem Error Write\n");
-            }
+              fp = fopen(fname, "rb");
+              if (fp != NULL)
+                {
+                  char s3[3];
 
-          fp = fopen("/mnt/fs/test.txt", "rb");
-          if (fp)
-            {
-              c = fscanf(fp, "%s", s1, s2);
-              c = fscanf(fp, "%2c", s2);
-              printf("Back to Back test: \"teststring a\" == \"%s%s\"?\n", s1,
-                     s2);
+                  fscanf(fp, "%s", s2);
+                  fscanf(fp, "%2c", s3);
+                  sprintf(s1,"%s%s",s2,s3);
+
+                  if(strcmp(s1,teststring))
+                    {
+                      printf("Error %s != %s.\n",teststring,s1);
+                    }
+                  else
+                    {
+                      printf("Test Ok.\n",teststring,s1);
+                    }
+                }
+              else
+                {
+                  printf("Error opening %s for read.\n", fname);
+                }
             }
           else
             {
-              printf("Filesystem Error Read\n");
+              printf("Error opening %s for write.\n", fname);
             }
         }
+
+      printf
+        ("\nTesting %cscanf()'s return-value,\nconversions, and assignments...\n",
+         i ? 'f' : 's');
+
 
       for (t = 0; t < ARRAYSIZE(test_data); ++t)
         {
@@ -1133,9 +1154,11 @@ int scanftest_main(int argc, char *argv[])
           memset(s1, '\0', sizeof s1);
           memset(s2, '\0', sizeof s2);
 
+          ok = true;
+
           if (i)
             {
-              fp = fopen("/mnt/fs/test.txt", "wb");
+              fp = fopen(fname, "wb");
               if (fp)
                 {
                   fputs(test_data[t].input, fp);
@@ -1143,11 +1166,11 @@ int scanftest_main(int argc, char *argv[])
                 }
               else
                 {
-                  printf("Filesystem Error Write\n");
+                  printf("Error opening %s for write.\n", fname);
                   break;
                 }
 
-              fp = fopen("/mnt/fs/test.txt", "rb");
+              fp = fopen(fname, "rb");
               if (fp)
                 {
                   c = fscanf
@@ -1171,7 +1194,7 @@ int scanftest_main(int argc, char *argv[])
                 }
               else
                 {
-                  printf("Filesystem Error Read\n");
+                  printf("Error opening %s for read.\n", fname);
                   break;
                 }
             }
@@ -1198,6 +1221,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u returned %d instead of %d.\n", t + 1, c,
                      test_data[t].rvalue);
+              ok = false;
             }
 
           if (test_data[t].type1 == INT)
@@ -1207,6 +1231,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %i, instead of %i,\n"
                          "\tto the first argument.\n\n", t + 1, n1,
                          test_data[t].v1.nvalue);
+                  ok = false;
                 }
             }
           else if (test_data[t].type1 == FLOAT)
@@ -1216,6 +1241,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %e, instead of %e,\n"
                          "\tto the first argument.\n\n", t + 1, f1,
                          test_data[t].v1.fvalue);
+                  ok = false;
                 }
             }
           else if (test_data[t].type1 == DOUBLE)
@@ -1225,6 +1251,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %le, instead of %le,\n"
                          "\tto the first argument.\n\n", t + 1, d1,
                          test_data[t].v1.dvalue);
+                  ok = false;
                 }
             }
           else
@@ -1237,6 +1264,7 @@ int scanftest_main(int argc, char *argv[])
                          "\tinstead of\n\"%s\",\n"
                          "\tto the first argument.\n\n", t + 1, s1,
                          test_data[t].v1.svalue);
+                  ok = false;
                 }
             }
 
@@ -1247,6 +1275,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %i, instead of %i,\n"
                          "\tto the second argument.\n\n", t + 1, n2,
                          test_data[t].v2.nvalue);
+                  ok = false;
                 }
             }
           else if (test_data[t].type2 == FLOAT)
@@ -1256,6 +1285,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %e, instead of %e,\n"
                          "\tto the second argument.\n\n", t + 1, f2,
                          test_data[t].v2.fvalue);
+                  ok = false;
                 }
             }
           else if (test_data[t].type2 == DOUBLE)
@@ -1265,6 +1295,7 @@ int scanftest_main(int argc, char *argv[])
                   printf("Test #%u assigned %le, instead of %le,\n"
                          "\tto the second argument.\n\n", t + 1, d2,
                          test_data[t].v2.dvalue);
+                  ok = false;
                 }
             }
           else
@@ -1277,14 +1308,20 @@ int scanftest_main(int argc, char *argv[])
                          "\tinstead of\n\"%s\",\n"
                          "\tto the second argument.\n\n", t + 1, s2,
                          test_data[t].v2.svalue);
+                  ok = false;
                 }
+            }
+
+          if (ok)
+            {
+              printf("Test #%u PASSED.\n", t + 1);
             }
         }
     }
 
   /* Test the char, short, and long specification-modifiers. */
 
-  printf("Testing scanf()'s type-modifiers...\n");
+  printf("\nTesting scanf()'s type-modifiers...\n");
   for (t = 0; t < ARRAYSIZE(type_data); ++t)
     {
       unsigned char hhu;
@@ -1298,6 +1335,7 @@ int scanftest_main(int argc, char *argv[])
       signed long ls;
       signed long long lls;
 
+      ok = true;
       switch (type_data[t].type)
         {
         case HH_MOD_S:
@@ -1307,6 +1345,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %hhd instead of %lli.\n", t + 1,
                      hhs, type_data[t].value.s);
+              ok = false;
             }
           break;
 
@@ -1317,6 +1356,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %hhu instead of %lli.\n",
                      t + 1, hhu, type_data[t].value.u);
+              ok = false;
             }
           break;
 
@@ -1327,6 +1367,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %hd instead of %lli.\n",
                      t + 1, hs, type_data[t].value.s);
+              ok = false;
             }
           break;
 
@@ -1337,6 +1378,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %hu instead of %lli.\n",
                      t + 1, hu, type_data[t].value.u);
+              ok = false;
             }
           break;
 
@@ -1347,6 +1389,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %d instead of %lli.\n",
                      t + 1, nos, type_data[t].value.s);
+              ok = false;
             }
           break;
 
@@ -1357,6 +1400,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %nou instead of %lli.\n",
                      t + 1, nou, type_data[t].value.u);
+              ok = false;
             }
           break;
 
@@ -1367,6 +1411,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %ld instead of %lli.\n",
                      t + 1, ls, type_data[t].value.s);
+              ok = false;
             }
           break;
 
@@ -1377,6 +1422,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %lu instead of %lli.\n",
                      t + 1, lu, type_data[t].value.u);
+              ok = false;
             }
           break;
 
@@ -1387,6 +1433,7 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %lld instead of %lli.\n",
                      t + 1, lls, type_data[t].value.s);
+              ok = false;
             }
           break;
 
@@ -1397,8 +1444,14 @@ int scanftest_main(int argc, char *argv[])
             {
               printf("Test #%u assigned %llu instead of %lli.\n",
                      t + 1, llu, type_data[t].value.u);
+              ok = false;
             }
           break;
+        }
+
+      if (ok)
+        {
+          printf("Test #%u PASSED.\n", t + 1);
         }
     }
 
