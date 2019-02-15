@@ -50,7 +50,8 @@ config EMBEDLOG_ENABLE_OUT_STDERR
 	bool "Enable logging to standard error"
 	default y
 	---help---
-		If enabled, you will be able to log messages to standard error.
+		If enabled, you will be able to log messages to standard error (stderr)
+		and/or standard output (stdout).
 
 config EMBEDLOG_ENABLE_OUT_TTY
 	bool "Enable printing to tty device"

@@ -39,9 +39,11 @@ WGET = wget
 CP = cp -R
 UNPACK = tar -xzf
 PACKEXT = .tar.gz
+NXTOOLSDIR = $(APPDIR)/tools
 
 EMBEDLOG_URL = https://distfiles.kurwinet.pl/embedlog
-EMBEDLOG_VERSION = 0.3.0
+EMBEDLOG_VERSION = 0.4.0
+EMBEDLOG_SRC_SHA256 = 832c50e0f99d730bed25caed1c4745eca02882a9204c6ad41f715a269293c5a8
 EMBEDLOG_EXT = tar.gz
 EMBEDLOG_SOURCES = embedlog-$(EMBEDLOG_VERSION)
 EMBEDLOG_TARBALL = $(EMBEDLOG_SOURCES).$(EMBEDLOG_EXT)
@@ -138,32 +140,36 @@ else
 	CFLAGS += -DHAVE_TERMIOS_H=0
 endif
 
-# config.h is available only when building with autotools
+CFLAGS += -DEL_LOG_MAX=$(CONFIG_EMBEDLOG_LOG_MAX)
+CFLAGS += -DEL_MEM_LINE_SIZE=$(CONFIG_EMBEDLOG_MEM_LINE_SIZE)
 
+# config.h is available only when building with autotools
 CFLAGS += -DHAVE_CONFIG_H=0
 
 # embedlog uses access(path, F_OK) to determin if file exists or not and since
 # nuttx always returns OK here, we mark access as not working and make embedlog
 # to use stat() for that purpose
-
 CFLAGS += -DHAVE_ACCESS=0
-CFLAGS += -DEL_LOG_MAX=$(CONFIG_EMBEDLOG_LOG_MAX)
-CFLAGS += -DEL_MEM_LINE_SIZE=$(CONFIG_EMBEDLOG_MEM_LINE_SIZE)
+
+# tell embedlog which features are available in nuttx os
 CFLAGS += -DENABLE_REENTRANT
 CFLAGS += -DENABLE_OUT_SYSLOG
 CFLAGS += -DHAVE_STAT
-CFLAGS += -DHAVE_SNPRINTF
 CFLAGS += -DHAVE_UNISTD_H
 CFLAGS += -DHAVE_FSYNC
 CFLAGS += -DHAVE_FILENO
 CFLAGS += -DENABLE_COLORS_EXTENDED=0
 
-# not yet implemented features - silent compiler warnings
+# nuttx has its own snprintf implementation, disable internal snprintf
+# implementation
+CFLAGS += -DPREFER_PORTABLE_SNPRINTF=0
+CFLAGS += -DNEED_SNPRINTF_ONLY=0
+CFLAGS += -DHAVE_SNPRINTF
 
+# not yet implemented features - silent compiler warnings
 CFLAGS += -DENABLE_OUT_NET=0
 
 # nuttx does not implement clock() function
-
 CFLAGS += -DENABLE_CLOCK=0
 
 # building of embedlog
@@ -171,6 +177,7 @@ CFLAGS += -DENABLE_CLOCK=0
 $(EMBEDLOG_TARBALL):
 	@echo "Downloading: $@"
 	$(Q) $(WGET) -O $@ $(EMBEDLOG_URL)/$@
+	${Q} $(NXTOOLSDIR)/check-hash.sh sha256 $(EMBEDLOG_SRC_SHA256) $@
 	$(Q) touch $@
 
 $(EMBEDLOG_SOURCES): $(EMBEDLOG_TARBALL)
