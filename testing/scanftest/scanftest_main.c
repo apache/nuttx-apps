@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/scanftest_main.c
+ * apps/testing/scanftest/scanftest_main.c
  *
  *   Copyright (C) 2005-01-26, Greg King (https://github.com/cc65)
  *
@@ -89,7 +89,8 @@
 
 static const struct
 {
-  const char *input, *format;
+  FAR const char *input;
+  FAR const char *format;
   int rvalue;
   enum TYPE
   {
@@ -117,7 +118,7 @@ static const struct
 test_data[] =
 {
   /* Input sequences for character specifiers must be less than 80 characters
-   * ** long.  These format strings are allowwed a maximum of two assignment **
+   * long.  These format strings are allowwed a maximum of two assignment
    * specifications.
    */
 
@@ -851,7 +852,8 @@ test_data[] =
 
 static const struct
 {
-  const char *input, *format;
+  FAR const char *input;
+  FAR const char *format;
   union
   {
     long long s;
@@ -1102,10 +1104,13 @@ int scanftest_main(int argc, char *argv[])
     {
       if (i)
         {
+          char s3[3];
+
           printf("\nBack to Back Test...\n");
 
           memset(s1, '\0', sizeof s1);
           memset(s2, '\0', sizeof s2);
+          memset(s3, '\0', sizeof s3);
 
           fp = fopen(fname, "wb");
           if (fp)
@@ -1115,19 +1120,17 @@ int scanftest_main(int argc, char *argv[])
               fp = fopen(fname, "rb");
               if (fp != NULL)
                 {
-                  char s3[3];
-
                   fscanf(fp, "%s", s2);
                   fscanf(fp, "%2c", s3);
-                  sprintf(s1,"%s%s",s2,s3);
+                  sprintf(s1, "%s%s", s2, s3);
 
-                  if(strcmp(s1,teststring))
+                  if (strcmp(s1, teststring) != 0)
                     {
-                      printf("Error %s != %s.\n",teststring,s1);
+                      printf("Error %s != %s.\n", teststring, s1);
                     }
                   else
                     {
-                      printf("Test Ok.\n",teststring,s1);
+                      printf("Test PASSED.\n");
                     }
                 }
               else
@@ -1141,10 +1144,9 @@ int scanftest_main(int argc, char *argv[])
             }
         }
 
-      printf
-        ("\nTesting %cscanf()'s return-value,\nconversions, and assignments...\n",
-         i ? 'f' : 's');
-
+      printf("\nTesting %cscanf()'s return-value,\nconversions, and "
+             "assignments...\n",
+             i ? 'f' : 's');
 
       for (t = 0; t < ARRAYSIZE(test_data); ++t)
         {
