@@ -781,10 +781,10 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 #else
   FAR struct ap_buffer_s      *pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
 #endif
+  unsigned int                prio;
 #ifdef CONFIG_DEBUG_FEATURES
   int                         outstanding = 0;
 #endif
-  int                         prio;
   int                         x;
   int                         ret;
 
