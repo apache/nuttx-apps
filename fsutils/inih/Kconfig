@@ -1,0 +1,54 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig FSUTILS_INIH
+	bool "inih ini file parser"
+	default n
+	---help---
+		inih (INI Not Invented Here) is a simple .INI file parser written in C.
+		https://github.com/benhoyt/inih
+
+		Library is licensed under the New BSD license. See LICENSE.txt file in
+		the downloaded code for license details
+
+if FSUTILS_INIH
+
+config INIH_MULTI_LINE_ENTRIES
+	bool "Enable multiline entries"
+	default n
+	---help---
+		This makes inih to support multi-line entries in the style of Python's
+		ConfigParser.
+
+config INIH_USE_MALLOC
+	bool "Enable use of malloc()"
+	default n
+	---help---
+		If you enable this, inih will be using malloc() and realloc() to
+		allocate needed memory for line-by-line file parsing.
+
+		If you disable this, inih will be using only stack allocated memory
+		for parsing file.
+
+if INIH_USE_MALLOC
+
+config INIH_INITIAL_ALLOC
+	int "Initial allocation size"
+	default 128
+	---help---
+		inih will allocate this ammount of memory and will double it when
+		line is bigger than currently allocated memory.
+
+endif # INIH_USE_MALLOC
+
+config INIH_MAX_LINE
+	int "Maximum line size"
+	default 80
+	range 4 4096
+	---help---
+		Maximum size of a single line. It doesn't matter if you have malloc()
+		enabled or not, you can't exceed this value.
+
+endif # FSUTILS_INIH
