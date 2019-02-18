@@ -59,8 +59,8 @@
 
 /* Should we perform board-specific driver initialization?  There are two
  * ways that board initialization can occur:  1) automatically via
- * board_initialize() during bootup if CONFIG_BOARD_INITIALIZE, or 2) via a
- * call to boardctl() if the interface is enabled (CONFIG_LIB_BOARDCTL=y).
+ * board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or 2)
+ * via a call to boardctl() if the interface is enabled (CONFIG_LIB_BOARDCTL=y).
  * If this task is running as an NSH built-in application, then that
  * initialization has probably already been performed otherwise we do it
  * here.
@@ -68,7 +68,7 @@
 
 #undef NEED_BOARDINIT
 
-#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_INITIALIZE) && \
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE) && \
     (!defined(CONFIG_NSH_BUILTIN_APPS) || !defined(CONFIG_NSH_ARCHINIT))
 #  define NEED_BOARDINIT 1
 #endif

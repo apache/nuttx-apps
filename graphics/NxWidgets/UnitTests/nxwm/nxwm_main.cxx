@@ -679,11 +679,11 @@ int nxwm_main(int argc, char *argv[])
 
   // Should we perform board-specific initialization?  There are two ways
   // that board initialization can occur:  1) automatically via
-  // board_initialize() during bootup if CONFIG_BOARD_INITIALIZE, or
+  // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
   // 2) here via a call to boardctl() if the interface is enabled
   // (CONFIG_LIB_BOARDCTL=y).
 
-#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_INITIALIZE)
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
   (void)boardctl(BOARDIOC_INIT, 0);
 #endif
 
