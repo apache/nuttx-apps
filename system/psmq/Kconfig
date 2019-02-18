@@ -1,0 +1,111 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+comment "psmq requires posix mqueue and SYSTEM_EMBEDLOG"
+	depends on DISABLE_MQUEUE || !SYSTEM_EMBEDLOG
+
+menuconfig SYSTEM_PSMQ
+	bool "psmq"
+	default n
+	depends on !DISABLE_MQUEUE && SYSTEM_EMBEDLOG
+	select SYSTEM_EMBEDLOG
+	---help---
+		psmq is tool set which allows IPC communication in publish/subscribe way
+		created on top of posix messege queue. Full documentation is available
+		at: https://psmq.kurwinet.pl (despite the domain, it is in english).
+
+		Library is licensed under BSD 2-clause license. See LICENSE file in
+		the downloaded code for license details.
+
+if SYSTEM_PSMQ
+
+config PSMQ_MAX_CLIENTS
+	int "Max number of clients"
+	default 8
+	---help---
+		This  defines  how  many  clients  single  broker process will
+		support.  Broker will return error for clients that want to
+		register to it and there are already max clients connected.  psmqd
+		will  alocate client array with static storage duration that is
+		about 12 bytes (may vary depending on architecture) for each
+		client.
+
+config PSMQ_PAYLOAD_MAX
+	int "Max size of payload"
+	default 8
+	---help---
+		Defines maximum size of payload that can be sent via psmq.
+
+		Both PSMQ_TOPIC_MAX and PSMQ_PAYLOAD_MAX have direct impact on size
+		of internal message structures that  are copied each time message
+		is sent.  If you set PSMQ_PAYLOAD_MAX to, let's say 20, and you are
+		sending message with payload that takes only 2 byte, then 20 bytes
+		will get copied anyway.  Same rule applies to topics.
+
+config PSMQ_TOPIC_MAX
+	int "Max length of topic"
+	default 15
+	---help---
+		Defines maximum length any topic can be.  That includes first ´/´
+		character,  but  does  not  include terminating null  character.  So
+		if  this is set to 3, then topics "/0", "/01" will be valid, but
+		"/012" will be too long.
+
+		Library will use PSMQ_TOPIC_MAX + 1 as an array size for topic.
+		This means, to prevent unecessary paddings, use values like 7, or 15
+		or 31.
+
+config PSMQD_PRIORITY
+	int "psmqd broker task priority"
+	default 100
+
+config PSMQD_STACKSIZE
+	int "psmqd broker stack size"
+	default 2048
+
+config PSMQ_TOOLS_PUB
+	bool "Enable psmq_pub tool"
+	default n
+	---help---
+		Enables program which allows to publish message over psmq directly
+		from command line.
+
+if PSMQ_TOOLS_PUB
+
+config PSMQ_PUB_PRIORITY
+	int "psmq_pub broker task priority"
+	default 100
+
+config PSMQ_PUB_STACKSIZE
+	int "psmq_pub broker stack size"
+	default 2048
+
+endif # PSMQ_TOOLS_PUB
+
+config PSMQ_TOOLS_SUB
+	bool "Enable psmq_sub tool"
+	default n
+	---help---
+		Enables program which allows to listen to published messages on
+		chosen topics. It also has capabilities to log these messages to
+		a chosen file.
+
+if PSMQ_TOOLS_SUB
+
+config PSMQ_SUB_PROGNAME
+	string "psmq_sub program name"
+	default "psmq_sub"
+	depends on BUILD_KERNEL
+
+config PSMQ_SUB_PRIORITY
+	int "psmq_sub broker task priority"
+	default 100
+
+config PSMQ_SUB_STACKSIZE
+	int "psmq_sub broker stack size"
+	default 2048
+
+endif # PSMQ_TOOLS_SUB
+endif # SYSTEM_PSMQ
