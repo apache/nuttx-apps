@@ -10,7 +10,6 @@ menuconfig SYSTEM_PSMQ
 	bool "psmq"
 	default n
 	depends on !DISABLE_MQUEUE && SYSTEM_EMBEDLOG
-	select SYSTEM_EMBEDLOG
 	---help---
 		psmq is tool set which allows IPC communication in publish/subscribe way
 		created on top of posix messege queue. Full documentation is available
