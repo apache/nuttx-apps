@@ -4121,6 +4121,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
+#ifdef CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT
         case KEY_CMDMODE_REPEAT: /* Repeat the last command */
           {
             if (vi->cmdcount < CMD_BUFSIZE)
@@ -4137,6 +4138,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
               }
           }
           break;
+#endif
 
         case KEY_CMDMODE_GOTO:  /* Go to line specified by the accumulated value */
           {
