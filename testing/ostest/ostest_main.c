@@ -363,6 +363,10 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: mutex test\n");
       mutex_test();
       check_test_memory_usage();
+
+      printf("\nuser_main: timed mutex test\n");
+      timedmutex_test();
+      check_test_memory_usage();
 #endif
 
 #if !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_PTHREAD_MUTEX_TYPES)

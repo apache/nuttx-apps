@@ -150,6 +150,10 @@ int waitpid_test(void);
 
 void mutex_test(void);
 
+/* timedmutex.c *************************************************************/
+
+void timedmutex_test(void);
+
 /* rmutex.c *****************************************************************/
 
 void recursive_mutex_test(void);
