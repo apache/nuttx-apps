@@ -1653,6 +1653,11 @@ examples/stat
   A simple test of stat(), fstat(), and statfs().  This is useful primarily for
   bringing up a new file system and verifying the correctness of these operations.
 
+examples/sx127x_demo
+^^^^^^^^^^^^^
+
+  This example demonstrates the use of the SX127X radio/
+
 examples/system
 ^^^^^^^^^^^^^^^
 
