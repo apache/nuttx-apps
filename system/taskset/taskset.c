@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <sched.h>
 #include <errno.h>
+#include <string.h>
 
 #include "nshlib/nshlib.h"
 
@@ -101,11 +102,15 @@ int taskset_main(int argc, char **argv)
 #endif
 {
   FAR char *nshargv[2];
+  char command[CONFIG_NSH_LINELEN];
   int exitcode;
   int option;
   int pid = -1;
   cpu_set_t cpuset;
   int rc;
+  int i;
+
+  memset(command, 0, sizeof(command));
 
   CPU_ZERO(&cpuset);
 
@@ -166,7 +171,16 @@ int taskset_main(int argc, char **argv)
               goto errout;
             }
 
-          nshargv[0] = argv[2];
+          /* Construct actual command with args */
+          /* NOTE: total length does not exceed CONFIG_NSH_LINELEN */
+
+          for (i = 0; i < argc - 2; i++)
+            {
+              strcat(command, argv[i + 2]);
+              strcat(command, " ");
+            }
+
+          nshargv[0] = command;
           nshargv[1] = NULL;
 
           sched_setaffinity(getpid(), sizeof(cpu_set_t), &cpuset);
