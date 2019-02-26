@@ -82,7 +82,7 @@ static void *thread_func(FAR void *parameter)
       /* Get the current time */
 
       status = clock_gettime(CLOCK_REALTIME, &ts);
-      if (status != OK)
+      if (status < 0)
         {
           int errcode = errno;
           fprintf(stderr, "pthread: clock_gettime() failed: %d\n", errcode);
@@ -101,13 +101,14 @@ static void *thread_func(FAR void *parameter)
       status = pthread_mutex_timedlock(&g_mutex, &ts);
       if (status != 0)
         {
-          if (status == EAGAIN)
+          if (status == ETIMEDOUT)
             {
               printf("pthread:  Got the timeout.  Terminating\n");
             }
           else
             {
-              fprintf(stderr, "pthread: clock_gettime() failed: %d\n", status);
+              fprintf(stderr, "pthread: pthread_mutex_timedlock() failed: %d\n",
+                      status);
             }
 
           g_result = status;
@@ -207,9 +208,9 @@ void timedmutex_test(void)
     {
       fprintf(stderr, "mutex_test: ERROR: The pthread is still running!\n");
     }
-  else if (g_result != EAGAIN)
+  else if (g_result != ETIMEDOUT)
     {
-      fprintf(stderr, "mutex_test: ERROR: Result of timeout was not EAGAIN: %d\n",
+      fprintf(stderr, "mutex_test: ERROR: Result was not ETIMEDOUT: %d\n",
               g_result);
     }
   else
