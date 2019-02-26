@@ -56,70 +56,150 @@ int setvbuf_test(void)
   char buffer[64];
   int ret;
 
+  printf("setvbuf_test: Test NO buffering\n");
+
   stream = fopen("/dev/console", "w");
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
-      return -1;
+      return ERROR;
     }
-
-  fprintf(stream, "setvbuf_test: DEFAULT buffering\r\n");
 
   ret = setvbuf(stream, NULL, _IONBF, 0);
   if (ret < 0)
     {
-      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+      printf("setvbuf_test ERROR: "
+             "setvbuf(stream, NULL, _IONBF, 0) failed\n");
     }
 
-  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+  fprintf(stream, "setvbuf_test: Using NO buffering\r\n");
+
+  /* Close the stream.  setvbuf() may only be called AFTER the stream has
+   * been opened and BEFORE any operations have been performed on the
+   * stream.
+   */
+
+  fclose(stream);
+
+  printf("setvbuf_test: Test default FULL buffering\n");
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
+    {
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return ERROR;
+    }
 
   ret = setvbuf(stream, NULL, _IOFBF, 0);
   if (ret < 0)
     {
-      printf("ssetvbuf_test ERROR: etvbuf(stream, NULL, _IONBF, 0) failed\n");
+      printf("ssetvbuf_test ERROR: "
+             "setvbuf(stream, NULL, _IOFBF, 0) failed\n");
     }
 
-  fprintf(stream, "setvbuf_test: FULL buffering, default buffer\r\n");
+  fprintf(stream, "setvbuf_test: Using default FULL buffering\r\n");
 
-  ret = setvbuf(stream, NULL, _IONBF, 0);
+  /* Close the stream.  setvbuf() may only be called AFTER the stream has
+   * been opened and BEFORE any operations have been performed on the
+   * stream.
+   */
+
+  fclose(stream);
+
+  printf("setvbuf_test: Test FULL buffering, buffer size 64\n");
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
+    {
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return ERROR;
+    }
+
+  ret = setvbuf(stream, NULL, _IOFBF, 64);
   if (ret < 0)
     {
-      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+      printf("ssetvbuf_test ERROR: "
+             "setvbuf(stream, NULL, _IOFBF, 64) failed\n");
     }
 
-  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+  fprintf(stream, "setvbuf_test: Using FULL buffering, buffer size 64\r\n");
 
-  ret = setvbuf(stream, NULL, _IOLBF, 64);
-  if (ret < 0)
+  /* Close the stream.  setvbuf() may only be called AFTER the stream has
+   * been opened and BEFORE any operations have been performed on the
+   * stream.
+   */
+
+  fclose(stream);
+
+  printf("setvbuf_test: Test FULL buffering, pre-allocated buffer\n");
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
     {
-      printf("setvbuf_test: ERROR: setvbuf(stream, NULL, _IOLBF, 64) failed\n");
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return ERROR;
     }
-
-  fprintf(stream, "setvbuf_test: LINE buffering, buffer size 64\r\n");
-
-  ret = setvbuf(stream, NULL, _IONBF, 0);
-  if (ret < 0)
-    {
-      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
-    }
-
-  fprintf(stream, "setvbuf_test: NO buffering\r\n");
 
   ret = setvbuf(stream, buffer, _IOFBF, 64);
   if (ret < 0)
     {
-      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IOLBF, 64) failed\n");
+      printf("ssetvbuf_test ERROR: "
+             "setvbuf(stream, buffer, _IOFBF, 64) failed\n");
     }
 
-  fprintf(stream, "setvbuf_test: FULL buffering, pre-allocated buffer\r\n");
+  fprintf(stream,
+          "setvbuf_test: Using FULL buffering, pre-allocated buffer\r\n");
 
-  ret = setvbuf(stream, NULL, _IONBF, 0);
+  /* Close the stream.  setvbuf() may only be called AFTER the stream has
+   * been opened and BEFORE any operations have been performed on the
+   * stream.
+   */
+
+  fclose(stream);
+
+  printf("setvbuf_test: Test LINE buffering, buffer size 64\n");
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
+    {
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return ERROR;
+    }
+
+  ret = setvbuf(stream, NULL, _IOLBF, 64);
   if (ret < 0)
     {
-      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+      printf("setvbuf_test ERROR: "
+             "setvbuf(stream, NULL, _IOLBF, 64) failed\n");
     }
 
-  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+  fprintf(stream, "setvbuf_test: Using LINE buffering, buffer size 64\r\n");
+
+  /* Close the stream.  setvbuf() may only be called AFTER the stream has
+   * been opened and BEFORE any operations have been performed on the
+   * stream.
+   */
+
+  fclose(stream);
+
+  printf("setvbuf_test: Test FULL buffering, pre-allocated buffer\n");
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
+    {
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return ERROR;
+    }
+
+  ret = setvbuf(stream, buffer, _IOLBF, 64);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: "
+             "setvbuf(stream, buffer, _IOLBF, 64) failed\n");
+    }
+
+  fprintf(stream,
+          "setvbuf_test: Using FULL buffering, pre-allocated buffer\r\n");
 
   fclose(stream);
   return 0;
