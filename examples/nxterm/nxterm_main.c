@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxterm/nxterm_main.c
  *
- *   Copyright (C) 2012, 2016-2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016-2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,8 +199,8 @@ static int nxterm_task(int argc, char **argv)
   (void)nsh_consolemain(0, NULL);
 #endif
 
-  printf("nxterm_task: Unregister the NX console device\n");
-  (void)nxterm_unregister(g_nxterm_vars.hdrvr);
+  printf("nxterm_task: Unlinking the NX console device\n");
+  (void)unlink(CONFIG_EXAMPLES_NXTERM_DEVNAME);
 
   printf("nxterm_task: Close the window\n");
   (void)nxtk_closewindow(g_nxterm_vars.hwnd);
@@ -227,6 +227,7 @@ int main(int argc, FAR char *argv[])
 int nxterm_main(int argc, char **argv)
 #endif
 {
+  struct boardioc_nxterm_create_s nxcreate;
   nxgl_mxpixel_t color;
   int fd;
   int ret;
@@ -278,7 +279,9 @@ int nxterm_main(int argc, char **argv)
 
   /* Set the background to the configured background color */
 
-  printf("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXTERM_BGCOLOR);
+  printf("nxterm_main: Set background color=%d\n",
+         CONFIG_EXAMPLES_NXTERM_BGCOLOR);
+
   color = CONFIG_EXAMPLES_NXTERM_BGCOLOR;
   ret = nx_setbgcolor(g_nxterm_vars.hnx, &color);
   if (ret < 0)
@@ -291,12 +294,14 @@ int nxterm_main(int argc, char **argv)
   /* Create a window */
 
   printf("nxterm_main: Create window\n");
-  g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, &g_nxtermcb, NULL);
+  g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, &g_nxtermcb,
+                                       NULL);
   if (!g_nxterm_vars.hwnd)
     {
       printf("nxterm_main: nxtk_openwindow failed: %d\n", errno);
       goto errout_with_nx;
     }
+
   printf("nxterm_main: hwnd=%p\n", g_nxterm_vars.hwnd);
 
   /* Wait until we have the screen resolution.  */
@@ -305,7 +310,9 @@ int nxterm_main(int argc, char **argv)
     {
       (void)sem_wait(&g_nxterm_vars.eventsem);
     }
-  printf("nxterm_main: Screen resolution (%d,%d)\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
+
+  printf("nxterm_main: Screen resolution (%d,%d)\n",
+         g_nxterm_vars.xres, g_nxterm_vars.yres);
 
   /* Determine the size and position of the window */
 
@@ -342,7 +349,9 @@ int nxterm_main(int argc, char **argv)
   /* Open the toolbar */
 
   printf("nxterm_main: Add toolbar to window\n");
-  ret = nxtk_opentoolbar(g_nxterm_vars.hwnd, CONFIG_EXAMPLES_NXTERM_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
+  ret = nxtk_opentoolbar(g_nxterm_vars.hwnd,
+                         CONFIG_EXAMPLES_NXTERM_TOOLBAR_HEIGHT,
+                         &g_nxtoolcb, NULL);
   if (ret < 0)
     {
       printf("nxterm_main: nxtk_opentoolbar failed: %d\n", errno);
@@ -360,12 +369,21 @@ int nxterm_main(int argc, char **argv)
   g_nxterm_vars.wndo.fcolor[0] = CONFIG_EXAMPLES_NXTERM_FONTCOLOR;
   g_nxterm_vars.wndo.fontid    = CONFIG_EXAMPLES_NXTERM_FONTID;
 
-  g_nxterm_vars.hdrvr = nxtk_register(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo, CONFIG_EXAMPLES_NXTERM_MINOR);
-  if (!g_nxterm_vars.hdrvr)
+  nxcreate.nxterm              = NULL;
+  nxcreate.hwnd                = g_nxterm_vars.hwnd;
+  nxcreate.wndo                = g_nxterm_vars.wndo;
+  nxcreate.type                = BOARDIOC_XTERM_FRAMED;
+  nxcreate.minor               = CONFIG_EXAMPLES_NXTERM_MINOR;
+
+  ret = boardctl(BOARDIOC_NXTERM, (uintptr_t)&nxcreate);
+  if (ret < 0)
     {
-      printf("nxterm_main: nxtk_register failed: %d\n", errno);
+      printf("nxterm_main: boardctl(BOARDIOC_NXTERM) failed: %d\n", errno);
       goto errout_with_hwnd;
     }
+
+  g_nxterm_vars.hdrvr = nxcreate.nxterm;
+  DEBUGASSERT(g_nxterm_vars.hdrvr != NULL);
 
   /* Open the NxTerm driver */
 
@@ -411,7 +429,7 @@ int nxterm_main(int argc, char **argv)
   /* Error Exits ************************************************************/
 
 errout_with_driver:
-  (void)nxterm_unregister(g_nxterm_vars.hdrvr);
+  (void)unlink(CONFIG_EXAMPLES_NXTERM_DEVNAME);
 
 errout_with_hwnd:
   (void)nxtk_closewindow(g_nxterm_vars.hwnd);

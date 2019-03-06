@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/graphics/nxwm/cnxterm.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,10 +78,11 @@ namespace NxWM
   class CNxTerm : public IApplication, private IApplicationCallback
   {
   private:
-    CTaskbar            *m_taskbar;   /**< Reference to the "parent" taskbar */
-    CApplicationWindow  *m_window;    /**< Reference to the application window */
-    NXTERM               m_nxterm;    /**< NxTerm handle */
-    pid_t                m_pid;       /**< Task ID of the NxTerm thread */
+    CTaskbar            *m_taskbar;     /**< Reference to the "parent" taskbar */
+    CApplicationWindow  *m_window;      /**< Reference to the application window */
+    NXTERM               m_nxterm;      /**< NxTerm handle */
+    pid_t                m_pid;         /**< Task ID of the NxTerm thread */
+    char                 m_devname[32]; /**< Terminal device name *.
 
     /**
      * This is the NxTerm task.  This function first redirects output to the

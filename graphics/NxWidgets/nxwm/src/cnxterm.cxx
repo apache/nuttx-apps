@@ -1,7 +1,7 @@
 /********************************************************************************************
  * apps/graphics/NxWidgets/nxwm/src/cnxterm.cxx
  *
- *   Copyright (C) 2012. 2104 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012. 2014, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,11 @@
 #include <cunistd>
 #include <ctime>
 
+#include <sys/boardctl.h>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <sched.h>
+#include <assert.h>
 #include <debug.h>
 
 #include "nshlib/nshlib.h"
@@ -345,9 +347,9 @@ void CNxTerm::stop(void)
       window->redirectNxTerm((NXTERM)0);
 #endif
 
-      // Unregister the NxTerm driver
+      // Unlink the NxTerm driver
 
-      nxterm_unregister(m_nxterm);
+      (void)unlink(devname);
       m_nxterm = 0;
     }
 }
@@ -445,13 +447,23 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Use the window handle to create the NX console
 
-  g_nxtermvars.nxterm = nxtk_register(g_nxtermvars.hwnd, &g_nxtermvars.wndo,
-                                    g_nxtermvars.minor);
-  if (!g_nxtermvars.nxterm)
+  struct boardioc_nxterm_create_s nxcreate;
+
+  nxcreate.nxterm              = (FAR void *)0;
+  nxcreate.hwnd                = g_nxtermvars.hwnd;
+  nxcreate.wndo                = g_nxtermvars.wndo;
+  nxcreate.type                = BOARDIOC_XTERM_FRAMED;
+  nxcreate.minor               = g_nxtermvars.minor;
+
+  ret = boardctl(BOARDIOC_NXTERM, (uintptr_t)&nxcreate);
+  if (ret < 0)
     {
-      gerr("ERROR: Failed register the console device\n");
+      gerr("ERROR: boardctl(BOARDIOC_NXTERM) failed: %d\n", errno);
       goto errout;
     }
+
+  g_nxtermvars.nxterm = nxcreate.nxterm;
+  DEBUGASSERT(g_nxtermvars.nxterm != NULL);
 
   // Construct the driver name using this minor number
 
@@ -523,7 +535,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout_with_nxterm:
-  nxterm_unregister(g_nxtermvars.nxterm);
+  (void)unlink(devname);
 
 errout:
   g_nxtermvars.nxterm = 0;
