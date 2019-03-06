@@ -349,7 +349,7 @@ void CNxTerm::stop(void)
 
       // Unlink the NxTerm driver
 
-      (void)unlink(devname);
+      (void)unlink(m_devname);
       m_nxterm = 0;
     }
 }
@@ -467,8 +467,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Construct the driver name using this minor number
 
-  char devname[32];
-  snprintf(devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
+  snprintf(m_devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
 
   // Increment the minor number while it is protect by the semaphore
 
@@ -477,9 +476,9 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // Open the NxTerm driver
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-  fd = open(devname, O_RDWR);
+  fd = open(m_devname, O_RDWR);
 #else
-  fd = open(devname, O_WRONLY);
+  fd = open(m_devname, O_WRONLY);
 #endif
   if (fd < 0)
     {
@@ -535,7 +534,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout_with_nxterm:
-  (void)unlink(devname);
+  (void)unlink(m_devname);
 
 errout:
   g_nxtermvars.nxterm = 0;
