@@ -6,10 +6,77 @@
 config EXAMPLES_NXTERM
 	tristate "NxTerm example"
 	default n
-	depends on NX
+	depends on NXTERM
 	select LIB_BOARDCTL
 	---help---
 		Enable the NxTerm example
 
 if EXAMPLES_NXTERM
+
+config EXAMPLES_NXTERM_PROGNAME
+	string "Program name"
+	default "nxterm"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NXTERM_PRIORITY
+	int "NxTerm task priority"
+	default 100
+
+config EXAMPLES_NXTERM_STACKSIZE
+	int "NxTerm stack size"
+	default 2048
+
+config EXAMPLES_NXTERM_LISTENERPRIO
+	int "Listener priority"
+	default 100
+
+config EXAMPLES_NXTERM_CLIENTPRIO
+	int "Client priority"
+	default 100
+
+config EXAMPLES_NXTERM_SERVERPRIO
+	int "Server priority"
+	default 120
+
+config EXAMPLES_NXTERM_NOTIFYSIGNO
+	int "Notification signal"
+	default 4
+	range 1 31
+
+config EXAMPLES_NXTERM_BPP
+	int "Pixel width"
+	default 16
+	range 1 32
+	---help---
+		The only valid selections are 1, 2, 4, 8, 16, and 32.  The
+		corresponding NX disable selection (e.g., CONFIG_NX_DISABLE_16BPP),
+		must not be set.
+
+config EXAMPLES_NXTERM_BGCOLOR
+	hex "Background color"
+	default 0x2211
+
+config EXAMPLES_NXTERM_WCOLOR
+	hex "Window color"
+	default 0xcf1f
+
+config EXAMPLES_NXTERM_TOOLBAR_HEIGHT
+	int "Toolbar height"
+	default 16
+
+config EXAMPLES_NXTERM_TBCOLOR
+	hex "Toolbar color"
+	default 0xbdf7
+
+config EXAMPLES_NXTERM_FONTID
+	int "Font ID"
+	default 16
+
+config EXAMPLES_NXTERM_FONTCOLOR
+	hex "Font color"
+	default 0x0000
+
 endif

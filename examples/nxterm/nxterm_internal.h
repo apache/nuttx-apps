@@ -75,12 +75,6 @@
 #  warning "Expected CONFIG_NSH_CONSOLE=y"
 #endif
 
-/* The NSH telnet console requires networking support (and TCP/IP) */
-
-#ifndef CONFIG_NET
-#  undef CONFIG_NSH_TELNET
-#endif
-
 /* If not specified, assume that the hardware supports one video plane */
 
 #if CONFIG_NX_NPLANES != 1
@@ -88,6 +82,17 @@
 #endif
 
 /* Pixel depth.  If none provided, pick the smallest enabled pixel depth */
+
+#if defined(CONFIG_EXAMPLES_NXTERM_BPP) && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 1 && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 2 && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 4 && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 8 && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 16 && \
+    CONFIG_EXAMPLES_NXTERM_BPP != 32
+#  error Invalid selection for CONFIG_EXAMPLES_NXTERM_BPP
+#  undef CONFIG_EXAMPLES_NXTERM_BPP
+#endif
 
 #ifndef CONFIG_EXAMPLES_NXTERM_BPP
 #  if !defined(CONFIG_NX_DISABLE_1BPP)
