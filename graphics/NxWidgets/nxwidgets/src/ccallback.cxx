@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/NxWidgets/nxwidgets/src/ccallback.cxx
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#ifdef CONFIG_NXTERM_NXKBDIN
+#  include <sys/boardctl.h>
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <debug.h>
-
-#ifdef CONFIG_NXTERM_NXKBDIN
-#  include <nuttx/nx/nxterm.h>
-#endif
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 #include "graphics/nxwidgets/ccallback.hxx"
@@ -212,9 +212,15 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
 #ifdef CONFIG_NXTERM_NXKBDIN
   if (This->m_nxterm)
     {
+      struct boardioc_nxterm_kbdin_s kbdin;
+
       // Keyboard input is going to an NxTerm
 
-      nxterm_kbdin(This->m_nxterm, str, nCh);
+      kbdin.handle = This->m_nxterm;
+      kbdin.buffer = str;
+      kbdin.buflen = nCh;
+
+      (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&kbin);
     }
   else
 #endif

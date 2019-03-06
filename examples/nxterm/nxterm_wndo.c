@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxterm/nxterm_wndo.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -50,6 +51,7 @@
 #include <debug.h>
 
 #include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxfonts.h>
 
 #include "nxterm_internal.h"
@@ -125,9 +127,15 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   if (g_nxterm_vars.hdrvr)
     {
+      struct boardioc_nxterm_redraw_s redraw;
+
       /* Inform the NX console of the redraw request */
 
-      nxterm_redraw(g_nxterm_vars.hdrvr, rect, more);
+      redraw.handle = g_nxterm_vars.hdrvr;
+      redraw.more   = more;
+      nxgl_rectcopy(&redraw.rect, rect);
+
+      (void)boardctl(BOARDIOC_NXTERM_REDRAW, (uintptr_t)&redraw);
     }
   else
     {

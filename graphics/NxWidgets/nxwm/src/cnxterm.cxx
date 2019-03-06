@@ -403,13 +403,16 @@ void CNxTerm::redraw(void)
 
   // Redraw the entire NxTerm window
 
-  struct nxgl_rect_s rect;
-  rect.pt1.x = 0;
-  rect.pt1.y = 0;
-  rect.pt2.x = windowSize.w - 1;
-  rect.pt2.y = windowSize.h - 1;
+  struct boardioc_nxterm_redraw_s redraw;
 
-  nxterm_redraw(m_nxterm, &rect, false);
+  redraw.handle     = m_nxterm;
+  redraw.rect.pt1.x = 0;
+  redraw.rect.pt1.y = 0;
+  redraw.rect.pt2.x = windowSize.w - 1;
+  redraw.rect.pt2.y = windowSize.h - 1;
+  redraw.more       = false;
+
+  (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&redraw);
 }
 
 /**
