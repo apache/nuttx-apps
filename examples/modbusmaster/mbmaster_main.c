@@ -232,9 +232,9 @@ static void mbmaster_showstatistics(void)
  *
  ****************************************************************************/
 
-static eMBErrorCode eMBMasterRegHoldingCB(FAR uint8_t *buffer,
-                                          uint16_t address, uint16_t nregs,
-                                          eMBRegisterMode mode)
+eMBErrorCode eMBMasterRegHoldingCB(FAR uint8_t *buffer,
+                                   uint16_t address, uint16_t nregs,
+                                   eMBRegisterMode mode)
 {
   eMBErrorCode mberr = MB_ENOERR;
 

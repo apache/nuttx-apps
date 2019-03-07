@@ -170,7 +170,7 @@ eMBErrorCode eMBMasterTCPInit(uint16_t usTCPPort);
  *   hardware resources. It must only be called when the protocol stack
  *   is disabled.
  *
- * \note Note all ports implement this function. A port which wants to
+ *   Note that all ports implement this function. A port which wants to
  *   get an callback must define the macro MB_PORT_HAS_CLOSE to 1.
  *
  * Returned Value:
@@ -261,25 +261,25 @@ eMBErrorCode eMBMasterRegisterCB(uint8_t ucFunctionCode,
 
 /****************************************************************************
  * Description:
- *  Callback function used if the value of a Input Register is required by
- *  the protocol stack. The starting register address is given by usAddress
- *  and the last register is given by usAddress + usNRegs - 1.
+ *   Callback function used if the value of a Input Register is required by
+ *   the protocol stack. The starting register address is given by usAddress
+ *   and the last register is given by usAddress + usNRegs - 1.
  *
- *  The protocol stack does not internally allocate any memory for the
- *  registers. This makes the protocol stack very small and also usable on
- *  low end targets. In addition the values don't have to be in the memory
- *  and could for example be stored in a flash.
+ *   The protocol stack does not internally allocate any memory for the
+ *   registers. This makes the protocol stack very small and also usable on
+ *   low end targets. In addition the values don't have to be in the memory
+ *   and could for example be stored in a flash.
  *
- *  Whenever the protocol stack requires a value it calls one of the callback
- *  function with the register address and the number of registers to read
- *  as an argument. The application should then read the actual register values
- *  (for example the ADC voltage) and should store the result in the supplied
- *  buffer.
+ *   Whenever the protocol stack requires a value it calls one of the callback
+ *   function with the register address and the number of registers to read
+ *   as an argument. The application should then read the actual register values
+ *   (for example the ADC voltage) and should store the result in the supplied
+ *   buffer.
  *
- *  If the protocol stack wants to update a register value because a write
- *  register function was received a buffer with the new register values is
- *  passed to the callback function. The function should then use these values
- *  to update the application register values.
+ *   If the protocol stack wants to update a register value because a write
+ *   register function was received a buffer with the new register values is
+ *   passed to the callback function. The function should then use these values
+ *   to update the application register values.
  *
  * Input Parameters:
  *   pucRegBuffer A buffer where the callback function should write
@@ -303,7 +303,7 @@ eMBErrorCode eMBMasterRegInputCB(uint8_t *pucRegBuffer, uint16_t usAddress,
 
 /****************************************************************************
  * Description:
- *  Callback function used if a Holding Register value is
+ *   Callback function used if a Holding Register value is
  *   read or written by the protocol stack. The starting register address
  *   is given by usAddress and the last register is given by
  *   usAddress + usNRegs - 1.
@@ -337,7 +337,7 @@ eMBErrorCode eMBMasterRegHoldingCB(uint8_t *pucRegBuffer, uint16_t usAddress,
 
 /****************************************************************************
  * Description:
- *  Callback function used if a Coil Register value is
+ *   Callback function used if a Coil Register value is
  *   read or written by the protocol stack. If you are going to use
  *   this function you might use the functions xMBUtilSetBits() and
  *   xMBUtilGetBits() for working with bitfields.
@@ -371,11 +371,11 @@ eMBErrorCode eMBMasterRegCoilsCB(uint8_t *pucRegBuffer, uint16_t usAddress,
 
 /****************************************************************************
  * Description:
- *  Callback function used if a Input Discrete Register value is
+ *   Callback function used if a Input Discrete Register value is
  *   read by the protocol stack.
  *
- * If you are going to use his function you might use the functions
- * xMBUtilSetBits() and xMBUtilGetBits() for working with bitfields.
+ *   If you are going to use his function you might use the functions
+ *   xMBUtilSetBits() and xMBUtilGetBits() for working with bitfields.
  *
  * Input Parameters:
  *   pucRegBuffer The buffer should be updated with the current
@@ -400,7 +400,8 @@ eMBErrorCode eMBMasterRegDiscreteCB(uint8_t *pucRegBuffer, uint16_t usAddress,
 
 /****************************************************************************
  * Description:
- * These Modbus functions are called for user when Modbus run in Master Mode.
+ *   These Modbus functions are called for user when Modbus run in Master
+ *   Mode.
  *
  ****************************************************************************/
 
@@ -464,3 +465,4 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(void);
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MB_M_H */
+
