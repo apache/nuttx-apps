@@ -220,7 +220,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
       kbdin.buffer = str;
       kbdin.buflen = nCh;
 
-      (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&kbin);
+      (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&kbdin);
     }
   else
 #endif

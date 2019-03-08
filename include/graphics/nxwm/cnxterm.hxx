@@ -82,7 +82,7 @@ namespace NxWM
     CApplicationWindow  *m_window;      /**< Reference to the application window */
     NXTERM               m_nxterm;      /**< NxTerm handle */
     pid_t                m_pid;         /**< Task ID of the NxTerm thread */
-    char                 m_devname[32]; /**< Terminal device name *.
+    int                  m_minor;       /**< Terminal device minor number */
 
     /**
      * This is the NxTerm task.  This function first redirects output to the

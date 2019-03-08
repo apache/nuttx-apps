@@ -83,22 +83,22 @@
 
 namespace NxWM
 {
-    /**
-     * This structure is used to pass start up parameters to the NxTerm task and to assure the
-     * the NxTerm is successfully started.
-     */
+  /**
+   * This structure is used to pass start up parameters to the NxTerm task and to assure the
+   * the NxTerm is successfully started.
+   */
 
-    struct SNxTerm
-    {
-      FAR void              *console; /**< The console 'this' pointer use with on_exit() */
-      sem_t                  exclSem; /**< Sem that gives exclusive access to this structure */
-      sem_t                  waitSem; /**< Sem that posted when the task is initialized */
-      NXTKWINDOW             hwnd;    /**< Window handle */
-      NXTERM                 nxterm;  /**< NxTerm handle */
-      int                    minor;   /**< Next device minor number */
-      struct nxterm_window_s wndo;    /**< Describes the NxTerm window */
-      bool                   result;  /**< True if successfully initialized */
-    };
+  struct SNxTerm
+  {
+    FAR void              *console; /**< The console 'this' pointer use with on_exit() */
+    sem_t                  exclSem; /**< Sem that gives exclusive access to this structure */
+    sem_t                  waitSem; /**< Sem that posted when the task is initialized */
+    NXTKWINDOW             hwnd;    /**< Window handle */
+    NXTERM                 nxterm;  /**< NxTerm handle */
+    int                    minor;   /**< Next device minor number */
+    struct nxterm_window_s wndo;    /**< Describes the NxTerm window */
+    bool                   result;  /**< True if successfully initialized */
+  };
 
 /********************************************************************************************
  * Private Data
@@ -250,6 +250,10 @@ bool CNxTerm::run(void)
   g_nxtermvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
   g_nxtermvars.wndo.fontid    = CONFIG_NXWM_NXTERM_FONTID;
 
+  // Remember the device minor number (before it is incremented)
+
+  m_minor                     = g_nxtermvars.minor;
+
   // Get the size of the window
 
   (void)window->getSize(&g_nxtermvars.wndo.wsize);
@@ -348,8 +352,12 @@ void CNxTerm::stop(void)
 #endif
 
       // Unlink the NxTerm driver
+      // Construct the driver name using this minor number
 
-      (void)unlink(m_devname);
+      char devname[32];
+      snprintf(devname, 32, "/dev/nxterm%d", m_minor);
+
+      (void)unlink(devname);
       m_nxterm = 0;
     }
 }
@@ -439,6 +447,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // of 'int fd'
 
   int fd = -1;
+  int ret = OK;
 
   // Set up an on_exit() event that will be called when this task exits
 
@@ -470,7 +479,8 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Construct the driver name using this minor number
 
-  snprintf(m_devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
+  char devname[32];
+  snprintf(devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
 
   // Increment the minor number while it is protect by the semaphore
 
@@ -479,14 +489,15 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // Open the NxTerm driver
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-  fd = open(m_devname, O_RDWR);
+  fd = open(devname, O_RDWR);
 #else
-  fd = open(m_devname, O_WRONLY);
+  fd = open(devname, O_WRONLY);
 #endif
   if (fd < 0)
     {
       gerr("ERROR: Failed open the console device\n");
-      goto errout_with_nxterm;
+      (void)unlink(devname);
+      goto errout;
     }
 
   // Now re-direct stdout and stderr so that they use the NX console driver.
@@ -517,7 +528,10 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // And we can close our original driver file descriptor
 
-  std::close(fd);
+  if (fd > 2)
+    {
+      std::close(fd);
+    }
 
   // Inform the parent thread that we successfully initialized
 
@@ -535,9 +549,6 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // which, in turn, calls exit()
 
   return EXIT_SUCCESS;
-
-errout_with_nxterm:
-  (void)unlink(m_devname);
 
 errout:
   g_nxtermvars.nxterm = 0;
