@@ -8,6 +8,8 @@ config EXAMPLES_SX127X
 	default n
 	depends on LPWAN_SX127X
 
+if EXAMPLES_SX127X
+
 config EXAMPLES_SX127X_RFFREQ
 	int "SX127x RF frequency"
 	default 930000000
@@ -28,5 +30,4 @@ config EXAMPLES_SX127X_INTERVAL
 	int "SX127x time interval for modem operations"
 	default 5
 
-if EXAMPLES_SX127X
 endif
