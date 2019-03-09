@@ -375,6 +375,12 @@ int nxterm_main(int argc, char **argv)
   nxcreate.type                = BOARDIOC_XTERM_FRAMED;
   nxcreate.minor               = CONFIG_EXAMPLES_NXTERM_MINOR;
 
+  /* BOARDIOC_NXTERM wants the size of the NxTK main sub-window */
+
+  nxcreate.wndo.wsize.w       -= (2 * CONFIG_NXTK_BORDERWIDTH);
+  nxcreate.wndo.wsize.h       -= (CONFIG_EXAMPLES_NXTERM_TOOLBAR_HEIGHT +
+                                  2 * CONFIG_NXTK_BORDERWIDTH);
+
   ret = boardctl(BOARDIOC_NXTERM, (uintptr_t)&nxcreate);
   if (ret < 0)
     {

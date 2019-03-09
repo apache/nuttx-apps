@@ -57,14 +57,6 @@
 #include "nxterm_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
@@ -83,10 +75,6 @@ static void nxwndo_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void nxwndo_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                          FAR void *arg);
 #endif
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
 
 /****************************************************************************
  * Public Data
@@ -174,7 +162,9 @@ static void nxwndo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
       g_nxterm_vars.wndo.wsize.w = size->w;
       g_nxterm_vars.wndo.wsize.h = size->h;
 
-      /* Save the window limits (these should be the same for all places and all windows */
+      /* Save the window limits (these should be the same for all places and
+       * all windows)
+       */
 
       g_nxterm_vars.xres = bounds->pt2.x + 1;
       g_nxterm_vars.yres = bounds->pt2.y + 1;
