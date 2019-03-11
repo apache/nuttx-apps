@@ -94,7 +94,7 @@ void suspend_test(void)
 
   /* Wait a bit */
 
-  printf("suspend_test:  Is the victim saying anything?\n")
+  printf("suspend_test:  Is the victim saying anything?\n");
   FFLUSH();
   sleep(10);
 
@@ -107,7 +107,7 @@ void suspend_test(void)
       printf("suspend_test: ERROR kill() failed\n" );
     }
 
-  printf("suspend_test:  Is the victim still jabbering?\n")
+  printf("suspend_test:  Is the victim still jabbering?\n");
   FFLUSH();
   sleep(10);
 
@@ -118,7 +118,7 @@ void suspend_test(void)
       printf("suspend_test: ERROR kill() failed\n" );
     }
 
-  printf("suspend_test:  The victim should continue the rant.\n")
+  printf("suspend_test:  The victim should continue the rant.\n");
   FFLUSH();
   sleep(10);
 
