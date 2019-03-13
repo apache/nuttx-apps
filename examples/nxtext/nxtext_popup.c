@@ -344,7 +344,7 @@ NXWINDOW nxpu_open(void)
   printf("nxpu_open: Create pop-up\n");
   nxpu_initstate();
 
-  hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
+  hwnd = nx_openwindow(g_hnx, 0, &g_pucb, (FAR void *)&g_pustate);
   ginfo("hwnd=%p\n", hwnd);
 
   if (!hwnd)

@@ -294,7 +294,7 @@ int nxterm_main(int argc, char **argv)
   /* Create a window */
 
   printf("nxterm_main: Create window\n");
-  g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, &g_nxtermcb,
+  g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, 0, &g_nxtermcb,
                                        NULL);
   if (!g_nxterm_vars.hwnd)
     {

@@ -120,7 +120,7 @@ bool CNxTkWindow::open(void)
 
   // Create the window
 
-  m_hNxTkWindow = nxtk_openwindow(m_hNxServer, vtable,
+  m_hNxTkWindow = nxtk_openwindow(m_hNxServer, 0, vtable,
                                  (FAR void *)static_cast<CCallback*>(this));
   return m_hNxTkWindow != NULL;
 }

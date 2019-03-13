@@ -220,7 +220,7 @@ static inline NXEGWINDOW nxeg_openwindow(FAR const struct nx_callback_s *cb,
 {
   NXEGWINDOW hwnd;
 
-  hwnd = nx_openwindow(g_hnx, cb, (FAR void *)state);
+  hwnd = nx_openwindow(g_hnx, 0, cb, (FAR void *)state);
   if (!hwnd)
     {
       printf("nxeg_openwindow: nx_openwindow failed: %d\n", errno);
@@ -234,7 +234,7 @@ static inline NXEGWINDOW nxeg_openwindow(FAR const struct nx_callback_s *cb,
 {
   NXEGWINDOW hwnd;
 
-  hwnd = nxtk_openwindow(g_hnx, cb, (FAR void *)state);
+  hwnd = nxtk_openwindow(g_hnx, 0, cb, (FAR void *)state);
   if (!hwnd)
     {
       printf("nxeg_openwindow: nxtk_openwindow failed: %d\n", errno);

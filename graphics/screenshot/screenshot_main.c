@@ -168,7 +168,7 @@ int save_screenshot(FAR const char *filename)
 
   /* Open invisible dummy window for communication */
 
-  window = nx_openwindow(server, &cb, NULL);
+  window = nx_openwindow(server, 0, &cb, NULL);
   if (!window)
   {
     perror("nx_openwindow");
