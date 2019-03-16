@@ -64,6 +64,10 @@ config EXAMPLES_PWFB_BPP
 		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
 		and 32.  Default is 32.
 
+config EXAMPLES_PWFB_VERBOSE
+	bool "Verbose output"
+	default n
+
 comment "NX Server Options"
 
 config EXAMPLES_PWFB_STACKSIZE

@@ -434,12 +434,12 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
 
   /* Set up for motion */
 
-  wndo->xmax   = itob32(st->xres - size->w - 1);
-  wndo->ymax   = itob32(st->yres - size->h - 1);
-  wndo->ypos   = itob32(pos->y);
-  wndo->xpos   = itob32(pos->x);
-  wndo->deltax = dtob32(deltax);
-  wndo->deltay = dtob32(deltay);
+  wndo->xmax   = itob16(st->xres - size->w - 1);
+  wndo->ymax   = itob16(st->yres - size->h - 1);
+  wndo->ypos   = itob16(pos->y);
+  wndo->xpos   = itob16(pos->x);
+  wndo->deltax = dtob16(deltax);
+  wndo->deltay = dtob16(deltay);
 
   return true;
 
@@ -554,10 +554,10 @@ int pwfb_main(int argc, char *argv[])
   size.w = wstate.xres / 2;
   size.h = wstate.yres / 2;
 
-  pos.x  = wstate.xres / 4;
-  pos.y  = wstate.yres / 4;
+  pos.x  = wstate.xres / 8;
+  pos.y  = wstate.yres / 8;
 
-  if (!pwfb_configure_window(&wstate, 0, &size, &pos, g_wndomsg1, 1.58, 4.5))
+  if (!pwfb_configure_window(&wstate, 0, &size, &pos, g_wndomsg1, 4.200, 4.285))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 1\n");
@@ -585,7 +585,7 @@ int pwfb_main(int argc, char *argv[])
   pos.x  = wstate.xres / 4;
   pos.y  = wstate.yres / 4;
 
-  if (!pwfb_configure_window(&wstate, 1, &size, &pos, g_wndomsg2, -1.13, 5.0))
+  if (!pwfb_configure_window(&wstate, 1, &size, &pos, g_wndomsg2, -3.317, 5.0))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 2\n");
@@ -613,7 +613,7 @@ int pwfb_main(int argc, char *argv[])
   pos.x = (3 * wstate.xres) / 8;
   pos.y = (3 * wstate.yres) / 8;
 
-  if (!pwfb_configure_window(&wstate, 2, &size, &pos, g_wndomsg3, -1.13, 5.0))
+  if (!pwfb_configure_window(&wstate, 2, &size, &pos, g_wndomsg3, 4.600, -3.852))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 2\n");

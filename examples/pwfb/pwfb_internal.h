@@ -135,12 +135,12 @@ struct pwfb_window_s
   NXTKWINDOW hwnd;                         /* Window handle */
   nxgl_mxpixel_t color[CONFIG_NX_NPLANES]; /* Window color */
   FCACHE fcache;                           /* Font cache handle */
-  b32_t xmax;                              /* Max X position */
-  b32_t ymax;                              /* Max Y position */
-  b32_t xpos;                              /* Current X position */
-  b32_t ypos;                              /* Current Y position */
-  b32_t deltax;                            /* Current X speed */
-  b32_t deltay;                            /* Current Y speed */
+  b16_t xmax;                              /* Max X position */
+  b16_t ymax;                              /* Max Y position */
+  b16_t xpos;                              /* Current X position */
+  b16_t ypos;                              /* Current Y position */
+  b16_t deltax;                            /* Current X speed */
+  b16_t deltay;                            /* Current Y speed */
 };
 
 /* Describes the overall state of the example */

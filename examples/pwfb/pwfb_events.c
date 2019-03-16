@@ -108,12 +108,14 @@ static void pwfb_position(NXTKWINDOW hwnd, FAR const struct nxgl_size_s *size,
 {
   FAR struct pwfb_state_s *st = (FAR struct pwfb_state_s *)arg;
 
+#ifdef CONFIG_EXAMPLES_PWFB_VERBOSE
   /* Report the position */
 
   printf("pwfb_position: hwnd=%p size=(%d,%d) pos=(%d,%d) "
          "bounds={(%d,%d),(%d,%d)}\n",
          hwnd, size->w, size->h, pos->x, pos->y,
          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+#endif
 
   /* Have we picked off the window bounds yet? */
 
