@@ -131,7 +131,7 @@ static void pwfb_position(NXTKWINDOW hwnd, FAR const struct nxgl_size_s *size,
       st->haveres = true;
       sem_post(&st->semevent);
 
-      printf("pwfb_position2: Have xres=%d yres=%d\n", st->xres, st->yres);
+      printf("pwfb_position: Have xres=%d yres=%d\n", st->xres, st->yres);
     }
 }
 
