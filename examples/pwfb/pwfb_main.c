@@ -91,7 +91,7 @@ static bool pwfb_server_initialize(FAR struct pwfb_state_s *st)
 
   /* Set the client task priority */
 
-  param.sched_priority = CONFIG_EXAMPLES_PWFB_CLIENTPRIO;
+  param.sched_priority = CONFIG_EXAMPLES_PWFB_CLIENT_PRIO;
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
@@ -159,9 +159,9 @@ static bool pwfb_listener_initialize(FAR struct pwfb_state_s *st)
    */
 
   (void)pthread_attr_init(&attr);
-  param.sched_priority = CONFIG_EXAMPLES_PWFB_LISTENERPRIO;
+  param.sched_priority = CONFIG_EXAMPLES_PWFB_LISTENER_PRIO;
   (void)pthread_attr_setschedparam(&attr, &param);
-  (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_PWFB_STACKSIZE);
+  (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_PWFB_LISTENER_STACKSIZE);
 
   ret = pthread_create(&thread, &attr, pwfb_listener, st);
   if (ret != 0)
@@ -396,16 +396,12 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
       goto errout_with_hwnd;
     }
 
-  /* There is a race condition which we resole by simply waiting a bit here:
-   * In order for the size and position to take effect, a command is sent to
-   * server which responds with an event.  So we need to synchronize at this
-   * point, or the following fill will fail.
-   *
-   * REVISIT:  Here a dumb wait is used.  It be better to have a firm
-   * handshake to when the new size and position are in effect.
+  /* There is a race condition here we resolve by making the main thread
+   * lowest in priority.  In order for the size and position to take effect,
+   * a command is sent to server which responds with an event.  So we need
+   * to be synchronized at this point or the following fill will fail because
+   * it depends on current knowlede of the size and position.
    */
-
-  usleep(500 * 1000);
 
   /* Create a bounding box.  This is actually too large because it does not
    * account for the boarder widths.  However, NX should clip the fill to
@@ -635,6 +631,7 @@ int pwfb_main(int argc, char *argv[])
 
   for (; ; )
     {
+      usleep(CONFIG_EXAMPLES_PWFB_RATECONTROL * 1000);
       if (!pwfb_motion(&wstate))
         {
           printf("pwfb_main: ERROR:"

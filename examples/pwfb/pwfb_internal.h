@@ -62,14 +62,28 @@
 #ifndef CONFIG_NX
 #  error "NX is not enabled (CONFIG_NX)"
 #endif
+
 #ifdef CONFIG_DISABLE_MQUEUE
 #  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
 #endif
+
 #ifdef CONFIG_DISABLE_PTHREAD
 #  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
 #endif
+
 #ifndef CONFIG_NX_BLOCKING
 #  error "This example depends on CONFIG_NX_BLOCKING"
+#endif
+
+/* Task priorities */
+
+#if CONFIG_EXAMPLES_PWFB_CLIENT_PRIO >= CONFIG_EXAMPLES_PWFB_LISTENER_PRIO || \
+    CONFIG_EXAMPLES_PWFB_CLIENT_PRIO >= CONFIG_NXSTART_SERVERPRIO
+#  warning Client priority must be lower than both the listener and server priorities
+#endif
+
+#if CONFIG_EXAMPLES_PWFB_LISTENER_PRIO >= CONFIG_NXSTART_SERVERPRIO
+#  warning Listener priority must be lower than the server priority
 #endif
 
 /* Default colors */

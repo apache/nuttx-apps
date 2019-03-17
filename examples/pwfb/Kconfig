@@ -64,34 +64,60 @@ config EXAMPLES_PWFB_BPP
 		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
 		and 32.  Default is 32.
 
+config EXAMPLES_PWFB_RATECONTROL
+	int "Frame rate control"
+	default 100
+	range 0 1000
+	---help---
+		This is the inter-frame period in milliseconds that is used to
+		control the framerate.  A value of zero will disable frame controls
+		and the rendering will occur as fast as is possible.
+
+		If you run this example with high frame rates, it becomes unstable.
+		This is probably a bug in the example:  It may not be accounting
+		for for some asynchronous behaviors.
+
 config EXAMPLES_PWFB_VERBOSE
 	bool "Verbose output"
 	default n
 
-comment "NX Server Options"
+comment "Tasking options"
 
-config EXAMPLES_PWFB_STACKSIZE
-	int "NX Server Stack Size"
+config EXAMPLES_PWFB_PROGNAME
+	string "Program name"
+	default "pwfb"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_PWFB_CLIENT_STACKSIZE
+	int "Example Main Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when starting the example main(). 
+		Default 2048
+
+config EXAMPLES_PWFB_CLIENT_PRIO
+	int "Client Priority"
+	default 90
+	---help---
+		The priority to use when staring the example main().  This priority
+		should be lower than both the listener and server priorities (See
+		CONFIG_NXSTART_SERVERPRIO).  Default: 90
+
+config EXAMPLES_PWFB_LISTENER_STACKSIZE
+	int "Listener Stack Size"
 	default 2048
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 
-config EXAMPLES_PWFB_CLIENTPRIO
-	int "Client Priority"
+config EXAMPLES_PWFB_LISTENER_PRIO
+	int "Listener Priority"
 	default 100
 	---help---
-		The client priority.  Default: 100
-
-config EXAMPLES_PWFB_SERVERPRIO
-	int "Server Priority"
-	default 120
-	---help---
-		The server priority.  Default: 120
-
-config EXAMPLES_PWFB_LISTENERPRIO
-	int "Listener Priority"
-	default 80
-	---help---
-		The priority of the event listener thread. Default 80.
+		The priority of the event listener thread.  This priority should be
+		above the client priority but below the server priority (See
+		CONFIG_NXSTART_SERVERPRIO).  Default 100.
 
 endif
