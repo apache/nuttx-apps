@@ -378,7 +378,7 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
   if (ret < 0)
     {
       printf("pwfb_configure_window: ERROR: "
-             "nx_setsize failed: %d\n", errno);
+             "nxtk_setsize failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
