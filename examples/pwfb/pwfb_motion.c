@@ -137,7 +137,7 @@ static inline bool pwfb_move_window(FAR struct pwfb_state_s *st, int wndx)
   pos.x            = b16toi(newx);
   pos.y            = b16toi(newy);
 
-  printf("pwfb_move_window:  Set position (%d,%d)\n", pos.x, pos.y);
+  printf("pwfb_move_window: Set position (%d,%d)\n", pos.x, pos.y);
 
   ret              = nxtk_setposition(wndo->hwnd, &pos);
   if (ret < 0)
