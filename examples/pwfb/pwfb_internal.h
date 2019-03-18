@@ -128,6 +128,16 @@
 # endif
 #endif
 
+#ifndef CONFIG_EXAMPLES_PWFB_TBCOLOR
+#  if CONFIG_EXAMPLES_PWFB_BPP == 24 || CONFIG_EXAMPLES_PWFB_BPP == 32
+#    define CONFIG_EXAMPLES_PWFB_TBCOLOR 0x00a9a9a9
+#  elif CONFIG_EXAMPLES_PWFB_BPP == 16
+#    define CONFIG_EXAMPLES_PWFB_TBCOLOR 0xad55
+#  else
+#    define CONFIG_EXAMPLES_PWFB_TBCOLOR 'T'
+#  endif
+#endif
+
 #ifndef CONFIG_EXAMPLES_PWFB_FONTCOLOR
 #  if CONFIG_EXAMPLES_PWFB_BPP == 24 || CONFIG_EXAMPLES_PWFB_BPP == 32
 #    define CONFIG_EXAMPLES_PWFB_FONTCOLOR 0x00000000
@@ -177,6 +187,10 @@ struct pwfb_state_s
   nxgl_coord_t xres;                       /* Horizontal resolution */
   nxgl_coord_t yres;                       /* Vertical resolution */
 
+  /* Common toolbar properties */
+
+  nxgl_mxpixel_t color[CONFIG_NX_NPLANES]; /* Toolbar color */
+
   /* Font properties */
 
   uint8_t fheight;                         /* Max height of a font in pixels */
@@ -194,7 +208,8 @@ struct pwfb_state_s
 
 /* NX callback vtables */
 
-extern const struct nx_callback_s g_pwfb_cb;
+extern const struct nx_callback_s g_pwfb_wncb;
+extern const struct nx_callback_s g_pwfb_tbcb;
 
 /****************************************************************************
  * Public Function Prototypes

@@ -55,26 +55,46 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void pwfb_redraw(NXTKWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool morem, FAR void *arg);
-static void pwfb_position(NXTKWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg);
+static void pwfb_wndo_redraw(NXTKWINDOW hwnd,
+              FAR const struct nxgl_rect_s *rect, bool morem, FAR void *arg);
+static void pwfb_wndo_position(NXTKWINDOW hwnd, FAR
+              FAR const struct nxgl_size_s *size,
+              FAR const struct nxgl_point_s *pos,
+              FAR const struct nxgl_rect_s *bounds,
+              FAR void *arg);
+static void pwfb_tb_redraw(NXTKWINDOW hwnd,
+              FAR const struct nxgl_rect_s *rect, bool morem, FAR void *arg);
+static void pwfb_tb_position(NXTKWINDOW hwnd,
+              FAR const struct nxgl_size_s *size,
+              FAR const struct nxgl_point_s *pos,
+              FAR const struct nxgl_rect_s *bounds,
+              FAR void *arg);
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-const struct nx_callback_s g_pwfb_cb =
+const struct nx_callback_s g_pwfb_wncb =
 {
-  pwfb_redraw,   /* redraw */
-  pwfb_position  /* position */
+  pwfb_wndo_redraw,   /* redraw */
+  pwfb_wndo_position  /* position */
 #ifdef CONFIG_NX_XYINPUT
-  , NULL         /* mousein */
+  , NULL              /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , NULL         /* kbdin */
+  , NULL              /* kbdin */
+#endif
+};
+
+const struct nx_callback_s g_pwfb_tbcb =
+{
+  pwfb_tb_redraw,     /* redraw */
+  pwfb_tb_position    /* position */
+#ifdef CONFIG_NX_XYINPUT
+  , NULL              /* mousein */
+#endif
+#ifdef CONFIG_NX_KBD
+  , NULL              /* kbdin */
 #endif
 };
 
@@ -83,35 +103,37 @@ const struct nx_callback_s g_pwfb_cb =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: pwfb_redraw
+ * Name: pwfb_wndo_redraw
  ****************************************************************************/
 
-static void pwfb_redraw(NXTKWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool more, FAR void *arg)
+static void pwfb_wndo_redraw(NXTKWINDOW hwnd,
+                             FAR const struct nxgl_rect_s *rect,
+                             bool more, FAR void *arg)
 {
   /* There should be no redraw requests when using per-window framebuffers */
 
-  printf("pwfb_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+  printf("pwfb_wndo_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd,
          rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
          more ? "true" : "false");
 }
 
 /****************************************************************************
- * Name: pwfb_position
+ * Name: pwfb_wndo_position
  ****************************************************************************/
 
-static void pwfb_position(NXTKWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg)
+static void pwfb_wndo_position(NXTKWINDOW hwnd,
+                               FAR const struct nxgl_size_s *size,
+                               FAR const struct nxgl_point_s *pos,
+                               FAR const struct nxgl_rect_s *bounds,
+                               FAR void *arg)
 {
   FAR struct pwfb_state_s *st = (FAR struct pwfb_state_s *)arg;
 
 #ifdef CONFIG_EXAMPLES_PWFB_VERBOSE
   /* Report the position */
 
-  printf("pwfb_position: hwnd=%p size=(%d,%d) pos=(%d,%d) "
+  printf("pwfb_wndo_position: hwnd=%p size=(%d,%d) pos=(%d,%d) "
          "bounds={(%d,%d),(%d,%d)}\n",
          hwnd, size->w, size->h, pos->x, pos->y,
          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
@@ -131,8 +153,45 @@ static void pwfb_position(NXTKWINDOW hwnd, FAR const struct nxgl_size_s *size,
       st->haveres = true;
       sem_post(&st->semevent);
 
-      printf("pwfb_position: Have xres=%d yres=%d\n", st->xres, st->yres);
+      printf("pwfb_wndo_position: Have xres=%d yres=%d\n",
+             st->xres, st->yres);
     }
+}
+
+/****************************************************************************
+ * Name: pwfb_tb_redraw
+ ****************************************************************************/
+
+static void pwfb_tb_redraw(NXTKWINDOW hwnd,
+                           FAR const struct nxgl_rect_s *rect,
+                           bool more, FAR void *arg)
+{
+  printf("pwfb_tb_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+         hwnd,
+         rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
+         more ? "true" : "false");
+}
+
+/****************************************************************************
+ * Name: pwfb_tb_position
+ ****************************************************************************/
+
+static void pwfb_tb_position(NXTKWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg)
+{
+#ifdef CONFIG_EXAMPLES_PWFB_VERBOSE
+  FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
+
+  /* Report the position */
+
+  printf("pwfb_tb_position: hwnd=%p size=(%d,%d) pos=(%d,%d) "
+         "bounds={(%d,%d),(%d,%d)}\n",
+         hwnd, size->w, size->h, pos->x, pos->y,
+         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+#endif
 }
 
 /****************************************************************************

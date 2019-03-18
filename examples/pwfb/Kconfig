@@ -40,6 +40,11 @@ config EXAMPLES_PWFB_COLOR3
 	---help---
 		The color of window 3. Default depends on config EXAMPLES_PWFB_BPP.
 
+config EXAMPLES_PWFB_TBCOLOR
+	hex "Toolbar Color"
+	---help---
+		The color of the toolbar. Default depends on config EXAMPLES_PWFB_BPP.
+
 config EXAMPLES_PWFB_FONTCOLOR
 	hex "Font Color"
 	---help---

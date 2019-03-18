@@ -203,6 +203,7 @@ static bool pwfb_state_initialize(FAR struct pwfb_state_s *st)
   st->wndo[0].color[0] = CONFIG_EXAMPLES_PWFB_COLOR1;
   st->wndo[1].color[0] = CONFIG_EXAMPLES_PWFB_COLOR2;
   st->wndo[2].color[0] = CONFIG_EXAMPLES_PWFB_COLOR3;
+  st->color[0]         = CONFIG_EXAMPLES_PWFB_TBCOLOR;
 
   /* Connect each widnow to the font cache.  They cannot share the
    * font cache becuse of the differing background colors.
@@ -367,6 +368,7 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
   FAR const char *ptr;
   struct nxgl_rect_s rect;
   struct nxgl_point_s textpos;
+  nxgl_coord_t tbheight;
   int ret;
 
   /* Set the size of the window */
@@ -396,12 +398,14 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
       goto errout_with_hwnd;
     }
 
-  /* There is a race condition here we resolve by making the main thread
-   * lowest in priority.  In order for the size and position to take effect,
-   * a command is sent to server which responds with an event.  So we need
-   * to be synchronized at this point or the following fill will fail because
-   * it depends on current knowlede of the size and position.
-   */
+  /* Create a toolbar */
+
+  tbheight = size->h >> 3;
+  ret = nxtk_opentoolbar(wndo->hwnd, tbheight, &g_pwfb_tbcb, st);
+  if (ret < 0)
+    {
+      printf("nxeq_opentoolbar: nxtk_opentoolbar failed: %d\n", errno);
+    }
 
   /* Create a bounding box.  This is actually too large because it does not
    * account for the boarder widths.  However, NX should clip the fill to
@@ -411,7 +415,7 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
   rect.pt1.x = 0;
   rect.pt1.y = 0;
   rect.pt2.x = size->w - 1;
-  rect.pt2.y = size->h - 1;
+  rect.pt2.y = size->h - tbheight - 1;
 
   /* Fill the window with the selected color */
 
@@ -423,6 +427,26 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
              errno);
       goto errout_with_hwnd;
     }
+
+  /* Fill the toolbar with the selected color */
+
+  rect.pt2.y = tbheight - 1;
+
+  ret = nxtk_filltoolbar(wndo->hwnd, &rect, st->color);
+  if (ret < 0)
+    {
+      printf("pwfb_configure_window: ERROR: "
+             "nxtk_filltoobar failed: %d\n",
+             errno);
+      goto errout_with_hwnd;
+    }
+
+  /* There is a race condition here we resolve by making the main thread
+   * lowest in priority.  In order for the size and position to take effect,
+   * a command is sent to server which responds with an event.  So we need
+   * to be synchronized at this point or the following fill will fail because
+   * it depends on current knowlede of the size and position.
+   */
 
   /* Add the text to the display, character at a time */
 
@@ -533,7 +557,7 @@ int pwfb_main(int argc, char *argv[])
   printf("pwfb_main: Open window 1\n");
 
   wstate.wndo[0].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwfb_cb, (FAR void *)&wstate);
+                                        &g_pwfb_wncb, (FAR void *)&wstate);
   if (wstate.wndo[0].hwnd == NULL)
     {
       printf("pwfb_main: ERROR: "
@@ -576,7 +600,7 @@ int pwfb_main(int argc, char *argv[])
   printf("pwfb_main: Open window 2\n");
 
   wstate.wndo[1].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwfb_cb, (FAR void *)&wstate);
+                                        &g_pwfb_wncb, (FAR void *)&wstate);
   if (wstate.wndo[1].hwnd == NULL)
     {
       printf("pwfb_main: ERROR: "
@@ -604,7 +628,7 @@ int pwfb_main(int argc, char *argv[])
   printf("pwfb_main: Open window 3\n");
 
   wstate.wndo[2].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwfb_cb, (FAR void *)&wstate);
+                                        &g_pwfb_wncb, (FAR void *)&wstate);
   if (wstate.wndo[2].hwnd == NULL)
     {
       printf("pwfb_main: ERROR: "
