@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/dbg_timcmds.c
  *
- *   Copyright (C) 2011-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2014, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -165,6 +165,8 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
   FAR char *saveptr;
   long result;
   int ret;
+
+  memset(&tm, 0, sizeof(tm));
 
   /* Only this date format is supported: MMM DD HH:MM:SS YYYY */
   /* Get the month abbreviation */
