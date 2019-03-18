@@ -1394,6 +1394,25 @@ examples/pty_test
 
   A test of NuttX pseudo-terminals.  Provided by Alan Carvalho de Assis.
 
+exemples/pwfb
+^^^^^^^^^^^^^
+
+  A graphics example using pre-window frame buffers.  The example shows
+  three windows containing text moving around, crossing each other from
+  "above" and from "below".  The example application is NOT updating the
+  windows any anyway!  The application is only changing the window
+  position.  The windows are being updated from the per-winidow
+  framebuffers automatically.
+
+  This example is reminescent of Pong:  Each window travels in straight
+  line until it hits an edge, then it bounces off.  The window is also
+  raised when it hits the edge (gets "focus").  This tests all
+  combinations of overap.
+
+  NOTE:  A significant amount of RAM, usually external SDRAM, is required
+  to run this demo.  At 16bpp and a 480x272 display, each window requires
+  about 70Kb of RAM for its framebuffer.
+
 examples/pwm
 ^^^^^^^^^^^^
 
@@ -1592,7 +1611,8 @@ examples/sotest
 
   This example builds a small shared library module test case.  The test
   shared library is built using the relocatable ELF format and installed
-  in a ROMFS file system.  At run time, the shared library is installed and exercised.  Requires CONFIG_LIBC_DLFCN.  Other configuration options:
+  in a ROMFS file system.  At run time, the shared library is installed
+  and exercised.  Requires CONFIG_LIBC_DLFCN.  Other configuration options:
 
     CONFIG_EXAMPLES_SOTEST_DEVMINOR - The minor device number of the ROMFS block
       driver. For example, the N in /dev/ramN. Used for registering the RAM
