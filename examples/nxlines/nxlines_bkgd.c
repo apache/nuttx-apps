@@ -205,7 +205,7 @@ static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  * Name: nxlines_test
  *
  * Description:
- *   Print "Hello, World!" in the center of the display.
+ *   Update line motion.
  *
  ****************************************************************************/
 
