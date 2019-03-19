@@ -1394,7 +1394,7 @@ examples/pty_test
 
   A test of NuttX pseudo-terminals.  Provided by Alan Carvalho de Assis.
 
-exemples/pwfb
+examples/pwfb
 ^^^^^^^^^^^^^
 
   A graphics example using pre-window frame buffers.  The example shows
