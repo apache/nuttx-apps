@@ -3,8 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_PWFB
-	tristate "NX Per-Window Framebuffer Text Example"
+config EXAMPLES_PWLINES
+	tristate "NX Per-Window Framebuffer Graphics Example"
 	default n
 	depends on NX
 	select LIB_BOARDCTL
@@ -12,64 +12,74 @@ config EXAMPLES_PWFB
 	---help---
 		Enable the NX per-window framebuffer example
 
-if EXAMPLES_PWFB
+if EXAMPLES_PWLINES
 
-config EXAMPLES_PWFB_DEFAULT_COLORS
+config EXAMPLES_PWLINES_DEFAULT_COLORS
 	bool "Use Default Colors"
 	default y
 
-if !EXAMPLES_PWFB_DEFAULT_COLORS
+if !EXAMPLES_PWLINES_DEFAULT_COLORS
 
-config EXAMPLES_PWFB_BGCOLOR
+config EXAMPLES_PWLINES_BGCOLOR
 	hex "Background Color"
 	---help---
-		The color of the background.  Default depends on config EXAMPLES_PWFB_BPP.
+		The color of the background.  Default depends on config EXAMPLES_PWLINES_BPP.
 
-config EXAMPLES_PWFB_COLOR1
+config EXAMPLES_PWLINES_COLOR1
 	hex "Color of Window 1"
 	---help---
-		The color of window 1. Default depends on config EXAMPLES_PWFB_BPP.
+		The color of window 1. Default depends on config EXAMPLES_PWLINES_BPP.
 
-config EXAMPLES_PWFB_COLOR2
+config EXAMPLES_PWLINES_COLOR2
 	hex "Color of Window 2"
 	---help---
-		The color of window 2. Default depends on config EXAMPLES_PWFB_BPP.
+		The color of window 2. Default depends on config EXAMPLES_PWLINES_BPP.
 
-config EXAMPLES_PWFB_COLOR3
+config EXAMPLES_PWLINES_COLOR3
 	hex "Color of Window 3"
 	---help---
-		The color of window 3. Default depends on config EXAMPLES_PWFB_BPP.
+		The color of window 3. Default depends on config EXAMPLES_PWLINES_BPP.
 
-config EXAMPLES_PWFB_TBCOLOR
-	hex "Toolbar Color"
+config EXAMPLES_PWLINES_BORDERCOLOR
+	hex "Circle border Color"
 	---help---
-		The color of the toolbar. Default depends on config EXAMPLES_PWFB_BPP.
+		The color of the circular border drawn in the window.  Default depends
+		on EXAMPLES_PWLINES_BPP.
 
-config EXAMPLES_PWFB_FONTCOLOR
-	hex "Font Color"
+config EXAMPLES_PWLINES_FACECOLOR
+	hex "Circle face Color"
 	---help---
-		The color of the fonts. Default depends on config EXAMPLES_PWFB_BPP.
+		The color of the circular region filled in the window. Default depends
+		on EXAMPLES_PWLINES_BPP.
+
+config EXAMPLES_PWLINES_LINECOLOR
+	hex "Line Color"
+	---help---
+		The color of the central lines drawn in the window.  Default depends
+		on EXAMPLES_PWLINES_BPP.
 
 endif
 
-config EXAMPLES_PWFB_DEFAULT_FONT
-	bool "Use Default Font"
-	default y
-
-config EXAMPLES_PWFB_FONTID
-	int "Font ID"
-	depends on !EXAMPLES_PWFB_DEFAULT_FONT
-	---help---
-		Selects the font (see font ID numbers in include/nuttx/nx/nxfonts.h)
-
-config EXAMPLES_PWFB_BPP
+config EXAMPLES_PWLINES_BPP
 	int "Bits-Per-Pixel"
 	default 32
 	---help---
 		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
 		and 32.  Default is 32.
 
-config EXAMPLES_PWFB_RATECONTROL
+config EXAMPLES_PWLINES_LINEWIDTH
+	int "Line Width"
+	default 8
+	---help---
+		Selects the width of the lines in pixels (default: 16)
+
+config EXAMPLES_PWLINES_BORDERWIDTH
+	int "Border Width"
+	default 8
+	---help---
+		The width of the circular border drawn in the background window. (default: 16).
+
+config EXAMPLES_PWLINES_RATECONTROL
 	int "Frame rate control"
 	default 100
 	range 0 1000
@@ -82,28 +92,28 @@ config EXAMPLES_PWFB_RATECONTROL
 		This is probably a bug in the example:  It may not be accounting
 		for for some asynchronous behaviors.
 
-config EXAMPLES_PWFB_VERBOSE
+config EXAMPLES_PWLINES_VERBOSE
 	bool "Verbose output"
 	default n
 
 comment "Tasking options"
 
-config EXAMPLES_PWFB_PROGNAME
+config EXAMPLES_PWLINES_PROGNAME
 	string "Program name"
-	default "pwfb"
+	default "pwlines"
 	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_PWFB_CLIENT_STACKSIZE
+config EXAMPLES_PWLINES_CLIENT_STACKSIZE
 	int "Example Main Stack Size"
 	default 2048
 	---help---
 		The stacksize to use when starting the example main(). 
 		Default 2048
 
-config EXAMPLES_PWFB_CLIENT_PRIO
+config EXAMPLES_PWLINES_CLIENT_PRIO
 	int "Client Priority"
 	default 90
 	---help---
@@ -111,13 +121,13 @@ config EXAMPLES_PWFB_CLIENT_PRIO
 		should be lower than both the listener and server priorities (See
 		CONFIG_NXSTART_SERVERPRIO).  Default: 90
 
-config EXAMPLES_PWFB_LISTENER_STACKSIZE
+config EXAMPLES_PWLINES_LISTENER_STACKSIZE
 	int "Listener Stack Size"
 	default 2048
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 
-config EXAMPLES_PWFB_LISTENER_PRIO
+config EXAMPLES_PWLINES_LISTENER_PRIO
 	int "Listener Priority"
 	default 100
 	---help---

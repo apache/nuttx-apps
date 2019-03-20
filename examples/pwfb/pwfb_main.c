@@ -205,7 +205,7 @@ static bool pwfb_state_initialize(FAR struct pwfb_state_s *st)
   st->wndo[2].color[0] = CONFIG_EXAMPLES_PWFB_COLOR3;
   st->color[0]         = CONFIG_EXAMPLES_PWFB_TBCOLOR;
 
-  /* Connect each widnow to the font cache.  They cannot share the
+  /* Connect each window to the font cache.  They cannot share the
    * font cache becuse of the differing background colors.
    */
 
@@ -407,6 +407,13 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
       printf("nxeq_opentoolbar: nxtk_opentoolbar failed: %d\n", errno);
     }
 
+  /* There is a race condition here we resolve by making the main thread
+   * lowest in priority.  In order for the size and position to take effect,
+   * a command is sent to server which responds with an event.  So we need
+   * to be synchronized at this point or the following fill will fail because
+   * it depends on current knowlede of the size and position.
+   */
+
   /* Create a bounding box.  This is actually too large because it does not
    * account for the boarder widths.  However, NX should clip the fill to
    * stay within the frame.
@@ -440,13 +447,6 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
              errno);
       goto errout_with_hwnd;
     }
-
-  /* There is a race condition here we resolve by making the main thread
-   * lowest in priority.  In order for the size and position to take effect,
-   * a command is sent to server which responds with an event.  So we need
-   * to be synchronized at this point or the following fill will fail because
-   * it depends on current knowlede of the size and position.
-   */
 
   /* Add the text to the display, character at a time */
 
@@ -592,7 +592,7 @@ int pwfb_main(int argc, char *argv[])
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 1\n");
-      goto errout_with_fontcache;
+      goto errout_with_hwnd1;
     }
 
   /* Open window 2 */
