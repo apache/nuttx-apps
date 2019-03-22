@@ -228,7 +228,7 @@ int nxhello_main(int argc, char *argv[])
   ret = nx_requestbkgd(g_nxhello.hnx, &g_nxhellocb, NULL);
   if (ret < 0)
     {
-      printf("nxhello_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxhello_main: nx_requestbkgd() failed: %d\n", errno);
       g_nxhello.code = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }
