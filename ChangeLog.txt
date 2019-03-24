@@ -3621,27 +3621,14 @@
 	  Gregory Nutt (2019-02-14).
 	* testing/scanftest/scanftest_main.c:  Initialized s3, changed Ok to
 	  PASSED for Back to Back test.  From Johannes (2019-02-15).
-	* mainly bugfix release:
-	  - remove some code when binary logs are disabled
-	  - src/el-pmemory.c: fix usage of uninitialized variable
-	  - src/el-pmemory.c: fix wrong options object used
-	  - options: fix g_options altered after el_ocleanup
-	  - add: printing memory without ascii table
-	  - make code more c89 compatible
-	  - fix: remove comma at the end of enum list
-	  - fix bad comment
-	  with very minor features added:
-	  - add: option to print to stdout
-	  - make embedlog print to stderr by default
-	  From Michal Lyszczek (2019-02-15).
+	* configs/system/embedlog:  Update to version 0.4.0.  From Michal Lyszczek
+	  (2019-02-15).
 	* app/examples/embedlog:  This example program presents most usefull
 	  features of embedlog library and how to use them.  From Michal Lyszczek
 	  (2019-02-15).
-	* nuttx/sched/mqueue:  Change 'int prio' to 'unsigned int prio'.
-	  According to open group specification, priority field in mq_* functions
-	  should have unsigned type:
-	  http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/mqueue.h.html
-	  From Michal Lyszczek (2019-02-15).
+	* system/nxplayer and nxrecorder:  Change 'int prio' to 'unsigned int prio'.
+	  Required by changes to MQ function prototypes. From Michal Lyszczek
+	  (2019-02-15).
 	* system/nxplayer and nxrecorder:  Fix some coding standard violatins
 	  that are just to in-yer-face to ignore:  No CamelCase variable names.
 	  This was not an extensive check for use of CamelCase.  Just some I
@@ -3675,7 +3662,7 @@
 	  webclient compiled.  From Alan Carvalho de Assis (2019-02-24).
 	* apps/testing/ostest:  Add test of pthread_mutex_timedlock()  From
 	  Gregory Nutt (2019-02-24).
-	* examples: add sx127x demo  From raiden00pl (2019-02-25).
+	* examples:  Add sx127x demo  From Mateuz Szafoni (2019-02-25).
 	* apps/system/taskset: Fix command arguments are not passed  From
 	  Masayuki Ishikawa (2019-02-25).
 	* testing/ostest/timedmutex.c:  pthread_mutex_timedlock() returns
