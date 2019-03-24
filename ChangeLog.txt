@@ -3550,4 +3550,181 @@
 	  be the same as sizeof(struct serialsave_s).  From Masayuki Ishikawa
 	  (2019-01-19).
 
-7.28 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.29 2019-03-25 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/vi/vi.c:  Fix an infinite loop bug that can show up in some
+	  cases (plus a couple of other items).  From Ken Pettit (2019-01-22).
+	* apps/system/cfgdata:  Make builtin task stack size and priority
+	  configurable.  Set default to 2048 (from 1024) per recommendation of
+	  Ken Pettit.  From Gregory Nutt (2019-01-22).
+	* apps/testing/smp:  Move apps/examples/smp to apps/testing/smp  From
+	  Gregory Nutt (2019-01-23).
+	* nshlib/nsh_console.h:  Fix copy paste errors. Some Kconfig
+	  configuration names needed CONFIG_ prefix.  From David Sidrane
+	  (2019-01-24).
+	* testing/:  Move all file system tests from examples/ to testing/
+	  (fstest, nxffs, smart, smart_test).  From Gregory Nutt (2019-01-24).
+	* testing/cxxtest:  Move examples/cxxtest to testing.  From Gregory Nutt
+	  (2019-01-24).
+	* apps/system/zmodem:  Switch to the raw mode before transfer and restore
+	  to the original setting after finishing the transfer.  From Xiang Xiao
+	  (2019-01-27).
+	* apps/netutils/codecs/base64.c: Remove the big stack array  From Xiang
+	  Xiao (2019-01-27).
+	* netutils/codecs/base64.c:  Add base64_[de|en]code_length() API  From
+	  ligd (2019-01-27).
+	* system/nxplayer/nxplayer.c:  Fix build error when only enable
+	  CONFIG_AUDIO_EXCLUDE_VOLUME is enabled.  From ZhongAn (2019-01-27).
+	* apps/system/system/system.c:  Correct a path name.  From anchao
+	  (2019-01-27).
+	* apps/testing/cxxtest:  Add a README file.  From Gregory Nutt
+	  (2019-01-27).
+	* apps/tools/mksymtab.sh:  'export LC_ALL=C' to get the traditional sort
+	  order  From anchao (2019-01-27).
+	* Follow up the kernel signal-related change in:
+	  - examples/oneshot/oneshot_main.c:
+	  - examples/alarm/alarm_main.c:
+	  - examples/ajoystick/ajoy_main.c
+	  - examples/djoystick/djoy_main.c
+	  - examples/buttons/buttons_main.c
+	  - examples/zerocross/zerocross_main.c
+	  - graphics/traveler/src/trv_input.c
+	  - graphics/ft80x/
+	  From Xiang Xiao (2019-01-27).
+	* apps/nshlib/nsh_netinit.c:  Update for changes to signal notification
+	  structures.  From Gregory Nutt (2019-01-27).
+	* graphics/NxWidgets/nxwm/src/ccalibration.cxx:  Correct and error in the
+	  type of the return value.  From Gregory Nutt (2019-01-27).
+	* apps/modbus/Kconfig:  Fix modbus master Kconfig.  Modbus Master ASCII
+	  compiles correctly  From Alan Carvalho de Assis (2019-01-28).
+	* apps/netutils/dhcpc/dhcpc.c:  Fix an error for DHCP REQUEST receiving a
+	  NAK.In DHCP Request operation, no need to update ciaddr to the client
+	  address and keep it as 0.  From Kevin Liu (2019-01-30).
+	* apps/eamples/modbusmaster:  Add Simple Modbus master example.   This
+	  example only supports Read/Write HoldingRegisters, but it is easy to
+	  extend it to support Read/Write Input/Coils/etc.  Originally creatd bey
+	  Vytautas in 2016 and updated with minor fixes for this commit.  From
+	  Alan Carvalho de Assis (2019-02-02).
+	* Update for corrected name of standard header file.  Should be dlfcn.h,
+	  not dllfcn.h.  I am surprised no one ever noticed before now.  From
+	  Gregory Nutt (2019-02-09).
+	* The file system can no longer be disabled.  Remove all conditional
+	  logic based on CONFIG_NFILE_DESCRIPTORS==0  From Gregory Nutt
+	  (2019-02-11).
+	* apps/:  Remove/replace all conditional logic based on
+	  CONFIG_NSOCKET_DESCRIPTORS == 0.  That value is always greater than
+	  zero now.  In places just replace with #ifdef CONFIG_NET.  From Gregory
+	  Nutt (2019-02-11).
+	* apps/testing/scanftest:  Port of Greg King's scanf test
+	  (https://github.com/cc65).  From Johannes (2019-02-14).
+	* apps/testing/scanftest/scanftest_main.c: Test improvements.  From
+	  Gregory Nutt (2019-02-14).
+	* testing/scanftest/scanftest_main.c:  Initialized s3, changed Ok to
+	  PASSED for Back to Back test.  From Johannes (2019-02-15).
+	* mainly bugfix release:
+	  - remove some code when binary logs are disabled
+	  - src/el-pmemory.c: fix usage of uninitialized variable
+	  - src/el-pmemory.c: fix wrong options object used
+	  - options: fix g_options altered after el_ocleanup
+	  - add: printing memory without ascii table
+	  - make code more c89 compatible
+	  - fix: remove comma at the end of enum list
+	  - fix bad comment
+	  with very minor features added:
+	  - add: option to print to stdout
+	  - make embedlog print to stderr by default
+	  From Michal Lyszczek (2019-02-15).
+	* app/examples/embedlog:  This example program presents most usefull
+	  features of embedlog library and how to use them.  From Michal Lyszczek
+	  (2019-02-15).
+	* nuttx/sched/mqueue:  Change 'int prio' to 'unsigned int prio'.
+	  According to open group specification, priority field in mq_* functions
+	  should have unsigned type:
+	  http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/mqueue.h.html
+	  From Michal Lyszczek (2019-02-15).
+	* system/nxplayer and nxrecorder:  Fix some coding standard violatins
+	  that are just to in-yer-face to ignore:  No CamelCase variable names.
+	  This was not an extensive check for use of CamelCase.  Just some I
+	  stumbled across.  From Gregory Nutt (2019-02-15).
+	* tools/check-hash.sh:  Add a tool check hash on downloaded packages.
+	  From Michal Lyszczek (2019-02-18).
+	* apps/fsutils/inih: New package.  inih (INI Not Invented Here) is a
+	  simple .INI file parser written in C. https://github.com/benhoyt/inih
+	  From Michal Lyszczek (2019-02-18).
+	* apps/examples/ini_dumper: New example program.  ini_dumper is example
+	  program that dumps content of ini file in pretty ascii table. It is
+	  using inih ini library in fsutils/inih.  From Michal Lyszczek
+	  (2019-02-18).
+	* Some updates due to NuttX renaming:  CONFIG_BOARD_INITIALIZE is not
+	  CONFIG_BOARD_LATE_INITIALIZE; board_initialize() is now
+	  board_late_initialize().  From Gregory Nutt (2019-02-18).
+	* apps/system/psmq: New package.  psmq is publish subscribe message
+	  queue. It's a set of programs and libraries to implement
+	  publish/subscribe way of inter-process communication on top of POSIX
+	  message queue.  From Michal Lyszczek (2019-02-18).
+	* apps/system/psmq/README.txt:  Add a README.txt file.  This is just a
+	  copy of the description accompanying that patch that added
+	  system/psmq.  From Gregory Nutt (2019-02-18).
+	* pps/system/psmq/Kconfig:  Fix recursive dependency.  SYSTEM_PSMQ both
+	  depended on and selected SYSTEM_EMBEDLOG  From Michal Lyszczek
+	  (2019-02-19).
+	* system/vi: Condition KEY_CMDMODE_REPEAT with
+	  CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT to avoid build error when
+	  option is not selected.  From Anthony Merlino (2019-02-23).
+	* apps//netutils/webclient/Kconfig:  NET_SOCKOPTS is needed to get
+	  webclient compiled.  From Alan Carvalho de Assis (2019-02-24).
+	* apps/testing/ostest:  Add test of pthread_mutex_timedlock()  From
+	  Gregory Nutt (2019-02-24).
+	* examples: add sx127x demo  From raiden00pl (2019-02-25).
+	* apps/system/taskset: Fix command arguments are not passed  From
+	  Masayuki Ishikawa (2019-02-25).
+	* testing/ostest/timedmutex.c:  pthread_mutex_timedlock() returns
+	  EDTIMEDOUT on a timedout, not eagain.  From Gregory Nutt (2019-02-25).
+	* testing/ostest/setvbuf.c:  Fix several errors in the setvbuf() test.
+	  From Gregory Nutt (2019-02-25).
+	* apps/system/cu/Kconfig:  CU term depends on TERMIOS and should select
+	  it.  From Alan Carvalho de Assis (2019-03-05).
+	* apps/examples/nxterm and graphics/NxWidgets/nxwm:  Replace direct calls
+	  to nxtk_register with legal, indirect calls via
+	  boardctrl(BOARDIOC_NXTERM).  Replace calls to (deleted)
+	  nxterm_unregister().  The correc way to delete a driver is by
+	  unlink'ing it.  From Gregory Nutt (2019-03-06).
+	* apps/examples/nxterm:  Most configuration options were not available in
+	  the Kconfig file.  From Gregory Nutt (2019-03-06).
+	* apps/examples/nxterm, graphics/NxWidgets:  Replace illegal direct calls
+	  to nxterm_redraw() and nxterm_kbdin() with new boardctl() calls.  From
+	  Gregory Nutt (2019-03-06).
+	* apps/examples/modbusmaster/mbmaster_main.c:  eMBMasterRegHoldingCB
+	  cannot be static.  From Alan Carvalho de Assis (2019-03-07).
+	* apps/examples/sx127x_demo/Kconfig:  Fix misplaced 'if'  From Gregory
+	  Nutt (2019-03-07).
+	* apps/examples/nxterm:  NxWM passed the size of the NxTK sub-window but
+	  nxterm example passed the size of the complete NxTK window.  They must
+	  be made consistent.  From Gregory Nutt (2019-03-09).
+	* Missing semicolon at the end of function call.  From Kejun ZHOU
+	  (2019-03-11).
+	* graphics:  nx_openwindow() and nxtk_openwindow() now accepts an
+	  addtional 'flag' parameter.  This argument is not used at present but
+	  will, eventually enable a RAM backed, per-window framebuffer.  From
+	  Gregory Nutt (2019-03-13).
+	* This commit adds a test example at apps/examples/pwfb that will be used
+	  for testing the per-window framebuffer feature.  The test does not work
+	  correctly yet.  From Gregory Nutt (2019-03-16).
+	* apps/examples/pwfb:  Change b32_t's to b16_t's; don't need so much
+	  precision.  Some improvements to motion.  Add VERBOSE debug output.
+	  Still lots of bugs.  From Gregory Nutt (2019-03-16).
+	* apps/examples/pwfb/pwfb_main.c:  Temporarily work around a race
+	  condition by adding a delay.  From Gregory Nutt (2019-03-16).
+	* - apps/examples/pwfb: Solve a race condition by changing some relative
+	    priorities.  Also removes a delay kludge that used as a workaround.
+	  - apps/examples/pwfb:  Add rate control.  Examples becomes unstable at
+	    high update rates.
+	  From Gregory Nutt (2019-03-17).
+	* nshlib/nsh_timcmds.c:  Uninitialized struct tm caused 'date -s' to
+	  fail.  From Valmantas Palikša (2019-03-18).
+	* apps/examples/pwfb:  Add a toolbar to the example windows.  From
+	  Gregory Nutt (2019-03-18).
+	* This commit adds apps/examples/pwlines, another test of the pw-window
+	  framebuffer lgoic.  From Gregory Nutt (2019-03-20).
+
+7.30 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
