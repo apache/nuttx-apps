@@ -103,8 +103,9 @@ const struct nx_callback_s g_nxtextcb =
   , nxbg_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxbg_kbdin   /* my kbdin */
+  , nxbg_kbdin   /* kbdin */
 #endif
+  , NULL         /* event */
 };
 
 /* Background window handle */

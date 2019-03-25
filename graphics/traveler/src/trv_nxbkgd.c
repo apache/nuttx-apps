@@ -96,8 +96,9 @@ const struct nx_callback_s g_trv_nxcallback =
   , trv_nxmousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , trv_nxkbdin   /* my kbdin */
+  , trv_nxkbdin   /* kbdin */
 #endif
+  , NULL          /* event */
 };
 
 /****************************************************************************

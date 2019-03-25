@@ -97,14 +97,15 @@ static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 
 const struct nx_callback_s g_nxcb =
 {
-  nxeg_redraw,   /* redraw */
-  nxeg_position  /* position */
+  nxeg_redraw,     /* redraw */
+  nxeg_position    /* position */
 #ifdef CONFIG_NX_XYINPUT
-  , nxeg_mousein /* mousein */
+  , nxeg_mousein   /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxeg_kbdin   /* my kbdin */
+  , nxeg_kbdin     /* kbdin */
 #endif
+  , NULL           /* event */
 };
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
@@ -118,6 +119,7 @@ const struct nx_callback_s g_tbcb =
 #ifdef CONFIG_NX_KBD
   , nxeg_tbkbdin   /* my kbdin */
 #endif
+  , NULL           /* event */
 };
 #endif
 

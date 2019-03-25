@@ -90,8 +90,9 @@ const struct nx_callback_s g_nxtermcb =
   , nxwndo_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxwndo_kbdin   /* my kbdin */
+  , nxwndo_kbdin   /* kbdin */
 #endif
+  , NULL           /* event */
 };
 
 /****************************************************************************

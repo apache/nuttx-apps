@@ -254,6 +254,7 @@ static bool pwlines_configure_window(FAR struct pwlines_state_s *st, int wndx,
    * a command is sent to server which responds with an event.  So we need
    * to be synchronized at this point or the following fill will fail because
    * it depends on current knowlede of the size and position.
+   * REVISIT: Use nx_synch()!
    */
 
   rect.pt1.x = 0;

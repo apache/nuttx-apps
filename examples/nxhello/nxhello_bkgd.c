@@ -124,8 +124,9 @@ const struct nx_callback_s g_nxhellocb =
   , nxhello_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxhello_kbdin   /* my kbdin */
+  , nxhello_kbdin   /* kbdin */
 #endif
+  , NULL            /* event */
 };
 
 /****************************************************************************

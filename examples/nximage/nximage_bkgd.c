@@ -159,8 +159,9 @@ const struct nx_callback_s g_nximagecb =
   , nximage_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nximage_kbdin   /* my kbdin */
+  , nximage_kbdin   /* kbdin */
 #endif
+  , NULL            /* event */
 };
 
 /****************************************************************************

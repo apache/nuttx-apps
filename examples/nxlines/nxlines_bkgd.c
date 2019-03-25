@@ -112,8 +112,9 @@ const struct nx_callback_s g_nxlinescb =
   , nxlines_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxlines_kbdin   /* my kbdin */
+  , nxlines_kbdin   /* kbdin */
 #endif
+  , NULL            /* event */
 };
 
 /****************************************************************************

@@ -97,8 +97,9 @@ static const struct nx_callback_s g_pucb =
   , nxpu_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxpu_kbdin   /* my kbdin */
+  , nxpu_kbdin   /* kbdin */
 #endif
+  , NULL         /* event */
 };
 
 /* Pop-up state information */

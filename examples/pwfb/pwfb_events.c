@@ -84,6 +84,7 @@ const struct nx_callback_s g_pwfb_wncb =
 #ifdef CONFIG_NX_KBD
   , NULL              /* kbdin */
 #endif
+  , NULL              /* event */
 };
 
 const struct nx_callback_s g_pwfb_tbcb =
@@ -96,6 +97,7 @@ const struct nx_callback_s g_pwfb_tbcb =
 #ifdef CONFIG_NX_KBD
   , NULL              /* kbdin */
 #endif
+  , NULL              /* event */
 };
 
 /****************************************************************************

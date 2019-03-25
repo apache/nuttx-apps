@@ -72,11 +72,12 @@ const struct nx_callback_s g_pwlines_wncb =
   pwlines_wndo_redraw,   /* redraw */
   pwlines_wndo_position  /* position */
 #ifdef CONFIG_NX_XYINPUT
-  , NULL              /* mousein */
+  , NULL                 /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , NULL              /* kbdin */
+  , NULL                 /* kbdin */
 #endif
+  , NULL                 /* event */
 };
 
 /****************************************************************************

@@ -83,7 +83,7 @@ CCallback::CCallback(CWidgetControl *widgetControl)
 #ifdef CONFIG_NX_KBD
   m_callbacks.kbdin    = newKeyboardEvent;
 #endif
-  m_callbacks.blocked  = windowBlocked;
+  m_callbacks.event    = windowEvent;
 
   // Keyboard input is initially direct to the widgets within the window
 
@@ -234,34 +234,57 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
 #endif // CONFIG_NX_KBD
 
 /**
- * This callback is the response from nx_block (or nxtk_block). Those
- * blocking interfaces are used to assure that no further messages are
- * directed to the window. Receipt of the blocked callback signifies
- * that (1) there are no further pending callbacks and (2) that the
- * window is now 'defunct' and will receive no further callbacks.
+ *   This callback is used to communicate server events to the window
+ *   listener.
  *
- * This callback supports coordinated destruction of a window in multi-
- * user mode.  In multi-use more, the client window logic must stay
- * intact until all of the queued callbacks are processed.  Then the
- * window may be safely closed.  Closing the window prior with pending
- * callbacks can lead to bad behavior when the callback is executed.
+ *   NXEVENT_BLOCKED - Window messages are blocked.
+ *
+ *     This callback is the response from nx_block (or nxtk_block). Those
+ *     blocking interfaces are used to assure that no further messages are
+ *     directed to the window. Receipt of the blocked callback signifies
+ *     that (1) there are no further pending callbacks and (2) that the
+ *     window is now 'defunct' and will receive no further callbacks.
+ *
+ *     This callback supports coordinated destruction of a window.  In
+ *     the multi-user mode, the client window logic must stay intact until
+ *     all of the queued callbacks are processed.  Then the window may be
+ *     safely closed.  Closing the window prior with pending callbacks can
+ *     lead to bad behavior when the callback is executed.
+ *
+ *   NXEVENT_SYCNCHED - Synchronization handshake
+ *
+ *     This completes the handshake started by nx_synch().  nx_synch()
+ *     sends a syncrhonization messages to the NX server which responds
+ *     with this event.  The sleeping client is awakened and continues
+ *     graphics processing, completing the handshake.
+ *
+ *     Due to the highly asynchronous nature of client-server
+ *     communications, nx_synch() is sometimes necessary to assure that
+ *     the client and server are fully synchronized.
  *
  * @param hwnd. Window handle of the blocked window
+ * @param event. The server event
  * @param arg1. User provided argument (see nx_openwindow, nx_requestbkgd,
  *   nxtk_openwindow, or nxtk_opentoolbar)
  * @param arg2 - User provided argument (see nx_block or nxtk_block)
  */
 
-void CCallback::windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2)
+void CCallback::windowEvent(NXWINDOW hwnd, enum nx_event_e event,
+                            FAR void *arg1, FAR void *arg2)
 {
-  ginfo("hwnd=%p arg1=%p arg2=%p\n", hwnd, arg1, arg2);
+  ginfo("hwnd=%p devent=%d arg1=%p arg2=%p\n", hwnd, event, arg1, arg2);
 
   // The first argument must be the CCallback instance
 
   CCallback *This = (CCallback *)arg1;
 
-  // Just forward the callback to the CWidgetControl::windowBlocked method
+  // Check for the window blocked event
 
-  This->m_widgetControl->windowBlocked(arg2);
+  if (event == NXEVENT_BLOCKED)
+    {
+      // Let the CWidgetControl::windowBlocked method handle the event.
+
+      This->m_widgetControl->windowBlocked(arg2);
+    }
 }
 

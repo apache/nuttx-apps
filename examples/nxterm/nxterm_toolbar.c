@@ -99,8 +99,9 @@ const struct nx_callback_s g_nxtoolcb =
   , nxtool_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  , nxtool_kbdin   /* my kbdin */
+  , nxtool_kbdin   /* kbdin */
 #endif
+  , NULL           /* event */
 };
 
 /****************************************************************************

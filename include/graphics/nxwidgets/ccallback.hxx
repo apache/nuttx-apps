@@ -189,25 +189,43 @@ namespace NXWidgets
 #endif // CONFIG_NX_KBD
 
     /**
-     * This callback is the response from nx_block (or nxtk_block). Those
-     * blocking interfaces are used to assure that no further messages are
-     * directed to the window. Receipt of the blocked callback signifies
-     * that (1) there are no further pending callbacks and (2) that the
-     * window is now 'defunct' and will receive no further callbacks.
+     *   This callback is used to communicate server events to the window
+     *   listener.
      *
-     * This callback supports coordinated destruction of a window in multi-
-     * user mode.  In multi-use mode, the client window logic must stay
-     * intact until all of the queued callbacks are processed.  Then the
-     * window may be safely closed.  Closing the window prior with pending
-     * callbacks can lead to bad behavior when the callback is executed.
+     *   NXEVENT_BLOCKED - Window messages are blocked.
+     *
+     *     This callback is the response from nx_block (or nxtk_block). Those
+     *     blocking interfaces are used to assure that no further messages are
+     *     directed to the window. Receipt of the blocked callback signifies
+     *     that (1) there are no further pending callbacks and (2) that the
+     *     window is now 'defunct' and will receive no further callbacks.
+     *
+     *     This callback supports coordinated destruction of a window.  In
+     *     the multi-user mode, the client window logic must stay intact until
+     *     all of the queued callbacks are processed.  Then the window may be
+     *     safely closed.  Closing the window prior with pending callbacks can
+     *     lead to bad behavior when the callback is executed.
+     *
+     *   NXEVENT_SYCNCHED - Synchronization handshake
+     *
+     *     This completes the handshake started by nx_synch().  nx_synch()
+     *     sends a syncrhonization messages to the NX server which responds
+     *     with this event.  The sleeping client is awakened and continues
+     *     graphics processing, completing the handshake.
+     *
+     *     Due to the highly asynchronous nature of client-server
+     *     communications, nx_synch() is sometimes necessary to assure that
+     *     the client and server are fully synchronized.
      *
      * @param hwnd. Window handle of the blocked window
+     * @param event. The server event
      * @param arg1. User provided argument (see nx_openwindow, nx_requestbkgd,
      *   nxtk_openwindow, or nxtk_opentoolbar)
      * @param arg2 - User provided argument (see nx_block or nxtk_block)
      */
 
-    static void windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2);
+    static void windowEvent(NXWINDOW hwnd, enum nx_event_e event,
+                            FAR void *arg1, FAR void *arg2);
 
   public:
 

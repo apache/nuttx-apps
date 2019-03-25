@@ -122,16 +122,15 @@ static void nxdemo_demo_3(NXWINDOW hwnd);
 
 const struct nx_callback_s g_nxdemocb =
 {
-  nxdemo_redraw,  /* redraw */
-  nxdemo_position /* position */
+  nxdemo_redraw,    /* redraw */
+  nxdemo_position   /* position */
 #ifdef CONFIG_NX_XYINPUT
-  ,
-  nxdemo_mousein  /* mousein */
+  , nxdemo_mousein  /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
-  ,
-  nxdemo_kbdin    /* my kbdin */
+  , nxdemo_kbdin    /* kbdin */
 #endif
+  , NULL            /* event */
 };
 
 /****************************************************************************
