@@ -366,7 +366,7 @@ void CCallback::windowEvent(NXWINDOW hwnd, enum nx_event_e event,
           This->m_widgetControl->windowBlocked(arg2);
         }
         break;
-    
+
       default:
         break;
     }
