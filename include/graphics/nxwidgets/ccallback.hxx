@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/graphics/nxwidgets/ccallback.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nx.h>
@@ -96,6 +97,8 @@ namespace NXWidgets
 #ifdef CONFIG_NXTERM_NXKBDIN
     NXTERM               m_nxterm;        /**< The NxTerm handle for redirection of keyboard input */
 #endif
+    volatile bool       m_synchronized;   /**< True:  Syncrhonized with NX server */
+    sem_t               m_semevent;       /**< Event wait semaphore */
 
     // Methods in the callback vtable
 
@@ -139,6 +142,7 @@ namespace NXWidgets
                          FAR const struct nxgl_rect_s *bounds,
                          FAR void *arg);
 
+#ifdef CONFIG_NX_XYINPUT
     /**
      * New mouse data is available for the window.  The new mouse
      * data is handled by CWidgetControl::newMouseEvent.
@@ -158,12 +162,12 @@ namespace NXWidgets
      * nxtk_openwindow, or nxtk_opentoolbar).
      */
 
-#ifdef CONFIG_NX_XYINPUT
     static void newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg);
 #endif /* CONFIG_NX_XYINPUT */
 
+#ifdef CONFIG_NX_KBD
     /**
      * New keyboard/keypad data is available for the window.  The new
      * keyboard data is handled by CWidgetControl::newKeyboardEvent.
@@ -183,7 +187,6 @@ namespace NXWidgets
      * nxtk_openwindow, or nxtk_opentoolbar).
      */
 
-#ifdef CONFIG_NX_KBD
     static void newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
                                  FAR const uint8_t *str, FAR void *arg);
 #endif // CONFIG_NX_KBD
@@ -230,6 +233,16 @@ namespace NXWidgets
   public:
 
     /**
+     * Enum of window types
+     */
+
+    enum WindowType
+    {
+      NX_RAWWINDOW = 0,
+      NXTK_FRAMEDWINDOW
+    };
+
+    /**
      * Constructor.
      *
      * @param widgetControl Control object associated with this window
@@ -260,6 +273,18 @@ namespace NXWidgets
     }
 
     /**
+     * Synchronize the window with the NX server.  This function will delay
+     * until the the NX server has caught up with all of the queued requests.
+     * When this function returns, the state of the NX server will be the
+     * same as the state of the application.
+     *
+     * @param hwnd Handle to a specific NX window.
+     */
+
+    void synchronize(NXWINDOW hwnd, enum WindowType windowType);
+
+#ifdef CONFIG_NXTERM_NXKBDIN
+    /**
      * By default, NX keyboard input is given to the various widgets
      * residing in the window. But NxTerm is a different usage model;
      * In this case, keyboard input needs to be directed to the NxTerm
@@ -273,7 +298,6 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXTERM_NXKBDIN
     inline void setNxTerm(NXTERM handle)
     {
       m_nxterm = handle;

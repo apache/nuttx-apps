@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/graphics/nxwidgets/inxwindow.hxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,6 +120,15 @@ namespace NXWidgets
     virtual CWidgetControl *getWidgetControl(void) const = 0;
 
     /**
+     * Synchronize the window with the NX server.  This function will delay
+     * until the the NX server has caught up with all of the queued requests.
+     * When this function returns, the state of the NX server will be the
+     * same as the state of application.
+     */
+
+    virtual void synchronize(void) = 0;
+
+    /**
      * Request the position and size information of the window. The values
      * will be returned asynchronously through the client callback method.
      * The GetPosition() method may than be called to obtain the positional
@@ -180,6 +189,7 @@ namespace NXWidgets
 
     virtual bool lower(void) = 0;
 
+#ifdef CONFIG_NXTERM_NXKBDIN
     /**
      * Each window implementation also inherits from CCallback.  CCallback,
      * by default, forwards NX keyboard input to the various widgets residing
@@ -194,7 +204,6 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXTERM_NXKBDIN
     virtual void redirectNxTerm(NXTERM handle) = 0;
 #endif
 

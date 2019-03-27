@@ -46,7 +46,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <debug.h>
+
+#include <cassert>
+#include <cerrno>
+
+#include <nuttx/semaphore.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxtk.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 #include "graphics/nxwidgets/ccallback.hxx"
@@ -85,11 +93,67 @@ CCallback::CCallback(CWidgetControl *widgetControl)
 #endif
   m_callbacks.event    = windowEvent;
 
-  // Keyboard input is initially direct to the widgets within the window
+  // Synchronization support
+
+  m_synchronized       = false;
+
+  sem_init(&m_semevent, 0, 0);
+  sem_setprotocol(&m_semevent, SEM_PRIO_NONE);
 
 #ifdef CONFIG_NXTERM_NXKBDIN
+  // Keyboard input is initially directed to the widgets within the window
+
   m_nxterm             = (NXTERM)0;
 #endif
+}
+
+/**
+ * Synchronize the window with the NX server.  This function will delay
+ * until the the NX server has caught up with all of the queued requests.
+ * When this function returns, the state of the NX server will be the
+ * same as the state of the application.
+ *
+ * REVISIT:  An instance of this function is not re-entrant.
+ *
+ * @param hwnd Handle to a specific NX window.
+ */
+
+void CCallback::synchronize(NXWINDOW hwnd, enum WindowType windowType)
+{
+  m_synchronized = false;
+
+  // Request synchronization.  Window type matters here because the void*
+  // window handle will be interpreted differently.
+
+  if (windowType == NX_RAWWINDOW)
+    {
+      int ret = nx_synch(hwnd, (FAR void *)this);
+      if (ret < 0)
+        {
+          gerr("ERROR: nx_synch() failed: %d\n", errno);
+          return;
+        }
+    }
+  else
+    {
+      DEBUGASSERT(windowType == NXTK_FRAMEDWINDOW);
+
+      int ret = nxtk_synch(hwnd, (FAR void *)this);
+      if (ret < 0)
+        {
+          gerr("ERROR: nxtk_synch() failed: %d\n", errno);
+          return;
+        }
+    }
+
+  while (!m_synchronized)
+    {
+      int ret = sem_wait(&m_semevent);
+      DEBUGASSERT(ret >= 0 || errno == EINTR);
+      UNUSED(ret);
+    }
+
+  m_synchronized = false;
 }
 
  /**
@@ -154,6 +218,7 @@ void CCallback::position(NXHANDLE hwnd,
   This->m_widgetControl->geometryEvent(hwnd, size, pos, bounds);
 }
 
+#ifdef CONFIG_NX_XYINPUT
  /**
   * New mouse data is available for the window.  The new mouse data is
   * handled by CWidgetControl::newMouseEvent.
@@ -165,7 +230,6 @@ void CCallback::position(NXHANDLE hwnd,
   * nxtk_openwindow, or nxtk_opentoolbar).
   */
 
-#ifdef CONFIG_NX_XYINPUT
 void CCallback::newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg)
@@ -183,6 +247,7 @@ void CCallback::newMouseEvent(NXHANDLE hwnd,
 }
 #endif /* CONFIG_NX_XYINPUT */
 
+#ifdef CONFIG_NX_KBD
 /**
  * New keyboard/keypad data is available for the window.  The new keyboard
  * data is handled by CWidgetControl::newKeyboardEvent.
@@ -194,7 +259,6 @@ void CCallback::newMouseEvent(NXHANDLE hwnd,
  * nxtk_openwindow, or nxtk_opentoolbar).
  */
 
-#ifdef CONFIG_NX_KBD
 void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
                                  FAR const uint8_t *str,
                                  FAR void *arg)
@@ -205,11 +269,11 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
 
   CCallback *This = (CCallback *)arg;
 
+#ifdef CONFIG_NXTERM_NXKBDIN
   // Is NX keyboard input being directed to the widgets within the window
   // (default) OR is NX keyboard input being re-directed to an NxTerm
   // driver?
 
-#ifdef CONFIG_NXTERM_NXKBDIN
   if (This->m_nxterm)
     {
       struct boardioc_nxterm_kbdin_s kbdin;
@@ -266,7 +330,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
  * @param event. The server event
  * @param arg1. User provided argument (see nx_openwindow, nx_requestbkgd,
  *   nxtk_openwindow, or nxtk_opentoolbar)
- * @param arg2 - User provided argument (see nx_block or nxtk_block)
+ * @param arg2 - User provided argument (see nx[tk]_block or nx[tk]_synch)
  */
 
 void CCallback::windowEvent(NXWINDOW hwnd, enum nx_event_e event,
@@ -274,17 +338,36 @@ void CCallback::windowEvent(NXWINDOW hwnd, enum nx_event_e event,
 {
   ginfo("hwnd=%p devent=%d arg1=%p arg2=%p\n", hwnd, event, arg1, arg2);
 
-  // The first argument must be the CCallback instance
-
-  CCallback *This = (CCallback *)arg1;
-
-  // Check for the window blocked event
-
-  if (event == NXEVENT_BLOCKED)
+  switch (event)
     {
-      // Let the CWidgetControl::windowBlocked method handle the event.
+      case NXEVENT_SYNCHED:  // Server is syncrhonized
+        {
+          // The second argument must be the CCallback instance
 
-      This->m_widgetControl->windowBlocked(arg2);
+          CCallback *This = (CCallback *)arg2;
+          DEBUGASSERT(This != NULL);
+
+          // We are now syncrhonized
+
+          This->m_synchronized = true;
+          sem_post(&This->m_semevent);
+        }
+        break;
+
+      case NXEVENT_BLOCKED:  // Window block, ready to be closed.
+        {
+          // The first argument must be the CCallback instance
+
+          CCallback *This = (CCallback *)arg1;
+          DEBUGASSERT(This != NULL);
+
+          // Let the CWidgetControl::windowBlocked method handle the event.
+
+          This->m_widgetControl->windowBlocked(arg2);
+        }
+        break;
+    
+      default:
+        break;
     }
 }
-

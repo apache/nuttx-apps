@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/graphics/nxwidgets/cnxwindow.hxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,6 +138,18 @@ namespace NXWidgets
      */
 
     CWidgetControl *getWidgetControl(void) const;
+
+    /**
+     * Synchronize the window with the NX server.  This function will delay
+     * until the the NX server has caught up with all of the queued requests.
+     * When this function returns, the state of the NX server will be the
+     * same as the state of the application.
+     */
+
+    inline void synchronize(void)
+    {
+      CCallback::synchronize(m_hNxWindow, CCallback::NX_RAWWINDOW);
+    }
 
     /**
      * Request the position and size information of the window. The values
