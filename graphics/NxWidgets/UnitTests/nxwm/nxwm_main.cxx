@@ -671,19 +671,19 @@ void showTestStepMemory(FAR const char *msg)
 
 int nxwm_main(int argc, char *argv[])
 {
+#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
   // Call all C++ static constructors
 
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
   up_cxxinitialize();
 #endif
 
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
   // Should we perform board-specific initialization?  There are two ways
   // that board initialization can occur:  1) automatically via
   // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
   // 2) here via a call to boardctl() if the interface is enabled
   // (CONFIG_LIB_BOARDCTL=y).
 
-#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
   (void)boardctl(BOARDIOC_INIT, 0);
 #endif
 
@@ -691,9 +691,9 @@ int nxwm_main(int argc, char *argv[])
 
   initMemoryUsage();
 
+#ifdef CONFIG_NXWM_NXTERM
   // Initialize the NSH library
 
-#ifdef CONFIG_NXWM_NXTERM
   printf("nxwm_main: Initialize the NSH library\n");
   if (!NxWM::nshlibInitialize())
     {
@@ -720,9 +720,9 @@ int nxwm_main(int argc, char *argv[])
       testCleanUpAndExit(EXIT_FAILURE);
     }
 
+#ifdef CONFIG_NXWM_KEYBOARD
   // Create the keyboard device
 
-#ifdef CONFIG_NXWM_KEYBOARD
   if (!createKeyboard())
     {
       printf("nxwm_main: ERROR: Failed to create the keyboard\n");
@@ -730,9 +730,9 @@ int nxwm_main(int argc, char *argv[])
     }
 #endif
 
+#ifdef CONFIG_NXWM_TOUCHSCREEN
   // Create the touchscreen device
 
-#ifdef CONFIG_NXWM_TOUCHSCREEN
   if (!createTouchScreen())
     {
       printf("nxwm_main ERROR: Failed to create the touchscreen\n");
@@ -740,9 +740,9 @@ int nxwm_main(int argc, char *argv[])
     }
 #endif
 
+#ifdef CONFIG_NXWM_TOUCHSCREEN
   // Create the calibration application and add it to the start window
 
-#ifdef CONFIG_NXWM_TOUCHSCREEN
   if (!createCalibration())
     {
       printf("nxwm_main ERROR: Failed to create the calibration application\n");
@@ -750,9 +750,9 @@ int nxwm_main(int argc, char *argv[])
     }
 #endif
 
+#ifdef CONFIG_NXWM_NXTERM
   // Create the NxTerm application and add it to the start window
 
-#ifdef CONFIG_NXWM_NXTERM
   if (!createNxTerm())
     {
       printf("nxwm_main: ERROR: Failed to create the NxTerm application\n");
@@ -768,9 +768,9 @@ int nxwm_main(int argc, char *argv[])
       testCleanUpAndExit(EXIT_FAILURE);
     }
 
+#ifdef CONFIG_NXWM_MEDIAPLAYER
   // Create the media player application and add it to the start window
 
-#ifdef CONFIG_NXWM_MEDIAPLAYER
   if (!createMediaPlayer())
     {
       printf("nxwm_main: ERROR: Failed to create the media player application\n");
