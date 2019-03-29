@@ -864,4 +864,3 @@ int nxwm_main(int argc, char *argv[])
   showTestMemory("nxwm_main: Final memory usage");
   return EXIT_SUCCESS;
 }
-

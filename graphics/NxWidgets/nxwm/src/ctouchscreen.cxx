@@ -89,7 +89,7 @@ using namespace NxWM;
  * CTouchscreen Constructor
  *
  * @param server. An instance of the NX server.  This will be needed for
- *   injecting mouse data.
+ *   injecting touchscreen data.
  * @param windowSize.  The size of the physical window in pixels.  This
  *   is needed for touchscreen scaling.
  */

@@ -65,7 +65,7 @@ using namespace NxWM;
  * CKeyboard Constructor
  *
  * @param server. An instance of the NX server.  This will be needed for
- *   injecting mouse data.
+ *   injecting keyboard data.
  */
 
 CKeyboard::CKeyboard(NXWidgets::CNxServer *server)
