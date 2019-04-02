@@ -58,9 +58,6 @@
 #ifdef CONFIG_GRAPHICS_TRAVELER_FB
 #  include <nuttx/video/fb.h>
 #endif
-#ifdef CONFIG_VNCSERVER
-#  include <nuttx/video/vnc.h>
-#endif
 
 /****************************************************************************
  * Public Data
@@ -241,11 +238,16 @@ static inline int trv_nx_initialize(FAR struct trv_graphics_info_s *ginfo)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-      ret = vnc_default_fbinitialize(0, ginfo->hnx);
-      if (ret < 0)
-        {
-          trv_abort("vnc_default_fbinitialize failed: %d\n", ret);
-        }
+       struct boardioc_vncstart_s vnc =
+       {
+         0, ginfo->hnx
+       };
+
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           trv_abort("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+         }
 #endif
 
       /* Start a separate thread to listen for server events.  This is probably

@@ -1,7 +1,8 @@
 /****************************************************************************
  * examples/nxtext/nxtext_main.c
  *
- *   Copyright (C) 2011-2012, 2015-2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2017, 2019 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,9 +61,6 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -204,15 +202,21 @@ static int nxtext_initialize(void)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-      ret = vnc_default_fbinitialize(0, g_hnx);
-      if (ret < 0)
-        {
-          printf("vnc_default_fbinitialize failed: %d\n", ret);
+       struct boardioc_vncstart_s vnc =
+       {
+         0, g_hnx
+       };
 
-          g_exitcode = NXEXIT_FBINITIALIZE;
-          return ERROR;
-        }
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+           nx_disconnect(g_hnx);
+           g_exitcode = NXEXIT_FBINITIALIZE;
+           return ERROR;
+         }
 #endif
+
       /* Start a separate thread to listen for server events.  This is probably
        * the least efficient way to do this, but it makes this example flow more
        * smoothly.

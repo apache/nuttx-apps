@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/screenshot/screenshot_main.c
  *
- *   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -40,6 +40,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -51,10 +52,6 @@
 #include "graphics/tiff.h"
 
 #include <nuttx/nx/nx.h>
-
-#ifdef CONFIG_VNCSERVER
-#  include <nuttx/video/vnc.h>
-#endif
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -125,6 +122,9 @@ int save_screenshot(FAR const char *filename)
   struct tiff_info_s info;
   struct nx_callback_s cb = {};
   struct nxgl_size_s size = {CONFIG_SCREENSHOT_WIDTH, CONFIG_SCREENSHOT_HEIGHT};
+#ifdef CONFIG_VNCSERVER
+  struct boardioc_vncstart_s vnc;
+#endif
   FAR uint8_t *strip;
   NXHANDLE server;
   NXWINDOW window;
@@ -146,15 +146,18 @@ int save_screenshot(FAR const char *filename)
     }
 
 #ifdef CONFIG_VNCSERVER
-  /* Setup the VNC server to support keyboard/mouse inputs */
+   /* Setup the VNC server to support keyboard/mouse inputs */
 
-  ret = vnc_default_fbinitialize(0, server);
-  if (ret < 0)
-    {
-      printf("vnc_default_fbinitialize failed: %d\n", ret);
-      nx_disconnect(server);
-      return 1;
-    }
+   vnc.display = 0;
+   vnc.handle  = server;
+
+   ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+   if (ret < 0)
+     {
+       printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+       nx_disconnect(server);
+       return 1;
+     }
 #endif
 
   /* Wait for "connected" event */

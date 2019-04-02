@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxdemo/nxdemo_main.c
  *
- *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2018-2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Cherciu Mihail <m_cherciu@yahoo.com>
  *
@@ -61,9 +61,6 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -148,14 +145,20 @@ static inline int nxdemo_initialize(void)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-      ret = vnc_default_fbinitialize(0, g_nxdemo.hnx);
-      if (ret < 0)
-        {
-          printf("vnc_default_fbinitialize failed: %d\n", ret);
-          nx_disconnect(g_nxdemo.hnx);
-          return ERROR;
-        }
+       struct boardioc_vncstart_s vnc =
+       {
+         0,  g_nxdemo.hnx
+       };
+
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+           nx_disconnect(g_nxdemo.hnx);
+           return ERROR;
+         }
 #endif
+
        /* Start a separate thread to listen for server events.  This is probably
         * the least efficient way to do this, but it makes this example flow more
         * smoothly.

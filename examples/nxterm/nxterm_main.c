@@ -56,9 +56,6 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -142,15 +139,22 @@ static int nxterm_initialize(void)
        pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
-       /* Setup the VNC server to support keyboard/mouse inputs */
+      /* Setup the VNC server to support keyboard/mouse inputs */
 
-      ret = vnc_default_fbinitialize(0, g_nxterm_vars.hnx);
-      if (ret < 0)
-        {
-          printf("vnc_default_fbinitialize failed: %d\n", ret);
-          return ERROR;
-        }
+       struct boardioc_vncstart_s vnc =
+       {
+         0, g_nxterm_vars.hnx
+       };
+
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+           nx_disconnect(g_nxterm_vars.hnx);
+           return ERROR;
+         }
 #endif
+
        /* Start a separate thread to listen for server events.  This is probably
         * the least efficient way to do this, but it makes this example flow more
         * smoothly.

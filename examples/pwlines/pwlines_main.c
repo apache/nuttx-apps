@@ -57,10 +57,6 @@
 #include <nuttx/arch.h>
 #include <nuttx/board.h>
 
-#ifdef CONFIG_VNCSERVER
-#  include <nuttx/video/vnc.h>
-#endif
-
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxbe.h>
@@ -111,15 +107,21 @@ static bool pwlines_server_initialize(FAR struct pwlines_state_s *st)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-      ret = vnc_default_fbinitialize(0, st->hnx);
-      if (ret < 0)
-        {
-          printf("pwlines_server_initialize: ERROR: "
-                 "vnc_default_fbinitialize failed: %d\n",
-                 ret);
-          nx_disconnect(st->hnx);
-          return false;
-        }
+       struct boardioc_vncstart_s vnc =
+       {
+         0, st->hnx
+       };
+
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           printf("pwlines_server_initialize: ERROR: "
+                  "boardctl(BOARDIOC_VNC_START) failed: %d\n",
+                  ret);
+
+           nx_disconnect(st->hnx);
+           return false;
+         }
 #endif
     }
   else

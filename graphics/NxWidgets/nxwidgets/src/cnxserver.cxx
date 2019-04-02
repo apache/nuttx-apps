@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/graphics/NxWidgets/nxwidgets/src/cnxserver.cxx
  *
- *   Copyright (C) 2012, 2013, 2015-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2013, 2015-2016, 2019 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,10 +54,6 @@
 #include <debug.h>
 
 #include <nuttx/board.h>
-
-#ifdef CONFIG_VNCSERVER
-#  include <nuttx/video/vnc.h>
-#endif
 
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/nxwidgets/singletons.hxx"
@@ -161,14 +158,19 @@ bool CNxServer::connect(void)
 #ifdef CONFIG_VNCSERVER
       // Setup the VNC server to support keyboard/mouse inputs
 
-      ret = vnc_default_fbinitialize(0, m_hNxServer);
-      if (ret < 0)
-        {
-          gerr("ERROR: CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
-          m_running = false;
-          disconnect();
-          return false;
-        }
+       struct boardioc_vncstart_s vnc =
+       {
+         0, m_hNxServer
+       };
+
+       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+       if (ret < 0)
+         {
+           gerr("ERROR: boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+           m_running = false;
+           disconnect();
+           return false;
+         }
 #endif
 
       // Start a separate thread to listen for server events.  This is probably
