@@ -306,7 +306,7 @@ void CTextBox::handleCursorControlEvent(const CWidgetEventArgs &e)
     }
   else if (control == CURSOR_RIGHT)
     {
-      if (m_cursorPos < m_text.getLength())
+      if (m_cursorPos < (int)m_text.getLength())
         {
           moveCursorToPosition(m_cursorPos + 1);
         }
@@ -572,7 +572,7 @@ const nxgl_coord_t CTextBox::getCursorXPos(void) const
 
 nxgl_coord_t CTextBox::getCursorWidth(void) const
 {
-  if (m_cursorPos < m_text.getLength())
+  if (m_cursorPos < (int)m_text.getLength())
     {
       // Cursor within the string - get the width of the character
 
@@ -639,7 +639,7 @@ void CTextBox::calculateTextPositionHorizontal(void)
   // Text is wider than box - view needs to follow the cursor
   // If cursor is at the end of the text, we can just right-align
 
-  if (m_cursorPos == m_text.getLength())
+  if (m_cursorPos == (int)m_text.getLength())
     {
       m_align.x = width - stringWidth;
       return;

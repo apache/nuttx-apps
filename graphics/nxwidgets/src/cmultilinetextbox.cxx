@@ -1134,7 +1134,7 @@ bool CMultiLineTextBox::isCursorVisible(void) const
 
 nxwidget_char_t CMultiLineTextBox::getCursorChar(void) const
 {
-  if (m_cursorPos < m_text->getLength())
+  if (m_cursorPos < (int)m_text->getLength())
     {
       return m_text->getCharAt(m_cursorPos);
     }

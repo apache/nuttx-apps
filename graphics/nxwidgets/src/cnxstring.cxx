@@ -76,9 +76,9 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdarg>
+#include <cstdio>
 
 #include "graphics/nxwidgets/cnxstring.hxx"
 #include "graphics/nxwidgets/cstringiterator.hxx"
@@ -808,7 +808,7 @@ CNxString CNxString::format(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  size_t len = vsnprintf(nullptr, 0, fmt, args) + 1;
+  size_t len = std::vsnprintf((FAR char *)0, 0, fmt, args) + 1;
   va_end(args);
 
   va_start(args, fmt);
