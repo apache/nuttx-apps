@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nxwidgets/src/cnxtkwindow.cxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -357,6 +357,21 @@ bool CNxTkWindow::lower(void)
   // Lower the window to the bottom of the display
 
   return nxtk_lower(m_hNxTkWindow) == OK;
+}
+
+/**
+ * May be used to either (1) raise a window to the top of the display and
+ * select modal behavior, or (2) disable modal behavior.
+ *
+ * @param enable True: enter modal state; False: leave modal state
+ * @return True on success, false on any failure.
+ */
+
+bool CNxTkWindow::modal(bool enable)
+{
+  // Select/de-select window modal state
+
+  return nxtk_modal(m_hNxTkWindow, enable) == OK;
 }
 
 /**

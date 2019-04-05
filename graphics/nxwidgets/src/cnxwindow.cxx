@@ -216,6 +216,21 @@ bool CNxWindow::lower(void)
 }
 
 /**
+ * May be used to either (1) raise a window to the top of the display and
+ * select modal behavior, or (2) disable modal behavior.
+ *
+ * @param enable True: enter modal state; False: leave modal state
+ * @return True on success, false on any failure.
+ */
+
+bool CNxWindow::modal(bool enable)
+{
+  // Select/de-select window modal state
+
+  return nx_modal(m_hNxWindow, enable) == OK;
+}
+
+/**
  * Set an individual pixel in the window with the specified color.
  *
  * @param pPos The location of the pixel to be filled.

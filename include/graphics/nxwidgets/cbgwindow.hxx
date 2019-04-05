@@ -204,19 +204,45 @@ namespace NXWidgets
      * Bring the window to the top of the display.  NOTE:  The background
      * window cannot be raised.
      *
-     * @return True on success, false on any failure.
+     * @return Always returns false.
      */
 
-    bool raise(void);
+    inline bool raise(void)
+    {
+      // The background cannot be raised
+
+      return false;
+    }
 
     /**
      * Lower the window to the bottom of the display.  NOTE:  The background
      * window is always at the bottom of the window hierarchy.
      *
-     * @return True on success, false on any failure.
+     * @return Always returns false.
      */
 
-    bool lower(void);
+    inline bool lower(void)
+    {
+      // The background cannot be lowered
+
+      return false;
+    }
+
+    /**
+     * May be used to either (1) raise a window to the top of the display and
+     * select modal behavior, or (2) disable modal behavior.  NOTE:  The
+     * background cannot be a modal window.
+     *
+     * @param enable True: enter modal state; False: leave modal state
+     * @return Always returns false.
+     */
+
+    inline bool modal(bool enable)
+    {
+      // The background cannot a modal window
+
+      return false;
+    }
 
 #ifdef CONFIG_NXTERM_NXKBDIN
     /**

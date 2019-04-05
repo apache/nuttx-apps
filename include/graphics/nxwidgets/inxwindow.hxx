@@ -150,7 +150,8 @@ namespace NXWidgets
     /**
      * Get the size of the window (as reported by the NX callback).
      *
-     * @return The size.
+     * @param pSize The location to return window size.
+     * @return True on success, false on any failure.
      */
 
     virtual bool getSize(FAR struct nxgl_size_s *pSize) = 0;
@@ -159,7 +160,7 @@ namespace NXWidgets
      * Set the position and size of the window.
      *
      * @param pPos The new position of the window.
-     * @return True on success, false on failure.
+     * @return True on success, false on any failure.
      */
 
     virtual bool setPosition(FAR const struct nxgl_point_s *pPos) = 0;
@@ -168,7 +169,7 @@ namespace NXWidgets
      * Set the size of the selected window.
      *
      * @param pSize The new size of the window.
-     * @return OK on success; ERROR on failure with errno set appropriately.
+     * @return True on success, false on any failure.
      */
 
     virtual bool setSize(FAR const struct nxgl_size_s *pSize) = 0;
@@ -176,7 +177,7 @@ namespace NXWidgets
     /**
      * Bring the window to the top of the display.
      *
-     * @return OK on success; ERROR on failure with errno set appropriately.
+     * @return True on success, false on any failure.
      */
 
     virtual bool raise(void) = 0;
@@ -184,10 +185,20 @@ namespace NXWidgets
     /**
      * Lower the window to the bottom of the display.
      *
-     * @return OK on success; ERROR on failure with errno set appropriately.
+     * @return True on success, false on any failure.
      */
 
     virtual bool lower(void) = 0;
+
+    /**
+     * May be used to either (1) raise a window to the top of the display and
+     * select modal behavior, or (2) disable modal behavior.
+     *
+     * @param enable True: enter modal state; False: leave modal state
+     * @return True on success, false on any failure.
+     */
+
+    virtual bool modal(bool enable) = 0;
 
 #ifdef CONFIG_NXTERM_NXKBDIN
     /**

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nxwidgets/src/cbgwindow.cxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -198,34 +198,6 @@ bool CBgWindow::setPosition(FAR const struct nxgl_point_s *pPos)
 bool CBgWindow::setSize(FAR const struct nxgl_size_s *pSize)
 {
   // The position of the background cannot be changed
-
-  return false;
-}
-
-/**
- * Bring the window to the top of the display.  NOTE:  The background
- * window cannot be raised.
- *
- * @return Always returns false.
- */
-
-bool CBgWindow::raise(void)
-{
-  // The background cannot be raised
-
-  return false;
-}
-
-/**
- * Lower the window to the bottom of the display.  NOTE:  The background
- * window is always at the bottom of the window hierarchy.
- *
- * @return Always returns false.
- */
-
-bool CBgWindow::lower(void)
-{
-  // The background cannot be lowered
 
   return false;
 }

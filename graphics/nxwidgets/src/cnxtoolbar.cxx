@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nxwidgets/src/cnxtoolbar.cxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,59 +175,6 @@ bool CNxToolbar::getPosition(FAR struct nxgl_point_s *pPos)
 bool CNxToolbar::getSize(FAR struct nxgl_size_s *pSize)
 {
   return m_widgetControl->getWindowSize(pSize);
-}
-
-/**
- * Set the position and size of the toolbar.  The position of
- * the toolbar is fixed at the top of the parent framed window.
- *
- * @param pPos The new position of the toolbar.
- * @return Always returns false.
- */
-
-bool CNxToolbar::setPosition(FAR const struct nxgl_point_s *pPos)
-{
-  return false;
-}
-
-/**
- * Set the size of the selected toolbar.  The only variable dimension
- * is the height of the toolbar, but that cannot be changed once
- * it is created.
- *
- * @param pSize The new size of the toolbar.
- * @return Always returns false.
- */
-
-bool CNxToolbar::setSize(FAR const struct nxgl_size_s *pSize)
-{
-  return false;
-}
-
-/**
- * Bring the toolbar to the top of the display.  The toolbar is
- * a component of the containing, parent, framed window.  It
- * cannot be raised separately.
- *
- * @return Always returns false.
- */
-
-bool CNxToolbar::raise(void)
-{
-  return false;
-}
-
-/**
- * Lower the toolbar to the bottom of the display.  The toolbar is
- * a component of the containing, parent, framed window.  It
- * cannot be raised separately.
- *
- * @return Always returns false.
- */
-
-bool CNxToolbar::lower(void)
-{
-  return false;
 }
 
 /**
