@@ -249,6 +249,7 @@ namespace NXWidgets
 
     bool modal(bool enable);
 
+#ifdef CONFIG_NXTERM_NXKBDIN
     /**
      * Each window implementation also inherits from CCallback.  CCallback,
      * by default, forwards NX keyboard input to the various widgets residing
@@ -263,7 +264,6 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXTERM_NXKBDIN
     inline void redirectNxTerm(NXTERM handle)
     {
       setNxTerm(handle);

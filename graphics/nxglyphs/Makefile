@@ -75,7 +75,9 @@ else
 CXXSRCS += glyph_mediaplayer24x24.cxx glyph_mplayer_controls32x32.cxx
 endif
 
+endif # CONFIG_NXWIDGETS
+
 VPATH = src
 
 include $(APPDIR)/Application.mk
-endif # CONFIG_NXWIDGETS
+
