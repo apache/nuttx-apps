@@ -390,47 +390,6 @@ bool CStartWindow::addApplication(IApplicationFactory *app)
 }
 
 /**
- * Simulate a mouse click or release on the icon at index.  This method
- * is only available during automated testing of NxWM.
- *
- * @param index.  Selects the icon in the start window
- * @param click.  True to click and false to release
- */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-void CStartWindow::clickIcon(int index, bool click)
-{
-  if (index < m_slots.size())
-   {
-      // Get the image widget at this index
-
-      NXWidgets::CImage *image = m_slots.at(index).image;
-
-      // Get the size and position of the widget
-
-      struct nxgl_size_s imageSize;
-      image->getSize(imageSize);
-
-      struct nxgl_point_s imagePos;
-      image->getPos(imagePos);
-
-      // And click or release the image at its center
-
-      if (click)
-        {
-          image->click(imagePos.x + (imageSize.w >> 1),
-                       imagePos.y + (imageSize.h >> 1));
-        }
-      else
-        {
-          image->release(imagePos.x + (imageSize.w >> 1),
-                         imagePos.y + (imageSize.h >> 1));
-        }
-    }
-}
-#endif
-
-/**
  * Called when the window minimize button is pressed.
  */
 

@@ -203,28 +203,6 @@ namespace NxWM
     {
       return (m_flags & WINDOW_PERSISTENT) != 0;
     }
-
-    /**
-     * Simulate a mouse click or release on the minimize icon.  This method
-     * is only available for automated testing of NxWM.
-     *
-     * @param click.  True to click; false to release;
-     */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-    void clickMinimizePosition(bool click);
-#endif
-
-    /**
-     * Simulate a mouse click or release on the stop icon.  This method
-     * is only available for automated testing of NxWM.
-     *
-     * @param click.  True to click; false to release;
-     */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-    void clickStopIcon(bool click);
-#endif
   };
 }
 

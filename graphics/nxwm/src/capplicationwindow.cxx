@@ -1,7 +1,7 @@
 /********************************************************************************************
  * apps/graphics/nxwm/src/capplicationwindow.cxx
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -498,77 +498,6 @@ void CApplicationWindow::registerCallbacks(IApplicationCallback *callback)
 {
   m_callback = callback;
 }
-
-/**
- * Simulate a mouse click or release on the minimize icon.  This method
- * is only available for automated testing of NxWM.
- *
- * @param click.  True to click; false to release;
- */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-void CApplicationWindow::clickMinimizePosition(bool click)
-{
-  // Get the size and position of the widget
-
-  struct nxgl_size_s imageSize;
-  m_minimizeImage->getSize(imageSize);
-
-  struct nxgl_point_s imagePos;
-  m_minimizeImage->getPos(imagePos);
-
-  // And click or release the image at its center
-
-  if (click)
-    {
-      m_minimizeImage->click(imagePos.x + (imageSize.w >> 1),
-                             imagePos.y + (imageSize.h >> 1));
-    }
-  else
-    {
-      m_minimizeImage->release(imagePos.x + (imageSize.w >> 1),
-                               imagePos.y + (imageSize.h >> 1));
-    }
-}
-#endif
-
-/**
- * Simulate a mouse click or release on the stop icon.  This method
- * is only available for automated testing of NxWM.
- *
- * @param click.  True to click; false to release;
- */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-void CApplicationWindow::clickStopIcon(bool click)
-{
-  // The stop icon will not be available for "persistent" applications
-
-  if (m_stopImage)
-    {
-      // Get the size and position of the widget
-
-      struct nxgl_size_s imageSize;
-      m_stopImage->getSize(imageSize);
-
-      struct nxgl_point_s imagePos;
-      m_stopImage->getPos(imagePos);
-
-      // And click or release the image at its center
-
-      if (click)
-        {
-          m_stopImage->click(imagePos.x + (imageSize.w >> 1),
-                             imagePos.y + (imageSize.h >> 1));
-        }
-      else
-        {
-          m_stopImage->release(imagePos.x + (imageSize.w >> 1),
-                               imagePos.y + (imageSize.h >> 1));
-        }
-    }
-}
-#endif
 
 /**
  * Handle a widget action event.  For CImage, this is a mouse button pre-release event.

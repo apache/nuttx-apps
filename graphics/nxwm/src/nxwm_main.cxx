@@ -76,28 +76,6 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Pre-processor Definitions
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CONFIG_HAVE_FILENAME
-#  define showTestStepMemory(msg) \
-     _showTestStepMemory((FAR const char*)__FILE__, (int)__LINE__, msg)
-#endif
-
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-#  ifdef CONFIG_HAVE_FILENAME
-#    define showTestCaseMemory(msg) \
-       _showTestCaseMemory((FAR const char*)__FILE__, (int)__LINE__, msg)
-#    define showTestMemory(msg) \
-       _showTestMemory((FAR const char*)__FILE__, (int)__LINE__, msg)
-#  endif
-#else
-#    define initMemoryUsage()
-#    define showTestCaseMemory(msg)
-#    define showTestMemory(msg)
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
 // Private Types
 /////////////////////////////////////////////////////////////////////////////
 
@@ -109,11 +87,6 @@ struct SNxWmTest
   NxWM::CTouchscreen *touchscreen;         // The touchscreen
   struct NxWM::SCalibrationData calibData; // Calibration data
   bool                calibrated;          // True: Touchscreen has been calibrated
-#endif
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-  unsigned int        mmInitial;           // Initial memory usage
-  unsigned int        mmStep;              // Memory Usage at beginning of test step
-  unsigned int        mmSubStep;           // Memory Usage at beginning of test sub-step
 #endif
 };
 
@@ -134,105 +107,6 @@ extern "C" int nxwm_main(int argc, char *argv[]);
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
 /////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////
-// Name: updateMemoryUsage
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-#ifdef CONFIG_HAVE_FILENAME
-static void updateMemoryUsage(unsigned int *previous,
-                              FAR const char *file, int line,
-                              FAR const char *msg)
-#else
-static void updateMemoryUsage(unsigned int *previous,
-                              FAR const char *msg)
-#endif
-{
-  struct mallinfo mmcurrent;
-
-  /* Get the current memory usage */
-
-#ifdef CONFIG_CAN_PASS_STRUCTS
-  mmcurrent = mallinfo();
-#else
-  (void)mallinfo(&mmcurrent);
-#endif
-
-  /* Show the change from the previous time */
-
-#ifdef CONFIG_HAVE_FILENAME
-  printf("File: %s Line: %d : %s\n", file, line, msg);
-#else
-  printf("\n%s:\n", msg);
-#endif
-  printf("  Before: %8u After: %8u Change: %8d\n",
-         *previous, mmcurrent.uordblks, (int)mmcurrent.uordblks - (int)*previous);
-
-  /* Set up for the next test */
-
-  *previous =  mmcurrent.uordblks;
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// Name: showTestCaseMemory
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-#ifdef CONFIG_HAVE_FILENAME
-static void _showTestCaseMemory(FAR const char *file, int line, FAR const char *msg)
-{
-  updateMemoryUsage(&g_nxwmtest.mmStep, file, line, msg);
-  g_nxwmtest.mmSubStep = g_nxwmtest.mmInitial;
-}
-#else
-static void showTestCaseMemory(FAR const char *msg)
-{
-  updateMemoryUsage(&g_nxwmtest.mmStep, msg);
-  g_nxwmtest.mmSubStep = g_nxwmtest.mmInitial;
-}
-#endif
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// Name: showTestMemory
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-#ifdef CONFIG_HAVE_FILENAME
-static void _showTestMemory(FAR const char *file, int line, FAR const char *msg)
-{
-  updateMemoryUsage(&g_nxwmtest.mmInitial, file, line, msg);
-}
-#else
-static void showTestMemory(FAR const char *msg)
-{
-  updateMemoryUsage(&g_nxwmtest.mmInitial, msg);
-}
-#endif
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// Name: initMemoryUsage
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-static void initMemoryUsage(void)
-{
-  struct mallinfo mmcurrent;
-
-#ifdef CONFIG_CAN_PASS_STRUCTS
-  mmcurrent = mallinfo();
-#else
-  (void)mallinfo(&mmcurrent);
-#endif
-
-  g_nxwmtest.mmInitial = mmcurrent.uordblks;
-  g_nxwmtest.mmStep    = mmcurrent.uordblks;
-  g_nxwmtest.mmSubStep = mmcurrent.uordblks;
-}
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Name: cleanup
@@ -291,7 +165,6 @@ static bool createTaskbar(void)
       printf("createTaskbar: ERROR: Failed to instantiate CTaskbar\n");
       return false;
     }
-  showTestCaseMemory("createTaskbar: After create taskbar");
 
   // Connect to the NX server
 
@@ -301,7 +174,6 @@ static bool createTaskbar(void)
       printf("createTaskbar: ERROR: Failed to connect CTaskbar instance to the NX server\n");
       return false;
     }
-  showTestCaseMemory("createTaskbar: After connecting to the server");
 
   // Initialize the task bar
   //
@@ -316,7 +188,6 @@ static bool createTaskbar(void)
       return false;
     }
 
-  showTestCaseMemory("createTaskbar: After initializing window manager");
   return true;
 }
 
@@ -345,7 +216,6 @@ static bool createStartWindow(void)
       printf("createStartWindow: ERROR: Failed to create CApplicationWindow\n");
       return false;
     }
-  showTestCaseMemory("createStartWindow: After creating CApplicationWindow");
 
   // Open the window (it is hot in here)
 
@@ -355,7 +225,6 @@ static bool createStartWindow(void)
       delete window;
       return false;
     }
-  showTestCaseMemory("createStartWindow: After opening CApplicationWindow");
 
   // Instantiate the application, providing the window to the application's
   // constructor
@@ -367,7 +236,6 @@ static bool createStartWindow(void)
       delete window;
       return false;
     }
-  showTestCaseMemory("createStartWindow: After creating CStartWindow");
 
   // Add the CStartWindow application to the task bar (minimized)
 
@@ -377,7 +245,7 @@ static bool createStartWindow(void)
       printf("createStartWindow: ERROR: Failed to start the start window application\n");
       return false;
     }
-  showTestCaseMemory("createStartWindow: After starting the start window application");
+
   return true;
 }
 
@@ -396,7 +264,6 @@ static bool startWindowManager(void)
       return false;
     }
 
-  showTestCaseMemory("startWindowManager: After starting the window manager");
   return true;
 }
 
@@ -421,7 +288,6 @@ static bool createTouchScreen(void)
       printf("createTouchScreen: ERROR: Failed to create CTouchscreen\n");
       return false;
     }
-  showTestCaseMemory("createTouchScreen: After creating CTouchscreen");
 
   printf("createTouchScreen: Start touchscreen listener\n");
   if (!g_nxwmtest.touchscreen->start())
@@ -431,7 +297,6 @@ static bool createTouchScreen(void)
       return false;
     }
 
-  showTestCaseMemory("createTouchScreen: After starting the touchscreen listener");
   return true;
 }
 #endif
@@ -450,7 +315,6 @@ static bool createKeyboard(void)
       printf("createKeyboard: ERROR: Failed to create CKeyboard\n");
       return false;
     }
-  showTestCaseMemory("createKeyboard After creating CKeyboard");
 
   printf("createKeyboard: Start keyboard listener\n");
   if (!keyboard->start())
@@ -460,7 +324,6 @@ static bool createKeyboard(void)
       return false;
     }
 
-  showTestCaseMemory("createKeyboard: After starting the keyboard listener");
   return true;
 }
 #endif
@@ -481,7 +344,6 @@ static bool createCalibration(void)
       printf("createCalibration: ERROR: Failed to create CCalibrationFactory\n");
       return false;
     }
-  showTestCaseMemory("createCalibration: After creating CCalibrationFactory");
 
   // Add the calibration application to the start window.
 
@@ -492,7 +354,6 @@ static bool createCalibration(void)
       delete factory;
       return false;
     }
-  showTestCaseMemory("createCalibration: After adding CCalibration");
 
   // Call StartWindowFactory::create to to create the start window application
 
@@ -503,7 +364,6 @@ static bool createCalibration(void)
       printf("createCalibration: ERROR: Failed to create CCalibration\n");
       return false;
     }
-  showTestCaseMemory("createCalibration: After creating CCalibration");
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
   // Check if we have previously stored calibration data
@@ -541,8 +401,6 @@ static bool createCalibration(void)
           delete calibration;
           return false;
         }
-
-      showTestCaseMemory("createCalibration: After starting the start window application");
     }
 
   return true;
@@ -565,7 +423,6 @@ static bool createNxTerm(void)
       printf("createNxTerm: ERROR: Failed to instantiate CNxTermFactory\n");
       return false;
     }
-  showTestCaseMemory("createNxTerm: After creating the NxTerm application");
 
   printf("createNxTerm: Adding the NxTerm application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(console))
@@ -575,7 +432,6 @@ static bool createNxTerm(void)
       return false;
     }
 
-  showTestCaseMemory("createNxTerm: After adding the NxTerm application");
   return true;
 }
 #endif
@@ -595,7 +451,6 @@ static bool createHexCalculator(void)
       printf("createHexCalculator: ERROR: Failed to instantiate CHexCalculatorFactory\n");
       return false;
     }
-  showTestCaseMemory("createHexCalculator: After creating the hex calculator application");
 
   printf("createHexCalculator: Adding the hex calculator application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(calculator))
@@ -605,7 +460,6 @@ static bool createHexCalculator(void)
       return false;
     }
 
-  showTestCaseMemory("createHexCalculator: After adding the hex calculator application");
   return true;
 }
 
@@ -625,7 +479,6 @@ static bool createMediaPlayer(void)
       printf("createMediaPlayer: ERROR: Failed to instantiate CMediaPlayerFactory\n");
       return false;
     }
-  showTestCaseMemory("createMediaPlayer: After creating the media player application");
 
   printf("createMediaPlayer: Adding the hex calculator application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(mediaplayer))
@@ -635,7 +488,6 @@ static bool createMediaPlayer(void)
       return false;
     }
 
-  showTestCaseMemory("createMediaPlayer: After adding the media player application");
   return true;
 }
 #endif
@@ -643,27 +495,6 @@ static bool createMediaPlayer(void)
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
 /////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////
-// Name: showTestStepMemory
-/////////////////////////////////////////////////////////////////////////////
-// Called by ad hoc instrumentation in the NxWM/NxWidgets code
-
-#ifdef CONFIG_HAVE_FILENAME
-void _showTestStepMemory(FAR const char *file, int line, FAR const char *msg)
-{
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-  updateMemoryUsage(&g_nxwmtest.mmSubStep, file, line, msg);
-#endif
-}
-#else
-void showTestStepMemory(FAR const char *msg)
-{
-#ifdef CONFIG_NXWIDGET_MEMMONITOR
-  updateMemoryUsage(&g_nxwmtest.mmSubStep, msg);
-#endif
-}
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // nxwm_main
@@ -687,10 +518,6 @@ int nxwm_main(int argc, char *argv[])
   (void)boardctl(BOARDIOC_INIT, 0);
 #endif
 
-  // Initialize memory monitor logic
-
-  initMemoryUsage();
-
 #ifdef CONFIG_NXWM_NXTERM
   // Initialize the NSH library
 
@@ -700,8 +527,6 @@ int nxwm_main(int argc, char *argv[])
       printf("nxwm_main: ERROR: Failed to initialize the NSH library\n");
       return EXIT_FAILURE;
     }
-
-  showTestCaseMemory("nxwm_main: After initializing the NSH library");
 #endif
 
   // Create the task bar.
@@ -836,31 +661,4 @@ int nxwm_main(int argc, char *argv[])
         }
     }
 #endif
-
-  // Wait a little bit for the display to stabilize.  Then simulate pressing of
-  // the 'start window' icon in the task bar
-
-#ifndef CONFIG_NXWM_TOUCHSCREEN
-  sleep(2);
-  g_nxwmtest.taskbar->clickIcon(0, true);
-  usleep(500*1000);
-  g_nxwmtest.taskbar->clickIcon(0, false);
-  showTestCaseMemory("nxwm_main: After clicking the start window icon");
-
-  // Wait bit to see the result of the button press.  Then press the first icon
-  // in the start menu.  That should be the NxTerm icon (if the NxTerm
-  // is not disabled).
-
-  sleep(2);
-  g_nxwmtest.startwindow->clickIcon(0, true);
-  usleep(500*1000);
-  g_nxwmtest.startwindow->clickIcon(0, false);
-  showTestCaseMemory("nxwm_main: After clicking the NxTerm icon");
-#endif
-
-  // Wait bit to see the result of the button press.
-
-  sleep(2);
-  showTestMemory("nxwm_main: Final memory usage");
-  return EXIT_SUCCESS;
 }

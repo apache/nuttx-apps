@@ -174,28 +174,6 @@ namespace NxWM
      */
 
     virtual void registerCallbacks(IApplicationCallback *callback) = 0;
-
-    /**
-     * Simulate a mouse click or release on the minimize icon.  This method
-     * is only available for automated testing of NxWM.
-     *
-     * @param click.  True to click; false to release;
-     */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-    virtual void clickMinimizePosition(bool click) = 0;
-#endif
-
-    /**
-     * Simulate a mouse click or release on the stop icon.  This method
-     * is only available for automated testing of NxWM.
-     *
-     * @param click.  True to click; false to release;
-     */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-    virtual void clickStopIcon(bool click) = 0;
-#endif
   };
 }
 

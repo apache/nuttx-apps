@@ -251,13 +251,6 @@ config NXWIDGETS_CURSORCONTROL_SIZE
 		of cursor controls that can between entered by NX polling cycles
 		without losing data.  Default: 4
 
-config NXWIDGET_MEMMONITOR
-	bool "Memory Usage Monitor"
-	default n
-	---help---
-		Enable memory usage monitor instrumentation.  This feature is only
-		used by the NxWidget/NxWM unit tests.
-
 endmenu # NxWidgets Configuration
 endif # NxWidgets
 endmenu # NxWidgets

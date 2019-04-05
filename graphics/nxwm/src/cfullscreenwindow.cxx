@@ -187,31 +187,3 @@ bool CFullScreenWindow::isFullScreen(void) const
 void CFullScreenWindow::registerCallbacks(IApplicationCallback *callback)
 {
 }
-
-/**
- * Simulate a mouse click or release on the minimize icon.  This method
- * is only available for automated testing of NxWM.
- *
- * @param click.  True to click; false to release;
- */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-void CFullScreenWindow::clickMinimizePosition(bool click)
-{
-}
-#endif
-
-/**
- * Simulate a mouse click or release on the stop icon.  This method
- * is only available for automated testing of NxWM.
- *
- * @param click.  True to click; false to release;
- */
-
-#if defined(CONFIG_NXWM_UNITTEST) && !defined(CONFIG_NXWM_TOUCHSCREEN)
-void CFullScreenWindow::clickStopIcon(bool click)
-{
-}
-#endif
-
-
