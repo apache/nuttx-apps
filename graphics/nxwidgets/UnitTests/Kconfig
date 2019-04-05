@@ -1,0 +1,99 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menu "Unit Tests"
+
+config NXWIDGETS_UNITTEST_CBUTTON
+	tristate "CButton"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CBUTTONARRAY
+	tristate "CButtonArray"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CCHECKBOX
+	tristate "CCheckBox"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CGLYPHBUTTON
+	tristate "CGlyphButton"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CGLYPHSLIDERHORIZONTAL
+	tristate "CGlyphSliderHorizontal"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CIMAGE
+	tristate "CImage"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CKEYPAD
+	tristate "CKeypad"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CLABEL
+	tristate "CLabel"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CLATCHBUTTON
+	tristate "CLatchButton"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CLATCHBUTTONARRAY
+	tristate "CLatchButtonArray"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CLISTBOX
+	tristate "CListBox"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CPROGRESSBAR
+	tristate "CProgressBar"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CRADIOBUTTON
+	tristate "CRadioButton"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CSCROLLBARHORIZONTAL
+	tristate "CScrollbarHorizontal"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CSCROLLBARVERTICAL
+	tristate "CScrollbarVertical"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CSLIDERHORIZONAL
+	tristate "CSliderHorizontal"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CSLIDERVERTICAL
+	tristate "CSliderVertical"
+	default n
+	depends on NXWIDGETS
+
+config NXWIDGETS_UNITTEST_CTEXTBOX
+	tristate "CTextBox"
+	default n
+	depends on NXWIDGETS
+
+endmenu # Unit Tests
+

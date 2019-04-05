@@ -1,0 +1,44 @@
+NxWidgets
+---------
+
+  Title:        LARGE BITMAP SUPPORT
+  Description:  In CImage, m_origin.x and .y need to be allowed to go
+                negative so that you can pan through a large image.
+  Status:       Open
+  Priority:     Low
+
+  Title:        GLYPH BACKGROUNDS
+  Description:  For most glyphs, background could is set to the currently
+                selected background color.  An option should be to set the
+                background of glyphs (only) to transparent.
+  Status:       Open
+  Priority:     Low for now
+
+  Title:        MESSAGE BOX
+  Description:  Need the moral equivalent of a Windows message box:  A
+                simple, model window that provides a message a button to
+                dismiss the message.  This would be helpful, for example,
+                to handle behaviors on errors instead of just failing
+                quietly.
+  Status:       Open
+  Priority:     Low.  Nothing depends on this now.
+  Priority:    Medium.  That is big functional limitation.
+
+o Platform specific Issues
+  ------------------------
+
+  Title:       BUGS WHEN CANNOT READ FROM LCD
+  Description: There is a kludge in the code to handle the case where we cannot
+               read the background data because the LCD does not support read
+               operations.  You cannot read from the STM3240G-EVAL LCD right
+               now (it might be possible, but I have not figured out how yet).
+
+               In that case, we just use the default background color.  However,
+               that doesn't work either for the case where the background color
+               changes when the widget is selected.  Then the background color
+               in the font is wrong.  There is a hack in in CButtonArrary that
+               fixed this problem, but the problem certainly exists in other
+               places as well and begs for a better solution.
+  Status:      Open
+  Priority:    Medium-Low
+

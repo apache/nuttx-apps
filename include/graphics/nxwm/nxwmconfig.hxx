@@ -322,7 +322,7 @@
  */
 
 #ifndef CONFIG_NXWM_STARTWINDOW_ICON
-#  define CONFIG_NXWM_STARTWINDOW_ICON NxWM::g_playBitmap
+#  define CONFIG_NXWM_STARTWINDOW_ICON NXWidgets::g_playBitmap
 #endif
 
 /**
@@ -409,7 +409,7 @@
    */
 
 #  ifndef CONFIG_NXWM_NXTERM_ICON
-#    define CONFIG_NXWM_NXTERM_ICON NxWM::g_cmdBitmap
+#    define CONFIG_NXWM_NXTERM_ICON NXWidgets::g_cmdBitmap
 #  endif
 #endif
 
@@ -506,7 +506,7 @@
  * CONFIG_NXWM_CALIBRATION_FONTID - Use this default NxWidgets font ID
  *   instead of the system font ID (NXFONT_DEFAULT).
  * CONFIG_NXWM_CALIBRATION_ICON - The ICON to use for the touchscreen
- *   calibration application.  Default:  NxWM::g_calibrationBitmap
+ *   calibration application.  Default:  NXWidgets::g_calibrationBitmap
  * CONFIG_NXWM_CALIBRATION_SIGNO - The realtime signal used to wake up the
  *   touchscreen calibration thread.  Default: 5
  * CONFIG_NXWM_CALIBRATION_LISTENERPRIO - Priority of the calibration listener
@@ -543,7 +543,7 @@
 #endif
 
 #ifndef CONFIG_NXWM_CALIBRATION_ICON
-#  define CONFIG_NXWM_CALIBRATION_ICON NxWM::g_calibrationBitmap
+#  define CONFIG_NXWM_CALIBRATION_ICON NXWidgets::g_calibrationBitmap
 #endif
 
 #ifndef CONFIG_NXWM_CALIBRATION_SIGNO
@@ -599,7 +599,7 @@
  * CONFIG_NXWM_HEXCALCULATOR_BACKGROUNDCOLOR - The background color of the
  *   calculator display.  Default:  Same as CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
  * CONFIG_NXWM_HEXCALCULATOR_ICON - The ICON to use for the hex calculator
- *   application.  Default:  NxWM::g_calculatorBitmap
+ *   application.  Default:  NXWidgets::g_calculatorBitmap
  * CONFIG_NXWM_HEXCALCULATOR_FONTID - The font used with the calculator.
  *   Default: CONFIG_NXWM_DEFAULT_FONTID
  */
@@ -609,7 +609,7 @@
 #endif
 
 #ifndef CONFIG_NXWM_HEXCALCULATOR_ICON
-#  define CONFIG_NXWM_HEXCALCULATOR_ICON NxWM::g_calculatorBitmap
+#  define CONFIG_NXWM_HEXCALCULATOR_ICON NXWidgets::g_calculatorBitmap
 #endif
 
 #ifndef CONFIG_NXWM_HEXCALCULATOR_FONTID
@@ -622,7 +622,7 @@
  * CONFIG_NXWM_HEXCALCULATOR_BACKGROUNDCOLOR - The background color of the
  *   calculator display.  Default:  Same as CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
  * CONFIG_NXWM_HEXCALCULATOR_ICON - The ICON to use for the hex calculator
- *   application.  Default:  NxWM::g_calculatorBitmap
+ *   application.  Default:  NXWidgets::g_calculatorBitmap
  * CONFIG_NXWM_HEXCALCULATOR_FONTID - The font used with the calculator.
  *   Default: CONFIG_NXWM_DEFAULT_FONTID
  */
@@ -660,27 +660,27 @@
 #endif
 
 #ifndef CONFIG_NXWM_MEDIAPLAYER_ICON
-#  define CONFIG_NXWM_MEDIAPLAYER_ICON NxWM::g_mediaplayerBitmap
+#  define CONFIG_NXWM_MEDIAPLAYER_ICON NXWidgets::g_mediaplayerBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MPLAYER_FWD_ICON
-#  define CONFIG_NXWM_MPLAYER_FWD_ICON NxWM::g_mplayerFwdBitmap
+#  define CONFIG_NXWM_MPLAYER_FWD_ICON NXWidgets::g_mplayerFwdBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MPLAYER_PLAY_ICON
-#  define CONFIG_NXWM_MPLAYER_PLAY_ICON NxWM::g_mplayerPlayBitmap
+#  define CONFIG_NXWM_MPLAYER_PLAY_ICON NXWidgets::g_mplayerPlayBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MPLAYER_PAUSE_ICON
-#  define CONFIG_NXWM_MPLAYER_PAUSE_ICON NxWM::g_mplayerPauseBitmap
+#  define CONFIG_NXWM_MPLAYER_PAUSE_ICON NXWidgets::g_mplayerPauseBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MPLAYER_REW_ICON
-#  define CONFIG_NXWM_MPLAYER_REW_ICON NxWM::g_mplayerRewBitmap
+#  define CONFIG_NXWM_MPLAYER_REW_ICON NXWidgets::g_mplayerRewBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MPLAYER_VOL_ICON
-#  define CONFIG_NXWM_MPLAYER_VOL_ICON NxWM::g_mplayerVolBitmap
+#  define CONFIG_NXWM_MPLAYER_VOL_ICON NXWidgets::g_mplayerVolBitmap
 #endif
 
 #ifndef CONFIG_NXWM_MEDIAPLAYER_FONTID

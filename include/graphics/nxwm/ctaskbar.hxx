@@ -49,9 +49,9 @@
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
-#include "graphics/nxwm/nxwmglyphs.hxx"
+#include "graphics/nxglyphs.hxx"
 
+#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxwm/capplicationwindow.hxx"
 #include "graphics/nxwm/cfullscreenwindow.hxx"
 #include "graphics/nxwm/iapplication.hxx"
