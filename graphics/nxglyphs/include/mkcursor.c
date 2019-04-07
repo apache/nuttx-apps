@@ -103,7 +103,26 @@ int main(int argc, char **argv, char **envp)
   int i;
   int j;
 
+  printf("#include <nuttx/config.h>\n\n");
+  printf("#include <stdint.h>\n\n");
+  printf("#include <nuttx/video/rgbcolors.h\n");
   printf("#include <nuttx/video/cursor.h\n\n");
+
+  printf("#if CONFIG_NXWIDGETS_BPP == 8\n");
+  printf("#  define FGCOLOR1             RGB8WHITE\n");
+  printf("#  define FGCOLOR2             RGB8BLACK\n");
+  printf("#  define FGCOLOR3             RGB8GRAY\n");
+  printf("#elif CONFIG_NXWIDGETS_BPP == 16\n");
+  printf("#  define FGCOLOR1             RGB16WHITE\n");
+  printf("#  define FGCOLOR2             RGB18BLACK\n");
+  printf("#  define FGCOLOR3             RGB16GRAY\n");
+  printf("#elif CONFIG_NXWIDGETS_BPP == 24 || CONFIG_NXWIDGETS_BPP == 32\n");
+  printf("#  define FGCOLOR1             RGB24WHITE\n");
+  printf("#  define FGCOLOR2             RGB24BLACK\n");
+  printf("#  define FGCOLOR3             RGB24GRAY\n");
+  printf("#else\n");
+  printf("#  error \"Pixel depth not supported (CONFIG_NXWIDGETS_BPP)\"\n");
+  printf("#endif\n\n");
 
   printf("static const uint8_t g_cursorImage[] =\n");
   printf("{\n");
@@ -164,11 +183,23 @@ int main(int argc, char **argv, char **envp)
   stride = (2 * gimp_image.width + 7) >> 3;
 
   printf("}\n\n");
-  printf("struct cursor_image_s g_cursor\n");
+  printf("const struct cursor_image_s g_cursor\n");
   printf("{\n");
   printf("  .width  = %u\n", gimp_image.width);
   printf("  .height = %u\n", gimp_image.height);
   printf("  .stride = %u,\n", stride);
+  printf("  .color1 =\n");
+  printf("  {\n");
+  printf("    FGCOLOR1\n");
+  printf("  },\n");
+  printf("  .color2 =\n");
+  printf("  {\n");
+  printf("    FGCOLOR1\n");
+  printf("  },\n");
+  printf("  .color3 =\n");
+  printf("  {\n");
+  printf("    FGCOLOR3\n");
+  printf("  },\n");
   printf("  .image  = g_cursorImage,\n");
   printf("};\n\n");
 

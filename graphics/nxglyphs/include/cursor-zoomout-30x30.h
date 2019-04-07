@@ -1,4 +1,25 @@
+#include <nuttx/config.h>
+
+#include <stdint.h>
+
+#include <nuttx/video/rgbcolors.h
 #include <nuttx/video/cursor.h
+
+#if CONFIG_NXWIDGETS_BPP == 8
+#  define FGCOLOR1             RGB8WHITE
+#  define FGCOLOR2             RGB8BLACK
+#  define FGCOLOR3             RGB8GRAY
+#elif CONFIG_NXWIDGETS_BPP == 16
+#  define FGCOLOR1             RGB16WHITE
+#  define FGCOLOR2             RGB18BLACK
+#  define FGCOLOR3             RGB16GRAY
+#elif CONFIG_NXWIDGETS_BPP == 24 || CONFIG_NXWIDGETS_BPP == 32
+#  define FGCOLOR1             RGB24WHITE
+#  define FGCOLOR2             RGB24BLACK
+#  define FGCOLOR3             RGB24GRAY
+#else
+#  error "Pixel depth not supported (CONFIG_NXWIDGETS_BPP)"
+#endif
 
 static const uint8_t g_zoomOutImage[] =
 {
@@ -34,11 +55,22 @@ static const uint8_t g_zoomOutImage[] =
   0x00 0x00 0x00 0x00 0x00 0x00 0x3a 0x80    /* Row 29 */
 }
 
-struct cursor_image_s g_zoomOutCursor
+const struct cursor_image_s g_zoomOutCursor
 {
   .width  = 30
   .height = 30
   .stride = 8,
-  .image  = g_zoomOutImage,
+  .color1 =
+  {
+    FGCOLOR1
+  },
+  .color2 =
+  {
+    FGCOLOR1
+  },
+  .color3 =
+  {
+    FGCOLOR3
+  },
+  .image  = g_zoomOutImage
 };
-

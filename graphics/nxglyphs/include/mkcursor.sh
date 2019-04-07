@@ -35,7 +35,7 @@
 # Get the input parameter list
 #
 # <input-file>   - A 4-color image exported as a GIMP C-source file.
-# <output-file>   - A 2-bpp cursor image in NuttX cursor format
+# <output-file>  - A 2-bpp cursor image in NuttX cursor format
 # <back-ground>  - Treated as the transparent background color (default, 0x000000)
 # <color1>       - Usually the primary color of the image (default, 0xff0000)
 # <color2>       - Usually the outline color of the image (default, 0x00007f)
