@@ -104,8 +104,8 @@ int main(int argc, char **argv, char **envp)
 
   printf("#include <nuttx/config.h>\n\n");
   printf("#include <stdint.h>\n\n");
-  printf("#include <nuttx/video/rgbcolors.h\n");
-  printf("#include <nuttx/video/cursor.h\n\n");
+  printf("#include <nuttx/video/rgbcolors.h>\n");
+  printf("#include <nuttx/nx/nxcursor.h>\n\n");
 
   printf("#if CONFIG_NXWIDGETS_BPP == 8\n");
   printf("#  define FGCOLOR1             RGB8WHITE\n");
@@ -178,10 +178,13 @@ int main(int argc, char **argv, char **envp)
     }
 
   printf("}\n\n");
-  printf("const struct cursor_image_s g_cursor\n");
+  printf("const struct nx_cursorimage_s g_cursor =\n");
   printf("{\n");
-  printf("  .width  = %u\n", gimp_image.width);
-  printf("  .height = %u\n", gimp_image.height);
+  printf("  .size =\n");
+  printf("  {\n");
+  printf("    .w = %u\n", gimp_image.width);
+  printf("    .h = %u\n", gimp_image.height);
+  printf("  },\n");
   printf("  .color1 =\n");
   printf("  {\n");
   printf("    FGCOLOR1\n");
@@ -194,7 +197,7 @@ int main(int argc, char **argv, char **envp)
   printf("  {\n");
   printf("    FGCOLOR3\n");
   printf("  },\n");
-  printf("  .image  = g_cursorImage,\n");
+  printf("  .image  = g_cursorImage\n");
   printf("};\n\n");
 
   return 0;

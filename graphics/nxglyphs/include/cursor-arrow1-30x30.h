@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include <nuttx/video/rgbcolors.h
-#include <nuttx/video/cursor.h
+#include <nuttx/video/rgbcolors.h>
+#include <nuttx/nx/nxcursor.h>
 
 #if CONFIG_NXWIDGETS_BPP == 8
 #  define FGCOLOR1             RGB8WHITE
@@ -55,10 +55,13 @@ static const uint8_t g_arrow1Image[] =
   0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x00    /* Row 29 */
 }
 
-const struct cursor_image_s g_arrow1Cursor
+const struct nx_cursorimage_s g_arrow1Cursor =
 {
-  .width  = 30
-  .height = 30
+  .size =
+  {
+    .w = 30
+    .h = 30
+  },
   .color1 =
   {
     FGCOLOR1
