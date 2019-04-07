@@ -59,7 +59,6 @@ const struct cursor_image_s g_grabCursor
 {
   .width  = 25
   .height = 30
-  .stride = 7,
   .color1 =
   {
     FGCOLOR1

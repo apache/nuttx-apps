@@ -59,7 +59,6 @@ const struct cursor_image_s g_zoomOutCursor
 {
   .width  = 30
   .height = 30
-  .stride = 8,
   .color1 =
   {
     FGCOLOR1

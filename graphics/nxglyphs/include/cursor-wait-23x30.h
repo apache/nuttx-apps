@@ -59,7 +59,6 @@ const struct cursor_image_s g_waitCursor
 {
   .width  = 23
   .height = 30
-  .stride = 6,
   .color1 =
   {
     FGCOLOR1

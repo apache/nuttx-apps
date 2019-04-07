@@ -98,7 +98,6 @@ int main(int argc, char **argv, char **envp)
   unsigned char r;
   unsigned char g;
   unsigned char b;
-  unsigned int stride;
   uint32_t code;
   int i;
   int j;
@@ -178,16 +177,11 @@ int main(int argc, char **argv, char **envp)
       printf("    /* Row %d */\n", i);
     }
 
-  /* Stide assumes 2BPP */
-
-  stride = (2 * gimp_image.width + 7) >> 3;
-
   printf("}\n\n");
   printf("const struct cursor_image_s g_cursor\n");
   printf("{\n");
   printf("  .width  = %u\n", gimp_image.width);
   printf("  .height = %u\n", gimp_image.height);
-  printf("  .stride = %u,\n", stride);
   printf("  .color1 =\n");
   printf("  {\n");
   printf("    FGCOLOR1\n");
