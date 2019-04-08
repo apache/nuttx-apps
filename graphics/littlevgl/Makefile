@@ -41,12 +41,14 @@ ASRCS =
 CSRCS =
 VPATH =
 
+LVGL_DIR = .
+
 # LVGL Libraries
 
 -include ./lvgl/lv_core/lv_core.mk
 -include ./lvgl/lv_hal/lv_hal.mk
 -include ./lvgl/lv_objx/lv_objx.mk
--include ./lvgl/lv_misc/lv_fonts/lv_fonts.mk
+-include ./lvgl/lv_fonts/lv_fonts.mk
 -include ./lvgl/lv_misc/lv_misc.mk
 -include ./lvgl/lv_themes/lv_themes.mk
 -include ./lvgl/lv_draw/lv_draw.mk
@@ -57,12 +59,15 @@ WD := ${shell pwd | sed -e 's/ /\\ /g'}
 
 CONFIG_GRAPH_LVGL_URL ?= "https://littlevgl.com/download/"
 
-LVGL_VERSION ?= v5_1_1
-LVGL_TARBALL = lvgl_$(LVGL_VERSION).tar.gz
+LVGL_VERSION ?= v5_3
+LVGL_TARBALL = lvgl_$(LVGL_VERSION).zip
 WGET ?= wget
 
 LVGL_UNPACKNAME = lvgl
-UNPACK ?= tar -zxf
+UNPACK ?= unzip -o
+
+PATCH_FILES = lv_symbol_def.patch
+PATCH ?= patch -p0
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
@@ -77,7 +82,11 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
-$(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME) lvgl/lvgl.h
+$(LVGL_UNPACKNAME)/.patched: $(LVGL_UNPACKNAME) $(PATCH_FILES)
+	$(Q) cat $(PATCH_FILES) | $(PATCH)
+	$(Q) touch $(LVGL_UNPACKNAME)/.patched
+
+$(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME) $(LVGL_UNPACKNAME)/.patched lvgl/lvgl.h
 	@echo "CP: lvgl/lvgl.h"
 	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
 

@@ -47,7 +47,18 @@ STACKSIZE = $(CONFIG_EXAMPLES_LVGLDEMO_STACKSIZE)
 # LittleVGL demo Example
 
 ASRCS =
-CSRCS += fbdev.c demo.c img_bubble_pattern.c tp.c tp_cal.c
+CSRCS += fbdev.c tp.c tp_cal.c
+ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_SIMPLE),y)
+  CSRCS += demo.c
+  ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_WALLPAPER),y)
+    CSRCS += img_bubble_pattern.c
+  endif
+else ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_THEME_1),y)
+  CSRCS += lv_test_theme_1.c
+else ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_THEME_2),y)
+  CSRCS += lv_test_theme_2.c
+endif
+
 MAINSRC = lvgldemo.c
 
 CONFIG_EXAMPLES_LVGLDEMO_PROGNAME ?= lvgldemo$(EXEEXT)

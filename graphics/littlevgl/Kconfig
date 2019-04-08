@@ -69,6 +69,11 @@ config LV_VDB2_ADR
 	default 0
 	---help---
 		Similarly to LV_VDB_ADR. the second VDB address can be specified as well.
+
+config LV_VDB_TRUE_DOUBLE_BUFFERED
+	bool "Use true double buffering"
+	default 0
+
 endif   # LV_VDB_DOUBLE
 
 config LV_ANTIALIAS
@@ -127,6 +132,15 @@ config LV_COLOR_DEPTH
 	int "Color depth (8/16/24)"
 	default 16
 
+config LV_COLOR_16_SWAP
+	bool "Swap the 2 bytes of RGB565 color"
+	depends on LV_COLOR_DEPTH = 16
+	default 0
+
+config LV_COLOR_SCREEN_TRANSP
+	bool "Enable screen transparency."
+	default 0
+
 config LV_COLOR_TRANSP
 	hex "Chroma key color (pixels with this color will be transparent on images)"
 	default 0x00ff00
@@ -163,15 +177,56 @@ config USE_LV_GPU
 	default y
 
 config USE_LV_REAL_DRAW
-	bool "Enable function which draw directly to the frame buffer instead of VDB"
+	bool "Enable function which draws directly to the frame buffer instead of VDB"
 	default y
 
 config USE_LV_FILESYSTEM
 	bool "Enable filesystem (required for images, lv_img)"
 	default y
+
+config USE_LV_MULTI_LANG
+	int "Number of languages for labels to store (0 to disable)"
+	default 0
+
+endmenu
+
+menu "Log usage"
+
+config USE_LV_LOG
+	bool "Enable/disable the log module"
+	default n
+
+choice 
+	prompt "Log level"
+	depends on USE_LV_LOG
+	default	LV_LOG_LEVEL_WARN
+
+config LV_LOG_LEVEL_TRACE
+	bool "Trace"
+
+config LV_LOG_LEVEL_INFO
+	bool "Info"
+
+config LV_LOG_LEVEL_WARN
+	bool "Warn"
+
+config LV_LOG_LEVEL_ERROR
+	bool "Error"
+
+endchoice
+
+config LV_LOG_PRINTF
+	bool "Use printf() for logging"
+	depends on USE_LV_LOG
+	default y
+
 endmenu
 
 menu "Theme usage"
+
+config LV_THEME_LIVE_UPDATE
+	bool "Allow theme switching at run time. Uses 8..10 kB of RAM"
+	default n
 
 config USE_LV_THEME_TEMPL
 	bool "Use Template theme: just for test"
@@ -194,11 +249,15 @@ config USE_LV_THEME_MONO
 	default n
 	
 config USE_LV_THEME_MATERIAL
-	bool "Use Mono theme: material theme with bold colors"
+	bool "Use Material theme: material theme with bold colors"
 	default n
 	
 config USE_LV_THEME_ZEN
-	bool "Use Mono theme: light, peaceful theme"
+	bool "Use Zen theme: light, peaceful theme"
+	default n
+
+config USE_LV_THEME_NEMO
+	bool "Use Nemo theme: Water-like theme based on the movie 'Finding Nemo'"
 	default n
 
 endmenu
@@ -372,12 +431,53 @@ config USE_LV_FONT_SYMBOL_40
 		2: 2 bit-per-pixel
 		4: 4 bit-per-pixel
 		8: 8 bit-per-pixel
+
+config USE_LV_FONT_MONOSPACE_8
+	int "Monospace 8 px"
+	default 0
+	---help---
+		0: disable
+		1: 1 bit-per-pixel
+		2: 2 bit-per-pixel
+		4: 4 bit-per-pixel
+		8: 8 bit-per-pixel
+
+choice
+	prompt "Default Font"
+	default LV_FONT_DEFAULT_DEJAVU_20
+
+config LV_FONT_DEFAULT_DEJAVU_10
+	bool "Dejavu 10 px"
+	depends on USE_LV_FONT_DEJAVU_10 != 0
+
+config LV_FONT_DEFAULT_DEJAVU_20
+	bool "Dejavu 20 px"
+	depends on USE_LV_FONT_DEJAVU_20 != 0
+
+config LV_FONT_DEFAULT_DEJAVU_30
+	bool "Dejavu 30 px"
+	depends on USE_LV_FONT_DEJAVU_30 != 0
+
+config LV_FONT_DEFAULT_DEJAVU_40
+	bool "Dejavu 40 px"
+	depends on USE_LV_FONT_DEJAVU_40 != 0
+
+config LV_FONT_DEFAULT_MONOSPACE_8
+	bool "Monospace 8 px"
+	depends on USE_LV_FONT_MONOSPACE_8 != 0
+
+endchoice
+
 endmenu
 
 menu "Base object settings"
 
 config LV_OBJ_FREE_PTR
 	bool "Free pointer enable/disable"
+	default y
+
+config LV_OBJ_REALIGN
+	bool "Enable `lv_obj_realaign()` based on `lv_obj_align()` parameters"
 	default y
 
 endmenu
@@ -388,12 +488,31 @@ config USE_LV_LABEL
 	bool "Label usage"
 	default y
 
+config LV_LABEL_SCROLL_SPEED
+	int "Hor, or ver. scroll speed [px/sec] in 'LV_LABEL_LONG_SCROLL/ROLL' mode"
+	depends on USE_LV_LABEL
+	default 25
+
 config USE_LV_IMG
 	bool "Image usage"
 	default y
 
+config LV_IMG_CF_INDEXED
+	bool "Enable indexed (palette) images"
+	depends on USE_LV_IMG
+	default y
+
+config LV_IMG_CF_ALPHA
+	bool "Enable alpha indexed images"
+	depends on USE_LV_IMG
+	default y
+
 config USE_LV_LINE
 	bool "Line usage"
+	default y
+
+config USE_LV_ARC
+	bool "Arc usage"
 	default y
 
 config USE_LV_CONT
@@ -401,28 +520,62 @@ config USE_LV_CONT
 	default y
 
 config USE_LV_PAGE
+	depends on USE_LV_CONT
 	bool "Page usage"
 	default y
 
 config USE_LV_WIN
+	depends on USE_LV_PAGE && USE_LV_LABEL && USE_LV_IMG && USE_LV_BTN
 	bool "Window usage"
 	default y
 
 config USE_LV_TABVIEW
+	depends on USE_LV_PAGE && USE_LV_BTNM
 	bool "Tabview usage"
 	default y
+
+config LV_TABVIEW_ANIM_TIME
+	int "Time of slide animation [ms] (0: no animation)"
+	depends on USE_LV_TABVIEW
+	default 300
+
+config USE_LV_TILEVIEW
+	depends on USE_LV_CONT && USE_LV_PAGE
+	bool "Tileview usage"
+	default y
+
+config LV_TILEVIEW_ANIM_TIME
+	int "Time of slide animation [ms] (0: no animation)"
+	depends on USE_LV_TILEVIEW
+	default 300
 
 config USE_LV_BAR
 	bool "Bar usage"
 	default y
 
 config USE_LV_LMETER
+	depends on USE_LV_BAR
 	bool "Line meter usage"
+	default y
+
+config USE_LV_GAUGE
+	depends on USE_LV_BAR && USE_LV_LMETER
+	bool "Gauge usage"
 	default y
 
 config USE_LV_CHART
 	bool "Chart usage"
 	default y
+
+config USE_LV_TABLE
+	bool "Table usage"
+	depends on USE_LV_LABEL
+	default y
+
+config LV_TABLE_COL_MAX
+	int "Maximum number of table columns"
+	depends on USE_LV_TABLE
+	default 12
 
 config USE_LV_LED
 	bool "LED usage"
@@ -430,15 +583,77 @@ config USE_LV_LED
 
 config USE_LV_MBOX
 	bool "Messagebox usage"
+	depends on USE_LV_BTNM && USE_LV_LABEL
 	default y
 
 config USE_LV_TA
 	bool "Text area usage"
+	depends on USE_LV_LABEL && USE_LV_PAGE
 	default y
+
+config USE_LV_SPINBOX
+	bool "Spinbox usage"
+	depends on USE_LV_TA
+	default y
+
+config USE_LV_CALENDAR
+	bool "Calendar usage"
+	default y
+
+config USE_LV_PRELOAD
+	bool "Preload usage"
+	depends on USE_LV_ARC
+	default y
+
+config LV_PRELOAD_DEF_ARC_LENGTH
+	int "Degrees of arc length (default)"
+	range 0 360
+	depends on USE_LV_PRELOAD
+	default 60
+
+config LV_PRELOAD_DEF_SPIN_TIME
+	int "Time (ms) preload spins (default)"
+	depends on USE_LV_PRELOAD
+	default 1000
+
+choice
+	prompt "Default preload animation"
+	depends on USE_LV_PRELOAD
+	default LV_PRELOAD_DEF_ANIM_SPINNING_ARC
+
+config LV_PRELOAD_DEF_ANIM_SPINNING_ARC
+	bool "Spinning Arc"
+
+config LV_PRELOAD_DEF_ANIM_FILLSPIN_ARC
+	bool "Fillspin Arc"	
+
+endchoice
+
+config USE_LV_CANVAS
+	bool "Canvas usage"
+	depends on USE_LV_IMG
+	default n
 
 config USE_LV_BTN
 	bool "Button usage"
+	depends on USE_LV_CONT
 	default y
+
+config LV_BTN_INK_EFFECT
+	bool "Enable button-state animations"
+	depends on USE_LV_BTN && USE_LV_ANIMATION
+	default y
+
+config USE_LV_IMGBTN
+	depends on USE_LV_BTN
+	bool "Image button usage"
+	default y
+
+config LV_IMGBTN_TILED
+	bool "Tiled image button"
+	depends on USE_LV_IMGBTN
+	---help---
+	The imgbtn requires left, mid and right parts and the width can be set freely
 
 config USE_LV_BTNM
 	bool "Button matrix usage"
@@ -446,30 +661,37 @@ config USE_LV_BTNM
 
 config USE_LV_KB
 	bool "Keyboard"
+	depends on USE_LV_BTNM
 	default y
 
 config USE_LV_CB
 	bool "Chekbox usage"
+	depends on USE_LV_BTN
 	default y
 
 config USE_LV_SW
 	bool "Switch usage"
+	depends on USE_LV_BTN
 	default y
 
 config USE_LV_LIST
 	bool "List usage"
+	depends on USE_LV_BTN && USE_LV_PAGE
 	default y
 
 config USE_LV_DDLIST
 	bool "Drop down list usage"
+	depends on USE_LV_PAGE && USE_LV_LABEL
 	default y
 
 config USE_LV_ROLLER
 	bool "Roller usage"
+	depends on USE_LV_DDLIST
 	default y
 
 config USE_LV_SLIDER
 	bool "Slider usage"
+	depends on USE_LV_BAR
 	default y
 
 endmenu

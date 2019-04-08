@@ -54,8 +54,11 @@
 
 #define LV_MEM_CUSTOM       0
 #define LV_MEM_SIZE         CONFIG_LV_MEM_SIZE
+#define LV_MEM_ADR          0
 #define LV_MEM_AUTO_DEFRAG  1               /* Automatically defrag on free */
 #define LV_MEM_ATTR
+
+#define LV_ENABLE_GC        0
 
 /* Graphical settings */
 
@@ -93,7 +96,13 @@
  * (0: allocate into RAM)
  */
 
-#define LV_VDB2_ADR         CONFIG_VDB2_ADR
+#define LV_VDB2_ADR         CONFIG_LV_VDB2_ADR
+
+#ifdef CONFIG_LV_VDB_TRUE_DOUBLE_BUFFERED
+#  define LV_VDB_TRUE_DOUBLE_BUFFERED  CONFIG_LV_VDB_TRUE_DOUBLE_BUFFERED
+#else
+#  define LV_VDB_TRUE_DOUBLE_BUFFERED  0
+#endif
 
 /* Enable anti aliasing
  */
@@ -145,6 +154,19 @@
  */
 
 #define LV_COLOR_DEPTH       CONFIG_LV_COLOR_DEPTH
+
+#ifdef CONFIG_LV_COLOR_16_SWAP
+#  define LV_COLOR_16_SWAP   CONFIG_LV_COLOR_16_SWAP
+#else
+#  define LV_COLOR_16_SWAP   0
+#endif
+
+#ifdef CONFIG_LV_COLOR_SCREEN_TRANSP
+#  define LV_COLOR_SCREEN_TRANSP  CONFIG_LV_COLOR_SCREEN_TRANSP
+#else
+#  define LV_COLOR_SCREEN_TRANSP  0
+#endif
+
 #define LV_COLOR_TRANSP      LV_COLOR_HEX(CONFIG_LV_COLOR_TRANSP)
 
 /* Text settings
@@ -192,15 +214,55 @@
 #  define USE_LV_REAL_DRAW   0
 #endif
 
-
 #ifdef CONFIG_USE_LV_FILESYSTEM
 #  define USE_LV_FILESYSTEM  CONFIG_USE_LV_FILESYSTEM
 #else
 #  define USE_LV_FILESYSTEM  0
 #endif
 
+/* Number of languages for labels to store (0: to disable this feature) */
+
+#ifdef CONFIG_USE_LV_MULTI_LANG
+#  define USE_LV_MULTI_LANG  CONFIG_USE_LV_MULTI_LANG
+#else
+#  define USE_LV_MULTI_LANG  0
+#endif
+
+/* 1: use a custom tick source (removing the need to manually update the
+ * tick with `lv_tick_inc`)
+ */
+
+#define LV_TICK_CUSTOM     0
+
+/* LOG USAGE*/
+
+#ifdef CONFIG_USE_LV_LOG
+#  define USE_LV_LOG         CONFIG_USE_LV_LOG
+#  if   defined(CONFIG_LV_LOG_LEVEL_TRACE)
+#    define LV_LOG_LEVEL     LV_LOG_LEVEL_TRACE
+#  elif defined(CONFIG_LV_LOG_LEVEL_INFO)
+#    define LV_LOG_LEVEL     LV_LOG_LEVEL_INFO
+#  elif defined(CONFIG_LV_LOG_LEVEL_WARN)
+#    define LV_LOG_LEVEL     LV_LOG_LEVEL_WARN
+#  elif defined(CONFIG_LV_LOG_LEVEL_ERROR)
+#    define LV_LOG_LEVEL     LV_LOG_LEVEL_ERROR
+#  else
+#    error "Unknown log level selected"
+#  endif
+#  define LV_LOG_PRINTF      1      /* TODO: find a NuttX way to do logging */
+#else
+#  define USE_LV_LOG         0
+#  define LV_LOG_LEVEL       0
+#  define LV_LOG_PRINTF      0
+#endif
+
 /* THEME USAGE */
 /* Just for test */
+#ifdef CONFIG_LV_THEME_LIVE_UPDATE
+#  define LV_THEME_LIVE_UPDATE   CONFIG_LV_THEME_LIVE_UPDATE
+#else
+#  define LV_THEME_LIVE_UPDATE   0
+#endif
 
 #ifdef CONFIG_USE_LV_THEME_TEMPL
 #  define USE_LV_THEME_TEMPL     CONFIG_USE_LV_THEME_TEMPL
@@ -256,13 +318,18 @@
 #  define USE_LV_THEME_ZEN       0
 #endif
 
+/* Water-like theme based on the movie "Finding Nemo" */
+
+#ifdef CONFIG_USE_LV_THEME_NEMO
+#  define USE_LV_THEME_NEMO      CONFIG_USE_LV_THEME_NEMO
+#else
+#  define USE_LV_THEME_NEMO      0
+#endif
+
 /* FONT USAGE */
 
 #ifdef CONFIG_USE_LV_FONT_DEJAVU_10
 #  define USE_LV_FONT_DEJAVU_10             CONFIG_USE_LV_FONT_DEJAVU_10
-#  if USE_LV_FONT_DEJAVU_10
-#    define LV_FONT_DEFAULT                 &lv_font_dejavu_10
-#  endif
 #else
 #  define USE_LV_FONT_DEJAVU_10             0
 #endif
@@ -289,9 +356,6 @@
 
 #ifdef CONFIG_USE_LV_FONT_DEJAVU_20
 #  define USE_LV_FONT_DEJAVU_20             CONFIG_USE_LV_FONT_DEJAVU_20
-#  if USE_LV_FONT_DEJAVU_20
-#    define LV_FONT_DEFAULT                 &lv_font_dejavu_20
-#  endif
 #else
 #  define USE_LV_FONT_DEJAVU_20             0
 #endif
@@ -318,11 +382,6 @@
 
 #ifdef CONFIG_USE_LV_FONT_DEJAVU_30
 #  define USE_LV_FONT_DEJAVU_30             CONFIG_USE_LV_FONT_DEJAVU_30
-#  if USE_LV_FONT_DEJAVU_30
-#    ifndef LV_FONT_DEFAULT
-#      define   LV_FONT_DEFAULT               &lv_font_dejavu_30
-#    endif
-#  endif
 #else
 #  define USE_LV_FONT_DEJAVU_30             0
 #endif
@@ -348,11 +407,6 @@
 /*Size 40*/
 #ifdef CONFIG_USE_LV_FONT_DEJAVU_40
 #  define USE_LV_FONT_DEJAVU_40             CONFIG_USE_LV_FONT_DEJAVU_40
-#  if USE_LV_FONT_DEJAVU_40
-#    ifndef LV_FONT_DEFAULT
-#      define LV_FONT_DEFAULT               &lv_font_dejavu_40
-#    endif
-#  endif
 #else
 #  define USE_LV_FONT_DEJAVU_40             0
 #endif
@@ -375,13 +429,33 @@
 #  define USE_LV_FONT_DEJAVU_40_CYRILLIC    0
 #endif
 
+#ifdef CONFIG_USE_LV_FONT_MONOSPACE_8
+#  define USE_LV_FONT_MONOSPACE_8          CONFIG_USE_LV_FONT_MONOSPACE_8
+#else
+#  define USE_LV_FONT_MONOSPACE_8          0
+#endif
+
+#if   defined(CONFIG_LV_FONT_DEFAULT_DEJAVU_10)
+#  define LV_FONT_DEFAULT       &lv_font_dejavu_10
+#elif defined(CONFIG_LV_FONT_DEFAULT_DEJAVU_20)
+#  define LV_FONT_DEFAULT       &lv_font_dejavu_20
+#elif defined(CONFIG_LV_FONT_DEFAULT_DEJAVU_30)
+#  define LV_FONT_DEFAULT       &lv_font_dejavu_30
+#elif defined(CONFIG_LV_FONT_DEFAULT_DEJAVU_40)
+#  define LV_FONT_DEFAULT       &lv_font_dejavu_40
+#elif defined(CONFIG_LV_FONT_DEFAULT_MONOSPACE_8)
+#  define LV_FONT_DEFAULT       &lv_font_monospace_8
+#else
+#  error "At least one font must be defined and selected as the default font"
+#endif
+
 /* LV_OBJ SETTINGS
  *
  * LV_OBJ_FREE_NUM_TYPE - Type of free number attribute (comment out disable free number)
- * LV_OBJ_FREE_PTR      - Enable the free pointer attribut
+ * LV_OBJ_FREE_PTR      - Enable the free pointer attribute
  */
 
-#define LV_OBJ_FREE_NUM_TYPE int
+#define LV_OBJ_FREE_NUM_TYPE uint32_t
 
 #ifdef CONFIG_LV_OBJ_FREE_PTR
 #  define LV_OBJ_FREE_PTR    CONFIG_LV_OBJ_FREE_PTR
@@ -389,19 +463,24 @@
 #  define LV_OBJ_FREE_PTR    0
 #endif
 
+#ifdef CONFIG_LV_OBJ_REALIGN
+#  define LV_OBJ_REALIGN    CONFIG_LV_OBJ_REALIGN
+#else
+#  define LV_OBJ_REALIGN    0
+#endif
+
 /* LV OBJ X USAGE */
 /* Simple object */
-
-#ifdef CONFIG_USE_LV_LABEL
-#  define USE_LV_LABEL       CONFIG_USE_LV_LABEL
-#else
-#  define USE_LV_LABEL       0
-#endif
 
 /* Label (dependencies: - */
 
 #ifdef CONFIG_USE_LV_LABEL
 #  define USE_LV_LABEL       CONFIG_USE_LV_LABEL
+#  ifdef CONFIG_LV_LABEL_SCROLL_SPEED
+#    define LV_LABEL_SCROLL_SPEED  CONFIG_LV_LABEL_SCROLL_SPEED
+#  else
+#    define LV_LABEL_SCROLL_SPEED  25
+#  endif
 #else
 #  define USE_LV_LABEL       0
 #endif
@@ -416,12 +495,30 @@
 #  define USE_LV_IMG         0
 #endif
 
+#ifdef CONFIG_LV_IMG_CF_INDEXED
+#  define LV_IMG_CF_INDEXED  CONFIG_LV_IMG_CF_INDEXED
+#else
+#  define LV_IMG_CF_INDEXED  0
+#endif
+
+#ifdef CONFIG_LV_IMG_CF_ALPHA
+#  define LV_IMG_CF_ALPHA    CONFIG_LV_IMG_CF_ALPHA
+#else
+#  define LV_IMG_CF_ALPHA    0
+#endif
+
 /* Line (dependencies: - */
 
 #ifdef CONFIG_USE_LV_LINE
 #  define USE_LV_LINE        CONFIG_USE_LV_LINE
 #else
 #  define USE_LV_LINE        0
+#endif
+
+#ifdef CONFIG_USE_LV_ARC
+#  define USE_LV_ARC         CONFIG_USE_LV_ARC
+#else
+#  define USE_LV_ARC         0
 #endif
 
 /* Container objects */
@@ -453,8 +550,27 @@
 
 #ifdef CONFIG_USE_LV_TABVIEW
 #  define USE_LV_TABVIEW     CONFIG_USE_LV_TABVIEW
+#  ifdef CONFIG_LV_TABVIEW_ANIM_TIME
+#    define LV_TABVIEW_ANIM_TIME   CONFIG_LV_TABVIEW_ANIM_TIME
+#  else
+#    define LV_TABVIEW_ANIM_TIME   0
+#  endif
 #else
 #  define USE_LV_TABVIEW     0
+#
+#endif
+
+/* Titleview (dependencies: lv_page) */
+
+#ifdef CONFIG_USE_LV_TILEVIEW
+#  define USE_LV_TILEVIEW     CONFIG_USE_LV_TILEVIEW
+#  ifdef CONFIG_LV_TILEVIEW_ANIM_TIME
+#    define LV_TILEVIEW_ANIM_TIME   CONFIG_LV_TILEVIEW_ANIM_TIME
+#  else
+#    define LV_TILEVIEW_ANIM_TIME   0
+#  endif
+#else
+#  define USE_LV_TILEVIEW     0
 #endif
 
 /* Data visualizer objects */
@@ -490,6 +606,19 @@
 #  define USE_LV_CHART       0
 #endif
 
+/* Table (dependencies: lv_label) */
+
+#ifdef CONFIG_USE_LV_TABLE
+#  define USE_LV_TABLE       CONFIG_USE_LV_TABLE
+#  if defined(CONFIG_LV_TABLE_COL_MAX) && CONFIG_LV_TABLE_COL_MAX > 0
+#    define LV_TABLE_COL_MAX CONFIG_LV_TABLE_COL_MAX
+#  else
+#    error "LV_TABLE_COL_MAX must be greater than 0"
+#  endif
+#else
+#  define USE_LV_TABLE       0
+#endif
+
 /* LED (dependencies: -) */
 
 #ifdef CONFIG_USE_LV_LED
@@ -514,7 +643,47 @@
 #  define USE_LV_TA          0
 #endif
 
+/* Spinbox (dependencies: lv_ta) */
+
+#ifdef CONFIG_USE_LV_SPINBOX
+#  define USE_LV_SPINBOX     CONFIG_USE_LV_SPINBOX
+#else
+#  define USE_LV_SPINBOX     0
+#endif
+
+/* Calendar (dependencies: -) */
+
+#ifdef CONFIG_USE_LV_CALENDAR
+#  define USE_LV_CALENDAR    CONFIG_USE_LV_CALENDAR
+#else
+#  define USE_LV_CALENDAR    0
+#endif
+
+/* Preload (dependencies: lv_arc) */
+
+#ifdef CONFIG_USE_LV_PRELOAD
+#  define USE_LV_PRELOAD              CONFIG_USE_LV_PRELOAD
+#  define LV_PRELOAD_DEF_ARC_LENGTH   CONFIG_LV_PRELOAD_DEF_ARC_LENGTH
+#  define LV_PRELOAD_DEF_SPIN_TIME    CONFIG_LV_PRELOAD_DEF_SPIN_TIME
+#  ifdef CONFIG_LV_PRELOAD_DEF_ANIM_SPINNING_ARC
+#    define LV_PRELOAD_DEF_ANIM       LV_PRELOAD_TYPE_SPINNING_ARC
+#  elif  CONFIG_LV_PRELOAD-DEF_ANIM_FILLSPIN_ARC
+#    define LV_PRELOAD_DEF_ANIM       LV_PRELOAD_TYPE_FILLSPIN_ARC
+#  endif
+#else
+#  define USE_LV_PRELOAD     0
+#endif
+
+/*Canvas (dependencies: lv_img)*/
+
+#ifdef CONFIG_USE_LV_CANVAS
+#  define USE_LV_CANVAS      CONFIG_USE_LV_CANVAS
+#else
+#  define USE_LV_CANVAS      0
+#endif
+
 /* User input objects */
+
 /* Button (dependencies: lv_cont */
 
 #ifdef CONFIG_USE_LV_BTN
@@ -523,8 +692,28 @@
 #  define USE_LV_BTN         0
 #endif
 
-/* Button matrix (dependencies: -) */
+/* Enable button-state animations - draw a circle on click (dependencies: USE_LV_ANIMATION) */
 
+#ifdef CONFIG_LV_BTN_INK_EFFECT
+#  define LV_BTN_INK_EFFECT  CONFIG_LV_BTN_INK_EFFECT
+#else
+#  define LV_BTN_INK_EFFECT  0
+#endif
+
+/* Image Button (dependencies: lv_btn */
+
+#ifdef CONFIG_USE_LV_IMGBTN
+#  define USE_LV_IMGBTN      CONFIG_USE_LV_IMGBTN
+#  ifdef CONFIG_LV_IMGBTN_TILED
+#    define LV_IMGBTN_TILED  CONFIG_LV_IMGBTN_TILED
+#  else
+#    define LV_IMGBTN_TILED  0
+#  endif
+#else
+#  define CONFIG)USE_LV_IMGBTN 0
+#endif
+
+/* Button matrix (dependencies: -) */ 
 #ifdef CONFIG_USE_LV_BTNM
 #  define USE_LV_BTNM        CONFIG_USE_LV_BTNM
 #else
@@ -587,6 +776,6 @@
 #  define USE_LV_SLIDER      CONFIG_USE_LV_SLIDER
 #else
 #  define USE_LV_SLIDER      0
-#endif
+#endif 
 
 #endif /*__APPS_GRAPHICS_LITTLEVGL_LV_CONF_H*/

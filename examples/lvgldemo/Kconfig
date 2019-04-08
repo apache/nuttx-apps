@@ -11,9 +11,76 @@ menuconfig EXAMPLES_LVGLDEMO
 
 if EXAMPLES_LVGLDEMO
 
+choice
+	prompt "Select a demo application"
+	default EXAMPLES_LVGLDEMO_SIMPLE
+
+config EXAMPLES_LVGLDEMO_SIMPLE
+	bool "Simple"
+
+config EXAMPLES_LVGLDEMO_THEME_1
+	bool "Single Theme"
+	---help---
+		Create a test screen with a lot objects and apply
+		the given theme on them
+
+config EXAMPLES_LVGLDEMO_THEME_2
+	bool "Multiple Themes"
+	select LV_THEME_LIVE_UPDATE
+	---help---
+		Switch themes on the fly to demonstrate each different
+		themes. Configure multiple themes in the littlevgl
+		settings to use.
+
+endchoice
+
 config EXAMPLES_LVGLDEMO_WALLPAPER
 	bool "Use wallpaper"
+	depends on EXAMPLES_LVGLDEMO_SIMPLE
 	default y
+
+choice
+	prompt "Selected Theme"
+	depends on EXAMPLES_LVGLDEMO_THEME_1
+	default EXAMPLES_LVGLDEMO_THEME_1_DEFAULT
+
+config EXAMPLES_LVGLDEMO_THEME_1_DEFAULT
+	bool "Default Theme"
+	select USE_LV_THEME_DEFAULT
+
+config EXAMPLES_LVGLDEMO_THEME_1_ALIEN
+	bool "Alien"
+	select USE_LV_THEME_ALIEN
+
+config EXAMPLES_LVGLDEMO_THEME_1_NIGHT
+	bool "Night"
+	select USE_LV_THEME_NIGHT
+
+config EXAMPLES_LVGLDEMO_THEME_1_MONO
+	bool "Mono"
+	select USE_LV_THEME_MONO
+
+config EXAMPLES_LVGLDEMO_THEME_1_MATERIAL
+	bool "Material"
+	select USE_LV_THEME_MATERIAL
+
+config EXAMPLES_LVGLDEMO_THEME_1_ZEN
+	bool "Zen"
+	select USE_LV_THEME_ZEN
+
+config EXAMPLES_LVGLDEMO_THEME_1_NEMO
+	bool "Nemo"
+	select USE_LV_THEME_NEMO
+
+endchoice
+
+config EXAMPLES_LVGLDEMO_THEME_1_HUE
+	int "Theme hue"
+	range 0 360
+	depends on EXAMPLES_LVGLDEMO_THEME_1
+	default 30
+	---help---
+		Choose a hue color from the HSV color space
 
 config EXAMPLES_LVGLDEMO_PRIORITY
 	int "lvgl task priority"
