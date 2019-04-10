@@ -108,17 +108,17 @@ int main(int argc, char **argv, char **envp)
   printf("#include <nuttx/nx/nxcursor.h>\n\n");
 
   printf("#if CONFIG_NXWIDGETS_BPP == 8\n");
-  printf("#  define FGCOLOR1             RGB8WHITE\n");
-  printf("#  define FGCOLOR2             RGB8BLACK\n");
-  printf("#  define FGCOLOR3             RGB8GRAY\n");
+  printf("#  define FGCOLOR1             RGB8_WHITE\n");
+  printf("#  define FGCOLOR2             RGB8_BLACK\n");
+  printf("#  define FGCOLOR3             RGB8_GRAY\n");
   printf("#elif CONFIG_NXWIDGETS_BPP == 16\n");
-  printf("#  define FGCOLOR1             RGB16WHITE\n");
-  printf("#  define FGCOLOR2             RGB18BLACK\n");
-  printf("#  define FGCOLOR3             RGB16GRAY\n");
+  printf("#  define FGCOLOR1             RGB16_WHITE\n");
+  printf("#  define FGCOLOR2             RGB16_BLACK\n");
+  printf("#  define FGCOLOR3             RGB16_GRAY\n");
   printf("#elif CONFIG_NXWIDGETS_BPP == 24 || CONFIG_NXWIDGETS_BPP == 32\n");
-  printf("#  define FGCOLOR1             RGB24WHITE\n");
-  printf("#  define FGCOLOR2             RGB24BLACK\n");
-  printf("#  define FGCOLOR3             RGB24GRAY\n");
+  printf("#  define FGCOLOR1             RGB24_WHITE\n");
+  printf("#  define FGCOLOR2             RGB24_BLACK\n");
+  printf("#  define FGCOLOR3             RGB24_GRAY\n");
   printf("#else\n");
   printf("#  error \"Pixel depth not supported (CONFIG_NXWIDGETS_BPP)\"\n");
   printf("#endif\n\n");
@@ -171,18 +171,18 @@ int main(int argc, char **argv, char **envp)
               code |= (uint32_t)rgb2gray2(r, g, b);
             }
 
-          printf(" 0x%02x", code);
+          printf(" 0x%02x,", code);
         }
 
       printf("    /* Row %d */\n", i);
     }
 
-  printf("}\n\n");
+  printf("};\n\n");
   printf("const struct nx_cursorimage_s g_cursor =\n");
   printf("{\n");
   printf("  .size =\n");
   printf("  {\n");
-  printf("    .w = %u\n", gimp_image.width);
+  printf("    .w = %u,\n", gimp_image.width);
   printf("    .h = %u\n", gimp_image.height);
   printf("  },\n");
   printf("  .color1 =\n");
