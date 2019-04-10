@@ -523,10 +523,12 @@ static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
   st->cursor.state     = PFWB_CURSOR_MOVING;
   st->cursor.countdown = CURSOR_MOVING_DELAY;
   st->cursor.blinktime = 0;
-  st->cursor.xpos      = pos->x;
-  st->cursor.ypos      = pos->y;
-  st->cursor.deltax    = deltax;
-  st->cursor.deltay    = deltay;
+  st->cursor.xmax      = itob16(st->xres - g_arrow1Cursor.size.w - 1);
+  st->cursor.ymax      = itob16(st->yres - g_arrow1Cursor.size.h - 1);
+  st->cursor.xpos      = itob16(pos->x);
+  st->cursor.ypos      = itob16(pos->y);
+  st->cursor.deltax    = dtob16(deltax);
+  st->cursor.deltay    = dtob16(deltay);
 
   /* Set the cursor image */
 
@@ -552,7 +554,7 @@ static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
 
   /* Enable the cursor */
 
-  ret = nxcursor_enable(st->hnx, false);
+  ret = nxcursor_enable(st->hnx, true);
   if (ret < 0)
     {
       printf("pwfb_configure_cursor: ERROR: "
@@ -738,7 +740,7 @@ int pwfb_main(int argc, char *argv[])
   /* Configure the software cursor */
 
   pos.x = wstate.xres / 2;
-  pos.x = wstate.yres / 2;
+  pos.y = wstate.yres / 2;
 
   if (!pwfb_configure_cursor(&wstate, &pos, 2.900, -5.253))
     {
