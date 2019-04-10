@@ -12,7 +12,18 @@ config EXAMPLES_PWFB
 	---help---
 		Enable the NX per-window framebuffer example
 
+		WARNING:  Verbose graphics debug output interferes with this
+		test because it introduces some weird timing.  The test probably
+		should use nx_synchronize() to keep syncrhonization even with the
+		added delays.
+
 if EXAMPLES_PWFB
+
+config EXAMPLES_PWFB_NWINDOWS
+	int "Number of Windows"
+	default 3
+	range 0 3 if NX_SWCURSOR
+	range 1 3 if !NX_SWCURSOR
 
 config EXAMPLES_PWFB_DEFAULT_COLORS
 	bool "Use Default Colors"

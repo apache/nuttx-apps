@@ -57,6 +57,7 @@
  * Name: pwfb_move_window
  ****************************************************************************/
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 0
 static inline bool pwfb_move_window(FAR struct pwfb_state_s *st, int wndx)
 {
   FAR struct pwfb_window_s *wndo = &st->wndo[wndx];
@@ -174,6 +175,7 @@ static inline bool pwfb_move_window(FAR struct pwfb_state_s *st, int wndx)
 
   return true;
 }
+#endif
 
 /****************************************************************************
  * Name: pwfb_move_cursor
@@ -334,11 +336,12 @@ static inline bool pwfb_move_cursor(FAR struct pwfb_state_s *st)
 
 bool pwfb_motion(FAR struct pwfb_state_s *st)
 {
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 0
   int wndx;
 
   /* Move each window */
 
-  for (wndx = 0; wndx < 3; wndx++)
+  for (wndx = 0; wndx < CONFIG_EXAMPLES_PWFB_NWINDOWS; wndx++)
     {
       if (!pwfb_move_window(st, wndx))
         {
@@ -347,6 +350,7 @@ bool pwfb_motion(FAR struct pwfb_state_s *st)
                  wndx + 1);
         }
     }
+#endif
 
 #ifdef CONFIG_NX_SWCURSOR
   /* Move the cursor */

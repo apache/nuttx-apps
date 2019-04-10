@@ -60,19 +60,28 @@
 /* Required NX Server Settings */
 
 #ifndef CONFIG_NX
-#  error "NX is not enabled (CONFIG_NX)"
+#  error NX is not enabled (CONFIG_NX)
 #endif
 
 #ifdef CONFIG_DISABLE_MQUEUE
-#  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
+#  error The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)
 #endif
 
 #ifdef CONFIG_DISABLE_PTHREAD
-#  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
+#  error This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)
 #endif
 
 #ifndef CONFIG_NX_BLOCKING
-#  error "This example depends on CONFIG_NX_BLOCKING"
+#  error This example depends on CONFIG_NX_BLOCKING
+#endif
+
+/* WARNING:  Verbose graphics debug output interferes with this test because
+ * it introduces some weird timing.  The test probably should use
+ * nx_synchronize() to keep syncrhonization even with the added delays.
+ */
+
+#ifdef CONFIG_DEBUG_GRAPHICS_INFO
+#  warning Verbose graphics debug output interferes with this test.
 #endif
 
 /* Task priorities */
@@ -250,7 +259,7 @@ struct pwfb_state_s
 
   /* Window-specific state */
 
-  struct pwfb_window_s wndo[3];
+  struct pwfb_window_s wndo[CONFIG_EXAMPLES_PWFB_NWINDOWS];
 };
 
 /****************************************************************************

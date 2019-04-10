@@ -74,9 +74,15 @@
  * Private Data
  ****************************************************************************/
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 0
 static const char g_wndomsg1[] = "NuttX is cool!";
+#endif
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 1
 static const char g_wndomsg2[] = "NuttX is fun!";
+#endif
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 2
 static const char g_wndomsg3[] = "NuttX is groovy!";
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -425,7 +431,7 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
    */
 
   /* Create a bounding box.  This is actually too large because it does not
-   * account for the boarder widths.  However, NX should clip the fill to
+   * account for the border widths.  However, NX should clip the fill to
    * stay within the frame.
    */
 
@@ -473,7 +479,10 @@ static bool pwfb_configure_window(FAR struct pwfb_state_s *st, int wndx,
         }
     }
 
-  /* Set up for motion */
+  /* Set up for motion.
+   * REVISIT:  The vertical limits, xmax andymax, seems to be off
+   * by about the height of the toolbar.
+   */
 
   wndo->xmax   = itob16(st->xres - size->w - 1);
   wndo->ymax   = itob16(st->yres - size->h - 1);
@@ -620,6 +629,7 @@ int pwfb_main(int argc, char *argv[])
       goto errout_with_fontcache;
     }
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 0
   /* Open window 1 */
 
   printf("pwfb_main: Open window 1\n");
@@ -662,7 +672,9 @@ int pwfb_main(int argc, char *argv[])
              "pwfb_configure_window failed for window 1\n");
       goto errout_with_hwnd1;
     }
+#endif
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 1
   /* Open window 2 */
 
   printf("pwfb_main: Open window 2\n");
@@ -690,7 +702,9 @@ int pwfb_main(int argc, char *argv[])
              "pwfb_configure_window failed for window 2\n");
       goto errout_with_hwnd2;
     }
+#endif
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 2
   /* Open window 3 */
 
   printf("pwfb_main: Open window 3\n");
@@ -718,6 +732,7 @@ int pwfb_main(int argc, char *argv[])
              "pwfb_configure_window failed for window 2\n");
       goto errout_with_hwnd3;
     }
+#endif
 
 #ifdef CONFIG_NX_SWCURSOR
   /* Configure the software cursor */
@@ -729,7 +744,7 @@ int pwfb_main(int argc, char *argv[])
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_cursor failed for window 2\n");
-      goto errout_with_hwnd3;
+      goto errout_with_hwnds;
     }
 #endif
 
@@ -753,8 +768,11 @@ errout_with_cursor:
   /* Disable the cursor */
 
   (void)nxcursor_enable(wstate.hnx, false);
+
+errout_with_hwnds:
 #endif
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 2
   /* Close window 3 */
 
 errout_with_hwnd3:
@@ -765,7 +783,9 @@ errout_with_hwnd3:
     {
       printf("pwfb_main: ERROR: nxtk_closewindow failed: %d\n", errno);
     }
+#endif
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 1
   /* Close window 2 */
 
 errout_with_hwnd2:
@@ -776,9 +796,11 @@ errout_with_hwnd2:
     {
       printf("pwfb_main: ERROR: nxtk_closewindow failed: %d\n", errno);
     }
+#endif
 
   /* Close window1 */
 
+#if CONFIG_EXAMPLES_PWFB_NWINDOWS > 0
 errout_with_hwnd1:
   printf("pwfb_main: Close window #1\n");
 
@@ -787,6 +809,7 @@ errout_with_hwnd1:
     {
       printf("pwfb_main: ERROR: nxtk_closewindow failed: %d\n", errno);
     }
+#endif
 
 errout_with_fontcache:
   /* Release the font cache */
