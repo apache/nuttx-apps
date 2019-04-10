@@ -35,7 +35,10 @@
 
 -include $(TOPDIR)/Make.defs
 
-# NuttX NX Graphics Example.
+# NuttX per-window frame buffer graphics example.
+
+NXGLYPHS = $(APPDIR)$(DELIM)graphics$(DELIM)nxglyphs
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(NXGLYPHS)$(DELIM)include"}
 
 ASRCS =
 CSRCS = pwfb_events.c pwfb_motion.c
@@ -44,7 +47,7 @@ MAINSRC = pwfb_main.c
 CONFIG_EXAMPLES_PWFB_PROGNAME ?= pwfb$(EXEEXT)
 PROGNAME = $(CONFIG_EXAMPLES_PWFB_PROGNAME)
 
-# NX built-in application info
+# Per-Window frame buffer built-in application info
 
 CONFIG_EXAMPLES_PWFB_CLIENT_PRIO ?= SCHED_PRIORITY_DEFAULT
 CONFIG_EXAMPLES_PWFB_CLIENT_STACKSIZE ?= 2048

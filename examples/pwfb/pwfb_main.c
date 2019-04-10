@@ -62,6 +62,12 @@
 #include <nuttx/nx/nxbe.h>
 #include <nuttx/nx/nxfonts.h>
 
+#ifdef CONFIG_NX_SWCURSOR
+#  undef  CONFIG_NXWIDGETS_BPP
+#  define CONFIG_NXWIDGETS_BPP CONFIG_EXAMPLES_PWFB_BPP
+#  include "cursor-arrow1-30x30.h"
+#endif
+
 #include "pwfb_internal.h"
 
 /****************************************************************************
@@ -493,6 +499,64 @@ errout_with_hwnd:
 }
 
 /****************************************************************************
+ * Name: pwfb_configure_cursor
+ ****************************************************************************/
+
+#ifdef CONFIG_NX_SWCURSOR
+static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
+                                  FAR struct nxgl_point_s *pos,
+                                  double deltax, double deltay)
+{
+  int ret;
+
+  /* Initialize the data structure */
+
+  st->cursor.state     = PFWB_CURSOR_MOVING;
+  st->cursor.countdown = CURSOR_MOVING_DELAY;
+  st->cursor.blinktime = 0;
+  st->cursor.xpos      = pos->x;
+  st->cursor.ypos      = pos->y;
+  st->cursor.deltax    = deltax;
+  st->cursor.deltay    = deltay;
+
+  /* Set the cursor image */
+
+  ret = nxcursor_setimage(st->hnx, &g_arrow1Cursor);
+  if (ret < 0)
+    {
+      printf("pwfb_configure_cursor: ERROR: "
+             "nxcursor_setimage failed: %d\n",
+             errno);
+      return false;
+    }
+
+  /* Set the cursor position */
+
+  ret = nxcursor_setposition(st->hnx, pos);
+  if (ret < 0)
+    {
+      printf("pwfb_configure_cursor: ERROR: "
+             "nxcursor_setposition failed: %d\n",
+             errno);
+      return false;
+    }
+
+  /* Enable the cursor */
+
+  ret = nxcursor_enable(st->hnx, false);
+  if (ret < 0)
+    {
+      printf("pwfb_configure_cursor: ERROR: "
+             "nxcursor_enable failed: %d\n",
+             errno);
+      return false;
+    }
+
+  return true;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -655,6 +719,20 @@ int pwfb_main(int argc, char *argv[])
       goto errout_with_hwnd3;
     }
 
+#ifdef CONFIG_NX_SWCURSOR
+  /* Configure the software cursor */
+
+  pos.x = wstate.xres / 2;
+  pos.x = wstate.yres / 2;
+
+  if (!pwfb_configure_cursor(&wstate, &pos, 2.900, -5.253))
+    {
+      printf("pwfb_main: ERROR: "
+             "pwfb_configure_cursor failed for window 2\n");
+      goto errout_with_hwnd3;
+    }
+#endif
+
   /* Now loop animating the windows */
 
   for (; ; )
@@ -664,11 +742,18 @@ int pwfb_main(int argc, char *argv[])
         {
           printf("pwfb_main: ERROR:"
                  "pwfb_motion failed\n");
-          goto errout_with_hwnd3;
+          goto errout_with_cursor;
         }
     }
 
   errcode = EXIT_SUCCESS;
+
+errout_with_cursor:
+#ifdef CONFIG_NX_SWCURSOR
+  /* Disable the cursor */
+
+  (void)nxcursor_enable(wstate.hnx, false);
+#endif
 
   /* Close window 3 */
 
