@@ -47,6 +47,7 @@
 #include <semaphore.h>
 
 #include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxcursor.h>
 
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxtkwindow.hxx"
@@ -181,6 +182,57 @@ namespace NXWidgets
     {
       return new CBgWindow(m_hNxServer, widgetControl);
     }
+
+#if defined(CONFIG_NX_SWCURSOR) || defined(CONFIG_NX_HWCURSOR)
+    /**
+     * Enable/disable the cursor.
+     *
+     * @param enable.  True: show the cursor, false: hide the cursor.
+     */
+
+    inline void enableCursor(bool enable)
+    {
+      nxcursor_enable(m_hNxServer, enable);
+    }
+#endif
+
+#if defined(CONFIG_NX_SWCURSOR) || defined(CONFIG_NX_HWCURSORIMAGE)
+    /**
+     * Enable/disable the cursor.
+     *
+     *   The image is provided a a 2-bits-per-pixel image.  The two bit encoding
+     *   is as follows:
+     *
+     *   0b00 - The transparent background.
+     *   0b01 - Color1:  The main color of the cursor.
+     *   0b10 - Color2:  The color of any border.
+     *   0b11 - Color3:  A blend color for better imaging (fake anti-aliasing).
+     *
+     *   NOTE: The NX logic will reference the user image buffer repeatedly.
+     *   That image buffer must persist for as long as the NX server connection
+     *   persists.
+     *
+     * @param image.  Describes the cursor image in the expected format..
+     */
+
+    inline void setCursorImage(FAR const struct nx_cursorimage_s *image)
+    {
+      nxcursor_setimage(m_hNxServer, image);
+    }
+#endif
+
+#if defined(CONFIG_NX_SWCURSOR) || defined(CONFIG_NX_HWCURSOR)
+    /**
+     * Set the cursor position.
+     *
+     * @param pos.  The new cursor position.
+     */
+
+    inline void setCursorPosition(FAR struct nxgl_point_s *pos)
+    {
+      nxcursor_setposition(m_hNxServer, pos);
+    }
+#endif
   };
 }
 
