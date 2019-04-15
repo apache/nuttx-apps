@@ -219,7 +219,7 @@ int lm75_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 #else
-  /* Select Fahrenheit scaling */
+  /* Select Centigrade scaling */
 
   ret = ioctl(fd, SNIOC_CENTIGRADE, 0);
   if (ret < 0)
