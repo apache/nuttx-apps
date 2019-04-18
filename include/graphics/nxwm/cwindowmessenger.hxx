@@ -99,21 +99,19 @@ namespace NxWM
     static void inputWorkCallback(FAR void *arg);
     static void destroyWorkCallback(FAR void *arg);
 
+#ifdef CONFIG_NX_XYINPUT
     /**
      * Handle an NX window mouse input event.
-     *
-     * @param e The event data.
      */
 
-#ifdef CONFIG_NX_XYINPUT
     void handleMouseEvent(void);
 #endif
 
+#ifdef CONFIG_NX_KBD
     /**
      * Handle a NX window keyboard input event.
      */
 
-#ifdef CONFIG_NX_KBD
     void handleKeyboardEvent(void);
 #endif
 
@@ -135,7 +133,8 @@ namespace NxWM
      *   values stored in the defaultCWidgetStyle object.
      */
 
-     CWindowMessenger(FAR const NXWidgets::CWidgetStyle *style = (const NXWidgets::CWidgetStyle *)NULL);
+     CWindowMessenger(FAR const NXWidgets::CWidgetStyle *style =
+       (const NXWidgets::CWidgetStyle *)NULL);
 
     /**
      * CWindowMessenger Destructor.

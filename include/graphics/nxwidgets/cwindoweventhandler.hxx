@@ -88,21 +88,19 @@ namespace NXWidgets
 
     virtual void handleGeometryEvent(void) { }
 
+#ifdef CONFIG_NX_XYINPUT
     /**
      * Handle an NX window mouse input event.
-     *
-     * @param e The event data.
      */
 
-#ifdef CONFIG_NX_XYINPUT
     virtual void handleMouseEvent(void) { }
 #endif
 
+#ifdef CONFIG_NX_KBD
     /**
      * Handle a NX window keyboard input event.
      */
 
-#ifdef CONFIG_NX_KBD
     virtual void handleKeyboardEvent(void) { }
 #endif
 

@@ -325,6 +325,8 @@ namespace NxWM
     /**
      * Handle a widget release event.  Only the play and pause image release
      * are of interest.
+     *
+     * @param e The event data.
      */
 
     void handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e);
@@ -333,6 +335,8 @@ namespace NxWM
      * Handle a widget release event when the widget WAS dragged outside of
      * its original bounding box.  Only the play and pause image release
      * are of interest.
+     *
+     * @param e The event data.
      */
 
     void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
@@ -340,6 +344,8 @@ namespace NxWM
     /**
      * Handle value changes.  This will get events when there is a change in the
      * volume level or a file is selected or deselected.
+     *
+     * @param e The event data.
      */
 
     void handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e);

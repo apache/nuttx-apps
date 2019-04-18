@@ -127,8 +127,8 @@ namespace NXWidgets
   class CWidgetEventArgs : public TEventArgs<CNxWidget*>
   {
   private:
-    nxgl_coord_t    m_x;   /**< X coordinateinate of the event. */
-    nxgl_coord_t    m_y;   /**< Y coordinateinate of the event. */
+    nxgl_coord_t    m_x;   /**< X coordinate of the event. */
+    nxgl_coord_t    m_y;   /**< Y coordinate of the event. */
     nxgl_coord_t    m_vX;  /**< X distance moved during event, for dragging. */
     nxgl_coord_t    m_vY;  /**< Y distance moved during event, for dragging. */
     nxwidget_char_t m_key; /**< The key code / cursor code that raised the event. */

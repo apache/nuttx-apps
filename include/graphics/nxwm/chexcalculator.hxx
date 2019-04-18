@@ -44,7 +44,6 @@
 
 #include <sys/types.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxterm.h>
 
 #include "graphics/nxwidgets/cbuttonarray.hxx"
 #include "graphics/nxwidgets/clabel.hxx"
@@ -70,7 +69,7 @@
 namespace NxWM
 {
   /**
-   * This class implements the NxTerm application.
+   * This class implements the Hex calculator application.
    */
 
   class CHexCalculator : public  IApplication,
