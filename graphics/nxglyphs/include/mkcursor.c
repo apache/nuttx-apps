@@ -1,7 +1,7 @@
 /****************************************************************************
- * libs/libnx/nxmu/nx_fill.c
+ * apps/grpahics/nxglyphs/include/mkcursor.c
  *
- *   Copyright (C) 2008-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
