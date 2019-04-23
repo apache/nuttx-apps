@@ -666,10 +666,10 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
   if (apb->nbytes < apb->nmaxbytes)
     {
 #ifdef CONFIG_DEBUG_AUDIO_INFO
-      int errcode   = errno;
+      int errcode = errno;
 
       audinfo("Closing audio file, nbytes=%d errcode=%d\n",
-              apb->nbytes, errorcode);
+              apb->nbytes, errcode);
 #endif
 
       /* End of file or read error.. We are finished with this file in any
@@ -686,7 +686,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
 #ifdef CONFIG_DEBUG_AUDIO_ERROR
       /* Was this a file read error */
 
-      if (apb->nbytes == 0 && readerror)
+      if (apb->nbytes == 0 && errcode != 0)
         {
           DEBUGASSERT(errcode > 0);
           auderr("ERROR: fread failed: %d\n", errcode);
