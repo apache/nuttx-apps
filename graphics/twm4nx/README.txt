@@ -26,3 +26,23 @@ The TWM license is, I believe compatible with the BSD license used by NuttX.
 The origin TWM license required notice of copyrights within each file and
 a full copy of the original license which you can find in the COPYING file.
 within this directory.
+
+STATUS
+======
+  2019-04-25:  This port was brutal.  Much TWM logic was removed because it
+    depended on X11 features (or just because I could not understand how to
+    use it).  The replacement logic is only partially in place.  A lot more
+    needs to be done to have a complete system (hence, it is marked
+    EXPERIMENTAL).  The kinds of things that need to done are:
+
+    1. Update some logic that is only fragmentary for how like resizing, and
+        menus.
+    2. Integrate NxWidgets into the windows:  The resize menu needs a CLabel,
+       the menus are CListBox'es, but not completely integrated, the Icon
+       Manager needs to be a button array.
+    3. Revisit Icons.  They are windows now, but need to be compound widgets
+       lying on the background (compound:  CImage + CLabel)
+    4. Widget events are only partially integrated.  A lot more needs to be
+       done.  A partial change to the event system that hints at the redesign
+       is in place but it is far from complete.
+
