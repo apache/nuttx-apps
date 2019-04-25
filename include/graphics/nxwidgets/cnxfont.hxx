@@ -48,6 +48,8 @@
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxfonts.h>
 
+#include "graphics/nxwidgets/nxconfig.hxx"
+
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/

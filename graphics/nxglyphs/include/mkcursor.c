@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/grpahics/nxglyphs/include/mkcursor.c
+ * apps/graphics/nxglyphs/include/mkcursor.c
  *
  *   Copyright (C) 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

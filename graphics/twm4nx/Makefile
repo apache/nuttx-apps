@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/tiff/Makefile
+# apps/graphics/twm4nx/Makefile
 #
 #   Copyright (C) 2019 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,52 +34,36 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+-include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_NXWIDGETS),y)
-# Glyphs used by NxWidgets
+# Add patch to cursor images to CXXFLAGS
 
-CXXSRCS += glyph_nxlogo160x160.cxx glyph_nxlogo320x320.cxx
-CXXSRCS += glyph_arrowdown.cxx glyph_checkboxon.cxx glyph_screendepthup.cxx
-CXXSRCS += glyph_arrowleft.cxx glyph_control.cxx glyph_screenflipdown.cxx
-CXXSRCS += glyph_arrowright.cxx glyph_cycle.cxx glyph_screenflipup.cxx
-CXXSRCS += glyph_arrowup.cxx glyph_radiobuttonoff.cxx glyph_shift.cxx
-CXXSRCS += glyph_backspace.cxx glyph_radiobuttonmu.cxx glyph_windowclose.cxx
-CXXSRCS += glyph_capslock.cxx glyph_radiobuttonon.cxx glyph_windowdepthdown.cxx
-CXXSRCS += glyph_checkboxmu.cxx glyph_return.cxx glyph_windowdepthup.cxx
-CXXSRCS += glyph_checkboxoff.cxx glyph_screendepthdown.cxx
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)/graphics/nxglyphs/include"}
 
-# Glyphs used by NxWM and Twm4Nx
+# Twm4Nx built-in application info
 
-ifeq ($(CONFIG_NXGLPYHS_LARGE_ICONS),y)
-# Large icons
+CONFIG_TWM4NX_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_TWM4NX_STACKSIZE ?= 2048
 
-CXXSRCS += glyph_calculator47x49.cxx glyph_calibration48x42.cxx glyph_cmd49x43.cxx
-CXXSRCS += glyph_minimize42x42.cxx glyph_play48x48.cxx glyph_stop42x42.cxx
-CXXSRCS += glyph_menu42x42.cxx glyph_resize42x42.cxx glyph_nxicon42x42.cxx
+APPNAME   = twm4nx
 
-else
-# Small icons
+PRIORITY  = $(CONFIG_TWM4NX_PRIORITY)
+STACKSIZE = $(CONFIG_TWM4NX_STACKSIZE)
 
-CXXSRCS += glyph_calculator24x25.cxx glyph_calibration24x21.cxx glyph_cmd25x22.cxx
-CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_stop21x21.cxx
-CXXSRCS += glyph_menu21x21.cxx glyph_resize21x21.cxx glyph_nxicon21x21.cxx
-endif
+# Twm4Nx
 
-ifeq ($(CONFIG_NXGLPYHS_LARGE_ICONS),y)
-# Large icons
+ASRCS     =
+CSRCS     =
+CXXSRCS   = cwindow.cxx cwindowfactory.cxx ciconwin.cxx cwindowevent.cxx
+CXXSRCS  += cicon.cxx ciconmgr.cxx cbackground.cxx cfonts.cxx cresize.cxx
+CXXSRCS  += cmenus.cxx cinput.cxx twm4nx_cursor.cxx
+MAINSRC   = ctwm4nx.cxx
 
-CXXSRCS += glyph_mediaplayer44x50.cxx glyph_mplayer_controls43x41.cxx
-CXXSRCS += glyph_mediagrip60x30.cxx
+VPATH     = src
 
-else
-# Small icons
+CONFIG_TWM4NX_PROGNAME ?= hello$(EXEEXT)
+PROGNAME = $(CONFIG_TWM4NX_PROGNAME)
 
-CXXSRCS += glyph_mediaplayer24x24.cxx glyph_mplayer_controls32x32.cxx
-endif
-
-endif # CONFIG_NXWIDGETS
-
-VPATH = src
+MODULE = CONFIG_GRAPHICS_TWM4NX
 
 include $(APPDIR)/Application.mk
-

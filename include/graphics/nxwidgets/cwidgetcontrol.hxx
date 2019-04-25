@@ -437,8 +437,8 @@ namespace NXWidgets
      *   pollKeyboardEvents()
      *   pollCursorControlEvents()
      *
-     * @param widget.  Specific widget to poll.  Use NULL to run the
-     *    all widgets in the window.
+     * @param widget.  Specific widget to poll.  Use NULL to run through
+     *    of the widgets in the window.
      * @return True means some interesting event occurred
      */
 

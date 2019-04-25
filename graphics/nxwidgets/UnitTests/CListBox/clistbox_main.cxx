@@ -171,7 +171,7 @@ static void initMemoryUsage(void)
 /////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
-// Name: nxheaders_main
+// Name: clistbox_main
 /////////////////////////////////////////////////////////////////////////////
 
 int clistbox_main(int argc, char *argv[])
@@ -195,6 +195,7 @@ int clistbox_main(int argc, char *argv[])
       delete test;
       return 1;
     }
+
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After connecting to the server");
 
   // Create a window to draw into
@@ -206,6 +207,7 @@ int clistbox_main(int argc, char *argv[])
       delete test;
       return 1;
     }
+
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After creating a window");
 
   // Create a listbox
@@ -218,6 +220,7 @@ int clistbox_main(int argc, char *argv[])
       delete test;
       return 1;
     }
+
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After creating a listbox");
 
   // Show the initial state of the listbox
@@ -236,6 +239,7 @@ int clistbox_main(int argc, char *argv[])
       printf("clistbox_main: %d. New option %s\n", i, g_options[i]);
       usleep(500000); // The simulation needs this to let the X11 event loop run
     }
+
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After adding the listbox items");
   sleep(1);
 
@@ -310,6 +314,7 @@ int clistbox_main(int argc, char *argv[])
         }
       sleep(1);
     }
+
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After the listbox is empty again");
   sleep(1);
 

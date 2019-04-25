@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GRAPHICS_TWM4NX
+	tristate "Minimal Tom's Window Manager (TWM) for NuttX (Twm4Nx)"
+	default n
+	select NX_RAMBACKED
+	select NXWIDGETS
+	depends on NX && EXPERIMENTAL
+	---help---
+		Enable Tom's Window Manager (TWM) for NuttX (Twm4Nx).
+
+		Use of this window manager requires keyboard and mouse input.
+		Output is through the NX server.
+
+if GRAPHICS_TWM4NX
+
+config TWM4NX_PROGNAME
+	string "Twm4Nx program name"
+	default "twm4nx"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config TWM4NX_PRIORITY
+	int "Twm4Nx task priority"
+	default 100
+
+config TWM4NX_STACKSIZE
+	int "Twm4Nx stack size"
+	default 2048
+
+config TWM4NX_REVMAJOR
+	string "Twm4Nx major version number"
+	default "0"
+
+config TWM4NX_REVMINOR
+	string "Twm4Nx minor version number"
+	default "0"
+
+endif # GRAPHICS_TWM4NX
