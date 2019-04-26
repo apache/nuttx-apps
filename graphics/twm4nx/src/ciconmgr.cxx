@@ -52,6 +52,8 @@
 
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
+#include "graphics/nxwidgets/cnxstring.hxx"
+#include "graphics/nxwidgets/cbuttonarray.hxx"
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
@@ -81,17 +83,17 @@ using namespace Twm4Nx;
  * @param ncolumns The number of columns this icon manager has
  */
 
-CIconMgr::CIconMgr(CTwm4Nx *twm4nx, int ncolumns)
+CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
 {
   m_twm4nx     = twm4nx;                            // Cached the Twm4Nx session
   m_head       = (FAR struct SWindowEntry *)0;      // Head of the winow list
   m_tail       = (FAR struct SWindowEntry *)0;      // Tail of the winow list
   m_active     = (FAR struct SWindowEntry *)0;      // No active window
   m_window     = (FAR CWindow *)0;                  // No icon manager Window
-  m_columns    = ncolumns;
-  m_currows    = 0;
-  m_curcolumns = 0;
-  m_count      = 0;
+  m_maxColumns = ncolumns;                          // Max columns per row
+  m_nrows      = 0;                                 // No rows yet
+  m_ncolumns   = 0;                                 // No columns yet
+  m_nWindows   = 0;                                 // No windows yet
 }
 
 /**
@@ -100,13 +102,18 @@ CIconMgr::CIconMgr(CTwm4Nx *twm4nx, int ncolumns)
 
 CIconMgr::~CIconMgr(void)
 {
-  // Free memory allocations
-
   // Free the icon manager window
 
   if (m_window != (FAR CWindow *)0)
     {
       delete m_window;
+    }
+
+  // Free the button array
+
+  if (m_buttons != (FAR NXWidgets::CButtonArray *)0)
+    {
+      delete m_buttons;
     }
 }
 
@@ -171,25 +178,16 @@ bool CIconMgr::add(FAR CWindow *cwin)
   wentry->active    = false;
   wentry->down      = false;
   wentry->cwin      = cwin;
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
-
-  wentry->me = m_count;
-  wentry->pos.x  = -1;
-  wentry->pos.y  = -1;
+  wentry->pos.x     = -1;
+  wentry->pos.y     = -1;
 
   // Insert the new entry into the list
 
   insertEntry(wentry, cwin);
 
-  // The height of one row is determined (mostly) by the fond height
+  // The height of one row is determined (mostly) by the font height
 
-  int rowHeight = iconManagerFont->getHeight() + 10;
-  if (rowHeight < (CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4))
-    {
-      rowHeight = CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4;
-    }
+  nxgl_coord_t rowHeight = getRowHeight();
 
   // Increase the icon window size
 
@@ -200,13 +198,13 @@ bool CIconMgr::add(FAR CWindow *cwin)
     }
   else
     {
-      windowSize.h = rowHeight * m_count;
+      windowSize.h = rowHeight * m_nWindows;
       m_window->setWindowSize(&windowSize);
     }
 
   // Increment the window count
 
-  m_count++;
+  m_nWindows++;
 
   // Pack the windows
 
@@ -238,137 +236,15 @@ void CIconMgr::remove(FAR struct SWindow *win)
 
       removeEntry(wentry);
 
-      // Destroy the button array widget
-#warning Missing logic
-
       // Destroy the window
 
       CWindowFactory *factory = m_twm4nx->getWindowFactory();
       factory->destroyWindow(wentry->cwin);
 
-      m_count -= 1;
+      m_nWindows--;
       std::free(wentry);
       pack();
     }
-}
-
-/**
- * Move the pointer around in an icon manager
- *
- *  @param dir one of the following:
- *    - EVENT_ICONMGR_FORWARD: Forward in the window list
- *    - EVENT_ICONMGR_BACK:    Backward in the window list
- *    - EVENT_ICONMGR_UP:      Up one row
- *    - EVENT_ICONMGR_DOWN:    Down one row
- *    - EVENT_ICONMGR_LEFT:    Left one column
- *    - EVENT_ICONMGR_RIGHT:   Right one column
- */
-
-void CIconMgr::move(int dir)
-{
-  if (!m_active)
-    {
-      return;
-    }
-
-  int curRow = m_active->row;
-  int curCol = m_active->col;
-
-  int rowIncr = 0;
-  int colIncr = 0;
-  bool gotIt  = false;
-
-  FAR struct SWindowEntry *wentry = (FAR struct SWindowEntry *)0;
-
-  switch (dir)
-    {
-    case EVENT_ICONMGR_FORWARD:
-      if ((wentry = m_active->flink) == (FAR struct SWindowEntry *)0)
-        {
-          wentry = m_head;
-        }
-
-      gotIt = true;
-      break;
-
-    case EVENT_ICONMGR_BACK:
-      if ((wentry = m_active->blink) == (FAR struct SWindowEntry *)0)
-        {
-          wentry = m_tail;
-        }
-
-      gotIt = true;
-      break;
-
-    case EVENT_ICONMGR_UP:
-      rowIncr = -1;
-      break;
-
-    case EVENT_ICONMGR_DOWN:
-      rowIncr = 1;
-      break;
-
-    case EVENT_ICONMGR_LEFT:
-      colIncr = -1;
-      break;
-
-    case EVENT_ICONMGR_RIGHT:
-      colIncr = 1;
-      break;
-    }
-
-  // If gotIt is false ast this point then we got a left, right, up, or down,
-  // command.
-
-  int newRow = curRow;
-  int newCol = curCol;
-
-  while (!gotIt)
-    {
-      newRow += rowIncr;
-      newCol += colIncr;
-
-      if (newRow < 0)
-        {
-          newRow = m_currows - 1;
-        }
-
-      if (newCol < 0)
-        {
-          newCol = m_curcolumns - 1;
-        }
-
-      if (newRow >= (int)m_currows)
-        {
-          newRow = 0;
-        }
-
-      if (newCol >= (int)m_curcolumns)
-        {
-          newCol = 0;
-        }
-
-      // Now let's go through the list to see if there is an entry with this
-      // new position.
-
-      for (wentry = m_head; wentry != NULL; wentry = wentry->flink)
-        {
-          if (wentry->row == newRow && wentry->col == newCol)
-            {
-              gotIt = true;
-              break;
-            }
-        }
-    }
-
-  if (!gotIt)
-    {
-      gwarn("WARNING:  unable to find window (%d, %d) in icon manager\n",
-            newRow, newCol);
-      return;
-    }
-
-  // raise the frame so the icon manager is visible
 }
 
 /**
@@ -377,16 +253,8 @@ void CIconMgr::move(int dir)
 
 void CIconMgr::pack(void)
 {
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
-
   struct nxgl_size_s colsize;
-
-  colsize.h = iconManagerFont->getHeight() + 10;
-  if (colsize.h < (CONFIG_TWM4NX_ICONMGR_IMAGE.height + 4))
-    {
-      colsize.h = CONFIG_TWM4NX_ICONMGR_IMAGE.height + 4;
-    }
+  colsize.h = getRowHeight();
 
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
@@ -395,13 +263,13 @@ void CIconMgr::pack(void)
       return;
     }
 
-  colsize.w = windowSize.w / m_columns;
+  colsize.w = windowSize.w / m_maxColumns;
 
   int rowIncr = colsize.h;
   int colIncr = colsize.w;
 
   int row    = 0;
-  int col    = m_columns;
+  int col    = m_maxColumns;
   int maxcol = 0;
 
   FAR struct SWindowEntry *wentry;
@@ -411,10 +279,9 @@ void CIconMgr::pack(void)
        wentry != (FAR struct SWindowEntry *)0;
        i++, wentry = wentry->flink)
     {
-      wentry->me = i;
-      if (++col >= (int)m_columns)
+      if (++col >= (int)m_maxColumns)
         {
-          col = 0;
+          col  = 0;
           row += 1;
         }
 
@@ -424,11 +291,11 @@ void CIconMgr::pack(void)
         }
 
       struct nxgl_point_s newpos;
-      newpos.x = col * colIncr;
-      newpos.y = (row - 1) * rowIncr;
+      newpos.x    = col * colIncr;
+      newpos.y    = (row - 1) * rowIncr;
 
-      wentry->row    = row - 1;
-      wentry->col    = col;
+      wentry->row = row - 1;
+      wentry->col = col;
 
       // If the position or size has not changed, don't touch it
 
@@ -446,53 +313,85 @@ void CIconMgr::pack(void)
         }
     }
 
-  maxcol      += 1;
-  m_currows    = row;
-  m_curcolumns = maxcol;
+  maxcol++;
 
-  // The height of one row is determined (mostly) by the fond height
+  // Check if there is a change in the dimension of the button array
 
-  int rowHeight = iconManagerFont->getHeight() + 10;
-  if (rowHeight < (CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4))
+  if (m_nrows != row && m_ncolumns != maxcol)
     {
-      rowHeight = CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4;
+      // Yes.. remember the new size
+
+      m_nrows     = row;
+      m_ncolumns  = maxcol;
+
+      // The height of one row is determined (mostly) by the font height
+
+      windowSize.h = getRowHeight() * m_nWindows;
+      if (!m_window->getWindowSize(&windowSize))
+        {
+          gerr("ERROR: getWindowSize() failed\n");
+          return;
+        }
+
+      if (windowSize.h == 0)
+        {
+          windowSize.h = rowIncr;
+        }
+
+      struct nxgl_size_s newsize;
+      newsize.w = maxcol * colIncr;
+
+      if (newsize.w == 0)
+        {
+          newsize.w = colIncr;
+        }
+
+      newsize.h = windowSize.h;
+
+      if (!m_window->setWindowSize(&newsize))
+        {
+          gerr("ERROR: setWindowSize() failed\n");
+          return;
+        }
+
+      // Resize the button array
+
+      nxgl_coord_t buttonWidth  = newsize.w / m_maxColumns;
+      nxgl_coord_t buttonHeight = newsize.w / m_nrows;
+
+      if (!m_buttons->resizeArray(m_maxColumns, m_nrows,
+                                  buttonWidth, buttonHeight))
+        {
+          gerr("ERROR: CButtonArray::resizeArray failed\n");
+          return;
+        }
+
+      // Re-apply all of the button labels
+
+      int rowndx = 0;
+      int colndx = 0;
+
+      for (FAR struct SWindowEntry *swin = m_head;
+           swin != (FAR struct SWindowEntry *)0;
+           swin = swin->flink)
+        {
+          // Get the window name as an NWidgets::CNxString
+
+          NXWidgets::CNxString string = swin->cwin->getWindowName();
+
+          // Apply the window name to the button
+
+          m_buttons->setText(colndx, rowndx, string);
+
+          // Increment the column, rolling over to the next row if necessary
+
+          if (++colndx >= m_maxColumns)
+            {
+              colndx = 0;
+              rowndx++;
+            }
+        }
     }
-
-  windowSize.h = rowHeight * m_count;
-  m_window->setWindowSize(&windowSize);
-
-  if (windowSize.h == 0)
-    {
-      windowSize.h = rowIncr;
-    }
-
-  struct nxgl_size_s newsize;
-  newsize.w = maxcol * colIncr;
-
-  if (newsize.w == 0)
-    {
-      newsize.w = colIncr;
-    }
-
-  newsize.h = windowSize.h;
-
-  if (!m_window->setWindowSize(&newsize))
-    {
-      return;
-    }
-
-  // Get the net size of the containing frame
-
-  struct nxgl_size_s frameSize;
-  m_window->windowToFrameSize(&windowSize, &frameSize);
-
-  struct nxgl_point_s framePos;
-  m_window->getFramePosition(&framePos);
-
-  // Resize the frame
-
-  FAR CResize *resize = m_twm4nx->getResize();
-  resize->setupWindow(m_window, &framePos, &frameSize);
 }
 
 /**
@@ -546,41 +445,32 @@ bool CIconMgr::event(FAR struct SEventMsg *msg)
 
   switch (msg->eventID)
     {
-      case EVENT_ICONMGR_UP:
-      case EVENT_ICONMGR_DOWN:
-      case EVENT_ICONMGR_LEFT:
-      case EVENT_ICONMGR_RIGHT:
-      case EVENT_ICONMGR_FORWARD:
-      case EVENT_ICONMGR_BACK:
-        {
-          move(msg->eventID);
-        }
-        break;
-
-      case EVENT_ICONMGR_SHOWPARENT:  // Raise Icon manager parent window
-        {
-          m_window->deIconify();
-        }
-        break;
-
-      case EVENT_ICONMGR_HIDE:  // Hide the Icon Manager
-        {
-          hide();
-        }
-        break;
-
-      case EVENT_ICONMGR_SORT:  // Sort the Icon Manager
-        {
-          sort();
-        }
-        break;
-
       default:
         ret = false;
         break;
     }
 
   return ret;
+}
+
+/**
+ * Return the height of one row
+ *
+ * @return The height of one row
+ */
+
+nxgl_coord_t CIconMgr::getRowHeight(void)
+{
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
+
+  nxgl_coord_t rowHeight = iconManagerFont->getHeight() + 10;
+  if (rowHeight < (CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4))
+    {
+      rowHeight = CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4;
+    }
+
+  return rowHeight;
 }
 
 /**
@@ -634,8 +524,66 @@ bool CIconMgr::createWindow(FAR const char *prefix)
 
 bool CIconMgr::createButtonArray(void)
 {
-#warning Missing logic
-  return false;
+  // Create a Widget control instance for the window using the default style
+  // for now.  CWindowEvent derives from CWidgetControl.
+  // REVISIT: Create the style, using the selected colors.
+
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+  if (control == (FAR CWindowEvent *)0)
+    {
+      return false;
+    }
+
+  // Get the width of the window
+
+  struct nxgl_size_s windowSize;
+  if (!m_window->getWindowSize(&windowSize))
+    {
+      gerr("ERROR: Failed to get window size\n");
+      delete control;
+      return false;
+    }
+
+  // The button must be positioned at the upper left of the window
+
+  struct nxgl_point_s arrayPos;
+  m_window->getWindowPosition(&arrayPos);
+
+  // Create the button array
+  // REVISIT:  Hmm.. Button array cannot be dynamically resized!
+
+  uint8_t nrows = m_nrows > 0 ? m_nrows : 1;
+
+  nxgl_coord_t buttonWidth  = windowSize.w / m_maxColumns;
+  nxgl_coord_t buttonHeight = windowSize.w / nrows;
+
+  // Now we have enough information to create the button array
+
+  m_buttons = new NXWidgets::CButtonArray(control,
+                                          arrayPos.x, arrayPos.y,
+                                          m_maxColumns, nrows,
+                                          buttonWidth, buttonHeight);
+  if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
+    {
+      gerr("ERROR: Failed to get window size\n");
+      delete control;
+      return false;
+    }
+
+  // Configure the button array widget
+
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
+
+  m_buttons->setFont(iconManagerFont);
+  m_buttons->setBorderless(true);
+  m_buttons->disableDrawing();
+  m_buttons->setRaisesEvents(false);
+
+  // Register to get events from the mouse clicks on the image
+
+  m_buttons->addWidgetEventHandler(this);
+  return true;
 }
 
 /**
@@ -755,3 +703,54 @@ void CIconMgr::freeWEntry(FAR struct SWindowEntry *wentry)
 
   free(wentry);
 }
+
+/**
+ * Handle a widget action event.  This will be a button pre-release event.
+ *
+ * @param e The event data.
+ */
+
+void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // A button should now be clicked
+
+  int column;
+  int row;
+
+  if (m_buttons->isButtonClicked(column, row))
+    {
+      // Get the text associated with this button
+
+      const NXWidgets::CNxString string = m_buttons->getText(column, row);
+
+      // Now find the window with this name
+
+      for (FAR struct SWindowEntry *swin = m_head;
+           swin != (FAR struct SWindowEntry *)0;
+           swin = swin->flink)
+        {
+          // Check if the button string is the same as the window name
+
+          if (string.compareTo(swin->cwin->getWindowName()) == 0)
+            {
+              // Got it.  Is the window Iconified?
+
+              if (swin->cwin->isIconified())
+                {
+                  // Yes, de-Iconify it
+
+                  swin->cwin->deIconify();
+                }
+              else
+                {
+                  // Otherwise, raise the window to the top of the heirarchy
+
+                  swin->cwin->raiseWindow();
+                }
+
+              break;
+            }
+        }
+    }
+}
+

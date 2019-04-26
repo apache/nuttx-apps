@@ -57,6 +57,8 @@
 namespace NXWidgets
 {
   class  CNxTkWindow;                      // Forward reference
+  class  CButtonArray;                     // Forward reference
+  class  CWidgetEventArgs;                 // Forward reference
   struct SRlePaletteBitmap;                // Forward reference
 }
 
@@ -72,12 +74,11 @@ namespace Twm4Nx
     nxgl_size_s size;
     int row;
     int col;
-    int me;
     bool active;
     bool down;
   };
 
-  class CIconMgr
+  class CIconMgr : protected NXWidgets::CWidgetEventHandler
   {
     private:
 
@@ -86,10 +87,19 @@ namespace Twm4Nx
       FAR struct SWindowEntry        *m_tail;       /**< Tail of the window list */
       FAR struct SWindowEntry        *m_active;     /**< The active entry */
       FAR struct CWindow             *m_window;     /**< Parent window */
-      unsigned int                    m_columns;    /**< Number of columns icon manager */
-      unsigned int                    m_currows;
-      unsigned int                    m_curcolumns;
-      unsigned int                    m_count;
+      FAR NXWidgets::CButtonArray    *m_buttons;    /**< The cotained button array */
+      uint8_t                         m_maxColumns; /**< Max columns per row */
+      uint8_t                         m_nrows;      /**< Number of rows in the button array */
+      uint8_t                         m_ncolumns;   /**< Number of columns in the button array */
+      unsigned int                    m_nWindows;   /**< The number of windows in the icon mgr. */
+
+      /**
+       * Return the height of one row
+       *
+       * @return The height of one row
+       */
+
+      nxgl_coord_t getRowHeight(void);
 
       /**
        * Create and initialize the icon manager window
@@ -144,6 +154,14 @@ namespace Twm4Nx
 
       void freeWEntry(FAR struct SWindowEntry *wentry);
 
+      /**
+       * Handle a widget action event.  This will be a button pre-release event.
+       *
+       * @param e The event data.
+       */
+
+      void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
+
     public:
 
       /**
@@ -153,7 +171,7 @@ namespace Twm4Nx
        * @param ncolumns The number of columns this icon manager has
        */
 
-      CIconMgr(CTwm4Nx *twm4nx, int ncolumns);
+      CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns);
 
       /**
        * CIconMgr Destructor
@@ -178,6 +196,14 @@ namespace Twm4Nx
       bool add(FAR CWindow *win);
 
       /**
+       * Remove a window from the icon manager
+       *
+       * @param win the TWM window structure
+       */
+
+      void remove(FAR struct SWindow *win);
+
+      /**
        * Hide the icon manager
        */
 
@@ -190,29 +216,21 @@ namespace Twm4Nx
       }
 
       /**
-       * Remove a window from the icon manager
-       *
-       * @param win the TWM window structure
-       */
-
-      void remove(FAR struct SWindow *win);
-
-      /**
        * Get the number of columns
        */
 
-      inline unsigned int getColumns(void)
+      inline unsigned int getDisplayColumns(void)
       {
-         return m_columns;
+         return m_maxColumns;
       }
 
       /**
        * Get the current column
        */
 
-      inline unsigned int getCurrColumn(void)
+      inline unsigned int getNumberOfColumns(void)
       {
-         return m_curcolumns;
+         return m_ncolumns;
       }
 
       /**
@@ -223,20 +241,6 @@ namespace Twm4Nx
       {
          return m_window->getFrameSize(size);
       }
-
-      /**
-       * Move the pointer around in an icon manager
-       *
-       *  @param dir one of the following:
-       *    - EVENT_ICONMGR_FORWARD: Forward in the window list
-       *    - EVENT_ICONMGR_BACK:    Backward in the window list
-       *    - EVENT_ICONMGR_UP:      Up one row
-       *    - EVENT_ICONMGR_DOWN:    Down one row
-       *    - EVENT_ICONMGR_LEFT:    Left one column
-       *    - EVENT_ICONMGR_RIGHT:   Right one column
-       */
-
-      void move(int dir);
 
       /**
        * Pack the icon manager windows following an addition or deletion

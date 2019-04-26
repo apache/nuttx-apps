@@ -98,7 +98,6 @@ namespace Twm4Nx
   class  CWindow;                               // Forward reference
   struct SMenuRoot;                             // Forward reference
   struct SMenuItem;                             // Forward reference
-  struct SToolbarButton;                        // Forward reference
 
   // The CWindow class implements a standard, framed window with a toolbar
   // containing the standard buttons and the window title.
@@ -199,6 +198,19 @@ namespace Twm4Nx
       bool enableWidgets(void);
 
       /**
+       * After the toolbar was grabbed, it may be dragged then dropped, or it
+       * may be simply "un-grabbed". Both cases are handled here.
+       *
+       * NOTE: Unlike the other event handlers, this does NOT override any
+       * virtual event handling methods.  It just combines some common event-
+       * handling logic.
+       *
+       * @param e The event data.
+       */
+
+      void handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e);
+
+      /**
        * Override the mouse button drag event.
        *
        * @param e The event data.
@@ -221,6 +233,16 @@ namespace Twm4Nx
        */
 
       void handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e);
+
+      /**
+       * Override the virtual CWidgetEventHandler::handleReleaseEvent.  This
+       * event will fire when the title widget is released.  isClicked()
+       * will return false for the title widget.
+       *
+       * @param e The event data.
+       */
+
+      void handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
        * Override the virtual CWidgetEventHandler::handleActionEvent.  This
@@ -337,7 +359,7 @@ namespace Twm4Nx
 
       /**
        * Get the size of the primary window.  This is useful only
-       * for applications that need to know the drawing area.
+       * for applications that need to know about the drawing area.
        *
        * @param size Location to return the primary window size
        */
@@ -345,6 +367,18 @@ namespace Twm4Nx
       inline bool getWindowSize(FAR struct nxgl_size_s *size)
       {
         return m_nxWin->getSize(size);
+      }
+
+      /**
+       * Get the position of the primary window.  This is useful only
+       * for applications that need to know about the drawing area.
+       *
+       * @param pos Location to return the primary window position
+       */
+
+      inline bool getWindowPosition(FAR struct nxgl_point_s *pos)
+      {
+        return m_nxWin->getPosition(pos);
       }
 
       /**

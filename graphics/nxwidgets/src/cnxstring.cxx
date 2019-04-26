@@ -731,6 +731,13 @@ int CNxString::compareTo(const CNxString &string) const
                 getLength());
 }
 
+int CNxString::compareTo(FAR const char *string) const
+{
+  return memcmp((FAR const char*)m_text,
+                (FAR const char*)string,
+                getLength());
+}
+
 /**
  * Allocate memory for the string.
  *

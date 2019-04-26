@@ -45,4 +45,6 @@ STATUS
     4. Widget events are only partially integrated.  A lot more needs to be
        done.  A partial change to the event system that hints at the redesign
        is in place but it is far from complete.
+  2019-04-26:  Added button arrays for implementation of Icon Manager.
+    Integrated event handling into CWindows and CIconMgr.
 

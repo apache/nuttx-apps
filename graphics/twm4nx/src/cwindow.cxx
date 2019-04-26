@@ -80,24 +80,42 @@
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
-// Private Data
+// Private Types
 /////////////////////////////////////////////////////////////////////////////
 
 using namespace Twm4Nx;
 
-// Association of configured bitmaps with buttons
-
-static FAR const NXWidgets::SRlePaletteBitmap *GTbBitmaps[NTOOLBAR_BUTTONS] =
+struct SToolbarInfo
 {
-  &CONFIG_TWM4NX_MENU_IMAGE,      // MENU_BUTTON (first on left)
-  &CONFIG_TWM4NX_TERMINATE_IMAGE, // DELETE_BUTTON (first on right)
-  &CONFIG_TWM4NX_RESIZE_IMAGE,    // RESIZE_BUTTON
-  &CONFIG_TWM4NX_MINIMIZE_IMAGE   // MINIMIZE_BUTTON
+  FAR const NXWidgets::SRlePaletteBitmap *bitmap; /**< Bitmap configured for button */
+  bool rightSide;                        /**< True: Button packed on the right */
+  uint16_t event;                        /**< Event when button released */
 };
 
-static bool GButtonRightSide[NTOOLBAR_BUTTONS] =
+/////////////////////////////////////////////////////////////////////////////
+// Private Data
+/////////////////////////////////////////////////////////////////////////////
+
+// This array provides a static description of the toolbar buttons
+
+struct SToolbarInfo GToolBarInfo[NTOOLBAR_BUTTONS] =
 {
-  false, true, true, true,
+  [MENU_BUTTON] =
+  {
+    &CONFIG_TWM4NX_MENU_IMAGE, false, EVENT_TOOLBAR_MENU
+  },
+  [DELETE_BUTTON] =
+  {
+    &CONFIG_TWM4NX_TERMINATE_IMAGE, true, EVENT_TOOLBAR_TERMINATE
+  },
+  [RESIZE_BUTTON] =
+  {
+    &CONFIG_TWM4NX_RESIZE_IMAGE, true, EVENT_TOOLBAR_RESIZE
+  },
+  [MINIMIZE_BUTTON] =
+  {
+    &CONFIG_TWM4NX_MINIMIZE_IMAGE, true, EVENT_TOOLBAR_MINIMIZE
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -184,7 +202,7 @@ bool CWindow::initialize(FAR const char *name,
 
   FAR const char *mqname = m_twm4nx->getEventQueueName();
 
-  m_eventq = mq_open(mqname, O_WRONLY);
+  m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
   if (m_eventq == (mqd_t)-1)
     {
       gerr("ERROR: Failed open message queue '%s': %d\n",
@@ -474,17 +492,16 @@ void CWindow::deIconify(void)
 
 bool CWindow::event(FAR struct SEventMsg *eventmsg)
 {
-  FAR NXWidgets::CNxTkWindow *nxwin = eventmsg->nxwin;
   bool success = true;
 
   switch (eventmsg->eventID)
     {
       case EVENT_WINDOW_RAISE:  // Raise window to the top of the heirarchy
-        nxwin->raise();         // Could be the main or the icon window
+        m_nxWin->raise();       // Could be the main or the icon window
         break;
 
       case EVENT_WINDOW_LOWER:  // Lower window to the bottom of the heirarchy
-        nxwin->lower();         // Could be the main or the icon window
+        m_nxWin->lower();       // Could be the main or the icon window
         break;
 
       case EVENT_WINDOW_POPUP:  // De-iconify and raise the main window
@@ -519,7 +536,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
             // drains all of the message events.  We will get the
             // EVENT_WINDOW_DELETE event at that point
 
-          NXWidgets::CWidgetControl *control = nxwin->getWidgetControl();
+          NXWidgets::CWidgetControl *control = m_nxWin->getWidgetControl();
           nxtk_block(control->getWindowHandle(), (FAR void *)m_nxWin);
         }
 
@@ -640,7 +657,7 @@ bool CWindow::getToolbarHeight(FAR const char *name)
 
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
-      nxgl_coord_t btnHeight = GTbBitmaps[btindex]->height;
+      nxgl_coord_t btnHeight = GToolBarInfo[btindex].bitmap->height;
       if (btnHeight > m_tbHeight)
         {
           m_tbHeight = btnHeight;
@@ -698,7 +715,7 @@ bool CWindow::updateToolbarLayout(void)
   m_tbRightX = 0;
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
-      if (GButtonRightSide[btindex])
+      if (GToolBarInfo[btindex].rightSide)
         {
           FAR NXWidgets::CImage *cimage = m_tbButtons[btindex];
 
@@ -799,7 +816,8 @@ bool CWindow::createToolbarButtons(void)
 
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
-      FAR const NXWidgets::SRlePaletteBitmap *sbitmap = GTbBitmaps[btindex];
+      FAR const NXWidgets::SRlePaletteBitmap *sbitmap =
+        GToolBarInfo[btindex].bitmap;
 
 #ifdef CONFIG_TWM4NX_TOOLBAR_ICONSCALE
       // Create a CScaledBitmap to scale the bitmap icon
@@ -817,6 +835,7 @@ bool CWindow::createToolbarButtons(void)
           return false;
         }
 #endif
+
       // Create the image.  The image will serve as button since it
       // can detect clicks and release just like a button.
 
@@ -885,7 +904,7 @@ bool CWindow::createToolbarButtons(void)
 
       // Pack on the left or right horizontally
 
-      if (GButtonRightSide[btindex])
+      if (GToolBarInfo[btindex].rightSide)
         {
           m_tbRightX -= (cimage->getWidth() + CONFIG_TWM4NX_TOOLBAR_HSPACING);
           pos.x       = m_tbRightX;
@@ -943,12 +962,9 @@ bool CWindow::createToolbarTitle(FAR const char *name)
   titlePos.x = m_tbLeftX + CONFIG_TWM4NX_FRAME_VSPACING;
   titlePos.y = 0;
 
-  // Create the widget control (with the window messenger) using the default style
-
-  // REVISIT: Create the style, using the selected colors.
-
   // Create a Widget control instance for the window using the default style
   // for now.  CWindowEvent derives from CWidgetControl.
+  // REVISIT: Create the style, using the selected colors.
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
   if (control == (FAR CWindowEvent *)0)
@@ -985,6 +1001,49 @@ bool CWindow::createToolbarTitle(FAR const char *name)
 }
 
 /**
+ * After the toolbar was grabbed, it may be dragged then dropped, or it
+ * may be simply "un-grabbed". Both cases are handled here.
+ *
+ * NOTE: Unlike the other event handlers, this does NOT override any
+ * virtual event handling methods.  It just combines some common event-
+ * handling logic.
+ *
+ * @param e The event data.
+ */
+
+void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // Exit the dragging state
+
+  m_drag = false;
+
+  // Generate the un-grab event
+
+  struct SEventMsg msg;
+  msg.eventID = EVENT_TOOLBAR_UNGRAB;
+  msg.pos.x   = e.getX();
+  msg.pos.y   = e.getY();
+  msg.delta.x = 0;
+  msg.delta.y = 0;
+  msg.context = EVENT_CONTEXT_TOOLBAR;
+  msg.obj     = (FAR void *)this;
+
+  // NOTE that we cannot block because we are on the same thread
+  // as the message reader.  If the event queue becomes full then
+  // we have no other option but to lose events.
+  //
+  // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+  // the risk of runawy stack usage.
+
+  int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                    sizeof(struct SEventMsg), 100);
+  if (ret < 0)
+    {
+      gerr("ERROR: mq_send failed: %d\n", ret);
+    }
+}
+
+/**
  * Override the mouse button drag event.
  *
  * @param e The event data.
@@ -995,9 +1054,32 @@ void CWindow::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
   // We are interested only the the drag event on the title box while we are
   // in the dragging state.
 
-  if (m_drag)
+  if (m_drag && m_tbTitle->isBeingDragged())
     {
-#warning Missing logic
+      // Generate the event
+
+      struct SEventMsg msg;
+      msg.eventID = EVENT_WINDOW_DRAG;
+      msg.pos.x   = e.getX();
+      msg.pos.y   = e.getY();
+      msg.delta.x = e.getVX();
+      msg.delta.y = e.getVY();
+      msg.context = EVENT_CONTEXT_TOOLBAR;
+      msg.obj     = (FAR void *)this;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runawy stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          gerr("ERROR: mq_send failed: %d\n", ret);
+        }
     }
 }
 
@@ -1011,10 +1093,16 @@ void CWindow::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
 {
   // We are interested only the the drag drop event on the title box while we
   // are in the dragging state.
+  //
+  // When the Drop Event is received, both isClicked and isBeingDragged()
+  // will return false.  It is sufficient to verify that the isClicked() is
+  // not true to exit the drag.
 
-  if (m_drag)
+  if (m_drag && !m_tbTitle->isClicked())
     {
-#warning Missing logic
+      // Yes.. handle the drop event
+
+      handleUngrabEvent(e);
     }
 }
 
@@ -1026,11 +1114,56 @@ void CWindow::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
 
 void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // We are interested only the the press event on the title box
+  // We are interested only the the press event on the title box and
+  // only if we are not already dragging the window
 
-  if (!m_drag)
+  if (!m_drag && m_tbTitle->isClicked())
     {
-#warning Missing logic
+      // Generate the event
+
+      struct SEventMsg msg;
+      msg.eventID = EVENT_TOOLBAR_GRAB;
+      msg.pos.x   = e.getX();
+      msg.pos.y   = e.getY();
+      msg.delta.x = 0;
+      msg.delta.y = 0;
+      msg.context = EVENT_CONTEXT_TOOLBAR;
+      msg.obj     = (FAR void *)this;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runawy stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          gerr("ERROR: mq_send failed: %d\n", ret);
+        }
+    }
+}
+
+/**
+ * Override the virtual CWidgetEventHandler::handleReleaseEvent.  This
+ * event will fire when the title widget is released.  isClicked()
+ * will return false for the title widget.
+ *
+ * @param e The event data.
+ */
+
+void CWindow::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // Handle the case where a click event was received, but the
+  // window was not dragged.
+
+  if (m_drag && !m_tbTitle->isClicked())
+    {
+      // Handle the non-drag drop event
+
+      handleUngrabEvent(e);
     }
 }
 
@@ -1039,13 +1172,47 @@ void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
  * event will fire when the image is released but before it has been
  * has been drawn.  isClicked() will return true for the appropriate
  * images.
+ *
+ * @param e The event data.
  */
 
 void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
   // We are are interested in the pre-release event for any of the
   // toolbar buttons.
-#warning Missing logic
+
+  for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
+    {
+      // Check if the widget is clicked
+
+      if (m_tbButtons[btindex]->isClicked())
+        {
+          // Yes.. generate the event
+
+          struct SEventMsg msg;
+          msg.eventID = GToolBarInfo[btindex].event;
+          msg.pos.x   = e.getX();
+          msg.pos.y   = e.getY();
+          msg.delta.x = 0;
+          msg.delta.y = 0;
+          msg.context = EVENT_CONTEXT_TOOLBAR;
+          msg.obj     = (FAR void *)this;
+
+          // NOTE that we cannot block because we are on the same thread
+          // as the message reader.  If the event queue becomes full then
+          // we have no other option but to lose events.
+          //
+          // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+          // the risk of runawy stack usage.
+
+          int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                            sizeof(struct SEventMsg), 100);
+          if (ret < 0)
+            {
+              gerr("ERROR: mq_send failed: %d\n", ret);
+            }
+        }
+    }
 }
 
 /**

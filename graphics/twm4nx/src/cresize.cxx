@@ -661,7 +661,7 @@ void CResize::endResize(FAR CWindow *cwin)
       CIconMgr *iconMgr = cwin->getIconMgr();
       DEBUGASSERT(iconMgr != (CIconMgr *)0);
 
-      unsigned int currcol = iconMgr->getCurrColumn();
+      unsigned int currcol = iconMgr->getNumberOfColumns();
       if (currcol == 0)
         {
           currcol = 1;
@@ -671,7 +671,7 @@ void CResize::endResize(FAR CWindow *cwin)
       iconMgr->getSize(&iconMgrSize);
 
       iconMgrSize.w = (unsigned int)
-        ((m_dragsize.w * (unsigned long)iconMgr->getColumns()) / currcol);
+        ((m_dragsize.w * (unsigned long)iconMgr->getDisplayColumns()) / currcol);
 
       cwin->resizeFrame(&iconMgrSize, &pos);
       iconMgr->pack();
@@ -950,7 +950,7 @@ bool CResize::event(FAR struct SEventMsg *eventmsg)
 
              if (eventmsg->context == EVENT_CONTEXT_FRAME ||
                  eventmsg->context == EVENT_CONTEXT_WINDOW ||
-                 eventmsg->context == EVENT_CONTEXT_TITLE)
+                 eventmsg->context == EVENT_CONTEXT_TOOLBAR)
                 {
                   resizeFromCenter(cwin);
                 }

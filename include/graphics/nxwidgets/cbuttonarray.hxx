@@ -215,6 +215,19 @@ namespace NXWidgets
     ~CButtonArray(void);
 
     /**
+     * Resize the array of buttons.  Button labels will be removed and will
+     * have to be reapplied in the new geometry.
+     *
+     * @param buttonColumns The number of buttons in one row of the button array
+     * @param buttonRows The number of buttons in one column of the button array
+     * @param buttonWidth The width of one button
+     * @param buttonHeight The height of one button
+     */
+
+    bool resizeArray(uint8_t buttonColumns, uint8_t buttonRows,
+                     nxgl_coord_t buttonWidth, nxgl_coord_t buttonHeight);
+
+    /**
      * Returns the string shown in the label.
      *
      * @param column The column index of the button of interest

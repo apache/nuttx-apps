@@ -323,10 +323,9 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
               newmsg.eventID  = item->func;
               newmsg.pos.x    = eventmsg->pos.x;
               newmsg.pos.y    = eventmsg->pos.y;
+              newmsg.delta.x  = 0;
+              newmsg.delta.y  = 0;
               newmsg.context  = eventmsg->context;
-              newmsg.pulldown = eventmsg->pulldown;
-              newmsg.action   = item->action;
-              newmsg.nxwin    = eventmsg->nxwin;
               newmsg.obj      = eventmsg->obj;
 
               // NOTE that we cannot block because we are on the same thread

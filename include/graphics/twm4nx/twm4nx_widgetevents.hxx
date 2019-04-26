@@ -109,21 +109,11 @@ namespace Twm4Nx
 
     // Recipient == ICONWIN
 
-    EVENT_ICONWIN_GRAB       = 0x2000,  /**< Click on toolbar (not toolbar buttons) */
+    EVENT_ICONWIN_GRAB       = 0x2000,  /**< Click on toolbar title */
     EVENT_ICONWIN_DRAG       = 0x2001,  /**< Drag window */
     EVENT_ICONWIN_UNGRAB     = 0x2002,  /**< Release click on toolbar */
 
     // Recipient == ICONMGR
-
-    EVENT_ICONMGR_FORWARD    = 0x3000,  /**< Forward in the window list */
-    EVENT_ICONMGR_BACK       = 0x3001,  /**< Backward in the window list */
-    EVENT_ICONMGR_UP         = 0x3002,  /**< Up one row */
-    EVENT_ICONMGR_DOWN       = 0x3003,  /**< Down one row */
-    EVENT_ICONMGR_LEFT       = 0x3004,  /**< Left one column */
-    EVENT_ICONMGR_RIGHT      = 0x3005,  /**< Right one column */
-    EVENT_ICONMGR_SHOWPARENT = 0x3006,  /**< Raise Icon Manager parent window */
-    EVENT_ICONMGR_HIDE       = 0x3007,  /**< Hide the Icon Manager */
-    EVENT_ICONMGR_SORT       = 0x3008,  /**< Sort the Icon Manager */
 
     // Recipient == MENU
 
@@ -173,9 +163,8 @@ namespace Twm4Nx
   enum EButtonContext
   {
     EVENT_CONTEXT_WINDOW = 0,
-    EVENT_CONTEXT_TITLE,
+    EVENT_CONTEXT_TOOLBAR,
     EVENT_CONTEXT_ICON,
-    EVENT_CONTEXT_ROOT,
     EVENT_CONTEXT_FRAME,
     EVENT_CONTEXT_ICONMGR,
     EVENT_CONTEXT_NAME,
@@ -192,10 +181,8 @@ namespace Twm4Nx
   {
     uint16_t eventID;                   /**< Encoded event ID */
     struct nxgl_point_s pos;            /**< X/Y position */
+    struct nxgl_point_s delta;          /**< X/Y change (for dragging only) */
     uint8_t context;                    /**< Button press context */
-    bool pulldown;                      /**< Pull-down menu */
-    FAR const char *action;             /**< Menu action */
-    FAR NXWidgets::CNxTkWindow *nxwin;  /**< Raw NX window reference */
     FAR void *obj;                      /**< Window object (CWindow or CIconWin) */
   };
 
@@ -208,7 +195,7 @@ namespace Twm4Nx
   {
     uint16_t eventID;                  /**< Encoded event ID */
     FAR CWindowEvent *instance;        /**< X/Y position */
-    FAR struct SWindow *win;           /**<  Twm4NX window reference */
+    FAR struct SWindow *win;           /**< Twm4NX window reference */
   };
 }
 

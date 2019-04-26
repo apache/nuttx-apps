@@ -465,7 +465,7 @@ namespace NXWidgets
      * @return This string.
      */
 
-    CNxString &operator=(const char *string);
+    CNxString &operator=(FAR const char *string);
 
     /**
      * Overloaded assignment operator.  Copies the data from the argument
@@ -509,6 +509,7 @@ namespace NXWidgets
      */
 
     int compareTo(const CNxString &string) const;
+    int compareTo(FAR const char *string) const;
 
     /**
      * snprintf()-style string formatting. Automatically allocates correct

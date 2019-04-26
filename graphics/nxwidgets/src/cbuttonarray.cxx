@@ -126,10 +126,61 @@ CButtonArray::~CButtonArray(void)
 }
 
 /**
+ * Resize the array of buttons.  Button labels will be removed and will
+ * have to be reapplied in the new geometry.
+ *
+ * @param buttonColumns The number of buttons in one row of the button array
+ * @param buttonRows The number of buttons in one column of the button array
+ * @param buttonWidth The width of one button
+ * @param buttonHeight The height of one button
+ */
+
+bool CButtonArray::resizeArray(uint8_t buttonColumns, uint8_t buttonRows,
+                               nxgl_coord_t buttonWidth, nxgl_coord_t buttonHeight)
+{
+  setRaisesEvents(false);
+  disableDrawing();
+
+  // Delete the current array of CNxString instances
+
+  delete [] m_buttonText;
+
+  // Update configuration
+
+  m_buttonRows       = buttonRows;
+  m_buttonColumns    = buttonColumns;
+  m_buttonWidth      = buttonWidth;
+  m_buttonHeight     = buttonHeight;
+
+  // Reset the cursor position if necessary
+
+  if (m_cursorColumn >= m_buttonColumns)
+    {
+      m_cursorColumn = m_buttonColumns - 1;
+    }
+
+  if (m_cursorRow >= m_buttonRows)
+    {
+      m_cursorRow    = m_buttonRows - 1;
+    }
+
+  // Allocate the new text array
+
+  m_buttonText        = new CNxString[m_buttonRows * m_buttonColumns];
+
+  // And go active again with a resized button array (with no labels)
+
+  enableDrawing();
+  redraw();
+  setRaisesEvents(true);
+  return true;
+}
+
+/**
  * Returns the string shown in the label.
  *
  * @param column The column index of the button of interest
-* @param row The row index of the button of interest
+ * @param row The row index of the button of interest
  * @return The label's text.
  */
 
