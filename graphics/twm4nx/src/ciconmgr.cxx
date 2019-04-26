@@ -524,16 +524,6 @@ bool CIconMgr::createWindow(FAR const char *prefix)
 
 bool CIconMgr::createButtonArray(void)
 {
-  // Create a Widget control instance for the window using the default style
-  // for now.  CWindowEvent derives from CWidgetControl.
-  // REVISIT: Create the style, using the selected colors.
-
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
-  if (control == (FAR CWindowEvent *)0)
-    {
-      return false;
-    }
-
   // Get the width of the window
 
   struct nxgl_size_s windowSize;
@@ -557,6 +547,17 @@ bool CIconMgr::createButtonArray(void)
   nxgl_coord_t buttonWidth  = windowSize.w / m_maxColumns;
   nxgl_coord_t buttonHeight = windowSize.w / nrows;
 
+  // Get the Widget control instance from the Icon Manager window.  This
+  // will force all widget drawing to go to the Icon Manager window.
+
+  FAR NXWidgets:: CWidgetControl *control = m_window->getWidgetControl();
+  if (control == (FAR NXWidgets:: CWidgetControl *)0)
+    {
+      // Should not fail
+
+      return false;
+    }
+
   // Now we have enough information to create the button array
 
   m_buttons = new NXWidgets::CButtonArray(control,
@@ -566,7 +567,6 @@ bool CIconMgr::createButtonArray(void)
   if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
     {
       gerr("ERROR: Failed to get window size\n");
-      delete control;
       return false;
     }
 

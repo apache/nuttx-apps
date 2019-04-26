@@ -843,7 +843,8 @@ bool CWindow::createToolbarButtons(void)
       nxgl_coord_t w = 1;
       nxgl_coord_t h = 1;
 
-      // Get the toolbar CWdigetControl instance
+      // Get the toolbar CWdigetControl instance.  This will force all
+      // widget drawing to go to the toolbar.
 
       NXWidgets::CWidgetControl *control = m_toolbar->getWidgetControl();
 
@@ -962,13 +963,14 @@ bool CWindow::createToolbarTitle(FAR const char *name)
   titlePos.x = m_tbLeftX + CONFIG_TWM4NX_FRAME_VSPACING;
   titlePos.y = 0;
 
-  // Create a Widget control instance for the window using the default style
-  // for now.  CWindowEvent derives from CWidgetControl.
-  // REVISIT: Create the style, using the selected colors.
+  // Get the Widget control instance from the toolbar window.  This
+  // will force all widget drawing to go to the toolbar.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
-  if (control == (FAR CWindowEvent *)0)
+  FAR NXWidgets:: CWidgetControl *control = m_toolbar->getWidgetControl();
+  if (control == (FAR NXWidgets:: CWidgetControl *)0)
     {
+      // Should not fail
+
       return false;
     }
 

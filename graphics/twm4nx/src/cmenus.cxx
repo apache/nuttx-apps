@@ -628,17 +628,18 @@ bool CMenus::setMenuWindowPosition(FAR struct nxgl_point_s *framePos)
 
 bool CMenus::createMenuListBox(void)
 {
+  // Get the Widget control instance from the menu window.  This
+  // will force all widget drawing to go to the Icon Manager window.
+
+  FAR NXWidgets:: CWidgetControl *control = m_menuWindow->getWidgetControl();
+  if (control == (FAR NXWidgets:: CWidgetControl *)0)
+    {
+      // Should not fail
+
+      return false;
+    }
+
   // Create the menu list box
-  // 1. Get the server instance.  m_twm4nx inherits from NXWidgets::CNXServer
-  //    so we all ready have the server instance.
-  // 2. Create the style, using the selected colors (REVISIT)
-
-  // 3. Create a Widget control instance for the window using the default
-  //    style for now.  CWindowEvent derives from CWidgetControl.
-
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
-
-  // 4. Create the menu list box
 
   struct nxgl_point_s pos;
   pos.x = 0;
@@ -653,7 +654,6 @@ bool CMenus::createMenuListBox(void)
   if (m_menuListBox == (FAR NXWidgets::CListBox *)0)
     {
       gerr("ERROR: Failed to instantiate list box\n");
-      delete control;
       return false;
     }
 
