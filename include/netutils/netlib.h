@@ -185,6 +185,28 @@ struct netlib_ipv6_route_s
 #endif
 #endif /* HAVE_ROUTE_PROCFS */
 
+#ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
+struct url_s
+{
+  FAR char *scheme;
+  int       schemelen;
+  FAR char *user;
+  int       userlen;
+  FAR char *password;
+  int       passwordlen;
+  FAR char *host;
+  int       hostlen;
+  int       port;
+  FAR char *path;
+  int       pathlen;
+  FAR char *parameters;
+  int       parameterslen;
+  FAR char *bookmark;
+  int       bookmarklen;
+};
+#endif
+
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -322,6 +344,10 @@ int netlib_icmpv6_autoconfiguration(FAR const char *ifname);
 int  netlib_parsehttpurl(FAR const char *url, uint16_t *port,
                       FAR char *hostname, int hostlen,
                       FAR char *filename, int namelen);
+
+#ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
+int netlib_parseurl(FAR const char *str, FAR struct url_s *url);
+#endif
 
 /* Generic server logic */
 

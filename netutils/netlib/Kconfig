@@ -12,4 +12,12 @@ config NETUTILS_NETLIB
 		Enable support for the network support library.
 
 if NETUTILS_NETLIB
+
+config NETUTILS_NETLIB_GENERICURLPARSER
+	bool "Build the generic URL parser"
+	default n
+	---help---
+		If this option is selected, a generic URL parser
+		is included in the build. It is more flexible than
+		the basic netlib_parsehttpurl routine.
 endif

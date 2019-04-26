@@ -40,6 +40,11 @@
 CSRCS  = netlib_ipv4addrconv.c netlib_ethaddrconv.c netlib_parsehttpurl.c
 CSRCS += netlib_setifstatus.c netlib_getifstatus.c
 
+# Generic URL parsing support
+ifeq ($(CONFIG_NETUTILS_NETLIB_GENERICURLPARSER),y)
+CSRCS += netlib_parseurl.c
+endif
+
 # IP address support
 
 ifeq ($(CONFIG_NET_IPv4),y)
