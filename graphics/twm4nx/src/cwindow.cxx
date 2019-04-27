@@ -957,7 +957,7 @@ bool CWindow::createToolbarTitle(FAR const char *name)
   titleSize.h = m_tbHeight;
   titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_FRAME_VSPACING + 1;
 
-  // Position the tile.  Packed to the left horizontally, positioned at the
+  // Position the title.  Packed to the left horizontally, positioned at the
   // top of the toolbar.
 
   struct nxgl_point_s titlePos;
@@ -1167,6 +1167,10 @@ void CWindow::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_drag && !m_tbTitle->isClicked())
     {
+      // A click with no drag should raise the window.
+
+      m_iconWin->raise();
+
       // Handle the non-drag drop event
 
       handleUngrabEvent(e);
@@ -1224,7 +1228,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
 /**
  * Handle the TOOLBAR_GRAB event.  That corresponds to a left
- * mouse click on the tile widget in the toolbar
+ * mouse click on the title widget in the toolbar
  *
  * @param eventmsg.  The received NxWidget event message.
  * @return True if the message was properly handled.  false is

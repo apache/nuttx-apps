@@ -50,10 +50,6 @@
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Implementation Class Definition
  ****************************************************************************/
 
@@ -61,6 +57,7 @@ namespace NXWidgets
 {
   class  CBgWindow;                               // Forward reference
   class  CImage;                                  // Forward reference
+  class  CWidgetControl;                          // Forward reference
   struct SRlePaletteBitmap;                       // Forward reference
 }
 
@@ -118,6 +115,16 @@ namespace Twm4Nx
        */
 
       ~CBackground(void);
+
+      /**
+       * Get the widget control instance needed to support application drawing
+       * into the background.
+       */
+
+      inline FAR NXWidgets::CWidgetControl *getWidgetControl()
+      {
+        return m_backWindow->getWidgetControl();
+      }
 
       /**
        * Set the background image

@@ -47,6 +47,7 @@
 #include <stdio.h>
 
 #include "graphics/nxwidgets/cnxfont.hxx"
+#include "graphics/nxwidgets/clabel.hxx"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
@@ -84,17 +85,11 @@ using namespace Twm4Nx;
 
 CResize::CResize(CTwm4Nx *twm4nx)
 {
-  // Save the Twm4Nx session
-
-  m_twm4nx      = twm4nx;
-
-  // Windows
-
-  m_sizeWindow  = (FAR NXWidgets::CNxTkWindow *)0;
-
-  // Strings
-
-  m_stringWidth = 0;
+  m_twm4nx      = twm4nx;                           // Save the Twm4Nx session
+  m_eventq      = (mqd_t)-1;                        // No widget message queue yet
+  m_sizeWindow  = (FAR NXWidgets::CNxTkWindow *)0;  // No resize dimension windows yet
+  m_sizeLabel   = (FAR NXWidgets::CLabel *)0;       // No resize dismsion label
+  m_stringWidth = 0;                                // String width
 }
 
 /**
@@ -103,7 +98,23 @@ CResize::CResize(CTwm4Nx *twm4nx)
 
 CResize::~CResize(void)
 {
-  // Free the resize dimensions window
+  // Close the NxWidget event message queue
+
+  if (m_eventq != (mqd_t)-1)
+    {
+      (void)mq_close(m_eventq);
+      m_eventq = (mqd_t)-1;
+    }
+
+  // Delete the resize dimension label
+
+  if (m_sizeLabel != (FAR NXWidgets::CLabel *)0)
+    {
+      delete m_sizeLabel;
+      m_sizeLabel = (FAR NXWidgets::CLabel *)0;
+    }
+
+  // Delete the resize dimensions window
 
   if (m_sizeWindow != (FAR NXWidgets::CNxTkWindow *)0)
     {
@@ -121,65 +132,31 @@ CResize::~CResize(void)
 
 bool CResize::initialize(void)
 {
-  // Create the main window
-  // 1. Get the server instance.  m_twm4nx inherits from NXWidgets::CNXServer
-  //    so we all ready have the server instance.
-  // 2. Create the style, using the selected colors (REVISIT)
+  // Open a message queue to NX events.
 
-  // 3. Create a Widget control instance for the window using the default
-  //    style for now.  CWindowEvent derives from CWidgetControl.
-
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
-
-  // 4. Create the main window
-
-  m_sizeWindow = m_twm4nx->createFramedWindow(control);
-  if (m_sizeWindow == (FAR NXWidgets::CNxTkWindow *)0)
+  FAR const char *mqname = m_twm4nx->getEventQueueName();
+  m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
+  if (m_eventq == (mqd_t)-1)
     {
-      delete control;
+      gerr("ERROR: Failed open message queue '%s': %d\n",
+           mqname, errno);
       return false;
     }
 
-  // 5. Open and initialize the main window
+  // Create the size window
 
-  bool success = m_sizeWindow->open();
-  if (!success)
+  if (!createSizeWindow())
     {
-      delete m_sizeWindow;
-      m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
+      gerr("ERROR:  Failed to create menu window\n");
       return false;
     }
 
-  // 6. Set the initial window size
+  // Create the size label widget
 
-  // Create the resize dimension window
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
-
-  m_stringWidth = sizeFont->getStringWidth(" 8888 x 8888 ");
-
-  struct nxgl_size_s size;
-  size.w = m_stringWidth,
-  size.h = (sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2);
-
-  if (!m_sizeWindow->setSize(&size))
+  if (!createSizeLabel())
     {
-      delete m_sizeWindow;
-      m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
-      return false;
-    }
+      gerr("ERROR:  Failed to recreate size label\n");
 
-  // 7. Set the initial window position
-
-  struct nxgl_point_s pos =
-  {
-    .x = 0,
-    .y = 0
-  };
-
-  if (!m_sizeWindow->setPosition(&pos))
-    {
       delete m_sizeWindow;
       m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
       return false;
@@ -246,10 +223,6 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
   m_delta.x     = 0;
   m_delta.y     = 0;
 
-#ifdef CONFIG_TWM4NX_AUTO_RERESIZE // Resize relative to position in quad
-  autoClamp(cwin, eventmsg);
-#endif
-
   FAR CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
 
@@ -259,8 +232,9 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
 
   // Set the window size
 
-  if (!m_sizeWindow->setSize(&size))
+  if (!setWindowSize(&size))
     {
+      gerr("ERROR: setWindowSize() failed\n");
       return;
     }
 
@@ -271,7 +245,7 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
   m_last.w = 0;
   m_last.h = 0;
 
-  displaySize(cwin, &m_origsize);
+  updateSizeLabel(cwin, &m_origsize);
 
   // Set the new frame position and size
 
@@ -311,15 +285,16 @@ void CResize::menuStartResize(FAR CWindow *cwin,
   winsize.w = m_stringWidth + CONFIG_TWM4NX_ICONMGR_HSPACING * 2;
   winsize.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
 
-  if (!m_sizeWindow->setSize(&winsize))
+  if (!setWindowSize(&winsize))
     {
+      gerr("ERROR: setWindowSize() failed\n");
       return;
     }
 
   // Move the size window it to the top of the hieararchy
 
   m_sizeWindow->raise();
-  displaySize(cwin, &m_origsize);
+  updateSizeLabel(cwin, &m_origsize);
 
   // Set the new frame position and size
 
@@ -359,7 +334,7 @@ void CResize::addStartResize(FAR CWindow *cwin,
 
   m_last.w      = 0;
   m_last.h      = 0;
-  displaySize(cwin, &m_origsize);
+  updateSizeLabel(cwin, &m_origsize);
 }
 
 /**
@@ -488,12 +463,12 @@ void CResize::menuDoResize(FAR CWindow *cwin,
         }
     }
 
-  displaySize(cwin, &m_dragsize);
+  updateSizeLabel(cwin, &m_dragsize);
 }
 
 /**
- * Move the rubberband around.  This is called for each motion event when
- * we are resizing
+ * Resize the window.  This is called for each motion event while we are
+ * resizing
  *
  * @param cwin  The current Twm4Nx window
  * @param root  The X position in the root window
@@ -620,7 +595,7 @@ void CResize::doResize(FAR CWindow *cwin,
         }
     }
 
-  displaySize(cwin, &m_dragsize);
+  updateSizeLabel(cwin, &m_dragsize);
 }
 
 /**
@@ -706,22 +681,6 @@ void CResize::menuEndResize(FAR CWindow *cwin)
 
   constrainSize(cwin, &m_dragsize);
   setupWindow(cwin, &m_dragpos, &m_dragsize);
-}
-
-/**
- * Finish the resize operation for AddWindo<w
- */
-
-// REVISIT: Not used.  Used to be used to handle prompt for window size
-// vs. automatically sizing.
-
-void CResize::addEndResize(FAR CWindow *cwin)
-{
-  constrainSize(cwin, &m_dragsize);
-  m_addingPos.x  = m_dragpos.x;
-  m_addingPos.y  = m_dragpos.y;
-  m_addingSize.w = m_dragsize.w;
-  m_addingSize.h = m_dragsize.h;
 }
 
 /**
@@ -982,78 +941,176 @@ bool CResize::event(FAR struct SEventMsg *eventmsg)
   return success;
 }
 
-#ifdef CONFIG_TWM4NX_AUTO_RERESIZE // Resize relative to position in quad
-void CResize::autoClamp(FAR CWindow *cwin,
-                        FAR struct SEventMsg *eventmsg *eventmsg)
+/**
+ * Create the size window
+ */
+
+bool CResize::createSizeWindow(void)
 {
-  FAR NXWidgets::CNxTkWindow *root;
-  struct nxgl_point_s pos;
-  int h;
-  int v;
-  unsigned int mask;
+  // Create the main window
+  // 1. Get the server instance.  m_twm4nx inherits from NXWidgets::CNXServer
+  //    so we all ready have the server instance.
+  // 2. Create the style, using the selected colors (REVISIT)
 
-  switch (eventmsg->type)
+  // 3. Create a Widget control instance for the window using the default
+  //    style for now.  CWindowEvent derives from CWidgetControl.
+
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+
+  // 4. Create the main window
+
+  m_sizeWindow = m_twm4nx->createFramedWindow(control);
+  if (m_sizeWindow == (FAR NXWidgets::CNxTkWindow *)0)
     {
-    case ButtonPress:
-      pos.x = eventmsg->pos.x;
-      pos.y = eventmsg->pos.y;
-      break;
-
-    case KeyPress:
-      pos.x = eventmsg->pos.x;
-      pos.y = eventmsg->pos.y;
-      break;
-
-    default:
-      // Root window position
-
-      root.x = 0;  // REVISIT
-      root.y = 0;
-
-      // Relative window position
-
-      if (!xxx->getPosition(&pos))
-        {
-          return;
-        }
+      delete control;
+      return false;
     }
 
-  h = ((pos.x - m_dragpos.x) / (m_dragsize.w < 3 ? 1 : (m_dragsize.w / 3)));
-  v = ((pos.y - m_dragpos.y) / (m_dragsize.h < 3 ? 1 : (m_dragsize.h / 3)));
+  // 5. Open and initialize the main window
 
-  if (h <= 0)
+  bool success = m_sizeWindow->open();
+  if (!success)
     {
-      m_clamp.pt1.x = 1;
-      m_delta.x = (pos.x - m_dragpos.x);
-    }
-  else if (h >= 2)
-    {
-      m_clamp.pt2.x = 1;
-      m_delta.x = (pos.x - m_dragpos.x - m_dragsize.w);
+      delete m_sizeWindow;
+      m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
+      return false;
     }
 
-  if (v <= 0)
+  // 6. Set the initial window size
+
+  // Create the resize dimension window
+
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
+
+  m_stringWidth = sizeFont->getStringWidth(" 8888 x 8888 ");
+
+  struct nxgl_size_s size;
+  size.w = m_stringWidth,
+  size.h = (sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2);
+
+  if (!m_sizeWindow->setSize(&size))
     {
-      m_clamp.pt1.y = 1;
-      m_delta.y = (pos.y - m_dragpos.y);
+      delete m_sizeWindow;
+      m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
+      return false;
     }
-  else if (v >= 2)
+
+  // 7. Set the initial window position
+
+  struct nxgl_point_s pos =
+  {
+    .x = 0,
+    .y = 0
+  };
+
+  if (!m_sizeWindow->setPosition(&pos))
     {
-      m_clamp.pt2.y = 1;
-      m_delta.y = (pos.y - m_dragpos.y - m_dragsize.h);
+      delete m_sizeWindow;
+      m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
+      return false;
     }
+
+  return true;
 }
-#endif
 
 /**
- * Display the size in the dimensions window.
+ * Create the size label widget
+ */
+
+bool CResize::createSizeLabel(void)
+{
+  // The size of the selected is selected to fill the entire size window
+
+  struct nxgl_size_s labelSize;
+  if (!m_sizeWindow->setSize(&labelSize))
+    {
+      gerr("ERROR: Failed to get window size\n");
+      return false;
+    }
+
+  // Position the label at the origin of the window.
+
+  struct nxgl_point_s labelPos;
+  labelPos.x = 0;
+  labelPos.y = 0;
+
+  // Get the Widget control instance from the size window.  This
+  // will force all widget drawing to go to the size window.
+
+  FAR NXWidgets:: CWidgetControl *control =
+    m_sizeWindow->getWidgetControl();
+
+  if (control == (FAR NXWidgets:: CWidgetControl *)0)
+    {
+      // Should not fail
+
+      return false;
+    }
+
+  // Create the size label widget
+
+  m_sizeLabel = new NXWidgets::CLabel(control, labelPos.x, labelPos.y,
+                                      labelSize.w, labelSize.h,
+                                      " 8888 x 8888 ");
+  if (m_sizeLabel == (FAR NXWidgets::CLabel *)0)
+    {
+      gerr("ERROR: Failed to construct size label widget\n");
+      return false;
+    }
+
+  // Configure the size label
+
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
+
+  m_sizeLabel->setFont(sizeFont);
+  m_sizeLabel->setBorderless(true);
+  m_sizeLabel->disableDrawing();
+  m_sizeLabel->setTextAlignmentHoriz(NXWidgets::CLabel::TEXT_ALIGNMENT_HORIZ_CENTER);
+  m_sizeLabel->setTextAlignmentVert(NXWidgets::CLabel::TEXT_ALIGNMENT_VERT_CENTER);
+  m_sizeLabel->setRaisesEvents(false);
+
+  // Register to get events from the mouse clicks on the image
+
+  m_sizeLabel->addWidgetEventHandler(this);
+  return true;
+}
+
+/**
+ * Set the Window Size
+ */
+
+bool CResize::setWindowSize(FAR struct nxgl_size_s *size)
+{
+  // Set the window size
+
+  if (!m_sizeWindow->setSize(size))
+    {
+      return false;
+    }
+
+  // Set the label size to match
+
+  if (!m_sizeLabel->resize(size->w, size->h))
+    {
+      return false;
+    }
+
+  return true;
+}
+
+/**
+ * Update the size show in the size dimension label.
  *
- * @param cwin   The current window being resize
+ * @param cwin   The current window being resized
  * @param size   She size of the rubber band
  */
 
-void CResize::displaySize(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
+void CResize::updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
 {
+  // Do nothing if the size has not changed
+
   if (m_last.w == size->w && m_last.h == size->h)
     {
       return;
@@ -1062,21 +1119,29 @@ void CResize::displaySize(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
   m_last.w = size->w;
   m_last.h = size->h;
 
-  char str[100];
-  (void)snprintf(str, sizeof(str), " %4d x %-4d ", size->w, size->h);
+  FAR char *str;
+  (void)asprintf(&str, " %4d x %-4d ", size->w, size->h);
+  if (str == (FAR char *)0)
+    {
+      gerr("ERROR: Failed to get size string\n");
+      return;
+    }
+
+  // Bring the window to the top of the hierarchy
 
   m_sizeWindow->raise();
 
-#warning Missing logic
-#if 0
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
+  // Add the string to the label widget
 
-  // Show the string in the CLable in the size window
+  m_sizeLabel->disableDrawing();
+  m_sizeLabel->setRaisesEvents(false);
 
-  // REVISIT:  This no longer exists
-  fonts->renderString(m_twm4nx, m_sizeWindow, sizeFont,
-                      CONFIG_TWM4NX_ICONMGR_HSPACING,
-                      sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING, str);
-#endif
+  m_sizeLabel->setText(str);
+  std::free(str);
+
+  // Re-enable and redraw the label widget
+
+  m_sizeLabel->enableDrawing();
+  m_sizeLabel->setRaisesEvents(true);
+  m_sizeLabel->redraw();
 }

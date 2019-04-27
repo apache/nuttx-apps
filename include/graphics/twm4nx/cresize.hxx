@@ -61,6 +61,7 @@
 namespace NXWidgets
 {
   class  CNxTkWindow;                             // Forward reference
+  class  CLabel;                                  // Forward reference
 }
 
 namespace Twm4Nx
@@ -73,7 +74,9 @@ namespace Twm4Nx
     private:
 
       CTwm4Nx                    *m_twm4nx;       /**< Cached Twm4Nx session */
+      mqd_t                       m_eventq;       /**< NxWidget event message queue */
       FAR NXWidgets::CNxTkWindow *m_sizeWindow;   /**< The resize dimensions window */
+      FAR NXWidgets::CLabel      *m_sizeLabel;    /**< Resize dimension label */
       FAR CWindow                *m_resizeWindow; /**< The window being resized */
       struct nxgl_point_s         m_origpos;      /**< Original position */
       struct nxgl_size_s          m_origsize;     /**< Original size */
@@ -86,9 +89,23 @@ namespace Twm4Nx
       struct nxgl_size_s          m_addingSize;
       int                         m_stringWidth;    /**< Size of current size string */
 
-#ifdef CONFIG_TWM4NX_AUTO_RERESIZE // Resize relative to position in quad
-      void autoClamp(CWindow *cwin, FAR struct SEventMsg *eventmsg);
-#endif
+      /**
+       * Create the size window
+       */
+
+      bool createSizeWindow(void);
+
+      /**
+       * Create the size label widget
+       */
+
+      bool createSizeLabel(void);
+
+      /**
+       * Set the Window Size
+       */
+
+      bool setWindowSize(FAR struct nxgl_size_s *size);
 
       void resizeFromCenter(FAR CWindow *win);
 
@@ -105,13 +122,13 @@ namespace Twm4Nx
                            FAR struct nxgl_size_s *size);
 
       /**
-       * Display the size in the dimensions window.
+       * Update the size show in the size dimension label.
        *
-       * @param cwin   The current window
+       * @param cwin   The current window be resized
        * @param size   The size of the rubber band
        */
 
-      void displaySize(FAR CWindow *cwin, FAR struct nxgl_size_s *size);
+      void updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size);
 
     public:
 
@@ -167,8 +184,8 @@ namespace Twm4Nx
                         FAR struct nxgl_point_s *root);
 
       /**
-       * Move the rubberband around.  This is called for each motion event when
-       * we are resizing
+       * Resize the window.  This is called for each motion event while we are
+       * resizing
        *
        * @param cwin  The current Twm4Nx window
        * @param root  The X position in the root window
@@ -184,15 +201,6 @@ namespace Twm4Nx
       void endResize(FAR CWindow *cwin);
 
       void menuEndResize(FAR CWindow *cwin);
-
-      /**
-       * Finish the resize operation for AddWindo<w
-       */
-
-      // REVISIT: Not used.  Used to be used to handle prompt for window size
-      // vs. automatically sizing.
-
-      void addEndResize(FAR CWindow *cwin);
 
       /**
        * Adjust the given width and height to account for the constraints imposed

@@ -105,12 +105,11 @@ CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
 
 CIconMgr::~CIconMgr(void)
 {
- // Close the NxWidget event message queue
+  // Close the NxWidget event message queue
 
   if (m_eventq != (mqd_t)-1)
     {
       (void)mq_close(m_eventq);
-      m_eventq = (mqd_t)-1;
     }
 
   // Free the icon manager window
