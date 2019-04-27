@@ -48,10 +48,12 @@
 // Included Files
 /////////////////////////////////////////////////////////////////////////////
 
-#include "mqueue.h"
+#include <mqueue.h>
 
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
+
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions
@@ -83,6 +85,8 @@ namespace NXWidgets
 {
   class  CNxTkWindow;                              // Forward reference
   class  CListBox;                                 // Forward reference
+  class  CWidgetEventArgs;                         // Forward reference
+  class  CWidgetEventArgs;                         // Forward reference
 }
 
 namespace Twm4Nx
@@ -97,18 +101,17 @@ namespace Twm4Nx
     FAR struct SMenuItem *blink;                   /**< Backward link previous menu item */
     FAR CMenus *subMenu;                           /**< Menu root of a pull right menu */
     FAR char *text;                                /**< The text string for the menu item */
-    FAR const char *action;                        /**< Action to be performed */
-    short index;                                   /**< Index of this menu item */
-    short func;                                    /**< Built-in function */
+    FAR CTwm4NxEvent *handler;                     /**< Application event handler */
+    uint16_t index;                                /**< Index of this menu item */
+    uint16_t event;                                /**< Menu selection event */
   };
 
-  class CMenus: protected NXWidgets::CWidgetEventHandler
+  class CMenus : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     private:
 
       CTwm4Nx                    *m_twm4nx;        /**< Cached Twm4Nx session */
       mqd_t                       m_eventq;        /**< NxWidget event message queue */
-      FAR struct SFuncKey        *m_funcKeyHead;   /**< Head of function key list */
       FAR NXWidgets::CNxTkWindow *m_menuWindow;    /**< The menu window */
       FAR CMenus                 *m_popUpMenu;     /**< Pop-up menu */
       FAR NXWidgets::CListBox    *m_menuListBox;   /**< The menu list box */
@@ -231,6 +234,15 @@ namespace Twm4Nx
       bool popUpMenu(FAR struct nxgl_point_s *pos);
 
       /**
+       * Override the virtual value change event.  This will get events
+       * when there is a change in the list box selection.
+       *
+       * @param e The event data.
+       */
+
+      void handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e);
+
+      /**
        * Cleanup or initialization error or on deconstruction.
        */
 
@@ -265,14 +277,14 @@ namespace Twm4Nx
        * Add an item to a root menu
        *
        *  \param text    The text to appear in the menu
-       *  \param action  The string to possibly execute
        *  \param subMenu The menu root if it is a pull-right entry
-       *  \param func    The numeric function
+       *  \param handler The application event handler.  Should be NULL unless
+       *                 the event recipient is EVENT_RECIPIENT_APP
+       *  \param event   The event to generate on menu item selection
        */
 
-      bool addMenuItem(FAR const char *text,
-                       FAR const char *action,
-                       FAR CMenus *subMenu, int func);
+      bool addMenuItem(FAR const char *text, FAR CMenus *subMenu,
+                       FAR CTwm4NxEvent *handler, uint16_t event);
 
       /**
        * Handle MENU events.

@@ -58,6 +58,7 @@
 
 #include "graphics/nxwidgets/cnxfont.hxx"
 #include "graphics/nxwidgets/clistbox.hxx"
+#include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
@@ -68,6 +69,7 @@
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
 
@@ -86,6 +88,7 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
   // Save the Twm4Nx session
 
   m_twm4nx       = twm4nx;                     // Save the Twm4Nx session
+  m_eventq       = (mqd_t)-1;                  // No widget message queue yet
 
   // Menus
 
@@ -103,10 +106,6 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
   // Widgets
 
   m_menuListBox  = (FAR NXWidgets::CListBox *)0;  //The menu list box
-
-  // Functions
-
-  m_funcKeyHead  = (FAR struct SFuncKey *)0;
 }
 
 /**
@@ -135,6 +134,7 @@ bool CMenus::initialize(FAR const char *name)
     {
       gerr("ERROR: Failed open message queue '%s': %d\n",
            mqname, errno);
+      return false;
     }
 
   // Save the menu name
@@ -169,20 +169,18 @@ bool CMenus::initialize(FAR const char *name)
 /**
  * Add an item to a menu
  *
- *  \param text     The text to appear in the menu
- *  \param action   The string to possibly execute
- *  \param subMenu  The menu if it is a pull-right entry
- *  \param func     The numeric function
+ *  \param text    The text to appear in the menu
+ *  \param subMenu The menu if it is a pull-right entry
+ *  \param handler The application event handler.  Should be null unless
+ *                 the event recipient is EVENT_RECIPIENT_APP
+ *  \param event   The event to generate on menu item selection
  */
 
-// REVISIT:  Only used internally.  Was used in .twmrc parsing.
-
-bool CMenus::addMenuItem(FAR const char *text,
-                         FAR const char *action, FAR CMenus *subMenu,
-                         int func)
+bool CMenus::addMenuItem(FAR const char *text, FAR CMenus *subMenu,
+                         FAR CTwm4NxEvent *handler, uint16_t event)
 {
-  ginfo("Adding menu text=\"%s\", action=%s, subMenu=%d, f=%d\n",
-        text, action, subMenu, func);
+  ginfo("Adding menu text=\"%s\", subMenu=%p, event=%04x\n",
+        text, subMenu, event);
 
   // Allocate a new menu item entry
 
@@ -206,10 +204,10 @@ bool CMenus::addMenuItem(FAR const char *text,
 
   // Save information about the menu item
 
-  item->action   = action;
   item->flink    = NULL;
   item->subMenu  = NULL;
-  item->func     = func;
+  item->handler  = handler;
+  item->event    = event;
 
   CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *menuFont = fonts->getMenuFont();
@@ -266,6 +264,7 @@ bool CMenus::addMenuItem(FAR const char *text,
 
   // Redraw the list box
 
+  m_menuListBox->enable();
   m_menuListBox->enableDrawing();
   m_menuListBox->setRaisesEvents(true);
   m_menuListBox->redraw();
@@ -320,12 +319,13 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
               // Send another event message to the session manager
 
               struct SEventMsg newmsg;
-              newmsg.eventID  = item->func;
+              newmsg.eventID  = item->event;
               newmsg.pos.x    = eventmsg->pos.x;
               newmsg.pos.y    = eventmsg->pos.y;
               newmsg.delta.x  = 0;
               newmsg.delta.y  = 0;
               newmsg.context  = eventmsg->context;
+              newmsg.handler  = item->handler;
               newmsg.obj      = eventmsg->obj;
 
               // NOTE that we cannot block because we are on the same thread
@@ -333,7 +333,7 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
               // we have no other option but to lose events.
               //
               // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-              // the risk of runawy stack usage.
+              // the risk of runaway stack usage.
 
               int ret = mq_send(m_eventq, (FAR const char *)&newmsg,
                              sizeof(struct SEventMsg), 100);
@@ -629,7 +629,7 @@ bool CMenus::setMenuWindowPosition(FAR struct nxgl_point_s *framePos)
 bool CMenus::createMenuListBox(void)
 {
   // Get the Widget control instance from the menu window.  This
-  // will force all widget drawing to go to the Icon Manager window.
+  // will force all widget drawing to go to the Menu window.
 
   FAR NXWidgets:: CWidgetControl *control = m_menuWindow->getWidgetControl();
   if (control == (FAR NXWidgets:: CWidgetControl *)0)
@@ -657,11 +657,19 @@ bool CMenus::createMenuListBox(void)
       return false;
     }
 
+  // Get the menu font
+
+  FAR CFonts *cfont = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *menuFont = cfont->getMenuFont();
+
   // Configure the list box
 
   m_menuListBox->disable();
   m_menuListBox->disableDrawing();
-  m_menuListBox->disableDrawing();
+  m_menuListBox->setRaisesEvents(false);
+  m_menuListBox->setAllowMultipleSelections(false);
+  m_menuListBox->setFont(menuFont);
+  m_menuListBox->setBorderless(false);
 
   // Register to get events from the mouse clicks on the image
 
@@ -702,8 +710,8 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
       return false;
     }
 
-  m_popUpMenu->addMenuItem("TWM Windows", (FAR const char *)0,
-                           (FAR CMenus *)0, 0);
+  m_popUpMenu->addMenuItem("TWM Windows", (FAR CMenus *)0,
+                           (FAR CTwm4NxEvent *)0, EVENT_SYSTEM_NOP);
 
   FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
   int nWindowNames;
@@ -754,8 +762,8 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
       for (int i = 0; i < nWindowNames; i++)
         {
           m_popUpMenu->addMenuItem(windowNames[i]->getWindowName(),
-                                   (FAR const char *)0, (FAR CMenus *)0,
-                                   EVENT_WINDOW_POPUP);
+                                   (FAR CMenus *)0, (FAR CTwm4NxEvent *)0,
+                                   EVENT_WINDOW_DEICONIFY);
         }
 
       std::free(windowNames);
@@ -812,6 +820,74 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
   m_popUpMenu->raiseMenuWindow();
   m_menuWindow->synchronize();
   return m_popUpMenu;
+}
+
+/**
+ * Override the virtual value change event.  This will get events
+ * when there is a change in the list box selection.
+ *
+ * @param e The event data.
+ */
+
+void CMenus::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // Check if anything is selected
+
+  int menuSelection = m_menuListBox->getSelectedIndex();
+  if (menuSelection >= 0)
+    {
+      // Yes.. Get the selection menu item list box entry
+
+      FAR const NXWidgets::CListBoxDataItem *option =
+        m_menuListBox->getSelectedOption();
+
+      // Get the menu item string
+
+      FAR const NXWidgets::CNxString itemText = option->getText();
+
+      // Now find the window with this name
+
+      for (FAR struct SMenuItem *item = m_menuHead;
+           item != (FAR struct SMenuItem *)0;
+           item = item->flink)
+        {
+          // Check if the menu item string matches the listbox selection
+          // string
+
+          if (itemText.compareTo(item->text) == 0)
+            {
+               // Generate the menu event
+
+               struct SEventMsg msg;
+               msg.eventID = item->event;
+               msg.pos.x   = e.getX();
+               msg.pos.y   = e.getY();
+               msg.delta.x = 0;
+               msg.delta.y = 0;
+               msg.context = EVENT_CONTEXT_TOOLBAR;
+               msg.handler = item->handler;
+               msg.obj     = (FAR void *)this;
+
+              // NOTE that we cannot block because we are on the same thread
+              // as the message reader.  If the event queue becomes full then
+              // we have no other option but to lose events.
+              //
+              // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+              // the risk of runaway stack usage.
+
+              int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                                sizeof(struct SEventMsg), 100);
+              if (ret < 0)
+                {
+                  gerr("ERROR: mq_send failed: %d\n", ret);
+                }
+
+              break;
+            }
+        }
+
+      gwarn("WARNING:  No matching menu item\n");
+    }
 }
 
 /**

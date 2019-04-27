@@ -383,16 +383,19 @@ bool CTwm4Nx::systemEvent(FAR struct SEventMsg *eventmsg)
 {
   switch (eventmsg->eventID)
     {
-    case EVENT_SYSTEM_ERROR:  // Report system error
-                              // REVISIT: An audible tone should be generated
-      break;
+      case EVENT_SYSTEM_NOP:    // Null event
+        break;
 
-    case EVENT_SYSTEM_EXIT:   // Terminate the Twm4Nx session
-      abort();
-      break;                  // Does not return
+      case EVENT_SYSTEM_ERROR:  // Report system error
+                                // REVISIT: An audible tone should be generated
+        break;
 
-    default:
-      return false;
+      case EVENT_SYSTEM_EXIT:   // Terminate the Twm4Nx session
+        abort();
+        break;                  // Does not return
+
+      default:
+        return false;
     }
 
   return true;
@@ -448,8 +451,19 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         ret = m_factory->event(eventmsg);
         break;
 
-      case EVENT_RECIPIENT_RESIZE:   // Windw resize event
+      case EVENT_RECIPIENT_RESIZE:   // Wind0w resize event
         ret = m_resize->event(eventmsg);
+        break;
+
+      case EVENT_RECIPIENT_APP:      // Application menu event
+        {
+          // Application events are unique in that they do not have any
+          // fixed, a priori endpoint.  Rather, the endpoint must be
+          // provided in the 'handler' field of the message
+
+          DEBUGASSERT(eventmsg->handler != (FAR CTwm4NxEvent *)0);
+          ret = eventmsg->handler->event(eventmsg);
+        }
         break;
 
       case EVENT_RECIPIENT_MASK:     // Used to isolate recipient

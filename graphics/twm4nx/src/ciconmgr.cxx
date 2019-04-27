@@ -68,6 +68,8 @@
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -86,6 +88,7 @@ using namespace Twm4Nx;
 CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
 {
   m_twm4nx     = twm4nx;                            // Cached the Twm4Nx session
+  m_eventq     = (mqd_t)-1;                         // No widget message queue yet
   m_head       = (FAR struct SWindowEntry *)0;      // Head of the winow list
   m_tail       = (FAR struct SWindowEntry *)0;      // Tail of the winow list
   m_active     = (FAR struct SWindowEntry *)0;      // No active window
@@ -102,6 +105,14 @@ CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
 
 CIconMgr::~CIconMgr(void)
 {
+ // Close the NxWidget event message queue
+
+  if (m_eventq != (mqd_t)-1)
+    {
+      (void)mq_close(m_eventq);
+      m_eventq = (mqd_t)-1;
+    }
+
   // Free the icon manager window
 
   if (m_window != (FAR CWindow *)0)
@@ -125,6 +136,17 @@ CIconMgr::~CIconMgr(void)
 
 bool CIconMgr::initialize(FAR const char *prefix)
 {
+  // Open a message queue to NX events.
+
+  FAR const char *mqname = m_twm4nx->getEventQueueName();
+  m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
+  if (m_eventq == (mqd_t)-1)
+    {
+      gerr("ERROR: Failed open message queue '%s': %d\n",
+           mqname, errno);
+      return false;
+    }
+
   // Create the icon manager window
 
   if (!createWindow(prefix))
@@ -530,7 +552,6 @@ bool CIconMgr::createButtonArray(void)
   if (!m_window->getWindowSize(&windowSize))
     {
       gerr("ERROR: Failed to get window size\n");
-      delete control;
       return false;
     }
 
@@ -733,24 +754,52 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
           if (string.compareTo(swin->cwin->getWindowName()) == 0)
             {
+              // Got it... send an event message
+
+              struct SEventMsg msg;
+              msg.pos.x   = e.getX();
+              msg.pos.y   = e.getY();
+              msg.delta.x = 0;
+              msg.delta.y = 0;
+              msg.context = EVENT_CONTEXT_ICONMGR;
+              msg.handler = (FAR CTwm4NxEvent *)0;
+              msg.obj     = (FAR void *)swin->cwin;
+
               // Got it.  Is the window Iconified?
 
               if (swin->cwin->isIconified())
                 {
                   // Yes, de-Iconify it
 
-                  swin->cwin->deIconify();
+                  msg.eventID = EVENT_WINDOW_DEICONIFY;
                 }
               else
                 {
                   // Otherwise, raise the window to the top of the heirarchy
 
-                  swin->cwin->raiseWindow();
+                  msg.eventID = EVENT_WINDOW_RAISE;
+                }
+
+              // NOTE that we cannot block because we are on the same thread
+              // as the message reader.  If the event queue becomes full
+              // then we have no other option but to lose events.
+              //
+              // I suppose we could recurse raise() or de-Iconifiy directly
+              // here at the risk of runaway stack usage (we are already deep
+              // in the stack here).
+
+              int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                                sizeof(struct SEventMsg), 100);
+              if (ret < 0)
+                {
+                  gerr("ERROR: mq_send failed: %d\n", ret);
                 }
 
               break;
             }
         }
+
+      gwarn("WARNING:  No matching window name\n");
     }
 }
 

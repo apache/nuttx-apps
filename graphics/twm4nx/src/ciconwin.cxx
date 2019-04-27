@@ -57,6 +57,7 @@
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cicon.hxx"
 #include "graphics/twm4nx/ciconwin.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
 

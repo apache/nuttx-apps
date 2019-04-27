@@ -68,6 +68,7 @@ namespace Twm4Nx
 {
   class CWindow;      // Forward reference
   class CWindowEvent; // Forward reference
+  class CTwm4NxEvent;  // Forward reference
   class CTwm4Nx;      // Forward reference
 
   ///////////////////////////////////////////////////////////////////////////
@@ -89,6 +90,7 @@ namespace Twm4Nx
     EVENT_RECIPIENT_TOOLBAR  = 0x6000,  /**< Toolbar related event */
     EVENT_RECIPIENT_BORDER   = 0x7000,  /**< Window border related event */
     EVENT_RECIPIENT_RESIZE   = 0x8000,  /**< Window resize event */
+    EVENT_RECIPIENT_APP      = 0x9000,  /**< App received event via CTwn4NxEvent */
     EVENT_RECIPIENT_MASK     = 0xf000,  /**< Used to isolate recipient */
   };
 
@@ -104,8 +106,9 @@ namespace Twm4Nx
 
     // Recipient == SYSTEM
 
-    EVENT_SYSTEM_ERROR       = 0x1000,  /**< Report system error */
-    EVENT_SYSTEM_EXIT        = 0x1001,  /**< Terminate the Twm4Nx session */
+    EVENT_SYSTEM_NOP         = 0x1000,  /**< Null event */
+    EVENT_SYSTEM_ERROR       = 0x1001,  /**< Report system error */
+    EVENT_SYSTEM_EXIT        = 0x1002,  /**< Terminate the Twm4Nx session */
 
     // Recipient == ICONWIN
 
@@ -131,8 +134,8 @@ namespace Twm4Nx
     EVENT_WINDOW_UNFOCUS     = 0x5001,  /**< Exit modal state */
     EVENT_WINDOW_RAISE       = 0x5002,  /**< Raise window to the top of the heirarchy */
     EVENT_WINDOW_LOWER       = 0x5003,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DRAG        = 0x5004,  /**< Drag window */
-    EVENT_WINDOW_POPUP       = 0x5005,  /**< De-iconify and raise window */
+    EVENT_WINDOW_DEICONIFY   = 0x5004,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG        = 0x5005,  /**< Drag window */
     EVENT_WINDOW_DELETE      = 0x5006,  /**< Delete window */
 
     // Recipient == TOOLBAR
@@ -156,6 +159,11 @@ namespace Twm4Nx
     EVENT_RESIZE_RIGHTZOOM   = 0x8005,  /**< Zoom right only */
     EVENT_RESIZE_TOPZOOM     = 0x8006,  /**< Zoom top only */
     EVENT_RESIZE_BOTTOMZOOM  = 0x8007,  /**< Zoom bottom only */
+
+    // Recipient == ICONWIN
+    // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,
+    // and (2) provide an instance of CTwm4NxEvent in the SEventMsg structure.
+
   };
 
   // Contexts for button press events
@@ -183,6 +191,7 @@ namespace Twm4Nx
     struct nxgl_point_s pos;            /**< X/Y position */
     struct nxgl_point_s delta;          /**< X/Y change (for dragging only) */
     uint8_t context;                    /**< Button press context */
+    FAR CTwm4NxEvent *handler;          /**< App event handler (APP recipient only) */
     FAR void *obj;                      /**< Window object (CWindow or CIconWin) */
   };
 

@@ -51,6 +51,8 @@
 
 #include "graphics/nxwidgets/cnxwindow.hxx"
 
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +71,7 @@ namespace Twm4Nx
    * The CIconWin represents on icon window
    */
 
-  class CIconWin
+  class CIconWin : public CTwm4NxEvent
   {
     private:
 

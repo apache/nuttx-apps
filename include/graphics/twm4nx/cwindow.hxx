@@ -57,6 +57,7 @@
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
 #include "graphics/twm4nx/ciconwin.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions
@@ -102,7 +103,7 @@ namespace Twm4Nx
   // The CWindow class implements a standard, framed window with a toolbar
   // containing the standard buttons and the window title.
 
-  class CWindow : protected NXWidgets::CWidgetEventHandler
+  class CWindow : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     private:
       CTwm4Nx                    *m_twm4nx;     /**< Cached Twm4Nx session */
@@ -329,6 +330,16 @@ namespace Twm4Nx
                       FAR const struct nxgl_size_s *size,
                       FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
                       bool isIconMgr, FAR CIconMgr *iconMgr, bool noToolbar);
+
+      /**
+       * Get the widget control instance needed to support application drawing
+       * into the window.
+       */
+
+      inline FAR NXWidgets::CWidgetControl *getWidgetControl()
+      {
+        return m_nxWin->getWidgetControl();
+      }
 
       /**
        * Get the name of the window
@@ -612,7 +623,7 @@ namespace Twm4Nx
       }
 
       /**
-       * Handle WINDOW events.
+       * Handle Twm4Nx events.
        *
        * @param eventmsg.  The received NxWidget WINDOW event message.
        * @return True if the message was properly handled.  false is

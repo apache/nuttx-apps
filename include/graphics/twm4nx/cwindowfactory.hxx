@@ -52,6 +52,7 @@
 #include <cstdbool>
 
 #include "graphics/twm4nx/cwindow.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -85,7 +86,7 @@ namespace Twm4Nx
    * things that are common to all windows.
    */
 
-  class CWindowFactory
+  class CWindowFactory: public CTwm4NxEvent
   {
     private:
 

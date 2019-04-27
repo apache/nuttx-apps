@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cbackground.hxx
-// Manage background image
+// apps/graphics/twm4nx/include/ctwmnxevent.hxx
+// Twm4Nx Event handler base class
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,20 +34,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_CBACKGROUND_HXX
-#define __APPS_INCLUDE_GRAPHICS_TWM4NX_CBACKGROUND_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_CTWM4NXEVNT_HXX
+#define __APPS_INCLUDE_GRAPHICS_TWM4NX_CTWM4NXEVNT_HXX
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include "graphics/nxwidgets/nxconfig.hxx"
-#include "graphics/nxwidgets/cnxwindow.hxx"
-#include "graphics/nxwidgets/cnxserver.hxx"
-#include "graphics/nxwidgets/cwidgeteventhandler.hxx"
-#include "graphics/nxwidgets/cwidgeteventargs.hxx"
+#include <cstdbool>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -57,86 +52,40 @@
  * Implementation Class Definition
  ****************************************************************************/
 
-namespace NXWidgets
-{
-  class  CBgWindow;                               // Forward reference
-  class  CImage;                                  // Forward reference
-  struct SRlePaletteBitmap;                       // Forward reference
-}
-
 namespace Twm4Nx
 {
-  class CTwm4Nx;                                  // Forward reference
-
   /**
-   * Background management
+   * Twm4Nx Event Handler base class
    */
 
-  class CBackground
+  class CTwm4NxEvent
   {
-    protected:
-      FAR CTwm4Nx                  *m_twm4nx;     /**< Cached CTwm4Nx instance */
-      FAR NXWidgets::CBgWindow     *m_backWindow; /**< The background window */
-      FAR NXWidgets::CImage        *m_backImage;  /**< The background image */
-
-      /**
-       * Create the background window.
-       *
-       * @return true on success
-       */
-
-      bool createBackgroundWindow(void);
-
-      /**
-       * Create the background image.
-       *
-       * @param sbitmap.  Identifies the bitmap to paint on background
-       * @return true on success
-       */
-
-      bool createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
-
-      /**
-       * (Re-)draw the background window.
-       *
-       * @return true on success
-       */
-
-       bool redrawBackgroundWindow(void);
-
     public:
+
       /**
-       * CBackground Constructor
+       * A virtual destructor is required in order to override the INxWindow
+       * destructor.  We do this because if we delete INxWindow, we want the
+       * destructor of the class that inherits from INxWindow to run, not this
+       * one.
+       */
+
+      virtual ~CTwm4NxEvent(void)
+      {
+      }
+
+      /**
+       * Handle Twm4Nx events.
        *
-       * @param twm4nx The Twm4Nx session object
+       * @param eventmsg.  The received NxWidget WINDOW event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
        */
 
-      CBackground(FAR CTwm4Nx *twm4nx);
-
-      /**
-       * CBackground Destructor
-       */
-
-      ~CBackground(void);
-
-      /**
-       * Set the background image
-       *
-       * @param sbitmap.  Identifies the bitmap to paint on background
-       * @return true on success
-       */
-
-      bool setBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
-
-      /**
-       * Get the size of the physical display device which is equivalent to
-       * size of the background window.
-       *
-       * @return The size of the display
-       */
-
-      void getDisplaySize(FAR struct nxgl_size_s &size);
+       virtual bool event(FAR struct SEventMsg *eventmsg)
+       {
+         return false;
+       }
   };
 }
 
-#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_CBACKGROUND_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_CTWM4NXEVNT_HXX

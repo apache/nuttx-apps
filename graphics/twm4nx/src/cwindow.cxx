@@ -76,6 +76,7 @@
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
 
@@ -496,15 +497,15 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_WINDOW_RAISE:  // Raise window to the top of the heirarchy
-        m_nxWin->raise();       // Could be the main or the icon window
+      case EVENT_WINDOW_RAISE:     // Raise window to the top of the heirarchy
+        m_nxWin->raise();          // Could be the main or the icon window
         break;
 
-      case EVENT_WINDOW_LOWER:  // Lower window to the bottom of the heirarchy
-        m_nxWin->lower();       // Could be the main or the icon window
+      case EVENT_WINDOW_LOWER:     // Lower window to the bottom of the heirarchy
+        m_nxWin->lower();          // Could be the main or the icon window
         break;
 
-      case EVENT_WINDOW_POPUP:  // De-iconify and raise the main window
+      case EVENT_WINDOW_DEICONIFY: // De-iconify and raise the main window
         {
           deIconify();
         }
@@ -1028,6 +1029,7 @@ void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
   msg.delta.x = 0;
   msg.delta.y = 0;
   msg.context = EVENT_CONTEXT_TOOLBAR;
+  msg.handler = (FAR CTwm4NxEvent *)0;
   msg.obj     = (FAR void *)this;
 
   // NOTE that we cannot block because we are on the same thread
@@ -1035,7 +1037,7 @@ void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
   // we have no other option but to lose events.
   //
   // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-  // the risk of runawy stack usage.
+  // the risk of runaway stack usage.
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,
                     sizeof(struct SEventMsg), 100);
@@ -1067,6 +1069,7 @@ void CWindow::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
       msg.delta.x = e.getVX();
       msg.delta.y = e.getVY();
       msg.context = EVENT_CONTEXT_TOOLBAR;
+      msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;
 
       // NOTE that we cannot block because we are on the same thread
@@ -1074,7 +1077,7 @@ void CWindow::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
       // we have no other option but to lose events.
       //
       // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-      // the risk of runawy stack usage.
+      // the risk of runaway stack usage.
 
       int ret = mq_send(m_eventq, (FAR const char *)&msg,
                         sizeof(struct SEventMsg), 100);
@@ -1130,6 +1133,7 @@ void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
       msg.delta.x = 0;
       msg.delta.y = 0;
       msg.context = EVENT_CONTEXT_TOOLBAR;
+      msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;
 
       // NOTE that we cannot block because we are on the same thread
@@ -1137,7 +1141,7 @@ void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
       // we have no other option but to lose events.
       //
       // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-      // the risk of runawy stack usage.
+      // the risk of runaway stack usage.
 
       int ret = mq_send(m_eventq, (FAR const char *)&msg,
                         sizeof(struct SEventMsg), 100);
@@ -1198,6 +1202,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           msg.delta.x = 0;
           msg.delta.y = 0;
           msg.context = EVENT_CONTEXT_TOOLBAR;
+          msg.handler = (FAR CTwm4NxEvent *)0;
           msg.obj     = (FAR void *)this;
 
           // NOTE that we cannot block because we are on the same thread
@@ -1205,7 +1210,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           // we have no other option but to lose events.
           //
           // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-          // the risk of runawy stack usage.
+          // the risk of runaway stack usage.
 
           int ret = mq_send(m_eventq, (FAR const char *)&msg,
                             sizeof(struct SEventMsg), 100);

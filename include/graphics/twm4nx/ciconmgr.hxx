@@ -47,8 +47,12 @@
 // Included Files
 /////////////////////////////////////////////////////////////////////////////
 
+#include <fcntl.h>
+#include <mqueue.h>
+
 #include <nuttx/nx/nxglib.h>
 #include "graphics/twm4nx/cwindow.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -58,6 +62,7 @@ namespace NXWidgets
 {
   class  CNxTkWindow;                      // Forward reference
   class  CButtonArray;                     // Forward reference
+  class  CWidgetEventHandler;              // Forward reference
   class  CWidgetEventArgs;                 // Forward reference
   struct SRlePaletteBitmap;                // Forward reference
 }
@@ -68,7 +73,7 @@ namespace Twm4Nx
   {
     FAR struct SWindowEntry *flink;
     FAR struct SWindowEntry *blink;
-    FAR CWindow *cwin;                  // Used only for the window name
+    FAR CWindow *cwin;
     FAR CIconMgr *iconmgr;
     nxgl_point_s pos;
     nxgl_size_s size;
@@ -78,11 +83,12 @@ namespace Twm4Nx
     bool down;
   };
 
-  class CIconMgr : protected NXWidgets::CWidgetEventHandler
+  class CIconMgr : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     private:
 
       FAR CTwm4Nx                    *m_twm4nx;     /**< Cached Twm4Nx session */
+      mqd_t                           m_eventq;     /**< NxWidget event message queue */
       FAR struct SWindowEntry        *m_head;       /**< Head of the window list */
       FAR struct SWindowEntry        *m_tail;       /**< Tail of the window list */
       FAR struct SWindowEntry        *m_active;     /**< The active entry */

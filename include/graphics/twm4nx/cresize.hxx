@@ -52,6 +52,8 @@
 
 #include <nuttx/nx/nxglib.h>
 
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
 /////////////////////////////////////////////////////////////////////////////
@@ -63,10 +65,10 @@ namespace NXWidgets
 
 namespace Twm4Nx
 {
-  class  CWindow;                                 // Forward referernce
-  struct SEventMsg;                               // Forward referernce
+  class  CWindow;                                 // Forward reference
+  struct SEventMsg;                               // Forward reference
 
-  class CResize
+  class CResize : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     private:
 

@@ -51,11 +51,13 @@
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
-#include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/cresize.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions
