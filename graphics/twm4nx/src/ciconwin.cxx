@@ -108,13 +108,13 @@ bool CIconWin::initialize(FAR CWindow *parent,
 {
   struct nxgl_point_s final;
 
-  // Git the size of the Icon Image
+  // Get the size of the Icon Image
 
   struct nxgl_size_s iconImageSize;
   iconImageSize.h = sbitmap->height;
   iconImageSize.w = sbitmap->height;
 
-  // Git the size of the Icon name
+  // Get the size of the Icon name
 
   FAR CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *iconFont = fonts->getIconFont();

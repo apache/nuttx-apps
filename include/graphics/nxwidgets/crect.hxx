@@ -164,12 +164,25 @@ namespace NXWidgets
 
     /**
      * Get the rectangle's top y coordinate.
+     *
      * @return The rectangle's y coordinate.
      */
 
     inline nxgl_coord_t getY(void) const
     {
       return m_pos.y;
+    }
+
+    /**
+     * Get the position of the rectangle
+     *
+     * @pos The location to return the rectangle position
+     */
+
+    inline void getPos(struct nxgl_point_s &pos) const
+    {
+      pos.x = m_pos.x;
+      pos.y = m_pos.y;
     }
 
     /**
@@ -184,18 +197,6 @@ namespace NXWidgets
     }
 
     /**
-     * Get the size of the rectangle
-     *
-     * @return The rectangle's size
-     */
-
-    inline void getSize(struct nxgl_size_s &size) const
-    {
-      size.h = m_size.h;
-      size.w = m_size.w;
-    }
-
-    /**
      * Get the rectangle's height.
      *
      * @return The rectangle's height.
@@ -204,6 +205,18 @@ namespace NXWidgets
     inline nxgl_coord_t getHeight(void) const
     {
       return m_size.h;
+    }
+
+    /**
+     * Get the size of the rectangle
+     *
+     * @param size The location to return the rectangle size
+     */
+
+    inline void getSize(struct nxgl_size_s &size) const
+    {
+      size.h = m_size.h;
+      size.w = m_size.w;
     }
 
     /**

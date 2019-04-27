@@ -88,7 +88,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * CLabel Method Implementations
+ * CRadioButtonGroup Method Implementations
  ****************************************************************************/
 
 using namespace NXWidgets;
@@ -154,7 +154,7 @@ CRadioButton *CRadioButtonGroup::newRadioButton(nxgl_coord_t x, nxgl_coord_t y,
 }
 
 /**
- * Gets a pointer to the selected widget.
+ * Gets a pointer to the selectm_widgetControled widget.
  *
  * @return Pointer to the selected widget.
  */
