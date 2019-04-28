@@ -71,7 +71,8 @@
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/cresize.hxx"
-#include "graphics/twm4nx/ciconwin.hxx"
+#include "graphics/twm4nx/cbackground.hxx"
+#include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
@@ -150,7 +151,8 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
 
   // Icons/Icon Manager
 
-  m_iconWin              = (FAR CIconWin *)0;
+  m_iconBitMap           = (FAR NXWidgets::CRlePaletteBitmap *)0;
+  m_iconWidget           = (FAR CIconWidget *)0;
   m_iconMgr              = (FAR CIconMgr *)0;
   m_isIconMgr            = false;
   m_iconOn               = false;
@@ -299,19 +301,35 @@ bool CWindow::initialize(FAR const char *name,
         }
     }
 
-  // Create and initialize the icon window
+  // Create the icon image instance
 
-  m_iconWin = new CIconWin(m_twm4nx);
-  if (m_iconWin == (FAR CIconWin *)0)
+  m_iconBitMap = new NXWidgets::CRlePaletteBitmap(sbitmap);
+  if (m_iconBitMap == (NXWidgets::CRlePaletteBitmap *)0)
     {
-      gerr("ERROR: Failed to create the icon Window\n");
+      gerr("ERROR: Failed to create icon image\n");
       cleanup();
       return false;
     }
 
-  if (!m_iconWin->initialize(this, sbitmap, pos))
+  // Get the widget control instance from the background.  This is needed
+  // to force the icon widgets to be draw on the background
+
+  FAR CBackground *background = m_twm4nx->getBackground();
+  FAR NXWidgets::CWidgetControl *control = background->getWidgetControl();
+
+  // Create and initialize the icon widget
+
+  m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y);
+  if (m_iconWidget == (FAR CIconWidget *)0)
     {
-      gerr("ERROR: Failed to initialize the icon Window\n");
+      gerr("ERROR: Failed to create the icon widget\n");
+      cleanup();
+      return false;
+    }
+
+  if (!m_iconWidget->initialize(m_iconBitMap, m_name))
+    {
+      gerr("ERROR: Failed to initialize the icon widget\n");
       cleanup();
       return false;
     }
@@ -461,7 +479,6 @@ void CWindow::iconify(void)
 
       m_iconified = true;
       m_nxWin->lower();
-      m_iconWin->raise();
       m_iconOn = true;
       m_nxWin->synchronize();
     }
@@ -476,7 +493,6 @@ void CWindow::deIconify(void)
       // Raise the main window and lower the icon window
 
       m_iconified = false;
-      m_iconWin->lower();
       m_nxWin->raise();
       m_iconOn = false;
       m_nxWin->synchronize();
@@ -1112,12 +1128,12 @@ void CWindow::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
 }
 
 /**
- * Handle a key press event.
+ * Handle a mouse click event.
  *
  * @param e The event data.
  */
 
-void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
+void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
 {
   // We are interested only the the press event on the title box and
   // only if we are not already dragging the window
@@ -1162,14 +1178,14 @@ void CWindow::handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e)
 
 void CWindow::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Handle the case where a click event was received, but the
+  // Handle the case where a release event was received, but the
   // window was not dragged.
 
   if (m_drag && !m_tbTitle->isClicked())
     {
       // A click with no drag should raise the window.
 
-      m_iconWin->raise();
+      m_nxWin->raise();
 
       // Handle the non-drag drop event
 
@@ -1383,7 +1399,7 @@ void CWindow::cleanup(void)
       m_tbTitle = (FAR NXWidgets::CLabel *)0;
     }
 
-  // Close windows
+  // Delete the window
 
   if (m_nxWin != (FAR NXWidgets::CNxTkWindow *)0)
     {
@@ -1391,10 +1407,18 @@ void CWindow::cleanup(void)
       m_nxWin  = (FAR NXWidgets::CNxTkWindow *)0;
     }
 
-  if (m_iconWin != (FAR CIconWin *)0)
+  // Delete the Icon
+
+  if (m_iconWidget != (FAR CIconWidget *)0)
     {
-      delete m_iconWin;
-      m_iconWin  = (FAR CIconWin *)0;
+      delete m_iconWidget;
+      m_iconWidget  = (FAR CIconWidget *)0;
+    }
+
+  if (m_iconBitMap != (FAR NXWidgets::CRlePaletteBitmap *)0)
+    {
+      delete m_iconBitMap;
+      m_iconBitMap  = (FAR NXWidgets::CRlePaletteBitmap *)0;
     }
 
   // Free memory

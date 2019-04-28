@@ -73,7 +73,7 @@
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cinput.hxx"
 #include "graphics/twm4nx/cicon.hxx"
-#include "graphics/twm4nx/ciconwin.hxx"
+#include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
 #include "graphics/twm4nx/cresize.hxx"
@@ -417,27 +417,27 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
   bool ret = false;
   switch (recipient)
     {
-      case EVENT_RECIPIENT_MSG:      // NX message event
+      case EVENT_RECIPIENT_MSG:        // NX message event
         ret = CWindowEvent::event(eventmsg);
         break;
 
-        case EVENT_RECIPIENT_SYSTEM: // Twm4Nx system event
+        case EVENT_RECIPIENT_SYSTEM:   // Twm4Nx system event
         ret = systemEvent(eventmsg);
         break;
 
-      case EVENT_RECIPIENT_ICONWIN:  // Icon window event
+      case EVENT_RECIPIENT_ICONWIDGET: // Icon widget event
         {
-          FAR CIconWin *iconWin = (FAR CIconWin *)eventmsg->obj;
-          DEBUGASSERT(iconWin != (FAR CIconWin *)0);
-          ret = iconWin->event(eventmsg);
+          FAR CIconWidget *iconWidget = (FAR CIconWidget *)eventmsg->obj;
+          DEBUGASSERT(iconWidget != (FAR CIconWidget *)0);
+          ret = iconWidget->event(eventmsg);
         }
         break;
 
-      case EVENT_RECIPIENT_ICONMGR:  // Icon Manager event
+      case EVENT_RECIPIENT_ICONMGR:    // Icon Manager event
         ret = m_iconmgr->event(eventmsg);
         break;
 
-      case EVENT_RECIPIENT_MENU:     // Menu related event
+      case EVENT_RECIPIENT_MENU:       // Menu related event
         {
           FAR CMenus *menus = (FAR CMenus *)eventmsg->obj;
           DEBUGASSERT(menus != (FAR CMenus *)0);
@@ -445,17 +445,17 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_RECIPIENT_WINDOW:   // Window related event
-      case EVENT_RECIPIENT_TOOLBAR:  // Toolbar related event
-      case EVENT_RECIPIENT_BORDER:   // Window border related event
+      case EVENT_RECIPIENT_WINDOW:     // Window related event
+      case EVENT_RECIPIENT_TOOLBAR:    // Toolbar related event
+      case EVENT_RECIPIENT_BORDER:     // Window border related event
         ret = m_factory->event(eventmsg);
         break;
 
-      case EVENT_RECIPIENT_RESIZE:   // Wind0w resize event
+      case EVENT_RECIPIENT_RESIZE:     // Wind0w resize event
         ret = m_resize->event(eventmsg);
         break;
 
-      case EVENT_RECIPIENT_APP:      // Application menu event
+      case EVENT_RECIPIENT_APP:        // Application menu event
         {
           // Application events are unique in that they do not have any
           // fixed, a priori endpoint.  Rather, the endpoint must be
@@ -466,7 +466,7 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_RECIPIENT_MASK:     // Used to isolate recipient
+      case EVENT_RECIPIENT_MASK:       // Used to isolate recipient
       default:
         break;
     }

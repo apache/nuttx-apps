@@ -237,7 +237,19 @@ namespace Twm4Nx
        }
 
       /**
-       * Return the session's Icon instance.
+       * Return the session's CBackground instance.
+       *
+       * @return The contained instance of the CBackground class for this
+       *   session.
+       */
+
+       inline FAR CBackground *getBackground(void)
+       {
+         return m_background;
+       }
+
+      /**
+       * Return the session's CIcon instance.
        *
        * @return The contained instance of the Icon class for this session.
        */

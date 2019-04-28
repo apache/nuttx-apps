@@ -45,6 +45,7 @@
 
 #include <cstdint>
 #include <cstdbool>
+#include <mqueue.h>
 #include <debug.h>
 
 #include <nuttx/nx/nxglib.h>
@@ -61,6 +62,7 @@
 
 namespace NXWidgets
 {
+  class IBitmap;                        // Forward reference
   class CNxWidget;                      // Forward reference
   class CWidgetStyle;                   // Forward reference
   class CWidgetControl;                 // Forward reference
@@ -85,109 +87,182 @@ namespace Twm4Nx
   {
     protected:
       FAR CTwm4Nx                   *m_twm4nx;         /**< Cached Twm4Nx session */
+      mqd_t                          m_eventq;         /**< NxWidget event message queue */
       FAR NXWidgets::CWidgetControl *m_widgetControl;  /**< The controlling widget */
       FAR NXWidgets::CWidgetStyle   *m_style;          /**< Widget style */
 
-    /**
-     * Draw the area of this widget that falls within the clipping region.
-     * Called by the redraw() function to draw all visible regions.
-     * @param port The NXWidgets::CGraphicsPort to draw to.
-     * @see redraw()
-     */
+      // Dragging
 
-    virtual void drawContents(NXWidgets::CGraphicsPort* port);
+      struct nxgl_point_s            m_dragPos;        /**< Last mouse position */
+      struct nxgl_point_s            m_dragOffset;     /**< Offset from mouse to window origin */
+      struct nxgl_size_s             m_dragCSize;      /**< The grab cursor size */
+      bool                           m_drag;           /**< Drag in-progress */
 
-    /**
-     * Copy constructor is protected to prevent usage.
-     */
+      /**
+       * After the widget has been grabbed, it may be dragged then dropped,
+       * or it may be simply "un-grabbed".  Both cases are handled here.
+       *
+       * NOTE: Unlike the other event handlers, this does NOT override any
+       * virtual event handling methods.  It just combines some common event-
+       * handling logic.
+       *
+       * @param e The event data.
+       */
 
-    inline CIconWidget(const CIconWidget &radioButtonGroup) :
-      CNxWidget(radioButtonGroup) { }
+      void handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e);
 
-  public:
+      /**
+       * Override the mouse button drag event.
+       *
+       * @param e The event data.
+       */
 
-    /**
-     * Constructor.  Note that the group determines its width and height
-     * from the position and dimensions of its children.
-     *
-     * @param twm4nx The Twm4Nx session object
-     * @param widgetControl The controlling widget for the display.
-     * @param x The x coordinate of the group.
-     * @param y The y coordinate of the group.
-     * @param style The style that the button should use.  If this is not
-     *        specified, the button will use the global default widget
-     *        style.
-     */
+      void handleDragEvent(const NXWidgets::CWidgetEventArgs &e);
 
-    CIconWidget(FAR CTwm4Nx *twm4nx,
-                FAR NXWidgets::CWidgetControl *widgetControl,
-                nxgl_coord_t x, nxgl_coord_t y,
-                FAR NXWidgets::CWidgetStyle *style =
-                (FAR NXWidgets::CWidgetStyle *)0);
+      /**
+       * Override a drop event, triggered when the widget has been dragged-
+       * and-dropped.
+       *
+       * @param e The event data.
+       */
 
-    /**
-     * Destructor.
-     */
+      void handleDropEvent(const NXWidgets::CWidgetEventArgs &e);
 
-    ~CIconWidget(void)
-    {
-    }
+      /**
+       * Handle a mouse click event.
+       *
+       * @param e The event data.
+       */
 
-    /**
-     * Perform widget initialization that could fail and so it not appropriate
-     * for the constructor
-     *
-     * @param cbitmp The bitmap image representing the icon
-     * @param title The icon title string
-     * @return True is returned if the widget is successfully initialized.
-     */
+      void handleClickEvent(const NXWidgets::CWidgetEventArgs &e);
 
-    bool initialize(FAR NXWidgets::CRlePaletteBitmap *cbitmap,
-                    FAR NXWidgets::CNxString &title);
+      /**
+       * Override the virtual CWidgetEventHandler::handleReleaseEvent.  This
+       * event will fire when the widget is released.  isClicked() will
+       * return false for the widget.
+       *
+       * @param e The event data.
+       */
 
-    /**
-     * Insert the dimensions that this widget wants to have into the rect
-     * passed in as a parameter.  All coordinates are relative to the
-     * widget's parent.  Value is based on the length of the largest string
-     * in the set of options.
-     *
-     * @param rect Reference to a rect to populate with data.
-     */
+      void handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e);
 
-    virtual void getPreferredDimensions(NXWidgets::CRect &rect) const;
+      /**
+       * Handle a mouse button release event that occurred outside the bounds of
+       * the source widget.
+       *
+       * @param e The event data.
+       */
 
-    /**
-     * Handle a mouse click event.
-     *
-     * @param e The event data.
-     */
+      void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
 
-    virtual void handleClickEvent(const NXWidgets::CWidgetEventArgs &e);
+      /**
+       * Handle the EVENT_ICONWIDGET_GRAB event.  That corresponds to a left
+       * mouse click on the icon widget.
+       *
+       * @param eventmsg.  The received NxWidget event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
 
-    /**
-     * Handle a mouse double-click event.
-     *
-     * @param e The event data.
-     */
+      bool iconGrab(FAR struct SEventMsg *eventmsg);
 
-    virtual void handleDoubleClickEvent(const NXWidgets::CWidgetEventArgs &e);
+      /**
+       * Handle the EVENT_ICONWIDGET_DRAG event.  That corresponds to a mouse
+       * movement when the icon is in a grabbed state.
+       *
+       * @param eventmsg.  The received NxWidget event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
 
-    /**
-     * Handle a mouse button release event that occurred within the bounds of
-     * the source widget.
-     * @param e The event data.
-     */
+      bool iconDrag(FAR struct SEventMsg *eventmsg);
 
-    virtual void handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e);
+      /**
+       * Handle the EVENT_ICONWIDGET_UNGRAB event.  The corresponds to a mouse
+       * left button release while in the grabbed state
+       *
+       * @param eventmsg.  The received NxWidget event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
 
-    /**
-     * Handle a mouse button release event that occurred outside the bounds of
-     * the source widget.
-     *
-     * @param e The event data.
-     */
+      bool iconUngrab(FAR struct SEventMsg *eventmsg);
 
-    virtual void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
+      /**
+       * Draw the area of this widget that falls within the clipping region.
+       * Called by the redraw() function to draw all visible regions.
+       * @param port The NXWidgets::CGraphicsPort to draw to.
+       * @see redraw()
+       */
+
+      void drawContents(NXWidgets::CGraphicsPort* port);
+
+      /**
+       * Copy constructor is protected to prevent usage.
+       */
+
+      inline CIconWidget(const CIconWidget &radioButtonGroup) :
+        CNxWidget(radioButtonGroup) { }
+
+    public:
+
+      /**
+       * Constructor.  Note that the group determines its width and height
+       * from the position and dimensions of its children.
+       *
+       * @param twm4nx The Twm4Nx session object
+       * @param widgetControl The controlling widget for the display.
+       * @param x The x coordinate of the group.
+       * @param y The y coordinate of the group.
+       * @param style The style that the button should use.  If this is not
+       *        specified, the button will use the global default widget
+       *        style.
+       */
+
+      CIconWidget(FAR CTwm4Nx *twm4nx,
+                  FAR NXWidgets::CWidgetControl *widgetControl,
+                  nxgl_coord_t x, nxgl_coord_t y,
+                  FAR NXWidgets::CWidgetStyle *style =
+                  (FAR NXWidgets::CWidgetStyle *)0);
+
+      /**
+       * Destructor.
+       */
+
+      ~CIconWidget(void);
+
+      /**
+       * Perform widget initialization that could fail and so it not appropriate
+       * for the constructor
+       *
+       * @param ibitmap The bitmap image representing the icon
+       * @param title The icon title string
+       * @return True is returned if the widget is successfully initialized.
+       */
+
+      bool initialize(FAR NXWidgets::IBitmap *ibitmap,
+                      FAR const NXWidgets::CNxString &title);
+
+      /**
+       * Insert the dimensions that this widget wants to have into the rect
+       * passed in as a parameter.  All coordinates are relative to the
+       * widget's parent.  Value is based on the length of the largest string
+       * in the set of options.
+       *
+       * @param rect Reference to a rect to populate with data.
+       */
+
+      void getPreferredDimensions(NXWidgets::CRect &rect) const;
+
+      /**
+       * Handle ICON WIDGET events.
+       *
+       * @param eventmsg.  The received NxWidget ICON event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool event(FAR struct SEventMsg *eventmsg);
   };
 }
 

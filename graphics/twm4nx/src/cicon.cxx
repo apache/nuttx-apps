@@ -179,7 +179,7 @@ void CIcon::place(FAR CWindow *cwin, FAR const struct nxgl_point_s *pos,
   for (FAR struct SIconRegion *ir = m_regionHead; ir; ir = ir->flink)
     {
       struct nxgl_size_s iconWindowSize;
-      cwin->getIconWindowSize(&iconWindowSize);
+      cwin->getIconWidgetSize(iconWindowSize);
 
       struct nxgl_size_s tmpsize;
       tmpsize.w = roundUp(iconWindowSize.w, ir->step.x);
@@ -225,7 +225,7 @@ void CIcon::place(FAR CWindow *cwin, FAR const struct nxgl_point_s *pos,
       ie->cwin = cwin;
 
       struct nxgl_size_s iconWindowSize;
-      cwin->getIconWindowSize(&iconWindowSize);
+      cwin->getIconWidgetSize(iconWindowSize);
 
       final->x = ie->pos.x + (ie->size.w - iconWindowSize.w) / 2;
       final->y = ie->pos.y + (ie->size.h - iconWindowSize.h) / 2;
@@ -255,15 +255,8 @@ void CIcon::up(FAR CWindow *cwin)
   if (cwin->hasIconMoved())
     {
       struct nxgl_size_s oldsize;
-      if (!cwin->getIconWindowSize(&oldsize))
-        {
-          return;
-        }
-
-      if (!cwin->getIconWindowPosition(&oldpos))
-        {
-          return;
-        }
+      cwin->getIconWidgetSize(oldsize);
+      cwin->getIconWidgetPosition(oldpos);
 
       newpos.x = oldpos.x + ((int)oldsize.w) / 2;
       newpos.y = oldpos.y + ((int)oldsize.h) / 2;
@@ -293,7 +286,7 @@ void CIcon::up(FAR CWindow *cwin)
 
   if (newpos.x != oldpos.x || newpos.y != oldpos.y)
     {
-      (void)cwin->getIconWindowPosition(&newpos);
+      cwin->getIconWidgetPosition(newpos);
       cwin->setIconMoved(false);    // since we've restored it
     }
 }

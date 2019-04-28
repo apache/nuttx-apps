@@ -41,18 +41,24 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
+#include <cfcntl>
+#include <cerrno>
+#include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>
 
 #include "graphics/nxwidgets/cgraphicsport.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
-#include "graphics/nxwidgets/crlepalettebitmap.hxx"
+#include "graphics/nxwidgets/ibitmap.hxx"
 
+#include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
+#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_cursor.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // CIconWidget Definitions
@@ -78,31 +84,59 @@ CIconWidget::CIconWidget(FAR CTwm4Nx *twm4nx,
                          FAR NXWidgets::CWidgetStyle *style)
 : CNxWidget(widgetControl, x, y, 0, 0, WIDGET_BORDERLESS, style)
 {
-  m_twm4nx         = twm4nx;
-  m_widgetControl  = widgetControl;
+  m_twm4nx         = twm4nx;        // Save the Twm4Nx session instance
+  m_widgetControl  = widgetControl; // Save the widget control instance
+  m_eventq         = (mqd_t)-1;     // No widget message queue yet
 
   // Configure the widget
 
-  m_flags.borderless = true;
+  m_flags.borderless = true;        // The widget is borless (and transparent)
+}
+
+/**
+ * Destructor.
+ */
+
+CIconWidget::~CIconWidget(void)
+{
+  // Close the NxWidget event message queue
+
+  if (m_eventq != (mqd_t)-1)
+    {
+      (void)mq_close(m_eventq);
+      m_eventq = (mqd_t)-1;
+    }
 }
 
 /**
  * Perform widget initialization that could fail and so it not appropriate
  * for the constructor
  *
- * @param cbitmp The bitmap image representing the icon
+ * @param ibitmap The bitmap image representing the icon
  * @param title The icon title string
  * @return True is returned if the widget is successfully initialized.
  */
 
-bool CIconWidget::initialize(FAR NXWidgets::CRlePaletteBitmap *cbitmap,
-                             FAR NXWidgets::CNxString &title)
+bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
+                             FAR const NXWidgets::CNxString &title)
 {
+  // Open a message queue to send fully digested NxWidget events.
+
+  FAR const char *mqname = m_twm4nx->getEventQueueName();
+
+  m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
+  if (m_eventq == (mqd_t)-1)
+    {
+      gerr("ERROR: Failed open message queue '%s': %d\n",
+           mqname, errno);
+      return false;
+    }
+
   // Get the size of the Icon bitmap
 
   struct nxgl_size_s iconImageSize;
-  iconImageSize.w = cbitmap->getWidth();
-  iconImageSize.h = cbitmap->getHeight();
+  iconImageSize.w = ibitmap->getWidth();
+  iconImageSize.h = ibitmap->getHeight();
 
   // Get the size of the Icon name
 
@@ -140,7 +174,7 @@ bool CIconWidget::initialize(FAR NXWidgets::CRlePaletteBitmap *cbitmap,
   FAR NXWidgets::CImage *image =
     new NXWidgets::CImage(m_widgetControl, iconImagePos.x,
                           iconImagePos.y, iconImageSize.w, iconImageSize.h,
-                          cbitmap, m_style);
+                          ibitmap, m_style);
   if (image == (FAR NXWidgets::CImage *)0)
     {
       gerr("ERROR: Failed to create image\n");
@@ -209,6 +243,145 @@ void CIconWidget::getPreferredDimensions(NXWidgets::CRect &rect) const
 }
 
 /**
+ * Handle ICONWIDGET events.
+ *
+ * @param eventmsg.  The received NxWidget ICON event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CIconWidget::event(FAR struct SEventMsg *eventmsg)
+{
+  bool success = true;
+
+  switch (eventmsg->eventID)
+    {
+      case EVENT_ICONWIDGET_GRAB:   /* Left click on icon.  Start drag */
+        success = iconGrab(eventmsg);
+        break;
+
+      case EVENT_ICONWIDGET_DRAG:   /* Mouse movement while clicked */
+        success = iconDrag(eventmsg);
+        break;
+
+      case EVENT_ICONWIDGET_UNGRAB: /* Left click release while dragging. */
+        success = iconUngrab(eventmsg);
+        break;
+
+      default:
+        success = false;
+        break;
+    }
+
+  return success;
+}
+
+/**
+ * After the widget has been grabbed, it may be dragged then dropped,
+ * or it may be simply "un-grabbed".  Both cases are handled here.
+ *
+ * NOTE: Unlike the other event handlers, this does NOT override any
+ * virtual event handling methods.  It just combines some common event-
+ * handling logic.
+ *
+ * @param e The event data.
+ */
+
+void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // Exit the dragging state
+
+  m_drag = false;
+
+  // Generate the un-grab event
+
+  struct SEventMsg msg;
+  msg.eventID = EVENT_ICONWIDGET_UNGRAB;
+  msg.pos.x   = e.getX();
+  msg.pos.y   = e.getY();
+  msg.delta.x = 0;
+  msg.delta.y = 0;
+  msg.context = EVENT_CONTEXT_ICON;
+  msg.handler = (FAR CTwm4NxEvent *)0;
+  msg.obj     = (FAR void *)this;
+
+  // NOTE that we cannot block because we are on the same thread
+  // as the message reader.  If the event queue becomes full then
+  // we have no other option but to lose events.
+  //
+  // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+  // the risk of runaway stack usage.
+
+  int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                    sizeof(struct SEventMsg), 100);
+  if (ret < 0)
+    {
+      gerr("ERROR: mq_send failed: %d\n", ret);
+    }
+}
+
+/**
+ * Override the mouse button drag event.
+ *
+ * @param e The event data.
+ */
+
+void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // We don't care which widget is being dragged, only that we are in the
+  // dragging state.
+
+  if (m_drag)
+    {
+      // Generate the event
+
+      struct SEventMsg msg;
+      msg.eventID = EVENT_ICONWIDGET_DRAG;
+      msg.pos.x   = e.getX();
+      msg.pos.y   = e.getY();
+      msg.delta.x = e.getVX();
+      msg.delta.y = e.getVY();
+      msg.context = EVENT_CONTEXT_ICON;
+      msg.handler = (FAR CTwm4NxEvent *)0;
+      msg.obj     = (FAR void *)this;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runaway stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          gerr("ERROR: mq_send failed: %d\n", ret);
+        }
+    }
+}
+
+/**
+ * Override a drop event, triggered when the widget has been dragged-
+ * and-dropped.
+ *
+ * @param e The event data.
+ */
+
+void CIconWidget::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // When the Drop Event is received, both isClicked and isBeingDragged()
+  // will return false.  No checks are performed.
+
+  if (m_drag)
+    {
+      // Yes.. handle the drop event
+
+      handleUngrabEvent(e);
+    }
+}
+
+/**
  * Handle a mouse click event.
  *
  * @param e The event data.
@@ -216,29 +389,58 @@ void CIconWidget::getPreferredDimensions(NXWidgets::CRect &rect) const
 
 void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  m_widgetEventHandlers->raiseClickEvent(e.getX(), e.getY());
+  // We don't care which component of the icon widget was clicked only that
+  // we are not currently being dragged
+
+  if (!m_drag)
+    {
+      // Generate the event
+
+      struct SEventMsg msg;
+      msg.eventID = EVENT_ICONWIDGET_GRAB;
+      msg.pos.x   = e.getX();
+      msg.pos.y   = e.getY();
+      msg.delta.x = 0;
+      msg.delta.y = 0;
+      msg.context = EVENT_CONTEXT_ICON;
+      msg.handler = (FAR CTwm4NxEvent *)0;
+      msg.obj     = (FAR void *)this;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runaway stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          gerr("ERROR: mq_send failed: %d\n", ret);
+        }
+    }
 }
 
 /**
- * Handle a mouse double-click event.
+ * Override the virtual CWidgetEventHandler::handleReleaseEvent.  This
+ * event will fire when the widget is released.  isClicked() will
+ * return false for the widget.
  *
- * @param e The event data.
- */
-
-void CIconWidget::handleDoubleClickEvent(const NXWidgets::CWidgetEventArgs &e)
-{
-  m_widgetEventHandlers->raiseDoubleClickEvent(e.getX(), e.getY());
-}
-
-/**
- * Handle a mouse button release event that occurred within the bounds of
- * the source widget.
  * @param e The event data.
  */
 
 void CIconWidget::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  m_widgetEventHandlers->raiseReleaseEvent(e.getX(), e.getY());
+  // Handle the case where a release event was received, but the
+  // window was not dragged.
+
+  if (m_drag)
+    {
+      // Handle the non-drag drop event
+
+      handleUngrabEvent(e);
+    }
 }
 
 /**
@@ -250,17 +452,130 @@ void CIconWidget::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
 void CIconWidget::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Child raised a release outside event, but we need to raise a different
-  // event if the release occurred within the bounds of this parent widget
+  // Handle the case where a release event was received, but the
+  // window was not dragged.
 
-  if (checkCollision(e.getX(), e.getY()))
+  if (m_drag)
     {
-      m_widgetEventHandlers->raiseReleaseEvent(e.getX(), e.getY());
+      // Handle the non-drag drop event
+
+      handleUngrabEvent(e);
     }
-  else
+}
+
+/**
+ * Handle the EVENT_ICONWIDGET_GRAB event.  That corresponds to a left
+ * mouse click on the icon widtet
+ *
+ * @param eventmsg.  The received NxWidget event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
+{
+  // Indicate that dragging has started.
+
+  m_drag = false;
+
+  // Get the icon position.
+
+  struct nxgl_point_s widgetPos;
+  getPos(widgetPos);
+
+  // Determine the relative position of the icon and the mouse
+
+  m_dragOffset.x = widgetPos.x - eventmsg->pos.x;
+  m_dragOffset.y = widgetPos.y - eventmsg->pos.y;
+
+  // Select the grab cursor image
+
+  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_GBCURSOR_IMAGE);
+
+  // Remember the grab cursor size
+
+  m_dragCSize.w = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.w;
+  m_dragCSize.h = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.h;
+  return true;
+}
+
+/**
+ * Handle the EVENT_ICONWIDGET_DRAG event.  That corresponds to a mouse
+ * movement when the icon is in a grabbed state.
+ *
+ * @param eventmsg.  The received NxWidget event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
+{
+  if (m_drag)
     {
-      m_widgetEventHandlers->raiseReleaseOutsideEvent(e.getX(), e.getY());
+      // Calculate the new icon position
+
+      struct nxgl_point_s newpos;
+      newpos.x = eventmsg->pos.x + m_dragOffset.x;
+      newpos.y = eventmsg->pos.y + m_dragOffset.y;
+
+      // Keep the icon on the display (at least enough of it so that we
+      // can still grab it)
+
+      struct nxgl_size_s displaySize;
+      m_twm4nx->getDisplaySize(&displaySize);
+
+      if (newpos.x < 0)
+        {
+          newpos.x = 0;
+        }
+      else if (newpos.x + m_dragCSize.w > displaySize.w)
+        {
+          newpos.x = displaySize.w - m_dragCSize.w;
+        }
+
+      if (newpos.y < 0)
+        {
+          newpos.y = 0;
+        }
+      else if (newpos.y + m_dragCSize.h > displaySize.h)
+        {
+          newpos.y = displaySize.h - m_dragCSize.h;
+        }
+
+      // Set the new window position
+
+      return moveTo(newpos.x, newpos.y);
     }
+
+  return false;
+}
+
+/**
+ * Handle the EVENT_ICONWIDGET_UNGRAB event.  The corresponds to a mouse
+ * left button release while in the grabbed state.
+ *
+ * @param eventmsg.  The received NxWidget event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
+{
+  // One last position update
+
+  if (!iconDrag(eventmsg))
+    {
+      return false;
+    }
+
+  // Indicate no longer dragging
+
+  m_drag = false;
+
+  // Restore the normal cursor image
+
+  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
+  return false;
 }
 
 /**

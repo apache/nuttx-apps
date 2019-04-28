@@ -49,6 +49,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <cstdint>
+#include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>
 
@@ -56,7 +57,7 @@
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
-#include "graphics/twm4nx/ciconwin.hxx"
+#include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ namespace NXWidgets
 
 namespace Twm4Nx
 {
-  class  CIconWin;                              // Forward reference
+  class  CIconWidget;                           // Forward reference
   class  CIconMgr;                              // Forward reference
   class  CWindow;                               // Forward reference
   struct SMenuRoot;                             // Forward reference
@@ -118,7 +119,9 @@ namespace Twm4Nx
 
       // Icon
 
-      FAR CIconWin               *m_iconWin;    /**< The icon window */
+      FAR NXWidgets::CRlePaletteBitmap *m_iconBitMap; /**< The icon image */
+
+      FAR CIconWidget            *m_iconWidget; /**< The icon widget */
       FAR CIconMgr               *m_iconMgr;    /**< Pointer to it if this is an icon manager */
       bool                        m_isIconMgr;  /**< This is an icon manager window */
       bool                        m_iconMoved;  /**< User explicitly moved the icon. */
@@ -228,12 +231,12 @@ namespace Twm4Nx
       void handleDropEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
-       * Handle a key press event.
+       * Handle a mouse click event.
        *
        * @param e The event data.
        */
 
-      void handleKeyPressEvent(const NXWidgets::CWidgetEventArgs &e);
+      void handleClickEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
        * Override the virtual CWidgetEventHandler::handleReleaseEvent.  This
@@ -559,9 +562,9 @@ namespace Twm4Nx
        * @param size Location to return the icon window size
        */
 
-      inline bool getIconWindowSize(FAR struct nxgl_size_s *size)
+      inline void getIconWidgetSize(FAR struct nxgl_size_s &size)
       {
-        return m_iconWin->getSize(size);
+        m_iconWidget->getSize(size);
       }
 
       /**
@@ -572,9 +575,9 @@ namespace Twm4Nx
        * @param pos Location to return the icon window position
        */
 
-      inline bool getIconWindowPosition(FAR struct nxgl_point_s *pos)
+      inline void getIconWidgetPosition(FAR struct nxgl_point_s &pos)
       {
-        return m_iconWin->getPosition(pos);
+        m_iconWidget->getPos(pos);
       }
 
       /**
@@ -585,9 +588,9 @@ namespace Twm4Nx
        * @param pos The new location of the icon window
        */
 
-      inline bool setIconWindowPosition(FAR const struct nxgl_point_s *pos)
+      inline bool setIconWindowPosition(FAR const struct nxgl_point_s &pos)
       {
-        return m_iconWin->setPosition(pos);
+        return m_iconWidget->resize(pos.x, pos.y);
       }
 
       /**
