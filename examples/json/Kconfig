@@ -6,7 +6,7 @@
 config EXAMPLES_JSON
 	tristate "JSON example"
 	default n
-	select NETUTILS_JSON
+	depends on NETUTILS_CJSON || NETUTILS_JSON
 	---help---
 		An example for the netutils/json library.
 

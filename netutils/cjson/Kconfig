@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_CJSON
+	bool "cJSON library (current version)"
+	default n
+	---help---
+		Enables the cJSON library.
+
+if NETUTILS_CJSON
+
+config NETUTILS_CJSON_URL
+	string "URL where cJSON library can be downloaded"
+	default "https://github.com/DaveGamble/cJSON/archive"
+
+config NETUTILS_CJSON_VERSION
+	string "Version number"
+	default "1.7.11"
+
+endif
