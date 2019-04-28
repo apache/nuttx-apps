@@ -29,7 +29,7 @@ within this directory.
 
 STATUS
 ======
-  2019-04-27:  This port was brutal.  Much TWM logic was removed because it
+  2019-04-28:  This port was brutal.  Much TWM logic was removed because it
     depended on X11 features (or just because I could not understand how to
     use it).  The replacement logic is only mostly in place but more
     needs to be done to have a complete system (hence, it is marked
@@ -38,11 +38,9 @@ STATUS
     1. Update some logic that is only fragmentary for things like resizing.
        Resizing events should be be generated when user pulls to right,
        left, top, bottom, etc.  None of that is implemented.
-    2. Revisit Icons.  They are windows now, but need to be compound widgets
-       lying on the background (compound:  CImage + CLabel)
-    3. Left click on background should bring up a user provided main main menu.
+    2. Left click on background should bring up a user provided main menu.
        Right click should bring up a window list (like the icon manager???)
-    4. For TWM-like behavior, a window frame and toolbar should be highlighted
+    3. For TWM-like behavior, a window frame and toolbar should be highlighted
        when the window has focus.
-    5. A right click on the toolbar should bring up a window-specific menu.
+    4. A right click on the toolbar should bring up a window-specific menu.
 

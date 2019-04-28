@@ -59,7 +59,6 @@
  * CONFIG_HAVE_CXX        : C++ support is required
  * CONFIG_NX              : NX must enabled
  * CONFIG_NXTERM=y        : For NxTerm support
- * CONFIG_SCHED_ONEXIT    : Support for on_exit()
  */
 
 #ifndef CONFIG_HAVE_CXX
@@ -80,16 +79,6 @@
 
 #if defined(CONFIG_TWM4NX_NXTERM) && !defined(CONFIG_NXTERM)
 #  warning "NxTerm support may be needed (CONFIG_NXTERM)"
-#endif
-
-/**
- * on_exit() support is (probably) required.  on_exit() is the normal
- * mechanism used by Twm4Nx applications to clean-up on a application task
- * exit.
- */
-
-#ifndef CONFIG_SCHED_ONEXIT
-#  warning "on_exit() support may be needed (CONFIG_SCHED_ONEXIT)"
 #endif
 
 // Background ///////////////////////////////////////////////////////////////
@@ -388,7 +377,13 @@
 
 // Input Devices /////////////////////////////////////////////////////////////
 
-/** Common input device settings
+/**
+ * Configuration settings
+ *
+ * CONFIG_VNCSERVER - If selected, then keyboard and positional input will
+ *   come from the VNC server.  In this case all input settings are ignored.
+ *
+ * Common input device settings
  *
  * CONFIG_TWM4NX_INPUT_SIGNO - The realtime signal used to wake up the
  *   keyboard/mouse listener thread.  Default: 6

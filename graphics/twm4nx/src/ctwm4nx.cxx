@@ -123,12 +123,15 @@ CTwm4Nx::CTwm4Nx(int display)
   m_display              = display;
   m_eventq               = (mqd_t)-1;
   m_background           = (FAR CBackground *)0;
-  m_input                = (FAR CInput *)0;
   m_icon                 = (FAR CIcon *)0;
   m_iconmgr              = (FAR CIconMgr *)0;
   m_factory              = (FAR CWindowFactory *)0;
   m_fonts                = (FAR CFonts *)0;
   m_resize               = (FAR CResize *)0;
+
+#ifndef CONFIG_VNCSERVER
+  m_input                = (FAR CInput *)0;
+#endif
 }
 
 /**
@@ -157,8 +160,14 @@ bool CTwm4Nx::run(void)
   // do this early so that the messasge queue name will be available to
   //  constructors
 
-  genMqName(); // Generate a random message queue name
-  m_eventq = mq_open(m_queueName, O_RDONLY | O_CREAT, 0666);
+  struct mq_attr attr;
+  attr.mq_maxmsg  = 32;    // REVISIT:  Should be configurable
+  attr.mq_msgsize = CONFIG_MQ_MAXMSGSIZE;
+  attr.mq_flags   = 0;
+  attr.mq_curmsgs = 0;
+
+  genMqName();             // Generate a random message queue name
+  m_eventq = mq_open(m_queueName, O_RDONLY | O_CREAT, 0666, &attr);
   if (m_eventq == (mqd_t)-1)
     {
       gerr("ERROR: Failed open message queue '%s': %d\n",
@@ -222,6 +231,7 @@ bool CTwm4Nx::run(void)
   m_maxWindow.w = INT16_MAX - m_displaySize.w;
   m_maxWindow.h = INT16_MAX - m_displaySize.w;
 
+#ifndef CONFIG_VNCSERVER
   // Create the keyboard/mouse input device thread
 
   m_input = new CInput(this);
@@ -238,6 +248,7 @@ bool CTwm4Nx::run(void)
       cleanup();
       return false;
     }
+#endif
 
   // Create the Icon Manager
 
@@ -506,6 +517,7 @@ void CTwm4Nx::cleanup()
       m_background = (FAR CBackground *)0;
     }
 
+#ifndef CONFIG_VNCSERVER
   // Halt the keyboard/mouse listener and destroy the CInput class
 
   if (m_input != (CInput *)0)
@@ -513,6 +525,7 @@ void CTwm4Nx::cleanup()
       delete m_input;
       m_input = (CInput *)0;
     }
+#endif
 
   // Free the Icon Manager
 

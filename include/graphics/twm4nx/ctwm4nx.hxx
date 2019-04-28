@@ -111,13 +111,15 @@ namespace Twm4Nx
       FAR char                    *m_queueName;   /**< NxWidget event queue name */
       mqd_t                        m_eventq;      /**< NxWidget event message queue */
       FAR CBackground             *m_background;  /**< Background window management */
-      FAR CInput                  *m_input;       /**< Keyboard/mouse input injector */
       FAR CIcon                   *m_icon;        /**< The cached Cicon instance */
       FAR CIconMgr                *m_iconmgr;     /**< The Default icon manager */
       FAR CWindowFactory          *m_factory;     /**< The cached CWindowFactory instance */
       FAR CFonts                  *m_fonts;       /**< The cached Cfonts instance */
       FAR CResize                 *m_resize;      /**< The cached CResize instance */
 
+#ifndef CONFIG_VNCSERVER
+      FAR CInput                  *m_input;       /**< Keyboard/mouse input injector */
+#endif
       /* Display properties */
 
       FAR struct nxgl_size_s       m_displaySize; /**< Size of the display */
