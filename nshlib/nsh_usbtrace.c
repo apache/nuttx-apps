@@ -85,14 +85,13 @@
 static int usbtrace_syslog(FAR const char *fmt, ...)
 {
   va_list ap;
-  int ret;
 
   /* Let vsyslog do the real work */
 
   va_start(ap, fmt);
-  ret = vsyslog(LOG_INFO, fmt, ap);
+  vsyslog(LOG_INFO, fmt, ap);
   va_end(ap);
-  return ret;
+  return OK;
 }
 
 /****************************************************************************

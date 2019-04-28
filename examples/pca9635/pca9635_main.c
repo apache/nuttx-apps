@@ -46,7 +46,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include <nuttx/pca9635pw.h>
+#include <nuttx/leds/pca9635pw.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -108,3 +108,4 @@ int pca9635_main(int argc, char *argv[])
 
   close(fd);
   return 0;
+}
