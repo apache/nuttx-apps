@@ -1,3 +1,4 @@
+#############################################################################
 # apps/netutils/cjson/Make.defs
 # Adds selected applications to apps/ build
 #
@@ -31,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-############################################################################
+#############################################################################
 
 ifeq ($(CONFIG_NETUTILS_CJSON),y)
 CONFIGURED_APPS += netutils/cjson
