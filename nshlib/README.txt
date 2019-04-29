@@ -1203,7 +1203,7 @@ o telnetd
 
   Normally this command would be suppressed with CONFIG_NSH_DISABLE_TELNETD
   because the Telnet daemon is automatically started in nsh_main.c.  The
-  exception is when CONFIG_NSH_NETLOCAL is selected.  IN that case, the
+  exception is when CONFIG_NETINIT_NETLOCAL is selected.  IN that case, the
   network is not enabled at initialization but rather must be enabled from
   the NSH command line or via other applications.
 
@@ -1836,20 +1836,20 @@ NSH-Specific Configuration Settings
       Determines the size of the I/O buffer to use for sending/
       receiving TELNET commands/reponses
 
-  * CONFIG_NSH_DHCPC
+  * CONFIG_NETINIT_DHCPC
       Obtain the IP address via DHCP.
 
-  * CONFIG_NSH_IPADDR
-      If CONFIG_NSH_DHCPC is NOT set, then the static IP
+  * CONFIG_NETINIT_IPADDR
+      If CONFIG_NETINIT_DHCPC is NOT set, then the static IP
       address must be provided.
 
-  * CONFIG_NSH_DRIPADDR
+  * CONFIG_NETINIT_DRIPADDR
       Default router IP address
 
-  * CONFIG_NSH_NETMASK
+  * CONFIG_NETINIT_NETMASK
       Network mask
 
-  * CONFIG_NSH_NOMAC
+  * CONFIG_NETINIT_NOMAC
       Set if your ethernet hardware has no built-in MAC address.
       If set, a bogus MAC will be assigned.
 

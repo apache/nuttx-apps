@@ -284,7 +284,7 @@ int nsh_telnetstart(sa_family_t family)
  *
  *   Normally this command would be suppressed with CONFIG_NSH_DISABLE_TELNETD
  *   because the Telnet daemon is automatically started in nsh_main.c.  The
- *   exception is when CONFIG_NSH_NETLOCAL is selected.  IN that case, the
+ *   exception is when CONFIG_NETINIT_NETLOCAL is selected.  IN that case, the
  *   network is not enabled at initialization but rather must be enabled from
  *   the NSH command line or via other applications.
  *

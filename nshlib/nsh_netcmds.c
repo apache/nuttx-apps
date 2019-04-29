@@ -102,7 +102,7 @@
 #  endif
 #endif
 
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
 #  include "netutils/dhcpc.h"
 #endif
 
@@ -564,7 +564,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef HAVE_HWADDR
   FAR char *hw = NULL;
 #endif
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
   FAR char *dns = NULL;
 #endif
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
@@ -575,7 +575,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef HAVE_HWADDR
   mac_addr_t macaddr;
 #endif
-#if defined(CONFIG_NSH_DHCPC)
+#if defined(CONFIG_NETINIT_DHCPC)
   FAR void *handle;
 #endif
   int ret;
@@ -679,7 +679,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 }
 #endif
 
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
               else if (!strcmp(tmp, "dns"))
                 {
                   if (argc - 1 >= i + 1)
@@ -754,7 +754,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       if (hostip != NULL)
         {
-#if defined(CONFIG_NSH_DHCPC)
+#if defined(CONFIG_NETINIT_DHCPC)
           if (strcmp(hostip, "dhcp") == 0)
             {
               /* Set DHCP addr */
@@ -869,7 +869,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   UNUSED(ifname); /* Not used in all configurations */
 
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
   if (inet6)
@@ -898,9 +898,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       netlib_set_ipv4dnsaddr(&addr);
     }
 #endif /* CONFIG_NET_IPv4 */
-#endif /* CONFIG_NSH_DHCPC || CONFIG_NSH_DNS */
+#endif /* CONFIG_NETINIT_DHCPC || CONFIG_NETINIT_DNS */
 
-#if defined(CONFIG_NSH_DHCPC)
+#if defined(CONFIG_NETINIT_DHCPC)
   /* Get the MAC address of the NIC */
 
   if (!gip)

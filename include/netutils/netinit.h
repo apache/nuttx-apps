@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_associate.c
+ * apps/include/netutils/netinit.h
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,56 +33,89 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_NETUTILS_NETINIT_H
+#define __APPS_INCLUDE_NETUTILS_NETINIT_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <unistd.h>
-#include <string.h>
+#ifdef CONFIG_NETUTILS_NETINIT
 
-#include <nuttx/wireless/wireless.h>
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+/* Configuration ************************************************************/
 
-#include "wireless/wapi.h"
-#include "nsh.h"
+/* Networking support.  Make sure that all non-boolean configuration
+ * settings have some value.
+ */
+
+#ifndef CONFIG_NETINIT_IPADDR
+#  define CONFIG_NETINIT_IPADDR    0x0a000002
+#endif
+
+#ifndef CONFIG_NETINIT_DRIPADDR
+#  define CONFIG_NETINIT_DRIPADDR  0x0a000001
+#endif
+
+#ifndef CONFIG_NETINIT_NETMASK
+#  define CONFIG_NETINIT_NETMASK   0xffffff00
+#endif
+
+#ifndef CONFIG_NETINIT_DNSIPADDR
+#  define CONFIG_NETINIT_DNSIPADDR CONFIG_NETINIT_DRIPADDR
+#endif
+
+#ifndef CONFIG_NETINIT_MACADDR
+#  define CONFIG_NETINIT_MACADDR   0x00e0deadbeef
+#endif
+
+#if !defined(CONFIG_NETINIT_THREAD) || !defined(CONFIG_ARCH_PHY_INTERRUPT) || \
+    !defined(CONFIG_NETDEV_PHY_IOCTL) || !defined(CONFIG_NET_UDP) || \
+     defined(CONFIG_DISABLE_SIGNALS)
+#  undef CONFIG_NETINIT_MONITOR
+#endif
+
+#ifndef CONFIG_NETINIT_RETRYMSEC
+#  define CONFIG_NETINIT_RETRYMSEC 2000
+#endif
+
+#ifndef CONFIG_NETINIT_SIGNO
+#  define CONFIG_NETINIT_SIGNO 18
+#endif
+
+#ifndef CONFIG_NETINIT_THREAD_STACKSIZE
+#  define CONFIG_NETINIT_THREAD_STACKSIZE 1568
+#endif
+
+#ifndef CONFIG_NETINIT_THREAD_PRIORITY
+#  define CONFIG_NETINIT_THREAD_PRIORITY 100
+#endif
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: netinit_bringup
+ *
+ * Description:
+ *   Initialize the network per the selected NuttX configuration
+ *
+ ****************************************************************************/
+
+int netinit_bringup(void);
+
+/****************************************************************************
+ * Name: netinit_associate
+ ****************************************************************************/
 
 #ifdef CONFIG_WIRELESS_WAPI
+int netinit_associate(FAR const char *ifname);
+#endif
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_associate
- ****************************************************************************/
-
-int nsh_associate(FAR const char *ifname)
-{
-  static const char ssid[]       = CONFIG_NSH_WAPI_SSID;
-  static const char passphrase[] = CONFIG_NSH_WAPI_PASSPHRASE;
-  struct wpa_wconfig_s wconfig;
-  int ret;
-
-  /* Set up the network configuration */
-
-  wconfig.sta_mode    = CONFIG_NSH_WAPI_STAMODE;
-  wconfig.auth_wpa    = CONFIG_NSH_WAPI_AUTHWPA;
-  wconfig.cipher_mode = CONFIG_NSH_WAPI_CIPHERMODE;
-  wconfig.alg         = CONFIG_NSH_WAPI_ALG;
-  wconfig.ifname      = ifname;
-  wconfig.ssid        = (FAR const uint8_t *)ssid;
-  wconfig.passphrase  = (FAR const uint8_t *)passphrase;
-
-  wconfig.ssidlen     = strlen(ssid);
-  wconfig.phraselen   = strlen(passphrase);
-
-  /* Associate */
-
-  sleep(2);
-  ret = wpa_driver_wext_associate(&wconfig);
-  sleep(2);
-  return ret;
-}
-
-#endif /* CONFIG_WIRELESS_WAPI */
+#endif /* CONFIG_NETUTILS_NETINIT */
+#endif /* __APPS_INCLUDE_NETUTILS_NETINIT_H */

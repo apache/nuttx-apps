@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_init.c
+ * apps/netutils/netinit/netinit_associate.c
  *
- *   Copyright (C) 2007-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,74 +39,50 @@
 
 #include <nuttx/config.h>
 
-#include <sys/boardctl.h>
+#include <unistd.h>
+#include <string.h>
 
-#include "system/readline.h"
+#include <nuttx/wireless/wireless.h>
+
+#include "wireless/wapi.h"
 #include "netutils/netinit.h"
-#include "nshlib/nshlib.h"
 
-#include "nsh.h"
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION) && \
-    defined(CONFIG_READLINE_HAVE_EXTMATCH)
-static const struct extmatch_vtable_s g_nsh_extmatch =
-{
-  nsh_extmatch_count,  /* count_matches */
-  nsh_extmatch_getname /* getname */
-};
-#endif
+#ifdef CONFIG_WIRELESS_WAPI
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_initialize
- *
- * Description:
- *   This nterfaces is used to initialize the NuttShell (NSH).
- *   nsh_initialize() should be called one during application start-up prior
- *   to executing either nsh_consolemain() or nsh_telnetstart().
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   None
- *
+ * Name: netinit_associate
  ****************************************************************************/
 
-void nsh_initialize(void)
+int netinit_associate(FAR const char *ifname)
 {
-#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
-  /* Configure the NSH prompt */
+  static const char ssid[]       = CONFIG_NETINIT_WAPI_SSID;
+  static const char passphrase[] = CONFIG_NETINIT_WAPI_PASSPHRASE;
+  struct wpa_wconfig_s wconfig;
+  int ret;
 
-  (void)readline_prompt(g_nshprompt);
+  /* Set up the network configuration */
 
-#ifdef CONFIG_READLINE_HAVE_EXTMATCH
-  /* Set up for tab completion on NSH commands */
+  wconfig.sta_mode    = CONFIG_NETINIT_WAPI_STAMODE;
+  wconfig.auth_wpa    = CONFIG_NETINIT_WAPI_AUTHWPA;
+  wconfig.cipher_mode = CONFIG_NETINIT_WAPI_CIPHERMODE;
+  wconfig.alg         = CONFIG_NETINIT_WAPI_ALG;
+  wconfig.ifname      = ifname;
+  wconfig.ssid        = (FAR const uint8_t *)ssid;
+  wconfig.passphrase  = (FAR const uint8_t *)passphrase;
 
-  (void)readline_extmatch(&g_nsh_extmatch);
-#endif
-#endif
+  wconfig.ssidlen     = strlen(ssid);
+  wconfig.phraselen   = strlen(passphrase);
 
-  /* Mount the /etc filesystem */
+  /* Associate */
 
-  (void)nsh_romfsetc();
-
-#ifdef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  (void)boardctl(BOARDIOC_INIT, 0);
-#endif
-
-#ifdef CONFIG_NSH_NETINIT
-  /* Bring up the network */
-
-  (void)netinit_bringup();
-#endif
+  sleep(2);
+  ret = wpa_driver_wext_associate(&wconfig);
+  sleep(2);
+  return ret;
 }
+
+#endif /* CONFIG_WIRELESS_WAPI */

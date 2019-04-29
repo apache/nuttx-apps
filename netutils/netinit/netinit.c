@@ -1,14 +1,9 @@
 /****************************************************************************
- * apps/nshlib/nsh_netinit.c
+ * apps/netutils/netinit/netinit.c
  *
- *   Copyright (C) 2010-2012, 2014-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2012, 2014-2016, 2019 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * This is influenced by similar logic from uIP:
- *
- *   Author: Adam Dunkels <adam@sics.se>
- *   Copyright (c) 2003, Adam Dunkels.
- *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -44,7 +39,7 @@
 
 /* Is network initialization debug forced on? */
 
-#ifdef CONFIG_NSH_NETINIT_DEBUG
+#ifdef CONFIG_NETINIT_DEBUG
 #  undef  CONFIG_DEBUG_INFO
 #  define CONFIG_DEBUG_INFO 1
 #  undef  CONFIG_DEBUG_NET
@@ -68,7 +63,7 @@
 #include <nuttx/net/mii.h>
 
 #include "netutils/netlib.h"
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
 #  include "netutils/dhcpc.h"
 #endif
 
@@ -84,9 +79,9 @@
 #  include "netutils/ntpclient.h"
 #endif
 
-#include "nsh.h"
+#include "netutils/netinit.h"
 
-#ifdef CONFIG_NSH_NETINIT
+#ifdef CONFIG_NETUTILS_NETINIT
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -158,19 +153,8 @@
 
 /* Provide a default DNS address */
 
-#if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
-#  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
-#endif
-
-/* SLIP-specific configuration
- *
- * REVISIT: How will we handle Ethernet and SLIP networks together?  In the
- * future, NSH will need to be extended to handle multiple networks with
- * mixed transports.
- */
-
-#ifdef CONFIG_NET_MULILINK
-#  warning REVISIT: CONFIG_NET_MULILINK multilink support incomplete
+#if defined(CONFIG_NETINIT_DRIPADDR) && !defined(CONFIG_NETINIT_DNSIPADDR)
+#  define CONFIG_NETINIT_DNSIPADDR CONFIG_NETINIT_DRIPADDR
 #endif
 
 /* Select the single network device name supported this this network
@@ -182,30 +166,30 @@
 
 #if defined(CONFIG_DRIVERS_IEEE80211) /* Usually also has CONFIG_NET_ETHERNET */
 #  define NET_DEVNAME "wlan0"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)
 #  define NET_DEVNAME "wpan0"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_BLUETOOTH)
 #  define NET_DEVNAME "bnep0"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_SLIP)
 #  define NET_DEVNAME "sl0"
-#  ifndef CONFIG_NSH_NOMAC
-#    error "CONFIG_NSH_NOMAC must be defined for SLIP"
+#  ifndef CONFIG_NETINIT_NOMAC
+#    error "CONFIG_NETINIT_NOMAC must be defined for SLIP"
 #  endif
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_TUN)
 #  define NET_DEVNAME "tun0"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
-#  define NSH_HAVE_NETDEV
+#  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_USRSOCK)
-#  undef NSH_HAVE_NETDEV
+#  undef NETINIT_HAVE_NETDEV
 #elif !defined(CONFIG_NET_LOOPBACK)
 #  error ERROR: No link layer protocol defined
 #endif
@@ -214,8 +198,8 @@
  * cannot support the network monitor.
  */
 
-#ifndef NSH_HAVE_NETDEV
-#  undef CONFIG_NSH_NETINIT_MONITOR
+#ifndef NETINIT_HAVE_NETDEV
+#  undef CONFIG_NETINIT_MONITOR
 #endif
 
 /* We need a valid IP domain (any domain) to create a socket that we can use
@@ -240,7 +224,7 @@
  * Private Data
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_NETINIT_MONITOR
+#ifdef CONFIG_NETINIT_MONITOR
 static sem_t g_notify_sem;
 #endif
 
@@ -250,42 +234,42 @@ static sem_t g_notify_sem;
 
 static const uint16_t g_ipv6_hostaddr[8] =
 {
-  HTONS(CONFIG_NSH_IPv6ADDR_1),
-  HTONS(CONFIG_NSH_IPv6ADDR_2),
-  HTONS(CONFIG_NSH_IPv6ADDR_3),
-  HTONS(CONFIG_NSH_IPv6ADDR_4),
-  HTONS(CONFIG_NSH_IPv6ADDR_5),
-  HTONS(CONFIG_NSH_IPv6ADDR_6),
-  HTONS(CONFIG_NSH_IPv6ADDR_7),
-  HTONS(CONFIG_NSH_IPv6ADDR_8),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_1),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_2),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_3),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_4),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_5),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_6),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_7),
+  HTONS(CONFIG_NETINIT_IPv6ADDR_8),
 };
 
 /* Default routine IPv6 address */
 
 static const uint16_t g_ipv6_draddr[8] =
 {
-  HTONS(CONFIG_NSH_DRIPv6ADDR_1),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_2),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_3),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_4),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_5),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_6),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_7),
-  HTONS(CONFIG_NSH_DRIPv6ADDR_8),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_1),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_2),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_3),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_4),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_5),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_6),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_7),
+  HTONS(CONFIG_NETINIT_DRIPv6ADDR_8),
 };
 
 /* IPv6 netmask */
 
 static const uint16_t g_ipv6_netmask[8] =
 {
-  HTONS(CONFIG_NSH_IPv6NETMASK_1),
-  HTONS(CONFIG_NSH_IPv6NETMASK_2),
-  HTONS(CONFIG_NSH_IPv6NETMASK_3),
-  HTONS(CONFIG_NSH_IPv6NETMASK_4),
-  HTONS(CONFIG_NSH_IPv6NETMASK_5),
-  HTONS(CONFIG_NSH_IPv6NETMASK_6),
-  HTONS(CONFIG_NSH_IPv6NETMASK_7),
-  HTONS(CONFIG_NSH_IPv6NETMASK_8),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_1),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_2),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_3),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_4),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_5),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_6),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_7),
+  HTONS(CONFIG_NETINIT_IPv6NETMASK_8),
 };
 #endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF && !CONFIG_NET_6LOWPAN */
 
@@ -294,7 +278,7 @@ static const uint16_t g_ipv6_netmask[8] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_set_macaddr
+ * Name: netinit_set_macaddr
  *
  * Description:
  *   Set the hardware MAC address if the hardware is not capable of doing
@@ -302,8 +286,8 @@ static const uint16_t g_ipv6_netmask[8] =
  *
  ****************************************************************************/
 
-#if defined(NSH_HAVE_NETDEV) && defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
-static void nsh_set_macaddr(void)
+#if defined(NETINIT_HAVE_NETDEV) && defined(CONFIG_NETINIT_NOMAC) && defined(HAVE_MAC)
+static void netinit_set_macaddr(void)
 {
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
@@ -316,12 +300,12 @@ static void nsh_set_macaddr(void)
 #if defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
-  mac[0] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
-  mac[1] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
-  mac[2] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
-  mac[3] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
-  mac[4] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
-  mac[5] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+  mac[0] = (CONFIG_NETINIT_MACADDR >> (8 * 5)) & 0xff;
+  mac[1] = (CONFIG_NETINIT_MACADDR >> (8 * 4)) & 0xff;
+  mac[2] = (CONFIG_NETINIT_MACADDR >> (8 * 3)) & 0xff;
+  mac[3] = (CONFIG_NETINIT_MACADDR >> (8 * 2)) & 0xff;
+  mac[4] = (CONFIG_NETINIT_MACADDR >> (8 * 1)) & 0xff;
+  mac[5] = (CONFIG_NETINIT_MACADDR >> (8 * 0)) & 0xff;
 
   /* Set the MAC address */
 
@@ -330,14 +314,14 @@ static void nsh_set_macaddr(void)
 #elif defined(HAVE_EADDR)
   /* Use the configured, fixed extended address */
 
-  eaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
-  eaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 6)) & 0xff;
-  eaddr[2] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
-  eaddr[3] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
-  eaddr[4] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
-  eaddr[5] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
-  eaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
-  eaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+  eaddr[0] = (CONFIG_NETINIT_MACADDR >> (8 * 7)) & 0xff;
+  eaddr[1] = (CONFIG_NETINIT_MACADDR >> (8 * 6)) & 0xff;
+  eaddr[2] = (CONFIG_NETINIT_MACADDR >> (8 * 5)) & 0xff;
+  eaddr[3] = (CONFIG_NETINIT_MACADDR >> (8 * 4)) & 0xff;
+  eaddr[4] = (CONFIG_NETINIT_MACADDR >> (8 * 3)) & 0xff;
+  eaddr[5] = (CONFIG_NETINIT_MACADDR >> (8 * 2)) & 0xff;
+  eaddr[6] = (CONFIG_NETINIT_MACADDR >> (8 * 1)) & 0xff;
+  eaddr[7] = (CONFIG_NETINIT_MACADDR >> (8 * 0)) & 0xff;
 
   /* Set the 6LoWPAN extended address */
 
@@ -345,11 +329,11 @@ static void nsh_set_macaddr(void)
 #endif /* CONFIG_NET_ETHERNET or HAVE_EADDR */
 }
 #else
-#  define nsh_set_macaddr()
+#  define netinit_set_macaddr()
 #endif
 
 /****************************************************************************
- * Name: nsh_set_ipaddrs
+ * Name: netinit_set_ipaddrs
  *
  * Description:
  *   Setup IP addresses.
@@ -359,17 +343,17 @@ static void nsh_set_macaddr(void)
  *
  ****************************************************************************/
 
-#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN) && ! \
+#if defined(NETINIT_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN) && ! \
     defined(CONFIG_NET_IEEE802154)
-static void nsh_set_ipaddrs(void)
+static void netinit_set_ipaddrs(void)
 {
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
 
   /* Set up our host address */
 
-#ifndef CONFIG_NSH_DHCPC
-  addr.s_addr = HTONL(CONFIG_NSH_IPADDR);
+#ifndef CONFIG_NETINIT_DHCPC
+  addr.s_addr = HTONL(CONFIG_NETINIT_IPADDR);
 #else
   addr.s_addr = 0;
 #endif
@@ -377,12 +361,12 @@ static void nsh_set_ipaddrs(void)
 
   /* Set up the default router address */
 
-  addr.s_addr = HTONL(CONFIG_NSH_DRIPADDR);
+  addr.s_addr = HTONL(CONFIG_NETINIT_DRIPADDR);
   netlib_set_dripv4addr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
-  addr.s_addr = HTONL(CONFIG_NSH_NETMASK);
+  addr.s_addr = HTONL(CONFIG_NETINIT_NETMASK);
   netlib_set_ipv4netmask(NET_DEVNAME, &addr);
 #endif
 
@@ -406,27 +390,27 @@ static void nsh_set_ipaddrs(void)
 #endif /* CONFIG_NET_ICMPv6_AUTOCONF */
 #endif /* CONFIG_NET_IPv6 */
 
-#ifdef CONFIG_NSH_DNS
-  addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
+#ifdef CONFIG_NETINIT_DNS
+  addr.s_addr = HTONL(CONFIG_NETINIT_DNSIPADDR);
   netlib_set_ipv4dnsaddr(&addr);
 #endif
 }
 #else
-#  define nsh_set_ipaddrs()
+#  define netinit_set_ipaddrs()
 #endif
 
 /****************************************************************************
- * Name: nsh_net_bringup()
+ * Name: netinit_net_bringup()
  *
  * Description:
  *   Bring up the configured network
  *
  ****************************************************************************/
 
-#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NSH_NETLOCAL)
-static void nsh_net_bringup(void)
+#if defined(NETINIT_HAVE_NETDEV) && !defined(CONFIG_NETINIT_NETLOCAL)
+static void netinit_net_bringup(void)
 {
-#ifdef CONFIG_NSH_DHCPC
+#ifdef CONFIG_NETINIT_DHCPC
   uint8_t mac[IFHWADDRLEN];
   FAR void *handle;
 #endif
@@ -438,7 +422,7 @@ static void nsh_net_bringup(void)
 #ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan with an access point. */
 
-  nsh_associate(NET_DEVNAME);
+  netinit_associate(NET_DEVNAME);
 #endif
 
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF
@@ -447,7 +431,7 @@ static void nsh_net_bringup(void)
   netlib_icmpv6_autoconfiguration(NET_DEVNAME);
 #endif
 
-#ifdef CONFIG_NSH_DHCPC
+#ifdef CONFIG_NETINIT_DHCPC
   /* Get the MAC address of the NIC */
 
   netlib_getmacaddr(NET_DEVNAME, mac);
@@ -492,48 +476,48 @@ static void nsh_net_bringup(void)
 #endif
 }
 #else
-#  define nsh_net_bringup()
+#  define netinit_net_bringup()
 #endif
 
 /****************************************************************************
- * Name: nsh_netinit_configure
+ * Name: netinit_configure
  *
  * Description:
  *   Initialize the network per the selected NuttX configuration
  *
  ****************************************************************************/
 
-static void nsh_netinit_configure(void)
+static void netinit_configure(void)
 {
-#ifdef NSH_HAVE_NETDEV
+#ifdef NETINIT_HAVE_NETDEV
   /* Many embedded network interfaces must have a software assigned MAC */
 
-  nsh_set_macaddr();
+  netinit_set_macaddr();
 
   /* Set up IP addresses */
 
-  nsh_set_ipaddrs();
+  netinit_set_ipaddrs();
 
   /* That completes the 'local' initialization of the network device. */
 
-#ifndef CONFIG_NSH_NETLOCAL
+#ifndef CONFIG_NETINIT_NETLOCAL
   /* Bring the network up. */
 
-  nsh_net_bringup();
+  netinit_net_bringup();
 #endif
-#endif /* NSH_HAVE_NETDEV */
+#endif /* NETINIT_HAVE_NETDEV */
 }
 
 /****************************************************************************
- * Name: nsh_netinit_signal
+ * Name: netinit_signal
  *
  * Description:
  *   This signal handler responds to changes in PHY status.
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_NETINIT_MONITOR
-static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
+#ifdef CONFIG_NETINIT_MONITOR
+static void netinit_signal(int signo, FAR siginfo_t *siginfo,
                                FAR void * context)
 {
   int semcount;
@@ -554,7 +538,7 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
 #endif
 
 /****************************************************************************
- * Name: nsh_netinit_monitor
+ * Name: netinit_monitor
  *
  * Description:
  *   Monitor link status, gracefully taking the link up and down as the
@@ -562,8 +546,8 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_NETINIT_MONITOR
-static int nsh_netinit_monitor(void)
+#ifdef CONFIG_NETINIT_MONITOR
+static int netinit_monitor(void)
 {
   struct timespec abstime;
   struct timespec reltime;
@@ -595,10 +579,10 @@ static int nsh_netinit_monitor(void)
 
   /* Attach a signal handler so that we do not lose PHY events */
 
-  act.sa_sigaction = nsh_netinit_signal;
+  act.sa_sigaction = netinit_signal;
   act.sa_flags = SA_SIGINFO;
 
-  ret = sigaction(CONFIG_NSH_NETINIT_SIGNO, &act, NULL);
+  ret = sigaction(CONFIG_NETINIT_SIGNO, &act, NULL);
   if (ret < 0)
     {
       ret = -errno;
@@ -618,7 +602,7 @@ static int nsh_netinit_monitor(void)
       strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
 
       ifr.ifr_mii_notify_event.sigev_notify = SIGEV_SIGNAL;
-      ifr.ifr_mii_notify_event.sigev_signo  = CONFIG_NSH_NETINIT_SIGNO;
+      ifr.ifr_mii_notify_event.sigev_signo  = CONFIG_NETINIT_SIGNO;
 
       ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
       if (ret < 0)
@@ -744,8 +728,8 @@ static int nsh_netinit_monitor(void)
 
           /* In either case, wait for the short, configurable delay */
 
-          reltime.tv_sec  = CONFIG_NSH_NETINIT_RETRYMSEC / 1000;
-          reltime.tv_nsec = (CONFIG_NSH_NETINIT_RETRYMSEC % 1000) * 1000000;
+          reltime.tv_sec  = CONFIG_NETINIT_RETRYMSEC / 1000;
+          reltime.tv_nsec = (CONFIG_NETINIT_RETRYMSEC % 1000) * 1000000;
         }
 
       /* Now wait for either the semaphore to be posted for a timed-out to
@@ -782,26 +766,26 @@ errout:
 #endif
 
 /****************************************************************************
- * Name: nsh_netinit_thread
+ * Name: netinit_thread
  *
  * Description:
  *   Initialize the network per the selected NuttX configuration
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_NETINIT_THREAD
-static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
+#ifdef CONFIG_NETINIT_THREAD
+static pthread_addr_t netinit_thread(pthread_addr_t arg)
 {
   ninfo("Entry\n");
 
   /* Configure the network */
 
-  nsh_netinit_configure();
+  netinit_configure();
 
-#ifdef CONFIG_NSH_NETINIT_MONITOR
+#ifdef CONFIG_NETINIT_MONITOR
   /* Monitor the network status */
 
-  nsh_netinit_monitor();
+  netinit_monitor();
 #endif
 
   ninfo("Exit\n");
@@ -814,16 +798,16 @@ static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_netinit
+ * Name: netinit_bringup
  *
  * Description:
  *   Initialize the network per the selected NuttX configuration
  *
  ****************************************************************************/
 
-int nsh_netinit(void)
+int netinit_bringup(void)
 {
-#ifdef CONFIG_NSH_NETINIT_THREAD
+#ifdef CONFIG_NETINIT_THREAD
   struct sched_param  sparam;
   pthread_attr_t      attr;
   pthread_t           tid;
@@ -834,16 +818,16 @@ int nsh_netinit(void)
    */
 
   pthread_attr_init(&attr);
-  sparam.sched_priority = CONFIG_NSH_NETINIT_THREAD_PRIORITY;
+  sparam.sched_priority = CONFIG_NETINIT_THREAD_PRIORITY;
   (void)pthread_attr_setschedparam(&attr, &sparam);
-  (void)pthread_attr_setstacksize(&attr, CONFIG_NSH_NETINIT_THREAD_STACKSIZE);
+  (void)pthread_attr_setstacksize(&attr, CONFIG_NETINIT_THREAD_STACKSIZE);
 
   ninfo("Starting netinit thread\n");
-  ret = pthread_create(&tid, &attr, nsh_netinit_thread, NULL);
+  ret = pthread_create(&tid, &attr, netinit_thread, NULL);
   if (ret != OK)
     {
       nerr("ERROR: Failed to create netinit thread: %d\n", ret);
-      (void)nsh_netinit_thread(NULL);
+      (void)netinit_thread(NULL);
     }
   else
     {
@@ -861,9 +845,9 @@ int nsh_netinit(void)
 #else
   /* Perform network initialization sequentially */
 
-  nsh_netinit_configure();
+  netinit_configure();
   return OK;
 #endif
 }
 
-#endif /* CONFIG_NSH_NETINIT */
+#endif /* CONFIG_NETUTILS_NETINIT */

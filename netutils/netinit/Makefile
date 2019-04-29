@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/netutils/netinit/Makefile
 #
-#   Copyright (C) 2011-2013, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2019 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,97 +35,12 @@
 
 -include $(TOPDIR)/Make.defs
 
-# NSH Library
+CSRCS = netinit.c
 
-CSRCS  = nsh_init.c nsh_parse.c nsh_console.c nsh_script.c nsh_system.c
-CSRCS += nsh_command.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c
-CSRCS += nsh_timcmds.c nsh_envcmds.c nsh_syscmds.c nsh_dbgcmds.c
-
-ifeq ($(CONFIG_NFILE_STREAMS),0)
-CSRCS += nsh_stdsession.c
-ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
-CSRCS += nsh_stdlogin.c
+ifeq ($(CONFIG_WIRELESS_WAPI),y)
+ifneq ($(CONFIG_NETINIT_NETLOCAL),y)
+CSRCS += netinit_associate.c
 endif
-else
-CSRCS += nsh_session.c
-ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
-CSRCS += nsh_login.c
-endif
-endif
-
-CSRCS += nsh_fsutils.c
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS += nsh_builtin.c
-endif
-
-ifeq ($(CONFIG_NSH_FILE_APPS),y)
-CSRCS += nsh_fileapps.c
-endif
-
-ifeq ($(CONFIG_NSH_VARS),y)
-CSRCS += nsh_vars.c
-endif
-
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS += nsh_romfsetc.c
-endif
-
-ifeq ($(CONFIG_NET),y)
-CSRCS += nsh_netcmds.c
-
-ifeq ($(CONFIG_NET_ROUTE),y)
-CSRCS += nsh_routecmds.c
-endif
-endif
-
-ifneq ($(CONFIG_DISABLE_MOUNTPOINT),y)
-CSRCS += nsh_mntcmds.c
-endif
-
-ifeq ($(CONFIG_MODULE),y)
-ifneq ($(CONFIG_NSH_DISABLE_MODCMDS),y)
-CSRCS += nsh_modcmds.c
-endif
-endif
-
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS += nsh_consolemain.c
-endif
-
-ifneq ($(CONFIG_NSH_DISABLE_PRINTF),y)
-CSRCS += nsh_printf.c
-endif
-
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS += nsh_telnetd.c
-ifeq ($(CONFIG_NSH_TELNET_LOGIN),y)
-CSRCS += nsh_telnetlogin.c
-endif
-endif
-
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS += nsh_test.c
-endif
-
-ifeq ($(CONFIG_USBDEV),y)
-CSRCS += nsh_usbconsole.c
-endif
-
-ifeq ($(CONFIG_NSH_ALTCONDEV),y)
-CSRCS += nsh_altconsole.c
-endif
-
-ifeq ($(CONFIG_NSH_USBDEV_TRACE),y)
-CSRCS += nsh_usbtrace.c
-endif
-
-ifeq ($(CONFIG_NETUTILS_CODECS),y)
-CSRCS += nsh_codeccmd.c
-endif
-
-ifeq ($(CONFIG_NSH_LOGIN_PASSWD),y)
-CSRCS += nsh_passwdcmds.c
 endif
 
 include $(APPDIR)/Application.mk

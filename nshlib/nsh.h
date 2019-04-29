@@ -104,52 +104,6 @@
 #  define CONFIG_LIBC_TMPDIR "/tmp"
 #endif
 
-/* Networking support.  Make sure that all non-boolean configuration
- * settings have some value.
- */
-
-#ifndef CONFIG_NSH_IPADDR
-#  define CONFIG_NSH_IPADDR    0x0a000002
-#endif
-
-#ifndef CONFIG_NSH_DRIPADDR
-#  define CONFIG_NSH_DRIPADDR  0x0a000001
-#endif
-
-#ifndef CONFIG_NSH_NETMASK
-#  define CONFIG_NSH_NETMASK   0xffffff00
-#endif
-
-#ifndef CONFIG_NSH_DNSIPADDR
-#  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
-#endif
-
-#ifndef CONFIG_NSH_MACADDR
-#  define CONFIG_NSH_MACADDR   0x00e0deadbeef
-#endif
-
-#if !defined(CONFIG_NSH_NETINIT_THREAD) || !defined(CONFIG_ARCH_PHY_INTERRUPT) || \
-    !defined(CONFIG_NETDEV_PHY_IOCTL) || !defined(CONFIG_NET_UDP) || \
-     defined(CONFIG_DISABLE_SIGNALS)
-#  undef CONFIG_NSH_NETINIT_MONITOR
-#endif
-
-#ifndef CONFIG_NSH_NETINIT_RETRYMSEC
-#  define CONFIG_NSH_NETINIT_RETRYMSEC 2000
-#endif
-
-#ifndef CONFIG_NSH_NETINIT_SIGNO
-#  define CONFIG_NSH_NETINIT_SIGNO 18
-#endif
-
-#ifndef CONFIG_NSH_NETINIT_THREAD_STACKSIZE
-#  define CONFIG_NSH_NETINIT_THREAD_STACKSIZE 1568
-#endif
-
-#ifndef CONFIG_NSH_NETINIT_THREAD_PRIORITY
-#  define CONFIG_NSH_NETINIT_THREAD_PRIORITY 100
-#endif
-
 /* Some networking commands do not make sense unless there is a network
  * device.  There might not be a network device if, for example, only Unix
  * domain sockets were enable.
@@ -913,12 +867,6 @@ int nsh_romfsetc(void);
 #  define nsh_romfsetc() (-ENOSYS)
 #endif
 
-#ifdef CONFIG_NSH_NETINIT
-int nsh_netinit(void);
-#else
-#  define nsh_netinit() (-ENOSYS)
-#endif
-
 #ifdef HAVE_USB_CONSOLE
 int nsh_usbconsole(void);
 #else
@@ -992,12 +940,6 @@ void nsh_freefullpath(FAR char *fullpath);
 
 void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
                     const uint8_t *buffer, ssize_t nbytes);
-
-#ifdef CONFIG_WIRELESS_WAPI
-/* Wireless */
-
-int nsh_associate(FAR const char *ifname);
-#endif
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
 /* USB debug support */
