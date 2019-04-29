@@ -609,18 +609,17 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               /* EINTR is not an error (but will still stop the copy) */
 
-#ifndef CONFIG_DISABLE_SIGNALS
               if (errno == EINTR)
                 {
                   nsh_error(vtbl, g_fmtsignalrecvd, argv[0]);
                 }
               else
-#endif
                 {
                   /* Read error */
 
                   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
                 }
+
               goto errout_with_wrfd;
             }
         }
@@ -637,18 +636,17 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               /* EINTR is not an error (but will still stop the copy) */
 
-#ifndef CONFIG_DISABLE_SIGNALS
               if (errno == EINTR)
                 {
                   nsh_error(vtbl, g_fmtsignalrecvd, argv[0]);
                 }
               else
-#endif
                 {
                  /* Read error */
 
                   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "write", NSH_ERRNO);
                 }
+
               goto errout_with_wrfd;
             }
         }

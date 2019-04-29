@@ -1441,7 +1441,7 @@ Command Dependencies on Configuration Settings
   ifup       CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
   insmod     CONFIG_MODULE
   irqinfo    CONFIG_FS_PROCFS && CONFIG_SCHED_IRQMONITOR
-  kill       !CONFIG_DISABLE_SIGNALS
+  kill       --
   losetup    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_DEV_LOOP
   ln         CONFIG_PSEUDOFS_SOFTLINK
   ls         --
@@ -1472,7 +1472,7 @@ Command Dependencies on Configuration Settings
   set        CONFIG_NSH_VARS || !CONFIG_DISABLE_ENVIRON
   sh         CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
-  sleep      !CONFIG_DISABLE_SIGNALS
+  sleep      --
   test       !CONFIG_NSH_DISABLESCRIPT
   telnetd    CONFIG_NSH_TELNET && !CONFIG_NSH_DISABLE_TELNETD
   time       ---
@@ -1484,7 +1484,7 @@ Command Dependencies on Configuration Settings
   urlencode  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_URLCODE
   useradd    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
   userdel    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
-  usleep     !CONFIG_DISABLE_SIGNALS
+  usleep     --
   get        CONFIG_NET && CONFIG_NET_TCP
   xd         ---
 
@@ -1536,9 +1536,9 @@ All built-in applications require that support for NSH built-in applications has
   Application Depends on Configuration
   ----------- --------------------------
   ping        CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_SOCKET &&
-              CONFIG_SYSTEM_PING && !CONFIG_DISABLE_POLL && !CONFIG_DISABLE_SIGNALS
+              CONFIG_SYSTEM_PING && !CONFIG_DISABLE_POLL
   ping6       CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_SOCKET &&
-              CONFIG_SYSTEM_PING6 && !CONFIG_DISABLE_POLL && !CONFIG_DISABLE_SIGNALS
+              CONFIG_SYSTEM_PING6 && !CONFIG_DISABLE_POLL
 
 NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -38,7 +38,7 @@
 include $(APPDIR)/Make.defs
 
 ALL_SUBDIRS = errno hello helloxx longjmp mutex pthread signal task struct
-BUILD_SUBDIRS = errno hello struct
+BUILD_SUBDIRS = errno hello struct signal
 
 ifeq ($(CONFIG_HAVE_CXX),y)
 BUILD_SUBDIRS += helloxx
@@ -50,10 +50,6 @@ endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 BUILD_SUBDIRS += mutex pthread
-endif
-
-ifneq ($(CONFIG_DISABLE_SIGNALS),y)
-BUILD_SUBDIRS += signal
 endif
 
 ifneq ($(CONFIG_ARCH_ADDRENV),y)

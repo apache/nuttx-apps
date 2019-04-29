@@ -56,7 +56,6 @@ examples/ajoystick
 
   Configuration Pre-requisites:
 
-    CONFIG_DISABLE_SIGNALS - Must *NOT* be selected
     CONFIG_AJOYSTICK - The analog joystick driver
 
   Example Configuration:
@@ -292,7 +291,6 @@ examples/djoystick
 
   Configuration Pre-requisites:
 
-    CONFIG_DISABLE_SIGNALS - Must *NOT* be selected
     CONFIG_DJOYSTICK - The discrete joystick driver
 
   Example Configuration:
@@ -979,7 +977,6 @@ examples/nx
   if they are not as expected:
 
     CONFIG_DISABLE_MQUEUE=n
-    CONFIG_DISABLE_SIGNALS=n
     CONFIG_DISABLE_PTHREAD=n
     CONFIG_NX_BLOCKING=y
     CONFIG_LIB_BOARDCTL=y
@@ -996,7 +993,6 @@ examples/nxterm
     CONFIG_NX=y              -- NX graphics must be enabled
     CONFIG_NXTERM=y          -- The NX console driver must be built
     CONFIG_DISABLE_MQUEUE=n  -- Message queue support must be available.
-    CONFIG_DISABLE_SIGNALS=n -- Signals are needed
     CONFIG_DISABLE_PTHREAD=n -- pthreads are needed
     CONFIG_NX_BLOCKING=y     -- pthread APIs must be blocking
     CONFIG_NSH_CONSOLE=y     -- NSH must be configured to use a console.
@@ -1194,7 +1190,6 @@ examples/nxtext
   error if they are not as expected:
 
     CONFIG_DISABLE_MQUEUE=n
-    CONFIG_DISABLE_SIGNALS=n
     CONFIG_DISABLE_PTHREAD=n
     CONFIG_NX_BLOCKING=y
 

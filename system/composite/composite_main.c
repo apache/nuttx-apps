@@ -64,7 +64,7 @@
 
 #undef NEED_DUMPTRACE
 #ifdef CONFIG_USBDEV_TRACE
-#  if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+#  if !defined(CONFIG_NSH_BUILTIN_APPS)
 #    define NEED_DUMPTRACE 1
 #  elif CONFIG_USBDEV_TRACE_INITIALIDSET != 0
 #    define NEED_DUMPTRACE 1
@@ -397,7 +397,7 @@ static int dumptrace(void)
  * Name: open_serial
  ****************************************************************************/
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+#ifndef CONFIG_NSH_BUILTIN_APPS
 static int open_serial(void)
 {
   int errcode;
@@ -622,13 +622,9 @@ int conn_main(int argc, char *argv[])
     }
 #endif
 
-  /* It this program was configued as an NSH command, then just exit now.
-   * Also, if signals are not enabled (and, hence, sleep() is not supported.
-   * then we have not real option but to exit now.
-   */
+  /* It this program was configued as an NSH command, then just exit now. */
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
-
+#ifndef CONFIG_NSH_BUILTIN_APPS
   /* Otherwise, this thread will hang around and monitor the USB activity */
 
   /* Open the serial driver */
@@ -680,11 +676,9 @@ int conn_main(int argc, char *argv[])
    /* Dump debug memory usage */
 
    printf("conn_main: Exiting\n");
-#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+#ifndef CONFIG_NSH_BUILTIN_APPS
    close(g_composite.infd);
    close(g_composite.outfd);
-#endif
-#ifdef CONFIG_NSH_BUILTIN_APPS
 #endif
    final_memory_usage("Final memory usage");
    return 0;
@@ -693,7 +687,7 @@ int conn_main(int argc, char *argv[])
 errout_bad_dump:
 #endif
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+#ifndef CONFIG_NSH_BUILTIN_APPS
 errout:
   close(g_composite.infd);
   close(g_composite.outfd);

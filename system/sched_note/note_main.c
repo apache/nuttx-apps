@@ -66,9 +66,7 @@ static FAR const char *g_statenames[] =
   "Running",
   "Inactive",
   "Waiting for Semaphore",
-#ifndef CONFIG_DISABLE_SIGNALS
   "Waiting for Signal",
-#endif
 #ifndef CONFIG_DISABLE_MQUEUE
   "Waiting for MQ empty",
   "Waiting for MQ full"

@@ -41,6 +41,5 @@ config NETUTILS_NTPCLIENT_POLLDELAYSEC
 config NETUTILS_NTPCLIENT_SIGWAKEUP
 	int "NTP client wakeup signal number"
 	default 18
-	depends on !DISABLE_SIGNALS
 
 endif # NETUTILS_NTPCLIENT

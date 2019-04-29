@@ -101,9 +101,7 @@ struct nsh_taskstatus_s
   FAR const char *td_flags;      /* Thread flags */
   FAR const char *td_priority;   /* Thread priority */
   FAR const char *td_policy;     /* Thread scheduler */
-#ifndef CONFIG_DISABLE_SIGNALS
   FAR const char *td_sigmask;    /* Signal mask */
-#endif
 };
 
 /* Status strings */
@@ -131,10 +129,7 @@ static const char g_state[]     = "State:";
 static const char g_flags[]     = "Flags:";
 static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
-
-#ifndef CONFIG_DISABLE_SIGNALS
 static const char g_sigmask[]   = "SigMask:";
-#endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
 static const char g_stacksize[] = "StackSize:";
@@ -260,13 +255,10 @@ static void nsh_parse_statusline(FAR char *line,
 
       status->td_policy = nsh_trimspaces(&line[12+6]);
     }
-
-#ifndef CONFIG_DISABLE_SIGNALS
   else if (strncmp(line, g_sigmask, strlen(g_sigmask)) == 0)
     {
       status->td_sigmask = nsh_trimspaces(&line[12]);
     }
-#endif
 }
 #endif
 
@@ -334,9 +326,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   status.td_flags    = "";
   status.td_priority = "";
   status.td_policy   = "";
-#ifndef CONFIG_DISABLE_SIGNALS
   status.td_sigmask  = "";
-#endif
 
   /* Read the task status */
 
@@ -403,10 +393,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
              status.td_priority, status.td_policy, status.td_type,
              status.td_flags, status.td_state, status.td_event);
-
-#ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
-#endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   /* Get the StackSize and StackUsed */
@@ -596,10 +583,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
              "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
-
-#ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", "SIGMASK");
-#endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   nsh_output(vtbl, "%6s ", "STACK");
@@ -623,7 +607,6 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_kill
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 #ifndef CONFIG_NSH_DISABLE_KILL
 int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -691,13 +674,11 @@ invalid_arg:
   return ERROR;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_sleep
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 #ifndef CONFIG_NSH_DISABLE_SLEEP
 int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -715,13 +696,11 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return OK;
 }
 #endif
-#endif
 
 /****************************************************************************
  * Name: cmd_usleep
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 #ifndef CONFIG_NSH_DISABLE_USLEEP
 int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -738,5 +717,4 @@ int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   usleep(usecs);
   return OK;
 }
-#endif
 #endif

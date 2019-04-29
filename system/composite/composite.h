@@ -179,9 +179,9 @@ struct composite_state_s
 
   FAR void *cmphandle;        /* Composite device handle */
 
+#ifndef CONFIG_NSH_BUILTIN_APPS
   /* Serial file descriptors */
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_DISABLE_SIGNALS)
   int outfd;                  /* Blocking write-only */
   int infd;                   /* Non-blockig read-only */
 #endif
@@ -198,7 +198,7 @@ struct composite_state_s
 
   /* Serial I/O buffer */
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_DISABLE_SIGNALS)
+#ifndef CONFIG_NSH_BUILTIN_APPS
   uint8_t serbuf[CONFIG_SYSTEM_COMPOSITE_BUFSIZE];
 #endif
 };

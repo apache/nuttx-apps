@@ -574,16 +574,12 @@ int msconn_main(int argc, char *argv[])
 
   check_test_memory_usage("After usbmsc_exportluns()");
 
-  /* It this program was configured as an NSH command, then just exit now.
-   * Also, if signals are not enabled (and, hence, sleep() is not supported.
-   * then we have not real option but to exit now.
-   */
+  /* It this program was configured as an NSH command, then just exit now. */
 
-#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
-
+#ifndef CONFIG_NSH_BUILTIN_APPS
   /* Otherwise, this thread will hang around and monitor the USB storage activity */
 
-  for (;;)
+  for (; ; )
     {
       fflush(stdout);
       sleep(5);
@@ -603,8 +599,8 @@ int msconn_main(int argc, char *argv[])
       printf("mcsonn_main: Still alive\n");
 #  endif
     }
-#elif defined(CONFIG_NSH_BUILTIN_APPS)
 
+#else
   /* Return the USB mass storage device handle so it can be used by the 'msconn'
    * command.
    */
@@ -612,16 +608,6 @@ int msconn_main(int argc, char *argv[])
   printf("mcsonn_main: Connected\n");
   g_usbmsc.mshandle = handle;
   check_test_memory_usage("After MS connection");
-
-#else /* defined(CONFIG_DISABLE_SIGNALS) */
-
-  /* Just exit */
-
-  printf("mcsonn_main: Exiting\n");
-
-  /* Dump debug memory usage */
-
-  final_memory_usage("Final memory usage");
 #endif
 
   return EXIT_SUCCESS;

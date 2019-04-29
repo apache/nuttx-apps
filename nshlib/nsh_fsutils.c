@@ -111,13 +111,11 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           /* EINTR is not an error (but will stop stop the cat) */
 
-#ifndef CONFIG_DISABLE_SIGNALS
           if (errval == EINTR)
             {
               nsh_error(vtbl, g_fmtsignalrecvd, cmd);
             }
           else
-#endif
             {
               nsh_error(vtbl, g_fmtcmdfailed, cmd, "read", NSH_ERRNO_OF(errval));
             }
@@ -142,13 +140,11 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
                   /* EINTR is not an error (but will stop stop the cat) */
 
-#ifndef CONFIG_DISABLE_SIGNALS
                   if (errcode == EINTR)
                     {
                       nsh_error(vtbl, g_fmtsignalrecvd, cmd);
                     }
                   else
-#endif
                     {
                       nsh_error(vtbl, g_fmtcmdfailed, cmd, "write",
                                  NSH_ERRNO_OF(errcode));

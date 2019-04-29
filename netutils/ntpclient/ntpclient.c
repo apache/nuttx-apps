@@ -587,7 +587,6 @@ int ntpc_start(void)
  *
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 int ntpc_stop(void)
 {
   int ret;
@@ -628,4 +627,3 @@ int ntpc_stop(void)
   sched_unlock();
   return OK;
 }
-#endif

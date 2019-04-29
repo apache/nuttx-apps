@@ -6,7 +6,7 @@
 config EXAMPLES_DJOYSTICK
 	tristate "Discrete joystick example"
 	default n
-	depends on DJOYSTICK && !DISABLE_SIGNALS
+	depends on DJOYSTICK
 	---help---
 		Enable the discrete joystick example
 

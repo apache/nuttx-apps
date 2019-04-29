@@ -476,7 +476,6 @@ static int user_main(int argc, char *argv[])
       sigprocmask_test();
       check_test_memory_usage();
 
-#ifndef CONFIG_DISABLE_SIGNALS
       /* Verify signal handlers */
 
       printf("\nuser_main: signal handler test\n");
@@ -491,7 +490,6 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: signal action test\n");
       suspend_test();
       check_test_memory_usage();
-#endif
 #endif
 
 #ifndef CONFIG_DISABLE_POSIX_TIMERS

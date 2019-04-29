@@ -851,9 +851,7 @@ extern const char g_fmtcontext[];
 extern const char g_fmtcmdfailed[];
 extern const char g_fmtcmdoutofmemory[];
 extern const char g_fmtinternalerror[];
-#ifndef CONFIG_DISABLE_SIGNALS
 extern const char g_fmtsignalrecvd[];
-#endif
 
 /****************************************************************************
  * Public Function Prototypes
@@ -1208,17 +1206,15 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
-#  ifndef CONFIG_NSH_DISABLE_KILL
+#ifndef CONFIG_NSH_DISABLE_KILL
   int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_SLEEP
+#endif
+#ifndef CONFIG_NSH_DISABLE_SLEEP
   int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_USLEEP
+#endif
+#ifndef CONFIG_NSH_DISABLE_USLEEP
   int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#endif /* CONFIG_DISABLE_SIGNALS */
+#endif
 
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_BASE64)
 #  ifndef CONFIG_NSH_DISABLE_BASE64DEC

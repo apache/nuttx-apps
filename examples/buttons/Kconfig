@@ -38,6 +38,19 @@ config EXAMPLES_BUTTONS_NAMES
 	---help---
 		Enable to show the button's name in the application.
 
+choice
+	prompt "Notification mechanism"
+	default EXAMPLES_BUTTONS_SIGNAL
+
+config EXAMPLES_BUTTONS_SIGNAL
+	bool "Notify using signals"
+
+config EXAMPLES_BUTTONS_POLL
+	bool "Notify using poll()"
+	depends on !DISABLE_POLL
+
+endchoice
+
 if EXAMPLES_BUTTONS_NAMES
 
 config EXAMPLES_BUTTONS_QTD

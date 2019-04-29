@@ -254,10 +254,8 @@ static const struct cmdmap_s g_cmdmap[] =
   { "irqinfo",  cmd_irqinfo,  1, 1, NULL },
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_NSH_DISABLE_KILL
+#ifndef CONFIG_NSH_DISABLE_KILL
   { "kill",     cmd_kill,     3, 3, "-<signal> <pid>" },
-# endif
 #endif
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
@@ -474,10 +472,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_NSH_DISABLE_SLEEP
+#ifndef CONFIG_NSH_DISABLE_SLEEP
   { "sleep",    cmd_sleep,    2, 2, "<sec>" },
-# endif
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
@@ -544,10 +540,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_NSH_DISABLE_USLEEP
+#ifndef CONFIG_NSH_DISABLE_USLEEP
   { "usleep",   cmd_usleep,   2, 2, "<usec>" },
-# endif
 #endif
 
 #ifdef CONFIG_NET_TCP

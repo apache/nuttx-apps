@@ -221,7 +221,7 @@ static FAR void *mqueue_waiter(FAR void *parameter)
 }
 #endif
 
-#if !defined(CONFIG_DISABLE_SIGNALS) && defined(CONFIG_CANCELLATION_POINTS)
+#ifdef CONFIG_CANCELLATION_POINTS
 static FAR void *sig_waiter(FAR void *parameter)
 {
   struct siginfo info;
@@ -707,7 +707,7 @@ void cancel_test(void)
   printf("cancel_test: Test 7: Cancel signal wait\n");
   printf("cancel_test: Starting thread (cancelable)\n");
 
-#if !defined(CONFIG_DISABLE_SIGNALS) && defined(CONFIG_CANCELLATION_POINTS)
+#ifdef CONFIG_CANCELLATION_POINTS
   /* Start the sig_waiter thread */
 
   restart_thread(sig_waiter, &waiter, 0);

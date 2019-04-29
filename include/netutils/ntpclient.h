@@ -116,9 +116,7 @@ int ntpc_start(void);
  *
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 int ntpc_stop(void);
-#endif
 
 #undef EXTERN
 #ifdef __cplusplus
