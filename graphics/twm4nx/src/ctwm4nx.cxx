@@ -64,6 +64,7 @@
 #include <nuttx/nx/nxglib.h>
 
 #include "platform/cxxinitialize.h"
+#include "netutils/netinit.h"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
@@ -180,16 +181,6 @@ bool CTwm4Nx::run(void)
   // Call all C++ static constructors
 
   up_cxxinitialize();
-#endif
-
-#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
-  // Should we perform board-specific initialization?  There are two ways
-  // that board initialization can occur:  1) automatically via
-  // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
-  // 2) here via a call to boardctl() if the interface is enabled
-  // (CONFIG_LIB_BOARDCTL=y).
-
-  (void)boardctl(BOARDIOC_INIT, 0);
 #endif
 
   // Connect to the NX server
@@ -600,6 +591,38 @@ int twm4nx_main(int argc, char *argv[])
       gerr("Usage:  %s [-display <number>]\n", argv[0]);
       return EXIT_FAILURE;
     }
+
+  int ret;
+
+#if defined(CONFIG_TWM4NX_ARCHINIT) && defined(CONFIG_LIB_BOARDCTL) && \
+   !defined(CONFIG_BOARD_LATE_INITIALIZE)
+  // Should we perform board-specific initialization?  There are two ways
+  // that board initialization can occur:  1) automatically via
+  // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
+  // 2) here via a call to boardctl() if the interface is enabled
+  // (CONFIG_LIB_BOARDCTL=y).  board_early_initialize() is also possibility,
+  // although less likely.
+
+  ret = boardctl(BOARDIOC_INIT, 0);
+  if (ret < 0)
+    {
+      gerr("ERROR: boardctl(BOARDIOC_INIT) failed: %d\n", errno);
+      return EXIT_FAILURE;
+    }
+#endif
+
+#ifdef CONFIG_TWM4NX_NETINIT
+  /* Bring up the network */
+
+  ret = netinit_bringup();
+  if (ret < 0)
+    {
+      gerr("ERROR: netinit_bringup() failed: %d\n", ret);
+      return EXIT_FAILURE;
+    }
+#endif
+
+  UNUSED(ret);
 
   /* Create an instance of CTwm4Nx and and run it */
 

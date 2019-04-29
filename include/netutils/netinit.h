@@ -47,6 +47,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 /* Networking support.  Make sure that all non-boolean configuration
@@ -99,6 +100,14 @@
  * Public Function Prototypes
  ****************************************************************************/
 
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
 /****************************************************************************
  * Name: netinit_bringup
  *
@@ -117,5 +126,9 @@ int netinit_bringup(void);
 int netinit_associate(FAR const char *ifname);
 #endif
 
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
 #endif /* CONFIG_NETUTILS_NETINIT */
 #endif /* __APPS_INCLUDE_NETUTILS_NETINIT_H */

@@ -8,6 +8,7 @@ menuconfig NETUTILS_NETINIT
 	bool "Network initialization"
 	default n
 	depends on NET
+	select NETUTILS_NETLIB
 	---help---
 		This option enables/disables all support for common network initialization.
 
