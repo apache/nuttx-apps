@@ -122,7 +122,7 @@ namespace NXWidgets
     virtual ~CBgWindow(void);
 
     /**
-     * Creates a the new window.  Window creation is separate from
+     * Creates the new window.  Window creation is separate from
      * object instantiation so that failures can be reported.
      *
      * @return True if the window was successfully created.

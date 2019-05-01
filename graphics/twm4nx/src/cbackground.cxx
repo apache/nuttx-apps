@@ -220,9 +220,22 @@ bool CBackground::createBackgroundWindow(void)
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, true);
 
+  // Create the background window (CTwm4Nx inherits from CNxServer)
+
   m_backWindow = m_twm4nx->getBgWindow(control);
   if (m_backWindow == (FAR NXWidgets::CBgWindow *)0)
     {
+      gerr("ERROR:  Failed to create BG window\n");
+      return false;
+    }
+
+  // Open the background window
+
+  if (!m_backWindow->open())
+    {
+      gerr("ERROR:  Failed to open the BG window\n");
+      delete m_backWindow;
+      m_backWindow = (FAR NXWidgets::CBgWindow *)0;
       return false;
     }
 
@@ -243,6 +256,7 @@ bool CBackground::
   struct nxgl_size_s windowSize;
   if (!m_backWindow->getSize(&windowSize))
     {
+      gerr("ERROR: getSize failed\n");
       return false;
     }
 
@@ -257,6 +271,7 @@ bool CBackground::
 
   if (cbitmap == (NXWidgets::CRlePaletteBitmap *)0)
     {
+      gerr("ERROR: Failed to create bitmap\n");
       return false;
     }
 
@@ -291,8 +306,9 @@ bool CBackground::
 
   m_backImage = new NXWidgets::CImage(control, imagePos.x, imagePos.y,
                                       imageSize.w, imageSize.h, cbitmap);
-  if (m_backImage != (NXWidgets::CImage *)0)
+  if (m_backImage == (NXWidgets::CImage *)0)
     {
+      gerr("ERROR: Failed to create CImage\n");
       delete cbitmap;
       return false;
     }
