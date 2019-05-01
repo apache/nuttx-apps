@@ -460,11 +460,11 @@ void CIconMgr::sort(void)
  *   return on any failure.
  */
 
-bool CIconMgr::event(FAR struct SEventMsg *msg)
+bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 {
   bool ret = true;
 
-  switch (msg->eventID)
+  switch (eventmsg->eventID)
     {
       default:
         ret = false;

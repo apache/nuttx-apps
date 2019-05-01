@@ -590,7 +590,21 @@ namespace Twm4Nx
 
       inline bool setIconWindowPosition(FAR const struct nxgl_point_s &pos)
       {
-        return m_iconWidget->resize(pos.x, pos.y);
+        return m_iconWidget->moveTo(pos.x, pos.y);
+      }
+
+      /**
+       * Redraw the icon.
+       */
+
+      inline void redrawIcon(void)
+      {
+        // Make sure that the icon is properly enabled, then redraw it
+
+        m_iconWidget->enable();
+        m_iconWidget->enableDrawing();
+        m_iconWidget->setRaisesEvents(true);
+        m_iconWidget->redraw();
       }
 
       /**
@@ -626,7 +640,7 @@ namespace Twm4Nx
       }
 
       /**
-       * Handle Twm4Nx events.
+       * Handle EVENT_WINDOW events.
        *
        * @param eventmsg.  The received NxWidget WINDOW event message.
        * @return True if the message was properly handled.  false is

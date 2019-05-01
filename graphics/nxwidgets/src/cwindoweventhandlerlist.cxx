@@ -112,11 +112,11 @@ bool CWindowEventHandlerList::findWindowEventHandler(CWindowEventHandler *eventH
  * Raise the NX window redraw event.
  */
 
-void CWindowEventHandlerList::raiseRedrawEvent(void)
+void CWindowEventHandlerList::raiseRedrawEvent(FAR const struct nxgl_rect_s *nxRect, bool more)
 {
   for (int i = 0; i < m_eventHandlers.size(); ++i)
     {
-      m_eventHandlers.at(i)->handleRedrawEvent();
+      m_eventHandlers.at(i)->handleRedrawEvent(nxRect, more);
     }
 }
 

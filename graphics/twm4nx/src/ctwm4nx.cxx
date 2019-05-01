@@ -202,9 +202,9 @@ bool CTwm4Nx::run(void)
       return false;
     }
 
-  // Paint the background image
+  // Initialize the backgound instance and paint the background image
 
-  if (!m_background->setBackgroundImage(&CONFIG_TWM4NX_BACKGROUND_IMAGE))
+  if (!m_background->initialize(&CONFIG_TWM4NX_BACKGROUND_IMAGE))
     {
       gerr("ERROR: Failed to set backgournd image\n");
       cleanup();
@@ -383,6 +383,8 @@ void CTwm4Nx::genMqName(void)
 
 bool CTwm4Nx::systemEvent(FAR struct SEventMsg *eventmsg)
 {
+  ginfo("eventID: %u\n", eventmsg->eventID);
+
   switch (eventmsg->eventID)
     {
       case EVENT_SYSTEM_NOP:    // Null event
@@ -413,6 +415,8 @@ bool CTwm4Nx::systemEvent(FAR struct SEventMsg *eventmsg)
 
 bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
 {
+  ginfo("eventID: %u\n", eventmsg->eventID);
+
   enum EEventRecipient recipient =
     (enum EEventRecipient)(eventmsg->eventID & EVENT_RECIPIENT_MASK);
 
@@ -423,7 +427,11 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         ret = CWindowEvent::event(eventmsg);
         break;
 
-        case EVENT_RECIPIENT_SYSTEM:   // Twm4Nx system event
+      case EVENT_RECIPIENT_SYSTEM:     // Twm4Nx system event
+        ret = m_background->event(eventmsg);
+        break;
+
+      case EVENT_RECIPIENT_BACKGROUND: // Background window event
         ret = systemEvent(eventmsg);
         break;
 

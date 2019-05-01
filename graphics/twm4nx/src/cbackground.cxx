@@ -48,10 +48,12 @@
 #include "graphics/nxwidgets/cbgwindow.hxx"
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
+#include "graphics/nxwidgets/crect.hxx"
 #include "graphics/nxwidgets/cimage.hxx"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
+#include "graphics/twm4nx/cicon.hxx"
 #include "graphics/twm4nx/cbackground.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,9 +70,9 @@ using namespace Twm4Nx;
 
 CBackground::CBackground(FAR CTwm4Nx *twm4nx)
 {
-  m_twm4nx      = twm4nx;
-  m_backWindow  = (NXWidgets::CBgWindow *)0;
-  m_backImage   = (NXWidgets::CImage *)0;
+  m_twm4nx      = twm4nx;                    // Save the session instance
+  m_backWindow  = (NXWidgets::CBgWindow *)0; // No background window yet
+  m_backImage   = (NXWidgets::CImage *)0;    // No background image yet
 }
 
 /**
@@ -95,7 +97,6 @@ CBackground::~CBackground(void)
       // Then delete the background
 
       delete m_backWindow;
-      m_backWindow = (NXWidgets::CBgWindow *)0;
     }
 
   // Delete the background image
@@ -103,40 +104,41 @@ CBackground::~CBackground(void)
   if (m_backImage != (NXWidgets::CImage *)0)
     {
       delete m_backImage;
-      m_backImage = (NXWidgets::CImage *)0;
     }
 }
 
 /**
- * Set the background image
+ * Finish construction of the background instance.  This performs
+ * That are not appropriate for the constructor because they may
+ * fail.
  *
  * @param sbitmap.  Identifies the bitmap to paint on background
  * @return true on success
  */
 
 bool CBackground::
-  setBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap)
+  initialize(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap)
 {
+  ginfo("Create the backgound window\n");
+
   // Create the background window (if we have not already done so)
 
   if (m_backWindow == (NXWidgets::CBgWindow *)0 &&
       !createBackgroundWindow())
     {
+      gerr("ERROR: Failed to create the background window\n");
       return false;
     }
 
-  // Free any existing background image
-
-  if (m_backImage != (NXWidgets::CImage *)0)
-    {
-      delete m_backImage;
-      m_backImage = (NXWidgets::CImage *)0;
-    }
+  ginfo("Create the backgound image\n");
 
   // Create the new background image
 
   if (!createBackgroundImage(sbitmap))
     {
+      gerr("ERROR: Failed to create the background image\n");
+      delete m_backWindow;
+      m_backWindow = (NXWidgets::CBgWindow *)0;
       return false;
     }
 
@@ -145,6 +147,7 @@ bool CBackground::
 
 /**
  * Get the size of the physical display device which is equivalent to
+ * size of the background window.
  * size of the background window.
  *
  * @return The size of the display
@@ -167,6 +170,39 @@ void CBackground::getDisplaySize(FAR struct nxgl_size_s &size)
 }
 
 /**
+ * Handle EVENT_BACKGROUND events.
+ *
+ * @param eventmsg.  The received NxWidget WINDOW event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CBackground::event(FAR struct SEventMsg *eventmsg)
+{
+  ginfo("eventID: %u\n", eventmsg->eventID);
+
+  bool success = true;
+  switch (eventmsg->eventID)
+    {
+      case EVENT_BACKGROUND_REDRAW:    // Redraw the background
+        {
+          FAR struct SRedrawEventMsg *redrawmsg =
+            (FAR struct SRedrawEventMsg *)eventmsg;
+
+          success = redrawBackgroundWindow(&redrawmsg->rect,
+                                            redrawmsg->more);
+        }
+        break;
+
+      default:
+        success = false;
+        break;
+    }
+
+  return success;
+}
+
+/**
  * Create the background window.
  *
  * @return true on success
@@ -182,7 +218,7 @@ bool CBackground::createBackgroundWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, true);
 
   m_backWindow = m_twm4nx->getBgWindow(control);
   if (m_backWindow == (FAR NXWidgets::CBgWindow *)0)
@@ -255,28 +291,36 @@ bool CBackground::
 
   m_backImage = new NXWidgets::CImage(control, imagePos.x, imagePos.y,
                                       imageSize.w, imageSize.h, cbitmap);
-  if (!m_backImage)
+  if (m_backImage != (NXWidgets::CImage *)0)
     {
       delete cbitmap;
       return false;
     }
 
-  // Configure the background image
+  // Configure and draw the background image
 
   m_backImage->setBorderless(true);
   m_backImage->setRaisesEvents(false);
 
+  m_backImage->enable();
+  m_backImage->enableDrawing();
+  m_backImage->redraw();
   return true;
 }
 
 /**
- * (Re-)draw the background window.
+ * Handle the background window redraw.
  *
+ * @param nxRect The region in the window that must be redrawn.
+ * @param more True means that more re-draw requests will follow
  * @return true on success
  */
 
-bool CBackground::redrawBackgroundWindow(void)
+bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
+                                         bool more)
 {
+  ginfo("Redrawing..\n");
+
   // Get the widget control from the background window
 
   NXWidgets::CWidgetControl *control = m_backWindow->getWidgetControl();
@@ -285,26 +329,43 @@ bool CBackground::redrawBackgroundWindow(void)
 
   NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
 
-  // Get the size of the window
+  // Get the size of the region to redraw
 
-  struct nxgl_size_s windowSize;
-  if (!m_backWindow->getSize(&windowSize))
-    {
-      return false;
-    }
+  struct nxgl_size_s redrawSize;
+  redrawSize.w = rect->pt2.x - rect->pt1.x + 1;
+  redrawSize.h = rect->pt2.y - rect->pt1.y + 1;
 
-  // Fill the entire window with the background color
+  // Fill the redraw region with the background color
 
-  port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
+  port->drawFilledRect(rect->pt1.x, rect->pt1.y,
+                       redrawSize.w, redrawSize.h,
                        CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR);
 
-  // Then re-draw the background image on the window
-
-  if (m_backImage)
+  if (m_backImage != (NXWidgets::CImage *)0)
     {
-      m_backImage->enableDrawing();
-      m_backImage->redraw();
+      // Does any part of the image need to be redrawn?
+
+      FAR NXWidgets::CRect cimageRect = m_backImage->getBoundingBox();
+
+      struct nxgl_rect_s imageRect;
+      cimageRect.getNxRect(&imageRect);
+
+      struct nxgl_rect_s intersection;
+      nxgl_rectintersect(&intersection, rect, &imageRect);
+
+      if (!nxgl_nullrect(&intersection))
+        {
+          // Then re-draw the background image on the window
+
+          m_backImage->enableDrawing();
+          m_backImage->redraw();
+        }
     }
+
+  // Now redraw any background icons that need to be redrawn
+
+  FAR CIcon *cicon = m_twm4nx->getIcon();
+  cicon->redrawIcons(rect, more);
 
   return true;
 }

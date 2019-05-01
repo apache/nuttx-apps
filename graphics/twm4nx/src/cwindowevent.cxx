@@ -60,16 +60,18 @@ using namespace Twm4Nx;
  * CWindowEvent Constructor
  *
  * @param twm4nx.  The Twm4Nx session instance.
+ * @param isBackground.  True is this for the background window.
  * @param style The default style that all widgets on this display
  *   should use.  If this is not specified, the widget will use the
  *   values stored in the defaultCWidgetStyle object.
  */
 
-CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx,
+CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, bool isBackground,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
-  m_twm4nx = twm4nx;  // Cache the Twm4Nx session
+  m_twm4nx       = twm4nx;       // Cache the Twm4Nx session
+  m_isBackground = isBackground; // Background window?
 
   // Open a message queue to send raw NX events.  This cannot fail!
 
@@ -115,10 +117,11 @@ CWindowEvent::~CWindowEvent(void)
 
 bool CWindowEvent::event(FAR struct SEventMsg *eventmsg)
 {
-  bool success = true;
+  ginfo("eventID: %u\n", eventmsg->eventID);
 
   // Handle the event
 
+  bool success = true;
   switch (eventmsg->eventID)
     {
       case EVENT_MSG_POLL:  // Poll for event
@@ -144,6 +147,8 @@ bool CWindowEvent::event(FAR struct SEventMsg *eventmsg)
 
 void CWindowEvent::sendInputEvent(void)
 {
+  ginfo("Input...\n");
+
   // The logic path here is tortuous but flexible:
   //
   //  1. A listener thread receives mouse or touchscreen input and injects
@@ -192,12 +197,54 @@ void CWindowEvent::sendInputEvent(void)
 }
 
 /**
+ * Handle a NX window redraw request event
+ *
+ * @param nxRect The region in the window to be redrawn
+ * @param more More redraw requests will follow
+ */
+
+void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
+                                     bool more)
+{
+  ginfo("backgound=%s\n", m_isBackground ? "YES" : "NO");
+
+  // At present, only the background window will get redraw events
+
+  if (m_isBackground)
+    {
+      struct SRedrawEventMsg msg;
+      msg.eventID = EVENT_BACKGROUND_REDRAW;
+      msg.rect.pt1.x = nxRect->pt1.x;
+      msg.rect.pt1.y = nxRect->pt1.y;
+      msg.rect.pt2.x = nxRect->pt2.x;
+      msg.rect.pt2.y = nxRect->pt2.y;
+      msg.more       = more;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runaway stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SRedrawEventMsg), 100);
+      if (ret < 0)
+        {
+          gerr("ERROR: mq_send failed: %d\n", ret);
+        }
+    }
+}
+
+/**
  * Handle an NX window mouse input event.
  */
 
 #ifdef CONFIG_NX_XYINPUT
 void CWindowEvent::handleMouseEvent(void)
 {
+  ginfo("Mouse input...\n");
+
   // Stimulate an input poll
 
   sendInputEvent();
@@ -211,6 +258,8 @@ void CWindowEvent::handleMouseEvent(void)
 
 void CWindowEvent::handleKeyboardEvent(void)
 {
+  ginfo("Keyboard input...\n");
+
   // Stimulate an input poll
 
   sendInputEvent();
@@ -233,6 +282,8 @@ void CWindowEvent::handleKeyboardEvent(void)
 
 void CWindowEvent::handleBlockedEvent(FAR void *arg)
 {
+  ginfo("Blocked...\n");
+
   struct SNxEventMsg msg =
   {
     .eventID  = EVENT_WINDOW_DELETE,

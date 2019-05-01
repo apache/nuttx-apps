@@ -49,6 +49,8 @@
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Class Definition
 /////////////////////////////////////////////////////////////////////////////
@@ -69,7 +71,7 @@ namespace Twm4Nx
    * Background management
    */
 
-  class CBackground
+  class CBackground : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     protected:
       FAR CTwm4Nx                  *m_twm4nx;     /**< Cached CTwm4Nx instance */
@@ -85,6 +87,13 @@ namespace Twm4Nx
       bool createBackgroundWindow(void);
 
       /**
+       * Create the background widget.  The background widget is simply a
+       * container for all of the widgets on the background.
+       */
+
+      bool createBackgroundWidget(void);
+
+      /**
        * Create the background image.
        *
        * @param sbitmap.  Identifies the bitmap to paint on background
@@ -94,12 +103,14 @@ namespace Twm4Nx
       bool createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
 
       /**
-       * (Re-)draw the background window.
+       * Handle the background window redraw.
        *
+       * @param nxRect The region in the window to be redrawn
+       * @param more More redraw requests will follow
        * @return true on success
        */
 
-       bool redrawBackgroundWindow(void);
+       bool redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect, bool more);
 
     public:
       /**
@@ -127,13 +138,15 @@ namespace Twm4Nx
       }
 
       /**
-       * Set the background image
+       * Finish construction of the background instance.  This performs
+       * That are not appropriate for the constructor because they may
+       * fail.
        *
        * @param sbitmap.  Identifies the bitmap to paint on background
        * @return true on success
        */
 
-      bool setBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
+      bool initialize(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
 
       /**
        * Get the size of the physical display device which is equivalent to
@@ -143,6 +156,16 @@ namespace Twm4Nx
        */
 
       void getDisplaySize(FAR struct nxgl_size_s &size);
+
+      /**
+       * Handle EVENT_BACKGROUND events.
+       *
+       * @param eventmsg.  The received NxWidget WINDOW event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool event(FAR struct SEventMsg *eventmsg);
   };
 }
 

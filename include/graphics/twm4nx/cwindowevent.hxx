@@ -44,6 +44,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <cstdbool>
 #include <mqueue.h>
 
 #include "graphics/nxwidgets/cwindoweventhandler.hxx"
@@ -73,8 +74,9 @@ namespace Twm4Nx
                        public NXWidgets::CWidgetControl
   {
     private:
-      FAR CTwm4Nx *m_twm4nx;    /**< Cached instance of CTwm4Nx */
-      mqd_t        m_eventq;    /**< NxWidget event message queue */
+      FAR CTwm4Nx *m_twm4nx;       /**< Cached instance of CTwm4Nx */
+      mqd_t        m_eventq;       /**< NxWidget event message queue */
+      bool         m_isBackground; /**< True if this serves the background window */
 
       /**
        * Send the EVENT_MSG_POLL input event message to the Twm4Nx event loop.
@@ -82,7 +84,16 @@ namespace Twm4Nx
 
       void sendInputEvent(void);
 
-      // Override CWidgetEventHandler virutal methods ///////////////////////
+      // Override CWidgetEventHandler virtual methods ///////////////////////
+
+    /**
+     * Handle a NX window redraw request event
+     *
+     * @param nxRect The region in the window to be redrawn
+     * @param more More redraw requests will follow
+     */
+
+    void handleRedrawEvent(FAR const nxgl_rect_s *nxRect, bool more);
 
 #ifdef CONFIG_NX_XYINPUT
       /**
@@ -114,12 +125,13 @@ namespace Twm4Nx
        * CWindowEvent Constructor
        *
        * @param twm4nx.  The Twm4Nx session instance.
+       * @param isBackground.  True is this for the background window.
        * @param style The default style that all widgets on this display
        *   should use.  If this is not specified, the widget will use the
        *   values stored in the defaultCWidgetStyle object.
        */
 
-       CWindowEvent(FAR CTwm4Nx *twm4nx,
+       CWindowEvent(FAR CTwm4Nx *twm4nx, bool isBackground = false,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
 

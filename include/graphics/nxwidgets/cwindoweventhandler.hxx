@@ -78,9 +78,14 @@ namespace NXWidgets
 
     /**
      * Handle a NX window redraw request event
+     *
+     * @param nxRect The region in the window to be redrawn
+     * @param more More redraw requests will follow
      */
 
-    virtual void handleRedrawEvent(void) { }
+    virtual void handleRedrawEvent(FAR const nxgl_rect_s *nxRect, bool more)
+    {
+    }
 
     /**
      * Handle a NX window position/size change event

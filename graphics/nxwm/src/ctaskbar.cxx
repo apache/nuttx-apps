@@ -325,7 +325,7 @@ bool CTaskbar::startWindowManager(void)
           i++;
         }
 
-      // If there is no top appliation (i.e., no applications or all applications
+      // If there is no top application (i.e., no applications or all applications
       // are minimized), then draw the background image
 
       if (!m_topApp)

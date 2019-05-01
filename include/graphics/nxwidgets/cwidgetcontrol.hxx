@@ -179,10 +179,10 @@ namespace NXWidgets
                                                        awaiting deletion. */
     TNxArray<CNxWidget*>        m_widgets;        /**< List of controlled
                                                        widgets. */
-    bool                        m_haveGeometry;   /**< True: indicates that we
+    volatile bool               m_haveGeometry;   /**< True: indicates that we
                                                        have valid geometry data. */
 #ifdef CONFIG_NXWIDGET_EVENTWAIT
-    bool                        m_waiting;        /**< True: Extternal logic waiting for
+    bool                        m_waiting;        /**< True: External logic waiting for
                                                        window event */
     sem_t                       m_waitSem;        /**< External loops waits for
                                                        events on this semaphore */
@@ -322,14 +322,14 @@ namespace NXWidgets
     }
 
     /**
-     * Wait for geometry data
+     * Check if geomtry data is available.  If not, [re-]request the
+     * geomtry data and wait for it to become valid.
+     * CAREFUL:  This assumes that if we already have geometry data, then
+     * it is valid.  This might not be true if the size position was
+     * recently changed.
      */
 
-    inline void waitGeoData(void)
-    {
-      takeGeoSem();
-      giveGeoSem();
-    }
+    void waitGeoData(void);
 
     /**
      * Take the bounds semaphore (handling signal interruptions)
@@ -698,6 +698,10 @@ namespace NXWidgets
 
     inline bool getWindowPosition(FAR struct nxgl_point_s *pos)
     {
+      // Check if we already have geometry data available.  CAREFUL:  This
+      // might refer to OLD geometry data if the position was recently
+      // changed!
+
       waitGeoData();
       pos->x = m_pos.x;
       pos->y = m_pos.y;
@@ -713,6 +717,10 @@ namespace NXWidgets
 
     inline bool getWindowSize(FAR struct nxgl_size_s *size)
     {
+      // Check if we already have geometry data available.  CAREFUL:  This
+      // might refer to OLD geometry data if the position was recently
+      // changed!
+
       waitGeoData();
       size->h = m_size.h;
       size->w = m_size.w;
@@ -728,6 +736,10 @@ namespace NXWidgets
 
     inline nxgl_coord_t getWindowWidth(void)
     {
+      // Check if we already have geometry data available.  CAREFUL:  This
+      // might refer to OLD geometry data if the position was recently
+      // changed!
+
       waitGeoData();
       return m_size.w;
     }
@@ -741,6 +753,10 @@ namespace NXWidgets
 
     inline nxgl_coord_t getWindowHeight(void)
     {
+      // Check if we already have geometry data available.  CAREFUL:  This
+      // might refer to OLD geometry data if the position was recently
+      // changed!
+
       waitGeoData();
       return m_size.h;
     }

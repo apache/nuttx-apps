@@ -57,7 +57,7 @@ namespace Twm4Nx
     FAR struct SIconRegion *flink;
     struct nxgl_point_s pos;
     struct nxgl_size_s size;
-    struct nxgl_point_s step;    // allocation granularity
+    struct nxgl_point_s step;    // Allocation granularity
     FAR struct SIconEntry *entries;
   };
 
@@ -183,6 +183,18 @@ namespace Twm4Nx
        */
 
       void down(FAR CWindow *cwin);
+
+      /**
+       * Redraw icons.  The icons are drawn on the background window.  When
+       * the background window receives a redraw request, it will call this
+       * method in order to redraw any effected icons drawn in the
+       * background.
+       *
+       * @param nxRect The region in the window to be redrawn
+       * @param more More redraw requests will follow
+       */
+
+       void redrawIcons(FAR const nxgl_rect_s *nxRect, bool more);
   };
 }
 
