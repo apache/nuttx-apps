@@ -667,6 +667,15 @@ namespace NXWidgets
 
     inline NXHANDLE getWindowHandle(void)
     {
+      // Verify that we have the window handle
+
+      if (m_hWindow == (NXHANDLE)0)
+        {
+          // The window handle is saved at the same time as the bounds
+
+          waitBoundsData();
+        }
+
       return m_hWindow;
     }
 
