@@ -57,7 +57,6 @@
 
 #include <sys/boardctl.h>
 #include <semaphore.h>
-#include <debug.h>
 
 #include <nuttx/semaphore.h>
 #include <nuttx/nx/nx.h>
@@ -163,7 +162,7 @@ bool CTwm4Nx::run(void)
 
   struct mq_attr attr;
   attr.mq_maxmsg  = 32;    // REVISIT:  Should be configurable
-  attr.mq_msgsize = CONFIG_MQ_MAXMSGSIZE;
+  attr.mq_msgsize = MAX_EVENT_MSGSIZE;
   attr.mq_flags   = 0;
   attr.mq_curmsgs = 0;
 
@@ -171,8 +170,8 @@ bool CTwm4Nx::run(void)
   m_eventq = mq_open(m_queueName, O_RDONLY | O_CREAT, 0666, &attr);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           m_queueName, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             m_queueName, errno);
       cleanup();
       return false;
     }
@@ -187,7 +186,7 @@ bool CTwm4Nx::run(void)
 
   if (!connect())
     {
-      gerr("ERROR: Failed to connect to the NX server\n");
+      twmerr("ERROR: Failed to connect to the NX server\n");
       cleanup();
       return false;
     }
@@ -197,7 +196,7 @@ bool CTwm4Nx::run(void)
   m_background = new CBackground(this);
   if (m_background == (FAR CBackground *)0)
     {
-      gerr("ERROR: Failed to create CBackground\n");
+      twmerr("ERROR: Failed to create CBackground\n");
       cleanup();
       return false;
     }
@@ -206,7 +205,7 @@ bool CTwm4Nx::run(void)
 
   if (!m_background->initialize(&CONFIG_TWM4NX_BACKGROUND_IMAGE))
     {
-      gerr("ERROR: Failed to set backgournd image\n");
+      twmerr("ERROR: Failed to set backgournd image\n");
       cleanup();
       return false;
     }
@@ -228,18 +227,46 @@ bool CTwm4Nx::run(void)
   m_input = new CInput(this);
   if (m_input == (CInput *)0)
     {
-      gerr("ERROR: Failed to create CInput\n");
+      twmerr("ERROR: Failed to create CInput\n");
       cleanup();
       return false;
     }
 
   if (!m_input->start())
     {
-      gerr("ERROR: Failed start the keyboard/mouse listener\n");
+      twmerr("ERROR: Failed start the keyboard/mouse listener\n");
       cleanup();
       return false;
     }
 #endif
+
+  // Cache a CWindowFactory instance for use across the session.  The window
+  // factory is needed by the Icon Manager which is instantiated below.
+
+  m_factory = new CWindowFactory(this);
+  if (m_factory == (CWindowFactory *)0)
+    {
+      cleanup();
+      return false;
+    }
+
+  // Cache a CFonts instance for use across the session.  Font support is
+  // need by the Icon Manager which is instantiated next.
+
+  m_fonts = new CFonts(this);
+  if (m_fonts == (CFonts *)0)
+    {
+      cleanup();
+      return false;
+    }
+
+  // Create all fonts
+
+  if (!m_fonts->initialize())
+    {
+      cleanup();
+      return false;
+    }
 
   // Create the Icon Manager
 
@@ -259,33 +286,7 @@ bool CTwm4Nx::run(void)
   // Cache a CIcon instance for use across the session
 
   m_icon = new CIcon(this);
-  if (m_iconmgr == (CIconMgr *)0)
-    {
-      cleanup();
-      return false;
-    }
-
-  // Cache a CFonts instance for use across the session
-
-  m_fonts = new CFonts(this);
-  if (m_fonts == (CFonts *)0)
-    {
-      cleanup();
-      return false;
-    }
-
-  // Create all fonts
-
-  if (!m_fonts->initialize())
-    {
-      cleanup();
-      return false;
-    }
-
-  // Cache a CWindowFactory instance for use across the session
-
-  m_factory = new CWindowFactory(this);
-  if (m_factory == (CWindowFactory *)0)
+  if (m_icon == (CIcon *)0)
     {
       cleanup();
       return false;
@@ -308,25 +309,31 @@ bool CTwm4Nx::run(void)
 
   // Enter the event loop
 
+  twminfo("Entering event loop\n");
   for (; ; )
     {
       // Wait for the next NxWidget event
 
-      struct SEventMsg eventmsg;
-      int ret = mq_receive(m_eventq, (FAR char *)&eventmsg,
-                           sizeof(struct SEventMsg), (FAR unsigned int *)0);
+      union
+      {
+        struct SEventMsg eventmsg;
+        char buffer[MAX_EVENT_MSGSIZE];
+      } u;
+
+      int ret = mq_receive(m_eventq, u.buffer, MAX_EVENT_MSGSIZE,
+                           (FAR unsigned int *)0);
       if (ret < 0)
         {
-          gerr("ERROR: mq_receive failed: %d\n", errno);
+          twmerr("ERROR: mq_receive failed: %d\n", errno);
           cleanup();
           return false;
         }
 
       // Dispatch the new event
 
-      if (!dispatchEvent(&eventmsg))
+      if (!dispatchEvent(&u.eventmsg))
         {
-          gerr("ERROR: dispatchEvent failed\n");
+          twmerr("ERROR: dispatchEvent failed\n");
           cleanup();
           return false;
         }
@@ -383,7 +390,7 @@ void CTwm4Nx::genMqName(void)
 
 bool CTwm4Nx::systemEvent(FAR struct SEventMsg *eventmsg)
 {
-  ginfo("eventID: %u\n", eventmsg->eventID);
+  twminfo("eventID: %u\n", eventmsg->eventID);
 
   switch (eventmsg->eventID)
     {
@@ -415,7 +422,7 @@ bool CTwm4Nx::systemEvent(FAR struct SEventMsg *eventmsg)
 
 bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
 {
-  ginfo("eventID: %u\n", eventmsg->eventID);
+  twminfo("eventID: %u\n", eventmsg->eventID);
 
   enum EEventRecipient recipient =
     (enum EEventRecipient)(eventmsg->eventID & EVENT_RECIPIENT_MASK);
@@ -428,11 +435,11 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         break;
 
       case EVENT_RECIPIENT_SYSTEM:     // Twm4Nx system event
-        ret = m_background->event(eventmsg);
+        ret = systemEvent(eventmsg);
         break;
 
       case EVENT_RECIPIENT_BACKGROUND: // Background window event
-        ret = systemEvent(eventmsg);
+        ret = m_background->event(eventmsg);
         break;
 
       case EVENT_RECIPIENT_ICONWIDGET: // Icon widget event
@@ -596,7 +603,7 @@ int twm4nx_main(int argc, char *argv[])
         }
 
     usage:
-      gerr("Usage:  %s [-display <number>]\n", argv[0]);
+      twmerr("Usage:  %s [-display <number>]\n", argv[0]);
       return EXIT_FAILURE;
     }
 
@@ -614,7 +621,7 @@ int twm4nx_main(int argc, char *argv[])
   ret = boardctl(BOARDIOC_INIT, 0);
   if (ret < 0)
     {
-      gerr("ERROR: boardctl(BOARDIOC_INIT) failed: %d\n", errno);
+      twmerr("ERROR: boardctl(BOARDIOC_INIT) failed: %d\n", errno);
       return EXIT_FAILURE;
     }
 #endif
@@ -625,7 +632,7 @@ int twm4nx_main(int argc, char *argv[])
   ret = netinit_bringup();
   if (ret < 0)
     {
-      gerr("ERROR: netinit_bringup() failed: %d\n", ret);
+      twmerr("ERROR: netinit_bringup() failed: %d\n", ret);
       return EXIT_FAILURE;
     }
 #endif
@@ -637,7 +644,7 @@ int twm4nx_main(int argc, char *argv[])
   FAR CTwm4Nx *twm4nx = new CTwm4Nx(display);
   if (twm4nx == (FAR CTwm4Nx *)0)
     {
-      gerr("ERROR: Failed to instantiate CTwm4Nx\n");
+      twmerr("ERROR: Failed to instantiate CTwm4Nx\n");
       return EXIT_FAILURE;
     }
 
@@ -646,7 +653,7 @@ int twm4nx_main(int argc, char *argv[])
   bool success = twm4nx->run();
   if (!success)
     {
-      gerr(" ERROR: Terminating due to failure\n");
+      twmerr(" ERROR: Terminating due to failure\n");
       return EXIT_FAILURE;
     }
 

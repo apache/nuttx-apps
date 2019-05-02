@@ -138,8 +138,8 @@ bool CResize::initialize(void)
   m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           mqname, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
       return false;
     }
 
@@ -147,7 +147,7 @@ bool CResize::initialize(void)
 
   if (!createSizeWindow())
     {
-      gerr("ERROR:  Failed to create menu window\n");
+      twmerr("ERROR:  Failed to create menu window\n");
       return false;
     }
 
@@ -155,7 +155,7 @@ bool CResize::initialize(void)
 
   if (!createSizeLabel())
     {
-      gerr("ERROR:  Failed to recreate size label\n");
+      twmerr("ERROR:  Failed to recreate size label\n");
 
       delete m_sizeWindow;
       m_sizeWindow = (FAR NXWidgets::CNxTkWindow *)0;
@@ -234,7 +234,7 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
 
   if (!setWindowSize(&size))
     {
-      gerr("ERROR: setWindowSize() failed\n");
+      twmerr("ERROR: setWindowSize() failed\n");
       return;
     }
 
@@ -251,7 +251,7 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
 
   if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
     {
-      gerr("ERROR: Failed to resize frame\n");
+      twmerr("ERROR: Failed to resize frame\n");
     }
 }
 
@@ -287,7 +287,7 @@ void CResize::menuStartResize(FAR CWindow *cwin,
 
   if (!setWindowSize(&winsize))
     {
-      gerr("ERROR: setWindowSize() failed\n");
+      twmerr("ERROR: setWindowSize() failed\n");
       return;
     }
 
@@ -300,7 +300,7 @@ void CResize::menuStartResize(FAR CWindow *cwin,
 
   if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
     {
-      gerr("ERROR: Failed to resize frame\n");
+      twmerr("ERROR: Failed to resize frame\n");
     }
 }
 
@@ -459,7 +459,7 @@ void CResize::menuDoResize(FAR CWindow *cwin,
 
       if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
         {
-          gerr("ERROR: Failed to resize frame\n");
+          twmerr("ERROR: Failed to resize frame\n");
         }
     }
 
@@ -591,7 +591,7 @@ void CResize::doResize(FAR CWindow *cwin,
 
       if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
         {
-          gerr("ERROR: Failed to resize frame\n");
+          twmerr("ERROR: Failed to resize frame\n");
         }
     }
 
@@ -618,7 +618,7 @@ void CResize::endResize(FAR CWindow *cwin)
 
   if (!cwin->resizeFrame(&size, &pos))
     {
-      gerr("ERROR: Failed to resize frame\n");
+      twmerr("ERROR: Failed to resize frame\n");
     }
 
   constrainSize(cwin, &m_dragsize);
@@ -676,7 +676,7 @@ void CResize::menuEndResize(FAR CWindow *cwin)
 
   if (!cwin->resizeFrame(&size, &pos))
     {
-      gerr("ERROR: CWindow::resizeFrame() failed\n");
+      twmerr("ERROR: CWindow::resizeFrame() failed\n");
     }
 
   constrainSize(cwin, &m_dragsize);
@@ -748,8 +748,8 @@ void CResize::constrainSize(FAR CWindow *cwin, FAR nxgl_size_s *size)
 void CResize::setupWindow(FAR CWindow *cwin, FAR nxgl_point_s *pos,
                           FAR nxgl_size_s *size)
 {
-  ginfo("pos={%d, %d} size={%d, %d}\n",
-        pos->x, pos->y, size->w, size->h);
+  twminfo("pos={%d, %d} size={%d, %d}\n",
+          pos->x, pos->y, size->w, size->h);
 
   // Clip the position the so that it is within the display (with a little
   // extra space for the cursor)
@@ -778,7 +778,7 @@ void CResize::setupWindow(FAR CWindow *cwin, FAR nxgl_point_s *pos,
 
   if (!cwin->resizeFrame(size, pos))
     {
-      gerr("ERROR: CWindow::resizeFrame() failed\n");
+      twmerr("ERROR: CWindow::resizeFrame() failed\n");
     }
 }
 
@@ -1025,7 +1025,7 @@ bool CResize::createSizeLabel(void)
   struct nxgl_size_s labelSize;
   if (!m_sizeWindow->setSize(&labelSize))
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
       return false;
     }
 
@@ -1055,7 +1055,7 @@ bool CResize::createSizeLabel(void)
                                       " 8888 x 8888 ");
   if (m_sizeLabel == (FAR NXWidgets::CLabel *)0)
     {
-      gerr("ERROR: Failed to construct size label widget\n");
+      twmerr("ERROR: Failed to construct size label widget\n");
       return false;
     }
 
@@ -1123,7 +1123,7 @@ void CResize::updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
   (void)asprintf(&str, " %4d x %-4d ", size->w, size->h);
   if (str == (FAR char *)0)
     {
-      gerr("ERROR: Failed to get size string\n");
+      twmerr("ERROR: Failed to get size string\n");
       return;
     }
 

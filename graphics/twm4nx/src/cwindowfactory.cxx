@@ -51,13 +51,13 @@
 #include <cstdbool>
 #include <cassert>
 #include <mqueue.h>
-#include <debug.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxtkwindow.hxx"
 #include "graphics/nxwidgets/cnxtoolbar.hxx"
 
+#include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
@@ -112,7 +112,7 @@ FAR CWindow *
                                bool isIconMgr, FAR CIconMgr *iconMgr,
                                bool noToolbar)
 {
-  ginfo("name=%p\n", name);
+  twminfo("name=%p\n", name);
 
   // Allocate a container for the Twm4NX window
 
@@ -120,8 +120,8 @@ FAR CWindow *
     (FAR struct SWindow *)std::zalloc(sizeof(struct SWindow));
   if (win == (FAR struct SWindow *)0)
     {
-      gerr("ERROR: Unable to allocate memory to manage window %s\n",
-           name);
+      twmerr("ERROR: Unable to allocate memory to manage window %s\n",
+             name);
       return (FAR CWindow *)0;
     }
 
@@ -130,7 +130,7 @@ FAR CWindow *
   win->cwin = new CWindow(m_twm4nx);
   if (win->cwin == (FAR CWindow *)0)
     {
-      gerr("ERROR: Failed to create CWindow\n");
+      twmerr("ERROR: Failed to create CWindow\n");
       std::free(win);
       return (FAR CWindow *)0;
     }
@@ -165,13 +165,13 @@ FAR CWindow *
       winsize.h = displaySize.h - m_winpos.y - 16;
     }
 
-  ginfo("Position window at (%d,%d), size (%d,%d)\n",
-        m_winpos.x, m_winpos.y, winsize.w, winsize.h);
+  twminfo("Position window at (%d,%d), size (%d,%d)\n",
+          m_winpos.x, m_winpos.y, winsize.w, winsize.h);
 
   if (!win->cwin->initialize(name, &m_winpos, &winsize, sbitmap,
                              isIconMgr, iconMgr, noToolbar))
     {
-      gerr("ERROR: Failed to initialize CWindow\n");
+      twmerr("ERROR: Failed to initialize CWindow\n");
       delete win->cwin;
       std::free(win);
       return (FAR CWindow *)0;
@@ -222,7 +222,7 @@ void CWindowFactory::destroyWindow(FAR CWindow *cwin)
     {
       // This should not happen.. worthy of an assertion
 
-      gerr("ERROR: Failed to find CWindow container\n");
+      twmerr("ERROR: Failed to find CWindow container\n");
     }
   else
     {

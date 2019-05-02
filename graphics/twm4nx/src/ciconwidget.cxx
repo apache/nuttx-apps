@@ -127,8 +127,8 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
   m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           mqname, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
       return false;
     }
 
@@ -177,7 +177,7 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
                           ibitmap, m_style);
   if (image == (FAR NXWidgets::CImage *)0)
     {
-      gerr("ERROR: Failed to create image\n");
+      twmerr("ERROR: Failed to create image\n");
       return false;
     }
 
@@ -202,7 +202,7 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
                           iconLabelSize.w, iconLabelSize.h, title);
   if (label == (FAR NXWidgets::CLabel *)0)
     {
-      gerr("ERROR: Failed to create icon label\n");
+      twmerr("ERROR: Failed to create icon label\n");
       delete image;
       return false;
     }
@@ -316,7 +316,7 @@ void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
     {
-      gerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", ret);
     }
 }
 
@@ -356,7 +356,7 @@ void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          gerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", ret);
         }
     }
 }
@@ -417,7 +417,7 @@ void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          gerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", ret);
         }
     }
 }

@@ -40,8 +40,6 @@
 
 #include <nuttx/config.h>
 
-#include <debug.h>
-
 #include <nuttx/nx/nxglib.h>
 
 #include "graphics/nxwidgets/cscaledbitmap.hxx"
@@ -119,24 +117,24 @@ CBackground::~CBackground(void)
 bool CBackground::
   initialize(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap)
 {
-  ginfo("Create the backgound window\n");
+  twminfo("Create the backgound window\n");
 
   // Create the background window (if we have not already done so)
 
   if (m_backWindow == (NXWidgets::CBgWindow *)0 &&
       !createBackgroundWindow())
     {
-      gerr("ERROR: Failed to create the background window\n");
+      twmerr("ERROR: Failed to create the background window\n");
       return false;
     }
 
-  ginfo("Create the backgound image\n");
+  twminfo("Create the backgound image\n");
 
   // Create the new background image
 
   if (!createBackgroundImage(sbitmap))
     {
-      gerr("ERROR: Failed to create the background image\n");
+      twmerr("ERROR: Failed to create the background image\n");
       delete m_backWindow;
       m_backWindow = (NXWidgets::CBgWindow *)0;
       return false;
@@ -179,7 +177,7 @@ void CBackground::getDisplaySize(FAR struct nxgl_size_s &size)
 
 bool CBackground::event(FAR struct SEventMsg *eventmsg)
 {
-  ginfo("eventID: %u\n", eventmsg->eventID);
+  twminfo("eventID: %u\n", eventmsg->eventID);
 
   bool success = true;
   switch (eventmsg->eventID)
@@ -225,7 +223,7 @@ bool CBackground::createBackgroundWindow(void)
   m_backWindow = m_twm4nx->getBgWindow(control);
   if (m_backWindow == (FAR NXWidgets::CBgWindow *)0)
     {
-      gerr("ERROR:  Failed to create BG window\n");
+      twmerr("ERROR:  Failed to create BG window\n");
       return false;
     }
 
@@ -233,7 +231,7 @@ bool CBackground::createBackgroundWindow(void)
 
   if (!m_backWindow->open())
     {
-      gerr("ERROR:  Failed to open the BG window\n");
+      twmerr("ERROR:  Failed to open the BG window\n");
       delete m_backWindow;
       m_backWindow = (FAR NXWidgets::CBgWindow *)0;
       return false;
@@ -256,7 +254,7 @@ bool CBackground::
   struct nxgl_size_s windowSize;
   if (!m_backWindow->getSize(&windowSize))
     {
-      gerr("ERROR: getSize failed\n");
+      twmerr("ERROR: getSize failed\n");
       return false;
     }
 
@@ -271,7 +269,7 @@ bool CBackground::
 
   if (cbitmap == (NXWidgets::CRlePaletteBitmap *)0)
     {
-      gerr("ERROR: Failed to create bitmap\n");
+      twmerr("ERROR: Failed to create bitmap\n");
       return false;
     }
 
@@ -308,7 +306,7 @@ bool CBackground::
                                       imageSize.w, imageSize.h, cbitmap);
   if (m_backImage == (NXWidgets::CImage *)0)
     {
-      gerr("ERROR: Failed to create CImage\n");
+      twmerr("ERROR: Failed to create CImage\n");
       delete cbitmap;
       return false;
     }
@@ -335,7 +333,7 @@ bool CBackground::
 bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
                                          bool more)
 {
-  ginfo("Redrawing..\n");
+  twminfo("Redrawing..\n");
 
   // Get the widget control from the background window
 

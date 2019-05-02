@@ -42,6 +42,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <nuttx/config.h>
+#include <debug.h>
 
 #include "graphics/nxglyphs.hxx"
 #include "graphics/nxwidgets/nxconfig.hxx"
@@ -50,6 +51,18 @@
 /////////////////////////////////////////////////////////////////////////////
 // Pre-Processor Definitions
 /////////////////////////////////////////////////////////////////////////////
+
+// Debug ////////////////////////////////////////////////////////////////////
+
+#ifdef CONFIG_TWM4NX_DEBUG
+#  define twminfo(format, ...)   _info(format, ##__VA_ARGS__)
+#  define twmwarn(format, ...)   _warn(format, ##__VA_ARGS__)
+#  define twmerr(format, ...)    _err(format, ##__VA_ARGS__)
+#else
+#  define twminfo(format, ...)   ginfo(format, ##__VA_ARGS__)
+#  define twmwarn(format, ...)   gwarn(format, ##__VA_ARGS__)
+#  define twmerr(format, ...)    gerr(format, ##__VA_ARGS__)
+#endif
 
 // General Configuration ////////////////////////////////////////////////////
 

@@ -48,6 +48,7 @@
 
 #include "nuttx/nx/nxglib.h"
 
+#include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
@@ -352,7 +353,7 @@ void CIcon::down(FAR CWindow *cwin)
 
 void CIcon::redrawIcons(FAR const nxgl_rect_s *nxRect, bool more)
 {
-  ginfo("Redrawing...\n");
+  twminfo("Redrawing...\n");
 
   // Try each region
 
@@ -386,7 +387,7 @@ void CIcon::redrawIcons(FAR const nxgl_rect_s *nxRect, bool more)
             {
               // Redraw the icon (or a portion of the icon)
 
-              ginfo("Redraw icon\n");
+              twminfo("Redraw icon\n");
               cwin->redrawIcon();
             }
         }

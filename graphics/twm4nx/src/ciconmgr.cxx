@@ -48,7 +48,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <debug.h>
 
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
@@ -141,8 +140,8 @@ bool CIconMgr::initialize(FAR const char *prefix)
   m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           mqname, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
       return false;
     }
 
@@ -150,7 +149,7 @@ bool CIconMgr::initialize(FAR const char *prefix)
 
   if (!createWindow(prefix))
     {
-      gerr("ERROR:  Failed to create window\n");
+      twmerr("ERROR:  Failed to create window\n");
       return false;
     }
 
@@ -158,7 +157,7 @@ bool CIconMgr::initialize(FAR const char *prefix)
 
   if (!createButtonArray())
     {
-      gerr("ERROR:  Failed to button array\n");
+      twmerr("ERROR:  Failed to button array\n");
 
       CWindowFactory *factory = m_twm4nx->getWindowFactory();
       factory->destroyWindow(m_window);
@@ -215,7 +214,7 @@ bool CIconMgr::add(FAR CWindow *cwin)
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
     }
   else
     {
@@ -280,7 +279,7 @@ void CIconMgr::pack(void)
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
       return;
     }
 
@@ -350,7 +349,7 @@ void CIconMgr::pack(void)
       windowSize.h = getRowHeight() * m_nWindows;
       if (!m_window->getWindowSize(&windowSize))
         {
-          gerr("ERROR: getWindowSize() failed\n");
+          twmerr("ERROR: getWindowSize() failed\n");
           return;
         }
 
@@ -371,7 +370,7 @@ void CIconMgr::pack(void)
 
       if (!m_window->setWindowSize(&newsize))
         {
-          gerr("ERROR: setWindowSize() failed\n");
+          twmerr("ERROR: setWindowSize() failed\n");
           return;
         }
 
@@ -383,7 +382,7 @@ void CIconMgr::pack(void)
       if (!m_buttons->resizeArray(m_maxColumns, m_nrows,
                                   buttonWidth, buttonHeight))
         {
-          gerr("ERROR: CButtonArray::resizeArray failed\n");
+          twmerr("ERROR: CButtonArray::resizeArray failed\n");
           return;
         }
 
@@ -525,7 +524,7 @@ bool CIconMgr::createWindow(FAR const char *prefix)
 
   if (m_window == (FAR CWindow *)0)
     {
-      gerr("ERROR: Failed to create icon manager window");
+      twmerr("ERROR: Failed to create icon manager window");
       success = false;
     }
 
@@ -550,7 +549,7 @@ bool CIconMgr::createButtonArray(void)
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
       return false;
     }
 
@@ -586,7 +585,7 @@ bool CIconMgr::createButtonArray(void)
                                           buttonWidth, buttonHeight);
   if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
       return false;
     }
 
@@ -791,14 +790,13 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                                 sizeof(struct SEventMsg), 100);
               if (ret < 0)
                 {
-                  gerr("ERROR: mq_send failed: %d\n", ret);
+                  twmerr("ERROR: mq_send failed: %d\n", ret);
                 }
 
               break;
             }
         }
 
-      gwarn("WARNING:  No matching window name\n");
+      twmwarn("WARNING:  No matching window name\n");
     }
 }
-

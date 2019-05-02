@@ -43,10 +43,10 @@
 #include <cerrno>
 
 #include <mqueue.h>
-#include <debug.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
+#include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 
@@ -79,8 +79,8 @@ CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, bool isBackground,
   m_eventq = mq_open(mqname, O_WRONLY);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           mqname, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
     }
 
   // Add ourself to the list of window event handlers
@@ -117,7 +117,7 @@ CWindowEvent::~CWindowEvent(void)
 
 bool CWindowEvent::event(FAR struct SEventMsg *eventmsg)
 {
-  ginfo("eventID: %u\n", eventmsg->eventID);
+  twminfo("eventID: %u\n", eventmsg->eventID);
 
   // Handle the event
 
@@ -147,7 +147,7 @@ bool CWindowEvent::event(FAR struct SEventMsg *eventmsg)
 
 void CWindowEvent::sendInputEvent(void)
 {
-  ginfo("Input...\n");
+  twminfo("Input...\n");
 
   // The logic path here is tortuous but flexible:
   //
@@ -192,7 +192,7 @@ void CWindowEvent::sendInputEvent(void)
                     sizeof(struct SNxEventMsg), 100);
   if (ret < 0)
     {
-      gerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", ret);
     }
 }
 
@@ -206,7 +206,7 @@ void CWindowEvent::sendInputEvent(void)
 void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
                                      bool more)
 {
-  ginfo("backgound=%s\n", m_isBackground ? "YES" : "NO");
+  twminfo("backgound=%s\n", m_isBackground ? "YES" : "NO");
 
   // At present, only the background window will get redraw events
 
@@ -231,7 +231,7 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
                         sizeof(struct SRedrawEventMsg), 100);
       if (ret < 0)
         {
-          gerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", ret);
         }
     }
 }
@@ -243,7 +243,7 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
 #ifdef CONFIG_NX_XYINPUT
 void CWindowEvent::handleMouseEvent(void)
 {
-  ginfo("Mouse input...\n");
+  twminfo("Mouse input...\n");
 
   // Stimulate an input poll
 
@@ -258,7 +258,7 @@ void CWindowEvent::handleMouseEvent(void)
 
 void CWindowEvent::handleKeyboardEvent(void)
 {
-  ginfo("Keyboard input...\n");
+  twminfo("Keyboard input...\n");
 
   // Stimulate an input poll
 
@@ -282,7 +282,7 @@ void CWindowEvent::handleKeyboardEvent(void)
 
 void CWindowEvent::handleBlockedEvent(FAR void *arg)
 {
-  ginfo("Blocked...\n");
+  twminfo("Blocked...\n");
 
   struct SNxEventMsg msg =
   {
@@ -295,6 +295,6 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
                     sizeof(struct SNxEventMsg), 100);
   if (ret < 0)
     {
-      gerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", ret);
     }
 }

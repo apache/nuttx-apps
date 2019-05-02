@@ -53,7 +53,8 @@
 // Preprocessor Definitions
 /////////////////////////////////////////////////////////////////////////////
 
-#define MAX_EVENT_PAYLOAD (64 - sizeof(uint16_t))
+#define MAX_EVENT_MSGSIZE sizeof(struct SEventMsg)
+#define MAX_EVENT_PAYLOAD (MAX_EVENT_MSGSIZE - sizeof(uint16_t))
 
 /////////////////////////////////////////////////////////////////////////////
 // WidgetEvent

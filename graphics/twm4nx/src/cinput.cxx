@@ -47,7 +47,6 @@
 #include <poll.h>
 #include <pthread.h>
 #include <assert.h>
-#include <debug.h>
 
 #include <nuttx/nx/nxglib.h>
 
@@ -118,7 +117,7 @@ bool CInput::start(void)
 {
   pthread_attr_t attr;
 
-  ginfo("Starting listener\n");
+  twminfo("Starting listener\n");
 
   // Start a separate thread to listen for keyboard events
 
@@ -135,7 +134,7 @@ bool CInput::start(void)
   int ret = pthread_create(&m_thread, &attr, listener, (FAR void *)this);
   if (ret != 0)
     {
-      gerr("ERROR: CInput::start: pthread_create failed: %d\n", ret);
+      twmerr("ERROR: CInput::start: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -157,7 +156,7 @@ bool CInput::start(void)
   // Then return true only if the listener thread reported successful
   // initialization.
 
-  ginfo("Listener m_state=%d\n", (int)m_state);
+  twminfo("Listener m_state=%d\n", (int)m_state);
   return m_state == LISTENER_RUNNING;
 }
 
@@ -211,7 +210,7 @@ int CInput::keyboardOpen(void)
 
                   // Sleep a bit and try again
 
-                  ginfo("WAITING for a USB keyboard\n");
+                  twminfo("WAITING for a USB keyboard\n");
                   std::sleep(2);
                 }
 
@@ -223,8 +222,8 @@ int CInput::keyboardOpen(void)
                   // Let the top-level logic decide what it wants to do
                   // about all really bad things
 
-                  gerr("ERROR: Failed to open %s for reading: %d\n",
-                       CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
+                  twmerr("ERROR: Failed to open %s for reading: %d\n",
+                         CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
                   return -errcode;
                 }
             }
@@ -285,7 +284,7 @@ inline int CInput::mouseOpen(void)
 
                   // Sleep a bit and try again
 
-                  ginfo("WAITING for a USB mouse\n");
+                  twminfo("WAITING for a USB mouse\n");
                   std::sleep(2);
                 }
 
@@ -297,8 +296,8 @@ inline int CInput::mouseOpen(void)
                   // Let the top-level logic decide what it wants to do
                   // about all really bad things
 
-                  gerr("ERROR: Failed to open %s for reading: %d\n",
-                       CONFIG_TWM4NX_MOUSE_DEVPATH, errcode);
+                  twmerr("ERROR: Failed to open %s for reading: %d\n",
+                         CONFIG_TWM4NX_MOUSE_DEVPATH, errcode);
                   return -errcode;
                 }
             }
@@ -321,7 +320,7 @@ int CInput::keyboardInput(void)
 {
   // Read one keyboard sample
 
-  ginfo("Reading keyboard input\n");
+  twminfo("Reading keyboard input\n");
 
   uint8_t rxbuffer[CONFIG_TWM4NX_KEYBOARD_BUFSIZE];
   ssize_t nbytes = read(m_kbdFd, rxbuffer,
@@ -343,8 +342,8 @@ int CInput::keyboardInput(void)
           // Let the top-level listener logic decide what to do about
           // the read failure.
 
-          gerr("ERROR: read %s failed: %d\n",
-               CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
+          twmerr("ERROR: read %s failed: %d\n",
+                 CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
           return -errcode;
         }
 
@@ -364,7 +363,7 @@ int CInput::keyboardInput(void)
       int ret = nx_kbdin(m_twm4nx, (uint8_t)nbytes, rxbuffer);
       if (ret < 0)
         {
-          gerr("ERROR: nx_kbdin failed: %d\n", ret);
+          twmerr("ERROR: nx_kbdin failed: %d\n", ret);
 
           // Ignore the error
         }
@@ -385,7 +384,7 @@ int CInput::mouseInput(void)
 {
   // Read one mouse sample
 
-  ginfo("Reading mouse input\n");
+  twminfo("Reading mouse input\n");
 
   uint8_t rxbuffer[CONFIG_TWM4NX_MOUSE_BUFSIZE];
   ssize_t nbytes = read(m_mouseFd, rxbuffer,
@@ -407,8 +406,8 @@ int CInput::mouseInput(void)
           // Let the top-level listener logic decide what to do about
           // the read failure.
 
-          gerr("ERROR: read %s failed: %d\n",
-               CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
+          twmerr("ERROR: read %s failed: %d\n",
+                 CONFIG_TWM4NX_KEYBOARD_DEVPATH, errcode);
           return -errcode;
         }
 
@@ -422,8 +421,8 @@ int CInput::mouseInput(void)
 
   else if (nbytes < (ssize_t)sizeof(struct mouse_report_s))
     {
-      gerr("ERROR Unexpected read size=%d, expected=%d\n",
-           nbytes, sizeof(struct mouse_report_s));
+      twmerr("ERROR Unexpected read size=%d, expected=%d\n",
+             nbytes, sizeof(struct mouse_report_s));
       return -EIO;
     }
   else
@@ -446,7 +445,7 @@ int CInput::mouseInput(void)
       int ret = nxcursor_setposition(m_twm4nx, &pos);
       if (ret < 0)
         {
-          gerr("ERROR: nxcursor_setposition failed: %d\n", ret);
+          twmerr("ERROR: nxcursor_setposition failed: %d\n", ret);
 
           // Ignore the error
         }
@@ -456,7 +455,7 @@ int CInput::mouseInput(void)
       ret = nx_mousein(m_twm4nx, rpt->x, rpt->y, rpt->buttons);
       if (ret < 0)
         {
-          gerr("ERROR: nx_mousein failed: %d\n", ret);
+          twmerr("ERROR: nx_mousein failed: %d\n", ret);
 
           // Ignore the error
         }
@@ -480,7 +479,7 @@ int CInput::mouseInput(void)
 
 int CInput::session(void)
 {
-  ginfo("Session started\n");
+  twminfo("Session started\n");
 
   // Center the cursor
 
@@ -535,7 +534,7 @@ int CInput::session(void)
             }
           else
             {
-              gerr("ERROR: poll() failed");
+              twmerr("ERROR: poll() failed");
               break;
             }
         }
@@ -544,8 +543,8 @@ int CInput::session(void)
 
       if ((pfd[0].revents & (POLLERR | POLLHUP)) != 0)
         {
-          gerr("ERROR: keyboard poll() failed. revents=%04x\n",
-               pfd[0].revents);
+          twmerr("ERROR: keyboard poll() failed. revents=%04x\n",
+                 pfd[0].revents);
           ret = -EIO;
           break;
         }
@@ -555,7 +554,7 @@ int CInput::session(void)
           ret = keyboardInput();
           if (ret < 0)
             {
-              gerr("ERROR: keyboardInput() failed: %d\n", ret);
+              twmerr("ERROR: keyboardInput() failed: %d\n", ret);
               break;
             }
         }
@@ -564,8 +563,8 @@ int CInput::session(void)
 
       if ((pfd[1].revents & (POLLERR | POLLHUP)) != 0)
         {
-          gerr("ERROR: Mouse poll() failed. revents=%04x\n",
-               pfd[1].revents);
+          twmerr("ERROR: Mouse poll() failed. revents=%04x\n",
+                 pfd[1].revents);
           ret = -EIO;
           break;
         }
@@ -575,7 +574,7 @@ int CInput::session(void)
           ret = mouseInput();
           if (ret < 0)
             {
-              gerr("ERROR: mouseInput() failed: %d\n", ret);
+              twmerr("ERROR: mouseInput() failed: %d\n", ret);
               break;
             }
         }
@@ -607,7 +606,7 @@ FAR void *CInput::listener(FAR void *arg)
 {
   CInput *This = (CInput *)arg;
 
-  ginfo("Listener started\n");
+  twminfo("Listener started\n");
 
 #if defined(CONFIG_TWM4NX_KEYBOARD_USBHOST) || defined(CONFIG_TWM4NX_MOUSE_USBHOST)
   // Indicate that we have successfully started.  We might be stuck waiting
@@ -626,7 +625,7 @@ FAR void *CInput::listener(FAR void *arg)
       This->m_kbdFd = This->keyboardOpen();
       if (This->m_kbdFd < 0)
         {
-          gerr("ERROR: open failed: %d\n", This->m_kbdFd);
+          twmerr("ERROR: open failed: %d\n", This->m_kbdFd);
           This->m_state = LISTENER_FAILED;
           sem_post(&This->m_waitSem);
           return (FAR void *)0;
@@ -637,7 +636,7 @@ FAR void *CInput::listener(FAR void *arg)
       This->m_mouseFd = This->mouseOpen();
       if (This->m_mouseFd < 0)
         {
-          gerr("ERROR: open failed: %d\n", This->m_mouseFd);
+          twmerr("ERROR: open failed: %d\n", This->m_mouseFd);
           This->m_state = LISTENER_FAILED;
           sem_post(&This->m_waitSem);
           return (FAR void *)0;
@@ -686,7 +685,7 @@ FAR void *CInput::listener(FAR void *arg)
   // m_state = LISTENER_STOPREQUESTED (or perhaps if some irrecoverable
   // error has occurred).
 
-  ginfo("Listener exiting\n");
+  twminfo("Listener exiting\n");
   This->m_state = LISTENER_TERMINATED;
   return (FAR void *)0;
 }

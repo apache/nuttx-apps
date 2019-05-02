@@ -53,7 +53,6 @@
 #include <cerrno>
 
 #include <mqueue.h>
-#include <debug.h>
 
 #include <nuttx/nx/nxglib.h>
 
@@ -208,8 +207,8 @@ bool CWindow::initialize(FAR const char *name,
   m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
   if (m_eventq == (mqd_t)-1)
     {
-      gerr("ERROR: Failed open message queue '%s': %d\n",
-           mqname, errno);
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
       return false;
     }
 
@@ -254,7 +253,7 @@ bool CWindow::initialize(FAR const char *name,
 
   if (!createMainWindow(&winsize, pos))
     {
-      gerr("ERROR: createMainWindow() failed\n");
+      twmerr("ERROR: createMainWindow() failed\n");
       cleanup();
       return false;
     }
@@ -268,7 +267,7 @@ bool CWindow::initialize(FAR const char *name,
 
       if (!getToolbarHeight(name))
         {
-          gerr("ERROR: getToolbarHeight() failed\n");
+          twmerr("ERROR: getToolbarHeight() failed\n");
           cleanup();
           return false;
         }
@@ -277,7 +276,7 @@ bool CWindow::initialize(FAR const char *name,
 
       if (!createToolbar())
         {
-          gerr("ERROR: createToolbar() failed\n");
+          twmerr("ERROR: createToolbar() failed\n");
           cleanup();
           return false;
         }
@@ -286,7 +285,7 @@ bool CWindow::initialize(FAR const char *name,
 
       if (!createToolbarButtons())
         {
-          gerr("ERROR: createToolbarButtons() failed\n");
+          twmerr("ERROR: createToolbarButtons() failed\n");
           cleanup();
           return false;
         }
@@ -295,7 +294,7 @@ bool CWindow::initialize(FAR const char *name,
 
       if (!createToolbarTitle(name))
         {
-          gerr("ERROR: createToolbarTitle() failed\n");
+          twmerr("ERROR: createToolbarTitle() failed\n");
           cleanup();
           return false;
         }
@@ -306,7 +305,7 @@ bool CWindow::initialize(FAR const char *name,
   m_iconBitMap = new NXWidgets::CRlePaletteBitmap(sbitmap);
   if (m_iconBitMap == (NXWidgets::CRlePaletteBitmap *)0)
     {
-      gerr("ERROR: Failed to create icon image\n");
+      twmerr("ERROR: Failed to create icon image\n");
       cleanup();
       return false;
     }
@@ -322,14 +321,14 @@ bool CWindow::initialize(FAR const char *name,
   m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y);
   if (m_iconWidget == (FAR CIconWidget *)0)
     {
-      gerr("ERROR: Failed to create the icon widget\n");
+      twmerr("ERROR: Failed to create the icon widget\n");
       cleanup();
       return false;
     }
 
   if (!m_iconWidget->initialize(m_iconBitMap, m_name))
     {
-      gerr("ERROR: Failed to initialize the icon widget\n");
+      twmerr("ERROR: Failed to initialize the icon widget\n");
       cleanup();
       return false;
     }
@@ -403,7 +402,7 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
   bool success = m_nxWin->setSize(&winsize);
   if (!success)
     {
-      gerr("ERROR: Failed to setSize()\n");
+      twmerr("ERROR: Failed to setSize()\n");
       return false;
     }
 
@@ -412,7 +411,7 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
   success = setFramePosition(pos);
   if (!success)
     {
-      gerr("ERROR: Failed to setSize()\n");
+      twmerr("ERROR: Failed to setSize()\n");
       return false;
     }
 
@@ -753,7 +752,7 @@ bool CWindow::updateToolbarLayout(void)
 
          if (!cimage->moveTo(pos.x, pos.y))
            {
-             gerr("ERROR: Faile to move button image\n");
+             twmerr("ERROR: Faile to move button image\n");
              return false;
            }
         }
@@ -848,7 +847,7 @@ bool CWindow::createToolbarButtons(void)
 
       if (scaler == (FAR NXWidgets::CScaledBitmap *)0)
         {
-          gerr("ERROR: Failed to created scaled bitmap\n");
+          twmerr("ERROR: Failed to created scaled bitmap\n");
           return false;
         }
 #endif
@@ -873,7 +872,7 @@ bool CWindow::createToolbarButtons(void)
         new NXWidgets::CImage(control, 0, 0, w, h, scaler, 0);
       if (m_tbButtons[btindex] == (FAR NXWidgets::CImage *)0)
         {
-          gerr("ERROR: Failed to create image\n");
+          twmerr("ERROR: Failed to create image\n");
           delete scalar;
           return false;
         }
@@ -882,7 +881,7 @@ bool CWindow::createToolbarButtons(void)
         new NXWidgets::CRlePaletteBitmap(sbitmap);
       if (cbitmap == (FAR NXWidgets::CRlePaletteBitmap *)0)
         {
-          gerr("ERROR: Failed to create CrlPaletteBitmap\n");
+          twmerr("ERROR: Failed to create CrlPaletteBitmap\n");
           return false;
         }
 
@@ -893,7 +892,7 @@ bool CWindow::createToolbarButtons(void)
         new NXWidgets::CImage(control, 0, 0, w, h, cbitmap, 0);
       if (m_tbButtons[btindex] == (FAR NXWidgets::CImage *)0)
         {
-          gerr("ERROR: Failed to create image\n");
+          twmerr("ERROR: Failed to create image\n");
           delete cbitmap;
           return false;
         }
@@ -955,7 +954,7 @@ bool CWindow::createToolbarTitle(FAR const char *name)
 {
   // Is there a title?
 
-  if (name != (FAR const char *)0)
+  if (name == (FAR const char *)0)
     {
       // No.. then there is nothing to be done here
 
@@ -997,7 +996,7 @@ bool CWindow::createToolbarTitle(FAR const char *name)
                                     titleSize.w, titleSize.h, name);
   if (m_tbTitle == (FAR NXWidgets::CLabel *)0)
     {
-      gerr("ERROR: Failed to construct tool bar title widget\n");
+      twmerr("ERROR: Failed to construct tool bar title widget\n");
       return false;
     }
 
@@ -1059,7 +1058,7 @@ void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
     {
-      gerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", ret);
     }
 }
 
@@ -1099,7 +1098,7 @@ void CWindow::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          gerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", ret);
         }
     }
 }
@@ -1163,7 +1162,7 @@ void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          gerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", ret);
         }
     }
 }
@@ -1236,7 +1235,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                             sizeof(struct SEventMsg), 100);
           if (ret < 0)
             {
-              gerr("ERROR: mq_send failed: %d\n", ret);
+              twmerr("ERROR: mq_send failed: %d\n", ret);
             }
         }
     }

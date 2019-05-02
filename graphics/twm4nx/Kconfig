@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config GRAPHICS_TWM4NX
+menuconfig GRAPHICS_TWM4NX
 	tristate "Minimal Tom's Window Manager (TWM) for NuttX (Twm4Nx)"
 	default n
 	select NX_RAMBACKED
@@ -60,5 +60,20 @@ config TWM4NX_NETINIT
 	depends on !NSH_ARCHINIT
 	---help---
 		This option enables/disables all network initialization in Twm4Nx.
+
+config TWM4NX_DEBUG
+	bool "Force debug output"
+	default n
+	depends on DEBUG_FEATURES
+	---help---
+		This option will force graphics debug output for Twm4Nx even if
+		graphics debug output is not enabled.  This is useful for very low
+		level debug of the Twm4Nx logic without interfering output from
+		other graphics components.
+
+		NOTE: The level of this Twm4Nx debug is still controlled by the
+		basic debug output settings CONFIG_DEBUG_INFO, CONFIG_DEBUG_WARN,
+		and CONFIG_DEBUG_ERROR (but not the corresponding
+		CONFIG_DEBUG_GRAPHICS_* settings)
 
 endif # GRAPHICS_TWM4NX
