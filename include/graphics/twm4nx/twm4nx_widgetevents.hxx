@@ -69,7 +69,7 @@ namespace Twm4Nx
 {
   class CWindow;      // Forward reference
   class CWindowEvent; // Forward reference
-  class CTwm4NxEvent;  // Forward reference
+  class CTwm4NxEvent; // Forward reference
   class CTwm4Nx;      // Forward reference
 
   ///////////////////////////////////////////////////////////////////////////
@@ -82,17 +82,16 @@ namespace Twm4Nx
 
   enum EEventRecipient
   {
-    EVENT_RECIPIENT_MSG        = 0x0000,  /**< Twm4Nx messenging event */
-    EVENT_RECIPIENT_SYSTEM     = 0x1000,  /**< Twm4Nx system event */
-    EVENT_RECIPIENT_BACKGROUND = 0x2000,  /**< Background window event */
-    EVENT_RECIPIENT_ICONWIDGET = 0x3000,  /**< Icon Widget event */
-    EVENT_RECIPIENT_ICONMGR    = 0x4000,  /**< Icon Manager event */
-    EVENT_RECIPIENT_MENU       = 0x5000,  /**< Menu related event */
-    EVENT_RECIPIENT_WINDOW     = 0x6000,  /**< Window related event */
-    EVENT_RECIPIENT_TOOLBAR    = 0x7000,  /**< Toolbar related event */
-    EVENT_RECIPIENT_BORDER     = 0x8000,  /**< Window border related event */
-    EVENT_RECIPIENT_RESIZE     = 0x9000,  /**< Window resize event */
-    EVENT_RECIPIENT_APP        = 0xa000,  /**< App received event via CTwn4NxEvent */
+    EVENT_RECIPIENT_SYSTEM     = 0x0000,  /**< Twm4Nx system event */
+    EVENT_RECIPIENT_BACKGROUND = 0x1000,  /**< Background window event */
+    EVENT_RECIPIENT_ICONWIDGET = 0x2000,  /**< Icon Widget event */
+    EVENT_RECIPIENT_ICONMGR    = 0x3000,  /**< Icon Manager event */
+    EVENT_RECIPIENT_MENU       = 0x4000,  /**< Menu related event */
+    EVENT_RECIPIENT_WINDOW     = 0x5000,  /**< Window related event */
+    EVENT_RECIPIENT_TOOLBAR    = 0x6000,  /**< Toolbar related event */
+    EVENT_RECIPIENT_BORDER     = 0x7000,  /**< Window border related event */
+    EVENT_RECIPIENT_RESIZE     = 0x8000,  /**< Window resize event */
+    EVENT_RECIPIENT_APP        = 0x9000,  /**< App received event via CTwn4NxEvent */
     EVENT_RECIPIENT_MASK       = 0xf000,  /**< Used to isolate recipient */
   };
 
@@ -102,69 +101,67 @@ namespace Twm4Nx
 
   enum EEventID
   {
-    // Recipient == MSG
-
-    EVENT_MSG_POLL             = 0x0000,  /**< Poll widgets for events */
-
     // Recipient == SYSTEM
 
-    EVENT_SYSTEM_NOP           = 0x1000,  /**< Null event */
-    EVENT_SYSTEM_ERROR         = 0x1001,  /**< Report system error */
-    EVENT_SYSTEM_EXIT          = 0x1002,  /**< Terminate the Twm4Nx session */
+    EVENT_SYSTEM_NOP           = 0x0000,  /**< Null event */
+    EVENT_SYSTEM_ERROR         = 0x0001,  /**< Report system error */
+    EVENT_SYSTEM_EXIT          = 0x0002,  /**< Terminate the Twm4Nx session */
 
     // Recipient == BACKGOUND
 
-    EVENT_BACKGROUND_REDRAW    = 0x2000,  /**< Redraw the background */
+    EVENT_BACKGROUND_POLL      = 0x1000,  /**< Poll background icons for events */
+    EVENT_BACKGROUND_REDRAW    = 0x1001,  /**< Redraw the background */
 
     // Recipient == ICONWIDGET
 
-    EVENT_ICONWIDGET_GRAB      = 0x3000,  /**< Click on toolbar title */
-    EVENT_ICONWIDGET_DRAG      = 0x3001,  /**< Drag window */
-    EVENT_ICONWIDGET_UNGRAB    = 0x3002,  /**< Release click on toolbar */
+    EVENT_ICONWIDGET_GRAB      = 0x2000,  /**< Click on toolbar title */
+    EVENT_ICONWIDGET_DRAG      = 0x2001,  /**< Drag window */
+    EVENT_ICONWIDGET_UNGRAB    = 0x2002,  /**< Release click on toolbar */
 
     // Recipient == ICONMGR
 
     // Recipient == MENU
 
-    EVENT_MENU_IDENTIFY        = 0x5001,  /**< Describe the window */
-    EVENT_MENU_VERSION         = 0x5002,  /**< Show the Twm4Nx version */
-    EVENT_MENU_ICONIFY         = 0x5003,  /**< Tool bar minimize button pressed */
-    EVENT_MENU_DEICONIFY       = 0x5004,  /**< Window icon pressed */
-    EVENT_MENU_FUNCTION        = 0x5005,  /**< Perform function on unknown menu */
-    EVENT_MENU_TITLE           = 0x5006,  /**< REVISIT: Really an action not an event */
-    EVENT_MENU_ROOT            = 0x5007,  /**< REVISIT: Popup root menu */
+    EVENT_MENU_IDENTIFY        = 0x4000,  /**< Describe the window */
+    EVENT_MENU_VERSION         = 0x4001,  /**< Show the Twm4Nx version */
+    EVENT_MENU_ICONIFY         = 0x4002,  /**< Tool bar minimize button pressed */
+    EVENT_MENU_DEICONIFY       = 0x4003,  /**< Window icon pressed */
+    EVENT_MENU_FUNCTION        = 0x4004,  /**< Perform function on unknown menu */
+    EVENT_MENU_TITLE           = 0x4005,  /**< REVISIT: Really an action not an event */
+    EVENT_MENU_ROOT            = 0x4006,  /**< REVISIT: Popup root menu */
 
     // Recipient == WINDOW
 
-    EVENT_WINDOW_FOCUS         = 0x6000,  /**< Enter modal state */
-    EVENT_WINDOW_UNFOCUS       = 0x6001,  /**< Exit modal state */
-    EVENT_WINDOW_RAISE         = 0x6002,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x6003,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DEICONIFY     = 0x6004,  /**< De-iconify and raise window  */
-    EVENT_WINDOW_DRAG          = 0x6005,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x6006,  /**< Delete window */
+    EVENT_WINDOW_POLL          = 0x5000,  /**< Poll window for widget events */
+    EVENT_WINDOW_FOCUS         = 0x5001,  /**< Enter modal state */
+    EVENT_WINDOW_UNFOCUS       = 0x5002,  /**< Exit modal state */
+    EVENT_WINDOW_RAISE         = 0x5003,  /**< Raise window to the top of the heirarchy */
+    EVENT_WINDOW_LOWER         = 0x5004,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_DEICONIFY     = 0x5005,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG          = 0x5006,  /**< Drag window */
+    EVENT_WINDOW_DELETE        = 0x5007,  /**< Delete window */
 
     // Recipient == TOOLBAR
 
-    EVENT_TOOLBAR_GRAB         = 0x7000,  /**< Click on title widget */
-    EVENT_TOOLBAR_UNGRAB       = 0x7001,  /**< Release click on title widget */
-    EVENT_TOOLBAR_MENU         = 0x7002,  /**< Toolbar menu button released */
-    EVENT_TOOLBAR_MINIMIZE     = 0x7003,  /**< Toolbar minimize button released */
-    EVENT_TOOLBAR_RESIZE       = 0x7004,  /**< Toolbar resize button released */
-    EVENT_TOOLBAR_TERMINATE    = 0x7005,  /**< Toolbar delete button released */
+    EVENT_TOOLBAR_GRAB         = 0x6000,  /**< Click on title widget */
+    EVENT_TOOLBAR_UNGRAB       = 0x6001,  /**< Release click on title widget */
+    EVENT_TOOLBAR_MENU         = 0x6002,  /**< Toolbar menu button released */
+    EVENT_TOOLBAR_MINIMIZE     = 0x6003,  /**< Toolbar minimize button released */
+    EVENT_TOOLBAR_RESIZE       = 0x6004,  /**< Toolbar resize button released */
+    EVENT_TOOLBAR_TERMINATE    = 0x6005,  /**< Toolbar delete button released */
 
     // Recipient == BORDER
 
     // Recipient == RESIZE
 
-    EVENT_RESIZE_START         = 0x9000,  /**< Start window resize */
-    EVENT_RESIZE_VERTZOOM      = 0x9001,  /**< Zoom vertically only */
-    EVENT_RESIZE_HORIZOOM      = 0x9002,  /**< Zoom horizontally only */
-    EVENT_RESIZE_FULLZOOM      = 0x9003,  /**< Zoom both vertically and horizontally */
-    EVENT_RESIZE_LEFTZOOM      = 0x9004,  /**< Zoom left only */
-    EVENT_RESIZE_RIGHTZOOM     = 0x9005,  /**< Zoom right only */
-    EVENT_RESIZE_TOPZOOM       = 0x9006,  /**< Zoom top only */
-    EVENT_RESIZE_BOTTOMZOOM    = 0x9007,  /**< Zoom bottom only */
+    EVENT_RESIZE_START         = 0x8000,  /**< Start window resize */
+    EVENT_RESIZE_VERTZOOM      = 0x8001,  /**< Zoom vertically only */
+    EVENT_RESIZE_HORIZOOM      = 0x8002,  /**< Zoom horizontally only */
+    EVENT_RESIZE_FULLZOOM      = 0x8003,  /**< Zoom both vertically and horizontally */
+    EVENT_RESIZE_LEFTZOOM      = 0x8004,  /**< Zoom left only */
+    EVENT_RESIZE_RIGHTZOOM     = 0x8005,  /**< Zoom right only */
+    EVENT_RESIZE_TOPZOOM       = 0x8006,  /**< Zoom top only */
+    EVENT_RESIZE_BOTTOMZOOM    = 0x8007,  /**< Zoom bottom only */
 
     // Recipient == APP
     // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,
@@ -221,7 +218,7 @@ namespace Twm4Nx
   {
     uint16_t eventID;                   /**< Encoded event ID */
     FAR CWindowEvent *instance;         /**< X/Y position */
-    FAR struct SWindow *win;            /**< Twm4NX window reference */
+    FAR void *obj;                      /**< Context specific reference */
   };
 }
 

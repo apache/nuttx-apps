@@ -614,7 +614,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
 
   // 4. Create the window
 
@@ -698,7 +698,7 @@ bool CWindow::createToolbar(void)
   // 2. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
 
   // 3. Get the toolbar sub-window from the framed window
 

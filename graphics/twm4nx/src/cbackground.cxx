@@ -179,9 +179,17 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
 {
   twminfo("eventID: %u\n", eventmsg->eventID);
 
+  // Handle the event
+
   bool success = true;
   switch (eventmsg->eventID)
     {
+      case EVENT_BACKGROUND_POLL:      // Poll for icon events
+        {
+#warning Missing logic
+        }
+        break;
+
       case EVENT_BACKGROUND_REDRAW:    // Redraw the background
         {
           FAR struct SRedrawEventMsg *redrawmsg =
@@ -216,7 +224,8 @@ bool CBackground::createBackgroundWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, true);
+  FAR CWindowEvent *control =
+    new CWindowEvent(m_twm4nx, (FAR void *)this, true);
 
   // Create the background window (CTwm4Nx inherits from CNxServer)
 

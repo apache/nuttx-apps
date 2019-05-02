@@ -298,11 +298,11 @@ namespace NXWidgets
 
     bool pollCursorControlEvents(void);
 
+#ifdef CONFIG_NXWIDGET_EVENTWAIT
     /**
      * Wake up and external logic that is waiting for a window event.
      */
 
-#ifdef CONFIG_NXWIDGET_EVENTWAIT
     void postWindowEvent(void);
 #endif
 
@@ -382,6 +382,7 @@ namespace NXWidgets
 
     virtual ~CWidgetControl(void);
 
+#ifdef CONFIG_NXWIDGET_EVENTWAIT
     /**
      * Wait for an interesting window event to occur (like a mouse or keyboard event)
      * Caller's should exercise care to assure that the test for waiting and this
@@ -396,17 +397,16 @@ namespace NXWidgets
      *  sched_unlock();
      */
 
-#ifdef CONFIG_NXWIDGET_EVENTWAIT
     void waitForWindowEvent(void);
 #endif
 
+#ifdef CONFIG_NXWIDGET_EVENTWAIT
     /**
      * Is external logic awaiting for a window event?
      *
      * @return True if the widget if external logic is waiting.
      */
 
-#ifdef CONFIG_NXWIDGET_EVENTWAIT
     inline const bool isWaiting(void) const
     {
       return m_waiting;
@@ -619,6 +619,7 @@ namespace NXWidgets
 
     void newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t buttons);
 
+#ifdef CONFIG_NX_KBD
    /**
     * This event means that keyboard/keypad data is available for the window.
     *
@@ -626,7 +627,6 @@ namespace NXWidgets
     * @param pStr The array of characters.
     */
 
-#ifdef CONFIG_NX_KBD
     void newKeyboardEvent(uint8_t nCh, FAR const uint8_t *pStr);
 #endif
 
@@ -824,3 +824,4 @@ namespace NXWidgets
 #endif // __cplusplus
 
 #endif // __APPS_INCLUDE_GRAPHICS_NXWIDGETS_CWIDGETCONTROLT_HXX
+

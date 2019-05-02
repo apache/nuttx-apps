@@ -85,13 +85,11 @@ CWindowMessenger::~CWindowMessenger(void)
   removeWindowEventHandler(this);
 }
 
+#ifdef CONFIG_NX_XYINPUT
 /**
  * Handle an NX window mouse input event.
- *
- * @param e The event data.
  */
 
-#ifdef CONFIG_NX_XYINPUT
 void CWindowMessenger::handleMouseEvent(void)
 {
   // The logic path here is tortuous but flexible:
@@ -130,11 +128,11 @@ void CWindowMessenger::handleMouseEvent(void)
 }
 #endif
 
+#ifdef CONFIG_NX_KBD
 /**
  * Handle a NX window keyboard input event.
  */
 
-#ifdef CONFIG_NX_KBD
 void CWindowMessenger::handleKeyboardEvent(void)
 {
   work_state_t *state = new work_state_t;

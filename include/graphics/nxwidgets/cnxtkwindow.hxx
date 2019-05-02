@@ -85,7 +85,7 @@ namespace NXWidgets
   {
   protected:
     NXHANDLE        m_hNxServer;     /**< Handle to the NX server. */
-    NXTKWINDOW      m_hNxTkWindow;   /**< Handle to the NX raw window */
+    NXTKWINDOW      m_hNxTkWindow;   /**< Handle to the NxTk window */
     CWidgetControl *m_widgetControl; /**< Controlling widget for the window */
     CNxToolbar     *m_toolbar;       /**< Child toolbar */
     nxgl_coord_t    m_toolbarHeight; /**< The height of the toolbar */

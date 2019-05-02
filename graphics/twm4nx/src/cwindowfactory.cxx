@@ -250,12 +250,35 @@ void CWindowFactory::destroyWindow(FAR CWindow *cwin)
 
 bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
 {
-  FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
-  DEBUGASSERT(cwin != (FAR CWindow *)0);
+  twminfo("eventID: %d\n", eventmsg->eventID);
+  bool success = true;
 
-  // Forward the event to the appropriate window
+  switch (eventmsg->eventID)
+    {
+      case EVENT_WINDOW_POLL:  // Poll for icon events
+        {
+          FAR struct SNxEventMsg *nxmsg =
+            (FAR struct SNxEventMsg *)eventmsg;
+          FAR CWindow *cwin = (FAR CWindow *)nxmsg->obj;
+          DEBUGASSERT(cwin != (FAR CWindow *)0);
 
-  return cwin->event(eventmsg);
+          success = cwin->pollToolbarEvents();
+        }
+        break;
+
+      // Forward the event to the appropriate window
+
+      default:                 // All other window messsages
+        {
+          FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
+          DEBUGASSERT(cwin != (FAR CWindow *)0);
+
+          success = cwin->event(eventmsg);
+        }
+        break;
+    }
+
+  return success;
 }
 
 /**

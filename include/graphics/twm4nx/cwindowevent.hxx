@@ -76,6 +76,7 @@ namespace Twm4Nx
     private:
       FAR CTwm4Nx *m_twm4nx;       /**< Cached instance of CTwm4Nx */
       mqd_t        m_eventq;       /**< NxWidget event message queue */
+      FAR void    *m_object;       /**< Window object (context specific) */
       bool         m_isBackground; /**< True if this serves the background window */
 
       /**
@@ -86,14 +87,14 @@ namespace Twm4Nx
 
       // Override CWidgetEventHandler virtual methods ///////////////////////
 
-    /**
-     * Handle a NX window redraw request event
-     *
-     * @param nxRect The region in the window to be redrawn
-     * @param more More redraw requests will follow
-     */
+      /**
+       * Handle a NX window redraw request event
+       *
+       * @param nxRect The region in the window to be redrawn
+       * @param more More redraw requests will follow
+       */
 
-    void handleRedrawEvent(FAR const nxgl_rect_s *nxRect, bool more);
+      void handleRedrawEvent(FAR const nxgl_rect_s *nxRect, bool more);
 
 #ifdef CONFIG_NX_XYINPUT
       /**
@@ -115,7 +116,7 @@ namespace Twm4Nx
        * Handle a NX window blocked event
        *
        * @param arg - User provided argument (see nx_block or nxtk_block)
-      */
+       */
 
       void handleBlockedEvent(FAR void *arg);
 
@@ -124,14 +125,16 @@ namespace Twm4Nx
       /**
        * CWindowEvent Constructor
        *
-       * @param twm4nx.  The Twm4Nx session instance.
-       * @param isBackground.  True is this for the background window.
+       * @param twm4nx The Twm4Nx session instance.
+       * @param obj Contextual object (Usually 'this' of instantiator)
+       * @param isBackground True is this for the background window.
        * @param style The default style that all widgets on this display
        *   should use.  If this is not specified, the widget will use the
        *   values stored in the defaultCWidgetStyle object.
        */
 
-       CWindowEvent(FAR CTwm4Nx *twm4nx, bool isBackground = false,
+       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
+                    bool isBackground = false,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
 
@@ -140,16 +143,6 @@ namespace Twm4Nx
        */
 
      ~CWindowEvent(void);
-
-      /**
-       * Handle MSG events.
-       *
-       * @param msg.  The received system MSG event message.
-       * @return True if the message was properly handled.  false is
-       *   return on any failure.
-       */
-
-      static bool event(FAR struct SEventMsg *msg);
   };
 }
 #endif // __cplusplus

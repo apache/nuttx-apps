@@ -148,19 +148,19 @@ namespace NXWidgets
 
     void raiseGeometryEvent(void);
 
+#ifdef CONFIG_NX_XYINPUT
     /**
      * Raise an NX mouse window input event.
      */
 
-#ifdef CONFIG_NX_XYINPUT
     void raiseMouseEvent(void);
 #endif
 
+#ifdef CONFIG_NX_KBD
     /**
      * Raise an NX keybord input event
      */
 
-#ifdef CONFIG_NX_KBD
     void raiseKeyboardEvent(void);
 #endif
 

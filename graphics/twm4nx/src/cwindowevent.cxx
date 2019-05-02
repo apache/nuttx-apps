@@ -59,18 +59,21 @@ using namespace Twm4Nx;
 /**
  * CWindowEvent Constructor
  *
- * @param twm4nx.  The Twm4Nx session instance.
- * @param isBackground.  True is this for the background window.
+ * @param twm4nx The Twm4Nx session instance.
+ * @param obj Contextual object (Usually 'this' of instantiator)
+ * @param isBackground True is this for the background window.
  * @param style The default style that all widgets on this display
  *   should use.  If this is not specified, the widget will use the
  *   values stored in the defaultCWidgetStyle object.
  */
 
-CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, bool isBackground,
+CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
+                           bool isBackground,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
   m_twm4nx       = twm4nx;       // Cache the Twm4Nx session
+  m_object       = obj;          // Used for event message construction
   m_isBackground = isBackground; // Background window?
 
   // Open a message queue to send raw NX events.  This cannot fail!
@@ -105,40 +108,6 @@ CWindowEvent::~CWindowEvent(void)
   // Remove ourself from the list of the window event handlers
 
   removeWindowEventHandler(this);
-}
-
-/**
- * Handle MSG events.
- *
- * @param msg.  The received system MSG event message.
- * @return True if the message was properly handled.  false is
- *   return on any failure.
- */
-
-bool CWindowEvent::event(FAR struct SEventMsg *eventmsg)
-{
-  twminfo("eventID: %u\n", eventmsg->eventID);
-
-  // Handle the event
-
-  bool success = true;
-  switch (eventmsg->eventID)
-    {
-      case EVENT_MSG_POLL:  // Poll for event
-        {
-          // Poll for pending events before closing.
-
-          FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
-          success = cwin->pollToolbarEvents();
-        }
-        break;
-
-      default:
-        success = false;
-        break;
-    }
-
-  return success;
 }
 
 /**
@@ -181,12 +150,10 @@ void CWindowEvent::sendInputEvent(void)
   //     in the Twm4Nx main thread.  The event will, finally be delivered
   //     to the recipient in its fully digested and decorated form.
 
-  struct SNxEventMsg msg =
-  {
-    .eventID  = EVENT_MSG_POLL,
-    .instance = this,
-    .win      = (FAR struct SWindow *)0
-  };
+  struct SNxEventMsg msg;
+  msg.eventID  = m_isBackground ? EVENT_BACKGROUND_POLL : EVENT_WINDOW_POLL;
+  msg.instance = this;
+  msg.obj      = m_object;
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,
                     sizeof(struct SNxEventMsg), 100);
@@ -236,11 +203,11 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
     }
 }
 
+#ifdef CONFIG_NX_XYINPUT
 /**
  * Handle an NX window mouse input event.
  */
 
-#ifdef CONFIG_NX_XYINPUT
 void CWindowEvent::handleMouseEvent(void)
 {
   twminfo("Mouse input...\n");
@@ -288,7 +255,7 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
   {
     .eventID  = EVENT_WINDOW_DELETE,
     .instance = this,
-    .win      = (FAR struct SWindow *)arg
+    .obj      = arg
   };
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,

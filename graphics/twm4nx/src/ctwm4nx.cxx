@@ -430,10 +430,6 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
   bool ret = false;
   switch (recipient)
     {
-      case EVENT_RECIPIENT_MSG:        // NX message event
-        ret = CWindowEvent::event(eventmsg);
-        break;
-
       case EVENT_RECIPIENT_SYSTEM:     // Twm4Nx system event
         ret = systemEvent(eventmsg);
         break;

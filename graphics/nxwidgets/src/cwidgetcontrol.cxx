@@ -220,6 +220,7 @@ void CWidgetControl::postWindowEvent(void)
  *         {
  *           window->waitWindowEvent();
  *         }
+ *
  *       sched_unlock();
  *     }
  *
@@ -569,9 +570,9 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
 
   m_eventHandlers.raiseMouseEvent();
 
+#ifdef CONFIG_NXWIDGET_EVENTWAIT
   // Then wake up logic that may be waiting for a window event
 
-#ifdef CONFIG_NXWIDGET_EVENTWAIT
   postWindowEvent();
 #endif
 }
@@ -604,9 +605,9 @@ void CWidgetControl::newKeyboardEvent(uint8_t nCh, FAR const uint8_t *pStr)
 
   m_eventHandlers.raiseKeyboardEvent();
 
+#ifdef CONFIG_NXWIDGET_EVENTWAIT
   // Then wake up logic that may be waiting for a window event
 
-#ifdef CONFIG_NXWIDGET_EVENTWAIT
   postWindowEvent();
 #endif
 }

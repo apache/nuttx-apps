@@ -483,7 +483,7 @@ bool CMenus::createMenuWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
 
   // 4. Create the menu window
 
