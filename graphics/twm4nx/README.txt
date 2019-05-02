@@ -43,4 +43,8 @@ STATUS
     3. For TWM-like behavior, a window frame and toolbar should be highlighted
        when the window has focus.
     4. A right click on the toolbar should bring up a window-specific menu.
+  2019-05-02:  Some testing progress.  The system comes up, connects to and
+    initializes the VNC window.  For some reason, the VNC client breaks the
+    connection.  The server is no longer connected so Twm4Nx constipates and
+    and eventually hangs.
 

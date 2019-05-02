@@ -174,7 +174,7 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
   FAR NXWidgets::CImage *image =
     new NXWidgets::CImage(m_widgetControl, iconImagePos.x,
                           iconImagePos.y, iconImageSize.w, iconImageSize.h,
-                          ibitmap, m_style);
+                          ibitmap, &m_style);
   if (image == (FAR NXWidgets::CImage *)0)
     {
       twmerr("ERROR: Failed to create image\n");
@@ -199,7 +199,8 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
 
   FAR NXWidgets::CLabel *label =
     new NXWidgets::CLabel(m_widgetControl, iconLabelPos.x, iconLabelPos.y,
-                          iconLabelSize.w, iconLabelSize.h, title);
+                          iconLabelSize.w, iconLabelSize.h, title,
+                          &m_style);
   if (label == (FAR NXWidgets::CLabel *)0)
     {
       twmerr("ERROR: Failed to create icon label\n");

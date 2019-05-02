@@ -173,7 +173,7 @@ void CWindowEvent::sendInputEvent(void)
 void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
                                      bool more)
 {
-  twminfo("backgound=%s\n", m_isBackground ? "YES" : "NO");
+  twminfo("background=%s\n", m_isBackground ? "YES" : "NO");
 
   // At present, only the background window will get redraw events
 
