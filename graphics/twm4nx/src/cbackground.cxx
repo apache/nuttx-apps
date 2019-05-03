@@ -117,7 +117,7 @@ CBackground::~CBackground(void)
 bool CBackground::
   initialize(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap)
 {
-  twminfo("Create the backgound window\n");
+  twminfo("Create the background window\n");
 
   // Create the background window (if we have not already done so)
 
@@ -128,7 +128,7 @@ bool CBackground::
       return false;
     }
 
-  twminfo("Create the backgound image\n");
+  twminfo("Create the background image\n");
 
   // Create the new background image
 

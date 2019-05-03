@@ -201,7 +201,7 @@ bool CTwm4Nx::run(void)
       return false;
     }
 
-  // Initialize the backgound instance and paint the background image
+  // Initialize the background instance and paint the background image
 
   if (!m_background->initialize(&CONFIG_TWM4NX_BACKGROUND_IMAGE))
     {
