@@ -1,0 +1,49 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_LIBCURL4NX
+	tristate "cURL4nx HTTP client library"
+	default n
+	depends on NET_TCP
+	select LIBC_NETDB
+        select NETUTILS_NETLIB_GENERICURLPARSER
+	---help---
+		Enable the NuttX cURL like library.
+
+if NETUTILS_LIBCURL4NX
+
+config LIBCURL4NX_MAXHOST
+	int "Maximum URL host length"
+	default 128
+
+config LIBCURL4NX_MAXPATH
+	int "Maximum URL path length"
+	default 128
+
+config LIBCURL4NX_MAXMETHOD
+	int "Maximum HTTP method length"
+	default 16
+
+config LIBCURL4NX_MAXUSERAGENT
+	int "Maximum HTTP user agent length"
+	default 64
+
+config LIBCURL4NX_MAXHEADERLINE
+	int "Maximum receivable header line"
+	default 128
+
+config LIBCURL4NX_RXBUFLEN
+	int "Initial RX buffer size"
+	default 512
+
+config LIBCURL4NX_MINRXBUFLEN
+	int "Minimum RX buffer size for CURL4NXOPT_BUFFERSIZE"
+	default 16
+
+config LIBCURL4NX_MAXRXBUFLEN
+	int "Maximum RX buffer size for CURL4NXOPT_BUFFERSIZE"
+	default 2048
+
+endif
