@@ -711,7 +711,36 @@ bool CWindow::createToolbar(void)
 
   // 4. Open and initialize the tool bar
 
-  return m_toolbar->open();
+  if (!m_toolbar->open())
+    {
+      delete m_toolbar;
+      m_toolbar = (FAR NXWidgets::CNxToolbar *)0;
+      return false;
+    }
+
+  // 5. Fill the entire tool bar with the background color from the
+  //    current widget system.
+
+  // Get the graphics port for drawing on the background window
+
+  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
+
+  // Get the size of the window
+
+  struct nxgl_size_s windowSize;
+  if (!m_toolbar->getSize(&windowSize))
+    {
+      delete m_toolbar;
+      m_toolbar = (FAR NXWidgets::CNxToolbar *)0;
+      return false;
+    }
+
+  // Get the background color of the current widget system.
+  // REVISIT:  No widgets yet, using the default widget background color
+
+  port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
+                       CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR);
+  return true;
 }
 
 /**

@@ -61,6 +61,34 @@ config TWM4NX_NETINIT
 	---help---
 		This option enables/disables all network initialization in Twm4Nx.
 
+config TWM4NX_VNCSERVER
+	bool "Use VNC Server"
+	default y
+	depends on VNCSERVER
+	select TWM4NX_NOKEYBOARD
+	select TWM4NX_NOMOUSE
+	---help---
+		If selected, then keyboard and positional input will come from the
+		VNC server.  In this case all other input settings are ignored.
+
+config TWM4NX_NOKEYBOARD
+	bool "Disable keyboard"
+	default n
+	---help---
+		Normally you would never disable keyboard input.  That would make
+		using many Twm4Nx applications impossible.  However, this setting
+		is sometimes useful for debugging Twm4Nx bringup in a simpler
+		environment (it is also used if VNC is selected)
+
+config TWM4NX_NOMOUSE
+	bool "Disable mouse"
+	default n
+	---help---
+		Normally you would never disable mouse input.  That would make using
+		Twm4Nx impossible.  However, this setting is sometimes useful for
+		debugging Twm4Nx bringup in a simpler environment (it is also used
+		if VNC is selected)
+
 config TWM4NX_DEBUG
 	bool "Force debug output"
 	default n

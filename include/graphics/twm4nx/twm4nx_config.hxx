@@ -393,8 +393,9 @@
 /**
  * Configuration settings
  *
- * CONFIG_VNCSERVER - If selected, then keyboard and positional input will
- *   come from the VNC server.  In this case all input settings are ignored.
+ * CONFIG_TWM4NX_VNCSERVER - If selected, then keyboard and positional input
+ *   will come from the VNC server.  In this case all other input settings
+ *   are ignored.
  *
  * Common input device settings
  *
@@ -423,6 +424,7 @@
 /**
  * Mouse device settings
  *
+ * CONFIG_TWM4NX_NOMOUSE - Can be used to disable mouse input.
  * CONFIG_TWM4NX_MOUSE_DEVPATH - The full path to the mouse device.
  *   Default: "/dev/console"
  * CONFIG_TWM4NX_MOUSE_USBHOST - Indicates the the mouse is attached via
@@ -444,6 +446,7 @@
 /**
  * Keyboard device settings
  *
+ * CONFIG_TWM4NX_NOKEYBOARD - Can be used to disable keyboard input.
  * CONFIG_TWM4NX_KEYBOARD_DEVPATH - The full path to the keyboard device.
  *   Default: "/dev/console"
  * CONFIG_TWM4NX_KEYBOARD_USBHOST - Indicates the the keyboard is attached via

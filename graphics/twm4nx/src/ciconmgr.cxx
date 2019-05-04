@@ -517,7 +517,6 @@ bool CIconMgr::createWindow(FAR const char *prefix)
   // Create the icon manager window
 
   CWindowFactory *factory = m_twm4nx->getWindowFactory();
-  bool success = true;
 
   m_window = factory->createWindow(name, &CONFIG_TWM4NX_ICONMGR_IMAGE,
                                    true, this, false);
@@ -525,7 +524,7 @@ bool CIconMgr::createWindow(FAR const char *prefix)
   if (m_window == (FAR CWindow *)0)
     {
       twmerr("ERROR: Failed to create icon manager window");
-      success = false;
+      return false;
     }
 
   // Free any temporary name strings
@@ -535,7 +534,53 @@ bool CIconMgr::createWindow(FAR const char *prefix)
       std::free(allocName);
     }
 
-  return success;
+  // Adjust the height of the window (and probably the width too?)
+  // The height of one row is determined (mostly) by the font height
+
+  struct nxgl_size_s windowSize;
+  if (!m_window->getWindowSize(&windowSize))
+    {
+      twmerr("ERROR: Failed to get window size\n");
+      delete m_window;
+      m_window = (FAR CWindow *)0;
+      return false;
+    }
+
+  windowSize.h = getRowHeight();
+
+  // Set the new window size
+
+  if (!m_window->setWindowSize(&windowSize))
+    {
+      twmerr("ERROR: Failed to set window size\n");
+      delete m_window;
+      m_window = (FAR CWindow *)0;
+      return false;
+    }
+
+  // Get the frame size (includes border and toolbar)
+
+  struct nxgl_size_s frameSize;
+  m_window->windowToFrameSize(&windowSize, &frameSize);
+
+  // Position the icon manager at the upper right initially
+
+  struct nxgl_size_s displaySize;
+  m_twm4nx->getDisplaySize(&displaySize);
+
+  struct nxgl_point_s framePos;
+  framePos.x = displaySize.w - frameSize.w - 1;
+  framePos.y = 0;
+
+  if (!m_window->setFramePosition(&framePos))
+    {
+      twmerr("ERROR: Failed to set window position\n");
+      delete m_window;
+      m_window = (FAR CWindow *)0;
+      return false;
+    }
+
+  return true;
 }
 
 /**
@@ -552,11 +597,6 @@ bool CIconMgr::createButtonArray(void)
       twmerr("ERROR: Failed to get window size\n");
       return false;
     }
-
-  // The button must be positioned at the upper left of the window
-
-  struct nxgl_point_s arrayPos;
-  m_window->getWindowPosition(&arrayPos);
 
   // Create the button array
   // REVISIT:  Hmm.. Button array cannot be dynamically resized!
@@ -578,9 +618,9 @@ bool CIconMgr::createButtonArray(void)
     }
 
   // Now we have enough information to create the button array
+  // The button must be positioned at the upper left of the window
 
-  m_buttons = new NXWidgets::CButtonArray(control,
-                                          arrayPos.x, arrayPos.y,
+  m_buttons = new NXWidgets::CButtonArray(control, 0, 0,
                                           m_maxColumns, nrows,
                                           buttonWidth, buttonHeight);
   if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
@@ -596,8 +636,12 @@ bool CIconMgr::createButtonArray(void)
 
   m_buttons->setFont(iconManagerFont);
   m_buttons->setBorderless(true);
-  m_buttons->disableDrawing();
-  m_buttons->setRaisesEvents(false);
+  m_buttons->setRaisesEvents(true);
+
+  // Draw the button array
+
+  m_buttons->enableDrawing();
+  m_buttons->redraw();
 
   // Register to get events from the mouse clicks on the image
 

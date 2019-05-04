@@ -117,7 +117,7 @@ namespace Twm4Nx
       FAR CFonts                  *m_fonts;       /**< The cached Cfonts instance */
       FAR CResize                 *m_resize;      /**< The cached CResize instance */
 
-#ifndef CONFIG_VNCSERVER
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_TWM4NX_NOMOUSE)
       FAR CInput                  *m_input;       /**< Keyboard/mouse input injector */
 #endif
       /* Display properties */
