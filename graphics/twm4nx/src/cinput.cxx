@@ -1,4 +1,4 @@
-/********************************************************************************************
+/****************************************************************************
  * apps/graphics/NxWidgets/nxwm/src/cinput.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
@@ -31,11 +31,11 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ********************************************************************************************/
+ ****************************************************************************/
 
-/********************************************************************************************
+/****************************************************************************
  * Included Files
- ********************************************************************************************/
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 
@@ -49,24 +49,40 @@
 #include <assert.h>
 
 #include <nuttx/nx/nxglib.h>
+#include <nuttx/input/mouse.h>
+
 #ifdef CONFIG_TWM4NX_MOUSE
-#  include <nuttx/input/mouse.h>
+#  include <nuttx/nx/nxcursor.h>
+#  include "graphics/twm4nx/twm4nx_cursor.hxx"
 #else
 #  include <nuttx/input/touchscreen.h>
 #endif
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
-#include "graphics/twm4nx/twm4nx_cursor.hxx"
 #include "graphics/twm4nx/cinput.hxx"
 
-/********************************************************************************************
+/****************************************************************************
  * Pre-Processor Definitions
- ********************************************************************************************/
+ ****************************************************************************/
 
-/********************************************************************************************
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
+#  define KBD_INDEX         0
+#  define NINPUT_DEVICES    1
+#  ifndef CONFIG_TWM4NX_NOMOUSE
+#    define MOUSE_INDEX     1
+#    define NINPUT_DEVICES  2
+#  else
+#    define NINPUT_DEVICES  1
+#  endif
+#else
+#  define MOUSE_INDEX       0
+#  define NINPUT_DEVICES    1
+#endif
+
+/****************************************************************************
  * CInput Method Implementations
- ********************************************************************************************/
+ ****************************************************************************/
 
 using namespace Twm4Nx;
 
@@ -80,7 +96,12 @@ using namespace Twm4Nx;
 CInput::CInput(CTwm4Nx *twm4nx)
 {
   m_twm4nx      = twm4nx;              // Save the NX server
-  m_kbdFd      = -1;                   // Device driver is not opened
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
+  m_kbdFd       = -1;                  // Keyboard driver is not opened
+#endif
+#ifndef CONFIG_TWM4NX_NOMOUSE
+  m_mouseFd     = -1;                  // Mouse/touchscreen driver is not opened
+#endif
   m_state       = LISTENER_NOTRUNNING; // The listener thread is not running yet
 
   // Initialize the semaphore used to synchronize with the listener thread
@@ -104,12 +125,23 @@ CInput::~CInput(void)
 
   (void)pthread_kill(m_thread, CONFIG_TWM4NX_INPUT_SIGNO);
 
-  // Close the keyboard device (or should these be done when the thread exits?)
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
+  // Close the keyboard device
 
   if (m_kbdFd >= 0)
     {
       std::close(m_kbdFd);
     }
+#endif
+
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
+  // Close the mouse/touchscreen device
+
+  if (m_mouseFd >= 0)
+    {
+      std::close(m_mouseFd);
+    }
+#endif
 }
 
 /**
@@ -179,6 +211,7 @@ bool CInput::start(void)
  *    negated errno value is returned if an irrecoverable error occurs.
  */
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
 int CInput::keyboardOpen(void)
 {
   int fd;
@@ -238,6 +271,7 @@ int CInput::keyboardOpen(void)
 
   return fd;
 }
+#endif
 
 /**
  * Open the mouse/touchscreen input devices.  Not very interesting for the
@@ -253,6 +287,7 @@ int CInput::keyboardOpen(void)
  *    negated errno value is returned if an irrecoverable error occurs.
  */
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
 inline int CInput::mouseOpen(void)
 {
   int fd;
@@ -312,6 +347,7 @@ inline int CInput::mouseOpen(void)
 
   return fd;
 }
+#endif
 
 /**
  * Read data from the keyboard device and inject the keyboard data
@@ -321,6 +357,7 @@ inline int CInput::mouseOpen(void)
  *    negated errno value is returned if an irrecoverable error occurs.
  */
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
 int CInput::keyboardInput(void)
 {
   // Read one keyboard sample
@@ -365,7 +402,8 @@ int CInput::keyboardInput(void)
 
       // Inject the keyboard input into NX
 
-      int ret = nx_kbdin(m_twm4nx, (uint8_t)nbytes, rxbuffer);
+      NXHANDLE server = m_twm4nx->getServer();
+      int ret = nx_kbdin(server, (uint8_t)nbytes, rxbuffer);
       if (ret < 0)
         {
           twmerr("ERROR: nx_kbdin failed: %d\n", ret);
@@ -376,9 +414,10 @@ int CInput::keyboardInput(void)
 
   return OK;
 }
+#endif
 
 /**
- * Read data from the mouse/touchscreen device.  if the input device is a
+ * Read data from the mouse/touchscreen device.  If the input device is a
  * mouse, then update the cursor position.  And, in either case, inject
  * the mouse data into NX for proper distribution.
  *
@@ -386,6 +425,7 @@ int CInput::keyboardInput(void)
  *   value is returned if an irrecoverable error occurs.
  */
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
 int CInput::mouseInput(void)
 {
   // Read one mouse sample
@@ -420,10 +460,9 @@ int CInput::mouseInput(void)
       fwarn("WARNING: Awakened with EINTR\n");
     }
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // On a truly successful read, the size of the returned data will
-  // be greater than or equal to size of one touchscreen sample.  It
-  // be greater only in the case of a multi-touch touchscreen device
-  // when multi-touches are reported.
+  // be greater than or equal to size of one mouse report.
 
   else if (nbytes < (ssize_t)sizeof(struct mouse_report_s))
     {
@@ -458,7 +497,8 @@ int CInput::mouseInput(void)
 
       // Then inject the mouse input into NX
 
-      ret = nx_mousein(m_twm4nx, rpt->x, rpt->y, rpt->buttons);
+      NXHANDLE server = m_twm4nx->getServer();
+      ret = nx_mousein(server, rpt->x, rpt->y, rpt->buttons);
       if (ret < 0)
         {
           twmerr("ERROR: nx_mousein failed: %d\n", ret);
@@ -466,9 +506,45 @@ int CInput::mouseInput(void)
           // Ignore the error
         }
     }
+#else
+  // On a truly successful read, the size of the returned data will
+  // be greater than or equal to size of one touchscreen sample.  It
+  // be greater only in the case of a multi-touch touchscreen device
+  // when multi-touches are reported.
+
+  else if (nbytes < (ssize_t)SIZEOF_TOUCH_SAMPLE_S(1))
+    {
+      twmerr("ERROR Unexpected read size=%d, expected=%d\n",
+             nbytes, SIZEOF_TOUCH_SAMPLE_S(1));
+      return -EIO;
+    }
+  else
+    {
+      // Looks like good touchscreen input... process it.
+      // NOTE: m_twm4nx inherits from NXWidgets::CNXServer so we all ready
+      // have the server instance.
+
+      // Inject the touchscreen as mouse input into NX (with the left
+      // button pressed)
+
+      FAR struct touch_sample_s *rpt =
+        (FAR struct touch_sample_s *)rxbuffer;
+
+      NXHANDLE server = m_twm4nx->getServer();
+      int ret = nx_mousein(server, rpt->point[0].x, rpt->point[0].y,
+                           MOUSE_BUTTON_1);
+      if (ret < 0)
+        {
+          twmerr("ERROR: nx_mousein failed: %d\n", ret);
+
+          // Ignore the error
+        }
+    }
+#endif
 
   return OK;
 }
+#endif
 
 /**
  * This is the heart of the keyboard/mouse listener thread.  It
@@ -487,6 +563,7 @@ int CInput::session(void)
 {
   twminfo("Session started\n");
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // Center the cursor
 
   struct nxgl_size_s size;
@@ -505,6 +582,7 @@ int CInput::session(void)
   // Enable the cursor
 
   m_twm4nx->enableCursor(true);
+#endif
 
   // Loop, reading and dispatching keyboard data
 
@@ -513,21 +591,19 @@ int CInput::session(void)
     {
       // Wait for data availability
 
-      struct pollfd pfd[2] =
-      {
-        {
-          .fd      = m_kbdFd,
-          .events  = POLLIN | POLLERR | POLLHUP,
-          .revents = 0
-        },
-        {
-          .fd      = m_mouseFd,
-          .events  = POLLIN | POLLERR | POLLHUP,
-          .revents = 0
-        },
-      };
+      struct pollfd pfd[NINPUT_DEVICES];
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
+      pfd[KBD_INDEX].fd        = m_kbdFd;
+      pfd[KBD_INDEX].events    = POLLIN | POLLERR | POLLHUP;
+      pfd[KBD_INDEX]revents    = 0;
+#endif
+#ifndef CONFIG_TWM4NX_NOMOUSE
+      pfd[MOUSE_INDEX].fd      = m_mouseFd;
+      pfd[MOUSE_INDEX].events  = POLLIN | POLLERR | POLLHUP;
+      pfd[MOUSE_INDEX].revents = 0;
+#endif
 
-      ret = poll(pfd, 2, -1);
+      ret = poll(pfd, NINPUT_DEVICES, -1);
       if (ret < 0)
         {
           int errcode = errno;
@@ -545,17 +621,18 @@ int CInput::session(void)
             }
         }
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       // Check for keyboard input
 
-      if ((pfd[0].revents & (POLLERR | POLLHUP)) != 0)
+      if ((pfd[KBD_INDEX].revents & (POLLERR | POLLHUP)) != 0)
         {
           twmerr("ERROR: keyboard poll() failed. revents=%04x\n",
-                 pfd[0].revents);
+                 pfd[KBD_INDEX].revents);
           ret = -EIO;
           break;
         }
 
-      if ((pfd[0].revents & POLLIN) != 0)
+      if ((pfd[KBD_INDEX].revents & POLLIN) != 0)
         {
           ret = keyboardInput();
           if (ret < 0)
@@ -564,18 +641,20 @@ int CInput::session(void)
               break;
             }
         }
+#endif
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
       // Check for mouse input
 
-      if ((pfd[1].revents & (POLLERR | POLLHUP)) != 0)
+      if ((pfd[MOUSE_INDEX].revents & (POLLERR | POLLHUP)) != 0)
         {
           twmerr("ERROR: Mouse poll() failed. revents=%04x\n",
-                 pfd[1].revents);
+                 pfd[MOUSE_INDEX].revents);
           ret = -EIO;
           break;
         }
 
-      if ((pfd[1].revents & POLLIN) != 0)
+      if ((pfd[MOUSE_INDEX].revents & POLLIN) != 0)
         {
           ret = mouseInput();
           if (ret < 0)
@@ -584,11 +663,14 @@ int CInput::session(void)
               break;
             }
         }
+#endif
     }
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // Disable the cursor
 
   m_twm4nx->enableCursor(false);
+#endif
   return ret;
 }
 
@@ -626,6 +708,7 @@ FAR void *CInput::listener(FAR void *arg)
   while (This->m_state == LISTENER_RUNNING)
 #endif
     {
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       // Open/Re-open the keyboard device
 
       This->m_kbdFd = This->keyboardOpen();
@@ -636,7 +719,9 @@ FAR void *CInput::listener(FAR void *arg)
           sem_post(&This->m_waitSem);
           return (FAR void *)0;
         }
+#endif
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
       // Open/Re-open the mouse device
 
       This->m_mouseFd = This->mouseOpen();
@@ -647,6 +732,7 @@ FAR void *CInput::listener(FAR void *arg)
           sem_post(&This->m_waitSem);
           return (FAR void *)0;
         }
+#endif
 
 #if !defined(CONFIG_TWM4NX_KEYBOARD_USBHOST) && !defined(CONFIG_TWM4NX_MOUSE_USBHOST)
       // Indicate that we have successfully initialized
@@ -676,15 +762,19 @@ FAR void *CInput::listener(FAR void *arg)
       UNUSED(ret);
 #endif
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       // Close the keyboard device
 
       (void)std::close(This->m_kbdFd);
       This->m_kbdFd = -1;
+#endif
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
       // Close the mouse device
 
       (void)std::close(This->m_mouseFd);
       This->m_mouseFd = -1;
+#endif
     }
 
   // We should get here only if we were asked to terminate via

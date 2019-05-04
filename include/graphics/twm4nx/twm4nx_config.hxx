@@ -432,7 +432,7 @@
  * CONFIG_TWM4NX_MOUSE_USBHOST - Indicates the the mouse is attached via
  *   USB
  * CONFIG_TWM4NX_MOUSE_BUFSIZE - The size of the mouse read data buffer.
- *   Default: sizeof(struct mouse_report_s)
+ *   Default: sizeof(struct mouse_report_s) or SIZEOF_TOUCH_SAMPLE_S(1)
  */
 
 #ifndef CONFIG_TWM4NX_MOUSE_DEVPATH
@@ -447,7 +447,7 @@
 #  ifdef CONFIG_TWM4NX_MOUSE
 #    define CONFIG_TWM4NX_MOUSE_BUFSIZE sizeof(struct mouse_report_s)
 #  else
-#    define CONFIG_TWM4NX_MOUSE_BUFSIZE sizeof(SIZEOF_TOUCH_SAMPLE_S(1))
+#    define CONFIG_TWM4NX_MOUSE_BUFSIZE SIZEOF_TOUCH_SAMPLE_S(1)
 #  endif
 #endif
 

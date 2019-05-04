@@ -129,7 +129,7 @@ CTwm4Nx::CTwm4Nx(int display)
   m_fonts                = (FAR CFonts *)0;
   m_resize               = (FAR CResize *)0;
 
-#if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_TWM4NX_NOMOUSE)
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
   m_input                = (FAR CInput *)0;
 #endif
 }
@@ -221,7 +221,7 @@ bool CTwm4Nx::run(void)
   m_maxWindow.w = INT16_MAX - m_displaySize.w;
   m_maxWindow.h = INT16_MAX - m_displaySize.w;
 
-#if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_TWM4NX_NOMOUSE)
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
   // Create the keyboard/mouse input device thread
 
   m_input = new CInput(this);
@@ -519,7 +519,7 @@ void CTwm4Nx::cleanup()
       m_background = (FAR CBackground *)0;
     }
 
-#if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_TWM4NX_NOMOUSE)
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
   // Halt the keyboard/mouse listener and destroy the CInput class
 
   if (m_input != (CInput *)0)

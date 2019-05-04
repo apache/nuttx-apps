@@ -89,12 +89,17 @@ namespace Twm4Nx
        */
 
       CTwm4Nx                     *m_twm4nx;  /**< The Twm4Nx session */
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       int                          m_kbdFd;   /**< File descriptor of the opened keyboard device */
+#endif
+#ifndef CONFIG_TWM4NX_NOMOUSE
       int                          m_mouseFd; /**< File descriptor of the opened mouse device */
+#endif
       pthread_t                    m_thread;  /**< The listener thread ID */
       volatile enum EListenerState m_state;   /**< The state of the listener thread */
       sem_t                        m_waitSem; /**< Used to synchronize with the listener thread */
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       /**
        * Open the keyboard device.  Not very interesting for the case of
        * standard device but much more interesting for a USB keyboard device
@@ -110,7 +115,9 @@ namespace Twm4Nx
        */
 
       inline int keyboardOpen(void);
+#endif
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
      /**
        * Open the mouse/touchscreen input device.  Not very interesting for the
        * case of standard character device but much more interesting for
@@ -126,7 +133,9 @@ namespace Twm4Nx
        */
 
       inline int mouseOpen(void);
+#endif
 
+#ifndef CONFIG_TWM4NX_NOKEYBOARD
       /**
        * Read data from the keyboard device and inject the keyboard data
        * into NX for proper distribution.
@@ -136,9 +145,11 @@ namespace Twm4Nx
        */
 
       inline int keyboardInput(void);
+#endif
 
+#ifndef CONFIG_TWM4NX_NOMOUSE
       /**
-       * Read data from the mouse/touchscreen device.  if the input device
+       * Read data from the mouse/touchscreen device.  If the input device
        * is a mouse, then update the cursor position.  And, in either case,
        * inject the mouse data into NX for proper distribution.
        *
@@ -147,6 +158,7 @@ namespace Twm4Nx
        */
 
       inline int mouseInput(void);
+#endif
 
       /**
        * This is the heart of the keyboard/mouse listener thread.  It
