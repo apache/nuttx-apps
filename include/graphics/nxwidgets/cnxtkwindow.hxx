@@ -89,6 +89,7 @@ namespace NXWidgets
     CWidgetControl *m_widgetControl; /**< Controlling widget for the window */
     CNxToolbar     *m_toolbar;       /**< Child toolbar */
     nxgl_coord_t    m_toolbarHeight; /**< The height of the toolbar */
+    uint8_t         m_flags;         /**< Window properties */
 
   public:
 
@@ -111,9 +112,11 @@ namespace NXWidgets
      *
      * @param hNxServer Handle to the NX server.
      * @param widgetControl Controlling widget for this window.
+     * @param flags Window properties
      */
 
-    CNxTkWindow(NXHANDLE hNxServer, CWidgetControl *widgetControl);
+    CNxTkWindow(NXHANDLE hNxServer, CWidgetControl *widgetControl,
+                uint8_t flags);
 
     /**
      * Destructor.

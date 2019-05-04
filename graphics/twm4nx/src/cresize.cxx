@@ -46,6 +46,8 @@
 
 #include <stdio.h>
 
+#include <nuttx/nx/nxbe.h>
+
 #include "graphics/nxwidgets/cnxfont.hxx"
 #include "graphics/nxwidgets/clabel.hxx"
 
@@ -959,7 +961,7 @@ bool CResize::createSizeWindow(void)
 
   // 4. Create the main window
 
-  m_sizeWindow = m_twm4nx->createFramedWindow(control);
+  m_sizeWindow = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
   if (m_sizeWindow == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;

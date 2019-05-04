@@ -335,6 +335,18 @@ namespace Twm4Nx
                       bool isIconMgr, FAR CIconMgr *iconMgr, bool noToolbar);
 
       /**
+       * Synchronize the window with the NX server.  This function will delay
+       * until the the NX server has caught up with all of the queued requests.
+       * When this function returns, the state of the NX server will be the
+       * same as the state of the application.
+       */
+
+      inline void synchronize(void)
+      {
+        m_nxWin->synchronize();
+      }
+
+      /**
        * Get the widget control instance needed to support application drawing
        * into the window.
        */

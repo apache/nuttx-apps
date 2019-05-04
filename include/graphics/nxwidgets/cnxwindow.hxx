@@ -53,10 +53,6 @@
 #include "graphics/nxwidgets/inxwindow.hxx"
 
 /****************************************************************************
- * Pre-Processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Implementation Classes
  ****************************************************************************/
 
@@ -89,6 +85,7 @@ namespace NXWidgets
     NXHANDLE        m_hNxServer;     /**< Handle to the NX server. */
     NXWINDOW        m_hNxWindow;     /**< Handle to the NX raw window */
     CWidgetControl *m_widgetControl; /**< The controlling widget for the window */
+    uint8_t         m_flags;         /**< Window properties */
 
   public:
 
@@ -111,9 +108,11 @@ namespace NXWidgets
      *
      * @param hNxServer Handle to the NX server.
      * @param widgetControl Controlling widget for this window.
+     * @param flags Window properties
      */
 
-    CNxWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl);
+    CNxWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl,
+              uint8_t flags = 0);
 
     /**
      * Destructor.

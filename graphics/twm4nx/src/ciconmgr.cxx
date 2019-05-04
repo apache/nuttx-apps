@@ -219,7 +219,7 @@ bool CIconMgr::add(FAR CWindow *cwin)
   else
     {
       windowSize.h = rowHeight * m_nWindows;
-      m_window->setWindowSize(&windowSize);
+      m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()
     }
 
   // Increment the window count
@@ -580,6 +580,7 @@ bool CIconMgr::createWindow(FAR const char *prefix)
       return false;
     }
 
+  m_window->synchronize();
   return true;
 }
 

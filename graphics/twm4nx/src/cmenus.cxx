@@ -54,6 +54,7 @@
 #include <fcntl.h>
 
 #include <nuttx/version.h>
+#include <nuttx/nx/nxbe.h>
 
 #include "graphics/nxwidgets/cnxfont.hxx"
 #include "graphics/nxwidgets/clistbox.hxx"
@@ -487,7 +488,7 @@ bool CMenus::createMenuWindow(void)
 
   // 4. Create the menu window
 
-  m_menuWindow = m_twm4nx->createFramedWindow(control);
+  m_menuWindow = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
   if (m_menuWindow == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;

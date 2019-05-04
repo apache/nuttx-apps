@@ -55,6 +55,7 @@
 #include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>
+#include <nuttx/nx/nxbe.h>
 
 #include "graphics/nxglyphs.hxx"
 
@@ -618,7 +619,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
 
   // 4. Create the window
 
-  m_nxWin = m_twm4nx->createFramedWindow(control);
+  m_nxWin = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
   if (m_nxWin == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;
@@ -736,10 +737,10 @@ bool CWindow::createToolbar(void)
     }
 
   // Get the background color of the current widget system.
-  // REVISIT:  No widgets yet, using the default widget background color
+  // REVISIT:  No widgets yet, using the the non-shadowed border color
 
   port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
-                       CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR);
+                       CONFIG_NXTK_BORDERCOLOR1);
   return true;
 }
 
@@ -999,13 +1000,13 @@ bool CWindow::createToolbarTitle(FAR const char *name)
 
   struct nxgl_size_s titleSize;
   titleSize.h = m_tbHeight;
-  titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_FRAME_VSPACING + 1;
+  titleSize.w = m_tbRightX - m_tbLeftX - 2 * CONFIG_TWM4NX_TOOLBAR_HSPACING + 1;
 
   // Position the title.  Packed to the left horizontally, positioned at the
   // top of the toolbar.
 
   struct nxgl_point_s titlePos;
-  titlePos.x = m_tbLeftX + CONFIG_TWM4NX_FRAME_VSPACING;
+  titlePos.x = m_tbLeftX + CONFIG_TWM4NX_TOOLBAR_HSPACING;
   titlePos.y = 0;
 
   // Get the Widget control instance from the toolbar window.  This

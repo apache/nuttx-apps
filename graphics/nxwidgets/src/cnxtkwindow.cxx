@@ -50,10 +50,6 @@
 #include "graphics/nxwidgets/cbitmap.hxx"
 
 /****************************************************************************
- * Pre-Processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Method Implementations
  ****************************************************************************/
 
@@ -64,15 +60,18 @@ using namespace NXWidgets;
  *
  * @param hNxServer Handle to the NX server.
  * @param widgetControl Controlling widget for this window.
+ * @param flags Window properties
  */
 
-CNxTkWindow::CNxTkWindow(NXHANDLE hNxServer, CWidgetControl *widgetControl)
+CNxTkWindow::CNxTkWindow(NXHANDLE hNxServer, CWidgetControl *widgetControl,
+                         uint8_t flags)
   : CCallback(widgetControl)
 {
   // Save construction values
 
   m_hNxServer     = hNxServer;
   m_widgetControl = widgetControl;
+  m_flags         = flags;
 
   // Nullify uninitilized pointers and values
 
@@ -120,8 +119,8 @@ bool CNxTkWindow::open(void)
 
   // Create the window
 
-  m_hNxTkWindow = nxtk_openwindow(m_hNxServer, 0, vtable,
-                                 (FAR void *)static_cast<CCallback*>(this));
+  m_hNxTkWindow = nxtk_openwindow(m_hNxServer, m_flags, vtable,
+                                  (FAR void *)static_cast<CCallback*>(this));
   return m_hNxTkWindow != NULL;
 }
 

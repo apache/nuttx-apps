@@ -160,18 +160,18 @@ namespace NXWidgets
      * Get an instance of a raw NX window.
      */
 
-    inline CNxWindow *createRawWindow(CWidgetControl *widgetControl)
+    inline CNxWindow *createRawWindow(CWidgetControl *widgetControl, uint8_t flags = 0)
     {
-      return new CNxWindow(m_hNxServer, widgetControl);
+      return new CNxWindow(m_hNxServer, widgetControl, flags);
     }
 
     /**
      * Get an instance of the framed NX window.
      */
 
-    inline CNxTkWindow *createFramedWindow(CWidgetControl *widgetControl)
+    inline CNxTkWindow *createFramedWindow(CWidgetControl *widgetControl, uint8_t flags = 0)
     {
-      return new CNxTkWindow(m_hNxServer, widgetControl);
+      return new CNxTkWindow(m_hNxServer, widgetControl, flags);
     }
 
     /**
