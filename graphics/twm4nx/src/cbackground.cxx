@@ -246,6 +246,25 @@ bool CBackground::createBackgroundWindow(void)
       return false;
     }
 
+  // Get the graphics port for drawing on the background window
+
+  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
+
+  // Get the size of the region to redraw (the whole display)
+
+  struct nxgl_size_s windowSize;
+  if (!m_backWindow->getSize(&windowSize))
+    {
+      twmerr("ERROR: getSize failed\n");
+      delete m_backWindow;
+      m_backWindow = (FAR NXWidgets::CBgWindow *)0;
+      return false;
+    }
+
+  // Fill the display with the background color
+
+  port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
+                       CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR);
   return true;
 }
 
