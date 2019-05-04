@@ -81,13 +81,31 @@ config TWM4NX_NOKEYBOARD
 		environment (it is also used if VNC is selected)
 
 config TWM4NX_NOMOUSE
-	bool "Disable mouse"
+	bool "Disable mouse/touchscreen"
 	default n
 	---help---
 		Normally you would never disable mouse input.  That would make using
 		Twm4Nx impossible.  However, this setting is sometimes useful for
 		debugging Twm4Nx bringup in a simpler environment (it is also used
 		if VNC is selected)
+
+choice
+	prompt "Position device"
+	default TWM4NX_MOUSE
+	depends on !TWM4NX_NOMOUSE
+
+config TWM4NX_MOUSE
+	bool "Mouse"
+
+config TWM4NX_TOUCHSCREEN
+	bool "Touchscreen"
+
+endchoice # Position device
+
+config TWM4NX_MOUSE_DEVPATH
+	string "Path to input device"
+	default "/dev/mouse0" if TWM4NX_MOUSE
+	default "/dev/input0" if TWM4NX_TOUCHSCREEN
 
 config TWM4NX_DEBUG
 	bool "Force debug output"

@@ -425,6 +425,8 @@
  * Mouse device settings
  *
  * CONFIG_TWM4NX_NOMOUSE - Can be used to disable mouse input.
+ * CONFIG_TWM4NX_MOUSE - Input is from a mouse.
+ * CONFIG_TWM4NX_TOUSCREEN - Input is from a touchscreen.
  * CONFIG_TWM4NX_MOUSE_DEVPATH - The full path to the mouse device.
  *   Default: "/dev/console"
  * CONFIG_TWM4NX_MOUSE_USBHOST - Indicates the the mouse is attached via
@@ -434,11 +436,19 @@
  */
 
 #ifndef CONFIG_TWM4NX_MOUSE_DEVPATH
-#  define CONFIG_TWM4NX_MOUSE_DEVPATH "/dev/mouse0"
+#  ifdef CONFIG_TWM4NX_MOUSE
+#    define CONFIG_TWM4NX_MOUSE_DEVPATH "/dev/mouse0"
+#  else
+#    define CONFIG_TWM4NX_MOUSE_DEVPATH "/dev/input0"
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_MOUSE_BUFSIZE
-#  define CONFIG_TWM4NX_MOUSE_BUFSIZE sizeof(struct mouse_report_s)
+#  ifdef CONFIG_TWM4NX_MOUSE
+#    define CONFIG_TWM4NX_MOUSE_BUFSIZE sizeof(struct mouse_report_s)
+#  else
+#    define CONFIG_TWM4NX_MOUSE_BUFSIZE sizeof(SIZEOF_TOUCH_SAMPLE_S(1))
+#  endif
 #endif
 
 // Keyboard device ///////////////////////////////////////////////////////////

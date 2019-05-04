@@ -112,7 +112,7 @@ namespace Twm4Nx
       inline int keyboardOpen(void);
 
      /**
-       * Open the mouse input devices.  Not very interesting for the
+       * Open the mouse/touchscreen input device.  Not very interesting for the
        * case of standard character device but much more interesting for
        * USB mouse devices that may disappear when disconnected but later
        * reappear when reconnected.  In this case, this function will
@@ -138,11 +138,12 @@ namespace Twm4Nx
       inline int keyboardInput(void);
 
       /**
-       * Read data from the mouse device, update the cursor position, and
+       * Read data from the mouse/touchscreen device.  if the input device
+       * is a mouse, then update the cursor position.  And, in either case,
        * inject the mouse data into NX for proper distribution.
        *
-       * @return On success, then method returns a valid file descriptor.  A
-       *    negated errno value is returned if an irrecoverable error occurs.
+       * @return On success, then method returns zero (OK).  A negated errno
+       *   value is returned if an irrecoverable error occurs.
        */
 
       inline int mouseInput(void);

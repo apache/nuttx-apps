@@ -49,6 +49,11 @@
 #include <assert.h>
 
 #include <nuttx/nx/nxglib.h>
+#ifdef CONFIG_TWM4NX_MOUSE
+#  include <nuttx/input/mouse.h>
+#else
+#  include <nuttx/input/touchscreen.h>
+#endif
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
@@ -235,7 +240,7 @@ int CInput::keyboardOpen(void)
 }
 
 /**
- * Open the mouse input devices.  Not very interesting for the
+ * Open the mouse/touchscreen input devices.  Not very interesting for the
  * case of standard character device but much more interesting for
  * USB mouse devices that may disappear when disconnected but later
  * reappear when reconnected.  In this case, this function will
@@ -373,11 +378,12 @@ int CInput::keyboardInput(void)
 }
 
 /**
- * Read data from the mouse device, update the cursor position, and
- * inject the mouse data into NX for proper distribution.
+ * Read data from the mouse/touchscreen device.  if the input device is a
+ * mouse, then update the cursor position.  And, in either case, inject
+ * the mouse data into NX for proper distribution.
  *
- * @return On success, then method returns a valid file descriptor.  A
- *    negated errno value is returned if an irrecoverable error occurs.
+ * @return On success, then method returns zero (OK).  A negated errno
+ *   value is returned if an irrecoverable error occurs.
  */
 
 int CInput::mouseInput(void)
