@@ -111,7 +111,7 @@ namespace NxWM
     static FAR void *listener(FAR void *arg);
 
     /**
-     *  Inject touchscreen data into NX as mouse intput
+     *  Inject touchscreen data into NX as mouse input
      *
      * @param sample.  The buffer where data was collected.
      */
@@ -183,7 +183,7 @@ namespace NxWM
      * using the calibration data and forward to the NX layer which dispatches the
      * touchscreen events in window-relative positions to the correct NX window.
      *
-     * @param data.  A reference to the touchscreen data.
+     * @param caldata.  A reference to the touchscreen data.
      */
 
     void setCalibrationData(const struct SCalibrationData &caldata);
@@ -201,6 +201,7 @@ namespace NxWM
         {
           caldata = m_calibData;
         }
+
       return m_calibrated;
     }
 

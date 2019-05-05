@@ -271,6 +271,7 @@ namespace NxWM
 
     static FAR void *calibration(FAR void *arg);
 
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
     /**
      * Accumulate and average touch sample data
      *
@@ -278,7 +279,6 @@ namespace NxWM
      * @return True: Average data is available; False: Need to collect more samples
      */
 
-#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
     bool averageSamples(struct nxgl_point_s &average);
 #endif
 

@@ -139,18 +139,17 @@ namespace Twm4Nx
       /**
        * Create a new window and add it to the window list.
        *
-       * @param name      The window name
+       * @param name       The window name
        * @param sbitmap    The Icon bitmap
-       * @param isIconMgr Flag to tell if this is an icon manager window
-       * @param iconMgr   Pointer to icon manager instance
-       * @param noToolbar True: Don't add Title Bar
-       * @return          Reference to the allocated CWindow instance
+       * @param iconMgr    Pointer to icon manager instance
+       * @param flags Toolbar customizations see WFLAGS_NO_* definitions
+       * @return           Reference to the allocated CWindow instance
        */
 
       FAR CWindow *
         createWindow(FAR const char *name,
                      FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
-                     bool isIconMgr, FAR CIconMgr *iconMgr, bool noToolbar);
+                     FAR CIconMgr *iconMgr, uint8_t flags);
 
       /**
        * Handle the EVENT_WINDOW_DELETE event.  The logic sequence is as

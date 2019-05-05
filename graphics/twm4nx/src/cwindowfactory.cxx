@@ -100,17 +100,15 @@ CWindowFactory::~CWindowFactory(void)
  *
  * @param name       The window name
  * @param sbitmap    The Icon bitmap
- * @param isIconMgr  Flag to tell if this is an icon manager window
  * @param iconMgr    Pointer to icon manager instance
- * @param noToolbar  True: Don't add Title Bar
+ * @param flags Toolbar customizations see WFLAGS_NO_* definitions
  * @return           Reference to the allocated CWindow instance
  */
 
 FAR CWindow *
   CWindowFactory::createWindow(FAR const char *name,
                                FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
-                               bool isIconMgr, FAR CIconMgr *iconMgr,
-                               bool noToolbar)
+                               FAR CIconMgr *iconMgr, uint8_t flags)
 {
   twminfo("name=%p\n", name);
 
@@ -169,7 +167,7 @@ FAR CWindow *
           m_winpos.x, m_winpos.y, winsize.w, winsize.h);
 
   if (!win->cwin->initialize(name, &m_winpos, &winsize, sbitmap,
-                             isIconMgr, iconMgr, noToolbar))
+                             iconMgr, flags))
     {
       twmerr("ERROR: Failed to initialize CWindow\n");
       delete win->cwin;

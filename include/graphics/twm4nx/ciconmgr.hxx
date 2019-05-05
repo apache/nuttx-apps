@@ -113,7 +113,7 @@ namespace Twm4Nx
        * @param name  The prefix for this icon manager name
        */
 
-      bool createWindow(FAR const char *prefix);
+      bool createIconManagerWindow(FAR const char *prefix);
 
       /**
        * Create the button array widget

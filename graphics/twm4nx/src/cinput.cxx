@@ -103,6 +103,9 @@ CInput::CInput(CTwm4Nx *twm4nx)
   m_mouseFd     = -1;                  // Mouse/touchscreen driver is not opened
 #endif
   m_state       = LISTENER_NOTRUNNING; // The listener thread is not running yet
+#ifdef CONFIG_TWM4NX_TOUCHSCREEN
+  m_calib       = false;               // Use raw touches until calibrated
+#endif
 
   // Initialize the semaphore used to synchronize with the listener thread
 
@@ -143,6 +146,29 @@ CInput::~CInput(void)
     }
 #endif
 }
+
+#ifdef CONFIG_TWM4NX_TOUCHSCREEN
+/**
+ * Provide touchscreen calibration data.  If calibration data is received (and
+ * the touchscreen is enabled), then received touchscreen data will be scaled
+ * using the calibration data and forward to the NX layer which dispatches the
+ * touchscreen events in window-relative positions to the correct NX window.
+ *
+ * @param caldata.  A reference to the touchscreen data.
+ */
+
+void CInput::setCalibrationData(const struct SCalibrationData &caldata)
+{
+  // Save a copy of the calibration data
+
+  m_calData = caldata;
+
+  // Note that we have calibration data.  Data will now be scaled before being
+  // forwarded to NX
+
+   m_calib = true;
+}
+#endif
 
 /**
  * Start the keyboard listener thread.
@@ -417,6 +443,127 @@ int CInput::keyboardInput(void)
 #endif
 
 /**
+ * Calibrate raw touchscreen input.
+ *
+ * @param raw The raw touch sample
+ * @param scaled The location to return the scaled touch position
+ * @return On success, this method returns zero (OK).  A negated errno
+ *   value is returned if an irrecoverable error occurs.
+ */
+
+#ifdef CONFIG_TWM4NX_TOUCHSCREEN
+int CInput::scaleTouchData(FAR const struct touch_point_s &raw,
+                           FAR struct nxgl_point_s &scaled)
+{
+#ifdef CONFIG_NXWM_CALIBRATION_ANISOTROPIC
+  // Create a line (varying in X) that have the same matching Y values
+  // X lines:
+  //
+  //   x2 = slope*y1 + offset
+  //
+  // X value calculated on the left side for the given value of y
+
+  float leftX  = raw.y * m_calData.left.slope + m_calData.left.offset;
+
+  // X value calculated on the right side for the given value of y
+
+  float rightX = raw.y * m_calData.right.slope + m_calData.right.offset;
+
+  // Line of X values between (m_calData.leftX,leftX) and
+  // (m_calData.rightX,rightX) the are possible solutions:
+  //
+  //  x2 = slope * x1 - offset
+
+  struct SCalibrationLine xLine;
+  xLine.slope  = (float)((int)m_calData.rightX -
+                         (int)m_calData.leftX) / (rightX - leftX);
+  xLine.offset = (float)m_calData.leftX - leftX * xLine.slope;
+
+  // Create a line (varying in Y) that have the same matching X value
+  // X lines:
+  //
+  //   y2 = slope*x1 + offset
+  //
+  // Y value calculated on the top side for a given value of X
+
+  float topY = raw.x * m_calData.top.slope + m_calData.top.offset;
+
+  // Y value calculated on the bottom side for a give value of X
+
+  float bottomY = raw.x * m_calData.bottom.slope +
+                  m_calData.bottom.offset;
+
+  // Line of Y values between (topy,m_calData.topY) and
+  // (bottomy,m_calData.bottomY) that are possible solutions:
+  //
+  //  y2 = slope * y1 - offset
+
+  struct SCalibrationLine yLine;
+  yLine.slope  = (float)((int)m_calData.bottomY -
+                         (int)m_calData.topY) / (bottomY - topY);
+  yLine.offset = (float)m_calData.topY - topY * yLine.slope;
+
+  // Then scale the raw x and y positions
+
+  float scaledX = raw.x * xLine.slope + xLine.offset;
+  float scaledY = raw.y * yLine.slope + yLine.offset;
+
+  scaled.x = (nxgl_coord_t)scaledX;
+  scaled.y = (nxgl_coord_t)scaledY;
+
+  twminfo("raw: (%6.2f, %6.2f) scaled: (%6.2f, %6.2f) (%d, %d)\n",
+          raw.x, raw.y, scaledX, scaledY, scaled.x, scaled.y);
+#else
+  // Get the fixed precision, scaled X and Y values
+
+  b16_t scaledX = raw.x * m_calData.xSlope + m_calData.xOffset;
+  b16_t scaledY = raw.y * m_calData.ySlope + m_calData.yOffset;
+
+  // Get integer scaled X and Y positions and clip
+  // to fix in the window
+
+  int32_t bigX = b16toi(scaledX + b16HALF);
+  int32_t bigY = b16toi(scaledY + b16HALF);
+
+  // Clip to the display
+
+  struct nxgl_size_s displaySize;
+  m_twm4nx->getDisplaySize(&displaySize);
+
+
+  if (bigX < 0)
+    {
+      scaled.x = 0;
+    }
+  else if (bigX >= displaySize.w)
+    {
+      scaled.x = displaySize.w - 1;
+    }
+  else
+    {
+      scaled.x = (nxgl_coord_t)bigX;
+    }
+
+  if (bigY < 0)
+    {
+      scaled.y = 0;
+    }
+  else if (bigY >= displaySize.h)
+    {
+      scaled.y = displaySize.h - 1;
+    }
+  else
+    {
+      scaled.y = (nxgl_coord_t)bigY;
+    }
+
+  twminfo("raw: (%d, %d) scaled: (%d, %d)\n",
+          raw.x, raw.y, scaled.x, scaled.y);
+#endif
+}
+#endif
+
+/**
  * Read data from the mouse/touchscreen device.  If the input device is a
  * mouse, then update the cursor position.  And, in either case, inject
  * the mouse data into NX for proper distribution.
@@ -430,7 +577,7 @@ int CInput::mouseInput(void)
 {
   // Read one mouse sample
 
-  twminfo("Reading mouse input\n");
+  twminfo("Reading XY input\n");
 
   uint8_t rxbuffer[CONFIG_TWM4NX_MOUSE_BUFSIZE];
   ssize_t nbytes = read(m_mouseFd, rxbuffer,
@@ -481,6 +628,9 @@ int CInput::mouseInput(void)
       FAR struct mouse_report_s *rpt =
         (FAR struct mouse_report_s *)rxbuffer;
 
+      twminfo("Mouse pos: (%d,%d) Buttons: %02x\n",
+              rtp->x, rpt->y, rpt->buttons);
+
       struct nxgl_point_s pos =
       {
         .x = rpt->x,
@@ -527,12 +677,64 @@ int CInput::mouseInput(void)
       // Inject the touchscreen as mouse input into NX (with the left
       // button pressed)
 
-      FAR struct touch_sample_s *rpt =
+      FAR struct touch_sample_s *sample =
         (FAR struct touch_sample_s *)rxbuffer;
 
+      // Have we received calibration data yet?
+
+      struct nxgl_point_s touchPos;
+      int ret;
+
+      if (m_calib)
+        {
+          // Yes.. scale the raw mouse input to fit the display
+
+          ret = scaleTouchData(sample->point[0], touchPos);
+          if (ret < 0)
+            {
+              twmerr("ERROR: scaleTouchData failed: %d\n", ret);
+              return ret;
+            }
+        }
+      else
+        {
+          // Hmm.. It is probably an error if no calibration data is
+          // provided.  However, it is also possible that the touch data as
+          // received does not require calibration.  We will just have to
+          // trust that the user knows what they are doing.
+
+          touchPos.x = sample->point[0].x;
+          touchPos.y = sample->point[0].y;
+        }
+
+      // Now we will inject the touchscreen into NX as mouse input.  First
+      // massage the data a little so that it behaves a little more like a
+      // mouse with only a left button
+      //
+      // Was the touch up or down?
+
+      uint8_t buttons;
+      if ((sample->point[0].flags & (TOUCH_DOWN | TOUCH_MOVE)) != 0)
+        {
+          buttons = MOUSE_BUTTON_1;
+        }
+      else if ((sample->point[0].flags & TOUCH_UP) != 0)
+        {
+          buttons = 0;
+        }
+      else
+        {
+          // The touch is neither up nor down. This should not happen
+
+          return -EIO;
+       }
+
+      twminfo("Touch pos: (%d,%d)->(%d,%d) Buttons: %02x\n",
+              sample->point[0].x, sample->point[0].y,
+              touchPos.x, touchPos.y, buttons);
+
       NXHANDLE server = m_twm4nx->getServer();
-      int ret = nx_mousein(server, rpt->point[0].x, rpt->point[0].y,
-                           MOUSE_BUTTON_1);
+      ret = nx_mousein(server, touchPos.x, touchPos.y, buttons);
       if (ret < 0)
         {
           twmerr("ERROR: nx_mousein failed: %d\n", ret);

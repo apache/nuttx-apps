@@ -295,7 +295,7 @@ void CIcon::up(FAR CWindow *cwin)
 /**
  * Take the window down.
  *
- * @param vwin The window to be taken down.
+ * @param cwin The window to be taken down.
  */
 
 void CIcon::down(FAR CWindow *cwin)

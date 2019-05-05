@@ -147,7 +147,7 @@ bool CIconMgr::initialize(FAR const char *prefix)
 
   // Create the icon manager window
 
-  if (!createWindow(prefix))
+  if (!createIconManagerWindow(prefix))
     {
       twmerr("ERROR:  Failed to create window\n");
       return false;
@@ -205,11 +205,12 @@ bool CIconMgr::add(FAR CWindow *cwin)
 
   insertEntry(wentry, cwin);
 
-  // The height of one row is determined (mostly) by the font height
+  // The height of one row of the Icon Manager Window is determined (mostly)
+  // by the font height
 
   nxgl_coord_t rowHeight = getRowHeight();
 
-  // Increase the icon window size
+  // Increase the Icon Manager window size, if necessary
 
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
@@ -218,8 +219,12 @@ bool CIconMgr::add(FAR CWindow *cwin)
     }
   else
     {
-      windowSize.h = rowHeight * m_nWindows;
-      m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()
+      nxgl_coord_t newHeight = rowHeight * m_nWindows;
+      if (newHeight != windowSize.h)
+        {
+          windowSize.h = rowHeight * m_nWindows;
+          m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()
+        }
     }
 
   // Increment the window count
@@ -499,7 +504,7 @@ nxgl_coord_t CIconMgr::getRowHeight(void)
  * @param name  The prefix for this icon manager name
  */
 
-bool CIconMgr::createWindow(FAR const char *prefix)
+bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
 {
   static FAR const char *rootName = "Icon Manager";
 
@@ -514,12 +519,22 @@ bool CIconMgr::createWindow(FAR const char *prefix)
 
   FAR const char *name = (allocName == (FAR char *)0) ? rootName : allocName;
 
-  // Create the icon manager window
+  // Create the icon manager window.  Customizations:
+  //
+  // WFLAGS_NO_MENU_BUTTON:   There is no menu associated with the Icon
+  //                          Manager
+  // WFLAGS_NO_DELETE_BUTTON: The user cannot delete the Icon Manager window
+  // WFLAGS_NO_RESIZE_BUTTON: The user cannot control the Icon Manager
+  //                          window size
+  // WFLAGS_IS_ICONMGR:       Yes, this is the Icon Manager window
 
   CWindowFactory *factory = m_twm4nx->getWindowFactory();
 
+  uint8_t wflags = (WFLAGS_NO_MENU_BUTTON | WFLAGS_NO_DELETE_BUTTON |
+                    WFLAGS_NO_RESIZE_BUTTON | WFLAGS_IS_ICONMGR);
+
   m_window = factory->createWindow(name, &CONFIG_TWM4NX_ICONMGR_IMAGE,
-                                   true, this, false);
+                                   this, wflags);
 
   if (m_window == (FAR CWindow *)0)
     {

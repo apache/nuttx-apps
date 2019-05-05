@@ -186,7 +186,13 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
     {
       case EVENT_BACKGROUND_POLL:      // Poll for icon events
         {
-#warning Missing logic
+          NXWidgets::CWidgetControl *control =
+            m_backWindow->getWidgetControl();
+
+          // pollEvents() returns true if any interesting event occurred.
+          // false is not a failure.
+
+          (void)control->pollEvents();
         }
         break;
 

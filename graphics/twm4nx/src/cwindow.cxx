@@ -148,13 +148,13 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_tbHeight             = 0;             // Height of the toolbar
   m_tbLeftX              = 0;             // Temporaries
   m_tbRightX             = 0;
+  m_tbFlags              = 0;             // No customizations
 
   // Icons/Icon Manager
 
   m_iconBitMap           = (FAR NXWidgets::CRlePaletteBitmap *)0;
   m_iconWidget           = (FAR CIconWidget *)0;
   m_iconMgr              = (FAR CIconMgr *)0;
-  m_isIconMgr            = false;
   m_iconOn               = false;
   m_iconified            = false;
 
@@ -187,9 +187,8 @@ CWindow::~CWindow(void)
  * @param pos       The initialize position of the window
  * @param size      The initial size of the window
  * @param sbitmap   The Icon bitmap image
- * @param isIconMgr Flag to tell if this is an icon manager window
  * @param iconMgr   Pointer to icon manager instance
- * @param noToolbar True: Don't add Title Bar
+ * @param flags     Toolbar customizations see WFLAGS_NO_* definition
  * @return True if the window was successfully initialize; false on
  *   any failure,
  */
@@ -198,8 +197,7 @@ bool CWindow::initialize(FAR const char *name,
                          FAR const struct nxgl_point_s *pos,
                          FAR const struct nxgl_size_s *size,
                          FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
-                         bool isIconMgr, FAR CIconMgr *iconMgr,
-                         bool noToolbar)
+                         FAR CIconMgr *iconMgr,  uint8_t flags)
 {
   // Open a message queue to send fully digested NxWidget events.
 
@@ -213,8 +211,7 @@ bool CWindow::initialize(FAR const char *name,
       return false;
     }
 
-  m_isIconMgr = isIconMgr;
-  m_iconMgr   = iconMgr;
+  m_iconMgr = iconMgr;
 
   if (name == (FAR const char *)0)
     {
@@ -260,9 +257,10 @@ bool CWindow::initialize(FAR const char *name,
     }
 
   m_tbHeight = 0;
+  m_tbFlags  = flags;
   m_toolbar  = (FAR NXWidgets::CNxToolbar *)0;
 
-  if (!noToolbar)
+  if (WFLAGS_HAVE_TOOLBAR(flags))
     {
       // Toolbar height should be based on size of images and fonts.
 
@@ -284,7 +282,7 @@ bool CWindow::initialize(FAR const char *name,
 
       // Add buttons to the toolbar
 
-      if (!createToolbarButtons())
+      if (!createToolbarButtons(flags))
         {
           twmerr("ERROR: createToolbarButtons() failed\n");
           cleanup();
@@ -421,7 +419,7 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
 
   m_nxWin->synchronize();
 
-  // Then update the toolbar layout
+  // Then update the toolbar layout (if there is one)
 
   return updateToolbarLayout();
 }
@@ -534,6 +532,26 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
             m_nxWin->modal(m_modal);
           }
 
+        break;
+
+      case EVENT_TOOLBAR_MENU:       // Toolbar menu button released
+        {
+          // REVISIT:  Not yet implemented (but don't raise an error)
+        }
+        break;
+
+      case EVENT_TOOLBAR_MINIMIZE:   // Toolbar minimize button released
+        {
+          // Minimize (iconify) the window
+
+          iconify();
+        }
+        break;
+
+      case EVENT_TOOLBAR_RESIZE:     // Toolbar resize button released
+        {
+          // REVISIT:  Not yet implemented (but don't raise an error)
+        }
         break;
 
       case EVENT_TOOLBAR_TERMINATE:  // Toolbar terminate button pressed
@@ -761,7 +779,8 @@ bool CWindow::updateToolbarLayout(void)
   m_tbRightX = 0;
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
-      if (GToolBarInfo[btindex].rightSide)
+      if (m_tbButtons[btindex] != (FAR NXWidgets::CImage *)0 &&
+          GToolBarInfo[btindex].rightSide)
         {
           FAR NXWidgets::CImage *cimage = m_tbButtons[btindex];
 
@@ -813,8 +832,11 @@ bool CWindow::disableWidgets(void)
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
       FAR NXWidgets::CImage *cimage = m_tbButtons[btindex];
-      cimage->disableDrawing();
-      cimage->setRaisesEvents(false);
+      if (cimage != (FAR NXWidgets::CImage *)0)
+        {
+          cimage->disableDrawing();
+          cimage->setRaisesEvents(false);
+        }
     }
 
   m_tbTitle->disableDrawing();
@@ -831,9 +853,12 @@ bool CWindow::enableWidgets(void)
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
       FAR NXWidgets::CImage *cimage = m_tbButtons[btindex];
-      cimage->enableDrawing();
-      cimage->setRaisesEvents(true);
-      cimage->redraw();
+      if (cimage != (FAR NXWidgets::CImage *)0)
+        {
+          cimage->enableDrawing();
+          cimage->setRaisesEvents(true);
+          cimage->redraw();
+        }
     }
 
   m_tbTitle->enableDrawing();
@@ -844,9 +869,13 @@ bool CWindow::enableWidgets(void)
 
 /**
  * Create all toolbar buttons
+ *
+ * @param flags Toolbar customizations see WFLAGS_NO_* definitions
+ * @return True if the window was successfully initialize; false on
+ *   any failure,
  */
 
-bool CWindow::createToolbarButtons(void)
+bool CWindow::createToolbarButtons(uint8_t flags)
 {
   struct nxgl_size_s winsize;
   if (!getWindowSize(&winsize))
@@ -862,6 +891,17 @@ bool CWindow::createToolbarButtons(void)
 
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
+      // Check if this button is omitted by toolbar customizations
+
+      if ((m_tbFlags & (1 << btindex)) != 0)
+        {
+          // Omitted.. skip to the next button
+
+          continue;
+        }
+
+      // Create the bitmap instance
+
       FAR const NXWidgets::SRlePaletteBitmap *sbitmap =
         GToolBarInfo[btindex].bitmap;
 
@@ -1240,7 +1280,8 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
     {
       // Check if the widget is clicked
 
-      if (m_tbButtons[btindex]->isClicked())
+      if (m_tbButtons[btindex] != (FAR NXWidgets::CImage *)0 &&
+          m_tbButtons[btindex]->isClicked())
         {
           // Yes.. generate the event
 
