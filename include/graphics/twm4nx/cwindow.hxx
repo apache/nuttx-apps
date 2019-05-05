@@ -214,16 +214,16 @@ namespace Twm4Nx
       bool updateToolbarLayout(void);
 
       /**
-       * Disable widget drawing and widget events.
+       * Disable toolbar widget drawing and widget events.
        */
 
-      bool disableWidgets(void);
+      bool disableToolbarWidgets(void);
 
       /**
-       * Enable widget drawing and widget events.
+       * Enable toolbar widget drawing and widget events.
        */
 
-      bool enableWidgets(void);
+      bool enableToolbarWidgets(void);
 
       /**
        * After the toolbar was grabbed, it may be dragged then dropped, or it

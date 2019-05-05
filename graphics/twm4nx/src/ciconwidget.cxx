@@ -181,7 +181,12 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
       return false;
     }
 
+  // Configure the image
+
   image->setBorderless(true);
+  image->disable();
+  image->disableDrawing();
+  image->setRaisesEvents(true);
 
   // Get the position icon text, centering horizontally if the image
   // width is larger than the text width
@@ -208,7 +213,13 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
       return false;
     }
 
+  // Configure the icon label
+
+  label->setFont(iconFont);
   label->setBorderless(true);
+  label->disable();
+  label->disableDrawing();
+  label->setRaisesEvents(true);
 
   // Add the CImage to to the containing widget
 
@@ -577,17 +588,4 @@ bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
   return false;
-}
-
-/**
- * Draw the area of this widget that falls within the clipping region.
- * Called by the redraw() function to draw all visible regions.
- * @param port The NXWidgets::CGraphicsPort to draw to.
- * @see redraw()
- */
-
-void CIconWidget::drawContents(NXWidgets::CGraphicsPort *port)
-{
-  port->drawFilledRect(getX(), getY(), getWidth(), getHeight(),
-                       getBackgroundColor());
 }

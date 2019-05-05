@@ -188,15 +188,6 @@ namespace Twm4Nx
       bool iconUngrab(FAR struct SEventMsg *eventmsg);
 
       /**
-       * Draw the area of this widget that falls within the clipping region.
-       * Called by the redraw() function to draw all visible regions.
-       * @param port The NXWidgets::CGraphicsPort to draw to.
-       * @see redraw()
-       */
-
-      void drawContents(NXWidgets::CGraphicsPort* port);
-
-      /**
        * Copy constructor is protected to prevent usage.
        */
 

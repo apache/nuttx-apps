@@ -332,7 +332,15 @@ bool CWindow::initialize(FAR const char *name,
       return false;
     }
 
-  enableWidgets();
+  // Initialize the icon widget
+
+  m_iconWidget->disable();
+  m_iconWidget->disableDrawing();
+  m_iconWidget->setRaisesEvents(true);
+
+  // Re-enable toolbar widgets
+
+  enableToolbarWidgets();
   return true;
 }
 
@@ -473,11 +481,16 @@ void CWindow::iconify(void)
       m_modal = false;
       m_nxWin->modal(false);
 
-      // Raise the icon window and lower the main window
+      // Enable and redraw the icon widget and lower the main window
 
       m_iconified = true;
       m_nxWin->lower();
+
       m_iconOn = true;
+      m_iconWidget->enable();
+      m_iconWidget->enableDrawing();
+      m_iconWidget->redraw();
+
       m_nxWin->synchronize();
     }
 }
@@ -488,11 +501,15 @@ void CWindow::deIconify(void)
 
   if (isIconified())
     {
-      // Raise the main window and lower the icon window
+      // Raise the main window and hide the icon width
 
       m_iconified = false;
       m_nxWin->raise();
+
       m_iconOn = false;
+      m_iconWidget->disableDrawing();
+      m_iconWidget->disable();
+
       m_nxWin->synchronize();
     }
 }
@@ -769,9 +786,9 @@ bool CWindow::createToolbar(void)
 
 bool CWindow::updateToolbarLayout(void)
 {
-  // Disable widget drawing and events while we do this
+  // Disable toolbar widget drawing and events while we do this
 
-  disableWidgets();
+  disableToolbarWidgets();
 
   // Reposition all right buttons.  Change the width of the
   // toolbar does not effect the left side spacing.
@@ -819,15 +836,15 @@ bool CWindow::updateToolbarLayout(void)
   titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_FRAME_VSPACING + 1;
 
   bool success = m_tbTitle->resize(titleSize.w, titleSize.h);
-  enableWidgets();
+  enableToolbarWidgets();
   return success;
 }
 
 /**
- * Disable widget drawing and widget events.
+ * Disable toolbar widget drawing and widget events.
  */
 
-bool CWindow::disableWidgets(void)
+bool CWindow::disableToolbarWidgets(void)
 {
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
@@ -845,10 +862,10 @@ bool CWindow::disableWidgets(void)
 }
 
 /**
- * Enable widget drawing and widget events.
+ * Enable toolbar widget drawing and widget events.
  */
 
-bool CWindow::enableWidgets(void)
+bool CWindow::enableToolbarWidgets(void)
 {
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
@@ -1434,7 +1451,7 @@ bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
   // Restore the normal cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
-  return false;
+  return true;
 }
 
 /**
