@@ -333,32 +333,6 @@ bool CNxTkWindow::setSize(FAR const struct nxgl_size_s *size)
 }
 
 /**
- * Bring the window to the top of the display.
- *
- * @return True on success, false on any failure.
- */
-
-bool CNxTkWindow::raise(void)
-{
-  // Raise the window to the top of the display
-
-  return nxtk_raise(m_hNxTkWindow) == OK;
-}
-
-/**
- * Lower the window to the bottom of the display.
- *
- * @return True on success, false on any failure.
- */
-
-bool CNxTkWindow::lower(void)
-{
-  // Lower the window to the bottom of the display
-
-  return nxtk_lower(m_hNxTkWindow) == OK;
-}
-
-/**
  * May be used to either (1) raise a window to the top of the display and
  * select modal behavior, or (2) disable modal behavior.
  *

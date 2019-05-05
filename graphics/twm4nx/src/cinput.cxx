@@ -513,6 +513,7 @@ int CInput::scaleTouchData(FAR const struct touch_point_s &raw,
 
   twminfo("raw: (%6.2f, %6.2f) scaled: (%6.2f, %6.2f) (%d, %d)\n",
           raw.x, raw.y, scaledX, scaledY, scaled.x, scaled.y);
+  return OK;
 #else
   // Get the fixed precision, scaled X and Y values
 
@@ -559,6 +560,7 @@ int CInput::scaleTouchData(FAR const struct touch_point_s &raw,
 
   twminfo("raw: (%d, %d) scaled: (%d, %d)\n",
           raw.x, raw.y, scaled.x, scaled.y);
+  return OK;
 #endif
 }
 #endif

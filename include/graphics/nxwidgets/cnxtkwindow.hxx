@@ -232,7 +232,10 @@ namespace NXWidgets
      * @return True on success, false on any failure.
      */
 
-    bool raise(void);
+    inline bool raise(void)
+    {
+      return nxtk_raise(m_hNxTkWindow) == OK;
+    }
 
     /**
      * Lower the window to the bottom of the display.
@@ -240,7 +243,32 @@ namespace NXWidgets
      * @return True on success, false on any failure.
      */
 
-    bool lower(void);
+    inline bool lower(void)
+    {
+      return nxtk_lower(m_hNxTkWindow) == OK;
+    }
+
+    /**
+     * Show a hidden window
+     *
+     * @return True on success, false on any failure.
+     */
+
+    inline bool show(void)
+    {
+      return nxtk_setvisibility(m_hNxTkWindow, false) == OK;
+    }
+
+    /**
+     * Hide a visible window
+     *
+     * @return True on success, false on any failure.
+     */
+
+    inline bool hide(void)
+    {
+      return nxtk_setvisibility(m_hNxTkWindow, true) == OK;
+    }
 
     /**
      * May be used to either (1) raise a window to the top of the display and

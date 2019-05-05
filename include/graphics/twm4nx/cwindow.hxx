@@ -470,6 +470,23 @@ namespace Twm4Nx
       }
 
       /**
+       * Show a hidden window
+       */
+
+      inline bool showWindow(void)
+      {
+        return m_nxWin->show();
+      }
+      /**
+       * Hide a visible window
+       */
+
+      inline bool hideWindow(void)
+      {
+        return m_nxWin->hide();
+      }
+
+      /**
        * Convert the position of a primary window to the position of
        * the containing frame.
        */

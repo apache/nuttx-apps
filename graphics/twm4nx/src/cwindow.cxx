@@ -481,10 +481,12 @@ void CWindow::iconify(void)
       m_modal = false;
       m_nxWin->modal(false);
 
-      // Enable and redraw the icon widget and lower the main window
+      // Hide the main window
 
       m_iconified = true;
-      m_nxWin->lower();
+      m_nxWin->hide();
+
+      // Enable and redraw the icon widget and lower the main window
 
       m_iconOn = true;
       m_iconWidget->enable();
@@ -501,10 +503,12 @@ void CWindow::deIconify(void)
 
   if (isIconified())
     {
-      // Raise the main window and hide the icon width
+      // Raise and the main window
 
       m_iconified = false;
-      m_nxWin->raise();
+      m_nxWin->show();
+
+      // Hide the icon widget
 
       m_iconOn = false;
       m_iconWidget->disableDrawing();

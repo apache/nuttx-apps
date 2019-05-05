@@ -194,32 +194,6 @@ bool CNxWindow::setSize(FAR const struct nxgl_size_s *pSize)
 }
 
 /**
- * Bring the window to the top of the display.
- *
- * @return True on success, false on any failure.
- */
-
-bool CNxWindow::raise(void)
-{
-  // Raise the window to the top of the display
-
-  return nx_raise(m_hNxWindow) == OK;
-}
-
-/**
- * Lower the window to the bottom of the display.
- *
- * @return True on success, false on any failure.
- */
-
-bool CNxWindow::lower(void)
-{
-  // Lower the window to the bottom of the display
-
-  return nx_lower(m_hNxWindow) == OK;
-}
-
-/**
  * May be used to either (1) raise a window to the top of the display and
  * select modal behavior, or (2) disable modal behavior.
  *

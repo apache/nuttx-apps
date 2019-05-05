@@ -229,6 +229,32 @@ namespace NXWidgets
     }
 
     /**
+     * Show a hidden window
+     *
+     * @return Always returns false.
+     */
+
+    inline bool show(void)
+    {
+      // The background is always visible (although perhaps obscured)
+
+      return false;
+    }
+
+    /**
+     * Hide a visible window
+     *
+     * @return Always returns false.
+     */
+
+    inline bool hide(void)
+    {
+      // The background cannot be hidden
+
+      return false;
+    }
+
+    /**
      * May be used to either (1) raise a window to the top of the display and
      * select modal behavior, or (2) disable modal behavior.  NOTE:  The
      * background cannot be a modal window.
