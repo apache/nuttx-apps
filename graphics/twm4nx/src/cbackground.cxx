@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cbackground.hxx
+// apps/graphics/twm4nx/include/cbackground.cxx
 // Manage background image
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
@@ -165,6 +165,68 @@ void CBackground::getDisplaySize(FAR struct nxgl_size_s &size)
   // And return the size of the window
 
   rect.getSize(size);
+}
+
+/**
+ * Handle the background window redraw.
+ *
+ * @param nxRect The region in the window that must be redrawn.
+ * @param more True means that more re-draw requests will follow
+ * @return true on success
+ */
+
+bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
+                                         bool more)
+{
+  twminfo("Redrawing..\n");
+
+  // Get the widget control from the background window
+
+  NXWidgets::CWidgetControl *control = m_backWindow->getWidgetControl();
+
+  // Get the graphics port for drawing on the background window
+
+  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
+
+  // Get the size of the region to redraw
+
+  struct nxgl_size_s redrawSize;
+  redrawSize.w = rect->pt2.x - rect->pt1.x + 1;
+  redrawSize.h = rect->pt2.y - rect->pt1.y + 1;
+
+  // Fill the redraw region with the background color
+
+  port->drawFilledRect(rect->pt1.x, rect->pt1.y,
+                       redrawSize.w, redrawSize.h,
+                       CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR);
+
+  if (m_backImage != (NXWidgets::CImage *)0)
+    {
+      // Does any part of the image need to be redrawn?
+
+      FAR NXWidgets::CRect cimageRect = m_backImage->getBoundingBox();
+
+      struct nxgl_rect_s imageRect;
+      cimageRect.getNxRect(&imageRect);
+
+      struct nxgl_rect_s intersection;
+      nxgl_rectintersect(&intersection, rect, &imageRect);
+
+      if (!nxgl_nullrect(&intersection))
+        {
+          // Then re-draw the background image on the window
+
+          m_backImage->enableDrawing();
+          m_backImage->redraw();
+        }
+    }
+
+  // Now redraw any background icons that need to be redrawn
+
+  FAR CIcon *cicon = m_twm4nx->getIcon();
+  cicon->redrawIcons(rect, more);
+
+  return true;
 }
 
 /**
@@ -353,67 +415,5 @@ bool CBackground::
   m_backImage->enable();
   m_backImage->enableDrawing();
   m_backImage->redraw();
-  return true;
-}
-
-/**
- * Handle the background window redraw.
- *
- * @param nxRect The region in the window that must be redrawn.
- * @param more True means that more re-draw requests will follow
- * @return true on success
- */
-
-bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
-                                         bool more)
-{
-  twminfo("Redrawing..\n");
-
-  // Get the widget control from the background window
-
-  NXWidgets::CWidgetControl *control = m_backWindow->getWidgetControl();
-
-  // Get the graphics port for drawing on the background window
-
-  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
-
-  // Get the size of the region to redraw
-
-  struct nxgl_size_s redrawSize;
-  redrawSize.w = rect->pt2.x - rect->pt1.x + 1;
-  redrawSize.h = rect->pt2.y - rect->pt1.y + 1;
-
-  // Fill the redraw region with the background color
-
-  port->drawFilledRect(rect->pt1.x, rect->pt1.y,
-                       redrawSize.w, redrawSize.h,
-                       CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR);
-
-  if (m_backImage != (NXWidgets::CImage *)0)
-    {
-      // Does any part of the image need to be redrawn?
-
-      FAR NXWidgets::CRect cimageRect = m_backImage->getBoundingBox();
-
-      struct nxgl_rect_s imageRect;
-      cimageRect.getNxRect(&imageRect);
-
-      struct nxgl_rect_s intersection;
-      nxgl_rectintersect(&intersection, rect, &imageRect);
-
-      if (!nxgl_nullrect(&intersection))
-        {
-          // Then re-draw the background image on the window
-
-          m_backImage->enableDrawing();
-          m_backImage->redraw();
-        }
-    }
-
-  // Now redraw any background icons that need to be redrawn
-
-  FAR CIcon *cicon = m_twm4nx->getIcon();
-  cicon->redrawIcons(rect, more);
-
   return true;
 }

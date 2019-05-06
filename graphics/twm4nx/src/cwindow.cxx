@@ -325,7 +325,7 @@ bool CWindow::initialize(FAR const char *name,
       return false;
     }
 
-  if (!m_iconWidget->initialize(m_iconBitMap, m_name))
+  if (!m_iconWidget->initialize(this, m_iconBitMap, m_name))
     {
       twmerr("ERROR: Failed to initialize the icon widget\n");
       cleanup();
@@ -508,11 +508,31 @@ void CWindow::deIconify(void)
       m_iconified = false;
       m_nxWin->show();
 
-      // Hide the icon widget
+      // Disable the icon widget
 
       m_iconOn = false;
       m_iconWidget->disableDrawing();
       m_iconWidget->disable();
+
+      // Redraw the background window in the rectangle previously occupied
+      // by the widget.
+
+      struct nxgl_size_s size;
+      m_iconWidget->getSize(size);
+
+      struct nxgl_rect_s rect;
+      m_iconWidget->getPos(rect.pt1);
+
+      rect.pt2.x = rect.pt1.x + size.w - 1;
+      rect.pt2.y = rect.pt1.y + size.h - 1;
+
+      FAR CBackground *backgd = m_twm4nx->getBackground();
+      if (!backgd->redrawBackgroundWindow(&rect, false))
+        {
+          gerr("ERROR: redrawBackgroundWindow() failed\n");
+        }
+
+      // Make sure everything is in sync
 
       m_nxWin->synchronize();
     }
@@ -1111,7 +1131,7 @@ bool CWindow::createToolbarTitle(FAR const char *name)
 
 /**
  * After the toolbar was grabbed, it may be dragged then dropped, or it
- * may be simply "un-grabbed". Both cases are handled here.
+ * may be simply "un-grabbed".  Both cases are handled here.
  *
  * NOTE: Unlike the other event handlers, this does NOT override any
  * virtual event handling methods.  It just combines some common event-
@@ -1122,10 +1142,6 @@ bool CWindow::createToolbarTitle(FAR const char *name)
 
 void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Exit the dragging state
-
-  m_drag = false;
-
   // Generate the un-grab event
 
   struct SEventMsg msg;

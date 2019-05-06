@@ -169,6 +169,11 @@ namespace NXWidgets
 
     nxgl_coord_t getStringWidth(const CNxString &text) const;
 
+    inline nxgl_coord_t getStringWidth(FAR const CNxString *text) const
+    {
+      return getStringWidth(*text);
+    }
+
     /**
      * Get the width of a portion of a string in pixels when drawn with this
      * font.
@@ -179,8 +184,14 @@ namespace NXWidgets
      * @return The width of the substring in pixels.
      */
 
-    nxgl_coord_t getStringWidth(const CNxString& text,
+    nxgl_coord_t getStringWidth(const CNxString &text,
                                 int startIndex, int length) const;
+
+    inline nxgl_coord_t getStringWidth(FAR const CNxString *text,
+                                      int startIndex, int length) const
+    {
+      return getStringWidth(*text, startIndex, length);
+    }
 
     /**
      * Gets font metrics for a particular character

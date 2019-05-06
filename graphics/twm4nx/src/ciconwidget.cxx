@@ -56,12 +56,23 @@
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
+#include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
-// CIconWidget Definitions
+// Pre-processor Definitions
+/////////////////////////////////////////////////////////////////////////////
+
+// No additional vertical spacing is necessary because there is plenty of
+// space in the maximum font height
+
+#define ICONWIDGET_IMAGE_VSPACING 2  // Lines between image and upper text
+#define ICONWIDGET_TEXT_VSPACING  0  // Lines betweern upper and lower text
+
+/////////////////////////////////////////////////////////////////////////////
+// CIconWidget Method Implementations
 /////////////////////////////////////////////////////////////////////////////
 
 using namespace Twm4Nx;
@@ -84,13 +95,19 @@ CIconWidget::CIconWidget(FAR CTwm4Nx *twm4nx,
                          FAR NXWidgets::CWidgetStyle *style)
 : CNxWidget(widgetControl, x, y, 0, 0, WIDGET_BORDERLESS, style)
 {
-  m_twm4nx         = twm4nx;        // Save the Twm4Nx session instance
-  m_widgetControl  = widgetControl; // Save the widget control instance
-  m_eventq         = (mqd_t)-1;     // No widget message queue yet
+  m_twm4nx           = twm4nx;           // Save the Twm4Nx session instance
+  m_parent           = (FAR CWindow *)0; // No parent window yes
+  m_widgetControl    = widgetControl;    // Save the widget control instance
+  m_eventq           = (mqd_t)-1;        // No widget message queue yet
+
+  // Dragging
+
+  m_drag             = false;            // No drag in-progress */
+  m_moved            = false;            // Icon has not been moved */
 
   // Configure the widget
 
-  m_flags.borderless = true;        // The widget is borless (and transparent)
+  m_flags.borderless = true;             // The widget is borless (and transparent)
 }
 
 /**
@@ -112,12 +129,14 @@ CIconWidget::~CIconWidget(void)
  * Perform widget initialization that could fail and so it not appropriate
  * for the constructor
  *
+ * @param parent The parent window.  Needed for de-iconification.
  * @param ibitmap The bitmap image representing the icon
  * @param title The icon title string
  * @return True is returned if the widget is successfully initialized.
  */
 
-bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
+bool CIconWidget::initialize(FAR CWindow *parent,
+                             FAR NXWidgets::IBitmap *ibitmap,
                              FAR const NXWidgets::CNxString &title)
 {
   // Open a message queue to send fully digested NxWidget events.
@@ -138,20 +157,99 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
   iconImageSize.w = ibitmap->getWidth();
   iconImageSize.h = ibitmap->getHeight();
 
-  // Get the size of the Icon name
+  // Get the size of the Icon title
 
   FAR CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *iconFont = fonts->getIconFont();
 
-  struct nxgl_size_s iconLabelSize;
-  iconLabelSize.w  = iconFont->getStringWidth(title);
-  iconLabelSize.h  = iconFont->getHeight();
+  struct nxgl_size_s titleSize;
+  titleSize.w  = iconFont->getStringWidth(title);
+  titleSize.h  = iconFont->getHeight();
+
+  // Divide long Icon names into two lines
+
+  FAR NXWidgets::CNxString topString;
+  struct nxgl_size_s iconTopLabelSize;
+
+  FAR NXWidgets::CNxString bottomString;
+  struct nxgl_size_s iconBottomLabelSize;
+  iconBottomLabelSize.w = 0;
+  iconBottomLabelSize.h = 0;
+
+  int sIndex = title.indexOf(' ');
+  if (titleSize.w <= iconImageSize.w || sIndex < 0)
+    {
+      // The icon title is short or contains no simple dividing point
+
+      topString.setText(title);
+      iconTopLabelSize.w = titleSize.w;
+      iconTopLabelSize.h = titleSize.h;
+    }
+  else
+    {
+      // Try dividing the string
+
+      nxgl_coord_t halfWidth = titleSize.w / 2;
+
+      nxgl_coord_t sWidth =
+        iconFont->getStringWidth(title.subString(0, sIndex));
+
+      nxgl_coord_t error = halfWidth - sWidth;
+      if (error < 0)
+        {
+          error = -error;
+        }
+
+      int index;
+      while ((index = title.indexOf(' ', sIndex + 1)) > 0)
+        {
+          // Which is the better division point?  index or SIndex?
+
+          nxgl_coord_t width =
+            iconFont->getStringWidth(title.subString(0, index));
+
+          nxgl_coord_t tmperr = halfWidth - width;
+          if (tmperr < 0)
+            {
+              tmperr = -tmperr;
+            }
+
+          // Break out if the errors are becoming larger
+
+          if (tmperr >= error)
+            {
+              break;
+            }
+
+          error  = tmperr;
+          sIndex = index;
+        }
+
+      topString.setText(title.subString(0, sIndex));
+      iconTopLabelSize.w    = iconFont->getStringWidth(topString);
+      iconTopLabelSize.h    = iconFont->getHeight();
+
+      bottomString.setText(title.subString(sIndex + 1));
+      iconBottomLabelSize.w = iconFont->getStringWidth(bottomString);
+      iconBottomLabelSize.h = iconFont->getHeight();
+    }
 
   // Determine the new size of the containing widget
 
+  nxgl_coord_t maxLabelWidth = ngl_max(iconTopLabelSize.w,
+                                       iconBottomLabelSize.w);
+
   struct nxgl_size_s iconWidgetSize;
-  iconWidgetSize.w = ngl_max(iconImageSize.w, iconLabelSize.w);
-  iconWidgetSize.h = iconImageSize.h + iconLabelSize.h + 2;
+  iconWidgetSize.w = ngl_max(iconImageSize.w, maxLabelWidth);
+  iconWidgetSize.h = iconImageSize.h + iconTopLabelSize.h +
+                     ICONWIDGET_IMAGE_VSPACING;
+
+  // Check if there is a bottom label
+
+  if (iconBottomLabelSize.h > 0)
+    {
+      iconWidgetSize.h += iconBottomLabelSize.h + ICONWIDGET_TEXT_VSPACING;
+    }
 
   // Update the widget size
 
@@ -164,9 +262,9 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
   iconImagePos.x = 0;
   iconImagePos.y = 0;
 
-  if (iconLabelSize.w > (iconImageSize.w + 1))
+  if (iconImageSize.w < (maxLabelWidth + 1))
     {
-      iconImagePos.x = (iconLabelSize.w - iconImageSize.w) / 2;
+      iconImagePos.x = (maxLabelWidth - iconImageSize.w) / 2;
     }
 
   // Create a new CImage to hold the bitmap image
@@ -184,50 +282,102 @@ bool CIconWidget::initialize(FAR NXWidgets::IBitmap *ibitmap,
   // Configure the image
 
   image->setBorderless(true);
-  image->disable();
+  image->enable();
   image->disableDrawing();
   image->setRaisesEvents(true);
-
-  // Get the position icon text, centering horizontally if the image
-  // width is larger than the text width
-
-  struct nxgl_point_s iconLabelPos;
-  iconLabelPos.x = 0;
-  iconLabelPos.y = iconImageSize.h + 2;
-
-  if (iconImageSize.w > (iconLabelSize.w + 1))
-    {
-      iconLabelPos.x = (iconImageSize.w - iconLabelSize.w) / 2;
-    }
-
-  // Create a new CLabel to hold the icon text
-
-  FAR NXWidgets::CLabel *label =
-    new NXWidgets::CLabel(m_widgetControl, iconLabelPos.x, iconLabelPos.y,
-                          iconLabelSize.w, iconLabelSize.h, title,
-                          &m_style);
-  if (label == (FAR NXWidgets::CLabel *)0)
-    {
-      twmerr("ERROR: Failed to create icon label\n");
-      delete image;
-      return false;
-    }
-
-  // Configure the icon label
-
-  label->setFont(iconFont);
-  label->setBorderless(true);
-  label->disable();
-  label->disableDrawing();
-  label->setRaisesEvents(true);
 
   // Add the CImage to to the containing widget
 
   image->addWidgetEventHandler(this);
   addWidget(image);
 
-  label->addWidgetEventHandler(this);
-  addWidget(label);
+  // Get the position upper icon title, centering horizontally if the image
+  // width is larger than the text width
+
+  struct nxgl_point_s iconTopLabelPos;
+  iconTopLabelPos.x = 0;
+  iconTopLabelPos.y = iconImageSize.h + ICONWIDGET_IMAGE_VSPACING;
+
+  if (iconWidgetSize.w > (iconTopLabelSize.w + 1))
+    {
+      iconTopLabelPos.x = (iconWidgetSize.w - iconTopLabelSize.w) / 2;
+    }
+
+  // Create a new CLabel to hold the upper icon title
+
+  FAR NXWidgets::CLabel *topLabel =
+    new NXWidgets::CLabel(m_widgetControl, iconTopLabelPos.x,
+                          iconTopLabelPos.y, iconTopLabelSize.w,
+                          iconTopLabelSize.h, topString, &m_style);
+  if (topLabel == (FAR NXWidgets::CLabel *)0)
+    {
+      twmerr("ERROR: Failed to create icon topLabel\n");
+      delete image;
+      return false;
+    }
+
+  // Configure the icon topLabel
+
+  topLabel->setFont(iconFont);
+  topLabel->setBorderless(true);
+  topLabel->enable();
+  topLabel->disableDrawing();
+  topLabel->setRaisesEvents(true);
+
+  // Add the top label to to the containing widget
+
+  topLabel->addWidgetEventHandler(this);
+  addWidget(topLabel);
+
+  // Check if there is a bottom label
+
+  if (iconBottomLabelSize.h > 0)
+    {
+      // Get the position lower icon title, centering horizontally if the image
+      // width is larger than the text width
+
+      struct nxgl_point_s iconBottomLabelPos;
+      iconBottomLabelPos.x = 0;
+      iconBottomLabelPos.y = iconImageSize.h + iconTopLabelSize.h +
+                             ICONWIDGET_IMAGE_VSPACING +
+                             ICONWIDGET_TEXT_VSPACING;
+
+      if (iconWidgetSize.w > (iconBottomLabelSize.w + 1))
+        {
+          iconBottomLabelPos.x = (iconWidgetSize.w - iconBottomLabelSize.w) / 2;
+        }
+
+      // Create a new CLabel to hold the lower icon title
+
+      FAR NXWidgets::CLabel *bottomLabel =
+        new NXWidgets::CLabel(m_widgetControl, iconBottomLabelPos.x,
+                              iconBottomLabelPos.y, iconBottomLabelSize.w,
+                              iconBottomLabelSize.h, bottomString,&m_style);
+      if (bottomLabel == (FAR NXWidgets::CLabel *)0)
+        {
+          twmerr("ERROR: Failed to create icon bottomLabel\n");
+          delete topLabel;
+          delete image;
+          return false;
+        }
+
+      // Configure the icon bottomLabel
+
+      bottomLabel->setFont(iconFont);
+      bottomLabel->setBorderless(true);
+      bottomLabel->enable();
+      bottomLabel->disableDrawing();
+      bottomLabel->setRaisesEvents(true);
+
+      // Add the top label to to the containing widget
+
+      bottomLabel->addWidgetEventHandler(this);
+      addWidget(bottomLabel);
+    }
+
+  // Save the parent window
+
+  m_parent = parent;
   return true;
 }
 
@@ -486,9 +636,11 @@ void CIconWidget::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e
 
 bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
 {
-  // Indicate that dragging has started.
+  // Indicate that dragging has started but the icon has not
+  // yet been moved.
 
-  m_drag = false;
+  m_drag  = true;
+  m_moved = false;
 
   // Get the icon position.
 
@@ -554,9 +706,27 @@ bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
           newpos.y = displaySize.h - m_dragCSize.h;
         }
 
-      // Set the new window position
+      // Check if the icon has moved
 
-      return moveTo(newpos.x, newpos.y);
+      struct nxgl_point_s oldpos;
+      getPos(oldpos);
+
+      if (oldpos.x != newpos.x || oldpos.y != newpos.y)
+        {
+          // Set the new window position
+
+          if (!moveTo(newpos.x, newpos.y))
+            {
+              gerr("ERROR: moveTo() failed\n");
+              return false;
+            }
+
+          // The icon was moved... we are really dragging!
+
+          m_moved = true;
+        }
+
+      return true;
     }
 
   return false;
@@ -573,19 +743,30 @@ bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
 
 bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
 {
-  // One last position update
+  // One last position update (but only if was previously moved)
 
-  if (!iconDrag(eventmsg))
+  if (m_moved && !iconDrag(eventmsg))
     {
       return false;
+    }
+
+  // Restore the normal cursor image
+
+  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
+
+  // There are two possibilities:  (1) The icon was moved.  In this case, we
+  // leave the icon up and in its new position.  Or (2) the icon was simply
+  // clicked in which case we need to de-iconify the window.
+
+  if (!m_moved)
+    {
+      m_parent->deIconify();
     }
 
   // Indicate no longer dragging
 
   m_drag = false;
+  m_moved = false;
 
-  // Restore the normal cursor image
-
-  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
-  return false;
+  return true;
 }

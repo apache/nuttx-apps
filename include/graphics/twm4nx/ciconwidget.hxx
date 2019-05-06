@@ -76,7 +76,8 @@ namespace NXWidgets
 
 namespace Twm4Nx
 {
-  class FAR CTwm4Nx;                    // Forward reference
+  class CTwm4Nx;                        // Forward reference
+  class CWindow;                        // Forward reference
 
   /**
    * Container class that holds the Icon image and table widgets
@@ -87,6 +88,7 @@ namespace Twm4Nx
   {
     protected:
       FAR CTwm4Nx                   *m_twm4nx;         /**< Cached Twm4Nx session */
+      FAR CWindow                   *m_parent;         /**< The parent window (for de-iconify) */
       mqd_t                          m_eventq;         /**< NxWidget event message queue */
       FAR NXWidgets::CWidgetControl *m_widgetControl;  /**< The controlling widget */
 
@@ -96,6 +98,7 @@ namespace Twm4Nx
       struct nxgl_point_s            m_dragOffset;     /**< Offset from mouse to window origin */
       struct nxgl_size_s             m_dragCSize;      /**< The grab cursor size */
       bool                           m_drag;           /**< Drag in-progress */
+      bool                           m_moved;          /**< Icon has been moved */
 
       /**
        * After the widget has been grabbed, it may be dragged then dropped,
@@ -225,12 +228,13 @@ namespace Twm4Nx
        * Perform widget initialization that could fail and so it not appropriate
        * for the constructor
        *
+       * @param parent The parent window.  Needed for de-iconification.
        * @param ibitmap The bitmap image representing the icon
        * @param title The icon title string
        * @return True is returned if the widget is successfully initialized.
        */
 
-      bool initialize(FAR NXWidgets::IBitmap *ibitmap,
+      bool initialize(FAR CWindow *parent, FAR NXWidgets::IBitmap *ibitmap,
                       FAR const NXWidgets::CNxString &title);
 
       /**

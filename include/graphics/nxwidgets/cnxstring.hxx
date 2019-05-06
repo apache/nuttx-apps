@@ -257,6 +257,11 @@ namespace NXWidgets
 
     void setText(const CNxString &text);
 
+    inline void setText(FAR const CNxString *text)
+    {
+      setText(*text);
+    }
+
     /**
      * Set the text in the string.
      *
@@ -433,7 +438,7 @@ namespace NXWidgets
      * substring.
      */
 
-    CNxString *subString(int startIndex) const;
+    FAR CNxString *subString(int startIndex) const;
 
     /**
      * Get a substring from this string.  It is the responsibility of the
@@ -445,7 +450,7 @@ namespace NXWidgets
      * substring.
      */
 
-    CNxString *subString(int startIndex, int length) const;
+    FAR CNxString *subString(int startIndex, int length) const;
 
     /**
      * Overloaded assignment operator.  Copies the data within the argument

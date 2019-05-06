@@ -102,16 +102,6 @@ namespace Twm4Nx
 
       bool createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
 
-      /**
-       * Handle the background window redraw.
-       *
-       * @param nxRect The region in the window to be redrawn
-       * @param more More redraw requests will follow
-       * @return true on success
-       */
-
-       bool redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect, bool more);
-
     public:
       /**
        * CBackground Constructor
@@ -156,6 +146,16 @@ namespace Twm4Nx
        */
 
       void getDisplaySize(FAR struct nxgl_size_s &size);
+
+      /**
+       * Handle the background window redraw.
+       *
+       * @param nxRect The region in the window to be redrawn
+       * @param more More redraw requests will follow
+       * @return true on success
+       */
+
+       bool redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect, bool more);
 
       /**
        * Handle EVENT_BACKGROUND events.
