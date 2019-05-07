@@ -94,6 +94,8 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
 
   // Menus
 
+  m_menuHead     = (FAR struct SMenuItem *)0;  // No menu items
+  m_menuTail     = (FAR struct SMenuItem *)0;  // No menu items
   m_popUpMenu    = (FAR CMenus *)0;            // No pop-up menu
   m_activeItem   = (FAR struct SMenuItem *)0;  // No active menu item
   m_nMenuItems   = 0;                          // No menu items yet
@@ -461,7 +463,8 @@ void CMenus::identify(FAR CWindow *cwin)
 }
 
 /**
- * Create the menu window
+ * Create the menu window.  Menu windows are always created in the hidden
+ * state.  When the menu is selected, then it should be shown.
  *
  * @result True is returned on success
  */
@@ -478,9 +481,11 @@ bool CMenus::createMenuWindow(void)
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
 
-  // 4. Create the menu window
+  // 4. Create the menu window.  Menu windows are always created in the
+  //    hidden state.  When the menu is selected, then it should be shown.
 
-  m_menuWindow = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
+  uint8_t cflags = (NXBE_WINDOW_RAMBACKED | NXBE_WINDOW_HIDDEN);
+  m_menuWindow = m_twm4nx->createFramedWindow(control, cflags);
   if (m_menuWindow == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;
@@ -537,9 +542,12 @@ bool CMenus::setMenuWindowSize(void)
 
   m_entryHeight = menuFont->getHeight() + 4;
 
-  // Get the length of the longest item string in in the menu
+  // Get the length of the title
 
-  nxgl_coord_t maxstring = 0;
+  nxgl_coord_t maxstring = menuFont->getStringWidth(m_menuName);
+
+  // Compare that to the length of the longest item string in in the menu
+
   for (FAR struct SMenuItem *curr = m_menuHead;
        curr != NULL;
        curr = curr->flink)

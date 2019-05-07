@@ -87,6 +87,7 @@
 
 #define NO_TOOLBAR                (NTOOLBAR_BUTTONS + 0)
 #define ICONMGR_WINDOW            (NTOOLBAR_BUTTONS + 1)
+#define HIDDEN_WINDOW             (NTOOLBAR_BUTTONS + 2)
 
 #define WFLAGS_NO_MENU_BUTTON     (1 << MENU_BUTTON)
 #define WFLAGS_NO_DELETE_BUTTON   (1 << DELETE_BUTTON)
@@ -94,6 +95,7 @@
 #define WFLAGS_NO_MINIMIZE_BUTTON (1 << MINIMIZE_BUTTON)
 #define WFLAGS_NO_TOOLBAR         (1 << NO_TOOLBAR)
 #define WFLAGS_IS_ICONMGR         (1 << ICONMGR_WINDOW)
+#define WFLAGS_HIDDEN_WINDOW      (1 << HIDDEN_WINDOW)
 
 #define WFLAGS_HAVE_MENU_BUTTON(f)     (((f) & WFLAGS_NO_MENU_BUTTON) == 0)
 #define WFLAGS_HAVE_DELETE_BUTTON(f)   (((f) & WFLAGS_NO_DELETE_BUTTON) == 0)
@@ -101,6 +103,7 @@
 #define WFLAGS_HAVE_MINIMIZE_BUTTON(f) (((f) & WFLAGS_NO_MINIMIZE_BUTTON) == 0)
 #define WFLAGS_HAVE_TOOLBAR(f)         (((f) & WFLAGS_NO_TOOLBAR) == 0)
 #define WFLAGS_IS_ICONMGR_WINDOW(f)    (((f) & WFLAGS_IS_ICONMGR) != 0)
+#define WFLAGS_IS_HIDDEN_WINDOW(f)     (((f) & WFLAGS_HIDDEN_WINDOW) != 0)
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -172,10 +175,12 @@ namespace Twm4Nx
        *
        * @param winsize   The initial window size
        * @param winpos    The initial window position
+       * @param flags Toolbar customizations see WFLAGS_NO_* definitions
        */
 
       bool createMainWindow(FAR const nxgl_size_s *winsize,
-                            FAR const nxgl_point_s *winpos);
+                            FAR const nxgl_point_s *winpos,
+                            uint8_t flags);
 
       /**
        * Calculate the height of the tool bar

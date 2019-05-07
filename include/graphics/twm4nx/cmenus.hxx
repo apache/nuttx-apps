@@ -176,7 +176,8 @@ namespace Twm4Nx
       }
 
       /**
-       * Create the menu window
+       * Create the menu window.  Menu windows are always created in the
+       * hidden state.  When the menu is selected, then it should be shown.
        *
        * @result True is returned on success
        */

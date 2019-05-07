@@ -527,11 +527,13 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   // WFLAGS_NO_RESIZE_BUTTON: The user cannot control the Icon Manager
   //                          window size
   // WFLAGS_IS_ICONMGR:       Yes, this is the Icon Manager window
+  // WFLAGS_HIDDEN_WINDOW:    The window is created in the hidden state
 
   CWindowFactory *factory = m_twm4nx->getWindowFactory();
 
   uint8_t wflags = (WFLAGS_NO_MENU_BUTTON | WFLAGS_NO_DELETE_BUTTON |
-                    WFLAGS_NO_RESIZE_BUTTON | WFLAGS_IS_ICONMGR);
+                    WFLAGS_NO_RESIZE_BUTTON | WFLAGS_IS_ICONMGR |
+                    WFLAGS_HIDDEN_WINDOW);
 
   m_window = factory->createWindow(name, &CONFIG_TWM4NX_ICONMGR_IMAGE,
                                    this, wflags);
@@ -541,10 +543,6 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
       twmerr("ERROR: Failed to create icon manager window");
       return false;
     }
-
-  // Hide the window until we complete the configuration
-
-  m_window->hideWindow();
 
   // Free any temporary name strings
 

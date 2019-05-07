@@ -249,7 +249,7 @@ bool CWindow::initialize(FAR const char *name,
 
   // Create the main window
 
-  if (!createMainWindow(&winsize, pos))
+  if (!createMainWindow(&winsize, pos, flags))
     {
       twmerr("ERROR: createMainWindow() failed\n");
       cleanup();
@@ -662,10 +662,12 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
  *
  * @param winsize   The initial window size
  * @param winpos    The initial window position
+ * @param flags Toolbar customizations see WFLAGS_NO_* definitions
  */
 
 bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
-                               FAR const nxgl_point_s *winpos)
+                               FAR const nxgl_point_s *winpos,
+                               uint8_t flags)
 {
   // 1. Get the server instance.  m_twm4nx inherits from NXWidgets::CNXServer
   //    so we all ready have the server instance.
@@ -678,7 +680,13 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
 
   // 4. Create the window
 
-  m_nxWin = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
+  uint8_t cflags = NXBE_WINDOW_RAMBACKED;
+  if (WFLAGS_IS_HIDDEN_WINDOW(flags))
+    {
+      cflags |= NXBE_WINDOW_HIDDEN;
+    }
+
+  m_nxWin = m_twm4nx->createFramedWindow(control, cflags);
   if (m_nxWin == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;
