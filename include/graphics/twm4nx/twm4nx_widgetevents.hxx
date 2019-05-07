@@ -197,7 +197,6 @@ namespace Twm4Nx
   {
     uint16_t eventID;                   /**< Encoded event ID */
     struct nxgl_point_s pos;            /**< X/Y position */
-    struct nxgl_point_s delta;          /**< X/Y change (for dragging only) */
     uint8_t context;                    /**< Button press context */
     FAR CTwm4NxEvent *handler;          /**< App event handler (APP recipient only) */
     FAR void *obj;                      /**< Window object (CWindow or CIconWidget) */

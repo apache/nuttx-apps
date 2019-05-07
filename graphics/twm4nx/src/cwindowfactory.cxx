@@ -249,6 +249,7 @@ void CWindowFactory::destroyWindow(FAR CWindow *cwin)
 bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
 {
   twminfo("eventID: %d\n", eventmsg->eventID);
+
   bool success = true;
 
   switch (eventmsg->eventID)

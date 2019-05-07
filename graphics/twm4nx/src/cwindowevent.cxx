@@ -42,7 +42,10 @@
 #include <cfcntl>
 #include <cerrno>
 
+#include <semaphore.h>
 #include <mqueue.h>
+
+#include <nuttx/input/mouse.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
@@ -72,9 +75,14 @@ CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
-  m_twm4nx       = twm4nx;       // Cache the Twm4Nx session
-  m_object       = obj;          // Used for event message construction
-  m_isBackground = isBackground; // Background window?
+  m_twm4nx       = twm4nx;              // Cache the Twm4Nx session
+  m_object       = obj;                 // Used for event message construction
+  m_isBackground = isBackground;        // Background window?
+
+  // Dragging
+
+  m_dragHandler  = (FAR IDragEvent *)0; // No drag handler callbacks
+  m_dragging     = false;               // Not dragging
 
   // Open a message queue to send raw NX events.  This cannot fail!
 
@@ -208,9 +216,84 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
  * Handle an NX window mouse input event.
  */
 
-void CWindowEvent::handleMouseEvent(void)
+void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
+                                    uint8_t buttons)
 {
-  twminfo("Mouse input...\n");
+  twminfo("Mouse input:  m_dragging=%u\n", m_dragging);
+
+  // Check if are dragging
+  //
+  // STATE         LEFT BUTTON       ACTION
+  // dragging      clicked           dragEvent
+  // dragging      released          dropEvent
+  // NOT dragging  clicked           May be detected as a grab
+  // NOT dragging  released          None
+
+  if (m_dragging)
+    {
+      // Save the new drag position in window relative display coordinates
+
+      m_dragPos.x = pos->x;
+      m_dragPos.y = pos->y;
+
+      // Is the left button still pressed?
+
+      if ((buttons & MOUSE_BUTTON_1) != 0)
+        {
+          twminfo("Continue dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
+                  m_dragPos.x, m_dragPos.y, buttons, m_dragHandler);
+
+          // Yes.. generate a drag event if we have a drag event handler
+
+          if (m_dragHandler != (FAR IDragEvent *)0 &&
+              m_dragHandler->dragEvent(m_dragPos))
+            {
+              // Skip the input poll until the drag completes
+
+              return;
+            }
+        }
+      else
+        {
+          twminfo("Stop dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
+                  m_dragPos.x, m_dragPos.y, buttons, m_dragHandler);
+
+          // No.. then we are no longer dragging
+
+          m_dragging = false;
+
+          // Generate a dropEvent
+
+          if (m_dragHandler != (FAR IDragEvent *)0 &&
+              m_dragHandler->dropEvent(m_dragPos))
+            {
+              // If the drop event was processed then skip the
+              // input poll until AFTER the drag completes
+
+              return;
+            }
+        }
+    }
+
+  // If we are not currently dragging but the left button is pressed, then
+  // start the drag event
+
+  else if ((buttons & MOUSE_BUTTON_1) != 0)
+    {
+      // Indicate that we are (or may be) dragging
+
+      m_dragging  = true;
+
+      // Save the initial drag position
+
+      m_dragPos.x = pos->x;
+      m_dragPos.y = pos->y;
+
+      twminfo("Start dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
+              m_dragPos.x, m_dragPos.y, buttons, m_dragHandler);
+
+      // But take no other actions until the window recognizes the grab
+    }
 
   // Stimulate an input poll
 

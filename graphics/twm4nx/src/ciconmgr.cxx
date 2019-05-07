@@ -823,8 +823,6 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               struct SEventMsg msg;
               msg.pos.x   = e.getX();
               msg.pos.y   = e.getY();
-              msg.delta.x = 0;
-              msg.delta.y = 0;
               msg.context = EVENT_CONTEXT_ICONMGR;
               msg.handler = (FAR CTwm4NxEvent *)0;
               msg.obj     = (FAR void *)swin->cwin;

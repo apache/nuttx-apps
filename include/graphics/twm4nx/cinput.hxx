@@ -124,6 +124,8 @@ namespace Twm4Nx
        * CInput state data
        */
 
+      // Session
+
       CTwm4Nx                     *m_twm4nx;  /**< The Twm4Nx session */
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
       int                          m_kbdFd;   /**< File descriptor of the opened keyboard device */
@@ -131,14 +133,20 @@ namespace Twm4Nx
 #ifndef CONFIG_TWM4NX_NOMOUSE
       int                          m_mouseFd; /**< File descriptor of the opened mouse device */
 #endif
+
+      // Listener
+
       pthread_t                    m_thread;  /**< The listener thread ID */
       volatile enum EListenerState m_state;   /**< The state of the listener thread */
       sem_t                        m_waitSem; /**< Used to synchronize with the listener thread */
 
 #ifdef CONFIG_TWM4NX_TOUCHSCREEN
+      // Calibration
+
       bool                         m_calib;   /**< False:  Use raw, uncalibrated touches */
       struct SCalibrationData      m_calData; /**< Touchscreen calibration data */
 #endif
+
 
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
       /**
@@ -278,7 +286,7 @@ namespace Twm4Nx
 #endif
 
       /**
-       * Start the keyboard listener thread.
+       * Start the keyboard/mouse listener thread.
        *
        * @return True if the keyboard listener thread was correctly started.
        */

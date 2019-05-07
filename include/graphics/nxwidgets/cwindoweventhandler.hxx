@@ -98,7 +98,10 @@ namespace NXWidgets
      * Handle an NX window mouse input event.
      */
 
-    virtual void handleMouseEvent(void) { }
+    virtual void handleMouseEvent(FAR const struct nxgl_point_s *pos,
+                                  uint8_t buttons)
+    {
+    }
 #endif
 
 #ifdef CONFIG_NX_KBD

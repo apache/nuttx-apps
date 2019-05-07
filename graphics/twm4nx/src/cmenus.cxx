@@ -180,8 +180,7 @@ bool CMenus::initialize(FAR NXWidgets::CNxString &name)
 bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
                          FAR CTwm4NxEvent *handler, uint16_t event)
 {
-  twminfo("Adding menu text=\"%s\", subMenu=%p, event=%04x\n",
-          text->getCharArray(), subMenu, event);
+  twminfo("Adding: subMenu=%p, event=%04x\n", subMenu, event);
 
   // Allocate a new menu item entry
 
@@ -317,8 +316,6 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
               newmsg.eventID  = item->event;
               newmsg.pos.x    = eventmsg->pos.x;
               newmsg.pos.y    = eventmsg->pos.y;
-              newmsg.delta.x  = 0;
-              newmsg.delta.y  = 0;
               newmsg.context  = eventmsg->context;
               newmsg.handler  = item->handler;
               newmsg.obj      = eventmsg->obj;
@@ -862,8 +859,6 @@ void CMenus::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
                msg.eventID = item->event;
                msg.pos.x   = e.getX();
                msg.pos.y   = e.getY();
-               msg.delta.x = 0;
-               msg.delta.y = 0;
                msg.context = EVENT_CONTEXT_TOOLBAR;
                msg.handler = item->handler;
                msg.obj     = (FAR void *)this;

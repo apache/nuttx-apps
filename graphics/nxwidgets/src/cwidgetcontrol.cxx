@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/nxwidgets/src/cwidgetcontrol.cxx
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -566,9 +566,9 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
     }
 #endif
 
-  // Notify any external logic that a keyboard event has occurred
+  // Notify any external logic that a mouse event has occurred
 
-  m_eventHandlers.raiseMouseEvent();
+  m_eventHandlers.raiseMouseEvent(pos, buttons);
 
 #ifdef CONFIG_NXWIDGET_EVENTWAIT
   // Then wake up logic that may be waiting for a window event

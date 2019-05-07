@@ -153,7 +153,8 @@ namespace NXWidgets
      * Raise an NX mouse window input event.
      */
 
-    void raiseMouseEvent(void);
+    void raiseMouseEvent(FAR const struct nxgl_point_s *pos,
+                         uint8_t buttons);
 #endif
 
 #ifdef CONFIG_NX_KBD

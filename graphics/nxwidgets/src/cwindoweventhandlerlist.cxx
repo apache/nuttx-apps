@@ -137,11 +137,12 @@ void CWindowEventHandlerList::raiseGeometryEvent(void)
  * Raise an NX mouse window input event.
  */
 
-void CWindowEventHandlerList::raiseMouseEvent(void)
+void CWindowEventHandlerList::raiseMouseEvent(FAR const struct nxgl_point_s *pos,
+                                              uint8_t buttons)
 {
   for (int i = 0; i < m_eventHandlers.size(); ++i)
     {
-      m_eventHandlers.at(i)->handleMouseEvent();
+      m_eventHandlers.at(i)->handleMouseEvent(pos, buttons);
     }
 }
 #endif

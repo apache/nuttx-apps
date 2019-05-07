@@ -57,6 +57,7 @@
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
+#include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
 
@@ -128,7 +129,9 @@ namespace Twm4Nx
   // The CWindow class implements a standard, framed window with a toolbar
   // containing the standard buttons and the window title.
 
-  class CWindow : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
+  class CWindow : protected NXWidgets::CWidgetEventHandler,
+                  protected IDragEvent,
+                  public CTwm4NxEvent
   {
     private:
       CTwm4Nx                    *m_twm4nx;     /**< Cached Twm4Nx session */
@@ -166,7 +169,7 @@ namespace Twm4Nx
 
       // Dragging
 
-      struct nxgl_point_s         m_dragOffset; /**< Offset from mouse to window origin */
+      struct nxgl_point_s         m_dragPos;    /**< Last reported mouse position */
       struct nxgl_size_s          m_dragCSize;  /**< The grab cursor size */
       bool                        m_drag;       /**< Drag in-progress */
 
@@ -239,26 +242,11 @@ namespace Twm4Nx
        * virtual event handling methods.  It just combines some common event-
        * handling logic.
        *
-       * @param e The event data.
+       * @param x The mouse/touch X position.
+       * @param y The mouse/touch y position.
        */
 
-      void handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e);
-
-      /**
-       * Override the mouse button drag event.
-       *
-       * @param e The event data.
-       */
-
-      void handleDragEvent(const NXWidgets::CWidgetEventArgs &e);
-
-      /**
-       * Override a drop event, triggered when the widget has been dragged-and-dropped.
-       *
-       * @param e The event data.
-       */
-
-      void handleDropEvent(const NXWidgets::CWidgetEventArgs &e);
+      void handleUngrabEvent(nxgl_coord_t x, nxgl_coord_t y);
 
       /**
        * Handle a mouse click event.
@@ -288,6 +276,34 @@ namespace Twm4Nx
        */
 
       void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
+
+      /**
+       * This function is called when there is any moved of the mouse or
+       * touch position that would indicate that the object is being moved.
+       *
+       * This function overrides the virtual IDragEvent::dragEvent method.
+       *
+       * @param pos The current mouse/touch X/Y position.
+       * @return True: if the drage event was processed; false it is was
+       *   ignored.  The event should be ignored if there is not actually
+       *   a drag event in progress
+       */
+
+      bool dragEvent(FAR const struct nxgl_point_s &pos);
+
+      /**
+       * This function is called if the mouse left button is released or
+       * if the touchscrreen touch is lost.  This indicates that the
+       * dragging sequence is complete.
+       *
+       * This function overrides the virtual IDragEvent::dropEvent method.
+       *
+       * @return True: if the drage event was processed; false it is was
+       *   ignored.  The event should be ignored if there is not actually
+       *   a drag event in progress
+       */
+
+      bool dropEvent(FAR const struct nxgl_point_s &pos);
 
       /**
        * Handle the TOOLBAR_GRAB event.  That corresponds to a left

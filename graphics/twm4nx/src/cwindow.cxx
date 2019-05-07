@@ -161,8 +161,8 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   // Dragging
 
   m_drag                 = false;
-  m_dragOffset.x         = 0;
-  m_dragOffset.y         = 0;
+  m_dragPos.x            = 0;
+  m_dragPos.y            = 0;
   m_dragCSize.w          = 0;
   m_dragCSize.h          = 0;
 
@@ -675,6 +675,8 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
 
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
+  //    Setup the the CWindowEvent instance to use our inherited drag event
+  //    handler
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
 
@@ -767,6 +769,7 @@ bool CWindow::createToolbar(void)
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
+  control->registerDragEventHandler(this);
 
   // 3. Get the toolbar sub-window from the framed window
 
@@ -1145,19 +1148,18 @@ bool CWindow::createToolbarTitle(FAR const char *name)
  * virtual event handling methods.  It just combines some common event-
  * handling logic.
  *
- * @param e The event data.
+ * @param x The mouse/touch X position.
+ * @param y The mouse/touch y position.
  */
 
-void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
+void CWindow::handleUngrabEvent(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Generate the un-grab event
 
   struct SEventMsg msg;
   msg.eventID = EVENT_TOOLBAR_UNGRAB;
-  msg.pos.x   = e.getX();
-  msg.pos.y   = e.getY();
-  msg.delta.x = 0;
-  msg.delta.y = 0;
+  msg.pos.x   = x;
+  msg.pos.y   = y;
   msg.context = EVENT_CONTEXT_TOOLBAR;
   msg.handler = (FAR CTwm4NxEvent *)0;
   msg.obj     = (FAR void *)this;
@@ -1174,70 +1176,6 @@ void CWindow::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
   if (ret < 0)
     {
       twmerr("ERROR: mq_send failed: %d\n", ret);
-    }
-}
-
-/**
- * Override the mouse button drag event.
- *
- * @param e The event data.
- */
-
-void CWindow::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
-{
-  // We are interested only the the drag event on the title box while we are
-  // in the dragging state.
-
-  if (m_drag && m_tbTitle->isBeingDragged())
-    {
-      // Generate the event
-
-      struct SEventMsg msg;
-      msg.eventID = EVENT_WINDOW_DRAG;
-      msg.pos.x   = e.getX();
-      msg.pos.y   = e.getY();
-      msg.delta.x = e.getVX();
-      msg.delta.y = e.getVY();
-      msg.context = EVENT_CONTEXT_TOOLBAR;
-      msg.handler = (FAR CTwm4NxEvent *)0;
-      msg.obj     = (FAR void *)this;
-
-      // NOTE that we cannot block because we are on the same thread
-      // as the message reader.  If the event queue becomes full then
-      // we have no other option but to lose events.
-      //
-      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-      // the risk of runaway stack usage.
-
-      int ret = mq_send(m_eventq, (FAR const char *)&msg,
-                        sizeof(struct SEventMsg), 100);
-      if (ret < 0)
-        {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
-        }
-    }
-}
-
-/**
- * Override a drop event, triggered when the widget has been dragged-and-dropped.
- *
- * @param e The event data.
- */
-
-void CWindow::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
-{
-  // We are interested only the the drag drop event on the title box while we
-  // are in the dragging state.
-  //
-  // When the Drop Event is received, both isClicked and isBeingDragged()
-  // will return false.  It is sufficient to verify that the isClicked() is
-  // not true to exit the drag.
-
-  if (m_drag && !m_tbTitle->isClicked())
-    {
-      // Yes.. handle the drop event
-
-      handleUngrabEvent(e);
     }
 }
 
@@ -1260,8 +1198,6 @@ void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
       msg.eventID = EVENT_TOOLBAR_GRAB;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
-      msg.delta.x = 0;
-      msg.delta.y = 0;
       msg.context = EVENT_CONTEXT_TOOLBAR;
       msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;
@@ -1303,7 +1239,7 @@ void CWindow::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
       // Handle the non-drag drop event
 
-      handleUngrabEvent(e);
+      handleUngrabEvent(e.getX(), e.getY());
     }
 }
 
@@ -1334,8 +1270,6 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           msg.eventID = GToolBarInfo[btindex].event;
           msg.pos.x   = e.getX();
           msg.pos.y   = e.getY();
-          msg.delta.x = 0;
-          msg.delta.y = 0;
           msg.context = EVENT_CONTEXT_TOOLBAR;
           msg.handler = (FAR CTwm4NxEvent *)0;
           msg.obj     = (FAR void *)this;
@@ -1358,6 +1292,95 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 }
 
 /**
+ * This function is called when there is any moved of the mouse or
+ * touch position that would indicate that the object is being moved.
+ *
+ * This function overrides the virtual IDragEvent::dragEvent method.
+ *
+ * @param pos The current mouse/touch X/Y position in toolbar relative
+ *   coordinates.
+ * @return True: if the drage event was processed; false it is was
+ *   ignored.  The event should be ignored if there is not actually
+ *   a drag event in progress
+ */
+
+bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos)
+{
+  twminfo("m_drag=%u pos=(%d,%d)\n", m_drag, pos.x, pos.y);
+
+  // We are interested only the drag event while we are in the dragging
+  // state.
+
+  if (m_drag)
+    {
+      // Conver the 
+      // Generate the event
+
+      struct SEventMsg msg;
+      msg.eventID = EVENT_WINDOW_DRAG;
+      msg.pos.x   = pos.x;
+      msg.pos.y   = pos.y;
+      msg.context = EVENT_CONTEXT_TOOLBAR;
+      msg.handler = (FAR CTwm4NxEvent *)0;
+      msg.obj     = (FAR void *)this;
+
+      // NOTE that we cannot block because we are on the same thread
+      // as the message reader.  If the event queue becomes full then
+      // we have no other option but to lose events.
+      //
+      // I suppose we could recurse and call Twm4Nx::dispatchEvent at
+      // the risk of runaway stack usage.
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          twmerr("ERROR: mq_send failed: %d\n", ret);
+        }
+
+      return true;
+    }
+
+  return false;
+}
+
+/**
+ * This function is called if the mouse left button is released or
+ * if the touchscrreen touch is lost.  This indicates that the
+ * dragging sequence is complete.
+ *
+ * This function overrides the virtual IDragEvent::dropEvent method.
+ *
+ * @param pos The last mouse/touch X/Y position in toolbar relative
+ *   coordinates.
+ * @return True: if the drage event was processed; false it is was
+ *   ignored.  The event should be ignored if there is not actually
+ *   a drag event in progress
+ */
+
+bool CWindow::dropEvent(FAR const struct nxgl_point_s &pos)
+{
+  twminfo("m_drag=%u pos=(%d,%d)\n", m_drag, pos.x, pos.y);
+
+  // We are interested only the the drag drop event on the title box while we
+  // are in the dragging state.
+  //
+  // When the Drop Event is received, both isClicked and isBeingDragged()
+  // will return false.  It is sufficient to verify that the isClicked() is
+  // not true to exit the drag.
+
+  if (m_drag)
+    {
+      // Yes.. handle the drop event
+
+      handleUngrabEvent(pos.x, pos.y);
+      return true;
+    }
+
+  return false;
+}
+
+/**
  * Handle the TOOLBAR_GRAB event.  That corresponds to a left
  * mouse click on the title widget in the toolbar
  *
@@ -1368,6 +1391,8 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
 bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
 {
+  twminfo("GRAB (%d,%d)\n", eventmsg->pos.x, eventmsg->pos.y);
+
   // Promote the window to a modal window
 
   m_modal = true;
@@ -1382,19 +1407,25 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
   struct nxgl_point_s framePos;
   getFramePosition(&framePos);
 
-  // Determine the relative position of the frame and the mouse
+  twminfo("Position (%d,%d)\n", framePos.x, framePos.y);
 
-  m_dragOffset.x = framePos.x - eventmsg->pos.x;
-  m_dragOffset.y = framePos.y - eventmsg->pos.y;
+  // Save the toolbar-relative mouse position in order to detect the amount
+  // of movement in the next drag event.
 
+  m_dragPos.x = eventmsg->pos.x;
+  m_dragPos.y = eventmsg->pos.y;
+
+#ifdef CONFIG_TWM4NX_MOUSE
   // Select the grab cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_GBCURSOR_IMAGE);
+#endif
 
   // Remember the grab cursor size
 
   m_dragCSize.w = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.w;
   m_dragCSize.h = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.h;
+
   return true;
 }
 
@@ -1409,13 +1440,31 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
 
 bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
 {
+  twminfo("DRAG (%d,%d)\n", eventmsg->pos.x, eventmsg->pos.y);
+
   if (m_drag)
     {
-      // Calculate the new Window position
+      // The coordinates in the eventmsg or relative to the origin
+      // of the toolbar.
 
-      struct nxgl_point_s newpos;
-      newpos.x = eventmsg->pos.x + m_dragOffset.x;
-      newpos.y = eventmsg->pos.y + m_dragOffset.y;
+      struct nxgl_point_s oldPos;
+      if (!getFramePosition(&oldPos))
+        {
+          gerr("ERROR: getFramePosition() failed\n")  ;
+          return false;
+        }
+
+      // We want to set the new frame position so that it has the same
+      // relative mouse position as when we grabbed the toolbar.
+
+      struct nxgl_point_s newPos;
+      newPos.x = oldPos.x + eventmsg->pos.x - m_dragPos.x;
+      newPos.y = oldPos.y + eventmsg->pos.y - m_dragPos.y;
+
+      // Save the new mouse position
+
+      m_dragPos.x = eventmsg->pos.x;
+      m_dragPos.y = eventmsg->pos.y;
 
       // Keep the window on the display (at least enough of it so that we
       // can still grab it)
@@ -1423,27 +1472,41 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
       struct nxgl_size_s displaySize;
       m_twm4nx->getDisplaySize(&displaySize);
 
-      if (newpos.x < 0)
+      if (newPos.x < 0)
         {
-          newpos.x = 0;
+          newPos.x = 0;
         }
-      else if (newpos.x + m_dragCSize.w > displaySize.w)
+      else if (newPos.x + m_dragCSize.w > displaySize.w)
         {
-          newpos.x = displaySize.w - m_dragCSize.w;
-        }
-
-      if (newpos.y < 0)
-        {
-          newpos.y = 0;
-        }
-      else if (newpos.y + m_dragCSize.h > displaySize.h)
-        {
-          newpos.y = displaySize.h - m_dragCSize.h;
+          newPos.x = displaySize.w - m_dragCSize.w;
         }
 
-      // Set the new window position
+      if (newPos.y < 0)
+        {
+          newPos.y = 0;
+        }
+      else if (newPos.y + m_dragCSize.h > displaySize.h)
+        {
+          newPos.y = displaySize.h - m_dragCSize.h;
+        }
 
-      return setFramePosition(&newpos);
+      // Set the new window position if it has changed
+
+      twminfo("Position (%d,%d)->(%d,%d)\n",
+              oldPos.x, oldPos.y, newPos.x, newPos.y);
+
+      if (newPos.x != oldPos.x || newPos.y != oldPos.y)
+        {
+          if (!setFramePosition(&newPos))
+            {
+              gerr("ERROR: setFramePosition failed\n");
+              return false;
+            }
+
+          m_nxWin->synchronize();
+        }
+
+      return true;
     }
 
   return false;
@@ -1453,13 +1516,16 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
  * Handle the TOOLBAR_UNGRAB event.  The corresponds to a mouse
  * left button release while in the grabbed state
  *
- * @param eventmsg.  The received NxWidget event message.
+ * @param eventmsg.  The received NxWidget event message in window relative
+ *   coordinates.
  * @return True if the message was properly handled.  false is
  *   return on any failure.
  */
 
 bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
 {
+  twminfo("UNGRAB (%d,%d)\n", eventmsg->pos.x, eventmsg->pos.y);
+
   // One last position update
 
   if (!windowDrag(eventmsg))
@@ -1476,9 +1542,11 @@ bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
   m_modal = false;
   m_nxWin->modal(false);
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // Restore the normal cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
+#endif
   return true;
 }
 

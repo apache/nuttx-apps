@@ -90,7 +90,8 @@ CWindowMessenger::~CWindowMessenger(void)
  * Handle an NX window mouse input event.
  */
 
-void CWindowMessenger::handleMouseEvent(void)
+void CWindowMessenger::handleMouseEvent(FAR const struct nxgl_point_s *pos,
+                                        uint8_t buttons)
 {
   // The logic path here is tortuous but flexible:
   //

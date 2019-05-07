@@ -107,7 +107,8 @@ CIconWidget::CIconWidget(FAR CTwm4Nx *twm4nx,
 
   // Configure the widget
 
-  m_flags.borderless = true;             // The widget is borless (and transparent)
+  m_flags.borderless = true;             // The widget is borderless (and transparent)
+  m_flags.draggable  = true;             // This widget may be dragged
 }
 
 /**
@@ -461,8 +462,6 @@ void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
   msg.eventID = EVENT_ICONWIDGET_UNGRAB;
   msg.pos.x   = e.getX();
   msg.pos.y   = e.getY();
-  msg.delta.x = 0;
-  msg.delta.y = 0;
   msg.context = EVENT_CONTEXT_ICON;
   msg.handler = (FAR CTwm4NxEvent *)0;
   msg.obj     = (FAR void *)this;
@@ -490,8 +489,8 @@ void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
 
 void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // We don't care which widget is being dragged, only that we are in the
-  // dragging state.
+  // We don't care which component of the icon widget was clicked only that
+  // we are not currently being dragged
 
   if (m_drag)
     {
@@ -501,8 +500,6 @@ void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
       msg.eventID = EVENT_ICONWIDGET_DRAG;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
-      msg.delta.x = e.getVX();
-      msg.delta.y = e.getVY();
       msg.context = EVENT_CONTEXT_ICON;
       msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;
@@ -562,8 +559,6 @@ void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
       msg.eventID = EVENT_ICONWIDGET_GRAB;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
-      msg.delta.x = 0;
-      msg.delta.y = 0;
       msg.context = EVENT_CONTEXT_ICON;
       msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;

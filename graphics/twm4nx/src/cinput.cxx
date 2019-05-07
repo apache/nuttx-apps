@@ -48,6 +48,7 @@
 #include <pthread.h>
 #include <assert.h>
 
+#include <nuttx/semaphore.h>
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/input/mouse.h>
 
@@ -95,6 +96,8 @@ using namespace Twm4Nx;
 
 CInput::CInput(CTwm4Nx *twm4nx)
 {
+  // Session
+
   m_twm4nx      = twm4nx;              // Save the NX server
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
   m_kbdFd       = -1;                  // Keyboard driver is not opened
@@ -102,14 +105,21 @@ CInput::CInput(CTwm4Nx *twm4nx)
 #ifndef CONFIG_TWM4NX_NOMOUSE
   m_mouseFd     = -1;                  // Mouse/touchscreen driver is not opened
 #endif
+
+ // Listener
+
   m_state       = LISTENER_NOTRUNNING; // The listener thread is not running yet
-#ifdef CONFIG_TWM4NX_TOUCHSCREEN
-  m_calib       = false;               // Use raw touches until calibrated
-#endif
 
   // Initialize the semaphore used to synchronize with the listener thread
 
   sem_init(&m_waitSem, 0, 0);
+  sem_setprotocol(&m_waitSem, SEM_PRIO_NONE);
+
+#ifdef CONFIG_TWM4NX_TOUCHSCREEN
+  // Calibration
+
+  m_calib       = false;               // Use raw touches until calibrated
+#endif
 }
 
 /**
