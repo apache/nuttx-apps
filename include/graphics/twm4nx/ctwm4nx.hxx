@@ -87,6 +87,7 @@ namespace Twm4Nx
   class  CIconMgr;       // Forward reference
   class  CFonts;         // Forward reference
   class  CWindow;        // Forward reference
+  class  CMainMenu;      // Forward reference
   class  CResize;        // Forward reference
   class  CWindowFactory; // Forward reference
   class  CResize;        // Forward reference
@@ -115,6 +116,7 @@ namespace Twm4Nx
       FAR CIconMgr                *m_iconmgr;     /**< The Default icon manager */
       FAR CWindowFactory          *m_factory;     /**< The cached CWindowFactory instance */
       FAR CFonts                  *m_fonts;       /**< The cached Cfonts instance */
+      FAR CMainMenu               *m_mainMenu;    /**< The cached CMainMenu instance */
       FAR CResize                 *m_resize;      /**< The cached CResize instance */
 
 #if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
@@ -275,7 +277,8 @@ namespace Twm4Nx
       /**
        * Return the session's CWindowFactory instance.
        *
-       * @return The contained instance of the CWindow instance this session.
+       * @return The contained instance of the CWindow instance this
+       *   session.
        */
 
        inline FAR CWindowFactory *getWindowFactory(void)
@@ -286,12 +289,25 @@ namespace Twm4Nx
       /**
        * Return the session's CFonts instance.
        *
-       * @return The contained instance of the CMenus instance for this session.
+       * @return The contained instance of the CFonts instance for this
+       *   session.
        */
 
        inline FAR CFonts *getFonts(void)
        {
          return m_fonts;
+       }
+
+      /**
+       * Return the session's CMainMenu instance.
+       *
+       * @return The contained instance of the CMainMenu instance for this
+       *   session.
+       */
+
+       inline FAR CMainMenu *getMainMenu(void)
+       {
+         return m_mainMenu;
        }
 
       /**

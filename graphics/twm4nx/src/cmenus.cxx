@@ -56,6 +56,7 @@
 #include <nuttx/version.h>
 #include <nuttx/nx/nxbe.h>
 
+#include "graphics/nxwidgets/cnxstring.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
 #include "graphics/nxwidgets/clistbox.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
@@ -122,10 +123,11 @@ CMenus::~CMenus(void)
  * CMenus Initializer.  Performs the parts of the CMenus construction
  * that may fail.
  *
+ * @param name The name of the menu
  * @result True is returned on success
  */
 
-bool CMenus::initialize(FAR const char *name)
+bool CMenus::initialize(FAR NXWidgets::CNxString &name)
 {
   // Open a message queue to NX events.
 
@@ -138,13 +140,9 @@ bool CMenus::initialize(FAR const char *name)
       return false;
     }
 
-  // Save the menu name
+  // Clone the menu name
 
-  m_menuName = strdup(name);
-  if (m_menuName == (FAR char *)0)
-    {
-      return false;
-    }
+  m_menuName = name;
 
   // Create the menu window
 
@@ -177,11 +175,11 @@ bool CMenus::initialize(FAR const char *name)
  *  \param event   The event to generate on menu item selection
  */
 
-bool CMenus::addMenuItem(FAR const char *text, FAR CMenus *subMenu,
+bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
                          FAR CTwm4NxEvent *handler, uint16_t event)
 {
   twminfo("Adding menu text=\"%s\", subMenu=%p, event=%04x\n",
-          text, subMenu, event);
+          text->getCharArray(), subMenu, event);
 
   // Allocate a new menu item entry
 
@@ -195,13 +193,7 @@ bool CMenus::addMenuItem(FAR const char *text, FAR CMenus *subMenu,
 
   // Clone the item name so that we have control over its lifespan
 
-  item->text = std::strdup(text);
-  if (item->text == (FAR char *)0)
-    {
-      twmerr("ERROR:  strdup of item text failed\n");
-      std::free(item);
-      return false;
-    }
+  item->text     = text;
 
   // Save information about the menu item
 
@@ -552,13 +544,10 @@ bool CMenus::setMenuWindowSize(void)
        curr != NULL;
        curr = curr->flink)
     {
-      if (curr->text != (FAR char *)0)
+      nxgl_coord_t stringlen = menuFont->getStringWidth(curr->text);
+      if (stringlen > maxstring)
         {
-          nxgl_coord_t stringlen = menuFont->getStringWidth(curr->text);
-          if (stringlen > maxstring)
-            {
-              maxstring = stringlen;
-            }
+          maxstring = stringlen;
         }
     }
 
@@ -711,7 +700,8 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
       return false;
     }
 
-  m_popUpMenu->addMenuItem("TWM Windows", (FAR CMenus *)0,
+  NXWidgets::CNxString windowName("TWM Windows");
+  m_popUpMenu->addMenuItem(windowName, (FAR CMenus *)0,
                            (FAR CTwm4NxEvent *)0, EVENT_SYSTEM_NOP);
 
   FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
@@ -745,10 +735,10 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
           FAR CWindow *tmpcwin1 = swin->cwin;
           for (int i = 0; i < nWindowNames; i++)
             {
-              FAR const char *windowName1 = tmpcwin1->getWindowName();
-              FAR const char *windowName2 = windowNames[i]->getWindowName();
+              FAR NXWidgets::CNxString windowName1 = tmpcwin1->getWindowName();
+              FAR NXWidgets::CNxString windowName2 = windowNames[i]->getWindowName();
 
-              if (std::strcmp(windowName1, windowName2) < 0)
+              if (windowName1.compareTo(windowName2) < 0)
                 {
                   FAR CWindow *tmpcwin2;
                   tmpcwin2       = tmpcwin1;
@@ -762,8 +752,9 @@ bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
 
       for (int i = 0; i < nWindowNames; i++)
         {
-          m_popUpMenu->addMenuItem(windowNames[i]->getWindowName(),
-                                   (FAR CMenus *)0, (FAR CTwm4NxEvent *)0,
+          NXWidgets::CNxString itemName = windowNames[i]->getWindowName();
+          m_popUpMenu->addMenuItem(itemName, (FAR CMenus *)0,
+                                   (FAR CTwm4NxEvent *)0,
                                    EVENT_WINDOW_DEICONIFY);
         }
 
@@ -929,13 +920,6 @@ void CMenus::cleanup(void)
     {
       next = curr->flink;
 
-      // Free the menu item text
-
-      if (curr->text != (FAR char *)0)
-        {
-          std::free(curr->text);
-        }
-
       // Free any subMenu
 
       if (curr->subMenu != (FAR CMenus *)0)
@@ -948,11 +932,4 @@ void CMenus::cleanup(void)
       delete curr;
     }
 
-  // Free allocated memory
-
-  if (m_menuName != (FAR char *)0)
-    {
-      std::free(m_menuName);
-      m_menuName = (FAR char *)0;
-    }
 }

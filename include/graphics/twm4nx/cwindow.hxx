@@ -108,6 +108,7 @@
 
 namespace NXWidgets
 {
+  class  CNxString;                             // Forward reference
   class  CImage;                                // Forward reference
   class  CLabel;                                // Forward reference
   struct SRlePaletteBitmap;                     // Forward reference
@@ -132,7 +133,7 @@ namespace Twm4Nx
 
       // Primary Window
 
-      FAR char                   *m_name;       /**< Name of the window */
+      NXWidgets::CNxString        m_name;       /**< Name of the window */
       FAR NXWidgets::CNxTkWindow *m_nxWin;      /**< The contained NX primary window */
       uint16_t                    m_zoom;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
       bool                        m_modal;      /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
@@ -383,7 +384,7 @@ namespace Twm4Nx
        * Get the name of the window
        */
 
-      inline FAR const char *getWindowName(void)
+      inline NXWidgets::CNxString getWindowName(void)
       {
         return m_name;
       }

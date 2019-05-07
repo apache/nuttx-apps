@@ -215,11 +215,11 @@ bool CWindow::initialize(FAR const char *name,
 
   if (name == (FAR const char *)0)
     {
-      m_name = std::strdup(GNoName);
+      m_name.setText(GNoName);
     }
   else
     {
-      m_name = std::strdup(name);
+      m_name.setText(name);
     }
 
   // Do initial clip to the maximum window size
@@ -1526,13 +1526,5 @@ void CWindow::cleanup(void)
     {
       delete m_iconBitMap;
       m_iconBitMap  = (FAR NXWidgets::CRlePaletteBitmap *)0;
-    }
-
-  // Free memory
-
-  if (m_name != (FAR char *)0)
-    {
-      std::free(m_name);
-      m_name = (FAR char *)0;
     }
 }

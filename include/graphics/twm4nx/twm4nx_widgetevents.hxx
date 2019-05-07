@@ -87,11 +87,12 @@ namespace Twm4Nx
     EVENT_RECIPIENT_ICONWIDGET = 0x2000,  /**< Icon Widget event */
     EVENT_RECIPIENT_ICONMGR    = 0x3000,  /**< Icon Manager event */
     EVENT_RECIPIENT_MENU       = 0x4000,  /**< Menu related event */
-    EVENT_RECIPIENT_WINDOW     = 0x5000,  /**< Window related event */
-    EVENT_RECIPIENT_TOOLBAR    = 0x6000,  /**< Toolbar related event */
-    EVENT_RECIPIENT_BORDER     = 0x7000,  /**< Window border related event */
-    EVENT_RECIPIENT_RESIZE     = 0x8000,  /**< Window resize event */
-    EVENT_RECIPIENT_APP        = 0x9000,  /**< App received event via CTwn4NxEvent */
+    EVENT_RECIPIENT_MAINMENU   = 0x5000,  /**< Menu related event */
+    EVENT_RECIPIENT_WINDOW     = 0x6000,  /**< Window related event */
+    EVENT_RECIPIENT_TOOLBAR    = 0x7000,  /**< Toolbar related event */
+    EVENT_RECIPIENT_BORDER     = 0x8000,  /**< Window border related event */
+    EVENT_RECIPIENT_RESIZE     = 0x9000,  /**< Window resize event */
+    EVENT_RECIPIENT_APP        = 0xa000,  /**< App received event via CTwn4NxEvent */
     EVENT_RECIPIENT_MASK       = 0xf000,  /**< Used to isolate recipient */
   };
 
@@ -130,38 +131,42 @@ namespace Twm4Nx
     EVENT_MENU_TITLE           = 0x4005,  /**< REVISIT: Really an action not an event */
     EVENT_MENU_ROOT            = 0x4006,  /**< REVISIT: Popup root menu */
 
+    // Recipient == MAINMENU
+
+    EVENT_MAINMENU_SELECT      = 0x5000,  /**< Main menu item selection */
+
     // Recipient == WINDOW
 
-    EVENT_WINDOW_POLL          = 0x5000,  /**< Poll window for widget events */
-    EVENT_WINDOW_FOCUS         = 0x5001,  /**< Enter modal state */
-    EVENT_WINDOW_UNFOCUS       = 0x5002,  /**< Exit modal state */
-    EVENT_WINDOW_RAISE         = 0x5003,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x5004,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DEICONIFY     = 0x5005,  /**< De-iconify and raise window  */
-    EVENT_WINDOW_DRAG          = 0x5006,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x5007,  /**< Delete window */
+    EVENT_WINDOW_POLL          = 0x6000,  /**< Poll window for widget events */
+    EVENT_WINDOW_FOCUS         = 0x6001,  /**< Enter modal state */
+    EVENT_WINDOW_UNFOCUS       = 0x6002,  /**< Exit modal state */
+    EVENT_WINDOW_RAISE         = 0x6003,  /**< Raise window to the top of the heirarchy */
+    EVENT_WINDOW_LOWER         = 0x6004,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_DEICONIFY     = 0x6005,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG          = 0x6006,  /**< Drag window */
+    EVENT_WINDOW_DELETE        = 0x6007,  /**< Delete window */
 
     // Recipient == TOOLBAR
 
-    EVENT_TOOLBAR_GRAB         = 0x6000,  /**< Click on title widget */
-    EVENT_TOOLBAR_UNGRAB       = 0x6001,  /**< Release click on title widget */
-    EVENT_TOOLBAR_MENU         = 0x6002,  /**< Toolbar menu button released */
-    EVENT_TOOLBAR_MINIMIZE     = 0x6003,  /**< Toolbar minimize button released */
-    EVENT_TOOLBAR_RESIZE       = 0x6004,  /**< Toolbar resize button released */
-    EVENT_TOOLBAR_TERMINATE    = 0x6005,  /**< Toolbar delete button released */
+    EVENT_TOOLBAR_GRAB         = 0x7000,  /**< Click on title widget */
+    EVENT_TOOLBAR_UNGRAB       = 0x7001,  /**< Release click on title widget */
+    EVENT_TOOLBAR_MENU         = 0x7002,  /**< Toolbar menu button released */
+    EVENT_TOOLBAR_MINIMIZE     = 0x7003,  /**< Toolbar minimize button released */
+    EVENT_TOOLBAR_RESIZE       = 0x7004,  /**< Toolbar resize button released */
+    EVENT_TOOLBAR_TERMINATE    = 0x7005,  /**< Toolbar delete button released */
 
     // Recipient == BORDER
 
     // Recipient == RESIZE
 
-    EVENT_RESIZE_START         = 0x8000,  /**< Start window resize */
-    EVENT_RESIZE_VERTZOOM      = 0x8001,  /**< Zoom vertically only */
-    EVENT_RESIZE_HORIZOOM      = 0x8002,  /**< Zoom horizontally only */
-    EVENT_RESIZE_FULLZOOM      = 0x8003,  /**< Zoom both vertically and horizontally */
-    EVENT_RESIZE_LEFTZOOM      = 0x8004,  /**< Zoom left only */
-    EVENT_RESIZE_RIGHTZOOM     = 0x8005,  /**< Zoom right only */
-    EVENT_RESIZE_TOPZOOM       = 0x8006,  /**< Zoom top only */
-    EVENT_RESIZE_BOTTOMZOOM    = 0x8007,  /**< Zoom bottom only */
+    EVENT_RESIZE_START         = 0x9000,  /**< Start window resize */
+    EVENT_RESIZE_VERTZOOM      = 0x9001,  /**< Zoom vertically only */
+    EVENT_RESIZE_HORIZOOM      = 0x9002,  /**< Zoom horizontally only */
+    EVENT_RESIZE_FULLZOOM      = 0x9003,  /**< Zoom both vertically and horizontally */
+    EVENT_RESIZE_LEFTZOOM      = 0x9004,  /**< Zoom left only */
+    EVENT_RESIZE_RIGHTZOOM     = 0x9005,  /**< Zoom right only */
+    EVENT_RESIZE_TOPZOOM       = 0x9006,  /**< Zoom top only */
+    EVENT_RESIZE_BOTTOMZOOM    = 0x9007,  /**< Zoom bottom only */
 
     // Recipient == APP
     // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,

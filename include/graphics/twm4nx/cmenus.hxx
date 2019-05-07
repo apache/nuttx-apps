@@ -52,6 +52,7 @@
 
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
+#include "graphics/nxwidgets/cnxtkwindow.hxx"
 
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
 
@@ -83,7 +84,6 @@
 
 namespace NXWidgets
 {
-  class  CNxTkWindow;                              // Forward reference
   class  CListBox;                                 // Forward reference
   class  CWidgetEventArgs;                         // Forward reference
   class  CWidgetEventArgs;                         // Forward reference
@@ -100,7 +100,7 @@ namespace Twm4Nx
     FAR struct SMenuItem *flink;                   /**< Forward link to next menu item */
     FAR struct SMenuItem *blink;                   /**< Backward link previous menu item */
     FAR CMenus *subMenu;                           /**< Menu root of a pull right menu */
-    FAR char *text;                                /**< The text string for the menu item */
+    FAR NXWidgets::CNxString text;                 /**< The text string for the menu item */
     FAR CTwm4NxEvent *handler;                     /**< Application event handler */
     uint16_t index;                                /**< Index of this menu item */
     uint16_t event;                                /**< Menu selection event */
@@ -118,7 +118,7 @@ namespace Twm4Nx
       FAR struct SMenuItem       *m_activeItem;    /**< The active menu item */
       FAR struct SMenuItem       *m_menuHead;      /**< First item in menu */
       FAR struct SMenuItem       *m_menuTail;      /**< Last item in menu */
-      FAR char                   *m_menuName;      /**< The name of the menu */
+      NXWidgets::CNxString        m_menuName;      /**< The name of the menu */
       nxgl_coord_t                m_entryHeight;   /**< Menu entry height */
       uint16_t                    m_nMenuItems;    /**< Number of items in the menu */
       uint8_t                     m_menuDepth;     /**< Number of menus up */
@@ -271,10 +271,10 @@ namespace Twm4Nx
        * @result True is returned on success
        */
 
-      bool initialize(FAR const char *name);
+      bool initialize(FAR NXWidgets::CNxString &name);
 
       /**
-       * Add an item to a root menu
+       * Add an item to a menu
        *
        *  \param text    The text to appear in the menu
        *  \param subMenu The menu root if it is a pull-right entry
@@ -283,7 +283,7 @@ namespace Twm4Nx
        *  \param event   The event to generate on menu item selection
        */
 
-      bool addMenuItem(FAR const char *text, FAR CMenus *subMenu,
+      bool addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
                        FAR CTwm4NxEvent *handler, uint16_t event);
 
       /**

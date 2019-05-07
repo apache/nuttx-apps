@@ -76,6 +76,7 @@
 #include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
@@ -127,6 +128,7 @@ CTwm4Nx::CTwm4Nx(int display)
   m_iconmgr              = (FAR CIconMgr *)0;
   m_factory              = (FAR CWindowFactory *)0;
   m_fonts                = (FAR CFonts *)0;
+  m_mainMenu             = (FAR CMainMenu *)0;
   m_resize               = (FAR CResize *)0;
 
 #if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
@@ -244,7 +246,7 @@ bool CTwm4Nx::run(void)
   // factory is needed by the Icon Manager which is instantiated below.
 
   m_factory = new CWindowFactory(this);
-  if (m_factory == (CWindowFactory *)0)
+  if (m_factory == (FAR CWindowFactory *)0)
     {
       cleanup();
       return false;
@@ -254,7 +256,7 @@ bool CTwm4Nx::run(void)
   // need by the Icon Manager which is instantiated next.
 
   m_fonts = new CFonts(this);
-  if (m_fonts == (CFonts *)0)
+  if (m_fonts == (FAR CFonts *)0)
     {
       cleanup();
       return false;
@@ -271,7 +273,7 @@ bool CTwm4Nx::run(void)
   // Create the Icon Manager
 
   m_iconmgr = new CIconMgr(this, 4);
-  if (m_iconmgr == (CIconMgr *)0)
+  if (m_iconmgr == (FAR CIconMgr *)0)
     {
       cleanup();
       return false;
@@ -286,7 +288,22 @@ bool CTwm4Nx::run(void)
   // Cache a CIcon instance for use across the session
 
   m_icon = new CIcon(this);
-  if (m_icon == (CIcon *)0)
+  if (m_icon == (FAR CIcon *)0)
+    {
+      cleanup();
+      return false;
+    }
+
+  // Create and initialize a CMainMenu instance for use across the session
+
+  m_mainMenu = new CMainMenu(this);
+  if (m_mainMenu == (FAR CMainMenu *)0)
+    {
+      cleanup();
+      return false;
+    }
+
+  if (!m_mainMenu->initialize())
     {
       cleanup();
       return false;
@@ -295,7 +312,7 @@ bool CTwm4Nx::run(void)
   // Cache a CResize instance for use across the session
 
   m_resize = new CResize(this);
-  if (m_resize == (CResize *)0)
+  if (m_resize == (FAR CResize *)0)
     {
       cleanup();
       return false;
@@ -458,6 +475,12 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
         }
         break;
 
+      case EVENT_RECIPIENT_MAINMENU:   // Main menu related event
+        {
+          ret = m_mainMenu->event(eventmsg);
+        }
+        break;
+
       case EVENT_RECIPIENT_WINDOW:     // Window related event
       case EVENT_RECIPIENT_TOOLBAR:    // Toolbar related event
       case EVENT_RECIPIENT_BORDER:     // Window border related event
@@ -543,6 +566,14 @@ void CTwm4Nx::cleanup()
     {
       delete m_factory;
       m_factory = (CWindowFactory *)0;
+    }
+
+  // Free the session CMainMenu instance
+
+  if (m_mainMenu != (CMainMenu *)0)
+    {
+      delete m_mainMenu;
+      m_mainMenu = (CMainMenu *)0;
     }
 
   // Free the session CResize instance

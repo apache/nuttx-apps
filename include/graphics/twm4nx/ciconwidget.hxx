@@ -63,6 +63,7 @@
 namespace NXWidgets
 {
   class IBitmap;                        // Forward reference
+  class CNxString;                      // Forward reference
   class CNxWidget;                      // Forward reference
   class CWidgetStyle;                   // Forward reference
   class CWidgetControl;                 // Forward reference

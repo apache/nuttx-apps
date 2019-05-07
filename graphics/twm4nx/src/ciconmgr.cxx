@@ -157,7 +157,7 @@ bool CIconMgr::initialize(FAR const char *prefix)
 
   if (!createButtonArray())
     {
-      twmerr("ERROR:  Failed to button array\n");
+      twmerr("ERROR:  Failed to create button array\n");
 
       CWindowFactory *factory = m_twm4nx->getWindowFactory();
       factory->destroyWindow(m_window);
@@ -440,8 +440,8 @@ void CIconMgr::sort(void)
               break;
             }
 
-          if (std::strcmp(tmpwin1->cwin->getWindowName(),
-                          tmpwin2->cwin->getWindowName()) > 0)
+          NXWidgets::CNxString windowName = tmpwin1->cwin->getWindowName();
+          if (windowName.compareTo(tmpwin2->cwin->getWindowName()) > 0)
             {
               // Take it out and put it back in
 
@@ -466,16 +466,16 @@ void CIconMgr::sort(void)
 
 bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 {
-  bool ret = true;
+  bool success = true;
 
   switch (eventmsg->eventID)
     {
       default:
-        ret = false;
+        success = false;
         break;
     }
 
-  return ret;
+  return success;
 }
 
 /**
@@ -542,6 +542,10 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
       return false;
     }
 
+  // Hide the window until we complete the configuration
+
+  m_window->hideWindow();
+
   // Free any temporary name strings
 
   if (allocName != (FAR char *)0)
@@ -595,6 +599,9 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
       return false;
     }
 
+  // Now show the window in all its glory
+
+  m_window->showWindow();
   m_window->synchronize();
   return true;
 }
@@ -690,7 +697,8 @@ void CIconMgr::insertEntry(FAR struct SWindowEntry *wentry,
     {
       // Insert the new window in name order
 
-      if (strcmp(cwin->getWindowName(), tmpwin->cwin->getWindowName()) < 0)
+      NXWidgets::CNxString windowName = cwin->getWindowName();
+      if (windowName.compareTo( tmpwin->cwin->getWindowName()) > 0)
         {
           wentry->flink = tmpwin;
           wentry->blink = tmpwin->blink;
