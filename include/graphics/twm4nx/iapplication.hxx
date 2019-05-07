@@ -95,7 +95,7 @@ namespace Twm4Nx
      * called.  These two behaviors are mutually exlusive.
      *
      * NOTE: Both the start() and getSubMenu() return values are ignored
-     * if the event() method returns an event with recipient = 
+     * if the event() method returns an event with recipient =
      * EVENT_RECIPIENT_APP.  In that case, the application will be fully
      * responsible for handling the menu selection event.
      *
@@ -116,7 +116,7 @@ namespace Twm4Nx
      * typically, create a new thread to host the application.
      *
      * NOTE: Both the start() and getSubMenu() return values are ignored
-     * if the event() method returns an event with recipient = 
+     * if the event() method returns an event with recipient =
      * EVENT_RECIPIENT_APP.  In that case, the application will be fully
      * responsible for handling the menu selection event.
      *
@@ -162,7 +162,7 @@ namespace Twm4Nx
      * @return. Either, (1) an event with recipient = EVENT_RECIPIENT_APP
      *   that will be generated when menu item is selected, or (2) any other
      *   value (preferabley zero) that indicates that standard, built-in
-     *   event handling should be used.  
+     *   event handling should be used.
      */
 
     virtual uint16_t getEvent(void) = 0;
