@@ -42,6 +42,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <nuttx/config.h>
+#include <nuttx/input/mouse.h>
+
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/cmenus.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Class Definition
@@ -50,7 +54,6 @@
 namespace Twm4Nx
 {
   class CTwm4Nx;                            // Forward Reference
-  class CMenus;                             // Forward Reference
   class IApplication;                       // Forward Reference
   struct SEventMsg;                         // Forward Reference
 
@@ -133,6 +136,15 @@ namespace Twm4Nx
        */
 
       bool addApplication(FAR IApplication *app);
+
+      /**
+       * Return true if the main menu is currently being displayed
+       */
+
+      inline bool isVisible(void)
+      {
+        return m_mainMenu->isVisible();
+      }
 
       /**
        * Handle MAIN MENU events.

@@ -33,6 +33,38 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+// The logic path for mouse/touchscreen input is tortuous but flexible:
+//
+//  1. A listener thread receives mouse or touchscreen input and injects
+//     that into NX via nx_mousein
+//  2. In the multi-user mode, this will send a message to the NX server
+//  3. The NX server will determine which window gets the mouse input
+//     and send a window event message to the NX listener thread.
+//  4. The NX listener thread receives a windows event.  The NX listener thread
+//     is part of CTwm4Nx and was created when NX server connection was
+//     established.  This event may be a positional change notification, a
+//     redraw request, or mouse or keyboard input.  In this case, mouse input.
+//  5. The NX listener thread handles the message by calling nx_eventhandler().
+//     nx_eventhandler() dispatches the message by calling a method in the
+//     NXWidgets::CCallback instance associated with the window.
+//     NXWidgets::CCallback is a part of the CWidgetControl.
+//  6. NXWidgets::CCallback calls into NXWidgets::CWidgetControl to process
+//     the event.
+//  7. NXWidgets::CWidgetControl records the new state data and raises a
+//     window event.
+//  8. NXWidgets::CWindowEventHandlerList will give the event to this method
+//     NxWM::CWindowEvent.
+//  9. This NxWM::CWindowEvent method will send a message to the Event
+//     loop running in the Twm4Nx main thread.
+// 10. The Twm4Nx main thread will call the CWindowEvent::event() method
+//     which
+// 11. Finally call pollEvents() to execute whatever actions the input event
+//     should trigger.
+// 12. This might call an event handler in and overrident method of
+//     CWidgetEventHandler which will again notify the Event loop running
+//     in the Twm4Nx main thread.  The event will, finally be delivered
+//     to the recipient in its fully digested and decorated form.
+
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
 /////////////////////////////////////////////////////////////////////////////
@@ -116,59 +148,6 @@ CWindowEvent::~CWindowEvent(void)
   // Remove ourself from the list of the window event handlers
 
   removeWindowEventHandler(this);
-}
-
-/**
- * Send the EVENT_MSG_POLL input event message to the Twm4Nx event loop.
- */
-
-void CWindowEvent::sendInputEvent(void)
-{
-  twminfo("Input...\n");
-
-  // The logic path here is tortuous but flexible:
-  //
-  //  1. A listener thread receives mouse or touchscreen input and injects
-  //     that into NX via nx_mousein
-  //  2. In the multi-user mode, this will send a message to the NX server
-  //  3. The NX server will determine which window gets the mouse input
-  //     and send a window event message to the NX listener thread.
-  //  4. The NX listener thread receives a windows event.  The NX listener thread
-  //     is part of CTwm4Nx and was created when NX server connection was
-  //     established.  This event may be a positional change notification, a
-  //     redraw request, or mouse or keyboard input.  In this case, mouse input.
-  //  5. The NX listener thread handles the message by calling nx_eventhandler().
-  //     nx_eventhandler() dispatches the message by calling a method in the
-  //     NXWidgets::CCallback instance associated with the window.
-  //     NXWidgets::CCallback is a part of the CWidgetControl.
-  //  6. NXWidgets::CCallback calls into NXWidgets::CWidgetControl to process
-  //     the event.
-  //  7. NXWidgets::CWidgetControl records the new state data and raises a
-  //     window event.
-  //  8. NXWidgets::CWindowEventHandlerList will give the event to this method
-  //     NxWM::CWindowEvent.
-  //  9. This NxWM::CWindowEvent method will send a message to the Event
-  //     loop running in the Twm4Nx main thread.
-  // 10. The Twm4Nx main thread will call the CWindowEvent::event() method
-  //     which
-  // 11. Finally call pollEvents() to execute whatever actions the input event
-  //     should trigger.
-  // 12. This might call an event handler in and overrident method of
-  //     CWidgetEventHandler which will again notify the Event loop running
-  //     in the Twm4Nx main thread.  The event will, finally be delivered
-  //     to the recipient in its fully digested and decorated form.
-
-  struct SNxEventMsg msg;
-  msg.eventID  = m_isBackground ? EVENT_BACKGROUND_POLL : EVENT_WINDOW_POLL;
-  msg.instance = this;
-  msg.obj      = m_object;
-
-  int ret = mq_send(m_eventq, (FAR const char *)&msg,
-                    sizeof(struct SNxEventMsg), 100);
-  if (ret < 0)
-    {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
-    }
 }
 
 /**
@@ -305,9 +284,23 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
         }
     }
 
-  // Stimulate an input poll
+  // Stimulate an XY input poll
 
-  sendInputEvent();
+  twminfo("Mouse Input...\n");
+
+  struct SXyInputEventMsg msg;
+  msg.eventID = m_isBackground ? EVENT_BACKGROUND_XYINPUT : EVENT_WINDOW_XYINPUT;
+  msg.pos.x   = pos->x;
+  msg.pos.y   = pos->y;
+  msg.buttons = buttons;
+  msg.obj     = m_object;
+
+  int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                    sizeof(struct SXyInputEventMsg), 100);
+  if (ret < 0)
+    {
+      twmerr("ERROR: mq_send failed: %d\n", ret);
+    }
 }
 #endif
 
@@ -320,9 +313,21 @@ void CWindowEvent::handleKeyboardEvent(void)
 {
   twminfo("Keyboard input...\n");
 
-  // Stimulate an input poll
+  // Stimulate an keyboard event widget poll
 
-  sendInputEvent();
+  twminfo("Keyboard Input...\n");
+
+  struct SNxEventMsg msg;
+  msg.eventID  = m_isBackground ? EVENT_BACKGROUND_KBDINPUT : EVENT_WINDOW_KBDINPUT;
+  msg.instance = this;
+  msg.obj      = m_object;
+
+  int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                    sizeof(struct SNxEventMsg), 100);
+  if (ret < 0)
+    {
+      twmerr("ERROR: mq_send failed: %d\n", ret);
+    }
 }
 #endif
 

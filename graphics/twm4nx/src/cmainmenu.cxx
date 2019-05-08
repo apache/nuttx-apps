@@ -75,7 +75,7 @@ CMainMenu::CMainMenu(FAR CTwm4Nx *twm4nx)
  * CMainMenu Destructor
  */
 
-CMainMenu:: ~CMainMenu(void)
+CMainMenu::~CMainMenu(void)
 {
   if (m_mainMenu != (FAR CMenus *)0)
     {
@@ -172,9 +172,24 @@ bool CMainMenu::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
+      // This event is sent from CBackground when a left mouse click
+      // is received in the background window (and not on an icon)
+
       case EVENT_MAINMENU_SELECT:  // Main menu selection
-#warning Missing logic
-        success = false;
+        // Check if the main menu is already visible
+
+        if (!m_mainMenu->isVisible())
+          {
+            // No.. then make it visible now
+
+            // REVISIT:  Need to reset the menu to its initial state
+            // REVISIT:  Need to position the main menu as close as
+            //           possible to the click position in eventmsg.
+
+            m_mainMenu->show();    // Make the main menu visible
+          }
+
+        break;
 
       default:
         success = false;

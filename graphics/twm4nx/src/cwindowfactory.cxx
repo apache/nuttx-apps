@@ -254,7 +254,18 @@ bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_WINDOW_POLL:  // Poll for icon events
+      case EVENT_WINDOW_XYINPUT:   // Poll for toolbar mouse/touch events
+        {
+          FAR struct SXyInputEventMsg *nxmsg =
+            (FAR struct SXyInputEventMsg *)eventmsg;
+          FAR CWindow *cwin = (FAR CWindow *)nxmsg->obj;
+          DEBUGASSERT(cwin != (FAR CWindow *)0);
+
+          success = cwin->pollToolbarEvents();
+        }
+        break;
+
+      case EVENT_WINDOW_KBDINPUT:  // Poll for toolbar keyboard events
         {
           FAR struct SNxEventMsg *nxmsg =
             (FAR struct SNxEventMsg *)eventmsg;

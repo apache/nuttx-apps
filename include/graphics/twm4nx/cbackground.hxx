@@ -43,6 +43,8 @@
 
 #include <nuttx/config.h>
 
+#include <mqueue.h>
+
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxserver.hxx"
@@ -75,6 +77,7 @@ namespace Twm4Nx
   {
     protected:
       FAR CTwm4Nx                  *m_twm4nx;     /**< Cached CTwm4Nx instance */
+      mqd_t                         m_eventq;     /**< NxWidget event message queue */
       FAR NXWidgets::CBgWindow     *m_backWindow; /**< The background window */
       FAR NXWidgets::CImage        *m_backImage;  /**< The background image */
 
@@ -101,6 +104,12 @@ namespace Twm4Nx
        */
 
       bool createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
+
+      /**
+       * Release resources held by the background.
+       */
+
+      void cleanup(void);
 
     public:
       /**

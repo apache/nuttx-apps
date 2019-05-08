@@ -40,6 +40,9 @@
 
 #include <nuttx/config.h>
 
+#include <cfcntl>
+#include <cerrno>
+
 #include <nuttx/nx/nxglib.h>
 
 #include "graphics/nxwidgets/cscaledbitmap.hxx"
@@ -52,6 +55,7 @@
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cicon.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cbackground.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,6 +73,7 @@ using namespace Twm4Nx;
 CBackground::CBackground(FAR CTwm4Nx *twm4nx)
 {
   m_twm4nx      = twm4nx;                    // Save the session instance
+  m_eventq      = (mqd_t)-1;                 // No NxWidget event message queue yet
   m_backWindow  = (NXWidgets::CBgWindow *)0; // No background window yet
   m_backImage   = (NXWidgets::CImage *)0;    // No background image yet
 }
@@ -79,30 +84,9 @@ CBackground::CBackground(FAR CTwm4Nx *twm4nx)
 
 CBackground::~CBackground(void)
 {
-  // Delete the background
+  // Free resources helf by the background
 
-  if (m_backWindow != (NXWidgets::CBgWindow *)0)
-    {
-      // Delete the contained widget control.  We are responsible for it
-      // because we created it
-
-      NXWidgets::CWidgetControl *control = m_backWindow->getWidgetControl();
-      if (control != (NXWidgets::CWidgetControl *)0)
-        {
-          delete control;
-        }
-
-      // Then delete the background
-
-      delete m_backWindow;
-    }
-
-  // Delete the background image
-
-  if (m_backImage != (NXWidgets::CImage *)0)
-    {
-      delete m_backImage;
-    }
+  cleanup();
 }
 
 /**
@@ -119,12 +103,25 @@ bool CBackground::
 {
   twminfo("Create the background window\n");
 
+  // Open a message queue to send fully digested NxWidget events.
+
+  FAR const char *mqname = m_twm4nx->getEventQueueName();
+
+  m_eventq = mq_open(mqname, O_WRONLY | O_NONBLOCK);
+  if (m_eventq == (mqd_t)-1)
+    {
+      twmerr("ERROR: Failed open message queue '%s': %d\n",
+             mqname, errno);
+      return false;
+    }
+
   // Create the background window (if we have not already done so)
 
   if (m_backWindow == (NXWidgets::CBgWindow *)0 &&
       !createBackgroundWindow())
     {
       twmerr("ERROR: Failed to create the background window\n");
+      cleanup();
       return false;
     }
 
@@ -135,8 +132,7 @@ bool CBackground::
   if (!createBackgroundImage(sbitmap))
     {
       twmerr("ERROR: Failed to create the background image\n");
-      delete m_backWindow;
-      m_backWindow = (NXWidgets::CBgWindow *)0;
+      cleanup();
       return false;
     }
 
@@ -246,17 +242,59 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
   bool success = true;
   switch (eventmsg->eventID)
     {
-      case EVENT_BACKGROUND_POLL:      // Poll for icon events
+     case EVENT_BACKGROUND_XYINPUT:    // Poll for icon mouse/touch events
         {
+          // This event message is sent from CWindowEvent whenever mouse,
+          // touchscreen, or keyboard entry events are received in the
+          // background window.
+
           NXWidgets::CWidgetControl *control =
             m_backWindow->getWidgetControl();
 
-          // pollEvents() returns true if any interesting event occurred.
+          // pollEvents() returns true if any interesting event occurred
+          // within a widget that is associated with the background window.
           // false is not a failure.
 
-          (void)control->pollEvents();
+          if (!control->pollEvents())
+            {
+              // If there is no interesting widget event, then this might be
+              // a background click.  In that case, we should bring up the
+              // main menu (if it is not already up).
+
+              // Is the main menu already up?  Was the mouse left button
+              // pressed?
+
+              FAR struct SXyInputEventMsg *xymsg =
+                (FAR struct SXyInputEventMsg *)eventmsg;
+
+              FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+              if (!cmain->isVisible() &&
+                  (xymsg->buttons & MOUSE_BUTTON_1) != 0)
+               {
+                  // Bring up the main menu
+
+                  struct SEventMsg outmsg;
+                  outmsg.eventID = EVENT_MAINMENU_SELECT;
+                  outmsg.pos.x   = eventmsg->pos.x;
+                  outmsg.pos.y   = eventmsg->pos.y;
+                  outmsg.context = EVENT_CONTEXT_BACKGROUND;
+                  outmsg.handler = (FAR CTwm4NxEvent *)0;
+                  outmsg.obj     = (FAR void *)this;
+
+                  int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                                    sizeof(struct SEventMsg), 100);
+                  if (ret < 0)
+                    {
+                      twmerr("ERROR: mq_send failed: %d\n", ret);
+                    }
+               }
+
+            }
         }
         break;
+
+      case EVENT_WINDOW_KBDINPUT:      // Poll for icon keyboard events
+        break;                         // There aren't any
 
       case EVENT_BACKGROUND_REDRAW:    // Redraw the background
         {
@@ -416,4 +454,46 @@ bool CBackground::
   m_backImage->enableDrawing();
   m_backImage->redraw();
   return true;
+}
+
+/**
+ * Release resources held by the background.
+ */
+
+void CBackground::cleanup(void)
+{
+  // Close the NxWidget event message queue
+
+  if (m_eventq != (mqd_t)-1)
+    {
+      (void)mq_close(m_eventq);
+      m_eventq = (mqd_t)-1;
+    }
+
+  // Delete the background
+
+  if (m_backWindow != (NXWidgets::CBgWindow *)0)
+    {
+      // Delete the contained widget control.  We are responsible for it
+      // because we created it
+
+      NXWidgets::CWidgetControl *control = m_backWindow->getWidgetControl();
+      if (control != (NXWidgets::CWidgetControl *)0)
+        {
+          delete control;
+        }
+
+      // Then delete the background
+
+      delete m_backWindow;
+      m_backWindow = (NXWidgets::CBgWindow *)0;
+    }
+
+  // Delete the background image
+
+  if (m_backImage != (NXWidgets::CImage *)0)
+    {
+      delete m_backImage;
+      m_backImage = (NXWidgets::CImage *)0;
+    }
 }

@@ -149,12 +149,6 @@ namespace Twm4Nx
       FAR IDragEvent      *m_dragHandler;   /**< Drag event handlers (may be NULL) */
       uintptr_t            m_dragArg;       /**< User argument associated with callback */
 
-      /**
-       * Send the EVENT_MSG_POLL input event message to the Twm4Nx event loop.
-       */
-
-      void sendInputEvent(void);
-
       // Override CWidgetEventHandler virtual methods ///////////////////////
 
       /**

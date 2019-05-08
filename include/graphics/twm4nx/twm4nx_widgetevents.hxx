@@ -110,8 +110,9 @@ namespace Twm4Nx
 
     // Recipient == BACKGOUND
 
-    EVENT_BACKGROUND_POLL      = 0x1000,  /**< Poll background icons for events */
-    EVENT_BACKGROUND_REDRAW    = 0x1001,  /**< Redraw the background */
+    EVENT_BACKGROUND_XYINPUT   = 0x1000,  /**< Poll window for widget mouse/touch events */
+    EVENT_BACKGROUND_KBDINPUT  = 0x1001,  /**< Poll window for widget keyboard events */
+    EVENT_BACKGROUND_REDRAW    = 0x1002,  /**< Redraw the background */
 
     // Recipient == ICONWIDGET
 
@@ -137,14 +138,15 @@ namespace Twm4Nx
 
     // Recipient == WINDOW
 
-    EVENT_WINDOW_POLL          = 0x6000,  /**< Poll window for widget events */
-    EVENT_WINDOW_FOCUS         = 0x6001,  /**< Enter modal state */
-    EVENT_WINDOW_UNFOCUS       = 0x6002,  /**< Exit modal state */
-    EVENT_WINDOW_RAISE         = 0x6003,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x6004,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DEICONIFY     = 0x6005,  /**< De-iconify and raise window  */
-    EVENT_WINDOW_DRAG          = 0x6006,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x6007,  /**< Delete window */
+    EVENT_WINDOW_XYINPUT       = 0x6000,  /**< Poll window for widget mouse/touch events */
+    EVENT_WINDOW_KBDINPUT      = 0x6001,  /**< Poll window for widget keyboard events */
+    EVENT_WINDOW_FOCUS         = 0x6002,  /**< Enter modal state */
+    EVENT_WINDOW_UNFOCUS       = 0x6003,  /**< Exit modal state */
+    EVENT_WINDOW_RAISE         = 0x6004,  /**< Raise window to the top of the heirarchy */
+    EVENT_WINDOW_LOWER         = 0x6005,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_DEICONIFY     = 0x6006,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG          = 0x6007,  /**< Drag window */
+    EVENT_WINDOW_DELETE        = 0x6008,  /**< Delete window */
 
     // Recipient == TOOLBAR
 
@@ -174,12 +176,14 @@ namespace Twm4Nx
 
   };
 
-  // Contexts for button press events
+  // Contexts for button press events.  These basically identify the sender
+  // of the event message.
 
   enum EButtonContext
   {
     EVENT_CONTEXT_WINDOW = 0,
     EVENT_CONTEXT_TOOLBAR,
+    EVENT_CONTEXT_BACKGROUND,
     EVENT_CONTEXT_ICON,
     EVENT_CONTEXT_FRAME,
     EVENT_CONTEXT_ICONMGR,
@@ -189,8 +193,8 @@ namespace Twm4Nx
   };
 
   /**
-   * This type represents a generic message containing all possible,
-   * message-specific options (wasteful, but a lot easier).
+   * This type represents a generic messages, particularly button press
+   * or released events.
    */
 
   struct SEventMsg
@@ -203,7 +207,7 @@ namespace Twm4Nx
   };
 
   /**
-   * This is the alternative form of the message used with redraw commands
+   * This message form is used with CWindowEvent redraw commands
    */
 
   struct SRedrawEventMsg
@@ -214,8 +218,20 @@ namespace Twm4Nx
   };
 
   /**
-   * This is the alternative form of the message used on in
-   * CWindowEvent::event()
+   * This message for is used with CWindowEVent mouse/keyboard input events
+   */
+
+  struct SXyInputEventMsg
+  {
+    uint16_t eventID;                   /**< Encoded event ID */
+    struct nxgl_point_s pos;            /**< X/Y position */
+    uint8_t buttons;                    /**< Bit set of button presses */
+    FAR void *obj;                      /**< Context specific reference */
+  };
+
+  /**
+   * This is the alternative form of the message used by
+   * CWindowEvent for blocked and keyboard input messages
    */
 
   struct SNxEventMsg

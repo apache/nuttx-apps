@@ -123,6 +123,7 @@ namespace Twm4Nx
       uint16_t                    m_nMenuItems;    /**< Number of items in the menu */
       uint8_t                     m_menuDepth;     /**< Number of menus up */
       bool                        m_menuPull;      /**< Is there a pull right entry? */
+      bool                        m_visible;       /**< True: The menu is visible */
       char                        m_info[INFO_LINES][INFO_SIZE];
 
       void identify(FAR CWindow *cwin);
@@ -266,7 +267,8 @@ namespace Twm4Nx
 
       /**
        * CMenus Initializer.  Performs the parts of the CMenus construction
-       * that may fail.
+       * that may fail.  The menu window is created but is not initially
+       * visible.  Use the show() method to make the menu visible.
        *
        * @param name The menu name
        * @result True is returned on success
@@ -286,6 +288,48 @@ namespace Twm4Nx
 
       bool addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
                        FAR CTwm4NxEvent *handler, uint16_t event);
+
+      /**
+       * Return true if the main menu is currently being displayed
+       */
+
+
+      inline bool isVisible(void)
+      {
+        return m_visible;
+      }
+
+      /**
+       * Make the menu visible.
+       *
+       * @return True if the main menu is shown.
+       */
+
+      inline bool show(void)
+      {
+        if (!m_visible)
+          {
+            m_visible = m_menuWindow->show();
+          }
+
+        return m_visible;
+      }
+
+      /**
+       * Hide the menu
+       *
+       * @return True if the menu was hidden.
+       */
+
+      inline bool hide(void)
+      {
+        if (m_visible)
+          {
+            m_visible = !m_menuWindow->hide();
+          }
+
+        return !m_visible;
+      }
 
       /**
        * Handle MENU events.

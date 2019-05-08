@@ -54,5 +54,7 @@ STATUS
     The Icon Manager window can be grabbed by the toolbar title and moved
     about on the window (the icon grab'n'move does not work however).
     Further progress depends upon getting a main menu in place.  The main
-    menu should come up on any click on a visible region of the background.
+    menu does now come up on any click on a visible region of the
+    background, but the menu is not complete enough to be usable; it needs
+    some applications to start and a CTextBox widget.
 

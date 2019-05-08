@@ -101,6 +101,7 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
   m_nMenuItems   = 0;                          // No menu items yet
   m_menuDepth    = 0;                          // No menus up
   m_entryHeight  = 0;                          // Menu entry height
+  m_visible      = false;                      // Menu not visible
   m_menuPull     = false;                      // No pull right entry
 
   // Windows
@@ -123,7 +124,8 @@ CMenus::~CMenus(void)
 
 /**
  * CMenus Initializer.  Performs the parts of the CMenus construction
- * that may fail.
+ * that may fail.  The menu window is created but is not initially
+ * visible.  Use the show() method to make the menu visible.
  *
  * @param name The name of the menu
  * @result True is returned on success
