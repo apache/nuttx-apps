@@ -47,4 +47,12 @@ STATUS
     initializes the VNC window.  For some reason, the VNC client breaks the
     connection.  The server is no longer connected so Twm4Nx constipates and
     and eventually hangs.
+  2019-05-08:  I abandoned the VNC interface and found that things are much
+    better using a direct, hardware framebuffer.  The background comes up
+    properly and the Icon Manager appears properly in the upper rightthand
+    corner.  The Icon Manager Window can be iconfified or de-inconified.
+    The Icon Manager window can be grabbed by the toolbar title and moved
+    about on the window (the icon grab'n'move does not work however).
+    Further progress depends upon getting a main menu in place.  The main
+    menu should come up on any click on a visible region of the background.
 

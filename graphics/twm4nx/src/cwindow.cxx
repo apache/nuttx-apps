@@ -1483,8 +1483,10 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
 
   if (m_dragging)
     {
-      // The coordinates in the eventmsg or relative to the origin
+      // The coordinates in the eventmsg are relative to the origin
       // of the toolbar.
+
+      // Get the current (old) frame position
 
       struct nxgl_point_s oldPos;
       if (!getFramePosition(&oldPos))
@@ -1493,8 +1495,9 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
           return false;
         }
 
-      // We want to set the new frame position so that it has the same
-      // relative mouse position as when we grabbed the toolbar.
+      // We want to set the new frame position so that the new
+      // mouse position is at the same relative position as it
+      // was when the toolbar title was first grabbed.
 
       struct nxgl_point_s newPos;
       newPos.x = oldPos.x + eventmsg->pos.x - m_dragPos.x;
