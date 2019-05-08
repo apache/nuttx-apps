@@ -82,12 +82,14 @@ namespace Twm4Nx
        *
        * @param pos The current mouse/touch X/Y position in toolbar relative
        *   coordinates.
-       * @return True: if the drage event was processed; false it is was
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: if the drag event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
        *   a drag event in progress
        */
 
-      virtual bool dragEvent(FAR const struct nxgl_point_s &pos) = 0;
+      virtual bool dragEvent(FAR const struct nxgl_point_s &pos,
+                             uintptr_t arg) = 0;
 
       /**
        * This function is called if the mouse left button is released or
@@ -96,12 +98,32 @@ namespace Twm4Nx
        *
        * @param pos The last mouse/touch X/Y position in toolbar relative
        *   coordinates.
-       * @return True: if the drage event was processed; false it is was
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: If the drag event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
        *   a drag event in progress
        */
 
-      virtual bool dropEvent(FAR const struct nxgl_point_s &pos) = 0;
+      virtual bool dropEvent(FAR const struct nxgl_point_s &pos,
+                             uintptr_t arg) = 0;
+
+      /**
+       * Is dragging enabled?
+       *
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: If the dragging is enabled.
+       */
+
+      virtual bool isDragging(uintptr_t arg) = 0;
+
+      /**
+       * Enable/disable dragging
+       *
+       * @param enable.  True:  Enable dragging
+       * @param arg The user-argument provided that accompanies the callback
+       */
+
+      virtual void setDragging(bool enable, uintptr_t arg) = 0;
   };
 
   /**
@@ -117,16 +139,15 @@ namespace Twm4Nx
                        public NXWidgets::CWidgetControl
   {
     private:
-      FAR CTwm4Nx         *m_twm4nx;           /**< Cached instance of CTwm4Nx */
-      mqd_t                m_eventq;           /**< NxWidget event message queue */
-      FAR void            *m_object;           /**< Window object (context specific) */
-      bool                 m_isBackground;     /**< True if this serves the background window */
+      FAR CTwm4Nx         *m_twm4nx;        /**< Cached instance of CTwm4Nx */
+      mqd_t                m_eventq;        /**< NxWidget event message queue */
+      FAR void            *m_object;        /**< Window object (context specific) */
+      bool                 m_isBackground;  /**< True if this serves the background window */
 
       // Dragging
 
-      FAR IDragEvent      *m_dragHandler;      /**< Drag event handlers (may be NULL) */
-      bool                 m_dragging;         /**< True:  dragging */
-      struct nxgl_point_s  m_dragPos;          /**< Last mouse/touch position */
+      FAR IDragEvent      *m_dragHandler;   /**< Drag event handlers (may be NULL) */
+      uintptr_t            m_dragArg;       /**< User argument associated with callback */
 
       /**
        * Send the EVENT_MSG_POLL input event message to the Twm4Nx event loop.
@@ -204,9 +225,11 @@ namespace Twm4Nx
        * @param cb A reference to the IDragEvent callback interface.
        */
 
-      inline void registerDragEventHandler(FAR IDragEvent *dragHandler)
+      inline void registerDragEventHandler(FAR IDragEvent *dragHandler,
+                                           uintptr_t arg)
       {
          m_dragHandler = dragHandler;
+         m_dragArg     = arg;
       }
   };
 }

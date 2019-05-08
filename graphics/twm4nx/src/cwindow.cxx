@@ -160,7 +160,8 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
 
   // Dragging
 
-  m_drag                 = false;
+  m_clicked              = false;
+  m_dragging             = false;
   m_dragPos.x            = 0;
   m_dragPos.y            = 0;
   m_dragCSize.w          = 0;
@@ -679,6 +680,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    handler
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
+  control->registerDragEventHandler(this, (uintptr_t)1);
 
   // 4. Create the window
 
@@ -769,7 +771,7 @@ bool CWindow::createToolbar(void)
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
-  control->registerDragEventHandler(this);
+  control->registerDragEventHandler(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
 
@@ -1190,7 +1192,7 @@ void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
   // We are interested only the the press event on the title box and
   // only if we are not already dragging the window
 
-  if (!m_drag && m_tbTitle->isClicked())
+  if (!m_dragging && m_tbTitle->isClicked())
     {
       // Generate the event
 
@@ -1231,7 +1233,7 @@ void CWindow::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
   // Handle the case where a release event was received, but the
   // window was not dragged.
 
-  if (m_drag && !m_tbTitle->isClicked())
+  if (m_dragging && !m_tbTitle->isClicked())
     {
       // A click with no drag should raise the window.
 
@@ -1299,27 +1301,33 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
  *
  * @param pos The current mouse/touch X/Y position in toolbar relative
  *   coordinates.
- * @return True: if the drage event was processed; false it is was
+ * @return True: if the drag event was processed; false it is was
  *   ignored.  The event should be ignored if there is not actually
  *   a drag event in progress
  */
 
-bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos)
+bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos,
+                        uintptr_t arg)
 {
-  twminfo("m_drag=%u pos=(%d,%d)\n", m_drag, pos.x, pos.y);
+  twminfo("m_dragging=%u pos=(%d,%d)\n", m_dragging, pos.x, pos.y);
 
   // We are interested only the drag event while we are in the dragging
   // state.
 
-  if (m_drag)
+  if (m_dragging)
     {
-      // Conver the 
+      // arg == 0 means that this a tooolbar event vs s main window event.
+      // Since the position is relative in both cases, we need a fix-up in
+      // the height to keep the same toolbar relative position in all cases.
+
+      nxgl_coord_t yIncr = ((arg == 0) ? 0 : m_tbHeight);
+
       // Generate the event
 
       struct SEventMsg msg;
       msg.eventID = EVENT_WINDOW_DRAG;
       msg.pos.x   = pos.x;
-      msg.pos.y   = pos.y;
+      msg.pos.y   = pos.y + yIncr;
       msg.context = EVENT_CONTEXT_TOOLBAR;
       msg.handler = (FAR CTwm4NxEvent *)0;
       msg.obj     = (FAR void *)this;
@@ -1353,14 +1361,15 @@ bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos)
  *
  * @param pos The last mouse/touch X/Y position in toolbar relative
  *   coordinates.
- * @return True: if the drage event was processed; false it is was
+ * @return True: If the drag event was processed; false it is was
  *   ignored.  The event should be ignored if there is not actually
  *   a drag event in progress
  */
 
-bool CWindow::dropEvent(FAR const struct nxgl_point_s &pos)
+bool CWindow::dropEvent(FAR const struct nxgl_point_s &pos,
+                        uintptr_t arg)
 {
-  twminfo("m_drag=%u pos=(%d,%d)\n", m_drag, pos.x, pos.y);
+  twminfo("m_dragging=%u pos=(%d,%d)\n", m_dragging, pos.x, pos.y);
 
   // We are interested only the the drag drop event on the title box while we
   // are in the dragging state.
@@ -1369,15 +1378,45 @@ bool CWindow::dropEvent(FAR const struct nxgl_point_s &pos)
   // will return false.  It is sufficient to verify that the isClicked() is
   // not true to exit the drag.
 
-  if (m_drag)
+  if (m_dragging)
     {
       // Yes.. handle the drop event
 
-      handleUngrabEvent(pos.x, pos.y);
+      // arg == 0 means that this a tooolbar event vs s main window event.
+      // Since the position is relative in both cases, we need a fix-up in
+      // the height to keep the same toolbar relative position in all cases.
+
+      nxgl_coord_t yIncr = ((arg == 0) ? 0 : m_tbHeight);
+
+      handleUngrabEvent(pos.x, pos.y + yIncr);
       return true;
     }
 
   return false;
+}
+
+/**
+ * Is dragging enabled?
+ *
+ * @param arg The user-argument provided that accompanies the callback
+ * @return True: If the dragging is enabled.
+ */
+
+bool CWindow::isDragging(uintptr_t arg)
+{
+  return m_clicked;
+}
+
+/**
+ * Enable/disable dragging
+ *
+ * @param enable.  True:  Enable dragging
+ * @param arg The user-argument provided that accompanies the callback
+ */
+
+void CWindow::setDragging(bool enable, uintptr_t arg)
+{
+  m_clicked = enable;
 }
 
 /**
@@ -1400,7 +1439,7 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
 
   // Indicate that dragging has started.
 
-  m_drag = true;
+  m_dragging = true;
 
   // Get the frame position.
 
@@ -1442,7 +1481,7 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
 {
   twminfo("DRAG (%d,%d)\n", eventmsg->pos.x, eventmsg->pos.y);
 
-  if (m_drag)
+  if (m_dragging)
     {
       // The coordinates in the eventmsg or relative to the origin
       // of the toolbar.
@@ -1535,7 +1574,7 @@ bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
 
   // Indicate no longer dragging
 
-  m_drag = false;
+  m_dragging = false;
 
   // No longer modal
 

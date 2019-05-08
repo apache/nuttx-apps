@@ -171,7 +171,8 @@ namespace Twm4Nx
 
       struct nxgl_point_s         m_dragPos;    /**< Last reported mouse position */
       struct nxgl_size_s          m_dragCSize;  /**< The grab cursor size */
-      bool                        m_drag;       /**< Drag in-progress */
+      bool                        m_dragging;   /**< True: Drag in-progress */
+      volatile bool               m_clicked;    /**< True: Mouse left button is clicked */
 
       /**
        * Create the main window
@@ -284,12 +285,14 @@ namespace Twm4Nx
        * This function overrides the virtual IDragEvent::dragEvent method.
        *
        * @param pos The current mouse/touch X/Y position.
+       * @param arg The user-argument provided that accompanies the callback
        * @return True: if the drage event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
        *   a drag event in progress
        */
 
-      bool dragEvent(FAR const struct nxgl_point_s &pos);
+      bool dragEvent(FAR const struct nxgl_point_s &pos,
+                     uintptr_t arg);
 
       /**
        * This function is called if the mouse left button is released or
@@ -298,12 +301,33 @@ namespace Twm4Nx
        *
        * This function overrides the virtual IDragEvent::dropEvent method.
        *
+       * @param pos The last mouse/touch X/Y position.
+       * @param arg The user-argument provided that accompanies the callback
        * @return True: if the drage event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
        *   a drag event in progress
        */
 
-      bool dropEvent(FAR const struct nxgl_point_s &pos);
+      bool dropEvent(FAR const struct nxgl_point_s &pos,
+                     uintptr_t arg);
+
+      /**
+       * Is dragging enabled?
+       *
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: If the dragging is enabled.
+       */
+
+      bool isDragging(uintptr_t arg);
+
+      /**
+       * Enable/disable dragging
+       *
+       * @param enable.  True:  Enable dragging
+       * @param arg The user-argument provided that accompanies the callback
+       */
+
+      void setDragging(bool enable, uintptr_t arg);
 
       /**
        * Handle the TOOLBAR_GRAB event.  That corresponds to a left
