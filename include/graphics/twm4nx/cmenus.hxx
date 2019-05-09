@@ -123,7 +123,6 @@ namespace Twm4Nx
       uint16_t                    m_nMenuItems;    /**< Number of items in the menu */
       uint8_t                     m_menuDepth;     /**< Number of menus up */
       bool                        m_menuPull;      /**< Is there a pull right entry? */
-      bool                        m_visible;       /**< True: The menu is visible */
       char                        m_info[INFO_LINES][INFO_SIZE];
 
       void identify(FAR CWindow *cwin);
@@ -186,9 +185,17 @@ namespace Twm4Nx
       bool createMenuWindow(void);
 
       /**
+       * Calculate the optimal menu frame size
+       *
+       * @param frameSize The location to return the calculated frame size
+       */
+
+      void getMenuFrameSize(FAR struct nxgl_size_s &frameSize);
+
+      /**
        * Calculate the optimal menu window size
        *
-       * @result True is returned on success
+       * @param size The location to return the calculated window size
        */
 
       void getMenuWindowSize(FAR struct nxgl_size_s &size);
@@ -298,28 +305,62 @@ namespace Twm4Nx
                        FAR CTwm4NxEvent *handler, uint16_t event);
 
       /**
-       * Return true if the main menu is currently being displayed
+       * Return the size of the menu window frame
+       *
+       * @param frameSize The location in which to return the current menu
+       *   window frame size.
+       * @result True is returned on success
+       */
+
+      bool getFrameSize(FAR struct nxgl_size_s *frameSize)
+      {
+        return m_menuWindow->getFrameSize(frameSize);
+      }
+
+      /**
+       * Set the position of the menu window frame
+       *
+       * @param framePos The new menum window frame position
+       * @result True is returned on success
+       */
+
+      bool getFramePosition(FAR struct nxgl_point_s *framePos)
+      {
+        return m_menuWindow->getFramePosition(framePos);
+      }
+
+      /**
+       * Set the position of the menu window frame
+       *
+       * @param framePos The new menum window frame position
+       * @result True is returned on success
+       */
+
+      bool setFramePosition(FAR const struct nxgl_point_s *framePos)
+      {
+        return m_menuWindow->setFramePosition(framePos);
+      }
+
+      /**
+       * Return true if the menu is currently being displayed
+       *
+       * @return True if the menu is visible
        */
 
       inline bool isVisible(void)
       {
-        return m_visible;
+        return !m_menuWindow->isIconified();
       }
 
       /**
        * Make the menu visible.
        *
-       * @return True if the main menu is shown.
+       * @return True if the menu is shown.
        */
 
       inline bool show(void)
       {
-        if (!m_visible)
-          {
-            m_visible = m_menuWindow->showWindow();
-          }
-
-        return m_visible;
+        return m_menuWindow->deIconify();
       }
 
       /**
@@ -330,12 +371,7 @@ namespace Twm4Nx
 
       inline bool hide(void)
       {
-        if (m_visible)
-          {
-            m_visible = !m_menuWindow->hideWindow();
-          }
-
-        return !m_visible;
+        return m_menuWindow->iconify();
       }
 
       /**

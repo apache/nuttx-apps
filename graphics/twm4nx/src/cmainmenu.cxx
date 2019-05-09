@@ -45,11 +45,12 @@
 
 #include <graphics/nxwidgets/cnxstring.hxx>
 
-#include <graphics/twm4nx/twm4nx_widgetevents.hxx>
+#include <graphics/twm4nx/twm4nx_config.hxx>
 #include <graphics/twm4nx/iapplication.hxx>
 #include <graphics/twm4nx/ctwm4nx.hxx>
 #include <graphics/twm4nx/cmenus.hxx>
 #include <graphics/twm4nx/cmainmenu.hxx>
+#include <graphics/twm4nx/twm4nx_widgetevents.hxx>
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Class Definition
@@ -98,14 +99,14 @@ bool CMainMenu::initialize(void)
   m_mainMenu = new CMenus(m_twm4nx);
   if (m_mainMenu == (FAR CMenus *)0)
     {
-      gerr("ERROR: Failed to create the CMenus instance\n");
+      twmerr("ERROR: Failed to create the CMenus instance\n");
       return false;
     }
 
   NXWidgets::CNxString menuName("Main Menu");
   if (!m_mainMenu->initialize(menuName))
     {
-      gerr("ERROR: Failed to initialize the CMenus instance\n");
+      twmerr("ERROR: Failed to initialize the CMenus instance\n");
       delete m_mainMenu;
       m_mainMenu = (FAR CMenus *)0;
       return false;
@@ -131,7 +132,7 @@ bool CMainMenu::addApplication(FAR IApplication *app)
 
   if (mmitem == (FAR struct SMainMenuItem *)0)
     {
-      gerr("ERROR:  Failed to allocate the main menu entry\n");
+      twmerr("ERROR:  Failed to allocate the main menu entry\n");
       return false;
     }
 
@@ -141,13 +142,12 @@ bool CMainMenu::addApplication(FAR IApplication *app)
 
   // Add the new menu item to the main menu
 
-  FAR NXWidgets::CNxString appName;
-  app->getName(appName);
+  FAR NXWidgets::CNxString appName = app->getName();
 
   if (!m_mainMenu->addMenuItem(appName, app->getSubMenu(),
                                app->getEventHandler(), app->getEvent()))
     {
-      gerr("ERROR: addMenuItem failed\n");
+      twmerr("ERROR: addMenuItem failed\n");
       std::free(mmitem);
       return false;
     }
@@ -181,12 +181,24 @@ bool CMainMenu::event(FAR struct SEventMsg *eventmsg)
         if (!m_mainMenu->isVisible())
           {
             // No.. then make it visible now
+            // First, we select a position as close to the background click
+            // as possible
 
-            // REVISIT:  Need to reset the menu to its initial state
-            // REVISIT:  Need to position the main menu as close as
-            //           possible to the click position in eventmsg.
+            success = selectMainMenuPosition(eventmsg->pos);
+            if (!success)
+              {
+                twmerr("ERROR: selectMainMenuPosition() failed\n");
+              }
+            else
+              {
+                // Make the main menu visible
 
-            m_mainMenu->show();    // Make the main menu visible
+                success = m_mainMenu->show();
+                if (!success)
+                  {
+                    twmerr("ERROR: Failed to show the menu\n");
+                  }
+              }
           }
 
         break;
@@ -255,4 +267,108 @@ void CMainMenu::removeEntry(FAR struct SMainMenuItem *mmitem)
 
   mmitem->flink = NULL;
   mmitem->blink = NULL;
+}
+
+/**
+ * Select a position for the Main Menu which is as close as possible
+ * the background click position.
+ *
+ * @param clickPos The background click position
+ */
+
+bool CMainMenu::selectMainMenuPosition(FAR const struct nxgl_point_s &clickPos)
+{
+  // Get the size of the main menu frame
+
+  struct nxgl_size_s frameSize;
+  m_mainMenu->getFrameSize(&frameSize);
+
+  // Get the size of the display
+
+  struct nxgl_size_s displaySize;
+  m_twm4nx->getDisplaySize(&displaySize);
+
+  // Determine the best new Y position for the menu.
+
+  struct nxgl_point_s framePos;
+
+  // Check if the menu does not fit on the display.  This is really an error
+  // condition since menu items are not accessible
+  //
+  // REVISIT:  Consider using a scrolling text box to handle this case.
+
+  if (frameSize.h > displaySize.h)
+    {
+      // Just position at the top of the display so that at least the
+      // toolbar will be visible
+
+      framePos.y = 0;
+    }
+
+  // Try to position the menu at the same Y position as the background click
+
+  else if (clickPos.y + frameSize.h <= displaySize.h)
+    {
+      framePos.y = clickPos.y;
+    }
+
+  // Otherwise, set the Y position so that the entire menu is on the display
+  // with the bottom of the menu at the bottom of the display.
+
+  else
+    {
+      framePos.y = displaySize.h - frameSize.h;
+    }
+
+  // Determine the best new Y position for the menu.
+
+  // Check if the menu does not fit on the display.  This is really unlikely.
+
+  if (frameSize.w > displaySize.w)
+    {
+      // Just position at the right of the display so that at least the
+      // toolbar minimize button will be visible
+
+      framePos.x = displaySize.w - frameSize.w;  // Negative position!
+    }
+
+  // Try to position the menu at the same X position as the background click
+  // So that it appears to the right of the click position.
+
+  else if (clickPos.x + frameSize.w <= displaySize.w)
+    {
+      framePos.x = clickPos.x;
+    }
+
+  // Try to position the menu at the same X position as the background click
+  // So that it appears to the left of the click position.
+
+  else if (clickPos.x >= frameSize.w)
+    {
+      framePos.x = clickPos.x - frameSize.w;
+    }
+
+  // Otherwise, set the X position so that the entire menu is on the display
+  // on the left or right of the display.  This cases are not possible unless
+  // the width of the menu is greater than half of the width of the display.
+
+  else if (clickPos.x > displaySize.w / 2)
+    {
+      // Position at the right of the display
+
+      framePos.x = displaySize.w - frameSize.w;
+    }
+  else
+    {
+      // Position at the left of the display
+
+      framePos.x = 0;
+    }
+
+  // And, finally, set the new main menu frame position
+
+  twminfo("Click position: (%d,%d) Main menu position: (%d,%d)\n",
+          clickPos.x, clickPos.y, framePos.x, framePos.y);
+
+  return m_mainMenu->setFramePosition(&framePos);
 }

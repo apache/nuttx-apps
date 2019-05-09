@@ -139,6 +139,7 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
 
   m_nxWin                = (FAR NXWidgets::CNxTkWindow *)0;
   m_toolbar              = (FAR NXWidgets::CNxToolbar *)0;
+  m_minWidth             = 1;
   m_zoom                 = ZOOM_NONE;
   m_modal                = false;
 
@@ -221,6 +222,15 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
   else
     {
       m_name.setText(name);
+    }
+
+  // Get the minimum window size.  We need this minimum later for resizing.
+  // If there is no toolbar, leave the minimum at one pixel as it was set by
+  // the constructor.
+
+  if (WFLAGS_HAVE_TOOLBAR(flags))
+    {
+      m_minWidth = minimumToolbarWidth(m_twm4nx, m_name, flags);
     }
 
   // Do initial clip to the maximum window size
@@ -349,38 +359,6 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
 }
 
 /**
- * CWindow Initializer (unlike the constructor, this may fail)
- *
- * @param name      The the name of the window (and its icon)
- * @param pos       The initialize position of the window
- * @param size      The initial size of the window
- * @param sbitmap   The Icon bitmap image.  null if no icon.
- * @param iconMgr   Pointer to icon manager instance
- * @param flags     Toolbar customizations see WFLAGS_NO_* definition
- * @return True if the window was successfully initialize; false on
- *   any failure,
- */
-
-bool CWindow::initialize(FAR const char *name,
-                         FAR const struct nxgl_point_s *pos,
-                         FAR const struct nxgl_size_s *size,
-                         FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
-                         FAR CIconMgr *iconMgr,  uint8_t flags)
-{
-  NXWidgets::CNxString nxname;
-  if (name == (FAR const char *)0)
-    {
-      nxname.setText(GNoName);
-    }
-  else
-    {
-      nxname.setText(name);
-    }
-
-  return initialize(nxname, pos, size, sbitmap, iconMgr, flags);
-}
-
-/**
  * Get the raw window size (including toolbar and frame)
  *
  * @param framesize Location to return the window frame size
@@ -406,12 +384,12 @@ bool CWindow::getFrameSize(FAR struct nxgl_size_s *framesize)
  * Update the window frame after a resize operation (includes the toolbar
  * and user window)
  *
- * @param size The new window frame size
- * @param pos  The frame location which may also have changed
+ * @param frameSize The new window frame size
+ * @param framePos  The frame location which may also have changed
  */
 
-bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
-                          FAR struct nxgl_point_s *pos)
+bool CWindow::resizeFrame(FAR const struct nxgl_size_s *frameSize,
+                          FAR const struct nxgl_point_s *framePos)
 {
   // Account for toolbar and border
 
@@ -419,25 +397,25 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
   delta.w = 2 * CONFIG_NXTK_BORDERWIDTH;
   delta.h = m_tbHeight + 2 * CONFIG_NXTK_BORDERWIDTH;
 
-  // Don't set the window size smaller than one pixel
+  // Don't set the window size smaller than the minimum window size
 
   struct nxgl_size_s winsize;
-  if (size->w <= delta.w)
+  if (frameSize->w <= m_minWidth + delta.w)
     {
-      winsize.w = 1;
+      winsize.w = m_minWidth;
     }
   else
     {
-      winsize.w = size->w - delta.w;
+      winsize.w = frameSize->w - delta.w;
     }
 
-  if (size->h <= delta.h)
+  if (frameSize->h <= delta.h)
     {
       winsize.h = 1;
     }
   else
     {
-      winsize.h = size->h - delta.h;
+      winsize.h = frameSize->h - delta.h;
     }
 
   // Set the usable window size
@@ -449,13 +427,16 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *size,
       return false;
     }
 
-  // Set the new frame position (in case it changed too)
-
-  success = setFramePosition(pos);
-  if (!success)
+  if (framePos != (FAR const struct nxgl_point_s *)0)
     {
-      twmerr("ERROR: Failed to setSize()\n");
-      return false;
+      // Set the new frame position (in case it changed too)
+
+      success = setFramePosition(framePos);
+      if (!success)
+        {
+          twmerr("ERROR: Failed to setFramePosition()\n");
+          return false;
+        }
     }
 
   // Synchronize with the NX server to make sure that the new geometry is
@@ -508,7 +489,13 @@ bool CWindow::setFramePosition(FAR const struct nxgl_point_s *framepos)
   return m_nxWin->setPosition(&winpos);
 }
 
-void CWindow::iconify(void)
+/**
+ * Minimize (iconify) the window
+ *
+ * @return True if the operation was successful
+ */
+
+bool CWindow::iconify(void)
 {
   if (!isIconified())
     {
@@ -522,6 +509,8 @@ void CWindow::iconify(void)
       m_iconified = true;
       m_nxWin->hide();
 
+      // Menu windows don't have an icon
+
       if (m_iconWidget != (FAR CIconWidget *)0)
         {
           // Enable and redraw the icon widget and lower the main window
@@ -534,9 +523,17 @@ void CWindow::iconify(void)
 
       m_nxWin->synchronize();
     }
+
+  return true;
 }
 
-void CWindow::deIconify(void)
+/**
+ * De-iconify the window
+ *
+ * @return True if the operation was successful
+ */
+
+bool CWindow::deIconify(void)
 {
   // De-iconify the window
 
@@ -570,7 +567,7 @@ void CWindow::deIconify(void)
           FAR CBackground *backgd = m_twm4nx->getBackground();
           if (!backgd->redrawBackgroundWindow(&rect, false))
             {
-              gerr("ERROR: redrawBackgroundWindow() failed\n");
+              twmerr("ERROR: redrawBackgroundWindow() failed\n");
             }
         }
 
@@ -578,6 +575,8 @@ void CWindow::deIconify(void)
 
       m_nxWin->synchronize();
     }
+
+  return true;
 }
 
 /**
@@ -604,7 +603,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 
       case EVENT_WINDOW_DEICONIFY: // De-iconify and raise the main window
         {
-          deIconify();
+          success = deIconify();
         }
         break;
 
@@ -627,7 +626,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
         {
           // Minimize (iconify) the window
 
-          iconify();
+          success = iconify();
         }
         break;
 
@@ -723,10 +722,12 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
   control->registerDragEventHandler(this, (uintptr_t)1);
 
-  // 4. Create the window
+  // 4. Create the window.  Handling provided flags. NOTE: that menu windows
+  //    are always created hidden and in the iconified state (although they
+  //    have no icons)
 
   uint8_t cflags = NXBE_WINDOW_RAMBACKED;
-  if (WFLAGS_IS_HIDDEN_WINDOW(flags))
+  if (WFLAGS_IS_HIDDEN(flags) | WFLAGS_IS_MENU(flags))
     {
       cflags |= NXBE_WINDOW_HIDDEN;
     }
@@ -760,6 +761,10 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
       return false;
     }
 
+  //  Menu windows are always created hidden and in the iconified state
+  // (although they have no icons)
+
+  m_iconified = WFLAGS_IS_MENU(flags);
   return true;
 }
 
@@ -1542,7 +1547,7 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
       struct nxgl_point_s oldPos;
       if (!getFramePosition(&oldPos))
         {
-          gerr("ERROR: getFramePosition() failed\n")  ;
+          twmerr("ERROR: getFramePosition() failed\n")  ;
           return false;
         }
 
@@ -1592,7 +1597,7 @@ bool CWindow::windowDrag(FAR struct SEventMsg *eventmsg)
         {
           if (!setFramePosition(&newPos))
             {
-              gerr("ERROR: setFramePosition failed\n");
+              twmerr("ERROR: setFramePosition failed\n");
               return false;
             }
 

@@ -64,6 +64,7 @@
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
@@ -169,12 +170,37 @@ bool CIconMgr::initialize(FAR const char *prefix)
 }
 
 /**
+ * Add Icon Manager menu items to the Main menu.  This is really a
+ * part of the logic that belongs in initialize() but cannot be
+ * executed in that context because it assumes that the Main Menu
+ * logic is ready.
+ *
+ * @return True on success
+ */
+
+bool CIconMgr::addMenuItems(void)
+{
+  // Add the Icon Manager entry to the Main Menu.  This provides a quick
+  // way to de-iconfigy or to bring the Icon Manager to the top in a
+  // crowded desktop.
+
+  FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+  if (!cmain->addApplication(this))
+    {
+      twmerr("ERROR: Failed to add to the Main Menu\n");
+      return false;
+    }
+
+  return true;
+}
+
+/**
  * Add a window to an icon manager
  *
  *  @param win the TWM window structure
  */
 
-bool CIconMgr::add(FAR CWindow *cwin)
+bool CIconMgr::addWindow(FAR CWindow *cwin)
 {
   // Don't add the icon manager to itself
 
@@ -210,7 +236,9 @@ bool CIconMgr::add(FAR CWindow *cwin)
 
   nxgl_coord_t rowHeight = getRowHeight();
 
-  // Increase the Icon Manager window size, if necessary
+  // Increase the height of the Icon Manager window, if necessary
+  // REVISIT:  Should also set an optimal width.  Currently just uses
+  // the defaults set when the window was created!
 
   struct nxgl_size_s windowSize;
   if (!m_window->getWindowSize(&windowSize))
@@ -223,7 +251,7 @@ bool CIconMgr::add(FAR CWindow *cwin)
       if (newHeight != windowSize.h)
         {
           windowSize.h = rowHeight * m_nWindows;
-          m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()
+          m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()?
         }
     }
 
@@ -251,24 +279,28 @@ bool CIconMgr::add(FAR CWindow *cwin)
  * @param win the TWM window structure
  */
 
-void CIconMgr::remove(FAR struct SWindow *win)
+void CIconMgr::removeWindow(FAR CWindow *cwin)
 {
-  FAR struct SWindowEntry *wentry = win->wentry;
-
-  if (wentry != NULL)
+  if (cwin != (FAR CWindow *)0)
     {
-      // Remove the list from the window structure
+      // Find the entry containing this Window
 
-      removeEntry(wentry);
+      FAR struct SWindowEntry *wentry = findEntry(cwin);
+      if (wentry != (FAR struct SWindowEntry *)0)
+        {
+          // Remove the list from the window structure
 
-      // Destroy the window
+          removeEntry(wentry);
 
-      CWindowFactory *factory = m_twm4nx->getWindowFactory();
-      factory->destroyWindow(wentry->cwin);
+          // Destroy the window
 
-      m_nWindows--;
-      std::free(wentry);
-      pack();
+          CWindowFactory *factory = m_twm4nx->getWindowFactory();
+          factory->destroyWindow(wentry->cwin);
+
+          m_nWindows--;
+          std::free(wentry);
+          pack();
+        }
     }
 }
 
@@ -470,6 +502,33 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
+      case EVENT_ICONMGR_DEICONIFY:   // De-iconify or raise the Icon Manager
+        {
+          // Is the Icon manager conified?
+
+          if (m_window->isIconified())
+            {
+              // Yes.. De-iconify it
+
+              if (!m_window->deIconify())
+                {
+                  twmerr("ERROR: Failed to de-iconify\n");
+                  success = false;
+                }
+            }
+          else
+            {
+              // No.. Just bring it to the top of the hierachy
+
+              if (!m_window->raiseWindow())
+                {
+                  twmerr("ERROR: Failed to raise window\n");
+                  success = false;
+                }
+            }
+        }
+        break;
+
       default:
         success = false;
         break;
@@ -506,18 +565,17 @@ nxgl_coord_t CIconMgr::getRowHeight(void)
 
 bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
 {
-  static FAR const char *rootName = "Icon Manager";
-
   // Create the icon manager name using any prefix provided by the creator
-
-  FAR char *allocName = (FAR char *)0;
 
   if (prefix != (FAR const char *)0)
     {
-      std::asprintf(&allocName, "%s %s", prefix, rootName);
+      m_name.setText(prefix);
+      m_name.append(" Icon Manager");
     }
-
-  FAR const char *name = (allocName == (FAR char *)0) ? rootName : allocName;
+  else
+    {
+      m_name.setText("Icon Manager");
+    }
 
   // Create the icon manager window.  Customizations:
   //
@@ -526,29 +584,22 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   // WFLAGS_NO_DELETE_BUTTON: The user cannot delete the Icon Manager window
   // WFLAGS_NO_RESIZE_BUTTON: The user cannot control the Icon Manager
   //                          window size
-  // WFLAGS_IS_ICONMGR:       Yes, this is the Icon Manager window
-  // WFLAGS_HIDDEN_WINDOW:    The window is created in the hidden state
+  // WFLAGS_ICONMGR:          Yes, this is the Icon Manager window
+  // WFLAGS_HIDDEN:           The window is created in the hidden state
 
   CWindowFactory *factory = m_twm4nx->getWindowFactory();
 
   uint8_t wflags = (WFLAGS_NO_MENU_BUTTON | WFLAGS_NO_DELETE_BUTTON |
-                    WFLAGS_NO_RESIZE_BUTTON | WFLAGS_IS_ICONMGR |
-                    WFLAGS_HIDDEN_WINDOW);
+                    WFLAGS_NO_RESIZE_BUTTON | WFLAGS_ICONMGR |
+                    WFLAGS_HIDDEN);
 
-  m_window = factory->createWindow(name, &CONFIG_TWM4NX_ICONMGR_IMAGE,
+  m_window = factory->createWindow(m_name, &CONFIG_TWM4NX_ICONMGR_IMAGE,
                                    this, wflags);
 
   if (m_window == (FAR CWindow *)0)
     {
       twmerr("ERROR: Failed to create icon manager window");
       return false;
-    }
-
-  // Free any temporary name strings
-
-  if (allocName != (FAR char *)0)
-    {
-      std::free(allocName);
     }
 
   // Adjust the height of the window (and probably the width too?)
@@ -749,6 +800,38 @@ void CIconMgr::removeEntry(FAR struct SWindowEntry *wentry)
     {
       wentry->flink->blink = wentry->blink;
     }
+}
+
+/**
+ * Find an entry in the icon manager
+ *
+ *  @param cwin The window to find
+ *  @return The incon manager entry (unless an error occurred)
+ */
+
+FAR struct SWindowEntry *CIconMgr::findEntry(FAR CWindow *cwin)
+{
+  // Check each entry
+
+  FAR struct SWindowEntry *wentry;
+
+  for (wentry = m_head;
+       wentry != (FAR struct SWindowEntry *)0;
+       wentry = wentry->flink)
+    {
+      // Does this entry carry the window we are looking for?
+
+      if (wentry->cwin == cwin)
+        {
+          // Yes.. return the reference to this entry
+
+          return wentry;
+        }
+    }
+
+  // No matching entry found
+
+  return wentry;
 }
 
 /**

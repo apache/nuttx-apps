@@ -84,12 +84,15 @@
 //   WFLAGS_NO_MENU_BUTTON:    No menu buttons on menus
 //   WFLAGS_NO_DELETE_BUTTON:  Menus cannot be deleted in this manner.
 //   WFLAGS_NO_RESIZE_BUTTON:  Menus cannot be resized
-//   WFLAGS_HIDDEN_WINDOW:     Menu windows are always created in the
-//                             hidden state.  When the menu is selected,
-//                             then it should be shown.
+//   WFLAGS_MENU:              Menu windows are always created in the
+//                             hidden and iconifed state.  When the menu is
+//                             selected, then it should be de-iconfied to
+//                             be shown.
+//   WFLAGS_HIDDEN:            Redundant
 
 #define MENU_WINDOW_FLAGS (WFLAGS_NO_MENU_BUTTON | WFLAGS_NO_DELETE_BUTTON | \
-                           WFLAGS_NO_RESIZE_BUTTON | WFLAGS_HIDDEN_WINDOW)
+                           WFLAGS_NO_RESIZE_BUTTON | WFLAGS_MENU | \
+                           WFLAGS_HIDDEN)
 
 ////////////////////////////////////////////////////////////////////////////
 // Class Implementations
@@ -117,7 +120,6 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
   m_nMenuItems   = 0;                          // No menu items yet
   m_menuDepth    = 0;                          // No menus up
   m_entryHeight  = 0;                          // Menu entry height
-  m_visible      = false;                      // Menu not visible
   m_menuPull     = false;                      // No pull right entry
 
   // Windows
@@ -491,7 +493,7 @@ bool CMenus::createMenuWindow(void)
   m_menuWindow = new CWindow(m_twm4nx);
   if (m_menuWindow == (FAR CWindow *)0)
     {
-      gerr("ERRR: Failed to instantiate menu window\n");
+      twmerr("ERRR: Failed to instantiate menu window\n");
       return false;
     }
 
@@ -508,7 +510,7 @@ bool CMenus::createMenuWindow(void)
                                (FAR const struct NXWidgets::SRlePaletteBitmap *)0,
                                (FAR CIconMgr *)0, MENU_WINDOW_FLAGS))
     {
-      gerr("ERRR: Failed to initialize menu window\n");
+      twmerr("ERRR: Failed to initialize menu window\n");
       delete m_menuWindow;
       m_menuWindow = (FAR CWindow *)0;
       return false;
@@ -518,12 +520,12 @@ bool CMenus::createMenuWindow(void)
 }
 
 /**
- * Calculate the optimal menu window size
+ * Calculate the optimal menu frame size
  *
- * @result True is returned on success
+ * @param frameSize The location to return the calculated frame size
  */
 
-void CMenus::getMenuWindowSize(FAR struct nxgl_size_s &size)
+void CMenus::getMenuFrameSize(FAR struct nxgl_size_s &frameSize)
 {
   CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *menuFont = fonts->getMenuFont();
@@ -566,9 +568,7 @@ void CMenus::getMenuWindowSize(FAR struct nxgl_size_s &size)
   struct nxgl_size_s displaySize;
   m_twm4nx->getDisplaySize(&displaySize);
 
-  struct nxgl_size_s frameSize;
   menuToFrameSize(&menuSize, &frameSize);
-
   if (frameSize.w > displaySize.w)
     {
       frameSize.w = displaySize.w;
@@ -578,9 +578,18 @@ void CMenus::getMenuWindowSize(FAR struct nxgl_size_s &size)
     {
       frameSize.h = displaySize.h;
     }
+}
 
-  // Set the new menu window size
+/**
+ * Calculate the optimal menu window size
+ *
+ * @param frameSize The location to return the calculated window size
+ */
 
+void CMenus::getMenuWindowSize(FAR struct nxgl_size_s &size)
+{
+  struct nxgl_size_s frameSize;
+  getMenuFrameSize(frameSize);
   frameToMenuSize(&frameSize, &size);
 }
 
@@ -594,10 +603,10 @@ bool CMenus::setMenuWindowSize(void)
 {
   // Get the optimal menu window size
 
-  struct nxgl_size_s menuSize;
-  getMenuWindowSize(menuSize);
+  struct nxgl_size_s frameSize;
+  getMenuFrameSize(frameSize);
 
-  if (!m_menuWindow->setWindowSize(&menuSize))
+  if (!m_menuWindow->resizeFrame(&frameSize, (FAR const struct nxgl_point_s *)0))
     {
       twmerr("ERROR: Failed to set window size\n");
       return false;

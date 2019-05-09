@@ -309,6 +309,15 @@ bool CTwm4Nx::run(void)
       return false;
     }
 
+  // Now, complete the initialization of some preceding instances that
+  // depend on the Main Menu being in place
+
+  if (!m_iconmgr->addMenuItems())
+    {
+      cleanup();
+      return false;
+    }
+
   // Cache a CResize instance for use across the session
 
   m_resize = new CResize(this);

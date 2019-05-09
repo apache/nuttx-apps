@@ -122,6 +122,8 @@ namespace Twm4Nx
 
     // Recipient == ICONMGR
 
+    EVENT_ICONMGR_DEICONIFY    = 0x3000,  /**< De-iconify or raise the Icon Manager */
+
     // Recipient == MENU
 
     EVENT_MENU_IDENTIFY        = 0x4000,  /**< Describe the window */
@@ -176,10 +178,10 @@ namespace Twm4Nx
 
   };
 
-  // Contexts for button press events.  These basically identify the sender
-  // of the event message.
+  // Contexts for events.  These basically identify the source of the event
+  // message.
 
-  enum EButtonContext
+  enum EEventContext
   {
     EVENT_CONTEXT_WINDOW = 0,
     EVENT_CONTEXT_TOOLBAR,
@@ -187,8 +189,7 @@ namespace Twm4Nx
     EVENT_CONTEXT_ICON,
     EVENT_CONTEXT_FRAME,
     EVENT_CONTEXT_ICONMGR,
-    EVENT_CONTEXT_NAME,
-    EVENT_CONTEXT_IDENTIFY,
+    EVENT_CONTEXT_MENU,
     NUM_CONTEXTS
   };
 

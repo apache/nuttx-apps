@@ -83,10 +83,10 @@ namespace Twm4Nx
      * Return the name of the application.  This is the string that will
      * appear in the Main Menu item.
      *
-     * @param name The name of the application.
+     * @return  The name of the application.
      */
 
-    virtual void getName(const NXWidgets::CNxString &text) = 0;
+    virtual const NXWidgets::CNxString getName(void) = 0;
 
     /**
      * Return any submenu item associated with the menu entry.  If a non-

@@ -100,7 +100,7 @@ namespace Twm4Nx
        * @param win.  The window container to be added to the list.
        */
 
-      void addWindow(FAR struct SWindow *win);
+      void addWindowContainer(FAR struct SWindow *win);
 
       /**
        * Remove a window container from the window list.
@@ -108,7 +108,7 @@ namespace Twm4Nx
        * @param win.  The window container to be removed from the list.
        */
 
-      void removeWindow(FAR struct SWindow *win);
+      void removeWindowContainer(FAR struct SWindow *win);
 
       /**
        * Find the window container that contains the specified window.
@@ -147,7 +147,7 @@ namespace Twm4Nx
        */
 
       FAR CWindow *
-        createWindow(FAR const char *name,
+        createWindow(FAR NXWidgets::CNxString &name,
                      FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
                      FAR CIconMgr *iconMgr, uint8_t flags);
 

@@ -88,23 +88,26 @@
 
 #define NO_TOOLBAR                (NTOOLBAR_BUTTONS + 0)
 #define ICONMGR_WINDOW            (NTOOLBAR_BUTTONS + 1)
-#define HIDDEN_WINDOW             (NTOOLBAR_BUTTONS + 2)
+#define MENU_WINDOW               (NTOOLBAR_BUTTONS + 2)
+#define HIDDEN_WINDOW             (NTOOLBAR_BUTTONS + 3)
 
 #define WFLAGS_NO_MENU_BUTTON     (1 << MENU_BUTTON)
 #define WFLAGS_NO_DELETE_BUTTON   (1 << DELETE_BUTTON)
 #define WFLAGS_NO_RESIZE_BUTTON   (1 << RESIZE_BUTTON)
 #define WFLAGS_NO_MINIMIZE_BUTTON (1 << MINIMIZE_BUTTON)
 #define WFLAGS_NO_TOOLBAR         (1 << NO_TOOLBAR)
-#define WFLAGS_IS_ICONMGR         (1 << ICONMGR_WINDOW)
-#define WFLAGS_HIDDEN_WINDOW      (1 << HIDDEN_WINDOW)
+#define WFLAGS_ICONMGR            (1 << ICONMGR_WINDOW)
+#define WFLAGS_MENU               (1 << MENU_WINDOW)
+#define WFLAGS_HIDDEN             (1 << HIDDEN_WINDOW)
 
 #define WFLAGS_HAVE_MENU_BUTTON(f)     (((f) & WFLAGS_NO_MENU_BUTTON) == 0)
 #define WFLAGS_HAVE_DELETE_BUTTON(f)   (((f) & WFLAGS_NO_DELETE_BUTTON) == 0)
 #define WFLAGS_HAVE_RESIZE_BUTTON(f)   (((f) & WFLAGS_NO_RESIZE_BUTTON) == 0)
 #define WFLAGS_HAVE_MINIMIZE_BUTTON(f) (((f) & WFLAGS_NO_MINIMIZE_BUTTON) == 0)
 #define WFLAGS_HAVE_TOOLBAR(f)         (((f) & WFLAGS_NO_TOOLBAR) == 0)
-#define WFLAGS_IS_ICONMGR_WINDOW(f)    (((f) & WFLAGS_IS_ICONMGR) != 0)
-#define WFLAGS_IS_HIDDEN_WINDOW(f)     (((f) & WFLAGS_HIDDEN_WINDOW) != 0)
+#define WFLAGS_IS_ICONMGR(f)           (((f) & WFLAGS_ICONMGR) != 0)
+#define WFLAGS_IS_MENU(f)              (((f) & WFLAGS_MENU) != 0)
+#define WFLAGS_IS_HIDDEN(f)            (((f) & WFLAGS_HIDDEN) != 0)
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -141,6 +144,7 @@ namespace Twm4Nx
 
       NXWidgets::CNxString        m_name;       /**< Name of the window */
       FAR NXWidgets::CNxTkWindow *m_nxWin;      /**< The contained NX primary window */
+      nxgl_coord_t                m_minWidth;   /**< The minimum width of the window */
       uint16_t                    m_zoom;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
       bool                        m_modal;      /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
 
@@ -403,12 +407,6 @@ namespace Twm4Nx
                       FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
                       FAR CIconMgr *iconMgr,  uint8_t flags);
 
-      bool initialize(FAR const char *name,
-                      FAR const struct nxgl_point_s *pos,
-                      FAR const struct nxgl_size_s *size,
-                      FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
-                      FAR CIconMgr *iconMgr, uint8_t flags = 0);
-
       /**
        * Synchronize the window with the NX server.  This function will delay
        * until the the NX server has caught up with all of the queued requests.
@@ -446,7 +444,7 @@ namespace Twm4Nx
 
       inline bool isIconMgr(void)
       {
-        return WFLAGS_IS_ICONMGR_WINDOW(m_tbFlags);
+        return WFLAGS_IS_ICONMGR(m_tbFlags);
       }
 
       /**
@@ -533,15 +531,31 @@ namespace Twm4Nx
       }
 
       /**
+       * Return true if the window is currently being displayed
+       *
+       * @return True if the window is visible
+       */
+
+      inline bool isWindowVisible(void)
+      {
+        return m_nxWin->isVisible();
+      }
+
+      /**
        * Show a hidden window
+       *
+       * @return True if the operation was successful
        */
 
       inline bool showWindow(void)
       {
         return m_nxWin->show();
       }
+
       /**
        * Hide a visible window
+       *
+       * @return True if the operation was successful
        */
 
       inline bool hideWindow(void)
@@ -601,6 +615,7 @@ namespace Twm4Nx
        * Get the raw window size (including toolbar and frame)
        *
        * @param framesize Location to return the window frame size
+       * @return True if the operation was successful
        */
 
       bool getFrameSize(FAR struct nxgl_size_s *framesize);
@@ -609,17 +624,20 @@ namespace Twm4Nx
        * Update the window frame after a resize operation (includes the toolbar
        * and user window)
        *
-       * @param size The new window frame size
-       * @param pos  The frame location which may also have changed
+       * @param frameSize The new window frame size
+       * @param framePos  The frame location which may also have changed (NULL
+       *   may be used to preserve the current position)
+       * @return True if the operation was successful
        */
 
-      bool resizeFrame(FAR const struct nxgl_size_s *framesize,
-                       FAR struct nxgl_point_s *framepos);
+      bool resizeFrame(FAR const struct nxgl_size_s *frameSize,
+                       FAR const struct nxgl_point_s *framePos);
 
       /**
        * Get the raw frame position (accounting for toolbar and frame)
        *
        * @param framepos Location to return the window frame position
+       * @return True if the operation was successful
        */
 
       bool getFramePosition(FAR struct nxgl_point_s *framepos);
@@ -628,22 +646,31 @@ namespace Twm4Nx
        * Set the raw frame position (accounting for toolbar and frame)
        *
        * @param framepos The new raw window position
+       * @return True if the operation was successful
        */
 
       bool setFramePosition(FAR const struct nxgl_point_s *framepos);
 
-      /* Minimize (iconify) the window */
+      /**
+       * Minimize (iconify) the window
+       *
+       * @return True if the operation was successful
+       */
 
-      void iconify(void);
+      bool iconify(void);
 
       /**
        * De-iconify the window
+       *
+       * @return True if the operation was successful
        */
 
-      void deIconify(void);
+      bool deIconify(void);
 
       /**
        * Is the window iconified?
+       *
+       * @return True if the operation was successful
        */
 
       inline bool isIconified(void)
@@ -653,6 +680,8 @@ namespace Twm4Nx
 
       /**
        * Has the Icon moved?
+       *
+       * @return True if the operation was successful
        */
 
       inline bool hasIconMoved(void)

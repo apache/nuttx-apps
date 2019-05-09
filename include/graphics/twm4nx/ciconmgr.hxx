@@ -52,7 +52,9 @@
 
 #include <nuttx/nx/nxglib.h>
 #include "graphics/twm4nx/cwindow.hxx"
-#include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
+#include "graphics/twm4nx/iapplication.hxx"
+#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -83,12 +85,15 @@ namespace Twm4Nx
     bool down;
   };
 
-  class CIconMgr : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
+  class CIconMgr : protected NXWidgets::CWidgetEventHandler,
+                   protected IApplication,
+                   public CTwm4NxEvent
   {
     private:
 
       FAR CTwm4Nx                    *m_twm4nx;     /**< Cached Twm4Nx session */
       mqd_t                           m_eventq;     /**< NxWidget event message queue */
+      NXWidgets::CNxString            m_name;       /**< The Icon Manager name */
       FAR struct SWindowEntry        *m_head;       /**< Head of the window list */
       FAR struct SWindowEntry        *m_tail;       /**< Tail of the window list */
       FAR struct SWindowEntry        *m_active;     /**< The active entry */
@@ -139,6 +144,15 @@ namespace Twm4Nx
       void removeEntry(FAR struct SWindowEntry *wentry);
 
       /**
+       * Find an entry in the icon manager
+       *
+       *  @param cwin The window to find
+       *  @return The incon manager entry (unless an error occurred)
+       */
+
+      FAR struct SWindowEntry *findEntry(FAR CWindow *cwin);
+
+      /**
        * Set active window
        *
        * @param wentry Window to become active.
@@ -161,12 +175,81 @@ namespace Twm4Nx
       void freeWEntry(FAR struct SWindowEntry *wentry);
 
       /**
-       * Handle a widget action event.  This will be a button pre-release event.
+       * Handle a widget action event, overriding the CWidgetEventHandler
+       *  method.  This will indicate a button pre-release event.
        *
        * @param e The event data.
        */
 
       void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
+
+      /**
+       * Return the name of the application.  This is the string that will
+       * appear in the Main Menu item.  This overrides the method from
+       * IApplication
+       *
+       * @param name The name of the application.
+       */
+
+      inline const NXWidgets::CNxString getName(void)
+      {
+        return m_name;
+      }
+
+      /**
+       * Return any submenu item associated with the menu entry.  If a non-
+       * null value is returned, then this sub-menu will be brought up when
+       * the menu entry is selected.  Otherwise, the start() method will be
+       * called.  These two behaviors are mutually exlusive.  This overrides
+       * the method from IApplication.
+       *
+       * @return This implementation will always return a null value.
+       */
+
+      inline FAR CMenus *getSubMenu(void)
+      {
+        return (FAR CMenus *)0;
+      }
+
+      /**
+       * This is the application start up function.  This function will be
+       * called when its menu entry has been selected in order to start the
+       * application.  This function will not be called in this implementation
+       *
+       * @param twm4nx The Twm4Nx session object.  Use with care!  The CTwm4Nx
+       *   logic runs on a different thread and some of the methods of the
+       *   class may not be thread safe.
+       */
+
+      inline void start(FAR CTwm4Nx *twm4nx)
+      {
+      }
+
+      /**
+       * External applications may provide their own event handler that runs
+       * when the the menu item is selection.  If so, then this method will
+       * return the instance of CTwm4NxEvent that will handle the event.  This
+       * method always returns NULL in this case.
+       *
+       * @return.  null is always returned in this impementation.
+       */
+
+      inline FAR CTwm4NxEvent *getEventHandler(void)
+      {
+        return (FAR CTwm4NxEvent *)0;
+      }
+
+      /**
+       * Get the Twm4Nx event that will be generated when the menu item is
+       * selected.
+       *
+       * @return. This function returns .
+       */
+
+      inline uint16_t getEvent(void)
+      {
+        return EVENT_ICONMGR_DEICONIFY;
+      }
 
     public:
 
@@ -186,28 +269,40 @@ namespace Twm4Nx
       ~CIconMgr(void);
 
       /**
-       * Create and initialize the icon manager window
+       * Create and initialize the icon manager window. 
        *
        * @param name  The prefix for this icon manager name
+       * @return True on success
        */
 
       bool initialize(FAR const char *prefix);
 
       /**
-       * Add a window to an the icon manager
+       * Add Icon Manager menu items to the Main menu.  This is really a
+       * part of the logic that belongs in initialize() but cannot be
+       * executed in that context because it assumes that the Main Menu
+       * logic is ready.
        *
-       *  @param win the TWM window structure
+       * @return True on success
        */
 
-      bool add(FAR CWindow *win);
+      bool addMenuItems(void);
+
+      /**
+       * Add a window to an the icon manager
+       *
+       *  @param cwin the TWM window structure
+       */
+
+      bool addWindow(FAR CWindow *cwin);
 
       /**
        * Remove a window from the icon manager
        *
-       * @param win the TWM window structure
+       * @param cwin the TWM window structure
        */
 
-      void remove(FAR struct SWindow *win);
+      void removeWindow(FAR CWindow *cwin);
 
       /**
        * Hide the icon manager

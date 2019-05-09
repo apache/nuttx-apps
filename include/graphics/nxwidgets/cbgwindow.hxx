@@ -229,6 +229,19 @@ namespace NXWidgets
     }
 
     /**
+     * Return true if the window is currently being displayed
+     *
+     * @return Always returns true.
+     */
+
+    inline bool isVisible(void)
+    {
+      // The background is always visible (although perhaps obscured)
+
+      return true;
+    }
+
+    /**
      * Show a hidden window
      *
      * @return Always returns false.

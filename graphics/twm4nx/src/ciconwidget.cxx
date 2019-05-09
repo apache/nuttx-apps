@@ -712,7 +712,7 @@ bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
 
           if (!moveTo(newpos.x, newpos.y))
             {
-              gerr("ERROR: moveTo() failed\n");
+              twmerr("ERROR: moveTo() failed\n");
               return false;
             }
 

@@ -218,6 +218,17 @@ namespace NXWidgets
     }
 
     /**
+     * Return true if the window is currently being displayed
+     *
+     * @return True if the window is visible
+     */
+
+    inline bool isVisible(void)
+    {
+      return !nx_ishidden(m_hNxWindow);
+    }
+
+    /**
      * Show a hidden window
      *
      * @return True on success, false on any failure.

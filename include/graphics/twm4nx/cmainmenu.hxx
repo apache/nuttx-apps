@@ -101,6 +101,16 @@ namespace Twm4Nx
 
       void removeEntry(FAR struct SMainMenuItem *mmitem);
 
+      /**
+       * Select a position for the Main Menu which is as close as possible
+       * the background click position.
+       *
+       * @param clickPos The background click position
+       * @return True is returned if the position was set correctly
+       */
+
+      bool selectMainMenuPosition(FAR const struct nxgl_point_s &clickPos);
+
     public:
 
       /**

@@ -106,11 +106,11 @@ CWindowFactory::~CWindowFactory(void)
  */
 
 FAR CWindow *
-  CWindowFactory::createWindow(FAR const char *name,
+  CWindowFactory::createWindow(FAR NXWidgets::CNxString &name,
                                FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
                                FAR CIconMgr *iconMgr, uint8_t flags)
 {
-  twminfo("name=%p\n", name);
+  twminfo("flags=%02x\n", flags);
 
   // Allocate a container for the Twm4NX window
 
@@ -118,8 +118,7 @@ FAR CWindow *
     (FAR struct SWindow *)std::zalloc(sizeof(struct SWindow));
   if (win == (FAR struct SWindow *)0)
     {
-      twmerr("ERROR: Unable to allocate memory to manage window %s\n",
-             name);
+      twmerr("ERROR: Unable to allocate memory to manage window\n");
       return (FAR CWindow *)0;
     }
 
@@ -180,16 +179,20 @@ FAR CWindow *
   m_winpos.x += 30;
   m_winpos.y += 30;
 
-  // Add the window into the Twm4Nx window list
+  // Add the window into the window list
 
-  addWindow(win);
+  addWindowContainer(win);
 
-  // Add the window container to the icon manager
+  // Add the window to the icon manager if it is a regular window (i.e., if
+  // it is not the Icon Manager Window and it is not a Menu Window)
 
-  CIconMgr *iconmgr = m_twm4nx->getIconMgr();
-  DEBUGASSERT(iconmgr != (CIconMgr *)0);
+  if (!WFLAGS_IS_ICONMGR(flags) && !WFLAGS_IS_MENU(flags))
+    {
+      CIconMgr *iconmgr = m_twm4nx->getIconMgr();
+      DEBUGASSERT(iconmgr != (CIconMgr *)0);
 
-  (void)iconmgr->add(win->cwin);
+      (void)iconmgr->addWindow(win->cwin);
+    }
 
   // Return the contained window
 
@@ -226,8 +229,17 @@ void CWindowFactory::destroyWindow(FAR CWindow *cwin)
     {
       // Remove the window container from the window list
 
-      removeWindow(win);
+      removeWindowContainer(win);
     }
+
+  // Remove the window from the Icon Manager
+
+  // Add the window to the icon manager
+
+  CIconMgr *iconmgr = m_twm4nx->getIconMgr();
+  DEBUGASSERT(iconmgr != (CIconMgr *)0);
+
+  (void)iconmgr->removeWindow(cwin);
 
   // Delete the contained CWindow instance
 
@@ -297,7 +309,7 @@ bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
  * @param win.  The window container to be added to the list.
  */
 
-void CWindowFactory::addWindow(FAR struct SWindow *win)
+void CWindowFactory::addWindowContainer(FAR struct SWindow *win)
 {
   win->blink = (FAR struct SWindow *)0;
   win->flink = m_windowHead;
@@ -316,7 +328,7 @@ void CWindowFactory::addWindow(FAR struct SWindow *win)
  * @param win.  The window container to be removed from the list.
  */
 
-void CWindowFactory::removeWindow(FAR struct SWindow *win)
+void CWindowFactory::removeWindowContainer(FAR struct SWindow *win)
 {
   FAR struct SWindow *prev = win->blink;
   FAR struct SWindow *next = win->flink;
