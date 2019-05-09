@@ -472,6 +472,12 @@ namespace Twm4Nx
        * Set the size of the primary window.  This is useful only
        * for applications that need to control the drawing area.
        *
+       * This method is only usable from windows that have no
+       * toolbar.  The the window has a toolbar, then changing the
+       * width of the window will mess up the toolbar layout.  In
+       * such cases, the better to use is resizeFrame() which will
+       * update the toolbar geometry after the resize.
+       *
        * @param size New primary window size
        */
 

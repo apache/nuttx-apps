@@ -93,6 +93,7 @@ CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
   m_tail       = (FAR struct SWindowEntry *)0;      // Tail of the winow list
   m_active     = (FAR struct SWindowEntry *)0;      // No active window
   m_window     = (FAR CWindow *)0;                  // No icon manager Window
+  m_buttons    = (FAR NXWidgets::CButtonArray *)0;  // The button array
   m_maxColumns = ncolumns;                          // Max columns per row
   m_nrows      = 0;                                 // No rows yet
   m_ncolumns   = 0;                                 // No columns yet
@@ -414,7 +415,7 @@ void CIconMgr::pack(void)
       // Resize the button array
 
       nxgl_coord_t buttonWidth  = newsize.w / m_maxColumns;
-      nxgl_coord_t buttonHeight = newsize.w / m_nrows;
+      nxgl_coord_t buttonHeight = newsize.h / m_nrows;
 
       if (!m_buttons->resizeArray(m_maxColumns, m_nrows,
                                   buttonWidth, buttonHeight))
@@ -676,7 +677,7 @@ bool CIconMgr::createButtonArray(void)
   uint8_t nrows = m_nrows > 0 ? m_nrows : 1;
 
   nxgl_coord_t buttonWidth  = windowSize.w / m_maxColumns;
-  nxgl_coord_t buttonHeight = windowSize.w / nrows;
+  nxgl_coord_t buttonHeight = windowSize.h / nrows;
 
   // Get the Widget control instance from the Icon Manager window.  This
   // will force all widget drawing to go to the Icon Manager window.
@@ -697,7 +698,7 @@ bool CIconMgr::createButtonArray(void)
                                           buttonWidth, buttonHeight);
   if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
     {
-      twmerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to create the button array\n");
       return false;
     }
 

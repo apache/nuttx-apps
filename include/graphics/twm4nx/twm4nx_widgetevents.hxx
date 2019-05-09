@@ -130,9 +130,8 @@ namespace Twm4Nx
     EVENT_MENU_VERSION         = 0x4001,  /**< Show the Twm4Nx version */
     EVENT_MENU_ICONIFY         = 0x4002,  /**< Tool bar minimize button pressed */
     EVENT_MENU_DEICONIFY       = 0x4003,  /**< Window icon pressed */
-    EVENT_MENU_FUNCTION        = 0x4004,  /**< Perform function on unknown menu */
-    EVENT_MENU_TITLE           = 0x4005,  /**< REVISIT: Really an action not an event */
-    EVENT_MENU_ROOT            = 0x4006,  /**< REVISIT: Popup root menu */
+    EVENT_MENU_SUBMENU         = 0x4004,  /**< Sub-menu selected */
+    EVENT_MENU_FUNCTION        = 0x4005,  /**< Perform function on unknown menu */
 
     // Recipient == MAINMENU
 

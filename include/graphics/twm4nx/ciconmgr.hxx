@@ -98,7 +98,7 @@ namespace Twm4Nx
       FAR struct SWindowEntry        *m_tail;       /**< Tail of the window list */
       FAR struct SWindowEntry        *m_active;     /**< The active entry */
       FAR struct CWindow             *m_window;     /**< Parent window */
-      FAR NXWidgets::CButtonArray    *m_buttons;    /**< The cotained button array */
+      FAR NXWidgets::CButtonArray    *m_buttons;    /**< The contained button array */
       uint8_t                         m_maxColumns; /**< Max columns per row */
       uint8_t                         m_nrows;      /**< Number of rows in the button array */
       uint8_t                         m_ncolumns;   /**< Number of columns in the button array */
@@ -176,7 +176,7 @@ namespace Twm4Nx
 
       /**
        * Handle a widget action event, overriding the CWidgetEventHandler
-       *  method.  This will indicate a button pre-release event.
+       * method.  This will indicate a button pre-release event.
        *
        * @param e The event data.
        */

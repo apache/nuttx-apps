@@ -358,8 +358,6 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_MENU_TITLE: // Really an action not an event
-      case EVENT_MENU_ROOT:  // Popup root menu, really an action not an event
       default:
         success = false;
         break;
