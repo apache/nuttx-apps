@@ -146,8 +146,8 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
 
   m_tbTitle              = (FAR NXWidgets::CLabel *)0;
   m_tbHeight             = 0;             // Height of the toolbar
-  m_tbLeftX              = 0;             // Temporaries
-  m_tbRightX             = 0;
+  m_tbLeftX              = 0;             // Offset to end of left buttons
+  m_tbRightX             = 0;             // Offset to start of right buttons
   m_tbFlags              = 0;             // No customizations
 
   // Icons/Icon Manager
@@ -187,14 +187,14 @@ CWindow::~CWindow(void)
  * @param name      The the name of the window (and its icon)
  * @param pos       The initialize position of the window
  * @param size      The initial size of the window
- * @param sbitmap   The Icon bitmap image
+ * @param sbitmap   The Icon bitmap image.  null if no icon.
  * @param iconMgr   Pointer to icon manager instance
  * @param flags     Toolbar customizations see WFLAGS_NO_* definition
  * @return True if the window was successfully initialize; false on
  *   any failure,
  */
 
-bool CWindow::initialize(FAR const char *name,
+bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
                          FAR const struct nxgl_point_s *pos,
                          FAR const struct nxgl_size_s *size,
                          FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
@@ -214,7 +214,7 @@ bool CWindow::initialize(FAR const char *name,
 
   m_iconMgr = iconMgr;
 
-  if (name == (FAR const char *)0)
+  if (name.getLength() == 0)
     {
       m_name.setText(GNoName);
     }
@@ -300,49 +300,84 @@ bool CWindow::initialize(FAR const char *name,
         }
     }
 
-  // Create the icon image instance
+  // Create and initialize the icon widget if a bitmap was provided
 
-  m_iconBitMap = new NXWidgets::CRlePaletteBitmap(sbitmap);
-  if (m_iconBitMap == (NXWidgets::CRlePaletteBitmap *)0)
+  if (sbitmap != (FAR const struct NXWidgets::SRlePaletteBitmap *)0)
     {
-      twmerr("ERROR: Failed to create icon image\n");
-      cleanup();
-      return false;
+      // Create the icon image instance
+
+      m_iconBitMap = new NXWidgets::CRlePaletteBitmap(sbitmap);
+      if (m_iconBitMap == (NXWidgets::CRlePaletteBitmap *)0)
+        {
+          twmerr("ERROR: Failed to create icon image\n");
+          cleanup();
+          return false;
+        }
+
+      // Get the widget control instance from the background.  This is needed
+      // to force the icon widgets to be draw on the background
+
+      FAR CBackground *background = m_twm4nx->getBackground();
+      FAR NXWidgets::CWidgetControl *control = background->getWidgetControl();
+
+      m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y);
+      if (m_iconWidget == (FAR CIconWidget *)0)
+        {
+          twmerr("ERROR: Failed to create the icon widget\n");
+          cleanup();
+          return false;
+        }
+
+      if (!m_iconWidget->initialize(this, m_iconBitMap, m_name))
+        {
+          twmerr("ERROR: Failed to initialize the icon widget\n");
+          cleanup();
+          return false;
+        }
+
+      // Initialize the icon widget
+
+      m_iconWidget->disable();
+      m_iconWidget->disableDrawing();
+      m_iconWidget->setRaisesEvents(true);
     }
-
-  // Get the widget control instance from the background.  This is needed
-  // to force the icon widgets to be draw on the background
-
-  FAR CBackground *background = m_twm4nx->getBackground();
-  FAR NXWidgets::CWidgetControl *control = background->getWidgetControl();
-
-  // Create and initialize the icon widget
-
-  m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y);
-  if (m_iconWidget == (FAR CIconWidget *)0)
-    {
-      twmerr("ERROR: Failed to create the icon widget\n");
-      cleanup();
-      return false;
-    }
-
-  if (!m_iconWidget->initialize(this, m_iconBitMap, m_name))
-    {
-      twmerr("ERROR: Failed to initialize the icon widget\n");
-      cleanup();
-      return false;
-    }
-
-  // Initialize the icon widget
-
-  m_iconWidget->disable();
-  m_iconWidget->disableDrawing();
-  m_iconWidget->setRaisesEvents(true);
 
   // Re-enable toolbar widgets
 
   enableToolbarWidgets();
   return true;
+}
+
+/**
+ * CWindow Initializer (unlike the constructor, this may fail)
+ *
+ * @param name      The the name of the window (and its icon)
+ * @param pos       The initialize position of the window
+ * @param size      The initial size of the window
+ * @param sbitmap   The Icon bitmap image.  null if no icon.
+ * @param iconMgr   Pointer to icon manager instance
+ * @param flags     Toolbar customizations see WFLAGS_NO_* definition
+ * @return True if the window was successfully initialize; false on
+ *   any failure,
+ */
+
+bool CWindow::initialize(FAR const char *name,
+                         FAR const struct nxgl_point_s *pos,
+                         FAR const struct nxgl_size_s *size,
+                         FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
+                         FAR CIconMgr *iconMgr,  uint8_t flags)
+{
+  NXWidgets::CNxString nxname;
+  if (name == (FAR const char *)0)
+    {
+      nxname.setText(GNoName);
+    }
+  else
+    {
+      nxname.setText(name);
+    }
+
+  return initialize(nxname, pos, size, sbitmap, iconMgr, flags);
 }
 
 /**
@@ -487,12 +522,15 @@ void CWindow::iconify(void)
       m_iconified = true;
       m_nxWin->hide();
 
-      // Enable and redraw the icon widget and lower the main window
+      if (m_iconWidget != (FAR CIconWidget *)0)
+        {
+          // Enable and redraw the icon widget and lower the main window
 
-      m_iconOn = true;
-      m_iconWidget->enable();
-      m_iconWidget->enableDrawing();
-      m_iconWidget->redraw();
+          m_iconOn = true;
+          m_iconWidget->enable();
+          m_iconWidget->enableDrawing();
+          m_iconWidget->redraw();
+        }
 
       m_nxWin->synchronize();
     }
@@ -509,28 +547,31 @@ void CWindow::deIconify(void)
       m_iconified = false;
       m_nxWin->show();
 
-      // Disable the icon widget
-
-      m_iconOn = false;
-      m_iconWidget->disableDrawing();
-      m_iconWidget->disable();
-
-      // Redraw the background window in the rectangle previously occupied
-      // by the widget.
-
-      struct nxgl_size_s size;
-      m_iconWidget->getSize(size);
-
-      struct nxgl_rect_s rect;
-      m_iconWidget->getPos(rect.pt1);
-
-      rect.pt2.x = rect.pt1.x + size.w - 1;
-      rect.pt2.y = rect.pt1.y + size.h - 1;
-
-      FAR CBackground *backgd = m_twm4nx->getBackground();
-      if (!backgd->redrawBackgroundWindow(&rect, false))
+      if (m_iconWidget != (FAR CIconWidget *)0)
         {
-          gerr("ERROR: redrawBackgroundWindow() failed\n");
+          // Disable the icon widget
+
+          m_iconOn = false;
+          m_iconWidget->disableDrawing();
+          m_iconWidget->disable();
+
+          // Redraw the background window in the rectangle previously
+          // occupied by the widget.
+
+          struct nxgl_size_s size;
+          m_iconWidget->getSize(size);
+
+          struct nxgl_rect_s rect;
+          m_iconWidget->getPos(rect.pt1);
+
+          rect.pt2.x = rect.pt1.x + size.w - 1;
+          rect.pt2.y = rect.pt1.y + size.h - 1;
+
+          FAR CBackground *backgd = m_twm4nx->getBackground();
+          if (!backgd->redrawBackgroundWindow(&rect, false))
+            {
+              gerr("ERROR: redrawBackgroundWindow() failed\n");
+            }
         }
 
       // Make sure everything is in sync
@@ -726,7 +767,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
  * Calculate the height of the tool bar
  */
 
-bool CWindow::getToolbarHeight(FAR const char *name)
+bool CWindow::getToolbarHeight(FAR const NXWidgets::CNxString &name)
 {
   // The tool bar height is the largest of the toolbar button heights or the
   // title text font
@@ -734,7 +775,7 @@ bool CWindow::getToolbarHeight(FAR const char *name)
   // Check if there is a title.  If so, get the font height.
 
   m_tbHeight = 0;
-  if (name != (FAR const char *)0)
+  if (name.getLength() != 0)
     {
       FAR CFonts *fonts = m_twm4nx->getFonts();
       FAR NXWidgets::CNxFont *titleFont = fonts->getTitleFont();
@@ -752,9 +793,9 @@ bool CWindow::getToolbarHeight(FAR const char *name)
         }
     }
 
-  // Plus somoe lines for good separation
+  // Plus some lines for good separation
 
-  m_tbHeight += CONFIG_TWM4NX_FRAME_VSPACING;
+  m_tbHeight += CONFIG_TWM4NX_TOOLBAR_VSPACING;
   return true;
 }
 
@@ -830,7 +871,17 @@ bool CWindow::updateToolbarLayout(void)
   // Reposition all right buttons.  Change the width of the
   // toolbar does not effect the left side spacing.
 
-  m_tbRightX = 0;
+  struct nxgl_size_s winsize;
+  if (!getWindowSize(&winsize))
+    {
+      return false;
+    }
+
+  // Create the title bar windows
+  // Set up the toolbar horizonal spacing
+
+  m_tbRightX = winsize.w;
+
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
       if (m_tbButtons[btindex] != (FAR NXWidgets::CImage *)0 &&
@@ -870,7 +921,7 @@ bool CWindow::updateToolbarLayout(void)
 
   struct nxgl_size_s titleSize;
   titleSize.h = m_tbHeight;
-  titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_FRAME_VSPACING + 1;
+  titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_TOOLBAR_HSPACING + 1;
 
   bool success = m_tbTitle->resize(titleSize.w, titleSize.h);
   enableToolbarWidgets();
@@ -1074,11 +1125,11 @@ bool CWindow::createToolbarButtons(uint8_t flags)
  * @param name The name to use for the toolbar title
  */
 
-bool CWindow::createToolbarTitle(FAR const char *name)
+bool CWindow::createToolbarTitle(FAR const NXWidgets::CNxString &name)
 {
   // Is there a title?
 
-  if (name == (FAR const char *)0)
+  if (name.getLength() == 0)
     {
       // No.. then there is nothing to be done here
 
@@ -1645,4 +1696,50 @@ void CWindow::cleanup(void)
       delete m_iconBitMap;
       m_iconBitMap  = (FAR NXWidgets::CRlePaletteBitmap *)0;
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Public Functions
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Twm4Nx
+{
+  /**
+   * Return the minimum width of a toolbar window.  If the window is
+   * resized smaller than this width, then the items in the toolbar will
+   * overlap.
+   *
+   * @param twm4nx The Twm4Nx session object
+   * @param title The window title string
+   * @param flags Window toolbar properties
+   * @return The minimum recommended window width.
+   */
+
+  nxgl_coord_t minimumToolbarWidth(FAR CTwm4Nx *twm4nx,
+                                   FAR const NXWidgets::CNxString &title,
+                                   uint8_t flags)
+  {
+    // Get the width of the title string
+
+    FAR CFonts *fonts = twm4nx->getFonts();
+    FAR NXWidgets::CNxFont *titleFont = fonts->getTitleFont();
+
+    nxgl_coord_t tbWidth = titleFont->getStringWidth(title) +
+                           CONFIG_TWM4NX_TOOLBAR_HSPACING;
+
+    for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
+      {
+        // Check if this button is omitted by toolbar customizations
+
+        if ((flags & (1 << btindex)) == 0)
+          {
+            // Add the button image width
+
+            tbWidth += GToolBarInfo[btindex].bitmap->width +
+                       CONFIG_TWM4NX_TOOLBAR_HSPACING;
+          }
+      }
+
+    return tbWidth;
+  }
 }

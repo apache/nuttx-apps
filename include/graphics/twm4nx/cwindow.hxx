@@ -190,7 +190,7 @@ namespace Twm4Nx
        * Calculate the height of the tool bar
        */
 
-      bool getToolbarHeight(FAR const char *name);
+      bool getToolbarHeight(FAR const NXWidgets::CNxString &name);
 
       /**
        * Create all toolbar buttons
@@ -208,7 +208,7 @@ namespace Twm4Nx
        * @param name The name to use for the toolbar title
        */
 
-      bool createToolbarTitle(FAR const char *name);
+      bool createToolbarTitle(FAR const NXWidgets::CNxString &name);
 
       /**
        * Create the tool bar
@@ -390,12 +390,18 @@ namespace Twm4Nx
        * @param name      The the name of the window (and its icon)
        * @param pos       The initial position of the window
        * @param size      The initial size of the window
-       * @param sbitmap   The Icon bitmap image
+       * @param sbitmap   The Icon bitmap image.  null if no icon.
        * @param iconMgr   Pointer to icon manager instance
        * @param flags     Toolbar customizations see WFLAGS_NO_* definitions
        * @return True if the window was successfully initialize; false on
        *   any failure,
        */
+
+      bool initialize(FAR const NXWidgets::CNxString &name,
+                      FAR const struct nxgl_point_s *pos,
+                      FAR const struct nxgl_size_s *size,
+                      FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
+                      FAR CIconMgr *iconMgr,  uint8_t flags);
 
       bool initialize(FAR const char *name,
                       FAR const struct nxgl_point_s *pos,
@@ -465,6 +471,18 @@ namespace Twm4Nx
       }
 
       /**
+       * Set the size of the primary window.  This is useful only
+       * for applications that need to control the drawing area.
+       *
+       * @param size New primary window size
+       */
+
+      inline bool setWindowSize(FAR const struct nxgl_size_s *size)
+      {
+        return m_nxWin->setSize(size);
+      }
+
+      /**
        * Get the position of the primary window.  This is useful only
        * for applications that need to know about the drawing area.
        *
@@ -477,15 +495,14 @@ namespace Twm4Nx
       }
 
       /**
-       * Set the size of the primary window.  This is useful only
-       * for oapplications that need to control the drawing area.
+       * Set the position of the primary window.
        *
-       * @param size New primary window size
+       * @param pos The new primary window position
        */
 
-      inline bool setWindowSize(FAR const struct nxgl_size_s *size)
+      inline bool setWindowPosition(FAR const struct nxgl_point_s *pos)
       {
-        return m_nxWin->setSize(size);
+        return m_nxWin->setPosition(pos);
       }
 
       /**
@@ -662,7 +679,10 @@ namespace Twm4Nx
 
       inline void getIconWidgetSize(FAR struct nxgl_size_s &size)
       {
-        m_iconWidget->getSize(size);
+        if (m_iconWidget != (FAR CIconWidget *)0)
+          {
+            m_iconWidget->getSize(size);
+          }
       }
 
       /**
@@ -675,7 +695,10 @@ namespace Twm4Nx
 
       inline void getIconWidgetPosition(FAR struct nxgl_point_s &pos)
       {
-        m_iconWidget->getPos(pos);
+        if (m_iconWidget != (FAR CIconWidget *)0)
+          {
+            m_iconWidget->getPos(pos);
+          }
       }
 
       /**
@@ -688,7 +711,13 @@ namespace Twm4Nx
 
       inline bool setIconWindowPosition(FAR const struct nxgl_point_s &pos)
       {
-        return m_iconWidget->moveTo(pos.x, pos.y);
+        bool success = false;
+        if (m_iconWidget != (FAR CIconWidget *)0)
+          {
+            success = m_iconWidget->moveTo(pos.x, pos.y);
+          }
+
+        return success;
       }
 
       /**
@@ -697,12 +726,15 @@ namespace Twm4Nx
 
       inline void redrawIcon(void)
       {
-        // Make sure that the icon is properly enabled, then redraw it
+        if (m_iconWidget != (FAR CIconWidget *)0)
+          {
+            // Make sure that the icon is properly enabled, then redraw it
 
-        m_iconWidget->enable();
-        m_iconWidget->enableDrawing();
-        m_iconWidget->setRaisesEvents(true);
-        m_iconWidget->redraw();
+            m_iconWidget->enable();
+            m_iconWidget->enableDrawing();
+            m_iconWidget->setRaisesEvents(true);
+            m_iconWidget->redraw();
+          }
       }
 
       /**
@@ -752,6 +784,25 @@ namespace Twm4Nx
 
       bool event(FAR struct SEventMsg *eventmsg);
   };
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Public Function Prototypes
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Return the minimum width of the toolbar window.  If the window is
+   * resized smaller than this width, then the items in the toolbar will
+   * overlap.
+   *
+   * @param twm4nx The Twm4Nx session object
+   * @param title The window title string
+   * @param flags Window toolbar properties
+   * @return The minimum recommended window width.
+   */
+
+  nxgl_coord_t minimumToolbarWidth(FAR CTwm4Nx *twm4nx,
+                                   FAR const NXWidgets::CNxString &title,
+                                   uint8_t flags);
 }
 
 #endif  // __APPS_INCLUDE_GRAPHICS_TWM4NX_CWINDOW_HXX

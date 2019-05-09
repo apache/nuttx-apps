@@ -54,6 +54,7 @@
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 #include "graphics/nxwidgets/cnxtkwindow.hxx"
 
+#include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,6 @@ namespace NXWidgets
 namespace Twm4Nx
 {
   struct SEventMsg;                                // Forward referernce
-  class  CWindow;                                  // Forward reference
   class  CMenus;                                   // Forward reference
 
   struct SMenuItem
@@ -112,7 +112,7 @@ namespace Twm4Nx
 
       CTwm4Nx                    *m_twm4nx;        /**< Cached Twm4Nx session */
       mqd_t                       m_eventq;        /**< NxWidget event message queue */
-      FAR NXWidgets::CNxTkWindow *m_menuWindow;    /**< The menu window */
+      FAR CWindow                *m_menuWindow;    /**< The menu window */
       FAR CMenus                 *m_popUpMenu;     /**< Pop-up menu */
       FAR NXWidgets::CListBox    *m_menuListBox;   /**< The menu list box */
       FAR struct SMenuItem       *m_activeItem;    /**< The active menu item */
@@ -186,6 +186,14 @@ namespace Twm4Nx
       bool createMenuWindow(void);
 
       /**
+       * Calculate the optimal menu window size
+       *
+       * @result True is returned on success
+       */
+
+      void getMenuWindowSize(FAR struct nxgl_size_s &size);
+
+      /**
        * Update the menu window size
        *
        * @result True is returned on success
@@ -213,7 +221,7 @@ namespace Twm4Nx
 
       inline bool raiseMenuWindow()
       {
-        return m_menuWindow->raise();
+        return m_menuWindow->raiseWindow();
       }
 
       /**
@@ -293,7 +301,6 @@ namespace Twm4Nx
        * Return true if the main menu is currently being displayed
        */
 
-
       inline bool isVisible(void)
       {
         return m_visible;
@@ -309,7 +316,7 @@ namespace Twm4Nx
       {
         if (!m_visible)
           {
-            m_visible = m_menuWindow->show();
+            m_visible = m_menuWindow->showWindow();
           }
 
         return m_visible;
@@ -325,7 +332,7 @@ namespace Twm4Nx
       {
         if (m_visible)
           {
-            m_visible = !m_menuWindow->hide();
+            m_visible = !m_menuWindow->hideWindow();
           }
 
         return !m_visible;
