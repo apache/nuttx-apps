@@ -312,6 +312,12 @@ bool CTwm4Nx::run(void)
   // Now, complete the initialization of some preceding instances that
   // depend on the Main Menu being in place
 
+  if (!m_factory->addMenuItems())
+    {
+      cleanup();
+      return false;
+    }
+
   if (!m_iconmgr->addMenuItems())
     {
       cleanup();

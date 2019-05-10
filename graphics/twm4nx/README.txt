@@ -38,8 +38,7 @@ STATUS
     1. Update some logic that is only fragmentary for things like resizing.
        Resizing events should be be generated when user pulls to right,
        left, top, bottom, etc.  None of that is implemented.
-    2. Left click on background should bring up a user provided main menu.
-       Right click should bring up a window list (like the icon manager???)
+    2. Right click should bring up a window list (like the icon manager???)
     3. For TWM-like behavior, a window frame and toolbar should be highlighted
        when the window has focus.
     4. A right click on the toolbar should bring up a window-specific menu.
@@ -52,9 +51,22 @@ STATUS
     properly and the Icon Manager appears properly in the upper rightthand
     corner.  The Icon Manager Window can be iconfified or de-inconified.
     The Icon Manager window can be grabbed by the toolbar title and moved
-    about on the window (the icon grab'n'move does not work however).
-    Further progress depends upon getting a main menu in place.  The main
-    menu does now come up on any click on a visible region of the
-    background, but the menu is not complete enough to be usable; it needs
-    some applications to start and a CTextBox widget.
+    about on the window (the movement is not very smooth on the particular
+    hardware that I am working with).
+  2019-05-10: A left click on the background brings up the main menu.  At
+    present there are only two options:  "Desktop" which will iconify all
+    windows and "Twm4Nx Icon Manager" which will de-configy and/or raise
+    the Icon Manager window to the top of the hierarchy.  That latter option
+    is only meaningful when the desktop is very crowded.
 
+    Further progress depends upon getting a some additional applications
+    in place in the main menu in place.  NxTerm is needed as is probably
+    a clock.  These would provide good illustrations of how to hook in an
+    arbitrary application.
+
+    Some known bugs yet-to-fixed.  Surely there are more as will be revealed
+    by additional testing:
+
+    1. The is a small artifact in the upper lefthand corner.  I am not sure
+       exactly what that is.
+    2. The logic to move an icon on the desk top does not work.

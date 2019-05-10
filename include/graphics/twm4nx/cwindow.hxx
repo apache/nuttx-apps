@@ -115,19 +115,19 @@
 
 namespace NXWidgets
 {
-  class  CNxString;                             // Forward reference
-  class  CImage;                                // Forward reference
-  class  CLabel;                                // Forward reference
-  struct SRlePaletteBitmap;                     // Forward reference
+  class  CNxString;                              // Forward reference
+  class  CImage;                                 // Forward reference
+  class  CLabel;                                 // Forward reference
+  struct SRlePaletteBitmap;                      // Forward reference
 }
 
 namespace Twm4Nx
 {
-  class  CIconWidget;                           // Forward reference
-  class  CIconMgr;                              // Forward reference
-  class  CWindow;                               // Forward reference
-  struct SMenuRoot;                             // Forward reference
-  struct SMenuItem;                             // Forward reference
+  class  CIconWidget;                            // Forward reference
+  class  CIconMgr;                               // Forward reference
+  class  CWindow;                                // Forward reference
+  struct SMenuRoot;                              // Forward reference
+  struct SMenuItem;                              // Forward reference
 
   // The CWindow class implements a standard, framed window with a toolbar
   // containing the standard buttons and the window title.
@@ -137,35 +137,40 @@ namespace Twm4Nx
                   public CTwm4NxEvent
   {
     private:
-      CTwm4Nx                    *m_twm4nx;     /**< Cached Twm4Nx session */
-      mqd_t                       m_eventq;     /**< NxWidget event message queue */
+      CTwm4Nx                    *m_twm4nx;      /**< Cached Twm4Nx session */
+      mqd_t                       m_eventq;      /**< NxWidget event message queue */
 
       // Primary Window
 
-      NXWidgets::CNxString        m_name;       /**< Name of the window */
-      FAR NXWidgets::CNxTkWindow *m_nxWin;      /**< The contained NX primary window */
-      nxgl_coord_t                m_minWidth;   /**< The minimum width of the window */
-      uint16_t                    m_zoom;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
-      bool                        m_modal;      /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
+      NXWidgets::CNxString        m_name;        /**< Name of the window */
+      FAR NXWidgets::CNxTkWindow *m_nxWin;       /**< The contained NX primary window */
+      FAR CWindowEvent           *m_windowEvent; /**< Cached window event reference */
+      FAR void                   *m_eventObj;    /**< Object reference that accompanies events */
+      nxgl_coord_t                m_minWidth;    /**< The minimum width of the window */
+      uint16_t                    m_redrawEvent; /**< Redraw event ID */
+      uint16_t                    m_mouseEvent;  /**< Mouse/touchscreen event ID */
+      uint16_t                    m_kbdEvent;    /**< Keyboard event ID */
+      uint16_t                    m_zoom;        /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
+      bool                        m_modal;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
 
       // Icon
 
       FAR NXWidgets::CRlePaletteBitmap *m_iconBitMap; /**< The icon image */
 
-      FAR CIconWidget            *m_iconWidget; /**< The icon widget */
-      FAR CIconMgr               *m_iconMgr;    /**< Pointer to it if this is an icon manager */
-      bool                        m_iconMoved;  /**< User explicitly moved the icon. */
-      bool                        m_iconOn;     /**< Icon is visible. */
-      bool                        m_iconified;  /**< Is the window an icon now ? */
+      FAR CIconWidget            *m_iconWidget;  /**< The icon widget */
+      FAR CIconMgr               *m_iconMgr;     /**< Pointer to it if this is an icon manager */
+      bool                        m_iconMoved;   /**< User explicitly moved the icon. */
+      bool                        m_iconOn;      /**< Icon is visible. */
+      bool                        m_iconified;   /**< Is the window an icon now ? */
 
       // Toolbar
 
-      FAR NXWidgets::CNxToolbar  *m_toolbar;    /**< The tool bar sub-window */
-      FAR NXWidgets::CLabel      *m_tbTitle;    /**< Toolbar title widget */
-      nxgl_coord_t                m_tbHeight;   /**< Height of the toolbar */
-      nxgl_coord_t                m_tbLeftX;    /**< Rightmost position of left buttons */
-      nxgl_coord_t                m_tbRightX;   /**< Leftmost position of right buttons */
-      uint8_t                     m_tbFlags;    /**< Toolbar button customizations */
+      FAR NXWidgets::CNxToolbar  *m_toolbar;     /**< The tool bar sub-window */
+      FAR NXWidgets::CLabel      *m_tbTitle;     /**< Toolbar title widget */
+      nxgl_coord_t                m_tbHeight;    /**< Height of the toolbar */
+      nxgl_coord_t                m_tbLeftX;     /**< Rightmost position of left buttons */
+      nxgl_coord_t                m_tbRightX;    /**< Leftmost position of right buttons */
+      uint8_t                     m_tbFlags;     /**< Toolbar button customizations */
 
       // List of all toolbar button images
 
@@ -173,13 +178,18 @@ namespace Twm4Nx
 
       // Dragging
 
-      struct nxgl_point_s         m_dragPos;    /**< Last reported mouse position */
-      struct nxgl_size_s          m_dragCSize;  /**< The grab cursor size */
-      bool                        m_dragging;   /**< True: Drag in-progress */
-      volatile bool               m_clicked;    /**< True: Mouse left button is clicked */
+      struct nxgl_point_s         m_dragPos;     /**< Last reported mouse position */
+      struct nxgl_size_s          m_dragCSize;   /**< The grab cursor size */
+      bool                        m_dragging;    /**< True: Drag in-progress */
+      volatile bool               m_clicked;     /**< True: Mouse left button is clicked */
 
       /**
        * Create the main window
+       *
+       * Initially, the application window will generate no window-related events
+       * (redraw, mouse/touchscreen, keyboard input, etc.).  After creating the
+       * window, the user may call the configureEvents() method to select the
+       * eventIDs of the events to be generated.
        *
        * @param winsize   The initial window size
        * @param winpos    The initial window position
@@ -391,6 +401,10 @@ namespace Twm4Nx
       /**
        * CWindow Initializer (unlike the constructor, this may fail)
        *
+       * The window is initialized with all application events disabled.
+       * The CWindows::configureEvents() method may be called as a second
+       * initialization step in order to enable application events.
+       *
        * @param name      The the name of the window (and its icon)
        * @param pos       The initial position of the window
        * @param size      The initial size of the window
@@ -406,6 +420,24 @@ namespace Twm4Nx
                       FAR const struct nxgl_size_s *size,
                       FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap,
                       FAR CIconMgr *iconMgr,  uint8_t flags);
+
+      /**
+       * Configure application window events.
+       *
+       * @param obj An object reference that will be provided with the event
+       *   to assist in handling the event.  This may be NULL is not needed
+       * @param redrawEvent The event to send on window redraw events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
+       * @param mouseEvent The event to send on mouse/touchscreen input
+       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
+       *   touchscreen input events.
+       * @param kbdEvent The event to send on keyboard input events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+       * @return True is returned on success
+       */
+
+      bool configureEvents(FAR void *obj, uint16_t redrawEvent,
+                           uint16_t mouseEvent, uint16_t kbdEvent);
 
       /**
        * Synchronize the window with the NX server.  This function will delay

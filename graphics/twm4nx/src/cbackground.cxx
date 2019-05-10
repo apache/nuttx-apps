@@ -293,9 +293,6 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_WINDOW_KBDINPUT:      // Poll for icon keyboard events
-        break;                         // There aren't any
-
       case EVENT_BACKGROUND_REDRAW:    // Redraw the background
         {
           FAR struct SRedrawEventMsg *redrawmsg =
@@ -331,7 +328,8 @@ bool CBackground::createBackgroundWindow(void)
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
   FAR CWindowEvent *control =
-    new CWindowEvent(m_twm4nx, (FAR void *)this, true);
+    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_BACKGROUND_REDRAW,
+                     EVENT_BACKGROUND_XYINPUT, EVENT_SYSTEM_NOP);
 
   // Create the background window (CTwm4Nx inherits from CNxServer)
 

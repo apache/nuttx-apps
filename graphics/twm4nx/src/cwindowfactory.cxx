@@ -62,6 +62,7 @@
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -96,7 +97,34 @@ CWindowFactory::~CWindowFactory(void)
 }
 
 /**
+ * Add Icon Manager menu items to the Main menu.  This is really part
+ * of the instance initialization, but cannot be executed until the
+ * Main Menu logic is ready.
+ *
+ * @return True on success
+ */
+
+bool CWindowFactory::addMenuItems(void)
+{
+  // Add the Icon Manager entry to the Main Menu.  This provides a quick
+  // way to de-iconfigy all windows and show a clean desktop.
+
+  FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+  if (!cmain->addApplication(&m_desktopItem))
+    {
+      twmerr("ERROR: Failed to add to the Main Menu\n");
+      return false;
+    }
+
+  return true;
+}
+
+/**
  * Create a new window and add it to the window list.
+ *
+ * The window is initialized with all application events disabled.
+ * The CWindows::configureEvents() method may be called as a second
+ * initialization step in order to enable application events.
  *
  * @param name       The window name
  * @param sbitmap    The Icon bitmap
@@ -266,7 +294,7 @@ bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_WINDOW_XYINPUT:   // Poll for toolbar mouse/touch events
+      case EVENT_TOOLBAR_XYINPUT:  // Poll for toolbar mouse/touch events
         {
           FAR struct SXyInputEventMsg *nxmsg =
             (FAR struct SXyInputEventMsg *)eventmsg;
@@ -277,20 +305,13 @@ bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_WINDOW_KBDINPUT:  // Poll for toolbar keyboard events
-        {
-          FAR struct SNxEventMsg *nxmsg =
-            (FAR struct SNxEventMsg *)eventmsg;
-          FAR CWindow *cwin = (FAR CWindow *)nxmsg->obj;
-          DEBUGASSERT(cwin != (FAR CWindow *)0);
-
-          success = cwin->pollToolbarEvents();
-        }
+      case EVENT_WINDOW_DESKTOP:   // Show the desktop
+        success = showDesktop();
         break;
 
       // Forward the event to the appropriate window
 
-      default:                 // All other window messsages
+      default:                     // All other window messsages
         {
           FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
           DEBUGASSERT(cwin != (FAR CWindow *)0);
@@ -372,4 +393,27 @@ FAR struct SWindow *CWindowFactory::findWindow(FAR CWindow *cwin)
     }
 
   return (FAR struct SWindow *)0;
+}
+
+/**
+ * This is the function that responds to the EVENT_WINDOW_DESKTOP.  It
+ * iconifies all windows so that the desktop is visible.
+ */
+
+bool CWindowFactory::showDesktop(void)
+{
+  // Add the Icon Manager entry to the Main Menu.  This provides a quick
+  // way to de-iconfigy all windows and show a clean desktop.
+
+  for (FAR struct SWindow *win = m_windowHead;
+       win != (FAR struct SWindow *)0;
+       win = win->flink)
+    {
+      // Iconify everything:  Application windows, the Icon Manage, all
+      // Menus, etc.
+
+      win->cwin->iconify();
+    }
+
+  return true;
 }

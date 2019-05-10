@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/src/cwindow.cxx
+// apps/graphics/twm4nx/src/cnxterm.cxx
 // NxTerm window
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

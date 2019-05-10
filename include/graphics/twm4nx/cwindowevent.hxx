@@ -142,7 +142,9 @@ namespace Twm4Nx
       FAR CTwm4Nx         *m_twm4nx;        /**< Cached instance of CTwm4Nx */
       mqd_t                m_eventq;        /**< NxWidget event message queue */
       FAR void            *m_object;        /**< Window object (context specific) */
-      bool                 m_isBackground;  /**< True if this serves the background window */
+      uint16_t             m_redrawEvent;   /**< Redraw event ID */
+      uint16_t             m_mouseEvent;    /**< Mouse/touchscreen event ID */
+      uint16_t             m_kbdEvent;      /**< Keyboard event ID */
 
       // Dragging
 
@@ -192,14 +194,21 @@ namespace Twm4Nx
        *
        * @param twm4nx The Twm4Nx session instance.
        * @param obj Contextual object (Usually 'this' of instantiator)
-       * @param isBackground True is this for the background window.
+       * @param redrawEvent The event to send on window redraw events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
+       * @param mouseEvent The event to send on mouse/touchscreen input
+       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
+       *   touchscreen input events.
+       * @param kbdEvent The event to send on keyboard input events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
        * @param style The default style that all widgets on this display
        *   should use.  If this is not specified, the widget will use the
        *   values stored in the defaultCWidgetStyle object.
        */
 
        CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
-                    bool isBackground = false,
+                    uint16_t redrawEvent, uint16_t mouseEvent,
+                    uint16_t kbdEvent,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
 
@@ -224,6 +233,32 @@ namespace Twm4Nx
       {
          m_dragHandler = dragHandler;
          m_dragArg     = arg;
+      }
+
+      /**
+       * Modify event handlers.
+       *
+       * One use for this is by the window drag logic to temporarily capture
+       * application mouse/touchscreen inputs to handle cases where the drag
+       * position enters the application window area.
+       *
+       * @param redrawEvent The event to send on window redraw events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
+       * @param mouseEvent The event to send on mouse/touchscreen input
+       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
+       *   touchscreen input events.
+       * @param kbdEvent The event to send on keyboard input events.  This
+       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+       */
+
+      inline bool configureEvents(FAR void *obj, uint16_t redrawEvent,
+                                  uint16_t mouseEvent, uint16_t kbdEvent)
+      {
+        m_object       = obj;            // Event object reference
+        m_redrawEvent  = redrawEvent;    // Redraw event ID
+        m_mouseEvent   = mouseEvent;     // Mouse/touchscreen event ID
+        m_kbdEvent     = kbdEvent;       // Keyboard event ID
+        return true;
       }
   };
 }

@@ -139,7 +139,12 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
 
   m_nxWin                = (FAR NXWidgets::CNxTkWindow *)0;
   m_toolbar              = (FAR NXWidgets::CNxToolbar *)0;
+  m_windowEvent          = (FAR CWindowEvent *)0;
+  m_eventObj             = (FAR void *)0;
   m_minWidth             = 1;
+  m_redrawEvent          = EVENT_SYSTEM_NOP; // Redraw event ID
+  m_mouseEvent           = EVENT_SYSTEM_NOP; // Mouse/touchscreen event ID
+  m_kbdEvent             = EVENT_SYSTEM_NOP; // Keyboard event ID
   m_zoom                 = ZOOM_NONE;
   m_modal                = false;
 
@@ -185,8 +190,12 @@ CWindow::~CWindow(void)
 /**
  * CWindow Initializer (unlike the constructor, this may fail)
  *
+ * The window is initialized with all application events disabled.
+ * The CWindows::configureEvents() method may be called as a second
+ * initialization step in order to enable application events.
+ *
  * @param name      The the name of the window (and its icon)
- * @param pos       The initialize position of the window
+ * @param pos       The initial position of the window
  * @param size      The initial size of the window
  * @param sbitmap   The Icon bitmap image.  null if no icon.
  * @param iconMgr   Pointer to icon manager instance
@@ -356,6 +365,33 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
 
   enableToolbarWidgets();
   return true;
+}
+
+/**
+ * Configure application window events.
+ *
+ * @param obj An object reference that will be provided with the event
+ *   to assist in handling the event.  This may be NULL is not needed
+ * @param redrawEvent The event to send on window redraw events.  This
+ *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
+ * @param mouseEvent The event to send on mouse/touchscreen input
+ *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
+ *   touchscreen input events.
+ * @param kbdEvent The event to send on keyboard input events.  This
+ *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+ * @return True is returned on success
+ */
+
+bool CWindow::configureEvents(FAR void *obj, uint16_t redrawEvent,
+                              uint16_t mouseEvent, uint16_t kbdEvent)
+{
+  m_eventObj             = obj;         // Event object
+  m_redrawEvent          = redrawEvent; // Redraw event ID
+  m_mouseEvent           = mouseEvent;  // Mouse/touchscreen event ID
+  m_kbdEvent             = kbdEvent;    // Keyboard event ID
+
+  return m_windowEvent->configureEvents(m_eventObj, m_redrawEvent,
+                                        m_mouseEvent, m_kbdEvent);
 }
 
 /**
@@ -701,6 +737,11 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 /**
  * Create the main window
  *
+ * Initially, the application window will generate no window-related events
+ * (redraw, mouse/touchscreen, keyboard input, etc.).  After creating the
+ * window, the user may call the configureEvents() method to select the
+ * eventIDs of the events to be generated.
+ *
  * @param winsize   The initial window size
  * @param winpos    The initial window position
  * @param flags Toolbar customizations see WFLAGS_NO_* definitions
@@ -719,8 +760,9 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    Setup the the CWindowEvent instance to use our inherited drag event
   //    handler
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
-  control->registerDragEventHandler(this, (uintptr_t)1);
+  m_windowEvent =  new CWindowEvent(m_twm4nx, m_eventObj, m_redrawEvent,
+                                    m_mouseEvent, m_kbdEvent);
+  m_windowEvent->registerDragEventHandler(this, (uintptr_t)1);
 
   // 4. Create the window.  Handling provided flags. NOTE: that menu windows
   //    are always created hidden and in the iconified state (although they
@@ -732,10 +774,11 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
       cflags |= NXBE_WINDOW_HIDDEN;
     }
 
-  m_nxWin = m_twm4nx->createFramedWindow(control, cflags);
+  m_nxWin = m_twm4nx->createFramedWindow(m_windowEvent, cflags);
   if (m_nxWin == (FAR NXWidgets::CNxTkWindow *)0)
     {
-      delete control;
+      delete m_windowEvent;
+      m_windowEvent = (FAR CWindowEvent *)0;
       return false;
     }
 
@@ -816,7 +859,9 @@ bool CWindow::createToolbar(void)
   // 2. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
+  FAR CWindowEvent *control =
+    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_SYSTEM_NOP,
+                     EVENT_TOOLBAR_XYINPUT, EVENT_SYSTEM_NOP);
   control->registerDragEventHandler(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
@@ -1488,6 +1533,18 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
 {
   twminfo("GRAB (%d,%d)\n", eventmsg->pos.x, eventmsg->pos.y);
 
+  // Override application mouse events while dragging.  This is necessary to
+  // to handle cases where the drag that starts in the toolbar is moved
+  // into the application window area.
+
+  bool success =
+    m_windowEvent->configureEvents((FAR void *)this, EVENT_SYSTEM_NOP,
+                                   EVENT_TOOLBAR_XYINPUT, EVENT_SYSTEM_NOP);
+  if (!success)
+    {
+      return false;
+    }
+
   // Promote the window to a modal window
 
   m_modal = true;
@@ -1645,7 +1702,11 @@ bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
 #endif
-  return true;
+
+  // Restore normal application event handling.
+
+  return m_windowEvent->configureEvents(m_eventObj, m_redrawEvent,
+                                        m_mouseEvent, m_kbdEvent);
 }
 
 /**

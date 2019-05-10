@@ -184,8 +184,7 @@ namespace Twm4Nx
       void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
-       * Return the name of the application.  This is the string that will
-       * appear in the Main Menu item.  This overrides the method from
+       * Return the Main Menu item string.  This overrides the method from
        * IApplication
        *
        * @param name The name of the application.
@@ -197,10 +196,7 @@ namespace Twm4Nx
       }
 
       /**
-       * Return any submenu item associated with the menu entry.  If a non-
-       * null value is returned, then this sub-menu will be brought up when
-       * the menu entry is selected.  Otherwise, the start() method will be
-       * called.  These two behaviors are mutually exlusive.  This overrides
+       * There is no sub-menu for this Main Menu item.  This overrides
        * the method from IApplication.
        *
        * @return This implementation will always return a null value.
@@ -212,13 +208,8 @@ namespace Twm4Nx
       }
 
       /**
-       * This is the application start up function.  This function will be
-       * called when its menu entry has been selected in order to start the
-       * application.  This function will not be called in this implementation
-       *
-       * @param twm4nx The Twm4Nx session object.  Use with care!  The CTwm4Nx
-       *   logic runs on a different thread and some of the methods of the
-       *   class may not be thread safe.
+       * There is no application start-up function.  This function will not
+       * be called in this implementation
        */
 
       inline void start(FAR CTwm4Nx *twm4nx)
@@ -226,10 +217,7 @@ namespace Twm4Nx
       }
 
       /**
-       * External applications may provide their own event handler that runs
-       * when the the menu item is selection.  If so, then this method will
-       * return the instance of CTwm4NxEvent that will handle the event.  This
-       * method always returns NULL in this case.
+       * There is no custom event handler.  We use the common event handler.
        *
        * @return.  null is always returned in this impementation.
        */
@@ -240,10 +228,10 @@ namespace Twm4Nx
       }
 
       /**
-       * Get the Twm4Nx event that will be generated when the menu item is
-       * selected.
+       * Return the Twm4Nx event that will be generated when the Main Menu
+       * item is selected.
        *
-       * @return. This function returns .
+       * @return. This function always returns EVENT_ICONMGR_DEICONIFY.
        */
 
       inline uint16_t getEvent(void)

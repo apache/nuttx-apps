@@ -900,7 +900,13 @@ bool CResize::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_RESIZE_START:  // Start window resize
+      case EVENT_RESIZE_XYINPUT:    // Poll for XY input
+        {
+#warning Missing logic
+        }
+        break;
+
+      case EVENT_RESIZE_START:      // Start window resize
         {
           // Can't resize icons
 
@@ -957,7 +963,9 @@ bool CResize::createSizeWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this);
+  FAR CWindowEvent *control =
+    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_SYSTEM_NOP,
+                     EVENT_RESIZE_XYINPUT, EVENT_SYSTEM_NOP);
 
   // 4. Create the main window
 

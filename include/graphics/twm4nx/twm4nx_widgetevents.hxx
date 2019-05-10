@@ -110,9 +110,8 @@ namespace Twm4Nx
 
     // Recipient == BACKGOUND
 
-    EVENT_BACKGROUND_XYINPUT   = 0x1000,  /**< Poll window for widget mouse/touch events */
-    EVENT_BACKGROUND_KBDINPUT  = 0x1001,  /**< Poll window for widget keyboard events */
-    EVENT_BACKGROUND_REDRAW    = 0x1002,  /**< Redraw the background */
+    EVENT_BACKGROUND_XYINPUT   = 0x1000,  /**< Poll for widget mouse/touch events */
+    EVENT_BACKGROUND_REDRAW    = 0x1001,  /**< Redraw the background */
 
     // Recipient == ICONWIDGET
 
@@ -122,16 +121,18 @@ namespace Twm4Nx
 
     // Recipient == ICONMGR
 
-    EVENT_ICONMGR_DEICONIFY    = 0x3000,  /**< De-iconify or raise the Icon Manager */
+    EVENT_ICONMGR_XYINPUT      = 0x3000,  /**< Poll for widget mouse/touch events */
+    EVENT_ICONMGR_DEICONIFY    = 0x3001,  /**< De-iconify or raise the Icon Manager */
 
     // Recipient == MENU
 
-    EVENT_MENU_IDENTIFY        = 0x4000,  /**< Describe the window */
-    EVENT_MENU_VERSION         = 0x4001,  /**< Show the Twm4Nx version */
-    EVENT_MENU_ICONIFY         = 0x4002,  /**< Tool bar minimize button pressed */
-    EVENT_MENU_DEICONIFY       = 0x4003,  /**< Window icon pressed */
-    EVENT_MENU_SUBMENU         = 0x4004,  /**< Sub-menu selected */
-    EVENT_MENU_FUNCTION        = 0x4005,  /**< Perform function on unknown menu */
+    EVENT_MENU_XYINPUT         = 0x4000,  /**< Poll for widget mouse/touch events */
+    EVENT_MENU_IDENTIFY        = 0x4001,  /**< Describe the window */
+    EVENT_MENU_VERSION         = 0x4002,  /**< Show the Twm4Nx version */
+    EVENT_MENU_ICONIFY         = 0x4003,  /**< Tool bar minimize button pressed */
+    EVENT_MENU_DEICONIFY       = 0x4004,  /**< Window icon pressed */
+    EVENT_MENU_SUBMENU         = 0x4005,  /**< Sub-menu selected */
+    EVENT_MENU_FUNCTION        = 0x4006,  /**< Perform function on unknown menu */
 
     // Recipient == MAINMENU
 
@@ -139,37 +140,38 @@ namespace Twm4Nx
 
     // Recipient == WINDOW
 
-    EVENT_WINDOW_XYINPUT       = 0x6000,  /**< Poll window for widget mouse/touch events */
-    EVENT_WINDOW_KBDINPUT      = 0x6001,  /**< Poll window for widget keyboard events */
-    EVENT_WINDOW_FOCUS         = 0x6002,  /**< Enter modal state */
-    EVENT_WINDOW_UNFOCUS       = 0x6003,  /**< Exit modal state */
-    EVENT_WINDOW_RAISE         = 0x6004,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x6005,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DEICONIFY     = 0x6006,  /**< De-iconify and raise window  */
-    EVENT_WINDOW_DRAG          = 0x6007,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x6008,  /**< Delete window */
+    EVENT_WINDOW_FOCUS         = 0x6000,  /**< Enter modal state */
+    EVENT_WINDOW_UNFOCUS       = 0x6001,  /**< Exit modal state */
+    EVENT_WINDOW_RAISE         = 0x6002,  /**< Raise window to the top of the heirarchy */
+    EVENT_WINDOW_LOWER         = 0x6003,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_DEICONIFY     = 0x6004,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG          = 0x6005,  /**< Drag window */
+    EVENT_WINDOW_DELETE        = 0x6006,  /**< Delete window */
+    EVENT_WINDOW_DESKTOP       = 0x6007,  /**< Show the desktop */
 
     // Recipient == TOOLBAR
 
-    EVENT_TOOLBAR_GRAB         = 0x7000,  /**< Click on title widget */
-    EVENT_TOOLBAR_UNGRAB       = 0x7001,  /**< Release click on title widget */
-    EVENT_TOOLBAR_MENU         = 0x7002,  /**< Toolbar menu button released */
-    EVENT_TOOLBAR_MINIMIZE     = 0x7003,  /**< Toolbar minimize button released */
-    EVENT_TOOLBAR_RESIZE       = 0x7004,  /**< Toolbar resize button released */
-    EVENT_TOOLBAR_TERMINATE    = 0x7005,  /**< Toolbar delete button released */
+    EVENT_TOOLBAR_XYINPUT      = 0x7000,  /**< Poll for widget mouse/touch events */
+    EVENT_TOOLBAR_GRAB         = 0x7001,  /**< Click on title widget */
+    EVENT_TOOLBAR_UNGRAB       = 0x7002,  /**< Release click on title widget */
+    EVENT_TOOLBAR_MENU         = 0x7003,  /**< Toolbar menu button released */
+    EVENT_TOOLBAR_MINIMIZE     = 0x7004,  /**< Toolbar minimize button released */
+    EVENT_TOOLBAR_RESIZE       = 0x7005,  /**< Toolbar resize button released */
+    EVENT_TOOLBAR_TERMINATE    = 0x7006,  /**< Toolbar delete button released */
 
     // Recipient == BORDER
 
     // Recipient == RESIZE
 
-    EVENT_RESIZE_START         = 0x9000,  /**< Start window resize */
-    EVENT_RESIZE_VERTZOOM      = 0x9001,  /**< Zoom vertically only */
-    EVENT_RESIZE_HORIZOOM      = 0x9002,  /**< Zoom horizontally only */
-    EVENT_RESIZE_FULLZOOM      = 0x9003,  /**< Zoom both vertically and horizontally */
-    EVENT_RESIZE_LEFTZOOM      = 0x9004,  /**< Zoom left only */
-    EVENT_RESIZE_RIGHTZOOM     = 0x9005,  /**< Zoom right only */
-    EVENT_RESIZE_TOPZOOM       = 0x9006,  /**< Zoom top only */
-    EVENT_RESIZE_BOTTOMZOOM    = 0x9007,  /**< Zoom bottom only */
+    EVENT_RESIZE_XYINPUT       = 0x9000,  /**< Poll for widget mouse/touch events */
+    EVENT_RESIZE_START         = 0x9001,  /**< Start window resize */
+    EVENT_RESIZE_VERTZOOM      = 0x9002,  /**< Zoom vertically only */
+    EVENT_RESIZE_HORIZOOM      = 0x9003,  /**< Zoom horizontally only */
+    EVENT_RESIZE_FULLZOOM      = 0x9004,  /**< Zoom both vertically and horizontally */
+    EVENT_RESIZE_LEFTZOOM      = 0x9005,  /**< Zoom left only */
+    EVENT_RESIZE_RIGHTZOOM     = 0x9006,  /**< Zoom right only */
+    EVENT_RESIZE_TOPZOOM       = 0x9007,  /**< Zoom top only */
+    EVENT_RESIZE_BOTTOMZOOM    = 0x9008,  /**< Zoom bottom only */
 
     // Recipient == APP
     // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,
@@ -194,16 +196,17 @@ namespace Twm4Nx
 
   /**
    * This type represents a generic messages, particularly button press
-   * or released events.
+   * or release events.
    */
 
   struct SEventMsg
   {
     uint16_t eventID;                   /**< Encoded event ID */
+    FAR void *obj;                      /**< Context specific reference */
+
     struct nxgl_point_s pos;            /**< X/Y position */
     uint8_t context;                    /**< Button press context */
     FAR CTwm4NxEvent *handler;          /**< App event handler (APP recipient only) */
-    FAR void *obj;                      /**< Window object (CWindow or CIconWidget) */
   };
 
   /**
@@ -213,32 +216,37 @@ namespace Twm4Nx
   struct SRedrawEventMsg
   {
     uint16_t eventID;                   /**< Encoded event ID */
+    FAR void *obj;                      /**< Context specific reference */
+
     struct nxgl_rect_s rect;            /**< Region to be redrawn */
     bool more;                          /**< True: More redraw requests will follow */
   };
 
   /**
-   * This message for is used with CWindowEVent mouse/keyboard input events
+   * This message form is used with CWindowEVent mouse/touchscreen
+   * input events
    */
 
   struct SXyInputEventMsg
   {
     uint16_t eventID;                   /**< Encoded event ID */
+    FAR void *obj;                      /**< Context specific reference */
+
     struct nxgl_point_s pos;            /**< X/Y position */
     uint8_t buttons;                    /**< Bit set of button presses */
-    FAR void *obj;                      /**< Context specific reference */
   };
 
   /**
-   * This is the alternative form of the message used by
-   * CWindowEvent for blocked and keyboard input messages
+   * This message form of the message used by CWindowEvent for blocked and
+   * keyboard input messages
    */
 
   struct SNxEventMsg
   {
     uint16_t eventID;                   /**< Encoded event ID */
-    FAR CWindowEvent *instance;         /**< X/Y position */
     FAR void *obj;                      /**< Context specific reference */
+
+    FAR CWindowEvent *instance;         /**< X/Y position */
   };
 }
 

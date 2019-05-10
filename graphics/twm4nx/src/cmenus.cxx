@@ -203,10 +203,10 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
   FAR struct SMenuItem *item = new SMenuItem;
 
   if (item == (FAR struct SMenuItem *)0)
-  {
+    {
       twmerr("ERROR:  Failed to allocate menu item\n");
       return false;
-  }
+    }
 
   // Clone the item name so that we have control over its lifespan
 
@@ -221,7 +221,7 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
 
   // Increment the total number of menu items
 
-  int index = m_nMenuItems++;
+  m_nMenuItems++;
 
   // Add the menu item to the tail of the item list
 
@@ -259,9 +259,16 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
       return false;
     }
 
-  // Add the new item text to the button array
+  // We have to update all button labels after resizing
 
-  m_buttons->setText(0, index, item->text);
+  int index;
+  for (index = 0, item = m_menuHead;
+       item != (FAR struct SMenuItem *)0;
+       index++, item = item->flink)
+    {
+      m_buttons->setText(0, index, item->text);
+    }
+
   return true;
 }
 
@@ -279,6 +286,25 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
+      case EVENT_MENU_XYINPUT:     // Poll for button array events
+        {
+          // This event message is sent from CWindowEvent whenever mouse,
+          // touchscreen, or keyboard entry events are received in the
+          // menu application window that contains the button array.
+
+          NXWidgets::CWidgetControl *control =
+            m_menuWindow->getWidgetControl();
+
+          // Poll for button array events.
+          //
+          // pollEvents() returns true if any interesting event in the
+          // button array.  handleActionEvent() will be called in that
+          // case.  false is not a failure.
+
+          (void)control->pollEvents();
+        }
+        break;
+
       case EVENT_MENU_IDENTIFY:   // Describe the window
         {
           identify((FAR CWindow *)eventmsg->obj);
@@ -485,7 +511,7 @@ void CMenus::menuToFramePos(FAR const struct nxgl_point_s *menupos,
  */
 
 void CMenus::frameToMenuPos(FAR const struct nxgl_point_s *framepos,
-                                   FAR struct nxgl_point_s *menupos)
+                            FAR struct nxgl_point_s *menupos)
 {
   nxgl_coord_t tbheight = m_menuWindow->getToolbarHeight();
   menupos->x = framepos->x + CONFIG_NXTK_BORDERWIDTH;
@@ -539,6 +565,18 @@ bool CMenus::createMenuWindow(void)
   if (m_menuWindow == (FAR CWindow *)0)
     {
       twmerr("ERROR: Failed to create icon manager window");
+      return false;
+    }
+
+  // Configure mouse events needed by the button array.
+
+  bool success =
+    m_menuWindow->configureEvents((FAR void *)this, EVENT_SYSTEM_NOP,
+                                  EVENT_MENU_XYINPUT, EVENT_SYSTEM_NOP);
+  if (!success)
+    {
+      delete m_menuWindow;
+      m_menuWindow = (FAR CWindow *)0;
       return false;
     }
 
@@ -719,8 +757,9 @@ bool CMenus::createMenuButtonArray(void)
   m_buttons->setBorderless(true);
   m_buttons->setRaisesEvents(true);
 
-  // Draw the button array
+  // Enable and draw the button array
 
+  m_buttons->enable();
   m_buttons->enableDrawing();
   m_buttons->redraw();
 

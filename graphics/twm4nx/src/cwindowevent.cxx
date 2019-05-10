@@ -96,20 +96,29 @@ using namespace Twm4Nx;
  *
  * @param twm4nx The Twm4Nx session instance.
  * @param obj Contextual object (Usually 'this' of instantiator)
- * @param isBackground True is this for the background window.
+ * @param redrawEvent The event to send on window redraw events.  This may
+ *   be EVENT_SYSTEM_NOP to ignore all rdraw events.
+ * @param mouseEvent The event to send on mouse/touchscreen input events.
+ *   This may be EVENT_SYSTEM_NOP to ignore all mouse/touchscreen input
+ *   events.
+ * @param kbdEvent The event to send on keyboard input events.  This may be
+ *   EVENT_SYSTEM_NOP to ignore all keyboard input events.
  * @param style The default style that all widgets on this display
  *   should use.  If this is not specified, the widget will use the
  *   values stored in the defaultCWidgetStyle object.
  */
 
 CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
-                           bool isBackground,
+                           uint16_t redrawEvent, uint16_t mouseEvent,
+                           uint16_t kbdEvent,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
   m_twm4nx       = twm4nx;              // Cache the Twm4Nx session
   m_object       = obj;                 // Used for event message construction
-  m_isBackground = isBackground;        // Background window?
+  m_redrawEvent  = redrawEvent;         // Redraw event ID
+  m_mouseEvent   = mouseEvent;          // Mouse/touchscreen event ID
+  m_kbdEvent     = kbdEvent;            // Keyboard event ID
 
   // Dragging
 
@@ -162,12 +171,12 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
 {
   twminfo("background=%s\n", m_isBackground ? "YES" : "NO");
 
-  // At present, only the background window will get redraw events
+  // Does the user need redraw events?
 
-  if (m_isBackground)
+  if (m_redrawEvent != EVENT_SYSTEM_NOP)
     {
       struct SRedrawEventMsg msg;
-      msg.eventID = EVENT_BACKGROUND_REDRAW;
+      msg.eventID    = m_redrawEvent;
       msg.rect.pt1.x = nxRect->pt1.x;
       msg.rect.pt1.y = nxRect->pt1.y;
       msg.rect.pt2.x = nxRect->pt2.x;
@@ -284,22 +293,27 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
         }
     }
 
-  // Stimulate an XY input poll
+  // Does the user want to know about mouse input?
 
-  twminfo("Mouse Input...\n");
-
-  struct SXyInputEventMsg msg;
-  msg.eventID = m_isBackground ? EVENT_BACKGROUND_XYINPUT : EVENT_WINDOW_XYINPUT;
-  msg.pos.x   = pos->x;
-  msg.pos.y   = pos->y;
-  msg.buttons = buttons;
-  msg.obj     = m_object;
-
-  int ret = mq_send(m_eventq, (FAR const char *)&msg,
-                    sizeof(struct SXyInputEventMsg), 100);
-  if (ret < 0)
+  if (m_mouseEvent != EVENT_SYSTEM_NOP)
     {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
+      // Stimulate an XY input poll
+
+      twminfo("Mouse Input...\n");
+
+      struct SXyInputEventMsg msg;
+      msg.eventID = m_mouseEvent;
+      msg.obj     = m_object;
+      msg.pos.x   = pos->x;
+      msg.pos.y   = pos->y;
+      msg.buttons = buttons;
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SXyInputEventMsg), 100);
+      if (ret < 0)
+        {
+          twmerr("ERROR: mq_send failed: %d\n", ret);
+        }
     }
 }
 #endif
@@ -311,22 +325,25 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
 
 void CWindowEvent::handleKeyboardEvent(void)
 {
-  twminfo("Keyboard input...\n");
+  // Does the user want to know about keyboard input?
 
-  // Stimulate an keyboard event widget poll
-
-  twminfo("Keyboard Input...\n");
-
-  struct SNxEventMsg msg;
-  msg.eventID  = m_isBackground ? EVENT_BACKGROUND_KBDINPUT : EVENT_WINDOW_KBDINPUT;
-  msg.instance = this;
-  msg.obj      = m_object;
-
-  int ret = mq_send(m_eventq, (FAR const char *)&msg,
-                    sizeof(struct SNxEventMsg), 100);
-  if (ret < 0)
+  if (m_kbdEvent != EVENT_SYSTEM_NOP)
     {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
+      twminfo("Keyboard input...\n");
+
+      // Stimulate an keyboard event widget poll
+
+      struct SNxEventMsg msg;
+      msg.eventID  = m_kbdEvent;
+      msg.obj      = m_object;
+      msg.instance = this;
+
+      int ret = mq_send(m_eventq, (FAR const char *)&msg,
+                        sizeof(struct SNxEventMsg), 100);
+      if (ret < 0)
+        {
+          twmerr("ERROR: mq_send failed: %d\n", ret);
+        }
     }
 }
 #endif
@@ -349,12 +366,10 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
 {
   twminfo("Blocked...\n");
 
-  struct SNxEventMsg msg =
-  {
-    .eventID  = EVENT_WINDOW_DELETE,
-    .instance = this,
-    .obj      = arg
-  };
+  struct SNxEventMsg msg;
+  msg.eventID  = EVENT_WINDOW_DELETE;
+  msg.obj      = arg;
+  msg.instance = this;
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,
                     sizeof(struct SNxEventMsg), 100);

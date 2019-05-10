@@ -53,6 +53,7 @@
 
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/iapplication.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -82,6 +83,72 @@ namespace Twm4Nx
   };
 
   /**
+   * This class is a simple implement of the interface to the Main Menu that
+   * provides the Desktop Main Menu entry.
+   */
+
+  class CDesktopItem : public IApplication
+  {
+    public:
+
+      /**
+       * Return the Main Menu item string.  This overrides the method from
+       * IApplication
+       *
+       * @param name The name of the application.
+       */
+
+      inline const NXWidgets::CNxString getName(void)
+      {
+        return NXWidgets::CNxString("Desktop");
+      }
+
+      /**
+       * There is no sub-menu for this Main Menu item.  This overrides
+       * the method from IApplication.
+       *
+       * @return This implementation will always return a null value.
+       */
+
+      inline FAR CMenus *getSubMenu(void)
+      {
+        return (FAR CMenus *)0;
+      }
+
+      /**
+       * There is no application start-up function.  This function will not
+       * be called in this implementation
+       */
+
+      inline void start(FAR CTwm4Nx *twm4nx)
+      {
+      }
+
+      /**
+       * There is no custom event handler.  We use the common event handler.
+       *
+       * @return.  null is always returned in this impementation.
+       */
+
+      inline FAR CTwm4NxEvent *getEventHandler(void)
+      {
+        return (FAR CTwm4NxEvent *)0;
+      }
+
+      /**
+       * Return the Twm4Nx event that will be generated when the Main Menu
+       * item is selected.
+       *
+       * @return. This function always returns EVENT_WINDOW_DESKTOP.
+       */
+
+      inline uint16_t getEvent(void)
+      {
+        return EVENT_WINDOW_DESKTOP;
+      }
+  };
+
+  /**
    * The CWindowFactory class creates new window instances and manages some
    * things that are common to all windows.
    */
@@ -90,9 +157,10 @@ namespace Twm4Nx
   {
     private:
 
-      CTwm4Nx             *m_twm4nx;     /**< Cached Twm4Nx session */
-      struct nxgl_point_s  m_winpos;     /**< Position of next window created */
-      FAR struct SWindow  *m_windowHead; /**< List of all windows on the display */
+      CTwm4Nx             *m_twm4nx;      /**< Cached Twm4Nx session */
+      struct nxgl_point_s  m_winpos;      /**< Position of next window created */
+      FAR struct SWindow  *m_windowHead;  /**< List of windows on the display */
+      CDesktopItem         m_desktopItem; /**< For the "Desktop" Main Menu item */
 
       /**
        * Add a window container to the window list.
@@ -120,6 +188,15 @@ namespace Twm4Nx
 
       FAR struct SWindow *findWindow(FAR CWindow *cwin);
 
+      /**
+       * This is the function that responds to the EVENT_WINDOW_DESKTOP.  It
+       * iconifies all windows so that the desktop is visible.
+       *
+       * @return True is returned if the operation was successful.
+       */
+
+       bool showDesktop(void);
+
     public:
 
       /**
@@ -137,7 +214,21 @@ namespace Twm4Nx
       ~CWindowFactory(void);
 
       /**
+       * Add Icon Manager menu items to the Main menu.  This is really part
+       * of the instance initialization, but cannot be executed until the
+       * Main Menu logic is ready.
+       *
+       * @return True on success
+       */
+
+      bool addMenuItems(void);
+
+      /**
        * Create a new window and add it to the window list.
+       *
+       * The window is initialized with all application events disabled.
+       * The CWindows::configureEvents() method may be called as a second
+       * initialization step in order to enable application events.
        *
        * @param name       The window name
        * @param sbitmap    The Icon bitmap

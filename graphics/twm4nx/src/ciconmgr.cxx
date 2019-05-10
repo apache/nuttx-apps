@@ -503,6 +503,25 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
+      case EVENT_ICONMGR_XYINPUT:     // Poll for button array events
+        {
+          // This event message is sent from CWindowEvent whenever mouse,
+          // touchscreen, or keyboard entry events are received in the
+          // Icon Manager application window that contains the button
+          // array.
+
+          NXWidgets::CWidgetControl *control = m_window->getWidgetControl();
+
+          // Poll for button array events.
+          //
+          // pollEvents() returns true if any interesting event in the
+          // button array.  handleActionEvent() will be called in that
+          // case.  false is not a failure.
+
+          (void)control->pollEvents();
+        }
+        break;
+
       case EVENT_ICONMGR_DEICONIFY:   // De-iconify or raise the Icon Manager
         {
           // Is the Icon manager conified?
@@ -600,6 +619,18 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   if (m_window == (FAR CWindow *)0)
     {
       twmerr("ERROR: Failed to create icon manager window");
+      return false;
+    }
+
+  // Configure mouse events needed by the button array.
+
+  bool success =
+    m_window->configureEvents((FAR void *)this, EVENT_SYSTEM_NOP,
+                              EVENT_ICONMGR_XYINPUT, EVENT_SYSTEM_NOP);
+  if (!success)
+    {
+      delete m_window;
+      m_window = (FAR CWindow *)0;
       return false;
     }
 
