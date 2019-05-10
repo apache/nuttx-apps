@@ -58,7 +58,7 @@
 
 #include "graphics/nxwidgets/cnxstring.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
-#include "graphics/nxwidgets/clistbox.hxx"
+#include "graphics/nxwidgets/cbuttonarray.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
@@ -115,12 +115,8 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
 
   m_menuHead     = (FAR struct SMenuItem *)0;  // No menu items
   m_menuTail     = (FAR struct SMenuItem *)0;  // No menu items
-  m_popUpMenu    = (FAR CMenus *)0;            // No pop-up menu
-  m_activeItem   = (FAR struct SMenuItem *)0;  // No active menu item
   m_nMenuItems   = 0;                          // No menu items yet
-  m_menuDepth    = 0;                          // No menus up
   m_entryHeight  = 0;                          // Menu entry height
-  m_menuPull     = false;                      // No pull right entry
 
   // Windows
 
@@ -128,7 +124,7 @@ CMenus::CMenus(CTwm4Nx *twm4nx)
 
   // Widgets
 
-  m_menuListBox  = (FAR NXWidgets::CListBox *)0;  // The menu list box
+  m_buttons      = (FAR NXWidgets::CButtonArray *)0;  // The menu button array
 }
 
 /**
@@ -175,11 +171,11 @@ bool CMenus::initialize(FAR NXWidgets::CNxString &name)
       return false;
     }
 
-  // Create the menu list box
+  // Create the menu button array
 
-  if (!createMenuListBox())
+  if (!createMenuButtonArray())
     {
-      twmerr("ERROR: Failed to create menu list box\n");
+      twmerr("ERROR: Failed to create menu button array\n");
       cleanup();
       return false;
     }
@@ -219,38 +215,13 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
   // Save information about the menu item
 
   item->flink    = NULL;
-  item->subMenu  = NULL;
+  item->subMenu  = subMenu;
   item->handler  = handler;
   item->event    = event;
 
-  CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *menuFont = fonts->getMenuFont();
-  int width = menuFont->getStringWidth(text);
+  // Increment the total number of menu items
 
-  if (width <= 0)
-    {
-      width = 1;
-    }
-
-  struct nxgl_size_s menuSize;
-  m_menuWindow->getWindowSize(&menuSize);
-
-  if (width > menuSize.w)
-    {
-      menuSize.w = width;
-      m_menuWindow->setWindowSize(&menuSize);
-    }
-
-  if (subMenu != NULL)
-    {
-      item->subMenu   = subMenu;
-      m_menuPull = true;
-    }
-
-  // Save the index to this item and increment the total number of menu
-  // items
-
-  item->index = m_nMenuItems++;
+  int index = m_nMenuItems++;
 
   // Add the menu item to the tail of the item list
 
@@ -268,20 +239,29 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
   m_menuTail  = item;
   item->flink = (FAR struct SMenuItem *)0;
 
-  // Add the item text to the list box
-
-  m_menuListBox->addOption(item->text, item->index);
-
   // Update the menu window size
 
   setMenuWindowSize();
+  m_menuWindow->synchronize();
 
-  // Redraw the list box
+  // Get the updated window size
 
-  m_menuListBox->enable();
-  m_menuListBox->enableDrawing();
-  m_menuListBox->setRaisesEvents(true);
-  m_menuListBox->redraw();
+  struct nxgl_size_s menuSize;
+  m_menuWindow->getWindowSize(&menuSize);
+
+  // Resize the button array
+
+  nxgl_coord_t buttonHeight = menuSize.h / m_nMenuItems;
+
+  if (!m_buttons->resizeArray(1, m_nMenuItems, menuSize.w, buttonHeight))
+    {
+      twmerr("ERROR: CButtonArray::resizeArray failed\n");
+      return false;
+    }
+
+  // Add the new item text to the button array
+
+  m_buttons->setText(0, index, item->text);
   return true;
 }
 
@@ -299,13 +279,13 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_MENU_IDENTIFY:  // Describe the window
+      case EVENT_MENU_IDENTIFY:   // Describe the window
         {
           identify((FAR CWindow *)eventmsg->obj);
         }
         break;
 
-      case EVENT_MENU_VERSION:  // Show the Twm4Nx version
+      case EVENT_MENU_VERSION:    // Show the Twm4Nx version
         identify((FAR CWindow *) NULL);
         break;
 
@@ -324,7 +304,7 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_MENU_FUNCTION:  // Perform function on unknown menu
+      case EVENT_MENU_FUNCTION:   // Perform function on unknown menu
         {
           FAR struct SMenuItem *item;
 
@@ -355,6 +335,15 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
                   success = false;
                 }
             }
+        }
+        break;
+
+      case EVENT_MENU_SUBMENU:    // Sub-menu selected
+        {
+          // Bring up the sub-menu
+
+          FAR CMenus *cmenu = (FAR CMenus *)eventmsg->obj;
+          success = cmenu->show();
         }
         break;
 
@@ -478,6 +467,58 @@ void CMenus::identify(FAR CWindow *cwin)
 }
 
 /**
+ * Convert the position of a menu window to the position of
+ * the containing frame.
+ */
+
+void CMenus::menuToFramePos(FAR const struct nxgl_point_s *menupos,
+                            FAR struct nxgl_point_s *framepos)
+{
+  nxgl_coord_t tbheight = m_menuWindow->getToolbarHeight();
+  framepos->x = menupos->x - CONFIG_NXTK_BORDERWIDTH;
+  framepos->y = menupos->y - tbheight - CONFIG_NXTK_BORDERWIDTH;
+}
+
+/**
+ * Convert the position of the containing frame to the position of
+ * the menu window.
+ */
+
+void CMenus::frameToMenuPos(FAR const struct nxgl_point_s *framepos,
+                                   FAR struct nxgl_point_s *menupos)
+{
+  nxgl_coord_t tbheight = m_menuWindow->getToolbarHeight();
+  menupos->x = framepos->x + CONFIG_NXTK_BORDERWIDTH;
+  menupos->y = framepos->y + tbheight + CONFIG_NXTK_BORDERWIDTH;
+}
+
+/**
+ * Convert the size of a menu window to the size of the containing
+ * frame.
+ */
+
+void CMenus::menuToFrameSize(FAR const struct nxgl_size_s *menusize,
+                                  FAR struct nxgl_size_s *framesize)
+{
+  nxgl_coord_t tbheight = m_menuWindow->getToolbarHeight();
+  framesize->w = menusize->w + 2 * CONFIG_NXTK_BORDERWIDTH;
+  framesize->h = menusize->h + tbheight + 2 * CONFIG_NXTK_BORDERWIDTH;
+}
+
+/**
+ * Convert the size of a containing frame to the size of the menu
+ * window.
+ */
+
+void CMenus::frameToMenuSize(FAR const struct nxgl_size_s *framesize,
+                                  FAR struct nxgl_size_s *menusize)
+{
+  nxgl_coord_t tbheight = m_menuWindow->getToolbarHeight();
+  menusize->w = framesize->w - 2 * CONFIG_NXTK_BORDERWIDTH;
+  menusize->h = framesize->h - tbheight - 2 * CONFIG_NXTK_BORDERWIDTH;
+}
+
+/**
  * Create the menu window.  Menu windows are always created in the hidden
  * state.  When the menu is selected, then it should be shown.
  *
@@ -488,27 +529,27 @@ bool CMenus::createMenuWindow(void)
 {
   // Create the menu window
 
-  m_menuWindow = new CWindow(m_twm4nx);
+  CWindowFactory *factory = m_twm4nx->getWindowFactory();
+
+  m_menuWindow =
+    factory->createWindow(m_menuName,
+                          (FAR const struct NXWidgets::SRlePaletteBitmap *)0,
+                          (FAR CIconMgr *)0, MENU_WINDOW_FLAGS);
+
   if (m_menuWindow == (FAR CWindow *)0)
     {
-      twmerr("ERRR: Failed to instantiate menu window\n");
+      twmerr("ERROR: Failed to create icon manager window");
       return false;
     }
 
-  // Initialize the menu window
+  // Adjust the size of the window
 
-  struct nxgl_point_s pos;
-  pos.x  = 0;
-  pos.y  = 0;
+  struct nxgl_size_s windowSize;
+  getMenuWindowSize(windowSize);
 
-  struct nxgl_size_s size;
-  getMenuWindowSize(size);
-
-  if (!m_menuWindow->initialize(m_menuName, &pos, &size,
-                               (FAR const struct NXWidgets::SRlePaletteBitmap *)0,
-                               (FAR CIconMgr *)0, MENU_WINDOW_FLAGS))
+  if (!m_menuWindow->setWindowSize(&windowSize))
     {
-      twmerr("ERRR: Failed to initialize menu window\n");
+      twmerr("ERROR: Failed to set window size\n");
       delete m_menuWindow;
       m_menuWindow = (FAR CWindow *)0;
       return false;
@@ -528,7 +569,7 @@ void CMenus::getMenuFrameSize(FAR struct nxgl_size_s &frameSize)
   CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *menuFont = fonts->getMenuFont();
 
-  m_entryHeight = menuFont->getHeight() + 4;
+  m_entryHeight = menuFont->getHeight() + CONFIG_TWM4NX_MENU_VSPACING;
 
   // Get the minimum width of the toolbar
 
@@ -551,15 +592,10 @@ void CMenus::getMenuFrameSize(FAR struct nxgl_size_s &frameSize)
   // Lets first size the window accordingly
 
   struct nxgl_size_s menuSize;
-  menuSize.w = maxWidth + 10;
+  menuSize.w = maxWidth + CONFIG_TWM4NX_MENU_HSPACING;
 
   unsigned int nMenuItems = m_nMenuItems > 0 ? m_nMenuItems : 1;
   menuSize.h = nMenuItems * m_entryHeight;
-
-  if (m_menuPull == true)
-    {
-      menuSize.w += 16;
-    }
 
   // Clip to the size of the display
 
@@ -629,15 +665,31 @@ bool CMenus::setMenuWindowPosition(FAR struct nxgl_point_s *framePos)
 }
 
 /**
- * Create the menu list box
+ * Create the menu button array
  *
  * @result True is returned on success
  */
 
-bool CMenus::createMenuListBox(void)
+bool CMenus::createMenuButtonArray(void)
 {
-  // Get the Widget control instance from the menu window.  This
-  // will force all widget drawing to go to the Menu window.
+  // Get the width of the window
+
+  struct nxgl_size_s windowSize;
+  if (!m_menuWindow->getWindowSize(&windowSize))
+    {
+      twmerr("ERROR: Failed to get window size\n");
+      return false;
+    }
+
+  // Create the button array
+
+  uint8_t nrows = m_nMenuItems > 0 ? m_nMenuItems : 1;
+
+  nxgl_coord_t buttonWidth  = windowSize.w;
+  nxgl_coord_t buttonHeight = windowSize.h / nrows;
+
+  // Get the Widget control instance from the Icon Manager window.  This
+  // will force all widget drawing to go to the Icon Manager window.
 
   FAR NXWidgets:: CWidgetControl *control = m_menuWindow->getWidgetControl();
   if (control == (FAR NXWidgets:: CWidgetControl *)0)
@@ -647,231 +699,102 @@ bool CMenus::createMenuListBox(void)
       return false;
     }
 
-  // Create the menu list box
+  // Now we have enough information to create the button array
+  // The button must be positioned at the upper left of the window
 
-  struct nxgl_point_s pos;
-  pos.x  = 0;
-  pos.y  = 0;
-
-  struct nxgl_size_s size;
-  size.w = 0;
-  size.h = 0;
-
-  m_menuListBox = new NXWidgets::CListBox(control, pos.x, pos.y,
-                                          size.w, size.h);
-  if (m_menuListBox == (FAR NXWidgets::CListBox *)0)
+  m_buttons = new NXWidgets::CButtonArray(control, 0, 0, 1, nrows,
+                                          buttonWidth, buttonHeight);
+  if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
     {
-      twmerr("ERROR: Failed to instantiate list box\n");
+      twmerr("ERROR: Failed to create the button array\n");
       return false;
     }
 
-  // Get the menu font
+  // Configure the button array widget
 
-  FAR CFonts *cfont = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *menuFont = cfont->getMenuFont();
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
 
-  // Configure the list box
+  m_buttons->setFont(iconManagerFont);
+  m_buttons->setBorderless(true);
+  m_buttons->setRaisesEvents(true);
 
-  m_menuListBox->disable();
-  m_menuListBox->disableDrawing();
-  m_menuListBox->setRaisesEvents(false);
-  m_menuListBox->setAllowMultipleSelections(false);
-  m_menuListBox->setFont(menuFont);
-  m_menuListBox->setBorderless(false);
+  // Draw the button array
+
+  m_buttons->enableDrawing();
+  m_buttons->redraw();
 
   // Register to get events from the mouse clicks on the image
 
-  m_menuListBox->addWidgetEventHandler(this);
+  m_buttons->addWidgetEventHandler(this);
   return true;
 }
 
 /**
- * Pop up a pull down menu.
- *
- * @param pos    Location of upper left of menu frame
- */
-
-bool CMenus::popUpMenu(FAR struct nxgl_point_s *pos)
-{
-  // If there is already a popup menu, then delete it.  We only permit
-  // one popup at this level.
-
-  if (m_popUpMenu != (FAR CMenus *)0)
-    {
-      delete m_popUpMenu;
-    }
-
-  // Create and initialize a new menu
-
-  m_popUpMenu = new CMenus(m_twm4nx);
-  if (m_popUpMenu == (FAR CMenus *)0)
-    {
-      twmerr("ERROR: Failed to create popup menu.\n");
-      return false;
-    }
-
-  if (!m_popUpMenu->initialize(m_activeItem->text))
-    {
-      twmerr("ERROR: Failed to intialize popup menu.\n");
-      delete m_popUpMenu;
-      m_popUpMenu = (FAR CMenus *)0;
-      return false;
-    }
-
-  NXWidgets::CNxString windowName("TWM Windows");
-  m_popUpMenu->addMenuItem(windowName, (FAR CMenus *)0,
-                           (FAR CTwm4NxEvent *)0, EVENT_SYSTEM_NOP);
-
-  FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
-  int nWindowNames;
-
-  FAR struct SWindow *swin;
-  for (swin = factory->windowHead(), nWindowNames = 0;
-       swin != NULL; swin = swin->flink)
-    {
-      nWindowNames++;
-    }
-
-  if (nWindowNames != 0)
-    {
-      FAR CWindow **windowNames =
-        (FAR CWindow **)std::malloc(sizeof(FAR CWindow *) * nWindowNames);
-
-      if (windowNames == (FAR CWindow **)0)
-        {
-          twmerr("ERROR: Failed to allocat window name\n");
-          return false;
-        }
-
-      swin = factory->windowHead();
-      windowNames[0] = swin->cwin;
-
-      for (nWindowNames = 1;
-           swin != NULL;
-           swin = swin->flink, nWindowNames++)
-        {
-          FAR CWindow *tmpcwin1 = swin->cwin;
-          for (int i = 0; i < nWindowNames; i++)
-            {
-              FAR NXWidgets::CNxString windowName1 = tmpcwin1->getWindowName();
-              FAR NXWidgets::CNxString windowName2 = windowNames[i]->getWindowName();
-
-              if (windowName1.compareTo(windowName2) < 0)
-                {
-                  FAR CWindow *tmpcwin2;
-                  tmpcwin2       = tmpcwin1;
-                  tmpcwin1       = windowNames[i];
-                  windowNames[i] = tmpcwin2;
-                }
-            }
-
-          windowNames[nWindowNames] = tmpcwin1;
-        }
-
-      for (int i = 0; i < nWindowNames; i++)
-        {
-          NXWidgets::CNxString itemName = windowNames[i]->getWindowName();
-          m_popUpMenu->addMenuItem(itemName, (FAR CMenus *)0,
-                                   (FAR CTwm4NxEvent *)0,
-                                   EVENT_WINDOW_DEICONIFY);
-        }
-
-      std::free(windowNames);
-    }
-
-  if (m_nMenuItems == 0)
-    {
-      delete m_popUpMenu;
-      m_popUpMenu = (FAR CMenus *)0;
-      return false;
-    }
-
-  // Clip to screen
-
-  struct nxgl_size_s displaySize;
-  m_twm4nx->getDisplaySize(&displaySize);
-
-  struct nxgl_size_s frameSize;
-  m_menuWindow->getFrameSize(&frameSize);
-
-  if (pos->x + frameSize.w > displaySize.w)
-    {
-      pos->x = displaySize.w - frameSize.w;
-    }
-
-  if (pos->x < 0)
-    {
-      pos->x = 0;
-    }
-
-  if (pos->y + frameSize.h > displaySize.h)
-    {
-      pos->y = displaySize.h - frameSize.h;
-    }
-
-  if (pos->y < 0)
-    {
-      pos->y = 0;
-    }
-
-  DEBUGASSERT(m_menuDepth < UINT8_MAX);
-  m_menuDepth++;
-
-  if (!m_popUpMenu->setMenuWindowPosition(pos))
-    {
-      delete m_popUpMenu;
-      m_popUpMenu = (FAR CMenus *)0;
-      return false;
-    }
-
-  m_popUpMenu->raiseMenuWindow();
-  m_menuWindow->synchronize();
-  return m_popUpMenu;
-}
-
-/**
- * Override the virtual value change event.  This will get events
- * when there is a change in the list box selection.
+ * Handle a widget action event, overriding the CWidgetEventHandler
+ * method.  This will indicate a button pre-release event.
  *
  * @param e The event data.
  */
 
-void CMenus::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
+void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Check if anything is selected
+  // A button should now be clicked
 
-  int menuSelection = m_menuListBox->getSelectedIndex();
-  if (menuSelection >= 0)
+  int column;
+  int row;
+
+  if (m_buttons->isButtonClicked(column, row) && column == 0)
     {
-      // Yes.. Get the selection menu item list box entry
+      // The row number is sufficent to locate the menu entry info
+      // But we have to search through the menu items to find the
+      // at this row.
 
-      FAR const NXWidgets::CListBoxDataItem *option =
-        m_menuListBox->getSelectedOption();
+      FAR struct SMenuItem *item;
+      int index;
 
-      // Get the menu item string
-
-      FAR const NXWidgets::CNxString itemText = option->getText();
-
-      // Now find the window with this name
-
-      for (FAR struct SMenuItem *item = m_menuHead;
+      for (item = m_menuHead, index = 0;
            item != (FAR struct SMenuItem *)0;
-           item = item->flink)
+           item = item->flink, index++)
         {
-          // Check if the menu item string matches the listbox selection
-          // string
+          // When the index matches the row number, then we have
+          // the entry.
+          // REVISIT:  Are there any race conditions we need to
+          // concerned with here?  Such as menuitems being removed
+          // while the menu is up?
 
-          if (itemText.compareTo(item->text) == 0)
+          if (row == index)
             {
-               // Generate the menu event
+              // Send an event to the Twm4Nx event handler
 
-               struct SEventMsg msg;
-               msg.eventID = item->event;
-               msg.pos.x   = e.getX();
-               msg.pos.y   = e.getY();
-               msg.context = EVENT_CONTEXT_TOOLBAR;
-               msg.handler = item->handler;
-               msg.obj     = (FAR void *)this;
+              struct SEventMsg msg;
+
+              // If there is a subMenu, then bring the sub-menu up
+              // now.
+
+              if (item->subMenu != (FAR CMenus *)0)
+                {
+                  msg.eventID = EVENT_MENU_SUBMENU;
+                  msg.handler = (FAR CTwm4NxEvent *)0;
+                  msg.obj     = (FAR void *)item->subMenu;
+                }
+
+              // Otherwise, send the event specified for the menu item.  The
+              // handler is only used if the recipient of the event is
+              // EVENT_RECIPIENT_APP
+
+              else
+                {
+                  msg.eventID = item->event;
+                  msg.handler = item->handler;
+                  msg.obj     = (FAR void *)this;
+                }
+
+              // Fill in the remaining, common stuff
+
+              msg.pos.x   = e.getX();
+              msg.pos.y   = e.getY();
+              msg.context = EVENT_CONTEXT_MENU;
 
               // NOTE that we cannot block because we are on the same thread
               // as the message reader.  If the event queue becomes full then
@@ -887,11 +810,11 @@ void CMenus::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
                   twmerr("ERROR: mq_send failed: %d\n", ret);
                 }
 
-              break;
+              return;
             }
         }
 
-      twmwarn("WARNING:  No matching menu item\n");
+      twmwarn("WARNING:  No matching menu at index %d\n", row);
     }
 }
 
@@ -907,13 +830,6 @@ void CMenus::cleanup(void)
     {
       (void)mq_close(m_eventq);
       m_eventq = (mqd_t)-1;
-    }
-
-  // Free any popup menus
-
-  if (m_popUpMenu != (FAR CMenus *)0)
-    {
-      delete m_popUpMenu;
     }
 
   // Free the menu window
@@ -945,4 +861,14 @@ void CMenus::cleanup(void)
       delete curr;
     }
 
+  m_menuHead = (FAR struct SMenuItem *)0;
+  m_menuTail = (FAR struct SMenuItem *)0;
+
+  // Free the button array
+
+  if (m_buttons != (FAR NXWidgets::CButtonArray *)0)
+    {
+      delete m_buttons;
+      m_buttons = (FAR NXWidgets::CButtonArray *)0;
+    }
 }

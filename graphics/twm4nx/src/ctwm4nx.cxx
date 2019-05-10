@@ -221,7 +221,7 @@ bool CTwm4Nx::run(void)
               (unsigned int)m_displaySize.h <= INT16_MAX);
 
   m_maxWindow.w = INT16_MAX - m_displaySize.w;
-  m_maxWindow.h = INT16_MAX - m_displaySize.w;
+  m_maxWindow.h = INT16_MAX - m_displaySize.h;
 
 #if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
   // Create the keyboard/mouse input device thread

@@ -85,45 +85,41 @@
 
 namespace NXWidgets
 {
-  class  CListBox;                                 // Forward reference
-  class  CWidgetEventArgs;                         // Forward reference
-  class  CWidgetEventArgs;                         // Forward reference
+  class  CButtonArray;                              // Forward reference
+  class  CWidgetEventArgs;                          // Forward reference
+  class  CWidgetEventArgs;                          // Forward reference
 }
 
 namespace Twm4Nx
 {
-  struct SEventMsg;                                // Forward referernce
-  class  CMenus;                                   // Forward reference
+  struct SEventMsg;                                 // Forward referernce
+  class  CMenus;                                    // Forward reference
 
   struct SMenuItem
   {
-    FAR struct SMenuItem *flink;                   /**< Forward link to next menu item */
-    FAR struct SMenuItem *blink;                   /**< Backward link previous menu item */
-    FAR CMenus *subMenu;                           /**< Menu root of a pull right menu */
-    FAR NXWidgets::CNxString text;                 /**< The text string for the menu item */
-    FAR CTwm4NxEvent *handler;                     /**< Application event handler */
-    uint16_t index;                                /**< Index of this menu item */
-    uint16_t event;                                /**< Menu selection event */
+    FAR struct SMenuItem *flink;                    /**< Forward link to next menu item */
+    FAR struct SMenuItem *blink;                    /**< Backward link previous menu item */
+    FAR CMenus *subMenu;                            /**< Menu root of a pull right menu */
+    FAR NXWidgets::CNxString text;                  /**< The text string for the menu item */
+    FAR CTwm4NxEvent *handler;                      /**< Application event handler */
+    uint16_t event;                                 /**< Menu selection event */
   };
 
   class CMenus : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
   {
     private:
 
-      CTwm4Nx                    *m_twm4nx;        /**< Cached Twm4Nx session */
-      mqd_t                       m_eventq;        /**< NxWidget event message queue */
-      FAR CWindow                *m_menuWindow;    /**< The menu window */
-      FAR CMenus                 *m_popUpMenu;     /**< Pop-up menu */
-      FAR NXWidgets::CListBox    *m_menuListBox;   /**< The menu list box */
-      FAR struct SMenuItem       *m_activeItem;    /**< The active menu item */
-      FAR struct SMenuItem       *m_menuHead;      /**< First item in menu */
-      FAR struct SMenuItem       *m_menuTail;      /**< Last item in menu */
-      NXWidgets::CNxString        m_menuName;      /**< The name of the menu */
-      nxgl_coord_t                m_entryHeight;   /**< Menu entry height */
-      uint16_t                    m_nMenuItems;    /**< Number of items in the menu */
-      uint8_t                     m_menuDepth;     /**< Number of menus up */
-      bool                        m_menuPull;      /**< Is there a pull right entry? */
-      char                        m_info[INFO_LINES][INFO_SIZE];
+      CTwm4Nx                     *m_twm4nx;        /**< Cached Twm4Nx session */
+      mqd_t                        m_eventq;        /**< NxWidget event message queue */
+      FAR CWindow                 *m_menuWindow;    /**< The menu window */
+      FAR NXWidgets::CButtonArray *m_buttons;       /**< The menu button array */
+      FAR struct SMenuItem        *m_menuHead;      /**< First item in menu */
+      FAR struct SMenuItem        *m_menuTail;      /**< Last item in menu */
+      NXWidgets::CNxString         m_menuName;      /**< The name of the menu */
+      nxgl_coord_t                 m_entryHeight;   /**< Menu entry height */
+      uint16_t                     m_nMenuItems;    /**< Number of items in the menu */
+      uint8_t                      m_nrows;         /**< Number of rows in the button array */
+      char                         m_info[INFO_LINES][INFO_SIZE];
 
       void identify(FAR CWindow *cwin);
 
@@ -132,48 +128,32 @@ namespace Twm4Nx
        * the containing frame.
        */
 
-      inline void menuToFramePos(FAR const struct nxgl_point_s *menupos,
-                                   FAR struct nxgl_point_s *framepos)
-      {
-        framepos->x = menupos->x - CONFIG_NXTK_BORDERWIDTH;
-        framepos->y = menupos->y - CONFIG_NXTK_BORDERWIDTH;
-      }
+      void menuToFramePos(FAR const struct nxgl_point_s *menupos,
+                          FAR struct nxgl_point_s *framepos);
 
       /**
        * Convert the position of the containing frame to the position of
        * the menu window.
        */
 
-      inline void frameToMenuPos(FAR const struct nxgl_point_s *framepos,
-                                   FAR struct nxgl_point_s *menupos)
-      {
-        menupos->x = framepos->x + CONFIG_NXTK_BORDERWIDTH;
-        menupos->y = framepos->y + CONFIG_NXTK_BORDERWIDTH;
-      }
+      void frameToMenuPos(FAR const struct nxgl_point_s *framepos,
+                          FAR struct nxgl_point_s *menupos);
 
       /**
        * Convert the size of a menu window to the size of the containing
        * frame.
        */
 
-      inline void menuToFrameSize(FAR const struct nxgl_size_s *menusize,
-                                  FAR struct nxgl_size_s *framesize)
-      {
-        framesize->w = menusize->w + 2 * CONFIG_NXTK_BORDERWIDTH;
-        framesize->h = menusize->h + 2 * CONFIG_NXTK_BORDERWIDTH;
-      }
+      void menuToFrameSize(FAR const struct nxgl_size_s *menusize,
+                           FAR struct nxgl_size_s *framesize);
 
       /**
        * Convert the size of a containing frame to the size of the menu
        * window.
        */
 
-      inline void frameToMenuSize(FAR const struct nxgl_size_s *framesize,
-                                  FAR struct nxgl_size_s *menusize)
-      {
-        menusize->w = framesize->w - 2 * CONFIG_NXTK_BORDERWIDTH;
-        menusize->h = framesize->h - 2 * CONFIG_NXTK_BORDERWIDTH;
-      }
+      void frameToMenuSize(FAR const struct nxgl_size_s *framesize,
+                           FAR struct nxgl_size_s *menusize);
 
       /**
        * Create the menu window.  Menu windows are always created in the
@@ -232,32 +212,24 @@ namespace Twm4Nx
       }
 
       /**
-       * Create the menu list box
+       * Create the menu button array
        *
        * @result True is returned on success
        */
 
-      bool createMenuListBox(void);
+      bool createMenuButtonArray(void);
 
       void paintMenu(void);
       void destroyMenu(void);
 
       /**
-       * Pop up a pull down menu.
-       *
-       * @param pos    Location of upper left of menu
-       */
-
-      bool popUpMenu(FAR struct nxgl_point_s *pos);
-
-      /**
-       * Override the virtual value change event.  This will get events
-       * when there is a change in the list box selection.
+       * Handle a widget action event, overriding the CWidgetEventHandler
+       * method.  This will indicate a button pre-release event.
        *
        * @param e The event data.
        */
 
-      void handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e);
+      void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
        * Cleanup or initialization error or on deconstruction.

@@ -148,7 +148,8 @@ CWidgetControl *CNxTkWindow::getWidgetControl(void) const
  * @param height Height of the toolbar
  */
 
-CNxToolbar *CNxTkWindow::openToolbar(nxgl_coord_t height, CWidgetControl *widgetControl)
+CNxToolbar *CNxTkWindow::openToolbar(nxgl_coord_t height,
+                                     CWidgetControl *widgetControl)
 {
   if (m_hNxTkWindow && !m_toolbar)
     {
@@ -194,6 +195,7 @@ CNxToolbar *CNxTkWindow::openToolbar(nxgl_coord_t height, CWidgetControl *widget
             {
               delete allocControl;
             }
+
           return (CNxToolbar *)0;
         }
 
@@ -209,6 +211,7 @@ CNxToolbar *CNxTkWindow::openToolbar(nxgl_coord_t height, CWidgetControl *widget
             {
               delete allocControl;
             }
+
           return (CNxToolbar *)0;
         }
 
@@ -247,7 +250,8 @@ CNxToolbar *CNxTkWindow::openToolbar(nxgl_coord_t height, CWidgetControl *widget
       struct nxgl_size_s toolbarSize;
       nxgl_rectsize(&toolbarSize, &toolbarBounds);
 
-      // Get the toolbar position in display coordinates by adding the window position
+      // Get the toolbar position in display coordinates by adding the
+      // window position
 
       struct nxgl_point_s toolbarPos;
       nxgl_vectoradd(&toolbarPos, &toolbarBounds.pt1, &windowPos);
