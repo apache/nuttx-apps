@@ -56,6 +56,7 @@
 
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/iapplication.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions
@@ -99,8 +100,9 @@ namespace Twm4Nx
   {
     FAR struct SMenuItem *flink;                    /**< Forward link to next menu item */
     FAR struct SMenuItem *blink;                    /**< Backward link previous menu item */
-    FAR CMenus *subMenu;                            /**< Menu root of a pull right menu */
     FAR NXWidgets::CNxString text;                  /**< The text string for the menu item */
+    FAR CMenus *subMenu;                            /**< Menu root of a pull right menu */
+    TStartFunction start;                           /**< Application start-up function */
     FAR CTwm4NxEvent *handler;                      /**< Application event handler */
     uint16_t event;                                 /**< Menu selection event */
   };
@@ -266,15 +268,11 @@ namespace Twm4Nx
       /**
        * Add an item to a menu
        *
-       *  \param text    The text to appear in the menu
-       *  \param subMenu The menu root if it is a pull-right entry
-       *  \param handler The application event handler.  Should be NULL unless
-       *                 the event recipient is EVENT_RECIPIENT_APP
-       *  \param event   The event to generate on menu item selection
+       * @param item Describes the menu item entry
+       * @return True if the menu item was added successfully
        */
 
-      bool addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
-                       FAR CTwm4NxEvent *handler, uint16_t event);
+      bool addMenuItem(FAR IApplication *item);
 
       /**
        * Return the size of the menu window frame

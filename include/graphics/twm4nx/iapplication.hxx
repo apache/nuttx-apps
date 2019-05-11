@@ -60,6 +60,17 @@ namespace Twm4Nx
   class CTwm4NxEvent; // Forward reference
 
   /**
+   * Get the start function entry point.
+   *
+   * @param twm4nx The Twm4Nx session object.  Use with care!  The CTwm4Nx
+   *   logic runs on a different thread and some of the methods of the
+   *   class may not be thread safe.
+   * @return True if the application was started successfully
+   */
+
+  typedef CODE bool (*TStartFunction)(FAR CTwm4Nx *twm4nx);
+
+  /**
    * Defines the interface of an application to the Main Menu.  "Built-In"
    * applications are started via CMainMenu.  This interface class defines
    * the interface requirements to add an application to the Main Menu.
@@ -86,7 +97,7 @@ namespace Twm4Nx
      * @return  The name of the application.
      */
 
-    virtual const NXWidgets::CNxString getName(void) = 0;
+    virtual NXWidgets::CNxString getName(void) = 0;
 
     /**
      * Return any submenu item associated with the menu entry.  If a non-
@@ -94,10 +105,22 @@ namespace Twm4Nx
      * the menu entry is selected.  Otherwise, the start() method will be
      * called.  These two behaviors are mutually exlusive.
      *
-     * NOTE: Both the start() and getSubMenu() return values are ignored
-     * if the event() method returns an event with recipient =
-     * EVENT_RECIPIENT_APP.  In that case, the application will be fully
-     * responsible for handling the menu selection event.
+     * NOTEs:
+     * * Both the start() and getSubMenu() methods are ignoredif the event()
+     *   method returns an event with recipient = EVENT_RECIPIENT_APP.  In
+     *   that case, the application will be fully responsible for handling
+     *   the menu selection event.
+     * * Otherwise, the sub-menu or start-up take precedence over
+     *   the event.
+     * * If getSubMenu() returns a non-NULL CMenu instance, then the
+     *   subMenu is used and the start() is not called.
+     *
+     * Precedence:
+     * 1. Event with recipient == EVENT_RECIPIENT_APP.  getEventHandler()
+     *    must return a non-NULL instance in this case.
+     * 2. Sub-menu
+     * 3. Task start-up
+     * 4. Event with other recipients
      *
      * @return.  A reference to any sub-menu that should be brought up if
      *   the menu item is selected.  This must be null if the menu item
@@ -115,17 +138,28 @@ namespace Twm4Nx
      * The Main Menu runs on the main Twm4Nx thread so this function will,
      * typically, create a new thread to host the application.
      *
-     * NOTE: Both the start() and getSubMenu() return values are ignored
-     * if the event() method returns an event with recipient =
-     * EVENT_RECIPIENT_APP.  In that case, the application will be fully
-     * responsible for handling the menu selection event.
+     * NOTEs:
+     * * Both the start() and getSubMenu() methods are ignoredif the event()
+     *   method returns an event with recipient = EVENT_RECIPIENT_APP.  In
+     *   that case, the application will be fully responsible for handling
+     *   the menu selection event.
+     * * Otherwise, the sub-menu or start-up take precedence over
+     *   the event.
+     * * If getSubMenu() returns a non-NULL CMenu instance, then the
+     *   subMenu is used and the start() is not called.
      *
-     * @param twm4nx The Twm4Nx session object.  Use with care!  The CTwm4Nx
-     *   logic runs on a different thread and some of the methods of the
-     *   class may not be thread safe.
+     * Precedence:
+     * 1. Event with recipient == EVENT_RECIPIENT_APP.  getEventHandler()
+     *    must return a non-NULL instance in this case.
+     * 2. Sub-menu
+     * 3. Task start-up
+     * 4. Event with other recipients
+     *
+     * @return The start-up function entry point.  A null value is returned
+     *   if there is no startup function.
      */
 
-    virtual void start(FAR CTwm4Nx *twm4nx) = 0;
+    virtual TStartFunction getStartFunction(void) = 0;
 
     /**
      * External applications may provide their own event handler that runs
@@ -150,14 +184,32 @@ namespace Twm4Nx
 
     /**
      * Get the Twm4Nx event that will be generated when the menu item is
-     * selected.  All returned values are ignored unless the event recipient
-     * is EVENT_RECIPIENT_APP.  Otherwise, the event EVENT_MAINMENU_SELECT
-     * is used and any subsequent menu item action, either bringing up
-     * a sub-menu or starting an application, will be performed by CMainMenu.
+     * selected.  If the returned value has the event recipient of
+     * EVENT_RECIPIENT_APP, then getEventHandler() must return the event
+     * handling instance.  Otherwise, the event will be handled by internal
+     * Twm4Nx logic based on the internal recipient.
      *
-     * This method may return zero in that case.  It would be an error if
-     * this method returned an event with EVENT_RECIPIENT_APP but the
+     * This method may return EVENT_SYSTEM_NOP if a subMenu or task start-up
+     * function should be executed.  It would be an error if this method
+     * returned an event with EVENT_RECIPIENT_APP but the
      * getEventHandler() method returned null.
+     *
+     * NOTEs:
+     * * Both the start() and getSubMenu() methods are ignoredif the event()
+     *   method returns an event with recipient = EVENT_RECIPIENT_APP.  In
+     *   that case, the application will be fully responsible for handling
+     *   the menu selection event.
+     * * Otherwise, the sub-menu or start-up take precedence over
+     *   the event.
+     * * If getSubMenu() returns a non-NULL CMenu instance, then the
+     *   subMenu is used and the start() is not called.
+     *
+     * Precedence:
+     * 1. Event with recipient == EVENT_RECIPIENT_APP.  getEventHandler()
+     *    must return a non-NULL instance in this case.
+     * 2. Sub-menu
+     * 3. Task start-up
+     * 4. Event with other recipients
      *
      * @return. Either, (1) an event with recipient = EVENT_RECIPIENT_APP
      *   that will be generated when menu item is selected, or (2) any other

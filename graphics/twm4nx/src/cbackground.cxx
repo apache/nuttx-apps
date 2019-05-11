@@ -314,7 +314,7 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
                   outmsg.pos.x   = eventmsg->pos.x;
                   outmsg.pos.y   = eventmsg->pos.y;
                   outmsg.context = EVENT_CONTEXT_BACKGROUND;
-                  outmsg.handler = (FAR CTwm4NxEvent *)0;
+                  outmsg.handler = (FAR void *)0;
                   outmsg.obj     = (FAR void *)this;
 
                   int ret = mq_send(m_eventq, (FAR const char *)&outmsg,

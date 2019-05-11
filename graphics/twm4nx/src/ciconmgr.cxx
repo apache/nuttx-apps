@@ -936,11 +936,11 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               // Got it... send an event message
 
               struct SEventMsg msg;
+              msg.obj     = (FAR void *)this;
               msg.pos.x   = e.getX();
               msg.pos.y   = e.getY();
               msg.context = EVENT_CONTEXT_ICONMGR;
-              msg.handler = (FAR CTwm4NxEvent *)0;
-              msg.obj     = (FAR void *)swin->cwin;
+              msg.handler = (FAR void *)0;
 
               // Got it.  Is the window Iconified?
 

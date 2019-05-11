@@ -142,10 +142,7 @@ bool CMainMenu::addApplication(FAR IApplication *app)
 
   // Add the new menu item to the main menu
 
-  FAR NXWidgets::CNxString appName = app->getName();
-
-  if (!m_mainMenu->addMenuItem(appName, app->getSubMenu(),
-                               app->getEventHandler(), app->getEvent()))
+  if (!m_mainMenu->addMenuItem(app))
     {
       twmerr("ERROR: addMenuItem failed\n");
       std::free(mmitem);

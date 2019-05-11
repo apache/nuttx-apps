@@ -460,11 +460,11 @@ void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
 
   struct SEventMsg msg;
   msg.eventID = EVENT_ICONWIDGET_UNGRAB;
+  msg.obj     = (FAR void *)this;
   msg.pos.x   = e.getX();
   msg.pos.y   = e.getY();
   msg.context = EVENT_CONTEXT_ICON;
-  msg.handler = (FAR CTwm4NxEvent *)0;
-  msg.obj     = (FAR void *)this;
+  msg.handler = (FAR void *)0;
 
   // NOTE that we cannot block because we are on the same thread
   // as the message reader.  If the event queue becomes full then
@@ -498,11 +498,11 @@ void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
 
       struct SEventMsg msg;
       msg.eventID = EVENT_ICONWIDGET_DRAG;
+      msg.obj     = (FAR void *)this;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
       msg.context = EVENT_CONTEXT_ICON;
-      msg.handler = (FAR CTwm4NxEvent *)0;
-      msg.obj     = (FAR void *)this;
+      msg.handler = (FAR void *)0;
 
       // NOTE that we cannot block because we are on the same thread
       // as the message reader.  If the event queue becomes full then
@@ -557,11 +557,11 @@ void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
 
       struct SEventMsg msg;
       msg.eventID = EVENT_ICONWIDGET_GRAB;
+      msg.obj     = (FAR void *)this;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
       msg.context = EVENT_CONTEXT_ICON;
-      msg.handler = (FAR CTwm4NxEvent *)0;
-      msg.obj     = (FAR void *)this;
+      msg.handler = (FAR void *)0;
 
       // NOTE that we cannot block because we are on the same thread
       // as the message reader.  If the event queue becomes full then

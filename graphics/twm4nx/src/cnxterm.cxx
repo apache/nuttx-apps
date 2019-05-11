@@ -58,6 +58,7 @@
 
 #include "graphics/nxglyphs.hxx"
 #include "graphics/twm4nx/twm4nx_config.hxx"
+#include "graphics/twm4nx/twm4nx.hxx"
 #include "graphics/twm4nx/cnxterm.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -67,7 +68,7 @@
 // Configuration ////////////////////////////////////////////////////////////
 
 #ifdef CONFIG_NSH_USBKBD
-#  warning You probably do not really want CONFIG_NSH_USBKBD, try CONFIG_NXWM_KEYBOARD_USBHOST
+#  warning You probably do not really want CONFIG_NSH_USBKBD, try CONFIG_TWM4NX_KEYBOARD_USBHOST
 #endif
 
 /* If Telnet is used and both IPv6 and IPv4 are enabled, then we need to
@@ -127,7 +128,7 @@ using namespace Twm4Nx;
  * @param window.  The application window
  */
 
-CNxTerm::CNxTerm(CTaskbar *twm4nx, CApplicationWindow *window)
+CNxTerm::CNxTerm(CTwm4Nx *twm4nx, CApplicationWindow *window)
 {
   // Save the constructor data
 
@@ -189,20 +190,9 @@ IApplicationWindow *CNxTerm::getWindow(void) const
 NXWidgets::IBitmap *CNxTerm::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
+    new NXWidgets::CRlePaletteBitmap(&CONFIG_TWM4NX_NXTERM_ICON);
 
   return bitmap;
-}
-
-/**
- * Get the name string associated with the application
- *
- * @return A copy if CNxString that contains the name of the application.
- */
-
-NXWidgets::CNxString CNxTerm::getName(void)
-{
-  return NXWidgets::CNxString("NuttShell");
 }
 
 /**
@@ -245,9 +235,9 @@ bool CNxTerm::run(void)
 
   // Describe the NxTerm
 
-  g_nxtermvars.wndo.wcolor[0] = CONFIG_NXWM_NXTERM_WCOLOR;
-  g_nxtermvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
-  g_nxtermvars.wndo.fontid    = CONFIG_NXWM_NXTERM_FONTID;
+  g_nxtermvars.wndo.wcolor[0] = CONFIG_TWM4NX_NXTERM_WCOLOR;
+  g_nxtermvars.wndo.fcolor[0] = CONFIG_TWM4NX_NXTERM_FONTCOLOR;
+  g_nxtermvars.wndo.fontid    = CONFIG_TWM4NX_NXTERM_FONTID;
 
   // Remember the device minor number (before it is incremented)
 
@@ -264,8 +254,8 @@ bool CNxTerm::run(void)
   g_nxtermvars.nxterm   = 0;
 
   sched_lock();
-  m_pid = task_create("NxTerm", CONFIG_NXWM_NXTERM_PRIO,
-                      CONFIG_NXWM_NXTERM_STACKSIZE, nxterm,
+  m_pid = task_create("NxTerm", CONFIG_TWM4NX_NXTERM_PRIO,
+                      CONFIG_TWM4NX_NXTERM_STACKSIZE, nxterm,
                       (FAR char * const *)0);
 
   // Did we successfully start the NxTerm task?
@@ -321,7 +311,7 @@ bool CNxTerm::run(void)
 void CNxTerm::stop(void)
 {
   // Delete the NxTerm task if it is still running (this could strand
-  // resources). If we get here due to CTaskbar::stopApplication() processing
+  // resources). If we get here due to CTwm4Nx::stopApplication() processing
   // initialed by CNxTerm::exitHandler, then do *not* delete the task (it
   // is already being deleted).
 
@@ -394,7 +384,7 @@ void CNxTerm::hide(void)
 /**
  * Redraw the entire window.  The application has been maximized or
  * otherwise moved to the top of the hierarchy.  This method is call from
- * CTaskbar when the application window must be displayed
+ * CTwm4Nx when the application window must be displayed
  */
 
 void CNxTerm::redraw(void)
@@ -573,7 +563,7 @@ void CNxTerm::exitHandler(int code, FAR void *arg)
     {
       // Set m_pid to -1 to prevent calling detlete_task() in CNxTerm::stop().
       // CNxTerm::stop() is called by the processing initiated by the following
-      // call to CTaskbar::stopApplication()
+      // call to CTwm4Nx::stopApplication()
 
       This->m_pid = -1;
 
@@ -606,16 +596,31 @@ void CNxTerm::close(void)
  * @param twm4nx.  The twm4nx instance used to terminate the console
  */
 
-CNxTermFactory::CNxTermFactory(CTaskbar *twm4nx)
+CNxTermFactory::CNxTermFactory(CTwm4Nx *twm4nx)
 {
   m_twm4nx = twm4nx;
 }
 
 /**
- * Create a new instance of an CNxTerm (as IApplication).
+ * CNxTermFactory Initializer.  Performs parts of the instance construction
+ * that may fail
+ *
+ * @param twm4nx.  The twm4nx instance used to terminate the console
  */
 
-IApplication *CNxTermFactory::create(void)
+bool CNxTermFactory::initialize(void)
+{
+  // Register an entry with the Main menu.  When selected, this will
+
+  FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+  return cmain->addApplication(this);
+}
+
+/**
+ * Create and start a new instance of an CNxTerm.
+ */
+
+bool *CNxTermFactory::startFunction(CTwm4Nx *twm4n)
 {
   // Call CTaskBar::openFullScreenWindow to create a full screen window for
   // the NxTerm application
@@ -647,7 +652,7 @@ IApplication *CNxTermFactory::create(void)
       return (IApplication *)0;
     }
 
-  return static_cast<IApplication*>(nxterm);
+  return true;
 }
 
 /**
@@ -661,7 +666,7 @@ IApplication *CNxTermFactory::create(void)
 NXWidgets::IBitmap *CNxTermFactory::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
+    new NXWidgets::CRlePaletteBitmap(&CONFIG_TWM4NX_NXTERM_ICON);
 
   return bitmap;
 }

@@ -190,7 +190,7 @@ namespace Twm4Nx
        * @param name The name of the application.
        */
 
-      inline const NXWidgets::CNxString getName(void)
+      inline NXWidgets::CNxString getName(void)
       {
         return m_name;
       }
@@ -212,8 +212,9 @@ namespace Twm4Nx
        * be called in this implementation
        */
 
-      inline void start(FAR CTwm4Nx *twm4nx)
+      inline TStartFunction getStartFunction(void)
       {
+        return (TStartFunction)0;
       }
 
       /**

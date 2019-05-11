@@ -501,8 +501,9 @@ bool CTwm4Nx::dispatchEvent(FAR struct SEventMsg *eventmsg)
           // fixed, a priori endpoint.  Rather, the endpoint must be
           // provided in the 'handler' field of the message
 
-          DEBUGASSERT(eventmsg->handler != (FAR CTwm4NxEvent *)0);
-          ret = eventmsg->handler->event(eventmsg);
+          DEBUGASSERT(eventmsg->handler != (FAR void *)0);
+          FAR CTwm4NxEvent *handler = (FAR CTwm4NxEvent *)eventmsg->handler;
+          ret = handler->event(eventmsg);
         }
         break;
 

@@ -185,38 +185,31 @@ bool CMenus::initialize(FAR NXWidgets::CNxString &name)
 /**
  * Add an item to a menu
  *
- *  \param text    The text to appear in the menu
- *  \param subMenu The menu if it is a pull-right entry
- *  \param handler The application event handler.  Should be null unless
- *                 the event recipient is EVENT_RECIPIENT_APP
- *  \param event   The event to generate on menu item selection
+ * @param item Describes the menu item entry
+  * @return True if the menu item was added successfully
  */
 
-bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
-                         FAR CTwm4NxEvent *handler, uint16_t event)
+bool  CMenus::addMenuItem(FAR IApplication *item)
 {
   twminfo("Adding: subMenu=%p, event=%04x\n", subMenu, event);
 
   // Allocate a new menu item entry
 
-  FAR struct SMenuItem *item = new SMenuItem;
-
-  if (item == (FAR struct SMenuItem *)0)
+  FAR struct SMenuItem *newitem = new SMenuItem;
+  if (newitem == (FAR struct SMenuItem *)0)
     {
       twmerr("ERROR:  Failed to allocate menu item\n");
       return false;
     }
 
-  // Clone the item name so that we have control over its lifespan
-
-  item->text     = text;
-
   // Save information about the menu item
 
-  item->flink    = NULL;
-  item->subMenu  = subMenu;
-  item->handler  = handler;
-  item->event    = event;
+  newitem->flink    = NULL;
+  newitem->text     = item->getName();
+  newitem->subMenu  = item->getSubMenu();
+  newitem->start    = item->getStartFunction();
+  newitem->handler  = item->getEventHandler();
+  newitem->event    = item->getEvent();
 
   // Increment the total number of menu items
 
@@ -226,17 +219,17 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
 
   if (m_menuHead == NULL)
     {
-      m_menuHead  = item;
-      item->blink = (FAR struct SMenuItem *)0;
+      m_menuHead     = newitem;
+      newitem->blink = (FAR struct SMenuItem *)0;
     }
   else
     {
-      m_menuTail->flink = item;
-      item->blink = m_menuTail;
+      m_menuTail->flink = newitem;
+      newitem->blink    = m_menuTail;
     }
 
-  m_menuTail  = item;
-  item->flink = (FAR struct SMenuItem *)0;
+  m_menuTail     = newitem;
+  newitem->flink = (FAR struct SMenuItem *)0;
 
   // Update the menu window size
 
@@ -260,12 +253,14 @@ bool CMenus::addMenuItem(FAR NXWidgets::CNxString &text, FAR CMenus *subMenu,
 
   // We have to update all button labels after resizing
 
+  FAR struct SMenuItem *tmpitem;
   int index;
-  for (index = 0, item = m_menuHead;
-       item != (FAR struct SMenuItem *)0;
-       index++, item = item->flink)
+
+  for (index = 0, tmpitem = m_menuHead;
+       tmpitem != (FAR struct SMenuItem *)0;
+       index++, tmpitem = tmpitem->flink)
     {
-      m_buttons->setText(0, index, item->text);
+      m_buttons->setText(0, index, tmpitem->text);
     }
 
   return true;
@@ -339,11 +334,11 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
 
               struct SEventMsg newmsg;
               newmsg.eventID  = item->event;
+              newmsg.obj      = eventmsg->obj;
               newmsg.pos.x    = eventmsg->pos.x;
               newmsg.pos.y    = eventmsg->pos.y;
               newmsg.context  = eventmsg->context;
-              newmsg.handler  = item->handler;
-              newmsg.obj      = eventmsg->obj;
+              newmsg.handler  = (FAR void *)item->handler;
 
               // NOTE that we cannot block because we are on the same thread
               // as the message reader.  If the event queue becomes full then
@@ -807,14 +802,44 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
               struct SEventMsg msg;
 
-              // If there is a subMenu, then bring the sub-menu up
-              // now.
+              // Precedence:
+              // 1. Event with recipient == EVENT_RECIPIENT_APP.
+              //    getEventHandler() must return a non-NULL instance in this
+              //    case.
+              // 2. Sub-menu
+              // 3. Task start-up
+              // 4. Event with other recipients
 
-              if (item->subMenu != (FAR CMenus *)0)
+              if ((item->event & EVENT_RECIPIENT_MASK) != EVENT_RECIPIENT_APP)
                 {
-                  msg.eventID = EVENT_MENU_SUBMENU;
-                  msg.handler = (FAR CTwm4NxEvent *)0;
-                  msg.obj     = (FAR void *)item->subMenu;
+                  // If there is a subMenu, then bring the sub-menu up
+                  // now.
+
+                  if (item->subMenu != (FAR CMenus *)0)
+                    {
+                      msg.eventID = EVENT_MENU_SUBMENU;
+                      msg.obj     = (FAR void *)item->subMenu;
+                      msg.handler = (FAR void *)0;
+                    }
+
+                  // If there is a start-up function, then execute the
+                  // start-up function
+
+                  else if (item->start != (TStartFunction)0)
+                    {
+                      msg.eventID = EVENT_MENU_SUBMENU;
+                      msg.obj     = (FAR void *)this;
+                      msg.handler = (FAR void *)item->start;
+                    }
+
+                  // Otherwise, this is an internal message with no handler
+
+                  else
+                    {
+                      msg.eventID = item->event;
+                      msg.obj     = (FAR void *)this;
+                      msg.handler = (FAR void *)0;
+                    }
                 }
 
               // Otherwise, send the event specified for the menu item.  The
@@ -824,8 +849,8 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               else
                 {
                   msg.eventID = item->event;
-                  msg.handler = item->handler;
                   msg.obj     = (FAR void *)this;
+                  msg.handler = (FAR void *)item->handler;
                 }
 
               // Fill in the remaining, common stuff

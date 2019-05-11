@@ -1270,11 +1270,11 @@ void CWindow::handleUngrabEvent(nxgl_coord_t x, nxgl_coord_t y)
 
   struct SEventMsg msg;
   msg.eventID = EVENT_TOOLBAR_UNGRAB;
+  msg.obj     = (FAR void *)this;
   msg.pos.x   = x;
   msg.pos.y   = y;
   msg.context = EVENT_CONTEXT_TOOLBAR;
-  msg.handler = (FAR CTwm4NxEvent *)0;
-  msg.obj     = (FAR void *)this;
+  msg.handler = (FAR void *)0;
 
   // NOTE that we cannot block because we are on the same thread
   // as the message reader.  If the event queue becomes full then
@@ -1308,11 +1308,11 @@ void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
 
       struct SEventMsg msg;
       msg.eventID = EVENT_TOOLBAR_GRAB;
+      msg.obj     = (FAR void *)this;
       msg.pos.x   = e.getX();
       msg.pos.y   = e.getY();
       msg.context = EVENT_CONTEXT_TOOLBAR;
-      msg.handler = (FAR CTwm4NxEvent *)0;
-      msg.obj     = (FAR void *)this;
+      msg.handler = (FAR void *)0;
 
       // NOTE that we cannot block because we are on the same thread
       // as the message reader.  If the event queue becomes full then
@@ -1380,11 +1380,11 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
           struct SEventMsg msg;
           msg.eventID = GToolBarInfo[btindex].event;
+          msg.obj     = (FAR void *)this;
           msg.pos.x   = e.getX();
           msg.pos.y   = e.getY();
           msg.context = EVENT_CONTEXT_TOOLBAR;
-          msg.handler = (FAR CTwm4NxEvent *)0;
-          msg.obj     = (FAR void *)this;
+          msg.handler = (FAR void *)0;
 
           // NOTE that we cannot block because we are on the same thread
           // as the message reader.  If the event queue becomes full then
@@ -1436,11 +1436,11 @@ bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos,
 
       struct SEventMsg msg;
       msg.eventID = EVENT_WINDOW_DRAG;
+      msg.obj     = (FAR void *)this;
       msg.pos.x   = pos.x;
       msg.pos.y   = pos.y + yIncr;
       msg.context = EVENT_CONTEXT_TOOLBAR;
-      msg.handler = (FAR CTwm4NxEvent *)0;
-      msg.obj     = (FAR void *)this;
+      msg.handler = (FAR void *)0;
 
       // NOTE that we cannot block because we are on the same thread
       // as the message reader.  If the event queue becomes full then

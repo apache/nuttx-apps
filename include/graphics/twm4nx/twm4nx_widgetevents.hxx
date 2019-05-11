@@ -47,7 +47,6 @@
 #include <cstdbool>
 
 #include <nuttx/nx/nxglib.h>
-#include "graphics/nxwidgets/cwindoweventhandler.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Preprocessor Definitions
@@ -107,6 +106,7 @@ namespace Twm4Nx
     EVENT_SYSTEM_NOP           = 0x0000,  /**< Null event */
     EVENT_SYSTEM_ERROR         = 0x0001,  /**< Report system error */
     EVENT_SYSTEM_EXIT          = 0x0002,  /**< Terminate the Twm4Nx session */
+    EVENT_SYSTEM_STARTUP       = 0x0003,  /**< Start an application */
 
     // Recipient == BACKGOUND
 
@@ -206,7 +206,7 @@ namespace Twm4Nx
 
     struct nxgl_point_s pos;            /**< X/Y position */
     uint8_t context;                    /**< Button press context */
-    FAR CTwm4NxEvent *handler;          /**< App event handler (APP recipient only) */
+    FAR void *handler;                  /**< Context specific handler */
   };
 
   /**
