@@ -48,6 +48,7 @@
 #include <nuttx/nx/nxterm.h>
 
 #include "graphics/twm4nx/ctwm4nx.hxx"
+#include "graphics/twm4nx/ctwm4nxevent.hxx"
 #include "graphics/twm4nx/iapplication.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -57,22 +58,13 @@
 namespace Twm4Nx
 {
   /**
-   * One time NSH initialization. This function must be called exactly
-   * once during the boot-up sequence to initialize the NSH library.
-   *
-   * @return True on successful initialization
-   */
-
-  bool nshlibInitialize(void);
-
-  /**
    * This class implements the NxTerm application.
    */
 
-  class CNxTerm
+  class CNxTerm : public CTwm4NxEvent
   {
     private:
-      CTaskbar            *m_twm4nx;     /**< Reference to the "parent" twm4nx */
+      CTaskbar            *m_twm4nx;      /**< Reference to the Twm4Nx session instance */
       CApplicationWindow  *m_window;      /**< Reference to the application window */
       NXTERM               m_nxterm;      /**< NxTerm handle */
       pid_t                m_pid;         /**< Task ID of the NxTerm thread */
@@ -84,6 +76,16 @@ namespace Twm4Nx
        */
 
       static int nxterm(int argc, char *argv[]);
+
+      /**
+       * Handle Twm4Nx events.  This overrides a method from CTwm4NXEvent
+       *
+       * @param eventmsg.  The received NxWidget WINDOW event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+       bool event(FAR struct SEventMsg *eventmsg);
 
       /**
        * This is the NxTerm task exit handler.  It is registered with on_exit()
@@ -158,147 +160,112 @@ namespace Twm4Nx
   class CNxTermFactory : public IApplication, public IApplicationFactory
   {
     private:
-      CTaskbar *m_twm4nx;  /**< The twm4nx */
 
-        /**
-         * Return the Main Menu item string.  This overrides the method from
-         * IApplication
-         *
-         * @param name The name of the application.
-         */
+      /**
+       * One time NSH initialization. This function must be called exactly
+       * once during the boot-up sequence to initialize the NSH library.
+       *
+       * @return True on successful initialization
+       */
 
-        inline NXWidgets::CNxString getName(void)
-        {
-          return NXWidgets::CNxString("NxTerm");
-        }
+      bool nshlibInitialize(void);
 
-        /**
-         * There is no sub-menu for this Main Menu item.  This overrides
-         * the method from IApplication.
-         *
-         * @return This implementation will always return a null value.
-         */
+      /**
+       * Create and start a new instance of an CNxTerm.
+       *
+       * @param twm4nx.  The Twm4Nx session instance
+       */
 
-        inline FAR CMenus *getSubMenu(void)
-        {
-          return (FAR CMenus *)0;
-        }
+      static bool startFunction(CTwm4Nx *twm4n);
 
-        /**
-         * There is no application start-up function.  This function will not
-         * be called in this implementation
-         */
+      /**
+       * Return the Main Menu item string.  This overrides the method from
+       * IApplication
+       *
+       * @param name The name of the application.
+       */
 
-        inline TStartFunction getStartFunction(void)
-        {
-          return (TStartFunction)startFunction;
-        }
+      inline NXWidgets::CNxString getName(void)
+      {
+        return NXWidgets::CNxString("NuttShell");
+      }
 
-        /**
-         * There is no custom event handler.  We use the common event handler.
-         *
-         * @return.  null is always returned in this impementation.
-         */
+      /**
+       * There is no sub-menu for this Main Menu item.  This overrides
+       * the method from IApplication.
+       *
+       * @return This implementation will always return a null value.
+       */
 
-        inline FAR CTwm4NxEvent *getEventHandler(void)
-        {
-          return (FAR CTwm4NxEvent *)0;
-        }
+      inline FAR CMenus *getSubMenu(void)
+      {
+        return (FAR CMenus *)0;
+      }
 
-        /**
-         * Return the Twm4Nx event that will be generated when the Main Menu
-         * item is selected.
-         *
-         * @return. This function always returns EVENT_SYSTEM_NOP.
-         */
+      /**
+       * There is no application start-up function.  This function will not
+       * be called in this implementation
+       */
 
-        inline uint16_t getEvent(void)
-        {
-          return EVENT_SYSTEM_NOP;
-        }
+      inline TStartFunction getStartFunction(void)
+      {
+        return (TStartFunction)startFunction;
+      }
+
+      /**
+       * There is no custom event handler.  We use the common event handler.
+       *
+       * @return.  null is always returned in this impementation.
+       */
+
+      inline FAR CTwm4NxEvent *getEventHandler(void)
+      {
+        return (FAR CTwm4NxEvent *)0;
+      }
+
+      /**
+       * Return the Twm4Nx event that will be generated when the Main Menu
+       * item is selected.
+       *
+       * @return. This function always returns EVENT_SYSTEM_NOP.
+       */
+
+      inline uint16_t getEvent(void)
+      {
+        return EVENT_SYSTEM_NOP;
+      }
 
     public:
-      /**
-       * CNxTerm constructor
-       *
-       * @param window.  The application window
-       *
-       * @param twm4nx.  A pointer to the parent task bar instance
-       * @param window.  The window to be used by this application.
-       */
 
-      CNxTerm(CTaskbar *twm4nx, CApplicationWindow *window);
-
-      /**
-       * CNxTerm destructor
-       */
-
-      ~CNxTerm(void);
-
-      /**
-       * Each implementation of IApplication must provide a method to recover
-       * the contained CApplicationWindow instance.
-       */
-
-      IApplicationWindow *getWindow(void) const;
-
-      /**
-       * Get the icon associated with the application
-       *
-       * @return An instance if IBitmap that may be used to rend the
-       *   application's icon.  This is an new IBitmap instance that must
-       *   be deleted by the caller when it is no long needed.
-       */
-
-      NXWidgets::IBitmap *getIcon(void);
-
-      /**
-       * Get the name string associated with the application
-       *
-       * @return A copy if CNxString that contains the name of the application.
-       */
-
-      NXWidgets::CNxString getName(void);
-
-    public:
       /**
        * CNxTermFactory Constructor
        *
        * @param twm4nx.  The twm4nx instance used to terminate calibration
        */
 
-      CNxTermFactory(CTaskbar *twm4nx);
+      inline CNxTermFactory(void)
+      {
+      }
 
       /**
        * CNxTermFactory Destructor
        */
 
-      inline ~CNxTermFactory(void) { }
+      inline ~CNxTermFactory(void)
+      {
+        // REVISIT:  Would need to remove Main Menu item
+      }
 
       /**
        * CNxTermFactory Initializer.  Performs parts of the instance
-       * construction that may fail
+       * construction that may fail.  In this implemenation, it will
+       * initialize the NSH library and register an menu item in the
+       * Main Menu.
        *
-       * @param twm4nx.  The twm4nx instance used to terminate the console
+       * @param twm4nx.  The Twm4Nx session instance
        */
 
-      bool CNxTermFactory::initialize(void);
-
-      /**
-       * Create a new instance of an CNxTerm (as IApplication).
-       */
-
-      IApplication *create(void);
-
-      /**
-       * Get the icon associated with the application
-       *
-       * @return An instance if IBitmap that may be used to rend the
-       *   application's icon.  This is an new IBitmap instance that must
-       *   be deleted by the caller when it is no long needed.
-       */
-
-      NXWidgets::IBitmap *getIcon(void);
+      bool CNxTermFactory::initialize(FAR CTwm4Nx *twm4nx);
   };
 }
 

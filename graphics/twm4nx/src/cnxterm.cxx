@@ -125,35 +125,33 @@ using namespace Twm4Nx;
 /**
  * CNxTerm constructor
  *
- * @param window.  The application window
+ * @param cwin.  The application window
  */
 
-CNxTerm::CNxTerm(CTwm4Nx *twm4nx, CApplicationWindow *window)
+CNxTerm::CNxTerm(CTwm4Nx *twm4nx, CWindow *cwin)
 {
   // Save the constructor data
 
-  m_twm4nx = twm4nx;
-  m_window  = window;
+  m_twm4nx    = twm4nx;
+  m_appWindow = cwin;
 
   // The NxTerm is not runing
 
-  m_pid    = -1;
-  m_nxterm = 0;
+  m_pid       = -1;
+  m_nxterm    = 0;
 
   // Add our personalized window label
 
   NXWidgets::CNxString myName = getName();
-  window->setWindowLabel(myName);
+  cwin->setWindowLabel(myName);
 
   // Add our callbacks with the application window
 
-  window->registerCallbacks(static_cast<IApplicationCallback *>(this));
+  cwin->registerCallbacks(static_cast<IApplicationCallback *>(this));
 }
 
 /**
  * CNxTerm destructor
- *
- * @param window.  The application window
  */
 
 CNxTerm::~CNxTerm(void)
@@ -166,17 +164,17 @@ CNxTerm::~CNxTerm(void)
   // Although we didn't create it, we are responsible for deleting the
   // application window
 
-  delete m_window;
+  delete m_appWindow;
 }
 
 /**
  * Each implementation of IApplication must provide a method to recover
- * the contained CApplicationWindow instance.
+ * the contained CWindow instance.
  */
 
 IApplicationWindow *CNxTerm::getWindow(void) const
 {
-  return static_cast<IApplicationWindow*>(m_window);
+  return static_cast<IApplicationWindow*>(m_appWindow);
 }
 
 /**
@@ -223,11 +221,11 @@ bool CNxTerm::run(void)
 
   // Recover the NXTK window instance contained in the application window
 
-  NXWidgets::INxWindow *window = m_window->getWindow();
+  NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
 
   // Get the widget control associated with the NXTK window
 
-  NXWidgets::CWidgetControl *control =  window->getWidgetControl();
+  NXWidgets::CWidgetControl *control =  inxWindow->getWidgetControl();
 
   // Get the window handle from the widget control
 
@@ -245,7 +243,7 @@ bool CNxTerm::run(void)
 
   // Get the size of the window
 
-  (void)window->getSize(&g_nxtermvars.wndo.wsize);
+  (void)inxWindow->getSize(&g_nxtermvars.wndo.wsize);
 
   // Start the NxTerm task
 
@@ -283,7 +281,7 @@ bool CNxTerm::run(void)
 
           DEBUGASSERT(g_nxtermvars.nxterm != 0);
 #ifdef CONFIG_NXTERM_NXKBDIN
-          window->redirectNxTerm(g_nxtermvars.nxterm);
+          inxWindow->redirectNxTerm(g_nxtermvars.nxterm);
 #endif
           // Save the handle to use in the stop method
 
@@ -336,8 +334,8 @@ void CNxTerm::stop(void)
       // Re-store NX keyboard input routing
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-      NXWidgets::INxWindow *window = m_window->getWindow();
-      window->redirectNxTerm((NXTERM)0);
+      NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
+      inxWindow->redirectNxTerm((NXTERM)0);
 #endif
 
       // Unlink the NxTerm driver
@@ -364,7 +362,7 @@ void CNxTerm::destroy(void)
 {
   // Block any further window messages
 
-  m_window->block(this);
+  m_appWindow->block(this);
 
   // Make sure that the application is stopped
 
@@ -391,12 +389,12 @@ void CNxTerm::redraw(void)
 {
   // Recover the NXTK window instance contained in the application window
 
-  NXWidgets::INxWindow *window = m_window->getWindow();
+  NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
 
   // Get the size of the window
 
   struct nxgl_size_s windowSize;
-  (void)window->getSize(&windowSize);
+  (void)inxWindow->getSize(&windowSize);
 
   // Redraw the entire NxTerm window
 
@@ -422,7 +420,7 @@ void CNxTerm::redraw(void)
 
 bool CNxTerm::isFullScreen(void) const
 {
-  return m_window->isFullScreen();
+  return m_appWindow->isFullScreen();
 }
 
 /**
@@ -547,6 +545,28 @@ errout:
 }
 
 /**
+ * Handle Twm4Nx events.  This overrides a method from CTwm4NXEvent
+ *
+ * @param eventmsg.  The received NxWidget WINDOW event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CNxTerm::event(FAR struct SEventMsg *eventmsg)
+{
+  bool success = true;
+
+  switch (eventmsg->eventID)
+    {
+      default:
+        success = false;
+        break;
+    }
+
+  return success;
+}
+
+/**
  * This is the NxTerm task exit handler.  It registered with on_exit()
  * and called automatically when the nxterm task exits.
  */
@@ -590,85 +610,34 @@ void CNxTerm::close(void)
   m_twm4nx->stopApplication(static_cast<IApplication*>(this));
 }
 
-/**
- * CNxTermFactory Constructor
- *
- * @param twm4nx.  The twm4nx instance used to terminate the console
- */
-
-CNxTermFactory::CNxTermFactory(CTwm4Nx *twm4nx)
-{
-  m_twm4nx = twm4nx;
-}
+/////////////////////////////////////////////////////////////////////////////
+// CNxTermFactory Method Implementations
+/////////////////////////////////////////////////////////////////////////////
 
 /**
- * CNxTermFactory Initializer.  Performs parts of the instance construction
- * that may fail
+ * CNxTermFactory Initializer.  Performs parts of the instance
+ * construction that may fail.  In this implemenation, it will
+ * initialize the NSH library and register an menu item in the
+ * Main Menu.
  *
- * @param twm4nx.  The twm4nx instance used to terminate the console
+ * @param twm4nx.  The Twm4Nx session instance
  */
 
-bool CNxTermFactory::initialize(void)
+bool CNxTermFactory::initialize(FAR CTwm4Nx *twm4nx)
 {
+  // Initialize the NSH library
+
+  if (!nshlibInitialize())
+    {
+      twmerr("ERROR:  Failed to initialize the NSH library\n");
+      return false;
+    }
+
   // Register an entry with the Main menu.  When selected, this will
+  // Case the start
 
-  FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+  FAR CMainMenu *cmain = twm4nx->getMainMenu();
   return cmain->addApplication(this);
-}
-
-/**
- * Create and start a new instance of an CNxTerm.
- */
-
-bool *CNxTermFactory::startFunction(CTwm4Nx *twm4n)
-{
-  // Call CTaskBar::openFullScreenWindow to create a full screen window for
-  // the NxTerm application
-
-  CApplicationWindow *window = m_twm4nx->openApplicationWindow();
-  if (!window)
-    {
-      twmerr("ERROR: Failed to create CApplicationWindow\n");
-      return (IApplication *)0;
-    }
-
-  // Open the window (it is hot in here)
-
-  if (!window->open())
-    {
-      twmerr("ERROR: Failed to open CApplicationWindow\n");
-      delete window;
-      return (IApplication *)0;
-    }
-
-  // Instantiate the application, providing the window to the application's
-  // constructor
-
-  CNxTerm *nxterm = new CNxTerm(m_twm4nx, window);
-  if (!nxterm)
-    {
-      twmerr("ERROR: Failed to instantiate CNxTerm\n");
-      delete window;
-      return (IApplication *)0;
-    }
-
-  return true;
-}
-
-/**
- * Get the icon associated with the application
- *
- * @return An instance if IBitmap that may be used to rend the
- *   application's icon.  This is an new IBitmap instance that must
- *   be deleted by the caller when it is no long needed.
- */
-
-NXWidgets::IBitmap *CNxTermFactory::getIcon(void)
-{
-  NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_TWM4NX_NXTERM_ICON);
-
-  return bitmap;
 }
 
 /**
@@ -678,7 +647,7 @@ NXWidgets::IBitmap *CNxTermFactory::getIcon(void)
  * @return True on successful initialization
  */
 
-bool Twm4Nx::nshlibInitialize(void)
+bool CNxTermFactory::nshlibInitialize(void)
 {
   // Initialize the global data structure
 
@@ -705,3 +674,44 @@ bool Twm4Nx::nshlibInitialize(void)
   return true;
 }
 
+/**
+ * Create and start a new instance of CNxTerm.
+ *
+ * @param twm4nx.  The Twm4Nx session instance
+ */
+
+bool CNxTermFactory::startFunction(FAR CTwm4Nx *twm4nx)
+{
+  // Call CTaskBar::openFullScreenWindow to create a full screen window for
+  // the NxTerm application
+
+  FAR CWindowFactory *factory = twm4nx->getWindowFactory();
+  CWindow *cwin = factory->createWindow(twm4nx);
+  if (!cwin )
+    {
+      twmerr("ERROR: Failed to create CWindow\n");
+      return false;
+    }
+
+  // Initialize the window
+
+  if (!cwin->initialize(..arguments...))
+    {
+      twmerr("ERROR: Failed to open CWindow\n");
+      delete cwin;
+      return false;
+    }
+
+  // Instantiate the application, providing the session and the window to
+  // the application's constructor
+
+  CNxTerm *nxterm = new CNxTerm(twm4nx, cwin);
+  if (!nxterm)
+    {
+      twmerr("ERROR: Failed to instantiate CNxTerm\n");
+      delete cwin;
+      return (IApplication *)0;
+    }
+
+  return true;
+}
