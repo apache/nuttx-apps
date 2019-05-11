@@ -189,6 +189,21 @@ namespace Twm4Nx
       FAR struct SWindow *findWindow(FAR CWindow *cwin);
 
       /**
+       * Check if the icon within iconBounds collides with any other icon on
+       * the desktop.
+       *
+       * @param cwin The window containing the Icon of interest
+       * @param iconBounds The candidate Icon bounding box
+       * @param collision The bounding box of the icon that the candidate
+       *   collides with
+       * @return Returns true if there is a collision
+       */
+
+      bool checkCollision(FAR CWindow *cwin,
+                          FAR const struct nxgl_rect_s &iconBounds,
+                          FAR struct nxgl_rect_s &collision);
+
+      /**
        * This is the function that responds to the EVENT_WINDOW_DESKTOP.  It
        * iconifies all windows so that the desktop is visible.
        *
@@ -260,15 +275,31 @@ namespace Twm4Nx
       void destroyWindow(FAR CWindow *cwin);
 
       /**
-       * Return the head of the window list.
+       * Pick a position for a new Icon on the desktop.  Tries to avoid
+       * collisions with other Icons and reserved areas on the background
        *
-       * @return The head of the window list.
+       * @param cwin The window being iconified.
+       * @param defPos The default position to use if there is no free
+       *   region on the desktop.
+       * @param iconPos The selected Icon position.  Might be the same as
+       *   the default position.
+       * @return True is returned on success
        */
 
-      inline FAR struct SWindow *windowHead(void)
-      {
-        return m_windowHead;
-      }
+      bool placeIcon(FAR CWindow *cwin,
+                     FAR const struct nxgl_point_s &defPos,
+                     FAR struct nxgl_point_s &iconPos);
+
+      /**
+       * Redraw icons.  The icons are drawn on the background window.  When
+       * the background window receives a redraw request, it will call this
+       * method in order to redraw any effected icons drawn in the
+       * background.
+       *
+       * @param nxRect The region in the background to be redrawn
+       */
+
+       void redrawIcons(FAR const nxgl_rect_s *nxRect);
 
       /**
        * Handle WINDOW events.

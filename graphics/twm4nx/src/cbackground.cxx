@@ -54,7 +54,7 @@
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
-#include "graphics/twm4nx/cicon.hxx"
+#include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cbackground.hxx"
 
@@ -164,6 +164,42 @@ void CBackground::getDisplaySize(FAR struct nxgl_size_s &size)
 }
 
 /**
+ * Check if the region within 'bounds' collides with any other reserved
+ * region on the desktop.  This is used for icon placement.
+ *
+ * @param iconBounds The candidate bounding box
+ * @param collision The bounding box of the reserved region that the
+ *   candidate collides with
+ * @return Returns true if there is a collision
+ */
+
+bool CBackground::checkCollision(FAR const struct nxgl_rect_s &bounds,
+                                 FAR struct nxgl_rect_s &collision)
+{
+  // Is there a background image
+
+  if (m_backImage  != (NXWidgets::CImage *)0)
+    {
+      // Create a bounding box for the background image
+
+      struct nxgl_size_s imageSize;
+      m_backImage->getSize(imageSize);
+
+      struct nxgl_point_s imagePos;
+      m_backImage->getPos(imagePos);
+
+      collision.pt1.x = imagePos.x;
+      collision.pt1.y = imagePos.y;
+      collision.pt1.x = imagePos.x + imageSize.w - 1;
+      collision.pt1.y = imagePos.y + imageSize.h - 1;
+
+      return nxgl_intersecting(&bounds, &collision);
+    }
+
+  return false;
+}
+
+/**
  * Handle the background window redraw.
  *
  * @param nxRect The region in the window that must be redrawn.
@@ -219,8 +255,8 @@ bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
 
   // Now redraw any background icons that need to be redrawn
 
-  FAR CIcon *cicon = m_twm4nx->getIcon();
-  cicon->redrawIcons(rect, more);
+  FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
+  factory->redrawIcons(rect);
 
   return true;
 }

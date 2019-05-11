@@ -164,7 +164,20 @@ namespace Twm4Nx
        * @return true on success
        */
 
-       bool redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect, bool more);
+      bool redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect, bool more);
+
+      /**
+       * Check if the region within 'bounds' collides with any other reserved
+       * region on the desktop.  This is used for icon placement.
+       *
+       * @param iconBounds The candidate bounding box
+       * @param collision The bounding box of the reserved region that the
+       *   candidate collides with
+       * @return Returns true if there is a collision
+       */
+
+      bool checkCollision(FAR const struct nxgl_rect_s &bounds,
+                          FAR struct nxgl_rect_s &collision);
 
       /**
        * Handle EVENT_BACKGROUND events.

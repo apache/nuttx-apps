@@ -161,7 +161,6 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_iconBitMap           = (FAR NXWidgets::CRlePaletteBitmap *)0;
   m_iconWidget           = (FAR CIconWidget *)0;
   m_iconMgr              = (FAR CIconMgr *)0;
-  m_iconOn               = false;
   m_iconified            = false;
 
   // Dragging
@@ -259,8 +258,6 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
     {
       winsize.h = maxWindow.h;
     }
-
-  m_iconOn = false;
 
   // Create the window
 
@@ -542,21 +539,34 @@ bool CWindow::iconify(void)
 
       // Hide the main window
 
-      m_iconified = true;
       m_nxWin->hide();
 
       // Menu windows don't have an icon
 
-      if (m_iconWidget != (FAR CIconWidget *)0)
+      if (hasIcon())
         {
-          // Enable and redraw the icon widget and lower the main window
+          // Enable the widget
 
-          m_iconOn = true;
           m_iconWidget->enable();
+
+          // Pick a position for icon
+
+          struct nxgl_point_s iconPos;
+          m_iconWidget->getPos(iconPos);
+
+          FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
+          if (factory->placeIcon(this, iconPos, iconPos))
+            {
+              m_iconWidget->moveTo(iconPos.x, iconPos.y);
+            }
+
+          // Redraw the icon widget
+
           m_iconWidget->enableDrawing();
           m_iconWidget->redraw();
         }
 
+      m_iconified = true;
       m_nxWin->synchronize();
     }
 
@@ -580,11 +590,10 @@ bool CWindow::deIconify(void)
       m_iconified = false;
       m_nxWin->show();
 
-      if (m_iconWidget != (FAR CIconWidget *)0)
+      if (hasIcon())
         {
           // Disable the icon widget
 
-          m_iconOn = false;
           m_iconWidget->disableDrawing();
           m_iconWidget->disable();
 

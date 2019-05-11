@@ -66,7 +66,6 @@
 #include "graphics/twm4nx/cmenus.hxx"
 #include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
-#include "graphics/twm4nx/cicon.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"

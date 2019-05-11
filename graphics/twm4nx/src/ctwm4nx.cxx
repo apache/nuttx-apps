@@ -72,7 +72,6 @@
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/cinput.hxx"
-#include "graphics/twm4nx/cicon.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/ciconmgr.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
@@ -124,7 +123,6 @@ CTwm4Nx::CTwm4Nx(int display)
   m_display              = display;
   m_eventq               = (mqd_t)-1;
   m_background           = (FAR CBackground *)0;
-  m_icon                 = (FAR CIcon *)0;
   m_iconmgr              = (FAR CIconMgr *)0;
   m_factory              = (FAR CWindowFactory *)0;
   m_fonts                = (FAR CFonts *)0;
@@ -280,15 +278,6 @@ bool CTwm4Nx::run(void)
     }
 
   if (!m_iconmgr->initialize("Twm4Nx"))
-    {
-      cleanup();
-      return false;
-    }
-
-  // Cache a CIcon instance for use across the session
-
-  m_icon = new CIcon(this);
-  if (m_icon == (FAR CIcon *)0)
     {
       cleanup();
       return false;

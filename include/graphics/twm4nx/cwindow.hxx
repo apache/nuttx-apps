@@ -159,8 +159,6 @@ namespace Twm4Nx
 
       FAR CIconWidget            *m_iconWidget;  /**< The icon widget */
       FAR CIconMgr               *m_iconMgr;     /**< Pointer to it if this is an icon manager */
-      bool                        m_iconMoved;   /**< User explicitly moved the icon. */
-      bool                        m_iconOn;      /**< Icon is visible. */
       bool                        m_iconified;   /**< Is the window an icon now ? */
 
       // Toolbar
@@ -717,31 +715,23 @@ namespace Twm4Nx
       }
 
       /**
-       * Has the Icon moved?
-       *
-       * @return True if the operation was successful
+       * Check if this window has an Icon.  Menu windows, for examples, have
+       * no icons.
        */
 
-      inline bool hasIconMoved(void)
+      inline bool hasIcon(void)
       {
-        return m_iconMoved;
-      }
-
-      /**
-       * Set Icon moved
-       */
-
-      inline void setIconMoved(bool moved)
-      {
-        m_iconMoved = moved;
+        return (m_iconWidget != (FAR CIconWidget *)0);
       }
 
       /**
        * Get the size of the icon window associated with this application
        * window.  This is needed for placement of the icon on the background
-       * window.
+       * window and for determining if the icon widget needs to be redraw
+       * when the background is redrawn.
        *
        * @param size Location to return the icon window size
+       * @return True if the icon size was returned
        */
 
       inline void getIconWidgetSize(FAR struct nxgl_size_s &size)
@@ -754,10 +744,11 @@ namespace Twm4Nx
 
       /**
        * Get the current position of the icon window associated with the
-       * application window. This is needed for placement of the icon on
-       * the background window.
+       * application window.  This is needed for determining if an icon
+       * widgets needs to be redrawn when the background is redrawn.
        *
        * @param pos Location to return the icon window position
+       * @return True if the icon position was returned
        */
 
       inline void getIconWidgetPosition(FAR struct nxgl_point_s &pos)
@@ -770,13 +761,14 @@ namespace Twm4Nx
 
       /**
        * Set the new position of the icon window associated with the
-       * application window. This is needed for placement of the icon on the
+       * application window.  This is needed for movement of the icon on the
        * background window.
        *
        * @param pos The new location of the icon window
+       * @return True if the icon position was correctly set
        */
 
-      inline bool setIconWindowPosition(FAR const struct nxgl_point_s &pos)
+      inline bool setIconWidgetPosition(FAR const struct nxgl_point_s &pos)
       {
         bool success = false;
         if (m_iconWidget != (FAR CIconWidget *)0)

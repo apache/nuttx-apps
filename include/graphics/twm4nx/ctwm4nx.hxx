@@ -83,7 +83,6 @@ namespace Twm4Nx
   class  CInput;         // Forward reference
   class  CBackground;    // Forward reference
   class  CWidgetEvent;   // Forward reference
-  class  CIcon;          // Forward reference
   class  CIconMgr;       // Forward reference
   class  CFonts;         // Forward reference
   class  CWindow;        // Forward reference
@@ -112,7 +111,6 @@ namespace Twm4Nx
       FAR char                    *m_queueName;   /**< NxWidget event queue name */
       mqd_t                        m_eventq;      /**< NxWidget event message queue */
       FAR CBackground             *m_background;  /**< Background window management */
-      FAR CIcon                   *m_icon;        /**< The cached Cicon instance */
       FAR CIconMgr                *m_iconmgr;     /**< The Default icon manager */
       FAR CWindowFactory          *m_factory;     /**< The cached CWindowFactory instance */
       FAR CFonts                  *m_fonts;       /**< The cached Cfonts instance */
@@ -250,17 +248,6 @@ namespace Twm4Nx
        inline FAR CBackground *getBackground(void)
        {
          return m_background;
-       }
-
-      /**
-       * Return the session's CIcon instance.
-       *
-       * @return The contained instance of the Icon class for this session.
-       */
-
-       inline FAR CIcon *getIcon(void)
-       {
-         return m_icon;
        }
 
       /**

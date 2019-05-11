@@ -54,10 +54,10 @@ STACKSIZE = $(CONFIG_TWM4NX_STACKSIZE)
 
 ASRCS     =
 CSRCS     =
-CXXSRCS   = cbackground.cxx cfonts.cxx cicon.cxx ciconmgr.cxx
-CXXSRCS  += ciconwidget.cxx cinput.cxx cmenus.cxx cmainmenu.cxx cresize.cxx
-CXXSRCS  += cwindow.cxx cwindowevent.cxx cwindowfactory.cxx
-CXXSRCS  += twm4nx_cursor.cxx
+CXXSRCS   = cbackground.cxx cfonts.cxx ciconmgr.cxx ciconwidget.cxx
+CXXSRCS  += cmenus.cxx cmainmenu.cxx
+CXXSRCS  += cwindow.cxx cwindowevent.cxx cresize.cxx cwindowfactory.cxx
+CXXSRCS  += cinput.cxx twm4nx_cursor.cxx
 MAINSRC   = ctwm4nx.cxx
 
 VPATH     = src
