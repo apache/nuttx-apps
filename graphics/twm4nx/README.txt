@@ -70,3 +70,4 @@ STATUS
     1. The is a small artifact in the upper lefthand corner.  I am not sure
        exactly what that is.
     2. The logic to move an icon on the desk top does not work.
+    3. There is no calibration screen for touchscreen calibration.

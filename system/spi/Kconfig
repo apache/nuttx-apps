@@ -1,0 +1,72 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_SPITOOL
+	tristate "SPI tool"
+	default n
+	depends on SPI
+	select SPI_DRIVER
+	---help---
+		Enable support for the SPI tool.
+
+if SYSTEM_SPITOOL
+
+config SPITOOL_PROGNAME
+	string "Program name"
+	default "hello"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the ELF
+		program is installed.
+
+config SPITOOL_PRIORITY
+	int "Task priority"
+	default 100
+
+config SPITOOL_STACKSIZE
+	int "Stack size"
+	default 2048
+
+config SPITOOL_MINBUS
+	int "Minimum bus number"
+	default 0
+	---help---
+		Smallest bus index supported by the hardware (default 0).
+
+config SPITOOL_MAXBUS
+	int "Maximum bus number"
+	default 3
+	---help---
+		Largest bus index supported by the hardware (default 3)
+
+config SPITOOL_DEFFREQ
+	int "SPI frequency"
+	default 4000000
+	---help---
+		Default SPI frequency (default: 4000000)
+
+config SPITOOL_DEFMODE
+        int "SPI mode"
+	default 0
+	---help---
+	       Default SPI mode, where;
+                0 = CPOL=0, CHPHA=0
+                1 = CPOL=0, CHPHA=1
+                2 = CPOL=1, CHPHA=0
+                3 = CPOL=1, CHPHA=1
+		
+config SPITOOL_DEFWIDTH
+        int "SPI Bit width"
+	default 8
+	---help---
+	       Number of bits per SPI transfer (default 8)
+
+config SPITOOL_DEFWORDS
+        int "Number of words to transfer"
+	default 1
+	---help---
+	       Number of words to be transferred (default 1)
+
+endif # SYSTEM_SPITOOL
