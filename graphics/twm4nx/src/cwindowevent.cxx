@@ -95,39 +95,35 @@ using namespace Twm4Nx;
  * CWindowEvent Constructor
  *
  * @param twm4nx The Twm4Nx session instance.
- * @param obj Contextual object (Usually 'this' of instantiator)
- * @param redrawEvent The event to send on window redraw events.  This may
- *   be EVENT_SYSTEM_NOP to ignore all rdraw events.
- * @param mouseEvent The event to send on mouse/touchscreen input events.
- *   This may be EVENT_SYSTEM_NOP to ignore all mouse/touchscreen input
- *   events.
- * @param kbdEvent The event to send on keyboard input events.  This may be
- *   EVENT_SYSTEM_NOP to ignore all keyboard input events.
+ * @param events Describes the application event configuration
  * @param style The default style that all widgets on this display
  *   should use.  If this is not specified, the widget will use the
  *   values stored in the defaultCWidgetStyle object.
  */
 
-CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
-                           uint16_t redrawEvent, uint16_t mouseEvent,
-                           uint16_t kbdEvent,
+CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx,
+                           FAR const struct SAppEvents &events,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
-  m_twm4nx       = twm4nx;              // Cache the Twm4Nx session
-  m_object       = obj;                 // Used for event message construction
-  m_redrawEvent  = redrawEvent;         // Redraw event ID
-  m_mouseEvent   = mouseEvent;          // Mouse/touchscreen event ID
-  m_kbdEvent     = kbdEvent;            // Keyboard event ID
+  m_twm4nx                = twm4nx;              // Cache the Twm4Nx session
+
+  // Events
+
+  m_appEvents.eventObj    = events.eventObj;     // Event object reference
+  m_appEvents.redrawEvent = events.redrawEvent;  // Redraw event ID
+  m_appEvents.mouseEvent  = events.mouseEvent;   // Mouse/touchscreen event ID
+  m_appEvents.kbdEvent    = events.kbdEvent;     // Keyboard event ID
+  m_appEvents.closeEvent  = events.closeEvent;   // Window close event ID
 
   // Dragging
 
-  m_dragHandler  = (FAR IDragEvent *)0; // No drag handler callbacks
-  m_dragArg      = (uintptr_t)0;        // No callback argument
+  m_dragHandler           = (FAR IDragEvent *)0; // No drag handler callbacks
+  m_dragArg               = (uintptr_t)0;        // No callback argument
 
   // Open a message queue to send raw NX events.  This cannot fail!
 
-  FAR const char *mqname = twm4nx->getEventQueueName();
+  FAR const char *mqname  = twm4nx->getEventQueueName();
   m_eventq = mq_open(mqname, O_WRONLY);
   if (m_eventq == (mqd_t)-1)
     {
@@ -173,10 +169,10 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
 
   // Does the user need redraw events?
 
-  if (m_redrawEvent != EVENT_SYSTEM_NOP)
+  if (m_appEvents.redrawEvent != EVENT_SYSTEM_NOP)
     {
       struct SRedrawEventMsg msg;
-      msg.eventID    = m_redrawEvent;
+      msg.eventID    = m_appEvents.redrawEvent;
       msg.rect.pt1.x = nxRect->pt1.x;
       msg.rect.pt1.y = nxRect->pt1.y;
       msg.rect.pt2.x = nxRect->pt2.x;
@@ -295,15 +291,15 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
 
   // Does the user want to know about mouse input?
 
-  if (m_mouseEvent != EVENT_SYSTEM_NOP)
+  if (m_appEvents.mouseEvent != EVENT_SYSTEM_NOP)
     {
       // Stimulate an XY input poll
 
       twminfo("Mouse Input...\n");
 
       struct SXyInputEventMsg msg;
-      msg.eventID = m_mouseEvent;
-      msg.obj     = m_object;
+      msg.eventID = m_appEvents.mouseEvent;
+      msg.obj     = m_appEvents.eventObj;
       msg.pos.x   = pos->x;
       msg.pos.y   = pos->y;
       msg.buttons = buttons;
@@ -327,15 +323,15 @@ void CWindowEvent::handleKeyboardEvent(void)
 {
   // Does the user want to know about keyboard input?
 
-  if (m_kbdEvent != EVENT_SYSTEM_NOP)
+  if (m_appEvents.kbdEvent != EVENT_SYSTEM_NOP)
     {
       twminfo("Keyboard input...\n");
 
       // Stimulate an keyboard event widget poll
 
       struct SNxEventMsg msg;
-      msg.eventID  = m_kbdEvent;
-      msg.obj      = m_object;
+      msg.eventID  = m_appEvents.kbdEvent;
+      msg.obj      = m_appEvents.eventObj;
       msg.instance = this;
 
       int ret = mq_send(m_eventq, (FAR const char *)&msg,

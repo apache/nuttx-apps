@@ -175,17 +175,27 @@ namespace Twm4Nx
        ~CTwm4Nx(void);
 
        /**
-        * This is the main, controlling thread of the window manager.  It is
-        * called only from the extern "C" main() entry point.
+        * Perform initialization additional, post-construction initialization
+        * that may fail.  This initialization logic fully initialized the
+        * Twm4Nx session.  Upon return, the session is ready for use.
         *
-        * NOTE: In the event of truly abnormal conditions, this function will
-        * not return.  It will exit via the abort() method.
+        * After Twm4Nx is initialized, external applications should register
+        * themselves into the Main Menu in order to be a part of the desktop.
         *
-        * @return True if the window manager was terminated properly.  false is
-        *   return on any failure.
+        * @return True if the Twm4Nx was properly initialized.  false is
+        * returned on any failure.
         */
 
-       bool run(void);
+       bool initialize(void);
+
+       /**
+        * This is the main, event loop of the Twm4Nx session.
+        *
+        * @return True if the Twm4Nxr was terminated noramly.  false is returned
+        * on any failure.
+        */
+
+       bool eventLoop(void);
 
        /**
         * Return a reference to the randomly generated event messageq queue

@@ -52,6 +52,7 @@
 #include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>
+#include <nuttx/nx/nxterm.h>
 
 #include "graphics/nxwidgets/cnxtoolbar.hxx"
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
@@ -147,9 +148,7 @@ namespace Twm4Nx
       FAR CWindowEvent           *m_windowEvent; /**< Cached window event reference */
       FAR void                   *m_eventObj;    /**< Object reference that accompanies events */
       nxgl_coord_t                m_minWidth;    /**< The minimum width of the window */
-      uint16_t                    m_redrawEvent; /**< Redraw event ID */
-      uint16_t                    m_mouseEvent;  /**< Mouse/touchscreen event ID */
-      uint16_t                    m_kbdEvent;    /**< Keyboard event ID */
+      struct SAppEvents           m_appEvents;   /**< Application event information */
       uint16_t                    m_zoom;        /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
       bool                        m_modal;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
 
@@ -407,7 +406,8 @@ namespace Twm4Nx
        * @param pos       The initial position of the window
        * @param size      The initial size of the window
        * @param sbitmap   The Icon bitmap image.  null if no icon.
-       * @param iconMgr   Pointer to icon manager instance
+       * @param iconMgr   Pointer to icon manager instance.  To support
+       *                  multiple Icon Managers.
        * @param flags     Toolbar customizations see WFLAGS_NO_* definitions
        * @return True if the window was successfully initialize; false on
        *   any failure,
@@ -422,20 +422,11 @@ namespace Twm4Nx
       /**
        * Configure application window events.
        *
-       * @param obj An object reference that will be provided with the event
-       *   to assist in handling the event.  This may be NULL is not needed
-       * @param redrawEvent The event to send on window redraw events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
-       * @param mouseEvent The event to send on mouse/touchscreen input
-       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
-       *   touchscreen input events.
-       * @param kbdEvent The event to send on keyboard input events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+       * @param events Describes the application event configuration
        * @return True is returned on success
        */
 
-      bool configureEvents(FAR void *obj, uint16_t redrawEvent,
-                           uint16_t mouseEvent, uint16_t kbdEvent);
+      bool configureEvents(FAR const struct SAppEvents &events);
 
       /**
        * Synchronize the window with the NX server.  This function will delay
@@ -459,6 +450,26 @@ namespace Twm4Nx
         return m_nxWin->getWidgetControl();
       }
 
+#ifdef CONFIG_NXTERM_NXKBDIN
+    /**
+     * By default, NX forwards keyboard input to the various widgets residing
+     * in the window.  But NxTerm is a different usage model; In this case,
+     * keyboard input needs to be directed to the NxTerm character driver.
+     * This method can be used to enable (or disable) redirection of NX
+     * keyboard input from the window widgets to the NxTerm
+     *
+     * @param handle.  The NXTERM handle.  If non-NULL, NX keyboard
+     *    input will be directed to the NxTerm driver using this
+     *    handle;  If NULL (the default), NX keyboard input will be
+     *    directed to the widgets within the window.
+     */
+
+    inline void redirectNxTerm(NXTERM handle)
+      {
+        m_nxWin->redirectNxTerm(handle);
+      }
+#endif
+
       /**
        * Get the name of the window
        */
@@ -478,7 +489,10 @@ namespace Twm4Nx
       }
 
       /**
-       * Return the Icon Manager Window instance
+       * Return the Icon Manager Window instance.  Supports multiple
+       * Icon Managers.
+       *
+       * @return The Icon Manager to which this window belongs.
        */
 
       inline FAR CIconMgr *getIconMgr(void)

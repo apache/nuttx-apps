@@ -624,9 +624,14 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
 
   // Configure mouse events needed by the button array.
 
-  bool success =
-    m_window->configureEvents((FAR void *)this, EVENT_SYSTEM_NOP,
-                              EVENT_ICONMGR_XYINPUT, EVENT_SYSTEM_NOP);
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.mouseEvent  = EVENT_ICONMGR_XYINPUT;
+  events.kbdEvent    = EVENT_SYSTEM_NOP;
+  events.closeEvent  = EVENT_SYSTEM_NOP;
+
+  bool success = m_window->configureEvents(events);
   if (!success)
     {
       delete m_window;

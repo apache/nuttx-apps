@@ -59,6 +59,18 @@
 
 namespace Twm4Nx
 {
+  // This structure provides information to support application events
+
+  struct SAppEvents
+  {
+    FAR void     *eventObj;     /**< Object reference that accompanies events */
+    nxgl_coord_t  minWidth;     /**< The minimum width of the window */
+    uint16_t      redrawEvent;  /**< Redraw event ID */
+    uint16_t      mouseEvent;   /**< Mouse/touchscreen event ID */
+    uint16_t      kbdEvent;     /**< Keyboard event ID */
+    uint16_t      closeEvent;   /**< Window close event ID */
+  };
+
   /**
    * This abstract base class provides add on methods to support dragging
    * of a window.
@@ -141,10 +153,7 @@ namespace Twm4Nx
     private:
       FAR CTwm4Nx         *m_twm4nx;        /**< Cached instance of CTwm4Nx */
       mqd_t                m_eventq;        /**< NxWidget event message queue */
-      FAR void            *m_object;        /**< Window object (context specific) */
-      uint16_t             m_redrawEvent;   /**< Redraw event ID */
-      uint16_t             m_mouseEvent;    /**< Mouse/touchscreen event ID */
-      uint16_t             m_kbdEvent;      /**< Keyboard event ID */
+      struct SAppEvents    m_appEvents;     /**< Appliation event information */
 
       // Dragging
 
@@ -193,22 +202,13 @@ namespace Twm4Nx
        * CWindowEvent Constructor
        *
        * @param twm4nx The Twm4Nx session instance.
-       * @param obj Contextual object (Usually 'this' of instantiator)
-       * @param redrawEvent The event to send on window redraw events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
-       * @param mouseEvent The event to send on mouse/touchscreen input
-       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
-       *   touchscreen input events.
-       * @param kbdEvent The event to send on keyboard input events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+       * @param events Describes the application event configuration
        * @param style The default style that all widgets on this display
        *   should use.  If this is not specified, the widget will use the
        *   values stored in the defaultCWidgetStyle object.
        */
 
-       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *obj,
-                    uint16_t redrawEvent, uint16_t mouseEvent,
-                    uint16_t kbdEvent,
+       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR const struct SAppEvents &events,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
 
@@ -238,26 +238,17 @@ namespace Twm4Nx
       /**
        * Modify event handlers.
        *
-       * One use for this is by the window drag logic to temporarily capture
-       * application mouse/touchscreen inputs to handle cases where the drag
-       * position enters the application window area.
-       *
-       * @param redrawEvent The event to send on window redraw events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
-       * @param mouseEvent The event to send on mouse/touchscreen input
-       *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
-       *   touchscreen input events.
-       * @param kbdEvent The event to send on keyboard input events.  This
-       *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+       * @param events Describes the application event configuration
+       * @return True is returned on success
        */
 
-      inline bool configureEvents(FAR void *obj, uint16_t redrawEvent,
-                                  uint16_t mouseEvent, uint16_t kbdEvent)
+      inline bool configureEvents(FAR const struct SAppEvents &events)
       {
-        m_object       = obj;            // Event object reference
-        m_redrawEvent  = redrawEvent;    // Redraw event ID
-        m_mouseEvent   = mouseEvent;     // Mouse/touchscreen event ID
-        m_kbdEvent     = kbdEvent;       // Keyboard event ID
+        m_appEvents.eventObj    = events.eventObj;    // Event object reference
+        m_appEvents.redrawEvent = events.redrawEvent; // Redraw event ID
+        m_appEvents.mouseEvent  = events.mouseEvent;  // Mouse/touchscreen event ID
+        m_appEvents.kbdEvent    = events.kbdEvent;    // Keyboard event ID
+        m_appEvents.closeEvent  = events.closeEvent;  // Window close event ID
         return true;
       }
   };

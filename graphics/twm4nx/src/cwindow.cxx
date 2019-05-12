@@ -132,45 +132,49 @@ struct SToolbarInfo GToolBarInfo[NTOOLBAR_BUTTONS] =
 
 CWindow::CWindow(CTwm4Nx *twm4nx)
 {
-  m_twm4nx               = twm4nx;       // Save the Twm4Nx session
-  m_eventq               = (mqd_t)-1;    // No widget message queue yet
+  m_twm4nx                = twm4nx;       // Save the Twm4Nx session
+  m_eventq                = (mqd_t)-1;    // No widget message queue yet
 
   // Windows
 
-  m_nxWin                = (FAR NXWidgets::CNxTkWindow *)0;
-  m_toolbar              = (FAR NXWidgets::CNxToolbar *)0;
-  m_windowEvent          = (FAR CWindowEvent *)0;
-  m_eventObj             = (FAR void *)0;
-  m_minWidth             = 1;
-  m_redrawEvent          = EVENT_SYSTEM_NOP; // Redraw event ID
-  m_mouseEvent           = EVENT_SYSTEM_NOP; // Mouse/touchscreen event ID
-  m_kbdEvent             = EVENT_SYSTEM_NOP; // Keyboard event ID
-  m_zoom                 = ZOOM_NONE;
-  m_modal                = false;
+  m_nxWin                 = (FAR NXWidgets::CNxTkWindow *)0;
+  m_toolbar               = (FAR NXWidgets::CNxToolbar *)0;
+  m_windowEvent           = (FAR CWindowEvent *)0;
+  m_minWidth              = 1;
+  m_zoom                  = ZOOM_NONE;
+  m_modal                 = false;
+
+  // Events
+
+  m_appEvents.eventObj    = (FAR void *)0;
+  m_appEvents.redrawEvent = EVENT_SYSTEM_NOP; // Redraw event ID
+  m_appEvents.mouseEvent  = EVENT_SYSTEM_NOP; // Mouse/touchscreen event ID
+  m_appEvents.kbdEvent    = EVENT_SYSTEM_NOP; // Keyboard event ID
+  m_appEvents.closeEvent  = EVENT_SYSTEM_NOP; // Window close event ID
 
   // Toolbar
 
-  m_tbTitle              = (FAR NXWidgets::CLabel *)0;
-  m_tbHeight             = 0;             // Height of the toolbar
-  m_tbLeftX              = 0;             // Offset to end of left buttons
-  m_tbRightX             = 0;             // Offset to start of right buttons
-  m_tbFlags              = 0;             // No customizations
+  m_tbTitle               = (FAR NXWidgets::CLabel *)0;
+  m_tbHeight              = 0;             // Height of the toolbar
+  m_tbLeftX               = 0;             // Offset to end of left buttons
+  m_tbRightX              = 0;             // Offset to start of right buttons
+  m_tbFlags               = 0;             // No customizations
 
   // Icons/Icon Manager
 
-  m_iconBitMap           = (FAR NXWidgets::CRlePaletteBitmap *)0;
-  m_iconWidget           = (FAR CIconWidget *)0;
-  m_iconMgr              = (FAR CIconMgr *)0;
-  m_iconified            = false;
+  m_iconBitMap            = (FAR NXWidgets::CRlePaletteBitmap *)0;
+  m_iconWidget            = (FAR CIconWidget *)0;
+  m_iconMgr               = (FAR CIconMgr *)0;
+  m_iconified             = false;
 
   // Dragging
 
-  m_clicked              = false;
-  m_dragging             = false;
-  m_dragPos.x            = 0;
-  m_dragPos.y            = 0;
-  m_dragCSize.w          = 0;
-  m_dragCSize.h          = 0;
+  m_clicked               = false;
+  m_dragging              = false;
+  m_dragPos.x             = 0;
+  m_dragPos.y             = 0;
+  m_dragCSize.w           = 0;
+  m_dragCSize.h           = 0;
 
   // Toolbar buttons
 
@@ -197,7 +201,8 @@ CWindow::~CWindow(void)
  * @param pos       The initial position of the window
  * @param size      The initial size of the window
  * @param sbitmap   The Icon bitmap image.  null if no icon.
- * @param iconMgr   Pointer to icon manager instance
+ * @param iconMgr   Pointer to icon manager instance.  To support
+ *                  multiple Icon Managers.
  * @param flags     Toolbar customizations see WFLAGS_NO_* definition
  * @return True if the window was successfully initialize; false on
  *   any failure,
@@ -221,7 +226,16 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
       return false;
     }
 
-  m_iconMgr = iconMgr;
+  // If no Icon Manager was provided, we will use the standard Icon Manager
+
+  if (iconMgr == (FAR CIconMgr *)0)
+    {
+      m_iconMgr = m_twm4nx->getIconMgr();
+    }
+  else
+    {
+      m_iconMgr = iconMgr;
+    }
 
   if (name.getLength() == 0)
     {
@@ -367,28 +381,19 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
 /**
  * Configure application window events.
  *
- * @param obj An object reference that will be provided with the event
- *   to assist in handling the event.  This may be NULL is not needed
- * @param redrawEvent The event to send on window redraw events.  This
- *   may be EVENT_SYSTEM_NOP to ignore all rdraw events.
- * @param mouseEvent The event to send on mouse/touchscreen input
- *   events.  This may be EVENT_SYSTEM_NOP to ignore all mouse/
- *   touchscreen input events.
- * @param kbdEvent The event to send on keyboard input events.  This
- *   may be EVENT_SYSTEM_NOP to ignore all keyboard input events.
+ * @param events Describes the application event configuration
  * @return True is returned on success
  */
 
-bool CWindow::configureEvents(FAR void *obj, uint16_t redrawEvent,
-                              uint16_t mouseEvent, uint16_t kbdEvent)
+bool CWindow::configureEvents(FAR const struct SAppEvents &events)
 {
-  m_eventObj             = obj;         // Event object
-  m_redrawEvent          = redrawEvent; // Redraw event ID
-  m_mouseEvent           = mouseEvent;  // Mouse/touchscreen event ID
-  m_kbdEvent             = kbdEvent;    // Keyboard event ID
+  m_appEvents.eventObj     = events.eventObj;    // Event object
+  m_appEvents.redrawEvent  = events.redrawEvent; // Redraw event ID
+  m_appEvents.mouseEvent   = events.mouseEvent;  // Mouse/touchscreen event ID
+  m_appEvents.kbdEvent     = events.kbdEvent;    // Keyboard event ID
+  m_appEvents.closeEvent   = events.closeEvent;  // Window event ID
 
-  return m_windowEvent->configureEvents(m_eventObj, m_redrawEvent,
-                                        m_mouseEvent, m_kbdEvent);
+  return m_windowEvent->configureEvents(events);
 }
 
 /**
@@ -686,10 +691,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
           {
             // Don't terminate the Icon manager, just hide it
 
-            CIconMgr *iconMgr = m_twm4nx->getIconMgr();
-            DEBUGASSERT(iconMgr != (CIconMgr *)0);
-
-            iconMgr->hide();
+            m_iconMgr->hide();
           }
         else
           {
@@ -769,8 +771,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    Setup the the CWindowEvent instance to use our inherited drag event
   //    handler
 
-  m_windowEvent =  new CWindowEvent(m_twm4nx, m_eventObj, m_redrawEvent,
-                                    m_mouseEvent, m_kbdEvent);
+  m_windowEvent = new CWindowEvent(m_twm4nx, m_appEvents);
   m_windowEvent->registerDragEventHandler(this, (uintptr_t)1);
 
   // 4. Create the window.  Handling provided flags. NOTE: that menu windows
@@ -868,9 +869,14 @@ bool CWindow::createToolbar(void)
   // 2. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control =
-    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_SYSTEM_NOP,
-                     EVENT_TOOLBAR_XYINPUT, EVENT_SYSTEM_NOP);
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
+  events.kbdEvent    = EVENT_SYSTEM_NOP;
+  events.closeEvent  = EVENT_SYSTEM_NOP;
+
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, events);
   control->registerDragEventHandler(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
@@ -1546,9 +1552,14 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
   // to handle cases where the drag that starts in the toolbar is moved
   // into the application window area.
 
-  bool success =
-    m_windowEvent->configureEvents((FAR void *)this, EVENT_SYSTEM_NOP,
-                                   EVENT_TOOLBAR_XYINPUT, EVENT_SYSTEM_NOP);
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
+  events.kbdEvent    = EVENT_SYSTEM_NOP;
+  events.closeEvent  = m_appEvents.closeEvent;
+
+  bool success = m_windowEvent->configureEvents(events);
   if (!success)
     {
       return false;
@@ -1714,8 +1725,7 @@ bool CWindow::toolbarUngrab(FAR struct SEventMsg *eventmsg)
 
   // Restore normal application event handling.
 
-  return m_windowEvent->configureEvents(m_eventObj, m_redrawEvent,
-                                        m_mouseEvent, m_kbdEvent);
+  return m_windowEvent->configureEvents(m_appEvents);
 }
 
 /**

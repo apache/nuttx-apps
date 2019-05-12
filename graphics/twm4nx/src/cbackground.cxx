@@ -363,9 +363,14 @@ bool CBackground::createBackgroundWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control =
-    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_BACKGROUND_REDRAW,
-                     EVENT_BACKGROUND_XYINPUT, EVENT_SYSTEM_NOP);
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_BACKGROUND_REDRAW;
+  events.mouseEvent  = EVENT_BACKGROUND_XYINPUT;
+  events.kbdEvent    = EVENT_SYSTEM_NOP;
+  events.closeEvent  = EVENT_SYSTEM_NOP;
+
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, events);
 
   // Create the background window (CTwm4Nx inherits from CNxServer)
 

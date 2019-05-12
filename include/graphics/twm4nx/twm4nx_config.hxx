@@ -71,27 +71,14 @@
  *
  * CONFIG_HAVE_CXX        : C++ support is required
  * CONFIG_NX              : NX must enabled
- * CONFIG_NXTERM=y        : For NxTerm support
  */
 
 #ifndef CONFIG_HAVE_CXX
 #  error "C++ support is required (CONFIG_HAVE_CXX)"
 #endif
 
-/**
- * NX Multi-user support is required
- */
-
 #ifndef CONFIG_NX
 #  error "NX support is required (CONFIG_NX)"
-#endif
-
-/**
- * NxTerm support is (probably) required to support NxTWM terminals
- */
-
-#if defined(CONFIG_TWM4NX_NXTERM) && !defined(CONFIG_NXTERM)
-#  warning "NxTerm support may be needed (CONFIG_NXTERM)"
 #endif
 
 // Background ///////////////////////////////////////////////////////////////
@@ -188,8 +175,6 @@
  */
 
 // Colors ///////////////////////////////////////////////////////////////////
-
-/* Colors *******************************************************************/
 
 /**
  * Color configuration
@@ -346,62 +331,6 @@
 
 #ifndef CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #  define CONFIG_TWM4NX_DEFAULT_FONTCOLOR MKRGB(0,64,0)
-#endif
-
-// NxTerm Window /////////////////////////////////////////////////////////////
-
-/**
- * NxTerm Window Configuration
- *
- * CONFIG_TWM4NX_NXTERM_PRIO - Priority of the NxTerm task.  Default:
- *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
- *   CONFIG_NXSTART_SERVERPRIO or else there may be data overrun errors.
- *   Such errors would most likely appear as duplicated rows of data on the
- *   display.
- * CONFIG_TWM4NX_NXTERM_STACKSIZE - The stack size to use when starting the
- *   NxTerm task.  Default: 2048 bytes.
- * CONFIG_TWM4NX_NXTERM_WCOLOR - The color of the NxTerm window background.
- *   Default:  MKRGB(192,192,192)
- * CONFIG_TWM4NX_NXTERM_FONTCOLOR - The color of the fonts to use in the
- *   NxTerm window.  Default: MKRGB(0,0,0)
- * CONFIG_TWM4NX_NXTERM_FONTID - The ID of the font to use in the NxTerm
- *   window.  Default: CONFIG_TWM4NX_DEFAULT_FONTID
- * CONFIG_TWM4NX_NXTERM_ICON - The glyph to use as the NxTerm icon
- */
-
-#ifdef CONFIG_TWM4NX_NXTERM
-#  ifndef CONFIG_TWM4NX_NXTERM_PRIO
-#    define CONFIG_TWM4NX_NXTERM_PRIO  SCHED_PRIORITY_DEFAULT
-#  endif
-
-#  if CONFIG_NXSTART_SERVERPRIO <= CONFIG_TWM4NX_NXTERM_PRIO
-#    warning "CONFIG_NXSTART_SERVERPRIO <= CONFIG_TWM4NX_NXTERM_PRIO"
-#    warning" -- This can result in data overrun errors"
-#  endif
-
-#  ifndef CONFIG_TWM4NX_NXTERM_STACKSIZE
-#    define CONFIG_TWM4NX_NXTERM_STACKSIZE  2048
-#  endif
-
-#  ifndef CONFIG_TWM4NX_NXTERM_WCOLOR
-#    define CONFIG_TWM4NX_NXTERM_WCOLOR  CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR
-#  endif
-
-#  ifndef CONFIG_TWM4NX_NXTERM_FONTCOLOR
-#    define CONFIG_TWM4NX_NXTERM_FONTCOLOR  CONFIG_TWM4NX_DEFAULT_FONTCOLOR
-#  endif
-
-#  ifndef CONFIG_TWM4NX_NXTERM_FONTID
-#    define CONFIG_TWM4NX_NXTERM_FONTID  CONFIG_TWM4NX_DEFAULT_FONTID
-#  endif
-
-  /**
-   * The NxTerm window glyph
-   */
-
-#  ifndef CONFIG_TWM4NX_NXTERM_ICON
-#    define CONFIG_TWM4NX_NXTERM_ICON NXWidgets::g_cmdBitmap
-#  endif
 #endif
 
 // Input Devices /////////////////////////////////////////////////////////////

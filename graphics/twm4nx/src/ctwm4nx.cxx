@@ -65,6 +65,8 @@
 #include "platform/cxxinitialize.h"
 #include "netutils/netinit.h"
 
+// Core Twm4Nx Definitions
+
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cbackground.hxx"
@@ -79,6 +81,10 @@
 #include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+
+// Applications
+
+#include "graphics/twm4nx/cnxterm.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions
@@ -144,17 +150,18 @@ CTwm4Nx::~CTwm4Nx(void)
 }
 
 /**
- * This is the main, controlling thread of the window manager.  It is
- * called only from the extern "C" main() entry point.
+ * Perform initialization additional, post-construction initialization
+ * that may fail.  This initialization logic fully initialized the
+ * Twm4Nx session.  Upon return, the session is ready for use.
  *
- * NOTE: In the event of truly abnormal conditions, this function will
- * not return.  It will exit via the abort() method.
+ * After Twm4Nx is initialized, external applications should register
+ * themselves into the Main Menu in order to be a part of the desktop.
  *
- * @return True if the window manager was terminated properly.  false is
- *   return on any failure.
+ * @return True if the Twm4Nx was properly initialized.  false is
+ * returned on any failure.
  */
 
-bool CTwm4Nx::run(void)
+bool CTwm4Nx::initialize(void)
 {
   // Open a message queue to receive NxWidget-related events.  We need to
   // do this early so that the messasge queue name will be available to
@@ -175,12 +182,6 @@ bool CTwm4Nx::run(void)
       cleanup();
       return false;
     }
-
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-  // Call all C++ static constructors
-
-  up_cxxinitialize();
-#endif
 
   // Connect to the NX server
 
@@ -328,6 +329,18 @@ bool CTwm4Nx::run(void)
       return false;
     }
 
+  return true;
+}
+
+/**
+ * This is the main, event loop of the Twm4Nx session.
+ *
+ * @return True if the Twm4Nxr was terminated noramly.  false is returned
+ * on any failure.
+ */
+
+bool CTwm4Nx::eventLoop(void)
+{
   // Enter the event loop
 
   twminfo("Entering event loop\n");
@@ -671,7 +684,13 @@ int twm4nx_main(int argc, char *argv[])
 
   UNUSED(ret);
 
-  /* Create an instance of CTwm4Nx and and run it */
+#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
+  // Call all C++ static constructors
+
+  up_cxxinitialize();
+#endif
+
+  /* Create an instance of CTwm4Nx and initialize it */
 
   FAR CTwm4Nx *twm4nx = new CTwm4Nx(display);
   if (twm4nx == (FAR CTwm4Nx *)0)
@@ -680,12 +699,32 @@ int twm4nx_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  // Start the window manager
-
-  bool success = twm4nx->run();
+  bool success = twm4nx->initialize();
   if (!success)
     {
-      twmerr(" ERROR: Terminating due to failure\n");
+      twmerr(" ERROR:  Failed to initialize CTwm4Nx\n");
+      return EXIT_FAILURE;
+    }
+
+  // Twm4Nx is fully initialized and we may now register applications
+  // Revisit.  This is currently hardward coded here for testing.  There
+  // needs to be a more flexible method if adding applications at run
+  // time.
+
+  CNxTermFactory factory;
+  success = factory.initialize(twm4nx);
+  if (!success)
+    {
+      twmerr(" ERROR:  Failed to initialize CNxTermFactory\n");
+      return EXIT_FAILURE;
+    }
+
+  // Start the Twm4Nx event loop
+
+  success = twm4nx->eventLoop();
+  if (!success)
+    {
+      twmerr(" ERROR: Event loop terminating due to failure\n");
       return EXIT_FAILURE;
     }
 

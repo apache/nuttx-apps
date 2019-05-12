@@ -217,7 +217,7 @@ FAR CWindow *
 
   if (!WFLAGS_IS_ICONMGR(flags) && !WFLAGS_IS_MENU(flags))
     {
-      CIconMgr *iconmgr = m_twm4nx->getIconMgr();
+      CIconMgr *iconmgr = win->cwin->getIconMgr();
       DEBUGASSERT(iconmgr != (CIconMgr *)0);
 
       (void)iconmgr->addWindow(win->cwin);
@@ -265,7 +265,7 @@ void CWindowFactory::destroyWindow(FAR CWindow *cwin)
 
   // Add the window to the icon manager
 
-  CIconMgr *iconmgr = m_twm4nx->getIconMgr();
+  CIconMgr *iconmgr = cwin->getIconMgr();
   DEBUGASSERT(iconmgr != (CIconMgr *)0);
 
   (void)iconmgr->removeWindow(cwin);

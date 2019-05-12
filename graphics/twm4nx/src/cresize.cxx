@@ -963,9 +963,14 @@ bool CResize::createSizeWindow(void)
   // 3. Create a Widget control instance for the window using the default
   //    style for now.  CWindowEvent derives from CWidgetControl.
 
-  FAR CWindowEvent *control =
-    new CWindowEvent(m_twm4nx, (FAR void *)this, EVENT_SYSTEM_NOP,
-                     EVENT_RESIZE_XYINPUT, EVENT_SYSTEM_NOP);
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.mouseEvent  = EVENT_RESIZE_XYINPUT;
+  events.kbdEvent    = EVENT_SYSTEM_NOP;
+  events.closeEvent  = EVENT_SYSTEM_NOP;
+
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, events);
 
   // 4. Create the main window
 

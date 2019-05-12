@@ -122,4 +122,12 @@ config TWM4NX_DEBUG
 		and CONFIG_DEBUG_ERROR (but not the corresponding
 		CONFIG_DEBUG_GRAPHICS_* settings)
 
+config TWM4NX_NXTERM
+	bool "NxTerm Window"
+	default y
+	depends on NXTERM && NSH_LIBRARY
+	---help---
+		Enable support for the NxTerm window which provides a text window
+		in which you can interact with NSH.
+
 endif # GRAPHICS_TWM4NX

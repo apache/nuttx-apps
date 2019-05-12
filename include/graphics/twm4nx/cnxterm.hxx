@@ -49,7 +49,23 @@
 
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/iapplication.hxx"
+
+/////////////////////////////////////////////////////////////////////////////
+// Pre-processor Definitions
+/////////////////////////////////////////////////////////////////////////////
+
+// CNxTerm application events
+// Window Events
+
+#define EVENT_NXTERM_REDRAW   (EVENT_RECIPIENT_APP | 0x0000)
+#define EVENT_NXTERM_XYINPUT   EVENT_SYSTEM_NOP
+#define EVENT_NXTERM_KBDINPUT  EVENT_SYSTEM_NOP
+
+// Button Events
+
+#define EVENT_NXTERM_CLOSE    (EVENT_RECIPIENT_APP | 0x0001)
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -64,11 +80,11 @@ namespace Twm4Nx
   class CNxTerm : public CTwm4NxEvent
   {
     private:
-      CTaskbar            *m_twm4nx;      /**< Reference to the Twm4Nx session instance */
-      CApplicationWindow  *m_window;      /**< Reference to the application window */
-      NXTERM               m_nxterm;      /**< NxTerm handle */
-      pid_t                m_pid;         /**< Task ID of the NxTerm thread */
-      int                  m_minor;       /**< Terminal device minor number */
+      CTwm4Nx   *m_twm4nx;        /**< Reference to the Twm4Nx session instance */
+      CWindow   *m_nxtermWindow;  /**< Reference to the NxTerm application window */
+      NXTERM     m_NxTerm;        /**< NxTerm handle */
+      pid_t      m_pid;           /**< Task ID of the NxTerm thread */
+      int        m_minor;         /**< Terminal device minor number */
 
       /**
        * This is the NxTerm task.  This function first redirects output to the
@@ -88,73 +104,51 @@ namespace Twm4Nx
        bool event(FAR struct SEventMsg *eventmsg);
 
       /**
-       * This is the NxTerm task exit handler.  It is registered with on_exit()
-       * and called automatically when the nxterm task exits.
-       */
-
-      static void exitHandler(int code, FAR void *arg);
-
-      /**
-       * Called when the window minimize button is pressed.
-       */
-
-      void minimize(void);
-
-      /**
-       * Called when the window close button is pressed.
-       */
-
-      void close(void);
-
-      /**
-       * Start the application (perhaps in the minimized state).
-       *
-       * @return True if the application was successfully started.
-       */
-
-      bool run(void);
-
-      /**
-       * Stop the application.
-       */
-
-      void stop(void);
-
-      /**
-       * Destroy the application and free all of its resources.  This method
-       * will initiate blocking of messages from the NX server.  The server
-       * will flush the window message queue and reply with the blocked
-       * message.  When the block message is received by CWindowMessenger,
-       * it will send the destroy message to the start window task which
-       * will, finally, safely delete the application.
-       */
-
-      void destroy(void);
-
-      /**
-       * The application window is hidden (either it is minimized or it is
-       * maximized, but not at the top of the hierarchy
-       */
-
-      void hide(void);
-
-      /**
-       * Redraw the entire window.  The application has been maximized or
-       * otherwise moved to the top of the hierarchy.  This method is call from
-       * CTaskbar when the application window must be displayed
+       * Handle the NxTerm redraw event.
        */
 
       void redraw(void);
 
       /**
-       * Report of this is a "normal" window or a full screen window.  The
-       * primary purpose of this method is so that window manager will know
-       * whether or not it show draw the task bar.
-       *
-       * @return True if this is a full screen window.
+       * This is the close window event handler.  It will stop the NxTerm
+       * application trhead.
        */
 
-      bool isFullScreen(void) const;
+      void stop(void);
+
+  public:
+
+      /**
+       * CNxTerm constructor
+       *
+       * @param twm4nx.  The Twm4Nx session instance
+       */
+
+      CNxTerm(FAR CTwm4Nx *twm4nx);
+
+      /**
+       * CNxTerm destructor
+       */
+
+      ~CNxTerm(void);
+
+      /**
+       * CNxTerm initializers.  Perform miscellaneous post-construction
+       * initialization that may fail (and hence is not appropriate to be
+       * done in the constructor)
+       *
+       * @return True if the NxTerm application was successfully initialized.
+       */
+
+      bool initialize(void);
+
+      /**
+       * Start the NxTerm.
+       *
+       * @return True if the NxTerm application was successfully started.
+       */
+
+      bool run(void);
   };
 
   class CNxTermFactory : public IApplication, public IApplicationFactory
@@ -265,7 +259,7 @@ namespace Twm4Nx
        * @param twm4nx.  The Twm4Nx session instance
        */
 
-      bool CNxTermFactory::initialize(FAR CTwm4Nx *twm4nx);
+      bool initialize(FAR CTwm4Nx *twm4nx);
   };
 }
 

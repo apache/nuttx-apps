@@ -43,13 +43,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cunistd>
+#include <cfcntl>
 #include <ctime>
+#include <cassert>
 
 #include <sys/boardctl.h>
-#include <fcntl.h>
 #include <semaphore.h>
-#include <sched.h>
-#include <assert.h>
 #include <debug.h>
 
 #include "nshlib/nshlib.h"
@@ -58,7 +57,11 @@
 
 #include "graphics/nxglyphs.hxx"
 #include "graphics/twm4nx/twm4nx_config.hxx"
-#include "graphics/twm4nx/twm4nx.hxx"
+#include "graphics/twm4nx/nxterm_config.hxx"
+#include "graphics/twm4nx/ctwm4nx.hxx"
+#include "graphics/twm4nx/cwindow.hxx"
+#include "graphics/twm4nx/cwindowfactory.hxx"
+#include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cnxterm.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -101,7 +104,7 @@ namespace Twm4Nx
     NXTERM                 nxterm;  /**< NxTerm handle */
     int                    minor;   /**< Next device minor number */
     struct nxterm_window_s wndo;    /**< Describes the NxTerm window */
-    bool                   result;  /**< True if successfully initialized */
+    bool                   success; /**< True if successfully initialized */
   };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -125,29 +128,20 @@ using namespace Twm4Nx;
 /**
  * CNxTerm constructor
  *
- * @param cwin.  The application window
+ * @param twm4nx.  The Twm4Nx session instance
  */
 
-CNxTerm::CNxTerm(CTwm4Nx *twm4nx, CWindow *cwin)
+CNxTerm::CNxTerm(FAR CTwm4Nx *twm4nx)
 {
-  // Save the constructor data
+  // Save the context data
 
-  m_twm4nx    = twm4nx;
-  m_appWindow = cwin;
+  m_twm4nx       = twm4nx;
+  m_nxtermWindow = (FAR CWindow *)0;
 
   // The NxTerm is not runing
 
-  m_pid       = -1;
-  m_nxterm    = 0;
-
-  // Add our personalized window label
-
-  NXWidgets::CNxString myName = getName();
-  cwin->setWindowLabel(myName);
-
-  // Add our callbacks with the application window
-
-  cwin->registerCallbacks(static_cast<IApplicationCallback *>(this));
+  m_pid          = (pid_t)-1;
+  m_NxTerm       = (NXTERM)0;
 }
 
 /**
@@ -164,33 +158,56 @@ CNxTerm::~CNxTerm(void)
   // Although we didn't create it, we are responsible for deleting the
   // application window
 
-  delete m_appWindow;
+  delete m_nxtermWindow;
 }
 
 /**
- * Each implementation of IApplication must provide a method to recover
- * the contained CWindow instance.
- */
-
-IApplicationWindow *CNxTerm::getWindow(void) const
-{
-  return static_cast<IApplicationWindow*>(m_appWindow);
-}
-
-/**
- * Get the icon associated with the application
+ * CNxTerm initializers.  Perform miscellaneous post-construction
+ * initialization that may fail (and hence is not appropriate to be
+ * done in the constructor)
  *
- * @return An instance if IBitmap that may be used to rend the
- *   application's icon.  This is an new IBitmap instance that must
- *   be deleted by the caller when it is no long needed.
+ * @return True if the NxTerm application was successfully initialized.
  */
 
-NXWidgets::IBitmap *CNxTerm::getIcon(void)
+bool CNxTerm::initialize(void)
 {
-  NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_TWM4NX_NXTERM_ICON);
+  // Call CWindowFactory::createWindow() to create a window for the NxTerm
+  // application.  Customizations:
+  //
+  // Flags: WFLAGS_NO_MENU_BUTTON indicates that there is no menu associated
+  //   with the NxTerm application window
+  // Null Icon mager means to use the system, common Icon Manager
 
-  return bitmap;
+  NXWidgets::CNxString name("NuttShell");
+
+  FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
+  m_nxtermWindow = factory->createWindow(name, &CONFIG_TWM4NX_NXTERM_ICON,
+                                         (FAR CIconMgr *)0,
+                                         WFLAGS_NO_MENU_BUTTON);
+  if (m_nxtermWindow == (FAR CWindow *)0)
+    {
+      twmerr("ERROR: Failed to create CWindow\n");
+      return false;
+    }
+
+  // Configure events needed by the NxTerm applications
+
+  struct SAppEvents events;
+  events.eventObj    = (FAR void *)this;
+  events.redrawEvent = EVENT_NXTERM_REDRAW;
+  events.mouseEvent  = EVENT_NXTERM_XYINPUT;
+  events.kbdEvent    = EVENT_NXTERM_KBDINPUT;
+  events.closeEvent  = EVENT_NXTERM_CLOSE;
+
+  bool success = m_nxtermWindow->configureEvents(events);
+  if (!success)
+    {
+      delete m_nxtermWindow;
+      m_nxtermWindow = (FAR CWindow *)0;
+      return false;
+    }
+
+ return true;
 }
 
 /**
@@ -203,7 +220,7 @@ bool CNxTerm::run(void)
 {
   // Some sanity checking
 
-  if (m_pid >= 0 || m_nxterm != 0)
+  if (m_pid >= 0 || m_NxTerm != 0)
     {
       twmerr("ERROR: All ready running or connected\n");
       return false;
@@ -219,13 +236,9 @@ bool CNxTerm::run(void)
       return false;
     }
 
-  // Recover the NXTK window instance contained in the application window
-
-  NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
-
   // Get the widget control associated with the NXTK window
 
-  NXWidgets::CWidgetControl *control =  inxWindow->getWidgetControl();
+  NXWidgets::CWidgetControl *control =  m_nxtermWindow->getWidgetControl();
 
   // Get the window handle from the widget control
 
@@ -243,13 +256,17 @@ bool CNxTerm::run(void)
 
   // Get the size of the window
 
-  (void)inxWindow->getSize(&g_nxtermvars.wndo.wsize);
+  if (!m_nxtermWindow->getWindowSize(&g_nxtermvars.wndo.wsize))
+    {
+      twmerr("ERROR: getWindowSize() failed\n");
+      return false;
+    }
 
   // Start the NxTerm task
 
   g_nxtermvars.console = (FAR void *)this;
-  g_nxtermvars.result  = false;
-  g_nxtermvars.nxterm   = 0;
+  g_nxtermvars.success = false;
+  g_nxtermvars.nxterm  = 0;
 
   sched_lock();
   m_pid = task_create("NxTerm", CONFIG_TWM4NX_NXTERM_PRIO,
@@ -258,11 +275,11 @@ bool CNxTerm::run(void)
 
   // Did we successfully start the NxTerm task?
 
-  bool result = true;
+  bool success = true;
   if (m_pid < 0)
     {
       twmerr("ERROR: Failed to create the NxTerm task\n");
-      result = false;
+      success = false;
     }
   else
     {
@@ -275,17 +292,17 @@ bool CNxTerm::run(void)
       int ret = sem_timedwait(&g_nxtermvars.waitSem, &abstime);
       sched_unlock();
 
-      if (ret == OK && g_nxtermvars.result)
+      if (ret == OK && g_nxtermvars.success)
         {
+#ifdef CONFIG_NXTERM_NXKBDIN
           // Re-direct NX keyboard input to the new NxTerm driver
 
           DEBUGASSERT(g_nxtermvars.nxterm != 0);
-#ifdef CONFIG_NXTERM_NXKBDIN
-          inxWindow->redirectNxTerm(g_nxtermvars.nxterm);
+          m_nxtermWindow->redirectNxTerm(g_nxtermvars.nxterm);
 #endif
           // Save the handle to use in the stop method
 
-          m_nxterm = g_nxtermvars.nxterm;
+          m_NxTerm = g_nxtermvars.nxterm;
         }
       else
         {
@@ -294,33 +311,28 @@ bool CNxTerm::run(void)
 
           twmerr("ERROR: Failed start the NxTerm task\n");
           stop();
-          result = false;
+          success = false;
         }
     }
 
   sem_post(&g_nxtermvars.exclSem);
-  return result;
+  return success;
 }
 
 /**
- * Stop the application.
+ * This is the close windoe event handler.  It will stop the NxTerm
+ * application trhead.
  */
 
 void CNxTerm::stop(void)
 {
   // Delete the NxTerm task if it is still running (this could strand
-  // resources). If we get here due to CTwm4Nx::stopApplication() processing
-  // initialed by CNxTerm::exitHandler, then do *not* delete the task (it
-  // is already being deleted).
+  // resources).
 
   if (m_pid >= 0)
     {
-      // Calling task_delete() will also invoke the on_exit() handler.  We se
-      // m_pid = -1 before calling task_delete() to let the on_exit() handler,
-      // CNxTerm::exitHandler(), know that it should not do anything
-
       pid_t pid = m_pid;
-      m_pid = -1;
+      m_pid     = (pid_t)-1;
 
       // Then delete the NSH task, possibly stranding resources
 
@@ -329,13 +341,12 @@ void CNxTerm::stop(void)
 
   // Destroy the NX console device
 
-  if (m_nxterm)
+  if (m_NxTerm)
     {
+#ifdef CONFIG_NXTERM_NXKBDIN
       // Re-store NX keyboard input routing
 
-#ifdef CONFIG_NXTERM_NXKBDIN
-      NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
-      inxWindow->redirectNxTerm((NXTERM)0);
+      m_nxtermWindow->redirectNxTerm((NXTERM)0);
 #endif
 
       // Unlink the NxTerm driver
@@ -345,82 +356,8 @@ void CNxTerm::stop(void)
       snprintf(devname, 32, "/dev/nxterm%d", m_minor);
 
       (void)unlink(devname);
-      m_nxterm = 0;
+      m_NxTerm = 0;
     }
-}
-
-/**
- * Destroy the application and free all of its resources.  This method
- * will initiate blocking of messages from the NX server.  The server
- * will flush the window message queue and reply with the blocked
- * message.  When the block message is received by CWindowMessenger,
- * it will send the destroy message to the start window task which
- * will, finally, safely delete the application.
- */
-
-void CNxTerm::destroy(void)
-{
-  // Block any further window messages
-
-  m_appWindow->block(this);
-
-  // Make sure that the application is stopped
-
-  stop();
-}
-
-/**
- * The application window is hidden (either it is minimized or it is
- * maximized, but not at the top of the hierarchy
- */
-
-void CNxTerm::hide(void)
-{
-  // Disable drawing and events
-}
-
-/**
- * Redraw the entire window.  The application has been maximized or
- * otherwise moved to the top of the hierarchy.  This method is call from
- * CTwm4Nx when the application window must be displayed
- */
-
-void CNxTerm::redraw(void)
-{
-  // Recover the NXTK window instance contained in the application window
-
-  NXWidgets::INxWindow *inxWindow = m_appWindow->getWindow();
-
-  // Get the size of the window
-
-  struct nxgl_size_s windowSize;
-  (void)inxWindow->getSize(&windowSize);
-
-  // Redraw the entire NxTerm window
-
-  struct boardioc_nxterm_redraw_s redraw;
-
-  redraw.handle     = m_nxterm;
-  redraw.rect.pt1.x = 0;
-  redraw.rect.pt1.y = 0;
-  redraw.rect.pt2.x = windowSize.w - 1;
-  redraw.rect.pt2.y = windowSize.h - 1;
-  redraw.more       = false;
-
-  (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&redraw);
-}
-
-/**
- * Report of this is a "normal" window or a full screen window.  The
- * primary purpose of this method is so that window manager will know
- * whether or not it show draw the task bar.
- *
- * @return True if this is a full screen window.
- */
-
-bool CNxTerm::isFullScreen(void) const
-{
-  return m_appWindow->isFullScreen();
 }
 
 /**
@@ -435,14 +372,6 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   int fd = -1;
   int ret = OK;
-
-  // Set up an on_exit() event that will be called when this task exits
-
-  if (on_exit(exitHandler, g_nxtermvars.console) != 0)
-    {
-      twmerr("ERROR: on_exit failed\n");
-      goto errout;
-    }
 
   // Use the window handle to create the NX console
 
@@ -522,7 +451,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Inform the parent thread that we successfully initialized
 
-  g_nxtermvars.result = true;
+  g_nxtermvars.success = true;
   sem_post(&g_nxtermvars.waitSem);
 
   // Run the NSH console
@@ -539,7 +468,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
 errout:
   g_nxtermvars.nxterm = 0;
-  g_nxtermvars.result = false;
+  g_nxtermvars.success = false;
   sem_post(&g_nxtermvars.waitSem);
   return EXIT_FAILURE;
 }
@@ -558,6 +487,14 @@ bool CNxTerm::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
+      case EVENT_NXTERM_REDRAW:  // Redraw event (should not happen)
+        redraw();                // Redraw the whole window
+        break;
+
+      case EVENT_NXTERM_CLOSE:   // Window close event
+        stop();                  // Stop the NxTerm thread
+        break;
+
       default:
         success = false;
         break;
@@ -567,47 +504,30 @@ bool CNxTerm::event(FAR struct SEventMsg *eventmsg)
 }
 
 /**
- * This is the NxTerm task exit handler.  It registered with on_exit()
- * and called automatically when the nxterm task exits.
+ * Redraw the entire window.  The application has been maximized or
+ * otherwise moved to the top of the hierarchy.  This method is call from
+ * CTwm4Nx when the application window must be displayed
  */
 
-void CNxTerm::exitHandler(int code, FAR void *arg)
+void CNxTerm::redraw(void)
 {
-  CNxTerm *This = (CNxTerm *)arg;
+  // Get the size of the window
 
-  // If we got here because of the task_delete() call in CNxTerm::stop(),
-  // then m_pid will be set to -1 to let us know that we do not need to do
-  // anything
+  struct nxgl_size_s windowSize;
+  (void)m_nxtermWindow->getWindowSize(&windowSize);
 
-  if (This->m_pid >= 0)
-    {
-      // Set m_pid to -1 to prevent calling detlete_task() in CNxTerm::stop().
-      // CNxTerm::stop() is called by the processing initiated by the following
-      // call to CTwm4Nx::stopApplication()
+  // Redraw the entire NxTerm window
 
-      This->m_pid = -1;
+  struct boardioc_nxterm_redraw_s redraw;
 
-      // Remove the NxTerm application from the Start Menu
-#warning Missing logic
-    }
-}
+  redraw.handle     = m_NxTerm;
+  redraw.rect.pt1.x = 0;
+  redraw.rect.pt1.y = 0;
+  redraw.rect.pt2.x = windowSize.w - 1;
+  redraw.rect.pt2.y = windowSize.h - 1;
+  redraw.more       = false;
 
-/**
- * Called when the window minimize button is pressed.
- */
-
-void CNxTerm::minimize(void)
-{
-  m_twm4nx->minimizeApplication(static_cast<IApplication*>(this));
-}
-
-/**
- * Called when the window close button is pressed.
- */
-
-void CNxTerm::close(void)
-{
-  m_twm4nx->stopApplication(static_cast<IApplication*>(this));
+  (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&redraw);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -682,35 +602,32 @@ bool CNxTermFactory::nshlibInitialize(void)
 
 bool CNxTermFactory::startFunction(FAR CTwm4Nx *twm4nx)
 {
-  // Call CTaskBar::openFullScreenWindow to create a full screen window for
-  // the NxTerm application
+  // Instantiate the Nxterm application, providing only the session session
+  // instance to the constructor
 
-  FAR CWindowFactory *factory = twm4nx->getWindowFactory();
-  CWindow *cwin = factory->createWindow(twm4nx);
-  if (!cwin )
-    {
-      twmerr("ERROR: Failed to create CWindow\n");
-      return false;
-    }
-
-  // Initialize the window
-
-  if (!cwin->initialize(..arguments...))
-    {
-      twmerr("ERROR: Failed to open CWindow\n");
-      delete cwin;
-      return false;
-    }
-
-  // Instantiate the application, providing the session and the window to
-  // the application's constructor
-
-  CNxTerm *nxterm = new CNxTerm(twm4nx, cwin);
+  CNxTerm *nxterm = new CNxTerm(twm4nx);
   if (!nxterm)
     {
       twmerr("ERROR: Failed to instantiate CNxTerm\n");
-      delete cwin;
-      return (IApplication *)0;
+      return false;
+    }
+
+  // Initialize the NxTerm application
+
+  if (!nxterm->initialize())
+    {
+      twmerr("ERROR: Failed to initialize CNxTerm instance\n");
+      delete nxterm;
+      return false;
+    }
+
+  // Start the NxTerm application instance
+
+  if (!nxterm->run())
+    {
+      twmerr("ERROR: Failed to start the NxTerm application\n");
+      delete nxterm;
+      return false;
     }
 
   return true;
