@@ -974,7 +974,9 @@ bool CResize::createSizeWindow(void)
 
   // 4. Create the main window
 
-  m_sizeWindow = m_twm4nx->createFramedWindow(control, NXBE_WINDOW_RAMBACKED);
+  uint8_t wflags = (NXBE_WINDOW_RAMBACKED | NXBE_WINDOW_HIDDEN);
+
+  m_sizeWindow = m_twm4nx->createFramedWindow(control, wflags);
   if (m_sizeWindow == (FAR NXWidgets::CNxTkWindow *)0)
     {
       delete control;
@@ -1035,10 +1037,10 @@ bool CResize::createSizeWindow(void)
 
 bool CResize::createSizeLabel(void)
 {
-  // The size of the selected is selected to fill the entire size window
+  // The size of label is selected to fill the entire size window
 
   struct nxgl_size_s labelSize;
-  if (!m_sizeWindow->setSize(&labelSize))
+  if (!m_sizeWindow->getSize(&labelSize))
     {
       twmerr("ERROR: Failed to get window size\n");
       return false;
@@ -1142,9 +1144,9 @@ void CResize::updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
       return;
     }
 
-  // Bring the window to the top of the hierarchy
+  // Un-hide the window and bring the window to the top of the hierarchy
 
-  m_sizeWindow->raise();
+  m_sizeWindow->show();
 
   // Add the string to the label widget
 

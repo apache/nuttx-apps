@@ -991,7 +991,7 @@ bool CNxWidget::moveTo(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Enforce widget to stay within parent confines if necessary
 
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != (FAR CNxWidget *)NULL)
     {
       if (!m_parent->isPermeable())
         {
@@ -1052,7 +1052,7 @@ bool CNxWidget::moveTo(nxgl_coord_t x, nxgl_coord_t y)
 
   // Perform move if necessary
 
-  if ((m_rect.getX() != x) || (m_rect.getY() != y))
+  if (m_rect.getX() != x || m_rect.getY() != y)
     {
       nxgl_coord_t oldX = m_rect.getX();
       nxgl_coord_t oldY = m_rect.getY();
@@ -1062,10 +1062,9 @@ bool CNxWidget::moveTo(nxgl_coord_t x, nxgl_coord_t y)
 
       redraw();
       m_widgetEventHandlers->raiseMoveEvent(x, y, x - oldX, y - oldY);
-      return true;
     }
 
-  return false;
+  return true;
 }
 
 /**
@@ -1130,10 +1129,9 @@ bool CNxWidget::resize(nxgl_coord_t width, nxgl_coord_t height)
       m_flags.drawingEnabled = wasDrawEnabled;
       redraw();
       m_widgetEventHandlers->raiseResizeEvent(width, height);
-      return true;
     }
 
-  return false;
+  return true;
 }
 
 /**

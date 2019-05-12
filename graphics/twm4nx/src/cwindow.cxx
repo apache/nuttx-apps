@@ -695,14 +695,38 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
           }
         else
           {
+            // Inform the application that the window is disappearing
+
+            if (m_appEvents.closeEvent != EVENT_SYSTEM_NOP)
+              {
+                twminfo("Close event...\n");
+
+                // Send the application specific [pre-]close vent
+
+                struct SEventMsg outmsg;
+                outmsg.eventID  = m_appEvents.closeEvent;
+                outmsg.obj      = m_appEvents.eventObj;
+                outmsg.pos.x    = eventmsg->pos.x;
+                outmsg.pos.y    = eventmsg->pos.y;
+                outmsg.context  = eventmsg->context;
+                outmsg.handler  = eventmsg->handler;
+
+                int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                                  sizeof(struct SEventMsg), 100);
+                if (ret < 0)
+                  {
+                    twmerr("ERROR: mq_send failed: %d\n", ret);
+                  }
+             }
+
             // Close the window... but not yet.  Send the blocked message.
             // The actual termination will no occur until the NX server
             // drains all of the message events.  We will get the
             // EVENT_WINDOW_DELETE event at that point
 
-          NXWidgets::CWidgetControl *control = m_nxWin->getWidgetControl();
-          nxtk_block(control->getWindowHandle(), (FAR void *)m_nxWin);
-        }
+            NXWidgets::CWidgetControl *control = m_nxWin->getWidgetControl();
+            nxtk_block(control->getWindowHandle(), (FAR void *)m_nxWin);
+          }
 
         break;
 
@@ -939,6 +963,7 @@ bool CWindow::updateToolbarLayout(void)
   struct nxgl_size_s winsize;
   if (!getWindowSize(&winsize))
     {
+      twmerr("ERROR: Failed to get window size\n");
       return false;
     }
 
@@ -971,7 +996,7 @@ bool CWindow::updateToolbarLayout(void)
 
          if (!cimage->moveTo(pos.x, pos.y))
            {
-             twmerr("ERROR: Faile to move button image\n");
+             twmerr("ERROR: Failed to move button image\n");
              return false;
            }
         }
@@ -989,6 +1014,11 @@ bool CWindow::updateToolbarLayout(void)
   titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_TOOLBAR_HSPACING + 1;
 
   bool success = m_tbTitle->resize(titleSize.w, titleSize.h);
+  if (!success)
+    {
+      twmerr("ERROR: Failed to resize title\n");
+    }
+
   enableToolbarWidgets();
   return success;
 }

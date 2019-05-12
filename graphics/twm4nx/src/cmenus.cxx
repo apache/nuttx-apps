@@ -679,7 +679,7 @@ bool CMenus::setMenuWindowSize(void)
 
   if (!m_menuWindow->resizeFrame(&frameSize, (FAR const struct nxgl_point_s *)0))
     {
-      twmerr("ERROR: Failed to set window size\n");
+      twmerr("ERROR: Failed to resize menu window\n");
       return false;
     }
 
