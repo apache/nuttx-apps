@@ -165,7 +165,7 @@ CWindowEvent::~CWindowEvent(void)
 void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
                                      bool more)
 {
-  twminfo("background=%s\n", m_isBackground ? "YES" : "NO");
+  twminfo("Redraw events\n");
 
   // Does the user need redraw events?
 

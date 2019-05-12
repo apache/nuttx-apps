@@ -180,10 +180,11 @@ bool CNxTerm::initialize(void)
 
   NXWidgets::CNxString name("NuttShell");
 
+  uint8_t wflags = (WFLAGS_NO_MENU_BUTTON | WFLAGS_HIDDEN);
+
   FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
   m_nxtermWindow = factory->createWindow(name, &CONFIG_TWM4NX_NXTERM_ICON,
-                                         (FAR CIconMgr *)0,
-                                         WFLAGS_NO_MENU_BUTTON);
+                                         (FAR CIconMgr *)0, wflags);
   if (m_nxtermWindow == (FAR CWindow *)0)
     {
       twmerr("ERROR: Failed to create CWindow\n");
@@ -207,7 +208,7 @@ bool CNxTerm::initialize(void)
       return false;
     }
 
- return true;
+  return m_nxtermWindow->showWindow();
 }
 
 /**
@@ -539,12 +540,14 @@ void CNxTerm::redraw(void)
  * construction that may fail.  In this implemenation, it will
  * initialize the NSH library and register an menu item in the
  * Main Menu.
- *
- * @param twm4nx.  The Twm4Nx session instance
  */
 
 bool CNxTermFactory::initialize(FAR CTwm4Nx *twm4nx)
 {
+  // Save the session instance
+
+  m_twm4nx = twm4nx;
+
   // Initialize the NSH library
 
   if (!nshlibInitialize())
@@ -595,17 +598,42 @@ bool CNxTermFactory::nshlibInitialize(void)
 }
 
 /**
- * Create and start a new instance of CNxTerm.
+ * Handle Twm4Nx factory events.  This overrides a method from
+ * CTwm4NXEvent
  *
- * @param twm4nx.  The Twm4Nx session instance
+ * @param eventmsg.  The received NxWidget WINDOW event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
  */
 
-bool CNxTermFactory::startFunction(FAR CTwm4Nx *twm4nx)
+bool CNxTermFactory::event(FAR struct SEventMsg *eventmsg)
+{
+  bool success = true;
+
+  switch (eventmsg->eventID)
+    {
+      case EVENT_NXTERM_START:  // Redraw event (should not happen)
+        startFunction();        // Create a new NxTerm instance
+        break;
+
+      default:
+        success = false;
+        break;
+    }
+
+  return success;
+}
+
+/**
+ * Create and start a new instance of CNxTerm.
+ */
+
+bool CNxTermFactory::startFunction(void)
 {
   // Instantiate the Nxterm application, providing only the session session
   // instance to the constructor
 
-  CNxTerm *nxterm = new CNxTerm(twm4nx);
+  CNxTerm *nxterm = new CNxTerm(m_twm4nx);
   if (!nxterm)
     {
       twmerr("ERROR: Failed to instantiate CNxTerm\n");

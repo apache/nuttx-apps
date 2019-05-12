@@ -649,8 +649,10 @@ void CResize::endResize(FAR CWindow *cwin)
       struct nxgl_size_s iconMgrSize;
       iconMgr->getSize(&iconMgrSize);
 
+      // REVISIT:  The following is nonsense
+
       iconMgrSize.w = (unsigned int)
-        ((m_dragsize.w * (unsigned long)iconMgr->getDisplayColumns()) / currcol);
+        ((m_dragsize.w * (unsigned long)iconMgr->getNumberOfColumns()) / currcol);
 
       cwin->resizeFrame(&iconMgrSize, &pos);
       iconMgr->pack();

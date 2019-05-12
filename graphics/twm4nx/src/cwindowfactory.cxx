@@ -217,10 +217,12 @@ FAR CWindow *
 
   if (!WFLAGS_IS_ICONMGR(flags) && !WFLAGS_IS_MENU(flags))
     {
-      CIconMgr *iconmgr = win->cwin->getIconMgr();
-      DEBUGASSERT(iconmgr != (CIconMgr *)0);
+      if (iconMgr == (FAR CIconMgr *)0)
+        {
+          iconMgr = m_twm4nx->getIconMgr();
+        }
 
-      (void)iconmgr->addWindow(win->cwin);
+      (void)iconMgr->addWindow(win->cwin);
     }
 
   // Return the contained window

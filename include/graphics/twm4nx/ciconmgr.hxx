@@ -99,10 +99,9 @@ namespace Twm4Nx
       FAR struct SWindowEntry        *m_active;     /**< The active entry */
       FAR struct CWindow             *m_window;     /**< Parent window */
       FAR NXWidgets::CButtonArray    *m_buttons;    /**< The contained button array */
-      uint8_t                         m_maxColumns; /**< Max columns per row */
+      uint16_t                        m_nWindows;   /**< The number of windows in the icon mgr. */
+      uint8_t                         m_nColumns;   /**< Fixed number of columns per row */
       uint8_t                         m_nrows;      /**< Number of rows in the button array */
-      uint8_t                         m_ncolumns;   /**< Number of columns in the button array */
-      unsigned int                    m_nWindows;   /**< The number of windows in the icon mgr. */
 
       /**
        * Return the height of one row
@@ -125,6 +124,12 @@ namespace Twm4Nx
        */
 
       bool createButtonArray(void);
+
+      /**
+       * Label each button with the window name
+       */
+
+      void labelButtons(void);
 
       /**
        * Put an allocated entry into an icon manager
@@ -205,16 +210,6 @@ namespace Twm4Nx
       inline FAR CMenus *getSubMenu(void)
       {
         return (FAR CMenus *)0;
-      }
-
-      /**
-       * There is no application start-up function.  This function will not
-       * be called in this implementation
-       */
-
-      inline TStartFunction getStartFunction(void)
-      {
-        return (TStartFunction)0;
       }
 
       /**
@@ -309,18 +304,9 @@ namespace Twm4Nx
        * Get the number of columns
        */
 
-      inline unsigned int getDisplayColumns(void)
-      {
-         return m_maxColumns;
-      }
-
-      /**
-       * Get the current column
-       */
-
       inline unsigned int getNumberOfColumns(void)
       {
-         return m_ncolumns;
+         return m_nColumns;
       }
 
       /**

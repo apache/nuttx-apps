@@ -191,7 +191,7 @@ bool CMenus::initialize(FAR NXWidgets::CNxString &name)
 
 bool  CMenus::addMenuItem(FAR IApplication *item)
 {
-  twminfo("Adding: subMenu=%p, event=%04x\n", subMenu, event);
+  twminfo("Adding menu item\n");
 
   // Allocate a new menu item entry
 
@@ -207,7 +207,6 @@ bool  CMenus::addMenuItem(FAR IApplication *item)
   newitem->flink    = NULL;
   newitem->text     = item->getName();
   newitem->subMenu  = item->getSubMenu();
-  newitem->start    = item->getStartFunction();
   newitem->handler  = item->getEventHandler();
   newitem->event    = item->getEvent();
 
@@ -812,39 +811,14 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               //    getEventHandler() must return a non-NULL instance in this
               //    case.
               // 2. Sub-menu
-              // 3. Task start-up
-              // 4. Event with other recipients
+              // 3. Event with other recipients
 
-              if ((item->event & EVENT_RECIPIENT_MASK) != EVENT_RECIPIENT_APP)
+              if ((item->event & EVENT_RECIPIENT_MASK) != EVENT_RECIPIENT_APP &&
+                  item->subMenu != (FAR CMenus *)0)
                 {
-                  // If there is a subMenu, then bring the sub-menu up
-                  // now.
-
-                  if (item->subMenu != (FAR CMenus *)0)
-                    {
-                      msg.eventID = EVENT_MENU_SUBMENU;
-                      msg.obj     = (FAR void *)item->subMenu;
-                      msg.handler = (FAR void *)0;
-                    }
-
-                  // If there is a start-up function, then execute the
-                  // start-up function
-
-                  else if (item->start != (TStartFunction)0)
-                    {
-                      msg.eventID = EVENT_MENU_SUBMENU;
-                      msg.obj     = (FAR void *)this;
-                      msg.handler = (FAR void *)item->start;
-                    }
-
-                  // Otherwise, this is an internal message with no handler
-
-                  else
-                    {
-                      msg.eventID = item->event;
-                      msg.obj     = (FAR void *)this;
-                      msg.handler = (FAR void *)0;
-                    }
+                  msg.eventID = EVENT_MENU_SUBMENU;
+                  msg.obj     = (FAR void *)item->subMenu;
+                  msg.handler = (FAR void *)0;
                 }
 
               // Otherwise, send the event specified for the menu item.  The

@@ -87,17 +87,16 @@ using namespace Twm4Nx;
 
 CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
 {
-  m_twm4nx     = twm4nx;                            // Cached the Twm4Nx session
-  m_eventq     = (mqd_t)-1;                         // No widget message queue yet
-  m_head       = (FAR struct SWindowEntry *)0;      // Head of the winow list
-  m_tail       = (FAR struct SWindowEntry *)0;      // Tail of the winow list
-  m_active     = (FAR struct SWindowEntry *)0;      // No active window
-  m_window     = (FAR CWindow *)0;                  // No icon manager Window
-  m_buttons    = (FAR NXWidgets::CButtonArray *)0;  // The button array
-  m_maxColumns = ncolumns;                          // Max columns per row
-  m_nrows      = 0;                                 // No rows yet
-  m_ncolumns   = 0;                                 // No columns yet
-  m_nWindows   = 0;                                 // No windows yet
+  m_twm4nx   = twm4nx;                            // Cached the Twm4Nx session
+  m_eventq   = (mqd_t)-1;                         // No widget message queue yet
+  m_head     = (FAR struct SWindowEntry *)0;      // Head of the winow list
+  m_tail     = (FAR struct SWindowEntry *)0;      // Tail of the winow list
+  m_active   = (FAR struct SWindowEntry *)0;      // No active window
+  m_window   = (FAR CWindow *)0;                  // No icon manager Window
+  m_buttons  = (FAR NXWidgets::CButtonArray *)0;  // The button array
+  m_nColumns = ncolumns;                          // Max columns per row
+  m_nrows    = 0;                                 // No rows yet
+  m_nWindows = 0;                                 // No windows yet
 }
 
 /**
@@ -232,6 +231,10 @@ bool CIconMgr::addWindow(FAR CWindow *cwin)
 
   insertEntry(wentry, cwin);
 
+  // Increment the window count
+
+  m_nWindows++;
+
   // The height of one row of the Icon Manager Window is determined (mostly)
   // by the font height
 
@@ -251,14 +254,13 @@ bool CIconMgr::addWindow(FAR CWindow *cwin)
       nxgl_coord_t newHeight = rowHeight * m_nWindows;
       if (newHeight != windowSize.h)
         {
+          // Set the new window height.  Since we are not changing the
+          // width, we don't need to call resizeFrame()
+
           windowSize.h = rowHeight * m_nWindows;
-          m_window->setWindowSize(&windowSize);  // REVISIT:  use resizeFrame()?
+          m_window->setWindowSize(&windowSize);
         }
     }
-
-  // Increment the window count
-
-  m_nWindows++;
 
   // Pack the windows
 
@@ -311,145 +313,59 @@ void CIconMgr::removeWindow(FAR CWindow *cwin)
 
 void CIconMgr::pack(void)
 {
-  struct nxgl_size_s colsize;
-  colsize.h = getRowHeight();
+  // Get the number of rows in the button array after the change
 
-  struct nxgl_size_s windowSize;
-  if (!m_window->getWindowSize(&windowSize))
+  uint8_t oldrows = m_nrows == 0 ? 1 : m_nrows;
+  uint8_t newrows = (m_nWindows + m_nColumns - 1) / m_nColumns;
+
+  // Have the number of rows changed?
+
+  if (oldrows != newrows)
     {
-      twmerr("ERROR: Failed to get window size\n");
-      return;
-    }
+      // Yes.. save the new number of rows
 
-  colsize.w = windowSize.w / m_maxColumns;
+      m_nrows = newrows;
 
-  int rowIncr = colsize.h;
-  int colIncr = colsize.w;
+      // We have to show at least one row in any case
 
-  int row    = 0;
-  int col    = m_maxColumns;
-  int maxcol = 0;
-
-  FAR struct SWindowEntry *wentry;
-  int i;
-
-  for (i = 0, wentry = m_head;
-       wentry != (FAR struct SWindowEntry *)0;
-       i++, wentry = wentry->flink)
-    {
-      if (++col >= (int)m_maxColumns)
+      if (newrows == 0)
         {
-          col  = 0;
-          row += 1;
+          newrows = 1;
         }
 
-      if (col > maxcol)
-        {
-          maxcol = col;
-        }
+      // Resize the window.  It has changed only in height so we not have to
+      // have to use resizeFrame().
 
-      struct nxgl_point_s newpos;
-      newpos.x    = col * colIncr;
-      newpos.y    = (row - 1) * rowIncr;
-
-      wentry->row = row - 1;
-      wentry->col = col;
-
-      // If the position or size has not changed, don't touch it
-
-      if (wentry->pos.x  != newpos.x  || wentry->size.w != colsize.w)
-        {
-          if (!wentry->cwin->setWindowSize(&colsize))
-            {
-              return;
-            }
-
-          wentry->pos.x  = newpos.x;
-          wentry->pos.y  = newpos.y;
-          wentry->size.w = colsize.w;
-          wentry->size.h = colsize.h;
-        }
-    }
-
-  maxcol++;
-
-  // Check if there is a change in the dimension of the button array
-
-  if (m_nrows != row && m_ncolumns != maxcol)
-    {
-      // Yes.. remember the new size
-
-      m_nrows     = row;
-      m_ncolumns  = maxcol;
-
-      // The height of one row is determined (mostly) by the font height
-
-      windowSize.h = getRowHeight() * m_nWindows;
+      struct nxgl_size_s windowSize;
       if (!m_window->getWindowSize(&windowSize))
         {
-          twmerr("ERROR: getWindowSize() failed\n");
+          twmerr("ERROR: Failed to get old window size\n");
           return;
         }
 
-      if (windowSize.h == 0)
+      nxgl_coord_t rowHeight = getRowHeight();
+      windowSize.h = newrows * rowHeight;
+      if (!m_window->setWindowSize(&windowSize))
         {
-          windowSize.h = rowIncr;
-        }
-
-      struct nxgl_size_s newsize;
-      newsize.w = maxcol * colIncr;
-
-      if (newsize.w == 0)
-        {
-          newsize.w = colIncr;
-        }
-
-      newsize.h = windowSize.h;
-
-      if (!m_window->setWindowSize(&newsize))
-        {
-          twmerr("ERROR: setWindowSize() failed\n");
+          twmerr("ERROR: Failed to set new window size\n");
           return;
         }
 
-      // Resize the button array
+      // Redimension the button array
 
-      nxgl_coord_t buttonWidth  = newsize.w / m_maxColumns;
-      nxgl_coord_t buttonHeight = newsize.h / m_nrows;
+      nxgl_coord_t buttonWidth  = windowSize.w / m_nColumns;
 
-      if (!m_buttons->resizeArray(m_maxColumns, m_nrows,
-                                  buttonWidth, buttonHeight))
+      if (!m_buttons->resizeArray(m_nColumns, newrows, buttonWidth,
+                                  rowHeight))
         {
           twmerr("ERROR: CButtonArray::resizeArray failed\n");
           return;
         }
-
-      // Re-apply all of the button labels
-
-      int rowndx = 0;
-      int colndx = 0;
-
-      for (FAR struct SWindowEntry *swin = m_head;
-           swin != (FAR struct SWindowEntry *)0;
-           swin = swin->flink)
-        {
-          // Get the window name as an NWidgets::CNxString
-
-          NXWidgets::CNxString string = swin->cwin->getWindowName();
-
-          // Apply the window name to the button
-
-          m_buttons->setText(colndx, rowndx, string);
-
-          // Increment the column, rolling over to the next row if necessary
-
-          if (++colndx >= m_maxColumns)
-            {
-              colndx = 0;
-              rowndx++;
-            }
-        }
     }
+
+  // Re-apply all of the button labels
+
+  labelButtons();
 }
 
 /**
@@ -712,7 +628,7 @@ bool CIconMgr::createButtonArray(void)
 
   uint8_t nrows = m_nrows > 0 ? m_nrows : 1;
 
-  nxgl_coord_t buttonWidth  = windowSize.w / m_maxColumns;
+  nxgl_coord_t buttonWidth  = windowSize.w / m_nColumns;
   nxgl_coord_t buttonHeight = windowSize.h / nrows;
 
   // Get the Widget control instance from the Icon Manager window.  This
@@ -730,7 +646,7 @@ bool CIconMgr::createButtonArray(void)
   // The button must be positioned at the upper left of the window
 
   m_buttons = new NXWidgets::CButtonArray(control, 0, 0,
-                                          m_maxColumns, nrows,
+                                          m_nColumns, nrows,
                                           buttonWidth, buttonHeight);
   if (m_buttons == (FAR NXWidgets::CButtonArray *)0)
     {
@@ -759,6 +675,45 @@ bool CIconMgr::createButtonArray(void)
 }
 
 /**
+ * Label each button with the window name
+ */
+
+void CIconMgr::labelButtons(void)
+{
+  FAR struct SWindowEntry *swin = m_head;
+  uint8_t nrows = (m_nrows == 0) ? 1 : m_nrows;
+
+  for (int rowndx = 0; rowndx < nrows; rowndx++)
+    {
+      for (int colndx = 0; colndx < m_nColumns; colndx++)
+        {
+          // Check if we should just clear any buttons on the right
+
+          if (swin != (FAR struct SWindowEntry *)0)
+            {
+              // Get the window name as an NWidgets::CNxString
+
+              NXWidgets::CNxString string = swin->cwin->getWindowName();
+
+              // Apply the window name to the button
+
+              m_buttons->setText(colndx, rowndx, string);
+
+              // Advance to the next window
+
+              swin = swin->flink;
+            }
+          else
+            {
+              // Clear the button text on the right.
+
+              m_buttons->setText(colndx, rowndx, "");
+            }
+        }
+    }
+}
+
+/**
  * Put an allocated entry into an icon manager
  *
  *  @param wentry the entry to insert
@@ -768,20 +723,25 @@ void CIconMgr::insertEntry(FAR struct SWindowEntry *wentry,
                            FAR CWindow *cwin)
 {
   FAR struct SWindowEntry *tmpwin;
-  bool added;
 
-  added = false;
+  // Handle the case where the the window list is empty
+
   if (m_head == NULL)
     {
       m_head        = wentry;
       wentry->blink = NULL;
       m_tail        = wentry;
-      added         = true;
+      return;
     }
 
-  for (tmpwin = m_head; tmpwin != NULL; tmpwin = tmpwin->flink)
+  // The list is not empty.  Search for the location in name-order where we
+  // should insert this new entry
+
+  for (tmpwin = m_head;
+       tmpwin != (FAR struct SWindowEntry *)0;
+       tmpwin = tmpwin->flink)
     {
-      // Insert the new window in name order
+      // Insert the new window mid-list, in name order
 
       NXWidgets::CNxString windowName = cwin->getWindowName();
       if (windowName.compareTo( tmpwin->cwin->getWindowName()) > 0)
@@ -799,17 +759,15 @@ void CIconMgr::insertEntry(FAR struct SWindowEntry *wentry,
               wentry->blink->flink = wentry;
             }
 
-          added = true;
-          break;
+          return;
         }
     }
 
-  if (!added)
-    {
-      m_tail->flink = wentry;
-      wentry->blink = m_tail;
-      m_tail = wentry;
-    }
+  // Insert the new entry at the tail of the list
+
+  m_tail->flink = wentry;
+  wentry->blink = m_tail;
+  m_tail        = wentry;
 }
 
 /**

@@ -116,16 +116,6 @@ namespace Twm4Nx
       }
 
       /**
-       * There is no application start-up function.  This function will not
-       * be called in this implementation
-       */
-
-      inline TStartFunction getStartFunction(void)
-      {
-        return (TStartFunction)0;
-      }
-
-      /**
        * There is no custom event handler.  We use the common event handler.
        *
        * @return.  null is always returned in this impementation.

@@ -102,7 +102,6 @@ namespace Twm4Nx
     FAR struct SMenuItem *blink;                    /**< Backward link previous menu item */
     FAR NXWidgets::CNxString text;                  /**< The text string for the menu item */
     FAR CMenus *subMenu;                            /**< Menu root of a pull right menu */
-    TStartFunction start;                           /**< Application start-up function */
     FAR CTwm4NxEvent *handler;                      /**< Application event handler */
     uint16_t event;                                 /**< Menu selection event */
   };

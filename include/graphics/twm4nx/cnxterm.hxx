@@ -67,6 +67,10 @@
 
 #define EVENT_NXTERM_CLOSE    (EVENT_RECIPIENT_APP | 0x0001)
 
+// Menu Events
+
+#define EVENT_NXTERM_START    (EVENT_RECIPIENT_APP | 0x0002)
+
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
 /////////////////////////////////////////////////////////////////////////////
@@ -151,9 +155,13 @@ namespace Twm4Nx
       bool run(void);
   };
 
-  class CNxTermFactory : public IApplication, public IApplicationFactory
+  class CNxTermFactory : public IApplication,
+                         public IApplicationFactory,
+                         public CTwm4NxEvent
   {
     private:
+
+      FAR CTwm4Nx *m_twm4nx; /**< Twm4Nx session instance */
 
       /**
        * One time NSH initialization. This function must be called exactly
@@ -165,12 +173,21 @@ namespace Twm4Nx
       bool nshlibInitialize(void);
 
       /**
-       * Create and start a new instance of an CNxTerm.
+       * Handle Twm4Nx factory events.  This overrides a method from
+       * CTwm4NXEvent
        *
-       * @param twm4nx.  The Twm4Nx session instance
+       * @param eventmsg.  The received NxWidget WINDOW event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
        */
 
-      static bool startFunction(CTwm4Nx *twm4n);
+       bool event(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * Create and start a new instance of an CNxTerm.
+       */
+
+      bool startFunction(void);
 
       /**
        * Return the Main Menu item string.  This overrides the method from
@@ -197,16 +214,6 @@ namespace Twm4Nx
       }
 
       /**
-       * There is no application start-up function.  This function will not
-       * be called in this implementation
-       */
-
-      inline TStartFunction getStartFunction(void)
-      {
-        return (TStartFunction)startFunction;
-      }
-
-      /**
        * There is no custom event handler.  We use the common event handler.
        *
        * @return.  null is always returned in this impementation.
@@ -214,7 +221,7 @@ namespace Twm4Nx
 
       inline FAR CTwm4NxEvent *getEventHandler(void)
       {
-        return (FAR CTwm4NxEvent *)0;
+        return (FAR CTwm4NxEvent *)this;
       }
 
       /**
@@ -226,7 +233,7 @@ namespace Twm4Nx
 
       inline uint16_t getEvent(void)
       {
-        return EVENT_SYSTEM_NOP;
+        return EVENT_NXTERM_START;
       }
 
     public:
@@ -234,11 +241,12 @@ namespace Twm4Nx
       /**
        * CNxTermFactory Constructor
        *
-       * @param twm4nx.  The twm4nx instance used to terminate calibration
+       * @param twm4nx.  The Twm4Nx session instance
        */
 
       inline CNxTermFactory(void)
       {
+        m_twm4nx = (FAR CTwm4Nx *)0;
       }
 
       /**
@@ -255,8 +263,6 @@ namespace Twm4Nx
        * construction that may fail.  In this implemenation, it will
        * initialize the NSH library and register an menu item in the
        * Main Menu.
-       *
-       * @param twm4nx.  The Twm4Nx session instance
        */
 
       bool initialize(FAR CTwm4Nx *twm4nx);
