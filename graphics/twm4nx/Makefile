@@ -58,7 +58,11 @@ CXXSRCS   = cbackground.cxx cfonts.cxx ciconmgr.cxx ciconwidget.cxx
 CXXSRCS  += cmenus.cxx cmainmenu.cxx
 CXXSRCS  += cwindow.cxx cwindowevent.cxx cresize.cxx cwindowfactory.cxx
 CXXSRCS  += cinput.cxx twm4nx_cursor.cxx
+
+ifeq ($(CONFIG_TWM4NX_NXTERM),y)
 CXXSRCS  += cnxterm.cxx
+endif
+
 MAINSRC   = ctwm4nx.cxx
 
 VPATH     = src
