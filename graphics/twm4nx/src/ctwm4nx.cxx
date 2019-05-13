@@ -711,6 +711,7 @@ int twm4nx_main(int argc, char *argv[])
   // needs to be a more flexible method if adding applications at run
   // time.
 
+#ifdef CONFIG_TWM4NX_NXTERM
   CNxTermFactory factory;
   success = factory.initialize(twm4nx);
   if (!success)
@@ -718,6 +719,7 @@ int twm4nx_main(int argc, char *argv[])
       twmerr(" ERROR:  Failed to initialize CNxTermFactory\n");
       return EXIT_FAILURE;
     }
+#endif
 
   // Start the Twm4Nx event loop
 

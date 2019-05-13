@@ -53,21 +53,19 @@ STATUS
     The Icon Manager window can be grabbed by the toolbar title and moved
     about on the window (the movement is not very smooth on the particular
     hardware that I am working with).
-  2019-05-10: A left click on the background brings up the main menu.  At
+  2019-05-10:  A left click on the background brings up the main menu.  At
     present there are only two options:  "Desktop" which will iconify all
     windows and "Twm4Nx Icon Manager" which will de-configy and/or raise
     the Icon Manager window to the top of the hierarchy.  That latter option
     is only meaningful when the desktop is very crowded.
-
-    Further progress depends upon getting a some additional applications
-    in place in the main menu in place.  NxTerm is needed as is probably
-    a clock.  These would provide good illustrations of how to hook in an
-    arbitrary application.
+  2019-05-13:  Added the NxTerm application.  If enabled via
+    CONFIG_TWM4XN_NXTERM, there will now be a "NuttShell" enty in the Main
+    Menu.  When pressed, this will bring up an NSH session in a Twm4Nx
+    window.
 
     Some known bugs yet-to-fixed.  Surely there are more as will be revealed
     by additional testing:
 
-    1. The is a small artifact in the upper lefthand corner.  I am not sure
-       exactly what that is.
+    1. There is no way to resize a window
     2. The logic to move an icon on the desk top does not work.
     3. There is no calibration screen for touchscreen calibration.
