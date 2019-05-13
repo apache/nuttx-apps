@@ -59,6 +59,8 @@
 
 namespace Twm4Nx
 {
+  class CWindow;                // Forward reference
+
   // This structure provides information to support application events
 
   struct SAppEvents
@@ -152,8 +154,9 @@ namespace Twm4Nx
   {
     private:
       FAR CTwm4Nx         *m_twm4nx;        /**< Cached instance of CTwm4Nx */
+      FAR CWindow         *m_clientWindow;  /**< The client window instance */
       mqd_t                m_eventq;        /**< NxWidget event message queue */
-      struct SAppEvents    m_appEvents;     /**< Appliation event information */
+      struct SAppEvents    m_appEvents;     /**< Application event information */
 
       // Dragging
 
@@ -202,13 +205,15 @@ namespace Twm4Nx
        * CWindowEvent Constructor
        *
        * @param twm4nx The Twm4Nx session instance.
+       * @param client The client window instance.
        * @param events Describes the application event configuration
        * @param style The default style that all widgets on this display
        *   should use.  If this is not specified, the widget will use the
        *   values stored in the defaultCWidgetStyle object.
        */
 
-       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR const struct SAppEvents &events,
+       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
+                    FAR const struct SAppEvents &events,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
 

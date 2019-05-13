@@ -234,12 +234,15 @@ FAR CWindow *
  * Handle the EVENT_WINDOW_DELETE event.  The logic sequence is as
  * follows:
  *
- * 1. The TERMINATE button in pressed in the Window Toolbar
- * 2. CWindowFactory::event receives the widget event,
- *    EVENT_WINDOW_TERMINATE and request to halt the  NX Server
+ * 1. The TERMINATE button in pressed in the Window Toolbar and
+ *    CWindow::handleActionEvent() catches the button event on the
+ *    event listener thread and generates the EVENT_WINDOW_TERMINATE
+ * 2. CWindows::event receives the widget event, EVENT_WINDOW_TERMINATE,
+ *    on the Twm4NX manin threadand requests to halt the  NX Server
  *    messages queues.
- * 3. The server responds with the EVENT_WINDOW_DELETE which is
- *    caught by this function.
+ * 3. when server responds, the CwindowsEvent::handleBlockedEvent
+ *    generates the EVENT_WINDOW_DELETE which is caught by
+ *    CWindows::event() and which, in turn calls this function.
  *
  * @param cwin The CWindow instance.  This will be deleted and its
  *   associated container will be freed.

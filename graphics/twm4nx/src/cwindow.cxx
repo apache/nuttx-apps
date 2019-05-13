@@ -705,11 +705,11 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 
                 struct SEventMsg outmsg;
                 outmsg.eventID  = m_appEvents.closeEvent;
-                outmsg.obj      = m_appEvents.eventObj;
+                outmsg.obj      = (FAR void *)this;
                 outmsg.pos.x    = eventmsg->pos.x;
                 outmsg.pos.y    = eventmsg->pos.y;
                 outmsg.context  = eventmsg->context;
-                outmsg.handler  = eventmsg->handler;
+                outmsg.handler  = m_appEvents.eventObj;
 
                 int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
                                   sizeof(struct SEventMsg), 100);
@@ -795,7 +795,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    Setup the the CWindowEvent instance to use our inherited drag event
   //    handler
 
-  m_windowEvent = new CWindowEvent(m_twm4nx, m_appEvents);
+  m_windowEvent = new CWindowEvent(m_twm4nx, this, m_appEvents);
   m_windowEvent->registerDragEventHandler(this, (uintptr_t)1);
 
   // 4. Create the window.  Handling provided flags. NOTE: that menu windows
@@ -900,7 +900,7 @@ bool CWindow::createToolbar(void)
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, events);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, this, events);
   control->registerDragEventHandler(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
@@ -1788,6 +1788,14 @@ void CWindow::cleanup(void)
     {
       delete m_tbTitle;
       m_tbTitle = (FAR NXWidgets::CLabel *)0;
+    }
+
+  // Delete the toolbar
+
+  if (m_toolbar != (FAR NXWidgets::CNxToolbar *)0)
+    {
+      delete m_toolbar;
+      m_toolbar  = (FAR NXWidgets::CNxToolbar *)0;
     }
 
   // Delete the window

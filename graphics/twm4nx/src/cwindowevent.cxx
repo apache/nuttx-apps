@@ -95,18 +95,20 @@ using namespace Twm4Nx;
  * CWindowEvent Constructor
  *
  * @param twm4nx The Twm4Nx session instance.
+ * @param client The client window instance.
  * @param events Describes the application event configuration
  * @param style The default style that all widgets on this display
  *   should use.  If this is not specified, the widget will use the
  *   values stored in the defaultCWidgetStyle object.
  */
 
-CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx,
+CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
                            FAR const struct SAppEvents &events,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
 {
   m_twm4nx                = twm4nx;              // Cache the Twm4Nx session
+  m_clientWindow          = client;              // Cache the client window instance
 
   // Events
 
@@ -364,7 +366,7 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
 
   struct SNxEventMsg msg;
   msg.eventID  = EVENT_WINDOW_DELETE;
-  msg.obj      = arg;
+  msg.obj      = m_clientWindow;
   msg.instance = this;
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,

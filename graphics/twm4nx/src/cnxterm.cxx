@@ -155,10 +155,15 @@ CNxTerm::~CNxTerm(void)
 
   stop();
 
-  // Although we didn't create it, we are responsible for deleting the
-  // application window
+  // The following is not necessary.  The system will automatically
+  // delete the CWindow instance when the terminate button is pressed.
+  // We simply have to terminate the application behind the window
+
+#if 0
+  // Delete the application window
 
   delete m_nxtermWindow;
+#endif
 }
 
 /**

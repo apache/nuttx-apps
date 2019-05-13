@@ -291,17 +291,14 @@ void CIconMgr::removeWindow(FAR CWindow *cwin)
       FAR struct SWindowEntry *wentry = findEntry(cwin);
       if (wentry != (FAR struct SWindowEntry *)0)
         {
-          // Remove the list from the window structure
+          // Remove the Window from the icon manager list
 
           removeEntry(wentry);
-
-          // Destroy the window
-
-          CWindowFactory *factory = m_twm4nx->getWindowFactory();
-          factory->destroyWindow(wentry->cwin);
-
           m_nWindows--;
           std::free(wentry);
+
+          // Repack the button array without the removed window
+
           pack();
         }
     }

@@ -972,7 +972,8 @@ bool CResize::createSizeWindow(void)
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, events);
+  FAR CWindowEvent *control =
+    new CWindowEvent(m_twm4nx, (FAR CWindow *)0, events);
 
   // 4. Create the main window
 
