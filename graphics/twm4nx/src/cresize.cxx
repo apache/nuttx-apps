@@ -637,25 +637,10 @@ void CResize::endResize(FAR CWindow *cwin)
 
   if (cwin->isIconMgr())
     {
+      // Adjust the Icon Manager button array to account for the resize
+
       CIconMgr *iconMgr = cwin->getIconMgr();
-      DEBUGASSERT(iconMgr != (CIconMgr *)0);
-
-      unsigned int currcol = iconMgr->getNumberOfColumns();
-      if (currcol == 0)
-        {
-          currcol = 1;
-        }
-
-      struct nxgl_size_s iconMgrSize;
-      iconMgr->getSize(&iconMgrSize);
-
-      // REVISIT:  The following is nonsense
-
-      iconMgrSize.w = (unsigned int)
-        ((m_dragsize.w * (unsigned long)iconMgr->getNumberOfColumns()) / currcol);
-
-      cwin->resizeFrame(&iconMgrSize, &pos);
-      iconMgr->pack();
+      iconMgr->resizeIconManager();
     }
 
   cwin->raiseWindow();

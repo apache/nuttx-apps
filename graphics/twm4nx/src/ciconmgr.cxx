@@ -91,7 +91,6 @@ CIconMgr::CIconMgr(CTwm4Nx *twm4nx, uint8_t ncolumns)
   m_eventq   = (mqd_t)-1;                         // No widget message queue yet
   m_head     = (FAR struct SWindowEntry *)0;      // Head of the winow list
   m_tail     = (FAR struct SWindowEntry *)0;      // Tail of the winow list
-  m_active   = (FAR struct SWindowEntry *)0;      // No active window
   m_window   = (FAR CWindow *)0;                  // No icon manager Window
   m_buttons  = (FAR NXWidgets::CButtonArray *)0;  // The button array
   m_nColumns = ncolumns;                          // Max columns per row
@@ -212,65 +211,48 @@ bool CIconMgr::addWindow(FAR CWindow *cwin)
   // Allocate a new icon manager entry
 
   FAR struct SWindowEntry *wentry =
-     (FAR struct SWindowEntry *)malloc(sizeof(struct SWindowEntry));
+     (FAR struct SWindowEntry *)std::malloc(sizeof(struct SWindowEntry));
 
   if (wentry == (FAR struct SWindowEntry *)0)
     {
       return false;
     }
 
-  wentry->flink     = NULL;
-  wentry->iconmgr   = this;
-  wentry->active    = false;
-  wentry->down      = false;
-  wentry->cwin      = cwin;
-  wentry->pos.x     = -1;
-  wentry->pos.y     = -1;
+  wentry->flink   = NULL;
+  wentry->cwin    = cwin;
+  wentry->row     = -1;
+  wentry->column  = -1;
 
   // Insert the new entry into the list
 
   insertEntry(wentry, cwin);
 
-  // Increment the window count
+  // Increment the window count, calculate the new number of rows
 
   m_nWindows++;
 
-  // The height of one row of the Icon Manager Window is determined (mostly)
-  // by the font height
+  uint8_t oldrows = m_nrows == 0 ? 1 : m_nrows;
+  m_nrows         = (m_nWindows + m_nColumns - 1) / m_nColumns;
 
-  nxgl_coord_t rowHeight = getRowHeight();
+  // Did the number of rows change?
 
-  // Increase the height of the Icon Manager window, if necessary
-  // REVISIT:  Should also set an optimal width.  Currently just uses
-  // the defaults set when the window was created!
-
-  struct nxgl_size_s windowSize;
-  if (!m_window->getWindowSize(&windowSize))
+  if (oldrows != m_nrows)
     {
-      twmerr("ERROR: Failed to get window size\n");
+      // Yes.. Resize the button array and containing window to account for the
+      // change in the number of windows
+
+      if (!resizeIconManager())
+        {
+          twmerr("ERROR: resizeIconManager failed\n");
+          removeWindow(cwin);
+          return false;
+        }
     }
   else
     {
-      nxgl_coord_t newHeight = rowHeight * m_nWindows;
-      if (newHeight != windowSize.h)
-        {
-          // Set the new window height.  Since we are not changing the
-          // width, we don't need to call resizeFrame()
+      // No.. Just re-label the buttons
 
-          windowSize.h = rowHeight * m_nWindows;
-          m_window->setWindowSize(&windowSize);
-        }
-    }
-
-  // Pack the windows
-
-  pack();
-
-  // If no other window is active, then mark this as the active window
-
-  if (m_active == NULL)
-    {
-      m_active = wentry;
+      labelButtons();
     }
 
   return true;
@@ -297,72 +279,81 @@ void CIconMgr::removeWindow(FAR CWindow *cwin)
           m_nWindows--;
           std::free(wentry);
 
-          // Repack the button array without the removed window
+          // Check if the number of rows in the button array changed
 
-          pack();
+          uint8_t oldrows = m_nrows == 0 ? 1 : m_nrows;
+          m_nrows         = (m_nWindows + m_nColumns - 1) / m_nColumns;
+          uint8_t newrows = m_nrows == 0 ? 1 : m_nrows;
+
+          // Did the number of rows change?
+
+          if (oldrows != newrows)
+            {
+              // Yes.. Resize the button array to account for the change in the
+              // number of windows
+
+              if (!resizeIconManager())
+                {
+                  twmerr("ERROR: resizeIconManager failed\n");
+                }
+            }
+          else
+            {
+              // No.. Just re-label the buttons
+
+              labelButtons();
+            }
         }
     }
 }
 
 /**
- * Pack the icon manager windows following an addition or deletion
+ * Resize the button array and containing window
+ *
+ * @return True if the button array was resized successfully
  */
 
-void CIconMgr::pack(void)
+bool CIconMgr::resizeIconManager(void)
 {
-  // Get the number of rows in the button array after the change
+  // Get the number of rows in the button array but there needs to be at
+  // least one row
 
-  uint8_t oldrows = m_nrows == 0 ? 1 : m_nrows;
-  uint8_t newrows = (m_nWindows + m_nColumns - 1) / m_nColumns;
+  uint8_t newrows = m_nrows == 0 ? 1 : m_nrows;
 
-  // Have the number of rows changed?
+  // Resize the window.  It will change only in height so we not have to
+  // have to use resizeFrame().
 
-  if (oldrows != newrows)
+  struct nxgl_size_s windowSize;
+  if (!m_window->getWindowSize(&windowSize))
     {
-      // Yes.. save the new number of rows
+      twmerr("ERROR: Failed to get old window size\n");
+      return false;
+    }
 
-      m_nrows = newrows;
+  nxgl_coord_t rowHeight = getRowHeight();
+  windowSize.h = newrows * rowHeight;
+  if (!m_window->setWindowSize(&windowSize))
+    {
+      twmerr("ERROR: Failed to set new window size\n");
+      return false;
+    }
 
-      // We have to show at least one row in any case
+  m_window->synchronize();
 
-      if (newrows == 0)
-        {
-          newrows = 1;
-        }
+  // Redimension the button array
 
-      // Resize the window.  It has changed only in height so we not have to
-      // have to use resizeFrame().
-
-      struct nxgl_size_s windowSize;
-      if (!m_window->getWindowSize(&windowSize))
-        {
-          twmerr("ERROR: Failed to get old window size\n");
-          return;
-        }
-
-      nxgl_coord_t rowHeight = getRowHeight();
-      windowSize.h = newrows * rowHeight;
-      if (!m_window->setWindowSize(&windowSize))
-        {
-          twmerr("ERROR: Failed to set new window size\n");
-          return;
-        }
-
-      // Redimension the button array
-
-      nxgl_coord_t buttonWidth  = windowSize.w / m_nColumns;
-
-      if (!m_buttons->resizeArray(m_nColumns, newrows, buttonWidth,
-                                  rowHeight))
-        {
-          twmerr("ERROR: CButtonArray::resizeArray failed\n");
-          return;
-        }
+  nxgl_coord_t buttonWidth  = windowSize.w / m_nColumns;
+  if (!m_buttons->resizeArray(m_nColumns, newrows, buttonWidth,
+                              rowHeight))
+    {
+      twmerr("ERROR: CButtonArray::resizeArray failed\n");
+      return false;
     }
 
   // Re-apply all of the button labels
 
   labelButtons();
+  return true;
 }
 
 /**
@@ -399,7 +390,9 @@ void CIconMgr::sort(void)
     }
   while (!done);
 
-  pack();
+  // Re-apply the button labels in the new order
+
+  labelButtons();
 }
 
 /**
@@ -696,6 +689,11 @@ void CIconMgr::labelButtons(void)
 
               m_buttons->setText(colndx, rowndx, string);
 
+              // Assign this button to the window
+
+              swin->row    = rowndx;
+              swin->column = colndx;
+
               // Advance to the next window
 
               swin = swin->flink;
@@ -827,29 +825,6 @@ FAR struct SWindowEntry *CIconMgr::findEntry(FAR CWindow *cwin)
 }
 
 /**
- * Set active window
- *
- * @active Window to become active.
- */
-
-void CIconMgr::active(FAR struct SWindowEntry *wentry)
-{
-  wentry->active = true;
-  m_active = wentry;
-}
-
-/**
- * Set window inactive
- *
- * @active windows to become inactive.
- */
-
-void CIconMgr::inactive(FAR struct SWindowEntry *wentry)
-{
-  wentry->active = false;
-}
-
-/**
  * Free window list entry.
  */
 
@@ -879,30 +854,26 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_buttons->isButtonClicked(column, row))
     {
-      // Get the text associated with this button
-
-      const NXWidgets::CNxString string = m_buttons->getText(column, row);
-
-      // Now find the window with this name
+      // Now find the window assigned to this row x colum
 
       for (FAR struct SWindowEntry *swin = m_head;
            swin != (FAR struct SWindowEntry *)0;
            swin = swin->flink)
         {
-          // Check if the button string is the same as the window name
+          // Compare row and column
 
-          if (string.compareTo(swin->cwin->getWindowName()) == 0)
+          if (row == swin->row && column == swin->column)
             {
               // Got it... send an event message
 
               struct SEventMsg msg;
-              msg.obj     = (FAR void *)this;
+              msg.obj     = swin->cwin;
               msg.pos.x   = e.getX();
               msg.pos.y   = e.getY();
               msg.context = EVENT_CONTEXT_ICONMGR;
               msg.handler = (FAR void *)0;
 
-              // Got it.  Is the window Iconified?
+              // Is the window Iconified?
 
               if (swin->cwin->isIconified())
                 {

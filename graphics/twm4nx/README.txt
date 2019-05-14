@@ -62,10 +62,47 @@ STATUS
     CONFIG_TWM4XN_NXTERM, there will now be a "NuttShell" enty in the Main
     Menu.  When pressed, this will bring up an NSH session in a Twm4Nx
     window.
+  2019-05-14:  We can now move an icon on the desktop.  Includes logic to
+    avoid collisions with other icons and with the background image.  That
+    later is an issue.  The background image image widget needs to be
+    removed; it can occlude a dektop icon.  We need to paint the image
+    directly on the background without the use of a widget.
 
-    Some known bugs yet-to-fixed.  Surely there are more as will be revealed
-    by additional testing:
+Issues:
+    Here are all known issues and features that are missing:
 
-    1. There is no way to resize a window
-    2. The logic to move an icon on the desk top does not work.
-    3. There is no calibration screen for touchscreen calibration.
+    TWM Compatibilities Issues:
+    1. There is no way to resize a window.  Resizing events should be be
+       generated when user pulls to right, left, top, bottom, etc.  None of
+       that is implemented.
+    2. Right click should bring up a window list
+    3. For TWM-like behavior, a window frame and toolbar should be highlighted
+       when the window has focus.
+    4. A right click on the toolbar should bring up a window-specific menu.
+
+    Other issues/bugs
+    5. There is no calibration screen for touchscreen calibration.  I have
+       been working with a system where the touchscreen naturally matches
+       up with the display and no calibration is required.  But the general
+       case requires calibration.
+    6. Icon drag movement is fairly smooth, but I think there may be issues
+       with the window drag movement.  it is hard to tell because of
+       limitations in the touchscreen performance on the system that I am
+       working with.
+    7. Icom drag movement includes logic to avoid collisions with other
+       icons and with the background image.  That later is an issue.  The
+       background image image widget needs to be removed; it can occlude a
+       dektop icon.  We need to paint the image directly on the background
+       without the use of a widget.
+    8. More issues with the background image:  I absords touchscreen
+       presses without doing anything.  It should bring-up the main menu
+       menu just as any other region of the background.  This would be easy
+       to fix, but just replacing the background image widget is the better
+       solution.
+    9. The Icon Manager currently used the default window width.  That is
+       set half of the display width which is okay for the display I am using,
+       but it really needs to set a width that is appropriate for the number
+       of columns and the size of a generic name string.
+
+    Enhancement Ideas:
+    10.  How about a full-screen mode?

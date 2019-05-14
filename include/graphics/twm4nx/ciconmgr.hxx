@@ -62,27 +62,22 @@
 
 namespace NXWidgets
 {
-  class  CNxTkWindow;                      // Forward reference
-  class  CButtonArray;                     // Forward reference
-  class  CWidgetEventHandler;              // Forward reference
-  class  CWidgetEventArgs;                 // Forward reference
-  struct SRlePaletteBitmap;                // Forward reference
+  class  CNxTkWindow;                              // Forward reference
+  class  CButtonArray;                             // Forward reference
+  class  CWidgetEventHandler;                      // Forward reference
+  class  CWidgetEventArgs;                         // Forward reference
+  struct SRlePaletteBitmap;                        // Forward reference
 }
 
 namespace Twm4Nx
 {
   struct SWindowEntry
   {
-    FAR struct SWindowEntry *flink;
-    FAR struct SWindowEntry *blink;
-    FAR CWindow *cwin;
-    FAR CIconMgr *iconmgr;
-    nxgl_point_s pos;
-    nxgl_size_s size;
-    int row;
-    int col;
-    bool active;
-    bool down;
+    FAR struct SWindowEntry *flink;                 /**< Forward link to next window entry */
+    FAR struct SWindowEntry *blink;                 /**< Backward link to previous window entry */
+    FAR CWindow *cwin;                              /**< The window payload */
+    int row;                                        /**< X position in the button array */
+    int column;
   };
 
   class CIconMgr : protected NXWidgets::CWidgetEventHandler,
@@ -96,7 +91,6 @@ namespace Twm4Nx
       NXWidgets::CNxString            m_name;       /**< The Icon Manager name */
       FAR struct SWindowEntry        *m_head;       /**< Head of the window list */
       FAR struct SWindowEntry        *m_tail;       /**< Tail of the window list */
-      FAR struct SWindowEntry        *m_active;     /**< The active entry */
       FAR struct CWindow             *m_window;     /**< Parent window */
       FAR NXWidgets::CButtonArray    *m_buttons;    /**< The contained button array */
       uint16_t                        m_nWindows;   /**< The number of windows in the icon mgr. */
@@ -156,22 +150,6 @@ namespace Twm4Nx
        */
 
       FAR struct SWindowEntry *findEntry(FAR CWindow *cwin);
-
-      /**
-       * Set active window
-       *
-       * @param wentry Window to become active.
-       */
-
-      void active(FAR struct SWindowEntry *wentry);
-
-      /**
-       * Set window inactive
-       *
-       * @param wentry windows to become inactive.
-       */
-
-      void inactive(FAR struct SWindowEntry *wentry);
 
       /**
        * Free window list entry.
@@ -319,10 +297,12 @@ namespace Twm4Nx
       }
 
       /**
-       * Pack the icon manager windows following an addition or deletion
+       * Resize the button array, possibly adjusting the window height
+       *
+       * @return True if the button array was resized successfully
        */
 
-      void pack(void);
+      bool resizeIconManager(void);
 
       /**
        * sort the windows
