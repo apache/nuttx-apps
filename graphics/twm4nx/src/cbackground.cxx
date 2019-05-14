@@ -190,8 +190,8 @@ bool CBackground::checkCollision(FAR const struct nxgl_rect_s &bounds,
 
       collision.pt1.x = imagePos.x;
       collision.pt1.y = imagePos.y;
-      collision.pt1.x = imagePos.x + imageSize.w - 1;
-      collision.pt1.y = imagePos.y + imageSize.h - 1;
+      collision.pt2.x = imagePos.x + imageSize.w - 1;
+      collision.pt2.y = imagePos.y + imageSize.h - 1;
 
       return nxgl_intersecting(&bounds, &collision);
     }

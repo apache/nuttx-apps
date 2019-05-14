@@ -57,6 +57,8 @@
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
+#include "graphics/twm4nx/cwindowfactory.hxx"
+#include "graphics/twm4nx/cbackground.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
 #include "graphics/twm4nx/twm4nx_widgetevents.hxx"
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
@@ -636,18 +638,18 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
   // Indicate that dragging has started but the icon has not
   // yet been moved.
 
-  m_dragging = true;
-  m_moved    = false;
+  m_dragging  = true;
+  m_moved     = false;
+  m_collision = false;
 
   // Get the icon position.
 
-  struct nxgl_point_s widgetPos;
-  getPos(widgetPos);
+  getPos(m_dragPos);
 
   // Determine the relative position of the icon and the mouse
 
-  m_dragOffset.x = widgetPos.x - eventmsg->pos.x;
-  m_dragOffset.y = widgetPos.y - eventmsg->pos.y;
+  m_dragOffset.x = m_dragPos.x - eventmsg->pos.x;
+  m_dragOffset.y = m_dragPos.y - eventmsg->pos.y;
 
 #ifdef CONFIG_TWM4NX_MOUSE
   // Select the grab cursor image
@@ -655,7 +657,8 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_GBCURSOR_IMAGE);
 #endif
 
-  // Remember the grab cursor size
+  // Remember the grab cursor size.  This, of course, makes
+  // little since if we are using a touchscreen.
 
   m_dragCSize.w = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.w;
   m_dragCSize.h = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.h;
@@ -712,12 +715,81 @@ bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
 
       if (oldpos.x != newpos.x || oldpos.y != newpos.y)
         {
-          // Set the new window position
+          // Re-draw the widget at the new background window position.
+          // NOTE that this is done before moving erasing the old position which
+          // probably overlaps the new position.
 
+          disableDrawing();
           if (!moveTo(newpos.x, newpos.y))
             {
               twmerr("ERROR: moveTo() failed\n");
               return false;
+            }
+
+          // Redraw the background window in the rectangle previously occupied by
+          // the widget.
+
+          struct nxgl_size_s widgetSize;
+          getSize(widgetSize);
+
+          struct nxgl_rect_s bounds;
+          bounds.pt1.x = oldpos.x;
+          bounds.pt1.y = oldpos.y;
+          bounds.pt2.x = oldpos.x + widgetSize.w - 1;
+          bounds.pt2.y = oldpos.y + widgetSize.h - 1;
+
+          FAR CBackground *backgd = m_twm4nx->getBackground();
+          if (!backgd->redrawBackgroundWindow(&bounds, false))
+            {
+              twmerr("ERROR: redrawBackgroundWindow() failed\n");
+              return false;
+            }
+
+          // Now redraw the icon in its new position
+
+          enableDrawing();
+          redraw();
+
+          // Check if the icon at this position intersects any reserved
+          // region on the background.  If not, check if some other icon is
+          // already occupying this position
+
+
+          bounds.pt1.x = newpos.x;
+          bounds.pt1.y = newpos.y;
+          bounds.pt2.x = newpos.x + widgetSize.w - 1;
+          bounds.pt2.y = newpos.y + widgetSize.h - 1;
+
+          struct nxgl_rect_s collision;
+          if (backgd->checkCollision(bounds, collision))
+            {
+              // Yes.. Remember that we are at a colliding position when
+              // the if the icon is ungrabbed.
+
+              m_collision = true;
+            }
+
+          // No.. Check if some other icon is already occupying this
+          // position
+
+           else
+            {
+              FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
+              if (factory->checkCollision(m_parent, bounds, collision))
+                {
+                  // Yes.. Remember that we are at a colliding position when
+                  // the if the icon is ungrabbed.
+
+                  m_collision = true;
+                }
+              else
+                {
+                  // No collision.. Remember the last good position
+
+                  m_dragPos.x = newpos.x;
+                  m_dragPos.y = newpos.y;
+                  m_collision = false;
+                }
             }
 
           // The icon was moved... we are really dragging!
@@ -755,6 +827,8 @@ bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
 #endif
 
+  bool success = true;
+
   // There are two possibilities:  (1) The icon was moved.  In this case, we
   // leave the icon up and in its new position.  Or (2) the icon was simply
   // clicked in which case we need to de-iconify the window.  We also check
@@ -766,10 +840,60 @@ bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
       m_parent->deIconify();
     }
 
+  // Another possibility is that the icon was drug into a position that
+  // collides with a reserved area on the background or that overlaps another
+  // icon.  In that case, we need to revert to last known good position.
+
+  else if (m_dragging && m_collision)
+    {
+      // Get the current, colliding position.
+
+      struct nxgl_point_s oldpos;
+      getPos(oldpos);
+
+      // Move the widget to the last known good position.
+      // NOTE that this is done before moving erasing the old position which
+      // probably overlaps the new position.
+
+      disableDrawing();
+      if (!moveTo(m_dragPos.x, m_dragPos.y))
+        {
+          twmerr("ERROR: moveTo() failed\n");
+          success = false;
+        }
+      else
+        {
+          // Redraw the background window in the rectangle previously occupied
+          // by the widget.
+
+          struct nxgl_size_s widgetSize;
+          getSize(widgetSize);
+
+          struct nxgl_rect_s bounds;
+          bounds.pt1.x = oldpos.x;
+          bounds.pt1.y = oldpos.y;
+          bounds.pt2.x = oldpos.x + widgetSize.w - 1;
+          bounds.pt2.y = oldpos.y + widgetSize.h - 1;
+
+          FAR CBackground *backgd = m_twm4nx->getBackground();
+          if (!backgd->redrawBackgroundWindow(&bounds, false))
+            {
+              twmerr("ERROR: redrawBackgroundWindow() failed\n");
+              return false;
+            }
+
+          // Now redraw the icon in its new position
+
+          enableDrawing();
+          redraw();
+        }
+    }
+
   // Indicate no longer dragging
 
-  m_dragging = false;
-  m_moved    = false;
+  m_dragging  = false;
+  m_collision = false;
+  m_moved     = false;
 
-  return true;
+  return success;
 }

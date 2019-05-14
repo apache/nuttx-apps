@@ -349,7 +349,7 @@ bool CWindowFactory::placeIcon(FAR CWindow *cwin,
               iconBounds.pt2.y = tmppos.y + iconSize.h - 1;
 
               // Check if this box intersects any reserved region on the background.
-              // If nt, check if so other icon is already occupying this position
+              // If not, check if some other icon is already occupying this position
 
               struct nxgl_rect_s collision;
               if (!backgd->checkCollision(iconBounds, collision) &&
@@ -433,6 +433,60 @@ void CWindowFactory::redrawIcons(FAR const nxgl_rect_s *nxRect)
             }
         }
     }
+}
+
+/**
+ * Check if the icon within iconBounds collides with any other icon on the
+ * desktop.
+ *
+ * @param cwin The window containing the Icon of interest
+ * @param iconBounds The candidate Icon bounding box
+ * @param collision The bounding box of the icon that the candidate collides
+ *   with
+ * @return Returns true if there is a collision
+ */
+
+bool CWindowFactory::checkCollision(FAR CWindow *cwin,
+                                    FAR const struct nxgl_rect_s &iconBounds,
+                                    FAR struct nxgl_rect_s &collision)
+{
+  // Try every window
+
+  for (FAR struct SWindow *win = m_windowHead;
+       win != (FAR struct SWindow *)0;
+       win = win->flink)
+    {
+      // Ignore 'this' window, any windows that are not iconified, and any
+      // windows that have no icons.
+
+      if (win->cwin != cwin && win->cwin->hasIcon() &&
+          win->cwin->isIconified())
+        {
+          // Create a bounding box for the icon
+
+          struct nxgl_size_s iconSize;
+          (void)win->cwin->getIconWidgetSize(iconSize);
+
+          struct nxgl_point_s iconPos;
+          (void)win->cwin->getIconWidgetPosition(iconPos);
+
+          collision.pt1.x = iconPos.x;
+          collision.pt1.y = iconPos.y;
+          collision.pt2.x = iconPos.x + iconSize.w - 1;
+          collision.pt2.y = iconPos.y + iconSize.h - 1;
+
+          // Return true if there is an intersection
+
+          if (nxgl_intersecting(&iconBounds, &collision))
+            {
+              return true;
+            }
+        }
+    }
+
+  // No collision
+
+  return false;
 }
 
 /**
@@ -550,60 +604,6 @@ FAR struct SWindow *CWindowFactory::findWindow(FAR CWindow *cwin)
     }
 
   return (FAR struct SWindow *)0;
-}
-
-/**
- * Check if the icon within iconBounds collides with any other icon on the
- * desktop.
- *
- * @param cwin The window containing the Icon of interest
- * @param iconBounds The candidate Icon bounding box
- * @param collision The bounding box of the icon that the candidate collides
- *   with
- * @return Returns true if there is a collision
- */
-
-bool CWindowFactory::checkCollision(FAR CWindow *cwin,
-                                    FAR const struct nxgl_rect_s &iconBounds,
-                                    FAR struct nxgl_rect_s &collision)
-{
-  // Try every window
-
-  for (FAR struct SWindow *win = m_windowHead;
-       win != (FAR struct SWindow *)0;
-       win = win->flink)
-    {
-      // Ignore 'this' window, any windows that are not iconified, and any
-      // windows that have no icons.
-
-      if (win->cwin != cwin && win->cwin->hasIcon() &&
-          win->cwin->isIconified())
-        {
-          // Create a bounding box for the icon
-
-          struct nxgl_size_s iconSize;
-          (void)win->cwin->getIconWidgetSize(iconSize);
-
-          struct nxgl_point_s iconPos;
-          (void)win->cwin->getIconWidgetPosition(iconPos);
-
-          collision.pt1.x = iconPos.x;
-          collision.pt1.y = iconPos.y;
-          collision.pt2.x = iconPos.x + iconSize.w - 1;
-          collision.pt2.y = iconPos.y + iconSize.h - 1;
-
-          // Return true if there is an intersection
-
-          if (nxgl_intersecting(&iconBounds, &collision))
-            {
-              return true;
-            }
-        }
-    }
-
-  // No collision
-
-  return false;
 }
 
 /**

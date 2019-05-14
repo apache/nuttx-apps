@@ -179,10 +179,11 @@ namespace Twm4Nx
 
       // Dragging
 
-      struct nxgl_point_s            m_dragPos;        /**< Last mouse position */
+      struct nxgl_point_s            m_dragPos;        /**< Last good icon position */
       struct nxgl_point_s            m_dragOffset;     /**< Offset from mouse to window origin */
       struct nxgl_size_s             m_dragCSize;      /**< The grab cursor size */
       bool                           m_dragging;       /**< Drag in-progress */
+      bool                           m_collision;      /**< Current position collides */
       bool                           m_moved;          /**< Icon has been moved */
 
       /**

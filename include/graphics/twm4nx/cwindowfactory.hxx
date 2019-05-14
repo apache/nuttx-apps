@@ -180,21 +180,6 @@ namespace Twm4Nx
       FAR struct SWindow *findWindow(FAR CWindow *cwin);
 
       /**
-       * Check if the icon within iconBounds collides with any other icon on
-       * the desktop.
-       *
-       * @param cwin The window containing the Icon of interest
-       * @param iconBounds The candidate Icon bounding box
-       * @param collision The bounding box of the icon that the candidate
-       *   collides with
-       * @return Returns true if there is a collision
-       */
-
-      bool checkCollision(FAR CWindow *cwin,
-                          FAR const struct nxgl_rect_s &iconBounds,
-                          FAR struct nxgl_rect_s &collision);
-
-      /**
        * This is the function that responds to the EVENT_WINDOW_DESKTOP.  It
        * iconifies all windows so that the desktop is visible.
        *
@@ -294,6 +279,21 @@ namespace Twm4Nx
        */
 
        void redrawIcons(FAR const nxgl_rect_s *nxRect);
+
+      /**
+       * Check if the icon within iconBounds collides with any other icon on
+       * the desktop.
+       *
+       * @param cwin The window containing the Icon of interest
+       * @param iconBounds The candidate Icon bounding box
+       * @param collision The bounding box of the icon that the candidate
+       *   collides with
+       * @return Returns true if there is a collision
+       */
+
+      bool checkCollision(FAR CWindow *cwin,
+                          FAR const struct nxgl_rect_s &iconBounds,
+                          FAR struct nxgl_rect_s &collision);
 
       /**
        * Handle WINDOW events.
