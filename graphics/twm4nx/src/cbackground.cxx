@@ -178,7 +178,7 @@ bool CBackground::checkCollision(FAR const struct nxgl_rect_s &bounds,
 {
   // Is there a background image
 
-  if (m_backImage  != (NXWidgets::CImage *)0)
+  if (m_backImage != (NXWidgets::CImage *)0)
     {
       // Create a bounding box for the background image
 
@@ -510,6 +510,14 @@ void CBackground::cleanup(void)
       m_eventq = (mqd_t)-1;
     }
 
+  // Delete the background image
+
+  if (m_backImage != (NXWidgets::CImage *)0)
+    {
+      delete m_backImage;
+      m_backImage = (NXWidgets::CImage *)0;
+    }
+
   // Delete the background
 
   if (m_backWindow != (NXWidgets::CBgWindow *)0)
@@ -527,13 +535,5 @@ void CBackground::cleanup(void)
 
       delete m_backWindow;
       m_backWindow = (NXWidgets::CBgWindow *)0;
-    }
-
-  // Delete the background image
-
-  if (m_backImage != (NXWidgets::CImage *)0)
-    {
-      delete m_backImage;
-      m_backImage = (NXWidgets::CImage *)0;
     }
 }

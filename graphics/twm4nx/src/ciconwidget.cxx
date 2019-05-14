@@ -102,13 +102,16 @@ CIconWidget::CIconWidget(FAR CTwm4Nx *twm4nx,
 
   // Dragging
 
-  m_drag             = false;            // No drag in-progress */
+  m_dragging         = false;            // No drag in-progress */
   m_moved            = false;            // Icon has not been moved */
 
   // Configure the widget
 
-  m_flags.borderless = true;             // The widget is borderless (and transparent)
-  m_flags.draggable  = true;             // This widget may be dragged
+  setBorderless(true);                   // The widget is borderless (and transparent)
+  setDraggable(true);                    // This widget may be dragged
+  enable();                              // Enable the widget
+  setRaisesEvents(true);                 // Enable event firing
+  disableDrawing();                      // No drawing yet
 }
 
 /**
@@ -268,13 +271,13 @@ bool CIconWidget::initialize(FAR CWindow *parent,
       iconImagePos.x = (maxLabelWidth - iconImageSize.w) / 2;
     }
 
-  // Create a new CImage to hold the bitmap image
+  // Create a new CIconLabel to hold the bitmap image
 
-  FAR NXWidgets::CImage *image =
-    new NXWidgets::CImage(m_widgetControl, iconImagePos.x,
-                          iconImagePos.y, iconImageSize.w, iconImageSize.h,
-                          ibitmap, &m_style);
-  if (image == (FAR NXWidgets::CImage *)0)
+  FAR CIconImage *image =
+    new CIconImage(m_widgetControl, iconImagePos.x,
+                   iconImagePos.y, iconImageSize.w, iconImageSize.h,
+                   ibitmap, &m_style);
+  if (image == (FAR CIconImage *)0)
     {
       twmerr("ERROR: Failed to create image\n");
       return false;
@@ -286,8 +289,9 @@ bool CIconWidget::initialize(FAR CWindow *parent,
   image->enable();
   image->disableDrawing();
   image->setRaisesEvents(true);
+  image->setDraggable(true);
 
-  // Add the CImage to to the containing widget
+  // Add the CIconImage to to the containing widget
 
   image->addWidgetEventHandler(this);
   addWidget(image);
@@ -304,13 +308,13 @@ bool CIconWidget::initialize(FAR CWindow *parent,
       iconTopLabelPos.x = (iconWidgetSize.w - iconTopLabelSize.w) / 2;
     }
 
-  // Create a new CLabel to hold the upper icon title
+  // Create a new CIconLabel to hold the upper icon title
 
-  FAR NXWidgets::CLabel *topLabel =
-    new NXWidgets::CLabel(m_widgetControl, iconTopLabelPos.x,
-                          iconTopLabelPos.y, iconTopLabelSize.w,
-                          iconTopLabelSize.h, topString, &m_style);
-  if (topLabel == (FAR NXWidgets::CLabel *)0)
+  FAR CIconLabel *topLabel =
+    new CIconLabel(m_widgetControl, iconTopLabelPos.x,
+                   iconTopLabelPos.y, iconTopLabelSize.w,
+                   iconTopLabelSize.h, topString, &m_style);
+  if (topLabel == (FAR CIconLabel *)0)
     {
       twmerr("ERROR: Failed to create icon topLabel\n");
       delete image;
@@ -324,6 +328,7 @@ bool CIconWidget::initialize(FAR CWindow *parent,
   topLabel->enable();
   topLabel->disableDrawing();
   topLabel->setRaisesEvents(true);
+  topLabel->setDraggable(true);
 
   // Add the top label to to the containing widget
 
@@ -348,13 +353,13 @@ bool CIconWidget::initialize(FAR CWindow *parent,
           iconBottomLabelPos.x = (iconWidgetSize.w - iconBottomLabelSize.w) / 2;
         }
 
-      // Create a new CLabel to hold the lower icon title
+      // Create a new CIconLabel to hold the lower icon title
 
-      FAR NXWidgets::CLabel *bottomLabel =
-        new NXWidgets::CLabel(m_widgetControl, iconBottomLabelPos.x,
-                              iconBottomLabelPos.y, iconBottomLabelSize.w,
-                              iconBottomLabelSize.h, bottomString,&m_style);
-      if (bottomLabel == (FAR NXWidgets::CLabel *)0)
+      FAR CIconLabel *bottomLabel =
+        new CIconLabel(m_widgetControl, iconBottomLabelPos.x,
+                       iconBottomLabelPos.y, iconBottomLabelSize.w,
+                       iconBottomLabelSize.h, bottomString,&m_style);
+      if (bottomLabel == (FAR CIconLabel *)0)
         {
           twmerr("ERROR: Failed to create icon bottomLabel\n");
           delete topLabel;
@@ -369,6 +374,7 @@ bool CIconWidget::initialize(FAR CWindow *parent,
       bottomLabel->enable();
       bottomLabel->disableDrawing();
       bottomLabel->setRaisesEvents(true);
+      bottomLabel->setDraggable(true);
 
       // Add the top label to to the containing widget
 
@@ -452,10 +458,6 @@ bool CIconWidget::event(FAR struct SEventMsg *eventmsg)
 
 void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Exit the dragging state
-
-  m_drag = false;
-
   // Generate the un-grab event
 
   struct SEventMsg msg;
@@ -492,7 +494,7 @@ void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
   // We don't care which component of the icon widget was clicked only that
   // we are not currently being dragged
 
-  if (m_drag)
+  if (m_dragging)
     {
       // Generate the event
 
@@ -532,7 +534,7 @@ void CIconWidget::handleDropEvent(const NXWidgets::CWidgetEventArgs &e)
   // When the Drop Event is received, both isClicked and isBeingDragged()
   // will return false.  No checks are performed.
 
-  if (m_drag)
+  if (m_dragging)
     {
       // Yes.. handle the drop event
 
@@ -551,7 +553,7 @@ void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
   // We don't care which component of the icon widget was clicked only that
   // we are not currently being dragged
 
-  if (!m_drag)
+  if (!m_dragging)
     {
       // Generate the event
 
@@ -592,7 +594,7 @@ void CIconWidget::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
   // Handle the case where a release event was received, but the
   // window was not dragged.
 
-  if (m_drag)
+  if (m_dragging)
     {
       // Handle the non-drag drop event
 
@@ -612,7 +614,7 @@ void CIconWidget::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e
   // Handle the case where a release event was received, but the
   // window was not dragged.
 
-  if (m_drag)
+  if (m_dragging)
     {
       // Handle the non-drag drop event
 
@@ -634,8 +636,8 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
   // Indicate that dragging has started but the icon has not
   // yet been moved.
 
-  m_drag  = true;
-  m_moved = false;
+  m_dragging = true;
+  m_moved    = false;
 
   // Get the icon position.
 
@@ -647,9 +649,11 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
   m_dragOffset.x = widgetPos.x - eventmsg->pos.x;
   m_dragOffset.y = widgetPos.y - eventmsg->pos.y;
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // Select the grab cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_GBCURSOR_IMAGE);
+#endif
 
   // Remember the grab cursor size
 
@@ -669,7 +673,7 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
 
 bool CIconWidget::iconDrag(FAR struct SEventMsg *eventmsg)
 {
-  if (m_drag)
+ if (m_dragging)
     {
       // Calculate the new icon position
 
@@ -745,23 +749,27 @@ bool CIconWidget::iconUngrab(FAR struct SEventMsg *eventmsg)
       return false;
     }
 
+#ifdef CONFIG_TWM4NX_MOUSE
   // Restore the normal cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
+#endif
 
   // There are two possibilities:  (1) The icon was moved.  In this case, we
   // leave the icon up and in its new position.  Or (2) the icon was simply
-  // clicked in which case we need to de-iconify the window.
+  // clicked in which case we need to de-iconify the window.  We also check
+  // that we still have m_dragging == true to handle multiple UNGRAB events.
+  // That happens when we get both the DROP and RELEASE events.
 
-  if (!m_moved)
+  if (m_dragging && !m_moved)
     {
       m_parent->deIconify();
     }
 
   // Indicate no longer dragging
 
-  m_drag = false;
-  m_moved = false;
+  m_dragging = false;
+  m_moved    = false;
 
   return true;
 }

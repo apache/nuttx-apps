@@ -367,7 +367,8 @@ bool CTwm4Nx::eventLoop(void)
 
       if (!dispatchEvent(&u.eventmsg))
         {
-          twmerr("ERROR: dispatchEvent failed\n");
+          twmerr("ERROR: dispatchEvent() failed, eventID=%u\n",
+                 u.eventmsg.eventID);
           cleanup();
           return false;
         }

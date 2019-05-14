@@ -59,9 +59,10 @@
 /**
  * Required settings:
  *
- * CONFIG_HAVE_CXX        : C++ support is required
- * CONFIG_NX              : NX must enabled
- * CONFIG_NXTERM=y        : For NxTerm support
+ * CONFIG_HAVE_CXX         : C++ support is required
+ * CONFIG_NX               : NX must enabled
+ * CONFIG_NXTERM=y         : For NxTerm support
+ * CONFIG_NXTERM_NXKBDIN=y : May be needed if Twm4Nx is managing the keyboard
  */
 
 #ifndef CONFIG_HAVE_CXX
@@ -74,6 +75,18 @@
 
 #ifndef CONFIG_NXTERM
 #  warning "NxTerm support is required (CONFIG_NXTERM)"
+#endif
+
+// Keyboard input can come from either /dev/console or via Twm4Nx.  If
+// keyboard input comes from Twm4Nx, then CONFIG_NXTERM_NXKBDIN must be
+// defined to support injection of keyboard input from applications.
+// Otherwise, CONFIG_NXTERM_NXKBDIN must not be defined to support use of
+// /dev/console for keyboard input.
+
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_NXTERM_NXKBDIN)
+#  warning "Nxterm needs CONFIG_NXTERM_NXKBDIN for keyboard input"
+#elif defined(CONFIG_TWM4NX_NOKEYBOARD) && defined(CONFIG_NXTERM_NXKBDIN)
+#  warning "Nxterm has no keyboard input.  Undefine CONFIG_NXTERM_NXKBDIN
 #endif
 
 // NxTerm Window /////////////////////////////////////////////////////////////

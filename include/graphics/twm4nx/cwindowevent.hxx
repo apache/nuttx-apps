@@ -88,7 +88,9 @@ namespace Twm4Nx
        * one.
        */
 
-      virtual ~IDragEvent(void) { }
+      virtual ~IDragEvent(void)
+      {
+      }
 
       /**
        * This function is called when there is any moved of the mouse or
