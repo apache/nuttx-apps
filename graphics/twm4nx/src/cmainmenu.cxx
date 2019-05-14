@@ -50,7 +50,7 @@
 #include <graphics/twm4nx/ctwm4nx.hxx>
 #include <graphics/twm4nx/cmenus.hxx>
 #include <graphics/twm4nx/cmainmenu.hxx>
-#include <graphics/twm4nx/twm4nx_widgetevents.hxx>
+#include <graphics/twm4nx/twm4nx_events.hxx>
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Class Definition

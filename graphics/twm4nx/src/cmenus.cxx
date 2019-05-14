@@ -71,7 +71,7 @@
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cwindowevent.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 #include "graphics/twm4nx/cmenus.hxx"
 
 ////////////////////////////////////////////////////////////////////////////

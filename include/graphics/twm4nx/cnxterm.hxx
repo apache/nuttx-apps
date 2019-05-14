@@ -49,7 +49,7 @@
 
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 #include "graphics/twm4nx/iapplication.hxx"
 
 /////////////////////////////////////////////////////////////////////////////

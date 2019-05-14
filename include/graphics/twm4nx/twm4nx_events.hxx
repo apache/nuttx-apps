@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/twm4nx_widgetevents.hxx
+// apps/graphics/twm4nx/include/twm4nx_events.hxx
 // Twm4Nx Widget Event Handling
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
@@ -34,8 +34,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_WIDGETEVENTS_HXX
-#define __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_WIDGETEVENTS_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_EVENTS_HXX
+#define __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_EVENTS_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -250,4 +250,4 @@ namespace Twm4Nx
   };
 }
 
-#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_WIDGETEVENTS_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_EVENTS_HXX

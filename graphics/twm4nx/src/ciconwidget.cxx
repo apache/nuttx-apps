@@ -60,7 +60,7 @@
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cbackground.hxx"
 #include "graphics/twm4nx/ciconwidget.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 #include "graphics/twm4nx/twm4nx_cursor.hxx"
 
 /////////////////////////////////////////////////////////////////////////////

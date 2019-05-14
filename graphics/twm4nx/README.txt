@@ -89,12 +89,12 @@ Issues:
        with the window drag movement.  it is hard to tell because of
        limitations in the touchscreen performance on the system that I am
        working with.
-    7. Icom drag movement includes logic to avoid collisions with other
+    7. Icon drag movement includes logic to avoid collisions with other
        icons and with the background image.  That later is an issue.  The
        background image image widget needs to be removed; it can occlude a
        dektop icon.  We need to paint the image directly on the background
        without the use of a widget.
-    8. More issues with the background image:  I absords touchscreen
+    8. More issues with the background image:  It absorbs touchscreen
        presses without doing anything.  It should bring-up the main menu
        menu just as any other region of the background.  This would be easy
        to fix, but just replacing the background image widget is the better

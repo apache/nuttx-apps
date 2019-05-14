@@ -80,7 +80,7 @@
 #include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/cresize.hxx"
 #include "graphics/twm4nx/cfonts.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 
 // Applications
 

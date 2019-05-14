@@ -54,7 +54,7 @@
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cmainmenu.hxx"
 #include "graphics/twm4nx/iapplication.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -76,8 +76,8 @@ namespace Twm4Nx
     FAR struct SWindowEntry *flink;                 /**< Forward link to next window entry */
     FAR struct SWindowEntry *blink;                 /**< Backward link to previous window entry */
     FAR CWindow *cwin;                              /**< The window payload */
-    int row;                                        /**< X position in the button array */
-    int column;
+    int row;                                        /**< Y position in the button array */
+    int column;                                     /**< X position in the button array */
   };
 
   class CIconMgr : protected NXWidgets::CWidgetEventHandler,

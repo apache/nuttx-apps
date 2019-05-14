@@ -64,7 +64,7 @@
 #include "graphics/nxwidgets/cimage.hxx"
 
 #include "graphics/twm4nx/cwindowevent.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor Definitions

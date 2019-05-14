@@ -50,7 +50,7 @@
 #include "graphics/nxwidgets/cwindoweventhandler.hxx"
 #include "graphics/nxwidgets/cwidgetstyle.hxx"
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
-#include "graphics/twm4nx/twm4nx_widgetevents.hxx"
+#include "graphics/twm4nx/twm4nx_events.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
