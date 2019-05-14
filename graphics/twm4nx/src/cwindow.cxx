@@ -796,7 +796,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    handler
 
   m_windowEvent = new CWindowEvent(m_twm4nx, this, m_appEvents);
-  m_windowEvent->registerDragEventHandler(this, (uintptr_t)1);
+  m_windowEvent->installEventTap(this, (uintptr_t)1);
 
   // 4. Create the window.  Handling provided flags. NOTE: that menu windows
   //    are always created hidden and in the iconified state (although they
@@ -901,7 +901,7 @@ bool CWindow::createToolbar(void)
   events.closeEvent  = EVENT_SYSTEM_NOP;
 
   FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, this, events);
-  control->registerDragEventHandler(this, (uintptr_t)0);
+  control->installEventTap(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
 
@@ -1443,7 +1443,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
  * This function is called when there is any moved of the mouse or
  * touch position that would indicate that the object is being moved.
  *
- * This function overrides the virtual IDragEvent::dragEvent method.
+ * This function overrides the virtual IEventTap::moveEvent method.
  *
  * @param pos The current mouse/touch X/Y position in toolbar relative
  *   coordinates.
@@ -1452,7 +1452,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
  *   a drag event in progress
  */
 
-bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos,
+bool CWindow::moveEvent(FAR const struct nxgl_point_s &pos,
                         uintptr_t arg)
 {
   twminfo("m_dragging=%u pos=(%d,%d)\n", m_dragging, pos.x, pos.y);
@@ -1503,7 +1503,7 @@ bool CWindow::dragEvent(FAR const struct nxgl_point_s &pos,
  * if the touchscrreen touch is lost.  This indicates that the
  * dragging sequence is complete.
  *
- * This function overrides the virtual IDragEvent::dropEvent method.
+ * This function overrides the virtual IEventTap::dropEvent method.
  *
  * @param pos The last mouse/touch X/Y position in toolbar relative
  *   coordinates.
@@ -1548,7 +1548,7 @@ bool CWindow::dropEvent(FAR const struct nxgl_point_s &pos,
  * @return True: If the dragging is enabled.
  */
 
-bool CWindow::isDragging(uintptr_t arg)
+bool CWindow::isActive(uintptr_t arg)
 {
   return m_clicked;
 }
@@ -1560,7 +1560,7 @@ bool CWindow::isDragging(uintptr_t arg)
  * @param arg The user-argument provided that accompanies the callback
  */
 
-void CWindow::setDragging(bool enable, uintptr_t arg)
+void CWindow::enableMovement(bool enable, uintptr_t arg)
 {
   m_clicked = enable;
 }

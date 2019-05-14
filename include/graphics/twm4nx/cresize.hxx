@@ -85,8 +85,6 @@ namespace Twm4Nx
       struct nxgl_rect_s          m_clamp;
       struct nxgl_point_s         m_delta;
       struct nxgl_size_s          m_last;
-      struct nxgl_point_s         m_addingPos;
-      struct nxgl_size_s          m_addingSize;
       int                         m_stringWidth;    /**< Size of current size string */
 
       /**
@@ -107,8 +105,6 @@ namespace Twm4Nx
 
       bool setWindowSize(FAR struct nxgl_size_s *size);
 
-      void resizeFromCenter(FAR CWindow *win);
-
       /**
        * Begin a window resize operation
        * @param ev           the event structure (button press)
@@ -116,10 +112,7 @@ namespace Twm4Nx
        */
 
       void startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin);
-
-      void menuStartResize(FAR CWindow *cwin,
-                           FAR struct nxgl_point_s *pos,
-                           FAR struct nxgl_size_s *size);
+      void menuStartResize(FAR CWindow *cwin);
 
       /**
        * Update the size show in the size dimension label.
@@ -154,16 +147,6 @@ namespace Twm4Nx
        */
 
       bool initialize(void);
-
-      /**
-       * What is this?
-       */
-
-      void addingSize(FAR struct nxgl_size_s *size)
-      {
-        m_addingSize.w = size->w;
-        m_addingSize.h = size->h;
-      }
 
       /**
        * Begin a window resize operation

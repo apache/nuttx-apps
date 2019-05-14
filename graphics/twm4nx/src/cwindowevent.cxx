@@ -120,8 +120,8 @@ CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
 
   // Dragging
 
-  m_dragHandler           = (FAR IDragEvent *)0; // No drag handler callbacks
-  m_dragArg               = (uintptr_t)0;        // No callback argument
+  m_tapHandler            = (FAR IEventTap *)0;  // No event tap handler callbacks
+  m_tapArg                = (uintptr_t)0;        // No callback argument
 
   // Open a message queue to send raw NX events.  This cannot fail!
 
@@ -205,8 +205,8 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
  * toolbar, but can easily move into the main window (or even outside
  * of the window!).  To these case, there may be two instances of
  * CWindowEvent, one for the toolbar and one for the main window.  The
- * IDragEvent implementation (along with the user arguement) can keep a
- * consistent drag context across both instances.
+ * IEventTap implementation (along with the user arguement) can keep a
+ * consistent movement context across both instances.
  *
  * NOTE:  NX will continually forward the mouse events to the same raw
  * window in all cases.. even when the mouse position moves outside of
@@ -217,75 +217,75 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
 void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
                                     uint8_t buttons)
 {
-  // Check if dragging can be supported
+  // Check if There is an active tap on mouse events
 
-  if (m_dragHandler != (FAR IDragEvent *)0)
+  if (m_tapHandler != (FAR IEventTap *)0)
     {
-      twminfo("Mouse input: dragging=%u\n",
-               m_dragHandler->isDragging(m_dragArg));
+      twminfo("Mouse input: active=%u\n",
+               m_tapHandler->isActive(m_tapArg));
 
       // STATE         LEFT BUTTON       ACTION
-      // dragging      clicked           dragEvent
-      // dragging      released          dropEvent
-      // NOT dragging  clicked           May be detected as a grab
-      // NOT dragging  released          None
+      // active        clicked           moveEvent
+      // active        released          dropEvent
+      // NOT active    clicked           May be detected as a grab
+      // NOT active    released          None
 
-      if (m_dragHandler->isDragging(m_dragArg))
+      if (m_tapHandler->isActive(m_tapArg))
         {
-          // The new drag position in window relative display coordinates
+          // The new movement position in window relative display coordinates
 
-          struct nxgl_point_s dragPos;
-          dragPos.x = pos->x;
-          dragPos.y = pos->y;
+          struct nxgl_point_s movePos;
+          movePos.x = pos->x;
+          movePos.y = pos->y;
 
           // Is the left button still pressed?
 
           if ((buttons & MOUSE_BUTTON_1) != 0)
             {
-              twminfo("Continue dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
-                      dragPos.x, dragPos.y, buttons, m_dragHandler);
+              twminfo("Continue movemenht (%d,%d) buttons=%02x m_tapHandler=%p\n",
+                      movePos.x, movePos.y, buttons, m_tapHandler);
 
-              // Yes.. generate a drag event if we have a drag event handler
+              // Yes.. generate a movment event if we have a tap event handler
 
-              if (m_dragHandler->dragEvent(dragPos, m_dragArg))
+              if (m_tapHandler->moveEvent(movePos, m_tapArg))
                 {
-                  // Skip the input poll until the drag completes
+                  // Skip the input poll until the movment completes
 
                   return;
                 }
             }
           else
             {
-              twminfo("Stop dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
-                      dragPos.x, dragPos.y, buttons, m_dragHandler);
+              twminfo("Stop movement (%d,%d) buttons=%02x m_tapHandler=%p\n",
+                      movePos.x, movePos.y, buttons, m_tapHandler);
 
-              // No.. then we are no longer dragging
+              // No.. then the tap is no longer active
 
-               m_dragHandler->setDragging(false, m_dragArg);
+               m_tapHandler->enableMovement(false, m_tapArg);
 
               // Generate a dropEvent
 
-              if (m_dragHandler->dropEvent(dragPos, m_dragArg))
+              if (m_tapHandler->dropEvent(movePos, m_tapArg))
                 {
                   // If the drop event was processed then skip the
-                  // input poll until AFTER the drag completes
+                  // input poll until AFTER the movement completes
 
                   return;
                 }
             }
         }
 
-      // If we are not currently dragging but the left button is pressed, then
-      // start the drag event
+      // If we are not currently moving anything but the left button is
+      // pressed, then start a movement event
 
       else if ((buttons & MOUSE_BUTTON_1) != 0)
         {
-          // Indicate that we are (or may be) dragging
+          // Indicate that we are (or may be) moving
 
-          m_dragHandler->setDragging(true, m_dragArg);
+          m_tapHandler->enableMovement(true, m_tapArg);
 
-          twminfo("Start dragging (%d,%d) buttons=%02x m_dragHandler=%p\n",
-                  pos->x, pos->y, buttons, m_dragHandler);
+          twminfo("Start moving (%d,%d) buttons=%02x m_tapHandler=%p\n",
+                  pos->x, pos->y, buttons, m_tapHandler);
 
           // But take no other actions until the window recognizes the grab
         }

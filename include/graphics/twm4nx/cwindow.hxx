@@ -134,7 +134,7 @@ namespace Twm4Nx
   // containing the standard buttons and the window title.
 
   class CWindow : protected NXWidgets::CWidgetEventHandler,
-                  protected IDragEvent,
+                  protected IEventTap,
                   public CTwm4NxEvent
   {
     private:
@@ -290,55 +290,55 @@ namespace Twm4Nx
       void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
 
       /**
-       * This function is called when there is any moved of the mouse or
+       * This function is called when there is any movement of the mouse or
        * touch position that would indicate that the object is being moved.
        *
-       * This function overrides the virtual IDragEvent::dragEvent method.
+       * This function overrides the virtual IEventTap::moveEvent method.
        *
        * @param pos The current mouse/touch X/Y position.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: if the drage event was processed; false it is was
+       * @return True: if the movement event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
-       *   a drag event in progress
+       *   a movement event in progress
        */
 
-      bool dragEvent(FAR const struct nxgl_point_s &pos,
+      bool moveEvent(FAR const struct nxgl_point_s &pos,
                      uintptr_t arg);
 
       /**
        * This function is called if the mouse left button is released or
        * if the touchscrreen touch is lost.  This indicates that the
-       * dragging sequence is complete.
+       * movement sequence is complete.
        *
-       * This function overrides the virtual IDragEvent::dropEvent method.
+       * This function overrides the virtual IEventTap::dropEvent method.
        *
        * @param pos The last mouse/touch X/Y position.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: if the drage event was processed; false it is was
+       * @return True: if the drop event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
-       *   a drag event in progress
+       *   a movement event in progress
        */
 
       bool dropEvent(FAR const struct nxgl_point_s &pos,
                      uintptr_t arg);
 
       /**
-       * Is dragging enabled?
+       * Is the tap enabled?
        *
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: If the dragging is enabled.
+       * @return True: If the the tap is enabled.
        */
 
-      bool isDragging(uintptr_t arg);
+      bool isActive(uintptr_t arg);
 
       /**
-       * Enable/disable dragging
+       * Enable/disable the tap
        *
-       * @param enable.  True:  Enable dragging
+       * @param enable.  True:  Enable the tap
        * @param arg The user-argument provided that accompanies the callback
        */
 
-      void setDragging(bool enable, uintptr_t arg);
+      void enableMovement(bool enable, uintptr_t arg);
 
       /**
        * Handle the TOOLBAR_GRAB event.  That corresponds to a left

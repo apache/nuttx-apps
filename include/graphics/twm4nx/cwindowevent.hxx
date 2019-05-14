@@ -74,11 +74,11 @@ namespace Twm4Nx
   };
 
   /**
-   * This abstract base class provides add on methods to support dragging
+   * This abstract base class provides add on methods to support movement
    * of a window.
    */
 
-  class IDragEvent
+  class IEventTap
   {
     public:
       /**
@@ -88,58 +88,58 @@ namespace Twm4Nx
        * one.
        */
 
-      virtual ~IDragEvent(void)
+      virtual ~IEventTap(void)
       {
       }
 
       /**
-       * This function is called when there is any moved of the mouse or
+       * This function is called when there is any movement of the mouse or
        * touch position that would indicate that the object is being moved.
        *
        * @param pos The current mouse/touch X/Y position in toolbar relative
        *   coordinates.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: if the drag event was processed; false it is was
+       * @return True: if the movement event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
-       *   a drag event in progress
+       *   a movement event in progress
        */
 
-      virtual bool dragEvent(FAR const struct nxgl_point_s &pos,
+      virtual bool moveEvent(FAR const struct nxgl_point_s &pos,
                              uintptr_t arg) = 0;
 
       /**
        * This function is called if the mouse left button is released or
-       * if the touchscrreen touch is lost.  This indicates that the
-       * dragging sequence is complete.
+       * if the touchscreen touch is lost.  This indicates that the
+       * movement sequence is complete.
        *
        * @param pos The last mouse/touch X/Y position in toolbar relative
        *   coordinates.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: If the drag event was processed; false it is was
+       * @return True: If the movement event was processed; false it is was
        *   ignored.  The event should be ignored if there is not actually
-       *   a drag event in progress
+       *   a movement event in progress
        */
 
       virtual bool dropEvent(FAR const struct nxgl_point_s &pos,
                              uintptr_t arg) = 0;
 
       /**
-       * Is dragging enabled?
+       * Is the tap active?
        *
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: If the dragging is enabled.
+       * @return True: If the tap is enabled.
        */
 
-      virtual bool isDragging(uintptr_t arg) = 0;
+      virtual bool isActive(uintptr_t arg) = 0;
 
       /**
-       * Enable/disable dragging
+       * Enable/disable movement
        *
-       * @param enable.  True:  Enable dragging
+       * @param enable.  True:  Enable movement
        * @param arg The user-argument provided that accompanies the callback
        */
 
-      virtual void setDragging(bool enable, uintptr_t arg) = 0;
+      virtual void enableMovement(bool enable, uintptr_t arg) = 0;
   };
 
   /**
@@ -162,8 +162,8 @@ namespace Twm4Nx
 
       // Dragging
 
-      FAR IDragEvent      *m_dragHandler;   /**< Drag event handlers (may be NULL) */
-      uintptr_t            m_dragArg;       /**< User argument associated with callback */
+      FAR IEventTap       *m_tapHandler;    /**< Event tap handlers (may be NULL) */
+      uintptr_t            m_tapArg;        /**< User argument associated with callback */
 
       // Override CWidgetEventHandler virtual methods ///////////////////////
 
@@ -226,20 +226,35 @@ namespace Twm4Nx
       ~CWindowEvent(void);
 
       /**
-       * Register an IDragEvent instance to provide callbacks when mouse
+       * Register an IEventTap instance to provide callbacks when mouse
        * movement is received.  A mouse movement with the left button down
        * or a touchscreen touch movement are treated as a drag event. 
        * Release of the mouse left button or loss of the touchscreen touch
        * is treated as a drop event.
        *
-       * @param cb A reference to the IDragEvent callback interface.
+       * @param tapHandler A reference to the IEventTap callback interface.
+       * @param arg The argument returned with the IEventTap callbacks.
        */
 
-      inline void registerDragEventHandler(FAR IDragEvent *dragHandler,
-                                           uintptr_t arg)
+      inline void installEventTap(FAR IEventTap *tapHandler, uintptr_t arg)
       {
-         m_dragHandler = dragHandler;
-         m_dragArg     = arg;
+         m_tapHandler = tapHandler;
+         m_tapArg     = arg;
+      }
+
+      /**
+       * Return the installed event tap.  This is useful if you want to
+       * install a different event tap, then restore the event tap returned
+       * by this method when you are finished.
+       *
+       * @param tapHandler The location to return IEventTap callback interface.
+       * @param arg The loation to return the IEventTap argument
+       */
+
+      inline void getEventTap(FAR IEventTap *&tapHandler, uintptr_t &arg)
+      {
+         m_tapHandler = tapHandler;
+         m_tapArg     = arg;
       }
 
       /**

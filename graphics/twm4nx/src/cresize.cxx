@@ -167,28 +167,6 @@ bool CResize::initialize(void)
   return true;
 }
 
-void CResize::resizeFromCenter(FAR CWindow *cwin)
-{
-  // Get the current frame size and position
-
-  struct nxgl_point_s winpos;
-  if (!cwin->getFramePosition(&winpos))
-    {
-      return;
-    }
-
-  struct nxgl_size_s winsize;
-  if (!cwin->getFrameSize(&winsize))
-    {
-      return;
-    }
-
-  FAR CResize *resize = m_twm4nx->getResize();
-  resize->addingSize(&winsize);
-
-  resize->menuStartResize(cwin, &winpos, &winsize);
-}
-
 /**
  * Begin a window resize operation
  *
@@ -212,8 +190,6 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
       return;
     }
 
-  m_dragpos.x  += 0;
-  m_dragpos.y  += 0;
   m_origpos.x   = m_dragpos.x;
   m_origpos.y   = m_dragpos.y;
   m_origsize.w  = m_dragsize.w;
@@ -255,88 +231,6 @@ void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
     {
       twmerr("ERROR: Failed to resize frame\n");
     }
-}
-
-void CResize::menuStartResize(FAR CWindow *cwin,
-                              FAR struct nxgl_point_s *pos,
-                              FAR struct nxgl_size_s *size)
-{
-  m_dragpos.x   = pos->x;
-  m_dragpos.y   = pos->y;
-  m_origpos.x   = m_dragpos.x;
-  m_origpos.y   = m_dragpos.y;
-  m_origsize.w  = size->w;
-  m_origsize.h  = size->h;
-  m_dragsize.w  = size->w;
-  m_dragsize.h  = size->h;
-  m_clamp.pt1.x = 0;
-  m_clamp.pt1.y = 0;
-  m_clamp.pt2.x = 0;
-  m_clamp.pt2.y = 0;
-  m_delta.x     = 0;
-  m_delta.y     = 0;
-  m_last.w      = 0;
-  m_last.h      = 0;
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
-
-  // Set the window size
-
-  struct nxgl_size_s winsize;
-  winsize.w = m_stringWidth + CONFIG_TWM4NX_ICONMGR_HSPACING * 2;
-  winsize.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
-
-  if (!setWindowSize(&winsize))
-    {
-      twmerr("ERROR: setWindowSize() failed\n");
-      return;
-    }
-
-  // Move the size window it to the top of the hieararchy
-
-  m_sizeWindow->raise();
-  updateSizeLabel(cwin, &m_origsize);
-
-  // Set the new frame position and size
-
-  if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
-    {
-      twmerr("ERROR: Failed to resize frame\n");
-    }
-}
-
-/**
- * Begin a window resize operation
- *
- * @param cwin the Twm4Nx window pointer
- */
-
-void CResize::addStartResize(FAR CWindow *cwin,
-                             FAR struct nxgl_point_s *pos,
-                             FAR struct nxgl_size_s *size)
-{
-  m_dragpos.x   = pos->x;
-  m_dragpos.y   = pos->y;
-  m_origpos.x   = m_dragpos.x;
-  m_origpos.y   = m_dragpos.y;
-  m_origsize.w  = size->w;
-  m_origsize.h  = size->h;
-  m_dragsize.w  = m_origsize.w;
-  m_dragsize.h  = m_origsize.h;
-
-  m_clamp.pt1.x = 0;
-  m_clamp.pt1.y = 0;
-  m_clamp.pt2.x = 0;
-  m_clamp.pt2.y = 0;
-  m_delta.x     = 0;
-  m_delta.y     = 0;
-  m_last.w      = 0;
-  m_last.h      = 0;
-
-  m_last.w      = 0;
-  m_last.h      = 0;
-  updateSizeLabel(cwin, &m_origsize);
 }
 
 /**
@@ -908,7 +802,7 @@ bool CResize::event(FAR struct SEventMsg *eventmsg)
                  eventmsg->context == EVENT_CONTEXT_WINDOW ||
                  eventmsg->context == EVENT_CONTEXT_TOOLBAR)
                 {
-                  resizeFromCenter(cwin);
+                  menuStartResize(cwin);
                 }
               else
                 {
@@ -1103,6 +997,66 @@ bool CResize::setWindowSize(FAR struct nxgl_size_s *size)
     }
 
   return true;
+}
+
+void CResize::menuStartResize(FAR CWindow *cwin)
+{
+  // Get the current frame size and position
+
+  struct nxgl_point_s windowPos;
+  if (!cwin->getFramePosition(&windowPos))
+    {
+      return;
+    }
+
+  struct nxgl_size_s windowSize;
+  if (!cwin->getFrameSize(&windowSize))
+    {
+      return;
+    }
+
+  m_dragpos.x    = windowPos.x;
+  m_dragpos.y    = windowPos.y;
+  m_origpos.x    = windowPos.x;
+  m_origpos.y    = windowPos.y;
+  m_origsize.w   = windowSize.w;
+  m_origsize.h   = windowSize.h;
+  m_dragsize.w   = windowSize.w;
+  m_dragsize.h   = windowSize.h;
+  m_clamp.pt1.x  = 0;
+  m_clamp.pt1.y  = 0;
+  m_clamp.pt2.x  = 0;
+  m_clamp.pt2.y  = 0;
+  m_delta.x      = 0;
+  m_delta.y      = 0;
+  m_last.w       = 0;
+  m_last.h       = 0;
+
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
+
+  // Set the window size
+
+  windowSize.w = m_stringWidth + CONFIG_TWM4NX_ICONMGR_HSPACING * 2;
+  windowSize.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
+
+  if (!setWindowSize(&windowSize))
+    {
+      twmerr("ERROR: setWindowSize() failed\n");
+      return;
+    }
+
+  // Move the size window it to the top of the hieararchy
+
+  m_sizeWindow->raise();
+  updateSizeLabel(cwin, &m_origsize);
+
+  // Set the new frame position and size
+
+  if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
+    {
+      twmerr("ERROR: Failed to resize frame\n");
+    }
 }
 
 /**
