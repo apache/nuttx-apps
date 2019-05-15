@@ -149,8 +149,7 @@ namespace Twm4Nx
       FAR void                   *m_eventObj;    /**< Object reference that accompanies events */
       nxgl_coord_t                m_minWidth;    /**< The minimum width of the window */
       struct SAppEvents           m_appEvents;   /**< Application event information */
-      uint16_t                    m_zoom;        /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
-      bool                        m_modal;       /**< Window zoom: ZOOM_NONE or EVENT_RESIZE_* */
+      bool                        m_modal;       /**< Window is in modal state */
 
       // Icon
 
@@ -332,13 +331,23 @@ namespace Twm4Nx
       bool isActive(uintptr_t arg);
 
       /**
-       * Enable/disable the tap
+       * Enable/disable dragging
        *
-       * @param enable.  True:  Enable the tap
+       * True is provided when (1) isActive() returns false, but (2) a mouse
+       *   report with a left-click is received.
+       * False is provided when (1) isActive() returns true, but (2) a mouse
+       *   report without a left-click is received.
+       *
+       * In the latter is redundant since dropEvent() will be called immediately
+       * afterward.
+       *
+       * @param pos.  The mouse position at the time of the click or release
+       * @param enable.  True:  Enable dragging
        * @param arg The user-argument provided that accompanies the callback
        */
 
-      void enableMovement(bool enable, uintptr_t arg);
+      void enableMovement(FAR const struct nxgl_point_s &pos,
+                          bool enable, uintptr_t arg);
 
       /**
        * Handle the TOOLBAR_GRAB event.  That corresponds to a left
@@ -427,6 +436,36 @@ namespace Twm4Nx
        */
 
       bool configureEvents(FAR const struct SAppEvents &events);
+
+      /**
+       * Register an IEventTap instance to provide callbacks when mouse
+       * movement is received.  A mouse movement with the left button down
+       * or a touchscreen touch movement are treated as a drag event.
+       * Release of the mouse left button or loss of the touchscreen touch
+       * is treated as a drop event.
+       *
+       * @param tapHandler A reference to the IEventTap callback interface.
+       * @param arg The argument returned with the IEventTap callbacks.
+       */
+
+      inline void installEventTap(FAR IEventTap *tapHandler, uintptr_t arg)
+      {
+         m_windowEvent->installEventTap(tapHandler, arg);
+      }
+
+      /**
+       * Return the installed event tap.  This is useful if you want to
+       * install a different event tap, then restore the event tap returned
+       * by this method when you are finished.
+       *
+       * @param tapHandler The location to return IEventTap callback interface.
+       * @param arg The loation to return the IEventTap argument
+       */
+
+      inline void getEventTap(FAR IEventTap *&tapHandler, uintptr_t &arg)
+      {
+         m_windowEvent->getEventTap(tapHandler, arg);
+      }
 
       /**
        * Synchronize the window with the NX server.  This function will delay
@@ -808,26 +847,6 @@ namespace Twm4Nx
             m_iconWidget->setRaisesEvents(true);
             m_iconWidget->redraw();
           }
-      }
-
-      /**
-       * Get zoom
-       */
-
-      inline uint16_t getZoom(void)
-      {
-        return m_zoom;
-      }
-
-      /**
-       * Set zoom
-       *
-       * @param zoom The new zoom setting
-       */
-
-      inline void setZoom(uint16_t zoom)
-      {
-        m_zoom = zoom;
       }
 
       /**

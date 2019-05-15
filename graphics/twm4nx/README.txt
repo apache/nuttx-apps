@@ -35,13 +35,10 @@ STATUS
     needs to be done to have a complete system (hence, it is marked
     EXPERIMENTAL).  The kinds of things that need to done are:
 
-    1. Update some logic that is only fragmentary for things like resizing.
-       Resizing events should be be generated when user pulls to right,
-       left, top, bottom, etc.  None of that is implemented.
-    2. Right click should bring up a window list (like the icon manager???)
-    3. For TWM-like behavior, a window frame and toolbar should be highlighted
+    1. Right click should bring up a window list (like the icon manager???)
+    2. For TWM-like behavior, a window frame and toolbar should be highlighted
        when the window has focus.
-    4. A right click on the toolbar should bring up a window-specific menu.
+    3. A right click on the toolbar should bring up a window-specific menu.
   2019-05-02:  Some testing progress.  The system comes up, connects to and
     initializes the VNC window.  For some reason, the VNC client breaks the
     connection.  The server is no longer connected so Twm4Nx constipates and
@@ -59,7 +56,7 @@ STATUS
     the Icon Manager window to the top of the hierarchy.  That latter option
     is only meaningful when the desktop is very crowded.
   2019-05-13:  Added the NxTerm application.  If enabled via
-    CONFIG_TWM4XN_NXTERM, there will now be a "NuttShell" enty in the Main
+    CONFIG_TWM4XN_NXTERM, there will now be a "NuttShell" entry in the Main
     Menu.  When pressed, this will bring up an NSH session in a Twm4Nx
     window.
   2019-05-14:  We can now move an icon on the desktop.  Includes logic to
@@ -67,14 +64,20 @@ STATUS
     later is an issue.  The background image image widget needs to be
     removed; it can occlude a dektop icon.  We need to paint the image
     directly on the background without the use of a widget.
+  2019-05-15:  Resizing now seems to work correctly in Twm4Nx.  It is still
+    not usable, however.  When the window size is extended, the newly exposed
+    regions must initialized with meaningul data. This is a problem in NX.
+    Normally, NX generates a redraw callback whenever the application needs
+    to redraw a region the the display.  However, with RAM-backed windows,
+    all callbacks are suppressed.  That is okay in all cases except for a
+    resize.  The missing callback leaves the new window region improperly
+    initialized.
 
 Issues:
     Here are all known issues and features that are missing:
 
     TWM Compatibilities Issues:
-    1. There is no way to resize a window.  Resizing events should be be
-       generated when user pulls to right, left, top, bottom, etc.  None of
-       that is implemented.
+    1. Resizing works a little differently in Twm4Nx.
     2. Right click should bring up a window list
     3. For TWM-like behavior, a window frame and toolbar should be highlighted
        when the window has focus.
@@ -105,4 +108,5 @@ Issues:
        of columns and the size of a generic name string.
 
     Enhancement Ideas:
-    10.  How about a full-screen mode?
+    10.  How about a full-screen mode?  This would just be a shortcut for
+         the existing resize logic.

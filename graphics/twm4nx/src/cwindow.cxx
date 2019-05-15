@@ -112,7 +112,7 @@ struct SToolbarInfo GToolBarInfo[NTOOLBAR_BUTTONS] =
   },
   [RESIZE_BUTTON] =
   {
-    &CONFIG_TWM4NX_RESIZE_IMAGE, true, EVENT_TOOLBAR_RESIZE
+    &CONFIG_TWM4NX_RESIZE_IMAGE, true, EVENT_RESIZE_BUTTON
   },
   [MINIMIZE_BUTTON] =
   {
@@ -141,7 +141,6 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_toolbar               = (FAR NXWidgets::CNxToolbar *)0;
   m_windowEvent           = (FAR CWindowEvent *)0;
   m_minWidth              = 1;
-  m_zoom                  = ZOOM_NONE;
   m_modal                 = false;
 
   // Events
@@ -680,12 +679,6 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_TOOLBAR_RESIZE:     // Toolbar resize button released
-        {
-          // REVISIT:  Not yet implemented (but don't raise an error)
-        }
-        break;
-
       case EVENT_TOOLBAR_TERMINATE:  // Toolbar terminate button pressed
         if (isIconMgr())
           {
@@ -701,7 +694,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
               {
                 twminfo("Close event...\n");
 
-                // Send the application specific [pre-]close vent
+                // Send the application specific [pre-]close event
 
                 struct SEventMsg outmsg;
                 outmsg.eventID  = m_appEvents.closeEvent;
@@ -1556,11 +1549,21 @@ bool CWindow::isActive(uintptr_t arg)
 /**
  * Enable/disable dragging
  *
+ * True is provided when (1) isActive() returns false, but (2) a mouse
+ *   report with a left-click is received.
+ * False is provided when (1) isActive() returns true, but (2) a mouse
+ *   report without a left-click is received.
+ *
+ * In the latter is redundant since dropEvent() will be called immediately
+ * afterward.
+ *
+ * @param pos.  The mouse position at the time of the click or release
  * @param enable.  True:  Enable dragging
  * @param arg The user-argument provided that accompanies the callback
  */
 
-void CWindow::enableMovement(bool enable, uintptr_t arg)
+void CWindow::enableMovement(FAR const struct nxgl_point_s &pos,
+                             bool enable, uintptr_t arg)
 {
   m_clicked = enable;
 }

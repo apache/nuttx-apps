@@ -224,6 +224,12 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
       twminfo("Mouse input: active=%u\n",
                m_tapHandler->isActive(m_tapArg));
 
+      // The new mouse position in window relative display coordinates
+
+      struct nxgl_point_s mousePos;
+      mousePos.x = pos->x;
+      mousePos.y = pos->y;
+
       // STATE         LEFT BUTTON       ACTION
       // active        clicked           moveEvent
       // active        released          dropEvent
@@ -232,22 +238,16 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
 
       if (m_tapHandler->isActive(m_tapArg))
         {
-          // The new movement position in window relative display coordinates
-
-          struct nxgl_point_s movePos;
-          movePos.x = pos->x;
-          movePos.y = pos->y;
-
           // Is the left button still pressed?
 
           if ((buttons & MOUSE_BUTTON_1) != 0)
             {
               twminfo("Continue movemenht (%d,%d) buttons=%02x m_tapHandler=%p\n",
-                      movePos.x, movePos.y, buttons, m_tapHandler);
+                      mousePos.x, mousePos.y, buttons, m_tapHandler);
 
               // Yes.. generate a movment event if we have a tap event handler
 
-              if (m_tapHandler->moveEvent(movePos, m_tapArg))
+              if (m_tapHandler->moveEvent(mousePos, m_tapArg))
                 {
                   // Skip the input poll until the movment completes
 
@@ -257,15 +257,15 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
           else
             {
               twminfo("Stop movement (%d,%d) buttons=%02x m_tapHandler=%p\n",
-                      movePos.x, movePos.y, buttons, m_tapHandler);
+                      mousePos.x, mousePos.y, buttons, m_tapHandler);
 
               // No.. then the tap is no longer active
 
-               m_tapHandler->enableMovement(false, m_tapArg);
+               m_tapHandler->enableMovement(mousePos, false, m_tapArg);
 
               // Generate a dropEvent
 
-              if (m_tapHandler->dropEvent(movePos, m_tapArg))
+              if (m_tapHandler->dropEvent(mousePos, m_tapArg))
                 {
                   // If the drop event was processed then skip the
                   // input poll until AFTER the movement completes
@@ -282,7 +282,7 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
         {
           // Indicate that we are (or may be) moving
 
-          m_tapHandler->enableMovement(true, m_tapArg);
+          m_tapHandler->enableMovement(mousePos, true, m_tapArg);
 
           twminfo("Start moving (%d,%d) buttons=%02x m_tapHandler=%p\n",
                   pos->x, pos->y, buttons, m_tapHandler);

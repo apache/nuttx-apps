@@ -53,6 +53,7 @@
 #include <nuttx/nx/nxglib.h>
 
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
+#include "graphics/twm4nx/cwindowevent.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -69,7 +70,16 @@ namespace Twm4Nx
   class  CWindow;                                 // Forward reference
   struct SEventMsg;                               // Forward reference
 
-  class CResize : protected NXWidgets::CWidgetEventHandler, public CTwm4NxEvent
+  // The CResize class is, logically, a part of CWindow.  It is brought out
+  // separately only to minimize the complexity of CWindows (and because it
+  // matches the original partitioning of TWM).  The downside is that (1) CWindow
+  // instances have to be passed un-necessarily, and (2) the precludes the
+  // possibiity of resizing two window simultaneous.  That latter is not
+  // currenlty supported anyway.
+
+  class CResize : protected NXWidgets::CWidgetEventHandler,
+                  protected IEventTap,
+                  public CTwm4NxEvent
   {
     private:
 
@@ -78,14 +88,15 @@ namespace Twm4Nx
       FAR NXWidgets::CNxTkWindow *m_sizeWindow;   /**< The resize dimensions window */
       FAR NXWidgets::CLabel      *m_sizeLabel;    /**< Resize dimension label */
       FAR CWindow                *m_resizeWindow; /**< The window being resized */
-      struct nxgl_point_s         m_origpos;      /**< Original position */
-      struct nxgl_size_s          m_origsize;     /**< Original size */
-      struct nxgl_point_s         m_dragpos;      /**< Dragged position */
-      struct nxgl_size_s          m_dragsize;     /**< Dragged size */
-      struct nxgl_rect_s          m_clamp;
-      struct nxgl_point_s         m_delta;
-      struct nxgl_size_s          m_last;
-      int                         m_stringWidth;    /**< Size of current size string */
+      FAR IEventTap              *m_savedTap;     /**< Saved IEventTap */
+      uintptr_t                   m_savedTapArg;  /**< Saved IEventTap argument */
+      struct nxgl_point_s         m_lastPos;      /**< Last window position */
+      struct nxgl_size_s          m_lastSize;     /**< Last window size */
+      struct nxgl_point_s         m_mousePos;     /**< Last mouse position */
+      bool                        m_resizing;     /**< Resize in progress */
+      bool                        m_resized;      /**< The size has changed */
+      bool                        m_mouseValid;   /**< True: m_mousePos is valid */
+      volatile bool               m_paused;       /**< The window was un-clicked */
 
       /**
        * Create the size window
@@ -106,22 +117,135 @@ namespace Twm4Nx
       bool setWindowSize(FAR struct nxgl_size_s *size);
 
       /**
-       * Begin a window resize operation
-       * @param ev           the event structure (button press)
-       * @param cwin         the TWM window pointer
-       */
-
-      void startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin);
-      void menuStartResize(FAR CWindow *cwin);
-
-      /**
        * Update the size show in the size dimension label.
        *
-       * @param cwin   The current window be resized
        * @param size   The size of the rubber band
        */
 
-      void updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size);
+      void updateSizeLabel(FAR struct nxgl_size_s &size);
+
+      /**
+       * This function handles the EVENT_RESIZE_BUTTON event.  It will start a
+       * new resize sequence.  This occurs the first time that the toolbar
+       * resize icon is clicked.
+       *
+       * @param msg.  The received NxWidget RESIZE event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool startResize(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * This function handles the EVENT_RESIZE_MOVE event.  It will update
+       * the resize information based on the new mouse position.
+       *
+       * @param msg.  The received NxWidget RESIZE event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool updateSize(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * This function handles the EVENT_RESIZE_PAUSE event.  This occurs
+       * when the window is un-clicked.  Another click in the window
+       * will resume the resize operation.
+       *
+       * @param msg.  The received NxWidget RESIZE event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool pauseResize(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * This function handles the EVENT_RESIZE_RESUME event.  This occurs
+       * when the window is clicked while paused.
+       *
+       * @param msg.  The received NxWidget RESIZE event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool resumeResize(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * This function handles the EVENT_RESIZE_STOP event.  It will
+       * terminate a resize sequence.  This occurs when the resize button
+       * is pressed a second time.
+       *
+       * @param msg.  The received NxWidget RESIZE event message.
+       * @return True if the message was properly handled.  false is
+       *   return on any failure.
+       */
+
+      bool endResize(FAR struct SEventMsg *eventmsg);
+
+      /**
+       * This function is called when there is any movement of the mouse or
+       * touch position that would indicate that the object is being moved.
+       *
+       * This function overrides the virtual IEventTap::moveEvent method.
+       *
+       * @param pos The current mouse/touch X/Y position.
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: if the movement event was processed; false it was
+       *   ignored.  The event should be ignored if there is not actually
+       *   a movement event in progress
+       */
+
+      bool moveEvent(FAR const struct nxgl_point_s &pos,
+                     uintptr_t arg);
+
+      /**
+       * This function is called if the mouse left button is released or
+       * if the touchscrreen touch is lost.  This indicates that the
+       * resize sequence is complete.
+       *
+       * This function overrides the virtual IEventTap::dropEvent method.
+       *
+       * @param pos The last mouse/touch X/Y position.
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: if the drop event was processed; false it was
+       *   ignored.  The event should be ignored if there is not actually
+       *   a resize event in progress
+       */
+
+      bool dropEvent(FAR const struct nxgl_point_s &pos,
+                     uintptr_t arg);
+
+      /**
+       * Is the tap enabled?
+       *
+       * @param arg The user-argument provided that accompanies the callback
+       * @return True: If the the tap is enabled.
+       */
+
+      inline bool isActive(uintptr_t arg)
+      {
+        return (!m_paused && m_resizing);
+      }
+
+      /**
+       * Enable/disable the resizing.  The disable event will cause resizing
+       * to be paused.
+       *
+       * True is provided when (1) isActive() returns false, but (2) a mouse
+       *   report with a left-click is received.
+       * False is provided when (1) isActive() returns true, but (2) a mouse
+       *   report without a left-click is received.
+       *
+       * In the latter is redundant since dropEvent() will be called immediately
+       * afterward.
+       *
+       * @param pos.  The mouse position at the time of the click or release
+       * @param enable.  True:  Enable movement
+       * @param arg The user-argument provided that accompanies the callback
+       */
+
+      void enableMovement(FAR const struct nxgl_point_s &pos,
+                          bool enable, uintptr_t arg);
 
     public:
 
@@ -140,6 +264,15 @@ namespace Twm4Nx
       ~CResize(void);
 
       /**
+       * @return True if resize is in-progress
+       */
+
+      inline bool resizing(void)
+      {
+        return m_resizing;
+      }
+
+      /**
        * CResize Initializer.  Performs the parts of the CResize construction
        * that may fail.
        *
@@ -147,84 +280,6 @@ namespace Twm4Nx
        */
 
       bool initialize(void);
-
-      /**
-       * Begin a window resize operation
-       *
-       * @param cwin the Twm4Nx window pointer
-       */
-
-      void addStartResize(FAR CWindow *cwin,
-                          FAR struct nxgl_point_s *pos,
-                          FAR struct nxgl_size_s *size);
-
-      /**
-       * @param cwin  The current Twm4Nx window
-       * @param root  The X position in the root window
-       */
-
-      void menuDoResize(FAR CWindow *cwin,
-                        FAR struct nxgl_point_s *root);
-
-      /**
-       * Resize the window.  This is called for each motion event while we are
-       * resizing
-       *
-       * @param cwin  The current Twm4Nx window
-       * @param root  The X position in the root window
-       */
-
-      void doResize(FAR CWindow *cwin,
-                    FAR struct nxgl_point_s *root);
-
-      /**
-       * Finish the resize operation
-       */
-
-      void endResize(FAR CWindow *cwin);
-
-      void menuEndResize(FAR CWindow *cwin);
-
-      /**
-       * Adjust the given width and height to account for the constraints imposed
-       * by size hints.
-       */
-
-      // REVISIT: Only used internally.  Used to be used to handle prompt
-      // for window size vs. automatically sizing.
-
-      void constrainSize(FAR CWindow *cwin, FAR nxgl_size_s *size);
-
-      /**
-       * Set window sizes.
-       *
-       * Special Considerations:
-       *   This routine will check to make sure the window is not completely off the
-       *   display, if it is, it'll bring some of it back on.
-       *
-       * The cwin->frame_XXX variables should NOT be updated with the values of
-       * x,y,w,h prior to calling this routine, since the new values are compared
-       * against the old to see whether a synthetic ConfigureNotify event should be
-       * sent.  (It should be sent if the window was moved but not resized.)
-       *
-       * @param cwin The CWiondow instance
-       * @param pos  The position of the upper-left outer corner of the frame
-       * @param size The size of the frame window
-       */
-
-      void setupWindow(FAR CWindow *cwin,
-                       FAR struct nxgl_point_s *pos,
-                       FAR struct nxgl_size_s *size);
-
-      /**
-       * Zooms window to full height of screen or to full height and width of screen.
-       * (Toggles so that it can undo the zoom - even when switching between fullZoom
-       * and vertical zoom.)
-       *
-       * @param cwin  the TWM window pointer
-       */
-
-      void fullZoom(FAR CWindow *cwin, int flag);
 
       /**
        * Handle RESIZE events.

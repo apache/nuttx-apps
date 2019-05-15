@@ -156,22 +156,18 @@ namespace Twm4Nx
     EVENT_TOOLBAR_UNGRAB       = 0x7002,  /**< Release click on title widget */
     EVENT_TOOLBAR_MENU         = 0x7003,  /**< Toolbar menu button released */
     EVENT_TOOLBAR_MINIMIZE     = 0x7004,  /**< Toolbar minimize button released */
-    EVENT_TOOLBAR_RESIZE       = 0x7005,  /**< Toolbar resize button released */
-    EVENT_TOOLBAR_TERMINATE    = 0x7006,  /**< Toolbar delete button released */
+    EVENT_TOOLBAR_TERMINATE    = 0x7005,  /**< Toolbar delete button released */
 
     // Recipient == BORDER
 
     // Recipient == RESIZE
 
     EVENT_RESIZE_XYINPUT       = 0x9000,  /**< Poll for widget mouse/touch events */
-    EVENT_RESIZE_START         = 0x9001,  /**< Start window resize */
-    EVENT_RESIZE_VERTZOOM      = 0x9002,  /**< Zoom vertically only */
-    EVENT_RESIZE_HORIZOOM      = 0x9003,  /**< Zoom horizontally only */
-    EVENT_RESIZE_FULLZOOM      = 0x9004,  /**< Zoom both vertically and horizontally */
-    EVENT_RESIZE_LEFTZOOM      = 0x9005,  /**< Zoom left only */
-    EVENT_RESIZE_RIGHTZOOM     = 0x9006,  /**< Zoom right only */
-    EVENT_RESIZE_TOPZOOM       = 0x9007,  /**< Zoom top only */
-    EVENT_RESIZE_BOTTOMZOOM    = 0x9008,  /**< Zoom bottom only */
+    EVENT_RESIZE_BUTTON        = 0x9001,  /**< Start or stop a resize sequence */
+    EVENT_RESIZE_MOVE          = 0x9002,  /**< Mouse movement during a resize sequence */
+    EVENT_RESIZE_PAUSE         = 0x9003,  /**< Pause resize operation when unclicked */
+    EVENT_RESIZE_RESUME        = 0x9004,  /**< Resume resize operation when re-clicked */
+    EVENT_RESIZE_STOP          = 0x9005,  /**< End a resize sequence on second press  */
 
     // Recipient == APP
     // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,
@@ -187,10 +183,10 @@ namespace Twm4Nx
     EVENT_CONTEXT_WINDOW = 0,
     EVENT_CONTEXT_TOOLBAR,
     EVENT_CONTEXT_BACKGROUND,
-    EVENT_CONTEXT_ICON,
-    EVENT_CONTEXT_FRAME,
+    EVENT_CONTEXT_ICONWIDGET,
     EVENT_CONTEXT_ICONMGR,
     EVENT_CONTEXT_MENU,
+    EVENT_CONTEXT_RESIZE,
     NUM_CONTEXTS
   };
 

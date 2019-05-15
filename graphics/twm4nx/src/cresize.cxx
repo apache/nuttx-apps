@@ -87,11 +87,22 @@ using namespace Twm4Nx;
 
 CResize::CResize(CTwm4Nx *twm4nx)
 {
-  m_twm4nx      = twm4nx;                           // Save the Twm4Nx session
-  m_eventq      = (mqd_t)-1;                        // No widget message queue yet
-  m_sizeWindow  = (FAR NXWidgets::CNxTkWindow *)0;  // No resize dimension windows yet
-  m_sizeLabel   = (FAR NXWidgets::CLabel *)0;       // No resize dismsion label
-  m_stringWidth = 0;                                // String width
+  m_twm4nx       = twm4nx;                           // Save the Twm4Nx session
+  m_eventq       = (mqd_t)-1;                        // No widget message queue yet
+  m_sizeWindow   = (FAR NXWidgets::CNxTkWindow *)0;  // No resize dimension windows yet
+  m_sizeLabel    = (FAR NXWidgets::CLabel *)0;       // No resize dismsion label
+  m_resizeWindow = (FAR CWindow *)0;                 // The window being resized
+  m_savedTap     = (FAR IEventTap *)0;               // Saved IEventTap
+  m_savedTapArg  = 0;                                // Saved IEventTap argument
+  m_lastPos.x    = 0;                                // Last window position
+  m_lastPos.y    = 0;
+  m_lastSize.w   = 0;                                // Last window size
+  m_lastSize.h   = 0;
+  m_mousePos.x   = 0;                                // Last mouse position
+  m_resizing     = false;                            // No resize in progress
+  m_resized      = false;                            // The size has not changed
+  m_mouseValid   = false;                            // The mouse position is not valid
+  m_paused       = false;                            // The window was not un-clicked
 }
 
 /**
@@ -168,606 +179,6 @@ bool CResize::initialize(void)
 }
 
 /**
- * Begin a window resize operation
- *
- * @param ev           the event structure (button press)
- * @param cwin         the TWM window pointer
- */
-
-void CResize::startResize(FAR struct SEventMsg *eventmsg, FAR CWindow *cwin)
-{
-  m_resizeWindow = cwin;
-
-  // Get the current position and size
-
-  if (!cwin->getFramePosition(&m_dragpos))
-    {
-      return;
-    }
-
-  if (!cwin->getFrameSize(&m_dragsize))
-    {
-      return;
-    }
-
-  m_origpos.x   = m_dragpos.x;
-  m_origpos.y   = m_dragpos.y;
-  m_origsize.w  = m_dragsize.w;
-  m_origsize.h  = m_dragsize.h;
-  m_clamp.pt1.y = 0;
-  m_clamp.pt2.y = 0;
-  m_clamp.pt1.x = 0;
-  m_clamp.pt2.x = 0;
-  m_delta.x     = 0;
-  m_delta.y     = 0;
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
-
-  struct nxgl_size_s size;
-  size.w = m_stringWidth + CONFIG_TWM4NX_ICONMGR_HSPACING * 2;
-  size.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
-
-  // Set the window size
-
-  if (!setWindowSize(&size))
-    {
-      twmerr("ERROR: setWindowSize() failed\n");
-      return;
-    }
-
-  // Move the window to the top of the hierarchy
-
-  m_sizeWindow->raise();
-
-  m_last.w = 0;
-  m_last.h = 0;
-
-  updateSizeLabel(cwin, &m_origsize);
-
-  // Set the new frame position and size
-
-  if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
-    {
-      twmerr("ERROR: Failed to resize frame\n");
-    }
-}
-
-/**
- * @param cwin  The current Twm4Nx window
- * @param root  The X position in the root window
- */
-
-void CResize::menuDoResize(FAR CWindow *cwin,
-                           FAR struct nxgl_point_s *root)
-{
-  int action;
-
-  action = 0;
-
-  root->x -= m_delta.x;
-  root->y -= m_delta.y;
-
-  if (m_clamp.pt1.y)
-    {
-      int delta = root->y - m_dragpos.y;
-      if (m_dragsize.h - delta < MINHEIGHT)
-        {
-          delta = m_dragsize.h - MINHEIGHT;
-          m_clamp.pt1.y = 0;
-        }
-
-      m_dragpos.y += delta;
-      m_dragsize.h -= delta;
-      action = 1;
-    }
-  else if (root->y <= m_dragpos.y)
-    {
-      m_dragpos.y = root->y;
-      m_dragsize.h = m_origpos.y + m_origsize.h - root->y;
-      m_clamp.pt2.y = 0;
-      m_clamp.pt1.y = 1;
-      m_delta.y = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt1.x)
-    {
-      int delta = root->x - m_dragpos.x;
-      if (m_dragsize.w - delta < MINWIDTH)
-        {
-          delta = m_dragsize.w - MINWIDTH;
-          m_clamp.pt1.x = 0;
-        }
-
-      m_dragpos.x += delta;
-      m_dragsize.w -= delta;
-      action = 1;
-    }
-  else if (root->x <= m_dragpos.x)
-    {
-      m_dragpos.x = root->x;
-      m_dragsize.w = m_origpos.x + m_origsize.w - root->x;
-      m_clamp.pt2.x = 0;
-      m_clamp.pt1.x = 1;
-      m_delta.x = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt2.y)
-    {
-      int delta = root->y - m_dragpos.y - m_dragsize.h;
-      if (m_dragsize.h + delta < MINHEIGHT)
-        {
-          delta = MINHEIGHT - m_dragsize.h;
-          m_clamp.pt2.y = 0;
-        }
-
-      m_dragsize.h += delta;
-      action = 1;
-    }
-  else if (root->y >= m_dragpos.y + m_dragsize.h)
-    {
-      m_dragpos.y = m_origpos.y;
-      m_dragsize.h = 1 + root->y - m_dragpos.y;
-      m_clamp.pt1.y = 0;
-      m_clamp.pt2.y = 1;
-      m_delta.y = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt2.x)
-    {
-      int delta = root->x - m_dragpos.x - m_dragsize.w;
-      if (m_dragsize.w + delta < MINWIDTH)
-        {
-          delta = MINWIDTH - m_dragsize.w;
-          m_clamp.pt2.x = 0;
-        }
-
-      m_dragsize.w += delta;
-      action = 1;
-    }
-  else if (root->x >= m_dragpos.x + m_dragsize.w)
-    {
-      m_dragpos.x = m_origpos.x;
-      m_dragsize.w = 1 + root->x - m_origpos.x;
-      m_clamp.pt1.x = 0;
-      m_clamp.pt2.x = 1;
-      m_delta.x = 0;
-      action = 1;
-    }
-
-  if (action)
-    {
-      constrainSize(cwin, &m_dragsize);
-      if (m_clamp.pt1.x)
-        {
-          m_dragpos.x = m_origpos.x + m_origsize.w - m_dragsize.w;
-        }
-
-      if (m_clamp.pt1.y)
-        {
-          m_dragpos.y = m_origpos.y + m_origsize.h - m_dragsize.h;
-        }
-
-      // Set the new frame position and size
-
-      if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
-        {
-          twmerr("ERROR: Failed to resize frame\n");
-        }
-    }
-
-  updateSizeLabel(cwin, &m_dragsize);
-}
-
-/**
- * Resize the window.  This is called for each motion event while we are
- * resizing
- *
- * @param cwin  The current Twm4Nx window
- * @param root  The X position in the root window
- */
-
-void CResize::doResize(FAR CWindow *cwin,
-                       FAR struct nxgl_point_s *root)
-{
-  int action;
-
-  action = 0;
-
-  root->x -= m_delta.x;
-  root->y -= m_delta.y;
-
-  if (m_clamp.pt1.y)
-    {
-      int delta = root->y - m_dragpos.y;
-      if (m_dragsize.h - delta < MINHEIGHT)
-        {
-          delta = m_dragsize.h - MINHEIGHT;
-          m_clamp.pt1.y = 0;
-        }
-
-      m_dragpos.y += delta;
-      m_dragsize.h -= delta;
-      action = 1;
-    }
-  else if (root->y <= m_dragpos.y)
-    {
-      m_dragpos.y = root->y;
-      m_dragsize.h = m_origpos.y + m_origsize.h - root->y;
-      m_clamp.pt2.y = 0;
-      m_clamp.pt1.y = 1;
-      m_delta.y = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt1.x)
-    {
-      int delta = root->x - m_dragpos.x;
-      if (m_dragsize.w - delta < MINWIDTH)
-        {
-          delta = m_dragsize.w - MINWIDTH;
-          m_clamp.pt1.x = 0;
-        }
-
-      m_dragpos.x += delta;
-      m_dragsize.w -= delta;
-      action = 1;
-    }
-  else if (root->x <= m_dragpos.x)
-    {
-      m_dragpos.x = root->x;
-      m_dragsize.w = m_origpos.x + m_origsize.w - root->x;
-      m_clamp.pt2.x = 0;
-      m_clamp.pt1.x = 1;
-      m_delta.x = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt2.y)
-    {
-      int delta = root->y - m_dragpos.y - m_dragsize.h;
-      if (m_dragsize.h + delta < MINHEIGHT)
-        {
-          delta = MINHEIGHT - m_dragsize.h;
-          m_clamp.pt2.y = 0;
-        }
-
-      m_dragsize.h += delta;
-      action = 1;
-    }
-  else if (root->y >= m_dragpos.y + m_dragsize.h - 1)
-    {
-      m_dragpos.y = m_origpos.y;
-      m_dragsize.h = 1 + root->y - m_dragpos.y;
-      m_clamp.pt1.y = 0;
-      m_clamp.pt2.y = 1;
-      m_delta.y = 0;
-      action = 1;
-    }
-
-  if (m_clamp.pt2.x)
-    {
-      int delta = root->x - m_dragpos.x - m_dragsize.w;
-      if (m_dragsize.w + delta < MINWIDTH)
-        {
-          delta = MINWIDTH - m_dragsize.w;
-          m_clamp.pt2.x = 0;
-        }
-
-      m_dragsize.w += delta;
-      action = 1;
-    }
-  else if (root->x >= m_dragpos.x + m_dragsize.w - 1)
-    {
-      m_dragpos.x = m_origpos.x;
-      m_dragsize.w = 1 + root->x - m_origpos.x;
-      m_clamp.pt1.x = 0;
-      m_clamp.pt2.x = 1;
-      m_delta.x = 0;
-      action = 1;
-    }
-
-  if (action)
-    {
-      constrainSize(cwin, &m_dragsize);
-      if (m_clamp.pt1.x)
-        {
-          m_dragpos.x = m_origpos.x + m_origsize.w - m_dragsize.w;
-        }
-
-      if (m_clamp.pt1.y)
-        {
-          m_dragpos.y = m_origpos.y + m_origsize.h - m_dragsize.h;
-        }
-
-      // Set the new frame position and size
-
-      if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
-        {
-          twmerr("ERROR: Failed to resize frame\n");
-        }
-    }
-
-  updateSizeLabel(cwin, &m_dragsize);
-}
-
-/**
- * Finish the resize operation
- */
-
-void CResize::endResize(FAR CWindow *cwin)
-{
-  struct nxgl_point_s pos =
-  {
-    .x = 0,
-    .y = 0
-  };
-
-  struct nxgl_size_s size =
-  {
-    .w = 0,
-    .h = 0
-  };
-
-  if (!cwin->resizeFrame(&size, &pos))
-    {
-      twmerr("ERROR: Failed to resize frame\n");
-    }
-
-  constrainSize(cwin, &m_dragsize);
-
-  struct nxgl_size_s framesize;
-  cwin->getFrameSize(&framesize);
-
-  if (m_dragsize.w != framesize.w || m_dragsize.h != framesize.h)
-    {
-      cwin->setZoom(ZOOM_NONE);
-    }
-
-  setupWindow(cwin, &m_dragpos, &m_dragsize);
-
-  if (cwin->isIconMgr())
-    {
-      // Adjust the Icon Manager button array to account for the resize
-
-      CIconMgr *iconMgr = cwin->getIconMgr();
-      iconMgr->resizeIconManager();
-    }
-
-  cwin->raiseWindow();
-  m_resizeWindow = (FAR CWindow *)0;
-}
-
-void CResize::menuEndResize(FAR CWindow *cwin)
-{
-  struct nxgl_point_s pos =
-  {
-    .x = 0,
-    .y = 0
-  };
-
-  struct nxgl_size_s size =
-  {
-    .w = 0,
-    .h = 0
-  };
-
-  // Set the window frame size (and position)
-
-  if (!cwin->resizeFrame(&size, &pos))
-    {
-      twmerr("ERROR: CWindow::resizeFrame() failed\n");
-    }
-
-  constrainSize(cwin, &m_dragsize);
-  setupWindow(cwin, &m_dragpos, &m_dragsize);
-}
-
-/**
- * Adjust the given width and height to account for the constraints
- */
-
-void CResize::constrainSize(FAR CWindow *cwin, FAR nxgl_size_s *size)
-{
-  // Calculate the minimum frame size
-
-  struct nxgl_size_s nullSize;
-  nullSize.w = 0;
-  nullSize.h = 0;
-
-  struct nxgl_size_s minSize;
-  cwin->windowToFrameSize(&nullSize, &minSize);
-
-  // Clip to minimim size
-
-  if (size->w < minSize.w)
-    {
-      size->w = minSize.w;
-    }
-
-  if (size->h < minSize.h)
-    {
-      size->h = minSize.h;
-    }
-
-  // Get the maximum window size from CTwm4Nx
-
-  struct nxgl_size_s maxSize;
-  m_twm4nx->maxWindowSize(&maxSize);
-
-  // Clip to maximim size
-
-  if (size->w > maxSize.w)
-    {
-      size->w = maxSize.w;
-    }
-
-  if (size->h > maxSize.h)
-    {
-      size->h = maxSize.h;
-    }
-}
-
-/**
- * Set window sizes.
- *
- * Special Considerations:
- *   This routine will check to make sure the window is not completely off the
- *   display, if it is, it'll bring some of it back on.
- *
- * The cwin->frame_XXX variables should NOT be updated with the values of
- * x,y,w,h prior to calling this routine, since the new values are compared
- * against the old to see whether a synthetic ConfigureNotify event should be
- * sent.  (It should be sent if the window was moved but not resized.)
- *
- * @param cwin The CWindow instance
- * @param pos  The position of the upper-left outer corner of the frame
- * @param size The size of the frame window
- */
-
-void CResize::setupWindow(FAR CWindow *cwin, FAR nxgl_point_s *pos,
-                          FAR nxgl_size_s *size)
-{
-  twminfo("pos={%d, %d} size={%d, %d}\n",
-          pos->x, pos->y, size->w, size->h);
-
-  // Clip the position the so that it is within the display (with a little
-  // extra space for the cursor)
-
-  struct nxgl_size_s displaySize;
-  m_twm4nx->getDisplaySize(&displaySize);
-
-  if (pos->x >= displaySize.w - 16)
-    {
-      pos->x = displaySize.w - 16;   // one "average" cursor width
-    }
-
-  if (pos->y >= displaySize.h - 16)
-    {
-      pos->y = displaySize.h - 16;  // one "average" cursor width
-    }
-
-  if (cwin->isIconMgr())
-    {
-      struct nxgl_size_s imsize;
-      cwin->getFrameSize(&imsize);
-      size->h = imsize.h;
-    }
-
-  // Set the window frame size (and position)
-
-  if (!cwin->resizeFrame(size, pos))
-    {
-      twmerr("ERROR: CWindow::resizeFrame() failed\n");
-    }
-}
-
-/**
- * Zooms window to full height of screen or to full height and width of screen.
- * (Toggles so that it can undo the zoom - even when switching between fullZoom
- * and vertical zoom.)
- *
- * @param cwin  the TWM window pointer
- */
-
-void CResize::fullZoom(FAR CWindow *cwin, int flag)
-{
-  // Get the current position and size
-
-  if (!cwin->getFramePosition(&m_dragpos))
-    {
-      return;
-    }
-
-  if (!cwin->getFrameSize(&m_dragsize))
-    {
-      return;
-    }
-
-  struct nxgl_point_s base;
-  base.x = 0;
-  base.y = 0;
-
-  uint16_t zoom = cwin->getZoom();
-  if (zoom == flag)
-    {
-      cwin->getFramePosition(&m_dragpos);
-      cwin->getFrameSize(&m_dragsize);
-      cwin->setZoom(ZOOM_NONE);
-    }
-  else
-    {
-      if (zoom == ZOOM_NONE)
-        {
-          cwin->resizeFrame(&m_dragsize, &m_dragpos);
-        }
-
-      cwin->setZoom(flag);
-
-      struct nxgl_size_s displaySize;
-      m_twm4nx->getDisplaySize(&displaySize);
-
-      switch (flag)
-        {
-        case ZOOM_NONE:
-          break;
-
-        case EVENT_RESIZE_VERTZOOM:
-          m_dragsize.h = displaySize.h;
-          m_dragpos.y  = base.y;
-          break;
-
-        case EVENT_RESIZE_HORIZOOM:
-          m_dragpos.x  = base.x;
-          m_dragsize.w = displaySize.w;
-          break;
-
-        case EVENT_RESIZE_FULLZOOM:
-          m_dragpos.x  = base.x;
-          m_dragpos.y  = base.y;
-          m_dragsize.h = displaySize.h;
-          m_dragsize.w = displaySize.w;
-          break;
-
-        case EVENT_RESIZE_LEFTZOOM:
-          m_dragpos.x  = base.x;
-          m_dragpos.y  = base.y;
-          m_dragsize.h = displaySize.h;
-          m_dragsize.w = displaySize.w / 2;
-          break;
-
-        case EVENT_RESIZE_RIGHTZOOM:
-          m_dragpos.x  = base.x + displaySize.w / 2;
-          m_dragpos.y  = base.y;
-          m_dragsize.h = displaySize.h;
-          m_dragsize.w = displaySize.w / 2;
-          break;
-
-        case EVENT_RESIZE_TOPZOOM:
-          m_dragpos.x  = base.x;
-          m_dragpos.y  = base.y;
-          m_dragsize.h = displaySize.h / 2;
-          m_dragsize.w = displaySize.w;
-          break;
-
-        case EVENT_RESIZE_BOTTOMZOOM:
-          m_dragpos.x  = base.x;
-          m_dragpos.y  = base.y + displaySize.h / 2;
-          m_dragsize.h = displaySize.h / 2;
-          m_dragsize.w = displaySize.w;
-          break;
-        }
-    }
-
-  cwin->raiseWindow();
-  constrainSize(cwin, &m_dragsize);
-  setupWindow(cwin, &m_dragpos, &m_dragsize);
-}
-
-/**
  * Handle RESIZE events.
  *
  * @param eventmsg.  The received NxWidget RESIZE event message.
@@ -781,45 +192,51 @@ bool CResize::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_RESIZE_XYINPUT:    // Poll for XY input
+      case EVENT_RESIZE_XYINPUT:
         {
-#warning Missing logic
+          // Poll for XY input -- None is needed at present
         }
         break;
 
-      case EVENT_RESIZE_START:      // Start window resize
+      case EVENT_RESIZE_BUTTON:
         {
-          // Can't resize icons
+          // Start the resize operation on the first resize button press
+          // (with m_resizing == false); Stop the resize operation on the
+          // second resize button press (with m_resizing == true)
 
-          FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
-          DEBUGASSERT(cwin != (FAR CWindow *)0);
-
-          if (cwin->isIconMgr())
+          if (m_resizing)
             {
-             // Check for resize from a menu
-
-             if (eventmsg->context == EVENT_CONTEXT_FRAME ||
-                 eventmsg->context == EVENT_CONTEXT_WINDOW ||
-                 eventmsg->context == EVENT_CONTEXT_TOOLBAR)
-                {
-                  menuStartResize(cwin);
-                }
-              else
-                {
-                  startResize(eventmsg, cwin);
-                }
+              success = endResize(eventmsg);
+            }
+          else
+            {
+              success = startResize(eventmsg);
             }
         }
         break;
 
-      case EVENT_RESIZE_VERTZOOM:   // Zoom vertically only
-      case EVENT_RESIZE_HORIZOOM:   // Zoom horizontally only
-      case EVENT_RESIZE_FULLZOOM:   // Zoom both vertically and horizontally
-      case EVENT_RESIZE_LEFTZOOM:   // Zoom left only
-      case EVENT_RESIZE_RIGHTZOOM:  // Zoom right only
-      case EVENT_RESIZE_TOPZOOM:    // Zoom top only
-      case EVENT_RESIZE_BOTTOMZOOM: // Zoom bottom only
-        fullZoom((FAR CWindow *)eventmsg->obj, eventmsg->eventID);
+      case EVENT_RESIZE_MOVE:
+        {
+         // Update window size when a new mouse position is available
+
+          success = updateSize(eventmsg);
+        }
+        break;
+
+      case EVENT_RESIZE_PAUSE:
+        {
+          // Pause the resizee operation when the window is unclicked
+
+          success = pauseResize(eventmsg);
+        }
+        break;
+
+      case EVENT_RESIZE_RESUME:
+        {
+          // Resume the resize operation if the window is re-clicked
+
+          success = resumeResize(eventmsg);
+        }
         break;
 
       default:
@@ -882,11 +299,9 @@ bool CResize::createSizeWindow(void)
   FAR CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
 
-  m_stringWidth = sizeFont->getStringWidth(" 8888 x 8888 ");
-
   struct nxgl_size_s size;
-  size.w = m_stringWidth,
-  size.h = (sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2);
+  size.w = sizeFont->getStringWidth(" 8888 x 8888 ");
+  size.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
 
   if (!m_sizeWindow->setSize(&size))
     {
@@ -999,87 +414,26 @@ bool CResize::setWindowSize(FAR struct nxgl_size_s *size)
   return true;
 }
 
-void CResize::menuStartResize(FAR CWindow *cwin)
-{
-  // Get the current frame size and position
-
-  struct nxgl_point_s windowPos;
-  if (!cwin->getFramePosition(&windowPos))
-    {
-      return;
-    }
-
-  struct nxgl_size_s windowSize;
-  if (!cwin->getFrameSize(&windowSize))
-    {
-      return;
-    }
-
-  m_dragpos.x    = windowPos.x;
-  m_dragpos.y    = windowPos.y;
-  m_origpos.x    = windowPos.x;
-  m_origpos.y    = windowPos.y;
-  m_origsize.w   = windowSize.w;
-  m_origsize.h   = windowSize.h;
-  m_dragsize.w   = windowSize.w;
-  m_dragsize.h   = windowSize.h;
-  m_clamp.pt1.x  = 0;
-  m_clamp.pt1.y  = 0;
-  m_clamp.pt2.x  = 0;
-  m_clamp.pt2.y  = 0;
-  m_delta.x      = 0;
-  m_delta.y      = 0;
-  m_last.w       = 0;
-  m_last.h       = 0;
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *sizeFont = fonts->getSizeFont();
-
-  // Set the window size
-
-  windowSize.w = m_stringWidth + CONFIG_TWM4NX_ICONMGR_HSPACING * 2;
-  windowSize.h = sizeFont->getHeight() + CONFIG_TWM4NX_ICONMGR_VSPACING * 2;
-
-  if (!setWindowSize(&windowSize))
-    {
-      twmerr("ERROR: setWindowSize() failed\n");
-      return;
-    }
-
-  // Move the size window it to the top of the hieararchy
-
-  m_sizeWindow->raise();
-  updateSizeLabel(cwin, &m_origsize);
-
-  // Set the new frame position and size
-
-  if (!cwin->resizeFrame(&m_dragsize, &m_dragpos))
-    {
-      twmerr("ERROR: Failed to resize frame\n");
-    }
-}
-
 /**
  * Update the size show in the size dimension label.
  *
- * @param cwin   The current window being resized
- * @param size   She size of the rubber band
+ * @param windowSize The new size of the window
  */
 
-void CResize::updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
+void CResize::updateSizeLabel(FAR struct nxgl_size_s &windowSize)
 {
   // Do nothing if the size has not changed
 
-  if (m_last.w == size->w && m_last.h == size->h)
+  struct nxgl_size_s labelSize;
+  m_sizeLabel->getSize(labelSize);
+
+  if (labelSize.w == windowSize.w && labelSize.h == windowSize.h)
     {
       return;
     }
 
-  m_last.w = size->w;
-  m_last.h = size->h;
-
   FAR char *str;
-  (void)asprintf(&str, " %4d x %-4d ", size->w, size->h);
+  (void)asprintf(&str, " %4d x %-4d ", windowSize.w, windowSize.h);
   if (str == (FAR char *)0)
     {
       twmerr("ERROR: Failed to get size string\n");
@@ -1103,4 +457,478 @@ void CResize::updateSizeLabel(FAR CWindow *cwin, FAR struct nxgl_size_s *size)
   m_sizeLabel->enableDrawing();
   m_sizeLabel->setRaisesEvents(true);
   m_sizeLabel->redraw();
+}
+
+/**
+ * This function handles the EVENT_RESIZE_BUTTON event.  It will start a new
+ * resize sequence.  This occurs the first time that the toolbar resize
+ * icon  resize icon is clicked.
+ *
+ * @param msg.  The received NxWidget RESIZE event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CResize::startResize(FAR struct SEventMsg *eventmsg)
+{
+  // Save the window that we are operating on
+
+  m_resizeWindow = (FAR CWindow *)eventmsg->obj;
+
+  // Get the window current position and size
+
+  if (!m_resizeWindow->getFramePosition(&m_lastPos))
+    {
+      gerr("ERROR: Failed to get frame position");
+      return false;
+    }
+
+  if (!m_resizeWindow->getFrameSize(&m_lastSize))
+    {
+      gerr("ERROR: Failed to get frame size");
+      return false;
+    }
+
+  // Save the current touch position
+
+  m_mousePos.x = eventmsg->pos.x;
+  m_mousePos.y = eventmsg->pos.y;
+  m_mouseValid = false;            // RESVISIT:  Why is position invalid?
+
+  // Update the size label
+
+  updateSizeLabel(m_lastSize);
+
+  // Unhide the size window
+
+  m_sizeWindow->show();
+
+  // Set up the temporary event tap
+
+  m_resizeWindow->getEventTap(m_savedTap, m_savedTapArg);
+  m_resizeWindow->installEventTap(this, (uintptr_t)0);
+
+  // Make the size window modal so that it will stay at the top of the
+  // hierarchy
+
+  m_sizeWindow->modal(true);
+  m_resizing = true;
+  m_resized  = false;
+  return true;
+}
+
+/**
+ * This function handles the EVENT_RESIZE_MOVE event.  It will update
+ * the resize information based on the new mouse position.
+ *
+ * @param msg.  The received NxWidget RESIZE event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CResize::updateSize(FAR struct SEventMsg *eventmsg)
+{
+  // REVISIT:  This is a kludge.  It appears that in startResize(), the
+  // received mouse position is always (0,0).  So we have to waste one update
+  // to get a valid size.
+
+  if (!m_mouseValid)
+    {
+      m_mousePos.x = eventmsg->pos.x;
+      m_mousePos.y = eventmsg->pos.y;
+      m_mouseValid = true;
+      return true;
+    }
+
+  // The unconstrained, new window size is the old window size plus the
+  // change in the mouse position.
+
+  struct nxgl_size_s newSize;
+  newSize.w = m_lastSize.w + eventmsg->pos.x - m_mousePos.x;
+  newSize.h = m_lastSize.h + eventmsg->pos.y - m_mousePos.y;
+
+  // Create a bounding box for the new window
+
+  struct nxgl_rect_s windowBounds;
+  windowBounds.pt1.x = m_lastPos.x;
+  windowBounds.pt1.y = m_lastPos.y;
+  windowBounds.pt2.x = m_lastPos.x + newSize.w - 1;
+  windowBounds.pt2.y = m_lastPos.y + newSize.h - 1;
+
+  // If the new size could exceed the right limit of the window, then
+  // move the left position to keep the window within the display.
+
+  struct nxgl_size_s displaySize;
+  m_twm4nx->getDisplaySize(&displaySize);
+
+  if (windowBounds.pt2.x >= displaySize.w)
+    {
+      // Stretch the left side and truncate the right side
+
+      windowBounds.pt1.x = displaySize.w - newSize.w;
+      windowBounds.pt2.x = displaySize.w - 1;
+
+      // Clip the left side if necessary
+
+      if (windowBounds.pt1.x < 0)
+        {
+          windowBounds.pt1.x = 0;
+        }
+    }
+
+  // If the new size could exceed the left limit of the window, then
+  // move the right position to keep the window within the display.
+
+  else if (windowBounds.pt1.x < 0)
+    {
+      windowBounds.pt1.x = 0;
+      windowBounds.pt2.x = newSize.w - 1;
+
+      // Clip the right side if necessary
+
+      if (windowBounds.pt2.x >= displaySize.w)
+        {
+          windowBounds.pt2.x = displaySize.w - 1;
+        }
+    }
+
+  // If the new size could exceed the bottom limit of the window, then
+  // move the top position to keep the window within the display.
+
+  if (windowBounds.pt2.y >= displaySize.h)
+    {
+      // Stretch the left side and truncate the right side
+
+      windowBounds.pt1.y = displaySize.h - newSize.h;
+      windowBounds.pt2.y = displaySize.h - 1;
+
+      // Clip the top side if necessary
+
+      if (windowBounds.pt1.y < 0)
+        {
+          windowBounds.pt1.y = 0;
+        }
+    }
+
+  // If the new size could exceed the top limit of the window, then
+  // move the bottom position to keep the window within the display.
+
+  else if (windowBounds.pt1.y < 0)
+    {
+      windowBounds.pt1.y = 0;
+      windowBounds.pt2.y = newSize.h - 1;
+
+      // Clip the bottom side if necessary
+
+      if (windowBounds.pt2.x > displaySize.h)
+        {
+          windowBounds.pt2.x = displaySize.h - 1;
+        }
+    }
+
+  // Check if the size changed
+
+  newSize.w = windowBounds.pt2.x - windowBounds.pt1.x + 1;
+  newSize.h = windowBounds.pt2.y - windowBounds.pt1.y + 1;
+
+  // Don't do more unless the size has actually changed
+
+  if (m_lastSize.w != newSize.h || m_lastSize.h != newSize.h)
+    {
+      // Do we want to try a continuous resize?   If so, we should call
+      // m_resizeWindow->resizeFrame() here.  This probably a bit much for the
+      // typical embedded MCU to handle.  So we, instead, just display the
+      // updated size.  The window will not be resized until the resize button
+      // is pressed a second time.
+
+      updateSizeLabel(newSize);
+      m_resized = true;
+    }
+
+  // Reset every thing in preparation for the next mouse report
+
+  m_lastSize.w = newSize.w;
+  m_lastSize.h = newSize.h;
+  m_lastPos.x  = windowBounds.pt1.x;
+  m_lastPos.y  = windowBounds.pt1.y;
+  m_mousePos.x = eventmsg->pos.x;
+  m_mousePos.y = eventmsg->pos.y;
+
+  return true;
+}
+
+/**
+ * This function handles the EVENT_RESIZE_PAUSE event.  This occurs
+ * when the window is un-clicked.  Another click in the window
+ * will resume the resize operation.
+ *
+ * @param msg.  The received NxWidget RESIZE event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CResize::pauseResize(FAR struct SEventMsg *eventmsg)
+{
+  // m_paused should have already been set asychronously
+
+  bool success = false;
+  if (m_paused)
+    {
+      // One last update to the mouse release position
+
+      if (!updateSize(eventmsg))
+        {
+          gerr("ERROR: Failed to update the window size\n");
+        }
+
+      // Set the new frame position and size if the size has changed
+
+      else if (m_resized && !m_resizeWindow->resizeFrame(&m_lastSize, &m_lastPos))
+        {
+          twmerr("ERROR: Failed to resize frame\n");
+        }
+      else
+        {
+          m_resized = false;
+          success   = true;
+        }
+    }
+
+  return success;
+}
+
+/**
+ * This function handles the EVENT_RESIZE_RESUME event.  This occurs
+ * when the window is clicked while paused.
+ *
+ * @param msg.  The received NxWidget RESIZE event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CResize::resumeResize(FAR struct SEventMsg *eventmsg)
+{
+  // Make sure the we are in the resizing state
+
+  if (!m_resizing)
+   {
+      return false;
+   }
+
+  // Reset the the window position and size
+
+  if (!m_resizeWindow->getFramePosition(&m_lastPos))
+    {
+      gerr("ERROR: Failed to get frame position");
+      return false;
+    }
+
+  if (!m_resizeWindow->getFrameSize(&m_lastSize))
+    {
+      gerr("ERROR: Failed to get frame size");
+      return false;
+    }
+
+  // Save the current touch position
+
+  m_mousePos.x = eventmsg->pos.x;
+  m_mousePos.y = eventmsg->pos.y;
+
+  // Update the size label
+
+  updateSizeLabel(m_lastSize);
+  return true;
+}
+
+/**
+ * This function handles the EVENT_RESIZE_STOP event.  It will terminate a
+ * resize sequence.
+ *
+ * @param msg.  The received NxWidget RESIZE event message.
+ * @return True if the message was properly handled.  false is
+ *   return on any failure.
+ */
+
+bool CResize::endResize(FAR struct SEventMsg *eventmsg)
+{
+  // Make sure the we are in the resizing state
+
+  if (!m_resizing)
+   {
+      return false;
+   }
+
+  // Restore the event tap
+
+  m_resizeWindow->installEventTap(m_savedTap, m_savedTapArg);
+
+  // The size window should no longer be modal
+
+  m_sizeWindow->modal(false);
+
+  // Hide the size window
+
+  m_sizeWindow->hide();
+
+  // Has the size changed?
+
+  bool success = true;
+  if (m_resized)
+  {
+    // If the window was the Icon manager, then we need to deal with the
+    // contained widget.
+
+    if (m_resizeWindow->isIconMgr())
+      {
+        // Adjust the Icon Manager button array to account for the resize
+
+        CIconMgr *iconMgr = m_resizeWindow->getIconMgr();
+        iconMgr->resizeIconManager();
+      }
+
+    // Set the new window frame position and size
+
+     if (!m_resizeWindow->resizeFrame(&m_lastSize, &m_lastPos))
+      {
+        twmerr("ERROR: Failed to resize frame\n");
+        success = false;
+      }
+    else
+      {
+        m_resized = false;
+      }
+  }
+
+  m_resizing = false;
+  return success;
+}
+
+/**
+ * This function is called when there is any movement of the mouse or
+ * touch position that would indicate that the object is being moved.
+ *
+ * This function overrides the virtual IEventTap::moveEvent method.
+ *
+ * @param pos The current mouse/touch X/Y position.
+ * @param arg The user-argument provided that accompanies the callback
+ * @return True: if the movement event was processed; false it was
+ *   ignored.  The event should be ignored if there is not actually
+ *   a movement event in progress
+ */
+
+bool CResize::moveEvent(FAR const struct nxgl_point_s &pos,
+                        uintptr_t arg)
+{
+  twminfo("MOVE event...\n");
+
+  // Send the aEVENT_RESIZE_MOVE event
+
+  struct SEventMsg outmsg;
+  outmsg.eventID  = EVENT_RESIZE_MOVE;
+  outmsg.obj      = (FAR void *)this;
+  outmsg.pos.x    = pos.x;
+  outmsg.pos.y    = pos.y;
+  outmsg.context  = EVENT_CONTEXT_RESIZE;
+  outmsg.handler  = (FAR void *)0;
+
+  int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                    sizeof(struct SEventMsg), 100);
+  if (ret < 0)
+   {
+     twmerr("ERROR: mq_send failed: %d\n", ret);
+     return false;
+   }
+
+  return true;
+}
+
+/**
+ * This function is called if the mouse left button is released or
+ * if the touchscreen touch is lost.  This indicates that the
+ * movement sequence is complete.
+ *
+ * In this usage, this indicates the end of a resize sequence.
+ *
+ * This function overrides the virtual IEventTap::dropEvent method.
+ *
+ * @param pos The last mouse/touch X/Y position.
+ * @param arg The user-argument provided that accompanies the callback
+ * @return True: if the drop event was processed; false it was
+ *   ignored.  The event should be ignored if there is not actually
+ *   a movement event in progress
+ */
+
+bool CResize::dropEvent(FAR const struct nxgl_point_s &pos,
+                        uintptr_t arg)
+{
+  twminfo("Drop event...\n");
+
+  // Send the aEVENT_RESIZE_PAUSE event
+
+  struct SEventMsg outmsg;
+  outmsg.eventID  = EVENT_RESIZE_PAUSE;
+  outmsg.obj      = (FAR void *)this;
+  outmsg.pos.x    = pos.x;
+  outmsg.pos.y    = pos.y;
+  outmsg.context  = EVENT_CONTEXT_RESIZE;
+  outmsg.handler  = (FAR void *)0;
+
+  int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                    sizeof(struct SEventMsg), 100);
+  if (ret < 0)
+   {
+     twmerr("ERROR: mq_send failed: %d\n", ret);
+     return false;
+   }
+
+  return true;
+}
+
+/**
+ * Enable/disable the resizing.  The disable event will cause resizing
+ * to be paused.
+ *
+ * True is provided when (1) isActive() returns false, but (2) a mouse
+ *   report with a left-click is received.
+ * False is provided when (1) isActive() returns true, but (2) a mouse
+ *   report without a left-click is received.
+ *
+ * In the latter is redundant since dropEvent() will be called immediately
+ * afterward.
+ *
+ * @param pos.  The mouse position at the time of the click or release
+ * @param enable.  True:  Enable the tap
+ * @param arg The user-argument provided that accompanies the callback
+ */
+
+void CResize::enableMovement(FAR const struct nxgl_point_s &pos,
+                             bool enable, uintptr_t arg)
+{
+  // If we are already dragging, but paused, then send the resume event.
+  // NOTE that we don't have to do anything in pause case because we
+  // will get the redundant dropEvent
+
+  if (m_paused && m_resizing)
+    {
+      // Send the aEVENT_RESIZE_RESUME event
+
+      struct SEventMsg outmsg;
+      outmsg.eventID  = EVENT_RESIZE_RESUME;
+      outmsg.obj      = (FAR void *)this;
+      outmsg.pos.x    = pos.x;
+      outmsg.pos.y    = pos.y;
+      outmsg.context  = EVENT_CONTEXT_RESIZE;
+      outmsg.handler  = (FAR void *)0;
+
+      int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+       {
+         twmerr("ERROR: mq_send failed: %d\n", ret);
+       }
+    }
+
+  // Otherwise, just track the state
+
+  m_paused = !enable;
 }

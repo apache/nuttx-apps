@@ -86,6 +86,11 @@ namespace Twm4Nx
        * destructor.  We do this because if we delete ITextBox, we want the
        * destructor of the class that inherits from ITextBox to run, not this
        * one.
+       *
+       * CAREFUL:  All of these methods will run on the thread of execution
+       * of the listener thread.  The safest design for the implementation
+       * of these methods would be to send a messsage to main Twm4Nx thread
+       * event handler for movement processing.
        */
 
       virtual ~IEventTap(void)
@@ -133,13 +138,23 @@ namespace Twm4Nx
       virtual bool isActive(uintptr_t arg) = 0;
 
       /**
-       * Enable/disable movement
+       * Enable/disable the tap.
        *
+       * True is provided when (1) isActive() returns false, but (2) a mouse
+       *   report with a left-click is received.
+       * False is provided when (1) isActive() returns true, but (2) a mouse
+       *   report without a left-click is received.
+       *
+       * In the latter is redundant since dropEvent() will be called immediately
+       * afterward.
+       *
+       * @param pos.  The mouse position at the time of the click or release
        * @param enable.  True:  Enable movement
        * @param arg The user-argument provided that accompanies the callback
        */
 
-      virtual void enableMovement(bool enable, uintptr_t arg) = 0;
+      virtual void enableMovement(FAR const struct nxgl_point_s &pos,
+                                  bool enable, uintptr_t arg) = 0;
   };
 
   /**
