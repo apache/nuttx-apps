@@ -99,7 +99,7 @@ namespace Twm4Nx
        * @param pos The current mouse/touch X/Y position in toolbar relative
        *   coordinates.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: if the movement event was processed; false it is was
+       * @return True: if the movement event was processed; false it was
        *   ignored.  The event should be ignored if there is not actually
        *   a movement event in progress
        */
@@ -115,7 +115,7 @@ namespace Twm4Nx
        * @param pos The last mouse/touch X/Y position in toolbar relative
        *   coordinates.
        * @param arg The user-argument provided that accompanies the callback
-       * @return True: If the movement event was processed; false it is was
+       * @return True: If the movement event was processed; false it was
        *   ignored.  The event should be ignored if there is not actually
        *   a movement event in progress
        */

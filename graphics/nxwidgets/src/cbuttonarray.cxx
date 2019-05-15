@@ -166,14 +166,19 @@ bool CButtonArray::resizeArray(uint8_t buttonColumns, uint8_t buttonRows,
 
   // Allocate the new text array
 
-  m_buttonText        = new CNxString[m_buttonRows * m_buttonColumns];
+  m_buttonText       = new CNxString[m_buttonRows * m_buttonColumns];
+
+  // Resize the widget
+
+  bool success       = resize(buttonColumns * buttonWidth + 2,
+                              buttonRows * buttonHeight + 2);
 
   // And go active again with a resized button array (with no labels)
 
   enableDrawing();
   redraw();
   setRaisesEvents(true);
-  return true;
+  return success;
 }
 
 /**

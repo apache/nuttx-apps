@@ -1440,14 +1440,14 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 }
 
 /**
- * This function is called when there is any moved of the mouse or
+ * This function is called when there is any movement of the mouse or
  * touch position that would indicate that the object is being moved.
  *
  * This function overrides the virtual IEventTap::moveEvent method.
  *
  * @param pos The current mouse/touch X/Y position in toolbar relative
  *   coordinates.
- * @return True: if the drag event was processed; false it is was
+ * @return True: if the drag event was processed; false it was
  *   ignored.  The event should be ignored if there is not actually
  *   a drag event in progress
  */
@@ -1507,7 +1507,7 @@ bool CWindow::moveEvent(FAR const struct nxgl_point_s &pos,
  *
  * @param pos The last mouse/touch X/Y position in toolbar relative
  *   coordinates.
- * @return True: If the drag event was processed; false it is was
+ * @return True: If the drag event was processed; false it was
  *   ignored.  The event should be ignored if there is not actually
  *   a drag event in progress
  */
