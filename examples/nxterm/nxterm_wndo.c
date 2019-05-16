@@ -116,7 +116,8 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   if (g_nxterm_vars.hdrvr)
     {
-      struct boardioc_nxterm_redraw_s redraw;
+      struct boardioc_nxterm_ioctl_s iocargs;
+      struct nxtermioc_redraw_s redraw;
 
       /* Inform the NX console of the redraw request */
 
@@ -124,7 +125,10 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
       redraw.more   = more;
       nxgl_rectcopy(&redraw.rect, rect);
 
-      (void)boardctl(BOARDIOC_NXTERM_REDRAW, (uintptr_t)&redraw);
+      iocargs.cmd = NXTERMIOC_NXTERM_REDRAW;
+      iocargs.arg = (uintptr_t)&redraw;
+
+      (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
     }
   else
     {

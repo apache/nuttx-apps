@@ -411,7 +411,8 @@ void CNxTerm::redraw(void)
 
   // Redraw the entire NxTerm window
 
-  struct boardioc_nxterm_redraw_s redraw;
+  struct boardioc_nxterm_ioctl_s iocargs;
+  struct nxtermioc_redraw_s redraw;
 
   redraw.handle     = m_nxterm;
   redraw.rect.pt1.x = 0;
@@ -420,7 +421,10 @@ void CNxTerm::redraw(void)
   redraw.rect.pt2.y = windowSize.h - 1;
   redraw.more       = false;
 
-  (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&redraw);
+  iocargs.cmd       = NXTERMIOC_NXTERM_REDRAW;
+  iocargs.arg       = (uintptr_t)&redraw;
+
+  (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
 }
 
 /**

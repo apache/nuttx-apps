@@ -350,7 +350,7 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
                              sizeof(struct SEventMsg), 100);
               if (ret < 0)
                 {
-                  twmerr("ERROR: mq_send failed: %d\n", ret);
+                  twmerr("ERROR: mq_send failed: %d\n", errno);
                   success = false;
                 }
             }
@@ -566,6 +566,7 @@ bool CMenus::createMenuWindow(void)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.resizeEvent = EVENT_SYSTEM_NOP;
   events.mouseEvent  = EVENT_MENU_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
@@ -849,7 +850,7 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                                 sizeof(struct SEventMsg), 100);
               if (ret < 0)
                 {
-                  twmerr("ERROR: mq_send failed: %d\n", ret);
+                  twmerr("ERROR: mq_send failed: %d\n", errno);
                 }
 
               return;

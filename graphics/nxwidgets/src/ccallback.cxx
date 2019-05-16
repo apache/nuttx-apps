@@ -276,7 +276,8 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
 
   if (This->m_nxterm)
     {
-      struct boardioc_nxterm_kbdin_s kbdin;
+      struct boardioc_nxterm_ioctl_s iocargs;
+      struct nxtermioc_kbdin_s kbdin;
 
       // Keyboard input is going to an NxTerm
 
@@ -284,7 +285,10 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
       kbdin.buffer = str;
       kbdin.buflen = nCh;
 
-      (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&kbdin);
+      iocargs.cmd  = NXTERMIOC_NXTERM_KBDIN;
+      iocargs.arg  = (uintptr_t)&kbdin;
+
+      (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
     }
   else
 #endif

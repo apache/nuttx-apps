@@ -60,16 +60,17 @@
 // Window Events
 
 #define EVENT_NXTERM_REDRAW   (EVENT_RECIPIENT_APP | 0x0000)
+#define EVENT_NXTERM_RESIZE   (EVENT_RECIPIENT_APP | 0x0001)
 #define EVENT_NXTERM_XYINPUT   EVENT_SYSTEM_NOP
 #define EVENT_NXTERM_KBDINPUT  EVENT_SYSTEM_NOP
 
 // Button Events
 
-#define EVENT_NXTERM_CLOSE    (EVENT_RECIPIENT_APP | 0x0001)
+#define EVENT_NXTERM_CLOSE    (EVENT_RECIPIENT_APP | 0x0002)
 
 // Menu Events
 
-#define EVENT_NXTERM_START    (EVENT_RECIPIENT_APP | 0x0002)
+#define EVENT_NXTERM_START    (EVENT_RECIPIENT_APP | 0x0003)
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
@@ -112,6 +113,12 @@ namespace Twm4Nx
        */
 
       void redraw(void);
+
+      /**
+       * inform NxTerm of a new window size.
+       */
+
+      void resize(void);
 
       /**
        * This is the close window event handler.  It will stop the NxTerm

@@ -201,6 +201,7 @@ bool CNxTerm::initialize(void)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_NXTERM_REDRAW;
+  events.resizeEvent = EVENT_NXTERM_RESIZE;
   events.mouseEvent  = EVENT_NXTERM_XYINPUT;
   events.kbdEvent    = EVENT_NXTERM_KBDINPUT;
   events.closeEvent  = EVENT_NXTERM_CLOSE;
@@ -493,8 +494,12 @@ bool CNxTerm::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_NXTERM_REDRAW:  // Redraw event (should not happen)
+      case EVENT_NXTERM_REDRAW:  // Redraw event
         redraw();                // Redraw the whole window
+        break;
+
+      case EVENT_NXTERM_RESIZE:  // Resize event
+        resize();                // Size the NxTerm window
         break;
 
       case EVENT_NXTERM_CLOSE:   // Window close event
@@ -510,9 +515,9 @@ bool CNxTerm::event(FAR struct SEventMsg *eventmsg)
 }
 
 /**
- * Redraw the entire window.  The application has been maximized or
- * otherwise moved to the top of the hierarchy.  This method is call from
- * CTwm4Nx when the application window must be displayed
+ * Redraw the entire window.  The application has been maximized, resized or
+ * moved to the top of the hierarchy.  This method is call from CTwm4Nx when
+ * the application window must be displayed
  */
 
 void CNxTerm::redraw(void)
@@ -524,7 +529,8 @@ void CNxTerm::redraw(void)
 
   // Redraw the entire NxTerm window
 
-  struct boardioc_nxterm_redraw_s redraw;
+  struct boardioc_nxterm_ioctl_s iocargs;
+  struct nxtermioc_redraw_s redraw;
 
   redraw.handle     = m_NxTerm;
   redraw.rect.pt1.x = 0;
@@ -533,7 +539,32 @@ void CNxTerm::redraw(void)
   redraw.rect.pt2.y = windowSize.h - 1;
   redraw.more       = false;
 
-  (void)boardctl(BOARDIOC_NXTERM_KBDIN, (uintptr_t)&redraw);
+  iocargs.cmd       = NXTERMIOC_NXTERM_REDRAW;
+  iocargs.arg       = (uintptr_t)&redraw;
+
+  (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
+}
+
+/**
+ * inform NxTerm of a new window size.
+ */
+
+void CNxTerm::resize(void)
+{
+  struct nxtermioc_resize_s resize;
+
+  // Get the size of the window
+
+  resize.handle     = m_NxTerm;
+  (void)m_nxtermWindow->getWindowSize(&resize.size);
+
+  // Inform NxTerm of the new size
+
+  struct boardioc_nxterm_ioctl_s iocargs;
+  iocargs.cmd       = NXTERMIOC_NXTERM_RESIZE;
+  iocargs.arg       = (uintptr_t)&resize;
+
+  (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
 }
 
 /////////////////////////////////////////////////////////////////////////////

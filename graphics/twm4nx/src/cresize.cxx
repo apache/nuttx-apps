@@ -44,7 +44,8 @@
 // Included Files
 /////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+#include <cstdio>
+#include <cerrno>
 
 #include <nuttx/nx/nxbe.h>
 
@@ -499,6 +500,12 @@ bool CResize::startResize(FAR struct SEventMsg *eventmsg)
 
   updateSizeLabel(m_lastSize);
 
+  // Disable all other toolbar buttons
+
+  m_resizeWindow->disableToolbarButtons(DISABLE_MENU_BUTTON |
+                                        DISABLE_DELETE_BUTTON |
+                                        DISABLE_MINIMIZE_BUTTON);
+
   // Unhide the size window
 
   m_sizeWindow->show();
@@ -762,6 +769,10 @@ bool CResize::endResize(FAR struct SEventMsg *eventmsg)
 
   m_resizeWindow->installEventTap(m_savedTap, m_savedTapArg);
 
+  // Re-enable toolbar buttons
+
+  m_resizeWindow->disableToolbarButtons(DISABLE_NO_BUTTONS);
+
   // The size window should no longer be modal
 
   m_sizeWindow->modal(false);
@@ -835,7 +846,7 @@ bool CResize::moveEvent(FAR const struct nxgl_point_s &pos,
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
    {
-     twmerr("ERROR: mq_send failed: %d\n", ret);
+     twmerr("ERROR: mq_send failed: %d\n", errno);
      return false;
    }
 
@@ -877,7 +888,7 @@ bool CResize::dropEvent(FAR const struct nxgl_point_s &pos,
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
    {
-     twmerr("ERROR: mq_send failed: %d\n", ret);
+     twmerr("ERROR: mq_send failed: %d\n", errno);
      return false;
    }
 
@@ -924,7 +935,7 @@ void CResize::enableMovement(FAR const struct nxgl_point_s &pos,
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
        {
-         twmerr("ERROR: mq_send failed: %d\n", ret);
+         twmerr("ERROR: mq_send failed: %d\n", errno);
        }
     }
 

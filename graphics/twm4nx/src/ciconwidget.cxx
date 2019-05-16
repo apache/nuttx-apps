@@ -481,7 +481,7 @@ void CIconWidget::handleUngrabEvent(const NXWidgets::CWidgetEventArgs &e)
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
     {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", errno);
     }
 }
 
@@ -519,7 +519,7 @@ void CIconWidget::handleDragEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }
@@ -578,7 +578,7 @@ void CIconWidget::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }

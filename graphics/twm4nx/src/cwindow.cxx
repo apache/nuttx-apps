@@ -388,6 +388,7 @@ bool CWindow::configureEvents(FAR const struct SAppEvents &events)
 {
   m_appEvents.eventObj     = events.eventObj;    // Event object
   m_appEvents.redrawEvent  = events.redrawEvent; // Redraw event ID
+  m_appEvents.resizeEvent  = events.resizeEvent; // Resize event ID
   m_appEvents.mouseEvent   = events.mouseEvent;  // Mouse/touchscreen event ID
   m_appEvents.kbdEvent     = events.kbdEvent;    // Keyboard event ID
   m_appEvents.closeEvent   = events.closeEvent;  // Window event ID
@@ -483,7 +484,40 @@ bool CWindow::resizeFrame(FAR const struct nxgl_size_s *frameSize,
 
   // Then update the toolbar layout (if there is one)
 
-  return updateToolbarLayout();
+  success = updateToolbarLayout();
+  if (!success)
+    {
+      twmerr("ERROR: updateToolbarLayout() failed\n");
+      return false;
+    }
+
+  // Check if the application using this window is interested in resize
+  // events
+
+  if (m_appEvents.resizeEvent != EVENT_SYSTEM_NOP)
+    {
+      twminfo("Close event...\n");
+
+      // Send the application specific [pre-]close event
+
+      struct SEventMsg outmsg;
+      outmsg.eventID  = m_appEvents.resizeEvent;
+      outmsg.obj      = (FAR void *)this;
+      outmsg.pos.x    = 0;
+      outmsg.pos.y    = 0;
+      outmsg.context  = EVENT_CONTEXT_WINDOW;
+      outmsg.handler  = m_appEvents.eventObj;
+
+      int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          twmerr("ERROR: mq_send failed: %d\n", errno);
+          return false;
+        }
+   }
+
+  return true;
 }
 
 /**
@@ -708,7 +742,7 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
                                   sizeof(struct SEventMsg), 100);
                 if (ret < 0)
                   {
-                    twmerr("ERROR: mq_send failed: %d\n", ret);
+                    twmerr("ERROR: mq_send failed: %d\n", errno);
                   }
              }
 
@@ -889,6 +923,7 @@ bool CWindow::createToolbar(void)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.resizeEvent = EVENT_SYSTEM_NOP;
   events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
@@ -1316,7 +1351,7 @@ void CWindow::handleUngrabEvent(nxgl_coord_t x, nxgl_coord_t y)
                     sizeof(struct SEventMsg), 100);
   if (ret < 0)
     {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", errno);
     }
 }
 
@@ -1354,7 +1389,7 @@ void CWindow::handleClickEvent(const NXWidgets::CWidgetEventArgs &e)
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }
@@ -1400,6 +1435,15 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   for (int btindex = 0; btindex < NTOOLBAR_BUTTONS; btindex++)
     {
+      // Check if this button is omitted by toolbar customizations or if the
+      // button is temporarily disabled.
+
+      if ((m_tbFlags & (1 << btindex)) != 0 ||
+          (m_tbDisables & (1 << btindex)) != 0)
+        {
+          continue;
+        }
+
       // Check if the widget is clicked
 
       if (m_tbButtons[btindex] != (FAR NXWidgets::CImage *)0 &&
@@ -1426,7 +1470,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                             sizeof(struct SEventMsg), 100);
           if (ret < 0)
             {
-              twmerr("ERROR: mq_send failed: %d\n", ret);
+              twmerr("ERROR: mq_send failed: %d\n", errno);
             }
         }
     }
@@ -1482,7 +1526,7 @@ bool CWindow::moveEvent(FAR const struct nxgl_point_s &pos,
                         sizeof(struct SEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
 
       return true;
@@ -1588,6 +1632,7 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.resizeEvent = EVENT_SYSTEM_NOP;
   events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = m_appEvents.closeEvent;

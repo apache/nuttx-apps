@@ -68,6 +68,7 @@ namespace Twm4Nx
     FAR void     *eventObj;     /**< Object reference that accompanies events */
     nxgl_coord_t  minWidth;     /**< The minimum width of the window */
     uint16_t      redrawEvent;  /**< Redraw event ID */
+    uint16_t      resizeEvent;  /**< Resize event ID */
     uint16_t      mouseEvent;   /**< Mouse/touchscreen event ID */
     uint16_t      kbdEvent;     /**< Keyboard event ID */
     uint16_t      closeEvent;   /**< Window close event ID */
@@ -283,6 +284,7 @@ namespace Twm4Nx
       {
         m_appEvents.eventObj    = events.eventObj;    // Event object reference
         m_appEvents.redrawEvent = events.redrawEvent; // Redraw event ID
+        m_appEvents.resizeEvent = events.resizeEvent; // Resize event ID
         m_appEvents.mouseEvent  = events.mouseEvent;  // Mouse/touchscreen event ID
         m_appEvents.kbdEvent    = events.kbdEvent;    // Keyboard event ID
         m_appEvents.closeEvent  = events.closeEvent;  // Window close event ID

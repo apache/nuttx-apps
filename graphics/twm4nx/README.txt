@@ -29,6 +29,8 @@ within this directory.
 
 STATUS
 ======
+
+Progress:
   2019-04-28:  This port was brutal.  Much TWM logic was removed because it
     depended on X11 features (or just because I could not understand how to
     use it).  The replacement logic is only mostly in place but more
@@ -64,16 +66,49 @@ STATUS
     later is an issue.  The background image image widget needs to be
     removed; it can occlude a dektop icon.  We need to paint the image
     directly on the background without the use of a widget.
-  2019-05-15:  Resizing now seems to work correctly in Twm4Nx.  It is still
-    not usable, however.  When the window size is extended, the newly exposed
-    regions must initialized with meaningul data. This is a problem in NX.
-    Normally, NX generates a redraw callback whenever the application needs
-    to redraw a region the the display.  However, with RAM-backed windows,
-    all callbacks are suppressed.  That is okay in all cases except for a
-    resize.  The missing callback leaves the new window region improperly
-    initialized.
+  2019-05-15:  Resizing now seems to work correctly in Twm4Nx.
+
+How To:
+
+  Move a Window:
+    - Grab the title in the toolbar and move the window to the desired
+      postion.
+
+  Resize a Window:
+    - A window must have the green resize button with the square or it
+      cannot be resized.
+    - Press resize button.  A small window should pop-up in the upper
+      left hand corner showing the current window size.
+    - Touch anywhere in window (not the toolbar) and slide your finger.
+      The resize window will show the new size but there will be no other
+      update to the display.  It is thought that continous size updates
+      would overwhelm lower end MCUs.  Movements support include:
+
+      o Move toward the right increases the width of the window
+      o Move toward the left decreases the width of the window
+      o Move toward the bottom increases the height of the window
+      o Move toward the top decreases the heght of the Window
+      o Other moves will affect both the height and width of the window.
+
+  Main Menu:
+    - A touch/click at any open location on the background (except the
+      image at the center or on another icon) will bring up the Main Menu.
+      Options:
+
+      o Desktop.  Iconify all windows and show the desktop
+      o Twm4Nx Icom Manager.  De-iconify and/or raise the Icon Manager to
+        the top of the display
+      o NuttShell.  Start and instance of NSH runnin in an NxTerm.
 
 Issues:
+
+    2019-05-16:
+      Twm4Nx is in a very complete state but only at perhaps "alpha" in its
+      maturity.  You should expect to see some undocumented problems.  If
+      you see such problems and can describe a sequence to actions to
+      reproduce the problem, let me know and I will try to resolve the
+      problems.
+
     Here are all known issues and features that are missing:
 
     TWM Compatibilities Issues:
@@ -88,21 +123,17 @@ Issues:
        been working with a system where the touchscreen naturally matches
        up with the display and no calibration is required.  But the general
        case requires calibration.
-    6. Icon drag movement is fairly smooth, but I think there may be issues
-       with the window drag movement.  it is hard to tell because of
-       limitations in the touchscreen performance on the system that I am
-       working with.
-    7. Icon drag movement includes logic to avoid collisions with other
+    6. Icon drag movement includes logic to avoid collisions with other
        icons and with the background image.  That later is an issue.  The
        background image image widget needs to be removed; it can occlude a
        dektop icon.  We need to paint the image directly on the background
        without the use of a widget.
-    8. More issues with the background image:  It absorbs touchscreen
+    7. More issues with the background image:  It absorbs touchscreen
        presses without doing anything.  It should bring-up the main menu
        menu just as any other region of the background.  This would be easy
        to fix, but just replacing the background image widget is the better
        solution.
-    9. The Icon Manager currently used the default window width.  That is
+    8. The Icon Manager currently used the default window width.  That is
        set half of the display width which is okay for the display I am using,
        but it really needs to set a width that is appropriate for the number
        of columns and the size of a generic name string.

@@ -66,15 +66,15 @@
  */
 
 #ifndef CONFIG_HAVE_CXX
-#  error "C++ support is required (CONFIG_HAVE_CXX)"
+#  error C++ support is required (CONFIG_HAVE_CXX)
 #endif
 
 #ifndef CONFIG_NX
-#  error "NX support is required (CONFIG_NX)"
+#  error NX support is required (CONFIG_NX)
 #endif
 
 #ifndef CONFIG_NXTERM
-#  warning "NxTerm support is required (CONFIG_NXTERM)"
+#  warning NxTerm support is required (CONFIG_NXTERM)
 #endif
 
 // Keyboard input can come from either /dev/console or via Twm4Nx.  If
@@ -84,9 +84,9 @@
 // /dev/console for keyboard input.
 
 #if !defined(CONFIG_TWM4NX_NOKEYBOARD) && !defined(CONFIG_NXTERM_NXKBDIN)
-#  warning "Nxterm needs CONFIG_NXTERM_NXKBDIN for keyboard input"
+#  warning Nxterm needs CONFIG_NXTERM_NXKBDIN for keyboard input
 #elif defined(CONFIG_TWM4NX_NOKEYBOARD) && defined(CONFIG_NXTERM_NXKBDIN)
-#  warning "Nxterm has no keyboard input.  Undefine CONFIG_NXTERM_NXKBDIN
+#  warning Nxterm has no keyboard input.  Undefine CONFIG_NXTERM_NXKBDIN
 #endif
 
 // NxTerm Window /////////////////////////////////////////////////////////////

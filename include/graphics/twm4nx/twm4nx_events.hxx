@@ -52,7 +52,9 @@
 // Preprocessor Definitions
 /////////////////////////////////////////////////////////////////////////////
 
-#define MAX_EVENT_MSGSIZE sizeof(struct SEventMsg)
+// struct SRedrawEventMsg is the largest message as of this writing
+
+#define MAX_EVENT_MSGSIZE sizeof(struct SRedrawEventMsg)
 #define MAX_EVENT_PAYLOAD (MAX_EVENT_MSGSIZE - sizeof(uint16_t))
 
 /////////////////////////////////////////////////////////////////////////////
@@ -197,12 +199,16 @@ namespace Twm4Nx
 
   struct SEventMsg
   {
+    // Common fields
+
     uint16_t eventID;                   /**< Encoded event ID */
     FAR void *obj;                      /**< Context specific reference */
+    FAR void *handler;                  /**< Context specific handler */
+
+    // Event-specific fields
 
     struct nxgl_point_s pos;            /**< X/Y position */
     uint8_t context;                    /**< Button press context */
-    FAR void *handler;                  /**< Context specific handler */
   };
 
   /**
@@ -211,8 +217,13 @@ namespace Twm4Nx
 
   struct SRedrawEventMsg
   {
+    // Common fields
+
     uint16_t eventID;                   /**< Encoded event ID */
     FAR void *obj;                      /**< Context specific reference */
+    FAR void *handler;                  /**< Context specific handler */
+
+    // Event-specific fields
 
     struct nxgl_rect_s rect;            /**< Region to be redrawn */
     bool more;                          /**< True: More redraw requests will follow */
@@ -225,8 +236,13 @@ namespace Twm4Nx
 
   struct SXyInputEventMsg
   {
+    // Common fields
+
     uint16_t eventID;                   /**< Encoded event ID */
     FAR void *obj;                      /**< Context specific reference */
+    FAR void *handler;                  /**< Context specific handler */
+
+    // Event-specific fields
 
     struct nxgl_point_s pos;            /**< X/Y position */
     uint8_t buttons;                    /**< Bit set of button presses */
@@ -239,8 +255,13 @@ namespace Twm4Nx
 
   struct SNxEventMsg
   {
+    // Common fields
+
     uint16_t eventID;                   /**< Encoded event ID */
     FAR void *obj;                      /**< Context specific reference */
+    FAR void *handler;                  /**< Context specific handler */
+
+    // Event-specific fields
 
     FAR CWindowEvent *instance;         /**< X/Y position */
   };

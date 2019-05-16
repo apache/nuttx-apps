@@ -321,7 +321,7 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
                                     sizeof(struct SEventMsg), 100);
                   if (ret < 0)
                     {
-                      twmerr("ERROR: mq_send failed: %d\n", ret);
+                      twmerr("ERROR: mq_send failed: %d\n", errno);
                     }
                }
 
@@ -366,6 +366,7 @@ bool CBackground::createBackgroundWindow(void)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_BACKGROUND_REDRAW;
+  events.resizeEvent = EVENT_SYSTEM_NOP;
   events.mouseEvent  = EVENT_BACKGROUND_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;

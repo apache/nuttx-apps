@@ -110,6 +110,15 @@
 #define WFLAGS_IS_MENU(f)              (((f) & WFLAGS_MENU) != 0)
 #define WFLAGS_IS_HIDDEN(f)            (((f) & WFLAGS_HIDDEN) != 0)
 
+// Buttons can be disabled temporarily while in certain absorbing states
+// (such as resizing the window).
+
+#define DISABLE_NO_BUTTONS        (0)
+#define DISABLE_MENU_BUTTON       (1 << MENU_BUTTON)
+#define DISABLE_DELETE_BUTTON     (1 << DELETE_BUTTON)
+#define DISABLE_RESIZE_BUTTON     (1 << RESIZE_BUTTON)
+#define DISABLE_MINIMIZE_BUTTON   (1 << MINIMIZE_BUTTON)
+
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
 /////////////////////////////////////////////////////////////////////////////
@@ -167,6 +176,7 @@ namespace Twm4Nx
       nxgl_coord_t                m_tbLeftX;     /**< Rightmost position of left buttons */
       nxgl_coord_t                m_tbRightX;    /**< Leftmost position of right buttons */
       uint8_t                     m_tbFlags;     /**< Toolbar button customizations */
+      uint8_t                     m_tbDisables;  /**< Toolbar button disables */
 
       // List of all toolbar button images
 
@@ -847,6 +857,20 @@ namespace Twm4Nx
             m_iconWidget->setRaisesEvents(true);
             m_iconWidget->redraw();
           }
+      }
+
+      /**
+       * Enable/disable toolbar buttons.  Buttons may need to be disabled
+       * temporarily while in certain absorbing states (such as resizing the
+       * window).
+       *
+       * @param disables The set of buttons to enable or disble See
+       *   DISABLE_* definitions.
+       */
+
+      inline void disableToolbarButtons(uint8_t disables)
+      {
+        m_tbDisables = disables;
       }
 
       /**

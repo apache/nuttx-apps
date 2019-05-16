@@ -175,6 +175,8 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
     {
       struct SRedrawEventMsg msg;
       msg.eventID    = m_appEvents.redrawEvent;
+      msg.obj        = m_appEvents.eventObj;
+      msg.handler    = m_appEvents.eventObj;
       msg.rect.pt1.x = nxRect->pt1.x;
       msg.rect.pt1.y = nxRect->pt1.y;
       msg.rect.pt2.x = nxRect->pt2.x;
@@ -192,7 +194,7 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
                         sizeof(struct SRedrawEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }
@@ -302,6 +304,7 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
       struct SXyInputEventMsg msg;
       msg.eventID = m_appEvents.mouseEvent;
       msg.obj     = m_appEvents.eventObj;
+      msg.handler = m_appEvents.eventObj;
       msg.pos.x   = pos->x;
       msg.pos.y   = pos->y;
       msg.buttons = buttons;
@@ -310,7 +313,7 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
                         sizeof(struct SXyInputEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }
@@ -334,13 +337,14 @@ void CWindowEvent::handleKeyboardEvent(void)
       struct SNxEventMsg msg;
       msg.eventID  = m_appEvents.kbdEvent;
       msg.obj      = m_appEvents.eventObj;
+      msg.handler  = m_appEvents.eventObj;
       msg.instance = this;
 
       int ret = mq_send(m_eventq, (FAR const char *)&msg,
                         sizeof(struct SNxEventMsg), 100);
       if (ret < 0)
         {
-          twmerr("ERROR: mq_send failed: %d\n", ret);
+          twmerr("ERROR: mq_send failed: %d\n", errno);
         }
     }
 }
@@ -373,6 +377,6 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
                     sizeof(struct SNxEventMsg), 100);
   if (ret < 0)
     {
-      twmerr("ERROR: mq_send failed: %d\n", ret);
+      twmerr("ERROR: mq_send failed: %d\n", errno);
     }
 }

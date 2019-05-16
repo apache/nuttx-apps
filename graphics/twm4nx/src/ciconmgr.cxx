@@ -48,6 +48,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
 
 #include "graphics/nxwidgets/cnxwindow.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
@@ -533,6 +534,7 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   struct SAppEvents events;
   events.eventObj    = (FAR void *)this;
   events.redrawEvent = EVENT_SYSTEM_NOP;
+  events.resizeEvent = EVENT_SYSTEM_NOP;
   events.mouseEvent  = EVENT_ICONMGR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
@@ -900,7 +902,7 @@ void CIconMgr::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                                 sizeof(struct SEventMsg), 100);
               if (ret < 0)
                 {
-                  twmerr("ERROR: mq_send failed: %d\n", ret);
+                  twmerr("ERROR: mq_send failed: %d\n", errno);
                 }
 
               break;
