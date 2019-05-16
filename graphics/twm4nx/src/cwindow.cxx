@@ -950,10 +950,27 @@ bool CWindow::createToolbar(void)
     }
 
   // 5. Fill the entire tool bar with the background color from the
-  //    current widget system.
+  //    current widget style.
 
-  // Get the graphics port for drawing on the background window
+  if (!fillToolbar())
+    {
+      delete m_toolbar;
+      m_toolbar = (FAR NXWidgets::CNxToolbar *)0;
+      return false;
+    }
 
+  return true;
+}
+
+/**
+ * Fill the toolbar background color
+ */
+
+bool CWindow::fillToolbar(void)
+{
+  // Get the graphics port for drawing on the toolbar
+
+  FAR NXWidgets::CWidgetControl *control = m_toolbar->getWidgetControl();
   NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
 
   // Get the size of the window
@@ -961,13 +978,12 @@ bool CWindow::createToolbar(void)
   struct nxgl_size_s windowSize;
   if (!m_toolbar->getSize(&windowSize))
     {
-      delete m_toolbar;
-      m_toolbar = (FAR NXWidgets::CNxToolbar *)0;
+      twmerr("ERROR: Failed to get the size of the toolbar\n");
       return false;
     }
 
-  // Get the background color of the current widget system.
-  // REVISIT:  No widgets yet, using the the non-shadowed border color
+  // Get the background color of the current widget style.
+  // REVISIT:  Using the the non-shadowed border color
 
   port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
                        CONFIG_NXTK_BORDERCOLOR1);
@@ -995,8 +1011,7 @@ bool CWindow::updateToolbarLayout(void)
       return false;
     }
 
-  // Create the title bar windows
-  // Set up the toolbar horizonal spacing
+  // Set up the toolbar horizontal spacing
 
   m_tbRightX = winsize.w;
 
@@ -1041,14 +1056,25 @@ bool CWindow::updateToolbarLayout(void)
   titleSize.h = m_tbHeight;
   titleSize.w = m_tbRightX - m_tbLeftX - CONFIG_TWM4NX_TOOLBAR_HSPACING + 1;
 
-  bool success = m_tbTitle->resize(titleSize.w, titleSize.h);
-  if (!success)
+  if (!m_tbTitle->resize(titleSize.w, titleSize.h))
     {
       twmerr("ERROR: Failed to resize title\n");
+      return false;
     }
 
+  // Fill the entire tool bar with the background color from the current
+  // widget style.
+
+  if (!fillToolbar())
+    {
+      twmerr("ERROR: Failed to fill the toolbar\n");
+      return false;
+    }
+
+  // Enable and re-draw all of the toolbar widgets
+
   enableToolbarWidgets();
-  return success;
+  return true;
 }
 
 /**
@@ -1073,7 +1099,7 @@ bool CWindow::disableToolbarWidgets(void)
 }
 
 /**
- * Enable toolbar widget drawing and widget events.
+ * Enable and redraw toolbar widget drawing and widget events.
  */
 
 bool CWindow::enableToolbarWidgets(void)

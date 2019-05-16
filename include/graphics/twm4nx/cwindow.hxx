@@ -237,6 +237,12 @@ namespace Twm4Nx
       bool createToolbar(void);
 
       /**
+       * Fill the toolbar background color
+       */
+
+      bool fillToolbar(void);
+
+      /**
        * Update the toolbar layout, resizing the title text window and
        * repositioning all windows on the toolbar.
        */
@@ -316,7 +322,7 @@ namespace Twm4Nx
 
       /**
        * This function is called if the mouse left button is released or
-       * if the touchscrreen touch is lost.  This indicates that the
+       * if the touchscreen touch is lost.  This indicates that the
        * movement sequence is complete.
        *
        * This function overrides the virtual IEventTap::dropEvent method.
