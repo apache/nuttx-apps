@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_calibration48x42.cxx
+ * apps/graphics/nxglyphs/src/glyph_calibration48x42.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -75,13 +74,13 @@ using namespace NXWidgets;
 
 static const uint32_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xbdbdbd, 0xababab, 0x818181, 0x3f3f3f, 0xab6c15, 0x813f15             /* Codes 1-6 */
 };
 
 static const uint32_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xfcfcfc, 0xe4e4e4, 0xacacac, 0x545454, 0xe4901c, 0xac541c             /* Codes 1-6 */
 };
 
@@ -89,13 +88,13 @@ static const uint32_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const uint32_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xfcfcfc, 0xe4e4e4, 0xacacac, 0x545454, 0xe4901c, 0xac541c             /* Codes 1-6 */
 };
 
 static const uint32_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xffffff, 0xffffff, 0xd7d7d7, 0x696969, 0xffb423, 0xd76923             /* Codes 1-6 */
 };
 #  endif /* DARK_CALIB_ICON */
@@ -107,13 +106,13 @@ static const uint32_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xbdf7, 0xad55, 0x8410, 0x39e7, 0xab62, 0x81e2                         /* Codes 1-6 */
 };
 
 static const uint16_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xffff, 0xe73c, 0xad75, 0x52aa, 0xe483, 0xaaa3                         /* Codes 1-6 */
 };
 
@@ -121,13 +120,13 @@ static const uint16_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xffff, 0xe73c, 0xad75, 0x52aa, 0xe483, 0xaaa3                         /* Codes 1-6 */
 };
 
 static const uint16_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xffff, 0xffff, 0xd6ba, 0x6b4d, 0xfda4, 0xd344                         /* Codes 1-6 */
 };
 
@@ -149,13 +148,13 @@ static const uint16_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xbd, 0xab, 0x81, 0x3f, 0x74, 0x4d                                     /* Codes 1-6 */
 };
 
 static const uint8_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xfc, 0xe4, 0xac, 0x54, 0x9b, 0x67                                     /* Codes 1-6 */
 };
 
@@ -163,13 +162,13 @@ static const uint8_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xfc, 0xe4, 0xac, 0x54, 0x9b, 0x67                                     /* Codes 1-6 */
 };
 
 static const uint8_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xff, 0xff, 0xd7, 0x69, 0xb9, 0x81                                     /* Codes 1-6 */
 };
 
@@ -183,13 +182,13 @@ static const uint8_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xb6, 0xb6, 0x92, 0x24, 0xac, 0x84                                     /* Codes 1-6 */
 };
 
 static const nxgl_mxpixel_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xff, 0xff, 0xb6, 0x49, 0xf0, 0xa8                                     /* Codes 1-6 */
 };
 
@@ -197,13 +196,13 @@ static const nxgl_mxpixel_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xff, 0xff, 0xb6, 0x49, 0xf0, 0xa8                                     /* Codes 1-6 */
 };
 
 static const nxgl_mxpixel_t g_calibrationBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xff, 0xff, 0xdb, 0x6d, 0xf4, 0xcc                                     /* Codes 1-6 */
 };
 

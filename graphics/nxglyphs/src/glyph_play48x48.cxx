@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_play24x24.cxx
+ * apps/graphics/nxglyphs/src/glyph_play24x24.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -75,13 +74,13 @@ using namespace NXWidgets;
 
 static const uint32_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x00a200, 0x00bd00, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,            /* Codes 0-2 */
+  0x00a200, 0x00bd00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */
   0x008400, 0x006600, 0x004e00, 0x003600                              /* Codes 3-6 */
 };
 
 static const uint32_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x00d800, 0x00fc00, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,            /* Codes 0-2 */
+  0x00d800, 0x00fc00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */
   0x00b000, 0x008800, 0x006800, 0x004800                              /* Codes 3-6 */
 };
 
@@ -89,13 +88,13 @@ static const uint32_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint32_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x00d800, 0x00fc00, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,            /* Codes 0-2 */ 
+  0x00d800, 0x00fc00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */ 
   0x00b000, 0x008800, 0x006800, 0x004800                              /* Codes 3-6 */
 };
 
 static const uint32_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x00ff00, 0x00ff00, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,            /* Codes 0-2 */
+  0x00ff00, 0x00ff00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */
   0x00dc00, 0x00aa00, 0x008200, 0x005a00                              /* Codes 3-6 */
 };
 
@@ -108,13 +107,13 @@ static const uint32_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x0500, 0x05e0, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                /* Codes 0-2 */
+  0x0500, 0x05e0, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                    /* Codes 0-2 */
   0x0420, 0x0320, 0x0260, 0x01a0                                      /* Codes 3-6 */
 };
 
 static const uint16_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x06c0, 0x07e0, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                /* Codes 0-2 */
+  0x06c0, 0x07e0, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                    /* Codes 0-2 */
   0x0580, 0x0440, 0x0340, 0x0240                                      /* Codes 3-6 */
 };
 
@@ -122,13 +121,13 @@ static const uint16_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x06c0, 0x07e0, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                /* Codes 0-2 */
+  0x06c0, 0x07e0, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                    /* Codes 0-2 */
   0x0580, 0x0440, 0x0340, 0x0240                                      /* Codes 3-6 */
 };
 
 static const uint16_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x07e0, 0x07e0, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                /* Codes 0-2 */
+  0x07e0, 0x07e0, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                    /* Codes 0-2 */
   0x06e0, 0x0540, 0x0400, 0x02c0                                      /* Codes 3-6 */
 };
 
@@ -150,13 +149,13 @@ static const uint16_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x5f, 0x6e, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x5f, 0x6e, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x4d, 0x3b, 0x2d, 0x1f                                              /* Codes 3-6 */
 };
 
 static const uint8_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x7e, 0x93, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x7e, 0x93, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x67, 0x4f, 0x3d, 0x2a                                              /* Codes 3-6 */
 };
 
@@ -164,13 +163,13 @@ static const uint8_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x7e, 0x93, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x7e, 0x93, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x67, 0x4f, 0x3d, 0x2a                                              /* Codes 3-6 */
 };
 
 static const uint8_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x95, 0x95, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x95, 0x95, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x81, 0x63, 0x4c, 0x34                                              /* Codes 3-6 */
 };
 
@@ -183,13 +182,13 @@ static const uint8_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x14, 0x14, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x14, 0x14, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x10, 0x0c, 0x08, 0x04                                              /* Codes 3-6 */
 };
 
 static const nxgl_mxpixel_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x18, 0x1c, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x18, 0x1c, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x14, 0x10, 0x0c, 0x08                                              /* Codes 3-6 */
 };
 
@@ -197,13 +196,13 @@ static const nxgl_mxpixel_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x18, 0x1c, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x18, 0x1c, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x14, 0x10, 0x0c, 0x08                                              /* Codes 3-6 */
 };
 
 static const nxgl_mxpixel_t g_playBrightLut[BITMAP_NLUTCODES] =
 {
-  0x1c, 0x1c, CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                    /* Codes 0-2 */
+  0x1c, 0x1c, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                        /* Codes 0-2 */
   0x18, 0x14, 0x10, 0x08                                              /* Codes 3-6 */
 };
 

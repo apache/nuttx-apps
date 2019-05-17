@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_minimize42x42.cxx
+ * apps/graphics/nxglyphs/src/glyph_minimize42x42.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************

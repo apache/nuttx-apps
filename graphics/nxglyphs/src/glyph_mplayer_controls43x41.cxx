@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_mediaplayer43x41.cxx
+ * apps/graphics/nxglyphs/src/glyph_mediaplayer43x41.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -52,7 +52,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -83,7 +82,7 @@ using namespace NXWidgets;
 
 static const nxwidget_pixel_t g_normalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                       /* Code 0 */
   MKRGB(54,99,171),                                      /* Code 1 */
   MKRGB(0,33,153),                                       /* Code 2 */
   MKRGB(12,16,120)                                       /* Code 3 */
@@ -91,7 +90,7 @@ static const nxwidget_pixel_t g_normalLut[BITMAP_NLUTCODES] =
 
 static const nxwidget_pixel_t g_brightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                       /* Code 0 */
 #if 1 // Red
   MKRGB(228,132,72),                                     /* Code 1 */
   MKRGB(204,44,0),                                       /* Code 2 */

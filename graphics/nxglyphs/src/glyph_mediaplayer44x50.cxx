@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_mediaplayer44x50.cxx
+ * apps/graphics/nxglyphs/src/glyph_mediaplayer44x50.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -75,13 +74,13 @@ using namespace NXWidgets;
 
 static const uint32_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,        /* Code 0 */
   0x002199, 0xbdbdbd, 0x4e8199, 0x276099  /* Codes 1-4 */
 };
 
 static const uint32_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,        /* Code 0 */
   0x002ccc, 0xfcfcfc, 0x68accc, 0x3480cc  /* Codes 1-4 */
 };
 
@@ -89,13 +88,13 @@ static const uint32_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const uint32_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,        /* Code 0 */
   0x002ccc, 0xfcfcfc, 0x68accc, 0x3480cc  /* Codes 1-4 */
 };
 
 static const uint32_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,        /* Code 0 */
   0x0037ff, 0xffffff, 0x82d7ff, 0x41a0ff  /* Codes 1-4 */
 };
 #  endif /* DARK_MEDIAPLAYER_ICON */
@@ -107,13 +106,13 @@ static const uint32_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x0113, 0xbdf7, 0x4c13, 0x2313       /* Codes 1-4 */
 };
 
 static const uint16_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x0179, 0xffff, 0x6d79, 0x3419       /* Codes 1-4 */
 };
 
@@ -121,13 +120,13 @@ static const uint16_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x0179, 0xffff, 0x6d79, 0x3419       /* Codes 1-4 */
 };
 
 static const uint16_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x01bf, 0xffff, 0x86bf, 0x451f       /* Codes 1-4 */
 };
 
@@ -149,13 +148,13 @@ static const uint16_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,  /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,      /* Code 0 */
   0x24, 0xbd, 0x74, 0x55                /* Codes 1-4 */
 };
 
 static const uint8_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,  /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,      /* Code 0 */
   0x31, 0xfc, 0x9b, 0x71                /* Codes 1-4 */
 };
 
@@ -163,13 +162,13 @@ static const uint8_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,  /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,      /* Code 0 */
   0x31, 0xfc, 0x9b, 0x71                /* Codes 1-4 */
 };
 
 static const uint8_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,  /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,      /* Code 0 */
   0x3d, 0xff, 0xc2, 0x8e                /* Codes 1-4 */
 };
 
@@ -183,13 +182,13 @@ static const uint8_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,       /* Code 0 */
   0x06, 0xb6, 0x52, 0x2e,                /* Codes 1-4 */
 };
 
 static const nxgl_mxpixel_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,       /* Code 0 */
   0x07, 0xff, 0x77, 0x33,                /* Codes 1-4 */
 };
 
@@ -197,13 +196,13 @@ static const nxgl_mxpixel_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_mediaplayerNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,       /* Code 0 */
   0x07, 0xff, 0x77, 0x33,                /* Codes 1-4 */
 };
 
 static const nxgl_mxpixel_t g_mediaplayerBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,       /* Code 0 */
   0x07, 0xff, 0x9b, 0x57,                /* Codes 1-4 */
 };
 

@@ -10,6 +10,8 @@
 //   Copyright 1988 by Evans & Sutherland Computer Corporation,
 //
 // Please refer to apps/twm4nx/COPYING for detailed copyright information.
+// Although not listed as a copyright holder, thanks and recognition need
+// to go to Tom LaStrange, the original author of TWM.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -521,6 +523,13 @@ bool CResize::startResize(FAR struct SEventMsg *eventmsg)
   m_sizeWindow->modal(true);
   m_resizing = true;
   m_resized  = false;
+
+#ifdef CONFIG_TWM4NX_MOUSE
+  // Select the resize cursor
+
+#  warning Missing logic
+#endif
+
   return true;
 }
 
@@ -721,6 +730,12 @@ bool CResize::resumeResize(FAR struct SEventMsg *eventmsg)
    {
       return false;
    }
+
+#ifdef CONFIG_TWM4NX_MOUSE
+  // Restore the normal cursor
+
+#  warning Missing logic
+#endif
 
   // Reset the the window position and size
 

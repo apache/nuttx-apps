@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_mediaplayer32x32.cxx
+ * apps/graphics/nxglyphs/src/glyph_mediaplayer32x32.cxx
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
@@ -52,7 +52,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 
@@ -70,13 +69,13 @@ using namespace NXWidgets;
 
 static const nxwidget_pixel_t palette[BITMAP_PALETTESIZE] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, MKRGB( 11, 24,108), MKRGB( 63, 90,192), MKRGB(121,136,250),
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     MKRGB( 11, 24,108), MKRGB( 63, 90,192), MKRGB(121,136,250),
   MKRGB(224,234,244), MKRGB( 69, 80,149), MKRGB(127,169,239), MKRGB(152,174,207),
 };
 
 static const nxwidget_pixel_t hilight_palette[BITMAP_PALETTESIZE] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, MKRGB( 61, 74,158), MKRGB(113,140,242), MKRGB(171,186,255),
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     MKRGB( 61, 74,158), MKRGB(113,140,242), MKRGB(171,186,255),
   MKRGB(255,255,255), MKRGB(119,130,199), MKRGB(177,219,255), MKRGB(202,224,255),
 };
 

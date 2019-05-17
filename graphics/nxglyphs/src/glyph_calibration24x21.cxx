@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/glyph_calibration24x21.cxx
+ * apps/graphics/nxglyphs/src/glyph_calibration24x21.cxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -72,13 +71,13 @@ using namespace NXWidgets;
 
 static const uint32_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xfcfcfc, 0xacacac, 0xd8d8d8, 0xd8881c, 0x9c6014                       /* Codes 1-5 */
 };
 
 static const uint32_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                       /* Code 0 */
   0xffffff, 0xc0c0c0, 0xe1e1e1, 0xe1a554, 0xb4874e                       /* Codes 1-5 */
 };
 /* RGB16 (565) Colors (four of the colors in this map are duplicates) */
@@ -87,20 +86,20 @@ static const uint32_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                        /* Code 0 */
   0xffff, 0xad75, 0xdedb, 0xdc43, 0x9b02                                  /* Codes 1-5 */
 };
 
 static const uint16_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                    /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                        /* Code 0 */
   0xffff, 0xc618, 0xe71c, 0xe52a, 0xb429                                  /* Codes 1-5 */
 };
 
 /* 8-bit color lookups.  NOTE:  This is really dumb!  The lookup index is 8-bits and it used
  * to lookup an 8-bit value.  There is no savings in that!  It would be better to just put
  * the 8-bit color/greyscale value in the run-length encoded image and save the cost of these
- * pointless lookups.  But these p;ointless lookups do make the logic compatible with the
+ * pointless lookups.  But these pointless lookups do make the logic compatible with the
  * 16- and 24-bit types.
  */
 
@@ -111,13 +110,13 @@ static const uint16_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                     /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                         /* Code 0 */
   0xfc, 0xac, 0xd8, 0x93, 0x69                                             /* Codes 1-5 */
 };
 
 static const uint8_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                     /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                         /* Code 0 */
   0xff, 0xc0, 0xe1, 0xad, 0x8d                                             /* Codes 1-5 */
 };
 
@@ -127,13 +126,13 @@ static const uint8_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                     /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                         /* Code 0 */
   0xff, 0xb6, 0xdb, 0xd0, 0x8c                                             /* Codes 1-5 */
 };
 
 static const nxgl_mxpixel_t g_calibrationSelectedLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                     /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                                         /* Code 0 */
   0xff, 0xdb, 0xff, 0xf5, 0xb1                                             /* Codes 1-5 */
 };
 

@@ -146,7 +146,7 @@ int main(int argc, char **argv, char **envp)
   int j;
 
   printf("/********************************************************************************************\n");
-  printf(" * apps/graphics/nxwm/src/glyph_xxxxxx.cxx\n");
+  printf(" * apps/graphics/nxglyphs/src/glyph_xxxxxx.cxx\n");
   printf(" *\n");
   printf(" *   Copyright (C) 2019 Gregory Nutt. All rights reserved.\n");
   printf(" *   Author: Gregory Nutt <gnutt@nuttx.org>\n");

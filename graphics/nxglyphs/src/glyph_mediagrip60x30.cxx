@@ -1,5 +1,5 @@
 /********************************************************************************************
- * apps/graphics/nxwm/src/mediagrip60x30.cxx
+ * apps/graphics/nxglyphs/src/mediagrip60x30.cxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,7 +49,6 @@
 
 #include "graphics/nxwidgets/crlepalettebitmap.hxx"
 
-#include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxglyphs.hxx"
 
 /********************************************************************************************
@@ -75,13 +74,13 @@ using namespace NXWidgets;
 
 static const uint32_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x3663ab, 0x002199, 0xbdbdbd         /* Codes 0-3 */
 };
 
 static const uint32_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x4884e4, 0x002ccc, 0xfcfcfc         /* Codes 0-3 */
 };
 
@@ -89,13 +88,13 @@ static const uint32_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const uint32_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x4884e4, 0x002ccc, 0xfcfcfc         /* Codes 0-3 */
 };
 
 static const uint32_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x5aa5ff, 0x0037ff, 0xffffff         /* Codes 0-3 */
 };
 #  endif /* MEDIA_GRIP_DARK_ICON */
@@ -107,13 +106,13 @@ static const uint32_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
    0x3315, 0x0113, 0xbdf7              /* Codes 0-3 */
 };
 
 static const uint16_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
    0x4c3c, 0x0179, 0xffff              /* Codes 0-3 */
 };
 
@@ -121,13 +120,13 @@ static const uint16_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const uint16_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
    0x4c3c, 0x0179, 0xffff              /* Codes 0-3 */
 };
 
 static const uint16_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
    0x5d3f, 0x01bf, 0xffff              /* Codes 0-3 */
 };
 
@@ -149,13 +148,13 @@ static const uint16_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x5d, 0x24, 0xbd                      /* Codes 0-3 */
 };
 
 static const uint8_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x7d, 0x31, 0xfc                     /* Codes 0-3 */
 };
 
@@ -163,13 +162,13 @@ static const uint8_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const uint8_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x7d, 0x31, 0xfc                     /* Codes 0-3 */
 };
 
 static const uint8_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x98, 0x3d, 0xff                     /* Codes 0-3 */
 };
 
@@ -183,13 +182,13 @@ static const uint8_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x2e, 0x06, 0xb6                     /* Codes 0-3 */
 };
 
 static const nxgl_mxpixel_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x53, 0x07, 0xff                     /* Codes 0-3 */
 };
 
@@ -197,13 +196,13 @@ static const nxgl_mxpixel_t g_gripBrightLut[BITMAP_NLUTCODES] =
 
 static const nxgl_mxpixel_t g_gripNormalLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x53, 0x07, 0xff                     /* Codes 0-3 */
 };
 
 static const nxgl_mxpixel_t g_gripBrightLut[BITMAP_NLUTCODES] =
 {
-  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR, /* Code 0 */
+  CONFIG_NXGLYPHS_BACKGROUNDCOLOR,     /* Code 0 */
   0x57, 0x07, 0xff                     /* Codes 0-3 */
 };
 
