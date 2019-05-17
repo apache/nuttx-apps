@@ -19,7 +19,7 @@ menu "NxWM General Settings"
 config NXWM_LARGE_ICONS
 	bool "Use large icons"
 	default n
-	select NXGLPYHS_LARGE_ICONS
+	select NXGLYPHS_LARGE_ICONS
 	---help---
 		The default icons are nominally 25x25 pixels for a small
 		resolution/display, this is a good selection.  For example, a

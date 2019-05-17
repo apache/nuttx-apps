@@ -50,7 +50,7 @@ CXXSRCS += glyph_checkboxoff.cxx glyph_screendepthdown.cxx
 
 # Glyphs used by NxWM and Twm4Nx
 
-ifeq ($(CONFIG_NXGLPYHS_LARGE_ICONS),y)
+ifeq ($(CONFIG_NXGLYPHS_LARGE_ICONS),y)
 # Large icons
 
 CXXSRCS += glyph_calculator47x49.cxx glyph_calibration48x42.cxx glyph_cmd49x43.cxx
@@ -65,7 +65,7 @@ CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_stop21x21.cxx
 CXXSRCS += glyph_menu21x21.cxx glyph_resize21x21.cxx glyph_nxicon21x21.cxx
 endif
 
-ifeq ($(CONFIG_NXGLPYHS_LARGE_ICONS),y)
+ifeq ($(CONFIG_NXGLYPHS_LARGE_ICONS),y)
 # Large icons
 
 CXXSRCS += glyph_mediaplayer44x50.cxx glyph_mplayer_controls43x41.cxx
