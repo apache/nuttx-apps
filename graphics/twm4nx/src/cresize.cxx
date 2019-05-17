@@ -63,6 +63,7 @@
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
 #include "graphics/twm4nx/twm4nx_events.hxx"
+#include "graphics/twm4nx/twm4nx_cursor.hxx"
 #include "graphics/twm4nx/cresize.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -525,9 +526,9 @@ bool CResize::startResize(FAR struct SEventMsg *eventmsg)
   m_resized  = false;
 
 #ifdef CONFIG_TWM4NX_MOUSE
-  // Select the resize cursor
+  // Select the resize cursor image
 
-#  warning Missing logic
+  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_RZCURSOR_IMAGE);
 #endif
 
   return true;
@@ -732,9 +733,9 @@ bool CResize::resumeResize(FAR struct SEventMsg *eventmsg)
    }
 
 #ifdef CONFIG_TWM4NX_MOUSE
-  // Restore the normal cursor
+  // Restore the normal cursor image
 
-#  warning Missing logic
+  m_twm4nx->setCursorImage(&CONFIG_TWM4NX_CURSOR_IMAGE);
 #endif
 
   // Reset the the window position and size

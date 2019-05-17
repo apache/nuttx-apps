@@ -54,10 +54,12 @@ namespace Twm4Nx
 #ifdef CONFIG_TWM4NX_CURSOR_LARGE
 #  include "cursor-arrow1-30x30.h"
 #  include "cursor-grab-25x30.h"
+#  include "cursor-resize-30x30.h"
 #  include "cursor-wait-23x30.h"
 #else
 #  include "cursor-arrow1-16x16.h"
 #  include "cursor-grab-14x16.h"
+#  include "cursor-resize-16x16.h"
 #  include "cursor-wait-13x16.h"
 #endif
 }

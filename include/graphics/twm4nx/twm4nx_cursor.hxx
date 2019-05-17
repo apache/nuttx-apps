@@ -54,11 +54,13 @@
 
 namespace Twm4Nx
 {
-  extern const struct nx_cursorimage_s   // Normal cursor
+  extern const struct nx_cursorimage_s   // Normal cursor image
     CONFIG_TWM4NX_CURSOR_IMAGE;
-  extern const struct nx_cursorimage_s   // Grab button
+  extern const struct nx_cursorimage_s   // Grab cursor image
     CONFIG_TWM4NX_GBCURSOR_IMAGE;
-  extern const struct nx_cursorimage_s   // Wait cursor
+  extern const struct nx_cursorimage_s   // Resize cursor image
+    CONFIG_TWM4NX_RZCURSOR_IMAGE;
+  extern const struct nx_cursorimage_s   // Wait cursor image
     CONFIG_TWM4NX_WTCURSOR_IMAGE;
 }
 

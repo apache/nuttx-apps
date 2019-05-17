@@ -279,6 +279,10 @@
 #  define CONFIG_TWM4NX_GBCURSOR_IMAGE g_grabCursor
 #endif
 
+#ifndef CONFIG_TWM4NX_RZCURSOR_IMAGE           // Resize cursor image
+#  define CONFIG_TWM4NX_RZCURSOR_IMAGE g_resizeCursor
+#endif
+
 #ifndef CONFIG_TWM4NX_WTCURSOR_IMAGE           // Wait cursor image
 #  define CONFIG_TWM4NX_WTCURSOR_IMAGE g_waitCursor
 #endif
