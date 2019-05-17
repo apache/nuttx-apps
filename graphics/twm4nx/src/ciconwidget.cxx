@@ -71,7 +71,7 @@
 // space in the maximum font height
 
 #define ICONWIDGET_IMAGE_VSPACING 2  // Lines between image and upper text
-#define ICONWIDGET_TEXT_VSPACING  0  // Lines betweern upper and lower text
+#define ICONWIDGET_TEXT_VSPACING  0  // Lines between upper and lower text
 
 /////////////////////////////////////////////////////////////////////////////
 // CIconWidget Method Implementations
@@ -655,13 +655,18 @@ bool CIconWidget::iconGrab(FAR struct SEventMsg *eventmsg)
   // Select the grab cursor image
 
   m_twm4nx->setCursorImage(&CONFIG_TWM4NX_GBCURSOR_IMAGE);
-#endif
 
-  // Remember the grab cursor size.  This, of course, makes
-  // little since if we are using a touchscreen.
+  // Remember the grab cursor size.
 
   m_dragCSize.w = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.w;
   m_dragCSize.h = CONFIG_TWM4NX_GBCURSOR_IMAGE.size.h;
+#else
+  // Fudge a value for the case where we are using a touchscreen.
+
+  m_dragCSize.w = 16;
+  m_dragCSize.h = 16;
+#endif
+
   return true;
 }
 
