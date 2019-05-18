@@ -3715,3 +3715,408 @@
 	  framebuffer lgoic.  From Gregory Nutt (2019-03-20).
 
 7.30 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* Add some awareness of overlays to apps/examples/fb  From Matthew Koch
+	  (2019-03-25).
+	* exmamples/, graphics/NxWidgets:  Update NX window clients so that they
+	  use the new 'event' callback (vs. the obsoleted 'blocked' callback).
+	  From Gregory Nutt (2019-03-25).
+	* graphics/NxWidgets/nxwidgets/src/ccallback.cxx and
+	  include/graphics/nxwidgets/:  Add a synchronize method to every window.
+	  This is a wrapper arounc nx[tk]_sync and permits C++ applications to
+	  synchronize with the NX server.  From Gregory Nutt (2019-03-27).
+	* Various graphics apps:  If CONFIG_VNCSERVER=y, don't call
+	  vnc_default_fbinitialize() directly.  That is a violation of the portable
+	  POSIX interface.  Instead, call boardctl(BOARDIOC_VNC_START);.  From
+	  Gregory Nutt (2019-04-02).
+	* apps/system/nxplayer:  Fix some logical errors from recent commits.  They
+	  broke the build of the nxplayer as a library vs. a task.
+	  apps/graphics/nxglyphs:  Fix yet more namespace problems.  From Gregory
+	  Nutt (2019-04-04).
+	* Separate nxwidgets and nxwm into separate directories.  Remove old,
+	  common NxWidgets directory.  From Gregory Nutt (2019-04-04).
+	* apps/nxglyphs:  apps/graphics/nxglyphs:  Put all NxWidgets and NxWM
+	  glyphs into a common directory where they can eventually be shared.
+	  Decouple (mostly) from nxwidgets and nxwm so that they can be used
+	  elsewhere.  Creates include/graphics/nxglyphs.h  From Gregory Nutt
+	  (2019-04-04).
+	* graphics/nxwm/src/nxwm_main.cxx:  Move from
+	  graphics/nxwidgets/UnitTests/nxwm/nxwm_main.cxx.  It is no longer a unit
+	  test, but the main startup entry point for NxWM.  From Gregory Nutt
+	  (2019-04-04).
+	* graphics/nxwidgets and inclu/graphics/nxwidgets:  Add support for modal
+	  windows.  From Gregory Nutt (2019-04-05).
+	* apps/graphics/nxglyphs: Add some new cursor bitmap images.  From Gregory
+	  Nutt (2019-04-07).
+	* apps/nglyphs/include:  Add mkcursor.c.  Will auto-generate cursor image
+	  header file from Gimp C output.  From Gregory Nutt (2019-04-07).
+	* apps/graphics/littlevgl.  Update to Littlevgl 5.3.
+	  apps/examples/lvgldel.  Update to Littlevgl 5.3  From Matthew Koch
+	  (2019-04-08).
+	* apps/examples/pwfb:  Extend example to verify software cursors.  From
+	  Gregory Nutt (2019-04-10).
+	* app/examples/pwfb:  Add options to reduce the number of windows.  This is
+	  helpful during debug to reduce the complexity.  From Gregory Nutt
+	  (2019-04-10).
+	* graphics/nxglyphs:  Update cursor images.  Better to have clean, if
+	  ragged cursor edges that weird color effects from anti-aliasing
+	  attempts.  From Gregory Nutt (2019-04-13).
+	* include/graphics/nxwidgets/cnxserver.hxx:  Add Cursor methods to the
+	  CNxServer class.  From Gregory Nutt (2019-04-13).
+	* /apps/graphics/nxglyphs:  Add 16x16 cursor images.  30x30 are kind of
+	  large.  From Gregory Nutt (2019-04-14).
+	* apps/system/nxplayer:  Fix compile problems when audio debug is enabled.
+	  From Gregory Nutt (2019-04-23).
+	* Twm4Nx is a port of twm, Tab Window Manager (or Tom's Window Manager)
+	  version 1.0.10 to NuttX NX windows server.  No, a port is not the right
+	  word.  It is a re-design of TWM from the inside out to work with the NuttX
+	  NX server.  The name Twm4Nx reflects this legacy.  But Twm4Nx is more a
+	  homage to TWM than a port of TWM.
+
+	  The original TWM was based on X11 which provides a rich set of features.
+	  TWM provided titlebars, shaped windows, several forms of icon management,
+	  user-defined macro functions, click-to-type and pointer-driven keyboard
+	  focus, graphic contexts, and user-specified key and pointer button
+	  bindings, etc.
+
+	  Twm4Nx, on the other hand is based on the NuttX NX server which provides
+	  comparatively minimal support.  Additional drawing support comes from
+	  the NuttX NxWidgets library (which necessitated the change to C++).
+
+	  Twm4Nx is greatly stripped down and targeted on small embedded systems
+	  with minimal resources.  For example, no assumption is made about the
+	  availability of a file system; no .twmrc file is used.  Bitmaps are not
+	  used (other than for fonts).
+
+	  The TWM license is, I believe compatible with the BSD license used by
+	  NuttX.  The origin TWM license required notice of copyrights within each
+	  file and a full copy of the original license which you can find in the
+	  COPYING file within this directory.
+
+	  STATUS:
+
+	  This port was brutal.  Much TWM logic was removed because it depending on
+	  X11 features (or just because I could not understand how to use it).  The
+	  logic is partial.  A lot more needs to be done to have a complete system
+	  (hence, it is marked EXPERIMENTAL).  The kinds of things that need to
+	  done are:
+
+	  1. Update some logic that is only fragmentary for how like resizing, and
+	     menus.
+	  2. Integrate NxWidgets into the windows:  The resize menu needs a CLabel,
+	     the menus are CListBox'es, but not completely integrated, the Icon
+	     Manager needs to be a button array.
+	  3. Resit Icons.  They are windows now, but need to be compound widgets
+	     lying on the background.
+	  4. Widget events are only partially integrated.  A lot more needs to be
+	     done.  A partial change to thoe event system that hints at the
+	     redesign is in place but it is far from complete.  From Gregory Nutt
+	     (2019-04-25).
+	* graphics/twm4nx/src/cwindow.cxx:  Finishes first cut at window event
+	  management.    Use CNXWidgets::CButtonArry for Icon manager.  Implement
+	  button event handling.  From Gregory Nutt (2019-04-26).
+	* graphics/nxwidgets/src/cbuttonarray.cxx:  Add a method to CButtonArray
+	  that will allow us to dynamically resize the array (at the cost of losing
+	  all button labels).  From Gregory Nutt (2019-04-26).
+	* netutils/netlib/netlib_parseurl.c:  Add a  more flexible version of
+	  netlib_parsehttpurl.  This one can parse any URL, and is extensible so
+	  future improvements keep the same API.  From Sebastien Lorquet
+	  (2019-04-26).
+	* apps/graphics/twm4nx:  In order for widgets to draw the correct window or
+	  toolbar, it is necessary to get the CWidgetControl instance from the
+	  window we want to use, not to create a new instance.  From Gregory Nutt
+	  (2019-04-26).
+	* apps/graphics/twm4nx:  Finsh menu-related event handling.  Extended menu
+	  handling.  Allow external application event handling using a new base
+	  class (CTwm4NxEvent).  From Gregory Nutt (2019-04-27).
+	* apps/graphics/twm4nx:  Flesh out some of the Resize logic.  Still missing
+	  the pull events needed to do the resize.  From Gregory Nutt (2019-04-27).
+	* apps/graphics/twm4nx:  Add compound widget CIconWidget.  This will
+	  eventually replace the icon Windows with widgets that can be drawn on the
+	  Background.  From Gregory Nutt (2019-04-27).
+	* apps/examples/pca9635/pca9635_main.c: fix compilation  From Mateusz
+	  Szafoni (2019-04-28).
+	* apps/netutils:  Aupport for the current version of cJSON  From Mateusz
+	  Szafoni (2019-04-28).
+	* apps/graphics/twm4nx:  Remove Icon Windows; replace with IconWidgets that
+	  are draw on the background.  Add CIconWidget event generation.  Add event
+	  handling logic to CIconWidget.  From Gregory Nutt (2019-04-28).
+	* apps/graphics/twm4nx:  Suppress input thread if using the VNC server.  We
+	  don't need to catch input from keyboard or mouse devices in that case;
+	  those inputs will be injected into NX directly by the VNC server.
+	  Includes a couple of fixes from initial bring-up attempts.  From Gregory
+	  Nutt (2019-04-28).
+	* apps/netutils/netinit.  This commit removes the private network
+	  initialization logic from NSH and puts in a common location at
+	  apps/netutils/netinit.  Now that netork initialization logic can be used
+	  by applications that do not include NSH.  From Gregory Nutt (2019-04-29).
+	* apps/graphics/twm4nx:  Add options to initialize the system via
+	  boardctl() and to bring up the network using the new
+	  apps/netutils/netinit.  This latter is only necessary because VNC is
+	  being used to provide graphics.  From Gregory Nutt (2019-04-29).
+	* Many locations:  Remove references to CONFIG_DISABLE_SIGNALS.  Signals
+	  can no longer be disabled.  From Gregory Nutt (2019-04-29).
+	* apps/graphics/NxWidgets:  Fix a possible deadlock condition when waiting
+	  for window geometry data that will never come.  Fixed by re-requesting
+	  geometry data if we don't already have it.  From Gregory Nutt (2019-05-01).
+	* apps/graphics/twm4nx:  Revamp how background events are handled.  From
+	  Gregory Nutt (2019-05-01).
+	* include/graphics/nxwidgets/cwidgetcontrol.hxx:  Add handshake to
+	  getWindowHandle() to avoid returning a NULL handle.  But now Twm4Nx hangs
+	  waiting for the non-NULL handle,  From Gregory Nutt (2019-05-01).
+	* apps/graphics/twm4nx:  Fix various bugs found in bringup:  Re-order
+	  object instantiation to account for inter-object dependencies.  Correct
+	  mq_receive() buffer size.  Fix a backward comparison.
+
+	  apps/graphics/twm4nx:  Twm4Nx debug can now be separately enabled so that
+	  it does not get overwhelmed by other graphics debug output.  From Gregory
+	  Nutt (2019-05-02).
+	* apps/graphic/twm4nx:  Fix junk variable that was shadowing variable of
+	  the same name in the base CNxWidget class.  Resolves all start up crash
+	  issues.  Now I need to figure out why the host VNC client drops the
+	  connection.  From Gregory Nutt (2019-05-02).
+	* apps/netutils/libcurl4nx:  This is an initial commit libcurl4nx.  It is
+	  not complete yet, but I still wish to commit the unfinished bits to
+	  describe the roadmap, and because it is already usable.  It will be
+	  updated and fixed in the future weeks and months, certainly including
+	  POST support and later, SSL.
+
+	  Some improvements could be made by anyone.  For example, I know the main
+	  routine in perform() shall be split into several parts for readability. I
+	  apologize in advance for this kind of spaghetti code, but I was short on
+	  time to refactor it.  Also chunked HTTP transfer encoding would be a nice
+	  contribution from anyone interested. It is detected but not yet
+	  supported.  From Sebastien Lorquet (2019-05-03).
+	* graphics/twm4nx/src/cbackground.cxx:  Should set the initial background
+	  color immediately without waiting for a redraw.  From Gregory Nutt
+	  (2019-05-04).
+	* graphics/twm4nx/Kconfig:  Add configuration to disable keyboard/mouse
+	  input for testing purposes.
+
+	  graphics/twm4nx/src/ciconmgr.cxx:  Correct initial window size and
+	  position in the upper right hand corner;  Need to fill draw the button
+	  array immediately on window creation.
+
+	  graphics/twm4nx/src/cwindow.cxx:  Need to fill the toolbar initially
+	  with the widget background color.
+	  From Gregory Nutt (2019-05-04).
+	* apps/graphics/NxWidgets:  CNxTkWindow, CNxWindow, CNxServer:  Add support
+	  to create RAM backed windows.  From Gregory Nutt (2019-05-04).
+	* apps/graphics/twm4nx:  IconMgr window now comes up correctly.  Need to
+	  revisit window width setup.  All windows are now created as RAM backed
+	  windows.  From Gregory Nutt (2019-05-04).
+	* apps/graphics/twm4nx:  Add option to use touchscreen instead of mouse
+	  input.  Add option to use the touchscreen with no keyboard.  From Gregory
+	  Nutt (2019-05-04).
+	* graphics/twm4nx/src/cbackground.cxx:  Add logic to handle polling for
+	  background icon events.
+
+	  graphics/twm4nx/src/window.cxx:  Add flags to CWindow initializer to
+	  support customization of toolbar buttons and other window properties.
+	  Add framework to handle toolbar button presses.  Window minimization
+	  (aka, iconification) does not work.
+
+	  graphics/twm4nx/src/input.cxx:  Add support to scaling touchscreen.  Not
+	  needed for the current testing because the touchscreen naturally matches
+	  the display size.  But will be needed, along with calibration scren, in
+	  the future.  From Gregory Nutt (2019-05-05).
+	* apps/graphics/twm4nx:  Add logic to hide the window when it is iconified
+	  and restore the window when it is de-iconfied.  Iconification works,
+	  de-iconification does not.  From Gregory Nutt (2019-05-05).
+	* apps/graphics/twm4nx:  Try to improve icon text spacing.  Not noticeably
+	  better, however.  Split long icon title on two lines below the icon
+	  image.  Both iconification and de-iconification now work.  From Gregory
+	  Nutt (2019-05-06).
+	* apps/graphics/twm4nx:  Add initial support for the main menu.  The main
+	  menu will come up when a left click is performed on the background.  The
+	  main menu is used for starting applications.  The adds the CMainMenu
+	  class that implements the main menu and an IApplication interface class
+	  the provides th template for how any external C++ application can add
+	  itself to the Main Menu.  Still missing is the logic that responds to the
+	  menu item selection and sends the event to the Main Menu as well as the
+	  logic in the Main Menu that handles the event and either brings up a
+	  sub-menu or starts and application.  From Gregory Nutt (2019-05-06).
+	* apps/graphics/twm4nx:  Replace most usage of NUL-terminated C strings
+	  with NXWidgets::CNxString.  From Gregory Nutt (2019-05-06).
+	* apps/graphics/twm4nx:  Exploit the new feature to create hidden windows.
+	  This cleans up some brief window startup anomalies.  Also fixes an
+	  initialization error in CMenus.  From Gregory Nutt (2019-05-07).
+	* apps/graphics/twm4nx:  First cut at redesigned dragging logic.  Window
+	  dragging now sort of works in an unreliable hurky-jerkky way.  More to be
+	  done.  From Gregory Nutt (2019-05-07).
+	* apps/graphics/twm4nx:  Extend the IEventTaps interfaces and user's
+	  thereof to better handle the cases when dragging where the mouse position
+	  gets ahead of the window updates and the reported mouse position lies not
+	  in the toolbar window, but in the main window or even outside of the
+	  window.  From Gregory Nutt (2019-05-07).
+	* apps/graphics/twm4nx:  Add initial files to support an NxTerm
+	  application.  On this initial commit, these are just the NxWM NxTerm
+	  files with some renaming.  These are not finished and have not yet been
+	  hooked into the build system.  From Gregory Nutt (2019-05-08).
+	* apps/graphics/nxwidgets:  CWidgetControl::handleLeftClick now returns a
+	  value to indicate if the click was actually processed or not.
+	  CWidgetControl::pollMouseEvents:  Correct return value.  From Gregory
+	  Nutt (2019-05-08).
+	* apps/graphics/twm4nx:  CBackground::event():  Implement logic to handle a
+	  left click on the background and to bring up the main Menu.
+	  CWindowEvent: Extend message to distinguish between keyboard and mouse
+	  input.  Mouse position and buttons now accompany the mouse input data.
+	  CMenus: Add methods to query and control the visibility of the menu.
+	  With these changes, the main menu appears when any location on the
+	  background not occupied by an icon is clicked.  From Gregory Nutt
+	  (2019-05-08).
+	* apps/graphics/twm4nx:  CMenus now uses CWindows, rather that raw NX
+	  windows.  This rippled through to many other things due to conflicts
+	  between NUL-terminated C strings and NXWidgets::CNxStrings.  From Gregory
+	  Nutt (2019-05-08).
+	* apps/graphics/twm4nx:  CWindow: Add a global function that can be used to
+	  determine the minimum width of a window.  If the window is set to a width
+	  smaller than this, then toolbar items will overlap and the toolbar will
+	  be corrupted.  This is a global function (rather than a method of
+	  CWindow) because in some cases, this minimum width must be known before
+	  the window is created.  From Gregory Nutt (2019-05-08).
+	* apps/graphics/nxwidgets:  Add methods to all windows to query if a window
+	  is visible or hidden.  From Gregory Nutt (2019-05-09).
+	* apps/graphics/twm4nx:  Better integrate menus and iconification:  Bring-up
+	  up a menu is like de-iconifcation, except there is no icon to be erases;
+	  taking down a menu is like iconification except that there is no icon to
+	  present.
+
+	  apps/graphics/twm4nx:  Use NxWidgets methods which work in all contexts
+	  instead of trying to come up with a way to know if a window is displayed
+	  through complex flags.
+
+	  apps/graphics/twm4nx:  Add logic so that the main menu is placed at (or
+	  near) the position where the background was clicked.
+
+	  apps/graphics/twm4nx:  In resize operation, don't let window get narrower
+	  than the minimum toolbar width.
+
+	  apps/graphics/twm4nx:  The Icon Manager now adds a Main Menu entry that
+	  will de-iconify the Icon Manager or raise to the top of the hierarchy if
+	  not iconfified.  This is useful when there are many open windows.
+	  From Gregory Nutt (2019-05-09).
+	* apps/graphics/twm4nx:  Use button array vs list box for menus.
+
+	  apps/graphics/twm4nx:  Correct an error in how menu windows are created.
+	  From Gregory Nutt (2019-05-10).
+	* apps/graphics/twm4nx:  Add a 'Desktop' item to the main menu that will
+	  iconify all windows and menus and just show the open desktop.
+
+	  apps/graphics/twm4nx:  Add more controls for the events that will be
+	  generated on basic window redraw, mouse/keyboard input, and keyboard input.
+
+	  apps/graphics/twm4nx:  Add logic to support distribution of gnereric
+	  application window events.
+
+	  apps/graphics/twm4nx:  Window events are now communicated properly to the
+	  application-specific event handler.  Menus now seem to be receiving
+	  events and working well.
+	  From Gregory Nutt (2019-05-10).
+	* apps/system/spi:  I needed a small test tool for spi in the style of the
+	  i2c tool, but I didn't see one so I've hacked one out of the i2c tool
+	  source.  From Dave Marples (2019-05-10).
+	* apps/graphics/twm4nx:  Add new logic to place an icon at a reasonable
+	  spot on the background.  From Gregory Nutt (2019-05-11).
+	* apps/graphics/twm4nx:  Modify how applications register with the main
+	  menu.  Add logic to support all possible menu selection notification
+	  methods:  By putting up a sub-menu, by starting an application, or be
+	  sending an event.  From Gregory Nutt (2019-05-11).
+	* apps/graphics/twm4nx:  Add an IApplicationFactory interface.  From
+	  Gregory Nutt (2019-05-11).
+	* apps/graphics/twm4nx:  This commit incorporates the NxTerm window hosting
+	  NSH.  This is just code complete and just compiles with no errors.  The
+	  NxTerm item does not appear in the Main Menu, however, selecting the menu
+	  item does not yet bring up the NxTerm window.
+
+	  apps/graphics/twm4nx:  Clean up some logic associated with use of
+	  multiple Icon Managers.  From Gregory Nutt (2019-05-12).
+	* apps/graphics/twm4nx: Add missing event generation logic when a window is
+	  closed.
+
+	  apps/graphics/twm4nx:  Fix a couple of errors in the unused resize
+	  logic:  It was not hiding the resize menu tso it appeared as a artifact
+	  in the upplr left hand corner.  Was calling setSize() on the window
+	  instead of getSize().  That was causing errors because the size being set
+	  was uninitialized.  From Gregory Nutt (2019-05-12).
+	* apps/graphics/NXWidgets/:  NXWidgets::CNxWidgets:  Fix some issues with
+	  returned values.  On setting the widget size or position, it was
+	  returning false if there was no change in size or position.  Many places
+	  in the code were treating the false return value as an error.  From
+	  Gregory Nutt (2019-05-12).
+	* apps/graphics/twm4nx:  Simpify application startup.
+
+	  apps/graphics/twm4nx:  Various fixes to get the NxTerm window to come
+	  up properly.  It does now come up okay, but the system basically loses
+	  its mind thereafter.  Loods good until some buttons are pressed.
+	  From Gregory Nutt (2019-05-12).
+	* apps/graphics/twm4nx:  Fix several errors associated with the NxTerm
+	  buttons.  Most changes involved fixing crashes with the exit button is
+	  pressed.  Now the NxTerm windows behave well.  However, they are not
+	  receiving console input so there is still more to be done.
+
+	  apps/graphics/twm4nx:  Fix error in placement of icons on the desktop
+	  From Gregory Nutt (2019-05-13).
+	* apps/graphics/twm4nx:  Icons can now be moved, but there are artifacts:
+	  Need to erase the old icon region on the background before drawing the
+	  new icon image during the move.  From Gregory Nutt (2019-05-13).
+	* apps/graphics/twm4nx:  When moving icons, erase the old icon image before
+	  drawing the new one.
+
+	  apps/graphics/twm4nx:  Add logic to detect collisions with reserved
+	  regions in the background or with other icons when moving an icon on
+	  the desktop.
+	  From Gregory Nutt (2019-05-14).
+	* apps/graphics/twm4nx:  Correct logic in Icon Manager for the case where
+	  the number of windows causes the Icon Manager to increase in size by one
+	  row.
+
+	  apps/graphics/twm4nx:  Fix an error in event notification sent by the
+	  Icon Manager when a window is selected.
+
+	  apps/graphics/twm4nx:  In the Icon Manager, do not use the window name to
+	  identify which button press corresponds to which Window.  Window names
+	  are not unique.  Instead, it now keeps track of which row x column was
+	  assigned to the window name.  That row x column uniquely associates a
+	  window with a button and does not depend on the window name in any way.
+	  From Gregory Nutt (2019-05-14).
+	* apps/graphics/nxwidgets/src/cbuttonarray.cxx:  Correct an error
+	  CButtonArray.  Was not correctly resizing the widget when the dimensions
+	  of the button array changed.  From Gregory Nutt (2019-05-15).
+	* apps/graphics/twm4nx:  This is a complete redesign of the CResize class.
+	  Only partially functional on initial commit.  Initial testing is mixed.
+	  The resize window appears, but nothing else good happens.  No hardfaults
+	  though.
+
+	  apps/graphics/twm4nx:  Forgot to install the IEventTap instance.  Now
+	  resizing kind of works, but I can't get out of it!  There is a basic
+	  problem in the window needs to be updated for the new size and there is
+	  no mechanism in place to do that (at least not with RAM backed windows).
+
+	  apps/graphics/twm4nx:  Fix a bad width calculation.
+	  From Gregory Nutt (2019-05-15).
+	* apps/graphics/twm4nx:  Fix routing of redraw events.
+
+	  apps/graphics/twm4nx:  Other toolbar buttons need to be disabled while
+	  resizing.  Lots of problems if you decide to iconify or exit while
+	  resizing.  CResize now disables all buttons except for the RESIZE button
+	  while resizing.
+
+	  apps/graphics/twm4nx:  Add an event and logic to support notification of
+	  changes in the size of a window to NxTerm.
+
+	  apps/graphics/twm4nx:  Correct the maximum size of a message.  Recent
+	  changes caused message send failures because a message exceed that
+	  previous maximum size.  From Gregory Nutt (2019-05-16).
+	* Various updates to adapt to change in boardctl() interface.  From Gregory
+	  Nutt (2019-05-16).
+	* apps/graphics/twm4nx:  During resizing, when the tool bar is drawn, the
+	  toolbar background must be redraw before the buttons and title are
+	  redrawn.  From Gregory Nutt (2019-05-16).
+	* apps/graphics/nxglyphs:  Add a new resize cursor image.
+	  apps/graphics/twm4nx:  Use new resize cursor image.  From Gregory Nutt
+	  (2019-05-17).
+	* apps/graphics/twm4ndx:  Compile out cursor support if we are using a
+	  mouse  From Gregory Nutt (2019-05-17).
+
+8.1 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
