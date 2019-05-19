@@ -3,9 +3,6 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-comment "psmq requires posix mqueue and SYSTEM_EMBEDLOG"
-	depends on DISABLE_MQUEUE || !SYSTEM_EMBEDLOG
-
 menuconfig SYSTEM_PSMQ
 	bool "psmq"
 	default n
@@ -108,3 +105,4 @@ config PSMQ_SUB_STACKSIZE
 
 endif # PSMQ_TOOLS_SUB
 endif # SYSTEM_PSMQ
+

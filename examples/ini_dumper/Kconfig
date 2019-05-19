@@ -3,9 +3,6 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-comment "ini dumper example needs FSUTILS_INIH"
-	depends on !FSUTILS_INIH
-
 if FSUTILS_INIH
 
 config EXAMPLES_INI_DUMPER
@@ -34,3 +31,4 @@ config EXAMPLES_INI_DUMPER_STACKSIZE
 
 endif #EXAMPLES_INI_DUMPER
 endif #SYSTEM_INI_DUMPER
+
