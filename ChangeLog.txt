@@ -3714,11 +3714,11 @@
 	* This commit adds apps/examples/pwlines, another test of the pw-window
 	  framebuffer lgoic.  From Gregory Nutt (2019-03-20).
 
-7.30 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.30 2019-05-19 Gregory Nutt <gnutt@nuttx.org>
 
 	* Add some awareness of overlays to apps/examples/fb  From Matthew Koch
 	  (2019-03-25).
-	* exmamples/, graphics/NxWidgets:  Update NX window clients so that they
+	* examples/, graphics/NxWidgets:  Update NX window clients so that they
 	  use the new 'event' callback (vs. the obsoleted 'blocked' callback).
 	  From Gregory Nutt (2019-03-25).
 	* graphics/NxWidgets/nxwidgets/src/ccallback.cxx and
@@ -3735,11 +3735,10 @@
 	  Nutt (2019-04-04).
 	* Separate nxwidgets and nxwm into separate directories.  Remove old,
 	  common NxWidgets directory.  From Gregory Nutt (2019-04-04).
-	* apps/nxglyphs:  apps/graphics/nxglyphs:  Put all NxWidgets and NxWM
-	  glyphs into a common directory where they can eventually be shared.
-	  Decouple (mostly) from nxwidgets and nxwm so that they can be used
-	  elsewhere.  Creates include/graphics/nxglyphs.h  From Gregory Nutt
-	  (2019-04-04).
+	* apps/graphics/nxglyphs:  Put all NxWidgets and NxWM glyphs into a common
+	  directory where they can eventually be shared.  Decouple (mostly) from
+	  nxwidgets and nxwm so that they can be used elsewhere.  Creates
+	  include/graphics/nxglyphs.h  From Gregory Nutt (2019-04-04).
 	* graphics/nxwm/src/nxwm_main.cxx:  Move from
 	  graphics/nxwidgets/UnitTests/nxwm/nxwm_main.cxx.  It is no longer a unit
 	  test, but the main startup entry point for NxWM.  From Gregory Nutt
@@ -3748,10 +3747,10 @@
 	  windows.  From Gregory Nutt (2019-04-05).
 	* apps/graphics/nxglyphs: Add some new cursor bitmap images.  From Gregory
 	  Nutt (2019-04-07).
-	* apps/nglyphs/include:  Add mkcursor.c.  Will auto-generate cursor image
+	* apps/nxglyphs/include:  Add mkcursor.c.  Will auto-generate cursor image
 	  header file from Gimp C output.  From Gregory Nutt (2019-04-07).
 	* apps/graphics/littlevgl.  Update to Littlevgl 5.3.
-	  apps/examples/lvgldel.  Update to Littlevgl 5.3  From Matthew Koch
+	  apps/examples/lvgldemo.  Update to Littlevgl 5.3  From Matthew Koch
 	  (2019-04-08).
 	* apps/examples/pwfb:  Extend example to verify software cursors.  From
 	  Gregory Nutt (2019-04-10).
@@ -3806,7 +3805,7 @@
 	  2. Integrate NxWidgets into the windows:  The resize menu needs a CLabel,
 	     the menus are CListBox'es, but not completely integrated, the Icon
 	     Manager needs to be a button array.
-	  3. Resit Icons.  They are windows now, but need to be compound widgets
+	  3. Revist Icons.  They are windows now, but need to be compound widgets
 	     lying on the background.
 	  4. Widget events are only partially integrated.  A lot more needs to be
 	     done.  A partial change to thoe event system that hints at the
@@ -3836,7 +3835,7 @@
 	  Background.  From Gregory Nutt (2019-04-27).
 	* apps/examples/pca9635/pca9635_main.c: fix compilation  From Mateusz
 	  Szafoni (2019-04-28).
-	* apps/netutils:  Aupport for the current version of cJSON  From Mateusz
+	* apps/netutils:  Support for the current version of cJSON  From Mateusz
 	  Szafoni (2019-04-28).
 	* apps/graphics/twm4nx:  Remove Icon Windows; replace with IconWidgets that
 	  are draw on the background.  Add CIconWidget event generation.  Add event
@@ -3918,7 +3917,7 @@
 
 	  graphics/twm4nx/src/input.cxx:  Add support to scaling touchscreen.  Not
 	  needed for the current testing because the touchscreen naturally matches
-	  the display size.  But will be needed, along with calibration scren, in
+	  the display size.  But will be needed, along with calibration screen, in
 	  the future.  From Gregory Nutt (2019-05-05).
 	* apps/graphics/twm4nx:  Add logic to hide the window when it is iconified
 	  and restore the window when it is de-iconfied.  Iconification works,
@@ -4014,7 +4013,7 @@
 	  events and working well.
 	  From Gregory Nutt (2019-05-10).
 	* apps/system/spi:  I needed a small test tool for spi in the style of the
-	  i2c tool, but I didn't see one so I've hacked one out of the i2c tool
+	  I2C tool, but I didn't see one so I've hacked one out of the I2C tool
 	  source.  From Dave Marples (2019-05-10).
 	* apps/graphics/twm4nx:  Add new logic to place an icon at a reasonable
 	  spot on the background.  From Gregory Nutt (2019-05-11).
@@ -4048,7 +4047,7 @@
 
 	  apps/graphics/twm4nx:  Various fixes to get the NxTerm window to come
 	  up properly.  It does now come up okay, but the system basically loses
-	  its mind thereafter.  Loods good until some buttons are pressed.
+	  its mind thereafter.  Looks good until some buttons are pressed.
 	  From Gregory Nutt (2019-05-12).
 	* apps/graphics/twm4nx:  Fix several errors associated with the NxTerm
 	  buttons.  Most changes involved fixing crashes with the exit button is
