@@ -532,9 +532,11 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   ginfo("Started: m_calthread=%d\n", (int)This->m_calthread);
 
-  // Make the calibration display visible
+  // Make the calibration display visible and show the initial calibration
+  // display
 
   This->m_nxWin->show();
+  This->stateMachine();
 
   // Loop until calibration completes or we have been requested to terminate
 
@@ -1029,7 +1031,7 @@ void CCalibration::showCalibration(void)
 
   NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
 
-  // Get the size of the fullscreen window
+  // Get the size of the full screen window
 
   struct nxgl_size_s windowSize;
   if (!m_nxWin->getSize(&windowSize))
@@ -1322,7 +1324,19 @@ bool CCalibrationFactory::initialize(FAR CTwm4Nx *twm4nx)
   // create a new instance of the touchscreen calibration.
 
   FAR CMainMenu *cmain = twm4nx->getMainMenu();
-  return cmain->addApplication(this);
+  bool success = cmain->addApplication(this);
+
+#ifdef CONFIG_TW4NX_STARTUP_CALIB
+  if (success)
+    {
+      // Show the calibration thread at start-up (and later if selected
+      // from the Main Menu)
+
+      startFunction();
+    }
+#endif
+
+  return success;
 }
 
 /**

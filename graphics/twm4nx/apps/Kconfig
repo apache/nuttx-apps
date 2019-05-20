@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+comment "Twm4Nx Applications"
+
+config TWM4NX_CALIBRATION
+	bool "Touchscreen"
+	default y
+	depends on TWM4NX_TOUCHSCREEN
+	---help---
+		Enable support for the touchscreen calibration display.
+
+if TWM4NX_CALIBRATION
+
+config TW4NX_STARTUP_CALIB
+	bool "Calibrate on startup"
+	default n
+	---help---
+		Bring up the calibration display automatically on startup.  This
+		option is necessary if no stored calibration data is provided and
+		the window manager is not usable without calibration.  Otherwise,
+		calibration can be performed later via the Twm4Nx main menu.
+
+endif # TWM4NX_CALIBRATION
+
+config TWM4NX_NXTERM
+	bool "NxTerm Window"
+	default y
+	depends on NXTERM && NSH_LIBRARY
+	---help---
+		Enable support for the NxTerm window which provides a text window
+		in which you can interact with NSH.

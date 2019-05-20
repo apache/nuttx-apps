@@ -125,21 +125,6 @@ config TWM4NX_DEBUG
 		and CONFIG_DEBUG_ERROR (but not the corresponding
 		CONFIG_DEBUG_GRAPHICS_* settings)
 
-comment "Twm4Nx Applications"
-
-config TWM4NX_CALIBRATION
-	bool "Touchscreen"
-	default y
-	depends on TWM4NX_TOUCHSCREEN
-	---help---
-		Enable support for the touchscreen calibration display.
-
-config TWM4NX_NXTERM
-	bool "NxTerm Window"
-	default y
-	depends on NXTERM && NSH_LIBRARY
-	---help---
-		Enable support for the NxTerm window which provides a text window
-		in which you can interact with NSH.
+source "$APPSDIR/graphics/twm4nx/apps/Kconfig"
 
 endif # GRAPHICS_TWM4NX

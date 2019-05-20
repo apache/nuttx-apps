@@ -433,7 +433,7 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 
       case EVENT_ICONMGR_DEICONIFY:   // De-iconify or raise the Icon Manager
         {
-          // Is the Icon manager conified?
+          // Is the Icon manager iconified?
 
           if (m_window->isIconified())
             {
@@ -447,7 +447,7 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
             }
           else
             {
-              // No.. Just bring it to the top of the hierachy
+              // No.. Just bring it to the top of the hierarchy
 
               if (!m_window->raiseWindow())
                 {

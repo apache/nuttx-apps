@@ -161,6 +161,7 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_tbLeftX               = 0;             // Offset to end of left buttons
   m_tbRightX              = 0;             // Offset to start of right buttons
   m_tbFlags               = 0;             // No customizations
+  m_tbDisables            = 0;             // No buttons disabled
 
   // Icons/Icon Manager
 
@@ -680,11 +681,11 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_WINDOW_RAISE:     // Raise window to the top of the heirarchy
+      case EVENT_WINDOW_RAISE:     // Raise window to the top of the hierarchy
         m_nxWin->raise();          // Could be the main or the icon window
         break;
 
-      case EVENT_WINDOW_LOWER:     // Lower window to the bottom of the heirarchy
+      case EVENT_WINDOW_LOWER:     // Lower window to the bottom of the hierarchy
         m_nxWin->lower();          // Could be the main or the icon window
         break;
 
@@ -692,15 +693,6 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
         {
           success = deIconify();
         }
-        break;
-
-      case EVENT_WINDOW_FOCUS:
-        if (!isIconified())
-          {
-            m_modal = !m_modal;
-            m_nxWin->modal(m_modal);
-          }
-
         break;
 
       case EVENT_TOOLBAR_MENU:       // Toolbar menu button released
@@ -770,13 +762,6 @@ bool CWindow::event(FAR struct SEventMsg *eventmsg)
 
           FAR CWindowFactory *factory = m_twm4nx->getWindowFactory();
           factory->destroyWindow(cwin);
-        }
-        break;
-
-      case EVENT_WINDOW_UNFOCUS:  // Exit modal state
-        {
-          m_modal = false;
-          m_nxWin->modal(false);
         }
         break;
 

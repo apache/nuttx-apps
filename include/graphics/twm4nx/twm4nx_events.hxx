@@ -142,14 +142,12 @@ namespace Twm4Nx
 
     // Recipient == WINDOW
 
-    EVENT_WINDOW_FOCUS         = 0x6000,  /**< Enter modal state */
-    EVENT_WINDOW_UNFOCUS       = 0x6001,  /**< Exit modal state */
-    EVENT_WINDOW_RAISE         = 0x6002,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x6003,  /**< Lower window to the bottom of the heirarchy */
-    EVENT_WINDOW_DEICONIFY     = 0x6004,  /**< De-iconify and raise window  */
-    EVENT_WINDOW_DRAG          = 0x6005,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x6006,  /**< Delete window */
-    EVENT_WINDOW_DESKTOP       = 0x6007,  /**< Show the desktop */
+    EVENT_WINDOW_RAISE         = 0x6000,  /**< Raise window to the top of the heirarchy */
+    EVENT_WINDOW_LOWER         = 0x6001,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_DEICONIFY     = 0x6002,  /**< De-iconify and raise window  */
+    EVENT_WINDOW_DRAG          = 0x6003,  /**< Drag window */
+    EVENT_WINDOW_DELETE        = 0x6004,  /**< Delete window */
+    EVENT_WINDOW_DESKTOP       = 0x6005,  /**< Show the desktop */
 
     // Recipient == TOOLBAR
 

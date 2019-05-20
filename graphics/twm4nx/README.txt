@@ -67,6 +67,7 @@ Progress:
     removed; it can occlude a desktop icon.  We need to paint the image
     directly on the background without the use of a widget.
   2019-05-15:  Resizing now seems to work correctly in Twm4Nx.
+  2019-05-20:  Calibration screen is now in place.
 
 How To:
 
@@ -143,25 +144,17 @@ Issues:
     4. A right click on the toolbar should bring up a window-specific menu.
 
     Other issues/bugs
-    5. There is no calibration screen for touchscreen calibration.  I have
-       been working with a system where the touchscreen naturally matches
-       up with the display and no calibration is required.  But the general
-       case requires calibration.
-    6. Icon drag movement includes logic to avoid collisions with other
+    5. Icon drag movement includes logic to avoid collisions with other
        icons and with the background image.  That later is an issue.  The
        background image image widget needs to be removed; it can occlude a
        dektop icon.  We need to paint the image directly on the background
        without the use of a widget.
-    7. More issues with the background image:  It absorbs touchscreen
+    6. More issues with the background image:  It absorbs touchscreen
        presses without doing anything.  It should bring-up the main menu
        menu just as any other region of the background.  This would be easy
        to fix, but just replacing the background image widget is the better
        solution.
-    8. The Icon Manager currently used the default window width.  That is
+    7. The Icon Manager currently used the default window width.  That is
        set half of the display width which is okay for the display I am using,
        but it really needs to set a width that is appropriate for the number
        of columns and the size of a generic name string.
-
-    Enhancement Ideas:
-    10.  How about a full-screen mode?  This would just be a shortcut for
-         the existing resize logic.
