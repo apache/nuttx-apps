@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cbackground.hxx
+// apps/include/graphics/twm4nx/cbackground.hxx
 // Manage background image
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

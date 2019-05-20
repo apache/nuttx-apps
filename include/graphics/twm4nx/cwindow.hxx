@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cwindow.hxx
+// apps/include/graphics/twm4nx/cwindow.hxx
 // Represents one window instance
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/ctwm4nx.hxx
+// apps/include/graphics/twm4nx/ctwm4nx.hxx
 // twm include file
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
@@ -312,6 +312,20 @@ namespace Twm4Nx
        {
          return m_resize;
        }
+
+#if !defined(CONFIG_TWM4NX_NOKEYBOARD) || !defined(CONFIG_TWM4NX_NOMOUSE)
+      /**
+       * Return the session's CInput instance.
+       *
+       * @return The contained instance of the CInput instance for this
+       *   session.
+       */
+
+       inline FAR CInput *getInput(void)
+       {
+         return m_input;
+       }
+#endif
 
       /**
        * Dispatch NxWidget-related events.  Normally used only internally

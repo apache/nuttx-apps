@@ -57,12 +57,13 @@
 
 #include "graphics/nxglyphs.hxx"
 #include "graphics/twm4nx/twm4nx_config.hxx"
-#include "graphics/twm4nx/nxterm_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/cwindow.hxx"
 #include "graphics/twm4nx/cwindowfactory.hxx"
 #include "graphics/twm4nx/cmainmenu.hxx"
-#include "graphics/twm4nx/cnxterm.hxx"
+
+#include "graphics/twm4nx/apps/nxterm_config.hxx"
+#include "graphics/twm4nx/apps/cnxterm.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-Processor Definitions
@@ -205,6 +206,7 @@ bool CNxTerm::initialize(void)
   events.mouseEvent  = EVENT_NXTERM_XYINPUT;
   events.kbdEvent    = EVENT_NXTERM_KBDINPUT;
   events.closeEvent  = EVENT_NXTERM_CLOSE;
+  events.deleteEvent = EVENT_NXTERM_DELETE;
 
   bool success = m_nxtermWindow->configureEvents(events);
   if (!success)
@@ -573,7 +575,7 @@ void CNxTerm::resize(void)
 
 /**
  * CNxTermFactory Initializer.  Performs parts of the instance
- * construction that may fail.  In this implemenation, it will
+ * construction that may fail.  In this implementation, it will
  * initialize the NSH library and register an menu item in the
  * Main Menu.
  */
@@ -634,7 +636,7 @@ bool CNxTermFactory::nshlibInitialize(void)
 }
 
 /**
- * Handle Twm4Nx factory events.  This overrides a method from
+ * Handle CNxTermFactory events.  This overrides a method from
  * CTwm4NXEvent
  *
  * @param eventmsg.  The received NxWidget WINDOW event message.
@@ -648,7 +650,7 @@ bool CNxTermFactory::event(FAR struct SEventMsg *eventmsg)
 
   switch (eventmsg->eventID)
     {
-      case EVENT_NXTERM_START:  // Redraw event (should not happen)
+      case EVENT_NXTERM_START:  // Main menu selection
         startFunction();        // Create a new NxTerm instance
         break;
 

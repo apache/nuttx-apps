@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/nxterm_config.hxx
+// apps/include/graphics/twm4nx/apps/nxterm_config.hxx
 // NxTerm configuration settings
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
@@ -34,8 +34,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_NXTERM_CONFIG_HXX
-#define __APPS_INCLUDE_GRAPHICS_TWM4NX_NXTERM_CONFIG_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_NXTERM_CONFIG_HXX
+#define __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_NXTERM_CONFIG_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -148,4 +148,4 @@
 #endif
 
 #endif // CONFIG_TWM4NX_NXTERM
-#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_NXTERM_CONFIG_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_NXTERM_CONFIG_HXX

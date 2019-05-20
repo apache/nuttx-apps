@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cmainmenu.hxx
+// apps/include/graphics/twm4nx/cmainmenu.hxx
 // Twm4Nx main menu class
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

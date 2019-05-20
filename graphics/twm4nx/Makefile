@@ -64,13 +64,17 @@ ifeq ($(CONFIG_TWM4NX_MOUSE),y)
 CXXSRCS  += twm4nx_cursor.cxx
 endif
 
+ifeq ($(CONFIG_TWM4NX_CALIBRATION),y)
+CXXSRCS  += ccalibration.cxx
+endif
+
 ifeq ($(CONFIG_TWM4NX_NXTERM),y)
 CXXSRCS  += cnxterm.cxx
 endif
 
 MAINSRC   = ctwm4nx.cxx
 
-VPATH     = src
+VPATH     = src:apps
 
 CONFIG_TWM4NX_PROGNAME ?= hello$(EXEEXT)
 PROGNAME = $(CONFIG_TWM4NX_PROGNAME)

@@ -157,29 +157,6 @@ CInput::~CInput(void)
 #endif
 }
 
-#ifdef CONFIG_TWM4NX_TOUCHSCREEN
-/**
- * Provide touchscreen calibration data.  If calibration data is received (and
- * the touchscreen is enabled), then received touchscreen data will be scaled
- * using the calibration data and forward to the NX layer which dispatches the
- * touchscreen events in window-relative positions to the correct NX window.
- *
- * @param caldata.  A reference to the touchscreen data.
- */
-
-void CInput::setCalibrationData(const struct SCalibrationData &caldata)
-{
-  // Save a copy of the calibration data
-
-  m_calData = caldata;
-
-  // Note that we have calibration data.  Data will now be scaled before being
-  // forwarded to NX
-
-   m_calib = true;
-}
-#endif
-
 /**
  * Start the keyboard listener thread.
  *

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/ciconmgr.hxx
+// apps/include/graphics/twm4nx/ciconmgr.hxx
 // Icon Manager includes
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

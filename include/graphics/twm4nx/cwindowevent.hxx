@@ -59,8 +59,6 @@
 
 namespace Twm4Nx
 {
-  class CWindow;                // Forward reference
-
   // This structure provides information to support application events
 
   struct SAppEvents
@@ -72,6 +70,7 @@ namespace Twm4Nx
     uint16_t      mouseEvent;   /**< Mouse/touchscreen event ID */
     uint16_t      kbdEvent;     /**< Keyboard event ID */
     uint16_t      closeEvent;   /**< Window close event ID */
+    uint16_t      deleteEvent;  /**< Window delete event ID */
   };
 
   /**
@@ -172,7 +171,7 @@ namespace Twm4Nx
   {
     private:
       FAR CTwm4Nx         *m_twm4nx;        /**< Cached instance of CTwm4Nx */
-      FAR CWindow         *m_clientWindow;  /**< The client window instance */
+      FAR void            *m_clientWindow;  /**< The client window instance */
       mqd_t                m_eventq;        /**< NxWidget event message queue */
       struct SAppEvents    m_appEvents;     /**< Application event information */
 
@@ -230,7 +229,7 @@ namespace Twm4Nx
        *   values stored in the defaultCWidgetStyle object.
        */
 
-       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
+       CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *client,
                     FAR const struct SAppEvents &events,
                     FAR const NXWidgets::CWidgetStyle *style =
                     (const NXWidgets::CWidgetStyle *)NULL);
@@ -288,6 +287,7 @@ namespace Twm4Nx
         m_appEvents.mouseEvent  = events.mouseEvent;  // Mouse/touchscreen event ID
         m_appEvents.kbdEvent    = events.kbdEvent;    // Keyboard event ID
         m_appEvents.closeEvent  = events.closeEvent;  // Window close event ID
+        m_appEvents.deleteEvent = events.deleteEvent; // Window delete event ID
         return true;
       }
   };

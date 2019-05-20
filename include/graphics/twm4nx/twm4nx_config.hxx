@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/twm4nx_config.hxx
+// apps/include/graphics/twm4nx/twm4nx_config.hxx
 // Twm4Nx configuration settings
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

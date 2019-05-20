@@ -17,6 +17,8 @@ menuconfig GRAPHICS_TWM4NX
 
 if GRAPHICS_TWM4NX
 
+comment "Twm4Nx Core Configuration"
+
 config TWM4NX_PROGNAME
 	string "Twm4Nx program name"
 	default "twm4nx"
@@ -122,6 +124,15 @@ config TWM4NX_DEBUG
 		basic debug output settings CONFIG_DEBUG_INFO, CONFIG_DEBUG_WARN,
 		and CONFIG_DEBUG_ERROR (but not the corresponding
 		CONFIG_DEBUG_GRAPHICS_* settings)
+
+comment "Twm4Nx Applications"
+
+config TWM4NX_CALIBRATION
+	bool "Touchscreen"
+	default y
+	depends on TWM4NX_TOUCHSCREEN
+	---help---
+		Enable support for the touchscreen calibration display.
 
 config TWM4NX_NXTERM
 	bool "NxTerm Window"

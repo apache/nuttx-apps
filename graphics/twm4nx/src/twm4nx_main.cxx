@@ -51,7 +51,11 @@
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
-#include "graphics/twm4nx/cnxterm.hxx"
+
+// Applications
+
+#include "graphics/twm4nx/apps/ccalibration.hxx"
+#include "graphics/twm4nx/apps/cnxterm.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Function Prototypes
@@ -169,13 +173,23 @@ int twm4nx_main(int argc, char *argv[])
     }
 
   // Twm4Nx is fully initialized and we may now register applications
-  // Revisit.  This is currently hardward coded here for testing.  There
+  // Revisit.  This is currently hard-coded here for testing.  There
   // needs to be a more flexible method if adding applications at run
   // time.
 
+#ifdef CONFIG_TWM4NX_CALIBRATION
+  CCalibrationFactory calibFactory;
+  success = calibFactory.initialize(twm4nx);
+  if (!success)
+    {
+      twmerr(" ERROR:  Failed to initialize CNxTermFactory\n");
+      return EXIT_FAILURE;
+    }
+#endif
+
 #ifdef CONFIG_TWM4NX_NXTERM
-  CNxTermFactory factory;
-  success = factory.initialize(twm4nx);
+  CNxTermFactory nxtermFactory;
+  success = nxtermFactory.initialize(twm4nx);
   if (!success)
     {
       twmerr(" ERROR:  Failed to initialize CNxTermFactory\n");

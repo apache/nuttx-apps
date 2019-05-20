@@ -370,9 +370,10 @@ bool CBackground::createBackgroundWindow(void)
   events.mouseEvent  = EVENT_BACKGROUND_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
+  events.deleteEvent = EVENT_WINDOW_DELETE;
 
   FAR CWindowEvent *control =
-    new CWindowEvent(m_twm4nx, (FAR CWindow *)0, events);
+    new CWindowEvent(m_twm4nx, (FAR void *)0, events);
 
   // Create the background window (CTwm4Nx inherits from CNxServer)
 

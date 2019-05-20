@@ -102,7 +102,7 @@ using namespace Twm4Nx;
  *   values stored in the defaultCWidgetStyle object.
  */
 
-CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
+CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *client,
                            FAR const struct SAppEvents &events,
                            FAR const NXWidgets::CWidgetStyle *style)
 : NXWidgets::CWidgetControl(style)
@@ -117,6 +117,7 @@ CWindowEvent::CWindowEvent(FAR CTwm4Nx *twm4nx, FAR CWindow *client,
   m_appEvents.mouseEvent  = events.mouseEvent;   // Mouse/touchscreen event ID
   m_appEvents.kbdEvent    = events.kbdEvent;     // Keyboard event ID
   m_appEvents.closeEvent  = events.closeEvent;   // Window close event ID
+  m_appEvents.deleteEvent = events.deleteEvent;  // Window delete event ID
 
   // Dragging
 
@@ -175,8 +176,8 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
     {
       struct SRedrawEventMsg msg;
       msg.eventID    = m_appEvents.redrawEvent;
-      msg.obj        = m_appEvents.eventObj;
-      msg.handler    = m_appEvents.eventObj;
+      msg.obj        = m_appEvents.eventObj;  // For CWindow events
+      msg.handler    = m_appEvents.eventObj;  // For external applications
       msg.rect.pt1.x = nxRect->pt1.x;
       msg.rect.pt1.y = nxRect->pt1.y;
       msg.rect.pt2.x = nxRect->pt2.x;
@@ -303,8 +304,8 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
 
       struct SXyInputEventMsg msg;
       msg.eventID = m_appEvents.mouseEvent;
-      msg.obj     = m_appEvents.eventObj;
-      msg.handler = m_appEvents.eventObj;
+      msg.obj     = m_appEvents.eventObj;  // For CWindow events
+      msg.handler = m_appEvents.eventObj;  // For external applications
       msg.pos.x   = pos->x;
       msg.pos.y   = pos->y;
       msg.buttons = buttons;
@@ -336,8 +337,8 @@ void CWindowEvent::handleKeyboardEvent(void)
 
       struct SNxEventMsg msg;
       msg.eventID  = m_appEvents.kbdEvent;
-      msg.obj      = m_appEvents.eventObj;
-      msg.handler  = m_appEvents.eventObj;
+      msg.obj      = m_appEvents.eventObj;  // For CWindow events
+      msg.handler  = m_appEvents.eventObj;  // For external applications
       msg.instance = this;
 
       int ret = mq_send(m_eventq, (FAR const char *)&msg,
@@ -369,8 +370,9 @@ void CWindowEvent::handleBlockedEvent(FAR void *arg)
   twminfo("Blocked...\n");
 
   struct SNxEventMsg msg;
-  msg.eventID  = EVENT_WINDOW_DELETE;
-  msg.obj      = m_clientWindow;
+  msg.eventID  = m_appEvents.deleteEvent;
+  msg.obj      = m_clientWindow;          // For CWindow events
+  msg.handler  = m_appEvents.eventObj;    // For external applications
   msg.instance = this;
 
   int ret = mq_send(m_eventq, (FAR const char *)&msg,

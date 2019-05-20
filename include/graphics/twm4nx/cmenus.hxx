@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/Cmenus.hxx
+// apps/include/graphics/twm4nx/Cmenus.hxx
 // Twm4Nx menus definitions
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

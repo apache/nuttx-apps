@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cfonts.hxx
+// apps/include/graphics/twm4nx/cfonts.hxx
 // Font support for twm4nx
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

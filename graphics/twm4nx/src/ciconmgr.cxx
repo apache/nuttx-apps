@@ -540,6 +540,7 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   events.mouseEvent  = EVENT_ICONMGR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
+  events.deleteEvent = EVENT_WINDOW_DELETE;
 
   bool success = m_window->configureEvents(events);
   if (!success)

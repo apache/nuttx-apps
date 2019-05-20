@@ -572,6 +572,7 @@ bool CMenus::createMenuWindow(void)
   events.mouseEvent  = EVENT_MENU_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
+  events.deleteEvent = EVENT_WINDOW_DELETE;
 
   bool success = m_menuWindow->configureEvents(events);
   if (!success)

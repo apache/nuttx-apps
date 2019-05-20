@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/src/cwindow.hxx
+// apps/include/graphics/twm4nx/apps/cnxterm.hxx
 // NxTerm window
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
@@ -34,8 +34,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_CNXTERM_HXX
-#define __APPS_INCLUDE_GRAPHICS_TWM4NX_CNXTERM_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX
+#define __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -63,6 +63,7 @@
 #define EVENT_NXTERM_RESIZE   (EVENT_RECIPIENT_APP | 0x0001)
 #define EVENT_NXTERM_XYINPUT   EVENT_SYSTEM_NOP
 #define EVENT_NXTERM_KBDINPUT  EVENT_SYSTEM_NOP
+#define EVENT_NXTERM_DELETE    EVENT_WINDOW_DELETE
 
 // Button Events
 
@@ -180,7 +181,7 @@ namespace Twm4Nx
       bool nshlibInitialize(void);
 
       /**
-       * Handle Twm4Nx factory events.  This overrides a method from
+       * Handle CNxTermFactory events.  This overrides a method from
        * CTwm4NXEvent
        *
        * @param eventmsg.  The received NxWidget WINDOW event message.
@@ -276,4 +277,4 @@ namespace Twm4Nx
   };
 }
 
-#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_CNXTERM_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/twm4nx_events.hxx
+// apps/include/graphics/twm4nx/twm4nx_events.hxx
 // Twm4Nx Widget Event Handling
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

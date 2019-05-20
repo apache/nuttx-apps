@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cresize.hxx
+// apps/include/graphics/twm4nx/cresize.hxx
 // Resize function externs
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.

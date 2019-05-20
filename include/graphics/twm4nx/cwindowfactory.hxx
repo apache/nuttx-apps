@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/cwindowfactory.hxx
+// apps/include/graphics/twm4nx/cwindowfactory.hxx
 // A collection of Window Helpers:   Add a new window, put the titlebar and
 // other stuff around the window
 //

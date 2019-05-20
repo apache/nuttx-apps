@@ -152,6 +152,7 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_appEvents.mouseEvent  = EVENT_SYSTEM_NOP; // Mouse/touchscreen event ID
   m_appEvents.kbdEvent    = EVENT_SYSTEM_NOP; // Keyboard event ID
   m_appEvents.closeEvent  = EVENT_SYSTEM_NOP; // Window close event ID
+  m_appEvents.deleteEvent = EVENT_SYSTEM_NOP; // Window delete event ID
 
   // Toolbar
 
@@ -393,7 +394,8 @@ bool CWindow::configureEvents(FAR const struct SAppEvents &events)
   m_appEvents.resizeEvent  = events.resizeEvent; // Resize event ID
   m_appEvents.mouseEvent   = events.mouseEvent;  // Mouse/touchscreen event ID
   m_appEvents.kbdEvent     = events.kbdEvent;    // Keyboard event ID
-  m_appEvents.closeEvent   = events.closeEvent;  // Window event ID
+  m_appEvents.closeEvent   = events.closeEvent;  // Window close event ID
+  m_appEvents.deleteEvent  = events.deleteEvent; // Window delete event ID
 
   return m_windowEvent->configureEvents(events);
 }
@@ -824,7 +826,7 @@ bool CWindow::createMainWindow(FAR const nxgl_size_s *winsize,
   //    Setup the the CWindowEvent instance to use our inherited drag event
   //    handler
 
-  m_windowEvent = new CWindowEvent(m_twm4nx, this, m_appEvents);
+  m_windowEvent = new CWindowEvent(m_twm4nx, (FAR void *)this, m_appEvents);
   m_windowEvent->installEventTap(this, (uintptr_t)1);
 
   // 4. Create the window.  Handling provided flags. NOTE: that menu windows
@@ -929,8 +931,10 @@ bool CWindow::createToolbar(void)
   events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = EVENT_SYSTEM_NOP;
+  events.deleteEvent = EVENT_WINDOW_DELETE;
 
-  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, this, events);
+  FAR CWindowEvent *control = new CWindowEvent(m_twm4nx, (FAR void *)this,
+                                               events);
   control->installEventTap(this, (uintptr_t)0);
 
   // 3. Get the toolbar sub-window from the framed window
@@ -1664,6 +1668,7 @@ bool CWindow::toolbarGrab(FAR struct SEventMsg *eventmsg)
   events.mouseEvent  = EVENT_TOOLBAR_XYINPUT;
   events.kbdEvent    = EVENT_SYSTEM_NOP;
   events.closeEvent  = m_appEvents.closeEvent;
+  events.deleteEvent = m_appEvents.deleteEvent;
 
   bool success = m_windowEvent->configureEvents(events);
   if (!success)

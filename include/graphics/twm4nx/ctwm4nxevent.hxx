@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/graphics/twm4nx/include/ctwmnxevent.hxx
+// apps/include/graphics/twm4nx/ctwmnxevent.hxx
 // Twm4Nx Event handler base class
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
