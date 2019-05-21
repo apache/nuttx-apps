@@ -108,7 +108,9 @@ namespace NXWidgets
   extern const struct SRlePaletteBitmap g_calibrationBitmap;
   extern const struct SRlePaletteBitmap g_cmdBitmap;
   extern const struct SRlePaletteBitmap g_menuBitmap;
+  extern const struct SRlePaletteBitmap g_menu2Bitmap;
   extern const struct SRlePaletteBitmap g_resizeBitmap;
+  extern const struct SRlePaletteBitmap g_resize2Bitmap;
   extern const struct SRlePaletteBitmap g_nxiconBitmap;
 
   // Used by NxWM meda player
@@ -120,8 +122,10 @@ namespace NXWidgets
   extern const struct SRlePaletteBitmap g_mplayerRewBitmap;
   extern const struct SRlePaletteBitmap g_mplayerVolBitmap;
   extern const struct SRlePaletteBitmap g_minimizeBitmap;
+  extern const struct SRlePaletteBitmap g_minimize2Bitmap;
   extern const struct SRlePaletteBitmap g_playBitmap;
   extern const struct SRlePaletteBitmap g_stopBitmap;
+  extern const struct SRlePaletteBitmap g_stop2Bitmap;
 }
 
 #endif // __cplusplus

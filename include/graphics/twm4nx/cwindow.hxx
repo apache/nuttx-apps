@@ -173,6 +173,7 @@ namespace Twm4Nx
       // Toolbar
 
       FAR NXWidgets::CNxToolbar  *m_toolbar;     /**< The tool bar sub-window */
+      FAR NXWidgets::CWidgetStyle m_tbStyle;     /**< The tool bar widget style */
       FAR NXWidgets::CLabel      *m_tbTitle;     /**< Toolbar title widget */
       nxgl_coord_t                m_tbHeight;    /**< Height of the toolbar */
       nxgl_coord_t                m_tbLeftX;     /**< Rightmost position of left buttons */

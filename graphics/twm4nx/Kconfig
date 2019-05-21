@@ -110,6 +110,23 @@ config TWM4NX_MOUSE_DEVPATH
 	default "/dev/mouse0" if TWM4NX_MOUSE
 	default "/dev/input0" if TWM4NX_TOUCHSCREEN
 
+choice
+	prompt "Twm4Nx Theme"
+	default TWM4NX_CLASSIC
+
+config TWM4NX_CLASSIC
+	bool "Classic"
+	---help---
+		Strong bordered windows with dark primary colors.  Reminiscent of
+		Windows 98.
+
+config TWM4NX_CONTEMPORARY
+	bool "Contemporary"
+	---help---
+		Border-less windows in pastel shades for a more contemporary look.
+
+endchoice # Twm4Nx Theme
+
 config TWM4NX_DEBUG
 	bool "Force debug output"
 	default n

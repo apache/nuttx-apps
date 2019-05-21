@@ -125,8 +125,8 @@ namespace NXWidgets
   class CWidgetStyle
   {
   public:
-    CWidgetColors colors;     /**< Default widget colors */
-    CNxFont *font;            /**< Default font */
+    CWidgetColors colors;              /**< Default widget colors */
+    CNxFont *font;                     /**< Default font */
   };
 }
 

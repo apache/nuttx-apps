@@ -86,12 +86,18 @@
 /**
  * CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR - Normal background color.  Default:
  *    MKRGB(148,189,215)
+ * CONFIG_TWM4NX_BACKGROUND_HASIMAGE - True if the background has an image
  * CONFIG_TWM4NX_BACKGROUND_IMAGE - The name of the image to use in the
  *   background window.  Default:NXWidgets::g_nuttxBitmap160x160
  */
 
-#ifndef CONFIG_TWM4NX_BACKGROUND_IMAGE
-#  define CONFIG_TWM4NX_BACKGROUND_IMAGE NXWidgets::g_nuttxBitmap160x160
+#ifdef CONFIG_TWM4NX_CLASSIC
+#  define CONFIG_TWM4NX_BACKGROUND_HASIMAGE 1
+#  ifndef CONFIG_TWM4NX_BACKGROUND_IMAGE
+#    define CONFIG_TWM4NX_BACKGROUND_IMAGE NXWidgets::g_nuttxBitmap160x160
+#  endif
+#else
+#  undef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
 #endif
 
 // Windows //////////////////////////////////////////////////////////////////
@@ -111,19 +117,35 @@
  */
 
 #ifndef CONFIG_TWM4NX_MENU_IMAGE
-#  define CONFIG_TWM4NX_MENU_IMAGE      NXWidgets::g_menuBitmap
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_MENU_IMAGE      NXWidgets::g_menuBitmap
+#  else
+#    define CONFIG_TWM4NX_MENU_IMAGE      NXWidgets::g_menu2Bitmap
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_MINIMIZE_IMAGE
-#  define CONFIG_TWM4NX_MINIMIZE_IMAGE  NXWidgets::g_minimizeBitmap
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_MINIMIZE_IMAGE  NXWidgets::g_minimizeBitmap
+#  else
+#    define CONFIG_TWM4NX_MINIMIZE_IMAGE  NXWidgets::g_minimize2Bitmap
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_RESIZE_IMAGE
-#  define CONFIG_TWM4NX_RESIZE_IMAGE    NXWidgets::g_resizeBitmap
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_RESIZE_IMAGE    NXWidgets::g_resizeBitmap
+#  else
+#    define CONFIG_TWM4NX_RESIZE_IMAGE    NXWidgets::g_resize2Bitmap
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_TERMINATE_IMAGE
-#  define CONFIG_TWM4NX_TERMINATE_IMAGE NXWidgets::g_stopBitmap
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_TERMINATE_IMAGE NXWidgets::g_stopBitmap
+#  else
+#    define CONFIG_TWM4NX_TERMINATE_IMAGE NXWidgets::g_stop2Bitmap
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_ICONMGR_IMAGE
@@ -174,23 +196,56 @@
  * CONFIG_TWM4NX_MENU_IMAGE.  Menu image (see toolbar icons)
  */
 
+// Themes ///////////////////////////////////////////////////////////////////
+
+/**
+ * CONFIG_TWM4NX_CLASSIC.  Strong bordered windows with dark primary colors.
+ *   Reminiscent of Windows 98.
+ * CONFIG_TWM4NX_CONTEMPORARY.  Border-less windows in pastel shades for a
+ *   more contemporary look
+ *
+ * Selecting a theme selects default colors, button images, and icons.  For
+ * a given theme to work correctly, it may depend on other configuration
+ * settings outside of Twm4Nx.
+ */
+
+#if defined(CONFIG_TWM4NX_CONTEMPORARY) && CONFIG_NXTK_BORDERWIDTH != 0
+#  warning Contemporary theme needs border-less windows (CONFIG_NXTK_BORDERWIDTH == 0)
+#endif
+
 // Colors ///////////////////////////////////////////////////////////////////
 
 /**
  * Color configuration
  *
- * CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR - Normal background color.  Default:
- *    MKRGB(148,189,215)
+ * CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR - Normal background color.  Defaults:
+ *    Classic Theme:      MKRGB(148,189,215)
+ *    Contemporary Theme: MKRGB(101,157,189)
  * CONFIG_TWM4NX_DEFAULT_SELECTEDBACKGROUNDCOLOR - Select background color.
- *    Default:  MKRGB(206,227,241)
+ *    Defaults:
+ *    Classic Theme:      MKRGB(206,227,241)
+ *    Contemporary Theme: MKRGB(143,191,219)
+ * CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR - Normal toolbar background color.  Defaults:
+ *    Classic Theme:      MKRGB(148,189,215)
+ *    Contemporary Theme: MKRGB(193,167,79)
+ * CONFIG_TWM4NX_DEFAULT_SELECTTOOLBARCOLOR - Select toolbar color.
+ *    Defaults:
+ *    Classic Theme:      MKRGB(206,227,241)
+ *    Contemporary Theme: MKRGB(251,238,193)
  * CONFIG_TWM4NX_DEFAULT_SHINEEDGECOLOR - Color of the bright edge of a border.
- *    Default: MKRGB(255,255,255)
+ *    Defaults:
+ *    Classic Theme:      MKRGB(255,255,255)
+ *    Contemporary Theme: MKRGB(251,240,199)
  * CONFIG_TWM4NX_DEFAULT_SHADOWEDGECOLOR - Color of the shadowed edge of a border.
- *    Default: MKRGB(0,0,0)
- * CONFIG_TWM4NX_DEFAULT_FONTCOLOR - Default font color.  Default:
- *    MKRGB(0,0,0)
- * CONFIG_TWM4NX_TRANSPARENT_COLOR - The "transparent" color.  Default:
- *    MKRGB(0,0,0)
+ *    Defaults:
+ *    Classic Theme:      MKRGB(0,0,0)
+ *    Contemporary Theme: MKRGB(201,165,116)
+ * CONFIG_TWM4NX_DEFAULT_FONTCOLOR - Default font color.  Defaults:
+ *    Classic Theme:      MKRGB(255,255,255)
+ *    Contemporary Theme: MKRGB(255,255,255)
+ * CONFIG_TWM4NX_TRANSPARENT_COLOR - The "transparent" color.  Defaults:
+ *    Classic Theme:      MKRGB(0,0,0)
+ *    Contemporary Theme: MKRGB(0,0,0)
  */
 
 /**
@@ -198,7 +253,11 @@
  */
 
 #ifndef CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR
-#  define CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR  MKRGB(148,189,215)
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR  MKRGB(148,189,215)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR  MKRGB(101,148,188)
+#  endif
 #endif
 
 /**
@@ -206,7 +265,35 @@
  */
 
 #ifndef CONFIG_TWM4NX_DEFAULT_SELECTEDBACKGROUNDCOLOR
-#  define CONFIG_TWM4NX_DEFAULT_SELECTEDBACKGROUNDCOLOR  MKRGB(206,227,241)
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_SELECTEDBACKGROUNDCOLOR  MKRGB(206,227,241)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_SELECTEDBACKGROUNDCOLOR  MKRGB(158,193,211)
+#  endif
+#endif
+
+/**
+ * Normal toolbar background color
+ */
+
+#ifndef CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR  MKRGB(148,189,215)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR  MKRGB(193,167,79)
+#  endif
+#endif
+
+/**
+ * Default selected toolbar background color
+ */
+
+#ifndef CONFIG_TWM4NX_DEFAULT_SELECTEDTOOLBARCOLOR
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_SELECTEDTOOLBARCOLOR  MKRGB(206,227,241)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_SELECTEDTOOLBARCOLOR  MKRGB(251,238,193)
+#  endif
 #endif
 
 /**
@@ -214,11 +301,19 @@
  */
 
 #ifndef CONFIG_TWM4NX_DEFAULT_SHINEEDGECOLOR
-#  define CONFIG_TWM4NX_DEFAULT_SHINEEDGECOLOR  MKRGB(248,248,248)
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_SHINEEDGECOLOR  MKRGB(248,248,248)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_SHINEEDGECOLOR  MKRGB(251,240,199)
+#  endif
 #endif
 
 #ifndef CONFIG_TWM4NX_DEFAULT_SHADOWEDGECOLOR
-#  define CONFIG_TWM4NX_DEFAULT_SHADOWEDGECOLOR  MKRGB(35,58,73)
+#  ifdef CONFIG_TWM4NX_CLASSIC
+#    define CONFIG_TWM4NX_DEFAULT_SHADOWEDGECOLOR  MKRGB(35,58,73)
+#  else
+#    define CONFIG_TWM4NX_DEFAULT_SHADOWEDGECOLOR  MKRGB(201,165,116)
+#  endif
 #endif
 
 /**
@@ -314,27 +409,23 @@
 // Font Colors
 
 #ifndef CONFIG_TWM4NX_TITLE_FONTCOLOR
-#  define CONFIG_TWM4NX_TITLE_FONTCOLOR MKRGB(0,64,0)
+#  define CONFIG_TWM4NX_TITLE_FONTCOLOR CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #endif
 
 #ifndef CONFIG_TWM4NX_MENU_FONTCOLOR
-#  define CONFIG_TWM4NX_MENU_FONTCOLOR MKRGB(0,64,0)
+#  define CONFIG_TWM4NX_MENU_FONTCOLOR CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #endif
 
 #ifndef CONFIG_TWM4NX_ICON_FONTCOLOR
-#  define CONFIG_TWM4NX_ICON_FONTCOLOR MKRGB(0,64,0)
+#  define CONFIG_TWM4NX_ICON_FONTCOLOR CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #endif
 
 #ifndef CONFIG_TWM4NX_SIZE_FONTCOLOR
-#  define CONFIG_TWM4NX_SIZE_FONTCOLOR MKRGB(0,64,0)
+#  define CONFIG_TWM4NX_SIZE_FONTCOLOR CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #endif
 
 #ifndef CONFIG_TWM4NX_ICONMGR_FONTCOLOR
-#  define CONFIG_TWM4NX_ICONMGR_FONTCOLOR MKRGB(0,64,0)
-#endif
-
-#ifndef CONFIG_TWM4NX_DEFAULT_FONTCOLOR
-#  define CONFIG_TWM4NX_DEFAULT_FONTCOLOR MKRGB(0,64,0)
+#  define CONFIG_TWM4NX_ICONMGR_FONTCOLOR CONFIG_TWM4NX_DEFAULT_FONTCOLOR
 #endif
 
 // Input Devices /////////////////////////////////////////////////////////////

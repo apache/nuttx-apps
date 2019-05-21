@@ -75,7 +75,9 @@ CBackground::CBackground(FAR CTwm4Nx *twm4nx)
   m_twm4nx      = twm4nx;                    // Save the session instance
   m_eventq      = (mqd_t)-1;                 // No NxWidget event message queue yet
   m_backWindow  = (NXWidgets::CBgWindow *)0; // No background window yet
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
   m_backImage   = (NXWidgets::CImage *)0;    // No background image yet
+#endif
 }
 
 /**
@@ -127,6 +129,7 @@ bool CBackground::
 
   twminfo("Create the background image\n");
 
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
   // Create the new background image
 
   if (!createBackgroundImage(sbitmap))
@@ -135,6 +138,7 @@ bool CBackground::
       cleanup();
       return false;
     }
+#endif
 
   return true;
 }
@@ -176,6 +180,7 @@ void CBackground::getDisplaySize(FAR struct nxgl_size_s &size)
 bool CBackground::checkCollision(FAR const struct nxgl_rect_s &bounds,
                                  FAR struct nxgl_rect_s &collision)
 {
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
   // Is there a background image
 
   if (m_backImage != (NXWidgets::CImage *)0)
@@ -195,6 +200,7 @@ bool CBackground::checkCollision(FAR const struct nxgl_rect_s &bounds,
 
       return nxgl_intersecting(&bounds, &collision);
     }
+#endif
 
   return false;
 }
@@ -232,6 +238,7 @@ bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
                        redrawSize.w, redrawSize.h,
                        CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR);
 
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
   if (m_backImage != (NXWidgets::CImage *)0)
     {
       // Does any part of the image need to be redrawn?
@@ -252,6 +259,7 @@ bool CBackground::redrawBackgroundWindow(FAR const struct nxgl_rect_s *rect,
           m_backImage->redraw();
         }
     }
+#endif
 
   // Now redraw any background icons that need to be redrawn
 
@@ -422,6 +430,7 @@ bool CBackground::createBackgroundWindow(void)
  * @return true on success
  */
 
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
 bool CBackground::
   createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap)
 {
@@ -497,6 +506,7 @@ bool CBackground::
   m_backImage->redraw();
   return true;
 }
+#endif
 
 /**
  * Release resources held by the background.
@@ -512,6 +522,7 @@ void CBackground::cleanup(void)
       m_eventq = (mqd_t)-1;
     }
 
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
   // Delete the background image
 
   if (m_backImage != (NXWidgets::CImage *)0)
@@ -519,6 +530,7 @@ void CBackground::cleanup(void)
       delete m_backImage;
       m_backImage = (NXWidgets::CImage *)0;
     }
+#endif
 
   // Delete the background
 

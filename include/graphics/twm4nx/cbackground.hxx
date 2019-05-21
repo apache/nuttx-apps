@@ -79,7 +79,9 @@ namespace Twm4Nx
       FAR CTwm4Nx                  *m_twm4nx;     /**< Cached CTwm4Nx instance */
       mqd_t                         m_eventq;     /**< NxWidget event message queue */
       FAR NXWidgets::CBgWindow     *m_backWindow; /**< The background window */
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
       FAR NXWidgets::CImage        *m_backImage;  /**< The background image */
+#endif
 
       /**
        * Create the background window.
@@ -96,6 +98,7 @@ namespace Twm4Nx
 
       bool createBackgroundWidget(void);
 
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
       /**
        * Create the background image.
        *
@@ -104,6 +107,7 @@ namespace Twm4Nx
        */
 
       bool createBackgroundImage(FAR const struct NXWidgets::SRlePaletteBitmap *sbitmap);
+#endif
 
       /**
        * Release resources held by the background.

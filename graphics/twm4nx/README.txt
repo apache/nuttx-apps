@@ -125,6 +125,13 @@ How To:
       o Move toward the top decreases the height of the Window
       o Other moves will affect both the height and width of the window.
 
+  Themes
+    - There are two themes support by the configuration system:
+      o CONFIG_TWM4NX_CLASSIC.  Strong bordered windows with dark primary
+        colors.  Reminiscent of Windows 98.
+      o CONFIG_TWM4NX_CONTEMPORARY.  Border-less windows in pastel shades
+        for a more contemporary look.
+
 Issues:
 
     2019-05-16:
@@ -158,3 +165,6 @@ Issues:
        set half of the display width which is okay for the display I am using,
        but it really needs to set a width that is appropriate for the number
        of columns and the size of a generic name string.
+    8. There are a few color artifacts in the toolbar of the CONTEMPORARY
+       theme.  These look like boards are being drawn around the toolbar
+       widgets (even though the are configured to be borderless).

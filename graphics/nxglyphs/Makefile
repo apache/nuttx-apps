@@ -56,6 +56,8 @@ ifeq ($(CONFIG_NXGLYPHS_LARGE_ICONS),y)
 CXXSRCS += glyph_calculator47x49.cxx glyph_calibration48x42.cxx glyph_cmd49x43.cxx
 CXXSRCS += glyph_minimize42x42.cxx glyph_play48x48.cxx glyph_stop42x42.cxx
 CXXSRCS += glyph_menu42x42.cxx glyph_resize42x42.cxx glyph_nxicon42x42.cxx
+CXXSRCS += glpyh_menu2-42x42.cxx glpyh_minimize2-42x42.cxx glpyh_resize2-42x42.cxx
+CXXSRCS += glyph_stop2-42x42.cxx
 
 else
 # Small icons
@@ -63,6 +65,8 @@ else
 CXXSRCS += glyph_calculator24x25.cxx glyph_calibration24x21.cxx glyph_cmd25x22.cxx
 CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_stop21x21.cxx
 CXXSRCS += glyph_menu21x21.cxx glyph_resize21x21.cxx glyph_nxicon21x21.cxx
+CXXSRCS += glpyh_menu2-21x21.cxx glpyh_minimize2-21x21.cxx glpyh_resize2-21x21.cxx
+CXXSRCS += glpyh_stop2-21x21.cxx
 endif
 
 ifeq ($(CONFIG_NXGLYPHS_LARGE_ICONS),y)

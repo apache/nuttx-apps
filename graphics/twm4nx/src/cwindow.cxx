@@ -68,6 +68,8 @@
 #include "graphics/nxwidgets/cimage.hxx"
 #include "graphics/nxwidgets/clabel.hxx"
 #include "graphics/nxwidgets/cnxfont.hxx"
+#include "graphics/nxwidgets/singletons.hxx"
+#include "graphics/nxwidgets/cwidgetstyle.hxx"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
 #include "graphics/twm4nx/ctwm4nx.hxx"
@@ -162,6 +164,13 @@ CWindow::CWindow(CTwm4Nx *twm4nx)
   m_tbRightX              = 0;             // Offset to start of right buttons
   m_tbFlags               = 0;             // No customizations
   m_tbDisables            = 0;             // No buttons disabled
+
+  // Style for the toolbar widgets.  It is the same as the default
+  // widget style, but using the color assigned to the toolbar background.
+
+  m_tbStyle               = *NXWidgets::g_defaultWidgetStyle;
+  m_tbStyle.colors.background         = CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR;
+  m_tbStyle.colors.selectedBackground = CONFIG_TWM4NX_DEFAULT_TOOLBARCOLOR;
 
   // Icons/Icon Manager
 
@@ -347,13 +356,21 @@ bool CWindow::initialize(FAR const NXWidgets::CNxString &name,
           return false;
         }
 
+      // Create a style for the Icon widget.  It is the same as the default
+      // widget style, but using the color assigned to the background as the
+      // widget background color.
+
+      NXWidgets::CWidgetStyle style   = *NXWidgets::g_defaultWidgetStyle;
+      style.colors.background         = CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR;
+      style.colors.selectedBackground = CONFIG_TWM4NX_DEFAULT_BACKGROUNDCOLOR;
+
       // Get the widget control instance from the background.  This is needed
-      // to force the icon widgets to be draw on the background
+      // to force the icon widgets to be drawn on the background
 
       FAR CBackground *background = m_twm4nx->getBackground();
       FAR NXWidgets::CWidgetControl *control = background->getWidgetControl();
 
-      m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y);
+      m_iconWidget = new CIconWidget(m_twm4nx, control, pos->x, pos->y, &style);
       if (m_iconWidget == (FAR CIconWidget *)0)
         {
           twmerr("ERROR: Failed to create the icon widget\n");
@@ -973,11 +990,11 @@ bool CWindow::fillToolbar(void)
       return false;
     }
 
-  // Get the background color of the current widget style.
-  // REVISIT:  Using the the non-shadowed border color
+  // Fill the toolbar with the background color of the current widget style
+  // (which is always the default widget style for now).
 
   port->drawFilledRect(0, 0, windowSize.w, windowSize.h,
-                       CONFIG_NXTK_BORDERCOLOR1);
+                       NXWidgets::g_defaultWidgetStyle->colors.background);
   return true;
 }
 
@@ -1184,7 +1201,7 @@ bool CWindow::createToolbarButtons(uint8_t flags)
       h = scaler->getHeight();
 
       m_tbButtons[btindex] =
-        new NXWidgets::CImage(control, 0, 0, w, h, scaler, 0);
+        new NXWidgets::CImage(control, 0, 0, w, h, scaler, &m_tbStyle);
       if (m_tbButtons[btindex] == (FAR NXWidgets::CImage *)0)
         {
           twmerr("ERROR: Failed to create image\n");
@@ -1204,7 +1221,7 @@ bool CWindow::createToolbarButtons(uint8_t flags)
       h = cbitmap->getHeight();
 
       m_tbButtons[btindex] =
-        new NXWidgets::CImage(control, 0, 0, w, h, cbitmap, 0);
+        new NXWidgets::CImage(control, 0, 0, w, h, cbitmap, &m_tbStyle);
       if (m_tbButtons[btindex] == (FAR NXWidgets::CImage *)0)
         {
           twmerr("ERROR: Failed to create image\n");
@@ -1308,7 +1325,7 @@ bool CWindow::createToolbarTitle(FAR const NXWidgets::CNxString &name)
   // Create the toolbar title widget
 
   m_tbTitle = new NXWidgets::CLabel(control, titlePos.x, titlePos.y,
-                                    titleSize.w, titleSize.h, name);
+                                    titleSize.w, titleSize.h, name, &m_tbStyle);
   if (m_tbTitle == (FAR NXWidgets::CLabel *)0)
     {
       twmerr("ERROR: Failed to construct tool bar title widget\n");
