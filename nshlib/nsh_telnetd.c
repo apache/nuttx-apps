@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_telnetd.c
  *
- *   Copyright (C) 2007-2013, 2016-2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2016-2017, 2019 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,39 +152,53 @@ static int nsh_telnetmain(int argc, char *argv[])
       fflush(pstate->cn_outstream);
 
       /* Get the next line of input from the Telnet client */
+
 #ifdef CONFIG_TELNET_CHARACTER_MODE
 #ifdef CONFIG_NSH_CLE
+      /* cle() returns a negated errno value on failure (errno is not set) */
+
       ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
                 INSTREAM(pstate), OUTSTREAM(pstate));
-#else
-      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
-                     INSTREAM(pstate), OUTSTREAM(pstate));
-#endif
-#else
-      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
-                INSTREAM(pstate)) != NULL)
-        {
-          ret = strlen(pstate->cn_line);
-        }
-      else
-        {
-          ret = EOF;
-        }
-#endif
-
-      if (ret != EOF)
-        {
-          /* Parse process the received Telnet command */
-
-          (void)nsh_parse(vtbl, pstate->cn_line);
-          fflush(pstate->cn_outstream);
-        }
-      else
+      if (ret < 0)
         {
           fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
-                  "cle/readline/fgets", NSH_ERRNO);
+                  "cle", NSH_ERRNO_OF(-ret));
           nsh_exit(vtbl, 1);
         }
+#else
+      /* readline() returns EOF on failure (errno is not set) */
+
+      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
+                     INSTREAM(pstate), OUTSTREAM(pstate));
+      if (ret == EOF)
+        {
+          /* NOTE: readline() does not set the errno variable, but perhaps we
+           * will be lucky and it will still be valid.
+           */
+
+          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
+                  "readline", NSH_ERRNO);
+          nsh_exit(vtbl, 1);
+        }
+#endif
+#else
+      /* fgets() returns NULL on failure (errno will be set) */
+
+      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate)) == NULL)
+        {
+          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
+                  "fgets", NSH_ERRNO);
+          nsh_exit(vtbl, 1);
+        }
+
+      ret = strlen(pstate->cn_line);
+#endif
+
+      /* Parse process the received Telnet command */
+
+      (void)nsh_parse(vtbl, pstate->cn_line);
+      fflush(pstate->cn_outstream);
     }
 
   /* Clean up */

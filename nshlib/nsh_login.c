@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_login.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,16 +171,21 @@ int nsh_login(FAR struct console_stdio_s *pstate)
       fputs(g_userprompt, pstate->cn_outstream);
       fflush(pstate->cn_outstream);
 
+      username[0] = '\0';
+
 #ifdef CONFIG_NSH_CLE
+      /* cle() returns a negated errno value on failure */
+
       ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
                 INSTREAM(pstate), OUTSTREAM(pstate));
+      if (ret >= 0)
 #else
+      /* readline() returns EOF on failure */
+
       ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
                      INSTREAM(pstate), OUTSTREAM(pstate));
-#endif
-
-      username[0] = '\0';
       if (ret != EOF)
+#endif
         {
           /* Parse out the username */
 

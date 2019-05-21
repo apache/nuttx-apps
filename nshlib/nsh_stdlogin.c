@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_stdlogin.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -170,17 +170,22 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
 
       printf("%s", g_userprompt);
 
-      /* Get the reponse, handling all possible cases */
-
-#ifdef CONFIG_NSH_CLE
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
-                stdin, stdout);
-#else
-      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
-#endif
+      /* Get the response, handling all possible cases */
 
       username[0] = '\0';
+
+#ifdef CONFIG_NSH_CLE
+      /* cle() returns a negated errno value on failure */
+
+      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+                stdin, stdout);
+      if (ret >= 0)
+#else
+      /* readline() returns EOF on failure */
+
+      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
       if (ret != EOF)
+#endif
         {
           /* Parse out the username */
 

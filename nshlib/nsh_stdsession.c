@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_stdsession.c
  *
- *   Copyright (C) 2013-2014, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013-2014, 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,33 +127,43 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       printf("%s", g_nshprompt);
 
-      /* Get the next line of input. readline() returns EOF on end-of-file
-       * or any read failure.
-       */
+      /* Get the next line of input. */
 
 #ifdef CONFIG_NSH_CLE
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
-                stdin, stdout);
-#else
-      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
-#endif
-      if (ret != EOF)
-        {
-          /* Parse process the command */
-
-          (void)nsh_parse(vtbl, pstate->cn_line);
-        }
-
-      /* Readline normally returns the number of characters read,
-       * but will return EOF on end of file or if an error occurs.
-       * EOF will cause the session to terminate.
+      /* cle() normally returns the number of characters read, but will
+       * return a negated errno value on end of file or if an error occurs.
+       * Either will cause the session to terminate.
        */
 
-      else
+      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+                stdin, stdout);
+      if (ret < 0)
         {
-          printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO_OF(-ret));
+
+          printf(g_fmtcmdfailed, "nsh_session", "cle", NSH_ERRNO_OF(-ret));
           return EXIT_SUCCESS;
         }
+#else
+      /* readline () normally returns the number of characters read, but will
+       * return EOF on end of file or if an error occurs.  Either will cause
+       * the session to terminate.
+       */
+
+      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
+      if (ret == EOF)
+        {
+          /* NOTE: readline() does not set the errno variable, but perhaps we
+           * will be lucky and it will still be valid.
+           */
+
+          printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO);
+          return EXIT_SUCCESS;
+        }
+#endif
+
+      /* Parse process the command */
+
+      (void)nsh_parse(vtbl, pstate->cn_line);
     }
 
   /* We do not get here, but this is necessary to keep some compilers happy.
