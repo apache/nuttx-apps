@@ -246,7 +246,7 @@ bool CTwm4Nx::initialize(void)
 
   // Create the Icon Manager
 
-  m_iconmgr = new CIconMgr(this, 4);
+  m_iconmgr = new CIconMgr(this, CONFIG_TWM4NX_ICONMGR_NCOLUMNS);
   if (m_iconmgr == (FAR CIconMgr *)0)
     {
       cleanup();

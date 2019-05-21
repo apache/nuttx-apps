@@ -333,7 +333,7 @@ bool CIconMgr::resizeIconManager(void)
       return false;
     }
 
-  nxgl_coord_t rowHeight = getRowHeight();
+  nxgl_coord_t rowHeight = getButtonHeight();
   windowSize.h = newrows * rowHeight;
   if (!m_window->setWindowSize(&windowSize))
     {
@@ -467,23 +467,35 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
 }
 
 /**
+ * Return the width of one button
+ *
+ * @return The width of one button
+ */
+
+nxgl_coord_t CIconMgr::getButtonWidth(void)
+{
+  FAR CFonts *fonts = m_twm4nx->getFonts();
+  FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
+
+  // Fudge factors:  Width is 8 characters of the width of 'M' width plus 4
+
+  return 8 * iconManagerFont->getCharWidth('M') + 4;
+}
+
+/**
  * Return the height of one row
  *
  * @return The height of one row
  */
 
-nxgl_coord_t CIconMgr::getRowHeight(void)
+nxgl_coord_t CIconMgr::getButtonHeight(void)
 {
   FAR CFonts *fonts = m_twm4nx->getFonts();
   FAR NXWidgets::CNxFont *iconManagerFont = fonts->getIconManagerFont();
 
-  nxgl_coord_t rowHeight = iconManagerFont->getHeight() + 10;
-  if (rowHeight < (CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4))
-    {
-      rowHeight = CONFIG_TWM4NX_ICONMGR_IMAGE.width + 4;
-    }
+  // Fudge factors:  Width is the maximal font height plus 6 rows
 
-  return rowHeight;
+  return iconManagerFont->getHeight() + 6;
 }
 
 /**
@@ -550,31 +562,16 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
       return false;
     }
 
-  // Adjust the height of the window (and probably the width too?)
-  // The height of one row is determined (mostly) by the font height
+  // Get the height and width of the Icon manager window.  The width is
+  // determined by the typical string lenght the maximum character width,
+  // The height of one row is determined (mostly) by the maximum font
+  // height
 
   struct nxgl_size_s windowSize;
-  if (!m_window->getWindowSize(&windowSize))
-    {
-      twmerr("ERROR: Failed to get window size\n");
-      delete m_window;
-      m_window = (FAR CWindow *)0;
-      return false;
-    }
+  windowSize.w = m_nColumns * getButtonWidth();
+  windowSize.h = getButtonHeight();
 
-  windowSize.h = getRowHeight();
-
-  // Set the new window size
-
-  if (!m_window->setWindowSize(&windowSize))
-    {
-      twmerr("ERROR: Failed to set window size\n");
-      delete m_window;
-      m_window = (FAR CWindow *)0;
-      return false;
-    }
-
-  // Get the frame size (includes border and toolbar)
+  // Get the Icon manager frame size (includes border and toolbar)
 
   struct nxgl_size_s frameSize;
   m_window->windowToFrameSize(&windowSize, &frameSize);
@@ -588,9 +585,11 @@ bool CIconMgr::createIconManagerWindow(FAR const char *prefix)
   framePos.x = displaySize.w - frameSize.w - 1;
   framePos.y = 0;
 
-  if (!m_window->setFramePosition(&framePos))
+  // Set the new window size and position
+
+  if (!m_window->resizeFrame(&frameSize, &framePos))
     {
-      twmerr("ERROR: Failed to set window position\n");
+      twmerr("ERROR: Failed to set window size/position\n");
       delete m_window;
       m_window = (FAR CWindow *)0;
       return false;

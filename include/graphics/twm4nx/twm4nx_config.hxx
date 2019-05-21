@@ -363,6 +363,22 @@
 #  define CONFIG_TWM4NX_BACKGROUND_IMAGE NXWidgets::g_nuttxBitmap160x160
 #endif
 
+// Icon Manager //////////////////////////////////////////////////////////////
+
+// CONFIG_TWM4NX_ICONMGR_NCOLUMNS - The number of horizontal entries in the
+// Icon Manager button array.
+
+// See also:
+//  CONFIG_TWM4NX_ICONMGR_FONTID
+//  CONFIG_TWM4NX_ICONMGR_FONTCOLOR
+//  CONFIG_TWM4NX_ICONMGR_IMAGE
+//  CONFIG_TWM4NX_ICONMGR_VSPACING
+//  CONFIG_TWM4NX_ICONMGR_HSPACING
+
+#ifndef CONFIG_TWM4NX_ICONMGR_NCOLUMNS
+#  define CONFIG_TWM4NX_ICONMGR_NCOLUMNS 4
+#endif
+
 // Cursor ////////////////////////////////////////////////////////////////////
 // Cursor Images
 
@@ -402,8 +418,8 @@
 #  define CONFIG_TWM4NX_SIZE_FONTID NXFONT_DEFAULT
 #endif
 
-#ifndef CONFIG_TWM4NX_ICONMGR_SIZEFONTID
-#  define CONFIG_TWM4NX_ICONMGR_SIZEFONTID NXFONT_DEFAULT
+#ifndef CONFIG_TWM4NX_ICONMGR_FONTID
+#  define CONFIG_TWM4NX_ICONMGR_FONTID NXFONT_DEFAULT
 #endif
 
 // Font Colors

@@ -127,6 +127,12 @@ config TWM4NX_CONTEMPORARY
 
 endchoice # Twm4Nx Theme
 
+config TWM4NX_ICONMGR_NCOLUMNS
+	int "Icon Manager columns"
+	default 4
+	---help---
+		The number of buttons in one row of the Icon Manager.
+
 config TWM4NX_DEBUG
 	bool "Force debug output"
 	default n

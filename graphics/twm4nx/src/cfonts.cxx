@@ -158,7 +158,7 @@ bool CFonts::initialize(void)
     }
 
   m_iconManagerFont =
-    new NXWidgets::CNxFont((enum nx_fontid_e)CONFIG_TWM4NX_ICONMGR_SIZEFONTID,
+    new NXWidgets::CNxFont((enum nx_fontid_e)CONFIG_TWM4NX_ICONMGR_FONTID,
                            CONFIG_TWM4NX_ICONMGR_FONTCOLOR,
                            CONFIG_TWM4NX_TRANSPARENT_COLOR);
   if (m_iconManagerFont == (FAR NXWidgets::CNxFont *)0)

@@ -68,6 +68,7 @@ Progress:
     directly on the background without the use of a widget.
   2019-05-15:  Resizing now seems to work correctly in Twm4Nx.
   2019-05-20:  Calibration screen is now in place.
+  2019-05-21:  A "CONTEMPORARY" theme was added.  Still has a few glitches.
 
 How To:
 
@@ -161,10 +162,6 @@ Issues:
        menu just as any other region of the background.  This would be easy
        to fix, but just replacing the background image widget is the better
        solution.
-    7. The Icon Manager currently used the default window width.  That is
-       set half of the display width which is okay for the display I am using,
-       but it really needs to set a width that is appropriate for the number
-       of columns and the size of a generic name string.
-    8. There are a few color artifacts in the toolbar of the CONTEMPORARY
+    7. There are a few color artifacts in the toolbar of the CONTEMPORARY
        theme.  These look like boards are being drawn around the toolbar
        widgets (even though the are configured to be borderless).

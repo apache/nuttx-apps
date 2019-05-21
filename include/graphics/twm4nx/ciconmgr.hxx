@@ -100,12 +100,20 @@ namespace Twm4Nx
       uint8_t                         m_nrows;      /**< Number of rows in the button array */
 
       /**
-       * Return the height of one row
+       * Return the width of one button
        *
-       * @return The height of one row
+       * @return The width of one button
        */
 
-      nxgl_coord_t getRowHeight(void);
+      inline nxgl_coord_t getButtonWidth(void);
+
+      /**
+       * Return the height of one button
+       *
+       * @return The height of one button
+       */
+
+      inline nxgl_coord_t getButtonHeight(void);
 
       /**
        * Create and initialize the icon manager window
