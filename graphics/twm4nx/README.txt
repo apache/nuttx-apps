@@ -155,13 +155,23 @@ Issues:
     5. Icon drag movement includes logic to avoid collisions with other
        icons and with the background image.  That later is an issue.  The
        background image image widget needs to be removed; it can occlude a
-       dektop icon.  We need to paint the image directly on the background
+       desktop icon.  We need to paint the image directly on the background
        without the use of a widget.
     6. More issues with the background image:  It absorbs touchscreen
        presses without doing anything.  It should bring-up the main menu
        menu just as any other region of the background.  This would be easy
-       to fix, but just replacing the background image widget is the better
-       solution.
+       to fix, but just replacing the background image widget and drawing
+       directly on the background which is the better solution anyway.
     7. There are a few color artifacts in the toolbar of the CONTEMPORARY
-       theme.  These look like boards are being drawn around the toolbar
+       theme.  These look like borders are being drawn around the toolbar
        widgets (even though the are configured to be borderless).
+    8. Most Twm4Nx configuration settings are hard-coded in *_config.hxx header
+       files.  These all need to be brought out and made accessible via Kconfig
+       files
+    9. If you create a window and resize it while the Main Menu is up, you can
+       force things into a bad state by interacting with the Main Menu while
+       resize is in operation.
+   10. Things become buggy after perhaps 10 shell windows have been opened.
+       Most likely, some resource allocation is failing silently and leaving
+       things in a bad state.  The board I am using has 128Mb of SDRAM so I
+       can't believe that memory is limiting factor.
