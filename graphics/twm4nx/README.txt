@@ -162,6 +162,8 @@ Issues:
        menu just as any other region of the background.  This would be easy
        to fix, but just replacing the background image widget and drawing
        directly on the background which is the better solution anyway.
+       NOTE: There is a configuration option that will eliminate the background
+       image.  The CONTEMPORARY theme, for example, has no background image.
     7. There are a few color artifacts in the toolbar of the CONTEMPORARY
        theme.  These look like borders are being drawn around the toolbar
        widgets (even though the are configured to be borderless).

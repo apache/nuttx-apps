@@ -90,7 +90,7 @@ static int nsh_telnetmain(int argc, char *argv[])
   DEBUGASSERT(pstate != NULL);
   vtbl = &pstate->cn_vtbl;
 
-  _info("Session [%d] Started\n", getpid());
+  ninfo("Session [%d] Started\n", getpid());
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
   /* Login User and Password Check */
@@ -207,6 +207,7 @@ static int nsh_telnetmain(int argc, char *argv[])
 
   /* We do not get here, but this is necessary to keep some compilers happy */
 
+  UNUSED(ret);
   return OK;
 }
 
@@ -272,7 +273,7 @@ int nsh_telnetstart(sa_family_t family)
 
       /* Start the telnet daemon */
 
-      _info("Starting the Telnet daemon\n");
+      ninfo("Starting the Telnet daemon\n");
 
       ret = telnetd_start(&config);
       if (ret < 0)
