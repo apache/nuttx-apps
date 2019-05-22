@@ -50,10 +50,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_DISABLE_POLL
-#  error "The polling API is disabled"
-#endif
-
 /* Here are all of the configuration settings that must be met to have TCP/IP
  * poll/select support.  This kind of looks like overkill.
  *

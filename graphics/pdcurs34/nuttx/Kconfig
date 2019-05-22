@@ -168,7 +168,7 @@ config PDCURSES_DJOYSTICK
 	bool "Discrete Joystick"
 	default n
 	select PDCURSES_HAVE_INPUT
-	depends on DJOYSTICK && !DISABLE_POLL
+	depends on DJOYSTICK
 
 config PDCURSES_DJOYDEV
 	string "Discrete Joystick Device"
@@ -179,19 +179,19 @@ config PDCURSES_KEYBOARD
 	bool "Discrete Joystick"
 	default n
 	select PDCURSES_HAVE_INPUT
-	depends on USBHOST_HIDKBD && !DISABLE_POLL && EXPERIMENTAL
+	depends on USBHOST_HIDKBD && EXPERIMENTAL
 
 config PDCURSES_MOUSE
 	bool "Discrete Joystick"
 	default n
 	select PDCURSES_HAVE_INPUT
-	depends on MOUSE && !DISABLE_POLL && EXPERIMENTAL
+	depends on MOUSE && EXPERIMENTAL
 
 config PDCURSES_TERMINPUT
 	bool "Terminal Input"
 	default y
 	select PDCURSES_HAVE_INPUT
-	depends on SYSTEM_TERMCURSES && !DISABLE_POLL
+	depends on SYSTEM_TERMCURSES
 
 endmenu # Input Devices
 

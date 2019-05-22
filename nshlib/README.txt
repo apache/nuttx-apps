@@ -1536,9 +1536,9 @@ All built-in applications require that support for NSH built-in applications has
   Application Depends on Configuration
   ----------- --------------------------
   ping        CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_SOCKET &&
-              CONFIG_SYSTEM_PING && !CONFIG_DISABLE_POLL
+              CONFIG_SYSTEM_PING
   ping6       CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_SOCKET &&
-              CONFIG_SYSTEM_PING6 && !CONFIG_DISABLE_POLL
+              CONFIG_SYSTEM_PING6
 
 NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

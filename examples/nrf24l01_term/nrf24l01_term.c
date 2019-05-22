@@ -59,10 +59,6 @@
 
 #include "system/readline.h"
 
-#ifdef CONFIG_DISABLE_POLL
-#  error The poll interface is required for the nRF24L01 terminal example. You must disable config option DISABLE_POLL.
-#endif
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/

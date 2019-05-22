@@ -52,7 +52,6 @@
  * required.  But here are a couple that are less obvious:
  *
  *   CONFIG_DISABLE_PTHREAD - pthread support is required
- *   CONFIG_DISABLE_POLL - poll() support is required
  *
  * Other FTPD configuration options that may be of interest:
  *
@@ -70,10 +69,6 @@
 
 #ifdef CONFIG_DISABLE_PTHREAD
 #  error "pthread support is required (CONFIG_DISABLE_PTHREAD=n)"
-#endif
-
-#ifdef CONFIG_DISABLE_POLL
-#  error "poll() support is required (CONFIG_DISABLE_POLL=n)"
 #endif
 
 #ifndef CONFIG_FTPD_VENDORID

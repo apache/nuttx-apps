@@ -39,7 +39,6 @@ config EXAMPLES_TCPBLASTER_PRIORITY1
 config EXAMPLES_TCPBLASTER_POLLOUT
 	bool "Use poll() to pace output"
 	default n
-	depends on !DISABLE_POLL
 	---help---
 		Client will use poll() to verify that send() will not block.  This
 		does not improve performance (in fact, it will degrade perform
@@ -49,7 +48,6 @@ config EXAMPLES_TCPBLASTER_POLLOUT
 config EXAMPLES_TCPBLASTER_POLLIN
 	bool "Use poll() to pace input"
 	default n
-	depends on !DISABLE_POLL
 	---help---
 		Client will use poll() to verify that recv() will not block.  This
 		does not improve performance (in fact, it will degrade perform

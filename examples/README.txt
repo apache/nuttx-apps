@@ -495,7 +495,6 @@ examples/ftpd
   is required.  But here are a couple that are less obvious:
 
     CONFIG_DISABLE_PTHREAD - pthread support is required
-    CONFIG_DISABLE_POLL - poll() support is required
 
   Other FTPD configuration options thay may be of interest:
 
@@ -1244,13 +1243,9 @@ examples/poll
 ^^^^^^^^^^^^^
 
   A test of the poll() and select() APIs using FIFOs and, if available,
-  stdin, and a TCP/IP socket.  In order to build this test, you must the
-  following selected in your NuttX configuration file:
-
-  CONFIG_DISABLE_POLL               - NOT defined
-
-  In order to use the TCP/IP select test, you have also the following
-  additional things selected in your NuttX configuration file:
+  stdin, and a TCP/IP socket.  In order to use the TCP/IP select
+  test, you must have the following things selected in your NuttX
+  configuration file:
 
   CONFIG_NET                        - Defined for general network support
   CONFIG_NET_TCP                    - Defined for TCP/IP support

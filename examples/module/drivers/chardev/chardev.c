@@ -79,17 +79,15 @@ static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
 
 static const struct file_operations chardev_fops =
 {
-  0,             /* open */
-  0,             /* close */
+  NULL,          /* open */
+  NULL,          /* close */
   chardev_read,  /* read */
   chardev_write, /* write */
-  0,             /* seek */
-  0              /* ioctl */
-#ifndef CONFIG_DISABLE_POLL
-  , 0            /* poll */
-#endif
+  NULL,          /* seek */
+  NULL,          /* ioctl */
+  NULL           /* poll */
 #ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS
-  , 0            /* unlink */
+  , NULL         /* unlink */
 #endif
 };
 

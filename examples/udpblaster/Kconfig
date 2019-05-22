@@ -31,7 +31,6 @@ config EXAMPLES_UDPBLASTER_PRIORITY
 config EXAMPLES_UDPBLASTER_POLLOUT
 	bool "Use poll() to pace output"
 	default n
-	depends on !DISABLE_POLL
 	---help---
 		Client will use poll() to verify that sendto() will not block.  This
 		does not improve performance (in fact, it will degrade perform

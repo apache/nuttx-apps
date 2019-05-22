@@ -63,15 +63,13 @@ static ssize_t hello_read(struct file *, char *, size_t);
 
 static const struct file_operations hello_fops =
 {
-  0,             /* open */
-  0,             /* close */
+  NULL,          /* open */
+  NULL,          /* close */
   hello_read,    /* read */
-  0,             /* write */
-  0,             /* seek */
-  0,             /* ioctl */
-#ifndef CONFIG_DISABLE_POLL
-  0              /* poll */
-#endif
+  NULL,          /* write */
+  NULL,          /* seek */
+  NULL,          /* ioctl */
+  NULL           /* poll */
 };
 
 /****************************************************************************

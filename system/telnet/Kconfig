@@ -6,7 +6,7 @@
 menuconfig SYSTEM_TELNET_CHATD
 	tristate "Telnet chat deamon"
 	default n
-	depends on NET && NET_TCP && !DISABLE_POLL
+	depends on NET && NET_TCP
 	select NETUTILS_TELNETC
 	---help---
 		Enable the Telnet Chat daemon.
@@ -34,7 +34,7 @@ endif # SYSTEM_TELNET_CHATD
 menuconfig SYSTEM_TELNET_CLIENT
 	tristate "Telnet client"
 	default n
-	depends on NET && NET_TCP && !DISABLE_POLL
+	depends on NET && NET_TCP
 	select NETUTILS_TELNETC
 	select SYSTEM_READLINE
 	---help---

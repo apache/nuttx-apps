@@ -47,7 +47,6 @@ config EXAMPLES_BUTTONS_SIGNAL
 
 config EXAMPLES_BUTTONS_POLL
 	bool "Notify using poll()"
-	depends on !DISABLE_POLL
 
 endchoice
 

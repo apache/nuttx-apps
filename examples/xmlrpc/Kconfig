@@ -6,7 +6,7 @@
 config EXAMPLES_XMLRPC
 	tristate "XML RPC example"
 	default n
-	depends on NET_TCP && !DISABLE_POLL
+	depends on NET_TCP
 	select NETUTILS_XMLRPC
 	---help---
 		An example for the netutils/xmlrpc library.

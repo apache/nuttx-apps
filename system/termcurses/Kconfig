@@ -12,8 +12,6 @@ config SYSTEM_TERMCURSES
 		Terminal emulation library for curses support on TTY type consoles
 		such as serial port, CDCACM, telnet, etc.
 
-		Must deselect CONFIG_DISABLE_POLL!
-
 config SYSTEM_TERMCURSES_VT100
 	bool "Terminal pdcurses support for VT-100"
 	depends on SYSTEM_TERMCURSES
