@@ -295,6 +295,9 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
           NXWidgets::CWidgetControl *control =
             m_backWindow->getWidgetControl();
 
+          FAR struct SXyInputEventMsg *xymsg =
+            (FAR struct SXyInputEventMsg *)eventmsg;
+
           // pollEvents() returns true if any interesting event occurred
           // within a widget that is associated with the background window.
           // false is not a failure.
@@ -305,35 +308,24 @@ bool CBackground::event(FAR struct SEventMsg *eventmsg)
               // a background click.  In that case, we should bring up the
               // main menu (if it is not already up).
 
-              // Is the main menu already up?  Was the mouse left button
-              // pressed?
-
-              FAR struct SXyInputEventMsg *xymsg =
-                (FAR struct SXyInputEventMsg *)eventmsg;
-
-              FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
-              if (!cmain->isVisible() &&
-                  (xymsg->buttons & MOUSE_BUTTON_1) != 0)
-               {
-                  // Bring up the main menu
-
-                  struct SEventMsg outmsg;
-                  outmsg.eventID = EVENT_MAINMENU_SELECT;
-                  outmsg.pos.x   = eventmsg->pos.x;
-                  outmsg.pos.y   = eventmsg->pos.y;
-                  outmsg.context = EVENT_CONTEXT_BACKGROUND;
-                  outmsg.handler = (FAR void *)0;
-                  outmsg.obj     = (FAR void *)this;
-
-                  int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
-                                    sizeof(struct SEventMsg), 100);
-                  if (ret < 0)
-                    {
-                      twmerr("ERROR: mq_send failed: %d\n", errno);
-                    }
-               }
-
+              showMainMenu(xymsg->pos, xymsg->buttons);
             }
+
+#ifdef CONFIG_TWM4NX_BACKGROUND_HASIMAGE
+          // If there is a background image, then clicking the background
+          // image is equivalent to clicking the background.  We need to
+          // handle this case because the image widget occludes the
+          // background
+
+          else if (m_backImage != (NXWidgets::CImage *)0 &&
+                   m_backImage->isClicked())
+            {
+              // Treat the image click like background click:  Bring up the
+              // main menu (if it is not already up).
+
+              showMainMenu(xymsg->pos, xymsg->buttons);
+            }
+#endif
         }
         break;
 
@@ -496,10 +488,13 @@ bool CBackground::
       return false;
     }
 
-  // Configure and draw the background image
+  // Configure and draw the background image.
+  // NOTE that we need to get events from the background image.  That is
+  // because the image occludes the background and we have to treat image
+  // clicks just as background clicks.
 
   m_backImage->setBorderless(true);
-  m_backImage->setRaisesEvents(false);
+  m_backImage->setRaisesEvents(true);
 
   m_backImage->enable();
   m_backImage->enableDrawing();
@@ -507,6 +502,40 @@ bool CBackground::
   return true;
 }
 #endif
+
+/**
+ * Bring up the main menu (if it is not already up).
+ *
+ * @param pos The window click position.
+ * @param buttons The set of mouse button presses.
+ */
+
+void CBackground::showMainMenu(FAR struct nxgl_point_s &pos,
+                               uint8_t buttons)
+{
+  // Is the main menu already up?  Was the mouse left button pressed?
+
+  FAR CMainMenu *cmain = m_twm4nx->getMainMenu();
+  if (!cmain->isVisible() && (buttons & MOUSE_BUTTON_1) != 0)
+    {
+      // Bring up the main menu
+
+      struct SEventMsg outmsg;
+      outmsg.eventID = EVENT_MAINMENU_SELECT;
+      outmsg.pos.x   = pos.x;
+      outmsg.pos.y   = pos.y;
+      outmsg.context = EVENT_CONTEXT_BACKGROUND;
+      outmsg.handler = (FAR void *)0;
+      outmsg.obj     = (FAR void *)this;
+
+      int ret = mq_send(m_eventq, (FAR const char *)&outmsg,
+                        sizeof(struct SEventMsg), 100);
+      if (ret < 0)
+        {
+          twmerr("ERROR: mq_send failed: %d\n", errno);
+        }
+   }
+}
 
 /**
  * Release resources held by the background.

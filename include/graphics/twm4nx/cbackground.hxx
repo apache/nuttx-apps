@@ -110,6 +110,15 @@ namespace Twm4Nx
 #endif
 
       /**
+       * Bring up the main menu (if it is not already up).
+       *
+       * @param pos The window click position.
+       * @param buttons The set of mouse button presses.
+       */
+
+      void showMainMenu(FAR struct nxgl_point_s &pos, uint8_t buttons);
+
+      /**
        * Release resources held by the background.
        */
 

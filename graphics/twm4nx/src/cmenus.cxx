@@ -300,61 +300,11 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
         }
         break;
 
-      case EVENT_MENU_IDENTIFY:   // Describe the window
+      case EVENT_MENU_COMPLETE:    // Menu selection complete
         {
-          identify((FAR CWindow *)eventmsg->obj);
-        }
-        break;
-
-      case EVENT_MENU_VERSION:    // Show the Twm4Nx version
-        identify((FAR CWindow *) NULL);
-        break;
-
-      case EVENT_MENU_DEICONIFY:  // Window icon pressed
-      case EVENT_MENU_ICONIFY:    // Tool bar minimize button pressed
-        {
-          FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
-          if (cwin->isIconified())
+          if (!m_menuWindow->isIconified())
             {
-              cwin->deIconify();
-            }
-          else if (eventmsg->eventID == EVENT_MENU_ICONIFY)
-            {
-              cwin->iconify();
-            }
-        }
-        break;
-
-      case EVENT_MENU_FUNCTION:   // Perform function on unknown menu
-        {
-          FAR struct SMenuItem *item;
-
-          for (item = m_menuHead; item != NULL; item = item->flink)
-            {
-              // Send another event message to the session manager
-
-              struct SEventMsg newmsg;
-              newmsg.eventID  = item->event;
-              newmsg.obj      = eventmsg->obj;
-              newmsg.pos.x    = eventmsg->pos.x;
-              newmsg.pos.y    = eventmsg->pos.y;
-              newmsg.context  = eventmsg->context;
-              newmsg.handler  = (FAR void *)item->handler;
-
-              // NOTE that we cannot block because we are on the same thread
-              // as the message reader.  If the event queue becomes full then
-              // we have no other option but to lose events.
-              //
-              // I suppose we could recurse and call Twm4Nx::dispatchEvent at
-              // the risk of runaway stack usage.
-
-              int ret = mq_send(m_eventq, (FAR const char *)&newmsg,
-                             sizeof(struct SEventMsg), 100);
-              if (ret < 0)
-                {
-                  twmerr("ERROR: mq_send failed: %d\n", errno);
-                  success = false;
-                }
+              m_menuWindow->iconify();
             }
         }
         break;
@@ -374,117 +324,6 @@ bool CMenus::event(FAR struct SEventMsg *eventmsg)
     }
 
   return success;
-}
-
-void CMenus::identify(FAR CWindow *cwin)
-{
-  int n = 0;
-#if CONFIG_VERSION_MAJOR != 0 || CONFIG_VERSION_MINOR != 0
-  std::snprintf(m_info[n], INFO_SIZE, "Twm4Nx: NuttX-" CONFIG_VERSION_STRING);
-#else
-  std::snprintf(m_info[n], INFO_SIZE, "Twm4Nx:");
-#endif
-  m_info[n++][0] = '\0';
-
-  if (cwin != (FAR CWindow *)0)
-    {
-      // Get the size of the window
-
-      struct nxgl_size_s windowSize;
-      if (!cwin->getFrameSize(&windowSize))
-        {
-          return;
-        }
-
-      struct nxgl_point_s windowPos;
-      if (!cwin->getFramePosition(&windowPos))
-        {
-          return;
-        }
-
-      std::snprintf(m_info[n++], INFO_SIZE, "Name             = \"%s\"",
-                    cwin->getWindowName());
-      m_info[n++][0] = '\0';
-      std::snprintf(m_info[n++], INFO_SIZE, "Geometry/root    = %dx%d+%d+%d",
-                    windowSize.w, windowSize.h, windowPos.x, windowPos.y);
-    }
-
-  m_info[n++][0] = '\0';
-  std::snprintf(m_info[n++], INFO_SIZE, "Click to dismiss....");
-
-  // Figure out the width and height of the info window
-
-  FAR CFonts *fonts = m_twm4nx->getFonts();
-  FAR NXWidgets::CNxFont *defaultFont = fonts->getDefaultFont();
-
-  struct nxgl_size_s menuSize;
-  menuSize.h = n * (defaultFont->getHeight() + 2);
-  menuSize.w = 1;
-
-  for (int i = 0; i < n; i++)
-    {
-      int twidth = defaultFont->getStringWidth(m_info[i]);
-      if (twidth > menuSize.w)
-        {
-          menuSize.w = twidth;
-        }
-    }
-
-  menuSize.w += 10;    // some padding
-
-  // Make sure that the window is on the display
-
-  struct nxgl_point_s menuPos;
-  if (m_menuWindow->getWindowPosition(&menuPos))
-    {
-      menuPos.x -= (menuSize.w / 2);
-      menuPos.y -= (menuSize.h / 3);
-
-      struct nxgl_size_s displaySize;
-      m_twm4nx->getDisplaySize(&displaySize);
-
-      struct nxgl_size_s frameSize;
-      menuToFrameSize(&menuSize, &frameSize);
-
-      if (menuPos.x + frameSize.w >= displaySize.w)
-        {
-          menuPos.x = displaySize.w - frameSize.w;
-        }
-
-      if (menuPos.y + frameSize.h >= displaySize.h)
-        {
-          menuPos.y = displaySize.h - frameSize.h;
-        }
-
-      if (menuPos.x < 0)
-        {
-          menuPos.x = 0;
-        }
-
-      if (menuPos.y < 0)
-        {
-          menuPos.y = 0;
-        }
-
-      frameToMenuSize(&frameSize, &menuSize);
-    }
-  else
-    {
-      menuPos.x = 0;
-      menuPos.y = 0;
-    }
-
-  // Set the new window size and position
-
-  if (!m_menuWindow->setWindowPosition(&menuPos) ||
-      !m_menuWindow->setWindowSize(&menuSize))
-    {
-      return;
-    }
-
-  // Raise it to the top of the hiearchy
-
-  m_menuWindow->raiseWindow();
 }
 
 /**
@@ -787,7 +626,7 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_buttons->isButtonClicked(column, row) && column == 0)
     {
-      // The row number is sufficent to locate the menu entry info
+      // The row number is sufficient to locate the menu entry info
       // But we have to search through the menu items to find the
       // at this row.
 
@@ -817,8 +656,11 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               // 2. Sub-menu
               // 3. Event with other recipients
 
-              if ((item->event & EVENT_RECIPIENT_MASK) != EVENT_RECIPIENT_APP &&
-                  item->subMenu != (FAR CMenus *)0)
+              bool subMenu =
+                ((item->event & EVENT_RECIPIENT_MASK) != EVENT_RECIPIENT_APP &&
+                 item->subMenu != (FAR CMenus *)0);
+
+              if (subMenu)
                 {
                   msg.eventID = EVENT_MENU_SUBMENU;
                   msg.obj     = (FAR void *)item->subMenu;
@@ -856,7 +698,27 @@ void CMenus::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                   twmerr("ERROR: mq_send failed: %d\n", errno);
                 }
 
-              return;
+              // If this is a terminal option (i.e., not a submenu) then
+              // make the menu inaccessible
+
+              if (!subMenu)
+                {
+                  msg.eventID = EVENT_MENU_COMPLETE;
+                  msg.obj     = (FAR void *)this;
+                  msg.handler = (FAR void *)0;
+                  msg.pos.x   = e.getX();
+                  msg.pos.y   = e.getY();
+                  msg.context = EVENT_CONTEXT_MENU;
+
+                  ret = mq_send(m_eventq, (FAR const char *)&msg,
+                                sizeof(struct SEventMsg), 100);
+                  if (ret < 0)
+                    {
+                      twmerr("ERROR: mq_send failed: %d\n", errno);
+                    }
+
+                  return;
+                }
             }
         }
 

@@ -338,14 +338,20 @@ bool CTwm4Nx::eventLoop(void)
           return false;
         }
 
-      // Dispatch the new event
+      // If we are resizing, then drop all non-critical events (of course,
+      // all resizing events must be critical)
 
-      if (!dispatchEvent(&u.eventmsg))
+      if (!m_resize->resizing() || EVENT_ISCRITICAL(u.eventmsg.eventID))
         {
-          twmerr("ERROR: dispatchEvent() failed, eventID=%u\n",
-                 u.eventmsg.eventID);
-          cleanup();
-          return false;
+          // Dispatch the new event
+
+          if (!dispatchEvent(&u.eventmsg))
+            {
+              twmerr("ERROR: dispatchEvent() failed, eventID=%u\n",
+                     u.eventmsg.eventID);
+              cleanup();
+              return false;
+            }
         }
     }
 

@@ -592,7 +592,7 @@ bool CWindow::iconify(void)
 {
   if (!isIconified())
     {
-      // Make sure to exit any modal state before minimizing
+     // Make sure to exit any modal state before minimizing
 
       m_modal = false;
       m_nxWin->modal(false);
@@ -1472,8 +1472,7 @@ void CWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
       // Check if this button is omitted by toolbar customizations or if the
       // button is temporarily disabled.
 
-      if ((m_tbFlags & (1 << btindex)) != 0 ||
-          (m_tbDisables & (1 << btindex)) != 0)
+      if (((m_tbFlags | m_tbDisables) & (1 << btindex)) != 0)
         {
           continue;
         }
@@ -1533,7 +1532,7 @@ bool CWindow::moveEvent(FAR const struct nxgl_point_s &pos,
 
   if (m_dragging)
     {
-      // arg == 0 means that this a tooolbar event vs s main window event.
+      // arg == 0 means that this a toolbar event vs s main window event.
       // Since the position is relative in both cases, we need a fix-up in
       // the height to keep the same toolbar relative position in all cases.
 
@@ -1571,7 +1570,7 @@ bool CWindow::moveEvent(FAR const struct nxgl_point_s &pos,
 
 /**
  * This function is called if the mouse left button is released or
- * if the touchscrreen touch is lost.  This indicates that the
+ * if the touchscreen touch is lost.  This indicates that the
  * dragging sequence is complete.
  *
  * This function overrides the virtual IEventTap::dropEvent method.

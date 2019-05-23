@@ -504,7 +504,10 @@ bool CResize::startResize(FAR struct SEventMsg *eventmsg)
 
   updateSizeLabel(m_lastSize);
 
-  // Disable all other toolbar buttons
+  // Disable all toolbar buttons except for the RESIZE button which is
+  // needed to exit the resize mode.
+  // NOTE: This is really unnecessary since all non-critical events are
+  // ignored during resizing.
 
   m_resizeWindow->disableToolbarButtons(DISABLE_MENU_BUTTON |
                                         DISABLE_DELETE_BUTTON |

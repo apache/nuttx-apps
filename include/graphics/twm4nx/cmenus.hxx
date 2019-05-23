@@ -124,8 +124,6 @@ namespace Twm4Nx
       uint8_t                      m_nrows;         /**< Number of rows in the button array */
       char                         m_info[INFO_LINES][INFO_SIZE];
 
-      void identify(FAR CWindow *cwin);
-
       /**
        * Convert the position of a menu window to the position of
        * the containing frame.

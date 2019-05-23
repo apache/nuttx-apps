@@ -54,8 +54,12 @@
 
 // struct SRedrawEventMsg is the largest message as of this writing
 
-#define MAX_EVENT_MSGSIZE sizeof(struct SRedrawEventMsg)
-#define MAX_EVENT_PAYLOAD (MAX_EVENT_MSGSIZE - sizeof(uint16_t))
+#define MAX_EVENT_MSGSIZE    sizeof(struct SRedrawEventMsg)
+#define MAX_EVENT_PAYLOAD    (MAX_EVENT_MSGSIZE - sizeof(uint16_t))
+
+#define EVENT_CRITICAL       0x0800
+#define EVENT_RECIPIENT(id)  ((id) & EVENT_RECIPIENT_MASK)
+#define EVENT_ISCRITICAL(id) (((id) & EVENT_CRITICAL) != 0)
 
 /////////////////////////////////////////////////////////////////////////////
 // WidgetEvent
@@ -76,6 +80,19 @@ namespace Twm4Nx
   ///////////////////////////////////////////////////////////////////////////
   // Public Types
   ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Event ID format:
+   *
+   * rrrr nooo oooo oooo
+   *
+   *   Bits 0-10:  Opcode
+   *   Bit 11:     Critical event (cannot be discarded*)
+   *   Bits 12-15: Recipient of the event
+   *
+   * * During a window resize operation, all events are ignored except for
+   *   those that are marked critical.
+   */
 
   /**
    * This enumeration identifies the recipient of the event
@@ -106,14 +123,14 @@ namespace Twm4Nx
     // Recipient == SYSTEM
 
     EVENT_SYSTEM_NOP           = 0x0000,  /**< Null event */
-    EVENT_SYSTEM_ERROR         = 0x0001,  /**< Report system error */
-    EVENT_SYSTEM_EXIT          = 0x0002,  /**< Terminate the Twm4Nx session */
+    EVENT_SYSTEM_ERROR         = 0x0801,  /**< Report system error */
+    EVENT_SYSTEM_EXIT          = 0x0802,  /**< Terminate the Twm4Nx session */
     EVENT_SYSTEM_STARTUP       = 0x0003,  /**< Start an application */
 
     // Recipient == BACKGOUND
 
     EVENT_BACKGROUND_XYINPUT   = 0x1000,  /**< Poll for widget mouse/touch events */
-    EVENT_BACKGROUND_REDRAW    = 0x1001,  /**< Redraw the background */
+    EVENT_BACKGROUND_REDRAW    = 0x1801,  /**< Redraw the background */
 
     // Recipient == ICONWIDGET
 
@@ -129,12 +146,8 @@ namespace Twm4Nx
     // Recipient == MENU
 
     EVENT_MENU_XYINPUT         = 0x4000,  /**< Poll for widget mouse/touch events */
-    EVENT_MENU_IDENTIFY        = 0x4001,  /**< Describe the window */
-    EVENT_MENU_VERSION         = 0x4002,  /**< Show the Twm4Nx version */
-    EVENT_MENU_ICONIFY         = 0x4003,  /**< Tool bar minimize button pressed */
-    EVENT_MENU_DEICONIFY       = 0x4004,  /**< Window icon pressed */
-    EVENT_MENU_SUBMENU         = 0x4005,  /**< Sub-menu selected */
-    EVENT_MENU_FUNCTION        = 0x4006,  /**< Perform function on unknown menu */
+    EVENT_MENU_COMPLETE        = 0x4001,  /**< Menu selection complete */
+    EVENT_MENU_SUBMENU         = 0x4002,  /**< Sub-menu selected */
 
     // Recipient == MAINMENU
 
@@ -142,16 +155,16 @@ namespace Twm4Nx
 
     // Recipient == WINDOW
 
-    EVENT_WINDOW_RAISE         = 0x6000,  /**< Raise window to the top of the heirarchy */
-    EVENT_WINDOW_LOWER         = 0x6001,  /**< Lower window to the bottom of the heirarchy */
+    EVENT_WINDOW_RAISE         = 0x6000,  /**< Raise window to the top of the hierarchy */
+    EVENT_WINDOW_LOWER         = 0x6001,  /**< Lower window to the bottom of the hierarchy */
     EVENT_WINDOW_DEICONIFY     = 0x6002,  /**< De-iconify and raise window  */
     EVENT_WINDOW_DRAG          = 0x6003,  /**< Drag window */
-    EVENT_WINDOW_DELETE        = 0x6004,  /**< Delete window */
+    EVENT_WINDOW_DELETE        = 0x6804,  /**< Delete window */
     EVENT_WINDOW_DESKTOP       = 0x6005,  /**< Show the desktop */
 
     // Recipient == TOOLBAR
 
-    EVENT_TOOLBAR_XYINPUT      = 0x7000,  /**< Poll for widget mouse/touch events */
+    EVENT_TOOLBAR_XYINPUT      = 0x7800,  /**< Poll for widget mouse/touch events */
     EVENT_TOOLBAR_GRAB         = 0x7001,  /**< Click on title widget */
     EVENT_TOOLBAR_UNGRAB       = 0x7002,  /**< Release click on title widget */
     EVENT_TOOLBAR_MENU         = 0x7003,  /**< Toolbar menu button released */
@@ -162,15 +175,15 @@ namespace Twm4Nx
 
     // Recipient == RESIZE
 
-    EVENT_RESIZE_XYINPUT       = 0x9000,  /**< Poll for widget mouse/touch events */
-    EVENT_RESIZE_BUTTON        = 0x9001,  /**< Start or stop a resize sequence */
-    EVENT_RESIZE_MOVE          = 0x9002,  /**< Mouse movement during a resize sequence */
-    EVENT_RESIZE_PAUSE         = 0x9003,  /**< Pause resize operation when unclicked */
-    EVENT_RESIZE_RESUME        = 0x9004,  /**< Resume resize operation when re-clicked */
-    EVENT_RESIZE_STOP          = 0x9005,  /**< End a resize sequence on second press  */
+    EVENT_RESIZE_XYINPUT       = 0x9800,  /**< Poll for widget mouse/touch events */
+    EVENT_RESIZE_BUTTON        = 0x9801,  /**< Start or stop a resize sequence */
+    EVENT_RESIZE_MOVE          = 0x9802,  /**< Mouse movement during a resize sequence */
+    EVENT_RESIZE_PAUSE         = 0x9803,  /**< Pause resize operation when unclicked */
+    EVENT_RESIZE_RESUME        = 0x9804,  /**< Resume resize operation when re-clicked */
+    EVENT_RESIZE_STOP          = 0x9805,  /**< End a resize sequence on second press  */
 
     // Recipient == APP
-    // All application defined events must (1) use recepient == EVENT_RECIPIENT_APP,
+    // All application defined events must (1) use recipient == EVENT_RECIPIENT_APP,
     // and (2) provide an instance of CTwm4NxEvent in the SEventMsg structure.
 
   };

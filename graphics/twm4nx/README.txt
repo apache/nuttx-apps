@@ -88,8 +88,11 @@ How To:
 
       o Desktop.  Iconify all windows and show the desktop
       o Twm4Nx Icom Manager.  De-iconify and/or raise the Icon Manager to
-        the top of the display
+        the top of the display.
+      o Calibration.  Perform touchscreen re-calibration.
       o NuttShell.  Start and instance of NSH running in an NxTerm.
+
+    - All windows close after the terminal menu option is selected.
 
   Window Toolbar
     - Most windows have a toolbar at the top.  It is optional but used
@@ -126,6 +129,9 @@ How To:
       o Move toward the top decreases the height of the Window
       o Other moves will affect both the height and width of the window.
 
+    - NOTE:  While resizing, non-critical events from all other windows
+      are ignored.
+
   Themes
     - There are two themes support by the configuration system:
       o CONFIG_TWM4NX_CLASSIC.  Strong bordered windows with dark primary
@@ -153,27 +159,18 @@ Issues:
 
     Other issues/bugs
     5. Icon drag movement includes logic to avoid collisions with other
-       icons and with the background image.  That later is an issue.  The
-       background image image widget needs to be removed; it can occlude a
-       desktop icon.  We need to paint the image directly on the background
-       without the use of a widget.
-    6. More issues with the background image:  It absorbs touchscreen
-       presses without doing anything.  It should bring-up the main menu
-       menu just as any other region of the background.  This would be easy
-       to fix, but just replacing the background image widget and drawing
-       directly on the background which is the better solution anyway.
-       NOTE: There is a configuration option that will eliminate the background
-       image.  The CONTEMPORARY theme, for example, has no background image.
-    7. There are a few color artifacts in the toolbar of the CONTEMPORARY
+       icons and with the background image.  That later is an issue.  We
+       need to paint the image directly on the background without the
+       use of a widget.
+    6. There are a few color artifacts in the toolbar of the CONTEMPORARY
        theme.  These look like borders are being drawn around the toolbar
        widgets (even though the are configured to be borderless).
-    8. Most Twm4Nx configuration settings are hard-coded in *_config.hxx header
+    7. Most Twm4Nx configuration settings are hard-coded in *_config.hxx header
        files.  These all need to be brought out and made accessible via Kconfig
        files
-    9. If you create a window and resize it while the Main Menu is up, you can
-       force things into a bad state by interacting with the Main Menu while
-       resize is in operation.
-   10. Things become buggy after perhaps 10 shell windows have been opened.
+    8. Things become buggy after perhaps 10 shell windows have been opened.
        Most likely, some resource allocation is failing silently and leaving
        things in a bad state.  The board I am using has 128Mb of SDRAM so I
-       can't believe that memory is limiting factor.
+       can't believe that memory is the limiting factor.  These are, however,
+       RAM-backed windows and will use significant amounts of memory.
+

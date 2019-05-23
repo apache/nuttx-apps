@@ -548,7 +548,7 @@ void CNxTerm::redraw(void)
 }
 
 /**
- * inform NxTerm of a new window size.
+ * Inform NxTerm of a new window size.
  */
 
 void CNxTerm::resize(void)

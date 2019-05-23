@@ -76,8 +76,8 @@ namespace Twm4Nx
   // separately only to minimize the complexity of CWindows (and because it
   // matches the original partitioning of TWM).  The downside is that (1) CWindow
   // instances have to be passed un-necessarily, and (2) the precludes the
-  // possibiity of resizing two window simultaneous.  That latter is not
-  // currenlty supported anyway.
+  // possibility of resizing two window simultaneous.  That latter is not
+  // currently supported anyway.
 
   class CResize : protected NXWidgets::CWidgetEventHandler,
                   protected IEventTap,
