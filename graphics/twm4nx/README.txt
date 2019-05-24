@@ -173,4 +173,14 @@ Issues:
        things in a bad state.  The board I am using has 128Mb of SDRAM so I
        can't believe that memory is the limiting factor.  These are, however,
        RAM-backed windows and will use significant amounts of memory.
+    9. Menus with sub-menus have not been verified.  There is no use of sub-
+       menus in the current code base so I expect that there are issues when,
+       for example, and item from a sub-menu item:  That menu and all of its
+       antecedent menus should be closed.
+   10. There is an optional MENU button that may appear at the far left on
+       the toolbar.  It is not used by any window in the current code base
+       and, hence, is unverified.  I would expect some issues with generating
+       and routing the MENU button events to applications.
+
+       There are likely other unverified features.
 
