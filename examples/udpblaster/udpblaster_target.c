@@ -278,7 +278,7 @@ int udpblaster_main(int argc, char *argv[])
 
   if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
     {
-      printf(stderr, "ERROR bind failure: %d\n", errno);
+      fprintf(stderr, "ERROR bind failure: %d\n", errno);
       ret = EXIT_FAILURE;
       goto errout_with_socket;
     }
