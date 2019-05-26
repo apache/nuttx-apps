@@ -69,7 +69,6 @@
 
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
 #  define KBD_INDEX         0
-#  define NINPUT_DEVICES    1
 #  ifndef CONFIG_TWM4NX_NOMOUSE
 #    define MOUSE_INDEX     1
 #    define NINPUT_DEVICES  2
@@ -234,9 +233,9 @@ int CInput::keyboardOpen(void)
 
   do
     {
-      // Try to open the keyboard device
+      // Try to open the keyboard device non-blocking.
 
-      fd = std::open(CONFIG_TWM4NX_KEYBOARD_DEVPATH, O_RDONLY);
+      fd = std::open(CONFIG_TWM4NX_KEYBOARD_DEVPATH, O_RDONLY | O_NONBLOCK);
       if (fd < 0)
         {
           int errcode = errno;
@@ -310,9 +309,9 @@ inline int CInput::mouseOpen(void)
 
   do
     {
-      // Try to open the mouse device
+      // Try to open the mouse device non-blocking
 
-      fd = std::open(CONFIG_TWM4NX_MOUSE_DEVPATH, O_RDONLY);
+      fd = std::open(CONFIG_TWM4NX_MOUSE_DEVPATH, O_RDONLY | O_NONBLOCK);
       if (fd < 0)
         {
           int errcode = errno;
@@ -388,9 +387,17 @@ int CInput::keyboardInput(void)
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
 
-      // EINTR is not really an error, it simply means that something is
-      // trying to get our attention.  We need to check m_state to see
-      // if we were asked to terminate
+      // EAGAIN and EINTR are not really error.  EAGAIN just indicates that
+      // there is nothing available to read now.
+
+      if (errcode == EAGAIN)
+        {
+          return OK;
+        }
+
+      // EINTR it simply means that something is trying to get our attention
+      // We need to check m_state to see if we were asked to terminate.
+      // Anything else is bad news
 
       if (errcode != EINTR)
         {
@@ -579,9 +586,17 @@ int CInput::mouseInput(void)
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
 
-      // EINTR is not really an error, it simply means that something is
-      // trying to get our attention.  We need to check m_state to see
-      // if we were asked to terminate
+      // EAGAIN and EINTR are not really error.  EAGAIN just indicates that
+      // there is nothing available to read now.
+
+      if (errcode == EAGAIN)
+        {
+          return OK;
+        }
+
+      // EINTR it simply means that something is trying to get our attention
+      // We need to check m_state to see if we were asked to terminate.
+      // Anything else is bad news
 
       if (errcode != EINTR)
         {
@@ -786,7 +801,7 @@ int CInput::session(void)
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
       pfd[KBD_INDEX].fd        = m_kbdFd;
       pfd[KBD_INDEX].events    = POLLIN | POLLERR | POLLHUP;
-      pfd[KBD_INDEX]revents    = 0;
+      pfd[KBD_INDEX].revents   = 0;
 #endif
 #ifndef CONFIG_TWM4NX_NOMOUSE
       pfd[MOUSE_INDEX].fd      = m_mouseFd;

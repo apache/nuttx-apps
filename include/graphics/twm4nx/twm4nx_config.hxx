@@ -484,7 +484,8 @@
  * CONFIG_TWM4NX_MOUSE - Input is from a mouse.
  * CONFIG_TWM4NX_TOUSCREEN - Input is from a touchscreen.
  * CONFIG_TWM4NX_MOUSE_DEVPATH - The full path to the mouse device.
- *   Default: "/dev/console"
+ *   Default: "/dev/mouse0" if a mouse is being used; /dev/input0 is a
+ *   touchscreen is being used.
  * CONFIG_TWM4NX_MOUSE_USBHOST - Indicates the the mouse is attached via
  *   USB
  * CONFIG_TWM4NX_MOUSE_BUFSIZE - The size of the mouse read data buffer.

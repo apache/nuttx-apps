@@ -88,7 +88,7 @@ config TWM4NX_NOMOUSE
 	---help---
 		Normally you would never disable mouse input.  That would make using
 		Twm4Nx impossible.  However, this setting is sometimes useful for
-		debugging Twm4Nx bringup in a simpler environment (it is also used
+		debugging Twm4Nx bring-up in a simpler environment (it is also used
 		if VNC is selected)
 
 choice
@@ -109,6 +109,11 @@ config TWM4NX_MOUSE_DEVPATH
 	string "Path to input device"
 	default "/dev/mouse0" if TWM4NX_MOUSE
 	default "/dev/input0" if TWM4NX_TOUCHSCREEN
+
+config TWM4NX_KEYBOARD_DEVPATH
+	string "Patch to keyboard input device"
+	default "/dev/kbd0"
+	depends on !TWM4NX_NOKEYBOARD
 
 choice
 	prompt "Twm4Nx Theme"

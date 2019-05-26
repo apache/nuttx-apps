@@ -159,7 +159,10 @@ Issues:
 
     There are no near-term plans to address these compatibility issues.
 
-    Other issues/bugs
+    Other issues/bugs.  All-in-all, I would say that Twm4Nx is maturing well
+    and is attaining stability.  That being said, there are some issues and
+    untested functionality that should be addressed:
+
     1. Icon drag movement includes logic to avoid collisions with other
        icons and with the background image.  That later is an issue.  We
        need to paint the image directly on the background without the
@@ -172,7 +175,7 @@ Issues:
        files
     4. I have seen some odd behavior when many NxTerm windows have been
        opened (around 15).  Specifically, I see failures to start NSH in the
-       windows so they come up blank.  All other behaviors are normal.  Most
+       windows so they come up blank.  All other behaviors seem normal.  Most
        likely, some NxTerm resource allocation is failing silently and leaving
        things in an unusable.  The board I am using has 128Mb of SDRAM so I
        can't believe that memory is the limiting factor.  These are, however,
@@ -195,5 +198,7 @@ Issues:
        needed with a mouse.  Cursor images also change depending on the
        state (like grabbing and dragging or resizing).  There is also a
        possibility of using auto-raise with a mouse as well.  All of this
-       logic is in place, but none has been verifed.
-
+       logic is in place, but none has been verified.
+    8. I am suspecting that NxTerm processes are not being shut down
+       properly when an NxTerm window is closed, but I have not yet
+       investigated this.
