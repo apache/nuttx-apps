@@ -323,54 +323,93 @@ bool CWindowFactory::placeIcon(FAR CWindow *cwin,
 
       // Search for a free region.  Start at the at the left size
 
-      struct nxgl_point_s tmppos;
-      tmppos.x = CONFIG_TWM4NX_ICON_HSPACING;
+      struct nxgl_point_s tmpPos;
+      tmpPos.x = CONFIG_TWM4NX_ICON_HSPACING;
 
-      // Try each possible horizonal position until we find a free location or
+      // Try each possible horizontal position until we find a free location or
       // until we run out of positions to test
 
-      nxgl_coord_t iconWidth = 0;
-      for (; tmppos.x < (displaySize.w - iconSize.w); tmppos.x += iconWidth)
+      nxgl_coord_t iconWidth;
+      for (; tmpPos.x < (displaySize.w - iconSize.w); tmpPos.x += iconWidth)
         {
           // Start at the top of the next column
 
-          tmppos.y = CONFIG_TWM4NX_ICON_VSPACING;
+          tmpPos.y = CONFIG_TWM4NX_ICON_VSPACING;
 
           // Try each possible vertical position until we find a free
           // location or until we run out of positions to test
 
+          iconWidth = 0;
           nxgl_coord_t iconHeight;
-          for (; tmppos.y < (displaySize.h - iconSize.h); tmppos.y += iconHeight)
+
+          for (; tmpPos.y < (displaySize.h - iconSize.h); tmpPos.y += iconHeight)
             {
               // Create a bounding box at this position
 
               struct nxgl_rect_s iconBounds;
-              iconBounds.pt1.x = tmppos.x;
-              iconBounds.pt1.y = tmppos.y;
-              iconBounds.pt2.x = tmppos.x + iconSize.w - 1;
-              iconBounds.pt2.y = tmppos.y + iconSize.h - 1;
+              iconBounds.pt1.x = tmpPos.x;
+              iconBounds.pt1.y = tmpPos.y;
+              iconBounds.pt2.x = tmpPos.x + iconSize.w - 1;
+              iconBounds.pt2.y = tmpPos.y + iconSize.h - 1;
 
-              // Check if this box intersects any reserved region on the background.
-              // If not, check if some other icon is already occupying this position
+              // Check if this box intersects any reserved region on the
+              // background.
 
               struct nxgl_rect_s collision;
-              if (!backgd->checkCollision(iconBounds, collision) &&
-                  !checkCollision(cwin, iconBounds, collision))
+              if (backgd->checkCollision(iconBounds, collision))
                 {
-                  // No collision.. place the icon at this position
+                  // Yes.. Set the width to some small, arbitrary non-zero
+                  // value.  This is because the actual colliding object may
+                  // be quite wide.  But we may still be able to position
+                  // icons above or below the object.
 
-                  iconPos.x = tmppos.x;
-                  iconPos.y = tmppos.y;
-                  return true;
+                  if (iconWidth < 20)
+                    {
+                      iconWidth = 20;
+                    }
+
+                  // and reset the vertical search position to move past
+                  // the collision.  This may terminate the inner loop.
+
+                  iconHeight = collision.pt2.y - tmpPos.y +
+                               CONFIG_TWM4NX_ICON_VSPACING + 1;
                 }
 
-              // Yes.. reset the search position to move past the collision.
-              // This is only in the vertical direction.  This may terminate
-              // the inner loop.
+              // No.. check if some other icon is already occupying this
+              // position
 
-              iconHeight = collision.pt2.y - tmppos.y +
-                           CONFIG_TWM4NX_ICON_VSPACING + 1;
+              else if (checkCollision(cwin, iconBounds, collision))
+                {
+                 // Yes.. We need to keep track of the widest icon for the
+                 // case where we move to the next column.
+
+                  nxgl_coord_t tmpWidth = collision.pt2.x - tmpPos.x + 1;
+                  if (tmpWidth > iconWidth)
+                    {
+                      iconWidth = tmpWidth;
+                    }
+
+                  // And reset the vertical search position to move past the
+                  // collision.  This may terminate the inner loop.
+
+                  iconHeight = collision.pt2.y - tmpPos.y +
+                               CONFIG_TWM4NX_ICON_VSPACING + 1;
+                }
+
+              // No collision.. place the icon at this position
+
+              else
+                {
+                  iconPos.x = tmpPos.x;
+                  iconPos.y = tmpPos.y;
+                  return true;
+                }
             }
+
+          // Add some configurable spacing to the maximum width of this
+          // column.  The next column will skip 'right' by this width.
+
+          iconWidth += CONFIG_TWM4NX_ICON_HSPACING;
         }
 
       // No free region found, use the user provided default

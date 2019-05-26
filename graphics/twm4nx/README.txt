@@ -170,14 +170,16 @@ Issues:
     3. Most Twm4Nx configuration settings are hard-coded in *_config.hxx header
        files.  These all need to be brought out and made accessible via Kconfig
        files
-    4. Things become buggy after perhaps 10 shell windows have been opened.
-       Most likely, some resource allocation is failing silently and leaving
-       things in a bad state.  The board I am using has 128Mb of SDRAM so I
+    4. I have seen some odd behavior when many NxTerm windows have been
+       opened (around 15).  Specifically, I see failures to start NSH in the
+       windows so they come up blank.  All other behaviors are normal.  Most
+       likely, some NxTerm resource allocation is failing silently and leaving
+       things in an unusable.  The board I am using has 128Mb of SDRAM so I
        can't believe that memory is the limiting factor.  These are, however,
-       RAM-backed windows and will use significant amounts of memory.  The
-       primary issue is that the number of windows should probably be
-       managed to assure that the end-user does not experience odd behaviors
-       with resource usage is high.
+       RAM-backed windows and will use significant amounts of memory.
+       The primary issue is that the number of windows should probably be
+       managed in some way to assure that the end-user does not experience
+       odd behaviors when resource usage is high.
     5. Menus with sub-menus have not been verified.  There is no use of sub-
        menus in the current code base so I expect that there are issues when,
        for example, and item from a sub-menu item:  That menu and all of its
@@ -185,14 +187,9 @@ Issues:
     6. There is an optional MENU button that may appear at the far left on
        the toolbar.  It is not used by any window in the current code base
        and, hence, is unverified.  I would expect some issues with generating
-       and routing the MENU button events to applications.
-
-       There are likely other unverified features.
-    7. It has reported by one person that he experienced problems at high
-       levels of optimization (I have been using DEBUG configurations with
-       no optimization).  This might be due to timing differences or perhaps
-       there is a location that needs 'volatile'.
-    8. X/Y input may be either via a touchscreen or a mouse.  Only
+       and routing the MENU button events to applications.  There are likely
+       other unverified features.
+    7. X/Y input may be either via a touchscreen or a mouse.  Only
        touchscreen input has been verified.  There is, however, very little
        difference.  The primary issue is in cursor support:  Cursors are
        needed with a mouse.  Cursor images also change depending on the
