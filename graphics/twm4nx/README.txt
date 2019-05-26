@@ -202,3 +202,9 @@ Issues:
     8. I am suspecting that NxTerm processes are not being shut down
        properly when an NxTerm window is closed, but I have not yet
        investigated this.
+    9. NxTerm windows really need to be scrollable.  They are difficult to
+       use with only a few lines on a small display.  A related usability
+       issue is the font height:  The fonts report a maximum font height
+       that results in a large line spacing on the display and, hence,
+       fewer lines visible in the small window.  This is latter issues is
+       a problem with the fonts not Twm4Nx, however.
