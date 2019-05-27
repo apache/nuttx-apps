@@ -177,9 +177,9 @@ Issues:
        opened (around 15).  Specifically, I see failures to start NSH in the
        windows so they come up blank.  All other behaviors seem normal.  Most
        likely, some NxTerm resource allocation is failing silently and leaving
-       things in an unusable.  The board I am using has 128Mb of SDRAM so I
-       can't believe that memory is the limiting factor.  These are, however,
-       RAM-backed windows and will use significant amounts of memory.
+       things in an unusable state.  The board I am using has 128Mb of SDRAM
+       so I can't believe that memory is the limiting factor.  These are,
+       however, RAM-backed windows and will use significant amounts of memory.
        The primary issue is that the number of windows should probably be
        managed in some way to assure that the end-user does not experience
        odd behaviors when resource usage is high.
