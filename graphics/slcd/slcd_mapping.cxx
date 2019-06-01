@@ -64,7 +64,7 @@ namespace SLcd
   {
     SEGMENT_1 | SEGMENT_2 | SEGMENT_3 | SEGMENT_5 |  // 0
     SEGMENT_6 | SEGMENT_7,
-    SEGMENT_2 | SEGMENT_5,                           // 1
+    SEGMENT_3 | SEGMENT_6,                           // 1
     SEGMENT_1 | SEGMENT_3 | SEGMENT_4 | SEGMENT_5 |  // 2
     SEGMENT_7,
     SEGMENT_1 | SEGMENT_3 | SEGMENT_4 | SEGMENT_6 |  // 3
@@ -100,7 +100,7 @@ namespace SLcd
     SEGMENT_6 | SEGMENT_7,                           // j
     SEGMENT_1 | SEGMENT_2 | SEGMENT_4 | SEGMENT_5 |  // k
     SEGMENT_6,
-    SEGMENT_2 | SEGMENT_5,                           // l
+    SEGMENT_3 | SEGMENT_6,                           // l
     SEGMENT_5 | SEGMENT_6,                           // m
     SEGMENT_4 | SEGMENT_5 | SEGMENT_6,               // n
     SEGMENT_4 | SEGMENT_5 | SEGMENT_6 | SEGMENT_7,   // o
@@ -139,7 +139,7 @@ namespace SLcd
     SEGMENT_7,
     SEGMENT_2 | SEGMENT_3 | SEGMENT_4 | SEGMENT_5 |  // H
     SEGMENT_6,
-    SEGMENT_2 | SEGMENT_5,                           // I
+    SEGMENT_3 | SEGMENT_6,                           // I
     SEGMENT_3 | SEGMENT_5 | SEGMENT_6 | SEGMENT_7,   // J
     SEGMENT_1 | SEGMENT_2 | SEGMENT_4 | SEGMENT_5 |  // K
     SEGMENT_6,

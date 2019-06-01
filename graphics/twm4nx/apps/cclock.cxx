@@ -404,7 +404,8 @@ int CClock::clock(int argc, char *argv[])
 
       This->update();
 
-      // Then sleep for a minute
+      // Then sleep for a minute.  REVISIT:  It might make sense to check
+      // the time at a much higher rate?
 
       sleep(60);
     }
