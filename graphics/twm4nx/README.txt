@@ -69,6 +69,7 @@ Progress:
   2019-05-15:  Resizing now seems to work correctly in Twm4Nx.
   2019-05-20:  Calibration screen is now in place.
   2019-05-21:  A "CONTEMPORARY" theme was added.  Still has a few glitches.
+  2019-06-01:  A retro, emulated segment LCD clock is now in place.
 
 How To:
 
@@ -90,6 +91,8 @@ How To:
       o Twm4Nx Icom Manager.  De-iconify and/or raise the Icon Manager to
         the top of the display.
       o Calibration.  Perform touchscreen re-calibration.
+      o Clock.  Start and instance of clock in the window.  The uses the
+        the retro, LCD emulation of apps/graphics/slcd.
       o NuttShell.  Start and instance of NSH running in an NxTerm.
 
     - All windows close after the terminal menu option is selected.
