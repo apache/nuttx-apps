@@ -8,7 +8,7 @@ menuconfig GRAPHICS_TWM4NX
 	default n
 	select NX_RAMBACKED
 	select NXWIDGETS
-	depends on NX && EXPERIMENTAL
+	depends on NX && HAVE_CXX
 	---help---
 		Enable Tom's Window Manager (TWM) for NuttX (Twm4Nx).
 

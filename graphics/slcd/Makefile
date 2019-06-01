@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/twm4nx/Makefile
+# apps/graphics/slcd/Makefile
 #
 #   Copyright (C) 2019 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -36,49 +36,11 @@
 -include $(TOPDIR)/Make.defs
 -include $(APPDIR)/Make.defs
 
-# Add path to cursor images to CXXFLAGS
-
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)/graphics/nxglyphs/include"}
-
-# Twm4Nx built-in application info
-
-CONFIG_TWM4NX_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_TWM4NX_STACKSIZE ?= 2048
-
-APPNAME   = twm4nx
-
-PRIORITY  = $(CONFIG_TWM4NX_PRIORITY)
-STACKSIZE = $(CONFIG_TWM4NX_STACKSIZE)
-
-# Twm4Nx
+# SLcd
 
 ASRCS     =
 CSRCS     =
-CXXSRCS   = twm4nx_main.cxx
-CXXSRCS  += cbackground.cxx cfonts.cxx ciconmgr.cxx ciconwidget.cxx
-CXXSRCS  += cmenus.cxx cmainmenu.cxx
-CXXSRCS  += cwindow.cxx cwindowevent.cxx cresize.cxx cwindowfactory.cxx
-CXXSRCS  += cinput.cxx
-
-ifeq ($(CONFIG_TWM4NX_MOUSE),y)
-CXXSRCS  += twm4nx_cursor.cxx
-endif
-
-ifeq ($(CONFIG_TWM4NX_CALIBRATION),y)
-CXXSRCS  += ccalibration.cxx
-endif
-
-ifeq ($(CONFIG_TWM4NX_NXTERM),y)
-CXXSRCS  += cnxterm.cxx
-endif
-
-MAINSRC   = ctwm4nx.cxx
-
-VPATH     = src:apps
-
-CONFIG_TWM4NX_PROGNAME ?= hello$(EXEEXT)
-PROGNAME = $(CONFIG_TWM4NX_PROGNAME)
-
-MODULE = CONFIG_GRAPHICS_TWM4NX
+CXXSRCS   = cslcd.cxx slcd_mapping.cxx slcd_trapezoids.cxx
+MAINSRC   =
 
 include $(APPDIR)/Application.mk

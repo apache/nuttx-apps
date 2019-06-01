@@ -101,7 +101,7 @@ namespace NXWidgets
   extern const struct SBitmap g_capslock;
   extern const struct SBitmap g_control;
 
-  // Bitmaps used by NxWM and Twm4Nx
+  // Bitmaps used by NxWM, Twm4Nx, and SLcd
   // Global RLE Paletted Bitmaps
 
   extern const struct SRlePaletteBitmap g_calculatorBitmap;
@@ -112,8 +112,9 @@ namespace NXWidgets
   extern const struct SRlePaletteBitmap g_resizeBitmap;
   extern const struct SRlePaletteBitmap g_resize2Bitmap;
   extern const struct SRlePaletteBitmap g_nxiconBitmap;
+  extern const struct SRlePaletteBitmap g_lcdClockBitmap;
 
-  // Used by NxWM meda player
+  // Used by NxWM media player
 
   extern const struct SRlePaletteBitmap g_mediaplayerBitmap;
   extern const struct SRlePaletteBitmap g_mplayerFwdBitmap;
