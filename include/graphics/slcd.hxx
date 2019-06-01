@@ -40,7 +40,10 @@
 // Included Files
 /////////////////////////////////////////////////////////////////////////////
 
+#include <fixedmath.h>
 #include <nuttx/nx/nxglib.h>
+
+#include "graphics/nxwidgets/nxconfig.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor definitions
@@ -67,6 +70,12 @@
 #define NBOTTOMLEFT_TRAPEZOIDS  4
 #define NBOTTOMRIGHT_TRAPEZOIDS 5
 #define NBOTTOM_TRAPEZOIDS      2
+
+// Clock colors:  Light grey-green background, greenish-black foreground.
+// Similar to what you would see on a classic LCD.
+
+#define SLCD_BACKGROUND MKRGB(128, 140, 128)
+#define SLCD_FOREGROUND MKRGB(0, 16, 0)
 
 /////////////////////////////////////////////////////////////////////////////
 // CSLcd Implementation Class

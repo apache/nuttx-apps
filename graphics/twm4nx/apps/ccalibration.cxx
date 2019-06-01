@@ -195,7 +195,7 @@ bool CCalibration::initialize(void)
   m_nxWin = m_twm4nx->createRawWindow(control, wflags);
   if (m_nxWin == (FAR NXWidgets::CNxWindow *)0)
     {
-      gerr("ERROR: Failed open raw window\n");
+      twmerr("ERROR: Failed open raw window\n");
       delete control;
       return false;
     }
@@ -242,7 +242,7 @@ bool CCalibration::initialize(void)
 
   if (!createWidgets())
     {
-      gerr("ERROR: failed to create widgets\n");
+      twmerr("ERROR: failed to create widgets\n");
       return (FAR void *)0;
     }
 #endif
@@ -268,7 +268,7 @@ bool CCalibration::run(void)
 
   if (m_calthread == CALTHREAD_RUNNING)
     {
-      gwarn("WARNING: The calibration thread is already running\n");
+      twmwarn("WARNING: The calibration thread is already running\n");
       return false;
     }
 
@@ -292,11 +292,11 @@ bool CCalibration::run(void)
   int ret = pthread_create(&m_thread, &attr, calibration, (FAR void *)this);
   if (ret != 0)
     {
-      gerr("ERROR: pthread_create failed: %d\n", ret);
+      twmerr("ERROR: pthread_create failed: %d\n", ret);
       return false;
     }
 
-  ginfo("Calibration thread m_calthread=%d\n", (int)m_calthread);
+  twminfo("Calibration thread m_calthread=%d\n", (int)m_calthread);
   return true;
 }
 
@@ -426,7 +426,7 @@ bool CCalibration::createWidgets(void)
             CONFIG_TWM4NX_DEFAULT_FONTCOLOR, CONFIG_TWM4NX_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      gerr("ERROR failed to create font\n");
+      twmerr("ERROR failed to create font\n");
       return false;
     }
 
@@ -435,7 +435,7 @@ bool CCalibration::createWidgets(void)
   struct nxgl_size_s windowSize;
   if (!m_nxWin->getSize(&windowSize))
     {
-      gerr("ERROR: Failed to get window size\n");
+      twmerr("ERROR: Failed to get window size\n");
       delete m_font;
       m_font = (NXWidgets::CNxFont *)0;
       return false;
@@ -474,7 +474,7 @@ bool CCalibration::createWidgets(void)
 
   if (!m_text)
     {
-      gerr("ERROR: Failed to create CLabel\n");
+      twmerr("ERROR: Failed to create CLabel\n");
       delete m_font;
       m_font = (NXWidgets::CNxFont *)0;
       return false;
@@ -530,7 +530,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
   This->m_calthread = CALTHREAD_RUNNING;
   This->m_calphase  = CALPHASE_NOT_STARTED;
 
-  ginfo("Started: m_calthread=%d\n", (int)This->m_calthread);
+  twminfo("Started: m_calthread=%d\n", (int)This->m_calthread);
 
   // Make the calibration display visible and show the initial calibration
   // display
@@ -574,7 +574,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   This->destroy();
 
-  ginfo("Terminated: m_calthread=%d\n", (int)This->m_calthread);
+  twminfo("Terminated: m_calthread=%d\n", (int)This->m_calthread);
   return (FAR void *)0;
 }
 
@@ -783,7 +783,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
 
 void CCalibration::stateMachine(void)
 {
-  ginfo("Old m_calphase=%d\n", m_calphase);
+  twminfo("Old m_calphase=%d\n", m_calphase);
 
 #ifdef CONFIG_TWM4NX_CALIBRATION_AVERAGE
   // Are we collecting samples?
@@ -1092,7 +1092,7 @@ void CCalibration::finishCalibration(void)
                                        sizeof(struct SCalibrationData));
           if (ret != 0)
             {
-              gerr("ERROR: Failed to save calibration data\n");
+              twmerr("ERROR: Failed to save calibration data\n");
             }
 #endif
           // And provide the calibration data to CInput, enabling
@@ -1116,7 +1116,7 @@ void CCalibration::finishCalibration(void)
 
 void CCalibration::stop(void)
 {
-  ginfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
+  twminfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
 
   // Was the calibration thread created?
 
@@ -1135,7 +1135,7 @@ void CCalibration::stop(void)
           // Try to wake up the calibration thread so that it will see our
           // termination request
 
-          ginfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
+          twminfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
           (void)pthread_kill(m_thread, CONFIG_TWM4NX_CALIBRATION_SIGNO);
 
           // Wait for the calibration thread to exit
@@ -1187,7 +1187,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   struct nxgl_size_s windowSize;
   if (!m_nxWin->getSize(&windowSize))
     {
-      gerr("ERROR: NXWidgets::INxWindow::getSize failed\n");
+      twmerr("ERROR: NXWidgets::INxWindow::getSize failed\n");
       return false;
     }
 

@@ -32,3 +32,24 @@ config TWM4NX_NXTERM
 	---help---
 		Enable support for the NxTerm window which provides a text window
 		in which you can interact with NSH.
+
+if TWM4NX_NXTERM
+endif # TWM4NX_NXTERM
+
+config TWM4NX_CLOCK
+	bool "Retro segment LCD clock"
+	default y
+	select GRAPHICS_SLCD
+	---help---
+		Enable support for the LCD clock window based on the retro segment
+		LCD driver of apps/graphics/slcd.
+
+if TWM4NX_CLOCK
+
+config TWM4NX_CLOCK_HEIGHT
+	int "LCD clock height"
+	default 64
+	---help---
+		Fixed height of the LCD clock.  The clock window is not re-sizeable.
+
+endif # TWM4NX_CLOCK

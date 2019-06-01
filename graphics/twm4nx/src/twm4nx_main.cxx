@@ -56,6 +56,7 @@
 
 #include "graphics/twm4nx/apps/ccalibration.hxx"
 #include "graphics/twm4nx/apps/cnxterm.hxx"
+#include "graphics/twm4nx/apps/cclock.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Function Prototypes
@@ -183,6 +184,16 @@ int twm4nx_main(int argc, char *argv[])
   if (!success)
     {
       twmerr(" ERROR:  Failed to initialize CNxTermFactory\n");
+      return EXIT_FAILURE;
+    }
+#endif
+
+#ifdef CONFIG_TWM4NX_CLOCK
+  CClockFactory clockFactory;
+  success = clockFactory.initialize(twm4nx);
+  if (!success)
+    {
+      twmerr(" ERROR:  Failed to initialize CClockFactory\n");
       return EXIT_FAILURE;
     }
 #endif

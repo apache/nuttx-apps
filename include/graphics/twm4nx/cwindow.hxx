@@ -56,6 +56,7 @@
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxterm.h>
 
+#include "graphics/nxwidgets/cnxtkwindow.hxx"
 #include "graphics/nxwidgets/cnxtoolbar.hxx"
 #include "graphics/nxwidgets/cwidgeteventhandler.hxx"
 #include "graphics/nxwidgets/cwidgeteventargs.hxx"
@@ -506,6 +507,18 @@ namespace Twm4Nx
       inline FAR NXWidgets::CWidgetControl *getWidgetControl()
       {
         return m_nxWin->getWidgetControl();
+      }
+
+      /**
+       * Get the raw window interface.  This is sometimes needed for connecting
+       * the window to external NXWidgets applications.
+       *
+       * @return The raw window interface (NXWidgets::INxWindow)
+       */
+
+      inline NXWidgets::INxWindow *getNxWindow(void)
+      {
+        return static_cast<NXWidgets::INxWindow *>(m_nxWin);
       }
 
 #ifdef CONFIG_NXTERM_NXKBDIN

@@ -43,18 +43,11 @@
 #include <cstdint>
 #include <fixedmath.h>
 
-#include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/slcd.hxx"
 
 /////////////////////////////////////////////////////////////////////////////
 // Pre-processor definitions
 /////////////////////////////////////////////////////////////////////////////
-
-// Default colors:  Light grey-green background, greenish-black foreground.
-// Similar to what you would see on a classic LCD.
-
-#define SLCD_BACKGROUND MKRGB(128, 140, 128)
-#define SLCD_FOREGROUND MKRGB(0, 16, 0)
 
 // Segment encoding:
 //

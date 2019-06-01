@@ -484,13 +484,13 @@ bool CResize::startResize(FAR struct SEventMsg *eventmsg)
 
   if (!m_resizeWindow->getFramePosition(&m_lastPos))
     {
-      gerr("ERROR: Failed to get frame position");
+      twmerr("ERROR: Failed to get frame position");
       return false;
     }
 
   if (!m_resizeWindow->getFrameSize(&m_lastSize))
     {
-      gerr("ERROR: Failed to get frame size");
+      twmerr("ERROR: Failed to get frame size");
       return false;
     }
 
@@ -699,7 +699,7 @@ bool CResize::pauseResize(FAR struct SEventMsg *eventmsg)
 
       if (!updateSize(eventmsg))
         {
-          gerr("ERROR: Failed to update the window size\n");
+          twmerr("ERROR: Failed to update the window size\n");
         }
 
       // Set the new frame position and size if the size has changed
@@ -746,13 +746,13 @@ bool CResize::resumeResize(FAR struct SEventMsg *eventmsg)
 
   if (!m_resizeWindow->getFramePosition(&m_lastPos))
     {
-      gerr("ERROR: Failed to get frame position");
+      twmerr("ERROR: Failed to get frame position");
       return false;
     }
 
   if (!m_resizeWindow->getFrameSize(&m_lastSize))
     {
-      gerr("ERROR: Failed to get frame size");
+      twmerr("ERROR: Failed to get frame size");
       return false;
     }
 

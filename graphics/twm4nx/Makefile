@@ -68,6 +68,10 @@ ifeq ($(CONFIG_TWM4NX_CALIBRATION),y)
 CXXSRCS  += ccalibration.cxx
 endif
 
+ifeq ($(CONFIG_TWM4NX_CLOCK),y)
+CXXSRCS  += cclock.cxx
+endif
+
 ifeq ($(CONFIG_TWM4NX_NXTERM),y)
 CXXSRCS  += cnxterm.cxx
 endif

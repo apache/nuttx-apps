@@ -91,9 +91,13 @@
 
 namespace Twm4Nx
 {
+/////////////////////////////////////////////////////////////////////////////
+// Private Types
+/////////////////////////////////////////////////////////////////////////////
+
   /**
-   * This structure is used to pass start up parameters to the NxTerm task and to assure the
-   * the NxTerm is successfully started.
+   * This structure is used to pass start up parameters to the NxTerm task
+   * and to assure the the NxTerm is successfully started.
    */
 
   struct SNxTerm
@@ -113,11 +117,11 @@ namespace Twm4Nx
 /////////////////////////////////////////////////////////////////////////////
 
   /**
-   * This global data structure is used to pass start parameters to NxTerm task and to
-   * assure that the NxTerm is successfully started.
+   * This global data structure is used to pass start parameters to NxTerm
+   * task and to assure that the NxTerm is successfully started.
    */
 
-  static struct SNxTerm g_nxtermvars;
+  static struct SNxTerm GNxTermVars;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -139,7 +143,7 @@ CNxTerm::CNxTerm(FAR CTwm4Nx *twm4nx)
   m_twm4nx       = twm4nx;
   m_nxtermWindow = (FAR CWindow *)0;
 
-  // The NxTerm is not runing
+  // The NxTerm is not running
 
   m_pid          = (pid_t)-1;
   m_NxTerm       = (NXTERM)0;
@@ -155,16 +159,6 @@ CNxTerm::~CNxTerm(void)
   // running... that should never happen but we'll check anyway:
 
   stop();
-
-  // The following is not necessary.  The system will automatically
-  // delete the CWindow instance when the terminate button is pressed.
-  // We simply have to terminate the application behind the window
-
-#if 0
-  // Delete the application window
-
-  delete m_nxtermWindow;
-#endif
 }
 
 /**
@@ -182,7 +176,7 @@ bool CNxTerm::initialize(void)
   //
   // Flags: WFLAGS_NO_MENU_BUTTON indicates that there is no menu associated
   //   with the NxTerm application window
-  // Null Icon mager means to use the system, common Icon Manager
+  // Null Icon manager means to use the system, common Icon Manager
 
   NXWidgets::CNxString name("NuttShell");
 
@@ -237,7 +231,7 @@ bool CNxTerm::run(void)
 
   // Get exclusive access to the global data structure
 
-  if (sem_wait(&g_nxtermvars.exclSem) != 0)
+  if (sem_wait(&GNxTermVars.exclSem) != 0)
     {
       // This might fail if a signal is received while we are waiting.
 
@@ -251,21 +245,21 @@ bool CNxTerm::run(void)
 
   // Get the window handle from the widget control
 
-  g_nxtermvars.hwnd = control->getWindowHandle();
+  GNxTermVars.hwnd = control->getWindowHandle();
 
   // Describe the NxTerm
 
-  g_nxtermvars.wndo.wcolor[0] = CONFIG_TWM4NX_NXTERM_WCOLOR;
-  g_nxtermvars.wndo.fcolor[0] = CONFIG_TWM4NX_NXTERM_FONTCOLOR;
-  g_nxtermvars.wndo.fontid    = CONFIG_TWM4NX_NXTERM_FONTID;
+  GNxTermVars.wndo.wcolor[0] = CONFIG_TWM4NX_NXTERM_WCOLOR;
+  GNxTermVars.wndo.fcolor[0] = CONFIG_TWM4NX_NXTERM_FONTCOLOR;
+  GNxTermVars.wndo.fontid    = CONFIG_TWM4NX_NXTERM_FONTID;
 
   // Remember the device minor number (before it is incremented)
 
-  m_minor                     = g_nxtermvars.minor;
+  m_minor                    = GNxTermVars.minor;
 
   // Get the size of the window
 
-  if (!m_nxtermWindow->getWindowSize(&g_nxtermvars.wndo.wsize))
+  if (!m_nxtermWindow->getWindowSize(&GNxTermVars.wndo.wsize))
     {
       twmerr("ERROR: getWindowSize() failed\n");
       return false;
@@ -273,9 +267,9 @@ bool CNxTerm::run(void)
 
   // Start the NxTerm task
 
-  g_nxtermvars.console = (FAR void *)this;
-  g_nxtermvars.success = false;
-  g_nxtermvars.nxterm  = 0;
+  GNxTermVars.console = (FAR void *)this;
+  GNxTermVars.success = false;
+  GNxTermVars.nxterm  = 0;
 
   sched_lock();
   m_pid = task_create("NxTerm", CONFIG_TWM4NX_NXTERM_PRIO,
@@ -298,20 +292,20 @@ bool CNxTerm::run(void)
       clock_gettime(CLOCK_REALTIME, &abstime);
       abstime.tv_sec += 2;
 
-      int ret = sem_timedwait(&g_nxtermvars.waitSem, &abstime);
+      int ret = sem_timedwait(&GNxTermVars.waitSem, &abstime);
       sched_unlock();
 
-      if (ret == OK && g_nxtermvars.success)
+      if (ret == OK && GNxTermVars.success)
         {
 #ifdef CONFIG_NXTERM_NXKBDIN
           // Re-direct NX keyboard input to the new NxTerm driver
 
-          DEBUGASSERT(g_nxtermvars.nxterm != 0);
-          m_nxtermWindow->redirectNxTerm(g_nxtermvars.nxterm);
+          DEBUGASSERT(GNxTermVars.nxterm != 0);
+          m_nxtermWindow->redirectNxTerm(GNxTermVars.nxterm);
 #endif
           // Save the handle to use in the stop method
 
-          m_NxTerm = g_nxtermvars.nxterm;
+          m_NxTerm = GNxTermVars.nxterm;
         }
       else
         {
@@ -324,13 +318,13 @@ bool CNxTerm::run(void)
         }
     }
 
-  sem_post(&g_nxtermvars.exclSem);
+  sem_post(&GNxTermVars.exclSem);
   return success;
 }
 
 /**
- * This is the close windoe event handler.  It will stop the NxTerm
- * application trhead.
+ * This is the close window event handler.  It will stop the NxTerm
+ * application thread.
  */
 
 void CNxTerm::stop(void)
@@ -387,10 +381,10 @@ int CNxTerm::nxterm(int argc, char *argv[])
   struct boardioc_nxterm_create_s nxcreate;
 
   nxcreate.nxterm              = (FAR void *)0;
-  nxcreate.hwnd                = g_nxtermvars.hwnd;
-  nxcreate.wndo                = g_nxtermvars.wndo;
+  nxcreate.hwnd                = GNxTermVars.hwnd;
+  nxcreate.wndo                = GNxTermVars.wndo;
   nxcreate.type                = BOARDIOC_XTERM_FRAMED;
-  nxcreate.minor               = g_nxtermvars.minor;
+  nxcreate.minor               = GNxTermVars.minor;
 
   ret = boardctl(BOARDIOC_NXTERM, (uintptr_t)&nxcreate);
   if (ret < 0)
@@ -399,17 +393,17 @@ int CNxTerm::nxterm(int argc, char *argv[])
       goto errout;
     }
 
-  g_nxtermvars.nxterm = nxcreate.nxterm;
-  DEBUGASSERT(g_nxtermvars.nxterm != NULL);
+  GNxTermVars.nxterm = nxcreate.nxterm;
+  DEBUGASSERT(GNxTermVars.nxterm != NULL);
 
   // Construct the driver name using this minor number
 
   char devname[32];
-  snprintf(devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
+  snprintf(devname, 32, "/dev/nxterm%d", GNxTermVars.minor);
 
   // Increment the minor number while it is protect by the semaphore
 
-  g_nxtermvars.minor++;
+  GNxTermVars.minor++;
 
   // Open the NxTerm driver
 
@@ -460,8 +454,8 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Inform the parent thread that we successfully initialized
 
-  g_nxtermvars.success = true;
-  sem_post(&g_nxtermvars.waitSem);
+  GNxTermVars.success = true;
+  sem_post(&GNxTermVars.waitSem);
 
   // Run the NSH console
 
@@ -476,9 +470,9 @@ int CNxTerm::nxterm(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout:
-  g_nxtermvars.nxterm = 0;
-  g_nxtermvars.success = false;
-  sem_post(&g_nxtermvars.waitSem);
+  GNxTermVars.nxterm = 0;
+  GNxTermVars.success = false;
+  sem_post(&GNxTermVars.waitSem);
   return EXIT_FAILURE;
 }
 
@@ -612,8 +606,8 @@ bool CNxTermFactory::nshlibInitialize(void)
 {
   // Initialize the global data structure
 
-  sem_init(&g_nxtermvars.exclSem, 0, 1);
-  sem_init(&g_nxtermvars.waitSem, 0, 0);
+  sem_init(&GNxTermVars.exclSem, 0, 1);
+  sem_init(&GNxTermVars.waitSem, 0, 0);
 
   // Initialize the NSH library
 

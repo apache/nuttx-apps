@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
-// apps/include/graphics/twm4nx/apps/cnxterm.hxx
-// NxTerm window
+// apps/include/graphics/twm4nx/apps/cclock.hxx
+// Retro LCD Clock
 //
 //   Copyright (C) 2019 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,8 +34,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX
-#define __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX
+#ifndef __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CCLOCK_HXX
+#define __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CCLOCK_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -45,7 +45,6 @@
 
 #include <sys/types.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxterm.h>
 
 #include "graphics/twm4nx/ctwm4nx.hxx"
 #include "graphics/twm4nx/ctwm4nxevent.hxx"
@@ -56,48 +55,69 @@
 // Pre-processor Definitions
 /////////////////////////////////////////////////////////////////////////////
 
-// CNxTerm application events
+// CClock application events
 // Window Events
 
-#define EVENT_NXTERM_REDRAW   (EVENT_RECIPIENT_APP | EVENT_CRITICAL | 0x0000)
-#define EVENT_NXTERM_RESIZE   (EVENT_RECIPIENT_APP | EVENT_CRITICAL | 0x0001)
-#define EVENT_NXTERM_XYINPUT   EVENT_SYSTEM_NOP
-#define EVENT_NXTERM_KBDINPUT  EVENT_SYSTEM_NOP
-#define EVENT_NXTERM_DELETE    EVENT_WINDOW_DELETE
+#define EVENT_CLOCK_REDRAW    (EVENT_RECIPIENT_APP | 0x0000) /* Not necessary */
+#define EVENT_CLOCK_RESIZE    EVENT_SYSTEM_NOP
+#define EVENT_CLOCK_XYINPUT   EVENT_SYSTEM_NOP
+#define EVENT_CLOCK_KBDINPUT  EVENT_SYSTEM_NOP
+#define EVENT_CLOCK_DELETE    EVENT_WINDOW_DELETE
 
 // Button Events
 
-#define EVENT_NXTERM_CLOSE    (EVENT_RECIPIENT_APP | 0x0002)
+#define EVENT_CLOCK_CLOSE    (EVENT_RECIPIENT_APP | 0x0001)
 
 // Menu Events
 
-#define EVENT_NXTERM_START    (EVENT_RECIPIENT_APP | 0x0003)
+#define EVENT_CLOCK_START    (EVENT_RECIPIENT_APP | 0x0002)
+
+// Number of digits in clock display
+
+#define CLOCK_NDIGITS        4
 
 /////////////////////////////////////////////////////////////////////////////
 // Implementation Classes
 /////////////////////////////////////////////////////////////////////////////
 
+namespace SLcd
+{
+  class CSLcd;                   // Forward reference
+}
+
 namespace Twm4Nx
 {
   /**
-   * This class implements the NxTerm application.
+   * This structure describes the state of one clock digit
    */
 
-  class CNxTerm : public CTwm4NxEvent
+  struct SClockDigit
+  {
+    nxgl_coord_t xOffset;         /**< X offset from left side of the window */
+    uint8_t segments;             /**< LCD segment code of number */
+  };
+
+  /**
+   * This class implements the Clock application.
+   */
+
+  class CClock : public CTwm4NxEvent
   {
     private:
-      FAR CTwm4Nx *m_twm4nx;        /**< Reference to the Twm4Nx session instance */
-      FAR CWindow *m_nxtermWindow;  /**< Reference to the NxTerm application window */
-      NXTERM       m_NxTerm;        /**< NxTerm handle */
-      pid_t        m_pid;           /**< Task ID of the NxTerm thread */
-      int          m_minor;         /**< Terminal device minor number */
+      FAR CTwm4Nx     *m_twm4nx;  /**< Reference to the Twm4Nx session instance */
+      FAR CWindow     *m_window;  /**< Reference to the Clock application window */
+      FAR SLcd::CSLcd *m_slcd;    /**< Reference to the segment LCD helper */
+      pid_t            m_pid;     /**< Task ID of the Clock thread */
+
+      // The current clock state, digit-by-digit:
+
+      struct SClockDigit m_digits[CLOCK_NDIGITS];
 
       /**
-       * This is the NxTerm task.  This function first redirects output to the
-       * console window then calls to start the NSH logic.
+       * This is the Clock task.
        */
 
-      static int nxterm(int argc, char *argv[]);
+      static int clock(int argc, char *argv[]);
 
       /**
        * Handle Twm4Nx events.  This overrides a method from CTwm4NXEvent
@@ -110,19 +130,19 @@ namespace Twm4Nx
       bool event(FAR struct SEventMsg *eventmsg);
 
       /**
-       * Handle the NxTerm redraw event.
+       * Update the Clock.
+       */
+
+      void update(void);
+
+      /**
+       * Redraw the entire clock.
        */
 
       void redraw(void);
 
       /**
-       * inform NxTerm of a new window size.
-       */
-
-      void resize(void);
-
-      /**
-       * This is the close window event handler.  It will stop the NxTerm
+       * This is the close window event handler.  It will stop the Clock
        * application thread.
        */
 
@@ -131,57 +151,48 @@ namespace Twm4Nx
   public:
 
       /**
-       * CNxTerm constructor
+       * CClock constructor
        *
        * @param twm4nx.  The Twm4Nx session instance
        */
 
-      CNxTerm(FAR CTwm4Nx *twm4nx);
+      CClock(FAR CTwm4Nx *twm4nx);
 
       /**
-       * CNxTerm destructor
+       * CClock destructor
        */
 
-      ~CNxTerm(void);
+      ~CClock(void);
 
       /**
-       * CNxTerm initializers.  Perform miscellaneous post-construction
+       * CClock initializers.  Perform miscellaneous post-construction
        * initialization that may fail (and hence is not appropriate to be
        * done in the constructor)
        *
-       * @return True if the NxTerm application was successfully initialized.
+       * @return True if the Clock application was successfully initialized.
        */
 
       bool initialize(void);
 
       /**
-       * Start the NxTerm.
+       * Start the Clock.
        *
-       * @return True if the NxTerm application was successfully started.
+       * @return True if the Clock application was successfully started.
        */
 
       bool run(void);
   };
 
-  class CNxTermFactory : public IApplication,
-                         public IApplicationFactory,
-                         public CTwm4NxEvent
+  class CClockFactory : public IApplication,
+                        public IApplicationFactory,
+                        public CTwm4NxEvent
   {
     private:
 
       FAR CTwm4Nx *m_twm4nx; /**< Twm4Nx session instance */
 
       /**
-       * One time NSH initialization. This function must be called exactly
-       * once during the boot-up sequence to initialize the NSH library.
-       *
-       * @return True on successful initialization
-       */
-
-      bool nshlibInitialize(void);
-
-      /**
-       * Handle CNxTermFactory events.  This overrides a method from
+       * Handle CClockFactory events.  This overrides a method from
        * CTwm4NXEvent
        *
        * @param eventmsg.  The received NxWidget WINDOW event message.
@@ -192,7 +203,7 @@ namespace Twm4Nx
       bool event(FAR struct SEventMsg *eventmsg);
 
       /**
-       * Create and start a new instance of an CNxTerm.
+       * Create and start a new instance of an CClock.
        */
 
       bool startFunction(void);
@@ -206,7 +217,7 @@ namespace Twm4Nx
 
       inline NXWidgets::CNxString getName(void)
       {
-        return NXWidgets::CNxString("NuttShell");
+        return NXWidgets::CNxString("Clock");
       }
 
       /**
@@ -241,33 +252,33 @@ namespace Twm4Nx
 
       inline uint16_t getEvent(void)
       {
-        return EVENT_NXTERM_START;
+        return EVENT_CLOCK_START;
       }
 
     public:
 
       /**
-       * CNxTermFactory Constructor
+       * CClockFactory Constructor
        *
        * @param twm4nx.  The Twm4Nx session instance
        */
 
-      inline CNxTermFactory(void)
+      inline CClockFactory(void)
       {
         m_twm4nx = (FAR CTwm4Nx *)0;
       }
 
       /**
-       * CNxTermFactory Destructor
+       * CClockFactory Destructor
        */
 
-      inline ~CNxTermFactory(void)
+      inline ~CClockFactory(void)
       {
         // REVISIT:  Would need to remove Main Menu item
       }
 
       /**
-       * CNxTermFactory Initializer.  Performs parts of the instance
+       * CClockFactory Initializer.  Performs parts of the instance
        * construction that may fail.  In this implemenation, it will
        * initialize the NSH library and register an menu item in the
        * Main Menu.
@@ -277,4 +288,4 @@ namespace Twm4Nx
   };
 }
 
-#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CNXTERM_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_APPS_CCLOCK_HXX

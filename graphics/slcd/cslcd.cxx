@@ -85,6 +85,10 @@ CSLcd::CSLcd(NXWidgets::INxWindow *wnd, nxgl_coord_t height)
 
 void CSLcd::scale(nxgl_coord_t height)
 {
+  // Save the new height
+
+  m_height = height;
+
   // Scale each segment
 
   scaleSegment(GTop_Runs, m_top, NTOP_TRAPEZOIDS + 1);
@@ -92,8 +96,8 @@ void CSLcd::scale(nxgl_coord_t height)
   scaleSegment(GTopRight_Runs, m_topRight, NTOPRIGHT_TRAPEZOIDS + 1);
   scaleSegment(GMiddle_Runs, m_middle, NMIDDLE_TRAPEZOIDS + 1);
   scaleSegment(GBottomLeft_Runs, m_bottomLeft, NBOTTOMLEFT_TRAPEZOIDS + 1);
-  scaleSegment(GBottomRight_Runs, m_bottom, NBOTTOMRIGHT_TRAPEZOIDS + 1);
-  scaleSegment(GBottom_Runs, m_top, NBOTTOM_TRAPEZOIDS + 1);
+  scaleSegment(GBottomRight_Runs, m_bottomRight, NBOTTOMRIGHT_TRAPEZOIDS + 1);
+  scaleSegment(GBottom_Runs, m_bottom, NBOTTOM_TRAPEZOIDS + 1);
 }
 
 /**
@@ -209,12 +213,12 @@ bool CSLcd::show(uint8_t code, FAR const struct nxgl_point_s &pos)
 
   if ((code & SEGMENT_6) != 0)
     {
-      showSegment(m_bottom, pos, NBOTTOMRIGHT_TRAPEZOIDS);
+      showSegment(m_bottomRight, pos, NBOTTOMRIGHT_TRAPEZOIDS);
     }
 
   if ((code & SEGMENT_7) != 0)
     {
-      showSegment(m_top, pos, NBOTTOM_TRAPEZOIDS);
+      showSegment(m_bottom, pos, NBOTTOM_TRAPEZOIDS);
     }
 
   return true;
@@ -240,7 +244,8 @@ void CSLcd::scaleSegment(FAR const struct SLcdTrapezoidRun *run,
   trapezoid[0].top.x2 = m_height * run[0].rightx;
   trapezoid[0].top.y  = b16toi(m_height * run[0].y);
 
-  for (int i = 1; i <= nRuns; i++)
+  int nTraps = nRuns - 1;
+  for (int i = 1; i < nRuns; i++)
     {
       // Get the bottom of the previous trapezoid
 
@@ -248,7 +253,7 @@ void CSLcd::scaleSegment(FAR const struct SLcdTrapezoidRun *run,
       trapezoid[i - 1].bot.x2 = m_height * run[i].rightx;
       trapezoid[i - 1].bot.y  = b16toi(m_height * run[i].y);
 
-      if (i < nRuns)
+      if (i < nTraps)
         {
           // Get the top of the current trapezoid
 
