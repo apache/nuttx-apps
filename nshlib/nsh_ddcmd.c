@@ -188,7 +188,8 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
   dd->outfd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (dd->outfd < 0)
     {
-      nsh_error(dd->vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
+      FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
+      nsh_error(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
       return ERROR;
     }
 
