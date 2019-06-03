@@ -2329,7 +2329,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   int       argc;
   int       ret;
 #if CONFIG_NFILE_STREAMS > 0
-  bool      redirect_save;
+  bool      redirect_save = false;
 #endif
 
   /* Initialize parser state */
