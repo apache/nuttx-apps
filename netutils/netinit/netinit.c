@@ -300,12 +300,13 @@ static void netinit_set_macaddr(void)
 #if defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
-  mac[0] = (CONFIG_NETINIT_MACADDR >> (8 * 5)) & 0xff;
-  mac[1] = (CONFIG_NETINIT_MACADDR >> (8 * 4)) & 0xff;
-  mac[2] = (CONFIG_NETINIT_MACADDR >> (8 * 3)) & 0xff;
-  mac[3] = (CONFIG_NETINIT_MACADDR >> (8 * 2)) & 0xff;
-  mac[4] = (CONFIG_NETINIT_MACADDR >> (8 * 1)) & 0xff;
-  mac[5] = (CONFIG_NETINIT_MACADDR >> (8 * 0)) & 0xff;
+  mac[0] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 1)) & 0xff;
+  mac[1] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 0)) & 0xff;
+
+  mac[2] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 3)) & 0xff;
+  mac[3] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 2)) & 0xff;
+  mac[4] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 1)) & 0xff;
+  mac[5] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 0)) & 0xff;
 
   /* Set the MAC address */
 
@@ -314,14 +315,15 @@ static void netinit_set_macaddr(void)
 #elif defined(HAVE_EADDR)
   /* Use the configured, fixed extended address */
 
-  eaddr[0] = (CONFIG_NETINIT_MACADDR >> (8 * 7)) & 0xff;
-  eaddr[1] = (CONFIG_NETINIT_MACADDR >> (8 * 6)) & 0xff;
-  eaddr[2] = (CONFIG_NETINIT_MACADDR >> (8 * 5)) & 0xff;
-  eaddr[3] = (CONFIG_NETINIT_MACADDR >> (8 * 4)) & 0xff;
-  eaddr[4] = (CONFIG_NETINIT_MACADDR >> (8 * 3)) & 0xff;
-  eaddr[5] = (CONFIG_NETINIT_MACADDR >> (8 * 2)) & 0xff;
-  eaddr[6] = (CONFIG_NETINIT_MACADDR >> (8 * 1)) & 0xff;
-  eaddr[7] = (CONFIG_NETINIT_MACADDR >> (8 * 0)) & 0xff;
+  eaddr[0] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 3)) & 0xff;
+  eaddr[1] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 2)) & 0xff;
+  eaddr[2] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 1)) & 0xff;
+  eaddr[3] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 0)) & 0xff;
+
+  eaddr[4] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 3)) & 0xff;
+  eaddr[5] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 2)) & 0xff;
+  eaddr[6] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 1)) & 0xff;
+  eaddr[7] = (CONFIG_NETINIT_MACADDR_1 >> (8 * 0)) & 0xff;
 
   /* Set the 6LoWPAN extended address */
 
