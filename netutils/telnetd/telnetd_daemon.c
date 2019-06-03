@@ -272,9 +272,11 @@ static int telnetd_daemon(int argc, char *argv[])
 
   for (;;)
     {
+      socklen_t accptlen;
+
       ninfo("Accepting connections on port %d\n", ntohs(daemon->port));
 
-      socklen_t accptlen = sizeof(addr);
+      accptlen = sizeof(addr);
       acceptsd = accept(listensd, &addr.generic, &accptlen);
       if (acceptsd < 0)
         {
