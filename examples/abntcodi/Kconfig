@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ABNTCODI
+	tristate "ABNT CODI example"
+	default n
+	select INDUSTRY_ABNT_CODI_LIB
+	---help---
+		Enable the ABNT CODI test example
+
+if EXAMPLES_ABNTCODI
+
+config EXAMPLES_ABNTCODI_PROGNAME
+	string "Program name"
+	default "abntcodi"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_ABNTCODI_PRIORITY
+	int "ABNTCODI task priority"
+	default 100
+
+config EXAMPLES_ABNTCODI_STACKSIZE
+	int "ABNTCODI stack size"
+	default 2048
+
+endif
+
