@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GS2200M
+	tristate "Telit GS2200M usrsock daemon"
+	default n
+	depends on NET_USRSOCK && WL_GS2200M
+	select NET_USRSOCK_TCP
+	select PIPES
+	---help---
+		Enable support for the gs2200m usrsock daemon
+
+if SYSTEM_GS2200M
+config SYSTEM_GS2200M_PROGNAME
+	string "gs2200m program name"
+	default "gs2200m"
+
+config SYSTEM_GS2200M_PRIORITY
+	int "gs2200m task priority"
+	default 50
+
+config SYSTEM_GS2200M_STACKSIZE
+	int "gs2200m stack size"
+	default 2048
+
+endif
