@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/gs2200m/gs2200m_main.c
+ * apps/wireless/gs2200m_main.c
  *
  *   Copyright 2019 Sony Home Entertainment & Sound Products Inc.
  *   Author: Masayuki Ishikawa <Masayuki.Ishikawa@jp.sony.com>

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/gs2200m/Make.defs
+# apps/wireless/gs2200m/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright 2019 Sony Home Entertainment & Sound Products Inc.
@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_SYSTEM_GS2200M),)
-CONFIGURED_APPS += system/gs2200m
+ifneq ($(CONFIG_WIRELESS_GS2200M),)
+CONFIGURED_APPS += wireless/gs2200m
 endif
