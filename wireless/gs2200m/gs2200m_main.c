@@ -1331,6 +1331,7 @@ int gs2200m_main(int argc, char **argv)
   if ((ap_mode && (4 != argc)) || (!ap_mode && 3 != argc))
     {
       _show_usage(argv[0]);
+      ret = ERROR;
       goto errout;
     }
 
