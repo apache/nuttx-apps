@@ -49,6 +49,7 @@
 #include <debug.h>
 
 #include <nuttx/usb/usbdev.h>
+#include <nuttx/usb/usbmsc.h>
 #include <nuttx/usb/usbdev_trace.h>
 
 #include "usbmsc.h"
