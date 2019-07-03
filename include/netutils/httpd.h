@@ -63,18 +63,6 @@
 #  define CONFIG_NETUTILS_HTTPDSTACKSIZE 4096
 #endif
 
-#ifndef  CONFIG_NETUTILS_HTTPDFSSTATS
-#  define CONFIG_NETUTILS_HTTPDFSSTATS
-#endif
-
-#ifndef CONFIG_NETUTILS_HTTPDFILESTATS
-#  define CONFIG_NETUTILS_HTTPDFILESTATS
-#endif
-
-#ifndef  CONFIG_NET_STATISTICS
-#  undef CONFIG_NETUTILS_HTTPDNETSTATS
-#endif
-
 /* For efficiency reasons, the size of the IO buffer should be a multiple
  * of the TCP MSS value.  Also, the current design requires that the IO
  * buffer be sufficiently large to contain the entire GET request.

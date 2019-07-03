@@ -189,7 +189,9 @@ int webserver_main(int argc, char *argv[])
 #ifdef CONFIG_NET_TCP
   printf("Starting webserver\n");
   httpd_init();
+#ifndef CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE
   cgi_register();
+#endif
   httpd_listen();
 #endif
 
