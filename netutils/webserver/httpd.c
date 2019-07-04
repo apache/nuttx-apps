@@ -466,7 +466,9 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
     { "png",   "image/png"       },
     { "gif",   "image/gif"       },
     { "jpeg",  "image/jpeg"      },
-    { "jpg",   "image/jpeg"      }
+    { "jpg",   "image/jpeg"      },
+
+    { "mp3",   "audio/mpeg"      }
   };
 
   ptr = strrchr(pstate->ht_filename, ISO_period);
