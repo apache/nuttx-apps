@@ -474,7 +474,11 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
   ptr = strrchr(pstate->ht_filename, ISO_period);
   if (ptr == NULL)
     {
+#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+      mime = "text/html";
+#else
       mime = "application/octet-stream";
+#endif
     }
   else
     {
@@ -651,17 +655,24 @@ static int httpd_sendfile(struct httpd_state *pstate)
     }
 #endif
 
+#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+  if (send_headers(pstate, 200, -1) != OK)
+    {
+      goto done;
+    }
+#else
   if (send_headers(pstate, pstate->ht_file.len == 0 ? 204 : 200,
                    pstate->ht_file.len) != OK)
     {
       goto done;
     }
+#endif
 
 #ifdef CONFIG_NETUTILS_HTTPD_CLASSIC
-      ret = send_chunk(pstate, pstate->ht_file.data, pstate->ht_file.len);
+  ret = send_chunk(pstate, pstate->ht_file.data, pstate->ht_file.len);
 #else
 #ifdef CONFIG_NETUTILS_HTTPD_SENDFILE
-      ret = httpd_sendfile_send(pstate->ht_sockfd, &pstate->ht_file);
+  ret = httpd_sendfile_send(pstate->ht_sockfd, &pstate->ht_file);
 #endif
 #endif
 

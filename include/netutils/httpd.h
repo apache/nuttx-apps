@@ -102,6 +102,9 @@ struct httpd_fs_file
     defined(CONFIG_NETUTILS_HTTPD_SENDFILE)
   int fd;
 #endif
+#ifdef CONFIG_NETUTILS_HTTPD_SENDFILE
+  char path[PATH_MAX];
+#endif
 };
 
 struct httpd_state
@@ -194,6 +197,10 @@ int httpd_listen(void);
 void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
 uint16_t httpd_fs_count(char *name);
 int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked);
+
+#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus
