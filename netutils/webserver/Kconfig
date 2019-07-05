@@ -14,7 +14,6 @@ config NETUTILS_WEBSERVER
 
 if NETUTILS_WEBSERVER
 
-
 config NETUTILS_HTTPD_SINGLECONNECT
 	bool "Single Connection"
 	default n if !DISABLE_PTHREAD
@@ -178,6 +177,5 @@ config NETUTILS_HTTPD_DIRLIST
 	bool "Directory listing"
 	depends on NETUTILS_HTTPD_SENDFILE
 	default n
-
 
 endif # NETUTILS_WEBSERVER

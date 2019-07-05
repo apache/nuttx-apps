@@ -55,18 +55,6 @@
 #include "httpd.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -85,27 +73,27 @@ int httpd_sendfile_open(const char *name, struct httpd_fs_file *file)
 
   if (-1 == stat(file->path, &st))
     {
-       return ERROR;
+      return ERROR;
     }
 
 #ifndef CONFIG_NETUTILS_HTTPD_DIRLIST
   if (S_ISDIR(st.st_mode))
     {
-       errno = EISDIR;
-       return ERROR;
+      errno = EISDIR;
+      return ERROR;
     }
 
   if (!S_ISREG(st.st_mode))
     {
-       errno = ENOENT;
-       return ERROR;
+      errno = ENOENT;
+      return ERROR;
     }
 #endif
 
   if (st.st_size > INT_MAX || st.st_size > SIZE_MAX)
     {
-       errno = EFBIG;
-       return ERROR;
+      errno = EFBIG;
+      return ERROR;
     }
 
   file->len = (int) st.st_size;
@@ -115,7 +103,7 @@ int httpd_sendfile_open(const char *name, struct httpd_fs_file *file)
 #ifndef CONFIG_NETUTILS_HTTPD_DIRLIST
   if (file->fd == -1)
     {
-       return ERROR;
+      return ERROR;
     }
 #endif
 
