@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/utsname.h>
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -58,6 +59,20 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+#ifdef CONFIG_ARCH_BOARD_CUSTOM
+#  ifndef CONFIG_ARCH_BOARD_CUSTOM_NAME
+#    define BOARD_NAME g_unknown
+#  else
+#    define BOARD_NAME CONFIG_ARCH_BOARD_CUSTOM_NAME
+#  endif
+#else
+#  ifndef CONFIG_ARCH_BOARD
+#    define BOARD_NAME g_unknown
+#  else
+#    define BOARD_NAME CONFIG_ARCH_BOARD
+#  endif
+#endif
 
 #define BUF_SIZE 1024
 
@@ -91,6 +106,7 @@
 #define FOOTER \
   " <tr><th colspan=\"4\"><hr></th></tr>\n" \
   "</table>\n" \
+  "<address>uIP web server (%s %s %s %s %s) </address>\n" \
   "</body>\n" \
   "</html>\n"
 
@@ -101,6 +117,7 @@
 ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
 {
   struct dirent *dent;
+  struct utsname info;
   struct stat buf;
   struct tm tm;
   ssize_t total;
@@ -209,7 +226,17 @@ ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
 
 errout_with_hdr:
 
-  ret = write(outfd, FOOTER, sizeof(FOOTER));
+  memset(&info, 0, sizeof(info));
+  uname(&info);
+
+  snprintf(tmp, BUF_SIZE, FOOTER,
+           info.sysname,
+           info.release,
+           info.version,
+           info.machine,
+           BOARD_NAME);
+
+  ret = write(outfd, tmp, strlen(tmp));
 
   if (-1 != ret)
     {
