@@ -114,6 +114,38 @@
  * Public Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: httpd_is_file
+ ****************************************************************************/
+
+bool httpd_is_file(FAR const char *filename)
+{
+  char *path;
+  int fd;
+  bool ret = false;
+
+  path = malloc(CONFIG_NAME_MAX);
+  ASSERT(path);
+
+  snprintf(path, CONFIG_NAME_MAX, "%s/%s",
+           CONFIG_NETUTILS_HTTPD_PATH, filename);
+
+  fd = open(path, "O_RDONLY");
+
+  if (-1 != fd)
+    {
+      close(fd);
+      ret = true;
+    }
+
+  free(path);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: httpd_dirlist
+ ****************************************************************************/
+
 ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
 {
   struct dirent *dent;

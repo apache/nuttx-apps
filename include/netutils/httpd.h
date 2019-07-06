@@ -199,6 +199,7 @@ uint16_t httpd_fs_count(char *name);
 int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked);
 
 #ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+bool httpd_is_file(FAR const char *filename);
 ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file);
 #endif
 

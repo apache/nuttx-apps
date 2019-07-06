@@ -494,11 +494,7 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
   ptr = strrchr(pstate->ht_filename, ISO_period);
   if (ptr == NULL)
     {
-#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
-      mime = "text/html";
-#else
       mime = "application/octet-stream";
-#endif
     }
   else
     {
@@ -513,6 +509,15 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
             }
         }
     }
+
+#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+  if (false == httpd_is_file(pstate->ht_filename))
+    {
+      /* we assume that it's a directory */
+
+      mime = "text/html";
+    }
+#endif
 
   if (len >= 0)
     {
