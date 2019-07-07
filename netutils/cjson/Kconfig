@@ -6,6 +6,7 @@
 config NETUTILS_CJSON
 	bool "cJSON library (current version)"
 	default n
+	select LIBC_FLOATINGPOINT
 	---help---
 		Enables the cJSON library.
 
