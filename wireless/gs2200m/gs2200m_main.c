@@ -104,6 +104,7 @@ struct gs2200m_s
   char    *ssid;
   char    *key;
   uint8_t mode;
+  uint8_t ch;
   int     gsfd;
   struct usock_s sockets[SOCKET_COUNT];
 };
@@ -1208,6 +1209,7 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
   amsg.ssid = priv->ssid;
   amsg.key  = priv->key;
   amsg.mode = priv->mode;
+  amsg.ch   = priv->ch;
   ret = ioctl(priv->gsfd, GS2200M_IOC_ASSOC, (unsigned long)&amsg);
 
   if (0 != ret)
@@ -1283,13 +1285,13 @@ errout:
 
 static void _show_usage(FAR char *cmd)
 {
-  fprintf(stderr, "Usage: %s [-a] ssid key \n", cmd);
   fprintf(stderr,
-          "AP mode : specify -a option with "
-          "10 hex digits for WEP key \n");
+          "Usage: %s [-a [ch]] ssid key \n\n", cmd);
   fprintf(stderr,
-          "STA mode: specify passphrase (key) "
-          "for WPA/WPA2 PSK \n");
+          "AP mode : specify -a option (optionaly with channel) with ssid\n"
+          "          and 10 hex digits for WEP key \n");
+  fprintf(stderr,
+          "STA mode: specify ssid and passphrase (key) for WPA/WPA2 PSK \n");
 }
 
 /****************************************************************************
@@ -1317,18 +1319,26 @@ int gs2200m_main(int argc, char **argv)
 
   _daemon->mode = 0; /* default mode = 0 (station) */
 
-  while ((option = getopt(argc, argv, "a")) != ERROR)
+  while ((option = getopt(argc, argv, "a:")) != ERROR)
     {
       switch (option)
         {
           case 'a':
             _daemon->mode = 1; /* ap mode */
+            _daemon->ch   = 1;
+
+            if (5 == argc)
+              {
+                _daemon->ch   = (int)atoi(optarg);
+              }
+
             ap_mode = true;
             break;
         }
     }
 
-  if ((ap_mode && (4 != argc)) || (!ap_mode && 3 != argc))
+  if ((ap_mode && (4 != argc) && (5 != argc))
+      || (!ap_mode && 3 != argc))
     {
       _show_usage(argv[0]);
       ret = ERROR;
