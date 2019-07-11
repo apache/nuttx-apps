@@ -596,7 +596,7 @@ static int netinit_monitor(void)
 
   /* Now loop, waiting for changes in link status */
 
-  for (;;)
+  for (; ; )
     {
       /* Configure to receive a signal on changes in link status */
 
