@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CHRONO
+	tristate "Chronometer example to use with STM32LDiscover"
+	default n
+	---help---
+		Enable the Chronometer example
+
+if EXAMPLES_CHRONO
+
+config EXAMPLES_CHRONO_PROGNAME
+	string "Program name"
+	default "chrono"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_CHRONO_PRIORITY
+	int "Chrono task priority"
+	default 100
+
+config EXAMPLES_CHRONO_STACKSIZE
+	int "Chrono stack size"
+	default 2048
+
+endif
