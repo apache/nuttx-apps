@@ -3085,11 +3085,11 @@
 	  multiple programs.  From Chao An (2018-09-12).
 	* Fixes i8sak name. Accidentally renamed to i8ask in recent changes  From
 	  Anthony Merlino (2018-09-12).
-	* apps/examples/udpblaster:  Add option to use poll() on output (only). 
+	* apps/examples/udpblaster:  Add option to use poll() on output (only).
 	  Also picks up some fixes to various typographical errors.  From Gregory
 	  Nutt (2018-09-14).
 	* Correct some network-related configuration variable names.  All *_MTU
-	  defines were changes to *_PKTSIZE gut that was not reflected in apps/ 
+	  defines were changes to *_PKTSIZE gut that was not reflected in apps/
 	  From Gregory Nutt (2018-09-14).
 	* Combine the NxWidgets repository into the apps/ repository:
 
@@ -3099,7 +3099,7 @@
 	  - Integrate configuration/build system
 	  - Fix file paths in file headers.  Remove some duplicate tools.
 	  - Add new NxWidgets Unit Test configuration and build logic.
-	  
+
 	  From Gregory Nutt (2018-09-15).
 	* Directory.mk:  If the current directory contains a Kconfig file and
 	  MENUDESC is not defined, then Directory.mk must not trash the Kconfig in
@@ -4118,4 +4118,116 @@
 	* apps/graphics/twm4ndx:  Compile out cursor support if we are using a
 	  mouse  From Gregory Nutt (2019-05-17).
 
-8.1 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.31 2019-07-21 Gregory Nutt <gnutt@nuttx.org>
+
+	* Remove some cases in Kconfig files of 'comment' with 'depends on'.  That
+	  is probably a good practice.  I removed these because (1) is not done
+	  elsewhere so it is just an inconsistency, and (2) the HTML generation
+	  tool at nuttx/tools/kconfig2html.c would need to be extended to parse
+	  that case.  I don't have time to do that now.  From Gregory Nutt
+	  (2019-05-19).
+	* This change adds a calibration screen to Twm4Nx.  In addition to the
+	  Calibration screen port from NxWM, this required extensions to the event
+	  handling logic to support (1) receiving raw, uncalibrated touchscreen
+	  inputs, (2) shutting down of externally controlled windows.  From Gregory
+	  Nutt (2019-05-20).
+	* apps/graphics/twm4nx:  Move application-related files into different
+	  directories to separate them from the core Twm4Nx files.  From Gregory
+	  Nutt (2019-05-20).
+	* apps/graphics/twm4ndx:  Compile out cursor support if we are using a
+	  mouse.  From Gregory Nutt (2019-05-20).
+	* apps/graphics/twm4nx:  Fix an uninitialized variable that was causing
+	  toolbar buttons to randomly come up enabled or disabled.  Remove some
+	  unused event definitions.  From Gregory Nutt (2019-05-20).
+	* apps/graphics/twm4nx:  Fix a calibration screen startup issue.  Make an
+	  initial calibration screen optional.  From Gregory Nutt (2019-05-20).
+	* apps/nshlib:  Fix all places where cle() and readline() are used.
+	  readline() returns EOF on a failure.  cle() returns a negated errno
+	  value.  Checking only for EOF causes failues to be missed (and infinite
+	  loops ensuing).  From Valmantas Paliksa (2019-05-21).
+	* Add an alternative COMPONTEMPORARY theme.  Still has some artifacts on
+	  the display.  From Gregory Nutt (2019-05-21).
+	* apps/graphics/twm4nx:  Use custom CWidgetStyle to force Icon background
+	  to match selected desktop background.  From Gregory Nutt (2019-05-21).
+	* apps/graphics/nxglyphs:  Add more modern looking button images for the
+	  Twm4Nx CONTEMPORARY theme.  From Gregory Nutt (2019-05-21).
+	* apps/graphics/twm4nx:  Add some definitions to support Themes.
+	  Background image is now optional.  From Gregory Nutt (2019-05-21).
+	* apps/graphics/twm4nx: Add a configuration option to control the number of
+	  buttons in one column of the Icon Manager.  The Icon Manager no longer
+	  relies the default window width; now it determines a preferred window
+	  width based primarily on the font size.  From Gregory Nutt (2019-05-21).
+	* apps/:  Removed all references to CONFIG_DISABLE_POLL.  The standard
+	  POSIX poll() can not longer be disabled.  From Gregory Nutt (2019-05-21).
+	* apps/graphics/twm4nx:  Revise logic to detect clicks on the background
+	  image.  The original implementation had some side effects.  From Gregory
+	  Nutt (2019-05-23).
+	* apps/graphics/twm4nx:  Remove some remaining, unused stuff from TWM that
+	  was never used.  Menus need to close after the 'terminal' selection is
+	  made.  Otherwise, the menu can become buried under a newly open menu and
+	  not easily recovered.  From Gregory Nutt (2019-05-23).
+	* apps/graphics/twm4ndx:  Add a 'critical' bit to the eventID.  While
+	  resizing, all events will be ignore except those marked critical.
+	* apps/graphics/twm4nx:  CBackground now brings up the main menu if the
+	  background image is clicked.  This makes the behavior the same across all
+	  of the background except when an icon is clicked.  From Gregory Nutt
+	  (2019-05-23).
+	* apps/graphics/twm4nx:  Fix a bug in placement of icons on the desktop.
+	  When many windows are displayed, a bug in the looping logic could cause
+	  an infinite loop.  From Gregory Nutt (2019-05-26).
+	* apps/graphics/twm4nx:  Fix some errors found when enabling NX keyboard
+	  support. The most important being that the mouse and keyboard drivers
+	  need to be opened non-blocking.  From Gregory Nutt (2019-05-26).
+	* apps/graphics/twm4nx/README.txt:  Add an overview of how to create Twm4Nx
+	  applications.  From Gregory Nutt (2019-05-28).
+	* apps/graphics/slcd:  Adds a CSLcd class that will generate graphic
+	  simulated segments of an SLCD display.  From Gregory Nutt (2019-05-31).
+	* apps/graphics/tmw4nx and apps/graphics/slcd:  Add a CClock class that
+	  implements the Twm4Nx digital clock based on the CSLcd simulated SLCD
+	  segements.  From Gregory Nutt (2019-06-01).
+	* apps/graphics/slcd:  Improve the representation of '1', 'l', and 'I'.
+	  From Gregory Nutt (2019-06-01).
+	* netutils/telnetd/telnetd_daemon.c:  Fix another C89 violation that caused
+	  the ez80 build to fail.  From Gregory Nutt (2019-06-03).
+	* nshlib/nsh_parse.c:  Fix a warning about an uninitialized variable from
+	  the ZDS-II compiler.  From Gregory Nutt (2019-06-03).
+	* apps/netutils/netinit:  MAC address configuration was represented by type
+	  long long.  That is a problem for architectures that do not support type
+	  long long.  Replaces by two long configuration items.  From Gregory Nutt
+	  (2019-06-03).
+	* apps/nshlib/nsh_ddcmd.c:  Seemingly nonsense change but somehow works
+	  around a compilation error using the ZDS-II toolchain.  It was claiming
+	  that vtbl was undefined indd_outfopen().  From Gregory Nutt (2019-06-03).
+	* apps/netutils/json:  Removed.  Replaced with apps/netutils/cjson.  From
+	  Gregory Nutt (2019-06-03).
+	* industry/abnt_codi, include/industry/abnt_code.h, examples.abntcodi:
+	  Adds support for ABNT CODI library.  This is an energy meter protocol
+	  used in Brazil.  From Alan Carvalho de Assis (2019-06-15).
+	* apps/wireless/gs2200m:  Add usrsock daemon for Tilt GS2200M Wi-Fi module
+	  From Masayuki Ishikawa (2019-06-18).
+	* apps/industry: Add .gitignore for Kconfig  From Masayuki Ishikawa
+	  (2019-06-28).
+	* apps/examples/webserver: Fix to compile with
+	  CONFIG_NETUTILS_HTTPD_SENDFILE=y.  Also some configs such as
+	  CONFIG_NETUTILS_HTTPDFILESTATS can be selected by menuconfig.  From
+	  Masayuki Ishikawa (2019-07-03).
+	* netutils/webserver: Add mp3 mime type to httpd.c  From Masayuki Ishikawa
+	  (2019-07-04).
+	* netutils/webserver: Add directory listing to httpd  From Masayuki
+	  Ishikawa (2019-07-05).
+	* netutils/webserver:  Add web server info based on uname()  From Masayuki
+	  Ishikawa (2019-07-05).
+	* netutils/webserver: Fix directory listing containing period in name  From
+	  Masayuki Ishikawa (2019-07-06).
+	* apps/netutils/cjson/Kconfig:  stdio floating point support required.
+	  cJSON requires floating point support in printf (specifically the 'g'
+	  conversion specifier).  Thus, select LIBC_FLOATINGPOINT when
+	  NETUTILS_CJSON is selected.  From Michael Jung (2019-07-07).
+	* neutils/webserver: Fix file corruption in httpd_dirlist.c  From Masayuki
+	  Ishikawa (2019-07-10).
+	* wireless/gs2200m: Add channel parameter for AP mode  From Masayuki
+	  Ishikawa (2019-07-10).
+	* apps/examples/chrono:  Add chronometer apps example.  From Alan Carvalho
+	  de Assis (2019-07-17).
+
+7.32 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
