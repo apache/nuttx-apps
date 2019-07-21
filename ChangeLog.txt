@@ -4118,7 +4118,7 @@
 	* apps/graphics/twm4ndx:  Compile out cursor support if we are using a
 	  mouse  From Gregory Nutt (2019-05-17).
 
-7.31 2019-07-22 Gregory Nutt <gnutt@nuttx.org>
+7.31 2019-07-21 Gregory Nutt <gnutt@nuttx.org>
 
 	* Remove some cases in Kconfig files of 'comment' with 'depends on'.  That
 	  is probably a good practice.  I removed these because (1) is not done
