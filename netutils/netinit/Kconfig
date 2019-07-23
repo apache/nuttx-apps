@@ -57,10 +57,10 @@ config NETINIT_THREAD
 
 		One solution is enabled by this option.  If NETINIT_THREAD
 		is selected, the network bring-up will occur in parallel with
-		the application on a separate thread.  In this case, the appliation
+		the application on a separate thread.  In this case, the application
 		will start immediately with the network becoming available some time
-		later (if if all).  This thread will terminate once it successfully
-		initializes the network
+		later (if at all).  This thread will terminate once it successfully
+		initializes the network.
 
 		NOTES:  If no network is connected, the network bring-up will fail
 		and the network initialization thread will simply exit.  There are
@@ -128,7 +128,7 @@ config NETINIT_DEBUG
 	---help---
 		Normally debug output is controlled by DEBUG_NET.  However, that
 		will generate a LOT of debug output, especially if CONFIG_DEBUG_INFO is
-		also selected.  This option is intended to force vervose debug
+		also selected.  This option is intended to force verbose debug
 		output from the network initialization logic even if CONFIG_DEBUG_NET
 		or CONFIG_DEBUG_INFO are not selected.  This allows for focused, unit-
 		level debug of the network initialization logic.
