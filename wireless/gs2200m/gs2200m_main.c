@@ -129,6 +129,8 @@ static int getsockopt_request(int fd, FAR struct gs2200m_s *priv,
                               FAR void *hdrbuf);
 static int getsockname_request(int fd, FAR struct gs2200m_s *priv,
                                FAR void *hdrbuf);
+static int getpeername_request(int fd, FAR struct gs2200m_s *priv,
+                               FAR void *hdrbuf);
 static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
                          FAR void *hdrbuf);
 static int bind_request(int fd, FAR struct gs2200m_s *priv,
@@ -187,6 +189,11 @@ static const struct usrsock_req_handler_s
   {
     sizeof(struct usrsock_request_getsockname_s),
     getsockname_request,
+  },
+  [USRSOCK_REQUEST_GETPEERNAME] =
+  {
+    sizeof(struct usrsock_request_getpeername_s),
+    getpeername_request,
   },
   [USRSOCK_REQUEST_BIND] =
   {
@@ -260,7 +267,7 @@ static int _send_ack_common(int fd,
  * Name: gs2200m_socket_alloc
  ****************************************************************************/
 
-static int16_t gs2200m_socket_alloc(FAR struct gs2200m_s *priv)
+static int16_t gs2200m_socket_alloc(FAR struct gs2200m_s *priv, int type)
 {
   FAR struct usock_s *usock;
   int16_t i;
@@ -274,6 +281,7 @@ static int16_t gs2200m_socket_alloc(FAR struct gs2200m_s *priv)
           memset(usock, 0, sizeof(*usock));
           usock->cid = 'z'; /* Invalidate cid */
           usock->state = OPENED;
+          usock->type  = type;
           return i + SOCKET_BASE;
         }
     }
@@ -460,10 +468,12 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
 {
   FAR struct usrsock_request_socket_s *req = hdrbuf;
   struct usrsock_message_req_ack_s resp;
+  FAR struct usock_s *usock;
   int16_t usockid;
   int ret;
 
-  gs2200m_printf("%s: start \n", __func__);
+  gs2200m_printf("%s: start type=%d \n",
+                 __func__, req->type);
 
   /* Check domain requested */
 
@@ -475,7 +485,7 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
     {
       /* Allocate socket. */
 
-      usockid = gs2200m_socket_alloc(priv);
+      usockid = gs2200m_socket_alloc(priv, req->type);
       ASSERT(0 < usockid);
     }
 
@@ -488,6 +498,17 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
   if (0 > ret)
     {
       return ret;
+    }
+
+  if (req->type == SOCK_DGRAM)
+    {
+      /* NOTE: If the socket type is DGRAM, it's ready to send
+       * a packet after creating user socket.
+       */
+
+      usock = gs2200m_socket_get(priv, usockid);
+      (void)usock_send_event(fd, priv, usock,
+                             USRSOCK_EVENT_SENDTO_READY);
     }
 
   gs2200m_printf("%s: end \n", __func__);
@@ -516,9 +537,15 @@ static int close_request(int fd, FAR struct gs2200m_s *priv,
 
   cid = usock->cid;
 
-  if (CONNECTED != usock->state)
+  if (SOCK_STREAM == usock->type && CONNECTED != usock->state)
     {
       ret = -EBADFD;
+      goto errout;
+    }
+
+  if (SOCK_DGRAM == usock->type && 'z' == cid)
+    {
+      /* the udp socket is not bound */
       goto errout;
     }
 
@@ -694,14 +721,14 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
 
   /* Check if this socket is connected. */
 
-  if (usock->type == SOCK_STREAM && CONNECTED != usock->state)
+  if (SOCK_STREAM == usock->type && CONNECTED != usock->state)
     {
       ret = -ENOTCONN;
       goto prepare;
     }
 
-  /* Check if address size non-zero.
-   * connection-mode socket do not accept address
+  /* Check if the address size is non-zero.
+   * connection-mode socket does not accept address
    */
 
   if (usock->type == SOCK_STREAM && req->addrlen > 0)
@@ -710,7 +737,35 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
       goto prepare;
     }
 
-  /* Check if request has data. */
+  smsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
+
+  /* For UDP, addlen must be provided */
+
+  if (usock->type == SOCK_DGRAM)
+    {
+      if (req->addrlen == 0)
+        {
+          ret = -EINVAL;
+          goto prepare;
+        }
+
+      /* In UDP case, read the address. */
+
+      rlen = read(fd, &smsg.addr, sizeof(smsg.addr));
+
+      if (rlen < 0 || rlen < req->addrlen)
+        {
+          ret = -EFAULT;
+          goto prepare;
+        }
+
+      gs2200m_printf("%s: addr: %s:%d",
+                     __func__,
+                     inet_ntoa(smsg.addr.sin_addr),
+                     ntohs(smsg.addr.sin_port));
+    }
+
+  /* Check if the request has data. */
 
   if (req->buflen > 0)
     {
@@ -733,6 +788,11 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
 
       nret = ioctl(priv->gsfd, GS2200M_IOC_SEND,
                    (unsigned long)&smsg);
+
+      if (usock->cid != smsg.cid)
+        {
+          usock->cid = smsg.cid;
+        }
 
       if (0 != nret)
         {
@@ -787,14 +847,13 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   struct usrsock_message_datareq_ack_s resp;
   struct gs2200m_recv_msg rmsg;
   FAR struct usock_s *usock;
-  struct sockaddr_in ep_addr;
   int ret = 0;
 
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
   gs2200m_printf("%s: start (req->max_buflen=%d) \n",
-                __func__, req->max_buflen);
+                 __func__, req->max_buflen);
 
   /* Check if this socket exists. */
 
@@ -808,7 +867,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
 
   /* Check if this socket is connected. */
 
-  if (CONNECTED != usock->state)
+  if (SOCK_STREAM == usock->type && CONNECTED != usock->state)
     {
       ret = -ENOTCONN;
       goto prepare;
@@ -818,6 +877,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   rmsg.buf = calloc(1, 1500);
   rmsg.cid = usock->cid;
   rmsg.reqlen = req->max_buflen;
+  rmsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
 
   ret = ioctl(priv->gsfd, GS2200M_IOC_RECV,
               (unsigned long)&rmsg);
@@ -831,7 +891,15 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
       ret = -errno;
     }
 
- prepare:
+  if (!rmsg.is_tcp)
+    {
+      gs2200m_printf("%s: from (%s:%d) \n",
+                     __func__,
+                     inet_ntoa(rmsg.addr.sin_addr),
+                     ntohs(rmsg.addr.sin_port));
+    }
+
+prepare:
 
   /* Prepare response. */
 
@@ -841,9 +909,9 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
   resp.reqack.head.flags = 0;
 
-  if (0 == ret)
+  if (0 <= ret)
     {
-      resp.valuelen_nontrunc = sizeof(ep_addr);
+      resp.valuelen_nontrunc = sizeof(rmsg.addr);
       resp.valuelen = MIN(resp.valuelen_nontrunc,
                           req->max_addrlen);
 
@@ -868,10 +936,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
     {
       /* Send address (value) */
 
-      /* TODO: ep_addr should be set */
-
-      memset(&ep_addr, 0, sizeof(ep_addr));
-      ret = _write_to_usock(fd, &ep_addr, resp.valuelen);
+      ret = _write_to_usock(fd, &rmsg.addr, resp.valuelen);
 
       if (0 > ret)
         {
@@ -956,7 +1021,9 @@ static int bind_request(int fd, FAR struct gs2200m_s *priv,
     }
 
   snprintf(bmsg.port, sizeof(bmsg.port), "%d", ntohs(addr.sin_port));
-  bmsg.cid  = 'z'; /* set to invalid */
+  bmsg.cid    = 'z'; /* set to invalid */
+  bmsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
+
   ret = ioctl(priv->gsfd, GS2200M_IOC_BIND, (unsigned long)&bmsg);
 
   if (0 == ret)
@@ -1067,7 +1134,7 @@ static int accept_request(int fd, FAR struct gs2200m_s *priv,
 
   /* allocate socket. */
 
-  usockid   = gs2200m_socket_alloc(priv);
+  usockid   = gs2200m_socket_alloc(priv, SOCK_STREAM);
   ASSERT(0 < usockid);
   new_usock = gs2200m_socket_get(priv, usockid);
 
@@ -1176,14 +1243,41 @@ static int getsockname_request(int fd, FAR struct gs2200m_s *priv,
 }
 
 /****************************************************************************
+ * Name: getsockname_request
+ ****************************************************************************/
+
+static int getpeername_request(int fd, FAR struct gs2200m_s *priv,
+                               FAR void *hdrbuf)
+{
+  ASSERT(false);
+  return -EINVAL;
+}
+
+/****************************************************************************
  * Name: ioctl_request
  ****************************************************************************/
 
 static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
                          FAR void *hdrbuf)
 {
-  ASSERT(false);
-  return -EINVAL;
+  FAR struct usrsock_request_ioctl_s *req = hdrbuf;
+  struct usrsock_message_req_ack_s resp;
+  int ret = -EINVAL;
+
+  /* TODO */
+
+  /* Send ACK response */
+
+  memset(&resp, 0, sizeof(resp));
+  resp.result = ret;
+  ret = _send_ack_common(fd, req->head.xid, &resp);
+
+  if (0 > ret)
+    {
+      return ret;
+    }
+
+  return ret;
 }
 
 /****************************************************************************
