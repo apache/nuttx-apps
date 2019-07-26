@@ -555,6 +555,7 @@ static int netinit_monitor(void)
   struct timespec reltime;
   struct ifreq ifr;
   struct sigaction act;
+  struct sigaction oact;
   bool devup;
   int ret;
   int sd;
@@ -584,7 +585,7 @@ static int netinit_monitor(void)
   act.sa_sigaction = netinit_signal;
   act.sa_flags = SA_SIGINFO;
 
-  ret = sigaction(CONFIG_NETINIT_SIGNO, &act, NULL);
+  ret = sigaction(CONFIG_NETINIT_SIGNO, &act, &oact);
   if (ret < 0)
     {
       ret = -errno;
@@ -758,7 +759,7 @@ static int netinit_monitor(void)
 errout_with_notification:
 #  warning Missing logic
 errout_with_sigaction:
-#  warning Missing logic
+  (void)sigaction(CONFIG_NETINIT_SIGNO, &oact, NULL);
 errout_with_socket:
   close(sd);
 errout:
