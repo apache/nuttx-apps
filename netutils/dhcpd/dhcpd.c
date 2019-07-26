@@ -296,7 +296,7 @@ static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
 
   inaddr.sin_family = AF_INET;
   inaddr.sin_port = 0;
-  memcpy(&inaddr.sin_addr.s_addr, hwaddr, sizeof(in_addr_t));
+  memcpy(&inaddr.sin_addr.s_addr, ipaddr, sizeof(in_addr_t));
 
   /* Update the ARP table */
 
