@@ -112,6 +112,9 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
+int ieee802154_setmaxretries(int fd, uint8_t retries);
+int ieee802154_getmaxretries(int fd, FAR uint8_t *retries);
+
 int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
 
 int ieee802154_setassocpermit(int fd, bool assocpermit);
@@ -192,6 +195,10 @@ int sixlowpan_getrxonidle(int sock, FAR const char *ifname,
 int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
 int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
       FAR int32_t *txpwr);
+
+int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries);
+int sixlowpan_getmaxretries(int sock, FAR const char *ifname,
+      FAR uint8_t *retries);
 
 int sixlowpan_getdevmode(int fd, FAR const char *ifname,
                          FAR enum ieee802154_devmode_e *devmode);

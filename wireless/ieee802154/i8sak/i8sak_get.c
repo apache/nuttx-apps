@@ -83,9 +83,9 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   argind = 1;
   while ((option = getopt(argc, argv, ":h")) != ERROR)
     {
+      argind++;
       switch (option)
         {
-          argind++;
           case 'h':
             fprintf(stderr, "Gets various parameters and attributes\n"
                     "Usage: %s [-h] parameter\n"
@@ -104,6 +104,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    ep_addrmode = destination address mode"
                     "    rxonidle = Receiver on when idle\n"
                     "    txpwr = Transmit power\n"
+                    "    maxretries = macMaxFrameRetries\n"
+                    "    promisc = Promiscuous Mode\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
@@ -123,6 +125,14 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
+    }
+
+  /* Make sure that there is another argument */
+
+  if (argc <= argind)
+    {
+      fprintf(stderr, "ERROR: Must include an attribute to get\n");
+      i8sak_cmd_error(i8sak); /* This exits for us */
     }
 
   /* Check for i8sak level options. Not dependent on opening file/socket */
@@ -251,6 +261,23 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
               ieee802154_gettxpwr(fd, &u.attr.phy.txpwr);
               printf("i8sak: Transmit Power: %d\n", (int)u.attr.phy.txpwr);
             }
+          else if (strcmp(argv[argind], "maxretries") == 0)
+            {
+              ieee802154_getmaxretries(fd, &u.attr.mac.max_retries);
+              printf("i8sak: Max Frame Retries: %d\n", (int)u.attr.mac.max_retries);
+            }
+          else if (strcmp(argv[argind], "promisc") == 0)
+            {
+              ieee802154_getpromisc(fd, &u.attr.mac.promisc_mode);
+              if (u.attr.mac.promisc_mode)
+                {
+                  printf("i8sak: Promiscuous Mode: true\n");
+                }
+              else
+                {
+                  printf("i8sak: Promiscuous Mode: false\n");
+                }
+            }
           else
             {
               fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
@@ -318,6 +345,23 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             {
               sixlowpan_gettxpwr(fd, i8sak->ifname, &u.attr.phy.txpwr);
               printf("i8sak: Transmit Power: %d\n", (int)u.attr.phy.txpwr);
+            }
+          else if (strcmp(argv[argind], "maxretries") == 0)
+            {
+              sixlowpan_getmaxretries(fd, i8sak->ifname, &u.attr.mac.max_retries);
+              printf("i8sak: Transmit Power: %d\n", (int)u.attr.mac.max_retries);
+            }
+          else if (strcmp(argv[argind], "promisc") == 0)
+            {
+              sixlowpan_getpromisc(fd, i8sak->ifname, &u.attr.mac.promisc_mode);
+              if (u.attr.mac.promisc_mode)
+                {
+                  printf("i8sak: Promiscuous Mode: true\n");
+                }
+              else
+                {
+                  printf("i8sak: Promiscuous Mode: false\n");
+                }
             }
           else
             {

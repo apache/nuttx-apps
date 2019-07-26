@@ -897,6 +897,14 @@ int i8sak_main(int argc, char *argv[])
       i8sak_showusage(argv[0], EXIT_FAILURE);
     }
 
+  /* Check to make sure the user supplied a command */
+
+  if (argc <= argind)
+    {
+      fprintf(stderr, "ERROR: Must include a command\n");
+      i8sak_showusage(argv[0], EXIT_FAILURE);
+    }
+
   /* Find the command in the g_i8sak_command[] list */
 
   i8sakcmd = NULL;

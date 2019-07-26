@@ -155,3 +155,13 @@ int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr)
 
   return sixlowpan_set_req(sock, ifname, &req);
 }
+
+int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_MAX_FRAME_RETRIES;
+  req.attrval.mac.max_retries = retries;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}

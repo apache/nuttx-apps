@@ -195,3 +195,17 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr)
 
   return ret;
 }
+
+int ieee802154_getmaxretries(int fd, FAR uint8_t *retries)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_MAX_FRAME_RETRIES;
+  ret = ieee802154_get_req(fd, &req);
+
+  *retries = req.attrval.mac.max_retries;
+
+  return ret;
+}
+
