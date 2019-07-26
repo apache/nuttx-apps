@@ -101,6 +101,11 @@ int main(int argc, FAR char *argv[])
 int webserver_main(int argc, char *argv[])
 #endif
 {
+#ifndef CONFIG_NSH_BUILTIN_APPS
+  /* We are running standalone (as opposed to a NSH built-in app). Therefore
+   * we need to initialize the network before we start.
+   */
+
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_WEBSERVER_DHCPC) || defined(CONFIG_EXAMPLES_WEBSERVER_NOMAC)
   uint8_t mac[IFHWADDRLEN];
@@ -185,6 +190,7 @@ int webserver_main(int argc, char *argv[])
         printf("IP: %s\n", inet_ntoa(ds.ipaddr));
     }
 #endif
+#endif /* CONFIG_NSH_BUILTIN_APPS */
 
 #ifdef CONFIG_NET_TCP
   printf("Starting webserver\n");
@@ -195,12 +201,18 @@ int webserver_main(int argc, char *argv[])
   httpd_listen();
 #endif
 
+#ifndef CONFIG_NSH_BUILTIN_APPS
+  /* We are running standalone (as opposed to a NSH built-in app). Therefore
+   * we should not exit after httpd failure.
+   */
+
   while (1)
     {
       sleep(3);
       printf("webserver_main: Still running\n");
       fflush(stdout);
     }
+#endif /* CONFIG_NSH_BUILTIN_APPS */
 
   return 0;
 }
