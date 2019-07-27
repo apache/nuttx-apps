@@ -37,18 +37,18 @@
 
 # Web server library
 
-CSRCS		=
+CSRCS =
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		+= httpd.c httpd_cgi.c
+CSRCS += httpd.c httpd_cgi.c
 ifeq ($(CONFIG_NETUTILS_HTTPD_SENDFILE),y)
-CSRCS		+= httpd_sendfile.c
+CSRCS += httpd_sendfile.c
 ifeq ($(CONFIG_NETUTILS_HTTPD_DIRLIST),y)
-CSRCS		+= httpd_dirlist.c
+CSRCS += httpd_dirlist.c
 endif
 else ifeq ($(CONFIG_NETUTILS_HTTPD_MMAP),y)
-CSRCS		+= httpd_mmap.c
+CSRCS += httpd_mmap.c
 else
-CSRCS		+= httpd_fs.c
+CSRCS += httpd_fs.c
 endif
 endif
 

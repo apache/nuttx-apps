@@ -40,8 +40,8 @@
 CSRCS = cgi.c httpd_fsdata.c
 MAINSRC = webserver_main.c
 
-CONFIG_XYZ_PROGNAME ?= webserver$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_WEBSERVER_PROGNAME ?= webserver$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_WEBSERVER_PROGNAME)
 
 # Webserver built-in application info
 

@@ -36,8 +36,9 @@
 -include $(TOPDIR)/Make.defs
 
 # Web client library
+
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		= webclient.c
+CSRCS = webclient.c
 endif
 
 include $(APPDIR)/Application.mk
