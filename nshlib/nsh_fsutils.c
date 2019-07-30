@@ -76,7 +76,6 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR const char *filepath)
 {
   FAR char *buffer;
-  char last = 0;
   int fd;
   int ret = OK;
 
@@ -130,7 +129,6 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           int nbyteswritten = 0;
 
-          last = buffer[nbytesread - 1];
           while (nbyteswritten < nbytesread)
             {
               ssize_t n = nsh_write(vtbl, buffer + nbyteswritten, nbytesread - nbyteswritten);
@@ -168,17 +166,12 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         }
     }
 
-   /* Make sure that the following NSH prompt appears on a new line.  If the
-    * file ends in a newline, then this will print an extra blank line
-    * before the prompt, but that is preferable to the case where there is
-    * no newline and the NSH prompt appears on the same line as the cat'ed
-    * file.
+   /* NOTE that the following NSH prompt may appear on the same line as file
+    * content.  The IEEE Std requires that "The standard output shall
+    * contain the sequence of bytes read from the input files. Nothing else
+    * shall be written to the standard output." Reference:
+    * https://pubs.opengroup.org/onlinepubs/009695399/utilities/cat.html.
     */
-
-   if (ret == OK && last != '\n')
-     {
-       nsh_output(vtbl, "\n");
-     }
 
    /* Close the input file and return the result */
 
