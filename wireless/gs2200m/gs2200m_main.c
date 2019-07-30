@@ -58,6 +58,7 @@
 #include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 
 #include <nuttx/net/usrsock.h>
 #include <nuttx/wireless/gs2200m.h>
@@ -546,6 +547,7 @@ static int close_request(int fd, FAR struct gs2200m_s *priv,
   if (SOCK_DGRAM == usock->type && 'z' == cid)
     {
       /* the udp socket is not bound */
+
       goto errout;
     }
 
@@ -1262,9 +1264,25 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
 {
   FAR struct usrsock_request_ioctl_s *req = hdrbuf;
   struct usrsock_message_req_ack_s resp;
+  struct gs2200m_ifreq_msg imsg;
   int ret = -EINVAL;
 
-  /* TODO */
+  switch (req->cmd)
+    {
+      case SIOCSIFADDR:
+      case SIOCSIFDSTADDR:
+      case SIOCSIFNETMASK:
+
+        memset(&imsg.ifr, 0, sizeof(imsg.ifr));
+        (void)read(fd, &imsg.ifr, sizeof(imsg.ifr));
+        break;
+
+      default:
+        break;
+    }
+
+  imsg.cmd = req->cmd;
+  ret = ioctl(priv->gsfd, GS2200M_IOC_IFREQ, (unsigned long)&imsg);
 
   /* Send ACK response */
 
