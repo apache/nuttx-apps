@@ -991,7 +991,6 @@ static int cle_editloop(FAR struct cle_s *priv)
           break;
 
         case KEY_DEL: /* Delete 1 character at the cursor */
-        case ASCII_DEL:
           {
             if (priv->curpos < priv->nchars)
               {
@@ -1023,6 +1022,7 @@ static int cle_editloop(FAR struct cle_s *priv)
           }
           break;
 
+        case ASCII_DEL:
         case KEY_DELLEFT: /* Delete 1 character before the cursor */
         //case ASCII_BS:
           {
