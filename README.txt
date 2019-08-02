@@ -153,7 +153,7 @@ Q: Has anyone come up with a tidy way to build NuttX with board-
 A: Here are three:
 
    1) There is a make target called 'make export'. It will build
-      NuttX, then bundle all of the header files, libaries, startup
+      NuttX, then bundle all of the header files, libraries, startup
       objects, and other build components into a .zip file. You
       can can move that .zip file into any build environment you
       want. You even build NuttX under a DOS CMD window.
@@ -176,14 +176,14 @@ A: Here are three:
    3) If you like the random collection of stuff in the apps/ directory
       but just want to expand the existing components with your own,
       external sub-directory then there is an easy way to that too:
-      You just create a sympolic link in the apps/ directory that
+      You just create a symbolic link in the apps/ directory that
       redirects to your application sub-directory.
 
       In order to be incorporated into the build, the directory that
       you link under the apps/ directory should contain (1) a Makefile
       that supports the clean and distclean targets (see other Makefiles
       for examples), and (2) a tiny Make.defs file that simply adds the
-      custon build directories to the variable CONFIGURED_APPS like:
+      custom build directories to the variable CONFIGURED_APPS like:
 
         CONFIGURED_APPS += my_directory1 my_directory2
 

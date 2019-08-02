@@ -19,15 +19,15 @@ system.  The mapping between freemodbus-v1.5.0 and the nuttx directories
 is shown below:
 
   --------------------------- ----------------------------------------------
-  freemodbus-v1.5.0           Nuttx
+  freemodbus-v1.5.0           NuttX
   --------------------------- ----------------------------------------------
   All top level .txt files    Not included
   demo/                       Not included.  This directory contains demo
                               and porting code for a variety of platforms.
                               The NuttX demo was ported from the LINUX
-                              demo in this director and can be found at
+                              demo in this directory and can be found at
                               apps/examples/modbus.
-  doc/                        Note included.  This directory contains Doxygen
+  doc/                        Not included.  This directory contains Doxygen
                               support files.
   modbus/                     Included in its entirety in various locations:
          ascii                  apps/modbus/ascii
@@ -36,7 +36,7 @@ is shown below:
          mb.c                   apps/modbus/mb.c
          rtu                    apps/modbus/rtu
          tcp                    apps/modbus/tcp
-  tools/                      Note included.  This directory contain Doxygen
+  tools/                      Not included.  This directory contains Doxygen
                               tools.
   --------------------------- ----------------------------------------------
 
@@ -75,13 +75,13 @@ The NuttX-named configuration options that are available include:
       vMBPortSerialDelay with the argument CONFIG_MB_ASCII_TIMEOUT_WAIT_BEFORE_SEND_MS
       to allow for a delay before the serial transmitter is enabled. This is
       required because some targets are so fast that there is no time between
-      receiving and transmitting the frame. If the master is to slow with
-      enabling its receiver then he will not receive the response correctly.
+      receiving and transmitting the frame. If the master is too slow with
+      enabling its receiver then it will not receive the response correctly.
     CONFIG_MB_FUNC_HANDLERS_MAX - Maximum number of Modbus functions codes the
       protocol stack should support. The maximum number of supported Modbus
       functions must be greater than the sum of all enabled functions in this
-      file and custom function handlers. If set to small adding more functions
-      will fail.
+      file and custom function handlers. If set too small, adding more
+      functions will fail.
     CONFIG_MB_FUNC_OTHER_REP_SLAVEID_BUF - Number of bytes which should be
       allocated for the Report Slave ID command. This number limits the
       maximum size of the additional segment in the report slave id function.
