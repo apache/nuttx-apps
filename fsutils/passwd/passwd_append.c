@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/fsutils/passwd/passwd_append.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,19 @@ int passwd_append(FAR const char *username, FAR const char *password)
       return errcode;
    }
 
-  ret = fprintf(stream, "%s %s\n", username, encrypted);
+  /* The format of the password file is:
+   *
+   *   user:x:uid:gid:home
+   *
+   * Where:
+   *   user:  User name
+   *   x:     Encrypted password
+   *   uid:   User ID (0 for now)
+   *   gid:   Group ID (0 for now)
+   *   home:  Login directory (/ for now)
+   */
+
+  ret = fprintf(stream, "%s:%s:0:0:/\n", username, encrypted);
   if (ret < 0)
     {
       int errcode = errno;

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/fsutils/passwd.h
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ int passwd_deluser(FAR const char *username);
  * Name: passwd_update
  *
  * Description:
- *   Change a new user to the /etc/passwd file.  If the user does not exist,
+ *   Change a user in the /etc/passwd file.  If the user does not exist,
  *   then this function will fail.
  *
  * Input Parameters:
@@ -113,6 +113,7 @@ int passwd_deluser(FAR const char *username);
  ****************************************************************************/
 
 int passwd_update(FAR const char *username, FAR const char *password);
+
 #endif /* CONFIG_FS_WRITABLE && CONFIG_FSUTILS_PASSWD_READONLY */
 
 /****************************************************************************

@@ -51,6 +51,7 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* This should be better protected */
 
 static uint32_t g_tea_key[4] =
@@ -75,7 +76,7 @@ static uint32_t g_tea_key[4] =
  *   binary - 5 bit value
  *
  * Returned Value:
- *   The ASCII base64 character
+ *   The ASCII base64 character.  Must not return the field delimiter ':'
  *
  ****************************************************************************/
 

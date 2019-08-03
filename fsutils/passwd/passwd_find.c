@@ -68,11 +68,10 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
 {
   FAR char *iobuffer;
   FAR char *name;
-  FAR char *src;
-  FAR char *dest;
+  FAR char *encrypted;
+  FAR char *ptr;
   FILE *stream;
   off_t offset;
-  int enclen;
   int ret;
 
   /* Allocate an I/O buffer for the transfer */
@@ -95,6 +94,17 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
 
   /* Read the password file line by line until the record with the matching
    * username is found, or until the end of the file is reached.
+   *
+   * The format of the password file is:
+   *
+   *   user:x:uid:gid:home
+   *
+   * Where:
+   *   user:  User name
+   *   x:     Encrypted password
+   *   uid:   User ID
+   *   gid:   Group ID
+   *   home:  Login directory
    */
 
   offset = 0;
@@ -102,38 +112,39 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
 
   while (fgets(iobuffer, CONFIG_FSUTILS_PASSWD_IOBUFFER_SIZE, stream) != NULL)
     {
-      /* Skip over any leading whitespace */
+      ptr  = iobuffer;
+      name = ptr;
 
-      for (src = iobuffer; *src && isspace((int)*src); src++);
-      if (*src == '\0')
+      /* Skip to the end of the name and properly terminate it,.  The name
+       * must be terminated with the field delimiter ':'.
+       */
+
+      for (; *ptr != '\0' && *ptr != ':'; ptr++);
+      if (*ptr == '\0')
         {
           /* Bad file format? */
 
           continue;
         }
 
-      name = src;
-
-      /* Skip to the end of the name and properly terminate it */
-
-      for (; *src && !isspace((int)*src); src++);
-      if (*src == '\0')
-        {
-          /* Bad file format? */
-
-          continue;
-        }
-
-      *src++ = '\0';
+      *ptr++ = '\0';
 
       /* Check for a username match */
 
       if (strcmp(username, name) == 0)
         {
-          /* We have a match, skip over any whitespace after the user name */
+          /* We have a match.  The encrypted password must immediately
+           * follow the ':' delimiter.
+           */
 
-          for (; *src && isspace((int)*src); src++);
-          if (*src == '\0')
+          encrypted = ptr;
+
+          /* Skip to the end of the encrypted password and properly
+           * terminate it.
+           */
+
+          for (; *ptr != '\0' && *ptr != ':'; ptr++);
+          if (*ptr == '\0')
             {
               /* Bad file format? */
 
@@ -141,25 +152,20 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
               break;
             }
 
+          *ptr++ = '\0';
+
           /* Copy the offset and password into the returned structure */
 
-          passwd->offset = offset;
-          dest = passwd->encrypted;
-          enclen = 0;
-
-          while (*src && !isspace((int)*src) && enclen < MAX_ENCRYPTED)
-            {
-              *dest++ = *src++;
-              enclen++;
-            }
-
-          if (enclen >= MAX_ENCRYPTED)
+          if (strlen(encrypted) >= MAX_ENCRYPTED)
             {
               ret = -E2BIG;
               break;
             }
 
-          *dest = '\0';
+          passwd->offset = offset;
+          strncpy(passwd->encrypted, encrypted, MAX_ENCRYPTED);
+          passwd->encrypted[MAX_ENCRYPTED] = '\0';
+
           ret = OK;
           break;
         }
