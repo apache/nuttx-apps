@@ -39,11 +39,18 @@
 
 #include <nuttx/config.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
+
+/****************************************************************************
+ * Pre-processor definitions
+ ****************************************************************************/
+
+#define IOBUFFER_SIZE (196)
 
 /****************************************************************************
  * Private Functions
@@ -84,10 +91,31 @@ static void show_pwd(FAR struct passwd *pwd)
 
 static void show_grp(FAR struct group *grp)
 {
-  printf("Name:   %s\n", grp->gr_name);
-  printf("Passwd: %d\n", grp->gr_passwd);
-  printf("GID:    %d\n", grp->gr_gid);
-  printf("Mem:    %s\n", grp->gr_mem);
+  printf("Name:    %s\n", grp->gr_name);
+  printf("Passwd:  %s\n", grp->gr_passwd);
+  printf("GID:     %d\n", grp->gr_gid);
+
+  printf("Members: ");
+  if (grp->gr_mem != NULL)
+    {
+      bool first = true;
+      int i;
+
+      for (i = 0; grp->gr_mem[i] != NULL; i++)
+        {
+          if (first)
+            {
+              printf("%s", grp->gr_mem[i]);
+              first = false;
+            }
+          else
+            {
+              printf(", %s", grp->gr_mem[i]);
+            }
+        }
+
+      putchar('\n');
+    }
 }
 
 /****************************************************************************
@@ -98,10 +126,10 @@ static void show_user_by_id(uid_t uid)
 {
   FAR struct passwd *result;
   struct passwd pwd;
-  char buffer[80];
+  char buffer[IOBUFFER_SIZE];
   int ret;
 
-  ret = getpwuid_r(uid, &pwd, buffer, 80, &result);
+  ret = getpwuid_r(uid, &pwd, buffer, IOBUFFER_SIZE, &result);
   if (ret != 0)
     {
       fprintf(stderr, "ERPOR: getpwuid_r failed: %d\n", ret);
@@ -124,10 +152,10 @@ static void show_user_by_name(FAR const char *uname)
 {
   FAR struct passwd *result;
   struct passwd pwd;
-  char buffer[80];
+  char buffer[IOBUFFER_SIZE];
   int ret;
 
-  ret = getpwnam_r(uname, &pwd, buffer, 80, &result);
+  ret = getpwnam_r(uname, &pwd, buffer, IOBUFFER_SIZE, &result);
   if (ret != 0)
     {
       fprintf(stderr, "ERPOR: getpwnam_r failed: %d\n", ret);
@@ -150,10 +178,10 @@ static void show_group_by_id(gid_t gid)
 {
   FAR struct group *result;
   struct group grp;
-  char buffer[80];
+  char buffer[IOBUFFER_SIZE];
   int ret;
 
-  ret = getgrgid_r(gid, &grp, buffer, 80, &result);
+  ret = getgrgid_r(gid, &grp, buffer, IOBUFFER_SIZE, &result);
   if (ret != 0)
     {
       fprintf(stderr, "ERPOR: getgrgid_r failed: %d\n", ret);
@@ -176,10 +204,10 @@ static void show_group_by_name(FAR const char *gname)
 {
   FAR struct group *result;
   struct group grp;
-  char buffer[80];
+  char buffer[IOBUFFER_SIZE];
   int ret;
 
-  ret = getgrnam_r(gname, &grp, buffer, 80, &result);
+  ret = getgrnam_r(gname, &grp, buffer, IOBUFFER_SIZE, &result);
   if (ret != 0)
     {
       fprintf(stderr, "ERPOR: getgrnam_r failed: %d\n", ret);
