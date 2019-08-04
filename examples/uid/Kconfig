@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UID
+	tristate "UID/GID example"
+	default n
+	---help---
+		Enable the UID/GID example
+
+if EXAMPLES_UID
+
+config EXAMPLES_UID_PROGNAME
+	string "Program name"
+	default "uid"
+	depends on BUILD_LOADABLE
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_UID_PRIORITY
+	int "UID/GID task priority"
+	default 100
+
+config EXAMPLES_UID_STACKSIZE
+	int "UID/GID stack size"
+	default 2048
+
+endif
