@@ -1544,7 +1544,7 @@ NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   The behavior of NSH can be modified with the following settings in
-  the boards/<board-name>/defconfig file:
+  the boards/<board-name>/configs/<config>/defconfig file:
 
   * CONFIG_NSH_READLINE
       Selects the minimal implementation of readline().  This minimal

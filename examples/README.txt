@@ -5,8 +5,9 @@ examples
 
     The examples directory contains several sample applications that
     can be linked with NuttX.  The specific example is selected in the
-    boards/<board-name>/defconfig file via the CONFIG_EXAMPLES_xyz
-    setting where xyz is the name of the example. For example,
+    boards/<board-name>/configs/<config>/defconfig file via thei
+    CONFIG_EXAMPLES_xyz setting where xyz is the name of the example.
+    For example,
 
       CONFIG_EXAMPLES_HELLO=y
 
@@ -411,7 +412,7 @@ examples/ft80x
 
   This examples has ports of several FTDI demos for the FTDI/BridgeTek FT80x
   GUI chip.  As an example configuration, see
-  nuttx/boards/viewtool-stm32f107/ft80x/defconfig.
+  nuttx/boards/viewtool-stm32f107/configs/ft80x/defconfig.
 
 examples/ftpc
 ^^^^^^^^^^^^^
