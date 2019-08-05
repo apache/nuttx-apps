@@ -168,9 +168,9 @@ A: Here are three:
       You can copy any pieces that you like from the old apps/directory
       to your custom apps directory as necessary.
 
-      This is documented in NuttX/configs/README.txt and
+      This is documented in NuttX/boards/README.txt and
       nuttx/Documentation/NuttxPortingGuide.html (Online at
-      https://bitbucket.org/nuttx/documentation/src/master/NuttxPortingGuide.html#apndxconfigs
+      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttxPortingGuide.html#apndxconfigs
       under Build options). And in the apps/README.txt file.
 
    3) If you like the random collection of stuff in the apps/ directory
@@ -212,7 +212,7 @@ A: Here are three:
       installs a custom application, configuration, and board specific
       directory:
 
-        a) Copy 'MyBoard' directory to configs/MyBoard.
+        a) Copy 'MyBoard' directory to boards/MyBoard.
         b) Add a symbolic link to MyApplication at apps/external
         c) Configure NuttX (usually by:
 

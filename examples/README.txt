@@ -5,7 +5,7 @@ examples
 
     The examples directory contains several sample applications that
     can be linked with NuttX.  The specific example is selected in the
-    configs/<board-name>/defconfig file via the CONFIG_EXAMPLES_xyz
+    boards/<board-name>/defconfig file via the CONFIG_EXAMPLES_xyz
     setting where xyz is the name of the example. For example,
 
       CONFIG_EXAMPLES_HELLO=y
@@ -411,7 +411,7 @@ examples/ft80x
 
   This examples has ports of several FTDI demos for the FTDI/BridgeTek FT80x
   GUI chip.  As an example configuration, see
-  nuttx/configs/viewtool-stm32f107/ft80x/defconfig.
+  nuttx/boards/viewtool-stm32f107/ft80x/defconfig.
 
 examples/ftpc
 ^^^^^^^^^^^^^
@@ -1738,7 +1738,7 @@ examples/thttpd
 ^^^^^^^^^^^^^^^
 
   An example that builds netutils/thttpd with some simple NXFLAT
-  CGI programs.  see configs/README.txt for most THTTPD settings.
+  CGI programs.  see boards/README.txt for most THTTPD settings.
   In addition to those, this example accepts:
 
     CONFIG_EXAMPLES_THTTPD_NOMAC    - (May be defined to use software assigned MAC)
@@ -1888,7 +1888,7 @@ examples/unionfs
     CONFIG_EXAMPLES_UNIONFS_RAMDEVNO_B - ROMFS file system 2 RAM disk device number
     CONFIG_EXAMPLES_UNIONFS_SECTORSIZE - ROM disk sector size.
 
-  See the README.txt file at nuttx/configs/sim/README.txt for a walk-through of
+  See the README.txt file at nuttx/boards/sim/README.txt for a walk-through of
   the output of this text.
 
 examples/usbserial

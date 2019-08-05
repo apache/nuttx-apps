@@ -517,7 +517,7 @@
 #endif
 
 /* The size of the I/O buffer may be specified in the
- * configs/<board-name>defconfig file -- provided that it is at least as
+ * boards/<board-name>defconfig file -- provided that it is at least as
  * large as PATH_MAX.
  */
 

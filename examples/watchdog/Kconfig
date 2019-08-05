@@ -11,7 +11,7 @@ config EXAMPLES_WATCHDOG
 
 		In order to use this example, board specific logic must register the
 		watchdog timer driver.  That would be in the board bring-up logic
-		in the configs/<board>/src directory for the board.
+		in the boards/<board>/src directory for the board.
 
 		The way that this is done depends on the underlying MCU architecture.
 		For STM32, this would be done like:

@@ -210,7 +210,7 @@ Status
 ======
     2013-7-15: Testing against the Linux rz/sz commands.
 
-      I have tested with the configs/olimex-lpc1766stk configuration.  I
+      I have tested with the boards/olimex-lpc1766stk configuration.  I
       have been able to send large and small files with the target sz
       command. I have been able to receive small files, but there are
       problems receiving large files using the Linux sz command:  The

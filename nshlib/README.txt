@@ -252,9 +252,9 @@ NOTE:
    apps/nshlib/rcS.template generates the standard, default
    nsh_romfsimg.h file.  If CONFIG_NSH_ARCHROMFS is defined
    in the NuttX configuration file, then a custom, board-specific
-   nsh_romfsimg.h file residing in configs/<board>/include will be
+   nsh_romfsimg.h file residing in boards/<board>/include will be
    used.  NOTE when the OS is configured, include/arch/board will
-   be linked to configs/<board>/include.
+   be linked to boards/<board>/include.
 
 All of the startup-behavior is contained in rcS.template.  The
 role of mkromfsimg.sh is to (1) apply the specific configuration
@@ -1544,7 +1544,7 @@ NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   The behavior of NSH can be modified with the following settings in
-  the configs/<board-name>/defconfig file:
+  the boards/<board-name>/defconfig file:
 
   * CONFIG_NSH_READLINE
       Selects the minimal implementation of readline().  This minimal
