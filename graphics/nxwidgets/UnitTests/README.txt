@@ -46,8 +46,7 @@ Installing and Building the Unit Tests
 
      cd <nuttx-directory-path>
      make distclean
-     cd tools
-     ./configure.sh sim/nsh2
+     tools/configure.sh sim:nsh2
 
    Where:
 

@@ -44,7 +44,7 @@ ways to do that:
    like:  make APPDIR=<path> or make CONFIG_APPS_DIR=<path>
 3) When you configure NuttX using tools/configure.sh, you can provide that
    path to the application directory on the configuration command line
-   like: ./configure.sh -a <app-dir> <board-name>/<config-name>
+   like: ./configure.sh -a <app-dir> <board-name>:<config-name>
 
 Built-In Applications
 ---------------------
@@ -216,7 +216,7 @@ A: Here are three:
         b) Add a symbolic link to MyApplication at apps/external
         c) Configure NuttX (usually by:
 
-           tools/configure.sh MyBoard/MyConfiguration
+           tools/configure.sh MyBoard:MyConfiguration
 
       Use of the name ''apps/external'' is suggested because that name
       is included in the .gitignore file and will save you some nuisance

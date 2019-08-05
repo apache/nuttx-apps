@@ -13,7 +13,7 @@ Build instuctions
   configurations (such as color format).
 
     1. cd nuttx/tools
-       ./configure.sh sim/traveler (for example)
+       ./configure.sh sim:traveler (for example)
     2. cd ..
        tools/sethost.sh -w or -l
        make context
