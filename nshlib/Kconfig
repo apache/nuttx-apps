@@ -806,7 +806,7 @@ config NSH_ARCHROMFS
 	---help---
 		Enable this option to provide an architecture-specific ROMFS
 		header at arch/<boardname>/nsh_romfsimg.h.  Note that this header
-		will be linked (or copied) from nuttx/boards/<boardname>/include
+		will be linked (or copied) from nuttx/boards/<arch>/<chip>/<board>/include
 		and should be stored at that location in the nuttx boards/
 		sub-directory.
 

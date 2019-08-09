@@ -11,8 +11,8 @@ system/usbmsc
   boarctl BOARDIOC_USBDEV_CONTROL command in order to do the actual
   registration of the block device drivers.  For examples of the
   implementation of board_usbmsc_initialize() see
-  boards/mcu123-lpc124x/src/up_usbmsc.c or
-  boards/stm3210e-eval/src/usbmsc.c
+  boards/arm/lpc214x/mcu123-lpc214x/src/up_usbmsc.c or
+  boards/arm/stm32/stm3210e-eval/src/usbmsc.c
 
   Configuration options:
 

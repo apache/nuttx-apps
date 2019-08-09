@@ -119,7 +119,7 @@ Echo    Menu description
 Echo  -o ^<kconfig-file^>:
 Echo    Identifies the specific configuratin for the selected ^<board-name^>.
 Echo    This must correspond to a sub-directory under the board directory at
-Echo    under nuttx/boards/^<board-name^>/.
+Echo    under nuttx/boards/^<arch^>/^<chip^>/^<board^>/.
 Echo  ^<-h^>:
 Echo    Prints this message and exits.
 

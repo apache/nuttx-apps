@@ -517,8 +517,8 @@
 #endif
 
 /* The size of the I/O buffer may be specified in the
- * boards/<board-name>/configs/<config>defconfig file -- provided that it is
- * at least as large as PATH_MAX.
+ * boards/<arch>/<chip>/<board>/configs/<config>defconfig file -- provided
+ * that it is at least as large as PATH_MAX.
  */
 
 #define NSH_HAVE_IOBUFFER 1

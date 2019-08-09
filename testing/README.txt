@@ -81,7 +81,8 @@ testing/ostest
   as of this writing, but it is used to qualify each NuttX release.
 
   The behavior of the ostest can be modified with the following
-  settings in the boards/<board-name>/configs/<config>/defconfig file:
+  settings in the boards/<arch>/<chip>/<board>/configs/<config>/defconfig
+  file:
 
   * CONFIG_NSH_BUILTIN_APPS
       Build the OS test example as an NSH built-in application.
