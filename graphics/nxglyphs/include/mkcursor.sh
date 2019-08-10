@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # apps/graphics/nxglyphs/inlclude/mkcursor.sh
 #
 #   Copyright (C) 2019 Gregory Nutt. All rights reserved.

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # set -x
 
 usage="Usage: $0 <test-dir-path>"

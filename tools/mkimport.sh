@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # apps/tools/mkimport.sh
 #
 #   Copyright (C) 2014 Gregory Nutt. All rights reserved.

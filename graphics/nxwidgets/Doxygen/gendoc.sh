@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #################################################################################
 # apps/graphics/nxwidgets/Doxygen/gendoc.sh
 #
