@@ -150,6 +150,10 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           i8sak_cmd_error(i8sak);
         }
     }
+  else if (strcmp(argv[argind], "ep_panid") == 0)
+    {
+      i8sak_str2panid(argv[argind + 1], i8sak->ep_addr.panid);
+    }
   else if (strcmp(argv[argind], "ep_saddr") == 0)
     {
       i8sak_str2saddr(argv[argind + 1], i8sak->ep_addr.saddr);
