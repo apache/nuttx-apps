@@ -227,4 +227,15 @@ int sixlowpan_getmaxretries(int sock, FAR const char *ifname, FAR uint8_t *retri
   return ret;
 }
 
+int sixlowpan_getfcslen(int sock, FAR const char *ifname, FAR uint8_t *fcslen)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
 
+  req.attr = IEEE802154_ATTR_PHY_FCS_LEN;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  *fcslen = req.attrval.phy.fcslen;
+
+  return ret;
+}

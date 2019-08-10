@@ -165,3 +165,13 @@ int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries)
 
   return sixlowpan_set_req(sock, ifname, &req);
 }
+
+int sixlowpan_setfcslen(int sock, FAR const char *ifname, uint8_t fcslen)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_PHY_FCS_LEN;
+  req.attrval.phy.fcslen = fcslen;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}

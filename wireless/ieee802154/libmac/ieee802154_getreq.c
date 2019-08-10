@@ -209,3 +209,16 @@ int ieee802154_getmaxretries(int fd, FAR uint8_t *retries)
   return ret;
 }
 
+int ieee802154_getfcslen(int fd, FAR uint8_t *fcslen)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_PHY_FCS_LEN;
+  ret = ieee802154_get_req(fd, &req);
+
+  *fcslen = req.attrval.phy.fcslen;
+
+  return ret;
+}
+
