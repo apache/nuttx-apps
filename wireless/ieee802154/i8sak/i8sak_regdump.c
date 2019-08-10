@@ -98,7 +98,7 @@ void i8sak_regdump_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  req.attr = IEEE802154_ATTR_RADIO_REGDUMP;
+  req.attr = IEEE802154_ATTR_PHY_REGDUMP;
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
     {
