@@ -12,6 +12,14 @@ config IEEE802154_I8SHARK
 
 if IEEE802154_I8SHARK
 
+config IEEE802154_I8SHARK_DAEMON_PRIORITY
+	int "i8shark task priority"
+	default 100
+
+config IEEE802154_I8SHARK_DAEMON_STACKSIZE
+	int "i8shark stack size"
+	default 2048
+
 config IEEE802154_I8SHARK_DEVPATH
 	string "MAC char driver path"
 	default "/dev/ieee0"
@@ -21,6 +29,17 @@ config IEEE802154_I8SHARK_DEVPATH
 config IEEE802154_I8SHARK_HOST_IPADDR
 	hex "Host IP address where Wireshark is running"
 	default 0x0a000001
+
+config IEEE802154_I8SHARK_SUPPRESS_FCS
+	bool "Suppress passing FCS to Wireshark"
+	default n
+	---help---
+		The current Wireshark disector does not continue processing a frame, aka
+		6LoWPAN processing, if the FCS is incorrect. Furthermore, the FCS length
+		in the disector is hard-coded to be 2 bytes. Some PHY implement different
+		length FCS. However, Wireshark will ignore the FCS checking if an FCS is
+		not provided. This option intentionally excludes the last n bytes of the
+		frame where n is the FCS length of the current radio settings.
 
 config IEEE802154_I8SHARK_XBEE_APPHDR
 	bool "XBee App Header compensation"
