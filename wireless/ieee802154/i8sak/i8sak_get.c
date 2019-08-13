@@ -349,7 +349,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
               sixlowpan_getmaxretries(fd, i8sak->ifname, &u.attr.mac.max_retries);
-              printf("i8sak: Transmit Power: %d\n", (int)u.attr.mac.max_retries);
+              printf("i8sak: Max Retries: %d\n", (int)u.attr.mac.max_retries);
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {

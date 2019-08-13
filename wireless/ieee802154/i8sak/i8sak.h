@@ -262,36 +262,31 @@ static inline void i8sak_cmd_error(FAR struct i8sak_s *i8sak)
 #ifdef CONFIG_NET_6LOWPAN
 static inline void i8sak_update_ep_ip(FAR struct i8sak_s *i8sak)
 {
+  i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[0] = HTONS(0xfe80);
+  i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[1] = 0;
+  i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[2] = 0;
+  i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
+
   if (i8sak->ep_addr.mode == IEEE802154_ADDRMODE_EXTENDED)
     {
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[0] = HTONS(0xfe80);
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[1] = 0;
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[2] = 0;
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] =
-        ((uint16_t)i8sak->ep_addr.eaddr[0] << 8 | (uint16_t)i8sak->ep_addr.eaddr[1]);
+     i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] =
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[0] << 8 | (uint16_t)i8sak->ep_addr.eaddr[1]));
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] =
-        ((uint16_t)i8sak->ep_addr.eaddr[2] << 8 | (uint16_t)i8sak->ep_addr.eaddr[3]);
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[2] << 8 | (uint16_t)i8sak->ep_addr.eaddr[3]));
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] =
-        ((uint16_t)i8sak->ep_addr.eaddr[4] << 8 | (uint16_t)i8sak->ep_addr.eaddr[5]);
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[4] << 8 | (uint16_t)i8sak->ep_addr.eaddr[5]));
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
-        ((uint16_t)i8sak->ep_addr.eaddr[6] << 8 | (uint16_t)i8sak->ep_addr.eaddr[7]);
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[6] << 8 | (uint16_t)i8sak->ep_addr.eaddr[7]));
 
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] ^= 0x200;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] ^= HTONS(0x0200);
     }
   else
     {
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[0] = HTONS(0xfe80);
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[1] = 0;
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[2] = 0;
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] = 0;
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] = HTONS(0x00ff);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] = HTONS(0xfe00);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
         ((uint16_t)i8sak->ep_addr.saddr[0] << 8 | (uint16_t)i8sak->ep_addr.saddr[1]);
-
-      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] ^= 0x200;
     }
 }
 #endif
