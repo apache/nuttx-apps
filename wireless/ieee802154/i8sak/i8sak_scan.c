@@ -232,31 +232,46 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void 
         break;
     }
 
-  /* Copy the results from the notification */
-
-  i8sak->npandesc = scan->numdesc;
-  memcpy(i8sak->pandescs, scan->pandescs,
-         sizeof(struct ieee802154_pandesc_s) * i8sak->npandesc);
-
   printf("Scan results: \n");
 
-  for (i = 0; i < scan->numdesc; i++)
+  if (scan->type == IEEE802154_SCANTYPE_ACTIVE || scan->type == IEEE802154_SCANTYPE_PASSIVE)
     {
-      printf("Result %d\n", i);
-      printf("    Channel: %u\n", scan->pandescs[i].chan);
+      /* Copy the results from the notification */
 
-      printf("    PAN ID: "
-             PRINTF_FORMAT_PANID(scan->pandescs[i].coordaddr.panid));
+      i8sak->npandesc = scan->numresults;
+      memcpy(i8sak->pandescs, scan->pandescs,
+             sizeof(struct ieee802154_pandesc_s) * i8sak->npandesc);
 
-      if (scan->pandescs[i].coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
+      /* Print the results out */
+
+      for (i = 0; i < scan->numresults; i++)
         {
-          printf("    Coordinator Short Address: "
-                 PRINTF_FORMAT_SADDR(scan->pandescs[i].coordaddr.saddr));
+          printf("Result %d\n", i);
+          printf("    Channel: %u\n", scan->pandescs[i].chan);
+          printf("    PAN ID: "
+                 PRINTF_FORMAT_PANID(scan->pandescs[i].coordaddr.panid));
+
+          if (scan->pandescs[i].coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
+            {
+              printf("    Coordinator Short Address: "
+                     PRINTF_FORMAT_SADDR(scan->pandescs[i].coordaddr.saddr));
+            }
+          else
+            {
+              printf("    Coordinator Extended Address: "
+                     PRINTF_FORMAT_EADDR(scan->pandescs[i].coordaddr.eaddr));
+            }
         }
-      else
+    }
+
+  if (scan->type == IEEE802154_SCANTYPE_ED)
+    {
+      /* Print the results out */
+
+      for (i=0; i < scan->numresults; i++)
         {
-          printf("    Coordinator Extended Address: "
-                 PRINTF_FORMAT_EADDR(scan->pandescs[i].coordaddr.eaddr));
+          printf("Result %d\n", i);
+          printf("    Channel: %u Energy: %d\n", scan->chlist[i], scan->edlist[i]);
         }
     }
 
