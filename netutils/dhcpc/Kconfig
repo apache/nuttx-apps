@@ -12,4 +12,8 @@ config NETUTILS_DHCPC
 
 if NETUTILS_DHCPC
 
+config NETUTILS_DHCPC_HOST_NAME
+	string "DHCP client host name"
+	default "nuttx"
+
 endif

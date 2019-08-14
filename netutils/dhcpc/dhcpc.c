@@ -93,6 +93,7 @@
 #define DHCP_OPTION_SUBNET_MASK 1
 #define DHCP_OPTION_ROUTER      3
 #define DHCP_OPTION_DNS_SERVER  6
+#define DHCP_OPTION_HOST_NAME   12
 #define DHCP_OPTION_REQ_IPADDR  50
 #define DHCP_OPTION_LEASE_TIME  51
 #define DHCP_OPTION_MSG_TYPE    53
@@ -152,6 +153,16 @@ static const uint8_t magic_cookie[4] = {99, 130, 83, 99};
 /****************************************************************************
  * Name: dhcpc_add<option>
  ****************************************************************************/
+
+static FAR uint8_t *dhcpc_addhostname(FAR const char *hostname,
+                                      FAR uint8_t *optptr)
+{
+  int len = strlen(hostname);
+  *optptr++ = DHCP_OPTION_HOST_NAME;
+  *optptr++ = len;
+  memcpy(optptr, hostname, len);
+  return optptr + len;
+}
 
 static FAR uint8_t *dhcpc_addmsgtype(FAR uint8_t *optptr, uint8_t type)
 {
@@ -235,6 +246,8 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          */
 
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+
+        pend     = dhcpc_addhostname(CONFIG_NETUTILS_DHCPC_HOST_NAME, pend);
         pend     = dhcpc_addreqoptions(pend);
         break;
 
@@ -246,6 +259,8 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          */
 
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+
+        pend     = dhcpc_addhostname(CONFIG_NETUTILS_DHCPC_HOST_NAME, pend);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
         pend     = dhcpc_addreqipaddr(&pdhcpc->ipaddr, pend);
         break;
