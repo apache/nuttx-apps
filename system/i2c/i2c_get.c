@@ -182,38 +182,64 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
 
   /* Set up data structures */
 
-  msg[0].frequency = i2ctool->freq;
-  msg[0].addr      = i2ctool->addr;
-  msg[0].flags     = I2C_M_NOSTOP;
-  msg[0].buffer    = &regaddr;
-  msg[0].length    = 1;
-
-  msg[1].frequency = i2ctool->freq;
-  msg[1].addr      = i2ctool->addr;
-  msg[1].flags     = I2C_M_READ;
-
-  if (i2ctool->width == 8)
+  if (i2ctool->hasregindx)
     {
-      msg[1].buffer = &u.data8;
-      msg[1].length = 1;
-    }
-  else
-    {
-      msg[1].buffer = (uint8_t*)&u.data16;
-      msg[1].length = 2;
-    }
+      msg[0].frequency = i2ctool->freq;
+      msg[0].addr      = i2ctool->addr;
+      msg[0].flags     = I2C_M_NOSTOP;
+      msg[0].buffer    = &regaddr;
+      msg[0].length    = 1;
 
-  if (i2ctool->start)
-    {
-      ret = i2cdev_transfer(fd, &msg[0], 1);
-      if (ret== OK)
+      msg[1].frequency = i2ctool->freq;
+      msg[1].addr      = i2ctool->addr;
+      msg[1].flags     = I2C_M_READ;
+
+      if (i2ctool->width == 8)
         {
-          ret = i2cdev_transfer(fd, &msg[1], 1);
+          msg[1].buffer = &u.data8;
+          msg[1].length = 1;
+        }
+      else
+        {
+          msg[1].buffer = (uint8_t*)&u.data16;
+          msg[1].length = 2;
+        }
+
+      if (i2ctool->start)
+        {
+          ret = i2cdev_transfer(fd, &msg[0], 1);
+          if (ret== OK)
+            {
+              ret = i2cdev_transfer(fd, &msg[1], 1);
+            }
+        }
+      else
+        {
+          ret = i2cdev_transfer(fd, msg, 2);
         }
     }
   else
     {
-      ret = i2cdev_transfer(fd, msg, 2);
+      /* no register index "-r" has been specified so
+       * we do a pure read (no write of index)
+       */
+
+      msg[0].frequency = i2ctool->freq;
+      msg[0].addr      = i2ctool->addr;
+      msg[0].flags     = I2C_M_READ;
+
+      if (i2ctool->width == 8)
+        {
+          msg[0].buffer = &u.data8;
+          msg[0].length = 1;
+        }
+      else
+        {
+          msg[0].buffer = (uint8_t*)&u.data16;
+          msg[0].length = 2;
+        }
+
+      ret = i2cdev_transfer(fd, msg, 1);
     }
 
   /* Return the result of the read operation */

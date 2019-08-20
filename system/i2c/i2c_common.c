@@ -171,6 +171,7 @@ int i2ctool_common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
           }
 
         i2ctool->regaddr = (uint8_t)value;
+        i2ctool->hasregindx = true;
         return ret;
 
       case 's':

@@ -55,14 +55,8 @@
 
 int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  struct i2c_msg_s msg[2];
+  struct i2c_msg_s msg;
   FAR char *ptr;
-  union
-  {
-    uint16_t data16;
-    uint8_t  data8;
-  } u;
-
   uint8_t regaddr;
   uint8_t saveaddr;
   long first;
@@ -163,41 +157,15 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           /* Set up data structures */
 
-          regaddr          = i2ctool->regaddr;
+          regaddr       = i2ctool->regaddr;
 
-          msg[0].frequency = i2ctool->freq;
-          msg[0].addr      = addr;
-          msg[0].flags     = I2C_M_NOSTOP;
-          msg[0].buffer    = &regaddr;
-          msg[0].length    = 1;
+          msg.frequency = i2ctool->freq;
+          msg.addr      = addr;
+          msg.flags     = I2C_M_READ;
+          msg.buffer    = &regaddr;
+          msg.length    = 1;
 
-          msg[1].frequency = i2ctool->freq;
-          msg[1].addr      = addr;
-          msg[1].flags     = I2C_M_READ;
-
-          if (i2ctool->width == 8)
-            {
-              msg[1].buffer = &u.data8;
-              msg[1].length = 1;
-            }
-          else
-            {
-              msg[1].buffer = (uint8_t*)&u.data16;
-              msg[1].length = 2;
-            }
-
-          if (i2ctool->start)
-            {
-              ret = i2cdev_transfer(fd, &msg[0], 1);
-              if (ret == OK)
-                {
-                  ret = i2cdev_transfer(fd, &msg[1], 1);
-                }
-            }
-          else
-            {
-              ret = i2cdev_transfer(fd, msg, 2);
-            }
+          ret = i2cdev_transfer(fd, &msg, 1);
 
           if (ret == OK)
             {
@@ -207,6 +175,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
             {
               i2ctool_printf(i2ctool, "-- ");
             }
+          i2ctool_flush(i2ctool);
         }
 
       i2ctool_printf(i2ctool, "\n");

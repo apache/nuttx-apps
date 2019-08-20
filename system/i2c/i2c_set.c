@@ -207,43 +207,72 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
   } u;
   int ret;
 
-  /* Set up data structures */
 
-  msg[0].frequency = i2ctool->freq;
-  msg[0].addr      = i2ctool->addr;
-  msg[0].flags     = I2C_M_NOSTOP;
-  msg[0].buffer    = &regaddr;
-  msg[0].length    = 1;
-
-  msg[1].frequency = i2ctool->freq;
-  msg[1].addr      = i2ctool->addr;
-  msg[1].flags     = 0;
-
-  if (i2ctool->width == 8)
+  if (i2ctool->hasregindx)
     {
-      u.data8       = (uint8_t)value;
-      msg[1].buffer = &u.data8;
-      msg[1].length = 1;
-    }
-  else
-    {
-      u.data16      = value;
-      msg[1].buffer = (uint8_t*)&u.data16;
-      msg[1].length = 2;
-    }
+      /* Set up data structures */
 
-  if (i2ctool->start)
-    {
-      ret = i2cdev_transfer(fd, &msg[0], 1);
-      if (ret == OK)
+      msg[0].frequency = i2ctool->freq;
+      msg[0].addr      = i2ctool->addr;
+      msg[0].flags     = I2C_M_NOSTOP;
+      msg[0].buffer    = &regaddr;
+      msg[0].length    = 1;
+
+      msg[1].frequency = i2ctool->freq;
+      msg[1].addr      = i2ctool->addr;
+      msg[1].flags     = 0;
+
+      if (i2ctool->width == 8)
         {
-          ret = i2cdev_transfer(fd, &msg[1], 1);
+          u.data8       = (uint8_t)value;
+          msg[1].buffer = &u.data8;
+          msg[1].length = 1;
+        }
+      else
+        {
+          u.data16      = value;
+          msg[1].buffer = (uint8_t*)&u.data16;
+          msg[1].length = 2;
+        }
+
+      if (i2ctool->start)
+        {
+          ret = i2cdev_transfer(fd, &msg[0], 1);
+          if (ret == OK)
+            {
+              ret = i2cdev_transfer(fd, &msg[1], 1);
+            }
+        }
+      else
+        {
+          msg[1].flags |= I2C_M_NOSTART;
+          ret = i2cdev_transfer(fd, msg, 2);
         }
     }
   else
     {
-      msg[1].flags |= I2C_M_NOSTART;
-      ret = i2cdev_transfer(fd, msg, 2);
+      /* no register index "-r" has been specified so
+       * we don't send a register index, just do the write
+       */
+
+      msg[0].frequency = i2ctool->freq;
+      msg[0].addr      = i2ctool->addr;
+      msg[0].flags     = 0;
+
+      if (i2ctool->width == 8)
+        {
+          u.data8       = (uint8_t)value;
+          msg[0].buffer = &u.data8;
+          msg[0].length = 1;
+        }
+      else
+        {
+          u.data16      = value;
+          msg[0].buffer = (uint8_t*)&u.data16;
+          msg[0].length = 2;
+        }
+
+      ret = i2cdev_transfer(fd, msg, 1);
     }
 
   return ret;

@@ -140,6 +140,7 @@ struct i2ctool_s
   uint8_t  width;      /* [-w width] is the data width (8 or 16) */
   bool     start;      /* [-s|n], send|don't send start between command and data */
   bool     autoincr;   /* [-i|j], Auto increment|don't increment regaddr on repititions */
+  bool     hasregindx; /* true with the use of -r */
   uint32_t freq;       /* [-f freq] I2C frequency */
 
   /* Output streams */
@@ -192,7 +193,7 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 
 /* I2C access functions */
 
-int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t addr,
+int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
                 FAR uint16_t *result);
 int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
                 uint16_t value);
