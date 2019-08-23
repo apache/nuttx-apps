@@ -37,7 +37,7 @@
 
 # Source and object files
 
-CSRCS = builtin_forindex.c builtin_list.c exec_builtin.c
+CSRCS = builtin_list.c exec_builtin.c
 
 # Registry entry lists
 

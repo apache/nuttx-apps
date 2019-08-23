@@ -2,7 +2,7 @@
  * apps/builtin/builtin_list.c
  *
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2019 Gregory Nutt. All rights reserved.
  *   Authors: Uros Platise <uros.platise@isotel.eu>
  *            Gregory Nutt <gnutt@nuttx.org>
  *
@@ -41,7 +41,7 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/binfmt/builtin.h>
+#include <nuttx/lib/builtin.h>
 
 /****************************************************************************
  * Private Types

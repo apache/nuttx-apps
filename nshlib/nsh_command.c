@@ -42,7 +42,7 @@
 #include <string.h>
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#  include <nuttx/binfmt/builtin.h>
+#  include <nuttx/lib/builtin.h>
 #endif
 
 #if defined(CONFIG_SYSTEM_READLINE) && defined(CONFIG_READLINE_HAVE_EXTMATCH)

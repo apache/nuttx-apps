@@ -48,7 +48,7 @@
 
 #include <nuttx/ascii.h>
 #include <nuttx/vt100.h>
-#include <nuttx/binfmt/builtin.h>
+#include <nuttx/lib/builtin.h>
 
 #include "system/readline.h"
 #include "readline.h"

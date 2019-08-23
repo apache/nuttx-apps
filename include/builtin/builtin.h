@@ -51,7 +51,7 @@
 
 #include <sys/types.h>
 
-#include <nuttx/binfmt/builtin.h>
+#include <nuttx/lib/builtin.h>
 
 /****************************************************************************
  * Pre-processor Definitions

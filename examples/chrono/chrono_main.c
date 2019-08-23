@@ -121,7 +121,6 @@ static int button_daemon(int argc, char *argv[])
   FAR struct slcd_chrono_s *priv = &g_slcd;
   struct btn_notify_s btnevents;
   btn_buttonset_t supported;
-  btn_buttonset_t sample = 0;
 
   int ret;
   int fd;
@@ -196,8 +195,6 @@ static int button_daemon(int argc, char *argv[])
           printf("button_daemon: ERROR: sigwaitinfo() failed: %d\n", errcode);
           goto errout_with_fd;
         }
-
-      sample = (btn_buttonset_t)value.si_value.sival_int;
 
       if (priv->state == CHRONO_STOPPED)
         {
