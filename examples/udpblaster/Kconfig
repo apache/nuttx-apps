@@ -17,7 +17,7 @@ config EXAMPLES_UDPBLASTER_PROGNAME
 	default "nettest"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the Nettest
+		This is the name of the program that will be used when the Nettest
 		program is installed.
 
 config EXAMPLES_UDPBLASTER_STACKSIZE

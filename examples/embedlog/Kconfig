@@ -28,7 +28,7 @@ config EXAMPLES_EMBEDLOG_PROGNAME
 	default "embedlog"
 	depends on BUILD_KERNEL
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config EXAMPLES_EMBEDLOG_PRIORITY

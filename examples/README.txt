@@ -80,7 +80,7 @@ examples/alarm
 
     CONFIG_EXAMPLES_ALARM - Enable the RTC driver alarm test
     CONFIG_EXAMPLES_ALARM_PROGNAME - If CONFIG_BUILD_LOADABLE=y, then this is
-      the name of the program that will be use when the NSH ELF program is
+      the name of the program that will be used when the NSH ELF program is
       installed.
     CONFIG_EXAMPLES_ALARM_PRIORITY - Alarm daemon priority
     CONFIG_EXAMPLES_ALARM_STACKSIZE - Alarm daemon stack size
@@ -1800,7 +1800,7 @@ examples/timer
     CONFIG_EXAMPLES_TIMER_PRIORITY - This is the priority of the timer task:
       Default: 100
     CONFIG_EXAMPLES_TIMER_PROGNAME - This is the name of the program that
-      will be use when the NSH ELF program is installed.  Default: "timer"
+      will be used when the NSH ELF program is installed.  Default: "timer"
 
 examples/touchscreen
 ^^^^^^^^^^^^^^^^^^^^

@@ -16,7 +16,7 @@ config EXAMPLES_ADXL372_TEST_PROGNAME
 	default "ADXL372_test"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config EXAMPLES_ADXL372_TEST_PRIORITY

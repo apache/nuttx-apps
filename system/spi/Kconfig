@@ -18,7 +18,7 @@ config SPITOOL_PROGNAME
 	default "hello"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the ELF
+		This is the name of the program that will be used when the ELF
 		program is installed.
 
 config SPITOOL_PRIORITY

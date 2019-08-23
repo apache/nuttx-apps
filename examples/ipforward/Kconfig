@@ -32,7 +32,7 @@ config EXAMPLES_IPFORWARD_PROGNAME
 	default "ipfwd"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config EXAMPLES_IPFORWARD_PRIORITY

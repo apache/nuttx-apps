@@ -69,7 +69,7 @@ config EXAMPLES_TIMER_PROGNAME
 	default "timer"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 endif

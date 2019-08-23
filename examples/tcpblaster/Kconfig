@@ -25,7 +25,7 @@ config EXAMPLES_TCPBLASTER_PROGNAME1
 	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
 	depends on BUILD_KERNEL
 	---help---
-		This is the name of the program that will be use when the TcpBlaster
+		This is the name of the program that will be used when the TcpBlaster
 		program is installed for target1.
 
 config EXAMPLES_TCPBLASTER_STACKSIZE1
@@ -92,7 +92,7 @@ config EXAMPLES_TCPBLASTER_PROGNAME2
 	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
 	depends on BUILD_KERNEL
 	---help---
-		This is the name of the Target2 program that will be use when the
+		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_TCPBLASTER_PRIORITY2

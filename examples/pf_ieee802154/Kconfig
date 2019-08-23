@@ -17,7 +17,7 @@ config EXAMPLES_PFIEEE802154_PROGNAME1
 	default "pfserver"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the Target1 program that will be use when the
+		This is the name of the Target1 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_PFIEEE802154_PRIORITY1
@@ -33,7 +33,7 @@ config EXAMPLES_PFIEEE802154_PROGNAME2
 	default "pfclient"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the Target2 program that will be use when the
+		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_PFIEEE802154_PRIORITY2

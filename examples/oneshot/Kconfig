@@ -59,7 +59,7 @@ config EXAMPLES_ONESHOT_PROGNAME
 	default "oneshot"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 endif

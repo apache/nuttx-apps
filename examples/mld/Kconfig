@@ -17,7 +17,7 @@ config EXAMPLES_MLD_PROGNAME
 	default "mld"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the NSH ELF
+		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config EXAMPLES_MLD_APPNAME
@@ -25,7 +25,7 @@ config EXAMPLES_MLD_APPNAME
 	default "mld"
 	depends on CONFIG_NSH_BUILTIN_APPS
 	---help---
-		This is the name of the application that will be use when running
+		This is the name of the application that will be used when running
 		from the NSH command line
 
 config EXAMPLES_MLD_PRIORITY

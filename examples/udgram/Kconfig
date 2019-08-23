@@ -42,7 +42,7 @@ config EXAMPLES_UDGRAM_SERVER_PROGNAME
     default "server"
     depends on BUILD_LOADABLE
     ---help---
-        This is the name of the program that will be use when the NSH ELF
+        This is the name of the program that will be used when the NSH ELF
         server program is installed.
 
 config EXAMPLES_UDGRAM_CLIENT_APPNAME
@@ -71,7 +71,7 @@ config EXAMPLES_UDGRAM_CLIENT_PROGNAME
     default "client"
     depends on BUILD_LOADABLE
     ---help---
-        This is the name of the program that will be use when the NSH ELF
+        This is the name of the program that will be used when the NSH ELF
         client program is installed.
 
 

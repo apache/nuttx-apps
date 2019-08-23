@@ -26,7 +26,7 @@ config EXAMPLES_NETTEST_PROGNAME1
 	default "nettest"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the Nettest
+		This is the name of the program that will be used when the Nettest
 		program is installed.
 
 config EXAMPLES_NETTEST_STACKSIZE1
@@ -75,7 +75,7 @@ config EXAMPLES_NETTEST_PROGNAME2
 	default "tcpclient" if EXAMPLES_NETTEST_SERVER2
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the Target2 program that will be use when the
+		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_NETTEST_PRIORITY2

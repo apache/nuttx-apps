@@ -16,7 +16,7 @@ config EXAMPLES_HIDKBD_PROGNAME
 	default "hidkbd"
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the program that will be use when the Nettest
+		This is the name of the program that will be used when the Nettest
 		program is installed.
 
 config EXAMPLES_HIDKBD_STACKSIZE

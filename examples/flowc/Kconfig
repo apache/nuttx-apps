@@ -56,7 +56,7 @@ config EXAMPLES_FLOWC_PROGNAME1
 	default "sender" if EXAMPLES_FLOWC_SENDER1
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the Target1 program that will be use when the
+		This is the name of the Target1 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_FLOWC_PRIORITY1
@@ -85,7 +85,7 @@ config EXAMPLES_FLOWC_PROGNAME2
 	default "sender" if EXAMPLES_FLOWC_RECEIVER2
 	depends on BUILD_LOADABLE
 	---help---
-		This is the name of the Target2 program that will be use when the
+		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.
 
 config EXAMPLES_FLOWC_PRIORITY2
