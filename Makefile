@@ -2,7 +2,7 @@
 # apps/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Copyright (C) 2011-2014, 2018 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2014, 2018-2019 Gregory Nutt. All rights reserved.
 #   Authors: Uros Platise <uros.platise@isotel.eu>
 #            Gregory Nutt <gnutt@nuttx.org>
 #
@@ -87,7 +87,7 @@ SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 # Build targets
 
 all: $(BIN)
-.PHONY: import install dirlinks context context_serialize clean_context context_rest .depdirs preconfig depend clean distclean
+.PHONY: import install dirlinks context context_serialize clean_context context_rest export .depdirs preconfig depend clean distclean
 .PRECIOUS: libapps$(LIBEXT)
 
 define MAKE_template
@@ -186,6 +186,16 @@ Kconfig:
 	$(Q) $(MKKCONFIG)
 
 preconfig: Kconfig
+
+export:
+ifneq ($(EXPORTDIR),)
+ifneq ($(BUILTIN_REGISTRY),)
+	$(Q) mkdir -p "${EXPORTDIR}"/registry || exit 1; \
+	for f in "${BUILTIN_REGISTRY}"/*.bdat "${BUILTIN_REGISTRY}"/*.pdat ; do \
+		[ -f "$${f}" ] && cp -f "$${f}" "${EXPORTDIR}"/registry ; \
+	done
+endif
+endif
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
