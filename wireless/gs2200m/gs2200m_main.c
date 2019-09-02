@@ -1264,16 +1264,23 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
 {
   FAR struct usrsock_request_ioctl_s *req = hdrbuf;
   struct usrsock_message_req_ack_s resp;
+  struct usrsock_message_datareq_ack_s resp2;
   struct gs2200m_ifreq_msg imsg;
+  bool getreq = false;
   int ret = -EINVAL;
+
+  memset(&imsg.ifr, 0, sizeof(imsg.ifr));
 
   switch (req->cmd)
     {
+      case SIOCGIFHWADDR:
+        getreq = true;
+        break;
+
       case SIOCSIFADDR:
       case SIOCSIFDSTADDR:
       case SIOCSIFNETMASK:
 
-        memset(&imsg.ifr, 0, sizeof(imsg.ifr));
         (void)read(fd, &imsg.ifr, sizeof(imsg.ifr));
         break;
 
@@ -1284,15 +1291,34 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
   imsg.cmd = req->cmd;
   ret = ioctl(priv->gsfd, GS2200M_IOC_IFREQ, (unsigned long)&imsg);
 
-  /* Send ACK response */
-
-  memset(&resp, 0, sizeof(resp));
-  resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
-
-  if (0 > ret)
+  if (!getreq)
     {
-      return ret;
+      /* Send ACK response */
+
+      memset(&resp, 0, sizeof(resp));
+      resp.result = ret;
+      ret = _send_ack_common(fd, req->head.xid, &resp);
+
+      if (0 > ret)
+        {
+          return ret;
+        }
+    }
+
+  if (getreq)
+    {
+      resp2.reqack.result = ret;
+      resp2.reqack.xid = req->head.xid;
+      resp2.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+      resp2.reqack.head.flags = 0;
+      resp2.valuelen_nontrunc = sizeof(imsg.ifr);
+      resp2.valuelen = sizeof(imsg.ifr);
+
+      (void)_write_to_usock(fd, &resp2, sizeof(resp2));
+
+      /* Return struct ifreq address */
+
+      _write_to_usock(fd, &imsg.ifr, resp2.valuelen);
     }
 
   return ret;
