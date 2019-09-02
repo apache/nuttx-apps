@@ -50,7 +50,7 @@
 #include <debug.h>
 #include <string.h>
 
-#include <nuttx/drivers/pwm.h>
+#include <nuttx/timers/pwm.h>
 
 #include "pwm.h"
 
