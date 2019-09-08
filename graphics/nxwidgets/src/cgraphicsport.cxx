@@ -983,7 +983,7 @@ void CGraphicsPort::greyScale(nxgl_coord_t x, nxgl_coord_t y,
 /**
  * Invert colors in a region.  NOTE:  This allocates an in-memory
  * buffer the size of one row in graphic memory.  So it may only be
- * useful for inverting small regions and its only current use of for
+ * useful for inverting small regions and its only current use is for
  * the inverted cursor text.
  *
  * @param x X coordinate of the region to change.
