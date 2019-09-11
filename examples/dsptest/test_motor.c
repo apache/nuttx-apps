@@ -447,7 +447,7 @@ static void test_angle_el_update_cw_overflow(void)
   p = 8;
   motor_angle_init(&angle, p);
 
-  /* Update electrical angle to acheive full mechanical roatation */
+  /* Update electrical angle to achieve full mechanical rotation */
 
   angle_step = 0.1;
   expected_e = angle_step;
@@ -507,7 +507,7 @@ static void test_angle_el_update_ccw_overflow(void)
   p = 8;
   motor_angle_init(&angle, p);
 
-  /* Update electrical angle to acheive full mechanical roatation */
+  /* Update electrical angle to achieve full mechanical rotation */
 
   angle_step = 0.1;
   expected_e = MOTOR_ANGLE_E_MAX - angle_step;

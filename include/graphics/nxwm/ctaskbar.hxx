@@ -121,7 +121,7 @@ namespace NxWM
      *
      * NOTE:  Actually, NxWM uses the CWindowMessenger class that inherits from
      * CWidgetControl.  That class just adds some unrelated messaging capability;
-     * It cohabitates with CWidgetControl only becuase it needs the CWidgetControl
+     * It cohabitates with CWidgetControl only because it needs the CWidgetControl
      * this point.
      */
 

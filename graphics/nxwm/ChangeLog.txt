@@ -204,7 +204,7 @@
   Destructor needs to by public.  From Petteri Aimonen.
 * NxWidgets::CNumericEdit.  This is basically a label with plus and minus buttons.
   Contributed by Petteri, Aimonen.
-* NxWM::CStartWindow:  Fix mq_receive error handling with signal is recieved.
+* NxWM::CStartWindow:  Fix mq_receive error handling with signal is received.
   From Petteri Aimonen.
 * NxWidgets::CNxTimer:  Replace the original (apparently non-functional) signal-
   based solution with a work queue-based solution.  This raises some isses about

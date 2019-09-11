@@ -18,7 +18,7 @@ config PDCURSES_CHTYPE_LONG
 	default n
 
 config PDCURSES_DEBUG
-	bool "Enable pdcurses debug ouput"
+	bool "Enable pdcurses debug output"
 	default n
 
 config PDCURSES_PANEL_DEBUG

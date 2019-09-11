@@ -1016,7 +1016,7 @@ examples/nxterm
       a medium grey.
     CONFIG_EXAMPLES_NXTERM_MINOR -- The NX console device minor number.
       Default is 0 corresponding to /dev/nxterm0
-    CONFIG_EXAMPLES_NXTERM_DEVNAME -- The quoated, full path to the
+    CONFIG_EXAMPLES_NXTERM_DEVNAME -- The quoted, full path to the
       NX console device corresponding to CONFIG_EXAMPLES_NXTERM_MINOR.
       Default: "/dev/nxterm0"
     CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxTerm task.
