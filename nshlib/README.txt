@@ -865,7 +865,7 @@ o mkfifo <path>
 o mkrd [-m <minor>] [-s <sector-size>] <nsectors>
 
   Create a ramdisk consisting of <nsectors>, each of size
-  <sector-size> (or 512 bytes if <sector-size> is not specified.
+  <sector-size> (or 512 bytes if <sector-size> is not specified).
   The ramdisk will be registered as /dev/ram<minor>.  If <minor> is
   not specified, mkrd will attempt to register the ramdisk as
   /dev/ram0.

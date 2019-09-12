@@ -1349,7 +1349,7 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const char *fmt;
-  uint8_t *buffer;
+  FAR uint8_t *buffer;
   uint32_t nsectors;
   bool badarg = false;
   int sectsize = 512;
@@ -1403,7 +1403,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* There should be exactly one parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       nsectors = (uint32_t)atoi(argv[optind]);
     }
@@ -1420,7 +1420,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Allocate the memory backing up the ramdisk */
 
-  buffer = (uint8_t*)malloc(sectsize * nsectors);
+  buffer = (FAR uint8_t *)malloc(sectsize * nsectors);
   if (!buffer)
     {
       fmt = g_fmtcmdoutofmemory;
