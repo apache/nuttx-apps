@@ -4230,4 +4230,106 @@
 	* apps/examples/chrono:  Add chronometer apps example.  From Alan Carvalho
 	  de Assis (2019-07-17).
 
-7.32 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+8.1 2019-09-15 Gregory Nutt <gnutt@nuttx.org>
+
+	* wireless/gs2200m: Add udp support to gs2200m_main.c.  From Masayuki
+	  Ishikawa (2019-07-25).
+	* netutils/dhcpd:  Fixes bug where hwaddr was being used instead of
+	  ipaddr in the ARP update.  This bug seems to have been introduced 3
+	  years ago during a rewrite to remove a direct OS call to arp.  I'm not
+	  sure how others have not run into issues with this.  The behavior I
+	  was observing was that the DHCPD would go to offer an IP address, but
+	  then send a ARP request for the IP instead because it didn't know
+	  where to send the data.  From Anthony Merlino (2019-07-26).
+	* I8sak improvements:
+	  - wireless/ieee802154: Adds support for getting/setting maxretries and
+	    promsicuous mode from i8sak
+	  - wireless/ieee802154/i8sak: Fixes a build warning and handles a few
+	    cases where a fault can occur due to not catching missing
+	    arguments.  From Anthony Merlino (2019-07-26).
+	* apps/netutils/netinit/netinit.c:  Improve cleanup, removing 1 of 2
+	  warnings.  Unhook PHY notification signal handler when cleaning up, if
+	  an error occurs after the signal handler is put into place.  From
+	  Nathan Hartman (2019-07-26).
+	* apps/examples/webserver/webserver_main.c:  Init network & run forever
+	  only if not builtin app.  Infer from CONFIG_NSH_BUILTIN_APPS if we are
+	  a NSH built-in app or not. If built-in app (CONFIG_NSH_BUILTIN_APPS
+	  defined) then we assume network is initialized prior to webserver
+	  starting and we exit on webserver failure. If running standalone
+	  (CONFIG_NSH_BUILTIN_APPS is undefined) then behavior is unchanged:
+	  webserver initializes network and runs forever.  From Nathan Hartman
+	  (2019-07-26).
+	* apps/nshlib/nsh_fsutils.c:  As noted by David S. Alessio, 'cat' should
+	  not output any additional newline at the end of the cat'ed file
+	  content.  This was done to assure that the NSH prompt was presented on
+	  a new line.  However, that is not the correct behavior of 'cat' per
+	  the IEEE std:  "The standard output shall contain the sequence of
+	  bytes read from the input files. Nothing else shall be written to the
+	  standard output."  Reference:
+	  https://pubs.opengroup.org/onlinepubs/009695399/utilities/cat.html.
+	  This commit changes the function nsh_catfile() which underlies the
+	  'cat' command and well as other NSH commands.  Although this is the
+	  correct behavior for 'cat' it may not be the correct behavior for
+	  other commands implemented via nsh_catfile().  That remains to be
+	  determined.  From Gregory Nutt (2019-07-29).
+	* wireless/gs2200m:  Add DHCP client handling in ioctl_request()  From
+	  Masayuki Ishikawa (2019-07-30).
+	* apps/system/cle/cle.c:  ASCII DEL should be treated by Delete-Left.
+	  From Dave Marples (2019-08-01).
+	* apps/fsutils/passwd:  Handle the improved the format of the
+	  /etc/passwd file.  It is now a little more similar to other systems.
+	  From Gregory Nutt (2019-08-03).
+	* apps/examples/uid:  Demo used to verify PASSWD and GROUP interfaces.
+	  From Gregory Nutt (2019-08-04).
+	* Change name configs/ to boards/ in comments, Documentation, Tools,
+	  etc.  From Gregory Nutt (2019-08-05).
+	* Fix paths in README.txt files which have changed due to the
+	  restructuring of nuttx/boards directory.  From Gregory Nutt
+	  (2019-08-05).
+	* Update configurations instructions in README.txt files to show ':'
+	  delimiter vs '/' delimiter.  From Gregory Nutt (2019-08-05).
+	* Update comments, README's, etc. to reflect changes to nuttx/boards
+	  directory reorganization.  From Gregory Nutt (2019-08-09).
+	* Change all occurrences of /bin/(ba)sh to /usr/bin/env bash which
+	  appears more portable  From Manuel Stühn (2019-08-10).
+	* wireless/ieee802154/i8sak:  Fixes naming caused by naming change in
+	  nuttx.  From Anthony Merlino (2019-08-10).
+	* wireless/ieee802154/libmac:  Adds support for getting/setting the FCS
+	  length  From Anthony Merlino (2019-08-10).
+	* i8sak:  Allow setting the endpoint PAN ID.  From Anthony Merlino
+	  (2019-08-10).
+	* i8shark:  Adds support for intentionally suppressing passing the FCS
+	  so that Wireshark doesn't try to validate it.  From Anthony Merlino
+	  (2019-08-10).
+	* wireless/ieee802154/i8sak:  Adds support for energy scan result
+	  printout.  From Anthony Merlino (2019-08-13).
+	* i8sak:  Fixes conversion from extended address to IPv6 address.  From
+	  Anthony Merlino (2019-08-13).
+	* netutils/dhcpc:  Add host name support to dhcp client  From Masayuki
+	  Ishikawa (2019-08-14).
+	* Bugfix/i2ctool dev clobbers slave config
+	  - friendlier I2C "knock-knock" uses only read request.  While many I2C
+	    slave devices have multiple indexed registers, some have only one
+	    register and it's not indexed.  For example, the I2C bus switch
+	    TCA9548A has only a Control Register, attempting to index to
+	    "Reg[0]" alters its contents to 0x00 disabling all subordinate
+	    buses.  This patch fixes that problem by simply trying to read
+	    something/anything from the slave.  This also helps coax out slaves
+	    with register files that start from a higher index, i.e. the
+	    AT24CS0x, FLASH chips with a UUID that appears as a 2nd I2C slave at
+	    (address+8), report their serial number at Reg[80]-Reg[8F] and will
+	    NAK a read of Reg[0].
+	  - modify get/set to prevent write of reg index if not specifed  From
+	  David Alessio (2019-08-20).
+	* Move apps/builtins/builtin_forindex.c to nuttx/libs/libc/builtin since
+	  it is required by kernel logic as well.  Other changes account for
+	  movement of builtin.h from nuttx/include/nuttx/binfmt/built.h to
+	  nuttx/include/lib/builtin.h.  From Gregory Nutt (2019-08-23).
+	* Makefile:  Added support for application-specific export target.  Used
+	  by nuttx/tools/mkexport.sh.  From Pavel Pisa (2019-08-30).
+	* wireless/gs2200m/gs2200m_main.c:  ioctl_request() supports
+	  SIOCGIFHWADDR.  From Masayuki Ishikawa (2019-09-02).
+	* examples/pwm/pwm_main.c:  Update the pwm header path.  From Augusto
+	  Fraga Giachero (2019-09-02).
+
+8.2 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
