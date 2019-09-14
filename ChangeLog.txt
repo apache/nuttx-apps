@@ -4230,7 +4230,7 @@
 	* apps/examples/chrono:  Add chronometer apps example.  From Alan Carvalho
 	  de Assis (2019-07-17).
 
-8.1 2019-09-15 Gregory Nutt <gnutt@nuttx.org>
+8.1 2019-09-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* wireless/gs2200m: Add udp support to gs2200m_main.c.  From Masayuki
 	  Ishikawa (2019-07-25).
