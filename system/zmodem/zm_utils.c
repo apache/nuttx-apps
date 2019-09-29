@@ -343,7 +343,7 @@ int zm_putc(int fd, uint8_t ch)
  *   necessary.
  *
  * NOTE:  Not re-entrant.  CR-LF sequences that span buffer boundaries are
- * not guaranteed to to be handled correctly.
+ * not guaranteed to be handled correctly.
  *
  ****************************************************************************/
 

@@ -329,7 +329,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       int tmpret = ftpc_cmd(session, "CWD %s", session->currdir);
       if (tmpret != OK)
         {
-          nerr("ERROR: CWD back to to %s failed\n", session->currdir);
+          nerr("ERROR: CWD back to %s failed\n", session->currdir);
         }
     }
 

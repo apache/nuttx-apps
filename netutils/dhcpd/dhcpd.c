@@ -290,7 +290,7 @@ static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
 {
   struct sockaddr_in inaddr;
 
-  /* Put the protocol address in a standard form. ipaddr is assume to be in
+  /* Put the protocol address in a standard form. ipaddr is assumed to be in
    * network order by the memcpy.
    */
 

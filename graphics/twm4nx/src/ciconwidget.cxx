@@ -293,7 +293,7 @@ bool CIconWidget::initialize(FAR CWindow *parent,
   image->setRaisesEvents(true);
   image->setDraggable(true);
 
-  // Add the CIconImage to to the containing widget
+  // Add the CIconImage to the containing widget
 
   image->addWidgetEventHandler(this);
   addWidget(image);
@@ -332,7 +332,7 @@ bool CIconWidget::initialize(FAR CWindow *parent,
   topLabel->setRaisesEvents(true);
   topLabel->setDraggable(true);
 
-  // Add the top label to to the containing widget
+  // Add the top label to the containing widget
 
   topLabel->addWidgetEventHandler(this);
   addWidget(topLabel);
@@ -378,7 +378,7 @@ bool CIconWidget::initialize(FAR CWindow *parent,
       bottomLabel->setRaisesEvents(true);
       bottomLabel->setDraggable(true);
 
-      // Add the top label to to the containing widget
+      // Add the top label to the containing widget
 
       bottomLabel->addWidgetEventHandler(this);
       addWidget(bottomLabel);

@@ -355,7 +355,7 @@ static bool createCalibration(void)
       return false;
     }
 
-  // Call StartWindowFactory::create to to create the start window application
+  // Call StartWindowFactory::create to create the start window application
 
   printf("createCalibration: Creating CCalibration\n");
   NxWM::IApplication *calibration = factory->create();

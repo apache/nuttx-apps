@@ -509,7 +509,7 @@ void CClock::update(void)
   pos.y = CONFIG_TWM4NX_CLOCK_VSPACING;
 
   // Then show each segment LCD
-  // There might be a more efficient way to to this than to erase the entire
+  // There might be a more efficient way to do this than to erase the entire
   // SLCD on each update.
 
   for (int i = 0; i < CLOCK_NDIGITS; i++)

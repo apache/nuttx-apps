@@ -171,7 +171,7 @@ namespace NXWidgets
     /**
      * Set the text in the string.
      *
-     * @param text Character to to use as the new data for this string.
+     * @param text Character to use as the new data for this string.
      */
 
     virtual void setText(const nxwidget_char_t text);

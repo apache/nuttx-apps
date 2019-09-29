@@ -842,7 +842,7 @@
 	  (2014-2-20).
 	* nshlib/Kconfig:  Use CONFIG_DEFAULT_SMALL in selecting default
 	  settings (2014-2-20).
-	* nshlib/nsh_telnetd.c:  Use strncpy vs strcpy to avoid overruning the
+	* nshlib/nsh_telnetd.c:  Use strncpy vs strcpy to avoid overrunning the
 	  username and password buffers.  From Bertold Van den Bergh (2014-2-22).
 	* nshlib/Kconfig, nsh_proccmds.c:  If the CPU load feature and the procfs
 	  features are enabled, then show CPU load used by each thread in the

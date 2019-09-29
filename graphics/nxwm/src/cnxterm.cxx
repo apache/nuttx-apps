@@ -135,7 +135,7 @@ CNxTerm::CNxTerm(CTaskbar *taskbar, CApplicationWindow *window)
   m_taskbar = taskbar;
   m_window  = window;
 
-  // The NxTerm is not runing
+  // The NxTerm is not running
 
   m_pid    = -1;
   m_nxterm = 0;

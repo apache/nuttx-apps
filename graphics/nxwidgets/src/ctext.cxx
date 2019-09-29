@@ -133,7 +133,7 @@ void CText::setText(FAR const char *text)
 /**
  * Set the text in the string.
  *
- * @param text Character to to use as the new data for this string.
+ * @param text Character to use as the new data for this string.
  */
 
 void CText::setText(const nxwidget_char_t text)

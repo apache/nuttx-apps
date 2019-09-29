@@ -476,7 +476,7 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
     }
 #endif
 
-  /* Otherwise, we have to to ZCRCW */
+  /* Otherwise, we have to do ZCRCW */
 
   else
     {

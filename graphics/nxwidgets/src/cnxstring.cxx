@@ -241,7 +241,7 @@ void CNxString::setText(FAR const nxwidget_char_t *text, int nchars)
 /**
  * Set the text in the string.
  *
- * @param text Character to to use as the new data for this string.
+ * @param text Character to use as the new data for this string.
  */
 
 void CNxString::setText(const nxwidget_char_t letter)

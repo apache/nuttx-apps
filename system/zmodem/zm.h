@@ -559,7 +559,7 @@ ssize_t zm_remwrite(int fd, FAR const uint8_t *buffer, size_t buflen);
  *   necessary.
  *
  * NOTE:  Not re-entrant.  CR-LF sequences that span buffer boundaries are
- * not guaranteed to to be handled correctly.
+ * not guaranteed to be handled correctly.
  *
  ****************************************************************************/
 

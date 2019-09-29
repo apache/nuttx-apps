@@ -44,7 +44,7 @@
 /****************************************************************************
  * Name: wld_rgb2pixel
  * Description: Map a RGB triplet into the corresponding pixel.  The
- *   value range of ech RGB value is assume to lie within 0 through
+ *   value range of each RGB value is assumed to lie within 0 through
  *   TRV_PIXEL_MAX.
  ****************************************************************************/
 

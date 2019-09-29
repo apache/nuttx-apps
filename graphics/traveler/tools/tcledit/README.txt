@@ -37,9 +37,9 @@ Build instuctions
   Then you can use xmfmk to create the Makefile and build the tool:
 
     7. cd apps/graphics/traveler/tools/tcledit
-    8. Review Imakefile.  You will probabaly to to change the APPDIR and TOPDIR paths
-       a minimum.  These are the paths to where you have clones the apps/ repository
-       and the nuttx/ repositories, respectively.
+    8. Review Imakefile.  You will probabaly need to change the APPDIR and
+       TOPDIR paths at a minimum.  These are the paths to where you have
+       cloned the apps/ repository and the nuttx/ repositories, respectively.
     9. xmfmk
    10a. make tcledit
 

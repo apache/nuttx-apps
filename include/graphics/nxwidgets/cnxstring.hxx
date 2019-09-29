@@ -281,7 +281,7 @@ namespace NXWidgets
     /**
      * Set the 8-bit C-string text in the string.
      *
-     * @param text Character to to use as the new data for this string.
+     * @param text Character to use as the new data for this string.
      */
 
     void setText(const nxwidget_char_t text);
