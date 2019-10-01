@@ -5,11 +5,12 @@
 /System.map
 /User.map
 /arch
-/build
 /libs
 /include
+/scripts
 /startup
 /tmp
+/tools
 /*.asm
 /*.obj
 /*.rel

@@ -61,34 +61,39 @@ endef
 endif
 
 # Tools
-#
-# In a normal build, tools will reside in the nuttx/tools sub-directory and
-# TOPDIR will refer to that nuttx/ directory.  This, however, is not the
-# case when building apps/ with a NuttX export directory; there is no
-# apps/import/tools directory.  In that case copies of the NuttX tools in
-# the apps/tools directory are used.
 
 DELIM ?= $(strip /)
-ifneq (,$(wildcard $(TOPDIR)$(DELIM)tools))
-  TOOLDIR = $(TOPDIR)$(DELIM)tools
-else
-  TOOLDIR = $(APPDIR)$(DELIM)tools
-endif
 
 ifeq ($(DIRLINK),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  DIRLINK   = $(TOOLDIR)$(DELIM)link.bat
-  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.bat
+  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)link.bat
+  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.bat
 else ifeq ($(CONFIG_WINDOWS_MSYS),y)
-  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
-  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
+  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
+  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
 else
-  DIRUNLINK = $(TOOLDIR)$(DELIM)unlink.sh
+  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
 ifeq ($(WINTOOL),y)
-  DIRLINK   = $(TOOLDIR)$(DELIM)copydir.sh
+  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
 else
-  DIRLINK   = $(TOOLDIR)$(DELIM)link.sh
+  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
 endif
+endif
+endif
+
+ifeq ($(INCDIR),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.bat
+else
+  INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.sh
+endif
+endif
+
+ifeq ($(DEFINE),)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  DEFINE = $(TOPDIR)$(DELIM)tools$(DELIM)define.bat
+else
+  DEFINE = $(TOPDIR)$(DELIM)tools$(DELIM)define.sh
 endif
 endif
 
@@ -96,22 +101,6 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.bat
 else
   MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
-endif
-
-ifeq ($(INCDIR),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  INCDIR = $(TOOLDIR)$(DELIM)incdir.bat
-else
-  INCDIR = $(TOOLDIR)$(DELIM)incdir.sh
-endif
-endif
-
-ifeq ($(DEFINE),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  DEFINE = $(APPDIR)$(DELIM)tools$(DELIM)define.bat
-else
-  DEFINE = $(APPDIR)$(DELIM)tools$(DELIM)define.sh
-endif
 endif
 
 ifeq ($(WINTOOL),y)

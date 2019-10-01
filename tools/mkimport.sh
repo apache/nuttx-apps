@@ -96,12 +96,13 @@ fi
 WD=${PWD}
 IMPORTDIR=${WD}/import
 DARCHDIR=${IMPORTDIR}/arch
-DBUILDDIR=${IMPORTDIR}/build
 DINCDIR=${IMPORTDIR}/include
 DLIBDIR=${IMPORTDIR}/libs
+DSCRIPTSDIR=${IMPORTDIR}/scripts
 DSTARTDIR=${IMPORTDIR}/startup
+DTOOLSDIR=${IMPORTDIR}/tools
 TMPDIR=${IMPORTDIR}/tmp
-DALLDIRS="${DARCHDIR} ${DBUILDDIR} ${DINCDIR} ${DLIBDIR} ${DSTARTDIR} ${TMPDIR}"
+DALLDIRS="${DARCHDIR} ${DINCDIR} ${DLIBDIR} ${DSCRIPTSDIR} ${DSTARTDIR} ${DTOOLSDIR} ${TMPDIR}"
 
 # Remove any old import directories
 
@@ -138,17 +139,15 @@ if [ ! -d "${EXPORTDIR}" ]; then
 fi
 
 SARCHDIR=${EXPORTDIR}/arch
-SBUILDDIR=${EXPORTDIR}/build
 SINCDIR=${EXPORTDIR}/include
 SLIBDIR=${EXPORTDIR}/libs
+SSCRIPTSDIR=${EXPORTDIR}/scripts
 SSTARTDIR=${EXPORTDIR}/startup
+STOOLSDIR=${EXPORTDIR}/tools
 
 unset SALLDIRS
 if [ -d ${SARCHDIR} ]; then
 	SALLDIRS="${SALLDIRS} ${SARCHDIR}"
-fi
-if [ -d ${SBUILDDIR} ]; then
-	SALLDIRS="${SALLDIRS} ${SBUILDDIR}"
 fi
 if [ -d ${SINCDIR} ]; then
 	SALLDIRS="${SALLDIRS} ${SINCDIR}"
@@ -156,8 +155,14 @@ fi
 if [ -d ${SLIBDIR} ]; then
 	SALLDIRS="${SALLDIRS} ${SLIBDIR}"
 fi
-if [ -d ${SLIBDIR} ]; then
+if [ -d ${SSCRIPTSDIR} ]; then
+	SALLDIRS="${SALLDIRS} ${SSCRIPTSDIR}"
+fi
+if [ -d ${SSTARTDIR} ]; then
 	SALLDIRS="${SALLDIRS} ${SSTARTDIR}"
+fi
+if [ -d ${STOOLSDIR} ]; then
+	SALLDIRS="${SALLDIRS} ${STOOLSDIR}"
 fi
 
 # Move all of the exported directories in place in the import directory

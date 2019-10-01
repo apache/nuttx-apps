@@ -38,7 +38,7 @@
 
 # Sub-directories from the NuttX export package
 
-SUBDIRS = arch build include libs startup tmp
+SUBDIRS = arch include libs scripts startup tmp tools
 FILES   = .config System.map User.map
 
 all:
