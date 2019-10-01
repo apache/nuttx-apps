@@ -42,7 +42,6 @@ OBJS = $(SRCS:.c=.o)
 
 all: $(BIN)
 .PHONY: clean install
-.PRECIOUS: ../../../../libapps$(LIBEXT)
 
 $(OBJS): %.o: %.c
 	@echo "CC: $<"

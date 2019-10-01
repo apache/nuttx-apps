@@ -48,7 +48,6 @@ R2OBJ = $(R2SRC:.S=.o)
 
 all: $(BIN)
 .PHONY: clean install
-.PRECIOUS: ../../../../libapps$(LIBEXT)
 
 $(R1OBJS): %.o: %.c
 	@echo "CC: $<"

@@ -45,7 +45,6 @@ all: nuttx
 default: all
 
 .PHONY: clean
-.PRECIOUS: ../../../../libapps$(LIBEXT)
 
 nuttx : $(NXINCNX)
 	@cp -a $(NXINCNX) nuttx

@@ -37,7 +37,6 @@
 
 all:
 .PHONY: clean distclean
-.PRECIOUS: ../../libapps$(LIBEXT)
 
 # Clean Targets:
 

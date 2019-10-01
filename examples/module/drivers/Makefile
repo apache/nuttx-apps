@@ -65,7 +65,6 @@ endef
 
 all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC) $(PASS1_SYMTAB)
 .PHONY: all build clean install populate
-.PRECIOUS: ../../../libapps$(LIBEXT)
 
 $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
