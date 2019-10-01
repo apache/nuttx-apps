@@ -72,7 +72,7 @@ LIBPATH ?= $(TOPDIR)$(DELIM)staging
 
 # The install path
 
-BIN_DIR = $(APPDIR)$(DELIM)bin
+BINDIR = $(APPDIR)$(DELIM)bin
 
 # The final build target
 
@@ -90,13 +90,13 @@ all: $(BIN)
 .PRECIOUS: libapps$(LIBEXT)
 
 define MAKE_template
-	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
+	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 
 endef
 
 define SDIR_template
 $(1)_$(2):
-	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
+	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 
 endef
 
@@ -114,15 +114,15 @@ ifeq ($(CONFIG_BUILD_KERNEL),y)
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
-install: $(BIN_DIR) .install
+install: $(BINDIR) .install
 
-$(BIN_DIR):
-	$(Q) mkdir -p $(BIN_DIR)
+$(BINDIR):
+	$(Q) mkdir -p $(BINDIR)
 
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-import: $(BIN_DIR)
+import: $(BINDIR)
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 else
@@ -138,7 +138,7 @@ else
 
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BIN_DIR) $(SYMTABSRC)
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) $(SYMTABSRC)
 
 $(SYMTABOBJ): %$(OBJEXT): %.c
 ifeq ($(WINTOOL),y)
@@ -157,10 +157,10 @@ endif # !CONFIG_BUILD_KERNEL && CONFIG_BUILD_LOADABLE
 
 .install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
-$(BIN_DIR):
-	$(Q) mkdir -p $(BIN_DIR)
+$(BINDIR):
+	$(Q) mkdir -p $(BINDIR)
 
-install: $(BIN_DIR) .install
+install: $(BINDIR) .install
 
 .import: $(BIN) install
 
@@ -170,7 +170,7 @@ import:
 endif # CONFIG_BUILD_KERNEL
 
 dirlinks:
-	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"  BIN_DIR="$(BIN_DIR)"
+	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
@@ -204,14 +204,14 @@ endif
 depend: .depend
 
 clean_context:
-	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
+	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
-	$(call DELDIR, $(BIN_DIR))
+	$(call DELDIR, $(BINDIR))
 	$(call CLEAN)
 
 distclean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_distclean)
@@ -234,5 +234,5 @@ endif
 	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
-	$(call DELDIR, $(BIN_DIR))
+	$(call DELDIR, $(BINDIR))
 	$(call CLEAN)

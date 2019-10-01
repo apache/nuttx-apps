@@ -85,10 +85,10 @@ endif
 
 ifeq ($(WINTOOL),y)
   BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+  INSTALL_DIR = "${shell cygpath -w $(BINDIR)}"
 else
   BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
-  INSTALL_DIR = $(BIN_DIR)
+  INSTALL_DIR = $(BINDIR)
 endif
 
 ROOTDEPPATH += --dep-path .
