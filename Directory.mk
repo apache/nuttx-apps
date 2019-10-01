@@ -46,7 +46,7 @@ all: nothing
 
 define SDIR_template
 $(1)_$(2):
-	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 endef
 
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))

@@ -35,15 +35,14 @@
 #
 ############################################################################
 
-TOPDIR ?= $(APPDIR)/import
--include $(TOPDIR)/Make.defs
-
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   APPDIR = ${shell echo %CD%}
 else
   APPDIR = ${shell pwd}
 endif
 
+TOPDIR ?= $(APPDIR)/import
+-include $(TOPDIR)/Make.defs
 -include $(APPDIR)/Make.defs
 
 # Application Directories
@@ -120,7 +119,7 @@ $(BINDIR):
 	$(Q) mkdir -p $(BINDIR)
 
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
-	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
 
 import: $(BINDIR)
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
@@ -137,7 +136,7 @@ $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 else
 
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
-	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) $(SYMTABSRC)
 
 $(SYMTABOBJ): %$(OBJEXT): %.c
@@ -175,8 +174,8 @@ dirlinks:
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
 context_serialize:
-	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(MAKE) context_rest
+	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) $(MAKE) context_rest TOPDIR="$(TOPDIR)"
 
 context: context_serialize
 
@@ -226,7 +225,7 @@ else
 		echo "********************************************************"; \
 		echo "* The external directory/link must be removed manually *"; \
 		echo "********************************************************"; \
-	   fi; \
+		fi; \
 	)
 endif
 	$(call DELFILE, .depend)
