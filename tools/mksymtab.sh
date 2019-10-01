@@ -86,7 +86,7 @@ fi
 # faile
 
 echo "#include <nuttx/compiler.h>" >$outfile
-echo "#include <nuttx/binfmt/symtab.h>" >>$outfile
+echo "#include <nuttx/symtab.h>" >>$outfile
 echo "" >>$outfile
 
 for var in $varlist; do
