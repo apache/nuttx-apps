@@ -12,7 +12,6 @@ core
 cscope.out
 /Kconfig
 /bin
-/exe
 /external
 /.context
 /.config
@@ -20,5 +19,6 @@ cscope.out
 /*.lib
 /romfs.img
 /boot_romfsimg.h
+/symtab_apps.c
 /*/*/.built
 

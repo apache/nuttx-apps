@@ -47,7 +47,7 @@ fi
 # Environmental stuff
 
 topdir=$PWD
-fsdir=${topdir}/exe/system
+fsdir=${topdir}/bin
 romfsimg=romfs.img
 headerfile=boot_romfsimg.h
 

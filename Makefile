@@ -72,8 +72,7 @@ LIBPATH ?= $(TOPDIR)$(DELIM)staging
 
 # The install path
 
-EXE_DIR = $(APPDIR)$(DELIM)exe
-BIN_DIR = $(EXE_DIR)$(DELIM)system$(DELIM)bin
+BIN_DIR = $(APPDIR)$(DELIM)bin
 
 # The final build target
 
@@ -81,7 +80,7 @@ BIN = libapps$(LIBEXT)
 
 # Symbol table for loadable apps.
 
-SYMTABSRC = $(EXE_DIR)$(DELIM)symtab_apps.c
+SYMTABSRC = symtab_apps.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
 # Build targets
@@ -139,7 +138,7 @@ else
 
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(EXE_DIR)$(DELIM)system $(SYMTABSRC)
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BIN_DIR) $(SYMTABSRC)
 
 $(SYMTABOBJ): %$(OBJEXT): %.c
 ifeq ($(WINTOOL),y)
@@ -213,7 +212,6 @@ clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
-	$(call DELDIR, $(EXE_DIR))
 	$(call CLEAN)
 
 distclean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_distclean)
@@ -237,5 +235,4 @@ endif
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
-	$(call DELDIR, $(EXE_DIR))
 	$(call CLEAN)
