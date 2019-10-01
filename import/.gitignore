@@ -4,7 +4,6 @@
 /.config
 /System.map
 /User.map
-/symtab.c
 /arch
 /build
 /libs
