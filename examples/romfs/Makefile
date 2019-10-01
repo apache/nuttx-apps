@@ -70,6 +70,7 @@ context:: romfs_testdir.h
 
 distclean::
 	$(call DELFILE, testdir.img)
+	$(call DELFILE, romfs_testdir.h)
 
 MODULE = CONFIG_EXAMPLES_ROMFS
 

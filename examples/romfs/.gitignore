@@ -3,6 +3,7 @@
 /.built
 /testdir
 /testdir.img
+/romfs_testdir.h
 /*.asm
 /*.obj
 /*.rel
