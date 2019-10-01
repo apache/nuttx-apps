@@ -33,38 +33,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config # Current configuration
+MENUDESC = "IEEE 802.15.4 applications"
 
-# Sub-directories
-
-SUBDIRS = $(dir $(wildcard */Makefile))
-
-all: nothing
-
-.PHONY: nothing context depend clean distclean preconfig
-
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
-
-$(foreach SDIR, $(CNTXTDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
-
-nothing:
-
-install:
-
-context: $(foreach SDIR, $(CNTXTDIRS), $(SDIR)_context)
-
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
-
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
-
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
-
- preconfig:
-
--include Make.dep
+include $(APPDIR)/Directory.mk
