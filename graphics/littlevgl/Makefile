@@ -55,7 +55,7 @@ LVGL_DIR = .
 
 # Set up build configuration and environment
 
-WD := ${shell pwd | sed -e 's/ /\\ /g'}
+WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 CONFIG_GRAPH_LVGL_URL ?= "https://littlevgl.com/download/"
 

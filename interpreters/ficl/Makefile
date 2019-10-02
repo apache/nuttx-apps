@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-BUILDDIR := ${shell pwd | sed -e 's/ /\\ /g'}
+BUILDDIR := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 -include $(TOPDIR)/Make.defs
 

@@ -39,7 +39,7 @@
 
 # Set up build configuration and environment
 
-WD := ${shell pwd | sed -e 's/ /\\ /g'}
+WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 CONFIG_NETUTILS_CJSON_URL ?= "https://github.com/DaveGamble/cJSON/archive"
 CONFIG_NETUTILS_CJSON_VERSION ?= "1.7.10"

@@ -35,12 +35,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  APPDIR = ${shell echo %CD%}
-else
-  APPDIR = ${shell pwd}
-endif
-
+APPDIR = $(CURDIR)
 TOPDIR ?= $(APPDIR)/import
 -include $(TOPDIR)/Make.defs
 -include $(APPDIR)/Make.defs
