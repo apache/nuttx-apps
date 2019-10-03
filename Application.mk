@@ -124,17 +124,17 @@ else
 
 define ELFASSEMBLE
 	@echo "AS: $1"
-	$(Q) $(CC) -c $(AELFFLAGS) $1 -o $2
+	$(Q) $(CC) -c $(AELFFLAGS) $($(strip $1)_AELFFLAGS) $1 -o $2
 endef
 
 define ELFCOMPILE
 	@echo "CC: $1"
-	$(Q) $(CC) -c $(CELFFLAGS) $1 -o $2
+	$(Q) $(CC) -c $(CELFFLAGS) $($(strip $1)_CELFFLAGS) $1 -o $2
 endef
 
 define ELFCOMPILEXX
 	@echo "CXX: $1"
-	$(Q) $(CXX) -c $(CXXELFFLAGS) $1 -o $2
+	$(Q) $(CXX) -c $(CXXELFFLAGS) $($(strip $1)_CXXELFFLAGS) $1 -o $2
 endef
 
 $(AOBJS): %$(OBJEXT): %.S
