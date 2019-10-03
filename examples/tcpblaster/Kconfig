@@ -143,7 +143,7 @@ config EXAMPLES_TCPBLASTER_INIT
 	bool "Initialize network"
 	default n if NSH_BUILTIN_APPS
 	default y if !NSH_BUILTIN_APPS
-	depends on !BUILD_LOADABLE && !EXAMPLES_TCPBLASTER_LOOPBACK
+	depends on !EXAMPLES_TCPBLASTER_LOOPBACK
 	---help---
 		Include logic to initialize the network.  This should not be done if
 		the network is already initialized when tcpblaster runs.  This is

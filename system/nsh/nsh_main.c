@@ -106,8 +106,7 @@
  */
 
 #undef HAVE_NSH_COMMAND
-#if (defined(CONFIG_SYSTEM_SYSTEM) || defined(CONFIG_SYSTEM_POPEN)) && \
-     defined(CONFIG_BUILD_LOADABLE)
+#if defined(CONFIG_SYSTEM_SYSTEM) || defined(CONFIG_SYSTEM_POPEN)
 #  define HAVE_NSH_COMMAND 1
 #endif
 
@@ -285,7 +284,7 @@ int nsh_main(int argc, char *argv[])
    * 2) As a single command processor.  In this case, the single command is
    *    is provided in argv[1].
    *
-   * NOTE:  The latter mode is only available if CONFIG_BUILD_LOADABLE=y.
+   * NOTE:  The latter mode is only available if CONFIG_SYSTEM_NSH=m.
    * In that case, this main() function will be built as a process.  The
    * process will be started with a command by the implementations of the
    * system() and popen() interfaces.

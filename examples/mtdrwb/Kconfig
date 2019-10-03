@@ -6,7 +6,7 @@
 config EXAMPLES_MTDRWB
 	tristate "MTD R/W buffer test"
 	default n
-	depends on (MTD_WRBUFFER || MTD_READAHEAD) && !BUILD_PROTECTED && !BUILD_LOADABLE
+	depends on (MTD_WRBUFFER || MTD_READAHEAD) && !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		Enable the MTD R/W buffer test example.
 

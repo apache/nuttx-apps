@@ -398,7 +398,7 @@ examples/flash_test
     * CONFIG_MTD_SMART=y - SMART block driver support
     * CONFIG_NSH_BUILTIN_APPS=y - This example can only be built as an NSH
       command
-    * CONFIG_BUILD_PROTECTED=n and CONFIG_BUILD_LOADABLE=n- This test uses
+    * CONFIG_BUILD_PROTECTED=n and CONFIG_BUILD_KERNEL=n - This test uses
       internal OS interfaces and so is not available in the NUTTX kernel
       builds
 
@@ -1496,7 +1496,7 @@ examples/relays
   relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
-  or CONFIG_BUILD_LOADABLE).
+  or CONFIG_BUILD_KERNEL).
 
 examples/rfid_readuid
 ^^^^^^^^^^^^^^^^^^^^^

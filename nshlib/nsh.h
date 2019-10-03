@@ -561,7 +561,7 @@
  *   library where they will become accessible to application code.
  */
 
-#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_LOADABLE)
+#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
 #  undef  CONFIG_NSH_DISABLE_MKRD        /* 'mkrd' depends on ramdisk_register */
 #  define CONFIG_NSH_DISABLE_MKRD 1
 #endif
