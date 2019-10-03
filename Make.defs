@@ -51,7 +51,7 @@ define REGISTER
 endef
 else
 define REGISTER
-	$(Q) echo "Register: $1  $4"
+	$(Q) echo "Register: $1"
 	$(Q) echo "{ \"$1\", $2, $3, $4 }," > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"
 	$(Q) if [ ! -z $4 ]; then \
 	        echo "int $4(int argc, char *argv[]);" > "$(BUILTIN_REGISTRY)$(DELIM)$1.pdat"; \
@@ -113,5 +113,5 @@ CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  LDLIBS = $(APPDIR)/libapps.a
+  LDLIBS ?= $(APPDIR)/libapps.a
 endif

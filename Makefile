@@ -70,7 +70,7 @@ BINDIR = $(APPDIR)$(DELIM)bin
 
 # The final build target
 
-BIN = libapps$(LIBEXT)
+BIN ?= libapps$(LIBEXT)
 
 # Symbol table for loadable apps.
 
@@ -81,7 +81,7 @@ SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
 all: $(BIN)
 .PHONY: import install dirlinks context context_serialize clean_context context_rest export .depdirs preconfig depend clean distclean
-.PRECIOUS: libapps$(LIBEXT)
+.PRECIOUS: $(BIN)
 
 define MAKE_template
 	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"

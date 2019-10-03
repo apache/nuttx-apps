@@ -84,10 +84,10 @@ endif
 # Module install directory
 
 ifeq ($(WINTOOL),y)
-  BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
+  BIN ?= "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
   INSTALL_DIR = "${shell cygpath -w $(BINDIR)}"
 else
-  BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
+  BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
   INSTALL_DIR = $(BINDIR)
 endif
 
@@ -99,7 +99,7 @@ VPATH += :.
 
 all:: .built
 .PHONY: clean preconfig depend distclean
-.PRECIOUS: $(APPDIR)/libapps$(LIBEXT)
+.PRECIOUS: $(BIN)
 
 ifneq ($(CONFIG_BUILD_LOADABLE),y)
 
