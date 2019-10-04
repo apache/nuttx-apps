@@ -61,7 +61,7 @@ using namespace std;
 
 #if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
 #  warning Support for static initializers is NOT enabled
-#  undef CONFIG_TESTINGCXXTEST_CXXINITIALIZE
+#  undef CONFIG_TESTING_CXXTEST_CXXINITIALIZE
 #endif
 
 //***************************************************************************
@@ -250,7 +250,7 @@ extern "C"
     // If C++ initialization for static constructors is supported, then do
     // that first
 
-#ifdef CONFIG_TESTINGCXXTEST_CXXINITIALIZE
+#ifdef CONFIG_TESTING_CXXTEST_CXXINITIALIZE
     up_cxxinitialize();
 #endif
 
