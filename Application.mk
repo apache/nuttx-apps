@@ -83,12 +83,13 @@ endif
 
 # Module install directory
 
+BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
+INSTALL_DIR = $(BIN)
+
 ifeq ($(WINTOOL),y)
-  BIN ?= "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
-  INSTALL_DIR = "${shell cygpath -w $(BINDIR)}"
+  TOOLBIN ?= "${shell cygpath -w $(BIN)}"
 else
-  BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
-  INSTALL_DIR = $(BINDIR)
+  TOOLBIN ?= $(BIN)
 endif
 
 ROOTDEPPATH += --dep-path .
@@ -172,7 +173,7 @@ endif
 endif
 
 .built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(call ARCHIVE, $(TOOLBIN), $(OBJS))
 	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE), y)
