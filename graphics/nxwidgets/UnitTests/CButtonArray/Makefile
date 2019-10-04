@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CButtonArray unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cbuttonarraytest.cxx
 MAINSRC = cbuttonarray_main.cxx
 

@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Powerled Example
 
 APPNAME = powerled
 
-ASRCS =
-CSRCS =
 MAINSRC = powerled_main.c
 
 CONFIG_EXAMPLES_POWERLED_PROGNAME ?= powerled$(EXEEXT)

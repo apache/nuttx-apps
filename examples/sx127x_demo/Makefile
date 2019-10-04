@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Basic sx127x+  demonstration
 
-ASRCS =
-CSRCS =
 MAINSRC = sx127x_demo.c
 
 CONFIG_XYZ_PROGNAME ?= sx127x_demo$(EXEEXT)

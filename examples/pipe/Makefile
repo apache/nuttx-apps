@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Pipe Example
 
 APPNAME = pipe
 
-ASRCS =
 CSRCS = transfer_test.c interlock_test.c redirect_test.c
 MAINSRC = pipe_main.c
 

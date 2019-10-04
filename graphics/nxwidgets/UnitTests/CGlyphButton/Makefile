@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CGlyphButton unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cglyphbuttontest.cxx
 MAINSRC = cglyphbutton_main.cxx
 

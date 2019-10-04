@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Network loopback Example
 
-ASRCS =
 CSRCS = lo_listener.c
 MAINSRC = lo_main.c
 

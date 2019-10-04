@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # UserFS test application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_USERFS_STACKSIZE)
 
 # UserFS test application source files
 
-ASRCS =
-CSRCS =
 MAINSRC = userfs_main.c
 
 CONFIG_EXAMPLES_USERFS_PROGNAME ?= userfs$(EXEEXT)

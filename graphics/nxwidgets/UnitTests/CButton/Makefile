@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CButton unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cbuttontest.cxx
 MAINSRC = cbutton_main.cxx
 

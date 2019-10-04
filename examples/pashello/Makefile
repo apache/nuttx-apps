@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Pascal Add-On Example
 
@@ -47,7 +47,6 @@ CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)include" \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)insn$(DELIM)include"}
 
-ASRCS =
 CSRCS = device.c
 MAINSRC = pashello.c
 

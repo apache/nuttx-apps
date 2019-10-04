@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Network packet socket example
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # MDIO tool
 
-ASRCS =
-CSRCS =
 MAINSRC = netpkt_main.c
 
 CONFIG_XYZ_PROGNAME ?= netpkt$(EXEEXT)

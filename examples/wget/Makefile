@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # wget webclient example
 
-ASRCS =
-CSRCS =
 MAINSRC = wget_main.c
 
 APPNAME = wget

@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Smps Example
 
 APPNAME = smps
 
-ASRCS =
-CSRCS =
 MAINSRC = smps_main.c
 
 CONFIG_EXAMPLES_SMPS_PROGNAME ?= smps$(EXEEXT)

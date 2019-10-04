@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Zero Cross Example
 
-ASRCS =
-CSRCS =
 MAINSRC = zerocross_main.c
 
 CONFIG_EXAMPLES_ZEROCROSS_PROGNAME ?= zerocross$(EXEEXT)

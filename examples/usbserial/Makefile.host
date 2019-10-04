@@ -35,7 +35,7 @@
 
 # TOPDIR must be defined on the make command line
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 SRC = host.c
 BIN = host$(EXEEXT)

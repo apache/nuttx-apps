@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Web server library
 
-CSRCS =
 ifeq ($(CONFIG_NET_TCP),y)
 CSRCS += httpd.c httpd_cgi.c
 ifeq ($(CONFIG_NETUTILS_HTTPD_SENDFILE),y)

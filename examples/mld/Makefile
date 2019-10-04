@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # MLD Networking Example
 
@@ -46,8 +46,6 @@ APPNAME = $(CONFIG_EXAMPLES_MLD_APPNAME)
 PRIORITY = $(CONFIG_EXAMPLES_MLD_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_MLD_STACKSIZE)
 
-ASRCS =
-CSRCS =
 MAINSRC = mld_main.c
 
 PROGNAME = $(CONFIG_EXAMPLES_MLD_PROGNAME)

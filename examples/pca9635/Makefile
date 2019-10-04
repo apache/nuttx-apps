@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # PCA9635 built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # PCA9635 Test
 
-ASRCS =
-CSRCS =
 MAINSRC = pca9635_main.c
 
 CONFIG_EXAMPLES_PCA9635_PROGNAME ?= pca9635$(EXEEXT)

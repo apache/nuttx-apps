@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # OBD2 application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_OBD2_STACKSIZE)
 
 # OBD2 Example
 
-ASRCS =
-CSRCS =
 MAINSRC = obd2_main.c
 
 CONFIG_EXAMPLES_OBD2_PROGNAME ?= obd2$(EXEEXT)

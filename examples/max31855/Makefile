@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # max31855 built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_MAX31855_STACKSIZE)
 
 # max31855 Example
 
-ASRCS =
-CSRCS =
 MAINSRC = max31855_main.c
 
 CONFIG_EXAMPLES_MAX31855_PROGNAME ?= max31855$(EXEEXT)

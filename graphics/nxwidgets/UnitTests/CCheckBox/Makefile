@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CCheckBox unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = ccheckboxtest.cxx
 MAINSRC = ccheckbox_main.cxx
 

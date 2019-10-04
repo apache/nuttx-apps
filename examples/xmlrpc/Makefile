@@ -36,7 +36,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # XML RPC built-in application info
 
@@ -44,7 +44,6 @@ APPNAME = xmlrpc
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
 CSRCS = calls.c
 MAINSRC = xmlrpc_main.c
 

@@ -36,7 +36,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # XBox controller driver test built-in application info
 
@@ -49,8 +49,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_XBC_TEST_STACKSIZE)
 
 # Xbc_Test, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = xbc_test_main.c
 
 CONFIG_EXAMPLES_XBC_TEST_PROGNAME ?= xbc_test$(EXEEXT)

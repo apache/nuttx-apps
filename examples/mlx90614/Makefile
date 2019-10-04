@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # MLX90614 built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # MLX90614 Test
 
-ASRCS =
-CSRCS =
 MAINSRC = mlx90614_main.c
 
 CONFIG_EXAMPLES_MLX90614_PROGNAME ?= mlx90614$(EXEEXT)

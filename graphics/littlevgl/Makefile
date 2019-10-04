@@ -33,13 +33,9 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # LVGL graphic library
-
-ASRCS =
-CSRCS =
-VPATH =
 
 LVGL_DIR = .
 

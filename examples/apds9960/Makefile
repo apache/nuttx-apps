@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_APDS9960_STACKSIZE)
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = apds9960_main.c
 
 CONFIG_EXAMPLES_APDS9960_PROGNAME ?= apds9960$(EXEEXT)

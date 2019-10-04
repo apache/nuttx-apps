@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = djoy_main.c
 
 CONFIG_DJOY_PROGNAME ?= djoy$(EXEEXT)

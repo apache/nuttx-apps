@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Basic nRF24L01+ terminal demonstration
 
-ASRCS =
-CSRCS =
 MAINSRC = nrf24l01_term.c
 
 CONFIG_XYZ_PROGNAME ?= nrf24l01_term$(EXEEXT)

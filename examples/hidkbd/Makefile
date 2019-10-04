@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # USB Host HID keyboard Example
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_HIDKBD_STACKSIZE)
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = hidkbd_main.c
 
 CONFIG_EXAMPLES_HIDKBD_PROGNAME ?= hidkbd$(EXEEXT)

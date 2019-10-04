@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CScrollbarHorizontal unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cscrollbarhorizontaltest.cxx
 MAINSRC = cscrollbarhorizontal_main.cxx
 

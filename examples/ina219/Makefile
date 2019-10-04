@@ -35,7 +35,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
@@ -48,8 +48,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_INA219_STACKSIZE)
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = ina219_main.c
 
 CONFIG_EXAMPLES_INA219_PROGNAME ?= ina219$(EXEEXT)

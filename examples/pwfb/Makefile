@@ -33,14 +33,13 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX per-window frame buffer graphics example.
 
 NXGLYPHS = $(APPDIR)$(DELIM)graphics$(DELIM)nxglyphs
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(NXGLYPHS)$(DELIM)include"}
 
-ASRCS =
 CSRCS = pwfb_events.c pwfb_motion.c
 MAINSRC = pwfb_main.c
 

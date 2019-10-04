@@ -33,12 +33,9 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FreeModBus Library
-
-ASRCS =
-CSRCS =
 
 ifeq ($(CONFIG_MODBUS),y)
 

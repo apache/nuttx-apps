@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # dsptest built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_DSPTEST_STACKSIZE)
 
 # dsptest example
 
-ASRCS =
-CSRCS =
 MAINSRC = dsptest_main.c
 
 CSRCS += test_foc.c test_pid.c test_svm.c test_misc.c test_motor.c

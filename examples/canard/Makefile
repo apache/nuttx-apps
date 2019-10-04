@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_EXAMPLES_LIBCANARD_STACKSIZE ?= 2048
 
@@ -44,8 +44,6 @@ APPNAME = canard
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_EXAMPLES_LIBCANARD_STACKSIZE)
 
-ASRCS =
-CSRCS =
 CFLAGS += -I$(APPDIR)/include/canutils
 MAINSRC = canard_main.c
 

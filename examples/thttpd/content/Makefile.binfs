@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_THTTPD_CGI_PRIORITY ?= 100
 CONFIG_THTTPD_CGI_STACKSIZE ?= 2048

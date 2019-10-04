@@ -32,14 +32,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 APPNAME = powermonitor
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 768
 
-ASRCS =
-CSRCS =
 MAINSRC = powermonitor_main.c
 
 CFLAGS += -I../../../nuttx/arch/arm/src -I../../../nuttx/arch/arm/src/common

@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NXFFS file system example
 
 APPNAME = nxffs
 
-ASRCS =
-CSRCS =
 MAINSRC = nxffs_main.c
 
 CONFIG_XYZ_PROGNAME ?= nxffs$(EXEEXT)

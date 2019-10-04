@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Telnetd Example
 
-ASRCS =
-CSRCS =
 MAINSRC = telnetd.c
 
 CONFIG_XYZ_PROGNAME ?= telnetd$(EXEEXT)

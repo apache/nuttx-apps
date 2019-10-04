@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # ABNTCODI built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_ABNTCODI_STACKSIZE)
 
 # ABNTCODI Example
 
-ASRCS =
-CSRCS =
 MAINSRC = abntcodi_main.c
 
 CONFIG_EXAMPLES_ABNTCODI_PROGNAME ?= abntcodi$(EXEEXT)

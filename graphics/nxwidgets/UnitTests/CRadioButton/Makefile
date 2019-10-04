@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CRadioButton unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cradiobuttontest.cxx
 MAINSRC = cradiobutton_main.cxx
 

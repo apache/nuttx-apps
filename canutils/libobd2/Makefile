@@ -33,12 +33,11 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CAN utility library
 
-ASRCS  =
-CSRCS  = obd2.c obd_sendrequest.c obd_waitresponse.c obd_decodepid.c
+CSRCS = obd2.c obd_sendrequest.c obd_waitresponse.c obd_decodepid.c
 
 APPNAME = libobd2
 

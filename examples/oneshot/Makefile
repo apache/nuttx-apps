@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Oneshot timer built-in application info
 
@@ -49,8 +49,6 @@ PROGNAME  = $(CONFIG_EXAMPLES_ONESHOT_PROGNAME)
 
 # Oneshot timer example
 
-ASRCS =
-CSRCS =
 MAINSRC = oneshot_main.c
 
 MODULE = CONFIG_EXAMPLES_ONESHOT

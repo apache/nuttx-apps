@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # DAC tool
 
-ASRCS =
-CSRCS =
 MAINSRC = dac_main.c
 
 CONFIG_XYZ_PROGNAME ?= dac$(EXEEXT)

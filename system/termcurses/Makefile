@@ -33,10 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Termcurses terminal emulation library
 
-CSRCS    = termcurses.c tcurses_vt100.c
+CSRCS = termcurses.c tcurses_vt100.c
 
 include $(APPDIR)/Application.mk

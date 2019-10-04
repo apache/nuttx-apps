@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CTextBox unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = ctextboxtest.cxx
 MAINSRC = ctextbox_main.cxx
 

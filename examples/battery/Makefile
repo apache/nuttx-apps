@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Battery built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_BATTERY_STACKSIZE)
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = batt_main.c
 
 CONFIG_EXAMPLES_BATTERY_PROGNAME ?= batt$(EXEEXT)

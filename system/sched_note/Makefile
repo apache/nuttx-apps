@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # LED driver test built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_SYSTEM_NOTE_STACKSIZE)
 
 # LED driver test
 
-ASRCS =
-CSRCS =
 MAINSRC = note_main.c
 
 CONFIG_SYSTEM_NOTE_PROGNAME ?= note$(EXEEXT)

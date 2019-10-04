@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # PWM Example.
 
-ASRCS =
-CSRCS =
 MAINSRC = pwm_main.c
 
 CONFIG_XYZ_PROGNAME ?= pwm$(EXEEXT)

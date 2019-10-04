@@ -33,11 +33,9 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # DHCP Daemn Library
-
-CSRCS		=
 
 ifeq ($(CONFIG_NET_TCP),y)
 # FTP connection management

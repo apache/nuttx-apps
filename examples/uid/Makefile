@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # UID/GID built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_UID_STACKSIZE)
 
 # UID/GID Example
 
-ASRCS =
-CSRCS =
 MAINSRC = uid_main.c
 
 CONFIG_EXAMPLES_UID_PROGNAME ?= uid$(EXEEXT)

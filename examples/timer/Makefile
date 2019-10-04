@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Timer built-in application info
 
@@ -49,8 +49,6 @@ PROGNAME  = $(CONFIG_EXAMPLES_TIMER_PROGNAME)
 
 # Timer example
 
-ASRCS =
-CSRCS =
 MAINSRC = timer_main.c
 
 MODULE = CONFIG_EXAMPLES_TIMER

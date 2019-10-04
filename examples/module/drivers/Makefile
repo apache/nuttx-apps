@@ -33,8 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
 ALL_SUBDIRS = chardev

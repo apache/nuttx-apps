@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # system() built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_SYSTEM_STACKSIZE)
 
 # system() Example
 
-ASRCS =
-CSRCS =
 MAINSRC = system_main.c
 
 CONFIG_EXAMPLES_SYSTEM_PROGNAME ?= system$(EXEEXT)

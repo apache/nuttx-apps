@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # cJSON built-in application info
 
@@ -41,8 +41,6 @@ APPNAME = json
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
 MAINSRC = json_main.c
 
 CONFIG_XYZ_PROGNAME ?= json$(EXEEXT)

@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_EXAMPLES_ADXL372_TEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 CONFIG_EXAMPLES_ADXL372_TEST_STACKSIZE ?= 2048
@@ -44,8 +44,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_ADXL372_TEST_STACKSIZE)
 
 # ADXL372 sensor test Example
 
-ASRCS =
-CSRCS =
 MAINSRC = adxl372_test_main.c
 
 CONFIG_EXAMPLES_ADXL372_TEST_PROGNAME ?= adxl372_test$(EXEEXT)

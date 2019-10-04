@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # SMART file system stress test
 
 APPNAME = smart
 
-ASRCS =
-CSRCS =
 MAINSRC = smart_main.c
 
 CONFIG_XYZ_PROGNAME ?= smart$(EXEEXT)

@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # I2S character driver test
 
-ASRCS =
-CSRCS =
 MAINSRC = i2sloop_main.c
 
 CONFIG_XYZ_PROGNAME ?= i2sloop$(EXEEXT)

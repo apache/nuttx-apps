@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Modbus Master built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_MODBUSMASTER_STACKSIZE)
 
 # Modbus Master Example
 
-ASRCS =
-CSRCS =
 MAINSRC = mbmaster_main.c
 
 CONFIG_EXAMPLES_MODBUSMASTER_PROGNAME ?= mbmaster$(EXEEXT)

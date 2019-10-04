@@ -36,7 +36,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Discover built-in application info
 
@@ -44,8 +44,6 @@ APPNAME = discover
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
 MAINSRC = discover_main.c
 
 CONFIG_XYZ_PROGNAME ?= discover$(EXEEXT)

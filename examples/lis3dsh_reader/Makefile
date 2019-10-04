@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 APPNAME = lis3dsh_reader
 PRIORITY = SCHED_PRIORITY_DEFAULT
@@ -41,8 +41,6 @@ STACKSIZE = 2048
 
 # LIS3DSH reader example
 
-ASRCS =
-CSRCS =
 MAINSRC = lis3dsh_reader_main.c
 
 CONFIG_FLOX_IMUTEST_PROGNAME ?= lis3dsh_reader$(EXEEXT)

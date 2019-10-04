@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CONFIGDATA Unit Test
 
@@ -41,8 +41,6 @@ APPNAME = configdata
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
 MAINSRC = configdata_main.c
 
 CONFIG_XYZ_PROGNAME ?= configdata$(EXEEXT)

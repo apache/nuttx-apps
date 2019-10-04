@@ -33,10 +33,7 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
-
-ASRCS =
-CSRCS =
+include $(TOPDIR)/Make.defs
 
 # Infrastructure
 

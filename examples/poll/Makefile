@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CSRCS = poll_listener.c select_listener.c net_listener.c net_reader.c
 MAINSRC = poll_main.c

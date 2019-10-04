@@ -36,12 +36,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Telnet daemon
 
 ifeq ($(CONFIG_NET_UDP),y)
-CSRCS		+= discover.c
+CSRCS = discover.c
 endif
 
 include $(APPDIR)/Application.mk

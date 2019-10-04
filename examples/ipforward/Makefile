@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_IPFORWARD_STACKSIZE)
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = ipforward.c
 
 CONFIG_EXAMPLES_IPFORWARD_PROGNAME ?= ipfwd$(EXEEXT)

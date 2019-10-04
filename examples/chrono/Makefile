@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Chronometer built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_CHRONO_STACKSIZE)
 
 # Chronometer Example
 
-ASRCS =
-CSRCS =
 MAINSRC = chrono_main.c
 
 CONFIG_EXAMPLES_CHRONO_PROGNAME ?= chrono$(EXEEXT)

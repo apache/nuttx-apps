@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # APA102 built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # APA102 Test
 
-ASRCS =
-CSRCS =
 MAINSRC = apa102_main.c
 
 CONFIG_EXAMPLES_APA102_PROGNAME ?= apa102$(EXEEXT)

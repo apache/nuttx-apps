@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # GPS built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_GPS_STACKSIZE)
 
 # GPS Example
 
-ASRCS =
-CSRCS =
 MAINSRC = gps_main.c
 
 CONFIG_EXAMPLES_GPS_PROGNAME ?= gps$(EXEEXT)

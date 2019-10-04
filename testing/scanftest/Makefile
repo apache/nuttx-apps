@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # scanf() test built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_TESTING_SCANFTEST_STACKSIZE)
 
 # scanf test files
 
-ASRCS =
-CSRCS =
 MAINSRC = scanftest_main.c
 
 CONFIG_TESTING_SCANFTEST_PROGNAME ?= scanftest$(EXEEXT)

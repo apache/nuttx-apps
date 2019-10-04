@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Sendmail SMTP Example
 
 APPNAME = sendmail
 
-ASRCS =
-CSRCS =
 MAINSRC = sendmail_main.c
 
 CONFIG_XYZ_PROGNAME ?= sendmail$(EXEEXT)

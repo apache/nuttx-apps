@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # The NULL example built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # The smallest thing you can build -- the NULL example.
 
-ASRCS =
-CSRCS =
 MAINSRC = null_main.c
 
 CONFIG_XYZ_PROGNAME ?= null$(EXEEXT)

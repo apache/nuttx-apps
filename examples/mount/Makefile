@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # mount() test
 
 APPNAME = mount
 
-ASRCS =
 CSRCS = ramdisk.c
 MAINSRC = mount_main.c
 

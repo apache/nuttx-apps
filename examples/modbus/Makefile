@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FreeModBus demo built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # FreeModBus demo
 
-ASRCS =
-CSRCS =
 MAINSRC = modbus_main.c
 
 CONFIG_XYZ_PROGNAME ?= modbus$(EXEEXT)

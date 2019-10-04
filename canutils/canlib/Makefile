@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CAN utility library
 
-ASRCS  =
 CSRCS  = canlib_getbaud.c canlib_setbaud.c
 CSRCS += canlib_getloopback.c canlib_setloopback.c
 CSRCS += canlib_getsilent.c canlib_setsilent.c

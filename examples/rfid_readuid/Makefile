@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # RFID Read UID built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_RFID_READUID_STACKSIZE)
 
 # RFID Read UID Example
 
-ASRCS =
-CSRCS =
 MAINSRC = rfid_readuid.c
 
 CONFIG_EXAMPLES_RFID_READUID_PROGNAME ?= rfid_readuid$(EXEEXT)

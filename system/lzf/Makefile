@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # LZF built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_SYSTEM_LZF_STACKSIZE)
 
 # LZF compression example tool
 
-ASRCS =
-CSRCS =
 MAINSRC = lzf_main.c
 
 CONFIG_SYSTEM_LZF_PROGNAME ?= lzf$(EXEEXT)

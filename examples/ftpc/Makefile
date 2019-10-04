@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FTPC Client Application
 
@@ -43,7 +43,6 @@ APPNAME = ftpc
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = CONFIG_EXAMPLES_FTPC_STACKSIZE
 
-ASRCS =
 CSRCS = ftpc_cmds.c
 MAINSRC = ftpc_main.c
 

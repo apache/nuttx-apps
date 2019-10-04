@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # do nothing loop to use up cpu time
 
-ASRCS =
-CSRCS =
 MAINSRC = cpuhog_main.c
 
 CONFIG_XYZ_PROGNAME ?= cpuhog$(EXEEXT)

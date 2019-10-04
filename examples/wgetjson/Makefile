@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = wgetjson_main.c
 
 CONFIG_XYZ_PROGNAME ?= wgetjson$(EXEEXT)

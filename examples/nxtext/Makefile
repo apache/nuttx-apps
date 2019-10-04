@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-ASRCS =
 CSRCS = nxtext_bkgd.c nxtext_popup.c nxtext_putc.c
 MAINSRC = nxtext_main.c nxtext_listener.c
 

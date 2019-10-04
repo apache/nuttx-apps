@@ -33,10 +33,9 @@
 #
 #############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # THTTPD Library
-CSRCS =
 
 ifeq ($(CONFIG_NET_TCP),y)
   CSRCS += libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c

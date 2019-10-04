@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # ini_dumper example built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_INI_DUMPER_STACKSIZE)
 
 # ini_dumper Example
 
-ASRCS =
-CSRCS =
 MAINSRC = ini_dumper_main.c
 CFLAGS += -I$(APPDIR)/include/fsutils
 

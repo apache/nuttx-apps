@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # u-blox modem tool
 
-ASRCS =
-CSRCS =
 MAINSRC = ubloxmodem_main.c
 
 CONFIG_XYZ_PROGNAME ?= ubloxmodem$(EXEEXT)

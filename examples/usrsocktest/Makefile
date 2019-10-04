@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # USRSOCK Test built-in application info
 
@@ -46,7 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_USRSOCKTEST_STACKSIZE)
 
 # NuttX USRSOCK Test
 
-ASRCS =
 CSRCS = usrsocktest_daemon.c usrsocktest_basic_connect.c
 CSRCS += usrsocktest_basic_daemon.c usrsocktest_basic_getsockname.c
 CSRCS += usrsocktest_basic_getsockopt.c usrsocktest_basic_send.c

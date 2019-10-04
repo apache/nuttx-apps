@@ -33,13 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! C++ Example
 
-ASRCS =
-CSRCS =
-CXXSRCS =
 MAINSRC = helloxx_main.cxx
 
 CONFIG_EXAMPLES_HELLOXX_PROGNAME ?= helloxx$(EXEEXT)

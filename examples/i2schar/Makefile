@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # I2S character driver test
 
-ASRCS =
-CSRCS =
 ifeq ($(CONFIG_EXAMPLES_I2SCHAR_TX),y)
 CSRCS += i2schar_transmitter.c
 endif

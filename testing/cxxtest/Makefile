@@ -33,13 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CXX test program
 
-ASRCS =
-CSRCS =
-CXXSRCS =
 MAINSRC = cxxtest_main.cxx
 
 CONFIG_XYZ_PROGNAME ?= cxxtest$(EXEEXT)

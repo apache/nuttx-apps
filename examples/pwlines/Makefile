@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-ASRCS =
 CSRCS = pwlines_events.c pwlines_motion.c pwlines_update.c
 MAINSRC = pwlines_main.c
 

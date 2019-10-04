@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Stat built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_STAT_STACKSIZE)
 
 # Stat test
 
-ASRCS =
-CSRCS =
 MAINSRC = stat_main.c
 
 CONFIG_EXAMPLES_STAT_PROGNAME ?= stat$(EXEEXT)

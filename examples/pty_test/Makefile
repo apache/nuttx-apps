@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_PTYTEST_STACKSIZE)
 
 # PTY Test! Example
 
-ASRCS =
-CSRCS =
 CFLAGS += -I$(APPDIR)/include
 MAINSRC = pty_test.c
 

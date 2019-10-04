@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Nunchuck Example
 
-ASRCS =
-CSRCS =
 MAINSRC = nunchuck_main.c
 
 CONFIG_NUNCHUCK_PROGNAME ?= nunchuck$(EXEEXT)

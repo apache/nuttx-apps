@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-ASRCS =
-CSRCS =
 MAINSRC = qe_main.c
 
 CONFIG_XYZ_PROGNAME ?= qencoder$(EXEEXT)

@@ -33,11 +33,11 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Mini Basic Library
 
-CSRCS  = basic.c
+CSRCS = basic.c
 
 MAINSRC = script.c
 

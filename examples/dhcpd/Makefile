@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # DHCP Daemon Example
 
-ASRCS =
-CSRCS =
 MAINSRC = target.c
 
 CONFIG_XYZ_PROGNAME ?= dhcpd$(EXEEXT)

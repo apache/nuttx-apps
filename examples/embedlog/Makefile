@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # embedlog example built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_EMBEDLOG_STACKSIZE)
 
 # embedlog Example
 
-ASRCS =
-CSRCS =
 MAINSRC = embedlog_main.c
 CFLAGS += -I$(APPDIR)/include/system
 

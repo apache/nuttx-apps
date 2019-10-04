@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CLatchButtonArray unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = clatchbuttonarraytest.cxx
 MAINSRC = clatchbuttonarray_main.cxx
 

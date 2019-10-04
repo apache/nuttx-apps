@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FB, World! built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_FB_STACKSIZE)
 
 # FB, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = fb_main.c
 
 CONFIG_EXAMPLES_FB_PROGNAME ?= fb$(EXEEXT)

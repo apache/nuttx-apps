@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CProgressBar unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cprogressbartest.cxx
 MAINSRC = cprogressbar_main.cxx
 

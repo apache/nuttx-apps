@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Directories
 
@@ -58,7 +58,7 @@ CSRCS  += trv_rayprune.c trv_rayrend.c trv_texturefile.c trv_trigtbl.c
 CSRCS  += trv_world.c
 
 ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
-CSRCS += trv_romfs.c
+CSRCS  += trv_romfs.c
 endif
 
 MAINSRC = trv_main.c

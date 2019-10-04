@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-ASRCS =
-CSRCS =
 MAINSRC = can_main.c
 
 CONFIG_XYZ_PROGNAME ?= can$(EXEEXT)

@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CLabel unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = clabeltest.cxx
 MAINSRC = clabel_main.cxx
 

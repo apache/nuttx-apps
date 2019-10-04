@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # ostest built-in application info
 
@@ -43,7 +43,6 @@ STACKSIZE = 2048
 
 # NuttX OS Test
 
-ASRCS   =
 CSRCS   = dev_null.c restart.c sigprocmask.c sighand.c signest.c
 MAINSRC = ostest_main.c
 

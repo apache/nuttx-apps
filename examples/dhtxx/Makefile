@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Dhtxx, World! built-in application info
 
@@ -47,8 +47,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_DHTXX_STACKSIZE)
 
 # Dhtxx Example
 
-ASRCS =
-CSRCS =
 MAINSRC = dhtxx_main.c
 
 CONFIG_EXAMPLES_DHTXX_PROGNAME ?= dhtxx$(EXEEXT)

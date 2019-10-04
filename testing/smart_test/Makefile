@@ -34,7 +34,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
@@ -46,8 +46,6 @@ APPNAME = smart_test
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 4096
 
-ASRCS =
-CSRCS =
 MAINSRC = smart_test.c
 
 CONFIG_XYZ_PROGNAME ?= smart_test$(EXEEXT)

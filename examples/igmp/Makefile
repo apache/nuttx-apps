@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 APPNAME = igmp
 PRIORITY = SCHED_PRIORITY_DEFAULT
@@ -41,8 +41,6 @@ STACKSIZE = 1024
 
 # IGMP Networking Example
 
-ASRCS =
-CSRCS =
 MAINSRC = igmp.c
 
 CONFIG_XYZ_PROGNAME ?= igmp$(EXEEXT)

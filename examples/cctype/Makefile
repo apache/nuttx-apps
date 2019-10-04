@@ -33,13 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # cctype verification
 
-ASRCS =
-CSRCS =
-CXXSRCS =
 MAINSRC = cctype_main.cxx
 
 CONFIG_EXAMPLES_CCTYPE_PROGNAME ?= cctype$(EXEEXT)

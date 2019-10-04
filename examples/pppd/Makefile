@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # pppd Example
 
-ASRCS =
-CSRCS =
 MAINSRC = pppd_main.c
 
 CONFIG_EXAMPLES_PPPD_PROGNAME ?= pppd$(EXEEXT)

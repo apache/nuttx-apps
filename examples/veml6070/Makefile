@@ -35,7 +35,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # VEML6070 UltraViolet sensor example built-in application info
 
@@ -48,8 +48,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_VEML6070_STACKSIZE)
 
 # VEML6070 UltraViolet sensor example
 
-ASRCS =
-CSRCS =
 MAINSRC = veml6070_main.c
 
 CONFIG_EXAMPLES_VEML6070_PROGNAME ?= veml6070$(EXEEXT)

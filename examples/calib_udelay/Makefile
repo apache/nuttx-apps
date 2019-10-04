@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # built-in application info
 
@@ -49,8 +49,6 @@ PROGNAME  = $(CONFIG_EXAMPLES_CALIB_UDELAY_PROGNAME)
 
 # Udelay calibration tool
 
-ASRCS =
-CSRCS =
 MAINSRC = calib_udelay_main.c
 
 MODULE = CONFIG_EXAMPLES_CALIB_UDELAY

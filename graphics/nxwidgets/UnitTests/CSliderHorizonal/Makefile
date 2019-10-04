@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CSliderHorizontal unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = csliderhorizontaltest.cxx
 MAINSRC = csliderhorizontal_main.cxx
 

@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # DHCP Client Library
 
-CSRCS		=
 ifeq ($(CONFIG_NET_UDP),y)
-CSRCS		+= dhcpc.c
+CSRCS = dhcpc.c
 endif
 
 include $(APPDIR)/Application.mk

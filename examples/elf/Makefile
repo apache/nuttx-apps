@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # ELF Example
 
-ASRCS =
 CSRCS = symtab.c
 MAINSRC = elf_main.c
 

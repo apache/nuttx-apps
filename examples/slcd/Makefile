@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # Hello, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = slcd_main.c
 
 CONFIG_XYZ_PROGNAME ?= slcd$(EXEEXT)

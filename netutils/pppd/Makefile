@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CSRCS = pppd.c ppp.c ahdlc.c lcp.c ipcp.c
 ifeq ($(CONFIG_NETUTILS_PPPD_PAP),y)

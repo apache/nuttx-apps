@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # system command
 
-ASRCS =
 CSRCS = system.c
 
 include $(APPDIR)/Application.mk

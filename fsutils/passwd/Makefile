@@ -33,11 +33,9 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Password file access library
-
-CSRCS =
 
 ifeq ($(CONFIG_FSUTILS_PASSWD),y)
 ifeq ($(CONFIG_FS_READABLE),y)

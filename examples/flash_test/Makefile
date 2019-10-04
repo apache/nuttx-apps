@@ -34,7 +34,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
@@ -46,8 +46,6 @@ APPNAME = flash_test
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
 MAINSRC = flash_test.c
 
 CONFIG_XYZ_PROGNAME ?= flash_test$(EXEEXT)

@@ -35,7 +35,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # BMP180 Barometer sensor example built-in application info
 
@@ -48,8 +48,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_BMP180_STACKSIZE)
 
 # BMP180 Barometer sensor example
 
-ASRCS =
-CSRCS =
 MAINSRC = bmp180_main.c
 
 CONFIG_EXAMPLES_BMP180_PROGNAME ?= bmp180$(EXEEXT)

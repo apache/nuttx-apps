@@ -36,7 +36,7 @@
 # TODO, this makefile should run make under the app dirs, instead of
 # sourcing the Make.defs!
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # IEEE802.11 Wapi Application
 

@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Generic file system stress test application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_TESTING_FSTEST_STACKSIZE)
 
 # Generic file system stress test
 
-ASRCS =
-CSRCS =
 MAINSRC = fstest_main.c
 
 CONFIG_TESTING_FSTEST_PROGNAME ?= hello$(EXEEXT)

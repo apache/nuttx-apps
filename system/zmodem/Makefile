@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_SYSTEM_SZPROGNAME ?= sz$(EXEEXT)
 PROGNAME = $(CONFIG_SYSTEM_SZPROGNAME)

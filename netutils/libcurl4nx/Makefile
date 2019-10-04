@@ -33,14 +33,14 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Web client library
 
-CSRCS		= curl4nx_easy_init.c curl4nx_easy_cleanup.c \
-                  curl4nx_easy_reset.c curl4nx_easy_duphandle.c \
-                  curl4nx_easy_escape.c curl4nx_easy_unescape.c \
-                  curl4nx_easy_setopt.c curl4nx_easy_perform.c \
-                  curl4nx_easy_getinfo.c
+CSRCS = curl4nx_easy_init.c curl4nx_easy_cleanup.c \
+        curl4nx_easy_reset.c curl4nx_easy_duphandle.c \
+        curl4nx_easy_escape.c curl4nx_easy_unescape.c \
+        curl4nx_easy_setopt.c curl4nx_easy_perform.c \
+        curl4nx_easy_getinfo.c
 
 include $(APPDIR)/Application.mk

@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Memory Management Test
 
@@ -44,8 +44,6 @@ APPNAME = mm
 PRIORITY = $(CONFIG_EXAMPLES_MM_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_MM_STACKSIZE)
 
-ASRCS =
-CSRCS =
 MAINSRC = mm_main.c
 
 CONFIG_EXAMPLES_MM_PROGNAME ?= mm$(EXEEXT)

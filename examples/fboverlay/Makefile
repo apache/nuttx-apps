@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # fboverlay built-in application info
 
@@ -43,8 +43,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_FBOVERLAY_STACKSIZE)
 
 # fboverlay files
 
-ASRCS  =
-CSRCS  =
 MAINSRC = fboverlay_main.c
 
 CONFIG_EXAMPLES_FBOVERLAY_PROGNAME ?= fboverlay$(EXEEXT)

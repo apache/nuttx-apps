@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # ADC example
 
-ASRCS =
-CSRCS =
 MAINSRC = adc_main.c
 
 CONFIG_XYZ_PROGNAME ?= adc$(EXEEXT)

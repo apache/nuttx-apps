@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # RGBLED built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_RGBLED_STACKSIZE)
 
 # RGBLED Example
 
-ASRCS =
-CSRCS =
 MAINSRC = rgbled.c
 
 CONFIG_EXAMPLES_RGBLED_PROGNAME ?= rgbled$(EXEEXT)

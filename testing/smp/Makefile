@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # SMP built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_TESTING_SMP_STACKSIZE)
 
 # SMP Example
 
-ASRCS =
-CSRCS =
 MAINSRC = smp_main.c
 
 CONFIG_TESTING_SMP_PROGNAME ?= smp$(EXEEXT)

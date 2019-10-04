@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # popen() built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_POPEN_STACKSIZE)
 
 # popen() Example
 
-ASRCS =
-CSRCS =
 MAINSRC = popen_main.c
 
 CONFIG_EXAMPLES_POPEN_PROGNAME ?= popen$(EXEEXT)

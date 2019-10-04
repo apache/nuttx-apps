@@ -33,14 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
--include $(APPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # SLcd
 
-ASRCS     =
-CSRCS     =
-CXXSRCS   = cslcd.cxx slcd_mapping.cxx slcd_trapezoids.cxx
-MAINSRC   =
+CXXSRCS = cslcd.cxx slcd_mapping.cxx slcd_trapezoids.cxx
 
 include $(APPDIR)/Application.mk

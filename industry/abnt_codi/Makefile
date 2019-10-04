@@ -33,11 +33,11 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NSH Library
 
-CSRCS  = abnt_codi.c
+CSRCS   = abnt_codi.c
 CFLAGS += -std=c99
 
 include $(APPDIR)/Application.mk

@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FT80X example built-in application info
 
@@ -46,7 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_FT80X_STACKSIZE)
 
 # FT80X example
 
-ASRCS =
 CSRCS = ft80x_coprocessor.c
 
 ifeq ($(CONFIG_EXAMPLES_FT80X_PRIMITIVES),y)

@@ -33,7 +33,6 @@
 #
 ############################################################################
 
-include $(TOPDIR)/.config
 include $(TOPDIR)/scripts/Make.defs
 
 # Control build verbosity

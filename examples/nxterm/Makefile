@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttX NX Console Example.
 
-ASRCS =
 CSRCS = nxterm_toolbar.c nxterm_wndo.c nxterm_listener.c
 MAINSRC = nxterm_main.c
 

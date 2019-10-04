@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Mindlessly simple console loopack test
 
 APPNAME = serloop
 
-ASRCS =
-CSRCS =
 MAINSRC = serloop_main.c
 
 CONFIG_XYZ_PROGNAME ?= serloop$(EXEEXT)

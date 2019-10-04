@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # For testing: Blast canned characters at a designated serial port
 
-ASRCS =
-CSRCS =
 MAINSRC = serialblaster_main.c
 
 CONFIG_XYZ_PROGNAME ?= serialblaster$(EXEEXT)

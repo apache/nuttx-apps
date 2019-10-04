@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # relays Example
 
-ASRCS =
-CSRCS =
 MAINSRC = relays_main.c
 
 CONFIG_XYZ_PROGNAME ?= relays$(EXEEXT)

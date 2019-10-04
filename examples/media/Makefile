@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Media test application info
 
@@ -43,8 +43,6 @@ STACKSIZE = 2048
 
 # Media test application files
 
-ASRCS =
-CSRCS =
 MAINSRC = media_main.c
 
 CONFIG_EXAMPLES_MEDIA_PROGNAME ?= media$(EXEEXT)

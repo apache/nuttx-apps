@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # /dev/random test
 
@@ -41,8 +41,6 @@ APPNAME = rand
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
 MAINSRC = random_main.c
 
 CONFIG_XYZ_PROGNAME ?= random$(EXEEXT)

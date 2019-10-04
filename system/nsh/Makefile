@@ -33,14 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NuttShell (NSH) Example
 
-ASRCS =
-CSRCS =
 MAINSRC = nsh_main.c
 
 CONFIG_SYSTEM_NSH_PROGNAME ?= nsh$(EXEEXT)

@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # DHCP Daemn Library
 
-CSRCS		=
 ifeq ($(CONFIG_NET_UDP),y)
-CSRCS		+= dhcpd.c
+CSRCS = dhcpd.c
 endif
 
 include $(APPDIR)/Application.mk

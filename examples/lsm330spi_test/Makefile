@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_EXAMPLES_LSM330SPI_TEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 CONFIG_EXAMPLES_LSM330SPI_TEST_STACKSIZE ?= 2048
@@ -44,8 +44,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_LSM330SPI_TEST_STACKSIZE)
 
 # LSM330 sensor test Example
 
-ASRCS =
-CSRCS =
 MAINSRC = lsm330spi_test_main.c
 
 CONFIG_EXAMPLES_LSM330SPI_TEST_PROGNAME ?= lsm330spi_test$(EXEEXT)

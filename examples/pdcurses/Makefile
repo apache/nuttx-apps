@@ -33,8 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # pdcurses demo programs
 

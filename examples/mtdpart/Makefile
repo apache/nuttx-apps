@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # MTD Partition Example
 
 APPNAME = mtdpart
 
-ASRCS =
-CSRCS =
 MAINSRC = mtdpart_main.c
 
 CONFIG_XYZ_PROGNAME ?= mtdpart$(EXEEXT)

@@ -33,11 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Password file access library
 
-CSRCS =
 ifeq ($(CONFIG_FSUTILS_FLASH_ERASEALL),y)
 CSRCS += flash_eraseall.c
 endif

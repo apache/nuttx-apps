@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FLOWC Test
 
 # Target 1
 
-CSRCS =
-MAINSRC =
 ifeq ($(CONFIG_EXAMPLES_FLOWC_SENDER1),y)
 CSRCS += flowc_sender.c
 else

@@ -33,8 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
--include $(APPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Add path to cursor images to CXXFLAGS
 
@@ -52,8 +51,6 @@ STACKSIZE = $(CONFIG_TWM4NX_STACKSIZE)
 
 # Twm4Nx
 
-ASRCS     =
-CSRCS     =
 CXXSRCS   = twm4nx_main.cxx
 CXXSRCS  += cbackground.cxx cfonts.cxx ciconmgr.cxx ciconwidget.cxx
 CXXSRCS  += cmenus.cxx cmainmenu.cxx

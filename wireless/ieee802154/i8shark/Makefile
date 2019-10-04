@@ -33,10 +33,8 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
-ASRCS =
-CSRCS =
 MAINSRC = i8shark_main.c
 
 CONFIG_XYZ_PROGNAME ?= i8shark$(EXEEXT)

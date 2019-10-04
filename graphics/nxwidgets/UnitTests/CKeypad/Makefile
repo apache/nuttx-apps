@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CKeyPad unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = ckeypadtest.cxx
 MAINSRC = ckeypad_main.cxx
 

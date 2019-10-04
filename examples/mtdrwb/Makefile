@@ -33,14 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # MTD R/W buffer test Example
 
 APPNAME = mtdrwb
 
-ASRCS =
-CSRCS =
 MAINSRC = mtdrwb_main.c
 
 CONFIG_EXAMPLES_MTDRWB_PROGNAME ?= mtdrwb$(EXEEXT)

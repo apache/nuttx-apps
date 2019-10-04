@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CListBox unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = clistboxtest.cxx
 MAINSRC = clistbox_main.cxx
 

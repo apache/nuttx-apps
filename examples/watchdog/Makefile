@@ -33,12 +33,10 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Watchdog Timer Example.
 
-ASRCS =
-CSRCS =
 MAINSRC = watchdog_main.c
 
 CONFIG_XYZ_PROGNAME ?= watchdog$(EXEEXT)

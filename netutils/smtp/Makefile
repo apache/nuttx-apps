@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # SMTP Library
 
-CSRCS		=
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		+= smtp.c
+CSRCS = smtp.c
 endif
 
 include $(APPDIR)/Application.mk

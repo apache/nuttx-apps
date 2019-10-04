@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # NTP client daemon Library
 
-CSRCS =
 ifeq ($(CONFIG_NET_UDP),y)
-CSRCS += ntpclient.c
+CSRCS = ntpclient.c
 endif
 
 include $(APPDIR)/Application.mk

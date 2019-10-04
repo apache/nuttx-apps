@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # GPIO, World! built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_GPIO_STACKSIZE)
 
 # GPIO, World! Example
 
-ASRCS =
-CSRCS =
 MAINSRC = gpio_main.c
 
 CONFIG_EXAMPLES_GPIO_PROGNAME ?= gpio$(EXEEXT)

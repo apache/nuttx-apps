@@ -33,12 +33,10 @@
 #
 #################################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # CImage unit test
 
-ASRCS =
-CSRCS =
 CXXSRCS = cimagetest.cxx
 MAINSRC = cimage_main.cxx
 

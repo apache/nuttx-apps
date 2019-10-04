@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # LittleVGL demo built-in application info
 
@@ -46,7 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_LVGLDEMO_STACKSIZE)
 
 # LittleVGL demo Example
 
-ASRCS =
 CSRCS += fbdev.c tp.c tp_cal.c
 ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_SIMPLE),y)
   CSRCS += demo.c

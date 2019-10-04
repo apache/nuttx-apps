@@ -33,13 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # Telnet daemon
 
-CSRCS =
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS += telnetd_daemon.c
+CSRCS = telnetd_daemon.c
 endif
 
 include $(APPDIR)/Application.mk

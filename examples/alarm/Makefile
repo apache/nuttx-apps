@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # RTC driver alarm test built-in application info
 
@@ -46,8 +46,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_ALARM_STACKSIZE)
 
 # RTC driver alarm test
 
-ASRCS =
-CSRCS =
 MAINSRC = alarm_main.c
 
 CONFIG_EXAMPLES_ALARM_PROGNAME ?= alarm$(EXEEXT)
