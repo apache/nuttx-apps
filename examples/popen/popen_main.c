@@ -52,11 +52,7 @@
  * Name: popen_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int popen_main(int argc, char *argv[])
-#endif
 {
   struct itimerspec value;
   struct sigevent ev;

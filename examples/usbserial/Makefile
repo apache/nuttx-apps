@@ -38,15 +38,11 @@ include $(TOPDIR)/Make.defs
 # USB serial device example
 # Built-in application info
 
-APPNAME = usbserial
+PROGNAME = usbserial
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_USBSERIAL)
 
 MAINSRC = usbserial_main.c
-
-CONFIG_XYZ_PROGNAME ?= usbserial$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_USBSERIAL
 
 include $(APPDIR)/Application.mk

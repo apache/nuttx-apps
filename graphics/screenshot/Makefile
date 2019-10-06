@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = screenshot_main.c
 
-CONFIG_XYZ_PROGNAME ?= screenshot$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # TIFF screen built-in application info
 
-APPNAME = screenshot
+PROGNAME = screenshot
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 4096
-
-MODULE = CONFIG_GRAPHICS_SCREENSHOT
+MODULE = $(CONFIG_GRAPHICS_SCREENSHOT)
 
 include $(APPDIR)/Application.mk

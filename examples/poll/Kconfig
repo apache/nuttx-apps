@@ -6,7 +6,7 @@
 config EXAMPLES_POLL
 	tristate "Poll example"
 	default n
-	depends on !NSH_BUILTIN_APPS && PIPES
+	depends on PIPES
 	---help---
 		Enable the poll example
 

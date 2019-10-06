@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_SX127X
-	bool "SX127x example"
+	tristate "SX127x example"
 	default n
 	depends on LPWAN_SX127X
 

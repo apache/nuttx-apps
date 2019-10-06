@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_PRUN
-	tristate "Pascal P-Code interpreter"
+	bool "Pascal P-Code interpreter"
 	default n
 	depends on INTERPRETERS_PCODE
 	---help---
@@ -16,7 +16,7 @@ menuconfig SYSTEM_PRUN
 if SYSTEM_PRUN
 
 config SYSTEM_PEXEC
-	bool "Pascal P-Code command"
+	tristate "Pascal P-Code command"
 	default n
 	---help---
 		Generates an NSH built-in task that may be used to execute P-Code

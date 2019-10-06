@@ -46,14 +46,6 @@ CSRCS += flowc_receiver.c
 endif
 MAINSRC += flowc_target1.c
 
-ifeq ($(CONFIG_EXAMPLES_FLOWC_SENDER1),y)
-CONFIG_EXAMPLES_FLOWC_PROGNAME1 ?= sender
-else
-CONFIG_EXAMPLES_FLOWC_PROGNAME1 ?= receiver
-endif
-CONFIG_EXAMPLES_FLOWC_PRIORITY1 ?= 100
-CONFIG_EXAMPLES_FLOWC_STACKSIZE1 ?= 2048
-
 PROGNAME = $(CONFIG_EXAMPLES_FLOWC_PROGNAME1)
 PRIORITY = $(CONFIG_EXAMPLES_FLOWC_PRIORITY1)
 STACKSIZE = $(CONFIG_EXAMPLES_FLOWC_STACKSIZE1)
@@ -68,14 +60,6 @@ else
 CSRCS += flowc_sender.c
 endif
 MAINSRC += flowc_target2.c
-
-ifeq ($(CONFIG_EXAMPLES_FLOWC_SENDER1),y)
-CONFIG_EXAMPLES_FLOWC_PROGNAME2 ?= receiver
-else
-CONFIG_EXAMPLES_FLOWC_PROGNAME2 ?= sender
-endif
-CONFIG_EXAMPLES_FLOWC_PRIORITY2 ?= 100
-CONFIG_EXAMPLES_FLOWC_STACKSIZE2 ?= 2048
 
 PROGNAME += $(CONFIG_EXAMPLES_FLOWC_PROGNAME2)
 PRIORITY += $(CONFIG_EXAMPLES_FLOWC_PRIORITY2)
@@ -100,39 +84,27 @@ HOST_BIN = sender$(EXEEXT)
 endif
 
 HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJSEXT))
-endif
-
-ifeq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
-APPNAME = flowc1 flowc2
-else
-APPNAME = flowc
-endif
-
-ifneq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
 $(HOST_OBJS): %.$(HOSTOBJSEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
-endif
 
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
-ifneq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
 $(HOST_BIN): config.h $(HOST_OBJS)
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
-endif
 
 context:: config.h $(HOST_BIN)
 
 clean::
-ifneq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, *.$(HOSTOBJSEXT))
-endif
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)
 
-MODULE = CONFIG_EXAMPLES_FLOWC
+endif
+
+MODULE = $(CONFIG_EXAMPLES_FLOWC)
 
 include $(APPDIR)/Application.mk

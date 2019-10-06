@@ -37,13 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # Mindlessly simple console loopack test
 
-APPNAME = serloop
+PROGNAME = serloop
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_SERLOOP)
 
 MAINSRC = serloop_main.c
-
-CONFIG_XYZ_PROGNAME ?= serloop$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_SERLOOP
 
 include $(APPDIR)/Application.mk

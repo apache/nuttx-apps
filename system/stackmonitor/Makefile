@@ -37,16 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # Stack Monitor Application
 
+PROGNAME = stackmonitor_start stackmonitor_stop
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_SYSTEM_STACKMONITOR)
 
 MAINSRC = stackmonitor.c
-
-CONFIG_XYZ_PROGNAME ?= stackmon$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-APPNAME = stackmonitor_start stackmonitor_stop
-
-MODULE = CONFIG_SYSTEM_STACKMONITOR
 
 include $(APPDIR)/Application.mk

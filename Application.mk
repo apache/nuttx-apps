@@ -42,20 +42,13 @@ include $(APPDIR)/Make.defs
 # has the value "m"
 
 ifneq ($(MAINSRC),)
-  ifeq ($($(MODULE)),m)
+  ifeq ($(MODULE),m)
     BUILD_MODULE = y
   endif
-endif
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
-  BUILD_MODULE = y
-endif
-
-# Pass the definition to the C/C++ code via the CFLAGS/CXXFLAGS
-
-ifeq ($(BUILD_MODULE),y)
-  CFLAGS += ${shell $(DEFINE) "$(CC)" BUILD_MODULE}
-  CXXFLAGS += ${shell $(DEFINE) "$(CC)" BUILD_MODULE}
+  ifeq ($(CONFIG_BUILD_KERNEL),y)
+    BUILD_MODULE = y
+  endif
 endif
 
 # File extensions
@@ -84,12 +77,13 @@ endif
 # Module install directory
 
 BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
-INSTALL_DIR = $(BIN)
 
 ifeq ($(WINTOOL),y)
-  TOOLBIN ?= "${shell cygpath -w $(BIN)}"
+  TOOLBIN = "${shell cygpath -w $(BIN)}"
+  INSTALLDIR = "${shell cygpath -w $(BINDIR)}"
 else
-  TOOLBIN ?= $(BIN)
+  TOOLBIN = $(BIN)
+  INSTALLDIR = $(BINDIR)
 endif
 
 ROOTDEPPATH += --dep-path .
@@ -101,27 +95,6 @@ VPATH += :.
 all:: .built
 .PHONY: clean preconfig depend distclean
 .PRECIOUS: $(BIN)
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
-	$(call COMPILEXX, $<, $@)
-
-ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
-$(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
-	$(call COMPILEXX, $<, $@)
-else
-$(MAINOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-endif
-
-else
 
 define ELFASSEMBLE
 	@echo "AS: $1"
@@ -138,69 +111,70 @@ define ELFCOMPILEXX
 	$(Q) $(CXX) -c $(CXXELFFLAGS) $($(strip $1)_CXXELFFLAGS) $1 -o $2
 endef
 
+define ELFLD
+	@echo "LD: $2"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
+#	$(Q) $(STRIP) $2
+	$(Q) chmod +x $2
+endef
+
 $(AOBJS): %$(OBJEXT): %.S
-	$(if $(AELFFLAGS), \
-			$(call ELFASSEMBLE, $<, $@), \
-			$(call ASSEMBLE, $<, $@) \
-	)
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(AELFFLAGS)), \
+		$(call ELFASSEMBLE, $<, $@), $(call ASSEMBLE, $<, $@))
 
 $(COBJS): %$(OBJEXT): %.c
-	$(if $(CELFFLAGS), \
-			$(call ELFCOMPILE, $<, $@), \
-			$(call COMPILE, $<, $@) \
-	)
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
+		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
-	$(if $(CXXELFFLAGS), \
-			$(call ELFCOMPILEXX, $<, $@), \
-			$(call COMPILEXX, $<, $@) \
-	)
-
-ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
-$(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
-	$(if $(CXXELFFLAGS), \
-			$(call ELFCOMPILEXX, $<, $@), \
-			$(call COMPILEXX, $<, $@) \
-	)
-else
-$(MAINOBJ): %$(OBJEXT): %.c
-	$(if $(CELFFLAGS), \
-			$(call ELFCOMPILE, $<, $@), \
-			$(call COMPILE, $<, $@) \
-	)
-endif
-
-endif
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
+		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(TOOLBIN), $(OBJS))
 	$(Q) touch $@
 
-ifeq ($(BUILD_MODULE), y)
+ifeq ($(BUILD_MODULE),y)
 
-ifeq ($(WINTOOL), y)
-  PROGPRFX = ${cygpath -u $(INSTALL_DIR)$(DELIM)}
+ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
+$(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
+		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 else
-  PROGPRFX = $(INSTALL_DIR)$(DELIM)
+$(MAINOBJ): %$(OBJEXT): %.c
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
+		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 endif
 
-PROGLIST := $(addprefix $(PROGPRFX),$(PROGNAME))
+PROGLIST := $(wordlist 1,$(words $(MAINOBJ)),$(PROGNAME))
+PROGLIST := $(addprefix $(INSTALLDIR)$(DELIM),$(PROGLIST))
 PROGOBJ := $(MAINOBJ)
 
-$(PROGLIST): $(MAINOBJ) $(OBJS)
-ifneq ($(PROGOBJ),)
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $(firstword $(PROGOBJ)) $(LDLIBS) -o $(strip $(firstword $(PROGLIST)))_
-	$(Q) $(NM) -u $(strip $(firstword $(PROGLIST)))_
-	$(Q) install -m 0755 -D $(strip $(firstword $(PROGLIST)))_ $(firstword $(PROGLIST))
-	$(call DELFILE, $(strip $(firstword $(PROGLIST)))_)
-#	$(Q) $(STRIP) $(firstword $(PROGLIST))
+$(PROGLIST): $(MAINOBJ)
+	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
-endif
 
 install:: $(PROGLIST)
 
 else
+
+MAINNAME := $(addsuffix _main,$(PROGNAME))
+
+ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
+$(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
+	$(eval CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(firstword $(MAINNAME))})
+	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
+		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
+else
+$(MAINOBJ): %$(OBJEXT): %.c
+	$(eval CFLAGS += ${shell $(DEFINE) "$(CC)" main=$(firstword $(MAINNAME))})
+	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
+		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
+endif
+
 install::
 
 endif # BUILD_MODULE
@@ -208,13 +182,13 @@ endif # BUILD_MODULE
 preconfig::
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-ifneq ($(BUILD_MODULE),y)
-REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(APPNAME)_main.bdat)
-APPLIST := $(APPNAME)
-
-ifneq ($(APPNAME),)
+ifneq ($(PROGNAME),)
 ifneq ($(PRIORITY),)
 ifneq ($(STACKSIZE),)
+
+REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix _main.bdat,$(PROGNAME)))
+APPLIST := $(PROGNAME)
+
 $(REGLIST): $(DEPCONFIG) Makefile
 	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main))
 	$(eval APPLIST=$(filter-out $(firstword $(APPLIST)),$(APPLIST)))
@@ -222,9 +196,6 @@ $(REGLIST): $(DEPCONFIG) Makefile
 	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
 
 context:: $(REGLIST)
-else
-context::
-endif
 else
 context::
 endif

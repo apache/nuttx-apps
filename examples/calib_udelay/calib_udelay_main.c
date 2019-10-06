@@ -219,11 +219,7 @@ static int linreg(FAR struct measurement_s *point, int num_points,
  * calib_udelay_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int calib_udelay_main(int argc, char *argv[])
-#endif
 {
   const int num_measurements = CONFIG_EXAMPLES_CALIB_UDELAY_NUM_MEASUREMENTS;
   const int num_results = CONFIG_EXAMPLES_CALIB_UDELAY_NUM_RESULTS;

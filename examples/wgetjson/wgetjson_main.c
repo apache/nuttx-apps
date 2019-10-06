@@ -295,11 +295,7 @@ static int wgetjson_json_parse(char *text)
  * Name: wgetjson_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int wgetjson_main(int argc, char *argv[])
-#endif
 {
   char *buffer = NULL;
   int buffer_len = 512;

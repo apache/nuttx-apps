@@ -101,7 +101,6 @@ comment "Tasking options"
 config EXAMPLES_PWLINES_PROGNAME
 	string "Program name"
 	default "pwlines"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

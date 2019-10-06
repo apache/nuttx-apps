@@ -4,7 +4,7 @@
 #
 
 config NETUTILS_LIBCURL4NX
-	tristate "cURL4nx HTTP client library"
+	bool "cURL4nx HTTP client library"
 	default n
 	depends on NET_TCP
 	select LIBC_NETDB

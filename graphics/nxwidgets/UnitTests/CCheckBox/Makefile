@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = ccheckboxtest.cxx
 MAINSRC = ccheckbox_main.cxx
 
-APPNAME = ccheckbox
+PROGNAME = ccheckbox
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CCHECKBOX
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CCHECKBOX)
 
 include $(APPDIR)/Application.mk

@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cglyphbuttontest.cxx
 MAINSRC = cglyphbutton_main.cxx
 
-APPNAME = cglyphbutton
+PROGNAME = cglyphbutton
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CGLYPHBUTTON
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CGLYPHBUTTON)
 
 include $(APPDIR)/Application.mk

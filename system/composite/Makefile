@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = composite_main.c
 
-CONFIG_XYZ_PROGNAME ?= composite$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # USB storage built-in application info
 
-APPNAME = conn disconn
+PROGNAME = conn disconn
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_SYSTEM_COMPOSITE
+MODULE = $(CONFIG_SYSTEM_COMPOSITE)
 
 include $(APPDIR)/Application.mk

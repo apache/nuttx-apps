@@ -144,11 +144,7 @@ static FAR void *tick_func(void *data)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int lvgldemo_main(int argc, char *argv[])
-#endif
 {
   lv_disp_drv_t disp_drv;
   pthread_t tick_thread;

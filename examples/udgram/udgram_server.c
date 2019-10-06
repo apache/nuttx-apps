@@ -82,11 +82,7 @@ static inline int check_buffer(unsigned char *buf)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int server_main(int argc, char *argv[])
-#endif
 {
   struct sockaddr_un server;
   struct sockaddr_un client;

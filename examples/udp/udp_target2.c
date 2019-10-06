@@ -48,11 +48,7 @@
  * udp2_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#else
-int udp2_main(int argc, char *argv[])
-#endif
 {
   /* Parse any command line options */
 

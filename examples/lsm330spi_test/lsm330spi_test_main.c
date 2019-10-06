@@ -623,11 +623,7 @@ quick_exit:
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int lsm330spi_test_main(int argc, FAR char *argv[])
-#endif
 {
   int rc = 0;
   int step_rc = 0;

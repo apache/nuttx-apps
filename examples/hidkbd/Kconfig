@@ -14,7 +14,6 @@ if EXAMPLES_HIDKBD
 config EXAMPLES_HIDKBD_PROGNAME
 	string "Program name"
 	default "hidkbd"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the Nettest
 		program is installed.

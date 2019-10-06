@@ -102,7 +102,6 @@ comment "Tasking options"
 config EXAMPLES_PWFB_PROGNAME
 	string "Program name"
 	default "pwfb"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

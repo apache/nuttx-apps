@@ -244,11 +244,7 @@ void btsak_cmd_gatt(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
  * bt_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int bt_main(int argc, char *argv[])
-#endif
 {
   FAR const struct btsak_command_s *cmd;
   struct btsak_s btsak;

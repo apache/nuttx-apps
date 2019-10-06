@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = relays_main.c
 
-CONFIG_XYZ_PROGNAME ?= relays$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Buttons built-in application info
 
-APPNAME = relays
+PROGNAME = relays
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 512
-
-MODULE = CONFIG_EXAMPLES_RELAYS
+MODULE = $(CONFIG_EXAMPLES_RELAYS)
 
 include $(APPDIR)/Application.mk

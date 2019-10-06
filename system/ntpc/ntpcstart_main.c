@@ -52,11 +52,7 @@
  * ntpcstart_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int ntpcstart_main(int argc, char *argv[])
-#endif
 {
   int pid = ntpc_start();
   if (pid < 0)

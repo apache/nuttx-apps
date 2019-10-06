@@ -38,21 +38,14 @@ include $(TOPDIR)/Make.defs
 
 CSRCS = nxrecorder.c
 
-APPNAME = nxrecorder
+
+ifneq ($(CONFIG_NXRECORDER_COMMAND_LINE),)
+PROGNAME = nxrecorder
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_NXRECORDER_COMMAND_LINE)
 
-ifeq ($(CONFIG_SYSTEM_NXRECORDER),m)
-MAINSRC = nxrecorder_main.c
-else
-ifeq ($(CONFIG_NXRECORDER_COMMAND_LINE),y)
 MAINSRC = nxrecorder_main.c
 endif
-endif
-
-CONFIG_XYZ_PROGNAME ?= nxrecorder$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_SYSTEM_NXRECORDER
 
 include $(APPDIR)/Application.mk

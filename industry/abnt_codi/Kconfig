@@ -4,7 +4,7 @@
 #
 
 config INDUSTRY_ABNT_CODI_LIB
-	tristate "ABNT CODI Library"
+	bool "ABNT CODI Library"
 	default n
 	---help---
 		Enable or disable the ABNT CODI Library

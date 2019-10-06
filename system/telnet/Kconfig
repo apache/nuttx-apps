@@ -16,9 +16,6 @@ if SYSTEM_TELNET_CHATD
 config SYSTEM_TELNET_CHATD_PROGNAME
 	string "Chat daemon program name"
 	default "chatd"
-	depends on BUILD_LOADABLE
-
-if NSH_BUILTIN_APPS
 
 config SYSTEM_TELNET_CHATD_STACKSIZE
 	int "Chat daemon stacksize"
@@ -28,7 +25,6 @@ config SYSTEM_TELNET_CHATD_PRIORITY
 	int "Chat daemon priority"
 	default 100
 
-endif # NSH_BUILTIN_APPS
 endif # SYSTEM_TELNET_CHATD
 
 menuconfig SYSTEM_TELNET_CLIENT
@@ -45,9 +41,6 @@ if SYSTEM_TELNET_CLIENT
 config SYSTEM_TELNET_CLIENT_PROGNAME
 	string "Telnet client program name"
 	default "telnet"
-	depends on BUILD_LOADABLE
-
-if NSH_BUILTIN_APPS
 
 config SYSTEM_TELNET_CLIENT_STACKSIZE
 	int "Telnet client stacksize"
@@ -57,5 +50,4 @@ config SYSTEM_TELNET_CLIENT_PRIORITY
 	int "Telnet client priority"
 	default 100
 
-endif # NSH_BUILTIN_APPS
 endif # SYSTEM_TELNET_CLIENT

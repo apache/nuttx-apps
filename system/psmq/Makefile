@@ -56,17 +56,7 @@ CSRCS = $(PSMQ_SOURCES)/lib/psmq.c \
 	$(PSMQ_SOURCES)/src/broker.c \
 	$(PSMQ_SOURCES)/src/cfg.c \
 	$(PSMQ_SOURCES)/src/globals.c \
-	$(PSMQ_SOURCES)/src/psmqd.c \
 	$(PSMQ_SOURCES)/src/topic-list.c
-
-# optional source files to compile depending on Kconfig options
-ifeq ($(CONFIG_PSMQ_TOOLS_PUB),y)
-	CSRCS += $(PSMQ_SOURCES)/src/psmq-pub.c
-endif
-
-ifeq ($(CONFIG_PSMQ_TOOLS_SUB),y)
-	CSRCS += $(PSMQ_SOURCES)/src/psmq-sub.c
-endif
 
 # compile-time options from Kconfig
 CFLAGS += -DPSMQ_MAX_CLIENTS=$(CONFIG_PSMQ_MAX_CLIENTS)
@@ -93,25 +83,25 @@ CFLAGS += -DPACKAGE_STRING="\"psmq $(PSMQ_VERSION)\""
 CFLAGS += -DPACKAGE_VERSION=\"$(PSMQ_VERSION)\"
 
 # register psmqd broker daemon application
+PROGNAME = psmqd
 PRIORITY = $(CONFIG_PSMQD_PRIORITY)
 STACKSIZE = $(CONFIG_PSMQD_STACKSIZE)
-APPNAME = psmqd
-PROGNAME = psmqd$(EXEEXT)
+MAINSRC = $(PSMQ_SOURCES)/src/psmqd.c
 
 # register psmq_pub application if it was enabled
 ifeq ($(CONFIG_PSMQ_TOOLS_PUB),y)
+	PROGNAME += psmq_pub
 	PRIORITY += $(CONFIG_PSMQ_PUB_PRIORITY)
 	STACKSIZE += $(CONFIG_PSMQ_PUB_STACKSIZE)
-	APPNAME += psmq_pub
-	PROGNAME += psmq_pub$(EXEEXT)
+	MAINSRC += $(PSMQ_SOURCES)/src/psmq-pub.c
 endif
 
 # register psmq_sub application if it was enabled
 ifeq ($(CONFIG_PSMQ_TOOLS_SUB),y)
+	PROGNAME += psmq_sub
 	PRIORITY += $(CONFIG_PSMQ_SUB_PRIORITY)
 	STACKSIZE += $(CONFIG_PSMQ_SUB_STACKSIZE)
-	APPNAME += psmq_sub
-	PROGNAME += psmq_sub$(EXEEXT)
+	MAINSRC += $(PSMQ_SOURCES)/src/psmq-sub.c
 endif
 
 # download and build psmq
@@ -141,5 +131,7 @@ clean::
 distclean::
 	$(Q) $(call DELDIR, $(PSMQ_SOURCES))
 	$(Q) $(call DELDIR, $(PSMQ_TARBALL))
+
+MODULE = $(CONFIG_SYSTEM_PSMQ)
 
 include $(APPDIR)/Application.mk

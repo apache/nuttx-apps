@@ -37,9 +37,10 @@ include $(TOPDIR)/Make.defs
 
 # Module example built-in application info
 
-APPNAME = module
+PROGNAME = module
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_MODULE)
 
 # Module Example
 
@@ -48,9 +49,6 @@ MAINSRC = module_main.c
 ifeq ($(CONFIG_BUILD_FLAT),y)
 CSRCS += mod_symtab.c
 endif
-
-CONFIG_XYZ_PROGNAME ?= module$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 VPATH += drivers
 ROOTDEPPATH += --dep-path drivers
@@ -62,7 +60,5 @@ context::
 
 clean::
 	@$(MAKE) -C drivers TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-MODULE = CONFIG_EXAMPLES_MODULE
 
 include $(APPDIR)/Application.mk

@@ -4,7 +4,7 @@
 #
 
 config NETUTILS_THTTPD
-	tristate "THTTPD webserver"
+	bool "THTTPD webserver"
 	default n
 	depends on NXFLAT || FS_BINFS
 	---help---

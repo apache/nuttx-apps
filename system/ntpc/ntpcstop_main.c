@@ -52,11 +52,7 @@
  * ntpcstop_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int ntpcstop_main(int argc, char *argv[])
-#endif
 {
   int ret = ntpc_stop();
   if (ret < 0)

@@ -181,11 +181,7 @@ static inline int nxhello_initialize(void)
  * Name: nxhello_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxhello_main(int argc, char *argv[])
-#endif
 {
   nxgl_mxpixel_t color;
   int ret;

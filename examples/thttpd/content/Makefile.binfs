@@ -35,10 +35,7 @@
 
 include $(TOPDIR)/Make.defs
 
-CONFIG_THTTPD_CGI_PRIORITY ?= 100
-CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
-
-APPNAME = hello tasks
+PROGNAME = hello tasks
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
@@ -49,8 +46,6 @@ ROMFS_IMG = $(CONTENT_DIR)/romfs.img
 ROMFS_HDR = $(CONTENT_DIR)/romfs.h
 
 CSRCS = hello.c tasks.c
-
-PROGNAME = hello$(EXEEXT) tasks$(EXEEXT)
 
 ROOTDEPPATH += --dep-path hello --dep-path tasks
 VPATH += :hello:tasks
@@ -86,7 +81,5 @@ clean::
 	$(call DELFILE$(ROMFS_HDR))
 	$(call DELFILE, $(ROMFS_IMG))
 	@rm -rf $(ROMFS_DIR)
-
-MODULE = CONFIG_EXAMPLES_THTTPD
 
 include $(APPDIR)/Application.mk

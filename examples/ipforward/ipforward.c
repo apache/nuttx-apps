@@ -760,11 +760,7 @@ static FAR void *ipfwd_sender(FAR void *arg)
  * Name: fstest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int ipfwd_main(int argc, char *argv[])
-#endif
 {
   struct ipfwd_state_s fwd;
   struct ipfwd_arg_s tun0arg;

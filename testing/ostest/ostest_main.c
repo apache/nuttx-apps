@@ -592,11 +592,7 @@ static void stdio_test(void)
  * ostest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char **argv)
-#else
-int ostest_main(int argc, FAR char *argv[])
-#endif
 {
   int result;
 #ifdef CONFIG_TESTING_OSTEST_WAITRESULT

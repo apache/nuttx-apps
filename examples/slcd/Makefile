@@ -37,17 +37,13 @@ include $(TOPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
-APPNAME = slcd
+PROGNAME = slcd
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_SLCD)
 
 # Hello, World! Example
 
 MAINSRC = slcd_main.c
-
-CONFIG_XYZ_PROGNAME ?= slcd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_SLCD
 
 include $(APPDIR)/Application.mk

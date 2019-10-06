@@ -37,17 +37,13 @@ include $(TOPDIR)/Make.defs
 
 # The NULL example built-in application info
 
-APPNAME = null
+PROGNAME = null
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_NULL)
 
 # The smallest thing you can build -- the NULL example.
 
 MAINSRC = null_main.c
-
-CONFIG_XYZ_PROGNAME ?= null$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_NULL
 
 include $(APPDIR)/Application.mk

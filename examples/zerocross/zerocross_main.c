@@ -82,11 +82,7 @@
  * zerocross_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int zerocross_main(int argc, char *argv[])
-#endif
 {
   struct sigevent event;
   int fd;

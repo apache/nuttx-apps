@@ -391,11 +391,7 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder, char *parg)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxrecorder_main(int argc, char *argv[])
-#endif
 {
   char                    buffer[64];
   int                     len, x, running;

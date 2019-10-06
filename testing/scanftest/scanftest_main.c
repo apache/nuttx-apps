@@ -1060,11 +1060,7 @@ type_data[] =
  * scanftest_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#else
-int scanftest_main(int argc, char *argv[])
-#endif
 {
   int t;
   int i;

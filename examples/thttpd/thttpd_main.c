@@ -190,11 +190,7 @@ int                         g_thttpdnsymbols;
  * thttp_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int thttp_main(int argc, char *argv[])
-#endif
 {
   struct in_addr addr;
 #ifdef CONFIG_EXAMPLES_THTTPD_NOMAC

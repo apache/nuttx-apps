@@ -434,11 +434,7 @@ static void usbmsc_disconnect(FAR void *handle)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int msconn_main(int argc, char *argv[])
-#endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
@@ -619,18 +615,13 @@ int msconn_main(int argc, char *argv[])
  *
  * Description:
  *   This is a program entry point that will disconnect the USB mass storage
- *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
+ *   device.  This program is only available if CONFIG_SYSTEM_USBMSC == y
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-#ifdef BUILD_MODULE
-int main(int argc, FAR char **argv)
-#else
 int msdis_main(int argc, char *argv[])
-#endif
 {
   /* First check if the USB mass storage device is already connected */
 
@@ -654,4 +645,3 @@ int msdis_main(int argc, char *argv[])
   final_memory_usage("Final memory usage");
   return EXIT_SUCCESS;
 }
-#endif

@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = clistboxtest.cxx
 MAINSRC = clistbox_main.cxx
 
-APPNAME = clistbox
+PROGNAME = clistbox
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CLISTBOX
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CLISTBOX)
 
 include $(APPDIR)/Application.mk

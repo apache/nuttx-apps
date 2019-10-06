@@ -456,11 +456,7 @@ static void checkdirectories(struct node_s *entry)
  * Name: romfs_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int romfs_main(int argc, char *argv[])
-#endif
 {
    int  ret;
 

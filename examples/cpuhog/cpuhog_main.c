@@ -96,11 +96,7 @@ static struct state_s
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int cpuhog_main(int argc, char *argv[])
-#endif
 {
   int id = -1;
   char buf[256];

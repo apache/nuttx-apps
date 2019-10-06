@@ -37,13 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # SMART file system stress test
 
-APPNAME = smart
+PROGNAME = smart
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_TESTING_SMART)
 
 MAINSRC = smart_main.c
-
-CONFIG_XYZ_PROGNAME ?= smart$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_TESTING_SMART
 
 include $(APPDIR)/Application.mk

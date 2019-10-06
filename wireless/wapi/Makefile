@@ -33,27 +33,17 @@
 #
 ############################################################################
 
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
-
 include $(TOPDIR)/Make.defs
 
 # IEEE802.11 Wapi Application
 
-CONFIG_WIRELESS_WAPI_PRIORITY ?= 100
-CONFIG_WIRELESS_WAPI_STACKSIZE ?= 2048
-
 include $(APPDIR)/wireless/wapi/src/Make.defs
 
-ifneq ($(MAINSRC),)
-APPNAME = wapi
+ifneq ($(CONFIG_WIRELESS_WAPI_CMDTOOL),)
+PROGNAME = $(CONFIG_WIRELESS_WAPI_PROGNAME)
 PRIORITY = $(CONFIG_WIRELESS_WAPI_PRIORITY)
 STACKSIZE = $(CONFIG_WIRELESS_WAPI_STACKSIZE)
-
-CONFIG_WAPI_PROGNAME ?= wapi$(EXEEXT)
-PROGNAME = $(CONFIG_WAPI_PROGNAME)
+MODULE = $(CONFIG_WIRELESS_WAPI_CMDTOOL)
 endif
-
-MODULE = CONFIG_WIRELESS_WAPI
 
 include $(APPDIR)/Application.mk

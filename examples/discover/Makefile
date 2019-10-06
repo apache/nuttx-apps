@@ -40,15 +40,11 @@ include $(TOPDIR)/Make.defs
 
 # Discover built-in application info
 
-APPNAME = discover
+PROGNAME = discover
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_DISCOVER)
 
 MAINSRC = discover_main.c
-
-CONFIG_XYZ_PROGNAME ?= discover$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_DISCOVER
 
 include $(APPDIR)/Application.mk

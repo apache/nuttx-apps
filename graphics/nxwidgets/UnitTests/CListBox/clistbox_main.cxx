@@ -108,7 +108,7 @@ static FAR const char *g_options[] =
 
 // Suppress name-mangling
 
-extern "C" int clistbox_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -174,7 +174,7 @@ static void initMemoryUsage(void)
 // Name: clistbox_main
 /////////////////////////////////////////////////////////////////////////////
 
-int clistbox_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Initialize memory monitor logic
 

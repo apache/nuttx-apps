@@ -37,12 +37,10 @@ include $(TOPDIR)/Make.defs
 
 # dsptest built-in application info
 
-CONFIG_EXAMPLES_DSPTEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_DSPTEST_STACKSIZE ?= 2048
-
-APPNAME = dsptest
+PROGNAME = $(CONFIG_EXAMPLES_DSPTEST_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_DSPTEST_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_DSPTEST_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_DSPTEST)
 
 # dsptest example
 
@@ -50,10 +48,5 @@ MAINSRC = dsptest_main.c
 
 CSRCS += test_foc.c test_pid.c test_svm.c test_misc.c test_motor.c
 CSRCS += test_observer.c test_transform.c
-
-CONFIG_EXAMPLES_DSPTEST_PROGNAME ?= dsptest$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_DSPTEST_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_DSPTEST
 
 include $(APPDIR)/Application.mk

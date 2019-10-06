@@ -124,11 +124,7 @@ static void get_blocksize(int fd, FAR struct media_info_s *info)
  * media_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int media_main(int argc, FAR char *argv[])
-#endif
 {
   FAR uint8_t *txbuffer;
   FAR uint8_t *rxbuffer;

@@ -117,7 +117,7 @@ An example application skeleton can be found under the examples/hello
 sub-directory.  This example shows how a builtin application can be added
 to the project. One must:
 
- 1. Create sub-directory as: appname
+ 1. Create sub-directory as: progname
 
  2. In this directory there should be:
 
@@ -129,11 +129,11 @@ to the project. One must:
     - The application source code.
 
  3. The application source code should provide the entry point:
-    appname_main()
+    main()
 
  4. Set the requirements in the file: Makefile, specially the lines:
 
-    APPNAME    = appname
+    PROGNAME   = progname
     PRIORITY   = SCHED_PRIORITY_DEFAULT
     STACKSIZE  = 768
     ASRCS      = asm source file list as a.asm b.asm ...
@@ -141,8 +141,8 @@ to the project. One must:
 
  4b. The Make.defs file should include a line like:
 
-    ifeq ($(CONFIG_APPNAME),y)
-    CONFIGURED_APPS += appname
+    ifeq ($(CONFIG_PROGNAME),y)
+    CONFIGURED_APPS += progname
     endif
 
 Building NuttX with Board-Specific Pieces Outside the Source Tree

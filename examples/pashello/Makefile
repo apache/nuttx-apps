@@ -37,7 +37,10 @@ include $(TOPDIR)/Make.defs
 
 # Pascal Add-On Example
 
-APPNAME = pashello
+PROGNAME = pashello
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_PASHELLO)
 
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
@@ -49,10 +52,5 @@ CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
 
 CSRCS = device.c
 MAINSRC = pashello.c
-
-CONFIG_XYZ_PROGNAME ?= pashello$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_PASHELLO
 
 include $(APPDIR)/Application.mk

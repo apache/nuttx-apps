@@ -6,7 +6,7 @@
 config SYSTEM_FLASH_ERASEALL
 	tristate "FLASH Erase-all Command"
 	default n
-	depends on MTD && NSH_BUILTIN_APPS
+	depends on MTD
 	select FSUTILS_FLASH_ERASEALL
 	---help---
 		Enable support for the FLASH eraseall tool.

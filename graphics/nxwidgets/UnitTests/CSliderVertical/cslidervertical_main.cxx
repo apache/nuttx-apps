@@ -73,7 +73,7 @@ static unsigned int g_mmprevious;
 
 // Suppress name-mangling
 
-extern "C" int cslidervertical_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -135,7 +135,7 @@ static void initMemoryUsage(void)
 // Name: nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int cslidervertical_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Initialize memory monitor logic
 

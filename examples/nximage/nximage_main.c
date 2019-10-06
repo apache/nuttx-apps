@@ -189,11 +189,7 @@ static inline int nximage_initialize(void)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nximage_main(int argc, char *argv[])
-#endif
 {
   nxgl_mxpixel_t color;
   int ret;

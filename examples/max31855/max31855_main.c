@@ -49,11 +49,7 @@
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int max31855_main(int argc, char *argv[])
-#endif
 {
   /* In this app, only two devices are registered to each SSP channel */
 

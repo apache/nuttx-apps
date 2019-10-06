@@ -238,11 +238,7 @@ static void parse_args(int argc, FAR char **argv)
  * Name: qe_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int qe_main(int argc, FAR char *argv[])
-#endif
 {
   int32_t position;
   int fd;

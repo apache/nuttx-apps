@@ -433,11 +433,7 @@ static int run_file(FAR const char *fname)
  * lzf_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int lzf_main(int argc, FAR char *argv[])
-#endif
 {
   FAR char *p = argv[0];
   int optc;

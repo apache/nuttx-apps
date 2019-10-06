@@ -208,11 +208,7 @@ static inline int nxdemo_initialize(void)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxdemo_main(int argc, char *argv[])
-#endif
 {
   int ret;
 

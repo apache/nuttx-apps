@@ -11,7 +11,6 @@ config EXAMPLES_NETLOOP
 		Enable the local loopback example
 
 if EXAMPLES_NETLOOP
-if NSH_BUILTIN_APPS
 
 config EXAMPLES_NETLOOP_KEEPALIVE
 	bool "Enable TCP KeepAlive test"
@@ -26,5 +25,4 @@ config EXAMPLES_NETLOOP_PRIORITY
 	int "Loopback test task priority"
 	default 100
 
-endif # NSH_BUILTIN_APPS
 endif # EXAMPLES_NETLOOP

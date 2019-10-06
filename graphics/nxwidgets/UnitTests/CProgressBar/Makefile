@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cprogressbartest.cxx
 MAINSRC = cprogressbar_main.cxx
 
-APPNAME = cprogressbar
+PROGNAME = cprogressbar
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CPROGRESSBAR
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CPROGRESSBAR)
 
 include $(APPDIR)/Application.mk

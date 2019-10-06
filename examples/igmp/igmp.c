@@ -83,11 +83,7 @@
  * igmp_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int igmp_main(int argc, char *argv[])
-#endif
 {
   struct in_addr addr;
   struct in_addr mcast;

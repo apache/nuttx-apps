@@ -372,11 +372,7 @@ static int xmlrpc_netinit(void)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int xmlrpc_main(int argc, char *argv[])
-#endif
 {
   int listenfd, connfd, on = 1;
   socklen_t clilen;

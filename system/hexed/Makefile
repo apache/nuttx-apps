@@ -37,25 +37,18 @@ include $(TOPDIR)/Make.defs
 
 # hexed Application
 
-CONFIG_SYSTEM_HEXED_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_SYSTEM_HEXED_STACKSIZE ?= 2048
-
-APPNAME = hexed
+PROGNAME = hexed
 PRIORITY = $(CONFIG_SYSTEM_HEXED_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_HEXED_STACKSIZE)
+MODULE = $(CONFIG_SYSTEM_HEXED)
 
 CSRCS   = bfile.c cmdargs.c hexcopy.c hexdump.c hexenter.c hexhelp.c
 CSRCS  += hexinsert.c hexmove.c hexremove.c hexword.c
 MAINSRC = hexed.c
 
-CONFIG_XYZ_PROGNAME ?= hexed$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" include}
 
 VPATH += :src
 ROOTDEPPATH += --dep-path src
-
-MODULE = CONFIG_SYSTEM_HEXED
 
 include $(APPDIR)/Application.mk

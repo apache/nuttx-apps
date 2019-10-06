@@ -44,9 +44,10 @@ TRAVELER_TOOLS = $(TRAVELER_DIR)/tools
 
 # Traveler built-in application info
 
-APPNAME   = traveler
+PROGNAME  = traveler
 PRIORITY  = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE    = $(CONFIG_GRAPHICS_TRAVELER)
 
 # Traveler files
 
@@ -72,9 +73,6 @@ ROMFS_IMG = trv_romfs.img
 ROMFS_HDR = trv_romfs.h
 endif
 
-CONFIG_GRAPHICS_TRAVELER_PROGNAME ?= hello$(EXEEXT)
-PROGNAME = $(CONFIG_GRAPHICS_TRAVELER_PROGNAME)
-
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TRAVELER_INC)}
 
 DEPPATH += --dep-path src
@@ -98,7 +96,5 @@ context:: $(ROMFS_HDR) $(OBJS) tools
 clean::
 	$(call DELFILE, $(ROMFS_IMG))
 	$(call DELFILE, $(ROMFS_HDR))
-
-MODULE = CONFIG_GRAPHICS_TRAVELER
 
 include $(APPDIR)/Application.mk

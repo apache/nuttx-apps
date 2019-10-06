@@ -14,8 +14,7 @@ if EXAMPLES_UDPBLASTER
 
 config EXAMPLES_UDPBLASTER_PROGNAME
 	string "Program name"
-	default "nettest"
-	depends on BUILD_LOADABLE
+	default "udpblaster"
 	---help---
 		This is the name of the program that will be used when the Nettest
 		program is installed.

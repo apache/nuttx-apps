@@ -15,7 +15,6 @@ if EXAMPLES_BUTTONS
 config EXAMPLES_BUTTONS_PROGNAME
 	string "Program name"
 	default "buttons"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

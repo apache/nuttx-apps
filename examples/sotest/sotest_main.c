@@ -110,11 +110,7 @@ extern const int g_sot_nexports;
  * Name: sotest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int sotest_main(int argc, char *argv[])
-#endif
 {
 #if CONFIG_MODLIB_MAXDEPEND > 0
   FAR void *handle1;

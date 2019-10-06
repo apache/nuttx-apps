@@ -302,11 +302,7 @@ static int bouncing_balls(WINDOW *win)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int newdemo_main(int argc, char *argv[])
-#endif
 {
   WINDOW *win;
   chtype save[80];

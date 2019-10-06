@@ -52,11 +52,7 @@
  * dhtxx_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int dhtxx_main(int argc, char *argv[])
-#endif
 {
   struct dhtxx_sensor_data_s data;
   int fd;

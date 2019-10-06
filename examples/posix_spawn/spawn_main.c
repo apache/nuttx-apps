@@ -226,11 +226,7 @@ static inline void testheader(FAR const char *progname)
  * Name: spawn_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int spawn_main(int argc, char *argv[])
-#endif
 {
   struct boardioc_symtab_s symdesc;
   posix_spawn_file_actions_t file_actions;

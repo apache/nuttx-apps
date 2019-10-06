@@ -6,7 +6,6 @@
 config TESTING_SMART_TEST
 	tristate "SMART filesystem test tool"
 	default n
-	depends on NSH_BUILTIN_APPS
 	---help---
 		Performs a file-based test on a SMART (or any) filesystem. Validates
 		seek, append and seek-with-write operations.  This test can be built

@@ -596,11 +596,7 @@ static void succeed_stat(const char *path)
  * Name: mount_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int mount_main(int argc, char *argv[])
-#endif
 {
   int  ret;
 

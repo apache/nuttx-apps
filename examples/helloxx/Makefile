@@ -39,16 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = helloxx_main.cxx
 
-CONFIG_EXAMPLES_HELLOXX_PROGNAME ?= helloxx$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_HELLOXX_PROGNAME)
-
 # helloxx built-in application info
 
-APPNAME = helloxx
-
+PROGNAME = helloxx
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_HELLOXX
+MODULE = $(CONFIG_EXAMPLES_HELLOXX)
 
 include $(APPDIR)/Application.mk

@@ -602,11 +602,7 @@ static void cleanup(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int worm_main(int argc, char *argv[])
-#endif
 {
   const struct options *op;
   struct worm *w;

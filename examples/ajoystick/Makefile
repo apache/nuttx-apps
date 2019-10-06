@@ -39,16 +39,12 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = ajoy_main.c
 
-CONFIG_AJOY_PROGNAME ?= ajoy$(EXEEXT)
-PROGNAME = $(CONFIG_AJOY_PROGNAME)
-
 # Buttons built-in application info
 
-APPNAME = ajoy
+PROGNAME = ajoy
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_AJOYSTICK
+MODULE = $(CONFIG_EXAMPLES_AJOYSTICK)
 
 include $(APPDIR)/Application.mk
 

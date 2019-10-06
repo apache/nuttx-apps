@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cglyphsliderhorizontaltest.cxx
 MAINSRC = cglyphsliderhorizontal_main.cxx
 
-APPNAME = cglyphsliderhorizontal
+PROGNAME = cglyphsliderhorizontal
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CGLYPHSLIDERHORIZONTAL
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CGLYPHSLIDERHORIZONTAL)
 
 include $(APPDIR)/Application.mk

@@ -4,7 +4,7 @@
 #
 
 menuconfig WIRELESS_WAPI
-	tristate "IEEE 802.11 Configuration Library"
+	bool "IEEE 802.11 Configuration Library"
 	default n
 	depends on NET && DRIVERS_WIRELESS
 	---help---
@@ -14,7 +14,7 @@ menuconfig WIRELESS_WAPI
 if WIRELESS_WAPI
 
 config WIRELESS_WAPI_CMDTOOL
-	bool "IEEE 802.11 Command Line Tool"
+	tristate "IEEE 802.11 Command Line Tool"
 	default n
 	---help---
 		By default, Wapi is build as only a library.  If this option is
@@ -24,7 +24,6 @@ config WIRELESS_WAPI_CMDTOOL
 config WIRELESS_WAPI_PROGNAME
 	string "Program Name"
 	default "wapi"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

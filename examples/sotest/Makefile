@@ -40,17 +40,15 @@ DELIM ?= /
 
 # Shared library example built-in application info
 
-APPNAME = sotest
+PROGNAME = sotest
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_SOTEST)
 
 # Shared Library Example
 
 CSRCS = sot_symtab.c
 MAINSRC = sotest_main.c
-
-CONFIG_XYZ_PROGNAME ?= sotest$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH += --dep-path lib
 
@@ -63,7 +61,5 @@ context::
 
 clean::
 	@$(MAKE) -C lib TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-MODULE = CONFIG_EXAMPLES_SOTEST
 
 include $(APPDIR)/Application.mk

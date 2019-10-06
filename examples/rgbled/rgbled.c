@@ -59,11 +59,7 @@
  * rgbled_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int rgbled_main(int argc, char *argv[])
-#endif
 {
   int red = 255;
   int green = 0;

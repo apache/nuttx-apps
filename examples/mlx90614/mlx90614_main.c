@@ -79,11 +79,7 @@
  * mlx90614_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int mlx90614_main(int argc, char *argv[])
-#endif
 {
   FAR struct mlx90614_temp_s temp;
   float ta;

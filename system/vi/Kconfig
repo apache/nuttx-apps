@@ -71,8 +71,6 @@ config SYSTEM_VI_DEBUGLEVEL
 		readable debug output, syslog'ing should sent to some device other
 		than /dev/console (which is the default).
 
-if NSH_BUILTIN_APPS
-
 config SYSTEM_VI_STACKSIZE
 	int "Builtin task stack size"
 	default 2048
@@ -103,5 +101,4 @@ config SYSTEM_VI_INCLUDE_COMMAND_REPEAT
 #	---help---
 #		Number of undo / redo operations saved.
 
-endif # NSH_BUILTIN_APPS
 endif # SYSTEM_VI

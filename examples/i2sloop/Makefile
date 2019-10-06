@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = i2sloop_main.c
 
-CONFIG_XYZ_PROGNAME ?= i2sloop$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Touchscreen built-in application info
 
-APPNAME = i2sloop
+PROGNAME = i2sloop
 PRIORITY = 140
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_I2SLOOP
+MODULE = $(CONFIG_EXAMPLES_I2SLOOP)
 
 include $(APPDIR)/Application.mk

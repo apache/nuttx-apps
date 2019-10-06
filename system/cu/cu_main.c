@@ -266,11 +266,7 @@ static int cu_cmd(char bcmd)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int cu_main(int argc, FAR char *argv[])
-#endif
 {
   pthread_attr_t attr;
   struct sigaction sa;

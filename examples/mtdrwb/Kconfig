@@ -18,7 +18,6 @@ if EXAMPLES_MTDRWB
 config EXAMPLES_MTDRWB_PROGNAME
 	string "Program name"
 	default "mtdrwb"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

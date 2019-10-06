@@ -252,11 +252,7 @@ static void serial_out(struct term_pair_s *tp)
  * Name: pty_test_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pty_test_main(int argc, char *argv[])
-#endif
 {
   struct term_pair_s termpair;
   struct termios tio;

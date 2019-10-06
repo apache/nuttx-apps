@@ -575,11 +575,7 @@ static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
  * Name: pwfb_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pwfb_main(int argc, char *argv[])
-#endif
 {
   struct pwfb_state_s wstate;
   struct nxgl_size_s size;

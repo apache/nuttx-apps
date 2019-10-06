@@ -21,9 +21,8 @@ config EXAMPLES_TCPBLASTER_SENDSIZE
 
 config EXAMPLES_TCPBLASTER_PROGNAME1
 	string "Target1 program name"
-	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
-	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
-	depends on BUILD_KERNEL
+	default "tcpserver" if EXAMPLES_TCPBLASTER_SERVER
+	default "tcpclient" if !EXAMPLES_TCPBLASTER_SERVER
 	---help---
 		This is the name of the program that will be used when the TcpBlaster
 		program is installed for target1.
@@ -90,7 +89,6 @@ config EXAMPLES_TCPBLASTER_PROGNAME2
 	string "Target2 program name"
 	default "tcpserver" if !EXAMPLES_TCPBLASTER_SERVER
 	default "tcpclient" if EXAMPLES_TCPBLASTER_SERVER
-	depends on BUILD_KERNEL
 	---help---
 		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.

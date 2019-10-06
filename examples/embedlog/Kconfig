@@ -6,7 +6,7 @@
 if SYSTEM_EMBEDLOG
 
 config EXAMPLES_EMBEDLOG
-	bool "embedlog example"
+	tristate "embedlog example"
 	default n
 	select EMBEDLOG_ENABLE_OUT_FILE
 	select EMBEDLOG_ENABLE_OUT_STDERR
@@ -26,7 +26,6 @@ if EXAMPLES_EMBEDLOG
 config EXAMPLES_EMBEDLOG_PROGNAME
 	string "Program name"
 	default "embedlog"
-	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

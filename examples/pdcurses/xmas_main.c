@@ -783,11 +783,7 @@ static void reindeer(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int xmas_main(int argc, char *argv[])
-#endif
 {
   int loopy;
 #ifdef CONFIG_PDCURSES_MULTITHREAD

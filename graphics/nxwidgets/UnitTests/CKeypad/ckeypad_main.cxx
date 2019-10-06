@@ -72,7 +72,7 @@ static unsigned int g_mmPeak;
 
 // Suppress name-mangling
 
-extern "C" int ckeypad_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -192,7 +192,7 @@ static void clickButtons(CKeypadTest *test, CKeypad *keypad)
 // nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int ckeypad_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Initialize memory monitor logic
 

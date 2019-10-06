@@ -45,15 +45,11 @@ CSRCS += i2schar_receiver.c
 endif
 MAINSRC = i2schar_main.c
 
-CONFIG_XYZ_PROGNAME ?= i2schar$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Touchscreen built-in application info
 
-APPNAME = i2schar
+PROGNAME = i2schar
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_I2SCHAR
+MODULE = $(CONFIG_EXAMPLES_I2SCHAR)
 
 include $(APPDIR)/Application.mk

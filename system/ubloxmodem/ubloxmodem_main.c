@@ -406,11 +406,7 @@ static int ubloxmodem_exec(FAR struct ubloxmodem_cxt *cxt)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char** argv)
-#else
-int ubloxmodem_main(int argc, FAR char** argv)
-#endif
 {
   struct ubloxmodem_cxt cxt;
   int ret;

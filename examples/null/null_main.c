@@ -63,11 +63,7 @@
  * Name: null_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, char *argv[])
-#else
-int null_main(int argc, char *argv[])
-#endif
 {
   return 0;
 }

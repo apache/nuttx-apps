@@ -39,16 +39,12 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = nunchuck_main.c
 
-CONFIG_NUNCHUCK_PROGNAME ?= nunchuck$(EXEEXT)
-PROGNAME = $(CONFIG_NUNCHUCK_PROGNAME)
-
 # Nunchuck application info
 
-APPNAME = nunchuck
+PROGNAME = nunchuck
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_NUNCHUCK
+MODULE = $(CONFIG_EXAMPLES_NUNCHUCK)
 
 include $(APPDIR)/Application.mk
 

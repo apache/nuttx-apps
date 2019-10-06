@@ -218,11 +218,7 @@ static void ping_result(FAR const struct ping_result_s *result)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int ping_main(int argc, char **argv)
-#endif
 {
   struct ping_info_s info;
   FAR char *endptr;

@@ -52,11 +52,7 @@
  * obd2_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int obd2_main(int argc, char *argv[])
-#endif
 {
   struct obd_dev_s *dev;
   int ret;

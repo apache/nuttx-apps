@@ -37,16 +37,14 @@ include $(TOPDIR)/Make.defs
 
 # UNIONFS built-in application info
 
-APPNAME = unionfs
+PROGNAME = unionfs
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_UNIONFS)
 
 # UNIONFS File System Example
 
 MAINSRC = unionfs_main.c
-
-CONFIG_XYZ_PROGNAME ?= unionfs$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 # Common build
 
@@ -74,7 +72,5 @@ context:: romfs_atestdir.h romfs_btestdir.h
 distclean::
 	$(call DELFILE, atestdir.img)
 	$(call DELFILE, btestdir.img)
-
-MODULE = CONFIG_EXAMPLES_UNIONFS
 
 include $(APPDIR)/Application.mk

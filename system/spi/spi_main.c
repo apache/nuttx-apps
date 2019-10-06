@@ -357,11 +357,7 @@ static void spi_teardown(FAR struct spitool_s *spitool)
  * Name: spi_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int spi_main(int argc, char *argv[])
-#endif
 {
   /* Verify settings */
 

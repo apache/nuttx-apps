@@ -258,11 +258,7 @@ static int nsh_task(void)
  * Name: nsh_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nsh_main(int argc, char *argv[])
-#endif
 {
   struct sched_param param;
 

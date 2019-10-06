@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_ELF
-	bool "ELF Loader Example"
+	tristate "ELF Loader Example"
 	default n
 	select LIBC_EXECFUNCS
 	depends on ELF

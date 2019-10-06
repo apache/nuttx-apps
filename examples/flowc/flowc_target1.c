@@ -48,13 +48,7 @@
  * flowc1_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#elif defined(CONFIG_EXAMPLES_FLOWC_TARGET2)
-int flowc1_main(int argc, char *argv[])
-#else
-int flowc_main(int argc, char *argv[])
-#endif
 {
   /* Run the receiver or sender, depending upon how we are configured */
 

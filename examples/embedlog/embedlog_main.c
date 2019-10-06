@@ -317,11 +317,7 @@ static void el_print_file(const char *workdir)
  * embedlog_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
-#else
-int embedlog_main(int argc, FAR char *argv[])
-#endif
 {
   if (argc > 2 || (argc == 2 && strcmp(argv[1], "-h") == 0))
     {

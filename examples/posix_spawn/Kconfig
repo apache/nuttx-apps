@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_POSIXSPAWN
-	bool "posix_spawn Unit Test"
+	tristate "posix_spawn Unit Test"
 	default n
 	---help---
 		Enable the posix_spawn() unit test

@@ -82,11 +82,7 @@
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int bas_main(int argc, char *argv[])
-#endif
 {
   char *runFile = (char *)0;
   const char *lp = "/dev/null";

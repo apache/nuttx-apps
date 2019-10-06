@@ -6,12 +6,11 @@
 config EXAMPLES_FLASH_TEST
 	tristate "SMART FLASH block device test"
 	default n
-	depends on (!BUILD_PROTECTED && !BUILD_KERNEL) && MTD_SMART && NSH_BUILTIN_APPS
+	depends on (!BUILD_PROTECTED && !BUILD_KERNEL) && MTD_SMART
 	---help---
 		This logic performs a SMART flash block device test.  This test
 		performs a sector allocate, read, write, free and garbage collection
-		test on a SMART MTD block device.  This test can be built only as an
-		NSH command
+		test on a SMART MTD block device.
 
 		NOTE:  This test uses internal OS interfaces and so is not available
 		in the NUTTX kernel build

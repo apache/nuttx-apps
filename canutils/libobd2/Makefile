@@ -39,6 +39,4 @@ include $(TOPDIR)/Make.defs
 
 CSRCS = obd2.c obd_sendrequest.c obd_waitresponse.c obd_decodepid.c
 
-APPNAME = libobd2
-
 include $(APPDIR)/Application.mk

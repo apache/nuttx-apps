@@ -6,7 +6,7 @@
 menuconfig SYSTEM_CRITMONITOR
 	tristate "Critcal Section Monitor"
 	default n
-	depends on FS_PROCFS && !_FS_PROCFS_EXCLUDE_PROCESS && SCHED_CRITMONITOR
+	depends on FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS && SCHED_CRITMONITOR
 	---help---
 		If the critical section monitor is enabled (CONFIGSCHED_CRITMONITOR)
 		this option will enable a critical section monitor daemon.  This daemon

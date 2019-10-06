@@ -266,11 +266,7 @@ static int nxtext_initialize(void)
  * Name: nxtext_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxtext_main(int argc, char **argv)
-#endif
 {
   FAR struct nxtext_state_s *bgstate;
   NXWINDOW hwnd = NULL;

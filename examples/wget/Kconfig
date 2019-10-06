@@ -6,7 +6,7 @@
 config EXAMPLES_WGET
 	tristate "wget example"
 	default n
-	depends on NET_TCP && !NSH_BUILTIN_APPS
+	depends on NET_TCP
 	---help---
 		Enable the wget example
 

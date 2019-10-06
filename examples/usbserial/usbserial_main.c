@@ -191,11 +191,7 @@ static void dumptrace(void)
  * usbserial_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int usbserial_main(int argc, char *argv[])
-#endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;

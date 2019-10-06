@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = target.c
 
-CONFIG_XYZ_PROGNAME ?= dhcpd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # DHCPD built-in application info
 
-APPNAME = dhcpd
+PROGNAME = dhcpd
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_DHCPD
+MODULE = $(CONFIG_EXAMPLES_DHCPD)
 
 include $(APPDIR)/Application.mk

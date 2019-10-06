@@ -46,11 +46,7 @@
  * Name: system_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int system_main(int argc, char *argv[])
-#endif
 {
   printf("Calling system(\"ls -Rl /\")\n");
   int ret = system("ls -Rl /");

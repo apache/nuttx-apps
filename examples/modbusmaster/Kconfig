@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MODBUSMASTER
-	bool "Modbus Master example"
+	tristate "Modbus Master example"
 	default n
 	---help---
 		Enable the Modbus Master example
@@ -14,7 +14,6 @@ if EXAMPLES_MODBUSMASTER
 config EXAMPLES_MODBUSMASTER_PROGNAME
 	string "Program name"
 	default "modbusmaster"
-	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

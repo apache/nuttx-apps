@@ -191,11 +191,7 @@ errout:
  * leds_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int leds_main(int argc, FAR char *argv[])
-#endif
 {
   int ret;
 

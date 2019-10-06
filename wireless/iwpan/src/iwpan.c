@@ -676,11 +676,7 @@ static void iwpan_showusage(FAR const char *progname, int exitcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int iwpan_main(int argc, char *argv[])
-#endif
 {
   FAR const char *cmdname;
   FAR const struct iwpan_command_s *iwpancmd;

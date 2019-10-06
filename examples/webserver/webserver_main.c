@@ -95,11 +95,7 @@
  * webserver_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int webserver_main(int argc, char *argv[])
-#endif
 {
 #ifndef CONFIG_NSH_BUILTIN_APPS
   /* We are running standalone (as opposed to a NSH built-in app). Therefore

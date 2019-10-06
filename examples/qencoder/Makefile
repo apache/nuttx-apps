@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = qe_main.c
 
-CONFIG_XYZ_PROGNAME ?= qencoder$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Quadrature Encoder built-in application info
 
-APPNAME = qe
+PROGNAME = qe
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_QENCODER
+MODULE = $(CONFIG_EXAMPLES_QENCODER)
 
 include $(APPDIR)/Application.mk

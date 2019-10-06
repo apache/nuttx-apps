@@ -37,7 +37,7 @@ ifneq ($(CONFIG_WIRELESS_WAPI),)
 
 CSRCS = network.c util.c wireless.c driver_wext.c
 
-ifeq ($(CONFIG_WIRELESS_WAPI_CMDTOOL),y)
+ifneq ($(CONFIG_WIRELESS_WAPI_CMDTOOL),)
 MAINSRC = wapi.c
 endif
 

@@ -45,11 +45,7 @@
  * nettest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nettest2_main(int argc, char *argv[])
-#endif
 {
   /* Parse any command line options */
 

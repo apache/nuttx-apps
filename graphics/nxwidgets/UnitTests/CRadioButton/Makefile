@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cradiobuttontest.cxx
 MAINSRC = cradiobutton_main.cxx
 
-APPNAME = cradiobutton
+PROGNAME = cradiobutton
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CRADIOBUTTON
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CRADIOBUTTON)
 
 include $(APPDIR)/Application.mk

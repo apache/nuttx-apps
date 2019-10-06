@@ -75,11 +75,7 @@ static int next_j(int j)
   return j;
 }
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int rain_main(int argc, char *argv[])
-#endif
 {
   int x, y, j, r, c, seed;
   static int xpos[5], ypos[5];

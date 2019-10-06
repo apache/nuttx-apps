@@ -37,15 +37,13 @@ include $(TOPDIR)/Make.defs
 
 # FreeModBus demo built-in application info
 
-APPNAME = modbus
+PROGNAME = modbus
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_MODBUS)
 
 # FreeModBus demo
 
 MAINSRC = modbus_main.c
-
-CONFIG_XYZ_PROGNAME ?= modbus$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 include $(APPDIR)/Application.mk

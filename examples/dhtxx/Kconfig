@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_DHTXX
-	bool  "Dhtxx sensor  example"
+	tristate "Dhtxx sensor example"
 	default n
 	---help---
 		Enable the dhtxx sensor example
@@ -14,7 +14,6 @@ if EXAMPLES_DHTXX
 config EXAMPLES_DHTXX_PROGNAME
 	string "Program name"
 	default "dhtxx"
-	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

@@ -435,11 +435,7 @@ errout:
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int sx127x_main(int argc, char *argv[])
-#endif
 {
   struct sx127x_read_hdr_s data;
   struct sx127x_chanscan_ioc_s chanscan;

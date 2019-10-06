@@ -56,11 +56,7 @@
  * Name: pipe_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pipe_main(int argc, char *argv[])
-#endif
 {
 #if CONFIG_DEV_FIFO_SIZE > 0 || CONFIG_DEV_PIPE_SIZE > 0
   int fd[2];

@@ -37,13 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # MTD Partition Example
 
-APPNAME = mtdpart
+PROGNAME = mtdpart
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_MTDPART)
 
 MAINSRC = mtdpart_main.c
-
-CONFIG_XYZ_PROGNAME ?= mtdpart$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_MTDPART
 
 include $(APPDIR)/Application.mk

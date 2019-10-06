@@ -91,11 +91,7 @@ static void show_usage(FAR const char *progname, int errcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int sz_main(int argc, FAR char **argv)
-#endif
 {
   enum zm_xfertype_e xfrtype = XM_XFERTYPE_NORMAL;
   enum zm_option_e xfroption = XM_OPTION_REPLACE;

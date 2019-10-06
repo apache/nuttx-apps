@@ -102,7 +102,7 @@ static struct SNxWmTest g_nxwmtest;
 
 // Suppress name-mangling
 
-extern "C" int nxwm_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
@@ -500,7 +500,7 @@ static bool createMediaPlayer(void)
 // nxwm_main
 /////////////////////////////////////////////////////////////////////////////
 
-int nxwm_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 #if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
   // Call all C++ static constructors

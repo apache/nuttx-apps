@@ -73,11 +73,7 @@ static int ini_dump(void *user, const char *section, const char *name,
  * ini_dumper_main()
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
-#else
-int ini_dumper_main(int argc, FAR char *argv[])
-#endif
 {
   int ret;
 

@@ -51,11 +51,7 @@
 /* Configuration ************************************************************/
 /* This is a simple unit test for the TIFF creation library at apps/graphic/tiff.
  * It is configured to work in the Linux user-mode simulation and has not been
- * tested in any other environment.  Since the example also depends on some
- * other logic to mount a file system, currently it will only work as an NSH
- * built-on, i.e., if the following is defined:
- *
- *   CONFIG_NSH_BUILTIN_APPS=y
+ * tested in any other environment.
  *
  * Other configuration options:
  *
@@ -104,11 +100,7 @@
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int tiff_main(int argc, char *argv[])
-#endif
 {
   struct tiff_info_s info;
   uint8_t strip[3*256];

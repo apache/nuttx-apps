@@ -73,11 +73,7 @@ static void _signal_handler(int number)
  * Name: i2sloop_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int i2sloop_main(int argc, char *argv[])
-#endif
 {
   FAR struct ap_buffer_s *apb;
   struct audio_buf_desc_s desc;

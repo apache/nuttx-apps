@@ -13,7 +13,6 @@ system/cdcacm
 
     CONFIG_USBDEV=y                 : USB device support must be enabled
     CONFIG_CDCACM=y                 : The CDC/ACM driver must be built
-    CONFIG_NSH_BUILTIN_APPS         : NSH built-in application support must be enabled
 
   Configuration options specific to this add-on:
 

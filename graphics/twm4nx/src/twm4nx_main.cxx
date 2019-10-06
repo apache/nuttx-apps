@@ -64,11 +64,7 @@
 
 // Suppress name-mangling
 
-#ifdef BUILD_MODULE
 extern "C" int main(int argc, FAR char *argv[]);
-#else
-extern "C" int twm4nx_main(int argc, char *argv[]);
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
@@ -84,11 +80,7 @@ using namespace Twm4Nx;
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int twm4nx_main(int argc, char *argv[])
-#endif
 {
   int display = 0;
 

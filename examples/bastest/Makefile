@@ -37,9 +37,10 @@ include $(TOPDIR)/Make.defs
 
 # BAS test volume mounter
 
-APPNAME = bastest
+PROGNAME = bastest
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_BASTEST)
 
 # Hello, World! Example
 
@@ -49,8 +50,6 @@ BASTEST_DIR = $(APPDIR)$(DELIM)examples$(DELIM)bastest
 TESTS_DIR = $(BASTEST_DIR)$(DELIM)tests
 ROMFS_IMG = romfs.img
 ROMFS_HDR = romfs.h
-
-PROGNAME = bastest$(EXEEXT)
 
 # Common build
 
@@ -69,7 +68,5 @@ context:: $(ROMFS_HDR)
 distclean::
 	$(call DELFILE, $(ROMFS_HDR))
 	$(call DELFILE, $(ROMFS_IMG))
-
-MODULE = CONFIG_EXAMPLES_BASTEST
 
 include $(APPDIR)/Application.mk

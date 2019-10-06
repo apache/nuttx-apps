@@ -376,11 +376,7 @@ static int ajoy_calibrate(int fd)
  * ajoy_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
-int main(int argc, FAR char *argv[])
-#else
-int ajoy_main(int argc, char *argv[])
-#endif
+int main(int argc, char *argv[])
 {
   struct timespec timeout;
   struct ajoy_notify_s notify;

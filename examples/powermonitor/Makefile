@@ -34,17 +34,13 @@
 
 include $(TOPDIR)/Make.defs
 
-APPNAME = powermonitor
+PROGNAME = powermonitor
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 768
+MODULE = $(CONFIG_EXAMPLES_POWERMONITOR)
 
 MAINSRC = powermonitor_main.c
 
 CFLAGS += -I../../../nuttx/arch/arm/src -I../../../nuttx/arch/arm/src/common
-
-CONFIG_EXAMPLES_POWERMONITOR_PROGNAME ?= temperature$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_POWERMONITOR_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_POWERMONITOR
 
 include $(APPDIR)/Application.mk

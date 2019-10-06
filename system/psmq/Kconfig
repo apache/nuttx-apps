@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_PSMQ
-	bool "psmq"
+	tristate "psmq"
 	default n
 	depends on !DISABLE_MQUEUE && SYSTEM_EMBEDLOG
 	---help---
@@ -89,11 +89,6 @@ config PSMQ_TOOLS_SUB
 		a chosen file.
 
 if PSMQ_TOOLS_SUB
-
-config PSMQ_SUB_PROGNAME
-	string "psmq_sub program name"
-	default "psmq_sub"
-	depends on BUILD_KERNEL
 
 config PSMQ_SUB_PRIORITY
 	int "psmq_sub broker task priority"

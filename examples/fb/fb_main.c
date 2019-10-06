@@ -287,11 +287,7 @@ static void draw_rect(FAR struct fb_state_s *state,
  * fb_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int fb_main(int argc, char *argv[])
-#endif
 {
   FAR const char *fbdev = g_default_fbdev;
   struct fb_state_s state;

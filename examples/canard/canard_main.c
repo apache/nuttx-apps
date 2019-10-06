@@ -508,11 +508,7 @@ errout_with_dev:
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int canard_main(int argc, FAR char *argv[])
-#endif
 {
   int ret;
 

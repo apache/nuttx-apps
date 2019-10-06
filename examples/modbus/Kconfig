@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_MODBUS
-	bool "FreeModBus example"
+	tristate "FreeModBus example"
 	default n
 	---help---
 		Enable the FreeModBus example

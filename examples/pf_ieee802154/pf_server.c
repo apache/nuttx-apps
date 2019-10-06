@@ -84,11 +84,7 @@ static inline int check_buffer(unsigned char *buf)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pfserver_main(int argc, char *argv[])
-#endif
 {
   struct sockaddr_ieee802154_s server;
   struct sockaddr_ieee802154_s client;

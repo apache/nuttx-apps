@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_NXFLAT
-	bool "NXFLAT example"
+	tristate "NXFLAT example"
 	default n
 	select LIBC_EXECFUNCS
 	depends on NXFLAT

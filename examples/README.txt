@@ -79,8 +79,8 @@ examples/alarm
   Configuration:
 
     CONFIG_EXAMPLES_ALARM - Enable the RTC driver alarm test
-    CONFIG_EXAMPLES_ALARM_PROGNAME - If CONFIG_BUILD_LOADABLE=y, then this is
-      the name of the program that will be used when the NSH ELF program is
+    CONFIG_EXAMPLES_ALARM_PROGNAME - this isthe name of the
+      program that will be used when the NSH ELF program is
       installed.
     CONFIG_EXAMPLES_ALARM_PRIORITY - Alarm daemon priority
     CONFIG_EXAMPLES_ALARM_STACKSIZE - Alarm daemon stack size
@@ -396,8 +396,6 @@ examples/flash_test
   Dependencies:
 
     * CONFIG_MTD_SMART=y - SMART block driver support
-    * CONFIG_NSH_BUILTIN_APPS=y - This example can only be built as an NSH
-      command
     * CONFIG_BUILD_PROTECTED=n and CONFIG_BUILD_KERNEL=n - This test uses
       internal OS interfaces and so is not available in the NUTTX kernel
       builds
@@ -418,9 +416,7 @@ examples/ftpc
 ^^^^^^^^^^^^^
 
   This is a simple FTP client shell used to exercise the capabilities
-  of the FTPC library (apps/netutils/ftpc).  This example is configured
-  to that it will only work as a "built-in" program that can be run from
-  NSH when CONFIG_NSH_BUILTIN_APPS is defined.
+  of the FTPC library (apps/netutils/ftpc).
 
   From NSH, the startup command sequence is as follows.  This is only
   an example, your configration could have different mass storage devices,
@@ -901,7 +897,6 @@ examples/netloop
 
   Dependencies:
 
-    CONFIG_NSH_BUILTIN_APPS=n     - Does NOT work as an NSH built-in command
     CONFIG_NET_LOOPBACK           - Requires local loopback supprt
     CONFIG_NET_TCP                - Requires TCP support with the following:
     CONFIG_NET_TCPBACKLOG
@@ -1418,8 +1413,6 @@ examples/pwm
     CONFIG_PWM_PULSECOUNT - Enables PWM pulse count support (if the hardware
       supports it).
     CONFIG_NSH_BUILTIN_APPS - Build the PWM test as an NSH built-in function.
-      Default: Not built!  The example can only be used as an NSH built-in
-      application
 
   Specific configuration options for this example include:
 
@@ -1757,11 +1750,7 @@ examples/tiff
 
   This is a simple unit test for the TIFF creation library at apps/graphic/tiff.
   It is configured to work in the Linux user-mode simulation and has not been
-  tested in any other environment.  Since the example also depends on some
-  other logic to mount a file system, currently it will only work as an NSH
-  built-on, i.e., if the following is defined:
-
-    CONFIG_NSH_BUILTIN_APPS=y
+  tested in any other environment.
 
   At a miniumum, to run in an embedded environment, you will probably have to
   change the configured paths to the TIFF files defined in the example.
@@ -1793,8 +1782,6 @@ examples/timer
       microseconds.  Default: 1000000
     CONFIG_EXAMPLES_TIMER_DELAY - This is the delay between timer samples in
       microseconds.  Default: 10000
-    CONFIG_EXAMPLES_TIMER_APPNAME - This is the name of the built-in
-      application:  Default:  "timer"
     CONFIG_EXAMPLES_TIMER_STACKSIZE - This is the stack size allocated when
       the timer task runs.  Default: 2048
     CONFIG_EXAMPLES_TIMER_PRIORITY - This is the priority of the timer task:
@@ -2012,8 +1999,7 @@ examples/watchdog
 
     CONFIG_WATCHDOG- Enables watchdog timer support support.
     CONFIG_NSH_BUILTIN_APPS - Build the watchdog time test as an NSH
-      built-in function. Default: Not built!  The example can only be used
-      as an NSH built-in application
+      built-in function.
 
   Specific configuration options for this example include:
 

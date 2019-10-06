@@ -622,11 +622,7 @@ static void configdata_cleardeleted(void)
  * Name: configdata_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int configdata_main(int argc, char *argv[])
-#endif
 {
   unsigned int i;
   int ret;

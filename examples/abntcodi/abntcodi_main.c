@@ -82,11 +82,7 @@ void print_abnt_codi(FAR struct abnt_codi_proto_s *proto)
  * abntcodi_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int abntcodi_main(int argc, char *argv[])
-#endif
 {
   FAR struct abnt_codi_proto_s *proto;
   int fd;

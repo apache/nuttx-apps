@@ -48,15 +48,9 @@ HOSTOBJEXT ?= .hobj
 HOST_OBJS = $(HOST_SRCS:.c=$(HOSTOBJEXT))
 HOST_BIN = host
 
-CONFIG_UPBLASTER_PROGNAME ?= udpblaster$(EXEEXT)
-PROGNAME = $(CONFIG_UPBLASTER_PROGNAME)
-
 # NET test built-in application info
 
-CONFIG_EXAMPLES_UDPBLASTER_STACKSIZE ?= 2048
-CONFIG_EXAMPLES_UDPBLASTER_PRIORITY ?= 100
-
-APPNAME = udpblaster
+PROGNAME = $(CONFIG_UDPBLASTER_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_UDPBLASTER_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_UDPBLASTER_STACKSIZE)
 
@@ -66,28 +60,25 @@ ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 $(HOST_OBJS): %$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
-endif
 
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
-ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 $(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
-endif
 
 context:: config.h $(HOST_BIN)
 
 clean::
-ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 	$(call DELFILE, *$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
-endif
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)
 
-MODULE = CONFIG_EXAMPLES_UDPBLASTER
+endif
+
+MODULE = $(CONFIG_EXAMPLES_UDPBLASTER)
 
 include $(APPDIR)/Application.mk

@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NXPLAYER
-	tristate "NxPlayer Media Player"
+	bool "NxPlayer Media Player"
 	default n
 	depends on AUDIO
 	---help---
@@ -26,7 +26,7 @@ config NXPLAYER_PLAYTHREAD_STACKSIZE
 		Stack size to use with the NxPlayer play thread.
 
 config NXPLAYER_COMMAND_LINE
-	bool "Include nxplayer command line application"
+	tristate "Include nxplayer command line application"
 	default y
 	---help---
 		Compiles in code for the nxplayer command line control.

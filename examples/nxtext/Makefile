@@ -37,18 +37,14 @@ include $(TOPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-CSRCS = nxtext_bkgd.c nxtext_popup.c nxtext_putc.c
-MAINSRC = nxtext_main.c nxtext_listener.c
-
-CONFIG_EXAMPLES_NXTERM_PROGNAME ?= nxtext$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_NXTERM_PROGNAME)
+CSRCS = nxtext_bkgd.c nxtext_popup.c nxtext_putc.c nxtext_listener.c
+MAINSRC = nxtext_main.c
 
 # NXTEXT built-in application info
 
-APPNAME = nxtext
+PROGNAME = nxtext
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_NXTEXT
+MODULE = $(CONFIG_EXAMPLES_NXTEXT)
 
 include $(APPDIR)/Application.mk

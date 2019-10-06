@@ -225,11 +225,7 @@ static int nxterm_task(int argc, char **argv)
  * Name: nxterm_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxterm_main(int argc, char **argv)
-#endif
 {
   struct boardioc_nxterm_create_s nxcreate;
   nxgl_mxpixel_t color;

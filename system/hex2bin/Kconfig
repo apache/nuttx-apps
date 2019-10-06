@@ -15,7 +15,6 @@ if SYSTEM_HEX2BIN
 config SYSTEM_HEX2BIN_BUILTIN
 	bool "NSH hex2bin Built-In"
 	default n
-	depends on NSH_BUILTIN_APPS
 	---help---
 		By default, a flexible hex2bin library function built.  An NSH
 		builtin function can also be generated to convert Intel HEX file
@@ -67,7 +66,6 @@ endif # SYSTEM_HEX2BIN_BUILTIN
 config SYSTEM_HEX2MEM_BUILTIN
 	bool "NSH hex2mem Built-In"
 	default n
-	depends on NSH_BUILTIN_APPS
 	---help---
 		By default, a flexible hex2bin library function built.  An NSH
 		builtin function can also be generated to copy Intel HEX files

@@ -40,15 +40,11 @@ include $(TOPDIR)/Make.defs
 
 # Discover built-in application info
 
-APPNAME = tcpecho
+PROGNAME = tcpecho
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_TCPECHO)
 
 MAINSRC = tcpecho_main.c
-
-CONFIG_XYZ_PROGNAME ?= tcpecho$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_TCPECHO
 
 include $(APPDIR)/Application.mk

@@ -75,11 +75,7 @@
  * pashello_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pashello_main(int argc, FAR char *argv[])
-#endif
 {
   int exitcode = EXIT_SUCCESS;
   int ret;

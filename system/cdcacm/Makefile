@@ -39,14 +39,9 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = cdcacm_main.c
 
-CONFIG_XYZ_PROGNAME ?= cdcacm$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-APPNAME = sercon serdis
-
+PROGNAME = sercon serdis
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_SYSTEM_CDCACM
+MODULE = $(CONFIG_SYSTEM_CDCACM)
 
 include $(APPDIR)/Application.mk

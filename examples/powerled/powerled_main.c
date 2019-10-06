@@ -431,7 +431,7 @@ errout:
  * Name: powerled_main
  ****************************************************************************/
 
-int powerled_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   struct powerled_limits_s powerled_limits;
   struct powerled_params_s powerled_params;

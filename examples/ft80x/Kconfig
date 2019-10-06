@@ -36,7 +36,6 @@ config EXAMPLES_FT80X_EXCLUDE_BITMAPS
 config EXAMPLES_FT80X_PROGNAME
 	string "FT80x program name"
 	default "ft80x"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

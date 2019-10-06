@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = csliderhorizontaltest.cxx
 MAINSRC = csliderhorizontal_main.cxx
 
-APPNAME = csliderhorizontal
+PROGNAME = csliderhorizontal
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CSLIDERHORIZONAL
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CSLIDERHORIZONAL)
 
 include $(APPDIR)/Application.mk

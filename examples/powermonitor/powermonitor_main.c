@@ -62,11 +62,7 @@
  * Public Functions
  ******************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, char *argv[])
-#else
-int powermonitor_main(int argc, char *argv[])
-#endif
 {
   static FAR const char *pwrmntr_dev = "/dev/pwrmntr0";
   float float_current;

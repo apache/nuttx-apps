@@ -233,11 +233,7 @@ static inline void testheader(FAR const char *progname)
  * Name: elf_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int elf_main(int argc, char *argv[])
-#endif
 {
 #ifdef CONFIG_EXAMPLES_ELF_FSREMOVEABLE
   struct stat buf;

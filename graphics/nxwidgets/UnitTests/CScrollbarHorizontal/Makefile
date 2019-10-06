@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cscrollbarhorizontaltest.cxx
 MAINSRC = cscrollbarhorizontal_main.cxx
 
-APPNAME = cscrollbarhorizontal
+PROGNAME = cscrollbarhorizontal
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CSCROLLBARHORIZONTAL
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CSCROLLBARHORIZONTAL)
 
 include $(APPDIR)/Application.mk

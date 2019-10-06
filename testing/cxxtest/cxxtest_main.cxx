@@ -245,7 +245,7 @@ static void test_exception(void)
 
 extern "C"
 {
-  int cxxtest_main(int argc, char *argv[])
+  int main(int argc, char *argv[])
   {
     // If C++ initialization for static constructors is supported, then do
     // that first

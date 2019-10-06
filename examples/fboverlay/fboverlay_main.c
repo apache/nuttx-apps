@@ -1010,11 +1010,7 @@ static void usage(const char * progname)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int fboverlay_main(int argc, char *argv[])
-#endif
 {
 
   char *fbdevice;

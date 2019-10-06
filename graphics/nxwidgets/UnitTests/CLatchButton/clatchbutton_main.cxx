@@ -68,7 +68,7 @@ static const char g_pushme[] = "Push Me";
 
 // Suppress name-mangling
 
-extern "C" int clatchbutton_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -106,7 +106,7 @@ static void showButtonState(CLatchButton *button, bool &clicked, bool &latched)
 // nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int clatchbutton_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Create an instance of the font test
 

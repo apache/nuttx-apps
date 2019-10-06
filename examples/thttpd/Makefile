@@ -46,8 +46,10 @@ else
   CONTENT_MAKE += -f Makefile.nxflat
 endif
 
-CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+PROGNAME = thttp
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_THTTPD)
 
 # Common build
 
@@ -62,7 +64,5 @@ depend::
 
 clean::
 	@$(CONTENT_MAKE) clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-MODULE = CONFIG_EXAMPLES_THTTPD
 
 include $(APPDIR)/Application.mk

@@ -37,14 +37,12 @@ include $(TOPDIR)/Make.defs
 
 # mount() test
 
-APPNAME = mount
+PROGNAME = mount
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_MOUNT)
 
 CSRCS = ramdisk.c
 MAINSRC = mount_main.c
-
-CONFIG_XYZ_PROGNAME ?= mount$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_MOUNT
 
 include $(APPDIR)/Application.mk

@@ -244,11 +244,7 @@ errout:
  * Description:
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int traveler_main(int argc, char *argv[])
-#endif
 {
   FAR const char *wldpath;
   FAR const char *wldfile;

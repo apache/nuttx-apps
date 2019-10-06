@@ -22,7 +22,6 @@ comment "Twm4Nx Core Configuration"
 config TWM4NX_PROGNAME
 	string "Twm4Nx program name"
 	default "twm4nx"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

@@ -37,23 +37,15 @@ include $(TOPDIR)/Make.defs
 
 # pdcurses demo programs
 
-CONFIG_EXAMPLES_PDCURSES_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_PDCURSES_STACKSIZE ?= 2048
-
+PROGNAME = charset firework newdemo panel
+PROGNAME += rain testcurs tui worm xmas
 PRIORITY = $(CONFIG_EXAMPLES_PDCURSES_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_PDCURSES_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_PDCURSES)
 
 CSRCS = tui.c
 
 MAINSRC = charset_main.c firework_main.c newdemo_main.c panel_main.c
 MAINSRC += rain_main.c testcurs_main.c tui_main.c worm_main.c xmas_main.c
-
-APPNAME = charset firework newdemo panel
-APPNAME += rain testcurs tui worm xmas
-
-PROGNAME = charset$(EXEEXT) firework$(EXEEXT) newdemo$(EXEEXT) panel$(EXEEXT)
-PROGNAME += rain$(EXEEXT) testcurs$(EXEEXT) tui$(EXEEXT) worm$(EXEEXT) xmas$(EXEEXT)
-
-MODULE = CONFIG_EXAMPLES_PDCURSES
 
 include $(APPDIR)/Application.mk

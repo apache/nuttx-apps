@@ -496,7 +496,7 @@ static int critmon_daemon(int argc, char **argv)
  * Public Functions
  ****************************************************************************/
 
-int critmon_start_main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   /* Has the monitor already started? */
 

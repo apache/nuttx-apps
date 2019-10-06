@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = cctype_main.cxx
 
-CONFIG_EXAMPLES_CCTYPE_PROGNAME ?= cctype$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_CCTYPE_PROGNAME)
-
 # cctype built-in application info
 
-APPNAME = cctype
+PROGNAME = cctype
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_CCTYPE
+MODULE = $(CONFIG_EXAMPLES_CCTYP)
 
 include $(APPDIR)/Application.mk

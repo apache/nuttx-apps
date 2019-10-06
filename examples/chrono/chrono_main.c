@@ -305,11 +305,7 @@ static void slcd_puts(FAR struct lib_outstream_s *outstream,
  * chrono_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#else
-int chrono_main(int argc, char *argv[])
-#endif
 {
   FAR struct slcd_chrono_s *priv = &g_slcd;
   FAR char str[8] = "00:00.0";

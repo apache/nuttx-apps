@@ -586,11 +586,7 @@ static void smart_usage(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int smart_test_main(int argc, char *argv[])
-#endif
 {
   int ret, opt;
 

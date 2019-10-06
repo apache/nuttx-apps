@@ -592,11 +592,7 @@ int ufstest_daemon(int argc, char *argv[])
  * userfs_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int userfs_main(int argc, char *argv[])
-#endif
 {
   FAR char *nshargv[1];
   int pid;

@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = wgetjson_main.c
 
-CONFIG_XYZ_PROGNAME ?= wgetjson$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Buttons built-in application info
 
-APPNAME = wgetjson
+PROGNAME = wgetjson
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_WGETJSON
+MODULE = $(CONFIG_EXAMPLES_WGETJSON)
 
 include $(APPDIR)/Application.mk

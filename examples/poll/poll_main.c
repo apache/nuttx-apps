@@ -77,11 +77,7 @@
  * Name: poll_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int poll_main(int argc, char *argv[])
-#endif
 {
   char buffer[64];
   ssize_t nbytes;

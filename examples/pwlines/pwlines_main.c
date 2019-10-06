@@ -308,11 +308,7 @@ errout_with_hwnd:
  * Name: pwlines_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pwlines_main(int argc, char *argv[])
-#endif
 {
   struct pwlines_state_s wstate;
   struct nxgl_size_s size;

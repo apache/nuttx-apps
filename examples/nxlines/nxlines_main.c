@@ -207,11 +207,7 @@ static inline int nxlines_initialize(void)
  * Name: nxlines_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxlines_main(int argc, char *argv[])
-#endif
 {
   nxgl_mxpixel_t color;
   int ret;

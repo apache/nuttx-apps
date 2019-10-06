@@ -445,7 +445,7 @@ static void print_info(struct smps_limits_s *limits, struct smps_params_s *param
  * Name: smps_main
  ****************************************************************************/
 
-int smps_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   struct smps_limits_s smps_limits;
   struct smps_params_s smps_params;

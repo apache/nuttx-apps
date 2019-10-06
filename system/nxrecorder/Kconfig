@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_NXRECORDER
-	tristate "NxRecorder pcm raw data Recorder"
+	bool "NxRecorder pcm raw data Recorder"
 	default n
 	depends on AUDIO
 	---help---
@@ -20,7 +20,7 @@ config NXRECORDER_RECORDTHREAD_STACKSIZE
 		Stack size to use with the NxRecorder record thread.
 
 config NXRECORDER_COMMAND_LINE
-	bool "Include nxrecorder command line application"
+	tristate "Include nxrecorder command line application"
 	default y
 	---help---
 		Compiles in code for the nxrecorder command line control.

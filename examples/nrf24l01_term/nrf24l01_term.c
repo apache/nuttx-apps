@@ -256,11 +256,7 @@ void usage(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nrf24l01_term_main(int argc, char *argv[])
-#endif
 {
   int ret;
   bool quit = false;

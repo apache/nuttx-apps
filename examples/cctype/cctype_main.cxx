@@ -52,7 +52,7 @@
 
 extern "C"
 {
-  int cctype_main(int argc, char *argv[])
+  int main(int argc, char *argv[])
   {
      std::printf("\n      A B C D E F G H I J K L M N O\n");
      for (int i = 0; i < 256; i++)

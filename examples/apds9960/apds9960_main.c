@@ -62,11 +62,7 @@
  * apds9960_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int apds9960_main(int argc, char *argv[])
-#endif
 {
   int fd;
   int nbytes;

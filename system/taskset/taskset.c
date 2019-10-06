@@ -95,11 +95,7 @@ static bool get_cpuset(const char *arg, cpu_set_t *cpu_set)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int taskset_main(int argc, char **argv)
-#endif
 {
   FAR char *nshargv[2];
   char command[CONFIG_NSH_LINELEN];

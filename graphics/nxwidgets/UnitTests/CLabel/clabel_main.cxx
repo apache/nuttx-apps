@@ -68,7 +68,7 @@ static const char g_hello[] = "Hello, World!";
 
 // Suppress name-mangling
 
-extern "C" int clabel_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
@@ -78,7 +78,7 @@ extern "C" int clabel_main(int argc, char *argv[]);
 // nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int clabel_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Create an instance of the font test
 

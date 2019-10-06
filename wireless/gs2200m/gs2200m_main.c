@@ -1436,11 +1436,7 @@ static void _show_usage(FAR char *cmd)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int gs2200m_main(int argc, char **argv)
-#endif
 {
   int  option;
   int  ret;

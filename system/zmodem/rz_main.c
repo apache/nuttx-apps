@@ -74,11 +74,7 @@ static void show_usage(FAR const char *progname, int errcode)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int rz_main(int argc, FAR char **argv)
-#endif
 {
   ZMRHANDLE handle;
   FAR const char *devname = CONFIG_SYSTEM_ZMODEM_DEVNAME;

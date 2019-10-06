@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = clatchbuttontest.cxx
 MAINSRC = clatchbutton_main.cxx
 
-APPNAME = clatchbutton
+PROGNAME = clatchbutton
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTON
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTON)
 
 include $(APPDIR)/Application.mk

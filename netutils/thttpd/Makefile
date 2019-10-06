@@ -39,12 +39,8 @@ include $(TOPDIR)/Make.defs
 
 ifeq ($(CONFIG_NET_TCP),y)
   CSRCS += libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c
-  CSRCS += fdwatch.c tdate_parse.c
-  MAINSRC += thttpd.c
+  CSRCS += fdwatch.c tdate_parse.c thttpd.c
 endif
-
-CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 # CGI binaries (examples only, not used in the build)
 
@@ -59,18 +55,11 @@ ifeq ($(CONFIG_THTTPD_BINFS),y)
   CSRCS +=  phf.c redirect.c ssi.c
   DEPPATHS += --dep-path cgi-src
   VPATH += :cgi-src
+
+  PROGNAME = phf redirect ssi
+  PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
+  STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 endif
-
-ifneq ($(CONFIG_BUILD_LOADABLE),y)
-  OBJS += $(MAINOBJ)
-endif
-
-CONFIG_THTTPD_CGI_PRIORITY ?= 100
-CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
-
-APPNAME = phf redirect ssi
-PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
-STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 context:: $(SUBDIR_BIN)
 
@@ -96,7 +85,5 @@ cgi-src$(DELIM)$(SUBDIR_BIN3):
 cgi-bin$(DELIM)$(SUBDIR_BIN3): cgi-bin cgi-src$(DELIM)$(SUBDIR_BIN3)
 	$(Q) cp -a cgi-src$(DELIM)$(SUBDIR_BIN3) $@
 endif
-
-MODULE = CONFIG_NETUTILS_THTTPD
 
 include $(APPDIR)/Application.mk

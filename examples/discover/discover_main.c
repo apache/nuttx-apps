@@ -84,11 +84,7 @@
  * discover_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int discover_main(int argc, char *argv[])
-#endif
 {
   /* If this task is excecutated as an NSH built-in function, then the
    * network has already been configured by NSH's start-up logic.

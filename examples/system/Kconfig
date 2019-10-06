@@ -15,7 +15,6 @@ if EXAMPLES_SYSTEM
 config EXAMPLES_SYSTEM_PROGNAME
 	string "Program name"
 	default "system"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

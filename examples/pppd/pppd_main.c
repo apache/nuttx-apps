@@ -70,7 +70,7 @@ static FAR const char disconnect_script[] =
  * Name: pppd_main
  ****************************************************************************/
 
-int pppd_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   const struct pppd_settings_s pppd_settings =
   {

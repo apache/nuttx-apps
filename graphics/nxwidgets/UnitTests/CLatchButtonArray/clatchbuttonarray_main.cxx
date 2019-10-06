@@ -82,7 +82,7 @@ static FAR const char *g_buttonLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = 
 
 // Suppress name-mangling
 
-extern "C" int clatchbuttonarray_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -174,7 +174,7 @@ static void initMemoryUsage(void)
 // nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int clatchbuttonarray_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Initialize memory monitor logic
 

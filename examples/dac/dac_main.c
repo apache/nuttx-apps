@@ -409,7 +409,7 @@ static int parse_args(FAR struct dac_state_s *dac,
  * Public Functions
  ****************************************************************************/
 
-int dac_main(int argc, FAR const char *argv[])
+int main(int argc, FAR const char *argv[])
 {
   int ret;
   int nargs = 1;

@@ -34,27 +34,15 @@
 #
 ############################################################################
 
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
-
 include $(TOPDIR)/Make.defs
-
-CONFIG_WIRELESS_IWPAN_PRIORITY ?= 100
-CONFIG_WIRELESS_IWPAN_STACKSIZE ?= 2048
 
 # IEEE802.11 Wapi Application
 
 include $(APPDIR)/wireless/iwpan/src/Make.defs
 
-ifneq ($(MAINSRC),)
-APPNAME = iwpan
+PROGNAME = $(CONFIG_WIRELESS_IWPAN_PROGNAME)
 PRIORITY = $(CONFIG_WIRELESS_IWPAN_PRIORITY)
 STACKSIZE = $(CONFIG_WIRELESS_IWPAN_STACKSIZE)
-
-CONFIG_IWPAN_PROGNAME ?= iwpan$(EXEEXT)
-PROGNAME = $(CONFIG_IWPAN_PROGNAME)
-endif
-
-MODULE = CONFIG_WIRELESS_IWPAN
+MODULE = $(CONFIG_WIRELESS_IWPAN)
 
 include $(APPDIR)/Application.mk

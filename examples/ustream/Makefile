@@ -39,12 +39,9 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = ustream_client.c ustream_server.c
 
-PROGNAME = client$(EXEEXT) server$(EXEEXT)
-APPNAME = client server
-
+PROGNAME = client server
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_USTREAM
+MODULE = $(CONFIG_EXAMPLES_USTREAM)
 
 include $(APPDIR)/Application.mk

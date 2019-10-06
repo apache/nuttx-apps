@@ -281,11 +281,7 @@ static void subsub(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int tui_main(int argc, char *argv[])
-#endif
 {
 #ifdef CONFIG_LIBC_LOCALE
   setlocale(LC_ALL, "");

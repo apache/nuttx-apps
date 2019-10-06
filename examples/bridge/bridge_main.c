@@ -681,11 +681,7 @@ errout_with_recvsd:
  * bridge_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int bridge_main(int argc, char *argv[])
-#endif
 {
   pid_t net1_worker;
   pid_t net2_worker;

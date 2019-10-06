@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = ctextboxtest.cxx
 MAINSRC = ctextbox_main.cxx
 
-APPNAME = ctextbox
+PROGNAME = ctextbox
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CTEXTBOX
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CTEXTBOX)
 
 include $(APPDIR)/Application.mk

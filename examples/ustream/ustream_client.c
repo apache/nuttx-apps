@@ -55,11 +55,7 @@
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int client_main(int argc, char *argv[])
-#endif
 {
 #ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
   struct pollfd pfd;

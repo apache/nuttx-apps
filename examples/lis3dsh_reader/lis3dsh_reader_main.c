@@ -52,11 +52,7 @@
  * lis3dsh_reader_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int lis3dsh_reader_main(int argc, FAR char *argv[])
-#endif
 {
   FILE *acc;
   struct acc_data_t

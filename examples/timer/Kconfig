@@ -43,31 +43,21 @@ config EXAMPLES_TIMER_SIGNO
 		This is the signal number that is used to notify the test of
 		timer expiration events.
 
-config EXAMPLES_TIMER_APPNAME
-	string "Timer executable name"
-	default "timer"
-	depends on NSH_BUILTIN_APPS
-	---help---
-		This is the name of the built-in application
-
 config EXAMPLES_TIMER_STACKSIZE
 	int "Timer stack size"
 	default 2048
-	depends on NSH_BUILTIN_APPS
 	---help---
 		This is the stack size allocated when the timer task runs
 
 config EXAMPLES_TIMER_PRIORITY
 	int "Timer task priority"
 	default 100
-	depends on NSH_BUILTIN_APPS
 	---help---
 		This is the priority of the timer task
 
 config EXAMPLES_TIMER_PROGNAME
 	string "Timer program name"
 	default "timer"
-	depends on BUILD_LOADABLE
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.

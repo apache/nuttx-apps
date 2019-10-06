@@ -41,40 +41,13 @@ include $(TOPDIR)/Make.defs
 
 CSRCS     = nxplayer.c
 
-# NxPlayer Application
-# Make be built as a library:
-#   CONFIG_SYSTEM_NXPLAYER=y
-#   CONFIG_NXPLAYER_COMMAND_LINE=n
-# As an NSH built-in task:
-#   CONFIG_SYSTEM_NXPLAYER=y
-#   CONFIG_NXPLAYER_COMMAND_LINE=y
-# As an loadable module
-#   CONFIG_SYSTEM_NXPLAYER=m
-#   CONFIG_NXPLAYER_COMMAND_LINE=y
-
-# Assume building as a library (with no main entry point)
-
-MAINSRC   =
-MODULE    =
-APPNAME   =
-PRIORITY  =
-STACKSIZE =
-
-ifeq ($(CONFIG_SYSTEM_NXPLAYER),m)
-# Build as a loadable module
-
-MAINSRC   = nxplayer_main.c
+ifneq ($(CONFIG_NXPLAYER_COMMAND_LINE),)
 PROGNAME  = nxplayer
-MODULE    = m
-
-else ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
-# Build as an NSH built-in application
+PRIORITY  = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_NXPLAYER_MAINTHREAD_STACKSIZE)
+MODULE    = $(CONFIG_NXPLAYER_COMMAND_LINE)
 
 MAINSRC   = nxplayer_main.c
-APPNAME   = nxplayer
-PRIORITY  = SCHED_PRIORITY_DEFAULT
-STACKSIZE = CONFIG_NXPLAYER_MAINTHREAD_STACKSIZE
-MODULE    = y
 endif
 
 include $(APPDIR)/Application.mk

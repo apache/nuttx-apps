@@ -249,11 +249,7 @@ errout_with_socket:
  * Name: netloop_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int netloop_main(int argc, char *argv[])
-#endif
 {
   pthread_t tid;
   int ret;

@@ -51,11 +51,7 @@
  * ina219_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int ina219_main(int argc, char *argv[])
-#endif
 {
   struct ina219_s sample;
   int fd;

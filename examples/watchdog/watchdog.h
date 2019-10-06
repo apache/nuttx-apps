@@ -47,8 +47,7 @@
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the WATCHDOG test as an NSH built-in
- *   function. Default: Not built!  The example can only be used as an NSH
- *   built-in application
+ *   function.
  * CONFIG_EXAMPLES_WATCHDOG_DEVPATH - The path to the Watchdog device.
  *   Default: /dev/watchdog0
  * CONFIG_EXAMPLES_WATCHDOG_PINGTIME - Time in milliseconds that the example
@@ -63,10 +62,6 @@
 
 #ifndef CONFIG_WATCHDOG
 #  error "WATCHDOG device support is not enabled (CONFIG_WATCHDOG)"
-#endif
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-#  warning "The WATCHDOG example only works as an NSH built-in application (CONFIG_NSH_BUILTIN_APPS)"
 #endif
 
 #ifndef CONFIG_EXAMPLES_WATCHDOG_DEVPATH

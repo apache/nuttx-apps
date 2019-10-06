@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = watchdog_main.c
 
-CONFIG_XYZ_PROGNAME ?= watchdog$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Touchscreen built-in application info
 
-APPNAME = wdog
+PROGNAME = wdog
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_WATCHDOG
+MODULE = $(CONFIG_EXAMPLES_WATCHDOG)
 
 include $(APPDIR)/Application.mk

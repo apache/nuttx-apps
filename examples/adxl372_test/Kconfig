@@ -13,18 +13,17 @@ if EXAMPLES_ADXL372_TEST
 
 config EXAMPLES_ADXL372_TEST_PROGNAME
 	string "Program name"
-	default "ADXL372_test"
-	depends on BUILD_LOADABLE
+	default "adxl372_test"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config EXAMPLES_ADXL372_TEST_PRIORITY
-	int "ADXL372_test task priority"
+	int "adxl372_test task priority"
 	default 100
 
 config EXAMPLES_ADXL372_TEST_STACKSIZE
-	int "ADXL372_test stack size"
+	int "adxl372_test stack size"
 	default 2048
 
 endif

@@ -48,13 +48,7 @@
  * udp1_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#elif defined(CONFIG_EXAMPLES_UDP_TARGET2)
-int udp1_main(int argc, char *argv[])
-#else
-int udp_main(int argc, char *argv[])
-#endif
 {
   /* Parse any command line options */
 

@@ -35,6 +35,11 @@
 
 include $(TOPDIR)/Make.defs
 
+PROGNAME = nxwm
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_NXWM)
+
 # Window Manager
 
 MAINSRC  = nxwm_main.cxx

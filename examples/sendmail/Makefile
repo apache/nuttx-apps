@@ -37,13 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # Sendmail SMTP Example
 
-APPNAME = sendmail
+PROGNAME = sendmail
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_SENDMAIL)
 
 MAINSRC = sendmail_main.c
-
-CONFIG_XYZ_PROGNAME ?= sendmail$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_SENDMAIL
 
 include $(APPDIR)/Application.mk

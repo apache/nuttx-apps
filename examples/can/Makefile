@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = can_main.c
 
-CONFIG_XYZ_PROGNAME ?= can$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Touchscreen built-in application info
 
-APPNAME = can
+PROGNAME = can
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_CAN
+MODULE = $(CONFIG_EXAMPLES_CAN)
 
 include $(APPDIR)/Application.mk

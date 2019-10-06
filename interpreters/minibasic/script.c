@@ -151,11 +151,7 @@ static void usage(void)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int basic_main(int argc, char *argv[])
-#endif
 {
   FAR char *scr;
 

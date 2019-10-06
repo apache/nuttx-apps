@@ -37,13 +37,11 @@ include $(TOPDIR)/Make.defs
 
 # NXFFS file system example
 
-APPNAME = nxffs
+PROGNAME = nxffs
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_TESTING_NXFFS)
 
 MAINSRC = nxffs_main.c
-
-CONFIG_XYZ_PROGNAME ?= nxffs$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_TESTING_NXFFS
 
 include $(APPDIR)/Application.mk

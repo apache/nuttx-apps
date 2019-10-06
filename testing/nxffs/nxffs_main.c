@@ -783,11 +783,7 @@ static int nxffs_directory(void)
  * Name: nxffs_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nxffs_main(int argc, char *argv[])
-#endif
 {
   FAR struct mtd_dev_s *mtd;
   unsigned int i;

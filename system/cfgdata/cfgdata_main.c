@@ -661,11 +661,7 @@ static void cfgdatacmd_show_all_config_items(void)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int cfgdata_main(int argc, char *argv[])
-#endif
 {
   /* Argument given? */
 

@@ -73,11 +73,7 @@ static void show_usage(FAR const char *progname)
  * gpio_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int gpio_main(int argc, char *argv[])
-#endif
 {
   FAR char *devpath = NULL;
   enum gpio_pintype_e pintype;

@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = tc_main.c
 
-CONFIG_XYZ_PROGNAME ?= touchscreen$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Touchscreen built-in application info
 
-APPNAME = tc
+PROGNAME = tc
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_TOUCHSCREEN
+MODULE = $(CONFIG_EXAMPLES_TOUCHSCREEN)
 
 include $(APPDIR)/Application.mk

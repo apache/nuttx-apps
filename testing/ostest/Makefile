@@ -37,9 +37,10 @@ include $(TOPDIR)/Make.defs
 
 # ostest built-in application info
 
-APPNAME = ostest
+PROGNAME = ostest
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_TESTING_OSTEST)
 
 # NuttX OS Test
 
@@ -132,10 +133,5 @@ ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
 CSRCS += prioinherit.c
 endif # CONFIG_PRIORITY_INHERITANCE
 endif # CONFIG_DISABLE_PTHREAD
-
-CONFIG_XYZ_PROGNAME ?= ostest$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_TESTING_OSTEST
 
 include $(APPDIR)/Application.mk

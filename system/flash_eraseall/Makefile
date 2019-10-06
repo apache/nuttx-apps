@@ -35,23 +35,15 @@
 #
 ############################################################################
 
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
-
 include $(TOPDIR)/Make.defs
 
 # flash_eraseall Application
-# TODO: appname can be automatically extracted from the directory name
 
-APPNAME = flash_eraseall
+PROGNAME = flash_eraseall
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 1024
+MODULE = $(CONFIG_SYSTEM_FLASH_ERASEALL)
 
 MAINSRC = flash_eraseall_main.c
-
-CONFIG_XYZ_PROGNAME ?= flash_eraseall$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_SYSTEM_FLASH_ERASEALL
 
 include $(APPDIR)/Application.mk

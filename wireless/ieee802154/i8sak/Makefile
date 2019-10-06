@@ -38,14 +38,10 @@ include $(TOPDIR)/Make.defs
 
 # IEEE 802.15.4  SAK (swiss army knife )
 
-CONFIG_IEEE802154_I8SAK_PROGNAME ?= i8sak$(EXEEXT)
-CONFIG_IEEE802154_I8SAK_PRIORITY ?= 100
-CONFIG_IEEE802154_I8SAK_STACKSIZE ?= 4096
-
 PROGNAME = $(CONFIG_IEEE802154_I8SAK_PROGNAME)
-APPNAME = i8sak
 PRIORITY = $(CONFIG_IEEE802154_I8SAK_PRIORITY)
 STACKSIZE = $(CONFIG_IEEE802154_I8SAK_STACKSIZE)
+MODULE = $(CONFIG_IEEE802154_I8SAK)
 
 # IEEE 802.15.4 SAK (Swiss Army Knife)
 
@@ -53,7 +49,5 @@ CSRCS = i8sak_acceptassoc.c i8sak_assoc.c i8sak_scan.c i8sak_blaster.c i8sak_pol
 CSRCS += i8sak_sniffer.c i8sak_startpan.c i8sak_tx.c i8sak_get.c i8sak_set.c
 CSRCS += i8sak_reset.c i8sak_regdump.c i8sak_events.c
 MAINSRC = i8sak_main.c
-
-MODULE = CONFIG_IEEE802154_I8SAK
 
 include $(APPDIR)/Application.mk

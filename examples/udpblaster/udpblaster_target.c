@@ -194,11 +194,7 @@ static void netest_initialize(void)
  * udpblaster_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int udpblaster_main(int argc, char *argv[])
-#endif
 {
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv4
   struct sockaddr_in host;

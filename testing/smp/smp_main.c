@@ -217,11 +217,7 @@ static pthread_addr_t barrier_thread(pthread_addr_t parameter)
  * smp_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int smp_main(int argc, char *argv[])
-#endif
 {
   pthread_t threadid[CONFIG_TESTING_SMP_NBARRIER_THREADS];
   pthread_addr_t result;

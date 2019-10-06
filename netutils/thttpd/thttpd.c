@@ -652,11 +652,7 @@ static void occasional(ClientData client_data, struct timeval *nowP)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
-int main(int argc, FAR char *argv[])
-#else
 int thttpd_main(int argc, char **argv)
-#endif
 {
   int num_ready;
   int cnum;

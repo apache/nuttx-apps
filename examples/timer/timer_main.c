@@ -135,11 +135,7 @@ static void timer_status(int fd)
  * timer_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int timer_main(int argc, char *argv[])
-#endif
 {
   struct timer_notify_s notify;
   struct sigaction act;

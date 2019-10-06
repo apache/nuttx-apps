@@ -951,11 +951,7 @@ static int fstest_directory(void)
  * Name: fstest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int fstest_main(int argc, char *argv[])
-#endif
 {
   struct statfs buf;
   unsigned int i;

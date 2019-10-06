@@ -40,8 +40,10 @@ include $(TOPDIR)/Make.defs
 CSRCS = symtab.c
 MAINSRC = spawn_main.c
 
-CONFIG_XYZ_PROGNAME ?= posix_spawn$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+PROGNAME = posix_spawn
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_POSIXSPAWN)
 
 ROOTDEPPATH	+= --dep-path filesystem
 

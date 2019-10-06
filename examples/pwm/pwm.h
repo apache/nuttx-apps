@@ -47,8 +47,6 @@
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the PWM test as an NSH built-in function.
- *   Default: Not built!  The example can only be used as an NSH built-in
- *   application
  * CONFIG_EXAMPLES_PWM_DEVPATH - The path to the PWM device. Default: /dev/pwm0
  * CONFIG_EXAMPLES_PWM_FREQUENCY - The initial PWM frequency.  Default: 100 Hz
  * CONFIG_EXAMPLES_PWM_DUTYPCT - The initial PWM duty as a percentage.  Default: 50%
@@ -62,10 +60,6 @@
 
 #ifndef CONFIG_PWM
 #  error "PWM device support is not enabled (CONFIG_PWM)"
-#endif
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-#  warning "The PWM example only works as an NSH built-in application (CONFIG_NSH_BUILTIN_APPS)"
 #endif
 
 #ifndef CONFIG_EXAMPLES_PWM_DEVPATH

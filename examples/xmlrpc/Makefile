@@ -40,16 +40,12 @@ include $(TOPDIR)/Make.defs
 
 # XML RPC built-in application info
 
-APPNAME = xmlrpc
+PROGNAME = xmlrpc
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_XMLRPC)
 
 CSRCS = calls.c
 MAINSRC = xmlrpc_main.c
-
-CONFIG_XYZ_PROGNAME ?= xmlrpc$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_XMLRPC
 
 include $(APPDIR)/Application.mk

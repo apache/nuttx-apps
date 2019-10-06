@@ -208,11 +208,7 @@ static void show_usage(FAR const char *progname)
  * alarm_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int alarm_main(int argc, FAR char *argv[])
-#endif
 {
   unsigned long seconds = 0;
   bool badarg = false;

@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = csliderverticaltest.cxx
 MAINSRC = cslidervertical_main.cxx
 
-APPNAME = cslidervertical
+PROGNAME = cslidervertical
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CSLIDERVERTICAL
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CSLIDERVERTICAL)
 
 include $(APPDIR)/Application.mk

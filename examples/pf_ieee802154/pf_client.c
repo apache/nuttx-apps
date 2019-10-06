@@ -108,11 +108,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
  * Public Functions
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pfclient_main(int argc, char *argv[])
-#endif
 {
   struct sockaddr_ieee802154_s server;
   unsigned char outbuf[SENDSIZE];

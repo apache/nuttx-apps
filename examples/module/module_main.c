@@ -143,11 +143,7 @@ extern const int g_mod_nexports;
  * Name: module_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int module_main(int argc, char *argv[])
-#endif
 {
 #ifdef CONFIG_BUILD_FLAT
   struct boardioc_symtab_s symdesc;

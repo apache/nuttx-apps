@@ -106,11 +106,7 @@ static void show_usage(FAR const char *progname)
  * Name: oneshot_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int oneshot_main(int argc, char *argv[])
-#endif
 {
   FAR const char *devname = CONFIG_EXAMPLES_ONESHOT_DEVNAME;
   unsigned long usecs = CONFIG_EXAMPLES_ONESHOT_DELAY;

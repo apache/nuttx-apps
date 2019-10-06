@@ -230,11 +230,7 @@ static void show_group_by_name(FAR const char *gname)
  * uid_main
  ****************************************************************************/
 
-#if defined(BUILD_MODULE)
 int main(int argc, FAR char *argv[])
-#else
-int uid_main(int argc, char *argv[])
-#endif
 {
   if (argc < 2)
     {

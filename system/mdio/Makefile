@@ -37,17 +37,13 @@ include $(TOPDIR)/Make.defs
 
 # MDIO tool built-in application info
 
-APPNAME = mdio
+PROGNAME = mdio
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_SYSTEM_MDIO)
 
 # MDIO tool
 
 MAINSRC = mdio_main.c
-
-CONFIG_XYZ_PROGNAME ?= mdio$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_SYSTEM_MDIO
 
 include $(APPDIR)/Application.mk

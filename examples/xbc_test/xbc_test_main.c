@@ -79,11 +79,7 @@
  * hello_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int xbc_test_main(int argc, char *argv[])
-#endif
 {
   char buffer[256];
   ssize_t nbytes;

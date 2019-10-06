@@ -40,14 +40,12 @@ include $(TOPDIR)/Make.defs
 CSRCS = cgi.c httpd_fsdata.c
 MAINSRC = webserver_main.c
 
-CONFIG_EXAMPLES_WEBSERVER_PROGNAME ?= webserver$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_WEBSERVER_PROGNAME)
-
 # Webserver built-in application info
 
-APPNAME = webserver
+PROGNAME = webserver
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_WEBSERVER)
 
 # Common build
 
@@ -56,7 +54,5 @@ httpd_fsdata.c: httpd-fs/*
 
 clean::
 	$(call DELFILE, httpd_fsdata.c)
-
-MODULE = CONFIG_EXAMPLES_WEBSERVER
 
 include $(APPDIR)/Application.mk

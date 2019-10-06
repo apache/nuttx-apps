@@ -40,10 +40,9 @@ include $(TOPDIR)/Make.defs
 CXXSRCS = cbuttonarraytest.cxx
 MAINSRC = cbuttonarray_main.cxx
 
-APPNAME = cbuttonarray
+PROGNAME = cbuttonarray
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_NXWIDGETS_UNITTEST_CBUTTONARRAY
+MODULE = $(CONFIG_NXWIDGETS_UNITTEST_CBUTTONARRAY)
 
 include $(APPDIR)/Application.mk

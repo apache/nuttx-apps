@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = telnetd.c
 
-CONFIG_XYZ_PROGNAME ?= telnetd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # Buttons built-in application info
 
-APPNAME = telnetd
+PROGNAME = telnetd
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_TELNETD
+MODULE = $(CONFIG_EXAMPLES_TELNETD)
 
 include $(APPDIR)/Application.mk

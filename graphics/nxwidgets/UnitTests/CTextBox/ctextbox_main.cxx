@@ -69,7 +69,7 @@ static const char string2[] = "\b\b\bn Doe\r";
 
 // Suppress name-mangling
 
-extern "C" int ctextbox_main(int argc, char *argv[]);
+extern "C" int main(int argc, char *argv[]);
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
@@ -79,7 +79,7 @@ extern "C" int ctextbox_main(int argc, char *argv[]);
 // nxheaders_main
 /////////////////////////////////////////////////////////////////////////////
 
-int ctextbox_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // Create an instance of the font test
 

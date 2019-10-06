@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = pwm_main.c
 
-CONFIG_XYZ_PROGNAME ?= pwm$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 # PWM built-in application info
 
-APPNAME = pwm
+PROGNAME = pwm
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_PWM
+MODULE = $(CONFIG_EXAMPLES_PWM)
 
 include $(APPDIR)/Application.mk

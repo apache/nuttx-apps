@@ -39,15 +39,11 @@ include $(TOPDIR)/Make.defs
 
 MAINSRC = djoy_main.c
 
-CONFIG_DJOY_PROGNAME ?= djoy$(EXEEXT)
-PROGNAME = $(CONFIG_DJOY_PROGNAME)
-
 # Buttons built-in application info
 
-APPNAME = djoy
+PROGNAME = djoy
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
-
-MODULE = CONFIG_EXAMPLES_DJOYSTICK
+MODULE = $(CONFIG_EXAMPLES_DJOYSTICK)
 
 include $(APPDIR)/Application.mk

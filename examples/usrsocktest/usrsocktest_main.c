@@ -246,11 +246,7 @@ bool usrsocktest_assert_print_buf(FAR const char *func,
  * usrsocktest_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int usrsocktest_main(int argc, char *argv[])
-#endif
 {
   struct mallinfo mem_before, mem_after;
 

@@ -42,15 +42,11 @@ endif
 
 # SMART filesystem test tool
 
-APPNAME = smart_test
+PROGNAME = smart_test
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 4096
+MODULE = $(CONFIG_TESTING_SMART_TEST)
 
 MAINSRC = smart_test.c
-
-CONFIG_XYZ_PROGNAME ?= smart_test$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_TESTING_SMART_TEST
 
 include $(APPDIR)/Application.mk

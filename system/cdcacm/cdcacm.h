@@ -60,10 +60,6 @@
 #  error "CONFIG_CDCACM is not defined"
 #endif
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
-#  error "This add-on can only be built as an NSH built-in application"
-#endif
-
 /* Default configuration values */
 
 #ifndef CONFIG_SYSTEM_CDCACM_DEVMINOR

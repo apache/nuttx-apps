@@ -66,11 +66,7 @@
  * pca9635_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int pca9635_main(int argc, char *argv[])
-#endif
 {
   struct pca9635pw_setled_brightness_arg_s ledbright;
   int led;

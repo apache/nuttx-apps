@@ -23,8 +23,8 @@ config EXAMPLES_NETTEST_SENDSIZE
 
 config EXAMPLES_NETTEST_PROGNAME1
 	string "Target1 program name"
-	default "nettest"
-	depends on BUILD_LOADABLE
+	default "nettest" if !EXAMPLES_NETTEST_TARGET2
+	default "nettest1" if EXAMPLES_NETTEST_TARGET2
 	---help---
 		This is the name of the program that will be used when the Nettest
 		program is installed.
@@ -49,7 +49,7 @@ config EXAMPLES_NETTEST_LOOPBACK
 
 if !EXAMPLES_NETTEST_LOOPBACK
 
-config EXAMPLES_NETTEST_SERVER1
+config EXAMPLES_NETTEST_SERVER
 	bool "Target1 is server"
 	default n
 	depends on !EXAMPLES_NETTEST_LOOPBACK
@@ -71,9 +71,7 @@ if EXAMPLES_NETTEST_TARGET2
 
 config EXAMPLES_NETTEST_PROGNAME2
 	string "Target2 program name"
-	default "tcpserver" if !EXAMPLES_NETTEST_SERVER2
-	default "tcpclient" if EXAMPLES_NETTEST_SERVER2
-	depends on BUILD_LOADABLE
+	default "nettest2"
 	---help---
 		This is the name of the Target2 program that will be used when the
 		NSH ELF program is installed.

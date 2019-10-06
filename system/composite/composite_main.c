@@ -521,11 +521,7 @@ static int echo_serial(void)
  *
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int conn_main(int argc, char *argv[])
-#endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
   int config = CONFIG_SYSTEM_COMPOSITE_DEFCONFIG;
@@ -709,18 +705,13 @@ errout:
  *
  * Description:
  *   This is a program entry point that will disconnect the USB mass storage
- *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
+ *   device.  This program is only available if CONFIG_SYSTEM_COMPOSITE = y
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-#ifdef BUILD_MODULE
-int main(int argc, FAR char **argv)
-#else
 int disconn_main(int argc, char *argv[])
-#endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
   int config = CONFIG_SYSTEM_COMPOSITE_DEFCONFIG;
@@ -766,4 +757,3 @@ int disconn_main(int argc, char *argv[])
   final_memory_usage("Final memory usage");
   return 0;
 }
-#endif

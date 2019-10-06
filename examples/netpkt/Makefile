@@ -37,17 +37,13 @@ include $(TOPDIR)/Make.defs
 
 # Network packet socket example
 
-APPNAME = netpkt
+PROGNAME = netpkt
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_NETPKT)
 
 # MDIO tool
 
 MAINSRC = netpkt_main.c
-
-CONFIG_XYZ_PROGNAME ?= netpkt$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-MODULE = CONFIG_EXAMPLES_NETPKT
 
 include $(APPDIR)/Application.mk

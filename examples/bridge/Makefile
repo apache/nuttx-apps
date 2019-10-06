@@ -38,9 +38,10 @@ include $(TOPDIR)/Make.defs
 
 # Discover built-in application info
 
-APPNAME = bridge
+PROGNAME = bridge
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
+MODULE = $(CONFIG_EXAMPLES_BRIDGE)
 
 MAINSRC = bridge_main.c
 
@@ -53,9 +54,6 @@ HOST_OBJS  = $(HOST_OBJS1) $(HOST_OBJS2)
 
 HOST_BIN1 = host1
 HOST_BIN2 = host2
-
-CONFIG_EXAMPLES_BRIDGE_PROGNAME ?= bridge$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_BRIDGE_PROGNAME)
 
 # Common build
 
@@ -83,7 +81,5 @@ clean::
 
 distclean::
 	$(call DELFILE, bridge_config.h)
-
-MODULE = CONFIG_EXAMPLES_BRIDGE
 
 include $(APPDIR)/Application.mk

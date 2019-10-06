@@ -6,7 +6,7 @@
 config EXAMPLES_PWM
 	tristate "Pulse width modulation (PWM) example"
 	default n
-	depends on PWM && NSH_BUILTIN_APPS
+	depends on PWM
 	---help---
 		Enable the Pulse width modulation (PWM) example
 

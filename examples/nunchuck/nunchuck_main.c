@@ -379,11 +379,7 @@ static int nunchuck_calibrate(int fd)
  * nunchuck_main
  ****************************************************************************/
 
-#ifdef BUILD_MODULE
 int main(int argc, FAR char *argv[])
-#else
-int nunchuck_main(int argc, char *argv[])
-#endif
 {
   int fd;
   int tmp;
