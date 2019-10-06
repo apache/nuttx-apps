@@ -29,7 +29,7 @@ config EXAMPLES_ELF_ROMFS
 config EXAMPLES_ELF_CROMFS
 	bool "CROMFS"
 	depends on FS_CROMFS && BUILD_FLAT
-        ---help---
+	---help---
 		Automatically generates and mounts an internal CROMFS file
 		system
 

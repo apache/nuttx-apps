@@ -8,7 +8,7 @@ config NETUTILS_LIBCURL4NX
 	default n
 	depends on NET_TCP
 	select LIBC_NETDB
-        select NETUTILS_NETLIB_GENERICURLPARSER
+	select NETUTILS_NETLIB_GENERICURLPARSER
 	---help---
 		Enable the NuttX cURL like library.
 

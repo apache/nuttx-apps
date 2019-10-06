@@ -179,7 +179,7 @@ config MB_MASTER_TOTAL_SLAVE_NUM
 		NOTE: The slave ID must be continuous from 1.
 
 config MB_MASTER_DELAY_MS_CONVERT
-    int "Convert Delay value"
+	int "Convert Delay value"
 	default 200
 	---help---
 		When master sends a broadcast frame, it should allow slaves to process
@@ -187,7 +187,7 @@ config MB_MASTER_DELAY_MS_CONVERT
 		after Convert Delay time duration.
 
 config MB_MASTER_TIMEOUT_MS_RESPOND
-    int "Respond timeout value"
+	int "Respond timeout value"
 	default 1000
 	---help---
 		When master sends frame, which is not broadcast, it should wait for

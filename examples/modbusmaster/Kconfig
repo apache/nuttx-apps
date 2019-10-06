@@ -48,11 +48,11 @@ config EXAMPLES_MODBUSMASTER_PARITY
 		0 = NONE ; 1 = ODD; 2 = EVEN
 
 config EXAMPLES_MODBUSMASTER_SLAVEADDR
-    int "Modbus Slave Address (master will query this slave)"
+	int "Modbus Slave Address (master will query this slave)"
 	default 1
 
 config EXAMPLES_MODBUSMASTER_SLAVEREG
-    int "Modbus Slave Holding Register address to query"
+	int "Modbus Slave Holding Register address to query"
 	default 1
 
 config EXAMPLES_MODBUSMASTER_TESTCOUNT

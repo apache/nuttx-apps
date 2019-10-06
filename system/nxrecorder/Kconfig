@@ -9,7 +9,7 @@ config SYSTEM_NXRECORDER
 	depends on AUDIO
 	---help---
 		Enable support for the NxRecorder pcm raw data recorder library
-                and optional command line interface.
+		and optional command line interface.
 
 if SYSTEM_NXRECORDER
 

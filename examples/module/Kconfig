@@ -47,15 +47,15 @@ config EXAMPLES_MODULE_ROMFS
 	bool "ROMFS"
 	depends on FS_ROMFS && BUILD_FLAT
 	---help---
-		 Automatically generates and mounts an internal ROMFS file
-		 system
+		Automatically generates and mounts an internal ROMFS file
+		system
 
 config EXAMPLES_MODULE_CROMFS
 	bool "CROMFS"
 	depends on FS_CROMFS && BUILD_FLAT
-	 ---help---
-		 Automatically generates and mounts an internal CROMFS file
-		 system
+	---help---
+		Automatically generates and mounts an internal CROMFS file
+		system
 
 endchoice # Built-in file system type
 
@@ -119,11 +119,11 @@ config EXAMPLES_MODULE_NOSTRIP
 	default n
 	depends on DEBUG_SYMBOLS
 	---help---
-		 By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
-		 ELF executables will also retain debug symbols in the resulting ELF binaries.
-		 Select this option if you do not want that behavior, this option will permit
-		 debug symbols in the base code but will strip debug symbols out of the ELF
-		 binaries for a smaller ROM file system image.
+		By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
+		ELF executables will also retain debug symbols in the resulting ELF binaries.
+		Select this option if you do not want that behavior, this option will permit
+		debug symbols in the base code but will strip debug symbols out of the ELF
+		binaries for a smaller ROM file system image.
 
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"

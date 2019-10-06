@@ -12,7 +12,7 @@ config EXAMPLES_POWERLED
 if EXAMPLES_POWERLED
 
 config EXAMPLES_POWERLED_DEVPATH
-  string "Powerled device path"
+	string "Powerled device path"
 	default "dev/powerled0"
 	---help---
 		The default path to the Powerled device. Default: /dev/powerled0
