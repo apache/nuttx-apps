@@ -29,11 +29,8 @@ config EXAMPLES_TOUCHSCREEN_DEVPATH
 config EXAMPLES_TOUCHSCREEN_NSAMPLES
 	int "Number of samples"
 	default 0
-	depends on !NSH_BUILTIN_APPS
 	---help---
-		If NSH_BUILTIN_APPS is defined, then the number of touchscreen
-		samples is provided on the command line and this value is ignored.
-		Otherwise, this number of samples is collected and the program
+		This number of samples is collected and the program.
 		terminates.  Default:  Zero (Samples are collected indefinitely).
 
 config EXAMPLES_TOUCHSCREEN_MOUSE

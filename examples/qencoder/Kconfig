@@ -21,11 +21,8 @@ config EXAMPLES_QENCODER_DEVPATH
 config EXAMPLES_QENCODER_NSAMPLES
 	int "Number of samples"
 	default 0
-	depends on !NSH_BUILTIN_APPS
 	---help---
-		If CONFIG_NSH_BUILTIN_APPS is defined, then the number of
-		samples is provided on the command line and this value is ignored.
-		Otherwise, this number of samples is collected and the program
+		This number of samples is collected and the program
 		terminates. If the value is 0, samples are collected indefinitely.
 
 config EXAMPLES_QENCODER_DELAY

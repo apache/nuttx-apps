@@ -58,7 +58,7 @@ config TWM4NX_NETINIT
 	default y
 	depends on NET
 	select NETUTILS_NETINIT
-	depends on !NSH_ARCHINIT
+	depends on !NSH_NETINIT
 	---help---
 		This option enables/disables all network initialization in Twm4Nx.
 

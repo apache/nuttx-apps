@@ -102,9 +102,7 @@
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 struct usbmsc_state_s g_usbmsc;
-#endif
 
 /****************************************************************************
  * Private Functions
@@ -445,7 +443,6 @@ int main(int argc, FAR char *argv[])
    * called re-entrantly.
    */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   /* Check if there is a non-NULL USB mass storage device handle (meaning that the
    * USB mass storage device is already configured).
    */
@@ -455,7 +452,6 @@ int main(int argc, FAR char *argv[])
       printf("mcsonn_main: ERROR: Already connected\n");
       return EXIT_FAILURE;
     }
-#endif
 
 #ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
 #  ifdef CONFIG_CAN_PASS_STRUCTS
@@ -571,17 +567,22 @@ int main(int argc, FAR char *argv[])
 
   check_test_memory_usage("After usbmsc_exportluns()");
 
-  /* It this program was configured as an NSH command, then just exit now. */
+  /* Return the USB mass storage device handle so it can be used by the 'msconn'
+   * command.
+   */
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
-  /* Otherwise, this thread will hang around and monitor the USB storage activity */
+  printf("mcsonn_main: Connected\n");
+  g_usbmsc.mshandle = handle;
+  check_test_memory_usage("After MS connection");
+
+#ifdef CONFIG_SYSTEM_USBMSC_TRACE
+  /* This thread will hang around and monitor the USB storage activity */
 
   for (; ; )
     {
       fflush(stdout);
       sleep(5);
 
-#  ifdef CONFIG_SYSTEM_USBMSC_TRACE
       printf("\nmcsonn_main: USB TRACE DATA:\n");
       ret = usbtrace_enumerate(usbmsc_enumerate, NULL);
       if (ret < 0)
@@ -592,19 +593,7 @@ int main(int argc, FAR char *argv[])
         }
 
       check_test_memory_usage("After usbtrace_enumerate()");
-#  else
-      printf("mcsonn_main: Still alive\n");
-#  endif
     }
-
-#else
-  /* Return the USB mass storage device handle so it can be used by the 'msconn'
-   * command.
-   */
-
-  printf("mcsonn_main: Connected\n");
-  g_usbmsc.mshandle = handle;
-  check_test_memory_usage("After MS connection");
 #endif
 
   return EXIT_SUCCESS;

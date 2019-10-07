@@ -97,19 +97,14 @@
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 struct usbmsc_state_s
 {
   /* This is the handle that references to this particular USB storage driver
-   * instance.  It is only needed if the USB mass storage device add-on is
-   * built using CONFIG_NSH_BUILTIN_APPS.  In this case, the value
-   * of the driver handle must be remembered between the 'msconn' and 'msdis'
-   * commands.
+   * instance. The value of the driver handle must be remembered between the
+   * 'msconn' and 'msdis' commands.
    */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   FAR void *mshandle;
-#endif
 
   /* Heap usage samples.  These are useful for checking USB storage memory
    * usage and for tracking down memoryh leaks.
@@ -121,7 +116,6 @@ struct usbmsc_state_s
   struct mallinfo mmcurrent;  /* The current memory usage sample */
 #endif
 };
-#endif
 
 /****************************************************************************
  * Public Data
@@ -131,9 +125,7 @@ struct usbmsc_state_s
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 extern struct usbmsc_state_s g_usbmsc;
-#endif
 
 /****************************************************************************
  * Public Functions

@@ -107,8 +107,6 @@ struct args_s g_args;
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-
 /****************************************************************************
  * Name: sx127x_help
  ****************************************************************************/
@@ -339,7 +337,6 @@ static int validate_args(FAR struct args_s *args)
 
   return ret;
 }
-#endif  /* CONFIG_NSH_BUILTIN_APPS */
 
 /****************************************************************************
  * Name: print_hex
@@ -466,7 +463,6 @@ int main(int argc, FAR char *argv[])
   args->time       = CONFIG_EXAMPLES_SX127X_TIME;
   args->datalen    = CONFIG_EXAMPLES_SX127X_TXDATA;
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   /* Parse the command line */
 
   parse_args(args, argc, argv);
@@ -479,7 +475,6 @@ int main(int argc, FAR char *argv[])
       printf("sx127x_main: validate arguments failed!\n");
       goto errout;
     }
-#endif
 
   printf("Start sx127x_demo\n");
 

@@ -352,17 +352,9 @@ void nxlines_test(NXWINDOW hwnd)
 
       if (angle > (31 *  (2 * b16PI) / 32))
         {
-#ifdef CONFIG_NSH_BUILTIN_APPS
-          /* If this example was built as an NSH add-on, then exit after we
-           * have gone all the way around once.
-           */
-
-          return;
-#else
           /* Wrap back to zero and continue with the test */
 
           angle = 0;
-#endif
         }
       usleep(500*1000);
     }

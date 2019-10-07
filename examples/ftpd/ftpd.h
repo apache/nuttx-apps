@@ -87,7 +87,7 @@
 
 /* NSH always initializes the network */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_EXAMPLES_FTPD_NONETINIT)
+#if defined(CONFIG_NSH_NETINIT) && !defined(CONFIG_EXAMPLES_FTPD_NONETINIT)
 #  define CONFIG_EXAMPLES_FTPD_NONETINIT 1
 #endif
 
@@ -130,10 +130,8 @@ struct ftpd_globals_s
   bool          initialized; /* True: Networking is initialized.  The
                               * network must be initialized only once.
                               */
-#ifdef CONFIG_NSH_BUILTIN_APPS
   volatile bool stop;        /* True: Request daemon to exit */
   volatile bool running;     /* True: The daemon is running */
-#endif
   pid_t         pid;         /* Task ID of the FTPD daemon.  The value
                               * -1 is a redundant indication that the
                               * daemon is not running.

@@ -174,9 +174,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
 
   /* The FTPD daemon has been started */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   g_ftpdglob.running = true;
-#endif
   printf("FTP daemon [%d] started\n", g_ftpdglob.pid);
 
   /* Open FTPD */
@@ -190,10 +188,8 @@ int ftpd_daemon(int s_argc, char **s_argv)
   if (!handle)
     {
       printf("FTP daemon [%d] failed to open FTPD\n", g_ftpdglob.pid);
-#ifdef CONFIG_NSH_BUILTIN_APPS
       g_ftpdglob.running = false;
       g_ftpdglob.stop    = false;
-#endif
       g_ftpdglob.pid     = -1;
       return EXIT_FAILURE;
     }
@@ -204,11 +200,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
 
   /* Then drive the FTPD server. */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   while (g_ftpdglob.stop == 0)
-#else
-  for (;;)
-#endif
     {
       /* If ftpd_session returns success, it means that a new FTP session
        * has been started.
@@ -226,17 +218,14 @@ int ftpd_daemon(int s_argc, char **s_argv)
         }
     }
 
-  /* Close the FTPD server and exit (we can get here only if
-   * CONFIG_NSH_BUILTIN_APPS is defined).
-   */
+  /* Close the FTPD server and exit. */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   printf("FTP daemon [%d] stopping\n", g_ftpdglob.pid);
   g_ftpdglob.running = false;
   g_ftpdglob.stop    = false;
   g_ftpdglob.pid     = -1;
   ftpd_close(handle);
-#endif
+
   return EXIT_SUCCESS;
 }
 
@@ -263,22 +252,17 @@ int main(int argc, FAR char *argv[])
 
       g_ftpdglob.initialized = true;
       g_ftpdglob.pid         = -1;
-#ifdef CONFIG_NSH_BUILTIN_APPS
       g_ftpdglob.stop        = false;
       g_ftpdglob.running     = false;
-#endif
     }
 
   /* Then start the new daemon (if it is not already running) */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   if (g_ftpdglob.stop && g_ftpdglob.running)
     {
       printf("Waiting for FTP daemon [%d] to stop\n", g_ftpdglob.pid);
       return EXIT_FAILURE;
     }
-  else
-#endif
   if (!g_ftpdglob.running)
     {
       printf("Starting the FTP daemon\n");

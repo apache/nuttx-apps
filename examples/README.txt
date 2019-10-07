@@ -41,9 +41,7 @@ examples/adc
   Specific configuration options for this example include:
 
     CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device. Default: /dev/adc0
-    CONFIG_EXAMPLES_ADC_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
-      is defined, then the number of samples is provided on the command line
-      and this value is ignored.  Otherwise, this number of samples is
+    CONFIG_EXAMPLES_ADC_NSAMPLES - This number of samples is
       collected and the program terminates.  Default:  Samples are collected
       indefinitely.
     CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
@@ -174,11 +172,8 @@ examples/can
   Specific configuration options for this example include:
 
     CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
-    CONFIG_EXAMPLES_CAN_NMSGS - If CONFIG_NSH_BUILTIN_APPS
-      is defined, then the number of loops is provided on the command line
-      and this value is ignored.  Otherwise, this number of CAN message is
-      collected and the program terminates.  Default:  If built as an NSH
-      built-in, the default is 32.  Otherwise messages are sent and received
+    CONFIG_EXAMPLES_CAN_NMSGS - This number of CAN message is collected
+      and the program terminates.  Default: messages are sent and received
       indefinitely.
 
   The default behavior assumes loopback mode.  Messages are sent, then read
@@ -470,7 +465,7 @@ examples/ftpd
      configuration if the network is configuration prior to running the
      example.
 
-  NSH always initializes the network so if CONFIG_NSH_BUILTIN_APPS is
+  NSH always initializes the network so if CONFIG_NSH_NETINIT is
   defined, so is CONFIG_EXAMPLES_FTPD_NONETINIT (se it does not explicitly
   need to be defined in that case):
 
@@ -1447,15 +1442,11 @@ examples/qencoder
 
     CONFIG_EXAMPLES_QENCODER_DEVPATH - The path to the QE device. Default:
       /dev/qe0
-    CONFIG_EXAMPLES_QENCODER_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
-      is defined, then the number of samples is provided on the command line
-      and this value is ignored.  Otherwise, this number of samples is
+    CONFIG_EXAMPLES_QENCODER_NSAMPLES - This number of samples is
       collected and the program terminates.  Default:  Samples are collected
       indefinitely.
     CONFIG_EXAMPLES_QENCODER_DELAY - This value provides the delay (in
-      milliseonds) between each sample.  If CONFIG_NSH_BUILTIN_APPS
-      is defined, then this value is the default delay if no other delay is
-      provided on the command line.  Default:  100 milliseconds
+      milliseonds) between each sample. Default:  100 milliseconds
 
 examples/random
 ^^^^^^^^^^^^^^^
@@ -1805,9 +1796,7 @@ examples/touchscreen
     CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
       device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
       Default: "/dev/input0"
-    CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
-      is defined, then the number of samples is provided on the command line
-      and this value is ignored.  Otherwise, this number of samples is
+    CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - This number of samples is
       collected and the program terminates.  Default:  Samples are collected
       indefinitely.
     CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE - The touchscreen test can also be
@@ -2121,15 +2110,15 @@ examples/xmlrpc
 
     CONFIG_EXAMPLES_XMLRPC_BUFFERSIZE - HTTP buffer size. Default 1024
     CONFIG_EXAMPLES_XMLRPC_DHCPC - Use DHCP Client.  Default n. Ignored
-      if CONFIG_NSH_BUILTIN_APPS is selected.
+      if CONFIG_NSH_NETINIT is selected.
     CONFIG_EXAMPLES_XMLRPC_NOMAC - Use Canned MAC Address. Defaul n. Ignored
-      if CONFIG_NSH_BUILTIN_APPS is selected.
+      if CONFIG_NSH_NETINIT is selected.
     CONFIG_EXAMPLES_XMLRPC_IPADDR - Target IP address. Default 0x0a000002.
-      Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
+      Ignored if CONFIG_NSH_NETINIT is selected.
     CONFIG_EXAMPLES_XMLRPC_DRIPADDR - Default Router IP address (Gateway).
-      Default 0x0a000001. Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
+      Default 0x0a000001. Ignored if CONFIG_NSH_NETINIT is selected.
     CONFIG_EXAMPLES_XMLRPC_NETMASK - Network Mask.  Default 0xffffff00
-      Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
+      Ignored if CONFIG_NSH_NETINIT is selected.
 
 examples/zerocross
 ^^^^^^^^^^^^^^^^^^

@@ -47,9 +47,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* CONFIG_NSH_BUILTIN_APPS - Build the touchscreen test as
- *   an NSH built-in function.  Default: Built as a standalone program
- * CONFIG_EXAMPLES_LGVLDEMO_MINOR - The minor device number.  Minor=N
+/* CONFIG_EXAMPLES_LGVLDEMO_MINOR - The minor device number.  Minor=N
  *   corresponds to touchscreen device /dev/input0.  Note this value must
  *   with CONFIG_EXAMPLES_LGVLDEMO_DEVPATH.  Default 0.
  * CONFIG_EXAMPLES_LGVLDEMO_DEVPATH - The path to the touchscreen

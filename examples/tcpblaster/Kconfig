@@ -139,8 +139,8 @@ endchoice # IP Domain
 
 config EXAMPLES_TCPBLASTER_INIT
 	bool "Initialize network"
-	default n if NSH_BUILTIN_APPS
-	default y if !NSH_BUILTIN_APPS
+	default n if NSH_NETINIT
+	default y if !NSH_NETINIT
 	depends on !EXAMPLES_TCPBLASTER_LOOPBACK
 	---help---
 		Include logic to initialize the network.  This should not be done if

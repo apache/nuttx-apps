@@ -55,16 +55,10 @@
  *
  * Specific configuration options for this example include:
  *
- * CONFIG_NSH_BUILTIN_APPS - Build the CAN test as an NSH built-in function.
- *   Default: Built as a standalone program
  * CONFIG_CAN_LOOPBACK
  * CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
- * CONFIG_EXAMPLES_CAN_NMSGS - If CONFIG_NSH_BUILTIN_APPS
- *   is defined, then the number of loops is provided on the command line
- *   and this value is ignored.  Otherwise, this number of CAN message is
- *   collected and the program terminates.  Default:  If built as an NSH
- *   built-in, the default is 32.  Otherwise messages are sent and received
- *   indefinitely.
+ * CONFIG_EXAMPLES_CAN_NMSGS - This number of CAN message is collected and
+ *   the program terminates. Default: 32.
  * CONFIG_EXAMPLES_CAN_READ - Only receive messages
  * CONFIG_EXAMPLES_CAN_WRITE - Only send messages
  * CONFIG_EXAMPLES_CAN_READWRITE - Receive and send messages

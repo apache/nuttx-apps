@@ -274,7 +274,6 @@ static int cmd_dac_putv(int argc, FAR const char *argv[])
   return ret;
 }
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void dac_help(void)
 {
   printf("Usage: dac [OPTIONS] command [CMD OPTIONS]\n");
@@ -292,9 +291,7 @@ static void dac_help(void)
          CONFIG_EXAMPLES_DAC_DEVPATH, g_dacstate.devpath ? g_dacstate.devpath : "NONE");
   print_cmds("\nCommands:\n", commands, ARRAY_SIZE(commands), "\n");
 }
-#endif
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR const char **arg, FAR const char **value)
 {
   FAR const char *ptr = *arg;
@@ -310,9 +307,7 @@ static int arg_string(FAR const char **arg, FAR const char **value)
       return 1;
     }
 }
-#endif
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR const char **arg, FAR long *value)
 {
   FAR const char *string;
@@ -322,9 +317,7 @@ static int arg_decimal(FAR const char **arg, FAR long *value)
   *value = strtol(string, NULL, 10);
   return ret;
 }
-#endif
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int parse_args(FAR struct dac_state_s *dac,
                       int argc,
                       const char *argv[])
@@ -403,7 +396,6 @@ static int parse_args(FAR struct dac_state_s *dac,
 
   return n;
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -430,9 +422,7 @@ int main(int argc, FAR const char *argv[])
 
   /* Parse the command line */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   nargs = parse_args(&g_dacstate, argc, argv);
-#endif
 
   argc -= nargs;
   argv += nargs;

@@ -20,8 +20,7 @@ config EXAMPLES_CAN_DEVPATH
 
 config EXAMPLES_CAN_NMSGS
 	int "Number of Messages"
-	default 32
-	depends on NSH_BUILTIN_APPS
+	default 0
 	---help---
 		The number of CAN messages to send before returning
 

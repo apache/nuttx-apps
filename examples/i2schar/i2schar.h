@@ -47,9 +47,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* CONFIG_NSH_BUILTIN_APPS - Build the I2SCHAR test as an NSH built-in
- *   function. Default: Built as a standalone program
- * CONFIG_EXAMPLES_I2SCHAR_DEVPATH - The default path to the I2S character
+/* CONFIG_EXAMPLES_I2SCHAR_DEVPATH - The default path to the I2S character
  *   device. Default: /dev/i2schar0
  */
 

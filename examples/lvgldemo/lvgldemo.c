@@ -70,8 +70,7 @@
 
 #undef NEED_BOARDINIT
 
-#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE) && \
-    (!defined(CONFIG_NSH_BUILTIN_APPS) || !defined(CONFIG_NSH_ARCHINIT))
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_NSH_ARCHINIT)
 #  define NEED_BOARDINIT 1
 #endif
 

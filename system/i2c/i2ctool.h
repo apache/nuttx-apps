@@ -55,8 +55,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* CONFIG_NSH_BUILTIN_APPS - Build the tools as an NSH built-in command
- * CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
+/* CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
  * CONFIG_I2CTOOL_MAXBUS - Largest bus index supported by the hardware (default 3)
  * CONFIG_I2CTOOL_MINADDR - Minium device address (default: 0x03)
  * CONFIG_I2CTOOL_MAXADDR - Largest device address (default: 0x77)

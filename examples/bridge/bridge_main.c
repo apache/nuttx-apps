@@ -85,7 +85,7 @@ static int briget_net1_setup(void)
    * network has already been configured by NSH's start-up logic.
    */
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_NETINIT
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC) || \
     defined(CONFIG_EXAMPLES_BRIDGE_NET1_NOMAC)
@@ -191,13 +191,13 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 
 #endif /* CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC */
 
-#else /* CONFIG_NSH_BUILTIN_APPS */
+#else /* CONFIG_NSH_NETINIT */
   /* Hmmm.. there is an issue here.  Where do we get the IP address if we
    * are a builtin in application?
    */
 #  warning Missing logic
 
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_NETINIT */
 
   return OK;
 }
@@ -212,7 +212,7 @@ static int briget_net2_setup(void)
    * network has already been configured by NSH's start-up logic.
    */
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_NETINIT
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC) || \
     defined(CONFIG_EXAMPLES_BRIDGE_NET2_NOMAC)
@@ -312,13 +312,13 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
 #endif /* CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC */
 
-#else /* CONFIG_NSH_BUILTIN_APPS */
+#else /* CONFIG_NSH_NETINIT */
   /* Hmmm.. there is an issue here.  Where do we get the IP address if we
    * are a builtin in application?
    */
 #  warning Missing logic
 
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_NETINIT */
 
   return OK;
 }

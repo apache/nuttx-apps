@@ -59,14 +59,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Use CONFIG_EXAMPLES_ADC_NSAMPLES == 0 to mean to collect samples
- * indefinitely.
- */
-
-#ifndef CONFIG_EXAMPLES_ADC_NSAMPLES
-#  define CONFIG_EXAMPLES_ADC_NSAMPLES 0
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -111,7 +103,6 @@ static void adc_devpath(FAR struct adc_state_s *adc, FAR const char *devpath)
  * Name: adc_help
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void adc_help(FAR struct adc_state_s *adc)
 {
   printf("Usage: adc [OPTIONS]\n");
@@ -125,13 +116,11 @@ static void adc_help(FAR struct adc_state_s *adc)
          "Default: 1 Current: %d\n", adc->count);
   printf("  [-h] shows this message and exits\n");
 }
-#endif
 
 /****************************************************************************
  * Name: arg_string
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR char **arg, FAR char **value)
 {
   FAR char *ptr = *arg;
@@ -147,13 +136,11 @@ static int arg_string(FAR char **arg, FAR char **value)
       return 1;
     }
 }
-#endif
 
 /****************************************************************************
  * Name: arg_decimal
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR char **arg, FAR long *value)
 {
   FAR char *string;
@@ -163,13 +150,11 @@ static int arg_decimal(FAR char **arg, FAR long *value)
   *value = strtol(string, NULL, 10);
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: parse_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
 {
   FAR char *ptr;
@@ -218,7 +203,6 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
         }
     }
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -255,25 +239,17 @@ int main(int argc, FAR char *argv[])
       g_adcstate.initialized = true;
     }
 
-#if CONFIG_EXAMPLES_ADC_NSAMPLES > 0
   g_adcstate.count = CONFIG_EXAMPLES_ADC_NSAMPLES;
-#else
-  g_adcstate.count = 1;
-#endif
 
   /* Parse the command line */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   parse_args(&g_adcstate, argc, argv);
-#endif
 
   /* If this example is configured as an NX add-on, then limit the number of
    * samples that we collect before returning.  Otherwise, we never return
    */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_ADC_NSAMPLES > 0
   printf("adc_main: g_adcstate.count: %d\n", g_adcstate.count);
-#endif
 
   /* Open the ADC device for reading */
 
@@ -292,15 +268,7 @@ int main(int argc, FAR char *argv[])
    * ADC samples.
    */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
-  for (; g_adcstate.count > 0; g_adcstate.count--)
-#elif CONFIG_EXAMPLES_ADC_NSAMPLES > 0
-  for (g_adcstate.count = 0;
-       g_adcstate.count < CONFIG_EXAMPLES_ADC_NSAMPLES;
-       g_adcstate.count++)
-#else
   for (;;)
-#endif
   {
     /* Flush any output before the loop entered or from the previous pass
      * through the loop.
@@ -363,6 +331,11 @@ int main(int argc, FAR char *argv[])
                        i+1, sample[i].am_channel, sample[i].am_data);
               }
           }
+      }
+
+    if (g_adcstate.count && --g_adcstate.count <= 0)
+      {
+        break;
       }
   }
 

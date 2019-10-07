@@ -82,7 +82,6 @@ static int g_samples = 1;
  * Name: lm75_help
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void lm75_help(void)
 {
   printf("Usage: temp [OPTIONS]\n");
@@ -90,13 +89,11 @@ static void lm75_help(void)
          "Default: 1 Current: %d\n", g_samples);
   printf("  [-h] shows this message and exits\n");
 }
-#endif
 
 /****************************************************************************
  * Name: arg_string
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR char **arg, FAR char **value)
 {
   FAR char *ptr = *arg;
@@ -112,13 +109,11 @@ static int arg_string(FAR char **arg, FAR char **value)
       return 1;
     }
 }
-#endif
 
 /****************************************************************************
  * Name: arg_decimal
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR char **arg, FAR long *value)
 {
   FAR char *string;
@@ -128,13 +123,11 @@ static int arg_decimal(FAR char **arg, FAR long *value)
   *value = strtol(string, NULL, 10);
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: parse_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void parse_args(int argc, FAR char **argv)
 {
   FAR char *ptr;
@@ -176,7 +169,6 @@ static void parse_args(int argc, FAR char **argv)
         }
     }
 }
-#endif
 
 
 /****************************************************************************
@@ -228,9 +220,7 @@ int main(int argc, FAR char *argv[])
 
   /* Parse the command line */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   parse_args(argc, argv);
-#endif
 
   for (i = 0; i < g_samples; i++)
     {

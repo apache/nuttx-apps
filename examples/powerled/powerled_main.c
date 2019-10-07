@@ -126,7 +126,6 @@ struct args_s g_args;
  * Name: powerled_help
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void powerled_help(FAR struct args_s *args)
 {
   printf("Usage: powerled [OPTIONS]\n\n");
@@ -145,13 +144,11 @@ static void powerled_help(FAR struct args_s *args)
   printf("       -1 for infinity [default]\n");
   printf("\n");
 }
-#endif
 
 /****************************************************************************
  * Name: arg_string
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR char **arg, FAR char **value)
 {
   FAR char *ptr = *arg;
@@ -167,13 +164,11 @@ static int arg_string(FAR char **arg, FAR char **value)
       return 1;
     }
 }
-#endif
 
 /****************************************************************************
  * Name: arg_decimal
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR char **arg, FAR int *value)
 {
   FAR char *string;
@@ -184,13 +179,11 @@ static int arg_decimal(FAR char **arg, FAR int *value)
 
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: arg_float
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_float(FAR char **arg, FAR float *value)
 {
   FAR char *string;
@@ -201,13 +194,11 @@ static int arg_float(FAR char **arg, FAR float *value)
 
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: parse_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 {
   FAR char *ptr;
@@ -336,13 +327,11 @@ static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
         }
     }
 }
-#endif
 
 /****************************************************************************
  * Name: validate_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int validate_args(FAR struct args_s *args)
 {
   int ret = OK;
@@ -421,7 +410,6 @@ static int validate_args(FAR struct args_s *args)
 errout:
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -463,22 +451,18 @@ int main(int argc, char *argv[])
 
   /* Parse the command line */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   parse_args(args, argc, argv);
-#endif
 
   /* Validate arguments */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   ret = validate_args(args);
   if (ret != OK)
     {
       printf("powerled_main: validate arguments failed!\n");
       goto errout;
     }
-#endif
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_ARCHINIT
   /* Perform architecture-specific initialization (if configured) */
 
   (void)boardctl(BOARDIOC_INIT, 0);

@@ -97,7 +97,7 @@
 
 int main(int argc, FAR char *argv[])
 {
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_NETINIT
   /* We are running standalone (as opposed to a NSH built-in app). Therefore
    * we need to initialize the network before we start.
    */
@@ -186,7 +186,7 @@ int main(int argc, FAR char *argv[])
         printf("IP: %s\n", inet_ntoa(ds.ipaddr));
     }
 #endif
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_NETINIT */
 
 #ifdef CONFIG_NET_TCP
   printf("Starting webserver\n");
@@ -197,7 +197,6 @@ int main(int argc, FAR char *argv[])
   httpd_listen();
 #endif
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
   /* We are running standalone (as opposed to a NSH built-in app). Therefore
    * we should not exit after httpd failure.
    */
@@ -208,7 +207,6 @@ int main(int argc, FAR char *argv[])
       printf("webserver_main: Still running\n");
       fflush(stdout);
     }
-#endif /* CONFIG_NSH_BUILTIN_APPS */
 
   return 0;
 }

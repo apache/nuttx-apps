@@ -29,26 +29,26 @@ config EXAMPLES_TCPECHO_NCONN
 config EXAMPLES_TCPECHO_DHCPC
 	bool "DHCP Client"
 	default n
-	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_TCPECHO && !NSH_NETINIT
 	select NETUTILS_DHCPC
 	select NETDB_DNSCLIENT
 
 config EXAMPLES_TCPECHO_NOMAC
 	bool "Use Canned MAC Address"
 	default n
-	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_TCPECHO && !NSH_NETINIT
 
 config EXAMPLES_TCPECHO_IPADDR
 	hex "Target IP address"
 	default 0x0a000002
-	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS && !EXAMPLES_TCPECHO_DHCPC
+	depends on EXAMPLES_TCPECHO && !NSH_NETINIT && !EXAMPLES_TCPECHO_DHCPC
 
 config EXAMPLES_TCPECHO_DRIPADDR
 	hex "Default Router IP address (Gateway)"
 	default 0x0a000001
-	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_TCPECHO && !NSH_NETINIT
 
 config EXAMPLES_TCPECHO_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
-	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_TCPECHO && !NSH_NETINITd

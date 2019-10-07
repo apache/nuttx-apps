@@ -431,19 +431,12 @@ int main(int argc, char *argv[])
 
   ajoy_calibrate(fd);
 
-  /* Then loop, receiving signals indicating joystick events.  If this is an
-   * NSH builtin application, we will turn as soon as the SELECT button is
-   * depressed.
-   */
+  /* Then loop, receiving signals indicating joystick events. */
 
   timeout.tv_sec  = 0;
   timeout.tv_nsec = 600*1000*1000;
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-  while ((g_ajoylast & AJOY_BUTTON_SELECT_BIT) == 0)
-#else
   for (;;)
-#endif
     {
       struct ajoy_sample_s sample;
 

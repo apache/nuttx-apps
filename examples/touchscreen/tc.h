@@ -46,18 +46,14 @@
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* CONFIG_NSH_BUILTIN_APPS - Build the touchscreen test as
- *   an NSH built-in function.  Default: Built as a standalone program
- * CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
+/* CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
  *   corresponds to touchscreen device /dev/input0.  Note this value must
  *   with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
  * CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
  *   device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
  *   Default: "/dev/input0"
- * CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
- *   is defined, then the number of samples is provided on the command line
- *   and this value is ignored.  Otherwise, this number of samples is
- *   collected and the program terminates.  Default:  Zero (Samples are collected
+ * CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - This number of samples is collected
+ *   and the program terminates.  Default:  Zero (Samples are collected
  *   indefinitely).
  * CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE - The touchscreen test can also be
  *   configured to work with a mouse driver by setting this option.

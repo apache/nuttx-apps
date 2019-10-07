@@ -257,12 +257,10 @@ int main(int argc, FAR char *argv[])
    * is supported.
    */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
   if (argc > 1)
     {
       str = argv[1];
     }
-#endif
 
   /* Open the SLCD device */
 

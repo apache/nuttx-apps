@@ -21,26 +21,26 @@ config EXAMPLES_XMLRPC_BUFFERSIZE
 config EXAMPLES_XMLRPC_DHCPC
 	bool "DHCP Client"
 	default n
-	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_XMLRPC && !NSH_NETINIT
 	select NETUTILS_DHCPC
 	select NETDB_DNSCLIENT
 
 config EXAMPLES_XMLRPC_NOMAC
 	bool "Use Canned MAC Address"
 	default n
-	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_XMLRPC && !NSH_NETINIT
 
 config EXAMPLES_XMLRPC_IPADDR
 	hex "Target IP address"
 	default 0x0a000002
-	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS && !EXAMPLES_XMLRPC_DHCPC
+	depends on EXAMPLES_XMLRPC && !NSH_NETINIT && !EXAMPLES_XMLRPC_DHCPC
 
 config EXAMPLES_XMLRPC_DRIPADDR
 	hex "Default Router IP address (Gateway)"
 	default 0x0a000001
-	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_XMLRPC && !NSH_NETINIT
 
 config EXAMPLES_XMLRPC_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
-	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS
+	depends on EXAMPLES_XMLRPC && !NSH_NETINIT

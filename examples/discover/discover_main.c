@@ -90,7 +90,7 @@ int main(int argc, FAR char *argv[])
    * network has already been configured by NSH's start-up logic.
    */
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_NETINIT
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_DISCOVER_DHCPC) || defined(CONFIG_EXAMPLES_DISCOVER_NOMAC)
   uint8_t mac[IFHWADDRLEN];
@@ -176,7 +176,7 @@ int main(int argc, FAR char *argv[])
     }
 
 #endif /* CONFIG_EXAMPLES_DISCOVER_DHCPC */
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_NETINIT */
 
   if (discover_start(NULL) < 0)
     {

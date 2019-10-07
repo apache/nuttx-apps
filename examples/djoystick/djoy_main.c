@@ -190,16 +190,9 @@ int main(int argc, FAR char *argv[])
       goto errout_with_fd;
     }
 
-  /* Then loop, receiving signals indicating joystick events.  If this is an
-   * NSH builtin application, we will turn as soon as the SELECT button is
-   * depressed.
-   */
+  /* Then loop, receiving signals indicating joystick events. */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-  while ((g_djoylast & DJOY_BUTTON_SELECT_BIT) == 0)
-#else
   for (;;)
-#endif
     {
       struct siginfo value;
       sigset_t set;

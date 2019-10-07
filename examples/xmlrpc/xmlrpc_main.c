@@ -268,7 +268,7 @@ static int xmlrpc_netinit(void)
    * has already been configured by NSH's start-up logic.
    */
 
-#ifndef CONFIG_NSH_BUILTIN_APPS
+#ifndef CONFIG_NSH_NETINIT
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_XMLRPC_DHCPC) || defined(CONFIG_EXAMPLES_XMLRPC_NOMAC)
   uint8_t mac[IFHWADDRLEN];
@@ -355,7 +355,7 @@ static int xmlrpc_netinit(void)
     }
 
 #endif /* CONFIG_EXAMPLES_XMLRPC_DHCPC */
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_NETINIT */
 
   return OK;
 }

@@ -21,12 +21,9 @@ config EXAMPLES_ADC_DEVPATH
 config EXAMPLES_ADC_NSAMPLES
 	int "Number of Sample Groups"
 	default 0
-	depends on !NSH_BUILTIN_APPS
 	---help---
-		If NSH_BUILTIN_APPS is defined, then the number of samples is provided
-		on the command line and this value is ignored.  Otherwise, this number
-		of samples is collected and the program terminates.  Default:  0 (samples
-		are collected indefinitely).
+		This number of samples is collected and the program terminates.
+		Default:  0 (samples are collected indefinitely).
 
 config EXAMPLES_ADC_GROUPSIZE
 	int "Number of Samples per Group"

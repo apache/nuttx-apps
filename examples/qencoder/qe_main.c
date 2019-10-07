@@ -103,7 +103,6 @@ static void qe_devpath(FAR const char *devpath)
  * Name: qe_help
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void qe_help(void)
 {
   printf("\nUsage: qe [OPTIONS]\n\n");
@@ -114,13 +113,11 @@ static void qe_help(void)
   printf("  [-r]         Reset the position to zero\n");
   printf("  [-h]         Shows this message and exits\n\n");
 }
-#endif
 
 /****************************************************************************
  * Name: arg_string
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR char **arg, FAR char **value)
 {
   FAR char *ptr = *arg;
@@ -136,13 +133,11 @@ static int arg_string(FAR char **arg, FAR char **value)
       return 1;
     }
 }
-#endif
 
 /****************************************************************************
  * Name: arg_decimal
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR char **arg, FAR long *value)
 {
   FAR char *string;
@@ -152,13 +147,11 @@ static int arg_decimal(FAR char **arg, FAR long *value)
   *value = strtol(string, NULL, 10);
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: parse_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void parse_args(int argc, FAR char **argv)
 {
   FAR char *ptr;
@@ -168,7 +161,7 @@ static void parse_args(int argc, FAR char **argv)
   int nargs;
 
   g_qeexample.reset  = false;
-  g_qeexample.nloops = 1;
+  g_qeexample.nloops = CONFIG_EXAMPLES_QENCODER_NSAMPLES;
   g_qeexample.delay  = CONFIG_EXAMPLES_QENCODER_DELAY;
 
   for (index = 1; index < argc; )
@@ -228,7 +221,6 @@ static void parse_args(int argc, FAR char **argv)
         }
     }
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -244,9 +236,7 @@ int main(int argc, FAR char *argv[])
   int fd;
   int exitval = EXIT_SUCCESS;
   int ret;
-#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
   int nloops;
-#endif
 
   /* Set the default values */
 
@@ -254,9 +244,7 @@ int main(int argc, FAR char *argv[])
 
   /* Parse command line arguments */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   parse_args(argc, argv);
-#endif
 
   /* Open the encoder device for reading */
 
@@ -273,7 +261,6 @@ int main(int argc, FAR char *argv[])
 
   /* Reset the count if so requested */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   if (g_qeexample.reset)
     {
       printf("qe_main: Resetting the count...\n");
@@ -285,21 +272,13 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
     }
-#endif
 
   /* Now loop the appropriate number of times, displaying the collected
    * encoder samples.
    */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
   printf("qe_main: Number of samples: %u\n", g_qeexample.nloops);
-  for (nloops = 0; nloops < g_qeexample.nloops; nloops++)
-#elif CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
-  printf("qe_main: Number of samples: %d\n", CONFIG_EXAMPLES_QENCODER_NSAMPLES);
-  for (nloops = 0; nloops < CONFIG_EXAMPLES_QENCODER_NSAMPLES; nloops++)
-#else
-  for (;;)
-#endif
+  for (nloops = 0; !g_qeexample.nloops || nloops < g_qeexample.nloops; nloops++)
     {
       /* Flush any output before the loop entered or from the previous pass
        * through the loop.
@@ -321,20 +300,12 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
           printf("qe_main: %3d. %d\n", nloops+1, position);
-#else
-          printf("qe_main: %d\n", position);
-#endif
         }
 
       /* Delay a little bit */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
       usleep(g_qeexample.delay * 1000);
-#else
-      usleep(CONFIG_EXAMPLES_QENCODER_DELAY * 1000);
-#endif
     }
 
 errout_with_dev:

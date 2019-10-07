@@ -76,26 +76,14 @@
 #  endif
 #endif
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-#  ifdef CONFIG_EXAMPLES_CAN_WRITE
-#    ifdef CONFIG_CAN_EXTID
-#      define OPT_STR ":n:a:b:hs"
-#    else
-#      define OPT_STR ":n:a:b:h"
-#    endif
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+#  ifdef CONFIG_CAN_EXTID
+#    define OPT_STR ":n:a:b:hs"
 #  else
-#    define OPT_STR ":n:h"
+#    define OPT_STR ":n:a:b:h"
 #  endif
 #else
-#  ifdef CONFIG_EXAMPLES_CAN_WRITE
-#    ifdef CONFIG_CAN_EXTID
-#      define OPT_STR ":a:b:hs"
-#    else
-#      define OPT_STR ":a:b:h"
-#    endif
-#  else
-#    define OPT_STR ":h"
-#  endif
+#  define OPT_STR ":n:h"
 #endif
 
 /****************************************************************************
@@ -121,9 +109,7 @@
 static void show_usage(FAR const char *progname)
 {
   fprintf(stderr, "USAGE: %s"
-#ifdef CONFIG_NSH_BUILTIN_APPS
           " [-n <nmsgs]"
-#endif
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
           " [-s]"
@@ -135,9 +121,7 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr, "USAGE: %s -h\n",
           progname);
   fprintf(stderr, "\nWhere:\n");
-#ifdef CONFIG_NSH_BUILTIN_APPS
   fprintf(stderr, "-n <nmsgs>: The number of messages to send.  Default: 32\n");
-#endif
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
   fprintf(stderr, "-s: Use standard IDs.  Default: Extended ID\n");
@@ -183,10 +167,8 @@ int main(int argc, FAR char *argv[])
   ssize_t nbytes;
   bool badarg   = false;
   bool help     = false;
-#ifdef CONFIG_NSH_BUILTIN_APPS
   long nmsgs    = CONFIG_EXAMPLES_CAN_NMSGS;
   long msgno;
-#endif
   int option;
   int fd;
   int errval    = 0;
@@ -228,7 +210,6 @@ int main(int argc, FAR char *argv[])
             help = true;
             break;
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
           case 'n':
             nmsgs = strtol(optarg, NULL, 10);
             if (nmsgs < 1)
@@ -237,7 +218,6 @@ int main(int argc, FAR char *argv[])
                 badarg = true;
               }
             break;
-#endif
 
           case ':':
             fprintf(stderr, "ERROR: Bad option argument\n");
@@ -282,9 +262,7 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   printf("nmsgs: %d\n", nmsgs);
-#endif
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
   printf("min ID: %ld max ID: %ld\n", minid, maxid);
 #endif
@@ -332,11 +310,7 @@ int main(int argc, FAR char *argv[])
   msgdata = 0;
 #endif
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
-  for (msgno = 0; msgno < nmsgs; msgno++)
-#else
-  for (; ; )
-#endif
+  for (msgno = 0; !nmsgs || msgno < nmsgs; msgno++)
     {
       /* Flush any output before the loop entered or from the previous pass
        * through the loop.

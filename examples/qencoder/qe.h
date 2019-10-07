@@ -53,11 +53,9 @@
 struct qe_example_s
 {
   FAR char    *devpath;     /* Path to the QE device */
-#ifdef CONFIG_NSH_BUILTIN_APPS
   bool         reset;       /* True: set the count back to zero */
   unsigned int nloops;      /* Collect this number of samples */
   unsigned int delay;       /* Delay this number of seconds between samples */
-#endif
 };
 
 /****************************************************************************

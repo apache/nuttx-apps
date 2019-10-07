@@ -99,7 +99,6 @@ static void i2schar_devpath(FAR struct i2schar_state_s *i2schar,
  * Name: i2schar_help
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void i2schar_help(FAR struct i2schar_state_s *i2schar)
 {
   printf("Usage: i2schar [OPTIONS]\n");
@@ -121,13 +120,11 @@ static void i2schar_help(FAR struct i2schar_state_s *i2schar)
 #endif
   printf("  [-h] shows this message and exits\n");
 }
-#endif
 
 /****************************************************************************
  * Name: arg_string
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_string(FAR char **arg, FAR char **value)
 {
   FAR char *ptr = *arg;
@@ -143,13 +140,11 @@ static int arg_string(FAR char **arg, FAR char **value)
       return 1;
     }
 }
-#endif
 
 /****************************************************************************
  * Name: arg_decimal
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static int arg_decimal(FAR char **arg, FAR long *value)
 {
   FAR char *string;
@@ -159,13 +154,11 @@ static int arg_decimal(FAR char **arg, FAR long *value)
   *value = strtol(string, NULL, 10);
   return ret;
 }
-#endif
 
 /****************************************************************************
  * Name: parse_args
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char **argv)
 {
   FAR char *ptr;
@@ -284,9 +277,7 @@ int main(int argc, FAR char *argv[])
 
   /* Parse the command line */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
   parse_args(&g_i2schar, argc, argv);
-#endif
 
   sched_lock();
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX

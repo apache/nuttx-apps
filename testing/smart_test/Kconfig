@@ -8,8 +8,7 @@ config TESTING_SMART_TEST
 	default n
 	---help---
 		Performs a file-based test on a SMART (or any) filesystem. Validates
-		seek, append and seek-with-write operations.  This test can be built
-		only as an NSH command
+		seek, append and seek-with-write operations.
 
 if TESTING_SMART_TEST
 endif

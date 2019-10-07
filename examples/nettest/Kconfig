@@ -129,8 +129,8 @@ endchoice # IP Domain
 
 config EXAMPLES_NETTEST_INIT
 	bool "Initialize network"
-	default n if NSH_BUILTIN_APPS
-	default y if !NSH_BUILTIN_APPS
+	default n if NSH_NETINIT
+	default y if !NSH_NETINIT
 	depends on !EXAMPLES_NETTEST_LOOPBACK
 	---help---
 		Include logic to initialize the network.  This should not be done if
