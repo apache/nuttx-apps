@@ -36,10 +36,6 @@
 
 include $(TOPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
 # SMART filesystem test tool
 
 PROGNAME = smart_test

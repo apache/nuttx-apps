@@ -35,10 +35,6 @@
 
 include $(TOPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
-endif
-
 CFLAGS		+= ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)/netutils/thttpd" "$(APPDIR)/netutils/thttpd/cgi-src"}
 CGIBINDIR	= $(APPDIR)/netutils/thttpd/cgi-bin
 CLEANFILES	= *.o redirect ssi phf

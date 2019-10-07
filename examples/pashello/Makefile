@@ -42,9 +42,6 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 MODULE = $(CONFIG_EXAMPLES_PASHELLO)
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
   "." \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)include" \

@@ -36,10 +36,6 @@
 
 include $(TOPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
 # SMART FLASH block device test
 
 PROGNAME = flash_test
