@@ -74,17 +74,9 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINOBJ)
 endif
 
-# Module install directory
+# Library file
 
 BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
-
-ifeq ($(WINTOOL),y)
-  TOOLBIN = "${shell cygpath -w $(BIN)}"
-  INSTALLDIR = "${shell cygpath -w $(BINDIR)}"
-else
-  TOOLBIN = $(BIN)
-  INSTALLDIR = $(BINDIR)
-endif
 
 ROOTDEPPATH += --dep-path .
 
@@ -131,7 +123,11 @@ $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 .built: $(OBJS)
-	$(call ARCHIVE, $(TOOLBIN), $(OBJS))
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $(OBJS))
+else
+	$(call ARCHIVE, $(BIN), $(OBJS))
+endif
 	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE),y)
@@ -147,11 +143,15 @@ $(MAINOBJ): %$(OBJEXT): %.c
 endif
 
 PROGLIST := $(wordlist 1,$(words $(MAINOBJ)),$(PROGNAME))
-PROGLIST := $(addprefix $(INSTALLDIR)$(DELIM),$(PROGLIST))
+PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGLIST))
 PROGOBJ := $(MAINOBJ)
 
 $(PROGLIST): $(MAINOBJ)
+ifeq ($(WINTOOL),y)
+	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
+else
 	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))
+endif
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 
