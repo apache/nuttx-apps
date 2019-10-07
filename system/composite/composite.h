@@ -65,60 +65,6 @@
 #  error "USB CDC/ACM serial composite device support is not enabled (CONFIG_CDCACM_COMPOSITE)"
 #endif
 
-/* Add-on Mass Storagte Class default values */
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_NLUNS
-#  define CONFIG_SYSTEM_COMPOSITE_NLUNS 1
-#endif
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR1
-#  define CONFIG_SYSTEM_COMPOSITE_DEVMINOR1 0
-#endif
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH1
-#  define CONFIG_SYSTEM_COMPOSITE_DEVPATH1 "/dev/mmcsd0"
-#endif
-
-#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 1
-#  ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR2
-#    error "CONFIG_SYSTEM_COMPOSITE_DEVMINOR2 for LUN=2"
-#  endif
-#  ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH2
-#    error "CONFIG_SYSTEM_COMPOSITE_DEVPATH2 for LUN=2"
-#  endif
-#  if CONFIG_SYSTEM_COMPOSITE_NLUNS > 2
-#    ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR3
-#      error "CONFIG_SYSTEM_COMPOSITE_DEVMINOR2 for LUN=3"
-#    endif
-#    ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH2
-#      error "CONFIG_SYSTEM_COMPOSITE_DEVPATH2 for LUN=3"
-#    endif
-#    if CONFIG_SYSTEM_COMPOSITE_NLUNS > 3
-#      error "CONFIG_SYSTEM_COMPOSITE_NLUNS must be {1,2,3}"
-#    endif
-#  endif
-#endif
-
-/* Add-on CDC/ACM default values */
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_TTYUSB
-#  define CONFIG_SYSTEM_COMPOSITE_TTYUSB 0
-#endif
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_SERDEV
-#  if CONFIG_SYSTEM_COMPOSITE_TTYUSB != 0
-#    error "Serial device unknown (CONFIG_SYSTEM_COMPOSITE_SERDEV)"
-#  elif defined(CONFIG_CDCACM)
-#    define CONFIG_SYSTEM_COMPOSITE_SERDEV "/dev/ttyACM0"
-#  else
-#    define CONFIG_SYSTEM_COMPOSITE_SERDEV "/dev/ttyUSB0"
-#  endif
-#endif
-
-#ifndef CONFIG_SYSTEM_COMPOSITE_BUFSIZE
-#  define CONFIG_SYSTEM_COMPOSITE_BUFSIZE 256
-#endif
-
 /* Trace initialization *****************************************************/
 
 #ifndef CONFIG_USBDEV_TRACE_INITIALIDSET
@@ -172,19 +118,11 @@
 struct composite_state_s
 {
   /* This is the handle that references to this particular USB composite
-   * driver instance.  It is only needed if the add-on is built using
-   * CONFIG_NSH_BUILTIN_APPS.  In this case, the value of the driver handle
-   * must be remembered between the 'conn' and 'disconn' commands.
+   * driver instance. The value of the driver handle must be remembered
+   * between the 'conn' and 'disconn' commands.
    */
 
   FAR void *cmphandle;        /* Composite device handle */
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-  /* Serial file descriptors */
-
-  int outfd;                  /* Blocking write-only */
-  int infd;                   /* Non-blockig read-only */
-#endif
 
   /* Heap usage samples.  These are useful for checking USB storage memory
    * usage and for tracking down memoryh leaks.
@@ -194,12 +132,6 @@ struct composite_state_s
   struct mallinfo mmstart;    /* Memory usage before the connection */
   struct mallinfo mmprevious; /* The last memory usage sample */
   struct mallinfo mmcurrent;  /* The current memory usage sample */
-#endif
-
-  /* Serial I/O buffer */
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-  uint8_t serbuf[CONFIG_SYSTEM_COMPOSITE_BUFSIZE];
 #endif
 };
 

@@ -6,7 +6,7 @@
 menuconfig SYSTEM_COMPOSITE
 	tristate "USB Composite Device Commands"
 	default n
-	depends on LIB_BOARDCTL && USBDEV_COMPOSITE && !KERNEL_BUILD
+	depends on LIB_BOARDCTL && USBDEV_COMPOSITE && !BUILD_PROTECTED && !BUILD_KERNEL
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB composite class controls.  These controls include:
@@ -23,25 +23,6 @@ config SYSTEM_COMPOSITE_DEFCONFIG
 		Boards may support multiple composite configurations.  If so, then
 		this is the default configuration that the conn command will use if
 		no configuration ID is provided on the command line.
-
-if CDCACM_COMPOSITE
-
-config SYSTEM_COMPOSITE_SERDEV
-	string "USB serial device path"
-	default "/dev/ttyACM0"
-	---help---
-		The string corresponding to SYSTEM_COMPOSITE_TTYUSB.  If
-		SYSTEM_COMPOSITE_TTYUSB is zero, then this would be "/dev/ttyUSB0"
-		(for the PL2303 emulation) or "/dev/ttyACM0" (for the CDC/ACM serial
-		device).
-
-config SYSTEM_COMPOSITE_BUFSIZE
-	int "Serial I/O buffer size"
-	default 256
-	---help---
-		The size of the serial I/O buffer in bytes.  Default 256 bytes.
-
-endif # CDCACM_COMPOSITE
 
 if USBDEV_TRACE || DEBUG_USB
 

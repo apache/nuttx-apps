@@ -64,9 +64,7 @@
 
 #undef NEED_DUMPTRACE
 #ifdef CONFIG_USBDEV_TRACE
-#  if !defined(CONFIG_NSH_BUILTIN_APPS)
-#    define NEED_DUMPTRACE 1
-#  elif CONFIG_USBDEV_TRACE_INITIALIDSET != 0
+#  if CONFIG_USBDEV_TRACE_INITIALIDSET != 0
 #    define NEED_DUMPTRACE 1
 #  endif
 #endif
@@ -394,119 +392,6 @@ static int dumptrace(void)
 #endif
 
 /****************************************************************************
- * Name: open_serial
- ****************************************************************************/
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-static int open_serial(void)
-{
-  int errcode;
-#ifdef CONFIG_USBDEV_TRACE
-  int ret;
-#endif
-
-  /* Open the USB serial device for writing (blocking) */
-
-  do
-    {
-      printf("open_serial: Opening USB serial driver\n");
-      g_composite.outfd = open(CONFIG_SYSTEM_COMPOSITE_SERDEV, O_WRONLY);
-      if (g_composite.outfd < 0)
-        {
-          errcode = errno;
-          fprintf(stderr, "open_serial: ERROR: Failed to open %s for writing: %d\n",
-              CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
-
-          /* ENOTCONN means that the USB device is not yet connected */
-
-          if (errcode == ENOTCONN)
-            {
-              printf("open_serial:        Not connected. Wait and try again.\n");
-              sleep(5);
-            }
-          else
-            {
-              /* Give up on other errors */
-
-              printf("open_serial:        Aborting\n");
-              return -errcode;
-            }
-        }
-
-      /* If USB tracing is enabled, then dump all collected trace data to
-       * stdout.
-       */
-
-#ifdef CONFIG_USBDEV_TRACE
-      ret = dumptrace();
-      if (ret < 0)
-        {
-          return ret;
-        }
-#endif
-    }
-  while (g_composite.outfd < 0);
-
-  /* Open the USB serial device for reading (non-blocking) */
-
-  g_composite.infd = open(CONFIG_SYSTEM_COMPOSITE_SERDEV, O_RDONLY|O_NONBLOCK);
-  if (g_composite.infd < 0)
-    {
-      errcode = errno;
-      fprintf(stderr, "open_serial: ERROR: Failed to open%s for reading: %d\n",
-              CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
-      close(g_composite.outfd);
-      return -errcode;
-    }
-
-  printf("open_serial: Successfully opened the serial driver\n");
-  return OK;
-}
-
-/****************************************************************************
- * Name: echo_serial
- ****************************************************************************/
-
-static int echo_serial(void)
-{
-  ssize_t bytesread;
-  ssize_t byteswritten;
-  int errcode;
-
-  /* Read data */
-
-  bytesread = read(g_composite.infd, g_composite.serbuf, CONFIG_SYSTEM_COMPOSITE_BUFSIZE);
-  if (bytesread < 0)
-    {
-      errcode = errno;
-      if (errcode != EAGAIN)
-        {
-          fprintf(stderr, "echo_serial: ERROR: read failed: %d\n", errcode);
-          return -errcode;
-        }
-      return OK;
-    }
-
-  /* Echo data */
-
-  byteswritten = write(g_composite.outfd, g_composite.serbuf, bytesread);
-  if (byteswritten < 0)
-    {
-      errcode = errno;
-      fprintf(stderr, "echo_serial: ERROR: write failed: %d\n", errcode);
-      return -errcode;
-    }
-  else if (byteswritten != bytesread)
-    {
-      fprintf(stderr, "echo_serial: ERROR: read size: %d write size: %d\n",
-              bytesread, byteswritten);
-    }
-
-  return OK;
-}
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -531,7 +416,6 @@ int main(int argc, FAR char *argv[])
    * do a little error checking to assure that we are not being called re-entrantly.
    */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
    /* Check if there is a non-NULL USB mass storage device handle (meaning that the
     * USB mass storage device is already configured).
     */
@@ -541,7 +425,6 @@ int main(int argc, FAR char *argv[])
       fprintf(stderr, "conn_main: ERROR: Already connected\n");
       return 1;
     }
-#endif
 
   /* There is one optional argument.. the interface configuration ID */
 
@@ -605,31 +488,8 @@ int main(int argc, FAR char *argv[])
 
   check_test_memory_usage("After boardctl(BOARDIOC_USBDEV_CONTROL)");
 
-#if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
-  /* If USB tracing is enabled and tracing of initial USB events is specified,
-   * then dump all collected trace data to stdout
-   */
-
-  sleep(5);
-  ret = dumptrace();
-  if (ret < 0)
-    {
-      goto errout_bad_dump;
-    }
-#endif
-
-  /* It this program was configued as an NSH command, then just exit now. */
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-  /* Otherwise, this thread will hang around and monitor the USB activity */
-
-  /* Open the serial driver */
-
-  ret = open_serial();
-  if (ret < 0)
-    {
-      goto errout;
-    }
+#ifdef NEED_DUMPTRACE
+  /* This thread will hang around and monitor the USB activity */
 
   /* Now looping */
 
@@ -640,64 +500,24 @@ int main(int argc, FAR char *argv[])
       fflush(stdout);
       sleep(5);
 
-      /* Echo any serial data */
-
-      ret = echo_serial();
-      if (ret < 0)
-        {
-          goto errout;
-        }
-
       /* Dump trace data */
 
-#  ifdef CONFIG_USBDEV_TRACE
       printf("\n" "conn_main: USB TRACE DATA:\n");
       ret = dumptrace();
       if (ret < 0)
         {
-          goto errout;
+          break;
         }
 
       check_test_memory_usage("After usbtrace_enumerate()");
-#  else
-      printf("conn_main: Still alive\n");
-#  endif
     }
-#else
-
-   printf("conn_main: Connected\n");
-   check_test_memory_usage("After composite device connection");
 #endif
 
    /* Dump debug memory usage */
 
    printf("conn_main: Exiting\n");
-#ifndef CONFIG_NSH_BUILTIN_APPS
-   close(g_composite.infd);
-   close(g_composite.outfd);
-#endif
    final_memory_usage("Final memory usage");
    return 0;
-
-#if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
-errout_bad_dump:
-#endif
-
-#ifndef CONFIG_NSH_BUILTIN_APPS
-errout:
-  close(g_composite.infd);
-  close(g_composite.outfd);
-#endif
-
-  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
-  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = 0;
-  ctrl.config   = config;
-  ctrl.handle   = &g_composite.cmphandle;
-
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-  final_memory_usage("Final memory usage");
-  return 1;
 }
 
 /****************************************************************************

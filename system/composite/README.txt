@@ -60,31 +60,6 @@ system/composite
   CONFIG_SYSTEM_COMPOSITE_DEBUGMM
     Enables some debug tests to check for memory usage and memory leaks.
 
-  CONFIG_SYSTEM_COMPOSITE_NLUNS
-    Defines the number of logical units (LUNs) exported by the USB storage
-    driver.  Each LUN corresponds to one exported block driver (or partition
-    of a block driver).  May be 1, 2, or 3.  Default is 1.
-  CONFIG_SYSTEM_COMPOSITE_DEVMINOR1
-    The minor device number of the block driver for the first LUN. For
-    example, N in /dev/mmcsdN.  Used for registering the block driver. Default
-    is zero.
-  CONFIG_SYSTEM_COMPOSITE_DEVPATH1
-    The full path to the registered block driver.  Default is "/dev/mmcsd0"
-  CONFIG_SYSTEM_COMPOSITE_DEVMINOR2 and CONFIG_SYSTEM_COMPOSITE_DEVPATH2
-    Similar parameters that would have to be provided if CONFIG_SYSTEM_COMPOSITE_NLUNS
-    is 2 or 3.  No defaults.
-  CONFIG_SYSTEM_COMPOSITE_DEVMINOR3 and CONFIG_SYSTEM_COMPOSITE_DEVPATH2
-    Similar parameters that would have to be provided if CONFIG_SYSTEM_COMPOSITE_NLUNS
-    is 3.  No defaults.
-
-  CONFIG_SYSTEM_COMPOSITE_TTYUSB - The minor number of the USB serial device.
-    Default is zero (corresponding to /dev/ttyUSB0 or /dev/ttyACM0).  Default is zero.
-  CCONFIG_SYSTEM_COMPOSITE_SERDEV - The string corresponding to
-    CONFIG_SYSTEM_COMPOSITE_TTYUSB.  The default is "/dev/ttyUSB0" (for the PL2303
-    emulation) or "/dev/ttyACM0" (for the CDC/ACM serial device).
-  CONFIG_SYSTEM_COMPOSITE_BUFSIZE - The size of the serial I/O buffer in
-    bytes.  Default 256 bytes.
-
   If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB), then
   the add-on code will also manage the USB trace output.  The amount of trace output
   can be controlled using:
