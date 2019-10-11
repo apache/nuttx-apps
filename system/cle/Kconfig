@@ -21,6 +21,12 @@ menuconfig SYSTEM_CLE
 
 if SYSTEM_CLE
 
+config SYSTEM_COLOR_CLE
+	bool "Simple color support in the CLE"
+	default n
+	---help---
+		Adds some simple color highlighting into the CLE.
+
 config SYSTEM_CLE_CMD_HISTORY
 	bool "Command line history"
 	default n

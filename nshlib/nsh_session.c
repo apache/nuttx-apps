@@ -102,17 +102,17 @@ int nsh_session(FAR struct console_stdio_s *pstate)
   fputs(g_nshgreeting, pstate->cn_outstream);
 
 #ifdef CONFIG_NSH_MOTD
-# ifdef CONFIG_NSH_PLATFORM_MOTD
+#ifdef CONFIG_NSH_PLATFORM_MOTD
   /* Output the platform message of the day */
 
   platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
   fprintf(pstate->cn_outstream, "%s\n", vtbl->iobuffer);
 
-# else
+#else
   /* Output the fixed message of the day */
 
   fprintf(pstate->cn_outstream, "%s\n", g_nshmotd);
-# endif
+#endif
 #endif
 
   fflush(pstate->cn_outstream);
@@ -125,18 +125,13 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
   /* Then enter the command line parsing loop */
 
-  for (;;)
+  for (; ; )
     {
       /* For the case of debugging the USB console... dump collected USB trace data */
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
       nsh_usbtrace();
 #endif
-
-      /* Display the prompt string */
-
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
 
       /* Get the next line of input. readline() returns EOF on end-of-file
        * or any read failure.
@@ -148,7 +143,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
        * Either  will cause the session to terminate.
        */
 
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
                 INSTREAM(pstate), OUTSTREAM(pstate));
       if (ret < 0)
         {
@@ -157,6 +152,11 @@ int nsh_session(FAR struct console_stdio_s *pstate)
           return ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 #else
+      /* Display the prompt string */
+
+      fputs(g_nshprompt, pstate->cn_outstream);
+      fflush(pstate->cn_outstream);
+
       /* readline() normally returns the number of characters read, but will
        * return EOF on end of file or if an error occurs.  EOF
        * will cause the session to terminate.

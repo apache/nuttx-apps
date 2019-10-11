@@ -76,7 +76,8 @@ extern "C"
  *
  ****************************************************************************/
 
-int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream);
+int cle(FAR char *line, FAR const char *prompt, uint16_t linelen,
+        FAR FILE *instream, FAR FILE *outstream);
 
 #undef EXTERN
 #ifdef __cplusplus

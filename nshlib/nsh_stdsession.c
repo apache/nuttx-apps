@@ -115,17 +115,13 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
   /* Then enter the command line parsing loop */
 
-  for (;;)
+  for (; ; )
     {
       /* For the case of debugging the USB console... dump collected USB trace data */
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
       nsh_usbtrace();
 #endif
-
-      /* Display the prompt string */
-
-      printf("%s", g_nshprompt);
 
       /* Get the next line of input. */
 
@@ -135,15 +131,18 @@ int nsh_session(FAR struct console_stdio_s *pstate)
        * Either will cause the session to terminate.
        */
 
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
                 stdin, stdout);
       if (ret < 0)
         {
-
           printf(g_fmtcmdfailed, "nsh_session", "cle", NSH_ERRNO_OF(-ret));
           return EXIT_SUCCESS;
         }
 #else
+      /* Display the prompt string */
+
+      printf("%s", g_nshprompt);
+
       /* readline () normally returns the number of characters read, but will
        * return EOF on end of file or if an error occurs.  Either will cause
        * the session to terminate.

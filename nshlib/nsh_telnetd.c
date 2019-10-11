@@ -144,20 +144,15 @@ static int nsh_telnetmain(int argc, char *argv[])
 
   /* Then enter the command line parsing loop */
 
-  for (;;)
+  for (; ; )
     {
-      /* Display the prompt string */
-
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
-
       /* Get the next line of input from the Telnet client */
 
 #ifdef CONFIG_TELNET_CHARACTER_MODE
 #ifdef CONFIG_NSH_CLE
       /* cle() returns a negated errno value on failure (errno is not set) */
 
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
                 INSTREAM(pstate), OUTSTREAM(pstate));
       if (ret < 0)
         {
@@ -166,6 +161,11 @@ static int nsh_telnetmain(int argc, char *argv[])
           nsh_exit(vtbl, 1);
         }
 #else
+      /* Display the prompt string */
+
+      fputs(g_nshprompt, pstate->cn_outstream);
+      fflush(pstate->cn_outstream);
+
       /* readline() returns EOF on failure (errno is not set) */
 
       ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
@@ -182,6 +182,11 @@ static int nsh_telnetmain(int argc, char *argv[])
         }
 #endif
 #else
+      /* Display the prompt string */
+
+      fputs(g_nshprompt, pstate->cn_outstream);
+      fflush(pstate->cn_outstream);
+
       /* fgets() returns NULL on failure (errno will be set) */
 
       if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
@@ -278,7 +283,7 @@ int nsh_telnetstart(sa_family_t family)
       ret = telnetd_start(&config);
       if (ret < 0)
         {
-          _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+          _err("ERROR: Failed to start the Telnet daemon: %d\n", ret);
           state = TELNETD_NOTRUNNING;
         }
       else

@@ -127,7 +127,7 @@ static void nsh_stdtoken(FAR struct console_stdio_s *pstate,
 
       else if (isspace(*endp1))
         {
-         /* Break out... endp1 points to first while space encountered */
+          /* Break out... endp1 points to first while space encountered */
 
           break;
         }
@@ -166,10 +166,6 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
 
   for (i = 0; i < CONFIG_NSH_LOGIN_FAILCOUNT; i++)
     {
-      /* Ask for the login username */
-
-      printf("%s", g_userprompt);
-
       /* Get the response, handling all possible cases */
 
       username[0] = '\0';
@@ -177,10 +173,14 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
 #ifdef CONFIG_NSH_CLE
       /* cle() returns a negated errno value on failure */
 
-      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+      ret = cle(pstate->cn_line, g_userprompt, CONFIG_NSH_LINELEN,
                 stdin, stdout);
       if (ret >= 0)
 #else
+      /* Ask for the login username */
+
+      printf("%s", g_userprompt);
+
       /* readline() returns EOF on failure */
 
       ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
