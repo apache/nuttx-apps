@@ -19,4 +19,9 @@ config EXAMPLES_SERIALBLASTER_PRIORITY
 	int "CPU hog task priority"
 	default 50
 
+config EXAMPLES_SERIALBLASTER_DEVPATH
+	string "Serial device path"
+	default "/dev/ttyS2"
+	---help---
+		The default path to the serial device
 endif

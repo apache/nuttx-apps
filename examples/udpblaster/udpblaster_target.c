@@ -122,7 +122,7 @@ static void netest_initialize(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_NOMAC
   mac[0] = 0x00;
@@ -182,7 +182,6 @@ static void netest_initialize(void)
    */
 
   netlib_ifup("eth0");
-
 }
 #endif /*CONFIG_EXAMPLES_UDPBLASTER_INIT */
 
@@ -233,7 +232,7 @@ int main(int argc, FAR char *argv[])
   target.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDPBLASTER_TARGETIP);
   addrlen                       = sizeof(struct sockaddr_in);
 
-  if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
+  if (bind(sockfd, (struct sockaddr *)&target, addrlen) < 0)
     {
       printf("server: ERROR bind failure: %d\n", errno);
       ret = EXIT_FAILURE;
@@ -272,7 +271,7 @@ int main(int argc, FAR char *argv[])
   target.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_8);
   addrlen                       = sizeof(struct sockaddr_in6);
 
-  if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
+  if (bind(sockfd, (struct sockaddr *)&target, addrlen) < 0)
     {
       fprintf(stderr, "ERROR bind failure: %d\n", errno);
       ret = EXIT_FAILURE;
@@ -283,7 +282,7 @@ int main(int argc, FAR char *argv[])
   npackets = 0;
   ndots    = 0;
 
-  for (;;)
+  for (; ; )
     {
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_POLLOUT
       struct pollfd fds[1];
@@ -318,16 +317,16 @@ int main(int argc, FAR char *argv[])
           goto errout_with_socket;
         }
 
-      if (++npackets >= 10)
+      if (++npackets >= 10000)
         {
           putchar('.');
           npackets = 0;
 
           if (++ndots >= 50)
-          {
-            putchar('\n');
-            ndots = 0;
-          }
+            {
+              putchar('\n');
+              ndots = 0;
+            }
         }
     }
 

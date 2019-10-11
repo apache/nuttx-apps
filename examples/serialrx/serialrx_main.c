@@ -48,14 +48,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+#include <nuttx/arch.h>
 
 /****************************************************************************
  * Public Functions
@@ -69,8 +62,13 @@ int main(int argc, FAR char *argv[])
 {
 #ifdef CONFIG_EXAMPLES_SERIALRX_BUFFERED
   FAR FILE *f;
+  int fd;
+  int nbytes;
+  int cnt;
 #else
   int fd;
+  int cnt;
+  int bytecount = 0;
 #endif
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   int count = 0;
@@ -90,6 +88,11 @@ int main(int argc, FAR char *argv[])
     {
       devpath = argv[1];
     }
+  else if (argc == 3)
+    {
+          devpath = argv[1];
+          bytecount = strtol(argv[2], NULL, 10);
+    }
   else
     {
       fprintf(stderr, "Usage: %s [devpath]\n", argv[0]);
@@ -101,6 +104,7 @@ int main(int argc, FAR char *argv[])
 #else
   buf = (FAR char *)malloc(CONFIG_EXAMPLES_SERIALRX_BUFSIZE);
 #endif
+
   if (buf == NULL)
     {
       fprintf(stderr, "ERROR: malloc failed: %d\n", errno);
@@ -115,7 +119,7 @@ int main(int argc, FAR char *argv[])
       goto errout_with_buf;
     }
 #else
-  fd = open(devpath, O_RDONLY);
+  fd = open(devpath, O_RDWR);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: open failed: %d\n", errno);
@@ -125,11 +129,12 @@ int main(int argc, FAR char *argv[])
 
   printf("Reading from %s\n", devpath);
   fflush(stdout);
-
-  while (!eof)
+  cnt = 0;
+  while (cnt < bytecount)
     {
 #ifdef CONFIG_EXAMPLES_SERIALRX_BUFFERED
-      size_t n = fread(buf, 1, CONFIG_EXAMPLES_SERIALRX_BUFSIZE, f);
+      size_t n = fread(buf, 1, 26, f);
+      cnt++;
       if (feof(f))
         {
           eof = true;
@@ -142,6 +147,7 @@ int main(int argc, FAR char *argv[])
         }
 #else
       ssize_t n = read(fd, buf, CONFIG_EXAMPLES_SERIALRX_BUFSIZE);
+      up_udelay(1000);
       if (n == 0)
         {
           eof = true;
@@ -167,24 +173,25 @@ int main(int argc, FAR char *argv[])
             {
               printf("0x%02x ", i, buf[i]);
             }
-          fflush(stdout);
-#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
-          buf[n] = '\0';
-          printf("%s", buf);
-          fflush(stdout);
-#endif
-        }
-    }
 
+          fflush(stdout);
+#endif                                  /*Kamal*/
+          cnt += n;
+        }
+
+      UNUSED(eof);
+    }
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   printf("\n");
 #endif
   printf("EOF reached\n");
+  printf("Total bytes received = %d\n", cnt); /* Kamal */
   fflush(stdout);
 
 #ifdef CONFIG_EXAMPLES_SERIALRX_BUFFERED
   fclose(f);
 #else
+  up_udelay(1000000);
   close(fd);
 #endif
 

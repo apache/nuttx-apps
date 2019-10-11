@@ -21,7 +21,7 @@ config EXAMPLES_SERIALRX_PRIORITY
 
 config EXAMPLES_SERIALRX_BUFFERED
 	bool "Buffered I/O"
-	default y
+	default n
 	---help---
 		Use buffered I/O
 

@@ -44,8 +44,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <nuttx/clock.h>
-
+#include <fcntl.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <nuttx/fs/fs.h>
+#include <nuttx/arch.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -70,16 +73,60 @@ static const char s[] = "abcdefghijklmnopqrstuvwxyz";
 int main(int argc, FAR char *argv[])
 {
   int ret;
+  int fd;
+  FAR char *devpath;
+  int size = 0;
+  int rem;
 
-  while (1)
+  if (argc == 1)
     {
-#ifdef BUFFERED_IO
-      ret = fputs(s, stdout);
-#else
-      ret = write(1, s, sizeof(s)-1);
-#endif
+      devpath = CONFIG_EXAMPLES_SERIALBLASTER_DEVPATH;
+    }
+  else if (argc == 2)
+    {
+      devpath = argv[1];
+    }
+  else if (argc == 3)
+    {
+      devpath = argv[1];
+      size =  strtol(argv[2], NULL, 10);
+    }
+  else
+    {
+      fprintf(stderr, "Usage: %s [devpath]\n", argv[0]);
+      goto errout;
+    }
+
+  fd = open(devpath, O_RDWR);
+  if (fd < 0)
+    {
+      printf("dev_ttyS2: ERROR Failed to open /dev/ttyS2\n");
+      return -1;
+    }
+
+  rem = size;
+  while (size > sizeof(s))
+    {
+      if (rem > 26)
+        {
+          ret = write(fd, s, (sizeof(s)-1));
+        }
+
+      rem = rem - 26;
+      if (rem < 26)
+        {
+          ret = write(fd, s, rem);
+        }
+
+      size = size - 26;
       UNUSED(ret);
     }
 
+  up_udelay(5000000);
+  close(fd);
   return 0;
+
+errout:
+  fflush(stderr);
+  return EXIT_FAILURE;
 }
