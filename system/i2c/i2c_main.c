@@ -71,6 +71,7 @@ static const struct cmdmap_s g_i2ccmds[] =
   { "bus",  i2ccmd_bus,  "List busses   ",  NULL },
   { "dev",  i2ccmd_dev,  "List devices  ", "[OPTIONS] <first> <last>" },
   { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repititions>]" },
+  { "dump", i2ccmd_dump, "Dump register ", "[OPTIONS] [<num bytes>]" },
   { "help", i2ccmd_help, "Show help     ", NULL },
   { "set",  i2ccmd_set,  "Write register", "[OPTIONS] <value> [<repititions>]" },
   { "verf", i2ccmd_verf, "Verify access ", "[OPTIONS] [<value>] [<repititions>]" },

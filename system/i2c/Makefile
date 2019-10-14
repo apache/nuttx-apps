@@ -37,7 +37,7 @@ include $(TOPDIR)/Make.defs
 
 # I2C tool
 CSRCS   = i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_set.c i2c_verf.c
-CSRCS  += i2c_devif.c
+CSRCS  += i2c_devif.c i2c_dump.c i2c_hexdump.c
 MAINSRC = i2c_main.c
 
 PROGNAME = i2c

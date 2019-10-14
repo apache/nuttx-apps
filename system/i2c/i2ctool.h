@@ -95,6 +95,10 @@
 
 #define MAX_ARGUMENTS 12
 
+/* Maximum number of bytes to dump */
+
+#define MAX_DUMP_CNT  256
+
 /* Maximum size of one command line */
 
 #define MAX_LINELEN 80
@@ -181,12 +185,14 @@ extern const char g_i2cxfrerror[];
 ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, size_t nbytes);
 int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...);
 void i2ctool_flush(FAR struct i2ctool_s *i2ctool);
+void i2ctool_hexdump(FILE *outstream, void *addr, int len);
 
 /* Command handlers */
 
 int i2ccmd_bus(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 
