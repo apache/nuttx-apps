@@ -55,8 +55,8 @@
  * Name: i2ctool_dump
  ****************************************************************************/
 
-static int i2ctool_dump(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
-                FAR uint8_t *buf, int nbytes)
+static int i2ctool_dump(FAR struct i2ctool_s *i2ctool, int fd,
+                        uint8_t regaddr, FAR uint8_t *buf, int nbytes)
 {
   struct i2c_msg_s msg[2];
   int ret;
@@ -81,7 +81,7 @@ static int i2ctool_dump(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
       if (i2ctool->start)
         {
           ret = i2cdev_transfer(fd, &msg[0], 1);
-          if (ret== OK)
+          if (ret == OK)
             {
               ret = i2cdev_transfer(fd, &msg[1], 1);
             }
@@ -176,8 +176,8 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
-       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       return ERROR;
+      i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
+      return ERROR;
     }
 
   regaddr = i2ctool->regaddr;
@@ -203,6 +203,7 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
                      i2ctool->bus, i2ctool->addr);
 
       /* if the index register was set, print it */
+
       if (i2ctool->hasregindx)
         {
           i2ctool_printf(i2ctool, "%02x\n", regaddr);
@@ -213,6 +214,7 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
         }
 
       /* dump the data in hex and ASCII format */
+
       i2ctool_hexdump(OUTSTREAM(i2ctool), buf, dumpcnt);
     }
   else
@@ -220,8 +222,9 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
       i2ctool_printf(i2ctool, g_i2cxfrerror, argv[0], -ret);
     }
 
-/* free read buffer */
-free(buf);
+  /* free read buffer */
+
+  free(buf);
 
 errout_with_fildes:
   (void)close(fd);

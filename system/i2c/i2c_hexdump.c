@@ -1,4 +1,3 @@
-
 /****************************************************************************
  * apps/system/i2c/i2c_hexdump.c
  *
@@ -58,53 +57,57 @@ static int hexdump_line(FILE *ostream, void *addr, int len)
   uint8_t *p;
 
   if (len <= 0)
-  {
-    return 0;
-  }
+    {
+      return 0;
+    }
 
   /* print at most 16 chars */
+
   if (len > 16)
-  {
-    len = 16;
-  }
+    {
+      len = 16;
+    }
 
   /* print hex */
+
   for (i = 0, p = addr; i < len; ++i, ++p)
     {
       if (i % 8 == 0)
-      {
-        fputc(' ', ostream);
-      }
+        {
+          fputc(' ', ostream);
+        }
 
       fprintf(ostream, "%02x ", *p);
     }
 
   /* pad if necessary */
+
   if (i <= 8)
-  {
-    fputc(' ', ostream);
-  }
+    {
+      fputc(' ', ostream);
+    }
 
   while (i++ < 16)
-  {
-    fputs("   ", ostream);
-  }
+    {
+      fputs("   ", ostream);
+    }
 
   /* print ASCII */
+
   fputs(" |", ostream);
   for (i = 0, p = addr; i < len; ++i, ++p)
-  {
-    fputc(isprint(*p) ? *p : '.', ostream);
-  }
+    {
+      fputc(isprint(*p) ? *p : '.', ostream);
+    }
 
   /* pad if necessary */
+
   while (i++ < 16)
-  {
-    fputc(' ', ostream);
-  }
+    {
+      fputc(' ', ostream);
+    }
 
   fputs("|\n", ostream);
-
   return len;
 }
 
@@ -118,12 +121,15 @@ void i2ctool_hexdump(FILE *outstream, void *addr, int len)
   uint8_t *p = addr;
 
   /* print one line at a time */
+
   while (len > 0)
     {
       /* print address */
+
       fprintf(outstream, "%08x ", p - (uint8_t *) addr);
 
       /* print one line of data */
+
       nbytes = hexdump_line(outstream, p, len);
       len -= nbytes;
       p += nbytes;

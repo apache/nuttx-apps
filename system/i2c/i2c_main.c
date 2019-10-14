@@ -57,7 +57,8 @@
  ****************************************************************************/
 
 static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
-static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
+static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc,
+                               FAR char **argv);
 
 /****************************************************************************
  * Private Data
@@ -84,13 +85,13 @@ static const struct cmdmap_s g_i2ccmds[] =
 
 /* Common, message formats */
 
-const char g_i2cargrequired[]    = "i2ctool: %s: missing required argument(s)\n";
-const char g_i2carginvalid[]     = "i2ctool: %s: argument invalid\n";
-const char g_i2cargrange[]       = "i2ctool: %s: value out of range\n";
-const char g_i2ccmdnotfound[]    = "i2ctool: %s: command not found\n";
-const char g_i2ctoomanyargs[]    = "i2ctool: %s: too many arguments\n";
-const char g_i2ccmdfailed[]      = "i2ctool: %s: %s failed: %d\n";
-const char g_i2cxfrerror[]       = "i2ctool: %s: Transfer failed: %d\n";
+const char g_i2cargrequired[] = "i2ctool: %s: missing required argument(s)\n";
+const char g_i2carginvalid[]  = "i2ctool: %s: argument invalid\n";
+const char g_i2cargrange[]    = "i2ctool: %s: value out of range\n";
+const char g_i2ccmdnotfound[] = "i2ctool: %s: command not found\n";
+const char g_i2ctoomanyargs[] = "i2ctool: %s: too many arguments\n";
+const char g_i2ccmdfailed[]   = "i2ctool: %s: %s failed: %d\n";
+const char g_i2cxfrerror[]    = "i2ctool: %s: Transfer failed: %d\n";
 
 /****************************************************************************
  * Private Functions
@@ -110,7 +111,8 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
     {
       if (ptr->usage)
         {
-          i2ctool_printf(i2ctool, "  %s: %s %s\n", ptr->desc, ptr->cmd, ptr->usage);
+          i2ctool_printf(i2ctool, "  %s: %s %s\n",
+                         ptr->desc, ptr->cmd, ptr->usage);
         }
       else
         {
@@ -158,7 +160,8 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
  * Name: i2ccmd_unrecognized
  ****************************************************************************/
 
-static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc,
+                               FAR char **argv)
 {
   i2ctool_printf(i2ctool, g_i2ccmdnotfound, argv[0]);
   return ERROR;
@@ -168,37 +171,38 @@ static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **a
  * Name: i2c_execute
  ****************************************************************************/
 
-static int i2c_execute(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
+static int i2c_execute(FAR struct i2ctool_s *i2ctool, int argc,
+                       FAR char *argv[])
 {
-   const struct cmdmap_s *cmdmap;
-   const char            *cmd;
-   cmd_t                  handler;
-   int                    ret;
+  FAR const struct cmdmap_s *cmdmap;
+  FAR const char            *cmd;
+  cmd_t                     handler;
+  int                       ret;
 
-   /* The form of argv is:
-    *
-    * argv[0]:      The command name.  This is argv[0] when the arguments
-    *               are, finally, received by the command vtblr
-    * argv[1]:      The beginning of argument (up to MAX_ARGUMENTS)
-    * argv[argc]:   NULL terminating pointer
-    */
+  /* The form of argv is:
+   *
+   * argv[0]:      The command name.  This is argv[0] when the arguments
+   *               are, finally, received by the command vtblr
+   * argv[1]:      The beginning of argument (up to MAX_ARGUMENTS)
+   * argv[argc]:   NULL terminating pointer
+   */
 
-   /* See if the command is one that we understand */
+  /* See if the command is one that we understand */
 
-   cmd     = argv[0];
-   handler = i2ccmd_unrecognized;
+  cmd     = argv[0];
+  handler = i2ccmd_unrecognized;
 
-   for (cmdmap = g_i2ccmds; cmdmap->cmd; cmdmap++)
-     {
-       if (strcmp(cmdmap->cmd, cmd) == 0)
-         {
-           handler = cmdmap->handler;
-           break;
-         }
-     }
+  for (cmdmap = g_i2ccmds; cmdmap->cmd; cmdmap++)
+    {
+      if (strcmp(cmdmap->cmd, cmd) == 0)
+        {
+          handler = cmdmap->handler;
+          break;
+        }
+    }
 
-   ret = handler(i2ctool, argc, argv);
-   return ret;
+  ret = handler(i2ctool, argc, argv);
+  return ret;
 }
 
 /****************************************************************************
@@ -230,14 +234,14 @@ static FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool,
     {
       /* Return the value of the environment variable with this name */
 
-      FAR char *value = getenv(arg+1);
+      FAR char *value = getenv(arg + 1);
       if (value)
         {
           return value;
         }
       else
         {
-          return (FAR char*)"";
+          return (FAR char *)"";
         }
     }
 #endif
@@ -253,12 +257,12 @@ static FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool,
 
 static int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
 {
-  FAR char *newargs[MAX_ARGUMENTS+2];
+  FAR char *newargs[MAX_ARGUMENTS + 2];
   FAR char *cmd;
   int       nargs;
   int       index;
 
-  /* Parse out the command, skipping the first argument (the program name)*/
+  /* Parse out the command, skipping the first argument (the program name) */
 
   index = 1;
   cmd = i2c_argument(i2ctool, argc, argv, &index);
@@ -419,7 +423,8 @@ int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...)
  *
  ****************************************************************************/
 
-ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, size_t nbytes)
+ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer,
+                      size_t nbytes)
 {
   ssize_t ret;
 

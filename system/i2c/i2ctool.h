@@ -54,13 +54,17 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
-/* CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
- * CONFIG_I2CTOOL_MAXBUS - Largest bus index supported by the hardware (default 3)
- * CONFIG_I2CTOOL_MINADDR - Minium device address (default: 0x03)
- * CONFIG_I2CTOOL_MAXADDR - Largest device address (default: 0x77)
+
+/* CONFIG_I2CTOOL_MINBUS     - Smallest bus index supported by the hardware
+ *                             (default 0).
+ * CONFIG_I2CTOOL_MAXBUS     - Largest bus index supported by the hardware
+ *                             (default 3)
+ * CONFIG_I2CTOOL_MINADDR    - Minium device address (default: 0x03)
+ * CONFIG_I2CTOOL_MAXADDR    - Largest device address (default: 0x77)
  * CONFIG_I2CTOOL_MAXREGADDR - Largest register address (default: 0xff)
- * CONFIG_I2CTOOL_DEFFREQ - Default frequency (default: 4000000)
+ * CONFIG_I2CTOOL_DEFFREQ    - Default frequency (default: 4000000)
  */
 
 #ifndef CONFIG_I2CTOOL_MINBUS
@@ -154,7 +158,8 @@ struct i2ctool_s
 #endif
 };
 
-typedef int  (*cmd_t)(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+typedef int  (*cmd_t)(FAR struct i2ctool_s *i2ctool, int argc,
+                      FAR char **argv);
 
 struct cmdmap_s
 {
@@ -182,7 +187,8 @@ extern const char g_i2cxfrerror[];
 
 /* Message handler */
 
-ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, size_t nbytes);
+ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer,
+                      size_t nbytes);
 int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...);
 void i2ctool_flush(FAR struct i2ctool_s *i2ctool);
 void i2ctool_hexdump(FILE *outstream, void *addr, int len);
