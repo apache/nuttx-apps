@@ -35,7 +35,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # VEML6070 UltraViolet sensor example built-in application info
 

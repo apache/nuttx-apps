@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 PROGNAME = msconn msdis
 PRIORITY = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)

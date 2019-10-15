@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # NuttX TIFF Creation Tool
 CSRCS = tiff_addstrip.c tiff_finalize.c tiff_initialize.c tiff_utils.c

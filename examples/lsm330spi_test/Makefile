@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 PROGNAME = $(CONFIG_EXAMPLES_LSM330SPI_TEST_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_LSM330SPI_TEST_PRIORITY)

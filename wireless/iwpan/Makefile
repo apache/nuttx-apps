@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # IEEE802.11 Wapi Application
 

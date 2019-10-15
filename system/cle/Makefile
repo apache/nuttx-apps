@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # EMACS-like Command Line Editor (CLE)
 CSRCS = cle.c

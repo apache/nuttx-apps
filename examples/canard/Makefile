@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 PROGNAME = canard
 PRIORITY = SCHED_PRIORITY_DEFAULT

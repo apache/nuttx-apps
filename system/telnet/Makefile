@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 ifneq ($(CONFIG_SYSTEM_TELNET_CHATD),)
 

@@ -38,7 +38,7 @@
 # TODO, this makefile should run make under the app dirs, instead of
 # sourcing the Make.defs!
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # config Application
 

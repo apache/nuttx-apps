@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
 ALL_SUBDIRS = errno hello helloxx longjmp mutex pthread signal task struct

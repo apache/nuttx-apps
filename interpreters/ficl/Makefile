@@ -35,7 +35,7 @@
 
 BUILDDIR := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # Tools
 

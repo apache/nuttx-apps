@@ -37,8 +37,8 @@
 
 APPDIR = $(CURDIR)
 TOPDIR ?= $(APPDIR)/import
-include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
+-include $(APPDIR)/Make.defs
 
 # Application Directories
 
