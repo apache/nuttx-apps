@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_CANUTILS_LIBOBD2),y)
-CONFIGURED_APPS += canutils/libobd2
+CONFIGURED_APPS += $(APPDIR)/canutils/libobd2
 endif

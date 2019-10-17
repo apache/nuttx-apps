@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NETTEST),)
-CONFIGURED_APPS += examples/nettest
+CONFIGURED_APPS += $(APPDIR)/examples/nettest
 endif

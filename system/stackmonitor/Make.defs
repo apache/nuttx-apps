@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_STACKMONITOR),)
-CONFIGURED_APPS += system/stackmonitor
+CONFIGURED_APPS += $(APPDIR)/system/stackmonitor
 endif
 

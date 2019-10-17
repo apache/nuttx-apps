@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CRADIOBUTTON),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CRadioButton
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CRadioButton
 endif

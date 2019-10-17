@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_GRAPHICS_TWM4NX),y)
-CONFIGURED_APPS += graphics/twm4nx
+CONFIGURED_APPS += $(APPDIR)/graphics/twm4nx
 endif
 

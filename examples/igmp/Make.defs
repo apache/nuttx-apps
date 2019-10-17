@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_IGMP),)
-CONFIGURED_APPS += examples/igmp
+CONFIGURED_APPS += $(APPDIR)/examples/igmp
 endif

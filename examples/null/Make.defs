@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NULL),)
-CONFIGURED_APPS += examples/null
+CONFIGURED_APPS += $(APPDIR)/examples/null
 endif

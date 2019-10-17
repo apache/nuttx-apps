@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_DHCPD),)
-CONFIGURED_APPS += examples/dhcpd
+CONFIGURED_APPS += $(APPDIR)/examples/dhcpd
 endif

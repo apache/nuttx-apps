@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ROMFS),)
-CONFIGURED_APPS += examples/romfs
+CONFIGURED_APPS += $(APPDIR)/examples/romfs
 endif

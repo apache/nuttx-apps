@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_POPEN),y)
-CONFIGURED_APPS += system/popen
+CONFIGURED_APPS += $(APPDIR)/system/popen
 endif

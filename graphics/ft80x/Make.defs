@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_GRAPHICS_FT80X),y)
-CONFIGURED_APPS += graphics/ft80x
+CONFIGURED_APPS += $(APPDIR)/graphics/ft80x
 endif

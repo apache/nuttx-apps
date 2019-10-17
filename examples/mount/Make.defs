@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MOUNT),)
-CONFIGURED_APPS += examples/mount
+CONFIGURED_APPS += $(APPDIR)/examples/mount
 endif

@@ -34,5 +34,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_TERMCURSES),)
-CONFIGURED_APPS += system/termcurses
+CONFIGURED_APPS += $(APPDIR)/system/termcurses
 endif

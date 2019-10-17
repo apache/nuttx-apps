@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_HEXED),)
-CONFIGURED_APPS += system/hexed
+CONFIGURED_APPS += $(APPDIR)/system/hexed
 endif
 

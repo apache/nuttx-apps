@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ADXL372_TEST),)
-CONFIGURED_APPS += examples/adxl372_test
+CONFIGURED_APPS += $(APPDIR)/examples/adxl372_test
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_CLE),y)
-CONFIGURED_APPS += system/cle
+CONFIGURED_APPS += $(APPDIR)/system/cle
 endif
 

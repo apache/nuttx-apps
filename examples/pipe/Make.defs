@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PIPE),)
-CONFIGURED_APPS += examples/pipe
+CONFIGURED_APPS += $(APPDIR)/examples/pipe
 endif

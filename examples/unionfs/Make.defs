@@ -34,5 +34,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_UNIONFS),)
-CONFIGURED_APPS += examples/unionfs
+CONFIGURED_APPS += $(APPDIR)/examples/unionfs
 endif

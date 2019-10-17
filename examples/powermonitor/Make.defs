@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_POWERMONITOR),)
-  CONFIGURED_APPS += examples/powermonitor
+  CONFIGURED_APPS += $(APPDIR)/examples/powermonitor
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_WGETJSON),)
-CONFIGURED_APPS += examples/wgetjson
+CONFIGURED_APPS += $(APPDIR)/examples/wgetjson
 endif

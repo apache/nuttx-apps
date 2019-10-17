@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_GPIO),)
-CONFIGURED_APPS += examples/gpio
+CONFIGURED_APPS += $(APPDIR)/examples/gpio
 endif

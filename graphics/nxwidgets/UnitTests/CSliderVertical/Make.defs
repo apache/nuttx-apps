@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CSLIDERVERTICAL),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CSliderVertical
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CSliderVertical
 endif

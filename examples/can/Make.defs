@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CAN),)
-CONFIGURED_APPS += examples/can
+CONFIGURED_APPS += $(APPDIR)/examples/can
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_MDIO),)
-CONFIGURED_APPS += system/mdio
+CONFIGURED_APPS += $(APPDIR)/system/mdio
 endif
 

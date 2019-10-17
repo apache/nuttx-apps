@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_UDP),)
-CONFIGURED_APPS += examples/udp
+CONFIGURED_APPS += $(APPDIR)/examples/udp
 endif

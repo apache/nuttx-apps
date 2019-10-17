@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_POPEN),)
-CONFIGURED_APPS += examples/popen
+CONFIGURED_APPS += $(APPDIR)/examples/popen
 endif

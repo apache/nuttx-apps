@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CPROGRESSBAR),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CProgressBar
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CProgressBar
 endif

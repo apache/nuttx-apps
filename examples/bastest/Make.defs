@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BASTEST),)
-CONFIGURED_APPS += examples/bastest
+CONFIGURED_APPS += $(APPDIR)/examples/bastest
 endif

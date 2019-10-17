@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_TELNETD),)
-CONFIGURED_APPS += examples/telnetd
+CONFIGURED_APPS += $(APPDIR)/examples/telnetd
 endif

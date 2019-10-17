@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTON),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CLatchButton
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CLatchButton
 endif

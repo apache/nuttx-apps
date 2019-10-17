@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NXIMAGE),)
-CONFIGURED_APPS += examples/nximage
+CONFIGURED_APPS += $(APPDIR)/examples/nximage
 endif

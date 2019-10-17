@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_XMLRPC),)
-CONFIGURED_APPS += examples/xmlrpc
+CONFIGURED_APPS += $(APPDIR)/examples/xmlrpc
 endif

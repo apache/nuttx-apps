@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_OSTEST),)
-CONFIGURED_APPS += testing/ostest
+CONFIGURED_APPS += $(APPDIR)/testing/ostest
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_BTSAK),)
-CONFIGURED_APPS += wireless/bluetooth/btsak
+CONFIGURED_APPS += $(APPDIR)/wireless/bluetooth/btsak
 endif

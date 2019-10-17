@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_HELLOXX),)
-CONFIGURED_APPS += examples/helloxx
+CONFIGURED_APPS += $(APPDIR)/examples/helloxx
 endif

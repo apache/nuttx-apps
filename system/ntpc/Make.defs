@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_NTPC),)
-CONFIGURED_APPS += system/ntpc
+CONFIGURED_APPS += $(APPDIR)/system/ntpc
 endif

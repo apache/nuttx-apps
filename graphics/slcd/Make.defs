@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_GRAPHICS_SLCD),y)
-CONFIGURED_APPS += graphics/slcd
+CONFIGURED_APPS += $(APPDIR)/graphics/slcd
 endif

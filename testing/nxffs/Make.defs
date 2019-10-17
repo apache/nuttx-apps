@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_NXFFS),)
-CONFIGURED_APPS += testing/nxffs
+CONFIGURED_APPS += $(APPDIR)/testing/nxffs
 endif

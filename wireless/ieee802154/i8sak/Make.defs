@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_IEEE802154_I8SAK),)
-CONFIGURED_APPS += wireless/ieee802154/i8sak
+CONFIGURED_APPS += $(APPDIR)/wireless/ieee802154/i8sak
 endif

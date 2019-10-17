@@ -38,5 +38,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_XBC_TEST),)
-CONFIGURED_APPS += examples/xbc_test
+CONFIGURED_APPS += $(APPDIR)/examples/xbc_test
 endif

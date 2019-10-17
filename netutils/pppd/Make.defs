@@ -34,6 +34,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_NETUTILS_PPPD),y)
-CONFIGURED_APPS += netutils/pppd
+CONFIGURED_APPS += $(APPDIR)/netutils/pppd
 endif
 

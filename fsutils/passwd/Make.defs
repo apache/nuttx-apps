@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_FSUTILS_PASSWD),y)
-CONFIGURED_APPS += fsutils/passwd
+CONFIGURED_APPS += $(APPDIR)/fsutils/passwd
 endif

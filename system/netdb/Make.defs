@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_NETDB),)
-CONFIGURED_APPS += system/netdb
+CONFIGURED_APPS += $(APPDIR)/system/netdb
 endif
 

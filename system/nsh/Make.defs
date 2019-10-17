@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_NSH),)
-CONFIGURED_APPS += system/nsh
+CONFIGURED_APPS += $(APPDIR)/system/nsh
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FB),)
-CONFIGURED_APPS += examples/fb
+CONFIGURED_APPS += $(APPDIR)/examples/fb
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_DISCOVER),)
-CONFIGURED_APPS += examples/discover
+CONFIGURED_APPS += $(APPDIR)/examples/discover
 endif

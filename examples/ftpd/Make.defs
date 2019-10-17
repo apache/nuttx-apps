@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FTPD),)
-CONFIGURED_APPS += examples/ftpd
+CONFIGURED_APPS += $(APPDIR)/examples/ftpd
 endif

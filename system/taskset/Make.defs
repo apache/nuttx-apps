@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_TASKSET),)
-CONFIGURED_APPS += system/taskset
+CONFIGURED_APPS += $(APPDIR)/system/taskset
 endif

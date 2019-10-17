@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CGLYPHBUTTON),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CGlyphButton
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CGlyphButton
 endif

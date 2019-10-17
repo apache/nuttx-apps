@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_UID),)
-CONFIGURED_APPS += examples/uid
+CONFIGURED_APPS += $(APPDIR)/examples/uid
 endif

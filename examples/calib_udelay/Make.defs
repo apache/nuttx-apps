@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CALIB_UDELAY),)
-CONFIGURED_APPS += examples/calib_udelay
+CONFIGURED_APPS += $(APPDIR)/examples/calib_udelay
 endif

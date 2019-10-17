@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_EXAMPLES_EMBEDLOG),y)
-CONFIGURED_APPS += examples/embedlog
+CONFIGURED_APPS += $(APPDIR)/examples/embedlog
 endif

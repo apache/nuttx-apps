@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_LEDS),)
-CONFIGURED_APPS += examples/leds
+CONFIGURED_APPS += $(APPDIR)/examples/leds
 endif

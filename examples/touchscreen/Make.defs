@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_TOUCHSCREEN),)
-CONFIGURED_APPS += examples/touchscreen
+CONFIGURED_APPS += $(APPDIR)/examples/touchscreen
 endif

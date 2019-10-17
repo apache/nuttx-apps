@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_GRAPHICS_PDCURSES),y)
-CONFIGURED_APPS += graphics/pdcurs34
+CONFIGURED_APPS += $(APPDIR)/graphics/pdcurs34
 endif

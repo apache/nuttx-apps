@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BATTERY),)
-CONFIGURED_APPS += examples/battery
+CONFIGURED_APPS += $(APPDIR)/examples/battery
 endif

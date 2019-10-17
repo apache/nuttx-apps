@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NXTERM),)
-CONFIGURED_APPS += examples/nxterm
+CONFIGURED_APPS += $(APPDIR)/examples/nxterm
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PASHELLO),)
-CONFIGURED_APPS += examples/pashello
+CONFIGURED_APPS += $(APPDIR)/examples/pashello
 endif

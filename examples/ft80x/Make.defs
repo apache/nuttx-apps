@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FT80X),)
-CONFIGURED_APPS += examples/ft80x
+CONFIGURED_APPS += $(APPDIR)/examples/ft80x
 endif

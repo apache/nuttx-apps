@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_TIFF),)
-CONFIGURED_APPS += examples/tiff
+CONFIGURED_APPS += $(APPDIR)/examples/tiff
 endif

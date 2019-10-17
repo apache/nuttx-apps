@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_LZF),)
-CONFIGURED_APPS += system/lzf
+CONFIGURED_APPS += $(APPDIR)/system/lzf
 endif

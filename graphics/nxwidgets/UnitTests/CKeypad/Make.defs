@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CKEYPAD),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CKeypad
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CKeypad
 endif

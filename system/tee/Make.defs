@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_TEE),)
-CONFIGURED_APPS += system/tee
+CONFIGURED_APPS += $(APPDIR)/system/tee
 endif

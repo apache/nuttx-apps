@@ -34,6 +34,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_NETUTILS_FTPD),y)
-CONFIGURED_APPS += netutils/ftpd
+CONFIGURED_APPS += $(APPDIR)/netutils/ftpd
 endif
 

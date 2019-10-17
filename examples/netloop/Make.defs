@@ -34,5 +34,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NETLOOP),)
-CONFIGURED_APPS += examples/netloop
+CONFIGURED_APPS += $(APPDIR)/examples/netloop
 endif

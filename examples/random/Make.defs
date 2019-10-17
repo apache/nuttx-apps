@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_RANDOM),)
-CONFIGURED_APPS += examples/random
+CONFIGURED_APPS += $(APPDIR)/examples/random
 endif

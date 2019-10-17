@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SERLOOP),)
-CONFIGURED_APPS += examples/serloop
+CONFIGURED_APPS += $(APPDIR)/examples/serloop
 endif

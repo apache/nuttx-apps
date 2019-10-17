@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NRF24L01TERM),)
-CONFIGURED_APPS += examples/nrf24l01_term
+CONFIGURED_APPS += $(APPDIR)/examples/nrf24l01_term
 endif

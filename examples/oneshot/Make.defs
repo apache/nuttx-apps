@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ONESHOT),)
-CONFIGURED_APPS += examples/oneshot
+CONFIGURED_APPS += $(APPDIR)/examples/oneshot
 endif

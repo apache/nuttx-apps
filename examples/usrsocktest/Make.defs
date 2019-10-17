@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_USRSOCKTEST),)
-CONFIGURED_APPS += examples/usrsocktest
+CONFIGURED_APPS += $(APPDIR)/examples/usrsocktest
 endif

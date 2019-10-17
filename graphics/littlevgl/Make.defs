@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_GRAPHICS_LVGL),y)
-CONFIGURED_APPS += graphics/littlevgl
+CONFIGURED_APPS += $(APPDIR)/graphics/littlevgl
 endif

@@ -35,6 +35,6 @@
 #############################################################################
 
 ifeq ($(CONFIG_NETUTILS_CJSON),y)
-CONFIGURED_APPS += netutils/cjson
+CONFIGURED_APPS += $(APPDIR)/netutils/cjson
 endif
 

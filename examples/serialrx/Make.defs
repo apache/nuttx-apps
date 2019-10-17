@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SERIALRX),)
-CONFIGURED_APPS += examples/serialrx
+CONFIGURED_APPS += $(APPDIR)/examples/serialrx
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_IEEE802154_LIBMAC),y)
-CONFIGURED_APPS += wireless/ieee802154/libmac
+CONFIGURED_APPS += $(APPDIR)/wireless/ieee802154/libmac
 endif
 

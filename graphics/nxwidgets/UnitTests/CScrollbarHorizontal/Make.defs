@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CSCROLLBARHORIZONTAL),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CScrollbarHorizontal
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CScrollbarHorizontal
 endif

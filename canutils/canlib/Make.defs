@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_CANUTILS_CANLIB),y)
-CONFIGURED_APPS += canutils/canlib
+CONFIGURED_APPS += $(APPDIR)/canutils/canlib
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_DSPTEST),)
-CONFIGURED_APPS += examples/dsptest
+CONFIGURED_APPS += $(APPDIR)/examples/dsptest
 endif

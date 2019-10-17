@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_RAMTEST),)
-CONFIGURED_APPS += system/ramtest
+CONFIGURED_APPS += $(APPDIR)/system/ramtest
 endif
 

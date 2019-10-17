@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_THTTPD),)
-CONFIGURED_APPS += examples/thttpd
+CONFIGURED_APPS += $(APPDIR)/examples/thttpd
 endif

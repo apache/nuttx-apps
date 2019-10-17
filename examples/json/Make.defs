@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_JSON),)
-CONFIGURED_APPS += examples/json
+CONFIGURED_APPS += $(APPDIR)/examples/json
 endif

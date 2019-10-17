@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-CONFIGURED_APPS += netutils/ping
+CONFIGURED_APPS += $(APPDIR)/netutils/ping

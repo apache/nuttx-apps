@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MTDRWB),)
-CONFIGURED_APPS += examples/mtdrwb
+CONFIGURED_APPS += $(APPDIR)/examples/mtdrwb
 endif

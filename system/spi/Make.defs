@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_SPITOOL),)
-CONFIGURED_APPS += system/spi
+CONFIGURED_APPS += $(APPDIR)/system/spi
 endif

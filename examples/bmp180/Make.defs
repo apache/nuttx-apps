@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BMP180),)
-CONFIGURED_APPS += examples/bmp180
+CONFIGURED_APPS += $(APPDIR)/examples/bmp180
 endif

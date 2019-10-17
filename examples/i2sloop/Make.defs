@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_I2SLOOP),)
-CONFIGURED_APPS += examples/i2sloop
+CONFIGURED_APPS += $(APPDIR)/examples/i2sloop
 endif

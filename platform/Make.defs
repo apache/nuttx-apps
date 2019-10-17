@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-CONFIGURED_APPS += platform
+CONFIGURED_APPS += $(APPDIR)/platform

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CIMAGE),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CImage
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CImage
 endif

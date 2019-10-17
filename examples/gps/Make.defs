@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_GPS),)
-CONFIGURED_APPS += examples/gps
+CONFIGURED_APPS += $(APPDIR)/examples/gps
 endif
 

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_USERFS),)
-CONFIGURED_APPS += examples/userfs
+CONFIGURED_APPS += $(APPDIR)/examples/userfs
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_HEX2BIN),)
-CONFIGURED_APPS += system/hex2bin
+CONFIGURED_APPS += $(APPDIR)/system/hex2bin
 endif
 

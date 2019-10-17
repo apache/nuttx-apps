@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_POSIXSPAWN),)
-CONFIGURED_APPS += examples/posix_spawn
+CONFIGURED_APPS += $(APPDIR)/examples/posix_spawn
 endif

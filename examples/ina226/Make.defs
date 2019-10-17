@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_EXAMPLES_INA226),y)
-CONFIGURED_APPS += examples/ina226
+CONFIGURED_APPS += $(APPDIR)/examples/ina226
 endif

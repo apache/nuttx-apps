@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MAX31855),)
-CONFIGURED_APPS += examples/max31855
+CONFIGURED_APPS += $(APPDIR)/examples/max31855
 endif

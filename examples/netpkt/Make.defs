@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NETPKT),)
-CONFIGURED_APPS += examples/netpkt
+CONFIGURED_APPS += $(APPDIR)/examples/netpkt
 endif

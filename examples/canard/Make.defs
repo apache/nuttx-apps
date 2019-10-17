@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_LIBCANARD),)
-CONFIGURED_APPS += examples/canard
+CONFIGURED_APPS += $(APPDIR)/examples/canard
 endif

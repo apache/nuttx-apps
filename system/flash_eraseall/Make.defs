@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_FLASH_ERASEALL),)
-CONFIGURED_APPS += system/flash_eraseall
+CONFIGURED_APPS += $(APPDIR)/system/flash_eraseall
 endif
 

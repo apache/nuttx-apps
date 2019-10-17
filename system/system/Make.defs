@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_SYSTEM),y)
-CONFIGURED_APPS += system/system
+CONFIGURED_APPS += $(APPDIR)/system/system
 endif

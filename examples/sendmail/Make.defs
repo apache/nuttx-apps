@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SENDMAIL),)
-CONFIGURED_APPS += examples/sendmail
+CONFIGURED_APPS += $(APPDIR)/examples/sendmail
 endif

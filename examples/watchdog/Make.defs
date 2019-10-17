@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_WATCHDOG),)
-CONFIGURED_APPS += examples/watchdog
+CONFIGURED_APPS += $(APPDIR)/examples/watchdog
 endif

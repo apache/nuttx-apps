@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_WIRELESS_GS2200M),)
-CONFIGURED_APPS += wireless/gs2200m
+CONFIGURED_APPS += $(APPDIR)/wireless/gs2200m
 endif

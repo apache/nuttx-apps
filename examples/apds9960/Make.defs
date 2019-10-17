@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_APDS9960),)
-CONFIGURED_APPS += examples/apds9960
+CONFIGURED_APPS += $(APPDIR)/examples/apds9960
 endif

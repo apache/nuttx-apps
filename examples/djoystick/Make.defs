@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_DJOYSTICK),)
-CONFIGURED_APPS += examples/djoystick
+CONFIGURED_APPS += $(APPDIR)/examples/djoystick
 endif

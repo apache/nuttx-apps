@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_HIDKBD),)
-CONFIGURED_APPS += examples/hidkbd
+CONFIGURED_APPS += $(APPDIR)/examples/hidkbd
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_POWERLED),)
-CONFIGURED_APPS += examples/powerled
+CONFIGURED_APPS += $(APPDIR)/examples/powerled
 endif

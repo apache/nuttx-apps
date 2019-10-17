@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_WEBSERVER),)
-CONFIGURED_APPS += examples/webserver
+CONFIGURED_APPS += $(APPDIR)/examples/webserver
 endif

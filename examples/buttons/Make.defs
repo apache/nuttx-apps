@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BUTTONS),)
-CONFIGURED_APPS += examples/buttons
+CONFIGURED_APPS += $(APPDIR)/examples/buttons
 endif

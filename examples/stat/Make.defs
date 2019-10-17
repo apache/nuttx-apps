@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_STAT),)
-CONFIGURED_APPS += examples/stat
+CONFIGURED_APPS += $(APPDIR)/examples/stat
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_GPSUTILS_MINMEA_LIB),y)
-CONFIGURED_APPS += gpsutils/minmea
+CONFIGURED_APPS += $(APPDIR)/gpsutils/minmea
 endif

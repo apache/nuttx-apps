@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SMPS),)
-CONFIGURED_APPS += examples/smps
+CONFIGURED_APPS += $(APPDIR)/examples/smps
 endif

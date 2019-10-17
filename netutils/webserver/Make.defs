@@ -34,6 +34,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_NETUTILS_WEBSERVER),y)
-CONFIGURED_APPS += netutils/webserver
+CONFIGURED_APPS += $(APPDIR)/netutils/webserver
 endif
 

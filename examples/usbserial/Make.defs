@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_USBSERIAL),)
-CONFIGURED_APPS += examples/usbserial
+CONFIGURED_APPS += $(APPDIR)/examples/usbserial
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWM),y)
-CONFIGURED_APPS += graphics/nxwm
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwm
 endif
 

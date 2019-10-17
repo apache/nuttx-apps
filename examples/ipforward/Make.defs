@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_IPFORWARD),)
-CONFIGURED_APPS += examples/ipforward
+CONFIGURED_APPS += $(APPDIR)/examples/ipforward
 endif

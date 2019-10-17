@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_PING),)
-CONFIGURED_APPS += system/ping
+CONFIGURED_APPS += $(APPDIR)/system/ping
 endif
 

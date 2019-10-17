@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PWM),)
-CONFIGURED_APPS += examples/pwm
+CONFIGURED_APPS += $(APPDIR)/examples/pwm
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FBOVERLAY),)
-CONFIGURED_APPS += examples/fboverlay
+CONFIGURED_APPS += $(APPDIR)/examples/fboverlay
 endif

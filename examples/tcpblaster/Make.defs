@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_TCPBLASTER),)
-CONFIGURED_APPS += examples/tcpblaster
+CONFIGURED_APPS += $(APPDIR)/examples/tcpblaster
 endif

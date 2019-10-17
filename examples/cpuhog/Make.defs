@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CPUHOG),)
-CONFIGURED_APPS += examples/cpuhog
+CONFIGURED_APPS += $(APPDIR)/examples/cpuhog
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_VEML6070),)
-CONFIGURED_APPS += examples/veml6070
+CONFIGURED_APPS += $(APPDIR)/examples/veml6070
 endif

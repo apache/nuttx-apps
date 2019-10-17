@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_CUTERM),)
-CONFIGURED_APPS += system/cu
+CONFIGURED_APPS += $(APPDIR)/system/cu
 endif
 

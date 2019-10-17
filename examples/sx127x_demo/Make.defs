@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SX127X),)
-CONFIGURED_APPS += examples/sx127x_demo
+CONFIGURED_APPS += $(APPDIR)/examples/sx127x_demo
 endif

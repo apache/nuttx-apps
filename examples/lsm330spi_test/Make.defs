@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_LSM330SPI_TEST),)
-CONFIGURED_APPS += examples/lsm330spi_test
+CONFIGURED_APPS += $(APPDIR)/examples/lsm330spi_test
 endif

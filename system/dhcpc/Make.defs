@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_DHCPC_RENEW),)
-CONFIGURED_APPS += system/dhcpc
+CONFIGURED_APPS += $(APPDIR)/system/dhcpc
 endif
 

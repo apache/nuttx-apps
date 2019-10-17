@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_QENCODER),)
-CONFIGURED_APPS += examples/qencoder
+CONFIGURED_APPS += $(APPDIR)/examples/qencoder
 endif

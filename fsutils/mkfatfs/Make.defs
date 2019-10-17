@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_FSUTILS_MKFATFS),y)
-CONFIGURED_APPS += fsutils/mkfatfs
+CONFIGURED_APPS += $(APPDIR)/fsutils/mkfatfs
 endif

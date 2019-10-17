@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_FSTEST),)
-CONFIGURED_APPS += testing/fstest
+CONFIGURED_APPS += $(APPDIR)/testing/fstest
 endif

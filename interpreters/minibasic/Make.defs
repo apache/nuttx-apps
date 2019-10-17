@@ -34,5 +34,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_INTERPRETERS_MINIBASIC),)
-CONFIGURED_APPS += interpreters/minibasic
+CONFIGURED_APPS += $(APPDIR)/interpreters/minibasic
 endif

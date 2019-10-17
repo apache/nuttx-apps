@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SERIALBLASTER),)
-CONFIGURED_APPS += examples/serialblaster
+CONFIGURED_APPS += $(APPDIR)/examples/serialblaster
 endif

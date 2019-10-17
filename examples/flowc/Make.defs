@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FLOWC),)
-CONFIGURED_APPS += examples/flowc
+CONFIGURED_APPS += $(APPDIR)/examples/flowc
 endif

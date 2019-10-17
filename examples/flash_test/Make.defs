@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_FLASH_TEST),)
-CONFIGURED_APPS += examples/flash_test
+CONFIGURED_APPS += $(APPDIR)/examples/flash_test
 endif

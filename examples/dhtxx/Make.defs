@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_DHTXX),)
-CONFIGURED_APPS += examples/dhtxx
+CONFIGURED_APPS += $(APPDIR)/examples/dhtxx
 endif

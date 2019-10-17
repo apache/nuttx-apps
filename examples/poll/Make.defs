@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_POLL),)
-CONFIGURED_APPS += examples/poll
+CONFIGURED_APPS += $(APPDIR)/examples/poll
 endif

@@ -34,5 +34,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MODULE),)
-CONFIGURED_APPS += examples/module
+CONFIGURED_APPS += $(APPDIR)/examples/module
 endif

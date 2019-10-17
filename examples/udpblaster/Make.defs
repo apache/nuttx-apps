@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_UDPBLASTER),)
-CONFIGURED_APPS += examples/udpblaster
+CONFIGURED_APPS += $(APPDIR)/examples/udpblaster
 endif

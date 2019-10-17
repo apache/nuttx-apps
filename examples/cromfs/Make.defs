@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CROMFS),)
-CONFIGURED_APPS += examples/cromfs
+CONFIGURED_APPS += $(APPDIR)/examples/cromfs
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_I2SCHAR),)
-CONFIGURED_APPS += examples/i2schar
+CONFIGURED_APPS += $(APPDIR)/examples/i2schar
 endif

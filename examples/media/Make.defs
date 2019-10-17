@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MEDIA),)
-CONFIGURED_APPS += examples/media
+CONFIGURED_APPS += $(APPDIR)/examples/media
 endif

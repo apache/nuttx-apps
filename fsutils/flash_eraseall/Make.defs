@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_FSUTILS_FLASH_ERASEALL),y)
-CONFIGURED_APPS += fsutils/flash_eraseall
+CONFIGURED_APPS += $(APPDIR)/fsutils/flash_eraseall
 endif

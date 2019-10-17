@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_NSH_LIBRARY),)
-CONFIGURED_APPS += nshlib
+CONFIGURED_APPS += $(APPDIR)/nshlib
 endif

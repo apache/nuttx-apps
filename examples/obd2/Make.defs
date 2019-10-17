@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_OBD2),)
-CONFIGURED_APPS += examples/obd2
+CONFIGURED_APPS += $(APPDIR)/examples/obd2
 endif

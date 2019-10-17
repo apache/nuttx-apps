@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MTDPART),)
-CONFIGURED_APPS += examples/mtdpart
+CONFIGURED_APPS += $(APPDIR)/examples/mtdpart
 endif

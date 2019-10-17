@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_READLINE),y)
-CONFIGURED_APPS += system/readline
+CONFIGURED_APPS += $(APPDIR)/system/readline
 endif
 

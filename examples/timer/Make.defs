@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_TIMER),)
-CONFIGURED_APPS += examples/timer
+CONFIGURED_APPS += $(APPDIR)/examples/timer
 endif

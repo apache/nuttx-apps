@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PDCURSES),)
-CONFIGURED_APPS += examples/pdcurses
+CONFIGURED_APPS += $(APPDIR)/examples/pdcurses
 endif

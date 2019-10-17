@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CTEXTBOX),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CTextBox
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CTextBox
 endif

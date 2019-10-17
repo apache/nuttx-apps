@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_NXRECORDER),)
-CONFIGURED_APPS += system/nxrecorder
+CONFIGURED_APPS += $(APPDIR)/system/nxrecorder
 endif
 

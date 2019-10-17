@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_CDCACM),)
-CONFIGURED_APPS += system/cdcacm
+CONFIGURED_APPS += $(APPDIR)/system/cdcacm
 endif
 

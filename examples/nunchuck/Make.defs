@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NUNCHUCK),)
-CONFIGURED_APPS += examples/nunchuck
+CONFIGURED_APPS += $(APPDIR)/examples/nunchuck
 endif

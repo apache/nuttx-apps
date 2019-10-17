@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_I2CTOOL),)
-CONFIGURED_APPS += system/i2c
+CONFIGURED_APPS += $(APPDIR)/system/i2c
 endif
 

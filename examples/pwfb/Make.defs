@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PWFB),)
-CONFIGURED_APPS += examples/pwfb
+CONFIGURED_APPS += $(APPDIR)/examples/pwfb
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_RELAYS),)
-CONFIGURED_APPS += examples/relays
+CONFIGURED_APPS += $(APPDIR)/examples/relays
 endif

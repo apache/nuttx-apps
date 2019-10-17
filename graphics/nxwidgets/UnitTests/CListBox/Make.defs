@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CLISTBOX),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CListBox
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CListBox
 endif

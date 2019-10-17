@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_SLCD),)
-CONFIGURED_APPS += examples/slcd
+CONFIGURED_APPS += $(APPDIR)/examples/slcd
 endif

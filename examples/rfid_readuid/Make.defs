@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_RFID_READUID),)
-CONFIGURED_APPS += examples/rfid_readuid
+CONFIGURED_APPS += $(APPDIR)/examples/rfid_readuid
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MODBUS),)
-CONFIGURED_APPS += examples/modbus
+CONFIGURED_APPS += $(APPDIR)/examples/modbus
 endif

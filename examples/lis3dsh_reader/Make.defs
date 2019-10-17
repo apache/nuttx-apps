@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_LIS3DSH_READER),)
-CONFIGURED_APPS += examples/lis3dsh_reader
+CONFIGURED_APPS += $(APPDIR)/examples/lis3dsh_reader
 endif

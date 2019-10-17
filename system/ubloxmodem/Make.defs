@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_UBLOXMODEM),)
-CONFIGURED_APPS += system/ubloxmodem
+CONFIGURED_APPS += $(APPDIR)/system/ubloxmodem
 endif

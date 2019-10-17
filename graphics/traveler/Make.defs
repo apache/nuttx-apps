@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_GRAPHICS_TRAVELER),)
-CONFIGURED_APPS += graphics/traveler
+CONFIGURED_APPS += $(APPDIR)/graphics/traveler
 endif
 

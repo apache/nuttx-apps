@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_APA102),)
-CONFIGURED_APPS += examples/apa102
+CONFIGURED_APPS += $(APPDIR)/examples/apa102
 endif

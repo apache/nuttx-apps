@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_NXFLAT),)
-CONFIGURED_APPS += examples/nxflat
+CONFIGURED_APPS += $(APPDIR)/examples/nxflat
 endif

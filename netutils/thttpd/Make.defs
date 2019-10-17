@@ -34,6 +34,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_NETUTILS_THTTPD),)
-CONFIGURED_APPS += netutils/thttpd
+CONFIGURED_APPS += $(APPDIR)/netutils/thttpd
 endif
 

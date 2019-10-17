@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_FSUTILS_INIH),y)
-CONFIGURED_APPS += fsutils/inih
+CONFIGURED_APPS += $(APPDIR)/fsutils/inih
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ZEROCROSS),)
-CONFIGURED_APPS += examples/zerocross
+CONFIGURED_APPS += $(APPDIR)/examples/zerocross
 endif

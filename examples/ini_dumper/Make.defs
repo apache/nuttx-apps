@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_EXAMPLES_INI_DUMPER),y)
-CONFIGURED_APPS += examples/ini_dumper
+CONFIGURED_APPS += $(APPDIR)/examples/ini_dumper
 endif

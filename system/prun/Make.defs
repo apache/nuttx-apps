@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_PRUN),)
-CONFIGURED_APPS += system/prun
+CONFIGURED_APPS += $(APPDIR)/system/prun
 endif
 

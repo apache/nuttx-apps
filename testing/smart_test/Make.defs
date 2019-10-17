@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_SMART_TEST),)
-CONFIGURED_APPS += testing/smart_test
+CONFIGURED_APPS += $(APPDIR)/testing/smart_test
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_WGET),)
-CONFIGURED_APPS += examples/wget
+CONFIGURED_APPS += $(APPDIR)/examples/wget
 endif

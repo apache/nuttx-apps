@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PWLINES),)
-CONFIGURED_APPS += examples/pwlines
+CONFIGURED_APPS += $(APPDIR)/examples/pwlines
 endif

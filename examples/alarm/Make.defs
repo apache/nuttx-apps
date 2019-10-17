@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ALARM),)
-CONFIGURED_APPS += examples/alarm
+CONFIGURED_APPS += $(APPDIR)/examples/alarm
 endif

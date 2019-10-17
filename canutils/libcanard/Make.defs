@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_CANUTILS_LIBCANARD),y)
-CONFIGURED_APPS += canutils/libcanard
+CONFIGURED_APPS += $(APPDIR)/canutils/libcanard
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_TIFF),y)
-CONFIGURED_APPS += graphics/tiff
+CONFIGURED_APPS += $(APPDIR)/graphics/tiff
 endif

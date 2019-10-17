@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ABNTCODI),)
-CONFIGURED_APPS += examples/abntcodi
+CONFIGURED_APPS += $(APPDIR)/examples/abntcodi
 endif
 

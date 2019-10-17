@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PPPD),)
-CONFIGURED_APPS += examples/pppd
+CONFIGURED_APPS += $(APPDIR)/examples/pppd
 endif

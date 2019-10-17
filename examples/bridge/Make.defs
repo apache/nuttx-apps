@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BRIDGE),)
-CONFIGURED_APPS += examples/bridge
+CONFIGURED_APPS += $(APPDIR)/examples/bridge
 endif

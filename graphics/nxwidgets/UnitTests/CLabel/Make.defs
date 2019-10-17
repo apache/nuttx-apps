@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS_UNITTEST_CLABEL),y)
-CONFIGURED_APPS += graphics/nxwidget/UnitTests/CLabel
+CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CLabel
 endif

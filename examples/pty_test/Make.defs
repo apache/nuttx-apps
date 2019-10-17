@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_PTYTEST),)
-CONFIGURED_APPS += examples/pty_test
+CONFIGURED_APPS += $(APPDIR)/examples/pty_test
 endif

@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NXWIDGETS),y)
-CONFIGURED_APPS += graphics/nxglyphs
+CONFIGURED_APPS += $(APPDIR)/graphics/nxglyphs
 endif

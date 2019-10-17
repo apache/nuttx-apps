@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_GRAPHICS_SCREENSHOT),)
-CONFIGURED_APPS += graphics/screenshot
+CONFIGURED_APPS += $(APPDIR)/graphics/screenshot
 endif

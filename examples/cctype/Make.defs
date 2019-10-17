@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CCTYPE),)
-CONFIGURED_APPS += examples/cctype
+CONFIGURED_APPS += $(APPDIR)/examples/cctype
 endif

@@ -35,6 +35,6 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_SUDOKU),)
-CONFIGURED_APPS += system/sudoku
+CONFIGURED_APPS += $(APPDIR)/system/sudoku
 endif
 

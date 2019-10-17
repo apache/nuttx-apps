@@ -35,7 +35,7 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_TELNET_CHATD),)
-CONFIGURED_APPS += system/telnet
+CONFIGURED_APPS += $(APPDIR)/system/telnet
 else ifneq ($(CONFIG_SYSTEM_TELNET_CLIENT),)
-CONFIGURED_APPS += system/telnet
+CONFIGURED_APPS += $(APPDIR)/system/telnet
 endif

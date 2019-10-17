@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_USTREAM),)
-CONFIGURED_APPS += examples/ustream
+CONFIGURED_APPS += $(APPDIR)/examples/ustream
 endif

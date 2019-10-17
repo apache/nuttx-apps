@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_LVGLDEMO),)
-CONFIGURED_APPS += examples/lvgldemo
+CONFIGURED_APPS += $(APPDIR)/examples/lvgldemo
 endif

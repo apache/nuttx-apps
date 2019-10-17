@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_UDGRAM),)
-CONFIGURED_APPS += examples/udgram
+CONFIGURED_APPS += $(APPDIR)/examples/udgram
 endif

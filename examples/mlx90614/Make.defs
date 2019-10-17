@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_MLX90614),)
-CONFIGURED_APPS += examples/mlx90614
+CONFIGURED_APPS += $(APPDIR)/examples/mlx90614
 endif

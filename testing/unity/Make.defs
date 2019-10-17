@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_TESTING_UNITY),y)
-CONFIGURED_APPS += testing/unity
+CONFIGURED_APPS += $(APPDIR)/testing/unity
 endif

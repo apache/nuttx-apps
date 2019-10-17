@@ -35,5 +35,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_CHAT),)
-  CONFIGURED_APPS += examples/chat
+  CONFIGURED_APPS += $(APPDIR)/examples/chat
 endif

@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_FSUTILS_INIFILE),y)
-CONFIGURED_APPS += fsutils/inifile
+CONFIGURED_APPS += $(APPDIR)/fsutils/inifile
 endif
