@@ -40,38 +40,6 @@ TOPDIR ?= $(APPDIR)/import
 -include $(TOPDIR)/Make.defs
 -include $(APPDIR)/Make.defs
 
-# Application Directories
-
-# BUILDIRS is the list of top-level directories containing Make.defs files
-# CLEANDIRS is the list of all top-level directories containing Makefiles.
-#   It is used only for cleaning.
-
-BUILDIRS   := $(dir $(filter-out import/Make.defs,$(wildcard */Make.defs)))
-CLEANDIRS  := $(dir $(wildcard */Makefile))
-
-# CONFIGURED_APPS is the application directories that should be built in
-#   the current configuration.
-
-CONFIGURED_APPS =
-
-define Add_Application
-  include $(1)Make.defs
-endef
-
-$(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
-
-# Library path
-
-LIBPATH ?= $(TOPDIR)$(DELIM)staging
-
-# The install path
-
-BINDIR = $(APPDIR)$(DELIM)bin
-
-# The final build target
-
-BIN ?= libapps$(LIBEXT)
-
 # Symbol table for loadable apps.
 
 SYMTABSRC = symtab_apps.c
@@ -84,13 +52,13 @@ all: $(BIN)
 .PRECIOUS: $(BIN)
 
 define MAKE_template
-	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 endef
 
 define SDIR_template
 $(1)_$(2):
-	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 endef
 
@@ -138,7 +106,11 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, -fno-lto $<, $@)
 
 $(BIN): $(SYMTABOBJ)
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $^)
+else
 	$(call ARCHIVE, $(BIN), $^)
+endif
 
 endif # !CONFIG_BUILD_LOADABLE
 
@@ -157,12 +129,12 @@ import:
 endif # CONFIG_BUILD_KERNEL
 
 dirlinks:
-	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
 context_serialize:
-	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 	$(Q) $(MAKE) context_rest TOPDIR="$(TOPDIR)"
 
 context: context_serialize
@@ -191,7 +163,7 @@ endif
 depend: .depend
 
 clean_context:
-	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))

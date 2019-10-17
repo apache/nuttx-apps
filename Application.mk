@@ -51,10 +51,6 @@ ifneq ($(MAINSRC),)
   endif
 endif
 
-# File extensions
-
-CXXEXT ?= .cxx
-
 # Object files
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
@@ -73,10 +69,6 @@ OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
 ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINOBJ)
 endif
-
-# Library file
-
-BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
 
 ROOTDEPPATH += --dep-path .
 
