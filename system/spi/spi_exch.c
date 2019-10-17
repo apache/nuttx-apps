@@ -105,7 +105,14 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
 
   /* There may be transmit data on the command line */
 
-  if (argndx < argc)
+  if (argc - argndx > spitool->count)
+    {
+      spitool_printf(spitool, g_spitoomanyargs, argv[0]);
+      return ERROR;
+    }
+
+
+  while (argndx < argc)
     {
       FAR uint8_t *a = (uint8_t *)argv[argndx];
       while (*a)
@@ -125,12 +132,6 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
       argndx += 1;
     }
 
-    if (argndx != argc)
-      {
-        spitool_printf(spitool, g_spitoomanyargs, argv[0]);
-        return ERROR;
-      }
-
   /* Get a handle to the SPI bus */
 
   fd = spidev_open(spitool->bus);
@@ -148,7 +149,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   seq.ntrans = 1;
   seq.trans = &trans;
 
-  trans.deselect = false;
+  trans.deselect = true;
 #ifdef CONFIG_SPI_CMDDATA
   trans.cmd = spitool->command;
 #endif
