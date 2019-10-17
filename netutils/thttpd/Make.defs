@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_NETUTILS_THTTPD),)
+ifeq ($(CONFIG_NETUTILS_THTTPD),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/thttpd
 endif
 

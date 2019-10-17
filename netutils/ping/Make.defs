@@ -34,4 +34,8 @@
 #
 ############################################################################
 
+ifeq ($(CONFIG_NETUTILS_PING),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/ping
+else ifeq ($(CONFIG_NETUTILS_PING6),y)
+CONFIGURED_APPS += $(APPDIR)/netutils/ping
+endif

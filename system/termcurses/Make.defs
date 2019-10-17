@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_SYSTEM_TERMCURSES),)
+ifeq ($(CONFIG_SYSTEM_TERMCURSES),y)
 CONFIGURED_APPS += $(APPDIR)/system/termcurses
 endif

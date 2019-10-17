@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_INI_DUMPER),y)
+ifneq ($(CONFIG_EXAMPLES_INI_DUMPER),)
 CONFIGURED_APPS += $(APPDIR)/examples/ini_dumper
 endif

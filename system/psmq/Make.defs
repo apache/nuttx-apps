@@ -33,6 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_PSMQ),y)
+ifneq ($(CONFIG_SYSTEM_PSMQ),)
 CONFIGURED_APPS += $(APPDIR)/system/psmq
 endif

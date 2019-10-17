@@ -49,7 +49,7 @@ MODULE    = $(CONFIG_GRAPHICS_TWM4NX)
 
 # Twm4Nx
 
-CXXSRCS   = twm4nx_main.cxx
+MAINSRC   = twm4nx_main.cxx
 CXXSRCS  += cbackground.cxx cfonts.cxx ciconmgr.cxx ciconwidget.cxx
 CXXSRCS  += cmenus.cxx cmainmenu.cxx
 CXXSRCS  += cwindow.cxx cwindowevent.cxx cresize.cxx cwindowfactory.cxx
@@ -71,7 +71,7 @@ ifeq ($(CONFIG_TWM4NX_NXTERM),y)
 CXXSRCS  += cnxterm.cxx
 endif
 
-MAINSRC   = ctwm4nx.cxx
+CXXSRCS   = ctwm4nx.cxx
 
 VPATH     = src:apps
 

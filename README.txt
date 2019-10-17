@@ -107,7 +107,7 @@ This will select the apps/examples/hello in the following way:
 - examples/Make.defs will set CONFIGURED_APPS += $(APPDIR)/examples/hello
   like this:
 
-  ifeq ($(CONFIG_EXAMPLES_HELLO),y)
+  ifneq ($(CONFIG_EXAMPLES_HELLO),)
   CONFIGURED_APPS += $(APPDIR)/examples/hello
   endif
 
@@ -141,7 +141,7 @@ to the project. One must:
 
  4b. The Make.defs file should include a line like:
 
-    ifeq ($(CONFIG_PROGNAME),y)
+    ifneq ($(CONFIG_PROGNAME),)
     CONFIGURED_APPS += progname
     endif
 
