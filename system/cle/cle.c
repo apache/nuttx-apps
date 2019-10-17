@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/cle/cle.c
  *
- *   Copyright (C) 2014, 2018 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2018-2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,29 +134,11 @@
 #  endif
 #endif
 
-#ifdef CONFIG_SYSTEM_CLE_CMD_HISTORY
-/* Command history
- *
- *   g_cmd_history[][]             Circular buffer
- *   g_cmd_history_head            Head of the circular buffer, most recent
- *                                 command
- *   g_cmd_history_steps_from_head Offset from head
- *   g_cmd_history_len             Number of elements in the circular buffer
- *
- * REVISIT:  These globals will *not* work in an environment where there
- * are multiple copies if the NSH shell!  Use of global variables is not
- * thread safe!  These settings should, at least, be semaphore protected so
- * that the integrity of the data is assured, even though commands from
- * different sessions may be intermixed.
- */
-
-static char g_cmd_history[CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN]
-                         [CONFIG_SYSTEM_CLE_CMD_HISTORY_LINELEN];
-static int g_cmd_history_head            = -1;
-static int g_cmd_history_steps_from_head = 1;
-static int g_cmd_history_len             = 0;
-
-#endif /* CONFIG_SYSTEM_CLE_CMD_HISTORY */
+#ifdef CONFIG_SYSTEM_COLOR_CLE
+#  define COLOR_PROMPT  VT100_YELLOW
+#  define COLOR_COMMAND VT100_CYAN
+#  define COLOR_OUTPUT  VT100_GREEN
+#endif
 
 /****************************************************************************
  * Private Types
@@ -231,6 +213,30 @@ static int      cle_editloop(FAR struct cle_s *priv);
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_SYSTEM_CLE_CMD_HISTORY
+/* Command history
+ *
+ *   g_cmd_history[][]             Circular buffer
+ *   g_cmd_history_head            Head of the circular buffer, most recent
+ *                                 command
+ *   g_cmd_history_steps_from_head Offset from head
+ *   g_cmd_history_len             Number of elements in the circular buffer
+ *
+ * REVISIT:  These globals will *not* work in an environment where there
+ * are multiple copies if the NSH shell!  Use of global variables is not
+ * thread safe!  These settings should, at least, be semaphore protected so
+ * that the integrity of the data is assured, even though commands from
+ * different sessions may be intermixed.
+ */
+
+static char g_cmd_history[CONFIG_SYSTEM_CLE_CMD_HISTORY_LEN]
+                         [CONFIG_SYSTEM_CLE_CMD_HISTORY_LINELEN];
+static int g_cmd_history_head            = -1;
+static int g_cmd_history_steps_from_head = 1;
+static int g_cmd_history_len             = 0;
+
+#endif /* CONFIG_SYSTEM_CLE_CMD_HISTORY */
+
 /* VT100 escape sequences */
 
 static const char g_cursoron[]     = VT100_CURSORON;
@@ -240,12 +246,8 @@ static const char g_erasetoeol[]   = VT100_CLEAREOL;
 static const char g_fmtcursorpos[] = VT100_FMT_CURSORPOS;
 static const char g_clrscr[]       = VT100_CLEARSCREEN;
 static const char g_home[]         = VT100_CURSORHOME;
-static const char g_setcolor[]     = VT100_FMT_FORE_COLOR;
-
 #ifdef CONFIG_SYSTEM_COLOR_CLE
-#  define COLOR_PROMPT             VT100_YELLOW
-#  define COLOR_COMMAND            VT100_CYAN
-#  define COLOR_OUTPUT             VT100_GREEN
+static const char g_setcolor[]     = VT100_FMT_FORE_COLOR;
 #endif
 
 /****************************************************************************
