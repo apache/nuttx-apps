@@ -71,7 +71,7 @@ ifeq ($(CONFIG_TWM4NX_NXTERM),y)
 CXXSRCS  += cnxterm.cxx
 endif
 
-CXXSRCS   = ctwm4nx.cxx
+CXXSRCS  += ctwm4nx.cxx
 
 VPATH     = src:apps
 
