@@ -60,24 +60,27 @@ ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 $(HOST_OBJS): %$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+endif
 
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
+ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 $(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
+endif
 
 context:: config.h $(HOST_BIN)
 
 clean::
+ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
 	$(call DELFILE, *$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, *.dSYM)
-	$(call DELFILE, config.h)
-
 endif
+	$(call DELFILE, config.h)
 
 MODULE = $(CONFIG_EXAMPLES_UDPBLASTER)
 
