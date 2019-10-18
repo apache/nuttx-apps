@@ -137,6 +137,14 @@ static int spicmd_help(FAR struct spitool_s *spitool, int argc,
                           "Default: %d Current: %d\n",
                  CONFIG_SPITOOL_DEFMODE, spitool->mode);
 
+  spitool_printf(spitool, "  [-n CSn] chip select number.  "
+                          "Default: %d Current: %d\n",
+                 0, spitool->csn);
+
+  spitool_printf(spitool, "  [-t devtype] Chip Select type (see spi_devtype_e).  "
+                          "Default: %d Current: %d\n",
+                 SPIDEVTYPE_USER, spitool->devtype);
+
   spitool_printf(spitool, "  [-u udelay] Delay after transfer in uS.  "
                           "Default: 0 Current: %d\n", spitool->udelay);
 
@@ -385,6 +393,11 @@ int main(int argc, FAR char *argv[])
   if (g_spitool.count == 0)
     {
       g_spitool.count = CONFIG_SPITOOL_DEFWORDS;
+    }
+
+  if (g_spitool.devtype == 0)
+    {
+      g_spitool.devtype = SPIDEVTYPE_USER;
     }
 
   /* Parse and process the command line */

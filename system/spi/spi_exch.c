@@ -143,6 +143,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
 
   /* Set up the transfer profile */
 
+  seq.dev = SPIDEV_ID(spitool->devtype, spitool->csn);
   seq.mode = spitool->mode;
   seq.nbits = spitool->width;
   seq.frequency = spitool->freq;

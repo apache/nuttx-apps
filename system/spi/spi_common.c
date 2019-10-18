@@ -156,6 +156,26 @@ int spitool_common_args(FAR struct spitool_s *spitool, FAR char **arg)
         spitool->mode = value;
         return ret;
 
+      case 'n':
+        ret = arg_decimal(arg, &value);
+        if ((value < 0) || (value > 0xffff))
+          {
+            goto out_of_range;
+          }
+
+        spitool->csn = value;
+        return ret;
+
+      case 't':
+        ret = arg_decimal(arg, &value);
+        if ((value < 0) || (value > SPIDEVTYPE_USER))
+          {
+            goto out_of_range;
+          }
+
+        spitool->devtype = value;
+        return ret;
+
       case 'f':
         ret = arg_decimal(arg, &value);
         if (value == 0)

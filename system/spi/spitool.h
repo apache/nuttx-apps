@@ -145,13 +145,15 @@ struct spitool_s
 {
   /* Sticky options */
 
-  uint8_t  bus;        /* [-b bus] is the SPI bus number */
-  uint8_t  width;      /* [-w width] is the data width (8 or 16) */
-  uint32_t freq;       /* [-f freq] SPI frequency */
-  uint32_t count;      /* [-x count] No of words to exchange */
-  bool command;        /* [-c 0|1] Send as command or data? */
-  useconds_t udelay;   /* [-u udelay] Delay in uS after transfer */
-  uint8_t mode;        /* [-m mode] Mode to use for transfer */
+  uint8_t  bus;        /* [-b bus] is the SPI bus number           */
+  uint8_t  width;      /* [-w width] is the data width (8 or 16)   */
+  uint32_t freq;       /* [-f freq] SPI frequency                  */
+  uint32_t count;      /* [-x count] No of words to exchange       */
+  uint32_t csn;        /* [-n CSn] Chip select number for devtype  */
+  uint32_t devtype;    /* [-t devtype] DevType (see spi_devtype_e) */
+  bool command;        /* [-c 0|1] Send as command or data?        */
+  useconds_t udelay;   /* [-u udelay] Delay in uS after transfer   */
+  uint8_t mode;        /* [-m mode] Mode to use for transfer       */
 
   /* Output streams */
 
