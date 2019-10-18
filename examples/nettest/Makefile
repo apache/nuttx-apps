@@ -109,24 +109,34 @@ $(HOST_OBJS): %.$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
+endif
+endif
+
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
+
+ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 
 $(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
+endif
+endif
+
 context:: config.h $(HOST_BIN)
 
 clean::
+ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 	$(call DELFILE, *.$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, *.dSYM)
+endif
+endif
 	$(call DELFILE, config.h)
-
-endif
-endif
 
 MODULE = $(CONFIG_EXAMPLES_NETTEST)
 
