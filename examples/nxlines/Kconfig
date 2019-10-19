@@ -15,7 +15,7 @@ if EXAMPLES_NXLINES
 
 config EXAMPLES_NXLINES_PROGNAME
 	string "NX lines program name"
-	default "nxhello"
+	default "nxlines"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
