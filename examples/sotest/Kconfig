@@ -31,7 +31,7 @@ config EXAMPLES_SOTEST_BUILTINFS
 		card, for testing on the target.
 
 		NOTE: This option can only be used in the FLAT build mode because
-		it makes an illegal OS call to ramdisk_register().
+		it makes an illegal OS call to romdisk_register().
 
 if EXAMPLES_SOTEST_BUILTINFS
 

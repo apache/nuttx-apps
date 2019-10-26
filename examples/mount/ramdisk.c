@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/mount/ramdisk.c
  *
- *   Copyright (C) 2008-2009, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2015, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,25 +57,14 @@
  * Private Definitions
  ****************************************************************************/
 
-#define BUFFER_SIZE (CONFIG_EXAMPLES_MOUNT_NSECTORS*CONFIG_EXAMPLES_MOUNT_SECTORSIZE)
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#define BUFFER_SIZE \
+  (CONFIG_EXAMPLES_MOUNT_NSECTORS * CONFIG_EXAMPLES_MOUNT_SECTORSIZE)
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static struct fat_format_s g_fmt = FAT_FORMAT_INITIALIZER;
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
@@ -97,31 +87,21 @@ static struct fat_format_s g_fmt = FAT_FORMAT_INITIALIZER;
 
 int create_ramdisk(void)
 {
-  FAR char *pbuffer;
+  struct boardioc_mkrd_s desc;
   int ret;
 
-  /* Allocate a buffer to hold the file system image. */
+  /* Create a RAMDISK device to manage */
 
-  pbuffer = (char*)malloc(BUFFER_SIZE);
-  if (!pbuffer)
-    {
-      printf("create_ramdisk: Failed to allocate ramdisk of size %d\n",
-             BUFFER_SIZE);
-      return -ENOMEM;
-    }
+  desc.minor    = CONFIG_EXAMPLES_MOUNT_RAMDEVNO;    /* Minor device number of the RAM disk. */
+  desc.nsectors = CONFIG_EXAMPLES_MOUNT_NSECTORS;    /* The number of sectors in the RAM disk. */
+  desc.sectsize = CONFIG_EXAMPLES_MOUNT_SECTORSIZE;  /* The size of one sector in bytes. */
+  desc.rdflags  = RDFLAG_WRENABLED | RDFLAG_FUNLINK; /* See ramdisk.h. */
 
-  /* Register a RAMDISK device to manage this RAM image */
-
-  ret = ramdisk_register(CONFIG_EXAMPLES_MOUNT_RAMDEVNO,
-                         (FAR uint8_t *)pbuffer,
-                         CONFIG_EXAMPLES_MOUNT_NSECTORS,
-                         CONFIG_EXAMPLES_MOUNT_SECTORSIZE,
-                         RDFLAG_WRENABLED | RDFLAG_FUNLINK);
+  ret = boardctl(BOARDIOC_MKRD, (uintptr_t)&desc);
   if (ret < 0)
     {
-      printf("create_ramdisk: Failed to register ramdisk at %s: %d\n",
+      printf("create_ramdisk: Failed to create ramdisk at %s: %d\n",
              g_source, -ret);
-      free(pbuffer);
       return ret;
     }
 
@@ -132,7 +112,6 @@ int create_ramdisk(void)
     {
       printf("create_ramdisk: Failed to create FAT filesystem on ramdisk at %s\n",
              g_source);
-      /* free(pbuffer); -- RAM disk is registered */
       return ret;
     }
 
