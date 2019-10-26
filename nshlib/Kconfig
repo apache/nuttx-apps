@@ -12,6 +12,7 @@ config NSH_LIBRARY
 	select NETUTILS_NETLIB if NET
 	select LIBC_NETDB if NET
 	select READLINE_HAVE_EXTMATCH
+	select DRVR_MKRD if !NSH_DISABLE_MKRD
 	---help---
 		Build the NSH support library.  This is used, for example, by
 		system/nsh in order to implement the full NuttShell (NSH).
