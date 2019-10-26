@@ -12,7 +12,9 @@ config NSH_LIBRARY
 	select NETUTILS_NETLIB if NET
 	select LIBC_NETDB if NET
 	select READLINE_HAVE_EXTMATCH
-	select DRVR_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
+	select LIB_BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT || NSH_ROMFSETC
+	select BOARDCTL_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
+	select BOARDCTL_ROMDISK if NSH_ROMFSETC
 	---help---
 		Build the NSH support library.  This is used, for example, by
 		system/nsh in order to implement the full NuttShell (NSH).

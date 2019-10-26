@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/mount.h>
+#include <sys/boardctl.h>
 #include <debug.h>
 #include <errno.h>
 
@@ -65,25 +66,22 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#ifdef CONFIG_DISABLE_MOUNTPOINT
+#  error You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT
+#endif
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+#if defined(CONFIG_NSH_CROMFSETC)
+#  ifndef CONFIG_FS_CROMFS
+#    error You must select CONFIG_FS_CROMFS in your configuration file
+#  endif
+#else
+#  ifndef CONFIG_FS_ROMFS
+#    error You must select CONFIG_FS_ROMFS in your configuration file
+#  endif
+#  ifndef CONFIG_BOARDCTL_ROMDISK
+#    error You must select CONFIG_BOARDCTL_ROMDISK in your configuration file
+#  endif
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -97,14 +95,20 @@ int nsh_romfsetc(void)
 {
   int  ret;
 
-#if !defined(CONFIG_NSH_CROMFSETC)
+#ifndef CONFIG_NSH_CROMFSETC
+  struct boardioc_romdisk_s desc;
+
   /* Create a ROM disk for the /etc filesystem */
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
+  desc.minor    = CONFIG_NSH_ROMFSDEVNO;     /* Minor device number of the RAM disk. */
+  desc.nsectors = NSECTORS(romfs_img_len);   /* The number of sectors in the RAM disk */
+  desc.sectsize = CONFIG_NSH_ROMFSSECTSIZE;  /* The size of one sector in bytes */
+  desc.image    = romfs_img;                 /* File system image */
+
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
     {
-      ferr("ERROR: romdisk_register failed: %d\n", -ret);
+      ferr("ERROR: boardctl(BOARDIOC_ROMDISK) failed: %d\n", -ret);
       return ERROR;
     }
 #endif
@@ -125,6 +129,7 @@ int nsh_romfsetc(void)
            MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
       return ERROR;
     }
+
   return OK;
 }
 

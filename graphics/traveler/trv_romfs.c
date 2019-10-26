@@ -44,6 +44,7 @@
 
 #include <sys/mount.h>
 #include <sys/types.h>
+#include <sys/boardctl.h>
 #include <stdio.h>
 
 #include <nuttx/drivers/ramdisk.h>
@@ -60,6 +61,10 @@
 
 #ifdef CONFIG_DISABLE_MOUNTPOINT
 #  error You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT
+#endif
+
+#ifndef CONFIG_BOARDCTL_ROMDISK
+#  error You must select CONFIG_BOARDCTL_ROMDISK in your configuration file
 #endif
 
 /* Describe the ROMFS file system */
@@ -81,13 +86,18 @@
 
 int trv_mount_world(int minor, FAR const char *mountpoint)
 {
+  struct boardioc_romdisk_s desc;
   char devpath[16];
   int ret;
 
   /* Create a ROM disk for the ROMFS filesystem */
 
-  ret = romdisk_register(minor, (FAR uint8_t *)trv_romfs_img,
-                         NSECTORS(trv_romfs_img_len), SECTORSIZE);
+  desc.minor    = minor;                       /* Minor device number of the RAM disk. */
+  desc.nsectors = NSECTORS(trv_romfs_img_len); /* The number of sectors in the RAM disk */
+  desc.sectsize = SECTORSIZE;                  /* The size of one sector in bytes */
+  desc.image    = trv_romfs_img;               /* File system image */
+
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
     {
       return ret;

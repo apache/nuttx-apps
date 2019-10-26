@@ -874,7 +874,7 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 
 /* The mkrd command depends on boardctl(BOARDIOC_MKRD) */
 
-#if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_DRVR_MKRD)
+#if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_MKRD)
 #  undef CONFIG_NSH_DISABLE_MKRD
 #  define CONFIG_NSH_DISABLE_MKRD 1
 #endif
