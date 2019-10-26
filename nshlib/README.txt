@@ -1494,10 +1494,9 @@ Command Dependencies on Configuration Settings
   2. Special TFTP server start-up options will probably be required to permit
      creation of file for the correct operation of the put command.
   3. CONFIG_FS_READABLE is not a user configuration but is set automatically
-     if any readable file system is selected.  At present, this is either CONFIG_FS_FAT
-     and CONFIG_FS_ROMFS.
+     if any readable file system is selected.
   4. CONFIG_FS_WRITABLE is not a user configuration but is set automatically
-     if any writeable file system is selected.  At present, this is only CONFIG_FS_FAT.
+     if any writable file system is selected.
 
 In addition, each NSH command can be individually disabled via one of the following
 settings.  All of these settings make the configuration of NSH potentially complex but

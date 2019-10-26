@@ -546,26 +546,6 @@
 #  define IOBUFFERSIZE (PATH_MAX + 1)
 #endif
 
-/* Certain commands are not available in a kernel builds because they depend
- * on interfaces that are not exported by the kernel.  These are actually
- * bugs that need to be fixed but for now the commands are simply disabled.
- * There are three classes of fixes required:
- *
- * - Some of these interfaces are inherently internal to the OS (such as
- *   register_ramdisk()) and should never be made available to user
- *   applications as OS interfaces.
- * - Other interfaces are more standard and for these there probably should
- *   be new system calls to support the OS interface.  Such interfaces
- *   include things like mkrd.
- * - Other interfaces simply need to be moved out of the OS and into the C
- *   library where they will become accessible to application code.
- */
-
-#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
-#  undef  CONFIG_NSH_DISABLE_MKRD        /* 'mkrd' depends on ramdisk_register */
-#  define CONFIG_NSH_DISABLE_MKRD 1
-#endif
-
 /* Certain commands/features are only available if the procfs file system is
  * enabled.
  */

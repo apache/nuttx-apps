@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_fscmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2014, 2017-2018 Gregory Nutt. All rights
+ *   Copyright (C) 2007-2009, 2011-2014, 2017-2019 Gregory Nutt. All rights
  *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
@@ -45,10 +45,22 @@
 #include <stdbool.h>
 
 #include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
+#include <dirent.h>
+#include <limits.h>
+#include <libgen.h>
+#include <errno.h>
+#include <debug.h>
+
+
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
 #    include <sys/mount.h>
+#    include <sys/boardctl.h>
 #    include <nuttx/drivers/ramdisk.h>
 #  endif
 #  ifdef CONFIG_DEV_LOOP
@@ -71,16 +83,6 @@
 #    include <nuttx/syslog/ramlog.h>
 #  endif
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <dirent.h>
-#include <limits.h>
-#include <libgen.h>
-#include <errno.h>
-#include <debug.h>
 
 #ifdef CONFIG_FSUTILS_MKFATFS
 #  include "fsutils/mkfatfs.h"
@@ -1348,8 +1350,8 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_MKRD
 int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  const char *fmt;
-  FAR uint8_t *buffer;
+  FAR const char *fmt;
+  struct boardioc_mkrd_s desc;
   uint32_t nsectors;
   bool badarg = false;
   int sectsize = 512;
@@ -1418,28 +1420,17 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       goto errout_with_fmt;
     }
 
-  /* Allocate the memory backing up the ramdisk */
+  /* Then create the ramdisk */
 
-  buffer = (FAR uint8_t *)malloc(sectsize * nsectors);
-  if (!buffer)
-    {
-      fmt = g_fmtcmdoutofmemory;
-      goto errout_with_fmt;
-    }
+  desc.minor    = minor;         /* Minor device number of the RAM disk. */
+  desc.nsectors = nsectors;      /* The number of sectors in the RAM disk. */
+  desc.sectsize = sectsize;      /* The size of one sector in bytes. */
+  desc.rdflags  = RDFLAG_WRENABLED | RDFLAG_FUNLINK;  /* See ramdisk.h. */
 
-#ifdef CONFIG_DEBUG_INFO
-  memset(buffer, 0, sectsize * nsectors);
-#endif
-  finfo("RAMDISK at %p\n", buffer);
-
-  /* Then register the ramdisk */
-
-  ret = ramdisk_register(minor, buffer, nsectors, sectsize,
-                         RDFLAG_WRENABLED | RDFLAG_FUNLINK);
+  ret = boardctl(BOARDIOC_MKRD, (uintptr_t)&desc);
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ramdisk_register", NSH_ERRNO_OF(-ret));
-      free(buffer);
       return ERROR;
     }
 
