@@ -861,11 +861,22 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 #endif
 #endif
 
-/* Architecture-specific initialization */
+/* Certain commands are only available if the boardctl() interface is
+ * available:
+ */
+
+/* Architecture-specific initialization depends on boardctl(BOARDIOC_INIT) */
 
 #if defined(CONFIG_NSH_ARCHINIT) && !defined(CONFIG_LIB_BOARDCTL)
 #  warning CONFIG_NSH_ARCHINIT is set, but CONFIG_LIB_BOARDCTL is not
 #  undef CONFIG_NSH_ARCHINIT
+#endif
+
+/* The mkrd command depends on boardctl(BOARDIOC_MKRD) */
+
+#if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_DRVR_MKRD)
+#  undef CONFIG_NSH_DISABLE_MKRD
+#  define CONFIG_NSH_DISABLE_MKRD 1
 #endif
 
 /* Basic session and message handling */
