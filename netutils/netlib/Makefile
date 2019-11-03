@@ -84,6 +84,14 @@ CSRCS += netlib_server.c netlib_listenon.c
 endif
 endif
 
+# These require Netlink support
+
+ifeq ($(CONFIG_NETLINK_ROUTE),y)
+ifeq ($(CONFIG_NET_ARP),y)
+CSRCS += netlib_getarptab.c
+endif
+endif
+
 # These require wireless IOCTL support */
 
 ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)

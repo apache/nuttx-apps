@@ -312,6 +312,10 @@ int netlib_get_arpmapping(FAR const struct sockaddr_in *inaddr,
                           FAR uint8_t *macaddr);
 int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
                           FAR const uint8_t *macaddr);
+#ifdef CONFIG_NETLINK_ROUTE
+struct arp_enty_s;
+int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries);
+#endif
 #endif
 
 #ifdef HAVE_ROUTE_PROCFS
