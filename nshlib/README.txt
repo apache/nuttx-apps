@@ -1113,9 +1113,9 @@ o route ipv4|ipv6
   If only IPv4 or IPv6 is enabled, then the argument is optional but, if provided,
   must match the enabled internet protocol version.
 
-o rptun <start|stop> <dev-path>
+o rptun start|stop <dev-path>
 
-  Start or stop the OpenAMP RPC tunnel.
+  Start or stop the OpenAMP RPC tunnel device at <dev-path>.
 
 o set [{+|-}{e|x|xe|ex}] [<name> <value>]
 
