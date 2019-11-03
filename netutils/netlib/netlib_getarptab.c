@@ -90,11 +90,12 @@ struct netlib_recvfrom_response_s
  *              size sizeof(struct arp_entry_s)
  *
  * Return:
- *   0 on success; a negated errno value on failure.
+ *   The number of ARP table entries read is returnd on success; a negated
+ *   errno value is returned on failure.
  *
  ****************************************************************************/
 
-int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
+ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentries)
 {
   FAR struct netlib_recvfrom_response_s *resp;
   struct netlib_sendto_request_s req;
@@ -104,7 +105,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
   ssize_t paysize;
   ssize_t maxsize;
   int fd;
-  int ret = EXIT_FAILURE;
+  int ret;
 
   /* Allocate a buffer to hold the response */
 
@@ -114,6 +115,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
   if (resp == NULL)
     {
       fprintf(stderr, "ERROR: Faile to allocat response buffer\n");
+      ret = -ENOMEM;
       return EXIT_FAILURE;
     }
 
@@ -124,6 +126,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: socket() failed: %d\n", errcode);
+      ret = -errcode;
       goto errout_with_resp;
     }
 
@@ -140,6 +143,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: send() failed: %d\n", errcode);
+      ret = -errcode;
       goto errout_with_socket;
     }
 
@@ -148,6 +152,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: recv() failed: %d\n", errcode);
+      ret = -errcode;
       goto errout_with_socket;
     }
 
@@ -157,6 +162,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
       resp->hdr.nlmsg_len > nrecvd)
     {
       fprintf(stderr, "ERROR: Bad message\n");
+      ret = -EIO;
       goto errout_with_socket;
     }
 
@@ -169,7 +175,7 @@ int netlib_get_arptable(FAR struct arp_enty_s *arptab, unsigned int nentries)
     }
 
   memcpy(arptab, resp->data, paysize);
-  ret = EXIT_SUCCESS;
+  ret = paysize / sizeof(struct arp_entry_s);
 
 errout_with_socket:
   close(fd);

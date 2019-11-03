@@ -318,7 +318,7 @@ o addroute <target> [<netmask>] <router>
   The second form of the addroute command can be used to set the default
   gateway.
 
-o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
+o arp [-t|-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
 
   Access the OS ARP table.
 
@@ -331,6 +331,10 @@ o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
   -s <ipaddr> <hwaddr>
      Will set (or replace) the mapping of the IP address <ipaddr> to the
      hardware address <hwaddr>.
+
+  -t
+     Will dump the entire content of the ARP table.  This option is only
+     available if CONFIG_NETLINK_ROUTE is enabled.
 
   Example:
 

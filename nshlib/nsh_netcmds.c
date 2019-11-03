@@ -47,6 +47,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -83,6 +84,10 @@
 #  ifdef CONFIG_WIRELESS_PKTRADIO
 #    include <nuttx/wireless/pktradio.h>
 #  endif
+#endif
+
+#ifdef CONFIG_NETLINK_ROUTE
+#    include <nuttx/net/arp.h>
 #endif
 
 #ifdef CONFIG_NETUTILS_NETLIB
@@ -1049,11 +1054,90 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Forms:
    *
-   * aap -a <ipaddr>
+   * arp -t
+   * arp -a <ipaddr>
    * arp -d <ipdaddr>
    * arp -s <ipaddr> <hwaddr>
    */
 
+#ifdef CONFIG_NETLINK_ROUTE
+  if (strcmp(argv[1], "-t") == 0)
+    {
+      FAR struct arp_entry_s *arptab;
+      size_t arpsize;
+      ssize_t nentries;
+      char ipaddr[16];
+      char ethaddr[24];
+      int i;
+
+      if (argc != 2)
+        {
+          goto errout_toomany;
+        }
+
+      /* Allocate a buffer to hold the ARP table */
+
+      arpsize = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arp_entry_s);
+      arptab  = (FAR struct arp_entry_s *)malloc(arpsize);
+      if (arptab == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+          return ERROR;
+        }
+
+      /* Read the ARP table */
+
+      nentries = netlib_get_arptable(arptab, CONFIG_NET_ARPTAB_SIZE);
+      if (nentries < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], netlib_get_arptable, 
+                    NSH_ERRNO_OF(-nentries));
+          free(arptab);
+          return ERROR;
+        }
+
+      /* Dump the ARP table
+       *
+       * xx.xx.xx.xx xx:xx:xx:xx:xx:xx xxxxxxxx[xxxxxxxx]
+       */
+
+      nsh_output(vtbl, "%-12s %-17s Last Access Time\n",
+                 "IP Address", "Ethernet Address");
+
+      for (i = 0; i < nentries; i++)
+        {
+          FAR uint8_t *ptr;
+
+          /* Convert the IPv4 address to a string */
+
+          ptr = (FAR uint8_t *)&arptab[i].at_ipaddr;
+          snprintf(ipaddr, 16, "%u.%u.%u.%u",
+                   ptr[0], ptr[1], ptr[2], ptr[3]);
+
+          /* Convert the MAC address string to a binary */
+
+          snprintf(ethaddr, 24, "%02x:%02x:%02x:%02x:%02x:%02x",
+                   arptab[i].at_ethaddr.ether_addr_octet[0],
+                   arptab[i].at_ethaddr.ether_addr_octet[1],
+                   arptab[i].at_ethaddr.ether_addr_octet[2],
+                   arptab[i].at_ethaddr.ether_addr_octet[3],
+                   arptab[i].at_ethaddr.ether_addr_octet[4],
+                   arptab[i].at_ethaddr.ether_addr_octet[5]);
+
+#ifdef CONFIG_SYSTEM_TIME64
+          nsh_output(vtbl, "%12s %17s 0x%" PRIx64 "\n",
+                     ipaddr, ethaddr, (uint64_t)arptab[i].at_time);
+#else
+          nsh_output(vtbl, "%12s %17s 0x%" PRIx32 "\n",
+                     ipaddr, ethaddr, (uint32_t)arptab[i].at_time);
+#endif
+        }
+
+      free(arptab);
+      ret = OK;
+    }
+  else
+#endif
   if (strcmp(argv[1], "-a") == 0)
     {
       if (argc != 3)
