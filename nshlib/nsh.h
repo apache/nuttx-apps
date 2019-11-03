@@ -109,19 +109,6 @@
  * domain sockets were enable.
  */
 
-#if !defined(CONFIG_NET_ETHERNET)   && !defined(CONFIG_NET_6LOWPAN) && \
-    !defined(CONFIG_NET_IEEE802154) && !defined(CONFIG_NET_LOOPBACK) && \
-    !defined(CONFIG_NET_SLIP)       &&  !defined(CONFIG_NET_TUN)
-  /* No link layer protocol is a good indication that there is no network
-   * device.
-   */
-
-#  undef CONFIG_NSH_DISABLE_IFUPDOWN
-#  undef CONFIG_NSH_DISABLE_IFCONFIG
-#  define CONFIG_NSH_DISABLE_IFUPDOWN 1
-#  define CONFIG_NSH_DISABLE_IFCONFIG 1
-#endif
-
 /* Telnetd requires networking support */
 
 #ifndef CONFIG_NET
