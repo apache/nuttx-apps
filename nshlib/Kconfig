@@ -487,6 +487,11 @@ config NSH_DISABLE_ROUTE
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
+config NSH_DISABLE_RPTUN
+	bool "Disable rptun"
+	default n
+	depends on RPTUN
+
 config NSH_DISABLE_SET
 	bool "Disable set"
 	default n

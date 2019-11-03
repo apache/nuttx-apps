@@ -39,8 +39,11 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/rptun/rptun.h>
 #include <sys/boardctl.h>
+#include <sys/ioctl.h>
 #include <sys/utsname.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -235,6 +238,49 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
   return ERROR;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_rptun
+ ****************************************************************************/
+
+#if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
+int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  int fd, cmd;
+
+  if (argc < 3)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+
+  if (strcmp(argv[1], "start") == 0)
+    {
+      cmd = RPTUNIOC_START;
+    }
+  else if (strcmp(argv[1], "stop") == 0)
+    {
+      cmd = RPTUNIOC_STOP;
+    }
+  else
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[1]);
+      return ERROR;
+    }
+
+  fd = open(argv[2], 0);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[2]);
+      return ERROR;
+    }
+
+  ioctl(fd, cmd, 0);
+
+  close(fd);
+  return 0;
 }
 #endif
 
