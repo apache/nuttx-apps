@@ -99,6 +99,9 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
 {
   FAR struct netlib_recvfrom_response_s *resp;
   struct netlib_sendto_request_s req;
+  struct sockaddr_nl addr;
+  static unsigned int seqno = 0;
+  unsigned int thiseq;
   unsigned int allocsize;
   ssize_t nsent;
   ssize_t nrecvd;
@@ -107,14 +110,14 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
   int fd;
   int ret;
 
-  /* Allocate a buffer to hold the response */
+  /* Pre-allocate a buffer to hold the response */
 
   maxsize   = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arp_entry_s);
   allocsize = SIZEOF_NETLIB_RECVFROM_RESPONSE_S(maxsize);
   resp = (FAR struct netlib_recvfrom_response_s *)malloc(allocsize);
   if (resp == NULL)
     {
-      fprintf(stderr, "ERROR: Faile to allocat response buffer\n");
+      fprintf(stderr, "ERROR: Failed to allocate response buffer\n");
       ret = -ENOMEM;
       return EXIT_FAILURE;
     }
@@ -130,11 +133,29 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
       goto errout_with_resp;
     }
 
+  /* Bind the socket so that we can use send() and receive() */
+
+  memset(&addr, 0, sizeof(struct sockaddr_nl));
+  addr.nl_family = AF_NETLINK;
+  addr.nl_groups = RTM_GETNEIGH;
+
+  ret = bind(fd, &addr, sizeof( struct sockaddr_nl));
+  if (fd < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);
+      ret = -errcode;
+      goto errout_with_socket;
+    }
+
   /* Initialize the request */
+
+  thiseq = ++seqno;
 
   memset(&req, 0, sizeof(req));
   req.hdr.nlmsg_len   = NLMSG_LENGTH(sizeof(struct ndmsg));
   req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_REQUEST;
+  req.hdr.nlmsg_seq   = thiseq;
   req.hdr.nlmsg_type  = RTM_GETNEIGH;
   req.msg.ndm_family  = AF_INET;
 
@@ -146,6 +167,20 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
       ret = -errcode;
       goto errout_with_socket;
     }
+
+  /* Initialize the response buffer.
+   * REVISIT:  Linux examples that I have seen just pass a raw buffer.  I am
+   * not sure how they associate the requested data to the recv() without a
+   * sequence number.
+   */
+
+  memset(&resp->hdr, 0, sizeof(resp->hdr));
+  resp->hdr.nlmsg_len  = NLMSG_LENGTH(sizeof(struct ndmsg));
+  resp->hdr.nlmsg_seq  = thiseq;
+  resp->hdr.nlmsg_type = RTM_GETNEIGH;
+
+  memset(&resp->msg, 0, sizeof(resp->msg));
+  resp->msg.ndm_family = AF_INET;
 
   nrecvd = recv(fd, resp, allocsize, 0);
   if (nrecvd < 0)
@@ -179,6 +214,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
 
 errout_with_socket:
   close(fd);
+
 errout_with_resp:
   free(resp);
   return ret;

@@ -208,7 +208,7 @@ int tftp_parseerrpacket(const uint8_t *buffer)
 
   if (opcode == TFTP_ERR)
     {
-      ninfo("ERR message: %s (%d)\n", errmsg, errcode);
+      nwarn("WARNING: ERR message: %s (%d)\n", errmsg, errcode);
       return OK;
     }
 
