@@ -86,11 +86,11 @@ struct netlib_recvfrom_response_s
  *
  * Parameters:
  *   arptab   - The location to store the copy of the ARP table
- *   nentries - The size of the provided arptab in number of entries of
- *              size sizeof(struct arp_entry_s)
+ *   nentries - The size of the provided 'arptab' in number of entries each
+ *              of size sizeof(struct arp_entry_s)
  *
  * Return:
- *   The number of ARP table entries read is returnd on success; a negated
+ *   The number of ARP table entries read is returned on success; a negated
  *   errno value is returned on failure.
  *
  ****************************************************************************/
@@ -122,7 +122,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
       return EXIT_FAILURE;
     }
 
-  /* Create a netlink socket with NETLINK_ROUTE protocol */
+  /* Create a NetLink socket with NETLINK_ROUTE protocol */
 
   fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
   if (fd < 0)
@@ -191,7 +191,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
 
    /* The sequence number in the response should match the sequence
     * number in the request (since we created the socket, this should
-    * always be tree).
+    * always be true).
     */
 
    if (resp->hdr.nlmsg_seq != thiseq)
