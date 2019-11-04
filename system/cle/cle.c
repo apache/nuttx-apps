@@ -172,8 +172,8 @@ struct cle_s
   uint16_t coloffs;         /* Left cursor offset */
   uint16_t linelen;         /* Size of the line buffer */
   uint16_t nchars;          /* Size of data in the line buffer */
-  int infd;                 /* Input file descriptor */
-  int outfd;                /* Output file descriptor */
+  FAR FILE *ins;            /* Input file stream */
+  FAR FILE *outs;           /* Output file stream */
   FAR char *line;           /* Line buffer */
   FAR const char *prompt;   /* Prompt, in case we have to re-print it */
 };
@@ -297,9 +297,9 @@ static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
 
   do
     {
-      /* Take the next gulp */
+      /* Put the next gulp */
 
-      nwritten = write(priv->outfd, buffer, buflen);
+      nwritten = fwrite(buffer, sizeof(char), buflen, priv->outs);
 
       /* Handle write errors.  write() should neve return 0. */
 
@@ -327,6 +327,8 @@ static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
         }
     }
   while (nremaining > 0);
+
+  fflush(priv->outs);
 }
 
 /****************************************************************************
@@ -363,7 +365,7 @@ static int cle_getch(FAR struct cle_s *priv)
     {
       /* Read one character from the incoming stream */
 
-      nread = read(priv->infd, &buffer, 1);
+      nread = fread (&buffer, sizeof(char), 1, priv->ins);
 
       /* Check for error or end-of-file. */
 
@@ -520,118 +522,70 @@ static int cle_getcursor(FAR struct cle_s *priv, FAR uint16_t *prow,
 
   cle_write(priv, g_getcursor, sizeof(g_getcursor));
 
-  /* We expect to get ESC[v;hR where v is the row and h is the column */
+  /* We expect to get back ESC[v;hR where v is the row and h is the column.
+   * once the sequence has started we don't expect any characters
+   * interspersed.
+   */
 
-  nbad = 0;
-  for (; ; )
+  for (nbad = 0; nbad < 10; nbad++)
     {
-      /* Get the next character from the input */
+      /* Look for initial ESC */
 
       ch = cle_getch(priv);
-      if (ch == ASCII_ESC)
+      if (ch != ASCII_ESC)
         {
-          break;
+          continue;
         }
-      else if (ch < 0)
-        {
-          return -EIO;
-        }
-      else if (++nbad > 3)
-        {
-          /* We are probably talking to a non-VT100 terminal! */
 
-          return -EINVAL;
-        }
-    }
-
-  /* Have ESC, now we expect '[' */
-
-  nbad = 0;
-  for (; ; )
-    {
-      /* Get the next character from the input */
+      /* Have ESC, now we expect '[' */
 
       ch = cle_getch(priv);
-      if (ch == '[')
+      if (ch != '[')
         {
-          break;
+          continue;
         }
-      else if (ch < 0)
+
+      /* ...now we expect to see a numeric value terminated with ';' */
+
+      row = 0;
+
+      while (isdigit(ch = cle_getch(priv)))
         {
-          return -EIO;
+          row = row * 10 + (ch - '0');
+        }
+
+      if (ch != ';')
+        {
+          continue;
+        }
+
+      /* ...now we expect to see another numeric value terminated with 'R' */
+
+      column = 0;
+      while (isdigit(ch = cle_getch(priv)))
+        {
+          column = 10 * column + (ch - '0');
+        }
+
+      /* ...we are done */
+
+      cleinfo("row=%ld column=%ld\n", row, column);
+
+      /* Make sure that the values are within range */
+
+      if (row <= UINT16_MAX && column <= UINT16_MAX)
+        {
+          *prow = row;
+          *pcolumn = column;
+          return OK;
         }
       else
         {
-          /* We are probably talking to a non-VT100 terminal! */
-
-          return -EINVAL;
+          return -ERANGE;
         }
     }
 
-  /* Have ESC'['.  Now we expect to see a numeric value terminated with ';' */
-
-  row = 0;
-  for (; ; )
-    {
-      /* Get the next character from the input */
-
-      ch = cle_getch(priv);
-      if (isdigit(ch))
-        {
-          row = 10*row + (ch - '0');
-        }
-      else if (ch == ';')
-        {
-          break;
-        }
-      else if (ch < 0)
-        {
-          return -EIO;
-        }
-      else
-        {
-          return -EINVAL;
-        }
-    }
-
-  /* Have ESC'['v';'.  Now we expect to see another numeric value terminated with 'R' */
-
-  column = 0;
-  for (; ; )
-    {
-      /* Get the next character from the input */
-
-      ch = cle_getch(priv);
-      if (isdigit(ch))
-        {
-          column = 10*column + (ch - '0');
-        }
-      else if (ch == 'R')
-        {
-          break;
-        }
-      else if (ch < 0)
-        {
-          return -EIO;
-        }
-      else
-        {
-          return -EINVAL;
-        }
-    }
-
-  cleinfo("row=%ld column=%ld\n", row, column);
-
-  /* Make sure that the values are within range */
-
-  if (row <= UINT16_MAX && column <= UINT16_MAX)
-    {
-      *prow    = row;
-      *pcolumn = column;
-      return OK;
-    }
-
-  return -ERANGE;
+  return -EINVAL;
 }
 
 /****************************************************************************
@@ -891,8 +845,8 @@ static int cle_editloop(FAR struct cle_s *priv)
                       case '3':    /* ESC[3~  = DEL */
                         {
                           state = ch;
+                          continue;
                         }
-                        continue;
 
                       case 'A':
                         {
@@ -943,6 +897,7 @@ static int cle_editloop(FAR struct cle_s *priv)
                     {
                       ch = KEY_ENDLINE;
                     }
+
                   break; /* Break the 'for' loop */
                }
               else if (state == '3')
@@ -951,6 +906,7 @@ static int cle_editloop(FAR struct cle_s *priv)
                     {
                       ch = KEY_DEL;
                     }
+
                   break; /* Break the 'for' loop */
                 }
               else
@@ -996,6 +952,7 @@ static int cle_editloop(FAR struct cle_s *priv)
                   {
                     g_cmd_history_steps_from_head = -(g_cmd_history_len - 1);
                   }
+
                 break;
 
               case KEY_DN:
@@ -1008,6 +965,7 @@ static int cle_editloop(FAR struct cle_s *priv)
                   {
                     g_cmd_history_steps_from_head = 1;
                   }
+
                 break;
 
               default:
@@ -1043,6 +1001,7 @@ static int cle_editloop(FAR struct cle_s *priv)
 
                   priv->curpos = priv->nchars;
                 }
+
               continue;
             }
         }
@@ -1226,10 +1185,8 @@ int cle(FAR char *line, const char *prompt, uint16_t linelen,
   priv.linelen  = linelen;
   priv.line     = line;
 
-  /* REVISIT:  Non-standard, non-portable */
-
-  priv.infd     = instream->fs_fd;
-  priv.outfd    = outstream->fs_fd;
+  priv.ins      = instream;
+  priv.outs     = outstream;
 
   /* Store the prompt in case we need to re-print it */
 
@@ -1239,6 +1196,7 @@ int cle(FAR char *line, const char *prompt, uint16_t linelen,
   /* Get the current cursor position */
 
   ret = cle_getcursor(&priv, &priv.row, &column);
+
   if (ret < 0)
     {
       return ret;

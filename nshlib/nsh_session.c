@@ -149,7 +149,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
         {
           fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_session",
                   "cle", NSH_ERRNO_OF(-ret));
-          return ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+          continue;
         }
 #else
       /* Display the prompt string */
