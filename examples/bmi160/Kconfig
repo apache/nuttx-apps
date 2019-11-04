@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SIXAXIS
+	bool "BMI160 sensor example"
+	default n
+	---help---
+		Enable the 6 axis sensor example
+
+if EXAMPLES_SIXAXIS
+
+config EXAMPLES_SIXAXIS_PROGNAME
+	string "Program name"
+	default "sixaxis"
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SIXAXIS_PRIORITY
+	int "sixaxis task priority"
+	default 100
+
+config EXAMPLES_SIXAXIS_STACKSIZE
+	int "sixaxis stack size"
+	default 2048
+
+endif
