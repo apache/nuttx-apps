@@ -984,6 +984,10 @@ o passwd <username> <password>
 
   Set the password for the existing user <username> to <password>
 
+o pmconfig [stay|relax] [normal|idle|standby|sleep]
+
+  Control power management subsystem.
+
 o poweroff [<n>]
 
   Shutdown and power off the system.  This command depends on board-
@@ -1465,6 +1469,7 @@ Command Dependencies on Configuration Settings
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NET && CONFIG_NFS
   nslookup   CONFIG_LIBC_NETDB && CONFIG_NETDB_DNSCLIENT
   password   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
+  pmconfig   CONFIG_PM && !CONFIG_NSH_DISABLE_PMCONFIG
   poweroff   CONFIG_BOARDCTL_POWEROFF
   ps         CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_PROC
   put        CONFIG_NET && CONFIG_NET_UDP && MTU >= 558 (see note 1,2)
