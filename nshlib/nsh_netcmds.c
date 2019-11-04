@@ -1125,10 +1125,10 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                    arptab[i].at_ethaddr.ether_addr_octet[5]);
 
 #ifdef CONFIG_SYSTEM_TIME64
-          nsh_output(vtbl, "%12s %17s 0x%" PRIx64 "\n",
+          nsh_output(vtbl, "%-12s %-17s 0x%" PRIx64 "\n",
                      ipaddr, ethaddr, (uint64_t)arptab[i].at_time);
 #else
-          nsh_output(vtbl, "%12s %17s 0x%" PRIx32 "\n",
+          nsh_output(vtbl, "%-12s %-17s 0x%" PRIx32 "\n",
                      ipaddr, ethaddr, (uint32_t)arptab[i].at_time);
 #endif
         }
