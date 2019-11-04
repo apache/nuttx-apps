@@ -1,0 +1,31 @@
+
+config EXAMPLES_CHARGER
+	bool "Battery charger example"
+	default n
+	---help---
+		This application is an example of using charger deivce.
+
+if EXAMPLES_CHARGER
+
+config EXAMPLES_CHARGER_DEVNAME
+	string "Charger device name"
+	default "/dev/bat"
+	---help---
+		Set create charger device name.
+
+config EXAMPLES_CHARGER_PROGNAME
+	string "Program name"
+	default "charger"
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_CHARGER_PRIORITY
+	int "charger task priority"
+	default 100
+
+config EXAMPLES_CHARGER_STACKSIZE
+	int "charger stack size"
+	default 2048
+
+endif

@@ -1,0 +1,4 @@
+
+ifeq ($(CONFIG_EXAMPLES_CHARGER),y)
+CONFIGURED_APPS += examples/charger
+endif
