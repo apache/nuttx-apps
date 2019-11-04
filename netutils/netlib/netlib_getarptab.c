@@ -168,19 +168,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
       goto errout_with_socket;
     }
 
-  /* Initialize the response buffer.
-   * REVISIT:  Linux examples that I have seen just pass a raw buffer.  I am
-   * not sure how they associate the requested data to the recv() without a
-   * sequence number.
-   */
-
-  memset(&resp->hdr, 0, sizeof(resp->hdr));
-  resp->hdr.nlmsg_len  = NLMSG_LENGTH(sizeof(struct ndmsg));
-  resp->hdr.nlmsg_seq  = thiseq;
-  resp->hdr.nlmsg_type = RTM_GETNEIGH;
-
-  memset(&resp->msg, 0, sizeof(resp->msg));
-  resp->msg.ndm_family = AF_INET;
+  /* Read the response */
 
   nrecvd = recv(fd, resp, allocsize, 0);
   if (nrecvd < 0)
@@ -200,6 +188,18 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
       ret = -EIO;
       goto errout_with_socket;
     }
+
+   /* The sequence number in the response should match the sequence
+    * number in the request (since we created the socket, this should
+    * always be tree).
+    */
+
+   if (resp->hdr.nlmsg_seq != thiseq)
+     {
+      fprintf(stderr, "ERROR: Bad sequence number in response\n");
+      ret = -EIO;
+      goto errout_with_socket;
+     }
 
   /* Copy the ARP table data to the caller's buffer */
 
