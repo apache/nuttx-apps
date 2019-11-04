@@ -430,6 +430,11 @@ config NSH_DISABLE_PASSWD
 	default y
 	depends on NSH_LOGIN_PASSWD && FS_WRITABLE && !FSUTILS_PASSWD_READONLY
 
+config NSH_DISABLE_PMCONFIG
+	bool "Disable pmconfig"
+	default n
+	depends on PM
+
 config NSH_DISABLE_POWEROFF
 	bool "Disable poweroff"
 	default n if !DEFAULT_SMALL

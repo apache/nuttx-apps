@@ -378,6 +378,10 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
+#if defined(CONFIG_PM) && !defined(CONFIG_NSH_DISABLE_PMCONFIG)
+  { "pmconfig", cmd_pmconfig,  1, 3, "[stay|relax] [normal|idle|standby|sleep]" },
+#endif
+
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
   { "poweroff", cmd_poweroff,  1, 2, NULL },
 #endif

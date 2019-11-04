@@ -1163,6 +1163,10 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#if defined(CONFIG_PM) && !defined(CONFIG_NSH_DISABLE_PMCONFIG)
+int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
   int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif

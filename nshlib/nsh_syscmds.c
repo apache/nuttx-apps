@@ -182,6 +182,99 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif /* CONFIG_BOARDCTL_POWEROFF && !CONFIG_NSH_DISABLE_SHUTDOWN */
 
 /****************************************************************************
+ * Name: cmd_pmconfig
+ ****************************************************************************/
+
+#if defined(CONFIG_PM) && !defined(CONFIG_NSH_DISABLE_PMCONFIG)
+int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  struct boardioc_pm_ctrl_s ctrl =
+  {
+  };
+
+  if (argc == 1)
+    {
+      int current_state;
+      int normal_count;
+      int idle_count;
+      int standby_count;
+      int sleep_count;
+
+      ctrl.action = BOARDIOC_PM_QUERYSTATE;
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+      current_state = ctrl.state;
+
+      ctrl.action = BOARDIOC_PM_STAYCOUNT;
+      ctrl.state = PM_NORMAL;
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+      normal_count = ctrl.count;
+
+      ctrl.state = PM_IDLE;
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+      idle_count = ctrl.count;
+
+      ctrl.state = PM_STANDBY;
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+      standby_count = ctrl.count;
+
+      ctrl.state = PM_SLEEP;
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+      sleep_count = ctrl.count;
+
+      nsh_output(vtbl, "Current state %d, PM stay [%d, %d, %d, %d]\n",
+        current_state, normal_count, idle_count, standby_count, sleep_count);
+    }
+  else if (argc == 3)
+    {
+      if (strcmp(argv[1], "stay") == 0)
+        {
+          ctrl.action = BOARDIOC_PM_STAY;
+        }
+      else if (strcmp(argv[1], "relax") == 0)
+        {
+          ctrl.action = BOARDIOC_PM_RELAX;
+        }
+      else
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[1]);
+          return ERROR;
+        }
+
+      if (strcmp(argv[2], "normal") == 0)
+        {
+          ctrl.state = PM_NORMAL;
+        }
+      else if (strcmp(argv[2], "idle") == 0)
+        {
+          ctrl.state = PM_IDLE;
+        }
+      else if (strcmp(argv[2], "standby") == 0)
+        {
+          ctrl.state = PM_STANDBY;
+        }
+      else if (strcmp(argv[2], "sleep") == 0)
+        {
+          ctrl.state = PM_SLEEP;
+        }
+      else
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[2]);
+          return ERROR;
+        }
+
+      boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+    }
+  else
+    {
+      nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
+      return ERROR;
+    }
+
+  return 0;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_poweroff
  ****************************************************************************/
 
