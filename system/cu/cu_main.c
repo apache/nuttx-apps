@@ -100,7 +100,7 @@ static struct cu_globals_s g_cu;
 
 static FAR void *cu_listener(FAR void *parameter)
 {
-  for (;;)
+  for (; ; )
     {
       int rc;
       char ch;
@@ -290,7 +290,8 @@ int main(int argc, FAR char *argv[])
   sa.sa_handler = sigint;
   sigaction(SIGKILL, &sa, NULL);
 
-  while ((option = getopt(argc, argv, "l:s:eor?")) != ERROR)
+  optind = 0;   /* global that needs to be reset in FLAT mode */
+  while ((option = getopt(argc, argv, "l:s:ehor?")) != ERROR)
     {
       switch (option)
         {
@@ -314,6 +315,7 @@ int main(int argc, FAR char *argv[])
             rtscts = 0;
             break;
 
+          case 'h':
           case '?':
             print_help();
             return EXIT_SUCCESS;
@@ -357,6 +359,10 @@ int main(int argc, FAR char *argv[])
       goto errout_with_fds;
     }
 
+  /* Set priority of listener to configured value */
+
+  attr.priority = CONFIG_SYSTEM_CUTERM_PRIORITY;
+
   ret = pthread_create(&g_cu.listener, &attr,
                        cu_listener, (pthread_addr_t)0);
   if (ret != 0)
@@ -367,13 +373,13 @@ int main(int argc, FAR char *argv[])
 
   /* Send messages and get responses -- forever */
 
-  for (;;)
+  for (; ; )
     {
       int ch = getc(stdin);
 
       if (ch <= 0)
         {
-          break;
+          continue;
         }
 
       if (start_of_line == 1 && ch == '~')
