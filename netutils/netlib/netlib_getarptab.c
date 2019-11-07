@@ -41,6 +41,7 @@
 
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <errno.h>
@@ -135,11 +136,13 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab, unsigned int nentrie
 
   /* Bind the socket so that we can use send() and receive() */
 
-  memset(&addr, 0, sizeof(struct sockaddr_nl));
   addr.nl_family = AF_NETLINK;
+  addr.nl_pad    = 0;
+  addr.nl_pid    = getpid();
   addr.nl_groups = RTM_GETNEIGH;
 
-  ret = bind(fd, &addr, sizeof( struct sockaddr_nl));
+  ret = bind(fd, (FAR const struct sockaddr *)&addr,
+             sizeof( struct sockaddr_nl));
   if (fd < 0)
     {
       int errcode = errno;
