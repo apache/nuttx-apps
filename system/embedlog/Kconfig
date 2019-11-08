@@ -58,7 +58,7 @@ config EMBEDLOG_ENABLE_OUT_TTY
 	default y
 	---help---
 		If enabled, you will be able to configure logger to print directly
-		to tty serial device (like /dev/ttyS1). This might be usefull if you
+		to tty serial device (like /dev/ttyS1). This might be useful if you
 		want to have nsh in one tty and logs on the other. This is suitable
 		if only one task will be printing logs to one tty, if you want
 		multiple tasks to print into one tty, it's better to enable syslog

@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_proccmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2014-2015, 2019 Gregory Nutt. All
+ *     rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -157,26 +158,29 @@ static void nsh_parse_statusline(FAR char *line,
    *
    *            111111111122222222223
    *   123456789012345678901234567890
-   *   Name:       xxxx...            Task/thread name (See CONFIG_TASK_NAME_SIZE)
+   *   Name:       xxxx...            Task/thread name
+   *                                  (See CONFIG_TASK_NAME_SIZE)
    *   Type:       xxxxxxx            {Task, pthread, Kthread, Invalid}
    *   Type:       xxxxxxx            {Task, pthread, Kthread, Invalid}
    *   PPID:       xxxxx              Parent thread ID
-   *   State:      xxxxxxxx,xxxxxxxxx {Invalid, Waiting, Ready, Running, Inactive},
-   *                                  {Unlock, Semaphore, Signal, MQ empty, MQ full}
+   *   State:      xxxxxxxx,xxxxxxxxx {Invalid, Waiting, Ready, Running,
+   *                                  Inactive}, {Unlock, Semaphore, Signal,
+   *                                   MQ empty, MQ full}
    *   Flags:      xxx                N,P,X
    *   Priority:   nnn                Decimal, 0-255
-   *   Scheduler:  xxxxxxxxxxxxxx     {SCHED_FIFO, SCHED_RR, SCHED_SPORADIC, SCHED_OTHER}
+   *   Scheduler:  xxxxxxxxxxxxxx     {SCHED_FIFO, SCHED_RR, SCHED_SPORADIC,
+   *                                  SCHED_OTHER}
    *   Sigmask:    nnnnnnnn           Hexadecimal, 32-bit
    */
 
 #if 0 /* Not used */
- /* Task name */
+  /* Task name */
 
- if (strncmp(line, g_name, strlen(g_name)) == 0)
-   {
-     /* Not used */
-   }
- else
+  if (strncmp(line, g_name, strlen(g_name)) == 0)
+    {
+      /* Not used */
+    }
+  else
 #endif
   /* Task/thread type */
 
@@ -251,9 +255,9 @@ static void nsh_parse_statusline(FAR char *line,
     }
   else if (strncmp(line, g_scheduler, strlen(g_scheduler)) == 0)
     {
-      /* Skip over the SCHED_ part of the policy.  Resultis max 8 bytes */
+      /* Skip over the SCHED_ part of the policy.  Result is max 8 bytes. */
 
-      status->td_policy = nsh_trimspaces(&line[12+6]);
+      status->td_policy = nsh_trimspaces(&line[12 + 6]);
     }
   else if (strncmp(line, g_sigmask, strlen(g_sigmask)) == 0)
     {
@@ -348,7 +352,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
           nextline = vtbl->iobuffer;
           do
             {
-              /* Find the beginning of the next line and NUL-terminat the
+              /* Find the beginning of the next line and NUL-terminate the
                * current line.
                */
 
@@ -510,7 +514,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%6s ", nsh_trimspaces(vtbl->iobuffer));
 #endif
 
-  /* Read the task/tread command line */
+  /* Read the task/thread command line */
 
   filepath = NULL;
   ret = asprintf(&filepath, "%s/%s/cmdline", dirpath, entryp->d_name);
@@ -551,8 +555,8 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   addr = (uintptr_t)strtol(argv[1], &endptr, 0);
   if (!addr || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-       return ERROR;
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
     }
 
   nsh_output(vtbl, "Calling %p\n", (exec_t)addr);
@@ -635,7 +639,7 @@ int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       goto invalid_arg;
     }
 
-  /* Extract athe pid */
+  /* Extract the pid */
 
   pid = strtol(ptr, &endptr, 0);
 
@@ -688,8 +692,8 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   secs = strtol(argv[1], &endptr, 0);
   if (!secs || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-       return ERROR;
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
     }
 
   sleep(secs);
@@ -710,8 +714,8 @@ int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   usecs = strtol(argv[1], &endptr, 0);
   if (!usecs || endptr == argv[1] || *endptr != '\0')
     {
-       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-       return ERROR;
+      nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
     }
 
   usleep(usecs);

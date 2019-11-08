@@ -283,6 +283,12 @@ config NSH_DISABLE_DIRNAME
 	default y if DEFAULT_SMALL || NSH_DISABLESCRIPT
 	default n if !DEFAULT_SMALL && !NSH_DISABLESCRIPT
 
+config NSH_DISABLE_DMESG
+	bool "Disable dmesg"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	depends on RAMLOG_SYSLOG
+
 config NSH_DISABLE_ECHO
 	bool "Disable echo"
 	default n

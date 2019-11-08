@@ -288,7 +288,7 @@
 	* apps/examples/ostest/prioinherit.c:  Limit the number of test
 	  threads to no more than 3 of each priority.  Bad things happen
 	  when the existing logic tried to created several hundred test
-	  treads!
+	  threads!
 	* apps/nshlib/nsh.h:  Both CONFIG_LIBC_STRERROR and CONFIG_NSH_STRERROR
 	  must be defined to use strerror() with NSH.
 	* apps/examples/*/*_main.c, system/i2c/i2c_main.c, and others:  Added
@@ -3623,7 +3623,7 @@
 	  PASSED for Back to Back test.  From Johannes (2019-02-15).
 	* configs/system/embedlog:  Update to version 0.4.0.  From Michal Lyszczek
 	  (2019-02-15).
-	* app/examples/embedlog:  This example program presents most usefull
+	* app/examples/embedlog:  This example program presents most useful
 	  features of embedlog library and how to use them.  From Michal Lyszczek
 	  (2019-02-15).
 	* system/nxplayer and nxrecorder:  Change 'int prio' to 'unsigned int prio'.
