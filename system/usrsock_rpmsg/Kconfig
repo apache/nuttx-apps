@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_USRSOCK_RPMSG
+	tristate "RPMSG usrsock"
+	default n
+	depends on NET && OPENAMP
+	---help---
+		Enable usrsock through rpmsg channel.
+
+if SYSTEM_USRSOCK_RPMSG
+
+config SYSTEM_USRSOCK_RPMSG_PRIORITY
+	int "usrsock task priority"
+	default 80
+	---help---
+		The priority for usrsock task.
+
+config SYSTEM_USRSOCK_RPMSG_STACKSIZE
+	int "usrsock task stack size"
+	default 2048
+	---help---
+		The stack size allocated for the usrsock task.
+
+endif # SYSTEM_USRSOCK_RPMSG
