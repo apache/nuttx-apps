@@ -297,6 +297,12 @@ int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
 
 uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
 void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
+#ifdef CONFIG_NETLINK_ROUTE
+struct neighbor_entry_s;
+ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
+                           unsigned int nentries);
+#endif
+
 #endif
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL

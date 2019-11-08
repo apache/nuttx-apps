@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getarptab.c
+ * netutils/netlib/netlib_getntab.c
  *
  *   Copyright (C) 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -48,11 +48,11 @@
 
 #include <netpacket/netlink.h>
 
-#include <nuttx/net/arp.h>
+#include <nuttx/net/neighbor.h>
 
 #include "netutils/netlib.h"
 
-#if defined(CONFIG_NET_ARP) && defined(CONFIG_NETLINK_ROUTE)
+#if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETLINK_ROUTE)
 
 /****************************************************************************
  * Private Types
@@ -80,24 +80,24 @@ struct netlib_recvfrom_response_s
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_get_arptable
+ * Name: netlib_get_nbtable
  *
  * Description:
- *   Attempt to read the entire ARP table into a buffer.
+ *   Attempt to read the entire Neighbor table into a buffer.
  *
  * Parameters:
- *   arptab   - The location to store the copy of the ARP table
- *   nentries - The size of the provided 'arptab' in number of entries each
- *              of size sizeof(struct arp_entry_s)
+ *   nbtab    - The location to store the copy of the Neighbor table
+ *   nentries - The size of the provided 'nbtab' in number of entries each
+ *              of size sizeof(struct neighbor_entry_s)
  *
  * Return:
- *   The number of ARP table entries read is returned on success; a negated
- *   errno value is returned on failure.
+ *   The number of Neighbor table entries read is returned on success; a
+ *   negated errno value is returned on failure.
  *
  ****************************************************************************/
 
-ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
-                            unsigned int nentries)
+ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
+                           unsigned int nentries)
 {
   FAR struct netlib_recvfrom_response_s *resp;
   struct netlib_sendto_request_s req;
@@ -114,7 +114,8 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
 
   /* Pre-allocate a buffer to hold the response */
 
-  maxsize   = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arp_entry_s);
+  maxsize   = CONFIG_NET_IPv6_NCONF_ENTRIES *
+              sizeof(struct neighbor_entry_s);
   allocsize = SIZEOF_NETLIB_RECVFROM_RESPONSE_S(maxsize);
   resp = (FAR struct netlib_recvfrom_response_s *)malloc(allocsize);
   if (resp == NULL)
@@ -161,7 +162,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
   req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_REQUEST;
   req.hdr.nlmsg_seq   = thiseq;
   req.hdr.nlmsg_type  = RTM_GETNEIGH;
-  req.msg.ndm_family  = AF_INET;
+  req.msg.ndm_family  = AF_INET6;
 
   nsent = send(fd, &req, req.hdr.nlmsg_len, 0);
   if (nsent < 0)
@@ -183,7 +184,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
       goto errout_with_socket;
     }
 
-  /* Verify the data and transfer the ARP table data to the caller */
+  /* Verify the data and transfer the Neighbor table data to the caller */
 
   if (resp->hdr.nlmsg_len < sizeof(struct nlmsghdr) ||
       resp->hdr.nlmsg_len > nrecvd)
@@ -205,7 +206,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
       goto errout_with_socket;
      }
 
-  /* Copy the ARP table data to the caller's buffer */
+  /* Copy the Neighbor table data to the caller's buffer */
 
   paysize = resp->attr.rta_len;
   if (paysize > maxsize)
@@ -213,8 +214,8 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
       paysize = maxsize;
     }
 
-  memcpy(arptab, resp->data, paysize);
-  ret = paysize / sizeof(struct arp_entry_s);
+  memcpy(nbtab, resp->data, paysize);
+  ret = paysize / sizeof(struct neighbor_entry_s);
 
 errout_with_socket:
   close(fd);
@@ -224,4 +225,4 @@ errout_with_resp:
   return ret;
 }
 
-#endif /* CONFIG_NET_ARP && CONFIG_NETLINK_ROUTE */
+#endif /* CONFIG_NET_IPv6 && CONFIG_NETLINK_ROUTE */
