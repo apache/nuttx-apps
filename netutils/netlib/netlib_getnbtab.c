@@ -109,6 +109,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
   ssize_t nrecvd;
   ssize_t paysize;
   ssize_t maxsize;
+  pid_t pid;
   int fd;
   int ret;
 
@@ -138,9 +139,10 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
 
   /* Bind the socket so that we can use send() and receive() */
 
+  pid            = getpid();
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
-  addr.nl_pid    = getpid();
+  addr.nl_pid    = pid;
   addr.nl_groups = RTM_GETNEIGH;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
@@ -162,6 +164,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
   req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_REQUEST;
   req.hdr.nlmsg_seq   = thiseq;
   req.hdr.nlmsg_type  = RTM_GETNEIGH;
+  req.hdr.nlmsg_pid   = pid;
   req.msg.ndm_family  = AF_INET6;
 
   nsent = send(fd, &req, req.hdr.nlmsg_len, 0);

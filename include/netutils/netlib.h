@@ -55,6 +55,7 @@
 #include <stdio.h>
 #include <pthread.h>
 
+#include <net/if.h>
 #include <netinet/in.h>
 #include <nuttx/net/netconfig.h>
 
@@ -77,7 +78,7 @@
 #  define IPv6_ROUTE_PATH CONFIG_NETLIB_PROCFS_MOUNTPT "/net/route/ipv6"
 #endif
 
-/* Using the following defintions, the following socket() arguments should
+/* Using the following definitions, the following socket() arguments should
  * provide a valid socket in all configurations:
  *
  *   ret = socket(NETLIB_SOCK_FAMILY, NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
@@ -185,6 +186,18 @@ struct netlib_ipv6_route_s
 #endif
 #endif /* HAVE_ROUTE_PROCFS */
 
+#ifdef CONFIG_NETLINK_ROUTE
+/* Describes one device returned by netlib_get_devices() */
+
+struct netlib_device_s
+{
+#ifdef CONFIG_NETDEV_IFINDEX
+  uint8_t ifindex;                /* Interface index */
+#endif
+  char ifname[IFNAMSIZ];          /* Interface name */
+};
+#endif
+
 #ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
 struct url_s
 {
@@ -206,7 +219,6 @@ struct url_s
 };
 #endif
 
-
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -223,6 +235,13 @@ extern "C"
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+#ifdef CONFIG_NETLINK_ROUTE
+/* Return a list of all devices */
+
+ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
+                           unsigned int nentries, sa_family_t family);
+#endif
 
 /* Convert a textual representation of an IP address to a numerical representation.
  *

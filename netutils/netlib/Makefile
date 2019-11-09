@@ -84,6 +84,12 @@ CSRCS += netlib_getnbtab.c
 endif
 endif
 
+# Device support
+
+ifeq ($(CONFIG_NETLINK_ROUTE),y)
+CSRCS += netlib_getdevs.c
+endif
+
 # These require TCP support
 
 ifeq ($(CONFIG_NET_TCP),y)
