@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_SYSTEM_USRSOCK_RPMSG),y)
-CONFIGURED_APPS += $(APPDIR)/system/usrsock
+CONFIGURED_APPS += $(APPDIR)/system/usrsock_rpmsg
 endif
