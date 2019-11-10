@@ -210,7 +210,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
 
   /* Copy the ARP table data to the caller's buffer */
 
-  paysize = resp->attr.rta_len;
+  paysize = RTA_PAYLOAD(&resp->attr);
   if (paysize > maxsize)
     {
       paysize = maxsize;

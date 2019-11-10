@@ -211,7 +211,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
 
   /* Copy the Neighbor table data to the caller's buffer */
 
-  paysize = resp->attr.rta_len;
+  paysize = RTA_PAYLOAD(&resp->attr);
   if (paysize > maxsize)
     {
       paysize = maxsize;

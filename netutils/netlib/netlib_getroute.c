@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getdevs.c
+ * netutils/netlib/netlib_getroute.c
  *
  *   Copyright (C) 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -46,13 +46,12 @@
 #include <string.h>
 #include <errno.h>
 
+#include <net/route.h>
 #include <netpacket/netlink.h>
-
-#include <nuttx/net/arp.h>
 
 #include "netutils/netlib.h"
 
-#ifdef CONFIG_NETLINK_ROUTE
+#if defined(CONFIG_NETLINK_ROUTE) && defined(CONFIG_NET_ROUTE)
 
 /****************************************************************************
  * Private Types
@@ -67,47 +66,66 @@ struct netlib_sendto_request_s
 struct netlib_recvfrom_response_s
 {
   struct nlmsghdr  hdr;
-  struct ifinfomsg iface;
+  struct rtmsg     rte;
   struct rtattr    attr;
-  uint8_t          data[IFNAMSIZ];  /* IFLA_IFNAME is the only attribute
-                                     * supported */
+
+  /* Attribute data and additional attributes follow */
 };
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static int copy_address(FAR struct sockaddr_storage *dest, FAR void *src,
+                        unsigned int addrlen, unsigned int maxaddr,
+                        sa_family_t family)
+{
+  DEBUGASSERT(addrlen == maxaddr);
+  if (addrlen > maxaddr)
+    {
+      fprintf(stderr, "ERROR: Bad address length: %u\n", addrlen);
+      return -EIO;
+    }
+
+  dest->ss_family = family;
+  memcpy(dest->ss_data, src, addrlen);
+  return OK;
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_get_devices
+ * Name: netlib_get_route
  *
  * Description:
- *   Return a list of all active network devices (devices in the DOWN state
- *   are not reported).
+ *   Return a snapshot of the routing table for the selected address family.
  *
  * Parameters:
- *   devlist  - The location to store the list of devices.
- *   nentries - The size of the provided 'devlist' in number of entries each
- *              of size sizeof(struct netlib_device_s)
- *   family   - Address family.  See AF_* definitions in sys/socket.h.  Use
- *              AF_PACKET to return devices for all address families.
+ *   rtelist  - The location to store the list of devices.
+ *   nentries - The size of the provided 'rtelist' in number of entries.
+ *              The size of one entry is given by sizeof(struct rtentry);
+ *   family   - Address family.  See AF_* definitions in sys/socket.h.
  *
  * Return:
- *   The number of device entries read is returned on success; a negated
- *   errno value is returned on failure.
+ *   The number of routing table entries read is returned on success; a
+ *   negated errno value is returned on failure.
  *
  ****************************************************************************/
 
-ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
-                           unsigned int nentries, sa_family_t family)
+ssize_t netlib_get_route(FAR struct rtentry *rtelist,
+                         unsigned int nentries, sa_family_t family)
 {
   struct netlib_sendto_request_s req;
   struct netlib_recvfrom_response_s resp;
   struct sockaddr_nl addr;
   static unsigned int seqno = 0;
   unsigned int thiseq;
+  unsigned int maxaddr;
   ssize_t nsent;
   ssize_t nrecvd;
-  size_t ncopied;
+  size_t ncopied = 0;
   pid_t pid;
   bool enddump;
   int fd;
@@ -129,7 +147,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
   addr.nl_pid    = pid;
-  addr.nl_groups = RTM_GETLINK;
+  addr.nl_groups = RTM_GETROUTE;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
@@ -149,7 +167,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
   req.hdr.nlmsg_len    = NLMSG_LENGTH(sizeof(struct rtgenmsg));
   req.hdr.nlmsg_flags  = NLM_F_REQUEST | NLM_F_DUMP;
   req.hdr.nlmsg_seq    = thiseq;
-  req.hdr.nlmsg_type   = RTM_GETLINK;
+  req.hdr.nlmsg_type   = RTM_GETROUTE;
   req.hdr.nlmsg_pid    = pid;
   req.gen.rtgen_family = family;
 
@@ -163,6 +181,8 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
     }
 
   /* Read the response(s) */
+
+  maxaddr = sizeof(struct sockaddr_storage) - sizeof(sa_family_t);
 
   for (enddump = false; !enddump; )
     {
@@ -200,7 +220,16 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
           goto errout_with_socket;
         }
 
-      /* Copy the device list to the caller's buffer */
+      /* This should be a routing table response */
+
+      if (resp.rte.rtm_table != RT_TABLE_MAIN)
+        {
+          fprintf(stderr, "ERROR: Not a routing table response\n");
+          ret = -EIO;
+          goto errout_with_socket;
+        }
+
+      /* Copy the routing table entry to the caller's buffer */
 
       switch (resp.hdr.nlmsg_type)
         {
@@ -209,30 +238,59 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
             break;
 
           case RTM_NEWLINK:
+            break;  /* Ignore any link information */
+
+          case RTM_NEWROUTE:
             {
+              FAR struct rtentry *dest;
               FAR struct rtattr *attr;
               int len;
 
+              DEBUGASSERT(resp.rte.rtm_family == family);
+
               /* Decode the response */
 
-              attr  = &resp.attr;
-              len   = RTA_PAYLOAD(attr);
+              dest    = &rtelist[ncopied];
+              memset(dest, 0, sizeof(struct rtentry));
+
+              attr    = &resp.attr;
+              len     = RTA_PAYLOAD(attr);
 
               for (; RTA_OK(attr, len); attr = RTA_NEXT(attr, len))
                 {
+                  unsigned int attrlen = RTA_PAYLOAD(attr);
+
                   switch (attr->rta_type)
                     {
-                      case IFLA_IFNAME:
-                        if (ncopied < nentries)
+                      case RTA_DST:      /* The destination network */
+                        ret = copy_address(&dest->rt_dst, RTA_DATA(attr),
+                                           attrlen, maxaddr, family);
+                        if (ret < 0)
                           {
-#ifdef CONFIG_NETDEV_IFINDEX
-                            FAR struct ifinfomsg *iface = &resp.iface;
+                            goto errout_with_socket;
+                          }
 
-                            devlist[ncopied].ifindex = iface->ifi_index;
-#endif
-                            strncpy(devlist[ncopied].ifname,
-                                   (FAR char *)RTA_DATA(attr), IFNAMSIZ);
-                            ncopied++;
+                        break;
+
+                      case RTA_SRC:      /* The source address mask */
+                        break;
+
+                      case RTA_GENMASK:  /* The network address mask */
+                        ret = copy_address(&dest->rt_genmask, RTA_DATA(attr),
+                                           attrlen, maxaddr, family);
+                        if (ret < 0)
+                          {
+                            goto errout_with_socket;
+                          }
+
+                        break;
+
+                      case RTA_GATEWAY:  /* Route packets via this router */
+                        ret = copy_address(&dest->rt_gateway, RTA_DATA(attr),
+                                           attrlen, maxaddr, family);
+                        if (ret < 0)
+                          {
+                            goto errout_with_socket;
                           }
 
                         break;
@@ -240,7 +298,9 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
                       default:
                         break;
                     }
-               }
+                }
+
+              ncopied++;
             }
             break;
 
@@ -260,4 +320,4 @@ errout_with_socket:
   return ret;
 }
 
-#endif /* CONFIG_NETLINK_ROUTE */
+#endif /* CONFIG_NETLINK_ROUTE && CONFIG_NET_ROUTE */

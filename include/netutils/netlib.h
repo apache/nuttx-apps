@@ -159,11 +159,11 @@
  ****************************************************************************/
 
 #ifdef HAVE_ROUTE_PROCFS
+#ifdef CONFIG_NET_IPv4
 /* Describes one entry from the IPv4 routing table.  All addresses are in
  * host byte order!
  */
 
-#ifdef CONFIG_NET_IPv4
 struct netlib_ipv4_route_s
 {
   in_addr_t prefix;               /* Routing prefix */
@@ -172,11 +172,11 @@ struct netlib_ipv4_route_s
 };
 #endif
 
+#ifdef CONFIG_NET_IPv6
 /* Describes one entry from the IPv6 routing table.  All addresses are in
  * host byte order!
  */
 
-#ifdef CONFIG_NET_IPv6
 struct netlib_ipv6_route_s
 {
   uint16_t prefix[8];             /* Routing prefix */
@@ -196,7 +196,7 @@ struct netlib_device_s
 #endif
   char ifname[IFNAMSIZ];          /* Interface name */
 };
-#endif
+#endif /* CONFIG_NETLINK_ROUTE*/
 
 #ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
 struct url_s
@@ -361,6 +361,12 @@ ssize_t netlib_read_ipv6route(FILE *stream,
 int netlib_ipv6router(FAR const struct in6_addr *destipaddr,
                       FAR struct in6_addr *router);
 #  endif
+#endif
+
+#if defined(CONFIG_NETLINK_ROUTE) && defined(CONFIG_NET_ROUTE)
+struct rtentry;  /* Forward reference */
+ssize_t netlib_get_route(FAR struct rtentry *rtelist,
+                         unsigned int nentries, sa_family_t family);
 #endif
 
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF

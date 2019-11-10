@@ -88,6 +88,9 @@ endif
 
 ifeq ($(CONFIG_NETLINK_ROUTE),y)
 CSRCS += netlib_getdevs.c
+ifeq ($(CONFIG_NET_ROUTE),y)
+CSRCS += netlib_getroute.c
+endif
 endif
 
 # These require TCP support

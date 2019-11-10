@@ -119,19 +119,19 @@ static int wapi_act_route_gw(int sock, int act,
 
   /* Set target. */
 
-  sin = (struct sockaddr_in *)&rt.rt_dst;
+  sin = (FAR struct sockaddr_in *)&rt.rt_dst;
   sin->sin_family = AF_INET;
   memcpy(&sin->sin_addr, target, sizeof(struct in_addr));
 
   /* Set netmask. */
 
-  sin = (struct sockaddr_in *)&rt.rt_genmask;
+  sin = (FAR struct sockaddr_in *)&rt.rt_genmask;
   sin->sin_family = AF_INET;
   memcpy(&sin->sin_addr, netmask, sizeof(struct in_addr));
 
   /* Set gateway. */
 
-  sin = (struct sockaddr_in *)&rt.rt_gateway;
+  sin = (FAR struct sockaddr_in *)&rt.rt_gateway;
   sin->sin_family = AF_INET;
   memcpy(&sin->sin_addr, gw, sizeof(struct in_addr));
 
