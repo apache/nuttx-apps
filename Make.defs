@@ -34,6 +34,8 @@
 #
 ############################################################################
 
+DELIM ?= $(strip /)
+
 # Application Directories
 
 # BUILDIRS is the list of top-level directories containing Make.defs files
