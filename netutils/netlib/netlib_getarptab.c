@@ -146,7 +146,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
-  if (fd < 0)
+  if (ret < 0)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);

@@ -147,7 +147,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
-  if (fd < 0)
+  if (ret < 0)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);

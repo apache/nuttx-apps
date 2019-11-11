@@ -107,7 +107,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
   unsigned int thiseq;
   ssize_t nsent;
   ssize_t nrecvd;
-  size_t ncopied;
+  size_t ncopied = 0;
   pid_t pid;
   bool enddump;
   int fd;
@@ -133,7 +133,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
-  if (fd < 0)
+  if (ret < 0)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);
@@ -179,8 +179,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
       /* Verify the data and transfer the device list to the caller */
 
-      if (nrecvd != sizeof(struct netlib_recvfrom_response_s) ||
-          resp.hdr.nlmsg_len < sizeof(struct nlmsghdr) ||
+      if (resp.hdr.nlmsg_len < sizeof(struct nlmsghdr) ||
           resp.hdr.nlmsg_len != nrecvd)
         {
           fprintf(stderr, "ERROR: Bad message\n");
@@ -211,14 +210,23 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
           case RTM_NEWLINK:
             {
               FAR struct rtattr *attr;
-              int len;
+              unsigned int attrlen;
+
+              /* Verify the expected message length */
+
+              if (nrecvd != sizeof(struct netlib_recvfrom_response_s))
+                {
+                  fprintf(stderr, "ERROR: Bad massage size: %ld\n", (long)nrecvd);
+                  goto errout_with_socket;
+                }
 
               /* Decode the response */
 
-              attr  = &resp.attr;
-              len   = RTA_PAYLOAD(attr);
+              attr    = &resp.attr;
+              attrlen = resp.hdr.nlmsg_len - sizeof(struct nlmsghdr) -
+                        sizeof(struct ifinfomsg);
 
-              for (; RTA_OK(attr, len); attr = RTA_NEXT(attr, len))
+              for (; RTA_OK(attr, attrlen); attr = RTA_NEXT(attr, attrlen))
                 {
                   switch (attr->rta_type)
                     {

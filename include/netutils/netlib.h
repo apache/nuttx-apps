@@ -321,8 +321,7 @@ struct neighbor_entry_s;
 ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
                            unsigned int nentries);
 #endif
-
-#endif
+#endif /* CONFIG_NET_IPv6 */
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
 int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen);

@@ -54,6 +54,12 @@
 #if defined(CONFIG_NETLINK_ROUTE) && defined(CONFIG_NET_ROUTE)
 
 /****************************************************************************
+ * Pre-processor definitions
+ ****************************************************************************/
+
+#define RXBUFFER_SIZE 64
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -80,7 +86,7 @@ static int copy_address(FAR struct sockaddr_storage *dest, FAR void *src,
                         unsigned int addrlen, unsigned int maxaddr,
                         sa_family_t family)
 {
-  DEBUGASSERT(addrlen == maxaddr);
+  DEBUGASSERT(addrlen <= maxaddr);
   if (addrlen > maxaddr)
     {
       fprintf(stderr, "ERROR: Bad address length: %u\n", addrlen);
@@ -118,7 +124,6 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
                          unsigned int nentries, sa_family_t family)
 {
   struct netlib_sendto_request_s req;
-  struct netlib_recvfrom_response_s resp;
   struct sockaddr_nl addr;
   static unsigned int seqno = 0;
   unsigned int thiseq;
@@ -130,6 +135,12 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   bool enddump;
   int fd;
   int ret;
+
+  union
+  {
+    char rxbuffer[RXBUFFER_SIZE];
+    struct netlib_recvfrom_response_s resp;
+  } u;
 
   /* Create a NetLink socket with NETLINK_ROUTE protocol */
 
@@ -151,7 +162,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
-  if (fd < 0)
+  if (ret < 0)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);
@@ -188,7 +199,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
     {
       /* Receive the next device response */
 
-      nrecvd = recv(fd, &resp, sizeof(struct netlib_recvfrom_response_s), 0);
+      nrecvd = recv(fd, &u.rxbuffer, RXBUFFER_SIZE, 0);
       if (nrecvd < 0)
         {
           int errcode = errno;
@@ -199,9 +210,8 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 
       /* Verify the data and transfer the device list to the caller */
 
-      if (nrecvd != sizeof(struct netlib_recvfrom_response_s) ||
-          resp.hdr.nlmsg_len < sizeof(struct nlmsghdr) ||
-          resp.hdr.nlmsg_len != nrecvd)
+      if (u.resp.hdr.nlmsg_len < sizeof(struct nlmsghdr) ||
+          u.resp.hdr.nlmsg_len != nrecvd)
         {
           fprintf(stderr, "ERROR: Bad message\n");
           ret = -EIO;
@@ -213,7 +223,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
        * always be true).
        */
 
-      if (resp.hdr.nlmsg_seq != thiseq)
+      if (u.resp.hdr.nlmsg_seq != thiseq)
         {
           fprintf(stderr, "ERROR: Bad sequence number in response\n");
           ret = -EIO;
@@ -222,7 +232,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 
       /* This should be a routing table response */
 
-      if (resp.rte.rtm_table != RT_TABLE_MAIN)
+      if (u.resp.rte.rtm_table != RT_TABLE_MAIN)
         {
           fprintf(stderr, "ERROR: Not a routing table response\n");
           ret = -EIO;
@@ -231,7 +241,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 
       /* Copy the routing table entry to the caller's buffer */
 
-      switch (resp.hdr.nlmsg_type)
+      switch (u.resp.hdr.nlmsg_type)
         {
           case NLMSG_DONE:
             enddump = true;
@@ -244,19 +254,27 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
             {
               FAR struct rtentry *dest;
               FAR struct rtattr *attr;
-              int len;
+              unsigned int paylen;
 
-              DEBUGASSERT(resp.rte.rtm_family == family);
+              /* Verify the expected message length */
+
+              if (nrecvd <= sizeof(struct netlib_recvfrom_response_s) ||
+                  u.resp.rte.rtm_family != family)
+                {
+                  fprintf(stderr, "ERROR: Bad massage size: %ld\n", (long)nrecvd);
+                  goto errout_with_socket;
+                }
 
               /* Decode the response */
 
               dest    = &rtelist[ncopied];
               memset(dest, 0, sizeof(struct rtentry));
 
-              attr    = &resp.attr;
-              len     = RTA_PAYLOAD(attr);
+              attr   = &u.resp.attr;
+              paylen = u.resp.hdr.nlmsg_len - sizeof(struct nlmsghdr) -
+                        sizeof(struct rtmsg);
 
-              for (; RTA_OK(attr, len); attr = RTA_NEXT(attr, len))
+              for (; RTA_OK(attr, paylen); attr = RTA_NEXT(attr, paylen))
                 {
                   unsigned int attrlen = RTA_PAYLOAD(attr);
 
@@ -306,7 +324,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 
           default:
             fprintf(stderr, "ERROR: Message type %u, length %lu\n",
-                    resp.hdr.nlmsg_type, (unsigned long)resp.hdr.nlmsg_len);
+                    u.resp.hdr.nlmsg_type, (unsigned long)u.resp.hdr.nlmsg_len);
             ret = -EIO;
             goto errout_with_socket;
         }

@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NETLINK_ROUTE
+	tristate "Netlink NETLINK_ROUTE test"
+	default n
+	depends on NETLINK_ROUTE
+	---help---
+		Enable the Netlink NETLINK_ROUTE test
+
+if EXAMPLES_NETLINK_ROUTE
+
+config EXAMPLES_NETLINK_ROUTE_PROGNAME
+	string "Program name"
+	default "netlink_route"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NETLINK_ROUTE_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_NETLINK_ROUTE_STACKSIZE
+	int "Stack size"
+	default 2048
+
+endif
