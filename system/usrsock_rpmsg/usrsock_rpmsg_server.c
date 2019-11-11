@@ -551,7 +551,7 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
   struct usrsock_rpmsg_s *priv = priv_;
   socklen_t outaddrlen = req->max_addrlen;
   socklen_t inaddrlen = req->max_addrlen;
-  int i;
+  int i = 0;
   int retr;
   int ret = -EBADF;
 
