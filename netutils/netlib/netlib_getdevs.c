@@ -203,9 +203,13 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
       switch (resp.hdr.nlmsg_type)
         {
+          /* NLMSG_DONE means that the entire list of devices has been returned */
+
           case NLMSG_DONE:
             enddump = true;
             break;
+
+          /* RTM_NEWLINK provides information about one device */
 
           case RTM_NEWLINK:
             {
@@ -249,6 +253,17 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
                         break;
                     }
                }
+            }
+            break;
+
+          /* RTM_NEWROUTE provides routing information for the device
+           * (address, gateway, etc.)
+           */
+
+          case RTM_NEWROUTE:
+            {
+              fprintf(stderr, "WARNING: RTM_NEWLINK Message type not "
+                              "implemented\n");
             }
             break;
 
