@@ -75,6 +75,7 @@
  * Private Functions
  ****************************************************************************/
 
+#ifndef CONFIG_NETLINK_DISABLE_GETLINK
 static void dump_devices(sa_family_t family)
 {
   struct netlib_device_s devlist[MAX_DEVICES];
@@ -109,8 +110,11 @@ static void dump_devices(sa_family_t family)
       printf("Name: \"%s\"\n", dev->ifname);
     }
 }
+#else
+#  define dump_devices(f)
+#endif
 
-#ifdef CONFIG_NET_IPv6
+#if defined(CONFIG_NET_IPv6) && !defined(CONFIG_NETLINK_DISABLE_GETNEIGH)
 static void dump_neighbor(void)
 {
   FAR struct neighbor_entry_s *nbtab;
@@ -186,9 +190,11 @@ static void dump_neighbor(void)
 
   free(nbtab);
 }
+#else
+#  define dump_neighbor()
 #endif
 
-#ifdef CONFIG_NET_ARP
+#if defined(CONFIG_NET_ARP) && !defined(CONFIG_NETLINK_DISABLE_GETNEIGH)
 static void dump_arp(void)
 {
   FAR struct arp_entry_s *arptab;
@@ -252,9 +258,11 @@ static void dump_arp(void)
 
   free(arptab);
 }
+#else
+#  define dump_arp()
 #endif
 
-#if CONFIG_NET_ROUTE
+#if defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NETLINK_DISABLE_GETROUTE)
 static void dump_route(sa_family_t family)
 {
   FAR struct rtentry *rttab;
@@ -309,6 +317,8 @@ static void dump_route(sa_family_t family)
 
   free(rttab);
 }
+#else
+#  define dump_route(f)
 #endif
 
 /****************************************************************************
@@ -322,23 +332,10 @@ static void dump_route(sa_family_t family)
 int main(int argc, FAR char *argv[])
 {
   dump_devices(AF_PACKET);
-
-#ifdef CONFIG_NET_IPv6
   dump_neighbor();
-#endif
-
-#ifdef CONFIG_NET_ARP
   dump_arp();
-#endif
-
-#if CONFIG_NET_ROUTE
-#ifdef CONFIG_NET_IPv4
   dump_route(AF_INET);
-#endif
-#ifdef CONFIG_NET_IPv6
   dump_route(AF_INET6);
-#endif
-#endif
 
   return EXIT_SUCCESS;
 }
