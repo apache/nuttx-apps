@@ -4332,4 +4332,236 @@
 	* examples/pwm/pwm_main.c:  Update the pwm header path.  From Augusto
 	  Fraga Giachero (2019-09-02).
 
-8.2 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+8.2 2019-11-16 Gregory Nutt <gnutt@nuttx.org>
+
+	* netutils/netlib/netlib_autoconfig.c:  Correct ICMPv6 socket create
+	  error.  From ligd (2019-09-15).
+	* Revert netutils/netlib: correct ICMPv6 socket create error.  This
+	  reverts a previous change.  From Xiang Xiao (2019-09-20).
+	* system/symtab:  Remove system/symtab since the same functionality
+	  exist in nuttx now.  From Gregory Nutt (2019-09-28).
+	* Fix minor typos in docs and comments.  From Nathan Hartman
+	  (2019-09-29).
+	* import/Makefile's:  Remove symbol table generation from imports/Makefile
+	  to avoid the confusion with the official method.  From Xiang Xiao
+	  (2019-10-01).
+	* examples/romfs:  Remove romfs_testdir.h.  That file is regenerated
+	  whenever the example is built and so should not be in the repository.
+	  From Gregory Nutt (2019-10-01).
+	* Remove the duplicated build script files from apps/impor/tools.
+	  These will now be copied from nuttx/tools when the export package is
+	  created.  From Xiang Xiao (2019-10-01).
+	* tools/mksymtab.sh: Include nuttx/symtab.h instead of nuttx/binfmt/symtab.h.
+	  From Xiang Xiao (2019-10-01).
+	* apps/Makefile:  Remove EXE_DIR and put binary into bin folder like
+	  nuttx.  From Xiang Xiao (2019-10-01).
+	* apps/Makefile:  Change BIN_DIR to BINDIR to follow nuttx style.  From
+	  Xiang Xiao (2019-10-01).
+	* apps/Makefile:  Move APPDIR set to the first and remove APPDIR from
+	  command line but ensure TOPDIR/BINDIR are always set in command line.
+	  From Xiang Xiao (2019-10-01).
+	* Makefiles:  Remove .PRECIOUS if Makefile doesn't touch libapps.  From
+	  Xiang Xiao (2019-10-01).
+	* apps/wireless Makefiles:  Utilize Directory.mk for consistency.  From
+	  Xiang Xiao (2019-10-01).
+	* Makefiles: Change ${shell pwd} to $(CURDIR) since pwd doesn't exist on
+	  Windows  From Xiang Xiao (2019-10-02).
+	* Application.mk:  Support the ability to change the CFLAGS for the
+	  compilation of a single file.  Set special compiler options as follows the rule:
+
+	  sourcefile + fixed suffix "_[A|C|CPP|CXX]FLAGS"
+
+	  apps/examples/hello/Makefile:
+	  $(SRCDIR)/hello_main.c_CFLAGS = -DTEST  From Xiang Xiao (2019-10-03).
+	* apps/Makefile:  Make libapps overwritable.  From Xiang Xiao (2019-10-03).
+	* CONFIG_BUILD_LOADABLE:  Check the kernel function callable by BUILD_KERNEL
+	  instead of BUILD_LOADABLE since BUILD_LOADABLE could be turned on even
+	  with BUILD_FLAT.  From Xiang Xiao (2019-10-03).
+	* Clean up Makefile under apps folder no functional changes.  From Xiang
+	  Xiao (2019-10-04).
+	* fsutils/passwd/passwd_lock.c:  Use named semaphore by checking
+	  CONFIG_FS_NAMED_SEMAPHORES instead of CONFIG_KERNEL_BUILD.  From Xiang
+	  Xiao (2019-10-04).
+	* system/lzf/lzf_main.c: Check the protection by CONFIG_SYSTEM_LZF !=
+	  CONFIG_m (not elf binary) instead of CONFIG_KERNEL_BUILD.  From Xiang
+	  Xiao (2019-10-04).
+	* Fix typo error in testing/cxxtest.  From Xiang Xiao (2019-10-04).
+	* Application.mk:  Correct an error in PATH usage.  Use of toolchain
+	  path causes make errors.  From Gregory Nutt (2019-10-04).
+	* apps/;  Change space to tab and help to ---help--- in Kconfig files.
+	  From Xiang Xiao (2019-10-05).
+	* Some improvements to netutils/cjson and testing/unity
+	  - netutils/cjson/Makefile: fix the error when creating Make.dep
+	  - testing/unity/Makefile: fix the error when creating Make.dep
+	  - include/.gitignore: ignore cJSON headers
+	  - netutils/cjson/Kconfig: update default version to 1.7.12. Previous
+	    releases raise compilation warnings about redefined true/false  From
+	  raiden00pl (2019-10-06).
+	* Application.mk and main.c files:  Change builtin's entry point from
+	  main to xxx_main by macro expansion.  This change make the entry point
+	  fully compliant with POSIX/ANSI standard.  From Xiang Xiao (2019-10-06).
+	* apps.:  Remove the inappropriate NSH_BUILTIN_APPS coupling
+	  1. Check NSH_NETINIT for self network initialization
+	  2. Check NSH_ARCHINIT for sel arch specific initialization
+	  3. Always show help regardless of NSH_BUILTIN_APPS
+	  4. Loop forever regardless of NSH_BUILTIN_APPS, user could:
+	  a.change the default behavior by the command line argument
+	  b.or ctrl+c to break out the loop  From Xiang Xiao (2019-10-07).
+	* apps/system/composite:  Remove usb serial loopback test code we can
+	  achieve the same effect by cat or dd command.  From Xiang Xiao
+	  (2019-10-07).
+	* apps/:  In Makefiles remove 'INCDIROPT = -w' which is already defined
+	  in apps/Make.defs.  From Xiang Xiao (2019-10-07).
+	* Makefile, Application.mk:  Clean up cygpath usage
+	  1.Remove cygpath from the related path since the conversion isn't
+	    necessary
+	  2.Call cygpath inplace for the absolute path to avoid the confusion
+	  From Xiang Xiao (2019-10-07).
+	* tools/mkromfsimg.sh:  Use sed to add const to ROMFS declarations so
+	  that they like in FLASH not RAM.  From Bernd Walter (2019-10-07).
+	* examples/serialblaster, serialrx, udpblaster:  Update to serial/UDP
+	  tests.  From Anjana (2019-10-11).
+	* nshlib/ and system/cle:  Add basic color support to the CLE editor.
+	  From Dave Marples (2019-10-12).
+	* Feature/i2c dump:
+	  - friendlier I2C "knock-knock" uses only read request.  While many I2C slave
+	    devices have multiple indexed registers, some have only one register and it's
+	    not indexed.  For example, the I2C bus switch TCA9548A has only a Control
+	    Register, attempting to index to "Reg[0]" alters its contents to 0x00
+	    disabling all subordinate buses.  This change fixes that problem by simply
+	    trying to read something/anything from the slave.  This also helps coax out
+	    slaves with register files that start from a higher index, i.e. the AT24CS0x,
+	    FLASH chips with a UUID that appears as a 2nd I2C slave at (address+8),
+	    report their serial number at Reg[80]-Reg[8F] and will NAK a read of Reg[0].
+	  - modify get/set to prevent write of reg index if not specifed
+	  - add 'dump' command to issue a single transaction to retrieve multiple bytes
+	    from an I2C slave and register/offset.
+	  - use NuttX' isprint()
+	  - refactor to reduce coupling, hexdump only needs outstream  From David Alessio
+	    (2019-10-14).
+	* apps/system/i2c:  Fix up some complaints from nxstyle.  From Gregory Nutt
+	  (2019-10-15).
+	* Makefiles:  This reverts part of a previous change.  This restores 'conditional'
+	  inclusion of TOPDIR/Make.defs.  Otherwise all make targets fail if the board has
+	  not been configured.  That is okay most of the time, but not for things like
+	  clean and distclean which should not depend on being configured.  From Gregory
+	  Nutt (2019-10-15).
+	* Bugfix/spitool exch parse txdata
+	* apps/system/cle/cle.c:  Fix warning, re-order to follow coding standard.  From
+	  Xiang Xiao (2019-10-17).
+	* apps/:  In all Make.def files, append to CONFIGURED_APPS with the absolute
+	  path.  From Xiang Xiao (2019-10-17).
+	* apps/:  Move the common variable definitions from other build-related files into
+	  apps/Make.defs.  From Xiang Xiao (2019-10-17).
+	* In all Make.defs files, append CONFIGURED_APPS with the consistent ifeq/ifneq. 
+	  From Xiang Xiao (2019-10-17).
+	* graphics/twm4nx/Makefile:  Fix a recently introduced error that broke all Twm4Nx
+	  configurations.  From Gregory Nutt (2019-10-17).
+	* apps/examples/nxterm/Makefile:  PROGNAME, PRIORITY, STACKSIZE varialble names
+	  did not match declarations in Kconfig file.  From Gregory Nutt (2019-10-17).
+	* apps/system/spi:  Add options to spec devtype, id for chip select.  From David
+	  S. Alessio (2019-10-18).
+	* examples: RTTL player example.  A simple RTTL player demo that is able to play
+	  tunes according to an RTTL song.
+	  References
+	  https://en.wikipedia.org/wiki/Ring_Tone_Transfer_Language
+	  https://cs.nyu.edu/courses/fall03/V22.0201-003/notes.htm  From Alin Jerpelea
+	  (2019-10-18).
+	* apps/examples/udp, nettest, flowc, tcpblaster, and udpblaster:  Back out parts
+	  of a previous change that broke the build of these examples.  From Gregory Nutt
+	  (2019-10-18).
+	* apps/Application.mk:  Fix main redefine warning by using per file
+	  CFLAGS/CXXFLAGS.  From Xiang Xiao (2019-10-19).
+	* examples/nxlines/Kconfig:  Correct nxlines example program name.  From Gregory
+	  Nutt (2019-10-19).
+	* apps/nshlib/nsh_fscmds.c:  The NSH mkrd command was in violation of the NuttX
+	  portable POSIX interface.  it was calling the internal OS function
+	  ramdisk_register() directly.  No only is this a violation of the interface
+	  specification, but also prevents use of mkrd in PROTECTED or KERNEL buils.
+	  With this change, the NSH mkrd command now used the BOARDIOC_MKRD boardctl()
+	  command.  This command is availabe in all build modes.  The effect of this
+	  change is to move the hear of the NSH mkrd command into to OS and provide
+	  user-space access via boardctl().  From Gregory Nutt (2019-10-26).
+	* apps/examples/mount:  Replace illegal call to ramdisk_register() with a call to
+	  boardctl(BOARDIOC_MKRD).  From Gregory Nutt (2019-10-26).
+	* apps/nshlib/Kconfig and examples/mount/Kconfig:  Automatically select
+	  CONFIG_DRVR_MKRD is it is needed by the configuration.  From Gregory Nutt
+	  (2019-10-26).
+	* apps/nshlib:  Tighten up some of the conditional logic for mkrd.  From Gregory
+	  Nutt (2019-10-26).
+	* nshlib/nsh_romfsetc.c and graphics/traveler/trv_romfs.c:  Replace direct calls
+	  to romdisk_register() with indirect calls via boardioctl(BOARDIOC_ROMDISK).
+	  This not only fixes the violation of the portable POSIX OS interface, but also
+	  permits use of ROM disks in PROTECTED and KERNEL modes.  There are still
+	  multiple illegal calls to romdisk_register() from code under apps/examples.
+	  These all must also be converted to use boardioctl(BOARDIOC_ROMDISK) someday.
+	  From Gregory Nutt (2019-10-26).
+	* Makefile: Fix warning: jobserver unavailable: using -j1.  Add '+' to parent make
+	  rule.  From Xiang Xiao (2019-10-29).
+	* apps/nshlib/nsh.h:  nsh: Remove the redundant check for netcmd.  Checking
+	  FS_PROCFS and FS_PROCFS_EXCLUDE_NET is enough and make the type of network
+	  device could be shown by ifconfig.  From Xiang Xiao (2019-11-03).
+	* apps/nshlib: Add rptun cmd for boot remote core.  From ligd (2019-11-03).
+	* apps/nshlib/README.txt:  Update to include the new rptun command.  From Gregory
+	  Nutt (2019-11-03).
+	* apps/nshlib/README.txt:  Update to include the new rptun command.  From Gregory
+	  Nutt (2019-11-03).
+	* netutils/netlib/netlib_getarptab.c:  Add a function to read the entire ARP
+	  table using NETLINK_ROUTE protocol.  From Gregory Nutt (2019-11-03).
+	* nshlib/nsh_netcmds.c:  Add a -t option to the arp command which will enable
+	  printing the entire ARP table.  From Gregory Nutt (2019-11-03).
+	* netutils/netlib/netlib_getarptab.c:  Misc fixes from initial testing with the
+	  'arp -t' commeand.  From Gregory Nutt (2019-11-03).
+	* apps/nshlib/nsh_netcmds.c:  Fix some alignment in output of 'arp -t' command.
+	  From Gregory Nutt (2019-11-03).
+	* apps/examples/bmi160:  Add bmi160 example app.  This app will read the BM160
+	  data and list it on the NSH console.  From Alin Jerpelea (2019-11-04).
+	* apps/examples/charger:  Simple charger example that will display on the console
+	  voltage and current values.  From Alin Jerpelea (2019-11-04).
+	* apps/nshlib:  Add new NSH command, 'pmconfig'.  From ligd (2019-11-04).
+	* apps/nshlib/README.txt:  Update README to at least mention the new pmconfig
+	  command.  From Gregory Nutt (2019-11-04).
+	* netutils/netlib/netlib_getarptab.c:  Do not initialize response buffer, it is
+	  write-only.  Also add a check to assue that the sequence number in the response
+	  is the same as the sequence number in the request.  From Gregory Nutt
+	  (2019-11-04).
+	* apps/system/cle/cle.c:  This change modifies the cle to use the streams file
+	  interface more consistently and has removed the observed race conditions.  It
+	  was previously a mix of streams and fileio.  It also simplifies the VT100 cursor
+	  position handling.  From Dave Marples (2019-11-04).
+	* apps/netutils/netlib/netlib_getarptab.c:  Fix typos in comments.  From Gregory
+	  Nutt (2019-11-04).
+	* apps/system/cu/cu_main.c: (1) Fix early exit.  getc(stdin) can return 0 the
+	  first time around.  (2) Set optind to zero.  getopt() was being left in a bad
+	  state, causing parsing errors on second use.  (3) Fix priority of cu_listen().
+	  (4) Add suppor for -h.  From David Alessio (2019-11-05).
+	* netutils/netlib/netlib_getarptab.c:  Per an old Linux Journal article, the
+	  nl_pid fild of struct sockaddr_nl should be set to the PID of the task that
+	  created the Netlink socket.  Also fixes a warning.  From Gregory Nutt
+	  (2019-11-07).
+	* nshlib/Kconfig:  Add missing NSH_DISABLE_DMESG, typos.  From Juha Niskanen
+	  (2019-11-08).
+	* apps/system/usrsock_rpmsg:  Add rpmsg based usrsock implementation.  From Jianli
+	  Dong (2019-11-08).
+	* netutils/netlib/netlib_getnbtab.c:  Add support for retrieving a snapshot of the
+	  IPv6 neighbor table using Netlink sockets.  From Gregory Nutt (2019-11-08).
+	* apps/system/usrsock_rpmsg/Make.defs:  Correct configured application name.  From
+	  chao.an (2019-11-09).
+	* apps/netutils/netlib/netlib_getnbtab.c:  Add a utility function that will return
+	  a list of all network devices in the UP state.  From Gregory Nutt (2019-11-09).
+	* netutils/netlib/netlib_getroute.c:  Add function to retrieve routing tables
+	  using netlink.  From Gregory Nutt (2019-11-10).
+	* Make.defs:  Fix nuttxtoolsunlink.sh: Command not found.  From Xiang Xiao
+	  (2019-11-11).
+	* apps/system/usrsock_rpmsg/usrsock_rpmsg_server.c:  Fix
+	  usrsock_rpmsg_server.c:554:7: warning: 'i' may be used uninitialized in this
+	  function [-Wmaybe-uninitialized].  From Xiang Xiao (2019-11-11).
+	* apps/examples/netlink_route:  Add test/example of NETLINK_ROUTE 'get'
+	  operations.  apps/netutils/netlib:  Fixes to NETLINK_ROUTE helpers found by
+	  testing with apps/examples/netlink_route.  From Gregory Nutt (2019-11-11).
+	* examples/netlink_route/netlink_route_main.c:  Use options to disable individual
+	  NETLINK_ROUTE commands.  From Gregory Nutt (2019-11-12).
+	* netutils/netlib/netlib_getdevs.c:  Add comments and a placeholder for the
+	  RTM_NEWROUTE response.  From Gregory Nutt (2019-11-12).
+
+8.3 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
