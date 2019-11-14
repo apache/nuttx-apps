@@ -4564,4 +4564,4 @@
 	* netutils/netlib/netlib_getdevs.c:  Add comments and a placeholder for the
 	  RTM_NEWROUTE response.  From Gregory Nutt (2019-11-12).
 
-8.3 2019-xx-xx Gregory Nutt <gnutt@nuttx.org>
+8.3 2020-xx-xx Gregory Nutt <gnutt@nuttx.org>
