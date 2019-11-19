@@ -104,6 +104,8 @@
 #  define NETLIB_SOCK_FAMILY  AF_BLUETOOTH
 #elif defined(CONFIG_NET_USRSOCK)
 #  define NETLIB_SOCK_FAMILY  AF_INET
+#elif defined(CONFIG_NET_NETLINK)
+#  define NETLIB_SOCK_FAMILY  AF_NETLINK
 #else
 #  define NETLIB_SOCK_FAMILY  AF_UNSPEC
 #endif
@@ -152,6 +154,8 @@
 #  define NETLIB_SOCK_TYPE SOCK_DGRAM
 #elif NETLIB_SOCK_FAMILY == AF_BLUETOOTH
 #  define NETLIB_SOCK_TYPE SOCK_RAW
+#elif NETLIB_SOCK_FAMILY == AF_NETLINK
+#  define NETLIB_SOCK_TYPE SOCK_DGRAM
 #endif
 
 /****************************************************************************

@@ -70,11 +70,13 @@
 #elif defined(CONFIG_NET_PKT)
 #  define AF_FAMILY  AF_PACKET
 #elif defined(CONFIG_NET_IEEE802154)
-#  define AF_FAMILY AF_IEEE802154
+#  define AF_FAMILY  AF_IEEE802154
 #elif defined(CONFIG_NET_BLUETOOTH)
-#  define AF_FAMILY AF_BLUETOOTH
+#  define AF_FAMILY  AF_BLUETOOTH
 #elif defined(CONFIG_NET_USRSOCK)
 #  define AF_FAMILY  AF_INET
+#elif defined(CONFIG_NET_NETLINK)
+#  define AF_FAMILY  AF_NETLINK
 #endif
 
 /****************************************************************************

@@ -164,6 +164,7 @@
  * not be the one that you want).
  */
 
+#undef NETINIT_HAVE_NETDEV
 #if defined(CONFIG_DRIVERS_IEEE80211) /* Usually also has CONFIG_NET_ETHERNET */
 #  define NET_DEVNAME "wlan0"
 #  define NETINIT_HAVE_NETDEV
@@ -188,14 +189,10 @@
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
 #  define NETINIT_HAVE_NETDEV
-#elif defined(CONFIG_NET_USRSOCK)
-#  undef NETINIT_HAVE_NETDEV
-#elif !defined(CONFIG_NET_LOOPBACK)
-#  error ERROR: No link layer protocol defined
 #endif
 
-/* If we have no network device (only only the local loopback device), then we
- * cannot support the network monitor.
+/* If we have no network device (perhaps only USRSOCK, local loopback, or
+ * Netlink sockets), then we cannot support the network monitor.
  */
 
 #ifndef NETINIT_HAVE_NETDEV

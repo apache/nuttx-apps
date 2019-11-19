@@ -76,6 +76,8 @@
 #  define AF_FAMILY AF_BLUETOOTH
 #elif defined(CONFIG_NET_USRSOCK)
 #  define AF_FAMILY AF_INET
+#elif defined(CONFIG_NET_NETLINK)
+#  define AF_FAMILY AF_NETLINK
 #endif
 
 /****************************************************************************
