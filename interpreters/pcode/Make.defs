@@ -1,4 +1,0 @@
-ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
-CONFIGURED_APPS += $(APPDIR)/interpreters/pcode
-endif
-

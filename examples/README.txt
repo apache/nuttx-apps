@@ -1199,17 +1199,6 @@ examples/oneshot
 
   Simple test of a oneshot driver.
 
-examples/pashello
-^^^^^^^^^^^^^^^^^
-
-  This is "Hello, World" implemented via the Pascal P-Code interpreter. In
-  order to use this example, you must first download and install the
-  NuttX pascal module.  After unpacking the pascal module, you can find
-  installation instructions in pascal/nuttx/README.txt.
-
-  The correct install location for the NuttX examples and build files is
-  apps/interpreters.
-
 examples/pca9635
 ^^^^^^^^^^^^^^^^
 
