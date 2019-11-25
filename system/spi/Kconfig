@@ -47,8 +47,10 @@ config SPITOOL_DEFFREQ
 		Default SPI frequency (default: 4000000)
 
 config SPITOOL_DEFCMD
-	int "Send in command mode"
+	int "CMD/DATA select"
 	default 0
+	range 0 1
+	depends on SPI_CMDDATA
 	---help---
 		Send in command or data mode
 		0 = Data mode
