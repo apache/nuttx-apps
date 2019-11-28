@@ -234,25 +234,25 @@ static void dump_arp(void)
     {
       FAR struct arp_entry_s *arp = &arptab[i];
 
-      (void)inet_ntop(AF_INET6, &arp->at_ipaddr, buffer, INET_ADDRSTRLEN);
+      (void)inet_ntop(AF_INET, &arp->at_ipaddr, buffer, INET_ADDRSTRLEN);
       printf("  Dest: %s MAC Addr: ", buffer);
 
       for (j = 0; j < ETHER_ADDR_LEN; j++)
         {
           if (j == (ETHER_ADDR_LEN - 1))
             {
-              printf("%02x", arp->at_ethaddr);
+              printf("%02x", arp->at_ethaddr.ether_addr_octet[j]);
             }
           else
             {
-              printf("%02x.", arp->at_ethaddr);
+              printf("%02x.", arp->at_ethaddr.ether_addr_octet[j]);
             }
         }
 
 #ifdef CONFIG_SYSTEM_TIME64
-      printf("Time 0x%" PRIx64 "\n", arp->at_time);
+      printf(" Time 0x%" PRIx64 "\n", arp->at_time);
 #else
-      printf("Time 0x%" PRIx32 "\n", arp->at_time);
+      printf(" Time 0x%" PRIx32 "\n", arp->at_time);
 #endif
     }
 
