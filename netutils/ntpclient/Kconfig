@@ -6,7 +6,7 @@
 config NETUTILS_NTPCLIENT
 	bool "NTP client"
 	default n
-	depends on NET_UDP
+	depends on NET_UDP && NET_SOCKOPTS
 	---help---
 		Enable support for the minimal NTP client.
 
