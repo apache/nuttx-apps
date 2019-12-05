@@ -647,7 +647,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
  *
  ****************************************************************************/
 
-void ftpc_timeout(int argc, uint32_t arg1, ...)
+void ftpc_timeout(int argc, wdparm_t arg1, ...)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg1;
 
