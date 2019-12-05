@@ -431,7 +431,7 @@ errout:
 static ssize_t tftp_read(FAR void *ctx, uint32_t offset, FAR uint8_t *buf,
                          size_t buflen)
 {
-  int fd = (int)ctx;
+  int fd = (intptr_t)ctx;
   off_t tmp;
   ssize_t nbytesread;
   ssize_t totalread = 0;
@@ -512,7 +512,8 @@ int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
       goto errout;
     }
 
-  result = tftpput_cb(remote, addr, binary, tftp_read, (FAR void *)fd);
+  result = tftpput_cb(remote, addr, binary, tftp_read,
+                      (FAR void *)(intptr_t)fd);
 
   close(fd);
 

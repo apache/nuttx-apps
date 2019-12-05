@@ -304,7 +304,7 @@ errout:
 static ssize_t tftp_write(FAR void *ctx, uint32_t offset, FAR uint8_t *buf,
                           size_t len)
 {
-  int fd = (int)ctx;
+  int fd = (intptr_t)ctx;
   size_t left = len;
   ssize_t nbyteswritten;
 
@@ -365,7 +365,8 @@ int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
       goto errout;
     }
 
-  result = tftpget_cb(remote, addr, binary, tftp_write, (void*)fd);
+  result = tftpget_cb(remote, addr, binary, tftp_write,
+                      (FAR void *)(intptr_t)fd);
 
   close(fd);
 
