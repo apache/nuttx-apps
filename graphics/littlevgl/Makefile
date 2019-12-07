@@ -53,7 +53,7 @@ LVGL_DIR = .
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-CONFIG_GRAPH_LVGL_URL ?= "https://littlevgl.com/download/"
+CONFIG_GRAPH_LVGL_URL ?= "https://web.archive.org/web/20190204022948/https://littlevgl.com/download/"
 
 LVGL_VERSION ?= v5_3
 LVGL_TARBALL = lvgl_$(LVGL_VERSION).zip
