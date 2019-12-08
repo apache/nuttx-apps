@@ -51,14 +51,42 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifndef HTONS
+#  ifdef CONFIG_ENDIAN_BIG
+#    define HTONS(ns) (ns)
+#  else
+#   define HTONS(ns) \
+     (unsigned short) \
+       (((((unsigned short)(ns)) & 0x00ff) << 8) | \
+        ((((unsigned short)(ns)) >> 8) & 0x00ff))
+#  endif
+#endif
+
+#ifndef HTONL
+#  ifdef CONFIG_ENDIAN_BIG
+#    define HTONL(nl) (nl)
+#  else
+#    define HTONL(nl) \
+       (unsigned long) \
+         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
+          ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
+          ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
+          ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
+#  endif
+#endif
+
+#ifndef NTOHS
+#  define NTOHS(hs) HTONS(hs)
+#endif
+
+#ifndef NTOHL
+#  define NTOHL(hl) HTONL(hl)
+#endif
+
 #ifdef TCPBLASTER_HOST
-   /* HTONS/L macros are unique to uIP */
-
-#  define HTONS(a)       htons(a)
-#  define HTONL(a)       htonl(a)
-
    /* Have SO_LINGER */
 
+#  define FAR
 #  define TCPBLASTER_HAVE_SOLINGER 1
 
 #else
@@ -92,9 +120,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_TCPBLASTER_IPv6
-uint16_t g_tcpblasterserver_ipv6[8];
+extern uint16_t g_tcpblasterserver_ipv6[8];
 #else
-uint32_t g_tcpblasterserver_ipv4;
+extern uint32_t g_tcpblasterserver_ipv4;
 #endif
 
 /****************************************************************************

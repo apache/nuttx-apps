@@ -54,6 +54,10 @@
 
 int main(int argc, char **argv, char **envp)
 {
+  /* Parse any command line options */
+
+  tcpblaster_cmdline(argc, argv);
+
 #ifdef CONFIG_EXAMPLES_TCPBLASTER_SERVER
   tcpblaster_client();
 #else
