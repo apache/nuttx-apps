@@ -545,7 +545,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    * Note the priority if not effected by nice-ness.
    */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) && (!defined(CONFIG_NSH_FILE_APPS) || !defined(CONFIG_FS_BINFS))
+#ifdef CONFIG_NSH_BUILTIN_APPS
 #if CONFIG_NFILE_STREAMS > 0
   ret = nsh_builtin(vtbl, argv[0], argv, redirfile, oflags);
 #else
