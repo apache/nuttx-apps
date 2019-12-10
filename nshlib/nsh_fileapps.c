@@ -85,6 +85,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   posix_spawn_file_actions_t file_actions;
   posix_spawnattr_t attr;
   pid_t pid;
+  int rc = 0;
   int ret;
 
   /* Initialize the attributes file actions structure */
@@ -160,7 +161,6 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        */
 
 #ifdef CONFIG_SCHED_WAITPID
-
       /* CONFIG_SCHED_WAITPID is selected, so we may run the command in
        * foreground unless we were specifically requested to run the command
        * in background (and running commands in background is enabled).
@@ -170,8 +170,6 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       if (vtbl->np.np_bg == false)
 #  endif /* CONFIG_NSH_DISABLEBG */
         {
-          int rc = 0;
-
           /* Setup up to receive SIGINT if control-C entered.  The return
            * value is ignored because this console device may not support
            * SIGINT.
@@ -220,17 +218,14 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           else
             {
-              /* We can't return the exact status (nsh has nowhere to put it)
-               * so just pass back zero/nonzero in a fashion that doesn't look
-               * like an error.
+              /* Ignore the returned child pid */
+
+              ret = OK;
+
+              /* TODO:  Set the environment variable '?' to a string corresponding
+               * to WEXITSTATUS(rc) so that $? will expand to the exit status of
+               * the most recently executed task.
                */
-
-              ret = (rc == 0) ? OK : 1;
-
-             /* TODO:  Set the environment variable '?' to a string corresponding
-              * to WEXITSTATUS(rc) so that $? will expand to the exit status of
-              * the most recently executed task.
-              */
             }
 
           (void)ioctl(stdout->fs_fd, TIOCSCTTY, -1);
@@ -297,6 +292,15 @@ errout:
       /* Return -1 on failure.  errno should have been set. */
 
       ret = ERROR;
+    }
+  else if (rc != 0)
+    {
+      /* We can't return the exact status (nsh has nowhere to put it)
+       * so just pass back zero/nonzero in a fashion that doesn't look
+       * like an error.
+       */
+
+      ret = 1;
     }
 
   return ret;
