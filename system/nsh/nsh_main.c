@@ -58,27 +58,17 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Kludge needed only for BINFS but should be harmless in other cases.  This
- * setups up an empty symbol table.  You will need to add logic to create
- * a "real" symbol table for your application elsewhere (see, for example
- * apps/system/symtab)
- */
-
-#define HAVE_DUMMY_SYMTAB 1
-
 /* Symbol table is not needed if loadable binary modules are not supported */
 
 #if !defined(CONFIG_LIBC_EXECFUNCS)
-#  undef HAVE_DUMMY_SYMTAB
 #  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
-/* boardctl() support is also required  for application-space symbol table
+/* boardctl() support is also required for application-space symbol table
  * support.
  */
 
 #if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
-#  undef HAVE_DUMMY_SYMTAB
 #  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
@@ -87,16 +77,7 @@
  */
 
 #ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
-#  undef HAVE_DUMMY_SYMTAB
 #  undef CONFIG_SYSTEM_NSH_SYMTAB
-#endif
-
-/* If we are going to use the application-space symbol table, then suppress
- * the dummy symbol table.
- */
-
-#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
-#  undef HAVE_DUMMY_SYMTAB
 #endif
 
 /* Check if we need to build in support for the system() and/or popen()
@@ -108,17 +89,6 @@
 #undef HAVE_NSH_COMMAND
 #if defined(CONFIG_SYSTEM_SYSTEM) || defined(CONFIG_SYSTEM_POPEN)
 #  define HAVE_NSH_COMMAND 1
-#endif
-
-/* Check if we have met the BINFS requirement either via a board-provided
- * symbol table, an application provided symbol table, or a dummy symbol
- * table
- */
-
-#if defined(CONFIG_FS_BINFS) && !defined(HAVE_DUMMY_SYMTAB) && \
-   !defined(CONFIG_SYSTEM_NSH_SYMTAB) && \
-   !defined(CONFIG_EXECFUNCS_HAVE_SYMTAB)
-#  warning "Prequisites not met for BINFS symbol table"
 #endif
 
 /* C++ initialization requires CXX initializer support */
@@ -147,20 +117,7 @@
  * Private Data
  ****************************************************************************/
 
-#if defined(HAVE_DUMMY_SYMTAB)
-/* If posix_spawn() is enabled as required for CONFIG_NSH_FILE_APPS, then
- * a symbol table is needed by the internals of posix_spawn().  The symbol
- * table is needed to support ELF and NXFLAT binaries to dynamically link to
- * the base code.  However, if only the BINFS file system is supported, then
- * no symbol table is needed.
- *
- * This will, of course, have to be replaced with a valid symbol table if
- * you want to support ELF or NXFLAT binaries!
- */
-
-static const struct symtab_s g_dummy_symtab[1];  /* Wasted memory! */
-
-#elif defined(CONFIG_SYSTEM_NSH_SYMTAB)
+#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
 
 extern const struct symtab_s CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME[];
 extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
@@ -183,7 +140,7 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 
 static int nsh_task(void)
 {
-#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_SYSTEM_NSH_SYMTAB)
+#if defined (CONFIG_SYSTEM_NSH_SYMTAB)
   struct boardioc_symtab_s symdesc;
 #endif
   int exitval = 0;
@@ -195,17 +152,11 @@ static int nsh_task(void)
   up_cxxinitialize();
 #endif
 
-#if defined(HAVE_DUMMY_SYMTAB) || defined (CONFIG_SYSTEM_NSH_SYMTAB)
-#if defined(HAVE_DUMMY_SYMTAB)
+#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
   /* Make sure that we are using our symbol table */
 
-  symdesc.symtab   = (FAR struct symtab_s *)g_dummy_symtab; /* Discard 'const' */
-  symdesc.nsymbols = 0;
-
-#else  /* if defined(CONFIG_SYSTEM_NSH_SYMTAB) */
   symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
   symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
-#endif
 
   (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
