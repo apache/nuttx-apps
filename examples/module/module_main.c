@@ -54,7 +54,7 @@
 #include <debug.h>
 
 #include <nuttx/module.h>
-#include <nuttx/binfmt/symtab.h>
+#include <nuttx/symtab.h>
 
 #if  defined(CONFIG_EXAMPLES_MODULE_ROMFS)
 #  include <nuttx/drivers/ramdisk.h>

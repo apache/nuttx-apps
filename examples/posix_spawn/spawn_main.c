@@ -53,7 +53,7 @@
 #include <errno.h>
 
 #include <nuttx/drivers/ramdisk.h>
-#include <nuttx/binfmt/symtab.h>
+#include <nuttx/symtab.h>
 
 #include "filesystem/romfs.h"
 

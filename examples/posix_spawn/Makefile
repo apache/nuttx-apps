@@ -74,12 +74,11 @@ spawn_main.o: spawn_main.c \
 	$(TOPDIR)/include/debug.h \
 	$(TOPDIR)/include/errno.h \
 	$(TOPDIR)/include/nuttx/drivers/ramdisk.h \
-	$(TOPDIR)/include/nuttx/binfmt/elf.h \
-	$(TOPDIR)/include/nuttx/binfmt/symtab.h \
+	$(TOPDIR)/include/nuttx/symtab.h \
 	filesystem/romfs.h
 
 symtab.o: filesystem/symtab.c \
 	$(TOPDIR)/include/nuttx/compiler.h \
-	$(TOPDIR)/include/nuttx/binfmt/symtab.h
+	$(TOPDIR)/include/nuttx/symtab.h
 
 include $(APPDIR)/Application.mk

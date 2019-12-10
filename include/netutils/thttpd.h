@@ -42,7 +42,7 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/binfmt/symtab.h>
+#include <nuttx/symtab.h>
 
 /****************************************************************************
  * Public Data

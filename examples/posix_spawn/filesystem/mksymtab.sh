@@ -30,7 +30,7 @@ varlist=`find ${dir} -executable -type f | xargs nm | fgrep ' U ' | sed -e "s/^[
 # faile
 
 echo "#include <nuttx/compiler.h>"
-echo "#include <nuttx/binfmt/symtab.h>"
+echo "#include <nuttx/symtab.h>"
 echo ""
 
 for var in $varlist; do

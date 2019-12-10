@@ -36,7 +36,7 @@ varlist=`echo $tmplist | sed -e "s/modprint//g"`
 # fail
 
 echo "#include <nuttx/compiler.h>"
-echo "#include <nuttx/binfmt/symtab.h>"
+echo "#include <nuttx/symtab.h>"
 echo ""
 
 for var in $varlist; do

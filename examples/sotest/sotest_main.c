@@ -50,7 +50,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/binfmt/symtab.h>
+#include <nuttx/symtab.h>
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
 #  include <nuttx/drivers/ramdisk.h>

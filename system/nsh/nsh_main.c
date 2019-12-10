@@ -47,7 +47,7 @@
 #include <errno.h>
 
 #if defined(CONFIG_LIBC_EXECFUNCS)
-#  include <nuttx/binfmt/symtab.h>
+#  include <nuttx/symtab.h>
 #endif
 
 #include "platform/cxxinitialize.h"
