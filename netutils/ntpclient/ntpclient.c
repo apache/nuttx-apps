@@ -305,8 +305,7 @@ static void ntpc_settime(FAR uint8_t *timestamp)
 static int ntpc_daemon(int argc, char **argv)
 {
   struct sockaddr_in server;
-  struct ntp_datagram_s xmit;
-  struct ntp_datagram_s recv;
+  struct ntp_datagram_s pkt;
   struct timeval tv;
 
 #ifdef CONFIG_LIBC_NETDB
@@ -409,12 +408,12 @@ static int ntpc_daemon(int argc, char **argv)
     {
       /* Format the transmit datagram */
 
-      memset(&xmit, 0, sizeof(xmit));
-      xmit.lvm = MKLVM(0, 3, NTP_VERSION);
+      memset(&pkt, 0, sizeof(pkt));
+      pkt.lvm = MKLVM(0, 3, NTP_VERSION);
 
       sinfo("Sending a NTP packet\n");
 
-      ret = sendto(sd, &xmit, sizeof(struct ntp_datagram_s),
+      ret = sendto(sd, &pkt, sizeof(struct ntp_datagram_s),
                    0, (FAR struct sockaddr *)&server,
                    sizeof(struct sockaddr_in));
 
@@ -445,7 +444,7 @@ static int ntpc_daemon(int argc, char **argv)
        */
 
       socklen = sizeof(struct sockaddr_in);
-      nbytes = recvfrom(sd, (void *)&recv, sizeof(struct ntp_datagram_s),
+      nbytes = recvfrom(sd, (void *)&pkt, sizeof(struct ntp_datagram_s),
                         0, (FAR struct sockaddr *)&server, &socklen);
 
       /* Check if the received message was long enough to be a valid NTP
@@ -455,7 +454,7 @@ static int ntpc_daemon(int argc, char **argv)
       if (nbytes >= (ssize_t)NTP_DATAGRAM_MINSIZE)
         {
           sinfo("Setting time\n");
-          ntpc_settime(recv.recvtimestamp);
+          ntpc_settime(pkt.recvtimestamp);
           retry = 0;
         }
 
