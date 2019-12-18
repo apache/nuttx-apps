@@ -222,7 +222,6 @@ static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
 #endif
-static const char g_nullstring[]      = "";
 
 /****************************************************************************
  * Public Data
@@ -887,7 +886,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   if (!allocation)
     {
-      return (FAR char *)g_nullstring;
+      return "";
     }
 
   /* Create a unique file name using the task ID */
@@ -897,7 +896,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   if (ret < 0 || !tmpfile)
     {
       nsh_error(vtbl, g_fmtcmdoutofmemory, "``");
-      return (FAR char *)g_nullstring;
+      return "";
     }
 
   /* Execute the command that will re-direct the output of the command to
@@ -912,7 +911,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
       nsh_error(vtbl, g_fmtcmdfailed, "``", "exec", NSH_ERRNO);
       free(tmpfile);
-      return (FAR char *)g_nullstring;
+      return "";
     }
 
   /* Concatenate the file contents with the current allocation */
@@ -1053,7 +1052,7 @@ static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *varname)
         }
 #endif
 
-      return (FAR char *)g_nullstring;
+      return "";
     }
 }
 #endif
@@ -1232,7 +1231,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           if (!rptr)
             {
               nsh_error(vtbl, g_fmtnomatching, "`", "`");
-              return (FAR char *)g_nullstring;
+              return "";
             }
 
           /* Replace the final back-quote with a NUL terminator */
@@ -1240,7 +1239,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           *rptr = '\0';
 
           /* Then execute the command to get the sub-string value.  On
-           * error, nsh_cmdparm may return g_nullstring but never NULL.
+           * error, nsh_cmdparm may return null string but never NULL.
            */
 
           result = nsh_cmdparm(vtbl, ptr, &tmpalloc);
@@ -1299,7 +1298,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
               if (!rptr)
                 {
                   nsh_error(vtbl, g_fmtnomatching, "${", "}");
-                  return (FAR char *)g_nullstring;
+                  return "";
                 }
 
               /* Replace the right bracket with a NUL terminator and set the
@@ -1367,7 +1366,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                                FAR char **allocation, FAR int *isenvvar)
 {
-  FAR char *argument = (FAR char *)g_nullstring;
+  FAR char *argument = "";
 #ifdef CONFIG_NSH_QUOTE
   char ch = *cmdline;
 
@@ -1396,7 +1395,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
       if (!rptr || rptr[1] != '\0')
         {
           nsh_error(vtbl, g_fmtnomatching, "`", "`");
-          return (FAR char *)g_nullstring;
+          return "";
         }
 
       /* Replace the final back-quote with a NUL terminator */
