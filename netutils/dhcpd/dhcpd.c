@@ -336,7 +336,7 @@ static time_t dhcpd_time(void)
 #ifdef HAVE_LEASE_TIME
 static inline bool dhcpd_leaseexpired(struct lease_s *lease)
 {
-  if (lease->expiry < dhcpd_time())
+  if (lease->expiry > dhcpd_time())
     {
       return false;
     }
