@@ -222,7 +222,9 @@ static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
 #endif
+#if defined(NSH_HAVE_VARS) || defined(CONFIG_NSH_CMDPARMS)
 static const char g_nullstring[]      = "";
+#endif
 
 /****************************************************************************
  * Public Data
