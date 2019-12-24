@@ -92,6 +92,15 @@
 #  define NSH_MEMLIST_FREE(m)
 #endif
 
+/* Do we need g_nullstring[]? */
+
+#undef NEED_NULLSTRING
+#if defined(NSH_HAVE_VARS) || defined(CONFIG_NSH_CMDPARMS)
+#  define NEED_NULLSTRING       1
+#elif !defined(CONFIG_NSH_ARGCAT) || !defined(HAVE_MEMLIST)
+#  define NEED_NULLSTRING       1
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -222,7 +231,7 @@ static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
 #endif
-#if defined(NSH_HAVE_VARS) || defined(CONFIG_NSH_CMDPARMS)
+#ifdef NEED_NULLSTRING
 static const char g_nullstring[]      = "";
 #endif
 
