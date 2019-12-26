@@ -88,6 +88,8 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
                           FAR const char *freqstr, FAR const char *flagstr);
 static void wapi_essid_cmd(int sock, FAR const char *ifname,
                            FAR const char *essid, FAR const char *flagstr);
+static void wapi_psk_cmd(int sock, FAR const char *ifname,
+                         FAR const char *passphrase, FAR const char *flagstr);
 static void wapi_mode_cmd(int sock, FAR const char *ifname,
                           FAR const char *modestr);
 static void wapi_ap_cmd(int sock, FAR const char *ifname,
@@ -115,6 +117,7 @@ static const struct wapi_command_s g_wapi_commands[] =
   {"mask",    2, (CODE void *)wapi_mask_cmd},
   {"freq",    3, (CODE void *)wapi_freq_cmd},
   {"essid",   3, (CODE void *)wapi_essid_cmd},
+  {"psk",     3, (CODE void *)wapi_psk_cmd},
   {"mode",    2, (CODE void *)wapi_mode_cmd},
   {"ap",      2, (CODE void *)wapi_ap_cmd},
   {"bitrate", 3, (CODE void *)wapi_bitrate_cmd},
@@ -507,6 +510,38 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
 }
 
 /****************************************************************************
+ * Name: wapi_psk_cmd
+ *
+ * Description:
+ *  Set the Passphrase
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void wapi_psk_cmd(int sock, FAR const char *ifname,
+                         FAR const char *passphrase, FAR const char *flagstr)
+{
+  enum wpa_alg_e alg_flag;
+  int ret;
+
+  /* Convert input strings to values */
+
+  alg_flag = (enum wpa_alg_e)wapi_str2ndx(flagstr, g_wapi_alg_flags);
+
+  /* Set the Passphrase */
+
+  ret = wpa_driver_wext_set_key_ext(sock, ifname, alg_flag,
+                                    (FAR const uint8_t *)passphrase,
+                                    strlen(passphrase));
+  if (ret < 0)
+    {
+      WAPI_ERROR("ERROR: wpa_driver_wext_set_key_ext() failed: %d\n", ret);
+    }
+}
+
+/****************************************************************************
  * Name: wapi_mode_cmd
  *
  * Description:
@@ -737,6 +772,7 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
   fprintf(stderr, "       %s mask     <ifname> <mask>\n", progname);
   fprintf(stderr, "       %s freq     <ifname> <frequency>  <index/flag>\n", progname);
   fprintf(stderr, "       %s essid    <ifname> <essid>      <index/flag>\n", progname);
+  fprintf(stderr, "       %s psk      <ifname> <passphrase> <index/flag>\n", progname);
   fprintf(stderr, "       %s mode     <ifname> <ifname>     <index/mode>\n", progname);
   fprintf(stderr, "       %s ap       <ifname> <ifname>     <MAC address>\n", progname);
   fprintf(stderr, "       %s bitrate  <ifname> <bitrate>    <index/flag>\n", progname);
@@ -753,6 +789,12 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
   for (i = 0; g_wapi_essid_flags[i]; i++)
     {
       fprintf(stderr, "       [%d] %s\n", i, g_wapi_essid_flags[i]);
+    }
+
+  fprintf(stderr, "\nPassphrase algorithm Flags:\n");
+  for (i = 0; g_wapi_alg_flags[i]; i++)
+    {
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_alg_flags[i]);
     }
 
   fprintf(stderr, "\nOperating Modes:\n");

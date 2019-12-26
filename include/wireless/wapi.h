@@ -277,6 +277,10 @@ EXTERN FAR const char *g_wapi_freq_flags[];
 
 EXTERN FAR const char *g_wapi_essid_flags[];
 
+/* Passphrase algorithm flag names. */
+
+EXTERN FAR const char *g_wapi_alg_flags[];
+
 /* Supported operation mode names. */
 
 EXTERN FAR const char *g_wapi_modes[];
