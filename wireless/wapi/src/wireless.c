@@ -72,7 +72,8 @@ struct wapi_event_stream_s
 FAR const char *g_wapi_freq_flags[] =
 {
   "WAPI_FREQ_AUTO",
-  "WAPI_FREQ_FIXED"
+  "WAPI_FREQ_FIXED",
+  NULL
 };
 
 /* ESSID */
@@ -80,7 +81,8 @@ FAR const char *g_wapi_freq_flags[] =
 FAR const char *g_wapi_essid_flags[] =
 {
   "WAPI_ESSID_ON",
-  "WAPI_ESSID_OFF"
+  "WAPI_ESSID_OFF",
+  NULL
 };
 
 /* Operating Mode */
@@ -94,7 +96,8 @@ FAR const char *g_wapi_modes[] =
   "WAPI_MODE_REPEAT",
   "WAPI_MODE_SECOND",
   "WAPI_MODE_MONITOR",
-  "WAPI_MODE_MESH"
+  "WAPI_MODE_MESH",
+  NULL
 };
 
 /* Bit Rate */
@@ -102,7 +105,8 @@ FAR const char *g_wapi_modes[] =
 FAR const char *g_wapi_bitrate_flags[] =
 {
   "WAPI_BITRATE_AUTO",
-  "WAPI_BITRATE_FIXED"
+  "WAPI_BITRATE_FIXED",
+  NULL
 };
 
 /* Transmit Power */
@@ -111,7 +115,8 @@ FAR const char *g_wapi_txpower_flags[] =
 {
   "WAPI_TXPOWER_DBM",
   "WAPI_TXPOWER_MWATT",
-  "WAPI_TXPOWER_RELATIVE"
+  "WAPI_TXPOWER_RELATIVE",
+  NULL
 };
 
 /****************************************************************************

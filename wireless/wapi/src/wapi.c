@@ -38,6 +38,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -76,8 +77,7 @@ typedef void (*cmd3_t)(int sock, FAR const char *arg1,
 
 static int wapi_str2int(FAR const char *str);
 static double wapi_str2double(FAR const char *str);
-static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
-                                 unsigned int listlen);
+static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list);
 
 static void wapi_show_cmd(int sock, FAR const char *ifname);
 static void wapi_ip_cmd(int sock, FAR const char *ifname,
@@ -185,12 +185,18 @@ static double wapi_str2double(FAR const char *str)
  *
  ****************************************************************************/
 
-static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
-                                 unsigned int listlen)
+static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list)
 {
   unsigned int ndx;
 
-  for (ndx = 0; ndx < listlen; ndx++)
+  /* Check the first character is enough, all prefix with WAPI_* */
+
+  if (isdigit(name[0]))
+    {
+      return atoi(name);
+    }
+
+  for (ndx = 0; list[ndx]; ndx++)
     {
       if (strcmp(name, list[ndx]) == 0)
         {
@@ -200,9 +206,9 @@ static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
 
   WAPI_ERROR("ERROR: Invalid option string: %s\n", name);
   WAPI_ERROR("       Valid options include:\n");
-  for (ndx = 0; ndx < listlen; ndx++)
+  for (ndx = 0; list[ndx]; ndx++)
     {
-      WAPI_ERROR("       - %s\n", list[ndx]);
+      WAPI_ERROR("       - [%d] %s\n", ndx, list[ndx]);
     }
 
   exit(EXIT_FAILURE);
@@ -456,8 +462,7 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
   /* Convert input strings to values */
 
   frequency = wapi_str2double(freqstr);
-  freq_flag = (enum wapi_freq_flag_e)wapi_str2ndx(flagstr, g_wapi_freq_flags,
-                                             IW_FREQ_NFLAGS);
+  freq_flag = (enum wapi_freq_flag_e)wapi_str2ndx(flagstr, g_wapi_freq_flags);
 
   /* Set the frequency */
 
@@ -487,7 +492,7 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
 
   /* Convert input strings to values */
 
-  essid_flag = (enum wapi_essid_flag_e)wapi_str2ndx(flagstr, g_wapi_essid_flags, 2);
+  essid_flag = (enum wapi_essid_flag_e)wapi_str2ndx(flagstr, g_wapi_essid_flags);
 
   /* Set the ESSID */
 
@@ -517,7 +522,7 @@ static void wapi_mode_cmd(int sock, FAR const char *ifname,
 
   /* Convert input strings to values */
 
-  mode = (enum wapi_mode_e)wapi_str2ndx(modestr, g_wapi_modes, IW_MODE_NFLAGS);
+  mode = (enum wapi_mode_e)wapi_str2ndx(modestr, g_wapi_modes);
 
   /* Set operating mode */
 
@@ -584,7 +589,7 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
 
   bitrate      = wapi_str2int(ratestr);
   bitrate_flag = (enum wapi_bitrate_flag_e)
-    wapi_str2ndx(flagstr, g_wapi_bitrate_flags, 2);
+    wapi_str2ndx(flagstr, g_wapi_bitrate_flags);
 
   /* Set bitrate */
 
@@ -617,7 +622,7 @@ static void wapi_txpower_cmd(int sock, FAR const char *ifname,
 
   txpower      = wapi_str2int(pwrstr);
   txpower_flag = (enum wapi_txpower_flag_e)
-    wapi_str2ndx(flagstr, g_wapi_txpower_flags, IW_TXPOW_NFLAGS);
+    wapi_str2ndx(flagstr, g_wapi_txpower_flags);
 
   /* Set txpower */
 
@@ -650,7 +655,11 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
   /* Start scan */
 
   ret = wapi_scan_init(sock, ifname);
-  WAPI_ERROR("ERROR: wapi_scan_init() failed: %d\n", ret);
+  if (ret < 0)
+    {
+      WAPI_ERROR("ERROR: wapi_scan_init() failed: %d\n", ret);
+      return;
+    }
 
   /* Wait for completion */
 
@@ -658,8 +667,11 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
     {
       sleep(sleepdur);
       ret = wapi_scan_stat(sock, ifname);
-      WAPI_ERROR("ERROR: wapi_scan_stat() failed: %d, sleeptries: %d\n",
-                 ret, sleeptries);
+      if (ret < 0)
+        {
+          WAPI_ERROR("ERROR: wapi_scan_stat() failed: %d, sleeptries: %d\n",
+                      ret, sleeptries);
+        }
     }
   while (--sleeptries > 0 && ret > 0);
 
@@ -716,46 +728,46 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
 {
   int i;
 
-  fprintf(stderr, "Usage: %s show <ifname>\n", progname);
-  fprintf(stderr, "       %s scan <ifname>\n", progname);
-  fprintf(stderr, "       %s ip <ifname> <IP address>\n", progname);
-  fprintf(stderr, "       %s mask <ifname> <mask>\n", progname);
-  fprintf(stderr, "       %s freq <ifname> <frequency> <flag>\n", progname);
-  fprintf(stderr, "       %s essid <ifname> <essid> <flag>\n", progname);
-  fprintf(stderr, "       %s mode <ifname> <ifname> <mode>\n", progname);
-  fprintf(stderr, "       %s ap <ifname> <ifname> <MAC address>\n", progname);
-  fprintf(stderr, "       %s bitrate <ifname> <bitrate> <flag>\n", progname);
-  fprintf(stderr, "       %s txpower <ifname> <txpower> <flag>\n", progname);
+  fprintf(stderr, "Usage: %s show     <ifname>\n", progname);
+  fprintf(stderr, "       %s scan     <ifname>\n", progname);
+  fprintf(stderr, "       %s ip       <ifname> <IP address>\n", progname);
+  fprintf(stderr, "       %s mask     <ifname> <mask>\n", progname);
+  fprintf(stderr, "       %s freq     <ifname> <frequency>  <index/flag>\n", progname);
+  fprintf(stderr, "       %s essid    <ifname> <essid>      <index/flag>\n", progname);
+  fprintf(stderr, "       %s mode     <ifname> <ifname>     <index/mode>\n", progname);
+  fprintf(stderr, "       %s ap       <ifname> <ifname>     <MAC address>\n", progname);
+  fprintf(stderr, "       %s bitrate  <ifname> <bitrate>    <index/flag>\n", progname);
+  fprintf(stderr, "       %s txpower  <ifname> <txpower>    <index/flag>\n", progname);
   fprintf(stderr, "       %s help\n", progname);
 
   fprintf(stderr, "\nFrequency Flags:\n");
-  for (i = 0; i < IW_FREQ_NFLAGS; i++)
+  for (i = 0; g_wapi_freq_flags[i]; i++)
     {
-       fprintf(stderr, "       %s\n", g_wapi_freq_flags[i]);
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_freq_flags[i]);
     }
 
   fprintf(stderr, "\nESSID Flags:\n");
-  for (i = 0; i < 2; i++)
+  for (i = 0; g_wapi_essid_flags[i]; i++)
     {
-      fprintf(stderr, "       %s\n", g_wapi_essid_flags[i]);
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_essid_flags[i]);
     }
 
   fprintf(stderr, "\nOperating Modes:\n");
-  for (i = 0; i < IW_MODE_NFLAGS; i++)
+  for (i = 0; g_wapi_modes[i]; i++)
     {
-      fprintf(stderr, "       %s\n", g_wapi_modes[i]);
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_modes[i]);
     }
 
   fprintf(stderr, "\nBitrate Flags:\n");
-  for (i = 0; i < 2; i++)
+  for (i = 0; g_wapi_bitrate_flags[i]; i++)
     {
-      fprintf(stderr, "       %s\n", g_wapi_bitrate_flags[i]);
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_bitrate_flags[i]);
     }
 
   fprintf(stderr, "\nTX power Flags:\n");
-  for (i = 0; i < IW_TXPOW_NFLAGS; i++)
+  for (i = 0; g_wapi_txpower_flags[i]; i++)
     {
-      fprintf(stderr, "       %s\n", g_wapi_txpower_flags[i]);
+      fprintf(stderr, "       [%d] %s\n", i, g_wapi_txpower_flags[i]);
     }
 
   exit(exitcode);
