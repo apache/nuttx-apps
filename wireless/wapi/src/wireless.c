@@ -342,9 +342,35 @@ static int wapi_scan_event(FAR struct iw_event *event,
       }
 
     case SIOCGIWFREQ:
-      info->has_freq = 1;
-      info->freq = wapi_freq2float(&(event->u.freq));
-      break;
+      {
+        info->has_freq = 1;
+
+        if (event->u.freq.e == 0)
+          {
+            /* Some drivers do not report frequency, but a channel.
+             * Try to map this to frequency by assuming they are using
+             * IEEE 802.11b/g.  But don't overwrite a previously parsed
+             * frequency if the driver sends both frequency and channel,
+             * since the driver may be sending an A-band channel that we
+             * don't handle here.
+             */
+
+            if (event->u.freq.m >= 1 && event->u.freq.m <= 13)
+              {
+                info->freq = 2407 + 5 * event->u.freq.m;
+              }
+            else if (event->u.freq.m == 14)
+              {
+                info->freq = 2484;
+              }
+          }
+        else
+          {
+            info->freq = wapi_freq2float(&(event->u.freq));
+          }
+
+        break;
+      }
 
     case SIOCGIWMODE:
       {
@@ -361,16 +387,19 @@ static int wapi_scan_event(FAR struct iw_event *event,
       }
 
     case SIOCGIWESSID:
-      info->has_essid = 1;
-      info->essid_flag = (event->u.data.flags) ? WAPI_ESSID_ON
-                                               : WAPI_ESSID_OFF;
-      memset(info->essid, 0, (WAPI_ESSID_MAX_SIZE + 1));
-      if ((event->u.essid.pointer) && (event->u.essid.length))
-        {
-          memcpy(info->essid, event->u.essid.pointer, event->u.essid.length);
-        }
+      {
+        info->has_essid = 1;
+        info->essid_flag = (event->u.data.flags) ? WAPI_ESSID_ON
+                                                 : WAPI_ESSID_OFF;
+        memset(info->essid, 0, (WAPI_ESSID_MAX_SIZE + 1));
+        if ((event->u.essid.pointer) && (event->u.essid.length))
+          {
+            memcpy(info->essid, event->u.essid.pointer,
+                   event->u.essid.length);
+          }
 
-      break;
+        break;
+      }
 
     case SIOCGIWRATE:
 
@@ -383,7 +412,26 @@ static int wapi_scan_event(FAR struct iw_event *event,
           info->has_bitrate = 1;
           info->bitrate = event->u.bitrate.value;
         }
+
       break;
+
+    case IWEVQUAL:
+      {
+        if (event->u.qual.updated & IW_QUAL_DBM)
+          {
+            info->has_rssi = 1;
+            info->rssi = event->u.qual.level;
+
+            /* Report signal levels in dBm */
+
+            if (info->rssi >= 0x40)
+              {
+                info->rssi -= 0x100;
+              }
+          }
+
+        break;
+      }
     }
 
   return 0;
@@ -1236,8 +1284,6 @@ alloc:
       free(buf);
       return -errcode;
     }
-
-  printf("got %d bytes\n", wrq.u.data.length);
 
   /* We have the results, process them. */
 

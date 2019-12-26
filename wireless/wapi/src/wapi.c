@@ -747,13 +747,14 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
 
   /* Print found aps */
 
+  printf("bssid / frequency / signal level / ssid\n");
   for (info = list.head.scan; info; info = info->next)
     {
-      printf("    %02x:%02x:%02x:%02x:%02x:%02x %s\n",
+      printf("%02x:%02x:%02x:%02x:%02x:%02x\t%g\t%d\t%s\n",
              info->ap.ether_addr_octet[0], info->ap.ether_addr_octet[1],
              info->ap.ether_addr_octet[2], info->ap.ether_addr_octet[3],
              info->ap.ether_addr_octet[4],  info->ap.ether_addr_octet[5],
-             (info->has_essid ? info->essid : ""));
+             info->freq, info->rssi, info->essid);
     }
 
   /* Free ap list */
