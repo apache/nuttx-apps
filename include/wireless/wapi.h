@@ -181,6 +181,8 @@ struct wapi_scan_info_s
   enum wapi_mode_e mode;
   int has_bitrate;
   int bitrate;
+  int has_rssi;
+  int rssi;
 };
 
 /* Linked list container for routing table rows. */
