@@ -80,8 +80,8 @@ FAR const char *g_wapi_freq_flags[] =
 
 FAR const char *g_wapi_essid_flags[] =
 {
-  "WAPI_ESSID_ON",
   "WAPI_ESSID_OFF",
+  "WAPI_ESSID_ON",
   NULL
 };
 
@@ -227,9 +227,6 @@ static void wapi_event_stream_init(FAR struct wapi_event_stream_s *stream,
 static int wapi_event_stream_extract(FAR struct wapi_event_stream_s *stream,
                                      FAR struct iw_event *iwe)
 {
-#warning Missing logic
-// return iw_extract_event_stream((struct stream_descr *)stream, iwe, 0);
-
   int ret;
   struct iw_event *iwe_stream;
 
@@ -390,7 +387,7 @@ static int wapi_scan_event(FAR struct iw_event *event, FAR struct wapi_list_s *l
 int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
                   FAR enum wapi_freq_flag_e *flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(freq);
@@ -441,7 +438,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
 int wapi_set_freq(int sock, FAR const char *ifname, double freq,
                   enum wapi_freq_flag_e flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   /* Set freq. */
@@ -487,7 +484,7 @@ int wapi_set_freq(int sock, FAR const char *ifname, double freq,
 int wapi_freq2chan(int sock, FAR const char *ifname, double freq,
                    FAR int *chan)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   char buf[sizeof(struct iw_range) * 2];
   int ret;
 
@@ -549,7 +546,7 @@ int wapi_freq2chan(int sock, FAR const char *ifname, double freq,
 int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
                    FAR double *freq)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   char buf[sizeof(struct iw_range) * 2];
   int ret;
 
@@ -608,7 +605,7 @@ int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
 int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
                    FAR enum wapi_essid_flag_e *flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(essid);
@@ -648,7 +645,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
                    enum wapi_essid_flag_e flag)
 {
   char buf[WAPI_ESSID_MAX_SIZE + 1];
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   /* Prepare request. */
@@ -680,7 +677,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
 
 int wapi_get_mode(int sock, FAR const char *ifname, FAR enum wapi_mode_e *mode)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(mode);
@@ -710,7 +707,7 @@ int wapi_get_mode(int sock, FAR const char *ifname, FAR enum wapi_mode_e *mode)
 
 int wapi_set_mode(int sock, FAR const char *ifname, enum wapi_mode_e mode)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   wrq.u.mode = mode;
@@ -767,7 +764,7 @@ int wapi_make_null_ether(FAR struct ether_addr *sa)
 
 int wapi_get_ap(int sock, FAR const char *ifname, FAR struct ether_addr *ap)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(ap);
@@ -798,7 +795,7 @@ int wapi_get_ap(int sock, FAR const char *ifname, FAR struct ether_addr *ap)
 int wapi_set_ap(int sock, FAR const char *ifname,
                 FAR const struct ether_addr *ap)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(ap);
@@ -829,7 +826,7 @@ int wapi_set_ap(int sock, FAR const char *ifname,
 int wapi_get_bitrate(int sock, FAR const char *ifname,
                      FAR int *bitrate, FAR enum wapi_bitrate_flag_e *flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(bitrate);
@@ -872,7 +869,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
 int wapi_set_bitrate(int sock, FAR const char *ifname, int bitrate,
                      enum wapi_bitrate_flag_e flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   wrq.u.bitrate.value = bitrate;
@@ -927,7 +924,7 @@ int wapi_mwatt2dbm(int mwatt)
 int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
                      FAR enum wapi_txpower_flag_e *flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(power);
@@ -988,7 +985,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
 int wapi_set_txpower(int sock, FAR const char *ifname, int power,
                      enum wapi_txpower_flag_e flag)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   /* Construct the request. */
@@ -1034,12 +1031,8 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
 
 int wapi_scan_init(int sock, const char *ifname)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
-
-  wrq.u.data.pointer = NULL;
-  wrq.u.data.flags = 0;
-  wrq.u.data.length = 0;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
   ret = ioctl(sock, SIOCSIWSCAN, (unsigned long)((uintptr_t)&wrq));
@@ -1066,13 +1059,11 @@ int wapi_scan_init(int sock, const char *ifname)
 
 int wapi_scan_stat(int sock, FAR const char *ifname)
 {
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
   char buf;
 
   wrq.u.data.pointer = &buf;
-  wrq.u.data.flags = 0;
-  wrq.u.data.length = 0;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
   if ((ret = ioctl(sock, SIOCGIWSCAN, (unsigned long)((uintptr_t)&wrq))) < 0)
@@ -1117,7 +1108,7 @@ int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps
 {
   FAR char *buf;
   int buflen;
-  struct iwreq wrq;
+  struct iwreq wrq = {};
   int ret;
 
   WAPI_VALIDATE_PTR(aps);

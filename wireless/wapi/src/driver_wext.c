@@ -70,97 +70,6 @@
  ************************************************************************************/
 
 /************************************************************************************
- * Name: wpa_driver_wext_set_ssid
- *
- * Description:
- *   Set SSID, SIOCSIWESSID
- *
- * Input Parameters:
- *   sockfd   - Opened network socket
- *   ifname   - Interface name
- *   ssid     -  SSID
- *   ssid_len - Length of SSID (0..32)
- *
- * Returned Value:
- *   0 on success, -1 on failure
- *
- ************************************************************************************/
-
-int wpa_driver_wext_set_ssid(int sockfd,  FAR const char *ifname,
-                             FAR const uint8_t *ssid, size_t ssid_len)
-{
-  struct iwreq iwr;
-  int ret = 0;
-  char buf[33];
-
-  DEBUGASSERT(ifname != NULL && ssid != NULL && ssid_len > 0);
-
-  if (ssid_len > WAPI_ESSID_MAX_SIZE)
-    {
-      return -1;
-    }
-
-  memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
-
-  /* flags: 1 = ESSID is active, 0 = not (promiscuous) */
-
-  iwr.u.essid.flags = (ssid_len != 0);
-  memset(buf, 0, sizeof(buf));
-  memcpy(buf, ssid, ssid_len);
-  iwr.u.essid.pointer = (caddr_t) buf;
-
-  iwr.u.essid.length = ssid_len;
-
-  if (ioctl(sockfd, SIOCSIWESSID, (unsigned long)&iwr) < 0)
-    {
-      nerr("ERROR: ioctl[SIOCSIWESSID]: %d", errno);
-      ret = -1;
-    }
-
-  return ret;
-}
-
-/************************************************************************************
- * Name: wpa_driver_wext_set_mode
- *
- * Description:
- *   Set wireless mode (infra/adhoc), SIOCSIWMODE
- *
- * Input Parameters:
- *   sockfd - Opened network socket
- *   ifname - Interface name
- *   mode   - 0 = infra/BSS (associate with an AP), 1 = adhoc/IBSS
- *
- * Returned Value:
- *   0 on success, -1 on failure
- *
- ************************************************************************************/
-
-int wpa_driver_wext_set_mode(int sockfd, FAR const char *ifname, int mode)
-{
-  struct iwreq iwr;
-  int ret = -1;
-
-  DEBUGASSERT(ifname != NULL);
-
-  memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
-  iwr.u.mode = mode;
-
-  if (ioctl(sockfd, SIOCSIWMODE, (unsigned long)&iwr) == 0)
-    {
-      ret = 0;
-      goto done;
-    }
-
-  nerr("ERROR: ioctl[SIOCSIWMODE]: %d", errno);
-
-done:
-  return ret;
-}
-
-/************************************************************************************
  * Name: wpa_driver_wext_set_key_ext
  *
  * Description:
@@ -272,7 +181,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
 
   strncpy(req.ifr_name, wconfig->ifname, IFNAMSIZ);
 
-  ret = wpa_driver_wext_set_mode(sockfd, wconfig->ifname, wconfig->sta_mode);
+  ret = wapi_set_mode(sockfd, wconfig->ifname, wconfig->sta_mode);
   if (ret < 0)
     {
       nerr("ERROR: Fail set sta mode: %d\n", ret);
@@ -306,8 +215,8 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
       goto close_socket;
     }
 
-  ret = wpa_driver_wext_set_ssid(sockfd, wconfig->ifname, wconfig->ssid,
-                                 wconfig->ssidlen);
+  ret = wapi_set_essid(sockfd, wconfig->ifname,
+                      (FAR const char *)wconfig->ssid, WAPI_ESSID_ON);
   if (ret < 0)
     {
       nerr("ERROR: Fail set ssid: %d\n", ret);
