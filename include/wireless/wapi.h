@@ -707,6 +707,19 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig);
 int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
                                    int idx, uint32_t value);
 
+/************************************************************************************
+ * Name: wpa_driver_wext_disconnect
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ************************************************************************************/
+
+void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname);
+
 #undef EXTERN
 #ifdef __cplusplus
 }

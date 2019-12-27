@@ -90,6 +90,7 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
                            FAR const char *essid, FAR const char *flagstr);
 static void wapi_psk_cmd(int sock, FAR const char *ifname,
                          FAR const char *passphrase, FAR const char *flagstr);
+static void wapi_disconnect_cmd(int sock, FAR const char *ifname);
 static void wapi_mode_cmd(int sock, FAR const char *ifname,
                           FAR const char *modestr);
 static void wapi_ap_cmd(int sock, FAR const char *ifname,
@@ -110,18 +111,19 @@ static void wapi_showusage(FAR const char *progname, int exitcode);
 
 static const struct wapi_command_s g_wapi_commands[] =
 {
-  {"help",    0, (CODE void *)NULL},
-  {"show",    1, (CODE void *)wapi_show_cmd},
-  {"scan",    1, (CODE void *)wapi_scan_cmd},
-  {"ip",      2, (CODE void *)wapi_ip_cmd},
-  {"mask",    2, (CODE void *)wapi_mask_cmd},
-  {"freq",    3, (CODE void *)wapi_freq_cmd},
-  {"essid",   3, (CODE void *)wapi_essid_cmd},
-  {"psk",     3, (CODE void *)wapi_psk_cmd},
-  {"mode",    2, (CODE void *)wapi_mode_cmd},
-  {"ap",      2, (CODE void *)wapi_ap_cmd},
-  {"bitrate", 3, (CODE void *)wapi_bitrate_cmd},
-  {"txpower", 3, (CODE void *)wapi_txpower_cmd},
+  {"help",       0, (CODE void *)NULL},
+  {"show",       1, (CODE void *)wapi_show_cmd},
+  {"scan",       1, (CODE void *)wapi_scan_cmd},
+  {"ip",         2, (CODE void *)wapi_ip_cmd},
+  {"mask",       2, (CODE void *)wapi_mask_cmd},
+  {"freq",       3, (CODE void *)wapi_freq_cmd},
+  {"essid",      3, (CODE void *)wapi_essid_cmd},
+  {"psk",        3, (CODE void *)wapi_psk_cmd},
+  {"disconnect", 1, (CODE void *)wapi_disconnect_cmd},
+  {"mode",       2, (CODE void *)wapi_mode_cmd},
+  {"ap",         2, (CODE void *)wapi_ap_cmd},
+  {"bitrate",    3, (CODE void *)wapi_bitrate_cmd},
+  {"txpower",    3, (CODE void *)wapi_txpower_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_wapi_commands) / sizeof(struct wapi_command_s))
@@ -542,6 +544,22 @@ static void wapi_psk_cmd(int sock, FAR const char *ifname,
 }
 
 /****************************************************************************
+ * Name: wapi_disconnect_cmd
+ *
+ * Description:
+ *   Disconnect the AP in the range using given ifname interface.
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void wapi_disconnect_cmd(int sock, FAR const char *ifname)
+{
+  wpa_driver_wext_disconnect(sock, ifname);
+}
+
+/****************************************************************************
  * Name: wapi_mode_cmd
  *
  * Description:
@@ -766,17 +784,18 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
 {
   int i;
 
-  fprintf(stderr, "Usage: %s show     <ifname>\n", progname);
-  fprintf(stderr, "       %s scan     <ifname>\n", progname);
-  fprintf(stderr, "       %s ip       <ifname> <IP address>\n", progname);
-  fprintf(stderr, "       %s mask     <ifname> <mask>\n", progname);
-  fprintf(stderr, "       %s freq     <ifname> <frequency>  <index/flag>\n", progname);
-  fprintf(stderr, "       %s essid    <ifname> <essid>      <index/flag>\n", progname);
-  fprintf(stderr, "       %s psk      <ifname> <passphrase> <index/flag>\n", progname);
-  fprintf(stderr, "       %s mode     <ifname> <ifname>     <index/mode>\n", progname);
-  fprintf(stderr, "       %s ap       <ifname> <ifname>     <MAC address>\n", progname);
-  fprintf(stderr, "       %s bitrate  <ifname> <bitrate>    <index/flag>\n", progname);
-  fprintf(stderr, "       %s txpower  <ifname> <txpower>    <index/flag>\n", progname);
+  fprintf(stderr, "Usage: %s show       <ifname>\n", progname);
+  fprintf(stderr, "       %s scan       <ifname>\n", progname);
+  fprintf(stderr, "       %s ip         <ifname> <IP address>\n", progname);
+  fprintf(stderr, "       %s mask       <ifname> <mask>\n", progname);
+  fprintf(stderr, "       %s freq       <ifname> <frequency>  <index/flag>\n", progname);
+  fprintf(stderr, "       %s essid      <ifname> <essid>      <index/flag>\n", progname);
+  fprintf(stderr, "       %s psk        <ifname> <passphrase> <index/flag>\n", progname);
+  fprintf(stderr, "       %s disconnect <ifname>\n", progname);
+  fprintf(stderr, "       %s mode       <ifname> <ifname>     <index/mode>\n", progname);
+  fprintf(stderr, "       %s ap         <ifname> <ifname>     <MAC address>\n", progname);
+  fprintf(stderr, "       %s bitrate    <ifname> <bitrate>    <index/flag>\n", progname);
+  fprintf(stderr, "       %s txpower    <ifname> <txpower>    <index/flag>\n", progname);
   fprintf(stderr, "       %s help\n", progname);
 
   fprintf(stderr, "\nFrequency Flags:\n");
