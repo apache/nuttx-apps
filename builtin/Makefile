@@ -47,7 +47,7 @@ BDATLIST = $(strip $(call RWILDCARD, registry, *.bdat))
 registry$(DELIM).updated:
 	$(Q) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-builtin_list$(OBJEXT): builtin_list.h builtin_proto.h
+builtin_list.c: builtin_list.h builtin_proto.h
 
 builtin_list.h: registry$(DELIM).updated
 	$(call DELFILE, .xx_builtin_list.h)
