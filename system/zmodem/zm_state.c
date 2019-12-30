@@ -755,7 +755,7 @@ static int zm_parse(FAR struct zm_state_s *pzm, size_t rcvlen)
   uint8_t ch;
   int ret;
 
-  DEBUGASSERT(pzm && rcvlen < CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE);
+  DEBUGASSERT(pzm && rcvlen <= CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE);
   zm_dumpbuffer("Received", pzm->rcvbuf, rcvlen);
 
   /* We keep a copy of the length and buffer index in the state structure.
