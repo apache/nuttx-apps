@@ -494,7 +494,7 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
   else
 #  endif
     {
-      zmdbg("ZMS_STATE %d->%d\n", pzm->state, );
+      zmdbg("ZMS_STATE %d->%d\n", pzm->state, ZMS_DONE);
       pzm->state = ZMS_DONE;
       return ZM_XFRDONE;
     }
