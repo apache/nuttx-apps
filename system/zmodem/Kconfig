@@ -62,6 +62,15 @@ config SYSTEM_ZMODEM_SNDBUFSIZE
 		The size of one transmit buffer used for composing messages sent to
 		the remote peer.
 
+config SYSTEM_ZMODEM_SNDFILEBUF
+	bool "Use cache buffer for file send"
+	default n
+	---help---
+		Read multiple bytes of file at once and store into a temporal buffer
+		which size is the same as SYSTEM_ZMODEM_SNDBUFSIZE. This is option
+		to improve the performance of file send, especially when the single
+		read of file is very slow.
+
 config SYSTEM_ZMODEM_MOUNTPOINT
 	string "Zmodem sandbox"
 	default "/tmp"

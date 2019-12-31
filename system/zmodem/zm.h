@@ -358,6 +358,9 @@ struct zm_state_s
   uint8_t  rcvbuf[CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE];
   uint8_t  pktbuf[ZM_PKTBUFSIZE];
   uint8_t  scratch[CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE];
+#ifdef CONFIG_SYSTEM_ZMODEM_SNDFILEBUF
+  uint8_t  filebuf[CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE];
+#endif
 };
 
 /* Receive state information */
