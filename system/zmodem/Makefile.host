@@ -43,7 +43,7 @@
 #        make -f Makefile.host TOPDIR=/home/me/projects/nuttx
 #          APPDIR=/home/me/projects/apps
 #
-#   2. Add CONFIG_DEBUG_FEATURES=1 to the make command line to enable debug output
+#   2. Add CONFIG_DEBUG_FEATURES=y to the make command line to enable debug output
 #   3. Make sure to clean old target .o files before making new host .o
 #      files.
 #
@@ -62,14 +62,14 @@ HOSTAPPS = $(ZMODEM)/host/apps
 HOSTCFLAGS  += -isystem $(HOSTDIR) -I $(ZMODEM) -I $(HOSTAPPS)
 HOSTCFLAGS  += -Dsz_main=main -Drz_main=main
 ifeq ($(CONFIG_DEBUG_FEATURES),y)
-HOSTCFLAGS  += -DCONFIG_DEBUG_ZMODEM=1 -DCONFIG_SYSTEM_ZMODEM_DUMPBUFFER=1
+HOSTCFLAGS  += -DCONFIG_DEBUG_ZMODEM=1
 endif
 
 # Zmodem sz and rz commands
 
 SZSRCS   = sz_main.c zm_send.c
 RZSRCS   = rz_main.c zm_receive.c
-CMNSRCS  = zm_state.c zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
+CMNSRCS  = zm_state.c zm_proto.c zm_watchdog.c zm_utils.c
 CMNSRCS += crc16.c crc32.c
 SRCS     = $(SZSRCS) $(RZSRCS) $(CMNSRCS)
 

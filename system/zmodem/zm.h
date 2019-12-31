@@ -49,6 +49,7 @@
 
 #include <stdint.h>
 #include <debug.h>
+#include <syslog.h>
 
 #include <nuttx/compiler.h>
 #include <nuttx/ascii.h>
