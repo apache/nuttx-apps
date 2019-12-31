@@ -872,7 +872,6 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
   bool wait = false;
   int sndsize;
   int pktsize;
-  int ret;
   int i;
 
   /* Loop, sending packets while we can if the receiver supports streaming
@@ -977,12 +976,24 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
       ptr         = pzm->scratch;
       pktsize     = 0;
 
+#ifdef CONFIG_SYSTEM_ZMODEM_SNDFILEBUF
+      /* Read multiple bytes of file and store into the temporal buffer */
+
+      zm_read(pzms->infd, pzm->filebuf, CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE);
+
+      i = 0;
+#endif
+
       while (pktsize <= (CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE - 10) &&
-             (ret = zm_getc(pzms->infd)) != EOF)
+             (pzms->offset < pzms->filesize))
         {
           /* Add the new value to the accumulated CRC */
 
-          uint8_t ch = (uint8_t)ret;
+#ifdef CONFIG_SYSTEM_ZMODEM_SNDFILEBUF
+          uint8_t ch = pzm->filebuf[i++];
+#else
+          uint8_t ch = zm_getc(pzms->infd);
+#endif
           if (!bcrc32)
             {
               crc = (uint32_t)crc16part(&ch, 1, (uint16_t)crc);
@@ -1007,6 +1018,12 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
           pzms->offset++;
         }
 
+#ifdef CONFIG_SYSTEM_ZMODEM_SNDFILEBUF
+      /* Restore file position to be read next time */
+
+      lseek(pzms->infd, pzms->offset, SEEK_SET);
+#endif
+
       /* If we've reached file end, a ZEOF header will follow.  If there's
        * room in the outgoing buffer for it, end the packet with ZCRCE and
        * append the ZEOF header.  If there isn't room, we'll have to do a
@@ -1014,7 +1031,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
        */
 
       pzm->flags &= ~ZM_FLAG_EOF;
-      if (ret == EOF)
+      if (pzms->offset == pzms->filesize)
         {
           pzm->flags |= ZM_FLAG_EOF;
           if (wait || (pzms->rcvmax != 0 && pktsize < 24))
