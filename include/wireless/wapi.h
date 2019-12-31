@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/wireless/wapi.h
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Adapted for Nuttx from WAPI:
@@ -70,7 +70,10 @@
 
 #define WAPI_PROC_LINE_SIZE  1024
 
-/* Select options to successfully open a socket in this nework configuration. */
+/* Select options to successfully open a socket in this network
+ * configuration.
+ */
+
 /* The address family that we used to create the socket really does not
  * matter.  It should, however, be valid in the current configuration.
  */
@@ -189,7 +192,7 @@ struct wapi_route_info_s
   struct in_addr dest;
   struct in_addr gw;
 
-  unsigned int flags;/* See  RTF_* in  net/route.h for available values. */
+  unsigned int flags;  /* See  RTF_* in  net/route.h for available values. */
   unsigned int refcnt;
   unsigned int use;
   unsigned int metric;
@@ -482,7 +485,8 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
  *
  ****************************************************************************/
 
-int wapi_get_mode(int sock, FAR const char *ifname, FAR enum wapi_mode_e *mode);
+int wapi_get_mode(int sock, FAR const char *ifname,
+                  FAR enum wapi_mode_e *mode);
 
 /****************************************************************************
  * Name: wapi_set_mode
@@ -620,8 +624,8 @@ int wapi_make_socket(void);
  * Name: wapi_scan_init
  *
  * Description:
- *   Starts a scan on the given interface. Root privileges are required to start a
- *   scan.
+ *   Starts a scan on the given interface. Root privileges are required to
+ *   start a scan.
  *
  ****************************************************************************/
 
@@ -651,9 +655,10 @@ int wapi_scan_stat(int sock, FAR const char *ifname);
  *
  ****************************************************************************/
 
-int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps);
+int wapi_scan_coll(int sock, FAR const char *ifname,
+                   FAR struct wapi_list_s *aps);
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_set_key_ext
  *
  * Description:
@@ -664,12 +669,13 @@ int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname, enum wpa_alg_e alg,
-                                FAR const uint8_t *key, size_t key_len);
+int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
+                                enum wpa_alg_e alg, FAR const uint8_t *key,
+                                size_t key_len);
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_associate
  *
  * Description:
@@ -679,11 +685,11 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname, enum wpa_alg
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig);
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_set_auth_param
  *
  * Description:
@@ -692,7 +698,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig);
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
                                    int idx, uint32_t value);

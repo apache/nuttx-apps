@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/wireless/wapi/src/wapi.c
  *
- *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Largely and original work, but highly influenced by sampled code provided
@@ -93,9 +93,11 @@ static void wapi_mode_cmd(int sock, FAR const char *ifname,
 static void wapi_ap_cmd(int sock, FAR const char *ifname,
                         FAR const char *macstr);
 static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
-                             FAR const char *ratestr, FAR const char *flagstr);
+                             FAR const char *ratestr,
+                             FAR const char *flagstr);
 static void wapi_txpower_cmd(int sock, FAR const char *ifname,
-                             FAR const char *pwrstr, FAR const char *flagstr);
+                             FAR const char *pwrstr,
+                             FAR const char *flagstr);
 static void wapi_scan_cmd(int sock, FAR const char *ifname);
 
 static void wapi_showusage(FAR const char *progname, int exitcode);
@@ -492,7 +494,8 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
 
   /* Convert input strings to values */
 
-  essid_flag = (enum wapi_essid_flag_e)wapi_str2ndx(flagstr, g_wapi_essid_flags);
+  essid_flag = (enum wapi_essid_flag_e)
+    wapi_str2ndx(flagstr, g_wapi_essid_flags);
 
   /* Set the ESSID */
 

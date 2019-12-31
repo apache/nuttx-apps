@@ -1,8 +1,8 @@
-/************************************************************************************
+/****************************************************************************
  * apps/wireless/wapi/src/driver_wext.c
  * Driver interaction with generic Wireless Extensions
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Simon Piriou <spiriou31@gmail.com>
  *           Gregory Nutt <gnutt@nuttx.org>
  *
@@ -38,7 +38,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 /* This file implements a driver interface for the Linux Wireless Extensions.
  * When used with WE-18 or newer, this interface can be used as-is with number
@@ -47,9 +47,9 @@
  * ioctls, but require private ioctls for some of the functionality.
  */
 
-/************************************************************************************
+/****************************************************************************
  * Included Files
- ************************************************************************************/
+ ****************************************************************************/
 
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -65,11 +65,11 @@
 
 #include "wireless/wapi.h"
 
-/************************************************************************************
+/****************************************************************************
  * Public Functions
- ************************************************************************************/
+ ****************************************************************************/
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_set_key_ext
  *
  * Description:
@@ -80,10 +80,11 @@
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname, enum wpa_alg_e alg,
-                                FAR const uint8_t *key, size_t key_len)
+int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname,
+                                enum wpa_alg_e alg, FAR const uint8_t *key,
+                                size_t key_len)
 {
   struct iwreq iwr;
   int ret = 0;
@@ -143,7 +144,7 @@ int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname, enum wpa_al
   return ret;
 }
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_associate
  *
  * Description:
@@ -153,7 +154,7 @@ int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname, enum wpa_al
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
 {
@@ -164,7 +165,8 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
   DEBUGASSERT(wconfig != NULL);
 
   ninfo("sta_mode=%u auth_wpa=%08x cipher_mode=%08x alg=%d\n",
-        wconfig->sta_mode, wconfig->auth_wpa, wconfig->cipher_mode, wconfig->alg);
+        wconfig->sta_mode, wconfig->auth_wpa, wconfig->cipher_mode,
+        wconfig->alg);
   ninfo("ifname=%s ssid[%u]=%s passphrase[%u]=%s\n",
         wconfig->ifname, wconfig->ssidlen, wconfig->ssid, wconfig->phraselen,
         wconfig->passphrase);
@@ -227,7 +229,7 @@ close_socket:
   return ret;
 }
 
-/************************************************************************************
+/****************************************************************************
  * Name: wpa_driver_wext_set_auth_param
  *
  * Description:
@@ -236,10 +238,10 @@ close_socket:
  *
  * Returned Value:
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname, int idx,
-                                   uint32_t value)
+int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
+                                   int idx, uint32_t value)
 {
   struct iwreq iwr;
   int errcode;
@@ -266,4 +268,3 @@ int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname, int idx,
 
   return ret;
 }
-
