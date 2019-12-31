@@ -435,7 +435,7 @@ static void usbmsc_disconnect(FAR void *handle)
 int main(int argc, FAR char *argv[])
 {
   struct boardioc_usbdev_ctrl_s ctrl;
-  FAR void *handle;
+  FAR void *handle = NULL;
   int ret;
 
   /* If this program is implemented as the NSH 'msconn' command, then we
@@ -495,7 +495,10 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       printf("mcsonn_main: usbmsc_configure failed: %d\n", -ret);
-      usbmsc_disconnect(handle);
+      if (handle)
+        {
+          usbmsc_disconnect(handle);
+        }
       return EXIT_FAILURE;
     }
 
