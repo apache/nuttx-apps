@@ -581,6 +581,14 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
+  /* Check if the destination does not match the source */
+
+  if (strcmp(destpath, srcpath) == 0)
+    {
+      nsh_error(vtbl, g_fmtsyntax, argv[0]);
+      goto errout_with_allocpath;
+    }
+
   /* Now open the destination */
 
   wrfd = open(destpath, oflags, 0666);
