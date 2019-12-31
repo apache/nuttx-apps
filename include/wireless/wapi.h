@@ -116,8 +116,8 @@ enum wapi_route_target_e
 
 enum wapi_essid_flag_e
 {
-  WAPI_ESSID_ON,
-  WAPI_ESSID_OFF
+  WAPI_ESSID_OFF,
+  WAPI_ESSID_ON
 };
 
 /* Supported operation modes. */
@@ -652,44 +652,6 @@ int wapi_scan_stat(int sock, FAR const char *ifname);
  ****************************************************************************/
 
 int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps);
-
-/************************************************************************************
- * Name: wpa_driver_wext_set_ssid
- *
- * Description:
- *   Set SSID, SIOCSIWESSID
- *
- * Input Parameters:
- *   sockfd   - Opened network socket
- *   ifname   - Interface name
- *   ssid     -  SSID
- *   ssid_len - Length of SSID (0..32)
- *
- * Returned Value:
- *   0 on success, -1 on failure
- *
- ************************************************************************************/
-
-int wpa_driver_wext_set_ssid(int sockfd, FAR const char *ifname,
-                             FAR const uint8_t *ssid, size_t ssid_len);
-
-/************************************************************************************
- * Name: wpa_driver_wext_set_mode
- *
- * Description:
- *   Set wireless mode (infra/adhoc), SIOCSIWMODE
- *
- * Input Parameters:
- *   sockfd - Opened network socket
- *   ifname - Interface name
- *   mode   - 0 = infra/BSS (associate with an AP), 1 = adhoc/IBSS
- *
- * Returned Value:
- *   0 on success, -1 on failure
- *
- ************************************************************************************/
-
-int wpa_driver_wext_set_mode(int sockfd, FAR const char *ifname, int mode);
 
 /************************************************************************************
  * Name: wpa_driver_wext_set_key_ext
