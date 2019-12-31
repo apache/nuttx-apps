@@ -527,6 +527,7 @@ INIHANDLE inifile_initialize(FAR const char *inifile_name)
   else
     {
       inidbg("ERROR: Could not open \"%s\"\n", inifile_name);
+      free(priv);
       return (INIHANDLE)NULL;
     }
 }
