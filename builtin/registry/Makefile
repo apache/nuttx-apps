@@ -41,16 +41,11 @@ include $(APPDIR)/Make.defs
 all:
 .PHONY: context depend clean distclean
 
-.updated: $(DEPCONFIG)
-	$(call DELFILE, *.bdat)
-	$(call DELFILE, *.pdat)
-	$(Q) touch .updated
-
 # This must run before any other context target
 
 install:
 
-context: .updated
+context:
 
 depend:
 
