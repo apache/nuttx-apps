@@ -173,6 +173,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
   fd = open(pathname, O_RDWR);
   if (fd < 0)
     {
+      ret = -ENOENT;
       goto errout;
     }
 
