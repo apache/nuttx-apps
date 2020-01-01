@@ -41,6 +41,9 @@ include $(APPDIR)/Make.defs
 all:
 .PHONY: context depend clean distclean
 
+.updated: $(DEPCONFIG)
+	$(Q) touch .updated
+
 # This must run before any other context target
 
 install:
