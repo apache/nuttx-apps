@@ -130,7 +130,7 @@ void mutex_test(void)
 
   printf("Starting thread 1\n");
 #ifdef SDCC
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
   status = pthread_create(&thread1, &attr, thread_func, (pthread_addr_t)1);
 #else
   status = pthread_create(&thread1, NULL, thread_func, (pthread_addr_t)1);

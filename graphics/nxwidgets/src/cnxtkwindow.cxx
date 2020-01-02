@@ -99,7 +99,7 @@ CNxTkWindow::~CNxTkWindow(void)
   // instance.  The lifetime of that instance is owned by he-who-
   // constructed-us.
 
-  (void)nxtk_closewindow(m_hNxTkWindow);
+  nxtk_closewindow(m_hNxTkWindow);
 
   delete m_widgetControl;
 }
@@ -405,7 +405,7 @@ void CNxTkWindow::getRectangle(FAR const struct nxgl_rect_s *rect, struct SBitma
 {
   // Get a rectangule region from the window
 
-  (void)nxtk_getwindow(m_hNxTkWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
+  nxtk_getwindow(m_hNxTkWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
 }
 
 /**

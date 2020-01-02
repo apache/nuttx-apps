@@ -288,7 +288,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
       iocargs.cmd  = NXTERMIOC_NXTERM_KBDIN;
       iocargs.arg  = (uintptr_t)&kbdin;
 
-      (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
+      boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
     }
   else
 #endif

@@ -167,8 +167,8 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag)
 
   /* Block the signal so that it will pend if received asynchronously */
 
-  (void)sigemptyset(&set);
-  (void)sigaddset(&set, CONFIG_GRAPHICS_FT80X_TAG_SIGNAL);
+  sigemptyset(&set);
+  sigaddset(&set, CONFIG_GRAPHICS_FT80X_TAG_SIGNAL);
 
   ret = pthread_sigmask(SIG_BLOCK, &set, NULL);
   if (ret < 0)
@@ -236,8 +236,8 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag)
       /* Make sure that the event notification is again disabled */
 
       notify.enable = false;
-      (void)ioctl(fd, FT80X_IOC_EVENTNOTIFY,
-                  (unsigned long)((uintptr_t)&notify));
+      ioctl(fd, FT80X_IOC_EVENTNOTIFY,
+            (unsigned long)((uintptr_t)&notify));
 
       /* Check if the signal was received correctly or if the timeout occurred. */
 
@@ -254,7 +254,7 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag)
         }
     }
 
-  (void)pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+  pthread_sigmask(SIG_UNBLOCK, &set, NULL);
   return tag;
 }
 

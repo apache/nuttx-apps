@@ -890,7 +890,7 @@ int zm_datapump(FAR struct zm_state_s *pzm)
 
       /* Stop the timer */
 
-      (void)zm_timerstop(pzm);
+      zm_timerstop(pzm);
       sched_unlock();
 
       /* EOF from the remote peer can only mean that we lost the connection

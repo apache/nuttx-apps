@@ -83,7 +83,7 @@ int nsh_system(int argc, char *argv[])
 
       /* Parse process the command */
 
-      (void)nsh_parse(vtbl, argv[1]);
+      nsh_parse(vtbl, argv[1]);
 #if CONFIG_NFILE_STREAMS > 0
       fflush(pstate->cn_outstream);
 #endif

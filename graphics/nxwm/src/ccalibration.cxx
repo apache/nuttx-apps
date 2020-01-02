@@ -228,12 +228,12 @@ void CCalibration::stop(void)
           // termination request
 
           ginfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
-          (void)pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
+          pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
 
           // Wait for the calibration thread to exit
 
           FAR pthread_addr_t value;
-          (void)pthread_join(m_thread, &value);
+          pthread_join(m_thread, &value);
         }
     }
 }
@@ -274,7 +274,7 @@ void CCalibration::hide(void)
       // Ask the calibration thread to hide the display
 
       m_calthread = CALTHREAD_HIDE;
-      (void)pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
+      pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
     }
 }
 
@@ -297,7 +297,7 @@ void CCalibration::redraw(void)
   if (!isStarted())
     {
       ginfo("Starting calibration: m_calthread=%d\n", (int)m_calthread);
-      (void)startCalibration(CALTHREAD_SHOW);
+      startCalibration(CALTHREAD_SHOW);
     }
 
   // Is the calibration thread running? If not, then wait until it is.
@@ -316,7 +316,7 @@ void CCalibration::redraw(void)
       // the display
 
       m_calthread = CALTHREAD_SHOW;
-      (void)pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
+      pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
     }
 }
 
@@ -546,13 +546,13 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
   // Configure the calibration thread
 
   pthread_attr_t attr;
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
 
   struct sched_param param;
   param.sched_priority = CONFIG_NXWM_CALIBRATION_LISTENERPRIO;
-  (void)pthread_attr_setschedparam(&attr, &param);
+  pthread_attr_setschedparam(&attr, &param);
 
-  (void)pthread_attr_setstacksize(&attr, CONFIG_NXWM_CALIBRATION_LISTENERSTACK);
+  pthread_attr_setstacksize(&attr, CONFIG_NXWM_CALIBRATION_LISTENERSTACK);
 
   // Set the initial state of the thread
 

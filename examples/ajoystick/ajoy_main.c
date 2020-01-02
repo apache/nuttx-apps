@@ -203,8 +203,8 @@ static int ajoy_wait(int fd, FAR const struct timespec *timeout)
 
   /* Wait for a signal */
 
-  (void)sigemptyset(&set);
-  (void)sigaddset(&set, CONFIG_EXAMPLES_AJOYSTICK_SIGNO);
+  sigemptyset(&set);
+  sigaddset(&set, CONFIG_EXAMPLES_AJOYSTICK_SIGNO);
   ret = sigtimedwait(&set, &value, timeout);
   if (ret < 0)
     {

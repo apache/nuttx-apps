@@ -396,7 +396,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
           rqt.tv_sec  = sec;
           rqt.tv_nsec = frac * NSEC_PER_MSEC;
 
-          (void)nanosleep(&rqt, NULL);
+          nanosleep(&rqt, NULL);
         }
 
       outhdr.seqno = htons(++result.seqno);

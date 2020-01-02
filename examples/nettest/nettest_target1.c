@@ -117,7 +117,7 @@ int main(int argc, FAR char *argv[])
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_SCHED_WAITPID)
   printf("main: Waiting for the server to exit\n");
-  (void)waitpid(child, &statloc, 0);
+  waitpid(child, &statloc, 0);
 #endif
 
   return EXIT_SUCCESS;

@@ -175,7 +175,7 @@ static void mm_update(FAR unsigned int *previous, FAR const char *msg)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&mmcurrent);
+  mallinfo(&mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -200,7 +200,7 @@ static void mm_initmonitor(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&mmcurrent);
+  mallinfo(&mmcurrent);
 #endif
 
   g_mminitial = mmcurrent.uordblks;
@@ -272,14 +272,14 @@ int main(int argc, FAR char *argv[])
    */
 
 #if defined(CONFIG_LIB_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
-  (void)setenv("PATH", MOUNTPT, 1);
+  setenv("PATH", MOUNTPT, 1);
 #endif
 
   /* Make sure that we are using our symbol tablee */
 
   symdesc.symtab   = (FAR struct symtab_s *)g_spawn_exports; /* Discard 'const' */
   symdesc.nsymbols = g_spawn_nexports;
-  (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
+  boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 
   /*************************************************************************
    * Case 1: Simple program with arguments

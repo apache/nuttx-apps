@@ -217,15 +217,15 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
    * be set appropriately).
    */
 
-  (void)posix_spawn_file_actions_destroy(&file_actions);
-  (void)posix_spawnattr_destroy(&attr);
+  posix_spawn_file_actions_destroy(&file_actions);
+  posix_spawnattr_destroy(&attr);
   return pid;
 
 errout_with_actions:
-  (void)posix_spawn_file_actions_destroy(&file_actions);
+  posix_spawn_file_actions_destroy(&file_actions);
 
 errout_with_attrs:
-  (void)posix_spawnattr_destroy(&attr);
+  posix_spawnattr_destroy(&attr);
 
 errout_with_errno:
   set_errno(ret);

@@ -93,8 +93,8 @@ static int alarm_daemon(int argc, FAR char *argv[])
 
   /* Make sure that the alarm signal is unmasked */
 
-  (void)sigemptyset(&set);
-  (void)sigaddset(&set, CONFIG_EXAMPLES_ALARM_SIGNO);
+  sigemptyset(&set);
+  sigaddset(&set, CONFIG_EXAMPLES_ALARM_SIGNO);
   ret = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (ret != OK)
     {
@@ -109,8 +109,8 @@ static int alarm_daemon(int argc, FAR char *argv[])
   act.sa_sigaction = alarm_handler;
   act.sa_flags     = SA_SIGINFO;
 
-  (void)sigfillset(&act.sa_mask);
-  (void)sigdelset(&act.sa_mask, CONFIG_EXAMPLES_ALARM_SIGNO);
+  sigfillset(&act.sa_mask);
+  sigdelset(&act.sa_mask, CONFIG_EXAMPLES_ALARM_SIGNO);
 
   ret = sigaction(CONFIG_EXAMPLES_ALARM_SIGNO, &act, NULL);
   if (ret < 0)
@@ -325,7 +325,7 @@ int main(int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: RTC_RD_ALARM ioctl failed: %d\n",
                   errcode);
 
-          (void)close(fd);
+          close(fd);
           return EXIT_FAILURE;
         }
 
@@ -380,7 +380,7 @@ int main(int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: RTC_CANCEL_ALARM ioctl failed: %d\n",
                   errcode);
 
-          (void)close(fd);
+          close(fd);
           return EXIT_FAILURE;
         }
 
@@ -409,13 +409,13 @@ int main(int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: RTC_SET_RELATIVE ioctl failed: %d\n",
                   errcode);
 
-          (void)close(fd);
+          close(fd);
           return EXIT_FAILURE;
         }
 
       printf("Alarm %d set in %lu seconds\n", alarmid, seconds);
     }
 
-  (void)close(fd);
+  close(fd);
   return EXIT_SUCCESS;
 }

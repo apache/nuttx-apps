@@ -508,8 +508,8 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
        */
 
       usock = gs2200m_socket_get(priv, usockid);
-      (void)usock_send_event(fd, priv, usock,
-                             USRSOCK_EVENT_SENDTO_READY);
+      usock_send_event(fd, priv, usock,
+                       USRSOCK_EVENT_SENDTO_READY);
     }
 
   gs2200m_printf("%s: end \n", __func__);
@@ -553,7 +553,7 @@ static int close_request(int fd, FAR struct gs2200m_s *priv,
 
   memset(&clmsg, 0, sizeof(clmsg));
   clmsg.cid = cid;
-  (void)ioctl(priv->gsfd, GS2200M_IOC_CLOSE, (unsigned long)&clmsg);
+  ioctl(priv->gsfd, GS2200M_IOC_CLOSE, (unsigned long)&clmsg);
 
 errout:
 
@@ -1281,7 +1281,7 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
       case SIOCSIFDSTADDR:
       case SIOCSIFNETMASK:
 
-        (void)read(fd, &imsg.ifr, sizeof(imsg.ifr));
+        read(fd, &imsg.ifr, sizeof(imsg.ifr));
         break;
 
       default:
@@ -1314,7 +1314,7 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
       resp2.valuelen_nontrunc = sizeof(imsg.ifr);
       resp2.valuelen = sizeof(imsg.ifr);
 
-      (void)_write_to_usock(fd, &resp2, sizeof(resp2));
+      _write_to_usock(fd, &resp2, sizeof(resp2));
 
       /* Return struct ifreq address */
 

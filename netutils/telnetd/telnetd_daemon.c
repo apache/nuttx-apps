@@ -346,9 +346,9 @@ static int telnetd_daemon(int argc, char *argv[])
 
       /* Use this driver as stdin, stdout, and stderror */
 
-      (void)dup2(drvrfd, 0);
-      (void)dup2(drvrfd, 1);
-      (void)dup2(drvrfd, 2);
+      dup2(drvrfd, 0);
+      dup2(drvrfd, 1);
+      dup2(drvrfd, 2);
 
       /* And we can close our original driver fd */
 

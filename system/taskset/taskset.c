@@ -186,7 +186,7 @@ int main(int argc, FAR char *argv[])
                             CONFIG_SYSTEM_TASKSET_STACKSIZE, nsh_system,
                             (FAR char * const *)nshargv);
 
-          (void)waitpid(pid, &rc, 0);
+          waitpid(pid, &rc, 0);
         }
     }
 

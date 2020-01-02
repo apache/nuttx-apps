@@ -83,7 +83,7 @@ CBgWindow::~CBgWindow(void)
   // instance.  The lifetime of that instance is owned by he-who-
   // constructed-us.
 
-  (void)nx_releasebkgd(m_hWindow);
+  nx_releasebkgd(m_hWindow);
 }
 
 /**
@@ -251,7 +251,7 @@ void CBgWindow::getRectangle(FAR const struct nxgl_rect_s *rect, struct SBitmap 
 {
   // Get a rectangule region from the window
 
-  (void)nx_getrectangle(m_hWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
+  nx_getrectangle(m_hWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
 }
 
 /**

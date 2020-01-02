@@ -109,7 +109,7 @@ static void updateMemoryUsage(FAR struct mallinfo *previous,
 #ifdef CONFIG_CAN_PASS_STRUCTS
   mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&mmcurrent);
+  mallinfo(&mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -136,7 +136,7 @@ static void initMemoryUsage(void)
   g_mmInitial = mallinfo();
   g_mmprevious = g_mmInitial;
 #else
-  (void)mallinfo(&g_mmInitial);
+  mallinfo(&g_mmInitial);
   memcpy(&g_mmprevious, &g_mmInitial, sizeof(struct mallinfo));
 #endif
 }

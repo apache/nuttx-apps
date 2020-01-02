@@ -88,7 +88,7 @@ int main(int argc, FAR char *argv[])
   if (stream == NULL)
     {
       fprintf(stderr, "ERROR: popen() failed: %d\n", errno);
-      (void)timer_delete(timerid);
+      timer_delete(timerid);
       return EXIT_FAILURE;
     }
 
@@ -190,6 +190,6 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  (void)timer_delete(timerid);
+  timer_delete(timerid);
   return exitcode;
 }

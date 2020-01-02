@@ -92,7 +92,7 @@ static void updateMemoryUsage(unsigned int previous,
 #ifdef CONFIG_CAN_PASS_STRUCTS
   mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&mmcurrent);
+  mallinfo(&mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -119,7 +119,7 @@ static void initMemoryUsage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&mmcurrent);
+  mallinfo(&mmcurrent);
 #endif
 
   g_mmInitial  = mmcurrent.uordblks;

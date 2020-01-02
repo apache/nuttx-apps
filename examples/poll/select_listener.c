@@ -97,7 +97,7 @@ void *select_listener(pthread_addr_t pvarg)
     {
       printf("select_listener: ERROR Failed to open FIFO %s: %d\n",
              FIFO_PATH2, errno);
-      (void)close(fd);
+      close(fd);
       return (void*)-1;
     }
 
@@ -189,6 +189,6 @@ void *select_listener(pthread_addr_t pvarg)
 
   /* Won't get here */
 
-  (void)close(fd);
+  close(fd);
   return NULL;
 }

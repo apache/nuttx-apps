@@ -366,7 +366,7 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
 errout_with_driver:
   /* Close the driver */
 
-  (void)close(var.fv_fd);
+  close(var.fv_fd);
 
 errout:
   /* Release all allocated memory */

@@ -162,7 +162,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       /* Parse process the command */
 
-      (void)nsh_parse(vtbl, pstate->cn_line);
+      nsh_parse(vtbl, pstate->cn_line);
     }
 
   /* We do not get here, but this is necessary to keep some compilers happy.

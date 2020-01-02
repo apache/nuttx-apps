@@ -139,7 +139,7 @@ int main(int argc, char **argv)
   act.sa_sigaction = siguser_action;
   act.sa_flags     = SA_SIGINFO;
 
-  (void)sigemptyset(&act.sa_mask);
+  sigemptyset(&act.sa_mask);
 
   status = sigaction(SIGUSR1, &act, &oact1);
   if (status != 0)

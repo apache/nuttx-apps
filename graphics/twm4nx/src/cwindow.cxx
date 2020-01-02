@@ -1856,7 +1856,7 @@ void CWindow::cleanup(void)
 
   if (m_eventq != (mqd_t)-1)
     {
-      (void)mq_close(m_eventq);
+      mq_close(m_eventq);
       m_eventq = (mqd_t)-1;
     }
 

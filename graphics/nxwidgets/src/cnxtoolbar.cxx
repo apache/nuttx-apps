@@ -100,7 +100,7 @@ CNxToolbar::~CNxToolbar(void)
 
   // Release the toolbar.
 
-  (void)nxtk_closetoolbar(m_hNxTkWindow);
+  nxtk_closetoolbar(m_hNxTkWindow);
 }
 
 /**
@@ -232,7 +232,7 @@ void CNxToolbar::getRectangle(FAR const struct nxgl_rect_s *rect, struct SBitmap
 {
   // Get a rectangule region from the toolbar
 
-  (void)nxtk_gettoolbar(m_hNxTkWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
+  nxtk_gettoolbar(m_hNxTkWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
 }
 
 /**

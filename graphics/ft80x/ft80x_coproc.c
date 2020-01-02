@@ -146,7 +146,7 @@ int ft80x_coproc_waitlogo(int fd)
 
       /* Wait for a half of a second */
 
-      (void)usleep(HALF_SECOND);
+      usleep(HALF_SECOND);
     }
 
   ft80x_err("ERROR:  Timed out!  Last head/tail = %u/%u\n", head, tail);

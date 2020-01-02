@@ -277,7 +277,7 @@ static bool createTouchScreen(void)
   // Get the physical size of the display in pixels
 
   struct nxgl_size_s displaySize;
-  (void)g_nxwmtest.taskbar->getDisplaySize(displaySize);
+  g_nxwmtest.taskbar->getDisplaySize(displaySize);
 
     // Create the touchscreen device
 
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
   // 2) here via a call to boardctl() if the interface is enabled
   // (CONFIG_LIB_BOARDCTL=y).
 
-  (void)boardctl(BOARDIOC_INIT, 0);
+  boardctl(BOARDIOC_INIT, 0);
 #endif
 
 #ifdef CONFIG_NXWM_NXTERM

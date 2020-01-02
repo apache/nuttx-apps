@@ -1021,8 +1021,8 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
         {
           int errval = errno;
           nerr("ERROR: socket() failed: %d\n", errval);
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 451, ' ', "Socket error !");
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 451, ' ', "Socket error !");
           return -errval;
         }
 
@@ -1033,9 +1033,9 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
         {
           int errval = errno;
           nerr("ERROR: connect() failed: %d\n", errval);
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 451, ' ', "Connect error !");
-          (void)ftpd_dataclose(session);
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 451, ' ', "Connect error !");
+          ftpd_dataclose(session);
           return -errval;
         }
 
@@ -1043,10 +1043,10 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
         {
           struct linger ling;
 
-          (void)memset(&ling, 0, sizeof(ling));
+          memset(&ling, 0, sizeof(ling));
           ling.l_onoff = 1;
           ling.l_linger = 4;
-          (void)setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
+          setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
         }
 #endif
 
@@ -1061,9 +1061,9 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
   if (sd < 0)
     {
       nerr("ERROR: ftpd_accept() failed: %d\n", sd);
-      (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 451, ' ', "Accept error !");
-      (void)ftpd_dataclose(session);
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 451, ' ', "Accept error !");
+      ftpd_dataclose(session);
       return sd;
     }
 
@@ -1074,10 +1074,10 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
   {
     struct linger ling;
 
-    (void)memset(&ling, 0, sizeof(ling));
+    memset(&ling, 0, sizeof(ling));
     ling.l_onoff = 1;
     ling.l_linger = 4;
-    (void)setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
+    setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
   }
 #endif
 
@@ -1174,7 +1174,7 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family)
 #ifdef CONFIG_NET_HAVE_REUSEADDR
   {
     int reuse = 1;
-   (void)setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+   setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
   }
 #endif
 
@@ -1329,7 +1329,7 @@ static FAR struct ftpd_pathnode_s *ftpd_path2node(FAR const char *path)
 
       tail = newnode;
 
-      (void)ftpd_pathignore(newnode);
+      ftpd_pathignore(newnode);
     }
 
   return head;
@@ -1507,7 +1507,7 @@ ftpd_nodeappend(FAR struct ftpd_pathnode_s *head,
   temp = head;
   while (temp)
     {
-      (void)ftpd_pathignore(temp);
+      ftpd_pathignore(temp);
       temp = temp->flink;
     }
 
@@ -1712,7 +1712,7 @@ static off_t ftpd_offsatoi(FAR const char *filename, off_t offset)
       /* ret is binary mode offset */
     }
 
-  (void)fclose(outstream);
+  fclose(outstream);
   return ret;
 }
 
@@ -1806,8 +1806,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
   if (session->fd < 0)
     {
       ret = -errno;
-      (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 550, ' ', "Can not open file !");
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 550, ' ', "Can not open file !");
       goto errout_with_data;
     }
 
@@ -1857,8 +1857,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (seekoffs < 0)
         {
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 550, ' ', "Can not seek file !");
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 550, ' ', "Can not seek file !");
           ret = -errval;
           goto errout_with_session;
         }
@@ -1922,8 +1922,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
       if (rdbytes < 0)
         {
           nerr("ERROR: Read failed: rdbytes=%d errval=%d\n", rdbytes, errval);
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 550, ' ', "Data read error !");
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 550, ' ', "Data read error !");
           ret = -errval;
           break;
         }
@@ -1936,8 +1936,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
         {
           /* End-of-file */
 
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 226, ' ', "Transfer complete");
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 226, ' ', "Transfer complete");
 
           /* Return success */
 
@@ -2017,8 +2017,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
       if (wrbytes != ((ssize_t)buflen))
         {
           nerr("ERROR: Write failed: wrbytes=%d errval=%d\n", wrbytes, errval);
-          (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                              g_respfmt1, 550, ' ', "Data send error !");
+          ftpd_response(session->cmd.sd, session->txtimeout,
+                        g_respfmt1, 550, ' ', "Data send error !");
            ret = -errval;
            break;
         }
@@ -2034,11 +2034,11 @@ errout_with_session:;
 
     if (isnew && ret < 0)
       {
-        (void)unlink(path);
+        unlink(path);
       }
 
 errout_with_data:;
-    (void)ftpd_dataclose(session);
+    ftpd_dataclose(session);
 
 errout_with_path:
     free(abspath);
@@ -2402,7 +2402,7 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
         }
     }
 
-  (void)closedir(dir);
+  closedir(dir);
   return ret;
 }
 
@@ -2631,7 +2631,7 @@ static int ftpd_command_mode(FAR struct ftpd_session_s *session)
 
 static int ftpd_command_abor(FAR struct ftpd_session_s *session)
 {
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
   return ftpd_response(session->cmd.sd, session->txtimeout,
                        g_respfmt1, 426, ' ',
                        "Transfer aborted. Data connection closed.");
@@ -2643,8 +2643,8 @@ static int ftpd_command_abor(FAR struct ftpd_session_s *session)
 
 static int ftpd_command_quit(FAR struct ftpd_session_s *session)
 {
-  (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                      g_respfmt1, 221, ' ', "Good-bye");
+  ftpd_response(session->cmd.sd, session->txtimeout,
+                g_respfmt1, 221, ' ', "Good-bye");
 
   /* Return a negative value to force the server to disconnect */
 
@@ -2721,7 +2721,7 @@ static int ftpd_command_port(FAR struct ftpd_session_s *session)
                            g_respfmt1, 501, ' ', "Illegal PORT command");
     }
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
 #if 1 /* Follow param */
 
@@ -2800,9 +2800,9 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
     {
       /* no message ? */
 
-      (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 502, ' ',
-                          "EPRT command not implemented !");
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 502, ' ',
+                    "EPRT command not implemented !");
       return -EINVAL;
     }
   right--;
@@ -2821,9 +2821,9 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
     {
       /* Invalid format */
 
-      (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 502, ' ',
-                          "EPRT command not implemented !");
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 502, ' ',
+                    "EPRT command not implemented !");
       return -EINVAL;
     }
 
@@ -2858,13 +2858,13 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
             }
         }
 
-      (void)ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 502, ' ',
-                          "EPRT command not implemented !");
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 502, ' ',
+                    "EPRT command not implemented !");
         return -EINVAL;
     }
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
   memset(&session->data.addr, 0, sizeof(session->data.addr));
   family = atoi(field[0]);
@@ -2874,7 +2874,7 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
       family = AF_INET;
 
       session->data.addr.in4.sin_family = family;
-      (void)inet_pton(family, field[1], &session->data.addr.in4.sin_addr);
+      inet_pton(family, field[1], &session->data.addr.in4.sin_addr);
       session->data.addr.in4.sin_port = htons((short)atoi(field[2]));
     }
   else
@@ -2885,7 +2885,7 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
       family = AF_INET6;
 
       session->data.addr.in6.sin6_family = family;
-      (void)inet_pton(family, field[1], &session->data.addr.in6.sin6_addr);
+      inet_pton(family, field[1], &session->data.addr.in6.sin6_addr);
       session->data.addr.in6.sin6_port = htons((short)atoi(field[2]));
     }
   else
@@ -3107,14 +3107,14 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
   unsigned int temp;
   int ret;
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
   session->data.addrlen = sizeof(session->data.addr);
 
   session->data.sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (session->data.sd < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ', "PASV socket create fail !");
     }
@@ -3123,7 +3123,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
                     &session->data.addrlen);
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ', "PASV getsockname fail !");
     }
@@ -3154,7 +3154,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
              session->data.addrlen);
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ', "PASV bind fail !");
     }
@@ -3163,7 +3163,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
                     &session->data.addrlen);
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ', "PASV getsockname fail !");
     }
@@ -3171,14 +3171,14 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
   ret = listen(session->data.sd, 1);
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ', "PASV listen fail !");
     }
 
   if (ntohl(session->data.addr.in4.sin_addr.s_addr) == INADDR_ANY)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 425, ' ',
                            "Can not open passive connection");
@@ -3201,7 +3201,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
                       value[3], value[4], value[5]);
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
     }
 
   return ret;
@@ -3220,7 +3220,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
 {
   int ret;
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
   session->data.addrlen = sizeof(session->data.addr);
 
@@ -3236,7 +3236,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
 #if defined(IPPROTO_IPV6) && defined(IPV6_V6ONLY)
       int ipv6only = 0;
-      (void)setsockopt(session->data.sd, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, sizeof(ipv6only));
+      setsockopt(session->data.sd, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6only, sizeof(ipv6only));
 #endif
     }
 #else
@@ -3247,7 +3247,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           g_respfmt1, 500, ' ', "EPSV socket create fail !");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3257,7 +3257,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           g_respfmt1, 500, ' ', "EPSV getsockname fail !");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3278,7 +3278,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           g_respfmt1, 500, ' ', "EPSV family not supported!");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3288,7 +3288,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           g_respfmt1, 500, ' ', "EPSV bind fail !");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3298,7 +3298,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           g_respfmt1, 500, ' ', "EPSV getsockname fail !");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3307,7 +3307,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
             g_respfmt1, 500, ' ', "EPSV listen fail !");
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
@@ -3320,7 +3320,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
                           ntohs(session->data.addr.in6.sin6_port));
       if (ret < 0)
         {
-          (void)ftpd_dataclose(session);
+          ftpd_dataclose(session);
           return ret;
         }
     }
@@ -3334,7 +3334,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
                           ntohs(session->data.addr.in4.sin_port));
       if (ret < 0)
         {
-          (void)ftpd_dataclose(session);
+          ftpd_dataclose(session);
           return ret;
         }
     }
@@ -3369,17 +3369,17 @@ static int ftpd_command_list(FAR struct ftpd_session_s *session)
                       "Opening ASCII mode data connection for file list");
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
   opton |= ftpd_listoption((char **)(&session->param));
-  (void)ftpd_list(session, opton);
+  ftpd_list(session, opton);
 
   ret = ftpd_response(session->cmd.sd, session->txtimeout,
                       g_respfmt1, 226, ' ', "Transfer complete");
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
   return ret;
 }
 
@@ -3403,17 +3403,17 @@ static int ftpd_command_nlst(FAR struct ftpd_session_s *session)
                       "Opening ASCII mode data connection for file list");
   if (ret < 0)
     {
-      (void)ftpd_dataclose(session);
+      ftpd_dataclose(session);
       return ret;
     }
 
   opton |= ftpd_listoption((char **)(&session->param));
-  (void)ftpd_list(session, opton);
+  ftpd_list(session, opton);
 
   ret = ftpd_response(session->cmd.sd, session->txtimeout,
                       g_respfmt1, 226, ' ', "Transfer complete");
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
   return ret;
 }
 
@@ -3530,7 +3530,7 @@ static int ftpd_command_size(FAR struct ftpd_session_s *session)
             offset++;
           }
 
-        (void)fclose(outstream);
+        fclose(outstream);
         ret = ftpd_response(session->cmd.sd, session->txtimeout,
                             "%03u%c%llu\r\n", 213, ' ', (unsigned long long)offset);
       }
@@ -3993,7 +3993,7 @@ static void ftpd_freesession(FAR struct ftpd_session_s *session)
       free(session->data.buffer);
     }
 
-  (void)ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
   if (session->cmd.buffer)
     {
@@ -4023,19 +4023,19 @@ static void ftpd_workersetup(FAR struct ftpd_session_s *session)
 
 #ifdef CONFIG_NET_HAVE_IPTOS
   temp = IPTOS_LOWDELAY;
-  (void)setsockopt(session->cmd.sd, IPPROTO_IP, IP_TOS, &temp, sizeof(temp));
+  setsockopt(session->cmd.sd, IPPROTO_IP, IP_TOS, &temp, sizeof(temp));
 #endif
 
 #ifdef CONFIG_NET_HAVE_OOBINLINE
   temp = 1;
-  (void)setsockopt(session->cmd.sd, SOL_SOCKET, SO_OOBINLINE, &temp, sizeof(temp));
+  setsockopt(session->cmd.sd, SOL_SOCKET, SO_OOBINLINE, &temp, sizeof(temp));
 #endif
 
 #ifdef CONFIG_NET_SOLINGER
-  (void)memset(&ling, 0, sizeof(ling));
+  memset(&ling, 0, sizeof(ling));
   ling.l_onoff = 1;
   ling.l_linger = 4;
-  (void)setsockopt(session->cmd.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
+  setsockopt(session->cmd.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
 #endif
 }
 
@@ -4108,7 +4108,7 @@ static FAR void *ftpd_worker(FAR void *arg)
                 break;
               }
 
-          (void)ftpd_send(session->cmd.sd, &session->cmd.buffer[offset], 1, session->txtimeout);
+          ftpd_send(session->cmd.sd, &session->cmd.buffer[offset], 1, session->txtimeout);
 
           offset++;
           recvbytes--;

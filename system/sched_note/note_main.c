@@ -624,7 +624,7 @@ static int note_daemon(int argc, char *argv[])
       usleep(CONFIG_SYSTEM_NOTE_DELAY * 1000L);
     }
 
-  (void)close(fd);
+  close(fd);
 
 errout:
   g_note_daemon_started = false;

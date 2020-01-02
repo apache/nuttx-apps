@@ -141,10 +141,10 @@ static inline int nxhello_initialize(void)
         * smoothly.
         */
 
-       (void)pthread_attr_init(&attr);
+       pthread_attr_init(&attr);
        param.sched_priority = CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE);
+       pthread_attr_setschedparam(&attr, &param);
+       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE);
 
        ret = pthread_create(&thread, &attr, nxhello_listener, NULL);
        if (ret != 0)
@@ -161,7 +161,7 @@ static inline int nxhello_initialize(void)
             * are connected.
             */
 
-           (void)sem_wait(&g_nxhello.eventsem);
+           sem_wait(&g_nxhello.eventsem);
          }
     }
   else
@@ -235,7 +235,7 @@ int main(int argc, FAR char *argv[])
 
   while (!g_nxhello.havepos)
     {
-      (void)sem_wait(&g_nxhello.eventsem);
+      sem_wait(&g_nxhello.eventsem);
     }
 
   printf("nxhello_main: Screen resolution (%d,%d)\n", g_nxhello.xres, g_nxhello.yres);
@@ -248,7 +248,7 @@ int main(int argc, FAR char *argv[])
 
   /* Release background */
 
-  (void)nx_releasebkgd(g_nxhello.hbkgd);
+  nx_releasebkgd(g_nxhello.hbkgd);
 
   /* Close NX */
 

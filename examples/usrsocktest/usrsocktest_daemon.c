@@ -1614,7 +1614,7 @@ static FAR void *delayed_cmd_thread(FAR void *priv)
 
   usleep(cmd->delay_msec * 1000);
 
-  (void)write(cmd->pipefd, &cmd->cmd, 1);
+  write(cmd->pipefd, &cmd->cmd, 1);
 
   if (!cmd->delay_msec)
     sem_post(&cmd->startsem);
@@ -1718,7 +1718,7 @@ int usrsocktest_daemon_stop(void)
       next = (void *)sq_next(&item->node);
 
       pthread_mutex_unlock(&daemon_mutex);
-      (void)pthread_join(item->tid, &retval);
+      pthread_join(item->tid, &retval);
       pthread_mutex_lock(&daemon_mutex);
       sq_rem(&item->node, &priv->delayed_cmd_threads);
       free(item);
@@ -1881,7 +1881,7 @@ int usrsocktest_daemon_pause_usrsock_handling(bool pause)
 
   priv->do_not_poll_usrsock = pause;
 
-  (void)write(priv->pipefd[1], &cmd, 1);
+  write(priv->pipefd[1], &cmd, 1);
   ret = OK;
 
   pthread_mutex_unlock(&daemon_mutex);
@@ -1916,7 +1916,7 @@ bool usrsocktest_send_delayed_command(const char cmd, unsigned int delay_msec)
   delayed_cmd->delay_msec = delay_msec;
   delayed_cmd->cmd = cmd;
   delayed_cmd->pipefd = priv->pipefd[1];
-  (void)sem_init(&delayed_cmd->startsem, 0, 0);
+  sem_init(&delayed_cmd->startsem, 0, 0);
 
   ret = pthread_attr_init(&attr);
   if (ret != OK)

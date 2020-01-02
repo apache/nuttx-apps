@@ -111,7 +111,7 @@ CIconMgr::~CIconMgr(void)
 
   if (m_eventq != (mqd_t)-1)
     {
-      (void)mq_close(m_eventq);
+      mq_close(m_eventq);
     }
 
   // Free the icon manager window
@@ -427,7 +427,7 @@ bool CIconMgr::event(FAR struct SEventMsg *eventmsg)
           // button array.  handleActionEvent() will be called in that
           // case.  false is not a failure.
 
-          (void)control->pollEvents();
+          control->pollEvents();
         }
         break;
 

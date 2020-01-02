@@ -77,15 +77,15 @@ static void nsh_configstdio(int fd)
 {
   /* Make sure the stdin, stdout, and stderr are closed */
 
-  (void)fclose(stdin);
-  (void)fclose(stdout);
-  (void)fclose(stderr);
+  fclose(stdin);
+  fclose(stdout);
+  fclose(stderr);
 
   /* Dup the fd to create standard fd 0-2 */
 
-  (void)dup2(fd, 0);
-  (void)dup2(fd, 1);
-  (void)dup2(fd, 2);
+  dup2(fd, 0);
+  dup2(fd, 1);
+  dup2(fd, 2);
 
   /* fdopen to get the stdin, stdout and stderr streams. The following logic depends
    * on the fact that the library layer will allocate FILEs in order.  And since
@@ -96,9 +96,9 @@ static void nsh_configstdio(int fd)
    * fd = 2 is stderr (write-only, append)
    */
 
-  (void)fdopen(0, "r");
-  (void)fdopen(1, "a");
-  (void)fdopen(2, "a");
+  fdopen(0, "r");
+  fdopen(1, "a");
+  fdopen(2, "a");
 }
 
 /****************************************************************************
@@ -217,7 +217,7 @@ restart:
 
           if (nbytes <= 0)
             {
-              (void)close(fd);
+              close(fd);
               goto restart;
             }
         }
@@ -308,19 +308,19 @@ int nsh_consolemain(int argc, char *argv[])
   /* Configure to use /dev/null if we do not have a valid console. */
 
 #ifndef CONFIG_DEV_CONSOLE
-  (void)nsh_nullstdio();
+  nsh_nullstdio();
 #endif
 
   /* Execute the one-time start-up script (output may go to /dev/null) */
 
 #ifdef CONFIG_NSH_ROMFSETC
-  (void)nsh_initscript(&pstate->cn_vtbl);
+  nsh_initscript(&pstate->cn_vtbl);
 #endif
 
 #if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
   /* Perform architecture-specific final-initialization (if configured) */
 
-  (void)boardctl(BOARDIOC_FINALINIT, 0);
+  boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
   /* Now loop, executing creating a session for each USB connection */
@@ -332,19 +332,18 @@ int nsh_consolemain(int argc, char *argv[])
        */
 
       ret = nsh_waitusbready();
-
-      (void)ret; /* Eliminate warning if not used */
+      UNUSED(ret); /* Eliminate warning if not used */
       DEBUGASSERT(ret == OK);
 
       /* Execute the session */
 
-      (void)nsh_session(pstate);
+      nsh_session(pstate);
 
       /* Switch to /dev/null because we probably no longer have a
        * valid console device.
        */
 
-      (void)nsh_nullstdio();
+      nsh_nullstdio();
     }
 }
 

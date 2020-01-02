@@ -98,7 +98,7 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
 
           if (nread < 0)
             {
-              (void)ftpc_xfrabort(session, linstream);
+              ftpc_xfrabort(session, linstream);
               return ERROR;
             }
 
@@ -112,7 +112,7 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
       nwritten = fwrite(session->buffer, sizeof(char), nread, routstream);
       if (nwritten != nread)
         {
-          (void)ftpc_xfrabort(session, routstream);
+          ftpc_xfrabort(session, routstream);
 
           /* Return failue */
 
@@ -149,7 +149,7 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
         {
           if (fputc('\r', routstream) == EOF)
             {
-              (void)ftpc_xfrabort(session, routstream);
+              ftpc_xfrabort(session, routstream);
               ret = ERROR;
               break;
             }
@@ -163,7 +163,7 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
 
       if (fputc(ch, routstream) == EOF)
         {
-          (void)ftpc_xfrabort(session, routstream);
+          ftpc_xfrabort(session, routstream);
           ret = ERROR;
           break;
         }

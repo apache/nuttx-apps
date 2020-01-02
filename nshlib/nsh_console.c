@@ -313,7 +313,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
   /* Close the console stream */
 
 #ifdef CONFIG_NSH_ALTCONDEV
-  (void)fclose(pstate->cn_constream);
+  fclose(pstate->cn_constream);
 #endif
 
 #ifdef CONFIG_NSH_VARS

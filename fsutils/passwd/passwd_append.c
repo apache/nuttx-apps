@@ -111,6 +111,6 @@ int passwd_append(FAR const char *username, FAR const char *password)
   ret = OK;
 
 errout_with_stream:
-  (void)fclose(stream);
+  fclose(stream);
   return ret;
 }

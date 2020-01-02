@@ -138,7 +138,7 @@ eMBMasterReqErrCode eMBMasterReqWriteHoldingRegister(uint8_t ucSndAddr,
       ucMBFrame[MB_PDU_REQ_WRITE_VALUE_OFF] = usRegData >> 8;
       ucMBFrame[MB_PDU_REQ_WRITE_VALUE_OFF + 1] = usRegData;
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_WRITE_SIZE);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 
@@ -235,7 +235,7 @@ eMBMasterReqErrCode
 
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_WRITE_MUL_SIZE_MIN +
                                2 * usNRegs);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 
@@ -340,7 +340,7 @@ eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(uint8_t ucSndAddr,
       ucMBFrame[MB_PDU_REQ_READ_REGCNT_OFF] = usNRegs >> 8;
       ucMBFrame[MB_PDU_REQ_READ_REGCNT_OFF + 1] = usNRegs;
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_READ_SIZE);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 
@@ -475,7 +475,7 @@ eMBMasterReqErrCode
 
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_READWRITE_SIZE_MIN +
                                2 * usNWriteRegs);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 

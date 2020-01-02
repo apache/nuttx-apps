@@ -369,7 +369,7 @@ void CKeypadTest::click(CKeypad *keypad, int column, int row)
 
   // Then inject the mouse click
 
-  (void)nx_mousein(handle, buttonX, buttonY, NX_MOUSE_LEFTBUTTON);
+  nx_mousein(handle, buttonX, buttonY, NX_MOUSE_LEFTBUTTON);
 }
 
 // The counterpart to click.  This simulates a button release through
@@ -398,7 +398,7 @@ void CKeypadTest::release(CKeypad *keypad, int column, int row)
 
   // Then inject the mouse release
 
-  (void)nx_mousein(handle, buttonX, buttonY, NX_MOUSE_NOBUTTONS);
+  nx_mousein(handle, buttonX, buttonY, NX_MOUSE_NOBUTTONS);
 }
 
 // Widget events are normally handled in a modal loop.

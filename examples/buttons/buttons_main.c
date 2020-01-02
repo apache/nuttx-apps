@@ -249,8 +249,8 @@ static int button_daemon(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_BUTTONS_SIGNAL
       /* Wait for a signal */
 
-      (void)sigemptyset(&set);
-      (void)sigaddset(&set, CONFIG_EXAMPLES_BUTTONS_SIGNO);
+      sigemptyset(&set);
+      sigaddset(&set, CONFIG_EXAMPLES_BUTTONS_SIGNO);
       ret = sigwaitinfo(&set, &value);
       if (ret < 0)
         {
@@ -366,7 +366,7 @@ static int button_daemon(int argc, char *argv[])
     }
 
 errout_with_fd:
-  (void)close(fd);
+  close(fd);
 
 errout:
   g_button_daemon_started = false;

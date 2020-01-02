@@ -158,7 +158,7 @@ static int nsh_task(void)
   symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
   symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 
-  (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
+  boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
 
   /* Initialize the NSH library */
@@ -215,13 +215,13 @@ int main(int argc, FAR char *argv[])
 
   /* Check the task priority that we were started with */
 
-  (void)sched_getparam(0, &param);
+  sched_getparam(0, &param);
   if (param.sched_priority != CONFIG_SYSTEM_NSH_PRIORITY)
     {
       /* If not then set the priority to the configured priority */
 
       param.sched_priority = CONFIG_SYSTEM_NSH_PRIORITY;
-      (void)sched_setparam(0, &param);
+      sched_setparam(0, &param);
     }
 
   /* There are two modes that NSH can be executed in:

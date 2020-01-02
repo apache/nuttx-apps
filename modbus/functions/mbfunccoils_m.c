@@ -127,7 +127,7 @@ eMBMasterReqErrCode eMBMasterReqReadCoils(uint8_t ucSndAddr,
       ucMBFrame[MB_PDU_REQ_READ_COILCNT_OFF] = usNCoils >> 8;
       ucMBFrame[MB_PDU_REQ_READ_COILCNT_OFF + 1] = usNCoils;
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_READ_SIZE);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 
@@ -261,7 +261,7 @@ eMBMasterReqErrCode eMBMasterReqWriteCoil(uint8_t ucSndAddr,
       ucMBFrame[MB_PDU_REQ_WRITE_VALUE_OFF] = usCoilData >> 8;
       ucMBFrame[MB_PDU_REQ_WRITE_VALUE_OFF + 1] = usCoilData;
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_WRITE_SIZE);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 
@@ -395,7 +395,7 @@ eMBMasterReqErrCode eMBMasterReqWriteMultipleCoils(uint8_t ucSndAddr,
 
       vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN + MB_PDU_REQ_WRITE_MUL_SIZE_MIN +
                                ucByteCount);
-      (void)xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
+      xMBMasterPortEventPost(EV_MASTER_FRAME_SENT);
       eErrStatus = eMBMasterWaitRequestFinish();
     }
 

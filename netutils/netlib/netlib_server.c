@@ -136,8 +136,8 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
        * provided in as the single argument to the new thread.
        */
 
-      (void)pthread_attr_init(&attr);
-      (void)pthread_attr_setstacksize(&attr, stacksize);
+      pthread_attr_init(&attr);
+      pthread_attr_setstacksize(&attr, stacksize);
 
       ret = pthread_create(&child, &attr, handler, (pthread_addr_t)((uintptr_t)acceptsd));
       if (ret != 0)
@@ -166,7 +166,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
        * in order to avoid memory leaks.
        */
 
-      (void)pthread_detach(child);
+      pthread_detach(child);
     }
 
   /* Close the listerner socket */

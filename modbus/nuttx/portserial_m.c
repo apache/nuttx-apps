@@ -187,7 +187,7 @@ void vMBMasterPortSerialEnable(bool bEnableRx, bool bEnableTx)
   if (bEnableRx)
     {
 #ifdef CONFIG_SERIAL_TERMIOS
-      (void)tcflush(iSerialFd, TCIFLUSH);
+      tcflush(iSerialFd, TCIFLUSH);
 #endif
       uiRxBufferPos = 0;
       bRxEnabled = true;
@@ -331,9 +331,9 @@ void vMBMasterPortClose( void )
   if (iSerialFd != -1)
     {
 #ifdef CONFIG_SERIAL_TERMIOS
-      (void)tcsetattr(iSerialFd, TCSANOW, &xOldTIO);
+      tcsetattr(iSerialFd, TCSANOW, &xOldTIO);
 #endif
-      (void)close(iSerialFd);
+      close(iSerialFd);
       iSerialFd = -1;
     }
 }
@@ -360,7 +360,7 @@ bool xMBMasterPortSerialPoll( void )
                 {
                   /* Call the modbus stack and let him fill the buffers. */
 
-                  (void)pxMBMasterFrameCBByteReceived();
+                  pxMBMasterFrameCBByteReceived();
                 }
 
               uiRxBufferPos = 0;
@@ -379,7 +379,7 @@ bool xMBMasterPortSerialPoll( void )
     {
       while (bTxEnabled)
         {
-          (void)pxMBMasterFrameCBTransmitterEmpty();
+          pxMBMasterFrameCBTransmitterEmpty();
 
           /* Call the modbus stack to let him fill the buffer. */
         }

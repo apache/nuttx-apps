@@ -819,7 +819,7 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Free resources */
 
 errout_with_fd:
-  (void)close(fd);
+  close(fd);
 
 errout_with_paths:
   if (loopdev)
@@ -986,7 +986,7 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Free resources */
 
 errout_with_fd:
-  (void)close(fd);
+  close(fd);
 
 errout_with_paths:
   if (loopdev)

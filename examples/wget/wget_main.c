@@ -95,7 +95,7 @@ static char g_iobuffer[512];
 static void callback(FAR char **buffer, int offset, int datend,
                      FAR int *buflen, FAR void *arg)
 {
-  (void)write(1, &((*buffer)[offset]), datend - offset);
+  write(1, &((*buffer)[offset]), datend - offset);
 }
 
 /****************************************************************************

@@ -324,7 +324,7 @@ static void netinit_set_macaddr(void)
 
   /* Set the 6LoWPAN extended address */
 
-  (void)netlib_seteaddr(NET_DEVNAME, eaddr);
+  netlib_seteaddr(NET_DEVNAME, eaddr);
 #endif /* CONFIG_NET_ETHERNET or HAVE_EADDR */
 }
 #else
@@ -446,7 +446,7 @@ static void netinit_net_bringup(void)
   if (handle != NULL)
     {
       struct dhcpc_state ds;
-      (void)dhcpc_request(handle, &ds);
+      dhcpc_request(handle, &ds);
       netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
 
       if (ds.netmask.s_addr != 0)
@@ -747,7 +747,7 @@ static int netinit_monitor(void)
           abstime.tv_nsec -= 1000000000;
         }
 
-      (void)sem_timedwait(&g_notify_sem, &abstime);
+      sem_timedwait(&g_notify_sem, &abstime);
       sched_unlock();
     }
 
@@ -756,7 +756,7 @@ static int netinit_monitor(void)
 errout_with_notification:
 #  warning Missing logic
 errout_with_sigaction:
-  (void)sigaction(CONFIG_NETINIT_SIGNO, &oact, NULL);
+  sigaction(CONFIG_NETINIT_SIGNO, &oact, NULL);
 errout_with_socket:
   close(sd);
 errout:
@@ -819,21 +819,21 @@ int netinit_bringup(void)
 
   pthread_attr_init(&attr);
   sparam.sched_priority = CONFIG_NETINIT_THREAD_PRIORITY;
-  (void)pthread_attr_setschedparam(&attr, &sparam);
-  (void)pthread_attr_setstacksize(&attr, CONFIG_NETINIT_THREAD_STACKSIZE);
+  pthread_attr_setschedparam(&attr, &sparam);
+  pthread_attr_setstacksize(&attr, CONFIG_NETINIT_THREAD_STACKSIZE);
 
   ninfo("Starting netinit thread\n");
   ret = pthread_create(&tid, &attr, netinit_thread, NULL);
   if (ret != OK)
     {
       nerr("ERROR: Failed to create netinit thread: %d\n", ret);
-      (void)netinit_thread(NULL);
+      netinit_thread(NULL);
     }
   else
     {
       /* Detach the thread because we will not be joining to it */
 
-      (void)pthread_detach(tid);
+      pthread_detach(tid);
 
       /* Name the thread */
 

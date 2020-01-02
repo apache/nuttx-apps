@@ -125,7 +125,7 @@ int main(int argc, FAR char *argv[])
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: Read from /dev/random failed: %d\n", errcode);
-      (void)close(fd);
+      close(fd);
       exit(EXIT_FAILURE);
     }
 
@@ -133,14 +133,14 @@ int main(int argc, FAR char *argv[])
     {
       fprintf(stderr, "ERROR: Read from /dev/random only produced %d bytes\n",
               (int)nread);
-      (void)close(fd);
+      close(fd);
       exit(EXIT_FAILURE);
     }
 
   /* Dump the sample buffer */
 
   lib_dumpbuffer("Random values", (FAR const uint8_t*)buffer, nread);
-  (void)close(fd);
+  close(fd);
   return EXIT_SUCCESS;
 }
 

@@ -101,6 +101,6 @@ int passwd_verify(FAR const char *username, FAR const char *password)
   ret = (strcmp(passwd.encrypted, encrypted) == 0) ? 1 : 0;
 
 errout_with_lock:
-  (void)passwd_unlock(sem);
+  passwd_unlock(sem);
   return ret;
 }

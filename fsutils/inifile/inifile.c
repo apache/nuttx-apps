@@ -217,7 +217,7 @@ static int inifile_read_line(FAR struct inifile_state_s *priv)
 
   if (priv->nextch != EOF)
     {
-      (void)inifile_next_line(priv);
+      inifile_next_line(priv);
     }
 
   /* And return the number of bytes read (excluding the NUL terminator and

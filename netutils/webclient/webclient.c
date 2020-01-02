@@ -347,9 +347,9 @@ static inline int wget_parseheaders(struct wget_s *ws)
                    * retain the current location.
                    */
 
-                  (void)netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
-                                         ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
-                                         ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
+                  netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
+                                      ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
+                                      ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
                   ninfo("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
                 }
             }
@@ -503,10 +503,10 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       tv.tv_sec  = CONFIG_WEBCLIENT_TIMEOUT;
       tv.tv_usec = 0;
 
-      (void)setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
-                       sizeof(struct timeval));
-      (void)setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
-                       sizeof(struct timeval));
+      setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
+                 sizeof(struct timeval));
+      setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
+                 sizeof(struct timeval));
 
       /* Get the server address from the host name */
 

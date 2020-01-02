@@ -133,13 +133,13 @@ static int nsh_telnetmain(int argc, char *argv[])
    */
 
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
-  (void)nsh_initscript(vtbl);
+  nsh_initscript(vtbl);
 #endif
 
   /* Execute the login script */
 
 #ifdef CONFIG_NSH_ROMFSRC
-  (void)nsh_loginscript(vtbl);
+  nsh_loginscript(vtbl);
 #endif
 
   /* Then enter the command line parsing loop */
@@ -202,7 +202,7 @@ static int nsh_telnetmain(int argc, char *argv[])
 
       /* Parse process the received Telnet command */
 
-      (void)nsh_parse(vtbl, pstate->cn_line);
+      nsh_parse(vtbl, pstate->cn_line);
       fflush(pstate->cn_outstream);
     }
 

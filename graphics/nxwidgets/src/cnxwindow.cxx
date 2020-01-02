@@ -83,7 +83,7 @@ CNxWindow::~CNxWindow(void)
 {
   // Release the window.
 
-  (void)nx_closewindow(m_hNxWindow);
+  nx_closewindow(m_hNxWindow);
 
   // Release the widget control instance. Whether its lifetime
   // should be handled by the window, or the owner-of-the-window
@@ -257,7 +257,7 @@ void CNxWindow::getRectangle(FAR const struct nxgl_rect_s *rect, struct SBitmap 
 {
   // Get a rectangule region from the window
 
-  (void)nx_getrectangle(m_hNxWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
+  nx_getrectangle(m_hNxWindow, rect, 0, (FAR uint8_t*)dest->data, dest->stride);
 }
 /**
  * Fill the specified trapezoidal region in the window with the specified

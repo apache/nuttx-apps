@@ -304,7 +304,7 @@ void aio_test(void)
   sigfillset(&set);
   sigdelset(&set, SIGUSR1);
   sigdelset(&set, SIGALRM);
-  (void)sigprocmask(SIG_SETMASK, &set, &oset);
+  sigprocmask(SIG_SETMASK, &set, &oset);
 
   /* Case 1: Poll for transfer complete */
 
@@ -627,7 +627,7 @@ void aio_test(void)
     }
   while (ret < 0);
 
-  (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+  sigprocmask(SIG_SETMASK, &oset, NULL);
   printf("aio_test: Test completed successfully\n");
   return;
 
@@ -635,7 +635,7 @@ errout_with_fildes:
   close(g_fildes);
   g_fildes = -1;
 errout_with_procmask:
-  (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+  sigprocmask(SIG_SETMASK, &oset, NULL);
   printf("aio_test: ERROR: Test aborted\n");
 }
 

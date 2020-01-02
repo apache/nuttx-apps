@@ -152,7 +152,7 @@ static void check_test_memory_usage(FAR const char *msg)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_usbmsc.mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&g_usbmsc.mmcurrent);
+  mallinfo(&g_usbmsc.mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -184,7 +184,7 @@ static void final_memory_usage(FAR const char *msg)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_usbmsc.mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&g_usbmsc.mmcurrent);
+  mallinfo(&g_usbmsc.mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -414,7 +414,7 @@ static void usbmsc_disconnect(FAR void *handle)
   ctrl.instance = 0;
   ctrl.handle   = &handle;
 
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
 }
 
 /****************************************************************************
@@ -458,7 +458,7 @@ int main(int argc, FAR char *argv[])
   g_usbmsc.mmstart    = mallinfo();
   g_usbmsc.mmprevious = g_usbmsc.mmstart;
 #  else
-  (void)mallinfo(&g_usbmsc.mmstart);
+  mallinfo(&g_usbmsc.mmstart);
   memcpy(&g_usbmsc.mmprevious, &g_usbmsc.mmstart, sizeof(struct mallinfo));
 #  endif
 #endif

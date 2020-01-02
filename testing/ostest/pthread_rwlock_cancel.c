@@ -63,7 +63,7 @@ static void * timeout_thread1(FAR void * data)
 
   while(1)
     {
-      (void)clock_gettime(CLOCK_REALTIME, &time);
+      clock_gettime(CLOCK_REALTIME, &time);
       time.tv_sec += 1;
 
       status = pthread_rwlock_timedrdlock(sync->write_lock, &time);
@@ -84,7 +84,7 @@ static void * timeout_thread2(FAR void * data)
 
   while (1)
     {
-      (void)clock_gettime(CLOCK_REALTIME, &time);
+      clock_gettime(CLOCK_REALTIME, &time);
       time.tv_sec += 1;
 
       status = pthread_rwlock_timedrdlock(sync->read_lock, &time);
@@ -104,7 +104,7 @@ static void * timeout_thread2(FAR void * data)
             }
         }
 
-      (void)clock_gettime(CLOCK_REALTIME, &time);
+      clock_gettime(CLOCK_REALTIME, &time);
       time.tv_sec += 1;
 
       status = pthread_rwlock_timedwrlock(sync->read_lock, &time);
@@ -186,8 +186,8 @@ static void test_timeout(void)
       printf("pthread_rwlock_cancel: ERROR pthread_cancel, status=%d\n", status);
     }
 
-  (void) pthread_join(thread1, NULL);
-  (void) pthread_join(thread2, NULL);
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
 
   /* Do some operations on locks in order to check if they are still in
    * usable state after deferred cancellation. */

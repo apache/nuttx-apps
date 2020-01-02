@@ -92,6 +92,6 @@ int passwd_deluser(FAR const char *username)
   ret = passwd_delete(passwd.offset);
 
 errout_with_lock:
-  (void)passwd_unlock(sem);
+  passwd_unlock(sem);
   return ret;
 }

@@ -153,7 +153,7 @@ static void fstest_loopmemusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
 
   /* Show the change from the previous loop */
@@ -179,7 +179,7 @@ static void fstest_endmemusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
   printf("\nFinal memory usage:\n");
   fstest_showmemusage(&g_mmbefore, &g_mmafter);
@@ -967,7 +967,7 @@ int main(int argc, FAR char *argv[])
   g_mmbefore = mallinfo();
   g_mmprevious = g_mmbefore;
 #else
-  (void)mallinfo(&g_mmbefore);
+  mallinfo(&g_mmbefore);
   memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
 #endif
 
@@ -988,7 +988,7 @@ int main(int argc, FAR char *argv[])
        */
 
       printf("\n=== FILLING %u =============================\n", i);
-      (void)fstest_fillfs();
+      fstest_fillfs();
       printf("Filled file system\n");
       printf("  Number of files: %d\n", g_nfiles);
       printf("  Number deleted:  %d\n", g_ndeleted);
@@ -1084,7 +1084,7 @@ int main(int argc, FAR char *argv[])
 
       /* Perform garbage collection, integrity checks */
 
-      (void)fstest_gc(buf.f_bfree);
+      fstest_gc(buf.f_bfree);
 
       /* Show memory usage */
 

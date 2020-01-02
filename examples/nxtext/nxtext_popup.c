@@ -386,7 +386,7 @@ NXWINDOW nxpu_open(void)
   return hwnd;
 
 errout_with_hwnd:
-  (void)nx_closewindow(hwnd);
+  nx_closewindow(hwnd);
 
 errout_with_state:
   return NULL;

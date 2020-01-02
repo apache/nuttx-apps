@@ -130,7 +130,7 @@ int passwd_unlock(FAR sem_t *sem)
 #ifdef CONFIG_FS_NAMED_SEMAPHORES
   /* Close the named semaphore */
 
-  (void)sem_close(sem);
+  sem_close(sem);
 #endif
 
   return OK;

@@ -162,7 +162,7 @@ void vMBMasterPortTimerPoll( void )
           if (ulDeltaMS > ulTimeOut)
             {
               bTimeoutEnable = false;
-              (void)pxMBMasterPortCBTimerExpired();
+              pxMBMasterPortCBTimerExpired();
             }
         }
     }

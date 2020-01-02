@@ -735,7 +735,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
 errout_with_sound:
-  (void)ft80x_audio_enable(fd, false);
+  ft80x_audio_enable(fd, false);
   return ret;
 }
 

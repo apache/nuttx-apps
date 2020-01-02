@@ -144,7 +144,7 @@ void tcpblaster_client(void)
   partials  = 0;
   totallost = 0;
 
-  (void)clock_gettime(CLOCK_REALTIME, &start);
+  clock_gettime(CLOCK_REALTIME, &start);
 
   for (; ; )
     {
@@ -204,7 +204,7 @@ void tcpblaster_client(void)
           float fkbrecvd;
           float felapsed;
 
-          (void)clock_gettime(CLOCK_REALTIME, &curr);
+          clock_gettime(CLOCK_REALTIME, &curr);
 
           elapsed.tv_sec  = curr.tv_sec - start.tv_sec;
           if (curr.tv_nsec >= start.tv_nsec)
@@ -237,7 +237,7 @@ void tcpblaster_client(void)
           partials   = 0;
           totallost  = 0;
 
-          (void)clock_gettime(CLOCK_REALTIME, &start);
+          clock_gettime(CLOCK_REALTIME, &start);
        }
     }
 
