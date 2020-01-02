@@ -514,7 +514,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
       /* Set the IP address to INADDR_ANY. */
 
       newaddr.s_addr = INADDR_ANY;
-      (void)netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
+      netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
 
       /* Loop sending DISCOVER until we receive an OFFER from a DHCP
        * server.  We will lock on to the first OFFER and decline any
@@ -555,8 +555,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                    * out of the loop.
                    */
 
-                  (void)netlib_set_ipv4addr(pdhcpc->interface,
-                                            &presult->ipaddr);
+                  netlib_set_ipv4addr(pdhcpc->interface,
+                                      &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -632,7 +632,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               else if (msgtype == DHCPOFFER)
                 {
                   ninfo("Received another OFFER, send DECLINE\n");
-                  (void)dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
+                  dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
                 }
 
               /* Otherwise, it is something that we do not recognize */
@@ -653,7 +653,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
             {
               /* An error other than a timeout was received */
 
-              (void)netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
+              netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
               return ERROR;
             }
         }

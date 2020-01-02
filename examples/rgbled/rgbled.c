@@ -106,7 +106,7 @@ int main(int argc, FAR char *argv[])
       }
 
     sprintf(buffer, "#%02X%02X%02X", red, green, blue);
-    (void)write(fd, buffer, 8);
+    write(fd, buffer, 8);
     usleep(5000);
   }
 

@@ -164,10 +164,10 @@ static inline int nxdemo_initialize(void)
         * smoothly.
         */
 
-       (void)pthread_attr_init(&attr);
+       pthread_attr_init(&attr);
        param.sched_priority = CONFIG_EXAMPLES_NXDEMO_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
+       pthread_attr_setschedparam(&attr, &param);
+       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
 
        ret = pthread_create(&thread, &attr, nxdemo_listener, NULL);
        if (ret != 0)
@@ -184,7 +184,7 @@ static inline int nxdemo_initialize(void)
             * are connected.
             */
 
-           (void)sem_wait(&g_nxdemo.eventsem);
+           sem_wait(&g_nxdemo.eventsem);
          }
     }
   else
@@ -237,7 +237,7 @@ int main(int argc, FAR char *argv[])
 
   while (!g_nxdemo.havepos)
     {
-      (void)sem_wait(&g_nxdemo.eventsem);
+      sem_wait(&g_nxdemo.eventsem);
     }
 
   printf("nxdemo_main: Screen resolution (%d,%d)\n",
@@ -247,7 +247,7 @@ int main(int argc, FAR char *argv[])
 
   /* Release background */
 
-  (void)nx_releasebkgd(g_nxdemo.hbkgd);
+  nx_releasebkgd(g_nxdemo.hbkgd);
 
   /* Close NX */
 

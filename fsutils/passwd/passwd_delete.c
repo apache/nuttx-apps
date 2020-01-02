@@ -298,25 +298,25 @@ int passwd_delete(off_t offset)
   ret = passwd_copyfile(iobuffer, instream, outstream, SIZE_MAX);
 
 errout_with_outstream:
-  (void)fclose(outstream);
+  fclose(outstream);
 
 errout_with_instream:
-  (void)fclose(instream);
+  fclose(instream);
 
 errout_with_tmpfile:
   if (ret < 0)
     {
       /* Restore the previous /etc/passwd file */
 
-      (void)unlink(CONFIG_FSUTILS_PASSWD_PATH);
-      (void)rename(CONFIG_FSUTILS_PASSWD_PATH ".tmp",
-                   CONFIG_FSUTILS_PASSWD_PATH);
+      unlink(CONFIG_FSUTILS_PASSWD_PATH);
+      rename(CONFIG_FSUTILS_PASSWD_PATH ".tmp",
+             CONFIG_FSUTILS_PASSWD_PATH);
     }
   else
     {
       /* Delete the previous /etc/passwd file */
 
-      (void)unlink(CONFIG_FSUTILS_PASSWD_PATH ".tmp");
+      unlink(CONFIG_FSUTILS_PASSWD_PATH ".tmp");
     }
 
 errout_with_iobuffer:

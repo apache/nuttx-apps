@@ -146,7 +146,7 @@ int serdis_main(int argc, char *argv[])
   ctrl.instance = CONFIG_SYSTEM_CDCACM_DEVMINOR;
   ctrl.handle   = &g_cdcacm.handle;
 
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   g_cdcacm.handle = NULL;
   printf("serdis: Disconnected\n");
   return EXIT_SUCCESS;

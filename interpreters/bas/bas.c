@@ -2023,7 +2023,7 @@ static void runline(struct Token *line)
       if (!g_program.runnable && g_pass == COMPILE)
         {
           Value_destroy(&value);
-          (void)compileProgram(&value, 0);
+          compileProgram(&value, 0);
         }
     }
 

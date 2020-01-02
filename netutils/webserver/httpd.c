@@ -167,9 +167,9 @@ static int httpd_openindex(struct httpd_state *pstate)
 #  if defined(CONFIG_NETUTILS_HTTPD_INDEX)
   if (ret == ERROR && errno == EISDIR)
     {
-      (void) snprintf(pstate->ht_filename + z,
-                      sizeof pstate->ht_filename - z, "/%s",
-                      CONFIG_NETUTILS_HTTPD_INDEX);
+      snprintf(pstate->ht_filename + z,
+               sizeof pstate->ht_filename - z, "/%s",
+               CONFIG_NETUTILS_HTTPD_INDEX);
 
       ret = httpd_open(pstate->ht_filename, &pstate->ht_file);
     }
@@ -341,7 +341,7 @@ static int handle_script(struct httpd_state *pstate)
               DEBUGASSERT(status >= 0);
               UNUSED(status);
 
-              (void)httpd_close(&pstate->ht_file);
+              httpd_close(&pstate->ht_file);
             }
           else
             {
@@ -521,8 +521,8 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
 
   if (len >= 0)
     {
-      (void)snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
-                     "Content-Length: %d\r\n", len);
+      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+               "Content-Length: %d\r\n", len);
     }
   else
     {
@@ -534,8 +534,8 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
 #if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
       /* Turn on chunked encoding */
 
-      (void)snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
-                     "Transfer-Encoding: chunked\r\n");
+      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+               "Transfer-Encoding: chunked\r\n");
       pstate->ht_chunked = true;
 #endif
     }
@@ -593,9 +593,8 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
     }
 #endif
 
-  (void) snprintf(pstate->ht_filename, sizeof pstate->ht_filename,
-    "%s/%d.html",
-    CONFIG_NETUTILS_HTTPD_ERRPATH, status);
+  snprintf(pstate->ht_filename, sizeof pstate->ht_filename,
+           "%s/%d.html", CONFIG_NETUTILS_HTTPD_ERRPATH, status);
 
   ret = httpd_openindex(pstate);
 
@@ -607,7 +606,7 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
 
   if (ret != OK)
     {
-      (void) snprintf(msg, sizeof msg, "Error %d\n", status);
+      snprintf(msg, sizeof msg, "Error %d\n", status);
 
       ret = send_chunk(pstate, msg, sizeof msg - 1);
     }
@@ -621,7 +620,7 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
 #endif
 #endif
 
-      (void)httpd_close(&pstate->ht_file);
+      httpd_close(&pstate->ht_file);
     }
 
   return ret;
@@ -702,7 +701,7 @@ static int httpd_sendfile(struct httpd_state *pstate)
 #endif
 
 done:
-  (void)httpd_close(&pstate->ht_file);
+  httpd_close(&pstate->ht_file);
   return ret;
 }
 
@@ -812,7 +811,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
               }
 
             *v = '\0';
-            (void) strcpy(pstate->ht_filename, start);
+            strcpy(pstate->ht_filename, start);
             state = STATE_HEADER;
             break;
 
@@ -919,11 +918,11 @@ static void *httpd_handler(void *arg)
           status = httpd_parse(pstate);
           if (status >= 400)
             {
-              (void)httpd_senderror(pstate, status);
+              httpd_senderror(pstate, status);
             }
           else
             {
-              (void) httpd_sendfile(pstate);
+              httpd_sendfile(pstate);
             }
 
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
@@ -1009,7 +1008,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler,
 
       /* Handle the request. This blocks until complete. */
 
-      (void)httpd_handler((FAR void *)acceptsd);
+      httpd_handler((FAR void *)acceptsd);
     }
 
   /* Close the sockets */

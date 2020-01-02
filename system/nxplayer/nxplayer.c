@@ -208,10 +208,10 @@ static int _open_with_http(const char *fullurl)
   tv.tv_sec  = 10; /* TODO */
   tv.tv_usec = 0;
 
-  (void)setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
-                   sizeof(struct timeval));
-  (void)setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
-                   sizeof(struct timeval));
+  setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
+             sizeof(struct timeval));
+  setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
+             sizeof(struct timeval));
 
   struct sockaddr_in server;
   server.sin_family = AF_INET;
@@ -975,7 +975,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
        */
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-      (void)nxplayer_setvolume(pplayer, pplayer->volume);
+      nxplayer_setvolume(pplayer, pplayer->volume);
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
       nxplayer_setbalance(pplayer, pplayer->balance);
 #endif
@@ -1998,9 +1998,9 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
   pthread_attr_init(&tattr);
   sparam.sched_priority = sched_get_priority_max(SCHED_FIFO) - 9;
-  (void)pthread_attr_setschedparam(&tattr, &sparam);
-  (void)pthread_attr_setstacksize(&tattr,
-                                  CONFIG_NXPLAYER_PLAYTHREAD_STACKSIZE);
+  pthread_attr_setschedparam(&tattr, &sparam);
+  pthread_attr_setstacksize(&tattr,
+                            CONFIG_NXPLAYER_PLAYTHREAD_STACKSIZE);
 
   /* Add a reference count to the player for the thread and start the
    * thread.  We increment for the thread to avoid thread start-up

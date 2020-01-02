@@ -177,8 +177,6 @@ static lv_res_t keyboard_open_close(lv_obj_t *text_area)
 {
   lv_obj_t *parent;
 
-  (void)text_area; /* Unused */
-
   /* Text area is on the scrollable part of the page but we need
    * the page itself
    */
@@ -235,8 +233,6 @@ static lv_res_t keyboard_open_close(lv_obj_t *text_area)
 
 static lv_res_t keyboard_hide_action(lv_obj_t *keyboard)
 {
-  (void)keyboard; /* Unused */
-
 #if USE_LV_ANIMATION
   lv_obj_animate(kb, LV_ANIM_FLOAT_BOTTOM | LV_ANIM_OUT, 300, 0,
                  kb_hide_anim_end);

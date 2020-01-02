@@ -304,7 +304,7 @@ namespace NXWidgets
     inline void drawFilledCircle(struct nxgl_point_s *center, nxgl_coord_t radius,
                                  nxgl_mxpixel_t color)
     {
-      (void)m_pNxWnd->drawFilledCircle(center, radius, color);
+      m_pNxWnd->drawFilledCircle(center, radius, color);
     }
 
     /**

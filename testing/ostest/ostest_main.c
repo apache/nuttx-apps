@@ -142,7 +142,7 @@ static void check_test_memory_usage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
 
   /* Show the change from the previous time */
@@ -228,7 +228,7 @@ static int user_main(int argc, char *argv[])
   g_mmbefore = mallinfo();
   g_mmprevious = g_mmbefore;
 #else
-  (void)mallinfo(&g_mmbefore);
+  mallinfo(&g_mmbefore);
   memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
 #endif
 
@@ -556,7 +556,7 @@ static int user_main(int argc, char *argv[])
 #ifdef CONFIG_CAN_PASS_STRUCTS
       g_mmafter = mallinfo();
 #else
-      (void)mallinfo(&g_mmafter);
+      mallinfo(&g_mmafter);
 #endif
 
       printf("\nFinal memory usage:\n");

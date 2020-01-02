@@ -127,8 +127,8 @@ void CNxFont::drawChar(FAR SBitmap *bitmap, nxwidget_char_t letter)
 
       // Then render the glyph into the bitmap memory
 
-      (void)FONT_RENDERER((FAR nxgl_mxpixel_t*)bitmap->data, fheight,
-                          fwidth, fstride, fbm, m_fontColor);
+      FONT_RENDERER((FAR nxgl_mxpixel_t*)bitmap->data, fheight,
+                    fwidth, fstride, fbm, m_fontColor);
     }
 }
 

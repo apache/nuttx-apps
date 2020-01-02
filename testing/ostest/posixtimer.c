@@ -118,7 +118,7 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
 
   /* Check sigprocmask */
 
-  (void)sigfillset(&allsigs);
+  sigfillset(&allsigs);
   status = sigprocmask(SIG_SETMASK, NULL, &oldset);
   if (status != OK)
     {
@@ -156,8 +156,8 @@ void timer_test(void)
 
   printf("timer_test: Unmasking signal %d\n" , MY_TIMER_SIGNAL);
 
-  (void)sigemptyset(&set);
-  (void)sigaddset(&set, MY_TIMER_SIGNAL);
+  sigemptyset(&set);
+  sigaddset(&set, MY_TIMER_SIGNAL);
   status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
@@ -169,8 +169,8 @@ void timer_test(void)
   act.sa_sigaction = timer_expiration;
   act.sa_flags  = SA_SIGINFO;
 
-  (void)sigfillset(&act.sa_mask);
-  (void)sigdelset(&act.sa_mask, MY_TIMER_SIGNAL);
+  sigfillset(&act.sa_mask);
+  sigdelset(&act.sa_mask, MY_TIMER_SIGNAL);
 
   status = sigaction(MY_TIMER_SIGNAL, &act, &oact);
   if (status != OK)

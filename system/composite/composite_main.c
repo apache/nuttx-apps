@@ -127,7 +127,7 @@ static void check_test_memory_usage(FAR const char *msg)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_composite.mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&g_composite.mmcurrent);
+  mallinfo(&g_composite.mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -159,7 +159,7 @@ static void final_memory_usage(FAR const char *msg)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_composite.mmcurrent = mallinfo();
 #else
-  (void)mallinfo(&g_composite.mmcurrent);
+  mallinfo(&g_composite.mmcurrent);
 #endif
 
   /* Show the change from the previous time */
@@ -447,7 +447,7 @@ int main(int argc, FAR char *argv[])
   g_composite.mmstart    = mallinfo();
   g_composite.mmprevious = g_composite.mmstart;
 #  else
-  (void)mallinfo(&g_composite.mmstart);
+  mallinfo(&g_composite.mmstart);
   memcpy(&g_composite.mmprevious, &g_composite.mmstart, sizeof(struct mallinfo));
 #  endif
 #endif
@@ -566,7 +566,7 @@ int disconn_main(int argc, char *argv[])
   ctrl.config   = config;
   ctrl.handle   = &g_composite.cmphandle;
 
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
 
   g_composite.cmphandle = NULL;
   printf("disconn_main: Disconnected\n");

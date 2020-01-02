@@ -167,10 +167,10 @@ static inline int nxlines_initialize(void)
         * smoothly.
         */
 
-       (void)pthread_attr_init(&attr);
+       pthread_attr_init(&attr);
        param.sched_priority = CONFIG_EXAMPLES_NXLINES_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE);
+       pthread_attr_setschedparam(&attr, &param);
+       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE);
 
        ret = pthread_create(&thread, &attr, nxlines_listener, NULL);
        if (ret != 0)
@@ -187,7 +187,7 @@ static inline int nxlines_initialize(void)
             * are connected.
             */
 
-           (void)sem_wait(&g_nxlines.eventsem);
+           sem_wait(&g_nxlines.eventsem);
          }
     }
   else
@@ -251,7 +251,7 @@ int main(int argc, FAR char *argv[])
 
   while (!g_nxlines.havepos)
     {
-      (void)sem_wait(&g_nxlines.eventsem);
+      sem_wait(&g_nxlines.eventsem);
     }
 
   printf("nxlines_main: Screen resolution (%d,%d)\n", g_nxlines.xres, g_nxlines.yres);
@@ -264,7 +264,7 @@ int main(int argc, FAR char *argv[])
 
   /* Release background */
 
-  (void)nx_releasebkgd(g_nxlines.hbkgd);
+  nx_releasebkgd(g_nxlines.hbkgd);
 
   /* Close NX */
 

@@ -222,10 +222,10 @@ static int nxtext_initialize(void)
        * smoothly.
        */
 
-      (void)pthread_attr_init(&attr);
+      pthread_attr_init(&attr);
       param.sched_priority = CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO;
-      (void)pthread_attr_setschedparam(&attr, &param);
-      (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTEXT_STACKSIZE);
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTEXT_STACKSIZE);
 
       ret = pthread_create(&thread, &attr, nxtext_listener, NULL);
       if (ret != 0)
@@ -244,7 +244,7 @@ static int nxtext_initialize(void)
            * are connected.
            */
 
-          (void)sem_wait(&g_semevent);
+          sem_wait(&g_semevent);
         }
     }
   else
@@ -331,7 +331,7 @@ int main(int argc, FAR char *argv[])
 
   while (!b_haveresolution)
     {
-      (void)sem_wait(&g_semevent);
+      sem_wait(&g_semevent);
     }
 
   printf("nxtext_main: Screen resolution (%d,%d)\n", g_xres, g_yres);
@@ -376,7 +376,7 @@ int main(int argc, FAR char *argv[])
           /* Destroy the pop-up window and restart the sequence */
 
           printf("nxtext_main: Close pop-up\n");
-          (void)nxpu_close(hwnd);
+          nxpu_close(hwnd);
           popcnt = 0;
         }
 
@@ -400,11 +400,11 @@ errout_with_hwnd:
   if (popcnt >= 3)
     {
       printf("nxtext_main: Close pop-up\n");
-     (void)nxpu_close(hwnd);
+     nxpu_close(hwnd);
     }
 
 //errout_with_bkgd:
-  (void)nx_releasebkgd(g_bgwnd);
+  nx_releasebkgd(g_bgwnd);
 
 errout_with_nx:
   /* Disconnect from the server */

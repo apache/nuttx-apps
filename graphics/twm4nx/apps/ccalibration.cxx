@@ -139,9 +139,9 @@ CCalibration::CCalibration(FAR CTwm4Nx *twm4nx)
   // Set up the semaphores that are used to synchronize the calibration
   // thread with Twm4Nx events
 
-  (void)sem_init(&m_exclSem, 0, 1);
-  (void)sem_init(&m_synchSem, 0, 0);
-  (void)sem_setprotocol(&m_synchSem, SEM_PRIO_NONE);
+  sem_init(&m_exclSem, 0, 1);
+  sem_init(&m_synchSem, 0, 0);
+  sem_setprotocol(&m_synchSem, SEM_PRIO_NONE);
 }
 
 /**
@@ -275,13 +275,13 @@ bool CCalibration::run(void)
   // Configure the calibration thread
 
   pthread_attr_t attr;
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
 
   struct sched_param param;
   param.sched_priority = CONFIG_TWM4NX_CALIBRATION_LISTENERPRIO;
-  (void)pthread_attr_setschedparam(&attr, &param);
+  pthread_attr_setschedparam(&attr, &param);
 
-  (void)pthread_attr_setstacksize(&attr, CONFIG_TWM4NX_CALIBRATION_LISTENERSTACK);
+  pthread_attr_setstacksize(&attr, CONFIG_TWM4NX_CALIBRATION_LISTENERSTACK);
 
   // Set the initial state of the thread
 
@@ -1136,12 +1136,12 @@ void CCalibration::stop(void)
           // termination request
 
           twminfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
-          (void)pthread_kill(m_thread, CONFIG_TWM4NX_CALIBRATION_SIGNO);
+          pthread_kill(m_thread, CONFIG_TWM4NX_CALIBRATION_SIGNO);
 
           // Wait for the calibration thread to exit
 
           FAR pthread_addr_t value;
-          (void)pthread_join(m_thread, &value);
+          pthread_join(m_thread, &value);
         }
     }
 }

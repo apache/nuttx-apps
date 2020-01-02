@@ -187,7 +187,7 @@ int main(int argc, FAR char *argv[])
    * the ROMFS mountpoint.
    */
 
-  (void)setenv("PATH", MOUNTPT, 1);
+  setenv("PATH", MOUNTPT, 1);
 #endif
 
   /* Now excercise every progrm in the ROMFS file system */

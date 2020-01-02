@@ -183,7 +183,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Mkae sure that the backlight off */
 
-  (void)ft80x_backlight_set(fd, 0);
+  ft80x_backlight_set(fd, 0);
 
   /* Create the display list */
 
@@ -235,8 +235,8 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   /* Fade on then wait bit so that the user can read the example name */
 
-  (void)ft80x_backlight_fade(fd, 100, 2000);
-  (void)sleep(1);
+  ft80x_backlight_fade(fd, 100, 2000);
+  sleep(1);
   return OK;
 }
 
@@ -276,7 +276,7 @@ static int ft80x_example(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   /* Wait a bit, then fade out */
 
   sleep(2);
-  (void)ft80x_backlight_fade(fd, 0, 2000);
+  ft80x_backlight_fade(fd, 0, 2000);
   return OK;
 }
 
@@ -325,7 +325,7 @@ int main(int argc, FAR char *argv[])
 
   for (i = 0; i < NPRIMITIVES; i++)
     {
-      (void)ft80x_example(fd, buffer, &g_primitives[i]);
+      ft80x_example(fd, buffer, &g_primitives[i]);
     }
 #endif
 
@@ -335,7 +335,7 @@ int main(int argc, FAR char *argv[])
 
   for (i = 0; i < NCOPROC; i++)
     {
-      (void)ft80x_example(fd, buffer, &g_coproc[i]);
+      ft80x_example(fd, buffer, &g_coproc[i]);
     }
 
   free(buffer);

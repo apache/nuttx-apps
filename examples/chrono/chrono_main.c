@@ -186,8 +186,8 @@ static int button_daemon(int argc, char *argv[])
 
       /* Wait for a signal */
 
-      (void)sigemptyset(&set);
-      (void)sigaddset(&set, BUTTON_SIGNO);
+      sigemptyset(&set);
+      sigaddset(&set, BUTTON_SIGNO);
       ret = sigwaitinfo(&set, &value);
       if (ret < 0)
         {
@@ -198,7 +198,7 @@ static int button_daemon(int argc, char *argv[])
 
       if (priv->state == CHRONO_STOPPED)
         {
-          (void)clock_gettime(CLOCK_MONOTONIC, &priv->ts_start);
+          clock_gettime(CLOCK_MONOTONIC, &priv->ts_start);
           priv->state = CHRONO_RUNNING;
         }
       else
@@ -214,7 +214,7 @@ static int button_daemon(int argc, char *argv[])
     }
 
 errout_with_fd:
-  (void)close(fd);
+  close(fd);
 
 errout:
 
@@ -284,7 +284,7 @@ static void slcd_putc(FAR struct lib_outstream_s *stream, int ch)
 
   if (stream->nput >= CONFIG_EXAMPLES_SLCD_BUFSIZE)
     {
-      (void)slcd_flush(stream);
+      slcd_flush(stream);
     }
 }
 
@@ -427,7 +427,7 @@ int main(int argc, FAR char *argv[])
         {
           /* Get the current time */
 
-          (void)clock_gettime(CLOCK_MONOTONIC, &priv->ts_end);
+          clock_gettime(CLOCK_MONOTONIC, &priv->ts_end);
 
           /* How many seconds passed from initial time? */
 

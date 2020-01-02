@@ -138,7 +138,7 @@ void barrier_test(void)
 
   /* Create the barrier */
 
-  (void)pthread_barrierattr_init(&barrierattr);
+  pthread_barrierattr_init(&barrierattr);
 
   /* Start CONFIG_TESTING_OSTEST_NBARRIER_THREADS thread instances */
 

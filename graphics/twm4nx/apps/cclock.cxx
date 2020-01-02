@@ -494,16 +494,16 @@ void CClock::update(void)
   uint8_t codes[CLOCK_NDIGITS];
 
   char ascii = (hour > 9) ? '1' : ' ';
-  (void)m_slcd->convert(ascii, codes[0]);
+  m_slcd->convert(ascii, codes[0]);
 
   ascii = (hour % 10) + '0';
-  (void)m_slcd->convert(ascii, codes[1]);
+  m_slcd->convert(ascii, codes[1]);
 
   ascii = (tm.tm_min / 10) + '0';
-  (void)m_slcd->convert(ascii, codes[2]);
+  m_slcd->convert(ascii, codes[2]);
 
   ascii = (tm.tm_min % 10) + '0';
-  (void)m_slcd->convert(ascii, codes[3]);
+  m_slcd->convert(ascii, codes[3]);
 
   struct nxgl_point_s pos;
   pos.y = CONFIG_TWM4NX_CLOCK_VSPACING;
@@ -534,7 +534,7 @@ void CClock::redraw(void)
   // Get the size of the window
 
   struct nxgl_size_s windowSize;
-  (void)m_window->getWindowSize(&windowSize);
+  m_window->getWindowSize(&windowSize);
 
   // Create a bounding box
 

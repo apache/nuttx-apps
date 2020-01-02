@@ -161,26 +161,26 @@ static void tiff_cleanup(FAR struct tiff_info_s *info)
 
   if (info->outfd >= 0)
     {
-      (void)close(info->outfd);
+      close(info->outfd);
     }
   info->outfd = -1;
 
   if (info->tmp1fd >= 0)
     {
-      (void)close(info->tmp1fd);
+      close(info->tmp1fd);
     }
   info->tmp1fd = -1;
 
   if (info->tmp2fd >= 0)
     {
-      (void)close(info->tmp2fd);
+      close(info->tmp2fd);
     }
   info->tmp2fd = -1;
 
   /* And remove the temporary files */
 
-  (void)unlink(info->tmpfile1);
-  (void)unlink(info->tmpfile2);
+  unlink(info->tmpfile1);
+  unlink(info->tmpfile2);
 }
 
 /****************************************************************************
@@ -434,6 +434,6 @@ void tiff_abort(FAR struct tiff_info_s *info)
 
   /* But then delete the output file as well */
 
-  (void)unlink(info->outfile);
+  unlink(info->outfile);
 }
 

@@ -268,8 +268,8 @@ static void test_two_threads(void)
   g_race_cond_thread_pos = 0;
   status = pthread_create(&thread1, NULL, race_cond_thread1, &rc);
   status = pthread_create(&thread2, NULL, race_cond_thread2, &rc);
-  (void) pthread_join(thread1, NULL);
-  (void) pthread_join(thread2, NULL);
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
 }
 
 static void * timeout_thread1(FAR void * data)
@@ -373,8 +373,8 @@ static void test_timeout(void)
   status = pthread_create(&thread1, NULL, timeout_thread1, &rc);
   status = pthread_create(&thread2, NULL, timeout_thread2, &rc);
 
-  (void) pthread_join(thread1, NULL);
-  (void) pthread_join(thread2, NULL);
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
 }
 
 /****************************************************************************

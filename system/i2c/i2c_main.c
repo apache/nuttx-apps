@@ -388,7 +388,7 @@ int main(int argc, FAR char *argv[])
   /* Parse and process the command line */
 
   i2c_setup(&g_i2ctool);
-  (void)i2c_parse(&g_i2ctool, argc, argv);
+  i2c_parse(&g_i2ctool, argc, argv);
 
   i2ctool_flush(&g_i2ctool);
   i2c_teardown(&g_i2ctool);

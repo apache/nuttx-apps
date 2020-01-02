@@ -206,7 +206,7 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
                   ninfo("Invalid port in DATA\n");
                   packetlen = tftp_mkerrpacket(packet, TFTP_ERR_UNKID,
                                                TFTP_ERRST_UNKID);
-                  (void)tftp_sendto(sd, packet, packetlen, server);
+                  tftp_sendto(sd, packet, packetlen, server);
                   continue;
                 }
 
@@ -226,7 +226,7 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
 #ifdef CONFIG_DEBUG_NET_WARN
                   if (opcode == TFTP_ERR)
                     {
-                      (void)tftp_parseerrpacket(packet);
+                      tftp_parseerrpacket(packet);
                     }
                   else
 #endif
@@ -234,7 +234,7 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
                     {
                       packetlen = tftp_mkerrpacket(packet, TFTP_ERR_ILLEGALOP,
                                                    TFTP_ERRST_ILLEGALOP);
-                      (void)tftp_sendto(sd, packet, packetlen, server);
+                      tftp_sendto(sd, packet, packetlen, server);
                     }
 
                   /* Break out an bump up the retry count */

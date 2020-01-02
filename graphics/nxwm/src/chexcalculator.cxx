@@ -437,7 +437,7 @@ void CHexCalculator::setGeometry(void)
 
   // Get the size of the window
 
-  (void)window->getSize(&m_windowSize);
+  window->getSize(&m_windowSize);
 
   // Pick a height and width of a button to fill the entire window.
   // For the height, we will assume that the text window is 1.5 times

@@ -174,7 +174,7 @@ static int led_daemon(int argc, char *argv[])
     }
 
 errout_with_fd:
-  (void)close(fd);
+  close(fd);
 
 errout:
   g_led_daemon_started = false;

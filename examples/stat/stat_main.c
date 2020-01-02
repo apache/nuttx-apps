@@ -81,7 +81,7 @@ static void stepusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
 
   /* Show the change from the previous loop */
@@ -102,7 +102,7 @@ static void endusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
   showusage(&g_mmbefore, &g_mmafter, "End-of-test memory leak");
 }
@@ -255,7 +255,7 @@ int main(int argc, FAR char *argv[])
   g_mmbefore = mallinfo();
   g_mmprevious = g_mmbefore;
 #else
-  (void)mallinfo(&g_mmbefore);
+  mallinfo(&g_mmbefore);
   memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
 #endif
 

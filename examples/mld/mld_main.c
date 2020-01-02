@@ -181,7 +181,7 @@ void mld_catfile(FAR const char *filepath, FAR char **iobuffer)
       *iobuffer = (FAR char *)malloc(IOBUFFERSIZE);
       if (*iobuffer == NULL)
         {
-          (void)close(fd);
+          close(fd);
           fprintf(stderr, "Failed to allocation I/O buffer\n");
           return;
         }
@@ -244,7 +244,7 @@ void mld_catfile(FAR const char *filepath, FAR char **iobuffer)
         }
     }
 
-  (void)close(fd);
+  close(fd);
 }
 #endif
 

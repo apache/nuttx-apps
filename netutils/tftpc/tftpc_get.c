@@ -87,7 +87,7 @@ static inline int tftp_parsedatapacket(FAR const uint8_t *packet,
 #ifdef CONFIG_DEBUG_NET_WARN
   else if (*opcode == TFTP_ERR)
     {
-      (void)tftp_parseerrpacket(packet);
+      tftp_parseerrpacket(packet);
     }
 #endif
 

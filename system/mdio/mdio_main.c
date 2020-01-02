@@ -218,7 +218,7 @@ int main(int argc, FAR char *argv[])
 
       for (i = 0; i < 32; i++)
         {
-          (void)get_phy_reg(phy_id, i, &val_out);
+          get_phy_reg(phy_id, i, &val_out);
           printf("phy[%d][%d] = 0x%4x\n", phy_id, i, val_out);
         }
     }

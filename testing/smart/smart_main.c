@@ -187,7 +187,7 @@ static void smart_loopmemusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
 
   /* Show the change from the previous loop */
@@ -213,7 +213,7 @@ static void smart_endmemusage(void)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
 #else
-  (void)mallinfo(&g_mmafter);
+  mallinfo(&g_mmafter);
 #endif
   printf("\nFinal memory usage:\n");
   smart_showmemusage(&g_mmbefore, &g_mmafter);
@@ -829,9 +829,9 @@ int main(int argc, FAR char *argv[])
   /* Create a SMARTFS filesystem */
 
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-  (void)mksmartfs("/dev/smart1", 1024, 1);
+  mksmartfs("/dev/smart1", 1024, 1);
 #else
-  (void)mksmartfs("/dev/smart1", 1024);
+  mksmartfs("/dev/smart1", 1024);
 #endif
 
   /* Mount the file system */
@@ -850,7 +850,7 @@ int main(int argc, FAR char *argv[])
   g_mmbefore = mallinfo();
   g_mmprevious = g_mmbefore;
 #else
-  (void)mallinfo(&g_mmbefore);
+  mallinfo(&g_mmbefore);
   memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
 #endif
 
@@ -871,7 +871,7 @@ int main(int argc, FAR char *argv[])
        */
 
       printf("\n=== FILLING %u =============================\n", i);
-      (void)smart_fillfs();
+      smart_fillfs();
       printf("Filled file system\n");
       printf("  Number of files: %d\n", g_nfiles);
       printf("  Number deleted:  %d\n", g_ndeleted);

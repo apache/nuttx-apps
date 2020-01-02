@@ -129,7 +129,7 @@ void specific_test(void)
 
   printf("Starting thread\n");
 #ifdef SDCC
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
   ret = pthread_create(&thread, &attr, thread_func, (pthread_addr_t)0);
 #else
   ret = pthread_create(&thread, NULL, thread_func, (pthread_addr_t)0);

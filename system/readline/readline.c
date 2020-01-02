@@ -181,7 +181,7 @@ static void readline_write(FAR struct rl_common_s *vtbl,
   FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
   DEBUGASSERT(priv && buffer && buflen > 0);
 
-  (void)write(priv->outfd, buffer, buflen);
+  write(priv->outfd, buffer, buflen);
 }
 #endif
 

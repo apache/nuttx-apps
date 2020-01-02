@@ -78,7 +78,7 @@ static uint64_t gettime_nsecs(void)
   struct timespec ts;
   uint64_t nsecs;
 
-  (void)clock_gettime(CLOCK_MONOTONIC, &ts);
+  clock_gettime(CLOCK_MONOTONIC, &ts);
 
   nsecs  = ts.tv_sec;
   nsecs *= 1000 * 1000 * 1000;

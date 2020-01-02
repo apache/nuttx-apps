@@ -228,7 +228,7 @@ errout_with_list:
   for (curr = head; curr; curr = next)
     {
       next = curr->next;
-      (void)close(curr->fd);
+      close(curr->fd);
       free(curr);
     }
 

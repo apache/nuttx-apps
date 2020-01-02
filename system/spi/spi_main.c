@@ -403,7 +403,7 @@ int main(int argc, FAR char *argv[])
   /* Parse and process the command line */
 
   spi_setup(&g_spitool);
-  (void)spi_parse(&g_spitool, argc, argv);
+  spi_parse(&g_spitool, argc, argv);
 
   spitool_flush(&g_spitool);
   spi_teardown(&g_spitool);

@@ -362,7 +362,7 @@ void *smtp_open(void)
       /* Initialize the handle */
 
       memset(psmtp, 0, sizeof(struct smtp_state));
-     (void)sem_init(&psmtp->sem, 0, 0);
+     sem_init(&psmtp->sem, 0, 0);
     }
 
   return (void*)psmtp;

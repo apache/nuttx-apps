@@ -928,9 +928,9 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
 
   pthread_attr_init(&tattr);
   sparam.sched_priority = sched_get_priority_max(SCHED_FIFO) - 9;
-  (void)pthread_attr_setschedparam(&tattr, &sparam);
-  (void)pthread_attr_setstacksize(&tattr,
-                                  CONFIG_NXRECORDER_RECORDTHREAD_STACKSIZE);
+  pthread_attr_setschedparam(&tattr, &sparam);
+  pthread_attr_setstacksize(&tattr,
+                            CONFIG_NXRECORDER_RECORDTHREAD_STACKSIZE);
 
   /* Add a reference count to the recorder for the thread and start the
    * thread.  We increment for the thread to avoid thread start-up

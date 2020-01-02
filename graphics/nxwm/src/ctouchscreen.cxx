@@ -130,7 +130,7 @@ CTouchscreen::~CTouchscreen(void)
   // to receive data
   // REVISIT:  Need wait here for the listener thread to terminate
 
-  (void)pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
+  pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
 
   // Close the touchscreen device (or should these be done when the thread exits?)
 
@@ -158,13 +158,13 @@ bool CTouchscreen::start(void)
 
   // Start a separate thread to listen for touchscreen events
 
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
 
   struct sched_param param;
   param.sched_priority = CONFIG_NXWM_TOUCHSCREEN_LISTENERPRIO;
-  (void)pthread_attr_setschedparam(&attr, &param);
+  pthread_attr_setschedparam(&attr, &param);
 
-  (void)pthread_attr_setstacksize(&attr, CONFIG_NXWM_TOUCHSCREEN_LISTENERSTACK);
+  pthread_attr_setstacksize(&attr, CONFIG_NXWM_TOUCHSCREEN_LISTENERSTACK);
 
   m_state  = LISTENER_STARTED; // The listener thread has been started, but is not yet running
 
@@ -177,7 +177,7 @@ bool CTouchscreen::start(void)
 
   // Detach from the thread
 
-  (void)pthread_detach(m_thread);
+  pthread_detach(m_thread);
 
   // Don't return until we are sure that the listener thread is running
   // (or until it reports an error).
@@ -187,7 +187,7 @@ bool CTouchscreen::start(void)
       // Wait for the listener thread to wake us up when we really
       // are connected.
 
-      (void)sem_wait(&m_waitSem);
+      sem_wait(&m_waitSem);
     }
 
   // Then return true only if the listener thread reported successful
@@ -220,7 +220,7 @@ void CTouchscreen::setCalibrationData(const struct SCalibrationData &caldata)
   // Wake up the listener thread so that it will use our buffer
   // to receive data
 
-  (void)pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
+  pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
 }
 
 /**
@@ -246,7 +246,7 @@ bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
   // Wake up the listener thread so that it will use our buffer
   // to receive data
 
-  (void)pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
+  pthread_kill(m_thread, CONFIG_NXWM_TOUCHSCREEN_SIGNO);
 
   // And wait for touch data
 
@@ -583,5 +583,5 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
   // Get the server handle and "inject the mouse data
 
   NXHANDLE handle = m_server->getServer();
-  (void)nx_mousein(handle, x, y, buttons);
+  nx_mousein(handle, x, y, buttons);
 }

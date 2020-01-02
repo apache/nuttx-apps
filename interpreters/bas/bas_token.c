@@ -4471,7 +4471,7 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len)
 
 static void yy_fatal_error (yyconst char* msg)
 {
-      (void) fprintf(stderr, "%s\n", msg);
+  fprintf(stderr, "%s\n", msg);
   exit(YY_EXIT_FAILURE);
 }
 

@@ -312,12 +312,12 @@ eMBErrorCode eMBMasterPoll(void)
           if ((eStatus == MB_ENOERR) &&
               (ucRcvAddress == ucMBMasterGetDestAddress()))
             {
-              (void)xMBMasterPortEventPost(EV_MASTER_EXECUTE);
+              xMBMasterPortEventPost(EV_MASTER_EXECUTE);
             }
           else
             {
               vMBMasterSetErrorType(EV_ERROR_RECEIVE_DATA);
-              (void)xMBMasterPortEventPost(EV_MASTER_ERROR_PROCESS);
+              xMBMasterPortEventPost(EV_MASTER_ERROR_PROCESS);
             }
           break;
 
@@ -383,7 +383,7 @@ eMBErrorCode eMBMasterPoll(void)
           if (eException != MB_EX_NONE)
             {
               vMBMasterSetErrorType(EV_ERROR_EXECUTE_FUNCTION);
-              (void)xMBMasterPortEventPost(EV_MASTER_ERROR_PROCESS);
+              xMBMasterPortEventPost(EV_MASTER_ERROR_PROCESS);
             }
           else
             {

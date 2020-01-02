@@ -465,12 +465,12 @@ int main(int argc, char *argv[])
 #ifndef CONFIG_NSH_ARCHINIT
   /* Perform architecture-specific initialization (if configured) */
 
-  (void)boardctl(BOARDIOC_INIT, 0);
+  boardctl(BOARDIOC_INIT, 0);
 
 #ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
-  (void)boardctl(BOARDIOC_FINALINIT, 0);
+  boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 #endif
 

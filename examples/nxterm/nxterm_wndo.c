@@ -128,14 +128,14 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
       iocargs.cmd = NXTERMIOC_NXTERM_REDRAW;
       iocargs.arg = (uintptr_t)&redraw;
 
-      (void)boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
+      boardctl(BOARDIOC_NXTERM_IOCTL, (uintptr_t)&iocargs);
     }
   else
     {
       /* If the driver has not been opened, then just redraw the window color */
 
       wcolor[0] = CONFIG_EXAMPLES_NXTERM_WCOLOR;
-      (void)nxtk_fillwindow(hwnd, rect, wcolor);
+      nxtk_fillwindow(hwnd, rect, wcolor);
     }
 }
 
@@ -202,7 +202,7 @@ static void nxwndo_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                          FAR void *arg)
 {
   ginfo("hwnd=%p nch=%d\n", hwnd, nch);
-  (void)write(1, ch, nch);
+  write(1, ch, nch);
 }
 #endif
 

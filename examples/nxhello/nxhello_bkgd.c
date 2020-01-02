@@ -402,8 +402,8 @@ void nxhello_hello(NXWINDOW hwnd)
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
-          (void)RENDERER((FAR nxgl_mxpixel_t*)glyph, fheight, fwidth,
-                         fstride, fbm, CONFIG_EXAMPLES_NXHELLO_FONTCOLOR);
+          RENDERER((FAR nxgl_mxpixel_t*)glyph, fheight, fwidth,
+                   fstride, fbm, CONFIG_EXAMPLES_NXHELLO_FONTCOLOR);
 
           /* Describe the destination of the font with a rectangle */
 

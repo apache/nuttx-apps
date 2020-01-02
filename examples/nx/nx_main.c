@@ -143,7 +143,7 @@ static void nxeg_drivemouse(void)
       for (y = 0; y < g_yres; y += ystep)
         {
           printf("nxeg_drivemouse: Mouse left button at (%d,%d)\n", x, y);
-          (void)nx_mousein(g_hnx, x, y, NX_MOUSE_LEFTBUTTON);
+          nx_mousein(g_hnx, x, y, NX_MOUSE_LEFTBUTTON);
         }
     }
 }
@@ -475,10 +475,10 @@ static int nxeg_initialize(void)
         * smoothly.
         */
 
-       (void)pthread_attr_init(&attr);
+       pthread_attr_init(&attr);
        param.sched_priority = CONFIG_EXAMPLES_NX_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NX_STACKSIZE);
+       pthread_attr_setschedparam(&attr, &param);
+       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NX_STACKSIZE);
 
        ret = pthread_create(&thread, &attr, nx_listenerthread, NULL);
        if (ret != 0)
@@ -496,7 +496,7 @@ static int nxeg_initialize(void)
             * are connected.
             */
 
-           (void)sem_wait(&g_semevent);
+           sem_wait(&g_semevent);
          }
     }
   else
@@ -574,7 +574,7 @@ int main(int argc, FAR char *argv[])
 
   while (!b_haveresolution)
     {
-      (void)sem_wait(&g_semevent);
+      sem_wait(&g_semevent);
     }
   printf("nx_main: Screen resolution (%d,%d)\n", g_xres, g_yres);
 
@@ -775,13 +775,13 @@ int main(int argc, FAR char *argv[])
 
 errout_with_hwnd2:
   printf("nx_main: Close window #2\n");
-  (void)nxeg_closewindow(hwnd2, &g_wstate[1]);
+  nxeg_closewindow(hwnd2, &g_wstate[1]);
 
   /* Close the window1 */
 
 errout_with_hwnd1:
   printf("nx_main: Close window #1\n");
-  (void)nxeg_closewindow(hwnd1, &g_wstate[0]);
+  nxeg_closewindow(hwnd1, &g_wstate[0]);
 
 errout_with_nx:
   /* Disconnect from the server */

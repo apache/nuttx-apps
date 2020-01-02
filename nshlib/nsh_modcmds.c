@@ -181,7 +181,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                  datasize      ? datasize      : "");
     }
 
-  (void)fclose(stream);
+  fclose(stream);
   return OK;
 }
 #endif /* CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_MODULE */

@@ -229,7 +229,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
 errout_with_driver:
   /* Close the driver */
 
-  (void)close(fd);
+  close(fd);
 
 errout:
   /* Release all allocated memory */

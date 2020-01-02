@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 {
   fprintf(stderr, "phf CGI probe from %s\n", getenv("REMOTE_ADDR"));
 
-  (void)printf("\
+  printf("\
 Content-type: text/html\n\
 Status: 404/html\n\
 \n\

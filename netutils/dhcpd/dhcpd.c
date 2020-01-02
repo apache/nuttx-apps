@@ -300,7 +300,7 @@ static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
 
   /* Update the ARP table */
 
-  (void)netlib_set_arpmapping(&inaddr, hwaddr);
+  netlib_set_arpmapping(&inaddr, hwaddr);
 }
 #else
 #  define dhcpd_arpupdate(ipaddr,hwaddr)
@@ -1076,7 +1076,7 @@ int dhcpd_sendack(in_addr_t ipaddr)
 
   /* Did the client request a specific lease time? */
 
-  (void)dhcpd_verifyreqleasetime(&leasetime);
+  dhcpd_verifyreqleasetime(&leasetime);
 
   /* Add the lease time to the response */
 
@@ -1174,7 +1174,7 @@ static inline int dhcpd_discover(void)
 
   /* Check if the client has requested a specific lease time */
 
-  (void)dhcpd_verifyreqleasetime(&leasetime);
+  dhcpd_verifyreqleasetime(&leasetime);
 
   /* Send the offer response */
 

@@ -161,7 +161,7 @@ void recursive_mutex_test(void)
     {
       printf("recursive_mutex_test: Starting thread %d\n", i+1);
 #ifdef SDCC
-      (void)pthread_attr_init(&attr);
+      pthread_attr_init(&attr);
       status = pthread_create(&thread[i], &attr, thread_outer, (pthread_addr_t)((uintptr_t)i+1));
 #else
       status = pthread_create(&thread[i], NULL, thread_outer, (pthread_addr_t)((uintptr_t)i+1));

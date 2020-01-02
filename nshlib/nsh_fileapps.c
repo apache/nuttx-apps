@@ -175,7 +175,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * SIGINT.
            */
 
-          (void)ioctl(stdout->fs_fd, TIOCSCTTY, pid);
+          ioctl(stdout->fs_fd, TIOCSCTTY, pid);
 
           /* Wait for the application to exit.  We did lock the scheduler
            * above, but that does not guarantee that the application did not
@@ -228,7 +228,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                */
             }
 
-          (void)ioctl(stdout->fs_fd, TIOCSCTTY, -1);
+          ioctl(stdout->fs_fd, TIOCSCTTY, -1);
         }
 #  ifndef CONFIG_NSH_DISABLEBG
       else
@@ -270,10 +270,10 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    */
 
 errout_with_actions:
-  (void)posix_spawn_file_actions_destroy(&file_actions);
+  posix_spawn_file_actions_destroy(&file_actions);
 
 errout_with_attrs:
-  (void)posix_spawnattr_destroy(&attr);
+  posix_spawnattr_destroy(&attr);
 
 errout:
   /* Most posix_spawn interfaces return a positive errno value on failure

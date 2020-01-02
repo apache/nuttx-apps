@@ -172,7 +172,7 @@ int main(int argc, FAR char *argv[])
   exitcode = EXIT_SUCCESS;
 
 errout_with_zmodem:
-  (void)zmr_release(handle);
+  zmr_release(handle);
 
 errout_with_device:
 #ifdef CONFIG_SERIAL_TERMIOS
@@ -187,7 +187,7 @@ errout_with_device:
   tcsetattr(fd, TCSANOW, &saveterm);
 #endif
 
-  (void)close(fd);
+  close(fd);
 
 errout:
   return exitcode;

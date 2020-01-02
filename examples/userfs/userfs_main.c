@@ -557,7 +557,7 @@ static int ufstest_stat(FAR void *volinfo, FAR const char *relpath,
       if (ret >= 0)
         {
           ret = ufstest_fstat(volinfo, openinfo, buf);
-          (void)ufstest_close(volinfo, openinfo);
+          ufstest_close(volinfo, openinfo);
         }
     }
 

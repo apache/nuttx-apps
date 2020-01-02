@@ -87,7 +87,7 @@ int nsh_consolemain(int argc, char *argv[])
 #ifdef CONFIG_NSH_ROMFSETC
   /* Execute the start-up script */
 
-  (void)nsh_initscript(&pstate->cn_vtbl);
+  nsh_initscript(&pstate->cn_vtbl);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
   /* Reset the option flags */
@@ -105,7 +105,7 @@ int nsh_consolemain(int argc, char *argv[])
 #if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
   /* Perform architecture-specific final-initialization (if configured) */
 
-  (void)boardctl(BOARDIOC_FINALINIT, 0);
+  boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
   /* Execute the session */

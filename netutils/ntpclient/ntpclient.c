@@ -495,7 +495,7 @@ static int ntpc_daemon(int argc, char **argv)
           sinfo("Waiting for %d seconds\n",
                 CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
 
-          (void)sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
+          sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
         }
     }
 
@@ -565,7 +565,7 @@ int ntpc_start(void)
 
       do
         {
-          (void)sem_wait(&g_ntpc_daemon.interlock);
+          sem_wait(&g_ntpc_daemon.interlock);
         }
       while (g_ntpc_daemon.state == NTP_STARTED);
     }
@@ -618,7 +618,7 @@ int ntpc_stop(void)
 
           /* Wait for the NTP client to respond to the stop request */
 
-          (void)sem_wait(&g_ntpc_daemon.interlock);
+          sem_wait(&g_ntpc_daemon.interlock);
         }
       while (g_ntpc_daemon.state == NTP_STOP_REQUESTED);
     }

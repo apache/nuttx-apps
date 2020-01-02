@@ -255,7 +255,7 @@ int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
        * will be added again below.
        */
 
-      (void)nsh_removevar(pstate, pair);
+      nsh_removevar(pstate, pair);
     }
 
   /* Get the size of the new name=value string.  The +2 is for the '=' and for
@@ -322,7 +322,7 @@ int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
     {
       /* It does!  Remove the name=value pair from the NSH variables. */
 
-      (void)nsh_removevar(pstate, pair);
+      nsh_removevar(pstate, pair);
 
       /* Reallocate the new NSH variable buffer */
 

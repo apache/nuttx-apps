@@ -759,7 +759,7 @@ int thttpd_main(int argc, char **argv)
   /* Main loop */
 
   ninfo("Entering the main loop\n");
-  (void)gettimeofday(&tv, NULL);
+  gettimeofday(&tv, NULL);
   for (;;)
     {
       /* Do the fd watch */
@@ -778,7 +778,7 @@ int thttpd_main(int argc, char **argv)
           exit(1);
         }
 
-      (void)gettimeofday(&tv, NULL);
+      gettimeofday(&tv, NULL);
 
       if (num_ready == 0)
         {

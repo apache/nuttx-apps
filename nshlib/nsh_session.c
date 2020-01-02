@@ -120,7 +120,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
   /* Execute the login script */
 
 #ifdef CONFIG_NSH_ROMFSRC
-  (void)nsh_loginscript(vtbl);
+  nsh_loginscript(vtbl);
 #endif
 
   /* Then enter the command line parsing loop */
@@ -178,7 +178,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       /* Parse process the command */
 
-      (void)nsh_parse(vtbl, pstate->cn_line);
+      nsh_parse(vtbl, pstate->cn_line);
       fflush(pstate->cn_outstream);
     }
 

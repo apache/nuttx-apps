@@ -119,7 +119,7 @@ static void *thread_func(FAR void *parameter)
 
       /* Release the lock and wait a bit in case the main thread wants it. */
 
-      (void)pthread_mutex_unlock(&g_mutex);
+      pthread_mutex_unlock(&g_mutex);
       usleep(500*1000);
     }
 
@@ -157,7 +157,7 @@ void timedmutex_test(void)
 
   printf("mutex_test: Starting thread\n");
 #ifdef SDCC
-  (void)pthread_attr_init(&attr);
+  pthread_attr_init(&attr);
   status = pthread_create(&thread, &attr, thread_func, (pthread_addr_t)0);
 #else
   status = pthread_create(&thread, NULL, thread_func, (pthread_addr_t)0);
@@ -175,7 +175,7 @@ void timedmutex_test(void)
   /* Then unlock the mutex.  This should wake up the pthread. */
 
   printf("mutex_test: Unlocking\n");
-  (void)pthread_mutex_unlock(&g_mutex);
+  pthread_mutex_unlock(&g_mutex);
 
   /* Wait a bit to assure that the thread gets a chance to lock the mutex at
    * least once (it may probably loop and retake the mutex several times)
@@ -227,7 +227,7 @@ void timedmutex_test(void)
 #endif
 
 errout_with_lock:
-  (void)pthread_mutex_unlock(&g_mutex);
+  pthread_mutex_unlock(&g_mutex);
 errout_with_mutex:
-  (void)pthread_mutex_destroy(&g_mutex);
+  pthread_mutex_destroy(&g_mutex);
 }

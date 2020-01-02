@@ -336,8 +336,8 @@ void fpu_test(void)
   /* Wait for each task to complete */
 
   fflush(stdout);
-  (void)waitpid(task1, &statloc, 0);
-  (void)waitpid(task2, &statloc, 0);
+  waitpid(task1, &statloc, 0);
+  waitpid(task2, &statloc, 0);
 
 #else
   printf("fpu_test: ERROR: The FPU test is not properly configured\n");

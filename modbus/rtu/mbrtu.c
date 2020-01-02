@@ -99,7 +99,6 @@ eMBErrorCode eMBRTUInit(uint8_t ucSlaveAddress, uint8_t ucPort,
   eMBErrorCode eStatus = MB_ENOERR;
   uint32_t usTimerT35_50us;
 
-  (void)ucSlaveAddress;
   ENTER_CRITICAL_SECTION();
 
   /* Modbus RTU uses 8 Databits. */
@@ -258,7 +257,7 @@ bool xMBRTUReceiveFSM(void)
 
   /* Always read the character. */
 
-  (void)xMBPortSerialGetByte((int8_t *) & ucByte);
+  xMBPortSerialGetByte((int8_t *) & ucByte);
 
   switch (eRcvState)
     {

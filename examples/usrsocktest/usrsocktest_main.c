@@ -100,7 +100,7 @@ static void get_mallinfo(struct mallinfo *mem)
 #ifdef CONFIG_CAN_PASS_STRUCTS
   *mem = mallinfo();
 #else
-  (void)mallinfo(mem);
+  mallinfo(mem);
 #endif
 }
 

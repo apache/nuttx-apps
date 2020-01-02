@@ -125,7 +125,7 @@ int httpd_mmap_open(const char *name, struct httpd_fs_file *file)
   file->data = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED | MAP_FILE, file->fd, 0);
   if (file->data == MAP_FAILED)
     {
-       (void) close(file->fd);
+       close(file->fd);
        return ERROR;
     }
 

@@ -227,7 +227,7 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   free(buf);
 
 errout_with_fildes:
-  (void)close(fd);
+  close(fd);
   return ret;
 }
 
