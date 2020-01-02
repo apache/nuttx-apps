@@ -184,7 +184,7 @@ ifneq ($(PROGNAME),)
 ifneq ($(PRIORITY),)
 ifneq ($(STACKSIZE),)
 
-REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix _main.bdat,$(PROGNAME)))
+REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
 APPLIST := $(PROGNAME)
 
 $(REGLIST): $(DEPCONFIG) Makefile
