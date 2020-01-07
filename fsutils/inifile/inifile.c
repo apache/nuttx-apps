@@ -106,7 +106,7 @@ struct inifile_state_s
 {
   FILE *instream;
   int   nextch;
-  char  line[CONFIG_FSUTILS_INIFILE_MAXLINE+1];
+  char  line[CONFIG_FSUTILS_INIFILE_MAXLINE + 1];
 };
 
 /****************************************************************************
@@ -185,7 +185,7 @@ static int inifile_read_line(FAR struct inifile_state_s *priv)
   while ((nbytes < CONFIG_FSUTILS_INIFILE_MAXLINE) &&
          (priv->nextch != EOF) &&
          (priv->nextch != '\n'))
-   {
+    {
       /* Always ignore carriage returns */
 
       if (priv->nextch != '\r')
@@ -242,7 +242,8 @@ static int inifile_read_noncomment_line(FAR struct inifile_state_s *priv)
 
   /* Read until either a (1) no further lines are found in
    * the file, or (2) a line that does not begin with a semi-colon
-   * is found */
+   * is found.
+   */
 
   do nbytes = inifile_read_line(priv);
   while (nbytes > 0 && priv->line[0] == ';');
@@ -354,7 +355,7 @@ static bool inifile_read_variable(FAR struct inifile_state_s *priv,
    * the section is found, or (3) a valid variable assignment is found.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* Read the next line in the buffer */
 
@@ -365,9 +366,9 @@ static bool inifile_read_variable(FAR struct inifile_state_s *priv,
        */
 
       if (!nbytes || priv->line[0] == '[')
-       {
-         return false;
-       }
+        {
+          return false;
+        }
 
       /* Search for the '=' delimiter.  NOTE  the line is guaranteed to
        * be NULL terminated by inifile_read_noncomment_line().
@@ -389,7 +390,7 @@ static bool inifile_read_variable(FAR struct inifile_state_s *priv,
            * a NULL string
            */
 
-          varinfo->variable = (char*)priv->line;
+          varinfo->variable = (FAR char *)priv->line;
           varinfo->value    = (ptr + 1);
           return true;
         }
@@ -418,7 +419,7 @@ static FAR char *
 
   iniinfo("variable=\"%s\"\n", variable);
 
-  for (;;)
+  for (; ; )
     {
       /* Get the next variable from this section. */
 
@@ -527,6 +528,7 @@ INIHANDLE inifile_initialize(FAR const char *inifile_name)
   else
     {
       inidbg("ERROR: Could not open \"%s\"\n", inifile_name);
+      free(priv);
       return (INIHANDLE)NULL;
     }
 }

@@ -130,6 +130,7 @@ enum zmodem_state_e
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
+
 /* Transition actions */
 
 static int zms_zrinit(FAR struct zm_state_s *pzm);
@@ -163,7 +164,8 @@ static int zms_error(FAR struct zm_state_s *pzm);
 /* Internal helpers */
 
 static int zms_startfiledata(FAR struct zms_state_s *pzms);
-static int zms_sendfile(FAR struct zms_state_s *pzms, FAR const char *filename,
+static int zms_sendfile(FAR struct zms_state_s *pzms,
+                        FAR const char *filename,
                         FAR const char *rfilename, uint8_t f0, uint8_t f1);
 
 /****************************************************************************
@@ -173,6 +175,7 @@ static int zms_sendfile(FAR struct zms_state_s *pzms, FAR const char *filename,
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Events handled in state ZMS_START - ZRQINIT sent, waiting for ZRINIT from
  * receiver
  */
@@ -414,7 +417,7 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
    *   F0 and F1 contain the  bitwise OR of the receiver capability flags
    *   P0 and ZP1 contain the size of the receiver's buffer in bytes (or 0
    *     if nonstop I/O is allowed.
-  */
+   */
 
   pzms->rcvmax = (uint16_t)pzm->hdrdata[2] << 8 | (uint16_t)pzm->hdrdata[1];
   rcaps        = (uint16_t)pzm->hdrdata[3] << 8 | (uint16_t)pzm->hdrdata[4];
@@ -494,7 +497,7 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
   else
 #  endif
     {
-      zmdbg("ZMS_STATE %d->%d\n", pzm->state, );
+      zmdbg("ZMS_STATE %d->%d\n", pzm->state, ZMS_DONE);
       pzm->state = ZMS_DONE;
       return ZM_XFRDONE;
     }
@@ -522,9 +525,9 @@ static int zms_attention(FAR struct zm_state_s *pzm)
 
   if (pzm->state == ZMS_SENDING || pzm->state == ZMS_SENDWAIT)
     {
-     /* Enter a wait state and see what they want.  Next header *should* be
-      * ZRPOS.
-      */
+      /* Enter a wait state and see what they want.  Next header *should* be
+       * ZRPOS.
+       */
 
       zmdbg("ZMS_STATE %d->%d: Interrupt\n", pzm->state, ZMS_SENDWAIT);
 
@@ -627,7 +630,7 @@ static int zms_stderrdata(FAR struct zm_state_s *pzm)
   zmdbg("ZMS_STATE %d\n", pzm->state);
 
   pzm->pktbuf[pzm->pktlen] = '\0';
-  fprintf(stderr, "Message: %s", (char*)pzm->pktbuf);
+  fprintf(stderr, "Message: %s", (FAR char *)pzm->pktbuf);
   return OK;
 }
 
@@ -671,10 +674,10 @@ static int zms_sendzsinit(FAR struct zm_state_s *pzm)
   pzm->state = ZMS_INITACK;
 
   /* Send the ZSINIT header (optional)
-  *
-  * Paragraph 11.3  ZSINIT.  "The Sender sends flags followed by a binary
-  * data subpacket terminated with ZCRCW."
-  */
+   *
+   * Paragraph 11.3  ZSINIT.  "The Sender sends flags followed by a binary
+   * data subpacket terminated with ZCRCW."
+   */
 
   ret = zm_sendbinhdr(pzm, ZSINIT, g_zeroes);
   if (ret >= 0)
@@ -895,7 +898,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
       zmdbg("sndsize: %d unacked: %d rcvmax: %d\n",
             sndsize, unacked, pzms->rcvmax);
 
-     if (pzms->rcvmax != 0)
+      if (pzms->rcvmax != 0)
         {
           /* If we were to send 'sndsize' more bytes, would that exceed recvmax? */
 
@@ -1024,7 +1027,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
             }
         }
 
-       /* Save the ZDLE in the transmit buffer */
+      /* Save the ZDLE in the transmit buffer */
 
       *ptr++ = ZDLE;
 
@@ -1221,7 +1224,8 @@ static int zms_sendnak(FAR struct zm_state_s *pzm)
       return -errorcode;
     }
 
-  zmdbg("ZMS_STATE %d: offset: %ld\n", pzm->state, (unsigned long)pzms->offset);
+  zmdbg("ZMS_STATE %d: offset: %ld\n",
+        pzm->state, (unsigned long)pzms->offset);
 
   return zms_sendpacket(pzm);
 }
@@ -1446,7 +1450,8 @@ static int zms_startfiledata(FAR struct zms_state_s *pzms)
 
 /* Called by user to begin transmission of a file */
 
-static int zms_sendfile(FAR struct zms_state_s *pzms, FAR const char *filename,
+static int zms_sendfile(FAR struct zms_state_s *pzms,
+                        FAR const char *filename,
                         FAR const char *rfilename, uint8_t f0, uint8_t f1)
 {
   struct stat buf;
@@ -1705,7 +1710,7 @@ int zms_release(ZMSHANDLE handle)
 
   /* Send "OO" */
 
-  nwritten = zm_remwrite(pzms->cmn.remfd, (FAR const uint8_t*)"OO", 2);
+  nwritten = zm_remwrite(pzms->cmn.remfd, (FAR const uint8_t *)"OO", 2);
   if (nwritten < 0)
     {
       zmdbg("ERROR: zm_remwrite failed: %d\n", (int)nwritten);

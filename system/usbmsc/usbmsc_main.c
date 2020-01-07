@@ -387,6 +387,7 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
           break;
         }
     }
+
   return OK;
 }
 #endif
@@ -435,7 +436,7 @@ static void usbmsc_disconnect(FAR void *handle)
 int main(int argc, FAR char *argv[])
 {
   struct boardioc_usbdev_ctrl_s ctrl;
-  FAR void *handle;
+  FAR void *handle = NULL;
   int ret;
 
   /* If this program is implemented as the NSH 'msconn' command, then we
@@ -443,8 +444,8 @@ int main(int argc, FAR char *argv[])
    * called re-entrantly.
    */
 
-  /* Check if there is a non-NULL USB mass storage device handle (meaning that the
-   * USB mass storage device is already configured).
+  /* Check if there is a non-NULL USB mass storage device handle (meaning
+   * that the USB mass storage device is already configured).
    */
 
   if (g_usbmsc.mshandle)
@@ -482,7 +483,8 @@ int main(int argc, FAR char *argv[])
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("mcsonn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
+      printf("mcsonn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n",
+             -ret);
       return EXIT_FAILURE;
     }
 
@@ -490,12 +492,17 @@ int main(int argc, FAR char *argv[])
 
   /* Then exports the LUN(s) */
 
-  printf("mcsonn_main: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_USBMSC_NLUNS);
+  printf("mcsonn_main: Configuring with NLUNS=%d\n",
+         CONFIG_SYSTEM_USBMSC_NLUNS);
   ret = usbmsc_configure(CONFIG_SYSTEM_USBMSC_NLUNS, &handle);
   if (ret < 0)
     {
       printf("mcsonn_main: usbmsc_configure failed: %d\n", -ret);
-      usbmsc_disconnect(handle);
+      if (handle)
+        {
+          usbmsc_disconnect(handle);
+        }
+
       return EXIT_FAILURE;
     }
 
@@ -567,8 +574,8 @@ int main(int argc, FAR char *argv[])
 
   check_test_memory_usage("After usbmsc_exportluns()");
 
-  /* Return the USB mass storage device handle so it can be used by the 'msconn'
-   * command.
+  /* Return the USB mass storage device handle so it can be used by the
+   * 'msconn' command.
    */
 
   printf("mcsonn_main: Connected\n");

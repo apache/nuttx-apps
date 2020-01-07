@@ -56,7 +56,6 @@
 #include <errno.h>
 #include <debug.h>
 
-
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
 #    include <sys/mount.h>
@@ -240,47 +239,47 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
           if ((buf.st_mode & S_IRUSR) != 0)
             {
-              details[1]='r';
+              details[1] = 'r';
             }
 
           if ((buf.st_mode & S_IWUSR) != 0)
             {
-              details[2]='w';
+              details[2] = 'w';
             }
 
           if ((buf.st_mode & S_IXUSR) != 0)
             {
-              details[3]='x';
+              details[3] = 'x';
             }
 
           if ((buf.st_mode & S_IRGRP) != 0)
             {
-              details[4]='r';
+              details[4] = 'r';
             }
 
           if ((buf.st_mode & S_IWGRP) != 0)
             {
-              details[5]='w';
+              details[5] = 'w';
             }
 
           if ((buf.st_mode & S_IXGRP) != 0)
             {
-              details[6]='x';
+              details[6] = 'x';
             }
 
           if ((buf.st_mode & S_IROTH) != 0)
             {
-              details[7]='r';
+              details[7] = 'r';
             }
 
           if ((buf.st_mode & S_IWOTH) != 0)
             {
-              details[8]='w';
+              details[8] = 'w';
             }
 
           if ((buf.st_mode & S_IXOTH) != 0)
             {
-              details[9]='x';
+              details[9] = 'x';
             }
 
           nsh_output(vtbl, " %s", details);
@@ -561,7 +560,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           /* Construct the full path to the new file */
 
-          allocpath = nsh_getdirpath(vtbl, destpath, basename(argv[1]) );
+          allocpath = nsh_getdirpath(vtbl, destpath, basename(argv[1]));
           if (!allocpath)
             {
               nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
@@ -581,6 +580,14 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
+  /* Check if the destination does not match the source */
+
+  if (strcmp(destpath, srcpath) == 0)
+    {
+      nsh_error(vtbl, g_fmtsyntax, argv[0]);
+      goto errout_with_allocpath;
+    }
+
   /* Now open the destination */
 
   wrfd = open(destpath, oflags, 0666);
@@ -592,7 +599,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Now copy the file */
 
-  for (;;)
+  for (; ; )
     {
       int nbytesread;
       int nbyteswritten;
@@ -644,9 +651,10 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 }
               else
                 {
-                 /* Read error */
+                  /* Read error */
 
-                  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "write", NSH_ERRNO);
+                  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "write",
+                            NSH_ERRNO);
                 }
 
               goto errout_with_wrfd;
@@ -678,6 +686,7 @@ errout_with_srcpath:
     {
       nsh_freefullpath(srcpath);
     }
+
 errout:
   return ret;
 }
@@ -862,7 +871,8 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the losetup options:  Two forms are supported:
    *
    *   losmart -d <loop-device>
-   *   losmart [-m minor-number] [-o <offset>] [-e erasesize] [-s sectsize] [-r] <filename>
+   *   losmart [-m minor-number] [-o <offset>] [-e erasesize] [-s sectsize]
+   *           [-r] <filename>
    *
    * NOTE that the -o and -r options are accepted with the -d option, but
    * will be ignored.
@@ -955,7 +965,8 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       /* Tear down the loop device. */
 
-      ret = ioctl(fd, SMART_LOOPIOC_TEARDOWN, (unsigned long)((uintptr_t) loopdev));
+      ret = ioctl(fd, SMART_LOOPIOC_TEARDOWN,
+                 (unsigned long)((uintptr_t) loopdev));
       if (ret < 0)
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
@@ -973,7 +984,8 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       setup.offset    = offset;     /* An offset that may be applied to the device */
       setup.readonly  = readonly;   /* True: Read access will be supported only */
 
-      ret = ioctl(fd, SMART_LOOPIOC_SETUP, (unsigned long)((uintptr_t)&setup));
+      ret = ioctl(fd, SMART_LOOPIOC_SETUP,
+                  (unsigned long)((uintptr_t)&setup));
       if (ret < 0)
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
@@ -1091,7 +1103,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       switch (option)
         {
           case 'l':
-            lsflags |= (LSFLAGS_SIZE|LSFLAGS_LONG);
+            lsflags |= (LSFLAGS_SIZE | LSFLAGS_LONG);
             break;
 
           case 'R':
@@ -1169,7 +1181,8 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * file
        */
 
-      ret = ls_handler(vtbl, fullpath, NULL, (FAR void *)((uintptr_t)lsflags));
+      ret = ls_handler(vtbl, fullpath, NULL,
+                       (FAR void *)((uintptr_t)lsflags));
     }
   else
     {
@@ -1178,7 +1191,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       nsh_output(vtbl, "%s:\n", fullpath);
 
       ret = nsh_foreach_direntry(vtbl, "ls", fullpath, ls_handler,
-                                 (FAR void*)((uintptr_t)lsflags));
+                                 (FAR void *)((uintptr_t)lsflags));
       if (ret == OK && (lsflags & LSFLAGS_RECURSIVE) != 0)
         {
           /* Then recurse to list each directory within the directory */
@@ -1282,7 +1295,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* There should be exactly one parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       fullpath = nsh_getfullpath(vtbl, argv[optind]);
       if (fullpath == NULL)
@@ -1480,7 +1493,8 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 nsh_error(vtbl, "Sector size must be 256-16384\n");
                 return EINVAL;
               }
-            if (sectorsize & (sectorsize-1))
+
+            if (sectorsize & (sectorsize - 1))
               {
                 nsh_error(vtbl, "Sector size must be power of 2\n");
                 return EINVAL;
@@ -1523,7 +1537,8 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
           if (ret < 0)
             {
-              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mksmartfs", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mksmartfs",
+                        NSH_ERRNO);
             }
         }
 
@@ -1594,6 +1609,7 @@ int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ssize_t len;
 
   /* readlink <link> */
+
   /* Get the fullpath to the directory */
 
   fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -1734,7 +1750,7 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * files.
    */
 
-  for (;;)
+  for (; ; )
     {
       char buf1[128];
       char buf2[128];
