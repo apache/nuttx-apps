@@ -1076,7 +1076,7 @@ static int cle_editloop(FAR struct cle_s *priv)
 
         case KEY_DELEOL:  /* Delete to the end of the line */
           {
-            priv->nchars = (priv->nchars > 0 ? priv->curpos + 1 : 0);
+            priv->nchars = (priv->nchars > 0 ? priv->curpos : 0);
           }
           break;
 
