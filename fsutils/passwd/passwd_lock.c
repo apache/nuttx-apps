@@ -71,7 +71,7 @@ static sem_t g_passwd_sem =  SEM_INITIALIZER(1);
  * Public Functions
  ****************************************************************************/
 /****************************************************************************
- * Name: passwd_lock and passwd_unlock
+ * Name: passwd_lock
  *
  * Description:
  *   Lock the /etc/passwd file.  This is not a real lock at the level of the
@@ -121,7 +121,21 @@ int passwd_lock(FAR sem_t **semp)
   return OK;
 }
 
-int passwd_unlock(FAR sem_t *sem)
+/****************************************************************************
+ * Name: passwd_unlock
+ *
+ * Description:
+ *   Undo the work done by passwd_lock.
+ *
+ * Input Parameters:
+ *   sem  Pointer to the semaphore
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void passwd_unlock(FAR sem_t *sem)
 {
   /* Release our count on the semaphore */
 
@@ -132,6 +146,4 @@ int passwd_unlock(FAR sem_t *sem)
 
   sem_close(sem);
 #endif
-
-  return OK;
 }
