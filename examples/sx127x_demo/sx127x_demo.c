@@ -182,7 +182,7 @@ static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
   int nargs;
   int i_value;
 
-  for (index = 1; index < argc;)
+  for (index = 1; index < argc; )
     {
       ptr = argv[index];
       if (ptr[0] != '-')
@@ -346,22 +346,23 @@ static void print_hex(uint8_t *data, int len)
 {
   int i;
 
-  if(len == 0)
+  if (len == 0)
     {
       printf("empty buffer!\n");
     }
   else
     {
-      for(i = 0 ; i < len ; i += 1)
+      for (i = 0 ; i < len ; i += 1)
         {
           printf("0x%02x ", data[i]);
 
-          if((i+1)%10 == 0)
+          if ((i + 1) % 10 == 0)
             {
               printf("\n");
             }
         }
     }
+
   printf("\n");
 }
 
@@ -447,7 +448,7 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize buffer with data */
 
-  for (i = 0; i < TX_BUFFER_MAX; i+=1)
+  for (i = 0; i < TX_BUFFER_MAX; i += 1)
     {
       buffer[i] = i;
     }
@@ -483,7 +484,8 @@ int main(int argc, FAR char *argv[])
   fd = open(DEV_NAME, O_RDWR);
   if (fd < 0)
     {
-      printf("ERROR: Failed to open device!\n");
+      int errcode = errno;
+      printf("ERROR: Failed to open device %s: %d\n", DEV_NAME, errcode);
       goto errout;
     }
 
@@ -522,7 +524,7 @@ int main(int argc, FAR char *argv[])
 
   clock_gettime(CLOCK_REALTIME, &tstart);
 
-  while(1)
+  while (1)
     {
       switch (args->app_mode)
         {
