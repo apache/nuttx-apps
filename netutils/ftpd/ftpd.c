@@ -1617,8 +1617,6 @@ static int ftpd_changedir(FAR struct ftpd_session_s *session,
                      (FAR char **)(&workpath));
   if (ret < 0)
     {
-      free(workpath);
-      free(abspath);
       ftpd_response(session->cmd.sd, session->txtimeout,
                     g_respfmt1, 550, ' ',
                     "Can not change directory !");
