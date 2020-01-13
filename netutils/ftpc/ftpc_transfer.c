@@ -139,7 +139,7 @@ static int ftp_cmd_epsv(FAR struct ftpc_session_s *session,
    * are supplied.
    */
 
-  nscan = sscanf(ptr, "|||%u|", &tmp);
+  nscan = sscanf(ptr, "|||%hu|", &tmp);
   if (nscan != 1)
     {
       nwarn("WARNING: Error parsing EPSV reply: '%s'\n", session->reply);
