@@ -159,10 +159,6 @@
 #  define CONFIG_NETUTILS_DHCPD_MAXLEASETIME (60*60*24*30) /* 30 days */
 #endif
 
-#ifndef CONFIG_NETUTILS_DHCPD_INTERFACE
-#  define CONFIG_NETUTILS_DHCPD_INTERFACE "eth0"
-#endif
-
 #ifndef CONFIG_NETUTILS_DHCPD_MAXLEASES
 #  define CONFIG_NETUTILS_DHCPD_MAXLEASES 16
 #endif
@@ -1372,7 +1368,7 @@ static inline int dhcpd_release(void)
  * Name: dhcpd_openlistener
  ****************************************************************************/
 
-static inline int dhcpd_openlistener(void)
+static inline int dhcpd_openlistener(FAR const char *interface)
 {
   struct sockaddr_in addr;
   struct ifreq req;
@@ -1390,7 +1386,7 @@ static inline int dhcpd_openlistener(void)
 
   /* Get the IP address of the selected device */
 
-  strncpy(req.ifr_name, CONFIG_NETUTILS_DHCPD_INTERFACE, IFNAMSIZ);
+  strncpy(req.ifr_name, interface, IFNAMSIZ);
   ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
   if (ret < 0)
     {
@@ -1430,7 +1426,7 @@ static inline int dhcpd_openlistener(void)
  * Name: dhcpd_run
  ****************************************************************************/
 
-int dhcpd_run(void)
+int dhcpd_run(FAR const char *interface)
 {
   int sockfd;
   int nbytes;
@@ -1450,7 +1446,7 @@ int dhcpd_run(void)
 
       if (sockfd < 0)
         {
-          sockfd = dhcpd_openlistener();
+          sockfd = dhcpd_openlistener(interface);
           if (sockfd < 0)
             {
                 nerr("ERROR: Failed to create socket\n");

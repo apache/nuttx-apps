@@ -37,6 +37,9 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -45,7 +48,7 @@
  * Public Functions
  ****************************************************************************/
 
-extern int dhcpd_run(void);
+extern int dhcpd_run(const char *interface);
 
 /****************************************************************************
  * main
@@ -53,6 +56,16 @@ extern int dhcpd_run(void);
 
 int main(int argc, char **argv, char **envp)
 {
-  dhcpd_run();
+  /* One and only one argument is expected:  The network device name. */
+
+  if (argc != 2)
+    {
+      fprintf(stderr, "ERROR: Invalid number of arguments\n");
+      fprintf(stderr, "Usage: %s <device-name>\n", argv[0]);
+      exit(EXIT_FAILURE);
+    }
+
+  dhcpd_run(argv[1]);
+
   return 0;
 }
