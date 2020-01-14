@@ -1286,10 +1286,21 @@ static inline int dhcpd_request(void)
             }
         }
 
-      /* No.. is the requested IP address in range? NAK if not */
+      /* DHCPREQUEST without DHCPDISCOVER:
+       * The request IP address is in the range but has not been leased,
+       * maybe requested before the last shutdown, lease again.
+       */
 
-      else if (g_state.ds_optreqip < CONFIG_NETUTILS_DHCPD_STARTIP ||
-               g_state.ds_optreqip > CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
+      else if (g_state.ds_optreqip >= CONFIG_NETUTILS_DHCPD_STARTIP &&
+               g_state.ds_optreqip <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
+        {
+          ipaddr = g_state.ds_optreqip;
+          response = DHCPACK;
+        }
+
+      /* The requested IP address out of range, negative */
+
+      else
         {
           response = DHCPNAK;
         }
