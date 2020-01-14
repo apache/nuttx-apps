@@ -274,7 +274,6 @@ struct dhcpd_state_s
  ****************************************************************************/
 
 static const uint8_t        g_magiccookie[4] = {99, 130, 83, 99};
-static const uint8_t        g_anyipaddr[4] = {0, 0, 0, 0};
 static struct dhcpd_state_s g_state;
 
 /****************************************************************************
@@ -931,6 +930,10 @@ static int dhcpd_sendpacket(int bbroadcast)
 
    ipaddr = INADDR_BROADCAST;
 #else
+   const uint8_t anyipaddr[4] =
+   {
+   };
+
   /* Determine which address to respond to (or if we need to broadcast the response)
    *
    * (1) If he caller know that it needs to multicast the response, it will set bbroadcast.
@@ -948,7 +951,7 @@ static int dhcpd_sendpacket(int bbroadcast)
     {
       ipaddr = INADDR_BROADCAST;
     }
-  else if (memcmp(g_state.ds_outpacket.ciaddr, g_anyipaddr, 4) != 0)
+  else if (memcmp(g_state.ds_outpacket.ciaddr, anyipaddr, 4) != 0)
     {
       dhcpd_arpupdate(g_state.ds_outpacket.ciaddr, g_state.ds_outpacket.chaddr);
       memcpy(&ipaddr, g_state.ds_outpacket.ciaddr, 4);
