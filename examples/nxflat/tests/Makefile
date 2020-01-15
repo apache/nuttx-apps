@@ -55,7 +55,7 @@ SYMTAB		= $(TESTS_DIR)/symtab.h
 
 define DIR_template
 $(1)_$(2):
-	@$(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
+	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(ROMFS_HDR) $(ROMFS_DIRLIST) $(SYMTAB)

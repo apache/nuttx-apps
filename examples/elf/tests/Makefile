@@ -77,7 +77,7 @@ endif
 
 define DIR_template
 $(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSIMG_DIR="$(FSIMG_DIR)" CROSSDEV=$(CROSSDEV)
+	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSIMG_DIR="$(FSIMG_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
