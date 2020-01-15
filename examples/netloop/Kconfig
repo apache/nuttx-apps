@@ -6,7 +6,7 @@
 config EXAMPLES_NETLOOP
 	tristate "Local loopback example"
 	default n
-	depends on NET_LOOPBACK && NET_TCP && NET_TCPBACKLOG && NET_TCP_READAHEAD && NET_TCP_WRITE_BUFFERS && NET_IPv4
+	depends on NET_LOOPBACK && NET_TCP && NET_TCPBACKLOG && NET_TCP_WRITE_BUFFERS && NET_IPv4
 	---help---
 		Enable the local loopback example
 

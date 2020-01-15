@@ -895,7 +895,6 @@ examples/netloop
     CONFIG_NET_LOOPBACK           - Requires local loopback supprt
     CONFIG_NET_TCP                - Requires TCP support with the following:
     CONFIG_NET_TCPBACKLOG
-    CONFIG_NET_TCP_READAHEAD
     CONFIG_NET_TCP_WRITE_BUFFERS
     CONFIG_NET_IPv4               - Currently supports only IPv4
 
@@ -1229,7 +1228,6 @@ examples/poll
 
   CONFIG_NET                        - Defined for general network support
   CONFIG_NET_TCP                    - Defined for TCP/IP support
-  CONFIG_NET_TCP_READAHEAD          - Defined
   CONFIG_NET_NTCP_READAHEAD_BUFFERS - Defined to be greater than zero
 
   CONFIG_EXAMPLES_POLL_NOMAC         - (May be defined to use software assigned MAC)

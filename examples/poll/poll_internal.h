@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/poll/poll_internal.h
  *
- *   Copyright (C) 2008, 2009, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2009, 2014, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,9 @@
  * CONFIG_NET                  - Network support must be enabled
  * CONFIG_NET_TCP              - Only support on TCP (because read-ahead
  *                               buffering s not yet support for UDP)
- * CONFIG_NET_TCP_READAHEAD    - TCP/IP read-ahead buffering must be enabled
  */
 
-#if defined(CONFIG_NET) && defined(CONFIG_NET_TCP) && \
-    defined(CONFIG_NET_TCP_READAHEAD)
+#if defined(CONFIG_NET) && defined(CONFIG_NET_TCP)
 #  define HAVE_NETPOLL 1
 #else
 #  undef HAVE_NETPOLL
