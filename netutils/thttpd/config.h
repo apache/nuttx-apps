@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/thttpd/config.h
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@
 #undef CONFIG_THTTPD
 #if defined(CONFIG_NET) && defined(CONFIG_NET_TCP) && \
     defined(CONFIG_NET_TCPBACKLOG) && !defined(CONFIG_DISABLE_ENVIRON) && \
-    !defined(CONFIG_SDCLONE_DISABLE) && defined(CONFIG_NET_TCP_READAHEAD)
+    !defined(CONFIG_SDCLONE_DISABLE)
 
 #  define CONFIG_THTTPD 1
 
