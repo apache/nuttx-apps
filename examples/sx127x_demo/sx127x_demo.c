@@ -435,7 +435,9 @@ errout:
 
 int main(int argc, FAR char *argv[])
 {
+#ifdef CONFIG_LPWAN_SX127X_RXSUPPORT
   struct sx127x_read_hdr_s data;
+#endif
   struct sx127x_chanscan_ioc_s chanscan;
   struct args_s   *args;
   struct timespec tstart;
@@ -528,6 +530,7 @@ int main(int argc, FAR char *argv[])
     {
       switch (args->app_mode)
         {
+#ifdef CONFIG_LPWAN_SX127X_TXSUPPORT
           /* Transmit some data */
 
           case APP_MODE_TX:
@@ -543,7 +546,9 @@ int main(int argc, FAR char *argv[])
 
               break;
             }
+#endif
 
+#ifdef CONFIG_LPWAN_SX127X_RXSUPPORT
           /* Receive data */
 
           case APP_MODE_RX:
@@ -579,6 +584,7 @@ int main(int argc, FAR char *argv[])
 
               break;
             }
+#endif
 
           /* Send some data and wait for response */
 
