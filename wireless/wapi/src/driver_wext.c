@@ -268,3 +268,65 @@ int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
 
   return ret;
 }
+
+/****************************************************************************
+ * Name: wpa_driver_wext_disconnect
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname)
+{
+  uint8_t ssid[WAPI_ESSID_MAX_SIZE];
+  const struct ether_addr bssid =
+  {
+  };
+
+  struct iwreq iwr;
+  int i;
+
+  /* Only force-disconnect when the card is in infrastructure mode,
+   * otherwise the driver might interpret the cleared BSSID and random
+   * SSID as an attempt to create a new ad-hoc network.
+   */
+
+  memset(&iwr, 0, sizeof(iwr));
+  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+
+  if (ioctl(sockfd, SIOCGIWMODE, (unsigned long)&iwr) < 0)
+    {
+      nerr("ioctl[SIOCGIWMODE]: %s\n", strerror(errno));
+      iwr.u.mode = IW_MODE_INFRA;
+    }
+
+  if (iwr.u.mode == IW_MODE_INFRA)
+    {
+      /* Clear the BSSID selection */
+
+      if (wapi_set_ap(sockfd, ifname, &bssid) < 0)
+        {
+          nerr("WEXT: Failed to clear BSSID " "selection on disconnect\n");
+        }
+
+      /* Set a random SSID to make sure the driver will not be trying
+       * to associate with something even if it does not understand
+       * SIOCSIWMLME commands (or tries to associate automatically
+       * after deauth/disassoc).
+       */
+
+      for (i = 0; i < WAPI_ESSID_MAX_SIZE; i++)
+        {
+          ssid[i] = rand() & 0xff;
+        }
+
+      if (wapi_set_essid(sockfd, ifname, (FAR const char *)ssid, WAPI_ESSID_OFF) < 0)
+        {
+          nerr("WEXT: Failed to set bogus " "SSID to disconnect\n");
+        }
+    }
+}

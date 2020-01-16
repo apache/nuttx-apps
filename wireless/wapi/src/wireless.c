@@ -119,6 +119,17 @@ FAR const char *g_wapi_txpower_flags[] =
   NULL
 };
 
+/* Passphrase Algorithm */
+
+FAR const char *g_wapi_alg_flags[] =
+{
+  "WPA_ALG_NONE",
+  "WPA_ALG_WEP",
+  "WPA_ALG_TKIP",
+  "WPA_ALG_CCMP",
+  NULL
+};
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
