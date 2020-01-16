@@ -691,6 +691,21 @@ examples/lis2csh_reader
   A simple reader example for the LIS3DSH acceleration sensor as found on
   STM32F4Discovery rev. C
 
+examples/hts221_reader
+^^^^^^^^^^^^^^^^^^^^^^^
+
+  A simple reader example for the HTS221 humidity sensor.
+
+examples/lsm303_reader
+^^^^^^^^^^^^^^^^^^^^^^^
+
+  A simple reader example for the LSM303 acc-mag sensor.
+
+examples/lsm6dsl_reader
+^^^^^^^^^^^^^^^^^^^^^^^
+
+  A simple reader example for the LSM6DSL acc-gyro sensor.
+
 examples/media
 ^^^^^^^^^^^^^^
 

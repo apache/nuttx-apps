@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LSM303_READER
+	bool "LSM303 reader example"
+	default n
+	depends on SENSORS_LSM303AGR
+	---help---
+		Enable the LSM303 reader example
