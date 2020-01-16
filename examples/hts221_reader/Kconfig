@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HTS221_READER
+	bool "HTS221 reader example"
+	default n
+	depends on SENSORS_HTS221
+	---help---
+		Enable the HTS221 reader example
