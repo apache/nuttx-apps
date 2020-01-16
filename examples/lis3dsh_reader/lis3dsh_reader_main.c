@@ -61,11 +61,10 @@ int main(int argc, FAR char *argv[])
     int16_t y;
     int16_t z;
   } acc_data;
-  int i;
 
   acc = fopen("/dev/acc0", "r");
 
-  for (i = 0; 1; i++)
+  for (; ; )
     {
       fread( &acc_data, 6, 1, acc );
       printf("x: %4d  y: %4d  z: %4d            \r",
