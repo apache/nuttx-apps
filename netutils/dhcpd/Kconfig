@@ -32,10 +32,6 @@ config NETUTILS_DHCPD_IGNOREBROADCAST
 		cause the server to ignore the client broadcast flag and always respond
 		with multicast; the value 0 to allows clients to request unicast.
 
-config NETUTILS_DHCPD_INTERFACE
-	string "DHCPD network interface"
-	default "eth0"
-
 config NETUTILS_DHCPD_LEASETIME
 	int "Lease time (seconds)"
 	default 864000

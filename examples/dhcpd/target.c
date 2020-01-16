@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/dhcpd/target.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <net/if.h>
@@ -52,6 +53,7 @@
  ****************************************************************************/
 
 /* Configuation Checkes *****************************************************/
+
 /* BEWARE:
  * There are other configuration settings needed in netutils/dhcpd/dhcpdc.c,
  * but there are default values for those so we cannot check them here.
@@ -82,7 +84,21 @@
 #endif
 
 /****************************************************************************
- * Private Data
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * dhcpd_showusage
+ ****************************************************************************/
+
+static void dhcpd_showusage(FAR const char *progname, int exitcode)
+{
+  fprintf(stderr, "Usage: %s <device-name>\n", progname);
+  exit(exitcode);
+}
+
+/****************************************************************************
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -91,12 +107,23 @@
 
 int main(int argc, FAR char *argv[])
 {
+  FAR const char *devname;
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_DHCPD_NOMAC)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* One and only one argument is expected:  The network device name. */
+
+  if (argc != 2)
+    {
+      fprintf(stderr, "ERROR: Invalid number of arguments\n");
+      dhcpd_showusage(argv[0], EXIT_FAILURE);
+    }
+
+  devname = argv[1];
+
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_DHCPD_NOMAC
   mac[0] = 0x00;
@@ -105,32 +132,32 @@ int main(int argc, FAR char *argv[])
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  netlib_setmacaddr("eth0", mac);
+  netlib_setmacaddr(devname, mac);
 #endif
 
   /* Set up our host address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_IPADDR);
-  netlib_set_ipv4addr("eth0", &addr);
+  netlib_set_ipv4addr(devname, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_DRIPADDR);
-  netlib_set_dripv4addr("eth0", &addr);
+  netlib_set_dripv4addr(devname, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_NETMASK);
-  netlib_set_ipv4netmask("eth0", &addr);
+  netlib_set_ipv4netmask(devname, &addr);
 
   /* New versions of netlib_set_ipvXaddr will not bring the network up,
    * So ensure the network is really up at this point.
    */
 
-  netlib_ifup("eth0");
+  netlib_ifup(devname);
 
   /* Then start the server */
 
-  dhcpd_run();
+  dhcpd_run(devname);
   return 0;
 }

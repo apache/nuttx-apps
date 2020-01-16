@@ -439,29 +439,35 @@ static void netinit_net_bringup(void)
 
   handle = dhcpc_open(NET_DEVNAME, &mac, IFHWADDRLEN);
 
-  /* Get an IP address.  Note that there is no logic for renewing the IP address in this
-   * example.  The address should be renewed in ds.lease_time/2 seconds.
+  /* Get an IP address.  Note that there is no logic for renewing the IP
+   * address in this example.  The address should be renewed in
+   * ds.lease_time/2 seconds.
    */
 
   if (handle != NULL)
     {
-      struct dhcpc_state ds;
-      dhcpc_request(handle, &ds);
-      netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
+      struct dhcpc_state ds =
+      {
+      };
 
-      if (ds.netmask.s_addr != 0)
+      if (dhcpc_request(handle, &ds) == OK)
         {
-          netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
-        }
+          netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
 
-      if (ds.default_router.s_addr != 0)
-        {
-          netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
-        }
+          if (ds.netmask.s_addr != 0)
+            {
+              netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
+            }
 
-      if (ds.dnsaddr.s_addr != 0)
-        {
-          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+          if (ds.default_router.s_addr != 0)
+            {
+              netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
+            }
+
+          if (ds.dnsaddr.s_addr != 0)
+            {
+              netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+            }
         }
 
       dhcpc_close(handle);
