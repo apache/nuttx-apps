@@ -40,6 +40,16 @@ TOPDIR ?= $(APPDIR)/import
 -include $(TOPDIR)/Make.defs
 -include $(APPDIR)/Make.defs
 
+# The GNU make CURDIR will always be a POSIX-like path with forward slashes
+# as path segment separators.  This is fine for the above inclusions but
+# will cause problems later for the native build.  If we know that this is
+# a native build, then we need to fix up the APPDIR path for subsequent
+# use
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+APPDIR := ${shell echo %CD%}
+endif
+
 # Symbol table for loadable apps.
 
 SYMTABSRC = symtab_apps.c
