@@ -51,7 +51,17 @@ ifneq ($(MAINSRC),)
   endif
 endif
 
-SUFFIX = $(subst $(DELIM),.,$(CURDIR))
+# The GNU make CURDIR will always be a POSIX-like path with forward slashes
+# as path segment separators.  If we know that this is a native build, then
+# we need to fix up the path so the DELIM will match the actual delimiter.
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+CWD = $(strip ${shell echo %CD% | cut -d: -f2})
+else
+CWD = $(CURDIR)
+endif
+
+SUFFIX = $(subst $(DELIM),.,$(CWD))
 
 # Object files
 
