@@ -92,6 +92,6 @@ clean:
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
-install:
+install: $(BIN)
 	$(Q) mkdir -p $(FSROOT_DIR)
 	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)
