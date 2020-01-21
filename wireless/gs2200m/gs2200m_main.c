@@ -1404,8 +1404,6 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
                                USRSOCK_EVENT_RECVFROM_AVAIL);
             }
         }
-
-      usleep(1);
     }
 
 errout:
