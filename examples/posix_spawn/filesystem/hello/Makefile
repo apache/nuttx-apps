@@ -56,7 +56,6 @@ clean:
 	$(call DELFILE, *.dSYM)
 	$(call CLEAN)
 
-install:
-
+install: $(BIN)
 	$(Q) mkdir -p $(ROMFS_DIR)
 	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)
