@@ -11,6 +11,9 @@ config NXGLYPHS_LARGE_ICONS
 
 config NXGLYPHS_BACKGROUNDCOLOR
 	hex "Background Color"
+	default 0x97 if NXWIDGETS_BPP = 8
+	default 0x95fa if NXWIDGETS_BPP = 16
+	default 0x94bdd7 if NXWIDGETS_BPP = 24 || NXWIDGETS_BPP = 32
 	---help---
 		Normal background color.  Default: RGB(148,189,215)
 
