@@ -6,6 +6,8 @@
 config NETUTILS_SMTP
 	bool "SMTP"
 	default n
+	depends on NET_IPv4
+	depends on NET_TCP
 	---help---
 		Enable support for SMTP.
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/sendmail/sendmail_maini.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,19 +57,19 @@
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_SENDMAIL_RECIPIENT
-#  error "You must provice CONFIG_EXAMPLES_SENDMAIL_RECIPIENT"
+#  error "You must provide CONFIG_EXAMPLES_SENDMAIL_RECIPIENT"
 #endif
 
 #ifndef CONFIG_EXAMPLES_SENDMAIL_IPADDR
-#  error "You must provice CONFIG_EXAMPLES_SENDMAIL_IPADDR"
+#  error "You must provide CONFIG_EXAMPLES_SENDMAIL_IPADDR"
 #endif
 
 #ifndef CONFIG_EXAMPLES_SENDMAIL_DRIPADDR
-#  error "You must provice CONFIG_EXAMPLES_SENDMAIL_DRIPADDR"
+#  error "You must provide CONFIG_EXAMPLES_SENDMAIL_DRIPADDR"
 #endif
 
 #ifndef CONFIG_EXAMPLES_SENDMAIL_NETMASK
-#  error "You must provice CONFIG_EXAMPLES_SENDMAIL_NETMASK"
+#  error "You must provide CONFIG_EXAMPLES_SENDMAIL_NETMASK"
 #endif
 
 #ifndef CONFIG_EXAMPLES_SENDMAIL_SENDER
@@ -95,10 +95,6 @@ static const char g_subject[]   = CONFIG_EXAMPLES_SENDMAIL_SUBJECT;
 static const char g_msg_body[]  = CONFIG_EXAMPLES_SENDMAIL_BODY "\r\n";
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -119,7 +115,7 @@ int main(int argc, FAR char *argv[])
   printf("sendmail: Subject: %s\n", g_subject);
   printf("sendmail: Body: %s\n", g_msg_body);
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_SENDMAIL_NOMAC
   mac[0] = 0x00;

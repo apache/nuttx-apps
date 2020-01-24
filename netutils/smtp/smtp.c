@@ -2,7 +2,8 @@
  * apps/netutitls/smtp/smtp.c
  * smtp SMTP E-mail sender
  *
- *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015, 2020 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Heavily leveraged from uIP 1.0 which also has a BSD-like license:
@@ -134,7 +135,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtphelo, psmtp->localhostname);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtphelo, psmtp->localhostname);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -150,7 +152,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtpmailfrom, psmtp->from);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtpmailfrom, psmtp->from);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -166,7 +169,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtprcptto, psmtp->to);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtprcptto, psmtp->to);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -184,7 +188,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
 
   if (psmtp->cc != 0)
     {
-      snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtprcptto, psmtp->cc);
+      snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+               g_smtprcptto, psmtp->cc);
       if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
         {
           return ERROR;
@@ -216,7 +221,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtpto, psmtp->to);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtpto, psmtp->to);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -224,20 +230,23 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
 
   if (psmtp->cc != 0)
     {
-      snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtpto, psmtp->cc);
+      snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+               g_smtpto, psmtp->cc);
       if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
         {
           return ERROR;
         }
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtpfrom, psmtp->from);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtpfrom, psmtp->from);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n", g_smtpsubject, psmtp->subject);
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+           g_smtpsubject, psmtp->subject);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -267,6 +276,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
     {
       return ERROR;
     }
+
   return OK;
 }
 
@@ -274,7 +284,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
  * Public Functions
  ****************************************************************************/
 
-/* Specificy an SMTP server and hostname.
+/* Specify an SMTP server and hostname.
  *
  * This function is used to configure the SMTP module with an SMTP server and
  * the hostname of the host.
@@ -362,10 +372,10 @@ void *smtp_open(void)
       /* Initialize the handle */
 
       memset(psmtp, 0, sizeof(struct smtp_state));
-     sem_init(&psmtp->sem, 0, 0);
+      sem_init(&psmtp->sem, 0, 0);
     }
 
-  return (void*)psmtp;
+  return (FAR void *)psmtp;
 }
 
 void smtp_close(void *handle)
