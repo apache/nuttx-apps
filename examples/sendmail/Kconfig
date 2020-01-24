@@ -6,8 +6,53 @@
 config EXAMPLES_SENDMAIL
 	tristate "Sendmail example"
 	default n
+	depends on NET_IPv4
+	depends on NET_TCP
+	select NETUTILS_SMTP
 	---help---
 		Enable the sendmail example
 
 if EXAMPLES_SENDMAIL
+
+config EXAMPLES_SENDMAIL_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	---help---
+		If the hardware has no MAC address of its own, define this =y to
+		provide a bogus address for testing.
+
+config EXAMPLES_SENDMAIL_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+	---help---
+		The target IP address.  Default 10.0.0.2 (0x0a000002)
+
+config EXAMPLES_SENDMAIL_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+	---help---
+		The default router address. Default 10.0.0.1 (0x0a000001)
+
+config EXAMPLES_SENDMAIL_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+	---help---
+		The network mask.  Default: 255.255.255.0 (0xffffff00)
+
+config EXAMPLES_SENDMAIL_RECIPIENT
+	string "Recipient email"
+	default "Jane Doe <jane.doe@janedoemail.com>"
+
+config EXAMPLES_SENDMAIL_SENDER
+	string "Sender email"
+	default "John Doe <john.doe@johndoemail.com>"
+
+config EXAMPLES_SENDMAIL_SUBJECT
+	string "Subject"
+	default "Test"
+
+config EXAMPLES_SENDMAIL_BODY
+	string "Mail Body"
+	default "This is a test"
+
 endif
