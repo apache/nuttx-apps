@@ -647,7 +647,7 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
   if (pzm->pktlen >= ZM_PKTBUFSIZE)
     {
       zmdbg("ERROR:  The packet buffer is full\n");
-      zmdbg("        ch=%c[%02x] pktlen=%d ptktype=%02x ncrc=%d\n",
+      zmdbg("        ch=%c[%02x] pktlen=%d pkttype=%02x ncrc=%d\n",
             isprint(ch) ? ch : '.', ch, pzm->pktlen, pzm->pkttype, pzm->ncrc);
       zmdbg("        rcvlen=%d rcvndx=%d\n",
             pzm->rcvlen, pzm->rcvndx);
