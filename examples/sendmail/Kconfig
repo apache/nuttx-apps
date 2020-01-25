@@ -33,11 +33,23 @@ config EXAMPLES_SENDMAIL_DRIPADDR
 	---help---
 		The default router address. Default 10.0.0.1 (0x0a000001)
 
+config EXAMPLES_SENDMAIL_SERVERADDR
+	hex "SMTP Server address"
+	default 0x0a000003
+	---help---
+		The SMTP Server address. Default 10.0.0.3 (0x0a000003)
+
 config EXAMPLES_SENDMAIL_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
 	---help---
 		The network mask.  Default: 255.255.255.0 (0xffffff00)
+
+config EXAMPLES_SENDMAIL_PORT
+	int "Server Port"
+	default 25
+	---help---
+		The SMTP server's port.  Default 25.
 
 config EXAMPLES_SENDMAIL_RECIPIENT
 	string "Recipient email"
