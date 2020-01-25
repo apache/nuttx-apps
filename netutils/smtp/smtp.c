@@ -91,7 +91,8 @@ struct smtp_state
   bool         connected;
   sem_t        sem;
   in_addr_t    smtpserver;
-  const char  *localhostname;
+  in_port_t    port;
+  const char  *hostname;
   const char  *to;
   const char  *cc;
   const char  *from;
@@ -136,7 +137,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
     }
 
   snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
-           g_smtphelo, psmtp->localhostname);
+           g_smtphelo, psmtp->hostname);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
       return ERROR;
@@ -245,7 +246,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n",
+  snprintf(psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, "%s%s\r\n\r\n",
            g_smtpsubject, psmtp->subject);
   if (send(sockfd, psmtp->buffer, strlen(psmtp->buffer), 0) < 0)
     {
@@ -295,12 +296,13 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
  *               configured.
  */
 
-void smtp_configure(FAR void *handle, FAR const char *lhostname,
-                    FAR const in_addr_t *paddr)
+void smtp_configure(FAR void *handle, FAR const char *hostname,
+                    FAR const in_addr_t *paddr, FAR const in_port_t *port)
 {
   FAR struct smtp_state *psmtp = (FAR struct smtp_state *)handle;
-  psmtp->localhostname = lhostname;
-  net_ipv4addr_copy(psmtp->smtpserver, paddr);
+  psmtp->hostname = hostname;
+  net_ipv4addr_copy(psmtp->smtpserver, *paddr);
+  psmtp->port = *port;
 }
 
 /* Send an e-mail.
@@ -345,8 +347,8 @@ int smtp_send(void *handle, const char *to, const char *cc, const char *from,
    */
 
   server.sin_family = AF_INET;
-  memcpy(&server.sin_addr.s_addr, &psmtp->smtpserver, sizeof(in_addr_t));
-  server.sin_port = HTONS(25);
+  net_ipv4addr_copy(server.sin_addr.s_addr, psmtp->smtpserver);
+  server.sin_port = psmtp->port;
 
   if (connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
     {

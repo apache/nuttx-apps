@@ -68,8 +68,8 @@ extern "C"
  ****************************************************************************/
 
 void *smtp_open(void);
-void  smtp_configure(FAR void *handle, FAR const char *localhostname,
-                     FAR const in_addr_t *paddr);
+void  smtp_configure(FAR void *handle, FAR const char *hostname,
+                     FAR const in_addr_t *paddr, FAR const in_port_t *port);
 int   smtp_send(FAR void *handle, FAR const char *to, FAR const char *cc,
                 FAR const char *from, FAR const char *subject,
                 FAR const char *msg, int msglen);
