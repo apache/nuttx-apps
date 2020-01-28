@@ -802,7 +802,9 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
           goto prepare;
         }
 
-      ret = req->buflen;
+      /* return length which gs2200m sent */
+
+      ret = smsg.len;
     }
 
 prepare:
