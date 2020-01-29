@@ -154,7 +154,7 @@ int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
 
   /* The copy the rest of the file name to the user buffer */
 
-  strncpy(dest, src, namelen);
+  strncpy(dest, src, bytesleft);
   filename[namelen-1] = '\0';
   return ret;
 }
