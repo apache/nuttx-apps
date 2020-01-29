@@ -32,3 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ############################################################################
+
+# Add dummy.c to ensure that we have at least one object.
+# On some platforms like macOS, we can't create an empty archive.
+
+CSRCS += dummy.c
