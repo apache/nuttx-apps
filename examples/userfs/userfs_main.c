@@ -115,7 +115,7 @@ static int     ufstest_dup(FAR void *volinfo, FAR void *oldinfo,
 static int     ufstest_fstat(FAR void *volinfo, FAR void *openinfo,
                  FAR struct stat *buf);
 static int     ufstest_truncate(FAR void *volinfo, FAR void *openinfo,
-                 off_t *length);
+                 off_t length);
 static int     ufstest_opendir(FAR void *volinfo, FAR const char *relpath,
                  FAR void **dir);
 static int     ufstest_closedir(FAR void *volinfo, FAR void *dir);
@@ -420,7 +420,7 @@ static int ufstest_fstat(FAR void *volinfo, FAR void *openinfo,
 }
 
 static int ufstest_truncate(FAR void *volinfo, FAR void *openinfo,
-                            off_t *length)
+                            off_t length)
 {
   return -ENOSYS;
 }
