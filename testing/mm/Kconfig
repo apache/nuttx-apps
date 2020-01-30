@@ -4,10 +4,10 @@
 #
 
 config TESTING_MM
-	tristate "Memory management example"
+	tristate "Memory management test"
 	default n
 	---help---
-		Enable the memory management example
+		Enable the memory management test
 
 if TESTING_MM
 endif
