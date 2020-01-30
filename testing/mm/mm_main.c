@@ -48,13 +48,14 @@
 #define NTEST_ALLOCS 32
 
 /* #define STOP_ON_ERRORS do {} while (0) */
+
 #define STOP_ON_ERRORS exit(1)
 
 /* All other definitions derive from these two */
 
 #define MM_MIN_SHIFT      4  /* 16 bytes */
 #define MM_MIN_CHUNK     (1 << MM_MIN_SHIFT)
-#define MM_GRAN_MASK     (MM_MIN_CHUNK-1)
+#define MM_GRAN_MASK     (MM_MIN_CHUNK - 1)
 #define MM_ALIGN_UP(a)   (((a) + MM_GRAN_MASK) & ~MM_GRAN_MASK)
 #define MM_ALIGN_DOWN(a) ((a) & ~MM_GRAN_MASK)
 
@@ -67,55 +68,56 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Test allocations */
 
 static const int   alloc_sizes[NTEST_ALLOCS] =
 {
-  1024,     12,    962,   5692, 10254,   111,   9932,    601,
-   222,   2746,      3, 124321,    68,   776,   6750,    852,
-  4732,     28,    901,    480,  5011,  1536,   2011,  81647,
-   646,   1646,  69179,    194,  2590,     7,    969,     70
+   1024,     12,    962,   5692, 10254,   111,   9932,    601,
+    222,   2746,      3, 124321,    68,   776,   6750,    852,
+   4732,     28,    901,    480,  5011,  1536,   2011,  81647,
+    646,   1646,  69179,    194,  2590,     7,    969,     70
 };
 
 static const int   realloc_sizes[NTEST_ALLOCS] =
 {
-    18,   3088,    963,    123,   511, 11666,   3723,     42,
-  9374,   1990,   1412,      6,   592,  4088,     11,   5040,
-  8663,  91255,     28,   4346,  9172,   168,    229,   4734,
- 59139,    221,   7830,  30421,  1666,     4,    812,    416
+     18,   3088,    963,    123,   511, 11666,   3723,     42,
+   9374,   1990,   1412,      6,   592,  4088,     11,   5040,
+   8663,  91255,     28,   4346,  9172,   168,    229,   4734,
+  59139,    221,   7830,  30421,  1666,     4,    812,    416
 };
 
 static const int random1[NTEST_ALLOCS] =
 {
-    20,     11,      3,     31,     9,    29,      7,     17,
-    21,      2,     26,     18,    14,    25,      0,     10,
-    27,     19,     22,     28,     8,    30,     12,     15,
-     4,      1,     24,      6,    16,    13,      5,     23
+     20,     11,      3,     31,     9,    29,      7,     17,
+     21,      2,     26,     18,    14,    25,      0,     10,
+     27,     19,     22,     28,     8,    30,     12,     15,
+      4,      1,     24,      6,    16,    13,      5,     23
 };
 
 static const int random2[NTEST_ALLOCS] =
 {
-     2,     19,     12,     23,    30,    11,     27,      4,
-    20,      7,      0,     16,    28,    15,      5,     24,
-    10,     17,     25,     31,     8,    29,      3,     26,
-     9,     18,     22,     13,     1,    21,     14,      6
+      2,     19,     12,     23,    30,    11,     27,      4,
+     20,      7,      0,     16,    28,    15,      5,     24,
+     10,     17,     25,     31,     8,    29,      3,     26,
+      9,     18,     22,     13,     1,    21,     14,      6
 };
 
 static const int random3[NTEST_ALLOCS] =
 {
-    8,      17,      3,     18,     26,   23,     30,     11,
-    12,     22,      4,     20,     25,   10,     27,      1,
-    29,     14,     19,     21,      0,   31,      7,     24,
-     9,     15,      2,     28,     16,    6,     13,      5
+      8,     17,      3,     18,     26,   23,     30,     11,
+     12,     22,      4,     20,     25,   10,     27,      1,
+     29,     14,     19,     21,      0,   31,      7,     24,
+      9,     15,      2,     28,     16,    6,     13,      5
 };
 
-static const int alignment[NTEST_ALLOCS/2] =
+static const int alignment[NTEST_ALLOCS / 2] =
 {
     128,  2048, 131072,   8192,    32,  32768, 16384 , 262144,
     512,  4096,  65536,      8,     64,  1024,    16,       4
 };
 
-static void        *allocs[NTEST_ALLOCS];
+static FAR         *allocs[NTEST_ALLOCS];
 static struct       mallinfo alloc_info;
 
 /****************************************************************************
@@ -138,7 +140,8 @@ static void mm_showmallinfo(void)
          (unsigned long)alloc_info.fordblks);
 }
 
-static void do_mallocs(void **mem, const int *size, const int *seq, int n)
+static void do_mallocs(FAR void **mem, FAR const int *size,
+                       FAR const int *seq, int n)
 {
   int i;
   int j;
@@ -157,11 +160,13 @@ static void do_mallocs(void **mem, const int *size, const int *seq, int n)
             {
               int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE);
 
-              fprintf(stderr, "(%d)malloc failed for allocsize=%d\n", i, allocsize);
+              fprintf(stderr, "(%d)malloc failed for allocsize=%d\n",
+                      i, allocsize);
+
               if (allocsize > alloc_info.mxordblk)
                 {
-                   fprintf(stderr, "   Normal, largest free block is only %lu\n",
-                           (unsigned long)alloc_info.mxordblk);
+                  fprintf(stderr, "   Normal, largest free block is only %lu\n",
+                          (unsigned long)alloc_info.mxordblk);
                 }
               else
                 {
@@ -180,7 +185,8 @@ static void do_mallocs(void **mem, const int *size, const int *seq, int n)
     }
 }
 
-static void do_reallocs(void **mem, const int *oldsize, const int *newsize, const int *seq, int n)
+static void do_reallocs(FAR void **mem, FAR const int *oldsize,
+                        FAR const int *newsize, FAR const int *seq, int n)
 {
   int i;
   int j;
@@ -220,7 +226,8 @@ static void do_reallocs(void **mem, const int *oldsize, const int *newsize, cons
     }
 }
 
-static void do_memaligns(void **mem, const int *size, const int *align, const int *seq, int n)
+static void do_memaligns(FAR void **mem, FAR const int *size, FAR const int *align,
+                         FAR const int *seq, int n)
 {
   int i;
   int j;
@@ -260,7 +267,8 @@ static void do_memaligns(void **mem, const int *size, const int *align, const in
     }
 }
 
-static void do_frees(void **mem, const int *size, const int *seq, int n)
+static void do_frees(FAR void **mem, FAR const int *size,
+                     FAR const int *seq, int n)
 {
   int i;
   int j;
@@ -305,8 +313,9 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate aligned memory */
 
-  do_memaligns(allocs, alloc_sizes, alignment, random2, NTEST_ALLOCS/2);
-  do_memaligns(allocs, alloc_sizes, alignment, &random2[NTEST_ALLOCS/2], NTEST_ALLOCS/2);
+  do_memaligns(allocs, alloc_sizes, alignment, random2, NTEST_ALLOCS / 2);
+  do_memaligns(allocs, alloc_sizes, alignment, &random2[NTEST_ALLOCS / 2],
+               NTEST_ALLOCS / 2);
 
   /* Release aligned memory */
 
