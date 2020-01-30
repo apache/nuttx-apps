@@ -10,4 +10,20 @@ config TESTING_MM
 		Enable the memory management test
 
 if TESTING_MM
+
+config TESTING_MM_PROGNAME
+	string "Program name"
+	default "mm"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_MM_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_MM_STACKSIZE
+	int "Stack size"
+	default 2048
+
 endif
