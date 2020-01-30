@@ -65,6 +65,11 @@ testing/fstest
   * CONFIG_TESTING_FSTEST_NLOOPS: Number of test loops. default 100
   * CONFIG_TESTING_FSTEST_VERBOSE: Verbose output
 
+testing/mm
+==========
+
+  This is a simple test of the memory manager.
+
 testing/nxffs
 =============
 

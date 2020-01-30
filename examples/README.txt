@@ -730,11 +730,6 @@ examples/media
     ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
                           false);
 
-examples/mm
-^^^^^^^^^^^
-
-  This is a simple test of the memory manager.
-
 examples/module
 ^^^^^^^^^^^^^^
 

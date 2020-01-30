@@ -1,8 +1,7 @@
 ############################################################################
-# apps/examples/mm/Make.defs
-# Adds selected applications to apps/ build
+# apps/testing/mm/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017, 2020 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +33,15 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_MM),)
-CONFIGURED_APPS += $(APPDIR)/examples/mm
-endif
+-include $(TOPDIR)/Make.defs
+
+# Memory Management Test
+
+PROGNAME = mm
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+MODULE = $(CONFIG_TESTING_MM)
+
+MAINSRC = mm_main.c
+
+include $(APPDIR)/Application.mk
