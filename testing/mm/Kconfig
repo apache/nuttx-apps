@@ -3,11 +3,11 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_MM
+config TESTING_MM
 	tristate "Memory management example"
 	default n
 	---help---
 		Enable the memory management example
 
-if EXAMPLES_MM
+if TESTING_MM
 endif
