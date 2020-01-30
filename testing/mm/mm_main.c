@@ -71,7 +71,7 @@
 
 /* Test allocations */
 
-static const int   alloc_sizes[NTEST_ALLOCS] =
+static const int g_alloc_sizes[NTEST_ALLOCS] =
 {
    1024,     12,    962,   5692, 10254,   111,   9932,    601,
     222,   2746,      3, 124321,    68,   776,   6750,    852,
@@ -79,7 +79,7 @@ static const int   alloc_sizes[NTEST_ALLOCS] =
     646,   1646,  69179,    194,  2590,     7,    969,     70
 };
 
-static const int   realloc_sizes[NTEST_ALLOCS] =
+static const int g_realloc_sizes[NTEST_ALLOCS] =
 {
      18,   3088,    963,    123,   511, 11666,   3723,     42,
    9374,   1990,   1412,      6,   592,  4088,     11,   5040,
@@ -87,7 +87,7 @@ static const int   realloc_sizes[NTEST_ALLOCS] =
   59139,    221,   7830,  30421,  1666,     4,    812,    416
 };
 
-static const int random1[NTEST_ALLOCS] =
+static const int g_random1[NTEST_ALLOCS] =
 {
      20,     11,      3,     31,     9,    29,      7,     17,
      21,      2,     26,     18,    14,    25,      0,     10,
@@ -95,7 +95,7 @@ static const int random1[NTEST_ALLOCS] =
       4,      1,     24,      6,    16,    13,      5,     23
 };
 
-static const int random2[NTEST_ALLOCS] =
+static const int g_random2[NTEST_ALLOCS] =
 {
       2,     19,     12,     23,    30,    11,     27,      4,
      20,      7,      0,     16,    28,    15,      5,     24,
@@ -103,7 +103,7 @@ static const int random2[NTEST_ALLOCS] =
       9,     18,     22,     13,     1,    21,     14,      6
 };
 
-static const int random3[NTEST_ALLOCS] =
+static const int g_random3[NTEST_ALLOCS] =
 {
       8,     17,      3,     18,     26,   23,     30,     11,
      12,     22,      4,     20,     25,   10,     27,      1,
@@ -111,14 +111,14 @@ static const int random3[NTEST_ALLOCS] =
       9,     15,      2,     28,     16,    6,     13,      5
 };
 
-static const int alignment[NTEST_ALLOCS / 2] =
+static const int g_alignment[NTEST_ALLOCS / 2] =
 {
     128,  2048, 131072,   8192,    32,  32768, 16384 , 262144,
     512,  4096,  65536,      8,     64,  1024,    16,       4
 };
 
-static FAR         *allocs[NTEST_ALLOCS];
-static struct       mallinfo alloc_info;
+static FAR void       *g_allocs[NTEST_ALLOCS];
+static struct mallinfo g_alloc_info;
 
 /****************************************************************************
  * Private Functions
@@ -126,18 +126,18 @@ static struct       mallinfo alloc_info;
 
 static void mm_showmallinfo(void)
 {
-  alloc_info = mallinfo();
+  g_alloc_info = mallinfo();
   printf("     mallinfo:\n");
   printf("       Total space allocated from system = %lu\n",
-         (unsigned long)alloc_info.arena);
+         (unsigned long)g_alloc_info.arena);
   printf("       Number of non-inuse chunks        = %lu\n",
-         (unsigned long)alloc_info.ordblks);
+         (unsigned long)g_alloc_info.ordblks);
   printf("       Largest non-inuse chunk           = %lu\n",
-         (unsigned long)alloc_info.mxordblk);
+         (unsigned long)g_alloc_info.mxordblk);
   printf("       Total allocated space             = %lu\n",
-         (unsigned long)alloc_info.uordblks);
+         (unsigned long)g_alloc_info.uordblks);
   printf("       Total non-inuse space             = %lu\n",
-         (unsigned long)alloc_info.fordblks);
+         (unsigned long)g_alloc_info.fordblks);
 }
 
 static void do_mallocs(FAR void **mem, FAR const int *size,
@@ -163,15 +163,15 @@ static void do_mallocs(FAR void **mem, FAR const int *size,
               fprintf(stderr, "(%d)malloc failed for allocsize=%d\n",
                       i, allocsize);
 
-              if (allocsize > alloc_info.mxordblk)
+              if (allocsize > g_alloc_info.mxordblk)
                 {
                   fprintf(stderr, "   Normal, largest free block is only %lu\n",
-                          (unsigned long)alloc_info.mxordblk);
+                          (unsigned long)g_alloc_info.mxordblk);
                 }
               else
                 {
                   fprintf(stderr, "   ERROR largest free block is %lu\n",
-                          (unsigned long)alloc_info.mxordblk);
+                          (unsigned long)g_alloc_info.mxordblk);
                   exit(1);
                 }
             }
@@ -205,15 +205,15 @@ static void do_reallocs(FAR void **mem, FAR const int *oldsize,
           int allocsize = MM_ALIGN_UP(newsize[j] + SIZEOF_MM_ALLOCNODE);
 
           fprintf(stderr, "(%d)realloc failed for allocsize=%d\n", i, allocsize);
-          if (allocsize > alloc_info.mxordblk)
+          if (allocsize > g_alloc_info.mxordblk)
             {
               fprintf(stderr, "   Normal, largest free block is only %lu\n",
-                      (unsigned long)alloc_info.mxordblk);
+                      (unsigned long)g_alloc_info.mxordblk);
             }
           else
             {
               fprintf(stderr, "   ERROR largest free block is %lu\n",
-                      (unsigned long)alloc_info.mxordblk);
+                      (unsigned long)g_alloc_info.mxordblk);
               exit(1);
             }
         }
@@ -246,15 +246,15 @@ static void do_memaligns(FAR void **mem, FAR const int *size, FAR const int *ali
           int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE) + 2*align[i];
 
           fprintf(stderr, "(%d)memalign failed for allocsize=%d\n", i, allocsize);
-          if (allocsize > alloc_info.mxordblk)
+          if (allocsize > g_alloc_info.mxordblk)
             {
               fprintf(stderr, "   Normal, largest free block is only %lu\n",
-                      (unsigned long)alloc_info.mxordblk);
+                      (unsigned long)g_alloc_info.mxordblk);
             }
           else
             {
               fprintf(stderr, "   ERROR largest free block is %lu\n",
-                      (unsigned long)alloc_info.mxordblk);
+                      (unsigned long)g_alloc_info.mxordblk);
               exit(1);
             }
         }
@@ -301,25 +301,25 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate some memory */
 
-  do_mallocs(allocs, alloc_sizes, random1, NTEST_ALLOCS);
+  do_mallocs(g_allocs, g_alloc_sizes, g_random1, NTEST_ALLOCS);
 
   /* Re-allocate the memory */
 
-  do_reallocs(allocs, alloc_sizes, realloc_sizes, random2, NTEST_ALLOCS);
+  do_reallocs(g_allocs, g_alloc_sizes, g_realloc_sizes, g_random2, NTEST_ALLOCS);
 
   /* Release the memory */
 
-  do_frees(allocs, realloc_sizes, random3, NTEST_ALLOCS);
+  do_frees(g_allocs, g_realloc_sizes, g_random3, NTEST_ALLOCS);
 
   /* Allocate aligned memory */
 
-  do_memaligns(allocs, alloc_sizes, alignment, random2, NTEST_ALLOCS / 2);
-  do_memaligns(allocs, alloc_sizes, alignment, &random2[NTEST_ALLOCS / 2],
+  do_memaligns(g_allocs, g_alloc_sizes, g_alignment, g_random2, NTEST_ALLOCS / 2);
+  do_memaligns(g_allocs, g_alloc_sizes, g_alignment, &g_random2[NTEST_ALLOCS / 2],
                NTEST_ALLOCS / 2);
 
   /* Release aligned memory */
 
-  do_frees(allocs, alloc_sizes, random1, NTEST_ALLOCS);
+  do_frees(g_allocs, g_alloc_sizes, g_random1, NTEST_ALLOCS);
 
   printf("TEST COMPLETE\n");
   return 0;
