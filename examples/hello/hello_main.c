@@ -40,10 +40,6 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
-#ifdef CONFIG_SMP
-#  include <nuttx/arch.h>
-#endif
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -54,12 +50,6 @@
 
 int main(int argc, FAR char *argv[])
 {
-#ifdef CONFIG_SMP
-  uint32_t cpu = up_cpu_index();
-
-  printf("Hello, World from CPU%d !!\n", cpu);
-#else
   printf("Hello, World!!\n");
-#endif
   return 0;
 }
