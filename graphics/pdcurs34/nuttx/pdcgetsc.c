@@ -76,7 +76,7 @@ int PDC_get_columns_term(FAR SCREEN *sp)
 
   return ret;
 }
-#endif  /* CONFIG_SYSTEM_TERMCURSES */
+#endif /* CONFIG_SYSTEM_TERMCURSES */
 
 /****************************************************************************
  * Name: PDC_get_rows

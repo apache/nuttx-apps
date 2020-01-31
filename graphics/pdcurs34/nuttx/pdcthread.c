@@ -159,7 +159,7 @@ static FAR struct pdc_context_s *PDC_ctx_new(void)
       ctx->next = g_pdc_ctx_head;
       g_pdc_ctx_head = ctx;
     }
-#endif  /* CONFIG_PDCURSES_MULTITHREAD_HASH */
+#endif /* CONFIG_PDCURSES_MULTITHREAD_HASH */
 
   return ctx;
 }
@@ -347,5 +347,5 @@ void PDC_ctx_free(void)
   free(ctx->panel_ctx);
   free(ctx->term_ctx);
   free(ctx);
-#endif  /* CONFIG_PDCURSES_MULTITHREAD_HASH */
+#endif /* CONFIG_PDCURSES_MULTITHREAD_HASH */
 }

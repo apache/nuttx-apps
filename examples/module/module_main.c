@@ -229,7 +229,7 @@ int main(int argc, FAR char *argv[])
     }
 
 #endif /* CONFIG_EXAMPLES_MODULE_ROMFS */
-#else /*  CONFIG_EXAMPLES_MODULE_BUILTINFS */
+#else /* CONFIG_EXAMPLES_MODULE_BUILTINFS */
   /* An external file system is being used */
 
 #if defined(CONFIG_EXAMPLES_MODULE_FSMOUNT)
@@ -263,7 +263,7 @@ int main(int argc, FAR char *argv[])
         }
     }
   while (ret < 0);
-#endif  /* CONFIG_EXAMPLES_MODULE_FSREMOVEABLE */
+#endif /* CONFIG_EXAMPLES_MODULE_FSREMOVEABLE */
 
   /* Mount the external file system */
 

@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_FSUTILS_PASSWD_PASSWD_H
-#define __APPS_FSUTILS_PASSWD_PASSWD_H 1
+#define __APPS_FSUTILS_PASSWD_PASSWD_H
 
 /****************************************************************************
  * Included Files

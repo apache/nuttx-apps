@@ -247,6 +247,6 @@
 #  ifdef CONFIG_CPP_HAVE_WARNING
 #    warning "THTTPD not built because dependencies not selected in configuration"
 #  endif
-#endif  /* Dependencies not provided */
+#endif /* Dependencies not provided */
 
 #endif /* __NETUTILS_THTTPD_CONFIG_H */

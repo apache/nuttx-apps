@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_SYSTEM_READLINE_READLINE_H
-#define __APPS_SYSTEM_READLINE_READLINE_H 1
+#define __APPS_SYSTEM_READLINE_READLINE_H
 
 /****************************************************************************
  * Included Files

@@ -365,7 +365,7 @@ static const struct keycodes_s g_ctrl_keycodes[] =
 
   { TINFO_ENTRY(NULL, NULL, -1 ) }
 };
-#endif  /* CONFIG_SYSTEM_TERMCURSES_VT100_OSX_ALT_CODES */
+#endif /* CONFIG_SYSTEM_TERMCURSES_VT100_OSX_ALT_CODES */
 
 /************************************************************************************
  * Public Data

@@ -356,10 +356,10 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
       dirp = opendir("/dev");
 #else
       dirp = opendir(CONFIG_AUDIO_DEV_PATH);
-#endif  /* CONFIG_AUDIO_DEV_ROOT */
+#endif /* CONFIG_AUDIO_DEV_ROOT */
 #else
       dirp = opendir("/dev/audio");
-#endif  /* CONFIG_AUDIO_CUSTOM_DEV_PATH */
+#endif /* CONFIG_AUDIO_CUSTOM_DEV_PATH */
       if (dirp == NULL)
         {
           int errcode = errno;
@@ -382,10 +382,10 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 #else
           snprintf(path,  sizeof(path), CONFIG_AUDIO_DEV_PATH "/%s",
                    pDevice->d_name);
-#endif  /* CONFIG_AUDIO_DEV_ROOT */
+#endif /* CONFIG_AUDIO_DEV_ROOT */
 #else
           snprintf(path,  sizeof(path), "/dev/audio/%s", pDevice->d_name);
-#endif  /* CONFIG_AUDIO_CUSTOM_DEV_PATH */
+#endif /* CONFIG_AUDIO_CUSTOM_DEV_PATH */
 
           if ((pplayer->devFd = open(path, O_RDWR)) != -1)
             {
@@ -473,7 +473,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
       closedir(dirp);
     }
-#endif  /* CONFIG_NXPLAYER_INCLUDE_DEVICE_SEARCH */
+#endif /* CONFIG_NXPLAYER_INCLUDE_DEVICE_SEARCH */
 
   /* Device not found */
 
@@ -585,7 +585,7 @@ static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pplayer,
 
   return AUDIO_FMT_UNDEF;
 }
-#endif  /* CONFIG_NXPLAYER_FMT_FROM_EXT */
+#endif /* CONFIG_NXPLAYER_FMT_FROM_EXT */
 
 /****************************************************************************
  * Name: nxplayer_fmtfromheader
@@ -1282,7 +1282,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pplayer, uint16_t volume)
 
   return OK;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_VOLUME */
+#endif /* CONFIG_AUDIO_EXCLUDE_VOLUME */
 
 /****************************************************************************
  * Name: nxplayer_setequalization
@@ -1492,7 +1492,7 @@ int nxplayer_pause(FAR struct nxplayer_s *pplayer)
 
   return ret;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
+#endif /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
 
 /****************************************************************************
  * Name: nxplayer_resume
@@ -1522,7 +1522,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pplayer)
 
   return ret;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
+#endif /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
 
 /****************************************************************************
  * Name: nxplayer_fforward
@@ -1740,7 +1740,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
 
   return OK;
 }
-#endif  /* CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE */
+#endif /* CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE */
 
 /****************************************************************************
  * Name: nxplayer_stop
@@ -1786,7 +1786,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 
   return OK;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_STOP */
+#endif /* CONFIG_AUDIO_EXCLUDE_STOP */
 
 /****************************************************************************
  * Name: nxplayer_playinternal
@@ -1870,14 +1870,14 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 #else
           auderr("ERROR: Could not open %s or %s\n", pFilename, path);
           return -ENOENT;
-#endif  /* CONFIG_NXPLAYER_MEDIA_SEARCH */
+#endif /* CONFIG_NXPLAYER_MEDIA_SEARCH */
         }
 
 #else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
 
       auderr("ERROR: Could not open %s\n", pFilename);
       return -ENOENT;
-#endif  /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
+#endif /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
     }
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
@@ -2398,4 +2398,4 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
   pplayer->devFd = -1;
   return OK;
 }
-#endif  /* CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET */
+#endif /* CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET */

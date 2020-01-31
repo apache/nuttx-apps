@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_CANUTILS_OBD_PID_H
-#define __APPS_INCLUDE_CANUTILS_OBD_PID_H 1
+#define __APPS_INCLUDE_CANUTILS_OBD_PID_H
 
 /****************************************************************************
  * Pre-processor Definitions

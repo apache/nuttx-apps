@@ -99,8 +99,8 @@ typedef unsigned int flex_uint32_t;
 
 #define YY_USE_CONST
 
-#endif  /* defined (__STDC__) */
-#endif  /* ! __cplusplus */
+#endif /* defined (__STDC__) */
+#endif /* ! __cplusplus */
 
 #ifdef YY_USE_CONST
 #define yyconst const
@@ -4110,7 +4110,7 @@ static int yy_get_next_buffer (void)
 
   return c;
 }
-#endif  /* ifndef YY_NO_INPUT */
+#endif /* ifndef YY_NO_INPUT */
 
 /** Immediately switch to a different input stream.
  * @param input_file A readable stream.

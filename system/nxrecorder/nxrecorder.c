@@ -676,7 +676,7 @@ int nxrecorder_pause(FAR struct nxrecorder_s *precorder)
 
   return ret;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
+#endif /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
 
 /****************************************************************************
  * Name: nxrecorder_resume
@@ -706,7 +706,7 @@ int nxrecorder_resume(FAR struct nxrecorder_s *precorder)
 
   return ret;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
+#endif /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
 
 /****************************************************************************
  * Name: nxrecorder_setdevice
@@ -787,7 +787,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 
   return OK;
 }
-#endif  /* CONFIG_AUDIO_EXCLUDE_STOP */
+#endif /* CONFIG_AUDIO_EXCLUDE_STOP */
 
 /****************************************************************************
  * Name: nxrecorder_recordraw

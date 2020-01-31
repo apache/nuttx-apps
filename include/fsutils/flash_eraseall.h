@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_FSUTILS_FLASH_ERASEALL_H
-#define __APPS_INCLUDE_FSUTILS_FLASH_ERASEALL_H 1
+#define __APPS_INCLUDE_FSUTILS_FLASH_ERASEALL_H
 
 /****************************************************************************
  * Included Files

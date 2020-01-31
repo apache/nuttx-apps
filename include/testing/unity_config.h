@@ -51,7 +51,7 @@
 /* Exclude setjmp */
 
 #ifdef CONFIG_TESTING_UNITY_EXCLUDE_SETJMP
-#  define UNITY_EXCLUDE_SETJMP_H 1
+#  define UNITY_EXCLUDE_SETJMP_H
 #endif
 
 /* Enable output coloring */

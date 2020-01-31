@@ -67,7 +67,7 @@
  * Private Data
  ****************************************************************************/
 
-#ifndef  CONFIG_NSH_DISABLE_DATE
+#ifndef CONFIG_NSH_DISABLE_DATE
 static FAR const char * const g_datemontab[] =
 {
   "jan", "feb", "mar", "apr", "may", "jun",

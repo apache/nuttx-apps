@@ -309,4 +309,4 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(void)
   return eErrStatus;
 }
 
-#endif  /* defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER) */
+#endif /* defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER) */

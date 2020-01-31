@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_CANUTILS_OBD_FRAME_H
-#define __APPS_INCLUDE_CANUTILS_OBD_FRAME_H 1
+#define __APPS_INCLUDE_CANUTILS_OBD_FRAME_H
 
 /****************************************************************************
  * Pre-processor Definitions

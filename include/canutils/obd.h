@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_CANUTILS_OBD_H
-#define __APPS_INCLUDE_CANUTILS_OBD_H 1
+#define __APPS_INCLUDE_CANUTILS_OBD_H
 
 /****************************************************************************
  * Included Files

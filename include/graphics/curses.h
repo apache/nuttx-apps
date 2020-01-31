@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_GRAPHICS_CURSES_H
-#define __APPS_INCLUDE_GRAPHICS_CURSES_H 1
+#define __APPS_INCLUDE_GRAPHICS_CURSES_H
 
 /* PDCurses definitions list:  (Only define those needed)
  *
@@ -1525,4 +1525,4 @@ int     PDC_save_key_modifiers(bool);
 }
 #endif
 
-#endif  /* __APPS_INCLUDE_GRAPHICS_CURSES_H */
+#endif /* __APPS_INCLUDE_GRAPHICS_CURSES_H */

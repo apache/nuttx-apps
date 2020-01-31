@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_SYSTEM_NXPLAYER_H
-#define __APPS_INCLUDE_SYSTEM_NXPLAYER_H 1
+#define __APPS_INCLUDE_SYSTEM_NXPLAYER_H
 
 /****************************************************************************
  * Included Files

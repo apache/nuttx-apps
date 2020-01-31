@@ -36,7 +36,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_GRAPHICS_PANEL_H
-#define __APPS_INCLUDE_GRAPHICS_PANEL_H 1
+#define __APPS_INCLUDE_GRAPHICS_PANEL_H
 
 /****************************************************************************
  * Included Files

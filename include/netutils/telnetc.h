@@ -85,7 +85,7 @@
  */
 
 #ifndef __APPS_INCLUDE_NETUTILS_TELNETC_H
-#define __APPS_INCLUDE_NETUTILS_TELNETC_H 1
+#define __APPS_INCLUDE_NETUTILS_TELNETC_H
 
 /****************************************************************************
  * Included Files

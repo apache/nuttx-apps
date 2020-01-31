@@ -68,5 +68,5 @@ namespace Twm4Nx
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif  // CONFIG_NX_SWCURSOR
-#endif  // __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_CURSOR_HXX
+#endif // CONFIG_NX_SWCURSOR
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_TWM4NX_CURSOR_HXX
