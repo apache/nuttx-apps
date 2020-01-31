@@ -47,8 +47,8 @@
 #include "graphics/curses.h"
 
 /* We are including a private header here because we want the scheduler
- * PIDHASH macros and don't want to copy them manually, just in case they 
- * change in the future.  Not sure this is a good design practice, but 
+ * PIDHASH macros and don't want to copy them manually, just in case they
+ * change in the future.  Not sure this is a good design practice, but
  * at least it will track any changes to the PIDHASH macro.
  */
 
@@ -172,7 +172,7 @@ static FAR struct pdc_context_s *PDC_ctx_new(void)
  * Name: PDC_ctx
  *
  * Description:
- *   Added pdcurses interface called from many functions to eliminate 
+ *   Added pdcurses interface called from many functions to eliminate
  *   global and static function variable usage.  This function retuns a
  *   task specific context / struct pointer to those variables instead,
  *   allowing the pdcurses routines to be used by multiple tasks in a
@@ -265,7 +265,7 @@ FAR struct pdc_context_s * PDC_ctx(void)
  * Name: PDC_ctx_free
  *
  * Description:
- *   Free the PDC_ctx context associated with the current PID (and remove 
+ *   Free the PDC_ctx context associated with the current PID (and remove
  *   it from the linked list).
  *
  ****************************************************************************/

@@ -8,17 +8,17 @@ Termcurses
 The Termcurses library provides terminal emulation support for performing common
 screen actions such as cursor movement, foreground / background color control
 and keyboard escape sequence mapping.  The initial release supports only vt100 /
-ansi terminal types, but the library architecture has an extensible interface 
+ansi terminal types, but the library architecture has an extensible interface
 to allow support for additional emulation types if needed.
 
 The library can be used standalone or in conjunction with the apps/graphics/pdcurses
-libraries.  The pdcurses libraries have been updated with a "termcurses" config 
+libraries.  The pdcurses libraries have been updated with a "termcurses" config
 option which fully integrates the termcurses library automatically.
 
 Usage
 =====
 
-To use the termcurses library, the routines must be initialized by calling the 
+To use the termcurses library, the routines must be initialized by calling the
 termcurses_initterm() function.  This routine accepts a terminal type string
 identifying the type of terminal emulation support requested.  If a NULL pointer
 is passed, then the routine will check for a "TERM" environment variable and set
@@ -33,7 +33,7 @@ routine should be called for proper freeing and terminal teardown.
 Use with telnetd
 ================
 
-When using termcurses with the telnet daemon, the telnet config option 
+When using termcurses with the telnet daemon, the telnet config option
 CONFIG_TELNET_SUPPORT_NAWS should be enabled.  This option adds code to the
 telnet library for terminal size negotiation.  Wihout this option, the telnet
 routines have no concept of the terminal size, and therefore the termcurses
@@ -44,6 +44,6 @@ Use with pdcurses
 
 When using the pdcurses termcurses support (i.e you have enabled both the
 CONFIG_PDCURSES and CONFIG_TERMCURSES options),, the pdcurses input device should
-be selected to be "TERMINPUT" (i.e. set CONFIG_PDCURSES_TERMINPUT=y).  This 
+be selected to be "TERMINPUT" (i.e. set CONFIG_PDCURSES_TERMINPUT=y).  This
 causes the pdcurses keyboard input logic to use termcurses_getkeycode() routine
 for curses input.

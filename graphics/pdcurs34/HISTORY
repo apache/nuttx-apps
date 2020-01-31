@@ -1309,7 +1309,7 @@ INTRODUCTION:
  from. oak.oakland.edu in /pub/msdos/c
 
 OTHER NOTES:
-	
+
  Under DOS, by default, screen writes to a CGA monitor are done via the
  video BIOS rather than by direct video memory writes. This is due to
  the CGA "snow" problem. If you have a CGA monitor and do not suffer
@@ -1382,7 +1382,7 @@ ACKNOWLEDGEMENTS: (in no particular order)
 
  Jason Shumate, Pieter Kunst, David Nugent, Andreas Otte, Pasi
  Hamalainen, James McLennan, Duane Paulson, Ib Hojme
-	
+
  Apologies to anyone I may have left out.
 
 ------------------------------------------------------------------------
@@ -1446,7 +1446,7 @@ DIRECTIONS:
     see the makefile for valid combinations
 
     targets: all, demos, lcursesd.lib, manual...
-	
+
     NB. dmake is case sensitive with targets, so those environments that
     use an upper case model value (eg MSC) MUST specify the library
     target as for eg. Lcursesd.lib
@@ -1462,20 +1462,20 @@ OTHER NOTES:
  couple of specific doc files and the header files. A program is
  supplied (manext) to build the manual. This program gets compiled when
  you build the documentation.
-	
+
  To generate the library response file correctly, I had to write a quick
  and dirty program (buildlrf) to achieve this. Originally the makefiles
  just had statements like: "echo -+$(OBJ)\$* & >> $(LRF)" which appended
  a suitable line to the response file. Unfortunately under some
  combinations of makefiles and command processors (eg. nmake and 4DOS)
  the & would get treated as stderr and the echo command would fail.
-	
+
  The original source for PDCurses that I received from the previous
  maintainer contained support for the FLEXOS operating system. Not
  having access to it, I could not test the changes I made so its support
  has fallen by the wayside. If you really need to have PDCurses running
  under FLEXOS, contact me and I will see what can be arranged.
-	
+
  Under DOS, by default, screen writes to a CGA monitor are done via the
  video BIOS rather than by direct video memory writes. This is due to
  the CGA "snow" problem. If you have a CGA monitor and do not suffer

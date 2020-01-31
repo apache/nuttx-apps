@@ -87,7 +87,7 @@ static void *thread_func(FAR void *parameter)
           nerrors[ndx]++;
         }
 
-      my_mutex = 1;	
+      my_mutex = 1;
       for (i = 0; i < 10; i++)
         {
           pthread_yield();

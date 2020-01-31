@@ -1090,7 +1090,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       nentries = netlib_get_arptable(arptab, CONFIG_NET_ARPTAB_SIZE);
       if (nentries < 0)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], netlib_get_arptable, 
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], netlib_get_arptable,
                     NSH_ERRNO_OF(-nentries));
           free(arptab);
           return ERROR;

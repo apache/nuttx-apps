@@ -462,7 +462,7 @@ static void cfgdatacmd_print(int argc, char *argv[])
   cfg.id = atoi(argv[2]);
 
   /* Advance past ',' to instance number */
- 
+
   x = cfgdatacmd_idtok(0, argv[2]);
   if (x == 0)
     {

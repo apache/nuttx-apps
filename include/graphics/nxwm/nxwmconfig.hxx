@@ -183,7 +183,7 @@
  * CONFIG_NXWM_TASKBAR_RIGHT - Task bar is on the right side of the display
  *
  * CONFIG_NXWM_TASKBAR_WIDTH - Task bar thickness (either vertical or
- *   horizontal).  Default: 25 + 2*spacing unless large icons are selected. 
+ *   horizontal).  Default: 25 + 2*spacing unless large icons are selected.
  *   Then the default is 50 + 2*spacing.
  */
 

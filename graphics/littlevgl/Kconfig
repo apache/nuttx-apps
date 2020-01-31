@@ -196,7 +196,7 @@ config USE_LV_LOG
 	bool "Enable/disable the log module"
 	default n
 
-choice 
+choice
 	prompt "Log level"
 	depends on USE_LV_LOG
 	default	LV_LOG_LEVEL_WARN
@@ -247,11 +247,11 @@ config USE_LV_THEME_NIGHT
 config USE_LV_THEME_MONO
 	bool "Use Mono theme: mono color theme"
 	default n
-	
+
 config USE_LV_THEME_MATERIAL
 	bool "Use Material theme: material theme with bold colors"
 	default n
-	
+
 config USE_LV_THEME_ZEN
 	bool "Use Zen theme: light, peaceful theme"
 	default n
@@ -625,7 +625,7 @@ config LV_PRELOAD_DEF_ANIM_SPINNING_ARC
 	bool "Spinning Arc"
 
 config LV_PRELOAD_DEF_ANIM_FILLSPIN_ARC
-	bool "Fillspin Arc"	
+	bool "Fillspin Arc"
 
 endchoice
 

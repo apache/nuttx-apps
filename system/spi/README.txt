@@ -195,7 +195,7 @@ As an example (with MOSI looped back to MISO);
 
 nsh>spi exch -b 2 -x 4 aabbccdd
 Received: AA BB CC DD
-nsh> 
+nsh>
 
 Note that the TXData are always specified in hex, and are always two digits each,
 case insensitive.

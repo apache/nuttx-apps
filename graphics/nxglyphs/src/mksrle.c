@@ -480,7 +480,7 @@ int main(int argc, char **argv, char **envp)
   printf("{\n ");
 
   ptr = gimp_image.pixel_data;
- 
+
   for (i = 0; i < gimp_image.height; i++)
     {
       ncode = 0;

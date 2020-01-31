@@ -243,7 +243,7 @@ namespace Twm4Nx
       /**
        * Register an IEventTap instance to provide callbacks when mouse
        * movement is received.  A mouse movement with the left button down
-       * or a touchscreen touch movement are treated as a drag event. 
+       * or a touchscreen touch movement are treated as a drag event.
        * Release of the mouse left button or loss of the touchscreen touch
        * is treated as a drop event.
        *
