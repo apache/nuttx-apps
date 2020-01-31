@@ -465,4 +465,3 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(void);
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MB_M_H */
-

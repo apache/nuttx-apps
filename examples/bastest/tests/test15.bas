@@ -15,4 +15,3 @@ get #2
 print "after get b$=";b$
 close #2
 kill "test.dat"
-

@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_ZMODEM),)
 CONFIGURED_APPS += $(APPDIR)/system/zmodem
 endif
-

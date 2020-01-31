@@ -127,4 +127,3 @@ int main(int argc, char *argv[])
   delete test;
   return 0;
 }
-

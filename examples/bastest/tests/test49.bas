@@ -13,4 +13,3 @@ data 66,72,71,38,40,27,69
 mat b=inv(a)
 mat print b
 print det
-

@@ -170,4 +170,3 @@ int netlib_ifdown(const char *ifname)
 }
 
 #endif /* CONFIG_NET */
-

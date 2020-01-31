@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_NETUTILS_CHAT),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/chat
 endif
-

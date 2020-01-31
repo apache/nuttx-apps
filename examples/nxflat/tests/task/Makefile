@@ -78,5 +78,3 @@ clean:
 
 install:
 	$(Q) install -D $(BIN) $(ROMFS_DIR)/$(BIN)
-
-

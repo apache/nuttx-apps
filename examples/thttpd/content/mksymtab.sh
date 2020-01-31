@@ -36,4 +36,3 @@ echo "};"
 echo "#define NEXPORTS (sizeof(g_thttpd_exports)/sizeof(struct symtab_s))"
 echo ""
 echo "#endif /* __EXAMPLES_NXFLAT_TESTS_SYMTAB_H */"
-

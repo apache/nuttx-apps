@@ -62,4 +62,3 @@ const struct struct_s *getstruct(void)
 {
   return &dummy;
 }
-

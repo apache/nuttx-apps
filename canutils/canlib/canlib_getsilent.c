@@ -81,4 +81,3 @@ int canlib_getsilent(int fd, FAR bool *silent)
 
   return ret;
 }
-

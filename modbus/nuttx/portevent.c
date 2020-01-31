@@ -90,4 +90,3 @@ bool xMBPortEventGet(eMBEventType * eEvent)
 
   return xEventHappened;
 }
-

@@ -1168,7 +1168,7 @@ end[ \t]+function	{
                 	  {
                 	    g_cur->statement=stmt_QUOTE_REM;
                 	    strcpy(g_cur->u.rem=malloc(strlen(yytext+1)+1),yytext+1);
-                          }	
+                          }
                 	  return T_QUOTE;
                 	}
 {LINEINPUT}		{
@@ -1935,4 +1935,3 @@ void Token_init(int b_c, int uc)
   PROPERTY(T_EQV,  0,0,0,0,1);
   PROPERTY(T_IMP,  0,0,0,0,1);
 }
-

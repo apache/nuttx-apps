@@ -128,4 +128,3 @@ int netlib_getmacaddr(const char *ifname, uint8_t *macaddr)
 }
 
 #endif /* CONFIG_NET */
-

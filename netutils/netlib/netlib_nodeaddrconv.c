@@ -190,4 +190,3 @@ bool netlib_nodeaddrconv(FAR const char *addrstr,
 }
 
 #endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
-

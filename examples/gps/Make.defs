@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_EXAMPLES_GPS),)
 CONFIGURED_APPS += $(APPDIR)/examples/gps
 endif
-

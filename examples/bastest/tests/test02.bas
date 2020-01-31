@@ -5,4 +5,3 @@
 50 print a(0)
 60 print a(1)
 70 print a
-

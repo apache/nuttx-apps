@@ -101,7 +101,7 @@ namespace NXWidgets
     void setPageName(uint8_t index, const CNxString &name);
 
     void showPage(uint8_t index);
-    
+
     uint8_t getCurrentPageIndex() const;
   };
 }

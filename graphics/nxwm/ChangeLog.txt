@@ -649,4 +649,3 @@
 
 After Nuttx-7.26, the NxWidgets repository was merged into the apps/
 repository.  See the apps/ChangeLot.txt for changes since that time.
-

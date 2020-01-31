@@ -4453,7 +4453,7 @@
 	  path.  From Xiang Xiao (2019-10-17).
 	* apps/:  Move the common variable definitions from other build-related files into
 	  apps/Make.defs.  From Xiang Xiao (2019-10-17).
-	* In all Make.defs files, append CONFIGURED_APPS with the consistent ifeq/ifneq. 
+	* In all Make.defs files, append CONFIGURED_APPS with the consistent ifeq/ifneq.
 	  From Xiang Xiao (2019-10-17).
 	* graphics/twm4nx/Makefile:  Fix a recently introduced error that broke all Twm4Nx
 	  configurations.  From Gregory Nutt (2019-10-17).

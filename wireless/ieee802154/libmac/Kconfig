@@ -8,4 +8,3 @@ config IEEE802154_LIBMAC
 	default n
 	---help---
 		Some MAC library routines for ieee 802.15.4 apps
-

@@ -10,4 +10,3 @@ c$(2,1)="hi"
 mat print c$
 mat c$=c$+c$
 mat print c$
-

@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_TELNETC),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/telnetc
 endif
-

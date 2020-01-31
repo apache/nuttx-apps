@@ -935,4 +935,3 @@ int main(int argc, FAR char *argv[])
   fflush(stdout);
   return 0;
 }
-

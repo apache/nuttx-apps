@@ -689,5 +689,3 @@ FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
   ninfo("%s -> %s\n", relpath, abslpath);
   return abslpath;
 }
-
-

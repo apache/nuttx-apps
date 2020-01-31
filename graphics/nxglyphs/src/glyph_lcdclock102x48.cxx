@@ -308,4 +308,3 @@ const struct SRlePaletteBitmap NXWidgets::g_lcdClockBitmap =
   },
   g_lcdClockRleEntries   // data   - Pointer to the beginning of the RLE data
 };
-

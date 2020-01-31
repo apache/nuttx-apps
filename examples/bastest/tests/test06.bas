@@ -9,4 +9,3 @@
 90 =r
 100 n=10
 110 print fnloop
-

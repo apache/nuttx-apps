@@ -43,4 +43,3 @@ VPATH += :src
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/wireless/iwpan/src}
 
 endif
-

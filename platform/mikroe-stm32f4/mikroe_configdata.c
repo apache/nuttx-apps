@@ -296,4 +296,3 @@ int platform_getconfig(enum config_data_e id, int instance,
 }
 
 #endif /* CONFIG_PLATFORM_CONFIGDATA */
-

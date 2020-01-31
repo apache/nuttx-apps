@@ -103,4 +103,3 @@ int netlib_set_ipv6netmask(FAR const char *ifname,
 }
 
 #endif /* CONFIG_NET_IPv6 */
-

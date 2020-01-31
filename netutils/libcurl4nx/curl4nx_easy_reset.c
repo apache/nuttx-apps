@@ -116,4 +116,3 @@ void curl4nx_easy_reset(FAR struct curl4nx_s *handle)
 
   /* Delete all custom headers */
 }
-

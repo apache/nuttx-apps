@@ -6,4 +6,3 @@ do
   if i>10 then exit do
 loop
 print "loop ended"
-

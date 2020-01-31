@@ -104,4 +104,3 @@ int netlib_set_dripv6addr(FAR const char *ifname,
 }
 
 #endif /* CONFIG_NET_IPv6 */
-

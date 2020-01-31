@@ -28,4 +28,3 @@ config SYSTEM_PING6_STACKSIZE
 	default 2048
 
 endif
-

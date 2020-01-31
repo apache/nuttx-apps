@@ -289,4 +289,3 @@ void CStickyButtonArray::drawContents(CGraphicsPort *port)
         }
     }
 }
-

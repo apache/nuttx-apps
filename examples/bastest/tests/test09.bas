@@ -6,4 +6,3 @@
 70 print b
 80 print fna(4)
 90 print b
-

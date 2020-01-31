@@ -108,4 +108,3 @@ int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
 }
 
 #endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
-

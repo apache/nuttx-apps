@@ -92,4 +92,3 @@ done
 if [ ! -z "${MENU}" ]; then
   echo "endmenu # ${MENU}" >> ${KCONFIG}
 fi
-

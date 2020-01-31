@@ -151,4 +151,3 @@ config EXAMPLES_ELF_UCLIBCXX
 		example will compile the demos using it.
 
 endif
-

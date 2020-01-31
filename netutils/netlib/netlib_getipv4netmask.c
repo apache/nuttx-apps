@@ -103,4 +103,3 @@ int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr)
 }
 
 #endif /* CONFIG_NET_IPv4 */
-

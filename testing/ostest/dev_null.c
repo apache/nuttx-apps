@@ -88,4 +88,3 @@ int dev_null(void)
   close(fd);
   return 0;
 }
-

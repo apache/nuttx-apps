@@ -8,4 +8,3 @@ config IEEE802154_LIBUTILS
 	default n
 	---help---
 		Some common library routines for ieee 802.15.4 apps
-

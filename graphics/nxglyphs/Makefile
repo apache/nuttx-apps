@@ -86,4 +86,3 @@ endif # CONFIG_NXWIDGETS
 VPATH = src
 
 include $(APPDIR)/Application.mk
-

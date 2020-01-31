@@ -321,4 +321,3 @@ ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to)
 }
 
 #endif /* CONFIG_NET && CONFIG_NET_UDP */
-

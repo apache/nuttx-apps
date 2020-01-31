@@ -421,5 +421,3 @@ void timedmqueue_test(void)
 
   printf("timedmqueue_test: Test complete\n");
 }
-
-

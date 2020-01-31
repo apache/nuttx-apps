@@ -180,10 +180,3 @@ install: $(ALL_BIN)
 	$(Q) install -D $(BIN2) $(ROMFS_DIR)/$(BIN2)
 	$(Q) install -D $(BIN3) $(ROMFS_DIR)/$(BIN3)
 #	$(Q) install -D $(BIN4) $(ROMFS_DIR)/$(BIN4)
-
-
-
-
-
-
-

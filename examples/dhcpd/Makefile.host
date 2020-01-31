@@ -57,5 +57,3 @@ $(BIN): $(OBJS)
 
 clean:
 	@rm -f $(BIN).* *.o1 *~
-
-

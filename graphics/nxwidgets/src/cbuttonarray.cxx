@@ -687,4 +687,3 @@ void CButtonArray::onTextChange(void)
   redraw();
   m_widgetEventHandlers->raiseValueChangeEvent();
 }
-

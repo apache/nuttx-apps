@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_HEX2BIN),)
 CONFIGURED_APPS += $(APPDIR)/system/hex2bin
 endif
-

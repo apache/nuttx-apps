@@ -713,7 +713,7 @@
 #  define CONFIG)USE_LV_IMGBTN 0
 #endif
 
-/* Button matrix (dependencies: -) */ 
+/* Button matrix (dependencies: -) */
 #ifdef CONFIG_USE_LV_BTNM
 #  define USE_LV_BTNM        CONFIG_USE_LV_BTNM
 #else
@@ -776,6 +776,6 @@
 #  define USE_LV_SLIDER      CONFIG_USE_LV_SLIDER
 #else
 #  define USE_LV_SLIDER      0
-#endif 
+#endif
 
 #endif /*__APPS_GRAPHICS_LITTLEVGL_LV_CONF_H*/

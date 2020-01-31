@@ -4,4 +4,3 @@
 40   for j=i to 1 step -1 : x=x*10 : y=y*10 : next
 50   print x,y
 60 next
-

@@ -85,5 +85,3 @@ extern void dummyfunc(void);
 extern const struct struct_s *getstruct(void);
 
 #endif /* __EXAMPLES_ELF_TESTS_STRUCT_STRUCT_H */
-
-

@@ -28,4 +28,3 @@ config EXAMPLES_DHCPD_NETMASK
 	default 0xffffff00
 
 endif
-

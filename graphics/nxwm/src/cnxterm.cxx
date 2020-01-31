@@ -705,4 +705,3 @@ bool NxWM::nshlibInitialize(void)
 
   return true;
 }
-

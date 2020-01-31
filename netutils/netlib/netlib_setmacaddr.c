@@ -134,4 +134,3 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
 }
 
 #endif /* CONFIG_NET */
-

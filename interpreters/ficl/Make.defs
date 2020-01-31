@@ -1,4 +1,3 @@
 ifeq ($(CONFIG_INTERPRETERS_FICL),y)
 CONFIGURED_APPS += $(APPDIR)/interpreters/ficl
 endif
-

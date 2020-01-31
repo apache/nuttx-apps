@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_IEEE802154_LIBUTILS),y)
 CONFIGURED_APPS += $(APPDIR)/wireless/ieee802154/libutils
 endif
-

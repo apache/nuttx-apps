@@ -5,4 +5,3 @@
 50 mat print b,c,a
 60 data 1,2,3,3,2,1
 70 data 1,2,2,1,3,3
-

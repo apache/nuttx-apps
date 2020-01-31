@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_EXAMPLES_ABNTCODI),)
 CONFIGURED_APPS += $(APPDIR)/examples/abntcodi
 endif
-

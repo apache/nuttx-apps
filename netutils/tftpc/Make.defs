@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_TFTPC),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/tftpc
 endif
-

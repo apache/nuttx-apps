@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_NTPCLIENT),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/ntpclient
 endif
-

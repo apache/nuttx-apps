@@ -372,4 +372,3 @@ const struct SRlePaletteBitmap NXWidgets::g_calculatorBitmap =
   },
   g_calculatorRleEntries    // data   - Pointer to the beginning of the RLE data
 };
-

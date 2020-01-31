@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_VI),)
 CONFIGURED_APPS += $(APPDIR)/system/vi
 endif
-

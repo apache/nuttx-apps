@@ -530,4 +530,3 @@ void CApplicationWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
         }
     }
 }
-

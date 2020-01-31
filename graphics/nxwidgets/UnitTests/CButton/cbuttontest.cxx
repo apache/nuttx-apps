@@ -322,4 +322,3 @@ bool CButtonTest::poll(CButton *button)
 
   return button->isClicked();
 }
-

@@ -236,4 +236,3 @@ errout:
   tiff_abort(info);
   return ret;
 }
-

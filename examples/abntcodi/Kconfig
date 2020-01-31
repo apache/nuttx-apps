@@ -28,4 +28,3 @@ config EXAMPLES_ABNTCODI_STACKSIZE
 	default 2048
 
 endif
-

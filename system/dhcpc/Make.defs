@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_DHCPC_RENEW),)
 CONFIGURED_APPS += $(APPDIR)/system/dhcpc
 endif
-

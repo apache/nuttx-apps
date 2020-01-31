@@ -298,4 +298,3 @@ void CButtonArrayTest::poll(CButtonArray *button)
 
   m_widgetControl->pollEvents(button);
 }
-

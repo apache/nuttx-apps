@@ -5,4 +5,3 @@ print "open succeeded"
 if command$<>"enough" then shell "sh ./test/runbas test.bas enough"
 end
 10 print "open failed"
-

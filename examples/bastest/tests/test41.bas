@@ -6,4 +6,3 @@ end function
 
 print f(0)
 print f(1)
-

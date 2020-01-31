@@ -165,4 +165,3 @@ i8 poll
 This command polls the endpoint (our device A PAN Coordinator in this case) to
 see if there is any data. In the console of device B you should see a Poll request
 status print out.
-

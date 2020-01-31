@@ -91,4 +91,3 @@ rm -rf html || \
     }
 
 echo "open ${DOXYGENOUTPUT_DIR}/html/index.html to start browsing"
-

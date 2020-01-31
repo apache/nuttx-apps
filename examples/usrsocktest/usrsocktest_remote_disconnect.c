@@ -1079,4 +1079,3 @@ TEST_GROUP(RemoteDisconnect)
   RUN_TEST_CASE(RemoteDisconnect, Poll2);
   RUN_TEST_CASE(RemoteDisconnect, Poll2Delay);
 }
-

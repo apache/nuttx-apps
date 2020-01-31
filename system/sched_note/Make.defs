@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_NOTE),)
 CONFIGURED_APPS += $(APPDIR)/system/sched_note
 endif
-

@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_COMPOSITE),)
 CONFIGURED_APPS += $(APPDIR)/system/composite
 endif
-

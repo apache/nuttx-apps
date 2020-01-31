@@ -2399,4 +2399,3 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
   return OK;
 }
 #endif  /* CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET */
-

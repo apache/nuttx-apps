@@ -1055,4 +1055,3 @@ void CGraphicsPort::invert(nxgl_coord_t x, nxgl_coord_t y,
 
   delete rowBuffer;
 };
-

@@ -169,4 +169,3 @@ config SYSTEM_USBMSC_CMD_PRIORITY
 		Priority of the small 'msconn' and 'msdis' command applications.
 
 endif # SYSTEM_USBMSC
-

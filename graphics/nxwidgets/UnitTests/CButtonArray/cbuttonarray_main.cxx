@@ -324,4 +324,3 @@ int main(int argc, char *argv[])
   printf("Peak memory usage: %8d\n", g_mmPeak - g_mmInitial);
   return 0;
 }
-

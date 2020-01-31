@@ -72,4 +72,3 @@ FAR char *curl4nx_easy_escape(FAR struct curl4nx_s *curl,
 {
   return NULL;
 }
-

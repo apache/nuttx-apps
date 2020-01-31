@@ -211,4 +211,3 @@ void CKeypad::configureKeypadMode(void)
 
   onTextChange();
 }
-

@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_XMLRPC),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/xmlrpc
 endif
-

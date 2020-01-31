@@ -3,4 +3,3 @@
 30 line input #1,a$
 40 print a$
 50 wend
-

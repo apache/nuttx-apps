@@ -221,4 +221,3 @@ int ieee802154_getfcslen(int fd, FAR uint8_t *fcslen)
 
   return ret;
 }
-

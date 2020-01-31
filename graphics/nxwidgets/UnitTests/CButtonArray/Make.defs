@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_NXWIDGETS_UNITTEST_CBUTTONARRAY),)
 CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CButtonArray
 endif
-

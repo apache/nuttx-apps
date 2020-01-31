@@ -241,7 +241,7 @@ namespace Twm4Nx
       ~CIconMgr(void);
 
       /**
-       * Create and initialize the icon manager window. 
+       * Create and initialize the icon manager window.
        *
        * @param name  The prefix for this icon manager name
        * @return True on success

@@ -31,5 +31,3 @@ echo "  NULL"
 echo "};"
 echo ""
 echo "#endif /* __EXAMPLES_NXFLAT_TESTS_DIRLIST_H */"
-
-

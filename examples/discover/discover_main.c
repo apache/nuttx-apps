@@ -186,4 +186,3 @@ int main(int argc, FAR char *argv[])
 
   return OK;
 }
-

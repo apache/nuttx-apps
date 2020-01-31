@@ -7,4 +7,3 @@
 80 read j$,k$
 90 print "j=";j$;" k=";k$
 100 next
-

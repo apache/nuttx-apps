@@ -683,4 +683,3 @@ TEST_GROUP(BasicDaemon)
   RUN_TEST_CASE(BasicDaemon, StopsStarts);
   RUN_TEST_CASE(BasicDaemon, StopsStartsDelay);
 }
-

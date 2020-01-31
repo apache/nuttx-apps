@@ -105,5 +105,3 @@ void dummyfunc(void)
 {
   printf("In dummyfunc() -- PASS\n");
 }
-
-

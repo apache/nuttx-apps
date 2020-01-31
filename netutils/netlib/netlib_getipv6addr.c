@@ -104,4 +104,3 @@ int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr)
 }
 
 #endif /* CONFIG_NET_IPv6 */
-

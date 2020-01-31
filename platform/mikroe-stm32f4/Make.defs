@@ -36,4 +36,3 @@
 # Add platform specific sources to ASRCS and CSRCS
 
 CSRCS += mikroe_configdata.c
-

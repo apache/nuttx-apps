@@ -88,7 +88,7 @@ static const uint32_t g_playBrightLut[BITMAP_NLUTCODES] =
 
 static const uint32_t g_playNormalLut[BITMAP_NLUTCODES] =
 {
-  0x00d800, 0x00fc00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */ 
+  0x00d800, 0x00fc00, CONFIG_NXGLYPHS_BACKGROUNDCOLOR,                /* Codes 0-2 */
   0x00b000, 0x008800, 0x006800, 0x004800                              /* Codes 3-6 */
 };
 

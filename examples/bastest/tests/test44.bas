@@ -5,4 +5,3 @@
 50 print 50
 60 print 60
 70 print 70
-

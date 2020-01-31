@@ -50,4 +50,3 @@ $(BIN): $(SRC)
 clean:
 	@rm -f $(BIN) *~ .*.swp *.o
 	$(call CLEAN)
-

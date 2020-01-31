@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_NXWIDGETS),y)
 CONFIGURED_APPS += $(APPDIR)/graphics/nxwidgets
 endif
-

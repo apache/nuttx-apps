@@ -25,4 +25,3 @@ config SYSTEM_CFGDATA_PRIORITY
 		Priority of the task to configure when started cfgdata from NSH
 
 endif
-

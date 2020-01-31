@@ -1099,4 +1099,3 @@ FAR const char *nsh_extmatch_getname(int index)
   return  g_cmdmap[index].cmd;
 }
 #endif
-

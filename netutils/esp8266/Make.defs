@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_ESP8266),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/esp8266
 endif
-

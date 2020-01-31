@@ -232,4 +232,3 @@ int curl4nx_easy_setopt(FAR struct curl4nx_s *handle, int option,
 
   return cret;
 }
-

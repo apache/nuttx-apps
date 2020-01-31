@@ -518,4 +518,3 @@ void CStartWindow::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
         }
     }
 }
-

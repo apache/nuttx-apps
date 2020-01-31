@@ -62,4 +62,3 @@ const struct nx_cursorimage_s g_resizeCursor =
   },
   .image  = g_resizeCursorImage
 };
-

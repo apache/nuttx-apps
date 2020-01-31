@@ -129,7 +129,7 @@ int main(int argc, char **argv, char **envp)
   /* Convert 24-bit RGB to 2 bit encoded cursor colors */
 
   ptr = gimp_image.pixel_data;
- 
+
   for (i = 0; i < gimp_image.height; i++)
     {
       putchar(' ');

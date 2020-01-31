@@ -32,4 +32,3 @@ bitmap_converter.py
     or 8 colors.
   - Save the image as PNG or other lossless format (NOT jpeg).
   - Then generate the image.
-

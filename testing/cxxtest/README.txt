@@ -31,4 +31,3 @@ README
     CONFIG_UCLIBCXX=y
 
   Additional uClibc++ settings may be required in your build environment.
-

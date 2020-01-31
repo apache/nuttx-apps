@@ -311,4 +311,3 @@ FAR void *CNxServer::listener(FAR void *arg)
   sem_post(&This->m_connsem);
   return NULL;
 }
-

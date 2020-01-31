@@ -47,4 +47,3 @@ STACKSIZE = 2048
 MODULE = $(CONFIG_EXAMPLES_NUNCHUCK)
 
 include $(APPDIR)/Application.mk
-

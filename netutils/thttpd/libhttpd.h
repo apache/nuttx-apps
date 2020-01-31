@@ -340,4 +340,3 @@ extern int httpd_write(int fd, const void *buf, size_t nbytes);
 
 #endif /* CONFIG_THTTPD */
 #endif /* __NETUTILS_THTTPD_LIBHTTPD_H */
-

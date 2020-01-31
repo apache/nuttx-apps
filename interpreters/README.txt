@@ -22,4 +22,3 @@ minibasic
   https://creativecommons.org/licenses/ .  I, however, cannot take
   responsibility for any actions that you might take based on my
   understanding.  Please use your own legal judgement.
-

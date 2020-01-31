@@ -166,4 +166,3 @@ const struct SRlePaletteBitmap NXWidgets::g_menuBitmap =
   },
   g_menuRleEntries       // data   - Pointer to the beginning of the RLE data
 };
-

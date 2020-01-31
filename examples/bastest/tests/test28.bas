@@ -3,4 +3,3 @@ def fnfac(n)
 fnend n*fnfac(n-1)
 
 print fnfac(10)
-

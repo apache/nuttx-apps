@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_NXPLAYER),)
 CONFIGURED_APPS += $(APPDIR)/system/nxplayer
 endif
-

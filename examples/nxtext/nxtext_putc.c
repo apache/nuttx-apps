@@ -594,4 +594,3 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
         }
     }
 }
-

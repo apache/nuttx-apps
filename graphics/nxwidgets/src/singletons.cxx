@@ -199,4 +199,3 @@ void NXWidgets::freeSingletons(void)
     }
 
 }
-

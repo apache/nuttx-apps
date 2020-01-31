@@ -386,4 +386,3 @@ int main(int argc, FAR char *argv[])
 
   return ret;
 }
-

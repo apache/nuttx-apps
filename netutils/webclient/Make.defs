@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_WEBCLIENT),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/webclient
 endif
-

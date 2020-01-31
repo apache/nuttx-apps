@@ -152,5 +152,3 @@ const struct SBitmap NXWidgets::g_windowDepthUp =
 };
 
 #endif // CONFIG_NXWIDGETS_BPP != 8
-
-

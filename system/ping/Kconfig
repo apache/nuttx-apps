@@ -29,4 +29,3 @@ config SYSTEM_PING_STACKSIZE
 	default 2048
 
 endif
-

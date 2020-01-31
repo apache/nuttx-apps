@@ -462,4 +462,3 @@ void CCycleButton::onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y)
 {
   redraw();
 }
-

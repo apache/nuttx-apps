@@ -65,4 +65,3 @@ baudrate of 110 BPS and uses 8 octects:
 |        |      |                                                             |
 |  008   | 0-7  | Inverted bits of "xor" from previous octects                |
 |________|______|_____________________________________________________________|
-

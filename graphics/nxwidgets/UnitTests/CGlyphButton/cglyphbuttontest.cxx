@@ -304,4 +304,3 @@ bool CGlyphButtonTest::poll(CGlyphButton *button)
 
   return button->isClicked();
 }
-

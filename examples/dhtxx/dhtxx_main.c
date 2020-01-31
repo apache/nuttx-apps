@@ -74,7 +74,7 @@ int main(int argc, FAR char *argv[])
       else
         {
           printf("Read successful.\n");
-          printf("Humidity = %2.2f %%, temperature = %2.2f C\n", 
+          printf("Humidity = %2.2f %%, temperature = %2.2f C\n",
                   data.hum, data.temp);
         }
 

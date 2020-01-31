@@ -320,4 +320,3 @@ void curl4nx_easy_cleanup(FAR struct curl4nx_s *handle);
 #endif
 
 #endif /* __APPS_INCLUDE_NETUTILS_BASE64_H */
-
