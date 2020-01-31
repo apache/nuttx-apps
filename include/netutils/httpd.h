@@ -59,7 +59,7 @@
  * for the thread.  Use a default if the user provided no stacksize.
  */
 
-#ifndef  CONFIG_NETUTILS_HTTPDSTACKSIZE
+#ifndef CONFIG_NETUTILS_HTTPDSTACKSIZE
 #  define CONFIG_NETUTILS_HTTPDSTACKSIZE 4096
 #endif
 

@@ -156,7 +156,7 @@
 
 /* A multi-family sockaddr. */
 
-#ifdef  CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv6
 typedef struct sockaddr_in6 httpd_sockaddr;
 #else
 typedef struct sockaddr_in httpd_sockaddr;

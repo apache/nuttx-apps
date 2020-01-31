@@ -41,7 +41,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_GRAPHICS_PDCURS34_INCLUDE_CURSPRIV_H
-#define __APPS_GRAPHICS_PDCURS34_INCLUDE_CURSPRIV_H 1
+#define __APPS_GRAPHICS_PDCURS34_INCLUDE_CURSPRIV_H
 
 /****************************************************************************
  * Included Files

@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_GRAPHICS_PDCURS34_NUTTX_PDCNUTTX_H
-#define __APPS_GRAPHICS_PDCURS34_NUTTX_PDCNUTTX_H 1
+#define __APPS_GRAPHICS_PDCURS34_NUTTX_PDCNUTTX_H
 
 /****************************************************************************
  * Included Files

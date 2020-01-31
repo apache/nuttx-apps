@@ -208,4 +208,4 @@ ssize_t tiff_wordalign(int fd, size_t size);
 }
 #endif
 
-#endif  /* __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H */
+#endif /* __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H */

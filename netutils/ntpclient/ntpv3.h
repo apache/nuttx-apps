@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_NETUTILS_NTPCLIENT_NTPV3_H
-#define __APPS_NETUTILS_NTPCLIENT_NTPV3_H 1
+#define __APPS_NETUTILS_NTPCLIENT_NTPV3_H
 
 /****************************************************************************
  * Included Files

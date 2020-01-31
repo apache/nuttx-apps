@@ -3351,7 +3351,7 @@ static void vi_bottom_line_debug(FAR struct vi_s *vi)
 
   vi_putch(vi, '"');
 }
-#endif  /* ENABLE_BOTTOM_LINE_DEBUG */
+#endif /* ENABLE_BOTTOM_LINE_DEBUG */
 
 /****************************************************************************
  * Name: vi_findnext
@@ -3439,7 +3439,7 @@ static void vi_saverepeat(FAR struct vi_s *vi, uint16_t ch)
       vi->repeatvalue = vi->value;
     }
 }
-#endif  /* CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT */
+#endif /* CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT */
 
 /****************************************************************************
  * Name: vi_appendrepeat
@@ -3466,7 +3466,7 @@ static void vi_appendrepeat(FAR struct vi_s *vi, uint16_t ch)
       vi->cmdbuf[vi->cmdcount++] = ch;
     }
 }
-#endif  /* CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT */
+#endif /* CONFIG_SYSTEM_VI_INCLUDE_COMMAND_REPEAT */
 
 /****************************************************************************
  * Name: vi_cmd_mode

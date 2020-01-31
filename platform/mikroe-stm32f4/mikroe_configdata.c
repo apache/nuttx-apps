@@ -155,7 +155,7 @@ int platform_setconfig(enum config_data_e id, int instance,
 
 #else
         break;
-#endif  /* CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM */
+#endif /* CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM */
 
       default:
         break;

@@ -668,7 +668,7 @@ int thttpd_main(int argc, char **argv)
 
   /* Setup host address */
 
-#ifdef  CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv6
 #  error "IPv6 support not yet implemented"
 #else
   sa.sin_family      = AF_INET;

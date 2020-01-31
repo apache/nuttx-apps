@@ -2049,7 +2049,7 @@ static int sockaddr_check(httpd_sockaddr *saP)
     case AF_INET:
       return 1;
 
-#ifdef  CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv6
     case AF_INET6:
       return 1;
 #endif
@@ -2067,7 +2067,7 @@ static size_t sockaddr_len(httpd_sockaddr *saP)
     case AF_INET:
       return sizeof(struct sockaddr_in);
 
-#ifdef  CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv6
     case AF_INET6:
       return sizeof(struct sockaddr_in6);
 #endif
@@ -3424,7 +3424,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
 char *httpd_ntoa(httpd_sockaddr *saP)
 {
-#ifdef  CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv6
   static char str[200];
 
   if (getnameinfo

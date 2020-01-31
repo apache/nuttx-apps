@@ -943,4 +943,4 @@ namespace Twm4Nx
                                    uint8_t flags);
 }
 
-#endif  // __APPS_INCLUDE_GRAPHICS_TWM4NX_CWINDOW_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_CWINDOW_HXX

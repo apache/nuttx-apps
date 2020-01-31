@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_SYSTEM_NXRECORDER_H
-#define __APPS_INCLUDE_SYSTEM_NXRECORDER_H 1
+#define __APPS_INCLUDE_SYSTEM_NXRECORDER_H
 
 /****************************************************************************
  * Included Files

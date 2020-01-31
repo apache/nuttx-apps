@@ -564,7 +564,7 @@ static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char *parg)
 
   return OK;
 }
-#endif  /* CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE */
+#endif /* CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE */
 
 /****************************************************************************
  * Name: nxplayer_cmd_quit

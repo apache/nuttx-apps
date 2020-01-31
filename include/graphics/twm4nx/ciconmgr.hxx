@@ -336,4 +336,4 @@ namespace Twm4Nx
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif  // __APPS_INCLUDE_GRAPHICS_TWM4NX_CICONMGR_HXX
+#endif // __APPS_INCLUDE_GRAPHICS_TWM4NX_CICONMGR_HXX

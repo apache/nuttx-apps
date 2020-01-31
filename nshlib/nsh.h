@@ -1020,7 +1020,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  ifndef CONFIG_NSH_DISABLE_SH
   int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
-#endif  /* CONFIG_NFILE_STREAMS && !CONFIG_NSH_DISABLESCRIPT */
+#endif /* CONFIG_NFILE_STREAMS && !CONFIG_NSH_DISABLESCRIPT */
 
 #ifdef NSH_HAVE_DIROPTS
 #  ifndef CONFIG_NSH_DISABLE_MKDIR

@@ -38,4 +38,4 @@
 
 extern time_t tdate_parse(char *str);
 
-#endif  /* __NETUTILS_TDATE_PARSE_H */
+#endif /* __NETUTILS_TDATE_PARSE_H */

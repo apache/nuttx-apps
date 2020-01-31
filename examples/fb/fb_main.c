@@ -67,7 +67,7 @@ struct fb_state_s
   int fd;
   struct fb_videoinfo_s vinfo;
   struct fb_planeinfo_s pinfo;
-#ifdef  CONFIG_FB_OVERLAY
+#ifdef CONFIG_FB_OVERLAY
   struct fb_overlayinfo_s oinfo;
 #endif
   FAR void *fbmem;
