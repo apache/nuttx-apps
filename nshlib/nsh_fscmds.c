@@ -1918,4 +1918,3 @@ int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 #endif
 #endif
-

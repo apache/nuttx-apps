@@ -862,4 +862,3 @@ int thttpd_main(int argc, char **argv)
 }
 
 #endif /* CONFIG_THTTPD */
-

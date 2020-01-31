@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_MODBUS),y)
 CONFIGURED_APPS += $(APPDIR)/modbus
 endif
-

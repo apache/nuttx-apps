@@ -232,4 +232,3 @@ TEST_GROUP(BasicSetSockOpt)
   RUN_TEST_CASE(BasicSetSockOpt, Open);
   RUN_TEST_CASE(BasicSetSockOpt, OpenDelay);
 }
-

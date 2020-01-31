@@ -7,4 +7,3 @@ for i=0 to 3
   print
 next
 mat write a
-

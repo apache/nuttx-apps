@@ -194,4 +194,3 @@ config PDCURSES_TERMINPUT
 	depends on SYSTEM_TERMCURSES
 
 endmenu # Input Devices
-

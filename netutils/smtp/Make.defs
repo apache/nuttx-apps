@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_SMTP),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/smtp
 endif
-

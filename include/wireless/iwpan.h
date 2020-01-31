@@ -65,4 +65,3 @@ extern "C"
 #endif
 
 #endif /* __APPS_INCLUDE_WIRELESS_IWPAN_H */
-

@@ -17,4 +17,3 @@ for x=1 to 3
     print "2b"
   elseif x=3 then print "3b"
 next
-

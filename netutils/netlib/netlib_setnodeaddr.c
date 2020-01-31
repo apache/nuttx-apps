@@ -105,4 +105,3 @@ int netlib_setnodeaddr(FAR const char *ifname,
 }
 
 #endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
-

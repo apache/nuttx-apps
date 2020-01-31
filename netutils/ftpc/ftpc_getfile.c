@@ -425,5 +425,3 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
 
   return OK;
 }
-
-

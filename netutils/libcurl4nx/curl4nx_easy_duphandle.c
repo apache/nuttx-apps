@@ -84,4 +84,3 @@ FAR struct curl4nx_s *curl4nx_easy_duphandle(FAR struct curl4nx_s *handle)
 #warning TODO, this requires duplicating header entries
   return NULL;
 }
-

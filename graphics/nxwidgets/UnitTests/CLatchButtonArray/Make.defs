@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_NXWIDGETS_UNITTEST_CLATCHBUTTONARRAY),)
 CONFIGURED_APPS += $(APPDIR)/graphics/nxwidget/UnitTests/CLatchButtonArray
 endif
-

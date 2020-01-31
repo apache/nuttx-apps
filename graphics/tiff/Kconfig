@@ -11,4 +11,3 @@ config TIFF
 
 if TIFF
 endif # TIFF
-

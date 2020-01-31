@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_NETUTILS_CJSON),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/cjson
 endif
-

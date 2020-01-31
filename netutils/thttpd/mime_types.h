@@ -276,4 +276,3 @@ static struct mime_entry typ_tab[] =
 static const int n_typ_tab = sizeof(typ_tab) / sizeof(*typ_tab);
 
 #endif /* __NETUTILS_THTTPD_MIME_TYPES_H */
-

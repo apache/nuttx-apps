@@ -99,4 +99,3 @@ int main(int argc, FAR char *argv[])
 #endif
   return 0;
 }
-

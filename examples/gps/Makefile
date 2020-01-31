@@ -47,4 +47,3 @@ MODULE = $(CONFIG_EXAMPLES_GPS)
 MAINSRC = gps_main.c
 
 include $(APPDIR)/Application.mk
-

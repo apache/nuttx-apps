@@ -10,4 +10,3 @@ do while len(x$)<3
   loop
 loop
 print "loop ended"
-

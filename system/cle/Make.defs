@@ -37,4 +37,3 @@
 ifeq ($(CONFIG_SYSTEM_CLE),y)
 CONFIGURED_APPS += $(APPDIR)/system/cle
 endif
-

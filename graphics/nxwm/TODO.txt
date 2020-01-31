@@ -81,4 +81,3 @@ o CMediaPlayer Issues
   Description: The title says it all
   Status:      Open
   Priority:    Medium.  That is big functional limitation.
-

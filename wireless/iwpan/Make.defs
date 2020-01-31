@@ -38,4 +38,3 @@
 ifneq ($(CONFIG_WIRELESS_IWPAN),)
 CONFIGURED_APPS += $(APPDIR)/wireless/iwpan
 endif
-

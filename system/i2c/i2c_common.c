@@ -200,4 +200,3 @@ out_of_range:
   i2ctool_printf(i2ctool, g_i2cargrange, ptr);
   return ERROR;
 }
-

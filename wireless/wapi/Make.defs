@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_WIRELESS_WAPI),)
 CONFIGURED_APPS += $(APPDIR)/wireless/wapi
 endif
-

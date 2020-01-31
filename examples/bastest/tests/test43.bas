@@ -13,4 +13,3 @@ MAT READ a
 MAT READ b
 MAT c=a*b
 MAT PRINT c
-

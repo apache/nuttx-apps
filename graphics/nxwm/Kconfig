@@ -962,4 +962,3 @@ endif # NXWM_MEDIAPLAYER
 endmenu # NxWM Media Player Display Settings
 endif # NXWM
 endmenu # NxWM
-

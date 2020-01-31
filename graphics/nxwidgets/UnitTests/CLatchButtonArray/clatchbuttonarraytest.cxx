@@ -298,4 +298,3 @@ void CLatchButtonArrayTest::poll(CLatchButtonArray *button)
 
   m_widgetControl->pollEvents(button);
 }
-

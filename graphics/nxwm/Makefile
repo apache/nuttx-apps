@@ -74,4 +74,3 @@ endif
 VPATH = src
 
 include $(APPDIR)/Application.mk
-

@@ -96,4 +96,3 @@ config NXWIDGETS_UNITTEST_CTEXTBOX
 	depends on NXWIDGETS
 
 endmenu # Unit Tests
-

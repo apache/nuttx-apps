@@ -398,5 +398,3 @@ void CSliderHorizontal::resizeGrip(void)
 
   m_grip->resize(gripSize, rect.getHeight());
 }
-
-

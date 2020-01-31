@@ -100,4 +100,3 @@ int ftpc_rmdir(SESSION handle, FAR const char *path)
   free(ptr);
   return ret;
 }
-

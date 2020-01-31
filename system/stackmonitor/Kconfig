@@ -39,4 +39,3 @@ config SYSTEM_STACKMONITOR_MOUNTPOINT
 	default "/proc"
 
 endif
-

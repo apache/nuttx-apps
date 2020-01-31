@@ -439,4 +439,3 @@ TEST_GROUP(BlockSend)
   RUN_TEST_CASE(BlockSend, SendTimeout);
   RUN_TEST_CASE(BlockSend, SendTimeoutDelay);
 }
-

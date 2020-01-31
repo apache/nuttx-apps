@@ -255,4 +255,3 @@ errout_with_sendsd:
    close(sndsd);
    return EXIT_FAILURE;
 }
-

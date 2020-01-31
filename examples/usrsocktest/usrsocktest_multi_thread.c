@@ -264,4 +264,3 @@ TEST_GROUP(MultiThread)
 {
   RUN_TEST_CASE(MultiThread, OpenClose);
 }
-

@@ -14,4 +14,3 @@ print s$
 print x
 print n%
 kill "/tmp/test.out"
-

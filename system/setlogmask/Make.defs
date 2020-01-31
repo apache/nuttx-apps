@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_SETLOGMASK),)
 CONFIGURED_APPS += $(APPDIR)/system/setlogmask
 endif
-

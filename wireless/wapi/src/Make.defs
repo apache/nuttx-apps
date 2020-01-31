@@ -46,4 +46,3 @@ VPATH += :src
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/wireless/wapi/src}
 
 endif
-

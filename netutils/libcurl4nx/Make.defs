@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_LIBCURL4NX),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/libcurl4nx
 endif
-

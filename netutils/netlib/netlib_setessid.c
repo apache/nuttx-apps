@@ -132,4 +132,3 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid)
 }
 
 #endif /* CONFIG_NET */
-

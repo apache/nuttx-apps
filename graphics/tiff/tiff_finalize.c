@@ -436,4 +436,3 @@ void tiff_abort(FAR struct tiff_info_s *info)
 
   unlink(info->outfile);
 }
-

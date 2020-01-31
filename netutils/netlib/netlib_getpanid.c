@@ -108,4 +108,3 @@ int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
 }
 
 #endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
-

@@ -143,4 +143,3 @@ int netlib_set_dripv4addr(FAR const char *ifname,
 }
 
 #endif /* CONFIG_NET_IPv4 */
-

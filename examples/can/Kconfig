@@ -48,4 +48,3 @@ config EXAMPLES_CAN_READWRITE
 endchoice
 
 endif
-

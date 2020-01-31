@@ -3,4 +3,3 @@
 30   print a
 40   a=a+1
 50 until a=10
-

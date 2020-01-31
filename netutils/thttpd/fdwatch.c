@@ -359,4 +359,3 @@ void *fdwatch_get_next_client_data(struct fdwatch_s *fw)
 }
 
 #endif /* CONFIG_THTTPD */
-

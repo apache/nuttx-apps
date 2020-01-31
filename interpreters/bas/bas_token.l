@@ -1935,4 +1935,3 @@ void Token_init(int b_c, int uc)
   PROPERTY(T_EQV,  0,0,0,0,1);
   PROPERTY(T_IMP,  0,0,0,0,1);
 }
-

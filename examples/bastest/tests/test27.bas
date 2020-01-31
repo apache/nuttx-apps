@@ -5,4 +5,3 @@ mat b=inv(a)
 mat print b
 mat c=a*b
 mat print c
-

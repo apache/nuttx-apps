@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_SYSTEM_LM75),)
 CONFIGURED_APPS += $(APPDIR)/system/lm75
 endif
-

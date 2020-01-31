@@ -51,4 +51,3 @@ config SYSTEM_CRITMONITOR_MOUNTPOINT
 	default "/proc"
 
 endif
-

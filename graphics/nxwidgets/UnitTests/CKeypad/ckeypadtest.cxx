@@ -455,4 +455,3 @@ void CKeypadTest::reverseAlignment(void)
         }
     }
 }
-

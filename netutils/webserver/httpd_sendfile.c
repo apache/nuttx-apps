@@ -151,4 +151,3 @@ int httpd_sendfile_send(int outfd, struct httpd_fs_file *file)
 
   return OK;
 }
-

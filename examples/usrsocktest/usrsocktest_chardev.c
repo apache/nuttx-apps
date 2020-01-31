@@ -231,4 +231,3 @@ TEST_GROUP(CharDev)
   RUN_TEST_CASE(CharDev, ReopenRw);
   RUN_TEST_CASE(CharDev, NoMultipleOpen);
 }
-

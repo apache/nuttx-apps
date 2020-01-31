@@ -4493,4 +4493,3 @@ void ftpd_close(FTPD_SESSION handle)
 
   free(server);
 }
-

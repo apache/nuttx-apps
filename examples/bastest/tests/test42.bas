@@ -6,4 +6,3 @@
 60 print fix(2.3)
 70 print fp(-2.3)
 80 print fp(2.3)
-

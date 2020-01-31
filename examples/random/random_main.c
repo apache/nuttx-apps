@@ -143,4 +143,3 @@ int main(int argc, FAR char *argv[])
   close(fd);
   return EXIT_SUCCESS;
 }
-

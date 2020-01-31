@@ -48,4 +48,3 @@ done
 echo "};"
 echo ""
 echo "const int g_elf_nexports = sizeof(g_elf_exports) / sizeof(struct symtab_s);"
-

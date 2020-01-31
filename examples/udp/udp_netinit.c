@@ -181,4 +181,3 @@ int udp_netinit(void)
 }
 
 #endif /* CONFIG_EXAMPLES_UDP_NETINIT */
-

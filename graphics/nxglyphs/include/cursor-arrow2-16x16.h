@@ -62,4 +62,3 @@ const struct nx_cursorimage_s g_arrow2Cursor =
   },
   .image  = g_arrow2Image
 };
-

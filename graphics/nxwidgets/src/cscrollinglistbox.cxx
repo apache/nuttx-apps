@@ -409,7 +409,3 @@ void CScrollingListBox::onResize(nxgl_coord_t width, nxgl_coord_t height)
 
   m_scrollbar->moveTo(width - m_scrollbarWidth, 0);
 }
-
-
-
-

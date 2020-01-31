@@ -140,4 +140,3 @@ int main(int argc, char **argv)
   sem_destroy(&g_sem);
   return 0;
 }
-

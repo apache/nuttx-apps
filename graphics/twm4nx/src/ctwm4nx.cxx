@@ -586,4 +586,3 @@ void CTwm4Nx::cleanup()
 
   CNxServer::disconnect();
 }
-

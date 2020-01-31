@@ -454,5 +454,3 @@ void CLabel::onTextChange(void)
   m_textChange = false;
   m_widgetEventHandlers->raiseValueChangeEvent();
 }
-
-

@@ -47,5 +47,3 @@ CONFIG_PDCURSES and CONFIG_TERMCURSES options),, the pdcurses input device shoul
 be selected to be "TERMINPUT" (i.e. set CONFIG_PDCURSES_TERMINPUT=y).  This 
 causes the pdcurses keyboard input logic to use termcurses_getkeycode() routine
 for curses input.
-
-

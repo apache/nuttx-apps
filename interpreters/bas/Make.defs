@@ -1,4 +1,3 @@
 ifneq ($(CONFIG_INTERPRETERS_BAS),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/bas
 endif
-

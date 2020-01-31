@@ -36,4 +36,3 @@
 ifeq ($(CONFIG_NETUTILS_DISCOVER),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/discover
 endif
-

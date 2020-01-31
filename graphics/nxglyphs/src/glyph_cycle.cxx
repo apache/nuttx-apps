@@ -152,4 +152,3 @@ const struct SBitmap NXWidgets::g_cycle =
 };
 
 #endif // CONFIG_NXWIDGETS_BPP != 8
-

@@ -100,4 +100,3 @@ config PSMQ_SUB_STACKSIZE
 
 endif # PSMQ_TOOLS_SUB
 endif # SYSTEM_PSMQ
-

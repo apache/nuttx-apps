@@ -26,4 +26,3 @@ config SYSTEM_SET_LOGMASK_STACKSIZE
 	default 2048
 
 endif
-

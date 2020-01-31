@@ -511,4 +511,3 @@ TEST_GROUP(BlockRecv)
   RUN_TEST_CASE(BlockRecv, ReceiveTimeout);
   RUN_TEST_CASE(BlockRecv, ReceiveTimeoutDelay);
 }
-

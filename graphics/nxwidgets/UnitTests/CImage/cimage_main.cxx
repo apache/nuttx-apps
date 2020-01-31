@@ -219,4 +219,3 @@ int main(int argc, char *argv[])
   updateMemoryUsage(&g_mmInitial, "Final memory usage");
   return 0;
 }
-

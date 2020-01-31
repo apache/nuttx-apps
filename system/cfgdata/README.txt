@@ -15,5 +15,3 @@ Usage: config <cmd> [argumens]
      print:   display a specific config entry
      set:     set or change a config entry
      unset:   delete a config entry
-
-

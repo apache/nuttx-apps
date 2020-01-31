@@ -1423,4 +1423,3 @@ errout:
 #endif
 
 #endif /* CONFIG_NET */
-

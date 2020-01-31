@@ -9,4 +9,3 @@ def fn_c(b)
 = b+3
 
 proc_a(2)
-

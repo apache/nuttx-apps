@@ -108,4 +108,3 @@ extern int fdwatch_check_fd(struct fdwatch_s *fw, int fd);
 extern void *fdwatch_get_next_client_data(struct fdwatch_s *fw);
 
 #endif /* __NETUTILS_THTTPD_FDWATCH_H */
-

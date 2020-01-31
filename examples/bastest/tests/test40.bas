@@ -2,4 +2,3 @@
    print using "#.#";d
    print using 10;d
 10 image #.##
-

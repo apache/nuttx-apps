@@ -318,4 +318,3 @@ void CLatchButtonTest::poll(CLatchButton *button)
 
   m_widgetControl->pollEvents(button);
 }
-

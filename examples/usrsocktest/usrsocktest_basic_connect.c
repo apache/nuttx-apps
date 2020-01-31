@@ -485,4 +485,3 @@ TEST_GROUP(BasicConnectDelay)
   RUN_TEST_CASE(BasicConnectDelay, WrongPort);
   RUN_TEST_CASE(BasicConnectDelay, WrongEndpoint);
 }
-

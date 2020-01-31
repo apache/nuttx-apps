@@ -84,4 +84,3 @@ int ftpc_cdup(SESSION handle)
   session->currdir  = ftpc_rpwd(handle);
   return ret;
 }
-

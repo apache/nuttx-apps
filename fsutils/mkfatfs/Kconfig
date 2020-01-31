@@ -9,4 +9,3 @@ config FSUTILS_MKFATFS
 	depends on FS_FAT && !DISABLE_PSEUDOFS_OPERATIONS
 	---help---
 		Enables support for the mkfatfs utility
-

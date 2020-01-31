@@ -431,5 +431,3 @@ void mqueue_test(void)
       printf("mqueue_test: ERROR mq_unlink failed\n");
     }
 }
-
-

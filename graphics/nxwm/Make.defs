@@ -37,4 +37,3 @@
 ifneq ($(CONFIG_NXWM),)
 CONFIGURED_APPS += $(APPDIR)/graphics/nxwm
 endif
-

@@ -1655,4 +1655,3 @@ TEST_GROUP(WakeWithSignal)
   RUN_TEST_CASE(WakeWithSignal, PendingRequestBlockingGetSockOpt);
   RUN_TEST_CASE(WakeWithSignal, PendingRequestBlockingGetSockOptMultiThread);
 }
-

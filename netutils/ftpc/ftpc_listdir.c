@@ -409,4 +409,3 @@ void ftpc_dirfree(FAR struct ftpc_dirlist_s *dirlist)
       free(dirlist);
     }
 }
-

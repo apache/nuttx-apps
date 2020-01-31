@@ -622,4 +622,3 @@ int mkfatfs_writefatfs(FAR struct fat_format_s *fmt,
 
   return ret;
 }
-

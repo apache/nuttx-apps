@@ -189,4 +189,3 @@ void nettest_initialize(void)
 }
 
 #endif /* CONFIG_EXAMPLES_NETTEST_INIT */
-

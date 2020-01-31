@@ -75,4 +75,3 @@ config SYSTEM_CDCACM_TRACEINTERRUPTS
 		This setting will show USB device controller interrupt-related events.
 
 endif
-

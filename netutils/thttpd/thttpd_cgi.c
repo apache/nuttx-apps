@@ -1083,4 +1083,3 @@ static void cgi_kill(ClientData client_data, struct timeval *nowP)
 #endif
 
 #endif /* CONFIG_THTTPD && CONFIG_THTTPD_CGI_PATTERN */
-

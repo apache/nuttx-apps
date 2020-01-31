@@ -133,4 +133,3 @@ extern void tmr_cleanup(void);
 extern void tmr_destroy(void);
 
 #endif /* __NETUTILS_THTTPD_TIMERS_H */
-

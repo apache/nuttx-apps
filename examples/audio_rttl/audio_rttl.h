@@ -35,4 +35,3 @@
 
 FAR char *g_song = (FAR char *)
   "Test:d=4,o=6,b=90:c,c#,d,d#,e,f,f#,g,a,a#,b,p,b,a#,a,g,f#,f,e,d#,d,c#,c";
-

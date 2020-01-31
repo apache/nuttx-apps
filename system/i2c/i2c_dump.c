@@ -230,4 +230,3 @@ errout_with_fildes:
   close(fd);
   return ret;
 }
-

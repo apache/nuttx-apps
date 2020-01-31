@@ -136,4 +136,3 @@ required.  These include:
                              NOTE: Note that the actual MTU setting will
                              depend upon the specific link protocol.
                              Here Ethernet is indicated.
-

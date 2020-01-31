@@ -9,4 +9,3 @@ config FSUTILS_MKSMARTFS
 	depends on FS_SMARTFS && !DISABLE_PSEUDOFS_OPERATIONS
 	---help---
 		Enables support for the mksmartfs utility
-

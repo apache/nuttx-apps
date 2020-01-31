@@ -103,4 +103,3 @@ int netlib_set_ipv4addr(FAR const char *ifname, FAR const struct in_addr *addr)
 }
 
 #endif /* CONFIG_NET_IPv4 */
-

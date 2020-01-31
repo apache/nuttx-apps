@@ -109,4 +109,3 @@ int netlib_getnodnodeaddr(FAR const char *ifname,
 }
 
 #endif /* CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154 */
-

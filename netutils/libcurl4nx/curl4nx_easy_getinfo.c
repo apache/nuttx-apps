@@ -72,4 +72,3 @@ int curl4nx_easy_getinfo(FAR struct curl4nx_s *curl, int info,
 {
   return 0;
 }
-

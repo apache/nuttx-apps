@@ -11,4 +11,3 @@ for j=1 to 2
   print
 next
 mat print using " ##.##";a,a
-

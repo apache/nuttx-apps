@@ -417,4 +417,3 @@ FAR char *nsh_trimspaces(FAR char *str)
   return trimmed;
 }
 #endif
-

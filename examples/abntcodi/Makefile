@@ -47,4 +47,3 @@ MODULE = $(CONFIG_EXAMPLES_ABNTCODI)
 MAINSRC = abntcodi_main.c
 
 include $(APPDIR)/Application.mk
-
