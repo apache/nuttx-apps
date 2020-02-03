@@ -1174,12 +1174,10 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family)
       return NULL;
     }
 
-#ifdef CONFIG_NET_HAVE_REUSEADDR
   {
     int reuse = 1;
     setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
   }
-#endif
 
   /* Bind the socket to the address */
 
