@@ -269,7 +269,6 @@ int nsh_telnetstart(sa_family_t family)
       /* Configure the telnet daemon */
 
       config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
-      config.d_family    = family;
       config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
       config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
       config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
@@ -280,15 +279,41 @@ int nsh_telnetstart(sa_family_t family)
 
       ninfo("Starting the Telnet daemon\n");
 
-      ret = telnetd_start(&config);
-      if (ret < 0)
+#ifdef CONFIG_NET_IPv4
+      if (family == AF_UNSPEC || family == AF_INET)
         {
-          _err("ERROR: Failed to start the Telnet daemon: %d\n", ret);
-          state = TELNETD_NOTRUNNING;
+          config.d_family = AF_INET;
+          ret = telnetd_start(&config);
+          if (ret < 0)
+            {
+              _err("ERROR: Failed to start the Telnet IPv4 daemon: %d\n", ret);
+            }
+          else
+            {
+              state = TELNETD_RUNNING;
+            }
         }
-      else
+#endif
+
+#ifdef CONFIG_NET_IPv6
+      if (family == AF_UNSPEC || family == AF_INET6)
         {
-          state = TELNETD_RUNNING;
+          config.d_family = AF_INET6;
+          ret = telnetd_start(&config);
+          if (ret < 0)
+            {
+              _err("ERROR: Failed to start the Telnet IPv6 daemon: %d\n", ret);
+            }
+          else
+            {
+              state = TELNETD_RUNNING;
+            }
+        }
+#endif
+
+      if (state == TELNETD_STARTED)
+        {
+          state = TELNETD_NOTRUNNING;
         }
     }
 
@@ -324,18 +349,17 @@ int nsh_telnetstart(sa_family_t family)
 #ifndef CONFIG_NSH_DISABLE_TELNETD
 int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  sa_family_t family;
+  sa_family_t family = AF_UNSPEC;
 
   /* If both IPv6 nd IPv4 are enabled, then the address family must
    * be specified on the command line.
    */
 
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
-  family = (strcmp(argv[1], "ipv6") == 0) ? AF_INET6 : AF_INET;
-#elif defined(CONFIG_NET_IPv6)
-  family = AF_INET6;
-#else /* if defined(CONFIG_NET_IPv4) */
-  family = AF_INET;
+  if (argc >= 2)
+    {
+      family = (strcmp(argv[1], "ipv6") == 0) ? AF_INET6 : AF_INET;
+    }
 #endif
 
   return nsh_telnetstart(family) < 0 ? ERROR : OK;
