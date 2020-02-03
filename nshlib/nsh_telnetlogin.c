@@ -149,9 +149,9 @@ static void nsh_telnettoken(FAR struct console_stdio_s *pstate,
 
       else if (isspace(*endp1))
         {
-         /* Break out... endp1 points to first while space encountered */
+          /* Break out... endp1 points to first while space encountered */
 
-          break;
+           break;
         }
     }
 

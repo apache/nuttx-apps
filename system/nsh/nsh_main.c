@@ -166,13 +166,13 @@ static int nsh_task(void)
   ret = nsh_telnetstart(AF_UNSPEC);
   if (ret < 0)
     {
-     /* The daemon is NOT running.  Report the error then fail...
-      * either with the serial console up or just exiting.
-      */
+      /* The daemon is NOT running.  Report the error then fail...
+       * either with the serial console up or just exiting.
+       */
 
-     fprintf(stderr, "ERROR: Failed to start TELNET daemon: %d\n", ret);
-     exitval = 1;
-   }
+      fprintf(stderr, "ERROR: Failed to start TELNET daemon: %d\n", ret);
+      exitval = 1;
+    }
 #endif
 
 #ifdef CONFIG_NSH_CONSOLE
@@ -232,6 +232,7 @@ int main(int argc, FAR char *argv[])
     {
       return nsh_system(argc, argv);
     }
+  else
 #endif
     {
       return nsh_task();

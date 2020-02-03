@@ -179,7 +179,8 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR,
+                 (FAR void *)&optval, sizeof(int)) < 0)
     {
       nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
@@ -237,7 +238,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
 
   /* Begin accepting connections */
 
-  for (;;)
+  for (; ; )
     {
       socklen_t accptlen;
 

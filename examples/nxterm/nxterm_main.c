@@ -131,53 +131,54 @@ static int nxterm_initialize(void)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, g_nxterm_vars.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, g_nxterm_vars.hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nxterm_vars.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nxterm_vars.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.  This is probably
+       * the least efficient way to do this, but it makes this example flow more
+       * smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXTERM_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTERM_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXTERM_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTERM_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxterm_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxterm_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nxterm_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nxterm_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nxterm_vars.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nxterm_vars.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nxterm_vars.eventsem);
-         }
+          sem_wait(&g_nxterm_vars.eventsem);
+        }
     }
   else
     {
       printf("nxterm_initialize: nx_connect failed: %d\n", errno);
       return ERROR;
     }
+
   return OK;
 }
 
@@ -223,6 +224,7 @@ int main(int argc, FAR char *argv[])
   int ret;
 
   /* General Initialization *************************************************/
+
   /* Reset all global data */
 
   printf("nxterm_main: Started\n");
@@ -235,6 +237,7 @@ int main(int argc, FAR char *argv[])
 #endif
 
   /* NSH Initialization *****************************************************/
+
   /* Initialize the NSH library */
 
   printf("nxterm_main: Initialize NSH\n");
@@ -248,14 +251,16 @@ int main(int argc, FAR char *argv[])
   ret = nsh_telnetstart(AF_UNSPEC);
   if (ret < 0)
     {
-     /* The daemon is NOT running.  Report the error then fail...
-      * either with the serial console up or just exiting.
-      */
+      /* The daemon is NOT running.  Report the error then fail...
+       * either with the serial console up or just exiting.
+       */
 
-     fprintf(stderr, "ERROR: Failed to start TELNET daemon: %d\n", ret);
-   }
+      fprintf(stderr, "ERROR: Failed to start TELNET daemon: %d\n", ret);
+    }
 #endif
+
   /* NX Initialization ******************************************************/
+
   /* Initialize NX */
 
   printf("nxterm_main: Initialize NX\n");
@@ -281,6 +286,7 @@ int main(int argc, FAR char *argv[])
     }
 
   /* Window Configuration ***************************************************/
+
   /* Create a window */
 
   printf("nxterm_main: Create window\n");
@@ -352,7 +358,8 @@ int main(int argc, FAR char *argv[])
 
   sleep(2);
 
-  /* NxTerm Configuration ************************************************/
+  /* NxTerm Configuration ***************************************************/
+
   /* Use the window to create an NX console */
 
   g_nxterm_vars.wndo.wcolor[0] = CONFIG_EXAMPLES_NXTERM_WCOLOR;
@@ -392,12 +399,14 @@ int main(int argc, FAR char *argv[])
     }
 
   /* Start Console Task *****************************************************/
-  /* Now re-direct stdout and stderr so that they use the NX console driver.
-   * Note that stdin is retained (file descriptor 0, probably the serial console).
-    */
 
-   printf("nxterm_main: Starting the console task\n");
-   fflush(stdout);
+  /* Now re-direct stdout and stderr so that they use the NX console driver.
+   * Note that stdin is retained (file descriptor 0, probably the serial
+   * console).
+   */
+
+  printf("nxterm_main: Starting the console task\n");
+  fflush(stdout);
 
   fflush(stdout);
   fflush(stderr);
@@ -408,19 +417,19 @@ int main(int argc, FAR char *argv[])
   dup2(fd, 1);
   dup2(fd, 2);
 
-   /* And we can close our original driver file descriptor */
+  /* And we can close our original driver file descriptor */
 
-   close(fd);
+  close(fd);
 
-   /* And start the console task.  It will inherit stdin, stdout, and stderr
-    * from this task.
-    */
+  /* And start the console task.  It will inherit stdin, stdout, and stderr
+   * from this task.
+   */
 
-   g_nxterm_vars.pid = task_create("NxTerm", CONFIG_EXAMPLES_NXTERM_PRIO,
+  g_nxterm_vars.pid = task_create("NxTerm", CONFIG_EXAMPLES_NXTERM_PRIO,
                                   CONFIG_EXAMPLES_NXTERM_STACKSIZE,
                                   nxterm_task, NULL);
-   DEBUGASSERT(g_nxterm_vars.pid > 0);
-   return EXIT_SUCCESS;
+  DEBUGASSERT(g_nxterm_vars.pid > 0);
+  return EXIT_SUCCESS;
 
   /* Error Exits ************************************************************/
 
@@ -431,6 +440,7 @@ errout_with_hwnd:
   nxtk_closewindow(g_nxterm_vars.hwnd);
 
 errout_with_nx:
+
   /* Disconnect from the server */
 
   nx_disconnect(g_nxterm_vars.hnx);
