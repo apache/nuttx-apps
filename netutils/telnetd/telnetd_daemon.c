@@ -151,9 +151,8 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   sa.sa_flags = SA_NOCLDWAIT;
   if (sigaction(SIGCHLD, &sa, NULL) < 0)
     {
-      int errval = errno;
-      nerr("ERROR: sigaction failed: %d\n", errval);
-      return -errval;
+      nerr("ERROR: sigaction failed: %d\n", errno);
+      goto errout_with_daemon;
     }
 
   /* Block receipt of the SIGCHLD signal */
@@ -162,9 +161,8 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   sigaddset(&blockset, SIGCHLD);
   if (sigprocmask(SIG_BLOCK, &blockset, NULL) < 0)
     {
-      int errval = errno;
-      nerr("ERROR: sigprocmask failed: %d\n", errval);
-      return -errval;
+      nerr("ERROR: sigprocmask failed: %d\n", errno);
+      goto errout_with_daemon;
     }
 #endif /* CONFIG_SCHED_HAVE_PARENT */
 
@@ -173,10 +171,9 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   listensd = socket(daemon->family, SOCK_STREAM, 0);
   if (listensd < 0)
     {
-      int errval = errno;
       nerr("ERROR: socket() failed for family %u: %d\n",
-           daemon->family, errval);
-      return -errval;
+           daemon->family, errno);
+      goto errout_with_daemon;
     }
 
   /* Set socket to reuse address */
@@ -348,6 +345,7 @@ errout_with_acceptsd:
 
 errout_with_socket:
   close(listensd);
+errout_with_daemon:
   free(daemon);
   return 1;
 }
