@@ -127,9 +127,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   int listensd;
   int acceptsd;
   int drvrfd;
-#ifdef CONFIG_NET_HAVE_REUSEADDR
   int optval;
-#endif
   int ret;
   int fd;
 
@@ -183,14 +181,12 @@ static int telnetd_daemon(int argc, FAR char *argv[])
 
   /* Set socket to reuse address */
 
-#ifdef CONFIG_NET_HAVE_REUSEADDR
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
       nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
     }
-#endif
 
   /* Bind the socket to a local address */
 
