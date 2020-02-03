@@ -176,9 +176,6 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
   char password[16];
-#ifdef CONFIG_NSH_LOGIN_PASSWD
-  int ret;
-#endif
   int i;
 
   /* Present the NSH Telnet greeting */
@@ -219,13 +216,9 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
           /* Verify the username and password */
 
 #if defined(CONFIG_NSH_LOGIN_PASSWD)
-          ret = passwd_verify(username, password);
-          if (PASSWORD_VERIFY_MATCH(ret))
-
+          if (PASSWORD_VERIFY_MATCH(passwd_verify(username, password)))
 #elif defined(CONFIG_NSH_LOGIN_PLATFORM)
-          ret = platform_user_verify(username, password);
-          if (PASSWORD_VERIFY_MATCH(ret))
-
+          if (PASSWORD_VERIFY_MATCH(platform_user_verify(username, password)))
 #elif defined(CONFIG_NSH_LOGIN_FIXED)
           if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
