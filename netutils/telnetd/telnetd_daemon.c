@@ -83,7 +83,7 @@ struct telnetd_s
 };
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -250,19 +250,15 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       acceptsd = accept(listensd, &addr.generic, &accptlen);
       if (acceptsd < 0)
         {
-          /* Accept failed */
-
-          int errval = errno;
-
           /* Just continue if a signal was received */
 
-          if (errval == EINTR)
+          if (errno == EINTR)
             {
               continue;
             }
           else
             {
-              nerr("ERROR: accept failed: %d\n", errval);
+              nerr("ERROR: accept failed: %d\n", errno);
               goto errout_with_socket;
             }
         }
@@ -311,7 +307,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       if (drvrfd < 0)
         {
           nerr("ERROR: Failed to open %s: %d\n", session.ts_devpath, errno);
-          goto errout_with_acceptsd;
+          goto errout_with_socket;
         }
 
       /* Use this driver as stdin, stdout, and stderror */
@@ -337,7 +333,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       if (pid < 0)
         {
           nerr("ERROR: Failed start the telnet session: %d\n", errno);
-          goto errout_with_acceptsd;
+          goto errout_with_socket;
         }
 
       /* Forget about the connection. */
