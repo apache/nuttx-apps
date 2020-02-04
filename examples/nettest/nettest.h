@@ -92,9 +92,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-uint16_t g_nettestserver_ipv6[8];
+extern uint16_t g_nettestserver_ipv6[8];
 #else
-uint32_t g_nettestserver_ipv4;
+extern uint32_t g_nettestserver_ipv4;
 #endif
 
 /****************************************************************************
