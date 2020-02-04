@@ -341,7 +341,7 @@ int main(int argc, FAR char *argv[])
   server.ipv6.sin6_port   = htons(portno);
 
   ret = inet_pton(AF_INET6, argv[1], server.ipv6.sin6_addr.s6_addr);
-  if (ret < 0)
+  if (ret <= 0)
 #endif
 #ifdef CONFIG_NET_IPv4
     {
@@ -355,7 +355,7 @@ int main(int argc, FAR char *argv[])
       ret = inet_pton(AF_INET, argv[1], &server.ipv4.sin_addr);
     }
 
-  if (ret < 0)
+  if (ret <= 0)
 #endif
     {
       fprintf(stderr, "ERROR: <server-IP-addr> is invalid\n");
