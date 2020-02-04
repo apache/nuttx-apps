@@ -443,7 +443,7 @@ int main(int argc, FAR char *argv[])
 
       /* New connection */
 
-      if (pfd[MAX_USERS].revents & POLLIN)
+      if (pfd[MAX_USERS].revents & (POLLIN | POLLERR | POLLHUP))
         {
           /* Accept the sock */
 
@@ -496,7 +496,7 @@ int main(int argc, FAR char *argv[])
               continue;
             }
 
-          if (pfd[i].revents & POLLIN)
+          if (pfd[i].revents & (POLLIN | POLLERR | POLLHUP))
             {
               if ((ret = recv(g_users[i].sock, buffer, sizeof(buffer), 0)) > 0)
                 {

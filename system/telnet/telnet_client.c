@@ -411,7 +411,7 @@ int main(int argc, FAR char *argv[])
     {
       /* Read from stdin */
 
-      if (pfd[0].revents & POLLIN)
+      if (pfd[0].revents & (POLLIN | POLLERR | POLLHUP))
         {
           ret = std_readline(buffer, sizeof(buffer));
           if (ret > 0)
@@ -431,7 +431,7 @@ int main(int argc, FAR char *argv[])
 
       /* Read from client */
 
-      if (pfd[1].revents & POLLIN)
+      if (pfd[1].revents & (POLLIN | POLLERR | POLLHUP))
         {
           if ((ret = recv(sock, buffer, sizeof(buffer), 0)) > 0)
             {
