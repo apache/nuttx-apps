@@ -107,6 +107,23 @@ static struct user_s g_users[MAX_USERS];
  * Private Functions
  ****************************************************************************/
 
+static void cleanup_exit(void)
+{
+  int i;
+
+  for (i = 0; i != MAX_USERS; ++i)
+    {
+      if (g_users[i].sock != -1)
+        {
+          close(g_users[i].sock);
+          free(g_users[i].name);
+          telnet_free(g_users[i].telnet);
+      }
+    }
+
+  exit(1);
+}
+
 static void linebuffer_push(char *buffer, size_t size, int *linepos,
                             char ch, void (*cb) (const char *line, int overflow,
                                                  void *ud), void *ud)
@@ -180,7 +197,7 @@ static void _send(int sock, const char *buffer, unsigned int size)
           if (errno != EINTR && errno != ECONNRESET)
             {
               fprintf(stderr, "send() failed: %d\n", errno);
-              exit(1);
+              cleanup_exit();
             }
           else
             {
@@ -190,7 +207,7 @@ static void _send(int sock, const char *buffer, unsigned int size)
       else if (ret == 0)
         {
           fprintf(stderr, "send() unexpectedly returned 0\n");
-          exit(1);
+          cleanup_exit();
         }
 
       /* Update pointer and size to see if we've got more to send */
@@ -246,6 +263,7 @@ static void _online(const char *line, int overflow, void *ud)
       _message(user->name, "** HAS QUIT **");
       free(user->name);
       user->name = 0;
+      telnet_free(user->telnet);
       return;
     }
 
@@ -258,7 +276,7 @@ static void _input(struct user_s *user, const char *buffer, unsigned int size)
 {
   unsigned int i;
 
-  for (i = 0; i != size; ++i)
+  for (i = 0; user->sock != -1 && i != size; ++i)
     {
       linebuffer_push(user->linebuf, sizeof(user->linebuf), &user->linepos,
                       (char)buffer[i], _online, user);
@@ -420,12 +438,12 @@ int main(int argc, FAR char *argv[])
       if (ret == -1 && errno != EINTR)
         {
           fprintf(stderr, "poll() failed: %d\n", errno);
-          return 1;
+          cleanup_exit();
         }
 
       /* New connection */
 
-      if (pfd[MAX_USERS].revents & POLLIN)
+      if (pfd[MAX_USERS].revents & (POLLIN | POLLERR | POLLHUP))
         {
           /* Accept the sock */
 
@@ -434,7 +452,7 @@ int main(int argc, FAR char *argv[])
                            &addrlen)) == -1)
             {
               fprintf(stderr, "accept() failed: %d\n", errno);
-              return 1;
+              cleanup_exit();
             }
 
           printf("Connection received.\n");
@@ -478,7 +496,7 @@ int main(int argc, FAR char *argv[])
               continue;
             }
 
-          if (pfd[i].revents & POLLIN)
+          if (pfd[i].revents & (POLLIN | POLLERR | POLLHUP))
             {
               if ((ret = recv(g_users[i].sock, buffer, sizeof(buffer), 0)) > 0)
                 {
@@ -488,6 +506,7 @@ int main(int argc, FAR char *argv[])
                 {
                   printf("Connection closed.\n");
                   close(g_users[i].sock);
+                  g_users[i].sock = -1;
                   if (g_users[i].name != 0)
                     {
                       _message(g_users[i].name, "** HAS DISCONNECTED **");
@@ -496,13 +515,11 @@ int main(int argc, FAR char *argv[])
                     }
 
                   telnet_free(g_users[i].telnet);
-                  g_users[i].sock = -1;
-                  break;
                 }
               else if (errno != EINTR)
                 {
                   fprintf(stderr, "recv(client) failed: %d\n", errno);
-                  exit(1);
+                  cleanup_exit();
                 }
             }
         }

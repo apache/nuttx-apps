@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/usbmsc/Make.defs
+# apps/system/telnet/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.

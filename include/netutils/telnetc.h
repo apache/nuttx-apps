@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/telnetc/telnetc.c
+ * apps/include/netutils/telnetc.h
  *
  * Leveraged from libtelnet, https://github.com/seanmiddleditch/libtelnet.
  * Modified and re-released under the BSD license:
@@ -208,7 +208,7 @@ extern "C"
 
 /* Error codes */
 
-enum telnet_error_u
+enum telnet_error_e
 {
   TELNET_EOK = 0,                         /* No error */
   TELNET_EBADVAL,                         /* Invalid parameter, or API misuse */
@@ -284,7 +284,7 @@ union telnet_event_u
     const char *func;                     /* Function the error occured in */
     const char *msg;                      /* Error message string */
     int line;                             /* Line of file error occured on */
-    enum telnet_error_u errcode;          /* Error code */
+    enum telnet_error_e errcode;          /* Error code */
   } error;
 
   /* Command event: for IAC */
