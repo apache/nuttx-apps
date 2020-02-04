@@ -197,8 +197,8 @@ static const size_t _buffer_sizes_count = sizeof(_buffer_sizes) /
 
 /* Error generation function */
 
-static enum telnet_error_u _error(struct telnet_s *telnet, unsigned line,
-                                  const char *func, enum telnet_error_u err,
+static enum telnet_error_e _error(struct telnet_s *telnet, unsigned line,
+                                  const char *func, enum telnet_error_e err,
                                   int fatal, const char *fmt, ...)
 {
   union telnet_event_u ev;
@@ -230,7 +230,7 @@ static enum telnet_error_u _error(struct telnet_s *telnet, unsigned line,
  */
 
 #if defined(HAVE_ZLIB)
-enum telnet_error_u _init_zlib(struct telnet_s *telnet, int deflate,
+enum telnet_error_e _init_zlib(struct telnet_s *telnet, int deflate,
                                int err_fatal)
 {
   z_stream *z;
@@ -361,7 +361,7 @@ static inline int _check_telopt(struct telnet_s *telnet,
       return 0;
     }
 
-  /* Loop unti found or end marker (us and him both 0) */
+  /* Loop until found or end marker (us and him both 0) */
 
   for (i = 0; telnet->telopts[i].telopt != -1; ++i)
     {
@@ -441,7 +441,7 @@ static inline void _set_rfc1143(struct telnet_s *telnet, unsigned char telopt,
 
   qtmp = (struct telnet_rfc1143_s *)
            realloc(telnet->q,
-                   sizeof(struct telnet_rfc1143_s) *   (telnet->q_size + 4));
+                   sizeof(struct telnet_rfc1143_s) * (telnet->q_size + 4));
   if (qtmp == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
@@ -1248,7 +1248,7 @@ void telnet_free(struct telnet_s *telnet)
 
 /* Push a byte into the telnet buffer */
 
-static enum telnet_error_u _buffer_byte(struct telnet_s *telnet,
+static enum telnet_error_e _buffer_byte(struct telnet_s *telnet,
                                         unsigned char byte)
 {
   char *new_buffer;
