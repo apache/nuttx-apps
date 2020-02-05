@@ -120,11 +120,11 @@ struct telnet_s
 {
   /* User data */
 
-  void *ud;
+  FAR void *ud;
 
   /* Telopt support table */
 
-  const struct telnet_telopt_s *telopts;
+  FAR const struct telnet_telopt_s *telopts;
 
   /* Event handler */
 
@@ -133,16 +133,16 @@ struct telnet_s
 #if defined(HAVE_ZLIB)
   /* zlib (mccp2) compression */
 
-  z_stream *z;
+  FAR z_stream *z;
 #endif
 
   /* RFC1143 option negotiation states */
 
-  struct telnet_rfc1143_s *q;
+  FAR struct telnet_rfc1143_s *q;
 
   /* Sub-request buffer */
 
-  char *buffer;
+  FAR char *buffer;
 
   /* Current size of the buffer */
 
@@ -197,9 +197,10 @@ static const size_t _buffer_sizes_count = sizeof(_buffer_sizes) /
 
 /* Error generation function */
 
-static enum telnet_error_e _error(struct telnet_s *telnet, unsigned line,
-                                  const char *func, enum telnet_error_e err,
-                                  int fatal, const char *fmt, ...)
+static enum telnet_error_e _error(FAR struct telnet_s *telnet, unsigned line,
+                                  FAR const char *func,
+                                  enum telnet_error_e err, int fatal,
+                                  FAR const char *fmt, ...)
 {
   union telnet_event_u ev;
   char buffer[512];
@@ -230,10 +231,10 @@ static enum telnet_error_e _error(struct telnet_s *telnet, unsigned line,
  */
 
 #if defined(HAVE_ZLIB)
-enum telnet_error_e _init_zlib(struct telnet_s *telnet, int deflate,
+enum telnet_error_e _init_zlib(FAR struct telnet_s **telnet, int deflate,
                                int err_fatal)
 {
-  z_stream *z;
+  FAR z_stream *z;
   int rs;
 
   /* If compression is already enabled, fail loudly */
@@ -284,7 +285,8 @@ enum telnet_error_e _init_zlib(struct telnet_s *telnet, int deflate,
 
 /* Push bytes out, compressing them first if need be */
 
-static void _send(struct telnet_s *telnet, const char *buffer, size_t size)
+static void _send(FAR struct telnet_s **telnet, FAR const char *buffer,
+                  size_t size)
 {
   union telnet_event_u ev;
 
@@ -349,7 +351,7 @@ static void _send(struct telnet_s *telnet, const char *buffer, size_t size)
  * supports it.  return non-zero if supported, zero if not supported.
  */
 
-static inline int _check_telopt(struct telnet_s *telnet,
+static inline int _check_telopt(FAR struct telnet_s **telnet,
                                 unsigned char telopt, int us)
 {
   int i;
@@ -390,7 +392,7 @@ static inline int _check_telopt(struct telnet_s *telnet,
 
 /* Retrieve RFC1143 option state */
 
-static inline struct telnet_rfc1143_s _get_rfc1143(struct telnet_s *telnet,
+static inline struct telnet_rfc1143_s _get_rfc1143(FAR struct telnet_s **telnet,
                                                    unsigned char telopt)
 {
   struct telnet_rfc1143_s empty;
@@ -415,8 +417,8 @@ static inline struct telnet_rfc1143_s _get_rfc1143(struct telnet_s *telnet,
 
 /* Save RFC1143 option state */
 
-static inline void _set_rfc1143(struct telnet_s *telnet, unsigned char telopt,
-                                char us, char him)
+static inline void _set_rfc1143(FAR struct telnet_s **telnet,
+                                unsigned char telopt, char us, char him)
 {
   struct telnet_rfc1143_s *qtmp;
   int i;
@@ -458,8 +460,8 @@ static inline void _set_rfc1143(struct telnet_s *telnet, unsigned char telopt,
 
 /* Send negotiation bytes */
 
-static inline void _send_negotiate(struct telnet_s *telnet, unsigned char cmd,
-                                   unsigned char telopt)
+static inline void _send_negotiate(FAR struct telnet_s **telnet,
+                                   unsigned char cmd, unsigned char telopt)
 {
   unsigned char bytes[3];
   bytes[0] = TELNET_IAC;
@@ -470,7 +472,7 @@ static inline void _send_negotiate(struct telnet_s *telnet, unsigned char cmd,
 
 /* Negotiation handling magic for RFC1143 */
 
-static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
+static void _negotiate(FAR struct telnet_s **telnet, unsigned char telopt)
 {
   union telnet_event_u ev;
   struct telnet_rfc1143_s q;
@@ -534,7 +536,6 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_US(q), Q_YES);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WILL, telopt);
           _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
                  "DONT answered by WILL");
           break;
@@ -570,7 +571,8 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_US(q), Q_WANTYES);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_DO, telopt);
+          _send_negotiate(telnet, TELNET_DO, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_WONT, telopt);
           break;
 
         case Q_WANTYES:
@@ -605,7 +607,6 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_YES, Q_HIM(q));
-          NEGOTIATE_EVENT(telnet, TELNET_EV_DO, telopt);
           _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
                  "WONT answered by DO");
           break;
@@ -636,13 +637,13 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO:
           _set_rfc1143(telnet, telopt, Q_NO, Q_HIM(q));
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WONT, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_DONT, telopt);
           break;
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_WANTYES, Q_HIM(q));
           _send_negotiate(telnet, TELNET_WILL, telopt);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WILL, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_DONT, telopt);
           break;
 
         case Q_WANTYES:
@@ -667,14 +668,14 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
  * of the original buffer.
  */
 
-static int _environ_telnet(struct telnet_s *telnet, unsigned char type,
-                           char *buffer, size_t size)
+static int _environ_telnet(FAR struct telnet_s **telnet, unsigned char type,
+                           FAR char *buffer, size_t size)
 {
   union telnet_event_u ev;
   struct telnet_environ_s *values = 0;
-  char *c;
-  char *last;
-  char *out;
+  FAR char *c;
+  FAR char *last;
+  FAR char *out;
   size_t index;
   size_t count;
 
@@ -747,6 +748,7 @@ static int _environ_telnet(struct telnet_s *telnet, unsigned char type,
       else if (*c == TELNET_ENVIRON_ESC)
         {
           /* Skip the next byte */
+
           ++c;
         }
     }
@@ -859,13 +861,17 @@ static int _environ_telnet(struct telnet_s *telnet, unsigned char type,
 
 /* Process an MSSP subnegotiation buffer */
 
-static int _mssp_telnet(struct telnet_s *telnet, char *buffer, size_t size)
+static int _mssp_telnet(FAR struct telnet_s *telnet, FAR char *buffer,
+                        size_t size)
 {
   union telnet_event_u ev;
-  struct telnet_environ_s *values;
-  char *var = 0;
-  char *c, *last, *out;
-  size_t i, count;
+  FAR struct telnet_environ_s *values;
+  FAR char *var = 0;
+  FAR char *c;
+  FAR char *last;
+  FAR char *out;
+  size_t count;
+  size_t i;
   unsigned char next_type;
 
   /* If we have no data, just pass it through */
@@ -912,7 +918,7 @@ static int _mssp_telnet(struct telnet_s *telnet, char *buffer, size_t size)
 
   out = last = buffer;
   next_type = buffer[0];
-  for (i = 0, c = buffer + 1; c < buffer + size;)
+  for (i = 0, c = buffer + 1; c < buffer + size; )
     {
       /* Search for end marker */
 
@@ -963,11 +969,12 @@ static int _mssp_telnet(struct telnet_s *telnet, char *buffer, size_t size)
 
 /* Parse ZMP command subnegotiation buffers */
 
-static int _zmp_telnet(struct telnet_s *telnet, const char *buffer, size_t size)
+static int _zmp_telnet(FAR struct telnet_s **telnet, FAR const char *buffer,
+                       size_t size)
 {
   union telnet_event_u ev;
-  char **argv;
-  const char *c;
+  FAR char **argv;
+  FAR const char *c;
   size_t i;
   size_t argc;
 
@@ -1019,7 +1026,7 @@ static int _zmp_telnet(struct telnet_s *telnet, const char *buffer, size_t size)
 
 /* Parse TERMINAL-TYPE command subnegotiation buffers */
 
-static int _ttype_telnet(struct telnet_s *telnet, const char *buffer,
+static int _ttype_telnet(FAR struct telnet_s **telnet, FAR const char *buffer,
                          size_t size)
 {
   union telnet_event_u ev;
@@ -1084,7 +1091,7 @@ static int _ttype_telnet(struct telnet_s *telnet, const char *buffer,
  * must be aborted and reprocessed due to COMPRESS2 being activated
  */
 
-static int _subnegotiate(struct telnet_s *telnet)
+static int _subnegotiate(FAR struct telnet_s **telnet)
 {
   union telnet_event_u ev;
 
@@ -1159,14 +1166,15 @@ static int _subnegotiate(struct telnet_s *telnet)
  *
  ****************************************************************************/
 
-struct telnet_s *telnet_init(const struct telnet_telopt_s *telopts,
-                             telnet_event_handler_t eh,
-                             unsigned char flags,
-                      void *user_data)
+FAR struct telnet_s **telnet_init(FAR const struct telnet_telopt_s *telopts,
+                                  telnet_event_handler_t eh,
+                                  unsigned char flags,
+                                  FAR void *user_data)
 {
   /* Allocate structure */
 
-  struct telnet_s *telnet = (struct telnet_s *) calloc(1, sizeof(struct telnet_s));
+  FAR struct telnet_s *telnet = (FAR struct telnet_s *)
+    calloc(1, sizeof(struct telnet_s));
   if (telnet == 0)
     {
       return 0;
@@ -1197,7 +1205,7 @@ struct telnet_s *telnet_init(const struct telnet_telopt_s *telopts,
  *
  ****************************************************************************/
 
-void telnet_free(struct telnet_s *telnet)
+void telnet_free(FAR struct telnet_s *telnet)
 {
   /* Free sub-request buffer */
 
@@ -1244,7 +1252,7 @@ void telnet_free(struct telnet_s *telnet)
 
 /* Push a byte into the telnet buffer */
 
-static enum telnet_error_e _buffer_byte(struct telnet_s *telnet,
+static enum telnet_error_e _buffer_byte(FAR struct telnet_s **telnet,
                                         unsigned char byte)
 {
   char *new_buffer;
@@ -1293,7 +1301,7 @@ static enum telnet_error_e _buffer_byte(struct telnet_s *telnet,
   return TELNET_EOK;
 }
 
-static void _process(struct telnet_s *telnet, const char *buffer,
+static void _process(FAR struct telnet_s **telnet, FAR const char *buffer,
                      size_t size)
 {
   union telnet_event_u ev;
@@ -1309,6 +1317,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
         /* Regular data */
 
         case TELNET_STATE_DATA:
+
           /* On an IAC byte, pass through all pending bytes and switch states */
 
           if (byte == TELNET_IAC)
@@ -1357,6 +1366,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
             /* IAC escaping */
 
             case TELNET_IAC:
+
               /* Event */
 
               ev.type        = TELNET_EV_DATA;
@@ -1373,6 +1383,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
             /* Some other command */
 
             default:
+
               /* Event */
 
               ev.type    = TELNET_EV_IAC;
@@ -1408,6 +1419,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
         /* Subnegotiation -- buffer bytes until end request */
 
         case TELNET_STATE_SB_DATA:
+
           /* IAC command in subnegotiation -- either IAC SE or IAC IAC */
 
           if (byte == TELNET_IAC)
@@ -1444,6 +1456,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
             /* End subnegotiation */
 
             case TELNET_SE:
+
               /* Return to default state */
 
               start = i + 1;
@@ -1467,6 +1480,7 @@ static void _process(struct telnet_s *telnet, const char *buffer,
             /* Escaped IAC byte */
 
             case TELNET_IAC:
+
               /* Push IAC into buffer */
 
               if (_buffer_byte(telnet, TELNET_IAC) != TELNET_EOK)
@@ -1551,7 +1565,8 @@ static void _process(struct telnet_s *telnet, const char *buffer,
  *
  ****************************************************************************/
 
-void telnet_recv(struct telnet_s *telnet, const char *buffer, size_t size)
+void telnet_recv(FAR struct telnet_s **telnet, FAR const char *buffer,
+                 size_t size)
 {
 #if defined(HAVE_ZLIB)
   /* If we have an inflate (decompression) zlib stream, use it */
@@ -1573,6 +1588,7 @@ void telnet_recv(struct telnet_s *telnet, const char *buffer, size_t size)
       while (telnet->z->avail_in > 0 || telnet->z->avail_out == 0)
         {
           /* Reset output buffer */
+
           /* Decompress */
 
           rs = inflate(telnet->z, Z_SYNC_FLUSH);
@@ -1635,7 +1651,7 @@ void telnet_recv(struct telnet_s *telnet, const char *buffer, size_t size)
  *
  ****************************************************************************/
 
-void telnet_iac(struct telnet_s *telnet, unsigned char cmd)
+void telnet_iac(FAR struct telnet_s **telnet, unsigned char cmd)
 {
   unsigned char bytes[2];
   bytes[0] = TELNET_IAC;
@@ -1660,7 +1676,7 @@ void telnet_iac(struct telnet_s *telnet, unsigned char cmd)
  *
  ****************************************************************************/
 
-void telnet_negotiate(struct telnet_s *telnet, unsigned char cmd,
+void telnet_negotiate(FAR struct telnet_s **telnet, unsigned char cmd,
                       unsigned char telopt)
 {
   struct telnet_rfc1143_s q;
@@ -1778,7 +1794,8 @@ void telnet_negotiate(struct telnet_s *telnet, unsigned char cmd,
  *
  ****************************************************************************/
 
-void telnet_send(struct telnet_s *telnet, const char *buffer, size_t size)
+void telnet_send(FAR struct telnet_s **telnet, FAR const char *buffer,
+                 size_t size)
 {
   size_t l;
   size_t i;
@@ -1828,7 +1845,7 @@ void telnet_send(struct telnet_s *telnet, const char *buffer, size_t size)
  *
  ****************************************************************************/
 
-void telnet_begin_sb(struct telnet_s *telnet, unsigned char telopt)
+void telnet_begin_sb(FAR struct telnet_s **telnet, unsigned char telopt)
 {
   unsigned char sb[3];
   sb[0] = TELNET_IAC;
@@ -1856,8 +1873,8 @@ void telnet_begin_sb(struct telnet_s *telnet, unsigned char telopt)
  *
  ****************************************************************************/
 
-void telnet_subnegotiation(struct telnet_s *telnet, unsigned char telopt,
-                           const char *buffer, size_t size)
+void telnet_subnegotiation(FAR struct telnet_s **telnet, unsigned char telopt,
+                           FAR const char *buffer, size_t size)
 {
   unsigned char bytes[5];
   bytes[0] = TELNET_IAC;
@@ -1911,13 +1928,14 @@ void telnet_subnegotiation(struct telnet_s *telnet, unsigned char telopt,
  *
  ****************************************************************************/
 
-void telnet_begin_compress2(struct telnet_s *telnet)
+void telnet_begin_compress2(FAR struct telnet_s **telnet)
 {
 #if defined(HAVE_ZLIB)
   static const unsigned char compress2[] =
   {
     TELNET_IAC, TELNET_SB, TELNET_TELOPT_COMPRESS2, TELNET_IAC, TELNET_SE
   };
+
   union telnet_event_u ev;
 
   /* Attempt to create output stream first, bail if we can't */
@@ -1955,12 +1973,21 @@ void telnet_begin_compress2(struct telnet_s *telnet)
  *
  ****************************************************************************/
 
-int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
+int telnet_vprintf(FAR struct telnet_s *telnet, FAR const char *fmt,
+                   va_list va)
 {
-  static const char CRLF[] = { '\r', '\n' };
-  static const char CRNUL[] = { '\r', '\0' };
+  static const char CRLF[] =
+  {
+    '\r', '\n'
+  };
+
+  static const char CRNUL[] =
+  {
+    '\r', '\0'
+  };
+
   char buffer[1024];
-  char *output = buffer;
+  FAR char *output = buffer;
   int rs;
   int l;
   int i;
@@ -2066,7 +2093,7 @@ int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
  *
  ****************************************************************************/
 
-int telnet_printf(struct telnet_s *telnet, const char *fmt, ...)
+int telnet_printf(FAR struct telnet_s **telnet, FAR const char *fmt, ...)
 {
   va_list va;
   int rs;
@@ -2088,10 +2115,11 @@ int telnet_printf(struct telnet_s *telnet, const char *fmt, ...)
  *
  ****************************************************************************/
 
-int telnet_raw_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
+int telnet_raw_vprintf(FAR struct telnet_s **telnet, FAR const char *fmt,
+                       va_list va)
 {
   char buffer[1024];
-  char *output = buffer;
+  FAR char *output = buffer;
   int rs;
 
   /* Format; allocate more space if necessary */
@@ -2148,7 +2176,7 @@ int telnet_raw_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
  *
  ****************************************************************************/
 
-int telnet_raw_printf(struct telnet_s *telnet, const char *fmt, ...)
+int telnet_raw_printf(FAR struct telnet_s **telnet, FAR const char *fmt, ...)
 {
   va_list va;
   int rs;
@@ -2179,7 +2207,7 @@ int telnet_raw_printf(struct telnet_s *telnet, const char *fmt, ...)
  *
  ****************************************************************************/
 
-void telnet_begin_newenviron(struct telnet_s *telnet, unsigned char cmd)
+void telnet_begin_newenviron(FAR struct telnet_s **telnet, unsigned char cmd)
 {
   telnet_begin_sb(telnet, TELNET_TELOPT_NEW_ENVIRON);
   telnet_send(telnet, (const char *)&cmd, 1);
@@ -2202,10 +2230,10 @@ void telnet_begin_newenviron(struct telnet_s *telnet, unsigned char cmd)
  *
  ****************************************************************************/
 
-void telnet_newenviron_value(struct telnet_s *telnet, unsigned char type,
+void telnet_newenviron_value(FAR struct telnet_s **telnet, unsigned char type,
                              const char *string)
 {
-  telnet_send(telnet, (const char *)&type, 1);
+  telnet_send(telnet, (FAR const char *)&type, 1);
 
   if (string != 0)
     {
@@ -2225,7 +2253,7 @@ void telnet_newenviron_value(struct telnet_s *telnet, unsigned char type,
  *
  ****************************************************************************/
 
-void telnet_ttype_send(struct telnet_s *telnet)
+void telnet_ttype_send(FAR struct telnet_s **telnet)
 {
   static const unsigned char SEND[] =
   {
@@ -2272,7 +2300,7 @@ void telnet_ttype_send(struct telnet_s *telnet)
  *
  ****************************************************************************/
 
-void telnet_ttype_is(struct telnet_s *telnet, const char *ttype)
+void telnet_ttype_is(FAR struct telnet_s **telnet, FAR const char *ttype)
 {
   static const unsigned char IS[] =
   {
@@ -2302,7 +2330,8 @@ void telnet_ttype_is(struct telnet_s *telnet, const char *ttype)
  *
  ****************************************************************************/
 
-void telnet_send_zmp(struct telnet_s *telnet, size_t argc, const char **argv)
+void telnet_send_zmp(FAR struct telnet_s **telnet, size_t argc,
+                     FAR const char **argv)
 {
   size_t i;
 
@@ -2332,9 +2361,9 @@ void telnet_send_zmp(struct telnet_s *telnet, size_t argc, const char **argv)
  *
  ****************************************************************************/
 
-void telnet_send_vzmpv(struct telnet_s *telnet, va_list va)
+void telnet_send_vzmpv(FAR struct telnet_s **telnet, va_list va)
 {
-  const char *arg;
+  FAR const char *arg;
 
   /* ZMP header */
 
@@ -2366,7 +2395,7 @@ void telnet_send_vzmpv(struct telnet_s *telnet, va_list va)
  *
  ****************************************************************************/
 
-void telnet_send_zmpv(struct telnet_s *telnet, ...)
+void telnet_send_zmpv(FAR struct telnet_s **telnet, ...)
 {
   va_list va;
 
@@ -2387,7 +2416,7 @@ void telnet_send_zmpv(struct telnet_s *telnet, ...)
  *
  ****************************************************************************/
 
-void telnet_begin_zmp(struct telnet_s *telnet, const char *cmd)
+void telnet_begin_zmp(FAR struct telnet_s **telnet, FAR const char *cmd)
 {
   telnet_begin_sb(telnet, TELNET_TELOPT_ZMP);
   telnet_zmp_arg(telnet, cmd);
@@ -2405,7 +2434,7 @@ void telnet_begin_zmp(struct telnet_s *telnet, const char *cmd)
  *
  ****************************************************************************/
 
-void telnet_zmp_arg(struct telnet_s *telnet, const char *arg)
+void telnet_zmp_arg(FAR struct telnet_s **telnet, FAR const char *arg)
 {
   telnet_send(telnet, arg, strlen(arg) + 1);
 }
