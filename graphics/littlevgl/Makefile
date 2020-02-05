@@ -82,7 +82,9 @@ $(LVGL_UNPACKNAME)/.patched: $(LVGL_UNPACKNAME) $(PATCH_FILES)
 	$(Q) cat $(PATCH_FILES) | $(PATCH)
 	$(Q) touch $(LVGL_UNPACKNAME)/.patched
 
-$(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME) $(LVGL_UNPACKNAME)/.patched lvgl/lvgl.h
+lvgl/lvgl.h: $(LVGL_UNPACKNAME)
+
+$(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME)/.patched lvgl/lvgl.h
 	@echo "CP: lvgl/lvgl.h"
 	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
 
