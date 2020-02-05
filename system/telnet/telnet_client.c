@@ -71,7 +71,6 @@
 #  include "zlib.h"
 #endif
 
-#include "system/readline.h"
 #include "netutils/telnetc.h"
 
 /****************************************************************************
@@ -187,7 +186,7 @@ static void _event_handler(struct telnet_s *telnet,
     /* Data received */
 
     case TELNET_EV_DATA:
-      printf("%.*s", (int)ev->data.size, ev->data.buffer);
+      fwrite(ev->data.buffer, 1, ev->data.size, stdout);
       fflush(stdout);
       break;
 
@@ -400,7 +399,7 @@ int main(int argc, FAR char *argv[])
   /* Initialize poll descriptors */
 
   memset(pfd, 0, sizeof(pfd));
-  pfd[0].fd = 1;
+  pfd[0].fd = STDIN_FILENO;
   pfd[0].events = POLLIN;
   pfd[1].fd = sock;
   pfd[1].events = POLLIN;
@@ -413,7 +412,7 @@ int main(int argc, FAR char *argv[])
 
       if (pfd[0].revents & (POLLIN | POLLERR | POLLHUP))
         {
-          ret = std_readline(buffer, sizeof(buffer));
+          ret = read(STDIN_FILENO, buffer, sizeof(buffer));
           if (ret > 0)
             {
               send_local_input(buffer, ret);
