@@ -376,6 +376,7 @@ read_req(int fd, FAR const struct usrsock_request_common_s *com_hdr,
     {
       return -errno;
     }
+
   if (rlen + sizeof(*com_hdr) != reqsize)
     {
       return -EMSGSIZE;
@@ -1350,12 +1351,16 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
   amsg.key  = priv->key;
   amsg.mode = priv->mode;
   amsg.ch   = priv->ch;
-  ret = ioctl(priv->gsfd, GS2200M_IOC_ASSOC, (unsigned long)&amsg);
-
-  if (0 != ret)
+  while (true)
     {
-      fprintf(stderr, "association failed : invalid ssid or key \n");
-      goto errout;
+      ret = ioctl(priv->gsfd, GS2200M_IOC_ASSOC, (unsigned long)&amsg);
+
+      if (0 == ret)
+        {
+          break;
+        }
+
+      fprintf(stderr, "association failed : retrying\n");
     }
 
   while (true)
