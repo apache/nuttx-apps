@@ -534,7 +534,6 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_US(q), Q_YES);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WILL, telopt);
           _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
                  "DONT answered by WILL");
           break;
@@ -570,7 +569,8 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_US(q), Q_WANTYES);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_DO, telopt);
+          _send_negotiate(telnet, TELNET_DO, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_WONT, telopt);
           break;
 
         case Q_WANTYES:
@@ -605,7 +605,6 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_YES, Q_HIM(q));
-          NEGOTIATE_EVENT(telnet, TELNET_EV_DO, telopt);
           _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
                  "WONT answered by DO");
           break;
@@ -636,13 +635,13 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
 
         case Q_WANTNO:
           _set_rfc1143(telnet, telopt, Q_NO, Q_HIM(q));
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WONT, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_DONT, telopt);
           break;
 
         case Q_WANTNO_OP:
           _set_rfc1143(telnet, telopt, Q_WANTYES, Q_HIM(q));
           _send_negotiate(telnet, TELNET_WILL, telopt);
-          NEGOTIATE_EVENT(telnet, TELNET_EV_WILL, telopt);
+          NEGOTIATE_EVENT(telnet, TELNET_EV_DONT, telopt);
           break;
 
         case Q_WANTYES:
