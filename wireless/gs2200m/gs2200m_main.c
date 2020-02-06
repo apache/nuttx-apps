@@ -1221,8 +1221,8 @@ err_out:
 static int setsockopt_request(int fd, FAR struct gs2200m_s *priv,
                               FAR void *hdrbuf)
 {
-  ASSERT(false);
-  return -EINVAL;
+  DEBUGASSERT(false);
+  return -ENOSYS;
 }
 
 /****************************************************************************
@@ -1232,8 +1232,8 @@ static int setsockopt_request(int fd, FAR struct gs2200m_s *priv,
 static int getsockopt_request(int fd, FAR struct gs2200m_s *priv,
                               FAR void *hdrbuf)
 {
-  ASSERT(false);
-  return -EINVAL;
+  DEBUGASSERT(false);
+  return -ENOSYS;
 }
 
 /****************************************************************************
@@ -1243,8 +1243,8 @@ static int getsockopt_request(int fd, FAR struct gs2200m_s *priv,
 static int getsockname_request(int fd, FAR struct gs2200m_s *priv,
                                FAR void *hdrbuf)
 {
-  ASSERT(false);
-  return -EINVAL;
+  DEBUGASSERT(false);
+  return -ENOSYS;
 }
 
 /****************************************************************************
@@ -1254,8 +1254,8 @@ static int getsockname_request(int fd, FAR struct gs2200m_s *priv,
 static int getpeername_request(int fd, FAR struct gs2200m_s *priv,
                                FAR void *hdrbuf)
 {
-  ASSERT(false);
-  return -EINVAL;
+  DEBUGASSERT(false);
+  return -ENOSYS;
 }
 
 /****************************************************************************
