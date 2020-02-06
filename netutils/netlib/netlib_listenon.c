@@ -94,8 +94,7 @@ int netlib_listenon(uint16_t portno)
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
-      goto errout_with_socket;
+      nwarn("WARNING: setsockopt SO_REUSEADDR failure: %d\n", errno);
     }
 
   /* Bind the socket to a local address */
