@@ -176,6 +176,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       goto errout_with_daemon;
     }
 
+#ifdef CONFIG_NET_SOCKOPTS
   /* Set socket to reuse address */
 
   optval = 1;
@@ -185,6 +186,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
     }
+#endif
 
   /* Bind the socket to a local address */
 
@@ -261,9 +263,9 @@ static int telnetd_daemon(int argc, FAR char *argv[])
             }
         }
 
+#ifdef CONFIG_NET_SOLINGER
       /* Configure to "linger" until all data is sent when the socket is closed */
 
-#ifdef CONFIG_NET_SOLINGER
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
