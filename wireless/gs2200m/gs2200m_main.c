@@ -1413,7 +1413,6 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
         }
     }
 
-errout:
   close(fd[1]);
   close(fd[0]);
 
