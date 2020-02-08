@@ -127,7 +127,9 @@ static int telnetd_daemon(int argc, FAR char *argv[])
   int listensd;
   int acceptsd;
   int drvrfd;
+#ifdef CONFIG_NET_SOCKOPTS
   int optval;
+#endif
   int ret;
   int fd;
 
