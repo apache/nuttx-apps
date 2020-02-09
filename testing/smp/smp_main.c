@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -56,10 +57,7 @@
  ****************************************************************************/
 
 static pthread_barrier_t g_smp_barrier;
-
-#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
 static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS+1];
-#endif
 
 /****************************************************************************
  * Private Functions
@@ -74,18 +72,15 @@ static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS+1];
  *
  ****************************************************************************/
 
-#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
-int up_cpu_index(void);
-
 static void show_cpu(FAR const char *caller, int threadno)
 {
-  g_thread_cpu[threadno] = up_cpu_index();
+  g_thread_cpu[threadno] = sched_getcpu();
   printf("%s[%d]: Running on CPU%d\n", caller, threadno, g_thread_cpu[threadno]);
 }
 
 static void show_cpu_conditional(FAR const char *caller, int threadno)
 {
-  int cpu = up_cpu_index();
+  int cpu = sched_getcpu();
 
   if (cpu != g_thread_cpu[threadno])
     {
@@ -93,10 +88,6 @@ static void show_cpu_conditional(FAR const char *caller, int threadno)
       printf("%s[%d]: Now running on CPU%d\n", caller, threadno, cpu);
     }
 }
-#else
-#  define show_cpu(c)
-#  define show_cpu_conditional(c)
-#endif
 
 /****************************************************************************
  * Name: hog_milliseconds
@@ -232,9 +223,7 @@ int main(int argc, FAR char *argv[])
   memset(threadid, 0, sizeof(pthread_t) * CONFIG_TESTING_SMP_NBARRIER_THREADS);
   for (i = 0; i <= CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
-#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
       g_thread_cpu[i] = IMPOSSIBLE_CPU;
-#endif
       if (i < CONFIG_TESTING_SMP_NBARRIER_THREADS)
         {
           threadid[i] = 0;
