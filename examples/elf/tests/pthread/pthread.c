@@ -82,16 +82,16 @@ enum exit_values_e
 
 void *child_start_routine(void *arg)
 {
-  printf("CHILD: started with arg=%d\n", (int)arg);
+  printf("CHILD: started with arg=%d\n", (intptr_t)arg);
 
   if (arg != CHILD_ARG)
     {
-      printf("CHILD: expected arg=%d\n", (int)CHILD_ARG);
+      printf("CHILD: expected arg=%d\n", (intptr_t)CHILD_ARG);
       return (void*)TESTRESULT_CHILD_ARG_FAIL;
     }
   sleep(2);
 
-  printf("CHILD: returning %d\n", (int)CHILD_RET);
+  printf("CHILD: returning %d\n", (intptr_t)CHILD_RET);
   pthread_exit(CHILD_RET);
 }
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
       exit(TESTRESULT_PTHREAD_ATTR_INIT_FAIL);
     }
 
-  printf("PARENT: calling pthread_start with arg=%d\n", (int)CHILD_ARG);
+  printf("PARENT: calling pthread_start with arg=%d\n", (intptr_t)CHILD_ARG);
   status = pthread_create(&thread, &attr, child_start_routine, CHILD_ARG);
   if (status != 0)
     {
@@ -131,10 +131,10 @@ int main(int argc, char **argv)
       exit(TESTRESULT_PTHREAD_JOIN_FAIL);
     }
 
-  printf("PARENT child exitted with %d\n", (int)retval);
+  printf("PARENT child exitted with %d\n", (intptr_t)retval);
   if (retval != CHILD_RET)
     {
-      printf("PARENT child thread did not exit with %d\n", (int)CHILD_RET);
+      printf("PARENT child thread did not exit with %d\n", (intptr_t)CHILD_RET);
       exit(TESTRESULT_CHILD_RETVAL_FAIL);
     }
 
