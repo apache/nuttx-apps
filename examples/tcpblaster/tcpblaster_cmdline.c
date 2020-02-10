@@ -53,15 +53,15 @@
 
 uint16_t g_tcpblasterserver_ipv6[8] =
 {
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(NET_LOOPBACK)
-  0        /* Use the loopback address */
-  0
-  0
-  0
-  0
-  0
-  0
-  HTONS(1);
+#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
+  0,       /* Use the loopback address */
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  HTONS(1)
 #else
   HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_1),
   HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_2),
@@ -76,7 +76,7 @@ uint16_t g_tcpblasterserver_ipv6[8] =
 
 #else
 
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(NET_LOOPBACK)
+#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
 uint32_t g_tcpblasterserver_ipv4 = HTONL(0x7f000001);
 #else
 uint32_t g_tcpblasterserver_ipv4 = HTONL(CONFIG_EXAMPLES_TCPBLASTER_SERVERIP);

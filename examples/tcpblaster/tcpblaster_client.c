@@ -67,7 +67,7 @@ void tcpblaster_client(void)
 #endif
   struct timespec start;
   socklen_t addrlen;
-  char *outbuf;
+  FAR char *outbuf;
   unsigned long sendtotal;
   unsigned long totallost;
   int sendcount;
@@ -79,7 +79,7 @@ void tcpblaster_client(void)
 
   /* Allocate buffers */
 
-  outbuf = (char*)malloc(SENDSIZE);
+  outbuf = (FAR char *)malloc(SENDSIZE);
   if (!outbuf)
     {
       printf("client: failed to allocate buffers\n");
@@ -104,20 +104,23 @@ void tcpblaster_client(void)
   addrlen                       = sizeof(struct sockaddr_in6);
 
   printf("Connecting to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
-         g_tcpblasterserver_ipv6[0], g_tcpblasterserver_ipv6[1], g_tcpblasterserver_ipv6[2], g_tcpblasterserver_ipv6[3],
-         g_tcpblasterserver_ipv6[4], g_tcpblasterserver_ipv6[5], g_tcpblasterserver_ipv6[6], g_tcpblasterserver_ipv6[7]);
+         g_tcpblasterserver_ipv6[0], g_tcpblasterserver_ipv6[1],
+         g_tcpblasterserver_ipv6[2], g_tcpblasterserver_ipv6[3],
+         g_tcpblasterserver_ipv6[4], g_tcpblasterserver_ipv6[5],
+         g_tcpblasterserver_ipv6[6], g_tcpblasterserver_ipv6[7]);
 #else
   server.sin_family             = AF_INET;
   server.sin_port               = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
   server.sin_addr.s_addr        = (in_addr_t)g_tcpblasterserver_ipv4;
   addrlen                       = sizeof(struct sockaddr_in);
 
-  printf("Connecting to IPv4 Address: %08lx\n", (unsigned long)g_tcpblasterserver_ipv4);
+  printf("Connecting to IPv4 Address: %08lx\n",
+         (unsigned long)g_tcpblasterserver_ipv4);
 #endif
 
   /* Connect the socket to the server */
 
-  if (connect( sockfd, (struct sockaddr*)&server, addrlen) < 0)
+  if (connect(sockfd, (FAR struct sockaddr *)&server, addrlen) < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
@@ -220,8 +223,10 @@ void tcpblaster_client(void)
 
           fkbrecvd  = (float)sendtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Sent %d buffers:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kb/Sec)\n",
-                  sendcount, fkbrecvd, fkbrecvd/sendcount, felapsed, fkbrecvd/felapsed);
+          printf("Sent %d buffers:  %7.1f Kb (avg %5.1f Kb) in "
+                 "%6.2f Sec (%7.1f Kb/Sec)\n",
+                  sendcount, fkbrecvd, fkbrecvd / sendcount, felapsed,
+                  fkbrecvd / felapsed);
 
           if (partials > 0)
             {
@@ -238,7 +243,7 @@ void tcpblaster_client(void)
           totallost  = 0;
 
           clock_gettime(CLOCK_REALTIME, &start);
-       }
+        }
     }
 
   free(outbuf);

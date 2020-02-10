@@ -72,7 +72,7 @@ void tcpblaster_server(void)
   struct timespec start;
   unsigned long recvtotal;
   socklen_t addrlen;
-  char *buffer;
+  FAR char *buffer;
   int recvcount;
   int listensd;
   int acceptsd;
@@ -81,7 +81,7 @@ void tcpblaster_server(void)
 
   /* Allocate a BIG buffer */
 
-  buffer = (char*)malloc(SENDSIZE);
+  buffer = (FAR char *)malloc(SENDSIZE);
   if (!buffer)
     {
       printf("server: failed to allocate buffer\n");
@@ -100,7 +100,8 @@ void tcpblaster_server(void)
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (FAR void *)&optval,
+                 sizeof(int)) < 0)
     {
       printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_listensd;
@@ -112,7 +113,7 @@ void tcpblaster_server(void)
 
   myaddr.sin6_family            = AF_INET6;
   myaddr.sin6_port              = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(NET_LOOPBACK)
+#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(CONFIG_NET_LOOPBACK)
   memcpy(myaddr.sin6_addr.s6_addr16, g_tcpblasterserver_ipv6, 8 * sizeof(uint16_t));
 #else
   memset(myaddr.sin6_addr.s6_addr16, 0, 8 * sizeof(uint16_t));
@@ -128,7 +129,7 @@ void tcpblaster_server(void)
   myaddr.sin_family             = AF_INET;
   myaddr.sin_port               = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
 
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(NET_LOOPBACK)
+#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(CONFIG_NET_LOOPBACK)
   myaddr.sin_addr.s_addr        = (in_addr_t)g_tcpblasterserver_ipv4;
 #else
   myaddr.sin_addr.s_addr        = INADDR_ANY;
@@ -139,7 +140,7 @@ void tcpblaster_server(void)
          (unsigned long)myaddr.sin_addr.s_addr);
 #endif
 
-  if (bind(listensd, (struct sockaddr*)&myaddr, addrlen) < 0)
+  if (bind(listensd, (FAR struct sockaddr *)&myaddr, addrlen) < 0)
     {
       printf("server: bind failure: %d\n", errno);
       goto errout_with_listensd;
@@ -157,7 +158,7 @@ void tcpblaster_server(void)
 
   printf("server: Accepting connections on port %d\n",
          CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
-  acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
+  acceptsd = accept(listensd, (FAR struct sockaddr *)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
       printf("server: accept failure: %d\n", errno);
@@ -249,14 +250,16 @@ void tcpblaster_server(void)
 
           fkbsent  = (float)recvtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Received %d buffers:  %7.1f Kb (avg %5.1f Kb) in %6.2f Sec (%7.1f Kb/Sec)\n",
-                  recvcount, fkbsent, fkbsent/recvcount, felapsed, fkbsent/felapsed);
+          printf("Received %d buffers:  %7.1f Kb (avg %5.1f Kb) in "
+                 "%6.2f Sec (%7.1f Kb/Sec)\n",
+                  recvcount, fkbsent, fkbsent / recvcount, felapsed,
+                  fkbsent / felapsed);
 
           recvcount       = 0;
           recvtotal       = 0;
 
           clock_gettime(CLOCK_REALTIME, &start);
-       }
+        }
     }
 
 errout_with_acceptsd:
