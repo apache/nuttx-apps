@@ -1,0 +1,46 @@
+name: PR Check CI
+
+on:
+  pull_request:
+    branches:
+      - docker
+
+jobs:
+  sim:
+
+    runs-on: ubuntu-18.04
+    container: liuguo09/ubuntu-nuttx:18.04
+
+    steps:
+    - name: Checkout apps repo
+      uses: actions/checkout@v2
+      with:
+        path: apps
+        fetch-depth: 0
+
+    - name: Checkout nuttx repo
+      uses: actions/checkout@v2
+      with:
+        repository: apache/incubator-nuttx
+        path: nuttx
+        fetch-depth: 0
+
+    - name: Check PR
+      run: |
+        cd nuttx
+        git fetch --tags
+        cd ../apps
+        git log --oneline -5
+        ranges=`git log -1 --merges --pretty=format:%P | awk -F" " '{ print $1 ".." $2 }'`
+        commits=`git log --reverse --format=format:%H $ranges`
+        ../nuttx/tools/checkpatch.sh -g $commits
+
+    - name: Checkout testing repo
+      uses: actions/checkout@v2
+      with:
+        repository: liuguo09/incubator-nuttx-testing
+        path: testing
+
+    - name: Run builds
+      run: |
+        ./testing/cibuild.sh -b check
