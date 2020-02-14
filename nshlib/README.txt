@@ -624,7 +624,7 @@ o ifconfig [nic_name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask 
   if networking statistics are enabled (CONFIG_NET_STATISTICS), then
   this command will also show the detailed state of transfers by protocol.
 
-  NOTE: This commands depends upon having the rpocfs file system configured
+  NOTE: This commands depends upon having the procfs file system configured
   into the system.   The procfs file system must also have been mounted
   with a command like:
 
@@ -1020,7 +1020,7 @@ o ps
       3 100 RR       pthread --- Waiting  Semaphore 00000000 <pthread>(21)
     nsh>
 
-  NOTE: This commands depends upon having the rpocfs file system configured
+  NOTE: This commands depends upon having the procfs file system configured
   into the system.   The procfs file system must also have been mounted
   with a command like:
 
