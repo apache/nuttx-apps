@@ -117,7 +117,12 @@ struct ntpc_daemon_s
  * limitation is due only to this global data structure.
  */
 
-static struct ntpc_daemon_s g_ntpc_daemon;
+static struct ntpc_daemon_s g_ntpc_daemon =
+{
+  NTP_NOT_RUNNING,
+  SEM_INITIALIZER(0),
+  -1
+};
 
 /****************************************************************************
  * Private Functions
@@ -531,15 +536,6 @@ int ntpc_start(void)
   if (g_ntpc_daemon.state == NTP_NOT_RUNNING ||
       g_ntpc_daemon.state == NTP_STOPPED)
     {
-      /* Is this the first time that the NTP daemon has been started? */
-
-      if (g_ntpc_daemon.state == NTP_NOT_RUNNING)
-        {
-          /* Yes... then we will need to initialize the state structure */
-
-          sem_init(&g_ntpc_daemon.interlock, 0, 0);
-        }
-
       /* Start the NTP daemon */
 
       g_ntpc_daemon.state = NTP_STARTED;
