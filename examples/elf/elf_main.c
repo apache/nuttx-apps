@@ -356,10 +356,9 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "after mount");
 
-#if defined(CONFIG_LIB_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
-  /* Does the system support the PATH variable?  Has the PATH variable
-   * already been set?  If YES and NO, then set the PATH variable to
-   * the ROMFS mountpoint.
+#if defined(CONFIG_LIB_ENVPATH)
+  /* Does the system support the PATH variable?
+   * If YES, then set the PATH variable to the ROMFS mountpoint.
    */
 
   setenv("PATH", MOUNTPT, 1);
