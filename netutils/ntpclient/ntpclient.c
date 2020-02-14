@@ -409,7 +409,7 @@ static int ntpc_daemon(int argc, char **argv)
       /* Format the transmit datagram */
 
       memset(&pkt, 0, sizeof(pkt));
-      pkt.lvm = MKLVM(0, 3, NTP_VERSION);
+      pkt.lvm = MKLVM(0, NTP_VERSION, 3);
 
       sinfo("Sending a NTP packet\n");
 
