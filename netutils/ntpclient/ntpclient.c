@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/ntpclient/ntpclient.c
  *
- *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,9 +103,10 @@ enum ntpc_daemon_e
 
 struct ntpc_daemon_s
 {
-  volatile uint8_t state; /* See enum ntpc_daemon_e */
-  sem_t interlock;        /* Used to synchronize start and stop events */
-  pid_t pid;              /* Task ID of the NTP daemon */
+  uint8_t state; /* See enum ntpc_daemon_e */
+  sem_t lock;    /* Used to protect the whole structure */
+  sem_t sync;    /* Used to synchronize start and stop events */
+  pid_t pid;     /* Task ID of the NTP daemon */
 };
 
 /****************************************************************************
@@ -120,6 +121,7 @@ struct ntpc_daemon_s
 static struct ntpc_daemon_s g_ntpc_daemon =
 {
   NTP_NOT_RUNNING,
+  SEM_INITIALIZER(1),
   SEM_INITIALIZER(0),
   -1
 };
@@ -328,7 +330,7 @@ static int ntpc_daemon(int argc, char **argv)
   /* Indicate that we have started */
 
   g_ntpc_daemon.state = NTP_RUNNING;
-  sem_post(&g_ntpc_daemon.interlock);
+  sem_post(&g_ntpc_daemon.sync);
 
   /* Create a datagram socket  */
 
@@ -338,7 +340,7 @@ static int ntpc_daemon(int argc, char **argv)
       nerr("ERROR: socket failed: %d\n", errno);
 
       g_ntpc_daemon.state = NTP_STOPPED;
-      sem_post(&g_ntpc_daemon.interlock);
+      sem_post(&g_ntpc_daemon.sync);
       return EXIT_FAILURE;
     }
 
@@ -353,7 +355,7 @@ static int ntpc_daemon(int argc, char **argv)
       nerr("ERROR: setsockopt failed: %d\n", errno);
 
       g_ntpc_daemon.state = NTP_STOPPED;
-      sem_post(&g_ntpc_daemon.interlock);
+      sem_post(&g_ntpc_daemon.sync);
       return EXIT_FAILURE;
     }
 
@@ -379,21 +381,22 @@ static int ntpc_daemon(int argc, char **argv)
     }
   else
     {
-      nerr("ERROR: Failed to resolve '%s'\n", CONFIG_NETUTILS_NTPCLIENT_SERVER);
+      nerr("ERROR: Failed to resolve '%s'\n",
+           CONFIG_NETUTILS_NTPCLIENT_SERVER);
       return EXIT_FAILURE;
     }
 #endif
 
   /* Here we do the communication with the NTP server.  This is a very simple
-   * client architecture.  A request is sent and then a NTP packet is received
-   * and used to set the current time.
+   * client architecture.  A request is sent and then a NTP packet is
+   * received and used to set the current time.
    *
    * NOTE that the scheduler is locked whenever this loop runs.  That
    * assures both:  (1) that there are no asynchronous stop requests and
    * (2) that we are not suspended while in critical moments when we about
    * to set the new time.  This sounds harsh, but this function is suspended
-   * most of the time either: (1) sending a datagram, (2) receiving a datagram,
-   * or (3) waiting for the next poll cycle.
+   * most of the time either: (1) sending a datagram, (2) receiving a
+   * datagram, or (3) waiting for the next poll cycle.
    *
    * TODO: The first datagram that is sent is usually lost.  That is because
    * the MAC address of the NTP server is not in the ARP table.  This is
@@ -509,13 +512,14 @@ static int ntpc_daemon(int argc, char **argv)
   sched_unlock();
 
   g_ntpc_daemon.state = NTP_STOPPED;
-  sem_post(&g_ntpc_daemon.interlock);
+  sem_post(&g_ntpc_daemon.sync);
   return exitcode;
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
 /****************************************************************************
  * Name: ntpc_start
  *
@@ -532,7 +536,7 @@ int ntpc_start(void)
 {
   /* Is the NTP in a non-running state? */
 
-  sched_lock();
+  sem_wait(&g_ntpc_daemon.lock);
   if (g_ntpc_daemon.state == NTP_NOT_RUNNING ||
       g_ntpc_daemon.state == NTP_STOPPED)
     {
@@ -553,7 +557,7 @@ int ntpc_start(void)
 
           g_ntpc_daemon.state = NTP_STOPPED;
           nerr("ERROR: Failed to start the NTP daemon\n", errval);
-          sched_unlock();
+          sem_post(&g_ntpc_daemon.lock);
           return -errval;
         }
 
@@ -561,12 +565,12 @@ int ntpc_start(void)
 
       do
         {
-          sem_wait(&g_ntpc_daemon.interlock);
+          sem_wait(&g_ntpc_daemon.sync);
         }
       while (g_ntpc_daemon.state == NTP_STARTED);
     }
 
-  sched_unlock();
+  sem_post(&g_ntpc_daemon.lock);
   return g_ntpc_daemon.pid;
 }
 
@@ -588,7 +592,7 @@ int ntpc_stop(void)
 
   /* Is the NTP in a running state? */
 
-  sched_lock();
+  sem_wait(&g_ntpc_daemon.lock);
   if (g_ntpc_daemon.state == NTP_STARTED ||
       g_ntpc_daemon.state == NTP_RUNNING)
     {
@@ -614,11 +618,11 @@ int ntpc_stop(void)
 
           /* Wait for the NTP client to respond to the stop request */
 
-          sem_wait(&g_ntpc_daemon.interlock);
+          sem_wait(&g_ntpc_daemon.sync);
         }
       while (g_ntpc_daemon.state == NTP_STOP_REQUESTED);
     }
 
-  sched_unlock();
+  sem_post(&g_ntpc_daemon.lock);
   return OK;
 }
