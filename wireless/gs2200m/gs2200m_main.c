@@ -1221,8 +1221,78 @@ err_out:
 static int setsockopt_request(int fd, FAR struct gs2200m_s *priv,
                               FAR void *hdrbuf)
 {
-  DEBUGASSERT(false);
-  return -ENOSYS;
+  FAR struct usrsock_request_setsockopt_s *req = hdrbuf;
+  struct usrsock_message_req_ack_s resp;
+  FAR struct usock_s *usock;
+  ssize_t rlen;
+  int ret = 0;
+  int value;
+
+  DEBUGASSERT(priv);
+  DEBUGASSERT(req);
+
+  gs2200m_printf("%s: called **** \n", __func__);
+
+  /* Check if this socket exists. */
+
+  usock = gs2200m_socket_get(priv, req->usockid);
+
+  if (!usock)
+    {
+      ret = -EBADFD;
+      goto prepare;
+    }
+
+  if (req->level != SOL_SOCKET)
+    {
+      gs2200m_printf("setsockopt: level=%d not supported\n",
+                     __func__, req->level);
+      ret = -ENOPROTOOPT;
+      goto prepare;
+    }
+
+  if (req->option != SO_REUSEADDR)
+    {
+      gs2200m_printf("setsockopt: option=%d not supported\n",
+                     __func__, req->option);
+      ret = -ENOPROTOOPT;
+      goto prepare;
+    }
+
+  if (req->valuelen < sizeof(value))
+    {
+      ret = -EINVAL;
+      goto prepare;
+    }
+
+  /* Read value. */
+
+  rlen = read(fd, &value, sizeof(value));
+
+  if (rlen < 0 || rlen < sizeof(value))
+    {
+      ret = -EFAULT;
+      goto prepare;
+    }
+
+  /* Debug print */
+
+  gs2200m_printf("setsockopt: option=%d value=%d\n",
+                 __func__, req->option, value);
+
+  ret = OK;
+
+prepare:
+
+  /* Send ACK response */
+
+  memset(&resp, 0, sizeof(resp));
+  resp.result = ret;
+
+  ret = _send_ack_common(fd, req->head.xid, &resp);
+
+  gs2200m_printf("%s: end (ret=%d) \n", __func__, ret);
+  return ret;
 }
 
 /****************************************************************************
