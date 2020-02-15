@@ -1084,7 +1084,8 @@ int main(int argc, FAR char *argv[])
 
       /* Perform garbage collection, integrity checks */
 
-      fstest_gc(buf.f_bfree);
+      ret = fstest_gc(buf.f_bfree);
+      UNUSED(ret);
 
       /* Show memory usage */
 
