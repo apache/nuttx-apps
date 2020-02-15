@@ -64,7 +64,7 @@ static volatile bool bendoftest;
 
 void thread_func(void *parameter)
 {
-  int my_id  = (int)((intptr_t)parameter;)
+  int my_id  = (int)((intptr_t)parameter);
   int my_ndx = my_id - 1;
   int i;
 
