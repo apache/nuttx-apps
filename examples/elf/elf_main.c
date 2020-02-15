@@ -107,13 +107,13 @@
 
 #  define MOUNTPT      "/mnt/cromfs"
 
-#elif defined(CONFIG_EXAMPLES_ELF_EXTERN)
+#elif defined(CONFIG_EXAMPLES_ELF_EXTERN) && defined(CONFIG_EXAMPLES_ELF_FSMOUNT)
 /* Describe the external file system */
 
 #  define MOUNTPT      "/mnt/" CONFIG_EXAMPLES_ELF_FSTYPE
 
 #else
-#  error "No file system selected"
+#  undef MOUNTPT
 #endif
 
 /* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
@@ -356,7 +356,7 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "after mount");
 
-#if defined(CONFIG_LIB_ENVPATH)
+#if defined(CONFIG_LIB_ENVPATH) && defined(MOUNTPT)
   /* Does the system support the PATH variable?
    * If YES, then set the PATH variable to the ROMFS mountpoint.
    */
