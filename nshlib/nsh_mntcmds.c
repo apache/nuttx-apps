@@ -257,24 +257,7 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *address;
   FAR char *lpath;
   FAR char *rpath;
-  bool badarg = false;
-#ifdef CONFIG_NET_IPv6
-  FAR struct sockaddr_in6 *sin;
-  struct in6_addr inaddr;
-#else
-  FAR struct sockaddr_in *sin;
-  struct in_addr inaddr;
-#endif
   int ret;
-
-  /* If a bad argument was encountered, then return without processing the
-   * command.
-   */
-
-  if (badarg)
-    {
-      return ERROR;
-    }
 
   /* The fist argument on the command line should be the NFS server IP address
    * in standard IPv4 (or IPv6) dot format.
@@ -286,6 +269,57 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
+  /* Get the remote mount point path */
+
+  rpath = argv[3];
+
+  /* Place all of the NFS arguments into the nfs_args structure */
+
+  memset(&data, 0, sizeof(data));
+
+  /* Convert the IP address string into its binary form */
+
+#ifdef CONFIG_NET_IPv6
+  if (data.addrlen == 0)
+    {
+      FAR struct sockaddr_in6 *sin;
+
+      sin = (FAR struct sockaddr_in6 *)&data.addr;
+      ret = inet_pton(AF_INET6, address, &sin->sin6_addr);
+      if (ret == 1)
+        {
+          sin->sin6_family = AF_INET6;
+          sin->sin6_port   = htons(NFS_PMAPPORT);
+          data.addrlen     = sizeof(struct sockaddr_in6);
+        }
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv4
+  if (data.addrlen == 0)
+    {
+      FAR struct sockaddr_in *sin;
+
+      sin = (FAR struct sockaddr_in *)&data.addr;
+      ret = inet_pton(AF_INET, address, &sin->sin_addr);
+      if (ret == 1)
+        {
+          sin->sin_family = AF_INET;
+          sin->sin_port   = htons(NFS_PMAPPORT);
+          data.addrlen    = sizeof(struct sockaddr_in);
+        }
+    }
+#endif
+
+  if (data.addrlen == 0)
+    {
+      return ERROR;
+    }
+
+  data.sotype             = SOCK_DGRAM;
+  data.path               = rpath;
+  data.flags              = 0;       /* 0=Use all defaults */
+
   /* The local mount point path (lpath) might be relative to the current working
    * directory.
    */
@@ -295,45 +329,6 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       return ERROR;
     }
-
-  /* Get the remote mount point path */
-
-  rpath = argv[3];
-
-   /* Convert the IP address string into its binary form */
-
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, address, &inaddr);
-#else
-  ret = inet_pton(AF_INET, address, &inaddr);
-#endif
-  if (ret != 1)
-    {
-      nsh_freefullpath(lpath);
-      return ERROR;
-    }
-
-  /* Place all of the NFS arguments into the nfs_args structure */
-
-  memset(&data, 0, sizeof(data));
-
-#ifdef CONFIG_NET_IPv6
-  sin                  = (FAR struct sockaddr_in6 *)&data.addr;
-  sin->sin6_family     = AF_INET6;
-  sin->sin6_port       = htons(NFS_PMAPPORT);
-  memcpy(&sin->sin6_addr, &inaddr, sizeof(struct in6_addr));
-  data.addrlen         = sizeof(struct sockaddr_in6);
-#else
-  sin                  = (FAR struct sockaddr_in *)&data.addr;
-  sin->sin_family      = AF_INET;
-  sin->sin_port        = htons(NFS_PMAPPORT);
-  sin->sin_addr        = inaddr;
-  data.addrlen         = sizeof(struct sockaddr_in);
-#endif
-
-  data.sotype          = SOCK_DGRAM;
-  data.path            = rpath;
-  data.flags           = 0;       /* 0=Use all defaults */
 
   /* Perform the mount */
 
