@@ -1946,16 +1946,6 @@ Common Problems
 ^^^^^^^^^^^^^^^
 
   Problem:
-    Using NSH over serial, the "nsh>" prompt repeats over and over again
-    with no serial input.
-  Usual Cause:
-    NSH over serial needs to use the interrupt driven serial driver
-    (drivers/serial/serial.c) not the polled serial driver (drivers/serial/lowconsole.c).
-    Make sure that the polled console is disabled in the OS configuration
-    file, .config.  That file should have CONFIG_DEV_LOWCONSOLE=n for
-    NSH over serial.
-
-  Problem:
     The function 'readline' is undefined.
   Usual Cause:
     The following is missing from your defconfig file:
