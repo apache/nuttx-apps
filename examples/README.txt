@@ -558,7 +558,7 @@ examples/helloxx
   And you may have to tinker with the following to get libxx to compile
   properly:
 
-    CONFIG_CXX_NEWLONG=y or =n
+    CCONFIG_ARCH_SIZET_LONG=y or =n
 
   The argument of the 'new' operators should take a type of size_t.  But size_t
   has an unknown underlying.  In the nuttx sys/types.h header file, size_t
