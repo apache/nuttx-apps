@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard gpsutils/*/Make.defs)
+include $(wildcard $(APPDIR)/gpsutils/*/Make.defs)

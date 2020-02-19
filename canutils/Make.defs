@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard canutils/*/Make.defs)
+include $(wildcard $(APPDIR)/canutils/*/Make.defs)

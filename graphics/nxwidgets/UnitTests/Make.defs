@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard graphics/nxwidget/UnitTests/*/Make.defs)
+include $(wildcard $(APPDIR)/graphics/nxwidget/UnitTests/*/Make.defs)

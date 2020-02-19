@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard interpreters/*/Make.defs)
+include $(wildcard $(APPDIR)/interpreters/*/Make.defs)

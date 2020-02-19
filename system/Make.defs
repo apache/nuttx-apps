@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard system/*/Make.defs)
+include $(wildcard $(APPDIR)/system/*/Make.defs)
