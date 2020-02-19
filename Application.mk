@@ -130,9 +130,9 @@ $(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 
 .built: $(OBJS)
 ifeq ($(WINTOOL),y)
-	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $(OBJS))
+	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $(OBJS))
 else
-	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(call ARLOCK, $(BIN), $(OBJS))
 endif
 	$(Q) touch $@
 
