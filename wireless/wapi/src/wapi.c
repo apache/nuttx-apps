@@ -535,8 +535,7 @@ static void wapi_psk_cmd(int sock, FAR const char *ifname,
   /* Set the Passphrase */
 
   ret = wpa_driver_wext_set_key_ext(sock, ifname, alg_flag,
-                                    (FAR const uint8_t *)passphrase,
-                                    strlen(passphrase));
+                                    passphrase, strlen(passphrase));
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wpa_driver_wext_set_key_ext() failed: %d\n", ret);

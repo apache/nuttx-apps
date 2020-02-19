@@ -255,8 +255,8 @@ struct wpa_wconfig_s
   uint8_t ssidlen;               /* Length of the SSID */
   uint8_t phraselen;             /* Length of the passphrase */
   FAR const char *ifname;        /* E.g., "wlan0" */
-  FAR const uint8_t *ssid;       /* E.g., "myApSSID" */
-  FAR const uint8_t *passphrase; /* E.g., "mySSIDpassphrase" */
+  FAR const char *ssid;          /* E.g., "myApSSID" */
+  FAR const char *passphrase;    /* E.g., "mySSIDpassphrase" */
 };
 
 /****************************************************************************
@@ -678,7 +678,7 @@ int wapi_scan_coll(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
-                                enum wpa_alg_e alg, FAR const uint8_t *key,
+                                enum wpa_alg_e alg, FAR const char *key,
                                 size_t key_len);
 
 /****************************************************************************

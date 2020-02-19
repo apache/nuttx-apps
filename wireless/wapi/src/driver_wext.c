@@ -83,7 +83,7 @@
  ****************************************************************************/
 
 int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname,
-                                enum wpa_alg_e alg, FAR const uint8_t *key,
+                                enum wpa_alg_e alg, FAR const char *key,
                                 size_t key_len)
 {
   struct iwreq iwr;
@@ -217,8 +217,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
       goto close_socket;
     }
 
-  ret = wapi_set_essid(sockfd, wconfig->ifname,
-                      (FAR const char *)wconfig->ssid, WAPI_ESSID_ON);
+  ret = wapi_set_essid(sockfd, wconfig->ifname, wconfig->ssid, WAPI_ESSID_ON);
   if (ret < 0)
     {
       nerr("ERROR: Fail set ssid: %d\n", ret);

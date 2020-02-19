@@ -59,8 +59,6 @@
 
 int netinit_associate(FAR const char *ifname)
 {
-  static const char ssid[]       = CONFIG_NETINIT_WAPI_SSID;
-  static const char passphrase[] = CONFIG_NETINIT_WAPI_PASSPHRASE;
   struct wpa_wconfig_s wconfig;
   int ret;
 
@@ -70,12 +68,12 @@ int netinit_associate(FAR const char *ifname)
   wconfig.auth_wpa    = CONFIG_NETINIT_WAPI_AUTHWPA;
   wconfig.cipher_mode = CONFIG_NETINIT_WAPI_CIPHERMODE;
   wconfig.alg         = CONFIG_NETINIT_WAPI_ALG;
+  wconfig.ssid        = CONFIG_NETINIT_WAPI_SSID;
+  wconfig.passphrase  = CONFIG_NETINIT_WAPI_PASSPHRASE;
   wconfig.ifname      = ifname;
-  wconfig.ssid        = (FAR const uint8_t *)ssid;
-  wconfig.passphrase  = (FAR const uint8_t *)passphrase;
 
-  wconfig.ssidlen     = strlen(ssid);
-  wconfig.phraselen   = strlen(passphrase);
+  wconfig.ssidlen     = strlen(wconfig.ssid);
+  wconfig.phraselen   = strlen(wconfig.passphrase);
 
   /* Associate */
 
