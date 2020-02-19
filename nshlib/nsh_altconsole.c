@@ -50,6 +50,8 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
+#include "netutils/netinit.h"
+
 #if defined(CONFIG_NSH_ALTCONDEV) && !defined(HAVE_USB_CONSOLE)
 
 /****************************************************************************
@@ -282,6 +284,12 @@ int nsh_consolemain(int argc, char *argv[])
 
 #ifdef CONFIG_NSH_ROMFSETC
   nsh_initscript(&pstate->cn_vtbl);
+#endif
+
+#ifdef CONFIG_NSH_NETINIT
+  /* Bring up the network */
+
+  netinit_bringup();
 #endif
 
 #if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)

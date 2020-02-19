@@ -47,6 +47,8 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
+#include "netutils/netinit.h"
+
 #if !defined(CONFIG_NSH_ALTCONDEV) && !defined(HAVE_USB_CONSOLE) && \
     !defined(HAVE_USB_KEYBOARD)
 
@@ -94,6 +96,12 @@ int nsh_consolemain(int argc, char *argv[])
 
   pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
 #endif
+#endif
+
+#ifdef CONFIG_NSH_NETINIT
+  /* Bring up the network */
+
+  netinit_bringup();
 #endif
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
