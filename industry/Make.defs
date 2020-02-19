@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard industry/*/Make.defs)
+include $(wildcard $(APPDIR)/industry/*/Make.defs)

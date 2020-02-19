@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard fsutils/*/Make.defs)
+include $(wildcard $(APPDIR)/fsutils/*/Make.defs)

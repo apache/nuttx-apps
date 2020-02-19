@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard testing/*/Make.defs)
+include $(wildcard $(APPDIR)/testing/*/Make.defs)

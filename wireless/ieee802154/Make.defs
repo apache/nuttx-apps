@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard wireless/ieee802154/*/Make.defs)
+include $(wildcard $(APPDIR)/wireless/ieee802154/*/Make.defs)

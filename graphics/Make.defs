@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard graphics/*/Make.defs)
+include $(wildcard $(APPDIR)/graphics/*/Make.defs)

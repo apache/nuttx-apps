@@ -34,4 +34,4 @@
 #
 ############################################################################
 
-include $(wildcard netutils/*/Make.defs)
+include $(wildcard $(APPDIR)/netutils/*/Make.defs)
