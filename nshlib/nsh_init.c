@@ -42,7 +42,6 @@
 #include <sys/boardctl.h>
 
 #include "system/readline.h"
-#include "netutils/netinit.h"
 #include "nshlib/nshlib.h"
 
 #include "nsh.h"
@@ -102,11 +101,5 @@ void nsh_initialize(void)
   /* Perform architecture-specific initialization (if configured) */
 
   boardctl(BOARDIOC_INIT, 0);
-#endif
-
-#ifdef CONFIG_NSH_NETINIT
-  /* Bring up the network */
-
-  netinit_bringup();
 #endif
 }
