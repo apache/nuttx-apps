@@ -15,8 +15,8 @@ cscope.out
 /external
 /.context
 /.config
+/.depend
 /*.lib
-/*.lock
 /romfs.img
 /boot_romfsimg.h
 /symtab_apps.c
