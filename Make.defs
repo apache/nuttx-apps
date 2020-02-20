@@ -82,8 +82,8 @@ DEPCONFIG = $(TOPDIR)$(DELIM).config
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 define REGISTER
 	$(Q) echo Register: $1
-	$(Q) echo { "$1", $2, $3, $4 }, > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"
 	$(Q) if [ ! -z $4 ]; then \
+	        echo { "$1", $2, $3, $4 }, > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"; \
 	        echo "int $4(int argc, char *argv[]);" > "$(BUILTIN_REGISTRY)$(DELIM)$1.pdat"; \
 	     fi;
 	$(Q) touch $(BUILTIN_REGISTRY)$(DELIM).updated"
@@ -91,8 +91,8 @@ endef
 else
 define REGISTER
 	$(Q) echo "Register: $1"
-	$(Q) echo "{ \"$1\", $2, $3, $4 }," > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"
 	$(Q) if [ ! -z $4 ]; then \
+	        echo "{ \"$1\", $2, $3, $4 }," > "$(BUILTIN_REGISTRY)$(DELIM)$1.bdat"; \
 	        echo "int $4(int argc, char *argv[]);" > "$(BUILTIN_REGISTRY)$(DELIM)$1.pdat"; \
 	     fi;
 	$(Q) touch "$(BUILTIN_REGISTRY)$(DELIM).updated"
