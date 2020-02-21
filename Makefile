@@ -198,7 +198,7 @@ else
 		fi; \
 	)
 endif
-	$(call DELFILE, .arlock)
+	$(call DELFILE, *.lock)
 	$(call DELFILE, .depend)
 	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(SYMTABOBJ))

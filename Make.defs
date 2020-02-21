@@ -100,7 +100,7 @@ endef
 endif
 
 define ARLOCK
-	$(Q) flock .arlock $(call ARCHIVE, $1, $(2))
+	$(Q) flock $1.lock $(call ARCHIVE, $1, $(2))
 endef
 
 # Tools
