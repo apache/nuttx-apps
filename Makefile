@@ -117,9 +117,9 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 
 $(BIN): $(SYMTABOBJ)
 ifeq ($(WINTOOL),y)
-	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $^)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $^)
 else
-	$(call ARLOCK, $(BIN), $^)
+	$(call ARCHIVE, $(BIN), $^)
 endif
 
 endif # !CONFIG_BUILD_LOADABLE
@@ -198,7 +198,6 @@ else
 		fi; \
 	)
 endif
-	$(call DELFILE, .arlock)
 	$(call DELFILE, .depend)
 	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(SYMTABOBJ))
