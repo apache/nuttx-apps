@@ -766,12 +766,12 @@ static inline void help_allcmds(FAR struct nsh_vtbl_s *vtbl)
 static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
 {
 #ifdef CONFIG_NSH_BUILTIN_APPS
-  FAR const char *name;
-  unsigned int num_builtins;
-  unsigned int column_width;
-  unsigned int builtin_width;
+  FAR const struct builtin_s *builtin;
   unsigned int builtins_per_line;
   unsigned int num_builtin_rows;
+  unsigned int builtin_width;
+  unsigned int num_builtins;
+  unsigned int column_width;
   unsigned int i;
   unsigned int j;
   unsigned int k;
@@ -781,15 +781,27 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   num_builtins = 0;
   column_width = 0;
 
-  for (i = 0; (name = builtin_getname(i)) != NULL; i++)
+  for (i = 0; (builtin = builtin_for_index(i)) != NULL; i++)
     {
+      if (builtin->main == NULL)
+        {
+          continue;
+        }
+
       num_builtins++;
 
-      builtin_width = strlen(name);
+      builtin_width = strlen(builtin->name);
       if (builtin_width > column_width)
         {
           column_width = builtin_width;
         }
+    }
+
+  /* Skip the printing if no available built-in commands */
+
+  if (num_builtins == 0)
+    {
+      return;
     }
 
   column_width += 2;
@@ -817,13 +829,18 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
     {
       nsh_output(vtbl, "  ");
       for (j = 0, k = i;
-           j < builtins_per_line && k < num_builtins;
+           j < builtins_per_line &&
+           (builtin = builtin_for_index(k));
            j++, k += num_builtin_rows)
         {
-          name = builtin_getname(k);
-          nsh_output(vtbl, "%s", name);
+          if (builtin->main == NULL)
+            {
+              continue;
+            }
 
-          for (builtin_width = strlen(name);
+          nsh_output(vtbl, "%s", builtin->name);
+
+          for (builtin_width = strlen(builtin->name);
                builtin_width < column_width;
                builtin_width++)
             {
