@@ -13,6 +13,7 @@ cscope.out
 /Kconfig
 /bin
 /external
+/.arlock
 /.context
 /.config
 /.depend

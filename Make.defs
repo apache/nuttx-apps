@@ -99,6 +99,9 @@ define REGISTER
 endef
 endif
 
+# Workaround for concurrent execution to the same library (libapps)
+AR := flock $(APPDIR)/.arlock $(AR)
+
 # Tools
 
 ifeq ($(DIRLINK),)
