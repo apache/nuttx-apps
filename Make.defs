@@ -100,7 +100,12 @@ endef
 endif
 
 # Workaround for concurrent execution to the same library (libapps)
+ifeq ($(CONFIG_HOST_MACOS),y)
+# macOS doesn't have flock. Use shlock instead.
+AR := $(APPDIR)/tools/flock.sh $(APPDIR)/.arlock $(AR)
+else
 AR := flock $(APPDIR)/.arlock $(AR)
+endif
 
 # Tools
 
