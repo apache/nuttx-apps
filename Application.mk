@@ -129,6 +129,12 @@ $(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 .built: $(OBJS)
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $(OBJS))
+else
+	$(call ARCHIVE, $(BIN), $(OBJS))
+endif
+	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE),y)
 
@@ -157,9 +163,6 @@ endif
 
 install:: $(PROGLIST)
 
-show-objs:
-	@echo ""
-
 else
 
 MAINNAME := $(addsuffix _main,$(PROGNAME))
@@ -181,9 +184,6 @@ $(MAINOBJ): %$(SUFFIX)$(OBJEXT): %.c
 endif
 
 install::
-
-show-objs:
-	@echo $(addprefix $(CWD)$(DELIM),$(OBJS))
 
 endif # BUILD_MODULE
 
