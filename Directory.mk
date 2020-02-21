@@ -54,6 +54,7 @@ $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),show-objs)))
 
 nothing:
 
@@ -74,5 +75,7 @@ distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
 ifneq ($(MENUDESC),)
 	$(call DELFILE, Kconfig)
 endif
+
+show-objs: $(foreach SDIR, $(SUBDIRS), $(SDIR)_show-objs)
 
 -include Make.dep
