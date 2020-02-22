@@ -1135,7 +1135,7 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
 
   DEBUGASSERT(pzmr && !pzmr->filename);
 
-  /* Don't allow absolute pathes */
+  /* Don't allow absolute paths */
 
   if (*namptr == '/')
     {

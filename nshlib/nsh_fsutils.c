@@ -189,7 +189,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  *   be a string and is guaranteed to be NUL-termined.  An error occurs if
  *   the file content (+terminator)  will not fit into the provided 'buffer'.
  *
- * Input Paramters:
+ * Input Parameters:
  *   vtbl     - The console vtable
  *   filepath - The full path to the file to be read
  *   buffer   - The user-provided buffer into which the file is read.

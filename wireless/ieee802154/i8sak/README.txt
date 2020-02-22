@@ -73,7 +73,7 @@ i8 /dev/ieee0 assoc
 
 This command attempts to associate with the node at the configured endpoint address.
 If everything is setup correctly, device A should have log information saying
-that a device tried to associate and that it accepted the assocation.  On device
+that a device tried to associate and that it accepted the association.  On device
 B, the console should show that the association request was successful. With all
 default settings, device B should have been allocated a short address of 0x000B.
 

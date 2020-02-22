@@ -1146,7 +1146,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
     }
 #endif /* 0 */
 
-  /* Handle leading / or . and relative pathes by copying the default directory into checked */
+  /* Handle leading / or . and relative paths by copying the default directory into checked */
 
   if ((path[0] == '/' && strncmp(path, httpd_root, strlen(httpd_root)) != 0) || path[0] != '/')
     {
@@ -1165,7 +1165,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
           path++;
         }
 
-      /* Add '/' to separate relative pathes */
+      /* Add '/' to separate relative paths */
 
       else if (path[0] != '/')
         {

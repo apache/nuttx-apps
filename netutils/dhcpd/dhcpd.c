@@ -986,7 +986,7 @@ static int dhcpd_sendpacket(int bbroadcast)
   sockfd = dhcpd_openresponder();
   if (sockfd >= 0)
     {
-      /* Then send the reponse to the DHCP client port at that address */
+      /* Then send the response to the DHCP client port at that address */
 
       memset(&addr, 0, sizeof(struct sockaddr_in));
       addr.sin_family      = AF_INET;

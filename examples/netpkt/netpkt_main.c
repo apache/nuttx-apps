@@ -208,7 +208,7 @@ int main(int argc, FAR char *argv[])
             {
               if (verbose)
                 {
-                  printf("transmited %d octets\n", txc);
+                  printf("transmitted %d octets\n", txc);
                   print_buf(buf, txc);
                 }
             }

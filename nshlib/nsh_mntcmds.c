@@ -313,7 +313,7 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  /* Place all of the NFS arguements into the nfs_args structure */
+  /* Place all of the NFS arguments into the nfs_args structure */
 
   memset(&data, 0, sizeof(data));
 

@@ -143,7 +143,7 @@ namespace NxWM
    inline void setGeometry(void);
 
     /**
-     * Create the calculator keypad.  Only start as part of the applicaiton
+     * Create the calculator keypad.  Only start as part of the application
      * start method.
      */
 

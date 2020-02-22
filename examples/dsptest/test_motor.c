@@ -73,7 +73,7 @@ static void test_openloop_init(void)
   float max_speed = 100;
   float per       = 10e-6;
 
-  /* Initialize openlooop controler */
+  /* Initialize openlooop controller */
 
   motor_openloop_init(&op, max_speed, per);
 
@@ -99,7 +99,7 @@ static void test_openloop_one_step(void)
   float speed     = 10;
   float per       = 10e-6;
 
-  /* Initialize openlooop controler */
+  /* Initialize openlooop controller */
 
   motor_openloop_init(&op, max_speed, per);
 
@@ -149,7 +149,7 @@ static void test_openloop_many_steps(void)
   int   iter      = 10;
   int   i         = 0;
 
-  /* Initialize openlooop controler */
+  /* Initialize openlooop controller */
 
   motor_openloop_init(&op, max_speed, per);
 
@@ -212,7 +212,7 @@ static void test_openloop_normalize_angle(void)
   int   iter      = 1000;
   int   i         = 0;
 
-  /* Initialize openlooop controler */
+  /* Initialize openlooop controller */
 
   motor_openloop_init(&op, max_speed, per);
 

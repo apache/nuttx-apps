@@ -1354,7 +1354,7 @@ bool CNxWidget::remove(void)
  * Does not erase the widget from the display.
  *
  * @param widget Pointer to the widget to remove from the hierarchy.
- * @return True if the widget was succesfully removed.
+ * @return True if the widget was successfully removed.
  */
 
 bool CNxWidget::removeChild(CNxWidget *widget)

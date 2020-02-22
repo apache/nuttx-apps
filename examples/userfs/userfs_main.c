@@ -252,7 +252,7 @@ static int ufstest_open(FAR void *volinfo, FAR const char *relpath,
 
       opriv->file = file;
 
-      /* Initiallly, there is one refernce count on the open data.  This may
+      /* Initiallly, there is one reference count on the open data.  This may
        * be incremented in the event that the file is dup'ed.
        */
 

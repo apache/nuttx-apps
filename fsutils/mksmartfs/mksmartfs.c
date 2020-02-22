@@ -88,7 +88,7 @@
  *   EINVAL - NULL block driver string
  *   ENOENT - 'pathname' does not refer to anything in the filesystem.
  *   ENOTBLK - 'pathname' does not refer to a block driver
- *   EFTYPE - the block driver hasn't been formated yet
+ *   EFTYPE - the block driver hasn't been formatted yet
  *
  ****************************************************************************/
 

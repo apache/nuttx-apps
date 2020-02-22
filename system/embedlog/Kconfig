@@ -94,7 +94,7 @@ config EMBEDLOG_ENABLE_PREFIX
 	default n
 	---help---
 		If enabled, you will be able to set prefix that will be added to
-		each message logged by embedlog. Usefull when multiple tasks print
+		each message logged by embedlog. Useful when multiple tasks print
 		to one tty (via syslog) and you need an easy way to know which program
 		printed given log message.
 
@@ -148,7 +148,7 @@ config EMBEDLOG_LOG_MAX
 		200 bytes since '%s' may be a long string. Metadata like timestamp
 		or file info uses this space too. Output log will be truncated if
 		it exceeds this value. Lowering/increasing will result in
-		apropriate higher/lower stack usage.
+		appropriate higher/lower stack usage.
 
 config EMBEDLOG_MEM_LINE_SIZE
 	int "Number of bytes in line"

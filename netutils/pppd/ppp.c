@@ -369,7 +369,7 @@ uint16_t scan_packet(FAR struct ppp_context_s *ctx, uint16_t protocol,
 
   while (bptr < options + len)
     {
-      /* Get code and see if it matches somwhere in the list, if not we don't
+      /* Get code and see if it matches somewhere in the list, if not we don't
        * support it.
        */
 

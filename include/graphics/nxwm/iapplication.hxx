@@ -58,7 +58,7 @@
 namespace NxWM
 {
   /**
-   * Foward references
+   * Forward references
    */
 
   class IApplicationWindow;

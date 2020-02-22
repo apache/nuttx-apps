@@ -1034,7 +1034,7 @@ bool CMediaPlayer::createPlayer(void)
   nxgl_coord_t motionH = (nxgl_coord_t)(m_font->getHeight());
 
   // Horizontal position: aligned with the right size of volume slider
-  // Vertical postion: same as the motion controls
+  // Vertical position: same as the motion controls
 
   m_speed = new NXWidgets::CLabel(control,
                                   volumeControlX + volumeControlW - motionW,

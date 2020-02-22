@@ -286,7 +286,7 @@ bool CTaskbar::startWindowManager(void)
           if (!app->run())
             {
               // Call stopApplication on a failure to start.  This will call
-              // app->stop() (which is probably not necesary for the application
+              // app->stop() (which is probably not necessary for the application
               //  but it should be prepared/ to handle it).  stopApplication()
               // will also removed the icon image from the list and delete it.
 
@@ -542,7 +542,7 @@ bool CTaskbar::startApplication(IApplication *app, bool minimized)
       if (!app->run())
         {
           // Call stopApplication on a failure to start.  This will call
-          // app->stop() (which is probably not necesary for the application
+          // app->stop() (which is probably not necessary for the application
           //  but it should be prepared/ to handle it).  stopApplication()
           // will also removed the icon image from the list and delete it.
 
@@ -1206,7 +1206,7 @@ bool CTaskbar::redrawTaskbarWindow(void)
 }
 
 /**
- * Redraw the window at the top of the heirarchy.
+ * Redraw the window at the top of the hierarchy.
  *
  * @return true on success
  */
@@ -1342,7 +1342,7 @@ bool CTaskbar::redrawApplicationWindow(IApplication *app)
 
   m_backImage->disableDrawing();
 
-  // Raise to top application to the top of the NX window heirarchy
+  // Raise to top application to the top of the NX window hierarchy
 
   raiseTopApplication();
 

@@ -163,7 +163,7 @@ eMBException eMBMasterFuncWriteHoldingRegister(uint8_t *pucFrame,
       eRegStatus = eMBMasterRegHoldingCB(&pucFrame[MB_PDU_FUNC_WRITE_VALUE_OFF],
                                          usRegAddress, 1, MB_REG_WRITE);
 
-      /* If an error occured convert it into a Modbus exception. */
+      /* If an error occurred convert it into a Modbus exception. */
 
       if (eRegStatus != MB_ENOERR)
         {
@@ -276,7 +276,7 @@ eMBException eMBMasterFuncWriteMultipleHoldingRegister(uint8_t *pucFrame,
             eMBMasterRegHoldingCB(&ucMBFrame[MB_PDU_REQ_WRITE_MUL_VALUES_OFF],
                                   usRegAddress, usRegCount, MB_REG_WRITE);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {

@@ -418,7 +418,7 @@ eMBErrorCode eMBPoll(void)
             {
               if (eException != MB_EX_NONE)
                 {
-                  /* An exception occured. Build an error frame. */
+                  /* An exception occurred. Build an error frame. */
 
                   usLength = 0;
                   ucMBFrame[usLength++] = (uint8_t)(ucFunctionCode | MB_FUNC_ERROR);

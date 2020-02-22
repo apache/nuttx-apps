@@ -235,8 +235,8 @@ enum telnet_event_type_e
   TELNET_EV_TTYPE,                        /* TTYPE command has been received */
   TELNET_EV_ENVIRON,                      /* ENVIRON command has been received */
   TELNET_EV_MSSP,                         /* MSSP command has been received */
-  TELNET_EV_WARNING,                      /* Recoverable error has occured */
-  TELNET_EV_ERROR                         /* Non-recoverable error has occured */
+  TELNET_EV_WARNING,                      /* Recoverable error has occurred */
+  TELNET_EV_ERROR                         /* Non-recoverable error has occurred */
 };
 
 /* Environ/MSSP command information */
@@ -280,10 +280,10 @@ union telnet_event_u
   struct
   {
     enum telnet_event_type_e _type;       /* Alias for type */
-    const char *file;                     /* File the error occured in */
-    const char *func;                     /* Function the error occured in */
+    const char *file;                     /* File the error occurred in */
+    const char *func;                     /* Function the error occurred in */
     const char *msg;                      /* Error message string */
-    int line;                             /* Line of file error occured on */
+    int line;                             /* Line of file error occurred on */
     enum telnet_error_e errcode;          /* Error code */
   } error;
 

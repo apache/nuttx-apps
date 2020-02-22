@@ -474,7 +474,7 @@
 #endif
 
 /* The maximum number of nested if-then[-else]-fi sequences that
- * are permissable.
+ * are permissible.
  */
 
 #ifndef CONFIG_NSH_NESTDEPTH
@@ -1238,7 +1238,7 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
  *   name    - A point to the name containing the name to be matched.
  *   matches - A table is size CONFIG_READLINE_MAX_EXTCMDS that can
  *             be used to remember matching name indices.
- *   namelen - The lenght of the name to match
+ *   namelen - The length of the name to match
  *
  * Returned Values:
  *   The number commands that match to the first namelen characters.
@@ -1300,7 +1300,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  *   be a string and is guaranteed to be NUL-termined.  An error occurs if
  *   the file content (+terminator)  will not fit into the provided 'buffer'.
  *
- * Input Paramters:
+ * Input Parameters:
  *   vtbl     - The console vtable
  *   cmd      - NSH command name to use in error reporting
  *   filepath - The full path to the file to be read

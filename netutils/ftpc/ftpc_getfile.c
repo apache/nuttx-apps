@@ -93,7 +93,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       return ERROR;
     }
 
-  /* Configure the transfer:  Initial file offset and tranfer mode */
+  /* Configure the transfer:  Initial file offset and transfer mode */
 
   session->offset = 0;
   ftpc_xfrmode(session, xfrmode);

@@ -136,7 +136,7 @@ extern "C"
     up_cxxinitialize();
 #endif
 
-    // Exercise an explictly instantiated C++ object
+    // Exercise an explicitly instantiated C++ object
 
     CHelloWorld *pHelloWorld = new CHelloWorld;
     printf("helloxx_main: Saying hello from the dynamically constructed instance\n");

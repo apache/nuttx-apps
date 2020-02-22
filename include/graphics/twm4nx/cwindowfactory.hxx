@@ -78,7 +78,7 @@ namespace Twm4Nx
 
   struct SWindow
   {
-    FAR struct SWindow *flink;             /**< Foward link tonext window */
+    FAR struct SWindow *flink;             /**< Forward link tonext window */
     FAR struct SWindow *blink;             /**< Backward link to previous window */
     FAR struct SWindowEntry *wentry;       /**< Icon manager list entry (for list removal) */
     FAR CWindow *cwin;                     /**< Window object payload */

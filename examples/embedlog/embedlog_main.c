@@ -263,7 +263,7 @@ static void el_print_file(const char *workdir)
    * performance greatly. And there are situations when you are willing to
    * loose some info or debug data (up to configured sync every value), but
    * when critical error shows up, you want data to be synced immediately to
-   * minimize chance of loosing information about critical error. For that
+   * minimize chance of losing information about critical error. For that
    * you can define which log level will be synced *every* time regardless
    * of sync every value. Here we will instruct embedlog to log prints that
    * have severity higher or equal to critical (so critial, alert and fatal)

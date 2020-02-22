@@ -203,7 +203,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 #endif
 
-  /* Check for paramters that are attributes requiring file access */
+  /* Check for parameters that are attributes requiring file access */
 
   else
     {

@@ -1665,7 +1665,7 @@ int lesp_ap_connect(const char *ssid_name, const char *ap_key, int timeout_s)
  *   None
  *
  * Output Parmeters:
- *   ap : details of connected acces point
+ *   ap : details of connected access point
  *
  * Returned Value:
  *   0 on success, -1 in case of error.

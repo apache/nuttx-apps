@@ -58,7 +58,7 @@
 
 #ifdef CONFIG_NX_ANTIALIASING
   /* If anti-aliasing is enabled, then we must clear a slightly
-   * larger region to prevent wierd edge effects.
+   * larger region to prevent weird edge effects.
    */
 
 #  define CLEAR_WIDTH (CONFIG_EXAMPLES_PWLINES_LINEWIDTH + 2)
@@ -226,7 +226,7 @@ void pwlines_update(FAR struct pwlines_state_s *st)
 
 #ifdef CONFIG_NX_ANTIALIASING
       /* If anti-aliasing is enabled, then we must clear a slightly
-       * larger region to prevent wierd edge effects.
+       * larger region to prevent weird edge effects.
        */
 
       halfx = b16toi(b16muli(sinangle, wndo->radius + 1));

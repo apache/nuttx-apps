@@ -11,7 +11,7 @@ See also the NuttX TODO list graphics/ section for related issues.
 o General NxWM Issues
   -------------------
 
-  Title:       DISPLAY INTIALIZATION
+  Title:       DISPLAY INITIALIZATION
   Description: During the initialization of the display, the basic frame of the
                start window is drawn momentarily.  This is just the empty window
                frame.  This is a consequence of how NX creates windows:  The

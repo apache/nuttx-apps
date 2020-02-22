@@ -75,7 +75,7 @@
  *       KEY_MOUSE return from getch(). If found, it would call
  *       request_mouse_pos() to get the current mouse status.
  *
- *       mouse_set(), mouse_on() and mouse_off() are analagous to
+ *       mouse_set(), mouse_on() and mouse_off() are analogous to
  *       attrset(), attron() and attroff().  These functions set the
  *       mouse button events to trap.  The button masks used in these
  *       functions are defined in curses.h and can be or'ed together.
