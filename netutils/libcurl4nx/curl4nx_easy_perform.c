@@ -101,7 +101,7 @@
 /****************************************************************************
  * Name: curl4nx_resolve
  * Description:
- *   Translate a host name to an IP addres (V4 only for the moment)
+ *   Translate a host name to an IP address (V4 only for the moment)
  *   - either the host is a string with an IP
  *   - either the known hosts were defined by CURL4NXOPT_
  ****************************************************************************/

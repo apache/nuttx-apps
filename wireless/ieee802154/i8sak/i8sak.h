@@ -124,7 +124,7 @@ struct i8sak_s
   FAR char ifname[I8SAK_MAX_IFNAME];
   int result;
   int fd;            /* File/Socket descriptor. Only to be used by operations
-                      * occuring within the Daemon TCB
+                      * occurring within the Daemon TCB
                       */
 
   sem_t exclsem;     /* For synchronizing access to the signaling semaphore */

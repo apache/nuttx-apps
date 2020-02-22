@@ -722,7 +722,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
  * Name : i8sak_daemon
  *
  * Description :
- *   Runs command in seperate task
+ *   Runs command in separate task
  ****************************************************************************/
 
 static int i8sak_daemon(int argc, FAR char *argv[])

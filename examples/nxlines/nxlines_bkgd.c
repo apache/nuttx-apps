@@ -58,7 +58,7 @@
 
 #ifdef CONFIG_NX_ANTIALIASING
   /* If anti-aliasing is enabled, then we must clear a slightly
-   * larger region to prevent wierd edge effects.
+   * larger region to prevent weird edge effects.
    */
 
 #  define CLEAR_WIDTH (CONFIG_EXAMPLES_NXLINES_LINEWIDTH + 2)
@@ -330,7 +330,7 @@ void nxlines_test(NXWINDOW hwnd)
 
 #ifdef CONFIG_NX_ANTIALIASING
       /* If anti-aliasing is enabled, then we must clear a slightly
-       * larger region to prevent wierd edge effects.
+       * larger region to prevent weird edge effects.
        */
 
       halfx = b16toi(b16muli(sinangle, radius + 1));

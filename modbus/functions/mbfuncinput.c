@@ -107,7 +107,7 @@ eMBException eMBFuncReadInputRegister(uint8_t *pucFrame, uint16_t *usLen)
 
           eRegStatus = eMBRegInputCB(pucFrameCur, usRegAddress, usRegCount);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {

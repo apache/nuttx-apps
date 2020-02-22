@@ -61,7 +61,7 @@
 
 #  define TEST_MSGLEN       (31)
 #else
-   /* Message lenght is the size of the message plus the null terminator */
+   /* Message length is the size of the message plus the null terminator */
 
 #  define TEST_MSGLEN       (strlen(TEST_MESSAGE)+1)
 #endif

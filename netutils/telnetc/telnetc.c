@@ -475,7 +475,7 @@ static void _negotiate(struct telnet_s *telnet, unsigned char telopt)
   union telnet_event_u ev;
   struct telnet_rfc1143_s q;
 
-  /* In PROXY mode, just pass it thru and do nothing */
+  /* In PROXY mode, just pass it through and do nothing */
 
   if (telnet->flags & TELNET_FLAG_PROXY)
     {

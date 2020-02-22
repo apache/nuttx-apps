@@ -184,7 +184,7 @@ void  CKeypad::onClick(nxgl_coord_t x, nxgl_coord_t y)
 }
 
 /**
- * Configure the keypad for the currenly selected display mode.
+ * Configure the keypad for the currently selected display mode.
  */
 
 void CKeypad::configureKeypadMode(void)

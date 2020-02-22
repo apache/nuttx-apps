@@ -411,7 +411,7 @@ namespace NXWidgets
      * This method normally called externally... either periodically
      * or when a window event is detected.  If CONFIG_NXWIDGET_EVENTWAIT
      * is defined, then external logic want call waitWindow event and
-     * when awakened, they chould call this function.  As an example:
+     * when awakened, they should call this function.  As an example:
      *
      *   for (;;)
      *     {

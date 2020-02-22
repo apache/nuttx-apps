@@ -232,7 +232,7 @@ void robust_test(void)
         }
     }
 
-  /* Release and destory the mutex then  return success */
+  /* Release and destroy the mutex then  return success */
 
   status = pthread_mutex_unlock(&g_robust_mutex);
   if (status != 0)

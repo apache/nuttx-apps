@@ -299,7 +299,7 @@ eMBException eMBMasterFuncWriteCoil(uint8_t *pucFrame, uint16_t *usLen)
           eRegStatus = eMBMasterRegCoilsCB(&ucBuf[0], usRegAddress, 1,
                                            MB_REG_WRITE);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {

@@ -492,7 +492,7 @@ void CHexCalculator::setGeometry(void)
 }
 
 /**
- * Create the calculator widgets.  Only start as part of the applicaiton
+ * Create the calculator widgets.  Only start as part of the application
  * start method.
  */
 

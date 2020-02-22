@@ -79,7 +79,7 @@ namespace NXWidgets
     bool     m_numeric;    /**< True: Numeric keypad, False: Alpha */
 
     /**
-     * Configure the keypad for the currenly selected display mode.
+     * Configure the keypad for the currently selected display mode.
      */
 
     void configureKeypadMode(void);

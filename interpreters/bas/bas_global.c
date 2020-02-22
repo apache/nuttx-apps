@@ -219,7 +219,7 @@ static struct Value *hex(struct Value *v, long int value, long int digits)
 }
 
 static struct Value *find(struct Value *v, struct String *pattern,
-                          long int occurence)
+                          long int occurrence)
 {
   struct String dirname, basename;
   char *slash;
@@ -258,7 +258,7 @@ static struct Value *find(struct Value *v, struct String *pattern,
         {
           if (wildcardmatch(ent->d_name, basename.character))
             {
-              if (found == occurence)
+              if (found == occurrence)
                 {
                   if (currentdir)
                     {

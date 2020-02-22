@@ -278,7 +278,7 @@ int wapi_get_ip(int sock, FAR const char *ifname, FAR struct in_addr *addr)
  * Name: wapi_set_ip
  *
  * Description:
- *   Sets IP adress of the given network interface.
+ *   Sets IP address of the given network interface.
  *
  ****************************************************************************/
 

@@ -103,7 +103,7 @@
 #    define CONFIG_THTTPD_CGI_PATH "/mnt/www/cgi-bin"
 #  endif
 
-/* Only CGI programs whose fully expanded pathes match this pattern will be executed.  In fact,
+/* Only CGI programs whose fully expanded paths match this pattern will be executed.  In fact,
  * if this value is not defined then no CGI logic will be built.
  */
 

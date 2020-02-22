@@ -175,7 +175,7 @@ config NSH_NESTDEPTH
 	default 3
 	---help---
 		The maximum number of nested if-then[-else]-fi sequences that
-		are permissable.  Default: 3
+		are permissible.  Default: 3
 
 config NSH_DISABLEBG
 	bool "Disable background commands"
@@ -1175,7 +1175,7 @@ config NSH_IOBUFFER_SIZE
 	default 512
 	---help---
 		Determines the size of the I/O buffer to use for sending/
-		receiving TELNET commands/reponses.  Default: 512
+		receiving TELNET commands/responses.  Default: 512
 
 endif # NSH_TELNET
 endmenu # Telnet Configuration

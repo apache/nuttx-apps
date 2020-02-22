@@ -179,7 +179,7 @@ namespace NxWM
     virtual bool redrawTaskbarWindow(void);
 
     /**
-     * Redraw the window at the top of the heirarchy.
+     * Redraw the window at the top of the hierarchy.
      *
      * @return true on success
      */

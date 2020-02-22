@@ -131,7 +131,7 @@ eMBException eMBFuncReadCoils(uint8_t *pucFrame, uint16_t *usLen)
           eRegStatus = eMBRegCoilsCB(pucFrameCur, usRegAddress, usCoilCount,
                                      MB_REG_READ);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {
@@ -196,7 +196,7 @@ eMBException eMBFuncWriteCoil(uint8_t *pucFrame, uint16_t *usLen)
           eRegStatus = eMBRegCoilsCB(&ucBuf[0], usRegAddress, 1,
                                      MB_REG_WRITE);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {
@@ -263,7 +263,7 @@ eMBException eMBFuncWriteMultipleCoils(uint8_t *pucFrame, uint16_t *usLen)
             eMBRegCoilsCB(&pucFrame[MB_PDU_FUNC_WRITE_MUL_VALUES_OFF],
                           usRegAddress, usCoilCnt, MB_REG_WRITE);
 
-          /* If an error occured convert it into a Modbus exception. */
+          /* If an error occurred convert it into a Modbus exception. */
 
           if (eRegStatus != MB_ENOERR)
             {

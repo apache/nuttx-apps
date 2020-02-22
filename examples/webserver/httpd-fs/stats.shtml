@@ -23,7 +23,7 @@ TCP          Packets received
              Data packets without ACKs
              Resets
              Retransmissions
-	     No connection avaliable
+	     No connection available
 	     Connection attempts to closed ports
 </pre></td><td><pre>%! net-stats
 </pre></table>

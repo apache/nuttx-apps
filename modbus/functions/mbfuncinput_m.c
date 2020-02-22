@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/functions/mbfuncinput_m.c
  *
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.
  *

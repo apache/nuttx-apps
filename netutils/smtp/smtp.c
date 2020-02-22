@@ -9,7 +9,7 @@
  * Heavily leveraged from uIP 1.0 which also has a BSD-like license:
  *
  * The Simple Mail Transfer Protocol (SMTP) as defined by RFC821 is
- * the standard way of sending and transfering e-mail on the
+ * the standard way of sending and transferring e-mail on the
  * Internet. This simple example implementation is intended as an
  * example of how to implement protocols in uIP, and is able to send
  * out e-mail but has not been extensively tested.

@@ -68,7 +68,7 @@
 typedef enum
 {
   STATE_RX_IDLE,              /* Receiver is in idle state. */
-  STATE_RX_RCV,               /* Frame is beeing received. */
+  STATE_RX_RCV,               /* Frame is being received. */
   STATE_RX_WAIT_EOF           /* Wait for End of Frame. */
 } eMBRcvState;
 
@@ -231,7 +231,7 @@ eMBErrorCode eMBASCIIReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
   if ((usRcvBufferPos >= MB_SER_PDU_SIZE_MIN) &&
       (prvucMBLRC((uint8_t *) ucASCIIBuf, usRcvBufferPos) == 0))
     {
-      /* Save the address field. All frames are passed to the upper layed
+      /* Save the address field. All frames are passed to the upper laid
        * and the decision if a frame is used is done there.
        */
 

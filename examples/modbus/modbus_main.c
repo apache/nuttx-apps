@@ -34,7 +34,7 @@
  ****************************************************************************
  * Leveraged from:
  *
- *   FreeModbus Libary: Linux Demo Application
+ *   FreeModbus Library: Linux Demo Application
  *   Copyright (C) 2006 Christian Walter <wolti@sil.at>
  *
  * This library is free software; you can redistribute it and/or

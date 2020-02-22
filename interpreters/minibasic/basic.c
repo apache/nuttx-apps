@@ -3804,7 +3804,7 @@ static int isstring(int tokenid)
  *   Get a numerical value from the parse string
  *   Params: str - the string to search
  *           len - return pinter for no chars read
- *   Retuns: the value of the string.
+ *   Returns: the value of the string.
  *
  ****************************************************************************/
 

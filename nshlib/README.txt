@@ -1169,7 +1169,7 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     foolbar=foovalue
 
   Set the 'exit on error control' and/or 'print a trace' of commands when parsing
-  scripts in NSH.  The settinngs are in effect from the point of exection, until
+  scripts in NSH.  The settinngs are in effect from the point of execution, until
   they are changed again, or in the case of the init script, the settings are
   returned to the default settings when it exits. Included child scripts will run
   with the parents settings and changes made in the child script will effect the
@@ -1686,7 +1686,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NSH_NESTDEPTH
       The maximum number of nested if-then[-else]-fi sequences that
-      are permissable.  Default: 3
+      are permissible.  Default: 3
 
   * CONFIG_NSH_DISABLESCRIPT
       This can be set to 'y' to suppress support for scripting.  This
@@ -1860,7 +1860,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NSH_IOBUFFER_SIZE
       Determines the size of the I/O buffer to use for sending/
-      receiving TELNET commands/reponses
+      receiving TELNET commands/responses
 
   * CONFIG_NETINIT_DHCPC
       Obtain the IP address via DHCP.

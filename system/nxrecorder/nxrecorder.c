@@ -430,7 +430,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
    * (3) Terminate recording by sending the AUDIO_MSG_COMPLETE message.
    */
 
-  audinfo("%s\n", running ? "Recording..." : "Not runnning");
+  audinfo("%s\n", running ? "Recording..." : "Not running");
   while (running)
     {
       /* Wait for a signal either from the Audio driver that it needs

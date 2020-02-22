@@ -285,7 +285,7 @@ static int _open_with_http(const char *fullurl)
  *
  *   nxplayer_opendevice() either searches the Audio system for a device
  *   that is compatible with the specified audio format and opens it, or
- *   tries to open the prefered device if specified and validates that
+ *   tries to open the preferred device if specified and validates that
  *   it supports the requested format.
  *
  * Return:
@@ -546,7 +546,7 @@ static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pplayer,
   x = strlen(pFilename) - 1;
   while (x > 0)
     {
-      /* Seach backward for the first '.' */
+      /* Search backward for the first '.' */
 
       if (pFilename[x] == '.')
         {
@@ -1004,7 +1004,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
    * (3) Terminate playing by sending the AUDIO_MSG_COMPLETE message.
    */
 
-  audinfo("%s\n", running ? "Playing..." : "Not runnning");
+  audinfo("%s\n", running ? "Playing..." : "Not running");
   while (running)
     {
       /* Wait for a signal either from the Audio driver that it needs
@@ -2294,7 +2294,7 @@ void nxplayer_reference(FAR struct nxplayer_s *pplayer)
 /****************************************************************************
  * Name: nxplayer_detach
  *
- *   nxplayer_detach() detaches from the playthread to make it independant
+ *   nxplayer_detach() detaches from the playthread to make it independent
  *     so the caller can abandon the context while the file is still
  *     being played.
  *

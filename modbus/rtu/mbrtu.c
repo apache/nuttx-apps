@@ -179,7 +179,7 @@ eMBErrorCode eMBRTUReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
   if ((usRcvBufferPos >= MB_SER_PDU_SIZE_MIN) &&
       (usMBCRC16((uint8_t *) ucRTUBuf, usRcvBufferPos) == 0))
     {
-      /* Save the address field. All frames are passed to the upper layed
+      /* Save the address field. All frames are passed to the upper laid
        * and the decision if a frame is used is done there.
        */
 

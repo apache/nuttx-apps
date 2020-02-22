@@ -547,7 +547,7 @@ config NXWM_KEYBOARD_USBHOST
 		A USB Keyboard is a removable device. When it is inserted, then
 		device at NXWM_KEYBOARD_DEVPATH will appear; when it removed,
 		keyboard reads will fail and the device at NXWM_KEYBOARD_DEVPATH
-		will disappear.  Selecting this option builds addtional logic into
+		will disappear.  Selecting this option builds additional logic into
 		the keyboard listener thread in order to handle this case.
 
 config NXWM_KEYBOARD_SIGNO
@@ -704,7 +704,7 @@ config NXWM_CALIBRATION_ANISOTROPIC
 
 		If you have such an LCD, then you may select this option to enable
 		some much more complex scaling alorithms to handle this case.  Not
-		only are these algorithms more complex, but they are (currenly)
+		only are these algorithms more complex, but they are (currently)
 		implemented using floating point.  As a result, you should not select
 		this option if you have a lower end MCU without hardware floating
 		point support.
