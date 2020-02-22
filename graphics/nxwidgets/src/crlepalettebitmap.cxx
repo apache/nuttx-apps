@@ -242,7 +242,7 @@ void CRlePaletteBitmap::startOfImage(void)
 
 bool CRlePaletteBitmap::advancePosition(nxgl_coord_t npixels)
 {
-  // Advance to the next column after consuming 'npixels' on this colum
+  // Advance to the next column after consuming 'npixels' on this column
   int newcol = m_col + npixels;
 
   // Have we consumed the entire row?

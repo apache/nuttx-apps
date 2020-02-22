@@ -75,7 +75,7 @@ config SYSTEM_ZMODEM_MOUNTPOINT
 	string "Zmodem sandbox"
 	default "/tmp"
 	---help---
-		Absolute pathes in received file names are not accepted.  This
+		Absolute paths in received file names are not accepted.  This
 		configuration value must be set to provide the path to the file
 		storage directory (such as a mountpoint directory).
 

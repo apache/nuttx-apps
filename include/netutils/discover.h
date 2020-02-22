@@ -54,7 +54,7 @@ struct discover_info_s
  * Description:
  *   Start the discover daemon.
  *
- * Input Paramters:
+ * Input Parameters:
  *
  *   info    Discover information, if NULL mconf defaults will be used.
  *

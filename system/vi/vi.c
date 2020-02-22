@@ -4098,7 +4098,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
                 vi->cmdlen = 2;
                 vi_parsecolon(vi);
 
-                /* If save quit succeds, we won't return */
+                /* If save quit succeeds, we won't return */
               }
             else
               {

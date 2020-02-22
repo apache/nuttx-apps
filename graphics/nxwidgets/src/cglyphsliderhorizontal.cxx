@@ -331,7 +331,7 @@ void CGlyphSliderHorizontal::drawContents(CGraphicsPort * port)
   int width;
   nxwidget_pixel_t color;
 
-  // Fill in (erase) the region to the left and right of the fuel guage
+  // Fill in (erase) the region to the left and right of the fuel gauge
 
   width =
     m_grip->getX() > halfGripWidth ? halfGripWidth : m_grip->getX() - getX();

@@ -1,5 +1,5 @@
 /****************************************************************************
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  *
  *   Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  *   All rights reserved.
@@ -93,7 +93,7 @@ static peMBFrameReceive peMBMasterFrameReceiveCur;
 static pvMBFrameClose pvMBMasterFrameCloseCur;
 
 /* Callback functions required by the porting layer. They are called when
- * an external event has happend which includes a timeout or the reception
+ * an external event has happened which includes a timeout or the reception
  * or transmission of a character.
  * Using for Modbus Master,Add by Armink 20130813
  */
@@ -194,7 +194,7 @@ eMBErrorCode eMBMasterInit(eMBMode eMode, uint8_t ucPort,
     {
       if (!xMBMasterPortEventInit())
         {
-          /* Port dependent event module initalization failed. */
+          /* Port dependent event module initialization failed. */
 
           eStatus = MB_EPORTERR;
         }

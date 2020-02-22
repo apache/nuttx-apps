@@ -181,7 +181,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   int ret;
 
-  /* Mkae sure that the backlight off */
+  /* Make sure that the backlight off */
 
   ft80x_backlight_set(fd, 0);
 

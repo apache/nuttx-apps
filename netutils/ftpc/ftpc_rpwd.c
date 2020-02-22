@@ -74,7 +74,7 @@
 /****************************************************************************
  * Name: ftpc_rpwd
  *
- * Descripton:
+ * Description:
  *   Returns the current working directory on the remote server.
  *
  ****************************************************************************/

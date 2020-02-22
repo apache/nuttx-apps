@@ -1043,7 +1043,7 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
  *   name    - A point to the name containing the name to be matched.
  *   matches - A table is size CONFIG_READLINE_MAX_EXTCMDS that can
  *             be used to remember matching name indices.
- *   namelen - The lenght of the name to match
+ *   namelen - The length of the name to match
  *
  * Returned Values:
  *   The number commands that match to the first namelen characters.

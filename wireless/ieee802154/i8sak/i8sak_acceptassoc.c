@@ -182,7 +182,7 @@ static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
   IEEE802154_EADDRCOPY(assocresp.devaddr, primitive->u.assocind.devaddr);
 
   /* If the address matches our device, accept the association.
-   * Otherwise, reject the assocation.
+   * Otherwise, reject the association.
    */
 
   if (i8sak->acceptall ||

@@ -210,7 +210,7 @@ static void test_foc_process_zeros(void)
   TEST_ASSERT_EQUAL_FLOAT_ZERO(foc.v_ab_mod.b);
 }
 
-/* Proces FOC with some test data */
+/* Process FOC with some test data */
 
 static void test_foc_process(void)
 {

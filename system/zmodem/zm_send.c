@@ -1479,7 +1479,7 @@ static int zms_sendfile(FAR struct zms_state_s *pzms,
         filename, rfilename, f0, f1);
 
   /* TODO: The local file name *must* be an absolute patch for now.  This if
-   * environment variables are supported, then any relative pathes could be
+   * environment variables are supported, then any relative paths could be
    * extended using the contents of the current working directory CWD.
    */
 

@@ -190,13 +190,13 @@ int main(int argc, FAR char *argv[])
   setenv("PATH", MOUNTPT, 1);
 #endif
 
-  /* Now excercise every progrm in the ROMFS file system */
+  /* Now exercise every progrm in the ROMFS file system */
 
   for (i = 0; dirlist[i]; i++)
     {
       FAR const char *filename;
 
-      /* Output a seperated so that we can clearly discrinmate the output of
+      /* Output a separated so that we can clearly discrinmate the output of
        * this program from the others.
        */
 

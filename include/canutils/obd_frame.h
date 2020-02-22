@@ -55,12 +55,12 @@
 
 /* Single Frame fields */
 
-#define OBD_SF_DATA_LEN(x)       (x & 0xf) /* Data Lenght of Single Frame */
+#define OBD_SF_DATA_LEN(x)       (x & 0xf) /* Data Length of Single Frame */
 
 /* First Frame fields */
 
-#define OBD_FF_DATA_LEN_D0(x)    ((x & 0xf) << 8) /* Data Lenght of First Frame D0 */
-#define OBD_FF_DATA_LEN_D1(x)    (x & 0xff)       /* Data Lenght of First Frame D1 */
+#define OBD_FF_DATA_LEN_D0(x)    ((x & 0xf) << 8) /* Data Length of First Frame D0 */
+#define OBD_FF_DATA_LEN_D1(x)    (x & 0xff)       /* Data Length of First Frame D1 */
 
 /* Consecutive Frame fields */
 

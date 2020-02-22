@@ -92,7 +92,7 @@
 /* Internal Definitions *****************************************************/
 /* Discover request packet format:
  * Byte Description
- * 0    Protocol indentifier (0x99)
+ * 0    Protocol identifier (0x99)
  * 1    Request command 0x01
  * 2    Destination device class (For querying subsets of available devices)
  *      0xff for all devices
@@ -101,8 +101,8 @@
 
 /* Discover response packet format:
  * Byte Description
- * 0    Protocol indentifier (0x99)
- * 1    Reponse command (0x02)
+ * 0    Protocol identifier (0x99)
+ * 1    Response command (0x02)
  * 2-33 Device description string with 0 bytes filled
  * 34   Checksum (Byte 0 - Byte 1 - Byte n) & 0xff
  */
@@ -280,7 +280,7 @@ static inline int discover_respond(in_addr_t *ipaddr)
       return ERROR;
     }
 
-  /* Then send the reponse to the DHCP client port at that address */
+  /* Then send the response to the DHCP client port at that address */
 
   memset(&addr, 0, sizeof(struct sockaddr_in));
   addr.sin_family      = AF_INET;

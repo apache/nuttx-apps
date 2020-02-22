@@ -1914,7 +1914,7 @@
 	* Added support for set [{+|-}{e|x|xe|ex}] [<name> <value>].  Set the
 	  'exit on error control' and/or 'print a trace' of commands when
 	  parsing scripts in NSH.  The settinngs are in effect from the point
-	  of exection, until they are changed again, or in the case of the init
+	  of execution, until they are changed again, or in the case of the init
 	  script, the settings are returned to the default settings when it
 	  exits.  Included child scripts will run with the parents settings and
 	  changes made in the child script will effect the parent on return.
@@ -2403,7 +2403,7 @@
 	* examples/alarm: add options for reading alarm value and canceling it.
 	  From Juha Niskanen (2017-10-17).
 	* apps/fsutils/mkfatfs:  Move mkfatfs from the OS to here.  Not fully
-	  integrated on the intial commit (2017-10-20).
+	  integrated on the initial commit (2017-10-20).
 	* apps/examples/adps9960:  Add ADPS-9960 example.  From Alan Carvalho de
 	  Assis (2017-10-23).
 	* This commit eliminates the ping command from NSH and replaces it with
@@ -2504,7 +2504,7 @@
 	* apps/example/pdcurses:  Add logic to build one of the several pdcurses
 	  demo/test programs (2017-11-18).
 	* apps/graphics/pdcurs34/nuttx:  Completes first cut at framebuffer
-	  rendering logic.  Add NuttX framebuffer color managment and beginning of
+	  rendering logic.  Add NuttX framebuffer color management and beginning of
 	  some rendering logic (2017-11-19).
 	* apps/examples/pdcurses/: Fix a few more bugs found in testing;  Brings
 	  in the remaining pdcurses demo programs (2017-11-19).
@@ -2610,7 +2610,7 @@
 	  previously existing tftpget/tftpput functions are now wrappers on the new
 	  ones, with callbacks that read/write from files, so my modifications are
 	  backwards compatible with existing applications, eg the associated nsh
-	  commands dont need to be changed.  From Sebastien Lorquet (2018-03-09).
+	  commands don't need to be changed.  From Sebastien Lorquet (2018-03-09).
 	* apps/examples/ft80x:  Fix some size calculations.  Add option to disable
 	  primitive tests... just too boring to have to watch over and over again.
 	  Fix a typo in backlight fade logic; Fix error in formatted display light
@@ -3132,7 +3132,7 @@
 	  - apps/examples/fstest:  Call statfs() and show state of file system on
 	    each loop.
 	  - apps/examples/fstest:  Fix a situation where a file system under test
-	    could cause the fstest to get stuck in an infinit loop.  From Gregory
+	    could cause the fstest to get stuck in an infinite loop.  From Gregory
 	    Nutt (2018-09-27).
 	* - apps/examples/fstest:  Add logic to dump logic content of SPIFFS
 	  - apps/examples/fstest/Kconfig: SPIFFS GC and integrity check option
@@ -3438,7 +3438,7 @@
 	  3.  Paste buffer from 'dd' was being free'd after the 'p'aste operation,
 	      preventing multiple paste opportunity.  Fixed.
 	  4.  The cursor was not being bound to the line end and was allowed to
-	      'hover' over the '\n' EOL character.  This caused wierd (relative to
+	      'hover' over the '\n' EOL character.  This caused weird (relative to
 	      standard vi) insertion locations and cursor movement with 'a'ppend
 	      and 'i'nsert.  Fixed.
 	  5.  The 'vi_shrinkpos' position didn't take the end of file pointer into
@@ -3446,7 +3446,7 @@
 	      wierdness when deleting things near the end of the file.  Fixed.
 	  6.  The 'yy'ank command was improperly deleting the text from the
 	      document instead of simply yanking to the paste buffer.  Fixed.
-	  7.  The 'dd'elete line funciton was not copying the deleted line to the
+	  7.  The 'dd'elete line function was not copying the deleted line to the
 	      paste buffer as part of the delete operation.  Fixed.
 	  8.  The bottom line of the screen was sometimes being used for document
 	      text and other times for command / find entry.  Fixed by reserving
@@ -3482,7 +3482,7 @@
 	  17. In command mode, backspace was deleting characters which is different
 	      from standard vi.  Backspace in command mode normally simply moves
 	      the cursor left / to the previous line.  Fixed.
-	  18. Added code to handle boundry conditions when the file is new and
+	  18. Added code to handle boundary conditions when the file is new and
 	      commands are applied to an empty file.
 	  19. Fixed vi_shrinktext so it doesn't allocate a zero-length buffer when
 	      the last character in the file is deleted.
@@ -3691,7 +3691,7 @@
 	* Missing semicolon at the end of function call.  From Kejun ZHOU
 	  (2019-03-11).
 	* graphics:  nx_openwindow() and nxtk_openwindow() now accepts an
-	  addtional 'flag' parameter.  This argument is not used at present but
+	  additional 'flag' parameter.  This argument is not used at present but
 	  will, eventually enable a RAM backed, per-window framebuffer.  From
 	  Gregory Nutt (2019-03-13).
 	* This commit adds a test example at apps/examples/pwfb that will be used
@@ -4479,7 +4479,7 @@
 	  ramdisk_register() directly.  No only is this a violation of the interface
 	  specification, but also prevents use of mkrd in PROTECTED or KERNEL buils.
 	  With this change, the NSH mkrd command now used the BOARDIOC_MKRD boardctl()
-	  command.  This command is availabe in all build modes.  The effect of this
+	  command.  This command is available in all build modes.  The effect of this
 	  change is to move the hear of the NSH mkrd command into to OS and provide
 	  user-space access via boardctl().  From Gregory Nutt (2019-10-26).
 	* apps/examples/mount:  Replace illegal call to ramdisk_register() with a call to

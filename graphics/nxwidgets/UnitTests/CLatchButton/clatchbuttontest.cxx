@@ -268,7 +268,7 @@ void CLatchButtonTest::showButton(CLatchButton *button)
 }
 
 // Perform a simulated mouse click on the button.  This method injects
-// the mouse click through the NX heirarchy just as would real mouse
+// the mouse click through the NX hierarchy just as would real mouse
 // hardward.
 
 void CLatchButtonTest::click(void)

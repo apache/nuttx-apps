@@ -173,7 +173,7 @@ static FAR struct pdc_context_s *PDC_ctx_new(void)
  *
  * Description:
  *   Added pdcurses interface called from many functions to eliminate
- *   global and static function variable usage.  This function retuns a
+ *   global and static function variable usage.  This function returns a
  *   task specific context / struct pointer to those variables instead,
  *   allowing the pdcurses routines to be used by multiple tasks in a
  *   FLAT build.

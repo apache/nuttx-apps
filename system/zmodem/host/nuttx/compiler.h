@@ -91,7 +91,7 @@
 
 # define farcall_function __attribute__ ((long_call))
 
-/* The packed attribute informs GCC that the stucture elements are packed,
+/* The packed attribute informs GCC that the structure elements are packed,
  * ignoring other alignment rules.
  */
 

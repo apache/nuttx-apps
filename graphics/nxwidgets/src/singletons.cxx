@@ -118,7 +118,7 @@ void NXWidgets::instantiateSingletons(void)
 
   sched_lock();
 
-  // Create a global, empty string that may be used whereever a string is
+  // Create a global, empty string that may be used wherever a string is
   // required, but not needed.
 
   if (!g_nullString)

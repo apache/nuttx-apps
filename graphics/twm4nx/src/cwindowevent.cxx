@@ -208,7 +208,7 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
  * toolbar, but can easily move into the main window (or even outside
  * of the window!).  To these case, there may be two instances of
  * CWindowEvent, one for the toolbar and one for the main window.  The
- * IEventTap implementation (along with the user arguement) can keep a
+ * IEventTap implementation (along with the user argument) can keep a
  * consistent movement context across both instances.
  *
  * NOTE:  NX will continually forward the mouse events to the same raw
@@ -248,11 +248,11 @@ void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,
               twminfo("Continue movemenht (%d,%d) buttons=%02x m_tapHandler=%p\n",
                       mousePos.x, mousePos.y, buttons, m_tapHandler);
 
-              // Yes.. generate a movment event if we have a tap event handler
+              // Yes.. generate a movement event if we have a tap event handler
 
               if (m_tapHandler->moveEvent(mousePos, m_tapArg))
                 {
-                  // Skip the input poll until the movment completes
+                  // Skip the input poll until the movement completes
 
                   return;
                 }

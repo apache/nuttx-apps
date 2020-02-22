@@ -538,7 +538,7 @@ mkfatfs_tryfat16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
       /* Check if this number of clusters would overflow the maximum for
        * FAT16 (remembering that two FAT cluster slots are reserved).
        * Check the lower limit as well.  The FAT12 is distinguished from FAT16
-       * by comparing the number of clusters on the device agains a known
+       * by comparing the number of clusters on the device against a known
        * threshold.  If a small FAT16 file system were created, then it would
        * be confused as a FAT12 at mount time.
        */

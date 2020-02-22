@@ -613,7 +613,7 @@ static void input_test(WINDOW *win)
   mvwaddstr(win, 3, 2, "The window should have moved");
   mvwaddstr(win, 4, 2,
             "This text should have appeared without you pressing a key");
-  mvwaddstr(win, 6, 2, "Enter a number then a string seperated by space");
+  mvwaddstr(win, 6, 2, "Enter a number then a string separated by space");
   mvwin(win, 2, 1);
   wrefresh(win);
   mvwscanw(win, 7, 6, "%d %s", &num, buffer);
