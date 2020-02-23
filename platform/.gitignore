@@ -2,3 +2,6 @@
 /.depend
 /Make.dep
 board
+/*.src
+/*.obj
+/*.lst
