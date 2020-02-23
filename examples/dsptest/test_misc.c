@@ -604,7 +604,7 @@ void test_misc(void)
 
   TEST_SEPARATOR();
 
-  /* Test helper funcions */
+  /* Test helper functions */
 
   RUN_TEST(test_f_saturate);
 

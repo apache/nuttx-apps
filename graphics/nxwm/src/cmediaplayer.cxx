@@ -897,7 +897,7 @@ bool CMediaPlayer::createPlayer(void)
 
   m_play->addWidgetEventHandler(this);
 
-  // Create the Pause image (at the same position ans size as the Play image)
+  // Create the Pause image (at the same position and size as the Play image)
 
   m_pause = new NXWidgets::
       CImage(control, playControlX, controlTop, playControlW, controlH,

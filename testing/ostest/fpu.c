@@ -229,7 +229,7 @@ static int fpu_task(int argc, char *argv[])
       sched_lock();
 
       /* Do some trivial floating point operations that should cause some
-       * changes to floating point registers.  First, some single preceision
+       * changes to floating point registers.  First, some single precision
        * nonsense.
        */
 

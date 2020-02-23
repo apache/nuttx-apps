@@ -64,7 +64,7 @@
 static int g_waitpids[NCHILDREN];
 
 /****************************************************************************
- * Priviate Functions
+ * Private Functions
  ****************************************************************************/
 
 static int waitpid_main(int argc, char *argv[])

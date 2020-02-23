@@ -259,7 +259,7 @@ static int refill(int dev)
     }
 }
 
-static int edit(int chn, int onl)
+static int edit(int chn, int nl)
 {
   struct FileStream *f = g_file[chn];
   char *buf = f->inBuf;
@@ -372,7 +372,7 @@ static int edit(int chn, int onl)
                    * termination when talking to the host.
                    */
 
-                  if (onl)
+                  if (nl)
                     {
                       FS_putChar(chn, '\n');
                     }
@@ -1716,7 +1716,7 @@ int FS_seek(int chn, long int record)
   return -1;
 }
 
-int FS_appendToString(int chn, struct String *s, int onl)
+int FS_appendToString(int chn, struct String *s, int nl)
 {
   size_t new;
   char *n;
@@ -1725,7 +1725,7 @@ int FS_appendToString(int chn, struct String *s, int onl)
 
   if (f->tty && f->inSize == f->inCapacity)
     {
-      if (edit(chn, onl) == -1)
+      if (edit(chn, nl) == -1)
         {
           return (FS_errmsg ? -1 : 0);
         }
@@ -1797,7 +1797,7 @@ void FS_closefiles(void)
 {
   int i;
 
-  /* Example each entry in the g_files[] arrary */
+  /* Example each entry in the g_files[] array */
 
   for (i = 0; i < g_capacity; ++i)
     {

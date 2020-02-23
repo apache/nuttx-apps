@@ -107,7 +107,7 @@ CWidgetControl::CWidgetControl(FAR const CWidgetStyle *style)
   m_nCh                = 0;
   m_nCc                = 0;
 
-  // Intialize semaphores:
+  // Initialize semaphores:
   //
   // m_waitSem. The semaphore that will wake up the external logic on mouse events,
   //   keypress events, or widget deletion events.
@@ -927,8 +927,8 @@ void CWidgetControl::takeGeoSem(void)
 }
 
 /**
- * Check if geomtry data is available.  If not, [re-]request the
- * geomtry data and wait for it to become valid.
+ * Check if geometry data is available.  If not, [re-]request the
+ * geometry data and wait for it to become valid.
  *
  * CAREFUL:  This assumes that if we already have geometry data, then
  * it is valid.  This might not be true if the size position was

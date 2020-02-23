@@ -88,7 +88,7 @@ static void test_openloop_init(void)
   TEST_ASSERT_EQUAL_FLOAT(max_speed, op.max);
 }
 
-/* Singe step openloop */
+/* Single step openloop */
 
 static void test_openloop_one_step(void)
 {

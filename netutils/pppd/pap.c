@@ -190,7 +190,7 @@ void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           if (ctx->pap_retry > PAP_RETRY_COUNT)
             {
-              DEBUG1(("PAP - timout\n"));
+              DEBUG1(("PAP - timeout\n"));
               ctx->pap_state |= PAP_TX_TIMEOUT;
             }
         }

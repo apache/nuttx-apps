@@ -188,7 +188,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     {
       /* We cannot send a frame as direct if we are the PAN coordinator. Maybe
        * this should be the hook for sending payload in beacon? But for now,
-       * let's just thow an error.
+       * let's just throw an error.
        */
 
       if (devmode == IEEE802154_DEVMODE_PANCOORD)

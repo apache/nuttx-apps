@@ -86,7 +86,7 @@ typedef struct
 } menu;
 
 /****************************************************************************
- * Public Functin Prototypes
+ * Public Function Prototypes
  ****************************************************************************/
 
 void    clsbody(void);

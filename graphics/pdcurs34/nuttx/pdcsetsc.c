@@ -130,7 +130,7 @@ int PDC_curs_set(int visibility)
     }
 #endif
 
-  /* Redraw the cursor of the visiblity has change.  For our purses 1 and 2
+  /* Redraw the cursor of the visibility has change.  For our purses 1 and 2
    * are currently treated the same.
    */
 

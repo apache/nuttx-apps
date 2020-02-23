@@ -62,7 +62,7 @@ namespace NxWM
 {
   /**
    * The CTouchscreen class provides the the calibration window and obtains
-   * callibration data.
+   * calibration data.
    */
 
   class CTouchscreen

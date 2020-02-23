@@ -131,7 +131,7 @@ static const uint8_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 
 #  endif
 #else
-# error "Unsupport pixel format"
+# error "Unsupported pixel format"
 #endif
 
 static const struct SRlePaletteBitmapEntry g_minimizeRleEntries[] =

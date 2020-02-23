@@ -60,7 +60,7 @@
 //     which
 // 11. Finally call pollEvents() to execute whatever actions the input event
 //     should trigger.
-// 12. This might call an event handler in and overrident method of
+// 12. This might call an event handler in and overridden method of
 //     CWidgetEventHandler which will again notify the Event loop running
 //     in the Twm4Nx main thread.  The event will, finally be delivered
 //     to the recipient in its fully digested and decorated form.
@@ -214,7 +214,7 @@ void CWindowEvent::handleRedrawEvent(FAR const nxgl_rect_s *nxRect,
  * NOTE:  NX will continually forward the mouse events to the same raw
  * window in all cases.. even when the mouse position moves outside of
  * the window.  It is the NxTK layer that converts the reports mouse
- * event to either toolar or main window reports.
+ * event to either toolbar or main window reports.
  */
 
 void CWindowEvent::handleMouseEvent(FAR const struct nxgl_point_s *pos,

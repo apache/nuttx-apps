@@ -98,7 +98,7 @@ static int chat_tokenise(FAR struct chat *priv,
   int tok_pos = 0;                   /* current length of the current token */
   FAR struct chat_token *tok = NULL; /* the last complete token */
   bool no_termin;                    /* line termination property:
-                                      * true iff line terminator is deasserted */
+                                      * true if line terminator is deasserted */
   int ret = 0;
 
   /* Delimiter handler */
@@ -288,7 +288,7 @@ static int chat_tokenise(FAR struct chat *priv,
 static int chat_internalise(FAR struct chat *priv,
                             FAR struct chat_token *tok)
 {
-  unsigned int rhs = 0;  /* 1 iff processing the right-hand side,
+  unsigned int rhs = 0;  /* 1 if processing the right-hand side,
                           * 0 otherwise */
   FAR struct chat_line *line = NULL;
   int len; /* length of the destination string when variable */

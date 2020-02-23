@@ -136,7 +136,7 @@ eMBErrorCode eMBMasterRTUInit(uint8_t ucPort, speed_t ulBaudRate,
           /* The timer reload value for a character is given by: ChTimeValue =
            * Ticks_per_1s / ( Baudrate / 11 ) = 11 * Ticks_per_1s / Baudrate =
            * 220000 / Baudrate The reload for t3.5 is 1.5 times this value and
-           * similary for t3.5.
+           * similarly for t3.5.
            */
 
           usTimerT35_50us = (7UL * 220000UL) / (2UL * ulBaudRate);

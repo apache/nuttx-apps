@@ -9,7 +9,7 @@ system/cdcacm
     1. sercon - Connect the CDC/ACM serial device
     2. serdis - Disconnect the CDC/ACM serial device
 
-  Configuration prequisites (not complete):
+  Configuration prerequisites (not complete):
 
     CONFIG_USBDEV=y                 : USB device support must be enabled
     CONFIG_CDCACM=y                 : The CDC/ACM driver must be built

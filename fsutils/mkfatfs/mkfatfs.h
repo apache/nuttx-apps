@@ -114,7 +114,7 @@ struct fat_format_s; /* Forward reference */
  *
  * Input:
  *    fmt  - Caller specified format parameters
- *    var  - Holds disk geomtry data.  Also, the location to return FAT
+ *    var  - Holds disk geometry data.  Also, the location to return FAT
  *           configuration data
  *
  * Return:

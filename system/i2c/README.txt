@@ -37,7 +37,7 @@ Configuration Options
 CONFIG_NSH_BUILTIN_APPS - Build the tools as an NSH built-in command
 CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
 CONFIG_I2CTOOL_MAXBUS - Largest bus index supported by the hardware (default 3)
-CONFIG_I2CTOOL_MINADDR - Minium device address (default: 0x03)
+CONFIG_I2CTOOL_MINADDR - Minimum device address (default: 0x03)
 CONFIG_I2CTOOL_MAXADDR - Largest device address (default: 0x77)
 CONFIG_I2CTOOL_MAXREGADDR - Largest register address (default: 0xff)
 CONFIG_I2CTOOL_DEFFREQ - Default frequency (default: 4000000)
@@ -189,7 +189,7 @@ Common Option Summary
 [-i|j], Auto increment|don't increment regaddr on repititions.  Default: NO Current: NO
 
   On commands that take a optional number of repetitions, the option can be
-  used to temporarily increment the regaddr value by one on each repitition.
+  used to temporarily increment the regaddr value by one on each repetition.
 
 [-f freq] I2C frequency.  Default: 400000 Current: 400000
 
@@ -369,7 +369,7 @@ directory as .config when NuttX is configured.
   CONFIG_NSH_BUILTIN_APPS: Build the tools as an NSH built-in command
   CONFIG_I2CTOOL_MINBUS: Smallest bus index supported by the hardware (default 0).
   CONFIG_I2CTOOL_MAXBUS: Largest bus index supported by the hardware (default 3)
-  CONFIG_I2CTOOL_MINADDR: Minium device address (default: 0x03)
+  CONFIG_I2CTOOL_MINADDR: Minimum device address (default: 0x03)
   CONFIG_I2CTOOL_MAXADDR: Largest device address (default: 0x77)
   CONFIG_I2CTOOL_MAXREGADDR: Largest register address (default: 0xff)
   CONFIG_I2CTOOL_DEFFREQ: Default frequency (default: 4000000)

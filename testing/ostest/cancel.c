@@ -111,7 +111,7 @@ static FAR void *sem_waiter(FAR void *parameter)
         }
     }
 
-  /* Then wait -- we will never awaken from this normaly. We will wake
+  /* Then wait -- we will never awaken from this normally. We will wake
    * either by signal or cancellation.
    */
 
@@ -150,7 +150,7 @@ static FAR void *sem_waiter(FAR void *parameter)
    * cancellation point and printf() may or may not be a cancellation point
    * (OpenGroup.org allows printf to optionally be a cancellation point).
    * If printf() is not a cancellation point, then the thread will never
-   * be cancelled in the deffered cancellation mode and will instead exit
+   * be cancelled in the deferred cancellation mode and will instead exit
    * with no error.  The pthread_testcancel() is needed to correctly test
    * that cancellation has been re-enabled.
    */
@@ -168,7 +168,7 @@ static void mqueue_cleaner(FAR void *arg)
 {
   FAR mqd_t *mqcancel = (FAR mqd_t *)arg;
 
-  printf("mqueue_cleaner... closeing message queue\n");
+  printf("mqueue_cleaner... closing message queue\n");
   if (mq_close(*mqcancel) < 0)
     {
       printf("mqueue_cleaner: ERROR mq_close failed\n");
@@ -228,7 +228,7 @@ static FAR void *sig_waiter(FAR void *parameter)
   sigset_t set;
   int ret;
 
-  /* Wait for a signal tht will never be delivered */
+  /* Wait for a signal that will never be delivered */
 
   printf("sig_waiter: Waiting to receive signal %d ...\n", SIG_WAITCANCEL);
 
@@ -277,7 +277,7 @@ static FAR void *asynch_waiter(FAR void *parameter)
     }
 
   /* Then wait a bit.  We should be canceled aynchronously while waiting, but the
-   * cancellation should pend becaue we are non-cancellable.
+   * cancellation should pend because we are non-cancellable.
    */
 
   usleep(250*1000);
@@ -532,7 +532,7 @@ void cancel_test(void)
 
 #ifdef CONFIG_CANCELLATION_POINTS
   /* If we are doing deferred cancellation, then we will have to wait a bit
-   * of the fallowing pthread_join() may succeed because it happens before
+   * of the following pthread_join() may succeed because it happens before
    * before the cancellation.
    */
 
@@ -572,10 +572,10 @@ void cancel_test(void)
   usleep(200*1000);
 
   /* Then cancel it.  It should be in the pthread_cond_wait now.  The
-   * behavior here is non-standard:  when the thread is at a cancelation
-   * point, it should be cancelable, even when cancelation is disable.
+   * behavior here is non-standard:  when the thread is at a cancellation
+   * point, it should be cancelable, even when cancellation is disable.
    *
-   * The cancelation should succeed, because the cancelation is pending.
+   * The cancellation should succeed, because the cancellation is pending.
    */
 
   usleep(100*1000);

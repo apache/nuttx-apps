@@ -235,7 +235,7 @@ struct nxeg_state_s
  * Public Data
  ****************************************************************************/
 
-/* The connecton handle */
+/* The connection handle */
 
 extern NXHANDLE g_hnx;
 

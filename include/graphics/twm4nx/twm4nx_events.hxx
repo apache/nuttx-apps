@@ -127,7 +127,7 @@ namespace Twm4Nx
     EVENT_SYSTEM_EXIT          = 0x0802,  /**< Terminate the Twm4Nx session */
     EVENT_SYSTEM_STARTUP       = 0x0003,  /**< Start an application */
 
-    // Recipient == BACKGOUND
+    // Recipient == BACKGROUND
 
     EVENT_BACKGROUND_XYINPUT   = 0x1000,  /**< Poll for widget mouse/touch events */
     EVENT_BACKGROUND_REDRAW    = 0x1801,  /**< Redraw the background */

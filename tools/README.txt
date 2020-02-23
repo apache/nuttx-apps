@@ -20,7 +20,7 @@ bitmap_converter.py
   interpolation).
 
   When a simple graphics image does not encode well, the symptom is that
-  the resulting RLE data structures are quite large.  The pallette structure,
+  the resulting RLE data structures are quite large.  The palette structure,
   in particular, may have hundreds of colors in it.  There is a way to fix
   the graphic image in this case.  Here is what I do (in fact, I do this
   on all images prior to conversion just to be certain):

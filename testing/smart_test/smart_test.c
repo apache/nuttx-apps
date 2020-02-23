@@ -560,7 +560,7 @@ static void smart_usage(void)
 
   fprintf(stderr, "    -w WRITECOUNT\n");
   fprintf(stderr, "          Performs a seek/write/seek/read test where to validate the SMARTFS\n");
-  fprintf(stderr, "          seek/write operation.  Uses the -l option to specifiy the number of\n");
+  fprintf(stderr, "          seek/write operation.  Uses the -l option to specify the number of\n");
   fprintf(stderr, "          test lines to write to the test file.  The WRITECOUNT parameter sets\n");
   fprintf(stderr, "          the number of seek/write operations to perform.\n\n");
 

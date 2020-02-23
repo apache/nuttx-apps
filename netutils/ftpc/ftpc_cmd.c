@@ -133,7 +133,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 #endif
   int ret;
 
-  /* Verify that we are still connecte to the server */
+  /* Verify that we are still connected to the server */
 
   if (!ftpc_sockconnected(&session->cmd))
   {
@@ -186,7 +186,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 
           nwarn("WARNING: Server closed control connection\n");
 
-          /* If we were previously logged in and this is not a QUIT commnad
+          /* If we were previously logged in and this is not a QUIT command
            * then attempt to automatically reconnect to the server.
            */
 

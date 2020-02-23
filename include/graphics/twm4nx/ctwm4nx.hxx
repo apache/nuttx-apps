@@ -219,7 +219,7 @@ namespace Twm4Nx
        * Return the pixel depth.
        *
        * REVISIT:  Currently only the pixel depth configured for NxWidgets is
-       * supported.  That is probably compatible ith support for multiple
+       * supported.  That is probably compatible with support for multiple
        * displays of differing resolutions.
        *
        * @return The number of bits-per-pixel.

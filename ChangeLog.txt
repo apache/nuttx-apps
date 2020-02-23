@@ -107,7 +107,7 @@
 
 6.10 2011-10-06 Gregory Nutt <gnutt@nuttx.org>
 
-	* apps/system/i2c:  Add repitition and address auto-incrementing so that
+	* apps/system/i2c:  Add repetition and address auto-incrementing so that
 	  and command can be executed numerous times.  Add a new verify command
 	  that will write to a register, read from register, and verify that
 	  returned value.
@@ -1133,7 +1133,7 @@
 	  if DHCP is enabled.  That can't be right???? (2014-11-17).
 	* apps/examples/bridge:  Add a simple UDP relay bridge for testing
 	  configurations with multiple networks.  Initial checkin is not
-	  very usuable because it lacks a host-side test driver for the
+	  very usable because it lacks a host-side test driver for the
 	  bridge (2014-11-17).
 	* apps/netutils/codecs/md5.c: Fix md5 hashing when digest[$i] lower
 	  that 16. From Sergey (2015-11-20).
@@ -1233,7 +1233,7 @@
 	  called to perform these test operations on the touchscreen driver
 	  (2015-03-31).
 	* apps/examples/adc: Change apps/examples/adc to that is now calls
-	  boardctl() instead of adc_devinit() in order to initalize the ADC
+	  boardctl() instead of adc_devinit() in order to initialize the ADC
 	  device(2015-03-31).
 	* apps/examples/pwm/: Replace calls to pwm_devinit() in
 	  apps/examples/pwm with calls to boardctl() (2015-03-31).
@@ -1242,7 +1242,7 @@
 	  (2015-04-04).
 	* apps/examples/nxlines/: Add the new 'capped' parameter to nx_drawline()
 	  calls (2015-04-05).
-	* apps/modbus/tcp:  Fix some complile problems when TCP is enabled
+	* apps/modbus/tcp:  Fix some compile problems when TCP is enabled
 	  (2015-04-06).
 	* apps/system: Clean up Kconfig menus.  The way it worked before, it was
 	  difficult to see what was enabled and what was not.  menus replaced
@@ -1336,7 +1336,7 @@
 	* apps/nshlib:  Add support for a uname command (2015-07-04).
 	* apps/system/sysinfo:  Remove the system sysinfo command.  This is
 	  replaced with the NSH uname command (2015-07-04).
-	* apps/syste/netdb:  Add a command to access the network database
+	* apps/system/netdb:  Add a command to access the network database
 	  (2015-07-08).
 	* apps/netutils/dnsclient and include/netutils/dnsclient.h:  Move the
 	  DNS client logic into the NuttX C library.  It is a necessary part
@@ -1365,7 +1365,7 @@
 	  do start at the same time (2015-07-24).
 	* apps/examples/ostest: Add a test for the sporadic scheduler.  This
 	  test is failing as of this commit (2015-07-24).
-	* apps/system/readline:  Add support for Unix-style tab complete toi
+	* apps/system/readline:  Add support for Unix-style tab complete to
 	  readline.  This currently works only for built-in functions.
 	  Contributed by Nghia Ho (2015-07-28).
 	* apps/system/readline and apps/nshlib:  Extended the tab-completion
@@ -1687,7 +1687,7 @@
 	  configured to support Cortex-M4F and the hard float ABI, target files
 	  are compiles with: -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16
 	  -mfloat-abi=hard.  I’m not sure the best way to address this, but the
-	  this chage is the first that comes to mind.  Note, I added the float
+	  this change is the first that comes to mind.  Note, I added the float
 	  qualifier ‘F’ after a few constants to prevent the compiler from
 	  promoting the multiplication and division to double (expensive on
 	  M4F) then demoting to single float for the store.  From David
@@ -1749,7 +1749,7 @@
 	* nshlib/:  Add logic to support an NSH-specific system command
 	  (2016-08-25).
 	* apps/system/system:  Add a generic system command.  Current
-	  implentation cannot use /bin/sh and spawns the custom NSH system
+	  implementation cannot use /bin/sh and spawns the custom NSH system
 	  command directly (2016-08-25).
 	* apps/examples/system:  Add a simple test of the system command.  Fix
 	  the first bug discovered by the test (2016-08-25).
@@ -1783,18 +1783,18 @@
 	  Cygwin (2016-11-17).
 	* apps/examples/timer: Should detach signal handler before exiting
 	  (2016-11-18).
-	* Fixed bug that didn't free ftpd ressources on exit.  From Pascal
+	* Fixed bug that didn't free ftpd resources on exit.  From Pascal
 	  Speck (2016-11-21).
 	* The examples/qencoder app was trying to init the encoder by a direct
 	  call into the board, cheating in a local header to declare the
 	  normally unavailable function prototype.  From Sebastien Lorquet
 	  (2016-11-22).
-	* apps/examples/archbuttons:  Removed becaue it violates OS interface
+	* apps/examples/archbuttons:  Removed because it violates OS interface
 	  principles (2016-11-22).
 	* apps/system/sched_note:  Extend to include additions to instumentation
 	  for SMP (2016-11-27).
 	* apps/system/sched_lock:  Add support for spinlock notes (2016-12-01).
-	* Graphics: Remove all NX server taks.  Instead, call boardctl() to the
+	* Graphics: Remove all NX server tasks.  Instead, call boardctl() to the
 	  NX server kernel thread (2016-12-01).
 	* Remove RGMP example (2016-12-02).
 	* Remove some garbage characters added by error.  From Pierre-Noel
@@ -1844,7 +1844,7 @@
 	  #ifndef instead of #ifdef.  Noted by Oleg Evseev (2017-01-30).
 	* NSH: Add support for the 'ln' command (2017-02-02).
 	* NSH ls command: if node is a symobolic link, use readlink() to get and
-	  the display the target of the symblic link (2017-02-03).
+	  the display the target of the symbolic link (2017-02-03).
 	* NSH: Add readlink command (2017-02-05).
 	* examples/ostest:  Add a test of setvbuf() (2017-02-09).
 	* apps/examples/stat:  Add a simple test for stat(), fstat(), and
@@ -1948,7 +1948,7 @@
 	* wireless/wapi:  Quick port of Wapi wireless services.  No build
 	  support yet.  This also depends on features not supported by NuttX.
 	  This is a work in progress (2017-04-10).
-	* wireless/wapi:  Remove logic that depnds on Linux netlink.  Add
+	* wireless/wapi:  Remove logic that depends on Linux netlink.  Add
 	  (untested) build support (2017-04-10).
 	* wireless/wapi:  Remove functionality that depends on the Linux
 	  procfs:  This includes only 1) listing of available interfaces and 2)
@@ -1995,8 +1995,8 @@
 	  eth0 for network device name (2017-05-02).
 	* wireless/wext:  Add drivers_wext from the WPA supplicant; Integrate
 	  into NSH.  From Simon Piriou (2017-05-02).
-	* 6LoWPAN: Replace some Rime address naming with more consistent
-	  short/exended address terminology (2017-05-04).
+	* 6LoWPAN: Replace some rime address naming with more consistent
+	  short/extended address terminology (2017-05-04).
 	* wireless/ieee802154:  Removes libradio to coincide with removal of
 	  ioctl with radio. Moves all functionality from libradio to libmac.
 	  From Anthony Merlino (2017-05-05).
@@ -2049,7 +2049,7 @@
 	* wireless/ieee802154: i8sak adds event handling from MAC char driver.
 	  From Anthony Merlino (2017-05-16).
 	* apps/examples/mtdpart: Prevent part array overflow.  mtdpart examples
-	  create partions and allocate from 1 index not a 0 index to part[]
+	  create partitions and allocate from 1 index not a 0 index to part[]
 	  array. This cause buffer overflow for part array.  This change fixes
 	  this problem.  From  EunBong Song (2017-05-17).
 	* apps/examples/can:  Fix can example app to print data when
@@ -2082,7 +2082,7 @@
 
 7.22 2017-09-06 Gregory Nutt <gnutt@nuttx.org>
 
-	* apps/system/composite: Update to apps/system/composite assocated with
+	* apps/system/composite: Update to apps/system/composite associated with
 	  big changes to the composite device logic.  From Frank Benkert
 	  (2017-06-01).
 	* wireless/ieee802154: Modifies i8 to support running various routines.
@@ -2132,7 +2132,7 @@
 	  test.  Separate out network initialization so that it may,
 	  eventually, be used by both a target server and a target client.  Fix
 	  client/server naming confusion; add command line option to select the
-	  server address on the target.  Add support for both enpoints on
+	  server address on the target.  Add support for both endpoints on
 	  target boards vs. one on a target and one on the host PC
 	  (2017-06-23).
 	* system/dhcpc:  The DHCPC renew command did not build correctly due to
@@ -2150,7 +2150,7 @@
 	* ieee802154: start of scan/beacon-enabled network.  From Anthony
 	  Merlino (2017-06-26).
 	* netutils/telnetc:  This a port of libtelnet to NuttX (2017-06-26).
-	* system/telnet:  Add Telnet Chat deamon and and client from libtelent
+	* system/telnet:  Add Telnet Chat daemon and and client from libtelent
 	  (2017-06-26).
 	* NSH library:  Add a Telnetd command.  This is needed when network
 	  initialization is deferred.  In that case, telnet daemon cannot be
@@ -2189,7 +2189,7 @@
 	* apps/examples/keypadtest: REMOVED and warehoused in the Obsoleted
 	  repository.  This was just a bad clone of apps/examples/hidkbd for a
 	  keypad driver that was removed years ago.  It also uses illegal
-	  function calls into the OS.  So it has no purpse:  It is
+	  function calls into the OS.  So it has no purpose:  It is
 	  redundant, it uses illegal interfaces, and is a test for non-existent
 	  code (2017-07-04).
 	* tools/mkkconfig.bat: Use %cd% instead of %~dp0 for usage of APPSDIR
@@ -2244,7 +2244,7 @@
 	* apps/netutils/netlib:  Add support for PktRadio IOCTL commands
 	  (2017-08-02).
 	* NSH library: Extend ifconfig command so that it can set variable
-	  length packet radio addresss (2017-08-02).
+	  length packet radio address (2017-08-02).
 	* netutils/netlib: Fix netlib_nodaddrconv() so that its return type is
 	  the same as other address conversion functions.  NSH: Correct parsing
 	  of ifconfig so that you can specify the HW address without specifying
@@ -2345,7 +2345,7 @@
 	  SENSORS_QENCODER fix it here.  From Alan Carvalho de Assis (2017-09-24).
 	* nshlib/nsh_parse.c: Avoid truncating the strcmp result into a unsigned
 	  char variable.  nshlib/nsh_netcmds.c: Check for valid hostip before
-	  using it.  nshlib/nsh_ddcmd.c: Fix resouce leak when 'if=' or 'of='
+	  using it.  nshlib/nsh_ddcmd.c: Fix resource leak when 'if=' or 'of='
 	  params are repeated in the command line.  For example:
 	    - dd if=/dev/null if=/dev/zero of=/dev/null or
 	    - dd if=/dev/zero of=/dev/zero of=/dev/null
@@ -2493,7 +2493,7 @@
 	  /proc/meminfo (2017-11-13).
 	* apps/graphics/pdcurs34:  This commit brings the basic public domain
 	  pdcurses library into NuttX.  This library is complete but not yet
-	  usuable because it still requires the NuttX interfacing code needed hook
+	  usable because it still requires the NuttX interfacing code needed hook
 	  pdcurses into the NuttX graphics drivers.  Also test cases are needed to
 	  verify the pdcurses integration (2017-11-17).
 	* apps/examples/pdcurses:  Bring in pdcurses demos and make them conform
@@ -2541,7 +2541,7 @@
 	* apps/graphics/pdcurs34:  Correct logic that sets the font buffer to
 	  the background color for the case of BPP < 8 (2017-11-29).
 	* apps/examples/pdcurses:  Clean up charset example so that the display
-	  geomtry  is better on very wide displays (wide with respect to the width
+	  geometry  is better on very wide displays (wide with respect to the width
 	  of a character) (2017-11-30).
 
 7.24 2018-03-02 Gregory Nutt <gnutt@nuttx.org>
@@ -2588,7 +2588,7 @@
 	* examples/bmp180: Add BMP180 application example.  From Alan Carvalho
 	  de Assis (2018-02-04).
 	* apps/graphics/ft80x:  Add the FTDU FT80x GUI support library.
-	  Consists of some dispaly list helpers, audio helpers, touch helpers, RAM
+	  Consists of some display list helpers, audio helpers, touch helpers, RAM
 	  access, register access etc.  From Gregory Nutt (2018-02-18).
 	* apps/examples/ft80x:  Add a test of the FT80x based on FTDI
 	  SampleApp.  Includes tests of GPU primitives and graphics co-processor
@@ -2629,7 +2629,7 @@
 	* apps/examples/lzf:  Add the test case from Marc Alexander Lehmann's
 	  LIBLZF3.6 librrary  From Boris Astardzhiev (2018-03-14).
 	* apps/examples/lzf:  lzf_compress() now expects the hash table as user
-	  allocated input parmeter rather than declaring the huge array on the
+	  allocated input parameter rather than declaring the huge array on the
 	  stack.  From Gregory Nutt (2018-03-15).
 	* apps/examples/lzf:  unlzf and lzcat are not supported.  From Gregory Nutt
 	  (2018-03-15).
@@ -2686,7 +2686,7 @@
 	  CONFIG_EXAMPLES_OSTEST_AIO  From Juha Niskanen (2018-04-11).
 	* apps/examples/nxdemo:  Add nxdemo application  From Alan Carvalho de
 	  Assis (2018-04-28).
-	* apps/system/embedlog:  Support for embedlog data loggin package from
+	* apps/system/embedlog:  Support for embedlog data logging package from
 	  https://embedlog.kurwinet.pl/  From Michal Lyszczek (2018-05-06).
 	* nshlib/nsh_fscmds.c:  Add the mkfatfs -r option which can be used to
 	  specify the number of entries in the FAT12/FAT16 root directory.  From
@@ -2817,7 +2817,7 @@
 	  remove unnecessary usleep().  From Masayuki Ishikawa (2018-07-31).
 	* apps/system/i2c:  Adapt to rename I2C_M_RESTART->i2C_M_START.
 	  I2C_M_NOSTOP should be in flags of first message in every write-read
-	  and write-write mesage sequence.  From Gregory Nutt (2018-08-03).
+	  and write-write message sequence.  From Gregory Nutt (2018-08-03).
 	* include/netutils/netlib.h:  Eliminate a warning about AF_UNSPEC and
 	  AF_INET not defined.  From Gregory Nutt (2018-08-03).
 	* Introduce a build system for loadable apps for nsh.
@@ -2936,7 +2936,7 @@
 	  order.  From Xiang Xiao (2018-08-23).
 	* apps/system/ping and ping6:  Change dependency in ping and ping6
 	  Kconfig.  These may be implemented in users sockets and, hence, may
-	  need to be avaiable even if ICMP and ICMPv6 sockets are not support.
+	  need to be available even if ICMP and ICMPv6 sockets are not support.
 	  From Xiang Xiao (2018-08-23).
 	* apps/system/cu/cu_main.c: (1) Protect from possible re-definition of
 	  signal values, (2) Fix CU ctrl-C hand when remote core hang.  From
@@ -3443,7 +3443,7 @@
 	      and 'i'nsert.  Fixed.
 	  5.  The 'vi_shrinkpos' position didn't take the end of file pointer into
 	      account when calculating 'curpos', 'prevpos' variables causing
-	      wierdness when deleting things near the end of the file.  Fixed.
+	      weirdness when deleting things near the end of the file.  Fixed.
 	  6.  The 'yy'ank command was improperly deleting the text from the
 	      document instead of simply yanking to the paste buffer.  Fixed.
 	  7.  The 'dd'elete line function was not copying the deleted line to the
@@ -3534,7 +3534,7 @@
 	  18. Support for '?' reverse search mode.
 	  19. Support for 'J'oin next line with current line command.
 	  20. Printing of current row,col in status line of display.
-	  21. Command repeat '.' support for commands that modifiy text.
+	  21. Command repeat '.' support for commands that modify text.
 	  22. Support in replace  / insert mode for arrow keys, PGUP / PGDN, HOME,
 	     and END.  Using these will cause the command repeat buffer to
 	     reset such that only the last text addition after a cursor movement
@@ -3600,7 +3600,7 @@
 	* apps/netutils/dhcpc/dhcpc.c:  Fix an error for DHCP REQUEST receiving a
 	  NAK.In DHCP Request operation, no need to update ciaddr to the client
 	  address and keep it as 0.  From Kevin Liu (2019-01-30).
-	* apps/eamples/modbusmaster:  Add Simple Modbus master example.   This
+	* apps/examples/modbusmaster:  Add Simple Modbus master example.   This
 	  example only supports Read/Write HoldingRegisters, but it is easy to
 	  extend it to support Read/Write Input/Coils/etc.  Originally creatd bey
 	  Vytautas in 2016 and updated with minor fixes for this commit.  From
@@ -3808,7 +3808,7 @@
 	  3. Revist Icons.  They are windows now, but need to be compound widgets
 	     lying on the background.
 	  4. Widget events are only partially integrated.  A lot more needs to be
-	     done.  A partial change to thoe event system that hints at the
+	     done.  A partial change to those event system that hints at the
 	     redesign is in place but it is far from complete.  From Gregory Nutt
 	     (2019-04-25).
 	* graphics/twm4nx/src/cwindow.cxx:  Finishes first cut at window event
@@ -3825,7 +3825,7 @@
 	  toolbar, it is necessary to get the CWidgetControl instance from the
 	  window we want to use, not to create a new instance.  From Gregory Nutt
 	  (2019-04-26).
-	* apps/graphics/twm4nx:  Finsh menu-related event handling.  Extended menu
+	* apps/graphics/twm4nx:  Finish menu-related event handling.  Extended menu
 	  handling.  Allow external application event handling using a new base
 	  class (CTwm4NxEvent).  From Gregory Nutt (2019-04-27).
 	* apps/graphics/twm4nx:  Flesh out some of the Resize logic.  Still missing
@@ -4143,7 +4143,7 @@
 	  initial calibration screen optional.  From Gregory Nutt (2019-05-20).
 	* apps/nshlib:  Fix all places where cle() and readline() are used.
 	  readline() returns EOF on a failure.  cle() returns a negated errno
-	  value.  Checking only for EOF causes failues to be missed (and infinite
+	  value.  Checking only for EOF causes failures to be missed (and infinite
 	  loops ensuing).  From Valmantas Paliksa (2019-05-21).
 	* Add an alternative COMPONTEMPORARY theme.  Still has some artifacts on
 	  the display.  From Gregory Nutt (2019-05-21).
@@ -4184,7 +4184,7 @@
 	  simulated segments of an SLCD display.  From Gregory Nutt (2019-05-31).
 	* apps/graphics/tmw4nx and apps/graphics/slcd:  Add a CClock class that
 	  implements the Twm4Nx digital clock based on the CSLcd simulated SLCD
-	  segements.  From Gregory Nutt (2019-06-01).
+	  segments.  From Gregory Nutt (2019-06-01).
 	* apps/graphics/slcd:  Improve the representation of '1', 'l', and 'I'.
 	  From Gregory Nutt (2019-06-01).
 	* netutils/telnetd/telnetd_daemon.c:  Fix another C89 violation that caused
@@ -4319,7 +4319,7 @@
 	    AT24CS0x, FLASH chips with a UUID that appears as a 2nd I2C slave at
 	    (address+8), report their serial number at Reg[80]-Reg[8F] and will
 	    NAK a read of Reg[0].
-	  - modify get/set to prevent write of reg index if not specifed  From
+	  - modify get/set to prevent write of reg index if not specified  From
 	  David Alessio (2019-08-20).
 	* Move apps/builtins/builtin_forindex.c to nuttx/libs/libc/builtin since
 	  it is required by kernel logic as well.  Other changes account for
@@ -4433,7 +4433,7 @@
 	    slaves with register files that start from a higher index, i.e. the AT24CS0x,
 	    FLASH chips with a UUID that appears as a 2nd I2C slave at (address+8),
 	    report their serial number at Reg[80]-Reg[8F] and will NAK a read of Reg[0].
-	  - modify get/set to prevent write of reg index if not specifed
+	  - modify get/set to prevent write of reg index if not specified
 	  - add 'dump' command to issue a single transaction to retrieve multiple bytes
 	    from an I2C slave and register/offset.
 	  - use NuttX' isprint()
@@ -4522,7 +4522,7 @@
 	* apps/nshlib/README.txt:  Update README to at least mention the new pmconfig
 	  command.  From Gregory Nutt (2019-11-04).
 	* netutils/netlib/netlib_getarptab.c:  Do not initialize response buffer, it is
-	  write-only.  Also add a check to assue that the sequence number in the response
+	  write-only.  Also add a check to assure that the sequence number in the response
 	  is the same as the sequence number in the request.  From Gregory Nutt
 	  (2019-11-04).
 	* apps/system/cle/cle.c:  This change modifies the cle to use the streams file
@@ -4534,7 +4534,7 @@
 	* apps/system/cu/cu_main.c: (1) Fix early exit.  getc(stdin) can return 0 the
 	  first time around.  (2) Set optind to zero.  getopt() was being left in a bad
 	  state, causing parsing errors on second use.  (3) Fix priority of cu_listen().
-	  (4) Add suppor for -h.  From David Alessio (2019-11-05).
+	  (4) Add support for -h.  From David Alessio (2019-11-05).
 	* netutils/netlib/netlib_getarptab.c:  Per an old Linux Journal article, the
 	  nl_pid fild of struct sockaddr_nl should be set to the PID of the task that
 	  created the Netlink socket.  Also fixes a warning.  From Gregory Nutt

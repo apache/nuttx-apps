@@ -52,7 +52,7 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
-/* Configuation Checkes *****************************************************/
+/* Configuration Checks *****************************************************/
 
 /* BEWARE:
  * There are other configuration settings needed in netutils/dhcpd/dhcpdc.c,

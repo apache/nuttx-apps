@@ -72,10 +72,10 @@
  *
  * Parameters:
  *   argb - argb8888 color
- *   a    - Reference ot 8-bit alpha channel
- *   r    - Reference ot 8-bit red channel
- *   g    - Reference ot 8-bit green channel
- *   b    - Reference ot 8-bit blue channel
+ *   a    - Reference to 8-bit alpha channel
+ *   r    - Reference to 8-bit red channel
+ *   g    - Reference to 8-bit green channel
+ *   b    - Reference to 8-bit blue channel
  *
  ****************************************************************************/
 
@@ -120,7 +120,7 @@ static uint16_t rgb565(uint32_t argb)
  *
  * Parameters:
  *   fbmem - Points to framebuffer start address
- *   oinfo - Refence to overlay information
+ *   oinfo - Reference to overlay information
  *   area  - Area draw
  *   color - cmap color entry
  *
@@ -160,7 +160,7 @@ static void draw_rect8(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  * Parameters:
  *   fbmem - Points to framebuffer start address
- *   oinfo - Refence to overlay information
+ *   oinfo - Reference to overlay information
  *   area  - Area draw
  *   rgb   - rgb565 color
  *
@@ -198,7 +198,7 @@ static void draw_rect16(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  * Parameters:
  *   fbmem - Points to framebuffer start address
- *   oinfo - Refence to overlay information
+ *   oinfo - Reference to overlay information
  *   area  - Area draw
  *   rgb   - rgb888 color
  *
@@ -246,7 +246,7 @@ static void draw_rect24(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  * Parameters:
  *   fbmem - Points to framebuffer start address
- *   oinfo - Refence to overlay information
+ *   oinfo - Reference to overlay information
  *   area  - Area draw
  *   argb  - argb8888 color
  *
@@ -956,7 +956,7 @@ static int fbopen(const char * device)
  *   Commandline info
  *
  * Parameters:
- *   progname - Name of the programm
+ *   progname - Name of the program
  *
  ****************************************************************************/
 

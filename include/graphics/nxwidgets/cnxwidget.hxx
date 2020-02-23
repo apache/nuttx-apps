@@ -1163,7 +1163,7 @@ namespace NXWidgets
 
     /**
      * Move the widget to the new coordinates.
-     * Co-ordinates are relative to the parent widget.
+     * Coordinates are relative to the parent widget.
      *
      * @param x The new x coordinate.
      * @param y The new y coordinate.

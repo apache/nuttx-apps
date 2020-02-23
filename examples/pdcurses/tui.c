@@ -693,7 +693,7 @@ static void repainteditbox(WINDOW *win, int x, char *buf)
  *
  * Description:
  *   The initial value of 'str' with a maximum length of 'field' - 1,
- *   which is supplied by the calling routine, is editted. The user's
+ *   which is supplied by the calling routine, is edited. The user's
  *   erase (^H), kill (^U) and delete word (^W) chars are interpreted.
  *   The PC insert or Tab keys toggle between insert and edit mode.
  *   Escape aborts the edit session, leaving 'str' unchanged.

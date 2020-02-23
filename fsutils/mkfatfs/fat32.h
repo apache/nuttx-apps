@@ -236,7 +236,7 @@
  */
 
 #define DIR_NAME             0 /* 11@ 0: NAME: 8 bytes + 3 byte extension */
-#define DIR_ATTRIBUTES      11 /*  1@11: File attibutes (see below) */
+#define DIR_ATTRIBUTES      11 /*  1@11: File attributes (see below) */
 #define DIR_NTRES           12 /*  1@12: Reserved for use by NT */
 #define DIR_CRTTIMETENTH    13 /*  1@13: Tenth sec creation timestamp */
 #define DIR_CRTIME          14 /*  2@14: Time file created */
@@ -354,7 +354,7 @@
 #define FAT_BAD            0x0ffffff7
 
 /****************************************************************************
- * Maximum cluster by FAT type.  This is the key value used to distinquish
+ * Maximum cluster by FAT type.  This is the key value used to distinguish
  * between FAT12, 16, and 32.
  */
 

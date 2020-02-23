@@ -335,7 +335,7 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, uint16_t protocol, uint8_t c)
 /****************************************************************************
  * ahdlc_tx(protocol,buffer,len) - Transmit a PPP frame.
  *
- *    Buffer contains protocol data, ahdlc_tx addes address, control and
+ *    Buffer contains protocol data, ahdlc_tx adds address, control and
  *    protocol data.
  *
  * Relies on local global vars    :    ahdlc_tx_crc, ahdlc_flags.

@@ -58,12 +58,12 @@
  * Name: ft80x_touch_gettransform
  *
  * Description:
- *   Read the touch transfrom matrix
+ *   Read the touch transform matrix
  *
  * Input Parameters:
  *   fd     - The file descriptor of the FT80x device.  Opened by the caller
  *            with write access.
- *   matrix - The location to return the transfrom matrix
+ *   matrix - The location to return the transform matrix
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.

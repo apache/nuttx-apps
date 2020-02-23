@@ -9,7 +9,7 @@ config SYSTEM_DHCPC_RENEW
 	select NETUTILS_DHCPC
 	depends on NET_UDP && NET_BROADCAST && NET_IPv4 && NET_ETHERNET
 	---help---
-		Enble the DHCP client 'renew' command
+		Enable the DHCP client 'renew' command
 
 if SYSTEM_DHCPC_RENEW
 

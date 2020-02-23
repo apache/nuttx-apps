@@ -383,7 +383,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 }
 
 /**
- *  Inject touchscreen data into NX as mouse intput
+ *  Inject touchscreen data into NX as mouse input
  */
 
 void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)

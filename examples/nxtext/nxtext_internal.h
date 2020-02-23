@@ -276,7 +276,7 @@ struct nxtext_state_s
  * Public Data
  ****************************************************************************/
 
-/* The connecton handler */
+/* The connection handler */
 
 extern NXHANDLE g_hnx;
 

@@ -75,7 +75,7 @@ struct chat_app
   FAR char** argv;                 /* command-line arguments */
   char tty[CHAT_TTYNAME_SIZE];     /* modem TTY device node */
   FAR const char *script;          /* raw chat script - input to the parser */
-  bool script_dynalloc;            /* true iff the script should be freed */
+  bool script_dynalloc;            /* true if the script should be freed */
 };
 
 /****************************************************************************

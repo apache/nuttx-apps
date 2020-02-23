@@ -33,7 +33,7 @@
  *
  ****************************************************************************/
 
-/* Mount the ROMFS image, Verifty that it contains the
+/* Mount the ROMFS image, Verify that it contains the
  * following:
  *
  * testdir

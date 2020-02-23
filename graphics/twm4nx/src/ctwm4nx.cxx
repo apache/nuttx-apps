@@ -181,7 +181,7 @@ bool CTwm4Nx::initialize(void)
 
   if (!m_background->initialize(&CONFIG_TWM4NX_BACKGROUND_IMAGE))
     {
-      twmerr("ERROR: Failed to set backgournd image\n");
+      twmerr("ERROR: Failed to set background image\n");
       cleanup();
       return false;
     }

@@ -112,7 +112,7 @@ static int zm_event(FAR struct zm_state_s *pzm, int event)
   zmdbg("ZM[R|S]_state: %d event: %d\n", pzm->state, event);
 
   /* Look up the entry associated with the event in the current state
-   * transition table.  NOTE that each state table must be termined with a
+   * transition table.  NOTE that each state table must be terminated with a
    * ZME_ERROR entry that provides indicates that the event was not
    * expected.  Thus, the following search will always be successful.
    */
@@ -132,7 +132,7 @@ static int zm_event(FAR struct zm_state_s *pzm, int event)
 
   pzm->state = ptr->next;
 
-  /* Discard buffered data if so requrested */
+  /* Discard buffered data if so requested */
 
   if (ptr->bdiscard)
     {
@@ -607,7 +607,7 @@ static int zm_header(FAR struct zm_state_s *pzm, uint8_t ch)
  *
  * Description:
  *   Data has been received in state PSTATE_DATA.  PSTATE_DATA is set by
- *   Zmodem transfer logic when it exepects to received data from the
+ *   Zmodem transfer logic when it expects to received data from the
  *   remote peer.
  *
  *   FORMAT:
@@ -670,7 +670,7 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
         case ZCRCQ: /* Data packet (ZACK response expected) */
           {
             /* Save the packet type, change substates, and set of count that
-             * indicates the nubmer of bytes still to be added to the packet
+             * indicates the number of bytes still to be added to the packet
              * buffer:
              *
              *   ZBIN:   1+2 = 3

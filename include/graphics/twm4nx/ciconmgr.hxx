@@ -203,7 +203,7 @@ namespace Twm4Nx
       /**
        * There is no custom event handler.  We use the common event handler.
        *
-       * @return.  null is always returned in this impementation.
+       * @return.  null is always returned in this implementation.
        */
 
       inline FAR CTwm4NxEvent *getEventHandler(void)

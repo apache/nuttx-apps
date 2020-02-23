@@ -230,7 +230,7 @@ void CLatchButtonArrayTest::showButton(CLatchButtonArray *buttonArray)
 
 // Perform a simulated mouse click on a button in the array.  This method injects
 // the mouse click through the NX hierarchy just as would real mouse
-// hardward.
+// hardware.
 
 void CLatchButtonArrayTest::click(CLatchButtonArray *buttonArray, int column, int row)
 {
@@ -244,7 +244,7 @@ void CLatchButtonArrayTest::click(CLatchButtonArray *buttonArray, int column, in
 
   NXHANDLE handle = getServer();
 
-  // The the coorinates of the center of the button
+  // The the coordinates of the center of the button
 
   nxgl_coord_t buttonX = buttonArray->getX() +
                          column * BUTTONARRAY_BUTTONWIDTH +
@@ -273,7 +273,7 @@ void CLatchButtonArrayTest::release(CLatchButtonArray *buttonArray, int column, 
 
   NXHANDLE handle = getServer();
 
-  // The the coorinates of the center of the button
+  // The the coordinates of the center of the button
 
   nxgl_coord_t buttonX = buttonArray->getX() +
                          column * BUTTONARRAY_BUTTONWIDTH +

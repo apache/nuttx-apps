@@ -149,7 +149,7 @@ void CWindowEventHandlerList::raiseMouseEvent(FAR const struct nxgl_point_s *pos
 
 #ifdef CONFIG_NX_KBD
 /**
- * Raise an NX keybord input event
+ * Raise an NX keyboard input event
  */
 
 void CWindowEventHandlerList::raiseKeyboardEvent(void)

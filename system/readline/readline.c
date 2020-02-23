@@ -117,7 +117,7 @@ static int readline_getc(FAR struct rl_common_s *vtbl)
       else if (nread < 0)
         {
           /* EINTR is not really an error; it simply means that a signal we
-           * received while watiing for intput.
+           * received while watiing for input.
            */
 
           int errcode = errno;

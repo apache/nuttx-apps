@@ -66,7 +66,7 @@ static void *thread_func(FAR void *parameter)
   FAR void *data;
   int ret;
 
-  /* Set the pthread specific data for the main thead */
+  /* Set the pthread specific data for the main thread */
 
   ret = pthread_setspecific(g_pthread_key, (FAR const void *)0xcafebabe);
   if (ret != 0)
@@ -108,7 +108,7 @@ void specific_test(void)
       printf("ERROR: pthread_key_create() failed: %d\n", ret);
     }
 
-  /* Set the pthread specific data for the main thead */
+  /* Set the pthread specific data for the main thread */
 
   ret = pthread_setspecific(g_pthread_key, (FAR const void *)0xf00dface);
   if (ret != 0)

@@ -113,7 +113,7 @@ int canlib_getbaud(int fd, FAR int *bauds);
  *
  * Input Parameter:
  *   fd       - file descriptor of an opened can device
- *   loopback - wether to use loopback mode.
+ *   loopback - whether to use loopback mode.
  *
  * Returned Value:
  *   Zero (OK) is returned on success.  Otherwise -1 (ERROR)
@@ -152,7 +152,7 @@ int canlib_getloopback(int fd, FAR bool *loop);
  *
  * Input Parameter:
  *   fd       - file descriptor of an opened can device
- *   loopback - wether to use loopback mode.
+ *   loopback - whether to use loopback mode.
  *
  * Returned Value:
  *   Zero (OK) is returned on success.  Otherwise -1 (ERROR)

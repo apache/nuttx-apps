@@ -57,7 +57,7 @@
 #include <debug.h>
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-#  ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
+#  ifdef CONFIG_FS_READABLE /* Need at least one filesystem in configuration */
 #    include <sys/mount.h>
 #    include <sys/boardctl.h>
 #    include <nuttx/drivers/ramdisk.h>

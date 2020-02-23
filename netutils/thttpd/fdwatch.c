@@ -277,7 +277,7 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
   int ret;
   int i;
 
-  /* Wait for activity on any of the desciptors.  When poll() returns, ret
+  /* Wait for activity on any of the descriptors.  When poll() returns, ret
    * will hold the number of descriptors with activity (or zero on a timeout
    * or <0 on an error.
    */

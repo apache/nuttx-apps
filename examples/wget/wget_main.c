@@ -53,7 +53,7 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
-/* Configuation Checks ******************************************************/
+/* Configuration Checks ******************************************************/
 /* BEWARE:
  * There are other configuration settings needed in netutitls/wget/wgetc.s,
  * but there are default values for those so we cannot check them here.

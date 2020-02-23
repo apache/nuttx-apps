@@ -162,7 +162,7 @@ ssize_t tiff_read(int fd, FAR void *buffer, size_t count)
   for (ntotal = 0; ntotal < count; )
     {
       /* Do the read.  The number of bytes left to read is the total
-       * requested size (count) minus the amount that we have alread read
+       * requested size (count) minus the amount that we have already read
        * (ntotal).
        */
 

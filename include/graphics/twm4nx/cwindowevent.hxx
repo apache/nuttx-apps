@@ -89,7 +89,7 @@ namespace Twm4Nx
        *
        * CAREFUL:  All of these methods will run on the thread of execution
        * of the listener thread.  The safest design for the implementation
-       * of these methods would be to send a messsage to main Twm4Nx thread
+       * of these methods would be to send a message to main Twm4Nx thread
        * event handler for movement processing.
        */
 

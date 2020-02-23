@@ -721,7 +721,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
       /* Then execute the command in "foreground" -- i.e., while the user waits
        * for the next prompt.  nsh_command will return:
        *
-       * -1 (ERRROR) if the command was unsuccessful
+       * -1 (ERROR) if the command was unsuccessful
        *  0 (OK)     if the command was successful
        */
 

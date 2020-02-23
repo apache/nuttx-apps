@@ -1349,7 +1349,7 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Description:
  *   Skip any trailing '/' characters (unless it is also the leading '/')
  *
- * Input Parmeters:
+ * Input Parameters:
  *   dirpath - The directory path to be trimmed.  May be modified!
  *
  * Returned value:
@@ -1367,8 +1367,8 @@ void nsh_trimdir(FAR char *dirpath);
  * Description:
  *   Trim any leading or trailing spaces from a string.
  *
- * Input Parmeters:
- *   str - The sring to be trimmed.  May be modified!
+ * Input Parameters:
+ *   str - The string to be trimmed.  May be modified!
  *
  * Returned value:
  *   The new string pointer.

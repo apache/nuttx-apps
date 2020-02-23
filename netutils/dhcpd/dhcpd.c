@@ -1129,7 +1129,7 @@ static inline int dhcpd_discover(void)
   in_addr_t ipaddr;
   uint32_t leasetime = CONFIG_NETUTILS_DHCPD_LEASETIME;
 
-  /* Check if the client is aleady in the lease table */
+  /* Check if the client is already in the lease table */
 
   lease = dhcpd_findbymac(g_state.ds_inpacket.chaddr);
   if (lease)

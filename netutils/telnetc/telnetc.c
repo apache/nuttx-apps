@@ -2251,7 +2251,7 @@ void telnet_ttype_send(struct telnet_s *telnet)
  *
  *   The server may continue sending TERMINAL-TYPE IS until it receives a
  *   terminal type is understands.  To indicate to the server that it has
- *   reached the end of the available optoins, the client must send the last
+ *   reached the end of the available options, the client must send the last
  *   terminal type a second time.  When the server receives the same terminal
  *   type twice in a row, it knows it has seen all available terminal types.
  *

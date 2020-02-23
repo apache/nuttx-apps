@@ -369,7 +369,7 @@ int i8sak_eventlistener_removereceiver(FAR struct i8sak_s *i8sak,
   ret = sem_wait(&i8sak->eventsem);
   if (ret != OK)
     {
-      fprintf(stderr, "failed to get exlusive access: %d\n", ret);
+      fprintf(stderr, "failed to get exclusive access: %d\n", ret);
       return ret;
     }
 

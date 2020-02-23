@@ -13,7 +13,7 @@ README
   * CONFIG_TESTING_SMART_NEBLOCKS: When CONFIG_TESTING_SMART_ARCHINIT is not
     defined, this test will use the RAM MTD device at drivers/mtd/rammtd.c
     to simulate FLASH.  In this case, this value must be provided to give
-    the nubmer of erase blocks in MTD RAM device.  The size of the allocated
+    the number of erase blocks in MTD RAM device.  The size of the allocated
     RAM drive will be: CONFIG_RAMMTD_ERASESIZE * CONFIG_TESTING_SMART_NEBLOCKS
   * CONFIG_TESTING_SMART_MAXNAME: Determines the maximum size of names used
     in the filesystem

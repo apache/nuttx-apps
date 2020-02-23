@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/hexed/inlcude/bfile.h
+ * apps/system/hexed/include/bfile.h
  * Buffered file control header
  *
  *   Copyright (c) 2010, B.ZaaR, All rights reserved.

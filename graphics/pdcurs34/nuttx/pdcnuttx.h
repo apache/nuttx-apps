@@ -233,7 +233,7 @@ typedef uint16_t pdc_color_t;
 typedef uint32_t pdc_color_t;
 #endif
 
-/* This structure provides the overall state of the frambuffer device */
+/* This structure provides the overall state of the framebuffer device */
 
 struct pdc_fbstate_s
 {

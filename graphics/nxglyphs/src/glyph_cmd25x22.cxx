@@ -130,7 +130,7 @@ static const nxgl_mxpixel_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 
 #  endif
 #else
-# error "Unsupport pixel format"
+# error "Unsupported pixel format"
 #endif
 
 static const struct SRlePaletteBitmapEntry g_cmdRleEntries[] =

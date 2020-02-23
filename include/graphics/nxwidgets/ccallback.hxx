@@ -97,7 +97,7 @@ namespace NXWidgets
 #ifdef CONFIG_NXTERM_NXKBDIN
     NXTERM               m_nxterm;        /**< The NxTerm handle for redirection of keyboard input */
 #endif
-    volatile bool       m_synchronized;   /**< True:  Syncrhonized with NX server */
+    volatile bool       m_synchronized;   /**< True:  Synchronized with NX server */
     sem_t               m_semevent;       /**< Event wait semaphore */
 
     // Methods in the callback vtable
@@ -257,7 +257,7 @@ namespace NXWidgets
     inline ~CCallback(void) {}
 
     /**
-     * Get the callback vtable.  This is neeed only by the window
+     * Get the callback vtable.  This is need only by the window
      * instance that inherits this class.  The window instance needs the
      * C-callable vtable in order to create the NX window.  Once the
      * window is created, this class will begin to receive callbacks via

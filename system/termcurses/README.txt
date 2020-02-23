@@ -35,7 +35,7 @@ Use with telnetd
 
 When using termcurses with the telnet daemon, the telnet config option
 CONFIG_TELNET_SUPPORT_NAWS should be enabled.  This option adds code to the
-telnet library for terminal size negotiation.  Wihout this option, the telnet
+telnet library for terminal size negotiation.  Without this option, the telnet
 routines have no concept of the terminal size, and therefore the termcurses
 routines must default to 80x24 screen mode.
 

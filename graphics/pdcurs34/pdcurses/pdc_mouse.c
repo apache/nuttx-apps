@@ -153,7 +153,7 @@
  *       avoid conflict with PDCurses' getmouse(). But if you define
  *       NCURSES_MOUSE_VERSION (preferably as 2) before including
  *       curses.h, it defines getmouse() to nc_getmouse(), along with a
- *       few other redefintions needed for compatibility with ncurses
+ *       few other redefinitions needed for compatibility with ncurses
  *       code. nc_getmouse() calls request_mouse_pos(), which (not
  *       getmouse()) is the classic equivalent.
  *

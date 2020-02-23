@@ -43,7 +43,7 @@
 # Output is to stdout, but may be re-directed to a file.
 
 PROGNAME=$0
-USAGE="USAGE: $PROGNAME [-d] -f <input-file> [-bg <backgrond color>] -[f1 <color1>] [-f2 <color2>] [-f3 <color3>] -o <output-file>"
+USAGE="USAGE: $PROGNAME [-d] -f <input-file> [-bg <background color>] -[f1 <color1>] [-f2 <color2>] [-f3 <color3>] -o <output-file>"
 
 CFILE=mkcursor.c
 TMPFILE1=_tmpfile1.c

@@ -459,7 +459,7 @@ config EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_1
 	---help---
 		IP address of the server.  If the target is the server, then
 		EXAMPLES_TCPBLASTER_SERVERIP should be the same as
-		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the cleint,
+		EXAMPLES_TCPBLASTER_IPADDR (default).  If the target is the client,
 		then the default value of EXAMPLES_TCPBLASTER_SERVERIP is set to the
 		host PC IP address (possibly the gateway address,
 		EXAMPLES_TCPBLASTER_DRIPADDR?).

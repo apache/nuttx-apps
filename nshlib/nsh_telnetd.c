@@ -351,7 +351,7 @@ int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   sa_family_t family = AF_UNSPEC;
 
-  /* If both IPv6 nd IPv4 are enabled, then the address family must
+  /* If both IPv6 and IPv4 are enabled, then the address family must
    * be specified on the command line.
    */
 

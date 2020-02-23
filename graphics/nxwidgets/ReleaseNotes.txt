@@ -37,7 +37,7 @@ headline new feature in this release is:
   menu and create as many NSH sessions in windows as you want. (keybard input
   still comes through serial).
 
-  This initial realease of NxWM should be considered an alpha release.
+  This initial release of NxWM should be considered an alpha release.
   All know issues are listed in the top-level TODO list.
 
 Other important new features include:
@@ -126,7 +126,7 @@ Additional new features and extended functionality in Version 1.4:
 
 * NxWdigets::CNxServer: Reduce start-up delay
 * NxWM::CApplicationWindow: Option to eliminate minimize button.
-* NxWM::CTaskbar: Option to eliminte the background image; highlight current
+* NxWM::CTaskbar: Option to eliminate the background image; highlight current
   icon in the task bar.
 * NxWidgets::CNumericEdit: New widget. Basically a CLabel with +/- buttons.
 * NxWidgets::CNxTimer:  Replace the original signal-based solution with a
@@ -532,7 +532,7 @@ Bugfixes\:
   incompatibility with versions of NuttX prior to 7.16.
 * UnitTests: Add Make.defs files to all UnitTests directories.  This is
   required by the current apps/Makefile.  Hmmm..  This means that no one
-  has built the NxWidgets packages in the last several realeases!
+  has built the NxWidgets packages in the last several releases!
 * UnitTests: Add some default definitions to handle the (unusual) case
   where 'make clean' is called with no .config or Make.defs file installed
 
@@ -555,7 +555,7 @@ Additional new features and extended functionality in Version 1.17:
     info(), warn(), and err().
   - Changes to Unittests/ Makefiles to deal with changes in the apps/
     build system.
-  - Changes to pre-processor include statments needed to handle
+  - Changes to pre-processor include statements needed to handle
     reorganization of the apps/include directory.
   - Update include paths to adapt to changes made to apps/ include path
     logic

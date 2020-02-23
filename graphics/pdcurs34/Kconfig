@@ -10,7 +10,7 @@ menuconfig GRAPHICS_PDCURSES
 	select NXFONTS_PACKEDMSFIRST
 	select LCD_PACKEDMSFIRST if LCD
 	---help---
-		Enable support for the pdcurses Text User Interface (TUI) libray.
+		Enable support for the pdcurses Text User Interface (TUI) library.
 
 if GRAPHICS_PDCURSES
 source "$APPSDIR/graphics/pdcurs34/pdcurses/Kconfig"

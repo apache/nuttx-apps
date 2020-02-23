@@ -141,7 +141,7 @@ static int alarm_daemon(int argc, FAR char *argv[])
         }
 
       /* Now wait a little while and poll again.  If a signal is received
-       * this should cuase us to awken earlier.
+       * this should cause us to awken earlier.
        */
 
       usleep(500*1000L);

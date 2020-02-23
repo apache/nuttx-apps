@@ -344,7 +344,7 @@ struct vi_s
   off_t textsize;           /* The size of the text buffer */
   off_t winpos;             /* Offset corresponding to the start of the display */
   off_t prevpos;            /* Previous display position */
-  off_t vscroll;            /* Vertical dislay offset in rows */
+  off_t vscroll;            /* Vertical display offset in rows */
   uint16_t hscroll;         /* Horizontal display offset */
   uint16_t value;           /* Numeric value entered prior to a command */
   uint16_t reqcolumn;       /* Requested column when moving up/down */
@@ -884,7 +884,7 @@ static void vi_scrollup(FAR struct vi_s *vi, uint16_t nlines)
       vi_write(vi, g_index, sizeof(g_index));
     }
 
-  /* Ensure bottom line is clared */
+  /* Ensure bottom line is cleared */
 
   vi_setcursor(vi, vi->display.row-1, 0);
   vi_clrtoeol(vi);
@@ -2292,7 +2292,7 @@ static void vi_delforward(FAR struct vi_s *vi)
       return;
     }
 
-  /* Test for empy line deletion and simply return */
+  /* Test for empty line deletion and simply return */
 
   if (vi->cursor.column == 0)
     {
@@ -4677,7 +4677,7 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
                 {
                   vi_exitsubmode(vi, MODE_COMMAND);
 
-                  /* Ensure bottom line is clared */
+                  /* Ensure bottom line is cleared */
 
                   vi_clearbottomline(vi);
                 }
@@ -4979,7 +4979,7 @@ static void vi_find_submode(FAR struct vi_s *vi, bool revfind)
                 {
                   vi_exitsubmode(vi, MODE_COMMAND);
 
-                  /* Ensure bottom line is clared */
+                  /* Ensure bottom line is cleared */
 
                   vi_clearbottomline(vi);
                 }
@@ -5839,7 +5839,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  /* Initialze termcurses */
+  /* Initialize termcurses */
 
   ret = termcurses_initterm(NULL, 0, 1, &vi->tcurs);
   if (ret == OK)

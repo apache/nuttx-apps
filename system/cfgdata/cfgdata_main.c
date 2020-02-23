@@ -63,7 +63,7 @@ static const char *g_config_dev = "/dev/config";
 
 static void cfgdatacmd_help(void)
 {
-  printf("\nUsage: cfgdata <cmd> [argumens]\n");
+  printf("\nUsage: cfgdata <cmd> [arguments]\n");
   printf("Where <cmd> is one of:\n\n");
   printf("  all:   show all config entries\n");
   printf("  print: display a specific config entry\n");
@@ -109,7 +109,7 @@ static int cfgdatacmd_idtok(int startpos, char *token)
     {
       /* Error in format */
 
-      printf("Expected config identifer in 'id,instance' format\n");
+      printf("Expected config identifier in 'id,instance' format\n");
       return 0;
     }
 

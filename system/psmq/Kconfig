@@ -24,7 +24,7 @@ config PSMQ_MAX_CLIENTS
 		This  defines  how  many  clients  single  broker process will
 		support.  Broker will return error for clients that want to
 		register to it and there are already max clients connected.  psmqd
-		will  alocate client array with static storage duration that is
+		will  allocate client array with static storage duration that is
 		about 12 bytes (may vary depending on architecture) for each
 		client.
 

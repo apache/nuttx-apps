@@ -613,7 +613,7 @@ void CGraphicsPort::drawText(struct nxgl_point_s *pos, CRect *bound,
 }
 
 /**
- * Draw a particular length of a string to the window in a secific color.
+ * Draw a particular length of a string to the window in a specific color.
  *
  * @param pos The window-relative x/y coordinate of the string.
  * @param bound The window-relative bounds of the string.

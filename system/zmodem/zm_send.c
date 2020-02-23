@@ -758,15 +758,15 @@ static int zms_sendfilename(FAR struct zm_state_s *pzm)
    *     octal string.  Programs which do not have a serial number should
    *     omit this field, or set it to 0.
    *   Number of Files Remaining
-   *     Iff the number of files remaining is sent, a single space separates
+   *     If the number of files remaining is sent, a single space separates
    *     this field from the previous field.  This field is coded as a
    *     decimal number, and includes the current file.
    *   Number of Bytes Remaining
-   *     Iff the number of bytes remaining is sent, a single space
+   *     If the number of bytes remaining is sent, a single space
    *     separates this field from the previous field. This field is coded
    *     as a decimal number, and includes the current file
    *   File Type
-   *     Iff the file type is sent, a single space separates this field from
+   *     If the file type is sent, a single space separates this field from
    *     the previous field.  This field is coded as a decimal number.
    *     Currently defined values are:
    *
@@ -884,7 +884,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       sndsize = pzms->filesize - pzms->offset;
 
-      /* This is the nubmer of bytes that have been sent but not yet ackowledged. */
+      /* This is the number of bytes that have been sent but not yet acknowledged. */
 
       unacked = pzms->offset - pzms->lastoffs;
 

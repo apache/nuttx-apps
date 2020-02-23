@@ -200,7 +200,7 @@
 #endif
 
 /* We need a valid IP domain (any domain) to create a socket that we can use
- * to comunicate with the network device.
+ * to communicate with the network device.
  */
 
 #if defined(CONFIG_NET_IPv4)

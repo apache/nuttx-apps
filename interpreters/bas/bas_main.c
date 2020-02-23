@@ -155,7 +155,7 @@ int main(int argc, FAR char *argv[])
       fputs("\n", stdout);
       fputs(_("BASIC interpreter.\n"), stdout);
       fputs("\n", stdout);
-      fputs(_("-b  Convert backslashs to colons\n"), stdout);
+      fputs(_("-b  Convert backslashes to colons\n"), stdout);
       fputs(_("-l  Write LPRINT output to file\n"), stdout);
       fputs(_("-r  Forbid SHELL\n"), stdout);
       fputs(_("-u  Output all tokens in uppercase\n"),
@@ -193,7 +193,7 @@ int main(int argc, FAR char *argv[])
 
   FS_putChar(STDCHANNEL, '\n');
 
-  /* Release resouces and close files and devices */
+  /* Release resources and close files and devices */
 
   bas_exit();
   return 0;

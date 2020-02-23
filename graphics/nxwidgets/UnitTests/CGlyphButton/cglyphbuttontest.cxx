@@ -250,7 +250,7 @@ void CGlyphButtonTest::showButton(CGlyphButton *button)
 
 // Perform a simulated mouse click on the button.  This method injects
 // the mouse click through the NX hierarchy just as would real mouse
-// hardward.
+// hardware.
 
 void CGlyphButtonTest::click(void)
 {

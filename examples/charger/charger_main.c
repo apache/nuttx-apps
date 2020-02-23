@@ -212,7 +212,7 @@ int charger_main(int argc, char *argv[])
   argc--;
   argv++;
 
-  /* Initialize and create battery charger deivce */
+  /* Initialize and create battery charger device */
 
   board_charger_initialize(DEVPATH);
 

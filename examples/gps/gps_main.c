@@ -104,7 +104,7 @@ int main(int argc, FAR char *argv[])
                          minmea_rescale(&frame.speed, 1000));
                   printf("Floating point degree latitude.: %2.6f\n",
                          minmea_tocoord(&frame.latitude));
-                  printf("Floating point degree longitute: %2.6f\n",
+                  printf("Floating point degree longitude: %2.6f\n",
                          minmea_tocoord(&frame.longitude));
                   printf("Floating point speed...........: %2.6f\n",
                          minmea_tocoord(&frame.speed));

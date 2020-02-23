@@ -185,7 +185,7 @@
 #define ZME_COMMAND   ZCOMMAND       /* Command, from sending program */
 #define ZME_STDERR    ZSTDERR        /* Output this message to stderr */
 
-#define ZME_CANCEL    251            /* Received the cancelation sequence */
+#define ZME_CANCEL    251            /* Received the cancellation sequence */
 #define ZME_OO        252            /* Received OO, terminating the receiver */
 #define ZME_DATARCVD  253            /* Data received */
 #define ZME_TIMEOUT   254            /* Timeout */
@@ -318,7 +318,7 @@ struct zm_state_s
 
   /* evtable[] is the state transition table that controls the state for this
    * current action.  Different state transitions tables are used for Zmodem
-   * vs. XY modem and for receive and for tansmit.
+   * vs. XY modem and for receive and for transmit.
    */
 
   FAR const struct zm_transition_s * const * evtable;

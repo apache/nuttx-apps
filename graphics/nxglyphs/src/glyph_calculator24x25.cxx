@@ -127,7 +127,7 @@ static const nxgl_mxpixel_t g_calculatorBrightLut[BITMAP_NLUTCODES] =
 
 #  endif /* CONFIG_NXWIDGETS_GREYSCALE */
 #else
-# error "Unsupport pixel format"
+# error "Unsupported pixel format"
 #endif
 
 static const struct SRlePaletteBitmapEntry g_calculatorRleEntries[] =

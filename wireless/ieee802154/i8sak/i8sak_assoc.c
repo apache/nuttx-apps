@@ -159,7 +159,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
 
           case 't':
-            /* Parse wait time and set the paremeter in the request */
+            /* Parse wait time and set the parameter in the request */
 
             setreq.attrval.mac.resp_waittime = i8sak_str2luint8(optarg);
             break;

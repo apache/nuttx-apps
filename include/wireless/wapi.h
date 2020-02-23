@@ -205,7 +205,7 @@ struct wapi_route_info_s
 };
 
 /* A generic linked list container. For functions taking  struct wapi_list_s
- * type of argument, caller is resposible for releasing allocated memory.
+ * type of argument, caller is responsible for releasing allocated memory.
  */
 
 struct wapi_list_s

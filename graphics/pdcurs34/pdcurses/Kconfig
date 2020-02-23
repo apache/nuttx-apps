@@ -32,7 +32,7 @@ config PDCURSES_MULTITHREAD
 		The base pdcurses code uses global and function static variables,
 		preventing multiple tasks from using pdcurses in a FLAT model.
 		This option collects all those variables into a thread specific
-		dynamically allocated context, enabling mulitple tasks to use
+		dynamically allocated context, enabling multiple tasks to use
 		pdcurses concurrently at the cost of a slight execution speed
 		penalty for performing per task context lookup.
 

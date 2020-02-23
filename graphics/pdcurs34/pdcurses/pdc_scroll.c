@@ -47,7 +47,7 @@
  *
  * Description:
  *       scroll() causes the window to scroll up one line.  This involves
- *       moving the lines in the window data strcture.
+ *       moving the lines in the window data structure.
  *
  *       With a positive n, scrl() and wscrl() scroll the window up n
  *       lines (line i + n becomes i); otherwise they scroll the window

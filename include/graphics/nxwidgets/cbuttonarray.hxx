@@ -281,7 +281,7 @@ namespace NXWidgets
 
     /**
      * Return the current cursor position (button indices) and an indication
-     * if the button at the cursor is currently hightlighted.
+     * if the button at the cursor is currently highlighted.
      *
      * @param column The location to return the column index of the button
      *    of interest

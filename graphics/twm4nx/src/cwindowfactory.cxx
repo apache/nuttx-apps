@@ -563,7 +563,7 @@ bool CWindowFactory::event(FAR struct SEventMsg *eventmsg)
 
       // Forward the event to the appropriate window
 
-      default:                     // All other window messsages
+      default:                     // All other window messages
         {
           FAR CWindow *cwin = (FAR CWindow *)eventmsg->obj;
           DEBUGASSERT(cwin != (FAR CWindow *)0);

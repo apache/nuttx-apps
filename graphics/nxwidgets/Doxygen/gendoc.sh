@@ -43,7 +43,7 @@ function ShowUsage()
     echo "USAGE: $0 <doxygen-output-directory-path>"
     echo ""
     echo "Where:"
-    echo " <doxygen-output-directory-path> is the full, absolut path to place the doxygen output"
+    echo " <doxygen-output-directory-path> is the full, absolute path to place the doxygen output"
     echo ""
 }
 

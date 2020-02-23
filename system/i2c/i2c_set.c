@@ -116,7 +116,7 @@ int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
       return ERROR;
     }
 
-  /* There may be one more thing on the command line:  The repitition
+  /* There may be one more thing on the command line:  The repetition
    * count.
    */
 

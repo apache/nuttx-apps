@@ -76,7 +76,7 @@ config EMBEDLOG_ENABLE_TIMESTAMP
 	default y
 	---help---
 		If enabled, you will be able to configure logger to add timestamp to
-		every loged message.
+		every logged message.
 
 if EMBEDLOG_ENABLE_TIMESTAMP
 

@@ -417,7 +417,7 @@ int main(int argc, FAR char *argv[])
               exit(16);
             }
 
-          /* Verfy the offsets in the block */
+          /* Verify the offsets in the block */
 
           for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
             {
@@ -488,7 +488,7 @@ int main(int argc, FAR char *argv[])
    * should on the device.
    */
 
-  printf("Verfying media:\n");
+  printf("Verifying media:\n");
 
   fd = open("/dev/mtd0", O_RDONLY);
   if (fd < 0)
@@ -526,7 +526,7 @@ int main(int argc, FAR char *argv[])
           exit(26);
         }
 
-      /* Verfy the values in the block */
+      /* Verify the values in the block */
 
       for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
         {

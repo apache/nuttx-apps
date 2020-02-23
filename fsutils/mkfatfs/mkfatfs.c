@@ -322,7 +322,7 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
     }
 #endif
 
-  /* Find the inode of the block driver indentified by 'source' */
+  /* Find the inode of the block driver identified by 'source' */
 
   var.fv_fd = open(pathname, O_RDWR);
   if (var.fv_fd < 0)

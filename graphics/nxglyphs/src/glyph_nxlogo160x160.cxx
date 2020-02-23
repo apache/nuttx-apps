@@ -153,7 +153,7 @@ static const nxgl_mxpixel_t g_nuttxLut[BITMAP_NLUTCODES] =
 
 #  endif
 #else
-# error "Unsupport pixel format"
+# error "Unsupported pixel format"
 #endif
 
 #if CONFIG_NXWIDGETS_BPP == 24 ||  CONFIG_NXWIDGETS_BPP == 32

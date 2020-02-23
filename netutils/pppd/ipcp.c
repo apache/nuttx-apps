@@ -432,7 +432,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 #endif
 
             default:
-              DEBUG1(("IPCP this shoudln't happen 3\n"));
+              DEBUG1(("IPCP this shouldn't happen 3\n"));
             }
         }
       break;

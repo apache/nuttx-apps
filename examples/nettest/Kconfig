@@ -449,7 +449,7 @@ config EXAMPLES_NETTEST_SERVERIPv6ADDR_1
 	---help---
 		IP address of the server.  If the target is the server, then
 		EXAMPLES_NETTEST_SERVERIP should be the same as
-		EXAMPLES_NETTEST_IPADDR (default).  If the target is the cleint,
+		EXAMPLES_NETTEST_IPADDR (default).  If the target is the client,
 		then the default value of EXAMPLES_NETTEST_SERVERIP is set to the
 		host PC IP address (possibly the gateway address,
 		EXAMPLES_NETTEST_DRIPADDR?).

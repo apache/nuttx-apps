@@ -2962,9 +2962,9 @@ int httpd_parse_request(httpd_conn *hc)
           return -1;
         }
 
-      /* If the client wants to do keep-alives, it might also be doing
+      /* If the client wants to do keep-alive, it might also be doing
        * pipelining.  There's no way for us to tell.  Since we don't
-       * implement keep-alives yet, if we close such a connection there
+       * implement keep-alive yet, if we close such a connection there
        * might be unread pipelined requests waiting.  So, we have to do a
        * lingering close.
        */

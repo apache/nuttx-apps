@@ -57,15 +57,15 @@
 #define OBD_SHOW_DATA                   0x01 /* Used to read current data from vehicle */
 #define OBD_SHOW_FREEZED_DATA           0x02 /* Used to read freezed data from vehicle */
 #define OBD_SHOW_DTC                    0x03 /* Show Diagnostic Trouble Codes */
-#define OBD_CLEAR_DTC                   0x04 /* Clear Diagnotic Trouble Codes stored in the vehicle */
+#define OBD_CLEAR_DTC                   0x04 /* Clear Diagnostic Trouble Codes stored in the vehicle */
 #define OBD_TEST_RESULT1                0x05 /* Test Results */
 #define OBD_TEST_RESULT2                0x06 /* Test Results */
-#define OBD_SHOW_PEND_DTC               0x07 /* Show Pending Diagnotic Trouble Codes */
+#define OBD_SHOW_PEND_DTC               0x07 /* Show Pending Diagnostic Trouble Codes */
 #define OBD_CONTROL_OPERATION           0x08 /* Control Operation of on-board component/system */
 #define OBD_RQST_VEHICLE_INFO           0x09 /* Request vehicle information */
 #define OBD_PERMANENT_DTC               0x0a /* Permanent Diagnostic Trouble Codes */
 
-/* Basic Standarized Sensor/Status */
+/* Basic Standardized Sensor/Status */
 
 #define OBD_PID_SUPPORTED               0x00 /* PIDs supported 00-20 */
 #define OBD_PID_STATUS                  0x01 /* Monitor status since DTCs cleared */
@@ -100,7 +100,7 @@
 #define OBD_PID_AUXILIARY_INPUT_STATUS  0x1e /* Auxiliary input status */
 #define OBD_PID_RUNTIME_ENGINE_START    0x1f /* Run time since engine start */
 
-/* Extended Standarized Sensor_Status */
+/* Extended Standardized Sensor_Status */
 
 #define OBD_PID_SUPPORTED_EXT           0x20 /* PIDs supported 21-40 */
 #define OBD_PID_DIST_TRAVELED_MIL       0x21 /* Distance traveled with malfunction indicator lamp (MIL) on */

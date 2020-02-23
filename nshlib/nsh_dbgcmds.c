@@ -68,7 +68,7 @@
 #ifdef NSH_HAVE_MEMCMDS
 struct dbgmem_s
 {
-  bool         dm_write;  /* true: perfrom write operation */
+  bool         dm_write;  /* true: perform write operation */
   FAR void    *dm_addr;   /* Address to access */
   uint32_t     dm_value;  /* Value to write */
   unsigned int dm_count;  /* The number of bytes to access */
