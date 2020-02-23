@@ -434,7 +434,7 @@ int main(int argc, FAR char *argv[])
   sleep(2);
   mm_update(&g_mmstep, "after posix_spawn");
 
-  /* Free attibutes and file actions */
+  /* Free attributes and file actions */
 
   ret = posix_spawn_file_actions_destroy(&file_actions);
   if (ret != 0)

@@ -324,7 +324,7 @@ int main(int argc, FAR char *argv[])
       info.nblocks = blockno;
     }
 
-  /* Seek to the beginnin of the file */
+  /* Seek to the beginning of the file */
 
   seekpos = lseek(fd, 0, SEEK_SET);
   if (seekpos == (off_t)-1)

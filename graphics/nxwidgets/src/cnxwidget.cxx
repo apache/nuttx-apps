@@ -226,7 +226,7 @@ CNxWidget::~CNxWidget(void)
       m_children[0]->destroy();
     }
 
-  // Remove ourselve from the controlled widget list
+  // Remove ourselves from the controlled widget list
 
   m_widgetControl->removeControlledWidget(this);
 
@@ -980,7 +980,7 @@ bool CNxWidget::blur(void)
 
 /**
  * Move the widget to the new coordinates.
- * Co-ordinates are relative to the parent widget.
+ * Coordinates are relative to the parent widget.
  *
  * @param x The new x coordinate.
  * @param y The new y coordinate.

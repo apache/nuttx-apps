@@ -39,7 +39,7 @@ config SYSTEM_VI_COLS
 
 		The default column width for a VT100 terminal is 80 characters.  The
 		default for this setting is smaller, 64, so that a smaller in-memory
-		buffer is used.  You might have a better experience wth a column
+		buffer is used.  You might have a better experience with a column
 		width of 80 (if the terminal width is not controllable from your
 		terminal application).
 
@@ -54,7 +54,7 @@ config SYSTEM_VI_ROWS
 
 		The default height for a VT100 terminal is 64 rows.  The default
 		for this setting is smaller, 16, so that a smaller in-memory
-		buffer is used.  You might have a better experience wth a height
+		buffer is used.  You might have a better experience with a height
 		of 64 rows (if the terminal height is not controllable from your
 		terminal application).
 

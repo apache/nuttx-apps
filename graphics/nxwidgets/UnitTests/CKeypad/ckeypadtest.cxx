@@ -348,7 +348,7 @@ void CKeypadTest::showKeypad(CKeypad *keypad)
 
 // Perform a simulated mouse click on a button in the array.  This method injects
 // the mouse click through the NX hierarchy just as would real mouse
-// hardward.
+// hardware.
 
 void CKeypadTest::click(CKeypad *keypad, int column, int row)
 {
@@ -362,7 +362,7 @@ void CKeypadTest::click(CKeypad *keypad, int column, int row)
 
   NXHANDLE handle = getServer();
 
-  // The the coorinates of the center of the button
+  // The the coordinates of the center of the button
 
   nxgl_coord_t buttonX = keypad->getX() + column * m_buttonWidth  + (m_buttonWidth  >> 1);
   nxgl_coord_t buttonY = keypad->getY() +    row * m_buttonHeight + (m_buttonHeight >> 1);
@@ -387,7 +387,7 @@ void CKeypadTest::release(CKeypad *keypad, int column, int row)
 
   NXHANDLE handle = getServer();
 
-  // The the coorinates of the center of the button
+  // The the coordinates of the center of the button
 
   nxgl_coord_t buttonX = keypad->getX() +
                          column * m_buttonWidth +

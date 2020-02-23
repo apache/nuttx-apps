@@ -149,7 +149,7 @@ struct ftpc_login_s
 
 /* This structure describes one simple directory listing.  The directory
  * list container as well the individual filename strings are allocated.
- * The number of names in tha actual allocated array is variable, given
+ * The number of names in the actual allocated array is variable, given
  * by the nnames field.
  *
  * Since the structure and file names are allocated, they must be freed

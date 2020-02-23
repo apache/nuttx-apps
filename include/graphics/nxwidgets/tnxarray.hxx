@@ -153,7 +153,7 @@ public:
    * Set the initial size of the array.  Normally, the array is
    * unallocated until the first data is pushed into the array.
    * That works great for stacks and lists.  But if you want a
-   * array of unitialized elements, then this method will
+   * array of uninitialized elements, then this method will
    * preallocate the array for you.
    *
    * @return The size of the array.

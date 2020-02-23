@@ -126,7 +126,7 @@ int tftp_mkdatapacket(off_t offset, FAR uint8_t *packet, uint16_t blockno,
  *
  * Input Parameters:
  *   sd      - Socket descriptor to use in in the transfer
- *   packet   - buffer to use for the tranfers
+ *   packet   - buffer to use for the transfers
  *   server  - The address of the server
  *   port    - The port number of the server (0 if not yet known)
  *   blockno - Location to return block number in the received ACK
@@ -299,7 +299,7 @@ int tftpput_cb(FAR const char *remote, in_addr_t addr, bool binary,
       goto errout;
     }
 
-  /* Initialize a UDP socket and setup the server addresss */
+  /* Initialize a UDP socket and setup the server address */
 
   sd = tftp_sockinit(&server, addr);
   if (sd < 0)

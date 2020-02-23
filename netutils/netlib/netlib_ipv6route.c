@@ -112,7 +112,7 @@ static void set_nul_terminator(FAR char *str)
  *
  * Returned Value:
  *   sizeof(struct netlib_ipv6_route_s) is returned on success.  Zero is
- *   returned if the end of file is encounterd.  A negated errno value is
+ *   returned if the end of file is encountered.  A negated errno value is
  *   returned on any failure.
  *
  ****************************************************************************/

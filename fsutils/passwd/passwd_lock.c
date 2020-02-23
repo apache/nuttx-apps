@@ -61,7 +61,7 @@
 
 #ifndef CONFIG_FS_NAMED_SEMAPHORES
 /* In the FLAT and PROTECTED build modes, we do not need to bother with a
- * named semaphore.  We use a single global semaphore in theses cases.
+ * named semaphore.  We use a single global semaphore in these cases.
  */
 
 static sem_t g_passwd_sem =  SEM_INITIALIZER(1);

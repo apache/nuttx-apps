@@ -100,7 +100,7 @@ CButtonArray::CButtonArray(CWidgetControl *pWidgetControl,
 
   m_redrawButton      = false;
 
-  // No hightlighted buttons
+  // No highlighted buttons
 
   m_cursorOn          = false;
   m_cursorChange      = false;
@@ -291,7 +291,7 @@ void CButtonArray::cursor(bool cursorOn)
 
 /**
  * Return the current cursor position (button indices) and an indication
- * if the button at the cursor is currently hightlighted.
+ * if the button at the cursor is currently highlighted.
  *
  * @param column The location to return the column index of the button
  *    of interest
@@ -348,7 +348,7 @@ bool CButtonArray::setCursorPosition(int column, int row)
 
           if (redrawCursor)
             {
-              // Yes.. Set the new cursor hightlight
+              // Yes.. Set the new cursor highlight
 
               m_cursorOn = true;
               redraw();
@@ -433,7 +433,7 @@ void CButtonArray::drawContents(CGraphicsPort *port)
       drawButton(port, column, row, isClicked());
     }
 
-  // Do we just draw the hightlighted button?
+  // Do we just draw the highlighted button?
 
   else if (m_cursorChange)
     {
@@ -503,7 +503,7 @@ void CButtonArray::drawButton(CGraphicsPort *port, int column, int row, bool use
   nxwidget_pixel_t backColor;
   nxwidget_pixel_t textColor;
 
-  // Pick the background and test colors. Should we use the 'clicked' backgound style?
+  // Pick the background and test colors. Should we use the 'clicked' background style?
 
   if (useClicked || isCursorPosition(column, row))
     {

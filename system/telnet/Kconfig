@@ -4,7 +4,7 @@
 #
 
 menuconfig SYSTEM_TELNET_CHATD
-	tristate "Telnet chat deamon"
+	tristate "Telnet chat daemon"
 	default n
 	depends on NET && NET_TCP
 	select NETUTILS_TELNETC

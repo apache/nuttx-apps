@@ -89,7 +89,7 @@ uint8_t minmea_checksum(FAR const char *sentence)
 {
   uint8_t checksum = 0x00;
 
-  /* Support senteces with or without the starting dollar sign. */
+  /* Support sentences with or without the starting dollar sign. */
 
   if (*sentence == '$')
     {

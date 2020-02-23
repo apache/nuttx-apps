@@ -136,7 +136,7 @@ static const char *g_bgmsg[BGMSG_LINES] =
  * Public Data
  ****************************************************************************/
 
-/* The connecton handler */
+/* The connection handler */
 
 NXHANDLE g_hnx = NULL;
 

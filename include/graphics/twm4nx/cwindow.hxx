@@ -886,7 +886,7 @@ namespace Twm4Nx
        * temporarily while in certain absorbing states (such as resizing the
        * window).
        *
-       * @param disables The set of buttons to enable or disble See
+       * @param disables The set of buttons to enable or disable See
        *   DISABLE_* definitions.
        */
 

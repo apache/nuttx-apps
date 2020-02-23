@@ -79,7 +79,7 @@
 /* Values for the IFD tag type */
 
 #define IFD_TAG_NEWSUBFILETYPE    254 /* NewSubfileType, LONG */
-#  define TAG_NEWSUBFILETYPE_REDUCED (1 << 0) /* Bit 0: Reduced resolution verson of image */
+#  define TAG_NEWSUBFILETYPE_REDUCED (1 << 0) /* Bit 0: Reduced resolution version of image */
 #  define TAG_NEWSUBFILETYPE_SINGLE  (1 << 1) /* Bit 1: Single page of a multi-page image */
 #  define TAG_NEWSUBFILETYPE_TRANSP  (1 << 2) /* Bit 2: Defines a transparency mask for image */
 #define IFD_TAG_SUBFILETYPE       255 /* SubfileType, SHORT */

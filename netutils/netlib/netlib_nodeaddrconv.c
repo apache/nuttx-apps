@@ -181,7 +181,7 @@ bool netlib_nodeaddrconv(FAR const char *addrstr,
         }
       else
         {
-          wlwarn("Unexpect delimiter: %s\n", addrstr);
+          wlwarn("Unexpected delimiter: %s\n", addrstr);
           break;
         }
     }

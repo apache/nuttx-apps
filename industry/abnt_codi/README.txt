@@ -5,7 +5,7 @@ That output externalizes its data blinking an LED as a serial protocol at the
 baudrate of 110 BPS and uses 8 octects:
  _____________________________________________________________________________
 |        |      |                                                             |
-| OCTECT | bits | Description                                                 |
+| OCTET  | bits | Description                                                 |
 |________|______|_____________________________________________________________|
 |        |      |                                                             |
 |  001   | 0-7  | Number of seconds to the end of current active demand (LSB) |

@@ -135,10 +135,10 @@ mkfatfs_nfatsect12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 {
 #ifdef CONFIG_HAVE_LONG_LONG
    uint64_t denom;
-   uint64_t numer;
+   uint64_t number;
 #else
    uint32_t denom;
-   uint32_t numer;
+   uint32_t number;
 #endif
 
   /* For FAT12, the cluster number is held in a 12-bit number or 1.5 bytes per
@@ -174,9 +174,9 @@ mkfatfs_nfatsect12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 
       denom = (fmt->ff_nfats << 1) + fmt->ff_nfats
             + (var->fv_sectorsize << (fmt->ff_clustshift + 1));
-      numer = (navailsects << 1) + navailsects
+      number = (navailsects << 1) + navailsects
             + (1 << (fmt->ff_clustshift + 2)) + (1 << (fmt->ff_clustshift + 1));
-      return (uint32_t)((numer + denom - 1) / denom);
+      return (uint32_t)((number + denom - 1) / denom);
 
 #ifndef CONFIG_HAVE_LONG_LONG
     }
@@ -213,10 +213,10 @@ mkfatfs_nfatsect16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 {
 #ifdef CONFIG_HAVE_LONG_LONG
    uint64_t denom;
-   uint64_t numer;
+   uint64_t number;
 #else
    uint32_t denom;
-   uint32_t numer;
+   uint32_t number;
 #endif
 
   /* For FAT16, the cluster number is held in a 16-bit number or 2 bytes per
@@ -244,15 +244,15 @@ mkfatfs_nfatsect16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
   if (fmt->ff_clustshift == 0)
     {
       denom = fmt->ff_nfats + (var->fv_sectorsize >> 1);
-      numer = navailsects + 2;
+      number = navailsects + 2;
     }
   else
     {
       denom = fmt->ff_nfats + (var->fv_sectorsize << (fmt->ff_clustshift - 1));
-      numer = navailsects + (1 << (fmt->ff_clustshift + 1));
+      number = navailsects + (1 << (fmt->ff_clustshift + 1));
     }
 
-  return (uint32_t)((numer + denom - 1) / denom);
+  return (uint32_t)((number + denom - 1) / denom);
 }
 
 /****************************************************************************
@@ -281,10 +281,10 @@ mkfatfs_nfatsect32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 {
 #ifdef CONFIG_HAVE_LONG_LONG
    uint64_t denom;
-   uint64_t numer;
+   uint64_t number;
 #else
    uint32_t denom;
-   uint32_t numer;
+   uint32_t number;
 #endif
 
   /* For FAT32, the cluster number is held in a 32-bit number or 4 bytes per
@@ -312,20 +312,20 @@ mkfatfs_nfatsect32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
   if (fmt->ff_clustshift == 0)
     {
       denom = fmt->ff_nfats + (var->fv_sectorsize >> 2);
-      numer = navailsects + 3;
+      number = navailsects + 3;
     }
   else if (fmt->ff_clustshift == 1)
     {
       denom = fmt->ff_nfats + (var->fv_sectorsize >> 1);
-      numer = navailsects + 6;
+      number = navailsects + 6;
     }
   else
     {
       denom = fmt->ff_nfats + (var->fv_sectorsize << (fmt->ff_clustshift - 2));
-      numer = navailsects + (1 << (fmt->ff_clustshift + 1)) + (1 << fmt->ff_clustshift);
+      number = navailsects + (1 << (fmt->ff_clustshift + 1)) + (1 << fmt->ff_clustshift);
     }
 
-  return (uint32_t)((numer + denom - 1) / denom);
+  return (uint32_t)((number + denom - 1) / denom);
 }
 
 /****************************************************************************
@@ -361,7 +361,7 @@ mkfatfs_clustersearchlimits(FAR struct fat_format_s *fmt, FAR struct fat_var_s *
 
       if (fmt->ff_nsectors < 2048)
         {
-          /* 2k sectors, start wit 1 sector/cluster. */
+          /* 2k sectors, start with 1 sector/cluster. */
           fmt->ff_clustshift = 0;
         }
       else if (fmt->ff_nsectors  < 4096)
@@ -399,7 +399,7 @@ mkfatfs_clustersearchlimits(FAR struct fat_format_s *fmt, FAR struct fat_var_s *
   else
     {
       /* The caller has selected a cluster size.  There will be no search!
-       * Just set the maximum to the caller specificed value.
+       * Just set the maximum to the caller specified value.
        */
 
       mxclustshift = fmt->ff_clustshift;
@@ -861,7 +861,7 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
  *
  * Input:
  *    fmt  - Caller specified format parameters
- *    var  - Holds disk geomtry data.  Also, the location to return FAT
+ *    var  - Holds disk geometry data.  Also, the location to return FAT
  *           configuration data
  *
  * Return:

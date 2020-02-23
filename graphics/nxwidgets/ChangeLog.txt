@@ -10,7 +10,7 @@
   for selected and non-selected images.
 * CImage: If selected, uses different LUTs based, different borders.
   CImage is now basically a button type.
-* CImage: Add logic to hightlight an CImage (using the selected LUT).
+* CImage: Add logic to highlight an CImage (using the selected LUT).
 * nxwm: The tiny NX window manager (NxWM) is being developed in this directory.
 * UnitTests/nxwm:  A unit test for the NX window manager.
 * CWidgetControl:  Add a semaphore to force clients to wait if the
@@ -20,7 +20,7 @@
   out in the 1.0 release but is verfied functional in 1.1.
 * CRlePalettBitmap: Fix an error in the text that determines if we
   need to "rewind" to the beginning of the image.
-* CRlePalettBitmap: Fixe a positioning problem.  It was actually losing
+* CRlePalettBitmap: Fix a positioning problem.  It was actually losing
   the last row of every image!
 * CNxWidget: Removed support for "shelving" widgets.  I will be removing
   some lesser used feature over time in order to reduce the NxWidgets
@@ -117,7 +117,7 @@
   the widgets in the window (via CWidgetControl) or to an NxConsole (via
   nxcon_kbdin()).
 * NXWidgets::INxWindow, CBgWindow, CNxTkWindow, CNxToolbar, CNxWindow:
-  Now pass the CCallback intances as the callback argument instead of
+  Now pass the CCallback instances as the callback argument instead of
   the CWidgetControl instance.  New method redirectNxConsole() will
   support redirection of any window keyboard input to the NxConsole
   (via CCallback).
@@ -474,7 +474,7 @@
 * NxWidgets::CImage:  Should not attempt to draw the "empty" regions at the
   top and the bottom of the image box in greyscale (2014-7-17).
 * NxWM::CMediaPlayer:  Fix some state-related bugs introduced yesterday.
-  Improved state-related button displayes.  Now correctly catches and
+  Improved state-related button display.  Now correctly catches and
   handles file selection events (2014-7-17).
 * NxWidgets::CImage:  Cannot use NxWidgets::CGraphicsPort:drawBitmapGreyScale()
   because it does not respect transparent or background colors in its current
@@ -569,7 +569,7 @@
   incompatibility with versions of NuttX prior to 7.16 (2016-04-14).
 * UnitTests: Add Make.defs files to all UnitTests directories.  This is
   required by the current apps/Makefile.  Hmmm..  This means that no one
-  has built the NxWidgets packages in the last several realeases!
+  has built the NxWidgets packages in the last several releases!
   (2016-04-23).
 * UnitTests: Add some default definitions to handle the (unusual) case
   where 'make clean' is called with no .config or Make.defs file installed
@@ -587,7 +587,7 @@
 * Unittests:  All Makefiles must provided a (dummy) prefconfig target to be
   compatible with changes to the apps/ configuration system that will be
   be released in NuttX-7.17 (2016-06-29).
-* Changes to pre-processor include statments needed to handle reorganization
+* Changes to pre-processor include statements needed to handle reorganization
   of the apps/include directory  (2016-07-01).
 * Update include paths to adapt to changes made to apps/ include path logic
   (2016-07-22).

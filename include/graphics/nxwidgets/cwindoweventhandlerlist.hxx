@@ -159,7 +159,7 @@ namespace NXWidgets
 
 #ifdef CONFIG_NX_KBD
     /**
-     * Raise an NX keybord input event
+     * Raise an NX keyboard input event
      */
 
     void raiseKeyboardEvent(void);

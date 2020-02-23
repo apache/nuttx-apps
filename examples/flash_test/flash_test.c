@@ -82,7 +82,7 @@ int main(int argc, FAR char *argv[])
       return -1;
     }
 
-  /* Find the inode of the block driver indentified by 'source' */
+  /* Find the inode of the block driver identified by 'source' */
 
   ret = open_blockdriver(argv[1], 0, &inode);
   if (ret < 0)
@@ -211,7 +211,7 @@ int main(int argc, FAR char *argv[])
           goto errout_with_buffers;
         }
 
-      /* Generate compare string and do the comapre */
+      /* Generate compare string and do the compare */
 
       printf("\r%d     ", sectors[x]);
 

@@ -122,7 +122,7 @@ Using NuttX ZModem with a Linux Host
     binary data stream.
 
     If you don't have the rz command on your Linux box, the package to
-    install rzsz (or possibily lrzsz).
+    install rzsz (or possibly lrzsz).
 
     Then on the target (using /dev/ttyS1 as an example).
 
@@ -178,7 +178,7 @@ Using NuttX ZModem with a Linux Host
     sz command.
 
     If you don't have the sz command on your Linux box, the package to
-    install rzsz (or possibily lrzsz).
+    install rzsz (or possibly lrzsz).
 
 Building the ZModem Tools to Run Under Linux
 ============================================
@@ -238,7 +238,7 @@ Status
       works better with hardware flow control disabled on the LPC17xx.
 
       At this lower BAUD, RX buffer sizes could probably be reduced; Or
-      perhaps the BAUD coud be increased.  My thought, however, is that
+      perhaps the BAUD could be increased.  My thought, however, is that
       tuning in such an unhealthy situation is not the approach:  The
       best thing to do would be to use the matching NuttX sz on the Linux
       host side.

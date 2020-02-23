@@ -524,7 +524,7 @@ static void PDC_update(FAR struct pdc_fbstate_s *fbstate, int row, int col,
       rect.pt2.x = rect.pt1.x + nchars * fbstate->fwidth - 1;
       rect.pt2.y = rect.pt1.y + fbstate->fheight - 1;
 
-      /* Then perfom the update via IOCTL */
+      /* Then perform the update via IOCTL */
 
       ret = ioctl(fbstate->fbfd, FBIO_UPDATE,
                   (unsigned long)((uintptr_t)&rect));
@@ -569,7 +569,7 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
       return;
     }
 
- /* Get the forground and background colors of the character */
+ /* Get the foreground and background colors of the character */
 
  PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
 
@@ -1074,7 +1074,7 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
   rect.pt2.x = fbstate->xres - 1;
   rect.pt2.y = fbstate->yres - 1;
 
-  /* Then perfom the update via IOCTL */
+  /* Then perform the update via IOCTL */
 
   ret = ioctl(fbstate->fbfd, FBIO_UPDATE, (unsigned long)((uintptr_t)&rect));
   if (ret < 0)

@@ -121,7 +121,7 @@ int passwd_update(FAR const char *username, FAR const char *password);
  *
  * Description:
  *   Return true if the username exists in the /etc/passwd file and if the
- *   password matches the user password in that faile.
+ *   password matches the user password in that failed.
  *
  * Input Parameters:
  *   username - Identifies the user whose password will be verified

@@ -77,7 +77,7 @@ namespace NxWM
        */
 
       bool m_minimized; /**< True if the application is minimized */
-      bool m_topapp;    /**< True if this application is at the top in the hiearchy */
+      bool m_topapp;    /**< True if this application is at the top in the hierarchy */
 
     public:
       /**

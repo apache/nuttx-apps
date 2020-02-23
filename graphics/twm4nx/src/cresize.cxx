@@ -690,7 +690,7 @@ bool CResize::updateSize(FAR struct SEventMsg *eventmsg)
 
 bool CResize::pauseResize(FAR struct SEventMsg *eventmsg)
 {
-  // m_paused should have already been set asychronously
+  // m_paused should have already been set asynchronously
 
   bool success = false;
   if (m_paused)

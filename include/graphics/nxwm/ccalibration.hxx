@@ -117,7 +117,7 @@ namespace NxWM
 
   /**
    * The CCalibration class provides the the calibration window and obtains
-   * callibration data.
+   * calibration data.
    */
 
   class CCalibration : public IApplication

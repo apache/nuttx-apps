@@ -397,7 +397,7 @@ int main(int argc, FAR char *argv[])
 
   for (; ; )
     {
-      /* If the device is reseted, show 00.. and assume it is initial time */
+      /* If the device is reset, show 00.. and assume it is initial time */
 
       if (priv->state == CHRONO_RESETED)
         {

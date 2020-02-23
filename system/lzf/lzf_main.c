@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/exmaples/lzf/lzf_main.c
+ * apps/examples/lzf/lzf_main.c
  *
  *   Copyright (c) 2006 Stefan Traby <stefan@hello-penguin.com>
  *

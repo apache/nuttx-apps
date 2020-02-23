@@ -498,7 +498,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // Now re-direct stdout and stderr so that they use the NX console driver.
   // Notes: (1) stdin is retained (file descriptor 0, probably the the serial
   // console).  (2) Don't bother trying to put debug instrumentation in the
-  // following becaue it will end up in the NxTerm window.
+  // following because it will end up in the NxTerm window.
 
   std::fflush(stdout);
   std::fflush(stderr);

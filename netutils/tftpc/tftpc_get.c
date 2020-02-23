@@ -138,7 +138,7 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
       return result;
     }
 
-  /* Initialize a UDP socket and setup the server addresss */
+  /* Initialize a UDP socket and setup the server address */
 
   sd = tftp_sockinit(&server, addr);
   if (sd < 0)

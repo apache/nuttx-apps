@@ -485,7 +485,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 /****************************************************************************
  * Name: nxplayer_getmidisubformat
  *
- *   nxplayer_getmidisubformat() reads the MIDI header and determins the
+ *   nxplayer_getmidisubformat() reads the MIDI header and determines the
  *   MIDI format of the file.
  *
  ****************************************************************************/
@@ -1690,7 +1690,7 @@ int nxplayer_cancel_motion(FAR struct nxplayer_s *pplayer, bool paused)
 /****************************************************************************
  * Name: nxplayer_setdevice
  *
- *   nxplayer_setdevice() sets the perferred audio device to use with the
+ *   nxplayer_setdevice() sets the preferred audio device to use with the
  *   provided nxplayer context.
  *
  ****************************************************************************/

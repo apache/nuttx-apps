@@ -361,7 +361,7 @@ namespace NXWidgets
     }
 
     /**
-     * Populates dest with a rectangle representating the intersection
+     * Populates dest with a rectangle representing the intersection
      * of this rectangle and rect.
      *
      * @param rect The rectangle to intersect with this.
@@ -371,7 +371,7 @@ namespace NXWidgets
     void getIntersect(const CRect& rect, CRect& dest) const;
 
     /**
-     * Populates dest with a rectangle representating the smallest
+     * Populates dest with a rectangle representing the smallest
      * rectangle that contains this rectangle and rect.
      *
      * @param rect The rectangle to add to this.

@@ -433,7 +433,7 @@ o dd if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]
      crw-rw-rw-       0 zero
     nsh> dd if=/dev/zero of=/dev/ram0
 
-    3. Read from a block devic, write to a character device.  This
+    3. Read from a block device, write to a character device.  This
        will read the entire block device and dump the contents in
        the bit bucket.
 
@@ -1190,10 +1190,10 @@ o set [{+|-}{e|x|xe|ex}] [<name> <value>]
     set -e
     notacommand
 
-  Example 3 - will exit on command not found, and print a trace of the script commmands
+  Example 3 - will exit on command not found, and print a trace of the script commands
     set -ex
 
-  Example 4 - will exit on command not found, and print a trace of the script commmands
+  Example 4 - will exit on command not found, and print a trace of the script commands
               and set foobar to foovalue.
     set -ex foobar foovalue
     nsh> echo $foobar
@@ -1249,7 +1249,7 @@ o time "<command>"
     2.0100 sec
     nsh>
 
-  The additional 10 millseconds in this example is due to the way that the
+  The additional 10 milliseconds in this example is due to the way that the
   sleep command works: It always waits one system clock tick longer than
   requested and this test setup used a 10 millisecond periodic system
   timer.  Sources of error could include various quantization errors,
@@ -1335,7 +1335,7 @@ o uname [-a | -imnoprsv]
 
     -s, -o, Print the operating system name (NuttX)
 
-    -n Print the network node hostname (only availabel if CONFIG_NET=y)
+    -n Print the network node hostname (only available if CONFIG_NET=y)
 
     -r Print the kernel release
 
@@ -1778,7 +1778,7 @@ NSH-Specific Configuration Settings
 
       CONFIG_NSH_USBDEV_TRACE
         If USB tracing is enabled (CONFIG_USBDEV_TRACE), then NSH can
-        be configured to show the buffered USB trace data afer each
+        be configured to show the buffered USB trace data after each
         NSH command:
 
       If CONFIG_NSH_USBDEV_TRACE is selected, then USB trace data
@@ -1933,7 +1933,7 @@ NSH-Specific Configuration Settings
       This is the sector size use with the FAT FS. Default is 512.
 
   * CONFIG_NSH_FATNSECTORS
-      This is the number of sectors to use with the FAT FS.  Defalt is
+      This is the number of sectors to use with the FAT FS.  Default is
       1024.  The amount of memory used by the FAT FS will be
       CONFIG_NSH_FATSECTSIZE * CONFIG_NSH_FATNSECTORS
       bytes.

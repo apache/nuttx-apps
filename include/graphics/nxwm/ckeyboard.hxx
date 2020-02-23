@@ -62,7 +62,7 @@ namespace NxWM
 {
   /**
    * The CKeyboard class provides the the calibration window and obtains
-   * callibration data.
+   * calibration data.
    */
 
   class CKeyboard

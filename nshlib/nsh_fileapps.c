@@ -265,7 +265,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   sched_unlock();
 
-  /* Free attibutes and file actions.  Ignoring return values in the case
+  /* Free attributes and file actions.  Ignoring return values in the case
    * of an error.
    */
 

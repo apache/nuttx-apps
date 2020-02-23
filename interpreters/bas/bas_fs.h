@@ -183,7 +183,7 @@ int FS_width(int dev, int width);
 int FS_zone(int dev, int zone);
 long int FS_recLength(int chn);
 void FS_field(int chn, struct String *s, long int position, long int length);
-int FS_appendToString(int dev, struct String *s, int onl);
+int FS_appendToString(int dev, struct String *s, int nl);
 int FS_inkeyChar(int dev, int ms);
 void FS_sleep(double s);
 int FS_seek(int chn, long int record);

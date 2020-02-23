@@ -114,7 +114,7 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
         {
           ftpc_xfrabort(session, routstream);
 
-          /* Return failue */
+          /* Return failure */
 
           return ERROR;
         }

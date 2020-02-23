@@ -81,7 +81,7 @@
 
 #undef CONFIG_NETUTILS_TFTP_DUMPBUFFERS
 
-/* Sizes of TFTP messsage headers */
+/* Sizes of TFTP message headers */
 
 #define TFTP_ACKHEADERSIZE    4
 #define TFTP_ERRHEADERSIZE    4

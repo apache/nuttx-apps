@@ -216,7 +216,7 @@ void CStartWindow::hide(void)
 
 /**
  * Redraw the entire window.  The application has been maximized or
- * otherwise moved to the top of the hiearchy
+ * otherwise moved to the top of the hierarchy
  */
 
 void CStartWindow::redraw(void)

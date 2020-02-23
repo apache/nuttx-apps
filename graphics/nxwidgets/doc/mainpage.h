@@ -2,7 +2,7 @@
  *
  * In order to better support NuttX based platforms, a special graphical user
  * interface has been created called NXWidgets. NXWidgets is written in C++
- * and integrates seamlessly with the NuttX NX graphics subystem in order to
+ * and integrates seamlessly with the NuttX NX graphics subsystem in order to
  * provide graphic objects, or "widgets", in the <a title="NX Graphics
  * Subsystem" href="https://bitbucket.org/nuttx/documentation/src/master/NXGraphicsSubsystem.html">
  * NX Graphics Subsystem</a>.
@@ -17,7 +17,7 @@
  *
  * \subsection nx_integration NX Integration
  *
- * Integrates seamlessly with the NX graphics subsytem. Think of the X
+ * Integrates seamlessly with the NX graphics subsystem. Think of the X
  * server under Linux... the NX graphics subsystem is like a tiny X server
  * that provides windowing under NuttX. By adding NXWidgets, you can
  * support graphic objects like buttons and text boxes in the NX windows

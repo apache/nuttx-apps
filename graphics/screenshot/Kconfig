@@ -28,7 +28,7 @@ config SCREENSHOT_FORMAT
 	int "Screenshot color format"
 	default 9
 	---help---
-		See inlcude/nuttx/video/fb.h for a list of color formats.  The default
+		See include/nuttx/video/fb.h for a list of color formats.  The default
 		value of 9 corresponds to FB_FMT_RGB16_565
 
 endif

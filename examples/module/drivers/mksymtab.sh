@@ -27,7 +27,7 @@ varlist=`find ${dir} -type f -perm -a=x | xargs nm | fgrep ' U ' | sed -e "s/^[ 
 # Now output the symbol table as a structure in a C source file.  All
 # undefined symbols are declared as void* types.  If the toolchain does
 # any kind of checking for function vs. data objects, then this could
-# faile
+# failed
 
 echo "#include <nuttx/compiler.h>"
 echo "#include <nuttx/symtab.h>"

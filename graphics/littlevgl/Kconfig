@@ -7,7 +7,7 @@ menuconfig GRAPHICS_LVGL
 	bool "Littlev Graphic Library (LVGL)"
 	default n
 	---help---
-		Enable support for the LVGL GUI libray.
+		Enable support for the LVGL GUI library.
 
 if GRAPHICS_LVGL
 
@@ -59,7 +59,7 @@ config LV_VDB_DOUBLE
 	---help---
 		Enable to use one buffer for rendering an other to flush the
 		ready content to the frame buffer.
-		The flushing should be done by a hardware modul (e.g. DMA) to
+		The flushing should be done by a hardware module (e.g. DMA) to
 		make rendering and flushing parallel
 
 if LV_VDB_DOUBLE

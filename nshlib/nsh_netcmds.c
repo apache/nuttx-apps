@@ -398,7 +398,7 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
           strcmp(entry->d_name, "stat") != 0)
         {
           /* Performt he callback.  It returns any non-zero value, then
-           * terminate the serach.
+           * terminate the search.
            */
 
           ret = callback(vtbl, entry->d_name);

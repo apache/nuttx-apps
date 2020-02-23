@@ -47,7 +47,7 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* OS/Driver configuration checkes */
+/* OS/Driver configuration checks */
 
 #ifndef CONFIG_USBDEV
 #  error "USB device support is not enabled (CONFIG_USBDEV)"

@@ -299,7 +299,7 @@ static void *lowpri_thread(void *parameter)
         }
 
       /* Account for all of the semaphore counts.  At any given time if there are 'n'
-       * running hight prioity tasks, then the semaphore count should be '-n'
+       * running high prioity tasks, then the semaphore count should be '-n'
        */
 
       sched_lock(); /* Needs to be atomic */

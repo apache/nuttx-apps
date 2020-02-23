@@ -193,7 +193,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
   startx = (rect->pt1.x >> 3);
   endx   = ((rect->pt2.x + 7) >> 3);
 
-  /* Caculate a mask on the first and last bytes of the sequence that may
+  /* Calculate a mask on the first and last bytes of the sequence that may
    * not be completely filled with pixel.
    */
 

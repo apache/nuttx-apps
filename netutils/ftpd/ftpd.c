@@ -131,7 +131,7 @@ static int  ftpd_getpath(FAR struct ftpd_session_s *session,
               FAR const char *path, FAR char **abspath,
               FAR char **workpath);
 
-/* Commmand helpers */
+/* Command helpers */
 
 static int  ftpd_changedir(FAR struct ftpd_session_s *session,
               FAR const char *rempath);
@@ -1924,7 +1924,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
             }
         }
 
-      /* A negative vaule of rdbytes indicates a read error.  errval has the
+      /* A negative value of rdbytes indicates a read error.  errval has the
        * (positive) error code associated with the failure.
        */
 
@@ -4152,7 +4152,7 @@ static FAR void *ftpd_worker(FAR void *arg)
           break;
         }
 
-      /* Make sure that the recevied string is NUL terminated */
+      /* Make sure that the received string is NUL terminated */
 
       session->cmd.buffer[recvbytes] = '\0';
 
@@ -4297,7 +4297,7 @@ int ftpd_adduser(FTPD_SESSION handle, uint8_t accountflags,
   newaccount = ftpd_account_new(user, accountflags);
   if (!newaccount)
     {
-      nerr("ERROR: Failed to allocte memory to the account\n");
+      nerr("ERROR: Failed to allocate memory to the account\n");
       ret = -ENOMEM;
       goto errout;
     }

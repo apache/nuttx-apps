@@ -1699,7 +1699,7 @@ int zmr_release(ZMRHANDLE handle)
 
   zm_timerrelease(&pzmr->cmn);
 
-  /* Clean up any resouces that may be held from the last file transfer */
+  /* Clean up any resources that may be held from the last file transfer */
 
   zmr_filecleanup(pzmr);
 

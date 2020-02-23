@@ -224,7 +224,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
         }
     }
 
-  // Create the new radio button at the botton of the radio button group and
+  // Create the new radio button at the bottom of the radio button group and
   // with the size of the ON radio button glyph (they all need to be the same
   // size!).  Note that coordinates are relative to the parent bounding box.
 

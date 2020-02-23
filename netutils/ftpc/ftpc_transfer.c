@@ -608,7 +608,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 
   fptc_getreply(session);
 
-  /* Expected replys are: "226 Closing data connection" or
+  /* Expected replies are: "226 Closing data connection" or
    * "426 Connection closed; transfer aborted"
    */
 
@@ -622,7 +622,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 
       fptc_getreply(session);
 
-     /* Expected replys are:  or "225 Data connection open; no transfer in progress"
+     /* Expected replies are:  or "225 Data connection open; no transfer in progress"
       * "226 Closing data connection"
       */
 

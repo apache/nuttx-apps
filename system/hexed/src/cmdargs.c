@@ -62,7 +62,7 @@ FAR struct cmdargs_s *g_cmdargs = NULL;
  * Description:
  *   Parse the command line arguments
  *
- * Input parmeters:
+ * Input parameters:
  *   argv    - The command line arguments
  *   arglist - The array or supported arguments
  *

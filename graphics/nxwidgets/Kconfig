@@ -25,7 +25,7 @@ config NXWIDGETS_FLICKERFREE
 		updated, LCDs may be prone to "flicker" in the displays when Widgets
 		are updated.  Often more complex (and slower) options are available
 		to reduce the flicker.  Enabling this option will enabled those
-		lower-performance flicker-reductions measures where-ever thay may
+		lower-performance flicker-reductions measures where-ever they may
 		be available.
 
 config NXWIDGET_SERVERINIT

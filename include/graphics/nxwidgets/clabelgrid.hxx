@@ -140,7 +140,7 @@ namespace NXWidgets
      * @param y The y coordinate of the text box, relative to its parent.
      * @param width The width of the textbox.
      * @param height The height of the textbox.
-     * @param cols Number of colums in the grid.
+     * @param cols Number of columns in the grid.
      * @param rows Number of rows in the grid.
      */
 

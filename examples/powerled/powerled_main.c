@@ -130,7 +130,7 @@ static void powerled_help(FAR struct args_s *args)
 {
   printf("Usage: powerled [OPTIONS]\n\n");
   printf("  [-m mode] select mode\n");
-  printf("       0 - demo mode [deafult]\n");
+  printf("       0 - demo mode [default]\n");
   printf("       1 - continuous mode\n");
   printf("       2 - flash mode\n");
   printf("  [-d duty] selects duty cycle for flash mode in %%\n");
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
   terminate = false;
   config    = true;
 
-  /* Initialize powerled stuctures */
+  /* Initialize powerled structures */
 
   memset(&powerled_limits, 0, sizeof(struct powerled_limits_s));
   memset(&powerled_params, 0, sizeof(struct powerled_params_s));

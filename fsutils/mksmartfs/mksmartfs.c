@@ -172,7 +172,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
   int x;
   int ret;
 
-  /* Find the inode of the block driver indentified by 'source' */
+  /* Find the inode of the block driver identified by 'source' */
 
   fd = open(pathname, O_RDWR);
   if (fd < 0)
@@ -198,7 +198,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
   ret = ioctl(fd, BIOC_GETFORMAT, (unsigned long) &fmt);
 
   /* Now Write the filesystem to media.  Loop for each root dir entry and
-   * allocate the reserved Root Dir Enty, then write a blank root dir for it.
+   * allocate the reserved Root Dir Entry, then write a blank root dir for it.
    */
 
   type = SMARTFS_SECTOR_TYPE_DIR;

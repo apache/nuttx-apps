@@ -143,7 +143,7 @@ static void smps_help(FAR struct args_s *args)
   printf("  [-p power] output power in W\n");
   printf("       valid values from 0.0 to output power limit\n");
   printf("  [-t time] run time in seconds\n");
-  printf("       valid values greather than 0 and\n");
+  printf("       valid values greater than 0 and\n");
   printf("       -1 for infinity [default]\n");
   printf("\n");
 }
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
   int ret = 0;
   int fd = 0;
 
-  /* Initialize smps stuctures */
+  /* Initialize smps structures */
 
   memset(&smps_limits, 0, sizeof(struct smps_limits_s));
   memset(&smps_params, 0, sizeof(struct smps_params_s));

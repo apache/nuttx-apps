@@ -52,7 +52,7 @@
  *
  * Description:
  *   Return true if the username exists in the /etc/passwd file and if the
- *   password matches the user password in that faile.
+ *   password matches the user password in that failed.
  *
  * Input Parameters:
  *

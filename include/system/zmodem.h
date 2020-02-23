@@ -169,7 +169,7 @@
  * configuration value must be set to provide the path to the file storage
  * directory (such as a mountpoint directory).
  *
- * Names of file send by the sz commond, on the other hand, must be absolute
+ * Names of file send by the sz command, on the other hand, must be absolute
  * paths beginning with '/'.
  */
 

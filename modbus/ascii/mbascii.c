@@ -351,7 +351,7 @@ bool xMBASCIIReceiveFSM(void)
             else
               {
                 /* not handled in Modbus specification but seems
-                 * a resonable implementation.
+                 * a reasonable implementation.
                  */
 
                 eRcvState = STATE_RX_IDLE;

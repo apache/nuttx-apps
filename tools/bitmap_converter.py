@@ -17,7 +17,7 @@ def get_palette(img, maxcolors = 255):
   return [c[1] for c in colors[:maxcolors]]
 
 def write_palette(outfile, palette):
-  '''Write the palette (normal and hilight) to the output file.'''
+  '''Write the palette (normal and highlight) to the output file.'''
 
   outfile.write('static const NXWidgets::nxwidget_pixel_t palette[BITMAP_PALETTESIZE] =\n');
   outfile.write('{\n')

@@ -8,7 +8,7 @@ Cfgdata Tool
 This application provides a command line interface for managing
 platform specific configdata within the /dev/config device.
 
-Usage: config <cmd> [argumens]
+Usage: config <cmd> [arguments]
 
    Where <cmd> is one of:
      all:     show all config entries

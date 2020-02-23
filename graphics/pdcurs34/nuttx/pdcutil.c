@@ -70,7 +70,7 @@ void PDC_beep(void)
  *   (the X/Open spec says "at least") ms milliseconds, then returns.  High
  *   degrees of accuracy and precision are not expected (though desirable, if
  *   you can achieve them).  More important is that this function gives back
- *   the process' time slice to the OS, so that PDCurses idles at low CPU
+ *   the process time slice to the OS, so that PDCurses idles at low CPU
  *   usage.
  *
  ****************************************************************************/

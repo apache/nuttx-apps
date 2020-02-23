@@ -207,7 +207,7 @@ static const nxgl_mxpixel_t g_playBrightLut[BITMAP_NLUTCODES] =
 #    endif /* DARK_PLAY_ICON */
 #  endif /* CONFIG_NXWIDGETS_GREYSCALE */
 #else
-# error "Unsupport pixel format"
+# error "Unsupported pixel format"
 #endif
 
 static const struct SRlePaletteBitmapEntry g_playRleEntries[] =

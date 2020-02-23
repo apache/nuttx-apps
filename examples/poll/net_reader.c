@@ -310,7 +310,7 @@ void *net_reader(pthread_addr_t pvarg)
         }
 #endif
 
-      /* Handle incoming messsages on the connection. */
+      /* Handle incoming messages on the connection. */
 
       net_receive(acceptsd);
 

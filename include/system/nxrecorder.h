@@ -64,7 +64,7 @@ struct nxrecorder_s
   int         fd;             /* File descriptor of open file */
   char        device[CONFIG_NAME_MAX]; /* Preferred audio device */
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  FAR void    *session;       /* Session assigment from device */
+  FAR void    *session;       /* Session assignment from device */
 #endif
 };
 

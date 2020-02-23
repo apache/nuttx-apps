@@ -79,7 +79,7 @@
 #endif
 
 #if (CONFIG_NETUTILS_ESP8266_MAXRXLEN < CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN)
-#   error "CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN whould be bigger than CONFIG_NETUTILS_ESP8266_MAXRXLEN"
+#   error "CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN would be bigger than CONFIG_NETUTILS_ESP8266_MAXRXLEN"
 #endif
 
 #define BUF_CMD_LEN     CONFIG_NETUTILS_ESP8266_MAXTXLEN
@@ -146,7 +146,7 @@ typedef struct
 
   sem_t           sem;              /* Inform that something is received */
   char            buf[BUF_ANS_LEN]; /* Last complete line received */
-  lesp_ans_t      ans;              /* Last ans received (OK,FAIL or ERROR) */
+  lesp_ans_t      and;              /* Last and received (OK,FAIL or ERROR) */
   pthread_mutex_t mutex;
 } lesp_worker_t;
 
@@ -157,7 +157,7 @@ typedef struct
   int             fd;
   lesp_worker_t   worker;
   lesp_socket_t   sockets[SOCKET_NBR];
-  lesp_ans_t      ans;
+  lesp_ans_t      and;
   char            bufans[BUF_ANS_LEN];
   char            bufcmd[BUF_CMD_LEN];
   struct hostent  hostent;
@@ -187,9 +187,9 @@ lesp_state_t g_lesp_state =
   .is_initialized = false,
   .fd             = -1,
   .worker.running = false,
-  .worker.ans     = lesp_eNONE,
+  .worker.and     = lesp_eNONE,
   .worker.mutex   = PTHREAD_MUTEX_INITIALIZER,
-  .ans            = lesp_eNONE,
+  .and            = lesp_eNONE,
 };
 
 /****************************************************************************
@@ -201,7 +201,7 @@ lesp_state_t g_lesp_state =
  *
  * Description:
  *
- * Input Parmeters:
+ * Input Parameters:
  *
  * Returned Value:
  *   None
@@ -218,7 +218,7 @@ static inline void lesp_clear_read_buffer(void)
  *
  * Description:
  *
- * Input Parmeters:
+ * Input Parameters:
  *
  * Returned Value:
  *   None
@@ -227,7 +227,7 @@ static inline void lesp_clear_read_buffer(void)
 
 static inline void lesp_clear_read_ans(void)
 {
-  g_lesp_state.ans = lesp_eNONE;
+  g_lesp_state.and = lesp_eNONE;
 }
 
 /****************************************************************************
@@ -235,7 +235,7 @@ static inline void lesp_clear_read_ans(void)
  *
  * Description:
  *
- * Input Parmeters:
+ * Input Parameters:
  *
  * Returned Value:
  *   unsigned value
@@ -266,11 +266,11 @@ static inline int lesp_str_to_unsigned(char **p_ptr, char end)
  * Description:
  *   Set com port to baudrate.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   sockfd : int baudrate
  *
  * Returned Value:
- *   0 on success, -1 incase of error.
+ *   0 on success, -1 in case of error.
  *
  ****************************************************************************/
 
@@ -288,7 +288,7 @@ static int lesp_set_baudrate(int baudrate)
   if ((cfsetispeed(&term, baudrate) < 0) ||
       (cfsetospeed(&term, baudrate) < 0))
     {
-      nerr("ERROR: Connot set baudrate %0x08X\n", baudrate);
+      nerr("ERROR: Cannot set baudrate %0x08X\n", baudrate);
       return -1;
     }
 
@@ -308,7 +308,7 @@ static int lesp_set_baudrate(int baudrate)
  * Description:
  *   Get socket structure pointer of sockfd.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   sockfd : socket id
  *
  * Returned Value:
@@ -350,7 +350,7 @@ static lesp_socket_t *get_sock(int sockfd)
  * Description:
  *   Get socket structure pointer of sockfd with worker.mutex portection.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   sockfd : socket id
  *
  * Returned Value:
@@ -375,7 +375,7 @@ static lesp_socket_t *get_sock_protected(int sockfd)
  *   Set socket sockfd mark as closed without check and don't send message to
  *   esp8266.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   sockfd : socket id
  *
  * Returned Value:
@@ -411,7 +411,7 @@ static void set_sock_closed(int sockfd)
  * Description:
  *   put size data from esp8266 into buf.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   buf  : buffer to store read data
  *   size : size of data to read
  *
@@ -467,7 +467,7 @@ static int lesp_low_level_read(uint8_t *buf, int size)
  * Note:
  *  g_lesp_state.worker.mutex should be locked.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   sockfd : socker number to put received data.
  *   len : data size to read on serial port.
  *
@@ -573,7 +573,7 @@ static inline int lesp_read_ipd(int sockfd, int len)
  * Description:
  *   Send cmd with format and argument like sprintf.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   format : null terminated format string to send.
  *   ap     : format values.
  *
@@ -611,7 +611,7 @@ int lesp_vsend_cmd(FAR const IPTR char *format, va_list ap)
  * Description:
  *   Send cmd with format and argument like sprintf.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   format : null terminated format string to send.
  *   ...    : format values.
  *
@@ -645,7 +645,7 @@ static int lesp_send_cmd(FAR const IPTR char *format, ...)
  * Description:
  *   Read a answer line with timeout.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   timeout_ms : timeout in millisecond.
  *
  * Returned Value:
@@ -688,10 +688,10 @@ static int lesp_read(int timeout_ms)
 
       pthread_mutex_lock(&g_lesp_state.worker.mutex);
 
-      if (g_lesp_state.worker.ans != lesp_eNONE)
+      if (g_lesp_state.worker.and != lesp_eNONE)
         {
-          g_lesp_state.ans = g_lesp_state.worker.ans;
-          g_lesp_state.worker.ans = lesp_eNONE;
+          g_lesp_state.and = g_lesp_state.worker.and;
+          g_lesp_state.worker.and = lesp_eNONE;
         }
 
       ret = strlen(g_lesp_state.worker.buf);
@@ -705,10 +705,10 @@ static int lesp_read(int timeout_ms)
       g_lesp_state.worker.buf[0] = '\0'; /* buffer is read */
       pthread_mutex_unlock(&g_lesp_state.worker.mutex);
     }
-  while ((ret <= 0) && (g_lesp_state.ans == lesp_eNONE));
+  while ((ret <= 0) && (g_lesp_state.and == lesp_eNONE));
 
-  ninfo("lesp_read %d=>%s and ans = %d \n", ret, g_lesp_state.bufans,
-        g_lesp_state.ans);
+  ninfo("lesp_read %d=>%s and and = %d \n", ret, g_lesp_state.bufans,
+        g_lesp_state.and);
 
   return ret;
 }
@@ -719,7 +719,7 @@ static int lesp_read(int timeout_ms)
  * Description:
  *   Read and discard all waiting data in rx buffer.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
  * Returned Value:
@@ -743,7 +743,7 @@ static void lesp_flush(void)
  * Description:
  *   Read up to read OK, ERROR, or FAIL.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   timeout_ms : timeout in millisecond.
  *
  * Returned Value:
@@ -758,11 +758,11 @@ int lesp_read_ans_ok(int timeout_ms)
 
   end = time(NULL) + (timeout_ms/1000) + lespTIMEOUT_FLOODING_OFFSET_S;
 
-  while (g_lesp_state.ans != lesp_eOK)
+  while (g_lesp_state.and != lesp_eOK)
     {
       ret = lesp_read(timeout_ms);
 
-      if ((ret < 0) || (g_lesp_state.ans == lesp_eERR) || \
+      if ((ret < 0) || (g_lesp_state.and == lesp_eERR) || \
            (time(NULL) > end))
         {
           ret = -1;
@@ -784,7 +784,7 @@ int lesp_read_ans_ok(int timeout_ms)
  * Description:
  *   Ask and ignore line start with '+' and except a "OK" answer.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   cmd        : command sent
  *   timeout_ms : timeout in millisecond
  *
@@ -816,7 +816,7 @@ static int lesp_ask_ans_ok(int timeout_ms, FAR const IPTR char *format, ...)
  * Description:
  *   check if esp is ready (initialized and AT return OK)
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
  * Returned Value:
@@ -861,7 +861,7 @@ static int lesp_check(void)
  *      - Content of ptr is modified and string in ap point into ptr string.
  *      - in current version, only one ip is returned by ESP8266.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ptr    : +CIPDOMAIN line null terminated string pointer.
  *   ip     : ip of hostname
  *
@@ -940,7 +940,7 @@ static int lesp_parse_cwdomain_ans_line(const char *ptr, in_addr_t *ip)
  *      - Content of ptr is modified and string in ap point into ptr string.
  *      - in current version, only net ip is returned by ESP8266.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ptr   : +CWLAP line null terminated string pointer.
  *   ap    : ap result of parsing.
  *
@@ -1023,7 +1023,7 @@ static int lesp_parse_cipxxx_ans_line(const char *ptr, in_addr_t *ip)
  *
  *   Note: Content of ptr is modified and string in ap point into ptr string.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ptr   : +CWLAP line null terminated string pointer.
  *   ap    : ap result of parsing.
  *
@@ -1136,7 +1136,7 @@ static int lesp_parse_cwjap_ans_line(char *ptr, lesp_ap_t *ap)
  *
  *   Note: Content of ptr is modified and string in ap point into ptr string.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ptr   : +CWLAP line null terminated string pointer.
  *   ap    : ap result of parsing.
  *
@@ -1245,7 +1245,7 @@ static int lesp_parse_cwlap_ans_line(char *ptr, lesp_ap_t *ap)
  * Description:
  *      Esp8266 worker thread.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   args  : unused
  *
  * Returned Value:
@@ -1295,13 +1295,13 @@ static void *lesp_worker(void *args)
                 {
                   if (strcmp(worker->rxbuf, "OK") == 0)
                     {
-                      worker->ans = lesp_eOK;
+                      worker->and = lesp_eOK;
                     }
                   else if ((strcmp(worker->rxbuf, "FAIL") == 0) ||
                            (strcmp(worker->rxbuf, "ERROR") == 0)
                           )
                     {
-                      worker->ans = lesp_eERR;
+                      worker->and = lesp_eERR;
                     }
                   else if ((rxlen == 8) &&
                             (memcmp(worker->rxbuf+1, ",CLOSED", 7) == 0))
@@ -1329,7 +1329,7 @@ static void *lesp_worker(void *args)
                         }
                       else
                         {
-                          nerr("Worker ans line is too long:%s\n", worker->rxbuf);
+                          nerr("Worker and line is too long:%s\n", worker->rxbuf);
                         }
                     }
 
@@ -1378,7 +1378,7 @@ static void *lesp_worker(void *args)
  * Description:
  *      start Esp8266 worker thread.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   priority  : POSIX priority of worker thread.
  *
  * Returned Value:
@@ -1456,7 +1456,7 @@ static inline int lesp_create_worker(int priority)
  *      - configure port
  *      - etc...
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
  * Returned Value:
@@ -1536,7 +1536,7 @@ int lesp_initialize(void)
  * Description:
  *    reset esp8266 (command "AT+RST");
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
  * Returned Value:
@@ -1620,7 +1620,7 @@ int lesp_soft_reset(void)
  * Description:
  *    reset esp8266 (command "AT+RST");
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
  * Returned Value:
@@ -1661,10 +1661,10 @@ int lesp_ap_connect(const char *ssid_name, const char *ap_key, int timeout_s)
  * Description:
  *    Read the current connected Access Point.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   None
  *
- * Output Parmeters:
+ * Output Parameters:
  *   ap : details of connected access point
  *
  * Returned Value:
@@ -1724,10 +1724,10 @@ int lesp_ap_get(lesp_ap_t *ap)
  * Description:
  *    Read the current network details.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   mode : lesp_eMODE_AP or lesp_eMODE_STATION
  *
- * Output Parmeters:
+ * Output Parameters:
  *   ip     : ip of interface
  *   mask   : mask of interface (not implemented by esp8266)
  *   gw     : gateway of interface (not implemented by esp8266)
@@ -1822,7 +1822,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
  *   It will set network ip of mode.
  *   Warning: use lesp_eMODE_STATION or lesp_eMODE_AP.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   mode    : mode to configure.
  *   ip      : ip of interface.
  *   mask    : network mask of interface.
@@ -1872,7 +1872,7 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask, in_addr_t gatew
  * Description:
  *   It will Enable or disable DHCP of mode.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   mode    : mode to configure.
  *   enable  : true for enable, false for disable.
  *
@@ -1911,7 +1911,7 @@ int lesp_set_dhcp(lesp_mode_t mode, bool enable)
  * Description:
  *   It will get if DHCP is Enable or disable for each mode.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ap_enable   : true DHCP is enable in Access Point mode, false otherwise.
  *   sta_enable  : true DHCP is enable in Station mode, false otherwise.
  *
@@ -1994,7 +1994,7 @@ int lesp_get_dhcp(bool *ap_enable, bool *sta_enable)
  * Description:
  *   Search all access points.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   cb  : call back call for each access point found.
  *
  * Returned Value:
@@ -2068,7 +2068,7 @@ int lesp_list_access_points(lesp_cb_t cb)
  * Description:
  *   return corresponding string of security enum.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   security : enum value of string
  *
  * Returned Value:

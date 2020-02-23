@@ -131,7 +131,7 @@ namespace NxWM
     int64_t                  m_accum;      /**< The current accumulated value */
     int64_t                  m_memory;     /**< The current value saved in memory */
     struct SPendingOperation m_low;        /**< Low precedence pending operation */
-    struct SPendingOperation m_high;       /**< Hight precedence pending operation */
+    struct SPendingOperation m_high;       /**< High precedence pending operation */
     bool                     m_hexMode;    /**< True if in hex mode */
     bool                     m_result ;    /**< True if the accumulator holds a previoius result */
 

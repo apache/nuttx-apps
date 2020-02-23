@@ -70,7 +70,7 @@ static struct spitool_s g_spitool;
 static const struct cmdmap_s g_spicmds[] =
 {
   { "?",    spicmd_help,  "Show help     ",  NULL },
-  { "bus",  spicmd_bus,   "List busses   ",  NULL },
+  { "bus",  spicmd_bus,   "List buses    ",  NULL },
   { "exch",  spicmd_exch, "SPI Exchange  ", "[OPTIONS] [<hex senddata>]" },
   { "help", spicmd_help,  "Show help     ", NULL },
   { NULL,   NULL,         NULL,             NULL }

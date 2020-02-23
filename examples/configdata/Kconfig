@@ -28,7 +28,7 @@ config EXAMPLES_CONFIGDATA_NEBLOCKS
 	---help---
 		When EXAMPLES_CONFIGDATA_ARCHINIT is not defined, this test will use
 		the RAM MTD device at drivers/mtd/rammtd.c to simulate FLASH.  In
-		this case, this value must be provided to give the nubmer of erase
+		this case, this value must be provided to give the number of erase
 		blocks in the MTD RAM device.
 
 		The size of the allocated RAM drive will be:

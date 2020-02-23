@@ -171,7 +171,7 @@ void vMBMasterOsResInit(void)
  * Note: The resource is defined by Operating System. If you do not use OS,
  *   this function can just return true.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ulTimeOut the waiting time
  *
  * Returned Value:
@@ -220,7 +220,7 @@ void vMBMasterRunResRelease(void)
 /* This is Modbus Master Respond Timeout error callback function.
  * NOTE: This function will block modbus master poll.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ucDestAddress destination slave address
  *   pucPDUData PDU buffer data
  *   ucPDULength PDU buffer length
@@ -236,7 +236,7 @@ void vMBMasterErrorCBRespondTimeout(uint8_t ucDestAddress,
 /* This is Modbus Master receive data error callback function.
  * NOTE: This function will block modbus master poll.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ucDestAddress destination slave address
  *   pucPDUData PDU buffer data
  *   usPDULength PDU buffer length
@@ -252,7 +252,7 @@ void vMBMasterErrorCBReceiveData(uint8_t ucDestAddress,
 /* This is Modbus Master execute function error callback function.
  * NOTE: This function will block modbus master poll.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   ucDestAddress destination slave address
  *   pucPDUData PDU buffer data
  *   usPDULength PDU buffer length

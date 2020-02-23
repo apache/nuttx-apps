@@ -105,7 +105,7 @@ Bug fixes and such:
   cursor position is changed, even if there are no other changes.
 
 - Set SP->audible on a per-platform basis, as was documented in
-  IMPLEMNT, but not actually being done.
+  IMPLEMENT, but not actually being done.
 
 - Minor tweaks for efficiency and readability, notably with wscrl().
 
@@ -278,7 +278,7 @@ Bug fixes and such:
 
 - Moved RIPPEDOFFLINE to curspriv.h.
 
-- Typos in IMPLEMNT.
+- Typos in IMPLEMENT.
 
 ------------------------------------------------------------------------
 
@@ -366,7 +366,7 @@ New features:
   and either the static lib or DLL is built, not both at once (except
   for X11).
 
-- A new document, IMPLEMNT, describing PDCurses' internal functions for
+- A new document, IMPLEMENT, describing PDCurses' internal functions for
   those wishing to port it to new platforms.
 
 - Mark Hessling has released the X11 port to the public domain.
@@ -1279,7 +1279,7 @@ EXTRA OPTIONS:
 
 ACKNOWLEDGEMENTS: (for this release)
 
- Pieter Kunst, David Nugent, Warren Tucker, Darin Haugen, Stefan Strack,
+ Pieter Kunst, David Nugent, Warren Tucker, Darin Haugen, Stefan Stack,
  Wade Schauer and others who either alerted me to bugs or supplied
  fixes.
 
@@ -1343,7 +1343,7 @@ OTHER NOTES:
 
  overlay() and overwrite()
 
- Both of theses functions in PDCurses 2.0 allowed for one window to be
+ Both of these functions in PDCurses 2.0 allowed for one window to be
  effectively placed on top of another, and the characters in the first
  window were overlaid or overwritten starting at 0,0 in both windows.
  This behavior of these functions was not correct. These functions only

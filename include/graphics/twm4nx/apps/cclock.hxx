@@ -279,7 +279,7 @@ namespace Twm4Nx
 
       /**
        * CClockFactory Initializer.  Performs parts of the instance
-       * construction that may fail.  In this implemenation, it will
+       * construction that may fail.  In this implementation, it will
        * initialize the NSH library and register an menu item in the
        * Main Menu.
        */

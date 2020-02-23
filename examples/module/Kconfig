@@ -111,7 +111,7 @@ config EXAMPLES_MODULE_BINDIR
 	default "/mnt/moddata"
 	depends on !EXAMPLES_MODULE_BUILTINFS && !EXAMPLES_MODULE_FSMOUNT
 	---help---
-		The full, absolte path to the location for the binaries can be
+		The full, absolute path to the location for the binaries can be
 		located in a pre-mounted external file system.
 
 config EXAMPLES_MODULE_NOSTRIP

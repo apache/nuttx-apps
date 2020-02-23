@@ -250,7 +250,7 @@ examples/dhcpd
 
     CONFIG_EXAMPLES_DHCPD_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_DHCPD_IPADDR    - Target IP address
-    CONFIG_EXAMPLES_DHCPD_DRIPADDR  - Default router IP addess
+    CONFIG_EXAMPLES_DHCPD_DRIPADDR  - Default router IP address
     CONFIG_EXAMPLES_DHCPD_NETMASK   - Network mask
 
   See also CONFIG_NETUTILS_DHCPD_* settings described elsewhere
@@ -300,7 +300,7 @@ examples/djoystick
 examples/dsptest
 ^^^^^^^^^^^^^^^^^^
 
-  This is a Unit Test for the Nuttx DSP library. It use Unity testing framwork.
+  This is a Unit Test for the Nuttx DSP library. It use Unity testing framework.
 
   Dependencies:
 
@@ -340,7 +340,7 @@ examples/elf
 
      Similarly for C++ flags which must be provided in CXXELFFLAGS.
 
-  2. Your top-level nuttx/Make.defs file must also include an approproate definition,
+  2. Your top-level nuttx/Make.defs file must also include an appropriate definition,
      LDELFFLAGS, to generate a relocatable ELF object.  With GNU LD, this should
      include '-r' and '-e main' (or _main on some platforms).
 
@@ -414,7 +414,7 @@ examples/ftpc
   of the FTPC library (apps/netutils/ftpc).
 
   From NSH, the startup command sequence is as follows.  This is only
-  an example, your configration could have different mass storage devices,
+  an example, your configuration could have different mass storage devices,
   mount paths, and FTP directories:
 
     nsh> mount -t vfat /dev/mmcsd0 /tmp # Mount the SD card at /tmp
@@ -442,7 +442,7 @@ examples/ftpc
   behaviors are desire-able if Telnet is used.
 
   You may also want to define the following in your configuration file.
-  Otherwise, you will have not feeback about what is going on:
+  Otherwise, you will have not feedback about what is going on:
 
     CONFIG_DEBUG_FEATURES=y
     CONFIG_DEBUG_INFO=y
@@ -488,7 +488,7 @@ examples/ftpd
 
     CONFIG_DISABLE_PTHREAD - pthread support is required
 
-  Other FTPD configuration options thay may be of interest:
+  Other FTPD configuration options they may be of interest:
 
     CONFIG_FTPD_VENDORID - The vendor name to use in FTP communications.
       Default: "NuttX"
@@ -758,7 +758,7 @@ examples/module
 
      Similarly for C++ flags which must be provided in CXXMODULEFLAGS.
 
-  2. Your top-level nuttx/Make.defs file must also include an approproate definition,
+  2. Your top-level nuttx/Make.defs file must also include an appropriate definition,
      LDMODULEFLAGS, to generate a relocatable ELF object.  With GNU LD, this should
      include '-r' and '-e <entry point>'.
 
@@ -858,7 +858,7 @@ examples/mtdpart
   * CONFIG_EXAMPLES_MTDPART_ERASESIZE - This value gives the size of one
     erase block in the MTD RAM device. This must exactly match the default
     configuration in drivers/mtd/rammtd.c!
-  * CONFIG_EXAMPLES_MTDPART_NEBLOCKS - This value gives the nubmer of erase
+  * CONFIG_EXAMPLES_MTDPART_NEBLOCKS - This value gives the number of erase
     blocks in MTD RAM device.
 
 examples/mtdrwb
@@ -882,7 +882,7 @@ examples/mtdrwb
   * CONFIG_EXAMPLES_MTDRWB_ERASESIZE - This value gives the size of one
     erase block in the MTD RAM device. This must exactly match the default
     configuration in drivers/mtd/rammtd.c!
-  * CONFIG_EXAMPLES_MTDRWB_NEBLOCKS - This value gives the nubmer of erase
+  * CONFIG_EXAMPLES_MTDRWB_NEBLOCKS - This value gives the number of erase
     blocks in MTD RAM device.
 
 examples/netpkt
@@ -902,7 +902,7 @@ examples/netloop
 
   Dependencies:
 
-    CONFIG_NET_LOOPBACK           - Requires local loopback supprt
+    CONFIG_NET_LOOPBACK           - Requires local loopback support
     CONFIG_NET_TCP                - Requires TCP support with the following:
     CONFIG_NET_TCPBACKLOG
     CONFIG_NET_TCP_WRITE_BUFFERS
@@ -1090,7 +1090,7 @@ examples/nximage
     How was that run-length encoded image produced?
 
     a. I used GIMP output the image as a .c file.
-    b. I added som C logic to palette-ize the RGB image in the GIMP .c file
+    b. I added some C logic to palette-ize the RGB image in the GIMP .c file
     c. Then I add some simple run-length encoding to palette-ized image.
 
     But now there is a tool that can be found in the NxWidgets package at
@@ -1141,7 +1141,7 @@ examples/nxtext
 
   This directory contains another simple test of a subset of the NX APIs
   defined in include/nuttx/nx/nx.h.  This text focuses on text displays on
-  the dispaly background combined with pop-up displays over the text.
+  the display background combined with pop-up displays over the text.
   The text display will continue to update while the pop-up is visible.
 
   NOTE:  This example will *only* work with FB drivers and with LCD
@@ -1174,7 +1174,7 @@ examples/nxtext
       reading from the display.
     CONFIG_EXAMPLES_NXTEXT_BMCACHE - The maximum number of characters that
       can be put in the background window.  Default is 128.
-    CONFIG_EXAMPLES_NXTEXT_GLCACHE - The maximum nuber of pre-rendered
+    CONFIG_EXAMPLES_NXTEXT_GLCACHE - The maximum number of pre-rendered
       fonts that can be retained for the background window.
     CONFIG_EXAMPLES_NXTEXT_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
@@ -1242,7 +1242,7 @@ examples/poll
 
   CONFIG_EXAMPLES_POLL_NOMAC         - (May be defined to use software assigned MAC)
   CONFIG_EXAMPLES_POLL_IPADDR        - Target IP address
-  CONFIG_EXAMPLES_POLL_DRIPADDR      - Default router IP addess
+  CONFIG_EXAMPLES_POLL_DRIPADDR      - Default router IP address
   CONFIG_EXAMPLES_POLL_NETMASK       - Network mask
 
   In order to for select to work with incoming connections, you
@@ -1321,7 +1321,7 @@ examples/posix_spawn
 
      Similarly for C++ flags which must be provided in CXXELFFLAGS.
 
-  2. Your top-level nuttx/Make.defs file must also include an approproate
+  2. Your top-level nuttx/Make.defs file must also include an appropriate
      definition, LDELFFLAGS, to generate a relocatable ELF object.  With GNU
      LD, this should include '-r' and '-e main' (or _main on some platforms).
 
@@ -1443,7 +1443,7 @@ examples/qencoder
       collected and the program terminates.  Default:  Samples are collected
       indefinitely.
     CONFIG_EXAMPLES_QENCODER_DELAY - This value provides the delay (in
-      milliseonds) between each sample. Default:  100 milliseconds
+      milliseconds) between each sample. Default:  100 milliseconds
 
 examples/random
 ^^^^^^^^^^^^^^^
@@ -1504,7 +1504,7 @@ examples/romfs
       The ROM disk sector size to use.  Default is 64.
 
   * CONFIG_EXAMPLES_ROMFS_MOUNTPOINT
-      The location to mount the ROM disk.  Deafault: "/usr/local/share"
+      The location to mount the ROM disk.  Default: "/usr/local/share"
 
 examples/sendmail
 ^^^^^^^^^^^^^^^^^
@@ -1520,7 +1520,7 @@ examples/sendmail
 
     CONFIG_EXAMPLES_SENDMAIL_NOMAC     - May be defined to use software assigned MAC (optional)
     CONFIG_EXAMPLES_SENDMAIL_IPADDR    - Target IP address (required)
-    CONFIG_EXAMPLES_SENDMAIL_DRIPADDR  - Default router IP addess (required)
+    CONFIG_EXAMPLES_SENDMAIL_DRIPADDR  - Default router IP address (required)
     CONFIG_EXAMPLES_SENDMAILT_NETMASK  - Network mask (required)
     CONFIG_EXAMPLES_SENDMAIL_RECIPIENT - The recipient of the email (required)
     CONFIG_EXAMPLES_SENDMAIL_SENDER    - Optional. Default: "nuttx-testing@example.com"
@@ -1536,7 +1536,7 @@ examples/sendmail
   unprotected recipients can be used.  Most will protect themselves
   from this test email because it looks like SPAM.
 
-  Applications using this example will need to enble the following
+  Applications using this example will need to enable the following
   netutils libraries in their defconfig file:
 
     CONFIG_NETUTILS_NETLIB=y
@@ -1605,7 +1605,7 @@ examples/sotest
 
      Similarly for C++ flags which must be provided in CXXMODULEFLAGS.
 
-  2. Your top-level nuttx/Make.defs file must also include an approproate definition,
+  2. Your top-level nuttx/Make.defs file must also include an appropriate definition,
      LDMODULEFLAGS, to generate a relocatable ELF object.  With GNU LD, this should
      include '-r' and '-e <entry point>'.
 
@@ -1688,7 +1688,7 @@ examples/telnetd
 ^^^^^^^^^^^^^^^^
 
   This directory contains a functional port of the tiny uIP shell.  In
-  the NuttX environment, the NuttShell (at apps/nshlib) supercedes this
+  the NuttX environment, the NuttShell (at apps/nshlib) supersedes this
   tiny shell and also supports telnetd.
 
     CONFIG_EXAMPLES_TELNETD - Enable the Telnetd example
@@ -1724,7 +1724,7 @@ examples/thttpd
   In addition to those, this example accepts:
 
     CONFIG_EXAMPLES_THTTPD_NOMAC    - (May be defined to use software assigned MAC)
-    CONFIG_EXAMPLES_THTTPD_DRIPADDR - Default router IP addess
+    CONFIG_EXAMPLES_THTTPD_DRIPADDR - Default router IP address
     CONFIG_EXAMPLES_THTTPD_NETMASK  - Network mask
 
   Applications using this example will need to enable the following
@@ -1740,7 +1740,7 @@ examples/tiff
   It is configured to work in the Linux user-mode simulation and has not been
   tested in any other environment.
 
-  At a miniumum, to run in an embedded environment, you will probably have to
+  At a minimum, to run in an embedded environment, you will probably have to
   change the configured paths to the TIFF files defined in the example.
 
     CONFIG_EXAMPLES_TIFF_OUTFILE - Name of the resulting TIFF file.  Default is
@@ -2008,7 +2008,7 @@ examples/webserver
 
     CONFIG_EXAMPLES_WEBSERVER_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_WEBSERVER_IPADDR    - Target IP address
-    CONFIG_EXAMPLES_WEBSERVER_DRIPADDR  - Default router IP addess
+    CONFIG_EXAMPLES_WEBSERVER_DRIPADDR  - Default router IP address
     CONFIG_EXAMPLES_WEBSERVER_NETMASK   - Network mask
     CONFIG_EXAMPLES_WEBSERVER_DHCPC     - Select to get IP address via DHCP
 
@@ -2056,7 +2056,7 @@ examples/wget
     CONFIG_EXAMPLES_WGET_URL       - The URL of the file to get
     CONFIG_EXAMPLES_WGET_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_WGET_IPADDR    - Target IP address
-    CONFIG_EXAMPLES_WGET_DRIPADDR  - Default router IP addess
+    CONFIG_EXAMPLES_WGET_DRIPADDR  - Default router IP address
     CONFIG_EXAMPLES_WGET_NETMASK   - Network mask
 
   This example uses netutils/webclient.  Additional configuration settings apply
@@ -2108,7 +2108,7 @@ examples/xmlrpc
     CONFIG_EXAMPLES_XMLRPC_BUFFERSIZE - HTTP buffer size. Default 1024
     CONFIG_EXAMPLES_XMLRPC_DHCPC - Use DHCP Client.  Default n. Ignored
       if CONFIG_NSH_NETINIT is selected.
-    CONFIG_EXAMPLES_XMLRPC_NOMAC - Use Canned MAC Address. Defaul n. Ignored
+    CONFIG_EXAMPLES_XMLRPC_NOMAC - Use Canned MAC Address. Default n. Ignored
       if CONFIG_NSH_NETINIT is selected.
     CONFIG_EXAMPLES_XMLRPC_IPADDR - Target IP address. Default 0x0a000002.
       Ignored if CONFIG_NSH_NETINIT is selected.

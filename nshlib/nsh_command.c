@@ -968,7 +968,7 @@ static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  *   Execute the command in argv[0]
  *
  * Returned Value:
- *   -1 (ERRROR) if the command was unsuccessful
+ *   -1 (ERROR) if the command was unsuccessful
  *    0 (OK)     if the command was successful
  *
  ****************************************************************************/

@@ -49,7 +49,7 @@ config EXAMPLES_MEDIA_DEVPATH
 			ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
 			                      false);
 
-		NOTE: This drivr path can be overridden when the application is
+		NOTE: This driver path can be overridden when the application is
 		executed by providing a differ device path on the 'media' command line.
 
 config EXAMPLES_MEDIA_BLOCKSIZE

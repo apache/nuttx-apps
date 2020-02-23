@@ -222,7 +222,7 @@ struct mb_forloop_s
  * (3) Pass the instance of struct mb_state_s to every Mini Basic function.
  */
 
-static struct mb_forloop_s g_forstack[MAXFORS]; /* Stack for for loop conrol */
+static struct mb_forloop_s g_forstack[MAXFORS]; /* Stack for for loop control */
 static int nfors;                               /* Number of fors on stack */
 
 static FAR struct mb_variable_s *g_variables;   /* The script's variables */
@@ -235,7 +235,7 @@ static FAR struct mb_line_s *g_lines;           /* List of line starts */
 static int nlines;                              /* Number of BASIC g_lines in program */
 
 static FILE *g_fpin;                            /* Input stream */
-static FILE *g_fpout;                           /* Output strem */
+static FILE *g_fpout;                           /* Output stream */
 static FILE *g_fperr;                           /* Error stream */
 
 static FAR const char *g_string;                /* String we are parsing */
@@ -2026,7 +2026,7 @@ static double factor(void)
  * Name: instr
  *
  * Description:
- *   Calcualte the INSTR() function.
+ *   Calculate the INSTR() function.
  *
  ****************************************************************************/
 
@@ -2486,8 +2486,8 @@ static FAR void *getdimvar(FAR struct mb_dimvar_s *dv, ...)
  * Name: addfloat
  *
  * Description:
- *   Add a real varaible to our variable list
- *   Params: id - id of varaible to add.
+ *   Add a real variable to our variable list
+ *   Params: id - id of variable to add.
  *   Returns: pointer to new entry in table
  *
  ****************************************************************************/

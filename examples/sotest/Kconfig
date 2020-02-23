@@ -59,7 +59,7 @@ config EXAMPLES_SOTEST_BINDIR
 	string "Path to Test Shared Libraries"
 	default "/mnt/sdcard"
 	---help---
-		The path to the directoy on the mounted volume where the test shared
+		The path to the directory on the mounted volume where the test shared
 		libraries can found at runtime.
 
 endif # !EXAMPLES_SOTEST_BUILTINFS

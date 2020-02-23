@@ -146,7 +146,7 @@ CFLAGS += -DEL_MEM_LINE_SIZE=$(CONFIG_EMBEDLOG_MEM_LINE_SIZE)
 # config.h is available only when building with autotools
 CFLAGS += -DHAVE_CONFIG_H=0
 
-# embedlog uses access(path, F_OK) to determin if file exists or not and since
+# embedlog uses access(path, F_OK) to determine if file exists or not and since
 # nuttx always returns OK here, we mark access as not working and make embedlog
 # to use stat() for that purpose
 CFLAGS += -DHAVE_ACCESS=0

@@ -124,7 +124,7 @@ static void testCleanUpAndExit(int exitCode)
   // Delete the task bar then the start window.  the order is important because
   // we must bet all of the application references out of the task bar before
   // deleting the start window.  When the start window is deleted, it will
-  // also delete of of the resouces contained within the start window.
+  // also delete of of the resources contained within the start window.
 
   if (g_nxwmtest.taskbar)
     {
@@ -184,7 +184,7 @@ static bool createTaskbar(void)
   printf("createTaskbar: Initialize CTaskbar instance\n");
   if (!g_nxwmtest.taskbar->initWindowManager())
     {
-      printf("createTaskbar: ERROR: Failed to intialize CTaskbar instance\n");
+      printf("createTaskbar: ERROR: Failed to initialize CTaskbar instance\n");
       return false;
     }
 

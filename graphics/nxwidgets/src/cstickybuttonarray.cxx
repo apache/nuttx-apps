@@ -243,7 +243,7 @@ void CStickyButtonArray::drawContents(CGraphicsPort *port)
         }
     }
 
-  // Do we just draw the hightlighted button?
+  // Do we just draw the highlighted button?
 
   else if (m_cursorChange)
     {

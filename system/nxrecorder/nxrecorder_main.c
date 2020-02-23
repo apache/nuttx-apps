@@ -391,7 +391,7 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder,
  * Name: nxrecorder
  *
  *   nxrecorder() reads in commands from the console using the readline
- *   system add-in and implemets a command-line based pcm raw data recorder
+ *   system add-in and implements a command-line based pcm raw data recorder
  *   that uses the NuttX audio system to record pcm raw data files read in
  *   from the audio device.  Commands are provided for setting volume, base
  *   and other audio features, as well as for pausing and stopping the

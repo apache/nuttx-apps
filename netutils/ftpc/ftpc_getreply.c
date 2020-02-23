@@ -74,7 +74,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
   int ch;
   int ndx = 0;
 
-  /* Start wth an empty response string */
+  /* Start with an empty response string */
 
   session->reply[0] = '\0';
 

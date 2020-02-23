@@ -71,13 +71,13 @@ o CMediaPlayer Issues
   Priority:    Low for now
 
   Title:       PLAY PROGRESS FEEDBACK
-  Decription:  Need a way to know the position in the file, how long the
+  Description:  Need a way to know the position in the file, how long the
                file is (in minutes), and an indication when playing
                complete.
   Status:      Open
   Priorit:     Medium.  Certain affect usability.
 
-  Title:       NO BALANCE/TONE/EQUALIZER CONTORLS
+  Title:       NO BALANCE/TONE/EQUALIZER CONTROLS
   Description: The title says it all
   Status:      Open
   Priority:    Medium.  That is big functional limitation.

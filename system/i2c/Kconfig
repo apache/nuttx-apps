@@ -30,7 +30,7 @@ config I2CTOOL_MINADDR
 	hex "Minimum I2C address"
 	default 0x03
 	---help---
-		Minium 7-bit device address (default: 0x03)
+		Minimum 7-bit device address (default: 0x03)
 
 config I2CTOOL_MAXADDR
 	hex "Maximum I2C address"

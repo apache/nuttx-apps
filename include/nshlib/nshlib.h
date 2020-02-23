@@ -170,7 +170,7 @@ int nsh_telnetstart(sa_family_t family);
  *   must provide this function in order to obtain the Message of the Day
  *   (MOTD)
  *
- * Input Parmeters:
+ * Input Parameters:
  *   buffer - A caller allocated buffer in which to receive the MOTD
  *   buflen - The length in bytes of the caller allocated buffer
  *
@@ -191,7 +191,7 @@ void platform_motd(FAR char *buffer, size_t buflen);
  *   must provide this function in order verify user credentials as part of
  *   the login process.
  *
- * Input Parmeters:
+ * Input Parameters:
  *   username/password - User credentials to be verified.
  *
  * Returned value:

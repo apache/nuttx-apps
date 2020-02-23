@@ -67,7 +67,7 @@ nsh> Usage: spi <cmd> [arguments]
 Where <cmd> is one of:
 
   Show help     : ?
-  List busses   : bus
+  List buses   : bus
   SPI Exchange  : exch [OPTIONS] [<hex senddata>]
   Show help     : help
 

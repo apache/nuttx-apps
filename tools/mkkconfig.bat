@@ -44,7 +44,7 @@ IF "%1"=="-m" GOTO :SetMenu
 IF "%1"=="-o" GOTO :SetKconfig
 IF "%1"=="-h" GOTO :ShowUsage
 
-Echo ERROR: Unrecogized option %1
+Echo ERROR: Unrecognized option %1
 GOTO :ShowUsage
 
 :SetDebug
@@ -117,7 +117,7 @@ Echo    Enables debug output
 Echo  -m ^<menu^>:
 Echo    Menu description
 Echo  -o ^<kconfig-file^>:
-Echo    Identifies the specific configuratin for the selected ^<board-name^>.
+Echo    Identifies the specific configuration for the selected ^<board-name^>.
 Echo    This must correspond to a sub-directory under the board directory at
 Echo    under nuttx/boards/^<arch^>/^<chip^>/^<board^>/.
 Echo  ^<-h^>:

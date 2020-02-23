@@ -221,7 +221,7 @@ static bool pwfb_state_initialize(FAR struct pwfb_state_s *st)
   st->color[0]         = CONFIG_EXAMPLES_PWFB_TBCOLOR;
 
   /* Connect each window to the font cache.  They cannot share the
-   * font cache becuse of the differing background colors.
+   * font cache because of the differing background colors.
    */
 
   st->wndo[0].fcache = nxf_cache_connect(CONFIG_EXAMPLES_PWFB_FONTID,

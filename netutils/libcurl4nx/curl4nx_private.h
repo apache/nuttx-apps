@@ -130,7 +130,7 @@ struct curl4nx_header_s
 /****************************************************************************
  * Name: struct curl4nx_s
  *
- * Description: Holds the integrity of all informations required for a curl4nx
+ * Description: Holds the integrity of all information required for a curl4nx
  *   transfer.
  *
  ****************************************************************************/

@@ -1500,7 +1500,7 @@ static void _show_usage(FAR char *cmd)
   fprintf(stderr,
           "Usage: %s [-a [ch]] ssid key \n\n", cmd);
   fprintf(stderr,
-          "AP mode : specify -a option (optionaly with channel) with ssid\n"
+          "AP mode : specify -a option (optionally with channel) with ssid\n"
           "          and 10 hex digits for WEP key \n");
   fprintf(stderr,
           "STA mode: specify ssid and passphrase (key) for WPA/WPA2 PSK \n");

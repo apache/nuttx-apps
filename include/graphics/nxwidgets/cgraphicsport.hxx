@@ -319,7 +319,7 @@ namespace NXWidgets
                   const CNxString &string);
 
     /**
-     * Draw a particular length of a string to the window in a secific color.
+     * Draw a particular length of a string to the window in a specific color.
      * @param pos The window-relative x/y coordinate of the string.
      * @param bound The window-relative bounds of the string.
      * @param font The font to draw with.
