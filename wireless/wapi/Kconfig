@@ -36,4 +36,17 @@ config WIRELESS_WAPI_PRIORITY
 	int "Command Priority"
 	default 100
 
+config WIRELESS_WAPI_INITCONF
+	bool "Wireless Configure Initialization"
+	default n
+	depends on NETUTILS_CJSON
+
+if WIRELESS_WAPI_INITCONF
+
+config WIRELESS_WAPI_CONFIG_PATH
+	string "Wireless Wapi Configure File Path"
+	default "/data/wapi.conf"
+
+endif
+
 endif

@@ -39,13 +39,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/ioctl.h>
 
 #include "wireless/wapi.h"
 #include "util.h"
+
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+#include "netutils/cJSON.h"
+#endif /* CONFIG_WIRELESS_WAPI_INITCONF */
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -54,6 +61,99 @@
 /* Size of the command buffer */
 
 #define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 24
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+static FAR void *wapi_json_load(FAR const char *confname)
+{
+  FAR cJSON *root = NULL;
+  struct stat sb;
+  FAR char *buf;
+  int fd = -1;
+
+  if (stat(confname, &sb) < 0)
+    {
+      return NULL;
+    }
+
+  buf = malloc(sb.st_size);
+  if (!buf)
+    {
+      goto errout;
+    }
+
+  fd = open(confname, O_RDONLY);
+  if (fd < 0)
+    {
+      goto errout;
+    }
+
+  if (read(fd, buf, sb.st_size) != sb.st_size)
+    {
+      goto errout;
+    }
+
+  root = cJSON_Parse(buf);
+
+errout:
+  if (buf)
+    {
+      free(buf);
+    }
+
+  if (fd > 0)
+    {
+      close(fd);
+    }
+
+  return root;
+}
+
+static bool wapi_json_update(FAR cJSON *root,
+                             FAR const char *key,
+                             FAR void *value,
+                             bool integer)
+{
+  intptr_t intval = (intptr_t)value;
+  FAR cJSON *item;
+  FAR cJSON *obj;
+
+  obj = cJSON_GetObjectItem(root, key);
+  if (obj)
+    {
+      if (integer)
+        {
+          if (intval == obj->valueint)
+            {
+              return false;
+            }
+
+          item = cJSON_CreateNumber(intval);
+        }
+      else
+        {
+          if (!strncmp(value, obj->valuestring, strlen(obj->valuestring)))
+            {
+              return false;
+            }
+
+          item = cJSON_CreateString(value);
+        }
+
+      cJSON_ReplaceItemInObject(root, key, item);
+    }
+  else
+    {
+      integer ? cJSON_AddNumberToObject(root, key, intval) :
+                cJSON_AddStringToObject(root, key, value);
+    }
+
+  return true;
+}
+#endif /* CONFIG_WIRELESS_WAPI_INITCONF */
 
 /****************************************************************************
  * Public Functions
@@ -159,3 +259,234 @@ FAR const char *wapi_ioctl_command_name(int cmd)
       return g_ioctl_command_namebuf;
     }
 }
+
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+
+/****************************************************************************
+ * Name: wapi_unload_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *  load - Config resource handler, allocate by wapi_load_config()
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+void wapi_unload_config(FAR void *load)
+{
+  if (load)
+    {
+      cJSON_Delete(load);
+    }
+}
+
+/****************************************************************************
+ * Name: wapi_load_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *   Return a pointer to the hold the config resource, NULL On error.
+ *
+ ****************************************************************************/
+
+FAR void *wapi_load_config(FAR const char *ifname,
+                           FAR const char *confname,
+                           FAR struct wpa_wconfig_s *conf)
+{
+  FAR cJSON *ifobj;
+  FAR cJSON *root;
+  FAR cJSON *obj;
+
+  if (ifname == NULL ||
+      conf == NULL)
+    {
+      return NULL;
+    }
+
+  if (confname == NULL)
+    {
+      confname = CONFIG_WIRELESS_WAPI_CONFIG_PATH;
+    }
+
+  root = wapi_json_load(confname);
+  if (!root)
+    {
+      return NULL;
+    }
+
+  /* Set up the network configuration */
+
+  ifobj = cJSON_GetObjectItem(root, ifname);
+  if (!ifobj)
+    {
+      goto errout;
+    }
+
+  obj = cJSON_GetObjectItem(ifobj, "mode");
+  if (!obj)
+    {
+      goto errout;
+    }
+
+  conf->sta_mode = obj->valueint;
+
+  obj = cJSON_GetObjectItem(ifobj, "auth");
+  if (!obj)
+    {
+      goto errout;
+    }
+
+  conf->auth_wpa = obj->valueint;
+
+  obj = cJSON_GetObjectItem(ifobj, "cmode");
+  if (!obj)
+    {
+      goto errout;
+    }
+
+  conf->cipher_mode = obj->valueint;
+
+  obj = cJSON_GetObjectItem(ifobj, "alg");
+  if (!obj)
+    {
+      goto errout;
+    }
+
+  conf->alg = obj->valueint;
+
+  obj = cJSON_GetObjectItem(ifobj, "ssid");
+  if (!obj || !obj->valuestring)
+    {
+      goto errout;
+    }
+
+  conf->ssid = (FAR const char *)obj->valuestring;
+
+  obj = cJSON_GetObjectItem(ifobj, "psk");
+  if (!obj || !obj->valuestring)
+    {
+      goto errout;
+    }
+
+  conf->passphrase = (FAR const char *)obj->valuestring;
+
+  conf->ifname     = ifname;
+  conf->ssidlen    = strlen(conf->ssid);
+  conf->phraselen  = strlen(conf->passphrase);
+
+  return root;
+
+errout:
+  cJSON_Delete(root);
+
+  return NULL;
+}
+
+/****************************************************************************
+ * Name: wapi_save_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+int wapi_save_config(FAR const char *ifname,
+                     FAR const char *confname,
+                     FAR const struct wpa_wconfig_s *conf)
+{
+  FAR char *buf = NULL;
+  FAR cJSON *ifobj;
+  FAR cJSON *root;
+  int ret = -1;
+  int fd = -1;
+  bool update;
+
+  if (ifname == NULL || conf == NULL)
+    {
+      return ret;
+    }
+
+  if (confname == NULL)
+    {
+      confname = CONFIG_WIRELESS_WAPI_CONFIG_PATH;
+    }
+
+  root = wapi_json_load(confname);
+  if (!root)
+    {
+      root = cJSON_CreateObject();
+      if (root == NULL)
+        {
+          return ret;
+        }
+    }
+
+  ifobj = cJSON_GetObjectItem(root, ifname);
+  if (!ifobj)
+    {
+      ifobj = cJSON_CreateObject();
+      if (ifobj == NULL)
+        {
+          goto errout;
+        }
+
+      cJSON_AddItemToObject(root, ifname, ifobj);
+    }
+
+  update =  wapi_json_update(ifobj, "mode",
+                             (FAR void *)(intptr_t)conf->sta_mode, true);
+  update |= wapi_json_update(ifobj, "auth",
+                             (FAR void *)(intptr_t)conf->auth_wpa, true);
+  update |= wapi_json_update(ifobj, "cmode",
+                             (FAR void *)(intptr_t)conf->cipher_mode, true);
+  update |= wapi_json_update(ifobj, "alg",
+                             (FAR void *)(intptr_t)conf->alg, true);
+  update |= wapi_json_update(ifobj, "ssid",
+                             (FAR void *)conf->ssid, false);
+  update |= wapi_json_update(ifobj, "psk",
+                             (FAR void *)conf->passphrase, false);
+
+  if (!update)
+    {
+      ret = OK;
+      goto errout;
+    }
+
+  buf = cJSON_PrintUnformatted(root);
+  if (!buf)
+    {
+      goto errout;
+    }
+
+  fd = open(confname, O_RDWR | O_CREAT | O_TRUNC);
+  if (fd < 0)
+    {
+      goto errout;
+    }
+
+  ret = write(fd, buf, strlen(buf));
+
+errout:
+  if (buf)
+    {
+      free(buf);
+    }
+
+  if (fd > 0)
+    {
+      close(fd);
+    }
+
+  cJSON_Delete(root);
+
+  return ret < 0 ? ret : OK;
+}
+#endif /* CONFIG_WIRELESS_WAPI_INITCONF */

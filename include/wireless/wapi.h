@@ -90,9 +90,15 @@
  */
 
 #ifdef CONFIG_NET_UDP
-# define SOCK_WAPI SOCK_DGRAM
+#  define SOCK_WAPI SOCK_DGRAM
 #else
-# define SOCK_WAPI SOCK_STREAM
+#  define SOCK_WAPI SOCK_STREAM
+#endif
+
+#ifndef CONFIG_WIRELESS_WAPI_INITCONF
+#  define wapi_load_config(ifname, confname, conf) NULL
+#  define wapi_unload_config(load)
+#  define wapi_save_config(ifname, confname, conf) 0
 #endif
 
 /****************************************************************************
@@ -663,6 +669,53 @@ int wapi_scan_stat(int sock, FAR const char *ifname);
 
 int wapi_scan_coll(int sock, FAR const char *ifname,
                    FAR struct wapi_list_s *aps);
+
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+/****************************************************************************
+ * Name: wapi_load_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *   Return a pointer to the hold the config resource, NULL On error.
+ *
+ ****************************************************************************/
+
+FAR void *wapi_load_config(FAR const char *ifname,
+                           FAR const char *confname,
+                           FAR struct wpa_wconfig_s *conf);
+
+/****************************************************************************
+ * Name: wapi_unload_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *  load - Config resource handler, allocate by wapi_load_config()
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+void wapi_unload_config(FAR void *load);
+
+/****************************************************************************
+ * Name: wapi_save_config
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+int wapi_save_config(FAR const char *ifname,
+                     FAR const char *confname,
+                     FAR const struct wpa_wconfig_s *conf);
+#endif
 
 /****************************************************************************
  * Name: wpa_driver_wext_set_key_ext
