@@ -103,7 +103,7 @@ static void dump_devices(sa_family_t family)
       FAR struct netlib_device_s *dev = &devlist[i];
 
 #ifdef CONFIG_NETDEV_IFINDEX
-      printf("  Index: %2d  ," dev->ifindex);
+      printf("  Index: %2d  ", dev->ifindex);
 #else
       printf("  ");
 #endif
