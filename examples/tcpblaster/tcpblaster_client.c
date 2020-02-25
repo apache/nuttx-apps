@@ -70,13 +70,18 @@ void tcpblaster_client(void)
   FAR char *outbuf;
   unsigned long sendtotal;
   unsigned long totallost;
+  int groupcount;
   int sendcount;
   int partials;
   int sockfd;
   int nbytessent;
   int ch;
   int i;
+  char timebuff[100];
 
+
+  setbuf(stdout, NULL);
+  
   /* Allocate buffers */
 
   outbuf = (FAR char *)malloc(SENDSIZE);
@@ -142,6 +147,7 @@ void tcpblaster_client(void)
 
   /* Then send messages forever */
 
+  groupcount = 0;
   sendcount = 0;
   sendtotal = 0;
   partials  = 0;
@@ -200,7 +206,7 @@ void tcpblaster_client(void)
 
       sendtotal += nbytessent;
 
-      if (++sendcount >= 50)
+      if (++sendcount >= GROUPSIZE)
         {
           struct timespec elapsed;
           struct timespec curr;
@@ -221,12 +227,12 @@ void tcpblaster_client(void)
               elapsed.tv_nsec = curr.tv_nsec + borrow;
             }
 
-          fkbrecvd  = (float)sendtotal / 1024.0;
+          strftime(timebuff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&curr));
+
+          fkbrecvd = (float)sendtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Sent %d buffers:  %7.1f Kb (avg %5.1f Kb) in "
-                 "%6.2f Sec (%7.1f Kb/Sec)\n",
-                  sendcount, fkbrecvd, fkbrecvd / sendcount, felapsed,
-                  fkbrecvd / felapsed);
+          printf("[%s] %d: Sent %d %d-byte buffers:  %7.1f KB (avg %5.1f KB) in %6.2f seconds (%7.1f KB/second)\n",
+                  timebuff, groupcount, sendcount, SENDSIZE, fkbrecvd, fkbrecvd/sendcount, felapsed, fkbrecvd/felapsed);
 
           if (partials > 0)
             {
@@ -241,6 +247,7 @@ void tcpblaster_client(void)
           sendtotal  = 0;
           partials   = 0;
           totallost  = 0;
+          groupcount++;
 
           clock_gettime(CLOCK_REALTIME, &start);
         }
