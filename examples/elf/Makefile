@@ -51,7 +51,13 @@ ROOTDEPPATH := --dep-path tests
 
 VPATH += :tests
 
-tests/symtab.c:
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
+  FSIMG_HDR = $(TESTS_DIR)/romfs.h
+else
+  FSIMG_HDR = $(TESTS_DIR)/cromfs.h
+endif
+
+tests/symtab.c tests/dirlist.h $(FSIMG_HDR):
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::
