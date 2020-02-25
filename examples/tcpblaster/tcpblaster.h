@@ -115,6 +115,12 @@
 #  define SENDSIZE 4096
 #endif
 
+#ifdef CONFIG_EXAMPLES_TCPBLASTER_GROUPSIZE
+#  define GROUPSIZE CONFIG_EXAMPLES_TCPBLASTER_GROUPSIZE
+#else
+#  define GROUPSIZE 50
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/

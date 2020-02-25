@@ -72,12 +72,16 @@ void tcpblaster_server(void)
   struct timespec start;
   unsigned long recvtotal;
   socklen_t addrlen;
-  FAR char *buffer;
+  char *buffer;
+  int groupcount;
   int recvcount;
   int listensd;
   int acceptsd;
   int nbytesread;
   int optval;
+  char timebuff[100];
+
+  setbuf(stdout, NULL);
 
   /* Allocate a BIG buffer */
 
@@ -184,6 +188,7 @@ void tcpblaster_server(void)
 
   recvcount = 0;
   recvtotal = 0;
+  groupcount = 0;
 
   clock_gettime(CLOCK_REALTIME, &start);
 
@@ -227,7 +232,7 @@ void tcpblaster_server(void)
 
       recvtotal += nbytesread;
 
-      if (++recvcount >= 50)
+      if (++recvcount >= GROUPSIZE)
         {
           struct timespec elapsed;
           struct timespec curr;
@@ -248,15 +253,16 @@ void tcpblaster_server(void)
               elapsed.tv_nsec = curr.tv_nsec + borrow;
             }
 
+          strftime(timebuff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&curr));
+
           fkbsent  = (float)recvtotal / 1024.0;
           felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("Received %d buffers:  %7.1f Kb (avg %5.1f Kb) in "
-                 "%6.2f Sec (%7.1f Kb/Sec)\n",
-                  recvcount, fkbsent, fkbsent / recvcount, felapsed,
-                  fkbsent / felapsed);
+          printf("[%s] %d: Received %d buffers: %7.1f KB (buffer average size: %5.1f KB) in %6.2f seconds (%7.1f KB/second)\n",
+                  timebuff, groupcount, recvcount, fkbsent, fkbsent/recvcount, felapsed, fkbsent/felapsed);
 
           recvcount       = 0;
           recvtotal       = 0;
+          groupcount++;
 
           clock_gettime(CLOCK_REALTIME, &start);
         }
