@@ -265,8 +265,7 @@ static void NoBlockConnect(FAR struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(1, ret);
   TEST_ASSERT_EQUAL_UINT8_ARRAY("a", data, 1);
   TEST_ASSERT_EQUAL(sizeof(remoteaddr), addrlen);
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr,
-                                addrlen - sizeof(addr.sin_zero));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr, addrlen);
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
   TEST_ASSERT_EQUAL(6, usrsocktest_daemon_get_recv_bytes());
@@ -283,8 +282,7 @@ static void NoBlockConnect(FAR struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(5, ret);
   TEST_ASSERT_EQUAL_UINT8_ARRAY("abcde", data, 5);
   TEST_ASSERT_EQUAL(sizeof(remoteaddr), addrlen);
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr,
-                                addrlen - sizeof(addr.sin_zero));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr, addrlen);
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
   TEST_ASSERT_EQUAL(11, usrsocktest_daemon_get_recv_bytes());
