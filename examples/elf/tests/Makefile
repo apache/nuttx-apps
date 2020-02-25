@@ -140,7 +140,7 @@ $(DIRLIST_HDR) : populate
 
 # Create the exported symbol table
 
-$(SYMTAB_SRC): build
+$(SYMTAB_SRC): populate
 	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@
 
 # Clean each subdirectory
