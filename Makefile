@@ -55,7 +55,10 @@ endif
 SYMTABSRC = symtab_apps.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
-APPOBJS = $(shell $(MAKE) show-objs TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)")
+# Turn off "Entering directory" messages as they mess up the output of
+# show-objs target.
+MAKEFLAGS += --no-print-directory
+APPOBJS = $(shell $(MAKE) --no-print-directory show-objs TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)")
 
 # Build targets
 
