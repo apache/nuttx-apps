@@ -55,6 +55,8 @@ endif
 SYMTABSRC = symtab_apps.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
+APPOBJS = $(shell $(MAKE) show-objs TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)")
+
 # Build targets
 
 all: $(BIN)
@@ -63,6 +65,11 @@ all: $(BIN)
 
 define MAKE_template
 	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+
+endef
+
+define MAKE_template_quiet
+	@ $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" V=0 Q=@
 
 endef
 
@@ -105,6 +112,11 @@ else
 ifeq ($(CONFIG_BUILD_LOADABLE),)
 
 $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+ifeq ($(WINTOOL),y)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $(APPOBJS))
+else
+	$(call ARCHIVE, $(BIN), $(APPOBJS))
+endif
 
 else
 
@@ -117,9 +129,9 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 
 $(BIN): $(SYMTABOBJ)
 ifeq ($(WINTOOL),y)
-	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $^)
+	$(call ARCHIVE, "${shell cygpath -w $(BIN)}", $(APPOBJS) $(SYMTABOBJ))
 else
-	$(call ARCHIVE, $(BIN), $^)
+	$(call ARCHIVE, $(BIN), $(APPOBJS) $(SYMTABOBJ))
 endif
 
 endif # !CONFIG_BUILD_LOADABLE
@@ -154,6 +166,9 @@ Kconfig:
 	$(Q) $(MKKCONFIG)
 
 preconfig: Kconfig
+
+show-objs:
+	$(foreach SDIR, $(CONFIGURED_APPS), $(call MAKE_template_quiet,$(SDIR),show-objs))
 
 export:
 ifneq ($(EXPORTDIR),)
