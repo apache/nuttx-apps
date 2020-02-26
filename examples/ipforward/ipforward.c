@@ -673,8 +673,8 @@ static FAR void *ipfwd_sender(FAR void *arg)
       ipv4->ttl         = IP_TTL;
       ipv4->proto       = proto;
 
-      net_ipv4addr_hdrcopy(ipv4->srcipaddr,  fwd->ia_srcipaddr);
-      net_ipv4addr_hdrcopy(ipv4->destipaddr, fwd->ia_destipaddr);
+      net_ipv4addr_hdrcopy(ipv4->srcipaddr,  &fwd->ia_srcipaddr);
+      net_ipv4addr_hdrcopy(ipv4->destipaddr, &fwd->ia_destipaddr);
 
       /* Calculate IP checksum. */
 
