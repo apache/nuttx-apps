@@ -97,8 +97,7 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 DELIM = $(strip \)
 
 define ARCHIVE
-	@echo AR: $2
-	$(Q) $(AR) $1 $(2)
+	$(AR) $1 $(2)
 endef
 
 define DELFILE
@@ -125,8 +124,7 @@ else
 DELIM = $(strip /)
 
 define ARCHIVE
-	@echo "AR: $2"
-	$(Q) $(AR) $1 $(2) || { echo "$(AR) $1 FAILED!" ; exit 1 ; }
+	$(AR) $1 $(2)
 endef
 
 define DELFILE
