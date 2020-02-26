@@ -153,10 +153,8 @@ endif
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
 ifeq ($(WINTOOL),y)
   LDLIBS ?= "${shell cygpath -w $(BIN)}"
 else
   LDLIBS ?= $(BIN)
-endif
 endif
