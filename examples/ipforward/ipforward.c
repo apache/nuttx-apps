@@ -116,6 +116,7 @@ struct ipfwd_arg_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Network addresses:
  *
  * g_tun0_laddr is the address assigned to the tun0 device.  g_tun1_laddr
@@ -375,7 +376,8 @@ static uint16_t common_chksum(FAR uint8_t *buffer, uint8_t proto)
 
   /* Sum IP source and destination addresses. */
 
-  sum = chksum(sum, (FAR uint8_t *)&ipv6->srcipaddr, 2 * sizeof(net_ipv6addr_t));
+  sum = chksum(sum, (FAR uint8_t *)&ipv6->srcipaddr,
+               2 * sizeof(net_ipv6addr_t));
 
   /* Sum IP payload data. */
 
@@ -394,6 +396,7 @@ static uint16_t common_chksum(FAR uint8_t *buffer, uint8_t proto)
   upperlen = (((uint16_t)(ipv4->len[0]) << 8) + ipv4->len[1]) - IPv4_HDRLEN;
 
   /* First sum pseudo-header. */
+
   /* IP protocol and length fields. This addition cannot carry. */
 
   sum = upperlen + proto;
@@ -474,7 +477,7 @@ static void ipfwd_dumpbuffer(FAR uint8_t *buffer, size_t buflen)
         }
 
       putchar('\n');
-   }
+    }
 }
 
 static void ipfwd_dumppkt(FAR uint8_t *buffer, size_t buflen)
@@ -559,7 +562,8 @@ static FAR void *ipfwd_receiver(FAR void *arg)
           break;
         }
 
-      printf("Received packet %d: size=%lu\n", i+1, (unsigned long)nread);
+      printf("Received packet %d: size=%lu\n",
+             i + 1, (unsigned long)nread);
       ipfwd_dumppkt(fwd->ia_buffer, nread);
     }
 
@@ -673,8 +677,8 @@ static FAR void *ipfwd_sender(FAR void *arg)
       ipv4->ttl         = IP_TTL;
       ipv4->proto       = proto;
 
-      net_ipv4addr_hdrcopy(ipv4->srcipaddr,  fwd->ia_srcipaddr);
-      net_ipv4addr_hdrcopy(ipv4->destipaddr, fwd->ia_destipaddr);
+      net_ipv4addr_hdrcopy(ipv4->srcipaddr,  &fwd->ia_srcipaddr);
+      net_ipv4addr_hdrcopy(ipv4->destipaddr, &fwd->ia_destipaddr);
 
       /* Calculate IP checksum. */
 
@@ -735,7 +739,8 @@ static FAR void *ipfwd_sender(FAR void *arg)
       sol->chksum   = ~icmpv6_chksum(fwd->ia_buffer);
 #endif
 
-      printf("Sending packet %d: size=%lu\n", i+1, (unsigned long)pktlen);
+      printf("Sending packet %d: size=%lu\n",
+             i + 1, (unsigned long)pktlen);
       ipfwd_dumppkt(fwd->ia_buffer, pktlen);
 
       nwritten = write(fwd->ia_fd, fwd->ia_buffer, pktlen);
@@ -811,7 +816,8 @@ int main(int argc, FAR char *argv[])
   ret = pthread_create(&fwd.if_receiver, NULL, ipfwd_receiver, &tun1arg);
   if (ret != 0)
     {
-      fprintf(stderr, "ERROR: pthread_create() failed for receiver: %d\n", ret);
+      fprintf(stderr, "ERROR: pthread_create() failed for receiver: %d\n",
+              ret);
       errcode = EXIT_FAILURE;
       goto errout_with_tun1;
     }
@@ -825,7 +831,8 @@ int main(int argc, FAR char *argv[])
   ret = pthread_create(&fwd.if_sender, NULL, ipfwd_sender, &tun0arg);
   if (ret != 0)
     {
-      fprintf(stderr, "ERROR: pthread_create() failed for sender: %d\n", ret);
+      fprintf(stderr, "ERROR: pthread_create() failed for sender: %d\n",
+              ret);
       errcode = EXIT_FAILURE;
       goto errout_with_receiver;
     }
@@ -835,17 +842,20 @@ int main(int argc, FAR char *argv[])
   ret = pthread_join(fwd.if_sender, &value);
   if (ret != OK)
     {
-      fprintf(stderr, "ERROR: pthread_join() failed for sender: %d\n", ret);
+      fprintf(stderr, "ERROR: pthread_join() failed for sender: %d\n",
+              ret);
     }
 
 errout_with_receiver:
+
   /* Wait for receiver thread to terminate */
 
   pthread_kill(fwd.if_receiver, 9);
   ret = pthread_join(fwd.if_receiver, &value);
   if (ret != OK)
     {
-      fprintf(stderr, "ERROR: pthread_join() failed for receiver: %d\n", ret);
+      fprintf(stderr, "ERROR: pthread_join() failed for receiver: %d\n",
+              ret);
     }
 
 errout_with_tun1:
