@@ -76,16 +76,16 @@ else
 endif
 
 define DIR_template
-$(1)_$(2):
+$(1)_$(2): $(4)
 	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSIMG_DIR="$(FSIMG_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
 .PHONY: all build clean install populate
 
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
-$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
+$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build,all,)))
+$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean,)))
+$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install,$(DIR)_build)))
 
 # Build program(s) in each sud-directory
 
