@@ -57,6 +57,8 @@ else
   FSIMG_HDR = $(TESTS_DIR)/cromfs.h
 endif
 
+elf_main.c: tests/symtab.c
+
 tests/symtab.c tests/dirlist.h $(FSIMG_HDR):
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
