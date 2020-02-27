@@ -361,7 +361,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_NET) && \
     defined(CONFIG_NFS)
 #  ifndef CONFIG_NSH_DISABLE_NFSMOUNT
-  { "nfsmount", cmd_nfsmount, 4, 4, "<server-address> <mount-point> <remote-path>" },
+  { "nfsmount", cmd_nfsmount, 4, 5, "<server-address> <mount-point> <remote-path> [udp]" },
 #  endif
 #endif
 

@@ -45,6 +45,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -334,7 +335,15 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  data.sotype             = SOCK_DGRAM;
+  if (argc > 4 && strcmp(argv[4], "udp") == 0)
+    {
+      data.sotype         = SOCK_DGRAM;
+    }
+  else
+    {
+      data.sotype         = SOCK_STREAM;
+    }
+
   data.path               = rpath;
   data.flags              = 0;       /* 0=Use all defaults */
 
