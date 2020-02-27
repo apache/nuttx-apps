@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_command.c
  *
- *   Copyright (C) 2007-2019 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2019, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -361,7 +361,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_NET) && \
     defined(CONFIG_NFS)
 #  ifndef CONFIG_NSH_DISABLE_NFSMOUNT
-  { "nfsmount", cmd_nfsmount, 4, 4, "<server-address> <mount-point> <remote-path>" },
+  { "nfsmount", cmd_nfsmount, 4, 5, "<server-address> <mount-point> <remote-path> [udp]" },
 #  endif
 #endif
 
@@ -693,7 +693,7 @@ static void help_showcmd(FAR struct nsh_vtbl_s *vtbl,
     {
       nsh_output(vtbl, "  %s %s\n", cmdmap->cmd, cmdmap->usage);
     }
-   else
+  else
     {
       nsh_output(vtbl, "  %s\n", cmdmap->cmd);
     }
@@ -883,7 +883,7 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-       /* In verbose mode, show detailed help for all commands */
+      /* In verbose mode, show detailed help for all commands */
 
 #ifndef CONFIG_NSH_HELP_TERSE
       if (verbose)
@@ -1027,8 +1027,8 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
         }
     }
 
-   ret = handler(vtbl, argc, argv);
-   return ret;
+  ret = handler(vtbl, argc, argv);
+  return ret;
 }
 
 /****************************************************************************
