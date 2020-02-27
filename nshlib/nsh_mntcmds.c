@@ -49,6 +49,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <debug.h>
+#include <netdb.h>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -278,6 +279,23 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   memset(&data, 0, sizeof(data));
 
   /* Convert the IP address string into its binary form */
+
+#ifdef CONFIG_LIBC_NETDB
+  if (data.addrlen == 0)
+    {
+      FAR struct addrinfo *res;
+      char serv[16];
+
+      itoa(NFS_PMAPPORT, serv, 10);
+      ret = getaddrinfo(address, serv, NULL, &res);
+      if (ret == OK)
+        {
+          data.addrlen = res->ai_addrlen;
+          memcpy(&data.addr, res->ai_addr, res->ai_addrlen);
+          freeaddrinfo(res);
+        }
+    }
+#endif
 
 #ifdef CONFIG_NET_IPv6
   if (data.addrlen == 0)
