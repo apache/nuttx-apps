@@ -54,16 +54,16 @@ ROMFS_DIRLIST	= $(TESTS_DIR)/dirlist.h
 SYMTAB		= $(TESTS_DIR)/symtab.h
 
 define DIR_template
-$(1)_$(2):
+$(1)_$(2): $(4)
 	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(ROMFS_HDR) $(ROMFS_DIRLIST) $(SYMTAB)
 .PHONY: all build clean install populate
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
+$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),build,all,)))
+$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean,)))
+$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install,$(DIR)_build)))
 
 # Build program(s) in each sud-directory
 
