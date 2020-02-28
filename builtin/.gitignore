@@ -1,7 +1,7 @@
 /.context
 /.depend
 /.built
-/Make.dep
+/Nuttx.dep
 /builtin_list.h
 /builtin_proto.h
 /*.src

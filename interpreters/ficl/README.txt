@@ -27,7 +27,7 @@ information as "recommendations" -- not necessarily proven instructions.
    the configure.sh script.
 
    For example, './configure.sh ficl-4.1.0' will leave the Makefile
-   fragment 'Make.srcs' in the ficl build directory.
+   fragment 'Nuttx.srcs' in the ficl build directory.
 
 5. Create your NuttX configuration.  Using the 'make menuconfig', you
    should select:

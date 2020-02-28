@@ -1,6 +1,6 @@
 /.built
 /.depend
-/Make.dep
+/Nuttx.dep
 /*.src
 /*.obj
 /*.lst

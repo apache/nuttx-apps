@@ -1,5 +1,5 @@
 /init
-/Make.dep
+/Nuttx.dep
 /.depend
 /.built
 /*.asm

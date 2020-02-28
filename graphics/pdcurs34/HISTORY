@@ -45,7 +45,7 @@ Bug fixes and such:
 - Added support for Apple's ".dylib" in configure. Suggested by Marc
   Vaillant (who says it's needed with OS 10.5.)
 
-- In sdl1/Makefile.mng, ensure that CC is set.
+- In sdl1/Nuttx.mk.mng, ensure that CC is set.
 
 - In the gcc makefiles, "$?" didn't really have the desired effect --
   _all_ the dependencies showed up on the command line, including
@@ -127,7 +127,7 @@ Bug fixes and such:
   the platform directory.
 
 - Building the X11 port with Cygwin required manually editing the
-  Makefile after configuring; no longer. Reported by Warren W. Gay.
+  Nuttx.mk after configuring; no longer. Reported by Warren W. Gay.
 
 - Minor tightening of configure and makefiles.
 
@@ -205,7 +205,7 @@ Bug fixes and such:
 
 - Simplified Borland makefiles.
 
-- Makefile.aix.in depended on a file, xcurses.exp, that was never there.
+- Nuttx.mk.aix.in depended on a file, xcurses.exp, that was never there.
   This problem was fixed as part of the change to common .def files;
   however, I still haven't been able to test building on AIX.
 

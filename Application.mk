@@ -35,7 +35,7 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+include $(APPDIR)/Nuttx.defs
 
 # If this is an executable program (with MAINSRC), we must build it as a
 # loadable module for the KERNEL build (always) or if the tristate module
@@ -197,7 +197,7 @@ ifneq ($(STACKSIZE),)
 REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
 APPLIST := $(PROGNAME)
 
-$(REGLIST): $(DEPCONFIG) Makefile
+$(REGLIST): $(DEPCONFIG) Nuttx.mk
 	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main))
 	$(eval APPLIST=$(filter-out $(firstword $(APPLIST)),$(APPLIST)))
 	$(if $(filter-out $(firstword $(PRIORITY)),$(PRIORITY)),$(eval PRIORITY=$(filter-out $(firstword $(PRIORITY)),$(PRIORITY))))
@@ -217,11 +217,11 @@ else
 context::
 endif
 
-.depend: Makefile $(SRCS)
+.depend: Nuttx.mk $(SRCS)
 ifeq ($(filter %$(CXXEXT),$(SRCS)),)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$^) >Make.dep
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Nuttx.mk,$^) >Nuttx.dep
 else
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Makefile,$^) >Make.dep
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Nuttx.mk,$^) >Nuttx.dep
 endif
 	$(Q) touch $@
 
@@ -232,7 +232,7 @@ clean::
 	$(call CLEAN)
 
 distclean:: clean
-	$(call DELFILE, Make.dep)
+	$(call DELFILE, Nuttx.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
+-include Nuttx.dep

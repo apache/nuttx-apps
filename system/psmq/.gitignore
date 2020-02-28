@@ -1,5 +1,5 @@
 /psmq-*
-/Make.dep
+/Nuttx.dep
 /.depend
 /.built
 /*.asm

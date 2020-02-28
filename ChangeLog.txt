@@ -4391,8 +4391,8 @@
 	* apps/;  Change space to tab and help to ---help--- in Kconfig files.
 	  From Xiang Xiao (2019-10-05).
 	* Some improvements to netutils/cjson and testing/unity
-	  - netutils/cjson/Makefile: fix the error when creating Make.dep
-	  - testing/unity/Makefile: fix the error when creating Make.dep
+	  - netutils/cjson/Makefile: fix the error when creating Nuttx.dep
+	  - testing/unity/Makefile: fix the error when creating Nuttx.dep
 	  - include/.gitignore: ignore cJSON headers
 	  - netutils/cjson/Kconfig: update default version to 1.7.12. Previous
 	    releases raise compilation warnings about redefined true/false  From

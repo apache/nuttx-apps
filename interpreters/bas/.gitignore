@@ -1,5 +1,5 @@
 .built
 .depend
-Make.dep
-Make.srcs
+Nuttx.dep
+Nuttx.srcs
 ficl-*

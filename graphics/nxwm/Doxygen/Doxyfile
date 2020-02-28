@@ -825,7 +825,7 @@ HTML_DYNAMIC_SECTIONS  = NO
 # If the GENERATE_DOCSET tag is set to YES, additional index files
 # will be generated that can be used as input for Apple's Xcode 3
 # integrated development environment, introduced with OSX 10.5 (Leopard).
-# To create a documentation set, doxygen will generate a Makefile in the
+# To create a documentation set, doxygen will generate a Nuttx.mk in the
 # HTML output directory. Running make will produce the docset in that
 # directory and running "make install" will install the docset in
 # ~/Library/Developer/Shared/Documentation/DocSets so that Xcode will find
@@ -1029,7 +1029,7 @@ LATEX_OUTPUT           = latex
 # invoked. If left blank `latex' will be used as the default command name.
 # Note that when enabling USE_PDFLATEX this option is only used for
 # generating bitmaps for formulas in the HTML output, but not in the
-# Makefile that is written to the output directory.
+# Nuttx.mk that is written to the output directory.
 
 LATEX_CMD_NAME         = latex
 
@@ -1071,7 +1071,7 @@ LATEX_HEADER           =
 PDF_HYPERLINKS         = YES
 
 # If the USE_PDFLATEX tag is set to YES, pdflatex will be used instead of
-# plain latex in the generated Makefile. Set this option to YES to get a
+# plain latex in the generated Nuttx.mk. Set this option to YES to get a
 # higher quality PDF documentation.
 
 USE_PDFLATEX           = YES
@@ -1223,7 +1223,7 @@ GENERATE_AUTOGEN_DEF   = NO
 GENERATE_PERLMOD       = NO
 
 # If the PERLMOD_LATEX tag is set to YES Doxygen will generate
-# the necessary Makefile rules, Perl scripts and LaTeX code to be able
+# the necessary Nuttx.mk rules, Perl scripts and LaTeX code to be able
 # to generate PDF and DVI output from the Perl module output.
 
 PERLMOD_LATEX          = NO
@@ -1241,7 +1241,7 @@ PERLMOD_PRETTY         = YES
 # The names of the make variables in the generated doxyrules.make file
 # are prefixed with the string contained in PERLMOD_MAKEVAR_PREFIX.
 # This is useful so different doxyrules.make files included by the same
-# Makefile don't overwrite each other's variables.
+# Nuttx.mk don't overwrite each other's variables.
 
 PERLMOD_MAKEVAR_PREFIX =
 

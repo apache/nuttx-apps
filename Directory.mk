@@ -33,12 +33,12 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(TOPDIR)/Nuttx.defs
+include $(APPDIR)/Nuttx.defs
 
 # Sub-directories
 
-SUBDIRS = $(dir $(wildcard */Makefile))
+SUBDIRS = $(dir $(wildcard */Nuttx.mk))
 
 all: nothing
 
@@ -46,7 +46,7 @@ all: nothing
 
 define SDIR_template
 $(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
+	+$(Q) $(MAKE) -f Nuttx.mk -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
 endef
 
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))
@@ -75,4 +75,4 @@ ifneq ($(MENUDESC),)
 	$(call DELFILE, Kconfig)
 endif
 
--include Make.dep
+-include Nuttx.dep
