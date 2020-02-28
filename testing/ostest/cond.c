@@ -181,6 +181,19 @@ static void *thread_signaler(void *parameter)
           signaler_nerrors++;
         }
 
+#if CONFIG_SMP_NCPUS > 1
+      /* Workaround for SMP:
+       * In multi-core environment, thread_signaler would be excecuted prior
+       * to the thread_waiter, even though priority of thread_signaler is
+       * lower than the thread_waiter. In this case, thread_signaler will
+       * aquire mutex before the thread_waiter aquires it and will show
+       * the error message such as "thread_signaler: ERROR waiter state...".
+       * To avoid this situaltion, we add the following usleep()
+       */
+
+      usleep(10 * 1000);
+#endif
+
       signaler_nloops++;
     }
 
