@@ -181,7 +181,7 @@ static void *thread_signaler(void *parameter)
           signaler_nerrors++;
         }
 
-#if CONFIG_SMP_NCPUS > 1
+#if defined(CONFIG_SMP) && (CONFIG_SMP_NCPUS > 1)
       /* Workaround for SMP:
        * In multi-core environment, thread_signaler would be excecuted prior
        * to the thread_waiter, even though priority of thread_signaler is
