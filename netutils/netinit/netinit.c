@@ -760,7 +760,8 @@ static int netinit_monitor(void)
   /* TODO: Stop the PHY notifications and remove the signal handler. */
 
 errout_with_notification:
-#  warning Missing logic
+  ifr.ifr_mii_notify_event.sigev_notify = SIGEV_NONE;
+  ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
 errout_with_sigaction:
   sigaction(CONFIG_NETINIT_SIGNO, &oact, NULL);
 errout_with_socket:
