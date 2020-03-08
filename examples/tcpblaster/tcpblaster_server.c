@@ -115,23 +115,25 @@ void tcpblaster_server(void)
 
 #ifdef CONFIG_EXAMPLES_TCPBLASTER_IPv6
 
-  myaddr.sin6_family            = AF_INET6;
-  myaddr.sin6_port              = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
+  myaddr.sin6_family = AF_INET6;
+  myaddr.sin6_port   = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
 #if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(CONFIG_NET_LOOPBACK)
-  memcpy(myaddr.sin6_addr.s6_addr16, g_tcpblasterserver_ipv6, 8 * sizeof(uint16_t));
+  memcpy(myaddr.sin6_addr.s6_addr16,
+         g_tcpblasterserver_ipv6, 8 * sizeof(uint16_t));
 #else
   memset(myaddr.sin6_addr.s6_addr16, 0, 8 * sizeof(uint16_t));
 #endif
   addrlen = sizeof(struct sockaddr_in6);
 
-  printf("Binding to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
+  printf("Binding to IPv6 Address: "
+         "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
          myaddr.sin6_addr.s6_addr16[0], myaddr.sin6_addr.s6_addr16[1],
          myaddr.sin6_addr.s6_addr16[2], myaddr.sin6_addr.s6_addr16[3],
          myaddr.sin6_addr.s6_addr16[4], myaddr.sin6_addr.s6_addr16[5],
          myaddr.sin6_addr.s6_addr16[6], myaddr.sin6_addr.s6_addr16[7]);
 #else
-  myaddr.sin_family             = AF_INET;
-  myaddr.sin_port               = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
+  myaddr.sin_family  = AF_INET;
+  myaddr.sin_port    = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
 
 #if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(CONFIG_NET_LOOPBACK)
   myaddr.sin_addr.s_addr        = (in_addr_t)g_tcpblasterserver_ipv4;
@@ -177,7 +179,7 @@ void tcpblaster_server(void)
   ling.l_onoff  = 1;
   ling.l_linger = 30;     /* timeout is seconds */
 
-  if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
+  if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) < 0)
     {
       printf("server: setsockopt SO_LINGER failure: %d\n", errno);
       goto errout_with_acceptsd;
@@ -253,12 +255,15 @@ void tcpblaster_server(void)
               elapsed.tv_nsec = curr.tv_nsec + borrow;
             }
 
-          strftime(timebuff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&curr));
+          strftime(timebuff, 100,
+                   "%Y-%m-%d %H:%M:%S.000", localtime(&curr.tv_sec));
 
-          fkbsent  = (float)recvtotal / 1024.0;
-          felapsed = (float)elapsed.tv_sec + (float)elapsed.tv_nsec / 1000000000.0;
-          printf("[%s] %d: Received %d buffers: %7.1f KB (buffer average size: %5.1f KB) in %6.2f seconds (%7.1f KB/second)\n",
-                  timebuff, groupcount, recvcount, fkbsent, fkbsent/recvcount, felapsed, fkbsent/felapsed);
+          fkbsent  = recvtotal / 1024.0f;
+          felapsed = elapsed.tv_sec + elapsed.tv_nsec / 1000000000.0f;
+          printf("[%s] %d: Received %d buffers: %7.1f KB (buffer average"
+                 "size: %5.1f KB) in %6.2f seconds (%7.1f KB/second)\n",
+                 timebuff, groupcount, recvcount, fkbsent,
+                 fkbsent / recvcount, felapsed, fkbsent / felapsed);
 
           recvcount       = 0;
           recvtotal       = 0;
