@@ -2422,7 +2422,7 @@ void bas_interpreter(void)
                       if (Program_goLine(&g_program, line->u.integer, &where) ==
                           (struct Pc *)0)
                         {
-                          FS_putChars(STDCHANNEL, (NOSUCHLINE));
+                          FS_putChars(STDCHANNEL, _("No such line\n"));
                         }
                       else
                         {
