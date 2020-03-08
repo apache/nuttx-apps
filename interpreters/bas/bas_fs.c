@@ -103,14 +103,6 @@ static int g_used;
 static const int g_open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 static char g_errmsgbuf[80];
 
-#ifdef CONFIG_INTERPRETER_BAS_VT100
-static const uint8_t g_vt100_colormap[8] =
-{
-  VT100_BLACK, VT100_BLUE,   VT100_GREEN,  VT100_CYAN,
-  VT100_RED,  VT100_MAGENTA, VT100_YELLOW, VT100_WHITE
-};
-#endif
-
 /****************************************************************************
  * Public Data
  ****************************************************************************/

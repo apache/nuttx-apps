@@ -825,6 +825,11 @@ namespace Twm4Nx
           {
             m_iconWidget->getSize(size);
           }
+        else
+          {
+            size.w = 0;
+            size.h = 0;
+          }
       }
 
       /**
@@ -841,6 +846,11 @@ namespace Twm4Nx
         if (m_iconWidget != (FAR CIconWidget *)0)
           {
             m_iconWidget->getPos(pos);
+          }
+        else
+          {
+            pos.x = 0;
+            pos.y = 0;
           }
       }
 

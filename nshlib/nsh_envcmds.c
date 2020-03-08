@@ -91,6 +91,7 @@ static inline FAR const char *nsh_getwd(const char *wd)
  * Name: nsh_getdirpath
  ****************************************************************************/
 
+#ifndef CONFIG_DISABLE_ENVIRON
 static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
                                    const char *dirpath, const char *relpath)
 {
@@ -125,6 +126,7 @@ static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
 
   return alloc;
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_dumpvar

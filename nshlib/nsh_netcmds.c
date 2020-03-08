@@ -420,7 +420,7 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
  * Name: nsh_addrconv
  ****************************************************************************/
 
-#ifdef HAVE_HWADDR
+#if !defined(CONFIG_NSH_DISABLE_IFCONFIG) && defined(HAVE_HWADDR)
 static inline bool nsh_addrconv(FAR const char *hwstr,
                                 FAR mac_addr_t *macaddr)
 {
@@ -442,7 +442,7 @@ static inline bool nsh_addrconv(FAR const char *hwstr,
  * Name: nsh_sethwaddr
  ****************************************************************************/
 
-#ifdef HAVE_HWADDR
+#if !defined(CONFIG_NSH_DISABLE_IFCONFIG) && defined(HAVE_HWADDR)
 static inline void nsh_sethwaddr(FAR const char *ifname,
                                  FAR mac_addr_t *macaddr)
 {
