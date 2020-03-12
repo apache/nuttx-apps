@@ -44,7 +44,6 @@ jobs:
         ../nuttx/tools/checkpatch.sh -g $commits
 
   build:
-    needs: check
     runs-on: ubuntu-18.04
     container: liuguo09/ubuntu-nuttx:18.04
 
