@@ -225,6 +225,7 @@ static void print_help(void)
          " -o: Set odd parity\n"
          " -s: Use given speed (default %d)\n"
          " -r: Disable RTS/CTS flow control (default: on)\n"
+         " -f: Enable endless mode without escape sequence (default: off)\n"
          " -?: This help\n",
          CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
          CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD);
@@ -274,6 +275,7 @@ int main(int argc, FAR char *argv[])
   int baudrate = CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD;
   enum parity_mode parity = PARITY_NONE;
   int rtscts = 1;
+  int nobreak = 0;
   int option;
   int ret;
   int bcmd;
@@ -291,7 +293,7 @@ int main(int argc, FAR char *argv[])
   sigaction(SIGKILL, &sa, NULL);
 
   optind = 0;   /* global that needs to be reset in FLAT mode */
-  while ((option = getopt(argc, argv, "l:s:ehor?")) != ERROR)
+  while ((option = getopt(argc, argv, "l:s:efhor?")) != ERROR)
     {
       switch (option)
         {
@@ -314,6 +316,10 @@ int main(int argc, FAR char *argv[])
           case 'r':
             rtscts = 0;
             break;
+
+          case 'f':
+              nobreak = 1;
+              break;
 
           case 'h':
           case '?':
@@ -376,6 +382,12 @@ int main(int argc, FAR char *argv[])
   for (; ; )
     {
       int ch = getc(stdin);
+
+      if (nobreak == 1)
+        {
+          write(g_cu.outfd, &ch, 1);
+          continue;
+        }
 
       if (ch <= 0)
         {
