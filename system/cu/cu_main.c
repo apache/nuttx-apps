@@ -159,7 +159,8 @@ static int enable_crlf_conversion(int fd)
 #endif
 }
 
-static int set_baudrate(int fd, int rate, enum parity_mode parity, int rtscts)
+static int set_baudrate(int fd, int rate, enum parity_mode parity,
+                        int rtscts)
 {
 #ifdef CONFIG_SERIAL_TERMIOS
   int rc = 0;
@@ -344,8 +345,8 @@ int main(int argc, FAR char *argv[])
   enable_crlf_conversion(g_cu.outfd);
   set_baudrate(g_cu.outfd, baudrate, parity, rtscts);
 
-  /* Open the serial device for reading.  Since we are already connected, this
-   * should not fail.
+  /* Open the serial device for reading.  Since we are already connected,
+   * this should not fail.
    */
 
   g_cu.infd = open(devname, O_RDONLY);
