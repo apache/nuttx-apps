@@ -655,7 +655,8 @@ static bool cle_opentext(FAR struct cle_s *priv, uint16_t pos,
  *
  ****************************************************************************/
 
-static void cle_closetext(FAR struct cle_s *priv, uint16_t pos, uint16_t size)
+static void cle_closetext(FAR struct cle_s *priv, uint16_t pos,
+                          uint16_t size)
 {
   int i;
 
@@ -798,6 +799,9 @@ static int cle_editloop(FAR struct cle_s *priv)
 
   for (; ; )
     {
+#if  1 /* Perhaps here should be a config switch */
+      char state = 0;
+#endif
       int ch;
 
       /* Make sure that the display reflects the current state */
@@ -811,8 +815,6 @@ static int cle_editloop(FAR struct cle_s *priv)
       /* Simple decode of some VT100/xterm codes: left/right, up/dn,
        * home/end, del
        */
-
-      char state = 0;
 
       /* loop till we have a ch */
 
