@@ -304,11 +304,11 @@ int main(int argc, FAR char *argv[])
             break;
 
           case 'e':
-            parity = PARITY_ODD;
+            parity = PARITY_EVEN;
             break;
 
           case 'o':
-            parity = PARITY_EVEN;
+            parity = PARITY_ODD;
             break;
 
           case 'r':
