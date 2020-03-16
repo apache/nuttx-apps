@@ -51,18 +51,24 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 MODULE = $(CONFIG_EXAMPLES_THTTPD)
 
-# Common build
+thttpd_main.c: build
 
-all::
+.PHONY: build
+build:
+	+$(Q) $(CONTENT_MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+
+# Common build
 
 context::
 	+$(Q) $(CONTENT_MAKE) context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 depend::
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	+$(Q) $(CONTENT_MAKE) depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::
 	+$(Q) $(CONTENT_MAKE) clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+
+distclean::
+	+$(Q) $(CONTENT_MAKE) distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 include $(APPDIR)/Application.mk

@@ -34,7 +34,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 ALL_SUBDIRS = sotest
 BUILD_SUBDIRS = sotest
@@ -47,60 +46,49 @@ endif
 SOTEST_DIR = $(APPDIR)/examples/sotest
 LIB_DIR = $(SOTEST_DIR)/lib
 FSROOT_DIR = $(LIB_DIR)/fsroot
-ROMFS_IMG = $(LIB_DIR)/romfs.img
-ROMFS_HDR = $(LIB_DIR)/romfs.h
 SYMTAB_SRC = $(LIB_DIR)/sot_symtab.c
+
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
+  ROMFS_IMG = $(LIB_DIR)/romfs.img
+  ROMFS_HDR = $(LIB_DIR)/romfs.h
+endif
 
 define DIR_template
 $(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
+	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(ROMFS_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
-.PHONY: all build clean install populate
+all: $(ROMFS_HDR) $(SYMTAB_SRC)
+.PHONY: all clean install
 
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
-$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
-
-# Build program(s) in each sud-directory
-
-build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
+$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
+$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install)))
 
 # Install each program in the fsroot directory
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
 
-# Create the fsroot directory
-
-$(FSROOT_DIR):
-	$(Q) mkdir $(FSROOT_DIR)
-
-# Populate the fsroot directory
-
-populate:  $(FSROOT_DIR) build install
-
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
 # Create the romfs.img file from the populated fsroot directory
 
-$(ROMFS_IMG): populate
-ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
-	$(Q) genromfs -f $@ -d $(FSROOT_DIR) -V "SOTESTTEST"
-endif
+$(ROMFS_IMG): install
+	$(Q) genromfs -f $@.tmp -d $(FSROOT_DIR) -V "SOTESTTEST"
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Create the romfs.h header file from the romfs.img file
 
-$(ROMFS_HDR) : $(ROMFS_IMG)
-ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
+$(ROMFS_HDR): $(ROMFS_IMG)
 	$(Q) (cd $(LIB_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 endif
 
 # Create the exported symbol table
 
-$(SYMTAB_SRC): build
-	$(Q) $(LIB_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
+$(SYMTAB_SRC): install
+	$(Q) $(LIB_DIR)/mksymtab.sh $(FSROOT_DIR) >$@.tmp
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(ROMFS_HDR) $(DIRLIST_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(FSROOT_DIR)

@@ -34,7 +34,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 OBJEXT ?= .o
 DELIM ?= /
@@ -44,9 +43,6 @@ NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
 else
 NUTTXLIB = "$(TOPDIR)$(DELIM)staging"
 endif
-
-KDEFINE = ${shell $(DEFINE) "$(CC)" __KERNEL__}
-CMODULEFLAGS += $(KDEFINE)
 
 LDLIBPATH =
 LDLIBS =
@@ -78,7 +74,7 @@ SRCS = $(BIN).c
 OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"

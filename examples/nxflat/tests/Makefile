@@ -55,55 +55,44 @@ SYMTAB		= $(TESTS_DIR)/symtab.h
 
 define DIR_template
 $(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
+	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(ROMFS_HDR) $(ROMFS_DIRLIST) $(SYMTAB)
-.PHONY: all build clean install populate
+.PHONY: all clean install
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
-$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
-
-# Build program(s) in each sud-directory
-
-build: $(foreach DIR, $(SUBDIRS), $(DIR)_build)
+$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
+$(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install)))
 
 # Install each program in the romfs directory
 
 install: $(foreach DIR, $(SUBDIRS), $(DIR)_install)
 
-# Create the romfs directory
-
-$(ROMFS_DIR):
-	@mkdir $(ROMFS_DIR)
-
-# Populate the romfs directory
-
-populate:  $(ROMFS_DIR) build install
-
 # Create the romfs.img file from the populated romfs directory
 
-$(ROMFS_IMG): populate
-	@genromfs -f $@ -d $(ROMFS_DIR) -V "NXFLATTEST"
+$(ROMFS_IMG): install
+	$(Q) genromfs -f $@.tmp -d $(ROMFS_DIR) -V "NXFLATTEST"
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Create the romfs.h header file from the romfs.img file
 
-$(ROMFS_HDR) : $(ROMFS_IMG)
-	@(cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_HDR): $(ROMFS_IMG)
+	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 
 # Create the dirlist.h header file from the romfs directory
 
-$(ROMFS_DIRLIST) : populate
-	@$(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@
+$(ROMFS_DIRLIST): install
+	$(Q) $(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@.tmp
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Create the exported symbol table list from the derived *-thunk.S files
 
-$(SYMTAB): build
-	@$(TESTS_DIR)/mksymtab.sh $(TESTS_DIR) >$@
+$(SYMTAB): install
+	$(Q) $(TESTS_DIR)/mksymtab.sh $(ROMFS_DIR) >$@.tmp
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(SUBDIRS), $(DIR)_clean)
-	@rm -f $(ROMFS_HDR) $(ROMFS_DIRLIST) $(ROMFS_IMG) $(SYMTAB)
-	@rm -rf $(ROMFS_DIR)
+	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_DIRLIST) $(ROMFS_IMG) $(SYMTAB)
+	$(Q) rm -rf $(ROMFS_DIR)

@@ -72,7 +72,7 @@ SRCS = $(BIN).c
 OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"
@@ -85,6 +85,9 @@ $(BIN): $(OBJS)
 $(FSIMG_DIR)/$(BIN): $(BIN)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN)
+endif
 
 install: $(FSIMG_DIR)/$(BIN)
 

@@ -41,7 +41,7 @@ SRCS = $(BIN).c
 OBJS = $(SRCS:.c=.o)
 
 all: $(BIN)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(OBJS): %.o: %.c
 	@echo "CC: $<"

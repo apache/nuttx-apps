@@ -44,7 +44,7 @@ R2SRC = $(BIN)-thunk.S
 R2OBJ = $(R2SRC:.S=.o)
 
 all: $(BIN)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(R1OBJS): %.o: %.c
 	@echo "CC: $<"

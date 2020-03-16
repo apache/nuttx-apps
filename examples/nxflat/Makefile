@@ -44,7 +44,13 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 MODULE = $(CONFIG_EXAMPLES_NXFLAT)
 
-context::
-	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+nxflat_main.c: build
+
+.PHONY: build
+build:
+	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+
+clean::
+	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
 
 include $(APPDIR)/Application.mk
