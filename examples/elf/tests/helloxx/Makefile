@@ -67,15 +67,19 @@ LDLIBS += -lproxies
 endif
 
 BIN1 = hello++1
+ALL_BIN = $(FSIMG_DIR)/$(BIN1)
 BIN2 = hello++2
+ALL_BIN += $(FSIMG_DIR)/$(BIN2)
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 BIN3 = hello++3
+ALL_BIN += $(FSIMG_DIR)/$(BIN3)
 ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
 BIN4 = hello++4
+ALL_BIN += $(FSIMG_DIR)/$(BIN4)
 BIN5 = hello++5
+ALL_BIN += $(FSIMG_DIR)/$(BIN5)
 endif
 endif
-ALL_BIN = $(BIN1) $(BIN2) $(BIN3) $(BIN4) $(BIN5)
 
 SRCS1 = $(BIN1).c
 OBJS1 = $(SRCS1:.c=$(OBJEXT))
@@ -147,6 +151,32 @@ $(BIN5): $(OBJS5)
 endif
 endif
 
+$(FSIMG_DIR)/$(BIN1): $(BIN1)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN1) $(FSIMG_DIR)/$(BIN1)
+
+$(FSIMG_DIR)/$(BIN2): $(BIN2)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN2) $(FSIMG_DIR)/$(BIN2)
+
+ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
+$(FSIMG_DIR)/$(BIN3): $(BIN3)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN3) $(FSIMG_DIR)/$(BIN3)
+
+ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+$(FSIMG_DIR)/$(BIN4): $(BIN4)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN4) $(FSIMG_DIR)/$(BIN4)
+
+$(FSIMG_DIR)/$(BIN5): $(BIN5)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN5) $(FSIMG_DIR)/$(BIN5)
+endif
+endif
+
+install: $(ALL_BIN)
+
 clean:
 	$(call DELFILE, $(BIN1))
 	$(call DELFILE, $(BIN2))
@@ -154,15 +184,3 @@ clean:
 	$(call DELFILE, $(BIN4))
 	$(call DELFILE, $(BIN5))
 	$(call CLEAN)
-
-install: $(ALL_BIN)
-	$(Q) mkdir -p $(FSIMG_DIR)
-	$(Q) install $(BIN1) $(FSIMG_DIR)/$(BIN1)
-	$(Q) install $(BIN2) $(FSIMG_DIR)/$(BIN2)
-ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
-	$(Q) install $(BIN3) $(FSIMG_DIR)/$(BIN3)
-ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
-	$(Q) install $(BIN4) $(FSIMG_DIR)/$(BIN4)
-	$(Q) install $(BIN5) $(FSIMG_DIR)/$(BIN5)
-endif
-endif

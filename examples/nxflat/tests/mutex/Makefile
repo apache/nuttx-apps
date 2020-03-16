@@ -69,12 +69,14 @@ $(BIN): $(BIN).r2
 	@echo "LD: $<"
 	$(Q) $(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
+$(ROMFS_DIR)/$(BIN): $(BIN)
+	$(Q) install -D $(BIN) $(ROMFS_DIR)/$(BIN)
+
+install: $(ROMFS_DIR)/$(BIN)
+
 clean:
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, $(R2SRC))
 	$(call DELFILE, *.r1)
 	$(call DELFILE, *.r2)
 	$(call CLEAN)
-
-install:
-	$(Q) install -D $(BIN) $(ROMFS_DIR)/$(BIN)

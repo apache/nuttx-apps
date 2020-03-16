@@ -151,6 +151,7 @@ PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGLIST))
 PROGOBJ := $(MAINOBJ)
 
 $(PROGLIST): $(MAINOBJ)
+	$(Q) mkdir -p $(BINDIR)
 ifeq ($(WINTOOL),y)
 	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
 else

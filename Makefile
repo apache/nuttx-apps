@@ -73,17 +73,12 @@ $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 
-.install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
-
-install: $(BINDIR) .install
-
-$(BINDIR):
-	$(Q) mkdir -p $(BINDIR)
+install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
 
-import: $(BINDIR)
+import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 else
@@ -114,12 +109,7 @@ endif
 
 endif # !CONFIG_BUILD_LOADABLE
 
-.install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
-
-$(BINDIR):
-	$(Q) mkdir -p $(BINDIR)
-
-install: $(BINDIR) .install
+install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(BIN) install
 
