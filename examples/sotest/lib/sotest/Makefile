@@ -88,10 +88,12 @@ $(BIN): $(OBJS)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDMODULEFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
+$(FSROOT_DIR)/$(BIN): $(BIN)
+	$(Q) mkdir -p $(FSROOT_DIR)
+	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)
+
+install: $(FSROOT_DIR)/$(BIN)
+
 clean:
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
-
-install:
-	$(Q) mkdir -p $(FSROOT_DIR)
-	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)

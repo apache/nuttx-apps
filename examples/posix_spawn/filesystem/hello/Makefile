@@ -51,11 +51,13 @@ $(BIN): $(OBJS)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
 
+$(ROMFS_DIR)/$(BIN): $(BIN)
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)
+
+install: $(ROMFS_DIR)/$(BIN)
+
 clean:
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, *.dSYM)
 	$(call CLEAN)
-
-install: $(BIN)
-	$(Q) mkdir -p $(ROMFS_DIR)
-	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)

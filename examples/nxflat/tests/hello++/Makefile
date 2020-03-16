@@ -39,7 +39,6 @@ BIN1			= hello++1
 BIN2			= hello++2
 BIN3			= hello++3
 #BIN4			= hello++4
-ALL_BIN			= $(BIN1) $(BIN2) $(BIN3) $(BIN4)
 
 R1SRCS1			= $(BIN1).c
 R1OBJS1			= $(R1SRCS1:.c=.o)
@@ -162,6 +161,20 @@ $(BIN3): $(BIN3).r2
 #	@echo "LD: $<"
 #	$(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
+$(ROMFS_DIR)/$(BIN1): $(BIN1)
+	$(Q) install -D $(BIN1) $(ROMFS_DIR)/$(BIN1)
+
+$(ROMFS_DIR)/$(BIN2): $(BIN2)
+	$(Q) install -D $(BIN2) $(ROMFS_DIR)/$(BIN2)
+
+$(ROMFS_DIR)/$(BIN3): $(BIN3)
+	$(Q) install -D $(BIN3) $(ROMFS_DIR)/$(BIN3)
+
+#$(ROMFS_DIR)/$(BIN4): $(BIN4)
+#	$(Q) install -D $(BIN4) $(ROMFS_DIR)/$(BIN4)
+
+install: $(ROMFS_DIR)/$(BIN1) $(ROMFS_DIR)/$(BIN2) $(ROMFS_DIR)/$(BIN3)
+
 clean:
 	$(call DELFILE, $(BIN1))
 	$(call DELFILE, $(BIN2))
@@ -174,9 +187,3 @@ clean:
 	$(call DELFILE, *.r1)
 	$(call DELFILE, *.r2)
 	$(call CLEAN)
-
-install: $(ALL_BIN)
-	$(Q) install -D $(BIN1) $(ROMFS_DIR)/$(BIN1)
-	$(Q) install -D $(BIN2) $(ROMFS_DIR)/$(BIN2)
-	$(Q) install -D $(BIN3) $(ROMFS_DIR)/$(BIN3)
-#	$(Q) install -D $(BIN4) $(ROMFS_DIR)/$(BIN4)

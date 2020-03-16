@@ -48,13 +48,6 @@ if [ -z "$dir" ]; then
   exit 1
 fi
 
-if [ ! -d "$dir" ]; then
-  echo "ERROR: Directory $dir does not exist"
-  echo ""
-  echo $usage
-  exit 1
-fi
-
 # Get the output file name
 
 outfile=$2

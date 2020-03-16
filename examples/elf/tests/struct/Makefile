@@ -83,10 +83,12 @@ $(BIN): $(OBJS)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
+$(FSIMG_DIR)/$(BIN): $(BIN)
+	$(Q) mkdir -p $(FSIMG_DIR)
+	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)
+
+install: $(FSIMG_DIR)/$(BIN)
+
 clean:
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
-
-install:
-	$(Q) mkdir -p $(FSIMG_DIR)
-	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)
