@@ -87,6 +87,6 @@ clean:
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
-install:
+install: $(BIN)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)

@@ -51,7 +51,9 @@ ROOTDEPPATH := --dep-path tests
 
 VPATH += :tests
 
-context::
+elf_main.c: tests/symtab.c
+
+tests/symtab.c:
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::

@@ -81,7 +81,7 @@ $(1)_$(2):
 endef
 
 all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
-.PHONY: all build clean install populate
+.PHONY: all build clean install
 
 $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
@@ -100,19 +100,10 @@ ifneq ($(CONFIG_EXAMPLES_ELF_NOSTRIP),y)
 endif
 endif
 
-# Create the file system image directory
-
-$(FSIMG_DIR):
-	$(Q) mkdir $(FSIMG_DIR)
-
-# Populate the file system image directory
-
-populate:  $(FSIMG_DIR) build install
-
 ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
 # Create the romfs.img file from the populated romfs directory
 
-$(ROMFS_IMG): populate
+$(ROMFS_IMG): install
 	$(Q) genromfs -f $@ -d $(FSIMG_DIR) -V "ELFTEST"
 
 # Create the romfs.h header file from the romfs.img file
@@ -128,19 +119,19 @@ $(NXTOOLDIR)/$(GENCROMFSEXE): $(NXTOOLDIR)/$(GENCROMFSSRC)
 
 # Create the cromfs.h header file from the populated cromfs directory
 
-$(FSIMG_HDR) : populate $(NXTOOLDIR)/$(GENCROMFSEXE)
+$(FSIMG_HDR) : install $(NXTOOLDIR)/$(GENCROMFSEXE)
 	$(Q) $(NXTOOLDIR)/$(GENCROMFSEXE) $(FSIMG_DIR) $(FSIMG_HDR)
 
 endif
 
 # Create the dirlist.h header file from the file system image directory
 
-$(DIRLIST_HDR) : populate
+$(DIRLIST_HDR) : install
 	$(Q) $(TESTS_DIR)/mkdirlist.sh $(FSIMG_DIR) >$@
 
 # Create the exported symbol table
 
-$(SYMTAB_SRC): populate
+$(SYMTAB_SRC): install
 	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@
 
 # Clean each subdirectory
