@@ -44,12 +44,7 @@ ROMFS_HDR = $(FILESYSTEM_DIR)$(DELIM)romfs.h
 SYMTAB_SRC = $(FILESYSTEM_DIR)$(DELIM)symtab.c
 
 all: $(ROMFS_HDR) $(SYMTAB_SRC)
-.PHONY: all hello/hello redirect/redirect clean populate
-
-# Create the romfs directory
-
-$(ROMFS_DIR):
-	$(Q) mkdir $(ROMFS_DIR)
+.PHONY: all hello/hello redirect/redirect clean
 
 # Build the hello test program
 
@@ -64,7 +59,7 @@ redirect/redirect:
 # Create the romfs.img file from the romfs directory
 # REVISIT: ELF binaries should be stripped so that they are not so big
 
-$(ROMFS_IMG): hello/hello redirect/redirect testdata.txt $(ROMFS_DIR)
+$(ROMFS_IMG): hello/hello redirect/redirect testdata.txt
 	$(Q) $(MAKE) -C hello install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
 	$(Q) $(MAKE) -C redirect install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
 	$(Q) install -m 0644 testdata.txt $(ROMFS_DIR)/testdata.txt
