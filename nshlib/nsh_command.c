@@ -114,9 +114,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
 #ifdef CONFIG_NETLINK_ROUTE
-  { "arp",      cmd_arp,      2, 4, "[-t|-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },
+  { "arp",      cmd_arp,      2, 4,
+    "[-t|-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },
 #else
-  { "arp",      cmd_arp,      3, 4, "[-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },
+  { "arp",      cmd_arp,      3, 4,
+    "[-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },
 #endif
 #endif
 
@@ -138,7 +140,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_CAT
-  { "cat",      cmd_cat,      2, CONFIG_NSH_MAXARGUMENTS, "<path> [<path> [<path> ...]]" },
+  { "cat",      cmd_cat,      2, CONFIG_NSH_MAXARGUMENTS,
+    "<path> [<path> [<path> ...]]" },
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
@@ -164,7 +167,9 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_DD
-  { "dd",       cmd_dd,       3, 6, "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]" },
+  { "dd",       cmd_dd,       3, 6,
+    "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] "
+    "[skip=<sectors>]" },
 # endif
 
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_DELROUTE)
@@ -188,9 +193,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_ECHO
 # ifndef CONFIG_DISABLE_ENVIRON
-  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[-n] [<string|$name> [<string|$name>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS,
+    "[-n] [<string|$name> [<string|$name>...]]" },
 # else
-  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[-n] [<string> [<string>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS,
+    "[-n] [<string> [<string>...]]" },
 # endif
 #endif
 
@@ -220,7 +227,8 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef CONFIG_NET_UDP
 # ifndef CONFIG_NSH_DISABLE_GET
-  { "get",      cmd_get,      4, 7, "[-b|-n] [-f <local-path>] -h <ip-address> <remote-path>" },
+  { "get",      cmd_get,      4, 7,
+    "[-b|-n] [-f <local-path>] -h <ip-address> <remote-path>" },
 # endif
 #endif
 
@@ -236,13 +244,16 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_NSH_CMDOPT_HEXDUMP
   { "hexdump",  cmd_hexdump,  2, 2, "<file or device>" },
 #else
-  { "hexdump",  cmd_hexdump,  2, 4, "<file or device> [skip=<bytes>] [count=<bytes>]" },
+  { "hexdump",  cmd_hexdump,  2, 4,
+    "<file or device> [skip=<bytes>] [count=<bytes>]" },
 #endif
 #endif
 
 #ifdef CONFIG_NET
 # ifndef CONFIG_NSH_DISABLE_IFCONFIG
-  { "ifconfig", cmd_ifconfig, 1, 11, "[interface [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>] [dns <dns-address>] [hw <hw-mac>]" },
+  { "ifconfig", cmd_ifconfig, 1, 11,
+    "[interface [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] "
+    "[netmask <net-mask>] [dns <dns-address>] [hw <hw-mac>]" },
 # endif
 # ifndef CONFIG_NSH_DISABLE_IFUPDOWN
   { "ifdown",   cmd_ifdown,   2, 2, "<interface>" },
@@ -264,13 +275,16 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 # if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
-  { "losetup",   cmd_losetup, 3, 6, "[-d <dev-path>] | [[-o <offset>] [-r] <dev-path> <file-path>]" },
+  { "losetup",   cmd_losetup, 3, 6,
+    "[-d <dev-path>] | [[-o <offset>] [-r] <dev-path> <file-path>]" },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 # if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
-  { "losmart",   cmd_losmart, 2, 11, "[-d <dev-path>] | [[-m <minor>] [-o <offset>] [-e <erase-size>] [-s <sect-size>] [-r] <file-path>]" },
+  { "losmart",   cmd_losmart, 2, 11,
+    "[-d <dev-path>] | [[-m <minor>] [-o <offset>] [-e <erase-size>] "
+    "[-s <sect-size>] [-r] <file-path>]" },
 # endif
 #endif
 
@@ -289,7 +303,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_MB
-  { "mb",       cmd_mb,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+  { "mb",       cmd_mb,       2, 3,
+    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_HASH_MD5)
@@ -306,7 +321,8 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FSUTILS_MKFATFS)
 # ifndef CONFIG_NSH_DISABLE_MKFATFS
-  { "mkfatfs",  cmd_mkfatfs,  2, 6, "[-F <fatsize>] [-r <rootdirentries>] <block-driver>" },
+  { "mkfatfs",  cmd_mkfatfs,  2, 6,
+    "[-F <fatsize>] [-r <rootdirentries>] <block-driver>" },
 # endif
 #endif
 
@@ -319,7 +335,8 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef NSH_HAVE_WRITABLE_MOUNTPOINT
 # ifndef CONFIG_NSH_DISABLE_MKRD
-  { "mkrd",     cmd_mkrd,     2, 6, "[-m <minor>] [-s <sector-size>] <nsectors>" },
+  { "mkrd",     cmd_mkrd,     2, 6,
+    "[-m <minor>] [-s <sector-size>] <nsectors>" },
 # endif
 #endif
 
@@ -327,7 +344,8 @@ static const struct cmdmap_s g_cmdmap[] =
     defined(CONFIG_FSUTILS_MKSMARTFS)
 # ifndef CONFIG_NSH_DISABLE_MKSMARTFS
 #  ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-  { "mksmartfs",  cmd_mksmartfs,  2, 6, "[-s <sector-size>] [-f] <path> [<num-root-directories>]" },
+  { "mksmartfs",  cmd_mksmartfs,  2, 6,
+    "[-s <sector-size>] [-f] <path> [<num-root-directories>]" },
 #  else
   { "mksmartfs",  cmd_mksmartfs,  2, 5, "[-s <sector-size>] [-f] <path>" },
 #  endif
@@ -335,15 +353,18 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_MH
-  { "mh",       cmd_mh,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+  { "mh",       cmd_mh,       2, 3,
+    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_READABLE)
 #ifndef CONFIG_NSH_DISABLE_MOUNT
 #if defined(NSH_HAVE_CATFILE) && defined(HAVE_MOUNT_LIST)
-  { "mount",    cmd_mount,    1, 7, "[-t <fstype> [-o <options>] [<block-device>] <mount-point>]" },
+  { "mount",    cmd_mount,    1, 7,
+    "[-t <fstype> [-o <options>] [<block-device>] <mount-point>]" },
 #else
-  { "mount",    cmd_mount,    4, 7, "-t <fstype> [-o <options>] [<block-device>] <mount-point>" },
+  { "mount",    cmd_mount,    4, 7,
+    "-t <fstype> [-o <options>] [<block-device>] <mount-point>" },
 #endif
 #endif
 #endif
@@ -355,13 +376,15 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_MW
-  { "mw",       cmd_mw,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+  { "mw",       cmd_mw,       2, 3,
+    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_NET) && \
     defined(CONFIG_NFS)
 #  ifndef CONFIG_NSH_DISABLE_NFSMOUNT
-  { "nfsmount", cmd_nfsmount, 4, 5, "<server-address> <mount-point> <remote-path> [udp]" },
+  { "nfsmount", cmd_nfsmount, 4, 5,
+    "<server-address> <mount-point> <remote-path> [udp]" },
 #  endif
 #endif
 
@@ -379,7 +402,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_PM) && !defined(CONFIG_NSH_DISABLE_PMCONFIG)
-  { "pmconfig", cmd_pmconfig,  1, 3, "[stay|relax] [normal|idle|standby|sleep]" },
+  { "pmconfig", cmd_pmconfig,  1, 3,
+    "[stay|relax] [normal|idle|standby|sleep]" },
 #endif
 
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
@@ -388,9 +412,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_PRINTF
 # ifndef CONFIG_DISABLE_ENVIRON
-  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string|$name> [<string|$name>...]]" },
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS,
+    "[\\xNN] [\\n\\r\\t] [<string|$name> [<string|$name>...]]" },
 # else
-  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string> [<string>...]]" },
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS,
+    "[\\xNN] [\\n\\r\\t] [<string> [<string>...]]" },
 # endif
 #endif
 
@@ -400,7 +426,8 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef CONFIG_NET_UDP
 # ifndef CONFIG_NSH_DISABLE_PUT
-  { "put",      cmd_put,      4, 7, "[-b|-n] [-f <remote-path>] -h <ip-address> <local-path>" },
+  { "put",      cmd_put,      4, 7,
+    "[-b|-n] [-f <remote-path>] -h <ip-address> <local-path>" },
 # endif
 #endif
 
@@ -565,7 +592,6 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_NSH_DISABLE_XD
   { "xd",       cmd_xd,       3, 3, "<hex-address> <byte-count>" },
 #endif
-
   { NULL,       NULL,         1, 1, NULL }
 };
 
@@ -651,7 +677,8 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
 {
   nsh_output(vtbl, "NSH command forms:\n");
 #ifndef CONFIG_NSH_DISABLEBG
-  nsh_output(vtbl, "  [nice [-d <niceness>>]] <cmd> [> <file>|>> <file>] [&]\n\n");
+  nsh_output(vtbl, "  [nice [-d <niceness>>]] <cmd> "
+                   "[> <file>|>> <file>] [&]\n\n");
 #else
   nsh_output(vtbl, "  <cmd> [> <file>|>> <file>]\n\n");
 #endif
