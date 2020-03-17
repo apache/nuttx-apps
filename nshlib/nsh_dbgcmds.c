@@ -98,7 +98,7 @@ static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv,
       pcvalue++;
 
       lvalue = strtoul(pcvalue, NULL, 16);
-      if (lvalue > 0xffffffffL)
+      if (lvalue > 0xffffffffl)
         {
           return -EINVAL;
         }
@@ -152,7 +152,8 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       /* Loop for the number of requested bytes */
 
-      for (i = 0, ptr = (volatile uint8_t*)mem.dm_addr; i < mem.dm_count; i++, ptr++)
+      for (i = 0, ptr = (volatile uint8_t *)mem.dm_addr; i < mem.dm_count;
+           i++, ptr++)
         {
           /* Print the value at the address */
 
@@ -206,7 +207,7 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       /* Loop for the number of requested bytes */
 
-      for (i = 0, ptr = (volatile uint16_t*)mem.dm_addr;
+      for (i = 0, ptr = (volatile uint16_t *)mem.dm_addr;
            i < mem.dm_count;
            i += 2, ptr++)
         {
@@ -262,7 +263,8 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       /* Loop for the number of requested bytes */
 
-      for (i = 0, ptr = (volatile uint32_t*)mem.dm_addr; i < mem.dm_count; i += 4, ptr++)
+      for (i = 0, ptr = (volatile uint32_t *)mem.dm_addr; i < mem.dm_count;
+           i += 4, ptr++)
         {
           /* Print the value at the address */
 
@@ -308,11 +310,11 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
     {
       sprintf(line, "%04x: ", i);
 
-      for ( j = 0; j < 16; j++)
+      for (j = 0; j < 16; j++)
         {
           if (i + j < nbytes)
             {
-              sprintf(&line[strlen(line)], "%02x ", buffer[i+j] );
+              sprintf(&line[strlen(line)], "%02x ", buffer[i + j]);
             }
           else
             {
@@ -320,12 +322,13 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
             }
         }
 
-      for ( j = 0; j < 16; j++)
+      for (j = 0; j < 16; j++)
         {
           if (i + j < nbytes)
             {
-              ch = buffer[i+j];
-              sprintf(&line[strlen(line)], "%c", ch >= 0x20 && ch <= 0x7e ? ch : '.');
+              ch = buffer[i + j];
+              sprintf(&line[strlen(line)], "%c",
+                      ch >= 0x20 && ch <= 0x7e ? ch : '.');
             }
         }
 
@@ -344,7 +347,7 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR char *endptr;
   int       nbytes;
 
-  addr = (FAR char*)((uintptr_t)strtoul(argv[1], &endptr, 16));
+  addr = (FAR char *)((uintptr_t)strtoul(argv[1], &endptr, 16));
   if (argv[0][0] == '\0' || *endptr != '\0')
     {
       return ERROR;
@@ -356,7 +359,7 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       return ERROR;
     }
 
-  nsh_dumpbuffer(vtbl, "Hex dump", (uint8_t*)addr, nbytes);
+  nsh_dumpbuffer(vtbl, "Hex dump", (uint8_t *)addr, nbytes);
   return OK;
 }
 #endif
@@ -390,7 +393,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
 
   buffer = (FAR uint8_t *)malloc(IOBUFFERSIZE);
-  if(buffer == NULL)
+  if (buffer == NULL)
     {
       close(fd);
       nsh_error(vtbl, g_fmtcmdfailed, "hexdump", "malloc", NSH_ERRNO);
@@ -412,7 +415,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
   position = 0;
-  for (;;)
+  for (; ; )
     {
       int nbytesread = read(fd, buffer, IOBUFFERSIZE);
 
@@ -444,7 +447,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
                   snprintf(msg, sizeof(msg), "%s at %08x", argv[1], skip);
                   nsh_dumpbuffer(vtbl, msg,
-                                 &buffer[nbytesread - (position-skip)],
+                                 &buffer[nbytesread - (position - skip)],
                                  dumpbytes);
 
                   if (count > dumpbytes)
