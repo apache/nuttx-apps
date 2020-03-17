@@ -56,8 +56,8 @@ $(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(ROMFS_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
-.PHONY: all build clean install populate
+all: $(ROMFS_HDR) $(SYMTAB_SRC)
+.PHONY: all build clean install
 
 $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
@@ -71,18 +71,9 @@ build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
 
-# Create the fsroot directory
-
-$(FSROOT_DIR):
-	$(Q) mkdir $(FSROOT_DIR)
-
-# Populate the fsroot directory
-
-populate:  $(FSROOT_DIR) build install
-
 # Create the romfs.img file from the populated fsroot directory
 
-$(ROMFS_IMG): populate
+$(ROMFS_IMG): install
 ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
 	$(Q) genromfs -f $@ -d $(FSROOT_DIR) -V "SOTESTTEST"
 endif
@@ -96,11 +87,11 @@ endif
 
 # Create the exported symbol table
 
-$(SYMTAB_SRC): build
+$(SYMTAB_SRC): install
 	$(Q) $(LIB_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(ROMFS_HDR) $(DIRLIST_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(FSROOT_DIR)

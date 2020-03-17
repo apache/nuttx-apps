@@ -56,7 +56,9 @@ ROOTDEPPATH += --dep-path lib
 
 VPATH = lib
 
-context::
+sotest_main.c: lib/sot_symtab.c
+
+lib/sot_symtab.c:
 	@$(MAKE) -C lib TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::
