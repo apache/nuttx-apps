@@ -61,6 +61,7 @@
 /****************************************************************************
  * Private Typs
  ****************************************************************************/
+
 /* All state information for this test is kept within the following structure
  * in order create a namespace and to minimize the possibility of name
  * collisions.
@@ -101,7 +102,8 @@ static const char g_slcdhello[] = "Hello";
  *
  ****************************************************************************/
 
-void slcd_dumpbuffer(FAR const char *msg, FAR const uint8_t *buffer, unsigned int buflen)
+void slcd_dumpbuffer(FAR const char *msg, FAR const uint8_t *buffer,
+                     unsigned int buflen)
 {
   int i;
   int j;
@@ -154,7 +156,7 @@ void slcd_dumpbuffer(FAR const char *msg, FAR const uint8_t *buffer, unsigned in
         }
 
       printf("\n");
-   }
+    }
 }
 
 /****************************************************************************
@@ -359,8 +361,9 @@ int main(int argc, FAR char *argv[])
   return 0;
 
 errout_with_fd:
-   close(priv->fd);
+  close(priv->fd);
+
 errout:
-   priv->initialized = false;
-   exit(EXIT_FAILURE);
+  priv->initialized = false;
+  exit(EXIT_FAILURE);
 }
