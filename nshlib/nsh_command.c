@@ -304,7 +304,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_MB
   { "mb",       cmd_mb,       2, 3,
-    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+    "<hex-address>[=<hex-value>] [<hex-byte-count>]" },
 #endif
 
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_HASH_MD5)
@@ -354,7 +354,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_MH
   { "mh",       cmd_mh,       2, 3,
-    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+    "<hex-address>[=<hex-value>] [<hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_READABLE)
@@ -377,7 +377,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_MW
   { "mw",       cmd_mw,       2, 3,
-    "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
+    "<hex-address>[=<hex-value>] [<hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_NET) && \
