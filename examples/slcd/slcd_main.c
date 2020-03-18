@@ -267,7 +267,7 @@ int main(int argc, FAR char *argv[])
   printf("Opening %s for read/write access\n", CONFIG_EXAMPLES_SLCD_DEVNAME);
 
   fd = open(CONFIG_EXAMPLES_SLCD_DEVNAME, O_RDWR);
-  if (priv->fd < 0)
+  if (fd < 0)
     {
       printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
       goto errout;
@@ -286,6 +286,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_STDIO_LINEBUFFER
       priv->stream.flush = slcd_flush;
 #endif
+      priv->fd = fd;
 
       /* Get the attributes of the SCLD device */
 
