@@ -167,7 +167,7 @@ endif
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
-.depend: context Makefile .depdirs
+.depend: Makefile .depdirs
 	$(Q) touch $@
 
 depend: .depend
