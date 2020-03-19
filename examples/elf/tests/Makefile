@@ -141,8 +141,7 @@ $(DIRLIST_HDR) : populate
 # Create the exported symbol table
 
 $(SYMTAB_SRC): populate
-	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@_tmp
-	$(Q) mv $@_tmp $@
+	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@
 
 # Clean each subdirectory
 
