@@ -78,8 +78,7 @@ $(ROMFS_HDR) : $(ROMFS_IMG)
 # Create the exported symbol table
 
 $(SYMTAB_SRC): $(ROMFS_IMG)
-	$(Q) $(FILESYSTEM_DIR)$(DELIM)mksymtab.sh $(ROMFS_DIR) >$@_tmp
-	$(Q) mv $@_tmp $@
+	$(Q) $(FILESYSTEM_DIR)$(DELIM)mksymtab.sh $(ROMFS_DIR) >$@
 
 # Clean each subdirectory
 
