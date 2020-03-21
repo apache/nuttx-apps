@@ -114,17 +114,6 @@ config EXAMPLES_MODULE_BINDIR
 		The full, absolute path to the location for the binaries can be
 		located in a pre-mounted external file system.
 
-config EXAMPLES_MODULE_NOSTRIP
-	bool "Do not strip debug symbols"
-	default n
-	depends on DEBUG_SYMBOLS
-	---help---
-		By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
-		ELF executables will also retain debug symbols in the resulting ELF binaries.
-		Select this option if you do not want that behavior, this option will permit
-		debug symbols in the base code but will strip debug symbols out of the ELF
-		binaries for a smaller ROM file system image.
-
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
 	default n

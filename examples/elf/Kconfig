@@ -94,17 +94,6 @@ config EXAMPLES_ELF_DEVPATH
 		file system containing the ELF executables to be tested.  Default:
 		"/dev/ram0" for ROMFS, "/dev/mmcsd0" for the external file system.
 
-config EXAMPLES_ELF_NOSTRIP
-	bool "Do not strip debug symbols"
-	default n
-	depends on DEBUG_SYMBOLS
-	---help---
-		By default, if debug symbols are enabled (via CONFIG_DEBUG_SYMBOLS), then the
-		ELF executables will also retain debug symbols in the resulting ELF binaries.
-		Select this option if you do not want that behavior, this option will permit
-		debug symbols in the base code but will strip debug symbols out of the ELF
-		binaries for a smaller ROM file system image.
-
 config EXAMPLES_ELF_SYSCALL
 	bool "Link with SYSCALL library"
 	default n
