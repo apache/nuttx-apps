@@ -123,14 +123,16 @@ endif
 # Create the exported symbol table
 
 $(SYMTAB_SRC): populate
-	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
+	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@.tmp
+	$(Q) mv $@.tmp $@
 
 else
 
 # Create the exported symbol table
 
 $(SYMTAB_SRC): populate
-	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
+	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@.tmp
+	$(Q) mv $@.tmp $@
 
 endif
 
