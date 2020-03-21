@@ -244,8 +244,8 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *rpath;
   int ret;
 
-  /* The fist argument on the command line should be the NFS server IP address
-   * in standard IPv4 (or IPv6) dot format.
+  /* The fist argument on the command line should be the NFS server IP
+   * address in standard IPv4 (or IPv6) dot format.
    */
 
   address = argv[1];
@@ -330,8 +330,8 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   data.path               = rpath;
   data.flags              = 0;       /* 0=Use all defaults */
 
-  /* The local mount point path (lpath) might be relative to the current working
-   * directory.
+  /* The local mount point path (lpath) might be relative to the current
+   * working directory.
    */
 
   lpath = nsh_getfullpath(vtbl, argv[2]);

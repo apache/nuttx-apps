@@ -47,7 +47,7 @@
 #define MAX_PASSWORD  (3 * MAX_ENCRYPTED / 4)
 
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
 struct passwd_s
@@ -103,7 +103,8 @@ void passwd_unlock(FAR sem_t *sem);
  *
  ****************************************************************************/
 
-int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1]);
+int passwd_encrypt(FAR const char *password,
+                   char encrypted[MAX_ENCRYPTED + 1]);
 
 /****************************************************************************
  * Name: passwd_append

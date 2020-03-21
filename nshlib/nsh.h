@@ -44,7 +44,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* The background commands require pthread support */
 
 #ifdef CONFIG_DISABLE_PTHREAD
@@ -138,8 +140,8 @@
 #  error "No NSH front end defined"
 #endif
 
-/* If a USB device is selected for the NSH console then we need to handle some
- * special start-up conditions.
+/* If a USB device is selected for the NSH console then we need to handle
+ * some special start-up conditions.
  */
 
 #undef HAVE_USB_CONSOLE
@@ -429,8 +431,8 @@
 #endif
 
 /* strerror() produces much nicer output but is, however, quite large and
- * will only be used if CONFIG_NSH_STRERROR is defined.  Note that the strerror
- * interface must also have been enabled with CONFIG_LIBC_STRERROR.
+ * will only be used if CONFIG_NSH_STRERROR is defined.  Note that the
+ * strerror interface must also have been enabled with CONFIG_LIBC_STRERROR.
  */
 
 #ifndef CONFIG_LIBC_STRERROR
@@ -823,7 +825,8 @@ int nsh_usbconsole(void);
 #endif
 
 #if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
-int nsh_script(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const char *path);
+int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+               FAR const char *path);
 #ifdef CONFIG_NSH_ROMFSETC
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl);
 #ifdef CONFIG_NSH_ROMFSRC
@@ -1151,7 +1154,7 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-   int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+  int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
 #if (defined(CONFIG_BOARDCTL_POWEROFF) || defined(CONFIG_BOARDCTL_RESET)) && \
