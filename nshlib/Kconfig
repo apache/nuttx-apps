@@ -434,7 +434,7 @@ config NSH_DISABLE_NSLOOKUP
 config NSH_DISABLE_PASSWD
 	bool "Disable passwd"
 	default y
-	depends on NSH_LOGIN_PASSWD && FS_WRITABLE && !FSUTILS_PASSWD_READONLY
+	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_PMCONFIG
 	bool "Disable pmconfig"
@@ -567,12 +567,12 @@ config NSH_DISABLE_URLENCODE
 config NSH_DISABLE_USERADD
 	bool "Disable useradd"
 	default y
-	depends on NSH_LOGIN_PASSWD && FS_WRITABLE && !FSUTILS_PASSWD_READONLY
+	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_USERDEL
 	bool "Disable userdel"
 	default y
-	depends on NSH_LOGIN_PASSWD && FS_WRITABLE && !FSUTILS_PASSWD_READONLY
+	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_USLEEP
 	bool "Disable usleep"
