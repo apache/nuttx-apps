@@ -1,6 +1,5 @@
 /psmq-*
 /Make.dep
-/.depend
 /.built
 /*.asm
 /*.rel

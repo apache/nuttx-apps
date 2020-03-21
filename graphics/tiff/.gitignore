@@ -1,6 +1,5 @@
 Make.dep
 .context
-.depend
 .built
 *.swp
 *.asm

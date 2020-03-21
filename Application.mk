@@ -217,15 +217,14 @@ else
 context::
 endif
 
-.depend: Makefile $(SRCS)
+Make.dep: Makefile $(SRCS)
 ifeq ($(filter %$(CXXEXT),$(SRCS)),)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$^) >Make.dep
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$^) >$@
 else
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Makefile,$^) >Make.dep
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Makefile,$^) >$@
 endif
-	$(Q) touch $@
 
-depend:: .depend
+depend:: Make.dep
 
 clean::
 	$(call DELFILE, .built)
@@ -233,6 +232,5 @@ clean::
 
 distclean:: clean
 	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
 
 -include Make.dep
