@@ -46,7 +46,7 @@
 #include <sys/boardctl.h>
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
-#  include "platform/configdata.hr"
+#  include "platform/configdata.h"
 #endif
 
 #if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)

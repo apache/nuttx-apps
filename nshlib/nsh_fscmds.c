@@ -608,7 +608,8 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 {
                   /* Read error */
 
-                  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
+                  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "read",
+                            NSH_ERRNO);
                 }
 
               goto errout_with_wrfd;
@@ -795,7 +796,7 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       setup.filename = filepath;  /* The file or character device to use */
       setup.sectsize = 512;       /* The sector size to use with the block device */
       setup.offset   = offset;    /* An offset that may be applied to the device */
-      setup.readonly = readonly;    /* True: Read access will be supported only */
+      setup.readonly = readonly;  /* True: Read access will be supported only */
 
       ret = ioctl(fd, LOOPIOC_SETUP, (unsigned long)((uintptr_t)&setup));
       if (ret < 0)
@@ -1420,7 +1421,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   desc.minor    = minor;         /* Minor device number of the RAM disk. */
   desc.nsectors = nsectors;      /* The number of sectors in the RAM disk. */
   desc.sectsize = sectsize;      /* The size of one sector in bytes. */
-  desc.rdflags  = RDFLAG_WRENABLED | RDFLAG_FUNLINK;  /* See ramdisk.h. */
+  desc.rdflags  = RDFLAG_WRENABLED | RDFLAG_FUNLINK;
 
   ret = boardctl(BOARDIOC_MKRD, (uintptr_t)&desc);
   if (ret < 0)
@@ -1852,8 +1853,8 @@ int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           else
             {
               /* We successfully performed the create and now have a zero-
-               * length file.  Perform the truncation to extend the allocation
-               * (unless we really wanted a zero-length file).
+               * length file.  Perform the truncation to extend the
+               * allocation (unless we really wanted a zero-length file).
                */
 
               ret = OK;
