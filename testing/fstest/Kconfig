@@ -6,7 +6,6 @@
 config TESTING_FSTEST
 	tristate "Generic file system test"
 	default n
-	depends on FS_READABLE && FS_WRITABLE
 	---help---
 		Enable the generic file system test
 

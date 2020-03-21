@@ -6,7 +6,6 @@
 config FSUTILS_PASSWD
 	bool "Password file support"
 	default n
-	depends on FS_READABLE
 	---help---
 		Enables support for /etc/passwd file access routines
 
@@ -19,7 +18,6 @@ config FSUTILS_PASSWD_PATH
 config FSUTILS_PASSWD_READONLY
 	bool "Read-only /etc/passwd file?"
 	default n
-	depends on FS_WRITABLE
 
 config FSUTILS_PASSWD_IOBUFFER_SIZE
 	int "Allocated I/O buffer size"

@@ -7,7 +7,6 @@ config INTERPRETERS_BAS
 	tristate "Basic Interpreter support"
 	default n
 	select LIBC_FLOATINGPOINT
-	depends on FS_READABLE
 	---help---
 		This is a Basic interpreter written by Michael Haardt
 
