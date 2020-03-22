@@ -58,16 +58,16 @@ else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
 endif
 
 define DIR_template
-$(1)_$(2): $(4)
+$(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(FSIMG_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC) $(PASS1_SYMTAB)
 .PHONY: all build clean install populate
 
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build,all,)))
-$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean,)))
-$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install,$(DIR)_build)))
+$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
+$(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
+$(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
 
 # Build program(s) in each sud-directory
 
