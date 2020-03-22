@@ -58,7 +58,7 @@ SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 # Build targets
 
 all: $(BIN)
-.PHONY: import install dirlinks context context_serialize clean_context context_rest export .depdirs preconfig depend clean distclean
+.PHONY: import install dirlinks context context_serialize clean_context context_rest export preconfig depend clean distclean
 .PRECIOUS: $(BIN)
 
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
@@ -155,12 +155,7 @@ ifneq ($(BUILTIN_REGISTRY),)
 endif
 endif
 
-.depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
-
-.depend: Makefile .depdirs
-	$(Q) touch $@
-
-depend: .depend
+depend: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
 clean_context:
 	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
@@ -189,7 +184,6 @@ else
 	)
 endif
 	$(call DELFILE, *.lock)
-	$(call DELFILE, .depend)
 	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
