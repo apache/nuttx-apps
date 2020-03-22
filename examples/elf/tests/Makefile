@@ -142,7 +142,7 @@ $(DIRLIST_HDR) : populate
 
 $(SYMTAB_SRC): populate
 	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@.tmp
-	$(Q) mv $@.tmp $@
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
 
