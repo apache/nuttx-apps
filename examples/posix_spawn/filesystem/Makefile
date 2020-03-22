@@ -79,7 +79,7 @@ $(ROMFS_HDR) : $(ROMFS_IMG)
 
 $(SYMTAB_SRC): $(ROMFS_IMG)
 	$(Q) $(FILESYSTEM_DIR)$(DELIM)mksymtab.sh $(ROMFS_DIR) >$@.tmp
-	$(Q) mv $@.tmp $@
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
 
