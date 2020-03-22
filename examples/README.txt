@@ -231,7 +231,7 @@ examples/dac
 examples/dhcpd
 ^^^^^^^^^^^^^^
 
-  This examples builds a tiny DCHP server for the target system.
+  This examples builds a tiny DHCP server for the target system.
 
   NOTE: For test purposes, this example can be built as a
   host-based DHCPD server.  This can be built as follows:
