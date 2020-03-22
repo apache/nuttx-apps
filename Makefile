@@ -61,17 +61,6 @@ all: $(BIN)
 .PHONY: import install dirlinks context context_serialize clean_context context_rest export .depdirs preconfig depend clean distclean
 .PRECIOUS: $(BIN)
 
-define MAKE_template
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-
-endef
-
-define SDIR_template
-$(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-
-endef
-
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
