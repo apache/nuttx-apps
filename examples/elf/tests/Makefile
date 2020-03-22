@@ -94,10 +94,8 @@ build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 # Install each program in the file system image directory
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
-ifneq ($(STRIP),)
-ifneq ($(CONFIG_EXAMPLES_ELF_NOSTRIP),y)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
 	$(Q) $(STRIP) $(wildcard $(FSIMG_SUBDIR)/*)
-endif
 endif
 
 # Create the file system image directory

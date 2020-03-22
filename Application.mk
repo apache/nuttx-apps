@@ -112,8 +112,6 @@ endef
 define ELFLD
 	@echo "LD: $2"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
-#	$(Q) $(STRIP) $2
-	$(Q) chmod +x $2
 endef
 
 $(AOBJS): %$(SUFFIX)$(OBJEXT): %.S
@@ -157,6 +155,9 @@ ifeq ($(WINTOOL),y)
 	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
 else
 	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))
+endif
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(firstword $(PROGLIST))
 endif
 	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
