@@ -44,11 +44,6 @@ all: nothing
 
 .PHONY: nothing context depend clean distclean
 
-define SDIR_template
-$(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BINDIR="$(BINDIR)"
-endef
-
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
