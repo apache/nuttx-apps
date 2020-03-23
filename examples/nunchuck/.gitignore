@@ -1,5 +1,6 @@
 /Make.dep
 /.context
+/.depend
 /.built
 /*.asm
 /*.rel

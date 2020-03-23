@@ -1,4 +1,5 @@
 /.built
+/.depend
 /Make.dep
 board
 /*.src
