@@ -1,4 +1,5 @@
 /Make.dep
+/.depend
 /.built
 /bridge_config.h
 /host1

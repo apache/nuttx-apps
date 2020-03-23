@@ -1,5 +1,6 @@
 /init
 /Make.dep
+/.depend
 /.built
 /*.asm
 /*.obj

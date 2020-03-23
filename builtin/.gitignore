@@ -1,4 +1,5 @@
 /.context
+/.depend
 /.built
 /Make.dep
 /builtin_list.h
