@@ -105,7 +105,7 @@ LDLIBSTDC_STUBS_DIR	= $(TOPDIR)/libxx
 LDLIBSTDC_STUBS_LIB	= $(LDLIBSTDC_STUBS_DIR)/liblibxx.a
 
 all: $(BIN1) $(BIN2) $(BIN3) $(BIN4) $(BIN5)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(OBJS): %$(OBJEXT): %.cpp
 	@echo "CC: $<"
@@ -154,24 +154,39 @@ endif
 $(FSIMG_DIR)/$(BIN1): $(BIN1)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN1) $(FSIMG_DIR)/$(BIN1)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN1)
+endif
 
 $(FSIMG_DIR)/$(BIN2): $(BIN2)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN2) $(FSIMG_DIR)/$(BIN2)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN2)
+endif
 
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 $(FSIMG_DIR)/$(BIN3): $(BIN3)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN3) $(FSIMG_DIR)/$(BIN3)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN3)
+endif
 
 ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
 $(FSIMG_DIR)/$(BIN4): $(BIN4)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN4) $(FSIMG_DIR)/$(BIN4)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN4)
+endif
 
 $(FSIMG_DIR)/$(BIN5): $(BIN5)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN5) $(FSIMG_DIR)/$(BIN5)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN5)
+endif
 endif
 endif
 

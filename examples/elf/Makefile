@@ -51,11 +51,14 @@ ROOTDEPPATH := --dep-path tests
 
 VPATH += :tests
 
-context::
-	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+elf_main.c: build
+tests/symtab.c: build
+
+.PHONY: build
+build:
+	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean::
-	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-	$(call CLEAN)
+	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
 
 include $(APPDIR)/Application.mk

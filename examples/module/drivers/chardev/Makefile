@@ -34,7 +34,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 OBJEXT ?= .o
 DELIM ?= /
@@ -65,8 +64,8 @@ LDLIBPATH +=  -L $(NUTTXLIB)
 endif
 
 ifeq ($(CONFIG_EXAMPLES_MODULE_LIBC),y)
-ifeq ($(CONFIG_BUILD_PROTECTED),y)
-LDLIBS += -luc
+ifneq ($(CONFIG_BUILD_FLAT),y)
+LDLIBS += -lkc
 else
 LDLIBS += -lc
 endif
@@ -78,7 +77,7 @@ SRCS = $(BIN).c
 OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
-.PHONY: clean install
+.PHONY: all clean install
 
 $(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"
@@ -91,6 +90,9 @@ $(BIN): $(OBJS)
 $(FSROOT_DIR)/$(BIN): $(BIN)
 	$(Q) mkdir -p $(FSROOT_DIR)
 	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+	$(Q) $(STRIP) $(FSROOT_DIR)/$(BIN)
+endif
 
 install: $(FSROOT_DIR)/$(BIN)
 

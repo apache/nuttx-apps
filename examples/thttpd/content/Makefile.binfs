@@ -39,47 +39,42 @@ PROGNAME = hello tasks
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
+CSRCS = hello.c tasks.c
+
+ROOTDEPPATH += --dep-path hello --dep-path tasks
+VPATH += :hello:tasks
+
+include $(APPDIR)/Application.mk
+
 THTTPD_DIR = $(APPDIR)/examples/thttpd
 CONTENT_DIR = $(THTTPD_DIR)/content
 ROMFS_DIR = $(CONTENT_DIR)/romfs
 ROMFS_IMG = $(CONTENT_DIR)/romfs.img
 ROMFS_HDR = $(CONTENT_DIR)/romfs.h
 
-CSRCS = hello.c tasks.c
-
-ROOTDEPPATH += --dep-path hello --dep-path tasks
-VPATH += :hello:tasks
-
-# Create the romfs directory
-
-$(ROMFS_DIR):
-	@mkdir -p $(ROMFS_DIR)
-
 # Populate the romfs directory
 
 $(ROMFS_DIR)/index.html : $(CONTENT_DIR)/index.html
-	@cp -a $< $@ || { echo "cp of index.html failed"; exit 1; }
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) cp -a $< $@ || { echo "cp of index.html failed"; exit 1; }
 
 $(ROMFS_DIR)/style.css : $(CONTENT_DIR)/style.css
-	@cp -a $< $@ || { echo "cp of $< failed"; exit 1; }
-
-populate: $(ROMFS_DIR) $(ROMFS_DIR)/index.html  $(ROMFS_DIR)/style.css
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) cp -a $< $@ || { echo "cp of $< failed"; exit 1; }
 
 # Create the romfs.img file from the populated romfs directory
 
-$(ROMFS_IMG): populate
-	@genromfs -f $@ -d $(ROMFS_DIR) -V "THTTPDTEST"
+$(ROMFS_IMG): $(ROMFS_DIR)/index.html $(ROMFS_DIR)/style.css
+	$(Q) genromfs -f $@ -d $(ROMFS_DIR) -V "THTTPDTEST"
 
 # Create the romfs.h header file from the romfs.img file
 
-$(ROMFS_HDR) : $(ROMFS_IMG)
-	@(cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_HDR): $(ROMFS_IMG)
+	$(Q) (cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 
-context:: $(ROMFS_HDR)
+all:: $(ROMFS_HDR)
 
 clean::
-	$(call DELFILE$(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_HDR))
 	$(call DELFILE, $(ROMFS_IMG))
-	@rm -rf $(ROMFS_DIR)
-
-include $(APPDIR)/Application.mk
+	$(Q) rm -rf $(ROMFS_DIR)
