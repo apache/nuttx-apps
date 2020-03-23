@@ -50,7 +50,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 NUTTXINC = $(TOPDIR)/include
 APPSINC  = $(APPDIR)/include

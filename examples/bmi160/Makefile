@@ -34,7 +34,6 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
--include $(SDKDIR)/Make.defs
 
 # sixaxis built-in application info
 

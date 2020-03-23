@@ -33,7 +33,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
 # Sub-directories
@@ -69,5 +68,3 @@ distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
 ifneq ($(MENUDESC),)
 	$(call DELFILE, Kconfig)
 endif
-
--include Make.dep

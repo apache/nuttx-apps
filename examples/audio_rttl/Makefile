@@ -33,10 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
--include $(SDKDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Audio application info
 
@@ -51,17 +48,7 @@ STACKSIZE = $(CONFIG_EXAMPLES_AUDIO_BEEP_STACKSIZE)
 
 MAINSRC = audio_rttl.cxx
 
-# Audio Example paths
-
-AUDIODIR = $(SDKDIR)$(DELIM)modules$(DELIM)audio
-
 # Audio Example flags
-
-ifeq ($(WINTOOL),y)
-CXXFLAGS += -I "${shell cygpath -w $(AUDIODIR)}"
-else
-CXXFLAGS += -I $(AUDIODIR)
-endif
 
 CXXFLAGS += -D_POSIX
 
