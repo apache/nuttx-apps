@@ -157,7 +157,8 @@ int main(int argc, FAR char *argv[])
   printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
          BINDIR, CONFIG_EXAMPLES_SOTEST_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, "romfs", MS_RDONLY,
+              NULL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
@@ -257,7 +258,8 @@ int main(int argc, FAR char *argv[])
   ret = dlclose(handle1);
   if (ret == 0)
     {
-      fprintf(stderr, "ERROR: dlclose(handle1) succeeded with a dependency\n");
+      fprintf(stderr,
+              "ERROR: dlclose(handle1) succeeded with a dependency\n");
       exit(EXIT_FAILURE);
     }
 #endif
