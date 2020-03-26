@@ -80,12 +80,12 @@ all: $(BIN)
 .PHONY: all clean install
 
 $(OBJS): %$(OBJEXT): %.c
-	@echo "CC: $<"
-	$(Q) $(CC) -c $(CMODULEFLAGS) $< -o $@
+	@echo "MODULECC: $<"
+	$(Q) $(MODULECC) -c $(CMODULEFLAGS) $< -o $@
 
 $(BIN): $(OBJS)
-	@echo "LD: $<"
-	$(Q) $(LD) $(LDMODULEFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+	@echo "MODULELD: $<"
+	$(Q) $(MODULELD) $(LDMODULEFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
 $(FSROOT_DIR)/$(BIN): $(BIN)
 	$(Q) mkdir -p $(FSROOT_DIR)
