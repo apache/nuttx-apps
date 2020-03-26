@@ -41,7 +41,7 @@ BUILDDIR := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 # Include paths
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
 
 # Source Files
 

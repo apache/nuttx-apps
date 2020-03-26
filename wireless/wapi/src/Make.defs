@@ -43,6 +43,6 @@ endif
 
 DEPPATH += --dep-path src
 VPATH += :src
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/wireless/wapi/src}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/wireless/wapi/src}
 
 endif

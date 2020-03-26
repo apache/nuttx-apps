@@ -138,6 +138,8 @@ endif
 ifeq ($(INCDIR),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.bat
+else ifeq ($(WINTOOL),y)
+  INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.sh -w
 else
   INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.sh
 endif
@@ -157,14 +159,10 @@ else
   MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
 endif
 
-ifeq ($(WINTOOL),y)
-  INCDIROPT = -w
-endif
-
 # Standard include path
 
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
 ifeq ($(WINTOOL),y)
   LDLIBS ?= "${shell cygpath -w $(BIN)}"

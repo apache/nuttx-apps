@@ -45,4 +45,4 @@ endif
 
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/modbus/nuttx}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/modbus/nuttx}

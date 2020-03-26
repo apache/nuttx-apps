@@ -59,7 +59,7 @@ endif
 MAINSRC = lvgldemo.c
 
 LVGLDIR=$(APPDIR)/graphics/littlevgl/lvgl
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LVGLDIR)"}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LVGLDIR)"}
+CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(LVGLDIR)"}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(LVGLDIR)"}
 
 include $(APPDIR)/Application.mk

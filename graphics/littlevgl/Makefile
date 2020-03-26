@@ -67,7 +67,7 @@ PATCH ?= patch -p0
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/littlevgl}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/littlevgl}
 
 $(LVGL_TARBALL):
 	@echo "Downloading: $(LVGL_TARBALL)"
