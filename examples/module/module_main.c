@@ -46,6 +46,7 @@
 #include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -213,7 +214,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, errno);
+              CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, strerror(errno));
       exit(EXIT_FAILURE);
     }
 
