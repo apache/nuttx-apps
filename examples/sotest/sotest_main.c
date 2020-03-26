@@ -45,6 +45,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <syslog.h>
 #include <dlfcn.h>
 #include <errno.h>
@@ -160,7 +161,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, errno);
+              CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, strerror(errno));
       exit(EXIT_FAILURE);
     }
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
