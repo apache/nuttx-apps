@@ -25,6 +25,6 @@ config EXAMPLES_GPIO_PRIORITY
 
 config EXAMPLES_GPIO_STACKSIZE
 	int "GPIO stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

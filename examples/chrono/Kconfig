@@ -24,6 +24,6 @@ config EXAMPLES_CHRONO_PRIORITY
 
 config EXAMPLES_CHRONO_STACKSIZE
 	int "Chrono stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

@@ -26,7 +26,7 @@ config EXAMPLES_NXIMAGE_PRIORITY
 
 config EXAMPLES_NXIMAGE_STACKSIZE
 	int "NX Image stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_NXIMAGE_BPP
 	int "Bits-Per-Pixel"
@@ -94,7 +94,7 @@ comment "NX Server Options"
 
 config EXAMPLES_NXIMAGE_LISTENER_STACKSIZE
 	int "NX Server/Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 

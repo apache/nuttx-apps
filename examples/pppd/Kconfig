@@ -14,6 +14,6 @@ if EXAMPLES_PPPD
 
 config EXAMPLES_PPPD_STACKSIZE
 	int "pppd example stack stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

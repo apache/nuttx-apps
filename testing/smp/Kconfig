@@ -35,6 +35,6 @@ config TESTING_SMP_PRIORITY
 
 config TESTING_SMP_STACKSIZE
 	int "SMP stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

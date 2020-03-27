@@ -44,6 +44,6 @@ config LIBCURL4NX_MINRXBUFLEN
 
 config LIBCURL4NX_MAXRXBUFLEN
 	int "Maximum RX buffer size for CURL4NXOPT_BUFFERSIZE"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

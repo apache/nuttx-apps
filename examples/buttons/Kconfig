@@ -25,7 +25,7 @@ config EXAMPLES_BUTTONS_PRIORITY
 
 config EXAMPLES_BUTTONS_STACKSIZE
 	int "Button stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_BUTTONS_DEVPATH
 	string "Button device path"

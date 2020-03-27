@@ -42,6 +42,6 @@ config SYSTEM_LZF_PRIORITY
 
 config SYSTEM_LZF_STACKSIZE
 	int "LZF tool stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

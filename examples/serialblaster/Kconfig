@@ -13,7 +13,7 @@ if EXAMPLES_SERIALBLASTER
 
 config EXAMPLES_SERIALBLASTER_STACKSIZE
 	int "CPU hog stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_SERIALBLASTER_PRIORITY
 	int "CPU hog task priority"

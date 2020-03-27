@@ -17,6 +17,6 @@ config EXAMPLES_PDCURSES_PRIORITY
 
 config EXAMPLES_PDCURSES_STACKSIZE
 	int "pdcurses stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

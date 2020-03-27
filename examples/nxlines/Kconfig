@@ -26,7 +26,7 @@ config EXAMPLES_NXLINES_PRIORITY
 
 config EXAMPLES_NXLINES_STACKSIZE
 	int "NX lines stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_NXLINES_DEFAULT_COLORS
 	bool "Use default colors"
@@ -89,7 +89,7 @@ comment "NX Server Options"
 
 config EXAMPLES_NXLINES_LISTENER_STACKSIZE
 	int "NX Server/Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 

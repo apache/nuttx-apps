@@ -19,7 +19,7 @@ config SYSTEM_TELNET_CHATD_PROGNAME
 
 config SYSTEM_TELNET_CHATD_STACKSIZE
 	int "Chat daemon stacksize"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_TELNET_CHATD_PRIORITY
 	int "Chat daemon priority"
@@ -44,7 +44,7 @@ config SYSTEM_TELNET_CLIENT_PROGNAME
 
 config SYSTEM_TELNET_CLIENT_STACKSIZE
 	int "Telnet client stacksize"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_TELNET_CLIENT_PRIORITY
 	int "Telnet client priority"

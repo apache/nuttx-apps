@@ -24,6 +24,6 @@ config SYSTEM_TASKSET_PRIORITY
 
 config SYSTEM_TASKSET_STACKSIZE
 	int "Taskset stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

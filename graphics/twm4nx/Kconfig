@@ -32,7 +32,7 @@ config TWM4NX_PRIORITY
 
 config TWM4NX_STACKSIZE
 	int "Twm4Nx stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config TWM4NX_REVMAJOR
 	string "Twm4Nx major version number"

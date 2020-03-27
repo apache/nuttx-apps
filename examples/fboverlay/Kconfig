@@ -25,6 +25,6 @@ config EXAMPLES_FBOVERLAY_PRIORITY
 
 config EXAMPLES_FBOVERLAY_STACKSIZE
 	int "Stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

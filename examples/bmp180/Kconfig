@@ -25,6 +25,6 @@ config EXAMPLES_BMP180_PRIORITY
 
 config EXAMPLES_BMP180_STACKSIZE
 	int "BMP180 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

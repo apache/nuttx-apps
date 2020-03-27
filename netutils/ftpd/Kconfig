@@ -14,6 +14,6 @@ if NETUTILS_FTPD
 
 config FTPD_WORKERSTACKSIZE
 	int "FTPD client thread stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

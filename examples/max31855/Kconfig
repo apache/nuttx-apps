@@ -24,6 +24,6 @@ config EXAMPLES_MAX31855_PRIORITY
 
 config EXAMPLES_MAX31855_STACKSIZE
 	int "max31855 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

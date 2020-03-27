@@ -46,6 +46,6 @@ config EXAMPLES_FT80X_PRIORITY
 
 config EXAMPLES_FT80X_STACKSIZE
 	int "FT80x stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

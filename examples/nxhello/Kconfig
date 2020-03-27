@@ -26,7 +26,7 @@ config EXAMPLES_NXHELLO_PRIORITY
 
 config EXAMPLES_NXHELLO_STACKSIZE
 	int "NX Hello stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_NXHELLO_BPP
 	int "Bits-Per-Pixel"
@@ -80,7 +80,7 @@ comment "NX Server Options"
 
 config EXAMPLES_NXHELLO_LISTENER_STACKSIZE
 	int "NX Server/Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 

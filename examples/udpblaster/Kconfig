@@ -21,7 +21,7 @@ config EXAMPLES_UDPBLASTER_PROGNAME
 
 config EXAMPLES_UDPBLASTER_STACKSIZE
 	int "Nettest stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_UDPBLASTER_PRIORITY
 	int "Nettest priority"

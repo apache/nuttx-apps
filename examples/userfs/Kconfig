@@ -24,6 +24,6 @@ config EXAMPLES_USERFS_PRIORITY
 
 config EXAMPLES_USERFS_STACKSIZE
 	int "UserFS stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

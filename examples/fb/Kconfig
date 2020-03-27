@@ -38,6 +38,6 @@ config EXAMPLES_FB_PRIORITY
 
 config EXAMPLES_FB_STACKSIZE
 	int "Stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

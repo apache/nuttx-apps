@@ -64,7 +64,7 @@ config EXAMPLES_FLOWC_PRIORITY1
 
 config EXAMPLES_FLOWC_STACKSIZE1
 	int "Target1 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_FLOWC_TARGET2
 	bool "Second endpoint is a target"
@@ -91,7 +91,7 @@ config EXAMPLES_FLOWC_PRIORITY2
 
 config EXAMPLES_FLOWC_STACKSIZE2
 	int "Target2 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif # EXAMPLES_FLOWC_TARGET2
 

@@ -15,7 +15,7 @@ if SYSTEM_NXPLAYER
 
 config NXPLAYER_MAINTHREAD_STACKSIZE
 	int "NxPlayer main thread stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Stack size to use with the NxPlayer main thread.
 

@@ -108,7 +108,7 @@ config EXAMPLES_PWFB_PROGNAME
 
 config EXAMPLES_PWFB_CLIENT_STACKSIZE
 	int "Example Main Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when starting the example main().
 		Default 2048
@@ -123,7 +123,7 @@ config EXAMPLES_PWFB_CLIENT_PRIO
 
 config EXAMPLES_PWFB_LISTENER_STACKSIZE
 	int "Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 

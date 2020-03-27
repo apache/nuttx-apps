@@ -95,7 +95,7 @@ config EXAMPLES_BRIDGE_NET1_HOSTPORT
 
 config EXAMPLES_BRIDGE_NET1_STACKSIZE
 	int "Network 1 daemon stacksize"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_BRIDGE_NET1_PRIORITY
 	int "Network 1 daemon task priority"
@@ -177,7 +177,7 @@ config EXAMPLES_BRIDGE_NET2_HOSTPORT
 
 config EXAMPLES_BRIDGE_NET2_STACKSIZE
 	int "Network 2 daemon stacksize"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_BRIDGE_NET2_PRIORITY
 	int "Network 2 daemon task priority"

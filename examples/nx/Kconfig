@@ -81,7 +81,7 @@ comment "NX Server Options"
 
 config EXAMPLES_NX_STACKSIZE
 	int "NX Server Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when creating the NX server.  Default 2048
 

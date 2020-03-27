@@ -43,6 +43,6 @@ config EXAMPLES_LIBCANARD_DAEMON_PRIORITY
 
 config EXAMPLES_LIBCANARD_STACKSIZE
 	int "canard stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

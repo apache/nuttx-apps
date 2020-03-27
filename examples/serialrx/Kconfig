@@ -13,7 +13,7 @@ if EXAMPLES_SERIALRX
 
 config EXAMPLES_SERIALRX_STACKSIZE
 	int "Serial RX stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_SERIALRX_PRIORITY
 	int "Serial RX task priority"

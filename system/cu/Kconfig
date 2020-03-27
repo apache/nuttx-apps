@@ -37,7 +37,7 @@ config SYSTEM_CUTERM_DEFAULT_BAUD
 
 config SYSTEM_CUTERM_STACKSIZE
 	int "CU terminal stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		This is the stack size that will be used when starting the CU terminal.
 

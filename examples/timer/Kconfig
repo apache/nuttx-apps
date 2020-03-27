@@ -45,7 +45,7 @@ config EXAMPLES_TIMER_SIGNO
 
 config EXAMPLES_TIMER_STACKSIZE
 	int "Timer stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		This is the stack size allocated when the timer task runs
 

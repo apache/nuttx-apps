@@ -24,6 +24,6 @@ config EXAMPLES_RFID_READUID_PRIORITY
 
 config EXAMPLES_RFID_READUID_STACKSIZE
 	int "RFID Read UID stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

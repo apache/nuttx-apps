@@ -22,7 +22,7 @@ config SYSTEM_ZMODEM_PRIORITY
 
 config SYSTEM_ZMODEM_STACKSIZE
 	int "rz/ez stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_ZMODEM_DEVNAME
 	string "Default Zmodem device"

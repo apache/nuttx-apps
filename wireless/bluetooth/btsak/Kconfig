@@ -24,7 +24,7 @@ config BTSAK_PRIORITY
 
 config BTSAK_STACKSIZE
 	int "btsak stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 if NET_6LOWPAN && !NET_BLUETOOTH
 

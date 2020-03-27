@@ -12,7 +12,7 @@ if SYSTEM_NETDB
 
 config SYSTEM_NETDB_STACKSIZE
 	int "netdb task stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_NETDB_PRIORITY
 	int "netdb task priority"

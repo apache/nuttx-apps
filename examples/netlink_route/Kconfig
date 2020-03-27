@@ -25,6 +25,6 @@ config EXAMPLES_NETLINK_ROUTE_PRIORITY
 
 config EXAMPLES_NETLINK_ROUTE_STACKSIZE
 	int "Stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

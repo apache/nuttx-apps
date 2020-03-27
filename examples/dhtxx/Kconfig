@@ -24,6 +24,6 @@ config EXAMPLES_DHTXX_PRIORITY
 
 config EXAMPLES_DHTXX_STACKSIZE
 	int "Dhtxx stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

@@ -17,7 +17,7 @@ if SYSTEM_STACKMONITOR
 
 config SYSTEM_STACKMONITOR_STACKSIZE
 	int "Stack monitor daemon stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stack size to use the stack monitor daemon.  Default: 2048
 

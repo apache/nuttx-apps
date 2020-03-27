@@ -36,7 +36,7 @@ config EXAMPLES_EMBEDLOG_PRIORITY
 
 config EXAMPLES_EMBEDLOG_STACKSIZE
 	int "embedlog example stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif #EXAMPLES_EMBEDLOG
 endif #SYSTEM_EMBEDLOG

@@ -21,6 +21,6 @@ config EXAMPLES_AUDIO_SOUND_PRIORITY
 
 config EXAMPLES_AUDIO_SOUND_STACKSIZE
 	int "Audio sound stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

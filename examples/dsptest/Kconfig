@@ -24,6 +24,6 @@ config EXAMPLES_DSPTEST_PRIORITY
 
 config EXAMPLES_DSPTEST_STACKSIZE
 	int "Dsptest stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif
