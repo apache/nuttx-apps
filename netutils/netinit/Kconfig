@@ -109,7 +109,7 @@ endif # NETINIT_MONITOR
 
 config NETINIT_THREAD_STACKSIZE
 	int "Network initialization thread stack size"
-	default 1568
+	default DEFAULT_TASK_STACKSIZE
 
 config NETINIT_THREAD_PRIORITY
 	int "Network initialization thread priority"
