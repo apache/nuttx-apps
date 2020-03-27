@@ -55,7 +55,9 @@ depend:
 clean:
 	$(call CLEAN)
 
-distclean: clean
+clean_context:
 	$(call DELFILE, *.bdat)
 	$(call DELFILE, *.pdat)
+
+distclean: clean
 	$(call DELFILE, .updated)

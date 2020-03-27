@@ -154,6 +154,7 @@ depend: .depend
 
 clean_context:
 	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C builtin/registry clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
