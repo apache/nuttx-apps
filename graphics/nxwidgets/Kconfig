@@ -54,7 +54,7 @@ config NXWIDGETS_LISTENERPRIO
 
 config NXWIDGETS_LISTENERSTACK
 	int "NX Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		NX listener thread stack size (in multi-user mode).  Default 2048
 

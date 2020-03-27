@@ -25,6 +25,6 @@ config EXAMPLES_GPS_PRIORITY
 
 config EXAMPLES_GPS_STACKSIZE
 	int "GPS stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

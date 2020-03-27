@@ -35,7 +35,7 @@ config EXAMPLES_ONESHOT_SIGNO
 
 config EXAMPLES_ONESHOT_STACKSIZE
 	int "Oneshot timer stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		This is the stack size allocated when the oneshot timer task runs
 

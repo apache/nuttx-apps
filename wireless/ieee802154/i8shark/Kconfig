@@ -18,7 +18,7 @@ config IEEE802154_I8SHARK_DAEMON_PRIORITY
 
 config IEEE802154_I8SHARK_DAEMON_STACKSIZE
 	int "i8shark stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config IEEE802154_I8SHARK_DEVPATH
 	string "MAC char driver path"

@@ -59,7 +59,7 @@ config PSMQD_PRIORITY
 
 config PSMQD_STACKSIZE
 	int "psmqd broker stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config PSMQ_TOOLS_PUB
 	bool "Enable psmq_pub tool"
@@ -76,7 +76,7 @@ config PSMQ_PUB_PRIORITY
 
 config PSMQ_PUB_STACKSIZE
 	int "psmq_pub broker stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif # PSMQ_TOOLS_PUB
 
@@ -96,7 +96,7 @@ config PSMQ_SUB_PRIORITY
 
 config PSMQ_SUB_STACKSIZE
 	int "psmq_sub broker stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif # PSMQ_TOOLS_SUB
 endif # SYSTEM_PSMQ

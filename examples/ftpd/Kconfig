@@ -13,6 +13,6 @@ if EXAMPLES_FTPD
 
 config EXAMPLES_FTPD_STACKSIZE
 	int "FTP Daemon Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

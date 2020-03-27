@@ -25,6 +25,6 @@ config EXAMPLES_VEML6070_PRIORITY
 
 config EXAMPLES_VEML6070_STACKSIZE
 	int "VEML6070 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

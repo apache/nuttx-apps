@@ -24,6 +24,6 @@ config TESTING_MM_PRIORITY
 
 config TESTING_MM_STACKSIZE
 	int "Stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

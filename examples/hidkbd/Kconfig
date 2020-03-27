@@ -20,7 +20,7 @@ config EXAMPLES_HIDKBD_PROGNAME
 
 config EXAMPLES_HIDKBD_STACKSIZE
 	int "Task stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_HIDKBD_DEFPRIO
 	int "Task priority"

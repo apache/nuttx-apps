@@ -40,6 +40,6 @@ config EXAMPLES_IPFORWARD_PRIORITY
 
 config EXAMPLES_IPFORWARD_STACKSIZE
 	int "IP forwarding stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

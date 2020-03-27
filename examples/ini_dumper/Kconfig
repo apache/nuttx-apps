@@ -26,7 +26,7 @@ config EXAMPLES_INI_DUMPER_PRIORITY
 
 config EXAMPLES_INI_DUMPER_STACKSIZE
 	int "ini dumper example stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif #EXAMPLES_INI_DUMPER
 endif #SYSTEM_INI_DUMPER

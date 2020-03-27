@@ -24,6 +24,6 @@ config EXAMPLES_HELLO_PRIORITY
 
 config EXAMPLES_HELLO_STACKSIZE
 	int "Hello stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

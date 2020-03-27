@@ -26,6 +26,6 @@ config DHCPC_RENEW_PRIORITY
 
 config DHCPC_RENEW_STACKSIZE
 	int "DHCPC stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

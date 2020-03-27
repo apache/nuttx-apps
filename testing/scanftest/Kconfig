@@ -28,6 +28,6 @@ config TESTING_SCANFTEST_PRIORITY
 
 config TESTING_SCANFTEST_STACKSIZE
 	int "Scanftest stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

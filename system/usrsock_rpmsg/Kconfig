@@ -20,7 +20,7 @@ config SYSTEM_USRSOCK_RPMSG_PRIORITY
 
 config SYSTEM_USRSOCK_RPMSG_STACKSIZE
 	int "usrsock task stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stack size allocated for the usrsock task.
 

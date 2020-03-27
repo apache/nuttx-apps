@@ -25,6 +25,6 @@ config SYSTEM_PING6_PRIORITY
 
 config SYSTEM_PING6_STACKSIZE
 	int "Ping stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

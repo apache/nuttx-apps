@@ -73,7 +73,7 @@ config SYSTEM_VI_DEBUGLEVEL
 
 config SYSTEM_VI_STACKSIZE
 	int "Builtin task stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Size of the task to configure when started VI from NSH
 

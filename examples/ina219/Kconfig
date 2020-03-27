@@ -24,6 +24,6 @@ config EXAMPLES_INA219_PRIORITY
 
 config EXAMPLES_INA219_STACKSIZE
 	int "INA219 stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

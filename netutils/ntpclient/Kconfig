@@ -28,7 +28,7 @@ config NETUTILS_NTPCLIENT_PORTNO
 
 config NETUTILS_NTPCLIENT_STACKSIZE
 	int "NTP client daemon stack stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config NETUTILS_NTPCLIENT_SERVERPRIO
 	int "NTP client daemon priority"

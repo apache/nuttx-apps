@@ -19,7 +19,7 @@ config EXAMPLES_NETLOOP_KEEPALIVE
 
 config EXAMPLES_NETLOOP_STACKSIZE
 	int "Loopback test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_NETLOOP_PRIORITY
 	int "Loopback test task priority"

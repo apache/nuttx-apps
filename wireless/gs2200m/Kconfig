@@ -23,6 +23,6 @@ config WIRELESS_GS2200M_PRIORITY
 
 config WIRELESS_GS2200M_STACKSIZE
 	int "gs2200m stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

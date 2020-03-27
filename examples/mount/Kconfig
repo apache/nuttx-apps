@@ -35,7 +35,7 @@ if !EXAMPLES_MOUNT_BLOCKDEVICE
 
 config EXAMPLES_MOUNT_NSECTORS
 	int "RAM disk number of sectors"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The number of "sectors" in the RAM disk used when
 		EXAMPLES_MOUNT_BLOCKDEVICE is not selected.

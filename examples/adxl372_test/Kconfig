@@ -24,6 +24,6 @@ config EXAMPLES_ADXL372_TEST_PRIORITY
 
 config EXAMPLES_ADXL372_TEST_STACKSIZE
 	int "adxl372_test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

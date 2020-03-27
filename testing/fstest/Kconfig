@@ -24,7 +24,7 @@ config TESTING_FSTEST_PRIORITY
 
 config TESTING_FSTEST_STACKSIZE
 	int "FS test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config TESTING_FSTEST_MAXNAME
 	int "Max name size"

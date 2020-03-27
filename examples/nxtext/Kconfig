@@ -108,7 +108,7 @@ comment "NX Server Options"
 
 config EXAMPLES_NXTEXT_STACKSIZE
 	int "Listener Stack Size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The stacksize to use when starting the NX listener.  Default 2048
 

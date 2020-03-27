@@ -30,7 +30,7 @@ config WIRELESS_WAPI_PROGNAME
 
 config WIRELESS_WAPI_STACKSIZE
 	int "Stack Size (bytes)"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config WIRELESS_WAPI_PRIORITY
 	int "Command Priority"

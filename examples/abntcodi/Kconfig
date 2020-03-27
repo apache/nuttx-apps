@@ -25,6 +25,6 @@ config EXAMPLES_ABNTCODI_PRIORITY
 
 config EXAMPLES_ABNTCODI_STACKSIZE
 	int "ABNTCODI stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

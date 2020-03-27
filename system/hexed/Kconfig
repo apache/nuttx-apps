@@ -13,7 +13,7 @@ if SYSTEM_HEXED
 
 config SYSTEM_HEXED_STACKSIZE
 	int "hexed stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the hexed task.
 

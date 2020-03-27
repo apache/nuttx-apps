@@ -28,5 +28,5 @@ config EXAMPLES_BATTERY_PRIORITY
 
 config EXAMPLES_BATTERY_STACKSIZE
 	int "Battery stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 endif

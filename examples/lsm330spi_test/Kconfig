@@ -24,6 +24,6 @@ config EXAMPLES_LSM330SPI_TEST_PRIORITY
 
 config EXAMPLES_LSM330SPI_TEST_STACKSIZE
 	int "lsm330spi_test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

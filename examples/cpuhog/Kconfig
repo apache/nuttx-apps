@@ -14,7 +14,7 @@ if EXAMPLES_CPUHOG
 
 config EXAMPLES_CPUHOG_STACKSIZE
 	int "CPU hog stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_CPUHOG_PRIORITY
 	int "CPU hog task priority"

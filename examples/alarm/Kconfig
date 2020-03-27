@@ -25,7 +25,7 @@ config EXAMPLES_ALARM_PRIORITY
 
 config EXAMPLES_ALARM_STACKSIZE
 	int "Alarm stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_ALARM_DEVPATH
 	string "RTC device path"

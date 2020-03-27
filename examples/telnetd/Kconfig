@@ -45,7 +45,7 @@ config EXAMPLES_TELNETD_DAEMONPRIO
 
 config EXAMPLES_TELNETD_DAEMONSTACKSIZE
 	int "Telnet daemon stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Stack size allocated for the Telnet daemon. Default: 2048
 
@@ -57,7 +57,7 @@ config EXAMPLES_TELNETD_CLIENTPRIO
 
 config EXAMPLES_TELNETD_CLIENTSTACKSIZE
 	int "Telnet client stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Stack size allocated for the Telnet client. Default: 2048
 

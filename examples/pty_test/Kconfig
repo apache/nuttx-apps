@@ -34,7 +34,7 @@ config EXAMPLES_PTYTEST_PRIORITY
 
 config EXAMPLES_PTYTEST_STACKSIZE
 	int "PTYTest stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_PTYTEST_DAEMONPRIO
 	int "PTY_Test daemon task priority"

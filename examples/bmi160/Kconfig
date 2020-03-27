@@ -24,6 +24,6 @@ config EXAMPLES_SIXAXIS_PRIORITY
 
 config EXAMPLES_SIXAXIS_STACKSIZE
 	int "sixaxis stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

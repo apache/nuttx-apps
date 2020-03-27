@@ -19,7 +19,7 @@ config SYSTEM_NSH_PRIORITY
 
 config SYSTEM_NSH_STACKSIZE
 	int "Nuttx shell stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_NSH_SYMTAB
 	bool "Register symbol table"

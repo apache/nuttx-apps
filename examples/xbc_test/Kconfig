@@ -30,6 +30,6 @@ config EXAMPLES_XBC_TEST_PRIORITY
 
 config EXAMPLES_XBC_TEST_STACKSIZE
 	int "XBox Controller Test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

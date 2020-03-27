@@ -31,6 +31,6 @@ config EXAMPLES_APDS9960_PRIORITY
 
 config EXAMPLES_APDS9960_STACKSIZE
 	int "APDS-9960 Test stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

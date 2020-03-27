@@ -24,6 +24,6 @@ config EXAMPLES_UID_PRIORITY
 
 config EXAMPLES_UID_STACKSIZE
 	int "UID/GID stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

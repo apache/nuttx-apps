@@ -14,7 +14,7 @@ if SYSTEM_CFGDATA
 
 config SYSTEM_CFGDATA_STACKSIZE
 	int "Builtin task stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Size of the task to configure when started cfgdata from NSH
 

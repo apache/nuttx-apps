@@ -20,6 +20,6 @@ config SYSTEM_NTPC_PRIORITY
 
 config SYSTEM_NTPC_STACKSIZE
 	int "NTPC stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

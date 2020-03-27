@@ -26,6 +26,6 @@ config EXAMPLES_CHARGER_PRIORITY
 
 config EXAMPLES_CHARGER_STACKSIZE
 	int "charger stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

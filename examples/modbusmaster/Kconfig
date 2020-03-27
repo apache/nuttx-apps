@@ -24,7 +24,7 @@ config EXAMPLES_MODBUSMASTER_PRIORITY
 
 config EXAMPLES_MODBUSMASTER_STACKSIZE
 	int "Modbus Master stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 config EXAMPLES_MODBUSMASTER_PORT
 	int "Modbus Master port (1 for /dev/ttyS1)"

@@ -25,6 +25,6 @@ config EXAMPLES_SYSTEM_PRIORITY
 
 config EXAMPLES_SYSTEM_STACKSIZE
 	int "System stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 
 endif

@@ -82,7 +82,7 @@ config THTTPD_CGI_PRIORITY
 
 config THTTPD_CGI_STACKSIZE
 	int "CGI child stack size"
-	default 2048
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Provides the default stack size of CGI child task (will be overridden
 		by the stack size in the NXFLAT header)
