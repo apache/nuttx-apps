@@ -26,8 +26,7 @@ config SYSTEM_POPEN_SHPATH
 
 config SYSTEM_POPEN_STACKSIZE
 	int "Shell stack size"
-	default 2048 if !ARCH_SIM
-	default 4096 if ARCH_SIM
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the shell.
 

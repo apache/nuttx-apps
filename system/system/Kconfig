@@ -25,8 +25,7 @@ config SYSTEM_SYSTEM_SHPATH
 
 config SYSTEM_SYSTEM_STACKSIZE
 	int "system stack size"
-	default 2048 if !ARCH_SIM
-	default 4096 if ARCH_SIM
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the shell.
 
