@@ -24,6 +24,6 @@ config SYSTEM_RAMTEST_PRIORITY
 
 config SYSTEM_RAMTEST_STACKSIZE
 	int "RAM test stack size"
-	default 1024
+	default DEFAULT_TASK_STACKSIZE
 
 endif
