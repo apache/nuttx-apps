@@ -37,7 +37,7 @@ config EXAMPLES_I2SCHAR_TXBUFFERS
 
 config EXAMPLES_I2SCHAR_TXSTACKSIZE
 	int "Transmitter thread stack size"
-	default 1536
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		This is the stack size to use when starting the transmitter thread.
 
@@ -62,7 +62,7 @@ config EXAMPLES_I2SCHAR_RXBUFFERS
 
 config EXAMPLES_I2SCHAR_RXSTACKSIZE
 	int "Receiver thread stack size"
-	default 1536
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		This is the stack size to use when starting the receiver thread.
 

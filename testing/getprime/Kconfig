@@ -25,6 +25,6 @@ config TESTING_GETPRIME_PRIORITY
 
 config TESTING_GETPRIME_STACKSIZE
 	int "getprime stack size"
-	default 1024
+	default DEFAULT_TASK_STACKSIZE
 
 endif
