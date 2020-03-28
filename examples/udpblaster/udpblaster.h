@@ -51,6 +51,8 @@
 #ifdef UDPBLASTER_HOST
    /* HTONS/L macros are unique to uIP */
 
+#  undef HTONS
+#  undef HTONL
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
 
