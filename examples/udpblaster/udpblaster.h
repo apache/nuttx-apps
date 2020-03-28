@@ -49,14 +49,14 @@
  ****************************************************************************/
 
 #ifdef UDPBLASTER_HOST
-   /* HTONS/L macros are unique to uIP */
+/* HTONS/L macros are unique to uIP */
 
 #  undef HTONS
 #  undef HTONL
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
 
-   /* Have SO_LINGER */
+/* Have SO_LINGER */
 
 #  define UDPBLASTER_HAVE_SOLINGER 1
 
