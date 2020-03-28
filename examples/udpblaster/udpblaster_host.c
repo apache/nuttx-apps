@@ -50,6 +50,10 @@
 #include "udpblaster.h"
 
 /****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
  * main
  ****************************************************************************/
 
@@ -115,10 +119,13 @@ int main(int argc, char **argv, char **envp)
    * bits/sec     = CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE
    * bytes/sec    = CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE / 8
    * packets/sec  = (bytes/sec) / (bytes/packet)
-   *              = CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE / UDPBLASTER_SENDSIZE / 8
+   *              = CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE /
+   *                UDPBLASTER_SENDSIZE / 8
    * delay        = microseconds/packet
-   *              = (1000000 * UDPBLASTER_SENDSIZE) / CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE / 8
-   *              = (125000 * UDPBLASTER_SENDSIZE) / CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE
+   *              = (1000000 * UDPBLASTER_SENDSIZE) /
+   *                CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE / 8
+   *              = (125000 * UDPBLASTER_SENDSIZE) /
+   *                CONFIG_EXAMPLES_UDPBLASTER_HOSTRATE
    */
 
   sendsize = UDPBLASTER_SENDSIZE;
@@ -127,7 +134,7 @@ int main(int argc, char **argv, char **envp)
   npackets = 0;
   ndots    = 0;
 
-  for (;;)
+  for (; ; )
     {
       ret = sendto(sockfd, g_udpblaster_text, sendsize, 0,
                    (struct sockaddr *)&target, addrlen);
@@ -143,10 +150,10 @@ int main(int argc, char **argv, char **envp)
           npackets = 0;
 
           if (++ndots >= 50)
-          {
-            putchar('\n');
-            ndots = 0;
-          }
+            {
+              putchar('\n');
+              ndots = 0;
+            }
         }
 
       usleep(delay);
