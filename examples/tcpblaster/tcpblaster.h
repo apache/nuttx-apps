@@ -80,7 +80,7 @@
 #undef NTOHL
 #define NTOHL(hl) HTONL(hl)
 
-   /* Have SO_LINGER */
+/* Have SO_LINGER */
 
 #  define FAR
 #  define TCPBLASTER_HAVE_SOLINGER 1
