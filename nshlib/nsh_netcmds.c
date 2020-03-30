@@ -58,10 +58,8 @@
 #include <errno.h>
 #include <debug.h>
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
-#  ifndef CONFIG_NSH_DISABLE_NSLOOKUP
-#    include <netdb.h>
-#  endif
+#if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+#  include <netdb.h>
 #endif
 
 #include <net/ethernet.h>
@@ -961,82 +959,52 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 #endif
 
-
 /****************************************************************************
  * Name: cmd_nslookup
  ****************************************************************************/
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \
-   !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+#if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
 int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR struct hostent *host;
-  FAR const char *addrtype;
+  FAR struct addrinfo *info;
+  FAR struct addrinfo *next;
   char buffer[48];
+  int ret;
 
   /* We should be guaranteed this by the command line parser */
 
   DEBUGASSERT(argc == 2);
 
-  /* Get the matching address + any aliases */
+  /* Get the matching address + canonical name */
 
-  host = gethostbyname(argv[1]);
-  if (!host)
+  ret = getaddrinfo(argv[1], NULL, NULL, &info);
+  if (ret != OK)
     {
-      /* REVISIT: gethostbyname() does not set errno, but h_errno */
-
-       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "gethostbyname", NSH_ERRNO);
-       return ERROR;
+      nsh_error(vtbl, g_fmtcmdfailed,
+                argv[0], "getaddrinfo", NSH_HERRNO_OF(ret));
+      return ERROR;
     }
 
-  /* Convert the address to a string */
-  /* Handle IPv4 addresses */
-
-  if (host->h_addrtype == AF_INET)
+  for (next = info; next != NULL; next = next->ai_next)
     {
-      if (inet_ntop(AF_INET, host->h_addr, buffer, 48) == NULL)
+      /* Convert the address to a string */
+
+      ret = getnameinfo(next->ai_addr, next->ai_addrlen,
+                        buffer, sizeof(buffer), NULL, 0, NI_NUMERICHOST);
+      if (ret != OK)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "inet_ntop", NSH_ERRNO);
+          freeaddrinfo(info);
+          nsh_error(vtbl, g_fmtcmdfailed,
+                    argv[0], "getnameinfo", NSH_HERRNO_OF(ret));
           return ERROR;
         }
 
-      addrtype = "IPv4";
+      /* Print the host name / address mapping */
+
+      nsh_output(vtbl, "Host: %s Addr: %s\n", next->ai_canonname, buffer);
     }
 
-  /* Handle IPv6 addresses */
-
-  else /* if (host->h_addrtype == AF_INET6) */
-    {
-      DEBUGASSERT(host->h_addrtype == AF_INET6);
-
-      if (inet_ntop(AF_INET6, host->h_addr, buffer, 48) == NULL)
-        {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "inet_ntop", NSH_ERRNO);
-          return ERROR;
-        }
-
-      addrtype = "IPv6";
-    }
-
-  /* Print the host name / address mapping */
-
-  nsh_output(vtbl, "Host: %s  %s Addr: %s\n", host->h_name, addrtype, buffer);
-
-  /* Print any host name aliases */
-
-  if (host->h_aliases != NULL && *host->h_aliases != NULL)
-    {
-      FAR char **alias;
-
-      nsh_output(vtbl, "Aliases:");
-      for (alias = host->h_aliases; *alias != NULL; alias++)
-        {
-          nsh_output(vtbl, " %s", *alias);
-        }
-
-      nsh_output(vtbl, "\n");
-    }
-
+  freeaddrinfo(info);
   return OK;
 }
 #endif
