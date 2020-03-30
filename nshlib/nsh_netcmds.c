@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_netcmds.c
  *
- *   Copyright (C) 2007-2012, 2014-2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2012, 2014-2015, 2017 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -204,7 +205,8 @@ static int ifconfig_callback(FAR struct nsh_vtbl_s *vtbl, FAR char *devname)
 
   /* Construct the full path to the /proc/net entry for this device */
 
-  snprintf(buffer, IFNAMSIZ + 12, CONFIG_NSH_PROC_MOUNTPOINT "/net/%s", devname);
+  snprintf(buffer, IFNAMSIZ + 12,
+           CONFIG_NSH_PROC_MOUNTPOINT "/net/%s", devname);
   nsh_catfile(vtbl, "ifconfig", buffer);
 
   return OK;
@@ -243,7 +245,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
             break;
 
           case 'h':
-            if (!netlib_ipv4addrconv(optarg, (FAR unsigned char*)&args->ipaddr))
+            if (!netlib_ipv4addrconv(optarg, (FAR uint8_t *)&args->ipaddr))
               {
                 nsh_error(vtbl, g_fmtarginvalid, argv[0]);
                 badarg = true;
@@ -419,7 +421,8 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
  ****************************************************************************/
 
 #ifdef HAVE_HWADDR
-static inline bool nsh_addrconv(FAR const char *hwstr, FAR mac_addr_t *macaddr)
+static inline bool nsh_addrconv(FAR const char *hwstr,
+                                FAR mac_addr_t *macaddr)
 {
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
@@ -440,7 +443,8 @@ static inline bool nsh_addrconv(FAR const char *hwstr, FAR mac_addr_t *macaddr)
  ****************************************************************************/
 
 #ifdef HAVE_HWADDR
-static inline void nsh_sethwaddr(FAR const char *ifname, FAR mac_addr_t *macaddr)
+static inline void nsh_sethwaddr(FAR const char *ifname,
+                                 FAR mac_addr_t *macaddr)
 {
 #if defined(CONFIG_NET_ETHERNET)
   netlib_setmacaddr(ifname, *macaddr);
@@ -539,7 +543,8 @@ int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   ifname = argv[1];
   ret = netlib_ifdown(ifname);
-  nsh_output(vtbl, "ifdown %s...%s\n", ifname, (ret == OK) ? "OK" : "Failed");
+  nsh_output(vtbl, "ifdown %s...%s\n",
+             ifname, (ret == OK) ? "OK" : "Failed");
   return ret;
 }
 #endif
@@ -722,7 +727,6 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef HAVE_HWADDR
   /* Set Hardware Ethernet MAC address */
-  /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
   if (hw != NULL)
     {
@@ -731,7 +735,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-   /* Set IP address */
+  /* Set IP address */
 
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
@@ -837,7 +841,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       if (mask != NULL)
         {
-          ninfo("Netmask: %s\n",mask);
+          ninfo("Netmask: %s\n", mask);
           inet_pton(AF_INET6, mask, &addr6);
         }
       else
@@ -1179,7 +1183,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   return OK;
 
-/* Error exits */
+  /* Error exits */
 
 errout_cmdfaild:
   if (ret == -ENOENT)
@@ -1331,7 +1335,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Open the local file for writing */
 
-  fd = open(fullpath, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+  fd = open(fullpath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
