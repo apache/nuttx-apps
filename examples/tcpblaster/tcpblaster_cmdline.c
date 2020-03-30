@@ -51,37 +51,10 @@
 
 #ifdef CONFIG_EXAMPLES_TCPBLASTER_IPv6
 
-uint16_t g_tcpblasterserver_ipv6[8] =
-{
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
-  0,       /* Use the loopback address */
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  HTONS(1)
-#else
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_1),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_2),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_3),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_4),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_5),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_6),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_7),
-  HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_8)
-#endif
-};
+uint16_t g_tcpblasterserver_ipv6[8];
 
 #else
-
-#if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
-uint32_t g_tcpblasterserver_ipv4 = HTONL(0x7f000001);
-#else
-uint32_t g_tcpblasterserver_ipv4 = HTONL(CONFIG_EXAMPLES_TCPBLASTER_SERVERIP);
-#endif
-
+uint32_t g_tcpblasterserver_ipv4;
 #endif
 
 /****************************************************************************
@@ -108,8 +81,47 @@ static void show_usage(FAR const char *progname)
 
 void tcpblaster_cmdline(int argc, char **argv)
 {
+  /* Init the default IP address. */
+
+#ifdef CONFIG_EXAMPLES_TCPBLASTER_IPv6
+#  if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && \
+      defined(CONFIG_NET_LOOPBACK)
+  g_tcpblasterserver_ipv6[0] = 0;
+  g_tcpblasterserver_ipv6[1] = 0;
+  g_tcpblasterserver_ipv6[2] = 0;
+  g_tcpblasterserver_ipv6[3] = 0;
+  g_tcpblasterserver_ipv6[4] = 0;
+  g_tcpblasterserver_ipv6[5] = 0;
+  g_tcpblasterserver_ipv6[6] = 0;
+  g_tcpblasterserver_ipv6[7] = HTONS(1);
+#  else
+  g_tcpblasterserver_ipv6[0] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_1);
+  g_tcpblasterserver_ipv6[1] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_2);
+  g_tcpblasterserver_ipv6[2] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_3);
+  g_tcpblasterserver_ipv6[3] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_4);
+  g_tcpblasterserver_ipv6[4] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_5);
+  g_tcpblasterserver_ipv6[5] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_6);
+  g_tcpblasterserver_ipv6[6] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_7);
+  g_tcpblasterserver_ipv6[7] =
+    HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVERIPv6ADDR_8);
+#  endif
+#else
+#  if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && defined(CONFIG_NET_LOOPBACK)
+  g_tcpblasterserver_ipv4 = HTONL(0x7f000001);
+#  else
+  g_tcpblasterserver_ipv4 = HTONL(CONFIG_EXAMPLES_TCPBLASTER_SERVERIP);
+#  endif
+#endif
+
   /* Currently only a single command line option is supported:  The server
-   * IP address.
+   * IP address. Used to override default.
    */
 
   if (argc == 2)
