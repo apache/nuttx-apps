@@ -52,33 +52,17 @@
  ****************************************************************************/
 
 #ifdef TCPBLASTER_HOST
-#undef HTONS
-#ifdef CONFIG_ENDIAN_BIG
-#  define HTONS(ns) (ns)
-#else
-#  define HTONS(ns) \
-     (unsigned short) \
-       (((((unsigned short)(ns)) & 0x00ff) << 8) | \
-        ((((unsigned short)(ns)) >> 8) & 0x00ff))
-#endif
+/* HTONS/L macros are unique to NuttX */
 
-#undef HTONL
-#ifdef CONFIG_ENDIAN_BIG
-#  define HTONL(nl) (nl)
-#else
-#  define HTONL(nl) \
-     (unsigned long) \
-       (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
-        ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
-        ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
-        ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
-#endif
+#  undef HTONS
+#  undef HTONL
+#  define HTONS(ns) htons(ns)
+#  define HTONL(nl) htonl(nl)
 
-#undef NTOHS
-#define NTOHS(hs) HTONS(hs)
-
-#undef NTOHL
-#define NTOHL(hl) HTONL(hl)
+#  undef NTOHS
+#  undef NTOHL
+#  define NTOHS(hs) ntohs(hs)
+#  define NTOHL(hl) ntohl(hl)
 
 /* Have SO_LINGER */
 
