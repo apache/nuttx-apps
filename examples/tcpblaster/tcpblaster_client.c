@@ -104,8 +104,7 @@ void tcpblaster_client(void)
 #ifdef CONFIG_EXAMPLES_TCPBLASTER_IPv6
   server.sin6_family     = AF_INET6;
   server.sin6_port       = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
-  memcpy(server.sin6_addr.s6_addr16,
-         g_tcpblasterserver_ipv6, 8 * sizeof(uint16_t));
+  memcpy(server.sin6_addr.s6_addr, g_tcpblasterserver_ipv6, 16);
   addrlen                = sizeof(struct sockaddr_in6);
 
   printf("Connecting to IPv6 Address: "

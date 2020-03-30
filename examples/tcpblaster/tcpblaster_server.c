@@ -118,19 +118,23 @@ void tcpblaster_server(void)
   myaddr.sin6_family = AF_INET6;
   myaddr.sin6_port   = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
 #if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK) && !defined(CONFIG_NET_LOOPBACK)
-  memcpy(myaddr.sin6_addr.s6_addr16,
-         g_tcpblasterserver_ipv6, 8 * sizeof(uint16_t));
+  memcpy(myaddr.sin6_addr.s6_addr, g_tcpblasterserver_ipv6, 16);
 #else
-  memset(myaddr.sin6_addr.s6_addr16, 0, 8 * sizeof(uint16_t));
+  memset(myaddr.sin6_addr.s6_addr, 0, 16);
 #endif
   addrlen = sizeof(struct sockaddr_in6);
 
   printf("Binding to IPv6 Address: "
-         "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
-         myaddr.sin6_addr.s6_addr16[0], myaddr.sin6_addr.s6_addr16[1],
-         myaddr.sin6_addr.s6_addr16[2], myaddr.sin6_addr.s6_addr16[3],
-         myaddr.sin6_addr.s6_addr16[4], myaddr.sin6_addr.s6_addr16[5],
-         myaddr.sin6_addr.s6_addr16[6], myaddr.sin6_addr.s6_addr16[7]);
+         "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+         "%02x%02x:%02x%02x:%02x%02x:%02x%02x\n",
+         myaddr.sin6_addr.s6_addr[0], myaddr.sin6_addr.s6_addr[1],
+         myaddr.sin6_addr.s6_addr[2], myaddr.sin6_addr.s6_addr[3],
+         myaddr.sin6_addr.s6_addr[4], myaddr.sin6_addr.s6_addr[5],
+         myaddr.sin6_addr.s6_addr[6], myaddr.sin6_addr.s6_addr[7],
+         myaddr.sin6_addr.s6_addr[8], myaddr.sin6_addr.s6_addr[9],
+         myaddr.sin6_addr.s6_addr[10], myaddr.sin6_addr.s6_addr[11],
+         myaddr.sin6_addr.s6_addr[12], myaddr.sin6_addr.s6_addr[13],
+         myaddr.sin6_addr.s6_addr[14], myaddr.sin6_addr.s6_addr[15]);
 #else
   myaddr.sin_family  = AF_INET;
   myaddr.sin_port    = HTONS(CONFIG_EXAMPLES_TCPBLASTER_SERVER_PORTNO);
