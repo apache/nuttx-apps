@@ -53,7 +53,7 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+#ifdef CONFIG_LIBC_NETDB
 #  include <netdb.h>
 #endif
 
@@ -111,25 +111,25 @@ static inline uint16_t ping6_newid(void)
 
 static int ping6_gethostip(FAR const char *hostname, FAR struct in6_addr *dest)
 {
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+#ifdef CONFIG_LIBC_NETDB
   /* Netdb DNS client support is enabled */
 
-  FAR struct hostent *he;
+  FAR struct addrinfo hint;
+  FAR struct addrinfo *info;
+  FAR struct sockaddr_in6 *addr;
 
-  he = gethostbyname(hostname);
-  if (he == NULL)
+  memset(&hint, 0, sizeof(hint));
+  hint.ai_family = AF_INET6;
+
+  if (getaddrinfo(hostname, NULL, &hint, &info) != OK)
     {
-      return -ENOENT;
-    }
-  else if (he->h_addrtype == AF_INET6)
-    {
-      memcpy(dest, he->h_addr, sizeof(struct in6_addr));
-    }
-  else
-    {
-      return -ENOEXEC;
+      return ERROR;
     }
 
+  addr = (FAR struct sockaddr_in6 *)info->ai_addr;
+  memcpy(dest, &addr->sin6_addr, sizeof(struct in6_addr));
+
+  freeaddrinfo(info);
   return OK;
 
 #else /* CONFIG_LIBC_NETDB */
