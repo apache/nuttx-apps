@@ -16,4 +16,17 @@ config NETUTILS_DHCPC_HOST_NAME
 	string "DHCP client host name"
 	default "nuttx"
 
+config NETUTILS_DHCPC_RECV_TIMEOUT
+	int "Number of receive timeout in second"
+	default 3
+	---help---
+		This is the timeout value when dhcp client receives response
+
+config NETUTILS_DHCPC_RETRIES
+	int "Number of retries for dhcp client request"
+	default 3
+	---help---
+		This setting determines how many times resolver retries request
+		until failing.
+
 endif

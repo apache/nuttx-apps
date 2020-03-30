@@ -433,7 +433,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
 
       /* Configure for read timeouts */
 
-      tv.tv_sec  = 10;
+      tv.tv_sec  = CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT;
       tv.tv_usec = 0;
 
       ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv,
@@ -516,6 +516,10 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
       newaddr.s_addr = INADDR_ANY;
       netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
 
+      /* Loop sending the DISCOVER up to CONFIG_NETUTILS_DHCPC_RETRIES times */
+
+      retries = 0;
+
       /* Loop sending DISCOVER until we receive an OFFER from a DHCP
        * server.  We will lock on to the first OFFER and decline any
        * subsequent offers (which will happen if there are more than one
@@ -532,6 +536,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
             {
               return ERROR;
             }
+
+          retries++;
 
           /* Get the DHCPOFFER response */
 
@@ -573,10 +579,18 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               return ERROR;
             }
         }
-      while (state == STATE_INITIAL);
+      while (state == STATE_INITIAL && retries < CONFIG_NETUTILS_DHCPC_RETRIES);
 
+      /* If no DHCPOFFER recveived here, error out */
 
-      /* Loop sending the REQUEST up to three times (if there is no response) */
+      if (state == STATE_INITIAL)
+        {
+          return ERROR;
+        }
+
+      /* Loop sending the REQUEST up to CONFIG_NETUTILS_DHCPC_RETRIES times
+       * (if there is no response)
+       */
 
       retries = 0;
       do
@@ -657,7 +671,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               return ERROR;
             }
         }
-      while (state == STATE_HAVE_OFFER && retries < 3);
+      while (state == STATE_HAVE_OFFER && retries < CONFIG_NETUTILS_DHCPC_RETRIES);
     }
   while (state != STATE_HAVE_LEASE);
 
