@@ -51,39 +51,35 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef HTONS
-#  ifdef CONFIG_ENDIAN_BIG
-#    define HTONS(ns) (ns)
-#  else
-#   define HTONS(ns) \
+#ifdef TCPBLASTER_HOST
+#undef HTONS
+#ifdef CONFIG_ENDIAN_BIG
+#  define HTONS(ns) (ns)
+#else
+#  define HTONS(ns) \
      (unsigned short) \
        (((((unsigned short)(ns)) & 0x00ff) << 8) | \
         ((((unsigned short)(ns)) >> 8) & 0x00ff))
-#  endif
 #endif
 
-#ifndef HTONL
-#  ifdef CONFIG_ENDIAN_BIG
-#    define HTONL(nl) (nl)
-#  else
-#    define HTONL(nl) \
-       (unsigned long) \
-         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
-          ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
-          ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
-          ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
-#  endif
+#undef HTONL
+#ifdef CONFIG_ENDIAN_BIG
+#  define HTONL(nl) (nl)
+#else
+#  define HTONL(nl) \
+     (unsigned long) \
+       (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
+        ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
+        ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
+        ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
 #endif
 
-#ifndef NTOHS
-#  define NTOHS(hs) HTONS(hs)
-#endif
+#undef NTOHS
+#define NTOHS(hs) HTONS(hs)
 
-#ifndef NTOHL
-#  define NTOHL(hl) HTONL(hl)
-#endif
+#undef NTOHL
+#define NTOHL(hl) HTONL(hl)
 
-#ifdef TCPBLASTER_HOST
    /* Have SO_LINGER */
 
 #  define FAR
