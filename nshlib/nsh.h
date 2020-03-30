@@ -440,11 +440,15 @@
 #endif
 
 #ifdef CONFIG_NSH_STRERROR
-#  define NSH_ERRNO         strerror(errno)
-#  define NSH_ERRNO_OF(err) strerror(err)
+#  define NSH_ERRNO          strerror(errno)
+#  define NSH_ERRNO_OF(err)  strerror(err)
+#  define NSH_HERRNO         gai_strerror(h_errno)
+#  define NSH_HERRNO_OF(err) gai_strerror(err)
 #else
-#  define NSH_ERRNO         (errno)
-#  define NSH_ERRNO_OF(err) (err)
+#  define NSH_ERRNO          (errno)
+#  define NSH_ERRNO_OF(err)  (err)
+#  define NSH_HERRNO         (h_errno)
+#  define NSH_HERRNO_OF(err) (err)
 #endif
 
 /* Maximum size of one command line (telnet or serial) */
@@ -1136,8 +1140,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
 #endif /* CONFIG_NET */
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \
-   !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+#if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
   int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 

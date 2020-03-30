@@ -372,8 +372,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \
-   !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+#if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
   { "nslookup", cmd_nslookup, 2, 2, "<host-name>" },
 #endif
 
