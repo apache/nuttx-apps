@@ -53,7 +53,7 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+#ifdef CONFIG_LIBC_NETDB
 #  include <netdb.h>
 #endif
 
@@ -109,32 +109,33 @@ static inline uint16_t ping6_newid(void)
  *
  ****************************************************************************/
 
-static int ping6_gethostip(FAR const char *hostname, FAR struct in6_addr *dest)
+static int ping6_gethostip(FAR const char *hostname,
+                           FAR struct in6_addr *dest)
 {
-#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+#ifdef CONFIG_LIBC_NETDB
   /* Netdb DNS client support is enabled */
 
-  FAR struct hostent *he;
+  FAR struct addrinfo hint;
+  FAR struct addrinfo *info;
+  FAR struct sockaddr_in6 *addr;
 
-  he = gethostbyname(hostname);
-  if (he == NULL)
+  memset(&hint, 0, sizeof(hint));
+  hint.ai_family = AF_INET6;
+
+  if (getaddrinfo(hostname, NULL, &hint, &info) != OK)
     {
-      return -ENOENT;
-    }
-  else if (he->h_addrtype == AF_INET6)
-    {
-      memcpy(dest, he->h_addr, sizeof(struct in6_addr));
-    }
-  else
-    {
-      return -ENOEXEC;
+      return ERROR;
     }
 
+  addr = (FAR struct sockaddr_in6 *)info->ai_addr;
+  memcpy(dest, &addr->sin6_addr, sizeof(struct in6_addr));
+
+  freeaddrinfo(info);
   return OK;
 
 #else /* CONFIG_LIBC_NETDB */
-
   /* No host name support */
+
   /* Convert strings to numeric IPv6 address */
 
   int ret = inet_pton(AF_INET6, hostname, dest->s6_addr16);
@@ -153,7 +154,8 @@ static int ping6_gethostip(FAR const char *hostname, FAR struct in6_addr *dest)
  * Name: icmp6_callback
  ****************************************************************************/
 
-static void icmp6_callback(FAR struct ping6_result_s *result, int code, int extra)
+static void icmp6_callback(FAR struct ping6_result_s *result,
+                           int code, int extra)
 {
   result->code = code;
   result->extra = extra;
@@ -239,7 +241,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
 
       memcpy(iobuffer, &outhdr, SIZEOF_ICMPV6_ECHO_REQUEST_S(0));
 
-     /* Add some easily verifiable payload data */
+      /* Add some easily verifiable payload data */
 
       ptr = &iobuffer[SIZEOF_ICMPV6_ECHO_REQUEST_S(0)];
       ch  = 0x20;
@@ -255,7 +257,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
 
       start = clock();
       nsent = sendto(sockfd, iobuffer, result.outsize, 0,
-                     (FAR struct sockaddr*)&destaddr,
+                     (FAR struct sockaddr *)&destaddr,
                      sizeof(struct sockaddr_in6));
       if (nsent < 0)
         {
@@ -304,7 +306,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
           else if (nrecvd < SIZEOF_ICMPV6_ECHO_REPLY_S(0))
             {
               icmp6_callback(&result, ICMPv6_E_RECVSMALL, nrecvd);
-             goto done;
+              goto done;
             }
 
           elapsed = (unsigned int)TICK2MSEC(clock() - start);
@@ -319,7 +321,8 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
                 }
               else if (ntohs(inhdr->seqno) > result.seqno)
                 {
-                  icmp6_callback(&result, ICMPv6_W_SEQNOBIG, ntohs(inhdr->seqno));
+                  icmp6_callback(&result, ICMPv6_W_SEQNOBIG,
+                                 ntohs(inhdr->seqno));
                   retry = true;
                 }
               else
@@ -329,7 +332,8 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
 
                   if (ntohs(inhdr->seqno) < result.seqno)
                     {
-                      icmp6_callback(&result, ICMPv6_W_SEQNOSMALL, ntohs(inhdr->seqno));
+                      icmp6_callback(&result, ICMPv6_W_SEQNOSMALL,
+                                     ntohs(inhdr->seqno));
                       pktdelay += info->delay;
                       retry     = true;
                     }
