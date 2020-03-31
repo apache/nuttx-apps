@@ -38,6 +38,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 
 #include <sys/socket.h>
@@ -130,8 +134,8 @@ static int ping_gethostip(FAR const char *hostname, FAR struct in_addr *dest)
   return OK;
 
 #else /* CONFIG_LIBC_NETDB */
-
   /* No host name support */
+
   /* Convert strings to numeric IPv6 address */
 
   int ret = inet_pton(AF_INET, hostname, dest);
@@ -151,7 +155,8 @@ static int ping_gethostip(FAR const char *hostname, FAR struct in_addr *dest)
  * Name: icmp_callback
  ****************************************************************************/
 
-static void icmp_callback(FAR struct ping_result_s *result, int code, int extra)
+static void icmp_callback(FAR struct ping_result_s *result,
+                          int code, int extra)
 {
   result->code = code;
   result->extra = extra;
@@ -237,7 +242,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
       memcpy(iobuffer, &outhdr, sizeof(struct icmp_hdr_s));
 
-     /* Add some easily verifiable payload data */
+      /* Add some easily verifiable payload data */
 
       ptr = &iobuffer[sizeof(struct icmp_hdr_s)];
       ch  = 0x20;
@@ -253,7 +258,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
       start = clock();
       nsent = sendto(sockfd, iobuffer, result.outsize, 0,
-                     (FAR struct sockaddr*)&destaddr,
+                     (FAR struct sockaddr *)&destaddr,
                      sizeof(struct sockaddr_in));
       if (nsent < 0)
         {
@@ -302,7 +307,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
           else if (nrecvd < sizeof(struct icmp_hdr_s))
             {
               icmp_callback(&result, ICMP_E_RECVSMALL, nrecvd);
-             goto done;
+              goto done;
             }
 
           elapsed = (unsigned int)TICK2MSEC(clock() - start);
@@ -317,7 +322,8 @@ void icmp_ping(FAR const struct ping_info_s *info)
                 }
               else if (ntohs(inhdr->seqno) > result.seqno)
                 {
-                  icmp_callback(&result, ICMP_W_SEQNOBIG, ntohs(inhdr->seqno));
+                  icmp_callback(&result, ICMP_W_SEQNOBIG,
+                                ntohs(inhdr->seqno));
                   retry = true;
                 }
               else
@@ -327,7 +333,8 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
                   if (ntohs(inhdr->seqno) < result.seqno)
                     {
-                      icmp_callback(&result, ICMP_W_SEQNOSMALL, ntohs(inhdr->seqno));
+                      icmp_callback(&result, ICMP_W_SEQNOSMALL,
+                                    ntohs(inhdr->seqno));
                       pktdelay += info->delay;
                       retry     = true;
                     }
