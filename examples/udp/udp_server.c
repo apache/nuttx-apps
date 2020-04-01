@@ -70,9 +70,11 @@ static inline int check_buffer(unsigned char *buf)
         {
           j = 1;
         }
+
       if (buf[j] != ch)
         {
-          printf("server: Buffer content error for offset=%d, index=%d\n", offset, j);
+          printf("server: Buffer content error for offset=%d, index=%d\n",
+                 offset, j);
           ret = 0;
         }
     }
@@ -117,7 +119,8 @@ void udp_server(void)
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+                 sizeof(int)) < 0)
     {
       printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       exit(1);
@@ -149,7 +152,7 @@ void udp_server(void)
   addrlen                = sizeof(struct sockaddr_in);
 #endif
 
-  if (bind(sockfd, (struct sockaddr*)&server, addrlen) < 0)
+  if (bind(sockfd, (struct sockaddr *)&server, addrlen) < 0)
     {
       printf("server: bind failure: %d\n", errno);
       exit(1);
@@ -162,7 +165,7 @@ void udp_server(void)
       printf("server: %d. Receiving up 1024 bytes\n", offset);
       recvlen = addrlen;
       nbytes = recvfrom(sockfd, inbuf, 1024, 0,
-                        (struct sockaddr*)&client, &recvlen);
+                        (struct sockaddr *)&client, &recvlen);
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       printf("server: %d. Received %d bytes from %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x port %d\n",
@@ -189,14 +192,16 @@ void udp_server(void)
 
       if (nbytes != SENDSIZE)
         {
-          printf("server: %d. recv size incorrect: %d vs %d\n", offset, nbytes, SENDSIZE);
+          printf("server: %d. recv size incorrect: %d vs %d\n", offset,
+                 nbytes, SENDSIZE);
           close(sockfd);
           exit(-1);
         }
 
       if (offset < inbuf[0])
         {
-          printf("server: %d. %d packets lost, resetting offset\n", offset, inbuf[0] - offset);
+          printf("server: %d. %d packets lost, resetting offset\n", offset,
+                 inbuf[0] - offset);
           offset = inbuf[0];
         }
       else if (offset > inbuf[0])
@@ -213,5 +218,6 @@ void udp_server(void)
           exit(-1);
         }
     }
+
   close(sockfd);
 }

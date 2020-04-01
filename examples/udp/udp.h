@@ -52,7 +52,7 @@
  ****************************************************************************/
 
 #ifdef EXAMPLES_UDP_HOST
-   /* HTONS/L macros are unique to uIP-based networks */
+/* HTONS/L macros are unique to uIP-based networks */
 
 #  ifdef CONFIG_ENDIAN_BIG
 #    define HTONS(ns) (ns)
