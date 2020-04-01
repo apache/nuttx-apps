@@ -168,12 +168,18 @@ void udp_server(void)
                         (struct sockaddr *)&client, &recvlen);
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-      printf("server: %d. Received %d bytes from %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x port %d\n",
+      printf("server: %d. Received %d bytes from "
+             "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
+             "%02x%02x:%02x%02x:%02x%02x:%02x%02x port %d\n",
              offset, nbytes,
-             client.sin6_addr.s6_addr16[0], client.sin6_addr.s6_addr16[1],
-             client.sin6_addr.s6_addr16[2], client.sin6_addr.s6_addr16[3],
-             client.sin6_addr.s6_addr16[4], client.sin6_addr.s6_addr16[5],
-             client.sin6_addr.s6_addr16[6], client.sin6_addr.s6_addr16[7],
+             client.sin6_addr.s6_addr[0], client.sin6_addr.s6_addr[1],
+             client.sin6_addr.s6_addr[2], client.sin6_addr.s6_addr[3],
+             client.sin6_addr.s6_addr[4], client.sin6_addr.s6_addr[5],
+             client.sin6_addr.s6_addr[6], client.sin6_addr.s6_addr[7],
+             client.sin6_addr.s6_addr[8], client.sin6_addr.s6_addr[9],
+             client.sin6_addr.s6_addr[10], client.sin6_addr.s6_addr[11],
+             client.sin6_addr.s6_addr[12], client.sin6_addr.s6_addr[13],
+             client.sin6_addr.s6_addr[14], client.sin6_addr.s6_addr[15],
              ntohs(client.sin6_port));
 #else
       tmpaddr = ntohl(client.sin_addr.s_addr);
