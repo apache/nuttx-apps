@@ -105,9 +105,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_udpserver_ipv6[8];
+extern uint16_t g_udpserver_ipv6[8];
 #else
-uint32_t g_udpserver_ipv4;
+extern uint32_t g_udpserver_ipv4;
 #endif
 
 /****************************************************************************
