@@ -35,17 +35,17 @@
  *      may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
  *
- *   THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
- *   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- *   ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
- *   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *   DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- *   OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- *   HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- *   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- *   SUCH DAMAGE.
+ *   THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS''
+ *   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS
+ *   BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ *   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ *   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ *   BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ *   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ *   OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *   EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
 
@@ -100,17 +100,19 @@ static FAR const char *base64_tab(bool websafe)
  *
  ****************************************************************************/
 
-static FAR char *_base64_encode(FAR const char *src, size_t len,
-                                FAR char *dst, FAR size_t *out_len,
-                                bool websafe)
+static FAR unsigned char *_base64_encode(FAR const unsigned char *src,
+                                         size_t len,
+                                         FAR unsigned char *dst,
+                                         FAR size_t *out_len,
+                                         bool websafe)
 {
-  FAR char *out;
-  FAR char *pos;
-  FAR const char *end;
-  FAR const char *in;
+  FAR unsigned char *out;
+  FAR unsigned char *pos;
+  FAR const unsigned char *end;
+  FAR const unsigned char *in;
   FAR const char *base64_table;
-  size_t olen;
   char ch = '=';
+  size_t olen;
 
   if (websafe)
     {
@@ -190,17 +192,18 @@ static FAR char *_base64_encode(FAR const char *src, size_t len,
  *
  ****************************************************************************/
 
-static char *_base64_decode(FAR const char *src, size_t len, FAR char *dst,
-                            FAR size_t *out_len, bool websafe)
+static unsigned char *_base64_decode(FAR const unsigned char *src,
+                                     size_t len, FAR unsigned char *dst,
+                                     FAR size_t *out_len, bool websafe)
 {
-  FAR char *out;
-  FAR char *pos;
-  FAR char block[4];
-  FAR char *tmp;
+  FAR unsigned char *out;
+  FAR unsigned char *pos;
+  FAR unsigned char block[4];
   FAR const char *base64_table;
+  char ch = '=';
+  FAR char *tmp;
   size_t count;
   size_t i;
-  char ch = '=';
 
   if (websafe)
     {
@@ -232,7 +235,7 @@ static char *_base64_decode(FAR const char *src, size_t len, FAR char *dst,
       if (count == 4)
         {
           *pos++ = (block[0] << 2) | (block[1] >> 4);
-          if (src[i-1] == ch)
+          if (src[i - 1] == ch)
             {
               break;
             }
