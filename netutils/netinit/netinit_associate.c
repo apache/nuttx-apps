@@ -41,6 +41,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #include <nuttx/wireless/wireless.h>
 
@@ -60,7 +61,7 @@
 int netinit_associate(FAR const char *ifname)
 {
   struct wpa_wconfig_s conf;
-  int ret;
+  int ret = -EINVAL;
   FAR void *load;
 
   load = wapi_load_config(ifname, NULL, &conf);
@@ -77,7 +78,10 @@ int netinit_associate(FAR const char *ifname)
       conf.phraselen   = strlen(conf.passphrase);
     }
 
-  ret = wpa_driver_wext_associate(&conf);
+  if (conf.ssidlen > 0)
+    {
+      ret = wpa_driver_wext_associate(&conf);
+    }
 
   wapi_unload_config(load);
 

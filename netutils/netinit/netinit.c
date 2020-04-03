@@ -411,17 +411,24 @@ static void netinit_net_bringup(void)
 {
 #ifdef CONFIG_NETINIT_DHCPC
   uint8_t mac[IFHWADDRLEN];
+  struct dhcpc_state ds;
   FAR void *handle;
 #endif
 
   /* Bring the network up. */
 
-  netlib_ifup(NET_DEVNAME);
+  if (netlib_ifup(NET_DEVNAME) < 0)
+    {
+      return;
+    }
 
 #ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan with an access point. */
 
-  netinit_associate(NET_DEVNAME);
+  if (netinit_associate(NET_DEVNAME) < 0)
+    {
+      return;
+    }
 #endif
 
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF
@@ -438,40 +445,37 @@ static void netinit_net_bringup(void)
   /* Set up the DHCPC modules */
 
   handle = dhcpc_open(NET_DEVNAME, &mac, IFHWADDRLEN);
+  if (handle == NULL)
+    {
+      return;
+    }
 
-  /* Get an IP address.  Note that there is no logic for renewing the IP
-   * address in this example.  The address should be renewed in
-   * ds.lease_time/2 seconds.
+  /* Get an IP address.  Note that there is no logic for renewing the
+   * IP address in this example. The address should be renewed in
+   * (ds.lease_time / 2) seconds.
    */
 
-  if (handle != NULL)
+  if (dhcpc_request(handle, &ds) == OK)
     {
-      struct dhcpc_state ds =
-      {
-      };
+      netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
 
-      if (dhcpc_request(handle, &ds) == OK)
+      if (ds.netmask.s_addr != 0)
         {
-          netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
-
-          if (ds.netmask.s_addr != 0)
-            {
-              netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
-            }
-
-          if (ds.default_router.s_addr != 0)
-            {
-              netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
-            }
-
-          if (ds.dnsaddr.s_addr != 0)
-            {
-              netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-            }
+          netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
         }
 
-      dhcpc_close(handle);
+      if (ds.default_router.s_addr != 0)
+        {
+          netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
+        }
+
+      if (ds.dnsaddr.s_addr != 0)
+        {
+          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+        }
     }
+
+  dhcpc_close(handle);
 #endif
 
 #ifdef CONFIG_NETUTILS_NTPCLIENT
