@@ -63,6 +63,12 @@
 #define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 24
 
 /****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+static char g_ioctl_command_namebuf[WAPI_IOCTL_COMMAND_NAMEBUFSIZ];
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -135,7 +141,15 @@ static bool wapi_json_update(FAR cJSON *root,
         }
       else
         {
-          if (!strncmp(value, obj->valuestring, strlen(obj->valuestring)))
+          int len = strlen(obj->valuestring);
+          if (len > 0)
+            {
+              if (!strncmp(value, obj->valuestring, len))
+                {
+                  return false;
+                }
+            }
+          else if (len == 0 && value == NULL)
             {
               return false;
             }
@@ -154,12 +168,6 @@ static bool wapi_json_update(FAR cJSON *root,
   return true;
 }
 #endif /* CONFIG_WIRELESS_WAPI_INITCONF */
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-static char g_ioctl_command_namebuf[WAPI_IOCTL_COMMAND_NAMEBUFSIZ];
 
 /****************************************************************************
  * Public Functions
@@ -377,7 +385,7 @@ FAR void *wapi_load_config(FAR const char *ifname,
 
   conf->ifname     = ifname;
   conf->ssidlen    = strlen(conf->ssid);
-  conf->phraselen  = strlen(conf->passphrase);
+  conf->phraselen  = conf->passphrase ? strlen(conf->passphrase) : 0;
 
   return root;
 

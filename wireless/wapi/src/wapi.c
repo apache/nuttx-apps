@@ -47,6 +47,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "netutils/netlib.h"
+
 #include "wireless/wapi.h"
 #include "util.h"
 
@@ -91,6 +93,10 @@ static int wapi_bitrate_cmd      (int sock, int argc, FAR char **argv);
 static int wapi_txpower_cmd      (int sock, int argc, FAR char **argv);
 static int wapi_scan_results_cmd (int sock, int argc, FAR char **argv);
 static int wapi_scan_cmd         (int sock, int argc, FAR char **argv);
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+static int wapi_reconnect_cmd    (int sock, int argc, FAR char **argv);
+static int wapi_save_config_cmd  (int sock, int argc, FAR char **argv);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -112,6 +118,10 @@ static const struct wapi_command_s g_wapi_commands[] =
   {"ap",           2, 2, wapi_ap_cmd},
   {"bitrate",      3, 3, wapi_bitrate_cmd},
   {"txpower",      3, 3, wapi_txpower_cmd},
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+  {"reconnect",    1, 1, wapi_reconnect_cmd},
+  {"save_config",  1, 1, wapi_save_config_cmd},
+#endif
 };
 
 /****************************************************************************
@@ -739,6 +749,135 @@ static int wapi_scan_cmd(int sock, int argc, FAR char **argv)
   return wapi_scan_results_cmd(sock, 1, argv);
 }
 
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+
+/****************************************************************************
+ * Name: wapi_reconnect_cmd
+ *
+ * Description:
+ *   Reconnect the AP in the range using given ifname interface.
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static int wapi_reconnect_cmd(int sock, int argc, FAR char **argv)
+{
+  struct wpa_wconfig_s conf;
+  FAR void *load;
+  int ret;
+
+  load = wapi_load_config(argv[0], NULL, &conf);
+  if (load == NULL)
+    {
+      return -1;
+    }
+
+  ret = wpa_driver_wext_associate(&conf);
+
+  wapi_unload_config(load);
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_save_config_cmd
+ *
+ * Description:
+ *   Scans available APs in the range using given ifname interface.
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
+{
+  char essid[WAPI_ESSID_MAX_SIZE + 1];
+  enum wapi_essid_flag_e essid_flag;
+  struct wpa_wconfig_s conf;
+  uint8_t if_flags;
+  uint32_t value;
+  size_t psk_len;
+  char psk[32];
+  int ret;
+
+  ret = netlib_getifstatus(argv[0], &if_flags);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  if (!IFF_IS_RUNNING(if_flags))
+    {
+      return -1;
+    }
+
+  psk_len = sizeof(psk);
+
+  memset(&conf, 0, sizeof(struct wpa_wconfig_s));
+  ret = wapi_get_mode(sock, argv[0], &conf.sta_mode);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  memset(essid, 0, sizeof(essid));
+  ret = wapi_get_essid(sock, argv[0], essid, &essid_flag);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  conf.ssid = essid;
+  conf.ssidlen = strnlen(essid, sizeof(essid));
+
+  memset(psk, 0, sizeof(psk));
+  ret = wpa_driver_wext_get_key_ext(sock,
+                                    argv[0],
+                                    &conf.alg,
+                                    psk,
+                                    &psk_len);
+  if (ret == 0)
+    {
+      conf.passphrase = psk;
+      conf.phraselen = psk_len;
+    }
+
+  ret = wpa_driver_wext_get_auth_param(sock,
+                                       argv[0],
+                                       IW_AUTH_WPA_VERSION,
+                                       &value);
+  if (ret < 0)
+    {
+      conf.auth_wpa = IW_AUTH_WPA_VERSION_WPA2;
+    }
+  else
+    {
+      conf.auth_wpa = value;
+    }
+
+  ret = wpa_driver_wext_get_auth_param(sock,
+                                       argv[0],
+                                       IW_AUTH_CIPHER_PAIRWISE,
+                                       &value);
+  if (ret < 0)
+    {
+      if (conf.phraselen > 0)
+        conf.cipher_mode = IW_AUTH_CIPHER_CCMP;
+      else
+        conf.cipher_mode = IW_AUTH_CIPHER_NONE;
+    }
+  else
+    {
+      conf.cipher_mode = value;
+    }
+
+  return wapi_save_config(argv[0], NULL, &conf);
+}
+#endif
+
 /****************************************************************************
  * Name: wapi_showusage
  *
@@ -775,6 +914,10 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
                    progname);
   fprintf(stderr, "\t%s txpower      <ifname> <txpower>    <index/flag>\n",
                    progname);
+#ifdef CONFIG_WIRELESS_WAPI_INITCONF
+  fprintf(stderr, "\t%s reconnect    <ifname>\n", progname);
+  fprintf(stderr, "\t%s save_config  <ifname>\n", progname);
+#endif
   fprintf(stderr, "\t%s help\n", progname);
 
   fprintf(stderr, "\nFrequency Flags:\n");
