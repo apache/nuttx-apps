@@ -116,7 +116,7 @@ static void test_pi_controller_zeros(void)
 
   pid_saturation_set(&pi, min, max);
 
-  for (i=0; i< 10000; i+=1)
+  for (i = 0; i < 10000; i += 1)
     {
       pi_controller(&pi, 0.0);
     }
@@ -233,7 +233,7 @@ static void test_pi_controller_saturation(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pi_controller(&pi, 0.01);
       TEST_ASSERT_LESS_OR_EQUAL(max, pi.out);
@@ -242,7 +242,7 @@ static void test_pi_controller_saturation(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pi_controller(&pi, -0.01);
       TEST_ASSERT_GREATER_OR_EQUAL(min, pi.out);
@@ -271,7 +271,7 @@ static void test_pi_windup_protection(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pi_controller(&pi, 0.01);
       TEST_ASSERT_LESS_OR_EQUAL(max, pi.part[1]);
@@ -279,7 +279,7 @@ static void test_pi_windup_protection(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pi_controller(&pi, -0.01);
       TEST_ASSERT_GREATER_OR_EQUAL(min, pi.part[1]);
@@ -343,7 +343,7 @@ static void test_pid_controller_zeros(void)
 
   pid_saturation_set(&pid, min, max);
 
-  for (i=0; i< 10000; i+=1)
+  for (i = 0; i < 10000; i += 1)
     {
       pid_controller(&pid, 0.0);
     }
@@ -469,7 +469,7 @@ static void test_pid_controller_saturation(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pid_controller(&pid, 0.01);
       TEST_ASSERT_LESS_OR_EQUAL(max, pid.out);
@@ -478,7 +478,7 @@ static void test_pid_controller_saturation(void)
 
   /* Feed controller */
 
-  for (i=0; i< 1000; i+=1)
+  for (i = 0; i < 1000; i += 1)
     {
       pid_controller(&pid, -0.01);
       TEST_ASSERT_GREATER_OR_EQUAL(min, pid.out);

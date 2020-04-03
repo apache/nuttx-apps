@@ -110,7 +110,6 @@ static void test_svm3_saturation(void)
   TEST_ASSERT_EQUAL_FLOAT(SVM3_DUTY_MIN, s.d_w);
   TEST_ASSERT_EQUAL_INT8(1, s.sector);
 
-
   /* v_a = -1.0
    * v_b = -1.0
    * mag(v_ab) > 1.0 which is not valid for SVM

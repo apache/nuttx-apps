@@ -210,7 +210,7 @@ static void test_transform_park(void)
 
   /* angle = -PI/2, alpha = 1.0, beta = 1.0 -> d = -1.0, q = 1.0 */
 
-  phase_angle_update(&angle, -M_PI_F/2);
+  phase_angle_update(&angle, -M_PI_F / 2);
   ab.a = 1.0;
   ab.b = 1.0;
   park_transform(&angle, &ab, &dq);
@@ -269,7 +269,7 @@ static void test_transform_invpark(void)
 
   /* angle = -PI/2, d = 1.0, q = 1.0 -> alpha = 0.0, beta = 0.0 */
 
-  phase_angle_update(&angle, -M_PI_F/2);
+  phase_angle_update(&angle, -M_PI_F / 2);
   dq.d = 1.0;
   dq.q = 1.0;
   inv_park_transform(&angle, &dq, &ab);

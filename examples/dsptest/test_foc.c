@@ -102,7 +102,7 @@ static void test_foc_init(void)
 
   foc_vbase_update(&foc, 0.1);
 
-  TEST_ASSERT_EQUAL_FLOAT(0.1, 1.0/foc.vab_mod_scale);
+  TEST_ASSERT_EQUAL_FLOAT(0.1, 1.0 / foc.vab_mod_scale);
   TEST_ASSERT_EQUAL_FLOAT(0.1, foc.vdq_mag_max);
 }
 

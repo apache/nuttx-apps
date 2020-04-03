@@ -155,7 +155,7 @@ static void test_openloop_many_steps(void)
 
   /* Do some iterations in CW direction */
 
-  for (i = 0; i < iter; i+=1)
+  for (i = 0; i < iter; i += 1)
     {
       motor_openloop(&op, speed, DIR_CW);
     }
@@ -174,7 +174,7 @@ static void test_openloop_many_steps(void)
 
   /* Do some iterations in CCW direction */
 
-  for (i = 0; i < iter; i+=1)
+  for (i = 0; i < iter; i += 1)
     {
       motor_openloop(&op, speed, DIR_CCW);
     }
@@ -218,7 +218,7 @@ static void test_openloop_normalize_angle(void)
 
   /* Do many iterations to exceed 2PI range */
 
-  for (i = 0; i < iter; i+=1)
+  for (i = 0; i < iter; i += 1)
     {
       motor_openloop(&op, speed, DIR_CW);
     }
@@ -233,9 +233,9 @@ static void test_openloop_normalize_angle(void)
 
   /* And normalize to <0.0, 2*PI> */
 
-  while (expected > 2*M_PI_F)
+  while (expected > 2 * M_PI_F)
     {
-      expected -= 2*M_PI_F;
+      expected -= 2 * M_PI_F;
     }
 
   /* Test angle */
@@ -265,7 +265,7 @@ static void test_angle_init(void)
   TEST_ASSERT_EQUAL_FLOAT(0.0, angle_e);
   TEST_ASSERT_EQUAL_FLOAT(0.0, angle_m);
   TEST_ASSERT_EQUAL_UINT8(p, angle.p);
-  TEST_ASSERT_EQUAL_FLOAT((float)1.0/p, angle.one_by_p);
+  TEST_ASSERT_EQUAL_FLOAT((float)1.0 / p, angle.one_by_p);
   TEST_ASSERT_EQUAL_INT8(0, angle.i);
 }
 
@@ -313,7 +313,7 @@ static void test_angle_el_update_cw(void)
 
   angle_step = 0.1;
   expected_e = 0.1;
-  expected_m = 0.1/p;
+  expected_m = 0.1 / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -336,14 +336,14 @@ static void test_angle_el_update_cw(void)
 
   angle_step = 2 * M_PI_F + 0.2;
   expected_e = 0.2;
-  expected_m = angle_step/p;
+  expected_m = angle_step / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
   motor_angle_e_update(&angle, M_PI_F, DIR_CW);
-  motor_angle_e_update(&angle, 2*M_PI_F, DIR_CW);
+  motor_angle_e_update(&angle, 2 * M_PI_F, DIR_CW);
   motor_angle_e_update(&angle, 0.2, DIR_CW);
 
   angle_m = motor_angle_m_get(&angle);
@@ -381,9 +381,9 @@ static void test_angle_el_update_ccw(void)
    * We start from 0.0 and move angle CCW by 0.1.
    */
 
-  angle_step = MOTOR_ANGLE_E_MAX-0.1;
+  angle_step = MOTOR_ANGLE_E_MAX - 0.1;
   expected_e = angle_step;
-  expected_m = (p-1)*MOTOR_ANGLE_M_MAX/p + expected_e/p;
+  expected_m = (p - 1) * MOTOR_ANGLE_M_MAX / p + expected_e / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -397,22 +397,22 @@ static void test_angle_el_update_ccw(void)
   TEST_ASSERT_EQUAL_FLOAT(expected_e, angle_e);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, s, angle.angle_el.sin);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, c, angle.angle_el.cos);
-  TEST_ASSERT_EQUAL_INT8(p-1, angle.i);
+  TEST_ASSERT_EQUAL_INT8(p - 1, angle.i);
   TEST_ASSERT_EQUAL_FLOAT(expected_m, angle_m);
 
   /* Update electrical angle with 2PI+0.1 in CCW direction in three steps */
 
   angle_step = (MOTOR_ANGLE_E_MAX + 0.1);
-  expected_e = MOTOR_ANGLE_E_MAX-0.1;
-  expected_m = (p-2)*MOTOR_ANGLE_M_MAX/p + expected_e/p;
+  expected_e = MOTOR_ANGLE_E_MAX - 0.1;
+  expected_m = (p - 2) * MOTOR_ANGLE_M_MAX / p + expected_e / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
-  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX-M_PI_F, DIR_CCW);
-  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX-2*M_PI_F, DIR_CCW);
-  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX-0.1, DIR_CCW);
+  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX - M_PI_F, DIR_CCW);
+  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX - 2 * M_PI_F, DIR_CCW);
+  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX - 0.1, DIR_CCW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -422,7 +422,7 @@ static void test_angle_el_update_ccw(void)
   TEST_ASSERT_EQUAL_FLOAT(expected_e, angle_e);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, s, angle.angle_el.sin);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, c, angle.angle_el.cos);
-  TEST_ASSERT_EQUAL_INT8(p-2, angle.i);
+  TEST_ASSERT_EQUAL_INT8(p - 2, angle.i);
   TEST_ASSERT_EQUAL_FLOAT(expected_m, angle_m);
 }
 
@@ -451,7 +451,7 @@ static void test_angle_el_update_cw_overflow(void)
 
   angle_step = 0.1;
   expected_e = angle_step;
-  expected_m = angle_step/p;
+  expected_m = angle_step / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -467,7 +467,7 @@ static void test_angle_el_update_cw_overflow(void)
 
   /* Test poles counter before final step */
 
-  TEST_ASSERT_EQUAL_INT8(p-1, angle.i);
+  TEST_ASSERT_EQUAL_INT8(p - 1, angle.i);
 
   /* One more step after overflow mechanical angle */
 
@@ -511,7 +511,7 @@ static void test_angle_el_update_ccw_overflow(void)
 
   angle_step = 0.1;
   expected_e = MOTOR_ANGLE_E_MAX - angle_step;
-  expected_m = MOTOR_ANGLE_M_MAX - angle_step/p;
+  expected_m = MOTOR_ANGLE_M_MAX - angle_step / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -572,7 +572,7 @@ static void test_angle_el_change_dir(void)
    */
 
   angle_step = 0.1;
-  expected_m = 4*MOTOR_ANGLE_M_MAX/p + angle_step/p;
+  expected_m = 4 * MOTOR_ANGLE_M_MAX / p + angle_step / p;
   expected_e = 0.1;
   s = sin(expected_e);
   c = cos(expected_e);
@@ -609,7 +609,7 @@ static void test_angle_el_change_dir(void)
   /* Now move angle backward  2*(2PI) + 0.1 */
 
   angle_step = 0.1;
-  expected_m = 2*MOTOR_ANGLE_M_MAX/p - angle_step/p;
+  expected_m = 2 * MOTOR_ANGLE_M_MAX / p - angle_step / p;
   expected_e = MOTOR_ANGLE_E_MAX - angle_step;
   s = sin(expected_e);
   c = cos(expected_e);
@@ -630,7 +630,7 @@ static void test_angle_el_change_dir(void)
 
   /* And rest 0.1 */
 
-  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX-angle_step, DIR_CCW);
+  motor_angle_e_update(&angle, MOTOR_ANGLE_E_MAX - angle_step, DIR_CCW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -646,7 +646,7 @@ static void test_angle_el_change_dir(void)
   /* and again in forward direction 4*(2PI) + 0.1 */
 
   angle_step = 0.1;
-  expected_m = 5*MOTOR_ANGLE_M_MAX/p + angle_step/p;
+  expected_m = 5 * MOTOR_ANGLE_M_MAX / p + angle_step / p;
   expected_e = 0.1;
   s = sin(expected_e);
   c = cos(expected_e);
@@ -725,7 +725,7 @@ static void test_angle_m_update_cw(void)
 
   angle_step = 0.1;
   expected_m = angle_step;
-  expected_e = angle_step*p - 0*MOTOR_ANGLE_E_MAX/p;
+  expected_e = angle_step * p - 0*MOTOR_ANGLE_E_MAX / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -744,18 +744,18 @@ static void test_angle_m_update_cw(void)
 
   /* Update mechanical angle to get one electrical angle rotation + 0.1 */
 
-  angle_step = MOTOR_ANGLE_M_MAX/p + 0.1;
+  angle_step = MOTOR_ANGLE_M_MAX / p + 0.1;
   expected_m = angle_step;
-  expected_e = angle_step*p - 1*MOTOR_ANGLE_E_MAX;
+  expected_e = angle_step * p - 1 * MOTOR_ANGLE_E_MAX;
 
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
-  motor_angle_m_update(&angle, angle_step/3, DIR_CW);
-  motor_angle_m_update(&angle, 2*angle_step/3, DIR_CW);
-  motor_angle_m_update(&angle, 3*angle_step/3, DIR_CW);
+  motor_angle_m_update(&angle, angle_step / 3, DIR_CW);
+  motor_angle_m_update(&angle, 2 * angle_step / 3, DIR_CW);
+  motor_angle_m_update(&angle, 3 * angle_step / 3, DIR_CW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -790,12 +790,13 @@ static void test_angle_m_update_ccw(void)
 
   /* Update mechanical angle with 1.0
    * For 8 poles, one electrical angle rotationa takes ~0.785.
-   * So with angle step = 1.0 we have 1 electical angle rotation plus some rest.
+   * So with angle step = 1.0 we have 1 electical angle rotation plus
+   * some rest.
    */
 
   angle_step = 1.0;
   expected_m = angle_step;
-  expected_e = angle_step*p - 1*MOTOR_ANGLE_E_MAX;
+  expected_e = angle_step * p - 1 * MOTOR_ANGLE_E_MAX;
   s = sin(expected_e);
   c = cos(expected_e);
 
@@ -814,17 +815,17 @@ static void test_angle_m_update_ccw(void)
 
   /* Update mechanical angle to get one electrical angle rotation */
 
-  angle_step = angle_step - MOTOR_ANGLE_E_MAX/p;
+  angle_step = angle_step - MOTOR_ANGLE_E_MAX / p;
   expected_m = angle_step;
-  expected_e = angle_step*p;
+  expected_e = angle_step * p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
-  motor_angle_m_update(&angle, angle_step/3, DIR_CCW);
-  motor_angle_m_update(&angle, 2*angle_step/3, DIR_CCW);
-  motor_angle_m_update(&angle, 3*angle_step/3, DIR_CCW);
+  motor_angle_m_update(&angle, angle_step / 3, DIR_CCW);
+  motor_angle_m_update(&angle, 2 * angle_step / 3, DIR_CCW);
+  motor_angle_m_update(&angle, 3 * angle_step / 3, DIR_CCW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -861,18 +862,18 @@ static void test_angle_m_update_cw_overflow(void)
 
   angle_step = 0.1;
   expected_m = angle_step;
-  expected_e = 0*MOTOR_ANGLE_E_MAX/p + angle_step*p;
+  expected_e = 0 * MOTOR_ANGLE_E_MAX / p + angle_step * p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
   motor_angle_m_update(&angle, 0.0, DIR_CW);
-  motor_angle_m_update(&angle, MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 1*MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 2*MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 3*MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 4*MOTOR_ANGLE_M_MAX/4, DIR_CW);
+  motor_angle_m_update(&angle, MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 1 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 2 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 3 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 4 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
   motor_angle_m_update(&angle, angle_step, DIR_CW);
 
   angle_m = motor_angle_m_get(&angle);
@@ -910,17 +911,17 @@ static void test_angle_m_update_ccw_overflow(void)
 
   angle_step = MOTOR_ANGLE_M_MAX - 0.1;
   expected_m = angle_step;
-  expected_e = MOTOR_ANGLE_E_MAX - 0.1*p;
+  expected_e = MOTOR_ANGLE_E_MAX - 0.1 * p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
   motor_angle_m_update(&angle, 0.0, DIR_CCW);
-  motor_angle_m_update(&angle, 4*MOTOR_ANGLE_M_MAX/4, DIR_CCW);
-  motor_angle_m_update(&angle, 3*MOTOR_ANGLE_M_MAX/4, DIR_CCW);
-  motor_angle_m_update(&angle, 2*MOTOR_ANGLE_M_MAX/4, DIR_CCW);
-  motor_angle_m_update(&angle, 1*MOTOR_ANGLE_M_MAX/4, DIR_CCW);
+  motor_angle_m_update(&angle, 4 * MOTOR_ANGLE_M_MAX / 4, DIR_CCW);
+  motor_angle_m_update(&angle, 3 * MOTOR_ANGLE_M_MAX / 4, DIR_CCW);
+  motor_angle_m_update(&angle, 2 * MOTOR_ANGLE_M_MAX / 4, DIR_CCW);
+  motor_angle_m_update(&angle, 1 * MOTOR_ANGLE_M_MAX / 4, DIR_CCW);
   motor_angle_m_update(&angle, angle_step, DIR_CCW);
 
   angle_m = motor_angle_m_get(&angle);
@@ -932,7 +933,7 @@ static void test_angle_m_update_ccw_overflow(void)
   TEST_ASSERT_EQUAL_FLOAT(expected_e, angle_e);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, s, angle.angle_el.sin);
   TEST_ASSERT_FLOAT_WITHIN(TEST_SINCOS_DELTA, c, angle.angle_el.cos);
-  TEST_ASSERT_EQUAL_INT8(p-1, angle.i);
+  TEST_ASSERT_EQUAL_INT8(p - 1, angle.i);
 }
 
 /* Update mechanical angle and change direction */
@@ -957,19 +958,19 @@ static void test_angle_m_change_dir(void)
 
   /* Move mechanical angle by 3*(2PI)/4 in CW direction */
 
-  angle_step = 3*MOTOR_ANGLE_M_MAX/4;
+  angle_step = 3 * MOTOR_ANGLE_M_MAX / 4;
   expected_m = angle_step;
-  expected_i = ((int)(angle_step*p/MOTOR_ANGLE_M_MAX));
-  expected_e = angle_step*p - expected_i*MOTOR_ANGLE_E_MAX;
+  expected_i = ((int)(angle_step * p / MOTOR_ANGLE_M_MAX));
+  expected_e = angle_step * p - expected_i * MOTOR_ANGLE_E_MAX;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
   motor_angle_m_update(&angle, 0.0, DIR_CW);
-  motor_angle_m_update(&angle, 1*MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 2*MOTOR_ANGLE_M_MAX/4, DIR_CW);
-  motor_angle_m_update(&angle, 3*MOTOR_ANGLE_M_MAX/4, DIR_CW);
+  motor_angle_m_update(&angle, 1 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 2 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
+  motor_angle_m_update(&angle, 3 * MOTOR_ANGLE_M_MAX / 4, DIR_CW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -984,15 +985,15 @@ static void test_angle_m_change_dir(void)
 
   /* Move mechanical angle by 1.0 in CCW direction */
 
-  angle_step = 3*MOTOR_ANGLE_M_MAX/4 - 2.0;
+  angle_step = 3 * MOTOR_ANGLE_M_MAX / 4 - 2.0;
   expected_m = angle_step;
-  expected_i = ((int)(angle_step*p/MOTOR_ANGLE_M_MAX));
-  expected_e = angle_step*p - expected_i*MOTOR_ANGLE_E_MAX;
+  expected_i = ((int)(angle_step * p / MOTOR_ANGLE_M_MAX));
+  expected_e = angle_step * p - expected_i * MOTOR_ANGLE_E_MAX;
   s = sin(expected_e);
   c = cos(expected_e);
 
-  motor_angle_m_update(&angle, 3*MOTOR_ANGLE_M_MAX/4-1.0, DIR_CCW);
-  motor_angle_m_update(&angle, 3*MOTOR_ANGLE_M_MAX/4-2.0, DIR_CCW);
+  motor_angle_m_update(&angle, 3 * MOTOR_ANGLE_M_MAX / 4 - 1.0, DIR_CCW);
+  motor_angle_m_update(&angle, 3 * MOTOR_ANGLE_M_MAX / 4 - 2.0, DIR_CCW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -1032,19 +1033,19 @@ static void test_angle_m_el_mixed(void)
    * rotations + 0.1 in CW direction
    */
 
-  angle_step = 4*MOTOR_ANGLE_M_MAX/p + 0.1;
+  angle_step = 4 * MOTOR_ANGLE_M_MAX / p + 0.1;
   expected_m = angle_step;
-  expected_i = ((int)(angle_step*p/MOTOR_ANGLE_M_MAX));
-  expected_e = angle_step*p - expected_i*MOTOR_ANGLE_E_MAX;
+  expected_i = ((int)(angle_step * p / MOTOR_ANGLE_M_MAX));
+  expected_e = angle_step * p - expected_i * MOTOR_ANGLE_E_MAX;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move in a few steps */
 
   motor_angle_m_update(&angle, 0.0, DIR_CW);
-  motor_angle_m_update(&angle, MOTOR_ANGLE_M_MAX/p, DIR_CW);
-  motor_angle_m_update(&angle, 4*MOTOR_ANGLE_M_MAX/p, DIR_CW);
-  motor_angle_m_update(&angle, 4*MOTOR_ANGLE_M_MAX/p + 0.1, DIR_CW);
+  motor_angle_m_update(&angle, MOTOR_ANGLE_M_MAX / p, DIR_CW);
+  motor_angle_m_update(&angle, 4 * MOTOR_ANGLE_M_MAX / p, DIR_CW);
+  motor_angle_m_update(&angle, 4 * MOTOR_ANGLE_M_MAX / p + 0.1, DIR_CW);
 
   angle_m = motor_angle_m_get(&angle);
   angle_e = motor_angle_e_get(&angle);
@@ -1062,16 +1063,16 @@ static void test_angle_m_el_mixed(void)
    * angle reduced by 2 electrical rotations.
    */
 
-  angle_step = 2*MOTOR_ANGLE_E_MAX;
+  angle_step = 2 * MOTOR_ANGLE_E_MAX;
   expected_i = expected_i - 2;
   expected_e = expected_e;
-  expected_m = expected_m - 2*MOTOR_ANGLE_M_MAX/p;
+  expected_m = expected_m - 2 * MOTOR_ANGLE_M_MAX / p;
   s = sin(expected_e);
   c = cos(expected_e);
 
   /* Move angle in loop */
 
-  for (i = 0; i < 2; i+=1)
+  for (i = 0; i < 2; i += 1)
     {
       for (a = expected_e ; a >= 0.0; a -= 0.1)
         {
