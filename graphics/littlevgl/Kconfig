@@ -82,8 +82,8 @@ config LV_ANTIALIAS
 
 endif # LV_VDB_SIZE != 0
 
-config LV_REFR_PERIOD
-	int "Refresh period in milliseconds"
+config LV_DISP_DEF_REFR_PERIOD
+	int "Default refresh period in milliseconds"
 	default 50
 	---help---
 		The graphics library will check for invalid areas an refresh
@@ -100,28 +100,28 @@ endmenu
 
 menu "Input device settings"
 
-config LV_INDEV_READ_PERIOD
-	int "Input device read period in milliseconds"
+config LV_INDEV_DEF_READ_PERIOD
+	int "Input device default read period in milliseconds"
 	default 50
 
 config LV_INDEV_POINT_MARKER
 	int "Mark the pressed points on the screen"
 	default 0
 
-config LV_INDEV_DRAG_LIMIT
-	int "Drag limit in pixels"
+config LV_INDEV_DEF_DRAG_LIMIT
+	int "Default drag limit in pixels"
 	default 10
 
-config LV_INDEV_DRAG_THROW
-	int "Slow down ration when throwing on object by drag [%]"
+config LV_INDEV_DEF_DRAG_THROW
+	int "Default slow down ration when throwing on object by drag [%]"
 	default 20
 
-config LV_INDEV_LONG_PRESS_TIME
-	int "Long press time [ms]"
+config LV_INDEV_DEF_LONG_PRESS_TIME
+	int "Default long press time [ms]"
 	default 400
 
-config LV_INDEV_LONG_PRESS_REP_TIME
-	int "Repeated trigger period in long press [ms]"
+config LV_INDEV_DEF_LONG_PRESS_REP_TIME
+	int "Default repeated trigger period in long press [ms]"
 	default 100
 
 endmenu
@@ -264,217 +264,55 @@ endmenu
 
 menu "Font usage"
 
-# 10 PX FONTS
+config USE_LV_FONT_ROBOTO_12
+	bool "Roboto 12 px"
+	default n
 
-config USE_LV_FONT_DEJAVU_10
-	int "Dejavu 10 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
+config USE_LV_FONT_ROBOTO_16
+	bool "Roboto 16 px"
+	default y
 
-config USE_LV_FONT_DEJAVU_10_LATIN_SUP
-	int "Dejavu 10 px - latin supplement"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
+config USE_LV_FONT_ROBOTO_22
+	bool "Roboto 22 px"
+	default n
 
-config USE_LV_FONT_DEJAVU_10_CYRILLIC
-	int "Dejavu 10 px - cyrillic"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
+config USE_LV_FONT_ROBOTO_28
+	bool "Roboto 28 px"
+	default n
 
-config USE_LV_FONT_SYMBOL_10
-	int "Symbol 10 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-#20 PX FONTS
-
-config USE_LV_FONT_DEJAVU_20
-	int "Dejavu 20 px"
-	default 4
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_20_LATIN_SUP
-	int "Dejavu 20 px - latin supplement"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_20_CYRILLIC
-	int "Dejavu 20 px - cyrillic"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_SYMBOL_20
-	int "Symbol 20 px"
-	default 4
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-#30 PX FONTS
-
-config USE_LV_FONT_DEJAVU_30
-	int "Dejavu 30 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_30_LATIN_SUP
-	int "Dejavu 30 px - latin supplement"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_30_CYRILLIC
-	int "Dejavu 30 px - cyrillic"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_SYMBOL_30
-	int "Symbol 30 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-#40 PX FONTS
-
-config USE_LV_FONT_DEJAVU_40
-	int "Dejavu 40 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_40_LATIN_SUP
-	int "Dejavu 40 px - latin supplement"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_DEJAVU_40_CYRILLIC
-	int "Dejavu 40 px - cyrillic"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_SYMBOL_40
-	int "Symbol 40 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
-
-config USE_LV_FONT_MONOSPACE_8
-	int "Monospace 8 px"
-	default 0
-	---help---
-		0: disable
-		1: 1 bit-per-pixel
-		2: 2 bit-per-pixel
-		4: 4 bit-per-pixel
-		8: 8 bit-per-pixel
+config USE_LV_FONT_UNSCII_8
+	bool "Monospace 8 px"
+	default n
 
 choice
 	prompt "Default Font"
-	default LV_FONT_DEFAULT_DEJAVU_20
+	default LV_FONT_DEFAULT_ROBOTO_16
 
-config LV_FONT_DEFAULT_DEJAVU_10
-	bool "Dejavu 10 px"
-	depends on USE_LV_FONT_DEJAVU_10 != 0
+config LV_FONT_DEFAULT_ROBOTO_12
+	bool "Roboto 12 px"
+	depends on USE_LV_FONT_ROBOTO_12 != 0
 
-config LV_FONT_DEFAULT_DEJAVU_20
-	bool "Dejavu 20 px"
-	depends on USE_LV_FONT_DEJAVU_20 != 0
+config LV_FONT_DEFAULT_ROBOTO_16
+	bool "Roboto 16 px"
+	depends on USE_LV_FONT_ROBOTO_16 != 0
 
-config LV_FONT_DEFAULT_DEJAVU_30
-	bool "Dejavu 30 px"
-	depends on USE_LV_FONT_DEJAVU_30 != 0
+config LV_FONT_DEFAULT_ROBOTO_22
+	bool "Roboto 22 px"
+	depends on USE_LV_FONT_ROBOTO_22 != 0
 
-config LV_FONT_DEFAULT_DEJAVU_40
-	bool "Dejavu 40 px"
-	depends on USE_LV_FONT_DEJAVU_40 != 0
+config LV_FONT_DEFAULT_ROBOTO_28
+	bool "Roboto 28 px"
+	depends on USE_LV_FONT_ROBOTO_28 != 0
 
-config LV_FONT_DEFAULT_MONOSPACE_8
+config LV_FONT_DEFAULT_UNSCII_8
 	bool "Monospace 8 px"
-	depends on USE_LV_FONT_MONOSPACE_8 != 0
+	depends on USE_LV_FONT_UNSCII_8 != 0
 
 endchoice
 
 endmenu
 
 menu "Base object settings"
-
-config LV_OBJ_FREE_PTR
-	bool "Free pointer enable/disable"
-	default y
 
 config LV_OBJ_REALIGN
 	bool "Enable `lv_obj_realaign()` based on `lv_obj_align()` parameters"
@@ -566,6 +404,11 @@ config USE_LV_GAUGE
 config USE_LV_CHART
 	bool "Chart usage"
 	default y
+
+config LV_CHART_AXIS_TICK_LABEL_MAX_LEN
+	depends on USE_LV_CHART
+	int "Chart axis tick label max length"
+	default 20
 
 config USE_LV_TABLE
 	bool "Table usage"
