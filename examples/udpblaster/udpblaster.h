@@ -49,7 +49,7 @@
  ****************************************************************************/
 
 #ifdef UDPBLASTER_HOST
-/* HTONS/L macros are unique to uIP */
+/* HTONS/L macros are unique to NuttX */
 
 #  undef HTONS
 #  undef HTONL
