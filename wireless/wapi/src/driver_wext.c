@@ -6,8 +6,8 @@
  *   Author: Simon Piriou <spiriou31@gmail.com>
  *           Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted for NuttX from the driver_ext.c of WPA suplicant written originally
- * by Jouni Malinen
+ * Adapted for NuttX from the driver_ext.c of WPA suplicant written
+ * originally by Jouni Malinen
  *
  *   Copyright (c) 2003-2015, Jouni Malinen <j@w1.fi>
  *
@@ -41,10 +41,11 @@
  ****************************************************************************/
 
 /* This file implements a driver interface for the Linux Wireless Extensions.
- * When used with WE-18 or newer, this interface can be used as-is with number
- * of drivers. In addition to this, some of the common functions in this file
- * can be used by other driver interface implementations that use generic WE
- * ioctls, but require private ioctls for some of the functionality.
+ * When used with WE-18 or newer, this interface can be used as-is with
+ * number of drivers. In addition to this, some of the common functions
+ * in this file can be used by other driver interface implementations that
+ * use generic WE ioctls, but require private ioctls for some of the
+ * functionality.
  */
 
 /****************************************************************************
@@ -443,7 +444,8 @@ void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname)
           ssid[i] = rand() & 0xff;
         }
 
-      if (wapi_set_essid(sockfd, ifname, (FAR const char *)ssid, WAPI_ESSID_OFF) < 0)
+      if (wapi_set_essid(sockfd, ifname,
+                         (FAR const char *)ssid, WAPI_ESSID_OFF) < 0)
         {
           nerr("WEXT: Failed to set bogus " "SSID to disconnect\n");
         }
