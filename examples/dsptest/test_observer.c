@@ -82,7 +82,7 @@ static void test_observer_init(void)
   struct motor_observer_s        o;
   float per = 1e-11;
 
-  motor_observer_init(&o, (void*)&ao, (void*)&so, per);
+  motor_observer_init(&o, (void *)&ao, (void *)&so, per);
 
   TEST_ASSERT_EQUAL_FLOAT(0.0, o.angle);
   TEST_ASSERT_EQUAL_FLOAT(0.0, o.speed);
@@ -107,8 +107,8 @@ static void test_observer_smo_init(void)
 
   TEST_ASSERT_EQUAL_FLOAT(kslide, ao.k_slide);
   TEST_ASSERT_EQUAL_FLOAT(err_max, ao.err_max);
-  TEST_ASSERT_EQUAL_FLOAT(0.0, ao.F_gain);
-  TEST_ASSERT_EQUAL_FLOAT(0.0, ao.G_gain);
+  TEST_ASSERT_EQUAL_FLOAT(0.0, ao.F);
+  TEST_ASSERT_EQUAL_FLOAT(0.0, ao.G);
   TEST_ASSERT_EQUAL_FLOAT(0.0, ao.emf_lp_filter1);
   TEST_ASSERT_EQUAL_FLOAT(0.0, ao.emf_lp_filter2);
   TEST_ASSERT_EQUAL_FLOAT(0.0, ao.emf.a);
@@ -133,13 +133,20 @@ static void test_observer_smo_zeros(void)
   struct motor_observer_smo_s    ao;
   struct motor_observer_s        o;
   struct motor_phy_params_s      phy;
-  ab_frame_t i_ab    = {0.0, 0.0};
-  ab_frame_t v_ab    = {0.0, 0.0};
+  ab_frame_t i_ab;
+  ab_frame_t v_ab;
   float      k_slide = 1.0;
   float      err_max = 1.0;
   float      per     = 1e-6;
   float      angle   = 0.0;
   int        i       = 0;
+
+  /* Initialize ab frames */
+
+  i_ab.a = 0.0f;
+  i_ab.b = 0.0f;
+  v_ab.a = 0.0f;
+  v_ab.b = 0.0f;
 
   /* Initialize motor physical parameters */
 
@@ -164,7 +171,7 @@ static void test_observer_smo_zeros(void)
   v_ab.a = 0.0;
   v_ab.b = 0.0;
 
-  for (i = 0; i< 1000000; i+=1)
+  for (i = 0; i < 1000000; i += 1)
     {
       motor_observer_smo(&o, &i_ab, &v_ab, &phy, DIR_CW);
     }
@@ -175,7 +182,7 @@ static void test_observer_smo_zeros(void)
 
   TEST_ASSERT_EQUAL_FLOAT(M_PI_F, angle);
 
-  for (i = 0; i< 1000000; i+=1)
+  for (i = 0; i < 1000000; i += 1)
     {
       motor_observer_smo(&o, &i_ab, &v_ab, &phy, DIR_CCW);
     }
@@ -237,7 +244,7 @@ static void test_sobserver_div_init(void)
   motor_sobserver_div_init(&so, samples, filter, per);
 
   TEST_ASSERT_EQUAL_FLOAT(filter, so.filter);
-  TEST_ASSERT_EQUAL_FLOAT(1.0/(samples*per), so.one_by_dt);
+  TEST_ASSERT_EQUAL_FLOAT(1.0 / (samples * per), so.one_by_dt);
   TEST_ASSERT_EQUAL_UINT8(samples, so.samples);
 }
 
@@ -267,7 +274,7 @@ static void test_sobserver_div_zeros(void)
 
   expected_s = 0.0;
 
-  for(i = 0; i < 1000; i += 1)
+  for (i = 0; i < 1000; i += 1)
     {
       motor_sobserver_div(&o, 0.0, DIR_CW);
     }
@@ -282,7 +289,7 @@ static void test_sobserver_div_zeros(void)
 
   expected_s = 0.0;
 
-  for(i = 0; i < 1000; i += 1)
+  for (i = 0; i < 1000; i += 1)
     {
       motor_sobserver_div(&o, 0.0, DIR_CCW);
     }

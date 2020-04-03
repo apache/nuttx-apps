@@ -270,7 +270,7 @@ static void test_fast_sin(void)
 
   /* Compare with LIBC sine */
 
-  for(angle = 0.0; angle < 2*M_PI_F; angle += TEST_SINCOS_ANGLE_STEP)
+  for (angle = 0.0; angle < 2 * M_PI_F; angle += TEST_SINCOS_ANGLE_STEP)
     {
       s_ref = sinf(angle);
       s     = fast_sin(angle);
@@ -289,7 +289,7 @@ static void test_fast_cos(void)
 
   /* Compare with LIBC cosine */
 
-  for(angle = 0.0; angle < 2*M_PI_F; angle += TEST_SINCOS_ANGLE_STEP)
+  for (angle = 0.0; angle < 2 * M_PI_F; angle += TEST_SINCOS_ANGLE_STEP)
     {
       c_ref = cosf(angle);
       c     = fast_cos(angle);
@@ -308,7 +308,7 @@ static void test_fast_sin2(void)
 
   /* Compare with LIBC sine */
 
-  for(angle = 0.0; angle < 2*M_PI_F; angle += TEST_SINCOS2_ANGLE_STEP)
+  for (angle = 0.0; angle < 2 * M_PI_F; angle += TEST_SINCOS2_ANGLE_STEP)
     {
       s_ref = sinf(angle);
       s     = fast_sin2(angle);
@@ -327,7 +327,7 @@ static void test_fast_cos2(void)
 
   /* Compare with LIBC cosine */
 
-  for(angle = 0.0; angle < 2*M_PI_F; angle += TEST_SINCOS2_ANGLE_STEP)
+  for (angle = 0.0; angle < 2 * M_PI_F; angle += TEST_SINCOS2_ANGLE_STEP)
     {
       c_ref = cosf(angle);
       c     = fast_cos2(angle);
@@ -574,7 +574,7 @@ static void test_phase_angle_update(void)
   c   = ANGLE_COS(val);
   phase_angle_update(&angle, val);
 
-  TEST_ASSERT_EQUAL_FLOAT(val-2*M_PI_F, angle.angle);
+  TEST_ASSERT_EQUAL_FLOAT(val - 2 * M_PI_F, angle.angle);
   TEST_ASSERT_EQUAL_FLOAT(s, angle.sin);
   TEST_ASSERT_EQUAL_FLOAT(c, angle.cos);
 
@@ -585,7 +585,7 @@ static void test_phase_angle_update(void)
   c   = ANGLE_COS(val);
   phase_angle_update(&angle, val);
 
-  TEST_ASSERT_EQUAL_FLOAT(val+2*M_PI_F, angle.angle);
+  TEST_ASSERT_EQUAL_FLOAT(val + 2 * M_PI_F, angle.angle);
   TEST_ASSERT_EQUAL_FLOAT(s, angle.sin);
   TEST_ASSERT_EQUAL_FLOAT(c, angle.cos);
 }
