@@ -748,6 +748,23 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
                                 size_t key_len);
 
 /****************************************************************************
+ * Name: wpa_driver_wext_get_key_ext
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *   sockfd - Opened network socket
+ *   ifname - Interface name
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+int wpa_driver_wext_get_key_ext(int sockfd, FAR const char *ifname,
+                                enum wpa_alg_e *alg, FAR char *key,
+                                size_t *req_len);
+
+/****************************************************************************
  * Name: wpa_driver_wext_associate
  *
  * Description:
@@ -774,6 +791,20 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig);
 
 int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
                                    int idx, uint32_t value);
+
+/****************************************************************************
+ * Name: wpa_driver_wext_get_auth_param
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ****************************************************************************/
+
+int wpa_driver_wext_get_auth_param(int sockfd, FAR const char *ifname,
+                                   int idx, uint32_t *value);
 
 /****************************************************************************
  * Name: wpa_driver_wext_disconnect
