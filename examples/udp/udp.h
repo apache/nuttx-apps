@@ -52,32 +52,18 @@
  ****************************************************************************/
 
 #ifdef EXAMPLES_UDP_HOST
-/* HTONS/L macros are unique to uIP-based networks */
+/* HTONS/L macros are unique to NuttX */
 
-#  ifdef CONFIG_ENDIAN_BIG
-#    undef HTONS
-#    define HTONS(ns) (ns)
-#    undef HTONL
-#    define HTONL(nl) (nl)
-#  else
-#    undef HTONS
-#    define HTONS(ns) \
-       (unsigned short) \
-         (((((unsigned short)(ns)) & 0x00ff) << 8) | \
-         ((((unsigned short)(ns)) >> 8) & 0x00ff))
-#    undef HTONL
-#    define HTONL(nl) \
-       (unsigned long) \
-         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
-         ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
-         ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
-         ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
-#  endif
+#  undef HTONS
+#  undef HTONL
+#  define HTONS(ns) htons(ns)
+#  define HTONL(nl) htonl(nl)
 
 #  undef NTOHS
-#  define NTOHS(hs) HTONS(hs)
 #  undef NTOHL
-#  define NTOHL(hl) HTONL(hl)
+#  define NTOHS(hs) ntohs(hs)
+#  define NTOHL(hl) ntohl(hl)
+
 #  define FAR
 #endif
 

@@ -50,19 +50,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_udpserver_ipv6[8] =
-{
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
-};
+uint16_t g_udpserver_ipv6[8];
 #else
-uint32_t g_udpserver_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+uint32_t g_udpserver_ipv4;
 #endif
 
 /****************************************************************************
@@ -89,8 +79,23 @@ static void show_usage(FAR const char *progname)
 
 void udp_cmdline(int argc, char **argv)
 {
+  /* Init the default IP address. */
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+  g_udpserver_ipv6[0] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1);
+  g_udpserver_ipv6[1] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2);
+  g_udpserver_ipv6[2] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3);
+  g_udpserver_ipv6[3] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4);
+  g_udpserver_ipv6[4] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5);
+  g_udpserver_ipv6[5] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6);
+  g_udpserver_ipv6[6] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7);
+  g_udpserver_ipv6[7] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8);
+#else
+  g_udpserver_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+#endif
+
   /* Currently only a single command line option is supported:  The server
-   * IP address.
+   * IP address. Used to override default.
    */
 
   if (argc == 2)
