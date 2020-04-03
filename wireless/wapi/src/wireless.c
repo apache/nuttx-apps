@@ -10,10 +10,11 @@
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  - Redistributions of  source code must  retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ *  - Redistributions of  source code must  retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
  *
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of  conditions and the  following disclaimer in the
@@ -151,7 +152,8 @@ static inline double wapi_freq2float(const struct iw_freq *freq)
  * Name: wapi_float2freq
  *
  * Description:
- *   Converts a floating point the our internal representation of frequencies.
+ *   Converts a floating point the our internal representation of
+ *   frequencies.
  *
  ****************************************************************************/
 
@@ -1061,7 +1063,8 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
         {
           *flag = WAPI_TXPOWER_MWATT;
         }
-      else if (IW_TXPOW_RELATIVE == (wrq.u.txpower.flags & IW_TXPOW_RELATIVE))
+      else if (IW_TXPOW_RELATIVE ==
+               (wrq.u.txpower.flags & IW_TXPOW_RELATIVE))
         {
           *flag = WAPI_TXPOWER_RELATIVE;
         }
