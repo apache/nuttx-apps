@@ -60,7 +60,8 @@
  * Private Data
  ****************************************************************************/
 
-static int fd;static bool calibrated = false;
+static int fd;
+static bool calibrated = false;
 static int x_range;
 static int y_range;
 static int x_offset;
@@ -118,6 +119,7 @@ errout:
  *   Read a TP data and store in 'data' argument
  *
  * Input Parameters:
+ *   indev_drv - Input device handler
  *   data - Store the x, y and state information here
  *
  * Returned Value:
@@ -125,7 +127,7 @@ errout:
  *
  ****************************************************************************/
 
-bool tp_read(FAR lv_indev_data_t *data)
+bool tp_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
 {
   struct touch_sample_s sample;
   int nbytes;
@@ -150,7 +152,8 @@ bool tp_read(FAR lv_indev_data_t *data)
       return false;
     }
 
-  if (sample.point[0].flags & TOUCH_DOWN || sample.point[0].flags & TOUCH_MOVE)
+  if (sample.point[0].flags & TOUCH_DOWN
+      || sample.point[0].flags & TOUCH_MOVE)
     {
       if (calibrated)
         {
@@ -158,7 +161,6 @@ bool tp_read(FAR lv_indev_data_t *data)
             {
               last_x = sample.point[0].y;
               last_y = sample.point[0].x;
-
             }
           else
             {
@@ -173,7 +175,6 @@ bool tp_read(FAR lv_indev_data_t *data)
 
           last_x = (int)((int)last_x * LV_HOR_RES) / x_range;
           last_y = (int)((int)last_y * LV_VER_RES) / y_range;
-
 
           if (x_inv)
             {
@@ -194,13 +195,13 @@ bool tp_read(FAR lv_indev_data_t *data)
       last_state = LV_INDEV_STATE_PR;
     }
   else if (sample.point[0].flags & TOUCH_UP)
-   {
-     last_state = LV_INDEV_STATE_REL;
-   }
+    {
+      last_state = LV_INDEV_STATE_REL;
+    }
   else if (sample.point[0].flags & TOUCH_UP)
-   {
-     last_state = LV_INDEV_STATE_REL;
-   }
+    {
+      last_state = LV_INDEV_STATE_REL;
+    }
 
   /* Update touchpad data */
 
@@ -236,7 +237,9 @@ void tp_set_cal_values(FAR lv_point_t *ul, FAR lv_point_t *ur,
 
   if (abs(ul->x - ur->x) < LV_HOR_RES / 2)
     {
-      xy_inv = true;  /*No real change in x horizontally*/
+      /* No real change in x horizontally */
+
+      xy_inv = true;
     }
 
   if (xy_inv)
@@ -285,7 +288,7 @@ void tp_set_cal_values(FAR lv_point_t *ul, FAR lv_point_t *ur,
   calibrated = true;
 
   printf("tp_cal result\n");
-  printf("offset x:%d, y:%d\n",x_offset, y_offset);
-  printf("range x:%d, y:%d\n",x_range, y_range);
-  printf("invert x/y:%d, x:%d, y:%d\n\n", xy_inv,x_inv,y_inv);
+  printf("offset x:%d, y:%d\n", x_offset, y_offset);
+  printf("range x:%d, y:%d\n", x_range, y_range);
+  printf("invert x/y:%d, x:%d, y:%d\n\n", xy_inv, x_inv, y_inv);
 }
