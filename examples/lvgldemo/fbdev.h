@@ -53,14 +53,15 @@ extern "C"
  ****************************************************************************/
 
 int fbdev_init(void);
-void fbdev_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                 FAR const lv_color_t *color_p);
-void fbdev_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
+void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
+                 lv_color_t *color_p);
+void fbdev_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                lv_color_t color);
 void fbdev_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                FAR const lv_color_t *color_p);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}
 #endif
 
 #endif /*__APPS_EXAMPLES_LVGLDEMO_FBDEV_H */
