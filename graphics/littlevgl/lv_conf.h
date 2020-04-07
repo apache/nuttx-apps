@@ -38,8 +38,8 @@
  * COPY THIS FILE AS `lv_conf.h` NEXT TO the `lvgl` FOLDER
  */
 
-#ifndef LV_CONF_H
-#define LV_CONF_H
+#ifndef __APPS_GRAPHICS_LITTLEVGL_LV_CONF_H
+#define __APPS_GRAPHICS_LITTLEVGL_LV_CONF_H
 /* clang-format off */
 
 #include <nuttx/config.h>
@@ -809,9 +809,7 @@ typedef void * lv_obj_user_data_t;
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
 
-/*--END OF LV_CONF_H--*/
-
 /*Be sure every define has a default value*/
 #include "lvgl/src/lv_conf_checker.h"
 
-#endif /*LV_CONF_H*/
+#endif /*__APPS_GRAPHICS_LITTLEVGL_LV_CONF_H*/
