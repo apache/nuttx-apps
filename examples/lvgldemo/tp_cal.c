@@ -68,7 +68,7 @@ enum tp_cal_state_e
  * Private Function Prototypes
  ****************************************************************************/
 
-static lv_res_t btn_click_action(lv_obj_t * scr);
+static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event);
 
 /****************************************************************************
  * Private Data
@@ -92,196 +92,201 @@ static lv_obj_t *circ_area;
  *
  * Input Parameters:
  *   scr
+ *   event
  *
  * Returned Value:
  *   ?
  *
  ****************************************************************************/
 
-static lv_res_t btn_click_action(FAR lv_obj_t *scr)
+static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event)
 {
-  if (state == TP_CAL_STATE_WAIT_TOP_LEFT)
+  if (event == LV_EVENT_CLICKED)
     {
-      lv_indev_t *indev = lv_indev_get_act();
-      char buf[64];
-#if USE_LV_ANIMATION
-      lv_anim_t a;
+      if (state == TP_CAL_STATE_WAIT_TOP_LEFT)
+        {
+          lv_indev_t *indev = lv_indev_get_act();
+          char buf[64];
+#if LV_USE_ANIMATION
+          lv_anim_t a;
 #endif
 
-      lv_indev_get_point(indev, &p[0]);
+          lv_indev_get_point(indev, &p[0]);
 
-      sprintf(buf, "x: %d\ny: %d", p[0].x, p[0].y);
-      lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
-      lv_label_set_text(label_coord, buf);
+          sprintf(buf, "x: %d\ny: %d", p[0].x, p[0].y);
+          lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
+          lv_label_set_text(label_coord, buf);
 
-      lv_label_set_text(label_main, "Click the circle in\n"
-                        "upper right-hand corner");
+          lv_label_set_text(label_main, "Click the circle in\n"
+                          "upper right-hand corner");
 
-      lv_obj_set_pos(label_main,
-                     (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
-                     (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
+          lv_obj_set_pos(label_main,
+                        (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
+                        (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
 
-#if USE_LV_ANIMATION
-      a.var            = circ_area;
-      a.start          = 0;
-      a.end            = LV_HOR_RES - CIRCLE_SIZE;
-      a.fp             = (lv_anim_fp_t) lv_obj_set_x;
-      a.path           = lv_anim_path_linear;
-      a.end_cb         = NULL;
-      a.act_time       = 0;
-      a.time           = 200;
-      a.playback       = 0;
-      a.playback_pause = 0;
-      a.repeat         = 0;
-      a.repeat_pause   = 0;
-      lv_anim_create(&a);
-      a.start          = 0;
-      a.end            = 0;
-      a.fp             = (lv_anim_fp_t)lv_obj_set_y;
-      a.end_cb         = NULL;
-      a.time           = 200;
-      lv_anim_create(&a);
+#if LV_USE_ANIMATION
+          a.var            = circ_area;
+          a.start          = 0;
+          a.end            = LV_HOR_RES - CIRCLE_SIZE;
+          a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_x;
+          a.path_cb        = (lv_anim_path_cb_t)lv_anim_path_linear;
+          a.ready_cb       = NULL;
+          a.act_time       = 0;
+          a.time           = 200;
+          a.playback       = 0;
+          a.playback_pause = 0;
+          a.repeat         = 0;
+          a.repeat_pause   = 0;
+          lv_anim_create(&a);
+          a.start          = 0;
+          a.end            = 0;
+          a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_y;
+          a.ready_cb       = NULL;
+          a.time           = 200;
+          lv_anim_create(&a);
 #else
-      lv_obj_set_pos(circ_area, LV_HOR_RES - CIRCLE_SIZE, 0);
+          lv_obj_set_pos(circ_area, LV_HOR_RES - CIRCLE_SIZE, 0);
 #endif
 
-      state            = TP_CAL_STATE_WAIT_TOP_RIGHT;
-    }
-  else if (state == TP_CAL_STATE_WAIT_TOP_RIGHT)
-    {
-      lv_indev_t *indev = lv_indev_get_act();
-      char buf[64];
+          state            = TP_CAL_STATE_WAIT_TOP_RIGHT;
+        }
+      else if (state == TP_CAL_STATE_WAIT_TOP_RIGHT)
+        {
+          lv_indev_t *indev = lv_indev_get_act();
+          char buf[64];
 
-#if USE_LV_ANIMATION
-      lv_anim_t a;
+#if LV_USE_ANIMATION
+          lv_anim_t a;
 #endif
 
-      lv_indev_get_point(indev, &p[1]);
+          lv_indev_get_point(indev, &p[1]);
 
-      sprintf(buf, "x: %d\ny: %d", p[1].x, p[1].y);
-      lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
-      lv_label_set_text(label_coord, buf);
-      lv_obj_set_pos(label_coord, LV_HOR_RES - lv_obj_get_width(label_coord),
-                     0);
+          sprintf(buf, "x: %d\ny: %d", p[1].x, p[1].y);
+          lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
+          lv_label_set_text(label_coord, buf);
+          lv_obj_set_pos(label_coord,
+                         LV_HOR_RES - lv_obj_get_width(label_coord),
+                         0);
 
-      lv_label_set_text(label_main, "Click the circle in\n"
-                        "lower right-hand corner");
+          lv_label_set_text(label_main, "Click the circle in\n"
+                            "lower right-hand corner");
 
-      lv_obj_set_pos(label_main,
-                     (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
-                     (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
-#if USE_LV_ANIMATION
-      a.var            = circ_area;
-      a.start          = LV_HOR_RES - CIRCLE_SIZE;
-      a.end            = LV_HOR_RES - CIRCLE_SIZE;
-      a.fp             = (lv_anim_fp_t)lv_obj_set_x;
-      a.path           = lv_anim_path_linear;
-      a.end_cb         = NULL;
-      a.act_time       = 0;
-      a.time           = 200;
-      a.playback       = 0;
-      a.playback_pause = 0;
-      a.repeat         = 0;
-      a.repeat_pause   = 0;
-      lv_anim_create(&a);
+          lv_obj_set_pos(label_main,
+                         (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
+                         (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
 
-      a.start          = 0;
-      a.end            = LV_VER_RES - CIRCLE_SIZE;
-      a.fp             = (lv_anim_fp_t) lv_obj_set_y;
-      a.end_cb         = NULL;
-      a.time           = 200;
-      lv_anim_create(&a);
+#if LV_USE_ANIMATION
+          a.var            = circ_area;
+          a.start          = LV_HOR_RES - CIRCLE_SIZE;
+          a.end            = LV_HOR_RES - CIRCLE_SIZE;
+          a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_x;
+          a.path_cb        = (lv_anim_path_cb_t)lv_anim_path_linear;
+          a.ready_cb       = NULL;
+          a.act_time       = 0;
+          a.time           = 200;
+          a.playback       = 0;
+          a.playback_pause = 0;
+          a.repeat         = 0;
+          a.repeat_pause   = 0;
+          lv_anim_create(&a);
+
+          a.start          = 0;
+          a.end            = LV_VER_RES - CIRCLE_SIZE;
+          a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_y;
+          a.ready_cb       = NULL;
+          a.time           = 200;
+          lv_anim_create(&a);
 #else
-      lv_obj_set_pos(circ_area, LV_HOR_RES - CIRCLE_SIZE, LV_VER_RES - CIRCLE_SIZE);
+          lv_obj_set_pos(circ_area,
+                        LV_HOR_RES - CIRCLE_SIZE, LV_VER_RES - CIRCLE_SIZE);
 #endif
 
-      state            = TP_CAL_STATE_WAIT_BOTTOM_RIGHT;
-    }
-  else if (state == TP_CAL_STATE_WAIT_BOTTOM_RIGHT)
-    {
-      lv_indev_t *indev = lv_indev_get_act();
-      char buf[64];
-#if USE_LV_ANIMATION
-      lv_anim_t a;
+          state            = TP_CAL_STATE_WAIT_BOTTOM_RIGHT;
+        }
+      else if (state == TP_CAL_STATE_WAIT_BOTTOM_RIGHT)
+        {
+          lv_indev_t *indev = lv_indev_get_act();
+          char buf[64];
+#if LV_USE_ANIMATION
+          lv_anim_t a;
 #endif
-      lv_indev_get_point(indev, &p[2]);
+          lv_indev_get_point(indev, &p[2]);
 
-      sprintf(buf, "x: %d\ny: %d", p[2].x, p[2].y);
-      lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
-      lv_label_set_text(label_coord, buf);
-      lv_obj_set_pos(label_coord, LV_HOR_RES - lv_obj_get_width(label_coord),
-                     LV_VER_RES - lv_obj_get_height(label_coord));
+          sprintf(buf, "x: %d\ny: %d", p[2].x, p[2].y);
+          lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
+          lv_label_set_text(label_coord, buf);
+          lv_obj_set_pos(label_coord,
+                         LV_HOR_RES - lv_obj_get_width(label_coord),
+                         LV_VER_RES - lv_obj_get_height(label_coord));
 
-      lv_label_set_text(label_main, "Click the circle in\n"
-                        "lower left-hand corner");
+          lv_label_set_text(label_main, "Click the circle in\n"
+                            "lower left-hand corner");
 
-      lv_obj_set_pos(label_main,
-                     (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
-                     (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
+          lv_obj_set_pos(label_main,
+                        (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
+                        (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
 
-#if USE_LV_ANIMATION
-      a.var            = circ_area;
-      a.start          = LV_HOR_RES - CIRCLE_SIZE;
-      a.end            = 0;
-      a.fp             = (lv_anim_fp_t)lv_obj_set_x;
-      a.path           = lv_anim_path_linear;
-      a.end_cb         = NULL;
-      a.act_time       = 0;
-      a.time           = 200;
-      a.playback       = 0;
-      a.playback_pause = 0;
-      a.repeat         = 0;
-      a.repeat_pause   = 0;
-      lv_anim_create(&a);
+#if LV_USE_ANIMATION
+          a.var            = circ_area;
+          a.start          = LV_HOR_RES - CIRCLE_SIZE;
+          a.end            = 0;
+          a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_x;
+          a.path_cb        = (lv_anim_path_cb_t)lv_anim_path_linear;
+          a.ready_cb       = NULL;
+          a.act_time       = 0;
+          a.time           = 200;
+          a.playback       = 0;
+          a.playback_pause = 0;
+          a.repeat         = 0;
+          a.repeat_pause   = 0;
+          lv_anim_create(&a);
 
-      a.start         = LV_VER_RES - CIRCLE_SIZE;
-      a.end           = LV_VER_RES - CIRCLE_SIZE;
-      a.fp            = (lv_anim_fp_t) lv_obj_set_y;
-      a.end_cb        = NULL;
-      a.time          = 200;
-      lv_anim_create(&a);
+          a.start         = LV_VER_RES - CIRCLE_SIZE;
+          a.end           = LV_VER_RES - CIRCLE_SIZE;
+          a.exec_cb       = (lv_anim_exec_xcb_t) lv_obj_set_y;
+          a.ready_cb      = NULL;
+          a.time          = 200;
+          lv_anim_create(&a);
 #else
-      lv_obj_set_pos(circ_area, 0, LV_VER_RES - CIRCLE_SIZE);
+          lv_obj_set_pos(circ_area, 0, LV_VER_RES - CIRCLE_SIZE);
 #endif
 
-      state           = TP_CAL_STATE_WAIT_BOTTOM_LEFT;
+          state           = TP_CAL_STATE_WAIT_BOTTOM_LEFT;
+        }
+      else if (state == TP_CAL_STATE_WAIT_BOTTOM_LEFT)
+        {
+          lv_indev_t *indev = lv_indev_get_act();
+          char buf[64];
+
+          lv_indev_get_point(indev, &p[3]);
+
+          lv_label_set_text(label_main, "Click the screen\n"
+                            "to leave calibration");
+
+          lv_obj_set_pos(label_main,
+                        (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
+                        (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
+
+          sprintf(buf, "x: %d\ny: %d", p[3].x, p[3].y);
+          lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
+          lv_label_set_text(label_coord, buf);
+          lv_obj_set_pos(label_coord, 0,
+                          LV_VER_RES - lv_obj_get_height(label_coord));
+
+          lv_obj_del(circ_area);
+
+          state = TP_CAL_STATE_WAIT_LEAVE;
+        }
+      else if (state == TP_CAL_STATE_WAIT_LEAVE)
+        {
+          lv_scr_load(prev_scr);
+          tp_set_cal_values(&p[0], &p[1], &p[2], &p[3]);
+          state = TP_CAL_STATE_READY;
+        }
+      else if (state == TP_CAL_STATE_READY)
+        {
+        }
     }
-
-  else if (state == TP_CAL_STATE_WAIT_BOTTOM_LEFT)
-    {
-      lv_indev_t *indev = lv_indev_get_act();
-      char buf[64];
-
-      lv_indev_get_point(indev, &p[3]);
-
-      lv_label_set_text(label_main, "Click the screen\n"
-                        "to leave calibration");
-
-      lv_obj_set_pos(label_main,
-                     (LV_HOR_RES - lv_obj_get_width(label_main)) / 2,
-                     (LV_VER_RES - lv_obj_get_height(label_main)) / 2);
-
-      sprintf(buf, "x: %d\ny: %d", p[3].x, p[3].y);
-      lv_obj_t *label_coord = lv_label_create(lv_scr_act(), NULL);
-      lv_label_set_text(label_coord, buf);
-      lv_obj_set_pos(label_coord, 0,
-                     LV_VER_RES - lv_obj_get_height(label_coord));
-
-      lv_obj_del(circ_area);
-
-      state = TP_CAL_STATE_WAIT_LEAVE;
-    }
-  else if (state == TP_CAL_STATE_WAIT_LEAVE)
-    {
-      lv_scr_load(prev_scr);
-      tp_set_cal_values(&p[0], &p[1], &p[2], &p[3]);
-      state = TP_CAL_STATE_READY;
-    }
-  else if (state == TP_CAL_STATE_READY)
-    {
-    }
-
-  return LV_RES_OK;
 }
 
 /****************************************************************************
@@ -305,7 +310,7 @@ static lv_res_t btn_click_action(FAR lv_obj_t *scr)
 void tp_cal_create(void)
 {
   static lv_style_t style_circ;
-#if USE_LV_ANIMATION
+#if LV_USE_ANIMATION
   lv_anim_t a;
 #endif
 
@@ -323,7 +328,7 @@ void tp_cal_create(void)
   lv_obj_set_size(big_btn, TP_MAX_VALUE, TP_MAX_VALUE);
   lv_btn_set_style(big_btn, LV_BTN_STYLE_REL, &lv_style_transp);
   lv_btn_set_style(big_btn, LV_BTN_STYLE_PR, &lv_style_transp);
-  lv_btn_set_action(big_btn, LV_BTN_ACTION_CLICK, btn_click_action);
+  lv_obj_set_event_cb(big_btn, btn_click_action);
   lv_btn_set_layout(big_btn, LV_LAYOUT_OFF);
 
   label_main = lv_label_create(lv_scr_act(), NULL);
@@ -342,13 +347,13 @@ void tp_cal_create(void)
   lv_obj_set_style(circ_area, &style_circ);
   lv_obj_set_click(circ_area, false);
 
-#if USE_LV_ANIMATION
+#if LV_USE_ANIMATION
   a.var            = circ_area;
   a.start          = LV_HOR_RES / 2;
   a.end            = 0;
-  a.fp             = (lv_anim_fp_t) lv_obj_set_x;
-  a.path           = lv_anim_path_linear;
-  a.end_cb         = NULL;
+  a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_x;
+  a.path_cb        = (lv_anim_path_cb_t)lv_anim_path_linear;
+  a.ready_cb       = NULL;
   a.act_time       = -500;
   a.time           = 200;
   a.playback       = 0;
@@ -359,8 +364,8 @@ void tp_cal_create(void)
 
   a.start          = LV_VER_RES / 2;
   a.end            = 0;
-  a.fp             = (lv_anim_fp_t) lv_obj_set_y;
-  a.end_cb         = NULL;
+  a.exec_cb        = (lv_anim_exec_xcb_t)lv_obj_set_y;
+  a.ready_cb       = NULL;
   a.time           = 200;
   lv_anim_create(&a);
 #endif
