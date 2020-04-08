@@ -228,35 +228,35 @@ config LV_THEME_LIVE_UPDATE
 	bool "Allow theme switching at run time. Uses 8..10 kB of RAM"
 	default n
 
-config USE_LV_THEME_TEMPL
+config LV_USE_THEME_TEMPL
 	bool "Use Template theme: just for test"
 	default n
 
-config USE_LV_THEME_DEFAULT
+config LV_USE_THEME_DEFAULT
 	bool "Use Default theme: uses the built-in style"
 	default n
 
-config USE_LV_THEME_ALIEN
+config LV_USE_THEME_ALIEN
 	bool "Use Alien theme: dark futuristic theme"
 	default n
 
-config USE_LV_THEME_NIGHT
+config LV_USE_THEME_NIGHT
 	bool "Use Night theme: dark elegant theme"
 	default n
 
-config USE_LV_THEME_MONO
+config LV_USE_THEME_MONO
 	bool "Use Mono theme: mono color theme"
 	default n
 
-config USE_LV_THEME_MATERIAL
+config LV_USE_THEME_MATERIAL
 	bool "Use Material theme: material theme with bold colors"
 	default n
 
-config USE_LV_THEME_ZEN
+config LV_USE_THEME_ZEN
 	bool "Use Zen theme: light, peaceful theme"
 	default n
 
-config USE_LV_THEME_NEMO
+config LV_USE_THEME_NEMO
 	bool "Use Nemo theme: Water-like theme based on the movie 'Finding Nemo'"
 	default n
 
