@@ -55,34 +55,6 @@
 #ifdef CONFIG_NET
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-/* The address family that we used to create the socket and in the IOCTL
- * data really does not matter.  It should, however, be valid in the current
- * configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define PF_FAMILY  PF_INET
-#  define AF_FAMILY  AF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define PF_FAMILY  PF_INET6
-#  define AF_FAMILY  AF_INET6
-#elif defined(CONFIG_NET_PKT)
-#  define PF_FAMILY  PF_PACKET
-#  define AF_FAMILY  AF_PACKET
-#elif defined(CONFIG_NET_IEEE802154)
-#  define PF_FAMILY  PF_IEEE802154
-#  define AF_FAMILY  AF_IEEE802154
-#elif defined(CONFIG_NET_BLUETOOTH)
-#  define PF_FAMILY  PF_BLUETOOTH
-#  define AF_FAMILY  AF_BLUETOOTH
-#elif defined(CONFIG_NET_USRSOCK)
-#  define PF_FAMILY  PF_INET
-#  define AF_FAMILY  AF_INET
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -109,7 +81,8 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NETLIB_SOCK_FAMILY,
+                          NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           struct ifreq req;
@@ -120,7 +93,7 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
 
           /* Put the new MAC address into the request */
 
-          req.ifr_hwaddr.sa_family = AF_FAMILY;
+          req.ifr_hwaddr.sa_family = NETLIB_SOCK_FAMILY;
           memcpy(&req.ifr_hwaddr.sa_data, macaddr, IFHWADDRLEN);
 
           /* Perform the ioctl to set the MAC address */
