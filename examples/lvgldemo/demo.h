@@ -50,6 +50,12 @@
 #  define LV_DEMO_WALLPAPER 0
 #endif
 
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_SLIDE_SHOW
+#  define LV_DEMO_SLIDE_SHOW 1
+#else
+#  define LV_DEMO_SLIDE_SHOW 0
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
