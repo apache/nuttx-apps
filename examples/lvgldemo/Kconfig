@@ -39,6 +39,11 @@ config EXAMPLES_LVGLDEMO_WALLPAPER
 	depends on EXAMPLES_LVGLDEMO_SIMPLE
 	default y
 
+config EXAMPLES_LVGLDEMO_SLIDE_SHOW
+	bool "Use slide"
+	depends on EXAMPLES_LVGLDEMO_SIMPLE
+	default n
+
 choice
 	prompt "Selected Theme"
 	depends on EXAMPLES_LVGLDEMO_THEME_1
