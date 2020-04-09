@@ -60,7 +60,7 @@
 struct netlib_sendto_request_s
 {
   struct nlmsghdr hdr;
-  struct ndmsg msg;
+  struct rtgenmsg gen;
 };
 
 struct netlib_recvfrom_response_s
@@ -159,12 +159,12 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
   thiseq = ++seqno;
 
   memset(&req, 0, sizeof(req));
-  req.hdr.nlmsg_len   = NLMSG_LENGTH(sizeof(struct ndmsg));
-  req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-  req.hdr.nlmsg_seq   = thiseq;
-  req.hdr.nlmsg_type  = RTM_GETNEIGH;
-  req.hdr.nlmsg_pid   = pid;
-  req.msg.ndm_family  = AF_INET6;
+  req.hdr.nlmsg_len    = NLMSG_LENGTH(sizeof(struct rtgenmsg));
+  req.hdr.nlmsg_flags  = NLM_F_REQUEST | NLM_F_DUMP;
+  req.hdr.nlmsg_seq    = thiseq;
+  req.hdr.nlmsg_type   = RTM_GETNEIGH;
+  req.hdr.nlmsg_pid    = pid;
+  req.gen.rtgen_family = AF_INET6;
 
   nsent = send(fd, &req, req.hdr.nlmsg_len, 0);
   if (nsent < 0)
