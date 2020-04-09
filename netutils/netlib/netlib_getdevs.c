@@ -129,7 +129,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
   addr.nl_pid    = pid;
-  addr.nl_groups = RTM_GETLINK;
+  addr.nl_groups = 0;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
@@ -253,17 +253,6 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
                         break;
                     }
                }
-            }
-            break;
-
-          /* RTM_NEWROUTE provides routing information for the device
-           * (address, gateway, etc.)
-           */
-
-          case RTM_NEWROUTE:
-            {
-              fprintf(stderr, "WARNING: RTM_NEWLINK Message type not "
-                              "implemented\n");
             }
             break;
 

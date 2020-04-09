@@ -158,7 +158,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
   addr.nl_pid    = pid;
-  addr.nl_groups = RTM_GETROUTE;
+  addr.nl_groups = 0;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
@@ -246,9 +246,6 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
           case NLMSG_DONE:
             enddump = true;
             break;
-
-          case RTM_NEWLINK:
-            break;  /* Ignore any link information */
 
           case RTM_NEWROUTE:
             {

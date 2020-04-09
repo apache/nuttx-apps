@@ -44,7 +44,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <errno.h>
 
 #include <netpacket/netlink.h>
 
@@ -143,7 +142,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
   addr.nl_pid    = pid;
-  addr.nl_groups = RTM_GETNEIGH;
+  addr.nl_groups = 0;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
              sizeof( struct sockaddr_nl));
@@ -161,7 +160,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
 
   memset(&req, 0, sizeof(req));
   req.hdr.nlmsg_len   = NLMSG_LENGTH(sizeof(struct ndmsg));
-  req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_REQUEST;
+  req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
   req.hdr.nlmsg_seq   = thiseq;
   req.hdr.nlmsg_type  = RTM_GETNEIGH;
   req.hdr.nlmsg_pid   = pid;
