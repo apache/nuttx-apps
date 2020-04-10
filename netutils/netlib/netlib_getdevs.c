@@ -132,7 +132,7 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
   addr.nl_groups = 0;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
-             sizeof( struct sockaddr_nl));
+             sizeof(struct sockaddr_nl));
   if (ret < 0)
     {
       int errcode = errno;
@@ -203,7 +203,9 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
       switch (resp.hdr.nlmsg_type)
         {
-          /* NLMSG_DONE means that the entire list of devices has been returned */
+          /* NLMSG_DONE means that the entire list of devices has been
+           * returned
+           */
 
           case NLMSG_DONE:
             enddump = true;
@@ -220,7 +222,8 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
               if (nrecvd != sizeof(struct netlib_recvfrom_response_s))
                 {
-                  fprintf(stderr, "ERROR: Bad massage size: %ld\n", (long)nrecvd);
+                  fprintf(stderr, "ERROR: Bad massage size: %ld\n",
+                          (long)nrecvd);
                   goto errout_with_socket;
                 }
 

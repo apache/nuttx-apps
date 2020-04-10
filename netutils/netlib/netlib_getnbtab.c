@@ -145,7 +145,7 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
   addr.nl_groups = 0;
 
   ret = bind(fd, (FAR const struct sockaddr *)&addr,
-             sizeof( struct sockaddr_nl));
+             sizeof(struct sockaddr_nl));
   if (ret < 0)
     {
       int errcode = errno;
@@ -196,17 +196,17 @@ ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
       goto errout_with_socket;
     }
 
-   /* The sequence number in the response should match the sequence
-    * number in the request (since we created the socket, this should
-    * always be true).
-    */
+  /* The sequence number in the response should match the sequence
+   * number in the request (since we created the socket, this should
+   * always be true).
+   */
 
-   if (resp->hdr.nlmsg_seq != thiseq)
-     {
+  if (resp->hdr.nlmsg_seq != thiseq)
+    {
       fprintf(stderr, "ERROR: Bad sequence number in response\n");
       ret = -EIO;
       goto errout_with_socket;
-     }
+    }
 
   /* Copy the Neighbor table data to the caller's buffer */
 
