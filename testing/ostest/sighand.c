@@ -18,6 +18,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -143,7 +147,7 @@ static int waiter_main(int argc, char *argv[])
   struct sigaction oact;
   int status;
 
-  printf("waiter_main: Waiter started\n" );
+  printf("waiter_main: Waiter started\n");
 
   printf("waiter_main: Unmasking signal %d\n" , WAKEUP_SIGNAL);
   sigemptyset(&set);
@@ -155,7 +159,7 @@ static int waiter_main(int argc, char *argv[])
               status);
     }
 
-  printf("waiter_main: Registering signal handler\n" );
+  printf("waiter_main: Registering signal handler\n");
   act.sa_sigaction = wakeup_action;
   act.sa_flags  = SA_SIGINFO;
 
@@ -175,7 +179,7 @@ static int waiter_main(int argc, char *argv[])
 
   /* Take the semaphore */
 
-  printf("waiter_main: Waiting on semaphore\n" );
+  printf("waiter_main: Waiting on semaphore\n");
   FFLUSH();
 
   status = sem_wait(&sem);
@@ -184,7 +188,8 @@ static int waiter_main(int argc, char *argv[])
       int error = errno;
       if (error == EINTR)
         {
-          printf("waiter_main: sem_wait() successfully interrupted by signal\n" );
+          printf("waiter_main: sem_wait() successfully interrupted by "
+                 "signal\n");
         }
       else
         {
@@ -193,7 +198,7 @@ static int waiter_main(int argc, char *argv[])
     }
   else
     {
-      printf("waiter_main: ERROR awakened with no error!\n" );
+      printf("waiter_main: ERROR awakened with no error!\n");
     }
 
   /* Detach the signal handler */
@@ -201,7 +206,7 @@ static int waiter_main(int argc, char *argv[])
   act.sa_handler = SIG_DFL;
   sigaction(WAKEUP_SIGNAL, &act, &oact);
 
-  printf("waiter_main: done\n" );
+  printf("waiter_main: done\n");
   FFLUSH();
 
   threadexited = true;
@@ -224,7 +229,7 @@ void sighand_test(void)
   pid_t waiterpid;
   int status;
 
-  printf("sighand_test: Initializing semaphore to 0\n" );
+  printf("sighand_test: Initializing semaphore to 0\n");
   sem_init(&sem, 0, 0);
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
@@ -239,7 +244,7 @@ void sighand_test(void)
               status);
     }
 
-  printf("sighand_test: Registering SIGCHLD handler\n" );
+  printf("sighand_test: Registering SIGCHLD handler\n");
   act.sa_sigaction = death_of_child;
   act.sa_flags  = SA_SIGINFO;
 
@@ -255,11 +260,11 @@ void sighand_test(void)
 
   /* Start waiter thread  */
 
-  printf("sighand_test: Starting waiter task\n" );
+  printf("sighand_test: Starting waiter task\n");
   status = sched_getparam (0, &param);
   if (status != OK)
     {
-      printf("sighand_test: ERROR sched_getparam() failed\n" );
+      printf("sighand_test: ERROR sched_getparam() failed\n");
       param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
@@ -267,7 +272,7 @@ void sighand_test(void)
                            STACKSIZE, waiter_main, NULL);
   if (waiterpid == ERROR)
     {
-      printf("sighand_test: ERROR failed to start waiter_main\n" );
+      printf("sighand_test: ERROR failed to start waiter_main\n");
     }
   else
     {
@@ -288,7 +293,7 @@ void sighand_test(void)
   status = sigqueue(waiterpid, WAKEUP_SIGNAL, sigvalue);
   if (status != OK)
     {
-      printf("sighand_test: ERROR sigqueue failed\n" );
+      printf("sighand_test: ERROR sigqueue failed\n");
       task_delete(waiterpid);
     }
 
@@ -301,12 +306,12 @@ void sighand_test(void)
 
   if (!threadexited)
     {
-      printf("sighand_test: ERROR waiter task did not exit\n" );
+      printf("sighand_test: ERROR waiter task did not exit\n");
     }
 
   if (!sigreceived)
     {
-      printf("sighand_test: ERROR signal handler did not run\n" );
+      printf("sighand_test: ERROR signal handler did not run\n");
     }
 
   /* Detach the signal handler */
@@ -316,6 +321,6 @@ void sighand_test(void)
   sigaction(SIGCHLD, &act, &oact);
 #endif
 
-  printf("sighand_test: done\n" );
+  printf("sighand_test: done\n");
   FFLUSH();
 }

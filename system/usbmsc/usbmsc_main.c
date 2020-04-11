@@ -477,11 +477,15 @@ int main(int argc, FAR char *argv[])
   printf("mcsonn_main: handle=%p\n", handle);
   check_test_memory_usage("After usbmsc_configure()");
 
-  printf("mcsonn_main: Bind LUN=0 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH1);
+  printf("mcsonn_main: Bind LUN=0 to %s\n",
+         CONFIG_SYSTEM_USBMSC_DEVPATH1);
+
 #ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT1
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, true);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0,
+                       true);
 #else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, false);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0,
+                       false);
 #endif
   if (ret < 0)
     {
@@ -495,11 +499,15 @@ int main(int argc, FAR char *argv[])
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 1
 
-  printf("mcsonn_main: Bind LUN=1 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH2);
+  printf("mcsonn_main: Bind LUN=1 to %s\n",
+         CONFIG_SYSTEM_USBMSC_DEVPATH2);
+
 #ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT2
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0, true);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0,
+                       true);
 #else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0, false);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0,
+                       false);
 #endif
   if (ret < 0)
     {
@@ -513,11 +521,15 @@ int main(int argc, FAR char *argv[])
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 2
 
-  printf("mcsonn_main: Bind LUN=2 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH3);
+  printf("mcsonn_main: Bind LUN=2 to %s\n",
+         CONFIG_SYSTEM_USBMSC_DEVPATH3);
+
 #ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT3
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0, true);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0,
+                       true);
 #else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0, false);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0,
+                       false);
 #endif
   if (ret < 0)
     {
@@ -597,7 +609,9 @@ int msdis_main(int argc, char *argv[])
 
   check_test_memory_usage("Since MS connection");
 
-  /* Then disconnect the device and uninitialize the USB mass storage driver */
+  /* Then disconnect the device and uninitialize the USB mass storage
+   * driver.
+   */
 
   usbmsc_disconnect(g_usbmsc.mshandle);
   g_usbmsc.mshandle = NULL;

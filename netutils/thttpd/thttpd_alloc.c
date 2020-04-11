@@ -74,7 +74,8 @@ void httpd_memstats(void)
 
   mm = mallinfo();
 
-  ninfo("arena: %08x ordblks: %08x mxordblk: %08x uordblks: %08x fordblks: %08x\n",
+  ninfo("arena: %08x ordblks: %08x mxordblk: %08x uordblks: %08x "
+        "fordblks: %08x\n",
        mm.arena, mm.ordblks, mm.mxordblk, mm.uordblks, mm.fordblks);
 }
 #endif
@@ -97,6 +98,7 @@ FAR void *httpd_malloc(size_t nbytes)
       g_nallocations++;
       g_allocated += nbytes;
     }
+
   httpd_memstats();
   return ptr;
 }
@@ -117,6 +119,7 @@ FAR void *httpd_realloc(FAR void *oldptr, size_t oldsize, size_t newsize)
             oldsize, newsize, oldptr, ptr);
       g_allocated += (newsize - oldsize);
     }
+
   httpd_memstats();
   return ptr;
 }
@@ -146,6 +149,7 @@ FAR char *httpd_strdup(const char *str)
       g_nallocations++;
       g_allocated += (strlen(str)+1);
     }
+
   httpd_memstats();
   return newstr;
 }
@@ -158,7 +162,8 @@ void httpd_realloc_str(char **pstr, size_t *maxsize, size_t size)
   size_t oldsize;
   if (*maxsize == 0)
     {
-      *maxsize = MAX(CONFIG_THTTPD_MINSTRSIZE, size + CONFIG_THTTPD_REALLOCINCR);
+      *maxsize = MAX(CONFIG_THTTPD_MINSTRSIZE,
+                     size + CONFIG_THTTPD_REALLOCINCR);
       *pstr    = NEW(char, *maxsize + 1);
     }
   else if (size > *maxsize)

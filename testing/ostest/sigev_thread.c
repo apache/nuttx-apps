@@ -74,13 +74,13 @@ void sigev_thread_test(void)
   timer_t timerid;
   int status;
 
-  printf("sigev_thread_test: Initializing semaphore to 0\n" );
+  printf("sigev_thread_test: Initializing semaphore to 0\n");
   sem_init(&g_sigev_thread_sem, 0, 0);
   g_value_received = -1;
 
   /* Create the POSIX timer */
 
-  printf("sigev_thread_test: Creating timer\n" );
+  printf("sigev_thread_test: Creating timer\n");
 
   notify.sigev_notify            = SIGEV_THREAD;
   notify.sigev_signo             = MY_TIMER_SIGNAL;
@@ -97,7 +97,7 @@ void sigev_thread_test(void)
 
   /* Start the POSIX timer */
 
-  printf("sigev_thread_test: Starting timer\n" );
+  printf("sigev_thread_test: Starting timer\n");
 
   timer.it_value.tv_sec     = 2;
   timer.it_value.tv_nsec    = 0;
@@ -113,7 +113,7 @@ void sigev_thread_test(void)
 
   /* Take the semaphore */
 
-  printf("sigev_thread_test: Waiting on semaphore\n" );
+  printf("sigev_thread_test: Waiting on semaphore\n");
 
   do
     {
@@ -123,7 +123,8 @@ void sigev_thread_test(void)
           int error = errno;
           if (error == EINTR)
             {
-              printf("sigev_thread_test: sem_wait() interrupted by signal\n" );
+              printf("sigev_thread_test: sem_wait() interrupted by "
+                     "signal\n");
             }
           else
             {
@@ -135,7 +136,7 @@ void sigev_thread_test(void)
     }
   while (status < 0);
 
-  printf("sigev_thread_test: Awakened with no error!\n" );
+  printf("sigev_thread_test: Awakened with no error!\n");
 
   /* Check sigval */
 
@@ -151,12 +152,12 @@ errorout:
 
   /* Then delete the timer */
 
-  printf("sigev_thread_test: Deleting timer\n" );
+  printf("sigev_thread_test: Deleting timer\n");
   status = timer_delete(timerid);
   if (status != OK)
     {
       printf("sigev_thread_test: timer_create failed, errno=%d\n", errno);
     }
 
-  printf("sigev_thread_test: Done\n" );
+  printf("sigev_thread_test: Done\n");
 }

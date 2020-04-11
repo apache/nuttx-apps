@@ -94,8 +94,8 @@
 # define naked_function __attribute__ ((naked,no_instrument_function))
 
 /* The inline_function attribute informs GCC that the function should always
- * be inlined, regardless of the level of optimization.  The noinline_function
- * indicates that the function should never be inlined.
+ * be inlined, regardless of the level of optimization.  The
+ * noinline_function indicates that the function should never be inlined.
  */
 
 # define inline_function __attribute__ ((always_inline,no_instrument_function))
@@ -242,13 +242,15 @@
 
 /* Pragmas
  *
- * Disable warnings for unused function arguments */
+ * Disable warnings for unused function arguments.
+ */
 
 # pragma disable_warning 85
 
 /* Attributes
  *
- * SDCC does not support weak symbols */
+ * SDCC does not support weak symbols.
+ */
 
 # undef  CONFIG_HAVE_WEAKFUNCTIONS
 # define weak_alias(name, aliasname)
@@ -369,7 +371,9 @@
 # define weak_const_function
 # define restrict
 
-/* The Zilog compiler does not support the noreturn, packed, naked attributes */
+/* The Zilog compiler does not support the noreturn, packed, naked
+ * attributes.
+ */
 
 # define noreturn_function
 # define begin_packed_struct
@@ -394,8 +398,8 @@
  * Z8Encore!:  Far is 16-bits; near is 8-bits of address.
  *             The supported model is (1) all code on ROM, and (2) all data
  *             and stacks in internal (far) RAM.
- * Z8Acclaim:  In Z80 mode, all pointers are 16-bits.  In ADL mode, all pointers
- *             are 24 bits.
+ * Z8Acclaim:  In Z80 mode, all pointers are 16-bits.  In ADL mode, all
+ *             pointers are 24 bits.
  */
 
 #  if defined(__ZNEO__)
@@ -433,10 +437,10 @@
 # undef  CONFIG_HAVE_INLINE
 # define inline
 
-/* Older Zilog compilers support both types double and long long, but the size
- * is 32-bits (same as long and single precision) so it is safer to say that
- * they are not supported.  Later versions are more ANSII compliant and
- * simply do not support long long or double.
+/* Older Zilog compilers support both types double and long long, but the
+ * size is 32-bits (same as long and single precision) so it is safer to
+ * say that they are not supported.  Later versions are more ANSII compliant
+ * and simply do not support long long or double.
  */
 
 # undef  CONFIG_HAVE_LONG_LONG
@@ -444,12 +448,12 @@
 # undef  CONFIG_HAVE_DOUBLE
 # undef  CONFIG_HAVE_LONG_DOUBLE
 
-/* ICCARM-specific definitions ***********************************************/
+/* ICCARM-specific definitions **********************************************/
 
 #elif defined(__ICCARM__)
 
 # define CONFIG_CPP_HAVE_VARARGS 1 /* Supports variable argument macros */
-# define CONFIG_HAVE_FILENAME 1 /* Has __FILE__ */
+# define CONFIG_HAVE_FILENAME 1    /* Has __FILE__ */
 # define CONFIG_HAVE_FLOAT 1
 
 /* Indicate that a local variable is not used */
