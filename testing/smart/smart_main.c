@@ -46,7 +46,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
  * an architecture-specific MTD driver can be used instead by defining
  * CONFIG_TESTING_SMART_ARCHINIT.  In this case, the initialization logic
@@ -55,7 +57,9 @@
 
 #ifndef CONFIG_TESTING_SMART_ARCHINIT
 
-/* This must exactly match the default configuration in drivers/mtd/rammtd.c */
+/* This must exactly match the default configuration in
+ * drivers/mtd/rammtd.c
+ */
 
 #  ifndef CONFIG_RAMMTD_ERASESIZE
 #    define CONFIG_RAMMTD_ERASESIZE 4096
@@ -117,6 +121,7 @@ struct smart_filedesc_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Pre-allocated simulated flash */
 
 #ifndef CONFIG_TESTING_SMART_ARCHINIT
@@ -235,7 +240,7 @@ static inline void smart_randname(FAR struct smart_filedesc_s *file)
   namelen  = (rand() % maxname) + 1;
   alloclen = namelen + dirlen;
 
-  file->name = (FAR char*)malloc(alloclen + 1);
+  file->name = (FAR char *)malloc(alloclen + 1);
   if (!file->name)
     {
       printf("ERROR: Failed to allocate name, length=%d\n", namelen);
@@ -498,7 +503,8 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
-      nbytesread = smart_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      nbytesread = smart_rdblock(fd, file, ntotalread,
+                                 file->len - ntotalread);
       if (nbytesread < 0)
         {
           close(fd);
@@ -652,7 +658,7 @@ static int smart_delfiles(void)
               ret = unlink(file->name);
               if (ret < 0)
                 {
-                  printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                   printf("  File name:  %s\n", file->name);
                   printf("  File size:  %d\n", file->len);
                   printf("  File index: %d\n", j);
@@ -691,7 +697,7 @@ static int smart_delallfiles(void)
           ret = unlink(file->name);
           if (ret < 0)
             {
-               printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+               printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                printf("  File name:  %s\n", file->name);
                printf("  File size:  %d\n", file->len);
                printf("  File index: %d\n", i);
@@ -810,7 +816,8 @@ int main(int argc, FAR char *argv[])
 
   /* Mount the file system */
 
-  ret = mount("/dev/smart1", CONFIG_TESTING_SMART_MOUNTPT, "smartfs", 0, NULL);
+  ret = mount("/dev/smart1", CONFIG_TESTING_SMART_MOUNTPT, "smartfs",
+              0, NULL);
   if (ret < 0)
     {
       printf("ERROR: Failed to mount the SMART volume: %d\n", errno);
@@ -835,8 +842,8 @@ int main(int argc, FAR char *argv[])
 #endif
     {
       /* Write a files to the SMART file system until either (1) all of the
-       * open file structures are utilized or until (2) SMART reports an error
-       * (hopefully that the file system is full)
+       * open file structures are utilized or until (2) SMART reports an
+       * error (hopefully that the file system is full)
        */
 
       printf("\n=== FILLING %u =============================\n", i);

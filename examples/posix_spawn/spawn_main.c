@@ -92,8 +92,8 @@
 #  define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
 #endif
 
-/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
- * output will be synchronous with the debug output.
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so
+ * that the output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
@@ -126,7 +126,8 @@ static unsigned int g_mminitial;  /* Initial memory usage */
 static unsigned int g_mmstep;     /* Memory Usage at beginning of test step */
 
 static const char delimiter[] =
-  "****************************************************************************";
+  "**************************************"
+  "**************************************";
 static const char g_redirect[] = "redirect";
 static const char g_hello[]    = "hello";
 static const char g_data[]     = "testdata.txt";
@@ -134,7 +135,9 @@ static const char g_data[]     = "testdata.txt";
 static char fullpath[128];
 
 static char * const g_argv[4] =
-  { "Argument 1", "Argument 2", "Argument 3", NULL };
+{
+  "Argument 1", "Argument 2", "Argument 3", NULL
+};
 
 /****************************************************************************
  * Symbols from Auto-Generated Code
@@ -163,7 +166,8 @@ static void mm_update(FAR unsigned int *previous, FAR const char *msg)
 
   printf("\nMemory Usage %s:\n", msg);
   printf("  Before: %8u After: %8u Change: %8d\n",
-         *previous, mmcurrent.uordblks, (int)mmcurrent.uordblks - (int)*previous);
+         *previous, mmcurrent.uordblks,
+         (int)mmcurrent.uordblks - (int)*previous);
 
   /* Set up for the next test */
 
@@ -218,9 +222,12 @@ int main(int argc, FAR char *argv[])
 
   /* Create a ROM disk for the ROMFS filesystem */
 
-  message("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_ELF_DEVMINOR);
-  ret = romdisk_register(CONFIG_EXAMPLES_ELF_DEVMINOR, (FAR uint8_t *)romfs_img,
-                         NSECTORS(romfs_img_len), SECTORSIZE);
+  message("Registering romdisk at /dev/ram%d\n",
+          CONFIG_EXAMPLES_ELF_DEVMINOR);
+
+  ret = romdisk_register(CONFIG_EXAMPLES_ELF_DEVMINOR,
+                         (FAR uint8_t *)romfs_img, NSECTORS(romfs_img_len),
+                         SECTORSIZE);
   if (ret < 0)
     {
       errmsg("ERROR: romdisk_register failed: %d\n", ret);
@@ -234,7 +241,8 @@ int main(int argc, FAR char *argv[])
   message("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_ELF_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs",
+              MS_RDONLY, NULL);
   if (ret < 0)
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
@@ -258,9 +266,9 @@ int main(int argc, FAR char *argv[])
   symdesc.nsymbols = g_spawn_nexports;
   boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 
-  /*************************************************************************
+  /**************************************************************************
    * Case 1: Simple program with arguments
-   *************************************************************************/
+   **************************************************************************/
 
   /* Output a separator so that we can clearly discriminate the output of
    * this program from the others.
@@ -305,7 +313,8 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "before posix_spawn");
 
-  ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL, (FAR char * const*)&g_argv);
+  ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL,
+                    (FAR char * const *)&g_argv);
   if (ret != 0)
     {
       errmsg("ERROR: posix_spawn failed: %d\n", ret);
@@ -334,9 +343,9 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "after file_action/attr destruction");
 
-  /*************************************************************************
+  /**************************************************************************
    * Case 2: Simple program with redirection of stdin to a file input
-   *************************************************************************/
+   **************************************************************************/
 
   /* Output a separator so that we can clearly discriminate the output of
    * this program from the others.
@@ -375,7 +384,8 @@ int main(int argc, FAR char *argv[])
   posix_spawn_file_actions_dump(&file_actions);
 
   snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_data);
-  ret = posix_spawn_file_actions_addopen(&file_actions, 0, fullpath, O_RDONLY, 0644);
+  ret = posix_spawn_file_actions_addopen(&file_actions, 0, fullpath,
+                                         O_RDONLY, 0644);
   if (ret != 0)
     {
       errmsg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
@@ -418,6 +428,7 @@ int main(int argc, FAR char *argv[])
     {
       errmsg("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
     }
+
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_destroy(&attr);
@@ -425,6 +436,7 @@ int main(int argc, FAR char *argv[])
     {
       errmsg("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
     }
+
   posix_spawnattr_dump(&attr);
 
   mm_update(&g_mmstep, "after file_action/attr destruction");

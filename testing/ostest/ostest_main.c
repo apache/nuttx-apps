@@ -68,9 +68,12 @@ static const char write_data2[] = "stdio_test: write fd=2\n";
  * pointer types.
  */
 
-static const char *g_argv[NARGS+1];
+static const char *g_argv[NARGS + 1];
 #else
-static const char *g_argv[NARGS+1] = { arg1, arg2, arg3, arg4, NULL };
+static const char *g_argv[NARGS + 1] =
+{
+  arg1, arg2, arg3, arg4, NULL
+};
 #endif
 
 static struct mallinfo g_mmbefore;
@@ -144,7 +147,8 @@ static void check_test_memory_usage(void)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_ENVIRON
-static void show_variable(const char *var_name, const char *exptd_value, bool var_valid)
+static void show_variable(const char *var_name, const char *exptd_value,
+                          bool var_valid)
 {
   char *actual_value = getenv(var_name);
   if (actual_value)
@@ -153,24 +157,33 @@ static void show_variable(const char *var_name, const char *exptd_value, bool va
         {
           if (strcmp(actual_value, exptd_value) == 0)
             {
-              printf("show_variable: Variable=%s has value=%s\n", var_name, exptd_value);
+              printf("show_variable: Variable=%s has value=%s\n",
+                     var_name, exptd_value);
             }
           else
             {
-              printf("show_variable: ERROR Variable=%s has the wrong value\n", var_name);
-              printf("show_variable:       found=%s expected=%s\n", actual_value, exptd_value);
+              printf("show_variable: ERROR Variable=%s has the wrong "
+                     "value\n",
+                     var_name);
+              printf("show_variable:       found=%s expected=%s\n",
+                     actual_value, exptd_value);
             }
         }
       else
         {
-          printf("show_variable: ERROR Variable=%s has a value when it should not\n", var_name);
-          printf("show_variable:       value=%s\n", actual_value);
+          printf("show_variable: ERROR Variable=%s has a value when it "
+                 "should not\n",
+                 var_name);
+          printf("show_variable:       value=%s\n",
+                 actual_value);
         }
     }
   else if (var_valid)
     {
-      printf("show_variable: ERROR Variable=%s has no value\n", var_name);
-      printf("show_variable:       Should have had value=%s\n", exptd_value);
+      printf("show_variable: ERROR Variable=%s has no value\n",
+             var_name);
+      printf("show_variable:       Should have had value=%s\n",
+             exptd_value);
     }
   else
     {
@@ -178,7 +191,8 @@ static void show_variable(const char *var_name, const char *exptd_value, bool va
     }
 }
 
-static void show_environment(bool var1_valid, bool var2_valid, bool var3_valid)
+static void show_environment(bool var1_valid, bool var2_valid,
+                             bool var3_valid)
 {
   show_variable(g_var1_name, g_var1_value, var1_valid);
   show_variable(g_var2_name, g_var2_value, var2_valid);
@@ -211,7 +225,7 @@ static int user_main(int argc, char *argv[])
   if (argc != NARGS + 1)
     {
       printf("user_main: Error expected argc=%d got argc=%d\n",
-             NARGS+1, argc);
+             NARGS + 1, argc);
     }
 
   for (i = 0; i <= NARGS; i++)
@@ -221,10 +235,11 @@ static int user_main(int argc, char *argv[])
 
   for (i = 1; i <= NARGS; i++)
     {
-      if (strcmp(argv[i], g_argv[i-1]) != 0)
+      if (strcmp(argv[i], g_argv[i - 1]) != 0)
         {
-          printf("user_main: ERROR argv[%d]:  Expected \"%s\" found \"%s\"\n",
-                 i, g_argv[i-1], argv[i]);
+          printf("user_main: ERROR argv[%d]:  "
+                 "Expected \"%s\" found \"%s\"\n",
+                 i, g_argv[i - 1], argv[i]);
         }
     }
 
@@ -241,18 +256,18 @@ static int user_main(int argc, char *argv[])
    */
 
 #if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
-  {
-    struct sigaction sa;
-    int ret;
+    {
+      struct sigaction sa;
+      int ret;
 
-    sa.sa_handler = SIG_IGN;
-    sa.sa_flags = SA_NOCLDWAIT;
-    ret = sigaction(SIGCHLD, &sa, NULL);
-    if (ret < 0)
-      {
-        printf("user_main: ERROR: sigaction failed: %d\n", errno);
-      }
-  }
+      sa.sa_handler = SIG_IGN;
+      sa.sa_flags = SA_NOCLDWAIT;
+      ret = sigaction(SIGCHLD, &sa, NULL);
+      if (ret < 0)
+        {
+          printf("user_main: ERROR: sigaction failed: %d\n", errno);
+        }
+    }
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
@@ -281,7 +296,7 @@ static int user_main(int argc, char *argv[])
 #if CONFIG_TESTING_OSTEST_LOOPS > 1
   for (i = 0; i < CONFIG_TESTING_OSTEST_LOOPS; i++)
 #elif CONFIG_TESTING_OSTEST_LOOPS == 0
-  for (;;)
+  for (; ; )
 #endif
     {
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING
@@ -390,11 +405,12 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD
-    /* Verify pthreads and condition variables */
+      /* Verify pthreads and condition variables */
 
       printf("\nuser_main: condition variable test\n");
 #ifdef CONFIG_PRIORITY_INHERITANCE
-      printf("\n           Skipping, Test logic incompatible with priority inheritance\n");
+      printf("\n           Skipping, "
+             "Test logic incompatible with priority inheritance\n");
 #else
       cond_test();
       check_test_memory_usage();
@@ -622,7 +638,8 @@ int main(int argc, FAR char **argv)
 
       if (waitpid(result, &ostest_result, 0) != result)
         {
-          printf("ostest_main: ERROR Failed to wait for user_main to terminate\n");
+          printf("ostest_main: ERROR Failed to wait for user_main to "
+                 "terminate\n");
           ostest_result = ERROR;
         }
 #endif
@@ -632,7 +649,7 @@ int main(int argc, FAR char **argv)
 
 #ifdef CONFIG_TESTING_OSTEST_POWEROFF
   /* Power down, providing the test result.  This is really only an
-   *interesting case when used with the NuttX simulator.  In that case,
+   * interesting case when used with the NuttX simulator.  In that case,
    * test management logic can received the result of the test.
    */
 

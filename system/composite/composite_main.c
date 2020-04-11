@@ -335,6 +335,7 @@ static int composite_enumerate(struct usbtrace_s *trace, void *arg)
           break;
         }
     }
+
   return OK;
 }
 #endif
@@ -385,13 +386,14 @@ int main(int argc, FAR char *argv[])
   int config = CONFIG_SYSTEM_COMPOSITE_DEFCONFIG;
   int ret;
 
-  /* If this program is implemented as the NSH 'conn' command, then we need to
-   * do a little error checking to assure that we are not being called re-entrantly.
+  /* If this program is implemented as the NSH 'conn' command, then we need
+   * to do a little error checking to assure that we are not being called
+   * re-entrantly.
    */
 
-   /* Check if there is a non-NULL USB mass storage device handle (meaning that the
-    * USB mass storage device is already configured).
-    */
+  /* Check if there is a non-NULL USB mass storage device handle (meaning
+   * that the composite device is already configured).
+   */
 
   if (g_composite.cmphandle)
     {
@@ -433,7 +435,8 @@ int main(int argc, FAR char *argv[])
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
+      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n",
+             -ret);
       return 1;
     }
 
@@ -450,7 +453,8 @@ int main(int argc, FAR char *argv[])
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
+      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n",
+             -ret);
       return 1;
     }
 
@@ -461,7 +465,7 @@ int main(int argc, FAR char *argv[])
 
   /* Now looping */
 
-  for (;;)
+  for (; ; )
     {
       /* Sleep for a bit */
 
@@ -481,11 +485,11 @@ int main(int argc, FAR char *argv[])
     }
 #endif
 
-   /* Dump debug memory usage */
+  /* Dump debug memory usage */
 
-   printf("conn_main: Exiting\n");
-   final_memory_usage("Final memory usage");
-   return 0;
+  printf("conn_main: Exiting\n");
+  final_memory_usage("Final memory usage");
+  return 0;
 }
 
 /****************************************************************************
@@ -526,7 +530,7 @@ int disconn_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  /* Then disconnect the device and uninitialize the USB mass storage driver */
+  /* Then disconnect the device and uninitialize the composite driver */
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;

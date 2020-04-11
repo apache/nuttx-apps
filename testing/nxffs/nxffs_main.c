@@ -43,7 +43,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
  * an architecture-specific MTD driver can be used instead by defining
  * CONFIG_TESTING_NXFFS_ARCHINIT.  In this case, the initialization logic
@@ -52,7 +54,9 @@
 
 #ifndef CONFIG_TESTING_NXFFS_ARCHINIT
 
-/* This must exactly match the default configuration in drivers/mtd/rammtd.c */
+/* This must exactly match the default configuration in
+ * drivers/mtd/rammtd.c
+ */
 
 #  ifndef CONFIG_RAMMTD_ERASESIZE
 #    define CONFIG_RAMMTD_ERASESIZE 4096
@@ -114,6 +118,7 @@ struct nxffs_filedesc_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Pre-allocated simulated flash */
 
 #ifndef CONFIG_TESTING_NXFFS_ARCHINIT
@@ -232,7 +237,7 @@ static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
   namelen  = (rand() % maxname) + 1;
   alloclen = namelen + dirlen;
 
-  file->name = (FAR char*)malloc(alloclen + 1);
+  file->name = (FAR char *)malloc(alloclen + 1);
   if (!file->name)
     {
       printf("ERROR: Failed to allocate name, length=%d\n", namelen);
@@ -262,6 +267,7 @@ static inline void nxffs_randfile(FAR struct nxffs_filedesc_s *file)
     {
       g_fileimage[i] = nxffs_randchar();
     }
+
   file->crc = crc32(g_fileimage, file->len);
 }
 
@@ -275,6 +281,7 @@ static void nxffs_freefile(FAR struct nxffs_filedesc_s *file)
     {
       free(file->name);
     }
+
   memset(file, 0, sizeof(struct nxffs_filedesc_s));
 }
 
@@ -305,6 +312,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
           printf("  File name: %s\n", file->name);
           printf("  File size: %lu\n", (unsigned long)file->len);
         }
+
       nxffs_freefile(file);
       return ERROR;
     }
@@ -458,6 +466,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
       printf("  Read size:    %ld\n", (long)len);
       printf("  Bytes read:   %ld\n", (long)nbytesread);
     }
+
   return nbytesread;
 }
 
@@ -483,6 +492,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
           printf("  File name: %s\n", file->name);
           printf("  File size: %lu\n", (unsigned long)file->len);
         }
+
       return ERROR;
     }
 
@@ -490,7 +500,8 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
-      nbytesread = nxffs_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      nbytesread = nxffs_rdblock(fd, file, ntotalread,
+                                 file->len - ntotalread);
       if (nbytesread < 0)
         {
           close(fd);
@@ -645,7 +656,7 @@ static int nxffs_delfiles(void)
               ret = unlink(file->name);
               if (ret < 0)
                 {
-                  printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                   printf("  File name:  %s\n", file->name);
                   printf("  File size:  %lu\n", (unsigned long)file->len);
                   printf("  File index: %d\n", j);
@@ -684,7 +695,7 @@ static int nxffs_delallfiles(void)
           ret = unlink(file->name);
           if (ret < 0)
             {
-               printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+               printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                printf("  File name:  %s\n", file->name);
                printf("  File size:  %lu\n", (unsigned long)file->len);
                printf("  File index: %d\n", i);
@@ -741,6 +752,7 @@ static int nxffs_directory(void)
                  entryp->d_type == DTYPE_FILE ? "File " : "Error",
                  entryp->d_name);
         }
+
       number++;
     }
   while (entryp != NULL);
@@ -818,8 +830,8 @@ int main(int argc, FAR char *argv[])
 #endif
     {
       /* Write a files to the NXFFS file system until either (1) all of the
-       * open file structures are utilized or until (2) NXFFS reports an error
-       * (hopefully that the file system is full)
+       * open file structures are utilized or until (2) NXFFS reports an
+       * error (hopefully that the file system is full)
        */
 
       printf("\n=== FILLING %u =============================\n", i);
@@ -867,6 +879,7 @@ int main(int argc, FAR char *argv[])
           printf("  Number of files: %d\n", g_nfiles);
           printf("  Number deleted:  %d\n", g_ndeleted);
         }
+
       nxffs_dump(mtd, CONFIG_TESTING_NXFFS_VERBOSE);
 
       /* Directory listing */

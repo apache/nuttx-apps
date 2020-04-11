@@ -144,7 +144,7 @@ static void run_tests(FAR const char *name, void (CODE *test_fn)(void))
 }
 
 /****************************************************************************
- * Name: runAllTests
+ * Name: run_all_tests
  *
  * Description:
  *   Sequentially runs all included test groups
@@ -160,7 +160,7 @@ static void run_tests(FAR const char *name, void (CODE *test_fn)(void))
  *
  ****************************************************************************/
 
-static void runAllTests(void)
+static void run_all_tests(void)
 {
   RUN_TEST_GROUP(CharDev);
   RUN_TEST_GROUP(NoDaemon);
@@ -247,7 +247,8 @@ bool usrsocktest_assert_print_buf(FAR const char *func,
 
 int main(int argc, FAR char *argv[])
 {
-  struct mallinfo mem_before, mem_after;
+  struct mallinfo mem_before;
+  struct mallinfo mem_after;
 
   memset(&overall, 0, sizeof(overall));
 
@@ -257,7 +258,7 @@ int main(int argc, FAR char *argv[])
 
   get_mallinfo(&mem_before);
 
-  runAllTests();
+  run_all_tests();
 
   printf("Unit-test groups done... OK:%d, FAILED:%d, TOTAL:%d\n",
          overall.ok, overall.failed, overall.ok + overall.failed);

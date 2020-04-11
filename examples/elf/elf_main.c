@@ -101,8 +101,8 @@
 #  undef MOUNTPT
 #endif
 
-/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
- * output will be synchronous with the debug output.
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so
+ * that the output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
@@ -137,7 +137,8 @@ static unsigned int g_mminitial;  /* Initial memory usage */
 static unsigned int g_mmstep;     /* Memory Usage at beginning of test step */
 
 static const char delimiter[] =
-  "****************************************************************************";
+  "**************************************"
+  "**************************************";
 
 #ifndef CONFIG_LIB_ENVPATH
 static char fullpath[128];
@@ -170,7 +171,8 @@ static void mm_update(FAR unsigned int *previous, FAR const char *msg)
 
   printf("\nMemory Usage %s:\n", msg);
   printf("  Before: %8u After: %8u Change: %8d\n",
-         *previous, mmcurrent.uordblks, (int)mmcurrent.uordblks - (int)*previous);
+         *previous, mmcurrent.uordblks,
+         (int)mmcurrent.uordblks - (int)*previous);
 
   /* Set up for the next test */
 
@@ -260,7 +262,8 @@ int main(int argc, FAR char *argv[])
   message("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_ELF_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs",
+              MS_RDONLY, NULL);
   if (ret < 0)
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
@@ -322,7 +325,7 @@ int main(int argc, FAR char *argv[])
               CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s, %s, %s) failed: %d\n",\
+      errmsg("ERROR: mount(%s, %s, %s) failed: %d\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, CONFIG_EXAMPLES_ELF_FSTYPE,
              MOUNTPT, errno);
     }

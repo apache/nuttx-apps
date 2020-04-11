@@ -127,47 +127,47 @@ static void dump_stat(FAR struct stat *buf)
 
   if ((buf->st_mode & S_IRUSR) != 0)
     {
-      details[1]='r';
+      details[1] = 'r';
     }
 
   if ((buf->st_mode & S_IWUSR) != 0)
     {
-      details[2]='w';
+      details[2] = 'w';
     }
 
   if ((buf->st_mode & S_IXUSR) != 0)
     {
-      details[3]='x';
+      details[3] = 'x';
     }
 
   if ((buf->st_mode & S_IRGRP) != 0)
     {
-      details[4]='r';
+      details[4] = 'r';
     }
 
   if ((buf->st_mode & S_IWGRP) != 0)
     {
-      details[5]='w';
+      details[5] = 'w';
     }
 
   if ((buf->st_mode & S_IXGRP) != 0)
     {
-      details[6]='x';
+      details[6] = 'x';
     }
 
   if ((buf->st_mode & S_IROTH) != 0)
     {
-      details[7]='r';
+      details[7] = 'r';
     }
 
   if ((buf->st_mode & S_IWOTH) != 0)
     {
-      details[8]='w';
+      details[8] = 'w';
     }
 
   if ((buf->st_mode & S_IXOTH) != 0)
     {
-      details[9]='x';
+      details[9] = 'x';
     }
 
   printf("stat buffer:\n");

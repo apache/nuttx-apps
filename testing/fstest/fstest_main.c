@@ -42,6 +42,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_TESTING_FSTEST_MAXNAME
@@ -93,6 +94,7 @@ struct fstest_filedesc_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Pre-allocated simulated flash */
 
 static uint8_t g_fileimage[CONFIG_TESTING_FSTEST_MAXFILE];
@@ -201,7 +203,7 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
   namelen  = (rand() % maxname) + 1;
   alloclen = namelen + dirlen;
 
-  file->name = (FAR char*)malloc(alloclen + 1);
+  file->name = (FAR char *)malloc(alloclen + 1);
   if (!file->name)
     {
       printf("ERROR: Failed to allocate name, length=%d\n", namelen);
@@ -408,7 +410,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
         {
           int errcode = errno;
 
-          /* If the write failed because an interrupt occurred or because there
+          /* If the write failed because an interrupt occurred or because
            * there is no space on the device, then don't complain.
            */
 
@@ -494,14 +496,14 @@ static int fstest_fillfs(void)
             }
 
 #if CONFIG_TESTING_FSTEST_VERBOSE != 0
-         printf("  Created file %s\n", file->name);
+          printf("  Created file %s\n", file->name);
 #endif
-         g_nfiles++;
+          g_nfiles++;
 
-         if (g_media_full)
-           {
-             break;
-           }
+          if (g_media_full)
+            {
+              break;
+            }
         }
     }
 
@@ -595,11 +597,14 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
       return ERROR;
     }
 
-  /* Read all of the data info the file image buffer using random read sizes */
+  /* Read all of the data info the file image buffer using random read
+   * sizes.
+   */
 
   for (ntotalread = 0; ntotalread < file->len; )
     {
-      nbytesread = fstest_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      nbytesread = fstest_rdblock(fd, file, ntotalread,
+                                  file->len - ntotalread);
       if (nbytesread < 0)
         {
           close(fd);
@@ -799,7 +804,7 @@ static int fstest_delfiles(void)
               ret = unlink(file->name);
               if (ret < 0)
                 {
-                  printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                   printf("  File name:  %s\n", file->name);
                   printf("  File size:  %d\n", file->len);
                   printf("  File index: %d\n", j);
@@ -851,7 +856,7 @@ static int fstest_delallfiles(void)
           ret = unlink(file->name);
           if (ret < 0)
             {
-               printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+               printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                printf("  File name:  %s\n", file->name);
                printf("  File size:  %d\n", file->len);
                printf("  File index: %d\n", i);
