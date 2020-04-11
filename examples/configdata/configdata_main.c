@@ -176,11 +176,7 @@ static void configdata_loopmemusage(void)
 {
   /* Get the current memory usage */
 
-#ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
-#else
-  mallinfo(&g_mmafter);
-#endif
 
   /* Show the change from the previous loop */
 
@@ -189,11 +185,7 @@ static void configdata_loopmemusage(void)
 
   /* Set up for the next test */
 
-#ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmprevious = g_mmafter;
-#else
-  memcpy(&g_mmprevious, &g_mmafter, sizeof(struct mallinfo));
-#endif
 }
 #endif
 
@@ -203,11 +195,8 @@ static void configdata_loopmemusage(void)
 
 static void configdata_endmemusage(void)
 {
-#ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmafter = mallinfo();
-#else
-  mallinfo(&g_mmafter);
-#endif
+
   printf("\nFinal memory usage:\n");
   configdata_showmemusage(&g_mmbefore, &g_mmafter);
 
@@ -679,11 +668,7 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize the before memory values */
 
-#ifdef CONFIG_CAN_PASS_STRUCTS
   g_mmbefore = mallinfo();
-#else
-  mallinfo(&g_mmbefore);
-#endif
 
   /* Loop seveal times ... create some config data items, delete them
    * randomly, verify them randomly, add new config items.
