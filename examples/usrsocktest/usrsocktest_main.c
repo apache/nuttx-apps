@@ -97,17 +97,16 @@ bool usrsocktest_test_failed = false;
 
 static void get_mallinfo(struct mallinfo *mem)
 {
-#ifdef CONFIG_CAN_PASS_STRUCTS
   *mem = mallinfo();
-#else
-  mallinfo(mem);
-#endif
 }
 
 static void print_mallinfo(const struct mallinfo *mem, const char *title)
 {
   if (title)
-    printf("%s:\n", title);
+    {
+      printf("%s:\n", title);
+    }
+
   printf("       %11s%11s%11s%11s\n", "total", "used", "free", "largest");
   printf("Mem:   %11d%11d%11d%11d\n",
          mem->arena, mem->uordblks, mem->fordblks, mem->mxordblk);
