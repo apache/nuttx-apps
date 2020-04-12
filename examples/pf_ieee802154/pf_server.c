@@ -145,15 +145,15 @@ int main(int argc, FAR char *argv[])
                  offset, nbytes,
                  client.sa_addr.s_saddr[0], client.sa_addr.s_saddr[1]);
         }
-      else if (client.sa_addr.s_mode == IEEE802154_ADDRMODE_SHORT)
+      else if (client.sa_addr.s_mode == IEEE802154_ADDRMODE_EXTENDED)
         {
           printf("server: %d. Received %d bytes from "
                  "%02x:%02x:%02x:%02x:%02x:%02x:%02x: %02x\n",
                  offset, nbytes,
-                 client.sa_addr.s_saddr[0], client.sa_addr.s_saddr[1],
-                 client.sa_addr.s_saddr[2], client.sa_addr.s_saddr[3],
-                 client.sa_addr.s_saddr[4], client.sa_addr.s_saddr[5],
-                 client.sa_addr.s_saddr[6], client.sa_addr.s_saddr[7]);
+                 client.sa_addr.s_eaddr[0], client.sa_addr.s_eaddr[1],
+                 client.sa_addr.s_eaddr[2], client.sa_addr.s_eaddr[3],
+                 client.sa_addr.s_eaddr[4], client.sa_addr.s_eaddr[5],
+                 client.sa_addr.s_eaddr[6], client.sa_addr.s_eaddr[7]);
         }
       else
         {
