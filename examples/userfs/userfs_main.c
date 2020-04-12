@@ -215,7 +215,7 @@ static int ufstest_open(FAR void *volinfo, FAR const char *relpath,
   if (file != NULL)
     {
       opriv = (FAR struct ufstest_openfile_s *)
-         malloc(sizeof(struct ufstest_openfile_s ));
+         malloc(sizeof(struct ufstest_openfile_s));
       if (opriv == NULL)
         {
           return -ENOMEM;
@@ -420,7 +420,7 @@ static int ufstest_opendir(FAR void *volinfo, FAR const char *relpath,
       /* The path refers to the top level directory. */
 
       odir = (FAR struct ufstest_opendir_s *)
-         malloc(sizeof(struct ufstest_opendir_s ));
+         malloc(sizeof(struct ufstest_opendir_s));
       if (odir == NULL)
         {
           return -ENOMEM;
