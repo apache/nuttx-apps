@@ -1065,7 +1065,6 @@ static void test_angle_m_el_mixed(void)
 
   angle_step = 2 * MOTOR_ANGLE_E_MAX;
   expected_i = expected_i - 2;
-  expected_e = expected_e;
   expected_m = expected_m - 2 * MOTOR_ANGLE_M_MAX / p;
   s = sin(expected_e);
   c = cos(expected_e);
