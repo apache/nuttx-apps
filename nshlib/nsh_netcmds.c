@@ -265,7 +265,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered, then return without processing */
 
   if (badarg)
     {
@@ -669,7 +669,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 }
 
 #ifdef HAVE_HWADDR
-              /* REVISIT: How will we handle Ethernet and SLIP networks together? */
+              /* REVISIT: How will we handle Ethernet and SLIP together? */
 
               else if (!strcmp(tmp, "hw"))
                 {

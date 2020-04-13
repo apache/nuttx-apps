@@ -13,8 +13,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -182,7 +182,8 @@ static int cat(const char *filename)
 
   while ((l = read(fd, buf, sizeof(buf))) > 0)
     {
-      ssize_t off, w;
+      ssize_t off;
+      ssize_t w;
 
       off = 0;
       while (off < l)
@@ -217,13 +218,14 @@ static struct Value *lvalue(struct Value *value)
   struct Pc lvpc = g_pc;
 
   sym = g_pc.token->u.identifier->sym;
-  assert(g_pass == DECLARE || sym->type == GLOBALVAR || sym->type == GLOBALARRAY
-         || sym->type == LOCALVAR);
+  assert(g_pass == DECLARE || sym->type == GLOBALVAR
+         || sym->type == GLOBALARRAY || sym->type == LOCALVAR);
 
   if ((g_pc.token + 1)->type == T_OP)
     {
       struct Pc idxpc;
-      unsigned int dim, capacity;
+      unsigned int dim;
+      unsigned int capacity;
       int *idx;
 
       g_pc.token += 2;
@@ -328,10 +330,8 @@ static struct Value *lvalue(struct Value *value)
       switch (g_pass)
         {
         case INTERPRET:
-          return VAR_SCALAR_VALUE(sym->type ==
-                                  GLOBALVAR ? &(sym->u.var) : Auto_local(&g_stack,
-                                                                         sym->
-                                                                         u.local.offset));
+          return VAR_SCALAR_VALUE(sym->type == GLOBALVAR ? &(sym->u.var) :
+                                  Auto_local(&g_stack, sym->u.local.offset));
 
         case DECLARE:
           return Value_nullValue(V_INTEGER);
@@ -353,7 +353,7 @@ static struct Value *func(struct Value *value)
 {
   struct Identifier *ident;
   struct Pc funcpc = g_pc;
-  int firstslot = -99;
+  long int firstslot = -99;
   int args = 0;
   struct Symbol *sym;
 
@@ -388,7 +388,7 @@ static struct Value *func(struct Value *value)
           ident->sym->u.sub.retType != V_VOID)
         {
           struct Var *v = Auto_pushArg(&g_stack);
-          Var_new(v, ident->sym->u.sub.retType, 0, (const unsigned int *)0, 0);
+          Var_new(v, ident->sym->u.sub.retType, 0, NULL, 0);
         }
     }
 
@@ -418,7 +418,10 @@ static struct Value *func(struct Value *value)
                       Value_clone(value, v->value);
                       while (g_stack.stackPointer > firstslot)
                         {
-                          Var_destroy(&g_stack.slot[--g_stack.stackPointer].var);
+                          long int stackPointer;
+
+                          stackPointer = --g_stack.stackPointer;
+                          Var_destroy(&g_stack.slot[stackPointer].var);
                         }
 
                       return value;
@@ -444,7 +447,10 @@ static struct Value *func(struct Value *value)
                 {
                   while (g_stack.stackPointer > firstslot)
                     {
-                      Var_destroy(&g_stack.slot[--g_stack.stackPointer].var);
+                      long int stackPointer;
+
+                      stackPointer = --g_stack.stackPointer;
+                      Var_destroy(&g_stack.slot[stackPointer].var);
                     }
                 }
 
@@ -484,7 +490,8 @@ static struct Value *func(struct Value *value)
       do
         {
           nomore = (g_pass == COMPILE &&
-                    !(sym->type == BUILTINFUNCTION && sym->u.sub.u.bltin.next));
+                    !(sym->type == BUILTINFUNCTION &&
+                      sym->u.sub.u.bltin.next));
           argerr = 0;
           if (args < sym->u.sub.argLength)
             {
@@ -595,8 +602,8 @@ static struct Value *func(struct Value *value)
                       if (strchr(value->u.error.msg, '\n') == (char *)0)
                         {
                           Auto_setError(&g_stack,
-                                        Program_lineNumber(&g_program, &g_pc), &g_pc,
-                                        value);
+                            Program_lineNumber(&g_program, &g_pc),
+                            &g_pc, value);
                           Program_PCtoError(&g_program, &g_pc, value);
                         }
 
@@ -618,7 +625,8 @@ static struct Value *func(struct Value *value)
 
                   Value_destroy(value);
                 }
-              while ((r = Program_skipEOL(&g_program, &g_pc, STDCHANNEL, 1)));
+              while ((r = Program_skipEOL(&g_program, &g_pc,
+                                          STDCHANNEL, 1)));
 
               if (!r)
                 {
@@ -687,7 +695,8 @@ static struct Value *func(struct Value *value)
  *
  *   i6:
  *   E  -> op E .             reduce 3
- *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of unary lower priority
+ *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of unary
+ *                                      lower priority
  *
  *   i7:
  *   E  -> ( E . )     )      shift 9
@@ -695,8 +704,9 @@ static struct Value *func(struct Value *value)
  *
  *   i8:
  *   E  -> E op E .           reduce 2
- *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of lower priority or if
- *                                      if it is of equal priority and right associative
+ *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of lower
+ *                                      priority or if it is of equal
+ *                                      priority and right associative
  *   i9:
  *   E  -> ( E ) .            reduce 4
  */
@@ -705,7 +715,11 @@ static struct Value *eval(struct Value *value, const char *desc)
 {
   /* Variables */
 
-  static const int gotoState[10] = { 5, 8, 6, 7, -1, -1, -1, -1, -1, -1 };
+  static const int gotoState[10] =
+  {
+    5, 8, 6, 7, -1, -1, -1, -1, -1, -1
+  };
+
   int capacity = 10;
   struct Pdastack
     {
@@ -716,6 +730,7 @@ static struct Value *eval(struct Value *value, const char *desc)
         } u;
       char state;
     };
+
   struct Pdastack *pdastack = malloc(capacity * sizeof(struct Pdastack));
   struct Pdastack *sp = pdastack;
   struct Pdastack *stackEnd = pdastack + capacity - 1;
@@ -743,17 +758,18 @@ static struct Value *eval(struct Value *value, const char *desc)
           {
             if (ip == T_IDENTIFIER)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 if (g_pass == COMPILE)
                   {
                     if (((g_pc.token + 1)->type == T_OP ||
-                         Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
-                        Global_find(&g_globals, g_pc.token->u.identifier,
-                                    (g_pc.token + 1)->type == T_OP) == 0)
+                         Auto_find(&g_stack, g_pc.token->u.identifier) == 0)
+                        && Global_find(&g_globals, g_pc.token->u.identifier,
+                                       (g_pc.token + 1)->type == T_OP) == 0)
                       {
                         Value_new_ERROR(value, UNDECLARED);
                         goto error;
@@ -786,8 +802,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_INTEGER)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -796,8 +813,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_REAL)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -815,8 +833,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_HEXINTEGER)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -825,8 +844,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_OCTINTEGER)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -844,8 +864,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_STRING)
               {
-                /* printf("state %d: shift 4\n",sp->state); */
-                /* printf("state 4: reduce E -> value\n"); */
+                /* printf("state %d: shift 4\n",sp->state);
+                 * printf("state 4: reduce E -> value\n");
+                 */
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -911,7 +932,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 assert(TOKEN_ISUNARYOPERATOR((sp - 1)->u.token));
 
-                /* printf("state %d: shift 1 (not reducing E -> op E)\n", sp->state); */
+                /* printf("state %d: shift 1 (not reducing E -> op E)\n",
+                 *        sp->state);
+                 */
 
                 ++sp;
                 sp->state = 1;
@@ -969,8 +992,9 @@ static struct Value *eval(struct Value *value, const char *desc)
               }
             else if (ip == T_CP)
               {
-                /* printf("state %d: shift 9\n",sp->state); */
-                /* printf("state 9: reduce E -> ( E )\n"); */
+                /* printf("state %d: shift 9\n",sp->state);
+                 * printf("state 9: reduce E -> ( E )\n");
+                 */
 
                 --sp;
                 sp->state = gotoState[(sp - 1)->state];
@@ -990,11 +1014,9 @@ static struct Value *eval(struct Value *value, const char *desc)
           {
             int p1, p2;
 
-            if (TOKEN_ISBINARYOPERATOR(ip)
-                &&
-                (((p1 = TOKEN_BINARYPRIORITY((sp - 1)->u.token)) < (p2 =
-                                                                    TOKEN_BINARYPRIORITY
-                                                                    (ip))) ||
+            if (TOKEN_ISBINARYOPERATOR(ip) &&
+                (((p1 = TOKEN_BINARYPRIORITY((sp - 1)->u.token)) <
+                  (p2 = TOKEN_BINARYPRIORITY(ip))) ||
                  (p1 == p2 && TOKEN_ISRIGHTASSOCIATIVE((sp - 1)->u.token))))
               {
                 /* printf("state %d: shift 1\n",sp->state); */
@@ -1008,8 +1030,8 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: reduce E -> E op E\n",sp->state); */
 
-                if (Value_commonType[(sp - 2)->u.value.type][sp->u.value.type]
-                    == V_ERROR)
+                if (Value_commonType[(sp - 2)->u.value.type]
+                    [sp->u.value.type] == V_ERROR)
                   {
                     Value_destroy(&sp->u.value);
                     sp -= 2;
@@ -1143,6 +1165,7 @@ error:
         case 8:
           Value_destroy(&sp->u.value);
         }
+
       --sp;
     }
 
@@ -1551,7 +1574,7 @@ static void pushLabel(enum labeltype_e type, struct Pc *patch)
       more =
         realloc(g_labelstack,
                 sizeof(struct labelstack_s) *
-                (g_labelstack_capacity ? (g_labelstack_capacity *= 2) : (32)));
+                (g_labelstack_capacity ? g_labelstack_capacity *= 2 : 32));
       g_labelstack = more;
     }
 
@@ -1562,7 +1585,8 @@ static void pushLabel(enum labeltype_e type, struct Pc *patch)
 
 static struct Pc *popLabel(enum labeltype_e type)
 {
-  if (g_labelstack_index == 0 || g_labelstack[g_labelstack_index - 1].type != type)
+  if (g_labelstack_index == 0 ||
+      g_labelstack[g_labelstack_index - 1].type != type)
     {
       return (struct Pc *)0;
     }
@@ -1801,7 +1825,7 @@ static struct Value *assign(struct Value *value)
       int i, used = 0, capacity = 0;
       struct Value retyped_value;
 
-      for (;;)
+      for (; ; )
         {
           if (used == capacity)
             {
@@ -2008,7 +2032,8 @@ static void runline(struct Token *line)
         {
           struct String s;
 
-          Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc), &g_pc, &value);
+          Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc),
+                        &g_pc, &value);
           Program_PCtoError(&g_program, &g_pc, &value);
           g_labelstack_index = 0;
           FS_putChars(STDCHANNEL, _("Error: "));
@@ -2044,8 +2069,8 @@ static void runline(struct Token *line)
         {
           if (strchr(value.u.error.msg, '\n') == (char *)0)
             {
-              Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc), &g_pc,
-                            &value);
+              Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc),
+                            &g_pc, &value);
               Program_PCtoError(&g_program, &g_pc, &value);
             }
 
@@ -2105,8 +2130,8 @@ static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
     {
       ++g_pc.token;
       exprpc = g_pc;
-      if (eval(value, _("dimension"))->type == V_ERROR ||
-          (g_pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
+      if (eval(value, _("dimension"))->type == V_ERROR || (g_pass != DECLARE
+          && Value_retype(value, V_INTEGER)->type == V_ERROR))
         {
           return value;
         }
@@ -2158,7 +2183,8 @@ static struct Value *convert(struct Value *value, struct Value *l,
 
         datainput = t->u.datainput;
         v = Value_vali(datainput, &end, &overflow);
-        if (end == datainput || (*end != '\0' && *end != ' ' && *end != '\t'))
+        if (end == datainput ||
+            (*end != '\0' && *end != ' ' && *end != '\t'))
           {
             return Value_new_ERROR(value, BADCONVERSION, _("integer"));
           }
@@ -2187,7 +2213,8 @@ static struct Value *convert(struct Value *value, struct Value *l,
 
         datainput = t->u.datainput;
         v = Value_vald(datainput, &end, &overflow);
-        if (end == datainput || (*end != '\0' && *end != ' ' && *end != '\t'))
+        if (end == datainput ||
+            (*end != '\0' && *end != ' ' && *end != '\t'))
           {
             return Value_new_ERROR(value, BADCONVERSION, _("real"));
           }
@@ -2201,6 +2228,7 @@ static struct Value *convert(struct Value *value, struct Value *l,
         VALUE_NEW_REAL(l, v);
         break;
       }
+
     case V_STRING:
       {
         Value_destroy(l);
@@ -2285,14 +2313,14 @@ more:
     {
       ++g_pc.token;
     }
-  else if ((g_pc.token->type == T_COLON && (g_pc.token + 1)->type != T_ELSE) ||
-           g_pc.token->type == T_QUOTE)
+  else if ((g_pc.token->type == T_COLON && (g_pc.token + 1)->type != T_ELSE)
+           || g_pc.token->type == T_QUOTE)
     {
       ++g_pc.token;
       goto more;
     }
-  else if ((g_pass == DECLARE || g_pass == COMPILE) && g_pc.token->type != T_EOL &&
-           g_pc.token->type != T_ELSE)
+  else if ((g_pass == DECLARE || g_pass == COMPILE) &&
+           g_pc.token->type != T_EOL && g_pc.token->type != T_ELSE)
     {
       return Value_new_ERROR(value, MISSINGCOLON);
     }
@@ -2419,8 +2447,8 @@ void bas_interpreter(void)
                     {
                       struct Pc where;
 
-                      if (Program_goLine(&g_program, line->u.integer, &where) ==
-                          (struct Pc *)0)
+                      if (Program_goLine(&g_program, line->u.integer, &where)
+                          == (struct Pc *)0)
                         {
                           FS_putChars(STDCHANNEL, _("No such line\n"));
                         }

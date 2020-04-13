@@ -14,8 +14,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -100,8 +100,11 @@
 static struct FileStream **g_file;
 static int g_capacity;
 static int g_used;
-static const int g_open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 static char g_errmsgbuf[80];
+static const int g_open_mode[4] =
+{
+  0, O_RDONLY, O_WRONLY, O_RDWR
+};
 
 /****************************************************************************
  * Public Data
@@ -205,7 +208,8 @@ static int opened(int dev, int mode)
 
     case 4:
       {
-        fd = (g_file[dev]->randomfd != -1 ? g_file[dev]->randomfd : g_file[dev]->binaryfd);
+        fd = (g_file[dev]->randomfd != -1 ?
+              g_file[dev]->randomfd : g_file[dev]->binaryfd);
         if (fd == -1)
           {
             snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
@@ -270,6 +274,7 @@ static int edit(int chn, int nl)
           FS_putChar(chn, *buf);
         }
     }
+
   do
     {
       FS_flush(chn);
@@ -301,7 +306,7 @@ static int edit(int chn, int nl)
 #ifdef CONFIG_INTERPRETER_BAS_VT100
               /* Could use vt100_clrtoeol */
 #endif
-              /* Is the previous character in the buffer 2 character escape sequence? */
+              /* Is the previous char in buffer 2 char escape sequence? */
 
               if (f->inBuf[f->inCapacity - 1] >= '\0' &&
                   f->inBuf[f->inCapacity - 1] < ' ')
@@ -311,7 +316,7 @@ static int edit(int chn, int nl)
                   FS_putChars(chn, "\b\b  \b\b");
                 }
               else
-                 {
+                {
                   /* Yes.. erase one characters */
 
                   FS_putChars(chn, "\b \b");
@@ -335,7 +340,7 @@ static int edit(int chn, int nl)
 #elif defined(CONFIG_EOL_IS_LF)
               if (ch != '\n')
 #elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-              if (ch != '\n' && ch != '\r' )
+              if (ch != '\n' && ch != '\r')
 #endif
                 {
                   /* No.. escape control characters other than newline and
@@ -540,7 +545,8 @@ int FS_openinChn(int chn, const char *name, int mode)
 
   /* Serial devices on Linux should be opened non-blocking, otherwise the
    * open() may block already.  Named pipes can not be opened non-blocking in
-   * write-only mode, so first try non-blocking, then blocking. */
+   * write-only mode, so first try non-blocking, then blocking.
+   */
 
   if ((fd = open(name, fl | O_NONBLOCK)) == -1)
     {
@@ -631,15 +637,16 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
 
   fl = g_open_mode[mode] | (append ? O_APPEND : 0);
 
-  /* Serial devices on Linux should be opened non-blocking, otherwise the */
-  /* open() may block already.  Named pipes can not be opened non-blocking */
-  /* in write-only mode, so first try non-blocking, then blocking.  */
+  /* Serial devices on Linux should be opened non-blocking, otherwise the
+   * open() may block already.  Named pipes can not be opened non-blocking
+   * in write-only mode, so first try non-blocking, then blocking.
+   */
 
   fd = open(name, fl | O_CREAT | (append ? 0 : O_TRUNC) | O_NONBLOCK, 0666);
   if (fd == -1)
     {
-      if (errno != ENXIO ||
-          (fd = open(name, fl | O_CREAT | (append ? 0 : O_TRUNC), 0666)) == -1)
+      if (errno != ENXIO || -1 ==
+          (fd = open(name, fl | O_CREAT | (append ? 0 : O_TRUNC), 0666)))
         {
           FS_errmsg = strerror(errno);
           return -1;
@@ -803,7 +810,8 @@ int FS_close(int dev)
   if (g_file[dev]->outfd >= 0)
     {
       if (g_file[dev]->tty &&
-          (g_file[dev]->outforeground != -1 || g_file[dev]->outbackground != -1))
+          (g_file[dev]->outforeground != -1 ||
+           g_file[dev]->outbackground != -1))
         {
           resetcolour(dev);
         }
@@ -928,7 +936,8 @@ int FS_truncate(int chn)
         }
     }
 
-  if ((o = lseek(fd, 0, SEEK_CUR)) == (off_t) - 1 || ftruncate(fd, o + 1) == -1)
+  if ((o = lseek(fd, 0, SEEK_CUR)) == (off_t) - 1 ||
+      ftruncate(fd, o + 1) == -1)
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -1143,8 +1152,8 @@ int FS_getbinaryString(int chn, struct String *s)
       return -1;
     }
 
-  if (s->length &&
-      (len = read(g_file[chn]->binaryfd, s->character, s->length)) != s->length)
+  if (s->length && s->length !=
+      (len = read(g_file[chn]->binaryfd, s->character, s->length)))
     {
       if (len == -1)
         {
@@ -1231,9 +1240,8 @@ int FS_nextcol(int dev)
     }
 
   f = g_file[dev];
-  if (f->outPos % f->outColWidth
-      && f->outLineWidth
-      && ((f->outPos / f->outColWidth + 2) * f->outColWidth) > f->outLineWidth)
+  if (f->outPos % f->outColWidth && f->outLineWidth &&
+      ((f->outPos / f->outColWidth + 2) * f->outColWidth) > f->outLineWidth)
     {
       return FS_putChar(dev, '\n');
     }
@@ -1497,7 +1505,7 @@ int FS_inkeyChar(int dev, int ms)
   FD_SET(f->infd, &just_infd);
   timeout.tv_sec = ms / 1000;
   timeout.tv_usec = (ms % 1000) * 1000;
-  switch (select(f->infd + 1, &just_infd, (fd_set *) 0, (fd_set *) 0, &timeout))
+  switch (select(f->infd + 1, &just_infd, NULL, NULL, &timeout))
     {
     case 1:
       {
@@ -1635,8 +1643,9 @@ long int FS_lof(int chn)
 
   assert(fd != -1);
 
-  /* Get the size of the file */
-  /* Save the current file position */
+  /* Get the size of the file
+   * Save the current file position
+   */
 
   curpos = lseek(fd, 0, SEEK_CUR);
   if (curpos == (off_t)-1)
@@ -1679,7 +1688,8 @@ long int FS_recLength(int chn)
 void FS_field(int chn, struct String *s, long int position, long int length)
 {
   assert(g_file[chn]);
-  String_joinField(s, &g_file[chn]->field, g_file[chn]->recBuf + position, length);
+  String_joinField(s, &g_file[chn]->field,
+                   g_file[chn]->recBuf + position, length);
 }
 
 int FS_seek(int chn, long int record)

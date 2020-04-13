@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_envcmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2018 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2018 Gregory Nutt. All rights
+ *   reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +96,7 @@ static inline FAR const char *nsh_getwd(const char *wd)
 static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
                                    const char *dirpath, const char *relpath)
 {
-  char *alloc;
+  FAR char *alloc;
   int len;
 
   /* Handle the special case where the dirpath is simply "/" */
@@ -103,7 +104,7 @@ static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
   if (strcmp(dirpath, "/") == 0)
     {
       len   = strlen(relpath) + 2;
-      alloc = (char*)malloc(len);
+      alloc = (FAR char *)malloc(len);
       if (alloc)
         {
           sprintf(alloc, "/%s", relpath);
@@ -112,7 +113,7 @@ static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
   else
     {
       len = strlen(dirpath) + strlen(relpath) + 2;
-      alloc = (char*)malloc(len);
+      alloc = (FAR char *)malloc(len);
       if (alloc)
         {
           sprintf(alloc, "%s/%s", dirpath, relpath);
@@ -389,23 +390,24 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           else
             {
               value = &argv[1][1];
-              while(*value && *value != ' ')
+              while (*value && *value != ' ')
                 {
                   popt = strchr(opts, *value++);
                   if (popt == NULL)
                     {
-                      nsh_error(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
+                      nsh_error(vtbl, g_fmtarginvalid,
+                                argv[0], "set", NSH_ERRNO);
                       ret = -EINVAL;
                       break;
                     }
 
                   if (op == '+')
                     {
-                      vtbl->np.np_flags |= 1 << (popt-opts);
+                      vtbl->np.np_flags |= 1 << (popt - opts);
                     }
                   else
                     {
-                      vtbl->np.np_flags &= ~(1 << (popt-opts));
+                      vtbl->np.np_flags &= ~(1 << (popt - opts));
                     }
                 }
 
@@ -416,8 +418,8 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 }
 #endif
             }
-         }
-      }
+        }
+    }
 
 #ifdef NSH_HAVE_VARS
   if (ret == OK && (argc == 3 || argc == 4))
@@ -431,7 +433,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* Trim whitespace from the value */
 
-      value = nsh_trimspaces(argv[ndx+1]);
+      value = nsh_trimspaces(argv[ndx + 1]);
 
 #ifdef CONFIG_NSH_VARS
 #ifndef CONFIG_DISABLE_ENVIRON
@@ -442,8 +444,8 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * a local variable that shadows the environment variable.
        */
 
-     oldvalue = getenv(argv[ndx]);
-     if (oldvalue == NULL)
+      oldvalue = getenv(argv[ndx]);
+      if (oldvalue == NULL)
 #endif
         {
           /* Set the NSH variable */
