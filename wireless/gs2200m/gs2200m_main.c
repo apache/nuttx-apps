@@ -149,73 +149,61 @@ static const struct usrsock_req_handler_s
 {
   uint32_t hdrlen;
   int (CODE *fn)(int fd, FAR struct gs2200m_s *priv, FAR void *req);
-} handlers[USRSOCK_REQUEST__MAX] =
+}
+handlers[USRSOCK_REQUEST__MAX] =
 {
-  [USRSOCK_REQUEST_SOCKET] =
-  {
-    sizeof(struct usrsock_request_socket_s),
-    socket_request,
-  },
-  [USRSOCK_REQUEST_CLOSE] =
-  {
-    sizeof(struct usrsock_request_close_s),
-    close_request,
-  },
-  [USRSOCK_REQUEST_CONNECT] =
-  {
-    sizeof(struct usrsock_request_connect_s),
-    connect_request,
-  },
-  [USRSOCK_REQUEST_SENDTO] =
-  {
-    sizeof(struct usrsock_request_sendto_s),
-    sendto_request,
-  },
-  [USRSOCK_REQUEST_RECVFROM] =
-  {
-    sizeof(struct usrsock_request_recvfrom_s),
-    recvfrom_request,
-  },
-  [USRSOCK_REQUEST_SETSOCKOPT] =
-  {
-    sizeof(struct usrsock_request_setsockopt_s),
-    setsockopt_request,
-  },
-  [USRSOCK_REQUEST_GETSOCKOPT] =
-  {
-    sizeof(struct usrsock_request_getsockopt_s),
-    getsockopt_request,
-  },
-  [USRSOCK_REQUEST_GETSOCKNAME] =
-  {
-    sizeof(struct usrsock_request_getsockname_s),
-    getsockname_request,
-  },
-  [USRSOCK_REQUEST_GETPEERNAME] =
-  {
-    sizeof(struct usrsock_request_getpeername_s),
-    getpeername_request,
-  },
-  [USRSOCK_REQUEST_BIND] =
-  {
-    sizeof(struct usrsock_request_bind_s),
-    bind_request,
-  },
-  [USRSOCK_REQUEST_LISTEN] =
-  {
-    sizeof(struct usrsock_request_listen_s),
-    listen_request,
-  },
-  [USRSOCK_REQUEST_ACCEPT] =
-  {
-    sizeof(struct usrsock_request_accept_s),
-    accept_request,
-  },
-  [USRSOCK_REQUEST_IOCTL] =
-  {
-    sizeof(struct usrsock_request_ioctl_s),
-    ioctl_request,
-  },
+{
+  sizeof(struct usrsock_request_socket_s),
+  socket_request,
+},
+{
+  sizeof(struct usrsock_request_close_s),
+  close_request,
+},
+{
+  sizeof(struct usrsock_request_connect_s),
+  connect_request,
+},
+{
+  sizeof(struct usrsock_request_sendto_s),
+  sendto_request,
+},
+{
+  sizeof(struct usrsock_request_recvfrom_s),
+  recvfrom_request,
+},
+{
+  sizeof(struct usrsock_request_setsockopt_s),
+  setsockopt_request,
+},
+{
+  sizeof(struct usrsock_request_getsockopt_s),
+  getsockopt_request,
+},
+{
+  sizeof(struct usrsock_request_getsockname_s),
+  getsockname_request,
+},
+{
+  sizeof(struct usrsock_request_getpeername_s),
+  getpeername_request,
+},
+{
+  sizeof(struct usrsock_request_bind_s),
+  bind_request,
+},
+{
+  sizeof(struct usrsock_request_listen_s),
+  listen_request,
+},
+{
+  sizeof(struct usrsock_request_accept_s),
+  accept_request,
+},
+{
+  sizeof(struct usrsock_request_ioctl_s),
+  ioctl_request,
+},
 };
 
 static struct gs2200m_s *_daemon;
