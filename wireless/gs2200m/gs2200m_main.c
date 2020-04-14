@@ -650,6 +650,7 @@ static int connect_request(int fd, FAR struct gs2200m_s *priv,
            ntohs(addr.sin_port));
 
   cmsg.cid  = 'z'; /* set to invalid */
+  cmsg.type = usock->type;
 
   ret = ioctl(priv->gsfd, GS2200M_IOC_CONNECT,
               (unsigned long)&cmsg);
@@ -744,7 +745,7 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
 
   /* For UDP, addlen must be provided */
 
-  if (usock->type == SOCK_DGRAM)
+  if (usock->type == SOCK_DGRAM && CONNECTED != usock->state)
     {
       if (req->addrlen == 0)
         {
