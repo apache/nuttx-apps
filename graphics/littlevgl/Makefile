@@ -53,10 +53,10 @@ LVGL_DIR = .
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-CONFIG_GRAPH_LVGL_URL ?= "https://web.archive.org/web/20190204022948/https://littlevgl.com/download/"
+CONFIG_GRAPH_LVGL_URL ?= "https://github.com/littlevgl/lvgl/archive"
 
-LVGL_VERSION ?= v5_3
-LVGL_TARBALL = lvgl_$(LVGL_VERSION).zip
+LVGL_VERSION ?= 5.3
+LVGL_TARBALL = v$(LVGL_VERSION).zip
 WGET ?= wget
 
 LVGL_UNPACKNAME = lvgl
@@ -76,6 +76,7 @@ $(LVGL_TARBALL):
 $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	@echo "Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
+	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
 $(LVGL_UNPACKNAME)/.patched: $(LVGL_UNPACKNAME) $(PATCH_FILES)
