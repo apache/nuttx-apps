@@ -384,14 +384,14 @@ int main(int argc, FAR char *argv[])
     {
       int ch = getc(stdin);
 
-      if (nobreak == 1)
+      if (ch < 0)
         {
-          write(g_cu.outfd, &ch, 1);
           continue;
         }
 
-      if (ch <= 0)
+      if (nobreak == 1)
         {
+          write(g_cu.outfd, &ch, 1);
           continue;
         }
 
