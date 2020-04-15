@@ -64,4 +64,4 @@ void fbdev_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 }
 #endif
 
-#endif /*__APPS_EXAMPLES_LVGLDEMO_FBDEV_H */
+#endif /* __APPS_EXAMPLES_LVGLDEMO_FBDEV_H */
