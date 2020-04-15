@@ -44,7 +44,9 @@
 
 #include <stdint.h>
 
-/* Type of coordinates. Should be `int16_t` (or `int32_t` for extreme cases) */
+/* Type of coordinates. Should be `int16_t`
+ * (or `int32_t` for extreme cases)
+ */
 
 typedef int16_t lv_coord_t;
 
@@ -56,7 +58,7 @@ typedef int16_t lv_coord_t;
  * Graphical settings
  ****************************************************************************/
 
-/* Maximal horizontal and vertical resolution to support by the library.*/
+/* Maximal horizontal and vertical resolution to support by the library. */
 
 #define LV_HOR_RES_MAX          CONFIG_LV_HOR_RES
 #define LV_VER_RES_MAX          CONFIG_LV_VER_RES
@@ -94,7 +96,9 @@ typedef int16_t lv_coord_t;
 
 /* Images pixels with this color will not be drawn (with chroma keying) */
 
-#define LV_COLOR_TRANSP    ((lv_color_t){.full = (CONFIG_LV_COLOR_TRANSP)})      /*LV_COLOR_LIME: pure green*/
+/* LV_COLOR_LIME: pure green */
+
+#define LV_COLOR_TRANSP    ((lv_color_t){.full = (CONFIG_LV_COLOR_TRANSP)})
 
 /* Enable chroma keying for indexed images. */
 
@@ -112,14 +116,14 @@ typedef int16_t lv_coord_t;
  * Can be changed in the display driver (`lv_disp_drv_t`).
  */
 
-#define LV_DISP_DEF_REFR_PERIOD      CONFIG_LV_DISP_DEF_REFR_PERIOD   /*[ms]*/
+#define LV_DISP_DEF_REFR_PERIOD      CONFIG_LV_DISP_DEF_REFR_PERIOD   /* [ms] */
 
 /* Dot Per Inch: used to initialize default sizes.
  * E.g. a button with width = LV_DPI / 2 -> half inch wide
  * (Not so important, you can adjust it to modify default sizes and spaces)
  */
 
-#define LV_DPI              CONFIG_LV_DPI     /*[px]*/
+#define LV_DPI              CONFIG_LV_DPI     /* [px] */
 
 /****************************************************************************
  * Memory manager settings
@@ -129,12 +133,14 @@ typedef int16_t lv_coord_t;
  * The graphical objects and other related data are stored here.
  */
 
-/* 1: use custom malloc/free, 0: use the built-in `lv_mem_alloc` and `lv_mem_free` */
+/* 1: use custom malloc/free, 0: use the built-in
+ * `lv_mem_alloc` and `lv_mem_free`
+ */
 
 #define LV_MEM_CUSTOM      0
 #if LV_MEM_CUSTOM == 0
 
-/* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB)*/
+/* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB) */
 
 #  define LV_MEM_SIZE    (32U * 1024U)
 
@@ -148,14 +154,16 @@ typedef int16_t lv_coord_t;
 
 #  define LV_MEM_ADR          0
 
-/* Automatically defrag. on free. Defrag. means joining the adjacent free cells. */
+/* Automatically defrag. on free. Defrag. means
+ * joining the adjacent free cells.
+ */
 
 #  define LV_MEM_AUTO_DEFRAG  1
-#else       /*LV_MEM_CUSTOM*/
-#  define LV_MEM_CUSTOM_INCLUDE <stdlib.h>   /*Header for the dynamic memory function*/
-#  define LV_MEM_CUSTOM_ALLOC   malloc       /*Wrapper to malloc*/
-#  define LV_MEM_CUSTOM_FREE    free         /*Wrapper to free*/
-#endif     /*LV_MEM_CUSTOM*/
+#else       /* LV_MEM_CUSTOM */
+#  define LV_MEM_CUSTOM_INCLUDE <stdlib.h>   /* Header for the dynamic memory function */
+#  define LV_MEM_CUSTOM_ALLOC   malloc       /* Wrapper to malloc */
+#  define LV_MEM_CUSTOM_FREE    free         /* Wrapper to free */
+#endif     /* LV_MEM_CUSTOM */
 
 /* Garbage Collector settings
  * Used if lvgl is binded to higher level language and the memory is
@@ -164,9 +172,9 @@ typedef int16_t lv_coord_t;
 
 #define LV_ENABLE_GC 0
 #if LV_ENABLE_GC != 0
-#  define LV_GC_INCLUDE "gc.h"                           /*Include Garbage Collector related things*/
-#  define LV_MEM_CUSTOM_REALLOC   your_realloc           /*Wrapper to realloc*/
-#  define LV_MEM_CUSTOM_GET_SIZE  your_mem_get_size      /*Wrapper to lv_mem_get_size*/
+#  define LV_GC_INCLUDE "gc.h"                           /* Include Garbage Collector related things */
+#  define LV_MEM_CUSTOM_REALLOC   your_realloc           /* Wrapper to realloc */
+#  define LV_MEM_CUSTOM_GET_SIZE  your_mem_get_size      /* Wrapper to lv_mem_get_size */
 #endif /* LV_ENABLE_GC */
 
 /****************************************************************************
@@ -215,7 +223,9 @@ typedef int16_t lv_coord_t;
 
 #if LV_USE_ANIMATION
 
-/* Declare the type of the user data of animations (can be e.g. `void *`, `int`, `struct`) */
+/* Declare the type of the user data of animations
+ * (can be e.g. `void *`, `int`, `struct`)
+ */
 
 typedef void * lv_anim_user_data_t;
 
@@ -238,7 +248,7 @@ typedef void * lv_anim_user_data_t;
 #endif
 #if LV_USE_GROUP
 typedef void * lv_group_user_data_t;
-#endif  /*LV_USE_GROUP*/
+#endif  /* LV_USE_GROUP */
 
 /* 1: Enable GPU interface */
 
@@ -257,7 +267,9 @@ typedef void * lv_group_user_data_t;
 #endif
 
 #if LV_USE_FILESYSTEM
-/* Declare the type of the user data of file system drivers (can be e.g. `void *`, `int`, `struct`) */
+/* Declare the type of the user data of file system drivers
+ * (can be e.g. `void *`, `int`, `struct`)
+ */
 
 typedef void * lv_fs_drv_user_data_t;
 #endif
@@ -298,7 +310,9 @@ typedef void * lv_fs_drv_user_data_t;
 
 #define LV_IMG_CACHE_DEF_SIZE       1
 
-/* Declare the type of the user data of image decoder (can be e.g. `void *`, `int`, `struct`) */
+/* Declare the type of the user data of image decoder
+ * (can be e.g. `void *`, `int`, `struct`)
+ */
 
 typedef void * lv_img_decoder_user_data_t;
 
@@ -347,12 +361,12 @@ typedef void * lv_img_decoder_user_data_t;
 
 #define LV_TICK_CUSTOM     0
 #if LV_TICK_CUSTOM == 1
-#define LV_TICK_CUSTOM_INCLUDE  "something.h"       /*Header for the sys time function*/
-#define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())     /*Expression evaluating to current systime in ms*/
-#endif   /*LV_TICK_CUSTOM*/
+#define LV_TICK_CUSTOM_INCLUDE  "something.h"       /* Header for the sys time function */
+#define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())     /* Expression evaluating to current systime in ms */
+#endif   /* LV_TICK_CUSTOM */
 
 typedef void * lv_disp_drv_user_data_t;             /* Type of user data in the display driver */
-typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the input device driver*/
+typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the input device driver */
 
 /****************************************************************************
  * Log settings
@@ -404,7 +418,7 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 #else
 #  define LV_LOG_PRINTF   0
 #endif
-#endif  /*LV_USE_LOG*/
+#endif  /* LV_USE_LOG */
 
 /****************************************************************************
  * Debug settings
@@ -452,7 +466,7 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 
 #define LV_USE_ASSERT_STYLE     1
 
-#endif /*LV_USE_DEBUG*/
+#endif /* LV_USE_DEBUG */
 
 /****************************************************************************
  *  THEME USAGE
@@ -461,55 +475,55 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 #ifdef CONFIG_LV_THEME_LIVE_UPDATE
 #define LV_THEME_LIVE_UPDATE    CONFIG_LV_THEME_LIVE_UPDATE
 #else
-#define LV_THEME_LIVE_UPDATE    0   /*1: Allow theme switching at run time. Uses 8..10 kB of RAM*/
+#define LV_THEME_LIVE_UPDATE    0   /* 1: Allow theme switching at run time. Uses 8..10 kB of RAM */
 #endif
 
 #ifdef CONFIG_LV_THEME_LIVE_TEMPL
 #define LV_USE_THEME_TEMPL      CONFIG_LV_USE_THEME_TEMPL
 #else
-#define LV_USE_THEME_TEMPL      0   /*Just for test*/
+#define LV_USE_THEME_TEMPL      0   /* Just for test */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_DEFAULT
 #define LV_USE_THEME_DEFAULT    CONFIG_LV_USE_THEME_DEFAULT
 #else
-#define LV_USE_THEME_DEFAULT    0   /*Built mainly from the built-in styles. Consumes very few RAM*/
+#define LV_USE_THEME_DEFAULT    0   /* Built mainly from the built-in styles. Consumes very few RAM */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_ALIEN
 #define LV_USE_THEME_ALIEN      CONFIG_LV_USE_THEME_ALIEN
 #else
-#define LV_USE_THEME_ALIEN      0   /*Dark futuristic theme*/
+#define LV_USE_THEME_ALIEN      0   /* Dark futuristic theme */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_NIGHT
 #define LV_USE_THEME_NIGHT      CONFIG_LV_USE_THEME_NIGHT
 #else
-#define LV_USE_THEME_NIGHT      0   /*Dark elegant theme*/
+#define LV_USE_THEME_NIGHT      0   /* Dark elegant theme */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_MONO
 #define LV_USE_THEME_MONO       CONFIG_LV_USE_THEME_MONO
 #else
-#define LV_USE_THEME_MONO       0   /*Mono color theme for monochrome displays*/
+#define LV_USE_THEME_MONO       0   /* Mono color theme for monochrome displays */
 #endif
 
 #ifdef  CONFIG_LV_USE_THEME_MATERIAL
 #define LV_USE_THEME_MATERIAL   CONFIG_LV_USE_THEME_MATERIAL
 #else
-#define LV_USE_THEME_MATERIAL   0   /*Flat theme with bold colors and light shadows*/
+#define LV_USE_THEME_MATERIAL   0   /* Flat theme with bold colors and light shadows */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_ZEN
 #define LV_USE_THEME_ZEN        CONFIG_LV_USE_THEME_ZEN
 #else
-#define LV_USE_THEME_ZEN        0   /*Peaceful, mainly light theme */
+#define LV_USE_THEME_ZEN        0   /* Peaceful, mainly light theme */
 #endif
 
 #ifdef CONFIG_LV_USE_THEME_NEMO
 #define LV_USE_THEME_NEMO       CONFIG_LV_USE_THEME_NEMO
 #else
-#define LV_USE_THEME_NEMO       0   /*Water-like theme based on the movie "Finding Nemo"*/
+#define LV_USE_THEME_NEMO       0   /* Water-like theme based on the movie "Finding Nemo" */
 #endif
 
 /****************************************************************************
@@ -554,7 +568,7 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 /* Demonstrate special features */
 
 #define LV_FONT_ROBOTO_12_SUBPX 1
-#define LV_FONT_ROBOTO_28_COMPRESSED 1  /*bpp = 3*/
+#define LV_FONT_ROBOTO_28_COMPRESSED 1  /* bpp = 3 */
 
 /* Pixel perfect monospace font
  * http://pelulamu.net/unscii/
@@ -612,7 +626,9 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 
 #define LV_FONT_SUBPX_BGR    0
 
-/* Declare the type of the user data of fonts (can be e.g. `void *`, `int`, `struct`) */
+/* Declare the type of the user data of fonts
+ * (can be e.g. `void *`, `int`, `struct`)
+ */
 
 typedef void * lv_font_user_data_t;
 
@@ -681,13 +697,15 @@ typedef void * lv_font_user_data_t;
 #  define LV_SPRINTF_INCLUDE <stdio.h>
 #  define lv_snprintf     snprintf
 #  define lv_vsnprintf    vsnprintf
-#endif  /*LV_SPRINTF_CUSTOM*/
+#endif  /* LV_SPRINTF_CUSTOM */
 
 /****************************************************************************
  *  LV_OBJ SETTINGS
  ****************************************************************************/
 
-/* Declare the type of the user data of object (can be e.g. `void *`, `int`, `struct`) */
+/* Declare the type of the user data of object
+ * (can be e.g. `void *`, `int`, `struct`)
+ */
 
 typedef void * lv_obj_user_data_t;
 
@@ -713,7 +731,9 @@ typedef void * lv_obj_user_data_t;
  *  LV OBJ X USAGE
  ****************************************************************************/
 
-/* Documentation of the object types: https://docs.littlevgl.com/#Object-types */
+/* Documentation of the object types:
+ * https://docs.littlevgl.com/#Object-types
+ */
 
 /* Arc (dependencies: -) */
 
@@ -741,7 +761,9 @@ typedef void * lv_obj_user_data_t;
 
 #if LV_USE_BTN != 0
 
-/* Enable button-state animations - draw a circle on click (dependencies: LV_USE_ANIMATION) */
+/* Enable button-state animations - draw a
+ * circle on click (dependencies: LV_USE_ANIMATION)
+ */
 
 #ifdef CONFIG_LV_BTN_INK_EFFECT
 #define LV_BTN_INK_EFFECT      CONFIG_LV_BTN_INK_EFFECT
@@ -824,7 +846,9 @@ typedef void * lv_obj_user_data_t;
 
 #define LV_USE_IMGBTN   1
 #if LV_USE_IMGBTN
-/* 1: The imgbtn requires left, mid and right parts and the width can be set freely */
+/* 1: The imgbtn requires left, mid and right
+ * parts and the width can be set freely
+ */
 
 #  define LV_IMGBTN_TILED 0
 #endif
@@ -837,7 +861,9 @@ typedef void * lv_obj_user_data_t;
 
 #define LV_USE_LABEL    1
 #if LV_USE_LABEL != 0
-/* Hor, or ver. scroll speed [px/sec] in 'LV_LABEL_LONG_ROLL/ROLL_CIRC' mode */
+/* Hor, or ver. scroll speed [px/sec] in
+ * 'LV_LABEL_LONG_ROLL/ROLL_CIRC' mode
+ */
 
 #  define LV_LABEL_DEF_SCROLL_SPEED       25
 
@@ -849,7 +875,9 @@ typedef void * lv_obj_user_data_t;
 
 #  define LV_LABEL_TEXT_SEL               0
 
-/* Store extra some info in labels (12 bytes) to speed up drawing of very long texts */
+/* Store extra some info in labels (12 bytes)
+ * to speed up drawing of very long texts
+ */
 
 #  define LV_LABEL_LONG_TXT_HINT          0
 #endif
@@ -862,11 +890,15 @@ typedef void * lv_obj_user_data_t;
 
 #define LV_USE_LINE     1
 
-/* List (dependencies: lv_page, lv_btn, lv_label, (lv_img optionally for icons)) */
+/* List (dependencies: lv_page, lv_btn, lv_label,
+ * (lv_img optionally for icons))
+ */
 
 #define LV_USE_LIST     1
 #if LV_USE_LIST != 0
-/* Default animation time of focusing to a list element [ms] (0: no animation) */
+/* Default animation time of focusing to a
+ * list element [ms] (0: no animation)
+ */
 
 #  define LV_LIST_DEF_ANIM_TIME  100
 #endif
@@ -892,8 +924,8 @@ typedef void * lv_obj_user_data_t;
 
 #define LV_USE_PRELOAD      1
 #if LV_USE_PRELOAD != 0
-#  define LV_PRELOAD_DEF_ARC_LENGTH   60      /*[deg]*/
-#  define LV_PRELOAD_DEF_SPIN_TIME    1000    /*[ms]*/
+#  define LV_PRELOAD_DEF_ARC_LENGTH   60      /* [deg] */
+#  define LV_PRELOAD_DEF_SPIN_TIME    1000    /* [ms] */
 #  define LV_PRELOAD_DEF_ANIM         LV_PRELOAD_TYPE_SPINNING_ARC
 #endif
 
@@ -926,8 +958,8 @@ typedef void * lv_obj_user_data_t;
 
 #define LV_USE_TA       1
 #if LV_USE_TA != 0
-#  define LV_TA_DEF_CURSOR_BLINK_TIME 400     /*ms*/
-#  define LV_TA_DEF_PWD_SHOW_TIME     1500    /*ms*/
+#  define LV_TA_DEF_CURSOR_BLINK_TIME 400     /* ms */
+#  define LV_TA_DEF_PWD_SHOW_TIME     1500    /* ms */
 #endif
 
 /* Table (dependencies: lv_label) */
@@ -975,4 +1007,4 @@ typedef void * lv_obj_user_data_t;
 
 #include "lvgl/src/lv_conf_checker.h"
 
-#endif /*__APPS_GRAPHICS_LITTLEVGL_LV_CONF_H*/
+#endif /* __APPS_GRAPHICS_LITTLEVGL_LV_CONF_H */
