@@ -129,7 +129,7 @@ endmenu
 menu "Color settings"
 
 config LV_COLOR_DEPTH
-	int "Color depth (8/16/24)"
+	int "Color depth (8/16/32)"
 	default 16
 
 config LV_COLOR_16_SWAP
@@ -138,7 +138,7 @@ config LV_COLOR_16_SWAP
 	default 0
 
 config LV_COLOR_SCREEN_TRANSP
-	bool "Enable screen transparency."
+	bool "Enable screen transparency.(If disabled, 32-bit color depth fall to 24-bit)"
 	default 0
 
 config LV_COLOR_TRANSP
