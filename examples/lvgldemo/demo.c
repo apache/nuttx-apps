@@ -142,7 +142,9 @@ static void text_area_event_handler(lv_obj_t *text_area, lv_event_t event)
 {
   (void)text_area;
 
-  /* Text area is on the scrollable part of the page but we need the page itself */
+  /* Text area is on the scrollable part of the
+   * page but we need the page itself
+   */
 
   lv_obj_t *parent = lv_obj_get_parent(lv_obj_get_parent(ta));
 
@@ -299,40 +301,6 @@ static void write_create(lv_obj_t *parent)
 }
 
 /****************************************************************************
- * Name: keyboard_hide_action
- *
- * Description:
- *   Called when the close or ok button is pressed on the keyboard
- *
- * Input Parameters:
- *   keyboard  - pointer to the keyboard, but unused
- *
- * Returned Value:
- *   LV_RES_OK if the *kb object was not deleted (freed),
- *   LV_RES_INV if it was deleted.
- *
- * Assumptions/Limitations:
- *   The animation routine will call kb_hide_anim_end() to delete (free)
- *   the object. The global lv_obj_t *kb is set to NULL after whether
- *   deleted or not. Assume *kb is valid entering this function.
- *
- ****************************************************************************/
-
-static lv_res_t keyboard_hide_action(lv_obj_t *keyboard)
-{
-#if USE_LV_ANIMATION
-  lv_obj_animate(kb, LV_ANIM_FLOAT_BOTTOM | LV_ANIM_OUT, 300, 0,
-                 kb_hide_anim_end);
-  kb = NULL;
-  return LV_RES_OK;
-#else
-  lv_obj_del(kb);
-  kb = NULL;
-  return LV_RES_INV;
-#endif
-}
-
-/****************************************************************************
  * Name: list_create
  *
  * Description:
@@ -416,7 +384,7 @@ static void list_create(lv_obj_t *parent)
 }
 
 /****************************************************************************
- * Name: list_btn_action
+ * Name: list_btn_event_handler
  *
  * Description:
  *   Callback for the buttons within the list on the list page. Appends
@@ -424,6 +392,7 @@ static void list_create(lv_obj_t *parent)
  *
  * Input Parameters:
  *   btn - The button object that triggered the action
+ *   event - The button
  *
  * Returned Value:
  *   LV_RES_OK - the object is still valid
@@ -433,12 +402,13 @@ static void list_create(lv_obj_t *parent)
  *
  ****************************************************************************/
 
-static lv_res_t list_btn_action(lv_obj_t *btn)
+static void list_btn_event_handler(lv_obj_t * btn, lv_event_t event)
 {
-  lv_ta_add_text(ta, lv_list_get_btn_text(btn));
-  lv_ta_add_char(ta, '\n');
-
-  return LV_RES_OK;
+  if (event == LV_EVENT_SHORT_CLICKED)
+    {
+      lv_ta_add_char(ta, '\n');
+      lv_ta_add_text(ta, lv_list_get_btn_text(btn));
+    }
 }
 
 /****************************************************************************
