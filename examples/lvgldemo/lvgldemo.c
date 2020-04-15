@@ -61,8 +61,10 @@
 
 /* Should we perform board-specific driver initialization?  There are two
  * ways that board initialization can occur:  1) automatically via
- * board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or 2)
- * via a call to boardctl() if the interface is enabled (CONFIG_LIB_BOARDCTL=y).
+ * board_late_initialize() during bootupif CONFIG_BOARD_LATE_INITIALIZE
+ * or 2).
+ * via a call to boardctl() if the interface is enabled
+ * (CONFIG_LIB_BOARDCTL=y).
  * If this task is running as an NSH built-in application, then that
  * initialization has probably already been performed otherwise we do it
  * here.
@@ -225,7 +227,7 @@ int main(int argc, FAR char *argv[])
 #  error "No theme selected for this application"
 #endif
 
- lv_test_theme_1(theme);
+  lv_test_theme_1(theme);
 
 #elif defined(CONFIG_EXAMPLES_LVGLDEMO_THEME_2)
   lv_test_theme_2();
