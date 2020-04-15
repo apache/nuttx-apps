@@ -446,7 +446,9 @@ void lv_test_theme_1(lv_theme_t * th)
 {
   lv_theme_set_current(th);
 
-  /* If `LV_THEME_LIVE_UPDATE  1` `th` is not used directly so get the real theme after set */
+  /* If `LV_THEME_LIVE_UPDATE  1` `th` is not used directly
+   * so get the real theme after set
+   */
 
   th = lv_theme_get_current();
   FAR lv_obj_t * scr = lv_cont_create(NULL, NULL);
