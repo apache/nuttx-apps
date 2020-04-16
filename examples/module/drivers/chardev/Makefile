@@ -91,7 +91,7 @@ $(FSROOT_DIR)/$(BIN): $(BIN)
 	$(Q) mkdir -p $(FSROOT_DIR)
 	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)
 ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
-	$(Q) $(STRIP) $(FSROOT_DIR)/$(BIN)
+	$(Q) $(MODULESTRIP) $(FSROOT_DIR)/$(BIN)
 endif
 
 install: $(FSROOT_DIR)/$(BIN)
