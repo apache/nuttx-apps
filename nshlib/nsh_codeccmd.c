@@ -156,7 +156,7 @@ static void urlencode_cb(FAR char *src, int srclen, FAR char *dest,
 static void urldecode_cb(FAR char *src, int srclen, FAR char *dest,
                          FAR int *destlen, int mode)
 {
-  urldecode(src,srclen,dest,destlen);
+  urldecode(src, srclen, dest, destlen);
 }
 #endif
 
@@ -359,7 +359,13 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           goto exit;
         }
 
-      srcbuf = malloc(CONFIG_NSH_CODECS_BUFSIZE+2);
+      srcbuf = malloc(CONFIG_NSH_CODECS_BUFSIZE + 2);
+      if (!srcbuf)
+        {
+          fmt = g_fmtcmdoutofmemory;
+          goto errout;
+        }
+
 #ifdef HAVE_CODECS_BASE64ENC
       if (mode == CODEC_MODE_BASE64ENC)
         {
@@ -371,19 +377,25 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           srclen = CONFIG_NSH_CODECS_BUFSIZE;
         }
 
-      buflen = calc_codec_buffsize(srclen+2, mode);
+      buflen = calc_codec_buffsize(srclen + 2, mode);
       destbuf = malloc(buflen);
+      if (!destbuf)
+        {
+          fmt = g_fmtcmdoutofmemory;
+          goto errout;
+        }
+
       while (true)
         {
-          memset(srcbuf, 0, srclen+2);
-          ret=read(fd, srcbuf, srclen);
+          memset(srcbuf, 0, srclen + 2);
+          ret = read(fd, srcbuf, srclen);
           if (ret < 0)
             {
               nsh_error(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
               ret = ERROR;
               goto exit;
             }
-          else if (ret==0)
+          else if (ret == 0)
             {
               break;
             }
@@ -391,13 +403,13 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #ifdef HAVE_CODECS_URLDECODE
           if (mode == CODEC_MODE_URLDECODE)
             {
-              if (srcbuf[srclen-1]=='%')
+              if (srcbuf[srclen - 1] == '%')
                 {
-                  ret += read(fd,&srcbuf[srclen],2);
+                  ret += read(fd, &srcbuf[srclen], 2);
                 }
-              else if (srcbuf[srclen-2]=='%')
+              else if (srcbuf[srclen - 2] == '%')
                 {
-                  ret += read(fd,&srcbuf[srclen],1);
+                  ret += read(fd, &srcbuf[srclen], 1);
                 }
             }
 #endif
@@ -407,17 +419,17 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #ifdef HAVE_CODECS_HASH_MD5
               if (mode == CODEC_MODE_HASH_MD5)
                 {
-                  func(srcbuf, ret, (char *)&ctx, &buflen,0);
+                  func(srcbuf, ret, (char *)&ctx, &buflen, 0);
                 }
               else
 #endif
                 {
-                  func(srcbuf, ret, destbuf, &buflen,(iswebsafe)?1:0);
+                  func(srcbuf, ret, destbuf, &buflen, iswebsafe ? 1 : 0);
                   nsh_output(vtbl, "%s", destbuf);
                 }
             }
 
-          buflen = calc_codec_buffsize(srclen+2, mode);
+          buflen = calc_codec_buffsize(srclen + 2, mode);
         }
 
 #ifdef HAVE_CODECS_HASH_MD5
@@ -447,7 +459,6 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       srclen  = strlen(sdata);
       buflen  = calc_codec_buffsize(srclen, mode);
       destbuf = malloc(buflen);
-      destbuf[0]=0;
       if (!destbuf)
         {
           fmt = g_fmtcmdoutofmemory;
@@ -477,11 +488,11 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           else
 #endif
             {
-              func(srcbuf, srclen, destbuf, &buflen,(iswebsafe)?1:0);
+              func(srcbuf, srclen, destbuf, &buflen, iswebsafe ? 1 : 0);
             }
         }
 
-      nsh_output(vtbl, "%s\n",destbuf);
+      nsh_output(vtbl, "%s\n", destbuf);
       srcbuf = NULL;
       goto exit;
     }
