@@ -148,7 +148,7 @@ int system(FAR const char *cmd)
   errcode = posix_spawn(&pid, CONFIG_SYSTEM_SYSTEM_SHPATH,  NULL, &attr,
                         argv, (FAR char * const *)NULL);
 #else
-  errcode = task_spawn(&pid, "popen", nsh_system, NULL, &attr,
+  errcode = task_spawn(&pid, "system", nsh_system, NULL, &attr,
                        argv, (FAR char * const *)NULL);
 #endif
 
