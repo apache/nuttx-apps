@@ -1,0 +1,26 @@
+diff -ur lvgl-6.1.2/src/lv_draw/lv_draw_basic.c lvgl/src/lv_draw/lv_draw_basic.c
+--- lvgl-6.1.2/src/lv_draw/lv_draw_basic.c	2020-02-26 22:35:12.000000000 +0000
++++ lvgl/src/lv_draw/lv_draw_basic.c	2020-04-16 09:24:53.015257341 +0000
+@@ -530,7 +530,7 @@
+         else {
+             for(row = masked_a.y1; row <= masked_a.y2; row++) {
+ #if LV_USE_GPU
+-                if(disp->driver.gpu_blend_cb == false) {
++                if(disp->driver.gpu_blend_cb == NULL) {
+                     sw_mem_blend(vdb_buf_tmp, (lv_color_t *)map_p, map_useful_w, opa);
+                 } else {
+                     disp->driver.gpu_blend_cb(&disp->driver, vdb_buf_tmp, (lv_color_t *)map_p, map_useful_w, opa);
+diff -ur lvgl-6.1.2/src/lv_objx/lv_img.c lvgl/src/lv_objx/lv_img.c
+--- lvgl-6.1.2/src/lv_objx/lv_img.c	2020-02-26 22:35:12.000000000 +0000
++++ lvgl/src/lv_objx/lv_img.c	2020-04-16 09:24:23.419691790 +0000
+@@ -355,8 +355,8 @@
+ 
+         if(ext->cf == LV_IMG_CF_TRUE_COLOR || ext->cf == LV_IMG_CF_RAW) cover = lv_area_is_in(mask, &img->coords);
+ 
+-        const lv_style_t * style = lv_img_get_style(img, LV_IMG_STYLE_MAIN);
+-        if(style->image.opa < LV_OPA_MAX) return false;
++        const lv_style_t * style_ = lv_img_get_style(img, LV_IMG_STYLE_MAIN);
++        if(style_->image.opa < LV_OPA_MAX) return false;
+ 
+         return cover;
+     } else if(mode == LV_DESIGN_DRAW_MAIN) {
