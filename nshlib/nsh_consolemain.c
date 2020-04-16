@@ -110,12 +110,6 @@ int nsh_consolemain(int argc, char *argv[])
   netinit_bringup();
 #endif
 
-#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
-  /* Perform architecture-specific final-initialization (if configured) */
-
-  boardctl(BOARDIOC_FINALINIT, 0);
-#endif
-
   /* Execute the session */
 
   ret = nsh_session(pstate);
