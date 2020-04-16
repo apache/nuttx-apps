@@ -62,6 +62,9 @@ WGET ?= wget
 LVGL_UNPACKNAME = lvgl
 UNPACK ?= unzip -o
 
+PATCH_FILES = lv_fix_warning.patch
+PATCH ?= patch -p0
+
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/littlevgl}
@@ -76,10 +79,13 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
+$(LVGL_UNPACKNAME)/.patched: $(LVGL_UNPACKNAME) $(PATCH_FILES)
+	$(Q) cat $(PATCH_FILES) | $(PATCH)
+	$(Q) touch $(LVGL_UNPACKNAME)/.patched
 
 lvgl/lvgl.h: $(LVGL_UNPACKNAME)
 
-$(APPDIR)/include/graphics/lvgl.h: lvgl/lvgl.h
+$(APPDIR)/include/graphics/lvgl.h: lvgl/lvgl.h $(LVGL_UNPACKNAME)/.patched
 	@echo "CP: lvgl/lvgl.h"
 	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
 

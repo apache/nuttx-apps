@@ -448,33 +448,37 @@ static void hue_select_event_cb(lv_obj_t *roller, lv_event_t event)
 
 static void init_all_themes(uint16_t hue)
 {
-    int i = 0;
+  int i = 0;
+
+  /* Disalbe warning when no theme selected. */
+
+  UNUSED(i);
 #if LV_USE_THEME_NIGHT
-    themes[i++] = lv_theme_night_init(hue, NULL);
+  themes[i++] = lv_theme_night_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_MATERIAL
-    themes[i++] = lv_theme_material_init(hue, NULL);
+  themes[i++] = lv_theme_material_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_ALIEN
-    themes[i++] = lv_theme_alien_init(hue, NULL);
+  themes[i++] = lv_theme_alien_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_ZEN
-    themes[i++] = lv_theme_zen_init(hue, NULL);
+  themes[i++] = lv_theme_zen_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_NEMO
-    themes[i++] = lv_theme_nemo_init(hue, NULL);
+  themes[i++] = lv_theme_nemo_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_MONO
-    themes[i++] = lv_theme_mono_init(hue, NULL);
+  themes[i++] = lv_theme_mono_init(hue, NULL);
 #endif
 
 #if LV_USE_THEME_DEFAULT
-    themes[i++] = lv_theme_default_init(hue, NULL);
+  themes[i++] = lv_theme_default_init(hue, NULL);
 #endif
 }
 
@@ -492,7 +496,7 @@ static void init_all_themes(uint16_t hue)
 
 static void bar_set_value(lv_obj_t *bar, int16_t value)
 {
-    lv_bar_set_value(bar, value, LV_ANIM_OFF);
+  lv_bar_set_value(bar, value, LV_ANIM_OFF);
 }
 
 /****************************************************************************
