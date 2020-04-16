@@ -86,6 +86,12 @@ int nsh_consolemain(int argc, char *argv[])
 
   DEBUGASSERT(pstate != NULL);
 
+#ifdef CONFIG_NSH_USBDEV_TRACE
+  /* Initialize any USB tracing options that were requested */
+
+  usbtrace_enable(TRACE_BITSET);
+#endif
+
 #ifdef CONFIG_NSH_ROMFSETC
   /* Execute the start-up script */
 
@@ -102,12 +108,6 @@ int nsh_consolemain(int argc, char *argv[])
   /* Bring up the network */
 
   netinit_bringup();
-#endif
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-  /* Initialize any USB tracing options that were requested */
-
-  usbtrace_enable(TRACE_BITSET);
 #endif
 
 #if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
