@@ -19,8 +19,8 @@
  *   with every copy.
  *
  *   To compute the message digest of a chunk of bytes, declare an
- *   MD5Context structure, pass it to MD5Init, call MD5Update as
- *   needed on buffers full of bytes, and then call MD5Final, which
+ *   md5_context_s structure, pass it to md5_init, call md5_update as
+ *   needed on buffers full of bytes, and then call md5_final, which
  *   will fill a supplied 16-byte array with the digest.
  *
  *   See README and COPYING for more details.
@@ -91,13 +91,13 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: byteReverse
+ * Name: byte_reverse
  ****************************************************************************/
 
 #ifndef CONFIG_ENDIAN_BIG
-#  define byteReverse(buf, len)
+#  define byte_reverse(buf, len)
 #else
-static void byteReverse(FAR unsigned char *buf, unsigned longs)
+static void byte_reverse(FAR unsigned char *buf, unsigned longs)
 {
   uint32_t t;
   do
@@ -107,7 +107,7 @@ static void byteReverse(FAR unsigned char *buf, unsigned longs)
           ((uint32_t)buf[1] << 8)  |
            (uint32_t)buf[0];
 
-      *(uint32_t*)buf = t;
+      *(uint32_t *)buf = t;
       buf += 4;
     }
   while (--longs);
@@ -119,7 +119,7 @@ static void byteReverse(FAR unsigned char *buf, unsigned longs)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: MD5Init
+ * Name: md5_init
  *
  * Description:
  *   Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
@@ -127,7 +127,7 @@ static void byteReverse(FAR unsigned char *buf, unsigned longs)
  *
  ****************************************************************************/
 
-void MD5Init(struct MD5Context *ctx)
+void md5_init(struct md5_context_s *ctx)
 {
   ctx->buf[0] = 0x67452301;
   ctx->buf[1] = 0xefcdab89;
@@ -139,7 +139,7 @@ void MD5Init(struct MD5Context *ctx)
 }
 
 /****************************************************************************
- * Name: MD5Update
+ * Name: md5_update
  *
  * Description:
  *   Update context to reflect the concatenation of another buffer full
@@ -147,7 +147,8 @@ void MD5Init(struct MD5Context *ctx)
  *
  ****************************************************************************/
 
-void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
+void md5_update(struct md5_context_s *ctx, unsigned char const *buf,
+               unsigned len)
 {
   uint32_t t;
 
@@ -181,8 +182,8 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
         }
 
       memcpy(p, buf, t);
-      byteReverse(ctx->in, 16);
-      MD5Transform(ctx->buf, (uint32_t *) ctx->in);
+      byte_reverse(ctx->in, 16);
+      md5_transform(ctx->buf, (uint32_t *) ctx->in);
       buf += t;
       len -= t;
     }
@@ -192,8 +193,8 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
   while (len >= 64)
     {
       memcpy(ctx->in, buf, 64);
-      byteReverse(ctx->in, 16);
-      MD5Transform(ctx->buf, (uint32_t *) ctx->in);
+      byte_reverse(ctx->in, 16);
+      md5_transform(ctx->buf, (uint32_t *) ctx->in);
       buf += 64;
       len -= 64;
     }
@@ -204,7 +205,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 }
 
 /****************************************************************************
- * Name: MD5Final
+ * Name: md5_final
  *
  * Description:
  *   Final wrapup - pad to 64-byte boundary with the bit pattern
@@ -212,7 +213,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
  *
  ****************************************************************************/
 
-void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
+void md5_final(unsigned char digest[16], struct md5_context_s *ctx)
 {
   unsigned count;
   unsigned char *p;
@@ -239,8 +240,8 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
       /* Two lots of padding: Pad the first block to 64 bytes */
 
       memset(p, 0, count);
-      byteReverse(ctx->in, 16);
-      MD5Transform(ctx->buf, (uint32_t *) ctx->in);
+      byte_reverse(ctx->in, 16);
+      md5_transform(ctx->buf, (uint32_t *) ctx->in);
 
       /* Now fill the next block with 56 bytes */
 
@@ -253,32 +254,35 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
       memset(p, 0, count - 8);
     }
 
-  byteReverse(ctx->in, 14);
+  byte_reverse(ctx->in, 14);
 
   /* Append length in bits and transform */
 
   ((uint32_t *)ctx->in)[14] = ctx->bits[0];
   ((uint32_t *)ctx->in)[15] = ctx->bits[1];
 
-  MD5Transform(ctx->buf, (uint32_t *) ctx->in);
-  byteReverse((unsigned char *)ctx->buf, 4);
+  md5_transform(ctx->buf, (uint32_t *) ctx->in);
+  byte_reverse((unsigned char *)ctx->buf, 4);
   memcpy(digest, ctx->buf, 16);
-  memset(ctx, 0, sizeof(struct MD5Context));  /* In case it's sensitive */
+  memset(ctx, 0, sizeof(struct md5_context_s));  /* In case it's sensitive */
 }
 
 /****************************************************************************
- * Name: MD5Transform
+ * Name: md5_transform
  *
  * Description:
  *   The core of the MD5 algorithm, this alters an existing MD5 hash to
- *   reflect the addition of 16 longwords of new data.  MD5Update blocks
+ *   reflect the addition of 16 longwords of new data. md5_update blocks
  *   the data and converts bytes into longwords for this routine.
  *
  ****************************************************************************/
 
-void MD5Transform(uint32_t buf[4], uint32_t const in[16])
+void md5_transform(uint32_t buf[4], uint32_t const in[16])
 {
-  register uint32_t a, b, c, d;
+  register uint32_t a;
+  register uint32_t b;
+  register uint32_t c;
+  register uint32_t d;
 
   a = buf[0];
   b = buf[1];
@@ -376,9 +380,9 @@ void md5_sum(const uint8_t * addr, const size_t len, uint8_t * mac)
 {
   MD5_CTX ctx;
 
-  MD5Init(&ctx);
-  MD5Update(&ctx, addr, len);
-  MD5Final(mac, &ctx);
+  md5_init(&ctx);
+  md5_update(&ctx, addr, len);
+  md5_final(mac, &ctx);
 }
 
 /****************************************************************************
