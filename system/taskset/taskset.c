@@ -49,8 +49,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include "nshlib/nshlib.h"
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -59,11 +57,10 @@
  * Name: show_usage
  ****************************************************************************/
 
-static void show_usage(FAR const char *progname, int exitcode) noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
-  printf("%s mask command ... \n", progname);
-  printf("%s -p [mask] pid \n", progname);
+  printf("%s mask command ...\n", progname);
+  printf("%s -p [mask] pid\n", progname);
   exit(exitcode);
 }
 
@@ -85,7 +82,7 @@ static bool get_cpuset(const char *arg, cpu_set_t *cpu_set)
     }
   else
     {
-      fprintf(stderr, "invalid cpuset %s \n", arg);
+      fprintf(stderr, "invalid cpuset %s\n", arg);
     }
 
   return ret;
@@ -97,7 +94,6 @@ static bool get_cpuset(const char *arg, cpu_set_t *cpu_set)
 
 int main(int argc, FAR char *argv[])
 {
-  FAR char *nshargv[2];
   char command[CONFIG_NSH_LINELEN];
   int exitcode;
   int option;
@@ -143,7 +139,8 @@ int main(int argc, FAR char *argv[])
 
           if (-1 == rc)
             {
-              fprintf(stderr, "Err in sched_setaffinity() errno=%d \n", errno);
+              fprintf(stderr,
+                      "Err in sched_setaffinity() errno=%d\n", errno);
               goto errout;
             }
         }
@@ -152,11 +149,11 @@ int main(int argc, FAR char *argv[])
 
       if (-1 == rc)
         {
-          fprintf(stderr, "Err in sched_getaffinity() errno=%d \n", errno);
+          fprintf(stderr, "Err in sched_getaffinity() errno=%d\n", errno);
           goto errout;
         }
 
-      printf("pid %d's current affinity mask: %x \n", pid, cpuset);
+      printf("pid %d's current affinity mask: %x\n", pid, cpuset);
     }
   else
     {
@@ -167,8 +164,9 @@ int main(int argc, FAR char *argv[])
               goto errout;
             }
 
-          /* Construct actual command with args */
-          /* NOTE: total length does not exceed CONFIG_NSH_LINELEN */
+          /* Construct actual command with args
+           * NOTE: total length does not exceed CONFIG_NSH_LINELEN
+           */
 
           for (i = 0; i < argc - 2; i++)
             {
@@ -176,17 +174,8 @@ int main(int argc, FAR char *argv[])
               strcat(command, " ");
             }
 
-          nshargv[0] = command;
-          nshargv[1] = NULL;
-
           sched_setaffinity(getpid(), sizeof(cpu_set_t), &cpuset);
-          usleep(10 * 1000);
-
-          pid = task_create("system", CONFIG_SYSTEM_TASKSET_PRIORITY,
-                            CONFIG_SYSTEM_TASKSET_STACKSIZE, nsh_system,
-                            (FAR char * const *)nshargv);
-
-          waitpid(pid, &rc, 0);
+          system(command);
         }
     }
 
