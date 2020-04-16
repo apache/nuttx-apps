@@ -197,7 +197,7 @@ static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
   else
     {
       base64w_decode((unsigned char *)src, srclen,
-                     (unsigned char *)dest,(size_t *)destlen);
+                     (unsigned char *)dest, (size_t *)destlen);
     }
 }
 #endif
@@ -210,7 +210,7 @@ static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
 static void md5_cb(FAR char *src, int srclen, FAR char *dest,
                    FAR int *destlen, int mode)
 {
-  MD5Update((MD5_CTX *)dest, (unsigned char *)src, srclen);
+  md5_update((MD5_CTX *)dest, (unsigned char *)src, srclen);
 }
 #endif
 
@@ -317,7 +317,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   /* There should be exactly on parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       sdata = argv[optind];
     }
@@ -335,7 +335,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #ifdef HAVE_CODECS_HASH_MD5
   if (mode == CODEC_MODE_HASH_MD5)
     {
-      MD5Init(&ctx);
+      md5_init(&ctx);
     }
 #endif
 
@@ -412,6 +412,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
                   ret += read(fd, &srcbuf[srclen], 1);
                 }
             }
+
 #endif
           memset(destbuf, 0, buflen);
           if (func)
@@ -437,7 +438,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
         {
           int i;
 
-          MD5Final(mac, &ctx);
+          md5_final(mac, &ctx);
           src = (FAR char *)&mac;
           dest = destbuf;
           for (i = 0; i < 16; i++, src++)
@@ -449,6 +450,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           *dest = '\0';
           nsh_output(vtbl, "%s\n", destbuf);
         }
+
 #endif
       ret = OK;
       goto exit;
@@ -474,7 +476,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
               int i;
 
               func(srcbuf, srclen, (char *)&ctx, &buflen, 0);
-              MD5Final(mac, &ctx);
+              md5_final(mac, &ctx);
               src = (char *)&mac;
               dest = destbuf;
               for (i = 0; i < 16; i++, src++)

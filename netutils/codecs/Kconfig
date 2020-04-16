@@ -24,8 +24,9 @@ config CODECS_HASH_MD5
 	bool "MD5 Support"
 	default n
 	---help---
-		Enables support for the following interfaces: MD5Init(),
-		MD5Update(), MD5Final(), MD5Transform(), md5_sum() and md5_hash()
+		Enables support for the following interfaces: md5_init(),
+		md5_update(), md5_final(), md5_transform(), md5_sum() and
+                md5_hash()
 
 		Contributed NuttX by Darcy Gong.
 
