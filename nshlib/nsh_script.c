@@ -191,6 +191,12 @@ int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
     {
       ret = nsh_script(vtbl, "init", NSH_INITPATH);
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+      /* Reset the option flags */
+
+      vtbl->np.np_flags = NSH_NP_SET_OPTIONS_INIT;
+#endif
+
 #if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
       /* Perform architecture-specific final-initialization (if configured) */
 
