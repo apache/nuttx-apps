@@ -231,7 +231,7 @@ static void printName(const void *k, struct Program *p, int chn)
   FS_putChars(chn, (const char *)k);
   if (len < 8)
     {
-      FS_putChars(chn, "        " + len);
+      FS_putChars(chn, &("        "[len]));
     }
 }
 
