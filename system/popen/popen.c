@@ -212,15 +212,16 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       goto errout_with_actions;
     }
 
-  errcode = task_spawnattr_setstacksize(&attr, CONFIG_SYSTEM_POPEN_STACKSIZE);
+  errcode = task_spawnattr_setstacksize(&attr,
+                                        CONFIG_SYSTEM_POPEN_STACKSIZE);
   if (errcode != 0)
     {
       goto errout_with_actions;
     }
 
-   /* If robin robin scheduling is enabled, then set the scheduling policy
-    * of the new task to SCHED_RR before it has a chance to run.
-    */
+  /* If robin robin scheduling is enabled, then set the scheduling policy
+   * of the new task to SCHED_RR before it has a chance to run.
+   */
 
 #if CONFIG_RR_INTERVAL > 0
   errcode = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
@@ -332,22 +333,22 @@ errout:
  *     waitpid() with a pid argument less than or equal to 0 or equal to the
  *               process ID of the command line interpreter
  *
- *   Any other function not defined in this volume of IEEE Std 1003.1-2001 that
- *   could do one of the above
+ *   Any other function not defined in this volume of IEEE Std 1003.1-2001
+ *   that could do one of the above
  *
- *   In any case, pclose() will not return before the child process created by
- *   popen() has terminated.
+ *   In any case, pclose() will not return before the child process created
+ *   by popen() has terminated.
  *
- *   If the command language interpreter cannot be executed, the child termination
- *   status returned by pclose() will be as if the command language interpreter
- *   terminated using exit(127) or _exit(127).
+ *   If the command language interpreter cannot be executed, the child
+ *   termination status returned by pclose() will be as if the command
+ *   language interpreter terminated using exit(127) or _exit(127).
  *
- *   The pclose() function will not affect the termination status of any child of
- *   the calling process other than the one created by popen() for the associated
- *   stream.
+ *   The pclose() function will not affect the termination status of any
+ *   child of the calling process other than the one created by popen() for
+ *   the associated stream.
  *
- *   If the argument stream to pclose() is not a pointer to a stream created by
- *   popen(), the result of pclose() is undefined.
+ *   If the argument stream to pclose() is not a pointer to a stream created
+ *   by popen(), the result of pclose() is undefined.
  *
  * Description:
  *   stream - The stream reference returned by a previous call to popen()
@@ -377,8 +378,8 @@ int pclose(FILE *stream)
 
   memcpy(original, &container->copy, sizeof(FILE));
 
-  /* Then close the original and free the container (saving the PID of the shell
-   * process)
+  /* Then close the original and free the container (saving the PID of the
+   * shell process)
    */
 
   fclose(original);
@@ -389,13 +390,13 @@ int pclose(FILE *stream)
 #ifdef CONFIG_SCHED_WAITPID
   /* Wait for the shell to exit, retrieving the return value if available. */
 
- result = waitpid(shell, &status, 0);
- if (result < 0)
-   {
-     /* The errno has already been set */
+  result = waitpid(shell, &status, 0);
+  if (result < 0)
+    {
+      /* The errno has already been set */
 
-     return ERROR;
-   }
+      return ERROR;
+    }
 
   return status;
 #else
