@@ -249,8 +249,9 @@ static int calc_codec_buffsize(int srclen, uint8_t mode)
  ****************************************************************************/
 
 #ifdef NEED_CMD_CODECS_PROC
-static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
-                           uint8_t mode, codec_callback_t func)
+static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
+                           char **argv, uint8_t mode,
+                           codec_callback_t func)
 {
 #ifdef HAVE_CODECS_HASH_MD5
   static const unsigned char hexchars[] = "0123456789abcdef";
@@ -289,7 +290,8 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           case 'w':
             iswebsafe = true;
 
-            if (!(mode == CODEC_MODE_BASE64ENC || mode == CODEC_MODE_BASE64DEC))
+            if (!(mode == CODEC_MODE_BASE64ENC ||
+                  mode == CODEC_MODE_BASE64DEC))
               {
                 badarg = true;
               }
@@ -308,7 +310,9 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered, then return without processing
+   * the command
+   */
 
   if (badarg)
     {
@@ -540,7 +544,8 @@ errout:
 #ifdef HAVE_CODECS_URLENCODE
 int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLENCODE, urlencode_cb);
+  return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLENCODE,
+                         urlencode_cb);
 }
 #endif
 
@@ -551,7 +556,8 @@ int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef HAVE_CODECS_URLDECODE
 int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLDECODE, urldecode_cb);
+  return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLDECODE,
+                         urldecode_cb);
 }
 #endif
 
