@@ -57,6 +57,14 @@ jobs:
         username: ${GITHUB_ACTOR}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Docker Pull
+      uses: nick-invision/retry@v1
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        retry_wait_seconds: 10
+        command: docker pull docker.pkg.github.com/apache/incubator-nuttx-testing/nuttx-ci-linux
+
     - name: Run builds
       uses: ./testing/.github/actions/ci-container
       env:
