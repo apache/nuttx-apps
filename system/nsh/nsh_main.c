@@ -177,7 +177,7 @@ int main(int argc, FAR char *argv[])
 #endif
 
 #ifdef CONFIG_NSH_CONSOLE
-  /* If the serial console front end is selected, then run it on this thread */
+  /* If the serial console front end is selected, run it on this thread */
 
   ret = nsh_consolemain(0, NULL);
 

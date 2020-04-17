@@ -149,7 +149,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
       else
         {
-          /* A NULL entryp signifies that we are running ls on a single file */
+          /* NULL entry signifies that we are running ls on a single file */
 
           ret = stat(dirpath, &buf);
         }
@@ -339,7 +339,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
 {
   int ret = OK;
 
-  /* Is this entry a directory (and not one of the special directories, . and ..)? */
+  /* Is this entry a directory (not a special directories, e.g. . and ..)? */
 
   if (DIRENT_ISDIRECTORY(entryp->d_type) && !ls_specialdir(entryp->d_name))
     {
@@ -536,7 +536,9 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       if (S_ISDIR(buf.st_mode))
         {
-          /* Yes, it is a directory. Remove any trailing '/' characters from the path */
+          /* Yes, it is a directory.
+           * Remove any trailing '/' characters from the path
+           */
 
           nsh_trimdir(destpath);
 
@@ -728,7 +730,9 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
 
   if (badarg)
     {
@@ -898,7 +902,9 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
 
   if (badarg)
     {
@@ -1105,7 +1111,9 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
 
   if (badarg)
     {
@@ -1269,7 +1277,9 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
 
   if (badarg)
     {
@@ -1392,7 +1402,9 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
 
   if (badarg)
     {
