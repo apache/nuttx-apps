@@ -14,8 +14,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -101,7 +101,8 @@ struct Xref
         struct Pc line;
         struct LineNumber *next;
       } *lines;
-    struct Xref *l, *r;
+    struct Xref *l;
+    struct Xref *r;
   };
 
 /****************************************************************************
@@ -109,8 +110,8 @@ struct Xref
  ****************************************************************************/
 
 static void Xref_add(struct Xref **root,
-                     int (*cmp) (const void *, const void *), const void *key,
-                     struct Pc *line)
+                     int (*cmp) (const void *, const void *),
+                     const void *key, struct Pc *line)
 {
   int res;
   struct LineNumber **tail;
@@ -153,7 +154,9 @@ static void Xref_destroy(struct Xref *root)
 {
   if (root)
     {
-      struct LineNumber *cur, *next, *tail;
+      struct LineNumber *cur;
+      struct LineNumber *next;
+      struct LineNumber *tail;
 
       Xref_destroy(root->l);
       Xref_destroy(root->r);
@@ -176,7 +179,8 @@ static void Xref_print(struct Xref *root,
 {
   if (root)
     {
-      const struct LineNumber *cur, *tail;
+      const struct LineNumber *cur;
+      const struct LineNumber *tail;
 
       Xref_print(root->l, print, p, chn);
       print(root->key, p, chn);
@@ -379,7 +383,8 @@ struct Pc *Program_goLine(struct Program *this, long int line, struct Pc *pc)
 
   for (i = 0; i < this->size; ++i)
     {
-      if (this->code[i]->type == T_INTEGER && line == this->code[i]->u.integer)
+      if (this->code[i]->type == T_INTEGER &&
+          line == this->code[i]->u.integer)
         {
           pc->line = i;
           pc->token = this->code[i] + 1;
@@ -390,13 +395,15 @@ struct Pc *Program_goLine(struct Program *this, long int line, struct Pc *pc)
   return (struct Pc *)0;
 }
 
-struct Pc *Program_fromLine(struct Program *this, long int line, struct Pc *pc)
+struct Pc *Program_fromLine(struct Program *this, long int line,
+                            struct Pc *pc)
 {
   int i;
 
   for (i = 0; i < this->size; ++i)
     {
-      if (this->code[i]->type == T_INTEGER && this->code[i]->u.integer >= line)
+      if (this->code[i]->type == T_INTEGER &&
+          this->code[i]->u.integer >= line)
         {
           pc->line = i;
           pc->token = this->code[i] + 1;
@@ -413,7 +420,8 @@ struct Pc *Program_toLine(struct Program *this, long int line, struct Pc *pc)
 
   for (i = this->size - 1; i >= 0; --i)
     {
-      if (this->code[i]->type == T_INTEGER && this->code[i]->u.integer <= line)
+      if (this->code[i]->type == T_INTEGER &&
+          this->code[i]->u.integer <= line)
         {
           pc->line = i;
           pc->token = this->code[i] + 1;
@@ -437,7 +445,8 @@ int Program_scopeCheck(struct Program *this, struct Pc *pc, struct Pc *fn)
               continue;
             }
 
-          if (pc->line == scope->begin.line && pc->token <= scope->begin.token)
+          if (pc->line == scope->begin.line &&
+              pc->token <= scope->begin.token)
             {
               continue;
             }
@@ -485,7 +494,8 @@ int Program_scopeCheck(struct Program *this, struct Pc *pc, struct Pc *fn)
   return 0;
 }
 
-struct Pc *Program_dataLine(struct Program *this, long int line, struct Pc *pc)
+struct Pc *Program_dataLine(struct Program *this, long int line,
+                            struct Pc *pc)
 {
   if ((pc = Program_goLine(this, line, pc)) == (struct Pc *)0)
     {
@@ -507,7 +517,8 @@ struct Pc *Program_dataLine(struct Program *this, long int line, struct Pc *pc)
   return pc;
 }
 
-struct Pc *Program_imageLine(struct Program *this, long int line, struct Pc *pc)
+struct Pc *Program_imageLine(struct Program *this, long int line,
+                             struct Pc *pc)
 {
   if ((pc = Program_goLine(this, line, pc)) == (struct Pc *)0)
     {
@@ -641,8 +652,8 @@ void Program_PCtoError(struct Program *this, struct Pc *pc, struct Value *v)
         {
           String_appendPrintf(&s, _(" in line %ld at:\n"),
                               Program_lineNumber(this, pc));
-          Token_toString(this->code[pc->line], (struct Token *)0, &s, (int *)0,
-                         -1);
+          Token_toString(this->code[pc->line], (struct Token *)0, &s,
+                         (int *)0, -1);
           Token_toString(this->code[pc->line], pc->token, &s, (int *)0, -1);
           String_appendPrintf(&s, "^\n");
         }
@@ -668,7 +679,8 @@ void Program_PCtoError(struct Program *this, struct Pc *pc, struct Value *v)
   String_destroy(&s);
 }
 
-struct Value *Program_merge(struct Program *this, int dev, struct Value *value)
+struct Value *Program_merge(struct Program *this, int dev,
+                            struct Value *value)
 {
   struct String s;
   int l;
@@ -686,7 +698,8 @@ struct Value *Program_merge(struct Program *this, int dev, struct Value *value)
           line = Token_newCode(s.character);
           if (line->type == T_INTEGER && line->u.integer > 0)
             {
-              Program_store(this, line, this->numbered ? line->u.integer : 0);
+              Program_store(this, line,
+                            this->numbered ? line->u.integer : 0);
             }
           else if (line->type == T_UNNUMBERED)
             {
@@ -732,7 +745,8 @@ int Program_lineNumberWidth(struct Program *this)
 }
 
 struct Value *Program_list(struct Program *this, int dev, int watchIntr,
-                           struct Pc *from, struct Pc *to, struct Value *value)
+                           struct Pc *from, struct Pc *to,
+                           struct Value *value)
 {
   int i, w;
   int indent = 0;
@@ -777,7 +791,7 @@ struct Value *Program_analyse(struct Program *this, struct Pc *pc,
           ++pc->token;
         }
 
-      for (;;)
+      for (; ; )
         {
           if (pc->token->type == T_GOTO || pc->token->type == T_RESUME ||
               pc->token->type == T_RETURN || pc->token->type == T_END ||
@@ -839,7 +853,7 @@ void Program_renum(struct Program *this, int first, int inc)
 
   for (i = 0; i < this->size; ++i)
     {
-      for (token = this->code[i]; token->type != T_EOL;)
+      for (token = this->code[i]; token->type != T_EOL; )
         {
           if (token->type == T_GOTO || token->type == T_GOSUB ||
               token->type == T_RESTORE || token->type == T_RESUME ||
@@ -872,6 +886,7 @@ void Program_renum(struct Program *this, int first, int inc)
             }
         }
     }
+
   for (i = 0; i < this->size; ++i)
     {
       assert(this->code[i]->type == T_INTEGER ||
@@ -1032,7 +1047,8 @@ void Program_xref(struct Program *this, int chn)
 
   for (pc.line = 0; pc.line < this->size; ++pc.line)
     {
-      for (pc.token = this->code[pc.line]; pc.token->type != T_EOL; ++pc.token)
+      for (pc.token = this->code[pc.line]; pc.token->type != T_EOL;
+           ++pc.token)
         {
           switch (pc.token->type)
             {
@@ -1055,16 +1071,18 @@ void Program_xref(struct Program *this, int chn)
                       {
                       case GLOBALVAR:
                         {
-                          Xref_add(&var, cmpName, &pc.token->u.identifier->name,
-                                   &pc);
+                          Xref_add(&var, cmpName,
+                                   &pc.token->u.identifier->name, &pc);
                           break;
                         }
+
                       case USERFUNCTION:
                         {
                           Xref_add(&func, cmpName,
                                    &pc.token->u.identifier->name, &pc);
                           break;
                         }
+
                       default:
                         break;
                       }
