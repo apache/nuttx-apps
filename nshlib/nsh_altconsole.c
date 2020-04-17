@@ -78,7 +78,7 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Close stderr: note we only close stderr if we opened the alternative one */
+  /* Close stderr: we only close stderr if we opened the alternative one */
 
   fclose(stderr);
 
@@ -101,7 +101,7 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Close stdout: note we only close stdout if we opened the alternative one */
+  /* Close stdout: we only close stdout if we opened the alternative one */
 
   fclose(stdout);
 
@@ -202,7 +202,7 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
     }
   while (fd < 0);
 
-  /* Close stdin: note we only closed stdin if we opened the alternative one */
+  /* Close stdin: we only closed stdin if we opened the alternative one */
 
   fclose(stdin);
 
@@ -212,7 +212,7 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
 
   if (fd != 0)
     {
-       /* No..  Dup the fd to create standard fd 0.  stdin should not know. */
+      /* No..  Dup the fd to create standard fd 0. stdin should not know. */
 
       dup2(fd, 0);
 
@@ -266,7 +266,7 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
  *
  ****************************************************************************/
 
-int nsh_consolemain(int argc, char *argv[])
+int nsh_consolemain(int argc, FAR char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   FAR const char *msg;
@@ -280,7 +280,9 @@ int nsh_consolemain(int argc, char *argv[])
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-  /* Execute the one-time start-up script.  Any output will go to /dev/console. */
+  /* Execute the one-time start-up script.
+   * Any output will go to /dev/console.
+   */
 
 #ifdef CONFIG_NSH_ROMFSETC
   nsh_initscript(&pstate->cn_vtbl);

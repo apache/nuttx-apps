@@ -105,15 +105,16 @@ int system(FAR const char *cmd)
       goto errout_with_attrs;
     }
 
-  errcode = task_spawnattr_setstacksize(&attr, CONFIG_SYSTEM_SYSTEM_STACKSIZE);
+  errcode = task_spawnattr_setstacksize(&attr,
+                                        CONFIG_SYSTEM_SYSTEM_STACKSIZE);
   if (errcode != 0)
     {
       goto errout_with_attrs;
     }
 
-   /* If robin robin scheduling is enabled, then set the scheduling policy
-    * of the new task to SCHED_RR before it has a chance to run.
-    */
+  /* If robin robin scheduling is enabled, then set the scheduling policy
+   * of the new task to SCHED_RR before it has a chance to run.
+   */
 
 #if CONFIG_RR_INTERVAL > 0
   errcode = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);

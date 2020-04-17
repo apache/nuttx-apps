@@ -79,7 +79,7 @@
  *
  ****************************************************************************/
 
-int nsh_consolemain(int argc, char *argv[])
+int nsh_consolemain(int argc, FAR char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   int ret;

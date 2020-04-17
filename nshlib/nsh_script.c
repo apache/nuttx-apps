@@ -65,7 +65,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   FAR char *pret;
   int ret = ERROR;
 
-  /* The path to the script may be relative to the current working directory */
+  /* The path to the script may relative to the current working directory */
 
   fullpath = nsh_getfullpath(vtbl, path);
   if (!fullpath)
@@ -137,7 +137,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
               if ((vtbl->np.np_flags & NSH_PFLAG_SILENT) == 0)
                 {
-                  nsh_output(vtbl,"%s", buffer);
+                  nsh_output(vtbl, "%s", buffer);
                 }
 
               ret = nsh_parse(vtbl, buffer);

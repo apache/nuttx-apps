@@ -70,7 +70,7 @@
  *
  ****************************************************************************/
 
-int nsh_system(int argc, char *argv[])
+int nsh_system(int argc, FAR char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   FAR struct nsh_vtbl_s *vtbl;

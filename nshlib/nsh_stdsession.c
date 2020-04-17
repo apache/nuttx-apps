@@ -120,7 +120,9 @@ int nsh_session(FAR struct console_stdio_s *pstate, bool login)
 
   for (; ; )
     {
-      /* For the case of debugging the USB console... dump collected USB trace data */
+      /* For the case of debugging the USB console...
+       * dump collected USB trace data
+       */
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
       nsh_usbtrace();
