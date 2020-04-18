@@ -1671,12 +1671,12 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
 
 /****************************************************************************
- * Name: cmd_sh
+ * Name: cmd_source
  ****************************************************************************/
 
 #if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
-#ifndef CONFIG_NSH_DISABLE_SH
-int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+#ifndef CONFIG_NSH_DISABLE_SOURCE
+int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return nsh_script(vtbl, argv[0], argv[1]);
 }
