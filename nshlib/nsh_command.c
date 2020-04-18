@@ -85,6 +85,12 @@ static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
 
 static const struct cmdmap_s g_cmdmap[] =
 {
+#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+# ifndef CONFIG_NSH_DISABLE_SOURCE
+  { ".",        cmd_source,   2, 2, "<script-path>" },
+# endif
+#endif
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   { "[",        cmd_lbracket, 4, CONFIG_NSH_MAXARGUMENTS, "<expression> ]" },
 #endif
@@ -478,12 +484,6 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 #endif /* CONFIG_NSH_DISABLE_SET */
 
-#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
-# ifndef CONFIG_NSH_DISABLE_SH
-  { "sh",       cmd_sh,       2, 2, "<script-path>" },
-# endif
-#endif
-
 #ifndef CONFIG_NSH_DISABLE_SHUTDOWN
 #if defined(CONFIG_BOARDCTL_POWEROFF) && defined(CONFIG_BOARDCTL_RESET)
   { "shutdown", cmd_shutdown, 1, 2, "[--reboot]" },
@@ -496,6 +496,12 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_SLEEP
   { "sleep",    cmd_sleep,    2, 2, "<sec>" },
+#endif
+
+#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+# ifndef CONFIG_NSH_DISABLE_SOURCE
+  { "source",   cmd_source,   2, 2, "<script-path>" },
+# endif
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
