@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #include "nsh.h"
@@ -71,30 +72,44 @@
 
 int nsh_system(int argc, char *argv[])
 {
-  /* Expect argc == 2 with argv[1] being the command to execute */
+  FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR struct nsh_vtbl_s *vtbl;
+  int ret = EXIT_FAILURE;
 
-  if (argc >= 2)
+  DEBUGASSERT(pstate != NULL);
+  vtbl = &pstate->cn_vtbl;
+
+  if (argc < 2)
     {
-      FAR struct console_stdio_s *pstate = nsh_newconsole();
-      FAR struct nsh_vtbl_s *vtbl;
+      /* Execute the interactive shell */
 
-      DEBUGASSERT(pstate != NULL);
-      vtbl = &pstate->cn_vtbl;
+      ret = nsh_session(pstate, false);
+    }
+  else if (strcmp(argv[1], "-h") == 0)
+    {
+      ret = nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
+                       argv[0]);
+    }
+  else if (strcmp(argv[1], "-c") != 0)
+    {
+#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+      /* Execute the shell script */
 
+      ret = nsh_script(vtbl, argv[0], argv[1]);
+#endif
+    }
+  else if (argc >= 3)
+    {
       /* Parse process the command */
 
-      nsh_parse(vtbl, argv[1]);
+      ret = nsh_parse(vtbl, argv[2]);
 #if CONFIG_NFILE_STREAMS > 0
       fflush(pstate->cn_outstream);
 #endif
-
-      /* Exit upon return */
-
-      nsh_exit(&pstate->cn_vtbl, OK);
-      return EXIT_SUCCESS;
     }
-  else
-    {
-      return EXIT_FAILURE;
-    }
+
+  /* Exit upon return */
+
+  nsh_exit(&pstate->cn_vtbl, ret);
+  return ret;
 }
