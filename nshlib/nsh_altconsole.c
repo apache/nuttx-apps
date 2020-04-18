@@ -317,7 +317,7 @@ int nsh_consolemain(int argc, char *argv[])
 
       /* Execute the session */
 
-      nsh_session(pstate);
+      nsh_session(pstate, true);
 
       /* We lost the connection.  Wait for the keyboard to
        * be re-connected.

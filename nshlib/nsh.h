@@ -860,7 +860,7 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 /* Basic session and message handling */
 
 struct console_stdio_s;
-int nsh_session(FAR struct console_stdio_s *pstate);
+int nsh_session(FAR struct console_stdio_s *pstate, bool login);
 int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline);
 
 /****************************************************************************
