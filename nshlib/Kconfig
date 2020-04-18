@@ -507,8 +507,8 @@ config NSH_DISABLE_SET
 	bool "Disable set"
 	default n
 
-config NSH_DISABLE_SH
-	bool "Disable sh"
+config NSH_DISABLE_SOURCE
+	bool "Disable source"
 	default n
 
 config NSH_DISABLE_SHUTDOWN

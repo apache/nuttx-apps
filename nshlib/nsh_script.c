@@ -131,7 +131,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           if (pret)
             {
               /* Parse process the command.  NOTE:  this is recursive...
-               * we got to cmd_sh via a call to nsh_parse.  So some
+               * we got to cmd_source via a call to nsh_parse.  So some
                * considerable amount of stack may be used.
                */
 
