@@ -76,7 +76,7 @@
  *
  ****************************************************************************/
 
-int nsh_session(FAR struct console_stdio_s *pstate)
+int nsh_session(FAR struct console_stdio_s *pstate, bool login)
 {
   FAR struct nsh_vtbl_s *vtbl;
   int ret;
@@ -84,34 +84,37 @@ int nsh_session(FAR struct console_stdio_s *pstate)
   DEBUGASSERT(pstate);
   vtbl = &pstate->cn_vtbl;
 
-#ifdef CONFIG_NSH_CONSOLE_LOGIN
-  /* Login User and Password Check */
-
-  if (nsh_stdlogin(pstate) != OK)
+  if (login)
     {
-      nsh_exit(vtbl, 1);
-      return -1; /* nsh_exit does not return */
-    }
+#ifdef CONFIG_NSH_CONSOLE_LOGIN
+      /* Login User and Password Check */
+
+      if (nsh_stdlogin(pstate) != OK)
+        {
+          nsh_exit(vtbl, 1);
+          return -1; /* nsh_exit does not return */
+        }
 #endif /* CONFIG_NSH_CONSOLE_LOGIN */
 
-  /* Present a greeting and possibly a Message of the Day (MOTD) */
+      /* Present a greeting and possibly a Message of the Day (MOTD) */
 
-  printf("%s", g_nshgreeting);
+      printf("%s", g_nshgreeting);
 
 #ifdef CONFIG_NSH_MOTD
 # ifdef CONFIG_NSH_PLATFORM_MOTD
-  /* Output the platform message of the day */
+      /* Output the platform message of the day */
 
-  platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
-  printf("%s\n", vtbl->iobuffer);
+      platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
+      printf("%s\n", vtbl->iobuffer);
 
 # else
-  /* Output the fixed message of the day */
+      /* Output the fixed message of the day */
 
-  printf("%s\n", g_nshmotd);
+      printf("%s\n", g_nshmotd);
 
 # endif
 #endif
+    }
 
   /* Then enter the command line parsing loop */
 
