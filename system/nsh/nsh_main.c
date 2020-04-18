@@ -80,17 +80,6 @@
 #  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
-/* Check if we need to build in support for the system() and/or popen()
- * functions.  In the KERNEL build mode (only), NSH is build as a ELF
- * program and must be capable of executing a single command provided
- * on the command line.
- */
-
-#undef HAVE_NSH_COMMAND
-#if defined(CONFIG_SYSTEM_SYSTEM) || defined(CONFIG_SYSTEM_POPEN)
-#  define HAVE_NSH_COMMAND 1
-#endif
-
 /* C++ initialization requires CXX initializer support */
 
 #if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
@@ -115,11 +104,11 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 #endif
 
 /****************************************************************************
- * Private Functions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_task
+ * Name: nsh_main
  *
  * Description:
  *   This is the main logic for the case of the NSH task.  It will perform
@@ -128,13 +117,25 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
  *
  ****************************************************************************/
 
-static int nsh_task(void)
+int main(int argc, FAR char *argv[])
 {
 #if defined (CONFIG_SYSTEM_NSH_SYMTAB)
   struct boardioc_symtab_s symdesc;
 #endif
+  struct sched_param param;
   int exitval = 0;
   int ret;
+
+  /* Check the task priority that we were started with */
+
+  sched_getparam(0, &param);
+  if (param.sched_priority != CONFIG_SYSTEM_NSH_PRIORITY)
+    {
+      /* If not then set the priority to the configured priority */
+
+      param.sched_priority = CONFIG_SYSTEM_NSH_PRIORITY;
+      sched_setparam(0, &param);
+    }
 
 #if defined(CONFIG_SYSTEM_NSH_CXXINITIALIZE)
   /* Call all C++ static constructors */
@@ -189,52 +190,4 @@ static int nsh_task(void)
 #endif
 
   return exitval;
-}
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_main
- ****************************************************************************/
-
-int main(int argc, FAR char *argv[])
-{
-  struct sched_param param;
-
-  /* Check the task priority that we were started with */
-
-  sched_getparam(0, &param);
-  if (param.sched_priority != CONFIG_SYSTEM_NSH_PRIORITY)
-    {
-      /* If not then set the priority to the configured priority */
-
-      param.sched_priority = CONFIG_SYSTEM_NSH_PRIORITY;
-      sched_setparam(0, &param);
-    }
-
-  /* There are two modes that NSH can be executed in:
-   *
-   * 1) As a normal, interactive shell.  In this case, no arguments are
-   *    expected on the command line.  OR
-   * 2) As a single command processor.  In this case, the single command is
-   *    is provided in argv[1].
-   *
-   * NOTE:  The latter mode is only available if CONFIG_SYSTEM_NSH=m.
-   * In that case, this main() function will be built as a process.  The
-   * process will be started with a command by the implementations of the
-   * system() and popen() interfaces.
-   */
-
-#ifdef HAVE_NSH_COMMAND
-  if (argc > 1)
-    {
-      return nsh_system(argc, argv);
-    }
-  else
-#endif
-    {
-      return nsh_task();
-    }
 }

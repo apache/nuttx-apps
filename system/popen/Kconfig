@@ -17,7 +17,7 @@ if SYSTEM_POPEN
 
 config SYSTEM_POPEN_SHPATH
 	string "Path to shell command"
-	default "/bin/nsh"
+	default "/bin/sh"
 	depends on SYSTEM_NSH=m
 	---help---
 		This is the full path to the program in a mounted file system that
