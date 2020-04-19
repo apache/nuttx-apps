@@ -259,11 +259,19 @@ int nsh_telnetstart(sa_family_t family)
 
       /* Execute the startup script.  If standard console is also defined,
        * then we will not bother with the initscript here (although it is
-       * safe to call nshinitscript multiple times).
+       * safe to call nsh_initscript multiple times).
        */
 
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
       nsh_initscript(vtbl);
+#endif
+
+      /* Perform architecture-specific final-initialization(if configured) */
+
+#if defined(CONFIG_NSH_ARCHINIT) && \
+    defined(CONFIG_BOARDCTL_FINALINIT) && \
+    !defined(CONFIG_NSH_CONSOLE)
+      boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
       /* Configure the telnet daemon */
