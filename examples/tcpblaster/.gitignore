@@ -3,6 +3,8 @@
 /.built
 /host
 /config.h
+/tcpclient
+/tcpserver
 /*.asm
 /*.obj
 /*.rel

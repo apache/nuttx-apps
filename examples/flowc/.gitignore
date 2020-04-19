@@ -3,6 +3,8 @@
 /.built
 /host
 /config.h
+/receiver
+/sender
 /*.asm
 /*.obj
 /*.rel
