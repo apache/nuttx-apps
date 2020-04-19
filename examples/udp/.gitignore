@@ -3,6 +3,8 @@
 /.built
 /host
 /config.h
+/udpclient
+/udpserver
 /*.asm
 /*.obj
 /*.rel
