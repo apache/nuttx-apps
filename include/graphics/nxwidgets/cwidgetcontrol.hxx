@@ -547,7 +547,11 @@ namespace NXWidgets
 
     inline bool doubleClick(void)
     {
+#ifdef CONFIG_NX_XYINPUT
       return (bool)m_xyinput.doubleClick;
+#else
+      return false;
+#endif
     }
 
     /**
