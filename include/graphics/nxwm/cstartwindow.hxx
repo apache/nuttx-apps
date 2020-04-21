@@ -82,7 +82,7 @@ namespace NxWM
 
   struct SStartWindowMessage
   {
-    enum EStartWindowMessageOpcodes msgId;    /**< The message opcode */
+    enum EStartWindowMessageOpcodes msg_id;   /**< The message opcode */
     FAR void                       *instance; /**< Object instance. */
   };
 
