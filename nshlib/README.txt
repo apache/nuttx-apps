@@ -489,7 +489,7 @@ o dmesg
   if CONFIG_RAMLOG_SYSLOG is enabled.  In that case, syslog output
   will be collected in an in-memory, circular buffer.  Entering the
   'dmesg' command will dump the content of that in-memory, circular
-  buffer to the NSH console output.  'dmesg' has the side effectof
+  buffer to the NSH console output.  'dmesg' has the side effect of
   clearing the buffered data so that entering 'dmesg' again will
   show only newly buffered data.
 
@@ -1008,6 +1008,18 @@ o poweroff [<n>]
 
   NOTE: Supporting both the poweroff and shutdown commands is redundant.
 
+o printf [\xNN] [\n\r\t] [<string|$name> [<string|$name>...]]
+
+  Copy the sequence of strings, characters and expanded environment
+  variables to console out (or to a file if the output is re-directed).
+
+  No trailing newline character is added. The escape sequences \n, \r
+  or \t can be used to add line feed, carriage return or tab character
+  to output, respectively.
+
+  The hexadecimal escape sequence \xNN takes up to two hexadesimal digits
+  to specify the printed character.
+
 o ps
 
   Show the currently active threads and tasks.  For example,
@@ -1452,10 +1464,10 @@ Command Dependencies on Configuration Settings
   dirname    --
   dmesg      CONFIG_RAMLOG_SYSLOG
   echo       --
-  env        -- CONFIG_FS_PROCFS && !CONFIG_DISABLE_ENVIRON && !CONFIG_PROCFS_EXCLUDE_ENVIRON
+  env        CONFIG_FS_PROCFS && !CONFIG_DISABLE_ENVIRON && !CONFIG_PROCFS_EXCLUDE_ENVIRON
   exec       --
   exit       --
-  export    CONFIG_NSH_VARS && !CONFIG_DISABLE_ENVIRON
+  export     CONFIG_NSH_VARS && !CONFIG_DISABLE_ENVIRON
   free       --
   get        CONFIG_NET && CONFIG_NET_UDP && MTU >= 558  (see note 1)
   help       --
@@ -1471,7 +1483,7 @@ Command Dependencies on Configuration Settings
   ls         --
   lsmod      CONFIG_MODULE && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_MODULE
   md5        CONFIG_NETUTILS_CODECS && CONFIG_CODECS_HASH_MD5
-  mb,mh,mw   ---
+  mb,mh,mw   --
   mkdir      !CONFIG_DISABLE_MOUNTPOINT || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS
   mkfatfs    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_FSUTILS_MKFATFS
   mkfifo     CONFIG_PIPES && CONFIG_DEV_FIFO_SIZE > 0
@@ -1483,6 +1495,7 @@ Command Dependencies on Configuration Settings
   password   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NSH_LOGIN_PASSWD
   pmconfig   CONFIG_PM && !CONFIG_NSH_DISABLE_PMCONFIG
   poweroff   CONFIG_BOARDCTL_POWEROFF
+  printf     --
   ps         CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_PROC
   put        CONFIG_NET && CONFIG_NET_UDP && MTU >= 558 (see note 1,2)
   pwd        !CONFIG_DISABLE_ENVIRON
@@ -1501,7 +1514,7 @@ Command Dependencies on Configuration Settings
   source     CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   test       !CONFIG_NSH_DISABLESCRIPT
   telnetd    CONFIG_NSH_TELNET && !CONFIG_NSH_DISABLE_TELNETD
-  time       ---
+  time       --
   truncate   !CONFIG_DISABLE_MOUNTPOINT
   umount     !CONFIG_DISABLE_MOUNTPOINT
   uname      !CONFIG_NSH_DISABLE_UNAME
@@ -1512,7 +1525,7 @@ Command Dependencies on Configuration Settings
   userdel    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NSH_LOGIN_PASSWD
   usleep     --
   get        CONFIG_NET && CONFIG_NET_TCP
-  xd         ---
+  xd         --
 
 * NOTES:
   1. Because of hardware padding, the actual MTU required for put and get
@@ -1538,15 +1551,15 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MODCMDS,   CONFIG_NSH_DISABLE_MOUNT,
   CONFIG_NSH_DISABLE_MW,        CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,
   CONFIG_NSH_DISABLE_NSLOOKUP,  CONFIG_NSH_DISABLE_PASSWD,    CONFIG_NSH_DISABLE_PING6,
-  CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PUT,
-  CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_READLINK,  CONFIG_NSH_DISABLE_REBOOT,
-  CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RPTUN,     CONFIG_NSH_DISABLE_RMDIR,
-  CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SHUTDOWN,
-  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_SOURCE,    CONFIG_NSH_DISABLE_TEST,
-  CONFIG_NSH_DIABLE_TIME,       CONFIG_NSH_DISABLE_TRUNCATE,  CONFIG_NSH_DISABLE_UMOUNT,
-  CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE,
-  CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,   CONFIG_NSH_DISABLE_USLEEP,
-  CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PRINTF,    CONFIG_NSH_DISABLE_PS,
+  CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_READLINK,
+  CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RPTUN,
+  CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,
+  CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_SOURCE,
+  CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_TIME,      CONFIG_NSH_DISABLE_TRUNCATE,
+  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
+  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,
+  CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.
