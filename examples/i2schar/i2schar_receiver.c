@@ -116,13 +116,14 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
       /* Allocate an audio buffer of the configured size */
 
       desc.numbytes   = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
-      desc.u.ppBuffer = &apb;
+      desc.u.pbuffer = &apb;
 
       ret = apb_alloc(&desc);
       if (ret < 0)
         {
-           printf("i2schar_receiver: ERROR: failed to allocate buffer %d: %d\n",
-                   i+1, ret);
+           printf(
+             "i2schar_receiver: ERROR: failed to allocate buffer %d: %d\n",
+                i + 1, ret);
            close(fd);
            pthread_exit(NULL);
         }
@@ -160,7 +161,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
             }
           else
             {
-              printf("i2schar_receiver: Received buffer %d\n", i+1);
+              printf("i2schar_receiver: Received buffer %d\n", i + 1);
             }
         }
       while (nread != bufsize);
