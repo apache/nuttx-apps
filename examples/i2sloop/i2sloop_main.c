@@ -88,7 +88,7 @@ int main(int argc, FAR char *argv[])
   freq = 16000;
 
   while ((opt = getopt(argc, argv, "c:f:")) != -1)
-     {
+    {
        switch (opt)
          {
            case 'c':
@@ -99,7 +99,7 @@ int main(int argc, FAR char *argv[])
              freq = atoi(optarg);
              break;
          }
-   }
+     }
 
   /* Open the I2S character device */
 
@@ -120,7 +120,7 @@ int main(int argc, FAR char *argv[])
   /* Allocate an audio buffer */
 
   desc.numbytes   = 1024;
-  desc.u.ppBuffer = &apb;
+  desc.u.pbuffer = &apb;
 
   ret = apb_alloc(&desc);
   DEBUGASSERT(ret == sizeof(desc));
@@ -139,7 +139,6 @@ int main(int argc, FAR char *argv[])
           bufsize = sizeof(struct ap_buffer_s) + apb->nbytes;
           ret = write(fd, apb, bufsize);
         }
-
     }
 
   apb_free(apb);
