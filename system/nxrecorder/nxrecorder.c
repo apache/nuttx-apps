@@ -111,8 +111,8 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder)
 
       /* Device supports the format.  Open the device file. */
 
-      precorder->devFd = open(precorder->device, O_RDWR);
-      if (precorder->devFd == -1)
+      precorder->dev_fd = open(precorder->device, O_RDWR);
+      if (precorder->dev_fd == -1)
         {
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
@@ -128,7 +128,7 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder)
   /* Device not found */
 
   auderr("ERROR: Device not found\n");
-  precorder->devFd = -1;
+  precorder->dev_fd = -1;
   return -ENODEV;
 }
 
@@ -186,10 +186,10 @@ static int nxrecorder_writebuffer(FAR struct nxrecorder_s *precorder,
  *   called with a buffer of data to be enqueued in the audio stream.
  *
  *   Be we may also receive an empty length buffer (with only the
- *   AUDIO_APB_FINAL set) in the event of certain write error occurs or in the
- *   event that the file was an exact multiple of the nmaxbytes size of the
- *   audio buffer.  In that latter case, we have an end of file with no bytes
- *   written.
+ *   AUDIO_APB_FINAL set) in the event of certain write error occurs or in
+ *   the event that the file was an exact multiple of the nmaxbytes size of
+ *   the audio buffer.
+ *   In that latter case, we have an end of file with no bytes written.
  *
  *   These infrequent zero length buffers have to be passed through because
  *   the include the AUDIO_APB_FINAL flag that is needed to terminate the
@@ -216,9 +216,9 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
   bufdesc.session   = precorder->session;
 #endif
   bufdesc.numbytes  = apb->nbytes;
-  bufdesc.u.pBuffer = apb;
+  bufdesc.u.pbuffer = apb;
 
-  ret = ioctl(precorder->devFd, AUDIOIOC_ENQUEUEBUFFER,
+  ret = ioctl(precorder->dev_fd, AUDIOIOC_ENQUEUEBUFFER,
               (unsigned long)&bufdesc);
   if (ret < 0)
     {
@@ -271,7 +271,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
   /* Query the audio device for it's preferred buffer size / qty */
 
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
-  if ((ret = ioctl(precorder->devFd, AUDIOIOC_GETBUFFERINFO,
+  if ((ret = ioctl(precorder->dev_fd, AUDIOIOC_GETBUFFERINFO,
           (unsigned long) &buf_info)) != OK)
     {
       /* Driver doesn't report it's buffer size.  Use our default. */
@@ -282,7 +282,8 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 
   /* Create array of pointers to buffers */
 
-  pbuffers = (FAR struct ap_buffer_s **) malloc(buf_info.nbuffers * sizeof(FAR void *));
+  pbuffers = (FAR struct ap_buffer_s **) malloc(buf_info.nbuffers *
+                                                sizeof(FAR void *));
   if (pbuffers == NULL)
     {
       /* Error allocating memory for buffer storage! */
@@ -320,9 +321,9 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 #else
       buf_desc.numbytes = CONFIG_AUDIO_BUFFER_NUMBYTES;
 #endif
-      buf_desc.u.ppBuffer = &pbuffers[x];
+      buf_desc.u.pbuffer = &pbuffers[x];
 
-      ret = ioctl(precorder->devFd, AUDIOIOC_ALLOCBUFFER,
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_ALLOCBUFFER,
                   (unsigned long) &buf_desc);
       if (ret != sizeof(buf_desc))
         {
@@ -388,10 +389,10 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
   if (running && !failed)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(precorder->devFd, AUDIOIOC_START,
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_START,
                   (unsigned long) precorder->session);
 #else
-      ret = ioctl(precorder->devFd, AUDIOIOC_START, 0);
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_START, 0);
 #endif
 
       if (ret < 0)
@@ -410,7 +411,6 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
       /* Indicate we are recording a file */
 
       precorder->state = NXRECORDER_STATE_RECORDING;
-
     }
 
   /* Loop until we specifically break.  running == true means that we are
@@ -451,7 +451,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 
       /* Perform operation based on message id */
 
-      switch (msg.msgId)
+      switch (msg.msg_id)
         {
           /* An audio buffer is being dequeued by the driver */
 
@@ -461,7 +461,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
              * least one buffer.
              */
 
-            DEBUGASSERT(msg.u.pPtr && outstanding > 0);
+            DEBUGASSERT(msg.u.ptr && outstanding > 0);
             outstanding--;
 #endif
 
@@ -474,7 +474,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
               {
                 /* Write the next buffer of data */
 
-                ret = nxrecorder_writebuffer(precorder, msg.u.pPtr);
+                ret = nxrecorder_writebuffer(precorder, msg.u.ptr);
                 if (ret != OK)
                   {
                     /* Out of data.  Stay in the loop until the device sends
@@ -489,7 +489,7 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 
                 else
                   {
-                    ret = nxrecorder_enqueuebuffer(precorder, msg.u.pPtr);
+                    ret = nxrecorder_enqueuebuffer(precorder, msg.u.ptr);
                     if (ret != OK)
                       {
                         /* There is some issue from the audio driver.
@@ -525,15 +525,16 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
           /* Someone wants to stop the recordback. */
 
           case AUDIO_MSG_STOP:
+
             /* Send a stop message to the device */
 
             audinfo("Stopping! outstanding=%d\n", outstanding);
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-            ioctl(precorder->devFd, AUDIOIOC_STOP,
+            ioctl(precorder->dev_fd, AUDIOIOC_STOP,
                  (unsigned long) precorder->session);
 #else
-            ioctl(precorder->devFd, AUDIOIOC_STOP, 0);
+            ioctl(precorder->dev_fd, AUDIOIOC_STOP, 0);
 #endif
             /* Stay in the running loop (without sending more data).
              * we will need to recover our audio buffers.  We will
@@ -573,10 +574,12 @@ err_out:
           if (pbuffers[x] != NULL)
             {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-              buf_desc.session = pPlayer->session;
+              buf_desc.session = pplayer->session;
 #endif
-              buf_desc.u.pBuffer = pbuffers[x];
-              ioctl(precorder->devFd, AUDIOIOC_FREEBUFFER, (unsigned long) &buf_desc);
+              buf_desc.u.pbuffer = pbuffers[x];
+              ioctl(precorder->dev_fd,
+                    AUDIOIOC_FREEBUFFER,
+                    (unsigned long) &buf_desc);
             }
         }
 
@@ -593,21 +596,29 @@ err_out:
         if (pbuffers[x] != NULL)
           {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-            buf_desc.session = pPlayer->session;
+            buf_desc.session = pplayer->session;
 #endif
-            buf_desc.u.pBuffer = pbuffers[x];
-            ioctl(precorder->devFd, AUDIOIOC_FREEBUFFER, (unsigned long) &buf_desc);
+            buf_desc.u.pbuffer = pbuffers[x];
+            ioctl(precorder->dev_fd,
+                  AUDIOIOC_FREEBUFFER,
+                  (unsigned long) &buf_desc);
           }
       }
 #endif
 
   /* Unregister the message queue and release the session */
 
-  ioctl(precorder->devFd, AUDIOIOC_UNREGISTERMQ, (unsigned long) precorder->mq);
+  ioctl(precorder->dev_fd,
+        AUDIOIOC_UNREGISTERMQ,
+        (unsigned long) precorder->mq);
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  ioctl(precorder->devFd, AUDIOIOC_RELEASE, (unsigned long) precorder->session);
+  ioctl(precorder->dev_fd,
+        AUDIOIOC_RELEASE,
+        (unsigned long) precorder->session);
 #else
-  ioctl(precorder->devFd, AUDIOIOC_RELEASE, 0);
+  ioctl(precorder->dev_fd,
+        AUDIOIOC_RELEASE,
+        0);
 #endif
 
   /* Cleanup */
@@ -624,8 +635,8 @@ err_out:
       precorder->fd = -1;                   /* Clear out the FD */
     }
 
-  close(precorder->devFd);                  /* Close the device */
-  precorder->devFd = -1;                    /* Mark device as closed */
+  close(precorder->dev_fd);                 /* Close the device */
+  precorder->dev_fd = -1;                   /* Mark device as closed */
   mq_close(precorder->mq);                  /* Close the message queue */
   mq_unlink(precorder->mqname);             /* Unlink the message queue */
   precorder->state = NXRECORDER_STATE_IDLE; /* Go to IDLE */
@@ -663,10 +674,10 @@ int nxrecorder_pause(FAR struct nxrecorder_s *precorder)
   if (precorder->state == NXRECORDER_STATE_RECORDING)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(precorder->devFd, AUDIOIOC_PAUSE,
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_PAUSE,
           (unsigned long) precorder->session);
 #else
-      ret = ioctl(precorder->devFd, AUDIOIOC_PAUSE, 0);
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_PAUSE, 0);
 #endif
       if (ret == OK)
         {
@@ -693,10 +704,10 @@ int nxrecorder_resume(FAR struct nxrecorder_s *precorder)
   if (precorder->state == NXRECORDER_STATE_PAUSED)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(precorder->devFd, AUDIOIOC_RESUME,
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_RESUME,
           (unsigned long) precorder->session);
 #else
-      ret = ioctl(precorder->devFd, AUDIOIOC_RESUME, 0);
+      ret = ioctl(precorder->dev_fd, AUDIOIOC_RESUME, 0);
 #endif
       if (ret == OK)
         {
@@ -717,28 +728,28 @@ int nxrecorder_resume(FAR struct nxrecorder_s *precorder)
  ****************************************************************************/
 
 int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
-                         FAR const char *pDevice)
+                         FAR const char *pdevice)
 {
-  int tempFd;
+  int temp_fd;
 
   DEBUGASSERT(precorder != NULL);
-  DEBUGASSERT(pDevice != NULL);
+  DEBUGASSERT(pdevice != NULL);
 
   /* Try to open the device */
 
-  tempFd = open(pDevice, O_RDWR);
-  if (tempFd == -1)
+  temp_fd = open(pdevice, O_RDWR);
+  if (temp_fd == -1)
     {
       /* Error opening the device */
 
       return -ENOENT;
     }
 
-  close(tempFd);
+  close(temp_fd);
 
   /* Save the path and format capabilities of the device */
 
-  strncpy(precorder->device, pDevice, sizeof(precorder->device));
+  strncpy(precorder->device, pdevice, sizeof(precorder->device));
 
   return OK;
 }
@@ -775,15 +786,15 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 
   /* Notify the recordback thread that it needs to cancel the recordback */
 
-  term_msg.msgId = AUDIO_MSG_STOP;
+  term_msg.msg_id = AUDIO_MSG_STOP;
   term_msg.u.data = 0;
   mq_send(precorder->mq, (FAR const char *)&term_msg, sizeof(term_msg),
           CONFIG_NXRECORDER_MSG_PRIO);
 
   /* Join the thread.  The thread will do all the cleanup. */
 
-  pthread_join(precorder->recordId, &value);
-  precorder->recordId = 0;
+  pthread_join(precorder->record_id, &value);
+  precorder->record_id = 0;
 
   return OK;
 }
@@ -797,7 +808,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
  *   device.
  * Input:
  *   precorder  Pointer to the initialized MRecorder context
- *   pFilename  Pointer to the filename to record
+ *   pfilename  Pointer to the filename to record
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
@@ -812,7 +823,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
  ****************************************************************************/
 
 int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
-                         FAR const char *pFilename, uint8_t nchannels,
+                         FAR const char *pfilename, uint8_t nchannels,
                          uint8_t bpsamp, uint32_t samprate)
 {
   struct mq_attr           attr;
@@ -823,7 +834,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   int                      ret;
 
   DEBUGASSERT(precorder != NULL);
-  DEBUGASSERT(pFilename != NULL);
+  DEBUGASSERT(pfilename != NULL);
 
   if (precorder->state != NXRECORDER_STATE_IDLE)
     {
@@ -831,17 +842,17 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
     }
 
   audinfo("==============================\n");
-  audinfo("Recording file %s\n", pFilename);
+  audinfo("Recording file %s\n", pfilename);
   audinfo("==============================\n");
 
   /* Test that the specified file exists */
 
-  if ((precorder->fd = open(pFilename, O_WRONLY | O_CREAT)) == -1)
+  if ((precorder->fd = open(pfilename, O_WRONLY | O_CREAT)) == -1)
     {
       /* File not found.  Test if its in the mediadir */
 
-        auderr("ERROR: Could not open %s\n", pFilename);
-        return -ENOENT;
+      auderr("ERROR: Could not open %s\n", pfilename);
+      return -ENOENT;
     }
 
   /* Try to open the device */
@@ -858,10 +869,10 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   /* Try to reserve the device */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  ret = ioctl(precorder->devFd, AUDIOIOC_RESERVE,
+  ret = ioctl(precorder->dev_fd, AUDIOIOC_RESERVE,
               (unsigned long)&precorder->session);
 #else
-  ret = ioctl(precorder->devFd, AUDIOIOC_RESERVE, 0);
+  ret = ioctl(precorder->dev_fd, AUDIOIOC_RESERVE, 0);
 #endif
   if (ret < 0)
     {
@@ -881,7 +892,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   cap_desc.caps.ac_controls.hw[0] = samprate ? samprate : 48000;
   cap_desc.caps.ac_controls.b[3] = samprate >> 16;
   cap_desc.caps.ac_controls.b[2]  = bpsamp ? bpsamp : 16;
-  ret = ioctl(precorder->devFd, AUDIOIOC_CONFIGURE,
+  ret = ioctl(precorder->dev_fd, AUDIOIOC_CONFIGURE,
               (unsigned long)&cap_desc);
   if (ret < 0)
     {
@@ -911,15 +922,17 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
 
   /* Register our message queue with the audio device */
 
-  ioctl(precorder->devFd, AUDIOIOC_REGISTERMQ, (unsigned long)precorder->mq);
+  ioctl(precorder->dev_fd,
+        AUDIOIOC_REGISTERMQ,
+        (unsigned long)precorder->mq);
 
   /* Check if there was a previous thread and join it if there was
    * to perform clean-up.
    */
 
-  if (precorder->recordId != 0)
+  if (precorder->record_id != 0)
     {
-      pthread_join(precorder->recordId, &value);
+      pthread_join(precorder->record_id, &value);
     }
 
   /* Start the recordfile thread to stream the media file to the
@@ -938,7 +951,9 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
    */
 
   nxrecorder_reference(precorder);
-  ret = pthread_create(&precorder->recordId, &tattr, nxrecorder_recordthread,
+  ret = pthread_create(&precorder->record_id,
+                       &tattr,
+                       nxrecorder_recordthread,
                        (pthread_addr_t) precorder);
   if (ret != OK)
     {
@@ -948,12 +963,12 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
 
   /* Name the thread */
 
-  pthread_setname_np(precorder->recordId, "recordthread");
+  pthread_setname_np(precorder->record_id, "recordthread");
   return OK;
 
 err_out:
-  close(precorder->devFd);
-  precorder->devFd = -1;
+  close(precorder->dev_fd);
+  precorder->dev_fd = -1;
 
 err_out_nodev:
   if (0 < precorder->fd)
@@ -969,8 +984,8 @@ err_out_nodev:
  * Name: nxrecorder_create
  *
  *   nxrecorder_create() allocates and initializes a nxrecorder context for
- *   use by further nxrecorder operations.  This routine must be called before
- *   to perform the create for proper reference counting.
+ *   use by further nxrecorder operations.  This routine must be called
+ *   before to perform the create for proper reference counting.
  *
  * Input Parameters:  None
  *
@@ -985,7 +1000,8 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
 
   /* Allocate the memory */
 
-  precorder = (FAR struct nxrecorder_s *) malloc(sizeof(struct nxrecorder_s));
+  precorder = (FAR struct nxrecorder_s *) malloc(
+                                           sizeof(struct nxrecorder_s));
   if (precorder == NULL)
     {
       return NULL;
@@ -994,11 +1010,11 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
   /* Initialize the context data */
 
   precorder->state = NXRECORDER_STATE_IDLE;
-  precorder->devFd = -1;
+  precorder->dev_fd = -1;
   precorder->fd = -1;
   precorder->device[0] = '\0';
   precorder->mq = NULL;
-  precorder->recordId = 0;
+  precorder->record_id = 0;
   precorder->crefs = 1;
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
@@ -1044,11 +1060,11 @@ void nxrecorder_release(FAR struct nxrecorder_s *precorder)
 
   /* Check if there was a previous thread and join it if there was */
 
-  if (precorder->recordId != 0)
+  if (precorder->record_id != 0)
     {
       sem_post(&precorder->sem);
-      pthread_join(precorder->recordId, &value);
-      precorder->recordId = 0;
+      pthread_join(precorder->record_id, &value);
+      precorder->record_id = 0;
 
       while (sem_wait(&precorder->sem) < 0)
         {

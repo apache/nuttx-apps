@@ -71,7 +71,7 @@ struct mp_cmd_s
 {
   const char      *cmd;       /* The command text */
   const char      *arghelp;   /* Text describing the args */
-  nxrecorder_func pFunc;      /* Pointer to command handler */
+  nxrecorder_func pfunc;      /* Pointer to command handler */
   const char      *help;      /* The help text */
 };
 
@@ -79,27 +79,27 @@ struct mp_cmd_s
  * Private Function Prototypes
  ****************************************************************************/
 
-static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *precorder,
                                FAR char *parg);
-static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
                                     FAR char *parg);
-static int nxrecorder_cmd_device(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_device(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg);
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxrecorder_cmd_pause(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_pause(FAR struct nxrecorder_s *precorder,
                                 FAR char *parg);
-static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-static int nxrecorder_cmd_stop(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_stop(FAR struct nxrecorder_s *precorder,
                                FAR char *parg);
 #endif
 
 #ifdef CONFIG_NXRECORDER_INCLUDE_HELP
-static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_help(FAR struct nxrecorder_s *precorder,
                                FAR char *parg);
 #endif
 
@@ -109,24 +109,70 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder,
 
 static const struct mp_cmd_s g_nxrecorder_cmds[] =
 {
-  { "device",    "devfile",  nxrecorder_cmd_device,    NXRECORDER_HELP_TEXT(Specify a preferred audio device) },
+  {
+    "device",
+    "devfile",
+    nxrecorder_cmd_device,
+    NXRECORDER_HELP_TEXT(Specify a preferred audio device)
+  },
 #ifdef CONFIG_NXRECORDER_INCLUDE_HELP
-  { "h",         "",         nxrecorder_cmd_help,      NXRECORDER_HELP_TEXT(Display help for commands) },
-  { "help",      "",         nxrecorder_cmd_help,      NXRECORDER_HELP_TEXT(Display help for commands) },
+  {
+    "h",
+    "",
+    nxrecorder_cmd_help,
+    NXRECORDER_HELP_TEXT(Display help for commands)
+  },
+  {
+    "help",
+    "",
+    nxrecorder_cmd_help,
+    NXRECORDER_HELP_TEXT(Display help for commands)
+  },
 #endif
-  { "recordraw", "filename", nxrecorder_cmd_recordraw, NXRECORDER_HELP_TEXT(Record a pcm raw file) },
+  {
+    "recordraw",
+    "filename",
+    nxrecorder_cmd_recordraw,
+    NXRECORDER_HELP_TEXT(Record a pcm raw file)
+  },
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-  { "pause",     "",         nxrecorder_cmd_pause,     NXRECORDER_HELP_TEXT(Pause record) },
-  { "resume",    "",         nxrecorder_cmd_resume,    NXRECORDER_HELP_TEXT(Resume record) },
+  {
+    "pause",
+    "",
+    nxrecorder_cmd_pause,
+    NXRECORDER_HELP_TEXT(Pause record)
+  },
+  {
+    "resume",
+    "",
+    nxrecorder_cmd_resume,
+    NXRECORDER_HELP_TEXT(Resume record)
+  },
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-  { "stop",      "",         nxrecorder_cmd_stop,      NXRECORDER_HELP_TEXT(Stop record) },
+  {
+    "stop",
+    "",
+    nxrecorder_cmd_stop,
+    NXRECORDER_HELP_TEXT(Stop record)
+  },
 #endif
-  { "q",         "",         nxrecorder_cmd_quit,      NXRECORDER_HELP_TEXT(Exit NxRecorder) },
-  { "quit",      "",         nxrecorder_cmd_quit,      NXRECORDER_HELP_TEXT(Exit NxRecorder) },
+  {
+    "q",
+    "",
+    nxrecorder_cmd_quit,
+    NXRECORDER_HELP_TEXT(Exit NxRecorder)
+  },
+  {
+    "quit",
+    "",
+    nxrecorder_cmd_quit,
+    NXRECORDER_HELP_TEXT(Exit NxRecorder)
+  },
 };
 
-static const int g_nxrecorder_cmd_count = sizeof(g_nxrecorder_cmds) / sizeof(struct mp_cmd_s);
+static const int g_nxrecorder_cmd_count = sizeof(g_nxrecorder_cmds) /
+                                          sizeof(struct mp_cmd_s);
 
 /****************************************************************************
  * Private Functions
@@ -135,12 +181,12 @@ static const int g_nxrecorder_cmd_count = sizeof(g_nxrecorder_cmds) / sizeof(str
 /****************************************************************************
  * Name: nxrecorder_cmd_recordraw
  *
- *   nxrecorder_cmd_recordraw() records the raw data file using the nxrecorder
- *   context.
+ *   nxrecorder_cmd_recordraw() records the raw data file using the
+ *   nxrecorder context.
  *
  ****************************************************************************/
 
-static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
                                     FAR char *parg)
 {
   int ret;
@@ -153,7 +199,11 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *pRecorder,
 
   /* Try to record the file specified */
 
-  ret = nxrecorder_recordraw(pRecorder, filename, channels, bpsamp, samprate);
+  ret = nxrecorder_recordraw(precorder,
+                             filename,
+                             channels,
+                             bpsamp,
+                             samprate);
 
   /* nxrecorder_recordfile returned values:
    *
@@ -202,12 +252,12 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *pRecorder,
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-static int nxrecorder_cmd_stop(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_stop(FAR struct nxrecorder_s *precorder,
                                FAR char *parg)
 {
   /* Stop the record */
 
-  nxrecorder_stop(pRecorder);
+  nxrecorder_stop(precorder);
 
   return OK;
 }
@@ -222,12 +272,12 @@ static int nxrecorder_cmd_stop(FAR struct nxrecorder_s *pRecorder,
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxrecorder_cmd_pause(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_pause(FAR struct nxrecorder_s *precorder,
                                 FAR char *parg)
 {
   /* Pause the record */
 
-  nxrecorder_pause(pRecorder);
+  nxrecorder_pause(precorder);
 
   return OK;
 }
@@ -242,12 +292,12 @@ static int nxrecorder_cmd_pause(FAR struct nxrecorder_s *pRecorder,
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg)
 {
   /* Resume the record */
 
-  nxrecorder_resume(pRecorder);
+  nxrecorder_resume(precorder);
 
   return OK;
 }
@@ -260,7 +310,7 @@ static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *pRecorder,
  *
  ****************************************************************************/
 
-static int nxrecorder_cmd_device(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_device(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg)
 {
   int     ret;
@@ -268,7 +318,7 @@ static int nxrecorder_cmd_device(FAR struct nxrecorder_s *pRecorder,
 
   /* First try to open the file directly */
 
-  ret = nxrecorder_setdevice(pRecorder, parg);
+  ret = nxrecorder_setdevice(precorder, parg);
   if (ret == -ENOENT)
     {
       /* Append the /dev/audio path and try again */
@@ -282,7 +332,7 @@ static int nxrecorder_cmd_device(FAR struct nxrecorder_s *pRecorder,
 #else
       snprintf(path, sizeof(path), "/dev/audio/%s", parg);
 #endif
-      ret = nxrecorder_setdevice(pRecorder, path);
+      ret = nxrecorder_setdevice(precorder, path);
     }
 
   /* Test if the device file exists */
@@ -319,13 +369,13 @@ static int nxrecorder_cmd_device(FAR struct nxrecorder_s *pRecorder,
  *   nxrecorder_cmd_quit() terminates the application
  ****************************************************************************/
 
-static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *precorder,
                                FAR char *parg)
 {
   /* Stop the record if any */
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-  nxrecorder_stop(pRecorder);
+  nxrecorder_stop(precorder);
 #endif
 
   return OK;
@@ -339,7 +389,7 @@ static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *pRecorder,
  ****************************************************************************/
 
 #ifdef CONFIG_NXRECORDER_INCLUDE_HELP
-static int nxrecorder_cmd_help(FAR struct nxrecorder_s *pRecorder,
+static int nxrecorder_cmd_help(FAR struct nxrecorder_s *precorder,
                                FAR char *parg)
 {
   int   len;
@@ -418,7 +468,7 @@ int main(int argc, FAR char *argv[])
   int                     running;
   char                    *cmd;
   char                    *arg;
-  FAR struct nxrecorder_s *pRecorder;
+  FAR struct nxrecorder_s *precorder;
 
   printf("NxRecorder version " NXRECORDER_VER "\n");
   printf("h for commands, q to exit\n");
@@ -426,8 +476,8 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize our NxRecorder context */
 
-  pRecorder = nxrecorder_create();
-  if (pRecorder == NULL)
+  precorder = nxrecorder_create();
+  if (precorder == NULL)
     {
       printf("Error:  Out of RAM\n");
       return -ENOMEM;
@@ -481,14 +531,14 @@ int main(int argc, FAR char *argv[])
                     {
                       /* Command found.  Call it's handler if not NULL */
 
-                      if (g_nxrecorder_cmds[x].pFunc != NULL)
+                      if (g_nxrecorder_cmds[x].pfunc != NULL)
                         {
-                          g_nxrecorder_cmds[x].pFunc(pRecorder, arg);
+                          g_nxrecorder_cmds[x].pfunc(precorder, arg);
                         }
 
                       /* Test if it is a quit command */
 
-                      if (g_nxrecorder_cmds[x].pFunc == nxrecorder_cmd_quit)
+                      if (g_nxrecorder_cmds[x].pfunc == nxrecorder_cmd_quit)
                         {
                           running = FALSE;
                         }
@@ -512,7 +562,7 @@ int main(int argc, FAR char *argv[])
 
   /* Release the NxRecorder context */
 
-  nxrecorder_release(pRecorder);
+  nxrecorder_release(precorder);
 
   return OK;
 }
