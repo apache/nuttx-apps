@@ -318,8 +318,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
       /* Device supports the format.  Open the device file. */
 
-      pplayer->devFd = open(pplayer->prefdevice, O_RDWR);
-      if (pplayer->devFd == -1)
+      pplayer->dev_fd = open(pplayer->prefdevice, O_RDWR);
+      if (pplayer->dev_fd == -1)
         {
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
@@ -343,7 +343,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 #ifdef CONFIG_NXPLAYER_INCLUDE_DEVICE_SEARCH
     {
       struct audio_caps_s caps;
-      FAR struct dirent *pDevice;
+      FAR struct dirent *pdevice;
       FAR DIR *dirp;
       char path[64];
       uint8_t supported = true;
@@ -370,7 +370,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
           return -ENODEV;
         }
 
-      while ((pDevice = readdir(dirp)) != NULL)
+      while ((pdevice = readdir(dirp)) != NULL)
         {
           /* We found the next device.  Try to open it and
            * get its audio capabilities.
@@ -378,16 +378,16 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
 #ifdef CONFIG_AUDIO_CUSTOM_DEV_PATH
 #ifdef CONFIG_AUDIO_DEV_ROOT
-          snprintf(path,  sizeof(path), "/dev/%s", pDevice->d_name);
+          snprintf(path,  sizeof(path), "/dev/%s", pdevice->d_name);
 #else
           snprintf(path,  sizeof(path), CONFIG_AUDIO_DEV_PATH "/%s",
-                   pDevice->d_name);
+                   pdevice->d_name);
 #endif /* CONFIG_AUDIO_DEV_ROOT */
 #else
-          snprintf(path,  sizeof(path), "/dev/audio/%s", pDevice->d_name);
+          snprintf(path,  sizeof(path), "/dev/audio/%s", pdevice->d_name);
 #endif /* CONFIG_AUDIO_CUSTOM_DEV_PATH */
 
-          if ((pplayer->devFd = open(path, O_RDWR)) != -1)
+          if ((pplayer->dev_fd = open(path, O_RDWR)) != -1)
             {
               /* We have the device file open.  Now issue an AUDIO ioctls to
                * get the capabilities
@@ -397,7 +397,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
               caps.ac_type = AUDIO_TYPE_QUERY;
               caps.ac_subtype = AUDIO_TYPE_QUERY;
 
-              if (ioctl(pplayer->devFd, AUDIOIOC_GETCAPS,
+              if (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
                         (unsigned long)&caps) == caps.ac_len)
                 {
                   /* Test if this device supports the format we want */
@@ -409,15 +409,19 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
                       if (subfmt != AUDIO_FMT_UNDEF)
                         {
-                          /* Prepare to get sub-formats for this main format */
+                          /* Prepare to get sub-formats for
+                           * this main format
+                           */
 
                           caps.ac_subtype = format;
                           caps.ac_format.b[0] = 0;
 
-                          while (ioctl(pplayer->devFd, AUDIOIOC_GETCAPS,
+                          while (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
                               (unsigned long) &caps) == caps.ac_len)
                             {
-                              /* Check the next set of 4 controls to find the subformat */
+                              /* Check the next set of 4 controls
+                               * to find the subformat
+                               */
 
                               for (x = 0; x < sizeof(caps.ac_controls); x++)
                                 {
@@ -427,7 +431,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
                                       break;
                                     }
-                                  else if (caps.ac_controls.b[x] == AUDIO_SUBFMT_END)
+                                  else if (caps.ac_controls.b[x] ==
+                                           AUDIO_SUBFMT_END)
                                     {
                                       /* Sub format not supported */
 
@@ -445,7 +450,9 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
                                   break;
                                 }
 
-                              /* Increment ac_format.b[0] to get next set of subformats */
+                              /* Increment ac_format.b[0] to get next
+                               * set of subformats
+                               */
 
                               caps.ac_format.b[0]++;
                             }
@@ -465,7 +472,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 
               /* Not this device! */
 
-              close(pplayer->devFd);
+              close(pplayer->dev_fd);
             }
         }
 
@@ -478,7 +485,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
   /* Device not found */
 
   auderr("ERROR: Device not found\n");
-  pplayer->devFd = -1;
+  pplayer->dev_fd = -1;
   return -ENODEV;
 }
 
@@ -534,30 +541,30 @@ int nxplayer_getmidisubformat(int fd)
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
 static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pplayer,
-                                            FAR const char *pFilename,
+                                            FAR const char *pfilename,
                                             FAR int *subfmt)
 {
-  const char  *pExt;
+  const char  *pext;
   uint8_t      x;
   uint8_t      c;
 
   /* Find the file extension, if any */
 
-  x = strlen(pFilename) - 1;
+  x = strlen(pfilename) - 1;
   while (x > 0)
     {
       /* Search backward for the first '.' */
 
-      if (pFilename[x] == '.')
+      if (pfilename[x] == '.')
         {
           /* First '.' found.  Now compare with known extensions */
 
-          pExt = &pFilename[x + 1];
+          pext = &pfilename[x + 1];
           for (c = 0; c < g_known_ext_count; c++)
             {
               /* Test for extension match */
 
-              if (strcasecmp(pExt, g_known_ext[c].ext) == 0)
+              if (strcasecmp(pext, g_known_ext[c].ext) == 0)
                 {
                   /* Test if we have a sub-format detection routine */
 
@@ -575,7 +582,7 @@ static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pplayer,
 
       /* Stop if we find a '/' */
 
-      if (pFilename[x] == '/')
+      if (pfilename[x] == '/')
         {
           break;
         }
@@ -613,7 +620,7 @@ static int nxplayer_fmtfromheader(FAR struct nxplayer_s *pplayer)
 
 #if defined(CONFIG_NXPLAYER_MEDIA_SEARCH) && defined(CONFIG_NXPLAYER_INCLUDE_MEDIADIR)
 static int nxplayer_mediasearch(FAR struct nxplayer_s *pplayer,
-                                FAR const char *pFilename,
+                                FAR const char *pfilename,
                                 FAR const char *path, int pathmax)
 {
   return -ENOENT;
@@ -743,9 +750,9 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pplayer,
   bufdesc.session   = pplayer->session;
 #endif
   bufdesc.numbytes  = apb->nbytes;
-  bufdesc.u.pBuffer = apb;
+  bufdesc.u.buffer = apb;
 
-  ret = ioctl(pplayer->devFd, AUDIOIOC_ENQUEUEBUFFER,
+  ret = ioctl(pplayer->dev_fd, AUDIOIOC_ENQUEUEBUFFER,
               (unsigned long)&bufdesc);
   if (ret < 0)
     {
@@ -782,9 +789,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                        failed = false;
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
-  FAR struct ap_buffer_s      **pbuffers;
+  FAR struct ap_buffer_s      **buffers;
 #else
-  FAR struct ap_buffer_s      *pbuffers[CONFIG_AUDIO_NUM_BUFFERS];
+  FAR struct ap_buffer_s      *buffers[CONFIG_AUDIO_NUM_BUFFERS];
 #endif
   unsigned int                prio;
 #ifdef CONFIG_DEBUG_FEATURES
@@ -798,7 +805,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   /* Query the audio device for it's preferred buffer size / qty */
 
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
-  if ((ret = ioctl(pplayer->devFd, AUDIOIOC_GETBUFFERINFO,
+  if ((ret = ioctl(pplayer->dev_fd, AUDIOIOC_GETBUFFERINFO,
           (unsigned long) &buf_info)) != OK)
     {
       /* Driver doesn't report it's buffer size.  Use our default. */
@@ -809,9 +816,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   /* Create array of pointers to buffers */
 
-  pbuffers = (FAR struct ap_buffer_s **)
+  buffers = (FAR struct ap_buffer_s **)
     malloc(buf_info.nbuffers * sizeof(FAR void *));
-  if (pbuffers == NULL)
+  if (buffers == NULL)
     {
       /* Error allocating memory for buffer storage! */
 
@@ -824,7 +831,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   for (x = 0; x < buf_info.nbuffers; x++)
     {
-      pbuffers[x] = NULL;
+      buffers[x] = NULL;
     }
 
   for (x = 0; x < buf_info.nbuffers; x++)
@@ -832,7 +839,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
     {
-      pbuffers[x] = NULL;
+      buffers[x] = NULL;
     }
 
   for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
@@ -848,9 +855,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 #else
       buf_desc.numbytes = CONFIG_AUDIO_BUFFER_NUMBYTES;
 #endif
-      buf_desc.u.ppBuffer = &pbuffers[x];
+      buf_desc.u.pbuffer = &buffers[x];
 
-      ret = ioctl(pplayer->devFd, AUDIOIOC_ALLOCBUFFER,
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_ALLOCBUFFER,
                   (unsigned long) &buf_desc);
       if (ret != sizeof(buf_desc))
         {
@@ -872,7 +879,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
     {
       /* Read the next buffer of data */
 
-      ret = nxplayer_readbuffer(pplayer, pbuffers[x]);
+      ret = nxplayer_readbuffer(pplayer, buffers[x]);
       if (ret != OK)
         {
           /* nxplayer_readbuffer will return an error if there is no further
@@ -901,14 +908,15 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
       else
         {
-          ret = nxplayer_enqueuebuffer(pplayer, pbuffers[x]);
+          ret = nxplayer_enqueuebuffer(pplayer, buffers[x]);
           if (ret != OK)
             {
-              /* Failed to enqueue the buffer.  The driver is not happy with
-               * the buffer.  Perhaps a decoder has detected something that it
-               * does not like in the stream and has stopped streaming.  This
-               * would happen normally if we send a file in the incorrect
-               * format to an audio decoder.
+              /* Failed to enqueue the buffer.
+               * The driver is not happy with the buffer.
+               * Perhaps a decoder has detected something that it
+               * does not like in the stream and has stopped streaming.
+               * This would happen normally if we send a file in the
+               * incorrect format to an audio decoder.
                *
                * We must stop streaming as gracefully as possible.  Close the
                * file so that no further data is read.
@@ -918,8 +926,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
               pplayer->fd = -1;
 
               /* We are no longer streaming data from the file.  Be we will
-               * need to wait for any outstanding buffers to be recovered.  We
-               * also still expect the audio driver to send a
+               * need to wait for any outstanding buffers to be recovered.
+               *  We also still expect the audio driver to send a
                * AUDIO_MSG_COMPLETE message after all queued buffers have
                * been returned.
                */
@@ -947,10 +955,10 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   if (running && !failed)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(pplayer->devFd, AUDIOIOC_START,
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_START,
                   (unsigned long) pplayer->session);
 #else
-      ret = ioctl(pplayer->devFd, AUDIOIOC_START, 0);
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_START, 0);
 #endif
 
       if (ret < 0)
@@ -1025,7 +1033,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
       /* Perform operation based on message id */
 
-      switch (msg.msgId)
+      switch (msg.msg_id)
         {
           /* An audio buffer is being dequeued by the driver */
 
@@ -1036,7 +1044,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
              * least one buffer.
              */
 
-            DEBUGASSERT(msg.u.pPtr && outstanding > 0);
+            DEBUGASSERT(msg.u.ptr && outstanding > 0);
             outstanding--;
 #endif
 
@@ -1049,7 +1057,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
               {
                 /* Read the next buffer of data */
 
-                ret = nxplayer_readbuffer(pplayer, msg.u.pPtr);
+                ret = nxplayer_readbuffer(pplayer, msg.u.ptr);
                 if (ret != OK)
                   {
                     /* Out of data.  Stay in the loop until the device sends
@@ -1064,7 +1072,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
                 else
                   {
-                    ret = nxplayer_enqueuebuffer(pplayer, msg.u.pPtr);
+                    ret = nxplayer_enqueuebuffer(pplayer, msg.u.ptr);
                     if (ret != OK)
                       {
                         /* There is some issue from the audio driver.
@@ -1106,10 +1114,10 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
             audinfo("Stopping! outstanding=%d\n", outstanding);
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-            ioctl(pplayer->devFd, AUDIOIOC_STOP,
+            ioctl(pplayer->dev_fd, AUDIOIOC_STOP,
                  (unsigned long) pplayer->session);
 #else
-            ioctl(pplayer->devFd, AUDIOIOC_STOP, 0);
+            ioctl(pplayer->dev_fd, AUDIOIOC_STOP, 0);
 #endif
             /* Stay in the running loop (without sending more data).
              * we will need to recover our audio buffers.  We will
@@ -1140,27 +1148,27 @@ err_out:
   audinfo("Clean-up and exit\n");
 
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
-  if (pbuffers != NULL)
+  if (buffers != NULL)
     {
       audinfo("Freeing buffers\n");
       for (x = 0; x < buf_info.nbuffers; x++)
         {
           /* Fill in the buffer descriptor struct to issue a free request */
 
-          if (pbuffers[x] != NULL)
+          if (buffers[x] != NULL)
             {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
               buf_desc.session = pplayer->session;
 #endif
-              buf_desc.u.pBuffer = pbuffers[x];
-              ioctl(pplayer->devFd, AUDIOIOC_FREEBUFFER,
+              buf_desc.u.buffer = buffers[x];
+              ioctl(pplayer->dev_fd, AUDIOIOC_FREEBUFFER,
                     (unsigned long)&buf_desc);
             }
         }
 
       /* Free the pointers to the buffers */
 
-      free(pbuffers);
+      free(buffers);
     }
 #else
     audinfo("Freeing buffers\n");
@@ -1168,13 +1176,13 @@ err_out:
       {
         /* Fill in the buffer descriptor struct to issue a free request */
 
-        if (pbuffers[x] != NULL)
+        if (buffers[x] != NULL)
           {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
             buf_desc.session = pplayer->session;
 #endif
-            buf_desc.u.pBuffer = pbuffers[x];
-            ioctl(pplayer->devFd, AUDIOIOC_FREEBUFFER,
+            buf_desc.u.buffer = buffers[x];
+            ioctl(pplayer->dev_fd, AUDIOIOC_FREEBUFFER,
                   (unsigned long)&buf_desc);
           }
       }
@@ -1182,12 +1190,12 @@ err_out:
 
   /* Unregister the message queue and release the session */
 
-  ioctl(pplayer->devFd, AUDIOIOC_UNREGISTERMQ, (unsigned long) pplayer->mq);
+  ioctl(pplayer->dev_fd, AUDIOIOC_UNREGISTERMQ, (unsigned long) pplayer->mq);
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  ioctl(pplayer->devFd, AUDIOIOC_RELEASE, (unsigned long) pplayer->session);
+  ioctl(pplayer->dev_fd, AUDIOIOC_RELEASE, (unsigned long) pplayer->session);
 #else
-  ioctl(pplayer->devFd, AUDIOIOC_RELEASE, 0);
+  ioctl(pplayer->dev_fd, AUDIOIOC_RELEASE, 0);
 #endif
 
   /* Cleanup */
@@ -1203,8 +1211,8 @@ err_out:
       pplayer->fd = -1;                   /* Clear out the FD */
     }
 
-  close(pplayer->devFd);                  /* Close the device */
-  pplayer->devFd = -1;                    /* Mark device as closed */
+  close(pplayer->dev_fd);                 /* Close the device */
+  pplayer->dev_fd = -1;                   /* Mark device as closed */
   mq_close(pplayer->mq);                  /* Close the message queue */
   mq_unlink(pplayer->mqname);             /* Unlink the message queue */
   pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
@@ -1262,7 +1270,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pplayer, uint16_t volume)
       cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
       cap_desc.caps.ac_format.hw      = AUDIO_FU_VOLUME;
       cap_desc.caps.ac_controls.hw[0] = volume;
-      ret = ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE,
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE,
                   (unsigned long)&cap_desc);
       if (ret < 0)
         {
@@ -1350,7 +1358,7 @@ int nxplayer_setbass(FAR struct nxplayer_s *pplayer, uint8_t level)
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
       cap_desc.caps.ac_format.hw     = AUDIO_FU_BASS;
       cap_desc.caps.ac_controls.b[0] = level;
-      ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+      ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
   /* Store the volume setting */
@@ -1402,7 +1410,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pplayer, uint8_t level)
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
       cap_desc.caps.ac_format.hw     = AUDIO_FU_TREBLE;
       cap_desc.caps.ac_controls.b[0] = level;
-      ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+      ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
   /* Store the volume setting */
@@ -1450,7 +1458,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pplayer, uint16_t balance)
       cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
       cap_desc.caps.ac_format.hw      = AUDIO_FU_BALANCE;
       cap_desc.caps.ac_controls.hw[0] = balance;
-      ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+      ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
   /* Store the volume setting */
@@ -1479,10 +1487,10 @@ int nxplayer_pause(FAR struct nxplayer_s *pplayer)
   if (pplayer->state == NXPLAYER_STATE_PLAYING)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(pplayer->devFd, AUDIOIOC_PAUSE,
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_PAUSE,
           (unsigned long) pplayer->session);
 #else
-      ret = ioctl(pplayer->devFd, AUDIOIOC_PAUSE, 0);
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_PAUSE, 0);
 #endif
       if (ret == OK)
         {
@@ -1509,10 +1517,10 @@ int nxplayer_resume(FAR struct nxplayer_s *pplayer)
   if (pplayer->state == NXPLAYER_STATE_PAUSED)
     {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      ret = ioctl(pplayer->devFd, AUDIOIOC_RESUME,
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_RESUME,
           (unsigned long) pplayer->session);
 #else
-      ret = ioctl(pplayer->devFd, AUDIOIOC_RESUME, 0);
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_RESUME, 0);
 #endif
       if (ret == OK)
         {
@@ -1566,7 +1574,9 @@ int nxplayer_fforward(FAR struct nxplayer_s *pplayer, uint8_t subsample)
   cap_desc.caps.ac_format.hw      = AUDIO_PU_SUBSAMPLE_FORWARD;
   cap_desc.caps.ac_controls.b[0]  = subsample;
 
-  ret = ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+  ret = ioctl(pplayer->dev_fd,
+              AUDIOIOC_CONFIGURE,
+              (unsigned long) &cap_desc);
   if (ret < 0)
     {
       int errcode = errno;
@@ -1622,7 +1632,9 @@ int nxplayer_rewind(FAR struct nxplayer_s *pplayer, uint8_t subsample)
   cap_desc.caps.ac_format.hw      = AUDIO_PU_SUBSAMPLE_REWIND;
   cap_desc.caps.ac_controls.b[0]  = subsample;
 
-  ret = ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+  ret = ioctl(pplayer->dev_fd,
+              AUDIOIOC_CONFIGURE,
+              (unsigned long) &cap_desc);
   if (ret < 0)
     {
       int errcode = errno;
@@ -1697,18 +1709,18 @@ int nxplayer_cancel_motion(FAR struct nxplayer_s *pplayer, bool paused)
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
 int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
-                       FAR const char *pDevice)
+                       FAR const char *pdevice)
 {
-  int                   tempFd;
+  int                   temp_fd;
   struct audio_caps_s   caps;
 
   DEBUGASSERT(pplayer != NULL);
-  DEBUGASSERT(pDevice != NULL);
+  DEBUGASSERT(pdevice != NULL);
 
   /* Try to open the device */
 
-  tempFd = open(pDevice, O_RDWR);
-  if (tempFd == -1)
+  temp_fd = open(pdevice, O_RDWR);
+  if (temp_fd == -1)
     {
       /* Error opening the device */
 
@@ -1720,21 +1732,21 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
   caps.ac_len     = sizeof(caps);
   caps.ac_type    = AUDIO_TYPE_QUERY;
   caps.ac_subtype = AUDIO_TYPE_QUERY;
-  if (ioctl(tempFd, AUDIOIOC_GETCAPS, (unsigned long) &caps) != caps.ac_len)
+  if (ioctl(temp_fd, AUDIOIOC_GETCAPS, (unsigned long) &caps) != caps.ac_len)
     {
       /* Not an Audio device! */
 
-      close(tempFd);
+      close(temp_fd);
       return -ENODEV;
     }
 
   /* Close the file */
 
-  close(tempFd);
+  close(temp_fd);
 
   /* Save the path and format capabilities of the preferred device */
 
-  strncpy(pplayer->prefdevice, pDevice, sizeof(pplayer->prefdevice));
+  strncpy(pplayer->prefdevice, pdevice, sizeof(pplayer->prefdevice));
   pplayer->prefformat = caps.ac_format.b[0] | (caps.ac_format.b[1] << 8);
   pplayer->preftype = caps.ac_controls.b[0];
 
@@ -1774,15 +1786,15 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 
   /* Notify the playback thread that it needs to cancel the playback */
 
-  term_msg.msgId = AUDIO_MSG_STOP;
+  term_msg.msg_id = AUDIO_MSG_STOP;
   term_msg.u.data = 0;
   mq_send(pplayer->mq, (FAR const char *)&term_msg, sizeof(term_msg),
           CONFIG_NXPLAYER_MSG_PRIO);
 
   /* Join the thread.  The thread will do all the cleanup. */
 
-  pthread_join(pplayer->playId, &value);
-  pplayer->playId = 0;
+  pthread_join(pplayer->play_id, &value);
+  pplayer->play_id = 0;
 
   return OK;
 }
@@ -1798,7 +1810,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
  *
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
- *   pFilename  Pointer to the filename to play
+ *   pfilename  Pointer to the filename to play
  *   filefmt    Format of the file or AUD_FMT_UNDEF if unknown / to be
  *              determined by nxplayer_playfile()
  *   nchannels  channels num (raw data playback needed)
@@ -1816,7 +1828,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
  ****************************************************************************/
 
 static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
-                                 FAR const char *pFilename, int filefmt,
+                                 FAR const char *pfilename, int filefmt,
                                  int subfmt, uint8_t nchannels,
                                  uint8_t bpsamp, uint32_t samprate)
 {
@@ -1832,7 +1844,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   int                 ret;
 
   DEBUGASSERT(pplayer != NULL);
-  DEBUGASSERT(pFilename != NULL);
+  DEBUGASSERT(pfilename != NULL);
 
   if (pplayer->state != NXPLAYER_STATE_IDLE)
     {
@@ -1840,42 +1852,42 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
     }
 
   audinfo("==============================\n");
-  audinfo("Playing file %s\n", pFilename);
+  audinfo("Playing file %s\n", pfilename);
   audinfo("==============================\n");
 
   /* Test that the specified file exists */
 
 #ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
-  if ((pplayer->fd = _open_with_http(pFilename)) == -1)
+  if ((pplayer->fd = _open_with_http(pfilename)) == -1)
 #else
-  if ((pplayer->fd = open(pFilename, O_RDONLY)) == -1)
+  if ((pplayer->fd = open(pfilename, O_RDONLY)) == -1)
 #endif
     {
       /* File not found.  Test if its in the mediadir */
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-      snprintf(path, sizeof(path), "%s/%s", pplayer->mediadir, pFilename);
+      snprintf(path, sizeof(path), "%s/%s", pplayer->mediadir, pfilename);
 
       if ((pplayer->fd = open(path, O_RDONLY)) == -1)
         {
 #ifdef CONFIG_NXPLAYER_MEDIA_SEARCH
           /* File not found in the media dir.  Do a search */
 
-          if (nxplayer_mediasearch(pplayer, pFilename, path,
+          if (nxplayer_mediasearch(pplayer, pfilename, path,
                                    sizeof(path)) != OK)
             {
               auderr("ERROR: Could not find file\n");
               return -ENOENT;
             }
 #else
-          auderr("ERROR: Could not open %s or %s\n", pFilename, path);
+          auderr("ERROR: Could not open %s or %s\n", pfilename, path);
           return -ENOENT;
 #endif /* CONFIG_NXPLAYER_MEDIA_SEARCH */
         }
 
 #else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
 
-      auderr("ERROR: Could not open %s\n", pFilename);
+      auderr("ERROR: Could not open %s\n", pfilename);
       return -ENOENT;
 #endif /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
     }
@@ -1885,7 +1897,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
   if (filefmt == AUDIO_FMT_UNDEF)
     {
-      filefmt = nxplayer_fmtfromextension(pplayer, pFilename, &tmpsubfmt);
+      filefmt = nxplayer_fmtfromextension(pplayer, pfilename, &tmpsubfmt);
     }
 #endif
 
@@ -1930,10 +1942,10 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   /* Try to reserve the device */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  ret = ioctl(pplayer->devFd, AUDIOIOC_RESERVE,
+  ret = ioctl(pplayer->dev_fd, AUDIOIOC_RESERVE,
               (unsigned long)&pplayer->session);
 #else
-  ret = ioctl(pplayer->devFd, AUDIOIOC_RESERVE, 0);
+  ret = ioctl(pplayer->dev_fd, AUDIOIOC_RESERVE, 0);
 #endif
   if (ret < 0)
     {
@@ -1956,7 +1968,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       cap_desc.caps.ac_controls.b[3]  = samprate >> 16;
       cap_desc.caps.ac_controls.b[2]  = bpsamp;
 
-      ioctl(pplayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long)&cap_desc);
+      ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long)&cap_desc);
     }
 
   /* Create a message queue for the playthread */
@@ -1981,15 +1993,15 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
   /* Register our message queue with the audio device */
 
-  ioctl(pplayer->devFd, AUDIOIOC_REGISTERMQ, (unsigned long) pplayer->mq);
+  ioctl(pplayer->dev_fd, AUDIOIOC_REGISTERMQ, (unsigned long) pplayer->mq);
 
   /* Check if there was a previous thread and join it if there was
    * to perform clean-up.
    */
 
-  if (pplayer->playId != 0)
+  if (pplayer->play_id != 0)
     {
-      pthread_join(pplayer->playId, &value);
+      pthread_join(pplayer->play_id, &value);
     }
 
   /* Start the playfile thread to stream the media file to the
@@ -2008,7 +2020,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
    */
 
   nxplayer_reference(pplayer);
-  ret = pthread_create(&pplayer->playId, &tattr, nxplayer_playthread,
+  ret = pthread_create(&pplayer->play_id, &tattr, nxplayer_playthread,
                        (pthread_addr_t) pplayer);
   if (ret != OK)
     {
@@ -2018,12 +2030,12 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
   /* Name the thread */
 
-  pthread_setname_np(pplayer->playId, "playthread");
+  pthread_setname_np(pplayer->play_id, "playthread");
   return OK;
 
 err_out:
-  close(pplayer->devFd);
-  pplayer->devFd = -1;
+  close(pplayer->dev_fd);
+  pplayer->dev_fd = -1;
 
 err_out_nodev:
   if (0 < pplayer->fd)
@@ -2045,7 +2057,7 @@ err_out_nodev:
  *
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
- *   pFilename  Pointer to the filename to play
+ *   pfilename  Pointer to the filename to play
  *   filefmt    Format of the file or AUD_FMT_UNDEF if unknown / to be
  *              determined by nxplayer_playfile()
  *
@@ -2059,9 +2071,9 @@ err_out_nodev:
  ****************************************************************************/
 
 int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
-                      FAR const char *pFilename, int filefmt, int subfmt)
+                      FAR const char *pfilename, int filefmt, int subfmt)
 {
-  return nxplayer_playinternal(pplayer, pFilename, filefmt, subfmt, 0, 0, 0);
+  return nxplayer_playinternal(pplayer, pfilename, filefmt, subfmt, 0, 0, 0);
 }
 
 /****************************************************************************
@@ -2074,7 +2086,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  *
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
- *   pFilename  Pointer to the filename to play
+ *   pfilename  Pointer to the filename to play
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
@@ -2089,7 +2101,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  ****************************************************************************/
 
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
-                     FAR const char *pFilename, uint8_t nchannels,
+                     FAR const char *pfilename, uint8_t nchannels,
                      uint8_t bpsamp, uint32_t samprate)
 {
   if (nchannels == 0)
@@ -2107,7 +2119,7 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
       samprate = 48000;
     }
 
-  return nxplayer_playinternal(pplayer, pFilename, AUDIO_FMT_PCM, 0,
+  return nxplayer_playinternal(pplayer, pfilename, AUDIO_FMT_PCM, 0,
                                nchannels, bpsamp, samprate);
 }
 
@@ -2155,7 +2167,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
   /* Initialize the context data */
 
   pplayer->state = NXPLAYER_STATE_IDLE;
-  pplayer->devFd = -1;
+  pplayer->dev_fd = -1;
   pplayer->fd = -1;
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
   pplayer->prefdevice[0] = '\0';
@@ -2163,7 +2175,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
   pplayer->preftype = 0;
 #endif
   pplayer->mq = NULL;
-  pplayer->playId = 0;
+  pplayer->play_id = 0;
   pplayer->crefs = 1;
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
@@ -2225,11 +2237,11 @@ void nxplayer_release(FAR struct nxplayer_s *pplayer)
 
   /* Check if there was a previous thread and join it if there was */
 
-  if (pplayer->playId != 0)
+  if (pplayer->play_id != 0)
     {
       sem_post(&pplayer->sem);
-      pthread_join(pplayer->playId, &value);
-      pplayer->playId = 0;
+      pthread_join(pplayer->play_id, &value);
+      pplayer->play_id = 0;
 
       while (sem_wait(&pplayer->sem) < 0)
         {
@@ -2322,12 +2334,12 @@ void nxplayer_detach(FAR struct nxplayer_s *pplayer)
         }
     }
 
-  if (pplayer->playId != NULL)
+  if (pplayer->play_id != NULL)
     {
       /* Do a pthread detach */
 
-      pthread_detach(pplayer->playId);
-      pplayer->playId = NULL;
+      pthread_detach(pplayer->play_id);
+      pplayer->play_id = NULL;
     }
 
   sem_post(&pplayer->sem);
@@ -2345,7 +2357,7 @@ void nxplayer_detach(FAR struct nxplayer_s *pplayer)
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
 {
-  struct dirent *pDevice;
+  struct dirent *pdevice;
   DIR           *dirp;
   char           path[64];
 
@@ -2365,7 +2377,7 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
       return -ENODEV;
     }
 
-  while ((pDevice = readdir(dirp)) != NULL)
+  while ((pdevice = readdir(dirp)) != NULL)
     {
       /* We found the next device.  Try to open it and
        * get its audio capabilities.
@@ -2373,29 +2385,29 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
 
 #ifdef CONFIG_AUDIO_CUSTOM_DEV_PATH
 #ifdef CONFIG_AUDIO_DEV_ROOT
-      snprintf(path, sizeof(path), "/dev/%s", pDevice->d_name);
+      snprintf(path, sizeof(path), "/dev/%s", pdevice->d_name);
 #else
       snprintf(path, sizeof(path), CONFIG_AUDIO_DEV_PATH "/%s",
-               pDevice->d_name);
+               pdevice->d_name);
 #endif
 #else
-      snprintf(path,  sizeof(path), "/dev/audio/%s", pDevice->d_name);
+      snprintf(path,  sizeof(path), "/dev/audio/%s", pdevice->d_name);
 #endif
-      if ((pplayer->devFd = open(path, O_RDWR)) != -1)
+      if ((pplayer->dev_fd = open(path, O_RDWR)) != -1)
         {
           /* We have the device file open.  Now issue an
            * AUDIO ioctls to perform a HW reset
            */
 
-          ioctl(pplayer->devFd, AUDIOIOC_HWRESET, 0);
+          ioctl(pplayer->dev_fd, AUDIOIOC_HWRESET, 0);
 
           /* Now close the device */
 
-          close(pplayer->devFd);
+          close(pplayer->dev_fd);
         }
     }
 
-  pplayer->devFd = -1;
+  pplayer->dev_fd = -1;
   return OK;
 }
 #endif /* CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET */
