@@ -590,7 +590,7 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
 #ifdef CONFIG_NX_KBD
 void CWidgetControl::newKeyboardEvent(uint8_t nCh, FAR const uint8_t *pStr)
 {
-  FAR uint8_t *pBuffer = &m_kbdbuf[m_nCh];
+  FAR uint8_t *buffer = &m_kbdbuf[m_nCh];
 
   // Append each new character to keyboard character buffer
 
@@ -598,7 +598,7 @@ void CWidgetControl::newKeyboardEvent(uint8_t nCh, FAR const uint8_t *pStr)
        i < nCh && m_nCh < CONFIG_NXWIDGETS_KBDBUFFER_SIZE;
        i++, m_nCh++)
     {
-      *pBuffer++ = *pStr++;
+      *buffer++ = *pStr++;
     }
 
   // Notify any external logic that a keyboard event has occurred
