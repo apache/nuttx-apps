@@ -102,12 +102,14 @@ static void i2schar_devpath(FAR struct i2schar_state_s *i2schar,
 static void i2schar_help(FAR struct i2schar_state_s *i2schar)
 {
   printf("Usage: i2schar [OPTIONS]\n");
-  printf("\nArguments are \"sticky\".  For example, once the I2C character device is\n");
+  printf("\nArguments are \"sticky\".\n");
+  printf("For example, once the I2C character device is\n");
   printf("specified, that device will be re-used until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the I2C character device path.  "
          "Default: %s Current: %s\n",
-         CONFIG_EXAMPLES_I2SCHAR_DEVPATH, g_i2schar.devpath ? g_i2schar.devpath : "NONE");
+         CONFIG_EXAMPLES_I2SCHAR_DEVPATH,
+         g_i2schar.devpath ? g_i2schar.devpath : "NONE");
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
   printf("  [-t count] selects the number of audio buffers to send.  "
          "Default: %d Current: %d\n",
@@ -159,7 +161,9 @@ static int arg_decimal(FAR char **arg, FAR long *value)
  * Name: parse_args
  ****************************************************************************/
 
-static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char **argv)
+static void parse_args(FAR struct i2schar_state_s *i2schar,
+                       int argc,
+                       FAR char **argv)
 {
   FAR char *ptr;
   FAR char *str;
@@ -291,7 +295,7 @@ int main(int argc, FAR char *argv[])
    * the priority of transmitter.  This is important if a loopback test is
    * being performed; it improves the changes that a receiving audio buffer
    * is in place for each transmission.
-    */
+   */
 
   pthread_attr_getschedparam(&attr, &param);
   param.sched_priority++;
@@ -308,11 +312,12 @@ int main(int argc, FAR char *argv[])
   if (ret != OK)
     {
       sched_unlock();
-      printf("i2schar_main: ERROR: failed to Start receiver thread: %d\n", ret);
+      printf("i2schar_main: ERROR: failed to Start receiver thread: %d\n",
+             ret);
       return EXIT_FAILURE;
     }
 
-   pthread_setname_np(receiver, "receiver");
+  pthread_setname_np(receiver, "receiver");
 #endif
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
@@ -331,7 +336,8 @@ int main(int argc, FAR char *argv[])
   if (ret != OK)
     {
       sched_unlock();
-      printf("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
+      printf("i2schar_main: ERROR: failed to Start transmitter thread: %d\n",
+             ret);
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
       printf("i2schar_main: Waiting for the receiver thread\n");
       pthread_join(receiver, &result);
@@ -339,26 +345,26 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-   pthread_setname_np(transmitter, "transmitter");
+  pthread_setname_np(transmitter, "transmitter");
 #endif
 
-   sched_unlock();
+  sched_unlock();
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-   printf("i2schar_main: Waiting for the transmitter thread\n");
-   ret = pthread_join(transmitter, &result);
-   if (ret != OK)
-     {
-       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
-     }
+  printf("i2schar_main: Waiting for the transmitter thread\n");
+  ret = pthread_join(transmitter, &result);
+  if (ret != OK)
+    {
+      printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
+    }
 #endif
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
-   printf("i2schar_main: Waiting for the receiver thread\n");
-   ret = pthread_join(receiver, &result);
-   if (ret != OK)
-     {
-       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
-     }
+  printf("i2schar_main: Waiting for the receiver thread\n");
+  ret = pthread_join(receiver, &result);
+  if (ret != OK)
+    {
+      printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
+    }
 #endif
 
   return EXIT_SUCCESS;

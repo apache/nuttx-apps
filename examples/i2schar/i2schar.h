@@ -46,7 +46,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* CONFIG_EXAMPLES_I2SCHAR_DEVPATH - The default path to the I2S character
  *   device. Default: /dev/i2schar0
  */
