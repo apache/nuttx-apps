@@ -99,14 +99,14 @@ static inline uint16_t ping_newid(void)
  * Name: ping_gethostip
  *
  * Description:
- *   Call gethostbyname() to get the IP address associated with a hostname.
+ *   Call getaddrinfo() to get the IP address associated with a hostname.
  *
  * Input Parameters
  *   hostname - The host name to use in the nslookup.
- *   ipv4addr - The location to return the IPv4 address.
+ *   destr    - The location to return the IPv4 address.
  *
  * Returned Value:
- *   Zero (OK) on success; a negated errno value on failure.
+ *   Zero (OK) on success; ERROR on failure.
  *
  ****************************************************************************/
 
@@ -136,7 +136,7 @@ static int ping_gethostip(FAR const char *hostname, FAR struct in_addr *dest)
 #else /* CONFIG_LIBC_NETDB */
   /* No host name support */
 
-  /* Convert strings to numeric IPv6 address */
+  /* Convert strings to numeric IPv4 address */
 
   int ret = inet_pton(AF_INET, hostname, dest);
 
