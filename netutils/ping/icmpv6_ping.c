@@ -98,14 +98,14 @@ static inline uint16_t ping6_newid(void)
  * Name: ping6_gethostip
  *
  * Description:
- *   Call gethostbyname() to get the IP address associated with a hostname.
+ *   Call getaddrinfo() to get the IP address associated with a hostname.
  *
  * Input Parameters
  *   hostname - The host name to use in the nslookup.
- *   ipv4addr - The location to return the IPv4 address.
+ *   dest     - The location to return the IPv6 address.
  *
  * Returned Value:
- *   Zero (OK) on success; a negated errno value on failure.
+ *   Zero (OK) on success; ERROR on failure.
  *
  ****************************************************************************/
 

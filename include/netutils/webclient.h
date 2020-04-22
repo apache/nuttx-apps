@@ -1,5 +1,5 @@
 /****************************************************************************
- *  apps/include/netutils/webclient.h
+ * apps/include/netutils/webclient.h
  * Header file for the HTTP client
  *
  *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
@@ -46,9 +46,7 @@
  * Included Files
  ****************************************************************************/
 
-#ifndef CONFIG_WEBCLIENT_HOST
-#  include <nuttx/config.h>
-#endif
+#include <nuttx/config.h>
 #include <sys/types.h>
 
 /****************************************************************************
@@ -93,6 +91,7 @@
  *       of valid bytes is datend - offset.
  *   buflen - A pointer to the length of the buffer.  If the callee wishes
  *       to change the size of the buffer, it may write to buflen.
+ *   arg    - User argument passed to callback.
  */
 
 typedef void (*wget_callback_t)(FAR char **buffer, int offset,
@@ -124,12 +123,6 @@ int web_posts_strlen(FAR char **name, FAR char **value, int len);
  *
  * Description:
  *   Obtain the requested file from an HTTP server using the GET method.
- *
- *   Note: If the function is passed a host name, it must already be in
- *   the resolver cache in order for the function to connect to the web
- *   server. It is therefore up to the calling module to implement the
- *   resolver calls and the signal handler used for reporting a resolve
- *   query answer.
  *
  * Input Parameters
  *   url      - A pointer to a string containing either the full URL to
