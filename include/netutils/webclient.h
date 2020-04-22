@@ -144,7 +144,6 @@ int web_posts_strlen(FAR char **name, FAR char **value, int len);
 int wget(FAR const char *url, FAR char *buffer, int buflen,
          wget_callback_t callback, FAR void *arg);
 
-
 int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
               int buflen, wget_callback_t callback, FAR void *arg);
 

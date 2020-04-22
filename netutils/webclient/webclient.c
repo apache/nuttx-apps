@@ -2,7 +2,8 @@
  * netutils/webclient/webclient.c
  * Implementation of the HTTP client.
  *
- *   Copyright (C) 2007, 2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011-2012, 2014, 2020 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
@@ -112,9 +113,9 @@
 #define HTTPSTATUS_MOVED           2
 #define HTTPSTATUS_ERROR           3
 
-#define ISO_nl                     0x0a
-#define ISO_cr                     0x0d
-#define ISO_space                  0x20
+#define ISO_NL                     0x0a
+#define ISO_CR                     0x0d
+#define ISO_SPACE                  0x20
 
 #define WGET_MODE_GET              0
 #define WGET_MODE_POST             1
@@ -171,16 +172,19 @@ static const char g_httpuseragentfields[] =
   CONFIG_NSH_WGET_USERAGENT
   "\r\n\r\n";
 
-static const char g_http200[]         = "200 ";
-static const char g_http301[]         = "301 ";
-static const char g_http302[]         = "302 ";
+static const char g_http200[]       = "200 ";
+static const char g_http301[]       = "301 ";
+static const char g_http302[]       = "302 ";
 
-static const char g_httpcrnl[]        = "\r\n";
+static const char g_httpcrnl[]      = "\r\n";
 
-static const char g_httpform[]        = "Content-Type: application/x-www-form-urlencoded";
-static const char g_httpcontsize[]    = "Content-Length: ";
-//static const char g_httpconn[]      = "Connection: Keep-Alive";
-//static const char g_httpcache[]     = "Cache-Control: no-cache";
+static const char g_httpform[]      = "Content-Type: "
+                                      "application/x-www-form-urlencoded";
+static const char g_httpcontsize[]  = "Content-Length: ";
+#if 0
+static const char g_httpconn[]      = "Connection: Keep-Alive";
+static const char g_httpcache[]     = "Cache-Control: no-cache";
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -231,7 +235,7 @@ static inline int wget_parsestatus(struct wget_s *ws)
   while (offset < ws->datend)
     {
       ws->line[ndx] = ws->buffer[offset];
-      if (ws->line[ndx] == ISO_nl)
+      if (ws->line[ndx] == ISO_NL)
         {
           ws->line[ndx] = '\0';
           if ((strncmp(ws->line, g_http10, strlen(g_http10)) == 0) ||
@@ -247,14 +251,13 @@ static inline int wget_parsestatus(struct wget_s *ws)
                   ws->httpstatus = HTTPSTATUS_OK;
                 }
 
-              /* Check for 301 Moved permanently or 302 Found. Location: header line
-               * will contain the new location.
+              /* Check for 301 Moved permanently or 302 Found.
+               * Location: header line will contain the new location.
                */
 
               else if (strncmp(dest, g_http301, strlen(g_http301)) == 0 ||
                        strncmp(dest, g_http302, strlen(g_http302)) == 0)
                 {
-
                   ws->httpstatus = HTTPSTATUS_MOVED;
                 }
             }
@@ -263,7 +266,9 @@ static inline int wget_parsestatus(struct wget_s *ws)
               return - ECONNABORTED;
             }
 
-          /* We're done parsing the status line, so start parsing the HTTP headers. */
+          /* We're done parsing the status line, so start parsing
+           * the HTTP headers.
+           */
 
           ws->state = WEBCLIENT_STATE_HEADERS;
           break;
@@ -295,7 +300,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
   while (offset < ws->datend)
     {
       ws->line[ndx] = ws->buffer[offset];
-      if (ws->line[ndx] == ISO_nl)
+      if (ws->line[ndx] == ISO_NL)
         {
           /* We have an entire HTTP header line in s.line, so
            * we parse it.
@@ -303,25 +308,26 @@ static inline int wget_parseheaders(struct wget_s *ws)
 
           if (ndx > 0) /* Should always be true */
             {
-              if (ws->line[0] == ISO_cr)
+              if (ws->line[0] == ISO_CR)
                 {
-                  /* This was the last header line (i.e., and empty "\r\n"), so
-                   * we are done with the headers and proceed with the actual
-                   * data.
+                  /* This was the last header line (i.e., and empty "\r\n"),
+                   * so we are done with the headers and proceed with the
+                   * actual data.
                    */
 
                   ws->state = WEBCLIENT_STATE_DATA;
                   goto exit;
-               }
+                }
 
               /* Truncate the trailing \r\n */
 
-              ws->line[ndx-1] = '\0';
+              ws->line[ndx - 1] = '\0';
 
               /* Check for specific HTTP header fields. */
 
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
-              if (strncasecmp(ws->line, g_httpcontenttype, strlen(g_httpcontenttype)) == 0)
+              if (strncasecmp(ws->line, g_httpcontenttype,
+                              strlen(g_httpcontenttype)) == 0)
                 {
                   /* Found Content-type field. */
 
@@ -331,21 +337,27 @@ static inline int wget_parseheaders(struct wget_s *ws)
                       *dest = 0;
                     }
 
-                  strncpy(ws->mimetype, ws->line + strlen(g_httpcontenttype), sizeof(ws->mimetype));
+                  strncpy(ws->mimetype, ws->line + strlen(g_httpcontenttype),
+                          sizeof(ws->mimetype));
                 }
               else
 #endif
-              if (strncasecmp(ws->line, g_httplocation, strlen(g_httplocation)) == 0)
+              if (strncasecmp(ws->line, g_httplocation,
+                              strlen(g_httplocation)) == 0)
                 {
-                  /* Parse the new HTTP host and filename from the URL.  Note that
-                   * the return value is ignored.  In the event of failure, we
-                   * retain the current location.
+                  /* Parse the new HTTP host and filename from the URL.
+                   * Note that the return value is ignored. In the event
+                   * of failure, we retain the current location.
                    */
 
-                  netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
-                                      ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
-                                      ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
-                  ninfo("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
+                  netlib_parsehttpurl(ws->line + strlen(g_httplocation),
+                                      &ws->port,
+                                      ws->hostname,
+                                      CONFIG_WEBCLIENT_MAXHOSTNAME,
+                                      ws->filename,
+                                      CONFIG_WEBCLIENT_MAXFILENAME);
+                  ninfo("New hostname='%s' filename='%s'\n",
+                        ws->hostname, ws->filename);
                 }
             }
 
@@ -472,7 +484,9 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   ws->buflen = buflen;
   ws->port   = 80;
 
-  /* Parse the hostname (with optional port number) and filename from the URL */
+  /* Parse the hostname (with optional port number) and filename
+   * from the URL.
+   */
 
   ret = netlib_parsehttpurl(url, &ws->port,
                             ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
@@ -542,7 +556,8 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
        * local port that is not in use.
        */
 
-      ret = connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
+      ret = connect(sockfd, (struct sockaddr *)&server,
+                    sizeof(struct sockaddr_in));
       if (ret < 0)
         {
           nerr("ERROR: connect failed: %d\n", errno);
@@ -564,11 +579,12 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 #ifndef WGET_USE_URLENCODE
       dest = wget_strcpy(dest, ws->filename);
 #else
-    //dest = wget_urlencode_strcpy(dest, ws->filename);
+      /* TODO: should we use wget_urlencode_strcpy? */
+
       dest = wget_strcpy(dest, ws->filename);
 #endif
 
-      *dest++ = ISO_space;
+      *dest++ = ISO_SPACE;
       dest = wget_strcpy(dest, g_http10);
       dest = wget_strcpy(dest, g_httpcrnl);
       dest = wget_strcpy(dest, g_httphost);
@@ -614,7 +630,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
       ws->state  = WEBCLIENT_STATE_STATUSLINE;
       redirected = false;
-      for (;;)
+      for (; ; )
         {
           ws->datend = recv(sockfd, ws->buffer, ws->buflen, 0);
           if (ws->datend < 0)
@@ -659,9 +675,12 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
             {
               if (ws->httpstatus != HTTPSTATUS_MOVED)
                 {
-                  /* Let the client decide what to do with the received file */
+                  /* Let the client decide what to do with the
+                   * received file.
+                   */
 
-                  callback(&ws->buffer, ws->offset, ws->datend, &buflen, arg);
+                  callback(&ws->buffer, ws->offset, ws->datend,
+                           &buflen, arg);
                 }
               else
                 {
@@ -733,7 +752,7 @@ char *web_posts_str(FAR char *buffer, int *size, FAR char **name,
     {
       if (i > 0)
         {
-          buffer = wget_strcpy(buffer,"&");
+          buffer = wget_strcpy(buffer, "&");
         }
 
       wlen    = *size;
@@ -801,5 +820,6 @@ int wget(FAR const char *url, FAR char *buffer, int buflen,
 int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
               int buflen, wget_callback_t callback, FAR void *arg)
 {
-  return wget_base(url, buffer, buflen, callback, arg, posts, WGET_MODE_POST);
+  return wget_base(url, buffer, buflen, callback, arg, posts,
+                   WGET_MODE_POST);
 }
