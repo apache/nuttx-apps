@@ -23,7 +23,7 @@ part of the configuration that you may choose to use or not.
 Directory Location
 ------------------
 The default application directory used by the NuttX build should be named
-apps/ (or apps-x.y/ where x.y is the NuttX version number).  This apps/
+apps/ (or apps-x.y.z/ where x.y.z is the NuttX version number).  This apps/
 directory should appear in the directory tree at the same level as the
 NuttX directory.  Like:
 
@@ -155,8 +155,8 @@ A: Here are three:
    1) There is a make target called 'make export'. It will build
       NuttX, then bundle all of the header files, libraries, startup
       objects, and other build components into a .zip file. You
-      can can move that .zip file into any build environment you
-      want. You even build NuttX under a DOS CMD window.
+      can move that .zip file into any build environment you
+      want. You can even build NuttX under a DOS CMD window.
 
       This make target is documented in the top level nuttx/README.txt.
 
