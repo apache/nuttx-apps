@@ -504,7 +504,7 @@ config NXWM_TOUCHSCREEN_LISTENERPRIO
 
 config NXWM_TOUCHSCREEN_LISTENERSTACK
 	int "Touchscreen Listener Task Stack Size"
-	default 1024
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Touchscreen listener thread stack size.  Default 1024
 

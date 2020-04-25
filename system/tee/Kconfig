@@ -13,7 +13,7 @@ if SYSTEM_TEE
 
 config SYSTEM_TEE_STACKSIZE
 	int "tee stack size"
-	default 1536
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the tee task.
 

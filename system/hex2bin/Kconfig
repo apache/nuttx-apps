@@ -24,7 +24,7 @@ if SYSTEM_HEX2BIN_BUILTIN
 
 config SYSTEM_HEX2BIN_STACKSIZE
 	int "hex2bin stack size"
-	default 1536
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the hex2bin task.
 
@@ -75,7 +75,7 @@ if SYSTEM_HEX2MEM_BUILTIN
 
 config SYSTEM_HEX2MEM_STACKSIZE
 	int "hex2mem stack size"
-	default 1536
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		The size of stack allocated for the hex2bin task.
 

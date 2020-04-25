@@ -21,7 +21,7 @@ config NXPLAYER_MAINTHREAD_STACKSIZE
 
 config NXPLAYER_PLAYTHREAD_STACKSIZE
 	int "NxPlayer thread stack size"
-	default 1500
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Stack size to use with the NxPlayer play thread.
 

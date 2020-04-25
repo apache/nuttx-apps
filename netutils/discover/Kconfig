@@ -15,7 +15,7 @@ if NETUTILS_DISCOVER
 
 config DISCOVER_STACK_SIZE
 	int "Discover Daemon Stack Size"
-	default 1024
+	default DEFAULT_TASK_STACKSIZE
 
 config DISCOVER_PRIORITY
 	int "Discover Daemon Priority"

@@ -15,7 +15,7 @@ if SYSTEM_NXRECORDER
 
 config NXRECORDER_RECORDTHREAD_STACKSIZE
 	int "NxRecorder thread stack size"
-	default 1500
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Stack size to use with the NxRecorder record thread.
 
