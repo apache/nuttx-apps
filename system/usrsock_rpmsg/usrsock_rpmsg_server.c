@@ -70,9 +70,10 @@ struct usrsock_rpmsg_s
 static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
                                   uint8_t xid, int32_t result);
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
-                                       struct usrsock_message_datareq_ack_s *ack,
-                                       uint8_t xid, int32_t result,
-                                       uint16_t valuelen, uint16_t valuelen_nontrunc);
+                                  struct usrsock_message_datareq_ack_s *ack,
+                                  uint8_t xid, int32_t result,
+                                  uint16_t valuelen,
+                                  uint16_t valuelen_nontrunc);
 static int usrsock_rpmsg_send_event(struct rpmsg_endpoint *ept,
                                     int16_t usockid, uint16_t events);
 
@@ -167,10 +168,10 @@ static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
-                                       struct usrsock_message_datareq_ack_s *ack,
-                                       uint8_t xid, int32_t result,
-                                       uint16_t valuelen,
-                                       uint16_t valuelen_nontrunc)
+                                  struct usrsock_message_datareq_ack_s *ack,
+                                  uint8_t xid, int32_t result,
+                                  uint16_t valuelen,
+                                  uint16_t valuelen_nontrunc)
 {
   ack->reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
   ack->reqack.head.flags = 0;
@@ -372,7 +373,7 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_recvfrom_handler(struct rpmsg_endpoint *ept,
-                                          void *data, size_t len,
+                                          void *data, size_t len_,
                                           uint32_t src, void *priv_)
 {
   struct usrsock_request_recvfrom_s *req = data;
@@ -382,6 +383,7 @@ static int usrsock_rpmsg_recvfrom_handler(struct rpmsg_endpoint *ept,
   socklen_t inaddrlen = req->max_addrlen;
   size_t buflen = req->max_buflen;
   ssize_t ret = -EBADF;
+  uint32_t len;
   int retr;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
@@ -434,7 +436,7 @@ static int usrsock_rpmsg_setsockopt_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_getsockopt_handler(struct rpmsg_endpoint *ept,
-                                            void *data, size_t len,
+                                            void *data, size_t len_,
                                             uint32_t src, void *priv_)
 {
   struct usrsock_request_getsockopt_s *req = data;
@@ -442,6 +444,7 @@ static int usrsock_rpmsg_getsockopt_handler(struct rpmsg_endpoint *ept,
   struct usrsock_rpmsg_s *priv = priv_;
   socklen_t optlen = req->max_valuelen;
   int ret = -EBADF;
+  uint32_t len;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
@@ -455,7 +458,7 @@ static int usrsock_rpmsg_getsockopt_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_getsockname_handler(struct rpmsg_endpoint *ept,
-                                             void *data, size_t len,
+                                             void *data, size_t len_,
                                              uint32_t src, void *priv_)
 {
   struct usrsock_request_getsockname_s *req = data;
@@ -464,6 +467,7 @@ static int usrsock_rpmsg_getsockname_handler(struct rpmsg_endpoint *ept,
   socklen_t outaddrlen = req->max_addrlen;
   socklen_t inaddrlen = req->max_addrlen;
   int ret = -EBADF;
+  uint32_t len;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
@@ -477,7 +481,7 @@ static int usrsock_rpmsg_getsockname_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_getpeername_handler(struct rpmsg_endpoint *ept,
-                                             void *data, size_t len,
+                                             void *data, size_t len_,
                                              uint32_t src, void *priv_)
 {
   struct usrsock_request_getpeername_s *req = data;
@@ -486,6 +490,7 @@ static int usrsock_rpmsg_getpeername_handler(struct rpmsg_endpoint *ept,
   socklen_t outaddrlen = req->max_addrlen;
   socklen_t inaddrlen = req->max_addrlen;
   int ret = -EBADF;
+  uint32_t len;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
@@ -543,7 +548,7 @@ static int usrsock_rpmsg_listen_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
-                                        void *data, size_t len,
+                                        void *data, size_t len_,
                                         uint32_t src, void *priv_)
 {
   struct usrsock_request_accept_s *req = data;
@@ -551,9 +556,10 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
   struct usrsock_rpmsg_s *priv = priv_;
   socklen_t outaddrlen = req->max_addrlen;
   socklen_t inaddrlen = req->max_addrlen;
+  int ret = -EBADF;
+  uint32_t len;
   int i = 0;
   int retr;
-  int ret = -EBADF;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
@@ -618,13 +624,14 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
 }
 
 static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
-                                       void *data, size_t len,
+                                       void *data, size_t len_,
                                        uint32_t src, void *priv_)
 {
   struct usrsock_request_ioctl_s *req = data;
   struct usrsock_message_datareq_ack_s *ack;
   struct usrsock_rpmsg_s *priv = priv_;
   int ret = -EBADF;
+  uint32_t len;
 
   ack = rpmsg_get_tx_payload_buffer(ept, &len, true);
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
