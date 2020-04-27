@@ -673,22 +673,24 @@ static void cle_closetext(FAR struct cle_s *priv, uint16_t pos,
 
   priv->nchars -= size;
 
-  /* Check if the cursor position is beyond the deleted region */
-
-  if (priv->curpos > pos + size)
+  if (priv->curpos > pos)
     {
-      /* Yes... just subtract the size of the deleted region */
+      /* Check if the cursor position is beyond the deleted region */
 
-      priv->curpos -= size;
-    }
+      if (priv->curpos - pos > size)
+        {
+          /* Yes... just subtract the size of the deleted region */
 
-  /* What if the position is within the deleted region?  Set it to the
-   * beginning of the deleted region.
-   */
+          priv->curpos -= size;
+        }
+      else
+        {
+          /* What if the position is within the deleted region?  Set it to
+           * the beginning of the deleted region.
+           */
 
-  else if (priv->curpos > pos)
-    {
-      priv->curpos = pos;
+        priv->curpos = pos;
+        }
     }
 }
 
@@ -1118,7 +1120,7 @@ static int cle_editloop(FAR struct cle_s *priv)
         case '\n': /* LF terminates line */
 #endif
           {
-            /* Add the newline character to the buffer at the end of the line */
+            /* Add the newline to the buffer at the end of the line */
 
             priv->curpos = priv->nchars;
             cle_insertch(priv, '\n');
