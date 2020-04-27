@@ -71,8 +71,9 @@ struct usrsock_rpmsg_s
 
 static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept, void *data,
                                      size_t len, uint32_t src, void *priv);
-static int usrsock_rpmsg_default_handler(struct rpmsg_endpoint *ept, void *data,
-                                         size_t len, uint32_t src, void *priv_);
+static int usrsock_rpmsg_default_handler(struct rpmsg_endpoint *ept,
+                                         void *data, size_t len,
+                                         uint32_t src, void *priv_);
 
 static void usrsock_rpmsg_device_created(struct rpmsg_device *rdev,
                                          void *priv_);
@@ -130,8 +131,9 @@ static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept, void *data,
   return ret;
 }
 
-static int usrsock_rpmsg_default_handler(struct rpmsg_endpoint *ept, void *data,
-                                         size_t len, uint32_t src, void *priv_)
+static int usrsock_rpmsg_default_handler(struct rpmsg_endpoint *ept,
+                                         void *data, size_t len,
+                                         uint32_t src, void *priv_)
 {
   struct usrsock_rpmsg_s *priv = priv_;
 
@@ -237,7 +239,7 @@ int main(int argc, char *argv[])
         {
           struct pollfd pfd;
           void  *buf;
-          size_t len;
+          uint32_t len;
 
           /* Wait the packet ready */
 
@@ -284,7 +286,6 @@ int main(int argc, char *argv[])
         }
 
       /* The remote side crash, loop to wait it restore */
-
     }
 
 destroy_ept:
