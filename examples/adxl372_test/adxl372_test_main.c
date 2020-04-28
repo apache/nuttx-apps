@@ -48,7 +48,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <nuttx/spi/spi.h>
-#undef __KERNEL__
 #include <arch/board/board.h>
 #include <nuttx/fs/fs.h>
 #include <nuttx/sensors/adxl372.h>
@@ -136,14 +135,14 @@ static char subtest_prompt(FAR char *prompt)
  * Public Functions
  ****************************************************************************/
 
-/******************************************************************************
+/****************************************************************************
  * Name: adxl372_test
  *
  * Description:
  *   This function is public so that it can be called by board diagnostic
  *   programs that contain the ADXL372.
  *
- ******************************************************************************/
+ ****************************************************************************/
 
 static int adxl372_test(int is_interactive, FAR char *path)
 {
@@ -156,10 +155,12 @@ static int adxl372_test(int is_interactive, FAR char *path)
   {
     int16_t d[3];
   };
+
   unsigned char tstchars[] =
   {
     0x5e, 0xc5, 0x00
   };
+
   char bfr[32] __attribute__((aligned(2)));  /* REVISIT: GCC dependent attribute */
   FAR struct XYZ *pxyz = (FAR struct XYZ *) bfr;
   int rc = PASSED;
@@ -175,7 +176,8 @@ static int adxl372_test(int is_interactive, FAR char *path)
     }
   else if (errno == EROFS)
     {
-      printf(CRED "ERROR: Accelerometer mounted as Read Only." CRESET "\n", path, errno);
+      printf(CRED "ERROR: Accelerometer mounted as Read Only." CRESET "\n",
+             path, errno);
       rc = RC_OPENRONLY;
     }
 
@@ -190,19 +192,19 @@ static int adxl372_test(int is_interactive, FAR char *path)
       if (ret < 0)
         {
           errcode = errno;
-          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d" CRESET "\n",
-                 ADXL372_DEVID_AD, path, errcode);
+          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d"
+                 CRESET "\n", ADXL372_DEVID_AD, path, errcode);
           rc = RC_SEEKFAIL;
           goto error_exit;
         }
 
-      memset(bfr, 0xAA, sizeof(bfr));
+      memset(bfr, 0xaa, sizeof(bfr));
       ret = read(fd, bfr, 4);   /* read the sensor id regs */
       if (ret < 0)
         {
           errcode = errno;
-          printf(CRED "ERROR: Failed to read sensor ID from %s: %d" CRESET "\n",
-                 path, errcode);
+          printf(CRED "ERROR: Failed to read sensor ID from %s: %d"
+                 CRESET "\n", path, errcode);
           rc = RC_READFAIL;
           goto error_exit;
         }
@@ -211,7 +213,8 @@ static int adxl372_test(int is_interactive, FAR char *path)
           bfr[1] != ADXL372_DEVID_MST_VALUE &&
           bfr[2] != ADXL372_PARTID_VALUE)
         {
-          printf(CRED "ERROR: Sensor ID is 0x%02X%02X%02X%02X, expected 0x%02X%02X%02Xxx." CRESET "\n",
+          printf(CRED "ERROR: Sensor ID is 0x%02X%02X%02X%02X, "
+                "expected 0x%02X%02X%02Xxx." CRESET "\n",
                  bfr[0], bfr[1], bfr[2], bfr[3],
                  ADXL372_DEVID_AD_VALUE, ADXL372_DEVID_MST_VALUE,
                  ADXL372_PARTID_VALUE);
@@ -254,8 +257,8 @@ static int adxl372_test(int is_interactive, FAR char *path)
       if (ret < 0)
         {
           errcode = errno;
-          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d" CRESET "\n",
-                 ADXL372_SCRATCH, path, errcode);
+          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d"
+                 CRESET "\n", ADXL372_SCRATCH, path, errcode);
           rc = RC_SEEK2FAIL;
           goto error_exit;
         }
@@ -263,33 +266,33 @@ static int adxl372_test(int is_interactive, FAR char *path)
       rc_step = PASSED;
       for (i = 0; i < sizeof(tstchars); i++)
         {
-          memset(bfr, 0xAA, sizeof(bfr));
+          memset(bfr, 0xaa, sizeof(bfr));
           bfr[0] = (char)tstchars[i];
           ret = write(fd, bfr, 1);  /* write the scratch register */
           if (ret < 0 && rc != RC_OPENRONLY)
             {
               errcode = errno;
-              printf(CRED "ERROR: Write operation failed to %s: %d" CRESET "\n",
-                     path, errcode);
+              printf(CRED "ERROR: Write operation failed to %s: %d"
+                     CRESET "\n", path, errcode);
               rc = RC_WRITEFAIL;
               goto error_exit;
             }
 
-          memset(bfr, 0xAA, sizeof(bfr));
+          memset(bfr, 0xaa, sizeof(bfr));
           ret = read(fd, bfr, 1);   /* read the scratch register */
           if (ret < 0)
             {
               errcode = errno;
-              printf(CRED "ERROR: Read operation failed from %s: %d" CRESET "\n",
-                     path, errcode);
+              printf(CRED "ERROR: Read operation failed from %s: %d"
+                     CRESET "\n", path, errcode);
               rc = RC_READ2FAIL;
               goto error_exit;
             }
 
           if (bfr[0] != (char)tstchars[i])
             {
-              printf(CRED "ERROR: Wrote 0x%02X, read back 0x%02X." CRESET "\n",
-                     tstchars[i], bfr[0]);
+              printf(CRED "ERROR: Wrote 0x%02X, read back 0x%02X."
+                     CRESET "\n", tstchars[i], bfr[0]);
               rc_step = RC_WRMFAIL;
               if (rc == 0)
                 {
@@ -330,13 +333,13 @@ static int adxl372_test(int is_interactive, FAR char *path)
       if (ret < 0)
         {
           errcode = errno;
-          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d" CRESET "\n",
-                 ADXL372_XDATA_H, path, errcode);
+          printf(CRED "ERROR: Failed to seek to reg 0x%02X in  %s: %d"
+                 CRESET "\n", ADXL372_XDATA_H, path, errcode);
           rc = RC_SEEK3FAIL;
           goto error_exit;
         }
 
-      memset(bfr, 0xAA, sizeof(bfr));
+      memset(bfr, 0xaa, sizeof(bfr));
       ret = read(fd, bfr, 6);   /* read live accelerometer data */
       if (ret < 0)
         {
@@ -372,7 +375,9 @@ quick_exit:
   close(fd);
   if (rc == PASSED)
     {
-      printf(CGREEN "ADXL372 accelerometer diagnostic completed successfully." CRESET "\n");
+      printf(CGREEN
+            "ADXL372 accelerometer diagnostic completed successfully."
+             CRESET "\n");
     }
 
   return rc;
@@ -404,23 +409,23 @@ int main(int argc, FAR char *argv[])
     adxl372_test,   /* ADXL372 accelerometer tests */
   };
 
-  FAR char *test_path[sizeof(test_ptr_array) / sizeof(test_ptr_array[0])];
+  FAR char *test_path[ARRAYSIZE(test_ptr_array)];
 
   if (argc < 1 || *argv[1] == 0 || *(argv[1] + 1) == 0)
     {
       goto print_help;
     }
 
-  /* We have at least 1 parameters, and the first parameter has at least two characters. */
+  /* We have at least 1 parameter which has at least two characters. */
 
   if (*argv[1] == '-')
     {
       flag_present = 1;
-      if (*(argv[1]+1) == 'b')
+      if (*(argv[1] + 1) == 'b')
         {
           is_interactive = 0;
         }
-      else if (*(argv[1]+1) == 'i')
+      else if (*(argv[1] + 1) == 'i')
         {
           is_interactive = 1;
         }
@@ -500,7 +505,7 @@ int main(int argc, FAR char *argv[])
                   printf("Set to batch mode.\n");
                 }
             }
-          else if (ui >= (sizeof(test_ptr_array) / sizeof(test_ptr_array[0])))
+          else if (ui >= ARRAYSIZE(test_ptr_array))
             {
               printf("Huh?\n");
             }
@@ -521,7 +526,7 @@ int main(int argc, FAR char *argv[])
     {
       printf("ADXL372 sensor diagnostic started in batch mode...\n");
 
-      for (ui = 0; ui < (sizeof(test_ptr_array) / sizeof(test_ptr_array[0])); ui++)
+      for (ui = 0; ui < ARRAYSIZE(test_ptr_array); ui++)
         {
           step_rc = 0;
           if (test_ptr_array[ui] != 0)
@@ -548,7 +553,7 @@ print_help:
   printf("adxl372_test [-b | -i] <dev_path>\n");
   printf("    -b = batch mode execution\n");
   printf("    -i = interactive mode execution (default)\n");
-  printf("    <dev_path> = Device path and name for the ADXL372 accelerometer\n");
+  printf("    <dev_path> = Device path for the ADXL372 accelerometer\n");
   printf(" Example:\n");
   printf("   adxl372_test -b /dev/adxl372_0\n");
   return RC_INVALPARM;
