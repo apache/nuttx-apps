@@ -72,7 +72,7 @@ context:: romfs_atestdir.h romfs_btestdir.h
 distclean::
 	$(call DELFILE, atestdir.img)
 	$(call DELFILE, btestdir.img)
-	$(call DELFILE, atestdir.h)
-	$(call DELFILE, btestdir.h)
+	$(call DELFILE, romfs_atestdir.h)
+	$(call DELFILE, romfs_btestdir.h)
 
 include $(APPDIR)/Application.mk
