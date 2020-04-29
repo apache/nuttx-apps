@@ -116,12 +116,12 @@ static int nsh_telnetmain(int argc, char *argv[])
   /* Output the platform message of the day */
 
   platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
-  fprintf(pstate->cn_outstream, "%s/n", vtbl->iobuffer);
+  fprintf(pstate->cn_outstream, "%s\n", vtbl->iobuffer);
 
 # else
   /* Output the fixed message of the day */
 
-  fprintf(pstate->cn_outstream, "%s/n", g_nshmotd);
+  fprintf(pstate->cn_outstream, "%s\n", g_nshmotd);
 # endif
 #endif
 
