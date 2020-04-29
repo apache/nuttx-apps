@@ -6,7 +6,7 @@
 menuconfig SYSTEM_USBMSC
 	tristate "USB Mass Storage Device Commands"
 	default n
-	depends on LIB_BOARDCTL && USBMSC && !BUILD_PROTECTED && !BUILD_KERNEL
+	depends on LIB_BOARDCTL && USBMSC && BUILD_FLAT
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB mass storage class controls.  These controls include:
