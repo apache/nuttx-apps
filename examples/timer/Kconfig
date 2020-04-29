@@ -6,7 +6,7 @@
 config EXAMPLES_TIMER
 	tristate "Timer example"
 	default n
-	depends on TIMER && BUILD_FLAT
+	depends on TIMER
 	---help---
 		Enable the timer example
 
