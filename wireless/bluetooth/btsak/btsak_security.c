@@ -132,7 +132,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   if (argc < 2)
     {
-      fprintf(stderr, "ERROR: Missing required arguments/n");
+      fprintf(stderr, "ERROR: Missing required arguments\n");
       btsak_security_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -145,7 +145,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   if (argc < 4)
     {
-      fprintf(stderr, "ERROR:  Missing required arguments/n");
+      fprintf(stderr, "ERROR:  Missing required arguments\n");
       btsak_security_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -157,7 +157,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
   ret = btsak_str2addr(argv[1], btreq.btr_secaddr.val);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR:  Invalid address string: %s/n", argv[1]);
+      fprintf(stderr, "ERROR:  Invalid address string: %s\n", argv[1]);
       btsak_security_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
@@ -166,7 +166,7 @@ void btsak_cmd_security(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
   ret = btsak_str2addrtype(argv[2], &btreq.btr_secaddr.type);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR:  Invalid address type: %s/n", argv[2]);
+      fprintf(stderr, "ERROR:  Invalid address type: %s\n", argv[2]);
       btsak_security_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
