@@ -29,7 +29,7 @@ if READLINE_ECHO
 config READLINE_TABCOMPLETION
 	bool "Tab completion"
 	default n
-	depends on (BUILD_FLAT && BUILTIN) || READLINE_HAVE_EXTMATCH
+	depends on BUILTIN || READLINE_HAVE_EXTMATCH
 	---help---
 		Build in support for Unix-style tab completion.  This feature was
 		originally provided by Nghia Ho.
