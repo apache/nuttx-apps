@@ -6,7 +6,7 @@
 config EXAMPLES_FLASH_TEST
 	tristate "SMART FLASH block device test"
 	default n
-	depends on (!BUILD_PROTECTED && !BUILD_KERNEL) && MTD_SMART
+	depends on BUILD_FLAT && MTD_SMART
 	---help---
 		This logic performs a SMART flash block device test.  This test
 		performs a sector allocate, read, write, free and garbage collection
