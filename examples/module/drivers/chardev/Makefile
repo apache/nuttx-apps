@@ -44,7 +44,6 @@ else
 NUTTXLIB = "$(TOPDIR)$(DELIM)staging"
 endif
 
-KDEFINE = ${shell $(DEFINE) "$(CC)" __KERNEL__}
 CMODULEFLAGS += $(KDEFINE)
 
 LDLIBPATH =

@@ -55,11 +55,7 @@ endif
 endif
 
 ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
-ifeq ($(CONFIG_BUILD_PROTECTED),y)
-LDLIBS += -luc
-else
 LDLIBS += -lc
-endif
 endif
 
 ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
