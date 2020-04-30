@@ -33,6 +33,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 
 #include <sys/ioctl.h>
@@ -181,11 +185,7 @@ static int show_bat_status(int fd)
  * charger_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
-#else
-int charger_main(int argc, char *argv[])
-#endif
 {
   int fd;
   int current;

@@ -57,11 +57,7 @@
  * sixaxis_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
-#else
-int sixaxis_main(int argc, char *argv[])
-#endif
 {
   int fd;
   struct accel_gyro_st_s data;
