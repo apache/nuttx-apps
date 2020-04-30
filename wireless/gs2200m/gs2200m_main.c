@@ -90,6 +90,7 @@ enum sock_state_e
 {
   CLOSED,
   OPENED,
+  BOUND,
   CONNECTED,
 };
 
@@ -527,16 +528,9 @@ static int close_request(int fd, FAR struct gs2200m_s *priv,
 
   cid = usock->cid;
 
-  if (SOCK_STREAM == usock->type && CONNECTED != usock->state)
+  if ((BOUND != usock->state) && (CONNECTED != usock->state))
     {
       ret = -EBADFD;
-      goto errout;
-    }
-
-  if (SOCK_DGRAM == usock->type && 'z' == cid)
-    {
-      /* the udp socket is not bound */
-
       goto errout;
     }
 
@@ -783,7 +777,10 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
 
       if (usock->cid != smsg.cid)
         {
+          /* cid is newly assigned (bound) */
+
           usock->cid = smsg.cid;
+          usock->state = BOUND;
         }
 
       if (0 != nret)
@@ -1023,6 +1020,7 @@ static int bind_request(int fd, FAR struct gs2200m_s *priv,
   if (0 == ret)
     {
       usock->cid = bmsg.cid;
+      usock->state = BOUND;
     }
 
 prepare:
