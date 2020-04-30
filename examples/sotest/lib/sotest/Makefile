@@ -61,11 +61,7 @@ LDLIBPATH +=  -L $(NUTTXLIB)
 endif
 
 ifeq ($(CONFIG_EXAMPLES_SOTEST_LIBC),y)
-ifeq ($(CONFIG_BUILD_PROTECTED),y)
-LDLIBS += -luc
-else
 LDLIBS += -lc
-endif
 endif
 
 BIN = sotest
