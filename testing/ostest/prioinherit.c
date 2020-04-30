@@ -113,18 +113,18 @@ static int g_lowpri;
 
 static int nhighpri_waiting(void)
 {
-   int n = 0;
-   int i;
+  int n = 0;
+  int i;
 
-   for (i = 0; i < NHIGHPRI_THREADS; i++)
-     {
-       if (g_highstate[i] == WAITING)
-         {
-           n++;
-         }
-     }
+  for (i = 0; i < NHIGHPRI_THREADS; i++)
+    {
+      if (g_highstate[i] == WAITING)
+        {
+          n++;
+        }
+    }
 
-   return n;
+  return n;
 }
 
 /****************************************************************************
@@ -133,18 +133,18 @@ static int nhighpri_waiting(void)
 
 static int nhighpri_running(void)
 {
-   int n = 0;
-   int i;
+  int n = 0;
+  int i;
 
-   for (i = 0; i < NHIGHPRI_THREADS; i++)
-     {
-       if (g_highstate[i] != DONE)
-         {
-           n++;
-         }
-     }
+  for (i = 0; i < NHIGHPRI_THREADS; i++)
+    {
+      if (g_highstate[i] != DONE)
+        {
+          n++;
+        }
+    }
 
-   return n;
+  return n;
 }
 
 /****************************************************************************
@@ -156,16 +156,16 @@ static void *highpri_thread(void *parameter)
   int threadno = (int)((intptr_t)parameter);
   int ret;
 
-  g_highstate[threadno-1] = RUNNING;
+  g_highstate[threadno - 1] = RUNNING;
 
   printf("highpri_thread-%d: Started\n", threadno);
   FFLUSH();
   sleep(1);
 
   printf("highpri_thread-%d: Calling sem_wait()\n", threadno);
-  g_highstate[threadno-1] = WAITING;
+  g_highstate[threadno - 1] = WAITING;
   ret                     = sem_wait(&g_sem);
-  g_highstate[threadno-1] = DONE;
+  g_highstate[threadno - 1] = DONE;
 
   if (ret != 0)
     {
@@ -173,11 +173,14 @@ static void *highpri_thread(void *parameter)
     }
   else if (g_middlestate == RUNNING)
     {
-      printf("highpri_thread-%d: SUCCESS midpri_thread is still running!\n", threadno);
+      printf("highpri_thread-%d: SUCCESS midpri_thread is still running!\n",
+             threadno);
     }
   else
     {
-      printf("highpri_thread-%d: ERROR --  midpri_thread has already exited!\n", threadno);
+      printf("highpri_thread-%d: ERROR --  "
+             "midpri_thread has already exited!\n",
+             threadno);
     }
 
   sem_post(&g_sem);
@@ -196,10 +199,10 @@ static inline void hog_cpu(void)
   /* The simulator doesn't have any mechanism to do asynchronous pre-emption
    * (basically because it doesn't have any interrupts/asynchronous events).
    * The simulator does "fake" a timer interrupt in up_idle() -- the idle
-   * thread that only executes when nothing else is running.  In the simulator,
-   * we cannot suspend the middle priority task, or we wouldn't have the
-   * test that we want.  So, we have no option but to pump the fake clock
-   * here by calling up_idle().  Sigh!
+   * thread that only executes when nothing else is running.  In the
+   * simulator, we cannot suspend the middle priority task, or we wouldn't
+   * have the test that we want.  So, we have no option but to pump the fake
+   * clock here by calling up_idle().  Sigh!
    */
 
   up_idle();
@@ -246,7 +249,7 @@ static void *medpri_thread(void *parameter)
 
 static void *lowpri_thread(void *parameter)
 {
-  void *retval = (void*)-1;
+  void *retval = (void *) - 1;
   struct sched_param sparam;
   int threadno = (int)((intptr_t)parameter);
   int expected;
@@ -256,24 +259,26 @@ static void *lowpri_thread(void *parameter)
   int nwaiting = 0;
   int i;
 
-  g_lowstate[threadno-1] = RUNNING;
+  g_lowstate[threadno - 1] = RUNNING;
   printf("lowpri_thread-%d: Started\n", threadno);
 
   ret = pthread_getschedparam(pthread_self(), &policy, &sparam);
   if (ret != 0)
     {
-      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n", threadno, ret);
+      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
+             threadno, ret);
     }
   else
     {
-      printf("lowpri_thread-%d: initial priority: %d\n", threadno, sparam.sched_priority);
+      printf("lowpri_thread-%d: initial priority: %d\n", threadno,
+          sparam.sched_priority);
       if (sparam.sched_priority != g_lowpri)
         {
           printf("               ERROR should have been %d\n", g_lowpri);
         }
     }
 
-  g_lowstate[threadno-1] = WAITING;
+  g_lowstate[threadno - 1] = WAITING;
   ret = sem_wait(&g_sem);
   if (ret != 0)
     {
@@ -283,9 +288,11 @@ static void *lowpri_thread(void *parameter)
     {
       /* Hang on to the thread until the middle priority thread runs */
 
-      while (g_middlestate == NOTSTARTED && nhighpri_waiting() < NHIGHPRI_THREADS)
+      while (g_middlestate == NOTSTARTED &&
+             nhighpri_waiting() < NHIGHPRI_THREADS)
         {
-          printf("lowpri_thread-%d: Waiting for the midle pri task to run\n", threadno);
+          printf("lowpri_thread-%d: Waiting for the midle pri task to run\n",
+                 threadno);
           printf("    g_middlestate:  %d\n", (int)g_middlestate);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
             {
@@ -298,8 +305,9 @@ static void *lowpri_thread(void *parameter)
           sleep(1);
         }
 
-      /* Account for all of the semaphore counts.  At any given time if there are 'n'
-       * running high prioity tasks, then the semaphore count should be '-n'
+      /* Account for all of the semaphore counts.  At any given time if there
+       * are 'n' running high prioity tasks, then the semaphore count should
+       * be '-n'
        */
 
       sched_lock(); /* Needs to be atomic */
@@ -309,31 +317,38 @@ static void *lowpri_thread(void *parameter)
 
       if (ret < 0)
         {
-          printf("lowpri_thread-%d: ERROR sem_getvalue failed: %d\n", threadno, errno);
+          printf("lowpri_thread-%d: ERROR sem_getvalue failed: %d\n",
+                 threadno, errno);
         }
 
-      printf("lowpri_thread-%d: Sem count: %d, No. highpri thread: %d\n", threadno, count, nwaiting);
+      printf("lowpri_thread-%d: Sem count: %d, No. highpri thread: %d\n",
+             threadno, count, nwaiting);
 
       /* The middle priority task is running, let go of the semaphore */
 
       if (g_middlestate == RUNNING && nwaiting == -count)
         {
-          /* Good.. the middle priority task is still running and the counts are okay. */
+          /* Good.. the middle priority task is still running and the counts
+           * are okay.
+           */
 
           retval = NULL;
         }
       else
         {
-          /* If the sem count is positive, then there all of the higher priority threads
-           * should have already completed.
+          /* If the sem count is positive, then there all of the higher
+           * priority threads should have already completed.
            */
 
-          printf("lowpri_thread-%d: %s the middle priority task has already exitted!\n",
-                 threadno, count >= 0 ? "SUCCESS" : "ERROR" );
-          printf("               g_middlestate:  %d sem count=%d\n", (int)g_middlestate, count);
+          printf("lowpri_thread-%d: %s the middle priority task has already"
+                 " exitted!\n",
+                 threadno, count >= 0 ? "SUCCESS" : "ERROR");
+          printf("               g_middlestate:  %d sem count=%d\n",
+                 (int)g_middlestate, count);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
             {
-              printf("               g_highstate[%d]: %d\n", i, (int)g_highstate[i]);
+              printf("               g_highstate[%d]: %d\n",
+                     i, (int)g_highstate[i]);
             }
         }
     }
@@ -343,7 +358,8 @@ static void *lowpri_thread(void *parameter)
   sem_post(&g_sem);
   if (ret != 0)
     {
-      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n", threadno, ret);
+      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
+             threadno, ret);
     }
   else
     {
@@ -370,7 +386,8 @@ static void *lowpri_thread(void *parameter)
   ret = pthread_getschedparam(pthread_self(), &policy, &sparam);
   if (ret != 0)
     {
-      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n", threadno, ret);
+      printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
+             threadno, ret);
     }
   else
     {
@@ -389,7 +406,7 @@ static void *lowpri_thread(void *parameter)
 
   printf("lowpri_thread-%d: Okay... I'm done!\n", threadno);
   FFLUSH();
-  g_lowstate[threadno-1] = DONE;
+  g_lowstate[threadno - 1] = DONE;
   return retval;
 }
 #endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
@@ -441,33 +458,39 @@ void priority_inheritance(void)
 
   for (i = 0; i < NLOWPRI_THREADS; i++)
     {
-      int threadno = i+1;
-      printf("priority_inheritance: Starting lowpri_thread-%d (of %d) at %d\n",
+      int threadno = i + 1;
+      printf("priority_inheritance: "
+             "Starting lowpri_thread-%d (of %d) at %d\n",
              threadno, NLOWPRI_THREADS, g_lowpri);
       status = pthread_attr_init(&attr);
       if (status != 0)
         {
-          printf("priority_inheritance: pthread_attr_init failed, status=%d\n", status);
+          printf("priority_inheritance: "
+                 "pthread_attr_init failed, status=%d\n",
+                 status);
         }
 
       sparam.sched_priority = g_lowpri;
-      status = pthread_attr_setschedparam(&attr,& sparam);
+      status = pthread_attr_setschedparam(&attr, &sparam);
       if (status != OK)
         {
-          printf("priority_inheritance: pthread_attr_setschedparam failed, status=%d\n",
+          printf("priority_inheritance: "
+                 "pthread_attr_setschedparam failed, status=%d\n",
                  status);
         }
       else
         {
-          printf("priority_inheritance: Set lowpri_thread-%d priority to %d\n",
+          printf("priority_inheritance: "
+                 "Set lowpri_thread-%d priority to %d\n",
                  threadno, sparam.sched_priority);
         }
 
       status = pthread_create(&lowpri[i], &attr, lowpri_thread,
-                              (void*)((uintptr_t)threadno));
+                              (void *)((uintptr_t)threadno));
       if (status != 0)
         {
-          printf("priority_inheritance: pthread_create failed, status=%d\n", status);
+          printf("priority_inheritance: "
+                 "pthread_create failed, status=%d\n", status);
         }
     }
 
@@ -481,14 +504,16 @@ void priority_inheritance(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("priority_inheritance: pthread_attr_init failed, status=%d\n", status);
+      printf("priority_inheritance: "
+             "pthread_attr_init failed, status=%d\n", status);
     }
 
   sparam.sched_priority = g_medpri;
-  status = pthread_attr_setschedparam(&attr,& sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("priority_inheritance: pthread_attr_setschedparam failed, status=%d\n",
+      printf("priority_inheritance: "
+             "pthread_attr_setschedparam failed, status=%d\n",
               status);
     }
   else
@@ -496,12 +521,14 @@ void priority_inheritance(void)
       printf("priority_inheritance: Set medpri_thread priority to %d\n",
              sparam.sched_priority);
     }
+
   FFLUSH();
 
   status = pthread_create(&medpri, &attr, medpri_thread, NULL);
   if (status != 0)
     {
-      printf("priority_inheritance: pthread_create failed, status=%d\n", status);
+      printf("priority_inheritance: pthread_create failed, status=%d\n",
+             status);
     }
 
   printf("priority_inheritance: Waiting...\n");
@@ -512,34 +539,39 @@ void priority_inheritance(void)
 
   for (i = 0; i < NHIGHPRI_THREADS; i++)
     {
-      int threadno = i+1;
-      printf("priority_inheritance: Starting highpri_thread-%d (of %d) at %d\n",
+      int threadno = i + 1;
+      printf("priority_inheritance: "
+             "Starting highpri_thread-%d (of %d) at %d\n",
              threadno, NHIGHPRI_THREADS, g_highpri);
       status = pthread_attr_init(&attr);
       if (status != 0)
         {
-          printf("priority_inheritance: pthread_attr_init failed, status=%d\n", status);
+          printf("priority_inheritance: "
+                 "pthread_attr_init failed, status=%d\n", status);
         }
 
       sparam.sched_priority = g_highpri - i;
-      status = pthread_attr_setschedparam(&attr,& sparam);
+      status = pthread_attr_setschedparam(&attr, &sparam);
       if (status != OK)
         {
-          printf("priority_inheritance: pthread_attr_setschedparam failed, status=%d\n", status);
+          printf("priority_inheritance: "
+                 "pthread_attr_setschedparam failed, status=%d\n", status);
         }
       else
         {
-          printf("priority_inheritance: Set highpri_thread-%d priority to %d\n",
+          printf("priority_inheritance: "
+                 "Set highpri_thread-%d priority to %d\n",
                  threadno, sparam.sched_priority);
         }
 
       FFLUSH();
 
       status = pthread_create(&highpri[i], &attr, highpri_thread,
-                              (void*)((uintptr_t)threadno));
+                              (void *)((uintptr_t)threadno));
       if (status != 0)
         {
-          printf("priority_inheritance: pthread_create failed, status=%d\n", status);
+          printf("priority_inheritance: "
+                 "pthread_create failed, status=%d\n", status);
         }
     }
 
@@ -550,7 +582,8 @@ void priority_inheritance(void)
 
   for (i = 0; i < NHIGHPRI_THREADS; i++)
     {
-      printf("priority_inheritance: Waiting for highpri_thread-%d to complete\n", i+1);
+      printf("priority_inheritance: "
+             "Waiting for highpri_thread-%d to complete\n", i + 1);
       FFLUSH();
       pthread_join(highpri[i], &result);
       dump_nfreeholders("priority_inheritance:");
@@ -563,7 +596,8 @@ void priority_inheritance(void)
 
   for (i = 0; i < NLOWPRI_THREADS; i++)
     {
-      printf("priority_inheritance: Waiting for lowpri_thread-%d to complete\n", i+1);
+      printf("priority_inheritance: "
+             "Waiting for lowpri_thread-%d to complete\n", i + 1);
       FFLUSH();
       pthread_join(lowpri[i], &result);
       dump_nfreeholders("priority_inheritance:");
