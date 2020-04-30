@@ -253,7 +253,7 @@ static void *lowpri_thread(void *parameter)
   int count;
   int policy;
   int ret;
-  int nwaiting;
+  int nwaiting = 0;
   int i;
 
   g_lowstate[threadno-1] = RUNNING;
