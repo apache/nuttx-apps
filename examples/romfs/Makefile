@@ -69,5 +69,6 @@ context:: romfs_testdir.h
 distclean::
 	$(call DELFILE, testdir.img)
 	$(call DELFILE, romfs_testdir.h)
+	$(call DELDIR, testdir)
 
 include $(APPDIR)/Application.mk
