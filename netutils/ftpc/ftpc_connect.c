@@ -99,6 +99,7 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
         }
     }
 #endif
+
 #ifdef CONFIG_NET_IPv4
   if (session->server.sa.sa_family == AF_INET)
     {
@@ -116,7 +117,6 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
    */
 
   session->homeldir = strdup(ftpc_lpwd());
-/* session->curldir = strdup(session->homeldir); */
 
   /* Create up a timer to prevent hangs */
 
@@ -167,7 +167,8 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Set up a timer to prevent hangs */
 
-  ret = wd_start(session->wdog, session->conntimeo, ftpc_timeout, 1, session);
+  ret = wd_start(session->wdog,
+                 session->conntimeo, ftpc_timeout, 1, session);
   if (ret != OK)
     {
       nerr("ERROR: wd_start() failed\n");
@@ -189,17 +190,18 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 #ifdef CONFIG_NET_IPv6
   if (session->server.sa.sa_family == AF_INET6)
     {
-      if (inet_ntop(AF_INET6, &session->server.in6.sin6_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET6, &session->server.in6.sin6_addr, buffer, 48))
         {
           ninfo("Connecting to server address %s:%d\n", buffer,
                 ntohs(session->server.in6.sin6_port));
         }
     }
 #endif /* CONFIG_NET_IPv6 */
+
 #ifdef CONFIG_NET_IPv4
   if (session->server.sa.sa_family == AF_INET)
     {
-      if (inet_ntop(AF_INET, &session->server.in4.sin_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET, &session->server.in4.sin_addr, buffer, 48))
         {
           ninfo("Connecting to server address %s:%d\n", buffer,
                 ntohs(session->server.in4.sin_port));
@@ -208,7 +210,8 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 #endif /* CONFIG_NET_IPv4 */
 #endif /* CONFIG_DEBUG_NET_ERROR */
 
-  ret = ftpc_sockconnect(&session->cmd, (FAR struct sockaddr *)&session->server);
+  ret = ftpc_sockconnect(&session->cmd,
+                         (FAR struct sockaddr *)&session->server);
   if (ret != OK)
     {
       nerr("ERROR: ftpc_sockconnect() failed: %d\n", errno);
@@ -225,6 +228,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
     {
       fptc_getreply(session);
     }
+
   wd_cancel(session->wdog);
 
   if (!ftpc_sockconnected(&session->cmd))
@@ -250,29 +254,30 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 #ifdef CONFIG_NET_IPv6
   if (session->server.sa.sa_family == AF_INET6)
     {
-      if (inet_ntop(AF_INET6, &session->server.in6.sin6_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET6, &session->server.in6.sin6_addr, buffer, 48))
         {
           ninfo("  Remote address: %s:%d\n", buffer,
                 ntohs(session->server.in6.sin6_port));
         }
 
-     if (inet_ntop(AF_INET6, &session->cmd.laddr.in6.sin6_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET6, &session->cmd.laddr.in6.sin6_addr, buffer, 48))
         {
           ninfo("  Local address:  %s:%d\n", buffer,
                 ntohs(session->cmd.laddr.in6.sin6_port));
         }
     }
 #endif /* CONFIG_NET_IPv6 */
+
 #ifdef CONFIG_NET_IPv4
   if (session->server.sa.sa_family == AF_INET)
     {
-      if (inet_ntop(AF_INET, &session->server.in4.sin_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET, &session->server.in4.sin_addr, buffer, 48))
         {
           ninfo("  Remote address: %s:%d\n", buffer,
                 ntohs(session->server.in4.sin_port));
         }
 
-     if (inet_ntop(AF_INET, &session->cmd.laddr.in4.sin_addr, buffer, 48) != NULL)
+      if (inet_ntop(AF_INET, &session->cmd.laddr.in4.sin_addr, buffer, 48))
         {
           ninfo("  Local address:  %s:%d\n", buffer,
                 ntohs(session->cmd.laddr.in4.sin_port));

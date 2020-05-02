@@ -147,10 +147,10 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
 {
   int ret;
 
-  /* Log into the server.  First send the USER command.  The server may accept
-   * USER with:
+  /* Log into the server.  First send the USER command.  The server may
+   * accept USER with:
    *
-   * - "230 User logged in, proceed" meaning that the client has permission to
+   * - "230 User logged in, proceed" meaning that the client has permission
    *    access files under that username
    * - "331 "User name okay, need password" or "332 Need account for login"
    *    meaning that permission might be granted after a PASS request.
@@ -170,19 +170,22 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
 
   if (session->code == 331)
     {
-      /* Send the PASS command with the passed. The server may accept PASS with:
+      /* Send the PASS command with the passed. The server may accept PASS
+       * with:
        *
-       * - "230 User logged in, proceed" meaning that the client has permission to
-       *    access files under that username
-       * - "202 Command not implemented, superfluous at this site" meaning that
-       *    permission was already granted in response to USER
-       * - "332 Need account for login" meaning that permission might be granted
-       *    after an ACCT request.
+       * - "230 User logged in, proceed" meaning that the client has
+       *    permission to access files under that username
+       * - "202 Command not implemented, superfluous at this site" meaning
+       *    that permission was already granted in response to USER
+       * - "332 Need account for login" meaning that permission might be
+       *    granted after an ACCT request.
        *
        * The server may reject PASS with:
        *
-       * - "503 Bad sequence of commands" if the previous request was not USER
-       * - "530 - Not logged in" if this username and password are unacceptable.
+       * - "503 Bad sequence of commands" if the previous request was not
+       *    USER.
+       * - "530 - Not logged in" if this username and password are
+       *    unacceptable.
        */
 
       ret = ftpc_cmd(session, "PASS %s", session->pwd);

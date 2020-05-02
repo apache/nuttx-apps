@@ -120,9 +120,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                                              oflags, 0644);
       if (ret != 0)
         {
-           /* posix_spawn_file_actions_addopen returns a positive errno
-            * value on failure.
-            */
+          /* posix_spawn_file_actions_addopen returns a positive errno
+           * value on failure.
+           */
 
           nsh_error(vtbl, g_fmtcmdfailed, cmd,
                      "posix_spawn_file_actions_addopen",
@@ -146,8 +146,8 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* The application was successfully started with pre-emption disabled.
        * In the simplest cases, the application will not have run because the
-       * the scheduler is locked.  But in the case where I/O was redirected, a
-       * proxy task ran and broke our lock.  As result, the application may
+       * the scheduler is locked.  But in the case where I/O was redirected,
+       * a proxy task ran and broke our lock.  As result, the application may
        * have aso ran if its priority was higher than than the priority of
        * this thread.
        *
@@ -193,8 +193,8 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           ret = waitpid(pid, &rc, WUNTRACED);
           if (ret < 0)
             {
-              /* If the child thread does not exist, waitpid() will return
-               * the error ECHLD.  Since we know that the task was successfully
+              /* If the child thread doesn't exist, waitpid() will return the
+               * error ECHLD.  Since we know that the task was successfully
                * started, this must be one of the cases described above; we
                * have to assume that the task already exit'ed.  In this case,
                * we have no idea if the application ran successfully or not
@@ -222,9 +222,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
               ret = OK;
 
-              /* TODO:  Set the environment variable '?' to a string corresponding
-               * to WEXITSTATUS(rc) so that $? will expand to the exit status of
-               * the most recently executed task.
+              /* TODO:  Set the environment variable '?' to a string
+               * corresponding to WEXITSTATUS(rc) so that $? will expand
+               * to the exit status of the most recently executed task.
                */
             }
 
@@ -239,13 +239,13 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        *
        * - CONFIG_SCHED_WAITPID is not selected meaning that all commands
        *   have to be run in background, or
-       * - CONFIG_SCHED_WAITPID and CONFIG_NSH_DISABLEBG are both selected, but the
-       *   user requested to run the command in background.
+       * - CONFIG_SCHED_WAITPID and CONFIG_NSH_DISABLEBG are both selected,
+       *   but the user requested to run the command in background.
        *
        * NOTE that the case of a) CONFIG_SCHED_WAITPID is not selected and
-       * b) CONFIG_NSH_DISABLEBG selected cannot be supported.  In that event, all
-       * commands will have to run in background.  The waitpid() API must be
-       * available to support running the command in foreground.
+       * b) CONFIG_NSH_DISABLEBG selected cannot be supported. In that event,
+       * all commands will have to run in background.  The waitpid() API must
+       * be available to support running the command in foreground.
        */
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
