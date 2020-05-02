@@ -138,9 +138,9 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       goto errout_with_actions;
     }
 
-   /* If robin robin scheduling is enabled, then set the scheduling policy
-    * of the new task to SCHED_RR before it has a chance to run.
-    */
+  /* If robin robin scheduling is enabled, then set the scheduling policy
+   * of the new task to SCHED_RR before it has a chance to run.
+   */
 
 #if CONFIG_RR_INTERVAL > 0
   ret = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);

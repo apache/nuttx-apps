@@ -83,7 +83,7 @@
  *   pathname - the full path to a registered block driver
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success; -1 (ERROR) on failure with errno set:
  *
  *   EINVAL - NULL block driver string
  *   ENOENT - 'pathname' does not refer to anything in the filesystem.
@@ -143,7 +143,7 @@ out:
  *   nrootdirs  - Number of root directory entries to create.
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success; -1 (ERROR) on failure with errno set:
  *
  *   EINVAL  - NULL block driver string, bad number of FATS in 'fmt', bad FAT
  *     size in 'fmt', bad cluster size in 'fmt'
@@ -198,7 +198,8 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
   ret = ioctl(fd, BIOC_GETFORMAT, (unsigned long) &fmt);
 
   /* Now Write the filesystem to media.  Loop for each root dir entry and
-   * allocate the reserved Root Dir Entry, then write a blank root dir for it.
+   * allocate the reserved Root Dir Entry, then write a blank root dir for
+   * it.
    */
 
   type = SMARTFS_SECTOR_TYPE_DIR;
