@@ -81,8 +81,8 @@ static inline int tftp_parsedatapacket(FAR const uint8_t *packet,
   *opcode = (uint16_t)packet[0] << 8 | (uint16_t)packet[1];
   if (*opcode == TFTP_DATA)
     {
-       *blockno = (uint16_t)packet[2] << 8 | (uint16_t)packet[3];
-       return OK;
+      *blockno = (uint16_t)packet[2] << 8 | (uint16_t)packet[3];
+      return OK;
     }
 #ifdef CONFIG_DEBUG_NET_WARN
   else if (*opcode == TFTP_ERR)
@@ -130,7 +130,7 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
 
   /* Allocate the buffer to used for socket/disk I/O */
 
-  packet = (FAR uint8_t*)zalloc(TFTP_IOBUFSIZE);
+  packet = (FAR uint8_t *)zalloc(TFTP_IOBUFSIZE);
   if (!packet)
     {
       nerr("ERROR: packet memory allocation failure\n");
@@ -179,10 +179,10 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
                   goto errout_with_sd;
                 }
 
-              /* Subsequent sendto will use the port number selected by the TFTP
-               * server in the DATA packet.  Setting the server port to zero
-               * here indicates that we have not yet received the server port
-               * number.
+              /* Subsequent sendto will use the port number selected by the
+               * TFTP server in the DATA packet.  Setting the server port to
+               * zero here indicates that we have not yet received the server
+               * port number.
                */
 
               server.sin_port = 0;
@@ -239,10 +239,11 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
                                              TFTP_ERRST_ILLEGALOP);
                       ret = tftp_sendto(sd, packet, len, &from);
                     }
+
                   continue;
                 }
 
-              /* Replace the server port to the one in the good data response */
+              /* Replace the server port to the one in the good response */
 
               if (!server.sin_port)
                 {
@@ -266,7 +267,8 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
       /* Write the received data chunk to the file */
 
       ndatabytes = nbytesrecvd - TFTP_DATAHEADERSIZE;
-      tftp_dumpbuffer("Recvd DATA", packet + TFTP_DATAHEADERSIZE, ndatabytes);
+      tftp_dumpbuffer("Recvd DATA",
+                      packet + TFTP_DATAHEADERSIZE, ndatabytes);
       if (tftp_cb(ctx, 0, packet + TFTP_DATAHEADERSIZE, ndatabytes) < 0)
         {
           goto errout_with_sd;
@@ -280,6 +282,7 @@ int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
         {
           goto errout_with_sd;
         }
+
       ninfo("ACK blockno %d\n", blockno);
     }
   while (ndatabytes >= TFTP_DATASIZE);
@@ -334,6 +337,7 @@ static ssize_t tftp_write(FAR void *ctx, uint32_t offset, FAR uint8_t *buf,
       left -= nbyteswritten;
       buf  += nbyteswritten;
     }
+
   return len;
 }
 
@@ -358,7 +362,7 @@ int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
 
   /* Open the file for writing */
 
-  fd = open(local, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  fd = open(local, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   if (fd < 0)
     {
       nerr("ERROR: open failed: %d\n", errno);

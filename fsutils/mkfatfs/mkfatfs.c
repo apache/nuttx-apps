@@ -104,13 +104,13 @@ static uint32_t fat_systime2fattime(void)
               uint16_t fattime;
               uint16_t fatdate;
 
-              fattime  = (tm.tm_sec       >>  1) & 0x001f; /* Bits 0-4: 2 second count (0-29) */
-              fattime |= (tm.tm_min       <<  5) & 0x07e0; /* Bits 5-10: minutes (0-59) */
-              fattime |= (tm.tm_hour      << 11) & 0xf800; /* Bits 11-15: hours (0-23) */
+              fattime  = (tm.tm_sec         >>  1) & 0x001f; /* Bits 0-4: 2 second count (0-29) */
+              fattime |= (tm.tm_min         <<  5) & 0x07e0; /* Bits 5-10: minutes (0-59) */
+              fattime |= (tm.tm_hour        << 11) & 0xf800; /* Bits 11-15: hours (0-23) */
 
-              fatdate  =  tm.tm_mday             & 0x001f; /* Bits 0-4: Day of month (1-31) */
-              fatdate |= ((tm.tm_mon+1)   <<  5) & 0x01e0; /* Bits 5-8: Month of year (1-12) */
-              fatdate |= ((tm.tm_year-80) <<  9) & 0xfe00; /* Bits 9-15: Year from 1980 */
+              fatdate  =  tm.tm_mday               & 0x001f; /* Bits 0-4: Day of month (1-31) */
+              fatdate |= ((tm.tm_mon + 1)   <<  5) & 0x01e0; /* Bits 5-8: Month of year (1-12) */
+              fatdate |= ((tm.tm_year - 80) <<  9) & 0xfe00; /* Bits 9-15: Year from 1980 */
 
               return (uint32_t)fatdate << 16 | (uint32_t)fattime;
             }
@@ -160,8 +160,8 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
       return -ENODEV;
     }
 
-  /* Check if the user provided maxblocks was provided and, if so, that is it less than
-   * the actual number of blocks on the device.
+  /* Check if the user provided maxblocks was provided and, if so, that is it
+   * less than the actual number of blocks on the device.
    */
 
   if (fmt->ff_nsectors != 0)
@@ -227,7 +227,7 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
  *   fmt - Describes characteristics of the desired filesystem
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success; -1 (ERROR) on failure with errno set:
  *
  *   EINVAL  - NULL block driver string, bad number of FATS in 'fmt', bad FAT
  *     size in 'fmt', bad cluster size in 'fmt'
@@ -301,8 +301,8 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
       goto errout;
     }
 
-   if (fmt->ff_rootdirentries != 0 &&
-       (fmt->ff_rootdirentries < 16 || fmt->ff_rootdirentries > 32767))
+  if (fmt->ff_rootdirentries != 0 &&
+      (fmt->ff_rootdirentries < 16 || fmt->ff_rootdirentries > 32767))
     {
       ferr("ERROR: Invalid number of root dir entries: %d\n",
            fmt->ff_rootdirentries);
@@ -311,8 +311,8 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
       goto errout;
     }
 
-   if (fmt->ff_rsvdseccount != 0 && (fmt->ff_rsvdseccount < 1 ||
-       fmt->ff_rsvdseccount > 32767))
+  if (fmt->ff_rsvdseccount != 0 && (fmt->ff_rsvdseccount < 1 ||
+      fmt->ff_rsvdseccount > 32767))
     {
       ferr("ERROR: Invalid number of reserved sectors: %d\n",
            fmt->ff_rsvdseccount);
@@ -332,8 +332,8 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
       goto errout;
     }
 
-  /* Determine the volume configuration based upon the input values and upon the
-   * reported device geometry.
+  /* Determine the volume configuration based upon the input values and upon
+   * the reported device geometry.
    */
 
   ret = mkfatfs_getgeometry(fmt, &var);
@@ -364,11 +364,13 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
   ret = mkfatfs_writefatfs(fmt, &var);
 
 errout_with_driver:
+
   /* Close the driver */
 
   close(var.fv_fd);
 
 errout:
+
   /* Release all allocated memory */
 
   if (var.fv_sect)

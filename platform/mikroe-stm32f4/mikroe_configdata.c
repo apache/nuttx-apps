@@ -1,4 +1,4 @@
-/************************************************************************************
+/****************************************************************************
  * apps/platform/mikroe-stm32f4/mikroe_configdata.c
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
@@ -31,11 +31,11 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-/************************************************************************************
+/****************************************************************************
  * Included Files
- ************************************************************************************/
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 
@@ -52,9 +52,9 @@
 
 #ifdef CONFIG_PLATFORM_CONFIGDATA
 
-/************************************************************************************
+/****************************************************************************
  * Public Functions
- ************************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: platform_setconfig
@@ -127,7 +127,8 @@ int platform_setconfig(enum config_data_e id, int instance,
          * the file.
          */
 
-        if ((fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "w+")) == NULL)
+        fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "w+");
+        if (fd == NULL)
           {
             /* Error opening the file */
 
@@ -160,7 +161,6 @@ int platform_setconfig(enum config_data_e id, int instance,
       default:
         break;
     }
-
 
   set_errno(ENOSYS);
   return -1;
@@ -213,6 +213,7 @@ int platform_getconfig(enum config_data_e id, int instance,
       0x00, 0xb8, 0x2d, 0xdb, 0xff
   };
 #endif
+
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
   struct config_data_s  config;
   int                   ret;
@@ -248,7 +249,8 @@ int platform_getconfig(enum config_data_e id, int instance,
          * the file.
          */
 
-        if ((fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "r")) == NULL)
+        fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "r");
+        if (fd == NULL)
           {
             /* Error opening the file */
 
