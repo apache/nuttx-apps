@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HDC1008
+	tristate "HDC1008 driver example"
+	default n
+	---help---
+		Enable the example application 
+
