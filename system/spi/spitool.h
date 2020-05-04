@@ -131,11 +131,7 @@
 
 /* Output is via printf but can be changed using this macro */
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-# define spi_output(v, ...) printf(v, ##__VA_ARGS__)
-#else
 # define spi_output         printf
-#endif
 
 /****************************************************************************
  * Public Types

@@ -106,32 +106,16 @@
 #  define CONFIG_SYSTEM_CLE_DEBUGLEVEL 0
 #endif
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
-#    define cledbg(format, ...) \
-       syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define cledbg(x...)
-#  endif
-
-#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
-#    define cleinfo(format, ...) \
-       syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define cleinfo(x...)
-#  endif
+#if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
+#  define cledbg  cle_debug
 #else
-#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
-#    define cledbg  cle_debug
-#  else
-#    define cledbg  (void)
-#  endif
+#  define cledbg  _none
+#endif
 
-#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
-#    define cleinfo cle_debug
-#  else
-#    define cleinfo (void)
-#  endif
+#if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
+#  define cleinfo cle_debug
+#else
+#  define cleinfo _none
 #endif
 
 #ifdef CONFIG_SYSTEM_COLOR_CLE
@@ -182,7 +166,7 @@ struct cle_s
  * Private Function Prototypes
  ****************************************************************************/
 
-#if !defined(CONFIG_CPP_HAVE_VARARGS) && CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
+#if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
 static int      cle_debug(FAR const char *fmt, ...);
 #endif
 
@@ -262,7 +246,7 @@ static const char g_setcolor[]     = VT100_FMT_FORE_COLOR;
  *
  ****************************************************************************/
 
-#if !defined(CONFIG_CPP_HAVE_VARARGS) && CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
+#if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
 static int cle_debug(FAR const char *fmt, ...)
 {
   va_list ap;

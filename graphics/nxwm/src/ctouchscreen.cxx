@@ -61,25 +61,6 @@
 #include "graphics/nxwm/ctouchscreen.hxx"
 
 /********************************************************************************************
- * Pre-Processor Definitions
- ********************************************************************************************/
-/* We want debug output from this file if either input/touchscreen or graphics debug is
- * enabled.
- */
-
-#if !defined(CONFIG_DEBUG_INPUT) && !defined(CONFIG_DEBUG_GRAPHICS)
-#  undef gerr
-#  undef _info
-#  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define gerr(x...)
-#    define _info(x...)
-#  else
-#    define gerr  (void)
-#    define _info (void)
-#  endif
-#endif
-
-/********************************************************************************************
  * CTouchscreen Method Implementations
  ********************************************************************************************/
 
