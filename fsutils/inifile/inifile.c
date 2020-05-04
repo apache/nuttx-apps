@@ -60,32 +60,22 @@
 #  define CONFIG_FSUTILS_INIFILE_DEBUGLEVEL 0
 #endif
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 0
-#    define inidbg(format, ...) \
-       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define inidbg(x...)
-#  endif
-
-#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
-#    define iniinfo(format, ...) \
-       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define iniinfo(x...)
-#  endif
+#if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL < 1
+#  define inidbg _none
+#elif defined(CONFIG_CPP_HAVE_VARARGS)
+#  define inidbg(format, ...) \
+     printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #else
-#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 0
-#    define inidbg printf
-#  else
-#    define inidbg (void)
-#  endif
+#  define inidbg printf
+#endif
 
-#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
-#    define iniinfo printf
-#  else
-#    define iniinfo (void)
-#  endif
+#if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL < 2
+#  define iniinfo _none
+#elif defined(CONFIG_CPP_HAVE_VARARGS)
+#  define iniinfo(format, ...) \
+     printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#else
+#  define iniinfo printf
 #endif
 
 /****************************************************************************

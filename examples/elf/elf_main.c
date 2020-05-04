@@ -105,28 +105,15 @@
  * that the output will be synchronous with the debug output.
  */
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG_INFO
-#    define message(format, ...)  syslog(LOG_INFO, format, ##__VA_ARGS__)
-#  else
-#    define message(format, ...)  printf(format, ##__VA_ARGS__)
-#  endif
-#  ifdef CONFIG_DEBUG_ERROR
-#    define errmsg(format, ...)   syslog(LOG_ERR, format, ##__VA_ARGS__)
-#  else
-#    define errmsg(format, ...)   fprintf(stderr, format, ##__VA_ARGS__)
-#  endif
+#ifdef CONFIG_DEBUG_INFO
+#  define message               _info
 #else
-#  ifdef CONFIG_DEBUG_INFO
-#    define message               _info
-#  else
-#    define message               printf
-#  endif
-#  ifdef CONFIG_DEBUG_ERROR
-#    define errmsg                _err
-#  else
-#    define errmsg                printf
-#  endif
+#  define message               printf
+#endif
+#ifdef CONFIG_DEBUG_ERROR
+#  define errmsg                _err
+#else
+#  define errmsg                printf
 #endif
 
 /****************************************************************************

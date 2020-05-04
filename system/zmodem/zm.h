@@ -230,17 +230,12 @@
  */
 
 #ifdef CONFIG_DEBUG_ZMODEM
-#  define zmprintf(format, ...) syslog(LOG_INFO, format, ##__VA_ARGS__)
-#  define zmdbg(format, ...)    syslog(LOG_INFO, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#  define zmprintf(format, ...) _info
+#  define zmdbg(format, ...)    _info
 #else
 #  undef CONFIG_SYSTEM_ZMODEM_DUMPBUFFER
-#  ifdef CONFIG_CPP_HAVE_VARARGS
-#     define zmprintf(x...)
-#     define zmdbg(x...)
-#  else
-#     define zmprintf           (void)
-#     define zmdbg              (void)
-#  endif
+#  define zmprintf              _none
+#  define zmdbg                 _none
 #endif
 
 /****************************************************************************

@@ -56,45 +56,31 @@
  * Could be a porting issue.
  */
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
-#    define  ft80x_err(format, ...) \
-       fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_err(format, ...)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
-#    define  ft80x_warn(format, ...) \
-       fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_warn(format, ...)
-#  endif
-
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
-#    define  ft80x_info(format, ...) \
-       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define  ft80x_info(format, ...)
-#  endif
+#if !defined(GRAPHICS_FT80X_DEBUG_ERROR)
+#  define ft80x_err _none
+#elif defined(CONFIG_CPP_HAVE_VARARGS)
+#  define ft80x_err(format, ...) \
+     fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #else
-#  ifdef GRAPHICS_FT80X_DEBUG_ERROR
-#    define  ft80x_err printf
-#  else
-#    define  ft80x_err (void)
-#  endif
+#  define ft80x_err printf
+#endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_WARN
-#    define  ft80x_warn printf
-#  else
-#    define  ft80x_warn (void)
-#  endif
+#if !defined(GRAPHICS_FT80X_DEBUG_WARN)
+#  define ft80x_warn _none
+#elif defined(CONFIG_CPP_HAVE_VARARGS)
+#  define ft80x_warn(format, ...) \
+     fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#else
+#  define ft80x_warn printf
+#endif
 
-#  ifdef GRAPHICS_FT80X_DEBUG_INFO
-#    define  ft80x_info printf
-#  else
-#    define  ft80x_info (void)
-#  endif
+#if !defined(GRAPHICS_FT80X_DEBUG_INFO)
+#  define ft80x_info _none
+#elif defined(CONFIG_CPP_HAVE_VARARGS)
+#  define ft80x_info(format, ...) \
+     printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#else
+#  define ft80x_info printf
 #endif
 
 /****************************************************************************

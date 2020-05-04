@@ -170,37 +170,21 @@
 #  define CONFIG_SYSTEM_VI_DEBUGLEVEL 0
 #endif
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
-#    define vidbg(format, ...) \
-       syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#    define vvidbg(format, ap) \
-       vsyslog(LOG_DEBUG, format, ap)
-#  else
-#    define vidbg(x...)
-#    define vvidbg(x...)
-#  endif
-
-#  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
-#    define viinfo(format, ...) \
-       syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
-#  else
-#    define viinfo(x...)
-#  endif
+#if CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
+#  define vidbg(format, ...) \
+     syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#  define vvidbg(format, ap) \
+     vsyslog(LOG_DEBUG, format, ap)
 #else
-#  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
-#    define vidbg  vi_debug
-#    define vvidbg vi_vdebug
-#  else
-#    define vidbg  (void)
-#    define vvidbg (void)
-#  endif
+#  define vidbg(x...)
+#  define vvidbg(x...)
+#endif
 
-#  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
-#    define viinfo vi_debug
-#  else
-#    define viinfo (void)
-#  endif
+#if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
+#  define viinfo(format, ...) \
+     syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#else
+#  define viinfo(x...)
 #endif
 
 /* Uncomment to enable bottom line debug printing.  Useful during yank /
@@ -575,34 +559,6 @@ static const char g_fmtinsert[]     = "--INSERT--";
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: vi_vdebug and vi_debug
- *
- * Description:
- *   Print a debug message to the syslog
- *
- ****************************************************************************/
-
-#if !defined(CONFIG_CPP_HAVE_VARARGS) && CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
-static inline int vi_vdebug(FAR const char *fmt, va_list ap)
-{
-  return vsyslog(LOG_DEBUG, fmt, ap);
-}
-
-static int vi_debug(FAR const char *fmt, ...)
-{
-  va_list ap;
-  int ret;
-
-  /* Let vsyslog do the real work */
-
-  va_start(ap, fmt);
-  ret = vsyslog(LOG_DEBUG, fmt, ap);
-  va_end(ap);
-  return ret;
-}
-#endif
 
 /****************************************************************************
  * Low-level display and data entry functions
