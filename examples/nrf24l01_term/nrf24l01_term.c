@@ -101,7 +101,10 @@ void usage(void);
  * Private Data
  ****************************************************************************/
 
-static const uint8_t defaultaddr[NRF24L01_MAX_ADDR_LEN] = { 0x01, 0xCA, 0xFE, 0x12, 0x34};
+static const uint8_t defaultaddr[NRF24L01_MAX_ADDR_LEN] =
+{
+  0x01, 0xca, 0xfe, 0x12, 0x34
+};
 
 char buff[NRF24L01_MAX_PAYLOAD_LEN + 1] = "";
 
@@ -120,7 +123,6 @@ int wireless_cfg(int fd)
   uint32_t rf = DEFAULT_RADIOFREQ;
   int32_t txpow = DEFAULT_TXPOWER;
   nrf24l01_datarate_t datarate = RATE_1Mbps;
-
   nrf24l01_retrcfg_t retrcfg =
   {
     .count = 5,
@@ -131,7 +133,10 @@ int wireless_cfg(int fd)
 
   uint8_t pipes_en = (1 << 0);  /* Only pipe #0 is enabled */
   nrf24l01_pipecfg_t pipe0cfg;
-  nrf24l01_pipecfg_t *pipes_cfg[NRF24L01_PIPE_COUNT] = {&pipe0cfg, 0, 0, 0, 0, 0};
+  nrf24l01_pipecfg_t *pipes_cfg[NRF24L01_PIPE_COUNT] =
+  {
+    &pipe0cfg, 0, 0, 0, 0, 0
+  };
 
   nrf24l01_state_t primrxstate;
 
@@ -141,7 +146,7 @@ int wireless_cfg(int fd)
   primrxstate = ST_POWER_DOWN;
 #endif
 
-  /* Define the pipe #0 parameters  (AA enabled, and dynamic payload length) */
+  /* Define the pipe #0 parameters (AA enabled and dynamic payload length) */
 
   pipe0cfg.en_aa = true;
   pipe0cfg.payload_length = NRF24L01_DYN_LENGTH;
@@ -151,18 +156,24 @@ int wireless_cfg(int fd)
 
   ioctl(fd, WLIOC_SETRADIOFREQ, (unsigned long)((uint32_t *)&rf));
   ioctl(fd, WLIOC_SETTXPOWER, (unsigned long)((int32_t *)&txpow));
-  ioctl(fd, NRF24L01IOC_SETDATARATE, (unsigned long)((nrf24l01_datarate_t *)&datarate));
-  ioctl(fd, NRF24L01IOC_SETRETRCFG, (unsigned long)((nrf24l01_retrcfg_t *)&retrcfg));
+  ioctl(fd, NRF24L01IOC_SETDATARATE,
+        (unsigned long)((nrf24l01_datarate_t *)&datarate));
+  ioctl(fd, NRF24L01IOC_SETRETRCFG,
+        (unsigned long)((nrf24l01_retrcfg_t *)&retrcfg));
 
-  ioctl(fd, NRF24L01IOC_SETADDRWIDTH, (unsigned long)((uint32_t*) &addrwidth));
+  ioctl(fd, NRF24L01IOC_SETADDRWIDTH,
+        (unsigned long)((uint32_t *)&addrwidth));
   ioctl(fd, NRF24L01IOC_SETTXADDR, (unsigned long)((uint8_t *)&defaultaddr));
 
-  ioctl(fd, NRF24L01IOC_SETPIPESCFG, (unsigned long)((nrf24l01_pipecfg_t **)&pipes_cfg));
-  ioctl(fd, NRF24L01IOC_SETPIPESENABLED, (unsigned long)((uint8_t *)&pipes_en));
+  ioctl(fd, NRF24L01IOC_SETPIPESCFG,
+        (unsigned long)((nrf24l01_pipecfg_t **)&pipes_cfg));
+  ioctl(fd, NRF24L01IOC_SETPIPESENABLED,
+        (unsigned long)((uint8_t *)&pipes_en));
 
   /* Enable receiver */
 
-  ioctl(fd, NRF24L01IOC_SETSTATE, (unsigned long)((nrf24l01_state_t *)&primrxstate));
+  ioctl(fd, NRF24L01IOC_SETSTATE,
+        (unsigned long)((nrf24l01_state_t *)&primrxstate));
 
   return error;
 }
@@ -209,8 +220,10 @@ int send_pkt(int wl_fd)
     {
       int retrcount;
 
-      ioctl(wl_fd, NRF24L01IOC_GETLASTXMITCOUNT, (unsigned long)((uint32_t *)&retrcount));
-      printf("Packet sent successfully !  (%d retransmitted packets)\n", retrcount);
+      ioctl(wl_fd, NRF24L01IOC_GETLASTXMITCOUNT,
+            (unsigned long)((uint32_t *)&retrcount));
+      printf("Packet sent successfully !  (%d retransmitted packets)\n",
+             retrcount);
     }
 
   return OK;
@@ -231,13 +244,17 @@ int read_pkt(int wl_fd)
   if (ret == 0)
     {
       /* Should not happen ... */
+
       printf("Packet payload empty !\n");
       return ERROR;
     }
 
-  /* Get the recipient pipe #  (for demo purpose, as here the receiving pipe can only be pipe #0...) */
+  /* Get the recipient pipe #
+   * (for demo purpose, as here the receiving pipe can only be pipe #0...)
+   */
 
-  ioctl(wl_fd, NRF24L01IOC_GETLASTPIPENO, (unsigned long)((uint32_t *)&pipeno));
+  ioctl(wl_fd, NRF24L01IOC_GETLASTPIPENO,
+        (unsigned long)((uint32_t *)&pipeno));
 
   buff[ret] = '\0';   /* end the string */
   printf("Message received : %s   (on pipe #%d)\n", buff, pipeno);
@@ -248,7 +265,8 @@ int read_pkt(int wl_fd)
 void usage(void)
 {
   printf("nRF24L01+ wireless terminal demo.\nUsage:\n");
-  printf("- Type in any message ( <= 32 char length) to send it to communication peer.\n");
+  printf("- Type in any message ( <= 32 char length)"
+         " to send it to communication peer.\n");
   printf("- Ctrl-C to exit.\n\n");
 }
 
@@ -320,8 +338,8 @@ int main(int argc, FAR char *argv[])
               ret = readline(&buff[1], sizeof(buff) - 1, stdin, stdout);
 
               /* Readline normally returns the number of characters read,
-               * but will return EOF on end of file or if an error occurs.  Either
-               * will cause the session to terminate.
+               * but will return EOF on end of file or if an error occurs.
+               * Either will cause the session to terminate.
                */
 
               if (ret == EOF)
@@ -330,6 +348,7 @@ int main(int argc, FAR char *argv[])
                   goto out;
                 }
 #endif
+
               /* Send content */
 
               send_pkt(wl_fd);
