@@ -90,7 +90,7 @@ struct inifile_var_s
   FAR char *value;
 };
 
-/* This structure describes the state of one instance of the INI file parser */
+/* A structure describes the state of one instance of the INI file parser */
 
 struct inifile_state_s
 {
@@ -136,7 +136,7 @@ static FAR char *
 
 static bool inifile_next_line(FAR struct inifile_state_s *priv)
 {
-  /* Search ahead for the end of line mark (or possibly the end of file mark) */
+  /* Search ahead for the end of line mark (possibly the end of file mark) */
 
   while ((priv->nextch != '\n') && (priv->nextch != EOF))
     {
@@ -305,7 +305,7 @@ static bool inifile_seek_to_section(FAR struct inifile_state_s *priv,
                   *sectend = '\0';
                 }
 
-              /* Then compare the section name to the one we are looking for */
+              /* Then compare the section name to what we are looking for */
 
               if (strcasecmp(&priv->line[1], section) == 0)
                 {

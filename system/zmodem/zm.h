@@ -59,8 +59,10 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* ZModem *******************************************************************/
-/* Zmodem ZRINIT flags.  These bits describe the cababilities of the receiver.
+
+/* Zmodem ZRINIT flags. These bits describe the cababilities of the receiver.
  * Reference: Paragraph 11.2:
  */
 
@@ -79,6 +81,7 @@
 #define TESC8         (1 << 7)       /* Sender needs 8th bit escaped. */
 
 /* ZFILE transfer flags */
+
 /* F0 */
 
 #define ZCBIN         1              /* Binary transfer */
@@ -162,6 +165,7 @@
 #define ZRUB1         'm'           /* Translate to 0xff */
 
 /* Implementation ***********************************************************/
+
 /* Zmodem Events (same as frame type + data received and error events) */
 
 #define ZME_RQINIT    ZRQINIT        /* Request receive init */
@@ -241,6 +245,7 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
 /* The state of the parser */
 
 enum parser_state_e
@@ -283,9 +288,9 @@ enum pdata_substate_e
 struct zm_state_s;
 typedef int (*action_t)(FAR struct zm_state_s *pzm);
 
-/* State transition table entry.  There is one row of the table per possible state.
- * Each row is a row of all reasonable events for this state and long the
- * appropriate state transition and transition action.
+/* State transition table entry.  There is one row of the table per possible
+ * state. Each row is a row of all reasonable events for this state and long
+ * the appropriate state transition and transition action.
  */
 
 struct zm_transition_s
@@ -562,7 +567,8 @@ ssize_t zm_remwrite(int fd, FAR const uint8_t *buffer, size_t buflen);
  *
  ****************************************************************************/
 
-int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl);
+int zm_writefile(int fd, FAR const uint8_t *buffer,
+                 size_t buflen, bool zcnl);
 
 /****************************************************************************
  * Name: zm_filecrc

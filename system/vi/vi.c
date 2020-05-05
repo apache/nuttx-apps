@@ -549,7 +549,8 @@ static const char g_fmtallocfail[]  = "Failed to allocate memory";
 static const char g_fmtcmdfail[]    = "%s failed: %d";
 static const char g_fmtnotfile[]    = "%s is not a regular file";
 static const char g_fmtfileexists[] = "File exists (add ! to override)";
-static const char g_fmtmodified[]   = "No write since last change (add ! to override)";
+static const char g_fmtmodified[]   =
+                            "No write since last change (add ! to override)";
 static const char g_fmtnotvalid[]   = "Command not valid";
 static const char g_fmtnotcmd[]     = "Not an editor command: %s";
 static const char g_fmtsrcbot[]     = "search hit BOTTOM, continuing at TOP";
@@ -700,7 +701,7 @@ static int vi_getch(FAR struct vi_s *vi)
 
 static void vi_clearbottomline(FAR struct vi_s *vi)
 {
-  vi_setcursor(vi, vi->display.row-1, 0);
+  vi_setcursor(vi, vi->display.row - 1, 0);
   vi_clrtoeol(vi);
 }
 
@@ -842,7 +843,7 @@ static void vi_scrollup(FAR struct vi_s *vi, uint16_t nlines)
 
   /* Ensure bottom line is cleared */
 
-  vi_setcursor(vi, vi->display.row-1, 0);
+  vi_setcursor(vi, vi->display.row - 1, 0);
   vi_clrtoeol(vi);
 }
 
@@ -860,7 +861,7 @@ static void vi_scrolldown(FAR struct vi_s *vi, uint16_t nlines)
 
   /* Ensure the bottom line is cleared after the scroll */
 
-  vi_setcursor(vi, vi->display.row-2, 0);
+  vi_setcursor(vi, vi->display.row - 2, 0);
   vi_clrtoeol(vi);
 
   /* Scroll for the specified number of lines */
@@ -1616,7 +1617,8 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
   while (curline < vi->winpos)
     {
       /* Yes.. move the window position up to the beginning of the previous
-       * line line and check again */
+       * line line and check again
+       */
 
       vi->winpos = vi_prevline(vi, vi->winpos);
       vi->vscroll--;
@@ -1635,7 +1637,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 
   /* Check if the cursor row position is below the bottom of the display */
 
-  for (; vi->cursor.row >= vi->display.row-1; vi->cursor.row--)
+  for (; vi->cursor.row >= vi->display.row - 1; vi->cursor.row--)
     {
       /* Yes.. move the window position down by one line and check again */
 
@@ -1693,7 +1695,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
        */
 
       for (nlines = 0, pos = vi->prevpos;
-           pos != vi->winpos && nlines < vi->display.row-1;
+           pos != vi->winpos && nlines < vi->display.row - 1;
            nlines++)
         {
           pos = vi_nextline(vi, pos);
@@ -1701,7 +1703,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 
       /* Then scroll up that number of lines */
 
-      if (nlines < vi->display.row-1)
+      if (nlines < vi->display.row - 1)
         {
           vi_scrollup(vi, nlines);
           vi->fullredraw = true;
@@ -1724,7 +1726,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 
       /* Then scroll down that number of lines */
 
-      if (nlines < vi->display.row-1)
+      if (nlines < vi->display.row - 1)
         {
           vi_scrolldown(vi, nlines);
           vi->fullredraw = true;
@@ -1778,7 +1780,7 @@ static void vi_showtext(FAR struct vi_s *vi)
    * do not update the last line.
    */
 
-  endrow = vi->display.row-1;
+  endrow = vi->display.row - 1;
 
   /* Make sure that all character attributes are disabled; Turn off the
    * cursor during the update.
@@ -1831,7 +1833,7 @@ static void vi_showtext(FAR struct vi_s *vi)
         {
           redraw_line = false;
         }
-      else if (row+1 < vi->cursor.row && !vi->fullredraw)
+      else if (row + 1 < vi->cursor.row && !vi->fullredraw)
         {
           redraw_line = false;
         }
@@ -1892,7 +1894,7 @@ static void vi_showtext(FAR struct vi_s *vi)
 
                   if (writefrom != pos)
                     {
-                      vi_write(vi, &vi->text[writefrom], pos-writefrom);
+                      vi_write(vi, &vi->text[writefrom], pos - writefrom);
                     }
 
                   tabcol = NEXT_TAB(column);
@@ -1907,8 +1909,8 @@ static void vi_showtext(FAR struct vi_s *vi)
                     }
                   else
                     {
-                      /* Break out of the loop... there is nothing left on the
-                       * line but whitespace.
+                      /* Break out of the loop... there is nothing left on
+                       * the line but whitespace.
                        */
 
                       writefrom = pos;
@@ -1928,7 +1930,7 @@ static void vi_showtext(FAR struct vi_s *vi)
 
           if (writefrom != pos)
             {
-              vi_write(vi, &vi->text[writefrom], pos-writefrom);
+              vi_write(vi, &vi->text[writefrom], pos - writefrom);
             }
 
           vi_clrtoeol(vi);
@@ -1939,7 +1941,7 @@ static void vi_showtext(FAR struct vi_s *vi)
       pos = vi_nextline(vi, pos);
     }
 
-  if (pos == vi->textsize && vi->text[pos-1] == '\n')
+  if (pos == vi->textsize && vi->text[pos - 1] == '\n')
     {
       vi_setcursor(vi, row, 0);
       vi_clrtoeol(vi);
@@ -1966,6 +1968,7 @@ static void vi_showtext(FAR struct vi_s *vi)
             {
               vi_putch(vi, '~');
             }
+
           vi_clrtoeol(vi);
         }
     }
@@ -1993,7 +1996,7 @@ static void vi_showlinecol(FAR struct vi_s *vi)
   /* Move to bototm line for display */
 
   vi_cursoroff(vi);
-  vi_setcursor(vi, vi->display.row-1, vi->display.column-15);
+  vi_setcursor(vi, vi->display.row - 1, vi->display.column - 15);
 
   len = snprintf(vi->scratch, SCRATCH_BUFSIZE, "%d,%d",
                  vi->cursor.row + vi->vscroll + 1,
@@ -2281,7 +2284,7 @@ static void vi_delforward(FAR struct vi_s *vi)
 
   start = vi->curpos;
 
-  vi_yanktext(vi, start, end-1, true, true);
+  vi_yanktext(vi, start, end - 1, true, true);
   vi->curpos = start;
   if (at_end)
     {
@@ -2310,7 +2313,7 @@ static void vi_delbackward(FAR struct vi_s *vi)
   /* Test if we are at beginning of line */
 
   if (vi->curpos == 0 || vi->text[vi->curpos] == '\n' ||
-      vi->text[vi->curpos-1] == '\n')
+      vi->text[vi->curpos - 1] == '\n')
     {
       return;
     }
@@ -2438,7 +2441,7 @@ static void vi_deltoeol(FAR struct vi_s *vi)
   vi_yanktext(vi, start, end, true, true);
   if (start > 0 && start != vi->textsize && vi->text[start - 1] != '\n')
     {
-      vi->curpos = start-1;
+      vi->curpos = start - 1;
     }
   else
     {
@@ -2591,8 +2594,8 @@ static void vi_yank(FAR struct vi_s *vi, bool del_after_yank)
   /* Test if deleting last line with empty line above it */
 
   if ((end > 0 && start == end && end == vi->textsize -1 &&
-      vi->text[end-1] == '\n') || (start > 1 && end + 1 ==
-      vi->textsize && vi->text[start-2] == '\n'))
+      vi->text[end - 1] == '\n') || (start > 1 && end + 1 ==
+      vi->textsize && vi->text[start - 2] == '\n'))
     {
       empty_last_line = true;
     }
@@ -2605,7 +2608,7 @@ static void vi_yank(FAR struct vi_s *vi, bool del_after_yank)
 
   if (end + 1 == textsize && start != end && del_after_yank)
     {
-      vi_shrinktext(vi, vi->textsize-1, 1);
+      vi_shrinktext(vi, vi->textsize - 1, 1);
     }
 
   /* Place cursor at beginning of the line */
@@ -2712,8 +2715,8 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
           /* Test if pasting at end of file */
 
           new_curpos = start;
-          if ((start >= vi->textsize && vi->text[vi->textsize-1] != '\n') ||
-              vi->curpos == vi->textsize)
+          if ((start >= vi->textsize && vi->text[vi->textsize - 1] != '\n')
+              || vi->curpos == vi->textsize)
             {
               off_t textsize = vi->textsize;
               bool at_end = vi->curpos == vi->textsize;
@@ -2725,7 +2728,7 @@ static void vi_paste(FAR struct vi_s *vi, bool paste_before)
 
               /* Don't append the \n' in the yank buffer */
 
-              if (vi->text[textsize-1] != '\n' || at_end)
+              if (vi->text[textsize - 1] != '\n' || at_end)
                 {
                   size--;
                 }
@@ -2790,7 +2793,7 @@ static void vi_join(FAR struct vi_s *vi)
 
   /* Ensure the line ends with '\n' */
 
-  if (vi->text[start+1] != '\n')
+  if (vi->text[start + 1] != '\n')
     {
       return;
     }
@@ -2808,9 +2811,9 @@ static void vi_join(FAR struct vi_s *vi)
       end++;
     }
 
-  if (start+1 != end)
+  if (start + 1 != end)
     {
-      vi_shrinktext(vi, start+1, end - (start+1));
+      vi_shrinktext(vi, start + 1, end - (start + 1));
     }
 
   vi->curpos    = start;
@@ -2969,7 +2972,7 @@ static off_t vi_findnextword(FAR struct vi_s *vi)
           break;
         }
 
-      /* Test for alpha search followed by space.  Then switch the search type
+      /* Test for alpha search followed by space. Then switch the search type
        * to space so we find whatever is next.
        */
 
@@ -3028,8 +3031,8 @@ static void vi_gotonextword(FAR struct vi_s *vi)
       pos     = vi->curpos;
       crfound = false;
 
-      while ((vi->text[pos-1] == ' ' || vi->text[pos-1] == '\t' ||
-             vi->text[pos-1] == '\n') && pos > start)
+      while ((vi->text[pos - 1] == ' ' || vi->text[pos - 1] == '\t' ||
+             vi->text[pos - 1] == '\n') && pos > start)
         {
           /* We rewind only if '\n' found before non-space */
 
@@ -3038,7 +3041,6 @@ static void vi_gotonextword(FAR struct vi_s *vi)
             {
               crfound = true;
             }
-
         }
 
       if (crfound)
@@ -3162,7 +3164,7 @@ static off_t vi_findprevword(FAR struct vi_s *vi)
 
       while (pos > 0)
         {
-          pos_type = vi_chartype(vi->text[pos-1]);
+          pos_type = vi_chartype(vi->text[pos - 1]);
 
           if (pos_type != srch_type && pos_type != VI_CHAR_CRLF)
             {
@@ -3200,7 +3202,7 @@ static off_t vi_findprevword(FAR struct vi_s *vi)
   /* Now find beginning of this new type */
 
   srch_type = vi_chartype(vi->text[pos]);
-  while (pos > 0 && vi_chartype(vi->text[pos-1]) == srch_type)
+  while (pos > 0 && vi_chartype(vi->text[pos - 1]) == srch_type)
     {
       pos--;
     }
@@ -3456,7 +3458,6 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
       if (vi->cmdrepeat && vi->cmdindex == vi->cmdcount)
         {
-
           /* Terminate the command repeat */
 
           vi->cmdrepeat = false;
@@ -3594,7 +3595,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         case KEY_RIGHT:         /* Move the cursor right one character */
           {
             if (vi->text[vi->curpos] != '\n' &&
-                vi->text[vi->curpos+1] != '\n')
+                vi->text[vi->curpos + 1] != '\n')
               {
                 vi->curpos = vi_cursorright(vi, vi->curpos, vi->value);
                 if (vi->curpos >= vi->textsize)
@@ -3988,7 +3989,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
                 break;
               }
-            else if (pos+1 != vi->textsize && vi->text[pos+1] == '\n')
+            else if (pos + 1 != vi->textsize && vi->text[pos + 1] == '\n')
               {
                 if (pos > 0)
                   {
@@ -4361,7 +4362,9 @@ static void vi_parsecolon(FAR struct vi_s *vi)
                 }
               else
                 {
-                  /* Anything else, including a forced quit is a syntax error */
+                  /* Anything else,
+                   * including a forced quit is a syntax error
+                   */
 
                   goto errout_bad_command;
                 }
@@ -5214,7 +5217,7 @@ static void vi_findinline_mode(FAR struct vi_s *vi)
   pos = vi->curpos + 1;
   count = vi->value > 0 ? vi->value : 1;
 
-  while (count > 0 && pos < vi->textsize-1 && vi->text[pos] != '\n')
+  while (count > 0 && pos < vi->textsize - 1 && vi->text[pos] != '\n')
     {
       /* Increment to next character */
 
@@ -5408,8 +5411,8 @@ static void vi_insert_mode(FAR struct vi_s *vi)
            */
 
           if (vi->cursor.column + 1 < vi->display.column && ch != '\t' &&
-              (vi->curpos+1 == vi->textsize ||
-               vi->text[vi->curpos+1] == '\n'))
+              (vi->curpos + 1 == vi->textsize ||
+               vi->text[vi->curpos + 1] == '\n'))
             {
               vi_putch(vi, ch);
             }
@@ -5464,12 +5467,12 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 
                   if (vi->curpos > 0)
                     {
-                      if (vi->text[vi->curpos-1] == '\n')
+                      if (vi->text[vi->curpos - 1] == '\n')
                         {
                           vi->drawtoeos = true;
                         }
 
-                      vi_shrinktext(vi, vi->curpos-1, 1);
+                      vi_shrinktext(vi, vi->curpos - 1, 1);
                     }
                 }
               else
@@ -5491,7 +5494,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 
               /* Move cursor 1 space to the left when exiting insert mode */
 
-              if (vi->curpos > 0 && vi->text[vi->curpos-1] != '\n')
+              if (vi->curpos > 0 && vi->text[vi->curpos - 1] != '\n')
                 {
                   --vi->curpos;
                 }
@@ -5688,10 +5691,12 @@ static void vi_showusage(FAR struct vi_s *vi, FAR const char *progname,
   fprintf(stderr, "\t<filename>:\n");
   fprintf(stderr, "\t\tOptional name of the file to open\n");
   fprintf(stderr, "\t-c <columns>:\n");
-  fprintf(stderr, "\t\tOptional width of the display in columns.  Default: %d\n",
+  fprintf(stderr,
+          "\t\tOptional width of the display in columns.  Default: %d\n",
           CONFIG_SYSTEM_VI_COLS);
   fprintf(stderr, "\t-r <rows>:\n");
-  fprintf(stderr, "\t\tOptional height of the display in rows.  Default: %d\n",
+  fprintf(stderr,
+          "\t\tOptional height of the display in rows.  Default: %d\n",
           CONFIG_SYSTEM_VI_ROWS);
   fprintf(stderr, "\t-h:\n");
   fprintf(stderr, "\t\tShows this message and exits.\n");
@@ -5810,7 +5815,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  /* There may be one additional argument on the command line:  The filename */
+  /* There maybe one additional argument on the command line: The filename */
 
   if (optind < argc)
     {
@@ -5824,12 +5829,12 @@ int main(int argc, FAR char *argv[])
         {
           /* Make file relative to current working directory */
 
-          getcwd(vi->filename, MAX_STRING-1);
+          getcwd(vi->filename, MAX_STRING - 1);
           strncat(vi->filename, "/", MAX_STRING - 1);
           strncat(vi->filename, argv[optind], MAX_STRING - 1);
         }
 
-      /* Make sure that the (possibly truncated) file name is NUL terminated */
+      /* Make sure the (possibly truncated) file name is NUL terminated */
 
       vi->filename[MAX_STRING - 1] = '\0';
 
@@ -5895,7 +5900,6 @@ int main(int argc, FAR char *argv[])
           case MODE_FINDINLINE:       /* Insert mode */
             vi_findinline_mode(vi);
             break;
-
         }
     }
 
