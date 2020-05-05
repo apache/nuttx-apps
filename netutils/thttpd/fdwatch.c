@@ -92,16 +92,17 @@ static void fdwatch_dump(const char *msg, FAR struct fdwatch_s *fw)
   fwinfo("%s\n", msg);
   fwinfo("nwatched: %d nfds: %d\n", fw->nwatched, fw->nfds);
   for (i = 0; i < fw->nwatched; i++)
-  {
-    fwinfo("%2d. pollfds: {fd: %d events: %02x revents: %02x} client: %p\n",
-           i+1, fw->pollfds[i].fd, fw->pollfds[i].events,
-           fw->pollfds[i].revents, fw->client[i]);
-  }
+    {
+      fwinfo("%2d.pollfds: {fd: %d events: %02x revents: %02x} client: %p\n",
+             i + 1, fw->pollfds[i].fd, fw->pollfds[i].events,
+             fw->pollfds[i].revents, fw->client[i]);
+    }
+
   fwinfo("nactive: %d next: %d\n", fw->nactive, fw->next);
   for (i = 0; i < fw->nactive; i++)
-  {
-    fwinfo("%2d. %d active\n", i, fw->ready[i]);
-  }
+    {
+      fwinfo("%2d. %d active\n", i, fw->ready[i]);
+    }
 }
 #else
 #  define fdwatch_dump(m,f)
@@ -138,7 +139,7 @@ struct fdwatch_s *fdwatch_initialize(int nfds)
 
   /* Allocate the fdwatch data structure */
 
-  fw = (struct fdwatch_s*)zalloc(sizeof(struct fdwatch_s));
+  fw = (struct fdwatch_s *)zalloc(sizeof(struct fdwatch_s));
   if (!fw)
     {
       fwerr("ERROR: Failed to allocate fdwatch\n");
@@ -149,19 +150,19 @@ struct fdwatch_s *fdwatch_initialize(int nfds)
 
   fw->nfds = nfds;
 
-  fw->client = (void**)httpd_malloc(sizeof(void*) * nfds);
+  fw->client = (void **)httpd_malloc(sizeof(void *) * nfds);
   if (!fw->client)
     {
       goto errout_with_allocations;
     }
 
-  fw->pollfds = (struct pollfd*)httpd_malloc(sizeof(struct pollfd) * nfds);
+  fw->pollfds = (struct pollfd *)httpd_malloc(sizeof(struct pollfd) * nfds);
   if (!fw->pollfds)
     {
       goto errout_with_allocations;
     }
 
-  fw->ready = (uint8_t*)httpd_malloc(sizeof(uint8_t) * nfds);
+  fw->ready = (uint8_t *)httpd_malloc(sizeof(uint8_t) * nfds);
   if (!fw->ready)
     {
       goto errout_with_allocations;
@@ -201,7 +202,7 @@ void fdwatch_uninitialize(struct fdwatch_s *fw)
     }
 }
 
-/* Add a descriptor to the watch list.  rw is either FDW_READ or FDW_WRITE.  */
+/* Add a descriptor to the watch list. rw is either FDW_READ or FDW_WRITE. */
 
 void fdwatch_add_fd(struct fdwatch_s *fw, int fd, void *client_data)
 {
@@ -254,7 +255,8 @@ void fdwatch_del_fd(struct fdwatch_s *fw, int fd)
           fw->client[pollndx]  = fw->client[fw->nwatched];
         }
     }
-   fdwatch_dump("After deleting:", fw);
+
+  fdwatch_dump("After deleting:", fw);
 }
 
 /* Do the watch.  Return value is the number of descriptors that are ready,
@@ -289,7 +291,8 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
         {
           /* Is there activity on this descriptor? */
 
-          if (fw->pollfds[i].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL))
+          if (fw->pollfds[i].revents &
+              (POLLIN | POLLERR | POLLHUP | POLLNVAL))
             {
               /* Yes... save it in a shorter list */
 
@@ -341,7 +344,7 @@ void *fdwatch_get_next_client_data(struct fdwatch_s *fw)
   if (fw->next >= fw->nwatched)
     {
       fwinfo("All client data returned: %d\n", fw->next);
-      return (void*)-1;
+      return (void *)-1;
     }
 
   fwinfo("client_data[%d]: %p\n", fw->next, fw->client[fw->next]);
