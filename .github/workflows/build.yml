@@ -28,10 +28,15 @@ jobs:
         id: gittargets
         shell: bash
         run: |
-          TESTING_REF="master"  # Always use master for testing
+          # Always use master for testing unless it is the testing repo
+          if [[ $GITHUB_REPOSITORY == apache/incubator-nuttx-testing ]]
+            then
+              TESTING_REF=""
+            else
+              TESTING_REF="master"
+          fi
           OS_REF=""
           APPS_REF=""
-
           REF=$GITHUB_REF
 
           # If a base ref is set this is a PR and we will want to use
@@ -73,6 +78,7 @@ jobs:
                 ;;
             esac
           fi
+
           echo "#!/bin/sh" > gitenv.sh
           echo "echo ::set-env name=os_ref::$OS_REF" >> gitenv.sh
           echo "echo ::set-env name=apps_ref::$APPS_REF" >> gitenv.sh
