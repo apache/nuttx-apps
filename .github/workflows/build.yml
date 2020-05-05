@@ -21,7 +21,7 @@ on:
     tags:
 
 jobs:
-  Fetch-Source:
+  Compute-Source-Refs:
     runs-on: ubuntu-latest
     steps:
       - name: Determine Target Branches
@@ -73,52 +73,18 @@ jobs:
                 ;;
             esac
           fi
-
-          echo ::set-output name=os_ref::$OS_REF
-          echo ::set-output name=apps_ref::$APPS_REF
-          echo ::set-output name=testing_ref::$TESTING_REF
-
-      - name: Checkout nuttx repo
-        uses: actions/checkout@v2
+          echo "#!/bin/sh" > gitenv.sh
+          echo "echo ::set-env name=os_ref::$OS_REF" >> gitenv.sh
+          echo "echo ::set-env name=apps_ref::$APPS_REF" >> gitenv.sh
+          echo "echo ::set-env name=testing_ref::$TESTING_REF" >> gitenv.sh
+      - name: Upload gitrefs
+        uses: actions/upload-artifact@v2
         with:
-          repository: apache/incubator-nuttx
-          ref: ${{ steps.gittargets.outputs.os_ref }}
-          path: sources/nuttx
-          fetch-depth: 1
-
-      - name: Checkout apps repo
-        uses: actions/checkout@v2
-        with:
-          repository: apache/incubator-nuttx-apps
-          ref: ${{ steps.gittargets.outputs.apps_ref }}
-          path: sources/apps
-          fetch-depth: 1
-
-      - name: Checkout testing repo
-        uses: actions/checkout@v2
-        with:
-          repository: apache/incubator-nuttx-testing
-          ref: ${{ steps.gittargets.outputs.testing_ref }}
-          path: sources/testing
-          fetch-depth: 1
-
-      - name: Create Source Bundle
-        run: tar -czf sources.tar.gz sources
-      - name: Archive Source Bundle
-        uses: actions/upload-artifact@v1
-        with:
-          name: source-bundle
-          path: sources.tar.gz
-
-      - name: Cache Source
-        id: cache-source
-        uses: actions/cache@v1
-        with:
-          path: sources
-          key: build-sources-${{ github.run_id }}
+          name: gitrefs
+          path: gitenv.sh
 
   Linux:
-    needs: Fetch-Source
+    needs: Compute-Source-Refs
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -128,25 +94,6 @@ jobs:
         boards: [arm-01, arm-02, arm-03, arm-04, arm-05, arm-06, arm-07, arm-08, arm-09, arm-10, arm-11, arm-12, arm-13, mips-riscv-x86-xtensa, sim]
 
     steps:
-      - name: Fetch Cached Source
-        id: cache-source
-        uses: actions/cache@v1
-        with:
-          path: sources-cache
-          key: build-sources-${{ github.run_id }}
-      - name: Prevent Updating Source Cache
-        if: steps.cache-source.outputs.cache-hit == 'true'
-        run: mv sources-cache sources
-      - name: Download Source Artifact
-        if: steps.cache-source.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v1
-        with:
-          name: source-bundle
-          path: ./
-      - name: Extract Source Artifact
-        if: steps.cache-source.outputs.cache-hit != 'true'
-        run: tar -xf sources.tar.gz
-
       - name: Docker Login
         uses: azure/docker-login@v1
         with:
@@ -162,17 +109,38 @@ jobs:
           retry_wait_seconds: 10
           command: docker pull docker.pkg.github.com/apache/incubator-nuttx-testing/nuttx-ci-linux
 
-      - name: Export NuttX Repo SHA
-        run:  echo "::set-env name=nuttx_sha::`git -C sources/nuttx rev-parse HEAD`"
-      - name: Refresh Git Credentials
+      - uses: actions/download-artifact@v2
+        with:
+          name: gitrefs
+          path: gitrefs-rt/
+      - name: Export Repo Refs
+        run: source gitrefs-rt/gitenv.sh
+
+      - name: Checkout nuttx repo
         uses: actions/checkout@v2
         with:
           repository: apache/incubator-nuttx
-          ref: ${{ env.nuttx_sha }}
+          ref: ${{ env.os_ref }}
           path: sources/nuttx
           fetch-depth: 1
-      - name: Get Tags for NuttX Repo
-        run: git -C sources/nuttx fetch --tags
+      - run: git -C sources/nuttx pull --tags
+
+      - name: Checkout apps repo
+        uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-nuttx-apps
+          ref: ${{ env.apps_ref }}
+          path: sources/apps
+          fetch-depth: 1
+
+      - name: Checkout testing repo
+        uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-nuttx-testing
+          ref: ${{ env.testing_ref }}
+          path: sources/testing
+          fetch-depth: 1
+
       - name: Run builds
         uses: ./sources/testing/.github/actions/ci-container
         env:
@@ -184,30 +152,11 @@ jobs:
 
   macOS:
     runs-on: macos-10.15
-    needs: Fetch-Source
+    needs: Compute-Source-Refs
     strategy:
       matrix:
         boards: [arm-12, mips-riscv-x86-xtensa, sim]
     steps:
-      - name: Fetch Cached Source
-        id: cache-source
-        uses: actions/cache@v1
-        with:
-          path: sources-cache
-          key: build-sources-${{ github.run_id }}
-      - name: Prevent Updating Source Cache
-        if: steps.cache-source.outputs.cache-hit == 'true'
-        run: mv sources-cache sources
-      - name: Download Source Artifact
-        if: steps.cache-source.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v1
-        with:
-          name: source-bundle
-          path: ./
-      - name: Extract Source Artifact
-        if: steps.cache-source.outputs.cache-hit != 'true'
-        run: tar -xf sources.tar.gz
-
       - name: Restore Tools Cache
         id: cache-tools
         uses: actions/cache@v1
@@ -217,17 +166,38 @@ jobs:
           path: prebuilt
           key: ${{ runner.os }}-tools-${{ hashFiles('./sources/testing/cibuild.sh') }}
 
-      - name: Export NuttX Repo SHA
-        run:  echo "::set-env name=nuttx_sha::`git -C sources/nuttx rev-parse HEAD`"
-      - name: Refresh Git Credentials
+      - uses: actions/download-artifact@v2
+        with:
+          name: gitrefs
+          path: gitrefs-rt/
+      - name: Export Repo Refs
+        run: source gitrefs-rt/gitenv.sh
+
+      - name: Checkout nuttx repo
         uses: actions/checkout@v2
         with:
           repository: apache/incubator-nuttx
-          ref: ${{ env.nuttx_sha }}
+          ref: ${{ env.os_ref }}
           path: sources/nuttx
           fetch-depth: 1
-      - name: Get Tags for NuttX Repo
-        run: git -C sources/nuttx fetch --tags
+      - run: git -C sources/nuttx pull --tags
+
+      - name: Checkout apps repo
+        uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-nuttx-apps
+          ref: ${{ env.apps_ref }}
+          path: sources/apps
+          fetch-depth: 1
+
+      - name: Checkout testing repo
+        uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-nuttx-testing
+          ref: ${{ env.testing_ref }}
+          path: sources/testing
+          fetch-depth: 1
+
       - name: Run Builds
         run: |
           cd sources/testing
