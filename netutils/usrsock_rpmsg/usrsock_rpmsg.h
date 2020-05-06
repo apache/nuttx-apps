@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/usrsock_rpmsg/usrsock_rpmsg.h
+ * apps/netutils/usrsock_rpmsg/usrsock_rpmsg.h
  *
  *   Copyright (C) 2018 Pinecone Inc. All rights reserved.
  *   Author: Jianli Dong <dongjianli@pinecone.net>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __SYSTEM_USRSOCK_RPMSG_H
-#define __SYSTEM_USRSOCK_RPMSG_H
+#ifndef __NETUTILS_USRSOCK_RPMSG_H
+#define __NETUTILS_USRSOCK_RPMSG_H
 
 /****************************************************************************
  * Included Files
@@ -63,4 +63,4 @@ begin_packed_struct struct usrsock_rpmsg_dns_event_s
   uint16_t addrlen;
 } end_packed_struct;
 
-#endif /* __SYSTEM_USRSOCK_RPMSG_H */
+#endif /* __NETUTILS_USRSOCK_RPMSG_H */
