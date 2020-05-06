@@ -18,6 +18,12 @@ config LV_MEM_SIZE
 		The size of a memory pool where the grapohisc library
 		dynamically allocates data
 
+config LV_USE_USER_DATA
+	bool "Use user data in driver and objects"
+	default n
+	---help---
+		Add a `user_data` to drivers and objects
+
 menu "Graphics settings"
 
 config LV_HOR_RES
@@ -192,14 +198,14 @@ endmenu
 
 menu "Log usage"
 
-config USE_LV_LOG
+config LV_USE_LOG
 	bool "Enable/disable the log module"
 	default n
 
 choice
 	prompt "Log level"
-	depends on USE_LV_LOG
-	default	LV_LOG_LEVEL_WARN
+	depends on LV_USE_LOG
+	default LV_LOG_LEVEL_WARN
 
 config LV_LOG_LEVEL_TRACE
 	bool "Trace"
@@ -217,8 +223,41 @@ endchoice
 
 config LV_LOG_PRINTF
 	bool "Use printf() for logging"
-	depends on USE_LV_LOG
+	depends on LV_USE_LOG
 	default y
+
+endmenu
+
+menu "Debug usage"
+
+config LV_USE_DEBUG
+	bool "Enable/disable the debug module"
+	default n
+
+config LV_USE_ASSERT_NULL
+	bool "Check if the parameter is NULL"
+	depends on LV_USE_DEBUG
+	default n
+
+config LV_USE_ASSERT_MEM
+	bool "Checks is the memory is successfully allocated or no"
+	depends on LV_USE_DEBUG
+	default n
+
+config LV_USE_ASSERT_STR
+	bool "Check the strings"
+	depends on LV_USE_DEBUG
+	default n
+
+config LV_USE_ASSERT_OBJ
+	bool "Check object's type and existence"
+	depends on LV_USE_DEBUG
+	default n
+
+config LV_USE_ASSERT_STYLE
+	bool "Check if the styles are properly initialized"
+	depends on LV_USE_DEBUG
+	default n
 
 endmenu
 
