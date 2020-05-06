@@ -142,7 +142,7 @@ typedef int16_t lv_coord_t;
 
 /* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB) */
 
-#  define LV_MEM_SIZE    (32U * 1024U)
+#  define LV_MEM_SIZE    CONFIG_LV_MEM_SIZE
 
 /* Complier prefix for a big array declaration */
 
@@ -276,7 +276,11 @@ typedef void * lv_fs_drv_user_data_t;
 
 /* 1: Add a `user_data` to drivers and objects */
 
+#ifdef CONFIG_LV_USE_USER_DATA
+#define LV_USE_USER_DATA        CONFIG_LV_USE_USER_DATA
+#else
 #define LV_USE_USER_DATA        0
+#endif
 
 /****************************************************************************
  * Image decoder and cache
@@ -374,8 +378,8 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
 
 /* 1: Enable the log module */
 
-#ifdef CONFIG_USE_LV_LOG
-#define LV_USE_LOG      CONFIG_USE_LV_LOG
+#ifdef CONFIG_LV_USE_LOG
+#define LV_USE_LOG      CONFIG_LV_USE_LOG
 #else
 #define LV_USE_LOG      0
 #endif
@@ -434,16 +438,29 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
  * E.g. #define LV_ASSERT_MEM(p)  <my_assert_code>
  */
 
-#define LV_USE_DEBUG        0
+#ifdef CONFIG_LV_USE_DEBUG
+#define LV_USE_DEBUG      CONFIG_LV_USE_DEBUG
+#else
+#define LV_USE_DEBUG      0
+#endif
+
 #if LV_USE_DEBUG
 
 /* Check if the parameter is NULL. (Quite fast) */
 
-#define LV_USE_ASSERT_NULL      1
+#ifdef CONFIG_LV_USE_ASSERT_NULL
+#define LV_USE_ASSERT_NULL      CONFIG_LV_USE_ASSERT_NULL
+#else
+#define LV_USE_ASSERT_NULL      0
+#endif
 
 /* Checks is the memory is successfully allocated or no. (Quite fast) */
 
-#define LV_USE_ASSERT_MEM       1
+#ifdef CONFIG_LV_USE_ASSERT_MEM
+#define LV_USE_ASSERT_MEM      CONFIG_LV_USE_ASSERT_MEM
+#else
+#define LV_USE_ASSERT_MEM      0
+#endif
 
 /* Check the strings.
  * Search for NULL, very long strings, invalid characters,
@@ -451,8 +468,11 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
  * If disabled `LV_USE_ASSERT_NULL` will be performed instead
  * (if it's enabled)
  */
-
-#define LV_USE_ASSERT_STR       0
+#ifdef CONFIG_LV_USE_ASSERT_STR
+#define LV_USE_ASSERT_STR      CONFIG_LV_USE_ASSERT_STR
+#else
+#define LV_USE_ASSERT_STR      0
+#endif
 
 /* Check NULL, the object's type and existence
  * (e.g. not deleted). (Quite slow)
@@ -460,11 +480,19 @@ typedef void * lv_indev_drv_user_data_t;            /* Type of user data in the 
  * performed instead (if it's enabled)
  */
 
-#define LV_USE_ASSERT_OBJ       0
+#ifdef CONFIG_LV_USE_ASSERT_OBJ
+#define LV_USE_ASSERT_OBJ      CONFIG_LV_USE_ASSERT_OBJ
+#else
+#define LV_USE_ASSERT_OBJ      0
+#endif
 
 /* Check if the styles are properly initialized. (Fast) */
 
-#define LV_USE_ASSERT_STYLE     1
+#ifdef CONFIG_LV_USE_ASSERT_STYLE
+#define LV_USE_ASSERT_STYLE      CONFIG_LV_USE_ASSERT_STYLE
+#else
+#define LV_USE_ASSERT_STYLE      0
+#endif
 
 #endif /* LV_USE_DEBUG */
 
@@ -646,7 +674,7 @@ typedef void * lv_font_user_data_t;
 
 /* Can break (wrap) texts on these chars */
 
-#define LV_TXT_BREAK_CHARS                  " ,.;:-_"
+#define LV_TXT_BREAK_CHARS                  CONFIG_LV_TXT_BREAK_CHARS
 
 /* If a word is at least this long, will break wherever "prettiest"
  * To disable, set to a value <= 0
