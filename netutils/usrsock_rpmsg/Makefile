@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/usrsock_rpmsg/Make.defs
+# apps/system/usrsock_rpmsg/Makefile
 #
 #   Copyright (C) 2018 Pinecone Inc. All rights reserved.
 #   Author: Pinecone <pinecone@pinecone.net>
@@ -33,6 +33,17 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_USRSOCK_RPMSG),y)
-CONFIGURED_APPS += $(APPDIR)/system/usrsock_rpmsg
+-include $(TOPDIR)/Make.defs
+
+PROGNAME = usrsock
+PRIORITY = CONFIG_NETUTILS_USRSOCK_RPMSG_PRIORITY
+STACKSIZE = CONFIG_NETUTILS_USRSOCK_RPMSG_STACKSIZE
+
+ifeq ($(CONFIG_NET_USRSOCK),y)
+MAINSRC := usrsock_rpmsg_client.c
+else
+MAINSRC := usrsock_rpmsg_server.c
 endif
+MODULE = $(CONFIG_NETUTILS_USRSOCK_RPMSG)
+
+include $(APPDIR)/Application.mk

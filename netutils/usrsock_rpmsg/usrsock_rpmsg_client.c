@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/usrsock_rpmsg/usrsock_rpmsg_client.c
+ * apps/netutils/usrsock_rpmsg/usrsock_rpmsg_client.c
  * usrsock rpmsg client
  *
  *   Copyright (C) 2018 Pinecone Inc. All rights reserved.
