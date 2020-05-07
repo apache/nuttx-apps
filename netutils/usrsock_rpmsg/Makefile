@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/usrsock_rpmsg/Makefile
+# apps/netutils/usrsock_rpmsg/Makefile
 #
 #   Copyright (C) 2018 Pinecone Inc. All rights reserved.
 #   Author: Pinecone <pinecone@pinecone.net>
