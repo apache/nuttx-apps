@@ -495,7 +495,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
     {
       nwarn("WARNING: Malformed HTTP URL: %s\n", url);
       free(ws);
-      set_errno(-ret);
+      errno = -ret;
       return ERROR;
     }
 
@@ -697,7 +697,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   return OK;
 
 errout_with_errno:
-  set_errno(-ret);
+  errno = -ret;
 errout:
   close(sockfd);
   free(ws);
