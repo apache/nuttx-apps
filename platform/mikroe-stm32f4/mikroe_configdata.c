@@ -132,7 +132,7 @@ int platform_setconfig(enum config_data_e id, int instance,
           {
             /* Error opening the file */
 
-            set_errno(ENOENT);
+            errno = ENOENT;
             return -1;
           }
 
@@ -162,7 +162,7 @@ int platform_setconfig(enum config_data_e id, int instance,
         break;
     }
 
-  set_errno(ENOSYS);
+  errno = ENOSYS;
   return -1;
 
 #endif /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
@@ -254,7 +254,7 @@ int platform_getconfig(enum config_data_e id, int instance,
           {
             /* Error opening the file */
 
-            set_errno(ENOENT);
+            errno = ENOENT;
             return -1;
           }
 
@@ -269,7 +269,7 @@ int platform_getconfig(enum config_data_e id, int instance,
           {
             /* Error!  Not enough data in the file */
 
-            set_errno(EINVAL);
+            errno = EINVAL;
             fclose(fd);
             return -1;
           }
@@ -291,7 +291,7 @@ int platform_getconfig(enum config_data_e id, int instance,
         break;
     }
 
-  set_errno(ENOSYS);
+  errno = ENOSYS;
   return -1;
 
 #endif /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */

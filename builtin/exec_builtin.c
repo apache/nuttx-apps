@@ -228,6 +228,6 @@ errout_with_attrs:
   posix_spawnattr_destroy(&attr);
 
 errout_with_errno:
-  set_errno(ret);
+  errno = ret;
   return ERROR;
 }

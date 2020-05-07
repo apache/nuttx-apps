@@ -116,7 +116,7 @@ int issmartfs(FAR const char *pathname)
 
   if (!(fmt.flags & SMART_FMT_ISFORMATTED))
     {
-      set_errno(EFTYPE);
+      errno = EFTYPE;
       ret = ERROR;
       goto out;
     }
@@ -246,7 +246,7 @@ errout:
 
   if (ret < 0)
     {
-      set_errno(-ret);
+      errno = -ret;
       return ERROR;
     }
 
