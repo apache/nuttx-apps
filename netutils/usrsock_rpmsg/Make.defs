@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/usrsock_rpmsg/Make.defs
+# apps/netutils/usrsock_rpmsg/Make.defs
 #
 #   Copyright (C) 2018 Pinecone Inc. All rights reserved.
 #   Author: Pinecone <pinecone@pinecone.net>
@@ -34,5 +34,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_NETUTILS_USRSOCK_RPMSG),y)
-CONFIGURED_APPS += $(APPDIR)/system/usrsock_rpmsg
+CONFIGURED_APPS += $(APPDIR)/netutils/usrsock_rpmsg
 endif
