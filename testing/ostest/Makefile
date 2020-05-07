@@ -63,7 +63,7 @@ ifneq ($(CONFIG_STDIO_DISABLE_BUFFERING),y)
 CSRCS += setvbuf.c
 endif
 
-ifeq ($(CONFIG_TLS),y)
+ifneq ($(CONFIG_TLS_NELEM),0)
 CSRCS += tls.c
 endif
 

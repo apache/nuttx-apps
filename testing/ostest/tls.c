@@ -48,7 +48,7 @@
 
 #include "ostest.h"
 
-#ifdef CONFIG_TLS
+#if CONFIG_TLS_NELEM > 0
 
 #include <arch/tls.h>
 
@@ -126,4 +126,4 @@ void tls_test(void)
   put_tls_info(&g_save_info);
 }
 
-#endif /* CONFIG_TLS */
+#endif /* CONFIG_TLS_NELEM > 0 */
