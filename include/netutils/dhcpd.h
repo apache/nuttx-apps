@@ -63,6 +63,8 @@ extern "C"
 #endif
 
 int dhcpd_run(FAR const char *interface);
+int dhcpd_start(FAR const char *interface);
+int dhcpd_stop(void);
 
 #undef EXTERN
 #ifdef __cplusplus

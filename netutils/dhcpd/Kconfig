@@ -82,4 +82,16 @@ config NETUTILS_DHCPD_DECLINETIME
 	---help---
 	Default: 1 hour
 
+config NETUTILS_DHCPD_PRIORITY
+	int "DHCPD daemon priority"
+	default 100
+
+config NETUTILS_DHCPD_STACKSIZE
+	int "DHCPD daemon priority"
+	default DEFAULT_TASK_STACKSIZE
+
+config NETUTILS_DHCPD_SIGWAKEUP
+	int "DHCPD wakeup signal number"
+	default 22
+
 endif
