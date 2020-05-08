@@ -363,7 +363,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if !defined(CONFIG_DISABLE_PTHREAD) && CONFIG_NPTHREAD_KEYS > 0
+#if !defined(CONFIG_DISABLE_PTHREAD) && CONFIG_TLS_NELEM > 0
       /* Verify pthread-specific data */
 
       printf("\nuser_main: pthread-specific data test\n");
