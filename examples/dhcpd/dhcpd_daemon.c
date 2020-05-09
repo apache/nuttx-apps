@@ -44,18 +44,6 @@
  * but there are default values for those so we cannot check them here.
  */
 
-#ifndef CONFIG_EXAMPLES_DHCPD_IPADDR
-#  error "You must define CONFIG_EXAMPLES_DHCPD_IPADDR"
-#endif
-
-#ifndef CONFIG_EXAMPLES_DHCPD_DRIPADDR
-#  error "You must define CONFIG_EXAMPLES_DHCPD_DRIPADDR"
-#endif
-
-#ifndef CONFIG_EXAMPLES_DHCPD_NETMASK
-#  error "You must define CONFIG_EXAMPLES_DHCPD_NETMASK"
-#endif
-
 #ifndef CONFIG_NET
 #  error "You must define CONFIG_NET"
 #endif
@@ -122,17 +110,17 @@ int dhcpd_daemon(int argc, FAR char *argv[], bool daemon)
 
   /* Set up our host address */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_IPADDR);
+  addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_ROUTERIP);
   netlib_set_ipv4addr(devname, &addr);
 
   /* Set up the default router address */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_DRIPADDR);
+  addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_ROUTERIP);
   netlib_set_dripv4addr(devname, &addr);
 
   /* Setup the subnet mask */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_DHCPD_NETMASK);
+  addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_NETMASK);
   netlib_set_ipv4netmask(devname, &addr);
 
   /* New versions of netlib_set_ipvXaddr will not bring the network up,

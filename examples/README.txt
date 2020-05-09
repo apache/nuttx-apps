@@ -249,9 +249,6 @@ examples/dhcpd
     CONFIG_NETUTILS_NETLIB=y       - The networking library is needed
 
     CONFIG_EXAMPLES_DHCPD_NOMAC     - (May be defined to use software assigned MAC)
-    CONFIG_EXAMPLES_DHCPD_IPADDR    - Target IP address
-    CONFIG_EXAMPLES_DHCPD_DRIPADDR  - Default router IP address
-    CONFIG_EXAMPLES_DHCPD_NETMASK   - Network mask
 
   See also CONFIG_NETUTILS_DHCPD_* settings described elsewhere
   and used in netutils/dhcpd/dhcpd.c. These settings are required
