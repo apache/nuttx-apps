@@ -37,6 +37,9 @@
 
 # NXFLAT Example
 
+CSRCS = romfs.c
+CSRCS += dirlist.c
+CSRCS += symtab.c
 MAINSRC = nxflat_main.c
 
 PROGNAME = nxflat
@@ -44,7 +47,9 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_NXFLAT)
 
-nxflat_main.c: build
+tests/romfs.c: build
+tests/dirlist.c: build
+tests/symtab.c: build
 
 .PHONY: build
 build:

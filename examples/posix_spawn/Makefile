@@ -37,7 +37,8 @@
 
 # ELF Example
 
-CSRCS = symtab.c
+CSRCS = romfs.c
+CSRCS += symtab.c
 MAINSRC = spawn_main.c
 
 PROGNAME = posix_spawn
@@ -51,7 +52,7 @@ ROOTDEPPATH	+= --dep-path filesystem
 
 VPATH += filesystem
 
-spawn_main.c: build
+filesystem/romfs.c: build
 filesystem/symtab.c: build
 
 .PHONY: build

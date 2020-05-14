@@ -40,8 +40,6 @@
 #include <nuttx/drivers/ramdisk.h>
 #include <nuttx/symtab.h>
 
-#include "filesystem/romfs.h"
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -132,6 +130,9 @@ static char * const g_argv[4] =
 /****************************************************************************
  * Symbols from Auto-Generated Code
  ****************************************************************************/
+
+extern const unsigned char romfs_img[];
+extern const unsigned int romfs_img_len;
 
 extern const struct symtab_s g_spawn_exports[];
 extern const int g_spawn_nexports;

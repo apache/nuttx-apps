@@ -50,7 +50,7 @@ SYMTAB_SRC = $(LIB_DIR)/sot_symtab.c
 
 ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
   ROMFS_IMG = $(LIB_DIR)/romfs.img
-  ROMFS_HDR = $(LIB_DIR)/romfs.h
+  ROMFS_SRC = $(LIB_DIR)/romfs.c
 endif
 
 define DIR_template
@@ -58,7 +58,7 @@ $(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(ROMFS_HDR) $(SYMTAB_SRC)
+all: $(ROMFS_SRC) $(SYMTAB_SRC)
 .PHONY: all clean install
 
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
@@ -75,10 +75,10 @@ $(ROMFS_IMG): install
 	$(Q) genromfs -f $@.tmp -d $(FSROOT_DIR) -V "SOTESTTEST"
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(ROMFS_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(LIB_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(LIB_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 endif
 
 # Create the exported symbol table
@@ -90,5 +90,5 @@ $(SYMTAB_SRC): install
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -f $(ROMFS_SRC) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(FSROOT_DIR)

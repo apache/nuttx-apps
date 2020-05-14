@@ -37,7 +37,14 @@
 
 # ELF Example
 
-CSRCS = symtab.c
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
+CSRCS = romfs.c
+endif
+ifeq ($(CONFIG_EXAMPLES_ELF_CROMFS),y)
+CSRCS = cromfs.c
+endif
+CSRCS += dirlist.c
+CSRCS += symtab.c
 MAINSRC = elf_main.c
 
 PROGNAME = elf
@@ -51,7 +58,13 @@ ROOTDEPPATH := --dep-path tests
 
 VPATH += :tests
 
-elf_main.c: build
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
+tests/romfs.c: build
+endif
+ifeq ($(CONFIG_EXAMPLES_ELF_CROMFS),y)
+tests/cromfs.c: build
+endif
+tests/dirlist.c: build
 tests/symtab.c: build
 
 .PHONY: build

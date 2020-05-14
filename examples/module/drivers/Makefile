@@ -51,13 +51,13 @@ endif
 ifeq ($(CONFIG_EXAMPLES_MODULE_BUILTINFS),y)
 ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
   ROMFS_IMG = $(DRIVER_DIR)/romfs.img
-  FSIMG_HDR = $(DRIVER_DIR)/romfs.h
+  FSIMG_SRC = $(DRIVER_DIR)/romfs.c
 else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
   NXTOOLDIR = $(TOPDIR)/tools
   GENCROMFSSRC = gencromfs.c
   GENCROMFSEXE = gencromfs$(EXEEXT)
 
-  FSIMG_HDR = $(DRIVER_DIR)/cromfs.h
+  FSIMG_SRC = $(DRIVER_DIR)/cromfs.c
 endif
 endif
 
@@ -66,7 +66,7 @@ $(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(FSIMG_HDR) $(SYMTAB_SRC) $(PASS1_SYMTAB)
+all: $(FSIMG_SRC) $(SYMTAB_SRC) $(PASS1_SYMTAB)
 .PHONY: all clean install
 
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
@@ -84,10 +84,10 @@ $(ROMFS_IMG): install
 	$(Q) genromfs -f $@.tmp -d $(FSROOT_DIR) -V "MODULETEST"
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(FSIMG_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(DRIVER_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(FSIMG_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(DRIVER_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
 else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
 # Make sure that the NuttX gencromfs tool has been built
@@ -95,9 +95,9 @@ else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
 $(NXTOOLDIR)/$(GENCROMFSEXE): $(NXTOOLDIR)/$(GENCROMFSSRC)
 	$(Q) $(MAKE) -C $(NXTOOLDIR) -f Makefile.host $(GENCROMFSEXE)
 
-# Create the cromfs.h header file from the populated cromfs directory
+# Create the cromfs.c file from the populated cromfs directory
 
-$(FSIMG_HDR): install $(NXTOOLDIR)/$(GENCROMFSEXE)
+$(FSIMG_SRC): install $(NXTOOLDIR)/$(GENCROMFSEXE)
 	$(Q) $(NXTOOLDIR)/$(GENCROMFSEXE) $(FSIMG_DIR) $@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
@@ -120,5 +120,5 @@ endif
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(FSIMG_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -f $(FSIMG_SRC) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(FSROOT_DIR)

@@ -1,4 +1,4 @@
 /romfs
-/romfs.h
+/romfs.c
 /romfs.img
 /symtab.c

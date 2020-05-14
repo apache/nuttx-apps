@@ -39,10 +39,10 @@ SPAWN_DIR = $(APPDIR)$(DELIM)examples$(DELIM)posix_spawn
 FILESYSTEM_DIR = $(SPAWN_DIR)$(DELIM)filesystem
 ROMFS_DIR = $(FILESYSTEM_DIR)$(DELIM)romfs
 ROMFS_IMG = $(FILESYSTEM_DIR)$(DELIM)romfs.img
-ROMFS_HDR = $(FILESYSTEM_DIR)$(DELIM)romfs.h
+ROMFS_SRC = $(FILESYSTEM_DIR)$(DELIM)romfs.c
 SYMTAB_SRC = $(FILESYSTEM_DIR)$(DELIM)symtab.c
 
-all: $(ROMFS_HDR) $(SYMTAB_SRC)
+all: $(ROMFS_SRC) $(SYMTAB_SRC)
 .PHONY: all hello/hello redirect/redirect clean
 
 # Build the hello test program
@@ -65,10 +65,10 @@ $(ROMFS_IMG): hello/hello redirect/redirect testdata.txt
 	$(Q) genromfs -f $@.tmp -d $(ROMFS_DIR) -V "POSIXSPAWN"
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(ROMFS_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(FILESYSTEM_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(FILESYSTEM_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
 # Create the exported symbol table
 
@@ -81,5 +81,5 @@ $(SYMTAB_SRC): $(ROMFS_IMG)
 clean:
 	$(Q) $(MAKE) -C hello clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
 	$(Q) $(MAKE) -C redirect clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
-	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
+	$(Q) rm -f $(ROMFS_SRC) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(ROMFS_DIR)

@@ -219,7 +219,7 @@ else
 context::
 endif
 
-.depend: Makefile $(SRCS)
+.depend: Makefile $(wildcard $(SRCS))
 ifeq ($(filter %$(CXXEXT),$(SRCS)),)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$^) >Make.dep
 else

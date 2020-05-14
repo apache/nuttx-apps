@@ -50,7 +50,7 @@ THTTPD_DIR = $(APPDIR)/examples/thttpd
 CONTENT_DIR = $(THTTPD_DIR)/content
 ROMFS_DIR = $(CONTENT_DIR)/romfs
 ROMFS_IMG = $(CONTENT_DIR)/romfs.img
-ROMFS_HDR = $(CONTENT_DIR)/romfs.h
+ROMFS_SRC = $(CONTENT_DIR)/romfs.c
 
 # Populate the romfs directory
 
@@ -67,14 +67,14 @@ $(ROMFS_DIR)/style.css : $(CONTENT_DIR)/style.css
 $(ROMFS_IMG): $(ROMFS_DIR)/index.html $(ROMFS_DIR)/style.css
 	$(Q) genromfs -f $@ -d $(ROMFS_DIR) -V "THTTPDTEST"
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(ROMFS_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
-all:: $(ROMFS_HDR)
+all:: $(ROMFS_SRC)
 
 clean::
-	$(call DELFILE, $(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_SRC))
 	$(call DELFILE, $(ROMFS_IMG))
 	$(Q) rm -rf $(ROMFS_DIR)

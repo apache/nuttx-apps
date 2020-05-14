@@ -40,16 +40,16 @@ THTTPD_DIR = $(APPDIR)/examples/thttpd
 CONTENT_DIR = $(THTTPD_DIR)/content
 ROMFS_DIR = $(CONTENT_DIR)/romfs
 ROMFS_IMG = $(CONTENT_DIR)/romfs.img
-ROMFS_HDR = $(CONTENT_DIR)/romfs.h
+ROMFS_SRC = $(CONTENT_DIR)/romfs.c
 ROMFSCGI_DIR = $(ROMFS_DIR)/cgi-bin
-SYMTAB = $(CONTENT_DIR)/symtab.h
+SYMTAB_SRC = $(CONTENT_DIR)/symtab.c
 
 define DIR_template
 $(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) CGI_DIR="$(ROMFSCGI_DIR)"
 endef
 
-all: $(ROMFS_HDR) $(SYMTAB)
+all: $(ROMFS_SRC) $(SYMTAB_SRC)
 .PHONY: all clean distclean install context depend
 
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
@@ -68,14 +68,14 @@ $(ROMFS_IMG): install
 	$(Q) genromfs -f $@.tmp -d $(ROMFS_DIR) -V "THTTPDTEST"
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(ROMFS_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
 # Create the exported symbol table list from the derived *-thunk.S files
 
-$(SYMTAB): install
+$(SYMTAB_SRC): install
 	$(Q) $(CONTENT_DIR)/mksymtab.sh $(CONTENT_DIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
@@ -86,9 +86,9 @@ context:
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(SUBDIRS), $(DIR)_clean)
-	$(call DELFILE, $(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_SRC))
 	$(call DELFILE, $(ROMFS_IMG))
-	$(call DELFILE, $(SYMTAB))
+	$(call DELFILE, $(SYMTAB_SRC))
 	$(Q) rm -rf $(ROMFS_DIR)
 
 distclean: clean
