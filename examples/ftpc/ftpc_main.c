@@ -67,7 +67,7 @@
 #endif
 
 /****************************************************************************
- * Public Types
+ * Private Types
  ****************************************************************************/
 
 struct cmdmap_s
@@ -138,6 +138,7 @@ static int cmd_lhelp(SESSION handle, int argc, char **argv)
           printf("  %s\n", ptr->cmd);
         }
     }
+
   return OK;
 }
 
@@ -200,7 +201,9 @@ char *ftpc_argument(char **saveptr)
         }
       else
         {
-          /* No, then any of the usual terminators will terminate the argument */
+          /* No, then any of the usual terminators
+           * will terminate the argument
+           */
 
           term = g_delim;
         }
@@ -225,7 +228,6 @@ char *ftpc_argument(char **saveptr)
       /* Save the pointer where we left off */
 
       *saveptr = pend;
-
     }
 
   /* Return the beginning of the token. */
@@ -239,64 +241,65 @@ char *ftpc_argument(char **saveptr)
 
 static int ftpc_execute(SESSION handle, int argc, char *argv[])
 {
-   const struct cmdmap_s *cmdmap;
-   const char            *cmd;
-   cmd_t                  handler = cmd_lunrecognized;
-   int                    ret;
+  const struct cmdmap_s *cmdmap;
+  const char            *cmd;
+  cmd_t                  handler = cmd_lunrecognized;
+  int                    ret;
 
-   /* The form of argv is:
-    *
-    * argv[0]:      The command name.  This is argv[0] when the arguments
-    *               are, finally, received by the command handler
-    * argv[1]:      The beginning of argument (up to FTPC_MAX_ARGUMENTS)
-    * argv[argc]:   NULL terminating pointer
-    */
+  /* The form of argv is:
+   *
+   * argv[0]:      The command name.  This is argv[0] when the arguments
+   *               are, finally, received by the command handler
+   * argv[1]:      The beginning of argument (up to FTPC_MAX_ARGUMENTS)
+   * argv[argc]:   NULL terminating pointer
+   */
 
-   cmd = argv[0];
+  cmd = argv[0];
 
-   /* See if the command is one that we understand */
+  /* See if the command is one that we understand */
 
-   for (cmdmap = g_cmdmap; cmdmap->cmd; cmdmap++)
-     {
-       if (strcmp(cmdmap->cmd, cmd) == 0)
-         {
-           /* Check if a valid number of arguments was provided.  We
-            * do this simple, imperfect checking here so that it does
-            * not have to be performed in each command.
-            */
+  for (cmdmap = g_cmdmap; cmdmap->cmd; cmdmap++)
+    {
+      if (strcmp(cmdmap->cmd, cmd) == 0)
+        {
+          /* Check if a valid number of arguments was provided.  We
+           * do this simple, imperfect checking here so that it does
+           * not have to be performed in each command.
+           */
 
-           if (argc < cmdmap->minargs)
-             {
-               /* Fewer than the minimum number were provided */
+          if (argc < cmdmap->minargs)
+            {
+              /* Fewer than the minimum number were provided */
 
-               printf("Too few arguments for '%s'\n", cmd);
-               return ERROR;
-             }
-           else if (argc > cmdmap->maxargs)
-             {
-               /* More than the maximum number were provided */
+              printf("Too few arguments for '%s'\n", cmd);
+              return ERROR;
+            }
+          else if (argc > cmdmap->maxargs)
+            {
+              /* More than the maximum number were provided */
 
-               printf("Too many arguments for '%s'\n", cmd);
-               return ERROR;
-             }
-           else
-             {
-               /* A valid number of arguments were provided (this does
-                * not mean they are right).
-                */
+              printf("Too many arguments for '%s'\n", cmd);
+              return ERROR;
+            }
+          else
+            {
+              /* A valid number of arguments were provided (this does
+               * not mean they are right).
+               */
 
-               handler = cmdmap->handler;
-               break;
-             }
-         }
-     }
+              handler = cmdmap->handler;
+              break;
+            }
+        }
+    }
 
-   ret = handler(handle, argc, argv);
-   if (ret < 0)
-     {
-       printf("%s failed: %d\n", cmd, errno);
-     }
-   return ret;
+  ret = handler(handle, argc, argv);
+  if (ret < 0)
+    {
+      printf("%s failed: %d\n", cmd, errno);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -305,7 +308,7 @@ static int ftpc_execute(SESSION handle, int argc, char *argv[])
 
 int ftpc_parse(SESSION handle, char *cmdline)
 {
-  FAR char *argv[FTPC_MAX_ARGUMENTS+1];
+  FAR char *argv[FTPC_MAX_ARGUMENTS + 1];
   FAR char *saveptr;
   FAR char *cmd;
   int       argc;
@@ -342,6 +345,7 @@ int ftpc_parse(SESSION handle, char *cmdline)
           break;
         }
     }
+
   argv[argc] = NULL;
 
   /* Check if the maximum number of arguments was exceeded */
@@ -384,7 +388,8 @@ int main(int argc, FAR char *argv[])
       printf("Usage:\n");
       printf("   %s xx:xx:xx:xx:xx:xx:xx:xx [pp]\n", argv[0]);
       printf("Where\n");
-      printf("  xx:xx:xx:xx:xx:xx:xx:xx is the IP address of the FTP server\n");
+      printf("  xx:xx:xx:xx:xx:xx:xx:xx is "
+             "the IP address of the FTP server\n");
       printf("  pp is option port to use with the FTP server\n");
 #else
       printf("Usage:\n");
@@ -418,7 +423,7 @@ int main(int argc, FAR char *argv[])
   if (ptr)
     {
       *ptr = '\0';
-      server.in4.sin_port = atoi(ptr+1);
+      server.in4.sin_port = atoi(ptr + 1);
     }
 
   server.in4.sin_family = AF_INET;
@@ -453,7 +458,7 @@ int main(int argc, FAR char *argv[])
 
   /* Then enter the command line parsing loop */
 
-  for (;;)
+  for (; ; )
     {
       /* Display the prompt string */
 
