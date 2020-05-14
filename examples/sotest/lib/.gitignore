@@ -1,4 +1,4 @@
 /fsroot
-/romfs.h
+/romfs.c
 /romfs.img
 /sot_symtab.c

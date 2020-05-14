@@ -59,9 +59,6 @@
 
 #if  defined(CONFIG_EXAMPLES_MODULE_ROMFS)
 #  include <nuttx/drivers/ramdisk.h>
-#  include "drivers/romfs.h"
-#elif defined(CONFIG_EXAMPLES_MODULE_CROMFS)
-#  include "drivers/cromfs.h"
 #endif
 
 /****************************************************************************
@@ -130,6 +127,11 @@ static const char g_write_string[] = "Hi there, installed driver\n";
 /****************************************************************************
  * Symbols from Auto-Generated Code
  ****************************************************************************/
+
+#if defined(CONFIG_EXAMPLES_MODULE_ROMFS) || defined(CONFIG_EXAMPLES_MODULE_CROMFS)
+extern const unsigned char romfs_img[];
+extern const unsigned int romfs_img_len;
+#endif
 
 #ifdef CONFIG_BUILD_FLAT
 extern const struct symtab_s g_mod_exports[];

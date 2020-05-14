@@ -47,7 +47,10 @@ MODULE = $(CONFIG_EXAMPLES_SOTEST)
 
 # Shared Library Example
 
-CSRCS = sot_symtab.c
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
+CSRCS = romfs.c
+endif
+CSRCS += sot_symtab.c
 MAINSRC = sotest_main.c
 
 ROOTDEPPATH += --dep-path lib
@@ -56,7 +59,9 @@ ROOTDEPPATH += --dep-path lib
 
 VPATH = lib
 
-sotest_main.c: build
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
+lib/romfs.c: build
+endif
 lib/sot_symtab.c: build
 
 .PHONY: build

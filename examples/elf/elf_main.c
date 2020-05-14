@@ -42,16 +42,6 @@
 
 #include "platform/cxxinitialize.h"
 
-#if defined(CONFIG_EXAMPLES_ELF_ROMFS)
-#  include "tests/romfs.h"
-#elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
-#  include "tests/cromfs.h"
-#elif !defined(CONFIG_EXAMPLES_ELF_EXTERN)
-#  error "No file system selected"
-#endif
-
-#include "tests/dirlist.h"
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -134,6 +124,15 @@ static char fullpath[128];
 /****************************************************************************
  * Symbols from Auto-Generated Code
  ****************************************************************************/
+
+#if defined(CONFIG_EXAMPLES_ELF_ROMFS) || defined(CONFIG_EXAMPLES_ELF_CROMFS)
+extern const unsigned char romfs_img[];
+extern const unsigned int romfs_img_len;
+#elif !defined(CONFIG_EXAMPLES_ELF_EXTERN)
+#  error "No file system selected"
+#endif
+
+extern const char *dirlist[];
 
 extern const struct symtab_s g_elf_exports[];
 extern const int g_elf_nexports;

@@ -37,6 +37,7 @@
 
 # THTTPD Web Server Example
 
+CSRCS = romfs.c
 MAINSRC = thttpd_main.c
 
 CONTENT_MAKE = $(MAKE) -C content
@@ -44,6 +45,7 @@ ifeq ($(CONFIG_THTTPD_BINFS),y)
   CONTENT_MAKE += -f Makefile.binfs
 else
   CONTENT_MAKE += -f Makefile.nxflat
+  CSRCS += symtab.c
 endif
 
 PROGNAME = thttp
@@ -51,7 +53,13 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_THTTPD)
 
-thttpd_main.c: build
+VPATH += content
+ROOTDEPPATH += --dep-path content
+
+content/romfs.c: build
+ifeq ($(CONFIG_THTTPD_NXFLAT),y)
+content/symtab.c: build
+endif
 
 .PHONY: build
 build:

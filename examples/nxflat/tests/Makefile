@@ -49,16 +49,16 @@ NXFLAT_DIR	= $(APPDIR)/examples/nxflat
 TESTS_DIR	= $(NXFLAT_DIR)/tests
 ROMFS_DIR	= $(TESTS_DIR)/romfs
 ROMFS_IMG	= $(TESTS_DIR)/romfs.img
-ROMFS_HDR	= $(TESTS_DIR)/romfs.h
-ROMFS_DIRLIST	= $(TESTS_DIR)/dirlist.h
-SYMTAB		= $(TESTS_DIR)/symtab.h
+ROMFS_SRC	= $(TESTS_DIR)/romfs.c
+DIRLIST_SRC	= $(TESTS_DIR)/dirlist.h
+SYMTAB_SRC	= $(TESTS_DIR)/symtab.c
 
 define DIR_template
 $(1)_$(2):
 	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
-all: $(ROMFS_HDR) $(ROMFS_DIRLIST) $(SYMTAB)
+all: $(ROMFS_SRC) $(DIRLIST_SRC) $(SYMTAB_SRC)
 .PHONY: all clean install
 
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean)))
@@ -74,25 +74,25 @@ $(ROMFS_IMG): install
 	$(Q) genromfs -f $@.tmp -d $(ROMFS_DIR) -V "NXFLATTEST"
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
-# Create the romfs.h header file from the romfs.img file
+# Create the romfs.c file from the romfs.img file
 
-$(ROMFS_HDR): $(ROMFS_IMG)
-	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+$(ROMFS_SRC): $(ROMFS_IMG)
+	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
 # Create the dirlist.h header file from the romfs directory
 
-$(ROMFS_DIRLIST): install
+$(DIRLIST_SRC): install
 	$(Q) $(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Create the exported symbol table list from the derived *-thunk.S files
 
-$(SYMTAB): install
+$(SYMTAB_SRC): install
 	$(Q) $(TESTS_DIR)/mksymtab.sh $(ROMFS_DIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(SUBDIRS), $(DIR)_clean)
-	$(Q) rm -f $(ROMFS_HDR) $(ROMFS_DIRLIST) $(ROMFS_IMG) $(SYMTAB)
+	$(Q) rm -f $(ROMFS_SRC) $(DIRLIST_SRC) $(ROMFS_IMG) $(SYMTAB_SRC)
 	$(Q) rm -rf $(ROMFS_DIR)

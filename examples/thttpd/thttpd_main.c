@@ -67,12 +67,6 @@
 #  include <nuttx/net/net.h>
 #endif
 
-#include "content/romfs.h"
-
-#ifdef CONFIG_THTTPD_NXFLAT
-#  include "content/symtab.h"
-#endif
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -180,6 +174,18 @@
 
 FAR const struct symtab_s *g_thttpdsymtab;
 int                         g_thttpdnsymbols;
+#endif
+
+/****************************************************************************
+ * Symbols from Auto-Generated Code
+ ****************************************************************************/
+
+extern const unsigned char romfs_img[];
+extern const unsigned int romfs_img_len;
+
+#ifdef CONFIG_THTTPD_FLAT
+extern const struct symtab_s g_thttpd_exports[];
+extern const int g_thttpd_nexports;
 #endif
 
 /****************************************************************************
@@ -296,7 +302,7 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_THTTPD_NXFLAT
   g_thttpdsymtab   = g_thttpd_exports;
-  g_thttpdnsymbols = NEXPORTS;
+  g_thttpdnsymbols = g_thttpd_nexports;
 #endif
 
   printf("Starting THTTPD\n");

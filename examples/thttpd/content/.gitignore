@@ -10,6 +10,6 @@
 /*.lib
 /*.src
 /romfs
-/romfs.h
+/romfs.c
 /romfs.img
-/symtab.h
+/symtab.c

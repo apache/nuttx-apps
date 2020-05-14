@@ -44,21 +44,27 @@ MODULE = $(CONFIG_EXAMPLES_MODULE)
 
 # Module Example
 
-MAINSRC = module_main.c
-
-ifeq ($(CONFIG_BUILD_FLAT),y)
-CSRCS += mod_symtab.c
+ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
+CSRCS = romfs.c
 endif
+ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
+CSRCS = cromfs.c
+endif
+CSRCS += mod_symtab.c
+MAINSRC = module_main.c
 
 VPATH += drivers
 ROOTDEPPATH += --dep-path drivers
 
 # Build targets
 
-module_main.c: build
-ifeq ($(CONFIG_BUILD_FLAT),y)
-drivers/mod_symtab.c: build
+ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
+drivers/romfs.c: build
 endif
+ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
+drivers/cromfs.c: build
+endif
+drivers/mod_symtab.c: build
 
 .PHONY: build
 build:

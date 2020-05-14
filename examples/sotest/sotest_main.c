@@ -55,7 +55,6 @@
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
 #  include <nuttx/drivers/ramdisk.h>
-#  include "lib/romfs.h"
 #endif
 
 /****************************************************************************
@@ -99,6 +98,11 @@
 /****************************************************************************
  * Symbols from Auto-Generated Code
  ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+extern const unsigned char romfs_img[];
+extern const unsigned int romfs_img_len;
+#endif
 
 extern const struct symtab_s g_sot_exports[];
 extern const int g_sot_nexports;

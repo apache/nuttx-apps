@@ -19,12 +19,21 @@ fi
 
 varlist=`find $dir -name "*-thunk.S"| xargs grep -h asciz | cut -f3 | sort | uniq`
 
-echo "#ifndef __EXAMPLES_NXFLAT_TESTS_SYMTAB_H"
-echo "#define __EXAMPLES_NXFLAT_TESTS_SYMTAB_H"
-echo ""
+# Now output the symbol table as a structure in a C source file.  All
+# undefined symbols are declared as void* types.  If the toolchain does
+# any kind of checking for function vs. data objects, then this could
+# failed
+
+echo "#include <nuttx/compiler.h>"
 echo "#include <nuttx/symtab.h>"
 echo ""
-echo "static const struct symtab_s g_thttpd_exports[] = "
+
+for var in $varlist; do
+	echo "extern void *${var};"
+done
+
+echo ""
+echo "const struct symtab_s g_thttpd_exports[] = "
 echo "{"
 
 for string in $varlist; do
@@ -33,6 +42,4 @@ for string in $varlist; do
 done
 
 echo "};"
-echo "#define NEXPORTS (sizeof(g_thttpd_exports)/sizeof(struct symtab_s))"
-echo ""
-echo "#endif /* __EXAMPLES_NXFLAT_TESTS_SYMTAB_H */"
+echo "const int g_thttpd_nexports = sizeof(g_thttpd_exports) / sizeof(struct symtab_s);"

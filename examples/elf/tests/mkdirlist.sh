@@ -17,10 +17,9 @@ if [ ! -d "$dir" ]; then
 	exit 1
 fi
 
-echo "#ifndef __EXAMPLES_ELF_TESTS_DIRLIST_H"
-echo "#define __EXAMPLES_ELF_TESTS_DIRLIST_H"
+echo "#include <stddef.h>"
 echo ""
-echo "static const char *dirlist[] ="
+echo "const char *dirlist[] ="
 echo "{"
 
 for file in `ls $dir`; do
@@ -29,5 +28,3 @@ done
 
 echo "  NULL"
 echo "};"
-echo ""
-echo "#endif /* __EXAMPLES_ELF_TESTS_DIRLIST_H */"
