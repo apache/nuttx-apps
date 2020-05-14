@@ -380,7 +380,7 @@ int main(int argc, FAR char *argv[])
 
   if (argc != 2)
     {
-#if ADDR_FAMILY == CONFIG_NET_IPv6
+#if ADDR_FAMILY == AF_INET6
       printf("Usage:\n");
       printf("   %s xx:xx:xx:xx:xx:xx:xx:xx [pp]\n", argv[0]);
       printf("Where\n");
