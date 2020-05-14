@@ -18,7 +18,7 @@ config NETUTILS_DHCPD_HOST
 	depends on EXPERIMENTAL
 	---help---
 		DHCPD supports a host based build for testing on a PC.  It is
-		enabled by this configuration, however, ti cannot really be used
+		enabled by this configuration, however, it cannot really be used
 		in the context to the NuttX build as it currently stands.
 
 config NETUTILS_DHCPD_IGNOREBROADCAST
