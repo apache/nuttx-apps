@@ -595,7 +595,7 @@ static inline bool dhcpd_parseoptions(void)
 #ifndef CONFIG_NET_DHCP_LIGHT
           case DHCP_OPTION_OVERLOAD:
             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 1 && optlen < remaining)
+            if (optlen >= 3 && optlen < remaining)
               {
                 overloaded = ptr[DHCPD_OPTION_DATA];
               }
@@ -629,7 +629,7 @@ static inline bool dhcpd_parseoptions(void)
 
           case DHCP_OPTION_REQ_IPADDR: /* Requested IP Address */
             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 4 && optlen < remaining)
+            if (optlen >= 6 && optlen < remaining)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optreqip = (in_addr_t)ntohl(tmp);
@@ -638,7 +638,7 @@ static inline bool dhcpd_parseoptions(void)
 
           case DHCP_OPTION_LEASE_TIME: /* IP address lease time */
              optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 4 && optlen < remaining)
+            if (optlen >= 6 && optlen < remaining)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optleasetime = (time_t)ntohl(tmp);
@@ -647,7 +647,7 @@ static inline bool dhcpd_parseoptions(void)
 
          case DHCP_OPTION_MSG_TYPE: /* DHCP message type */
             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 1 && optlen < remaining)
+            if (optlen >= 3 && optlen < remaining)
               {
                 g_state.ds_optmsgtype = ptr[DHCPD_OPTION_DATA];
               }
@@ -655,7 +655,7 @@ static inline bool dhcpd_parseoptions(void)
 
           case DHCP_OPTION_SERVER_ID: /* Server identifier */
             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 4 && optlen < remaining)
+            if (optlen >= 6 && optlen < remaining)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optserverip = (in_addr_t)ntohl(tmp);
@@ -943,12 +943,6 @@ static void dhcpd_initpacket(uint8_t mtype)
     {
       g_state.ds_outpacket.flags  = g_state.ds_inpacket.flags;
     }
-  else
-    {
-      g_state.ds_outpacket.flags  = 0;
-    }
-
-  memset(g_state.ds_outpacket.giaddr, 0, 4);
 
   /* Add the generic options */
 
