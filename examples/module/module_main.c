@@ -122,7 +122,7 @@
  * Private data
  ****************************************************************************/
 
-static const char g_write_string[] = "Hi there, installed driver\n";
+static const char g_write_string[] = "Hi there installed driver\n";
 
 /****************************************************************************
  * Symbols from Auto-Generated Code
@@ -196,7 +196,9 @@ int main(int argc, FAR char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      /* This will happen naturally if we registered the ROM disk previously. */
+      /* This will happen naturally if we registered the ROM disk
+       * previously.
+       */
 
       if (ret != -EEXIST)
         {
