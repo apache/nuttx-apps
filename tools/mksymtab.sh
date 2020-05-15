@@ -63,7 +63,7 @@ rm -f $outfile
 # Extract all of the undefined symbols from the ELF files and create a
 # list of sorted, unique undefined variable names.
 
-execlist=`find ${dir} -type f`
+execlist=`find ${dir} -type f 2>/dev/null`
 if [ ! -z "${execlist}" ]; then
   for exec in ${execlist}; do
     nm $exec | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2  >>_tmplist
