@@ -145,7 +145,9 @@ int main(int argc, FAR char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      /* This will happen naturally if we registered the ROM disk previously. */
+      /* This will happen naturally if we registered the ROM disk
+       * previously.
+       */
 
       if (ret != -EEXIST)
         {
@@ -257,7 +259,9 @@ int main(int argc, FAR char *argv[])
   testfunc(msg);
 
 #if CONFIG_MODLIB_MAXDEPEND > 0
-  /* This should fail because the second shared library depends on the first. */
+  /* This should fail because the second shared library depends on
+   * the first.
+   */
 
   ret = dlclose(handle1);
   if (ret == 0)
