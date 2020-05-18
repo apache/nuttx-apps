@@ -489,6 +489,24 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 #endif
   int ret;
 
+  /* DO NOT CHANGE THE ORDERING OF THE FOLLOWING STEPS
+   *
+   * They must work as follows:
+   *
+   * 1. Load a file from file system if possible.  An external command on a
+   *    file system with the provided name (and on the defined PATH) takes
+   *    precendence over any other source of a command by that name.  This
+   *    allows the user to replace a built-in command with a command on a`
+   *    file system
+   *
+   * 2. If not, run a built-in application of that name if possible.  A
+   *    built-in application will take precendence over any NSH command.
+   *
+   * 3. If not, run an NSH command line command if possible.
+   *
+   * 4. If not, report that the command was not found.
+   */
+
   /* Does this command correspond to an application filename?
    * nsh_fileapp() returns:
    *
@@ -539,7 +557,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    *               indicates that the application task was spawned
    *               successfully but returned failure exit status.
    *
-   * Note the priority if not effected by nice-ness.
+   * Note the priority is not effected by nice-ness.
    */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
