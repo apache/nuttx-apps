@@ -128,7 +128,7 @@ $(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 .built: $(OBJS)
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $(OBJS))
 else
 	$(call ARLOCK, $(BIN), $(OBJS))
@@ -153,7 +153,7 @@ PROGOBJ := $(MAINOBJ)
 
 $(PROGLIST): $(MAINOBJ)
 	$(Q) mkdir -p $(BINDIR)
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
 else
 	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))

@@ -148,7 +148,7 @@ endif
 # Tool related definitions
 # Compiler
 
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   # Windows-native toolchains
   ARCHINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}"
   ARCHXXINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}" -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include$(DELIM)cxx}"
@@ -181,7 +181,7 @@ AFLAGS = $(CFLAGS) -D__ASSEMBLY__
 
 # Linker
 
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   # Windows-native toolchains
   LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
 else
@@ -203,7 +203,7 @@ endif
 # ELF module definitions
 
 LDELFFLAGS = -r -e _start -Bstatic
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   LDELFFLAGS += -T "${shell cygpath -w $(TOPDIR)/scripts/gnu-elf.ld}"
 else
   LDELFFLAGS += -T $(TOPDIR)/scripts/gnu-elf.ld
