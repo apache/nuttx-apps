@@ -101,7 +101,7 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, -fno-lto $<, $@)
 
 $(BIN): $(SYMTABOBJ)
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $^)
 else
 	$(call ARLOCK, $(BIN), $^)

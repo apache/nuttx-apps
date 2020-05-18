@@ -116,7 +116,7 @@ else ifeq ($(CONFIG_WINDOWS_MSYS),y)
   DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
 else
   DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
 else
   DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
@@ -146,7 +146,7 @@ else
   MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
 endif
 
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   INCDIROPT = -w
 endif
 
@@ -155,7 +155,7 @@ endif
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   LDLIBS ?= "${shell cygpath -w $(BIN)}"
 else
   LDLIBS ?= $(BIN)

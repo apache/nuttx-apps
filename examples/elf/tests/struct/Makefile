@@ -40,7 +40,7 @@ DELIM ?= /
 
 CELFFLAGS += -I.
 
-ifeq ($(WINTOOL),y)
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
 else
 NUTTXLIB = "$(TOPDIR)$(DELIM)staging"
