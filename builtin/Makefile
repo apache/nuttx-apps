@@ -44,40 +44,38 @@ CSRCS = builtin_list.c exec_builtin.c
 PDATLIST = $(strip $(call RWILDCARD, registry, *.pdat))
 BDATLIST = $(strip $(call RWILDCARD, registry, *.bdat))
 
-registry$(DELIM).updated:
-	$(Q) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-
 builtin_list.c: builtin_list.h builtin_proto.h
 
+registry$(DELIM).updated:
+	$(Q) touch registry$(DELIM).updated
+
 builtin_list.h: registry$(DELIM).updated
-	$(call DELFILE, .xx_builtin_list.h)
-	$(Q) touch .xx_builtin_list.h
-ifneq ($(BDATLIST),)
-	$(call CATFILE, .xx_builtin_list.h, $(BDATLIST))
+ifeq ($(BDATLIST),)
+	$(call DELFILE, builtin_list.h)
+	$(Q) touch builtin_list.h
+else
+	$(call CATFILE, builtin_list.h, $(BDATLIST))
 endif
-	$(Q) mv .xx_builtin_list.h builtin_list.h
 
 builtin_proto.h: registry$(DELIM).updated
-	$(call DELFILE, .xx_builtin_proto.h)
-	$(Q) touch .xx_builtin_proto.h
-ifneq ($(PDATLIST),)
-	$(call CATFILE, .xx_builtin_proto.h, $(PDATLIST))
+ifeq ($(PDATLIST),)
+	$(call DELFILE, builtin_proto.h)
+	$(Q) touch builtin_proto.h
+else
+	$(call CATFILE, builtin_proto.h, $(PDATLIST))
 endif
-	$(Q) mv .xx_builtin_proto.h builtin_proto.h
-
-context::
-	$(Q) $(MAKE) -C registry context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 depend:: builtin_list.h builtin_proto.h
 
 clean::
-	$(Q) $(MAKE) -C registry clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(call DELFILE, .xx_builtin_list.h)
-	$(call DELFILE, .xx_builtin_proto.h)
-
-distclean::
-	$(Q) $(MAKE) -C registry distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 	$(call DELFILE, builtin_list.h)
 	$(call DELFILE, builtin_proto.h)
+
+clean_context::
+	$(call DELFILE, $(PDATLIST))
+	$(call DELFILE, $(BDATLIST))
+
+distclean:: clean_context clean
+	$(call DELFILE, registry$(DELIM).updated)
 
 include $(APPDIR)/Application.mk
