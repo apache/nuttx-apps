@@ -62,6 +62,7 @@ CWD = $(CURDIR)
 endif
 
 SUFFIX = $(subst $(DELIM),.,$(CWD))
+PROGNAME := $(shell echo $(PROGNAME))
 
 # Object files
 
