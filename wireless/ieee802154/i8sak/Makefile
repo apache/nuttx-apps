@@ -34,7 +34,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # IEEE 802.15.4  SAK (swiss army knife )
 

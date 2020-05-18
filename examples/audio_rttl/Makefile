@@ -33,10 +33,8 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 -include $(SDKDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # Audio application info
 

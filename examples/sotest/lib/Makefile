@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 ALL_SUBDIRS = sotest
 BUILD_SUBDIRS = sotest

@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # I2C tool
 CSRCS   = i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_set.c i2c_verf.c

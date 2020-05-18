@@ -33,10 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-OBJEXT ?= .o
-DELIM ?= /
+include $(TOPDIR)/Make.defs
 
 CELFFLAGS += -I.
 

@@ -33,10 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-OBJEXT ?= .o
-DELIM ?= /
+include $(TOPDIR)/Make.defs
 
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
