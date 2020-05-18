@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 CONFIG_ARCH_BOARD ?= dummy
 
@@ -41,7 +41,7 @@ CONFIG_ARCH_BOARD ?= dummy
 
 GNUDIR      = gnu
 PLATFORMDIR = board
-DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
+DUMMYDIR    = $(APPDIR)/platform/dummy
 
 ifeq ($(CONFIG_ARCH_BOARD_CUSTOM),y)
   LINKDIR   = $(DUMMYDIR)

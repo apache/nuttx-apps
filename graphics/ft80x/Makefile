@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 # FTDI/BridgeTek FT80x library
 CSRCS  = ft80x_dl.c ft80x_ramg.c ft80x_ramdl.c ft80x_ramcmd.c

@@ -37,8 +37,8 @@
 
 APPDIR = $(CURDIR)
 TOPDIR ?= $(APPDIR)/import
--include $(TOPDIR)/Make.defs
--include $(APPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # The GNU make CURDIR will always be a POSIX-like path with forward slashes
 # as path segment separators.  This is fine for the above inclusions but

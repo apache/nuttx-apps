@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
 ALL_SUBDIRS = errno hello helloxx longjmp mutex pthread signal task struct
 BUILD_SUBDIRS = errno hello struct signal
