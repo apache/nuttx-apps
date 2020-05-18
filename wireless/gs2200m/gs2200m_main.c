@@ -865,7 +865,9 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
     }
 
   memset(&rmsg, 0, sizeof(rmsg));
-  rmsg.buf = calloc(1, 1500);
+  rmsg.buf = calloc(1, req->max_buflen);
+  ASSERT(rmsg.buf);
+
   rmsg.cid = usock->cid;
   rmsg.reqlen = req->max_buflen;
   rmsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
