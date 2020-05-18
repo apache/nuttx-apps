@@ -54,7 +54,7 @@ AUDIODIR = $(SDKDIR)$(DELIM)modules$(DELIM)audio
 
 # Audio Example flags
 
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(AUDIODIR)"}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(AUDIODIR)"}
 CXXFLAGS += -D_POSIX
 
 include $(APPDIR)/Application.mk

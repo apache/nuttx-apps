@@ -42,4 +42,4 @@ endif
 
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/pdcurs34/nuttx}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/pdcurs34/nuttx}

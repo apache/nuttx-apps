@@ -147,13 +147,13 @@ else
 endif
 
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  INCDIROPT = -w
+  INCDIR += -w
 endif
 
 # Standard include path
 
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   LDLIBS ?= "${shell cygpath -w $(BIN)}"

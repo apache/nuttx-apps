@@ -38,7 +38,7 @@
 # NuttX per-window frame buffer graphics example.
 
 NXGLYPHS = $(APPDIR)$(DELIM)graphics$(DELIM)nxglyphs
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(NXGLYPHS)$(DELIM)include"}
+CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXGLYPHS)$(DELIM)include"}
 
 CSRCS = pwfb_events.c pwfb_motion.c
 MAINSRC = pwfb_main.c
