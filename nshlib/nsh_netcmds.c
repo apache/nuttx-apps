@@ -1345,7 +1345,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Allocate an I/O buffer */
 
-  buffer = malloc(512);
+  buffer = malloc(CONFIG_NSH_WGET_BUFF_SIZE);
   if (buffer == NULL)
     {
       fmt = g_fmtcmdoutofmemory;
@@ -1354,7 +1354,8 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* And perform the wget */
 
-  ret = wget(url, buffer, 512, wget_callback, (FAR void *)((intptr_t)fd));
+  ret = wget(url, buffer, CONFIG_NSH_WGET_BUFF_SIZE,
+             wget_callback, (FAR void *)((intptr_t)fd));
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "wget", NSH_ERRNO);
