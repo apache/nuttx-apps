@@ -1121,6 +1121,14 @@ config NSH_NETINIT
 	---help---
 		This option enables/disables all network initialization in NSH.
 
+if !NSH_DISABLE_WGET
+config NSH_WGET_BUFF_SIZE
+	int "wget buffer size"
+	default 512
+	---help---
+		Buffer size for wget command
+endif # NSH_DISABLE_WGET
+
 endmenu # Networking Configuration"
 
 menu "Telnet Configuration"
