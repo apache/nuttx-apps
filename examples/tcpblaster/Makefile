@@ -91,10 +91,10 @@ ifneq ($(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK),y)
   HOST_SRCS = tcpblaster_host.c tcpblaster_cmdline.c
   ifeq ($(CONFIG_EXAMPLES_TCPBLASTER_SERVER),y)
     HOST_SRCS += tcpblaster_client.c
-    HOST_BIN = tcpclient$(EXEEXT)
+    HOST_BIN = tcpclient$(HOSTEXEEXT)
   else
     HOST_SRCS += tcpblaster_server.c
-    HOST_BIN = tcpserver$(EXEEXT)
+    HOST_BIN = tcpserver$(HOSTEXEEXT)
   endif
 
   HOSTOBJEXT ?= hobj

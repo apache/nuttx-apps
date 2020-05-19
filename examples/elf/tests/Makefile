@@ -67,7 +67,7 @@ ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
 else
   NXTOOLDIR = $(TOPDIR)/tools
   GENCROMFSSRC = gencromfs.c
-  GENCROMFSEXE = gencromfs$(EXEEXT)
+  GENCROMFSEXE = gencromfs$(HOSTEXEEXT)
 
   FSIMG_SUBDIR = cromfs
   FSIMG_DIR = $(TESTS_DIR)/$(FSIMG_SUBDIR)

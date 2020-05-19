@@ -55,7 +55,7 @@ ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
 else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
   NXTOOLDIR = $(TOPDIR)/tools
   GENCROMFSSRC = gencromfs.c
-  GENCROMFSEXE = gencromfs$(EXEEXT)
+  GENCROMFSEXE = gencromfs$(HOSTEXEEXT)
 
   FSIMG_SRC = $(DRIVER_DIR)/cromfs.c
 endif

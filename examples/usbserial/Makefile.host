@@ -38,7 +38,7 @@
 -include $(TOPDIR)/Make.defs
 
 SRC = host.c
-BIN = host$(EXEEXT)
+BIN = host$(HOSTEXEEXT)
 
 DEFINES =
 ifeq ($(CONFIG_EXAMPLES_USBSERIAL_INONLY),y)

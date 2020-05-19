@@ -77,10 +77,10 @@ HOSTOBJSEXT ?= hobj
 HOST_SRCS = flowc_host.c
 ifeq ($(CONFIG_EXAMPLES_FLOWC_SENDER1),y)
 HOST_SRCS += flowc_receiver.c
-HOST_BIN = receiver$(EXEEXT)
+HOST_BIN = receiver$(HOSTEXEEXT)
 else
 HOST_SRCS += flowc_sender.c
-HOST_BIN = sender$(EXEEXT)
+HOST_BIN = sender$(HOSTEXEEXT)
 endif
 
 HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJSEXT))
