@@ -73,6 +73,14 @@ BINDIR ?= $(APPDIR)$(DELIM)bin
 
 BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
 
+# Tools
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  MKKCONFIG ?= $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.bat
+else
+  MKKCONFIG ?= $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
+endif
+
 # Invoke make
 
 define MAKE_template
@@ -89,7 +97,6 @@ endef
 # Builtin Registration
 
 BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
-
 DEPCONFIG = $(TOPDIR)$(DELIM).config
 
 define REGISTER
@@ -104,51 +111,6 @@ endef
 define ARLOCK
 	$(Q) flock $1.lock $(call ARCHIVE, $1, $(2))
 endef
-
-# Tools
-
-ifeq ($(DIRLINK),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)link.bat
-  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.bat
-else ifeq ($(CONFIG_WINDOWS_MSYS),y)
-  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
-  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
-else
-  DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)copydir.sh
-else
-  DIRLINK   = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
-endif
-endif
-endif
-
-ifeq ($(INCDIR),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.bat
-else
-  INCDIR = $(TOPDIR)$(DELIM)tools$(DELIM)incdir.sh
-endif
-endif
-
-ifeq ($(DEFINE),)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  DEFINE = $(TOPDIR)$(DELIM)tools$(DELIM)define.bat
-else
-  DEFINE = $(TOPDIR)$(DELIM)tools$(DELIM)define.sh
-endif
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.bat
-else
-  MKKCONFIG = $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
-endif
-
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  INCDIR += -w
-endif
 
 # Standard include path
 
