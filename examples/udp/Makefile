@@ -82,10 +82,10 @@ HOSTOBJSEXT ?= hobj
 HOST_SRCS = udp_host.c udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
 HOST_SRCS += udp_client.c
-HOST_BIN = udpclient$(EXEEXT)
+HOST_BIN = udpclient$(HOSTEXEEXT)
 else
 HOST_SRCS += udp_server.c
-HOST_BIN = udpserver$(EXEEXT)
+HOST_BIN = udpserver$(HOSTEXEEXT)
 endif
 
 HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJSEXT))

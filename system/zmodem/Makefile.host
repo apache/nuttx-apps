@@ -78,8 +78,8 @@ RZOBJS   = $(RZSRCS:.c=$(OBJEXT))
 CMNOBJS  = $(CMNSRCS:.c=$(OBJEXT))
 OBJS     = $(SRCS:.c=$(OBJEXT))
 
-RZBIN    = rz$(EXEEXT)
-SZBIN    = sz$(EXEEXT)
+RZBIN    = rz$(HOSTEXEEXT)
+SZBIN    = sz$(HOSTEXEEXT)
 
 VPATH    = host
 
