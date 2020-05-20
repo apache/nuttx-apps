@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <embedlog.h>
+#include <system/embedlog.h>
 #include <errno.h>
 #include <nuttx/config.h>
 #include <stdio.h>
@@ -80,7 +80,7 @@ static struct el_options g_el;
  *
  * Description:
  *   Presents how to use options and how it's rendered. This assumes all
- *   options are enabled in compile time. If any of the options is not enabled
+ *   options are enabled in compile time. If any of the options isn't enabled
  *   in compile time, setting it will have no effect and logs will vary.
  *
  * Input Parameters:
@@ -284,7 +284,7 @@ static void el_print_file(const char *workdir)
     {
       if (errno == ENAMETOOLONG || errno == EINVAL)
         {
-          /* These are the only unrecoverable errors that embedlog may return,
+          /* These are the only unrecoverable errors embedlog may return,
            * any other error it actually a warning, telling user that file
            * could not have been opened now, but every el_print function with
            * output to file enabled, will try to reopen file. This of course
@@ -305,9 +305,9 @@ static void el_print_file(const char *workdir)
 
   el_oprint(OELI, "Now we enabled log rotation");
   el_oprint(OELI, "If log cannot fit in current file");
-  el_oprint(OELI, "it will be stored in new file");
-  el_oprint(OELI, "and if library creates EL_FROTATE_NUMBER files");
-  el_oprint(OELI, "oldest file will be deleted and new file will be created");
+  el_oprint(OELI, "it will be stored in new file and");
+  el_oprint(OELI, "if library creates EL_FROTATE_NUMBER files oldest");
+  el_oprint(OELI, "file will be deleted and new file will be created");
   el_oprint(OELI, "run this program multiple times and see how it works");
 }
 
@@ -331,8 +331,8 @@ int main(int argc, FAR char *argv[])
 
   el_oinit(&g_el);
 
-  el_oprint(OELI, "Right after init, embedlog will print to stderr with just "
-      "log level information - these are default settings.");
+  el_oprint(OELI, "Right after init, embedlog will print to stderr with "
+      "just log level information - these are default settings.");
 
   el_print_options();
   el_print_memory();

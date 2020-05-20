@@ -35,8 +35,6 @@
 
 include $(TOPDIR)/Make.defs
 
-CELFFLAGS += -I.
-
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
 else

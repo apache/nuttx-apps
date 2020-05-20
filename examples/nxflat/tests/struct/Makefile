@@ -35,8 +35,6 @@
 
 include $(TOPDIR)/Make.defs
 
-CFLAGS			+= -I.
-
 BIN			= struct
 
 R1SRCS			= struct_main.c struct_dummy.c

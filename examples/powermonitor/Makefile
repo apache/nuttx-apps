@@ -41,6 +41,4 @@ MODULE = $(CONFIG_EXAMPLES_POWERMONITOR)
 
 MAINSRC = powermonitor_main.c
 
-CFLAGS += -I../../../nuttx/arch/arm/src -I../../../nuttx/arch/arm/src/common
-
 include $(APPDIR)/Application.mk
