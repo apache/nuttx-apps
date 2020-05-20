@@ -36,7 +36,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # XBox controller driver test built-in application info
 

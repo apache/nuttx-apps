@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # hts221_reader example
 

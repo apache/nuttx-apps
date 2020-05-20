@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # RTC driver alarm test built-in application info
 

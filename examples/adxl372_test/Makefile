@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = $(CONFIG_EXAMPLES_ADXL372_TEST_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_ADXL372_TEST_PRIORITY)

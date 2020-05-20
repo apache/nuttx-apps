@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # SMART filesystem test tool
 

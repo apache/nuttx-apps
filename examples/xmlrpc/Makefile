@@ -36,7 +36,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # XML RPC built-in application info
 

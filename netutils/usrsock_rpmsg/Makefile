@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = usrsock
 PRIORITY = CONFIG_NETUTILS_USRSOCK_RPMSG_PRIORITY

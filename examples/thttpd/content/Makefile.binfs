@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = hello tasks
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)

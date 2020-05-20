@@ -35,8 +35,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
-
 # If this is an executable program (with MAINSRC), we must build it as a
 # loadable module for the KERNEL build (always) or if the tristate module
 # has the value "m"
@@ -59,6 +57,12 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 CWD = $(strip ${shell echo %CD% | cut -d: -f2})
 else
 CWD = $(CURDIR)
+endif
+
+ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
+  LDLIBS += "${shell cygpath -w $(BIN)}"
+else
+  LDLIBS += $(BIN)
 endif
 
 SUFFIX = $(subst $(DELIM),.,$(CWD))

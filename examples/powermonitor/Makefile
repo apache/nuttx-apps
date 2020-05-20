@@ -32,7 +32,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = powermonitor
 PRIORITY = SCHED_PRIORITY_DEFAULT

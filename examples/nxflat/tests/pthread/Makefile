@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs	# Basic make _info
+include $(APPDIR)/Make.defs	# Basic make _info
 
 BIN			= pthread
 

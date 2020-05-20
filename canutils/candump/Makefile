@@ -18,7 +18,7 @@
 #
 ############################################################################/
 
--include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # SocketCAN userspace utilities and tools candump tool
 # https://github.com/linux-can/can-utils/blob/master/candump.c

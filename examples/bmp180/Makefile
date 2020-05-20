@@ -35,7 +35,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # BMP180 Barometer sensor example built-in application info
 

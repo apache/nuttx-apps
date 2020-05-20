@@ -35,7 +35,7 @@
 
 # Standard includes
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # Set up build configuration and environment
 
