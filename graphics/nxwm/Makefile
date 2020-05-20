@@ -33,7 +33,7 @@
 #
 #################################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = nxwm
 PRIORITY = SCHED_PRIORITY_DEFAULT

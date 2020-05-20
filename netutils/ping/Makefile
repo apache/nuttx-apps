@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 ifeq ($(CONFIG_NETUTILS_PING),y)
   CSRCS += icmp_ping.c

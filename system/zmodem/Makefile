@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = sz rz
 PRIORITY = $(CONFIG_SYSTEM_ZMODEM_PRIORITY)

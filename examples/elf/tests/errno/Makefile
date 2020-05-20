@@ -33,13 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
-
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
-else
-NUTTXLIB = "$(TOPDIR)$(DELIM)staging"
-endif
+include $(APPDIR)/Make.defs
 
 ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
 LDELFFLAGS += -Bstatic

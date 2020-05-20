@@ -33,7 +33,6 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
 # Sub-directories

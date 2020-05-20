@@ -1,5 +1,5 @@
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 -include $(SDKDIR)/Make.defs
 
 PROGNAME = $(CONFIG_EXAMPLES_CHARGER_PROGNAME)

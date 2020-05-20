@@ -18,7 +18,7 @@
 #
 ############################################################################/
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # hdc1008 example built-in application info
 

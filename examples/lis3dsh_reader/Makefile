@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 PROGNAME = $(CONFIG_EXAMPLES_LIS3DSH_READER_PROGNAME)
 PRIORITY = SCHED_PRIORITY_DEFAULT

@@ -36,7 +36,7 @@
 #
 ############################################################################
 
-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 ifeq ($(CONFIG_NET_TCP),y)
 CSRCS = xmlparser.c response.c
