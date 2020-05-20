@@ -44,7 +44,6 @@ MODULE = $(CONFIG_EXAMPLES_PTYTEST)
 
 # PTY Test! Example
 
-CFLAGS += -I$(APPDIR)/include
 MAINSRC = pty_test.c
 
 include $(APPDIR)/Application.mk

@@ -45,7 +45,6 @@ MODULE = $(CONFIG_EXAMPLES_INI_DUMPER)
 # ini_dumper Example
 
 MAINSRC = ini_dumper_main.c
-CFLAGS += -I$(APPDIR)/include/fsutils
 
 # needed to make compiler happy about wrong function pointers
 # different function pointer is used depending on that define
