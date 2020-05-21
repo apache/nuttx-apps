@@ -171,8 +171,8 @@ static const int g_known_ext_count = sizeof(g_known_ext) /
 
 static int _open_with_http(const char *fullurl)
 {
-  char relurl[32];
-  char hostname[32];
+  char relurl[CONFIG_NXPLAYER_HTTP_MAXFILENAME];
+  char hostname[CONFIG_NXPLAYER_HTTP_MAXHOSTNAME];
   int  resp_chk = 0;
   char resp_msg[] = "\r\n\r\n";
   struct timeval tv;

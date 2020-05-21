@@ -129,3 +129,15 @@ config NXPLAYER_HTTP_STREAMING_SUPPORT
 		audio streaming as well as local file playback.
 
 endif
+
+if NXPLAYER_HTTP_STREAMING_SUPPORT
+
+config NXPLAYER_HTTP_MAXHOSTNAME
+	int "Max host name in URL"
+	default 40
+
+config NXPLAYER_HTTP_MAXFILENAME
+	int "Max file name in URL"
+	default 100
+
+endif
