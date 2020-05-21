@@ -59,7 +59,8 @@
  * Public Data
  ****************************************************************************/
 
-static char g_tty_devname[MAX_DEVNAME] = CONFIG_EXAMPLES_FLOWC_RECEVER_DEVNAME;
+static char g_tty_devname[MAX_DEVNAME] =
+  CONFIG_EXAMPLES_FLOWC_RECEVER_DEVNAME;
 static char g_expected = 0x20;
 static unsigned int g_nerrors;
 static unsigned long g_count;
@@ -83,7 +84,8 @@ static inline void check_buffer(FAR uint8_t *buf, size_t buflen)
     {
       if (*ptr != ch)
         {
-          printf("receiver: ERROR: Expected %c (%02x), found %c (%02x) at count=%lu\n",
+          printf("receiver: ERROR: "
+                 "Expected %c (%02x), found %c (%02x) at count=%lu\n",
                  isprint(ch)   ? ch   : '.', ch,
                  isprint(*ptr) ? *ptr : '.', *ptr,
                  count);

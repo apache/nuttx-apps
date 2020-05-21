@@ -91,16 +91,17 @@ int main(int argc, FAR char *argv[])
 #if defined(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK)
   /* Then perform the server side of the test on a child task */
 
-  child = task_create("TcpBlaster Child", CONFIG_EXAMPLES_TCPBLASTER_DAEMON_PRIORITY,
-                      CONFIG_EXAMPLES_TCPBLASTER_DAEMON_STACKSIZE, server_child,
-                      NULL);
+  child = task_create("TcpBlaster Child",
+                      CONFIG_EXAMPLES_TCPBLASTER_DAEMON_PRIORITY,
+                      CONFIG_EXAMPLES_TCPBLASTER_DAEMON_STACKSIZE,
+                      server_child, NULL);
   if (child < 0)
     {
       fprintf(stderr, "ERROR: Failed to server daemon\n");
       return EXIT_FAILURE;
     }
 
-  usleep(500*1000);
+  usleep(500 * 1000);
 
 #elif defined(CONFIG_EXAMPLES_TCPBLASTER_SERVER)
   /* Then perform the server side of the test on this thread */
