@@ -1,7 +1,8 @@
 /****************************************************************************
  * examples/nettest/nettest_netinit.c
  *
- *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,7 +127,7 @@ void nettest_initialize(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_NETTEST_NOMAC
   mac[0] = 0x00;

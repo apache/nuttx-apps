@@ -54,7 +54,8 @@
  * Public Data
  ****************************************************************************/
 
-static char g_tty_devname[MAX_DEVNAME] = CONFIG_EXAMPLES_FLOWC_SENDER_DEVNAME;
+static char g_tty_devname[MAX_DEVNAME] =
+  CONFIG_EXAMPLES_FLOWC_SENDER_DEVNAME;
 
 /****************************************************************************
  * Private Functions

@@ -1,7 +1,8 @@
 /****************************************************************************
  * examples/nettest/nettest_target2.c
  *
- *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +41,10 @@
 #include "config.h"
 #include <stdlib.h>
 #include "nettest.h"
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * nettest_main

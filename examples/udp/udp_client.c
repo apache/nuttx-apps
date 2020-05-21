@@ -122,6 +122,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
         {
           j = 1;
         }
+
       buf[j] = ch;
     }
 }
@@ -177,22 +178,23 @@ void udp_client(void)
       /* Set up the server address */
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-      server.sin6_family            = AF_INET6;
-      server.sin6_port              = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
-      memcpy(server.sin6_addr.s6_addr16, g_udpserver_ipv6, 8 * sizeof(uint16_t));
-      addrlen                       = sizeof(struct sockaddr_in6);
+      server.sin6_family     = AF_INET6;
+      server.sin6_port       = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      memcpy(server.sin6_addr.s6_addr16,
+             g_udpserver_ipv6, 8 * sizeof(uint16_t));
+      addrlen                = sizeof(struct sockaddr_in6);
 #else
-      server.sin_family             = AF_INET;
-      server.sin_port               = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
-      server.sin_addr.s_addr        = (in_addr_t)g_udpserver_ipv4;
-      addrlen                       = sizeof(struct sockaddr_in);
+      server.sin_family      = AF_INET;
+      server.sin_port        = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      server.sin_addr.s_addr = (in_addr_t)g_udpserver_ipv4;
+      addrlen                = sizeof(struct sockaddr_in);
 #endif
 
       /* Send the message */
 
       printf("client: %d. Sending %d bytes\n", offset, SENDSIZE);
       nbytes = sendto(sockfd, outbuf, SENDSIZE, 0,
-                      (struct sockaddr*)&server, addrlen);
+                      (struct sockaddr *)&server, addrlen);
       printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       if (nbytes < 0)
@@ -215,5 +217,6 @@ void udp_client(void)
 
       sleep(2);
     }
+
   close(sockfd);
 }

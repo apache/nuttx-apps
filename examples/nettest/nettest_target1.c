@@ -1,7 +1,8 @@
 /****************************************************************************
  * examples/nettest/nettest_target1.c
  *
- *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,16 +92,17 @@ int main(int argc, FAR char *argv[])
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
   /* Then perform the server side of the test on a child task */
 
-  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_DAEMON_PRIORITY,
-                      CONFIG_EXAMPLES_NETTEST_DAEMON_STACKSIZE, server_child,
-                      NULL);
+  child = task_create("Nettest Child",
+                      CONFIG_EXAMPLES_NETTEST_DAEMON_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_DAEMON_STACKSIZE,
+                      server_child, NULL);
   if (child < 0)
     {
       fprintf(stderr, "ERROR: Failed to server daemon\n");
       return EXIT_FAILURE;
     }
 
-  usleep(500*1000);
+  usleep(500 * 1000);
 
 #elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
   /* Then perform the server side of the test on this thread */

@@ -79,9 +79,9 @@ void nettest_client(void)
 
   /* Allocate buffers */
 
-  outbuf = (char*)malloc(SENDSIZE);
+  outbuf = malloc(SENDSIZE);
 #ifndef CONFIG_EXAMPLES_NETTEST_PERFORMANCE
-  inbuf  = (char*)malloc(SENDSIZE);
+  inbuf  = malloc(SENDSIZE);
   if (!outbuf || !inbuf)
 #else
   if (!outbuf)
@@ -103,26 +103,30 @@ void nettest_client(void)
   /* Set up the server address */
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-  server.sin6_family            = AF_INET6;
-  server.sin6_port              = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
-  memcpy(server.sin6_addr.s6_addr16, g_nettestserver_ipv6, 8 * sizeof(uint16_t));
-  addrlen                       = sizeof(struct sockaddr_in6);
+  server.sin6_family     = AF_INET6;
+  server.sin6_port       = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
+  memcpy(server.sin6_addr.s6_addr16,
+         g_nettestserver_ipv6, 8 * sizeof(uint16_t));
+  addrlen                = sizeof(struct sockaddr_in6);
 
-  printf("Connecting to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
-         g_nettestserver_ipv6[0], g_nettestserver_ipv6[1], g_nettestserver_ipv6[2], g_nettestserver_ipv6[3],
-         g_nettestserver_ipv6[4], g_nettestserver_ipv6[5], g_nettestserver_ipv6[6], g_nettestserver_ipv6[7]);
+  printf("Connecting to Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
+         g_nettestserver_ipv6[0], g_nettestserver_ipv6[1],
+         g_nettestserver_ipv6[2], g_nettestserver_ipv6[3],
+         g_nettestserver_ipv6[4], g_nettestserver_ipv6[5],
+         g_nettestserver_ipv6[6], g_nettestserver_ipv6[7]);
 #else
-  server.sin_family             = AF_INET;
-  server.sin_port               = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
-  server.sin_addr.s_addr        = (in_addr_t)g_nettestserver_ipv4;
-  addrlen                       = sizeof(struct sockaddr_in);
+  server.sin_family      = AF_INET;
+  server.sin_port        = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
+  server.sin_addr.s_addr = (in_addr_t)g_nettestserver_ipv4;
+  addrlen                = sizeof(struct sockaddr_in);
 
-  printf("Connecting to IPv4 Address: %08lx\n", (unsigned long)g_nettestserver_ipv4);
+  printf("Connecting to Address: %08lx\n",
+         (unsigned long)g_nettestserver_ipv4);
 #endif
 
   /* Connect the socket to the server */
 
-  if (connect( sockfd, (struct sockaddr*)&server, addrlen) < 0)
+  if (connect(sockfd, (struct sockaddr *)&server, addrlen) < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
@@ -145,7 +149,7 @@ void nettest_client(void)
 #ifdef CONFIG_EXAMPLES_NETTEST_PERFORMANCE
   /* Then send messages forever */
 
-  for (;;)
+  for (; ; )
     {
       nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
       if (nbytessent < 0)
@@ -176,7 +180,8 @@ void nettest_client(void)
     }
   else if (nbytessent != SENDSIZE)
     {
-      printf("client: Bad send length: %d Expected: %d\n", nbytessent, SENDSIZE);
+      printf("client: Bad send length: %d Expected: %d\n",
+             nbytessent, SENDSIZE);
       goto errout_with_socket;
     }
 
@@ -184,7 +189,8 @@ void nettest_client(void)
   do
     {
       printf("client: Receiving...\n");
-      nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd], SENDSIZE - totalbytesrecvd, 0);
+      nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd],
+                         SENDSIZE - totalbytesrecvd, 0);
 
       if (nbytesrecvd < 0)
         {
@@ -204,7 +210,8 @@ void nettest_client(void)
 
   if (totalbytesrecvd != SENDSIZE)
     {
-      printf("client: Bad recv length: %d Expected: %d\n", totalbytesrecvd, SENDSIZE);
+      printf("client: Bad recv length: %d Expected: %d\n",
+             totalbytesrecvd, SENDSIZE);
       goto errout_with_socket;
     }
   else if (memcmp(inbuf, outbuf, SENDSIZE) != 0)
