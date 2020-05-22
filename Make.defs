@@ -79,19 +79,6 @@ else
   MKKCONFIG ?= $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
 endif
 
-# Invoke make
-
-define MAKE_template
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-
-endef
-
-define SDIR_template
-$(1)_$(2):
-	+$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-
-endef
-
 # Builtin Registration
 
 BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
