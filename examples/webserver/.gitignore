@@ -1,12 +1,1 @@
-/Make.dep
-/.depend
-/.built
 /httpd_fsdata.c
-/*.asm
-/*.obj
-/*.rel
-/*.lst
-/*.sym
-/*.adb
-/*.lib
-/*.src
