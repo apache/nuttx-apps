@@ -1,7 +1,1 @@
-/.built
-/.depend
-/Make.dep
 /cgi-bin
-/*.src
-/*.obj
-/*.lst

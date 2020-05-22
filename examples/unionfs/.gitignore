@@ -1,15 +1,4 @@
-/Make.dep
-/.depend
-/.built
 /atestdir.img
 /btestdir.img
 /romfs_atestdir.h
 /romfs_btestdir.h
-/*.asm
-/*.obj
-/*.rel
-/*.lst
-/*.sym
-/*.adb
-/*.lib
-/*.src
