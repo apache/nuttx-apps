@@ -3378,8 +3378,8 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
                           "%03u%cEntering Extended Passive Mode "
-                          "(|%u||%u|).\r\n",
-                          229, ' ', 1,
+                          "(|||%u|).\r\n",
+                          229, ' ',
                           ntohs(session->data.addr.in4.sin_port));
       if (ret < 0)
         {
