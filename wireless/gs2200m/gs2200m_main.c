@@ -1562,12 +1562,13 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
 static void _show_usage(FAR char *cmd)
 {
   fprintf(stderr,
-          "Usage: %s [-a [ch]] ssid key \n\n", cmd);
+          "Usage: %s [-a [ch]] ssid passphrase(key) \n\n", cmd);
   fprintf(stderr,
           "AP mode : specify -a option (optionally with channel) with ssid\n"
-          "          and 10 hex digits for WEP key \n");
+          "          and 8 to 63 ascii passphrase for WPA2-PSK \n"
+          "          or 10 hex digits key for WEP \n");
   fprintf(stderr,
-          "STA mode: specify ssid and passphrase (key) for WPA/WPA2 PSK \n");
+          "STA mode: specify ssid and passphrase for WPA/WPA2 PSK \n");
 }
 
 /****************************************************************************
