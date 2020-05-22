@@ -694,7 +694,8 @@ static FAR char *ftpd_strtok(bool skipspace, FAR const char *delimiters,
  * Name: ftpd_strtok_alloc
  ****************************************************************************/
 
-static FAR char *ftpd_strtok_alloc(bool skipspace, FAR const char *delimiters,
+static FAR char *ftpd_strtok_alloc(bool skipspace,
+                                   FAR const char *delimiters,
                                    FAR const char **str)
 {
   FAR const char *sptr;
@@ -869,7 +870,9 @@ static int ftpd_accept(int sd, FAR void *addr, FAR socklen_t *addrlen,
       ret = ftpd_rxpoll(sd, timeout);
       if (ret < 0)
         {
-          /* Only report interesting, infrequent errors (not the common timeout) */
+          /* Only report interesting,
+           * infrequent errors (not the common timeout)
+           */
 
 #ifdef CONFIG_DEBUG_NET
           if (ret != -ETIMEDOUT)
@@ -916,9 +919,9 @@ static ssize_t ftpd_recv(int sd, FAR void *data, size_t size, int timeout)
         }
     }
 
-  /* Receive the data... waiting if necessary.  The client side will break the
-   * connection after the file has been sent.  Zero (end-of-file) should be
-   * received in this case.
+  /* Receive the data... waiting if necessary.
+   * The client side will break the connection after the file has been sent.
+   * Zero (end-of-file) should be received in this case.
    */
 
   ret = recv(sd, data, size, 0);
@@ -1059,8 +1062,9 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
   /* PASV session */
 
   session->data.addrlen = sizeof(session->data.addr);
-  sd = ftpd_accept(session->data.sd, (struct sockaddr *)(&session->data.addr),
-                  &session->data.addrlen, -1);
+  sd = ftpd_accept(session->data.sd,
+                   (struct sockaddr *)(&session->data.addr),
+                   &session->data.addrlen, -1);
   if (sd < 0)
     {
       nerr("ERROR: ftpd_accept() failed: %d\n", sd);
@@ -1074,14 +1078,15 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
   session->data.sd = sd;
 
 #ifdef CONFIG_NET_SOLINGER
-  {
-    struct linger ling;
+    {
+      struct linger ling;
 
-    memset(&ling, 0, sizeof(ling));
-    ling.l_onoff = 1;
-    ling.l_linger = 4;
-    setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
-  }
+      memset(&ling, 0, sizeof(ling));
+      ling.l_onoff = 1;
+      ling.l_linger = 4;
+      setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER,
+                 &ling, sizeof(ling));
+    }
 #endif
 
   return OK;
@@ -1106,7 +1111,8 @@ static int ftpd_dataclose(FAR struct ftpd_session_s *session)
  * Name: ftpd_openserver
  ****************************************************************************/
 
-static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family)
+static FAR struct ftpd_server_s *ftpd_openserver(int port,
+                                                 sa_family_t family)
 {
   FAR struct ftpd_server_s *server;
   socklen_t addrlen;
@@ -1174,10 +1180,11 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family)
       return NULL;
     }
 
-  {
-    int reuse = 1;
-    setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
-  }
+    {
+      int reuse = 1;
+      setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR,
+                 &reuse, sizeof(reuse));
+    }
 
   /* Bind the socket to the address */
 
@@ -1902,7 +1909,9 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (cmdtype == 0)
         {
-          /* Read from the file.  Read returns the error condition via errno. */
+          /* Read from the file.
+           * Read returns the error condition via errno.
+           */
 
           rdbytes = read(session->fd, session->data.buffer, wantsize);
           if (rdbytes < 0)
@@ -1930,7 +1939,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (rdbytes < 0)
         {
-          nerr("ERROR: Read failed: rdbytes=%d errval=%d\n", rdbytes, errval);
+          nerr("ERROR: Read failed: rdbytes=%d errval=%d\n",
+               rdbytes, errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 550, ' ', "Data read error !");
           ret = -errval;
@@ -2119,7 +2129,8 @@ static uint8_t ftpd_listoption(FAR char **param)
  * Name: fptd_listscan
  ****************************************************************************/
 
-static int ftpd_listbuffer(FAR struct ftpd_session_s *session, FAR char *path,
+static int ftpd_listbuffer(FAR struct ftpd_session_s *session,
+                           FAR char *path,
                            FAR struct stat *st, FAR char *buffer,
                            size_t buflen, unsigned int opton)
 {
@@ -3322,7 +3333,8 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
 #endif
     {
       ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 500, ' ', "EPSV family not supported!");
+                          g_respfmt1, 500, ' ',
+                          "EPSV family not supported!");
       ftpd_dataclose(session);
       return ret;
     }
@@ -4270,8 +4282,8 @@ FTPD_SESSION ftpd_open(sa_family_t family)
  *
  * Input Parameters:
  *    handle - A handle previously returned by ftpd_open
- *    accountflags - The characteristics of this user (see FTPD_ACCOUNTFLAGS_*
- *      definitions).
+ *    accountflags - The characteristics of this user
+ *      (see FTPD_ACCOUNTFLAGS_* definitions).
  *    user - The user login name. May be NULL indicating that no login is
  *      required.
  *    passwd - The user password.  May be NULL indicating that no password
@@ -4428,7 +4440,9 @@ int ftpd_session(FTPD_SESSION handle, int timeout)
                                 &session->cmd.addrlen, timeout);
   if (session->cmd.sd < 0)
     {
-      /* Only report interesting, infrequent errors (not the common timeout) */
+      /* Only report interesting,
+       * infrequent errors (not the common timeout)
+       */
 
 #ifdef CONFIG_DEBUG_NET
       if (session->cmd.sd != -ETIMEDOUT)
