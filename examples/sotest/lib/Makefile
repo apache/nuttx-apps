@@ -84,7 +84,7 @@ endif
 # Create the exported symbol table
 
 $(SYMTAB_SRC): install
-	$(Q) $(LIB_DIR)/mksymtab.sh $(FSROOT_DIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(FSROOT_DIR) g_sot | sed "/modprint/d" >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
