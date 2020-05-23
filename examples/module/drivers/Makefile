@@ -107,7 +107,7 @@ endif
 # Create the exported symbol table
 
 $(SYMTAB_SRC): install
-	$(Q) $(DRIVER_DIR)/mksymtab.sh $(FSROOT_DIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(FSROOT_DIR) g_mod >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Copy the symbol table into the kernel pass1/ build directory

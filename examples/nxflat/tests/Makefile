@@ -88,7 +88,7 @@ $(DIRLIST_SRC): install
 # Create the exported symbol table list from the derived *-thunk.S files
 
 $(SYMTAB_SRC): install
-	$(Q) $(TESTS_DIR)/mksymtab.sh $(ROMFS_DIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(ROMFS_DIR) g_nxflat >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory

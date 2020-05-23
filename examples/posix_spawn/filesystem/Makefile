@@ -73,7 +73,7 @@ $(ROMFS_SRC): $(ROMFS_IMG)
 # Create the exported symbol table
 
 $(SYMTAB_SRC): $(ROMFS_IMG)
-	$(Q) $(FILESYSTEM_DIR)$(DELIM)mksymtab.sh $(ROMFS_DIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(ROMFS_DIR) g_spawn >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory

@@ -124,7 +124,7 @@ $(DIRLIST_SRC): install
 # Create the exported symbol table
 
 $(SYMTAB_SRC): install
-	$(Q) $(TESTS_DIR)/mksymtab.sh $(FSIMG_DIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(FSIMG_DIR) g_elf >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
