@@ -103,6 +103,11 @@
 #  define CONFIG_WEBCLIENT_TIMEOUT 10
 #endif
 
+#ifndef CONFIG_WEBCLIENT_MAX_REDIRECT
+/* The default value 50 is taken from curl's --max-redirs option. */
+#  define CONFIG_WEBCLIENT_MAX_REDIRECT 50
+#endif
+
 #define WEBCLIENT_STATE_STATUSLINE 0
 #define WEBCLIENT_STATE_HEADERS    1
 #define WEBCLIENT_STATE_DATA       2
@@ -467,6 +472,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   struct wget_s *ws;
   struct timeval tv;
   bool redirected;
+  unsigned int nredirect = 0;
   char *dest;
   int sockfd;
   int len;
@@ -685,6 +691,13 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
               else
                 {
                   redirected = true;
+                  nredirect++;
+                  if (nredirect > CONFIG_WEBCLIENT_MAX_REDIRECT)
+                    {
+                      nerr("ERROR: too many redirects (%u)\n", nredirect);
+                      goto errout;
+                    }
+
                   close(sockfd);
                   break;
                 }
