@@ -529,7 +529,9 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
       newaddr.s_addr = INADDR_ANY;
       netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
 
-      /* Loop sending the DISCOVER up to CONFIG_NETUTILS_DHCPC_RETRIES times */
+      /* Loop sending the DISCOVER up to CONFIG_NETUTILS_DHCPC_RETRIES
+       * times
+       */
 
       retries = 0;
 
