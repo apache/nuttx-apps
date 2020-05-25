@@ -153,6 +153,7 @@ struct wget_s
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
   char mimetype[CONFIG_WEBCLIENT_MAXMIMESIZE];
 #endif
+  char scheme[sizeof("https") + 1];
   char hostname[CONFIG_WEBCLIENT_MAXHOSTNAME];
   char filename[CONFIG_WEBCLIENT_MAXFILENAME];
 };
@@ -291,6 +292,40 @@ static inline int wget_parsestatus(struct wget_s *ws)
 }
 
 /****************************************************************************
+ * Name: parseurl
+ ****************************************************************************/
+
+static int parseurl(FAR const char *url, FAR struct wget_s *ws)
+{
+  struct url_s url_s;
+  int ret;
+
+  memset(&url_s, 0, sizeof(url_s));
+  url_s.scheme = ws->scheme;
+  url_s.schemelen = sizeof(ws->scheme);
+  url_s.host = ws->hostname;
+  url_s.hostlen = sizeof(ws->hostname);
+  url_s.path = ws->filename;
+  url_s.pathlen = sizeof(ws->filename);
+  ret = netlib_parseurl(url, &url_s);
+  if (ret == -1)
+    {
+      return ret;
+    }
+
+  if (url_s.port == 0)
+    {
+      ws->port = 80;
+    }
+  else
+    {
+      ws->port = url_s.port;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: wget_parseheaders
  ****************************************************************************/
 
@@ -298,6 +333,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
 {
   int offset;
   int ndx;
+  int ret = OK;
 
   offset = ws->offset;
   ndx    = ws->ndx;
@@ -350,17 +386,12 @@ static inline int wget_parseheaders(struct wget_s *ws)
               if (strncasecmp(ws->line, g_httplocation,
                               strlen(g_httplocation)) == 0)
                 {
-                  /* Parse the new HTTP host and filename from the URL.
-                   * Note that the return value is ignored. In the event
-                   * of failure, we retain the current location.
+                  /* Parse the new host and filename from the URL.
                    */
 
-                  netlib_parsehttpurl(ws->line + strlen(g_httplocation),
-                                      &ws->port,
-                                      ws->hostname,
-                                      CONFIG_WEBCLIENT_MAXHOSTNAME,
-                                      ws->filename,
-                                      CONFIG_WEBCLIENT_MAXFILENAME);
+                  ninfo("Redirect to location: '%s'\n",
+                        ws->line + strlen(g_httplocation));
+                  ret = parseurl(ws->line + strlen(g_httplocation), ws);
                   ninfo("New hostname='%s' filename='%s'\n",
                         ws->hostname, ws->filename);
                 }
@@ -383,7 +414,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
 exit:
   ws->offset = ++offset;
   ws->ndx    = ndx;
-  return OK;
+  return ret;
 }
 
 /****************************************************************************
@@ -488,18 +519,15 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
   ws->buffer = buffer;
   ws->buflen = buflen;
-  ws->port   = 80;
 
   /* Parse the hostname (with optional port number) and filename
    * from the URL.
    */
 
-  ret = netlib_parsehttpurl(url, &ws->port,
-                            ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
-                            ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
+  ret = parseurl(url, ws);
   if (ret != 0)
     {
-      nwarn("WARNING: Malformed HTTP URL: %s\n", url);
+      nwarn("WARNING: Malformed URL: %s\n", url);
       free(ws);
       errno = -ret;
       return ERROR;
@@ -511,6 +539,13 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
   do
     {
+      if (strcmp(ws->scheme, "http"))
+        {
+          nerr("ERROR: unsupported scheme: %s\n", ws->scheme);
+          free(ws);
+          return ERROR;
+        }
+
       /* Re-initialize portions of the state structure that could have
        * been left from the previous time through the loop and should not
        * persist with the new connection.
