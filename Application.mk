@@ -129,9 +129,9 @@ $(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 
 .built: $(OBJS)
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $(OBJS))
+	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $^)
 else
-	$(call ARLOCK, $(BIN), $(OBJS))
+	$(call ARLOCK, $(BIN), $^)
 endif
 	$(Q) touch $@
 
