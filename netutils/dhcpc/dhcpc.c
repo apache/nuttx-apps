@@ -424,7 +424,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
       pdhcpc->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
       if (pdhcpc->sockfd < 0)
         {
-          ninfo("socket handle %d\n", ret);
+          ninfo("socket handle %d\n", pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;
         }
