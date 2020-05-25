@@ -9,6 +9,7 @@ config NETUTILS_WEBCLIENT
 	depends on NET_TCP
 	select LIBC_NETDB
 	select NET_SOCKOPTS
+	select NETUTILS_NETLIB_GENERICURLPARSER
 	---help---
 		Enable support for the uIP web client.
 
