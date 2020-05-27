@@ -207,19 +207,23 @@ struct url_s
 {
   FAR char *scheme;
   int       schemelen;
+#if 0 /* not yet */
   FAR char *user;
   int       userlen;
   FAR char *password;
   int       passwordlen;
+#endif
   FAR char *host;
   int       hostlen;
   int       port;
   FAR char *path;
   int       pathlen;
+#if 0 /* not yet */
   FAR char *parameters;
   int       parameterslen;
   FAR char *bookmark;
   int       bookmarklen;
+#endif
 };
 #endif
 
