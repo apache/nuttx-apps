@@ -3,7 +3,8 @@
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
- *   Copyright (C) 2007, 2009, 2011, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015, 2017 Gregory Nutt. All rights
+ *   reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Some of these APIs derive from uIP.  uIP also has a BSD style license:
@@ -81,7 +82,8 @@
 /* Using the following definitions, the following socket() arguments should
  * provide a valid socket in all configurations:
  *
- *   ret = socket(NETLIB_SOCK_FAMILY, NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
+ *   ret = socket(NETLIB_SOCK_FAMILY, NETLIB_SOCK_TYPE,
+ *                NETLIB_SOCK_PROTOCOL);
  */
 
 /* The address family that we used to create the socket really does not
@@ -251,7 +253,8 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
                            unsigned int nentries, sa_family_t family);
 #endif
 
-/* Convert a textual representation of an IP address to a numerical representation.
+/* Convert a textual representation of an IP address to a numerical
+ * representation.
  *
  * This function takes a textual representation of an IP address in
  * the form a.b.c.d and converts it into a 4-byte array that can be
@@ -306,24 +309,31 @@ bool netlib_nodeaddrconv(FAR const char *addrstr,
 
 #ifdef CONFIG_NET_IPv4
 int netlib_get_ipv4addr(FAR const char *ifname, FAR struct in_addr *addr);
-int netlib_set_ipv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
-int netlib_set_dripv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_set_ipv4addr(FAR const char *ifname,
+                        FAR const struct in_addr *addr);
+int netlib_set_dripv4addr(FAR const char *ifname,
+                          FAR const struct in_addr *addr);
 int netlib_get_dripv4addr(FAR const char *ifname, FAR struct in_addr *addr);
-int netlib_set_ipv4netmask(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_set_ipv4netmask(FAR const char *ifname,
+                           FAR const struct in_addr *addr);
 int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr);
 int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr);
 #endif
 
 #ifdef CONFIG_NET_IPv6
 int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr);
-int netlib_set_ipv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
-int netlib_set_dripv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
-int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *addr);
+int netlib_set_ipv6addr(FAR const char *ifname,
+                        FAR const struct in6_addr *addr);
+int netlib_set_dripv6addr(FAR const char *ifname,
+                          FAR const struct in6_addr *addr);
+int netlib_set_ipv6netmask(FAR const char *ifname,
+                           FAR const struct in6_addr *addr);
 int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
                        FAR struct in6_addr *srcipaddr);
 
 uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
-void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
+void netlib_prefix2ipv6netmask(uint8_t preflen,
+                               FAR struct in6_addr *netmask);
 #ifdef CONFIG_NETLINK_ROUTE
 struct neighbor_entry_s;
 ssize_t netlib_get_nbtable(FAR struct neighbor_entry_s *nbtab,
