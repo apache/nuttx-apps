@@ -308,7 +308,7 @@ static int parseurl(FAR const char *url, FAR struct wget_s *ws)
   url_s.path = ws->filename;
   url_s.pathlen = sizeof(ws->filename);
   ret = netlib_parseurl(url, &url_s);
-  if (ret == -1)
+  if (ret < 0)
     {
       return ret;
     }
