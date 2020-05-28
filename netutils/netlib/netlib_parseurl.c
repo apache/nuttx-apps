@@ -76,6 +76,7 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url)
   FAR char *dest;
   int bytesleft;
   int ret = OK;
+  size_t pathlen;
 
   /* extract the protocol field, a set of a-z letters */
 
@@ -193,7 +194,17 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url)
 
   /* The copy the rest of the file name to the user buffer */
 
-  strncpy(dest, src, bytesleft);
-  url->path[bytesleft - 1] = '\0';
+  pathlen = strlen(src);
+  if (bytesleft >= pathlen + 1)
+    {
+      memcpy(dest, src, pathlen);
+      dest[pathlen] = '\0';
+    }
+  else
+    {
+      dest[0] = '\0';
+      ret = -E2BIG;
+    }
+
   return ret;
 }
