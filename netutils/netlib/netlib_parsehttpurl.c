@@ -68,6 +68,7 @@ int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
   FAR char *dest;
   int bytesleft;
   int ret = OK;
+  size_t pathlen;
 
   /* A valid HTTP URL must begin with http:// if it does not, we will assume
    * that it is a file name only, but still return an error.  wget() depends
@@ -154,7 +155,17 @@ int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
 
   /* The copy the rest of the file name to the user buffer */
 
-  strncpy(dest, src, bytesleft);
-  filename[namelen-1] = '\0';
+  pathlen = strlen(src);
+  if (bytesleft >= pathlen + 1)
+    {
+      memcpy(dest, src, pathlen);
+      dest[pathlen] = '\0';
+    }
+  else
+    {
+      dest[0] = '\0';
+      ret = -E2BIG;
+    }
+
   return ret;
 }
