@@ -60,6 +60,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <string.h>
 #include <strings.h>
 #include <stdlib.h>
 #include <errno.h>
