@@ -116,7 +116,9 @@ config.h: $(TOPDIR)/include/nuttx/config.h
 ifneq ($(CONFIG_EXAMPLES_TCPBLASTER_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK),y)
 
-$(HOST_BIN): config.h $(HOST_OBJS)
+$(HOST_OBJS): config.h
+
+$(HOST_BIN): $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 

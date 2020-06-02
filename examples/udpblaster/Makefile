@@ -67,7 +67,9 @@ config.h: $(TOPDIR)/include/nuttx/config.h
 	$(Q) cp $< $@
 
 ifneq ($(CONFIG_EXAMPLES_UDPBLASTER_LOOPBACK),y)
-$(HOST_BIN): config.h $(HOST_OBJS)
+$(HOST_OBJS): config.h
+
+$(HOST_BIN): $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 endif
