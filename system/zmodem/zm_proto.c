@@ -50,10 +50,6 @@
 #include "zm.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
@@ -69,8 +65,6 @@
  *  CAN characters if they are received by a command interpreter.
  */
 
-#define CANISTR_SIZE (8+10)
-
 const uint8_t g_canistr[CANISTR_SIZE] =
 {
   /* Eight CAN characters */
@@ -85,7 +79,7 @@ const uint8_t g_canistr[CANISTR_SIZE] =
 };
 
 /****************************************************************************
- * Public Function Protypes
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -199,7 +193,7 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
     }
 
   term = ZCRCW;
-  zmdbg("zbin=%c, buflen=%d, term=%c flags=%04x\n",
+  zmdbg("zbin=%c, buflen=%zu, term=%c flags=%04x\n",
         zbin, buflen, term, pzm->flags);
 
   /* Transfer the data to the I/O buffer, accumulating the CRC */
@@ -226,7 +220,7 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
 
   if (zbin == ZBIN)
     {
-      crc = (uint32_t)crc16part((FAR const uint8_t *)&term, 1, (uint16_t)crc);
+      crc = crc16part((FAR const uint8_t *)&term, 1, crc);
     }
   else
     {
@@ -265,7 +259,7 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
  *   necessary.
  *
  *   Hex header:
- *     ZPAD ZPAD ZDLE ZHEX type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2 CR LF [XON]
+ *     ZPAD ZPAD ZDLE ZHEX type f3/p0 f2/p1 f1/p2 f0/p3 crc1 crc2 CR LF [XON]
  *     Payload length: 16 (14 hex digits, cr, lf, ignoring optional XON)
  *
  * Input Parameters:
@@ -312,7 +306,6 @@ int zm_sendhexhdr(FAR struct zm_state_s *pzm, int type,
     }
 
   /* crc-1 crc-2 */
-  /* REVISIT:  Should this be zm_putzdle()? */
 
   ptr = zm_puthex8(ptr, (crc >> 8) & 0xff);
   ptr = zm_puthex8(ptr, crc & 0xff);
@@ -443,7 +436,7 @@ int zm_sendbin32hdr(FAR struct zm_state_s *pzm, int type,
   /* type */
 
   ptr = zm_putzdle(pzm, ptr, type);
-  crc = crc32part((FAR const uint8_t *)&type, 1, 0xffffffffL);
+  crc = crc32part((FAR const uint8_t *)&type, 1, 0xffffffffl);
 
   /* f3/p0 f2/p1 f1/p2 f0/p3 */
 
