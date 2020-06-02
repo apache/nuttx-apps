@@ -59,8 +59,7 @@ ZMODEM   = $(APPDIR)/system/zmodem
 HOSTDIR  = $(ZMODEM)/host
 HOSTAPPS = $(ZMODEM)/host/apps
 
-HOSTCFLAGS  += -isystem $(HOSTDIR) -I $(ZMODEM) -I $(HOSTAPPS)
-HOSTCFLAGS  += -Dsz_main=main -Drz_main=main
+HOSTCFLAGS  += -I $(HOSTDIR) -I $(HOSTAPPS)
 ifeq ($(CONFIG_DEBUG_FEATURES),y)
 HOSTCFLAGS  += -DCONFIG_DEBUG_ZMODEM=1
 endif
