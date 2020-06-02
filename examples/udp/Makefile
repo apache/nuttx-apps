@@ -104,7 +104,9 @@ config.h: $(TOPDIR)/include/nuttx/config.h
 
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 
-$(HOST_BIN): config.h $(HOST_OBJS)
+$(HOST_OBJS): config.h
+
+$(HOST_BIN): $(HOST_OBJS)
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
 endif
