@@ -19,7 +19,7 @@ fi
 
 echo "#include <stddef.h>"
 echo ""
-echo "static const char *dirlist[] ="
+echo "const char *dirlist[] ="
 echo "{"
 
 for file in `ls $dir`; do

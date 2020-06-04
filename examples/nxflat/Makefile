@@ -47,6 +47,10 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_NXFLAT)
 
+ROOTDEPPATH := --dep-path tests
+
+VPATH += :tests
+
 tests/romfs.c: build
 tests/dirlist.c: build
 tests/symtab.c: build
