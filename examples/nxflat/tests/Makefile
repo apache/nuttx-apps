@@ -33,6 +33,8 @@
 #
 ############################################################################
 
+include $(TOPDIR)/Make.defs
+
 # Most of these do no build yet
 #SUBDIRS	= errno hello hello++ longjmp mutex pthread signal task struct
 SUBDIRS		= errno hello struct
@@ -50,7 +52,7 @@ TESTS_DIR	= $(NXFLAT_DIR)/tests
 ROMFS_DIR	= $(TESTS_DIR)/romfs
 ROMFS_IMG	= $(TESTS_DIR)/romfs.img
 ROMFS_SRC	= $(TESTS_DIR)/romfs.c
-DIRLIST_SRC	= $(TESTS_DIR)/dirlist.h
+DIRLIST_SRC	= $(TESTS_DIR)/dirlist.c
 SYMTAB_SRC	= $(TESTS_DIR)/symtab.c
 
 define DIR_template
@@ -79,7 +81,7 @@ $(ROMFS_IMG): install
 $(ROMFS_SRC): $(ROMFS_IMG)
 	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
 
-# Create the dirlist.h header file from the romfs directory
+# Create the dirlist.c file from the romfs directory
 
 $(DIRLIST_SRC): install
 	$(Q) $(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@.tmp
@@ -88,7 +90,7 @@ $(DIRLIST_SRC): install
 # Create the exported symbol table list from the derived *-thunk.S files
 
 $(SYMTAB_SRC): install
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(ROMFS_DIR) g_nxflat >$@.tmp
+	$(Q) $(APPDIR)/tools/mksymtab.sh $(ROMFS_DIR) g_nxflat >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Clean each subdirectory
