@@ -80,14 +80,6 @@
 #define NXPLAYER_STATE_PLAYING   1
 #define NXPLAYER_STATE_PAUSED    2
 
-#ifndef CONFIG_AUDIO_NUM_BUFFERS
-#  define CONFIG_AUDIO_NUM_BUFFERS  2
-#endif
-
-#ifndef CONFIG_AUDIO_BUFFER_NUMBYTES
-#  define CONFIG_AUDIO_BUFFER_NUMBYTES  8192
-#endif
-
 #ifndef CONFIG_NXPLAYER_MSG_PRIO
 #  define CONFIG_NXPLAYER_MSG_PRIO  1
 #endif
@@ -787,12 +779,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                        running = true;
   bool                        streaming = true;
   bool                        failed = false;
-#ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
   FAR struct ap_buffer_s      **buffers;
-#else
-  FAR struct ap_buffer_s      *buffers[CONFIG_AUDIO_NUM_BUFFERS];
-#endif
   unsigned int                prio;
 #ifdef CONFIG_DEBUG_FEATURES
   int                         outstanding = 0;
@@ -804,7 +792,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   /* Query the audio device for it's preferred buffer size / qty */
 
-#ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   if ((ret = ioctl(pplayer->dev_fd, AUDIOIOC_GETBUFFERINFO,
           (unsigned long) &buf_info)) != OK)
     {
@@ -835,26 +822,14 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
     }
 
   for (x = 0; x < buf_info.nbuffers; x++)
-#else /* CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFER */
-
-  for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
-    {
-      buffers[x] = NULL;
-    }
-
-  for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
-#endif /* CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFER */
     {
       /* Fill in the buffer descriptor struct to issue an alloc request */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       buf_desc.session = pplayer->session;
 #endif
-#ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
+
       buf_desc.numbytes = buf_info.buffer_size;
-#else
-      buf_desc.numbytes = CONFIG_AUDIO_BUFFER_NUMBYTES;
-#endif
       buf_desc.u.pbuffer = &buffers[x];
 
       ret = ioctl(pplayer->dev_fd, AUDIOIOC_ALLOCBUFFER,
@@ -871,11 +846,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   /* Fill up the pipeline with enqueued buffers */
 
-#ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   for (x = 0; x < buf_info.nbuffers; x++)
-#else
-  for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
-#endif
     {
       /* Read the next buffer of data */
 
@@ -1147,7 +1118,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 err_out:
   audinfo("Clean-up and exit\n");
 
-#ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   if (buffers != NULL)
     {
       audinfo("Freeing buffers\n");
@@ -1170,23 +1140,6 @@ err_out:
 
       free(buffers);
     }
-#else
-    audinfo("Freeing buffers\n");
-    for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
-      {
-        /* Fill in the buffer descriptor struct to issue a free request */
-
-        if (buffers[x] != NULL)
-          {
-#ifdef CONFIG_AUDIO_MULTI_SESSION
-            buf_desc.session = pplayer->session;
-#endif
-            buf_desc.u.buffer = buffers[x];
-            ioctl(pplayer->dev_fd, AUDIOIOC_FREEBUFFER,
-                  (unsigned long)&buf_desc);
-          }
-      }
-#endif
 
   /* Unregister the message queue and release the session */
 
