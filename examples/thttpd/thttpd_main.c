@@ -183,7 +183,7 @@ int                         g_thttpdnsymbols;
 extern const unsigned char romfs_img[];
 extern const unsigned int romfs_img_len;
 
-#ifdef CONFIG_THTTPD_FLAT
+#ifdef CONFIG_THTTPD_NXFLAT
 extern const struct symtab_s g_thttpd_exports[];
 extern const int g_thttpd_nexports;
 #endif

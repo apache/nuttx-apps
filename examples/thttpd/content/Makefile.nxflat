@@ -33,6 +33,8 @@
 #
 ############################################################################
 
+include $(TOPDIR)/Make.defs
+
 SUBDIRS = hello tasks
 INSTALL_FILES = index.html style.css
 
@@ -76,7 +78,7 @@ $(ROMFS_SRC): $(ROMFS_IMG)
 # Create the exported symbol table list from the derived *-thunk.S files
 
 $(SYMTAB_SRC): install
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(CONTENT_DIR) g_thttpd >$@.tmp
+	$(Q) $(APPDIR)/tools/mksymtab.sh $(CONTENT_DIR) g_thttpd >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 # Nothing special needs to be done during the context phase
