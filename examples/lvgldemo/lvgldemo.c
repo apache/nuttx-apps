@@ -153,6 +153,30 @@ int main(int argc, FAR char *argv[])
   lv_disp_buf_t disp_buf;
   static lv_color_t buf[CONFIG_LV_VDB_SIZE];
 
+#ifndef CONFIG_EXAMPLES_LVGLDEMO_CALIBRATE
+  lv_point_t p[4];
+
+  /* top left */
+
+  p[0].x = 0;
+  p[0].y = 0;
+
+  /* top right */
+
+  p[1].x = LV_HOR_RES;
+  p[1].y = 0;
+
+  /* bottom left */
+
+  p[2].x = 0;
+  p[2].y = LV_VER_RES;
+
+  /* bottom right */
+
+  p[3].x = LV_HOR_RES;
+  p[3].y = LV_VER_RES;
+#endif
+
 #ifdef NEED_BOARDINIT
   /* Perform board-specific driver initialization */
 
@@ -237,8 +261,11 @@ int main(int argc, FAR char *argv[])
 
   /* Start TP calibration */
 
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_CALIBRATE
   tp_cal_create();
-
+#else
+  tp_set_cal_values(p, p + 1, p + 2, p + 3);
+#endif
   /* Handle LittlevGL tasks */
 
   while (1)

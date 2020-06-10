@@ -11,6 +11,13 @@ menuconfig EXAMPLES_LVGLDEMO
 
 if EXAMPLES_LVGLDEMO
 
+config EXAMPLES_LVGLDEMO_CALIBRATE
+	bool "Calibrate touchscreen"
+	default y
+	---help---
+		Calibrate touchscreen before demo start, but some touchscreen
+		don't need it, like capacitive touchscreen.
+
 choice
 	prompt "Select a demo application"
 	default EXAMPLES_LVGLDEMO_SIMPLE
