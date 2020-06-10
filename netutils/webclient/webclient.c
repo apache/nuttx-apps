@@ -678,8 +678,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
           if (ws->datend < 0)
             {
               nerr("ERROR: recv failed: %d\n", errno);
-              ret = ws->datend;
-              goto errout_with_errno;
+              goto errout;
             }
           else if (ws->datend == 0)
             {
