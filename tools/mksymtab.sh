@@ -72,7 +72,8 @@ echo "#include <nuttx/compiler.h>"
 echo "#include <nuttx/symtab.h>"
 echo ""
 
-for var in $varlist; do
+for string in $varlist; do
+  var=`echo $string | sed -e "s/\"//g"`
   echo "extern void *${var};"
 done
 
@@ -90,7 +91,8 @@ else
 fi
 echo "{"
 
-for var in $varlist; do
+for string in $varlist; do
+  var=`echo $string | sed -e "s/\"//g"`
   echo "  {\"${var}\", &${var}},"
 done
 
