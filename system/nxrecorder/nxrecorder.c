@@ -216,7 +216,7 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
   bufdesc.session   = precorder->session;
 #endif
   bufdesc.numbytes  = apb->nbytes;
-  bufdesc.u.pbuffer = apb;
+  bufdesc.u.buffer = apb;
 
   ret = ioctl(precorder->dev_fd, AUDIOIOC_ENQUEUEBUFFER,
               (unsigned long)&bufdesc);
@@ -576,7 +576,7 @@ err_out:
 #ifdef CONFIG_AUDIO_MULTI_SESSION
               buf_desc.session = pplayer->session;
 #endif
-              buf_desc.u.pbuffer = pbuffers[x];
+              buf_desc.u.buffer = pbuffers[x];
               ioctl(precorder->dev_fd,
                     AUDIOIOC_FREEBUFFER,
                     (unsigned long) &buf_desc);
