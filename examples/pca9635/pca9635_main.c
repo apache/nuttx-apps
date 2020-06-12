@@ -68,7 +68,7 @@
 
 int main(int argc, FAR char *argv[])
 {
-  struct pca9635pw_setled_brightness_arg_s ledbright;
+  struct pca9635pw_brightness_s ledbright;
   int led;
   int bright;
   int fd;
@@ -91,10 +91,12 @@ int main(int argc, FAR char *argv[])
               ledbright.led = led;
               ledbright.brightness = bright;
 
-              ret = ioctl(fd, PWMIOC_SETLED_BRIGHTNESS, (unsigned long)&ledbright);
+              ret = ioctl(fd, PWMIOC_SETLED_BRIGHTNESS,
+                          (unsigned long)&ledbright);
               if (ret < 0)
                 {
-                  _err("ERROR: ioctl(PWMIOC_SETLED_BRIGHTNESS) failed: %d\n", errno);
+                  _err("ERROR: ioctl(PWMIOC_SETLED_BRIGHTNESS) failed: %d\n",
+                        errno);
                 }
             }
 
