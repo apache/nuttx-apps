@@ -100,6 +100,7 @@
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_6LOWPAN)
 #  undef CONFIG_NET_SLIP
@@ -107,26 +108,34 @@
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_SLIP)
 #  undef CONFIG_NET_TUN
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_TUN)
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_LOCAL)
 #  undef CONFIG_NET_USRSOCK
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_USRSOCK)
 #  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_CAN
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_IEEE802154)
+#  undef CONFIG_NET_CAN
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_CAN)
 #  undef CONFIG_NET_LOOPBACK
 #endif
 
@@ -188,6 +197,9 @@
 #  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
+#  define NETINIT_HAVE_NETDEV
+#elif defined(CONFIG_NET_CAN)
+#  define NET_DEVNAME "can0"
 #  define NETINIT_HAVE_NETDEV
 #endif
 
