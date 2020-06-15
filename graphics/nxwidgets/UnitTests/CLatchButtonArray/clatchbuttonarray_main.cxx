@@ -27,6 +27,7 @@
 #include <nuttx/init.h>
 #include <cstdio>
 #include <cstdlib>
+#include <malloc.h>
 #include <unistd.h>
 #include <debug.h>
 

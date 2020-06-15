@@ -42,6 +42,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <debug.h>
 #include <fcntl.h>

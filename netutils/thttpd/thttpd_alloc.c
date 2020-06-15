@@ -26,6 +26,7 @@
 
 #include <sys/types.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <debug.h>
 #include <errno.h>
 
