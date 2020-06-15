@@ -315,9 +315,35 @@ int main(int argc, FAR char *argv[])
                           O_RDWR | O_NONBLOCK);
   if (termpair.fd_uart < 0)
     {
-      fprintf(stderr, "Failed to open %s: %\n",
+#ifdef CONFIG_EXAMPLES_PTYTEST_WAIT_CONNECTED
+      /* if ENOTCONN is received, re-attempt to open periodically */
+
+      if (errno == ENOTCONN)
+        {
+          fprintf(stderr, "ERROR: device not connected, will continue trying\n");
+        }
+
+      while (termpair.fd_uart < 0 && errno == ENOTCONN)
+        {
+          sleep(1);
+
+          termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV,
+                                  O_RDWR | O_NONBLOCK);
+        }
+
+      /* if we exited due to an error different than ENOTCONN */
+
+      if (termpair.fd_uart < 0)
+        {
+          fprintf(stderr, "Failed to open %s: %i\n",
+                 CONFIG_EXAMPLES_PTYTEST_SERIALDEV, errno);
+          goto error_serial;
+        }
+#else
+      fprintf(stderr, "Failed to open %s: %i\n",
              CONFIG_EXAMPLES_PTYTEST_SERIALDEV, errno);
       goto error_serial;
+#endif
     }
 
 #ifdef CONFIG_SERIAL_TERMIOS
