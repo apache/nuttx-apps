@@ -46,7 +46,9 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* OS/Driver configuration checks */
 
 #ifndef CONFIG_USBDEV
@@ -138,7 +140,7 @@ struct composite_state_s
 extern struct composite_state_s g_composite;
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 #endif /* __SYSTEM_COMPOSITE_COMPOSITE_H */
