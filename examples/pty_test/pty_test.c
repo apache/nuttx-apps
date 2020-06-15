@@ -115,7 +115,7 @@ static void serial_in(struct term_pair_s *tp)
 
   /* Run forever */
 
-  for (;;)
+  while (true)
     {
 #ifdef CONFIG_EXAMPLES_PTYTEST_POLL
       ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
@@ -194,7 +194,7 @@ static void serial_out(struct term_pair_s *tp)
 
   /* Run forever */
 
-  for (;;)
+  while (true)
     {
 #ifdef CONFIG_EXAMPLES_PTYTEST_POLL
       ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
@@ -320,7 +320,8 @@ int main(int argc, FAR char *argv[])
 
       if (errno == ENOTCONN)
         {
-          fprintf(stderr, "ERROR: device not connected, will continue trying\n");
+          fprintf(stderr, "ERROR: device not connected, will continue"
+                          " trying\n");
         }
 
       while (termpair.fd_uart < 0 && errno == ENOTCONN)
@@ -382,7 +383,8 @@ int main(int argc, FAR char *argv[])
   /* Create a new console using this /dev/pts/N */
 
   pid = task_create("NSH Console", CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO,
-                    CONFIG_EXAMPLES_PTYTEST_STACKSIZE, nsh_consolemain, NULL);
+                    CONFIG_EXAMPLES_PTYTEST_STACKSIZE, nsh_consolemain,
+                    NULL);
   if (pid < 0)
     {
       /* Can't do output because stdout and stderr are redirected */
@@ -416,7 +418,7 @@ int main(int argc, FAR char *argv[])
 
   /* Stay here to keep the threads running */
 
-  for (;;)
+  while (true)
     {
       /* Nothing to do, then sleep to avoid eating all cpu time */
 
