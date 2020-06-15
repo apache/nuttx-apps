@@ -56,12 +56,13 @@ int main(int argc, FAR char *argv[])
   int ret;
   uint32_t sample;
 
-  fd = open("/dev/press0", O_RDWR);
+  fd = open("/dev/press0", O_RDONLY);
   while (1)
     {
       ret = read(fd, &sample, sizeof(uint32_t));
       if (ret != sizeof(sample))
         {
+          perror("Could not read");
           break;
         }
 
