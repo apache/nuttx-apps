@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <unistd.h>
 #include <debug.h>
 
