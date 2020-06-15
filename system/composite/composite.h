@@ -57,14 +57,6 @@
 #  error "USB composite device support is not enabled (CONFIG_USBDEV_COMPOSITE)"
 #endif
 
-#ifndef CONFIG_CDCACM
-#  error "USB CDC/ACM serial device support is not enabled (CONFIG_CDCACM)"
-#endif
-
-#ifndef CONFIG_CDCACM_COMPOSITE
-#  error "USB CDC/ACM serial composite device support is not enabled (CONFIG_CDCACM_COMPOSITE)"
-#endif
-
 /* Trace initialization *****************************************************/
 
 #ifndef CONFIG_USBDEV_TRACE_INITIALIDSET
