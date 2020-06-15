@@ -394,7 +394,7 @@ int main(int argc, FAR char *argv[])
     {
       /* Nothing to do, then sleep to avoid eating all cpu time */
 
-      usleep(10000);
+      pause();
     }
 
   return EXIT_SUCCESS;
