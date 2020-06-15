@@ -40,4 +40,12 @@ config EXAMPLES_PTYTEST_DAEMONPRIO
 	int "PTY_Test daemon task priority"
 	default 100
 
+config EXAMPLES_PTYTEST_WAIT_CONNECTED
+  bool "Keep retrying open serial device"
+  ---help---
+     For USB based serial devices, open will fail
+     if the other end is not connected (USB cable unplugged).
+     Enabling this option will retry the open() call every second
+     until connected.
+
 endif
