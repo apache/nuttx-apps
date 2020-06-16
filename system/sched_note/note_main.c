@@ -1,47 +1,33 @@
-/****************************************************************************
+/************************************************************************************
  * system/note/note_main.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- ****************************************************************************/
+ ************************************************************************************/
 
-/****************************************************************************
+/************************************************************************************
  * Included Files
- ****************************************************************************/
+ ************************************************************************************/
 
 #include <nuttx/config.h>
 
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <syslog.h>
 #include <fcntl.h>
@@ -49,9 +35,9 @@
 
 #include <nuttx/sched_note.h>
 
-/****************************************************************************
+/************************************************************************************
  * Private Data
- ****************************************************************************/
+ ************************************************************************************/
 
 static bool g_note_daemon_started;
 static uint8_t g_note_buffer[CONFIG_SYSTEM_NOTE_BUFFERSIZE];
@@ -75,13 +61,13 @@ static FAR const char *g_statenames[] =
 
 #define NSTATES (sizeof(g_statenames)/sizeof(FAR const char *))
 
-/****************************************************************************
+/************************************************************************************
  * Private Functions
- ****************************************************************************/
+ ************************************************************************************/
 
-/****************************************************************************
+/************************************************************************************
  * Name: dump_notes
- ****************************************************************************/
+ ************************************************************************************/
 
 static void dump_notes(size_t nread)
 {
@@ -147,7 +133,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_stop_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for stop note: %d\n",
+                         "ERROR: Size incorrect for stop note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -175,7 +161,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_suspend_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for suspend note: %d\n",
+                         "ERROR: Size incorrect for suspend note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -209,7 +195,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_resume_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for resume note: %d\n",
+                         "ERROR: Size incorrect for resume note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -238,7 +224,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_start_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU start note: %d\n",
+                         "ERROR: Size incorrect for CPU start note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -257,7 +243,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_started_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU started note: %d\n",
+                         "ERROR: Size incorrect for CPU started note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -278,7 +264,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_pause_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU pause note: %d\n",
+                         "ERROR: Size incorrect for CPU pause note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -297,7 +283,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_paused_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU paused note: %d\n",
+                         "ERROR: Size incorrect for CPU paused note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -318,7 +304,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_resume_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU resume note: %d\n",
+                         "ERROR: Size incorrect for CPU resume note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -337,7 +323,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_resumed_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for CPU resumed note: %d\n",
+                         "ERROR: Size incorrect for CPU resumed note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -362,7 +348,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_preempt_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for preemption note: %d\n",
+                         "ERROR: Size incorrect for preemption note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -418,7 +404,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_csection_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for csection note: %d\n",
+                         "ERROR: Size incorrect for csection note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -430,7 +416,8 @@ static void dump_notes(size_t nread)
               if (note->nc_type == NOTE_CSECTION_ENTER)
                 {
                   syslog(LOG_INFO,
-                         "%08lx: Task %u enter csection, CPU%u, priority %u, count=%u\n",
+                         "%08lx: Task %u enter csection, CPU%u, priority %u, "
+                         "count=%u\n",
                          (unsigned long)systime, (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
@@ -438,7 +425,8 @@ static void dump_notes(size_t nread)
               else
                 {
                   syslog(LOG_INFO,
-                         "%08lx: Task %u leave csection, CPU%u, priority %u, count=%u\n",
+                         "%08lx: Task %u leave csection, CPU%u, priority %u, "
+                         "count=%u\n",
                          (unsigned long)systime, (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
@@ -473,7 +461,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_spinlock_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for spinlock note: %d\n",
+                         "ERROR: Size incorrect for spinlock note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -484,7 +472,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_LOCK:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u wait for spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u CPU%u wait for spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            note_spinlock->nsp_spinlock,
@@ -496,7 +485,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_LOCKED:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u has spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u CPU%u has spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            note_spinlock->nsp_spinlock,
@@ -508,7 +498,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_UNLOCK:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u unlocking spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u CPU%u unlocking spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            note_spinlock->nsp_spinlock,
@@ -520,7 +511,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_ABORT:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u abort wait on spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u CPU%u abort wait on spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            note_spinlock->nsp_spinlock,
@@ -532,7 +524,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_LOCK:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u wait for spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u wait for spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            note_spinlock->nsp_spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -554,7 +547,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_UNLOCK:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u unlocking spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u unlocking spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            (unsigned int)note_spinlock->nsp_value,
@@ -565,7 +559,8 @@ static void dump_notes(size_t nread)
                 case NOTE_SPINLOCK_ABORT:
                   {
                     syslog(LOG_INFO,
-                           "%08lx: Task %u abort wait on spinlock=%p value=%u priority %u\n",
+                           "%08lx: Task %u abort wait on spinlock=%p value=%u "
+                           "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            note_spinlock->nsp_spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -574,6 +569,72 @@ static void dump_notes(size_t nread)
                   break;
 #endif
                }
+#endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
+                case NOTE_SYSCALL_ENTER:
+                  {
+                    FAR struct note_syscall_enter_s *note_sysenter =
+                      (FAR struct note_syscall_enter_s *)note;
+
+                    if (note->nc_length != sizeof(struct note_syscall_enter_s))
+                      {
+                        syslog(LOG_INFO,
+                               "ERROR: Size incorrect for SYSCALL enter note: %d\n",
+                               note->nc_length);
+                        return;
+                      }
+
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u Enter SYSCALL %d\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note_sysenter->nsc_nr);
+                  }
+                  break;
+
+                case NOTE_SYSCALL_LEAVE:
+                  {
+                    FAR struct note_syscall_leave_s *note_sysleave =
+                      (FAR struct note_syscall_leave_s *)note;
+
+                    if (note->nc_length != sizeof(struct note_syscall_leave_s))
+                      {
+                        syslog(LOG_INFO,
+                               "ERROR: Size incorrect for SYSCALL leave note: %d\n",
+                               note->nc_length);
+                        return;
+                      }
+
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u Leave SYSCALL %d: %" PRIdPTR "\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note_sysleave->nsc_nr, note_sysleave->nsc_result);
+                  }
+                  break;
+#endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
+                case NOTE_IRQ_ENTER:
+                case NOTE_IRQ_LEAVE:
+                  {
+                    FAR struct note_irqhandler_s *note_irq =
+                      (FAR struct note_irqhandler_s *)note;
+
+                    if (note->nc_length != sizeof(struct note_irqhandler_s))
+                      {
+                        syslog(LOG_INFO,
+                               "ERROR: Size incorrect for IRQ note: %d\n",
+                               note->nc_length);
+                        return;
+                      }
+
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u %s IRQ %d\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note->nc_type == NOTE_IRQ_ENTER ? "Enter" : "Leave",
+                           note_irq->nih_irq);
+                  }
+                  break;
 #endif
 
           default:
@@ -585,9 +646,9 @@ static void dump_notes(size_t nread)
     }
 }
 
-/****************************************************************************
+/************************************************************************************
  * Name: note_daemon
- ****************************************************************************/
+ ************************************************************************************/
 
 static int note_daemon(int argc, char *argv[])
 {
@@ -633,13 +694,13 @@ errout:
   return EXIT_FAILURE;
 }
 
-/****************************************************************************
+/************************************************************************************
  * Public Functions
- ****************************************************************************/
+ ************************************************************************************/
 
-/****************************************************************************
- * note_main
- ****************************************************************************/
+/************************************************************************************
+ * Name: note_main
+ ************************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
