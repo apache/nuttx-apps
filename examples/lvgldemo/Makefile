@@ -45,21 +45,12 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 # LittleVGL demo Example
 
 CSRCS += fbdev.c tp.c tp_cal.c
-ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_SIMPLE),y)
-  CSRCS += demo.c
-  ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_WALLPAPER),y)
-    CSRCS += img_bubble_pattern.c
-  endif
-else ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_THEME_1),y)
-  CSRCS += lv_test_theme_1.c
-else ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_THEME_2),y)
-  CSRCS += lv_test_theme_2.c
-endif
 
 MAINSRC = lvgldemo.c
 
-LVGLDIR=$(APPDIR)/graphics/littlevgl/lvgl
-CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(LVGLDIR)"}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(LVGLDIR)"}
+LVGL_SRC_DIR=$(APPDIR)/graphics/lvgl/lvgl
+LVGL_DIR=$(APPDIR)/graphics/lvgl
+CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
 
 include $(APPDIR)/Application.mk
