@@ -76,10 +76,11 @@ static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event);
 
 static enum tp_cal_state_e state;
 static lv_point_t p[4];
-static lv_obj_t *prev_scr;
-static lv_obj_t *big_btn;
-static lv_obj_t *label_main;
-static lv_obj_t *circ_area;
+static lv_obj_t   *prev_scr;
+static lv_obj_t   *big_btn;
+static lv_obj_t   *label_main;
+static lv_obj_t   *circ_area;
+static lv_theme_t *prev_theme;
 
 /****************************************************************************
  * Public Functions
@@ -166,15 +167,10 @@ static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event)
 #if LV_USE_ANIMATION
           lv_anim_init(&a);
           lv_anim_set_var(&a, circ_area);
-          lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_x);
-          lv_anim_set_time(&a, 500);
-          lv_anim_set_values(&a, LV_HOR_RES - CIRCLE_SIZE,
-                                 LV_HOR_RES - CIRCLE_SIZE);
-          lv_anim_set_delay(&a, 200);
-          lv_anim_start(&a);
-
           lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+          lv_anim_set_time(&a, 500);
           lv_anim_set_values(&a, 0, LV_VER_RES - CIRCLE_SIZE);
+          lv_anim_set_delay(&a, 200);
           lv_anim_start(&a);
 #else
           lv_obj_set_pos(circ_area,
@@ -214,11 +210,6 @@ static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event)
           lv_anim_set_values(&a, LV_HOR_RES - CIRCLE_SIZE, 0);
           lv_anim_set_delay(&a, 200);
           lv_anim_start(&a);
-
-          lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
-          lv_anim_set_values(&a, LV_VER_RES - CIRCLE_SIZE,
-                                 LV_VER_RES - CIRCLE_SIZE);
-          lv_anim_start(&a);
 #else
           lv_obj_set_pos(circ_area, 0, LV_VER_RES - CIRCLE_SIZE);
 #endif
@@ -251,6 +242,7 @@ static void btn_click_action(FAR lv_obj_t *scr, lv_event_t event)
         }
       else if (state == TP_CAL_STATE_WAIT_LEAVE)
         {
+          lv_theme_set_act(prev_theme);
           lv_scr_load(prev_scr);
           tp_set_cal_values(&p[0], &p[1], &p[2], &p[3]);
           state = TP_CAL_STATE_READY;
@@ -290,6 +282,17 @@ void tp_cal_create(void)
   state = TP_CAL_STATE_INIT;
 
   prev_scr = lv_scr_act();
+
+  lv_theme_t *theme = LV_THEME_DEFAULT_INIT(LV_THEME_DEFAULT_COLOR_PRIMARY,
+                        LV_THEME_DEFAULT_COLOR_SECONDARY,
+                        LV_THEME_DEFAULT_FLAG,
+                        LV_THEME_DEFAULT_FONT_SMALL,
+                        LV_THEME_DEFAULT_FONT_NORMAL,
+                        LV_THEME_DEFAULT_FONT_SUBTITLE,
+                        LV_THEME_DEFAULT_FONT_TITLE);
+
+  prev_theme = lv_theme_get_act();
+  lv_theme_set_act(theme);
 
   lv_obj_t *scr = lv_obj_create(NULL, NULL);
   lv_obj_set_size(scr, TP_MAX_VALUE, TP_MAX_VALUE);

@@ -37,6 +37,15 @@ include $(TOPDIR)/Make.defs
 
 # LittleVGL demo built-in application info
 
+CONFIG_LV_EXAMPLES_URL	?= https://github.com/lvgl/lv_examples/archive
+
+LVGL_EXAMPLES_VERSION ?= 7.0.2
+LVGL_EXAMPLES_TARBALL = v$(LVGL_EXAMPLES_VERSION).zip
+
+WGET ?= wget
+LVGL_EXAMPLES_UNPACKNAME = lv_examples
+UNPACK ?= unzip -o
+
 PROGNAME = lvgldemo
 PRIORITY = $(CONFIG_EXAMPLES_LVGLDEMO_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_LVGLDEMO_STACKSIZE)
@@ -46,11 +55,60 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 
 CSRCS += fbdev.c tp.c tp_cal.c
 
+# static common assets used in mutiple example
+
+LV_EXAMPLE_ASSETS = $(wildcard ./lv_examples/assets/*.c)
+CSRCS += $(notdir $(LV_EXAMPLE_ASSETS))
+VPATH += lv_examples/assets
+
+ifneq ($(CONFIG_EXAMPLES_LVGLDEMO_BENCHMARK),)
+CSRCS += lv_demo_benchmark.c
+VPATH += lv_examples/src/lv_demo_benchmark
+endif
+
+ifneq ($(CONFIG_EXAMPLES_LVGLDEMO_PRINTER),)
+LV_PRINTER_IMAGES = $(wildcard ./lv_examples/src/lv_demo_printer/images/*.c)
+CSRCS += lv_demo_printer.c lv_demo_printer_theme.c
+CSRCS += $(notdir $(LV_PRINTER_IMAGES))
+VPATH += lv_examples/src/lv_demo_printer
+VPATH += lv_examples/src/lv_demo_printer/images
+endif
+
+ifneq ($(CONFIG_EXAMPLES_LVGLDEMO_STRESS),)
+CSRCS += lv_demo_stress.c
+VPATH += lv_examples/src/lv_demo_stress
+endif
+
+ifneq ($(CONFIG_EXAMPLES_LVGLDEMO_WIDGETS),)
+CSRCS += lv_demo_widgets.c
+VPATH += lv_examples/src/lv_demo_widgets
+endif
+
 MAINSRC = lvgldemo.c
 
 LVGL_SRC_DIR=$(APPDIR)/graphics/lvgl/lvgl
 LVGL_DIR=$(APPDIR)/graphics/lvgl
+
 CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
 CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
+
+$(LVGL_EXAMPLES_TARBALL):
+	@echo "Downloading: $(LVGL_EXAMPLES_TARBALL)"
+	$(Q) $(WGET) $(CONFIG_LV_EXAMPLES_URL)/$(LVGL_EXAMPLES_TARBALL)
+
+$(LVGL_EXAMPLES_UNPACKNAME): $(LVGL_EXAMPLES_TARBALL)
+	@echo "Unpacking: $(LVGL_EXAMPLES_TARBALL) -> $(LVGL_EXAMPLES_UNPACKNAME)"
+	$(Q) $(UNPACK) $(LVGL_EXAMPLES_TARBALL)
+	$(Q) mv	lv_examples-$(LVGL_EXAMPLES_VERSION) $(LVGL_EXAMPLES_UNPACKNAME)
+	$(Q) touch $(LVGL_EXAMPLES_UNPACKNAME)
+
+context:: $(LVGL_EXAMPLES_UNPACKNAME)
+
+clean::
+	$(call DELDIR, build)
+
+distclean::
+	$(call DELDIR, $(LVGL_EXAMPLES_UNPACKNAME))
+	$(call DELFILE, $(LVGL_EXAMPLES_TARBALL))
 
 include $(APPDIR)/Application.mk

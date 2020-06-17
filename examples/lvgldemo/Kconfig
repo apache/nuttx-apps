@@ -4,10 +4,10 @@
 #
 
 menuconfig EXAMPLES_LVGLDEMO
-	tristate "Littlev Graphics Library Demo"
+	tristate "LVGL Demo"
 	default n
 	---help---
-		Enable build the Littlev Graphics Library Demo programs
+		Enable build the Light and Versatile Graphics Library Demo programs
 
 if EXAMPLES_LVGLDEMO
 
@@ -18,81 +18,29 @@ config EXAMPLES_LVGLDEMO_CALIBRATE
 		Calibrate touchscreen before demo start, but some touchscreen
 		don't need it, like capacitive touchscreen.
 
+config EXAMPLES_LVGLDEMO_BUFF_SIZE
+	int "Display buffer size (in line)"
+	default 20
+
 choice
 	prompt "Select a demo application"
-	default EXAMPLES_LVGLDEMO_SIMPLE
+	default EXAMPLES_LVGLDEMO_WIDGETS
 
-config EXAMPLES_LVGLDEMO_SIMPLE
-	bool "Simple"
+config EXAMPLES_LVGLDEMO_BENCHMARK
+	bool "Benchmark"
 
-config EXAMPLES_LVGLDEMO_THEME_1
-	bool "Single Theme"
+config EXAMPLES_LVGLDEMO_PRINTER
+	bool "Printer"
 	---help---
-		Create a test screen with a lot objects and apply
-		the given theme on them
+		This demo is optimized for 800 * 480 resolution
 
-config EXAMPLES_LVGLDEMO_THEME_2
-	bool "Multiple Themes"
-	select LV_THEME_LIVE_UPDATE
-	---help---
-		Switch themes on the fly to demonstrate each different
-		themes. Configure multiple themes in the littlevgl
-		settings to use.
+config EXAMPLES_LVGLDEMO_STRESS
+	bool "Stress"
+
+config EXAMPLES_LVGLDEMO_WIDGETS
+	bool "Widgets"
 
 endchoice
-
-config EXAMPLES_LVGLDEMO_WALLPAPER
-	bool "Use wallpaper"
-	depends on EXAMPLES_LVGLDEMO_SIMPLE
-	default y
-
-config EXAMPLES_LVGLDEMO_SLIDE_SHOW
-	bool "Use slide"
-	depends on EXAMPLES_LVGLDEMO_SIMPLE
-	default n
-
-choice
-	prompt "Selected Theme"
-	depends on EXAMPLES_LVGLDEMO_THEME_1
-	default EXAMPLES_LVGLDEMO_THEME_1_DEFAULT
-
-config EXAMPLES_LVGLDEMO_THEME_1_DEFAULT
-	bool "Default Theme"
-	select USE_LV_THEME_DEFAULT
-
-config EXAMPLES_LVGLDEMO_THEME_1_ALIEN
-	bool "Alien"
-	select USE_LV_THEME_ALIEN
-
-config EXAMPLES_LVGLDEMO_THEME_1_NIGHT
-	bool "Night"
-	select USE_LV_THEME_NIGHT
-
-config EXAMPLES_LVGLDEMO_THEME_1_MONO
-	bool "Mono"
-	select USE_LV_THEME_MONO
-
-config EXAMPLES_LVGLDEMO_THEME_1_MATERIAL
-	bool "Material"
-	select USE_LV_THEME_MATERIAL
-
-config EXAMPLES_LVGLDEMO_THEME_1_ZEN
-	bool "Zen"
-	select USE_LV_THEME_ZEN
-
-config EXAMPLES_LVGLDEMO_THEME_1_NEMO
-	bool "Nemo"
-	select USE_LV_THEME_NEMO
-
-endchoice
-
-config EXAMPLES_LVGLDEMO_THEME_1_HUE
-	int "Theme hue"
-	range 0 360
-	depends on EXAMPLES_LVGLDEMO_THEME_1
-	default 30
-	---help---
-		Choose a hue color from the HSV color space
 
 config EXAMPLES_LVGLDEMO_PRIORITY
 	int "lvgl task priority"
