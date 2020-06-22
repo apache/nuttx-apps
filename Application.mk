@@ -158,6 +158,7 @@ ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 else
 	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))
 endif
+	$(Q) chmod +x $(firstword $(PROGLIST))
 ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
 	$(Q) $(STRIP) $(firstword $(PROGLIST))
 endif
