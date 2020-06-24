@@ -80,12 +80,10 @@ else
   LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
 endif
 
-LDLIBS = -lapps -lnuttx
-
 # Try to get the path to libgcc.a.  Of course, this only works for GCC
 # toolchains.
 
-LIBGCC = "${shell "$(CC)" $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
+LIBGCC = ${shell "$(CC)" $(ARCHCPUFLAGS) -print-file-name=libgcc.a}
 ifneq ($(LIBGCC),)
   LDLIBPATH += -L "${shell dirname $(LIBGCC)}"
   LDLIBS += -lgcc
