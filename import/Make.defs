@@ -77,7 +77,7 @@ ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
   LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
 else
   # Linux/Cygwin-native toolchain
-  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
+  LDLIBPATH = -L $(TOPDIR)$(DELIM)libs
 endif
 
 # Try to get the path to libgcc.a.  Of course, this only works for GCC

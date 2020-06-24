@@ -120,6 +120,7 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 import: $(MKDEP) context
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
+	$(Q) $(MAKE) -C import install TOPDIR="$(APPDIR)$(DELIM)import"
 
 endif # CONFIG_BUILD_KERNEL
 
