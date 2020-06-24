@@ -43,7 +43,17 @@ FILES   = .config System.map User.map
 all:
 .PHONY: context depend clean distclean
 
-install:
+APPDIR = $(realpath $(CURDIR)$(DELIM)..)
+HEAD_OBJ += $(wildcard $(TOPDIR)$(DELIM)startup$(DELIM)*$(OBJEXT))
+HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)builtin$(DELIM)*$(OBJEXT))
+
+$(APPDIR)$(DELIM)nuttx$(EXEEXT): $(wildcard $(APPDIR)$(DELIM)*$(LIBEXT))
+	$(Q) echo "LD: nuttx"
+	$(Q) $(LD) --entry=__start $(LDFLAGS) -T$(LDSCRIPT) $(LIBPATHS) \
+	  $(LDLIBPATH) -L$(CURDIR)$(DELIM)scripts -o $@ $(HEAD_OBJ) \
+	  $(EXTRA_OBJS) $(LDSTARTGROUP) $^ $(LDLIBS) $(EXTRA_LIBS) $(LDENDGROUP)
+
+install: $(APPDIR)$(DELIM)nuttx$(EXEEXT)
 
 context:
 
