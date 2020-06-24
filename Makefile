@@ -68,6 +68,9 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
+$(MKDEP): $(TOPDIR)/tools/mkdeps.c
+	$(HOSTCC) $(HOSTINCLUDES) $(HOSTCFLAGS) $< -o $@
+
 # In the KERNEL build, we must build and install all of the modules.  No
 # symbol table is needed
 
@@ -78,7 +81,8 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
 
-import:
+import: $(MKDEP) context
+	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 else
@@ -113,7 +117,8 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(BIN) install
 
-import:
+import: $(MKDEP) context
+	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
 endif # CONFIG_BUILD_KERNEL
