@@ -231,6 +231,7 @@ endif
 depend:: .depend
 
 clean::
+	$(Q) rm -f $(OBJS)
 	$(call DELFILE, .built)
 	$(call CLEAN)
 
