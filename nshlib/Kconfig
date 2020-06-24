@@ -259,8 +259,8 @@ config NSH_DISABLE_CMP
 
 config NSH_DISABLE_DATE
 	bool "Disable date"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default n if RTC
+	default y if !RTC
 
 config NSH_DISABLE_DD
 	bool "Disable dd"
