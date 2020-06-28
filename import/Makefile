@@ -52,6 +52,14 @@ $(APPDIR)$(DELIM)nuttx$(EXEEXT): $(wildcard $(APPDIR)$(DELIM)*$(LIBEXT))
 	$(Q) $(LD) --entry=__start $(LDFLAGS) -T$(LDSCRIPT) $(LIBPATHS) \
 	  $(LDLIBPATH) -L$(CURDIR)$(DELIM)scripts -o $@ $(HEAD_OBJ) \
 	  $(EXTRA_OBJS) $(LDSTARTGROUP) $^ $(LDLIBS) $(EXTRA_LIBS) $(LDENDGROUP)
+ifeq ($(CONFIG_INTELHEX_BINARY),y)
+	$(Q) echo "CP: nuttx.hex"
+	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O ihex $@ nuttx.hex
+endif
+ifeq ($(CONFIG_RAW_BINARY),y)
+	$(Q) echo "CP: nuttx.bin"
+	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O binary $@ nuttx.bin
+endif
 
 install: $(APPDIR)$(DELIM)nuttx$(EXEEXT)
 
