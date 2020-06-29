@@ -215,10 +215,6 @@
 # undef  CONFIG_PTR_IS_NOT_INT
 #endif
 
-/* GCC supports inlined functions */
-
-# define CONFIG_HAVE_INLINE 1
-
 /* GCC supports both types double and long long */
 
 # define CONFIG_HAVE_LONG_LONG 1
@@ -322,11 +318,6 @@
 #if !defined(__z80) && !defined(__gbz80)
 # define CONFIG_PTR_IS_NOT_INT 1
 #endif
-
-/* SDCC does not support inline functions */
-
-# undef  CONFIG_HAVE_INLINE
-# define inline
 
 /* SDCC does not support type long long or type double */
 
@@ -432,11 +423,6 @@
 #    endif
 #  endif
 
-/* The Zilog compiler does not support inline functions */
-
-# undef  CONFIG_HAVE_INLINE
-# define inline
-
 /* Older Zilog compilers support both types double and long long, but the
  * size is 32-bits (same as long and single precision) so it is safer to
  * say that they are not supported.  Later versions are more ANSII compliant
@@ -519,8 +505,6 @@
 # undef  CONFIG_SMALL_MEMORY
 # undef  CONFIG_LONG_IS_NOT_INT
 # undef  CONFIG_PTR_IS_NOT_INT
-# undef  CONFIG_HAVE_INLINE
-# define inline 1
 # undef  CONFIG_HAVE_LONG_LONG
 # define CONFIG_HAVE_FLOAT 1
 # undef  CONFIG_HAVE_DOUBLE
