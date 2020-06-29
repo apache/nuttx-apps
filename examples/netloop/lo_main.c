@@ -114,7 +114,8 @@ static int lo_client(void)
   tv.tv_sec  = 5;
   tv.tv_usec = 0;
 
-  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &tv, sizeof(struct timeval));
+  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
+                   &tv, sizeof(struct timeval));
   if (ret < 0)
     {
       ret = -errno;
@@ -125,7 +126,8 @@ static int lo_client(void)
   tv.tv_sec  = 1;
   tv.tv_usec = 0;
 
-  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &tv, sizeof(struct timeval));
+  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
+                   &tv, sizeof(struct timeval));
   if (ret < 0)
     {
       ret = -errno;
@@ -149,8 +151,10 @@ static int lo_client(void)
   myaddr.sin_port        = htons(LISTENER_PORT);
   myaddr.sin_addr.s_addr = htonl(LO_ADDRESS);
 
-  printf("lo_client: Connecting to %08x:%d...\n", LO_ADDRESS, LISTENER_PORT);
-  if (connect( sockfd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+  printf("lo_client: Connecting to %08x:%d...\n",
+         LO_ADDRESS, LISTENER_PORT);
+  if (connect(sockfd,
+              (struct sockaddr *)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
       ret = -errno;
       printf("lo_client: connect failure: %d\n", ret);
@@ -179,7 +183,8 @@ static int lo_client(void)
       else if (nbytessent != len)
         {
           ret = -EINVAL;
-          printf("lo_client: Bad send length: %d Expected: %d\n", nbytessent, len);
+          printf("lo_client: Bad send length: %d Expected: %d\n",
+                 nbytessent, len);
           goto errout_with_socket;
         }
 
@@ -205,7 +210,8 @@ static int lo_client(void)
       if (nbytesrecvd != len)
         {
           ret = -EINVAL;
-          printf("lo_client: Bad recv length: %d Expected: %d\n", nbytesrecvd, len);
+          printf("lo_client: Bad recv length: %d Expected: %d\n",
+                 nbytesrecvd, len);
           goto errout_with_socket;
         }
       else if (memcmp(inbuf, outbuf, len) != 0)
@@ -216,7 +222,8 @@ static int lo_client(void)
         }
 
 #ifdef CONFIG_EXAMPLES_NETLOOP_KEEPALIVE
-      /* Send four messages, then wait a longer amount of time ... longer than
+      /* Send four messages, then wait a longer amount of time ...
+       * longer than:
        * TCP_KEEPIDLE + TCP_KEEPINTVL * TCP_KEEPCNT = 5 + 3 * 1 = 8 seconds.
        */
 

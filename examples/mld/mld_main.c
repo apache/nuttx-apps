@@ -189,7 +189,7 @@ void mld_catfile(FAR const char *filepath, FAR char **iobuffer)
 
   /* And just dump it byte for byte into stdout */
 
-  for (;;)
+  for (; ; )
     {
       ssize_t nbytesread = read(fd, *iobuffer, IOBUFFERSIZE);
 
@@ -332,7 +332,8 @@ int main(int argc, FAR char *argv[])
   printf("Join group...\n");
   mld_dumpstats(&iobuffer);
 
-  memcpy(mrec.ipv6mr_multiaddr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
+  memcpy(mrec.ipv6mr_multiaddr.s6_addr16,
+         g_grp_addr, sizeof(struct in6_addr));
   mrec.ipv6mr_interface = if_nametoindex("eth0");
 
   ret = setsockopt(sockfd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (FAR void *)&mrec,
@@ -411,7 +412,8 @@ int main(int argc, FAR char *argv[])
       /* Send a garbage packet */
 
       ret = sendto(sockfd, g_garbage, sizeof(g_garbage), 0,
-                   (FAR struct sockaddr *)&target, sizeof(struct sockaddr_in6));
+                   (FAR struct sockaddr *)&target,
+                   sizeof(struct sockaddr_in6));
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: sendto() failed: %d\n", errno);
