@@ -335,7 +335,7 @@ int main(int argc, FAR char *argv[])
   memcpy(mrec.ipv6mr_multiaddr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
   mrec.ipv6mr_interface = if_nametoindex("eth0");
 
-  ret = setsockopt(sockfd, SOL_IPV6, IPV6_JOIN_GROUP, (FAR void *)&mrec,
+  ret = setsockopt(sockfd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (FAR void *)&mrec,
                    sizeof(struct ipv6_mreq));
   if (ret < 0)
     {
@@ -438,7 +438,7 @@ int main(int argc, FAR char *argv[])
   /* Leave the group */
 
   printf("Leave group...\n");
-  ret = setsockopt(sockfd, SOL_IPV6, IPV6_LEAVE_GROUP, (FAR void *)&mrec,
+  ret = setsockopt(sockfd, IPPROTO_IPV6, IPV6_LEAVE_GROUP, (FAR void *)&mrec,
                    sizeof(struct ipv6_mreq));
   if (ret < 0)
     {

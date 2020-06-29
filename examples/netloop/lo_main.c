@@ -114,7 +114,7 @@ static int lo_client(void)
   tv.tv_sec  = 5;
   tv.tv_usec = 0;
 
-  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPIDLE, &tv, sizeof(struct timeval));
+  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE, &tv, sizeof(struct timeval));
   if (ret < 0)
     {
       ret = -errno;
@@ -125,7 +125,7 @@ static int lo_client(void)
   tv.tv_sec  = 1;
   tv.tv_usec = 0;
 
-  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPINTVL, &tv, sizeof(struct timeval));
+  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL, &tv, sizeof(struct timeval));
   if (ret < 0)
     {
       ret = -errno;
@@ -134,7 +134,7 @@ static int lo_client(void)
     }
 
   value = 3;
-  ret = setsockopt(sockfd, SOL_TCP, TCP_KEEPCNT, &value, sizeof(int));
+  ret = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT, &value, sizeof(int));
   if (ret < 0)
     {
       ret = -errno;
