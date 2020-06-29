@@ -467,7 +467,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
        * by definition and purpose of DHCP, undefined yet).
        */
 
-      ret = setsockopt(pdhcpc->sockfd, SOL_UDP, UDP_BINDTODEVICE,
+      ret = setsockopt(pdhcpc->sockfd, IPPROTO_UDP, UDP_BINDTODEVICE,
                        pdhcpc->interface, strlen(pdhcpc->interface));
       if (ret < 0)
         {
