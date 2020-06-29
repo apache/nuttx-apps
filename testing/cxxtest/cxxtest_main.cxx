@@ -219,7 +219,7 @@ static void test_rtti(void)
 // Name: test_exception
 //***************************************************************************/
 
-#ifdef CONFIG_UCLIBCXX_EXCEPTION
+#ifdef CONFIG_CXX_EXCEPTION
 static void test_exception(void)
 {
   std::cout << "test exception==========================" << std::endl;
@@ -258,7 +258,7 @@ extern "C"
     test_iostream();
     test_stl();
     test_rtti();
-#ifdef CONFIG_UCLIBCXX_EXCEPTION
+#ifdef CONFIG_CXX_EXCEPTION
     test_exception();
 #endif
 
