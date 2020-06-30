@@ -71,6 +71,11 @@ $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 $(MKDEP): $(TOPDIR)/tools/mkdeps.c
 	$(HOSTCC) $(HOSTINCLUDES) $(HOSTCFLAGS) $< -o $@
 
+$(INCDIR): $(TOPDIR)/tools/incdir.c
+	$(HOSTCC) $(HOSTINCLUDES) $(HOSTCFLAGS) $< -o $@
+
+IMPORT_TOOLS = $(MKDEP) $(INCDIR)
+
 # In the KERNEL build, we must build and install all of the modules.  No
 # symbol table is needed
 
@@ -81,7 +86,8 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
 
-import: $(MKDEP) context
+import: $(IMPORT_TOOLS)
+	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
@@ -117,7 +123,8 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(BIN) install
 
-import: $(MKDEP) context
+import: $(IMPORT_TOOLS)
+	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) -C import install TOPDIR="$(APPDIR)$(DELIM)import"
