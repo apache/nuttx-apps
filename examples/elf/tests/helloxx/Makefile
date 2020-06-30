@@ -63,7 +63,7 @@ BIN1 = hello++1
 ALL_BIN = $(FSIMG_DIR)/$(BIN1)
 BIN2 = hello++2
 ALL_BIN += $(FSIMG_DIR)/$(BIN2)
-ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
+ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 BIN3 = hello++3
 ALL_BIN += $(FSIMG_DIR)/$(BIN3)
 ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
@@ -80,7 +80,7 @@ OBJS1 = $(SRCS1:.c=$(OBJEXT))
 SRCS2 = $(BIN2).c
 OBJS2 = $(SRCS2:.c=$(OBJEXT))
 
-ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
+ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 SRCS3 = $(BIN3).c
 OBJS3 = $(SRCS3:.c=$(OBJEXT))
 ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
@@ -125,7 +125,7 @@ $(BIN2): $(OBJS2)
 
 # BIN3 is equivalent to BIN2 except that is uses static initializers
 
-ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
+ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 $(BIN3): $(OBJS3)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
@@ -158,7 +158,7 @@ ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
 	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN2)
 endif
 
-ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
+ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 $(FSIMG_DIR)/$(BIN3): $(BIN3)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN3) $(FSIMG_DIR)/$(BIN3)

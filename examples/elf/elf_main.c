@@ -41,8 +41,6 @@
 #include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
 
-#include "platform/cxxinitialize.h"
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -207,12 +205,6 @@ int main(int argc, FAR char *argv[])
   FAR char *args[1];
   int ret;
   int i;
-
-#if defined(CONFIG_EXAMPLES_ELF_CXXINITIALIZE)
-  /* Call all C++ static constructors */
-
-  up_cxxinitialize();
-#endif
 
   /* Initialize the memory monitor */
 

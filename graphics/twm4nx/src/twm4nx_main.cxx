@@ -46,7 +46,6 @@
 
 #include <sys/boardctl.h>
 
-#include "platform/cxxinitialize.h"
 #include "netutils/netinit.h"
 
 #include "graphics/twm4nx/twm4nx_config.hxx"
@@ -142,12 +141,6 @@ int main(int argc, FAR char *argv[])
 #endif
 
   UNUSED(ret);
-
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-  // Call all C++ static constructors
-
-  up_cxxinitialize();
-#endif
 
   /* Create an instance of CTwm4Nx and initialize it */
 

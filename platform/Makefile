@@ -39,7 +39,6 @@ CONFIG_ARCH_BOARD ?= dummy
 
 # Directories
 
-GNUDIR      = gnu
 PLATFORMDIR = board
 DUMMYDIR    = $(APPDIR)/platform/dummy
 
@@ -54,11 +53,9 @@ VPATH       += board
 ROOTDEPPATH += --obj-path bin
 ROOTDEPPATH += --obj-suffix $(OBJEXT)
 ROOTDEPPATH += --dep-path $(PLATFORMDIR)
-ROOTDEPPATH += --dep-path $(GNUDIR)
 
 # Binaries
 
--include $(GNUDIR)$(DELIM)Make.defs
 -include $(PLATFORMDIR)$(DELIM)Make.defs
 
 # Build context setup

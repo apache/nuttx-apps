@@ -43,13 +43,3 @@ README
 
     CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
     CONFIG_STDIO_LINEBUFFER=y
-
-  C++ Support
-  -----------
-  If CONFIG_HAVE_CXX=y and CONFIG_HAVE_CXXINITIALIZE=y, then this NSH
-  example can be configured to initialize C++ constructors when it
-  is started.  NSH does not use C++ and, by default, assumes that
-  constructors are initialized elsewhere.  However, you can force
-  NSH to initialize constructors by setting:
-
-    CONFIG_SYSTEM_NSH_CXXINITIALIZE=y

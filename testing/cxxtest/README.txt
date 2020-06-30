@@ -16,11 +16,6 @@ README
   Example Configuration Options
   -----------------------------
     CONFIG_TESTING_CXXTEST=y - Eanbles the example
-    CONFIG_TESTING_CXXTEST_CXXINITIALIZE=y - By default, if CONFIG_HAVE_CXX
-      and CONFIG_HAVE_CXXINITIALIZE are defined, then this example
-      will call the NuttX function to initialize static C++ constructors.
-      This option may be disabled, however, if that static initialization
-      was performed elsewhere.
 
   Other Required Configuration Settings
   -------------------------------------

@@ -63,7 +63,6 @@
 #include <nuttx/nx/nxfonts.h>
 #include <nuttx/nx/nxterm.h>
 
-#include "platform/cxxinitialize.h"
 #include "nshlib/nshlib.h"
 
 #include "nxterm_internal.h"
@@ -117,7 +116,8 @@ static int nxterm_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxterm_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxterm_initialize: Failed to start the NX server: %d\n",
+             errno);
       return ERROR;
     }
 
@@ -145,9 +145,9 @@ static int nxterm_initialize(void)
         }
 #endif
 
-      /* Start a separate thread to listen for server events.  This is probably
-       * the least efficient way to do this, but it makes this example flow more
-       * smoothly.
+      /* Start a separate thread to listen for server events.  This is
+       * probably the least efficient way to do this, but it makes this
+       * example flow more smoothly.
        */
 
       pthread_attr_init(&attr);
@@ -230,12 +230,6 @@ int main(int argc, FAR char *argv[])
   printf("nxterm_main: Started\n");
   memset(&g_nxterm_vars, 0, sizeof(struct nxterm_state_s));
 
-  /* Call all C++ static constructors */
-
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-  up_cxxinitialize();
-#endif
-
   /* NSH Initialization *****************************************************/
 
   /* Initialize the NSH library */
@@ -312,8 +306,10 @@ int main(int argc, FAR char *argv[])
 
   /* Determine the size and position of the window */
 
-  g_nxterm_vars.wndo.wsize.w = g_nxterm_vars.xres / 2 + g_nxterm_vars.xres / 4;
-  g_nxterm_vars.wndo.wsize.h = g_nxterm_vars.yres / 2 + g_nxterm_vars.yres / 4;
+  g_nxterm_vars.wndo.wsize.w = g_nxterm_vars.xres / 2 +
+                               g_nxterm_vars.xres / 4;
+  g_nxterm_vars.wndo.wsize.h = g_nxterm_vars.yres / 2 +
+                               g_nxterm_vars.yres / 4;
 
   g_nxterm_vars.wpos.x       = g_nxterm_vars.xres / 8;
   g_nxterm_vars.wpos.y       = g_nxterm_vars.yres / 8;
