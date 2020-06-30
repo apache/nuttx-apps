@@ -120,12 +120,12 @@ config EXAMPLES_ELF_LIBC
 		program greatly increasing the total code size.  This option is
 		primarily intended only for testing.
 
-config EXAMPLES_ELF_UCLIBCXX
-	bool "uClibc++ is installed"
+config EXAMPLES_ELF_CXX
+	bool "uClibc++/libcxx is installed"
 	default n
-	depends on UCLIBCXX
+	depends on UCLIBCXX || LIBCXX
 	---help---
-		By default, uClibc++ is not installed and configured. If the
+		By default, uClibc++/libcxx is not installed and configured. If the
 		user installs and configures the C++ standard library, this
 		example will compile the demos using it.
 
