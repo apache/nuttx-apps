@@ -66,7 +66,7 @@ ALL_BIN += $(FSIMG_DIR)/$(BIN2)
 ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 BIN3 = hello++3
 ALL_BIN += $(FSIMG_DIR)/$(BIN3)
-ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
 BIN4 = hello++4
 ALL_BIN += $(FSIMG_DIR)/$(BIN4)
 BIN5 = hello++5
@@ -83,7 +83,7 @@ OBJS2 = $(SRCS2:.c=$(OBJEXT))
 ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
 SRCS3 = $(BIN3).c
 OBJS3 = $(SRCS3:.c=$(OBJEXT))
-ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
 SRCS4 = $(BIN4).c
 OBJS4 = $(SRCS4:.c=$(OBJEXT))
 SRCS5 = $(BIN5).c
@@ -134,7 +134,7 @@ $(BIN3): $(OBJS3)
 #
 # NOTE:  libstdc++ is not available for NuttX as of this writing
 #
-ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
 $(BIN4): $(OBJS4)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
@@ -166,7 +166,7 @@ ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
 	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN3)
 endif
 
-ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
 $(FSIMG_DIR)/$(BIN4): $(BIN4)
 	$(Q) mkdir -p $(FSIMG_DIR)
 	$(Q) install $(BIN4) $(FSIMG_DIR)/$(BIN4)

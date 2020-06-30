@@ -23,6 +23,6 @@ README
 
     CONFIG_HAVE_CXX=y
     CONFIG_HAVE_CXXINITIALIZE=y
-    CONFIG_UCLIBCXX=y
+    CONFIG_UCLIBCXX=y or CONFIG_LIBCXX=y
 
-  Additional uClibc++ settings may be required in your build environment.
+  Additional uClibc++/libcxx settings may be required in your build environment.
