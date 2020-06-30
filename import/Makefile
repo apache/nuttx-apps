@@ -43,25 +43,7 @@ FILES   = .config System.map User.map
 all:
 .PHONY: context depend clean distclean
 
-APPDIR = $(realpath $(CURDIR)$(DELIM)..)
-HEAD_OBJ += $(wildcard $(TOPDIR)$(DELIM)startup$(DELIM)*$(OBJEXT))
-HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)builtin$(DELIM)*$(OBJEXT))
-
-$(APPDIR)$(DELIM)nuttx$(EXEEXT): $(wildcard $(APPDIR)$(DELIM)*$(LIBEXT))
-	$(Q) echo "LD: nuttx"
-	$(Q) $(LD) --entry=__start $(LDFLAGS) -T$(LDSCRIPT) $(LIBPATHS) \
-	  $(LDLIBPATH) -L$(CURDIR)$(DELIM)scripts -o $@ $(HEAD_OBJ) \
-	  $(EXTRA_OBJS) $(LDSTARTGROUP) $^ $(LDLIBS) $(EXTRA_LIBS) $(LDENDGROUP)
-ifeq ($(CONFIG_INTELHEX_BINARY),y)
-	$(Q) echo "CP: nuttx.hex"
-	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O ihex $@ nuttx.hex
-endif
-ifeq ($(CONFIG_RAW_BINARY),y)
-	$(Q) echo "CP: nuttx.bin"
-	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O binary $@ nuttx.bin
-endif
-
-install: $(APPDIR)$(DELIM)nuttx$(EXEEXT)
+install:
 
 context:
 
