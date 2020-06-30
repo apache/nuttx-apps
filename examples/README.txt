@@ -542,11 +542,6 @@ examples/helloxx
       "built-in"  that can be executed from the NSH command line.
     CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST - Set if the system does not
       support construction of objects on the stack.
-    CONFIG_EXAMPLES_HELLOXX_CXXINITIALIZE - By default, if CONFIG_HAVE_CXX
-      and CONFIG_HAVE_CXXINITIALIZE are defined, then this example
-      will call the NuttX function to initialize static C++ constructors.
-      This option may be disabled, however, if that static initialization
-      was performed elsewhere.
 
   Also needed:
 

@@ -49,10 +49,6 @@
 #  include "platform/configdata.h"
 #endif
 
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-#  include "platform/cxxinitialize.h"
-#endif
-
 #include "graphics/nxwm/ctaskbar.hxx"
 #include "graphics/nxwm/cstartwindow.hxx"
 
@@ -502,12 +498,6 @@ static bool createMediaPlayer(void)
 
 int main(int argc, char *argv[])
 {
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-  // Call all C++ static constructors
-
-  up_cxxinitialize();
-#endif
-
 #if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
   // Should we perform board-specific initialization?  There are two ways
   // that board initialization can occur:  1) automatically via

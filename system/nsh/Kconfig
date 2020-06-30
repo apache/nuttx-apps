@@ -76,15 +76,4 @@ config SYSTEM_NSH_PROGNAME
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config SYSTEM_NSH_CXXINITIALIZE
-	bool "C++ Initialization"
-	default n
-	depends on HAVE_CXX && HAVE_CXXINITIALIZE
-	---help---
-		If HAVE_CXX and HAVE_CXXINITIALIZE are selected, then this NSH
-		example can be configured to initialize C++ constructors when it
-		is started.  NSH does not use C++ and, by default, assumes that
-		constructors are initialized elsewhere.  However, you can force
-		NSH to initialize constructors by setting this option.
-
 endif

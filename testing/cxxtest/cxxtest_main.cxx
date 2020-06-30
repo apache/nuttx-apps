@@ -47,22 +47,7 @@
 #include <stdexcept>
 #include <cassert>
 
-#include <nuttx/init.h>
-
-#include "platform/cxxinitialize.h"
-
 using namespace std;
-
-//***************************************************************************
-// Definitions
-//***************************************************************************
-// Configuration ************************************************************
-// C++ initialization requires CXX initializer support
-
-#if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
-#  warning Support for static initializers is NOT enabled
-#  undef CONFIG_TESTING_CXXTEST_CXXINITIALIZE
-#endif
 
 //***************************************************************************
 // Private Classes
@@ -247,13 +232,6 @@ extern "C"
 {
   int main(int argc, char *argv[])
   {
-    // If C++ initialization for static constructors is supported, then do
-    // that first
-
-#ifdef CONFIG_TESTING_CXXTEST_CXXINITIALIZE
-    up_cxxinitialize();
-#endif
-
     test_ofstream();
     test_iostream();
     test_stl();
