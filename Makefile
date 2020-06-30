@@ -121,13 +121,30 @@ endif # !CONFIG_BUILD_LOADABLE
 
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
+# Link nuttx
+
+HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)import$(DELIM)startup$(DELIM)*$(OBJEXT))
+HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)builtin$(DELIM)*$(OBJEXT))
+
 .import: $(BIN) install
+	$(Q) echo "LD: nuttx"
+	$(Q) $(LD) --entry=__start $(LDFLAGS) $(LDLIBPATH) $(EXTRA_LIBPATHS) \
+	  -L$(APPDIR)$(DELIM)import$(DELIM)scripts -T$(LDNAME) \
+	  -o nuttx$(EXEEXT) $(HEAD_OBJ) $(EXTRA_OBJS) $(LDSTARTGROUP) \
+	  $(BIN) $(LDLIBS) $(EXTRA_LIBS) $(LDENDGROUP)
+ifeq ($(CONFIG_INTELHEX_BINARY),y)
+	$(Q) echo "CP: nuttx.hex"
+	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O ihex nuttx$(EXEEXT) nuttx.hex
+endif
+ifeq ($(CONFIG_RAW_BINARY),y)
+	$(Q) echo "CP: nuttx.bin"
+	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O binary nuttx$(EXEEXT) nuttx.bin
+endif
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
-	$(Q) $(MAKE) -C import install TOPDIR="$(APPDIR)$(DELIM)import"
 
 endif # CONFIG_BUILD_KERNEL
 
