@@ -114,18 +114,18 @@ rm -rf ${DALLDIRS}
 mkdir ${TMPDIR} || \
 	{ echo "ERROR: Failed to create ${TMPDIR}"; exit 1; }
 
+if [ "X${TGZ}" == "Xy" ]; then
+	tar zxf ${EXPORT} -C ${TMPDIR} || \
+		{ echo "ERROR: tar zxf ${EXPORT} failed"; exit 1; }
+else
+	unzip ${EXPORT} -d ${TMPDIR} || \
+		{ echo "ERROR: unzip ${EXPORT} failed"; exit 1; }
+fi
+
 # Unpack the export package into the temporary directory
 
 cd ${TMPDIR} || \
 	{ echo "ERROR: Failed to cd to ${TMPDIR}"; exit 1; }
-
-if [ "X${TGZ}" == "Xy" ]; then
-	tar zxf ${EXPORT} || \
-		{ echo "ERROR: tar zxf ${EXPORT} failed"; exit 1; }
-else
-	unzip ${EXPORT} || \
-		{ echo "ERROR: unzip ${EXPORT} failed"; exit 1; }
-fi
 
 EXPORTDIR=`ls`
 
