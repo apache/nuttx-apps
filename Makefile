@@ -140,6 +140,7 @@ ifeq ($(CONFIG_RAW_BINARY),y)
 	$(Q) echo "CP: nuttx.bin"
 	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O binary nuttx$(EXEEXT) nuttx.bin
 endif
+	$(call POSTBUILD, $(APPDIR))
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
