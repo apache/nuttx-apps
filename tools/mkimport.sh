@@ -95,6 +95,7 @@ fi
 
 WD=${PWD}
 IMPORTDIR=${WD}/import
+BUILTINDIR=${WD}/builtin
 DARCHDIR=${IMPORTDIR}/arch
 DINCDIR=${IMPORTDIR}/include
 DLIBDIR=${IMPORTDIR}/libs
@@ -144,6 +145,7 @@ SLIBDIR=${EXPORTDIR}/libs
 SSCRIPTSDIR=${EXPORTDIR}/scripts
 SSTARTDIR=${EXPORTDIR}/startup
 STOOLSDIR=${EXPORTDIR}/tools
+REGISTERSDIR=${EXPORTDIR}/registry
 
 unset SALLDIRS
 if [ -d ${SARCHDIR} ]; then
@@ -169,6 +171,9 @@ fi
 
 mv ${SALLDIRS} ${IMPORTDIR}/. || \
 	{ echo "ERROR: Failed to move ${SALLDIRS} to ${IMPORTDIR}"; exit 1; }
+
+cp -rf ${REGISTERSDIR} ${BUILTINDIR}/. || \
+	{ echo "ERROR: Failed to move ${REGISTERSDIR} to ${BUILTINDIR}"; exit 1; }
 
 # Move the .config file in place in the import directory
 
