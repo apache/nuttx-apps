@@ -1050,7 +1050,15 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       goto errout_with_tgtpath;
     }
 
-  ret = link(tgtpath, linkpath);
+  if (ndx == 1)
+    {
+      ret = link(tgtpath, linkpath);
+    }
+  else
+    {
+      ret = symlink(tgtpath, linkpath);
+    }
+
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "link", NSH_ERRNO);
