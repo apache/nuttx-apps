@@ -128,12 +128,10 @@ extern "C"
 
     // Exercise an C++ object instantiated on the stack
 
-#ifndef CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST
     CHelloWorld HelloWorld;
 
     printf("helloxx_main: Saying hello from the instance constructed on the stack\n");
     HelloWorld.HelloWorld();
-#endif
 
     // Exercise an statically constructed C++ object
 
