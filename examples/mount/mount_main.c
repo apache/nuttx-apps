@@ -167,7 +167,9 @@ static void show_statfs(const char *path)
   struct statfs buf;
   int ret;
 
-  /* Try stat() against a file or directory.  It should fail with expectederror */
+  /* Try stat() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("show_statfs: Try statfs(%s)\n", path);
   ret = statfs(path, &buf);
@@ -206,9 +208,9 @@ static void show_directories(const char *path, int indent)
   int i;
 
   dirp = opendir(path);
-  if ( !dirp )
+  if (!dirp)
     {
-      printf("show_directories: ERROR opendir(\"%s\") failed with errno=%d\n",
+      printf("show_directories: ERROR opendir(\"%s\") with errno=%d\n",
              path, errno);
       g_nerrors++;
       return;
@@ -220,13 +222,14 @@ static void show_directories(const char *path, int indent)
         {
           putchar(' ');
         }
+
       if (DIRENT_ISDIRECTORY(direntry->d_type))
         {
           char *subdir;
           printf("%s/\n", direntry->d_name);
           sprintf(g_namebuffer, "%s/%s", path, direntry->d_name);
           subdir = strdup(g_namebuffer);
-          show_directories( subdir, indent + 1);
+          show_directories(subdir, indent + 1);
           free(subdir);
         }
       else
@@ -261,7 +264,7 @@ static void fail_read_open(const char *path, int expectederror)
     }
   else if (errno != expectederror)
     {
-      printf("fail_read_open: ERROR open(%s) failed with errno=%d (expected %d)\n",
+      printf("fail_read_open: ERROR open(%s) with errno=%d(expect %d)\n",
              path, errno, expectederror);
       g_nerrors++;
     }
@@ -301,9 +304,10 @@ static void read_test_file(const char *path)
         }
       else
         {
-          buffer[127]='\0';
+          buffer[127] = '\0';
           printf("read_test_file: Read \"%s\" from %s\n", buffer, path);
         }
+
       close(fd);
     }
 }
@@ -320,10 +324,10 @@ static void write_test_file(const char *path)
 
   printf("write_test_file: opening %s for writing\n", path);
 
-  fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+  fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     {
-      printf("write_test_file: ERROR failed to open %s for writing, errno=%d\n",
+      printf("write_test_file: ERROR to open %s for writing, errno=%d\n",
              path, errno);
       g_nerrors++;
     }
@@ -340,6 +344,7 @@ static void write_test_file(const char *path)
         {
           printf("write_test_file: wrote %d bytes to %s\n", nbytes, path);
         }
+
       close(fd);
     }
 }
@@ -352,7 +357,9 @@ static void fail_mkdir(const char *path, int expectederror)
 {
   int ret;
 
-  /* Try mkdir() against a file or directory.  It should fail with expectederror */
+  /* Try mkdir() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("fail_mkdir: Try mkdir(%s)\n", path);
 
@@ -364,7 +371,7 @@ static void fail_mkdir(const char *path, int expectederror)
     }
   else if (errno != expectederror)
     {
-      printf("fail_mkdir: ERROR mkdir(%s) failed with errno=%d (expected %d)\n",
+      printf("fail_mkdir: ERROR mkdir(%s) with errno=%d(expect %d)\n",
              path, errno, expectederror);
       g_nerrors++;
     }
@@ -397,7 +404,9 @@ static void fail_rmdir(const char *path, int expectederror)
 {
   int ret;
 
-  /* Try rmdir() against a file or directory.  It should fail with expectederror */
+  /* Try rmdir() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("fail_rmdir: Try rmdir(%s)\n", path);
 
@@ -409,7 +418,7 @@ static void fail_rmdir(const char *path, int expectederror)
     }
   else if (errno != expectederror)
     {
-      printf("fail_rmdir: ERROR rmdir(%s) failed with errno=%d (expected %d)\n",
+      printf("fail_rmdir: ERROR rmdir(%s) with errno=%d(expect %d)\n",
              path, errno, expectederror);
       g_nerrors++;
     }
@@ -442,7 +451,9 @@ static void fail_unlink(const char *path, int expectederror)
 {
   int ret;
 
-  /* Try unlink() against a file or directory.  It should fail with expectederror */
+  /* Try unlink() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("fail_unlink: Try unlink(%s)\n", path);
 
@@ -454,7 +465,7 @@ static void fail_unlink(const char *path, int expectederror)
     }
   else if (errno != expectederror)
     {
-      printf("fail_unlink: ERROR unlink(%s) failed with errno=%d (expected %d)\n",
+      printf("fail_unlink: ERROR unlink(%s) with errno=%d(expect %d)\n",
              path, errno, expectederror);
       g_nerrors++;
     }
@@ -485,11 +496,14 @@ static void succeed_unlink(const char *path)
  * Name: fail_rename
  ****************************************************************************/
 
-static void fail_rename(const char *oldpath, const char *newpath, int expectederror)
+static void fail_rename(const char *oldpath, const char *newpath,
+                        int expectederror)
 {
   int ret;
 
-  /* Try rename() against a file or directory.  It should fail with expectederror */
+  /* Try rename() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("fail_rename: Try rename(%s->%s)\n", oldpath, newpath);
 
@@ -502,7 +516,7 @@ static void fail_rename(const char *oldpath, const char *newpath, int expecteder
     }
   else if (errno != expectederror)
     {
-      printf("fail_rename: ERROR rename(%s->%s) failed with errno=%d (expected %d)\n",
+      printf("fail_rename: ERROR rename(%s->%s) with errno=%d(expect %d)\n",
              oldpath, newpath, errno, expectederror);
       g_nerrors++;
     }
@@ -537,7 +551,9 @@ static void fail_stat(const char *path, int expectederror)
   struct stat buf;
   int ret;
 
-  /* Try stat() against a file or directory.  It should fail with expectederror */
+  /* Try stat() against a file or directory.  It should fail with
+   * expectederror
+   */
 
   printf("fail_stat: Try stat(%s)\n", path);
 
@@ -550,7 +566,7 @@ static void fail_stat(const char *path, int expectederror)
     }
   else if (errno != expectederror)
     {
-      printf("fail_stat: ERROR stat(%s) failed with errno=%d (expected %d)\n",
+      printf("fail_stat: ERROR stat(%s) failed with errno=%d(expected %d)\n",
              path, errno, expectederror);
       g_nerrors++;
     }
@@ -632,7 +648,9 @@ int main(int argc, FAR char *argv[])
       show_statfs(g_testfile1);
       read_test_file(g_testfile1);
 #else
-      /* Create the test directory that would have been on the canned filesystem */
+      /* Create the test directory that would have been on the canned
+       * filesystem
+       */
 
       succeed_mkdir(g_testdir1);
       show_directories("", 0);
@@ -640,7 +658,9 @@ int main(int argc, FAR char *argv[])
       show_statfs(g_testdir1);
 #endif
 
-      /* Write a test file into a pre-existing directory on the test file system */
+      /* Write a test file into a pre-existing directory on the test file
+       * system
+       */
 
       fail_stat(g_testfile2, ENOENT);
       write_test_file(g_testfile2);
@@ -652,16 +672,22 @@ int main(int argc, FAR char *argv[])
 
       read_test_file(g_testfile2);
 
-      /* Try rmdir() against a file on the directory.  It should fail with ENOTDIR */
+      /* Try rmdir() against a file on the directory.  It should fail with
+       * ENOTDIR
+       */
 #ifdef CONFIG_EXAMPLES_MOUNT_DEVNAME
       fail_rmdir(g_testfile1, ENOTDIR);
 #endif
 
-      /* Try rmdir() against the test directory.  It should fail with ENOTEMPTY */
+      /* Try rmdir() against the test directory.  It should fail with
+       * ENOTEMPTY
+       */
 
       fail_rmdir(g_testdir1, ENOTEMPTY);
 
-      /* Try unlink() against the test directory.  It should fail with EISDIR */
+      /* Try unlink() against the test directory.  It should fail with
+       * EISDIR
+       */
 
       fail_unlink(g_testdir1, EISDIR);
 
@@ -676,7 +702,9 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_MOUNT_DEVNAME
       fail_read_open(g_testfile1, ENOENT);
 #endif
-      /* Try rmdir() against the test directory.  It should still fail with ENOTEMPTY */
+      /* Try rmdir() against the test directory.  It should still fail with
+       * ENOTEMPTY
+       */
 
       fail_rmdir(g_testdir1, ENOTEMPTY);
 
@@ -731,7 +759,7 @@ int main(int argc, FAR char *argv[])
       succeed_stat(g_testdir3);
       show_statfs(g_testdir3);
 
-      /* Try rename() on the root directory. Should fail with EXDEV*/
+      /* Try rename() on the root directory. Should fail with EXDEV */
 
       fail_rename(g_target, g_testdir4, EXDEV);
 

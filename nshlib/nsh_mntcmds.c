@@ -26,7 +26,6 @@
 
 #include <sys/types.h>
 #include <sys/mount.h>
-#include <sys/statfs.h>
 
 #include <stdint.h>
 #include <stdbool.h>
