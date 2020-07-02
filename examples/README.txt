@@ -540,8 +540,6 @@ examples/helloxx
 
     CONFIG_NSH_BUILTIN_APPS -- Build the helloxx example as a
       "built-in"  that can be executed from the NSH command line.
-    CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST - Set if the system does not
-      support construction of objects on the stack.
 
   Also needed:
 
