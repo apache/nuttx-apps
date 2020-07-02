@@ -1632,7 +1632,7 @@ examples/sotest
 examples/stat
 ^^^^^^^^^^^^^
 
-  A simple test of stat(), fstat(), and statfs().  This is useful primarily for
+  A simple test of stat(), fstat(), and statvfs().  This is useful primarily for
   bringing up a new file system and verifying the correctness of these operations.
 
 examples/sx127x_demo

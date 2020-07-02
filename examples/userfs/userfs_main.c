@@ -107,7 +107,7 @@ static int     ufstest_closedir(FAR void *volinfo, FAR void *dir);
 static int     ufstest_readdir(FAR void *volinfo, FAR void *dir,
                  FAR struct dirent *entry);
 static int     ufstest_rewinddir(FAR void *volinfo, FAR void *dir);
-static int     ufstest_statfs(FAR void *volinfo, FAR struct statfs *buf);
+static int     ufstest_statvfs(FAR void *volinfo, FAR struct statvfs *buf);
 static int     ufstest_unlink(FAR void *volinfo, FAR const char *relpath);
 static int     ufstest_mkdir(FAR void *volinfo, FAR const char *relpath,
                  mode_t mode);
@@ -169,7 +169,7 @@ static const struct userfs_operations_s g_ufstest_ops =
   ufstest_closedir,
   ufstest_readdir,
   ufstest_rewinddir,
-  ufstest_statfs,
+  ufstest_statvfs,
   ufstest_unlink,
   ufstest_mkdir,
   ufstest_rmdir,
@@ -468,7 +468,7 @@ static int ufstest_rewinddir(FAR void *volinfo, FAR void *dir)
   return OK;
 }
 
-static int ufstest_statfs(FAR void *volinfo, FAR struct statfs *buf)
+static int ufstest_statvfs(FAR void *volinfo, FAR struct statvfs *buf)
 {
   int inuse = 0;
   int i;
@@ -479,8 +479,8 @@ static int ufstest_statfs(FAR void *volinfo, FAR struct statfs *buf)
                UFSTEST_FS_BLOCKSIZE;
     }
 
-  buf->f_type    = USERFS_MAGIC;
-  buf->f_namelen = NAME_MAX;
+  buf->f_fsid    = USERFS_MAGIC;
+  buf->f_namemax = NAME_MAX;
   buf->f_bsize   = UFSTEST_FS_BLOCKSIZE;
   buf->f_blocks  = UFSTEST_FS_NBLOCKS;
   buf->f_bfree   = UFSTEST_FS_NBLOCKS - inuse;

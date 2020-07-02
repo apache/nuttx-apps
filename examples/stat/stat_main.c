@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include <sys/stat.h>
-#include <sys/statfs.h>
+#include <sys/statvfs.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,11 +181,11 @@ static void dump_stat(FAR struct stat *buf)
   printf("  st_ctime:   %08lx\n", (unsigned long)buf->st_ctime);
 }
 
-static void dump_statfs(FAR struct statfs *buf)
+static void dump_statvfs(FAR struct statvfs *buf)
 {
-  printf("statfs buffer:\n");
-  printf("  f_type:     %lu\n",   (unsigned long)buf->f_type);
-  printf("  f_namelen:  %lu\n",   (unsigned long)buf->f_namelen);
+  printf("statvfs buffer:\n");
+  printf("  f_fsid:     %lu\n",   (unsigned long)buf->f_fsid);
+  printf("  f_namemax:  %lu\n",   (unsigned long)buf->f_namemax);
   printf("  f_bsize:    %lu\n",   (unsigned long)buf->f_bsize);
   printf("  f_blocks:   %llu\n",  (unsigned long long)buf->f_blocks);
   printf("  f_bfree:    %llu\n",  (unsigned long long)buf->f_bfree);
@@ -206,7 +206,7 @@ int main(int argc, FAR char *argv[])
 {
   FAR const char *path;
   struct stat statbuf;
-  struct statfs statfsbuf;
+  struct statvfs statvfsbuf;
   bool isreg;
   int ret;
 
@@ -245,19 +245,19 @@ int main(int argc, FAR char *argv[])
   stepusage();
   isreg = S_ISREG(statbuf.st_mode);
 
-  /* Try statfs */
+  /* Try statvfs */
 
-  printf("\nTest statfs(%s)\n", path);
-  ret = statfs(path, &statfsbuf);
+  printf("\nTest statvfs(%s)\n", path);
+  ret = statvfs(path, &statvfsbuf);
   if (ret < 0)
     {
       int errcode = errno;
       fprintf(stderr,
-              "ERROR: statfs(%s) failed: %d\n",
+              "ERROR: statvfs(%s) failed: %d\n",
               path, errcode);
     }
 
-  dump_statfs(&statfsbuf);
+  dump_statvfs(&statvfsbuf);
   stepusage();
 
   /* Try fstat (only if it is a regular file) */
@@ -293,20 +293,20 @@ int main(int argc, FAR char *argv[])
           dump_stat(&statbuf);
         }
 
-      /* Try fstatfs */
+      /* Try fstatvfs */
 
-      printf("\nTest fstatfs(%s)\n", path);
-      ret = fstatfs(fd, &statfsbuf);
+      printf("\nTest fstatvfs(%s)\n", path);
+      ret = fstatvfs(fd, &statvfsbuf);
       if (ret < 0)
         {
           int errcode = errno;
           fprintf(stderr,
-                  "ERROR: fstatfs(%s) failed: %d\n",
+                  "ERROR: fstatvfs(%s) failed: %d\n",
                   path, errcode);
         }
       else
         {
-          dump_statfs(&statfsbuf);
+          dump_statvfs(&statvfsbuf);
         }
 
       close(fd);

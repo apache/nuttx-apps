@@ -4,10 +4,10 @@
 #
 
 config EXAMPLES_STAT
-	tristate "Test of stat(), fstat(), and statfs()"
+	tristate "Test of stat(), fstat(), and statvfs()"
 	default n
 	---help---
-		Enable the test of stat(), fstat(), and statfs().
+		Enable the test of stat(), fstat(), and statvfs().
 
 if EXAMPLES_STAT
 

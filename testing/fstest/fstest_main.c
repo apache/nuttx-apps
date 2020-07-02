@@ -26,7 +26,7 @@
 
 #include <sys/mount.h>
 #include <sys/ioctl.h>
-#include <sys/statfs.h>
+#include <sys/statvfs.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -933,7 +933,7 @@ static int fstest_directory(void)
 
 int main(int argc, FAR char *argv[])
 {
-  struct statfs buf;
+  struct statvfs buf;
   unsigned int i;
   int ret;
 
@@ -1041,10 +1041,10 @@ int main(int argc, FAR char *argv[])
 
       /* Show file system usage */
 
-      ret = statfs(g_mountdir, &buf);
+      ret = statvfs(g_mountdir, &buf);
       if (ret < 0)
         {
-           printf("ERROR: statfs failed: %d\n", errno);
+           printf("ERROR: statvfs failed: %d\n", errno);
         }
       else
         {
