@@ -56,7 +56,8 @@ using namespace std;
 class Base
 {
 public:
-  virtual void printBase(void) {};
+  virtual void printBase(void) {}
+  virtual ~Base() {}
 };
 
 class Extend : public Base
