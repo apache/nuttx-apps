@@ -202,7 +202,20 @@ int main(int argc, FAR char *argv[])
         }
         break;
 
+      case GPIO_INPUT_PIN_PULLUP:
+        {
+          printf("  Input pin (pull-up):     Value=%u\n", (unsigned int)invalue);
+        }
+        break;
+
+      case GPIO_INPUT_PIN_PULLDOWN:
+        {
+          printf("  Input pin (pull-down):     Value=%u\n", (unsigned int)invalue);
+        }
+        break;
+
       case GPIO_OUTPUT_PIN:
+      case GPIO_OUTPUT_PIN_OPENDRAIN:
         {
           printf("  Output pin:    Value=%u\n", (unsigned int)invalue);
 
