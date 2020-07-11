@@ -114,6 +114,7 @@ static int telnetd_daemon(int argc, FAR char *argv[])
     struct sockaddr_in6 ipv6;
 #endif
   } addr;
+
   struct telnet_session_s session;
 #ifdef CONFIG_NET_SOLINGER
   struct linger ling;
@@ -209,7 +210,8 @@ static int telnetd_daemon(int argc, FAR char *argv[])
       addr.ipv6.sin6_port       = daemon->port;
       addrlen                   = sizeof(struct sockaddr_in6);
 
-      memset(addr.ipv6.sin6_addr.s6_addr, 0, addrlen);
+      memset(addr.ipv6.sin6_addr.s6_addr, 0,
+             sizeof(addr.ipv6.sin6_addr.s6_addr));
     }
   else
 #endif
@@ -266,11 +268,14 @@ static int telnetd_daemon(int argc, FAR char *argv[])
         }
 
 #ifdef CONFIG_NET_SOLINGER
-      /* Configure to "linger" until all data is sent when the socket is closed */
+      /* Configure to "linger" until all data is sent when the socket is
+       * closed
+       */
 
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
-      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
+      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER,
+                     &ling, sizeof(struct linger)) < 0)
         {
           nerr("ERROR: setsockopt failed: %d\n", errno);
           goto errout_with_acceptsd;
@@ -330,8 +335,8 @@ static int telnetd_daemon(int argc, FAR char *argv[])
        */
 
       ninfo("Starting the telnet session\n");
-      pid = task_create("Telnet session", daemon->priority, daemon->stacksize,
-                         daemon->entry, NULL);
+      pid = task_create("Telnet session", daemon->priority,
+                        daemon->stacksize, daemon->entry, NULL);
       if (pid < 0)
         {
           nerr("ERROR: Failed start the telnet session: %d\n", errno);
