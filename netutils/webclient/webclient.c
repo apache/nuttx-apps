@@ -158,6 +158,13 @@ struct wget_s
   char filename[CONFIG_WEBCLIENT_MAXFILENAME];
 };
 
+struct conn
+{
+  bool tls;
+  int sockfd;
+  struct webclient_tls_connection *tls_conn;
+};
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -169,18 +176,12 @@ static const char g_httpcontenttype[] = "content-type: ";
 #endif
 static const char g_httphost[]        = "host: ";
 static const char g_httplocation[]    = "location: ";
-static const char g_httpget[]         = "GET ";
-static const char g_httppost[]        = "POST ";
 
 static const char g_httpuseragentfields[] =
   "Connection: close\r\n"
   "User-Agent: "
   CONFIG_NSH_WGET_USERAGENT
   "\r\n\r\n";
-
-static const char g_http200[]       = "200 ";
-static const char g_http301[]       = "301 ";
-static const char g_http302[]       = "302 ";
 
 static const char g_httpcrnl[]      = "\r\n";
 
@@ -197,9 +198,136 @@ static const char g_httpcache[]     = "Cache-Control: no-cache";
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: conn_send
+ ****************************************************************************/
+
+static ssize_t conn_send(struct webclient_context *ctx, struct conn *conn,
+                         const void *buffer, size_t len)
+{
+  if (conn->tls)
+    {
+      return ctx->tls_ops->send(ctx->tls_ctx, conn->tls_conn, buffer, len);
+    }
+  else
+    {
+      ssize_t ret = send(conn->sockfd, buffer, len, 0);
+      if (ret == -1)
+        {
+          return -errno;
+        }
+
+      return ret;
+    }
+}
+
+/****************************************************************************
+ * Name: conn_send_all
+ ****************************************************************************/
+
+static int conn_send_all(struct webclient_context *ctx, struct conn *conn,
+                         const void *buffer, size_t len)
+{
+  size_t left = len;
+  ssize_t ret;
+
+  while (left > 0)
+    {
+      ret = conn_send(ctx, conn, buffer, left);
+      if (ret < 0)
+        {
+          goto errout;
+        }
+
+      buffer += ret;
+      left -= ret;
+    }
+
+  return len;
+errout:
+  return ret;
+}
+
+/****************************************************************************
+ * Name: conn_recv
+ ****************************************************************************/
+
+static ssize_t conn_recv(struct webclient_context *ctx, struct conn *conn,
+                         void *buffer, size_t len)
+{
+  if (conn->tls)
+    {
+      return ctx->tls_ops->recv(ctx->tls_ctx, conn->tls_conn, buffer, len);
+    }
+  else
+    {
+      ssize_t ret = recv(conn->sockfd, buffer, len, 0);
+      if (ret == -1)
+        {
+          return -errno;
+        }
+
+      return ret;
+    }
+}
+
+/****************************************************************************
+ * Name: conn_close
+ ****************************************************************************/
+
+static void conn_close(struct webclient_context *ctx, struct conn *conn)
+{
+  if (conn->tls)
+    {
+      ctx->tls_ops->close(ctx->tls_ctx, conn->tls_conn);
+    }
+  else
+    {
+      close(conn->sockfd);
+    }
+}
+
+/****************************************************************************
+ * Name: webclient_static_body_func
+ ****************************************************************************/
+
+static int webclient_static_body_func(FAR void *buffer,
+                                      FAR size_t *sizep,
+                                      FAR const void * FAR *datap,
+                                      FAR void *ctx)
+{
+  *datap = ctx;
+  return 0;
+}
+
+/****************************************************************************
+ * Name: append
+ ****************************************************************************/
+
+static char *append(char *dest, char *ep, const char *src)
+{
+  int len;
+
+  if (dest == NULL)
+    {
+      return NULL;
+    }
+
+  len = strlen(src);
+  if (ep - dest < len + 1)
+    {
+      return NULL;
+    }
+
+  memcpy(dest, src, len);
+  dest[len] = '\0';
+  return dest + len;
+}
+
+/****************************************************************************
  * Name: wget_strcpy
  ****************************************************************************/
 
+#ifdef WGET_USE_URLENCODE
 static char *wget_strcpy(char *dest, const char *src)
 {
   int len = strlen(src);
@@ -208,6 +336,7 @@ static char *wget_strcpy(char *dest, const char *src)
   dest[len] = '\0';
   return dest + len;
 }
+#endif
 
 /****************************************************************************
  * Name: wget_urlencode_strcpy
@@ -229,7 +358,8 @@ static char *wget_urlencode_strcpy(char *dest, const char *src)
  * Name: wget_parsestatus
  ****************************************************************************/
 
-static inline int wget_parsestatus(struct wget_s *ws)
+static inline int wget_parsestatus(struct webclient_context *ctx,
+                                   struct wget_s *ws)
 {
   int offset;
   int ndx;
@@ -247,22 +377,50 @@ static inline int wget_parsestatus(struct wget_s *ws)
           if ((strncmp(ws->line, g_http10, strlen(g_http10)) == 0) ||
               (strncmp(ws->line, g_http11, strlen(g_http11)) == 0))
             {
+              unsigned long http_status;
+              char *ep;
+
               dest = &(ws->line[9]);
               ws->httpstatus = HTTPSTATUS_NONE;
 
-              /* Check for 200 OK */
+              errno = 0;
+              http_status = strtoul(dest, &ep, 10);
+              if (ep == dest)
+                {
+                  return -EINVAL;
+                }
 
-              if (strncmp(dest, g_http200, strlen(g_http200)) == 0)
+              if (*ep != ' ')
+                {
+                  return -EINVAL;
+                }
+
+              if (errno != 0)
+                {
+                  return -errno;
+                }
+
+              ctx->http_status = http_status;
+              if (ctx->http_reason != NULL)
+                {
+                  strncpy(ctx->http_reason,
+                          ep + 1,
+                          ctx->http_reason_len - 1);
+                  ctx->http_reason[ctx->http_reason_len - 1] = 0;
+                }
+
+              /* Check for 2xx (Successful) */
+
+              if ((http_status / 100) == 2)
                 {
                   ws->httpstatus = HTTPSTATUS_OK;
                 }
 
-              /* Check for 301 Moved permanently or 302 Found.
+              /* Check for 3xx (Redirection)
                * Location: header line will contain the new location.
                */
 
-              else if (strncmp(dest, g_http301, strlen(g_http301)) == 0 ||
-                       strncmp(dest, g_http302, strlen(g_http302)) == 0)
+              else if ((http_status / 100) == 3)
                 {
                   ws->httpstatus = HTTPSTATUS_MOVED;
                 }
@@ -315,7 +473,14 @@ static int parseurl(FAR const char *url, FAR struct wget_s *ws)
 
   if (url_s.port == 0)
     {
-      ws->port = 80;
+      if (!strcmp(ws->scheme, "https"))
+        {
+          ws->port = 443;
+        }
+      else
+        {
+          ws->port = 80;
+        }
     }
   else
     {
@@ -472,32 +637,15 @@ static int wget_gethostip(FAR char *hostname, FAR struct in_addr *dest)
 }
 
 /****************************************************************************
- * Name: wget_base
- *
- * Description:
- *   Obtain the requested file from an HTTP server using the GET method.
- *
- * Input Parameters
- *   url      - A pointer to a string containing either the full URL to
- *              the file to get (e.g., http://www.nutt.org/index.html, or
- *              http://192.168.23.1:80/index.html).
- *   buffer   - A user provided buffer to receive the file data (also
- *              used for the outgoing GET request
- *   buflen   - The size of the user provided buffer
- *   callback - As data is obtained from the host, this function is
- *              to dispose of each block of file data as it is received.
- *   arg      - User argument passed to callback.
- *   mode     - Indicates GET or POST modes
+ * Name: webclient_perform
  *
  * Returned Value:
- *   0: if the GET operation completed successfully;
- *  -1: On a failure with errno set appropriately
+ *               0: if the operation completed successfully;
+ *  Negative errno: On a failure
  *
  ****************************************************************************/
 
-static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
-                     wget_callback_t callback, FAR void *arg,
-                     FAR const char *posts, uint8_t mode)
+int webclient_perform(FAR struct webclient_context *ctx)
 {
   struct sockaddr_in server;
   struct wget_s *ws;
@@ -505,7 +653,12 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   bool redirected;
   unsigned int nredirect = 0;
   char *dest;
-  int sockfd;
+  char *ep;
+  struct conn conn;
+  FAR const struct webclient_tls_ops *tls_ops = ctx->tls_ops;
+  FAR const char *method = ctx->method;
+  FAR void *tls_ctx = ctx->tls_ctx;
+  unsigned int i;
   int len;
   int ret;
 
@@ -514,23 +667,22 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   ws = calloc(1, sizeof(struct wget_s));
   if (!ws)
     {
-      return ERROR;
+      return -errno;
     }
 
-  ws->buffer = buffer;
-  ws->buflen = buflen;
+  ws->buffer = ctx->buffer;
+  ws->buflen = ctx->buflen;
 
   /* Parse the hostname (with optional port number) and filename
    * from the URL.
    */
 
-  ret = parseurl(url, ws);
+  ret = parseurl(ctx->url, ws);
   if (ret != 0)
     {
-      nwarn("WARNING: Malformed URL: %s\n", url);
+      nwarn("WARNING: Malformed URL: %s\n", ctx->url);
       free(ws);
-      errno = -ret;
-      return ERROR;
+      return ret;
     }
 
   ninfo("hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
@@ -539,11 +691,19 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
   do
     {
-      if (strcmp(ws->scheme, "http"))
+      if (!strcmp(ws->scheme, "https") && tls_ops != NULL)
+        {
+          conn.tls = true;
+        }
+      else if (!strcmp(ws->scheme, "http"))
+        {
+          conn.tls = false;
+        }
+      else
         {
           nerr("ERROR: unsupported scheme: %s\n", ws->scheme);
           free(ws);
-          return ERROR;
+          return -ENOTSUP;
         }
 
       /* Re-initialize portions of the state structure that could have
@@ -556,119 +716,164 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ws->datend     = 0;
       ws->ndx        = 0;
 
-      /* Create a socket */
-
-      sockfd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sockfd < 0)
+      if (conn.tls)
         {
-          /* socket failed.  It will set the errno appropriately */
+          char port_str[sizeof("65535")];
 
-          nerr("ERROR: socket failed: %d\n", errno);
-          free(ws);
-          return ERROR;
-        }
-
-      /* Set send and receive timeout values */
-
-      tv.tv_sec  = CONFIG_WEBCLIENT_TIMEOUT;
-      tv.tv_usec = 0;
-
-      setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
-                 sizeof(struct timeval));
-      setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
-                 sizeof(struct timeval));
-
-      /* Get the server address from the host name */
-
-      server.sin_family = AF_INET;
-      server.sin_port   = htons(ws->port);
-      ret = wget_gethostip(ws->hostname, &server.sin_addr);
-      if (ret < 0)
-        {
-          /* Could not resolve host (or malformed IP address) */
-
-          nwarn("WARNING: Failed to resolve hostname\n");
-          ret = -EHOSTUNREACH;
-          goto errout_with_errno;
-        }
-
-      /* Connect to server.  First we have to set some fields in the
-       * 'server' address structure.  The system will assign me an arbitrary
-       * local port that is not in use.
-       */
-
-      ret = connect(sockfd, (struct sockaddr *)&server,
-                    sizeof(struct sockaddr_in));
-      if (ret < 0)
-        {
-          nerr("ERROR: connect failed: %d\n", errno);
-          goto errout;
-        }
-
-      /* Send the GET request */
-
-      dest = ws->buffer;
-      if (mode == WGET_MODE_POST)
-        {
-          dest = wget_strcpy(dest, g_httppost);
+          snprintf(port_str, sizeof(port_str), "%u", ws->port);
+          ret = tls_ops->connect(tls_ctx, ws->hostname, port_str,
+                                 CONFIG_WEBCLIENT_TIMEOUT, &conn.tls_conn);
         }
       else
         {
-          dest = wget_strcpy(dest, g_httpget);
+          /* Create a socket */
+
+          conn.sockfd = socket(AF_INET, SOCK_STREAM, 0);
+          if (conn.sockfd < 0)
+            {
+              /* socket failed.  It will set the errno appropriately */
+
+              nerr("ERROR: socket failed: %d\n", errno);
+              free(ws);
+              return -errno;
+            }
+
+          /* Set send and receive timeout values */
+
+          tv.tv_sec  = CONFIG_WEBCLIENT_TIMEOUT;
+          tv.tv_usec = 0;
+
+          setsockopt(conn.sockfd, SOL_SOCKET, SO_RCVTIMEO,
+                     (FAR const void *)&tv, sizeof(struct timeval));
+          setsockopt(conn.sockfd, SOL_SOCKET, SO_SNDTIMEO,
+                     (FAR const void *)&tv, sizeof(struct timeval));
+
+          /* Get the server address from the host name */
+
+          server.sin_family = AF_INET;
+          server.sin_port   = htons(ws->port);
+          ret = wget_gethostip(ws->hostname, &server.sin_addr);
+          if (ret < 0)
+            {
+              /* Could not resolve host (or malformed IP address) */
+
+              nwarn("WARNING: Failed to resolve hostname\n");
+              ret = -EHOSTUNREACH;
+              goto errout_with_errno;
+            }
+
+          /* Connect to server.  First we have to set some fields in the
+           * 'server' address structure.  The system will assign me an
+           * arbitrary local port that is not in use.
+           */
+
+          ret = connect(conn.sockfd, (struct sockaddr *)&server,
+                        sizeof(struct sockaddr_in));
+          if (ret == -1)
+            {
+              ret = -errno;
+            }
         }
 
+      if (ret < 0)
+        {
+          nerr("ERROR: connect failed: %d\n", errno);
+          free(ws);
+          return ret;
+        }
+
+      /* Send the request */
+
+      dest = ws->buffer;
+      ep = ws->buffer + ws->buflen;
+      dest = append(dest, ep, method);
+      dest = append(dest, ep, " ");
+
 #ifndef WGET_USE_URLENCODE
-      dest = wget_strcpy(dest, ws->filename);
+      dest = append(dest, ep, ws->filename);
 #else
       /* TODO: should we use wget_urlencode_strcpy? */
 
-      dest = wget_strcpy(dest, ws->filename);
+      dest = append(dest, ep, ws->filename);
 #endif
 
-      *dest++ = ISO_SPACE;
-      dest = wget_strcpy(dest, g_http10);
-      dest = wget_strcpy(dest, g_httpcrnl);
-      dest = wget_strcpy(dest, g_httphost);
-      dest = wget_strcpy(dest, ws->hostname);
-      dest = wget_strcpy(dest, g_httpcrnl);
+      dest = append(dest, ep, " ");
+      dest = append(dest, ep, g_http10);
+      dest = append(dest, ep, g_httpcrnl);
+      dest = append(dest, ep, g_httphost);
+      dest = append(dest, ep, ws->hostname);
+      dest = append(dest, ep, g_httpcrnl);
 
-      if (mode == WGET_MODE_POST)
+      for (i = 0; i < ctx->nheaders; i++)
         {
-          int post_len;
-          char post_size[8];
-
-          dest = wget_strcpy(dest, g_httpform);
-          dest = wget_strcpy(dest, g_httpcrnl);
-          dest = wget_strcpy(dest, g_httpcontsize);
-
-          /* Post content size */
-
-          post_len = strlen((char *)posts);
-          sprintf(post_size, "%d", post_len);
-          dest = wget_strcpy(dest, post_size);
-          dest = wget_strcpy(dest, g_httpcrnl);
+          dest = append(dest, ep, ctx->headers[i]);
+          dest = append(dest, ep, g_httpcrnl);
         }
 
-      dest = wget_strcpy(dest, g_httpuseragentfields);
-      if (mode == WGET_MODE_POST)
+      if (ctx->bodylen)
         {
-          dest = wget_strcpy(dest, (char *)posts);
+          char post_size[sizeof("18446744073709551615")];
+
+          dest = append(dest, ep, g_httpcontsize);
+          sprintf(post_size, "%zu", ctx->bodylen);
+          dest = append(dest, ep, post_size);
+          dest = append(dest, ep, g_httpcrnl);
         }
 
-      len = dest - buffer;
+      dest = append(dest, ep, g_httpuseragentfields);
 
-      do
+      if (dest == NULL)
         {
-          ret = send(sockfd, buffer + ((dest - buffer) - len), len, 0);
-          if (ret < 0)
+          ret = -E2BIG;
+          goto errout_with_errno;
+        }
+
+      len = dest - ws->buffer;
+
+      ret = conn_send_all(ctx, &conn, ws->buffer, len);
+
+      if (ret >= 0)
+        {
+          size_t sent = 0;
+
+          while (sent < ctx->bodylen)
             {
-              nerr("ERROR: send failed: %d\n", errno);
-              goto errout;
-            }
+              FAR const void *input_buffer;
+              size_t input_buffer_size = ws->buflen;
 
-          len -= ret;
+              size_t todo = ctx->bodylen - sent;
+              if (input_buffer_size > todo)
+                {
+                  input_buffer_size = todo;
+                }
+
+              input_buffer = ws->buffer;
+              ret = ctx->body_callback(ws->buffer,
+                                       &input_buffer_size,
+                                       &input_buffer,
+                                       ctx->body_callback_arg);
+              if (ret < 0)
+                {
+                  nerr("ERROR: body_callback failed: %d\n", -ret);
+                  goto errout_with_errno;
+                }
+
+              ret = conn_send_all(ctx, &conn, input_buffer,
+                                  input_buffer_size);
+              if (ret < 0)
+                {
+                  break;
+                }
+
+              sent += input_buffer_size;
+            }
         }
-      while (len > 0);
+
+      if (ret < 0)
+        {
+          nerr("ERROR: send failed: %d\n", -ret);
+          goto errout_with_errno;
+        }
 
       /* Now loop to get the file sent in response to the GET.  This
        * loop continues until either we read the end of file (nbytes == 0)
@@ -679,16 +884,16 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       redirected = false;
       for (; ; )
         {
-          ws->datend = recv(sockfd, ws->buffer, ws->buflen, 0);
+          ws->datend = conn_recv(ctx, &conn, ws->buffer, ws->buflen);
           if (ws->datend < 0)
             {
-              nerr("ERROR: recv failed: %d\n", errno);
-              goto errout;
+              ret = ws->datend;
+              nerr("ERROR: recv failed: %d\n", -ret);
+              goto errout_with_errno;
             }
           else if (ws->datend == 0)
             {
               ninfo("Connection lost\n");
-              close(sockfd);
               break;
             }
 
@@ -697,7 +902,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
           ws->offset = 0;
           if (ws->state == WEBCLIENT_STATE_STATUSLINE)
             {
-              ret = wget_parsestatus(ws);
+              ret = wget_parsestatus(ctx, ws);
               if (ret < 0)
                 {
                   goto errout_with_errno;
@@ -725,8 +930,21 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
                    * received file.
                    */
 
-                  callback(&ws->buffer, ws->offset, ws->datend,
-                           &buflen, arg);
+                  if (ctx->sink_callback)
+                    {
+                      ret = ctx->sink_callback(&ws->buffer, ws->offset,
+                                               ws->datend, &ws->buflen,
+                                               ctx->sink_callback_arg);
+                      if (ret != 0)
+                        {
+                          goto errout_with_errno;
+                        }
+                    }
+                  else
+                    {
+                      ctx->callback(&ws->buffer, ws->offset, ws->datend,
+                                    &ws->buflen, ctx->sink_callback_arg);
+                    }
                 }
               else
                 {
@@ -738,23 +956,25 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
                       goto errout;
                     }
 
-                  close(sockfd);
                   break;
                 }
             }
         }
+
+      conn_close(ctx, &conn);
     }
   while (redirected);
 
   free(ws);
   return OK;
 
-errout_with_errno:
-  errno = -ret;
 errout:
-  close(sockfd);
+  ret = -errno;
+errout_with_errno:
+  conn_close(ctx, &conn);
+
   free(ws);
-  return ERROR;
+  return ret;
 }
 
 /****************************************************************************
@@ -863,7 +1083,23 @@ int web_posts_strlen(FAR char **name, FAR char **value, int len)
 int wget(FAR const char *url, FAR char *buffer, int buflen,
          wget_callback_t callback, FAR void *arg)
 {
-  return wget_base(url, buffer, buflen, callback, arg, NULL, WGET_MODE_GET);
+  struct webclient_context ctx;
+  int ret;
+  webclient_set_defaults(&ctx);
+  ctx.method = "GET";
+  ctx.url = url;
+  ctx.buffer = buffer;
+  ctx.buflen = buflen;
+  ctx.callback = callback;
+  ctx.sink_callback_arg = arg;
+  ret = webclient_perform(&ctx);
+  if (ret < 0)
+    {
+      errno = -ret;
+      return ERROR;
+    }
+
+  return OK;
 }
 
 /****************************************************************************
@@ -873,6 +1109,48 @@ int wget(FAR const char *url, FAR char *buffer, int buflen,
 int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
               int buflen, wget_callback_t callback, FAR void *arg)
 {
-  return wget_base(url, buffer, buflen, callback, arg, posts,
-                   WGET_MODE_POST);
+  static const char *headers = g_httpform;
+  struct webclient_context ctx;
+  int ret;
+  webclient_set_defaults(&ctx);
+  ctx.method = "POST";
+  ctx.url = url;
+  ctx.buffer = buffer;
+  ctx.buflen = buflen;
+  ctx.callback = callback;
+  ctx.sink_callback_arg = arg;
+  ctx.headers = &headers;
+  ctx.nheaders = 1;
+  webclient_set_static_body(&ctx, posts, strlen(posts));
+  ret = webclient_perform(&ctx);
+  if (ret < 0)
+    {
+      errno = -ret;
+      return ERROR;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: webclient_set_defaults
+ ****************************************************************************/
+
+void webclient_set_defaults(FAR struct webclient_context *ctx)
+{
+  memset(ctx, 0, sizeof(*ctx));
+  ctx->method = "GET";
+}
+
+/****************************************************************************
+ * Name: webclient_set_static_body
+ ****************************************************************************/
+
+void webclient_set_static_body(FAR struct webclient_context *ctx,
+                               FAR const void *body,
+                               size_t bodylen)
+{
+  ctx->body_callback = webclient_static_body_func;
+  ctx->body_callback_arg = (void *)body; /* discard const */
+  ctx->bodylen = bodylen;
 }
