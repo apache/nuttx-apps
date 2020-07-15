@@ -46,7 +46,7 @@
 #include <pthread.h>
 #include <time.h>
 
-#include <graphics/lvgl.h>
+#include <lvgl/lvgl.h>
 
 #include "fbdev.h"
 #include "tp.h"
