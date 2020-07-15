@@ -86,11 +86,8 @@ endif
 
 MAINSRC = lvgldemo.c
 
-LVGL_SRC_DIR=$(APPDIR)/graphics/lvgl/lvgl
-LVGL_DIR=$(APPDIR)/graphics/lvgl
-
-CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(LVGL_SRC_DIR)" "$(LVGL_DIR)"}
+CFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE}
+CXXFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE}
 
 $(LVGL_EXAMPLES_TARBALL):
 	@echo "Downloading: $(LVGL_EXAMPLES_TARBALL)"

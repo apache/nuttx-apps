@@ -41,7 +41,7 @@
  ****************************************************************************/
 
 #include <stdint.h>
-#include <graphics/lvgl.h>
+#include <lvgl/lvgl.h>
 
 #ifdef __cplusplus
 extern "C"

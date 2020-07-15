@@ -39,7 +39,7 @@
 
 #include <stdio.h>
 
-#include <graphics/lvgl.h>
+#include <lvgl/lvgl.h>
 #include "tp.h"
 
 /****************************************************************************

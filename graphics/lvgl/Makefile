@@ -66,8 +66,6 @@ UNPACK ?= unzip -o
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/lvgl}
-
 $(LVGL_TARBALL):
 	@echo "Downloading: $(LVGL_TARBALL)"
 	$(Q) $(WGET) $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
@@ -78,13 +76,7 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
-lvgl/lvgl.h: $(LVGL_UNPACKNAME)
-
-$(APPDIR)/include/graphics/lvgl.h: lvgl/lvgl.h
-	@echo "CP: lvgl/lvgl.h"
-	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
-
-context:: $(LVGL_UNPACKNAME) $(APPDIR)/include/graphics/lvgl.h
+context:: $(LVGL_UNPACKNAME)
 
 clean::
 	$(call DELDIR, build)
@@ -92,6 +84,5 @@ clean::
 distclean::
 	$(call DELDIR, $(LVGL_UNPACKNAME))
 	$(call DELFILE, $(LVGL_TARBALL))
-	$(call DELFILE, $(APPDIR)/include/graphics/lvgl.h)
 
 include $(APPDIR)/Application.mk
