@@ -52,12 +52,14 @@ all:
 	$(RM) $(BIN)
 	$(MAKE) $(BIN)
   
-.PHONY: import install dirlinks context context_serialize clean_context context_rest export .depdirs preconfig depend clean distclean
+.PHONY: import install dirlinks export .depdirs preconfig depend clean distclean
+.PHONY: context clean_context context_all register register_all
 .PRECIOUS: $(BIN)
 
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),register)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
@@ -82,6 +84,7 @@ install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
+	$(Q) $(MAKE) register TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
@@ -144,6 +147,7 @@ endif
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
+	$(Q) $(MAKE) register TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) depend TOPDIR="$(APPDIR)$(DELIM)import"
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
@@ -152,13 +156,12 @@ endif # CONFIG_BUILD_KERNEL
 dirlinks:
 	$(Q) $(MAKE) -C platform dirlinks
 
-context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
+context_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
+register_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_register)
 
-context_serialize:
-	$(Q) $(MAKE) -C builtin context
-	$(Q) $(MAKE) context_rest
-
-context: context_serialize
+context:
+	$(Q) $(MAKE) context_all
+	$(Q) $(MAKE) register_all
 
 Kconfig:
 	$(foreach SDIR, $(CONFIGDIRS), $(call MAKE_template,$(SDIR),preconfig))
