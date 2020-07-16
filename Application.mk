@@ -198,6 +198,8 @@ install::
 
 endif # BUILD_MODULE
 
+context::
+
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 ifneq ($(PROGNAME),)
 ifneq ($(PRIORITY),)
@@ -212,18 +214,18 @@ $(REGLIST): $(DEPCONFIG) Makefile
 	$(if $(filter-out $(firstword $(PRIORITY)),$(PRIORITY)),$(eval PRIORITY=$(filter-out $(firstword $(PRIORITY)),$(PRIORITY))))
 	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
 
-context:: $(REGLIST)
+register:: $(REGLIST)
 else
-context::
+register::
 endif
 else
-context::
+register::
 endif
 else
-context::
+register::
 endif
 else
-context::
+register::
 endif
 
 .depend: Makefile $(wildcard $(foreach SRC, $(SRCS), $(addsuffix /$(SRC), $(subst :, ,$(VPATH))))) $(DEPCONFIG)
