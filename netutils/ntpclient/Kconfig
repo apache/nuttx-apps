@@ -42,4 +42,8 @@ config NETUTILS_NTPCLIENT_SIGWAKEUP
 	int "NTP client wakeup signal number"
 	default 18
 
+config NETUTILS_NTPCLIENT_WITH_AUTH
+	bool "NTP client with authentication"
+	default n
+
 endif # NETUTILS_NTPCLIENT
