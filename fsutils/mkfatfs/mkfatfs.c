@@ -33,6 +33,7 @@
 #include <errno.h>
 
 #include <nuttx/fs/fs.h>
+#include <nuttx/fs/fat.h>
 
 #include "fsutils/mkfatfs.h"
 #include "fat32.h"
@@ -337,7 +338,11 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
 
   /* Allocate a buffer that will be working sector memory */
 
+#ifdef CONFIG_FAT_DMAMEMORY
+  var.fv_sect = (FAR uint8_t *)fat_dma_alloc(var.fv_sectorsize);
+#else
   var.fv_sect = (FAR uint8_t *)malloc(var.fv_sectorsize);
+#endif
   if (!var.fv_sect)
     {
       ferr("ERROR: Failed to allocate working buffers\n");
@@ -360,7 +365,11 @@ errout:
 
   if (var.fv_sect)
     {
+#ifdef CONFIG_FAT_DMAMEMORY
+      fat_dma_free(var.fv_sect, var.fv_sectorsize);
+#else
       free(var.fv_sect);
+#endif
     }
 
   /* Return any reported errors */
