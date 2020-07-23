@@ -1,4 +1,6 @@
-# minmea, a lightweight GPS NMEA 0183 parser library
+# GPS Utilities / `minmea` GPS NMEA 0183 parser
+
+A lightweight GPS NMEA 0183 parser library
 
 [![Build Status](https://travis-ci.org/cloudyourcar/minmea.svg?branch=master)](https://travis-ci.org/cloudyourcar/minmea)
 
@@ -29,32 +31,35 @@ Adding support for more sentences is trivial; see ``minmea.c`` source.
 
 ## Fractional number format
 
-Internally, minmea stores fractional numbers as pairs of two integers: ``{value, scale}``.
-For example, a value of ``"-123.456"`` would be parsed as ``{-123456, 1000}``. As this
-format is quite unwieldy, minmea provides the following convenience functions for converting
-to either fixed-point or floating-point format:
+Internally, minmea stores fractional numbers as pairs of two integers: ``{value,
+scale}``. For example, a value of ``"-123.456"`` would be parsed as ``{-123456,
+1000}``. As this format is quite unwieldy, minmea provides the following
+convenience functions for converting to either fixed-point or floating-point
+format:
 
 * ``minmea_rescale({-123456, 1000}, 10) => -1235``
 * ``minmea_float({-123456, 1000}) => -123.456``
 
-The compound type ``struct minmea_float`` uses ``int_least32_t`` internally. Therefore,
-the coordinate precision is guaranteed to be at least ``[+-]DDDMM.MMMMM`` (five decimal digits)
-or ±20cm LSB at the equator.
+The compound type ``struct minmea_float`` uses ``int_least32_t`` internally.
+Therefore, the coordinate precision is guaranteed to be at least
+``[+-]DDDMM.MMMMM`` (five decimal digits) or ±20cm LSB at the equator.
 
 ## Coordinate format
 
-NMEA uses the clunky ``DDMM.MMMM`` format which, honestly, is not good in the internet era.
-Internally, minmea stores it as a fractional number (see above); for practical uses,
-the value should be probably converted to the DD.DDDDD floating point format using the
-following function:
+NMEA uses the clunky ``DDMM.MMMM`` format which, honestly, is not good in the
+internet era. Internally, minmea stores it as a fractional number (see above);
+for practical uses, the value should be probably converted to the DD.DDDDD
+floating point format using the following function:
 
 * ``minmea_tocoord({-375165, 100}) => -37.860832``
 
-The library doesn't perform this conversion automatically for the following reasons:
+The library doesn't perform this conversion automatically for the following
+reasons:
 
 * The conversion is not reversible.
 * It requires floating point hardware.
-* The user might want to perform this conversion later on or retain the original values.
+* The user might want to perform this conversion later on or retain the original
+  values.
 
 ## Example
 
@@ -122,9 +127,9 @@ typing ``make``.
 ## Limitations
 
 * Only a handful of frames is supported right now.
-* There's no support for omitting parts of the library from building. As
-  a workaround, use the ``-ffunction-sections -Wl,--gc-sections`` linker flags
-  (or equivalent) to remove the unused functions (parsers) from the final image.
+* There's no support for omitting parts of the library from building. As a
+  workaround, use the ``-ffunction-sections -Wl,--gc-sections`` linker flags (or
+  equivalent) to remove the unused functions (parsers) from the final image.
 * Some systems lack ``timegm``. On these systems, the recommended course of
   action is to build with ``-Dtimegm=mktime`` which will work correctly as long
   the system runs in the default ``UTC`` timezone. Native Windows builds should
@@ -138,8 +143,10 @@ Please write unit tests for any new functions you add - it's fun!
 ## Licensing
 
 Minmea is open source software; see ``COPYING`` for amusement. Email me if the
-license bothers you and I'll happily re-license under anything else under the sun.
+license bothers you and I'll happily re-license under anything else under the
+sun.
 
 ## Author
 
-Minmea was written by Kosma Moczek &lt;kosma@cloudyourcar.com&gt; at Cloud Your Car.
+Minmea was written by Kosma Moczek &lt;kosma@cloudyourcar.com&gt; at Cloud Your
+Car.

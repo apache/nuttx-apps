@@ -1,46 +1,42 @@
-README.txt
-==========
+# File System Utilities / `inifile` INI File
 
-Syntax
-======
+## Syntax
 
-  This directory contains a very simple INI file parser.  An INI file consists
-  of a sequence of lines up to the end of file.  A line may be one of the
-  following:
+This directory contains a very simple INI file parser. An INI file consists of a
+sequence of lines up to the end of file. A line may be one of the following:
 
-    1) A blank line.
+1. A blank line.
 
-    2) A comment line.  Any line beginning with ';'
+2. A comment line. Any line beginning with `;`
 
-    3) A section header.  Definitions are divided into sections.  Each
-       section begins with a line containing the section name enclosed in
-       square brackets.  For example, "[section1]".  The left bracket must
-       be the first character on the line.  Section names are case
-       insensitive, i.e., "SECTION1" and "Section1" refer to the same
-       section.
+3. A section header. Definitions are divided into sections. Each section begins
+   with a line containing the section name enclosed in square brackets. For
+   example, `[section1]`. The left bracket must be the first character on the
+   line. Section names are case insensitive, i.e., `SECTION1` and `Section1`
+   refer to the same section.
 
-    4) Variable assignments.  A variable assignment is a variable name
-       followed by the '=' sign and then the value of the variable.  For
-       example, "A=B": "A" is the variable name; "B" is the variable value.
-       All variables following the section header belong in the section.
+4. Variable assignments. A variable assignment is a variable name followed by
+   the `=` sign and then the value of the variable. For example, `A=B`: `A` is
+   the variable name; `B` is the variable value. All variables following the
+   section header belong in the section.
 
-       Variable names may be preceded with white space. Whitespace is not
-       permitted before the '=' sign.  Variable names are case insensitive,
-       i.e., "A" and "a" refer to the same variable name.
+   Variable names may be preceded with white space. Whitespace is not permitted
+   before the `=` sign. Variable names are case insensitive, i.e., `A` and `a`
+   refer to the same variable name.
 
-       Variable values may be numeric (any base) or a string.  The case of
-       string arguments is preserved.
+   Variable values may be numeric (any base) or a string. The case of string
+   arguments is preserved.
 
-Programming Interfaces
-======================
+## Programming Interfaces
 
-  See apps/include/fsutils/inifile.h for interfaces supported by the INI file parser.
+See `apps/include/fsutils/inifile.h` for interfaces supported by the INI file
+parser.
 
-Test Program
-============
+## Test Program
 
-  Below is a simple test program:
+Below is a simple test program:
 
+```c
 int main(int argc, char *argv[])
 {
   INIHANDLE handle;
@@ -123,9 +119,11 @@ int main(int argc, char *argv[])
   inifile_uninitialize(handle);
   return 0;
 }
+```
 
 Test program output:
 
+```
 Section: section2 Variable: VAR5 String: 5
 Section: section1 Variable: VAR2 String: 2
 Section: section3 Variable: VAR3 String: OOPS
@@ -143,3 +141,4 @@ Section: section2 Variable: VAR6 Value: 6
 Section: section1 Variable: VAR42 String: 0
 Section: section1 Variable: VAR2 Value: 2
 Section: section2 Variable: VAR4 Value: 4
+```

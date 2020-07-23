@@ -1,12 +1,15 @@
-Flash Erase-all
-===============
+# System / `flash_eraseall` Flash Erase-All
 
-    Source: NuttX
-    Author: Ken Pettit
-    Date: 5 May 2013
+```
+Author: Ken Pettit
+  Date: 5 May 2013
+```
 
-This application erases the FLASH of an MTD flash block.  It is simply
-a wrapper that calls the NuttX flash_eraseall interface.
+This application erases the FLASH of an MTD flash block. It is simply a wrapper
+that calls the NuttX `flash_eraseall` interface.
 
-Usage:
-    flash_eraseall <flash_block_device>
+**Usage**:
+
+```shell
+flash_eraseall <flash_block_device>
+```
