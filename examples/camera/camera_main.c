@@ -552,7 +552,7 @@ int main(int argc, FAR char *argv[])
 
   while (1)
     {
-      printf("Start captureing...\n");
+      printf("Start capturing...\n");
       ret = start_stillcapture(v_fd, capture_type);
       if (ret != OK)
         {
@@ -587,7 +587,7 @@ int main(int argc, FAR char *argv[])
         }
 
       RESET_INITIAL_TIME(then);
-      printf("Finished captureing...\n");
+      printf("Finished capturing...\n");
     }
 
 exit_this_app:

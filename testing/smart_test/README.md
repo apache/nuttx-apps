@@ -1,22 +1,26 @@
-README
-======
+# Testing / `smart_test` SMART File System
 
-  Performs a file-based test on a SMART (or any) filesystem. Validates
-  seek, append and seek-with-write operations.
+Performs a file-based test on a SMART (or any) filesystem. Validates seek,
+append and seek-with-write operations.
 
-    * CONFIG_TESTING_SMART_TEST=y
+```conf
+CONFIG_TESTING_SMART_TEST=y
+```
 
-    Source: NuttX
-    Author: Ken Pettit
-    Date: April 24, 2013
+```
+Author: Ken Pettit
+  Date: April 24, 2013
+```
 
-  Performs a file-based test on a SMART (or any) filesystem. Validates seek,
-  append and seek-with-write operations.
+Performs a file-based test on a SMART (or any) filesystem. Validates seek,
+append and seek-with-write operations.
 
-  Usage:
+```
+Usage:
 
     flash_test mtdblock_device
 
   Additional options:
 
     --force                     to replace existing installation
+```

@@ -1,45 +1,50 @@
-README
-======
+# System / `nsh` NuttShell (NSH)
 
-  Basic Configuration
-  -------------------
-  This directory provides an example of how to configure and use
-  the NuttShell (NSH) application.  NSH is a simple shell
-  application.  NSH is described in its own README located at
-  apps/nshlib/README.txt.  This function is enabled with:
+## Basic Configuration
 
-    CONFIG_SYSTEM_NSH=y
+This directory provides an example of how to configure and use the NuttShell
+(NSH) application. NSH is a simple shell application. NSH is described in its
+own README located at `apps/nshlib/README.md`. This function is enabled with:
 
-  Applications using this example will need to provide an defconfig
-  file in the configuration directory with instruction to build
-  the NSH library like:
+```conf
+CONFIG_SYSTEM_NSH=y
+```
 
-    CONFIG_NSH_LIBRARY=y
+Applications using this example will need to provide an `defconfig` file in the
+configuration directory with instruction to build the NSH library like:
 
-  Other Configuration Requirements
-  --------------------------------
-  NOTE:  If the NSH serial console is used, then following is also
-  required to build the readline() library:
+```conf
+CONFIG_NSH_LIBRARY=y
+```
 
-    CONFIG_SYSTEM_READLINE=y
+## Other Configuration Requirements
 
-  And if networking is included:
+**Note**: If the NSH serial console is used, then following is also required to
+build the `readline()` library:
 
-    CONFIG_NETUTILS_NETLIB=y
-    CONFIG_NETUTILS_DHCPC=y
-    CONFIG_NETDB_DNSCLIENT=y
-    CONFIG_NETUTILS_TFTPC=y
-    CONFIG_NETUTILS_WEBCLIENT=y
+```conf
+CONFIG_SYSTEM_READLINE=y
+```
 
-  If the Telnet console is enabled, then the defconfig file should
-  also include:
+And if networking is included:
 
-    CONFIG_NETUTILS_TELNETD=y
+```conf
+CONFIG_NETUTILS_NETLIB=y
+CONFIG_NETUTILS_DHCPC=y
+CONFIG_NETDB_DNSCLIENT=y
+CONFIG_NETUTILS_TFTPC=y
+CONFIG_NETUTILS_WEBCLIENT=y
+```
 
-  Also if the Telnet console is enabled, make sure that you have the
-  following set in the NuttX configuration file or else the performance
-  will be very bad (because there will be only one character per TCP
-  transfer):
+If the Telnet console is enabled, then the defconfig file should also include:
 
-    CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
-    CONFIG_STDIO_LINEBUFFER=y
+```conf
+CONFIG_NETUTILS_TELNETD=y
+```
+
+Also if the Telnet console is enabled, make sure that you have the following set
+in the NuttX configuration file or else the performance will be very bad
+(because there will be only one character per TCP transfer):
+
+- `CONFIG_STDIO_BUFFER_SIZE` - Some value `>= 64`
+- `CONFIG_STDIO_LINEBUFFER=y`
