@@ -508,26 +508,26 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_LCD_UPDATE
+#ifdef CONFIG_FB_UPDATE
 static void PDC_update(FAR struct pdc_fbstate_s *fbstate, int row, int col,
                        int nchars)
 {
-  struct nxgl_rect_s rect;
+  struct fb_area_s area;
   int ret;
 
   if (nchars > 0)
     {
       /* Setup the bounding rectangle */
 
-      rect.pt1.x = PDC_pixel_x(fbstate, col);
-      rect.pt1.y = PDC_pixel_y(fbstate, row);
-      rect.pt2.x = rect.pt1.x + nchars * fbstate->fwidth - 1;
-      rect.pt2.y = rect.pt1.y + fbstate->fheight - 1;
+      area.x = PDC_pixel_x(fbstate, col);
+      area.y = PDC_pixel_y(fbstate, row);
+      area.w = nchars * fbstate->fwidth;
+      area.h = fbstate->fheight;
 
       /* Then perform the update via IOCTL */
 
       ret = ioctl(fbstate->fbfd, FBIO_UPDATE,
-                  (unsigned long)((uintptr_t)&rect));
+                  (unsigned long)((uintptr_t)&area));
       if (ret < 0)
         {
           PDC_LOG(("ERROR:  ioctl(FBIO_UPDATE) failed: %d\n", errno));
@@ -569,20 +569,20 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
       return;
     }
 
- /* Get the foreground and background colors of the character */
+  /* Get the foreground and background colors of the character */
 
- PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
+  PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
 
- /* Handle the A_REVERSE attribute. */
+  /* Handle the A_REVERSE attribute. */
 
- if ((ch & A_REVERSE) != 0)
-   {
-     /* Swap the foreground and background colors if reversed */
+  if ((ch & A_REVERSE) != 0)
+    {
+      /* Swap the foreground and background colors if reversed */
 
-     short tmp = fg;
-     fg = bg;
-     bg = tmp;
-   }
+      short tmp = fg;
+      fg = bg;
+      bg = tmp;
+    }
 
 #ifdef CONFIG_PDCURSES_CHTYPE_LONG
   /* Translate characters 0-127 via acs_map[], if they're flagged with
@@ -668,9 +668,9 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_TERMCURSES
-static void PDC_gotoyx_term(FAR SCREEN *sp, int row, int col)
+static void PDC_gotoyx_term(FAR SCREEN *s, int row, int col)
 {
-  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)s;
   FAR struct pdc_termstate_s *termstate;
 
   termstate = &termscreen->termstate;
@@ -741,16 +741,16 @@ static void PDC_set_char_attrib_term(FAR struct pdc_termscreen_s *termscreen,
 
   PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
 
- /* Handle the A_REVERSE attribute. */
+  /* Handle the A_REVERSE attribute. */
 
- if ((ch & A_REVERSE) != 0)
-   {
-     /* Swap the foreground and background colors if reversed */
+  if ((ch & A_REVERSE) != 0)
+    {
+      /* Swap the foreground and background colors if reversed */
 
-     short tmp = fg;
-     fg = bg;
-     bg = tmp;
-   }
+      short tmp = fg;
+      fg = bg;
+      bg = tmp;
+    }
 
   /* Set the color */
 
@@ -809,7 +809,6 @@ static void PDC_set_char_attrib_term(FAR struct pdc_termscreen_s *termscreen,
       termstate->bg_green = termstate->rgbcolor[bg].green;
       termstate->bg_blue  = termstate->rgbcolor[bg].blue;
     }
-
 }
 #endif   /* CONFIG_SYSTEM_TERMCURSES */
 
@@ -819,17 +818,17 @@ static void PDC_set_char_attrib_term(FAR struct pdc_termscreen_s *termscreen,
  * Description:
  *   The core output routine.  It takes len chtype entities from srcp (a
  *   pointer into curscr) and renders them to the physical screen at line
- *   lineno, column x.  It must also translate characters 0-127 via acs_map[],
+ *   lineno, column x. It must also translate characters 0-127 via acs_map[],
  *   if they're flagged with A_ALTCHARSET in the attribute portion of the
  *   chtype.
  *
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_TERMCURSES
-static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
+static void PDC_transform_line_term(FAR SCREEN *s, int lineno, int x,
                                     int len, FAR const chtype *srcp)
 {
-  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)sp;
+  FAR struct pdc_termscreen_s *termscreen = (FAR struct pdc_termscreen_s *)s;
   FAR struct pdc_termstate_s *termstate = &termscreen->termstate;
   int   c;
   int   i;
@@ -842,7 +841,7 @@ static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
 
   /* Loop through all characters to be displayed */
 
-  for (c = 0; c < len;)
+  for (c = 0; c < len; )
     {
       /* Get the foreground and background colors of the character */
 
@@ -850,10 +849,10 @@ static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
 
       /* Write next character(s) */
 
-      ch = *srcp & 0x7F;
+      ch = *srcp & 0x7f;
       buffer[0] = ch;
 
-      for (i = 1; i < sizeof(buffer) && c+i < len; i++)
+      for (i = 1; i < sizeof(buffer) && c + i < len; i++)
         {
           /* Break if the attributes change */
 
@@ -862,7 +861,7 @@ static void PDC_transform_line_term(FAR SCREEN *sp, int lineno, int x,
               break;
             }
 
-          ch = *(srcp + i) & 0x7F;
+          ch = *(srcp + i) & 0x7f;
           buffer[i] = ch;
         }
 
@@ -950,7 +949,7 @@ void PDC_gotoyx(int row, int col)
  * Description:
  *   The core output routine.  It takes len chtype entities from srcp (a
  *   pointer into curscr) and renders them to the physical screen at line
- *   lineno, column x.  It must also translate characters 0-127 via acs_map[],
+ *   lineno, column x. It must also translate characters 0-127 via acs_map[],
  *   if they're flagged with A_ALTCHARSET in the attribute portion of the
  *   chtype.
  *
@@ -1019,8 +1018,8 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
   int row;
   int col;
 
-#ifdef CONFIG_LCD_UPDATE
-  struct nxgl_rect_s rect;
+#ifdef CONFIG_FB_UPDATE
+  struct fb_area_s area;
   int ret;
 #endif
 
@@ -1057,26 +1056,27 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
        row < fbstate->yres;
        row++, line += fbstate->stride)
     {
-       for (col = 0, dest = (FAR pdc_color_t *)line;
+      for (col = 0, dest = (FAR pdc_color_t *)line;
             col < width;
             col++)
-         {
-           *dest++ = bgcolor;
-         }
+        {
+          *dest++ = bgcolor;
+        }
     }
 
-#ifdef CONFIG_LCD_UPDATE
+#ifdef CONFIG_FB_UPDATE
   /* Update the entire display */
+
   /* Setup the bounding rectangle */
 
-  rect.pt1.x = 0;
-  rect.pt1.y = 0;
-  rect.pt2.x = fbstate->xres - 1;
-  rect.pt2.y = fbstate->yres - 1;
+  area.x = 0;
+  area.y = 0;
+  area.w = fbstate->xres;
+  area.h = fbstate->yres;
 
   /* Then perform the update via IOCTL */
 
-  ret = ioctl(fbstate->fbfd, FBIO_UPDATE, (unsigned long)((uintptr_t)&rect));
+  ret = ioctl(fbstate->fbfd, FBIO_UPDATE, (unsigned long)((uintptr_t)&area));
   if (ret < 0)
     {
       PDC_LOG(("ERROR:  ioctl(FBIO_UPDATE) failed: %d\n", errno));

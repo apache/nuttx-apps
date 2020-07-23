@@ -47,8 +47,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <nuttx/nx/nx.h>
-#include <nuttx/nx/nxglib.h>
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
 
@@ -83,17 +81,20 @@ static const char g_default_fbdev[] = CONFIG_EXAMPLES_FB_DEFAULTFB;
 
 static const uint32_t g_rgb24[NCOLORS] =
 {
-  RGB24_VIOLET, RGB24_BLUE, RGB24_GREEN, RGB24_YELLOW, RGB24_ORANGE, RGB24_RED
+  RGB24_VIOLET, RGB24_BLUE, RGB24_GREEN,
+  RGB24_YELLOW, RGB24_ORANGE, RGB24_RED
 };
 
 static const uint16_t g_rgb16[NCOLORS] =
 {
-  RGB16_VIOLET, RGB16_BLUE, RGB16_GREEN, RGB16_YELLOW, RGB16_ORANGE, RGB16_RED
+  RGB16_VIOLET, RGB16_BLUE, RGB16_GREEN,
+  RGB16_YELLOW, RGB16_ORANGE, RGB16_RED
 };
 
 static const uint8_t g_rgb8[NCOLORS] =
 {
-  RGB8_VIOLET,  RGB8_BLUE,  RGB8_GREEN,  RGB8_YELLOW,  RGB8_ORANGE,  RGB8_RED
+  RGB8_VIOLET, RGB8_BLUE, RGB8_GREEN,
+  RGB8_YELLOW, RGB8_ORANGE, RGB8_RED
 };
 
 /****************************************************************************
@@ -105,18 +106,18 @@ static const uint8_t g_rgb8[NCOLORS] =
  ****************************************************************************/
 
 static void draw_rect32(FAR struct fb_state_s *state,
-                        FAR struct nxgl_rect_s *rect, int color)
+                        FAR struct fb_area_s *area, int color)
 {
   FAR uint32_t *dest;
   FAR uint8_t *row;
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
-  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  for (y = 0; y < area->h; y++)
     {
-      dest = ((FAR uint32_t *)row) + rect->pt1.x;
-      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+      dest = ((FAR uint32_t *)row) + area->x;
+      for (x = 0; x < area->w; x++)
         {
           *dest++ = g_rgb24[color];
         }
@@ -126,18 +127,18 @@ static void draw_rect32(FAR struct fb_state_s *state,
 }
 
 static void draw_rect16(FAR struct fb_state_s *state,
-                        FAR struct nxgl_rect_s *rect, int color)
+                        FAR struct fb_area_s *area, int color)
 {
   FAR uint16_t *dest;
   FAR uint8_t *row;
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
-  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  for (y = 0; y < area->h; y++)
     {
-      dest = ((FAR uint16_t *)row) + rect->pt1.x;
-      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+      dest = ((FAR uint16_t *)row) + area->x;
+      for (x = 0; x < area->w; x++)
         {
           *dest++ = g_rgb16[color];
         }
@@ -147,18 +148,18 @@ static void draw_rect16(FAR struct fb_state_s *state,
 }
 
 static void draw_rect8(FAR struct fb_state_s *state,
-                       FAR struct nxgl_rect_s *rect, int color)
+                       FAR struct fb_area_s *area, int color)
 {
   FAR uint8_t *dest;
   FAR uint8_t *row;
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
-  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  for (y = 0; y < area->h; y++)
     {
-      dest = row + rect->pt1.x;
-      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+      dest = row + area->x;
+      for (x = 0; x < area->w; x++)
         {
           *dest++ = g_rgb8[color];
         }
@@ -168,7 +169,7 @@ static void draw_rect8(FAR struct fb_state_s *state,
 }
 
 static void draw_rect1(FAR struct fb_state_s *state,
-                       FAR struct nxgl_rect_s *rect, int color)
+                       FAR struct fb_area_s *area, int color)
 {
   FAR uint8_t *pixel;
   FAR uint8_t *row;
@@ -182,7 +183,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
 
   /* Calculate the framebuffer address of the first row to draw on */
 
-  row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+  row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
 
   /* Calculate the start byte position rounding down so that we get the
    * first byte containing any part of the pixel sequence.  Then calculate
@@ -190,19 +191,19 @@ static void draw_rect1(FAR struct fb_state_s *state,
    * final pixels of the sequence.
    */
 
-  startx = (rect->pt1.x >> 3);
-  endx   = ((rect->pt2.x + 7) >> 3);
+  startx = (area->x >> 3);
+  endx   = ((area->x + area->w + 6) >> 3);
 
   /* Calculate a mask on the first and last bytes of the sequence that may
    * not be completely filled with pixel.
    */
 
-  lmask  = 0xff << (8 - (rect->pt1.x & 7));
-  rmask  = 0xff >> (rect->pt2.x & 7);
+  lmask  = 0xff << (8 - (area->x & 7));
+  rmask  = 0xff >> ((area->x + area->w - 1) & 7);
 
   /* Now draw each row, one-at-a-time */
 
-  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+  for (y = 0; y < area->h; y++)
     {
       /* 'pixel' points to the 1st pixel the next row */
 
@@ -218,7 +219,6 @@ static void draw_rect1(FAR struct fb_state_s *state,
         }
       else
         {
-
           /* Special case the first byte of the row */
 
           *pixel = (*pixel & lmask) | (color8 & ~lmask);
@@ -234,42 +234,42 @@ static void draw_rect1(FAR struct fb_state_s *state,
           /* Handle the final byte of the row */
 
           *pixel = (*pixel & rmask) | (color8 & ~rmask);
-       }
+        }
 
       row += state->pinfo.stride;
     }
 }
 
 static void draw_rect(FAR struct fb_state_s *state,
-                      FAR struct nxgl_rect_s *rect, int color)
+                      FAR struct fb_area_s *area, int color)
 {
-#ifdef CONFIG_LCD_UPDATE
+#ifdef CONFIG_FB_UPDATE
   int ret;
 #endif
 
   switch (state->pinfo.bpp)
     {
       case 32:
-        draw_rect32(state, rect, color);
+        draw_rect32(state, area, color);
         break;
 
       case 16:
-        draw_rect16(state, rect, color);
+        draw_rect16(state, area, color);
         break;
 
       case 8:
       default:
-        draw_rect8(state, rect, color);
+        draw_rect8(state, area, color);
         break;
 
       case 1:
-        draw_rect1(state, rect, color);
+        draw_rect1(state, area, color);
         break;
     }
 
-#ifdef CONFIG_LCD_UPDATE
+#ifdef CONFIG_FB_UPDATE
   ret = ioctl(state->fd, FBIO_UPDATE,
-              (unsigned long)((uintptr_t)rect));
+              (unsigned long)((uintptr_t)area));
   if (ret < 0)
     {
       int errcode = errno;
@@ -291,7 +291,7 @@ int main(int argc, FAR char *argv[])
 {
   FAR const char *fbdev = g_default_fbdev;
   struct fb_state_s state;
-  struct nxgl_rect_s rect;
+  struct fb_area_s area;
   int nsteps;
   int xstep;
   int ystep;
@@ -429,8 +429,8 @@ int main(int argc, FAR char *argv[])
    * address mapping to make the memory accessible to the application.
    */
 
-  state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ|PROT_WRITE,
-                     MAP_SHARED|MAP_FILE, state.fd, 0);
+  state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_FILE, state.fd, 0);
   if (state.fbmem == MAP_FAILED)
     {
       int errcode = errno;
@@ -454,16 +454,16 @@ int main(int argc, FAR char *argv[])
        color < NCOLORS;
        x += xstep, y += ystep, color++)
     {
-      rect.pt1.x = x;
-      rect.pt1.y = y;
-      rect.pt2.x = x + width - 1;
-      rect.pt2.y = y + height - 1;
+      area.x = x;
+      area.y = y;
+      area.w = width;
+      area.h = height;
 
       printf("%2d: (%3d,%3d) (%3d,%3d)\n",
-             color, rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
+             color, area.x, area.y, area.w, area.h);
 
-      draw_rect(&state, &rect, color);
-      usleep(500*1000);
+      draw_rect(&state, &area, color);
+      usleep(500 * 1000);
 
       width  -= (2 * xstep);
       height -= (2 * ystep);
