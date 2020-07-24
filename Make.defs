@@ -53,9 +53,11 @@ endif
 # CLEANDIRS is the list of all top-level directories containing Makefiles.
 #   It is used only for cleaning.
 
-BUILDIRS  := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Make.defs))
-BUILDIRS  := $(filter-out $(APPDIR)$(DELIM)import$(DELIM),$(BUILDIRS))
-CLEANDIRS := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Makefile))
+BUILDIRS   := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Make.defs))
+BUILDIRS   := $(filter-out $(APPDIR)$(DELIM)import$(DELIM),$(BUILDIRS))
+CONFIGDIRS := $(filter-out $(APPDIR)$(DELIM)builtin$(DELIM),$(BUILDIRS))
+CONFIGDIRS := $(filter-out $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Kconfig)),$(CONFIGDIRS))
+CLEANDIRS  := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Makefile))
 
 # CONFIGURED_APPS is the application directories that should be built in
 #   the current configuration.

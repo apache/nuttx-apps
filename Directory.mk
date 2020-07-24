@@ -35,38 +35,38 @@
 
 include $(APPDIR)/Make.defs
 
-# Sub-directories
+# Sub-directories that have been built or configured.
 
-SUBDIRS = $(dir $(wildcard */Makefile))
+SUBDIRS       := $(dir $(wildcard *$(DELIM)Makefile))
+CONFIGSUBDIRS := $(filter-out $(dir $(wildcard *$(DELIM)Kconfig)),$(SUBDIRS))
+CLEANSUBDIRS  := $(dir $(wildcard *$(DELIM).built))
+CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).depend))
+CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).kconfig))
 
 all: nothing
 
-.PHONY: nothing context depend clean distclean
+.PHONY: nothing clean distclean
 
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(foreach SDIR, $(CONFIGSUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))
+$(foreach SDIR, $(CLEANSUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
+$(foreach SDIR, $(CLEANSUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
 nothing:
 
 install:
 
-preconfig: $(foreach SDIR, $(SUBDIRS), $(SDIR)_preconfig)
+preconfig: $(foreach SDIR, $(CONFIGSUBDIRS), $(SDIR)_preconfig)
 ifneq ($(MENUDESC),)
 	$(Q) $(MKKCONFIG) -m $(MENUDESC)
+	$(Q) touch .kconfig
 endif
 
-context: $(foreach SDIR, $(SUBDIRS), $(SDIR)_context)
+clean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_clean)
 
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
-
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
-
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+distclean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_distclean)
 ifneq ($(MENUDESC),)
 	$(call DELFILE, Kconfig)
+	$(call DELFILE, .kconfig)
 endif
 
 -include Make.dep

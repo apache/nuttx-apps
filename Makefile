@@ -149,7 +149,7 @@ context_serialize:
 context: context_serialize
 
 Kconfig:
-	$(foreach SDIR, $(BUILDIRS), $(call MAKE_template,$(SDIR),preconfig))
+	$(foreach SDIR, $(CONFIGDIRS), $(call MAKE_template,$(SDIR),preconfig))
 	$(Q) $(MKKCONFIG)
 
 preconfig: Kconfig
