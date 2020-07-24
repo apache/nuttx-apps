@@ -96,7 +96,7 @@ VPATH += :.
 # Targets follow
 
 all:: .built
-.PHONY: clean preconfig depend distclean
+.PHONY: clean depend distclean
 .PRECIOUS: $(BIN)
 
 define ELFASSEMBLE
@@ -194,8 +194,6 @@ endif
 install::
 
 endif # BUILD_MODULE
-
-preconfig::
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 ifneq ($(PROGNAME),)
