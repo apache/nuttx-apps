@@ -21,7 +21,7 @@ config SYSTEM_SETLOGMASK_PRIORITY
 	int "setlogmask task priority"
 	default 100
 
-config SYSTEM_SET_LOGMASK_STACKSIZE
+config SYSTEM_SETLOGMASK_STACKSIZE
 	int "setlogmask stack size"
 	default DEFAULT_TASK_STACKSIZE
 
