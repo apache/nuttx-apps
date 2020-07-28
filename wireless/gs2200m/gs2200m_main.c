@@ -846,6 +846,8 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   gs2200m_printf("%s: start (req->max_buflen=%d) \n",
                  __func__, req->max_buflen);
 
+  memset(&rmsg, 0, sizeof(rmsg));
+
   /* Check if this socket exists. */
 
   usock = gs2200m_socket_get(priv, req->usockid);
@@ -864,7 +866,6 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
       goto prepare;
     }
 
-  memset(&rmsg, 0, sizeof(rmsg));
   rmsg.buf = calloc(1, req->max_buflen);
   ASSERT(rmsg.buf);
 
@@ -953,7 +954,10 @@ err_out:
 
   gs2200m_printf("%s: *** end ret=%d \n", __func__, ret);
 
-  free(rmsg.buf);
+  if (rmsg.buf)
+    {
+      free(rmsg.buf);
+    }
 
   return ret;
 }
