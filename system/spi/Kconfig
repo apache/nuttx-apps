@@ -15,7 +15,7 @@ if SYSTEM_SPITOOL
 
 config SPITOOL_PROGNAME
 	string "Program name"
-	default "hello"
+	default "spi"
 	---help---
 		This is the name of the program that will be used when the ELF
 		program is installed.
