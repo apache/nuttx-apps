@@ -108,6 +108,7 @@ static void callback(FAR char **buffer, int offset, int datend,
 
 int main(int argc, FAR char *argv[])
 {
+#ifndef CONFIG_NSH_NETINIT
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_WGET_NOMAC)
   uint8_t mac[IFHWADDRLEN];
@@ -145,9 +146,18 @@ int main(int argc, FAR char *argv[])
    */
 
   netlib_ifup("eth0");
+#endif /* CONFIG_NSH_NETINIT */
 
   /* Then start the server */
 
-  wget(CONFIG_EXAMPLES_WGET_URL, g_iobuffer, 512, callback, NULL);
+  if (argc > 1)
+    {
+      wget(argv[1], g_iobuffer, 512, callback, NULL);
+    }
+  else
+    {
+      wget(CONFIG_EXAMPLES_WGET_URL, g_iobuffer, 512, callback, NULL);
+    }
+
   return 0;
 }

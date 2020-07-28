@@ -12,14 +12,22 @@ config EXAMPLES_WGET
 
 if EXAMPLES_WGET
 
+config EXAMPLES_WGET_STACKSIZE
+	int "wget stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		Stack size of "wget" command. If you use SSL connection,
+		you should increase this value around 8096.
+
 config EXAMPLES_WGET_URL
 	string "File URL"
 	default ""
 	---help---
-	The URL of the file to get
+		The URL of the file to get
 
 config EXAMPLES_WGET_NOMAC
 	bool "Use Canned MAC Address"
+	depends on !NSH_NETINIT
 	default n
 
 config EXAMPLES_WGET_IPADDR
