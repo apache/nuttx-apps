@@ -54,7 +54,7 @@ STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_THTTPD)
 
 VPATH += content
-ROOTDEPPATH += --dep-path content
+DEPPATH += --dep-path content
 
 content/romfs.c: build
 ifeq ($(CONFIG_THTTPD_NXFLAT),y)

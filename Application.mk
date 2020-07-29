@@ -87,10 +87,9 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINOBJ)
 endif
 
-ROOTDEPPATH += --dep-path .
-ROOTDEPPATH += $(DEPPATH)
-ROOTDEPPATH += --obj-path .
-ROOTDEPPATH += --obj-suffix $(SUFFIX)$(OBJEXT)
+DEPPATH += --dep-path .
+DEPPATH += --obj-path .
+DEPPATH += --obj-suffix $(SUFFIX)$(OBJEXT)
 
 VPATH += :.
 
@@ -226,9 +225,9 @@ endif
 
 .depend: Makefile $(wildcard $(foreach SRC, $(SRCS), $(addsuffix /$(SRC), $(subst :, ,$(VPATH))))) $(DEPCONFIG)
 ifeq ($(filter %$(CXXEXT),$(SRCS)),)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$(filter-out $(DEPCONFIG),$^)) >Make.dep
+	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out Makefile,$(filter-out $(DEPCONFIG),$^)) >Make.dep
 else
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Makefile,$(filter-out $(DEPCONFIG),$^)) >Make.dep
+	$(Q) $(MKDEP) $(DEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out Makefile,$(filter-out $(DEPCONFIG),$^)) >Make.dep
 endif
 	$(Q) touch $@
 

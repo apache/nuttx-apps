@@ -54,7 +54,7 @@ CSRCS += mod_symtab.c
 MAINSRC = module_main.c
 
 VPATH += drivers
-ROOTDEPPATH += --dep-path drivers
+DEPPATH += --dep-path drivers
 
 # Build targets
 

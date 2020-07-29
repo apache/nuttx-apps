@@ -50,7 +50,7 @@ endif
 CSRCS += sot_symtab.c
 MAINSRC = sotest_main.c
 
-ROOTDEPPATH += --dep-path lib
+DEPPATH += --dep-path lib
 
 # Build targets
 
