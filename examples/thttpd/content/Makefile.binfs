@@ -41,7 +41,7 @@ STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 CSRCS = hello.c tasks.c
 
-ROOTDEPPATH += --dep-path hello --dep-path tasks
+DEPPATH += --dep-path hello --dep-path tasks
 VPATH += :hello:tasks
 
 include $(APPDIR)/Application.mk

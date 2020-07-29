@@ -53,7 +53,7 @@ ASRCS += $(FICL_ASRCS)
 CXXSRCS += $(FICL_CXXSRCS)
 CSRCS += $(FICL_CSRCS)
 
-ROOTDEPPATH += --dep-path src
+DEPPATH += --dep-path src
 
 VPATH += :src:$(FICL_SUBDIR)
 

@@ -50,9 +50,9 @@ else
 endif
 
 VPATH       += board
-ROOTDEPPATH += --obj-path bin
-ROOTDEPPATH += --obj-suffix $(OBJEXT)
-ROOTDEPPATH += --dep-path $(PLATFORMDIR)
+DEPPATH += --obj-path bin
+DEPPATH += --obj-suffix $(OBJEXT)
+DEPPATH += --dep-path $(PLATFORMDIR)
 
 # Binaries
 
