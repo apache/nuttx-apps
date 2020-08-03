@@ -240,25 +240,20 @@ static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list)
 
 static int wapi_show_cmd(int sock, int argc, FAR char **argv)
 {
-  FAR const char *ifname = argv[0];
-  struct in_addr addr;
-
-  double freq;
-  enum wapi_freq_flag_e freq_flag;
-
+  enum wapi_bitrate_flag_e bitrate_flag;
+  enum wapi_txpower_flag_e txpower_flag;
   char essid[WAPI_ESSID_MAX_SIZE + 1];
   enum wapi_essid_flag_e essid_flag;
-
+  FAR const char *ifname = argv[0];
+  enum wapi_freq_flag_e freq_flag;
   enum wapi_mode_e mode;
-
   struct ether_addr ap;
-
+  struct in_addr addr;
+  double tmpfreq;
   int bitrate;
-  enum wapi_bitrate_flag_e bitrate_flag;
-
   int txpower;
-  enum wapi_txpower_flag_e txpower_flag;
-
+  double freq;
+  int chan;
   int ret;
 
   printf("%s Configuration:\n", ifname);
@@ -284,7 +279,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_netmask() failed: %d\n", ret);
-      return ret;
     }
   else
     {
@@ -297,13 +291,9 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_freq() failed: %d\n", ret);
-      return ret;
     }
   else
     {
-      double tmpfreq;
-      int chan;
-
       printf("Frequency: %g\n", freq);
       printf("     Flag: %s\n", g_wapi_freq_flags[freq_flag]);
 
@@ -311,7 +301,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
       if (ret < 0)
         {
           WAPI_ERROR("ERROR: wapi_freq2chan() failed: %d\n", ret);
-          return ret;
         }
       else
         {
@@ -322,7 +311,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
       if (ret < 0)
         {
           WAPI_ERROR("ERROR: wapi_chan2freq() failed: %d\n", ret);
-          return ret;
         }
       else
         {
@@ -332,11 +320,11 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
 
   /* Get the ESSID */
 
+  bzero(essid, sizeof(essid));
   ret = wapi_get_essid(sock, ifname, essid, &essid_flag);
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_essid() failed: %d\n", ret);
-      return ret;
     }
   else
     {
@@ -350,11 +338,10 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_mode() failed: %d\n", ret);
-      return ret;
     }
   else
     {
-      printf("     Mode: %s", g_wapi_modes[mode]);
+      printf("     Mode: %s\n", g_wapi_modes[mode]);
     }
 
   /* Get AP */
@@ -363,7 +350,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_ap() failed: %d\n", ret);
-      return ret;
     }
   else
     {
@@ -379,7 +365,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_bitrate() failed: %d\n", ret);
-      return ret;
     }
   else
     {
@@ -393,7 +378,6 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret < 0)
     {
       WAPI_ERROR("ERROR: wapi_get_txpower() failed: %d\n", ret);
-      return ret;
     }
   else
     {
@@ -401,7 +385,7 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
       printf("     Flag: %s\n", g_wapi_txpower_flags[txpower_flag]);
     }
 
-  return ret;
+  return 0;
 }
 
 /****************************************************************************
