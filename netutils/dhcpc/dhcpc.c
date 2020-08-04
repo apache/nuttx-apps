@@ -219,6 +219,7 @@ static FAR uint8_t *dhcpc_addend(FAR uint8_t *optptr)
 static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
                          FAR struct dhcpc_state *presult, int msgtype)
 {
+  char hostname[HOST_NAME_MAX];
   struct sockaddr_in addr;
   FAR uint8_t *pend;
   in_addr_t serverid = INADDR_BROADCAST;
@@ -241,6 +242,13 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
   pend = &pdhcpc->packet.options[4];
   pend = dhcpc_addmsgtype(pend, msgtype);
 
+  /* Get the current host name */
+
+  if (gethostname(hostname, sizeof(hostname)))
+    {
+      strncpy(hostname, CONFIG_NETUTILS_DHCPC_HOST_NAME, HOST_NAME_MAX);
+    }
+
   /* Handle the message specific settings */
 
   switch (msgtype)
@@ -254,7 +262,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
 
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
 
-        pend     = dhcpc_addhostname(CONFIG_NETUTILS_DHCPC_HOST_NAME, pend);
+        pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addreqoptions(pend);
         break;
 
@@ -267,7 +275,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
 
         pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
 
-        pend     = dhcpc_addhostname(CONFIG_NETUTILS_DHCPC_HOST_NAME, pend);
+        pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
         pend     = dhcpc_addreqipaddr(&pdhcpc->ipaddr, pend);
         break;
