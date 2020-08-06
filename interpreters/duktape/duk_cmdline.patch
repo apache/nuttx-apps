@@ -1,0 +1,12 @@
+diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modified/examples/cmdline/duk_cmdline.c
+--- duktape-2.5.0/examples/cmdline/duk_cmdline.c	2019-11-25 06:04:27.000000000 +0800
++++ duktape-2.5.0-modified/examples/cmdline/duk_cmdline.c	2020-08-06 17:03:30.630000000 +0800
+@@ -810,6 +810,8 @@
+ 
+ 		for (;;) {
+ 			int c = fgetc(stdin);
++			fputc(c, stdout);
++			fflush(stdout);
+ 			if (c == EOF) {
+ 				got_eof = 1;
+ 				break;
