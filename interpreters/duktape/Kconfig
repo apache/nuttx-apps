@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_DUKTAPE
+	tristate "Duktape JavaScript interpreter"
+	default n
+
+if INTERPRETERS_DUKTAPE
+
+config INTERPRETERS_DUKTAPE_PRIORITY
+	int "Duktape interpreter priority"
+	default 100
+
+config INTERPRETERS_DUKTAPE_STACKSIZE
+	int "Duktape interpreter stack size"
+	default 8192
+
+endif
