@@ -879,7 +879,12 @@ prepare:
         {
           char tmp = 'a' + i;
 
-          tsock->recv_avail_bytes--;
+          /* Check if MSG_PEEK flag is specified. */
+
+          if ((req->flags & MSG_PEEK) != MSG_PEEK)
+            {
+              tsock->recv_avail_bytes--;
+            }
 
           wlen = write(fd, &tmp, 1);
           if (wlen < 0)
