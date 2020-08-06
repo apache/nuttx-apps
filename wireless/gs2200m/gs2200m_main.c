@@ -853,6 +853,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   rmsg.cid = usock->cid;
   rmsg.reqlen = req->max_buflen;
   rmsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
+  rmsg.flags = req->flags;
 
   ret = ioctl(priv->gsfd, GS2200M_IOC_RECV,
               (unsigned long)&rmsg);
