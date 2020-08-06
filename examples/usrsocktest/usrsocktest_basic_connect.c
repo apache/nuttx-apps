@@ -77,7 +77,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: Setup
+ * Name: setup
  *
  * Description:
  *   Run before every testcase
@@ -93,7 +93,7 @@ static int sd;
  *
  ****************************************************************************/
 
-static void Setup(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void setup(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   dconf->endpoint_addr = "127.0.0.1";
   dconf->endpoint_port = 255;
@@ -123,7 +123,7 @@ static void Setup(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-static void Teardown(void)
+static void teardown(void)
 {
   int ret;
 
@@ -141,7 +141,7 @@ static void Teardown(void)
 }
 
 /****************************************************************************
- * Name: NotConnected
+ * Name: not_connected
  *
  * Description:
  *   Opened socket is not connected
@@ -157,13 +157,13 @@ static void Teardown(void)
  *
  ****************************************************************************/
 
-static void NotConnected(void)
+static void not_connected(void)
 {
   TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_connected_sockets());
 }
 
 /****************************************************************************
- * Name: Connect
+ * Name: basic_connect_connect
  *
  * Description:
  *   Open and connect the socket
@@ -179,7 +179,7 @@ static void NotConnected(void)
  *
  ****************************************************************************/
 
-static void Connect(void)
+static void basic_connect_connect(void)
 {
   int ret;
   struct sockaddr_in addr;
@@ -232,7 +232,7 @@ static void Connect(void)
 }
 
 /****************************************************************************
- * Name: WrongAF
+ * Name: wrong_af
  *
  * Description:
  *   Open and connect the socket with wrong AF
@@ -248,7 +248,7 @@ static void Connect(void)
  *
  ****************************************************************************/
 
-static void WrongAF(void)
+static void wrong_af(void)
 {
   int ret;
   struct sockaddr_in addr;
@@ -282,7 +282,7 @@ static void WrongAF(void)
 }
 
 /****************************************************************************
- * Name: WrongPort
+ * Name: wrong_port
  *
  * Description:
  *   Open and connect the socket with wrong port
@@ -298,7 +298,7 @@ static void WrongAF(void)
  *
  ****************************************************************************/
 
-static void WrongPort(void)
+static void wrong_port(void)
 {
   int ret;
   struct sockaddr_in addr;
@@ -332,7 +332,7 @@ static void WrongPort(void)
 }
 
 /****************************************************************************
- * Name: WrongEndpoint
+ * Name: wrong_endpoint
  *
  * Description:
  *   Open and connect the socket with wrong endpoint
@@ -348,7 +348,7 @@ static void WrongPort(void)
  *
  ****************************************************************************/
 
-static void WrongEndpoint(void)
+static void wrong_endpoint(void)
 {
   int ret;
   struct sockaddr_in addr;
@@ -391,97 +391,97 @@ static void WrongEndpoint(void)
   TEST_ASSERT_EQUAL(0, usrsocktest_dcmd_malloc_cnt);
 }
 
-TEST_SETUP(BasicConnect)
+TEST_SETUP(basic_connect)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  Setup(&usrsocktest_daemon_config);
+  setup(&usrsocktest_daemon_config);
 }
 
-TEST_TEAR_DOWN(BasicConnect)
+TEST_TEAR_DOWN(basic_connect)
 {
-  Teardown();
+  teardown();
 }
 
-TEST(BasicConnect, NotConnected)
+TEST(basic_connect, not_connected)
 {
-  NotConnected();
+  not_connected();
 }
 
-TEST(BasicConnect, Connect)
+TEST(basic_connect, basic_connect_connect)
 {
-  Connect();
+  basic_connect_connect();
 }
 
-TEST(BasicConnect, WrongAF)
+TEST(basic_connect, wrong_af)
 {
-  WrongAF();
+  wrong_af();
 }
 
-TEST(BasicConnect, WrongPort)
+TEST(basic_connect, wrong_port)
 {
-  WrongPort();
+  wrong_port();
 }
 
-TEST(BasicConnect, WrongEndpoint)
+TEST(basic_connect, wrong_endpoint)
 {
-  WrongEndpoint();
+  wrong_endpoint();
 }
 
-TEST_SETUP(BasicConnectDelay)
+TEST_SETUP(basic_connect_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  Setup(&usrsocktest_daemon_config);
+  setup(&usrsocktest_daemon_config);
 }
 
-TEST_TEAR_DOWN(BasicConnectDelay)
+TEST_TEAR_DOWN(basic_connect_delay)
 {
-  Teardown();
+  teardown();
 }
 
-TEST(BasicConnectDelay, NotConnected)
+TEST(basic_connect_delay, not_connected)
 {
-  NotConnected();
+  not_connected();
 }
 
-TEST(BasicConnectDelay, Connect)
+TEST(basic_connect_delay, basic_connect_connect)
 {
-  Connect();
+  basic_connect_connect();
 }
 
-TEST(BasicConnectDelay, WrongAF)
+TEST(basic_connect_delay, wrong_af)
 {
-  WrongAF();
+  wrong_af();
 }
 
-TEST(BasicConnectDelay, WrongPort)
+TEST(basic_connect_delay, wrong_port)
 {
-  WrongPort();
+  wrong_port();
 }
 
-TEST(BasicConnectDelay, WrongEndpoint)
+TEST(basic_connect_delay, wrong_endpoint)
 {
-  WrongEndpoint();
+  wrong_endpoint();
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(BasicConnect)
+TEST_GROUP(basic_connect)
 {
-  RUN_TEST_CASE(BasicConnect, NotConnected);
-  RUN_TEST_CASE(BasicConnect, Connect);
-  RUN_TEST_CASE(BasicConnect, WrongAF);
-  RUN_TEST_CASE(BasicConnect, WrongPort);
-  RUN_TEST_CASE(BasicConnect, WrongEndpoint);
+  RUN_TEST_CASE(basic_connect, not_connected);
+  RUN_TEST_CASE(basic_connect, basic_connect_connect);
+  RUN_TEST_CASE(basic_connect, wrong_af);
+  RUN_TEST_CASE(basic_connect, wrong_port);
+  RUN_TEST_CASE(basic_connect, wrong_endpoint);
 }
 
-TEST_GROUP(BasicConnectDelay)
+TEST_GROUP(basic_connect_delay)
 {
-  RUN_TEST_CASE(BasicConnectDelay, NotConnected);
-  RUN_TEST_CASE(BasicConnectDelay, Connect);
-  RUN_TEST_CASE(BasicConnectDelay, WrongAF);
-  RUN_TEST_CASE(BasicConnectDelay, WrongPort);
-  RUN_TEST_CASE(BasicConnectDelay, WrongEndpoint);
+  RUN_TEST_CASE(basic_connect_delay, not_connected);
+  RUN_TEST_CASE(basic_connect_delay, basic_connect_connect);
+  RUN_TEST_CASE(basic_connect_delay, wrong_af);
+  RUN_TEST_CASE(basic_connect_delay, wrong_port);
+  RUN_TEST_CASE(basic_connect_delay, wrong_endpoint);
 }

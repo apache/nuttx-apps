@@ -78,7 +78,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: Open
+ * Name: basic_getsockname_open
  *
  * Description:
  *   Open and get socket options
@@ -94,7 +94,8 @@ static int sd;
  *
  ****************************************************************************/
 
-static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
+static
+void basic_getsockname_open(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   int ret;
   socklen_t addrlen;
@@ -209,7 +210,7 @@ static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: BasicGetSockName test group setup
+ * Name: basic_getsockname test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -225,14 +226,14 @@ static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-TEST_SETUP(BasicGetSockName)
+TEST_SETUP(basic_getsockname)
 {
   sd = -1;
   started = false;
 }
 
 /****************************************************************************
- * Name: BasicGetSockName test group teardown
+ * Name: basic_getsockname test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -248,7 +249,7 @@ TEST_SETUP(BasicGetSockName)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(BasicGetSockName)
+TEST_TEAR_DOWN(basic_getsockname)
 {
   int ret;
   if (sd >= 0)
@@ -256,6 +257,7 @@ TEST_TEAR_DOWN(BasicGetSockName)
       ret = close(sd);
       assert(ret >= 0);
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -263,25 +265,25 @@ TEST_TEAR_DOWN(BasicGetSockName)
     }
 }
 
-TEST(BasicGetSockName, Open)
+TEST(basic_getsockname, basic_getsockname_open)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  Open(&usrsocktest_daemon_config);
+  basic_getsockname_open(&usrsocktest_daemon_config);
 }
 
-TEST(BasicGetSockName, OpenDelay)
+TEST(basic_getsockname, basic_getsockname_open_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  Open(&usrsocktest_daemon_config);
+  basic_getsockname_open(&usrsocktest_daemon_config);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(BasicGetSockName)
+TEST_GROUP(basic_getsockname)
 {
-  RUN_TEST_CASE(BasicGetSockName, Open);
-  RUN_TEST_CASE(BasicGetSockName, OpenDelay);
+  RUN_TEST_CASE(basic_getsockname, basic_getsockname_open);
+  RUN_TEST_CASE(basic_getsockname, basic_getsockname_open_delay);
 }

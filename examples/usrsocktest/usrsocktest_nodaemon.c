@@ -71,7 +71,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: NoDaemon test group setup
+ * Name: no_daemon test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -87,13 +87,13 @@ static int sd;
  *
  ****************************************************************************/
 
-TEST_SETUP(NoDaemon)
+TEST_SETUP(no_daemon)
 {
   sd = -1;
 }
 
 /****************************************************************************
- * Name: NoDaemon test group teardown
+ * Name: no_daemon test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -109,7 +109,7 @@ TEST_SETUP(NoDaemon)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(NoDaemon)
+TEST_TEAR_DOWN(no_daemon)
 {
   int ret;
 
@@ -121,7 +121,7 @@ TEST_TEAR_DOWN(NoDaemon)
 }
 
 /****************************************************************************
- * Name: NoSocket
+ * Name: no_socket
  *
  * Description:
  *   Simple test for opening socket without usrsock daemon running
@@ -137,18 +137,19 @@ TEST_TEAR_DOWN(NoDaemon)
  *
  ****************************************************************************/
 
-TEST(NoDaemon, NoSocket)
+TEST(no_daemon, no_socket)
 {
   sd = socket(AF_INET, SOCK_STREAM, 0);
   TEST_ASSERT_EQUAL(-1, sd);
-  TEST_ASSERT_TRUE(errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT || errno == ENETDOWN);
+  TEST_ASSERT_TRUE(errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT ||
+                   errno == ENETDOWN);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(NoDaemon)
+TEST_GROUP(no_daemon)
 {
-  RUN_TEST_CASE(NoDaemon, NoSocket);
+  RUN_TEST_CASE(no_daemon, no_socket);
 }

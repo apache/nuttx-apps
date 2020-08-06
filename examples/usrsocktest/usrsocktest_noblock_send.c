@@ -79,7 +79,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: Send
+ * Name: _send
  *
  * Description:
  *   Open socket, connect instantly and send
@@ -95,7 +95,7 @@ static int sd;
  *
  ****************************************************************************/
 
-static void Send(struct usrsocktest_daemon_conf_s *dconf)
+static void _send(struct usrsocktest_daemon_conf_s *dconf)
 {
   int flags;
   int count;
@@ -144,7 +144,8 @@ static void Send(struct usrsocktest_daemon_conf_s *dconf)
       TEST_ASSERT_EQUAL(0, ret);
       TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
       TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
-      TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_waiting_connect_sockets());
+      TEST_ASSERT_EQUAL(0,
+                      usrsocktest_daemon_get_num_waiting_connect_sockets());
     }
   else
     {
@@ -152,7 +153,8 @@ static void Send(struct usrsocktest_daemon_conf_s *dconf)
       TEST_ASSERT_EQUAL(EINPROGRESS, errno);
       TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
       TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_connected_sockets());
-      TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_waiting_connect_sockets());
+      TEST_ASSERT_EQUAL(0,
+                      usrsocktest_daemon_get_num_waiting_connect_sockets());
 
       for (count = 0; usrsocktest_daemon_get_num_connected_sockets() != 1;
            count++)
@@ -196,7 +198,7 @@ static void Send(struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: ConnectSend
+ * Name: connect_send
  *
  * Description:
  *   Open socket, connect is delayed and send
@@ -212,7 +214,7 @@ static void Send(struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-static void ConnectSend(struct usrsocktest_daemon_conf_s *dconf)
+static void connect_send(struct usrsocktest_daemon_conf_s *dconf)
 {
   int flags;
   int count;
@@ -252,7 +254,9 @@ static void ConnectSend(struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
-  /* Launch connect attempt, daemon delays actual connection until triggered. */
+  /* Launch connect attempt, daemon delays actual connection until
+   * triggered.
+   */
 
   inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr.s_addr);
   addr.sin_family = AF_INET;
@@ -285,6 +289,7 @@ static void ConnectSend(struct usrsocktest_daemon_conf_s *dconf)
       TEST_ASSERT_TRUE(count <= 5);
       usleep(10 * 1000);
     }
+
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
   TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_waiting_connect_sockets());
@@ -321,7 +326,7 @@ static void ConnectSend(struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: NoBlockSend test group setup
+ * Name: no_block_send test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -337,14 +342,14 @@ static void ConnectSend(struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-TEST_SETUP(NoBlockSend)
+TEST_SETUP(no_block_send)
 {
   sd = -1;
   started = false;
 }
 
 /****************************************************************************
- * Name: NoBlockSend test group teardown
+ * Name: no_block_send test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -360,7 +365,7 @@ TEST_SETUP(NoBlockSend)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(NoBlockSend)
+TEST_TEAR_DOWN(no_block_send)
 {
   int ret;
   if (sd >= 0)
@@ -368,6 +373,7 @@ TEST_TEAR_DOWN(NoBlockSend)
       ret = close(sd);
       assert(ret >= 0);
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -375,40 +381,40 @@ TEST_TEAR_DOWN(NoBlockSend)
     }
 }
 
-TEST(NoBlockSend, Send)
+TEST(no_block_send, _send)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  Send(&usrsocktest_daemon_config);
+  _send(&usrsocktest_daemon_config);
 }
 
-TEST(NoBlockSend, SendDelay)
+TEST(no_block_send, _send_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  Send(&usrsocktest_daemon_config);
+  _send(&usrsocktest_daemon_config);
 }
 
-TEST(NoBlockSend, ConnectSend)
+TEST(no_block_send, connect_send)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  ConnectSend(&usrsocktest_daemon_config);
+  connect_send(&usrsocktest_daemon_config);
 }
 
-TEST(NoBlockSend, ConnectSendDelay)
+TEST(no_block_send, connect_send_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  ConnectSend(&usrsocktest_daemon_config);
+  connect_send(&usrsocktest_daemon_config);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(NoBlockSend)
+TEST_GROUP(no_block_send)
 {
-  RUN_TEST_CASE(NoBlockSend, Send);
-  RUN_TEST_CASE(NoBlockSend, SendDelay);
-  RUN_TEST_CASE(NoBlockSend, ConnectSend);
-  RUN_TEST_CASE(NoBlockSend, ConnectSendDelay);
+  RUN_TEST_CASE(no_block_send, _send);
+  RUN_TEST_CASE(no_block_send, _send_delay);
+  RUN_TEST_CASE(no_block_send, connect_send);
+  RUN_TEST_CASE(no_block_send, connect_send_delay);
 }

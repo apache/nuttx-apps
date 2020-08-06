@@ -77,7 +77,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: Open
+ * Name: basic_setsockopt_open
  *
  * Description:
  *   Open and set socket options
@@ -93,7 +93,8 @@ static int sd;
  *
  ****************************************************************************/
 
-static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
+static
+void basic_setsockopt_open(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   int ret;
   int value;
@@ -156,7 +157,7 @@ static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: BasicSetSockOpt test group setup
+ * Name: basic_setsockopt test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -172,14 +173,14 @@ static void Open(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-TEST_SETUP(BasicSetSockOpt)
+TEST_SETUP(basic_setsockopt)
 {
   sd = -1;
   started = false;
 }
 
 /****************************************************************************
- * Name: BasicSetSockOpt test group teardown
+ * Name: basic_setsockopt test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -195,7 +196,7 @@ TEST_SETUP(BasicSetSockOpt)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(BasicSetSockOpt)
+TEST_TEAR_DOWN(basic_setsockopt)
 {
   int ret;
   if (sd >= 0)
@@ -203,6 +204,7 @@ TEST_TEAR_DOWN(BasicSetSockOpt)
       ret = close(sd);
       assert(ret >= 0);
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -210,25 +212,25 @@ TEST_TEAR_DOWN(BasicSetSockOpt)
     }
 }
 
-TEST(BasicSetSockOpt, Open)
+TEST(basic_setsockopt, basic_setsockopt_open)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  Open(&usrsocktest_daemon_config);
+  basic_setsockopt_open(&usrsocktest_daemon_config);
 }
 
-TEST(BasicSetSockOpt, OpenDelay)
+TEST(basic_setsockopt, basic_setsockopt_open_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  Open(&usrsocktest_daemon_config);
+  basic_setsockopt_open(&usrsocktest_daemon_config);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(BasicSetSockOpt)
+TEST_GROUP(basic_setsockopt)
 {
-  RUN_TEST_CASE(BasicSetSockOpt, Open);
-  RUN_TEST_CASE(BasicSetSockOpt, OpenDelay);
+  RUN_TEST_CASE(basic_setsockopt, basic_setsockopt_open);
+  RUN_TEST_CASE(basic_setsockopt, basic_setsockopt_open_delay);
 }

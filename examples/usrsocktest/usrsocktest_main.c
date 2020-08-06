@@ -163,23 +163,23 @@ static void run_tests(FAR const char *name, void (CODE *test_fn)(void))
 
 static void run_all_tests(void)
 {
-  RUN_TEST_GROUP(CharDev);
-  RUN_TEST_GROUP(NoDaemon);
-  RUN_TEST_GROUP(BasicDaemon);
-  RUN_TEST_GROUP(BasicConnect);
-  RUN_TEST_GROUP(BasicConnectDelay);
-  RUN_TEST_GROUP(NoBlockConnect);
-  RUN_TEST_GROUP(BasicSend);
-  RUN_TEST_GROUP(NoBlockSend);
-  RUN_TEST_GROUP(BlockSend);
-  RUN_TEST_GROUP(NoBlockRecv);
-  RUN_TEST_GROUP(BlockRecv);
-  RUN_TEST_GROUP(RemoteDisconnect);
-  RUN_TEST_GROUP(BasicSetSockOpt);
-  RUN_TEST_GROUP(BasicGetSockOpt);
-  RUN_TEST_GROUP(BasicGetSockName);
-  RUN_TEST_GROUP(WakeWithSignal);
-  RUN_TEST_GROUP(MultiThread);
+  RUN_TEST_GROUP(char_dev);
+  RUN_TEST_GROUP(no_daemon);
+  RUN_TEST_GROUP(basic_daemon);
+  RUN_TEST_GROUP(basic_connect);
+  RUN_TEST_GROUP(basic_connect_delay);
+  RUN_TEST_GROUP(no_block_connect);
+  RUN_TEST_GROUP(basic_send);
+  RUN_TEST_GROUP(no_block_send);
+  RUN_TEST_GROUP(block_send);
+  RUN_TEST_GROUP(no_block_recv);
+  RUN_TEST_GROUP(block_recv);
+  RUN_TEST_GROUP(remote_disconnect);
+  RUN_TEST_GROUP(basic_setsockopt);
+  RUN_TEST_GROUP(basic_getsockopt);
+  RUN_TEST_GROUP(basic_getsockname);
+  RUN_TEST_GROUP(wake_with_signal);
+  RUN_TEST_GROUP(multithread);
 }
 
 /****************************************************************************

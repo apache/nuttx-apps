@@ -72,7 +72,7 @@ static int us_fd_two;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: CharDev test group setup
+ * Name: char_dev test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -88,14 +88,14 @@ static int us_fd_two;
  *
  ****************************************************************************/
 
-TEST_SETUP(CharDev)
+TEST_SETUP(char_dev)
 {
   us_fd = -1;
   us_fd_two = -1;
 }
 
 /****************************************************************************
- * Name: CharDev test group teardown
+ * Name: char_dev test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -111,7 +111,7 @@ TEST_SETUP(CharDev)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(CharDev)
+TEST_TEAR_DOWN(char_dev)
 {
   int ret;
 
@@ -120,6 +120,7 @@ TEST_TEAR_DOWN(CharDev)
       ret = close(us_fd);
       assert(ret >= 0);
     }
+
   if (us_fd_two >= 0)
     {
       ret = close(us_fd_two);
@@ -128,7 +129,7 @@ TEST_TEAR_DOWN(CharDev)
 }
 
 /****************************************************************************
- * Name: OpenRw
+ * Name: open_rw
  *
  * Description:
  *   Simple test for opening and closing usrsock node
@@ -144,7 +145,7 @@ TEST_TEAR_DOWN(CharDev)
  *
  ****************************************************************************/
 
-TEST(CharDev, OpenRw)
+TEST(char_dev, open_rw)
 {
   int ret;
 
@@ -157,7 +158,7 @@ TEST(CharDev, OpenRw)
 }
 
 /****************************************************************************
- * Name: ReopenRw
+ * Name: reopen_rw
  *
  * Description:
  *   Repeated simple test for opening and closing usrsock node, reopen should
@@ -174,7 +175,7 @@ TEST(CharDev, OpenRw)
  *
  ****************************************************************************/
 
-TEST(CharDev, ReopenRw)
+TEST(char_dev, reopen_rw)
 {
   int ret;
 
@@ -194,7 +195,7 @@ TEST(CharDev, ReopenRw)
 }
 
 /****************************************************************************
- * Name: NoMultipleOpen
+ * Name: no_multiple_open
  *
  * Description:
  *   No permission for multiple access,
@@ -211,7 +212,7 @@ TEST(CharDev, ReopenRw)
  *
  ****************************************************************************/
 
-TEST(CharDev, NoMultipleOpen)
+TEST(char_dev, no_multiple_open)
 {
   us_fd = open(USRSOCK_NODE, O_RDWR);
   TEST_ASSERT_TRUE(us_fd >= 0);
@@ -225,9 +226,9 @@ TEST(CharDev, NoMultipleOpen)
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(CharDev)
+TEST_GROUP(char_dev)
 {
-  RUN_TEST_CASE(CharDev, OpenRw);
-  RUN_TEST_CASE(CharDev, ReopenRw);
-  RUN_TEST_CASE(CharDev, NoMultipleOpen);
+  RUN_TEST_CASE(char_dev, open_rw);
+  RUN_TEST_CASE(char_dev, reopen_rw);
+  RUN_TEST_CASE(char_dev, no_multiple_open);
 }
