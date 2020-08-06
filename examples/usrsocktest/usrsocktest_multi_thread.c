@@ -106,12 +106,12 @@ static void usrsock_socket_multitask_do_work(int *sd)
 
 static FAR void *usrsock_socket_multitask_thread(FAR void *param)
 {
-  usrsock_socket_multitask_do_work((int*)param);
+  usrsock_socket_multitask_do_work((int *)param);
   return NULL;
 }
 
 /****************************************************************************
- * Name: MultiThread test group setup
+ * Name: multithread test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -127,22 +127,25 @@ static FAR void *usrsock_socket_multitask_thread(FAR void *param)
  *
  ****************************************************************************/
 
-TEST_SETUP(MultiThread)
+TEST_SETUP(multithread)
 {
   int i;
+
   for (i = 0; i < ARRAY_SIZE(sds); i++)
     {
       sds[i] = -1;
     }
+
   for (i = 0; i < ARRAY_SIZE(tids); i++)
     {
       tids[i] = -1;
     }
+
   started = false;
 }
 
 /****************************************************************************
- * Name: MultiThread test group teardown
+ * Name: multithread test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -158,7 +161,7 @@ TEST_SETUP(MultiThread)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(MultiThread)
+TEST_TEAR_DOWN(multithread)
 {
   int ret;
   int i;
@@ -173,6 +176,7 @@ TEST_TEAR_DOWN(MultiThread)
           assert(ret == OK);
         }
     }
+
   for (i = 0; i < ARRAY_SIZE(sds); i++)
     {
       if (sds[i] != -1)
@@ -181,6 +185,7 @@ TEST_TEAR_DOWN(MultiThread)
           assert(ret >= 0);
         }
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -189,7 +194,7 @@ TEST_TEAR_DOWN(MultiThread)
 }
 
 /****************************************************************************
- * Name: OpenClose
+ * Name: open_close
  *
  * Description:
  *   Open and close socket with multiple threads
@@ -205,7 +210,7 @@ TEST_TEAR_DOWN(MultiThread)
  *
  ****************************************************************************/
 
-TEST(MultiThread, OpenClose)
+TEST(multithread, open_close)
 {
   int ret;
   int i;
@@ -218,7 +223,8 @@ TEST(MultiThread, OpenClose)
   usrsocktest_daemon_config.endpoint_block_connect = false;
   usrsocktest_daemon_config.endpoint_addr = "127.0.0.1";
   usrsocktest_daemon_config.endpoint_port = 255;
-  TEST_ASSERT_EQUAL(OK, usrsocktest_daemon_start(&usrsocktest_daemon_config));
+  TEST_ASSERT_EQUAL(OK,
+                    usrsocktest_daemon_start(&usrsocktest_daemon_config));
   TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_active_sockets());
 
   /* Launch worker threads. */
@@ -260,7 +266,7 @@ TEST(MultiThread, OpenClose)
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(MultiThread)
+TEST_GROUP(multithread)
 {
-  RUN_TEST_CASE(MultiThread, OpenClose);
+  RUN_TEST_CASE(multithread, open_close);
 }

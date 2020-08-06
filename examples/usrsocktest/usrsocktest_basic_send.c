@@ -78,7 +78,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: Send
+ * Name: basic_send_send
  *
  * Description:
  *   Open socket and send
@@ -94,7 +94,7 @@ static int sd;
  *
  ****************************************************************************/
 
-static void Send(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void basic_send_send(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   struct sockaddr_in addr;
   ssize_t ret;
@@ -183,11 +183,10 @@ static void Send(FAR struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(-ENODEV, usrsocktest_daemon_get_send_bytes());
   TEST_ASSERT_EQUAL(0, usrsocktest_endp_malloc_cnt);
   TEST_ASSERT_EQUAL(0, usrsocktest_dcmd_malloc_cnt);
-
 }
 
 /****************************************************************************
- * Name: ConnectSend
+ * Name: connect_send
  *
  * Description:
  *   Send over connected socket
@@ -202,7 +201,8 @@ static void Send(FAR struct usrsocktest_daemon_conf_s *dconf)
  *   None
  *
  ****************************************************************************/
-static void ConnectSend(FAR struct usrsocktest_daemon_conf_s *dconf)
+
+static void connect_send(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   struct sockaddr_in addr;
   ssize_t ret;
@@ -266,7 +266,7 @@ static void ConnectSend(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: BasicSend test group setup
+ * Name: basic_send test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -282,14 +282,14 @@ static void ConnectSend(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-TEST_SETUP(BasicSend)
+TEST_SETUP(basic_send)
 {
   sd = -1;
   started = false;
 }
 
 /****************************************************************************
- * Name: BasicSend test group teardown
+ * Name: basic_send test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -305,7 +305,7 @@ TEST_SETUP(BasicSend)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(BasicSend)
+TEST_TEAR_DOWN(basic_send)
 {
   int ret;
   if (sd >= 0)
@@ -313,6 +313,7 @@ TEST_TEAR_DOWN(BasicSend)
       ret = close(sd);
       assert(ret >= 0);
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -320,40 +321,40 @@ TEST_TEAR_DOWN(BasicSend)
     }
 }
 
-TEST(BasicSend, Send)
+TEST(basic_send, basic_send_send)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  Send(&usrsocktest_daemon_config);
+  basic_send_send(&usrsocktest_daemon_config);
 }
 
-TEST(BasicSend, SendDelay)
+TEST(basic_send, basic_send_send_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  Send(&usrsocktest_daemon_config);
+  basic_send_send(&usrsocktest_daemon_config);
 }
 
-TEST(BasicSend, ConnectSend)
+TEST(basic_send, connect_send)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  ConnectSend(&usrsocktest_daemon_config);
+  connect_send(&usrsocktest_daemon_config);
 }
 
-TEST(BasicSend, ConnectSendDelay)
+TEST(basic_send, connect_send_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  ConnectSend(&usrsocktest_daemon_config);
+  connect_send(&usrsocktest_daemon_config);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(BasicSend)
+TEST_GROUP(basic_send)
 {
-  RUN_TEST_CASE(BasicSend, Send);
-  RUN_TEST_CASE(BasicSend, SendDelay);
-  RUN_TEST_CASE(BasicSend, ConnectSend);
-  RUN_TEST_CASE(BasicSend, ConnectSendDelay);
+  RUN_TEST_CASE(basic_send, basic_send_send);
+  RUN_TEST_CASE(basic_send, basic_send_send_delay);
+  RUN_TEST_CASE(basic_send, connect_send);
+  RUN_TEST_CASE(basic_send, connect_send_delay);
 }

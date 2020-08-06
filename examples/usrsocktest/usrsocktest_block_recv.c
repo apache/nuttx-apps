@@ -79,7 +79,7 @@ static int sd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ConnectReceive
+ * Name: connect_receive
  *
  * Description:
  *   Blocking connect and receive
@@ -95,7 +95,7 @@ static int sd;
  *
  ****************************************************************************/
 
-static void ConnectReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void connect_receive(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   ssize_t ret;
   size_t datalen;
@@ -181,7 +181,7 @@ static void ConnectReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: NoBlockConnect
+ * Name: no_block_connect
  *
  * Description:
  *   Non-blocking connect and blocking receive
@@ -197,7 +197,7 @@ static void ConnectReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-static void NoBlockConnect(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void no_block_connect(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   ssize_t ret;
   size_t datalen;
@@ -308,7 +308,7 @@ static void NoBlockConnect(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: ReceiveTimeout
+ * Name: receive_timeout
  *
  * Description:
  *   Blocking connect and receive with SO_RCVTIMEO
@@ -324,7 +324,7 @@ static void NoBlockConnect(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-static void ReceiveTimeout(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void receive_timeout(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   ssize_t ret;
   size_t datalen;
@@ -404,9 +404,8 @@ static void ReceiveTimeout(FAR struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(0, usrsocktest_dcmd_malloc_cnt);
 }
 
-
 /****************************************************************************
- * Name: PeekReceive
+ * Name: peek_receive
  *
  * Description:
  *   Blocking connect and receive with MSG_PEEK flag
@@ -422,7 +421,7 @@ static void ReceiveTimeout(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-static void PeekReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
+static void peek_receive(FAR struct usrsocktest_daemon_conf_s *dconf)
 {
   ssize_t ret;
   size_t datalen;
@@ -533,7 +532,7 @@ static void PeekReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
 }
 
 /****************************************************************************
- * Name: BlockRecv test group setup
+ * Name: block_recv test group setup
  *
  * Description:
  *   Setup function executed before each testcase in this test group
@@ -549,14 +548,14 @@ static void PeekReceive(FAR struct usrsocktest_daemon_conf_s *dconf)
  *
  ****************************************************************************/
 
-TEST_SETUP(BlockRecv)
+TEST_SETUP(block_recv)
 {
   sd = -1;
   started = false;
 }
 
 /****************************************************************************
- * Name: BlockRecv test group teardown
+ * Name: block_recv test group teardown
  *
  * Description:
  *   Setup function executed after each testcase in this test group
@@ -572,14 +571,16 @@ TEST_SETUP(BlockRecv)
  *
  ****************************************************************************/
 
-TEST_TEAR_DOWN(BlockRecv)
+TEST_TEAR_DOWN(block_recv)
 {
   int ret;
+
   if (sd >= 0)
     {
       ret = close(sd);
       assert(ret >= 0);
     }
+
   if (started)
     {
       ret = usrsocktest_daemon_stop();
@@ -587,70 +588,70 @@ TEST_TEAR_DOWN(BlockRecv)
     }
 }
 
-TEST(BlockRecv, ConnectReceive)
+TEST(block_recv, connect_receive)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  ConnectReceive(&usrsocktest_daemon_config);
+  connect_receive(&usrsocktest_daemon_config);
 }
 
-TEST(BlockRecv, ConnectReceiveDelay)
+TEST(block_recv, connect_receive_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  ConnectReceive(&usrsocktest_daemon_config);
+  connect_receive(&usrsocktest_daemon_config);
 }
 
-TEST(BlockRecv, NoBlockConnect)
+TEST(block_recv, no_block_connect)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  NoBlockConnect(&usrsocktest_daemon_config);
+  no_block_connect(&usrsocktest_daemon_config);
 }
 
-TEST(BlockRecv, NoBlockConnectDelay)
-{
-  usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  usrsocktest_daemon_config.delay_all_responses = true;
-  NoBlockConnect(&usrsocktest_daemon_config);
-}
-
-TEST(BlockRecv, ReceiveTimeout)
-{
-  usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  ReceiveTimeout(&usrsocktest_daemon_config);
-}
-
-TEST(BlockRecv, ReceiveTimeoutDelay)
+TEST(block_recv, no_block_connect_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  ReceiveTimeout(&usrsocktest_daemon_config);
+  no_block_connect(&usrsocktest_daemon_config);
 }
 
-TEST(BlockRecv, PeekReceive)
+TEST(block_recv, receive_timeout)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
-  PeekReceive(&usrsocktest_daemon_config);
+  receive_timeout(&usrsocktest_daemon_config);
 }
 
-TEST(BlockRecv, PeekReceiveDelay)
+TEST(block_recv, receive_timeout_delay)
 {
   usrsocktest_daemon_config = usrsocktest_daemon_defconf;
   usrsocktest_daemon_config.delay_all_responses = true;
-  PeekReceive(&usrsocktest_daemon_config);
+  receive_timeout(&usrsocktest_daemon_config);
+}
+
+TEST(block_recv, peek_receive)
+{
+  usrsocktest_daemon_config = usrsocktest_daemon_defconf;
+  peek_receive(&usrsocktest_daemon_config);
+}
+
+TEST(block_recv, peek_receive_delay)
+{
+  usrsocktest_daemon_config = usrsocktest_daemon_defconf;
+  usrsocktest_daemon_config.delay_all_responses = true;
+  peek_receive(&usrsocktest_daemon_config);
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-TEST_GROUP(BlockRecv)
+TEST_GROUP(block_recv)
 {
-  RUN_TEST_CASE(BlockRecv, ConnectReceive);
-  RUN_TEST_CASE(BlockRecv, ConnectReceiveDelay);
-  RUN_TEST_CASE(BlockRecv, NoBlockConnect);
-  RUN_TEST_CASE(BlockRecv, NoBlockConnectDelay);
-  RUN_TEST_CASE(BlockRecv, ReceiveTimeout);
-  RUN_TEST_CASE(BlockRecv, ReceiveTimeoutDelay);
-  RUN_TEST_CASE(BlockRecv, PeekReceive);
-  RUN_TEST_CASE(BlockRecv, PeekReceiveDelay);
+  RUN_TEST_CASE(block_recv, connect_receive);
+  RUN_TEST_CASE(block_recv, connect_receive_delay);
+  RUN_TEST_CASE(block_recv, no_block_connect);
+  RUN_TEST_CASE(block_recv, no_block_connect_delay);
+  RUN_TEST_CASE(block_recv, receive_timeout);
+  RUN_TEST_CASE(block_recv, receive_timeout_delay);
+  RUN_TEST_CASE(block_recv, peek_receive);
+  RUN_TEST_CASE(block_recv, peek_receive_delay);
 }
