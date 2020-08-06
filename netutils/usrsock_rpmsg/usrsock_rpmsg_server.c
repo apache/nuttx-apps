@@ -348,7 +348,8 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
     {
       ret = psock_sendto(&priv->socks[req->usockid],
-              (const void *)(req + 1) + req->addrlen, req->buflen, 0,
+              (const void *)(req + 1) + req->addrlen, req->buflen,
+              req->flags,
               req->addrlen ? (const struct sockaddr *)(req + 1) : NULL,
               req->addrlen);
     }
@@ -395,7 +396,7 @@ static int usrsock_rpmsg_recvfrom_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 && req->usockid < CONFIG_NSOCKET_DESCRIPTORS)
     {
       ret = psock_recvfrom(&priv->socks[req->usockid],
-              (void *)(ack + 1) + inaddrlen, buflen, 0,
+              (void *)(ack + 1) + inaddrlen, buflen, req->flags,
               outaddrlen ? (struct sockaddr *)(ack + 1) : NULL,
               outaddrlen ? &outaddrlen : NULL);
       if (ret > 0 && outaddrlen < inaddrlen)
