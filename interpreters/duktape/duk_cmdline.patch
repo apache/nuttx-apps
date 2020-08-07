@@ -1,6 +1,6 @@
-diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modified/examples/cmdline/duk_cmdline.c
+diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c
 --- duktape-2.5.0/examples/cmdline/duk_cmdline.c	2019-11-25 06:04:27.000000000 +0800
-+++ duktape-2.5.0-modified/examples/cmdline/duk_cmdline.c	2020-08-06 17:03:30.630000000 +0800
++++ duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c	2020-08-07 23:20:27.320000000 +0800
 @@ -810,6 +810,8 @@
  
  		for (;;) {
@@ -10,3 +10,14 @@ diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modi
  			if (c == EOF) {
  				got_eof = 1;
  				break;
+
+diff --color -ur duktape-2.5.0/src-noline/duk_config.h duktape-2.5.0-modifed/src-noline/duk_config.h
+--- duktape-2.5.0/src-noline/duk_config.h	2019-11-25 06:04:27.000000000 +0800
++++ duktape-2.5.0-modifed/src-noline/duk_config.h	2020-08-07 23:14:55.880000000 +0800
+@@ -746,7 +746,7 @@
+ 
+ #define DUK_USE_DATE_NOW_GETTIMEOFDAY
+ #define DUK_USE_DATE_TZO_GMTIME_R
+-#define DUK_USE_DATE_PRS_STRPTIME
++#undef DUK_USE_DATE_PRS_STRPTIME
+ #define DUK_USE_DATE_FMT_STRFTIME
