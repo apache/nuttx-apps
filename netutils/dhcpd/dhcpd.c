@@ -1730,7 +1730,7 @@ int dhcpd_stop(void)
           if (ret < 0)
             {
               nerr("ERROR: kill pid %d failed: %d\n",
-                   g_dhcpd_daemon.pid, errno);
+                   g_dhcpd_daemon.ds_pid, errno);
               break;
             }
 
