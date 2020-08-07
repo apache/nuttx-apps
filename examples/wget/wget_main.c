@@ -53,7 +53,8 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
-/* Configuration Checks ******************************************************/
+/* Configuration Checks *****************************************************/
+
 /* BEWARE:
  * There are other configuration settings needed in netutitls/wget/wgetc.s,
  * but there are default values for those so we cannot check them here.
@@ -88,6 +89,7 @@ static char g_iobuffer[512];
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
 /****************************************************************************
  * Name: callback
  ****************************************************************************/
@@ -114,7 +116,7 @@ int main(int argc, FAR char *argv[])
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_WGET_NOMAC
   mac[0] = 0x00;

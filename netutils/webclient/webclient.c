@@ -666,9 +666,10 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
               nerr("ERROR: send failed: %d\n", errno);
               goto errout;
             }
+
           len -= ret;
         }
-      while(len > 0);
+      while (len > 0);
 
       /* Now loop to get the file sent in response to the GET.  This
        * loop continues until either we read the end of file (nbytes == 0)
