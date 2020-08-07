@@ -1,0 +1,123 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIBUV
+	bool "libuv asynchronous I/O Library"
+	default n
+	---help---
+		Enable build for libuv asynchronous I/O Library
+
+if LIBUV
+
+config LIBUV_NPOLLWAITERS
+	int "Number of uv loop poll waiters"
+	default 8
+	---help---
+		Maximum number of events a loop can wait on.
+
+config LIBUV_ASYNC
+	bool "libuv async support"
+	default n
+	select EVENT_FD
+	select EVENT_FD_POLL
+	---help---
+		Enable async support in libuv.
+		Eventfd is required for this feature.
+
+config LIBUV_TIMER
+	bool "libuv software timers support"
+	default n
+	select CLOCK_MONOTONIC
+	---help---
+		Enable software timers support in libuv.
+
+config LIBUV_TIMER_NUTTX
+	bool "optimized software timers"
+	default y
+	depends on LIBUV_TIMER
+	---help---
+		Replace default libuv timer with optimized implementation
+		with low memory footprint.
+
+config LIBUV_STREAM
+	bool "libuv stream support"
+	default n
+	---help---
+		Enable stream support in libuv.
+
+config LIBUV_STREAM_READ_SIZE
+	int "Stream read buffer size"
+	default 128
+	depends on LIBUV_STREAM
+	---help---
+		Defines the size of buffer used for stream reads.
+
+config LIBUV_FS
+	bool "libuv FS support"
+	default n
+	---help---
+		Enable libuv FS support.
+		This feature may require LIBUV_WQ to support async FS operations.
+
+config LIBUV_FS_POLL
+	bool "libuv fs-poll support"
+	default n
+	select LIBUV_FS
+	select LIBUV_TIMER
+	---help---
+		Enable libuv uv_fs_poll_*() API.
+
+config LIBUV_NET
+	bool
+
+config LIBUV_TCP
+	bool "libuv TCP support"
+	default n
+	depends on NET_TCP
+	depends on NET_TCPBACKLOG
+	select LIBUV_STREAM
+	select LIBUV_NET
+	---help---
+		Enable TCP support in libuv.
+		NET_TCPBACKLOG is required to poll on accept().
+
+config LIBUV_WQ
+	bool "libuv workqueue support"
+	default n
+	select LIBUV_ASYNC
+	---help---
+		Enable workqueue support in libuv
+
+config LIBUV_WQ_THREADS_COUNT
+	int "libuv workqueue thread count"
+	depends on LIBUV_WQ
+	default 1
+	---help---
+		Specify worker thread count shared between all uv loops
+
+config LIBUV_LOOP_WATCHERS
+	bool "libuv loop watchers support"
+	default n
+	---help---
+		Enable loop watchers support in libuv (idle,prepare and check)
+
+config LIBUV_CONTEXT
+	bool "Use static context for loops"
+	default y
+	---help---
+		Modify libuv API to remove static memory usage.
+		User must call "uv_context_init()" before any other libuv API and
+		must call "uv_library_shutdown()" when done.
+		This is required for flat memory builds else some libuv structures
+		will be shared between processes which can lead to inconsistency.
+		This option disable support for uv_default_loop() API.
+
+config LIBUV_LOW_FOOTPRINT
+	bool "Reduce libuv memory usage"
+	default y
+	---help---
+		Enable optimizations to reduce libuv memory usage
+
+endif # LIBUV
