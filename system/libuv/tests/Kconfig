@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig LIBUV_UNIT_TESTS
+	tristate "libuv unit-tests command"
+	default n
+	depends on LIBUV
+	select LIBUV_TIMER
+	select LIBUV_ASYNC
+	select LIBUV_WQ
+	select LIBUV_LOOP_WATCHERS
+	select LIBUV_CONTEXT
+	---help---
+		Add executable that runs all libuv unit-tests.
+
+if LIBUV_UNIT_TESTS
+
+config LIBUV_UNIT_TESTS_PROGNAME
+	string "libuv unit-tests program name"
+	default "libuvtest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config LIBUV_UNIT_TESTS_PRIORITY
+	int "libuv unit-tests task priority"
+	default 100
+
+config LIBUV_UNIT_TESTS_STACKSIZE
+	int "libuv unit-tests stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # LIBUV_UNIT_TESTS
