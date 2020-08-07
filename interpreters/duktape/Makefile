@@ -20,11 +20,11 @@
 
 include $(APPDIR)/Make.defs
 
-DUKTAPE_VERSION = 2.5.0
-DUKTAPE_UNPACK  = duktape-$(DUKTAPE_VERSION)
-DUKTAPE_TARBALL = duktape-$(DUKTAPE_VERSION).tar.xz
-DUKTAPE_URL     = https://github.com/svaarala/duktape/releases/ \
-                    download/v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
+DUKTAPE_VERSION  = 2.5.0
+DUKTAPE_UNPACK   = duktape-$(DUKTAPE_VERSION)
+DUKTAPE_TARBALL  = duktape-$(DUKTAPE_VERSION).tar.xz
+DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
+DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
 
 CSRCS = $(DUKTAPE_UNPACK)/src-noline/duktape.c
 
