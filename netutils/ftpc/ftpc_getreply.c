@@ -215,7 +215,8 @@ int fptc_getreply(struct ftpc_session_s *session)
 
   if (session->replytimeo)
     {
-      ret = wd_start(session->wdog, session->replytimeo, ftpc_timeout, 1, session);
+      ret = wd_start(&session->wdog, session->replytimeo,
+                     ftpc_timeout, 1, (wdparm_t)session);
     }
 
   /* Get the next line from the server */
@@ -228,7 +229,7 @@ int fptc_getreply(struct ftpc_session_s *session)
     {
       /* No.. cancel the timer and return an error */
 
-      wd_cancel(session->wdog);
+      wd_cancel(&session->wdog);
       ninfo("Lost connection\n");
       return ERROR;
     }
@@ -239,7 +240,7 @@ int fptc_getreply(struct ftpc_session_s *session)
     {
       /* No.. cancel the timer and return an error */
 
-      wd_cancel(session->wdog);
+      wd_cancel(&session->wdog);
       ninfo("ftpc_gets failed\n");
       return ERROR;
     }
@@ -263,6 +264,6 @@ int fptc_getreply(struct ftpc_session_s *session)
       while (strncmp(tmp, session->reply, 4) != 0);
     }
 
-  wd_cancel(session->wdog);
+  wd_cancel(&session->wdog);
   return ret;
 }
