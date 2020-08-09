@@ -88,7 +88,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
 
   /* Loop until the full line is obtained */
 
-  for (;;)
+  for (; ; )
     {
       /* Get the next character from incoming command stream */
 
@@ -109,19 +109,21 @@ static int ftpc_gets(struct ftpc_session_s *session)
         {
           /* Handle TELNET commands */
 
-          switch(ch = ftpc_sockgetc(&session->cmd))
+          switch (ch = ftpc_sockgetc(&session->cmd))
             {
             case TELNET_WILL:
             case TELNET_WONT:
               ch = ftpc_sockgetc(&session->cmd);
-              ftpc_sockprintf(&session->cmd, "%c%c%c", TELNET_IAC, TELNET_DONT, ch);
+              ftpc_sockprintf(&session->cmd, "%c%c%c",
+                              TELNET_IAC, TELNET_DONT, ch);
               ftpc_sockflush(&session->cmd);
               break;
 
             case TELNET_DO:
             case TELNET_DONT:
               ch = ftpc_sockgetc(&session->cmd);
-              ftpc_sockprintf(&session->cmd, "%c%c%c", TELNET_IAC, TELNET_WONT, ch);
+              ftpc_sockprintf(&session->cmd, "%c%c%c",
+                              TELNET_IAC, TELNET_WONT, ch);
               ftpc_sockflush(&session->cmd);
               break;
 
@@ -134,7 +136,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
 
       /* Deal with carriage returns */
 
-      else if (ch == ISO_cr)
+      else if (ch == ISO_CR)
         {
           /* What follows the carriage return? */
 
@@ -143,12 +145,12 @@ static int ftpc_gets(struct ftpc_session_s *session)
             {
               /* If it is followed by a NUL then keep it */
 
-              ch = ISO_cr;
+              ch = ISO_CR;
             }
 
           /* If it is followed by a newline then break out of the loop. */
 
-          else if (ch == ISO_nl)
+          else if (ch == ISO_NL)
             {
               /* Newline terminates the reply */
 
@@ -168,7 +170,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
             }
         }
 
-      else if (ch == ISO_nl)
+      else if (ch == ISO_NL)
         {
           /* The ISO newline character terminates the string.  Just break
            * out of the loop.
@@ -208,7 +210,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
 
 int fptc_getreply(struct ftpc_session_s *session)
 {
-  char tmp[5]="xxx ";
+  char tmp[5] = "xxx ";
   int ret;
 
   /* Set up a timeout */

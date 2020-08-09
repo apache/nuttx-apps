@@ -59,10 +59,11 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* MISC definitions *********************************************************/
 
-#define ISO_nl       0x0a
-#define ISO_cr       0x0d
+#define ISO_NL       0x0a
+#define ISO_CR       0x0d
 
 /* Telnet-related definitions */
 
@@ -181,8 +182,8 @@ struct ftpc_session_s
   off_t                offset;     /* Transfer file offset */
   off_t                size;       /* Number of bytes transferred */
 
-  char reply[CONFIG_FTP_MAXREPLY+1]; /* Last reply string from server */
-  char buffer[CONFIG_FTP_BUFSIZE]; /* Used to buffer file data during transfers */
+  char reply[CONFIG_FTP_MAXREPLY + 1]; /* Last reply string from server */
+  char buffer[CONFIG_FTP_BUFSIZE];     /* Used to buffer file data during transfers */
 };
 
 /* There is not yet any want to change the local working directly (an lcd
@@ -223,8 +224,9 @@ extern "C"
   vfprintf((s)->outstream,f,ap)
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
+
 /* Low-level string management */
 
 EXTERN void ftpc_stripcrlf(FAR char *str);
@@ -264,7 +266,8 @@ EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
 
 /* Socket I/O helpers */
 
-EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock, const char *fmt, ...);
+EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock,
+                           const char *fmt, ...);
 EXTERN void ftpc_timeout(int argc, wdparm_t arg1, ...);
 
 /* Transfer helpers */
