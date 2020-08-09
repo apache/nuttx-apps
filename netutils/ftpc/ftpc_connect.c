@@ -103,10 +103,6 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
 
   session->homeldir = strdup(ftpc_lpwd());
 
-  /* Create up a timer to prevent hangs */
-
-  session->wdog = wd_create();
-
   /* And (Re-)connect to the server */
 
   ret = ftpc_reconnect(session);
@@ -152,8 +148,8 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Set up a timer to prevent hangs */
 
-  ret = wd_start(session->wdog,
-                 session->conntimeo, ftpc_timeout, 1, session);
+  ret = wd_start(&session->wdog, session->conntimeo,
+                 ftpc_timeout, 1, (wdparm_t)session);
   if (ret != OK)
     {
       nerr("ERROR: wd_start() failed\n");
@@ -214,7 +210,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
       fptc_getreply(session);
     }
 
-  wd_cancel(session->wdog);
+  wd_cancel(&session->wdog);
 
   if (!ftpc_sockconnected(&session->cmd))
     {

@@ -165,7 +165,7 @@ struct ftpc_session_s
   struct ftpc_socket_s cmd;        /* FTP command channel */
   struct ftpc_socket_s data;       /* FTP data channel */
   struct ftpc_socket_s dacceptor;  /* FTP data listener (accepts data connection in active mode) */
-  WDOG_ID              wdog;       /* Timer */
+  struct wdog_s        wdog;       /* Timer */
   FAR char            *uname;      /* Login uname */
   FAR char            *pwd;        /* Login pwd  */
   FAR char            *initrdir;   /* Initial remote directory */
