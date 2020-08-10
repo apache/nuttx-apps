@@ -178,7 +178,6 @@ $(EMBEDLOG_TARBALL):
 	@echo "Downloading: $@"
 	$(Q) $(WGET) -O $@ $(EMBEDLOG_URL)/$@
 	${Q} $(NXTOOLSDIR)/check-hash.sh sha256 $(EMBEDLOG_SRC_SHA256) $@
-	$(Q) touch $@
 
 $(EMBEDLOG_SOURCES): $(EMBEDLOG_TARBALL)
 	@echo "Unpacking $< -> $@"
@@ -189,7 +188,6 @@ $(EMBEDLOG_SOURCES): $(EMBEDLOG_TARBALL)
 embedlog: $(EMBEDLOG_SOURCES)
 	$(call DELDIR, $@)
 	$(Q) $(CP) $< $@
-	$(Q) touch $@
 
 create_includes:
 	$(Q) $(CP) $(EMBEDLOG_SOURCES)/include/embedlog.h $(APPDIR)/include/system

@@ -68,7 +68,7 @@ $(UNITY_TARBALL):
 $(UNITY_UNPACKNAME): $(UNITY_TARBALL)
 	@echo "Unpacking: $(UNITY_TARBALL) -> $(UNITY_UNPACKNAME)"
 	$(Q) $(UNPACK) $(UNITY_TARBALL)
-	@touch $(UNITY_UNPACKNAME)
+	$(Q) touch $(UNITY_UNPACKNAME)
 
 $(UNITY_SRCDIR)$(DELIM)unity.h: $(UNITY_UNPACKNAME)
 
@@ -82,12 +82,8 @@ $(APPS_INCDIR)$(DELIM)unity_internals.h: $(UNITY_SRCDIR)$(DELIM)unity_internals.
 
 context:: $(APPS_INCDIR)$(DELIM)unity.h $(APPS_INCDIR)$(DELIM)unity_internals.h
 
-clean::
-	$(call DELDIR, build)
-
 distclean::
 	$(call DELDIR, $(UNITY_UNPACKNAME))
-	$(call DELFILE, .downloaded)
 	$(call DELFILE, $(UNITY_TARBALL))
 	$(call DELFILE, $(APPDIR)/include/testing/unity.h)
 	$(call DELFILE, $(APPDIR)/include/testing/unity_internals.h)

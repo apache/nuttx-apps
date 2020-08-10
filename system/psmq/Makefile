@@ -110,7 +110,6 @@ $(PSMQ_TARBALL):
 	@echo "Downloading: $@"
 	$(Q) $(WGET) -O $@ $(PSMQ_URL)/$@
 	$(Q) $(NXTOOLSDIR)/check-hash.sh sha256 $(PSMQ_SRC_SHA256) $@
-	$(Q) touch $@
 
 $(PSMQ_SOURCES): $(PSMQ_TARBALL)
 	@echo "Unpacking $< -> $@"
