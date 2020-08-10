@@ -268,7 +268,7 @@ EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
 
 EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock,
                            const char *fmt, ...);
-EXTERN void ftpc_timeout(int argc, wdparm_t arg1, ...);
+EXTERN void ftpc_timeout(wdparm_t arg);
 
 /* Transfer helpers */
 

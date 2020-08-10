@@ -218,7 +218,7 @@ int fptc_getreply(struct ftpc_session_s *session)
   if (session->replytimeo)
     {
       ret = wd_start(&session->wdog, session->replytimeo,
-                     ftpc_timeout, 1, (wdparm_t)session);
+                     ftpc_timeout, (wdparm_t)session);
     }
 
   /* Get the next line from the server */
