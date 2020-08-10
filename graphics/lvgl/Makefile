@@ -78,9 +78,6 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 
 context:: $(LVGL_UNPACKNAME)
 
-clean::
-	$(call DELDIR, build)
-
 distclean::
 	$(call DELDIR, $(LVGL_UNPACKNAME))
 	$(call DELFILE, $(LVGL_TARBALL))

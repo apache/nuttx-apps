@@ -37,7 +37,7 @@ include $(APPDIR)/Make.defs
 
 # LittleVGL demo built-in application info
 
-CONFIG_LV_EXAMPLES_URL	?= https://github.com/lvgl/lv_examples/archive
+CONFIG_LV_EXAMPLES_URL ?= https://github.com/lvgl/lv_examples/archive
 
 LVGL_EXAMPLES_VERSION ?= 7.0.2
 LVGL_EXAMPLES_TARBALL = v$(LVGL_EXAMPLES_VERSION).zip
@@ -100,9 +100,6 @@ $(LVGL_EXAMPLES_UNPACKNAME): $(LVGL_EXAMPLES_TARBALL)
 	$(Q) touch $(LVGL_EXAMPLES_UNPACKNAME)
 
 context:: $(LVGL_EXAMPLES_UNPACKNAME)
-
-clean::
-	$(call DELDIR, build)
 
 distclean::
 	$(call DELDIR, $(LVGL_EXAMPLES_UNPACKNAME))
