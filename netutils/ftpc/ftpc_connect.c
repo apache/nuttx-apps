@@ -149,7 +149,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   /* Set up a timer to prevent hangs */
 
   ret = wd_start(&session->wdog, session->conntimeo,
-                 ftpc_timeout, 1, (wdparm_t)session);
+                 ftpc_timeout, (wdparm_t)session);
   if (ret != OK)
     {
       nerr("ERROR: wd_start() failed\n");
