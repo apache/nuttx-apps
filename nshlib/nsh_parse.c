@@ -654,8 +654,10 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "sched_getparm",
                     NSH_ERRNO);
+
+          /* NOTE: bkgvtbl is released in nsh_relaseargs() */
+
           nsh_releaseargs(args);
-          nsh_release(bkgvtbl);
           goto errout;
         }
 
@@ -699,8 +701,10 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "pthread_create",
                     NSH_ERRNO_OF(ret));
+
+          /* NOTE: bkgvtbl is released in nsh_relaseargs() */
+
           nsh_releaseargs(args);
-          nsh_release(bkgvtbl);
           goto errout;
         }
 
