@@ -563,7 +563,7 @@ static void stdio_test(void)
   printf("stdio_test: Standard I/O Check: printf\n");
 
   write(2, write_data2, sizeof(write_data2)-1);
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   fprintf(stderr, "stdio_test: Standard I/O Check: fprintf to stderr\n");
 #endif
 }

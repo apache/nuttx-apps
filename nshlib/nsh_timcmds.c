@@ -299,7 +299,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   bool bgsave;
 #endif
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   bool redirsave;
 #endif
   int ret;
@@ -318,7 +318,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   bgsave    = vtbl->np.np_bg;
 #endif
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   redirsave = vtbl->np.np_redirect;
 #endif
 
@@ -359,7 +359,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = bgsave;
 #endif
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   vtbl->np.np_redirect = redirsave;
 #endif
 

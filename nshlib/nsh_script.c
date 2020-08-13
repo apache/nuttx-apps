@@ -42,7 +42,7 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
 
 /****************************************************************************
  * Public Functions
@@ -218,4 +218,4 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl)
 #endif
 #endif /* CONFIG_NSH_ROMFSETC */
 
-#endif /* CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT */
+#endif /* CONFIG_FILE_STREAM && !CONFIG_NSH_DISABLESCRIPT */
