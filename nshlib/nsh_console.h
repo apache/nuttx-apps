@@ -79,7 +79,7 @@
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
 #  ifdef CONFIG_NSH_ALTCONDEV
 
 #    if !defined(CONFIG_NSH_ALTSTDIN) && !defined(CONFIG_NSH_ALTSTDOUT) && \
@@ -157,7 +157,7 @@ struct console_stdio_s
 
   /* NSH input/output streams */
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
 #ifdef CONFIG_NSH_ALTCONDEV
   int    cn_confd;     /* Console I/O file descriptor */
 #endif

@@ -180,7 +180,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
     }
   else if (strcmp(argv[1], "-c") != 0)
     {
-#if defined(CONFIG_NFILE_STREAMS) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
       /* Execute the shell script */
 
       ret = nsh_script(vtbl, argv[0], argv[1]);
@@ -191,7 +191,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       /* Parse process the command */
 
       ret = nsh_parse(vtbl, argv[2]);
-#ifdef CONFIG_NFILE_STREAMS
+#ifdef CONFIG_FILE_STREAM
       fflush(pstate->cn_outstream);
 #endif
     }

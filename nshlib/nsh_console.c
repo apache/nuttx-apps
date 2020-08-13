@@ -58,7 +58,7 @@
  * Private Types
  ****************************************************************************/
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
 struct serialsave_s
 {
   int    cn_errfd;     /* Re-directed error output file descriptor */
@@ -131,7 +131,7 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
 static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
 {
   if (pstate->cn_outstream == OUTSTREAM(pstate))
@@ -477,7 +477,7 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
 #endif
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
       pstate->cn_vtbl.redirect    = nsh_consoleredirect;
       pstate->cn_vtbl.undirect    = nsh_consoleundirect;
 

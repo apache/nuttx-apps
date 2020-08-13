@@ -335,7 +335,7 @@ static void nsh_releaseargs(struct cmdarg_s *arg)
   FAR struct nsh_vtbl_s *vtbl = arg->vtbl;
   int i;
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   /* If the output was redirected, then file descriptor should
    * be closed.  The created task has its one, independent copy of
    * the file descriptor
@@ -484,7 +484,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        int argc, FAR char *argv[],
                        FAR const char *redirfile, int oflags)
 {
-#if CONFIG_NFILE_STREAMS > 0 || !defined(CONFIG_NSH_DISABLEBG)
+#if defined(CONFIG_FILE_STREAM) || !defined(CONFIG_NSH_DISABLEBG)
   int fd = -1;
 #endif
   int ret;
@@ -524,7 +524,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   ret = nsh_builtin(vtbl, argv[0], argv, redirfile, oflags);
 #else
   ret = nsh_builtin(vtbl, argv[0], argv, NULL, 0);
@@ -584,7 +584,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
 #endif
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   /* Redirected output? */
 
   if (vtbl->np.np_redirect)
@@ -638,7 +638,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
           goto errout_with_redirect;
         }
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
       /* Handle redirection of output via a file descriptor */
 
       if (vtbl->np.np_redirect)
@@ -720,7 +720,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
   else
 #endif
     {
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
       uint8_t save[SAVE_SIZE];
 
       /* Handle redirection of output via a file descriptor */
@@ -740,7 +740,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
       ret = nsh_command(vtbl, argc, argv);
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
       /* Restore the original output.  Undirect will close the redirection
        * file descriptor.
        */
@@ -769,7 +769,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
 #ifndef CONFIG_NSH_DISABLEBG
 errout_with_redirect:
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   if (vtbl->np.np_redirect)
     {
       close(fd);
@@ -2374,7 +2374,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   int       oflags = 0;
   int       argc;
   int       ret;
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   bool      redirect_save = false;
 #endif
 
@@ -2387,7 +2387,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   vtbl->np.np_bg       = false;
 #endif
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   vtbl->np.np_redirect = false;
 #endif
 
@@ -2537,7 +2537,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
     }
 #endif
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   /* Check if the output was re-directed using > or >> */
 
   if (argc > 2)
@@ -2579,7 +2579,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   /* Free any allocated resources */
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
   /* Free the redirected output file path */
 
   if (redirfile)

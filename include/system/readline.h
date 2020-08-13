@@ -186,7 +186,7 @@ FAR const struct extmatch_vtable_s *
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_STREAMS > 0
+#ifdef CONFIG_FILE_STREAM
 ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
 #endif
 
