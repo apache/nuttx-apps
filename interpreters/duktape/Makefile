@@ -27,6 +27,8 @@ DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
 DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
 
 CSRCS = $(DUKTAPE_UNPACK)/src-noline/duktape.c
+CSRCS += $(DUKTAPE_UNPACK)/extras/console/duk_console.c
+CSRCS += $(DUKTAPE_UNPACK)/extras/print-alert/duk_print_alert.c
 
 MAINSRC = $(DUKTAPE_UNPACK)/examples/cmdline/duk_cmdline.c
 
@@ -36,6 +38,10 @@ STACKSIZE = $(CONFIG_INTERPRETERS_DUKTAPE_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_DUKTAPE)
 
 CFLAGS += -I$(DUKTAPE_UNPACK)/src-noline
+CFLAGS += -I$(DUKTAPE_UNPACK)/extras/console
+CFLAGS += -I$(DUKTAPE_UNPACK)/extras/print-alert
+CFLAGS += -DDUK_CMDLINE_CONSOLE_SUPPORT
+CFLAGS += -DDUK_CMDLINE_PRINTALERT_SUPPORT
 
 $(DUKTAPE_TARBALL):
 	@echo "Downloading $(DUKTAPE_TARBALL)"
@@ -46,8 +52,11 @@ $(DUKTAPE_UNPACK): $(DUKTAPE_TARBALL)
 	@tar xvfJ $(DUKTAPE_TARBALL)
 	@echo "Patching $(DUKTAPE_UNPACK)"
 	@patch -p0 < duk_cmdline.patch
+	@touch $(DUKTAPE_UNPACK)/.patch
 
-context:: $(DUKTAPE_UNPACK)
+$(DUKTAPE_UNPACK)/.patch: $(DUKTAPE_UNPACK)
+
+context:: $(DUKTAPE_UNPACK)/.patch
 
 distclean::
 	$(call DELDIR, $(DUKTAPE_UNPACK))
