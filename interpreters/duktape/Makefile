@@ -26,11 +26,16 @@ DUKTAPE_TARBALL  = duktape-$(DUKTAPE_VERSION).tar.xz
 DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
 DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
 
-CSRCS = $(DUKTAPE_UNPACK)/src-noline/duktape.c
-CSRCS += $(DUKTAPE_UNPACK)/extras/console/duk_console.c
-CSRCS += $(DUKTAPE_UNPACK)/extras/print-alert/duk_print_alert.c
+CSRCS = duktape.c
+CSRCS += duk_console.c
+CSRCS += duk_print_alert.c
 
-MAINSRC = $(DUKTAPE_UNPACK)/examples/cmdline/duk_cmdline.c
+MAINSRC = duk_cmdline.c
+
+VPATH += $(DUKTAPE_UNPACK)/src-noline
+VPATH += $(DUKTAPE_UNPACK)/extras/console
+VPATH += $(DUKTAPE_UNPACK)/extras/print-alert
+VPATH += $(DUKTAPE_UNPACK)/examples/cmdline
 
 PROGNAME  = duk
 PRIORITY  = $(CONFIG_INTERPRETERS_DUKTAPE_PRIORITY)
