@@ -57,7 +57,7 @@ WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive"
 
-LVGL_VERSION ?= 7.0.2
+LVGL_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LVGL_VERSION)))
 LVGL_TARBALL = v$(LVGL_VERSION).zip
 WGET ?= wget
 
