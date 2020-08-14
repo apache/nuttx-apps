@@ -39,7 +39,7 @@ include $(APPDIR)/Make.defs
 
 CONFIG_LV_EXAMPLES_URL ?= https://github.com/lvgl/lv_examples/archive
 
-LVGL_EXAMPLES_VERSION ?= 7.0.2
+LVGL_EXAMPLES_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LVGL_VERSION)))
 LVGL_EXAMPLES_TARBALL = v$(LVGL_EXAMPLES_VERSION).zip
 
 WGET ?= wget
