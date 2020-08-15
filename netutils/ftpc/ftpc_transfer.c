@@ -664,7 +664,7 @@ void ftpc_timeout(wdparm_t arg)
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg;
 
   nerr("ERROR: Timeout!\n");
-  DEBUGASSERT(argc == 1 && session);
+  DEBUGASSERT(session);
   kill(session->pid, CONFIG_FTP_SIGNAL);
 }
 
