@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_QUICKJS
+	tristate "QuickJS JavaScript interpreter"
+	default n
+
+if INTERPRETERS_QUICKJS
+
+config INTERPRETERS_QUICKJS_BIGNUM
+	bool "Bignum support"
+	default false
+
+config INTERPRETERS_QUICKJS_PRIORITY
+	int "QuickJS interpreter priority"
+	default 100
+
+config INTERPRETERS_QUICKJS_STACKSIZE
+	int "QuickJS interpreter stack size"
+	default 8192
+
+endif
