@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef CONFIG_NSH_CLE
 #  include "system/cle.h"
@@ -71,15 +72,13 @@
  * Input Parameters:
  *   pstate - Abstracts the underlying session.
  *
- * Returned Values:
- *   EXIT_SUCCESS only
- *
  ****************************************************************************/
 
-int nsh_session(FAR struct console_stdio_s *pstate, bool login)
+int nsh_session(FAR struct console_stdio_s *pstate,
+                bool login, int argc, FAR char *argv[])
 {
   FAR struct nsh_vtbl_s *vtbl;
-  int ret;
+  int ret = EXIT_FAILURE;
 
   DEBUGASSERT(pstate);
   vtbl = &pstate->cn_vtbl;
@@ -116,63 +115,86 @@ int nsh_session(FAR struct console_stdio_s *pstate, bool login)
 #endif
     }
 
-  /* Then enter the command line parsing loop */
-
-  for (; ; )
+  if (argc < 2)
     {
-      /* For the case of debugging the USB console...
-       * dump collected USB trace data
-       */
+      /* Then enter the command line parsing loop */
 
-#ifdef CONFIG_NSH_USBDEV_TRACE
-      nsh_usbtrace();
-#endif
-
-      /* Get the next line of input. */
-
-#ifdef CONFIG_NSH_CLE
-      /* cle() normally returns the number of characters read, but will
-       * return a negated errno value on end of file or if an error occurs.
-       * Either will cause the session to terminate.
-       */
-
-      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
-                stdin, stdout);
-      if (ret < 0)
+      for (; ; )
         {
-          printf(g_fmtcmdfailed, "nsh_session", "cle", NSH_ERRNO_OF(-ret));
-          return EXIT_SUCCESS;
-        }
-#else
-      /* Display the prompt string */
-
-      printf("%s", g_nshprompt);
-
-      /* readline () normally returns the number of characters read, but will
-       * return EOF on end of file or if an error occurs.  Either will cause
-       * the session to terminate.
-       */
-
-      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
-      if (ret == EOF)
-        {
-          /* NOTE: readline() does not set the errno variable, but perhaps we
-           * will be lucky and it will still be valid.
+          /* For the case of debugging the USB console...
+           * dump collected USB trace data
            */
 
-          printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO);
-          return EXIT_SUCCESS;
-        }
+#ifdef CONFIG_NSH_USBDEV_TRACE
+          nsh_usbtrace();
 #endif
 
+          /* Get the next line of input. */
+
+#ifdef CONFIG_NSH_CLE
+          /* cle() normally returns the number of characters read, but will
+           * return a negated errno value on end of file or if an error
+           * occurs. Either will cause the session to terminate.
+           */
+
+          ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
+                    stdin, stdout);
+          if (ret < 0)
+            {
+              printf(g_fmtcmdfailed,
+                     "nsh_session", "cle", NSH_ERRNO_OF(-ret));
+              continue;
+            }
+#else
+          /* Display the prompt string */
+
+          printf("%s", g_nshprompt);
+
+          /* readline () normally returns the number of characters read, but
+           * will return EOF on end of file or if an error occurs.  Either
+           * will cause the session to terminate.
+           */
+
+          ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
+          if (ret == EOF)
+            {
+              /* NOTE: readline() does not set the errno variable, but
+               * perhaps we will be lucky and it will still be valid.
+               */
+
+              printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO);
+              ret = EXIT_SUCCESS;
+              break;
+            }
+#endif
+
+          /* Parse process the command */
+
+          nsh_parse(vtbl, pstate->cn_line);
+        }
+    }
+  else if (strcmp(argv[1], "-h") == 0)
+    {
+      ret = nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
+                       argv[0]);
+    }
+  else if (strcmp(argv[1], "-c") != 0)
+    {
+#if defined(CONFIG_NFILE_STREAMS) && !defined(CONFIG_NSH_DISABLESCRIPT)
+      /* Execute the shell script */
+
+      ret = nsh_script(vtbl, argv[0], argv[1]);
+#endif
+    }
+  else if (argc >= 3)
+    {
       /* Parse process the command */
 
-      nsh_parse(vtbl, pstate->cn_line);
+      ret = nsh_parse(vtbl, argv[2]);
+#ifdef CONFIG_NFILE_STREAMS
+      fflush(pstate->cn_outstream);
+#endif
     }
 
-  /* We do not get here, but this is necessary to keep some compilers happy.
-   * But others will complain that this code is not reachable.
-   */
-
-  return EXIT_SUCCESS;
+  return ret;
 }

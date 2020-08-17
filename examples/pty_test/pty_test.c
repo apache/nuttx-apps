@@ -384,7 +384,7 @@ int main(int argc, FAR char *argv[])
 
   pid = task_create("NSH Console", CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO,
                     CONFIG_EXAMPLES_PTYTEST_STACKSIZE, nsh_consolemain,
-                    NULL);
+                    argv);
   if (pid < 0)
     {
       /* Can't do output because stdout and stderr are redirected */

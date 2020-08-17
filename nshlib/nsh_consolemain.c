@@ -112,7 +112,7 @@ int nsh_consolemain(int argc, FAR char *argv[])
 
   /* Execute the session */
 
-  ret = nsh_session(pstate, true);
+  ret = nsh_session(pstate, true, argc, argv);
 
   /* Exit upon return */
 

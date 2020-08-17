@@ -191,7 +191,7 @@ static int nxterm_task(int argc, char **argv)
   /* If the console front end is selected, then run it on this thread */
 
 #ifdef CONFIG_NSH_CONSOLE
-  nsh_consolemain(0, NULL);
+  nsh_consolemain(argc, argv);
 #endif
 
   printf("nxterm_task: Unlinking the NX console device\n");
