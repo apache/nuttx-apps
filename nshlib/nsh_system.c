@@ -73,40 +73,13 @@
 int nsh_system(int argc, FAR char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
-  FAR struct nsh_vtbl_s *vtbl;
-  int ret = EXIT_FAILURE;
+  int ret;
 
   DEBUGASSERT(pstate != NULL);
-  vtbl = &pstate->cn_vtbl;
 
-  if (argc < 2)
-    {
-      /* Execute the interactive shell */
+  /* Execute the session */
 
-      ret = nsh_session(pstate, false);
-    }
-  else if (strcmp(argv[1], "-h") == 0)
-    {
-      ret = nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
-                       argv[0]);
-    }
-  else if (strcmp(argv[1], "-c") != 0)
-    {
-#if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
-      /* Execute the shell script */
-
-      ret = nsh_script(vtbl, argv[0], argv[1]);
-#endif
-    }
-  else if (argc >= 3)
-    {
-      /* Parse process the command */
-
-      ret = nsh_parse(vtbl, argv[2]);
-#if CONFIG_NFILE_STREAMS > 0
-      fflush(pstate->cn_outstream);
-#endif
-    }
+  ret = nsh_session(pstate, false, argc, argv);
 
   /* Exit upon return */
 

@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_console.c
  *
- *   Copyright (C) 2007-2009, 2011-2013, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2013, 2015 Gregory Nutt.
+ *   All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,9 +181,9 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
    */
 
   if (nsh_openifnotopen(pstate) != 0)
-   {
-     return (ssize_t)ERROR;
-   }
+    {
+      return ERROR;
+    }
 
   /* Write the data to the output stream */
 
@@ -221,9 +222,9 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
    */
 
   if (nsh_openifnotopen(pstate) != 0)
-   {
-     return ERROR;
-   }
+    {
+      return ERROR;
+    }
 
   va_start(ap, fmt);
   ret = vfprintf(pstate->cn_outstream, fmt, ap);
@@ -253,9 +254,9 @@ static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
    */
 
   if (nsh_openifnotopen(pstate) != 0)
-   {
-     return ERROR;
-   }
+    {
+      return ERROR;
+    }
 
   va_start(ap, fmt);
   ret = vfprintf(pstate->cn_errstream, fmt, ap);

@@ -99,6 +99,7 @@ static inline int date_month(FAR const char *abbrev)
           return i;
         }
     }
+
   return ERROR;
 }
 #endif
@@ -108,7 +109,8 @@ static inline int date_month(FAR const char *abbrev)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_DATE
-static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
+static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
+                                FAR const char *name)
 {
   static const char format[] = "%a, %b %d %H:%M:%S %Y";
   struct timespec ts;
@@ -127,7 +129,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
 
   /* Break the current time up into the format needed by strftime */
 
-  if (gmtime_r((FAR const time_t*)&ts.tv_sec, &tm) == NULL)
+  if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
     {
       nsh_error(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
       return ERROR;
@@ -152,8 +154,8 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_DATE
-static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
-                               FAR char *newtime)
+static inline int date_settime(FAR struct nsh_vtbl_s *vtbl,
+                               FAR const char *name, FAR char *newtime)
 {
   struct timespec ts;
   struct tm tm;
@@ -165,9 +167,10 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
   memset(&tm, 0, sizeof(tm));
 
   /* Only this date format is supported: MMM DD HH:MM:SS YYYY */
+
   /* Get the month abbreviation */
 
-  token = strtok_r(newtime, " \t",&saveptr);
+  token = strtok_r(newtime, " \t", &saveptr);
   if (token == NULL)
     {
       goto errout_bad_parm;
@@ -179,9 +182,11 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
       goto errout_bad_parm;
     }
 
-  /* Get the day of the month.  NOTE: Accepts day-of-month up to 31 for all months */
+  /* Get the day of the month.
+   * NOTE: Accepts day-of-month up to 31 for all months
+   */
 
-  token = strtok_r(NULL, " \t",&saveptr);
+  token = strtok_r(NULL, " \t", &saveptr);
   if (token == NULL)
     {
       goto errout_bad_parm;
@@ -304,8 +309,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = clock_gettime(TIME_CLOCK, &start);
   if (ret < 0)
     {
-       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
-       return ERROR;
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
+      return ERROR;
     }
 
   /* Save state */
@@ -330,7 +335,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       ret = clock_gettime(TIME_CLOCK, &end);
       if (ret < 0)
         {
-           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
+           nsh_error(vtbl, g_fmtcmdfailed,
+                     argv[0], "clock_gettime", NSH_ERRNO);
            ret = ERROR;
         }
       else
@@ -370,7 +376,6 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *newtime = NULL;
   FAR const char *errfmt;
-  bool badarg = false;
   int option;
   int ret;
 
@@ -386,18 +391,9 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
       else /* option = '?' */
         {
-          /* We need to parse to the end anyway so that getopt stays healthy */
-
-          badarg = true;
+          errfmt = g_fmtarginvalid;
+          goto errout;
         }
-   }
-
-  /* If a bad argument was encountered then exit with an error */
-
-  if (badarg)
-    {
-      errfmt = g_fmtarginvalid;
-      goto errout;
     }
 
   /* optind < argc-1 means that there are additional, unexpected arguments on

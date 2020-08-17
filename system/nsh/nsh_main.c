@@ -165,7 +165,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_NSH_CONSOLE
   /* If the serial console front end is selected, run it on this thread */
 
-  ret = nsh_consolemain(0, NULL);
+  ret = nsh_consolemain(argc, argv);
 
   /* nsh_consolemain() should not return.  So if we get here, something
    * is wrong.

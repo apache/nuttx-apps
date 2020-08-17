@@ -48,6 +48,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Tab completion cannot be supported if there is no console echo */
 
 #ifndef CONFIG_READLINE_ECHO
