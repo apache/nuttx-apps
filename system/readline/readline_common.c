@@ -694,19 +694,26 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
           if (nch >= 1)
             {
-              g_cmdhist.head = (g_cmdhist.head + 1) % RL_CMDHIST_LEN;
+              /* If this command is the one at the top of the circular
+               * buffer, don't save it again.
+               */
 
-              for (i = 0; (i < nch) && i < (RL_CMDHIST_LINELEN - 1); i++)
+              if (strncmp(buf, g_cmdhist.buf[g_cmdhist.head], nch) != 0)
                 {
-                  g_cmdhist.buf[g_cmdhist.head][i] = buf[i];
-                }
+                  g_cmdhist.head = (g_cmdhist.head + 1) % RL_CMDHIST_LEN;
 
-              g_cmdhist.buf[g_cmdhist.head][i] = '\0';
-              g_cmdhist.offset = 1;
+                  for (i = 0; (i < nch) && i < (RL_CMDHIST_LINELEN - 1); i++)
+                    {
+                      g_cmdhist.buf[g_cmdhist.head][i] = buf[i];
+                    }
 
-              if (g_cmdhist.len < RL_CMDHIST_LEN)
-                {
-                  g_cmdhist.len++;
+                  g_cmdhist.buf[g_cmdhist.head][i] = '\0';
+                  g_cmdhist.offset = 1;
+
+                  if (g_cmdhist.len < RL_CMDHIST_LEN)
+                    {
+                      g_cmdhist.len++;
+                    }
                 }
             }
 #endif /* CONFIG_READLINE_CMD_HISTORY */
