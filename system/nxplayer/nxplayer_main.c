@@ -58,7 +58,7 @@
 #define NXPLAYER_VER    "1.05"
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
-#  define NXPLAYER_HELP_TEXT(x)  #x
+#  define NXPLAYER_HELP_TEXT(x)  x
 #else
 #  define NXPLAYER_HELP_TEXT(x)
 #endif
@@ -132,7 +132,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "balance",
     "d%",
     nxplayer_cmd_balance,
-    NXPLAYER_HELP_TEXT(Set balance percentage (< 50% means more left))
+    NXPLAYER_HELP_TEXT("Set balance percentage (< 50% means more left)")
   },
 #endif
 #endif
@@ -141,7 +141,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "bass",
     "d%",
     nxplayer_cmd_bass,
-    NXPLAYER_HELP_TEXT(Set bass level percentage)
+    NXPLAYER_HELP_TEXT("Set bass level percentage")
   },
 #endif
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
@@ -149,7 +149,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "device",
     "devfile",
     nxplayer_cmd_device,
-    NXPLAYER_HELP_TEXT(Specify a preferred audio device)
+    NXPLAYER_HELP_TEXT("Specify a preferred audio device")
   },
 #endif
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
@@ -157,13 +157,13 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "h",
     "",
     nxplayer_cmd_help,
-    NXPLAYER_HELP_TEXT(Display help for commands)
+    NXPLAYER_HELP_TEXT("Display help for commands")
   },
   {
     "help",
     "",
     nxplayer_cmd_help,
-    NXPLAYER_HELP_TEXT(Display help for commands)
+    NXPLAYER_HELP_TEXT("Display help for commands")
   },
 #endif
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
@@ -171,27 +171,27 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "mediadir",
     "path",
      nxplayer_cmd_mediadir,
-     NXPLAYER_HELP_TEXT(Change the media directory)
+     NXPLAYER_HELP_TEXT("Change the media directory")
   },
 #endif
   {
     "play",
     "filename",
     nxplayer_cmd_play,
-    NXPLAYER_HELP_TEXT(Play a media file)
+    NXPLAYER_HELP_TEXT("Play a media file")
   },
   {
     "playraw",
     "filename",
     nxplayer_cmd_playraw,
-    NXPLAYER_HELP_TEXT(Play a raw data file)
+    NXPLAYER_HELP_TEXT("Play a raw data file")
   },
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
   {
     "pause",
     "",
     nxplayer_cmd_pause,
-    NXPLAYER_HELP_TEXT(Pause playback)
+    NXPLAYER_HELP_TEXT("Pause playback")
   },
 #endif
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
@@ -199,7 +199,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "reset",
     "",
     nxplayer_cmd_reset,
-    NXPLAYER_HELP_TEXT(Perform a HW reset)
+    NXPLAYER_HELP_TEXT("Perform a HW reset")
   },
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
@@ -207,7 +207,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "resume",
     "",
     nxplayer_cmd_resume,
-    NXPLAYER_HELP_TEXT(Resume playback)
+    NXPLAYER_HELP_TEXT("Resume playback")
   },
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
@@ -215,41 +215,41 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
     "stop",
     "",
     nxplayer_cmd_stop,
-    NXPLAYER_HELP_TEXT(Stop playback)
+    NXPLAYER_HELP_TEXT("Stop playback")
   },
 #endif
   {
     "tone",
     "freq secs",
     NULL,
-    NXPLAYER_HELP_TEXT(Produce a pure tone)
+    NXPLAYER_HELP_TEXT("Produce a pure tone")
   },
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
   {
     "treble",
     "d%",
     nxplayer_cmd_treble,
-    NXPLAYER_HELP_TEXT(Set treble level percentage)
+    NXPLAYER_HELP_TEXT("Set treble level percentage")
   },
 #endif
   {
     "q",
     "",
     nxplayer_cmd_quit,
-    NXPLAYER_HELP_TEXT(Exit NxPlayer)
+    NXPLAYER_HELP_TEXT("Exit NxPlayer")
   },
   {
     "quit",
     "",
     nxplayer_cmd_quit,
-    NXPLAYER_HELP_TEXT(Exit NxPlayer)
+    NXPLAYER_HELP_TEXT("Exit NxPlayer")
   },
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   {
     "volume",
     "d%",
     nxplayer_cmd_volume,
-    NXPLAYER_HELP_TEXT(Set volume to level specified)
+    NXPLAYER_HELP_TEXT("Set volume to level specified")
   }
 #endif
 };

@@ -43,7 +43,7 @@
 #define NXRECORDER_VER          "1.00"
 
 #ifdef CONFIG_NXRECORDER_INCLUDE_HELP
-#  define NXRECORDER_HELP_TEXT(x)  #x
+#  define NXRECORDER_HELP_TEXT(x)  x
 #else
 #  define NXRECORDER_HELP_TEXT(x)
 #endif
@@ -98,40 +98,40 @@ static const struct mp_cmd_s g_nxrecorder_cmds[] =
     "device",
     "devfile",
     nxrecorder_cmd_device,
-    NXRECORDER_HELP_TEXT(Specify a preferred audio device)
+    NXRECORDER_HELP_TEXT("Specify a preferred audio device")
   },
 #ifdef CONFIG_NXRECORDER_INCLUDE_HELP
   {
     "h",
     "",
     nxrecorder_cmd_help,
-    NXRECORDER_HELP_TEXT(Display help for commands)
+    NXRECORDER_HELP_TEXT("Display help for commands")
   },
   {
     "help",
     "",
     nxrecorder_cmd_help,
-    NXRECORDER_HELP_TEXT(Display help for commands)
+    NXRECORDER_HELP_TEXT("Display help for commands")
   },
 #endif
   {
     "recordraw",
     "filename",
     nxrecorder_cmd_recordraw,
-    NXRECORDER_HELP_TEXT(Record a pcm raw file)
+    NXRECORDER_HELP_TEXT("Record a pcm raw file")
   },
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
   {
     "pause",
     "",
     nxrecorder_cmd_pause,
-    NXRECORDER_HELP_TEXT(Pause record)
+    NXRECORDER_HELP_TEXT("Pause record")
   },
   {
     "resume",
     "",
     nxrecorder_cmd_resume,
-    NXRECORDER_HELP_TEXT(Resume record)
+    NXRECORDER_HELP_TEXT("Resume record")
   },
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
@@ -139,20 +139,20 @@ static const struct mp_cmd_s g_nxrecorder_cmds[] =
     "stop",
     "",
     nxrecorder_cmd_stop,
-    NXRECORDER_HELP_TEXT(Stop record)
+    NXRECORDER_HELP_TEXT("Stop record")
   },
 #endif
   {
     "q",
     "",
     nxrecorder_cmd_quit,
-    NXRECORDER_HELP_TEXT(Exit NxRecorder)
+    NXRECORDER_HELP_TEXT("Exit NxRecorder")
   },
   {
     "quit",
     "",
     nxrecorder_cmd_quit,
-    NXRECORDER_HELP_TEXT(Exit NxRecorder)
+    NXRECORDER_HELP_TEXT("Exit NxRecorder")
   },
 };
 
