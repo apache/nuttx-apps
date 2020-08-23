@@ -323,11 +323,9 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#ifdef NSH_HAVE_WRITABLE_MOUNTPOINT
-# ifndef CONFIG_NSH_DISABLE_MKRD
+#ifndef CONFIG_NSH_DISABLE_MKRD
   { "mkrd",     cmd_mkrd,     2, 6,
     "[-m <minor>] [-s <sector-size>] <nsectors>" },
-# endif
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_SMARTFS) && \
