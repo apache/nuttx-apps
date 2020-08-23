@@ -1360,7 +1360,6 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkrd
  ****************************************************************************/
 
-#ifdef NSH_HAVE_WRITABLE_MOUNTPOINT
 #ifndef CONFIG_NSH_DISABLE_MKRD
 int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1457,7 +1456,6 @@ errout_with_fmt:
   nsh_output(vtbl, fmt, argv[0]);
   return ERROR;
 }
-#endif
 #endif
 
 /****************************************************************************
