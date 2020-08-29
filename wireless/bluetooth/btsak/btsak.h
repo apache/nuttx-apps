@@ -71,7 +71,7 @@ struct btsak_s
   FAR char *ifname;                  /* Interface name */
   bt_addr_t ep_btaddr;               /* Blue tooth address */
 #if defined(CONFIG_NET_BLUETOOTH)
-  struct sockaddr_bt_s ep_sockaddr;  /* AF_BLUETOOTH endpoint address */
+  struct sockaddr_l2 ep_sockaddr;    /* AF_BLUETOOTH endpoint address */
 #elif defined(CONFIG_NET_6LOWPAN)
   struct sockaddr_in6 ep_sockaddr;   /* IPv6 endpoint address */
 #endif
