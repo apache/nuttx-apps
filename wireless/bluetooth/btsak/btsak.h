@@ -98,11 +98,14 @@ static inline void btsak_update_ipv6addr(FAR struct btsak_s *btsak)
   btsak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
   btsak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] = HTONS(0x0200);
   btsak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] =
-    ((uint16_t)btsak->ep_btaddr.val[0] << 8 | (uint16_t)btsak->ep_btaddr.val[1]);
+    ((uint16_t)btsak->ep_btaddr.val[0] << 8 |
+     (uint16_t)btsak->ep_btaddr.val[1]);
   btsak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] =
-    ((uint16_t)btsak->ep_btaddr.val[2] << 8 | (uint16_t)btsak->ep_btaddr.val[3]);
+    ((uint16_t)btsak->ep_btaddr.val[2] << 8 |
+     (uint16_t)btsak->ep_btaddr.val[3]);
   btsak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
-    ((uint16_t)btsak->ep_btaddr.val[4] << 8 | (uint16_t)btsak->ep_btaddr.val[5]);
+    ((uint16_t)btsak->ep_btaddr.val[4] << 8 |
+     (uint16_t)btsak->ep_btaddr.val[5]);
 }
 #endif
 
