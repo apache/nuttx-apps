@@ -626,9 +626,9 @@ int btsak_socket(FAR struct btsak_s *btsak)
   BLUETOOTH_ADDRCOPY(btsak->ep_btaddr.val, g_default_epaddr.val);
 
 #if defined(CONFIG_NET_BLUETOOTH)
-  btsak->ep_sockaddr.bt_family   = AF_BLUETOOTH;
-  btsak->ep_sockaddr.bt_channel  = 0;  /* REVISIT */
-  BLUETOOTH_ADDRCOPY(btsak->ep_sockaddr.bt_bdaddr.val, btsak->ep_btaddr.val);
+  btsak->ep_sockaddr.l2_family  = AF_BLUETOOTH;
+  btsak->ep_sockaddr.l2_cid     = 0;  /* REVISIT */
+  BLUETOOTH_ADDRCOPY(btsak->ep_sockaddr.l2_bdaddr.val, btsak->ep_btaddr.val);
 
   sockfd = socket(PF_BLUETOOTH, SOCK_RAW, BTPROTO_L2CAP);
 
