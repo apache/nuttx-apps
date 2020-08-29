@@ -20,4 +20,11 @@
 
 ifneq ($(CONFIG_INTERPRETERS_DUKTAPE),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/duktape
+
+# It allows `<duktape/duktape.h>` import.
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+    $(APPDIR)/interpreters/duktape/duktape/src-noline}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+    $(APPDIR)/interpreters/duktape/duktape/src-noline}
+
 endif
