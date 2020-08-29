@@ -61,7 +61,8 @@
 struct btsak_command_s
 {
   FAR const char *name;
-  CODE void (*handler)(FAR struct btsak_s *btsak, int argc, FAR char *argv[]);
+  CODE void (*handler)(FAR struct btsak_s *btsak, int argc,
+                       FAR char *argv[]);
   FAR const char *help;
 };
 
@@ -233,7 +234,8 @@ void btsak_cmd_gatt(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
 
   if (cmd == NULL)
     {
-      fprintf(stderr, "ERROR: Unrecognized gatt command: %s\n", argv[argind]);
+      fprintf(stderr, "ERROR: Unrecognized gatt command: %s\n",
+              argv[argind]);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_SUCCESS);
     }
 
@@ -664,7 +666,8 @@ void btsak_showusage(FAR const char *progname, int exitcode)
   fprintf(stderr, "\nUsage:\n\n");
   fprintf(stderr, "\t%s <ifname> <cmd> [option [option [option...]]]\n",
           progname);
-  fprintf(stderr, "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
+  fprintf(stderr,
+          "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
 
   for (i = 0; i < NCOMMANDS; i++)
     {
@@ -698,9 +701,11 @@ void btsak_gatt_showusage(FAR const char *progname, FAR const char *cmd,
 
   fprintf(stderr, "%s:  Generic Attribute (GATT) commands:\n", cmd);
   fprintf(stderr, "Usage:\n\n");
-  fprintf(stderr, "\t%s <ifname> %s [-h] <cmd> [option [option [option...]]]\n",
+  fprintf(stderr,
+          "\t%s <ifname> %s [-h] <cmd> [option [option [option...]]]\n",
           progname, cmd);
-  fprintf(stderr, "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
+  fprintf(stderr,
+          "\nWhere <cmd> [option [option [option...]]] is one of:\n\n");
 
   for (i = 0; i < GATT_NCOMMANDS; i++)
     {
