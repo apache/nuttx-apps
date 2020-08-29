@@ -21,7 +21,7 @@
 include $(APPDIR)/Make.defs
 
 DUKTAPE_VERSION  = 2.5.0
-DUKTAPE_UNPACK   = duktape-$(DUKTAPE_VERSION)
+DUKTAPE_UNPACK   = duktape
 DUKTAPE_TARBALL  = duktape-$(DUKTAPE_VERSION).tar.xz
 DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
 DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
@@ -49,17 +49,18 @@ CFLAGS += -DDUK_CMDLINE_CONSOLE_SUPPORT
 CFLAGS += -DDUK_CMDLINE_PRINTALERT_SUPPORT
 
 $(DUKTAPE_TARBALL):
-	@echo "Downloading $(DUKTAPE_TARBALL)"
-	@wget $(DUKTAPE_URL)
+	$(Q) echo "Downloading $(DUKTAPE_TARBALL)"
+	$(Q) wget $(DUKTAPE_URL)
 
 $(DUKTAPE_UNPACK): $(DUKTAPE_TARBALL)
-	@echo "Unpacking $(DUKTAPE_TARBALL) to $(DUKTAPE_UNPACK)"
-	@tar xvfJ $(DUKTAPE_TARBALL)
-	@echo "Patching $(DUKTAPE_UNPACK)"
-	@patch -p0 < duk_cmdline.patch
-	@touch $(DUKTAPE_UNPACK)/.patch
+	$(Q) echo "Unpacking $(DUKTAPE_TARBALL) to $(DUKTAPE_UNPACK)"
+	$(Q) tar xvfJ $(DUKTAPE_TARBALL)
+	$(Q) mv duktape-$(DUKTAPE_VERSION) $(DUKTAPE_UNPACK)
+	$(Q) echo "Patching $(DUKTAPE_UNPACK)"
+	$(Q) patch -p0 < duk_cmdline.patch
 
 $(DUKTAPE_UNPACK)/.patch: $(DUKTAPE_UNPACK)
+	$(Q) touch $(DUKTAPE_UNPACK)/.patch
 
 context:: $(DUKTAPE_UNPACK)/.patch
 

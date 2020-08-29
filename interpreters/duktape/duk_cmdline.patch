@@ -1,5 +1,5 @@
-diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c
---- duktape-2.5.0/examples/cmdline/duk_cmdline.c	2019-11-25 06:04:27.000000000 +0800
+diff --color -ur duktape/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c
+--- duktape/examples/cmdline/duk_cmdline.c	2019-11-25 06:04:27.000000000 +0800
 +++ duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c	2020-08-07 23:20:27.320000000 +0800
 @@ -103,7 +103,7 @@
  #define  MEM_LIMIT_NORMAL   (128*1024*1024)   /* 128 MB */
@@ -25,8 +25,8 @@ diff --color -ur duktape-2.5.0/examples/cmdline/duk_cmdline.c duktape-2.5.0-modi
  			} else if (idx >= LINEBUF_SIZE) {
  				fprintf(stderr, "line too long\n");
 
-diff --color -ur duktape-2.5.0/src-noline/duk_config.h duktape-2.5.0-modifed/src-noline/duk_config.h
---- duktape-2.5.0/src-noline/duk_config.h	2019-11-25 06:04:27.000000000 +0800
+diff --color -ur duktape/src-noline/duk_config.h duktape-2.5.0-modifed/src-noline/duk_config.h
+--- duktape/src-noline/duk_config.h	2019-11-25 06:04:27.000000000 +0800
 +++ duktape-2.5.0-modifed/src-noline/duk_config.h	2020-08-07 23:14:55.880000000 +0800
 @@ -402,7 +402,7 @@
  /* --- Mac OSX, iPhone, Darwin --- */
