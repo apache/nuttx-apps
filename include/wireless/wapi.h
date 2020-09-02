@@ -644,6 +644,19 @@ int wapi_make_socket(void);
 int wapi_scan_init(int sock, FAR const char *ifname, FAR const char *essid);
 
 /****************************************************************************
+ * Name: wapi_scan_channel_init
+ *
+ * Description:
+ *   Starts a scan on the given interface. Root privileges are required to
+ *   start a scan with specified channels.
+ *
+ ****************************************************************************/
+
+int wapi_scan_channel_init(int sock, FAR const char *ifname,
+                           FAR const char *essid,
+                           uint8_t *channels, int num_channels);
+
+/****************************************************************************
  * Name: wapi_scan_stat
  *
  * Description:

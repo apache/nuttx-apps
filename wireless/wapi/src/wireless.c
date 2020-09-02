@@ -1138,15 +1138,17 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
 }
 
 /****************************************************************************
- * Name: wapi_scan_init
+ * Name: wapi_scan_channel_init
  *
  * Description:
  *   Starts a scan on the given interface. Root privileges are required to
- *   start a scan.
+ *   start a scan with specified channels.
  *
  ****************************************************************************/
 
-int wapi_scan_init(int sock, const char *ifname, const char *essid)
+int wapi_scan_channel_init(int sock, FAR const char *ifname,
+                           FAR const char *essid,
+                           uint8_t *channels, int num_channels)
 {
   struct iw_scan_req req;
   struct iwreq wrq =
@@ -1155,6 +1157,7 @@ int wapi_scan_init(int sock, const char *ifname, const char *essid)
 
   size_t essid_len;
   int ret;
+  int i;
 
   if (essid && (essid_len = strlen(essid)) > 0)
     {
@@ -1168,6 +1171,15 @@ int wapi_scan_init(int sock, const char *ifname, const char *essid)
       wrq.u.data.flags    = IW_SCAN_THIS_ESSID;
     }
 
+  if (channels && num_channels > 0)
+    {
+      req.num_channels = num_channels;
+      for (i = 0; i < num_channels; i++)
+        {
+          req.channel_list[i].m = channels[i];
+        }
+    }
+
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
   ret = ioctl(sock, SIOCSIWSCAN, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
@@ -1178,6 +1190,20 @@ int wapi_scan_init(int sock, const char *ifname, const char *essid)
     }
 
   return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_scan_init
+ *
+ * Description:
+ *   Starts a scan on the given interface. Root privileges are required to
+ *   start a scan.
+ *
+ ****************************************************************************/
+
+int wapi_scan_init(int sock, FAR const char *ifname, FAR const char *essid)
+{
+  return wapi_scan_channel_init(sock, ifname, essid, NULL, 0);
 }
 
 /****************************************************************************
