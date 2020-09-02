@@ -292,8 +292,17 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
         }
     }
 
-  ret = wapi_set_essid(sockfd, wconfig->ifname, wconfig->ssid,
-                       WAPI_ESSID_ON);
+  if (wconfig->bssid)
+    {
+      ret = wapi_set_ap(sockfd, wconfig->ifname,
+                        (FAR const struct ether_addr *)wconfig->bssid);
+    }
+  else
+    {
+      ret = wapi_set_essid(sockfd, wconfig->ifname, wconfig->ssid,
+                           WAPI_ESSID_ON);
+    }
+
   if (ret < 0)
     {
       nerr("ERROR: Fail set ssid: %d\n", ret);
