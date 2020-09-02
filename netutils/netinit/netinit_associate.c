@@ -76,6 +76,7 @@ int netinit_associate(FAR const char *ifname)
       conf.passphrase  = CONFIG_NETINIT_WAPI_PASSPHRASE;
       conf.ssidlen     = strlen(conf.ssid);
       conf.phraselen   = strlen(conf.passphrase);
+      conf.bssid       = NULL;
     }
 
   if (conf.ssidlen > 0)

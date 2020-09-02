@@ -376,6 +376,14 @@ FAR void *wapi_load_config(FAR const char *ifname,
 
   conf->ssid = (FAR const char *)obj->valuestring;
 
+  obj = cJSON_GetObjectItem(ifobj, "bssid");
+  if (!obj || !obj->valuestring)
+    {
+      goto errout;
+    }
+
+  conf->bssid = (FAR const char *)obj->valuestring;
+
   obj = cJSON_GetObjectItem(ifobj, "psk");
   if (!obj || !obj->valuestring)
     {
@@ -460,6 +468,8 @@ int wapi_save_config(FAR const char *ifname,
                              (FAR void *)(intptr_t)conf->alg, true);
   update |= wapi_json_update(ifobj, "ssid",
                              (FAR void *)conf->ssid, false);
+  update |= wapi_json_update(ifobj, "bssid",
+                             (FAR void *)conf->bssid, false);
   update |= wapi_json_update(ifobj, "psk",
                              (FAR void *)conf->passphrase, false);
 

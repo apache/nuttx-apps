@@ -262,6 +262,7 @@ struct wpa_wconfig_s
   uint8_t phraselen;             /* Length of the passphrase */
   FAR const char *ifname;        /* E.g., "wlan0" */
   FAR const char *ssid;          /* E.g., "myApSSID" */
+  FAR const char *bssid;         /* Options to associate with bssid */
   FAR const char *passphrase;    /* E.g., "mySSIDpassphrase" */
 };
 

@@ -798,6 +798,7 @@ static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
   char essid[WAPI_ESSID_MAX_SIZE + 1];
   enum wapi_essid_flag_e essid_flag;
   struct wpa_wconfig_s conf;
+  struct ether_addr ap;
   uint8_t if_flags;
   uint32_t value;
   size_t psk_len;
@@ -833,6 +834,14 @@ static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
 
   conf.ssid = essid;
   conf.ssidlen = strnlen(essid, sizeof(essid));
+
+  ret = wapi_get_ap(sock, argv[0], &ap);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  conf.bssid = (FAR const char *)ap.ether_addr_octet;
 
   memset(psk, 0, sizeof(psk));
   ret = wpa_driver_wext_get_key_ext(sock,
