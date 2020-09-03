@@ -302,7 +302,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
                    * matches.
                    */
 
-                  if (name[j] != tmp_name[j])
+                  if (j < sizeof(tmp_name) && name[j] != tmp_name[j])
                     {
                       tmp_name[j] = '\0';
                     }
@@ -337,7 +337,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
                    * matches.
                    */
 
-                  if (name[j] != tmp_name[j])
+                  if (j < sizeof(tmp_name) && name[j] != tmp_name[j])
                     {
                       tmp_name[j] = '\0';
                     }
