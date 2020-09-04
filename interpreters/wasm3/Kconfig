@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_WASM3
+	tristate "WASM3 Webassembly Runtime"
+	default n
+
+if INTERPRETERS_WASM3
+
+config INTERPRETERS_WASM3_PRIORITY
+	int "WASM3 Webassembly priority"
+	default 100
+
+config INTERPRETERS_WASM3_STACKSIZE
+	int "WASM3 Webassembly stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config INTERPRETERS_WASM3_CODEPAGE
+	int "WASM3 code page align size"
+	default 512
+
+config INTERPRETERS_WASM3_FIXEDHEAP
+	int "WASM3 Fixed heap size"
+	default 0
+	---help---
+	0 : Use malloc/free instead of internal heap
+
+config INTERPRETERS_WASM3_LOG
+	bool "WASM3 log"
+	default n
+
+if INTERPRETERS_WASM3_LOG
+
+config INTERPRETERS_WASM3_LOG_VERBOSE
+	bool "WASM3 log verbose"
+	default n
+
+endif
+
+endif
