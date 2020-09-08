@@ -70,7 +70,11 @@ PROGNAME := $(shell echo $(PROGNAME))
 
 # Object files
 
-AOBJS = $(ASRCS:.S=$(SUFFIX)$(OBJEXT))
+RASRCS = $(filter %.s,$(ASRCS))
+CASRCS = $(filter %.S,$(ASRCS))
+
+AOBJS = $(RASRCS:.s=$(SUFFIX)$(OBJEXT))
+AOBJS += $(CASRCS:.S=$(SUFFIX)$(OBJEXT))
 COBJS = $(CSRCS:.c=$(SUFFIX)$(OBJEXT))
 CXXOBJS = $(CXXSRCS:$(CXXEXT)=$(SUFFIX)$(OBJEXT))
 
@@ -119,7 +123,7 @@ define ELFLD
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
 endef
 
-$(AOBJS): %$(SUFFIX)$(OBJEXT): %.S
+$(AOBJS): %$(SUFFIX)$(OBJEXT): $(ASRCS)
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(AELFFLAGS)), \
 		$(call ELFASSEMBLE, $<, $@), $(call ASSEMBLE, $<, $@))
 
