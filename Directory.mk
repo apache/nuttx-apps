@@ -39,7 +39,6 @@ include $(APPDIR)/Make.defs
 
 SUBDIRS       := $(dir $(wildcard *$(DELIM)Makefile))
 CONFIGSUBDIRS := $(filter-out $(dir $(wildcard *$(DELIM)Kconfig)),$(SUBDIRS))
-CLEANSUBDIRS  := $(dir $(wildcard *$(DELIM).built))
 CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).depend))
 CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).kconfig))
 CLEANSUBDIRS  := $(sort $(CLEANSUBDIRS))
