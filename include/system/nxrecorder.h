@@ -163,7 +163,7 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
  *   nchannels - channels num
  *   bpsampe   - bit width
  *   samprate  - sample rate
- *
+ *   chmap      channel map
  *
  * Returned Value:
  *   OK if file found, device found, and recordback started.
@@ -172,7 +172,7 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
 
 int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
                          FAR const char *filename, uint8_t nchannels,
-                         uint8_t bpsamp, uint32_t samprate);
+                         uint8_t bpsamp, uint32_t samprate, uint8_t chmap);
 
 /****************************************************************************
  * Name: nxrecorder_stop

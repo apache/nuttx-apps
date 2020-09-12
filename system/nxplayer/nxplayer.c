@@ -1768,7 +1768,8 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
  *              determined by nxplayer_playfile()
  *   nchannels  channels num (raw data playback needed)
  *   bpsamp     bits pre sample (raw data playback needed)
- *   samplrate  samplre rate (raw data playback needed)
+ *   samprate  samplre rate (raw data playback needed)
+ *   chmap      channel map (raw data playback needed)
  *
  * Returns:
  *   OK         File is being played
@@ -1783,7 +1784,8 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
                                  FAR const char *pfilename, int filefmt,
                                  int subfmt, uint8_t nchannels,
-                                 uint8_t bpsamp, uint32_t samprate)
+                                 uint8_t bpsamp, uint32_t samprate,
+                                 uint8_t chmap)
 {
   struct mq_attr      attr;
   struct sched_param  sparam;
@@ -1917,6 +1919,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type           = AUDIO_TYPE_OUTPUT;
       cap_desc.caps.ac_channels       = nchannels;
+      cap_desc.caps.ac_chmap          = chmap;
       cap_desc.caps.ac_controls.hw[0] = samprate;
       cap_desc.caps.ac_controls.b[3]  = samprate >> 16;
       cap_desc.caps.ac_controls.b[2]  = bpsamp;
@@ -2026,7 +2029,8 @@ err_out_nodev:
 int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
                       FAR const char *pfilename, int filefmt, int subfmt)
 {
-  return nxplayer_playinternal(pplayer, pfilename, filefmt, subfmt, 0, 0, 0);
+  return nxplayer_playinternal(pplayer, pfilename, filefmt,
+                               subfmt, 0, 0, 0, 0);
 }
 
 /****************************************************************************
@@ -2043,6 +2047,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
+ *   chmap      channel map
  *
  * Returns:
  *   OK         File is being played
@@ -2055,7 +2060,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
 
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
                      FAR const char *pfilename, uint8_t nchannels,
-                     uint8_t bpsamp, uint32_t samprate)
+                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
 {
   if (nchannels == 0)
     {
@@ -2073,7 +2078,7 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
     }
 
   return nxplayer_playinternal(pplayer, pfilename, AUDIO_FMT_PCM, 0,
-                               nchannels, bpsamp, samprate);
+                               nchannels, bpsamp, samprate, chmap);
 }
 
 /****************************************************************************
