@@ -95,7 +95,7 @@ VPATH += :.
 
 # Targets follow
 
-all:: .built
+all:: $(OBJS)
 .PHONY: clean depend distclean
 .PRECIOUS: $(BIN)
 
@@ -131,13 +131,12 @@ $(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
-.built: $(OBJS)
+archive:
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-	$(call ARLOCK, "${shell cygpath -w $(BIN)}", $^)
+	$(call ARCHIVE_ADD, "${shell cygpath -w $(BIN)}", $(OBJS))
 else
-	$(call ARLOCK, $(BIN), $^)
+	$(call ARCHIVE_ADD, $(BIN), $(OBJS))
 endif
-	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE),y)
 
@@ -234,7 +233,6 @@ endif
 depend:: .depend
 
 clean::
-	$(call DELFILE, .built)
 	$(call CLEAN)
 
 distclean:: clean
