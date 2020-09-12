@@ -222,6 +222,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
+ *   chmap      channel map
  *
  * Returned Value:
  *   OK if file found, device found, and playback started.
@@ -230,7 +231,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
 
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
                      FAR const char *filename, uint8_t nchannels,
-                     uint8_t bpsamp, uint32_t samprate);
+                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap);
 
 /****************************************************************************
  * Name: nxplayer_stop

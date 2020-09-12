@@ -178,9 +178,11 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
   int channels = 0;
   int bpsamp = 0;
   int samprate = 0;
+  int chmap = 0;
   char filename[128];
 
-  sscanf(parg, "%s %d %d %d", filename, &channels, &bpsamp, &samprate);
+  sscanf(parg, "%s %d %d %d %d", filename, &channels, &bpsamp,
+                                 &samprate, &chmap);
 
   /* Try to record the file specified */
 
@@ -188,7 +190,8 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
                              filename,
                              channels,
                              bpsamp,
-                             samprate);
+                             samprate,
+                             chmap);
 
   /* nxrecorder_recordfile returned values:
    *

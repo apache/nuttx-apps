@@ -749,6 +749,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
+ *   chmap      channel map
  *
  * Returns:
  *   OK         File is being recorded
@@ -761,7 +762,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 
 int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
                          FAR const char *pfilename, uint8_t nchannels,
-                         uint8_t bpsamp, uint32_t samprate)
+                         uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
 {
   struct mq_attr           attr;
   struct sched_param       sparam;
@@ -826,6 +827,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
   cap_desc.caps.ac_type = AUDIO_TYPE_INPUT;
   cap_desc.caps.ac_channels = nchannels ? nchannels : 2;
+  cap_desc.caps.ac_chmap    = chmap;
   cap_desc.caps.ac_controls.hw[0] = samprate ? samprate : 48000;
   cap_desc.caps.ac_controls.b[3] = samprate >> 16;
   cap_desc.caps.ac_controls.b[2]  = bpsamp ? bpsamp : 16;
