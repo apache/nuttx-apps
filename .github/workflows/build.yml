@@ -180,7 +180,7 @@ jobs:
         with:
           run: |
             cd sources/testing
-            ./cibuild.sh -x testlist/${{matrix.boards}}.dat
+            ./cibuild.sh testlist/${{matrix.boards}}.dat
 
   macOS:
     runs-on: macos-10.15
@@ -231,4 +231,4 @@ jobs:
       - name: Run Builds
         run: |
           cd sources/testing
-          ./cibuild.sh -i -x testlist/${{matrix.boards}}.dat
+          ./cibuild.sh -i testlist/${{matrix.boards}}.dat
