@@ -383,6 +383,9 @@ static int ntpc_daemon(int argc, char **argv)
     {
       nerr("ERROR: Failed to resolve '%s'\n",
            CONFIG_NETUTILS_NTPCLIENT_SERVER);
+
+      g_ntpc_daemon.state = NTP_STOPPED;
+      sem_post(&g_ntpc_daemon.sync);
       return EXIT_FAILURE;
     }
 #endif
