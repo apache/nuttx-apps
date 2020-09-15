@@ -35,7 +35,7 @@
 #
 ############################################################################
 
-APPDIR = $(CURDIR)
+export APPDIR = $(CURDIR)
 include $(APPDIR)/Make.defs
 
 # Symbol table for loadable apps.
@@ -78,7 +78,7 @@ ifeq ($(CONFIG_BUILD_KERNEL),y)
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
-	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
+	$(Q) $(MAKE) install
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
@@ -94,16 +94,16 @@ ifeq ($(CONFIG_BUILD_LOADABLE),)
 
 $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
-		$(MAKE) -C "$${app}" archive TOPDIR="${TOPDIR}" APPDIR="${APPDIR}" ; \
+		$(MAKE) -C "$${app}" archive ; \
 	done
 
 else
 
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
-		$(MAKE) -C "$${app}" archive TOPDIR="${TOPDIR}" APPDIR="${APPDIR}" ; \
+		$(MAKE) -C "$${app}" archive ; \
 	done
-	$(Q) $(MAKE) install TOPDIR="$(TOPDIR)"
+	$(Q) $(MAKE) install 
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
@@ -150,13 +150,13 @@ import: $(IMPORT_TOOLS)
 endif # CONFIG_BUILD_KERNEL
 
 dirlinks:
-	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C platform dirlinks
 
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
 context_serialize:
-	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(MAKE) context_rest TOPDIR="$(TOPDIR)"
+	$(Q) $(MAKE) -C builtin context
+	$(Q) $(MAKE) context_rest
 
 context: context_serialize
 
@@ -184,8 +184,8 @@ endif
 depend: .depend
 
 clean_context:
-	$(Q) $(MAKE) -C platform clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-	$(Q) $(MAKE) -C builtin clean_context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C platform clean_context
+	$(Q) $(MAKE) -C builtin clean_context
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
