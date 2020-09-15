@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_WAMR
+	tristate "Webassembly Micro Runtime"
+	default n
+
+if INTERPRETERS_WAMR
+
+config INTERPRETERS_WAMR_PRIORITY
+	int "Webassembly Micro Runtime priority"
+	default 100
+
+config INTERPRETERS_WAMR_STACKSIZE
+	int "Webassembly Micro Runtime stack size"
+	default 8192
+
+config INTERPRETERS_WAMR_AOT
+	bool "Enable AOT"
+	default n
+
+config INTERPRETERS_WAMR_FAST
+	bool "Enable fast interpreter"
+	default n
+
+config INTERPRETERS_WAMR_LOG
+	bool "Enable log"
+	default n
+
+config INTERPRETERS_WAMR_LIBC_BUILTIN
+	bool "Enable built-in libc"
+	default n
+
+endif
