@@ -669,7 +669,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
 
   if (apb->nbytes < apb->nmaxbytes)
     {
-#ifdef CONFIG_DEBUG_AUDIO_INFO
+#if defined (CONFIG_DEBUG_AUDIO_INFO) || defined (CONFIG_DEBUG_AUDIO_ERROR)
       int errcode = errno;
 
       audinfo("Closing audio file, nbytes=%d errcode=%d\n",
