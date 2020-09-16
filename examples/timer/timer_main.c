@@ -45,12 +45,14 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
-
+#include <string.h>
 #include <nuttx/timers/timer.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+#define DEVNAME_SIZE 11
 
 #ifndef CONFIG_EXAMPLES_TIMER_DEVNAME
 #  define CONFIG_EXAMPLES_TIMER_DEVNAME "/dev/timer0"
@@ -71,6 +73,10 @@
 #ifndef CONFIG_EXAMPLES_TIMER_SIGNO
 #  define CONFIG_EXAMPLES_TIMER_SIGNO 17
 #endif
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -142,16 +148,37 @@ int main(int argc, FAR char *argv[])
   int ret;
   int fd;
   int i;
+  int opt;
+  char devname[DEVNAME_SIZE];
+  strcpy(devname, CONFIG_EXAMPLES_TIMER_DEVNAME);
+  
+  while ((opt = getopt(argc, argv, ":d:")) != -1) 
+  {
+    switch (opt) 
+    {
+      case 'd':
+          strcpy(devname, optarg);
+          break;
+      case ':':
+          fprintf(stderr, "ERROR: Option needs a value\n");
+          exit(EXIT_FAILURE);
+      default: /* '?' */
+          fprintf(stderr, "Usage: %s [-d /dev/timerx]\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+    }
+  }
+
 
   /* Open the timer device */
 
-  printf("Open %s\n", CONFIG_EXAMPLES_TIMER_DEVNAME);
+  printf("Open %s\n", devname);
 
-  fd = open(CONFIG_EXAMPLES_TIMER_DEVNAME, O_RDONLY);
+  fd = open(devname, O_RDONLY);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
-              CONFIG_EXAMPLES_TIMER_DEVNAME, errno);
+              devname, errno);
       return EXIT_FAILURE;
     }
 
