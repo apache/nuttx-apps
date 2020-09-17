@@ -470,7 +470,7 @@ int main(int argc, FAR char *argv[])
     }
 
   printf("Test finished\n");
-  munmap(state.fd, state.fbmem);
+  munmap(state.fbmem, state.pinfo.fblen);
   close(state.fd);
   return EXIT_SUCCESS;
 }
