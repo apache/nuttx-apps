@@ -33,4 +33,26 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 	bool "Enable built-in libc"
 	default n
 
+config INTERPRETERS_WAMR_MULTI_MODULE
+	bool "Enable mutli module support"
+	default n
+
+config INTERPRETERS_WAMR_MINILOADER
+	bool "Enable mini-loader"
+	default n
+	---help---
+	Mini-loader don't check the integrity of wasm module
+
+config INTERPRETERS_WAMR_THREAD_MGR
+	bool "Enable thread manager"
+	default n
+
+config INTERPRETERS_WAMR_LIB_PTHREAD
+	bool "Enable lib pthread"
+	default n
+
+config INTERPRETERS_WAMR_DISABLE_HW_BOUND_CHECK
+	bool "Disable hardware bound check"
+	default n
+
 endif
