@@ -238,6 +238,7 @@ depend:: .depend
 
 clean::
 	$(call CLEAN)
+	$(call DELFILE, $(wildcard $(foreach obj, $(OBJS), $(addsuffix /$(obj), $(subst :, ,$(VPATH))))))
 
 distclean:: clean
 	$(call DELFILE, Make.dep)
