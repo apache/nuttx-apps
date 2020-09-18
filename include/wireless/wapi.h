@@ -258,6 +258,8 @@ struct wpa_wconfig_s
                                   * IW_AUTH_CIPHER_CCMP */
   uint8_t alg;                   /* See enum wpa_alg_e above, e.g.
                                   * WPA_ALG_CCMP */
+  double freq;                   /* Channel frequency */
+  enum wapi_freq_flag_e flag;    /* Channel frequency flag */
   uint8_t ssidlen;               /* Length of the SSID */
   uint8_t phraselen;             /* Length of the passphrase */
   FAR const char *ifname;        /* E.g., "wlan0" */
