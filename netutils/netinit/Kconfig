@@ -103,6 +103,18 @@ config NETINIT_LOSS_POLL_RATE
 		The network monitor will check the PHY link state every
 		NETINIT_LOSS_POLL_RATE seconds for link loss.
 
+config NETINIT_FALLBACK
+	int "The number of failed DHCP attempts to fall back to using static settings"
+	default 5
+	depends on !ARCH_PHY_INTERRUPT && ARCH_PHY_POLLED && BOARDCTL_NETCONF
+	---help---
+		When the network monitor is used with BOARDCTL_NETCONF if, the
+		the BOARDIOC_NETCONF_FALLBACK is used. NETINIT_FALLBACK will
+		be the number of times, DHCP will be be attempted before falling
+		back to using the static settings. The time will be roughly
+		NETINIT_LOSS_POLL_RATE * NETINIT_FALLBACK seconds.
+		Setting this value to 0, will disable this feature.
+
 config NETINIT_SIGNO
 	int "Notification signal number"
 	default 18
