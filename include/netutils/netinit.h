@@ -74,7 +74,8 @@
 #  define CONFIG_NETINIT_MACADDR   0x00e0deadbeef
 #endif
 
-#if !defined(CONFIG_NETINIT_THREAD) || !defined(CONFIG_ARCH_PHY_INTERRUPT) || \
+#if !defined(CONFIG_NETINIT_THREAD) || \
+    !(defined(CONFIG_ARCH_PHY_INTERRUPT) || defined(CONFIG_ARCH_PHY_POLLED)) || \
     !defined(CONFIG_NETDEV_PHY_IOCTL) || !defined(CONFIG_NET_UDP)
 #  undef CONFIG_NETINIT_MONITOR
 #endif
