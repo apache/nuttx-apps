@@ -279,6 +279,18 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
       goto close_socket;
     }
 
+  if (wconfig->freq)
+    {
+      ret = wapi_set_freq(sockfd, wconfig->ifname,
+                          wconfig->freq,
+                          wconfig->flag == WAPI_FREQ_FIXED ?
+                          IW_FREQ_FIXED : IW_FREQ_AUTO);
+      if (ret < 0)
+        {
+          nerr("WARNING: Fail set freq: %d\n", ret);
+        }
+    }
+
   if (wconfig->phraselen > 0)
     {
       ret = wpa_driver_wext_set_key_ext(sockfd, wconfig->ifname,
@@ -292,20 +304,25 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
         }
     }
 
+  if (wconfig->ssid)
+    {
+      ret = wapi_set_essid(sockfd, wconfig->ifname,
+                           wconfig->ssid, WAPI_ESSID_ON);
+      if (ret < 0)
+        {
+          nerr("ERROR: Fail set ssid: %d\n", ret);
+          goto close_socket;
+        }
+    }
+
   if (wconfig->bssid)
     {
       ret = wapi_set_ap(sockfd, wconfig->ifname,
                         (FAR const struct ether_addr *)wconfig->bssid);
-    }
-  else
-    {
-      ret = wapi_set_essid(sockfd, wconfig->ifname, wconfig->ssid,
-                           WAPI_ESSID_ON);
-    }
-
-  if (ret < 0)
-    {
-      nerr("ERROR: Fail set ssid: %d\n", ret);
+      if (ret < 0)
+        {
+          nerr("ERROR: Fail set bssid: %d\n", ret);
+        }
     }
 
 close_socket:
