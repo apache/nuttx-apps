@@ -63,6 +63,10 @@
 
 #include <nuttx/net/mii.h>
 
+#if defined(CONFIG_FSUTILS_IPCFG)
+#  include <fsutils/ipcfg.h>
+#endif
+
 #include "netutils/netlib.h"
 #if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
 #  include "netutils/dhcpc.h"
@@ -246,6 +250,12 @@
 #ifdef CONFIG_NETINIT_DHCPC
 static struct dhcpc_state g_ds;
 #endif
+#if defined(CONFIG_FSUTILS_IPCFG)
+static struct ipv4cfg_s g_netconf;
+#  if defined(CONFIG_NETINIT_DHCP_FALLBACK) && CONFIG_NETINIT_DHCP_FALLBACK > 0
+#    define USE_DHCP_FALLBACK 1
+#  endif
+#endif
 
 #ifdef CONFIG_NETINIT_MONITOR
 static sem_t g_notify_sem;
@@ -357,6 +367,86 @@ static void netinit_set_macaddr(void)
 #  define netinit_set_macaddr()
 #endif
 
+#ifdef CONFIG_FSUTILS_IPCFG
+/****************************************************************************
+ * Name: netinit_get_ipaddrs
+ *
+ * Description:
+ *   Setup IP addresses.
+ *
+ *   For 6LoWPAN, the IP address derives from the MAC address.  Setting it
+ *   to any user provided value is asking for trouble.
+ *
+ ****************************************************************************/
+
+static int netinit_get_ipaddrs(void)
+{
+#ifdef CONFIG_NETINIT_DHCPC
+  bool use_dhcp   = false;
+#endif
+  bool use_static = false;
+#ifdef CONFIG_NET_IPv4
+  struct in_addr addr;
+  int ret;
+
+  ret = ipcfg_read(NET_DEVNAME, (FAR struct ipcfg_s *) &g_netconf, AF_INET);
+  if (ret < 0)
+    {
+      return ret;
+    }
+  else
+    {
+      use_static = g_netconf.proto & BOOTPROTO_STATIC;
+
+#ifdef CONFIG_NETINIT_DHCPC
+      use_dhcp = g_netconf.proto & IPv4PROTO_DHCP;
+      addr.s_addr = use_dhcp ? 0 : HTONL(g_netconf.ipaddr);
+#else
+      addr.s_addr = HTONL(g_netconf.ipaddr);
+#endif
+      netlib_set_ipv4addr(NET_DEVNAME, &addr);
+
+      /* Set up the default router address */
+
+      addr.s_addr = use_static ? HTONL(g_netconf.router) : 0;
+      netlib_set_dripv4addr(NET_DEVNAME, &addr);
+
+      /* Setup the subnet mask */
+
+      addr.s_addr = use_static ? HTONL(g_netconf.netmask) : 0;
+      netlib_set_ipv4netmask(NET_DEVNAME, &addr);
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifndef CONFIG_NET_ICMPv6_AUTOCONF
+  /* Set up our fixed host address */
+
+  netlib_set_ipv6addr(NET_DEVNAME,
+                      (FAR const struct in6_addr *)g_ipv6_hostaddr);
+
+  /* Set up the default router address */
+
+  netlib_set_dripv6addr(NET_DEVNAME,
+                        (FAR const struct in6_addr *)g_ipv6_draddr);
+
+  /* Setup the subnet mask */
+
+  netlib_set_ipv6netmask(NET_DEVNAME,
+                        (FAR const struct in6_addr *)g_ipv6_netmask);
+
+#endif /* CONFIG_NET_ICMPv6_AUTOCONF */
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NETINIT_DNS
+  addr.s_addr = use_static ? HTONL(g_netconf.dnsaddr) : 0;
+  netlib_set_ipv4dnsaddr(&addr);
+#endif
+    }
+
+  return OK;
+}
+#endif
+
 /****************************************************************************
  * Name: netinit_set_ipaddrs
  *
@@ -372,6 +462,13 @@ static void netinit_set_macaddr(void)
     defined(CONFIG_NET_IEEE802154)
 static void netinit_set_ipaddrs(void)
 {
+#ifdef CONFIG_FSUTILS_IPCFG
+  if (netinit_get_ipaddrs() == OK)
+    {
+      return;
+    }
+
+#endif
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
 
@@ -437,7 +534,13 @@ static int netinit_dhcp(struct dhcpc_state *ds)
 {
   uint8_t mac[IFHWADDRLEN];
   FAR void *handle;
-  int ret = -1;
+  int ret = -EAGAIN;
+#ifdef CONFIG_FSUTILS_IPCFG
+  if ((g_netconf.proto & IPv4PROTO_DHCP) == 0)
+    {
+      return -ENOSYS;
+    }
+#endif
 
   /* Get the MAC address of the NIC */
 
@@ -613,6 +716,9 @@ static int netinit_monitor(void)
 #endif
 #ifdef CONFIG_NETINIT_DHCPC
   struct timespec dhcprenew;
+#  if defined(USE_DHCP_FALLBACK)
+  int dhcp_fail_count = 0;
+#  endif
 #endif
   bool devup;
   int ret;
@@ -781,8 +887,11 @@ static int netinit_monitor(void)
               DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &abstime));
 
               /* Did we ever get a lease */
-
+#ifdef CONFIG_FSUTILS_IPCFG
+              if (g_ds.lease_time == 0 && (g_netconf.proto & IPv4PROTO_DHCP))
+#else
               if (g_ds.lease_time == 0)
+#endif
                 {
                   /* No so, let's try to bring up the network */
 
@@ -797,18 +906,52 @@ static int netinit_monitor(void)
                       DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &dhcprenew));
                       dhcprenew.tv_sec  += g_ds.lease_time / 2;
                     }
+#if defined(USE_DHCP_FALLBACK)
+                  else
+                    {
+                      if ((g_netconf.proto & BOOTPROTO_FALLBACK) ==
+                          BOOTPROTO_FALLBACK &&
+                          ++dhcp_fail_count > CONFIG_NETINIT_DHCP_FALLBACK)
+                        {
+                          struct in_addr addr;
+                          g_netconf.proto &= ~IPv4PROTO_DHCP;
+                          addr.s_addr = HTONL(g_netconf.ipaddr);
+                          netlib_set_ipv4addr(NET_DEVNAME, &addr);
+                        }
+                    }
+#endif
                 }
+#ifdef CONFIG_FSUTILS_IPCFG
+              else if (abstime.tv_sec > dhcprenew.tv_sec && g_netconf.proto &
+                  IPv4PROTO_DHCP)
+#else
               else if (abstime.tv_sec > dhcprenew.tv_sec)
+#endif
                 {
                   /* Do the renew */
 
-                  if (netinit_dhcp(&g_ds) == OK)
+                  ret = netinit_dhcp(&g_ds);
+                  if (ret == OK)
                     {
                       /* Yes, set next renewal time */
 
                       DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &dhcprenew));
                       dhcprenew.tv_sec  += g_ds.lease_time / 2;
                     }
+#if defined(USE_DHCP_FALLBACK)
+                  else if (ret == -EAGAIN)
+                    {
+                      if ((g_netconf.proto & BOOTPROTO_FALLBACK) ==
+                          BOOTPROTO_FALLBACK &&
+                          ++dhcp_fail_count > CONFIG_NETINIT_DHCP_FALLBACK)
+                        {
+                          struct in_addr addr;
+                          g_netconf.proto &= ~IPv4PROTO_DHCP;
+                          addr.s_addr = HTONL(g_netconf.ipaddr);
+                          netlib_set_ipv4addr(NET_DEVNAME, &addr);
+                        }
+                    }
+#endif
                 }
 
 #endif
