@@ -221,13 +221,22 @@
 #  define AF_INETX AF_INET6
 #endif
 
-/* While the network is up, the network monitor really does nothing.  It
- * will wait for a very long time while waiting, it can be awakened by a
- * signal indicating a change in network status.
+/* If using signal notification, raise by a the PHY, then while the network
+ * is up, the network monitor really does nothing.  It will wait for a very
+ * long time while waiting, it can be awakened by a signal indicating a
+ * change in network status.
+ *
+ * If the network monitor is used in polled mode these values are set by the
+ * CONFIG_NETINIT_LOSS_POLL_RATE and CONFIG_NETINIT_ESTABLISH_POLL_RATE
  */
 
-#define LONG_TIME_SEC    (60*60) /* One hour in seconds */
-#define SHORT_TIME_SEC   (2)     /* 2 seconds */
+#if !(defined(CONFIG_ARCH_PHY_POLLED))
+#  define LONG_TIME_SEC    (60*60) /* One hour in seconds */
+#  define SHORT_TIME_SEC   (2)     /* 2 seconds */
+#else
+#  define LONG_TIME_SEC    (CONFIG_NETINIT_LOSS_POLL_RATE)
+#  define SHORT_TIME_SEC   (CONFIG_NETINIT_ESTABLISH_POLL_RATE)
+#endif
 
 /****************************************************************************
  * Private Data
@@ -537,7 +546,7 @@ static void netinit_configure(void)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NETINIT_MONITOR
+#if defined(CONFIG_NETINIT_MONITOR) && !defined(CONFIG_ARCH_PHY_POLLED)
 static void netinit_signal(int signo, FAR siginfo_t *siginfo,
                                FAR void * context)
 {
@@ -573,8 +582,10 @@ static int netinit_monitor(void)
   struct timespec abstime;
   struct timespec reltime;
   struct ifreq ifr;
+#if !defined(CONFIG_ARCH_PHY_POLLED)
   struct sigaction act;
   struct sigaction oact;
+#endif
   bool devup;
   int ret;
   int sd;
@@ -599,6 +610,7 @@ static int netinit_monitor(void)
       goto errout;
     }
 
+#if !defined(CONFIG_ARCH_PHY_POLLED)
   /* Attach a signal handler so that we do not lose PHY events */
 
   act.sa_sigaction = netinit_signal;
@@ -614,6 +626,7 @@ static int netinit_monitor(void)
       goto errout_with_socket;
     }
 
+#endif
   /* Now loop, waiting for changes in link status */
 
   for (; ; )
@@ -626,6 +639,7 @@ static int netinit_monitor(void)
       ifr.ifr_mii_notify_event.sigev_notify = SIGEV_SIGNAL;
       ifr.ifr_mii_notify_event.sigev_signo  = CONFIG_NETINIT_SIGNO;
 
+#if !defined(CONFIG_ARCH_PHY_POLLED)
       ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
       if (ret < 0)
         {
@@ -636,6 +650,7 @@ static int netinit_monitor(void)
           goto errout_with_sigaction;
         }
 
+#endif
       /* Does the driver think that the link is up or down? */
 
       ret = ioctl(sd, SIOCGIFFLAGS, (unsigned long)&ifr);
@@ -776,11 +791,13 @@ static int netinit_monitor(void)
   /* TODO: Stop the PHY notifications and remove the signal handler. */
 
 errout_with_notification:
+#if !defined(CONFIG_ARCH_PHY_POLLED)
   ifr.ifr_mii_notify_event.sigev_notify = SIGEV_NONE;
   ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
 errout_with_sigaction:
   sigaction(CONFIG_NETINIT_SIGNO, &oact, NULL);
 errout_with_socket:
+#endif
   close(sd);
 errout:
   nerr("ERROR: Aborting\n");
