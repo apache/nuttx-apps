@@ -1,9 +1,10 @@
 /****************************************************************************
  * apps/netutils/netinit/netinit.c
  *
- *   Copyright (C) 2010-2012, 2014-2016, 2019 Gregory Nutt. All rights
+ *   Copyright (C) 2010-2012, 2014-2016, 2019-2020 Gregory Nutt. All rights
  *     reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   AuthorS: Gregory Nutt <gnutt@nuttx.org>
+ *            David Sidrane <david.sidrane@nscdg.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -242,6 +243,10 @@
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_NETINIT_DHCPC
+static struct dhcpc_state g_ds;
+#endif
+
 #ifdef CONFIG_NETINIT_MONITOR
 static sem_t g_notify_sem;
 #endif
@@ -420,6 +425,65 @@ static void netinit_set_ipaddrs(void)
 #endif
 
 /****************************************************************************
+ * Name: netinit_dhcp()
+ *
+ * Description:
+ *   Renew or obtain a IP Address over DHCP
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NETINIT_DHCPC
+static int netinit_dhcp(struct dhcpc_state *ds)
+{
+  uint8_t mac[IFHWADDRLEN];
+  FAR void *handle;
+  int ret = -1;
+
+  /* Get the MAC address of the NIC */
+
+  netlib_getmacaddr(NET_DEVNAME, mac);
+
+  /* Set up the DHCPC modules */
+
+  handle = dhcpc_open(NET_DEVNAME, &mac, IFHWADDRLEN);
+  if (handle == NULL)
+    {
+      return ret;
+    }
+
+  /* Get an IP address.  Note that there is no logic for renewing the
+   * IP address in this example. The address should be renewed in
+   * (ds.lease_time / 2) seconds.
+   */
+
+  ret = dhcpc_request(handle, ds) ;
+
+  if (ret == OK)
+    {
+      netlib_set_ipv4addr(NET_DEVNAME, &ds->ipaddr);
+
+      if (ds->netmask.s_addr != 0)
+        {
+          netlib_set_ipv4netmask(NET_DEVNAME, &ds->netmask);
+        }
+
+      if (ds->default_router.s_addr != 0)
+        {
+          netlib_set_dripv4addr(NET_DEVNAME, &ds->default_router);
+        }
+
+      if (ds->dnsaddr.s_addr != 0)
+        {
+          netlib_set_ipv4dnsaddr(&ds->dnsaddr);
+        }
+    }
+
+  dhcpc_close(handle);
+  return ret;
+}
+#endif
+
+/****************************************************************************
  * Name: netinit_net_bringup()
  *
  * Description:
@@ -430,12 +494,6 @@ static void netinit_set_ipaddrs(void)
 #if defined(NETINIT_HAVE_NETDEV) && !defined(CONFIG_NETINIT_NETLOCAL)
 static void netinit_net_bringup(void)
 {
-#ifdef CONFIG_NETINIT_DHCPC
-  uint8_t mac[IFHWADDRLEN];
-  struct dhcpc_state ds;
-  FAR void *handle;
-#endif
-
   /* Bring the network up. */
 
   if (netlib_ifup(NET_DEVNAME) < 0)
@@ -459,44 +517,7 @@ static void netinit_net_bringup(void)
 #endif
 
 #ifdef CONFIG_NETINIT_DHCPC
-  /* Get the MAC address of the NIC */
-
-  netlib_getmacaddr(NET_DEVNAME, mac);
-
-  /* Set up the DHCPC modules */
-
-  handle = dhcpc_open(NET_DEVNAME, &mac, IFHWADDRLEN);
-  if (handle == NULL)
-    {
-      return;
-    }
-
-  /* Get an IP address.  Note that there is no logic for renewing the
-   * IP address in this example. The address should be renewed in
-   * (ds.lease_time / 2) seconds.
-   */
-
-  if (dhcpc_request(handle, &ds) == OK)
-    {
-      netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
-
-      if (ds.netmask.s_addr != 0)
-        {
-          netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
-        }
-
-      if (ds.default_router.s_addr != 0)
-        {
-          netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
-        }
-
-      if (ds.dnsaddr.s_addr != 0)
-        {
-          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-        }
-    }
-
-  dhcpc_close(handle);
+  netinit_dhcp(&g_ds);
 #endif
 
 #ifdef CONFIG_NETUTILS_NTPCLIENT
@@ -532,6 +553,10 @@ static void netinit_configure(void)
 
 #ifndef CONFIG_NETINIT_NETLOCAL
   /* Bring the network up. */
+
+#ifdef CONFIG_NETINIT_DHCPC
+    memset(&g_ds, 0, sizeof(g_ds));
+#endif
 
   netinit_net_bringup();
 #endif
@@ -586,6 +611,9 @@ static int netinit_monitor(void)
   struct sigaction act;
   struct sigaction oact;
 #endif
+#ifdef CONFIG_NETINIT_DHCPC
+  struct timespec dhcprenew;
+#endif
   bool devup;
   int ret;
   int sd;
@@ -627,6 +655,18 @@ static int netinit_monitor(void)
     }
 
 #endif
+
+#ifdef CONFIG_NETINIT_DHCPC
+  /* We assume that the netinit_thread was able to get a lease
+   * If it did we set up the renew point at lease_time / 2
+   * if it did not the renew point is now.
+   */
+
+  DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &dhcprenew));
+  dhcprenew.tv_sec  += g_ds.lease_time / 2;
+  dhcprenew.tv_nsec = 0;
+#endif
+
   /* Now loop, waiting for changes in link status */
 
   for (; ; )
@@ -735,6 +775,43 @@ static int netinit_monitor(void)
             {
               /* The link is still up.  Take a long, well-deserved rest */
 
+#ifdef CONFIG_NETINIT_DHCPC
+              /* Get Current time */
+
+              DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &abstime));
+
+              /* Did we ever get a lease */
+
+              if (g_ds.lease_time == 0)
+                {
+                  /* No so, let's try to bring up the network */
+
+                  netinit_net_bringup();
+
+                  /* Did we get a lease */
+
+                  if (g_ds.lease_time != 0)
+                    {
+                      /* Yes, set next renewal time */
+
+                      DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &dhcprenew));
+                      dhcprenew.tv_sec  += g_ds.lease_time / 2;
+                    }
+                }
+              else if (abstime.tv_sec > dhcprenew.tv_sec)
+                {
+                  /* Do the renew */
+
+                  if (netinit_dhcp(&g_ds) == OK)
+                    {
+                      /* Yes, set next renewal time */
+
+                      DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &dhcprenew));
+                      dhcprenew.tv_sec  += g_ds.lease_time / 2;
+                    }
+                }
+
+#endif
               reltime.tv_sec  = LONG_TIME_SEC;
               reltime.tv_nsec = 0;
             }
@@ -763,6 +840,13 @@ static int netinit_monitor(void)
                 }
             }
 
+#ifdef CONFIG_NETINIT_DHCPC
+          /* Link went down, next up could be a different network,
+           * so force a renew, on the next up.
+           */
+
+          dhcprenew.tv_sec = 0;
+#endif
           /* In either case, wait for the short, configurable delay */
 
           reltime.tv_sec  = CONFIG_NETINIT_RETRYMSEC / 1000;
