@@ -61,8 +61,8 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),register)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),clean)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
 $(MKDEP): $(TOPDIR)/tools/mkdeps.c
 	$(HOSTCC) $(HOSTINCLUDES) $(HOSTCFLAGS) $< -o $@
@@ -190,7 +190,7 @@ clean_context:
 	$(Q) $(MAKE) -C platform clean_context
 	$(Q) $(MAKE) -C builtin clean_context
 
-clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
+clean: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_clean)
 	$(call DELFILE, $(SYMTABSRC))
 	$(call DELFILE, $(SYMTABOBJ))
 	$(call DELFILE, $(BIN))
@@ -198,7 +198,7 @@ clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELDIR, $(BINDIR))
 	$(call CLEAN)
 
-distclean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_distclean)
+distclean: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_distclean)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) ( if exist  external ( \
 		echo ********************************************************" \
