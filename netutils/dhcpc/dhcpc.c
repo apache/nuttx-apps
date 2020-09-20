@@ -244,7 +244,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
 
   /* Get the current host name */
 
-  if (gethostname(hostname, sizeof(hostname)))
+  if (gethostname(hostname, sizeof(hostname)) || (0 == strlen(hostname)))
     {
       strncpy(hostname, CONFIG_NETUTILS_DHCPC_HOST_NAME, HOST_NAME_MAX);
     }
