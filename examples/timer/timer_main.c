@@ -52,7 +52,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DEVNAME_SIZE 11
+#define DEVNAME_SIZE 16
 
 #ifndef CONFIG_EXAMPLES_TIMER_DEVNAME
 #  define CONFIG_EXAMPLES_TIMER_DEVNAME "/dev/timer0"
