@@ -55,4 +55,20 @@ config INTERPRETERS_WAMR_DISABLE_HW_BOUND_CHECK
 	bool "Disable hardware bound check"
 	default n
 
+config INTERPRETERS_WAMR_CUSTOM_NAME_SECTIONS
+	bool "Enable custom name section support"
+	default n
+
+config INTERPRETERS_WAMR_GLOBAL_HEAP_POOL
+	bool "Enable global heap pool"
+	default n
+
+if INTERPRETERS_WAMR_GLOBAL_HEAP_POOL
+
+config INTERPRETERS_WAMR_GLOBAL_HEAP_POOL_SIZE
+	int "Global heap pool size (in KB)"
+	default 128
+
+endif
+
 endif
