@@ -332,8 +332,8 @@ static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pplayer, char *parg)
   int chmap = 0;
   char filename[128];
 
-  sscanf(parg, "%s %d %d %d", filename, &channels, &bpsamp,
-                              &samprate, &chmap);
+  sscanf(parg, "%s %d %d %d %d", filename, &channels, &bpsamp,
+                                 &samprate, &chmap);
 
   /* Try to play the file specified */
 
