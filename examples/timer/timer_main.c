@@ -151,24 +151,23 @@ int main(int argc, FAR char *argv[])
   int opt;
   char devname[DEVNAME_SIZE];
   strcpy(devname, CONFIG_EXAMPLES_TIMER_DEVNAME);
-  
-  while ((opt = getopt(argc, argv, ":d:")) != -1) 
-  {
-    switch (opt) 
-    {
-      case 'd':
-          strcpy(devname, optarg);
-          break;
-      case ':':
-          fprintf(stderr, "ERROR: Option needs a value\n");
-          exit(EXIT_FAILURE);
-      default: /* '?' */
-          fprintf(stderr, "Usage: %s [-d /dev/timerx]\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-    }
-  }
 
+  while ((opt = getopt(argc, argv, ":d:")) != -1)
+    {
+      switch (opt)
+      {
+        case 'd':
+            strcpy(devname, optarg);
+            break;
+        case ':':
+            fprintf(stderr, "ERROR: Option needs a value\n");
+            exit(EXIT_FAILURE);
+        default: /* '?' */
+            fprintf(stderr, "Usage: %s [-d /dev/timerx]\n",
+                    argv[0]);
+            exit(EXIT_FAILURE);
+      }
+    }
 
   /* Open the timer device */
 
@@ -194,7 +193,8 @@ int main(int argc, FAR char *argv[])
   ret = ioctl(fd, TCIOC_SETTIMEOUT, CONFIG_EXAMPLES_TIMER_INTERVAL);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to set the timer interval: %d\n", errno);
+      fprintf(stderr, "ERROR: Failed to set the timer interval: %d\n",
+              errno);
       close(fd);
       return EXIT_FAILURE;
     }
