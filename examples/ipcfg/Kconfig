@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_IPCFG
+	tristate "IPv4 Configuration file example"
+	default n
+	select FS_TMPFS
+	---help---
+		Enable the IPv4 Configuration file example
+
+if EXAMPLES_IPCFG
+
+config EXAMPLES_IPCFG_PROGNAME
+	string "IPCFG Program name"
+	default "ipcfg"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_IPCFG_PRIORITY
+	int "IPCFG task priority"
+	default 100
+
+config EXAMPLES_IPCFG_STACKSIZE
+	int "IPCFG stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
