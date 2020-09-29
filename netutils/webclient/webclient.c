@@ -75,7 +75,6 @@
 
 #if defined(CONFIG_NETUTILS_CODECS)
 #  if defined(CONFIG_CODECS_URLCODE)
-#    define WGET_USE_URLENCODE 1
 #    include "netutils/urldecode.h"
 #  endif
 #  if defined(CONFIG_CODECS_BASE64)
