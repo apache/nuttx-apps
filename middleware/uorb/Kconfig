@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config UORB
+	tristate "uORB async pub/sub IPC"
+	default n
+	depends on HAVE_CXX
+	---help---
+		Enable the uORB 
