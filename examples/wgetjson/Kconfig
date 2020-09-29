@@ -6,7 +6,7 @@
 config EXAMPLES_WGETJSON
 	tristate "wget JSON Example"
 	default n
-	depends on NETUTILS_JSON
+	depends on NETUTILS_CJSON
 	---help---
 		Enable the wget JSON example
 
