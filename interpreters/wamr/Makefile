@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-WAMR_VERSION  = 09-08-2020
+WAMR_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETERS_WAMR_VERSION)))
 WAMR_UNPACK   = wamr
 WAMR_TARBALL  = WAMR-$(WAMR_VERSION).tar.gz
 WAMR_URL_BASE = https://github.com/bytecodealliance/wasm-micro-runtime/archive/
@@ -46,11 +46,7 @@ $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) tar xzvf $(WAMR_TARBALL)
 	$(Q) mv wasm-micro-runtime-WAMR-$(WAMR_VERSION) $(WAMR_UNPACK)
 
-$(WAMR_UNPACK)/.patch: $(WAMR_UNPACK)
-	$(Q) cd $(WAMR_UNPACK) && patch -p1 < ../0001-Introduce-support-for-NuttX-RTOS.patch
-	$(Q) touch $(WAMR_UNPACK)/.patch
-
-context:: $(WAMR_UNPACK)/.patch
+context:: $(WAMR_UNPACK)
 
 distclean::
 	$(call DELDIR, $(WAMR_UNPACK))

@@ -9,6 +9,12 @@ config INTERPRETERS_WAMR
 
 if INTERPRETERS_WAMR
 
+config INTERPRETERS_WAMR_VERSION
+	string "WAMR Version"
+	default "09-29-2020"
+	---help---
+	Version 09-29-2020 and later supported.
+
 config INTERPRETERS_WAMR_PRIORITY
 	int "Webassembly Micro Runtime priority"
 	default 100
