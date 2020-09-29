@@ -356,10 +356,19 @@ errout:
 
 #ifdef CONFIG_NET_TCP
 #ifndef CONFIG_NSH_DISABLE_WGET
-static void wget_callback(FAR char **buffer, int offset, int datend,
+static int wget_callback(FAR char **buffer, int offset, int datend,
                           FAR int *buflen, FAR void *arg)
 {
-  write((int)((intptr_t)arg), &((*buffer)[offset]), datend - offset);
+  ssize_t written = write((int)((intptr_t)arg), &((*buffer)[offset]),
+                          datend - offset);
+  if (written == -1)
+    {
+      return -errno;
+    }
+
+  /* Revisit: Do we want to check and report short writes? */
+
+  return 0;
 }
 #endif
 #endif
@@ -1354,10 +1363,18 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* And perform the wget */
 
-  ret = wget(url, buffer, CONFIG_NSH_WGET_BUFF_SIZE,
-             wget_callback, (FAR void *)((intptr_t)fd));
+  struct webclient_context ctx;
+  webclient_set_defaults(&ctx);
+  ctx.method = "GET";
+  ctx.url = url;
+  ctx.buffer = buffer;
+  ctx.buflen = CONFIG_NSH_WGET_BUFF_SIZE;
+  ctx.sink_callback = wget_callback;
+  ctx.sink_callback_arg = (FAR void *)((intptr_t)fd);
+  ret = webclient_perform(&ctx);
   if (ret < 0)
     {
+      errno = -ret;
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "wget", NSH_ERRNO);
       goto exit;
     }
