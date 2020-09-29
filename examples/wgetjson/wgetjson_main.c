@@ -260,8 +260,9 @@ static void wgetjson_json_item_scan(cJSON *item, const char *prefix)
 
   while (item)
     {
-      newprefix = malloc(strlen(prefix) + strlen(item->string) + 2);
-      sprintf(newprefix, "%s/%s", prefix, item->string);
+      const char *string = item->string ? item->string : "(null)";
+      newprefix = malloc(strlen(prefix) + strlen(string) + 2);
+      sprintf(newprefix, "%s/%s", prefix, string);
 
       dorecurse = wgetjson_json_item_callback(newprefix, item->type, item);
       if (item->child && dorecurse)
