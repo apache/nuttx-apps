@@ -381,11 +381,10 @@ int main(int argc, FAR char *argv[])
   buffer = malloc(buffer_len);
   wgetjson_json_release();
 
-  printf("URL: %s\n", url);
-
   if (is_post)
     {
       url = CONFIG_EXAMPLES_WGETPOST_URL;
+      printf("URL: %s\n", url);
       if (is_post_multi)
         {
           post_buff_len = web_posts_strlen(post_multi_names,
@@ -411,6 +410,7 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
+      printf("URL: %s\n", url);
       ret = wget(url, buffer, buffer_len, wget_cb , NULL);
     }
 
