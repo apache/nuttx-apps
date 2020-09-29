@@ -94,10 +94,18 @@ static char g_iobuffer[512];
  * Name: callback
  ****************************************************************************/
 
-static void callback(FAR char **buffer, int offset, int datend,
+static int callback(FAR char **buffer, int offset, int datend,
                      FAR int *buflen, FAR void *arg)
 {
-  write(1, &((*buffer)[offset]), datend - offset);
+  ssize_t written = write(1, &((*buffer)[offset]), datend - offset);
+  if (written == -1)
+    {
+      return -errno;
+    }
+
+  /* Revisit: Do we want to check and report short writes? */
+
+  return 0;
 }
 
 /****************************************************************************
@@ -152,14 +160,23 @@ int main(int argc, FAR char *argv[])
 
   /* Then start the server */
 
+  struct webclient_context ctx;
+  webclient_set_defaults(&ctx);
+  ctx.method = "GET";
+  ctx.buffer = g_iobuffer;
+  ctx.buflen = 512;
+  ctx.sink_callback = callback;
+  ctx.sink_callback_arg = NULL;
   if (argc > 1)
     {
-      wget(argv[1], g_iobuffer, 512, callback, NULL);
+      ctx.url = argv[1];
     }
   else
     {
-      wget(CONFIG_EXAMPLES_WGET_URL, g_iobuffer, 512, callback, NULL);
+      ctx.url = CONFIG_EXAMPLES_WGET_URL;
     }
+
+  webclient_perform(&ctx);
 
   return 0;
 }
