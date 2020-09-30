@@ -92,6 +92,13 @@ struct ipcfg_s
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
 
 /****************************************************************************
  * Name: ipcfg_read
@@ -131,6 +138,10 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg);
 
 #ifdef CONFIG_IPCFG_WRITABLE
 int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg);
+#endif
+#undef EXTERN
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __APPS_INCLUDE_FSUTILS_IPCFG_H */
