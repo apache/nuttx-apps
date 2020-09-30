@@ -201,8 +201,6 @@ static int ipcfg_open(FAR const char *netdev, int oflags, mode_t mode)
   /* Now open the file */
 
   fd  = open(path, oflags, mode);
-  ret = OK;
-
   if (fd < 0)
     {
       ret = -errno;
@@ -220,11 +218,14 @@ static int ipcfg_open(FAR const char *netdev, int oflags, mode_t mode)
   if (ret < 0)
     {
       ret = -errno;
+      close(fd);
       fprintf(stderr, "ERROR: Failed to seek to $ld: %d\n",
               (long)CONFIG_IPCFG_OFFSET, ret);
-      close(fd);
+      goto errout_with_path;
     }
+
 #endif
+  ret = fd;
 
 errout_with_path:
   free(path);
