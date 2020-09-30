@@ -551,7 +551,7 @@ int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg)
 
   /* Format and write the file */
 
-  if ((unsigned)ipcfg->proto == MAX_BOOTPROTO)
+  if ((unsigned)ipcfg->proto > MAX_BOOTPROTO)
     {
       fprintf(stderr, "ERROR: Unrecognized BOOTPROTO value: %d\n",
               ipcfg->proto);
