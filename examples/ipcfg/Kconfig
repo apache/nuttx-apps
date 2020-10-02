@@ -4,11 +4,12 @@
 #
 
 config EXAMPLES_IPCFG
-	tristate "IPv4 Configuration file example"
+	tristate "IP Configuration file example"
 	default n
 	select FS_TMPFS
+	depends on FSUTILS_IPCFG
 	---help---
-		Enable the IPv4 Configuration file example
+		Enable the IP Configuration file example
 
 if EXAMPLES_IPCFG
 

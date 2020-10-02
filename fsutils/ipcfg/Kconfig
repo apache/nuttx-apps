@@ -4,41 +4,38 @@
 #
 
 config FSUTILS_IPCFG
-	bool "IPv4 Configuration File Support"
+	bool "IP Configuration File Support"
 	default n
-	depends on NET_IPv4
+	depends on NET_IPv4 || NET_IPv6
 	---help---
-		Enables support for an IPv4 configuration file that holds IP
+		Enables support for an IP configuration file that holds IP
 		address and/or DHCP configuration information for a
 		specific network device
-
-		There is no dependency on IPv4 networking support so this
-		configuration may be used in testing without a network.
 
 if FSUTILS_IPCFG
 
 config IPCFG_WRITABLE
-	bool "Writable IPv4 Configuration"
+	bool "Writable IP Configuration"
 	default y
 	---help---
-		Can be used to disable writing to the IPv4 Configuration file.  This
-		would be necessary if, for example, the IPv4 Configuration file were
+		Can be used to disable writing to the IP Configuration file.  This
+		would be necessary if, for example, the IP Configuration file were
 		provided on a read-only file system.
 
 config IPCFG_BINARY
-	bool "Binary IPv4 Configuration File"
+	bool "Binary IP Configuration File"
 	default n
 	---help---
-		By default, the IPv4 configuration file is an ASCII human readable
+		By default, the IP configuration file is an ASCII human readable
 		file with <varialble>=<value> pairs.  A Binary interface may be used
 		for more constrained media such as EEPROM.
 
 config IPCFG_PATH
-	string "IPv4 Configuration File Directory"
+	string "IP Configuration File Directory"
 	default "/etc/sysconfig/network-scripts"
 	---help---
 		Specifies the full path to the directory or mountpoint that holds
-		the IPv4 Configuration files.  Each individual configuration file
+		the IP Configuration files.  Each individual configuration file
 		within this directory will have names like ipcfg-eth0.
 
 		If CONFIG_IPCFG_CHARDEV is select, this setting is interpreted
@@ -62,10 +59,10 @@ config IPCFG_OFFSET
 	default 0
 	depends on IPCFG_CHARDEV
 	---help---
-		Seek to this offset before reading or writing the IPv4 Configuration.
+		Seek to this offset before reading or writing the IP Configuration.
 		This is only support for the character driver device.  This permits
 		some formatting of, say, EEPROM, so that multiple, different
-		configurations can be maintained at differnt offsets into the IPv4
+		configurations can be maintained at differnt offsets into the IP
 		Configuration File.
 
 endif # FSUTILS_IPCFG

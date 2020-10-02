@@ -26,49 +26,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <ctype.h>
-
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <debug.h>
 
 #include "fsutils/ipcfg.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define MAX_LINESIZE  80
-#define MAX_IPv4PROTO IPv4PROTO_FALLBACK
-
-/* Values for the record type field */
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/* IP Configuration record header. */
-
-struct ipcfg_header_s
-{
-  uint8_t next;         /* Offset to the next IP configuration record */
-  sa_family_t type;     /* Must be AF_INET */
-};
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#if defined(CONFIG_IPCFG_WRITABLE) && !defined(CONFIG_IPCFG_BINARY)
-static const char *g_ipv4proto_name[] =
-{
-  "none",      /* IPv4PROTO_NONE */
-  "static",    /* IPv4PROTO_STATIC */
-  "dhcp",      /* IPv4PROTO_DHCP */
-  "fallback"   /* IPv4PROTO_FALLBACK */
-};
-#endif
+#include "ipcfg.h"
 
 /****************************************************************************
  * Private Functions
@@ -107,8 +68,7 @@ static inline FAR char *ipcfg_allocpath(FAR const char *netdev)
     {
       /* Assume that asprintf failed to allocate memory */
 
-      fprintf(stderr, "ERROR: Failed to create path to ipcfg file: %d\n",
-              ret);
+      ferr("ERROR: Failed to create path to ipcfg file: %d\n", ret);
       return NULL;
     }
 
@@ -125,201 +85,6 @@ static inline FAR char *ipcfg_allocpath(FAR const char *netdev)
   return strdup(CONFIG_IPCFG_PATH);
 #endif
 }
-
-/****************************************************************************
- * Name: ipcfg_open (for ASCII mode)
- *
- * Description:
- *   Form the complete path to the ipcfg file and open it.
- *
- * Input Parameters:
- *   netdev - The network device.  For examplel "eth0"
- *   stream - Location to return the opened stream
- *   mode   - File fopen mode
- *
- * Returned Value:
- *   Zero is returned on success; a negated errno value is returned on any
- *   failure.
- *
- ****************************************************************************/
-
-#ifndef CONFIG_IPCFG_BINARY
-static int ipcfg_open(FAR const char *netdev, FAR FILE **stream,
-                      FAR const char *mode)
-{
-  FAR char *path;
-  int ret;
-
-  /* Create the full path to the ipcfg file for the network device */
-
-  path = ipcfg_allocpath(netdev);
-  if (path == NULL)
-    {
-      /* Assume failure to allocate memory */
-
-      fprintf(stderr, "ERROR: Failed to create path to ipcfg file\n");
-      return -ENOMEM;
-    }
-
-  /* Now open the file */
-
-  *stream = fopen(path, mode);
-  ret     = OK;
-
-  if (*stream == NULL)
-    {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to open %s: %d\n", path, ret);
-    }
-
-  free(path);
-  return ret;
-}
-#endif
-
-/****************************************************************************
- * Name: ipcfg_open (for binary mode)
- *
- * Description:
- *   Form the complete path to the ipcfg file and open it.
- *
- * Input Parameters:
- *   netdev - The network device.  For examplel "eth0"
- *   oflags - File open flags
- *   mode   - File creation mode
- *
- * Returned Value:
- *   The open file descriptor is returned on success; a negated errno value
- *   is returned on any failure.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_IPCFG_BINARY
-static int ipcfg_open(FAR const char *netdev, int oflags, mode_t mode)
-{
-  FAR char *path;
-  int fd;
-  int ret;
-
-  /* Create the full path to the ipcfg file for the network device */
-
-  path = ipcfg_allocpath(netdev);
-  if (path == NULL)
-    {
-      /* Assume failure to allocate memory */
-
-      fprintf(stderr, "ERROR: Failed to create path to ipcfg file\n");
-      return -ENOMEM;
-    }
-
-  /* Now open the file */
-
-  fd  = open(path, oflags, mode);
-  if (fd < 0)
-    {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to open %s: %d\n", path, ret);
-      goto errout_with_path;
-    }
-
-#if defined(CONFIG_IPCFG_OFFSET) && CONFIG_IPCFG_OFFSET > 0
-  /* If the binary file is accessed on a character device as a binary
-   * file, then there is also an option to seek to a location on the
-   * media before reading or writing the file.
-   */
-
-  ret = lseek(fd, CONFIG_IPCFG_OFFSET, SEEK_SET);
-  if (ret < 0)
-    {
-      ret = -errno;
-      close(fd);
-      fprintf(stderr, "ERROR: Failed to seek to $ld: %d\n",
-              (long)CONFIG_IPCFG_OFFSET, ret);
-      goto errout_with_path;
-    }
-
-#endif
-  ret = fd;
-
-errout_with_path:
-  free(path);
-  return ret;
-}
-#endif
-
-/****************************************************************************
- * Name: ipcfg_trim
- *
- * Description:
- *   Skip over any whitespace.
- *
- * Input Parameters:
- *   line  - Pointer to line buffer
- *   index - Current index into the line buffer
- *
- * Returned Value:
- *   New value of index.
- *
- ****************************************************************************/
-
-#ifndef CONFIG_IPCFG_BINARY
-static int ipcfg_trim(FAR char *line, int index)
-{
-  int ret;
-  while (line[index] != '\0' && isspace(line[index]))
-    {
-      index++;
-    }
-
-  ret = index;
-  while (line[index] != '\0')
-    {
-      if (!isprint(line[index]))
-        {
-          line[index] = '\0';
-          break;
-        }
-
-      index++;
-    }
-
-  return ret;
-}
-#endif
-
-/****************************************************************************
- * Name: ipcfg_putaddr
- *
- * Description:
- *   Write a <variable>=<address> value pair to the stream.
- *
- * Input Parameters:
- *   stream   - The output stream
- *   variable - The variable namespace
- *   address  - The IP address to write
- *
- * Returned Value:
- *   None.
- *
- ****************************************************************************/
-
-#if defined(CONFIG_IPCFG_WRITABLE) && !defined(CONFIG_IPCFG_BINARY)
-static void ipcfg_putaddr(FAR FILE *stream, FAR const char *variable,
-                          in_addr_t address)
-{
-  /* REVISIT:  inet_ntoa() is not thread safe. */
-
-  if (address != 0)
-    {
-      struct in_addr saddr =
-      {
-        address
-      };
-
-      fprintf(stream, "%s=%s\n", variable, inet_ntoa(saddr));
-    }
-}
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -349,182 +114,84 @@ static void ipcfg_putaddr(FAR FILE *stream, FAR const char *variable,
 int ipcfg_read(FAR const char *netdev, FAR void *ipcfg, sa_family_t af)
 {
 #ifdef CONFIG_IPCFG_BINARY
-  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
-  struct ipcfg_header_s hdr;
-  ssize_t nread;
-  int fd;
+  FAR char *path;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
+  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
 
-  /* Open the file */
+  /* Create the full path to the ipcfg file for the network device */
 
-  fd = ipcfg_open(netdev, O_RDONLY, 0666);
-  if (fd < 0)
+  path = ipcfg_allocpath(netdev);
+  if (path == NULL)
     {
-      return fd;
+      /* Assume failure to allocate memory */
+
+      ferr("ERROR: Failed to create path to ipcfg file\n");
+      return -ENOMEM;
     }
 
-  /* Read the header */
-
-  nread = read(fd, &hdr, sizeof(struct ipcfg_header_s));
-  if (nread < 0)
+#ifdef CONFIG_NET_IPv4
+  if (af == AF_INET)
     {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to read file: %d\n", ret);
-      goto errout_with_fd;
-    }
-  else if (nread != sizeof(struct ipcfg_header_s))
-    {
-      ret = -EIO;
-      fprintf(stderr, "ERROR: Bad read size: %ld\n", (long)nread);
-      goto errout_with_fd;
-    }
-
-  /* Verify the header.  Only a single IPv4 header is anticipated */
-
-  if (hdr.next != 0 || hdr.type != AF_INET)
-    {
-      ret = -EINVAL;
-      fprintf(stderr, "ERROR: Bad header: {%u,%u}\n",
-              hdr.next, hdr.type);
-      goto errout_with_fd;
-    }
-
-  /* Read the file content */
-
-  nread = read(fd, ipv4cfg, sizeof(struct ipv4cfg_s));
-  if (nread < 0)
-    {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to read file: %d\n", ret);
-    }
-  else if (nread != sizeof(struct ipv4cfg_s))
-    {
-      ret = -EIO;
-      fprintf(stderr, "ERROR: Bad read size: %ld\n", (long)nread);
+      ret = ipcfg_read_binary_ipv4(path, (FAR struct ipv4cfg_s *)ipcfg);
     }
   else
+#endif
+#ifdef CONFIG_NET_IPv6
+  if (af == AF_INET6)
     {
-      ret = OK;
+      ret = ipcfg_read_binary_ipv6(path, (FAR struct ipv6cfg_s *)ipcfg);
+    }
+  else
+#endif
+    {
+      ferr("ERROR: Unsupported address family: %d\n", af);
+      ret = -EAFNOSUPPORT;
     }
 
-errout_with_fd:
-  close(fd);
+  free(path);
   return ret;
 
 #else
-  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
-  FAR FILE *stream;
-  char line[MAX_LINESIZE];
-  int index;
+  FAR char *path;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
+  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
 
-  /* Open the file */
+  /* Create the full path to the ipcfg file for the network device */
 
-  ret = ipcfg_open(netdev, &stream, "r");
-  if (ret < 0)
+  path = ipcfg_allocpath(netdev);
+  if (path == NULL)
     {
-      return ret;
+      /* Assume failure to allocate memory */
+
+      ferr("ERROR: Failed to create path to ipcfg file\n");
+      return -ENOMEM;
     }
 
-  /* Process each line in the file */
-
-  memset(ipv4cfg, 0, sizeof(FAR struct ipv4cfg_s));
-
-  while (fgets(line, MAX_LINESIZE, stream) != NULL)
+#ifdef CONFIG_NET_IPv4
+  if (af == AF_INET)
     {
-      /* Skip any leading whitespace */
-
-      index = ipcfg_trim(line, 0);
-
-      /* Check for a blank line or a comment */
-
-      if (line[index] != '\0' && line[index] != '#')
-        {
-          FAR char *variable = &line[index];
-          FAR char *value;
-
-          /* Expect <variable>=<value> pair */
-
-          value = strchr(variable, '=');
-          if (value == NULL)
-            {
-              fprintf(stderr, "ERROR: Skipping malformed line in file: %s\n",
-                      line);
-              continue;
-            }
-
-          /* NUL-terminate the variable string */
-
-          *value++ = '\0';
-
-          /* Process the variable assignment */
-
-          if (strcmp(variable, "DEVICE") == 0)
-            {
-              /* Just assure that it matches the filename */
-
-              if (strcmp(value, netdev) != 0)
-                {
-                  fprintf(stderr, "ERROR: Bad device in file: %s=%s\n",
-                          variable, value);
-                }
-            }
-          else if (strcmp(variable, "IPv4PROTO") == 0)
-            {
-              if (strcmp(value, "none") == 0)
-                {
-                  ipv4cfg->proto = IPv4PROTO_NONE;
-                }
-              else if (strcmp(value, "static") == 0)
-                {
-                  ipv4cfg->proto = IPv4PROTO_STATIC;
-                }
-              else if (strcmp(value, "dhcp") == 0)
-                {
-                  ipv4cfg->proto = IPv4PROTO_DHCP;
-                }
-              else if (strcmp(value, "fallback") == 0)
-                {
-                  ipv4cfg->proto = IPv4PROTO_FALLBACK;
-                }
-              else
-                {
-                  fprintf(stderr, "ERROR: Unrecognized IPv4PROTO: %s=%s\n",
-                          variable, value);
-                }
-            }
-          else if (strcmp(variable, "IPv4IPADDR") == 0)
-            {
-              ipv4cfg->ipaddr = inet_addr(value);
-            }
-          else if (strcmp(variable, "IPv4NETMASK") == 0)
-            {
-              ipv4cfg->netmask = inet_addr(value);
-            }
-          else if (strcmp(variable, "IPv4ROUTER") == 0)
-            {
-              ipv4cfg->router = inet_addr(value);
-            }
-          else if (strcmp(variable, "IPv4DNS") == 0)
-            {
-              ipv4cfg->dnsaddr = inet_addr(value);
-            }
-          else
-            {
-              fprintf(stderr, "ERROR: Unrecognized variable: %s=%s\n",
-                     variable, value);
-            }
-        }
+      ret = ipcfg_read_text_ipv4(path, netdev,
+                                 (FAR struct ipv4cfg_s *)ipcfg);
+    }
+  else
+#endif
+#ifdef CONFIG_NET_IPv6
+  if (af == AF_INET6)
+    {
+      ret = ipcfg_read_text_ipv6(path, netdev,
+                                 (FAR struct ipv6cfg_s *)ipcfg);
+    }
+  else
+#endif
+    {
+      ferr("ERROR: Unsupported address family: %d\n", af);
+      ret = -EAFNOSUPPORT;
     }
 
-  /* Close the file and return */
-
-  fclose(stream);
-  return OK;
+  free(path);
+  return ret;
 #endif
 }
 
@@ -552,99 +219,86 @@ int ipcfg_write(FAR const char *netdev, FAR const void *ipcfg,
                 sa_family_t af)
 {
 #ifdef CONFIG_IPCFG_BINARY
-  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
-  struct ipcfg_header_s hdr;
-  ssize_t nwritten;
-  int fd;
+  FAR char *path;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
+  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
 
-  /* Open the file */
+  /* Create the full path to the ipcfg file for the network device */
 
-  fd = ipcfg_open(netdev, O_WRONLY | O_TRUNC | O_CREAT, 0666);
-  if (fd < 0)
+  path = ipcfg_allocpath(netdev);
+  if (path == NULL)
     {
-      return fd;
+      /* Assume failure to allocate memory */
+
+      ferr("ERROR: Failed to create path to ipcfg file\n");
+      return -ENOMEM;
     }
 
-  /* Write the file header */
-
-  hdr.next = 0;
-  hdr.type = AF_INET;
-
-  nwritten = write(fd, &hdr, sizeof(struct ipcfg_header_s));
-  if (nwritten < 0)
+#ifdef CONFIG_NET_IPv4
+  if (af == AF_INET)
     {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to write to file: %d\n", ret);
-      goto errout_with_fd;
-    }
-  else if (nwritten != sizeof(struct ipcfg_header_s))
-    {
-      ret = -EIO;
-      fprintf(stderr, "ERROR: Bad write size: %ld\n", (long)nwritten);
-      goto errout_with_fd;
-    }
-
-  /* Write the file content */
-
-  nwritten = write(fd, ipv4cfg, sizeof(struct ipv4cfg_s));
-  if (nwritten < 0)
-    {
-      ret = -errno;
-      fprintf(stderr, "ERROR: Failed to write file: %d\n", ret);
-    }
-  else if (nwritten != sizeof(struct ipv4cfg_s))
-    {
-      ret = -EIO;
-      fprintf(stderr, "ERROR: Bad write size: %ld\n", (long)nwritten);
+      ret = ipcfg_write_binary_ipv4(path,
+                                    (FAR const struct ipv4cfg_s *)ipcfg);
     }
   else
+#endif
+#ifdef CONFIG_NET_IPv6
+  if (af == AF_INET6)
     {
-      ret = OK;
+      ret = ipcfg_write_binary_ipv6(path,
+                                    (FAR const struct ipv6cfg_s *)ipcfg);
+    }
+  else
+#endif
+    {
+      ferr("ERROR: Unsupported address family: %d\n", af);
+      ret = -EAFNOSUPPORT;
     }
 
-errout_with_fd:
-  close(fd);
+  free(path);
   return ret;
 
 #else
-  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
-  FAR FILE *stream;
+  FAR char *path;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
+  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
 
-  /* Open the file */
+  /* Create the full path to the ipcfg file for the network device */
 
-  ret = ipcfg_open(netdev, &stream, "w");
-  if (ret < 0)
+  path = ipcfg_allocpath(netdev);
+  if (path == NULL)
     {
-      return ret;
+      /* Assume failure to allocate memory */
+
+      ferr("ERROR: Failed to create path to ipcfg file\n");
+      return -ENOMEM;
     }
 
-  /* Format and write the file */
-
-  if ((unsigned)ipv4cfg->proto > MAX_IPv4PROTO)
+#ifdef CONFIG_NET_IPv4
+  if (af == AF_INET)
     {
-      fprintf(stderr, "ERROR: Unrecognized IPv4PROTO value: %d\n",
-              ipv4cfg->proto);
-      return -EINVAL;
+      ret = ipcfg_write_text_ipv4(path, netdev,
+                                  (FAR const struct ipv4cfg_s *)ipcfg);
+    }
+  else
+#endif
+#ifdef CONFIG_NET_IPv6
+  if (af == AF_INET6)
+    {
+      ret = ipcfg_write_text_ipv6(path, netdev,
+                                  (FAR const struct ipv6cfg_s *)ipcfg);
+    }
+  else
+#endif
+    {
+      ferr("ERROR: Unsupported address family: %d\n", af);
+      ret = -EAFNOSUPPORT;
     }
 
-  fprintf(stream, "DEVICE=%s\n", netdev);
-  fprintf(stream, "IPv4PROTO=%s\n", g_ipv4proto_name[ipv4cfg->proto]);
-
-  ipcfg_putaddr(stream, "IPv4IPADDR",  ipv4cfg->ipaddr);
-  ipcfg_putaddr(stream, "IPv4NETMASK", ipv4cfg->netmask);
-  ipcfg_putaddr(stream, "IPv4ROUTER",  ipv4cfg->router);
-  ipcfg_putaddr(stream, "IPv4DNS",     ipv4cfg->dnsaddr);
-
-  /* Close the file and return */
-
-  fclose(stream);
-  return OK;
+  free(path);
+  return ret;
 #endif
 }
 #endif

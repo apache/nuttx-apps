@@ -20,10 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# IPv4 Configuration file access library
+# IP Configuration file access library
 
 ifeq ($(CONFIG_FSUTILS_IPCFG),y)
 CSRCS += ipcfg.c
+ifeq ($(CONFIG_IPCFG_BINARY),y)
+CSRCS += ipcfg_binary.c
+else
+CSRCS += ipcfg_text.c
+endif
 endif
 
 include $(APPDIR)/Application.mk
