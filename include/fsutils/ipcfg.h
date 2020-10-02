@@ -123,10 +123,10 @@ struct ipv4cfg_s
 
 enum ipv6cfg_bootproto_e
 {
-  BOOTPROTO_NONE     = 0, /* No protocol assigned */
-  BOOTPROTO_STATIC   = 1, /* Use static IP */
-  BOOTPROTO_AUTOCONF = 2, /* Use ICMPv6 auto-configuration */
-  BOOTPROTO_FALLBACK = 3  /* Use auto-configuration with fall back static IP */
+  IPv6PROTO_NONE     = 0, /* No protocol assigned */
+  IPv6PROTO_STATIC   = 1, /* Use static IP */
+  IPv6PROTO_AUTOCONF = 2, /* Use ICMPv6 auto-configuration */
+  IPv6PROTO_FALLBACK = 3  /* Use auto-configuration with fall back static IP */
 };
 
 struct ipv6cfg_s
@@ -143,6 +143,7 @@ struct ipv6cfg_s
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
 #ifdef __cplusplus
 #define EXTERN extern "C"
 extern "C"
