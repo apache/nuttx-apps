@@ -46,18 +46,18 @@
 
 #define DEVICE1       "eth0"
 #define DEVICE2       "eth1"
-#define BOOTPROTO_MAX BOOTPROTO_FALLBACK
+#define IPv4PROTO_MAX IPv4PROTO_FALLBACK
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const char *g_proto_name[] =
+static const char *g_ipv4proto_name[] =
 {
-  "none",      /* BOOTPROTO_NONE */
-  "static",    /* BOOTPROTO_STATIC */
-  "dhcp",      /* BOOTPROTO_DHCP */
-  "fallback"   /* BOOTPROTO_FALLBACK */
+  "none",      /* IPv4PROTO_NONE */
+  "static",    /* IPv4PROTO_STATIC */
+  "dhcp",      /* IPv4PROTO_DHCP */
+  "fallback"   /* IPv4PROTO_FALLBACK */
 };
 
 /****************************************************************************
@@ -91,10 +91,10 @@ static void ipcfg_dump_addr(FAR const char *variable, in_addr_t address)
 
 static int ipcfg_dump_config(FAR const char *netdev)
 {
-  struct ipcfg_s ipcfg;
+  struct ipv4cfg_s ipv4cfg;
   int ret;
 
-  ret = ipcfg_read(netdev, &ipcfg);
+  ret = ipcfg_read(netdev, (FAR struct ipcfg_s *)&ipv4cfg, AF_INET);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: ipcfg_read() failed: %d\n", ret);
@@ -105,19 +105,19 @@ static int ipcfg_dump_config(FAR const char *netdev)
 
   printf("%s:\n", netdev);
 
-  if (ipcfg.proto > BOOTPROTO_MAX)
+  if (ipv4cfg.proto > IPv4PROTO_MAX)
     {
-      printf("BOOTPROTO: %d [INVALID]\n", ipcfg.proto);
+      printf("BOOTPROTO: %d [INVALID]\n", ipv4cfg.proto);
     }
   else
     {
-      printf("BOOTPROTO: %s\n", g_proto_name[ipcfg.proto]);
+      printf("BOOTPROTO: %s\n", g_ipv4proto_name[ipv4cfg.proto]);
     }
 
-  ipcfg_dump_addr("IPADDR:     ",  ipcfg.ipaddr);
-  ipcfg_dump_addr("NETMASK:    ",  ipcfg.netmask);
-  ipcfg_dump_addr("ROUTER:     ",  ipcfg.router);
-  ipcfg_dump_addr("DNS:        ",  ipcfg.dnsaddr);
+  ipcfg_dump_addr("IPADDR:     ",  ipv4cfg.ipaddr);
+  ipcfg_dump_addr("NETMASK:    ",  ipv4cfg.netmask);
+  ipcfg_dump_addr("ROUTER:     ",  ipv4cfg.router);
+  ipcfg_dump_addr("DNS:        ",  ipv4cfg.dnsaddr);
 
   return OK;
 }
@@ -128,19 +128,19 @@ static int ipcfg_dump_config(FAR const char *netdev)
 
 static int ipcfg_write_config(FAR const char *netdev)
 {
-  struct ipcfg_s ipcfg;
+  struct ipv4cfg_s ipv4cfg;
   int ret;
 
-  ipcfg.proto   = BOOTPROTO_DHCP;
-  ipcfg.ipaddr  = HTONL(0x0a000002);
-  ipcfg.netmask = HTONL(0xffffff00);
-  ipcfg.router  = HTONL(0x0a000001);
-  ipcfg.router  = HTONL(0x0a000003);
+  ipv4cfg.proto   = IPv4PROTO_DHCP;
+  ipv4cfg.ipaddr  = HTONL(0x0a000002);
+  ipv4cfg.netmask = HTONL(0xffffff00);
+  ipv4cfg.router  = HTONL(0x0a000001);
+  ipv4cfg.dnsaddr = HTONL(0x0a000003);
 
-  ret = ipcfg_write(netdev, &ipcfg);
+  ret = ipcfg_write(netdev, (FAR struct ipcfg_s *)&ipv4cfg, AF_INET);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ipcfg_read() ipcfg_write: %d\n", ret);
+      fprintf(stderr, "ERROR: ipcfg_write() ipcfg_write: %d\n", ret);
     }
 
   return ret;

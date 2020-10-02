@@ -40,19 +40,33 @@
  ****************************************************************************/
 
 #define MAX_LINESIZE  80
-#define MAX_BOOTPROTO BOOTPROTO_FALLBACK
+#define MAX_IPv4PROTO IPv4PROTO_FALLBACK
+
+/* Values for the record type field */
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+/* IP Configuration record header. */
+
+struct ipcfg_header_s
+{
+  uint8_t next;         /* Offset to the next IP configuration record */
+  sa_family_t type;     /* Must be AF_INET */
+};
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 #if defined(CONFIG_IPCFG_WRITABLE) && !defined(CONFIG_IPCFG_BINARY)
-static const char *g_proto_name[] =
+static const char *g_ipv4proto_name[] =
 {
-  "none",      /* BOOTPROTO_NONE */
-  "static",    /* BOOTPROTO_STATIC */
-  "dhcp",      /* BOOTPROTO_DHCP */
-  "fallback"   /* BOOTPROTO_FALLBACK */
+  "none",      /* IPv4PROTO_NONE */
+  "static",    /* IPv4PROTO_STATIC */
+  "dhcp",      /* IPv4PROTO_DHCP */
+  "fallback"   /* IPv4PROTO_FALLBACK */
 };
 #endif
 
@@ -321,7 +335,10 @@ static void ipcfg_putaddr(FAR FILE *stream, FAR const char *variable,
  * Input Parameters:
  *   netdev - The network device.  For examplel "eth0"
  *   ipcfg  - Pointer to a user provided location to receive the IP
- *            configuration.
+ *            configuration.  Refers to either struct ipv4cfg_s or
+ *            ipv6cfg_s, depending on the value of af.
+ *   af     - Identifies the address family whose IP configuration is
+ *            requested.  May be either AF_INET or AF_INET6.
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -329,14 +346,16 @@ static void ipcfg_putaddr(FAR FILE *stream, FAR const char *variable,
  *
  ****************************************************************************/
 
-int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
+int ipcfg_read(FAR const char *netdev, FAR void *ipcfg, sa_family_t af)
 {
 #ifdef CONFIG_IPCFG_BINARY
+  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
+  struct ipcfg_header_s hdr;
   ssize_t nread;
   int fd;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
+  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
 
   /* Open the file */
 
@@ -346,15 +365,41 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
       return fd;
     }
 
+  /* Read the header */
+
+  nread = read(fd, &hdr, sizeof(struct ipcfg_header_s));
+  if (nread < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "ERROR: Failed to read file: %d\n", ret);
+      goto errout_with_fd;
+    }
+  else if (nread != sizeof(struct ipcfg_header_s))
+    {
+      ret = -EIO;
+      fprintf(stderr, "ERROR: Bad read size: %ld\n", (long)nread);
+      goto errout_with_fd;
+    }
+
+  /* Verify the header.  Only a single IPv4 header is anticipated */
+
+  if (hdr.next != 0 || hdr.type != AF_INET)
+    {
+      ret = -EINVAL;
+      fprintf(stderr, "ERROR: Bad header: {%u,%u}\n",
+              hdr.next, hdr.type);
+      goto errout_with_fd;
+    }
+
   /* Read the file content */
 
-  nread = read(fd, ipcfg, sizeof(struct ipcfg_s));
+  nread = read(fd, ipv4cfg, sizeof(struct ipv4cfg_s));
   if (nread < 0)
     {
       ret = -errno;
       fprintf(stderr, "ERROR: Failed to read file: %d\n", ret);
     }
-  else if (nread != sizeof(struct ipcfg_s))
+  else if (nread != sizeof(struct ipv4cfg_s))
     {
       ret = -EIO;
       fprintf(stderr, "ERROR: Bad read size: %ld\n", (long)nread);
@@ -364,16 +409,18 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
       ret = OK;
     }
 
+errout_with_fd:
   close(fd);
   return ret;
 
 #else
+  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
   FAR FILE *stream;
   char line[MAX_LINESIZE];
   int index;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
+  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
 
   /* Open the file */
 
@@ -385,7 +432,7 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
 
   /* Process each line in the file */
 
-  memset(ipcfg, 0, sizeof(FAR struct ipcfg_s));
+  memset(ipv4cfg, 0, sizeof(FAR struct ipv4cfg_s));
 
   while (fgets(line, MAX_LINESIZE, stream) != NULL)
     {
@@ -426,45 +473,45 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
                           variable, value);
                 }
             }
-          else if (strcmp(variable, "BOOTPROTO") == 0)
+          else if (strcmp(variable, "IPv4PROTO") == 0)
             {
               if (strcmp(value, "none") == 0)
                 {
-                  ipcfg->proto = BOOTPROTO_NONE;
+                  ipv4cfg->proto = IPv4PROTO_NONE;
                 }
               else if (strcmp(value, "static") == 0)
                 {
-                  ipcfg->proto = BOOTPROTO_STATIC;
+                  ipv4cfg->proto = IPv4PROTO_STATIC;
                 }
               else if (strcmp(value, "dhcp") == 0)
                 {
-                  ipcfg->proto = BOOTPROTO_DHCP;
+                  ipv4cfg->proto = IPv4PROTO_DHCP;
                 }
               else if (strcmp(value, "fallback") == 0)
                 {
-                  ipcfg->proto = BOOTPROTO_FALLBACK;
+                  ipv4cfg->proto = IPv4PROTO_FALLBACK;
                 }
               else
                 {
-                  fprintf(stderr, "ERROR: Unrecognized BOOTPROTO: %s=%s\n",
+                  fprintf(stderr, "ERROR: Unrecognized IPv4PROTO: %s=%s\n",
                           variable, value);
                 }
             }
-          else if (strcmp(variable, "IPADDR") == 0)
+          else if (strcmp(variable, "IPv4IPADDR") == 0)
             {
-              ipcfg->ipaddr = inet_addr(value);
+              ipv4cfg->ipaddr = inet_addr(value);
             }
-          else if (strcmp(variable, "NETMASK") == 0)
+          else if (strcmp(variable, "IPv4NETMASK") == 0)
             {
-              ipcfg->netmask = inet_addr(value);
+              ipv4cfg->netmask = inet_addr(value);
             }
-          else if (strcmp(variable, "ROUTER") == 0)
+          else if (strcmp(variable, "IPv4ROUTER") == 0)
             {
-              ipcfg->router = inet_addr(value);
+              ipv4cfg->router = inet_addr(value);
             }
-          else if (strcmp(variable, "DNS") == 0)
+          else if (strcmp(variable, "IPv4DNS") == 0)
             {
-              ipcfg->dnsaddr = inet_addr(value);
+              ipv4cfg->dnsaddr = inet_addr(value);
             }
           else
             {
@@ -489,7 +536,10 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
  *
  * Input Parameters:
  *   netdev - The network device.  For examplel "eth0"
- *   ipcfg  - The IP configuration to be written.
+ *   ipcfg  - The IP configuration to be written.  Refers to either struct
+ *            ipv4cfg_s or ipv6cfg_s, depending on the value of af.
+ *   af     - Identifies the address family whose IP configuration is
+ *            to be written.  May be either AF_INET or AF_INET6.
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -498,14 +548,17 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg)
  ****************************************************************************/
 
 #ifdef CONFIG_IPCFG_WRITABLE
-int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg)
+int ipcfg_write(FAR const char *netdev, FAR const void *ipcfg,
+                sa_family_t af)
 {
 #ifdef CONFIG_IPCFG_BINARY
+  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
+  struct ipcfg_header_s hdr;
   ssize_t nwritten;
   int fd;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
+  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
 
   /* Open the file */
 
@@ -515,15 +568,34 @@ int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg)
       return fd;
     }
 
+  /* Write the file header */
+
+  hdr.next = 0;
+  hdr.type = AF_INET;
+
+  nwritten = write(fd, &hdr, sizeof(struct ipcfg_header_s));
+  if (nwritten < 0)
+    {
+      ret = -errno;
+      fprintf(stderr, "ERROR: Failed to write to file: %d\n", ret);
+      goto errout_with_fd;
+    }
+  else if (nwritten != sizeof(struct ipcfg_header_s))
+    {
+      ret = -EIO;
+      fprintf(stderr, "ERROR: Bad write size: %ld\n", (long)nwritten);
+      goto errout_with_fd;
+    }
+
   /* Write the file content */
 
-  nwritten = write(fd, ipcfg, sizeof(struct ipcfg_s));
+  nwritten = write(fd, ipv4cfg, sizeof(struct ipv4cfg_s));
   if (nwritten < 0)
     {
       ret = -errno;
       fprintf(stderr, "ERROR: Failed to write file: %d\n", ret);
     }
-  else if (nwritten != sizeof(struct ipcfg_s))
+  else if (nwritten != sizeof(struct ipv4cfg_s))
     {
       ret = -EIO;
       fprintf(stderr, "ERROR: Bad write size: %ld\n", (long)nwritten);
@@ -533,14 +605,16 @@ int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg)
       ret = OK;
     }
 
+errout_with_fd:
   close(fd);
   return ret;
 
 #else
+  FAR struct ipv4cfg_s *ipv4cfg = (FAR struct ipv4cfg_s *)ipcfg;
   FAR FILE *stream;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipcfg != NULL);
+  DEBUGASSERT(netdev != NULL && ipv4cfg != NULL && af == AF_INET);
 
   /* Open the file */
 
@@ -552,20 +626,20 @@ int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg)
 
   /* Format and write the file */
 
-  if ((unsigned)ipcfg->proto > MAX_BOOTPROTO)
+  if ((unsigned)ipv4cfg->proto > MAX_IPv4PROTO)
     {
-      fprintf(stderr, "ERROR: Unrecognized BOOTPROTO value: %d\n",
-              ipcfg->proto);
+      fprintf(stderr, "ERROR: Unrecognized IPv4PROTO value: %d\n",
+              ipv4cfg->proto);
       return -EINVAL;
     }
 
   fprintf(stream, "DEVICE=%s\n", netdev);
-  fprintf(stream, "BOOTPROTO=%s\n", g_proto_name[ipcfg->proto]);
+  fprintf(stream, "IPv4PROTO=%s\n", g_ipv4proto_name[ipv4cfg->proto]);
 
-  ipcfg_putaddr(stream, "IPADDR",  ipcfg->ipaddr);
-  ipcfg_putaddr(stream, "NETMASK", ipcfg->netmask);
-  ipcfg_putaddr(stream, "ROUTER",  ipcfg->router);
-  ipcfg_putaddr(stream, "DNS",     ipcfg->dnsaddr);
+  ipcfg_putaddr(stream, "IPv4IPADDR",  ipv4cfg->ipaddr);
+  ipcfg_putaddr(stream, "IPv4NETMASK", ipv4cfg->netmask);
+  ipcfg_putaddr(stream, "IPv4ROUTER",  ipv4cfg->router);
+  ipcfg_putaddr(stream, "IPv4DNS",     ipv4cfg->dnsaddr);
 
   /* Close the file and return */
 

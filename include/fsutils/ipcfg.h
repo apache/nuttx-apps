@@ -31,23 +31,17 @@
  * Public Types
  ****************************************************************************/
 
-/* Values for the BOOTPROTO setting */
-
-enum ipcfg_bootproto_e
-{
-  BOOTPROTO_NONE     = 0, /* No protocol assigned */
-  BOOTPROTO_STATIC   = 1, /* Use static IP */
-  BOOTPROTO_DHCP     = 2, /* Use DHCP */
-  BOOTPROTO_FALLBACK = 3  /* Use DHCP with fall back static IP */
-};
-
 /* The structure contains the parsed content of the ipcfg-<dev> file.
  * Summary of file content:
+ *
+ * Common Settings:
  *
  * DEVICE=name
  *   where name is the name of the physical device.
  *
- * BOOTPROTO=protocol
+ * IPv4 Settings:
+ *
+ * IPv4BOOTPROTO=protocol
  *   where protocol is one of the following:
  *
  *     none     - No protocol selected
@@ -58,25 +52,35 @@ enum ipcfg_bootproto_e
  * All of the following addresses are in network order.  The special value
  * zero is used to indicate that the address is not available:
  *
- * IPADDR=address
+ * IPv4ADDR=address
  *    where address is the IPv4 address.  Used only with static or fallback
  *    protocols.
  *
- * NETMASK=address
+ * IPv4NETMASK=address
  *    where address is the netmask.  Used only with static or fallback
  *    protocols.
  *
- * ROUTER=address
+ * IPv4ROUTER=address
  *    where address is the IPv4 default router address.  Used only with
  *    static or fallback protocols.
  *
- * DNS=address
+ * IPv4DNS=address
  *   where address is a (optional) name server address.
  */
 
-struct ipcfg_s
+/* Values for the IPv4BOOTPROTO setting */
+
+enum ipv4cfg_bootproto_e
 {
-  enum ipcfg_bootproto_e proto; /* Configure for static and/or DHCP */
+  IPv4PROTO_NONE     = 0, /* No protocol assigned */
+  IPv4PROTO_STATIC   = 1, /* Use static IP */
+  IPv4PROTO_DHCP     = 2, /* Use DHCP */
+  IPv4PROTO_FALLBACK = 3  /* Use DHCP with fall back static IP */
+};
+
+struct ipv4cfg_s
+{
+  enum ipv4cfg_bootproto_e proto; /* Configure for static and/or DHCP */
 
   /* The following fields are required for static/fallback configurations */
 
@@ -87,6 +91,53 @@ struct ipcfg_s
   /* The following fields are optional for dhcp and fallback configurations */
 
   in_addr_t dnsaddr;            /* Name server address */
+};
+
+/* IPv6 Settings:
+ *
+ * IPv6BOOTPROTO=protocol
+ *   where protocol is one of the following:
+ *
+ *     none     - No protocol selected
+ *     static   - Use static IP
+ *     autoconf - ICMPv6 auto-configuration should be used
+ *     fallback - Use auto-configuration with fall back static IP
+ *
+ * All of the following addresses are in network order.  The special value
+ * zero is used to indicate that the address is not available:
+ *
+ * IPv6ADDR=address
+ *    where address is the IPv6 address.  Used only with static or fallback
+ *    protocols.
+ *
+ * IPv6NETMASK=address
+ *    where address is the netmask.  Used only with static or fallback
+ *    protocols.
+ *
+ * IPv6ROUTER=address
+ *    where address is the IPv6 default router address.  Used only with
+ *    static or fallback protocols.
+ */
+
+/* Values for the IPv6BOOTPROTO setting */
+
+enum ipv6cfg_bootproto_e
+{
+  BOOTPROTO_NONE     = 0, /* No protocol assigned */
+  BOOTPROTO_STATIC   = 1, /* Use static IP */
+  BOOTPROTO_AUTOCONF = 2, /* Use ICMPv6 auto-configuration */
+  BOOTPROTO_FALLBACK = 3  /* Use auto-configuration with fall back static IP */
+};
+
+struct ipv6cfg_s
+{
+  enum ipv6cfg_bootproto_e proto; /* Configure for static and/or autoconfig */
+
+  /* The following fields are required for static/fallback configurations */
+
+  struct in6_addr ipaddr;       /* IPv6 address */
+  struct in6_addr netmask;      /* Network mask */
+  struct in6_addr router;       /* Default router */
 };
 
 /****************************************************************************
@@ -110,7 +161,10 @@ extern "C"
  * Input Parameters:
  *   netdev - The network device.  For examplel "eth0"
  *   ipcfg  - Pointer to a user provided location to receive the IP
- *            configuration.
+ *            configuration.  Refers to either struct ipv4cfg_s or
+ *            ipv6cfg_s, depending on the value of af.
+ *   af     - Identifies the address family whose IP configuration is
+ *            requested.  May be either AF_INET or AF_INET6.
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -118,7 +172,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg);
+int ipcfg_read(FAR const char *netdev, FAR void *ipcfg, sa_family_t af);
 
 /****************************************************************************
  * Name: ipcfg_write
@@ -128,7 +182,10 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg);
  *
  * Input Parameters:
  *   netdev - The network device.  For examplel "eth0"
- *   ipcfg  - The IP configuration to be written.
+ *   ipcfg  - The IP configuration to be written.  Refers to either struct
+ *            ipv4cfg_s or ipv6cfg_s, depending on the value of af.
+ *   af     - Identifies the address family whose IP configuration is
+ *            to be written.  May be either AF_INET or AF_INET6.
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -137,7 +194,8 @@ int ipcfg_read(FAR const char *netdev, FAR struct ipcfg_s *ipcfg);
  ****************************************************************************/
 
 #ifdef CONFIG_IPCFG_WRITABLE
-int ipcfg_write(FAR const char *netdev, FAR const struct ipcfg_s *ipcfg);
+int ipcfg_write(FAR const char *netdev, FAR const void *ipcfg,
+                sa_family_t af);
 #endif
 #undef EXTERN
 #ifdef __cplusplus
