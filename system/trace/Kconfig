@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_TRACE
+	tristate "Trace command"
+	default n
+	depends on DRIVER_NOTECTL
+	---help---
+		Enable support for the trace command.
+
+if SYSTEM_TRACE
+
+config SYSTEM_TRACE_PROGNAME
+	string "Trace program name"
+	default "trace"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_TRACE_PRIORITY
+	int "Trace task priority"
+	default 100
+
+config SYSTEM_TRACE_STACKSIZE
+	int "Trace stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
