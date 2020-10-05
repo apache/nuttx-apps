@@ -595,7 +595,7 @@ static void dump_notes(size_t nread)
                     FAR struct note_syscall_enter_s *note_sysenter =
                       (FAR struct note_syscall_enter_s *)note;
 
-                    if (note->nc_length != sizeof(struct note_syscall_enter_s))
+                    if (note->nc_length < SIZEOF_NOTE_SYSCALL_ENTER(0))
                       {
                         syslog(LOG_INFO,
                                "ERROR: Size incorrect for SYSCALL enter note: %d\n",
