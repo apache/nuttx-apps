@@ -421,6 +421,9 @@ static int trace_dump_one(FAR FILE *out,
         {
           FAR struct note_syscall_enter_s *nsc;
           FAR struct trace_dump_task_context_s *tctx;
+          int i;
+          int j;
+          uintptr_t arg;
 
           /* Exclude the case of syscall issued by an interrupt handler and
            * nested syscalls to correct tracecompass display.
@@ -451,8 +454,34 @@ static int trace_dump_one(FAR FILE *out,
             }
 
           trace_dump_header(out, note, ctx);
-          fprintf(out, "sys_%s()\n",
+          fprintf(out, "sys_%s(",
                   g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
+
+          for (i = j = 0; i < nsc->nsc_argc; i++)
+            {
+              arg = (uintptr_t)nsc->nsc_args[j++];
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 8;
+#if UINTPTR_MAX > UINT16_MAX
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 16;
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 24;
+#if UINTPTR_MAX > UINT32_MAX
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 32;
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 40;
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 48;
+              arg |= (uintptr_t)nsc->nsc_args[j++] << 56;
+#endif
+#endif
+              if (i == 0)
+                {
+                  fprintf(out, "arg%d: 0x%x", i, arg);
+                }
+              else
+                {
+                  fprintf(out, ", arg%d: 0x%x", i, arg);
+                }
+            }
+
+          fprintf(out, ")\n");
         }
         break;
 

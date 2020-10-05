@@ -295,7 +295,7 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
   int i;
   int count;
 
-  /* Usage: trace mode [{+|-}{o|s|i}...] */
+  /* Usage: trace mode [{+|-}{o|s|a|i}...] */
 
   /* Get current trace mode */
 
@@ -330,6 +330,17 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
             else
               {
                 mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL;
+              }
+            break;
+
+          case 'a':   /* Record syscall arguments */
+            if (enable)
+              {
+                mode.flag |= NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
+              }
+            else
+              {
+                mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
               }
             break;
 #endif
@@ -397,6 +408,10 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
     {
       printf("  Filtered Syscalls      : %d\n", count);
     }
+
+  printf(" Syscall trace with args : %s\n",
+         mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS ?
+          "on  (+a)" : "off (-a)");
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
@@ -644,7 +659,7 @@ static void show_usage(void)
           "  dump [-c][<filename>]           :"
                                 " Output the trace result\n"
 #endif
-          "  mode [{+|-}{o|s|i}...]          :"
+          "  mode [{+|-}{o|s|a|i}...]        :"
                                 " Set task trace options\n"
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
           "  syscall [{+|-}<syscallname>...] :"
