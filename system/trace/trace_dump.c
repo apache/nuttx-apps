@@ -254,10 +254,21 @@ static void trace_dump_header(FAR FILE *out,
                               FAR struct trace_dump_context_s *ctx)
 {
   pid_t pid;
+#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
+  uint32_t nsec = note->nc_systime_nsec[0] +
+                  (note->nc_systime_nsec[1] << 8) +
+                  (note->nc_systime_nsec[2] << 16) +
+                  (note->nc_systime_nsec[3] << 24);
+  uint32_t sec = note->nc_systime_sec[0] +
+                 (note->nc_systime_sec[1] << 8) +
+                 (note->nc_systime_sec[2] << 16) +
+                 (note->nc_systime_sec[3] << 24);
+#else
   uint32_t systime = note->nc_systime[0] +
                      (note->nc_systime[1] << 8) +
                      (note->nc_systime[2] << 16) +
                      (note->nc_systime[3] << 24);
+#endif
 #ifdef CONFIG_SMP
   int cpu = note->nc_cpu;
 #else
@@ -268,9 +279,14 @@ static void trace_dump_header(FAR FILE *out,
 
   fprintf(out, "%8s-%-3u [%d] %3u.%09u: ",
           get_task_name(pid, ctx), get_pid(pid), cpu,
+#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
+          sec, nsec
+#else
           systime / (1000 * 1000 / CONFIG_USEC_PER_TICK),
           (systime % (1000 * 1000 / CONFIG_USEC_PER_TICK))
-            * CONFIG_USEC_PER_TICK * 1000);
+            * CONFIG_USEC_PER_TICK * 1000
+#endif
+         );
 }
 
 /****************************************************************************
