@@ -36,6 +36,22 @@
 #include <nuttx/sched_note.h>
 
 /************************************************************************************
+ * Pre-processor Definitions
+ ************************************************************************************/
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
+#  define syslog_time(priority, fmt, ...) \
+            syslog(priority, "%08lx.%08lx: " fmt, \
+                   (unsigned long)systime_sec, (unsigned long)systime_nsec, \
+                   __VA_ARGS__)
+#else
+#  define syslog_time(priority, fmt, ...) \
+            syslog(priority, "%08lx: " fmt, \
+                   (unsigned long)systime, \
+                   __VA_ARGS__)
+#endif
+
+/************************************************************************************
  * Private Data
  ************************************************************************************/
 
@@ -72,7 +88,12 @@ static FAR const char *g_statenames[] =
 static void dump_notes(size_t nread)
 {
   FAR struct note_common_s *note;
+#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
+  uint32_t systime_sec;
+  uint32_t systime_nsec;
+#else
   uint32_t systime;
+#endif
   pid_t pid;
   off_t offset;
 
@@ -82,10 +103,21 @@ static void dump_notes(size_t nread)
       note    = (FAR struct note_common_s *)&g_note_buffer[offset];
       pid     =  (pid_t)note->nc_pid[0] +
                 ((pid_t)note->nc_pid[1] << 8);
+#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
+      systime_nsec = (uint32_t)note->nc_systime_nsec[0] +
+                     (uint32_t)(note->nc_systime_nsec[1] << 8) +
+                     (uint32_t)(note->nc_systime_nsec[2] << 16) +
+                     (uint32_t)(note->nc_systime_nsec[3] << 24);
+      systime_sec = (uint32_t)note->nc_systime_sec[0] +
+                    (uint32_t)(note->nc_systime_sec[1] << 8) +
+                    (uint32_t)(note->nc_systime_sec[2] << 16) +
+                    (uint32_t)(note->nc_systime_sec[3] << 24);
+#else
       systime = (uint32_t) note->nc_systime[0]        +
                 (uint32_t)(note->nc_systime[1] << 8)  +
                 (uint32_t)(note->nc_systime[2] << 16) +
                 (uint32_t)(note->nc_systime[3] << 24);
+#endif
 
       switch (note->nc_type)
         {
@@ -104,24 +136,28 @@ static void dump_notes(size_t nread)
 
 #ifdef CONFIG_SMP
 #if CONFIG_TASK_NAME_SIZE > 0
-              syslog(LOG_INFO, "%08lx: Task %u \"%s\" started, CPU%u, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u \"%s\" started, CPU%u, priority %u\n",
+                     (unsigned int)pid,
                      note_start->nst_name, (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
 #else
-              syslog(LOG_INFO, "%08lx: Task %u started, CPU%u, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u started, CPU%u, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
 #endif
 #else
 #if CONFIG_TASK_NAME_SIZE > 0
-              syslog(LOG_INFO, "%08lx: Task %u \"%s\" started, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u \"%s\" started, priority %u\n",
+                     (unsigned int)pid,
                      note_start->nst_name, (unsigned int)note->nc_priority);
 #else
-              syslog(LOG_INFO, "%08lx: Task %u started, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u started, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_priority);
 #endif
 #endif
@@ -139,14 +175,14 @@ static void dump_notes(size_t nread)
                 }
 
 #ifdef CONFIG_SMP
-              syslog(LOG_INFO,
-                     "%08lx: Task %u stopped, CPU%u, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u stopped, CPU%u, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu, (unsigned int)note->nc_priority);
 #else
-              syslog(LOG_INFO,
-                     "%08lx: Task %u stopped, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u stopped, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_priority);
 #endif
             }
@@ -176,15 +212,15 @@ static void dump_notes(size_t nread)
                 }
 
 #ifdef CONFIG_SMP
-              syslog(LOG_INFO,
-                     "%08lx: Task %u suspended, CPU%u, priority %u, state \"%s\"\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u suspended, CPU%u, priority %u, state \"%s\"\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority, statename);
 #else
-              syslog(LOG_INFO,
-                     "%08lx: Task %u suspended, priority %u, state \"%s\"\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u suspended, priority %u, state \"%s\"\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_priority, statename);
 #endif
             }
@@ -201,15 +237,15 @@ static void dump_notes(size_t nread)
                 }
 
 #ifdef CONFIG_SMP
-              syslog(LOG_INFO,
-                     "%08lx: Task %u resumed, CPU%u, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u resumed, CPU%u, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
 #else
-              syslog(LOG_INFO,
-                     "%08lx: Task %u resumed, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u resumed, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_priority);
 #endif
             }
@@ -229,9 +265,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u requests CPU%u to start, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u requests CPU%u to start, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note_start->ncs_target,
                      (unsigned int)note->nc_priority);
@@ -248,9 +284,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u has started, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u has started, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
             }
@@ -269,9 +305,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u requests CPU%u to pause, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u requests CPU%u to pause, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note_pause->ncp_target,
                      (unsigned int)note->nc_priority);
@@ -288,9 +324,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u has paused, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u has paused, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
             }
@@ -309,9 +345,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u requests CPU%u to resume, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u requests CPU%u to resume, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note_resume->ncr_target,
                      (unsigned int)note->nc_priority);
@@ -328,9 +364,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              syslog(LOG_INFO,
-                     "%08lx: Task %u CPU%u has resumed, priority %u\n",
-                     (unsigned long)systime, (unsigned int)pid,
+              syslog_time(LOG_INFO,
+                     "Task %u CPU%u has resumed, priority %u\n",
+                     (unsigned int)pid,
                      (unsigned int)note->nc_cpu,
                      (unsigned int)note->nc_priority);
             }
@@ -359,30 +395,30 @@ static void dump_notes(size_t nread)
               if (note->nc_type == NOTE_PREEMPT_LOCK)
                 {
 #ifdef CONFIG_SMP
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u locked, CPU%u, priority %u, count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO,
+                         "Task %u locked, CPU%u, priority %u, count=%u\n",
+                         (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
 #else
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u locked, priority %u, count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO,
+                         "Task %u locked, priority %u, count=%u\n",
+                         (unsigned int)pid,
                          (unsigned int)note->nc_priority, (unsigned int)count);
 #endif
                 }
               else
                 {
 #ifdef CONFIG_SMP
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u unlocked, CPU%u, priority %u, count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO,
+                         "Task %u unlocked, CPU%u, priority %u, count=%u\n",
+                         (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
 #else
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u unlocked, priority %u, count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO,
+                         "Task %u unlocked, priority %u, count=%u\n",
+                         (unsigned int)pid,
                          (unsigned int)note->nc_priority, (unsigned int)count);
 #endif
                 }
@@ -415,33 +451,33 @@ static void dump_notes(size_t nread)
 
               if (note->nc_type == NOTE_CSECTION_ENTER)
                 {
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u enter csection, CPU%u, priority %u, "
+                  syslog_time(LOG_INFO,
+                         "Task %u enter csection, CPU%u, priority %u, "
                          "count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                         (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
                 }
               else
                 {
-                  syslog(LOG_INFO,
-                         "%08lx: Task %u leave csection, CPU%u, priority %u, "
+                  syslog_time(LOG_INFO,
+                         "Task %u leave csection, CPU%u, priority %u, "
                          "count=%u\n",
-                         (unsigned long)systime, (unsigned int)pid,
+                         (unsigned int)pid,
                          (unsigned int)note->nc_cpu,
                          (unsigned int)note->nc_priority, (unsigned int)count);
                 }
 #else
               if (note->nc_type == NOTE_CSECTION_ENTER)
                 {
-                  syslog(LOG_INFO, "%08lx: Task %u enter csection, priority %u\n",
-                       (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO, "Task %u enter csection, priority %u\n",
+                       (unsigned int)pid,
                        (unsigned int)note->nc_priority);
                 }
               else
                 {
-                  syslog(LOG_INFO, "%08lx: Task %u leave csection, priority %u\n",
-                       (unsigned long)systime, (unsigned int)pid,
+                  syslog_time(LOG_INFO, "Task %u leave csection, priority %u\n",
+                       (unsigned int)pid,
                        (unsigned int)note->nc_priority);
                 }
 #endif
@@ -487,10 +523,10 @@ static void dump_notes(size_t nread)
 #ifdef CONFIG_SMP
                 case NOTE_SPINLOCK_LOCK:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u wait for spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u CPU%u wait for spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -500,10 +536,10 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_LOCKED:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u has spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u CPU%u has spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -513,10 +549,10 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_UNLOCK:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u unlocking spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u CPU%u unlocking spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -526,10 +562,10 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_ABORT:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u CPU%u abort wait on spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u CPU%u abort wait on spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
@@ -539,10 +575,10 @@ static void dump_notes(size_t nread)
 #else
                 case NOTE_SPINLOCK_LOCK:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u wait for spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u wait for spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
@@ -551,9 +587,9 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_LOCKED:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u has spinlock=%p value=%u priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                    syslog_time(LOG_INFO,
+                           "Task %u has spinlock=%p value=%u priority %u\n",
+                           (unsigned int)pid,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
@@ -562,10 +598,10 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_UNLOCK:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u unlocking spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u unlocking spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
@@ -574,10 +610,10 @@ static void dump_notes(size_t nread)
 
                 case NOTE_SPINLOCK_ABORT:
                   {
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u abort wait on spinlock=%p value=%u "
+                    syslog_time(LOG_INFO,
+                           "Task %u abort wait on spinlock=%p value=%u "
                            "priority %u\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)pid,
                            spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
@@ -603,9 +639,9 @@ static void dump_notes(size_t nread)
                         return;
                       }
 
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u Enter SYSCALL %d\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                    syslog_time(LOG_INFO,
+                           "Task %u Enter SYSCALL %d\n",
+                           (unsigned int)pid,
                            note_sysenter->nsc_nr);
                   }
                   break;
@@ -638,9 +674,9 @@ static void dump_notes(size_t nread)
 #endif
                     ;
 
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u Leave SYSCALL %d: %" PRIdPTR "\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                    syslog_time(LOG_INFO,
+                           "Task %u Leave SYSCALL %d: %" PRIdPTR "\n",
+                           (unsigned int)pid,
                            note_sysleave->nsc_nr, result);
                   }
                   break;
@@ -661,9 +697,9 @@ static void dump_notes(size_t nread)
                         return;
                       }
 
-                    syslog(LOG_INFO,
-                           "%08lx: Task %u %s IRQ %d\n",
-                           (unsigned long)systime, (unsigned int)pid,
+                    syslog_time(LOG_INFO,
+                           "Task %u %s IRQ %d\n",
+                           (unsigned int)pid,
                            note->nc_type == NOTE_IRQ_ENTER ? "Enter" : "Leave",
                            note_irq->nih_irq);
                   }
