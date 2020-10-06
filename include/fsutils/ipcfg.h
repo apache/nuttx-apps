@@ -28,6 +28,20 @@
 #include <netinet/in.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Prototype enumerations are bit encoded */
+
+#define _IPCFG_STATIC   (1 << 0)  /* Bit 0: Have static addresses */
+#define _IPCFG_DHCP     (1 << 1)  /* Bit 1: Use DHCP (IPv4) */
+#define _IPCFG_AUTOCONF (1 << 1)  /* Bit 1: Use ICMPv4 auto-configuration */
+
+#define IPCFG_HAVE_STATIC(p)  (((p) & _IPCFG_STATIC) != 0)
+#define IPCFG_USE_DHCP(p)     (((p) & _IPCFG_DHCP) != 0)
+#define IPCFG_USE_AUTOCONF(p) (((p) & _IPCFG_AUTOCONF) != 0)
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -41,7 +55,7 @@
  *
  * IPv4 Settings:
  *
- * IPv4BOOTPROTO=protocol
+ * IPv4PROTO=protocol
  *   where protocol is one of the following:
  *
  *     none     - No protocol selected
@@ -52,7 +66,7 @@
  * All of the following addresses are in network order.  The special value
  * zero is used to indicate that the address is not available:
  *
- * IPv4ADDR=address
+ * IPv4IPADDR=address
  *    where address is the IPv4 address.  Used only with static or fallback
  *    protocols.
  *
@@ -68,14 +82,14 @@
  *   where address is a (optional) name server address.
  */
 
-/* Values for the IPv4BOOTPROTO setting */
+/* Values for the IPv4PROTO setting */
 
 enum ipv4cfg_bootproto_e
 {
-  IPv4PROTO_NONE     = 0, /* No protocol assigned */
-  IPv4PROTO_STATIC   = 1, /* Use static IP */
-  IPv4PROTO_DHCP     = 2, /* Use DHCP */
-  IPv4PROTO_FALLBACK = 3  /* Use DHCP with fall back static IP */
+  IPv4PROTO_NONE     = 0, /* 00: No protocol assigned */
+  IPv4PROTO_STATIC   = 1, /* 01: Use static IP */
+  IPv4PROTO_DHCP     = 2, /* 10: Use DHCP */
+  IPv4PROTO_FALLBACK = 3  /* 11: Use DHCP with fall back static IP */
 };
 
 struct ipv4cfg_s
@@ -84,13 +98,13 @@ struct ipv4cfg_s
 
   /* The following fields are required for static/fallback configurations */
 
-  in_addr_t ipaddr;             /* IPv4 address */
-  in_addr_t netmask;            /* Network mask */
-  in_addr_t router;             /* Default router */
+  in_addr_t ipaddr;               /* IPv4 address */
+  in_addr_t netmask;              /* Network mask */
+  in_addr_t router;               /* Default router */
 
   /* The following fields are optional for dhcp and fallback configurations */
 
-  in_addr_t dnsaddr;            /* Name server address */
+  in_addr_t dnsaddr;              /* Name server address */
 };
 
 /* IPv6 Settings:
@@ -106,7 +120,7 @@ struct ipv4cfg_s
  * All of the following addresses are in network order.  The special value
  * zero is used to indicate that the address is not available:
  *
- * IPv6ADDR=address
+ * IPv6IPADDR=address
  *    where address is the IPv6 address.  Used only with static or fallback
  *    protocols.
  *
@@ -123,10 +137,10 @@ struct ipv4cfg_s
 
 enum ipv6cfg_bootproto_e
 {
-  IPv6PROTO_NONE     = 0, /* No protocol assigned */
-  IPv6PROTO_STATIC   = 1, /* Use static IP */
-  IPv6PROTO_AUTOCONF = 2, /* Use ICMPv6 auto-configuration */
-  IPv6PROTO_FALLBACK = 3  /* Use auto-configuration with fall back static IP */
+  IPv6PROTO_NONE     = 0, /* 00: No protocol assigned */
+  IPv6PROTO_STATIC   = 1, /* 01: Use static IP */
+  IPv6PROTO_AUTOCONF = 2, /* 10: Use ICMPv6 auto-configuration */
+  IPv6PROTO_FALLBACK = 3  /* 11: Use auto-configuration with fall back static IP */
 };
 
 struct ipv6cfg_s
@@ -135,9 +149,9 @@ struct ipv6cfg_s
 
   /* The following fields are required for static/fallback configurations */
 
-  struct in6_addr ipaddr;       /* IPv6 address */
-  struct in6_addr netmask;      /* Network mask */
-  struct in6_addr router;       /* Default router */
+  struct in6_addr ipaddr;         /* IPv6 address */
+  struct in6_addr netmask;        /* Network mask */
+  struct in6_addr router;         /* Default router */
 };
 
 /****************************************************************************

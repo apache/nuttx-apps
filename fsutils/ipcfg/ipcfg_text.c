@@ -336,7 +336,7 @@ int ipcfg_read_text_ipv4(FAR const char *path, FAR const char *netdev,
   int index;
   int ret = -ENOENT;
 
-  DEBUGASSERT(stream != NULL && ipv4cfg != NULL);
+  DEBUGASSERT(path != NULL && netdev != NULL && ipv4cfg != NULL);
 
   /* Open the file for reading */
 
@@ -418,7 +418,7 @@ int ipcfg_read_text_ipv4(FAR const char *path, FAR const char *netdev,
                        variable, value);
                 }
 
-              /* Assume IPv4 settings are present if the IPv4BOOTPROTO
+              /* Assume IPv4 settings are present if the IPv4PROTO
                * setting is encountered.
                */
 
@@ -655,7 +655,7 @@ int ipcfg_write_text_ipv4(FAR const char *path, FAR const char *netdev,
   FAR FILE *stream;
   int ret;
 
-  DEBUGASSERT(stream != NULL && ipv4cfg != NULL);
+  DEBUGASSERT(path != NULL && netdev != NULL && ipv4cfg != NULL);
 
 #ifdef CONFIG_NET_IPv6
   /* Read any IPv6 data in the file */
@@ -742,7 +742,7 @@ int ipcfg_write_text_ipv6(FAR const char *path, FAR const char *netdev,
   FAR FILE *stream;
   int ret;
 
-  DEBUGASSERT(netdev != NULL && ipv6cfg != NULL);
+  DEBUGASSERT(path != NULL && netdev != NULL && ipv6cfg != NULL);
 
 #ifdef CONFIG_NET_IPv4
   /* Read any IPv4 data in the file */
