@@ -37,9 +37,10 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MAX_LINESIZE  80
-#define MAX_IPv4PROTO IPv4PROTO_FALLBACK
-#define MAX_IPv6PROTO IPv6PROTO_FALLBACK
+#define IPCFG_VERSION   1  /* Increment this if the data/structure changes */
+#define MAX_LINESIZE    80
+#define MAX_IPv4PROTO   IPv4PROTO_FALLBACK
+#define MAX_IPv6PROTO   IPv6PROTO_FALLBACK
 
 /****************************************************************************
  * Public Types
@@ -49,7 +50,8 @@
 
 struct ipcfg_header_s
 {
-  uint8_t next;         /* Offset to the next IP configuration record */
+  uint8_t     next;     /* Offset to the next IP configuration record */
+  uint8_t     version;  /* For binary compatibility */
   sa_family_t type;     /* Either AF_INET or AF_INET6 */
 };
 

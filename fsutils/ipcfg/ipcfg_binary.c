@@ -223,11 +223,12 @@ static int ipcfg_find_binary(int fd, sa_family_t af)
 
           return (int)ret;
         }
-      else if (hdr.type == af)
+      else if (hdr.version == IPCFG_VERSION && hdr.type == af)
         {
           return OK;
         }
-      else if (hdr.type != AF_INET && hdr.type != AF_INET6)
+      else if (hdr.version != IPCFG_VERSION ||
+               hdr.type != AF_INET && hdr.type != AF_INET6)
         {
           return -EINVAL;
         }
@@ -416,8 +417,9 @@ int ipcfg_write_binary_ipv4(FAR const char *path,
 
   /* Write the IPv4 file header */
 
-  hdr.next = ipv6 ? sizeof(struct ipv4cfg_s) : 0;
-  hdr.type = AF_INET;
+  hdr.next    = ipv6 ? sizeof(struct ipv4cfg_s) : 0;
+  hdr.type    = AF_INET;
+  hdr.version = IPCFG_VERSION;
 
   ret = ipcfg_write_binary(fd, &hdr, sizeof(struct ipcfg_header_s));
   if (ret < 0)
@@ -440,8 +442,9 @@ int ipcfg_write_binary_ipv4(FAR const char *path,
     {
       /* Write the IPv6 header */
 
-      hdr.next = 0;
-      hdr.type = AF_INET6;
+      hdr.next    = 0;
+      hdr.type    = AF_INET6;
+      hdr.version = IPCFG_VERSION;
 
       ret = ipcfg_write_binary(fd, &hdr, sizeof(struct ipcfg_header_s));
       if (ret >= 0)
@@ -523,8 +526,9 @@ int ipcfg_write_binary_ipv6(FAR const char *path,
     {
       /* Write the IPv4 header */
 
-      hdr.next = sizeof(struct ipv4cfg_s);
-      hdr.type = AF_INET;
+      hdr.next    = sizeof(struct ipv4cfg_s);
+      hdr.type    = AF_INET;
+      hdr.version = IPCFG_VERSION;
 
       ret = ipcfg_write_binary(fd, &hdr, sizeof(struct ipcfg_header_s));
       if (ret < 0)
@@ -546,8 +550,9 @@ int ipcfg_write_binary_ipv6(FAR const char *path,
 
   /* Write the IPv6 file header */
 
-  hdr.next = 0;
-  hdr.type = AF_INET6;
+  hdr.next    = 0;
+  hdr.type    = AF_INET6;
+  hdr.version = IPCFG_VERSION;
 
   ret = ipcfg_write_binary(fd, &hdr, sizeof(struct ipcfg_header_s));
   if (ret >= 0)
