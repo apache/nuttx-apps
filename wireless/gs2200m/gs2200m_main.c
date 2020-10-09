@@ -77,9 +77,11 @@ enum sock_state_e
 
 struct usock_s
 {
-  int8_t  type;
-  char    cid;
+  int8_t   type;
+  char     cid;
   enum sock_state_e state;
+  uint16_t lport;           /* local port */
+  struct sockaddr_in raddr; /* remote addr */
 };
 
 struct gs2200m_s
@@ -581,6 +583,35 @@ static int connect_request(int fd, FAR struct gs2200m_s *priv,
       goto prepare;
     }
 
+  memset(&cmsg, 0, sizeof(cmsg));
+
+  /* Check if this socket is already connected. */
+
+  if (BOUND == usock->state)
+    {
+      if (usock->type == SOCK_STREAM)
+        {
+          ret = -EISCONN;
+          goto prepare;
+        }
+      else
+        {
+          /* Firstly, close the socket */
+
+          struct gs2200m_close_msg clmsg;
+          memset(&clmsg, 0, sizeof(clmsg));
+          clmsg.cid = usock->cid;
+
+          ioctl(priv->gsfd, GS2200M_IOC_CLOSE, (unsigned long)&clmsg);
+
+          /* Copy the local port info */
+
+          cmsg.lport = usock->lport;
+
+          usock->state = OPENED;
+        }
+    }
+
   /* Check if address size ok. */
 
   if (req->addrlen > sizeof(addr))
@@ -622,6 +653,7 @@ static int connect_request(int fd, FAR struct gs2200m_s *priv,
     {
       usock->cid   = cmsg.cid;
       usock->state = CONNECTED;
+      usock->raddr = addr;
     }
   else
     {
@@ -704,26 +736,41 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
       goto prepare;
     }
 
+  memset(&smsg, 0, sizeof(smsg));
+
   smsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
 
   /* For UDP, addlen must be provided */
 
-  if (usock->type == SOCK_DGRAM && CONNECTED != usock->state)
+  if (usock->type == SOCK_DGRAM)
     {
-      if (req->addrlen == 0)
+      if (CONNECTED != usock->state)
         {
-          ret = -EINVAL;
-          goto prepare;
+          if (req->addrlen == 0)
+            {
+              ret = -EINVAL;
+              goto prepare;
+            }
+
+          /* In UDP case, read the address. */
+
+          rlen = read(fd, &smsg.addr, sizeof(smsg.addr));
+
+          if (rlen < 0 || rlen < req->addrlen)
+            {
+              ret = -EFAULT;
+              goto prepare;
+            }
         }
-
-      /* In UDP case, read the address. */
-
-      rlen = read(fd, &smsg.addr, sizeof(smsg.addr));
-
-      if (rlen < 0 || rlen < req->addrlen)
+      else if (CONNECTED == usock->state)
         {
-          ret = -EFAULT;
-          goto prepare;
+          /* Copy remote address */
+
+          smsg.addr = usock->raddr;
+        }
+      else
+        {
+          ASSERT(false);
         }
 
       gs2200m_printf("%s: addr: %s:%d",
@@ -1010,7 +1057,8 @@ static int bind_request(int fd, FAR struct gs2200m_s *priv,
 
   if (0 == ret)
     {
-      usock->cid = bmsg.cid;
+      usock->cid   = bmsg.cid;
+      usock->lport = ntohs(addr.sin_port);
       usock->state = BOUND;
     }
 
