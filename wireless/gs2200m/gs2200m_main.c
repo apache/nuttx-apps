@@ -1132,7 +1132,6 @@ static int accept_request(int fd, FAR struct gs2200m_s *priv,
   struct gs2200m_accept_msg amsg;
   FAR struct usock_s *usock;
   FAR struct usock_s *new_usock = NULL;
-  struct sockaddr_in ep_addr;
   int ret = 0;
   int16_t usockid; /* usockid for new client */
 
@@ -1173,6 +1172,7 @@ static int accept_request(int fd, FAR struct gs2200m_s *priv,
 
   new_usock->cid   = amsg.cid;
   new_usock->state = CONNECTED;
+  new_usock->raddr = amsg.addr;
 
 prepare:
 
@@ -1185,8 +1185,8 @@ prepare:
 
   if (0 == ret)
     {
-      resp.reqack.result = 2; /* ep_addr + usock */
-      resp.valuelen_nontrunc = sizeof(ep_addr);
+      resp.reqack.result = 2; /* new_usock->raddr + usock */
+      resp.valuelen_nontrunc = sizeof(new_usock->raddr);
       resp.valuelen = resp.valuelen_nontrunc;
     }
   else
@@ -1208,11 +1208,7 @@ prepare:
     {
       /* Send address (value) */
 
-      /* TODO: ep_addr should be set */
-
-      memset(&ep_addr, 0, sizeof(ep_addr));
-
-      ret = _write_to_usock(fd, &ep_addr, resp.valuelen);
+      ret = _write_to_usock(fd, &new_usock->raddr, resp.valuelen);
 
       if (0 > ret)
         {
