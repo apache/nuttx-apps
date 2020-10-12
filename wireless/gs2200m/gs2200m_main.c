@@ -1415,14 +1415,87 @@ err_out:
 }
 
 /****************************************************************************
- * Name: getsockname_request
+ * Name: getpeername_request
  ****************************************************************************/
 
 static int getpeername_request(int fd, FAR struct gs2200m_s *priv,
                                FAR void *hdrbuf)
 {
-  DEBUGASSERT(false);
-  return -ENOSYS;
+  FAR struct usrsock_request_getpeername_s *req = hdrbuf;
+  struct usrsock_message_datareq_ack_s resp;
+  FAR struct usock_s *usock;
+  int ret = 0;
+
+  DEBUGASSERT(priv);
+  DEBUGASSERT(req);
+
+  gs2200m_printf("%s: called **** \n", __func__);
+
+  /* Check if this socket exists. */
+
+  usock = gs2200m_socket_get(priv, req->usockid);
+
+  if (!usock)
+    {
+      ret = -EBADFD;
+      goto prepare;
+    }
+
+  if (CONNECTED != usock->state)
+    {
+      ret = -ENOTCONN;
+    }
+
+prepare:
+
+  /* Prepare response. */
+
+  memset(&resp, 0, sizeof(resp));
+  resp.reqack.xid = req->head.xid;
+  resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags = 0;
+  resp.reqack.result = ret;
+
+  if (0 == ret)
+    {
+      resp.valuelen_nontrunc = sizeof(usock->raddr);
+      resp.valuelen = resp.valuelen_nontrunc;
+
+      if (resp.valuelen > req->max_addrlen)
+        {
+          resp.valuelen = req->max_addrlen;
+        }
+    }
+  else
+    {
+      resp.valuelen_nontrunc = 0;
+      resp.valuelen = 0;
+    }
+
+  /* Send response. */
+
+  ret = _write_to_usock(fd, &resp, sizeof(resp));
+
+  if (0 > ret)
+    {
+      goto err_out;
+    }
+
+  if (resp.valuelen > 0)
+    {
+      /* Send address (value) */
+
+      ret = _write_to_usock(fd, &usock->raddr, resp.valuelen);
+
+      if (0 > ret)
+        {
+          goto err_out;
+        }
+    }
+
+err_out:
+  gs2200m_printf("%s: end \n", __func__);
+  return ret;
 }
 
 /****************************************************************************
