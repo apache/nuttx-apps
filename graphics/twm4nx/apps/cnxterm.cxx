@@ -418,22 +418,10 @@ int CNxTerm::nxterm(int argc, char *argv[])
   std::fflush(stderr);
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-  std::fclose(stdin);
-#endif
-  std::fclose(stdout);
-  std::fclose(stderr);
-
-#ifdef CONFIG_NXTERM_NXKBDIN
   std::dup2(fd, 0);
 #endif
   std::dup2(fd, 1);
   std::dup2(fd, 2);
-
-#ifdef CONFIG_NXTERM_NXKBDIN
-  std::fdopen(0, "r");
-#endif
-  std::fdopen(1, "w");
-  std::fdopen(2, "w");
 
   // And we can close our original driver file descriptor
 
