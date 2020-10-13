@@ -78,9 +78,9 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Close stderr: we only close stderr if we opened the alternative one */
+  /* Flush stderr: we only flush stderr if we opened the alternative one */
 
-  fclose(stderr);
+  fflush(stderr);
 
   /* Associate the new opened file descriptor to stderr */
 
@@ -101,9 +101,9 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Close stdout: we only close stdout if we opened the alternative one */
+  /* Flush stdout: we only flush stdout if we opened the alternative one */
 
-  fclose(stdout);
+  fflush(stdout);
 
   /* Associate the new opened file descriptor to stdout */
 
@@ -122,7 +122,6 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
   pstate->cn_errstream = fdopen(pstate->cn_errfd, "a");
   if (!pstate->cn_errstream)
     {
-      close(pstate->cn_errfd);
       free(pstate);
       return -EIO;
     }
@@ -133,7 +132,6 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
   pstate->cn_outstream = fdopen(pstate->cn_outfd, "a");
   if (!pstate->cn_outstream)
     {
-      close(pstate->cn_outfd);
       free(pstate);
       return -EIO;
     }
@@ -202,10 +200,6 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
     }
   while (fd < 0);
 
-  /* Close stdin: we only closed stdin if we opened the alternative one */
-
-  fclose(stdin);
-
   /* Okay.. we have successfully opened the input device.  Did
    * we just re-open fd 0?
    */
@@ -225,7 +219,6 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
       pstate->cn_constream = fdopen(pstate->cn_confd, "r+");
       if (!pstate->cn_constream)
         {
-          close(pstate->cn_confd);
           free(pstate);
           return -EIO;
         }

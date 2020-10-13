@@ -391,9 +391,6 @@ int main(int argc, FAR char *argv[])
   fflush(stdout);
   fflush(stderr);
 
-  fclose(stdout);
-  fclose(stderr);
-
   dup2(fd, 1);
   dup2(fd, 2);
 
