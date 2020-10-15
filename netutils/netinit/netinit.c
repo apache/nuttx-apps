@@ -370,7 +370,7 @@ static inline void netinit_set_ipv4addrs(void)
       /* Check if we are using DHCPC */
 
 #ifdef CONFIG_NETUTILS_DHCPC
-      if (IPCFG_USE_DHCPC(ipv4cfg.proto))
+      if (IPCFG_USE_DHCP(ipv4cfg.proto))
         {
           g_use_dhcpc = true;
           addr.s_addr = 0;
