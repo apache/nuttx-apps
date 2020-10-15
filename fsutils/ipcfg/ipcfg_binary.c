@@ -228,7 +228,7 @@ static int ipcfg_find_binary(int fd, sa_family_t af)
           return OK;
         }
       else if (hdr.version != IPCFG_VERSION ||
-               hdr.type != AF_INET && hdr.type != AF_INET6)
+               (hdr.type != AF_INET && hdr.type != AF_INET6))
         {
           return -EINVAL;
         }
