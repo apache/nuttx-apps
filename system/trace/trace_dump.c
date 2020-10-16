@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -459,6 +460,7 @@ static int trace_dump_one(FAR FILE *out,
         {
           FAR struct note_syscall_leave_s *nsc;
           FAR struct trace_dump_task_context_s *tctx;
+          uintptr_t result;
 
           /* Exclude the case of syscall issued by an interrupt handler and
            * nested syscalls to correct tracecompass display.
@@ -491,9 +493,24 @@ static int trace_dump_one(FAR FILE *out,
             }
 
           trace_dump_header(out, note, ctx);
-          fprintf(out, "sys_%s -> 0x%x\n",
+
+          result =    (uintptr_t)nsc->nsc_result[0]
+                   + ((uintptr_t)nsc->nsc_result[1] << 8)
+#if UINTPTR_MAX > UINT16_MAX
+                   + ((uintptr_t)nsc->nsc_result[2] << 16)
+                   + ((uintptr_t)nsc->nsc_result[3] << 24)
+#if UINTPTR_MAX > UINT32_MAX
+                   + ((uintptr_t)nsc->nsc_result[4] << 32)
+                   + ((uintptr_t)nsc->nsc_result[5] << 40)
+                   + ((uintptr_t)nsc->nsc_result[6] << 48)
+                   + ((uintptr_t)nsc->nsc_result[7] << 56)
+#endif
+#endif
+          ;
+
+          fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
                   g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
-                  nsc->nsc_result);
+                  result);
         }
         break;
 #endif
