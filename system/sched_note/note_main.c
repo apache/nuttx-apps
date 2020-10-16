@@ -457,6 +457,7 @@ static void dump_notes(size_t nread)
             {
               FAR struct note_spinlock_s *note_spinlock =
                 (FAR struct note_spinlock_s *)note;
+              FAR void *spinlock;
 
               if (note->nc_length != sizeof(struct note_spinlock_s))
                 {
@@ -465,6 +466,21 @@ static void dump_notes(size_t nread)
                          note->nc_length);
                   return;
                 }
+
+              spinlock = (FAR void *)
+                            ((uintptr_t)note_spinlock->nsp_spinlock[0]
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[1] << 8)
+#if UINTPTR_MAX > UINT16_MAX
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[2] << 16)
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[3] << 24)
+#if UINTPTR_MAX > UINT32_MAX
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[4] << 32)
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[5] << 40)
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[6] << 48)
+                             + ((uintptr_t)note_spinlock->nsp_spinlock[7] << 56)
+#endif
+#endif
+                            );
 
              switch (note->nc_type)
                {
@@ -476,7 +492,7 @@ static void dump_notes(size_t nread)
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -489,7 +505,7 @@ static void dump_notes(size_t nread)
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -502,7 +518,7 @@ static void dump_notes(size_t nread)
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -515,7 +531,7 @@ static void dump_notes(size_t nread)
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
                            (unsigned int)note->nc_cpu,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -527,7 +543,7 @@ static void dump_notes(size_t nread)
                            "%08lx: Task %u wait for spinlock=%p value=%u "
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -538,7 +554,7 @@ static void dump_notes(size_t nread)
                     syslog(LOG_INFO,
                            "%08lx: Task %u has spinlock=%p value=%u priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -550,7 +566,7 @@ static void dump_notes(size_t nread)
                            "%08lx: Task %u unlocking spinlock=%p value=%u "
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
-                           (unsigned int)note->nc_cpu,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
@@ -562,13 +578,15 @@ static void dump_notes(size_t nread)
                            "%08lx: Task %u abort wait on spinlock=%p value=%u "
                            "priority %u\n",
                            (unsigned long)systime, (unsigned int)pid,
-                           note_spinlock->nsp_spinlock,
+                           spinlock,
                            (unsigned int)note_spinlock->nsp_value,
                            (unsigned int)note->nc_priority);
                   }
                   break;
 #endif
                }
+              break;
+            }
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
@@ -596,6 +614,7 @@ static void dump_notes(size_t nread)
                   {
                     FAR struct note_syscall_leave_s *note_sysleave =
                       (FAR struct note_syscall_leave_s *)note;
+                    uintptr_t result;
 
                     if (note->nc_length != sizeof(struct note_syscall_leave_s))
                       {
@@ -605,10 +624,24 @@ static void dump_notes(size_t nread)
                         return;
                       }
 
+                    result =    (uintptr_t)note_sysleave->nsc_result[0]
+                             + ((uintptr_t)note_sysleave->nsc_result[1] << 8)
+#if UINTPTR_MAX > UINT16_MAX
+                             + ((uintptr_t)note_sysleave->nsc_result[2] << 16)
+                             + ((uintptr_t)note_sysleave->nsc_result[3] << 24)
+#if UINTPTR_MAX > UINT32_MAX
+                             + ((uintptr_t)note_sysleave->nsc_result[4] << 32)
+                             + ((uintptr_t)note_sysleave->nsc_result[5] << 40)
+                             + ((uintptr_t)note_sysleave->nsc_result[6] << 48)
+                             + ((uintptr_t)note_sysleave->nsc_result[7] << 56)
+#endif
+#endif
+                    ;
+
                     syslog(LOG_INFO,
                            "%08lx: Task %u Leave SYSCALL %d: %" PRIdPTR "\n",
                            (unsigned long)systime, (unsigned int)pid,
-                           note_sysleave->nsc_nr, note_sysleave->nsc_result);
+                           note_sysleave->nsc_nr, result);
                   }
                   break;
 #endif
