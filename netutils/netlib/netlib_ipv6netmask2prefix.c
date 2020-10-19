@@ -117,7 +117,7 @@ static uint8_t netlib_msbits8(uint8_t byval)
 
 static inline uint8_t netlib_msbits16(uint16_t hword)
 {
-   uint8_t ones;
+  uint8_t ones;
 
   /* Look at the MS byte of the 16-bit value */
 
