@@ -82,7 +82,7 @@ enum parity_mode
 
 static struct cu_globals_s g_cu;
 #ifdef CONFIG_SERIAL_TERMIOS
-int fd_std_tty;
+static int fd_std_tty;
 static struct termios g_tio_std;
 static struct termios g_tio_dev;
 #endif
@@ -144,13 +144,6 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
 
   tio = g_tio_dev;
 
-  /* set baudrate */
-
-  if (rate != 0)
-    {
-      cfsetspeed(&tio, rate);
-    }
-
   switch (parity)
     {
       case PARITY_EVEN:
@@ -163,6 +156,13 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
 
       case PARITY_NONE:
         break;
+    }
+
+  /* set baudrate */
+
+  if (rate != 0)
+    {
+      cfsetspeed(&tio, rate);
     }
 
   if (rtscts)
