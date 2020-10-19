@@ -214,7 +214,7 @@ errout:
   return rc;
 }
 
-static int retrive_termios(int fd)
+static int retrieve_termios(int fd)
 {
   tcsetattr(fd, TCSANOW, &g_tio_dev);
   if (fd_std_tty >= 0)
@@ -241,10 +241,11 @@ static void print_help(void)
          " -?: This help\n",
 #ifdef CONFIG_SERIAL_TERMIOS
          CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
-         CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD);
+         CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD
 #else
-         CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE);
+         CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE
 #endif
+        );
 }
 
 static void print_escape_help(void)
@@ -300,6 +301,7 @@ int main(int argc, FAR char *argv[])
   int bcmd;
   int start_of_line = 1;
   int exitval = EXIT_FAILURE;
+  bool badarg = false;
 
   /* Initialize global data */
 
@@ -338,22 +340,31 @@ int main(int argc, FAR char *argv[])
             break;
 
           case 'c':
-              nocrlf = 1;
-              break;
+            nocrlf = 1;
+            break;
 #endif
 
           case 'f':
-              nobreak = 1;
-              break;
+            nobreak = 1;
+            break;
 
           case 'h':
           case '?':
             print_help();
-            return EXIT_SUCCESS;
+            badarg = true;
+            exitval = EXIT_SUCCESS;
+            break;
 
           default:
-            return EXIT_FAILURE;
+            badarg = true;
+            exitval = EXIT_FAILURE;
+            break;
         }
+    }
+
+  if (badarg)
+    {
+      return exitval;
     }
 
   /* Open the serial device for writing */
@@ -435,6 +446,7 @@ int main(int argc, FAR char *argv[])
 
   ret = pthread_create(&g_cu.listener, &attr,
                        cu_listener, (pthread_addr_t)0);
+  pthread_attr_destroy(&attr);
   if (ret != 0)
     {
       fprintf(stderr, "cu_main: Error in thread creation: %d\n", ret);
@@ -499,7 +511,6 @@ int main(int argc, FAR char *argv[])
     }
 
   pthread_cancel(g_cu.listener);
-  pthread_attr_destroy(&attr);
   exitval = EXIT_SUCCESS;
 
   /* Error exits */
@@ -508,7 +519,7 @@ errout_with_fds:
   close(g_cu.infd);
 #ifdef CONFIG_SERIAL_TERMIOS
 errout_with_outfd_retrieve:
-  retrive_termios(g_cu.outfd);
+  retrieve_termios(g_cu.outfd);
 #endif
 errout_with_outfd:
   close(g_cu.outfd);
