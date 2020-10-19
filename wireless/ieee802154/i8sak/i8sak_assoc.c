@@ -63,7 +63,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void assoc_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
+static void assoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                          FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -139,19 +140,22 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
 
           case 'p':
+
             /* Parse short address and put it into the i8sak instance */
 
             i8sak_str2panid(optarg, i8sak->ep_addr.panid);
             break;
 
           case 's':
+
             /* Parse short address and put it into the i8sak instance */
 
             i8sak_str2saddr(optarg, i8sak->ep_addr.saddr);
-            i8sak->ep_addr.mode= IEEE802154_ADDRMODE_SHORT;
+            i8sak->ep_addr.mode = IEEE802154_ADDRMODE_SHORT;
             break;
 
           case 'e':
+
             /* Parse extended address and put it into the i8sak instance */
 
             i8sak_str2eaddr(optarg, i8sak->ep_addr.eaddr);
@@ -159,12 +163,14 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
 
           case 't':
+
             /* Parse wait time and set the parameter in the request */
 
             setreq.attrval.mac.resp_waittime = i8sak_str2luint8(optarg);
             break;
 
           case 'w':
+
             /* Wait and retry if we fail to associate */
 
             retry      = true;
@@ -194,7 +200,8 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       fd = open(i8sak->ifname, O_RDWR);
       if (fd < 0)
         {
-          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
           i8sak_cmd_error(i8sak);
         }
 
@@ -320,7 +327,8 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
  * Private Functions
  ****************************************************************************/
 
-static void assoc_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
+static void assoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                          FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
 
