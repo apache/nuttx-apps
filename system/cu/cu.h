@@ -70,7 +70,7 @@
 
 struct cu_globals_s
 {
-  int infd;            /* Incmoming data from serial port */
+  int infd;            /* Incoming data from serial port */
   int outfd;           /* Outgoing data to serial port */
   pthread_t listener;  /* Terminal listener thread */
 };
