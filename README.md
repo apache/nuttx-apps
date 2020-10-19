@@ -182,8 +182,8 @@ A: Here are three:
       custom apps directory as necessary.
 
       This is documented in `NuttX/boards/README.txt` and
-      `nuttx/Documentation/NuttxPortingGuide.html` (Online at
-      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttxPortingGuide.html#apndxconfigs
+      `nuttx/Documentation/NuttXPortingGuide.html` (Online at
+      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttXPortingGuide.html#apndxconfigs
       under _Build options_). And in the `apps/README.txt` file.
 
    3) If you like the random collection of stuff in the `apps/` directory but

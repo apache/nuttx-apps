@@ -16,7 +16,7 @@ menuconfig SYSTEM_CUTERM
 
 		This terminal might come in handy for other people that have e.g. GS
 		modems, GPS receivers or other devices with text based serial
-		communications attached to their Nuttx systems.
+		communications attached to their NuttX systems.
 
 if SYSTEM_CUTERM
 

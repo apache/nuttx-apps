@@ -142,7 +142,7 @@ static inline uint8_t netlib_msbits16(uint16_t hword)
  * Name: netlib_ipv6netmask2prefix
  *
  * Description:
- *   Convert a 128-bit netmask to a prefix length.  The Nuttx IPv6
+ *   Convert a 128-bit netmask to a prefix length.  The NuttX IPv6
  *   networking uses 128-bit network masks internally.  This function
  *   converts the IPv6 netmask to a prefix length.
  *

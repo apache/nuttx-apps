@@ -279,7 +279,7 @@ Example Configuration:
 
 ## `dsptest` DSP
 
-This is a Unit Test for the Nuttx DSP library. It use Unity testing framework.
+This is a Unit Test for the NuttX DSP library. It use Unity testing framework.
 
 Dependencies:
 
