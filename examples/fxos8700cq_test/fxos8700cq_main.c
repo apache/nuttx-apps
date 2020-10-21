@@ -49,7 +49,6 @@ int main(int argc, FAR char *argv[])
   int fd;
 
   fxos8700cq_data data;
-  uint32_t prev;
 
   fd = open(ACC_DEVPATH, O_RDONLY);
   if (fd < 0)
