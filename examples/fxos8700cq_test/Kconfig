@@ -27,6 +27,7 @@
 config EXAMPLES_FXOS8700CQ
 	bool "FXOS8700CQ motion sensor example"
 	default n
+	select SENSORS
 	select SENSORS_FXOS8700CQ
 	---help---
 		Enable the motion sensor example
