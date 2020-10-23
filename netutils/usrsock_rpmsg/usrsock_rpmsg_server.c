@@ -839,6 +839,7 @@ int main(int argc, char *argv[])
   pthread_mutex_init(&priv->mutex, NULL);
   pthread_cond_init(&priv->cond, NULL);
 
+  signal(SIGUSR1, SIG_IGN);
   sigprocmask(SIG_SETMASK, NULL, &sigmask);
   sigaddset(&sigmask, SIGUSR1);
   sigprocmask(SIG_SETMASK, &sigmask, NULL);
