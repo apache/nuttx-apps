@@ -61,8 +61,10 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef SIGKILL
-#  define SIGKILL 9
+#ifndef CONFIG_SIG_INT
+#  define SIGINT 10
+#else
+#  define SIGINT CONFIG_SIG_INT
 #endif
 
 /****************************************************************************
@@ -311,7 +313,7 @@ int main(int argc, FAR char *argv[])
 
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = sigint;
-  sigaction(SIGKILL, &sa, NULL);
+  sigaction(SIGINT, &sa, NULL);
 
   optind = 0;   /* global that needs to be reset in FLAT mode */
   while ((option = getopt(argc, argv, "l:s:cefhor?")) != ERROR)
