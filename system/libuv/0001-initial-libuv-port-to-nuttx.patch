@@ -1,26 +1,27 @@
-From e589c4790e8367c5d3c0c37ba20338539ee6f76e Mon Sep 17 00:00:00 2001
+From 3307fabda302b693acbec3a9f11b6542428d5b96 Mon Sep 17 00:00:00 2001
 From: Simon Piriou <spiriou31@gmail.com>
 Date: Fri, 7 Aug 2020 19:48:02 +0200
 Subject: [PATCH] initial libuv port to nuttx
 
 ---
- include/uv.h                        |  108 ++-
+ include/uv.h                        |  109 ++-
  include/uv/nuttx.h                  |   67 ++
- include/uv/unix.h                   |  146 +++-
+ include/uv/unix.h                   |  155 +++-
  src/inet.c                          |   50 +-
  src/queue.h                         |    4 +-
- src/random.c                        |    4 +
+ src/random.c                        |   42 +-
  src/unix/async.c                    |   71 +-
- src/unix/core.c                     |  178 ++++-
- src/unix/fs.c                       |   62 +-
- src/unix/internal.h                 |   30 +-
+ src/unix/core.c                     |  209 +++++-
+ src/unix/fs.c                       |   77 +-
+ src/unix/internal.h                 |   32 +-
  src/unix/loop.c                     |   98 ++-
  src/unix/no-proctitle.c             |   28 +
- src/unix/nuttx.c                    |  238 ++++++
- src/unix/nuttx_stream.c             | 1077 +++++++++++++++++++++++++++
+ src/unix/nuttx.c                    |  238 +++++++
+ src/unix/nuttx_stream.c             | 1016 +++++++++++++++++++++++++++
  src/unix/nuttx_tcp.c                |  311 ++++++++
- src/unix/nuttx_threadpool.c         |  361 +++++++++
- src/unix/nuttx_timer.c              |  199 +++++
+ src/unix/nuttx_threadpool.c         |  361 ++++++++++
+ src/unix/nuttx_timer.c              |  199 ++++++
+ src/unix/pipe.c                     |   24 +-
  src/unix/poll.c                     |   26 +
  src/unix/process.c                  |   35 +-
  src/unix/random-devurandom.c        |   19 +-
@@ -33,24 +34,25 @@ Subject: [PATCH] initial libuv port to nuttx
  test/task.h                         |   58 +-
  test/test-active.c                  |   12 +-
  test/test-async.c                   |   36 +-
- test/test-fs-copyfile.c             |   27 +-
- test/test-fs-poll.c                 |  162 ++--
+ test/test-fs-copyfile.c             |   30 +-
+ test/test-fs-poll.c                 |  162 +++--
  test/test-idle.c                    |   20 +-
  test/test-ip4-addr.c                |    2 +-
- test/test-list.h                    |   75 +-
+ test/test-list.h                    |   85 ++-
  test/test-loop-close.c              |   13 +-
  test/test-loop-stop.c               |   24 +-
  test/test-loop-time.c               |   44 +-
- test/test-poll-close.c              |   15 +-
+ test/test-ping-pong.c               |   92 ++-
+ test/test-poll-close.c              |   16 +-
  test/test-random.c                  |   23 +-
  test/test-tcp-read-stop.c           |   13 +-
  test/test-tcp-write-after-connect.c |   17 +-
  test/test-threadpool.c              |   28 +-
  test/test-timer-again.c             |   28 +-
  test/test-timer-from-check.c        |   21 +-
- test/test-timer.c                   |  160 ++--
+ test/test-timer.c                   |  160 +++--
  test/test-walk-handles.c            |    8 +-
- 46 files changed, 3929 insertions(+), 363 deletions(-)
+ 48 files changed, 4024 insertions(+), 433 deletions(-)
  create mode 100644 include/uv/nuttx.h
  create mode 100644 src/unix/nuttx.c
  create mode 100644 src/unix/nuttx_stream.c
@@ -59,7 +61,7 @@ Subject: [PATCH] initial libuv port to nuttx
  create mode 100644 src/unix/nuttx_timer.c
 
 diff --git a/include/uv.h b/include/uv.h
-index fec663136..e4b989afb 100644
+index fec663136..d025e8a0b 100644
 --- a/include/uv.h
 +++ b/include/uv.h
 @@ -1,3 +1,23 @@
@@ -161,7 +163,15 @@ index fec663136..e4b989afb 100644
  
  UV_EXTERN int uv_backend_fd(const uv_loop_t*);
  UV_EXTERN int uv_backend_timeout(const uv_loop_t*);
-@@ -423,7 +473,7 @@ struct uv_shutdown_s {
+@@ -399,7 +449,6 @@ UV_EXTERN char* uv_err_name_r(int err, char* buf, size_t buflen);
+   /* read-only */                                                             \
+   uv_req_type type;                                                           \
+   /* private */                                                               \
+-  void* reserved[6];                                                          \
+   UV_REQ_PRIVATE_FIELDS                                                       \
+ 
+ /* Abstract base class of all requests. */
+@@ -423,7 +472,7 @@ struct uv_shutdown_s {
    UV_SHUTDOWN_PRIVATE_FIELDS
  };
  
@@ -170,7 +180,7 @@ index fec663136..e4b989afb 100644
  #define UV_HANDLE_FIELDS                                                      \
    /* public */                                                                \
    void* data;                                                                 \
-@@ -439,6 +489,20 @@ struct uv_shutdown_s {
+@@ -439,6 +488,20 @@ struct uv_shutdown_s {
    } u;                                                                        \
    UV_HANDLE_PRIVATE_FIELDS                                                    \
  
@@ -191,7 +201,7 @@ index fec663136..e4b989afb 100644
  /* The abstract base class of all handles. */
  struct uv_handle_s {
    UV_HANDLE_FIELDS
-@@ -857,12 +921,12 @@ struct uv_timer_s {
+@@ -857,12 +920,12 @@ struct uv_timer_s {
  UV_EXTERN int uv_timer_init(uv_loop_t*, uv_timer_t* handle);
  UV_EXTERN int uv_timer_start(uv_timer_t* handle,
                               uv_timer_cb cb,
@@ -208,7 +218,7 @@ index fec663136..e4b989afb 100644
  
  
  /*
-@@ -1770,6 +1834,10 @@ union uv_any_req {
+@@ -1770,6 +1833,10 @@ union uv_any_req {
  struct uv_loop_s {
    /* User data - use this for whatever. */
    void* data;
@@ -219,7 +229,7 @@ index fec663136..e4b989afb 100644
    /* Loop reference counting. */
    unsigned int active_handles;
    void* handle_queue[2];
-@@ -1779,12 +1847,28 @@ struct uv_loop_s {
+@@ -1779,12 +1846,28 @@ struct uv_loop_s {
    } active_reqs;
    /* Internal flag to signal loop stop. */
    unsigned int stop_flag;
@@ -322,7 +332,7 @@ index 000000000..62574f93b
 +
 +#endif /* UV_NUTTX_H */
 diff --git a/include/uv/unix.h b/include/uv/unix.h
-index 3a131638f..294708654 100644
+index 3a131638f..2c56e8a55 100644
 --- a/include/uv/unix.h
 +++ b/include/uv/unix.h
 @@ -1,3 +1,23 @@
@@ -360,17 +370,17 @@ index 3a131638f..294708654 100644
  # include "uv/linux.h"
  #elif defined (__MVS__)
  # include "uv/os390.h"
-@@ -93,7 +115,9 @@ typedef struct uv__io_s uv__io_t;
+@@ -93,7 +115,8 @@ typedef struct uv__io_s uv__io_t;
  
  struct uv__io_s {
    uv__io_cb cb;
-+#if 0
-   void* pending_queue[2];
-+#endif
+-  void* pending_queue[2];
++  /* FIXME moved in uv_stream_t for now.
++   * void* pending_queue[2]; */
    void* watcher_queue[2];
    unsigned int pevents; /* Pending event mask i.e. mask at next tick. */
    unsigned int events;  /* Current event mask. */
-@@ -218,37 +242,103 @@ typedef struct {
+@@ -218,37 +241,105 @@ typedef struct {
    char* errmsg;
  } uv_lib_t;
  
@@ -475,11 +485,12 @@ index 3a131638f..294708654 100644
 +  unsigned int nfds;
 +#endif
 +
-+#if 0
-+#define UV_LOOP_PRIVATE_TODO_FIELDS                                           \
++#ifdef CONFIG_LIBUV_STREAM
++/* FIXME pending_queue is only required for uv_streams for now */
++#define UV_LOOP_PRIVATE_STREAM_FIELDS                                         \
 +  void* pending_queue[2];
 +#else
-+#define UV_LOOP_PRIVATE_TODO_FIELDS
++#define UV_LOOP_PRIVATE_STREAM_FIELDS
 +#endif
 +
 +#define UV_LOOP_PRIVATE_FIELDS                                                \
@@ -489,23 +500,28 @@ index 3a131638f..294708654 100644
 +  UV_LOOP_PRIVATE_WATCHERS_FIELDS                                             \
 +  UV_LOOP_PRIVATE_ASYNC_FIELDS                                                \
 +  UV_LOOP_PRIVATE_TIMER_FIELDS                                                \
-+  uv_time_t time;                                                              \
++  uv_time_t time;                                                             \
 +  UV_LOOP_PRIVATE_SIGNAL_FIELDS                                               \
 +  UV_LOOP_PRIVATE_PROCESS_FIELDS                                              \
++  UV_LOOP_PRIVATE_STREAM_FIELDS                                               \
 +  UV_LOOP_PRIVATE_PERFS_FIELDS                                                \
    UV_PLATFORM_LOOP_FIELDS                                                     \
  
  #define UV_REQ_TYPE_PRIVATE /* empty */
-@@ -290,7 +380,7 @@ typedef struct {
+@@ -289,10 +380,10 @@ typedef struct {
+   uv__io_t io_watcher;                                                        \
    void* write_queue[2];                                                       \
    void* write_completed_queue[2];                                             \
++  void* pending_queue[2];                                                     \
    uv_connection_cb connection_cb;                                             \
 -  int delayed_error;                                                          \
 +  /*int delayed_error;*/                                                      \
    int accepted_fd;                                                            \
-   void* queued_fds;                                                           \
+-  void* queued_fds;                                                           \
    UV_STREAM_PRIVATE_PLATFORM_FIELDS                                           \
-@@ -327,12 +417,20 @@ typedef struct {
+ 
+ #define UV_TCP_PRIVATE_FIELDS /* empty */
+@@ -327,12 +418,20 @@ typedef struct {
    void* queue[2];                                                             \
    int pending;                                                                \
  
@@ -526,6 +542,20 @@ index 3a131638f..294708654 100644
  
  #define UV_GETADDRINFO_PRIVATE_FIELDS                                         \
    struct uv__work work_req;                                                   \
+@@ -374,9 +473,13 @@ typedef struct {
+ #define UV_WORK_PRIVATE_FIELDS                                                \
+   struct uv__work work_req;
+ 
++#ifdef CONFIG_LIBUV_TTY
+ #define UV_TTY_PRIVATE_FIELDS                                                 \
+   struct termios orig_termios;                                                \
+   int mode;
++#else /* CONFIG_LIBUV_TTY */
++  #define UV_TTY_PRIVATE_FIELDS
++#endif /* CONFIG_LIBUV_TTY */
+ 
+ #define UV_SIGNAL_PRIVATE_FIELDS                                              \
+   /* RB_ENTRY(uv_signal_s) tree_entry; */                                     \
 diff --git a/src/inet.c b/src/inet.c
 index 698ab232e..63aa2b81b 100644
 --- a/src/inet.c
@@ -656,7 +686,7 @@ index 698ab232e..63aa2b81b 100644
  }
 +#endif
 diff --git a/src/queue.h b/src/queue.h
-index ff3540a0a..1e3e92904 100644
+index ff3540a0a..6fa87975f 100644
 --- a/src/queue.h
 +++ b/src/queue.h
 @@ -74,8 +74,8 @@ typedef void *QUEUE[2];
@@ -665,13 +695,13 @@ index ff3540a0a..1e3e92904 100644
      else {                                                                    \
 -      QUEUE* q = QUEUE_HEAD(h);                                               \
 -      QUEUE_SPLIT(h, q, n);                                                   \
-+      QUEUE* _q = QUEUE_HEAD(h);                                               \
-+      QUEUE_SPLIT(h, _q, n);                                                   \
++      QUEUE* _q = QUEUE_HEAD(h);                                              \
++      QUEUE_SPLIT(h, _q, n);                                                  \
      }                                                                         \
    }                                                                           \
    while (0)
 diff --git a/src/random.c b/src/random.c
-index 491bf7033..6b2280f02 100644
+index 491bf7033..26e45b334 100644
 --- a/src/random.c
 +++ b/src/random.c
 @@ -31,6 +31,9 @@
@@ -684,13 +714,68 @@ index 491bf7033..6b2280f02 100644
  #if defined(__PASE__)
    rc = uv__random_readpath("/dev/urandom", buf, buflen);
  #elif defined(_AIX)
-@@ -65,6 +68,7 @@ static int uv__random(void* buf, size_t buflen) {
+@@ -65,11 +68,12 @@ static int uv__random(void* buf, size_t buflen) {
  #else
    rc = uv__random_devurandom(buf, buflen);
  #endif
 +#endif /* __NUTTX__ */
  
    return rc;
+ }
+ 
+-
++#ifdef CONFIG_LIBUV_WQ
+ static void uv__random_work(struct uv__work* w) {
+   uv_random_t* req;
+ 
+@@ -89,7 +93,7 @@ static void uv__random_done(struct uv__work* w, int status) {
+ 
+   req->cb(req, status, req->buf, req->buflen);
+ }
+-
++#endif
+ 
+ int uv_random(uv_loop_t* loop,
+               uv_random_t* req,
+@@ -103,21 +107,23 @@ int uv_random(uv_loop_t* loop,
+   if (flags != 0)
+     return UV_EINVAL;
+ 
+-  if (cb == NULL)
+-    return uv__random(buf, buflen);
+-
+-  uv__req_init(loop, req, UV_RANDOM);
+-  req->loop = loop;
+-  req->status = 0;
+-  req->cb = cb;
+-  req->buf = buf;
+-  req->buflen = buflen;
+-
+-  uv__work_submit(loop,
+-                  &req->work_req,
+-                  UV__WORK_CPU,
+-                  uv__random_work,
+-                  uv__random_done);
++#ifdef CONFIG_LIBUV_WQ
++  if (cb != NULL) {
++    uv__req_init(loop, req, UV_RANDOM);
++    req->loop = loop;
++    req->status = 0;
++    req->cb = cb;
++    req->buf = buf;
++    req->buflen = buflen;
++
++    uv__work_submit(loop,
++                    &req->work_req,
++                    UV__WORK_CPU,
++                    uv__random_work,
++                    uv__random_done);
++    return 0;
++  }
++#endif
+ 
+-  return 0;
++  return uv__random(buf, buflen);
  }
 diff --git a/src/unix/async.c b/src/unix/async.c
 index 5f58fb88d..00b6a858c 100644
@@ -879,7 +964,7 @@ index 5f58fb88d..00b6a858c 100644
    uv__io_stop(loop, &loop->async_io_watcher, POLLIN);
    uv__close(loop->async_io_watcher.fd);
 diff --git a/src/unix/core.c b/src/unix/core.c
-index 5b0b64dd4..2438614f0 100644
+index 5b0b64dd4..237a6b1bb 100644
 --- a/src/unix/core.c
 +++ b/src/unix/core.c
 @@ -1,3 +1,23 @@
@@ -921,23 +1006,29 @@ index 5b0b64dd4..2438614f0 100644
  #if defined(__DragonFly__)      || \
      defined(__FreeBSD__)        || \
      defined(__FreeBSD_kernel__) || \
-@@ -89,6 +112,7 @@ extern char** environ;
+@@ -87,8 +110,11 @@ extern char** environ;
+ # include <sys/syscall.h>
+ # define uv__accept4 accept4
  #endif
++#endif
  
++#ifdef CONFIG_LIBUV_STREAM
  static int uv__run_pending(uv_loop_t* loop);
 +#endif
  
  /* Verify that uv_buf_t is ABI-compatible with struct iovec. */
  STATIC_ASSERT(sizeof(uv_buf_t) == sizeof(struct iovec));
-@@ -112,6 +136,7 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
+@@ -112,22 +138,31 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
    handle->close_cb = close_cb;
  
    switch (handle->type) {
-+#if 0
++#ifdef CONFIG_LIBUV_PIPE
    case UV_NAMED_PIPE:
      uv__pipe_close((uv_pipe_t*)handle);
      break;
-@@ -119,15 +144,21 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
++#endif
+ 
++#if 0
    case UV_TTY:
      uv__stream_close((uv_stream_t*)handle);
      break;
@@ -959,7 +1050,7 @@ index 5b0b64dd4..2438614f0 100644
    case UV_PREPARE:
      uv__prepare_close((uv_prepare_t*)handle);
      break;
-@@ -139,15 +170,20 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
+@@ -139,15 +174,20 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
    case UV_IDLE:
      uv__idle_close((uv_idle_t*)handle);
      break;
@@ -981,7 +1072,7 @@ index 5b0b64dd4..2438614f0 100644
    case UV_PROCESS:
      uv__process_close((uv_process_t*)handle);
      break;
-@@ -155,21 +191,24 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
+@@ -155,21 +195,24 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
    case UV_FS_EVENT:
      uv__fs_event_close((uv_fs_event_t*)handle);
      break;
@@ -1008,7 +1099,7 @@ index 5b0b64dd4..2438614f0 100644
    default:
      assert(0);
    }
-@@ -177,6 +216,7 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
+@@ -177,6 +220,7 @@ void uv_close(uv_handle_t* handle, uv_close_cb close_cb) {
    uv__make_close_pending(handle);
  }
  
@@ -1016,7 +1107,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv__socket_sockopt(uv_handle_t* handle, int optname, int* value) {
    int r;
    int fd;
-@@ -204,6 +244,7 @@ int uv__socket_sockopt(uv_handle_t* handle, int optname, int* value) {
+@@ -204,6 +248,7 @@ int uv__socket_sockopt(uv_handle_t* handle, int optname, int* value) {
  
    return 0;
  }
@@ -1024,7 +1115,7 @@ index 5b0b64dd4..2438614f0 100644
  
  void uv__make_close_pending(uv_handle_t* handle) {
    assert(handle->flags & UV_HANDLE_CLOSING);
-@@ -241,7 +282,9 @@ int uv__getiovmax(void) {
+@@ -241,7 +286,9 @@ int uv__getiovmax(void) {
  
  
  static void uv__finish_close(uv_handle_t* handle) {
@@ -1034,7 +1125,7 @@ index 5b0b64dd4..2438614f0 100644
  
    /* Note: while the handle is in the UV_HANDLE_CLOSING state now, it's still
     * possible for it to be active in the sense that uv__is_active() returns
-@@ -256,17 +299,28 @@ static void uv__finish_close(uv_handle_t* handle) {
+@@ -256,17 +303,28 @@ static void uv__finish_close(uv_handle_t* handle) {
    handle->flags |= UV_HANDLE_CLOSED;
  
    switch (handle->type) {
@@ -1064,23 +1155,27 @@ index 5b0b64dd4..2438614f0 100644
      case UV_SIGNAL:
        /* If there are any caught signals "trapped" in the signal pipe,
         * we can't call the close callback yet. Reinserting the handle
-@@ -280,17 +334,21 @@ static void uv__finish_close(uv_handle_t* handle) {
+@@ -280,17 +338,26 @@ static void uv__finish_close(uv_handle_t* handle) {
          return;
        }
        break;
--
 +#endif
-+#if 0
+ 
++#ifdef CONFIG_LIBUV_STREAM
++#ifdef CONFIG_LIBUV_PIPE
      case UV_NAMED_PIPE:
 -    case UV_TCP:
++#endif
++#if 0
      case UV_TTY:
 +#endif
 +#ifdef CONFIG_LIBUV_TCP
 +    case UV_TCP:
++#endif
        uv__stream_destroy((uv_stream_t*)handle);
        break;
 -
-+#endif
++#endif /* CONFIG_LIBUV_STREAM */
 +#ifdef CONFIG_LIBUV_UDP
      case UV_UDP:
        uv__udp_finish_close((uv_udp_t*)handle);
@@ -1090,7 +1185,7 @@ index 5b0b64dd4..2438614f0 100644
      default:
        assert(0);
        break;
-@@ -324,10 +382,11 @@ int uv_is_closing(const uv_handle_t* handle) {
+@@ -324,10 +391,11 @@ int uv_is_closing(const uv_handle_t* handle) {
    return uv__is_closing(handle);
  }
  
@@ -1103,7 +1198,7 @@ index 5b0b64dd4..2438614f0 100644
  
  
  int uv_backend_timeout(const uv_loop_t* loop) {
-@@ -337,16 +396,24 @@ int uv_backend_timeout(const uv_loop_t* loop) {
+@@ -337,16 +405,24 @@ int uv_backend_timeout(const uv_loop_t* loop) {
    if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
      return 0;
  
@@ -1112,7 +1207,7 @@ index 5b0b64dd4..2438614f0 100644
      return 0;
 +#endif
  
-+#if 0
++#ifdef CONFIG_LIBUV_STREAM
    if (!QUEUE_EMPTY(&loop->pending_queue))
      return 0;
 +#endif
@@ -1128,7 +1223,7 @@ index 5b0b64dd4..2438614f0 100644
  }
  
  
-@@ -373,17 +440,30 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
+@@ -373,17 +449,30 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
  
    while (r != 0 && loop->stop_flag == 0) {
      uv__update_time(loop);
@@ -1137,7 +1232,7 @@ index 5b0b64dd4..2438614f0 100644
      uv__run_timers(loop);
 +#endif
 +
-+#if 0
++#ifdef CONFIG_LIBUV_STREAM
      ran_pending = uv__run_pending(loop);
 +#else
 +    ran_pending = 0;
@@ -1159,7 +1254,7 @@ index 5b0b64dd4..2438614f0 100644
      uv__run_closing_handles(loop);
  
      if (mode == UV_RUN_ONCE) {
-@@ -396,7 +476,10 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
+@@ -396,7 +485,10 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
         * the check.
         */
        uv__update_time(loop);
@@ -1170,7 +1265,7 @@ index 5b0b64dd4..2438614f0 100644
      }
  
      r = uv__loop_alive(loop);
-@@ -423,7 +506,7 @@ int uv_is_active(const uv_handle_t* handle) {
+@@ -423,7 +515,7 @@ int uv_is_active(const uv_handle_t* handle) {
    return uv__is_active(handle);
  }
  
@@ -1179,7 +1274,7 @@ index 5b0b64dd4..2438614f0 100644
  /* Open a socket in non-blocking close-on-exec mode, atomically if possible. */
  int uv__socket(int domain, int type, int protocol) {
    int sockfd;
-@@ -460,6 +543,7 @@ int uv__socket(int domain, int type, int protocol) {
+@@ -460,6 +552,7 @@ int uv__socket(int domain, int type, int protocol) {
  
    return sockfd;
  }
@@ -1187,16 +1282,16 @@ index 5b0b64dd4..2438614f0 100644
  
  /* get a file pointer to a file in read-only and close-on-exec mode */
  FILE* uv__open_file(const char* path) {
-@@ -477,7 +561,7 @@ FILE* uv__open_file(const char* path) {
+@@ -477,7 +570,7 @@ FILE* uv__open_file(const char* path) {
     return fp;
  }
  
 -
-+#ifdef CONFIG_LIBUV_STREAM
++#if defined(CONFIG_LIBUV_STREAM) && defined(CONFIG_LIBUV_NET)
  int uv__accept(int sockfd) {
    int peerfd;
    int err;
-@@ -509,7 +593,7 @@ int uv__accept(int sockfd) {
+@@ -509,7 +602,7 @@ int uv__accept(int sockfd) {
  
    return peerfd;
  }
@@ -1205,7 +1300,7 @@ index 5b0b64dd4..2438614f0 100644
  
  /* close() on macos has the "interesting" quirk that it fails with EINTR
   * without closing the file descriptor when a thread is in the cancel state.
-@@ -531,6 +615,8 @@ int uv__close_nocancel(int fd) {
+@@ -531,6 +624,8 @@ int uv__close_nocancel(int fd) {
    return close$NOCANCEL$UNIX2003(fd);
  #endif
  #pragma GCC diagnostic pop
@@ -1214,7 +1309,7 @@ index 5b0b64dd4..2438614f0 100644
  #elif defined(__linux__)
    return syscall(SYS_close, fd);
  #else
-@@ -559,11 +645,18 @@ int uv__close_nocheckstdio(int fd) {
+@@ -559,11 +654,18 @@ int uv__close_nocheckstdio(int fd) {
  
  
  int uv__close(int fd) {
@@ -1233,7 +1328,7 @@ index 5b0b64dd4..2438614f0 100644
  }
  
  
-@@ -581,7 +674,8 @@ int uv__nonblock_ioctl(int fd, int set) {
+@@ -581,7 +683,8 @@ int uv__nonblock_ioctl(int fd, int set) {
  }
  
  
@@ -1243,7 +1338,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv__cloexec_ioctl(int fd, int set) {
    int r;
  
-@@ -658,7 +752,7 @@ int uv__cloexec_fcntl(int fd, int set) {
+@@ -658,7 +761,7 @@ int uv__cloexec_fcntl(int fd, int set) {
    return 0;
  }
  
@@ -1252,7 +1347,7 @@ index 5b0b64dd4..2438614f0 100644
  ssize_t uv__recvmsg(int fd, struct msghdr* msg, int flags) {
    struct cmsghdr* cmsg;
    ssize_t rc;
-@@ -695,7 +789,7 @@ ssize_t uv__recvmsg(int fd, struct msghdr* msg, int flags) {
+@@ -695,7 +798,7 @@ ssize_t uv__recvmsg(int fd, struct msghdr* msg, int flags) {
          uv__cloexec(*pfd, 1);
    return rc;
  }
@@ -1261,7 +1356,7 @@ index 5b0b64dd4..2438614f0 100644
  
  int uv_cwd(char* buffer, size_t* size) {
    char scratch[1 + UV__PATH_MAX];
-@@ -743,7 +837,7 @@ int uv_chdir(const char* dir) {
+@@ -743,7 +846,7 @@ int uv_chdir(const char* dir) {
    return 0;
  }
  
@@ -1270,7 +1365,7 @@ index 5b0b64dd4..2438614f0 100644
  void uv_disable_stdio_inheritance(void) {
    int fd;
  
-@@ -754,7 +848,7 @@ void uv_disable_stdio_inheritance(void) {
+@@ -754,21 +857,31 @@ void uv_disable_stdio_inheritance(void) {
      if (uv__cloexec(fd, 1) && fd > 15)
        break;
  }
@@ -1279,16 +1374,53 @@ index 5b0b64dd4..2438614f0 100644
  
  int uv_fileno(const uv_handle_t* handle, uv_os_fd_t* fd) {
    int fd_out;
-@@ -785,7 +879,7 @@ int uv_fileno(const uv_handle_t* handle, uv_os_fd_t* fd) {
+ 
+   switch (handle->type) {
++#ifdef CONFIG_LIBUV_TCP
+   case UV_TCP:
++#endif
++#ifdef CONFIG_LIBUV_PIPE
+   case UV_NAMED_PIPE:
++#endif
++#if 0
+   case UV_TTY:
++#endif
++#if defined(CONFIG_LIBUV_PIPE) || defined(CONFIG_LIBUV_TCP)
+     fd_out = uv__stream_fd((uv_stream_t*) handle);
+     break;
++#endif
+ 
++#ifdef CONFIG_LIBUV_UDP
+   case UV_UDP:
+     fd_out = ((uv_udp_t *) handle)->io_watcher.fd;
+     break;
++#endif
+ 
+   case UV_POLL:
+     fd_out = ((uv_poll_t *) handle)->io_watcher.fd;
+@@ -785,11 +898,11 @@ int uv_fileno(const uv_handle_t* handle, uv_os_fd_t* fd) {
    return 0;
  }
  
 -
-+#if 0
++#ifdef CONFIG_LIBUV_STREAM
  static int uv__run_pending(uv_loop_t* loop) {
    QUEUE* q;
    QUEUE pq;
-@@ -806,8 +900,9 @@ static int uv__run_pending(uv_loop_t* loop) {
+-  uv__io_t* w;
++  uv_stream_t* handle;
+ 
+   if (QUEUE_EMPTY(&loop->pending_queue))
+     return 0;
+@@ -800,14 +913,15 @@ static int uv__run_pending(uv_loop_t* loop) {
+     q = QUEUE_HEAD(&pq);
+     QUEUE_REMOVE(q);
+     QUEUE_INIT(q);
+-    w = QUEUE_DATA(q, uv__io_t, pending_queue);
+-    w->cb(loop, w, POLLOUT);
++    handle = QUEUE_DATA(q, uv_stream_t, pending_queue);
++    handle->io_watcher.cb(loop, &handle->io_watcher, POLLOUT);
+   }
  
    return 1;
  }
@@ -1299,7 +1431,7 @@ index 5b0b64dd4..2438614f0 100644
  static unsigned int next_power_of_two(unsigned int val) {
    val -= 1;
    val |= val >> 1;
-@@ -852,12 +947,14 @@ static void maybe_resize(uv_loop_t* loop, unsigned int len) {
+@@ -852,12 +966,14 @@ static void maybe_resize(uv_loop_t* loop, unsigned int len) {
    loop->watchers = watchers;
    loop->nwatchers = nwatchers;
  }
@@ -1315,7 +1447,7 @@ index 5b0b64dd4..2438614f0 100644
    QUEUE_INIT(&w->watcher_queue);
    w->cb = cb;
    w->fd = fd;
-@@ -878,7 +975,9 @@ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -878,7 +994,9 @@ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
    assert(w->fd < INT_MAX);
  
    w->pevents |= events;
@@ -1325,7 +1457,7 @@ index 5b0b64dd4..2438614f0 100644
  
  #if !defined(__sun)
    /* The event ports backend needs to rearm all file descriptors on each and
-@@ -892,10 +991,12 @@ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -892,10 +1010,12 @@ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
    if (QUEUE_EMPTY(&w->watcher_queue))
      QUEUE_INSERT_TAIL(&loop->watcher_queue, &w->watcher_queue);
  
@@ -1338,7 +1470,7 @@ index 5b0b64dd4..2438614f0 100644
  }
  
  
-@@ -909,8 +1010,10 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -909,8 +1029,10 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
    assert(w->fd >= 0);
  
    /* Happens when uv__io_stop() is called on a handle that was never started. */
@@ -1349,7 +1481,7 @@ index 5b0b64dd4..2438614f0 100644
  
    w->pevents &= ~events;
  
-@@ -918,6 +1021,7 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -918,6 +1040,7 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
      QUEUE_REMOVE(&w->watcher_queue);
      QUEUE_INIT(&w->watcher_queue);
  
@@ -1357,7 +1489,7 @@ index 5b0b64dd4..2438614f0 100644
      if (loop->watchers[w->fd] != NULL) {
        assert(loop->watchers[w->fd] == w);
        assert(loop->nfds > 0);
-@@ -925,6 +1029,9 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -925,6 +1048,9 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
        loop->nfds--;
        w->events = 0;
      }
@@ -1367,29 +1499,34 @@ index 5b0b64dd4..2438614f0 100644
    }
    else if (QUEUE_EMPTY(&w->watcher_queue))
      QUEUE_INSERT_TAIL(&loop->watcher_queue, &w->watcher_queue);
-@@ -933,7 +1040,7 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+@@ -933,19 +1059,21 @@ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
  
  void uv__io_close(uv_loop_t* loop, uv__io_t* w) {
    uv__io_stop(loop, w, POLLIN | POLLOUT | UV__POLLRDHUP | UV__POLLPRI);
--  QUEUE_REMOVE(&w->pending_queue);
-+  // QUEUE_REMOVE(&w->pending_queue);
++#if 0
+   QUEUE_REMOVE(&w->pending_queue);
++#endif
  
    /* Remove stale events for this file descriptor */
    if (w->fd != -1)
-@@ -941,10 +1048,12 @@ void uv__io_close(uv_loop_t* loop, uv__io_t* w) {
+     uv__platform_invalidate_fd(loop, w->fd);
  }
  
- 
-+#if 0
- void uv__io_feed(uv_loop_t* loop, uv__io_t* w) {
-   if (QUEUE_EMPTY(&w->pending_queue))
-     QUEUE_INSERT_TAIL(&loop->pending_queue, &w->pending_queue);
+-
+-void uv__io_feed(uv_loop_t* loop, uv__io_t* w) {
+-  if (QUEUE_EMPTY(&w->pending_queue))
+-    QUEUE_INSERT_TAIL(&loop->pending_queue, &w->pending_queue);
++#ifdef CONFIG_LIBUV_STREAM
++void uv__stream_feed(uv_loop_t* loop, uv_stream_t* s) {
++  if (QUEUE_EMPTY(&s->pending_queue))
++    QUEUE_INSERT_TAIL(&loop->pending_queue, &s->pending_queue);
  }
+-
 +#endif
  
- 
  int uv__io_active(const uv__io_t* w, unsigned int events) {
-@@ -955,10 +1064,22 @@ int uv__io_active(const uv__io_t* w, unsigned int events) {
+   assert(0 == (events & ~(POLLIN | POLLOUT | UV__POLLRDHUP | UV__POLLPRI)));
+@@ -955,10 +1083,22 @@ int uv__io_active(const uv__io_t* w, unsigned int events) {
  
  
  int uv__fd_exists(uv_loop_t* loop, int fd) {
@@ -1413,7 +1550,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv_getrusage(uv_rusage_t* rusage) {
    struct rusage usage;
  
-@@ -990,7 +1111,7 @@ int uv_getrusage(uv_rusage_t* rusage) {
+@@ -990,7 +1130,7 @@ int uv_getrusage(uv_rusage_t* rusage) {
  
    return 0;
  }
@@ -1422,7 +1559,7 @@ index 5b0b64dd4..2438614f0 100644
  
  int uv__open_cloexec(const char* path, int flags) {
  #if defined(O_CLOEXEC)
-@@ -1019,7 +1140,7 @@ int uv__open_cloexec(const char* path, int flags) {
+@@ -1019,7 +1159,7 @@ int uv__open_cloexec(const char* path, int flags) {
  #endif  /* O_CLOEXEC */
  }
  
@@ -1431,7 +1568,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv__dup2_cloexec(int oldfd, int newfd) {
  #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__linux__)
    int r;
-@@ -1046,7 +1167,7 @@ int uv__dup2_cloexec(int oldfd, int newfd) {
+@@ -1046,7 +1186,7 @@ int uv__dup2_cloexec(int oldfd, int newfd) {
    return r;
  #endif
  }
@@ -1440,7 +1577,7 @@ index 5b0b64dd4..2438614f0 100644
  
  int uv_os_homedir(char* buffer, size_t* size) {
    uv_passwd_t pwd;
-@@ -1390,12 +1511,13 @@ uv_pid_t uv_os_getpid(void) {
+@@ -1390,12 +1530,13 @@ uv_pid_t uv_os_getpid(void) {
    return getpid();
  }
  
@@ -1456,7 +1593,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv_os_getpriority(uv_pid_t pid, int* priority) {
    int r;
  
-@@ -1422,7 +1544,7 @@ int uv_os_setpriority(uv_pid_t pid, int priority) {
+@@ -1422,7 +1563,7 @@ int uv_os_setpriority(uv_pid_t pid, int priority) {
  
    return 0;
  }
@@ -1466,7 +1603,7 @@ index 5b0b64dd4..2438614f0 100644
  int uv_os_uname(uv_utsname_t* buffer) {
    struct utsname buf;
 diff --git a/src/unix/fs.c b/src/unix/fs.c
-index dd08ea541..4e32d0783 100644
+index dd08ea541..302d4f0c6 100644
 --- a/src/unix/fs.c
 +++ b/src/unix/fs.c
 @@ -56,6 +56,12 @@
@@ -1591,35 +1728,21 @@ index dd08ea541..4e32d0783 100644
      return -1;
    }
  #elif defined(__APPLE__)           || \
-@@ -970,7 +982,12 @@ static ssize_t uv__fs_sendfile(uv_fs_t* req) {
- 
- 
- static ssize_t uv__fs_utime(uv_fs_t* req) {
--#if defined(__linux__)                                                         \
-+#if defined(__NUTTX__)
-+  struct timeval tv[2];
-+  tv[0] = uv__fs_to_timeval(req->atime);
-+  tv[1] = uv__fs_to_timeval(req->mtime);
-+  return utimes(req->path, tv);
-+#elif defined(__linux__)                                                         \
-     || defined(_AIX71)                                                         \
-     || defined(__sun)                                                          \
-     || defined(__HAIKU__)
-@@ -1011,7 +1028,7 @@ static ssize_t uv__fs_utime(uv_fs_t* req) {
+@@ -968,7 +980,7 @@ static ssize_t uv__fs_sendfile(uv_fs_t* req) {
  #endif
  }
  
 -
 +#ifndef __NUTTX__
- static ssize_t uv__fs_lutime(uv_fs_t* req) {
- #if defined(__linux__)            ||                                           \
-     defined(_AIX71)               ||                                           \
-@@ -1035,10 +1052,10 @@ static ssize_t uv__fs_lutime(uv_fs_t* req) {
+ static ssize_t uv__fs_utime(uv_fs_t* req) {
+ #if defined(__linux__)                                                         \
+     || defined(_AIX71)                                                         \
+@@ -1035,10 +1047,10 @@ static ssize_t uv__fs_lutime(uv_fs_t* req) {
    return -1;
  #endif
  }
 -
-+#endif
++#endif /* !__NUTTX__ */
  
  static ssize_t uv__fs_write(uv_fs_t* req) {
 -#if defined(__linux__)
@@ -1627,7 +1750,7 @@ index dd08ea541..4e32d0783 100644
    static int no_pwritev;
  #endif
    ssize_t r;
-@@ -1067,13 +1084,13 @@ static ssize_t uv__fs_write(uv_fs_t* req) {
+@@ -1067,13 +1079,13 @@ static ssize_t uv__fs_write(uv_fs_t* req) {
  #if HAVE_PREADV
      r = pwritev(req->file, (struct iovec*) req->bufs, req->nbufs, req->off);
  #else
@@ -1643,7 +1766,7 @@ index dd08ea541..4e32d0783 100644
      else {
        r = uv__pwritev(req->file,
                        (struct iovec*) req->bufs,
-@@ -1102,7 +1119,9 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
+@@ -1102,7 +1114,9 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
    uv_file srcfd;
    uv_file dstfd;
    struct stat src_statsbuf;
@@ -1653,7 +1776,7 @@ index dd08ea541..4e32d0783 100644
    int dst_flags;
    int result;
    int err;
-@@ -1146,6 +1165,7 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
+@@ -1146,6 +1160,7 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
      goto out;
    }
  
@@ -1661,7 +1784,7 @@ index dd08ea541..4e32d0783 100644
    /* Get the destination file's mode. */
    if (fstat(dstfd, &dst_statsbuf)) {
      err = UV__ERR(errno);
-@@ -1157,9 +1177,12 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
+@@ -1157,9 +1172,12 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
        src_statsbuf.st_ino == dst_statsbuf.st_ino) {
      goto out;
    }
@@ -1674,7 +1797,7 @@ index dd08ea541..4e32d0783 100644
  #ifdef __linux__
      if (err != UV_EPERM)
        goto out;
-@@ -1183,6 +1206,7 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
+@@ -1183,6 +1201,7 @@ static ssize_t uv__fs_copyfile(uv_fs_t* req) {
      goto out;
  #endif  /* !__linux__ */
    }
@@ -1682,7 +1805,7 @@ index dd08ea541..4e32d0783 100644
  
  #ifdef FICLONE
    if (req->flags & UV_FS_COPYFILE_FICLONE ||
-@@ -1343,7 +1367,7 @@ static int uv__fs_statx(int fd,
+@@ -1343,7 +1362,7 @@ static int uv__fs_statx(int fd,
                          int is_lstat,
                          uv_stat_t* buf) {
    STATIC_ASSERT(UV_ENOSYS != -1);
@@ -1691,17 +1814,18 @@ index dd08ea541..4e32d0783 100644
    static int no_statx;
    struct uv__statx statxbuf;
    int dirfd;
-@@ -1543,30 +1567,40 @@ static void uv__fs_work(struct uv__work* w) {
+@@ -1542,40 +1561,56 @@ static void uv__fs_work(struct uv__work* w) {
+ 
      switch (req->fs_type) {
      X(ACCESS, access(req->path, req->flags));
-     X(CHMOD, chmod(req->path, req->mode));
 +#ifndef __NUTTX__
+     X(CHMOD, chmod(req->path, req->mode));
      X(CHOWN, chown(req->path, req->uid, req->gid));
 +#endif
      X(CLOSE, uv__fs_close(req->file));
      X(COPYFILE, uv__fs_copyfile(req));
-     X(FCHMOD, fchmod(req->file, req->mode));
 +#ifndef __NUTTX__
+     X(FCHMOD, fchmod(req->file, req->mode));
      X(FCHOWN, fchown(req->file, req->uid, req->gid));
      X(LCHOWN, lchown(req->path, req->uid, req->gid));
 +#endif
@@ -1714,7 +1838,9 @@ index dd08ea541..4e32d0783 100644
      X(LUTIME, uv__fs_lutime(req));
 +#endif
      X(LSTAT, uv__fs_lstat(req->path, &req->statbuf));
++#ifdef CONFIG_PSEUDOFS_SOFTLINKS
      X(LINK, link(req->path, req->new_path));
++#endif
      X(MKDIR, mkdir(req->path, req->mode));
 +#ifndef __NUTTX__
      X(MKDTEMP, uv__fs_mkdtemp(req));
@@ -1732,8 +1858,93 @@ index dd08ea541..4e32d0783 100644
      X(REALPATH, uv__fs_realpath(req));
      X(RENAME, rename(req->path, req->new_path));
      X(RMDIR, rmdir(req->path));
+     X(SENDFILE, uv__fs_sendfile(req));
+     X(STAT, uv__fs_stat(req->path, &req->statbuf));
+     X(STATFS, uv__fs_statfs(req));
++#ifdef CONFIG_PSEUDOFS_SOFTLINKS
+     X(SYMLINK, symlink(req->path, req->new_path));
++#endif
+     X(UNLINK, unlink(req->path));
++#ifndef __NUTTX__
+     X(UTIME, uv__fs_utime(req));
++#endif
+     X(WRITE, uv__fs_write_all(req));
+     default: abort();
+     }
+@@ -1621,7 +1656,7 @@ int uv_fs_access(uv_loop_t* loop,
+   POST;
+ }
+ 
+-
++#ifndef __NUTTX__
+ int uv_fs_chmod(uv_loop_t* loop,
+                 uv_fs_t* req,
+                 const char* path,
+@@ -1646,7 +1681,7 @@ int uv_fs_chown(uv_loop_t* loop,
+   req->gid = gid;
+   POST;
+ }
+-
++#endif
+ 
+ int uv_fs_close(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
+   INIT(CLOSE);
+@@ -1654,7 +1689,7 @@ int uv_fs_close(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
+   POST;
+ }
+ 
+-
++#ifndef __NUTTX__
+ int uv_fs_fchmod(uv_loop_t* loop,
+                  uv_fs_t* req,
+                  uv_file file,
+@@ -1693,7 +1728,7 @@ int uv_fs_lchown(uv_loop_t* loop,
+   req->gid = gid;
+   POST;
+ }
+-
++#endif
+ 
+ int uv_fs_fdatasync(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
+   INIT(FDATASYNC);
+@@ -1957,7 +1992,7 @@ int uv_fs_stat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
+   POST;
+ }
+ 
+-
++#ifdef CONFIG_PSEUDOFS_SOFTLINKS
+ int uv_fs_symlink(uv_loop_t* loop,
+                   uv_fs_t* req,
+                   const char* path,
+@@ -1969,7 +2004,7 @@ int uv_fs_symlink(uv_loop_t* loop,
+   req->flags = flags;
+   POST;
+ }
+-
++#endif
+ 
+ int uv_fs_unlink(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
+   INIT(UNLINK);
+@@ -1977,7 +2012,7 @@ int uv_fs_unlink(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
+   POST;
+ }
+ 
+-
++#ifndef __NUTTX__
+ int uv_fs_utime(uv_loop_t* loop,
+                 uv_fs_t* req,
+                 const char* path,
+@@ -1990,7 +2025,7 @@ int uv_fs_utime(uv_loop_t* loop,
+   req->mtime = mtime;
+   POST;
+ }
+-
++#endif
+ 
+ int uv_fs_write(uv_loop_t* loop,
+                 uv_fs_t* req,
 diff --git a/src/unix/internal.h b/src/unix/internal.h
-index 402ee877d..9f828a223 100644
+index 402ee877d..107565e4c 100644
 --- a/src/unix/internal.h
 +++ b/src/unix/internal.h
 @@ -1,3 +1,23 @@
@@ -1778,6 +1989,15 @@ index 402ee877d..9f828a223 100644
  #define uv__cloexec uv__cloexec_ioctl
  #define uv__nonblock uv__nonblock_ioctl
  #else
+@@ -201,7 +222,7 @@ void uv__io_init(uv__io_t* w, uv__io_cb cb, int fd);
+ void uv__io_start(uv_loop_t* loop, uv__io_t* w, unsigned int events);
+ void uv__io_stop(uv_loop_t* loop, uv__io_t* w, unsigned int events);
+ void uv__io_close(uv_loop_t* loop, uv__io_t* w);
+-void uv__io_feed(uv_loop_t* loop, uv__io_t* w);
++void uv__stream_feed(uv_loop_t* loop, uv_stream_t *s);
+ int uv__io_active(const uv__io_t* w, unsigned int events);
+ int uv__io_check_fd(uv_loop_t* loop, int fd);
+ void uv__io_poll(uv_loop_t* loop, int timeout); /* in milliseconds or -1 */
 @@ -247,6 +268,7 @@ int uv__signal_loop_fork(uv_loop_t* loop);
  
  /* platform specific */
@@ -1799,7 +2019,7 @@ index 402ee877d..9f828a223 100644
  
  UV_UNUSED(static char* uv__basename_r(const char* path)) {
 diff --git a/src/unix/loop.c b/src/unix/loop.c
-index e5b288956..de5d5aa80 100644
+index e5b288956..bb100390a 100644
 --- a/src/unix/loop.c
 +++ b/src/unix/loop.c
 @@ -1,3 +1,23 @@
@@ -1875,7 +2095,7 @@ index e5b288956..de5d5aa80 100644
    loop->watchers = NULL;
    loop->nwatchers = 0;
 +#endif
-+#if 0
++#ifdef CONFIG_LIBUV_STREAM
    QUEUE_INIT(&loop->pending_queue);
 +#endif
    QUEUE_INIT(&loop->watcher_queue);
@@ -2334,10 +2554,10 @@ index 000000000..4549e48eb
 +}
 diff --git a/src/unix/nuttx_stream.c b/src/unix/nuttx_stream.c
 new file mode 100644
-index 000000000..891a872dd
+index 000000000..0642d057c
 --- /dev/null
 +++ b/src/unix/nuttx_stream.c
-@@ -0,0 +1,1077 @@
+@@ -0,0 +1,1016 @@
 +/****************************************************************************
 + * libuv/src/unix/nuttx_stream.c
 + *
@@ -2395,7 +2615,10 @@ index 000000000..891a872dd
 +#include <unistd.h>
 +#include <limits.h> /* IOV_MAX */
 +
++#ifdef CONFIG_LIBUV_NET
 +static void uv__stream_connect(uv_stream_t*);
++#endif
++
 +static void uv__write(uv_stream_t* stream);
 +static void uv__read(uv_stream_t* stream);
 +static void uv__stream_io(uv_loop_t* loop, uv__io_t* w, unsigned int events);
@@ -2412,11 +2635,13 @@ index 000000000..891a872dd
 +  stream->close_cb = NULL;
 +  stream->connection_cb = NULL;
 +  stream->connect_req = NULL;
++  /* shutdown() not supported by NuttX */
 +  stream->shutdown_req = NULL;
 +  stream->accepted_fd = -1;
-+  stream->queued_fds = NULL;
 +  QUEUE_INIT(&stream->write_queue);
 +  QUEUE_INIT(&stream->write_completed_queue);
++  /* FIXME move back to uv__io_t if needed */
++  QUEUE_INIT(&stream->pending_queue);
 +  stream->write_queue_size = 0;
 +
 +  uv__io_init(&stream->io_watcher, uv__stream_io, -1);
@@ -2490,49 +2715,13 @@ index 000000000..891a872dd
 +  assert(stream->write_queue_size == 0);
 +}
 +
-+#ifndef CONFIG_LIBUV_LOW_FOOTPRINT
-+/* Implements a best effort approach to mitigating accept() EMFILE errors.
-+ * We have a spare file descriptor stashed away that we close to get below
-+ * the EMFILE limit. Next, we accept all pending connections and close them
-+ * immediately to signal the clients that we're overloaded - and we are, but
-+ * we still keep on trucking.
-+ *
-+ * There is one caveat: it's not reliable in a multi-threaded environment.
-+ * The file descriptor limit is per process. Our party trick fails if another
-+ * thread opens a file or creates a socket in the time window between us
-+ * calling close() and accept().
-+ */
-+static int uv__emfile_trick(uv_loop_t* loop, int accept_fd) {
-+  int err;
-+  int emfile_fd;
-+
-+  if (loop->emfile_fd == -1)
-+    return UV_EMFILE;
-+
-+  uv__close(loop->emfile_fd);
-+  loop->emfile_fd = -1;
-+
-+  do {
-+    err = uv__accept(accept_fd);
-+    if (err >= 0)
-+      uv__close(err);
-+  } while (err >= 0 || err == UV_EINTR);
-+
-+  emfile_fd = uv__open_cloexec("/", O_RDONLY);
-+  if (emfile_fd >= 0)
-+    loop->emfile_fd = emfile_fd;
-+
-+  return err;
-+}
-+#endif
-+
 +#if defined(UV_HAVE_KQUEUE)
 +# define UV_DEC_BACKLOG(w) w->rcount--;
 +#else
 +# define UV_DEC_BACKLOG(w) /* no-op */
 +#endif /* defined(UV_HAVE_KQUEUE) */
 +
-+
++#ifdef CONFIG_LIBUV_NET
 +void uv__server_io(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
 +  uv_stream_t* stream;
 +  int err;
@@ -2541,8 +2730,6 @@ index 000000000..891a872dd
 +  assert(events & POLLIN);
 +  assert(stream->accepted_fd == -1);
 +  assert(!(stream->flags & UV_HANDLE_CLOSING));
-+
-+  uv__io_start(stream->loop, &stream->io_watcher, POLLIN);
 +
 +  /* connection_cb can close the server socket while we're
 +   * in the loop so check it on each iteration.
@@ -2555,16 +2742,8 @@ index 000000000..891a872dd
 +      if (err == UV_EAGAIN || err == UV__ERR(EWOULDBLOCK))
 +        return;  /* Not an error. */
 +
-+      if (err == UV_ECONNABORTED)
++      if (err == UV__ERR(ENOTCONN))
 +        continue;  /* Ignore. Nothing we can do about that. */
-+
-+#ifndef CONFIG_LIBUV_LOW_FOOTPRINT
-+      if (err == UV_EMFILE || err == UV_ENFILE) {
-+        err = uv__emfile_trick(loop, uv__stream_fd(stream));
-+        if (err == UV_EAGAIN || err == UV__ERR(EWOULDBLOCK))
-+          break;
-+      }
-+#endif
 +
 +      stream->connection_cb(stream, err);
 +      continue;
@@ -2590,7 +2769,7 @@ index 000000000..891a872dd
 +#endif
 +  }
 +}
-+
++#endif
 +
 +#undef UV_DEC_BACKLOG
 +
@@ -2604,11 +2783,13 @@ index 000000000..891a872dd
 +    return UV_EAGAIN;
 +
 +  switch (client->type) {
-+#if 0
++#ifdef CONFIG_LIBUV_PIPE
 +    case UV_NAMED_PIPE:
 +#endif
 +#ifdef CONFIG_LIBUV_TCP
 +    case UV_TCP:
++#endif
++#if defined(CONFIG_LIBUV_PIPE) || defined(CONFIG_LIBUV_TCP)
 +      err = uv__stream_open(client,
 +                            server->accepted_fd,
 +                            UV_HANDLE_READABLE | UV_HANDLE_WRITABLE);
@@ -2636,36 +2817,14 @@ index 000000000..891a872dd
 +  client->flags |= UV_HANDLE_BOUND;
 +
 +done:
-+  /* Process queued fds */
-+  if (server->queued_fds != NULL) {
-+    uv__stream_queued_fds_t* queued_fds;
 +
-+    queued_fds = server->queued_fds;
++  server->accepted_fd = -1;
++  uv__io_start(server->loop, &server->io_watcher, POLLIN);
 +
-+    /* Read first */
-+    server->accepted_fd = queued_fds->fds[0];
-+
-+    /* All read, free */
-+    assert(queued_fds->offset > 0);
-+    if (--queued_fds->offset == 0) {
-+      uv__free(queued_fds);
-+      server->queued_fds = NULL;
-+    } else {
-+      /* Shift rest */
-+      memmove(queued_fds->fds,
-+              queued_fds->fds + 1,
-+              queued_fds->offset * sizeof(*queued_fds->fds));
-+    }
-+  } else {
-+    server->accepted_fd = -1;
-+
-+    if (err == 0)
-+      uv__io_start(server->loop, &server->io_watcher, POLLIN);
-+  }
 +  return err;
 +}
 +
-+
++#ifdef CONFIG_LIBUV_NET
 +int uv_listen(uv_stream_t* stream, int backlog, uv_connection_cb cb) {
 +  int err;
 +
@@ -2675,11 +2834,14 @@ index 000000000..891a872dd
 +    err = uv_tcp_listen((uv_tcp_t*)stream, backlog, cb);
 +    break;
 +#endif
-+#if 0
++#ifndef __NUTTX__
++  /* TODO Revist uv_pipe_listen() port */
++#ifdef CONFIG_LIBUV_PIPE
 +  case UV_NAMED_PIPE:
 +    err = uv_pipe_listen((uv_pipe_t*)stream, backlog, cb);
 +    break;
 +#endif
++#endif /* !__NUTTX__ */
 +
 +  default:
 +    err = UV_EINVAL;
@@ -2690,7 +2852,7 @@ index 000000000..891a872dd
 +
 +  return err;
 +}
-+
++#endif
 +
 +static void uv__drain(uv_stream_t* stream) {
 +  uv_shutdown_t* req;
@@ -2711,8 +2873,13 @@ index 000000000..891a872dd
 +    uv__req_unregister(stream->loop, req);
 +
 +    err = 0;
++
++#ifndef __NUTTX__
++    /* shutdown not implemented in NuttX */
++
 +    if (shutdown(uv__stream_fd(stream), SHUT_WR))
 +      err = UV__ERR(errno);
++#endif
 +
 +    if (err == 0)
 +      stream->flags |= UV_HANDLE_SHUT;
@@ -2792,16 +2959,11 @@ index 000000000..891a872dd
 +    req->bufs = NULL;
 +  }
 +
-+#if 0
 +  /* Add it to the write_completed_queue where it will have its
 +   * callback called in the near future.
 +   */
 +  QUEUE_INSERT_TAIL(&stream->write_completed_queue, &req->queue);
-+  uv__io_feed(stream->loop, &stream->io_watcher);
-+#else
-+  QUEUE_INSERT_TAIL(&stream->write_completed_queue, &req->queue);
-+  stream->io_watcher.cb(stream->loop, &stream->io_watcher, POLLOUT);
-+#endif
++  uv__stream_feed(stream->loop, stream);
 +}
 +
 +#if 0
@@ -2829,59 +2991,61 @@ index 000000000..891a872dd
 +  ssize_t n;
 +  int err;
 +
-+start:
-+
 +  assert(uv__stream_fd(stream) >= 0);
 +
-+  if (QUEUE_EMPTY(&stream->write_queue))
++  while (!QUEUE_EMPTY(&stream->write_queue)) {
++
++    q = QUEUE_HEAD(&stream->write_queue);
++    req = QUEUE_DATA(q, uv_write_t, queue);
++    assert(req->handle == stream);
++
++    /*
++     * Cast to iovec. We had to have our own uv_buf_t instead of iovec
++     * because Windows's WSABUF is not an iovec.
++     */
++    assert(sizeof(uv_buf_t) == sizeof(struct iovec));
++    iov = (struct iovec*) &(req->bufs[req->write_index]);
++    iovcnt = req->nbufs - req->write_index;
++
++    iovmax = uv__getiovmax();
++
++    /* Limit iov count to avoid EINVALs from writev() */
++    if (iovcnt > iovmax)
++      iovcnt = iovmax;
++
++    /*
++     * Now do the actual writev. Note that we've been updating the pointers
++     * inside the iov each time we write. So there is no need to offset it.
++     */
++
++    do {
++      n = uv__writev(uv__stream_fd(stream), iov, iovcnt);
++    } while (n == -1 && errno == EINTR);
++
++    if (n == -1 &&
++      errno != EAGAIN &&
++      errno != EWOULDBLOCK &&
++      errno != ENOBUFS) {
++      err = UV__ERR(errno);
++      goto error;
++    }
++
++    if (n >= 0 && uv__write_req_update(stream, req, n)) {
++      uv__write_req_finish(req);
++      continue;  /* TODO(bnoordhuis) Start trying to write the next request. */
++    }
++
++    /* If this is a blocking stream, try again. */
++    if (stream->flags & UV_HANDLE_BLOCKING_WRITES)
++      continue;
++
++    /* Wait for next POLLOUT to continue writing.
++     * FIXME: what if user called uv_read_stop() before ?
++     * stream handle may be in invalid state.
++     */
++    uv__io_start(stream->loop, &stream->io_watcher, POLLOUT);
 +    return;
-+
-+  q = QUEUE_HEAD(&stream->write_queue);
-+  req = QUEUE_DATA(q, uv_write_t, queue);
-+  assert(req->handle == stream);
-+
-+  /*
-+   * Cast to iovec. We had to have our own uv_buf_t instead of iovec
-+   * because Windows's WSABUF is not an iovec.
-+   */
-+  assert(sizeof(uv_buf_t) == sizeof(struct iovec));
-+  iov = (struct iovec*) &(req->bufs[req->write_index]);
-+  iovcnt = req->nbufs - req->write_index;
-+
-+  iovmax = uv__getiovmax();
-+
-+  /* Limit iov count to avoid EINVALs from writev() */
-+  if (iovcnt > iovmax)
-+    iovcnt = iovmax;
-+
-+  /*
-+   * Now do the actual writev. Note that we've been updating the pointers
-+   * inside the iov each time we write. So there is no need to offset it.
-+   */
-+
-+  do {
-+    n = uv__writev(uv__stream_fd(stream), iov, iovcnt);
-+  } while (n == -1 && errno == EINTR);
-+
-+  if (n == -1 &&
-+    errno != EAGAIN &&
-+    errno != EWOULDBLOCK &&
-+    errno != ENOBUFS) {
-+    err = UV__ERR(errno);
-+    goto error;
 +  }
-+
-+  if (n >= 0 && uv__write_req_update(stream, req, n)) {
-+    uv__write_req_finish(req);
-+    return;  /* TODO(bnoordhuis) Start trying to write the next request. */
-+  }
-+
-+  /* If this is a blocking stream, try again. */
-+  if (stream->flags & UV_HANDLE_BLOCKING_WRITES)
-+    goto start;
-+
-+  /* We're not done. */
-+  uv__io_start(stream->loop, &stream->io_watcher, POLLOUT);
 +
 +  return;
 +
@@ -2924,7 +3088,7 @@ index 000000000..891a872dd
 +  }
 +}
 +
-+
++#ifdef CONFIG_LIBUV_NET
 +uv_handle_type uv__handle_type(int fd) {
 +  struct sockaddr_storage ss;
 +  socklen_t sslen;
@@ -2966,7 +3130,7 @@ index 000000000..891a872dd
 +
 +  return UV_UNKNOWN_HANDLE;
 +}
-+
++#endif
 +
 +static void uv__stream_eof(uv_stream_t* stream, const uv_buf_t* buf) {
 +  stream->flags |= UV_HANDLE_READ_EOF;
@@ -3084,24 +3248,30 @@ index 000000000..891a872dd
 +
 +  stream = container_of(w, uv_stream_t, io_watcher);
 +
-+  assert(stream->type == UV_TCP ||
-+         stream->type == UV_NAMED_PIPE ||
-+         stream->type == UV_TTY);
++  assert(
++#ifdef CONFIG_LIBUV_NET
++    stream->type == UV_TCP ||
++#endif
++    stream->type == UV_NAMED_PIPE
++    // || stream->type == UV_TTY
++    );
 +  assert(!(stream->flags & UV_HANDLE_CLOSING));
 +
++#ifdef CONFIG_LIBUV_NET
 +  if (stream->connect_req) {
 +    uv__stream_connect(stream);
 +    return;
 +  }
++#endif
 +
 +  assert(uv__stream_fd(stream) >= 0);
 +
 +  /* Ignore POLLHUP here. Even if it's set, there may still be data to read. */
-+  if (events & (POLLIN | POLLERR | POLLHUP))
++  if (events & (POLLIN | POLLERR | POLLHUP)) {
 +    uv__read(stream);
-+
-+  if (uv__stream_fd(stream) == -1)
-+    return;  /* read_cb closed stream. */
++    if (uv__stream_fd(stream) == -1)
++      return;  /* read_cb closed stream. */
++  }
 +
 +  /* Short-circuit iff POLLHUP is set, the user is still interested in read
 +   * events and uv__read() reported a partial read but not EOF. If the EOF
@@ -3115,12 +3285,12 @@ index 000000000..891a872dd
 +      !(stream->flags & UV_HANDLE_READ_EOF)) {
 +    uv_buf_t buf = { NULL, 0 };
 +    uv__stream_eof(stream, &buf);
++    if (uv__stream_fd(stream) == -1)
++      return;  /* read_cb closed stream. */
 +  }
 +
-+  if (uv__stream_fd(stream) == -1)
-+    return;  /* read_cb closed stream. */
-+
 +  if (events & (POLLOUT | POLLERR | POLLHUP)) {
++    /* Called by either real poll event or stream_feed */
 +    uv__write(stream);
 +    uv__write_callbacks(stream);
 +
@@ -3130,7 +3300,7 @@ index 000000000..891a872dd
 +  }
 +}
 +
-+
++#ifdef CONFIG_LIBUV_NET
 +/**
 + * We get called here from directly following a call to connect(2).
 + * In order to determine if we've errored out or succeeded must call
@@ -3174,7 +3344,7 @@ index 000000000..891a872dd
 +    uv__write_callbacks(stream);
 +  }
 +}
-+
++#endif
 +
 +int uv_write2(uv_write_t* req,
 +              uv_stream_t* stream,
@@ -3244,7 +3414,6 @@ index 000000000..891a872dd
 +     * sufficiently flushed in uv__write.
 +     */
 +    assert(!(stream->flags & UV_HANDLE_BLOCKING_WRITES));
-+    uv__io_start(stream->loop, &stream->io_watcher, POLLOUT);
 +  }
 +
 +  return 0;
@@ -3376,8 +3545,7 @@ index 000000000..891a872dd
 +
 +
 +void uv__stream_close(uv_stream_t* handle) {
-+  unsigned int i;
-+  uv__stream_queued_fds_t* queued_fds;
++  QUEUE_REMOVE(&handle->pending_queue);
 +
 +  uv__io_close(handle->loop, &handle->io_watcher);
 +  uv_read_stop(handle);
@@ -3394,15 +3562,6 @@ index 000000000..891a872dd
 +  if (handle->accepted_fd != -1) {
 +    uv__close(handle->accepted_fd);
 +    handle->accepted_fd = -1;
-+  }
-+
-+  /* Close all queued fds */
-+  if (handle->queued_fds != NULL) {
-+    queued_fds = handle->queued_fds;
-+    for (i = 0; i < queued_fds->offset; i++)
-+      uv__close(queued_fds->fds[i]);
-+    uv__free(handle->queued_fds);
-+    handle->queued_fds = NULL;
 +  }
 +
 +  assert(!uv__io_active(&handle->io_watcher, POLLIN | POLLOUT));
@@ -4304,6 +4463,90 @@ index 000000000..d56fdc287
 +void uv__timer_close(uv_timer_t* handle) {
 +  uv_timer_stop(handle);
 +}
+diff --git a/src/unix/pipe.c b/src/unix/pipe.c
+index 040d57817..7d6105083 100644
+--- a/src/unix/pipe.c
++++ b/src/unix/pipe.c
+@@ -39,7 +39,8 @@ int uv_pipe_init(uv_loop_t* loop, uv_pipe_t* handle, int ipc) {
+   return 0;
+ }
+ 
+-
++// #ifdef CONFIG_LIBUV_NET
++#if 0
+ int uv_pipe_bind(uv_pipe_t* handle, const char* name) {
+   struct sockaddr_un saddr;
+   const char* pipe_fname;
+@@ -115,7 +116,7 @@ int uv_pipe_listen(uv_pipe_t* handle, int backlog, uv_connection_cb cb) {
+   uv__io_start(handle->loop, &handle->io_watcher, POLLIN);
+   return 0;
+ }
+-
++#endif
+ 
+ void uv__pipe_close(uv_pipe_t* handle) {
+   if (handle->pipe_fname) {
+@@ -169,7 +170,8 @@ int uv_pipe_open(uv_pipe_t* handle, uv_file fd) {
+   return uv__stream_open((uv_stream_t*)handle, fd, flags);
+ }
+ 
+-
++// #ifdef CONFIG_LIBUV_NET
++#if 0
+ void uv_pipe_connect(uv_connect_t* req,
+                     uv_pipe_t* handle,
+                     const char* name,
+@@ -198,6 +200,10 @@ void uv_pipe_connect(uv_connect_t* req,
+   }
+   while (r == -1 && errno == EINTR);
+ 
++  /* FIXME NuttX does not support NONBLOCKING connect,
++   * no need to check for EINPROGRESS.
++   */
++
+   if (r == -1 && errno != EINPROGRESS) {
+     err = UV__ERR(errno);
+ #if defined(__CYGWIN__) || defined(__MSYS__)
+@@ -230,10 +236,13 @@ out:
+   req->cb = cb;
+   QUEUE_INIT(&req->queue);
+ 
++#ifdef __NUTTX__
++  return 0;
++#else
+   /* Force callback to run on next tick in case of error. */
+   if (err)
+-    uv__io_feed(handle->loop, &handle->io_watcher);
+-
++    uv__stream_feed(handle->loop, (uv_stream_t*)handle);
++#endif
+ }
+ 
+ 
+@@ -280,7 +289,6 @@ static int uv__pipe_getsockpeername(const uv_pipe_t* handle,
+   return 0;
+ }
+ 
+-
+ int uv_pipe_getsockname(const uv_pipe_t* handle, char* buffer, size_t* size) {
+   return uv__pipe_getsockpeername(handle, getsockname, buffer, size);
+ }
+@@ -289,8 +297,9 @@ int uv_pipe_getsockname(const uv_pipe_t* handle, char* buffer, size_t* size) {
+ int uv_pipe_getpeername(const uv_pipe_t* handle, char* buffer, size_t* size) {
+   return uv__pipe_getsockpeername(handle, getpeername, buffer, size);
+ }
++#endif
+ 
+-
++#if 0
+ void uv_pipe_pending_instances(uv_pipe_t* handle, int count) {
+ }
+ 
+@@ -379,3 +388,4 @@ int uv_pipe_chmod(uv_pipe_t* handle, int mode) {
+ 
+   return r != -1 ? 0 : UV__ERR(errno);
+ }
++#endif
 diff --git a/src/unix/poll.c b/src/unix/poll.c
 index 3d5022b22..d2f442132 100644
 --- a/src/unix/poll.c
@@ -5403,7 +5646,7 @@ index 6801564f9..15619088d 100644
  /* Wait for all `n` processes in `vec` to terminate. Time out after `timeout`
   * msec, or never if timeout == -1. Return 0 if all processes are terminated,
 diff --git a/test/task.h b/test/task.h
-index e95e3bde5..29a20afbc 100644
+index e95e3bde5..3b4556d86 100644
 --- a/test/task.h
 +++ b/test/task.h
 @@ -1,3 +1,23 @@
@@ -5466,7 +5709,7 @@ index e95e3bde5..29a20afbc 100644
    do {                                              \
 -    close_loop(uv_default_loop());                  \
 -    ASSERT(0 == uv_loop_close(uv_default_loop()));  \
-+    if (loop != NULL) {                             \
++    if ((uv_loop_t*)(loop) != NULL) {               \
 +      uv_context_t *tmp_ctx =                       \
 +        ((uv_loop_t*)(loop))->context;              \
 +      close_loop(loop);                             \
@@ -5625,10 +5868,20 @@ index 6f5351bf1..fb29059e2 100644
    return 0;
  }
 diff --git a/test/test-fs-copyfile.c b/test/test-fs-copyfile.c
-index 3335c8810..a70e6304c 100644
+index 3335c8810..51d0b26b8 100644
 --- a/test/test-fs-copyfile.c
 +++ b/test/test-fs-copyfile.c
-@@ -33,8 +33,8 @@
+@@ -22,7 +22,8 @@
+ #include "uv.h"
+ #include "task.h"
+ 
+-#if defined(__unix__) || defined(__POSIX__) || \
++#if defined(__NUTTX__) || \
++    defined(__unix__) || defined(__POSIX__) || \
+     defined(__APPLE__) || defined(__sun) || \
+     defined(_AIX) || defined(__MVS__) || \
+     defined(__HAIKU__)
+@@ -33,8 +34,8 @@
  # define unlink _unlink
  #endif
  
@@ -5639,7 +5892,7 @@ index 3335c8810..a70e6304c 100644
  static int result_check_count;
  
  
-@@ -96,12 +96,19 @@ static void touch_file(const char* name, unsigned int size) {
+@@ -96,12 +97,19 @@ static void touch_file(const char* name, unsigned int size) {
  
  
  TEST_IMPL(fs_copyfile) {
@@ -5661,7 +5914,7 @@ index 3335c8810..a70e6304c 100644
  
    /* Fails with EINVAL if bad flags are passed. */
    r = uv_fs_copyfile(NULL, &req, src, dst, -1, NULL);
-@@ -121,10 +128,14 @@ TEST_IMPL(fs_copyfile) {
+@@ -121,10 +129,14 @@ TEST_IMPL(fs_copyfile) {
    uv_fs_req_cleanup(&req);
  
    /* Succeeds if src and dst files are identical. */
@@ -5676,7 +5929,7 @@ index 3335c8810..a70e6304c 100644
    unlink(src);
  
    /* Copies file synchronously. Creates new file. */
-@@ -193,10 +204,9 @@ TEST_IMPL(fs_copyfile) {
+@@ -193,10 +205,9 @@ TEST_IMPL(fs_copyfile) {
    if (r == 0)
      handle_result(&req);
  
@@ -5688,7 +5941,7 @@ index 3335c8810..a70e6304c 100644
    chmod(dst, S_IRUSR|S_IRGRP|S_IROTH); /* Sets file mode to 444 (read-only). */
    r = uv_fs_copyfile(NULL, &req, fixture, dst, 0, NULL);
    /* On IBMi PASE, qsecofr users can overwrite read-only files */
-@@ -207,6 +217,9 @@ TEST_IMPL(fs_copyfile) {
+@@ -207,6 +218,9 @@ TEST_IMPL(fs_copyfile) {
    uv_fs_req_cleanup(&req);
  #endif
  
@@ -6043,7 +6296,7 @@ index dfefb0f91..1cd9cd33f 100644
    return 0;
  }
 diff --git a/test/test-list.h b/test/test-list.h
-index 58e174d1d..ec5ac09c9 100644
+index 58e174d1d..edf5077cd 100644
 --- a/test/test-list.h
 +++ b/test/test-list.h
 @@ -21,17 +21,20 @@
@@ -6067,7 +6320,17 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (loop_configure)
  TEST_DECLARE   (default_loop_close)
  TEST_DECLARE   (barrier_1)
-@@ -102,9 +105,11 @@ TEST_DECLARE   (pipe_ping_pong)
+@@ -94,17 +97,21 @@ TEST_DECLARE   (ipc_send_zero)
+ TEST_DECLARE   (ipc_closed_handle)
+ #endif
+ TEST_DECLARE   (tcp_alloc_cb_fail)
++#endif
+ TEST_DECLARE   (tcp_ping_pong)
+ TEST_DECLARE   (tcp_ping_pong_vec)
++#if 0
+ TEST_DECLARE   (tcp6_ping_pong)
+ TEST_DECLARE   (tcp6_ping_pong_vec)
+ TEST_DECLARE   (pipe_ping_pong)
  TEST_DECLARE   (pipe_ping_pong_vec)
  TEST_DECLARE   (delayed_accept)
  TEST_DECLARE   (multiple_listen)
@@ -6079,7 +6342,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (tcp_writealot)
  TEST_DECLARE   (tcp_write_fail)
  TEST_DECLARE   (tcp_try_write)
-@@ -144,7 +149,9 @@ TEST_DECLARE   (tcp_oob)
+@@ -144,7 +151,9 @@ TEST_DECLARE   (tcp_oob)
  TEST_DECLARE   (tcp_flags)
  TEST_DECLARE   (tcp_write_to_half_open_connection)
  TEST_DECLARE   (tcp_unexpected_read)
@@ -6089,7 +6352,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (tcp_bind6_error_addrinuse)
  TEST_DECLARE   (tcp_bind6_error_addrnotavail)
  TEST_DECLARE   (tcp_bind6_error_fault)
-@@ -206,6 +213,7 @@ TEST_DECLARE   (callback_stack)
+@@ -206,6 +215,7 @@ TEST_DECLARE   (callback_stack)
  TEST_DECLARE   (env_vars)
  TEST_DECLARE   (error_message)
  TEST_DECLARE   (sys_error)
@@ -6097,7 +6360,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (timer)
  TEST_DECLARE   (timer_init)
  TEST_DECLARE   (timer_again)
-@@ -218,10 +226,14 @@ TEST_DECLARE   (timer_from_check)
+@@ -218,10 +228,14 @@ TEST_DECLARE   (timer_from_check)
  TEST_DECLARE   (timer_is_closing)
  TEST_DECLARE   (timer_null_callback)
  TEST_DECLARE   (timer_early_check)
@@ -6112,7 +6375,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (watcher_cross_stop)
  TEST_DECLARE   (ref)
  TEST_DECLARE   (idle_ref)
-@@ -253,9 +265,13 @@ TEST_DECLARE   (pipe_set_chmod)
+@@ -253,9 +267,13 @@ TEST_DECLARE   (pipe_set_chmod)
  TEST_DECLARE   (process_ref)
  TEST_DECLARE   (process_priority)
  TEST_DECLARE   (has_ref)
@@ -6126,7 +6389,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (async_null_cb)
  TEST_DECLARE   (eintr_handling)
  TEST_DECLARE   (get_currentexe)
-@@ -311,12 +327,14 @@ TEST_DECLARE   (spawn_reads_child_path)
+@@ -311,12 +329,14 @@ TEST_DECLARE   (spawn_reads_child_path)
  TEST_DECLARE   (spawn_inherit_streams)
  TEST_DECLARE   (spawn_quoted_path)
  TEST_DECLARE   (spawn_tcp_server)
@@ -6141,7 +6404,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (kill)
  TEST_DECLARE   (kill_invalid_signum)
  TEST_DECLARE   (fs_file_noent)
-@@ -333,7 +351,9 @@ TEST_DECLARE   (fs_mkstemp)
+@@ -333,7 +353,9 @@ TEST_DECLARE   (fs_mkstemp)
  TEST_DECLARE   (fs_fstat)
  TEST_DECLARE   (fs_access)
  TEST_DECLARE   (fs_chmod)
@@ -6151,7 +6414,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (fs_unlink_readonly)
  #ifdef _WIN32
  TEST_DECLARE   (fs_unlink_archive_readonly)
-@@ -413,8 +433,10 @@ TEST_DECLARE   (fs_invalid_mkdir_name)
+@@ -413,8 +435,10 @@ TEST_DECLARE   (fs_invalid_mkdir_name)
  #endif
  TEST_DECLARE   (fs_get_system_error)
  TEST_DECLARE   (strscpy)
@@ -6162,7 +6425,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (threadpool_multiple_event_loops)
  TEST_DECLARE   (threadpool_cancel_getaddrinfo)
  TEST_DECLARE   (threadpool_cancel_getnameinfo)
-@@ -438,7 +460,9 @@ TEST_DECLARE   (poll_oob)
+@@ -438,7 +462,9 @@ TEST_DECLARE   (poll_oob)
  #endif
  TEST_DECLARE   (poll_duplex)
  TEST_DECLARE   (poll_unidirectional)
@@ -6172,7 +6435,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (poll_bad_fdtype)
  #ifdef __linux__
  TEST_DECLARE   (poll_nested_epoll)
-@@ -447,7 +471,9 @@ TEST_DECLARE   (poll_nested_epoll)
+@@ -447,7 +473,9 @@ TEST_DECLARE   (poll_nested_epoll)
  TEST_DECLARE   (poll_nested_kqueue)
  #endif
  
@@ -6182,7 +6445,7 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (ip6_addr_link_local)
  
  TEST_DECLARE   (poll_close_doesnt_corrupt_stack)
-@@ -482,16 +508,18 @@ TEST_DECLARE   (closed_fd_events)
+@@ -482,16 +510,20 @@ TEST_DECLARE   (closed_fd_events)
  TEST_DECLARE   (osx_select)
  TEST_DECLARE   (osx_select_many_fds)
  #endif
@@ -6196,14 +6459,16 @@ index 58e174d1d..ec5ac09c9 100644
  TEST_DECLARE   (queue_foreach_delete)
 -
 +#endif
++#ifdef CONFIG_DEV_URANDOM
  TEST_DECLARE   (random_async)
  TEST_DECLARE   (random_sync)
 -
++#endif
 +#if 0
  TEST_DECLARE   (handle_type_name)
  TEST_DECLARE   (req_type_name)
  TEST_DECLARE   (getters_setters)
-@@ -517,22 +545,27 @@ TEST_DECLARE  (fork_threadpool_queue_work_simple)
+@@ -517,22 +549,27 @@ TEST_DECLARE  (fork_threadpool_queue_work_simple)
  TEST_DECLARE  (idna_toascii)
  TEST_DECLARE  (utf8_decode1)
  TEST_DECLARE  (uname)
@@ -6232,7 +6497,23 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (loop_configure)
    TEST_ENTRY  (default_loop_close)
    TEST_ENTRY  (barrier_1)
-@@ -628,11 +661,11 @@ TASK_LIST_START
+@@ -607,13 +644,13 @@ TASK_LIST_START
+ #endif
+ 
+   TEST_ENTRY  (tcp_alloc_cb_fail)
+-
++#endif
+   TEST_ENTRY  (tcp_ping_pong)
+   TEST_HELPER (tcp_ping_pong, tcp4_echo_server)
+ 
+   TEST_ENTRY  (tcp_ping_pong_vec)
+   TEST_HELPER (tcp_ping_pong_vec, tcp4_echo_server)
+-
++#if 0
+   TEST_ENTRY  (tcp6_ping_pong)
+   TEST_HELPER (tcp6_ping_pong, tcp6_echo_server)
+ 
+@@ -628,11 +665,11 @@ TASK_LIST_START
  
    TEST_ENTRY  (delayed_accept)
    TEST_ENTRY  (multiple_listen)
@@ -6246,7 +6527,7 @@ index 58e174d1d..ec5ac09c9 100644
  #ifdef __MVS__
    TEST_ENTRY_CUSTOM (tcp_writealot, 0, 0, 20000)
  #else
-@@ -689,10 +722,10 @@ TASK_LIST_START
+@@ -689,10 +726,10 @@ TASK_LIST_START
    TEST_ENTRY  (tcp_flags)
    TEST_ENTRY  (tcp_write_to_half_open_connection)
    TEST_ENTRY  (tcp_unexpected_read)
@@ -6259,7 +6540,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (tcp_bind6_error_addrinuse)
    TEST_ENTRY  (tcp_bind6_error_addrnotavail)
    TEST_ENTRY  (tcp_bind6_error_fault)
-@@ -764,7 +797,7 @@ TASK_LIST_START
+@@ -764,7 +801,7 @@ TASK_LIST_START
  
    TEST_ENTRY  (error_message)
    TEST_ENTRY  (sys_error)
@@ -6268,7 +6549,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (timer)
    TEST_ENTRY  (timer_init)
    TEST_ENTRY  (timer_again)
-@@ -779,7 +812,7 @@ TASK_LIST_START
+@@ -779,7 +816,7 @@ TASK_LIST_START
    TEST_ENTRY  (timer_early_check)
  
    TEST_ENTRY  (idle_starvation)
@@ -6277,7 +6558,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (ref)
    TEST_ENTRY  (idle_ref)
    TEST_ENTRY  (fs_poll_ref)
-@@ -812,15 +845,18 @@ TASK_LIST_START
+@@ -812,15 +849,18 @@ TASK_LIST_START
    TEST_ENTRY  (has_ref)
  
    TEST_ENTRY  (loop_handles)
@@ -6299,7 +6580,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (async_null_cb)
    TEST_ENTRY  (eintr_handling)
  
-@@ -866,7 +902,9 @@ TASK_LIST_START
+@@ -866,7 +906,9 @@ TASK_LIST_START
  
    TEST_ENTRY  (poll_duplex)
    TEST_ENTRY  (poll_unidirectional)
@@ -6309,7 +6590,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (poll_bad_fdtype)
  #if (defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))) && \
      !defined(__sun)
-@@ -909,12 +947,14 @@ TASK_LIST_START
+@@ -909,12 +951,14 @@ TASK_LIST_START
    TEST_ENTRY  (spawn_inherit_streams)
    TEST_ENTRY  (spawn_quoted_path)
    TEST_ENTRY  (spawn_tcp_server)
@@ -6324,7 +6605,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (kill)
    TEST_ENTRY  (kill_invalid_signum)
  
-@@ -966,7 +1006,9 @@ TASK_LIST_START
+@@ -966,7 +1010,9 @@ TASK_LIST_START
    TEST_ENTRY  (fs_fstat)
    TEST_ENTRY  (fs_access)
    TEST_ENTRY  (fs_chmod)
@@ -6334,7 +6615,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (fs_unlink_readonly)
  #ifdef _WIN32
    TEST_ENTRY  (fs_unlink_archive_readonly)
-@@ -1045,8 +1087,10 @@ TASK_LIST_START
+@@ -1045,8 +1091,10 @@ TASK_LIST_START
    TEST_ENTRY  (get_osfhandle_valid_handle)
    TEST_ENTRY  (open_osfhandle_valid_handle)
    TEST_ENTRY  (strscpy)
@@ -6345,7 +6626,7 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY_CUSTOM (threadpool_multiple_event_loops, 0, 0, 60000)
    TEST_ENTRY  (threadpool_cancel_getaddrinfo)
    TEST_ENTRY  (threadpool_cancel_getnameinfo)
-@@ -1064,14 +1108,16 @@ TASK_LIST_START
+@@ -1064,14 +1112,18 @@ TASK_LIST_START
    TEST_ENTRY  (thread_create)
    TEST_ENTRY  (thread_equal)
    TEST_ENTRY  (dlerror)
@@ -6357,14 +6638,16 @@ index 58e174d1d..ec5ac09c9 100644
    TEST_ENTRY  (queue_foreach_delete)
 -
 +#endif
++#ifdef CONFIG_DEV_URANDOM
    TEST_ENTRY  (random_async)
    TEST_ENTRY  (random_sync)
 -
++#endif
 +#if 0
    TEST_ENTRY  (handle_type_name)
    TEST_ENTRY  (req_type_name)
    TEST_ENTRY  (getters_setters)
-@@ -1105,4 +1151,5 @@ TASK_LIST_START
+@@ -1105,4 +1157,5 @@ TASK_LIST_START
    TEST_ENTRY  (fail_always)
    TEST_ENTRY  (pass_always)
  #endif
@@ -6543,8 +6826,204 @@ index a2db42cce..581f31b9e 100644
 +  MAKE_VALGRIND_HAPPY(loop);
    return 0;
  }
+diff --git a/test/test-ping-pong.c b/test/test-ping-pong.c
+index c86a3f4a6..50e47d6a3 100644
+--- a/test/test-ping-pong.c
++++ b/test/test-ping-pong.c
+@@ -49,7 +49,7 @@ typedef struct {
+     uv_pipe_t pipe;
+   } stream;
+   uv_connect_t connect_req;
+-  char read_buffer[BUFSIZE];
++  // char read_buffer[BUFSIZE];
+ } pinger_t;
+ 
+ 
+@@ -102,7 +102,34 @@ static void pinger_write_ping(pinger_t* pinger) {
+     FATAL("uv_write failed");
+   }
+ 
+-  puts("PING");
++  // puts("PING");
++}
++
++
++static void pinger_after_stop_write(uv_write_t *req, int status) {
++  ASSERT(status == 0);
++  pinger_t* pinger = (pinger_t*)req->data;
++  uv_close((uv_handle_t*)(&pinger->stream.tcp), pinger_on_close);
++  free(req);
++}
++
++
++static void pinger_write_stop(pinger_t* pinger) {
++  uv_write_t *req;
++  uv_buf_t bufs;
++
++  bufs.base = "QQS";
++  bufs.len = 3;
++
++  req = malloc(sizeof(*req));
++  req->data = pinger;
++  if (uv_write(req,
++               (uv_stream_t*) &pinger->stream.tcp,
++               &bufs,
++               1,
++               pinger_after_stop_write)) {
++    FATAL("uv_write failed");
++  }
+ }
+ 
+ 
+@@ -133,13 +160,13 @@ static void pinger_read_cb(uv_stream_t* stream,
+     if (pinger->state != 0)
+       continue;
+ 
+-    printf("PONG %d\n", pinger->pongs);
++    // printf("PONG %d\n", pinger->pongs);
+     pinger->pongs++;
+ 
+     if (pinger->pongs < NUM_PINGS) {
+       pinger_write_ping(pinger);
+     } else {
+-      uv_close((uv_handle_t*)(&pinger->stream.tcp), pinger_on_close);
++      pinger_write_stop(pinger);
+       break;
+     }
+   }
+@@ -164,7 +191,7 @@ static void pinger_on_connect(uv_connect_t *req, int status) {
+   uv_read_start((uv_stream_t*)(req->handle), alloc_cb, pinger_read_cb);
+ }
+ 
+-
++#if 0
+ /* same ping-pong test, but using IPv6 connection */
+ static void tcp_pinger_v6_new(int vectored_writes) {
+   int r;
+@@ -195,13 +222,16 @@ static void tcp_pinger_v6_new(int vectored_writes) {
+   /* Synchronous connect callbacks are not allowed. */
+   ASSERT(pinger_on_connect_count == 0);
+ }
++#endif
+ 
+-
+-static void tcp_pinger_new(int vectored_writes) {
++static void tcp_pinger_new(uv_context_t *ctx, int vectored_writes) {
+   int r;
+   struct sockaddr_in server_addr;
+   pinger_t *pinger;
+ 
++  pinger_on_connect_count = 0;
++  completed_pingers = 0;
++
+   ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &server_addr));
+   pinger = malloc(sizeof(*pinger));
+   ASSERT(pinger != NULL);
+@@ -210,7 +240,7 @@ static void tcp_pinger_new(int vectored_writes) {
+   pinger->pongs = 0;
+ 
+   /* Try to connect to the server and do NUM_PINGS ping-pongs. */
+-  r = uv_tcp_init(uv_default_loop(), &pinger->stream.tcp);
++  r = uv_tcp_init(uv_default_loop(ctx), &pinger->stream.tcp);
+   pinger->stream.tcp.data = pinger;
+   ASSERT(!r);
+ 
+@@ -226,11 +256,14 @@ static void tcp_pinger_new(int vectored_writes) {
+   ASSERT(pinger_on_connect_count == 0);
+ }
+ 
+-
+-static void pipe_pinger_new(int vectored_writes) {
++#if 0
++static void pipe_pinger_new(uv_context_t *ctx, int vectored_writes) {
+   int r;
+   pinger_t *pinger;
+ 
++  pinger_on_connect_count = 0;
++  completed_pingers = 0;
++
+   pinger = (pinger_t*)malloc(sizeof(*pinger));
+   ASSERT(pinger != NULL);
+   pinger->vectored_writes = vectored_writes;
+@@ -238,7 +271,7 @@ static void pipe_pinger_new(int vectored_writes) {
+   pinger->pongs = 0;
+ 
+   /* Try to connect to the server and do NUM_PINGS ping-pongs. */
+-  r = uv_pipe_init(uv_default_loop(), &pinger->stream.pipe, 0);
++  r = uv_pipe_init(uv_default_loop(ctx), &pinger->stream.pipe, 0);
+   pinger->stream.pipe.data = pinger;
+   ASSERT(!r);
+ 
+@@ -250,29 +283,34 @@ static void pipe_pinger_new(int vectored_writes) {
+   /* Synchronous connect callbacks are not allowed. */
+   ASSERT(pinger_on_connect_count == 0);
+ }
++#endif
+ 
+-
+-static int run_ping_pong_test(void) {
+-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
++static int run_ping_pong_test(uv_context_t *ctx) {
++  uv_loop_t *loop = uv_default_loop(ctx);
++  uv_run(loop, UV_RUN_DEFAULT);
+   ASSERT(completed_pingers == 1);
+ 
+-  MAKE_VALGRIND_HAPPY();
++  MAKE_VALGRIND_HAPPY(loop);
+   return 0;
+ }
+ 
+ 
+ TEST_IMPL(tcp_ping_pong) {
+-  tcp_pinger_new(0);
+-  return run_ping_pong_test();
++  uv_context_t context;
++  uv_library_init(&context);
++  tcp_pinger_new(&context, 0);
++  return run_ping_pong_test(&context);
+ }
+ 
+ 
+ TEST_IMPL(tcp_ping_pong_vec) {
+-  tcp_pinger_new(1);
+-  return run_ping_pong_test();
++  uv_context_t context;
++  uv_library_init(&context);
++  tcp_pinger_new(&context, 1);
++  return run_ping_pong_test(&context);
+ }
+ 
+-
++#if 0
+ TEST_IMPL(tcp6_ping_pong) {
+   if (!can_ipv6())
+     RETURN_SKIP("IPv6 not supported");
+@@ -288,14 +326,18 @@ TEST_IMPL(tcp6_ping_pong_vec) {
+   return run_ping_pong_test();
+ }
+ 
+-
+ TEST_IMPL(pipe_ping_pong) {
+-  pipe_pinger_new(0);
+-  return run_ping_pong_test();
++  uv_context_t context;
++  uv_library_init(&context);
++  pipe_pinger_new(&context, 0);
++  return run_ping_pong_test(&context);
+ }
+ 
+ 
+ TEST_IMPL(pipe_ping_pong_vec) {
+-  pipe_pinger_new(1);
+-  return run_ping_pong_test();
++  uv_context_t context;
++  uv_library_init(&context);
++  pipe_pinger_new(&context, 1);
++  return run_ping_pong_test(&context);
+ }
++#endif
 diff --git a/test/test-poll-close.c b/test/test-poll-close.c
-index 2eccddf5b..050316428 100644
+index 2eccddf5b..c5b059d03 100644
 --- a/test/test-poll-close.c
 +++ b/test/test-poll-close.c
 @@ -30,7 +30,7 @@
@@ -6574,7 +7053,7 @@ index 2eccddf5b..050316428 100644
  #ifdef _WIN32
    {
      struct WSAData wsa_data;
-@@ -56,7 +63,7 @@ TEST_IMPL(poll_close) {
+@@ -56,18 +63,19 @@ TEST_IMPL(poll_close) {
  
    for (i = 0; i < NUM_SOCKETS; i++) {
      sockets[i] = socket(AF_INET, SOCK_STREAM, 0);
@@ -6583,8 +7062,9 @@ index 2eccddf5b..050316428 100644
      uv_poll_start(&poll_handles[i], UV_READABLE | UV_WRITABLE, NULL);
    }
  
-@@ -64,10 +71,10 @@ TEST_IMPL(poll_close) {
+   for (i = 0; i < NUM_SOCKETS; i++) {
      uv_close((uv_handle_t*) &poll_handles[i], close_cb);
++    close(sockets[i]);
    }
  
 -  uv_run(uv_default_loop(), UV_RUN_DEFAULT);

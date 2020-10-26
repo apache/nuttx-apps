@@ -49,11 +49,13 @@ CSRCS += $(LIBUV_UNPACKDIR)/test/test-poll-close.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-loop-close.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-loop-stop.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-tcp-read-stop.c
+CSRCS += $(LIBUV_UNPACKDIR)/test/test-ping-pong.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-tcp-write-after-connect.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-fs-copyfile.c
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-fs-poll.c
+ifeq ($(CONFIG_DEV_URANDOM),y)
 CSRCS += $(LIBUV_UNPACKDIR)/test/test-random.c
-
+endif
 # Test helpers
 
 CSRCS += $(LIBUV_UNPACKDIR)/test/echo-server.c

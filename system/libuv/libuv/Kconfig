@@ -54,6 +54,13 @@ config LIBUV_STREAM_READ_SIZE
 	---help---
 		Defines the size of buffer used for stream reads.
 
+config LIBUV_PIPE
+	bool "libuv pipe support"
+	default n
+	depends on LIBUV_STREAM
+	---help---
+		Enable libuv pipe support.
+
 config LIBUV_FS
 	bool "libuv FS support"
 	default n
