@@ -86,6 +86,10 @@ ifeq ($(CONFIG_LIBUV_ASYNC),y)
 CSRCS += $(LIBUV_UNPACKDIR)/src/unix/async.c
 endif
 
+ifeq ($(CONFIG_LIBUV_PIPE),y)
+CSRCS += $(LIBUV_UNPACKDIR)/src/unix/pipe.c
+endif
+
 ifeq ($(CONFIG_LIBUV_FS),y)
 CSRCS += $(LIBUV_UNPACKDIR)/src/unix/fs.c
 endif
