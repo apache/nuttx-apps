@@ -54,6 +54,12 @@
 #include "watchdog.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define DEVNAME_SIZE 16
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -62,6 +68,7 @@ struct wdog_example_s
   uint32_t pingtime;
   uint32_t pingdelay;
   uint32_t timeout;
+  char devname[DEVNAME_SIZE];
 };
 
 /****************************************************************************
@@ -74,17 +81,21 @@ struct wdog_example_s
 
 static void wdog_help(void)
 {
-  printf("Usage: wdog [-h] [-d <pingtime] [-p <pingdelay>] [-t <timeout>]\n");
-  printf("\nInitialize the watchdog to the <timeout>.  Start the watchdog\n");
-  printf("timer.  Ping for the watchdog for <pingtime> seconds, then let it expire.\n");
+  printf("Usage: wdog [-h] [-d <pingtime] [-p <pingdelay>]\
+  [-t <timeout>]\n");
+  printf("\nInitialize the watchdog to the <timeout>. Start the watchdog\n");
+  printf("timer.  Ping for the watchdog for <pingtime> seconds\n");
+  printf("then let it expire.\n");
   printf("\nOptions include:\n");
-  printf("  [-d <pingtime>] = Selects the <delay> time in milliseconds.  Default: %d\n",
-        CONFIG_EXAMPLES_WATCHDOG_PINGDELAY);
-  printf("  [-p <pingdelay] = Time delay between pings in milliseconds.  Default: %d\n",
-        CONFIG_EXAMPLES_WATCHDOG_PINGTIME);
-  printf("  [-t timeout] = Time in milliseconds that the example will ping the watchdog\n");
-  printf("    before letting the watchdog expire. Default: %d\n",
-         CONFIG_EXAMPLES_WATCHDOG_TIMEOUT);
+  printf("  [-d <pingtime>] = Selects the <delay> time in milliseconds.\n");
+  printf("Default: %d\n", CONFIG_EXAMPLES_WATCHDOG_PINGTIME);
+  printf("  [-i </dev/watchdogx>] = Selects the watchdog timer instance.\n");
+  printf("Default: %s\n", CONFIG_EXAMPLES_WATCHDOG_DEVPATH);
+  printf("  [-p <pingdelay] = Time delay between pings in milliseconds.\n");
+  printf("Default: %d\n", CONFIG_EXAMPLES_WATCHDOG_PINGDELAY);
+  printf("  [-t timeout] = Time in milliseconds that the example will\n");
+  printf("ping the watchdog before letting the watchdog expire.\n");
+  printf("Default: %d\n", CONFIG_EXAMPLES_WATCHDOG_TIMEOUT);
   printf("  [-h] = Shows this message and exits\n");
 }
 
@@ -126,9 +137,11 @@ static int arg_decimal(FAR char **arg, FAR long *value)
  * Name: parse_args
  ****************************************************************************/
 
-static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **argv)
+static void parse_args(FAR struct wdog_example_s *wdog, int argc,
+                       FAR char **argv)
 {
   FAR char *ptr;
+  FAR char *string;
   long value;
   int index;
   int nargs;
@@ -136,6 +149,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
   wdog->pingtime  = CONFIG_EXAMPLES_WATCHDOG_PINGTIME;
   wdog->pingdelay = CONFIG_EXAMPLES_WATCHDOG_PINGDELAY;
   wdog->timeout   = CONFIG_EXAMPLES_WATCHDOG_TIMEOUT;
+  strcpy(wdog->devname, CONFIG_EXAMPLES_WATCHDOG_DEVPATH);
 
   for (index = 1; index < argc; )
     {
@@ -157,6 +171,12 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
               }
 
             wdog->pingdelay = (uint32_t)value;
+            index += nargs;
+            break;
+
+          case 'i':
+            nargs = arg_string(&argv[index], &string);
+            strcpy(wdog->devname, string);
             index += nargs;
             break;
 
@@ -220,11 +240,11 @@ int main(int argc, FAR char *argv[])
 
   /* Open the watchdog device for reading */
 
-  fd = open(CONFIG_EXAMPLES_WATCHDOG_DEVPATH, O_RDONLY);
+  fd = open(wdog.devname, O_RDONLY);
   if (fd < 0)
     {
       printf("wdog_main: open %s failed: %d\n",
-             CONFIG_EXAMPLES_WATCHDOG_DEVPATH, errno);
+             wdog.devname, errno);
       goto errout;
     }
 
@@ -260,8 +280,8 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_DEBUG_WATCHDOG
      ret = ioctl(fd, WDIOC_GETSTATUS, (unsigned long)&status);
-     if (ret < 0)
-       {
+      if (ret < 0)
+        {
           printf("wdog_main: ioctl(WDIOC_GETSTATUS) failed: %d\n", errno);
           goto errout_with_dev;
         }
@@ -273,8 +293,8 @@ int main(int argc, FAR char *argv[])
       /* Then ping */
 
      ret = ioctl(fd, WDIOC_KEEPALIVE, 0);
-     if (ret < 0)
-       {
+      if (ret < 0)
+        {
           printf("wdog_main: ioctl(WDIOC_KEEPALIVE) failed: %d\n", errno);
           goto errout_with_dev;
         }
@@ -297,11 +317,12 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_DEBUG_WATCHDOG
      ret = ioctl(fd, WDIOC_GETSTATUS, (unsigned long)&status);
-     if (ret < 0)
-       {
+      if (ret < 0)
+        {
           printf("wdog_main: ioctl(WDIOC_GETSTATUS) failed: %d\n", errno);
           goto errout_with_dev;
         }
+
       printf("wdog_main: flags=%08x timeout=%d timeleft=%d\n",
              status.flags, status.timeout, status.timeleft);
 #endif
