@@ -391,16 +391,9 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
   dir = opendir(CONFIG_NSH_PROC_MOUNTPOINT "/net");
   if (dir == NULL)
     {
-      if (strncmp(cmd, "ifconfig", strlen("ifconfig")) == 0)
-        {
-          nsh_error(vtbl, "nsh: %s: %s: %d\n", cmd,
-                    "procfs is not mounted", NSH_ERRNO);
-        }
-      else
-        {
-          nsh_error(vtbl, g_fmtcmdfailed, cmd, "opendir", NSH_ERRNO);
-        }
-
+      nsh_error(vtbl,
+                "%s: %s: Could not open %s/net (is procfs mounted?): %d\n",
+                "nsh", cmd, CONFIG_NSH_PROC_MOUNTPOINT, NSH_ERRNO);
       return ERROR;
     }
 
