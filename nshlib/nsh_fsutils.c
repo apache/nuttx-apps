@@ -84,7 +84,18 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   fd = open(filepath, O_RDONLY);
   if (fd < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
+      if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
+                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+        {
+          nsh_error(vtbl,
+                    "nsh: %s: Could not open %s (is procfs mounted?): %d\n",
+                    cmd, filepath, NSH_ERRNO);
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
+        }
+
       return ERROR;
     }
 
@@ -319,7 +330,18 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* Failed to open the directory */
 
-      nsh_error(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
+      if (strncmp(dirpath, CONFIG_NSH_PROC_MOUNTPOINT,
+                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+        {
+          nsh_error(vtbl,
+                    "nsh: %s: Could not open %s (is procfs mounted?): %d\n",
+                    cmd, dirpath, NSH_ERRNO);
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
+        }
+
       return ERROR;
     }
 
