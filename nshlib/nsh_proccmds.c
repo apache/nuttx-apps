@@ -273,7 +273,6 @@ static void nsh_parse_statusline(FAR char *line,
 #ifndef CONFIG_NSH_DISABLE_PS
 static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                        FAR struct dirent *entryp, FAR void *pvarg)
-
 {
   struct nsh_taskstatus_s status;
   FAR char *filepath;
