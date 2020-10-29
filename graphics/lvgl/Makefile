@@ -51,6 +51,8 @@ LVGL_DIR_NAME = lvgl
 -include ./lvgl/src/lv_draw/lv_draw.mk
 -include ./lvgl/src/lv_gpu/lv_gpu.mk
 
+CSRCS += lv_tick_interface.c
+
 # Set up build configuration and environment
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}

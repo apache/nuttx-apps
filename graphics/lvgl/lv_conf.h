@@ -149,7 +149,7 @@ typedef int16_t lv_coord_t;
  * `lv_mem_alloc` and `lv_mem_free`
  */
 
-#define LV_MEM_CUSTOM      0
+#define LV_MEM_CUSTOM      1
 #if LV_MEM_CUSTOM == 0
 
 /* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB) */
@@ -423,10 +423,10 @@ typedef void * lv_img_decoder_user_data_t;
  * It removes the need to manually update the tick with `lv_tick_inc`)
  */
 
-#define LV_TICK_CUSTOM     0
+#define LV_TICK_CUSTOM     1
 #if LV_TICK_CUSTOM == 1
-#define LV_TICK_CUSTOM_INCLUDE  "something.h"       /* Header for the sys time function */
-#define LV_TICK_CUSTOM_SYS_TIME_EXPR (millis())     /* Expression evaluating to current systime in ms */
+#define LV_TICK_CUSTOM_INCLUDE  "lv_tick_interface.h"       /* Header for the sys time function */
+#define LV_TICK_CUSTOM_SYS_TIME_EXPR (lv_tick_interface())  /* Expression evaluating to current systime in ms */
 #endif   /* LV_TICK_CUSTOM */
 
 typedef void * lv_disp_drv_user_data_t;             /* Type of user data in the display driver */
