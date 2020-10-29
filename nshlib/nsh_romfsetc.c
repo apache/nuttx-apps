@@ -119,9 +119,11 @@ int nsh_romfsetc(void)
         CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
 
 #if defined(CONFIG_NSH_CROMFSETC)
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "cromfs", MS_RDONLY, NULL);
+  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "cromfs", MS_RDONLY,
+              NULL);
 #else
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY,
+              NULL);
 #endif
   if (ret < 0)
     {
