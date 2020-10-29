@@ -45,6 +45,9 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
+#ifndef CONFIG_VIDEO_FB
+#include <nuttx/lcd/lcd.h>  // lcd_dev_s
+#endif
 
 #include <lvgl/lvgl.h>
 
@@ -137,6 +140,23 @@ static FAR void *tick_func(void *data)
   return NULL;
 }
 
+#ifndef CONFIG_VIDEO_FB
+
+static struct lcd_planeinfo_s pinfo;
+
+static void area_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+{
+  for (int32_t y = area->y1; y <= area->y2; y++) {
+    for (int32_t x = area->x1; x <= area->x2; x++) {
+      pinfo.putrun(y, x, color_p, 2);
+      color_p++;
+    }
+  }
+
+  lv_disp_flush_ready(disp); /* Indicate you are ready with the flushing*/
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -204,13 +224,46 @@ int main(int argc, FAR char *argv[])
 
   /* Display interface initialization */
 
+#ifdef CONFIG_VIDEO_FB
   fbdev_init();
+#else
+  struct lcd_dev_s *dev;
+  int ret;
+
+  ret = board_lcd_initialize();
+  if (ret < 0)
+    {
+      gerr("ERROR: board_lcd_initialize failed: %d\n", ret);
+      return EXIT_FAILURE;
+    }
+
+  /* Get the device instance */
+
+  dev = board_lcd_getdev(0);
+  if (!dev)
+    {
+      gerr("ERROR: board_lcd_getdev failed, devno=%d\n", 0);
+      return EXIT_FAILURE;
+    }
+  
+  dev->getplaneinfo(dev, 0, &pinfo);
+
+  /* Turn the LCD on at 75% power */
+
+  int power = ((3 * CONFIG_LCD_MAXPOWER + 3) / 4);
+
+  dev->setpower(dev, power);
+#endif
 
   /* Basic LittlevGL display driver initialization */
 
   lv_disp_buf_init(&disp_buf, buf, NULL, DISPLAY_BUFFER_SIZE);
   lv_disp_drv_init(&disp_drv);
+#ifdef CONFIG_VIDEO_FB
   disp_drv.flush_cb = fbdev_flush;
+#else
+  disp_drv.flush_cb = area_flush;
+#endif
   disp_drv.buffer = &disp_buf;
   lv_disp_drv_register(&disp_drv);
 
