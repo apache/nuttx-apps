@@ -57,7 +57,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DEVNAME_SIZE 16
+#define DEVNAME_SIZE            16
+
+/* Number of timeout expirations to change mode to reset the chip */
 
 /****************************************************************************
  * Private Types
@@ -230,9 +232,13 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_DEBUG_WATCHDOG
   struct watchdog_status_s status;
 #endif
-  long elapsed;
   int fd;
   int ret;
+  uint64_t elapsed;
+  uint64_t start_ms;
+  uint64_t current_time_ms;
+  struct timespec tstart;
+  struct timespec tnow;
 
   /* Parse the command line */
 
@@ -266,13 +272,19 @@ int main(int argc, FAR char *argv[])
       goto errout_with_dev;
     }
 
+  /* Get the starting time */
+
+  clock_gettime(CLOCK_REALTIME, &tstart);
+  start_ms = (tstart.tv_sec * 1000) + (tstart.tv_nsec / 1000000);
+
   /* Then ping */
 
-  for (elapsed = 0; elapsed < wdog.pingtime; elapsed += wdog.pingdelay)
+  for (elapsed = 0; elapsed < wdog.pingtime;
+       elapsed = current_time_ms - start_ms)
     {
       /* Sleep for the requested amount of time */
 
-      usleep(wdog.pingdelay * 1000);
+      usleep((wdog.pingdelay * 1000) - CONFIG_USEC_PER_TICK);
 
       /* Show watchdog status.  Only if debug is enabled because this
        * could interfere with the timer.
@@ -299,17 +311,23 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("  ping elapsed=%ld\n", elapsed);
+      printf("  ping elapsed=%" PRIu64 "\n", elapsed);
       fflush(stdout);
+
+      /* Get current time to calculate the elapsed time */
+
+      clock_gettime(CLOCK_REALTIME, &tnow);
+      current_time_ms = (uint64_t)((tnow.tv_sec * 1000)
+                                    + (tnow.tv_nsec / 1000000));
     }
 
   /* Then stop pinging */
 
-  for (; ; elapsed += wdog.pingdelay)
+  for (; ; elapsed = current_time_ms - start_ms)
     {
       /* Sleep for the requested amount of time */
 
-      usleep(wdog.pingdelay * 1000);
+      usleep((wdog.pingdelay * 1000) - CONFIG_USEC_PER_TICK);
 
       /* Show watchdog status.  Only if debug is enabled because this
        * could interfere with the timer.
@@ -327,8 +345,14 @@ int main(int argc, FAR char *argv[])
              status.flags, status.timeout, status.timeleft);
 #endif
 
-      printf("  NO ping elapsed=%ld\n", elapsed);
+      printf("  NO ping elapsed=%" PRIu64 "\n", elapsed);
       fflush(stdout);
+
+      /* Get current time to calculate the elapsed time */
+
+      clock_gettime(CLOCK_REALTIME, &tnow);
+      current_time_ms = (uint64_t)((tnow.tv_sec * 1000)
+                                    + (tnow.tv_nsec / 1000000));
     }
 
   /* We should not get here */
