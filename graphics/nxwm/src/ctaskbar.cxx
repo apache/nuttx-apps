@@ -70,7 +70,7 @@ using namespace NxWM;
 CTaskbar::CTaskbar(void)
 {
   m_taskbar     = (NXWidgets::CNxWindow *)0;
-  m_background  = (NXWidgets::CNxWindow *)0;
+  m_background  = (NXWidgets::CBgWindow *)0;
   m_backImage   = (NXWidgets::CImage    *)0;
   m_topApp      = (IApplication         *)0;
   m_started     = false;
@@ -163,7 +163,7 @@ void CTaskbar::disconnect(void)
       // Then delete the background
 
       delete m_background;
-      m_background = (NXWidgets::CNxWindow *)0;
+      m_background = (NXWidgets::CBgWindow *)0;
     }
 
   // Delete the background image
@@ -972,9 +972,27 @@ bool CTaskbar::createTaskbarWindow(void)
 
 bool CTaskbar::createBackgroundWindow(void)
 {
+  CWindowMessenger *control = new CWindowMessenger((NXWidgets::CWidgetStyle *)NULL);
+
   // Create a raw window to present the background image
 
-  m_background = openRawWindow();
+  NXWidgets::CBgWindow *background = getBgWindow(control);
+  if (!background)
+    {
+      delete control;
+      return false;
+    }
+
+  // Open (and initialize) the BG window
+
+  bool success = background->open();
+  if (!success)
+    {
+      delete background;
+      return false;
+    }
+
+  m_background = background;
   if (!m_background)
     {
       return false;
