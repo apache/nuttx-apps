@@ -101,7 +101,7 @@ namespace NxWM
      */
 
     NXWidgets::CNxWindow         *m_taskbar;    /**< The task bar window */
-    NXWidgets::CNxWindow         *m_background; /**< The background window */
+    NXWidgets::CBgWindow         *m_background; /**< The background window */
     NXWidgets::CImage            *m_backImage;  /**< The background image */
     IApplication                 *m_topApp;     /**< The top application in the hierarchy */
     TNxArray<struct STaskbarSlot> m_slots;      /**< List of application slots in the task bar */
