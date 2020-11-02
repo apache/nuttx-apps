@@ -42,6 +42,7 @@
 #include <net/if.h>
 
 #include <nuttx/net/usrsock.h>
+#include <nuttx/wireless/wireless.h>
 #include <nuttx/wireless/gs2200m.h>
 
 /****************************************************************************
@@ -1518,6 +1519,9 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
     {
       case SIOCGIFADDR:
       case SIOCGIFHWADDR:
+      case SIOCGIWNWID:
+      case SIOCGIWFREQ:
+      case SIOCGIWSENS:
         getreq = true;
         break;
 
