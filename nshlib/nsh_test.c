@@ -219,7 +219,7 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
   fullpath = nsh_getfullpath(vtbl, argv[1]);
   if (!fullpath)
     {
-       return TEST_FALSE;
+      return TEST_FALSE;
     }
 
   ret = stat(fullpath, &buf);
@@ -227,11 +227,11 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
 
   if (ret != 0)
     {
-       /* The file does not exist (or another error occurred) -- return
-        * FALSE.
-        */
+      /* The file does not exist (or another error occurred) -- return
+       * FALSE.
+       */
 
-       return TEST_FALSE;
+      return TEST_FALSE;
     }
 
   /* -b FILE */
@@ -285,7 +285,7 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
     {
       /* Return true if the file is readable */
 
-      return (buf.st_mode & (S_IRUSR|S_IRGRP|S_IROTH)) != 0 ?
+      return (buf.st_mode & (S_IRUSR | S_IRGRP | S_IROTH)) != 0 ?
              TEST_TRUE : TEST_FALSE;
     }
 
@@ -304,7 +304,7 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl, char **argv)
     {
       /* Return true if the file is write-able */
 
-      return (buf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) != 0 ?
+      return (buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) != 0 ?
              TEST_TRUE : TEST_FALSE;
     }
 
@@ -331,7 +331,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           goto errout_syntax;
         }
 
-      return expression(vtbl, argc-1, &argv[1]) == TEST_TRUE ?
+      return expression(vtbl, argc - 1, &argv[1]) == TEST_TRUE ?
              TEST_FALSE : TEST_TRUE;
     }
 
@@ -374,37 +374,37 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       /* EXPRESSION -a EXPRESSION */
 
-       if (strcmp(argv[i], "-a") == 0)
-         {
-            if (value != TEST_TRUE)
-              {
-                 return TEST_FALSE;
-              }
-            else
-              {
-                 i++;
-                 return expression(vtbl, argc-i, &argv[i]);
-              }
-         }
+      if (strcmp(argv[i], "-a") == 0)
+        {
+          if (value != TEST_TRUE)
+            {
+              return TEST_FALSE;
+            }
+          else
+            {
+              i++;
+              return expression(vtbl, argc - i, &argv[i]);
+            }
+        }
 
-       /* EXPRESSION -o EXPRESSION */
+      /* EXPRESSION -o EXPRESSION */
 
-       else if (strcmp(argv[i], "-o") == 0)
-         {
-           if (value == TEST_TRUE)
-             {
-                return TEST_TRUE;
-             }
-           else
-             {
-                i++;
-                return expression(vtbl, argc-i, &argv[i]);
-             }
-         }
-       else
-         {
-           goto errout_syntax;
-         }
+      else if (strcmp(argv[i], "-o") == 0)
+        {
+          if (value == TEST_TRUE)
+            {
+              return TEST_TRUE;
+            }
+          else
+            {
+              i++;
+              return expression(vtbl, argc - i, &argv[i]);
+            }
+        }
+      else
+        {
+          goto errout_syntax;
+        }
     }
 
   return value;
@@ -424,7 +424,7 @@ errout_syntax:
 
 int cmd_test(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return expression(vtbl, argc-1, &argv[1]);
+  return expression(vtbl, argc - 1, &argv[1]);
 }
 
 /****************************************************************************

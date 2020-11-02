@@ -70,7 +70,8 @@
  * Name: nsh_telnetecho
  ****************************************************************************/
 
-static void nsh_telnetecho(FAR struct console_stdio_s *pstate, uint8_t is_use)
+static void nsh_telnetecho(FAR struct console_stdio_s *pstate,
+                           uint8_t is_use)
 {
   uint8_t optbuf[4];
   optbuf[0] = TELNET_IAC;
@@ -193,7 +194,8 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
       fflush(pstate->cn_outstream);
 
       username[0] = '\0';
-      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
+      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate)) != NULL)
         {
           /* Parse out the username */
 
@@ -207,7 +209,8 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
       nsh_telnetecho(pstate, TELNET_NOTUSE_ECHO);
 
       password[0] = '\0';
-      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
+      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate)) != NULL)
         {
           /* Parse out the password */
 
@@ -218,7 +221,8 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 #if defined(CONFIG_NSH_LOGIN_PASSWD)
           if (PASSWORD_VERIFY_MATCH(passwd_verify(username, password)))
 #elif defined(CONFIG_NSH_LOGIN_PLATFORM)
-          if (PASSWORD_VERIFY_MATCH(platform_user_verify(username, password)))
+          if (PASSWORD_VERIFY_MATCH(platform_user_verify(username,
+                                                         password)))
 #elif defined(CONFIG_NSH_LOGIN_FIXED)
           if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
