@@ -198,7 +198,7 @@ static void write_memory(FAR struct ramtest_s *info, uint32_t value)
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           *ptr++ = value;
@@ -206,7 +206,7 @@ static void write_memory(FAR struct ramtest_s *info, uint32_t value)
     }
   else if (info->width == 16)
     {
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           *ptr++ = (uint16_t)value;
@@ -214,7 +214,7 @@ static void write_memory(FAR struct ramtest_s *info, uint32_t value)
     }
   else /* if (info->width == 8) */
     {
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           *ptr++ = (uint8_t)value;
@@ -232,7 +232,7 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           if (*ptr != value)
@@ -248,7 +248,7 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
   else if (info->width == 16)
     {
       uint16_t value16 = (uint16_t)(value & 0x0000ffff);
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           if (*ptr != value16)
@@ -264,7 +264,7 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
   else /* if (info->width == 8) */
     {
       uint8_t value8 = (uint8_t)(value & 0x000000ff);
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           if (*ptr != value8)
@@ -332,7 +332,7 @@ static void write_memory2(FAR struct ramtest_s *info, uint32_t value_1,
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           *ptr++ = value_1;
@@ -341,7 +341,7 @@ static void write_memory2(FAR struct ramtest_s *info, uint32_t value_1,
     }
   else if (info->width == 16)
     {
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           *ptr++ = (uint16_t)value_1;
@@ -350,7 +350,7 @@ static void write_memory2(FAR struct ramtest_s *info, uint32_t value_1,
     }
   else /* if (info->width == 8) */
     {
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           *ptr++ = (uint8_t)value_1;
@@ -371,7 +371,7 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           if (ptr[0] != value_1 || ptr[1] != value_2)
@@ -391,7 +391,7 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
     {
       uint16_t value16_1 = (uint16_t)(value_1 & 0x0000ffff);
       uint16_t value16_2 = (uint16_t)(value_2 & 0x0000ffff);
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           if (ptr[0] != value16_1 || ptr[1] != value16_2)
@@ -411,7 +411,7 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
     {
       uint8_t value8_1 = (uint8_t)(value_1 & 0x000000ff);
       uint8_t value8_2 = (uint8_t)(value_2 & 0x000000ff);
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < even_nxfrs; i += 2)
         {
           if (ptr[0] != value8_1 || ptr[1] != value8_2)
@@ -453,7 +453,7 @@ static void write_addrinaddr(FAR struct ramtest_s *info)
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint32_t value32 = (uint32_t)((uintptr_t)ptr);
@@ -462,7 +462,7 @@ static void write_addrinaddr(FAR struct ramtest_s *info)
     }
   else if (info->width == 16)
     {
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint16_t value16 = (uint16_t)((uintptr_t)ptr & 0x0000ffff);
@@ -471,7 +471,7 @@ static void write_addrinaddr(FAR struct ramtest_s *info)
     }
   else /* if (info->width == 8) */
     {
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint8_t value8 = (uint8_t)((uintptr_t)ptr & 0x000000ff);
@@ -490,7 +490,7 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
 
   if (info->width == 32)
     {
-      uint32_t *ptr = (uint32_t*)info->start;
+      uint32_t *ptr = (uint32_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint32_t value32 = (uint32_t)((uintptr_t)ptr);
@@ -506,7 +506,7 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
     }
   else if (info->width == 16)
     {
-      uint16_t *ptr = (uint16_t*)info->start;
+      uint16_t *ptr = (uint16_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint16_t value16 = (uint16_t)((uintptr_t)ptr & 0x0000ffff);
@@ -522,7 +522,7 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
     }
   else /* if (info->width == 8) */
     {
-      uint8_t *ptr = (uint8_t*)info->start;
+      uint8_t *ptr = (uint8_t *)info->start;
       for (i = 0; i < info->nxfrs; i++)
         {
           uint16_t value8 = (uint8_t)((uintptr_t)ptr & 0x000000ff);
