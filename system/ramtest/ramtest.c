@@ -142,7 +142,8 @@ static void parse_commandline(int argc, char **argv,
   info->start = (uintptr_t)strtoul(argv[optind], &ptr, 16);
   if (*ptr != '\0')
     {
-      printf(RAMTEST_PREFIX "Invalid <hex-address>: %s->%lx [%02x]\n",
+      printf(RAMTEST_PREFIX "Invalid <hex-address>: %s->%" PRIxPTR
+             " [%02x]\n",
              argv[optind], info->start, *ptr);
       show_usage(argv[0], EXIT_FAILURE);
     }
@@ -157,7 +158,7 @@ static void parse_commandline(int argc, char **argv,
   info->size = (size_t)strtoul(argv[optind], &ptr, 10);
   if (*ptr != '\0')
     {
-      printf(RAMTEST_PREFIX "Invalid <decimal-size>: %s->%lx [%02x]\n",
+      printf(RAMTEST_PREFIX "Invalid <decimal-size>: %s->%zx [%02x]\n",
              argv[optind], info->size, *ptr);
       show_usage(argv[0], EXIT_FAILURE);
     }
