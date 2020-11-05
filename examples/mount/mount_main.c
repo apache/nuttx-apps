@@ -761,11 +761,11 @@ int main(int argc, FAR char *argv[])
 
       /* Try rename() on the root directory. Should fail with EXDEV */
 
-      fail_rename(g_target, g_testdir4, EXDEV);
+      fail_rename(g_mntdir, g_testdir4, EXDEV);
 
-      /* Try rename() to an existing directory.  Should fail with EEXIST */
+      /* Try rename() to an existing directory.  Should fail with ENOENT */
 
-      fail_rename(g_testdir2, g_testdir3, EEXIST);
+      fail_rename(g_testdir4, g_testdir3, ENOENT);
 
       /* Try rename() to a non-existing directory.  Should succeed */
 
