@@ -445,7 +445,8 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                       dumpbytes = count;
                     }
 
-                  snprintf(msg, sizeof(msg), "%s at %08x", argv[1], skip);
+                  snprintf(msg, sizeof(msg), "%s at %08jx", argv[1],
+                           (uintmax_t)skip);
                   nsh_dumpbuffer(vtbl, msg,
                                  &buffer[nbytesread - (position - skip)],
                                  dumpbytes);
@@ -473,7 +474,8 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
             }
 #endif
 
-          snprintf(msg, sizeof(msg), "%s at %08x", argv[1], position);
+          snprintf(msg, sizeof(msg), "%s at %08jx", argv[1],
+                   (uintmax_t)position);
           nsh_dumpbuffer(vtbl, msg, buffer, nbytesread);
           position += nbytesread;
 
