@@ -167,7 +167,8 @@ static int waiter_main(int argc, char *argv[])
           ret = sigaction(i, &act, NULL);
           if (ret < 0)
             {
-              printf("waiter_main: WARNING sigaction failed\n" , errno);
+              printf("waiter_main: WARNING sigaction failed with %d\n",
+                     errno);
               return EXIT_FAILURE;
             }
         }
