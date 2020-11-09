@@ -80,13 +80,15 @@
 
 static void nxlines_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool morem, FAR void *arg);
-static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg);
+static void nxlines_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg);
+static void nxlines_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
@@ -137,10 +139,11 @@ static void nxlines_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxlines_position
  ****************************************************************************/
 
-static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg)
+static void nxlines_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg)
 {
   /* Report the position */
 
@@ -172,8 +175,9 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_XYINPUT
-static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg)
+static void nxlines_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg)
 {
   printf("nxlines_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
          hwnd,  pos->x, pos->y, buttons);
@@ -190,11 +194,11 @@ static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 {
   ginfo("hwnd=%p nch=%d\n", hwnd, nch);
 
-   /* In this example, there is no keyboard so a keyboard event is not
-    * expected.
-    */
+  /* In this example, there is no keyboard so a keyboard event is not
+   * expected.
+   */
 
-   printf("nxlines_kbdin: Unexpected keyboard callback\n");
+  printf("nxlines_kbdin: Unexpected keyboard callback\n");
 }
 #endif
 
@@ -233,7 +237,7 @@ void nxlines_test(NXWINDOW hwnd)
 
   /* Draw a circular background */
 
-  radius = maxradius - ((CONFIG_EXAMPLES_NXLINES_BORDERWIDTH+1)/2);
+  radius = maxradius - ((CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 1) / 2);
   color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
   ret = nx_fillcircle((NXWINDOW)hwnd, &center, radius, color);
   if (ret < 0)
@@ -288,7 +292,7 @@ void nxlines_test(NXWINDOW hwnd)
   previous.pt2.x = center.x;
   previous.pt2.y = center.y;
 
-  for (;;)
+  for (; ; )
     {
       /* Determine the position of the line on this pass */
 
@@ -327,7 +331,6 @@ void nxlines_test(NXWINDOW hwnd)
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
         }
 
-
 #ifdef CONFIG_NX_ANTIALIASING
       /* If anti-aliasing is enabled, then we must clear a slightly
        * larger region to prevent weird edge effects.
@@ -356,6 +359,7 @@ void nxlines_test(NXWINDOW hwnd)
 
           angle = 0;
         }
-      usleep(500*1000);
+
+      usleep(500 * 1000);
     }
 }
