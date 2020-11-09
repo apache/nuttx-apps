@@ -49,6 +49,7 @@
 #include <errno.h>
 #include <debug.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <nuttx/timers/pwm.h>
 
@@ -185,7 +186,7 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
   printf("  [-f frequency] selects the pulse frequency.  "
-         "Default: %d Hz Current: %u Hz\n",
+         "Default: %d Hz Current: %" PRIu32 " Hz\n",
          CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
 #ifdef CONFIG_PWM_MULTICHAN
   printf("  [[-c channel1] [[-c channel2] ...]] "
@@ -487,7 +488,7 @@ int main(int argc, FAR char *argv[])
 
   info.frequency = g_pwmstate.freq;
 #ifdef CONFIG_PWM_MULTICHAN
-  printf("pwm_main: starting output with frequency: %u",
+  printf("pwm_main: starting output with frequency: %" PRIu32,
          info.frequency);
 
   for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
@@ -495,7 +496,7 @@ int main(int argc, FAR char *argv[])
       info.channels[i].channel = g_pwmstate.channels[i];
       info.channels[i].duty    = ((uint32_t)g_pwmstate.duties[i]
                                   << 16) / 100;
-      printf(" channel: %d duty: %08x",
+      printf(" channel: %d duty: %08" PRIx32,
         info.channels[i].channel, info.channels[i].duty);
     }
 
