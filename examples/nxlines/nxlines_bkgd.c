@@ -46,6 +46,7 @@
 #include <string.h>
 #include <debug.h>
 #include <fixedmath.h>
+#include <inttypes.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
@@ -307,7 +308,7 @@ void nxlines_test(NXWINDOW hwnd)
       vector.pt2.x = center.x - halfx;
       vector.pt2.y = center.y - halfy;
 
-      printf("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
+      printf("Angle: %08" PRIx32 " vector: (%d,%d)->(%d,%d)\n",
              angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
 
       /* Clear the previous line by overwriting it with the circle color */
