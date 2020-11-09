@@ -1392,3 +1392,36 @@ void wapi_scan_coll_free(FAR struct wapi_list_s *list)
       info = temp;
     }
 }
+
+/****************************************************************************
+ * Name: wapi_get_sensitivity
+ *
+ * Description:
+ *    Get the wlan Sensitivity
+ *
+ ****************************************************************************/
+
+int wapi_get_sensitivity(int sock, FAR const char *ifname, FAR int *sense)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCGIWSENS, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWSENS, errcode);
+      ret = -errcode;
+    }
+  else
+    {
+      *sense = -wrq.u.sens.value;
+    }
+
+  return ret;
+}
+

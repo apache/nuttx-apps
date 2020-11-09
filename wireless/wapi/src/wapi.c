@@ -253,6 +253,7 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   int bitrate;
   int txpower;
   double freq;
+  int sense;
   int chan;
   int ret;
 
@@ -383,6 +384,14 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
     {
       printf("  TxPower: %d\n", txpower);
       printf("     Flag: %s\n", g_wapi_txpower_flags[txpower_flag]);
+    }
+
+  /* Get sensitivity */
+
+  ret = wapi_get_sensitivity(sock, ifname, &sense);
+  if (ret == 0)
+    {
+      printf("    Sense: %d\n", sense);
     }
 
   return 0;
