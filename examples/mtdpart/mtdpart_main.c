@@ -236,7 +236,8 @@ int main(int argc, FAR char *argv[])
   partsize    = nblocks * geo.blocksize;
 
   printf("  No. partitions: %u\n", CONFIG_EXAMPLES_MTDPART_NPARTITIONS);
-  printf("  Partition size: %lu Blocks (%lu bytes)\n", nblocks, partsize);
+  printf("  Partition size: %ju Blocks (%lu bytes)\n", (uintmax_t)nblocks,
+         partsize);
 
   /* Now create MTD FLASH partitions */
 
@@ -483,7 +484,7 @@ int main(int argc, FAR char *argv[])
       nbytes = read(fd, buffer, geo.blocksize);
       if (nbytes != 0)
         {
-          printf("ERROR: Expected end-of-file from %s failed: %d %d\n",
+          printf("ERROR: Expected end-of-file from %s failed: %zd %d\n",
                  charname, nbytes, errno);
           fflush(stdout);
           exit(22);
