@@ -202,7 +202,7 @@ static const uint32_t g_netmask    = HTONL(0xffffff00);
 #endif
 
 #ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
-static const char g_payload[] = "Hi there, TUN receiver!";
+static const char g_payload[] = "Hi there TUN receiver!";
 #endif
 
 #ifdef CONFIG_NET_IPv4
@@ -624,7 +624,7 @@ static FAR void *ipfwd_sender(FAR void *arg)
       ipv6->len[0] = (pktlen >> 8);
       ipv6->len[1] = (pktlen & 0xff);
 
-      ipv6->proto  = proto;                 /* Next header */
+      ipv6->proto  = proto;                        /* Next header */
       ipv6->ttl    = 255;                          /* Hop limit */
 
 #ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
@@ -726,7 +726,7 @@ static FAR void *ipfwd_sender(FAR void *arg)
 
       /* Set up the options */
 
-      sol->opttype  = ICMPv6_OPT_SRCLLADDR;           /* Option type */
+      sol->opttype  = ICMPv6_OPT_SRCLLADDR;            /* Option type */
       sol->optlen   = ICMPv6_OPT_OCTECTS(MAC_ADDRLEN); /* Option length in octets */
 
       /* Copy our link layer address into the message */
