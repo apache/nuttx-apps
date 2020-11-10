@@ -375,7 +375,7 @@ int main(int argc, FAR char *argv[])
   nbytes = read(fd, buffer, geo.blocksize);
   if (nbytes != 0)
     {
-      printf("ERROR: Expected end-of-file from /dev/mtd0 failed: %d %d\n",
+      printf("ERROR: Expected end-of-file from /dev/mtd0 failed: %zd %d\n",
              nbytes, errno);
       fflush(stdout);
       exit(20);
