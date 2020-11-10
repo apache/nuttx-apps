@@ -321,7 +321,7 @@ int main(int argc, FAR char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  printf("main: Read %d bytes: %d\n", (int)nbytes);
+  printf("main: Read %d bytes\n", (int)nbytes);
   lib_dumpbuffer("main: Bytes read", (FAR const uint8_t *)buffer, nbytes);
 
   /* Write to the character driver */
@@ -335,7 +335,7 @@ int main(int argc, FAR char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  printf("main: Wrote %d bytes: %d\n", (int)nbytes);
+  printf("main: Wrote %d bytes\n", (int)nbytes);
   lib_dumpbuffer("main: Bytes written", (FAR const uint8_t *)g_write_string,
                  nbytes);
 
