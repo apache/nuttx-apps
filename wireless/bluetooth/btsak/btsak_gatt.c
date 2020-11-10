@@ -548,7 +548,7 @@ void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
 
   if (btreq.btr_wrnbytes > HCI_GATTWR_DATA)
     {
-      fprintf(stderr, "ERROR:  Too much data.  Limit is %u bytes%s\n",
+      fprintf(stderr, "ERROR:  Too much data.  Limit is %u bytes\n",
               HCI_GATTWR_DATA);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
