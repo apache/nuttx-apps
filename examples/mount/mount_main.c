@@ -177,13 +177,13 @@ static void show_statfs(const char *path)
     {
       printf("show_statfs: statfs(%s) succeeded\n", path);
       printf("\tFS Type           : %0x\n", buf.f_type);
-      printf("\tBlock size        : %d\n", buf.f_bsize);
+      printf("\tBlock size        : %zd\n", buf.f_bsize);
       printf("\tNumber of blocks  : %d\n", buf.f_blocks);
       printf("\tFree blocks       : %d\n", buf.f_bfree);
       printf("\tFree user blocks  : %d\n", buf.f_bavail);
       printf("\tNumber file nodes : %d\n", buf.f_files);
       printf("\tFree file nodes   : %d\n", buf.f_ffree);
-      printf("\tFile name length  : %d\n", buf.f_namelen);
+      printf("\tFile name length  : %zd\n", buf.f_namelen);
     }
   else
     {
