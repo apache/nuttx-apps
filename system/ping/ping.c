@@ -122,10 +122,10 @@ static void ping_result(FAR const struct ping_result_s *result)
 
       case ICMP_I_BEGIN:
         printf("PING %u.%u.%u.%u %u bytes of data\n",
-               (result->dest.s_addr) & 0xff,
-               (result->dest.s_addr >> 8) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->info->datalen);
         break;
 
@@ -145,10 +145,10 @@ static void ping_result(FAR const struct ping_result_s *result)
 
       case ICMP_W_TIMEOUT:
         printf("No response from %u.%u.%u.%u: icmp_seq=%u time=%d ms\n",
-               (result->dest.s_addr) & 0xff,
-               (result->dest.s_addr >> 8) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->seqno, result->extra);
         break;
 
@@ -181,10 +181,10 @@ static void ping_result(FAR const struct ping_result_s *result)
       case ICMP_I_ROUNDTRIP:
         printf("%u bytes from %u.%u.%u.%u: icmp_seq=%u time=%d ms\n",
                result->info->datalen,
-               (result->dest.s_addr) & 0xff,
-               (result->dest.s_addr >> 8) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->seqno, result->extra);
         break;
 
