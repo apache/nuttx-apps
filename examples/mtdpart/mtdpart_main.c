@@ -55,6 +55,7 @@
  ****************************************************************************/
 
 /* Configuration ************************************************************/
+
 /* Make sure that support for MTD partitions is enabled */
 
 #ifndef CONFIG_MTD_PARTITION
@@ -75,7 +76,9 @@
 #    error "CONFIG_RAMMTD is required without CONFIG_EXAMPLES_MTDPART_ARCHINIT"
 #  endif
 
-/* This must exactly match the default configuration in drivers/mtd/rammtd.c */
+/* This must exactly match the default configuration in
+ * drivers/mtd/rammtd.c
+ */
 
 #  ifndef CONFIG_RAMMTD_ERASESIZE
 #    define CONFIG_RAMMTD_ERASESIZE 4096
@@ -114,6 +117,7 @@ struct mtdpart_filedesc_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* Pre-allocated simulated flash */
 
 #ifndef CONFIG_EXAMPLES_MTDPART_ARCHINIT
@@ -208,7 +212,8 @@ int main(int argc, FAR char *argv[])
 
   /* Get the geometry of the FLASH device */
 
-  ret = master->ioctl(master, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geo));
+  ret = master->ioctl(master, MTDIOC_GEOMETRY,
+                      (unsigned long)((uintptr_t)&geo));
   if (ret < 0)
     {
       ferr("ERROR: mtd->ioctl failed: %d\n", ret);
@@ -226,7 +231,8 @@ int main(int argc, FAR char *argv[])
    */
 
   blkpererase = geo.erasesize / geo.blocksize;
-  nblocks     = (geo.neraseblocks / CONFIG_EXAMPLES_MTDPART_NPARTITIONS) * blkpererase;
+  nblocks     = (geo.neraseblocks / CONFIG_EXAMPLES_MTDPART_NPARTITIONS) *
+                blkpererase;
   partsize    = nblocks * geo.blocksize;
 
   printf("  No. partitions: %u\n", CONFIG_EXAMPLES_MTDPART_NPARTITIONS);
@@ -254,7 +260,9 @@ int main(int argc, FAR char *argv[])
           exit(4);
         }
 
-      /* Initialize to provide an FTL block driver on the MTD FLASH interface */
+      /* Initialize to provide an FTL block driver on the MTD FLASH
+       * interface
+       */
 
       snprintf(blockname, 32, "/dev/mtdblock%d", i);
       snprintf(charname, 32, "/dev/mtd%d", i);
@@ -400,21 +408,21 @@ int main(int argc, FAR char *argv[])
            * indication.
            */
 
-         else if (nbytes == 0)
-           {
-              printf("ERROR: Unexpected end of file on %s\n", charname);
-              fflush(stdout);
-              exit(15);
-           }
+          else if (nbytes == 0)
+            {
+               printf("ERROR: Unexpected end of file on %s\n", charname);
+               fflush(stdout);
+               exit(15);
+            }
 
-         /* This is not expected at all */
+          /* This is not expected at all */
 
-         else if (nbytes != geo.blocksize)
-           {
-              printf("ERROR: Short read from %s failed: %lu\n",
-                     charname, (unsigned long)nbytes);
-              fflush(stdout);
-              exit(16);
+          else if (nbytes != geo.blocksize)
+            {
+               printf("ERROR: Short read from %s failed: %lu\n",
+                      charname, (unsigned long)nbytes);
+               fflush(stdout);
+               exit(16);
             }
 
           /* Verify the offsets in the block */
