@@ -265,7 +265,7 @@ static int ipfwd_netconfig(FAR struct ipfwd_tun_s *tun, IPADDR_TYPE ipaddr,
   ret = netlib_set_ipv6addr(tun->it_devname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: netlib_set_ipv6addr() failed\n", ret);
+      fprintf(stderr, "ERROR: netlib_set_ipv6addr() failed with %d\n", ret);
       return ret;
     }
 
@@ -273,7 +273,8 @@ static int ipfwd_netconfig(FAR struct ipfwd_tun_s *tun, IPADDR_TYPE ipaddr,
   ret = netlib_set_ipv6netmask(tun->it_devname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: netlib_set_ipv6netmask() failed\n", ret);
+      fprintf(stderr, "ERROR: netlib_set_ipv6netmask() failed with %d\n",
+              ret);
       return ret;
     }
 
