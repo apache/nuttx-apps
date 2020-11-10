@@ -205,7 +205,7 @@ static inline char nxffs_randchar(void)
   int value = rand() % 63;
   if (value == 0)
     {
-      return '/';
+      return '0';
     }
   else if (value <= 10)
     {
