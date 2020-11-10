@@ -141,14 +141,15 @@ int main(int argc, FAR char *argv[])
       /* Set up the server address */
 
       server.sa_family = AF_IEEE802154;
-      memcpy(&server.sa_addr, &g_server_addr, sizeof(struct ieee802154_saddr_s));
+      memcpy(&server.sa_addr, &g_server_addr,
+             sizeof(struct ieee802154_saddr_s));
       addrlen          = sizeof(struct sockaddr_ieee802154_s);
 
       /* Send the message */
 
       printf("client: %d. Sending %d bytes\n", offset, SENDSIZE);
       nbytes = sendto(sockfd, outbuf, SENDSIZE, 0,
-                      (struct sockaddr*)&server, addrlen);
+                      (struct sockaddr *)&server, addrlen);
       printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       if (nbytes < 0)
