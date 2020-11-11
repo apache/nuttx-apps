@@ -505,7 +505,7 @@ int main(int argc, FAR char *argv[])
 
   /* Set RF frequency */
 
-  printf("Set frequency to %d\n", args->frequency);
+  printf("Set frequency to %" PRId32 "\n", args->frequency);
 
   ret = ioctl(fd, WLIOC_SETRADIOFREQ, (unsigned long)&args->frequency);
   if (ret < 0)
@@ -616,7 +616,7 @@ int main(int argc, FAR char *argv[])
                   goto errout;
                 }
 
-              printf("freq = %d max = %d min = %d free = %d\n",
+              printf("freq = %" PRId32 " max = %d min = %d free = %d\n",
                      chanscan.freq,
                      chanscan.rssi_max, chanscan.rssi_min, chanscan.free);
 
