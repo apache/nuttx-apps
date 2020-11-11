@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ESP32_HIMEM
+	tristate "ESP32 HIMEM Example"
+	default n
+	---help---
+		ESP32 HIMEM Example
+
+if EXAMPLES_ESP32_HIMEM
+
+config EXAMPLES_ESP32_HIMEM_PROGNAME
+	string "Program name"
+	default "esp32himem"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_ESP32_HIMEM_PRIORITY
+	int "ESP32 HIMEM task priority"
+	default 100
+
+config EXAMPLES_ESP32_HIMEM_STACKSIZE
+	int "ESP32 HIMEM stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
