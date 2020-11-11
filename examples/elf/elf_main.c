@@ -245,7 +245,7 @@ int main(int argc, FAR char *argv[])
               MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
+      errmsg("ERROR: mount(%s,%s,romfs) failed: %d\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
     }
 
