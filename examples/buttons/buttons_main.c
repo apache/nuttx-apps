@@ -364,7 +364,7 @@ static int button_daemon(int argc, char *argv[])
 
       oldsample = sample;
 #else
-      printf("Sample = %d\n", sample);
+      printf("Sample = %jd\n", (intmax_t)sample);
 #endif
 
       /* Make sure that everything is displayed */
