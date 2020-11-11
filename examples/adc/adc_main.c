@@ -331,7 +331,7 @@ int main(int argc, FAR char *argv[])
               printf("Sample:\n");
               for (i = 0; i < nsamples; i++)
                 {
-                  printf("%d: channel: %d value: %d\n",
+                  printf("%d: channel: %d value: %" PRId32 "\n",
                          i + 1, sample[i].am_channel, sample[i].am_data);
                 }
             }
