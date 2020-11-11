@@ -258,27 +258,36 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       ret = -errno;
-      printf("Failed to enable sensor:%s, ret:%s\n",
-             devname, strerror(errno));
-      goto ctl_err;
+      if (ret != -ENOTTY)
+        {
+          printf("Failed to enable sensor:%s, ret:%s\n",
+                 devname, strerror(errno));
+          goto ctl_err;
+        }
     }
 
   ret = ioctl(fd, SNIOC_SET_INTERVAL, &interval);
   if (ret < 0)
     {
       ret = -errno;
-      snerr("Failed to set interval for sensor:%s, ret:%s\n",
-            devname, strerror(errno));
-      goto ctl_err;
+      if (ret != -ENOTTY)
+        {
+          printf("Failed to set interval for sensor:%s, ret:%s\n",
+                devname, strerror(errno));
+          goto ctl_err;
+        }
     }
 
   ret = ioctl(fd, SNIOC_BATCH, &latency);
   if (ret < 0)
     {
       ret = -errno;
-      snerr("Failed to batch for sensor:%s, ret:%s\n",
-            devname, strerror(errno));
-      goto ctl_err;
+      if (ret != -ENOTTY)
+        {
+          printf("Failed to batch for sensor:%s, ret:%s\n",
+                devname, strerror(errno));
+          goto ctl_err;
+        }
     }
 
   printf("SensorTest: Test %s with interval(%uus), latency(%uus)\n",
