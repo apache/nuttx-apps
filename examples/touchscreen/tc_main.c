@@ -110,7 +110,7 @@ int main(int argc, FAR char *argv[])
       nsamples = strtol(argv[1], NULL, 10);
     }
 
-  printf("tc_main: nsamples: %d\n", nsamples);
+  printf("tc_main: nsamples: %ld\n", nsamples);
 
   /* Open the touchscreen device for reading */
 
