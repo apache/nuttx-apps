@@ -577,7 +577,7 @@ void snprintf_can_error_frame(char *buf, size_t len, const struct canfd_frame *c
 
 	class = cf->can_id & CAN_EFF_MASK;
 	if (class > (1 << ARRAY_SIZE(error_classes))) {
-		fprintf(stderr, "Error class %#x is invalid\n", class);
+		fprintf(stderr, "Error class %#jx is invalid\n", (uintmax_t)class);
 		return;
 	}
 
