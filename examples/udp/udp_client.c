@@ -153,7 +153,7 @@ void udp_client(void)
   sockfd = create_socket();
   if (sockfd < 0)
     {
-      printf("client ERROR: create_socket failed %d\n");
+      printf("client ERROR: create_socket failed\n");
       exit(1);
     }
 
