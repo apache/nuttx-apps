@@ -264,7 +264,7 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("nmsgs: %d\n", nmsgs);
+  printf("nmsgs: %ld\n", nmsgs);
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
   printf("min ID: %ld max ID: %ld\n", minid, maxid);
 #endif
@@ -370,7 +370,7 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("  ID: %4u DLC: %u\n",
+      printf("  ID: %4" PRIu32 " DLC: %u\n",
              rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 
       msgdlc = rxmsg.cm_hdr.ch_dlc;
