@@ -219,7 +219,7 @@ static void draw_rect24(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
   g = (rgb >> 8);
   b = (rgb >> 16);
 
-  printf("Fill area (%d,%d,%d,%d) with color: %08x -> (r,g,b) = "
+  printf("Fill area (%d,%d,%d,%d) with color: %08" PRIx32 " -> (r,g,b) = "
          "(%02x,%02x,%02x)\n", area->x, area->y, area->w, area->h,
          rgb, b, g, r);
 
@@ -260,8 +260,9 @@ static void draw_rect32(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
   FAR uint32_t *dest;
   FAR uint8_t  *row;
 
-  printf("Fill area (%d,%d,%d,%d) with color: %08x -> (a,r,g,b) = "
-         "(%02x,%02x,%02x,%02x)\n", area->x, area->y, area->w, area->h,
+  printf("Fill area (%d,%d,%d,%d) with color: %08" PRIx32 " -> (a,r,g,b) = "
+         "(%02" PRIx32 ",%02" PRIx32 ",%02" PRIx32 ",%02" PRIx32 ")\n",
+         area->x, area->y, area->w, area->h,
          argb, argb >> 24, argb >> 16, argb >> 8, argb);
 
   row = (FAR uint8_t *)fbmem + oinfo->stride * area->y;
@@ -429,7 +430,8 @@ static void print_plane_info(int fb)
          "    fblen: %lu\n"
          "   stride: %u\n"
          "  display: %u\n"
-         "      bpp: %u\n",
+         "      bpp: %u\n"
+         "    fbmem: %p\n",
          pinfo.fbmem, (unsigned long)pinfo.fblen, pinfo.stride,
          pinfo.display,
          pinfo.bpp, fbmem);
@@ -487,11 +489,11 @@ static void print_overlay_info(int fb, uint8_t overlayno)
          "  overlay: %u\n"
          "      bpp: %u\n"
          "    blank: %08x\n"
-         "chromakey: %08x\n"
-         "    color: %08x\n"
+         "chromakey: %08" PRIx32 "\n"
+         "    color: %08" PRIx32 "\n"
          "   transp: %02x\n"
          "     mode: %08x\n"
-         "     accl: %08x\n"
+         "     accl: %08" PRIx32 "\n"
          "     mmap: %p\n",
          oinfo.fbmem, (unsigned long)oinfo.fblen, oinfo.stride,
          oinfo.overlay,
@@ -624,7 +626,7 @@ static int overlay_accl(int fb, uint8_t overlayno, uint32_t accl)
       return -1;
     }
 
-  printf("%s: %08x %08x\n", __func__, oinfo.accl, accl);
+  printf("%s: %08" PRIx32 " %08" PRIx32 "\n", __func__, oinfo.accl, accl);
   return (oinfo.accl & accl) ? OK : -1;
 }
 
@@ -688,7 +690,7 @@ static int overlay_chromakey(int fb, FAR struct fb_overlayinfo_s *oinfo)
 {
   int ret;
 
-  printf("Overlay: %d, set chromakey: 0x%08x\n", oinfo->overlay,
+  printf("Overlay: %d, set chromakey: 0x%08" PRIx32 "\n", oinfo->overlay,
          oinfo->chromakey);
 
   ret = overlay_accl(fb, oinfo->overlay, FB_ACCL_CHROMA);
