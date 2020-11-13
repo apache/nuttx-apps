@@ -159,6 +159,7 @@ int main(int argc, FAR char *argv[])
               devpath, errno);
       return 1;
     }
+
   /* Get the block size to use */
 
   get_blocksize(fd, &info);
@@ -172,7 +173,8 @@ int main(int argc, FAR char *argv[])
   txbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (txbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate TX I/O buffer of size %lu\n",
+      fprintf(stderr,
+              "ERROR: failed to allocate TX I/O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       close(fd);
       return 1;
@@ -181,7 +183,8 @@ int main(int argc, FAR char *argv[])
   rxbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (rxbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate IRX /O buffer of size %lu\n",
+      fprintf(stderr,
+              "ERROR: failed to allocate IRX /O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       free(txbuffer);
       close(fd);
@@ -299,7 +302,8 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  "
+                          "Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }
@@ -384,7 +388,8 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  "
+                          "Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }
