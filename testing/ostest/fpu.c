@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 #include <sys/wait.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -178,7 +179,7 @@ static void fpu_dump(FAR uint32_t *buffer, FAR const char *msg)
 
           if (k < FPU_WORDSIZE)
             {
-              printf("%08x ", buffer[k]);
+              printf("%08" PRIx32 " ", buffer[k]);
             }
           else
             {
