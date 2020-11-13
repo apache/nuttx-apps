@@ -208,7 +208,7 @@ static int dac_put(FAR const char *devpath,
         }
       else
         {
-          printf("wrote: chan=%d, data=%d\n", msg[i].am_channel,
+          printf("wrote: chan=%d, data=%" PRId32 "\n", msg[i].am_channel,
                  msg[i].am_data);
           i++;
           retries = 0;
