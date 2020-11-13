@@ -352,7 +352,7 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
+      printf("  ID: %4" PRIu32 " DLC: %d\n", msgid, msgdlc);
 
 #endif
 
@@ -462,7 +462,7 @@ int main(int argc, FAR char *argv[])
 
           /* Report success */
 
-          printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
+          printf("  ID: %4" PRIu32 " DLC: %d -- OK\n", msgid, msgdlc);
 
 #else
 
