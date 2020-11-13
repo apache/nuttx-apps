@@ -317,7 +317,7 @@ namespace NXWidgets
      * @param position The new cursor position.
      */
 
-    virtual void moveCursorToPosition(const int32_t position);
+    virtual void moveCursorToPosition(const int position);
 
     /**
      * Get the cursor position.  This is the index within the string that
@@ -326,7 +326,7 @@ namespace NXWidgets
      * @return position The cursor position.
      */
 
-    virtual const int32_t getCursorPosition(void) const;
+    virtual const int getCursorPosition(void) const;
 
     /**
      * Insert text at the specified index.
