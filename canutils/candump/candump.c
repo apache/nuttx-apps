@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -689,12 +690,12 @@ int main(int argc, char **argv)
 					__u32 frames = dropcnt[i] - last_dropcnt[i];
 
 					if (silent != SILENT_ON)
-						printf("DROPCOUNT: dropped %d CAN frame%s on '%s' socket (total drops %d)\n",
-						       frames, (frames > 1)?"s":"", devname[idx], dropcnt[i]);
+						printf("DROPCOUNT: dropped %" PRId32 " CAN frame%s on '%s' socket (total drops %" PRId32 ")\n",
+						       (uint32_t)frames, (frames > 1)?"s":"", devname[idx], (uint32_t)dropcnt[i]);
 
 					if (log)
-						fprintf(logfile, "DROPCOUNT: dropped %d CAN frame%s on '%s' socket (total drops %d)\n",
-							frames, (frames > 1)?"s":"", devname[idx], dropcnt[i]);
+						fprintf(logfile, "DROPCOUNT: dropped %" PRId32 " CAN frame%s on '%s' socket (total drops %" PRId32 ")\n",
+							(uint32_t)frames, (frames > 1)?"s":"", devname[idx], (uint32_t)dropcnt[i]);
 
 					last_dropcnt[i] = dropcnt[i];
 				}
