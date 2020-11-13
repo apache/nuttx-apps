@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -427,12 +428,12 @@ static void print_plane_info(int fb)
 
   printf("PlaneInfo:\n"
          "    fbmem: %p\n"
-         "    fblen: %lu\n"
+         "    fblen: %zu\n"
          "   stride: %u\n"
          "  display: %u\n"
          "      bpp: %u\n"
          "    fbmem: %p\n",
-         pinfo.fbmem, (unsigned long)pinfo.fblen, pinfo.stride,
+         pinfo.fbmem, pinfo.fblen, pinfo.stride,
          pinfo.display,
          pinfo.bpp, fbmem);
 }
@@ -484,7 +485,7 @@ static void print_overlay_info(int fb, uint8_t overlayno)
 
   printf("OverlayInfo:\n"
          "    fbmem: %p\n"
-         "    fblen: %lu\n"
+         "    fblen: %zu\n"
          "   stride: %u\n"
          "  overlay: %u\n"
          "      bpp: %u\n"
@@ -495,7 +496,7 @@ static void print_overlay_info(int fb, uint8_t overlayno)
          "     mode: %08x\n"
          "     accl: %08" PRIx32 "\n"
          "     mmap: %p\n",
-         oinfo.fbmem, (unsigned long)oinfo.fblen, oinfo.stride,
+         oinfo.fbmem, oinfo.fblen, oinfo.stride,
          oinfo.overlay,
          oinfo.bpp, oinfo.blank, oinfo.chromakey, oinfo.color,
          oinfo.transp.transp, oinfo.transp.transp_mode, oinfo.accl, fbmem);
@@ -560,8 +561,8 @@ static int overlay_fill(int fb, uint8_t overlayno, uint32_t color,
 
       if (offset > oinfo.fblen)
         {
-          fprintf(stderr, "Area is out of range: %d >= %d\n", offset,
-                  oinfo.fblen);
+          fprintf(stderr, "Area is out of range: %" PRId32 " >= %zu\n",
+                  offset, oinfo.fblen);
           return -1;
         }
 
