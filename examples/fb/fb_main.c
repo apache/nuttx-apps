@@ -379,14 +379,14 @@ int main(int argc, FAR char *argv[])
   printf("  overlay: %u\n", state.oinfo.overlay);
   printf("      bpp: %u\n", state.oinfo.bpp);
   printf("    blank: %u\n", state.oinfo.blank);
-  printf("chromakey: 0x%08x\n", state.oinfo.chromakey);
-  printf("    color: 0x%08x\n", state.oinfo.color);
+  printf("chromakey: 0x%08" PRIx32 "\n", state.oinfo.chromakey);
+  printf("    color: 0x%08" PRIx32 "\n", state.oinfo.color);
   printf("   transp: 0x%02x\n", state.oinfo.transp.transp);
   printf("     mode: %u\n", state.oinfo.transp.transp_mode);
   printf("     area: (%u,%u) => (%u,%u)\n",
                       state.oinfo.sarea.x, state.oinfo.sarea.y,
                       state.oinfo.sarea.w, state.oinfo.sarea.h);
-  printf("     accl: %u\n", state.oinfo.accl);
+  printf("     accl: %" PRIu32 "\n", state.oinfo.accl);
 
 #endif
 
