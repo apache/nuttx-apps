@@ -41,6 +41,7 @@
 
 #include <sys/ioctl.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -217,16 +218,16 @@ int main(int argc, FAR char *argv[])
         {
           int errcode = errno;
 
-          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
-                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: lseek to %ju failed: %d\n",
+                  (uintmax_t)pos, errcode);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
         }
       else if (seekpos != pos)
         {
-          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
-                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: lseek failed: %ju vs %ju\n",
+                  (uintmax_t)seekpos, (uintmax_t) pos);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
@@ -259,16 +260,16 @@ int main(int argc, FAR char *argv[])
         {
           int errcode = errno;
 
-          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
-                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: lseek to %ju failed: %d\n",
+                  (uintmax_t)pos, errcode);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
         }
       else if (seekpos != pos)
         {
-          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
-                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: lseek failed: %ju vs %ju\n",
+                  (uintmax_t)seekpos, (uintmax_t)pos);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
@@ -339,8 +340,8 @@ int main(int argc, FAR char *argv[])
     }
   else if (seekpos != 0)
     {
-      fprintf(stderr, "ERROR: lseek to 0 failed: %lu\n",
-              (unsigned)seekpos);
+      fprintf(stderr, "ERROR: lseek to 0 failed: %ju\n",
+              (uintmax_t)seekpos);
     }
 
   /* Re-read and verify each sector */
