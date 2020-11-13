@@ -508,12 +508,13 @@ int main(int argc, FAR char *argv[])
   info.count     = g_pwmstate.count;
 
   printf("pwm_main: starting output "
-         "with frequency: %u duty: %08x count: %u\n",
-         info.frequency, info.duty, info.count);
+         "with frequency: %" PRIu32 " duty: %08" PRIx32 " count: %u\n",
+         info.frequency, (uint32_t)info.duty, info.count);
 
 #  else
-  printf("pwm_main: starting output with frequency: %u duty: %08x\n",
-         info.frequency, info.duty);
+  printf("pwm_main: starting output "
+         "with frequency: %" PRIu32 " duty: %08" PRIx32 "\n",
+         info.frequency, (uint32_t)info.duty);
 
 #  endif
 #endif
