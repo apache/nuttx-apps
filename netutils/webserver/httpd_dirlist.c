@@ -30,6 +30,7 @@
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <errno.h>
 #include <debug.h>
@@ -218,8 +219,8 @@ ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
         }
       else
         {
-          snprintf(size, sizeof(size), "%d",
-                   buf.st_size);
+          snprintf(size, sizeof(size), "%jd",
+                   (uintmax_t)buf.st_size);
 
           snprintf(tmp, BUF_SIZE, ENTRY,
                    dent->d_name, "", dent->d_name, "",
