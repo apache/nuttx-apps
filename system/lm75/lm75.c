@@ -236,8 +236,8 @@ int main(int argc, FAR char *argv[])
 
       if (nbytes != sizeof(b16_t))
         {
-          fprintf(stderr, "ERROR: Unexpected read size: %Ld vs %d\n",
-                  (long)nbytes, sizeof(b16_t));
+          fprintf(stderr, "ERROR: Unexpected read size: %zd vs %zd\n",
+                  nbytes, sizeof(b16_t));
           return EXIT_FAILURE;
         }
 
