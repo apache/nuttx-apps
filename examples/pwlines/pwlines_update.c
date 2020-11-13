@@ -123,32 +123,37 @@ void pwlines_circle(FAR struct pwlines_state_s *st)
         }
 
       /* Back off the radius to account for the thickness of border line
-       * and with a big fudge factor that will (hopefully) prevent the corners
-       * of the lines from overwriting the border.  This is overly complicated
-       * here because we don't assume anything about the screen resolution or
-       * the borderwidth or the line thickness (and there are certainly some
-       * smarter ways to do this).
+       * and with a big fudge factor that will (hopefully) prevent the
+       * corners of the lines from overwriting the border.  This is overly
+       * complicated here because we don't assume anything about the screen
+       * resolution or the borderwidth or the line thickness (and there are
+       * certainly some smarter ways to do this).
        */
 
       if (maxradius > (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 80))
         {
-          wndo->radius = maxradius - (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 40);
+          wndo->radius = maxradius -
+                         (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 40);
         }
       else if (maxradius > (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 60))
         {
-          wndo->radius = maxradius - (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 30);
+          wndo->radius = maxradius -
+                         (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 30);
         }
       else if (maxradius > (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 40))
         {
-          wndo->radius = maxradius - (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 20);
+          wndo->radius = maxradius -
+                         (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 20);
         }
       else if (maxradius > (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 20))
         {
-          wndo->radius = maxradius - (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 10);
+          wndo->radius = maxradius -
+                         (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 10);
         }
       else if (maxradius > (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 10))
         {
-          wndo->radius = maxradius - (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 5);
+          wndo->radius = maxradius -
+                         (CONFIG_EXAMPLES_PWLINES_BORDERWIDTH + 5);
         }
       else
         {
@@ -202,12 +207,15 @@ void pwlines_update(FAR struct pwlines_state_s *st)
       vector.pt2.y = wndo->center.y - halfy;
 
       printf("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
-             wndo->angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
+             wndo->angle, vector.pt1.x, vector.pt1.y, vector.pt2.x,
+             vector.pt2.y);
 
-      /* Clear the previous line by overwriting it with the circle face color */
+      /* Clear the previous line by overwriting it with the circle face
+       * color
+       */
 
-      ret = nx_drawline(wndo->hwnd, &wndo->previous, CLEAR_WIDTH, st->facecolor,
-                        NX_LINECAP_NONE);
+      ret = nx_drawline(wndo->hwnd, &wndo->previous, CLEAR_WIDTH,
+                        st->facecolor, NX_LINECAP_NONE);
       if (ret < 0)
         {
           printf("pwlines_update: nx_drawline failed clearing: %d\n", ret);
@@ -222,7 +230,6 @@ void pwlines_update(FAR struct pwlines_state_s *st)
         {
           printf("pwlines_update: nx_drawline failed clearing: %d\n", ret);
         }
-
 
 #ifdef CONFIG_NX_ANTIALIASING
       /* If anti-aliasing is enabled, then we must clear a slightly
