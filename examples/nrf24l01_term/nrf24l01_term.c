@@ -124,19 +124,19 @@ int wireless_cfg(int fd)
   int32_t txpow = DEFAULT_TXPOWER;
   nrf24l01_datarate_t datarate = RATE_1Mbps;
   nrf24l01_retrcfg_t retrcfg =
-  {
-    .count = 5,
-    .delay = DELAY_1000us
-  };
+    {
+      .count = 5,
+      .delay = DELAY_1000us
+    };
 
   uint32_t addrwidth = NRF24L01_MAX_ADDR_LEN;
 
   uint8_t pipes_en = (1 << 0);  /* Only pipe #0 is enabled */
   nrf24l01_pipecfg_t pipe0cfg;
   nrf24l01_pipecfg_t *pipes_cfg[NRF24L01_PIPE_COUNT] =
-  {
-    &pipe0cfg, 0, 0, 0, 0, 0
-  };
+    {
+      &pipe0cfg, 0, 0, 0, 0, 0
+    };
 
   nrf24l01_state_t primrxstate;
 
