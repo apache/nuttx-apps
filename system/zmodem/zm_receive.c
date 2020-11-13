@@ -51,6 +51,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -1344,7 +1345,8 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
               {
                 /* Create a candidate file name */
 
-                asprintf(&candidate, "%s_%d", pzmr->filename, ++uniqno);
+                asprintf(&candidate, "%s_%" PRId32, pzmr->filename,
+                         ++uniqno);
                 if (!candidate)
                   {
                     zmdbg("ERROR:  Failed to allocate candidate %s_%d\n",
