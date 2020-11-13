@@ -442,7 +442,7 @@ int main(int argc, FAR char *argv[])
 
           sec = sec % 60;
 
-          sprintf(str, "%02d:%02d:%01d", min, sec,
+          sprintf(str, "%02ld:%02ld:%01ld", min, sec,
                   (priv->ts_end.tv_nsec / 100000000));
 
           /* Print it into LCD */
