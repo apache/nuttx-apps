@@ -175,12 +175,13 @@ int main(int argc, FAR char *argv[])
             }
 
           fflush(stdout);
-#endif                                  /*Kamal*/
+#endif                                  /* Kamal */
           cnt += n;
         }
 
       UNUSED(eof);
     }
+
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   printf("\n");
 #endif
