@@ -58,6 +58,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifdef CONFIG_CAN_EXTID
+#define PRI_CAN_ID PRIu32
+#else
+#define PRI_CAN_ID PRIu16
+#endif
+
 #if defined(CONFIG_EXAMPLES_CAN_READ)
 #  define CAN_OFLAGS O_RDONLY
 #elif defined(CONFIG_EXAMPLES_CAN_WRITE)
@@ -352,8 +358,7 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("  ID: %4" PRIu32 " DLC: %d\n", msgid, msgdlc);
-
+      printf("  ID: %4" PRI_CAN_ID " DLC: %d\n", msgid, msgdlc);
 #endif
 
 #ifdef CONFIG_EXAMPLES_CAN_READ
@@ -370,7 +375,7 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("  ID: %4" PRIu32 " DLC: %u\n",
+      printf("  ID: %4" PRI_CAN_ID " DLC: %u\n",
              rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 
       msgdlc = rxmsg.cm_hdr.ch_dlc;
@@ -380,7 +385,8 @@ int main(int argc, FAR char *argv[])
 
       if (rxmsg.cm_hdr.ch_error != 0)
         {
-          printf("ERROR: CAN error report: [0x%04x]\n", rxmsg.cm_hdr.ch_id);
+          printf("ERROR: CAN error report: [0x%04" PRI_CAN_ID "]\n",
+                 rxmsg.cm_hdr.ch_id);
           if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TXTIMEOUT) != 0)
             {
               printf("  TX timeout\n");
@@ -462,7 +468,7 @@ int main(int argc, FAR char *argv[])
 
           /* Report success */
 
-          printf("  ID: %4" PRIu32 " DLC: %d -- OK\n", msgid, msgdlc);
+          printf("  ID: %4" PRI_CAN_ID " DLC: %d -- OK\n", msgid, msgdlc);
 
 #else
 
