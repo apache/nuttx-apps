@@ -170,7 +170,6 @@ static void parse_args(int argc, FAR char **argv)
     }
 }
 
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -254,7 +253,8 @@ int main(int argc, FAR char *argv[])
 
 #else
 #  ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
-      printf("0x%04x.%04x degrees Fahrenheit\n", temp16 >> 16, temp16 & 0xffff);
+      printf("0x%04x.%04x degrees Fahrenheit\n",
+             temp16 >> 16, temp16 & 0xffff);
 #  else
       printf("0x%04x.%04x degrees Celsius\n", temp16 >> 16, temp16 & 0xffff);
 #  endif
