@@ -45,6 +45,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <sched.h>
 #include <syslog.h>
@@ -239,7 +240,8 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
           if (*ptr != value)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %08x Expected %08x\n",
+                     "ERROR: Address %p Found: %08" PRIx32
+                     " Expected %08" PRIx32 "\n",
                      ptr, *ptr, value);
             }
 
@@ -255,7 +257,8 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
           if (*ptr != value16)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %04x Expected %04x\n",
+                     "ERROR: Address %p Found: %04" PRIx16
+                     " Expected %04" PRIx16 "\n",
                      ptr, *ptr, value16);
             }
 
@@ -271,7 +274,8 @@ static void verify_memory(FAR struct ramtest_s *info, uint32_t value)
           if (*ptr != value8)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %02x Expected %02x\n",
+                     "ERROR: Address %p Found: %02" PRIx8
+                     " Expected %02" PRIx8 "\n",
                      ptr, *ptr, value8);
             }
 
@@ -378,10 +382,12 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
           if (ptr[0] != value_1 || ptr[1] != value_2)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %08x and %08x\n",
+                     "ERROR: Address %p Found: %08" PRIx32
+                     " and %08" PRIx32 "\n",
                      ptr, ptr[0], ptr[1]);
               printf(RAMTEST_PREFIX
-                     "               Expected: %08x and %08x\n",
+                     "               Expected: %08" PRIx32
+                     " and %08" PRIx32 "\n",
                      value_1, value_2);
             }
 
@@ -398,10 +404,12 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
           if (ptr[0] != value16_1 || ptr[1] != value16_2)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %04x and %04x\n",
+                     "ERROR: Address %p Found: %04" PRIx16
+                     " and %04" PRIx16 "\n",
                      ptr, ptr[0], ptr[1]);
               printf(RAMTEST_PREFIX
-                     "               Expected: %04x and %04x\n",
+                     "               Expected: %04" PRIx16
+                     " and %04" PRIx16 "\n",
                      value16_1, value16_2);
             }
 
@@ -418,10 +426,12 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
           if (ptr[0] != value8_1 || ptr[1] != value8_2)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %02x and %02x\n",
+                     "ERROR: Address %p Found: %02" PRIx8
+                     " and %02" PRIx8 "\n",
                      ptr, ptr[0], ptr[1]);
               printf(RAMTEST_PREFIX
-                     "               Expected: %02x and %02x\n",
+                     "               Expected: %02" PRIx8
+                     " and %02" PRIx8 "\n",
                      value8_1, value8_2);
             }
 
@@ -437,7 +447,8 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
 static void pattern_test(FAR struct ramtest_s *info, uint32_t pattern1,
                          uint32_t pattern2)
 {
-  printf(RAMTEST_PREFIX "Pattern test: %08x %d %08x %08x\n",
+  printf(RAMTEST_PREFIX "Pattern test: %08x %d %08" PRIx32
+         " %08" PRIx32 "\n",
          info->start, info->size, pattern1, pattern2);
 
   write_memory2(info, pattern1, pattern2);
@@ -498,7 +509,8 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
           if (*ptr != value32)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %08x Expected %08x\n",
+                     "ERROR: Address %p Found: %08" PRIx32
+                     " Expected %08" PRIx32 "\n",
                      ptr, *ptr, value32);
             }
 
@@ -514,7 +526,8 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
           if (*ptr != value16)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %04x Expected %04x\n",
+                     "ERROR: Address %p Found: %04" PRIx16
+                     " Expected %04" PRIx16 "\n",
                      ptr, *ptr, value16);
             }
 
@@ -530,7 +543,8 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
           if (*ptr != value8)
             {
               printf(RAMTEST_PREFIX
-                     "ERROR: Address %p Found: %02x Expected %02x\n",
+                     "ERROR: Address %p Found: %02" PRIx8
+                     " Expected %02" PRIx8 "\n",
                      ptr, *ptr, value8);
             }
 
