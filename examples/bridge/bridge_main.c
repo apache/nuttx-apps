@@ -353,8 +353,10 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net1_ipaddr);
   printf("NET1: Create receive socket: %d.%d.%d.%d:%d\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff),
          CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -393,8 +395,10 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net2_ipaddr);
   printf("NET1: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -445,8 +449,10 @@ static int bridge_net1_worker(int argc, char *argv[])
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET1: Received %ld bytes from %d.%d.%d.%d:%d\n",
              (long)nrecvd,
-             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             (int)(tmpaddr >> 24),
+             (int)((tmpaddr >> 16) & 0xff),
+             (int)((tmpaddr >> 8) & 0xff),
+             (int)(tmpaddr & 0xff),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
@@ -538,8 +544,10 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net2_ipaddr);
   printf("NET2: Create receive socket: %d.%d.%d.%d:%d\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff),
          CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -578,8 +586,10 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net1_ipaddr);
   printf("NET2: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -630,8 +640,10 @@ static int bridge_net2_worker(int argc, char *argv[])
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET2: Received %ld bytes from %d.%d.%d.%d:%d\n",
              (long)nrecvd,
-             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             (int)(tmpaddr >> 24),
+             (int)((tmpaddr >> 16) & 0xff),
+             (int)((tmpaddr >> 8) & 0xff),
+             (int)(tmpaddr & 0xff),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
