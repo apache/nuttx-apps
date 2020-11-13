@@ -121,13 +121,15 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr, "USAGE: %s -h\n",
           progname);
   fprintf(stderr, "\nWhere:\n");
-  fprintf(stderr, "-n <nmsgs>: The number of messages to send.  Default: 32\n");
+  fprintf(stderr,
+          "-n <nmsgs>: The number of messages to send.  Default: 32\n");
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
   fprintf(stderr, "-s: Use standard IDs.  Default: Extended ID\n");
 #endif
   fprintf(stderr, "-a <min-id>: The start message id.  Default 1\n");
-  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n", MAX_ID);
+  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n",
+          MAX_ID);
 #endif
   fprintf(stderr, "-h: Show this message and exit\n");
 }
@@ -396,7 +398,8 @@ int main(int argc, FAR char *argv[])
 
           if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_PROTOCOL) != 0)
             {
-              printf("  Protocol error: %02x %02x\n", rxmsg.cm_data[2], rxmsg.cm_data[3]);
+              printf("  Protocol error: %02x %02x\n", rxmsg.cm_data[2],
+                     rxmsg.cm_data[3]);
             }
 
           if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TRANSCEIVER) != 0)
@@ -431,7 +434,8 @@ int main(int argc, FAR char *argv[])
 
           /* Verify that the received messages are the same */
 
-          if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr, sizeof(struct can_hdr_s)) != 0)
+          if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr,
+                     sizeof(struct can_hdr_s)) != 0)
             {
               printf("ERROR: Sent header does not match received header:\n");
               lib_dumpbuffer("Sent header",
