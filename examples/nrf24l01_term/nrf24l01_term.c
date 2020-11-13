@@ -44,6 +44,7 @@
 #include <sys/ioctl.h>
 
 #include <unistd.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -257,7 +258,7 @@ int read_pkt(int wl_fd)
         (unsigned long)((uint32_t *)&pipeno));
 
   buff[ret] = '\0';   /* end the string */
-  printf("Message received : %s   (on pipe #%d)\n", buff, pipeno);
+  printf("Message received : %s   (on pipe #%" PRId32 ")\n", buff, pipeno);
 
   return 0;
 }
