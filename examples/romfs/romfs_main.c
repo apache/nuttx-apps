@@ -60,7 +60,9 @@
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -274,7 +276,8 @@ static void checkattributes(const char *path, mode_t mode, size_t size)
 
   if (size != buf.st_size)
     {
-      printf("  -- ERROR: Expected size %d, got %d\n", mode, buf.st_size);
+      printf("  -- ERROR: Expected size %zu, got %ju\n", size,
+             (uintmax_t)buf.st_size);
       g_nerrors++;
     }
 }
