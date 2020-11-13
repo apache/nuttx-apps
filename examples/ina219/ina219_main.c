@@ -38,6 +38,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -66,7 +67,8 @@ int main(int argc, FAR char *argv[])
           break;
         }
 
-      printf("U=%12u uV I=%12d uA\n", sample.voltage, sample.current);
+      printf("U=%12" PRIu32 " uV I=%12" PRId32 " uA\n",
+             sample.voltage, sample.current);
     }
 
   close(fd);
