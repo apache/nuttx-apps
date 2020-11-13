@@ -393,7 +393,7 @@ void CTwm4Nx::genMqName(void)
   unsigned long randvalue =
     (unsigned long)std::random() & 0x00fffffful;
 
-  std::asprintf(&m_queueName, "Twm4Nx%06ul", randvalue);
+  std::asprintf(&m_queueName, "Twm4Nx%06lu", randvalue);
 }
 
 /**
