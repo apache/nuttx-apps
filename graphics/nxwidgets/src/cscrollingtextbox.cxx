@@ -312,7 +312,7 @@ void CScrollingTextBox::wrapCursor(bool wrap)
  * @param position The new cursor position.
  */
 
-void CScrollingTextBox::moveCursorToPosition(const int32_t position)
+void CScrollingTextBox::moveCursorToPosition(const int position)
 {
   m_texbox->moveCursorToPosition(position);
   m_scrollbar->redraw();
@@ -325,7 +325,7 @@ void CScrollingTextBox::moveCursorToPosition(const int32_t position)
  * @return position The cursor position.
  */
 
-const int32_t CScrollingTextBox::getCursorPosition(void) const
+const int CScrollingTextBox::getCursorPosition(void) const
 {
   return m_texbox->getCursorPosition();
 }
