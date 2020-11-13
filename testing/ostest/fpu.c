@@ -51,7 +51,8 @@
 /****************************************************************************
  * Pre-processor definitions
  ****************************************************************************/
-/* Configuration *******************************************************/
+
+/* Configuration ************************************************************/
 
 #undef HAVE_FPU
 #ifdef CONFIG_ARCH_FPU
@@ -90,7 +91,8 @@
 #  define CONFIG_TESTING_OSTEST_FPUSTACKSIZE 2048
 #endif
 
-/* Other definitions ***************************************************/
+/* Other definitions ********************************************************/
+
 /* We'll keep all data using 32-bit values only to force 32-bit alignment.
  * This logic has no real notion of the underlying representation.
  */
@@ -105,6 +107,7 @@
 /****************************************************************************
  * External Dependencies
  ****************************************************************************/
+
 /* This test is very dependent on support provided by the chip/board-
  * layer logic.  In particular, it expects the following functions
  * to be provided:
@@ -161,7 +164,9 @@ static uint8_t g_fpuno;
 
 static void fpu_dump(FAR uint32_t *buffer, FAR const char *msg)
 {
-  int i, j, k;
+  int i;
+  int j;
+  int k;
 
   printf("%s (%p):\n", msg, buffer);
   for (i = 0; i < FPU_WORDSIZE; i += 8)
@@ -181,8 +186,9 @@ static void fpu_dump(FAR uint32_t *buffer, FAR const char *msg)
               break;
             }
         }
+
       printf("\n");
-   }
+    }
 }
 
 static int fpu_task(int argc, char *argv[])
@@ -214,7 +220,7 @@ static int fpu_task(int argc, char *argv[])
 
   for (i = 0; i < CONFIG_TESTING_OSTEST_FPULOOPS; i++)
     {
-      printf("FPU#%d: pass %d\n", id, i+1);
+      printf("FPU#%d: pass %d\n", id, i + 1);
       fflush(stdout);
 
       /* Set the FPU register save arrays to a known-but-illogical values so
@@ -259,7 +265,9 @@ static int fpu_task(int argc, char *argv[])
 
       arch_getfpu(fpu->save1);
 
-      /* Re-read and verify the FPU registers consistently without corruption */
+      /* Re-read and verify the FPU registers consistently without
+       * corruption
+       */
 
       arch_getfpu(fpu->save2);
       if (!arch_cmpfpu(fpu->save1, fpu->save2))
@@ -270,13 +278,15 @@ static int fpu_task(int argc, char *argv[])
           return EXIT_FAILURE;
         }
 
-      /* Now unlock and sleep for a while -- this should result in some context switches */
+      /* Now unlock and sleep for a while -- this should result in some
+       * context switches
+       */
 
       sched_unlock();
       usleep(CONFIG_TESTING_OSTEST_FPUMSDELAY * 1000);
 
-      /* Several context switches should have occurred.  Now verify that the floating
-       * point registers are still correctly set.
+      /* Several context switches should have occurred.  Now verify that
+       * the floating point registers are still correctly set.
        */
 
       arch_getfpu(fpu->save2);
@@ -310,7 +320,8 @@ void fpu_test(void)
 
   g_fpuno = 0;
   printf("Starting task FPU#1\n");
-  task1 = task_create("FPU#1", CONFIG_TESTING_OSTEST_FPUPRIORITY, CONFIG_TESTING_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
+  task1 = task_create("FPU#1", CONFIG_TESTING_OSTEST_FPUPRIORITY,
+                      CONFIG_TESTING_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
   if (task1 < 0)
     {
       printf("fpu_test: ERROR Failed to start task FPU#1\n");
@@ -319,11 +330,13 @@ void fpu_test(void)
     {
       printf("fpu_test: Started task FPU#1 at PID=%d\n", task1);
     }
+
   fflush(stdout);
   usleep(250);
 
   printf("Starting task FPU#2\n");
-  task2 = task_create("FPU#2", CONFIG_TESTING_OSTEST_FPUPRIORITY, CONFIG_TESTING_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
+  task2 = task_create("FPU#2", CONFIG_TESTING_OSTEST_FPUPRIORITY,
+                      CONFIG_TESTING_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
   if (task2 < 0)
     {
       printf("fpu_test: ERROR Failed to start task FPU#1\n");
