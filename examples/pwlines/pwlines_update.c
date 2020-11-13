@@ -42,6 +42,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <string.h>
 #include <debug.h>
@@ -206,9 +207,9 @@ void pwlines_update(FAR struct pwlines_state_s *st)
       vector.pt2.x = wndo->center.x - halfx;
       vector.pt2.y = wndo->center.y - halfy;
 
-      printf("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
-             wndo->angle, vector.pt1.x, vector.pt1.y, vector.pt2.x,
-             vector.pt2.y);
+      printf("Angle: %08" PRIx32 " vector: (%d,%d)->(%d,%d)\n",
+             (uint32_t)wndo->angle, vector.pt1.x, vector.pt1.y,
+             vector.pt2.x, vector.pt2.y);
 
       /* Clear the previous line by overwriting it with the circle face
        * color
