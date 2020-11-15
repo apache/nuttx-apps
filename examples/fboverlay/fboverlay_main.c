@@ -647,7 +647,8 @@ static int overlay_color(int fb, FAR struct fb_overlayinfo_s *oinfo)
 {
   int ret;
 
-  printf("Overlay: %d, set color: 0x%08x\n", oinfo->overlay, oinfo->color);
+  printf("Overlay: %d, set color: 0x%08" PRIx32 "\n",
+         oinfo->overlay, oinfo->color);
 
   ret = overlay_accl(fb, oinfo->overlay, FB_ACCL_COLOR);
   if (ret != OK)
