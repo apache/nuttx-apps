@@ -25,6 +25,7 @@
 #include <nuttx/sensors/sensor.h>
 #include <nuttx/config.h>
 #include <sys/ioctl.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -102,7 +103,8 @@ static const struct sensor_info g_sensor_info[] =
 static void print_vec3(const char *buffer, const char *name)
 {
   struct sensor_event_accel *event = (struct sensor_event_accel *)buffer;
-  printf("%s: timestamp:%llu x:%.2f y:%.2f z:%.2f, temperature:%.2f\n",
+  printf("%s: timestamp:%" PRIu64 " x:%.2f y:%.2f z:%.2f, "
+         "temperature:%.2f\n",
          name, event->timestamp, event->x, event->y,
          event->z, event->temperature);
 }
@@ -110,14 +112,14 @@ static void print_vec3(const char *buffer, const char *name)
 static void print_valb(const char *buffer, const char *name)
 {
   struct sensor_event_hall *event = (struct sensor_event_hall *)buffer;
-  printf("%s: timestamp:%llu value:%d\n",
+  printf("%s: timestamp:%" PRIu64 " value:%d\n",
          name, event->timestamp, event->hall);
 }
 
 static void print_valf(const char *buffer, const char *name)
 {
   struct sensor_event_prox *event = (struct sensor_event_prox *)buffer;
-  printf("%s: timestamp:%llu value:%.2f\n",
+  printf("%s: timestamp:%" PRIu64 " value:%.2f\n",
          name, event->timestamp, event->proximity);
 }
 
@@ -131,7 +133,7 @@ static void print_valf2(const char *buffer, const char *name)
 static void print_valf3(const char *buffer, const char *name)
 {
   struct sensor_event_rgb *event = (struct sensor_event_rgb *)buffer;
-  printf("%s: timestamp:%llu value1:%.2f value2:%.2f, value3:%.2f\n",
+  printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f, value3:%.2f\n",
          name, event->timestamp, event->r, event->g, event->b);
 }
 
