@@ -126,7 +126,7 @@ static void print_valf(const char *buffer, const char *name)
 static void print_valf2(const char *buffer, const char *name)
 {
   struct sensor_event_baro *event = (struct sensor_event_baro *)buffer;
-  printf("%s: timestamp:%llu value1:%.2f value2:%.2f\n",
+  printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f\n",
          name, event->timestamp, event->pressure, event->temperature);
 }
 
