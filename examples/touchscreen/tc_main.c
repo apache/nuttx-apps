@@ -200,9 +200,9 @@ int main(int argc, FAR char *argv[])
         }
       else if (nbytes != sizeof(struct touch_sample_s))
         {
-          printf("tc_main: Unexpected read size=%ld, expected=%d, "
+          printf("tc_main: Unexpected read size=%zd, expected=%zd, "
                  "Ignoring\n",
-                 (long)nbytes, sizeof(struct touch_sample_s));
+                 nbytes, sizeof(struct touch_sample_s));
         }
 
       /* Print the sample data on successful return */
