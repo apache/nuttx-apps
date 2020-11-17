@@ -69,12 +69,12 @@ int main(int argc, FAR char *argv[])
                    ret, sizeof(fxos8700cq_data), fd);
            break;
         }
-      printf("{ accel: [%d, %d, %d], magn: [%d, %d, %d] }\n",
+      printf("{\"accel\":[%d, %d, %d],\"magn\":[%d, %d, %d]}\n",
              data.accel.x, data.accel.y, data.accel.z,
              data.magn.x, data.magn.y, data.magn.z
           );
       fflush(stdout);
-      usleep(1000 / 25);
+      usleep(1000 * 1000 / 5);
     }
 
   close(fd);
