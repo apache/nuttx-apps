@@ -457,14 +457,14 @@ int main(int argc, char **argv)
 				ptr = nptr+1; /* hop behind the ',' */
 				nptr = strchr(ptr, ','); /* update exit condition */
 
-				if (sscanf(ptr, "%x:%x",
+				if (sscanf(ptr, "%" SCNx32 ":%" SCNx32,
 					   &rfilter[numfilter].can_id, 
 					   &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_mask &= ~CAN_ERR_FLAG;
 					if (*(ptr+8) == ':')
 						rfilter[numfilter].can_id |= CAN_EFF_FLAG;
 					numfilter++;
-				} else if (sscanf(ptr, "%x~%x",
+				} else if (sscanf(ptr, "%" SCNx32 "~%" SCNx32,
 						  &rfilter[numfilter].can_id, 
 						  &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_id |= CAN_INV_FILTER;
@@ -474,7 +474,7 @@ int main(int argc, char **argv)
 					numfilter++;
 				} else if (*ptr == 'j' || *ptr == 'J') {
 					join_filter = 1;
-				} else if (sscanf(ptr, "#%x", &err_mask) != 1) { 
+				} else if (sscanf(ptr, "#%" SCNx32, &err_mask) != 1) {
 					fprintf(stderr, "Error in filter option parsing: '%s'\n", ptr);
 					return 1;
 				}
