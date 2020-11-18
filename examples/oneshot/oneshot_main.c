@@ -90,10 +90,10 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr, "USAGE: %s [-d <usecs>] [<devname>]\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t-d <usecs>:\n");
-  fprintf(stderr, "\tSpecifies the oneshot delay in microseconds.  Default %ld\n",
-          (unsigned long)CONFIG_EXAMPLES_ONESHOT_DELAY);
+  fprintf(stderr, "\tSpecifies the oneshot delay in microseconds."
+          " Default %ld\n", (unsigned long)CONFIG_EXAMPLES_ONESHOT_DELAY);
   fprintf(stderr, "\t<devname>:\n");
-  fprintf(stderr, "\tSpecifies the path to the oneshot driver.  Default %s\n",
+  fprintf(stderr, "\tSpecifies the path to the oneshot driver. Default %s\n",
           CONFIG_EXAMPLES_ONESHOT_DEVNAME);
   exit(EXIT_FAILURE);
 }
@@ -149,7 +149,8 @@ int main(int argc, FAR char *argv[])
         }
       else
         {
-          fprintf(stderr, "ERROR: Unsupported number of arguments: %d\n", argc);
+          fprintf(stderr, "ERROR: Unsupported number of arguments: %d\n",
+                  argc);
           show_usage(argv[0]);
         }
     }
@@ -244,7 +245,7 @@ int main(int argc, FAR char *argv[])
       ret = ioctl(fd, OSIOC_START, (unsigned long)((uintptr_t)&start));
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: Failed to start the oneshot interval: %d\n",
+          fprintf(stderr, "ERROR: Failed to start the oneshot: %d\n",
                  errno);
           close(fd);
           return EXIT_FAILURE;
