@@ -230,6 +230,10 @@ static int button_daemon(int argc, char *argv[])
              errcode);
       goto errout_with_fd;
     }
+
+  /* Ignore the default signal action */
+
+  signal(CONFIG_EXAMPLES_BUTTONS_SIGNO, SIG_IGN);
 #endif
 
   /* Now loop forever, waiting BUTTONs events */
