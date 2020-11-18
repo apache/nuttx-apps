@@ -190,6 +190,10 @@ int main(int argc, FAR char *argv[])
       goto errout_with_fd;
     }
 
+  /* Ignore the default signal action */
+
+  signal(CONFIG_EXAMPLES_DJOYSTICK_SIGNO, SIG_IGN);
+
   /* Then loop, receiving signals indicating joystick events. */
 
   for (;;)
