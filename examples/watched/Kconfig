@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WATCHED
+	tristate "Watched example"
+	default y
+	depends on EXAMPLES_WATCHER
+	---help---
+		This application works with the watcher example and plays
+		the role of the watched task. This process will create 2
+		watched tasks. These tasks will subscribe to be watched. 
+		One task will feed the dog and the other will starve the dog.
+		So, the watchdog timer will expire and the offending task will
+		be printed. 
+
+if EXAMPLES_WATCHED
+
+config EXAMPLES_WATCHED_PROGNAME
+	string "Program name"
+	default "watched"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_WATCHED_PRIORITY
+	int "Watched task priority"
+	default 100
+
+config EXAMPLES_WATCHED_STACKSIZE
+	int "Watched stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
