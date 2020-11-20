@@ -41,6 +41,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -84,7 +85,7 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
 
   if (sector < 0 || sector >= fmt->ff_nsectors)
     {
-      ferr("sector out of range: %lu\n", (unsigned long)sector);
+      ferr("sector out of range: %ju\n", (intmax_t)sector);
       return -ESPIPE;
     }
 
@@ -96,13 +97,13 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
   if (seekpos == (off_t)-1)
     {
       ret = -errno;
-      ferr("ERROR: lseek to %lu failed: %d\n", (unsigned long)fpos, ret);
+      ferr("ERROR: lseek to %jd failed: %d\n", (intmax_t)fpos, ret);
       return ret;
     }
   else if (seekpos != fpos)
     {
-      ferr("ERROR: lseek failed: %lu vs %lu\n",
-           (unsigned)seekpos, (unsigned long) fpos);
+      ferr("ERROR: lseek failed: %ju vs %ju\n",
+           (intmax_t)seekpos, (intmax_t)fpos);
       return -EINVAL;
     }
 
@@ -112,14 +113,14 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
   if (nwritten < 0)
     {
       ret = -errno;
-      ferr("ERROR:  write failed: size=%lu pos=%lu error=%d\n",
-           (unsigned)var->fv_sectorsize, (unsigned long)fpos, ret);
+      ferr("ERROR:  write failed: size=%" PRIu32 " pos=%jd error=%d\n",
+           var->fv_sectorsize, (intmax_t)fpos, ret);
       return ret;
     }
   else if (nwritten != (ssize_t)var->fv_sectorsize)
     {
-      ferr("ERROR:  Partial write: size=%lu written=%lu\n",
-           (unsigned)var->fv_sectorsize, (unsigned long)nwritten);
+      ferr("ERROR:  Partial write: size=%" PRIu32 " written=%zd\n",
+           var->fv_sectorsize, nwritten);
       return -ENODATA;
     }
 
