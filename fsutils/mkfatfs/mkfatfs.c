@@ -141,7 +141,7 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
 
   if (!geometry.geo_available || !geometry.geo_writeenabled)
     {
-      ferr("ERROR: Media is not available\n", ret);
+      ferr("ERROR: Media is not available\n");
       return -ENODEV;
     }
 
@@ -153,7 +153,8 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
     {
       if (fmt->ff_nsectors > geometry.geo_nsectors)
         {
-          ferr("ERROR: User maxblocks (%d) exceeds blocks on device (%d)\n",
+          ferr("ERROR: User maxblocks (%" PRId32
+               ") exceeds blocks on device (%d)\n",
                fmt->ff_nsectors, geometry.geo_nsectors);
 
           return -EINVAL;
@@ -188,7 +189,8 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
         break;
 
       default:
-        ferr("ERROR: Unsupported sector size: %d\n", var->fv_sectorsize);
+        ferr("ERROR: Unsupported sector size: %" PRId32 "\n",
+             var->fv_sectorsize);
         return -EPERM;
     }
 
