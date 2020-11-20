@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 #include <debug.h>
@@ -473,7 +474,8 @@ mkfatfs_tryfat12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
           maxnclusters = FAT_MAXCLUST12;
         }
 
-      finfo("nfatsects=%u nclusters=%u (max=%u)\n",
+      finfo("nfatsects=%" PRIu32 " nclusters=%" PRIu32
+            " (max=%" PRIu32 ")\n",
             config->fc_nfatsects, config->fc_nclusters, maxnclusters);
 
       /* Check if this number of clusters would overflow the maximum for
@@ -482,7 +484,8 @@ mkfatfs_tryfat12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 
       if (config->fc_nclusters + 2 > maxnclusters)
         {
-          fwarn("WARNING:  Too many clusters for FAT12: %d > %d\n",
+          fwarn("WARNING:  Too many clusters for FAT12: %"
+                PRId32 " > %" PRId32 "\n",
                 config->fc_nclusters, maxnclusters - 2);
 
           return -ENFILE;
@@ -545,7 +548,8 @@ mkfatfs_tryfat16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
           maxnclusters = FAT_MAXCLUST16;
         }
 
-      finfo("nfatsects=%u nclusters=%u (min=%u max=%u)\n",
+      finfo("nfatsects=%" PRIu32 " nclusters=%" PRIu32
+            " (min=%u max=%" PRIu32 ")\n",
             config->fc_nfatsects, config->fc_nclusters, FAT_MINCLUST16,
             maxnclusters);
 
@@ -561,7 +565,7 @@ mkfatfs_tryfat16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
           (config->fc_nclusters < FAT_MINCLUST16))
         {
           fwarn("WARNING:  Too few or too many clusters for FAT16: "
-                "%d < %d < %d\n",
+                "%d < %" PRId32 " < %" PRId32 "\n",
                 FAT_MINCLUST16, config->fc_nclusters, maxnclusters - 2);
 
           return -ENFILE;
@@ -624,7 +628,8 @@ mkfatfs_tryfat32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
           maxnclusters = FAT_MAXCLUST32;
         }
 
-      finfo("nfatsects=%u nclusters=%u (max=%u)\n",
+      finfo("nfatsects=%" PRIu32 " nclusters=%" PRIu32
+            " (max=%" PRIu32 ")\n",
             config->fc_nfatsects, config->fc_nclusters, maxnclusters);
 
       /* Check if this number of clusters would overflow the maximum for
@@ -635,7 +640,7 @@ mkfatfs_tryfat32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
           (config->fc_nclusters < FAT_MINCLUST32))
         {
           fwarn("WARNING:  Too few or too many clusters for FAT32: "
-                "%d < %d < %d\n",
+                "%d < %" PRId32 " < %" PRId32 "\n",
                 FAT_MINCLUST32, config->fc_nclusters, maxnclusters - 3);
 
           return -ENFILE;
