@@ -134,17 +134,18 @@ mkfatfs_nfatsect12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
                    uint32_t navailsects)
 {
 #ifdef CONFIG_HAVE_LONG_LONG
-   uint64_t denom;
-   uint64_t number;
+  uint64_t denom;
+  uint64_t number;
 #else
-   uint32_t denom;
-   uint32_t number;
+  uint32_t denom;
+  uint32_t number;
 #endif
 
-  /* For FAT12, the cluster number is held in a 12-bit number or 1.5 bytes per
-   * cluster reference.  So each FAT sector will hold sectorsize/1.5 cluster
-   * references (except for the first sector of each FAT which has two reserved
-   * 12-bit values).  And the total number of FAT sectors needed is:
+  /* For FAT12, the cluster number is held in a 12-bit number or 1.5 bytes
+   * per cluster reference.  So each FAT sector will hold sectorsize/1.5
+   * cluster references (except for the first sector of each FAT which has
+   * two reserved 12-bit values).  And the total number of FAT sectors needed
+   * is:
    *
    *   nfatsects = (1.5 * (ndataclust + 2) / sectorsize)
    *
@@ -175,7 +176,8 @@ mkfatfs_nfatsect12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
       denom = (fmt->ff_nfats << 1) + fmt->ff_nfats
             + (var->fv_sectorsize << (fmt->ff_clustshift + 1));
       number = (navailsects << 1) + navailsects
-            + (1 << (fmt->ff_clustshift + 2)) + (1 << (fmt->ff_clustshift + 1));
+            + (1 << (fmt->ff_clustshift + 2))
+            + (1 << (fmt->ff_clustshift + 1));
       return (uint32_t)((number + denom - 1) / denom);
 
 #ifndef CONFIG_HAVE_LONG_LONG
@@ -212,17 +214,17 @@ mkfatfs_nfatsect16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
                    uint32_t navailsects)
 {
 #ifdef CONFIG_HAVE_LONG_LONG
-   uint64_t denom;
-   uint64_t number;
+  uint64_t denom;
+  uint64_t number;
 #else
-   uint32_t denom;
-   uint32_t number;
+  uint32_t denom;
+  uint32_t number;
 #endif
 
   /* For FAT16, the cluster number is held in a 16-bit number or 2 bytes per
    * cluster reference.  So each FAT sector will hold sectorsize/2 cluster
-   * references (except for the first sector of each FAT which has two reserved
-   * 16-bit values).  And the total number of FAT sectors needed is:
+   * references (except for the first sector of each FAT which has two
+   * reserved 16-bit values).  And the total number of FAT sectors needed is:
    *
    *   nfatsects = (2 * (ndataclust + 2) / sectorsize)
    *
@@ -248,7 +250,8 @@ mkfatfs_nfatsect16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
     }
   else
     {
-      denom = fmt->ff_nfats + (var->fv_sectorsize << (fmt->ff_clustshift - 1));
+      denom = fmt->ff_nfats +
+              (var->fv_sectorsize << (fmt->ff_clustshift - 1));
       number = navailsects + (1 << (fmt->ff_clustshift + 1));
     }
 
@@ -280,17 +283,17 @@ mkfatfs_nfatsect32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
                    uint32_t navailsects)
 {
 #ifdef CONFIG_HAVE_LONG_LONG
-   uint64_t denom;
-   uint64_t number;
+  uint64_t denom;
+  uint64_t number;
 #else
-   uint32_t denom;
-   uint32_t number;
+  uint32_t denom;
+  uint32_t number;
 #endif
 
   /* For FAT32, the cluster number is held in a 32-bit number or 4 bytes per
    * cluster reference.  So each FAT sector will hold sectorsize/4 cluster
-   * references (except for the first sector of each FAT which has three reserved
-   * 32-bit values).  And the total number of FAT sectors needed is:
+   * references (except for the first sector of each FAT which has three
+   * reserved 32-bit values).  And the total number of FAT sectors needed is:
    *
    *   nfatsects = (4 * (ndataclust + 3) / sectorsize)
    *
@@ -321,8 +324,10 @@ mkfatfs_nfatsect32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
     }
   else
     {
-      denom = fmt->ff_nfats + (var->fv_sectorsize << (fmt->ff_clustshift - 2));
-      number = navailsects + (1 << (fmt->ff_clustshift + 1)) + (1 << fmt->ff_clustshift);
+      denom = fmt->ff_nfats +
+              (var->fv_sectorsize << (fmt->ff_clustshift - 2));
+      number = navailsects + (1 << (fmt->ff_clustshift + 1)) +
+               (1 << fmt->ff_clustshift);
     }
 
   return (uint32_t)((number + denom - 1) / denom);
@@ -347,12 +352,13 @@ mkfatfs_nfatsect32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
  ****************************************************************************/
 
 static inline uint8_t
-mkfatfs_clustersearchlimits(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
+mkfatfs_clustersearchlimits(FAR struct fat_format_s *fmt,
+                            FAR struct fat_var_s *var)
 {
   uint8_t mxclustshift;
 
-  /* Did the caller already pick the cluster size?  If not, the clustshift value
-   * will be 0xff
+  /* Did the caller already pick the cluster size?  If not, the clustshift
+   * value will be 0xff
    */
 
   if (fmt->ff_clustshift == 0xff)
@@ -362,31 +368,37 @@ mkfatfs_clustersearchlimits(FAR struct fat_format_s *fmt, FAR struct fat_var_s *
       if (fmt->ff_nsectors < 2048)
         {
           /* 2k sectors, start with 1 sector/cluster. */
+
           fmt->ff_clustshift = 0;
         }
       else if (fmt->ff_nsectors  < 4096)
         {
           /* 4k sectors, start with 2 sector/cluster. */
+
           fmt->ff_clustshift = 1;
         }
       else if (fmt->ff_nsectors  < 8192)
         {
           /* 8k sectors, start with 4 sector/cluster. */
+
           fmt->ff_clustshift = 2;
         }
       else if (fmt->ff_nsectors  < 16384)
         {
           /* 16k sectors, start with 8 sector/cluster. */
+
           fmt->ff_clustshift = 3;
         }
       else if (fmt->ff_nsectors  < 32768)
         {
           /* 32k sectors, start with 16 sector/cluster. */
+
           fmt->ff_clustshift = 4;
         }
       else
         {
           /* Otherwise, 32 sector/cluster. */
+
           fmt->ff_clustshift = 5;
         }
 
@@ -437,19 +449,20 @@ mkfatfs_tryfat12(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
    * available sectors.
    */
 
-  config->fc_nfatsects = mkfatfs_nfatsect12(fmt, var, config->fc_navailsects);
+  config->fc_nfatsects = mkfatfs_nfatsect12(fmt, var,
+                                            config->fc_navailsects);
   if (config->fc_nfatsects > 0)
     {
-      /* Calculate the number of clusters available given the number of available
-       * sectors and the number of those that will be used for FAT:
+      /* Calculate the number of clusters available given the number of
+       * available sectors and the number of those that will be used for FAT:
        */
 
       config->fc_nclusters =
         (config->fc_navailsects -
           fmt->ff_nfats * config->fc_nfatsects) >> fmt->ff_clustshift;
 
-      /* Calculate the maximum number of clusters that could be supported by a
-       * FAT of this size.
+      /* Calculate the maximum number of clusters that could be supported by
+       * a FAT of this size.
        *
        *   maxnclusters = nfatsects * sectorsize / 1.5 - 2
        */
@@ -508,19 +521,20 @@ mkfatfs_tryfat16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
    * available sectors.
    */
 
-  config->fc_nfatsects = mkfatfs_nfatsect16(fmt, var, config->fc_navailsects);
+  config->fc_nfatsects = mkfatfs_nfatsect16(fmt, var,
+                                            config->fc_navailsects);
   if (config->fc_nfatsects > 0)
     {
-      /* Calculate the number of clusters available given the number of available
-       * sectors and the number of those that will be used for FAT:
+      /* Calculate the number of clusters available given the number of
+       * available sectors and the number of those that will be used for FAT:
        */
 
       config->fc_nclusters =
         (config->fc_navailsects -
           fmt->ff_nfats * config->fc_nfatsects) >> fmt->ff_clustshift;
 
-      /* Calculate the maximum number of clusters that could be supported by a
-       * FAT of this size.
+      /* Calculate the maximum number of clusters that could be supported by
+       * a FAT of this size.
        *
        *   maxnclusters = nfatsects * sectorsize / 2 - 2
        */
@@ -537,16 +551,17 @@ mkfatfs_tryfat16(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
 
       /* Check if this number of clusters would overflow the maximum for
        * FAT16 (remembering that two FAT cluster slots are reserved).
-       * Check the lower limit as well.  The FAT12 is distinguished from FAT16
-       * by comparing the number of clusters on the device against a known
-       * threshold.  If a small FAT16 file system were created, then it would
-       * be confused as a FAT12 at mount time.
+       * Check the lower limit as well.  The FAT12 is distinguished from
+       * FAT16 by comparing the number of clusters on the device against a
+       * known threshold.  If a small FAT16 file system were created, then
+       * it would be confused as a FAT12 at mount time.
        */
 
       if ((config->fc_nclusters + 2 > maxnclusters) ||
           (config->fc_nclusters < FAT_MINCLUST16))
         {
-          fwarn("WARNING:  Too few or too many clusters for FAT16: %d < %d < %d\n",
+          fwarn("WARNING:  Too few or too many clusters for FAT16: "
+                "%d < %d < %d\n",
                 FAT_MINCLUST16, config->fc_nclusters, maxnclusters - 2);
 
           return -ENFILE;
@@ -585,19 +600,20 @@ mkfatfs_tryfat32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
    * available sectors.
    */
 
-  config->fc_nfatsects = mkfatfs_nfatsect32(fmt, var, config->fc_navailsects);
+  config->fc_nfatsects = mkfatfs_nfatsect32(fmt, var,
+                                            config->fc_navailsects);
   if (config->fc_nfatsects > 0)
     {
-      /* Calculate the number of clusters available given the number of available
-       * sectors and the number of those that will be used for FAT:
+      /* Calculate the number of clusters available given the number of
+       * available sectors and the number of those that will be used for FAT:
        */
 
       config->fc_nclusters =
         (config->fc_navailsects -
           fmt->ff_nfats * config->fc_nfatsects) >> fmt->ff_clustshift;
 
-      /* Calculate the maximum number of clusters that could be supported by a
-       * FAT of this size.
+      /* Calculate the maximum number of clusters that could be supported by
+       * a FAT of this size.
        *
        *   maxnclusters = nfatsects * sectorsize / 4 - 2
        */
@@ -618,7 +634,8 @@ mkfatfs_tryfat32(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var,
       if ((config->fc_nclusters + 3 > maxnclusters) ||
           (config->fc_nclusters < FAT_MINCLUST32))
         {
-          fwarn("WARNING:  Too few or too many clusters for FAT32: %d < %d < %d\n",
+          fwarn("WARNING:  Too few or too many clusters for FAT32: "
+                "%d < %d < %d\n",
                 FAT_MINCLUST32, config->fc_nclusters, maxnclusters - 3);
 
           return -ENFILE;
@@ -676,7 +693,8 @@ mkfatfs_selectfat(int fattype, FAR struct fat_format_s *fmt,
  ****************************************************************************/
 
 static inline int
-mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
+mkfatfs_clustersearch(FAR struct fat_format_s *fmt,
+                      FAR struct fat_var_s *var)
 {
   struct fat_config_s fatconfig[3];
   uint8_t  mxclustshift;
@@ -721,7 +739,8 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
        */
 
       var->fv_nrootdirsects =
-        ((fmt->ff_rootdirentries << DIR_SHIFT) + var->fv_sectorsize - 1) >> var->fv_sectshift;
+        ((fmt->ff_rootdirentries << DIR_SHIFT) +
+        var->fv_sectorsize - 1) >> var->fv_sectshift;
 
       /* The number of data sectors available (includes the fat itself)
        * This value is a constant for FAT12/16, but not FAT32 because the
@@ -730,11 +749,12 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
 
       fatconfig12.fc_navailsects =
         fatconfig16.fc_navailsects =
-          fmt->ff_nsectors - var->fv_nrootdirsects - fatconfig12.fc_rsvdseccount;
-   }
+        fmt->ff_nsectors - var->fv_nrootdirsects -
+        fatconfig12.fc_rsvdseccount;
+    }
 
-  /* Select an initial and terminal cluster size to use in the search (if these
-   * values were not provided by the caller)
+  /* Select an initial and terminal cluster size to use in the search
+   * (if these values were not provided by the caller)
    */
 
   mxclustshift = mkfatfs_clustersearchlimits(fmt, var);
@@ -782,19 +802,22 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
 
       if (fatconfig12.fc_nclusters || fatconfig16.fc_nclusters)
         {
-          if ((!var->fv_fattype && fatconfig16.fc_nclusters > fatconfig12.fc_nclusters) ||
+          if ((!var->fv_fattype &&
+               fatconfig16.fc_nclusters > fatconfig12.fc_nclusters) ||
               (var ->fv_fattype == 16))
             {
-              /* The caller has selected FAT16 -OR- no FAT type has been selected, but
-               * the FAT16 selection has more clusters. Select FAT16.
+              /* The caller has selected FAT16 -OR- no FAT type has been
+               * selected, but the FAT16 selection has more clusters.
+               * Select FAT16.
                */
 
               mkfatfs_selectfat(16, fmt, var, &fatconfig16);
             }
           else
             {
-              /* The caller has selected FAT12 -OR- no FAT type has been selected, but
-               * the FAT12 selected has more clusters.  Selected FAT12
+              /* The caller has selected FAT12 -OR- no FAT type has been
+               * selected, but the FAT12 selected has more clusters.
+               * Selected FAT12
                */
 
               mkfatfs_selectfat(12, fmt, var, &fatconfig12);
@@ -814,11 +837,14 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
 #endif
         {
           /* The number of data sectors available (includes the fat itself)
-           * This value is a constant with respect to cluster sizefor FAT12/16, but not FAT32
-           * because the size of the root directory cluster changes with cluster size.
+           * This value is a constant with respect to cluster size for
+           * FAT12/16, but not FAT32 because the size of the root directory
+           * cluster changes with cluster size.
            */
 
-          fatconfig32.fc_navailsects = fmt->ff_nsectors - (1 << fmt->ff_clustshift) - fatconfig32.fc_rsvdseccount;
+          fatconfig32.fc_navailsects = fmt->ff_nsectors -
+                                       (1 << fmt->ff_clustshift) -
+                                       fatconfig32.fc_rsvdseccount;
 
           /* Try to configure a FAT32 file system with this cluster size */
 
@@ -839,7 +865,9 @@ mkfatfs_clustersearch(FAR struct fat_format_s *fmt, FAR struct fat_var_s *var)
             }
         }
 
-      /* Otherwise, bump up the sectors/cluster for the next time around the loop. */
+      /* Otherwise, bump up the sectors/cluster for the next time around
+       * the loop.
+       */
 
       fmt->ff_clustshift++;
     }
@@ -874,27 +902,29 @@ int mkfatfs_configfatfs(FAR struct fat_format_s *fmt,
 {
   int ret;
 
-  /* Select the number of root directory entries (FAT12/16 only).  If FAT32 is selected,
-   * this value will be cleared later
+  /* Select the number of root directory entries (FAT12/16 only).
+   * If FAT32 is selected, this value will be cleared later
    */
 
   if (!fmt->ff_rootdirentries)
     {
-      /* The caller did not specify the number of root directory entries; use a default of 512. */
+      /* The caller did not specify the number of root directory entries;
+       * use a default of 512.
+       */
 
       fmt->ff_rootdirentries = 512;
     }
 
-  /* Search to determine the smallest (reasonable) cluster size.  A by-product
-   * of this search will be the selection of the FAT size (12/16/32) if the
-   * caller has not specified the FAT size
+  /* Search to determine the smallest (reasonable) cluster size.
+   * A by-product of this search will be the selection of the FAT size
+   * (12/16/32) if the caller has not specified the FAT size
    */
 
   ret = mkfatfs_clustersearch(fmt, var);
   if (ret < 0)
     {
-       ferr("WARNING:  Failed to set cluster size\n");
-       return ret;
+      ferr("WARNING:  Failed to set cluster size\n");
+      return ret;
     }
 
   /* Perform FAT specific initialization */
@@ -922,34 +952,42 @@ int mkfatfs_configfatfs(FAR struct fat_format_s *fmt,
       var->fv_jump[1]   = MBR32_BOOTCODE - 2;
       g_bootcodeblob[3] = MBR32_BOOTCODE + BOOTCODE_MSGOFFSET;
 
-      /* The root directory is a cluster chain... its is initialize size is one cluster */
+      /* The root directory is a cluster chain... its is initialize size is
+       * one cluster
+       */
 
       var->fv_nrootdirsects = 1 << fmt->ff_clustshift;
 
-      /* The number of reported root directory entries should should be zero for
-       * FAT32 because the root directory is a cluster chain.
+      /* The number of reported root directory entries should should be zero
+       * for FAT32 because the root directory is a cluster chain.
        */
 
       fmt->ff_rootdirentries = 0;
 
       /* Verify the caller's backupboot selection */
 
-      if (fmt->ff_backupboot <= 1 || fmt->ff_backupboot >= fmt->ff_rsvdseccount)
+      if (fmt->ff_backupboot <= 1 ||
+          fmt->ff_backupboot >= fmt->ff_rsvdseccount)
         {
-          ferr("WARNING:  Invalid backup boot sector: %d\n", fmt->ff_backupboot);
+          ferr("WARNING:  Invalid backup boot sector: %d\n",
+               fmt->ff_backupboot);
           fmt->ff_backupboot = 0;
         }
 
-     /* Check if the caller has selected a location for the backup boot record */
+      /* Check if the caller has selected a location for the backup boot
+       * record
+       */
 
       if (!fmt->ff_backupboot)
         {
-          /* There must be reserved sectors in order to have a backup boot sector */
+          /* There must be reserved sectors in order to have a backup boot
+           * sector
+           */
 
           if (fmt->ff_rsvdseccount >= 2)
             {
-              /* Sector 0 is the MBR; 1... ff_rsvdseccount are reserved.  Try the next
-               * the last reserved sector.
+              /* Sector 0 is the MBR; 1... ff_rsvdseccount are reserved.
+               * Try the next the last reserved sector.
                */
 
               fmt->ff_backupboot = fmt->ff_rsvdseccount - 1;
