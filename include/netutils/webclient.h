@@ -129,8 +129,10 @@ typedef CODE int (*webclient_sink_callback_t)(FAR char **buffer, int offset,
  * An implementation of this callback should perform either of
  * the followings:
  *
- * - fill the buffer (specified by buffer and *sizep) with the data
- * - update *datap with a buffer filled with the data
+ * - Fill the buffer (specified by buffer and *sizep) with the data
+ *
+ * - Update *datap with a buffer filled with the data. In this case,
+ *   it can return more than the amount specified *sizep.
  *
  * Either ways, it should update *sizep to the size of the data.
  *
@@ -138,10 +140,17 @@ typedef CODE int (*webclient_sink_callback_t)(FAR char **buffer, int offset,
  * again to provide the remaining data.
  *
  * Input Parameters:
- *   buffer - The buffer to fill.
- *   sizep  - The size of buffer/data in bytes.
- *   datap  - The data to return.
- *   ctx    - The value of webclient_context::body_callback_arg.
+ *   buffer  - The buffer to fill.
+ *   sizep   - The size of buffer/data in bytes.
+ *   datap   - The data to return.
+ *   reqsize - The requested size.
+ *             Note: This can be larger than *sizep.
+ *             The callback can choose either of:
+ *               * return more than *sizep data by updating *datap
+ *                 with a large enough buffer
+ *               * or, just return up to *sizep. (For the rest of data,
+ *                 the callback will be called again later.)
+ *   ctx     - The value of webclient_context::body_callback_arg.
  *
  * Return value:
  *   0 on success.
@@ -152,6 +161,7 @@ typedef CODE int (*webclient_body_callback_t)(
     FAR void *buffer,
     FAR size_t *sizep,
     FAR const void * FAR *datap,
+    size_t reqsize,
     FAR void *ctx);
 
 struct webclient_tls_connection;
