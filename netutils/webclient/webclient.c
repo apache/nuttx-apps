@@ -293,9 +293,11 @@ static void conn_close(struct webclient_context *ctx, struct conn *conn)
 static int webclient_static_body_func(FAR void *buffer,
                                       FAR size_t *sizep,
                                       FAR const void * FAR *datap,
+                                      size_t reqsize,
                                       FAR void *ctx)
 {
   *datap = ctx;
+  *sizep = reqsize;
   return 0;
 }
 
@@ -851,6 +853,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               ret = ctx->body_callback(ws->buffer,
                                        &input_buffer_size,
                                        &input_buffer,
+                                       todo,
                                        ctx->body_callback_arg);
               if (ret < 0)
                 {
