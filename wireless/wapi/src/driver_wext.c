@@ -57,6 +57,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -364,8 +365,9 @@ static int wpa_driver_wext_process_auth_param(int sockfd,
       errcode = errno;
       if (errcode != EOPNOTSUPP)
         {
-          nerr("ERROR: SIOCSIWAUTH(param %d value 0x%x) failed: %d)",
-               idx, value, errcode);
+          nerr("ERROR: SIOCSIWAUTH(param %d value 0x%" PRIx32
+               ") failed: %d)",
+               idx, *value, errcode);
         }
 
       ret = errcode == EOPNOTSUPP ? -2 : -1;
