@@ -154,7 +154,7 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
       if (fmt->ff_nsectors > geometry.geo_nsectors)
         {
           ferr("ERROR: User maxblocks (%" PRId32
-               ") exceeds blocks on device (%d)\n",
+               ") exceeds blocks on device (%zu)\n",
                fmt->ff_nsectors, geometry.geo_nsectors);
 
           return -EINVAL;
