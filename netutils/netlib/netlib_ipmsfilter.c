@@ -86,7 +86,8 @@ int ipmsfilter(FAR const struct in_addr *interface,
 {
   int ret = ERROR;
 
-  ninfo("interface: %08x muliaddr: %08x fmode: %ld\n", interface, *multiaddr, fmode);
+  ninfo("interface: %08x muliaddr: %08x fmode: %ld\n",
+        interface, *multiaddr, fmode);
   if (interface != NULL && multiaddr != NULL)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
