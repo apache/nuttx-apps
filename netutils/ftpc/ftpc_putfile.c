@@ -87,11 +87,12 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
 
   /* Loop until the entire file is sent */
 
-  for (;;)
+  for (; ; )
     {
       /* Read data from the file */
 
-      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE, linstream);
+      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE,
+                    linstream);
       if (nread <= 0)
         {
           /* nread == 0 is just EOF */
@@ -271,13 +272,14 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
               {
                 if (*str == '\'')
                   {
-                    rname = strndup(str+1, len-3);
+                    rname = strndup(str + 1, len - 3);
                   }
                 else
                   {
-                    rname = strndup(str, len-1);
+                    rname = strndup(str, len - 1);
                     ninfo("Unique filename is: %s\n",  rname);
                   }
+
                 free(rname);
               }
           }
