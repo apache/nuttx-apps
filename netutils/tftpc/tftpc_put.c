@@ -165,11 +165,11 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
 
               if (nbytes == 0)
                 {
-                  nerr("ERROR: Connection lost: %d bytes\n", nbytes);
+                  nerr("ERROR: Connection lost: %zd bytes\n", nbytes);
                 }
               else if (nbytes > 0)
                 {
-                  nerr("ERROR: Short packet: %d bytes\n", nbytes);
+                  nerr("ERROR: Short packet: %zd bytes\n", nbytes);
                 }
               else
                 {
