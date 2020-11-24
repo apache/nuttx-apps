@@ -334,7 +334,7 @@ int main(int argc, FAR char *argv[])
   fd = open(SLCD_DEVNAME, O_RDWR);
   if (fd < 0)
     {
-      printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
+      printf("Failed to open %s: %d\n", SLCD_DEVNAME, errno);
       goto errout;
     }
 
