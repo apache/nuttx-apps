@@ -709,7 +709,7 @@ int main(int argc, char **argv)
 
 					/* log CAN frame with absolute timestamp & device */
 					sprint_canframe(buf, &frame, 0, maxdlen);
-					fprintf(logfile, "(%010u.%06ld) %*s %s\n",
+					fprintf(logfile, "(%010ld.%06ld) %*s %s\n",
 						tv.tv_sec, tv.tv_usec,
 						max_devname_len, devname[idx], buf);
 				}
@@ -738,7 +738,7 @@ int main(int argc, char **argv)
 				switch (timestamp) {
 
 				case 'a': /* absolute with timestamp */
-					printf("(%010u.%06ld) ", tv.tv_sec, tv.tv_usec);
+					printf("(%010ld.%06ld) ", tv.tv_sec, tv.tv_usec);
 					break;
 
 				case 'A': /* absolute with date */
@@ -765,7 +765,7 @@ int main(int argc, char **argv)
 						diff.tv_sec--, diff.tv_usec += 1000000;
 					if (diff.tv_sec < 0)
 						diff.tv_sec = diff.tv_usec = 0;
-					printf("(%03u.%06ld) ", diff.tv_sec, diff.tv_usec);
+					printf("(%03ld.%06ld) ", diff.tv_sec, diff.tv_usec);
 				
 					if (timestamp == 'd')
 						last_tv = tv; /* update for delta calculation */
