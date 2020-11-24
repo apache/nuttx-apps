@@ -296,7 +296,7 @@ static void ntpc_settime(FAR uint8_t *timestamp)
   tp.tv_nsec = nsec;
   clock_settime(CLOCK_REALTIME, &tp);
 
-  sinfo("Set time to %lu seconds: %d\n", (unsigned long)tp.tv_sec, ret);
+  sinfo("Set time to %ju seconds\n", (intmax_t)tp.tv_sec);
 }
 
 /****************************************************************************
@@ -559,7 +559,7 @@ int ntpc_start(void)
           DEBUGASSERT(errval > 0);
 
           g_ntpc_daemon.state = NTP_STOPPED;
-          nerr("ERROR: Failed to start the NTP daemon\n", errval);
+          nerr("ERROR: Failed to start the NTP daemon: %d\n", errval);
           sem_post(&g_ntpc_daemon.lock);
           return -errval;
         }
