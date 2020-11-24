@@ -265,7 +265,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname,
   abslpath = ftpc_abslpath(session, lname);
   if (!abslpath)
     {
-      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", errno);
+      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", lname, errno);
       goto errout;
     }
 
