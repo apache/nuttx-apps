@@ -78,7 +78,8 @@
  *
  ****************************************************************************/
 
-static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
+static int ftpc_recvinit(struct ftpc_session_s *session,
+                         FAR const char *path,
                          uint8_t xfrmode, off_t offset)
 {
   int ret;
@@ -180,11 +181,12 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
 
   /* Loop until the entire file is received */
 
-  for (;;)
+  for (; ; )
     {
       /* Read the data from the socket */
 
-      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
+      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE,
+                    rinstream);
       if (nread <= 0)
         {
           /* nread < 0 is an error */
@@ -213,7 +215,7 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
            * What would a short write mean?
            */
 
-         return ERROR;
+          return ERROR;
         }
 
       /* Increment the size of the file written */
@@ -234,7 +236,8 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
  *
  ****************************************************************************/
 
-int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
+int ftpc_getfile(SESSION handle, FAR const char *rname,
+                 FAR const char *lname,
                  uint8_t how, uint8_t xfrmode)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
@@ -312,7 +315,8 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
       goto errout_with_abspath;
     }
 
-  loutstream = fopen(abslpath, (offset > 0 || (how == FTPC_GET_APPEND)) ? "a" : "w");
+  loutstream = fopen(abslpath,
+                     (offset > 0 || (how == FTPC_GET_APPEND)) ? "a" : "w");
   if (!loutstream)
     {
       nerr("ERROR: fopen failed: %d\n", errno);
@@ -410,18 +414,18 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
             }
         }
 
-    /* Then write the character to the output file */
+      /* Then write the character to the output file */
 
-    if (fputc(ch, loutstream) == EOF)
-      {
-        ftpc_xfrabort(session, loutstream);
-        return ERROR;
-      }
+      if (fputc(ch, loutstream) == EOF)
+        {
+          ftpc_xfrabort(session, loutstream);
+          return ERROR;
+        }
 
-    /* Increase the actual size of the file by one */
+      /* Increase the actual size of the file by one */
 
-    session->size++;
-  }
+      session->size++;
+    }
 
   return OK;
 }
