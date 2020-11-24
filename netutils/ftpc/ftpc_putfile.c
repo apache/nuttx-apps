@@ -402,7 +402,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   abslpath = ftpc_abslpath(session, lname);
   if (!abslpath)
     {
-      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", errno);
+      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", lname, errno);
       goto errout;
     }
 
@@ -411,7 +411,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   ret = stat(abslpath, &statbuf);
   if (ret != OK)
     {
-      nwarn("WARNING: stat(%s) failed: %d\n", errno);
+      nwarn("WARNING: stat(%s) failed: %d\n", abslpath, errno);
       goto errout_with_abspath;
     }
 
