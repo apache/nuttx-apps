@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <cinttypes>
 #include <cunistd>
 #include <cerrno>
 #include <cfcntl>
@@ -557,7 +558,8 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
           y = (nxgl_coord_t)bigY;
         }
 
-      _info("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
+      _info("raw: (%" PRId32 ", %" PRId32 ") scaled: (%d, %d)\n",
+            rawX, rawY, x, y);
 #endif
     }
 
