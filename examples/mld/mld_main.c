@@ -251,7 +251,7 @@ void mld_catfile(FAR const char *filepath, FAR char **iobuffer)
 #ifdef HAVE_PROC_NET_STATS
 #  define mld_dumpstats(iobuffer) mld_catfile(PROCFS_MLD_PATH, iobuffer)
 #else
-#  define mld_dumpstats(iobuffer) mld_catfile(PROCFS_MLD_PATH, iobuffer)
+#  define mld_dumpstats(iobuffer)
 #endif
 
 #ifdef HAVE_PROC_NET_ROUTE
