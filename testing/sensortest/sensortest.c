@@ -36,6 +36,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define ARRAYSIZE(a)       (sizeof(a) / sizeof(a)[0])
 #define DEVNAME_FMT        "/dev/sensor/%s"
 #define DEVNAME_MAX        64
 
@@ -201,7 +202,7 @@ int main(int argc, FAR char *argv[])
 
   g_should_exit = false;
   name = argv[1];
-  for (idx = 0; idx < SENSOR_TYPE_COUNT; idx++)
+  for (idx = 0; idx < ARRAYSIZE(g_sensor_info); idx++)
     {
       if (!strncmp(name, g_sensor_info[idx].name,
           strlen(g_sensor_info[idx].name)))
