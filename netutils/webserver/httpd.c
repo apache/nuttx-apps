@@ -739,7 +739,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
       if (o == pstate->ht_buffer + sizeof pstate->ht_buffer)
         {
-          nerr("ERROR: [%d] ht_buffer overflow\n");
+          nerr("ERROR: ht_buffer overflow\n");
           return 413;
         }
 
@@ -757,7 +757,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 #if CONFIG_NETUTILS_HTTPD_TIMEOUT > 0
           if (r == -1 && errno == EWOULDBLOCK)
             {
-              nwarn("WARNING: [%d] recv timeout\n");
+              nwarn("WARNING: recv timeout\n");
               return 408;
             }
 #endif
@@ -790,7 +790,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
           if (*end != '\n')
             {
-              nwarn("WARNING: [%d] expected CRLF\n");
+              nwarn("WARNING: expected CRLF\n");
               return 400;
             }
 
@@ -803,7 +803,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
           case STATE_METHOD:
             if (0 != strncmp(start, "GET ", 4))
               {
-                nwarn("WARNING: [%d] method not supported\n");
+                nwarn("WARNING: method not supported\n");
                 return 501;
               }
 
@@ -812,7 +812,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (0 != strcmp(v, " HTTP/1.0") && 0 != strcmp(v, " HTTP/1.1"))
               {
-                nwarn("WARNING: [%d] HTTP version not supported\n");
+                nwarn("WARNING: HTTP version not supported\n");
                 return 505;
               }
 
@@ -820,7 +820,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (v - start >= sizeof pstate->ht_filename)
               {
-                nerr("ERROR: [%d] ht_filename overflow\n");
+                nerr("ERROR: ht_filename overflow\n");
                 return 414;
               }
 
@@ -845,7 +845,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (*start == '\0' || *v == '\0')
               {
-                nwarn("WARNING: [%d] header parse error\n");
+                nwarn("WARNING: header parse error\n");
                 return 400;
               }
 
@@ -854,7 +854,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (0 == strcasecmp(start, "Content-Length") && 0 != atoi(v))
               {
-                nwarn("WARNING: [%d] non-zero request length\n");
+                nwarn("WARNING: non-zero request length\n");
                 return 413;
               }
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
