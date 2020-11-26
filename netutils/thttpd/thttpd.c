@@ -44,6 +44,7 @@
 #include <sys/time.h>
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -377,8 +378,8 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
   actual = lseek(hc->file_fd, conn->offset, SEEK_SET);
   if (actual != conn->offset)
     {
-       nerr("ERROR: fseek to %d failed: offset=%d errno=%d\n",
-            conn->offset, actual, errno);
+       nerr("ERROR: fseek to %jd failed: offset=%jd errno=%d\n",
+            (intmax_t)conn->offset, (intmax_t)actual, errno);
        BADREQUEST("lseek");
        goto errout_with_400;
     }
@@ -433,8 +434,10 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 
   while (conn->offset < conn->end_offset)
     {
-      ninfo("offset: %d end_offset: %d bytes_sent: %d\n",
-            conn->offset, conn->end_offset, conn->hc->bytes_sent);
+      ninfo("offset: %jd end_offset: %jd bytes_sent: %jd\n",
+            (intmax_t)conn->offset,
+            (intmax_t)conn->end_offset,
+            (intmax_t)conn->hc->bytes_sent);
 
       /* Fill the rest of the response buffer with file data */
 
