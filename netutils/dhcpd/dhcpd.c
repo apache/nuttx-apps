@@ -62,6 +62,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -401,8 +402,8 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac,
   int ndx = ipaddr - CONFIG_NETUTILS_DHCPD_STARTIP;
   struct lease_s *ret = NULL;
 
-  ninfo("ipaddr: %08x ipaddr: %08x ndx: %d MAX: %d\n",
-        ipaddr, CONFIG_NETUTILS_DHCPD_STARTIP, ndx,
+  ninfo("ipaddr: %08" PRIx32 " ipaddr: %08" PRIx32 " ndx: %d MAX: %d\n",
+        (uint32_t)ipaddr, (uint32_t)CONFIG_NETUTILS_DHCPD_STARTIP, ndx,
         CONFIG_NETUTILS_DHCPD_MAXLEASES);
 
   /* Verify that the address offset is within the supported range */
@@ -1267,8 +1268,11 @@ static inline int dhcpd_request(void)
        */
 
       ipaddr = dhcp_leaseipaddr(lease);
-      ninfo("Lease ipaddr: %08x Server IP: %08x Requested IP: %08x\n",
-            ipaddr, g_state.ds_optserverip, g_state.ds_optreqip);
+      ninfo("Lease ipaddr: %08" PRIx32 " Server IP: %08" PRIx32
+            " Requested IP: %08" PRIx32 "\n",
+            (uint32_t)ipaddr,
+            (uint32_t)g_state.ds_optserverip,
+            (uint32_t)g_state.ds_optreqip);
 
       if (g_state.ds_optserverip)
         {
@@ -1336,8 +1340,9 @@ static inline int dhcpd_request(void)
 
   else if (g_state.ds_optreqip && !g_state.ds_optserverip)
     {
-      ninfo("Server IP: %08x Requested IP: %08x\n",
-            g_state.ds_optserverip, g_state.ds_optreqip);
+      ninfo("Server IP: %08" PRIx32 " Requested IP: %08" PRIx32 "\n",
+            (uint32_t)g_state.ds_optserverip,
+            (uint32_t)g_state.ds_optreqip);
 
       /* Is this IP address already assigned? */
 
@@ -1674,7 +1679,7 @@ int dhcpd_start(FAR const char *interface)
           DEBUGASSERT(errval > 0);
 
           g_dhcpd_daemon.ds_state = DHCPD_STOPPED;
-          nerr("ERROR: Failed to start the DHCPD daemon\n", errval);
+          nerr("ERROR: Failed to start the DHCPD daemon: %d\n", errval);
           sem_post(&g_dhcpd_daemon.ds_lock);
           return -errval;
         }
