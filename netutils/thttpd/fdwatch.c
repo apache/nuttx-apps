@@ -123,7 +123,7 @@ static int fdwatch_pollndx(FAR struct fdwatch_s *fw, int fd)
         }
     }
 
-  fwerr("ERROR: No poll index for fd %d: %d\n", fd);
+  fwerr("ERROR: No poll index for fd %d\n", fd);
   return -1;
 }
 
@@ -275,7 +275,7 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
    */
 
   fdwatch_dump("Before waiting:", fw);
-  fwinfo("Waiting... (timeout %d)\n", timeout_msecs);
+  fwinfo("Waiting... (timeout %ld)\n", timeout_msecs);
   fw->nactive = 0;
   fw->next    = 0;
   ret         = poll(fw->pollfds, fw->nwatched, (int)timeout_msecs);
