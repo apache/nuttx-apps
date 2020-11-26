@@ -7,7 +7,7 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright © 1999,2000 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright (C) 1999,2000 by Jef Poskanzer <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
