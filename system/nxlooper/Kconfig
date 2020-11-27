@@ -1,0 +1,80 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXLOOPER
+	bool "NxLooper audio test application"
+	default n
+	depends on AUDIO
+	---help---
+		Enable support for the NxLoop media tester library and optional
+		command line interface.
+
+if SYSTEM_NXLOOPER
+
+config NXLOOPER_MAINTHREAD_STACKSIZE
+	int "NxLooper main thread stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		Stack size to use with the NxLooper main thread.
+
+config NXLOOPER_LOOPTHREAD_STACKSIZE
+	int "NxLooper thread stack size"
+	default PTHREAD_STACK_DEFAULT
+	---help---
+		Stack size to use with the NxLooper play thread.
+
+config NXLOOPER_MSG_PRIO
+	int "NxLooper priority of message queen"
+	default 1
+	---help---
+		Priority of stop message to notice NxLooper thread.
+
+config NXLOOPER_COMMAND_LINE
+	tristate "Include nxlooper command line application"
+	default y
+	---help---
+		Compiles in code for the nxlooper command line control.
+		This is a text-based command line interface that uses
+		the nxlooper library to play media files, control the
+		volume, balance, bass, etc.
+
+if NXLOOPER_COMMAND_LINE
+
+config NXLOOPER_INCLUDE_HELP
+	bool "Include HELP command and text"
+	default y
+	---help---
+		Compiles in the NxLooper help text to provide online help
+		for available commands with syntax.
+
+endif
+
+config NXLOOPER_INCLUDE_DEVICE_SEARCH
+	bool "Include audio device search code"
+	default y
+	---help---
+		Compiles in extra code to search the audio device directory
+		for a suitable audio device to play the specified file.
+		Disabling this feature saves some code space, but it will
+		mean the calling application must specify the path of the
+		audio device to use before performing any other operations.
+
+config NXLOOPER_INCLUDE_PREFERRED_DEVICE
+	bool "Include preferred audio device specification code"
+	default y
+	---help---
+		Adds support for identifying a specific audio device  to use
+		for audio operations.  If this feature is not enabled, then
+		an audio device search will be performed.
+
+config NXLOOPER_INCLUDE_SYSTEM_RESET
+	bool "Include support for system / hardware reset"
+	default n
+	---help---
+		When enabled, this feature will add code to enable issuing
+		a HW reset via program call.  The system reset will perform
+		a reset on all registered audio devices.
+
+endif
