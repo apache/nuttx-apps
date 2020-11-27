@@ -1842,7 +1842,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           seekpos = ftpd_offsatoi(path, session->restartpos);
           if (seekpos < 0)
             {
-              nerr("ERROR: ftpd_offsatoi failed: %d\n", seekpos);
+              nerr("ERROR: ftpd_offsatoi failed: %jd\n", (intmax_t)seekpos);
               errval = -seekpos;
             }
         }
@@ -1851,7 +1851,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           seekpos = session->restartpos;
           if (seekpos < 0)
             {
-              nerr("ERROR: Bad restartpos: %d\n", seekpos);
+              nerr("ERROR: Bad restartpos: %jd\n", (intmax_t)seekpos);
               errval = EINVAL;
             }
         }
@@ -2384,7 +2384,7 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
   if (!dir)
     {
       int errval = errno;
-      nerr("ERROR: dir() failed\n", errval);
+      nerr("ERROR: dir() failed: %d\n", errval);
       return -errval;
     }
 
