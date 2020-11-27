@@ -26,86 +26,6 @@
 
 #include "system/readline.h"
 #include "cmd.hpp"
-#include "enum.hpp"
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-extern cmd *quit_cmd;
-extern cmd *sleep_cmd;
-extern cmd *help_cmd;
-extern cmd *open_device_cmd;
-extern cmd *close_device_cmd;
-extern cmd *write_data_cmd;
-extern cmd *get_features_cmd;
-extern cmd *get_send_mode_cmd;
-extern cmd *get_rec_mode_cmd;
-extern cmd *get_rec_resolution_cmd;
-extern cmd *get_min_timeout_cmd;
-extern cmd *get_max_timeout_cmd;
-extern cmd *get_length_cmd;
-extern cmd *read_data_cmd;
-extern cmd *set_send_mode_cmd;
-extern cmd *set_rec_mode_cmd;
-extern cmd *set_send_carrier_cmd;
-extern cmd *set_rec_carrier_cmd;
-extern cmd *set_send_duty_cycle_cmd;
-extern cmd *set_transmitter_mask_cmd;
-extern cmd *set_rec_timeout_cmd;
-extern cmd *set_rec_timeout_reports_cmd;
-extern cmd *set_measure_carrier_mode_cmd;
-extern cmd *set_rec_carrier_range_cmd;
-extern enum_type *mode_t_type;
-extern enum_type *features_t_type;
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-static const struct enum_type *g_enum_table[] =
-{
-  mode_t_type,
-  features_t_type,
-};
-
-static const struct cmd *g_cmd_table[] =
-{
-  /* CMD0 */
-
-  quit_cmd,
-
-  /* CMD1 */
-
-  sleep_cmd,
-  help_cmd,
-  open_device_cmd,
-  close_device_cmd,
-  write_data_cmd,
-  get_features_cmd,
-  get_send_mode_cmd,
-  get_rec_mode_cmd,
-  get_rec_resolution_cmd,
-  get_min_timeout_cmd,
-  get_max_timeout_cmd,
-  get_length_cmd,
-
-  /* CMD2 */
-
-  read_data_cmd,
-  set_send_mode_cmd,
-  set_rec_mode_cmd,
-  set_send_carrier_cmd,
-  set_rec_carrier_cmd,
-  set_send_duty_cycle_cmd,
-  set_transmitter_mask_cmd,
-  set_rec_timeout_cmd,
-  set_rec_timeout_reports_cmd,
-  set_measure_carrier_mode_cmd,
-  set_rec_carrier_range_cmd,
-
-  /* CMD3 */
-};
 
 /****************************************************************************
  * Private Functions
@@ -136,12 +56,11 @@ int main(int argc, char *argv[])
       if (name != 0 && *name != 0)
         {
           int res =  -ENOSYS;
-          const cmd *cmd = &__start_cmds;
-          for (; cmd < &__stop_cmds; cmd++)
+          for (int i = 0; g_cmd_table[i]; i++)
             {
-              if (strcmp(name, cmd->name) == 0)
+              if (strcmp(name, g_cmd_table[i]->name) == 0)
                 {
-                  res = cmd->exec();
+                  res = g_cmd_table[i]->exec();
                   break;
                 }
             }

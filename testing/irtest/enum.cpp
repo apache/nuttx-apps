@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/irtest/enumDefine.cpp
+ * testing/irtest/enum.cpp
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,9 +24,10 @@
 
 #include "enum.hpp"
 #include <nuttx/lirc.h>
+#include <stdio.h>
 
 /****************************************************************************
- * Public Data
+ * Private Data
  ****************************************************************************/
 
 ENUM_START(mode_t)
@@ -62,6 +63,17 @@ ENUM_START(features_t)
     ENUM_VALUE(LIRC_CAN_USE_WIDEBAND_RECEIVER)
     ENUM_VALUE(LIRC_CAN_NOTIFY_DECODE)
 ENUM_END(features_t, "0x%08x")
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+const struct enum_type *g_enum_table[] =
+{
+  &g_mode_t_type,
+  &g_features_t_type,
+  NULL,
+};
 
 /****************************************************************************
  * Public Functions

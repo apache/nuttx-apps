@@ -30,6 +30,80 @@
 #include <string.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define CMD0(func)                                         \
+  static int func();                                       \
+  static const arg g_##func##_args[] =                     \
+  {                                                        \
+    {0, 0}                                                 \
+  };                                                       \
+  static struct cmd g_##func##_cmd =                       \
+  {                                                        \
+    #func, g_##func##_args, func                           \
+  };                                                       \
+  static int func()
+
+#define CMD1(func, type1, arg1)                            \
+  static int func(type1 arg1);                             \
+  static int func##_exec()                                 \
+  {                                                        \
+    type1 arg1 = get_next_arg<type1>();                    \
+    return func(arg1);                                     \
+  }                                                        \
+  static const arg g_##func##_args[] =                     \
+  {                                                        \
+    {#type1, #arg1},                                       \
+    {0, 0}                                                 \
+  };                                                       \
+  static struct cmd g_##func##_cmd =                       \
+  {                                                        \
+    #func, g_##func##_args, func##_exec                    \
+  };                                                       \
+  static int func(type1 arg1)
+
+#define CMD2(func, type1, arg1, type2, arg2)               \
+  static int func(type1 arg1, type2 arg2);                 \
+  static int func##_exec()                                 \
+  {                                                        \
+    type1 arg1 = get_next_arg<type1>();                    \
+    type2 arg2 = get_next_arg<type2>();                    \
+    return func(arg1, arg2);                               \
+  }                                                        \
+  static const arg g_##func##_args[] = {                   \
+    {#type1, #arg1},                                       \
+    {#type2, #arg2},                                       \
+    {0, 0}                                                 \
+  };                                                       \
+  static struct cmd g_##func##_cmd =                       \
+  {                                                        \
+    #func, g_##func##_args, func##_exec                    \
+  };                                                       \
+  static int func(type1 arg1, type2 arg2)
+
+#define CMD3(func, type1, arg1, type2, arg2, type3, arg3)  \
+  static int func(type1 arg1, type2 arg2, type3 arg3);     \
+  static int func##_exec()                                 \
+  {                                                        \
+    type1 arg1 = get_next_arg<type1>();                    \
+    type2 arg2 = get_next_arg<type2>();                    \
+    type3 arg3 = get_next_arg<type3>();                    \
+    return func(arg1, arg2, arg3);                         \
+  }                                                        \
+  static const arg g_##func##_args[] = {                   \
+    {#type1, #arg1},                                       \
+    {#type2, #arg2},                                       \
+    {#type3, #arg3},                                       \
+    {0, 0}                                                 \
+  };                                                       \
+  static struct cmd g_##func##_cmd =                       \
+  {                                                        \
+    #func, func##_args, func##_exec                        \
+  };                                                       \
+  static int func(type1 arg1, type2 arg2, type3 arg3)
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -50,12 +124,7 @@ struct cmd
  * Public Data
  ****************************************************************************/
 
-/* Note: All commands put into cmds section, these two symbols
- * are automatically defined by linker for the section boundary
- */
-
-extern const cmd __start_cmds;
-extern const cmd __stop_cmds;
+extern const struct cmd *g_cmd_table[];
 
 /****************************************************************************
  * Inline Functions
@@ -101,80 +170,6 @@ inline float get_next_arg()
 {
   return atof(get_next_arg < const char * > ());
 }
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define CMD0(func)                                         \
-  static int func();                                       \
-  static const arg func##_args[] =                         \
-  {                                                        \
-    {0, 0}                                                 \
-  };                                                       \
-  struct cmd func##_cmd __attribute__((section("cmds"))) = \
-  {                                                        \
-    #func, func##_args, func                               \
-  };                                                       \
-  static int func()
-
-#define CMD1(func, type1, arg1)                            \
-  static int func(type1 arg1);                             \
-  static int func##_exec()                                 \
-  {                                                        \
-    type1 arg1 = get_next_arg<type1>();                    \
-    return func(arg1);                                     \
-  }                                                        \
-  static const arg func##_args[] =                         \
-  {                                                        \
-    {#type1, #arg1},                                       \
-    {0, 0}                                                 \
-  };                                                       \
-  struct cmd func##_cmd __attribute__((section("cmds"))) = \
-  {                                                        \
-    #func, func##_args, func##_exec                        \
-  };                                                       \
-  static int func(type1 arg1)
-
-#define CMD2(func, type1, arg1, type2, arg2)               \
-  static int func(type1 arg1, type2 arg2);                 \
-  static int func##_exec()                                 \
-  {                                                        \
-    type1 arg1 = get_next_arg<type1>();                    \
-    type2 arg2 = get_next_arg<type2>();                    \
-    return func(arg1, arg2);                               \
-  }                                                        \
-  static const arg func##_args[] = {                       \
-    {#type1, #arg1},                                       \
-    {#type2, #arg2},                                       \
-    {0, 0}                                                 \
-  };                                                       \
-  struct cmd func##_cmd __attribute__((section("cmds"))) = \
-  {                                                        \
-    #func, func##_args, func##_exec                        \
-  };                                                       \
-  static int func(type1 arg1, type2 arg2)
-
-#define CMD3(func, type1, arg1, type2, arg2, type3, arg3)  \
-  static int func(type1 arg1, type2 arg2, type3 arg3);     \
-  static int func##_exec()                                 \
-  {                                                        \
-    type1 arg1 = get_next_arg<type1>();                    \
-    type2 arg2 = get_next_arg<type2>();                    \
-    type3 arg3 = get_next_arg<type3>();                    \
-    return func(arg1, arg2, arg3);                         \
-  }                                                        \
-  static const arg func##_args[] = {                       \
-    {#type1, #arg1},                                       \
-    {#type2, #arg2},                                       \
-    {#type3, #arg3},                                       \
-    {0, 0}                                                 \
-  };                                                       \
-  struct cmd func##_cmd __attribute__((section("cmds"))) = \
-  {                                                        \
-    #func, func##_args, func##_exec                        \
-  };                                                       \
-  static int func(type1 arg1, type2 arg2, type3 arg3)
 
 /****************************************************************************
  * Public Function Prototypes
