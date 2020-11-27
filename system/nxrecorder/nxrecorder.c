@@ -94,7 +94,8 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder)
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
-          auderr("ERROR: Failed to open %s: %d\n", -errcode);
+          auderr("ERROR: Failed to open %s: %d\n",
+                 precorder->device, -errcode);
           UNUSED(errcode);
           return -ENOENT;
         }
