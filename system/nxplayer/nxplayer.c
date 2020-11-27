@@ -316,7 +316,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
-          auderr("ERROR: Failed to open %s: %d\n", -errcode);
+          auderr("ERROR: Failed to open %s: %d\n",
+                 pplayer->prefdevice, -errcode);
           UNUSED(errcode);
           return -ENOENT;
         }
