@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/irtest/cmdLirc.cpp
+ * testing/irtest/cmd.cpp
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -25,8 +25,12 @@
 #include <nuttx/lirc.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <pthread.h>
+#include <stdio.h>
 #include <fcntl.h>
 
+#include "enum.hpp"
 #include "cmd.hpp"
 
 /****************************************************************************
@@ -39,16 +43,155 @@
  * Private Data
  ****************************************************************************/
 
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 static int g_irdevs[CONFIG_TESTING_IRTEST_MAX_NIRDEV];
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
-void init_device()
+static void wake(int)
 {
-  for (int i = 0; i < CONFIG_TESTING_IRTEST_MAX_NIRDEV; i++)
-    g_irdevs[i] = -1;
+  pthread_mutex_lock(&mutex);
+  pthread_cond_broadcast(&cond);
+  pthread_mutex_unlock(&mutex);
+}
+
+static void print_cmd(const cmd *cmd)
+{
+  printf("%s(", cmd->name);
+  for (int i = 0; cmd->args[i].name; i++)
+    {
+      printf(i ? ", %s" : "%s", cmd->args[i].name);
+    }
+
+  printf(")\n");
+}
+
+static int print_cmd(const char *name)
+{
+  for (int i = 0; g_cmd_table[i]; i++)
+    {
+      if (strcmp(name, g_cmd_table[i]->name) == 0)
+        {
+          print_cmd(g_cmd_table[i]);
+          return 0;
+        }
+    }
+
+  return -ENOENT;
+}
+
+static void print_all_cmds()
+{
+  for (int i = 0; g_cmd_table[i]; i++)
+    {
+      print_cmd(g_cmd_table[i]);
+    }
+}
+
+static void print_enum(const enum_type *e)
+{
+  printf("%s\n", e->type);
+  for (int i = 0; e->value[i].name; i++)
+    {
+      printf(e->fmt, e->value[i].value);
+      printf(" %s\n", e->value[i].name);
+    }
+}
+
+static int print_enum(const char *type)
+{
+  for (int i = 0; g_enum_table[i]; i++)
+    {
+      if (strcmp(type, g_enum_table[i]->type) == 0)
+        {
+          print_enum(g_enum_table[i]);
+          return 0;
+        }
+    }
+
+  return -ENOENT;
+}
+
+static void print_all_enums()
+{
+  for (int i = 0; g_enum_table[i]; i++)
+    {
+      print_enum(g_enum_table[i]);
+    }
+}
+
+static void print_cmd_and_enum(const cmd *cmd)
+{
+  print_cmd(cmd);
+  for (int i = 0; cmd->args[i].type; i++)
+    {
+      print_enum(cmd->args[i].type);
+    }
+}
+
+static int print_cmd_and_enum(const char *name)
+{
+  for (int i = 0; g_cmd_table[i]; i++)
+    {
+      if (strcmp(name, g_cmd_table[i]->name) == 0)
+        {
+          print_cmd_and_enum(g_cmd_table[i]);
+          return 0;
+        }
+    }
+
+  return -ENOENT;
+}
+
+CMD0(quit)
+{
+  exit(0);
+  return 0;
+}
+
+CMD1(sleep, float, seconds)
+{
+  int ret;
+
+  pthread_mutex_lock(&mutex);
+  signal(SIGINT, wake);
+  if (seconds)
+    {
+      struct timeval now;
+      struct timespec ts;
+
+      gettimeofday(&now, NULL);
+      ts.tv_sec = now.tv_sec + seconds;
+      ts.tv_nsec = now.tv_usec * 1000;
+      ret = pthread_cond_timedwait(&cond, &mutex, &ts);
+    }
+  else
+    {
+      ret = pthread_cond_wait(&cond, &mutex);
+    }
+
+  pthread_mutex_unlock(&mutex);
+  signal(SIGINT, SIG_DFL);
+  return ret == ETIMEDOUT ? 0 : ret;
+}
+
+CMD1(help, const char *, name)
+{
+  int r = 0;
+  if (name != 0 && *name != 0)
+    {
+      r = print_cmd_and_enum(name);
+    }
+  else
+    {
+      print_all_enums();
+      print_all_cmds();
+    }
+
+  return r;
 }
 
 CMD1(open_device, const char *, file_name)
@@ -375,3 +518,57 @@ CMD2(set_rec_carrier_range, size_t, index, unsigned int, carrier)
 
   return ioctl(g_irdevs[index], LIRC_SET_REC_CARRIER_RANGE, &carrier);
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void init_device()
+{
+  for (int i = 0; i < CONFIG_TESTING_IRTEST_MAX_NIRDEV; i++)
+    g_irdevs[i] = -1;
+}
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+const struct cmd *g_cmd_table[] =
+{
+  /* CMD0 */
+
+  &g_quit_cmd,
+
+  /* CMD1 */
+
+  &g_sleep_cmd,
+  &g_help_cmd,
+  &g_open_device_cmd,
+  &g_close_device_cmd,
+  &g_write_data_cmd,
+  &g_get_features_cmd,
+  &g_get_send_mode_cmd,
+  &g_get_rec_mode_cmd,
+  &g_get_rec_resolution_cmd,
+  &g_get_min_timeout_cmd,
+  &g_get_max_timeout_cmd,
+  &g_get_length_cmd,
+
+  /* CMD2 */
+
+  &g_read_data_cmd,
+  &g_set_send_mode_cmd,
+  &g_set_rec_mode_cmd,
+  &g_set_send_carrier_cmd,
+  &g_set_rec_carrier_cmd,
+  &g_set_send_duty_cycle_cmd,
+  &g_set_transmitter_mask_cmd,
+  &g_set_rec_timeout_cmd,
+  &g_set_rec_timeout_reports_cmd,
+  &g_set_measure_carrier_mode_cmd,
+  &g_set_rec_carrier_range_cmd,
+
+  /* CMD3 */
+
+  NULL,
+};

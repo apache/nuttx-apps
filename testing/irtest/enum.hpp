@@ -26,6 +26,27 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* macro to define the enum object */
+
+#define ENUM_START(type)                                           \
+  static const enum_value g_##type##_value[] =                     \
+  {
+
+#define ENUM_VALUE(value)                                          \
+    {#value, value},
+
+#define ENUM_END(type, fmt)                                        \
+    {0, 0}                                                         \
+  };                                                               \
+  static struct enum_type g_##type##_type =                        \
+  {                                                                \
+    #type, fmt, g_##type##_value                                   \
+  };                                                               \
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -46,32 +67,6 @@ struct enum_type
  * Public Data
  ****************************************************************************/
 
-/* Note: All enum type put into enums section, these two symbols
- * are automatically defined by linker for the section boundary
- */
-
-extern const enum_type __start_enums;
-extern const enum_type __stop_enums;
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* macro to define the enum object */
-
-#define ENUM_START(type)                                           \
-  static const enum_value type##_value[] =                         \
-  {
-
-#define ENUM_VALUE(value)                                          \
-    {#value, value},
-
-#define ENUM_END(type, fmt)                                        \
-    {0, 0}                                                         \
-  };                                                               \
-  struct enum_type type##_type __attribute__((section("enums"))) = \
-  {                                                                \
-    #type, fmt, type##_value                                       \
-  };                                                               \
+extern const struct enum_type *g_enum_table[];
 
 #endif /* __APPS_TESTING_IRTEST_ENUM_H */
