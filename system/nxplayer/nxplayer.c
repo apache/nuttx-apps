@@ -1082,7 +1082,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
             /* Send a stop message to the device */
 
+#ifdef CONFIG_DEBUG_FEATURES
             audinfo("Stopping! outstanding=%d\n", outstanding);
+#endif
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
             ioctl(pplayer->dev_fd, AUDIOIOC_STOP,
@@ -1101,7 +1103,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Message indicating the playback is complete */
 
           case AUDIO_MSG_COMPLETE:
+#ifdef CONFIG_DEBUG_FEATURES
             audinfo("Play complete.  outstanding=%d\n", outstanding);
+#endif
             DEBUGASSERT(outstanding == 0);
             running = false;
             break;
