@@ -13,5 +13,5 @@ The files in this directory are released to the Public Domain.
 
 ## Acknowledgements
 
-The panel library was originally provided by  
+The panel library was originally provided by
 Warren Tucker <wht@n4hgf.mt-park.ga.us>

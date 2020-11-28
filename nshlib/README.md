@@ -246,11 +246,11 @@ The contents of the `/etc` directory are retained in the file
 `include/arch/board/rcS.template`). In order to modify the start-up behavior,
 there are three things to study:
 
-1. Configuration Options. 
+1. Configuration Options.
    The additional `CONFIG_NSH_ROMFSETC` configuration options discussed in the
    final section of this README.
 
-2. `tools/mkromfsimg.sh` Script. 
+2. `tools/mkromfsimg.sh` Script.
    The script `tools/mkromfsimg.sh` creates `nsh_romfsimg.h`. It is not
    automatically executed. If you want to change the configuration settings
    associated with creating and mounting the `/tmp` directory, then it will be
@@ -281,7 +281,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
 
 ## Simple Commands
 
-- `[ <expression> ]`  
+- `[ <expression> ]`
   `test <expression>`
 
    These are two alternative forms of the same command. They support evaluation
@@ -313,8 +313,8 @@ All of the startup-behavior is contained in `rcS.template`. The role of
                     integer -lt integer | integer -ne integer
    ```
 
-- `addroute <target> [<netmask>] <router>`  
-  `addroute default <ipaddr> <interface>`  
+- `addroute <target> [<netmask>] <router>`
+  `addroute default <ipaddr> <interface>`
 
   This command adds an entry in the routing table. The new entry
   will map the IP address of a router on a local network(`<router>`)
@@ -343,17 +343,17 @@ All of the startup-behavior is contained in `rcS.template`. The role of
 
   Access the OS ARP table.
 
-  - `-a <ipaddr>`  
+  - `-a <ipaddr>`
      Will show the hardware address that the IP address `<ipaddr>` is mapped to.
 
-  - `-d <ipaddr>`  
+  - `-d <ipaddr>`
      Will delete the mapping for the IP address `<ipaddr>` from the ARP table.
 
-  - `-s <ipaddr> <hwaddr>`  
+  - `-s <ipaddr> <hwaddr>`
      Will set (or replace) the mapping of the IP address `<ipaddr>` to the
      hardware address `<hwaddr>`.
 
-  - `-t`  
+  - `-t`
      Will dump the entire content of the ARP table. This option is only
      available if `CONFIG_NETLINK_ROUTE` is enabled.
 
@@ -632,10 +632,10 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   Use TFTP to copy the file at `<remote-address>` from the host whose IP
   address is identified by `<ip-address>`. Other options:
 
-  - `-f <local-path>`  
+  - `-f <local-path>`
     The file will be saved relative to the current working directory unless
     `<local-path>` is provided.
-  - `-b|-n`  
+  - `-b|-n`
     Selects either binary (_octet_) or text (_netascii_) transfer mode. Default:
     text.
 
@@ -643,10 +643,10 @@ All of the startup-behavior is contained in `rcS.template`. The role of
 
   Presents summary information about NSH commands to console. Options:
 
-  - `-v`  
+  - `-v`
     Show verbose output will full command usage.
 
-  - `<cmd>`  
+  - `<cmd>`
     Show full command usage only for this command.
 
 - `hexdump <file or device>`
@@ -838,9 +838,9 @@ All of the startup-behavior is contained in `rcS.template`. The role of
 
 - `md5 [-f] <string or filepath>`
 
-- `mb <hex-address>[=<hex-value>][ <hex-byte-count>]`  
-  `mh <hex-address>[=<hex-value>][ <hex-byte-count>]`  
-  `mw <hex-address>[=<hex-value>][ <hex-byte-count>]`  
+- `mb <hex-address>[=<hex-value>][ <hex-byte-count>]`
+  `mh <hex-address>[=<hex-value>][ <hex-byte-count>]`
+  `mw <hex-address>[=<hex-value>][ <hex-byte-count>]`
 
   Access memory using byte size access (`mb`), 16-bit accesses (`mh`),
   or 32-bit access (`mw`). In each case,
@@ -922,7 +922,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   device driver. NSH provides this command to access the `mkfifo()` NuttX API.
 
   **Example**:
-  
+
   ```
   nsh> ls -l /dev
   /dev:
@@ -971,7 +971,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   command and mounted using the `mount` command.
 
   **Example**:
-  
+
   ```
   nsh> mkrd 1024
   nsh> mkfatfs /dev/ram0
@@ -1040,7 +1040,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
     /mnt/fs type vfat
   ```
 
-- `mv <old-path> <new-path>`  
+- `mv <old-path> <new-path>`
 
   Rename the file object at `<old-path>` to `<new-path>`. Both paths must
   reside in the same mounted file system.
@@ -1110,11 +1110,11 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   Copy the file at <local-address> to the host whose IP address is
   identified by <ip-address>. Other options:
 
-  - `-f <remote-path>`  
+  - `-f <remote-path>`
     The file will be saved with the same name on the host unless
     unless `<local-path>` is provided.
 
-  - `-b|-n`  
+  - `-b|-n`
      Selects either binary (_octet_) or test (_netascii_) transfer
      mode. Default: text.
 
@@ -1502,7 +1502,7 @@ There are several built-in appliations in the `apps/` repository. No attempt is
 made here to enumerate all of them. But a few of the more common built- in
 applications are listed below.
 
-- `ping [-c <count>] [-i <interval>] <ip-address>`  
+- `ping [-c <count>] [-i <interval>] <ip-address>`
   `ping6 [-c <count>] [-i <interval>] <ip-address>`
 
   Test the network communication with a remote peer. Example:
@@ -1579,7 +1579,7 @@ mkfatfs   | !`CONFIG_DISABLE_MOUNTPOINT` && `CONFIG_FSUTILS_MKFATFS`
 mkfifo    | `CONFIG_PIPES` && `CONFIG_DEV_FIFO_SIZE` > 0
 mkrd      | !`CONFIG_DISABLE_MOUNTPOINT`
 mount     | !`CONFIG_DISABLE_MOUNTPOINT`
-mv        | !`CONFIG_DISABLE_MOUNTPOINT` || !`CONFIG_DISABLE_PSEUDOFS_OPERATIONS` 
+mv        | !`CONFIG_DISABLE_MOUNTPOINT` || !`CONFIG_DISABLE_PSEUDOFS_OPERATIONS`
 nfsmount  | !`CONFIG_DISABLE_MOUNTPOINT` && `CONFIG_NET` && `CONFIG_NFS`
 nslookup  | `CONFIG_LIBC_NETDB` && `CONFIG_NETDB_DNSCLIENT`
 password  | !`CONFIG_DISABLE_MOUNTPOINT` && `CONFIG_NSH_LOGIN_PASSWD`
@@ -1675,7 +1675,7 @@ The behavior of NSH can be modified with the following settings in the
 - `CONFIG_NSH_READLINE` – Selects the minimal implementation of `readline()`.
   This minimal implementation provides on backspace for command line editing.
 
-- `CONFIG_NSH_CLE`  
+- `CONFIG_NSH_CLE`
 
   Selects the more extensive, EMACS-like command line editor. Select this option
   only if (1) you don't mind a modest increase in the FLASH footprint, and (2)
@@ -1703,7 +1703,7 @@ The behavior of NSH can be modified with the following settings in the
   this feature to save a little memory on FLASH challenged platforms. Default:
   `n`
 
-- `CONFIG_NSH_CMDPARMS`  
+- `CONFIG_NSH_CMDPARMS`
 
   If selected, then the output from commands, from file applications, and from
   NSH built-in commands can be used as arguments to other commands. The entity
@@ -1727,7 +1727,7 @@ The behavior of NSH can be modified with the following settings in the
 - `CONFIG_NSH_MAXARGUMENTS` – The maximum number of NSH command arguments.
   Default: `6`
 
-- `CONFIG_NSH_ARGCAT`  
+- `CONFIG_NSH_ARGCAT`
 
   Support concatenation of strings with environment variables or command
   output. For example:
@@ -1743,7 +1743,7 @@ The behavior of NSH can be modified with the following settings in the
   footprint results but then also only simple environment variables like `$FOO`
   can be used on the command line.
 
-- `CONFIG_NSH_VARS`  
+- `CONFIG_NSH_VARS`
 
   By default, there are no internal NSH variables. NSH will use OS environment
   variables for all variable storage. If this option, NSH will also support
@@ -1765,7 +1765,7 @@ The behavior of NSH can be modified with the following settings in the
   `unset <a>`      | Unsets environment var `a`.      | Unsets both environment var and NSH var `a`.
   `export <a> <b>` | Causes an error.                 | Unsets NSH var `a`. Sets environment var `a` to `b`.
   `export <a>`     | Causes an error.                 | Sets environment var `a` to NSH var `b` (or `""`). <br> Unsets local var `a`.
-  `env`            | Lists all environment variables. | Lists all environment variables (only).              
+  `env`            | Lists all environment variables. | Lists all environment variables (only).
 
 - `CONFIG_NSH_QUOTE` – Enables back-slash quoting of certain characters within
   the command. This option is useful for the case where an NSH script is used to
@@ -1816,11 +1816,11 @@ The behavior of NSH can be modified with the following settings in the
   if `CONFIG_USBDEV` is defined, then a USB serial device may, instead, be used
   if the one of the following are defined:
 
-  - `CONFIG_PL2303` and `CONFIG_PL2303_CONSOLE`  
+  - `CONFIG_PL2303` and `CONFIG_PL2303_CONSOLE`
     Sets up the Prolifics PL2303 emulation as a console device at
     `/dev/console`.
 
-  - `CONFIG_CDCACM` and `CONFIG_CDCACM_CONSOLE`  
+  - `CONFIG_CDCACM` and `CONFIG_CDCACM_CONSOLE`
     Sets up the CDC/ACM serial device as a console device at `/dev/console`.
 
   - `CONFIG_NSH_USBCONSOLE` – If defined, then the an arbitrary USB device may

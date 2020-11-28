@@ -54,7 +54,7 @@ you can delete `foo/repos/apache-mynewt-nimble` and simply make a
 link to the `mynewt-nimble` directory, so that you can work on the
 nimBLE code directly.
 
-Now you can make any changes to the `yml` files such as 
+Now you can make any changes to the `yml` files such as
 `porting/targets/nuttx/syscfg.yml`. Finally, you can build with:
 
   $ newt build @apache-mynewt-nimble/porting/targets/nuttx
@@ -67,7 +67,7 @@ the `nuttx` target directory:
   $ cp bin/@apache-mynewt-nimble/porting/targets/nuttx/generated/include/logcfg/logcfg.h \
 	repos/apache-mynewt-nimble/porting/examples/nuttx/include/logcfg
   $ cp bin/@apache-mynewt-nimble/porting/targets/nuttx/generated/include/syscfg/syscfg.h \
-	repos/apache-mynewt-nimble/porting/examples/nuttx/include/syscfg 
+	repos/apache-mynewt-nimble/porting/examples/nuttx/include/syscfg
 
 If these changes are done to fix a problem with NuttX porting layer in nimBLE, you
 should open a pull-request to nimBLE repository to include the updated header files.
