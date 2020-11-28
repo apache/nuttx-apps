@@ -35,7 +35,7 @@ $(NIMBLE_TAR):
 
 $(NIMBLE_ROOT): $(NIMBLE_TAR)
 	tar zxf $(NIMBLE_TAR)
-	mv mynewt-nimble-$(CONFIG_NIMBLE_REF) mynewt-nimble 
+	mv mynewt-nimble-$(CONFIG_NIMBLE_REF) mynewt-nimble
 
 context:: $(NIMBLE_ROOT)
 
@@ -43,5 +43,5 @@ distclean::
 	$(call CLEAN,$(NIMBLE_TAR))
 	$(call DELDIR,$(NIMBLE_ROOT))
 
-           
+
 include $(APPDIR)/Application.mk

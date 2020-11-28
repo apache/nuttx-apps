@@ -4,7 +4,7 @@ config NIMBLE
   depends on !WIRELESS_BLUETOOTH_HOST
   ---help---
     Enable Apache nimBLE Bluetooth Low Energy
-    host-layer stack. 
+    host-layer stack.
 
 if NIMBLE
   config NIMBLE_REF

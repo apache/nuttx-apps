@@ -51,7 +51,7 @@ SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 all:
 	$(RM) $(BIN)
 	$(MAKE) $(BIN)
-  
+
 .PHONY: import install dirlinks export .depdirs preconfig depend clean distclean
 .PHONY: context clean_context context_all register register_all
 .PRECIOUS: $(BIN)
@@ -106,7 +106,7 @@ $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
 		$(MAKE) -C "$${app}" archive ; \
 	done
-	$(Q) $(MAKE) install 
+	$(Q) $(MAKE) install
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 

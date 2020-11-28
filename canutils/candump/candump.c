@@ -104,7 +104,7 @@ static __u32 dropcnt[MAXSOCK];
 static __u32 last_dropcnt[MAXSOCK];
 static char devname[MAXIFNAMES][IFNAMSIZ+1];
 static int  dindex[MAXIFNAMES];
-static int  max_devname_len; /* to prevent frazzled device name output */ 
+static int  max_devname_len; /* to prevent frazzled device name output */
 const int canfd_on = 1;
 
 #define MAXANI 4
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
 	struct timeval timeout, timeout_config = { 0, 0 }, *timeout_current = NULL;
 	FILE *logfile = NULL;
 
-#if 0 /* NuttX doesn't support these signals */   
+#if 0 /* NuttX doesn't support these signals */
 	signal(SIGTERM, sigterm);
 	signal(SIGHUP, sigterm);
 #endif
@@ -360,7 +360,7 @@ int main(int argc, char **argv)
 		print_usage(basename(argv[0]));
 		exit(0);
 	}
-	
+
 	if (logfrmt && view) {
 		fprintf(stderr, "Log file format selected: Please disable ASCII/BINARY/SWAP options!\n");
 		exit(0);
@@ -458,14 +458,14 @@ int main(int argc, char **argv)
 				nptr = strchr(ptr, ','); /* update exit condition */
 
 				if (sscanf(ptr, "%" SCNx32 ":%" SCNx32,
-					   &rfilter[numfilter].can_id, 
+					   &rfilter[numfilter].can_id,
 					   &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_mask &= ~CAN_ERR_FLAG;
 					if (*(ptr+8) == ':')
 						rfilter[numfilter].can_id |= CAN_EFF_FLAG;
 					numfilter++;
 				} else if (sscanf(ptr, "%" SCNx32 "~%" SCNx32,
-						  &rfilter[numfilter].can_id, 
+						  &rfilter[numfilter].can_id,
 						  &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_id |= CAN_INV_FILTER;
  					rfilter[numfilter].can_mask &= ~CAN_ERR_FLAG;
@@ -635,7 +635,7 @@ int main(int argc, char **argv)
 				/* these settings may be modified by recvmsg() */
 				iov.iov_len = sizeof(frame);
 				msg.msg_namelen = sizeof(addr);
-				msg.msg_controllen = sizeof(ctrlmsg);  
+				msg.msg_controllen = sizeof(ctrlmsg);
 				msg.msg_flags = 0;
 
 				nbytes = recvmsg(s[i], &msg, 0);
@@ -661,7 +661,7 @@ int main(int argc, char **argv)
 
 				if (count && (--count == 0))
 					running = 0;
-		    
+
 				for (cmsg = CMSG_FIRSTHDR(&msg);
 				     cmsg && (cmsg->cmsg_level == SOL_SOCKET);
 				     cmsg = CMSG_NXTHDR(&msg,cmsg)) {
@@ -732,7 +732,7 @@ int main(int argc, char **argv)
 					}
 					goto out_fflush; /* no other output to stdout */
 				}
-		      
+
 				printf(" %s", (color>2)?col_on[idx%MAXCOL]:"");
 
 				switch (timestamp) {
@@ -768,7 +768,7 @@ int main(int argc, char **argv)
 						diff.tv_sec = diff.tv_usec = 0;
 					printf("(%03ju.%06ld) ",
 						   (uintmax_t)diff.tv_sec, diff.tv_usec);
-				
+
 					if (timestamp == 'd')
 						last_tv = tv; /* update for delta calculation */
 				}
