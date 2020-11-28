@@ -40,6 +40,7 @@
 
 #include <nuttx/config.h>
 
+#include <cinttypes>
 #include <cunistd>
 #include <csched>
 #include <cassert>
@@ -1276,7 +1277,8 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.xSlope  = b16divb16(itob16(CALIBRATION_RIGHTX - CALIBRATION_LEFTX), (rightX - leftX));
   data.xOffset = itob16(CALIBRATION_LEFTX) - b16mulb16(leftX, data.xSlope);
 
-  twminfo("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
+  twminfo("New xSlope: %08" PRIx32 " xOffset: %08" PRIx32 "\n",
+          data.xSlope, data.xOffset);
 
   // Similarly for Y
   //
@@ -1297,7 +1299,8 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.ySlope  = b16divb16(itob16(CALIBRATION_BOTTOMY - CALIBRATION_TOPY), (bottomY - topY));
   data.yOffset = itob16(CALIBRATION_TOPY) - b16mulb16(topY, data.ySlope);
 
-  twminfo("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
+  twminfo("New ySlope: %08" PRIx32 " yOffset: %08" PRIx32 "\n",
+          data.ySlope, data.yOffset);
 #endif
 
   return true;
