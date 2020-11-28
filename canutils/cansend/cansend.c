@@ -81,7 +81,7 @@ void print_usage_send(char *prg)
 
 int main(int argc, char **argv)
 {
-	int s; /* can raw socket */ 
+	int s; /* can raw socket */
 	int required_mtu;
 	int mtu;
 	int enable_canfd = 1;

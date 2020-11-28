@@ -48,8 +48,8 @@
 #include <stdio.h>
 
 /* Compatibility for NuttX */
-typedef uint8_t __u8; 
-typedef uint32_t __u32; 
+typedef uint8_t __u8;
+typedef uint32_t __u32;
 
 /* buffer sizes for CAN frame string representations */
 
