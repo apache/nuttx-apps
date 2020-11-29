@@ -86,8 +86,8 @@ endif
 
 MAINSRC = lvgldemo.c
 
-CFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE}
-CXXFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE}
+CFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE} -Wno-format
+CXXFLAGS += ${shell $(DEFINE) "$(CC)" LV_LVGL_H_INCLUDE_SIMPLE} -Wno-format
 
 $(LVGL_EXAMPLES_TARBALL):
 	@echo "Downloading: $(LVGL_EXAMPLES_TARBALL)"
