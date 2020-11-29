@@ -40,6 +40,10 @@ include $(APPDIR)/Make.defs
 LVGL_DIR = .
 LVGL_DIR_NAME = lvgl
 
+# Relax format check for LVGL to avoid errors on prinf() use
+
+CFLAGS += -Wno-format
+
 # LVGL Libraries
 
 -include ./lvgl/src/lv_core/lv_core.mk
