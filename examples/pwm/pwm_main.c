@@ -192,30 +192,32 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
   printf("  [[-c channel1] [[-c channel2] ...]] "
          "selects the channel number for each channel.  ");
   printf("Default:");
-  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+  for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       printf(" %d", channels[i]);
     }
 
-  printf("Current:");
-  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+  printf(" Current:");
+  for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       printf(" %d", pwm->channels[i]);
     }
+  printf("\n");
 
   printf("  [[-d duty1] [[-d duty2] ...]] "
          "selects the pulse duty as a percentage.  ");
   printf("Default:");
-  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+  for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       printf(" %d %%", duties[i]);
     }
 
-  printf("Current:");
-  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+  printf(" Current:");
+  for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       printf(" %d %%", pwm->duties[i]);
     }
+  printf("\n");
 #else
   printf("  [-d duty] selects the pulse duty as a percentage.  "
          "Default: %d %% Current: %d %%\n",
