@@ -202,6 +202,7 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
     {
       printf(" %d", pwm->channels[i]);
     }
+
   printf("\n");
 
   printf("  [[-d duty1] [[-d duty2] ...]] "
@@ -217,6 +218,7 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
     {
       printf(" %d %%", pwm->duties[i]);
     }
+
   printf("\n");
 #else
   printf("  [-d duty] selects the pulse duty as a percentage.  "
