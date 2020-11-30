@@ -315,8 +315,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
           goto close_socket;
         }
     }
-
-  if (wconfig->bssid)
+  else if (wconfig->bssid)
     {
       ret = wapi_set_ap(sockfd, wconfig->ifname,
                         (FAR const struct ether_addr *)wconfig->bssid);
