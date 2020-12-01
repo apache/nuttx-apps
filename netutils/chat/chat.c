@@ -66,9 +66,9 @@
 
 struct chat_token
 {
-  FAR char* string;
+  FAR char *string;
   bool no_termin;
-  FAR struct chat_token* next;
+  FAR struct chat_token *next;
 };
 
 /****************************************************************************
@@ -245,6 +245,7 @@ static int chat_tokenise(FAR struct chat *priv,
                   break;
 
                 case 'c':
+
                   /* Deassert line terminator */
 
                   no_termin = true;
@@ -342,7 +343,8 @@ static int chat_internalise(FAR struct chat *priv,
             {
               /* Copy the token and add the line terminator as appropriate */
 
-              sprintf(line->rhs, tok->no_termin ? "%s" : "%s\r\n", tok->string);
+              sprintf(line->rhs, tok->no_termin ? "%s" : "%s\r\n",
+                      tok->string);
             }
           else
             {
@@ -414,7 +416,7 @@ static int chat_internalise(FAR struct chat *priv,
 
 static void chat_tokens_free(FAR struct chat_token *first_tok)
 {
-  FAR struct chat_token* next_tok;
+  FAR struct chat_token *next_tok;
 
   while (first_tok)
     {
@@ -437,10 +439,10 @@ static int chat_script_parse(FAR struct chat *priv, FAR const char *script)
   int ret;
 
   ret = chat_tokenise(priv, script, &first_tok);
-   if (!ret)
-     {
-       ret = chat_internalise(priv, first_tok);
-     }
+  if (!ret)
+    {
+      ret = chat_internalise(priv, first_tok);
+    }
 
   chat_tokens_free(first_tok);
   return ret;
@@ -504,7 +506,7 @@ static int chat_expect(FAR struct chat *priv, FAR const char *s)
 
   /* Get initial time and set the end time */
 
-  clock_gettime(CLOCK_REALTIME, (FAR struct timespec*) &abstime);
+  clock_gettime(CLOCK_REALTIME, (FAR struct timespec *)&abstime);
   endtime.tv_sec  = abstime.tv_sec + priv->ctl.timeout;
   endtime.tv_nsec = abstime.tv_nsec;
 
@@ -537,7 +539,7 @@ static int chat_expect(FAR struct chat *priv, FAR const char *s)
 
           /* Update current time */
 
-          clock_gettime(CLOCK_REALTIME, (FAR struct timespec*) &abstime);
+          clock_gettime(CLOCK_REALTIME, (FAR struct timespec *)&abstime);
         }
     }
 
@@ -564,8 +566,8 @@ static int chat_send(FAR struct chat *priv, FAR const char *s)
   return ret;
 }
 
-static int chat_line_run(FAR struct chat* priv,
-                         FAR const struct chat_line* line)
+static int chat_line_run(FAR struct chat *priv,
+                         FAR const struct chat_line *line)
 {
   int ret = 0;
   int numarg;
@@ -584,7 +586,9 @@ static int chat_line_run(FAR struct chat* priv,
       switch (line->lhs.command)
         {
         case CHAT_COMMAND_ABORT:
+
           /* TODO */
+
           break;
 
         case CHAT_COMMAND_ECHO:
@@ -684,8 +688,8 @@ static int chat_script_run(FAR struct chat *priv)
 
 static int chat_script_free(FAR struct chat *priv)
 {
-  FAR struct chat_line* line = priv->script;
-  FAR struct chat_line* next_line;
+  FAR struct chat_line *line = priv->script;
+  FAR struct chat_line *next_line;
   int ret = 0;
 
   while (line)
