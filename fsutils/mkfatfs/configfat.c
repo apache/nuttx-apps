@@ -1013,20 +1013,20 @@ int mkfatfs_configfatfs(FAR struct fat_format_s *fmt,
   /* Describe the configured filesystem */
 
 #ifdef CONFIG_DEBUG_FEATURES
-  finfo("Sector size:          %d bytes\n",    var->fv_sectorsize);
-  finfo("Number of sectors:    %d sectors\n",  fmt->ff_nsectors);
+  finfo("Sector size:          %" PRId32 " bytes\n",    var->fv_sectorsize);
+  finfo("Number of sectors:    %" PRId32 " sectors\n",  fmt->ff_nsectors);
   finfo("FAT size:             %d bits\n",     var->fv_fattype);
   finfo("Number FATs:          %d\n",          fmt->ff_nfats);
   finfo("Sectors per cluster:  %d sectors\n",  1 << fmt->ff_clustshift);
-  finfo("FS size:              %d sectors\n",  var->fv_nfatsects);
-  finfo("                      %d clusters\n", var->fv_nclusters);
+  finfo("FS size:              %" PRId32 " sectors\n",  var->fv_nfatsects);
+  finfo("                      %" PRId32 " clusters\n", var->fv_nclusters);
 
   if (var->fv_fattype != 32)
     {
        finfo("Root directory slots: %d\n", fmt->ff_rootdirentries);
     }
 
-  finfo("Volume ID:            %08x\n", fmt->ff_volumeid);
+  finfo("Volume ID:            %08" PRIx32 "\n", fmt->ff_volumeid);
   finfo("Volume Label:         \"%c%c%c%c%c%c%c%c%c%c%c\"\n",
     fmt->ff_volumelabel[0], fmt->ff_volumelabel[1], fmt->ff_volumelabel[2],
     fmt->ff_volumelabel[3], fmt->ff_volumelabel[4], fmt->ff_volumelabel[5],
