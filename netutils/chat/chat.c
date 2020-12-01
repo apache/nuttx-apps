@@ -682,7 +682,9 @@ static int chat_script_run(FAR struct chat *priv)
         }
     }
 
+#ifdef CONFIG_DEBUG_INFO
   _info("Script result %d, exited on line %d\n", ret, line_num);
+#endif
   return ret;
 }
 
