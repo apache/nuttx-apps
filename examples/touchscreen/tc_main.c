@@ -181,7 +181,7 @@ int main(int argc, FAR char *argv[])
 
       iinfo("Reading...\n");
       nbytes = read(fd, &sample, sizeof(struct touch_sample_s));
-      iinfo("Bytes read: %d\n", nbytes);
+      iinfo("Bytes read: %zd\n", nbytes);
 
       /* Handle unexpected return values */
 
