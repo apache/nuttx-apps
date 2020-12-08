@@ -46,6 +46,15 @@ void adb_log_impl(FAR const char *func, int line, FAR const char *fmt, ...)
   va_end(ap);
 }
 
+void adb_reboot_impl(const char *target)
+{
+#ifdef CONFIG_BOARDCTL_RESET
+  boardctl(BOARDIOC_RESET, 0);
+#else
+  adb_log("reboot not implemented\n");
+#endif
+}
+
 int main(int argc, FAR char **argv)
 {
   UNUSED(argc);

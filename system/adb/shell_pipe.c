@@ -113,6 +113,10 @@ static void shell_pipe_close_callback(uv_handle_t *handle)
 {
   shell_pipe_t *pipe = container_of(handle, shell_pipe_t, handle);
 
+  /* Close stdout pipe */
+
+  close(pipe->write_fd);
+
   /* Notify caller pipe is closed */
 
   pipe->close_cb(pipe);
@@ -132,6 +136,12 @@ void shell_pipe_destroy(shell_pipe_t *pipe, void (*close_cb)(shell_pipe_t *))
 {
   pipe->close_cb = close_cb;
   close(pipe->write_fd);
+
+  if (uv_fileno((const uv_handle_t *)&pipe->handle, &pipe->write_fd))
+    {
+      pipe->write_fd = -1;
+    }
+
   uv_close((uv_handle_t *)&pipe->handle, shell_pipe_close_callback);
 }
 
@@ -160,12 +170,17 @@ int shell_pipe_exec(char * const argv[], shell_pipe_t *apipe,
 
   /* Create pipe for stdin */
 
-  ret = pipe(in_fds);
-  assert(ret == 0);
-  ret = pipe(out_fds);
-  assert(ret == 0);
+  if ((ret = pipe(in_fds)))
+    {
+      adb_log("failed to open in pipe %d\n", errno);
+      goto exit_fail;
+    }
 
-  /* TODO check return code */
+  if ((ret = pipe(out_fds)))
+    {
+      adb_log("failed to open out pipe %d\n", errno);
+      goto exit_close_pipe_in;
+    }
 
   apipe->write_fd = in_fds[1];
 
@@ -234,4 +249,10 @@ int shell_pipe_exec(char * const argv[], shell_pipe_t *apipe,
 
   assert(ret == 0);
   return 0;
+
+exit_close_pipe_in:
+  close(in_fds[0]);
+  close(in_fds[1]);
+exit_fail:
+  return ret;
 }
