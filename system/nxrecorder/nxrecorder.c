@@ -534,7 +534,7 @@ err_out:
           if (pbuffers[x] != NULL)
             {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-              buf_desc.session = pplayer->session;
+              buf_desc.session = precorder->session;
 #endif
               buf_desc.u.buffer = pbuffers[x];
               ioctl(precorder->dev_fd,
