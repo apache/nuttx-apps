@@ -199,11 +199,14 @@ adb_service_t * shell_service(adb_client_t *client, const char *params)
   ret = shell_pipe_exec(argv, &service->pipe,
                         exec_on_data_available);
 
-  /* TODO check return code */
-
-  assert(ret == 0);
-
   free(argv);
+
+  if (ret)
+    {
+      adb_log("failed to setup shell pipe %d\n", ret);
+      free(service);
+      return NULL;
+    }
 
   return &service->service;
 }
