@@ -48,6 +48,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <netinet/ether.h>
+
 #include "netutils/netlib.h"
 
 #include "wireless/wapi.h"
@@ -834,7 +836,7 @@ static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
       return ret;
     }
 
-  conf.bssid = (FAR const char *)ap.ether_addr_octet;
+  conf.bssid = ether_ntoa(&ap);
 
   memset(psk, 0, sizeof(psk));
   ret = wpa_driver_wext_get_key_ext(sock,
