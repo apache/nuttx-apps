@@ -45,22 +45,6 @@
 #include "ftpc_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -139,6 +123,7 @@ FAR const char *ftpc_lpwd(void)
     {
       val = CONFIG_FTP_TMPDIR;
     }
+
   return val;
 #else
   return CONFIG_FTP_TMPDIR;
@@ -178,8 +163,8 @@ void ftpc_stripcrlf(FAR char *str)
  * Name: ftpc_stripslash
  *
  * Description:
- *   Strip any trailing slashes from a string (by overwriting them with NUL
- *   characters.
+ *   Strip single trailing slash from a string (by overwriting it with NUL
+ *   character).
  *
  ****************************************************************************/
 
@@ -223,7 +208,7 @@ FAR char *ftpc_dequote(FAR const char *str)
       /* Allocate space for a modifiable copy of the string */
 
       len      = strlen(str);
-      allocstr = (FAR char*)malloc(len + 1);
+      allocstr = (FAR char *)malloc(len + 1);
       if (allocstr)
         {
           /* Search the string */
