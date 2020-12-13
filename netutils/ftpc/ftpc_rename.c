@@ -86,6 +86,11 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
   int ret;
 
   oldcopy = strdup(oldname);
+  if (!oldcopy)
+    {
+      return ERROR;
+    }
+
   ftpc_stripslash(oldcopy);
 
   /* A RNFR request asks the server to begin renaming a file. A typical
@@ -107,7 +112,13 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
       return ERROR;
     }
 
+  free(oldcopy);
   newcopy = strdup(newname);
+  if (!newcopy)
+    {
+      return ERROR;
+    }
+
   ftpc_stripslash(newcopy);
 
   /* A RNTO request asks the server to finish renaming a file. RNTO must
@@ -128,7 +139,6 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
 
   ret = ftpc_cmd(session, "RNTO %s", newcopy);
 
-  free(oldcopy);
   free(newcopy);
   return ret;
 }
