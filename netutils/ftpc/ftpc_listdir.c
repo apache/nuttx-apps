@@ -282,9 +282,21 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
   int allocsize;
   int ret;
 
+  /* If no remote current directory, we are not logged in. */
+
+  if (!session->currdir)
+    {
+      return NULL;
+    }
+
   /* Get the absolute path to the directory */
 
   absrpath = ftpc_absrpath(session, dirpath);
+  if (!absrpath)
+    {
+      return NULL;
+    }
+
   ftpc_stripslash(absrpath);
 
   /* Is the directory also the remote current working directory? */
@@ -293,7 +305,13 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
 
   /* Create a temporary file to hold the directory listing */
 
-  asprintf(&tmpfname, "%s/TMP%d.dat", CONFIG_FTP_TMPDIR, getpid());
+  ret = asprintf(&tmpfname, "%s/TMP%d.dat", CONFIG_FTP_TMPDIR, getpid());
+  if (ret < 0)
+    {
+      free(absrpath);
+      return NULL;
+    }
+
   filestream = fopen(tmpfname, "w+");
   if (!filestream)
     {
