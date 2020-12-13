@@ -83,6 +83,11 @@ int ftpc_rmdir(SESSION handle, FAR const char *path)
   int ret;
 
   ptr = strdup(path);
+  if (!ptr)
+    {
+      return ERROR;
+    }
+
   ftpc_stripslash(ptr);
 
   /* An RMD request asks the server to remove a directory. A typical server

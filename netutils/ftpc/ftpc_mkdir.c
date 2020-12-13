@@ -85,6 +85,11 @@ int ftpc_mkdir(SESSION handle, FAR const char *path)
   int ret;
 
   ptr = strdup(path);
+  if (!ptr)
+    {
+      return ERROR;
+    }
+
   ftpc_stripslash(ptr);
 
   /* Send the MKD request. The MKD request asks the server to create a new
