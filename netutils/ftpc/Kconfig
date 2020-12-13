@@ -26,6 +26,12 @@ config FTP_TMPDIR
 		The path to use for storing temporary files used in the transfer process
 		by the FTP client.
 
+config FTP_SIZE_CMD_MODE_BINARY
+	bool "Use binary mode for size command"
+	default n
+	---help---
+		Use binary transfer mode for FTP size command.
+
 config FTPC_DISABLE_EPRT
 	bool "Disable EPRT and use PORT instead"
 	default n
