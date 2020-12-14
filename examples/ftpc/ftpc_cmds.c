@@ -46,18 +46,6 @@
 #include "ftpc.h"
 
 /****************************************************************************
- * Public Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -67,7 +55,10 @@
 
 int cmd_rlogin(SESSION handle, int argc, char **argv)
 {
-  struct ftpc_login_s login = {NULL, NULL, NULL, true};
+  struct ftpc_login_s login =
+    {
+      NULL, NULL, NULL, true
+    };
 
   login.uname = argv[1];
   if (argc > 2)
@@ -87,8 +78,9 @@ int cmd_rquit(SESSION handle, int argc, char **argv)
   int ret = ftpc_quit(handle);
   if (ret < 0)
     {
-      printf("quit failed: %d\n", errno);
+      fprintf(stderr, "quit failed: %d\n", errno);
     }
+
   printf("Exiting...\n");
   exit(0);
   return ERROR;
@@ -297,6 +289,7 @@ int cmd_rget(SESSION handle, int argc, char **argv)
   FAR const char *lname = NULL;
   int xfrmode = FTPC_XFRMODE_ASCII;
   int option;
+  bool badarg = false;
 
   while ((option = getopt(argc, argv, "ab")) != ERROR)
     {
@@ -310,16 +303,21 @@ int cmd_rget(SESSION handle, int argc, char **argv)
         }
       else
         {
-          printf("%s: Unrecognized option: '%c'\n", "rget", option);
-          return ERROR;
+          fprintf(stderr, "%s: Unrecognized option: '%c'\n", "rget", option);
+          badarg = true;
         }
+    }
+
+  if (badarg)
+    {
+      return ERROR;
     }
 
   /* There should be one or two parameters remaining on the command line */
 
   if (optind >= argc)
     {
-      printf("%s: Missing required arguments\n", "rget");
+      fprintf(stderr, "%s: Missing required arguments\n", "rget");
       return ERROR;
     }
 
@@ -334,7 +332,7 @@ int cmd_rget(SESSION handle, int argc, char **argv)
 
   if (optind != argc)
     {
-      printf("%s: Too many arguments\n", "rget");
+      fprintf(stderr, "%s: Too many arguments\n", "rget");
       return ERROR;
     }
 
@@ -353,6 +351,7 @@ int cmd_rput(SESSION handle, int argc, char **argv)
   FAR const char *rname = NULL;
   int xfrmode = FTPC_XFRMODE_ASCII;
   int option;
+  bool badarg = false;
 
   while ((option = getopt(argc, argv, "ab")) != ERROR)
     {
@@ -366,16 +365,21 @@ int cmd_rput(SESSION handle, int argc, char **argv)
         }
       else
         {
-          printf("%s: Unrecognized option: '%c'\n", "rput", option);
-          return ERROR;
+          fprintf(stderr, "%s: Unrecognized option: '%c'\n", "rput", option);
+          badarg = true;
         }
+    }
+
+  if (badarg)
+    {
+      return ERROR;
     }
 
   /* There should be one or two parameters remaining on the command line */
 
   if (optind >= argc)
     {
-      printf("%s: Missing required arguments\n", "rput");
+      fprintf(stderr, "%s: Missing required arguments\n", "rput");
       return ERROR;
     }
 
@@ -390,7 +394,7 @@ int cmd_rput(SESSION handle, int argc, char **argv)
 
   if (optind != argc)
     {
-      printf("%s: Too many arguments\n", "rput");
+      fprintf(stderr, "%s: Too many arguments\n", "rput");
       return ERROR;
     }
 
