@@ -242,12 +242,12 @@ static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 
   audinfo("Entry\n");
 
-  /* Query the audio device for it's preferred buffer size / qty */
+  /* Query the audio device for its preferred buffer size / qty */
 
   if ((ret = ioctl(precorder->dev_fd, AUDIOIOC_GETBUFFERINFO,
           (unsigned long) &buf_info)) != OK)
     {
-      /* Driver doesn't report it's buffer size.  Use our default. */
+      /* Driver doesn't report its buffer size.  Use our default. */
 
       buf_info.buffer_size = CONFIG_AUDIO_BUFFER_NUMBYTES;
       buf_info.nbuffers = CONFIG_AUDIO_NUM_BUFFERS;
@@ -773,6 +773,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   struct sched_param       sparam;
   pthread_attr_t           tattr;
   struct audio_caps_desc_s cap_desc;
+  struct ap_buffer_info_s  buf_info;
   FAR void                 *value;
   int                      ret;
 
@@ -844,9 +845,19 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
       goto err_out;
     }
 
+  /* Query the audio device for its preferred buffer count */
+
+  if (ioctl(precorder->dev_fd, AUDIOIOC_GETBUFFERINFO,
+            (unsigned long)&buf_info) != OK)
+    {
+      /* Driver doesn't report its buffer size.  Use our default. */
+
+      buf_info.nbuffers = CONFIG_AUDIO_NUM_BUFFERS;
+    }
+
   /* Create a message queue for the recordthread */
 
-  attr.mq_maxmsg  = 16;
+  attr.mq_maxmsg  = buf_info.nbuffers + 8;
   attr.mq_msgsize = sizeof(struct audio_msg_s);
   attr.mq_curmsgs = 0;
   attr.mq_flags   = 0;
