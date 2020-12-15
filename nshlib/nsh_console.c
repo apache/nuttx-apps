@@ -481,29 +481,6 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_vtbl.redirect    = nsh_consoleredirect;
       pstate->cn_vtbl.undirect    = nsh_consoleundirect;
 
-#if 0
-      /* (Re-) open the console input device */
-
-#ifdef CONFIG_NSH_ALTCONDEV
-      pstate->cn_confd            = open(CONFIG_NSH_ALTSTDIN, O_RDWR);
-      if (pstate->cn_confd < 0)
-        {
-          free(pstate);
-          return NULL;
-        }
-
-      /* Create a standard C stream on the console device */
-
-      pstate->cn_constream = fdopen(pstate->cn_confd, "r+");
-      if (!pstate->cn_constream)
-        {
-          close(pstate->cn_confd);
-          free(pstate);
-          return NULL;
-        }
-#endif
-#endif /* if 0 */
-
       /* Initialize the error stream */
 
       pstate->cn_errfd            = ERRFD(pstate);
