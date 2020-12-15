@@ -87,17 +87,6 @@ static void nsh_configstdio(int fd)
   dup2(fd, 0);
   dup2(fd, 1);
   dup2(fd, 2);
-
-  /* fdopen to get the stdin, stdout and stderr streams.
-   *
-   * fd = 0 is stdin  (read-only)
-   * fd = 1 is stdout (write-only, append)
-   * fd = 2 is stderr (write-only, append)
-   */
-
-  fdopen(0, "r");
-  fdopen(1, "a");
-  fdopen(2, "a");
 }
 
 /****************************************************************************
