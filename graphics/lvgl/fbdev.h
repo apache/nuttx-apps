@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/lvgldemo/demo.h
+ * graphics/lvgl/fbdev.h
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gábor Kiss-Vámosi <kisvegabor@gmail.com>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_LVGLDEMO_FBDEV_H
-#define __APPS_EXAMPLES_LVGLDEMO_FBDEV_H
+#ifndef __APPS_GRAPHICS_LVGL_FBDEV_H
+#define __APPS_GRAPHICS_LVGL_FBDEV_H
 
 /****************************************************************************
  * Included Files
