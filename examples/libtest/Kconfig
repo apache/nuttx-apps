@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LIBTEST
+	bool "Static library Example"
+	default n
+	---help---
+		Enable the static library example
+
+if EXAMPLES_LIBTEST
+
+config EXAMPLES_LIBTEST_CMDTOOL
+	tristate "Static library Command Line Tool"
+	default n
+	---help---
+		By default, static library example is build as only a library.
+		If this option is selected than a simple command line tool that
+		can be ran from NSH will also be generated.
+
+config EXAMPLES_LIBTEST_PROGNAME
+	string "Static library program name"
+	default "libtest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_LIBTEST_PRIORITY
+	int "Static library task priority"
+	default 100
+
+config EXAMPLES_LIBTEST_STACKSIZE
+	int "Static library stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
