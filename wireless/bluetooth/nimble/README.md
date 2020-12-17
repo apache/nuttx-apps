@@ -29,7 +29,7 @@ So, first is to get the newt tool:
 At the moment, you will probably require unstable version
 instead of a release so select a known working:
 
-  $ git checkout 0fcf17566c40
+  $ git checkout c14c47bb683d
   $ ./build.sh
 
 There should be now a `newt` binary under `mynewt-newt/newt`.
