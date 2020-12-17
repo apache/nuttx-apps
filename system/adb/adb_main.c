@@ -24,8 +24,8 @@
 
 #include "adb.h"
 
-#ifdef CONFIG_ADBD_BOARD_INIT
-#include <sys/boardctl.h>
+#if defined(CONFIG_ADBD_BOARD_INIT) || defined (CONFIG_BOARDCTL_RESET)
+#  include <sys/boardctl.h>
 #endif
 
 #ifdef CONFIG_ADBD_NET_INIT
