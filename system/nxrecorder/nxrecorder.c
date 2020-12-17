@@ -88,7 +88,7 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder)
 
       /* Device supports the format.  Open the device file. */
 
-      precorder->dev_fd = open(precorder->device, O_RDWR);
+      precorder->dev_fd = open(precorder->device, O_RDWR | O_CLOEXEC);
       if (precorder->dev_fd == -1)
         {
           int errcode = errno;
