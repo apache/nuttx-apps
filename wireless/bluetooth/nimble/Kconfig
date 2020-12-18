@@ -9,7 +9,7 @@ config NIMBLE
 if NIMBLE
   config NIMBLE_REF
   string "Version"
-  default "nuttx"
+  default "master"
   ---help---
     Git ref name to use when downloading from nimBLE repo
 endif
