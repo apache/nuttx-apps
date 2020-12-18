@@ -20,6 +20,7 @@ LTP_URL      = https://github.com/linux-test-project/ltp.git
 
 TESTDIR      = $(LTP_UNPACK)/testcases/open_posix_testsuite
 
+ifneq ($(wildcard $(TESTDIR)),)
 ifeq ($(CONFIG_FS_AIO),)
 BLACKWORDS  += "aio.h"
 BLACKWORDS  += "SIGPOLL"
@@ -102,6 +103,7 @@ MODULE        = $(CONFIG_TESTING_LTP)
 CSRCS        := $(LTP_CSRCS)
 CFLAGS       += -I$(LTP_UNPACK)
 CFLAGS       += -I$(TESTDIR)/include
+endif
 
 $(LTP_UNPACK):
 	$(Q) echo "git clone $(LTP_URL)"
