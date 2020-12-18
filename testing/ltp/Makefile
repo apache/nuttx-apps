@@ -109,6 +109,8 @@ $(LTP_UNPACK):
 	$(Q) echo "git clone $(LTP_URL)"
 	$(Q) git clone $(LTP_URL)
 
+$(LTP_CSRCS): $(LTP_UNPACK)
+
 context:: $(LTP_UNPACK)
 
 distclean::
