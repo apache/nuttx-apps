@@ -61,7 +61,7 @@ MODULE    = $(CONFIG_INTERPRETERS_WASM3)
 
 $(WASM3_TARBALL):
 	$(Q) echo "Downloading $(WASM3_TARBALL)"
-	$(Q) wget $(WASM3_URL)
+	$(Q) curl -O -L $(WASM3_URL)
 
 $(WASM3_UNPACK): $(WASM3_TARBALL)
 	$(Q) echo "Unpacking $(WASM3_TARBALL) to $(WASM3_UNPACK)"

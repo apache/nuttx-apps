@@ -35,7 +35,6 @@
 
 include $(APPDIR)/Make.defs
 
-WGET = wget
 CP = cp -R
 UNPACK = tar -xzf
 PACKEXT = .tar.gz
@@ -176,7 +175,7 @@ CFLAGS += -DENABLE_CLOCK=0
 
 $(EMBEDLOG_TARBALL):
 	@echo "Downloading: $@"
-	$(Q) $(WGET) -O $@ $(EMBEDLOG_URL)/$@
+	$(Q) curl -L -o $@ $(EMBEDLOG_URL)/$@
 	${Q} $(NXTOOLSDIR)/check-hash.sh sha256 $(EMBEDLOG_SRC_SHA256) $@
 
 $(EMBEDLOG_SOURCES): $(EMBEDLOG_TARBALL)

@@ -49,7 +49,7 @@ MODULE    = $(CONFIG_INTERPRETERS_QUICKJS)
 
 $(QUICKJS_TARBALL):
 	$(Q) echo "Downloading $(QUICKJS_TARBALL)"
-	$(Q) wget $(QUICKJS_URL)
+	$(Q) curl -O -L $(QUICKJS_URL)
 
 $(QUICKJS_UNPACK): $(QUICKJS_TARBALL)
 	$(Q) echo "Unpacking $(QUICKJS_TARBALL) to $(QUICKJS_UNPACK)"

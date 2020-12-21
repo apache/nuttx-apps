@@ -49,7 +49,7 @@ MODULE    = $(CONFIG_INTERPRETERS_WAMR)
 
 $(WAMR_TARBALL):
 	$(Q) echo "Downloading $(WAMR_TARBALL)"
-	$(Q) wget $(WAMR_URL)
+	$(Q) curl -O -L $(WAMR_URL)
 
 $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) echo "Unpacking $(WAMR_TARBALL) to $(WAMR_UNPACK)"
