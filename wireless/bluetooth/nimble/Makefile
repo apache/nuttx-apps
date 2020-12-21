@@ -33,7 +33,7 @@ NIMBLE_TAR := $(CONFIG_NIMBLE_REF).tar.gz
 NIMBLE_URL := https://github.com/apache/mynewt-nimble/archive/$(NIMBLE_TAR)
 
 $(NIMBLE_TAR):
-	wget $(NIMBLE_URL) -O $(NIMBLE_TAR)
+	$(Q) curl -L $(NIMBLE_URL) -o $(NIMBLE_TAR)
 
 $(NIMBLE_UNPACKDIR): $(NIMBLE_TAR)
 	$(Q) tar zxf $(NIMBLE_TAR)
