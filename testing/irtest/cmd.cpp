@@ -69,20 +69,6 @@ static void print_cmd(const cmd *cmd)
   printf(")\n");
 }
 
-static int print_cmd(const char *name)
-{
-  for (int i = 0; g_cmd_table[i]; i++)
-    {
-      if (strcmp(name, g_cmd_table[i]->name) == 0)
-        {
-          print_cmd(g_cmd_table[i]);
-          return 0;
-        }
-    }
-
-  return -ENOENT;
-}
-
 static void print_all_cmds()
 {
   for (int i = 0; g_cmd_table[i]; i++)
