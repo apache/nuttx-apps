@@ -57,6 +57,10 @@ CFLAGS += -Wno-format
 
 CSRCS += lv_tick_interface.c
 
+ifneq ($(CONFIG_USE_LV_FILESYSTEM),)
+CSRCS += lv_fs_interface.c
+endif
+
 # Set up build configuration and environment
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
