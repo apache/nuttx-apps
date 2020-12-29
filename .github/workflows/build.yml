@@ -85,6 +85,8 @@ jobs:
           ref: ${{ steps.gittargets.outputs.os_ref }}
           path: sources/nuttx
           fetch-depth: 1
+      - name: Checkout nuttx repo tags
+        run: git -C sources/nuttx fetch --tags
 
       - name: Checkout apps repo
         uses: actions/checkout@v2
@@ -102,8 +104,8 @@ jobs:
           path: sources/testing
           fetch-depth: 1
 
-      - name: Create Source Bundle
-        run: tar -czf sources.tar.gz sources
+      - name: Tar sources
+        run: tar zcf sources.tar.gz sources
       - name: Archive Source Bundle
         uses: actions/upload-artifact@v1
         with:
@@ -125,10 +127,9 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: source-bundle
-          path: ./
-      - name: Extract Source Artifact
-        run: tar -xf sources.tar.gz
-
+          path: .
+      - name: Extract sources
+        run: tar zxf sources.tar.gz
       - name: Docker Login
         uses: azure/docker-login@v1
         with:
@@ -137,32 +138,27 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Pull
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          retry_wait_seconds: 10
-          command: docker pull docker.pkg.github.com/apache/incubator-nuttx-testing/nuttx-ci-linux
-
+        run: docker pull docker.pkg.github.com/apache/incubator-nuttx-testing/nuttx-ci-linux
       - name: Export NuttX Repo SHA
-        run:  echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
-      - name: Refresh Git Credentials
-        uses: actions/checkout@v2
-        with:
-          repository: apache/incubator-nuttx
-          ref: ${{ env.nuttx_sha }}
-          path: sources/nuttx
-          fetch-depth: 1
-      - name: Get Tags for NuttX Repo
-        run: git -C sources/nuttx fetch --tags
+        run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
       - name: Run builds
         uses: ./sources/testing/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
         with:
           run: |
+            echo "::add-matcher::sources/nuttx/.github/gcc.json"
+            export CCACHE_DIR=`pwd`/ccache
+            mkdir $CCACHE_DIR
             cd sources/testing
-            ./cibuild.sh testlist/${{matrix.boards}}.dat
+            export ARTIFACTDIR=`pwd`/../../buildartifacts
+            ./cibuild.sh -A -c testlist/${{matrix.boards}}.dat
+            ccache -s
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-builds
+          path: buildartifacts/
+        continue-on-error: true
 
   macOS:
     runs-on: macos-10.15
@@ -175,13 +171,12 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: source-bundle
-          path: ./
-      - name: Extract Source Artifact
-        run: tar -xf sources.tar.gz
-
+          path: .
+      - name: Extract sources
+        run: tar zxf sources.tar.gz
       - name: Restore Tools Cache
         id: cache-tools
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         env:
           cache-name: ${{ runner.os }}-cache-tools
         with:
@@ -189,17 +184,18 @@ jobs:
           key: ${{ runner.os }}-tools-${{ hashFiles('./sources/testing/cibuild.sh') }}
 
       - name: Export NuttX Repo SHA
-        run:  echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
-      - name: Refresh Git Credentials
-        uses: actions/checkout@v2
-        with:
-          repository: apache/incubator-nuttx
-          ref: ${{ env.nuttx_sha }}
-          path: sources/nuttx
-          fetch-depth: 1
-      - name: Get Tags for NuttX Repo
-        run: git -C sources/nuttx fetch --tags
+        run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
       - name: Run Builds
         run: |
+          echo "::add-matcher::sources/nuttx/.github/gcc.json"
+          export CCACHE_DIR=`pwd`/ccache
+          mkdir $CCACHE_DIR
           cd sources/testing
-          ./cibuild.sh -i testlist/${{matrix.boards}}.dat
+          export ARTIFACTDIR=`pwd`/../../buildartifacts
+          ./cibuild.sh -i -A -c testlist/${{matrix.boards}}.dat
+          ccache -s
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-builds
+          path: buildartifacts/
+        continue-on-error: true
