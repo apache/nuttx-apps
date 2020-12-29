@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NRF24L01_BTLE
+	tristate "Use nRF24L01 emulates a nRF8001 temperature beacon"
+	default n
+	depends on DRIVERS_WIRELESS
+	---help---
+		Emulates a nRF8001 temperature beacon,reads temperature
+		from a DHT11 and sends it via BTLE.Compatible with Nordic
+		Semiconductor apps such as nRF Master Control Panel or
+		nRF Temp 2.0.
+
+if EXAMPLES_NRF24L01_BTLE
+
+config EXAMPLES_NRF24L01_BTLE_PROGNAME
+	string "Program name"
+	default "btle"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NRF24L01_BTLE_PRIORITY
+	int "Dhtxx task priority"
+	default 100
+
+config EXAMPLES_NRF24L01_BTLE_STACKSIZE
+	int "Dhtxx stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_NRF24L01_BTLE_RAND_MAC
+	bool "Use the Rand() to generate MAC"
+	default n
+
+config NRF24L01_BTLE_DHT11
+	tristate "Use the DHTxx humidity/temperature sensor."
+	default n
+	depends on SENSORS_DHTXX
+	---help---
+	    Enable driver support for the DHTxx humidity/temperature sensor.
+
+endif
