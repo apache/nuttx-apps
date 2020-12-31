@@ -144,7 +144,7 @@ static void *sender_thread(void *arg)
     }
   else
     {
-      g_send_mqfd = NULL;
+      g_send_mqfd = 0;
     }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
@@ -274,8 +274,8 @@ void mqueue_test(void)
 
   /* Reset globals for the beginning of the test */
 
-  g_send_mqfd = NULL;
-  g_recv_mqfd = NULL;
+  g_send_mqfd = 0;
+  g_recv_mqfd = 0;
 
   /* Start the sending thread at higher priority */
 
