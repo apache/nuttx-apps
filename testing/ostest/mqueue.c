@@ -180,7 +180,7 @@ static void *receiver_thread(void *arg)
    */
 
   g_recv_mqfd = mq_open("mqueue", O_RDONLY | O_CREAT, 0666, &attr);
-  if (g_recv_mqfd < 0)
+  if (g_recv_mqfd == (mqd_t)-1)
     {
       printf("receiver_thread: ERROR mq_open failed\n");
       pthread_exit((pthread_addr_t)1);
@@ -259,7 +259,7 @@ static void *receiver_thread(void *arg)
     }
   else
     {
-      g_recv_mqfd = NULL;
+      g_recv_mqfd = 0;
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
