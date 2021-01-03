@@ -188,7 +188,7 @@ static void *sender_thread(void *arg)
     }
   else
     {
-      g_send_mqfd = NULL;
+      g_send_mqfd = 0;
     }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
@@ -314,7 +314,7 @@ static void *receiver_thread(void *arg)
     }
   else
     {
-      g_recv_mqfd = NULL;
+      g_recv_mqfd = 0;
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
