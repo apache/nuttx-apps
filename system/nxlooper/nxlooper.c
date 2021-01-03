@@ -1051,7 +1051,7 @@ int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
            (unsigned long)((uintptr_t)plooper));
 
   plooper->mq = mq_open(plooper->mqname, O_RDWR | O_CREAT, 0644, &attr);
-  if (plooper->mq == NULL)
+  if (plooper->mq == (mqd_t) -1)
     {
       /* Unable to open message queue! */
 
@@ -1166,7 +1166,7 @@ FAR struct nxlooper_s *nxlooper_create(void)
   plooper->playdev[0] = '\0';
   plooper->recorddev[0] = '\0';
 #endif
-  plooper->mq = NULL;
+  plooper->mq = 0;
   plooper->loop_id = 0;
   plooper->crefs = 1;
 

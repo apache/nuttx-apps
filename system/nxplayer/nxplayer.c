@@ -1954,7 +1954,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
            (unsigned long)((uintptr_t)pplayer));
 
   pplayer->mq = mq_open(pplayer->mqname, O_RDWR | O_CREAT, 0644, &attr);
-  if (pplayer->mq == NULL)
+  if (pplayer->mq == (mqd_t) -1)
     {
       /* Unable to open message queue! */
 
@@ -2148,7 +2148,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
   pplayer->prefformat = 0;
   pplayer->preftype = 0;
 #endif
-  pplayer->mq = NULL;
+  pplayer->mq = 0;
   pplayer->play_id = 0;
   pplayer->crefs = 1;
 
