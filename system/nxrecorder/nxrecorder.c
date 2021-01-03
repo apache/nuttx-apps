@@ -866,7 +866,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
            (unsigned long)((uintptr_t)precorder));
 
   precorder->mq = mq_open(precorder->mqname, O_RDWR | O_CREAT, 0644, &attr);
-  if (precorder->mq == NULL)
+  if (precorder->mq == (mqd_t) -1)
     {
       /* Unable to open message queue! */
 
@@ -968,7 +968,7 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
   precorder->dev_fd = -1;
   precorder->fd = -1;
   precorder->device[0] = '\0';
-  precorder->mq = NULL;
+  precorder->mq = 0;
   precorder->record_id = 0;
   precorder->crefs = 1;
 
