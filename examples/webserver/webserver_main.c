@@ -197,6 +197,7 @@ int main(int argc, FAR char *argv[])
   httpd_listen();
 #endif
 
+#ifndef CONFIG_NSH_NETINIT
   /* We are running standalone (as opposed to a NSH built-in app). Therefore
    * we should not exit after httpd failure.
    */
@@ -207,6 +208,24 @@ int main(int argc, FAR char *argv[])
       printf("webserver_main: Still running\n");
       fflush(stdout);
     }
+
+#else /* CONFIG_NSH_NETINIT */
+  /* We are running as a NSH built-in app.  Therefore we should exit.  This
+   * allows to 'kill -9' the webserver app, assuming it was started as a
+   * background process.  For example:
+   *
+   *    nsh> webserver &
+   *    webserver [6:100]
+   *    nsh> Starting webserver
+   *
+   *    nsh> kill -9 6
+   *    nsh> webserver_main: Exiting
+   */
+
+  printf("webserver_main: Exiting\n");
+  fflush(stdout);
+
+#endif /* CONFIG_NSH_NETINIT */
 
   return 0;
 }
