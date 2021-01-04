@@ -733,11 +733,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           return nch;
         }
 
-      /* Otherwise, check if the character is printable and, if so, put the
-       * character in the line buffer
+      /* Otherwise, put the character in the line buffer if the
+       * character is not a control byte
        */
 
-      else if (isprint(ch))
+      else if (!iscntrl(ch & 0xff))
         {
           buf[nch++] = ch;
 
