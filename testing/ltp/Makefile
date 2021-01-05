@@ -83,12 +83,10 @@ BLACKSRCS += 35-2-buildonly.c
 
 MAINWORDS    += "main("
 
-LTP_ORIGINS  := $(shell find $(TESTDIR) -name *.c)
+$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell find $(TESTDIR) -name *.c |xargs grep -lr $(word))))
+$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(shell find $(TESTDIR) -name *.c))))
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGINS))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGINS))))
-
-LTP_ORIGINS  := $(filter-out $(BLACKLIST), $(LTP_ORIGINS))
+LTP_ORIGINS  := $(filter-out $(BLACKLIST), $(shell find $(TESTDIR) -name *.c))
 
 $(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS+=$(shell grep -lr $(word) $(LTP_ORIGINS))))
 
@@ -108,8 +106,6 @@ endif
 $(LTP_UNPACK):
 	$(Q) echo "git clone $(LTP_URL)"
 	$(Q) git clone $(LTP_URL)
-
-$(LTP_CSRCS): $(LTP_UNPACK)
 
 context:: $(LTP_UNPACK)
 
