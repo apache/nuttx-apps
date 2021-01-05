@@ -295,7 +295,7 @@ static void trace_dump_header(FAR FILE *out,
 
   pid = ctx->cpu[cpu].current_pid;
 
-  fprintf(out, "%8s-%-3u [%d] %3u.%09u: ",
+  fprintf(out, "%8s-%-3u [%d] %3" PRIu32 ".%09" PRIu32 ": ",
           get_task_name(pid, ctx), get_pid(pid), cpu,
 #ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
           sec, nsec
@@ -507,11 +507,11 @@ static int trace_dump_one(FAR FILE *out,
 #endif
               if (i == 0)
                 {
-                  fprintf(out, "arg%d: 0x%x", i, arg);
+                  fprintf(out, "arg%d: 0x%" PRIxPTR, i, arg);
                 }
               else
                 {
-                  fprintf(out, ", arg%d: 0x%x", i, arg);
+                  fprintf(out, ", arg%d: 0x%" PRIxPTR, i, arg);
                 }
             }
 
