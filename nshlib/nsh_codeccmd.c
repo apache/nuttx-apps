@@ -257,7 +257,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
   static const unsigned char hexchars[] = "0123456789abcdef";
   MD5_CTX ctx;
   unsigned char mac[16];
-  FAR char *src;
+  FAR unsigned char *src;
   FAR char *dest;
 #endif
 
@@ -443,7 +443,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
           int i;
 
           md5_final(mac, &ctx);
-          src = (FAR char *)&mac;
+          src  = mac;
           dest = destbuf;
           for (i = 0; i < 16; i++, src++)
             {
@@ -481,7 +481,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
 
               func(srcbuf, srclen, (char *)&ctx, &buflen, 0);
               md5_final(mac, &ctx);
-              src = (char *)&mac;
+              src  = mac;
               dest = destbuf;
               for (i = 0; i < 16; i++, src++)
                 {
