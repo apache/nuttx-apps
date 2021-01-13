@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/n etutils/ftpd.c
+ * apps/netutils/ftpd.c
  *
  *   Copyright (C) 2012, 2015, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -1136,9 +1136,9 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port,
 
   /* Initialize the server instance */
 
-    server->sd   = -1;
-    server->head = NULL;
-    server->tail = NULL;
+  server->sd   = -1;
+  server->head = NULL;
+  server->tail = NULL;
 
   /* Create the server listen socket */
 
@@ -1910,9 +1910,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (cmdtype == 0)
         {
-          /* Read from the file.
-           * Read returns the error condition via errno.
-           */
+          /* Read from the file. */
 
           rdbytes = read(session->fd, session->data.buffer, wantsize);
           if (rdbytes < 0)
@@ -2384,7 +2382,7 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
   if (!dir)
     {
       int errval = errno;
-      nerr("ERROR: dir() failed: %d\n", errval);
+      nerr("ERROR: opendir() failed: %d\n", errval);
       return -errval;
     }
 
@@ -3557,10 +3555,10 @@ static int ftpd_command_size(FAR struct ftpd_session_s *session)
           }
         else if (!S_ISREG(st.st_mode))
           {
-            ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                                g_respfmt2, 550, ' ', session->param,
-                                ": not a regular file.");
             ret = -EPERM;
+            ftpd_response(session->cmd.sd, session->txtimeout,
+                          g_respfmt2, 550, ' ', session->param,
+                          ": not a regular file.");
             goto errout_with_abspath;
           }
 
@@ -3673,9 +3671,9 @@ static int ftpd_command_rnto(FAR struct ftpd_session_s *session)
 
   if (!session->renamefrom)
     {
-      return ftpd_response(session->cmd.sd, session->txtimeout,
-                           g_respfmt1, 550, ' ', "RNTO error !");
-      return ret;
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 550, ' ', "RNTO error !");
+      return -EINVAL;
     }
 
   ret = ftpd_getpath(session, session->param, &abspath, NULL);
