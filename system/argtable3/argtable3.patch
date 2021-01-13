@@ -1,0 +1,512 @@
+diff -ur argtable3/argtable3.c argtable3-v3.0.0/argtable3.c
+--- argtable3/argtable3.c	2020-12-14 21:55:38.861316071 +0800
++++ argtable3-v3.0.0/argtable3.c	2020-12-14 21:52:37.189316071 +0800
+@@ -72,13 +72,13 @@
+ 
+ enum
+ {
+-    EMINCOUNT = 1,
+-    EMAXCOUNT,
+-    EBADINT,
+-    EOVERFLOW,
+-    EBADDOUBLE,
+-    EBADDATE,
+-    EREGNOMATCH
++    AEMINCOUNT = 1,
++    AEMAXCOUNT,
++    AEBADINT,
++    AEOVERFLOW,
++    AEBADDOUBLE,
++    AEBADDATE,
++    AEREGNOMATCH
+ };
+ 
+ 
+@@ -269,9 +269,6 @@
+  * Materiel Command, USAF, under agreement number F39502-99-1-0512.
+  */
+ 
+-#ifndef lint
+-static const char rcsid[]="$Id: getopt_long.c,v 1.1 2009/10/16 19:50:28 rodney Exp rodney $";
+-#endif /* lint */
+ /*-
+  * Copyright (c) 2000 The NetBSD Foundation, Inc.
+  * All rights reserved.
+@@ -308,7 +305,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-
++#define _NUTTX_PLATFORM     /* fix compilation errors */
+ #define	REPLACE_GETOPT		/* use this getopt as the system getopt(3) */
+ 
+ #ifdef REPLACE_GETOPT
+@@ -353,8 +350,7 @@
+ static const char illoptchar[] = "unknown option -- %c";
+ static const char illoptstring[] = "unknown option -- %s";
+ 
+-
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(_NUTTX_PLATFORM)
+ 
+ /* Windows needs warnx().  We change the definition though:
+  *  1. (another) global is defined, opterrmsg, which holds the error message
+@@ -367,25 +363,29 @@
+ #include <stdarg.h>
+ 
+ extern char opterrmsg[128];
+-char opterrmsg[128]; /* last error message is stored here */
++char opterrmsg[128]; /* buffer for the last error message */
+ 
+ static void warnx(const char *fmt, ...)
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
++    /*
++    Make sure opterrmsg is always zero-terminated despite the _vsnprintf()
++    implementation specifics and manually suppress the warning.
++    */
++    memset(opterrmsg, 0, sizeof opterrmsg);
+ 	if (fmt != NULL)
+-		_vsnprintf(opterrmsg, 128, fmt, ap);
+-	else
+-		opterrmsg[0]='\0';
++		vsnprintf(opterrmsg, sizeof(opterrmsg) - 1, fmt, ap);
+ 	va_end(ap);
+-
+-	fprintf(stderr, opterrmsg);
+-	fprintf(stderr, "\n");
++#if defined(_WIN32)
++#pragma warning(suppress: 6053)
++#endif
++	fprintf(stderr, "%s\n", opterrmsg);
+ }
+ 
+-#endif /*_WIN32*/
+-
+-
++#else
++#include <err.h>
++#endif /*_WIN32 or _NUTTX_PLATFORM */
+ 
+ /*
+  * Compute the greatest common divisor of a and b.
+@@ -855,7 +855,7 @@
+ 
+     if (parent->count == parent->hdr.maxcount)
+     {
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -872,7 +872,7 @@
+         if (pend && pend[0] == '\0')
+             parent->tmval[parent->count++] = tm;
+         else
+-            errorcode = EBADDATE;
++            errorcode = AEBADDATE;
+     }
+ 
+     ARG_TRACE(("%s:scanfn(%p) returns %d\n", __FILE__, parent, errorcode));
+@@ -882,7 +882,7 @@
+ 
+ static int arg_date_checkfn(struct arg_date *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+ 
+     ARG_TRACE(("%s:checkfn(%p) returns %d\n", __FILE__, parent, errorcode));
+     return errorcode;
+@@ -906,17 +906,17 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+ 
+-    case EBADDATE:
++    case AEBADDATE:
+     {
+         struct tm tm;
+         char buff[200];
+@@ -1485,7 +1485,7 @@
+     if (parent->count == parent->hdr.maxcount)
+     {
+         /* maximum number of arguments exceeded */
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -1506,7 +1506,7 @@
+         if (*end == 0)
+             parent->dval[parent->count++] = val;
+         else
+-            errorcode = EBADDOUBLE;
++            errorcode = AEBADDOUBLE;
+     }
+ 
+     ARG_TRACE(("%s:scanfn(%p) returns %d\n", __FILE__, parent, errorcode));
+@@ -1516,7 +1516,7 @@
+ 
+ static int arg_dbl_checkfn(struct arg_dbl *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     
+     ARG_TRACE(("%s:checkfn(%p) returns %d\n", __FILE__, parent, errorcode));
+     return errorcode;
+@@ -1540,17 +1540,17 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+ 
+-    case EBADDOUBLE:
++    case AEBADDOUBLE:
+         fprintf(fp, "invalid argument \"%s\" to option ", argval);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+@@ -1877,7 +1877,7 @@
+     if (parent->count == parent->hdr.maxcount)
+     {
+         /* maximum number of arguments exceeded */
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -1902,7 +1902,7 @@
+ 
+ static int arg_file_checkfn(struct arg_file *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     
+     ARG_TRACE(("%s:checkfn(%p) returns %d\n", __FILE__, parent, errorcode));
+     return errorcode;
+@@ -1926,12 +1926,12 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+@@ -2172,7 +2172,7 @@
+     if (parent->count == parent->hdr.maxcount)
+     {
+         /* maximum number of arguments exceeded */
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -2203,7 +2203,7 @@
+                     if (end == argval)
+                     {
+                         /* all supported number formats failed */
+-                        return EBADINT;
++                        return AEBADINT;
+                     }
+                 }
+             }
+@@ -2238,7 +2238,7 @@
+                 val *= 1073741824;              /* 1GB = 1024*1024*1024 */
+         }
+         else if (!detectsuffix(end, ""))
+-            errorcode = EBADINT;                /* invalid suffix detected */
++            errorcode = AEBADINT;                /* invalid suffix detected */
+ 
+         /* if success then store result in parent->ival[] array */
+         if (errorcode == 0)
+@@ -2252,7 +2252,7 @@
+ 
+ static int arg_int_checkfn(struct arg_int *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     /*printf("%s:checkfn(%p) returns %d\n",__FILE__,parent,errorcode);*/
+     return errorcode;
+ }
+@@ -2275,17 +2275,17 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+ 
+-    case EBADINT:
++    case AEBADINT:
+         fprintf(fp, "invalid argument \"%s\" to option ", argval);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+@@ -2409,7 +2409,7 @@
+     if (parent->count < parent->hdr.maxcount )
+         parent->count++;
+     else
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+ 
+     ARG_TRACE(("%s:scanfn(%p,%s) returns %d\n", __FILE__, parent, argval,
+                errorcode));
+@@ -2419,7 +2419,7 @@
+ 
+ static int arg_lit_checkfn(struct arg_lit *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     ARG_TRACE(("%s:checkfn(%p) returns %d\n", __FILE__, parent, errorcode));
+     return errorcode;
+ }
+@@ -2438,13 +2438,13 @@
+ 
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fprintf(fp, "%s: missing option ", progname);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         fprintf(fp, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fprintf(fp, "%s: extraneous option ", progname);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+@@ -2705,7 +2705,7 @@
+     if (parent->count == parent->hdr.maxcount )
+     {
+         /* maximum number of arguments exceeded */
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -2724,7 +2724,7 @@
+         rex = trex_compile(priv->pattern, &error, priv->flags);
+         is_match = trex_match(rex, argval);
+         if (!is_match)
+-            errorcode = EREGNOMATCH;
++            errorcode = AEREGNOMATCH;
+         else
+             parent->sval[parent->count++] = argval;
+ 
+@@ -2737,7 +2737,7 @@
+ 
+ static int arg_rex_checkfn(struct arg_rex *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     //struct privhdr *priv = (struct privhdr*)parent->hdr.priv;
+ 
+     /* free the regex "program" we constructed in resetfn */
+@@ -2763,17 +2763,17 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+ 
+-    case EREGNOMATCH:
++    case AEREGNOMATCH:
+         fputs("illegal value  ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+@@ -2836,7 +2836,7 @@
+     size_t nbytes;
+     struct arg_rex *result;
+     struct privhdr *priv;
+-    int errorcode, i;
++    int i;
+     const TRexChar *error = NULL;
+     TRex *rex = NULL;
+ 
+@@ -2896,7 +2896,6 @@
+     rex = trex_compile(priv->pattern, &error, priv->flags);
+     if (rex == NULL)
+     {
+-        errorcode = EREGNOMATCH;
+         ARG_LOG(("argtable: %s \"%s\"\n", error ? error : _TREXC("undefined"), priv->pattern));
+         ARG_LOG(("argtable: Bad argument table.\n"));
+     }
+@@ -3000,7 +2999,6 @@
+ 	if(type == OP_EXPR)
+ 		n.right = exp->_nsubexpr++;
+ 	if(exp->_nallocated < (exp->_nsize + 1)) {
+-		int oldsize = exp->_nallocated;
+ 		exp->_nallocated *= 2;
+ 		exp->_nodes = (TRexNode *)realloc(exp->_nodes, exp->_nallocated * sizeof(TRexNode));
+ 	}
+@@ -3180,7 +3178,6 @@
+ 	}
+ 
+ 	{
+-		int op;
+ 		TRexBool isgreedy = TRex_False;
+ 		unsigned short p0 = 0, p1 = 0;
+ 		switch(*exp->_p){
+@@ -3214,7 +3211,6 @@
+ 		}
+ 		if(isgreedy) {
+ 			int nnode = trex_newnode(exp,OP_GREEDY);
+-			op = OP_GREEDY;
+ 			exp->_nodes[nnode].left = ret;
+ 			exp->_nodes[nnode].right = ((p0)<<16)|p1;
+ 			ret = nnode;
+@@ -3416,7 +3412,7 @@
+ 			return cur;
+ 	}
+ 	case OP_WB:
+-		if(str == exp->_bol && !isspace(*str)
++		if((str == exp->_bol && !isspace(*str))
+ 		 || (str == exp->_eol && !isspace(*(str-1)))
+ 		 || (!isspace(*str) && isspace(*(str+1)))
+ 		 || (isspace(*str) && !isspace(*(str+1))) ) {
+@@ -3430,19 +3426,19 @@
+ 		if(str == exp->_eol) return str;
+ 		return NULL;
+ 	case OP_DOT:{
+-		*str++;
++		str++;
+ 				}
+ 		return str;
+ 	case OP_NCLASS:
+ 	case OP_CLASS:
+ 		if(trex_matchclass(exp,&exp->_nodes[node->left],*str)?(type == OP_CLASS?TRex_True:TRex_False):(type == OP_NCLASS?TRex_True:TRex_False)) {
+-			*str++;
++			str++;
+ 			return str;
+ 		}
+ 		return NULL;
+ 	case OP_CCLASS:
+ 		if(trex_matchcclass(node->left,*str)) {
+-			*str++;
++			str++;
+ 			return str;
+ 		}
+ 		return NULL;
+@@ -3455,7 +3451,7 @@
+ 		{
+ 			if (*str != node->type) return NULL;
+ 		}
+-		*str++;
++		str++;
+ 		return str;
+ 	}
+ 	return NULL;
+@@ -3546,7 +3542,7 @@
+ 				break;
+ 			node = exp->_nodes[node].next;
+ 		}
+-		*text_begin++;
++		text_begin++;
+ 	} while(cur == NULL && text_begin != text_end);
+ 
+ 	if(cur == NULL)
+@@ -3624,7 +3620,7 @@
+     if (parent->count == parent->hdr.maxcount)
+     {
+         /* maximum number of arguments exceeded */
+-        errorcode = EMAXCOUNT;
++        errorcode = AEMAXCOUNT;
+     }
+     else if (!argval)
+     {
+@@ -3645,7 +3641,7 @@
+ 
+ static int arg_str_checkfn(struct arg_str *parent)
+ {
+-    int errorcode = (parent->count < parent->hdr.mincount) ? EMINCOUNT : 0;
++    int errorcode = (parent->count < parent->hdr.mincount) ? AEMINCOUNT : 0;
+     
+     ARG_TRACE(("%s:checkfn(%p) returns %d\n", __FILE__, parent, errorcode));
+     return errorcode;
+@@ -3669,12 +3665,12 @@
+     fprintf(fp, "%s: ", progname);
+     switch(errorcode)
+     {
+-    case EMINCOUNT:
++    case AEMINCOUNT:
+         fputs("missing option ", fp);
+         arg_print_option(fp, shortopts, longopts, datatype, "\n");
+         break;
+ 
+-    case EMAXCOUNT:
++    case AEMAXCOUNT:
+         fputs("excess option ", fp);
+         arg_print_option(fp, shortopts, longopts, argval, "\n");
+         break;
+@@ -3837,25 +3833,6 @@
+     struct option *options;
+ };
+ 
+-#ifndef NDEBUG
+-static
+-void dump_longoptions(struct longoptions * longoptions)
+-{
+-    int i;
+-    printf("getoptval = %d\n", longoptions->getoptval);
+-    printf("noptions  = %d\n", longoptions->noptions);
+-    for (i = 0; i < longoptions->noptions; i++)
+-    {
+-        printf("options[%d].name    = \"%s\"\n",
+-               i,
+-               longoptions->options[i].name);
+-        printf("options[%d].has_arg = %d\n", i, longoptions->options[i].has_arg);
+-        printf("options[%d].flag    = %p\n", i, longoptions->options[i].flag);
+-        printf("options[%d].val     = %d\n", i, longoptions->options[i].val);
+-    }
+-}
+-#endif
+-
+ static
+ struct longoptions * alloc_longoptions(struct arg_hdr * *table)
+ {
+Only in argtable3/: argtable3.patch
