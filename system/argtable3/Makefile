@@ -23,24 +23,25 @@ include $(APPDIR)/Make.defs
 ARGTABLE3_VERSION := $(patsubst "%",%,$(CONFIG_SYSTEM_ARGTABLE3_VERSION))
 ARGTABLE3_TARBALL  = v$(ARGTABLE3_VERSION).tar.gz
 ARGTABLE3_UNPACK   = argtable3
-ARGTABLE3_SRCDIR   = $(ARGTABLE3_UNPACK)
+ARGTABLE3_SRCDIR   = $(ARGTABLE3_UNPACK)$(DELIM)src
 
 DEPPATH += --dep-path $(ARGTABLE3_SRCDIR)
 VPATH   += :$(ARGTABLE3_SRCDIR)
 
-CSRCS := $(notdir $(wildcard $(ARGTABLE3_SRCDIR)$(DELIM)argtable3.c))
+CFLAGS += ${shell $(DEFINE) "$(CC)" ARG_REPLACE_GETOPT=0}
+CSRCS := $(notdir $(wildcard $(ARGTABLE3_SRCDIR)$(DELIM)*.c))
 
 $(ARGTABLE3_TARBALL):
 	$(Q) echo "Downloading argtable3-$(ARGTABLE3_VERSION)"
 	$(Q) echo "$(ARGTABLE3_SRCDIR)"
 	$(Q) echo "$(ARGTABLE3_TARBALL)--$(ARGTABLE3_UNPACK)"
-	$(Q) wget https://github.com/argtable/argtable3/archive/$(ARGTABLE3_TARBALL)
+	$(Q) curl -O -L https://github.com/argtable/argtable3/archive/$(ARGTABLE3_TARBALL)
 
 $(ARGTABLE3_UNPACK): $(ARGTABLE3_TARBALL)
 	$(Q) tar zxf $(ARGTABLE3_TARBALL)
 	$(Q) mv argtable3-$(ARGTABLE3_VERSION) $(ARGTABLE3_UNPACK)
 	$(Q) echo "Patching $(ARGTABLE3_UNPACK)"
-	$(Q) patch -p0 < argtable3.patch
+	$(Q) patch -p0 < 0001-feat-Switch-to-FreeBSD-getopt-library.patch
 
 $(ARGTABLE3_UNPACK)/.patch: $(ARGTABLE3_UNPACK)
 	$(Q) touch $(ARGTABLE3_UNPACK)/.patch
