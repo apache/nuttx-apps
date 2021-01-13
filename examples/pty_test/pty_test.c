@@ -311,7 +311,7 @@ int main(int argc, FAR char *argv[])
 
   /* Open the second serial port to create a new console there */
 
-  termpair.fd_uart = open("/dev/console", O_RDWR);
+  termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV, O_RDWR);
   if (termpair.fd_uart < 0)
     {
 #ifdef CONFIG_EXAMPLES_PTYTEST_WAIT_CONNECTED
