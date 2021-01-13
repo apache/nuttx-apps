@@ -4496,7 +4496,10 @@ void ftpd_close(FTPD_SESSION handle)
   DEBUGASSERT(handle);
 
   server = (struct ftpd_server_s *)handle;
-  ftpd_account_free(server->head);
+  if (server->head != NULL)
+    {
+      ftpd_account_free(server->head);
+    }
 
   if (server->sd >= 0)
     {
