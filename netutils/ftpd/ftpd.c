@@ -3191,7 +3191,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
         {
           /* convert ipv6 to ipv4 */
 
-          in_addr in4addr;
+          struct in_addr in4addr;
 
           in4addr.s_addr = session->data.addr.in6.sin6_addr.s6_addr32[3];
 

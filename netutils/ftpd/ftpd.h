@@ -50,6 +50,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* FPTD Definitions *********************************************************/
 
 #define FTPD_SESSIONFLAG_USER       (1 << 0)  /* Session has a user */
@@ -67,6 +68,7 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
 /* This enumerates the type of each session */
 
 enum ftpd_sessiontype_e
@@ -92,7 +94,8 @@ union ftpd_sockaddr_u
   struct sockaddr            sa;
 #ifdef CONFIG_NET_IPv6
   struct sockaddr_in6        in6;
-#else
+#endif
+#ifdef CONFIG_NET_IPv4
   struct sockaddr_in         in4;
 #endif
 };
@@ -178,23 +181,4 @@ struct ftpd_protocol_s
   int value;
 };
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
-{
-#else
-#define EXTERN extern
-#endif
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-#undef EXTERN
-#ifdef __cplusplus
-}
-#endif
 #endif /* __APPS_NETUTILS_FTPD_FTPD_H */
