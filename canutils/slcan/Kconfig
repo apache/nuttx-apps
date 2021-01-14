@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_SLCAN
+	tristate "SocketCAN slcan tool"
+	default n
+	depends on NET_CAN
+	---help---
+		Enable the SocketCAN slcan tool
+
+if CANUTILS_SLCAN
+
+config SLCAN_TRACE
+	bool "Print trace output"
+	default y
+	---help---
+		Debug trace output
+
+endif
