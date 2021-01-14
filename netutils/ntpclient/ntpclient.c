@@ -79,7 +79,7 @@
  * since 1970
  */
 
-#define NTP2UNIX_TRANLSLATION 2208988800u
+#define NTP2UNIX_TRANSLATION 2208988800u
 #define NTP_VERSION          3
 
 /****************************************************************************
@@ -138,7 +138,7 @@ static struct ntpc_daemon_s g_ntpc_daemon =
  *
  ****************************************************************************/
 
-static inline uint32_t ntpc_getuint32(FAR uint8_t *ptr)
+static inline uint32_t ntpc_getuint32(FAR const uint8_t *ptr)
 {
   /* Network order is big-endian; host order is irrelevant */
 
@@ -190,9 +190,9 @@ static void ntpc_settime(FAR uint8_t *timestamp)
 
   /* Translate seconds to account for the difference in the origin time */
 
-  if (seconds > NTP2UNIX_TRANLSLATION)
+  if (seconds > NTP2UNIX_TRANSLATION)
     {
-      seconds -= NTP2UNIX_TRANLSLATION;
+      seconds -= NTP2UNIX_TRANSLATION;
     }
 
   /* Conversion of the fractional part to nanoseconds:
@@ -296,7 +296,7 @@ static void ntpc_settime(FAR uint8_t *timestamp)
   tp.tv_nsec = nsec;
   clock_settime(CLOCK_REALTIME, &tp);
 
-  sinfo("Set time to %ju seconds\n", (intmax_t)tp.tv_sec);
+  ninfo("Set time to %ju seconds\n", (intmax_t)tp.tv_sec);
 }
 
 /****************************************************************************
@@ -422,7 +422,7 @@ static int ntpc_daemon(int argc, char **argv)
       memset(&pkt, 0, sizeof(pkt));
       pkt.lvm = MKLVM(0, NTP_VERSION, 3);
 
-      sinfo("Sending a NTP packet\n");
+      ninfo("Sending a NTP packet\n");
 
       ret = sendto(sd, &pkt, sizeof(struct ntp_datagram_s),
                    0, (FAR struct sockaddr *)&server,
@@ -464,7 +464,7 @@ static int ntpc_daemon(int argc, char **argv)
 
       if (nbytes >= (ssize_t)NTP_DATAGRAM_MINSIZE)
         {
-          sinfo("Setting time\n");
+          ninfo("Setting time\n");
           ntpc_settime(pkt.recvtimestamp);
           retry = 0;
         }
@@ -503,7 +503,7 @@ static int ntpc_daemon(int argc, char **argv)
 
       if (g_ntpc_daemon.state == NTP_RUNNING)
         {
-          sinfo("Waiting for %d seconds\n",
+          ninfo("Waiting for %d seconds\n",
                 CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
 
           sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
