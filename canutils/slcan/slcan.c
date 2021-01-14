@@ -42,6 +42,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <syslog.h>
 #include <sys/uio.h>
 #include <net/if.h>
 #include <termios.h>
@@ -67,7 +68,7 @@
   do \
     { \
       if (DEBUG) \
-        fprintf(stdout, fmt, ##__VA_ARGS__); \
+        syslog(LOG_DEBUG,  fmt, ##__VA_ARGS__); \
     } \
   while (0)
 
@@ -133,7 +134,7 @@ static int caninit(char *candev, int *s, struct sockaddr_can *addr,
   debug_print("slcanBus\n");
   if ((*s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
     {
-      debug_print("Error opening CAN socket\n");
+      syslog(LOG_ERR, "Error opening CAN socket\n");
       return -1;
     }
   strncpy(ifr.ifr_name, candev, 4);
@@ -141,7 +142,7 @@ static int caninit(char *candev, int *s, struct sockaddr_can *addr,
   ifr.ifr_ifindex = if_nametoindex(ifr.ifr_name);
   if (!ifr.ifr_ifindex)
     {
-      debug_print("error finding index %s\n", candev);
+      syslog(LOG_ERR, "error finding index %s\n", candev);
       return -1;
     }
   memset(addr, 0, sizeof(struct sockaddr));
@@ -151,7 +152,7 @@ static int caninit(char *candev, int *s, struct sockaddr_can *addr,
 
   if (bind(*s, (struct sockaddr *)addr, sizeof(struct sockaddr)) < 0)
     {
-      debug_print("bind error\n");
+      syslog(LOG_ERR, "bind error\n");
       return -1;
     }
 
@@ -212,8 +213,7 @@ int main(int argc, char *argv[])
   fd = open(chrdev, O_RDWR | O_BINARY);
   if (fd < 0)
     {
-      fprintf(stderr, "Failed to open serial channel %s\n", chrdev);
-      fflush(stderr);
+      syslog(LOG_ERR, "Failed to open serial channel %s\n", chrdev);
       return -1;
     }
   else
@@ -222,8 +222,7 @@ int main(int argc, char *argv[])
 
       if (caninit(candev, &s, &addr, &ctrlmsg[0], &frame, &msg, &iov) < 0)
         {
-          fprintf(stderr, "Failed to open CAN socket %s\n", candev);
-          fflush(stderr);
+          syslog(LOG_ERR, "Failed to open CAN socket %s\n", candev);
           close(fd);
           return -1;
         }
@@ -310,7 +309,7 @@ int main(int argc, char *argv[])
                           /* open CAN interface */
 
                           mode = 1;
-                          printf("Open interface\n");
+                          debug_print("Open interface\n");
                           ok_return(fd);
                         }
                       else if (buf[0] == 'S')
@@ -363,12 +362,13 @@ int main(int argc, char *argv[])
 
                           if (ioctl(s, SIOCSCANBITRATE, &ifr) < 0)
                             {
-                              printf("set speed %d failed\n", canspeed);
+                              syslog(LOG_ERR, "set speed %d failed\n",
+                                     canspeed);
                               fail_return(fd);
                             }
                           else
                             {
-                              printf("set speed %d\n", canspeed);
+                              debug_print("set speed %d\n", canspeed);
                               ok_return(fd);
                             }
                         }
@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
 
                           if (write(s, &frame, CAN_MTU) != CAN_MTU)
                             {
-                              debug_print("transmitt error\n");
+                              syslog(LOG_ERR, "transmitt error\n");
 
                               /* TODO update error flags */
                             }
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
 
                           if (write(s, &frame, CAN_MTU) != CAN_MTU)
                             {
-                              debug_print("transmitt error\n");
+                              syslog(LOG_ERR, "transmitt error\n");
 
                               /* TODO update error flags */
                             }
