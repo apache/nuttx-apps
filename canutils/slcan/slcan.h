@@ -42,6 +42,4 @@
 #define SLCAN_ARBITRATION_LOST (1 << 6)
 #define SLCAN_BUS_ERROR        (1 << 7)
 
-/* T1401557F8f601000000▒0 */
-
 #endif /* SLCAN_H */
