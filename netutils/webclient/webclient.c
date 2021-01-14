@@ -896,6 +896,13 @@ int webclient_perform(FAR struct webclient_context *ctx)
             }
           else if (ws->datend == 0)
             {
+              if (ws->state != WEBCLIENT_STATE_DATA)
+                {
+                  nerr("Connection lost unexpectedly\n");
+                  ret = -ECONNABORTED;
+                  goto errout_with_errno;
+                }
+
               ninfo("Connection lost\n");
               break;
             }
