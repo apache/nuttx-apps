@@ -208,8 +208,10 @@ static void iperf_report_task(void *arg)
   while (!s_iperf_ctrl.finish)
     {
       sleep(interval);
-      printf("%4d-%4d sec,  %.2f Mbits/sec\n", cur, cur + interval,
-        (double)((s_iperf_ctrl.total_len - last_len) * 8) / interval / 1e6);
+      printf("%4" PRId32 "-%4" PRId32 " sec,  %.2f Mbits/sec\n",
+             cur, cur + interval,
+             (double)((s_iperf_ctrl.total_len - last_len) * 8) /
+             interval / 1e6);
       cur += interval;
       last_len = s_iperf_ctrl.total_len;
       if (cur >= time)
@@ -220,7 +222,7 @@ static void iperf_report_task(void *arg)
 
   if (cur != 0)
     {
-      printf("%4d-%4d sec,  %.2f Mbits/sec\n", 0, time,
+      printf("%4d-%4" PRId32 " sec,  %.2f Mbits/sec\n", 0, time,
             (double)(s_iperf_ctrl.total_len * 8) / cur / 1e6);
     }
 

@@ -215,8 +215,10 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  printf("\n mode=%s-%s sip=%d.%d.%d.%d:%d,\
-         dip=%d.%d.%d.%d:%d, interval=%d, time=%d\n",
+  printf("\n mode=%s-%s "
+         "sip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d,"
+         "dip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d, "
+         "interval=%" PRId32 ", time=%" PRId32 " \n",
          cfg.flag & IPERF_FLAG_TCP ?"tcp":"udp",
          cfg.flag & IPERF_FLAG_SERVER ?"server":"client",
          cfg.sip & 0xff, (cfg.sip >> 8) & 0xff, (cfg.sip >> 16) & 0xff,
