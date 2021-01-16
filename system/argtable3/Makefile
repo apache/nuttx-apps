@@ -40,13 +40,8 @@ $(ARGTABLE3_TARBALL):
 $(ARGTABLE3_UNPACK): $(ARGTABLE3_TARBALL)
 	$(Q) tar zxf $(ARGTABLE3_TARBALL)
 	$(Q) mv argtable3-$(ARGTABLE3_VERSION) $(ARGTABLE3_UNPACK)
-	$(Q) echo "Patching $(ARGTABLE3_UNPACK)"
-	$(Q) patch -p0 < 0001-feat-Switch-to-FreeBSD-getopt-library.patch
 
-$(ARGTABLE3_UNPACK)/.patch: $(ARGTABLE3_UNPACK)
-	$(Q) touch $(ARGTABLE3_UNPACK)/.patch
-
-context:: $(ARGTABLE3_UNPACK)/.patch
+context:: $(ARGTABLE3_UNPACK)
 
 distclean::
 	$(call DELFILE, $(ARGTABLE3_TARBALL))
