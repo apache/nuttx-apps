@@ -1,0 +1,80 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig CRYPTO_MBEDTLS
+	bool "Mbed TLS Cryptography Library"
+	default n
+	---help---
+		Enable support for Mbed TLS.
+
+if CRYPTO_MBEDTLS
+
+config MBEDTLS_VERSION
+	string "MBEDTLS Version"
+	default "2.25.0"
+
+menuconfig MBEDTLS_APPS
+	tristate "Mbed TLS Applications"
+	default n
+	---help---
+		Enable Mbed TLS Applications
+
+if MBEDTLS_APPS
+
+config MBEDTLS_DEFAULT_TASK_STACKSIZE
+	int "Mbed TLS app default stack size"
+	default 8192
+
+config MBEDTLS_APP_BENCHMARK
+	bool "Mbed TLS benchmark"
+	default n
+	---help---
+		Enable the Mbed TLS self test
+
+if MBEDTLS_APP_BENCHMARK
+
+config MBEDTLS_APP_BENCHMARK_PROGNAME
+	string "Program name"
+	default "mbedbenchmark"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config MBEDTLS_APP_BENCHMARK_PRIORITY
+	int "Benchmark task priority"
+	default 100
+
+config MBEDTLS_APP_BENCHMARK_STACKSIZE
+	int "Benchmark stack size"
+	default MBEDTLS_DEFAULT_TASK_STACKSIZE
+endif
+
+config MBEDTLS_APP_SELFTEST
+	bool "Mbed TLS Self Test"
+	default n
+	---help---
+		Enable the Mbed TLS self test
+
+if MBEDTLS_APP_SELFTEST
+
+config MBEDTLS_APP_SELFTEST_PROGNAME
+	string "Program name"
+	default "mbedselftest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config MBEDTLS_APP_SELFTEST_PRIORITY
+	int "Self test task priority"
+	default 100
+
+config MBEDTLS_APP_SELFTEST_STACKSIZE
+	int "Self test stack size"
+	default MBEDTLS_DEFAULT_TASK_STACKSIZE
+endif
+
+endif
+
+endif # CRYPTO_MBEDTLS
