@@ -29,4 +29,12 @@ config NETUTILS_DHCPC_RETRIES
 		This setting determines how many times resolver retries request
 		until failing.
 
+config NETUTILS_DHCPC_BOOTP_FLAGS
+	hex "Flags of Bootstrap"
+	default 0x8000
+	---help---
+		This setting to set the BOOTP broadcast flags.
+		Reference RFC1542: Clarifications and Extensions for the
+		Bootstrap Protocol.
+
 endif

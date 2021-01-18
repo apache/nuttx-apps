@@ -71,8 +71,6 @@
 #define STATE_HAVE_OFFER        1
 #define STATE_HAVE_LEASE        2
 
-#define BOOTP_BROADCAST         0x8000
-
 #define DHCP_REQUEST            1
 #define DHCP_REPLY              2
 #define DHCP_HTYPE_ETHERNET     1
@@ -261,7 +259,9 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          * unicast traffic before being fully configured.
          */
 
-        pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+        /* Broadcast bit. */
+
+        pdhcpc->packet.flags = HTONS(CONFIG_NETUTILS_DHCPC_BOOTP_FLAGS);
 
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addreqoptions(pend);
@@ -274,7 +274,9 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          * unicast traffic before being fully configured.
          */
 
-        pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+        /* Broadcast bit. */
+
+        pdhcpc->packet.flags = HTONS(CONFIG_NETUTILS_DHCPC_BOOTP_FLAGS);
 
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
