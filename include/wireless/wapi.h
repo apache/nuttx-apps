@@ -126,7 +126,36 @@ enum wapi_route_target_e
 enum wapi_essid_flag_e
 {
   WAPI_ESSID_OFF,
-  WAPI_ESSID_ON
+  WAPI_ESSID_ON,
+
+/* Extended flag "WAPI_ESSID_DELAY_ON" instructs the driver
+ * to delay the connection behavior of essid, so that which can accept
+ * more accurate information before generating a connection.
+ *
+ * About flow of wapi command, drivers that support WAPI_ESSID_DELAY_ON
+ * semantics will have the following behavior changes:
+ *
+ * 1. Station mode without bssid set:
+ *
+ * $ ifup wlan0
+ * $ wapi mode wlan0 2
+ * $ wapi psk wlan0 12345678 3
+ * $ wapi essid wlan0 archer 1
+ * $ renew wlan0
+ *
+ * 2. Station mode with bssid set:
+ *
+ * $ ifup wlan0
+ * $ wapi mode wlan0 2
+ * $ wapi psk wlan0 12345678 3
+ * $ wapi essid wlan0 archer 2  <-- WAPI_ESSID_DELAY_ON will indicate the
+ * $                                driver delay the connection event late
+ * $                                to bssid set (SIOCSIWAP).
+ * $ wapi ap wlan0 ec:41:18:e0:76:7e
+ * $ renew wlan0
+ */
+
+  WAPI_ESSID_DELAY_ON
 };
 
 /* Supported operation modes. */
