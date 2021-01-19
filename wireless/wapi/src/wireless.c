@@ -740,7 +740,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
   wrq.u.essid.pointer = buf;
   wrq.u.essid.length =
     snprintf(buf, ((WAPI_ESSID_MAX_SIZE + 1) * sizeof(char)), "%s", essid);
-  wrq.u.essid.flags = (flag == WAPI_ESSID_ON);
+  wrq.u.essid.flags = flag;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
   ret = ioctl(sock, SIOCSIWESSID, (unsigned long)((uintptr_t)&wrq));
