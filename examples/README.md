@@ -400,13 +400,13 @@ FTP directories:
 ```
 nsh> mount -t vfat /dev/mmcsd0 /tmp  # Mount the SD card at /tmp
 nsh> cd /tmp                         # cd into the /tmp directory
-nsh> ftpc xx.xx.xx.xx[:pp]           # Start the FTP client
+nsh> ftpc <host> <port>              # Start the FTP client
 nfc> login <name> <password>         # Log into the FTP server
 nfc> help                            # See a list of FTP commands
 ```
 
-where `xx.xx.xx.xx` is the IP address of the FTP server and `pp` is an optional
-port number.
+where `<host>` is the IP address or hostname of the FTP server and `<port>` is
+an optional port number.
 
 **Note**: By default, FTPC uses `readline` to get data from `stdin`. So your
 defconfig file must have the following build path:
@@ -438,7 +438,7 @@ CONFIG_DEBUG_FTPC=y
 
 ## `ftpd` FTP daemon
 
-This example exercises the FTPD daemon at `apps/netuils/ftpd`. Below are
+This example exercises the FTPD daemon at `apps/netutils/ftpd`. Below are
 configurations specific to the FTPD example (the FTPD daemon itself may require
 other configuration options as well).
 
@@ -469,8 +469,7 @@ specified to customized the network configuration:
   `10.0.0.1`.
 - `CONFIG_EXAMPLES_FTPD_NETMASK` – The network mask. Default: `255.255.255.0`.
 
-Other required configuration settings: Of course TCP networking support is
-required. But here are a couple that are less obvious:
+TCP networking support is required. So are pthreads so this must be set to 'n':
 
 - `CONFIG_DISABLE_PTHREAD` – `pthread` support is required.
 
@@ -491,7 +490,7 @@ The following netutils libraries should be enabled in your `defconfig` file:
 
 ```conf
 CONFIG_NETUTILS_NETLIB=y
-CONFIG_NETUTILS_TELNED=y
+CONFIG_NETUTILS_FTPD=y
 ```
 
 ## `gpio` GPIO Read and Write
@@ -1627,7 +1626,7 @@ environment, the NuttShell (at `apps/nshlib`) supersedes this tiny shell and
 also supports `telnetd`.
 
 - `CONFIG_EXAMPLES_TELNETD` – Enable the Telnetd example.
-- `CONFIG_NETUTILS_NETLIB`, `CONFIG_NETUTILS_TELNED` – Enable netutils libraries
+- `CONFIG_NETUTILS_NETLIB`, `CONFIG_NETUTILS_TELNETD` – Enable netutils libraries
   needed by the Telnetd example.
 - `CONFIG_EXAMPLES_TELNETD_DAEMONPRIO` – Priority of the Telnet daemon. Default:
   `SCHED_PRIORITY_DEFAULT`.
