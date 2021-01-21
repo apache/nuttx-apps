@@ -197,13 +197,18 @@ struct ntp_datagram_s
   uint8_t origtimestamp[8];  /* Originate Timestamp */
   uint8_t recvtimestamp[8];  /* Receive Timestamp */
   uint8_t xmittimestamp[8];  /* Transmit Timestamp */
+};
+
 #ifdef CONFIG_NETUTILS_NTPCLIENT_WITH_AUTH
+struct ntp_datagram_with_key_s
+{
+  struct ntp_datagram_s header;
   uint8_t keyid[4];          /* Authenticator data */
   uint8_t digest1[4];
   uint8_t digest2[4];
   uint8_t digest3[4];
   uint8_t digest4[4];
-#endif
 };
+#endif
 
 #endif /* __APPS_NETUTILS_NTPCLIENT_NTPV3_H */

@@ -93,6 +93,30 @@ extern "C"
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ntpc_dualstack_family()
+ *
+ * Description:
+ *   Set the protocol family used (AF_INET, AF_INET6 or AF_UNSPEC)
+ *
+ ****************************************************************************/
+
+void ntpc_dualstack_family(int family);
+
+/****************************************************************************
+ * Name: ntpc_start_with_list
+ *
+ * Description:
+ *   Start the NTP daemon
+ *
+ * Returned Value:
+ *   On success, the non-negative task ID of the NTPC daemon is returned;
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ntpc_start_with_list(FAR const char *ntp_server_list);
+
+/****************************************************************************
  * Name: ntpc_start
  *
  * Description:
