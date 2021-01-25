@@ -63,6 +63,8 @@ int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *fmt;
   char ch;
+  uint32_t value;
+  int len;
   int i;
 
   /* parse each argument, detecting the right action to take
@@ -84,7 +86,25 @@ int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               case 'x':
                 fmt++;
-                nsh_output(vtbl, "%c", strtol(fmt, NULL, 16));
+                value = strtoul(fmt, NULL, 16);
+                len = strnlen(fmt, 10);
+
+                if (len >= 7)
+                  {
+                    nsh_output(vtbl, "%c%c%c%c", value & 0xff,
+                                                 (value & 0xff00) >> 8,
+                                                 (value & 0xff0000) >> 16,
+                                                 (value & 0xff000000) >> 24);
+                  }
+                else if (len >= 3)
+                    {
+                      nsh_output(vtbl, "%c%c", value & 0xff,
+                                               (value & 0xff00) >> 8);
+                    }
+                  else if (len >= 1)
+                      {
+                        nsh_output(vtbl, "%c", value & 0xff);
+                      }
                 break;
 
               case 'n':
