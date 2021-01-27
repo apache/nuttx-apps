@@ -99,8 +99,7 @@ int netcat_server(int argc, char * argv[])
       while (0 < avail)
         {
           avail = recv(conn, buf, capacity, 0);
-          buf[avail] = 0;
-          fprintf(fout, "%s", buf);
+          fwrite(buf, avail, 1, fout);
           int status = fflush(fout);
           if (0 != status)
             {
