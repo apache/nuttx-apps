@@ -215,7 +215,8 @@ int main(int argc, FAR char *argv[])
   if (2 > argc)
     {
       fprintf(stderr,
-              "Usage: netcat [-l] [destination] [port] [file]\n");
+              "Usage: netcat <destination> [port] [file]\n"
+              "Usage: netcat -l [port] [file]\n");
     }
   else if ((1 < argc) && (0 == strcmp("-l", argv[1])))
     {
