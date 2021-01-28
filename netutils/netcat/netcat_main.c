@@ -133,13 +133,9 @@ int netcat_server(int argc, char * argv[])
 
   socklen_t addrlen;
   int conn;
-  while ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
+  if ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
     {
       result = do_io(conn, outfd);
-      if (result != 0)
-        {
-          break;
-        }
     }
 
   if (0 > conn)
