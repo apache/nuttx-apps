@@ -66,6 +66,22 @@ config LV_INV_FIFO_SIZE
 		If too much area is invalidated (greater then this number) then
 		the whole screen will be refreshed
 
+config LV_USE_LCD_INTERFACE
+	bool "LCD interface"
+	default n
+
+if LV_USE_LCD_INTERFACE
+
+config LV_LCD_INTERFACE_DEVICEPATH
+	string "LCD device path"
+	default "/dev/lcd0"
+
+config LV_LCD_INTERFACE_BUFF_SIZE
+	int "LCD buffer size (in line)"
+	default 10
+
+endif
+
 endmenu
 
 menu "Input device settings"
@@ -101,6 +117,128 @@ config LV_INDEV_DEF_GESTURE_LIMIT
 config LV_INDEV_DEF_GESTURE_MIN_VELOCITY
 	int "Gesture min velocity at release before swipe (pixels)"
 	default 3
+
+menuconfig LV_USE_BUTTON_INTERFACE
+	bool "Button input driver"
+	default n
+
+if LV_USE_BUTTON_INTERFACE
+
+config LV_BUTTON_INTERFACE_BUTTON_DEVICEPATH
+	string "Button device path"
+	default "/dev/buttons"
+
+config LV_BUTTON_INTERFACE_BUTTON_0_MAP_X
+	int "Button 0 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_0_MAP_Y
+	int "Button 0 mapping coordinate y"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_1_MAP_X
+	int "Button 1 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_1_MAP_Y
+	int "Button 1 mapping coordinate y"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_2_MAP_X
+	int "Button 2 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_2_MAP_Y
+	int "Button 2 mapping coordinate y"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_3_MAP_X
+	int "Button 3 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_3_MAP_Y
+	int "Button 3 mapping coordinate y"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_4_MAP_X
+	int "Button 4 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_4_MAP_Y
+	int "Button 4 mapping coordinate y"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_5_MAP_X
+	int "Button 5 mapping coordinate x"
+	default 0
+
+config LV_BUTTON_INTERFACE_BUTTON_5_MAP_Y
+	int "Button 5 mapping coordinate y"
+	default 0
+
+endif
+
+menuconfig LV_USE_KEYPAD_INTERFACE
+	bool "Keypad input driver"
+	default n
+	---help---
+	button bit map < 0 is no binding, must >= 0 and < 31 to binding button device.
+
+if LV_USE_KEYPAD_INTERFACE
+
+config LV_KEYPAD_INTERFACE_BUTTON_DEVICEPATH
+	string "Button device path"
+	default "/dev/buttons"
+
+config LV_KEYPAD_INTERFACE_KEY_UP_MAP_BIT
+	int "LV_KEY_UP button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_DOWN_MAP_BIT
+	int "LV_KEY_DOWN button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_RIGHT_MAP_BIT
+	int "LV_KEY_RIGHT button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_LEFT_MAP_BIT
+	int "LV_KEY_LEFT button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_ESC_MAP_BIT
+	int "LV_KEY_ESC button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_DEL_MAP_BIT
+	int "LV_KEY_DEL button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_BACKSPACE_MAP_BIT
+	int "LV_KEY_BACKSPACE button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_ENTER_MAP_BIT
+	int "LV_KEY_ENTER button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_NEXT_MAP_BIT
+	int "LV_KEY_NEXT button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_PREV_MAP_BIT
+	int "LV_KEY_PREV button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_HOME_MAP_BIT
+	int "LV_KEY_HOME button bit map"
+	default -1
+
+config LV_KEYPAD_INTERFACE_KEY_END_MAP_BIT
+	int "LV_KEY_END button bit map"
+	default -1
+
+endif
 
 endmenu
 
