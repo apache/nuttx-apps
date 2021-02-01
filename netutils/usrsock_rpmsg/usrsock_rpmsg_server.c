@@ -786,6 +786,7 @@ static void usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
               /* Stop poll in until recv get called */
 
+              pfds[i].events &= ~POLLIN;
               priv->pfds[j].events &= ~POLLIN;
             }
 
@@ -795,6 +796,7 @@ static void usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
               /* Stop poll out until send get called */
 
+              pfds[i].events &= ~POLLOUT;
               priv->pfds[j].events &= ~POLLOUT;
             }
 
@@ -804,6 +806,7 @@ static void usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
               /* Stop poll at all */
 
+              pfds[i].ptr = NULL;
               priv->pfds[j].ptr = NULL;
             }
 
@@ -856,17 +859,19 @@ int main(int argc, char *argv[])
 
   while (1)
     {
-      /* Collect all socks which need monitor */
-
-      ret = usrsock_rpmsg_prepare_poll(priv, pfds);
-
       /* Monitor the state change from them */
 
-      if (ppoll(pfds, ret, NULL, &sigmask) > 0)
+      if (ppoll(pfds, ret, NULL, &sigmask) >= 0)
         {
           /* Process all changed socks */
 
           usrsock_rpmsg_process_poll(priv, pfds, ret);
+        }
+      else if (errno == EINTR)
+        {
+          /* Collect all socks which need monitor */
+
+          ret = usrsock_rpmsg_prepare_poll(priv, pfds);
         }
     }
 
