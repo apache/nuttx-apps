@@ -653,6 +653,7 @@ static uint32_t iperf_get_buffer_len(void)
 int iperf_start(struct iperf_cfg_t *cfg)
 {
   int ret;
+  void *retval;
   struct sched_param param;
   pthread_t thread;
   pthread_attr_t attr;
@@ -696,6 +697,7 @@ int iperf_start(struct iperf_cfg_t *cfg)
       return -1;
     }
 
+  pthread_join(thread, &retval);
   return 0;
 }
 
