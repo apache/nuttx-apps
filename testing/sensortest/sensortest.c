@@ -224,8 +224,7 @@ int main(int argc, FAR char *argv[])
           case 'h':
           default:
             usage();
-            optind = 0;
-            return 0;
+            goto name_err;
         }
     }
 
@@ -247,18 +246,21 @@ int main(int argc, FAR char *argv[])
         {
           printf("The sensor node name:%s is invaild\n", name);
           usage();
-          return -EINVAL;
+          ret = -EINVAL;
+          goto name_err;
         }
 
       if (!buffer)
         {
-          return -ENOMEM;
+          ret = -ENOMEM;
+          goto name_err;
         }
     }
   else
     {
       usage();
-      return -EINVAL;
+      ret = -EINVAL;
+      goto name_err;
     }
 
   snprintf(devname, PATH_MAX, DEVNAME_FMT, name);
@@ -341,5 +343,7 @@ ctl_err:
   close(fd);
 open_err:
   free(buffer);
+name_err:
+  optind = 0;
   return ret;
 }
