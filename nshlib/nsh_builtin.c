@@ -91,6 +91,10 @@
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv, FAR const char *redirfile, int oflags)
 {
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+  struct sigaction act;
+  struct sigaction old;
+#endif
   int ret = OK;
 
   /* Lock the scheduler in an attempt to prevent the application from
@@ -98,6 +102,20 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    */
 
   sched_lock();
+
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+  /* Ignore the child status if run the application on background. */
+
+  if (vtbl->np.np_bg == true)
+    {
+      act.sa_handler = SIG_DFL;
+      act.sa_flags = SA_NOCLDWAIT;
+      sigemptyset(&act.sa_mask);
+
+      sigaction(SIGCHLD, &act, &old);
+    }
+
+#endif /* CONFIG_NSH_DISABLEBG */
 
   /* Try to find and execute the command within the list of builtin
    * applications.
@@ -224,6 +242,12 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
+#  ifdef CONFIG_SCHED_CHILD_STATUS
+
+          /* Restore the old actions */
+
+          sigaction(SIGCHLD, &old, NULL);
+#  endif
           struct sched_param param;
           sched_getparam(ret, &param);
           nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);
