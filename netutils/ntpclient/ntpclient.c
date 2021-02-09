@@ -529,8 +529,8 @@ static void ntpc_calculate_offset(FAR int64_t *offset, FAR int64_t *delay,
    *      http://nicolas.aimon.fr/2014/12/05/timesync/
    */
 
-  *offset = (int64_t)((remote_recvtime - local_xmittime) +
-                     (remote_xmittime - local_recvtime)) / 2;
+  *offset = (int64_t)((remote_recvtime / 2 - local_xmittime / 2) +
+                     (remote_xmittime / 2 - local_recvtime / 2));
 
   /* Calculate roundtrip delay. */
 
