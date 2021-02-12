@@ -432,7 +432,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
             }
           else
             {
-              return - ECONNABORTED;
+              return -ECONNABORTED;
             }
 
           /* We're done parsing the status line, so start parsing
