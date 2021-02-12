@@ -90,6 +90,32 @@ static int nsh_telnetmain(int argc, char *argv[])
   DEBUGASSERT(pstate != NULL);
   vtbl = &pstate->cn_vtbl;
 
+  /* Initialize any USB tracing options that were requested.  If
+   * standard console is also defined, then we will defer this step to
+   * the standard console.
+   */
+
+#if defined(CONFIG_NSH_USBDEV_TRACE) && !defined(CONFIG_NSH_CONSOLE)
+  usbtrace_enable(TRACE_BITSET);
+#endif
+
+  /* Execute the startup script.  If standard console is also defined,
+   * then we will not bother with the initscript here (although it is
+   * safe to call nsh_initscript multiple times).
+   */
+
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
+  nsh_initscript(vtbl);
+#endif
+
+      /* Perform architecture-specific final-initialization(if configured) */
+
+#if defined(CONFIG_NSH_ARCHINIT) && \
+    defined(CONFIG_BOARDCTL_FINALINIT) && \
+    !defined(CONFIG_NSH_CONSOLE)
+  boardctl(BOARDIOC_FINALINIT, 0);
+#endif
+
   ninfo("Session [%d] Started\n", getpid());
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
@@ -247,32 +273,6 @@ int nsh_telnetstart(sa_family_t family)
        */
 
       state = TELNETD_STARTED;
-
-      /* Initialize any USB tracing options that were requested.  If
-       * standard console is also defined, then we will defer this step to
-       * the standard console.
-       */
-
-#if defined(CONFIG_NSH_USBDEV_TRACE) && !defined(CONFIG_NSH_CONSOLE)
-      usbtrace_enable(TRACE_BITSET);
-#endif
-
-      /* Execute the startup script.  If standard console is also defined,
-       * then we will not bother with the initscript here (although it is
-       * safe to call nsh_initscript multiple times).
-       */
-
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
-      nsh_initscript(vtbl);
-#endif
-
-      /* Perform architecture-specific final-initialization(if configured) */
-
-#if defined(CONFIG_NSH_ARCHINIT) && \
-    defined(CONFIG_BOARDCTL_FINALINIT) && \
-    !defined(CONFIG_NSH_CONSOLE)
-      boardctl(BOARDIOC_FINALINIT, 0);
-#endif
 
       /* Configure the telnet daemon */
 
