@@ -48,6 +48,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <debug.h>
 
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
@@ -83,109 +84,6 @@ struct fb_state_s state;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: fbdev_init
- *
- * Description:
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-int fbdev_init(void)
-{
-  FAR const char *fbdev = "/dev/fb0";
-  int ret;
-
-  /* Open the framebuffer driver */
-
-  state.fd = open(fbdev, O_RDWR);
-  if (state.fd < 0)
-    {
-      int errcode = errno;
-      fprintf(stderr, "ERROR: Failed to open %s: %d\n", fbdev, errcode);
-      return EXIT_FAILURE;
-    }
-
-  /* Get the characteristics of the framebuffer */
-
-  ret = ioctl(state.fd, FBIOGET_VIDEOINFO,
-              (unsigned long)((uintptr_t)&state.vinfo));
-  if (ret < 0)
-    {
-      int errcode = errno;
-
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_VIDEOINFO) failed: %d\n",
-              errcode);
-      close(state.fd);
-      return EXIT_FAILURE;
-    }
-
-  printf("VideoInfo:\n");
-  printf("      fmt: %u\n", state.vinfo.fmt);
-  printf("     xres: %u\n", state.vinfo.xres);
-  printf("     yres: %u\n", state.vinfo.yres);
-  printf("  nplanes: %u\n", state.vinfo.nplanes);
-
-  ret = ioctl(state.fd, FBIOGET_PLANEINFO,
-              (unsigned long)((uintptr_t)&state.pinfo));
-  if (ret < 0)
-    {
-      int errcode = errno;
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
-              errcode);
-      close(state.fd);
-      return EXIT_FAILURE;
-    }
-
-  printf("PlaneInfo (plane 0):\n");
-  printf("    fbmem: %p\n", state.pinfo.fbmem);
-  printf("    fblen: %lu\n", (unsigned long)state.pinfo.fblen);
-  printf("   stride: %u\n", state.pinfo.stride);
-  printf("  display: %u\n", state.pinfo.display);
-  printf("      bpp: %u\n", state.pinfo.bpp);
-
-  /* Only these pixel depths are supported.  viinfo.fmt is ignored, only
-   * certain color formats are supported.
-   */
-
-  if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 &&
-      state.pinfo.bpp != 8  && state.pinfo.bpp != 1)
-    {
-      fprintf(stderr, "ERROR: bpp=%u not supported\n", state.pinfo.bpp);
-      close(state.fd);
-      return EXIT_FAILURE;
-    }
-
-  /* mmap() the framebuffer.
-   *
-   * NOTE: In the FLAT build the frame buffer address returned by the
-   * FBIOGET_PLANEINFO IOCTL command will be the same as the framebuffer
-   * address.  mmap(), however, is the preferred way to get the framebuffer
-   * address because in the KERNEL build, it will perform the necessary
-   * address mapping to make the memory accessible to the application.
-   */
-
-  state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ | PROT_WRITE,
-                     MAP_SHARED | MAP_FILE, state.fd, 0);
-  if (state.fbmem == MAP_FAILED)
-    {
-      int errcode = errno;
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
-              errcode);
-      close(state.fd);
-      return EXIT_FAILURE;
-    }
-
-  printf("Mapped FB: %p\n", state.fbmem);
-
-  return EXIT_SUCCESS;
-}
-
-/****************************************************************************
  * Name: fbdev_flush
  *
  * Description:
@@ -203,11 +101,11 @@ int fbdev_init(void)
  *
  ****************************************************************************/
 
-void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
-                 lv_color_t *color_p)
+static void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
+                        lv_color_t *color_p)
 {
 #ifdef CONFIG_FB_UPDATE
-  struct fb_area_s area;
+  struct fb_area_s fb_area;
 #endif
   int32_t x1 = area->x1;
   int32_t y1 = area->y1;
@@ -311,11 +209,11 @@ void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
     }
 
 #ifdef CONFIG_FB_UPDATE
-  area.x = act_x1;
-  area.y = act_y1;
-  area.w = act_x2 - act_x1 + 1;
-  area.h = act_y2 - cat_y1 + 1;
-  ioctl(state.fd, FBIO_UPDATE, (unsigned long)((uintptr_t)&area));
+  fb_area.x = act_x1;
+  fb_area.y = act_y1;
+  fb_area.w = act_x2 - act_x1 + 1;
+  fb_area.h = act_y2 - act_y1 + 1;
+  ioctl(state.fd, FBIO_UPDATE, (unsigned long)((uintptr_t)&fb_area));
 #endif
 
   /* Tell the flushing is ready */
@@ -324,252 +222,111 @@ void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
 }
 
 /****************************************************************************
- * Name: fbdev_fill
- *
- * Description:
- *   Fill an area with a color
- *
- * Input Parameters:
- *   x1    - Left coordinate
- *   y1    - Top coordinate
- *   x2    - Right coordinate
- *   y2    - Bottom coordinate
- *   color - The fill color
- *
- * Returned Value:
- *   None
- *
+ * Public Functions
  ****************************************************************************/
-
-void fbdev_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                lv_color_t color)
-{
-#ifdef CONFIG_FB_UPDATE
-  struct fb_area_s area;
-#endif
-  int32_t act_x1;
-  int32_t act_y1;
-  int32_t act_x2;
-  int32_t act_y2;
-  long int location = 0;
-
-  if (state.fbmem == NULL)
-    {
-      return;
-    }
-
-  /* Return if the area is out the screen */
-
-  if (x2 < 0)
-    {
-      return;
-    }
-
-  if (y2 < 0)
-    {
-      return;
-    }
-
-  if (x1 > state.vinfo.xres - 1)
-    {
-      return;
-    }
-
-  if (y1 > state.vinfo.yres - 1)
-    {
-      return;
-    }
-
-  /* Truncate the area to the screen */
-
-  act_x1 = x1 < 0 ? 0 : x1;
-  act_y1 = y1 < 0 ? 0 : y1;
-  act_x2 = x2 > state.vinfo.xres - 1 ? state.vinfo.xres - 1 : x2;
-  act_y2 = y2 > state.vinfo.yres - 1 ? state.vinfo.yres - 1 : y2;
-
-  if (state.pinfo.bpp == 8)
-    {
-      uint8_t *fbp8 = (uint8_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp8[location] = color.full;
-            }
-        }
-    }
-
-  if (state.pinfo.bpp == 16)
-    {
-      uint16_t *fbp16 = (uint16_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp16[location] = color.full;
-            }
-        }
-    }
-
-  if (state.pinfo.bpp == 24 || state.pinfo.bpp == 32)
-    {
-      uint32_t *fbp32 = (uint32_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp32[location] = color.full;
-            }
-        }
-    }
-
-#ifdef CONFIG_FB_UPDATE
-  area.x = act_x1;
-  area.y = act_y1;
-  area.w = act_x2 - act_x1 + 1;
-  area.h = act_y2 - act_y1 + 1;
-  ioctl(state.fd, FBIO_UPDATE, (unsigned long)((uintptr_t)&area));
-#endif
-}
 
 /****************************************************************************
- * Name: fbdev_map
+ * Name: fbdev_init
  *
  * Description:
- *   Write an array of pixels (like an image) to the marked area
  *
  * Input Parameters:
- *   x1      - Left coordinate
- *   y1      - Top coordinate
- *   x2      - Right coordinate
- *   y2      - Bottom coordinate
- *   color_p - An array of colors
+ *   lv_drvr -- LVGL driver interface
  *
  * Returned Value:
  *   None
  *
  ****************************************************************************/
 
-void fbdev_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-               FAR const lv_color_t *color_p)
+int fbdev_init(lv_disp_drv_t *lv_drvr)
 {
-#ifdef CONFIG_FB_UPDATE
-  struct fb_area_s area;
-#endif
-  int32_t act_x1;
-  int32_t act_y1;
-  int32_t act_x2;
-  int32_t act_y2;
-  long int location = 0;
+  FAR const char *fbdev = "/dev/fb0";
+  int ret;
 
-  if (state.fbmem == NULL)
+  /* Open the framebuffer driver */
+
+  state.fd = open(fbdev, O_RDWR);
+  if (state.fd < 0)
     {
-      return;
+      int errcode = errno;
+      gerr("ERROR: Failed to open %s: %d\n", fbdev, errcode);
+      return EXIT_FAILURE;
     }
 
-  /* Return if the area is out the screen */
+  /* Get the characteristics of the framebuffer */
 
-  if (x2 < 0)
+  ret = ioctl(state.fd, FBIOGET_VIDEOINFO,
+              (unsigned long)((uintptr_t)&state.vinfo));
+  if (ret < 0)
     {
-      return;
+      int errcode = errno;
+
+      gerr("ERROR: ioctl(FBIOGET_VIDEOINFO) failed: %d\n", errcode);
+      close(state.fd);
+      state.fd = -1;
+      return EXIT_FAILURE;
     }
 
-  if (y2 < 0)
+  ginfo("VideoInfo:\n\tfmt: %u\n\txres: %u\n\tyres: %u\n\tnplanes: %u\n",
+    state.vinfo.fmt, state.vinfo.xres, state.vinfo.yres,
+    state.vinfo.nplanes);
+
+  ret = ioctl(state.fd, FBIOGET_PLANEINFO,
+              (unsigned long)((uintptr_t)&state.pinfo));
+  if (ret < 0)
     {
-      return;
+      int errcode = errno;
+      gerr("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errcode);
+      close(state.fd);
+      state.fd = -1;
+      return EXIT_FAILURE;
     }
 
-  if (x1 > state.vinfo.xres - 1)
+  ginfo("PlaneInfo (plane 0):\n"
+        "\tfbmem: %p\n\tfblen: %l\n\tstride: %u\n"
+        "\tdisplay: %u\n\tbpp: %u\n\t",
+        state.pinfo.fbmem, (unsigned long)state.pinfo.fblen,
+        state.pinfo.stride, state.pinfo.display, state.pinfo.bpp);
+
+  lv_drvr->hor_res = state.vinfo.xres;
+  lv_drvr->ver_res = state.vinfo.yres;
+  lv_drvr->flush_cb = fbdev_flush;
+
+  /* Only these pixel depths are supported.  viinfo.fmt is ignored, only
+   * certain color formats are supported.
+   */
+
+  if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 &&
+      state.pinfo.bpp != 8  && state.pinfo.bpp != 1)
     {
-      return;
+      gerr("ERROR: bpp=%u not supported\n", state.pinfo.bpp);
+      close(state.fd);
+      state.fd = -1;
+      return EXIT_FAILURE;
     }
 
-  if (y1 > state.vinfo.yres - 1)
+  /* mmap() the framebuffer.
+   *
+   * NOTE: In the FLAT build the frame buffer address returned by the
+   * FBIOGET_PLANEINFO IOCTL command will be the same as the framebuffer
+   * address.  mmap(), however, is the preferred way to get the framebuffer
+   * address because in the KERNEL build, it will perform the necessary
+   * address mapping to make the memory accessible to the application.
+   */
+
+  state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_FILE, state.fd, 0);
+  if (state.fbmem == MAP_FAILED)
     {
-      return;
+      int errcode = errno;
+      gerr("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
+           errcode);
+      close(state.fd);
+      state.fd = -1;
+      return EXIT_FAILURE;
     }
 
-  /* Truncate the area to the screen */
+  ginfo("Mapped FB: %p\n", state.fbmem);
 
-  act_x1 = x1 < 0 ? 0 : x1;
-  act_y1 = y1 < 0 ? 0 : y1;
-  act_x2 = x2 > state.vinfo.xres - 1 ? state.vinfo.xres - 1 : x2;
-  act_y2 = y2 > state.vinfo.yres - 1 ? state.vinfo.yres - 1 : y2;
-
-  if (state.pinfo.bpp == 8)
-    {
-      uint8_t *fbp8 = (uint8_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp8[location] = color_p->full;
-              color_p++;
-            }
-
-          color_p += x2 - act_x2;
-        }
-    }
-
-  if (state.pinfo.bpp == 16)
-    {
-      uint16_t *fbp16 = (uint16_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp16[location] = color_p->full;
-              color_p++;
-            }
-
-          color_p += x2 - act_x2;
-        }
-    }
-
-  if (state.pinfo.bpp == 24 || state.pinfo.bpp == 32)
-    {
-      uint32_t *fbp32 = (uint32_t *)state.fbmem;
-      uint32_t x;
-      uint32_t y;
-
-      for (y = act_y1; y <= act_y2; y++)
-        {
-          for (x = act_x1; x <= act_x2; x++)
-            {
-              location = x + (y * state.vinfo.xres);
-              fbp32[location] = color_p->full;
-              color_p++;
-            }
-
-          color_p += x2 - act_x2;
-        }
-    }
-
-#ifdef CONFIG_FB_UPDATE
-  area.x = act_x1;
-  area.y = act_y1;
-  area.w = act_x2 - act_x1 + 1;
-  area.h = act_y2 - act_y1 + 1;
-  ioctl(state.fd, FBIO_UPDATE, (unsigned long)((uintptr_t)&area));
-#endif
+  return EXIT_SUCCESS;
 }
