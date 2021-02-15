@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/lvgldemo/demo.h
+ * apps/examples/lvgldemo/fbdev.h
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gábor Kiss-Vámosi <kisvegabor@gmail.com>
@@ -52,13 +52,7 @@ extern "C"
  * Public Function Prototypes
  ****************************************************************************/
 
-int fbdev_init(void);
-void fbdev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
-                 lv_color_t *color_p);
-void fbdev_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                lv_color_t color);
-void fbdev_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-               FAR const lv_color_t *color_p);
+int fbdev_init(lv_disp_drv_t *lv_drvr);
 
 #ifdef __cplusplus
 }

@@ -52,7 +52,7 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 
 # LittleVGL demo Example
 
-CSRCS += fbdev.c tp.c tp_cal.c
+CSRCS += fbdev.c lcddev.c tp.c tp_cal.c
 
 # static common assets used in mutiple example
 
