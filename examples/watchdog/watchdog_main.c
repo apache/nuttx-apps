@@ -298,7 +298,10 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("wdog_main: flags=%08x timeout=%d timeleft=%d\n",
+      printf("wdog_main:"
+             " flags=%08" PRIu32
+             " timeout=%" PRIu32
+             " timeleft=%" PRIu32 "\n",
              status.flags, status.timeout, status.timeleft);
 #endif
 
@@ -341,7 +344,10 @@ int main(int argc, FAR char *argv[])
           goto errout_with_dev;
         }
 
-      printf("wdog_main: flags=%08x timeout=%d timeleft=%d\n",
+      printf("wdog_main:"
+             " flags=%08" PRIu32
+             " timeout=%" PRIu32
+             " timeleft=%" PRIu32 "\n",
              status.flags, status.timeout, status.timeleft);
 #endif
 
