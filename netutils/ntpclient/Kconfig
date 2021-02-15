@@ -45,9 +45,14 @@ config NETUTILS_NTPCLIENT_SERVERPRIO
 	int "NTP client daemon priority"
 	default 100
 
+config NETUTILS_NTPCLIENT_STAY_ON
+	bool "Make NTP client keep polling"
+	default y
+
 config NETUTILS_NTPCLIENT_POLLDELAYSEC
 	int "NTP client poll interval (seconds)"
 	default 60
+	depends on NETUTILS_NTPCLIENT_STAY_ON
 
 config NETUTILS_NTPCLIENT_RETRIES
 	int "NTP client retry seconds to wait for network up"
