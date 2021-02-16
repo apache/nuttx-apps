@@ -56,7 +56,7 @@
 
 #include "lib.h"
 
-void print_usage_send(char *prg)
+static void print_usage_send(char *prg)
 {
 	fprintf(stderr, "%s - send CAN-frames via CAN_RAW sockets.\n", prg);
 	fprintf(stderr, "\nUsage: %s <device> <can_frame>.\n", prg);
