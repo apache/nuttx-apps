@@ -115,7 +115,7 @@ extern int optind, opterr, optopt;
 
 static volatile int running = 1;
 
-void print_usage(char *prg)
+static void print_usage(char *prg)
 {
 	fprintf(stderr, "%s - dump CAN bus traffic.\n", prg);
 	fprintf(stderr, "\nUsage: %s [options] <CAN interface>+\n", prg);
