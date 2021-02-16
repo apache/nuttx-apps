@@ -154,12 +154,7 @@ struct ntpc_daemon_s
 union ntp_addr_u
 {
   struct sockaddr sa;
-#ifdef CONFIG_NET_IPv4
-  struct sockaddr_in in4;
-#endif
-#ifdef CONFIG_NET_IPv6
-  struct sockaddr_in6 in6;
-#endif
+  struct sockaddr_storage ss;
 };
 
 /* NTP offset. */
@@ -175,7 +170,7 @@ struct ntp_sample_s
 
 struct ntp_servers_s
 {
-  union ntp_addr_u list[CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
+  struct sockaddr_storage list[CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
   size_t num;
   size_t pos;
   FAR char *hostlist_str;
@@ -214,6 +209,92 @@ static struct ntpc_daemon_s g_ntpc_daemon =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static int sockaddr_cmp(FAR const struct sockaddr *sa1,
+                        FAR const struct sockaddr *sa2)
+{
+  if (sa1->sa_family != sa2->sa_family)
+    {
+      return 1;
+    }
+
+  switch (sa1->sa_family)
+    {
+#ifdef CONFIG_NET_IPv4
+    case AF_INET:
+      {
+        FAR const struct sockaddr_in *sin1 = (FAR const void *)sa1;
+        FAR const struct sockaddr_in *sin2 = (FAR const void *)sa2;
+
+        if (sin1->sin_addr.s_addr != sin2->sin_addr.s_addr)
+          {
+            return 1;
+          }
+
+        if (sin1->sin_port != sin2->sin_port)
+          {
+            return 1;
+          }
+
+        break;
+      }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+    case AF_INET6:
+      {
+        FAR const struct sockaddr_in6 *sin1 = (FAR const void *)sa1;
+        FAR const struct sockaddr_in6 *sin2 = (FAR const void *)sa2;
+
+        if (!memcmp(sin1->sin6_addr.s6_addr,
+                    sin2->sin6_addr.s6_addr, 16))
+          {
+            return 1;
+          }
+
+        if (sin1->sin6_port != sin2->sin6_port)
+          {
+            return 1;
+          }
+
+        break;
+      }
+#endif
+
+    default:
+      DEBUGASSERT(0);
+      break;
+    }
+
+  return 0;
+}
+
+static socklen_t sockaddr_len(FAR const struct sockaddr *sa)
+{
+  socklen_t addrlen;
+
+  switch (sa->sa_family)
+    {
+#ifdef CONFIG_NET_IPv4
+    case AF_INET:
+      addrlen = sizeof(struct sockaddr_in);
+      break;
+#endif
+
+#ifdef CONFIG_NET_IPv6
+    case AF_INET6:
+      addrlen = sizeof(struct sockaddr_in6);
+      break;
+#endif
+
+    default:
+      DEBUGASSERT(0);
+      addrlen = 0;
+      break;
+    }
+
+  return addrlen;
+}
 
 /****************************************************************************
  * Name: sample_cmp
@@ -625,14 +706,14 @@ static void ntpc_settime(int64_t offset, FAR struct timespec *start_realtime,
  *
  ****************************************************************************/
 
-static bool ntp_address_in_kod_list(FAR const union ntp_addr_u *server_addr)
+static bool ntp_address_in_kod_list(FAR const struct sockaddr *server_addr)
 {
   FAR struct ntp_kod_exclude_s *entry;
 
   entry = (FAR void *)sq_peek(&g_ntpc_daemon.kod_list);
   while (entry)
     {
-      if (memcmp(&entry->addr, server_addr, sizeof(*server_addr)) == 0)
+      if (sockaddr_cmp(&entry->addr.sa, server_addr) == 0)
         {
           return true;
         }
@@ -652,7 +733,7 @@ static bool ntp_address_in_kod_list(FAR const union ntp_addr_u *server_addr)
  ****************************************************************************/
 
 static bool ntp_is_kiss_of_death(FAR const struct ntp_datagram_s *recv,
-                                 FAR const union ntp_addr_u *server_addr)
+                                 FAR const struct sockaddr *server_addr)
 {
   /* KoD only specified for v4. */
 
@@ -690,7 +771,7 @@ static bool ntp_is_kiss_of_death(FAR const struct ntp_datagram_s *recv,
       entry = calloc(1, sizeof(*entry));
       if (entry)
         {
-          entry->addr = *server_addr;
+          memcpy(&entry->addr.ss, server_addr, sockaddr_len(server_addr));
           sq_addlast(&entry->node, &g_ntpc_daemon.kod_list);
         }
     }
@@ -706,48 +787,19 @@ static bool ntpc_verify_recvd_ntp_datagram(
                 FAR const struct ntp_datagram_s *xmit,
                 FAR const struct ntp_datagram_s *recv,
                 size_t nbytes,
-                FAR const union ntp_addr_u *xmitaddr,
-                FAR const union ntp_addr_u *recvaddr,
+                FAR const struct sockaddr *xmitaddr,
+                FAR const struct sockaddr *recvaddr,
                 size_t recvaddrlen)
 {
   time_t buildtime;
   time_t seconds;
 
-  if (recvaddr->sa.sa_family != xmitaddr->sa.sa_family)
+  if (sockaddr_cmp(xmitaddr, recvaddr))
     {
-      ninfo("wrong address family\n");
+      ninfo("response from wrong peer\n");
 
       return false;
     }
-
-#ifdef CONFIG_NET_IPv4
-  if (recvaddr->sa.sa_family == AF_INET)
-    {
-      if (recvaddrlen != sizeof(struct sockaddr_in) ||
-          xmitaddr->in4.sin_addr.s_addr != recvaddr->in4.sin_addr.s_addr ||
-          xmitaddr->in4.sin_port != recvaddr->in4.sin_port)
-        {
-          ninfo("response from wrong peer\n");
-
-          return false;
-        }
-    }
-#endif
-
-#ifdef CONFIG_NET_IPv6
-  if (recvaddr->sa.sa_family == AF_INET6)
-    {
-      if (recvaddrlen != sizeof(struct sockaddr_in6) ||
-          memcmp(&xmitaddr->in6.sin6_addr,
-                 &recvaddr->in6.sin6_addr, sizeof(struct in6_addr)) != 0 ||
-          xmitaddr->in6.sin6_port != recvaddr->in6.sin6_port)
-        {
-          ninfo("response from wrong peer\n");
-
-          return false;
-        }
-    }
-#endif /* CONFIG_NET_IPv6 */
 
   if (nbytes < NTP_DATAGRAM_MINSIZE)
     {
@@ -927,7 +979,8 @@ err_close:
  ****************************************************************************/
 
 static int ntp_gethostip_multi(FAR const char *hostname,
-                               FAR union ntp_addr_u *ipaddr, size_t nipaddr)
+                               FAR struct sockaddr_storage *ipaddr,
+                               size_t nipaddr)
 {
   struct addrinfo hints;
   FAR struct addrinfo *info;
@@ -971,7 +1024,7 @@ static int ntp_gethostip_multi(FAR const char *hostname,
  ****************************************************************************/
 
 static int ntp_get_next_hostip(FAR struct ntp_servers_s *srvs,
-                               FAR union ntp_addr_u *addr)
+                               FAR struct sockaddr_storage *addr)
 {
   int ret;
 
@@ -1069,7 +1122,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
     {
       addr_ok = true;
 
-      ret = ntp_get_next_hostip(srvs, &server);
+      ret = ntp_get_next_hostip(srvs, &server.ss);
       if (ret < 0)
         {
           errval = errno;
@@ -1081,7 +1134,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
 
       /* Make sure that server not in exclusion list. */
 
-      if (ntp_address_in_kod_list(&server))
+      if (ntp_address_in_kod_list(&server.sa))
         {
           if (retry < MAX_SERVER_SELECTION_RETRIES)
             {
@@ -1102,7 +1155,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
 
       for (i = 0; i < nsamples; i++)
         {
-          if (memcmp(&server, &samples[i].srv_addr, sizeof(server)) == 0)
+          if (sockaddr_cmp(&server.sa, &samples[i].srv_addr.sa) == 0)
             {
               /* Already have sample from this server, retry DNS. */
 
@@ -1127,7 +1180,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
 
   /* Open socket. */
 
-  sd = ntpc_create_dgram_socket(server.sa.sa_family);
+  sd = ntpc_create_dgram_socket(server.ss.ss_family);
   if (sd < 0)
     {
       errval = errno;
@@ -1147,8 +1200,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
   xmit_time = ntp_localtime();
   ntpc_setuint64(xmit.xmittimestamp, xmit_time);
 
-  socklen = (server.sa.sa_family == AF_INET) ? sizeof(struct sockaddr_in)
-                                             : sizeof(struct sockaddr_in6);
+  socklen = sockaddr_len(&server.sa);
   ret = sendto(sd, &xmit, sizeof(struct ntp_datagram_s),
                0, &server.sa, socklen);
   if (ret < 0)
@@ -1173,7 +1225,8 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
    */
 
   if (nbytes > 0 && ntpc_verify_recvd_ntp_datagram(
-                          &xmit, &recv, nbytes, &server, &recvaddr, socklen))
+                          &xmit, &recv, nbytes,
+                          &server.sa, &recvaddr.sa, socklen))
     {
       close(sd);
       sd = -1;
@@ -1182,7 +1235,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
 
       memset(sample, 0, sizeof(struct ntp_sample_s));
 
-      sample->srv_addr = server;
+      sample->srv_addr.ss = server.ss;
 
       ntpc_calculate_offset(&sample->offset, &sample->delay,
                             xmit_time, recv_time, recv.recvtimestamp,
