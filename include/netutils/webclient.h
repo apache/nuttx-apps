@@ -77,6 +77,39 @@
 #  endif
 #endif
 
+/* The following WEBCLIENT_FLAG_xxx constants are for
+ * webclient_context::flags.
+ */
+
+/* WEBCLIENT_FLAG_NON_BLOCKING tells webclient_perform() to
+ * use non-blocking I/O.
+ *
+ * If this flag is set, webclient_perform() returns -EAGAIN
+ * when it would otherwise block for network I/O. In that case,
+ * the application should either retry the operation later by calling
+ * webclient_perform() again, or abort it by calling webclient_abort().
+ * It can also use webclient_get_poll_info() to avoid busy-retrying.
+ *
+ * If this flag is set, it's the application's responsibility to
+ * implement a timeout.
+ *
+ * If the application specifies tls_ops, it's the application's
+ * responsibility to make the TLS implementation to use non-blocking I/O
+ * in addition to specifying this flag.
+ *
+ * Caveat: Even when this flag is set, the current implementation performs
+ * the name resolution in a blocking manner.
+ */
+
+#define	WEBCLIENT_FLAG_NON_BLOCKING	1U
+
+/* The following WEBCLIENT_FLAG_xxx constants are for
+ * webclient_poll_info::flags.
+ */
+
+#define	WEBCLIENT_POLL_INFO_WANT_READ	1U
+#define	WEBCLIENT_POLL_INFO_WANT_WRITE	2U
+
 /****************************************************************************
  * Public types
  ****************************************************************************/
@@ -181,6 +214,7 @@ typedef CODE int (*webclient_body_callback_t)(
     FAR void *ctx);
 
 struct webclient_tls_connection;
+struct webclient_poll_info;
 
 struct webclient_tls_ops
 {
@@ -196,6 +230,9 @@ struct webclient_tls_ops
                        FAR void *buf, size_t len);
   CODE int (*close)(FAR void *ctx,
                     FAR struct webclient_tls_connection *conn);
+  CODE int (*get_poll_info)(FAR void *ctx,
+                            FAR struct webclient_tls_connection *conn,
+                            FAR struct webclient_poll_info *info);
 };
 
 struct webclient_context
@@ -248,6 +285,7 @@ struct webclient_context
    *   tls_ops           - A vector to implement TLS operations.
    *                       NULL means no https support.
    *   tls_ctx           - A user pointer to be passed to tls_ops as it is.
+   *   flags             - OR'ed WEBCLIENT_FLAG_xxx values.
    */
 
   FAR char *buffer;
@@ -261,6 +299,7 @@ struct webclient_context
   FAR void *body_callback_arg;
   FAR const struct webclient_tls_ops *tls_ops;
   FAR void *tls_ctx;
+  unsigned int flags;
 
   /* results
    *
@@ -275,6 +314,16 @@ struct webclient_context
   unsigned int http_status;
   FAR char *http_reason;
   size_t http_reason_len;
+
+  struct wget_s *ws;
+};
+
+struct webclient_poll_info
+{
+  /* A file descriptor to wait for i/o. */
+
+  int fd;
+  unsigned int flags; /* OR'ed WEBCLIENT_POLL_INFO_xxx flags */
 };
 
 /****************************************************************************
@@ -329,9 +378,12 @@ int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
 
 void webclient_set_defaults(FAR struct webclient_context *ctx);
 int webclient_perform(FAR struct webclient_context *ctx);
+void webclient_abort(FAR struct webclient_context *ctx);
 void webclient_set_static_body(FAR struct webclient_context *ctx,
                                FAR const void *body,
                                size_t bodylen);
+int webclient_get_poll_info(FAR struct webclient_context *ctx,
+                            FAR struct webclient_poll_info *info);
 
 #undef EXTERN
 #ifdef __cplusplus
