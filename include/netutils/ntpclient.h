@@ -42,6 +42,8 @@
 
 #include <nuttx/config.h>
 
+#include <sys/socket.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -143,6 +145,34 @@ int ntpc_start(void);
  ****************************************************************************/
 
 int ntpc_stop(void);
+
+/****************************************************************************
+ * Name: ntpc_status
+ *
+ * Description:
+ *   Get a status of the NTP daemon
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+struct ntpc_status_s
+{
+  /* the latest samples */
+
+  unsigned int nsamples;
+  struct
+  {
+    int64_t offset;
+    int64_t delay;
+    FAR const struct sockaddr *srv_addr;
+    struct sockaddr_storage _srv_addr_store;
+  }
+  samples[CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
+};
+
+int ntpc_status(struct ntpc_status_s *statusp);
 
 #undef EXTERN
 #ifdef __cplusplus
