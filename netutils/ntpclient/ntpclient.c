@@ -160,6 +160,7 @@ union ntp_addr_u
 #ifdef CONFIG_NET_IPv6
   struct sockaddr_in6 in6;
 #endif
+  struct sockaddr_storage ss;
 };
 
 /* NTP offset. */
@@ -210,6 +211,10 @@ static struct ntpc_daemon_s g_ntpc_daemon =
   { NULL, NULL },
   AF_UNSPEC,         /* Default is both IPv4 and IPv6 */
 };
+
+static struct ntp_sample_s g_last_samples
+    [CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
+unsigned int g_last_nsamples = 0;
 
 /****************************************************************************
  * Private Functions
@@ -1369,6 +1374,13 @@ static int ntpc_daemon(int argc, FAR char **argv)
 
           ntpc_settime(offset, &start_realtime, &start_monotonic);
 
+          /* Save samples for ntpc_status() */
+
+          sem_wait(&g_ntpc_daemon.lock);
+          g_last_nsamples = nsamples;
+          memcpy(&g_last_samples, samples, nsamples * sizeof(*samples));
+          sem_post(&g_ntpc_daemon.lock);
+
 #ifndef CONFIG_NETUTILS_NTPCLIENT_STAY_ON
           /* Configured to exit at success. */
 
@@ -1566,6 +1578,25 @@ int ntpc_stop(void)
           sem_wait(&g_ntpc_daemon.sync);
         }
       while (g_ntpc_daemon.state == NTP_STOP_REQUESTED);
+    }
+
+  sem_post(&g_ntpc_daemon.lock);
+  return OK;
+}
+
+int ntpc_status(struct ntpc_status_s *statusp)
+{
+  unsigned int i;
+
+  sem_wait(&g_ntpc_daemon.lock);
+  statusp->nsamples = g_last_nsamples;
+  for (i = 0; i < g_last_nsamples; i++)
+    {
+      statusp->samples[i].offset = g_last_samples[i].offset;
+      statusp->samples[i].delay = g_last_samples[i].delay;
+      statusp->samples[i]._srv_addr_store = g_last_samples[i].srv_addr.ss;
+      statusp->samples[i].srv_addr = (FAR const struct sockaddr *)
+                                     &statusp->samples[i]._srv_addr_store;
     }
 
   sem_post(&g_ntpc_daemon.lock);
