@@ -1196,7 +1196,7 @@ int cle(FAR char *line, const char *prompt, uint16_t linelen,
       return -EINVAL;
     }
 
-  priv.coloffs = column - 1;
+  priv.coloffs = column;
 
   cleinfo("row=%d column=%d\n", priv.row, column);
 
