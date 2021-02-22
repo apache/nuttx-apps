@@ -33,9 +33,10 @@
 
 /* Positive number represent information */
 
-#define ICMPv6_I_BEGIN       0   /* extra: not used      */
-#define ICMPv6_I_ROUNDTRIP   1   /* extra: packet delay  */
-#define ICMPv6_I_FINISH      2   /* extra: elapsed time  */
+#define ICMPv6_I_OK          0   /* extra: not used      */
+#define ICMPv6_I_BEGIN       1   /* extra: not used      */
+#define ICMPv6_I_ROUNDTRIP   2   /* extra: packet delay  */
+#define ICMPv6_I_FINISH      3   /* extra: elapsed time  */
 
 /* Negative odd number represent error(unrecoverable) */
 

@@ -44,6 +44,15 @@
 #define ICMPv6_POLL_DELAY    1000  /* 1 second in milliseconds */
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct ping6_priv_s
+{
+  int code;                        /* Notice code ICMP_I/E/W_XXX */
+};
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -92,7 +101,13 @@ static void show_usage(FAR const char *progname, int exitcode)
 
 static void ping6_result(FAR const struct ping6_result_s *result)
 {
+  FAR struct ping6_priv_s *priv = result->info->priv;
   char strbuffer[INET6_ADDRSTRLEN];
+
+  if (result->code < 0)
+    {
+      priv->code = result->code;
+    }
 
   switch (result->code)
     {
@@ -213,6 +228,7 @@ static void ping6_result(FAR const struct ping6_result_s *result)
 int main(int argc, FAR char *argv[])
 {
   struct ping6_info_s info;
+  struct ping6_priv_s priv;
   FAR char *endptr;
   int exitcode;
   int option;
@@ -222,6 +238,8 @@ int main(int argc, FAR char *argv[])
   info.delay     = ICMPv6_POLL_DELAY;
   info.timeout   = ICMPv6_POLL_DELAY;
   info.callback  = ping6_result;
+  info.priv      = &priv;
+  priv.code      = ICMPv6_I_OK;
 
   /* Parse command line options */
 
@@ -312,7 +330,7 @@ int main(int argc, FAR char *argv[])
 
   info.hostname = argv[optind];
   icmp6_ping(&info);
-  return EXIT_SUCCESS;
+  return priv.code < 0 ? EXIT_FAILURE: EXIT_SUCCESS;
 
 errout_with_usage:
   optind = 0;
