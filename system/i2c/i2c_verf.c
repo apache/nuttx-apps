@@ -86,12 +86,13 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
         {
           return ERROR;
         }
+
       argndx += nargs;
     }
 
-  /* The options may be followed by the optional wrvalue to be written.  If omitted, then
-   * the register address will be used as the wrvalue, providing an address-in-address
-   * test.
+  /* The options may be followed by the optional wrvalue to be written.
+   * If omitted, then the register address will be used as the wrvalue,
+   * providing an address-in-address test.
    */
 
   addrinaddr = true;
@@ -146,8 +147,8 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
-       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       return ERROR;
+      i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
+      return ERROR;
     }
 
   /* Loop for the requested number of repetitions */
@@ -157,8 +158,8 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
   for (i = 0; i < repetitions; i++)
     {
-      /* If we are performing an address-in-address test, then use the register
-       * address as the value to write.
+      /* If we are performing an address-in-address test, then use the
+       * register address as the value to write.
        */
 
       if (addrinaddr)
@@ -180,16 +181,21 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
       if (ret == OK)
         {
-          i2ctool_printf(i2ctool, "VERIFY Bus: %d Addr: %02x Subaddr: %02x Wrote: ",
+          i2ctool_printf(i2ctool,
+                         "VERIFY Bus: %d Addr: %02x Subaddr: %02x Wrote: ",
                          i2ctool->bus, i2ctool->addr, i2ctool->regaddr);
 
           if (i2ctool->width == 8)
             {
-              i2ctool_printf(i2ctool, "%02x Read: %02x", (int)wrvalue, (int)rdvalue);
+              i2ctool_printf(i2ctool,
+                             "%02x Read: %02x",
+                             (int)wrvalue, (int)rdvalue);
             }
           else
             {
-              i2ctool_printf(i2ctool, "%04x Read: %04x", (int)wrvalue, (int)rdvalue);
+              i2ctool_printf(i2ctool,
+                             "%04x Read: %04x",
+                             (int)wrvalue, (int)rdvalue);
             }
 
           if (wrvalue != rdvalue)
