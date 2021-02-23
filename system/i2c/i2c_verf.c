@@ -60,7 +60,7 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   uint8_t regaddr;
   bool addrinaddr;
   long wrvalue;
-  long repititions;
+  long repetitions;
   int nargs;
   int argndx;
   int ret;
@@ -122,11 +122,11 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
    * count.
    */
 
-  repititions = 1;
+  repetitions = 1;
   if (argndx < argc)
     {
-      repititions = strtol(argv[argndx], NULL, 16);
-      if (repititions < 1)
+      repetitions = strtol(argv[argndx], NULL, 16);
+      if (repetitions < 1)
         {
           i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
           return ERROR;
@@ -150,12 +150,12 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
        return ERROR;
     }
 
-  /* Loop for the requested number of repititions */
+  /* Loop for the requested number of repetitions */
 
   regaddr = i2ctool->regaddr;
   ret = OK;
 
-  for (i = 0; i < repititions; i++)
+  for (i = 0; i < repetitions; i++)
     {
       /* If we are performing an address-in-address test, then use the register
        * address as the value to write.
