@@ -71,11 +71,11 @@ static const struct cmdmap_s g_i2ccmds[] =
   { "?",    i2ccmd_help, "Show help     ",  NULL },
   { "bus",  i2ccmd_bus,  "List buses    ",  NULL },
   { "dev",  i2ccmd_dev,  "List devices  ", "[OPTIONS] <first> <last>" },
-  { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repititions>]" },
+  { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repetitions>]" },
   { "dump", i2ccmd_dump, "Dump register ", "[OPTIONS] [<num bytes>]" },
   { "help", i2ccmd_help, "Show help     ", NULL },
-  { "set",  i2ccmd_set,  "Write register", "[OPTIONS] <value> [<repititions>]" },
-  { "verf", i2ccmd_verf, "Verify access ", "[OPTIONS] [<value>] [<repititions>]" },
+  { "set",  i2ccmd_set,  "Write register", "[OPTIONS] <value> [<repetitions>]" },
+  { "verf", i2ccmd_verf, "Verify access ", "[OPTIONS] [<value>] [<repetitions>]" },
   { NULL,   NULL,        NULL,             NULL }
 };
 
@@ -133,7 +133,7 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   i2ctool_printf(i2ctool, "  [-s|n], send/don't send start between command and data.  "
                           "Default: -n Current: %s\n",
                  i2ctool->start ? "-s" : "-n");
-  i2ctool_printf(i2ctool, "  [-i|j], Auto increment|don't increment regaddr on repititions.  "
+  i2ctool_printf(i2ctool, "  [-i|j], Auto increment|don't increment regaddr on repetitions.  "
                           "Default: NO Current: %s\n",
                  i2ctool->autoincr ? "YES" : "NO");
   i2ctool_printf(i2ctool, "  [-f freq] I2C frequency.  "
