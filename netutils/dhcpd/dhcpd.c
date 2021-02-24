@@ -883,45 +883,6 @@ static inline int dhcpd_socket(void)
 }
 
 /****************************************************************************
- * Name: dhcpd_openresponder
- ****************************************************************************/
-
-static inline int dhcpd_openresponder(void)
-{
-  struct sockaddr_in addr;
-  int sockfd;
-  int ret;
-
-  ninfo("Responder: %08" PRIx32 "\n", ntohl(g_state.ds_serverip));
-
-  /* Create a socket to listen for requests from DHCP clients */
-
-  sockfd = dhcpd_socket();
-  if (sockfd < 0)
-    {
-      nerr("ERROR: socket failed: %d\n", errno);
-      return ERROR;
-    }
-
-  /* Bind the socket to a local port. */
-
-  addr.sin_family      = AF_INET;
-  addr.sin_port        = 0;
-  addr.sin_addr.s_addr = g_state.ds_serverip;
-
-  ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-  if (ret < 0)
-    {
-      nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
-           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
-      close(sockfd);
-      return ERROR;
-    }
-
-  return sockfd;
-}
-
-/****************************************************************************
  * Name: dhcpd_initpacket
  ****************************************************************************/
 
@@ -958,13 +919,11 @@ static void dhcpd_initpacket(uint8_t mtype)
  * Name: dhcpd_sendpacket
  ****************************************************************************/
 
-static int dhcpd_sendpacket(int bbroadcast)
+static int dhcpd_sendpacket(int sockfd, int bbroadcast)
 {
   struct sockaddr_in addr;
   in_addr_t ipaddr;
-  int sockfd;
   int len;
-  int ret = ERROR;
 
 #ifdef CONFIG_NETUTILS_DHCPD_IGNOREBROADCAST
   /* This is a hack.  I've had problems with Windows machines responding
@@ -1025,35 +984,29 @@ static int dhcpd_sendpacket(int bbroadcast)
    * cannot re-use the listener socket because it is not bound correctly
    */
 
-  sockfd = dhcpd_openresponder();
-  if (sockfd >= 0)
-    {
-      /* Then send the response to the DHCP client port at that address */
+  /* Then send the response to the DHCP client port at that address */
 
-      memset(&addr, 0, sizeof(struct sockaddr_in));
-      addr.sin_family      = AF_INET;
-      addr.sin_port        = HTONS(DHCP_CLIENT_PORT);
-      addr.sin_addr.s_addr = ipaddr;
+  memset(&addr, 0, sizeof(struct sockaddr_in));
+  addr.sin_family      = AF_INET;
+  addr.sin_port        = HTONS(DHCP_CLIENT_PORT);
+  addr.sin_addr.s_addr = ipaddr;
 
-      /* Send the minimum sized packet that includes the END option */
+  /* Send the minimum sized packet that includes the END option */
 
-      len = (g_state.ds_optend - (FAR uint8_t *)&g_state.ds_outpacket) + 1;
-      ninfo("sendto %08lx:%04x len=%d\n",
-            (long)ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port), len);
+  len = (g_state.ds_optend - (FAR uint8_t *)&g_state.ds_outpacket) + 1;
+  ninfo("sendto %08lx:%04x len=%d\n",
+        (long)ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port), len);
 
-      ret = sendto(sockfd, &g_state.ds_outpacket, len, 0,
-                   (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-      close(sockfd);
-    }
-
-  return ret;
+  return sendto(sockfd, &g_state.ds_outpacket, len, 0,
+                (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
 }
 
 /****************************************************************************
  * Name: dhcpd_sendoffer
  ****************************************************************************/
 
-static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
+static inline int dhcpd_sendoffer(int sockfd, in_addr_t ipaddr,
+                                  uint32_t leasetime)
 {
   in_addr_t netaddr;
 #ifdef HAVE_DNSIP
@@ -1091,9 +1044,9 @@ static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
   /* Send the offer response */
 
 #ifdef CONFIG_NETUTILS_DHCPD_IGNOREBROADCAST
-  return dhcpd_sendpacket(true);
+  return dhcpd_sendpacket(sockfd, true);
 #else
-  return dhcpd_sendpacket(false);
+  return dhcpd_sendpacket(sockfd, false);
 #endif
 }
 
@@ -1101,20 +1054,20 @@ static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
  * Name: dhcpd_sendnak
  ****************************************************************************/
 
-static int dhcpd_sendnak(void)
+static int dhcpd_sendnak(int sockfd)
 {
   /* Initialize and send the NAK response */
 
   dhcpd_initpacket(DHCPNAK);
   memcpy(g_state.ds_outpacket.ciaddr, g_state.ds_inpacket.ciaddr, 4);
-  return dhcpd_sendpacket(true);
+  return dhcpd_sendpacket(sockfd, true);
 }
 
 /****************************************************************************
  * Name: dhcpd_sendack
  ****************************************************************************/
 
-int dhcpd_sendack(in_addr_t ipaddr)
+int dhcpd_sendack(int sockfd, in_addr_t ipaddr)
 {
   uint32_t leasetime = CONFIG_NETUTILS_DHCPD_LEASETIME;
   in_addr_t netaddr;
@@ -1153,9 +1106,9 @@ int dhcpd_sendack(in_addr_t ipaddr)
 #endif
 
 #ifdef CONFIG_NETUTILS_DHCPD_IGNOREBROADCAST
-  if (dhcpd_sendpacket(true) < 0)
+  if (dhcpd_sendpacket(sockfd, true) < 0)
 #else
-  if (dhcpd_sendpacket(false) < 0)
+  if (dhcpd_sendpacket(sockfd, false) < 0)
 #endif
     {
       return ERROR;
@@ -1169,7 +1122,7 @@ int dhcpd_sendack(in_addr_t ipaddr)
  * Name: dhcpd_discover
  ****************************************************************************/
 
-static inline int dhcpd_discover(void)
+static inline int dhcpd_discover(int sockfd)
 {
   struct lease_s *lease;
   in_addr_t ipaddr;
@@ -1241,14 +1194,14 @@ static inline int dhcpd_discover(void)
 
   /* Send the offer response */
 
-  return dhcpd_sendoffer(ipaddr, leasetime);
+  return dhcpd_sendoffer(sockfd, ipaddr, leasetime);
 }
 
 /****************************************************************************
  * Name: dhcpd_request
  ****************************************************************************/
 
-static inline int dhcpd_request(void)
+static inline int dhcpd_request(int sockfd)
 {
   struct lease_s *lease;
   in_addr_t ipaddr = 0;
@@ -1388,12 +1341,12 @@ static inline int dhcpd_request(void)
   if (response == DHCPACK)
     {
       ninfo("ACK IP %08lx\n", (long)ipaddr);
-      dhcpd_sendack(ipaddr);
+      dhcpd_sendack(sockfd, ipaddr);
     }
   else if (response == DHCPNAK)
     {
       ninfo("NAK IP %08lx\n", (long)ipaddr);
-      dhcpd_sendnak();
+      dhcpd_sendnak(sockfd);
     }
   else
     {
@@ -1604,12 +1557,12 @@ int dhcpd_run(FAR const char *interface)
         {
           case DHCPDISCOVER:
             ninfo("DHCPDISCOVER\n");
-            dhcpd_discover();
+            dhcpd_discover(sockfd);
             break;
 
           case DHCPREQUEST:
             ninfo("DHCPREQUEST\n");
-            dhcpd_request();
+            dhcpd_request(sockfd);
             break;
 
           case DHCPDECLINE:
