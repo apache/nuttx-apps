@@ -411,7 +411,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
   fstest_randname(file);
   fstest_randfile(file);
 
-  fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
+  fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL | O_TRUNC, 0666);
   if (fd < 0)
     {
       /* If it failed because there is no space on the device, then don't
