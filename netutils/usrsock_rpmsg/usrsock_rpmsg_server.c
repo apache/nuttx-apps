@@ -207,13 +207,11 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
   for (i = 0; i < CONFIG_NFILE_DESCRIPTORS; i++)
     {
       pthread_mutex_lock(&priv->mutex);
-      if (priv->socks[i].s_crefs == 0)
+      if (priv->socks[i].s_conn == NULL)
         {
-          priv->socks[i].s_crefs++;
-          pthread_mutex_unlock(&priv->mutex);
-
           ret = psock_socket(req->domain, req->type, req->protocol,
                              &priv->socks[i]);
+          pthread_mutex_unlock(&priv->mutex);
           if (ret >= 0)
             {
               psock_fcntl(&priv->socks[i], F_SETFL,
@@ -221,10 +219,6 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
 
               priv->epts[i] = ept;
               ret = i; /* Return index as the usockid */
-            }
-          else
-            {
-              priv->socks[i].s_crefs--;
             }
 
           break;
@@ -553,14 +547,12 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
       for (i = 0; i < CONFIG_NFILE_DESCRIPTORS; i++)
         {
           pthread_mutex_lock(&priv->mutex);
-          if (priv->socks[i].s_crefs == 0)
+          if (priv->socks[i].s_conn == NULL)
             {
-              priv->socks[i].s_crefs++;
-              pthread_mutex_unlock(&priv->mutex);
-
               ret = psock_accept(&priv->socks[req->usockid],
                       outaddrlen ? (struct sockaddr *)(ack + 1) : NULL,
                       outaddrlen ? &outaddrlen : NULL, &priv->socks[i]);
+              pthread_mutex_unlock(&priv->mutex);
               if (ret >= 0)
                 {
                   psock_fcntl(&priv->socks[i], F_SETFL,
@@ -580,10 +572,6 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
                     }
 
                   ret = sizeof(int16_t); /* Return usockid size */
-                }
-              else
-                {
-                  priv->socks[i].s_crefs--;
                 }
 
               break;
