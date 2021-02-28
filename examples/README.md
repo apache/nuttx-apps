@@ -276,23 +276,6 @@ Example Configuration:
 - `CONFIG_EXAMPLES_DJOYSTICK_SIGNO` – Signal used to signal the test
   application. Default `13`.
 
-
-## `dsptest` DSP
-
-This is a Unit Test for the NuttX DSP library. It use Unity testing framework.
-
-Dependencies:
-
-```conf
-CONFIG_LIBDSP=y
-CONFIG_LIBDSP_DEBUG=y
-CONFIG_TESTING_UNITY=y
-```
-
-Optional configuration:
-
-- `CONFIG_TESTING_UNITY_OUTPUT_COLOR` – enable colored output.
-
 ## `elf` ELF loader
 
 This example builds a small ELF loader test case. This includes several test
