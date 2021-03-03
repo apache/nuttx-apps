@@ -142,3 +142,17 @@ int i2cdev_transfer(int fd, FAR struct i2c_msg_s *msgv, int msgc)
 
   return ioctl(fd, I2CIOC_TRANSFER, (unsigned long)((uintptr_t)&xfer));
 }
+
+/****************************************************************************
+ * Name: i2cdev_reset
+ ****************************************************************************/
+
+#ifdef CONFIG_I2C_RESET
+int i2cdev_reset(int fd)
+{
+  /* Perform the IOCTL */
+
+  return ioctl(fd, I2CIOC_RESET, 0);
+}
+#endif
+

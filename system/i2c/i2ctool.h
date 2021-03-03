@@ -198,6 +198,10 @@ int i2ccmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 
+#ifdef CONFIG_I2C_RESET
+int i2ccmd_reset(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+#endif
+
 /* I2C access functions */
 
 int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
@@ -215,5 +219,9 @@ FAR char *i2cdev_path(int bus);
 bool i2cdev_exists(int bus);
 int i2cdev_open(int bus);
 int i2cdev_transfer(int fd, FAR struct i2c_msg_s *msgv, int msgc);
+
+#ifdef CONFIG_I2C_RESET
+int i2cdev_reset(int fd);
+#endif
 
 #endif /* __APPS_SYSTEM_I2C_I2CTOOLS_H */
