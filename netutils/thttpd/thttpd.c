@@ -696,7 +696,7 @@ int thttpd_main(int argc, char **argv)
    * socket descriptors
    */
 
-  fw = fdwatch_initialize(CONFIG_NSOCKET_DESCRIPTORS);
+  fw = fdwatch_initialize(CONFIG_NFILE_DESCRIPTORS);
   if (!fw)
     {
       nerr("ERROR: fdwatch initialization failure\n");
