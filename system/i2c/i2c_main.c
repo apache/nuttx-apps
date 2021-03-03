@@ -68,18 +68,21 @@ static struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
 {
-  { "?",    i2ccmd_help, "Show help     ", NULL },
-  { "bus",  i2ccmd_bus,  "List buses    ", NULL },
-  { "dev",  i2ccmd_dev,  "List devices  ", "[OPTIONS] <first> <last>" },
-  { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repetitions>]" },
-  { "dump", i2ccmd_dump, "Dump register ", "[OPTIONS] [<num bytes>]" },
-  { "help", i2ccmd_help, "Show help     ", NULL },
+  { "?",     i2ccmd_help,  "Show help     ", NULL },
+  { "bus",   i2ccmd_bus,   "List buses    ", NULL },
+#ifdef CONFIG_I2C_RESET
+  { "reset", i2ccmd_reset, "Reset bus     ", NULL },
+#endif
+  { "dev",   i2ccmd_dev,   "List devices  ", "[OPTIONS] <first> <last>" },
+  { "get",   i2ccmd_get,   "Read register ", "[OPTIONS] [<repetitions>]" },
+  { "dump",  i2ccmd_dump,  "Dump register ", "[OPTIONS] [<num bytes>]" },
+  { "help",  i2ccmd_help,  "Show help     ", NULL },
   {
-    "set",  i2ccmd_set,  "Write register",
+    "set",   i2ccmd_set,   "Write register",
       "[OPTIONS] <value> [<repetitions>]"
   },
   {
-    "verf", i2ccmd_verf, "Verify access ",
+    "verf",  i2ccmd_verf,  "Verify access ",
       "[OPTIONS] [<value>] [<repetitions>]"
   },
   { NULL,   NULL,        NULL,             NULL }
