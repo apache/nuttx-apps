@@ -331,11 +331,6 @@
 #    undef CONFIG_NSH_ROMFSETC
 #  endif
 
-#  if CONFIG_NFILE_DESCRIPTORS < 4
-#    error "Not enough file descriptors"
-#    undef CONFIG_NSH_ROMFSETC
-#  endif
-
 #  ifndef CONFIG_FS_ROMFS
 #    error "ROMFS support not enabled"
 #    undef CONFIG_NSH_ROMFSETC

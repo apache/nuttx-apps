@@ -183,7 +183,6 @@ int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch)
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 3
 int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                          FAR const char *filepath, uint8_t format,
                          uint16_t frequency, uint8_t volume)
@@ -309,7 +308,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
            * free up to the end of the RAM G buffer (actually already
            * handled by the above 'break')
            */
-       }
+        }
       while (freespace < MAX_DLBUFFER &&
              freespace < remaining &&
              freespace < (AUDIO_BUFSIZE - offset));
@@ -364,8 +363,9 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
       if (!started)
         {
-          /* Start playing at the beginning of graphics memory */
-          /* Set the audio playback start address */
+          /* Start playing at the beginning of graphics memory
+           * Set the audio playback start address
+           */
 
           ret = ft80x_putreg32(fd, FT80X_REG_PLAYBACK_START,
                                RAMG_STARTADDR);
@@ -432,7 +432,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
           started = true;
         }
-   }
+    }
 
   /* Transfer is complete.  'offset' points to the end of the file in RAM G.
    * Clear all of the RAM G at the end of the file so that audio is muted
@@ -509,7 +509,6 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
           ft80x_err("ERROR: ft80x_coproc_send failed: %d\n", ret);
           goto errout_with_fd;
         }
-
     }
 
   /* Wait until the read pointer wraps back to the beginning of the buffer */
@@ -544,8 +543,7 @@ int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
     }
   while (readptr < offset);
 
-  /* The file is done... */
-  /* Stop looping */
+  /* The file is done... Stop looping */
 
   ret = ft80x_putreg8(fd, FT80X_REG_PLAYBACK_LOOP, 1);
   if (ret < 0)
@@ -584,5 +582,3 @@ errout_with_fd:
   close(audiofd);
   return ret;
 }
-
-#endif /* CONFIG_NFILE_DESCRIPTORS > 3 */
