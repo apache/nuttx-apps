@@ -1781,8 +1781,6 @@ This is at trivial test of the Union File System. See
 
 - `CONFIG_DISABLE_MOUNTPOINT`          – Mountpoint support must not be
   disabled.
-- `CONFIG_NFILE_DESCRIPTORS > 4`       – Some file descriptors must be
-  allocated.
 - `CONFIG_FS_ROMFS`                    – ROMFS support is required.
 - `CONFIG_FS_UNIONFS`                  – Union File System support is required.
 

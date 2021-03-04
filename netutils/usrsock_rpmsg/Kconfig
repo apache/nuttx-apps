@@ -24,4 +24,10 @@ config NETUTILS_USRSOCK_RPMSG_STACKSIZE
 	---help---
 		The stack size allocated for the usrsock task.
 
+config NETUTILS_USRSOCK_NSOCK_DESCRIPTORS
+	int "the maximum number of socket descriptors for usrsock monitoring"
+	default 64
+	---help---
+		The maximum number of socket description for usrsosck monitoring.
+
 endif # NETUTILS_USRSOCK_RPMSG

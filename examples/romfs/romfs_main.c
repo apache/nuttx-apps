@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/romfs/romfs_main.c
+ * apps/examples/romfs/romfs_main.c
  *
  *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -95,10 +95,6 @@
 
 #ifdef CONFIG_DISABLE_MOUNTPOINT
 #  error "Mountpoint support is disabled"
-#endif
-
-#if CONFIG_NFILE_DESCRIPTORS < 4
-#  error "Not enough file descriptors"
 #endif
 
 #ifndef CONFIG_FS_ROMFS

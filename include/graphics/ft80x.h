@@ -224,8 +224,8 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   hardware and reset the local display list buffer offset to zero.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller with
- *            write access.
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *   wait   - True: wait until data has been consumed by the co-processor
  *            (only for co-processor destination); false:  Send to hardware
@@ -371,7 +371,8 @@ int ft80x_touch_gettransform(int fd, FAR uint32_t matrix[6]);
  *
  * Returned Value:
  *   A value of 1-255 is returned if a graphics object is touched.  Zero is
- *   returned if no graphics object is touched.  A negated errno value on failure.
+ *   returned if no graphics object is touched.  A negated errno value on
+ *   failure.
  *
  ****************************************************************************/
 
@@ -391,7 +392,8 @@ int ft80x_touch_tag(int fd);
  *
  * Returned Value:
  *   A value of 1-255 is returned if a graphics object is touched.  Zero is
- *   returned if no graphics object is touched.  A negated errno value on failure.
+ *   returned if no graphics object is touched.  A negated errno value on
+ *   failure.
  *
  ****************************************************************************/
 
@@ -415,7 +417,8 @@ int ft80x_touch_waittag(int fd, uint8_t oldtag);
  *
  * Returned Value:
  *   A value of 1-255 is returned if a graphics object is touched.  Zero is
- *   returned if no graphics object is touched.  A negated errno value on failure.
+ *   returned if no graphics object is touched.  A negated errno value on
+ *   failure.
  *
  ****************************************************************************/
 
@@ -494,11 +497,9 @@ int ft80x_audio_playsound(int fd, uint16_t effect, uint16_t pitch);
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 3
 int ft80x_audio_playfile(int fd, FAR struct ft80x_dlbuffer_s *buffer,
                          FAR const char *filepath, uint8_t format,
                          uint16_t frequency, uint8_t volume);
-#endif
 
 /****************************************************************************
  * Name: ft80x_backlight_set
