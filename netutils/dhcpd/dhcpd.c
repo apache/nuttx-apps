@@ -892,7 +892,7 @@ static inline int dhcpd_openresponder(void)
   int sockfd;
   int ret;
 
-  ninfo("Responder: %08lx\n", ntohl(g_state.ds_serverip));
+  ninfo("Responder: %08" PRIx32 "\n", ntohl(g_state.ds_serverip));
 
   /* Create a socket to listen for requests from DHCP clients */
 
@@ -1480,7 +1480,7 @@ static inline int dhcpd_openlistener(FAR const char *interface)
   g_state.ds_serverip = ((FAR struct sockaddr_in *)
     &req.ifr_addr)->sin_addr.s_addr;
 
-  ninfo("serverip: %08lx\n", ntohl(g_state.ds_serverip));
+  ninfo("serverip: %08" PRIx32 "\n", ntohl(g_state.ds_serverip));
 
   /* Bind the socket to a local port. We have to bind to INADDRY_ANY to
    * receive broadcast messages.
