@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watched/watched_main.c
+ * apps/examples/watched/watched_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -60,7 +60,7 @@ static int task1(int argc, FAR char *argv[])
 
   for (; ; )
     {
-      feed_dog(&watched_info);
+      watched_feed_dog(&watched_info);
       sleep(3);
     }
 
@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
 
   if (!watched_is_watcher_on())
     {
-      printf("Please, enable the watcher service \
-              before subscribing tasks!\n");
+      printf("Please, enable the watcher service "
+             "before subscribing tasks!\n");
       ret = ENOENT;
       goto errout;
     }

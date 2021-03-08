@@ -44,8 +44,13 @@ config EXAMPLES_WATCHER_TIMEOUT
 
 config EXAMPLES_WATCHER_SIGNAL
 	int "Signal Number for communication"
-	default 17
+	default 18
 	---help---
 		This is the Signal Number used for communication between the watcher task and the watched tasks.
 
+config EXAMPLES_WATCHER_SIGNAL_LOG
+	int "Signal Number for logging"
+	default 19
+	---help---
+		This is the Signal Number used by the wdt handler to notify the signal handler to log the tasks.
 endif

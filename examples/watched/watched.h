@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watched/watched.h
+ * apps/examples/watched/watched.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -71,9 +71,9 @@ struct watched_info_s
  ****************************************************************************/
 
 bool watched_is_watcher_on(void);
-int watched_read_watcher_info(struct watched_info_s *info);
-int watched_subscribe(struct watched_info_s *info);
-int watched_unsubscribe(struct watched_info_s *info);
-int feed_dog(struct watched_info_s *info);
+int  watched_read_watcher_info(struct watched_info_s *info);
+int  watched_subscribe(struct watched_info_s *info);
+int  watched_unsubscribe(struct watched_info_s *info);
+int  watched_feed_dog(struct watched_info_s *info);
 
 #endif                                 /* __EXAMPLES_WATCHER_WATCHED_H */
