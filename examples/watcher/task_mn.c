@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watcher/task_mn.c
+ * apps/examples/watcher/task_mn.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -72,7 +72,7 @@ void task_mn_print_tasks_status(void)
       notefd = open("/dev/note", O_RDONLY);
       if (notefd < 0)
         {
-          fprintf(stderr, "trace: cannot open /dev/note\n");
+          printf("Error: cannot open /dev/note\n");
           return;
         }
 
@@ -82,14 +82,13 @@ void task_mn_print_tasks_status(void)
         {
           task.pid = node->task_id;
           ioctl(notefd, NOTERAM_GETTASKNAME, (unsigned long)&task);
-          printf("%s ", task.taskname);
           if (node->reset)
             {
-              printf("fed the dog.\n");
+              printf("%s fed the dog.\n", task.taskname);
             }
           else
             {
-              printf("starved the dog.\n");
+              printf("%s starved the dog.\n", task.taskname);
             }
         }
 
@@ -99,7 +98,7 @@ void task_mn_print_tasks_status(void)
     }
   else
     {
-      fprintf(stderr, "watcher: List is empty to print\n");
+      printf("Error: Task list is empty to print\n");
     }
 }
 

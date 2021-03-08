@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watcher/wdt.c
+ * apps/examples/watcher/wdt.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,6 +30,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <debug.h>
 #include <sys/ioctl.h>
 #include "wdt.h"
 #include "task_mn.h"
@@ -39,19 +40,35 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct wdt_loginfo_s
+{
+    pid_t task_id; /* Id of the task that performs logging */
+    int   signal;  /* Signal that triggers the logging */
+};
+
+/****************************************************************************
  * Private Definitions
  ****************************************************************************/
 
-static int wdt_print_handler(int irq, FAR void *context, FAR void *arg);
+static int wdt_handler(int irq, FAR void *context, FAR void *arg);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static struct wdog_params_s wdog =
-{.timeout = CONFIG_EXAMPLES_WATCHER_TIMEOUT,
+{
+  .timeout = CONFIG_EXAMPLES_WATCHER_TIMEOUT,
   .handlers.oldhandler = NULL,
-  .handlers.newhandler = wdt_print_handler
+  .handlers.newhandler = wdt_handler
+};
+
+static struct wdt_loginfo_s log_info =
+{
+  .signal = CONFIG_EXAMPLES_WATCHER_SIGNAL_LOG
 };
 
 /****************************************************************************
@@ -67,16 +84,21 @@ static struct wdog_params_s wdog =
  *
  ****************************************************************************/
 
-static int wdt_print_handler(int irq, FAR void *context, FAR void *arg)
+static int wdt_handler(int irq, FAR void *context, FAR void *arg)
 {
-  if (watched_tasks.head != NULL)
+  int ret = OK;
+
+  /* Notify the watcher task to log  */
+
+  ret = kill(log_info.task_id, log_info.signal);
+  if (ret == ERROR)
     {
-      printf("*** Printing Tasks Status ***\n");
-      task_mn_print_tasks_status();
-      task_mn_reset_all();
+      int errcode = errno;
+      _err("Error: %d\n", errcode);
+      ret = errcode;
     }
 
-  return OK;
+  return ret;
 }
 
 /****************************************************************************
@@ -135,6 +157,10 @@ int wdt_init(void)
     }
 
   close(fd);
+
+  /* Set the pid, so the handler will be able to notify watcher */
+
+  log_info.task_id = getpid();
 
 errout:
   return ret;

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watcher/watcher_main.c
+ * apps/examples/watcher/watcher_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -117,6 +117,17 @@ static void feed_sighandler(int signo, FAR siginfo_t * siginfo,
     }
 }
 
+static void wdt_log(int signo, FAR siginfo_t * siginfo,
+                            FAR void *context)
+{
+  if (watched_tasks.head != NULL)
+    {
+      printf("*** Printing Tasks Status ***\n");
+      task_mn_print_tasks_status();
+      task_mn_reset_all();
+    }
+}
+
 /****************************************************************************
  * Name: watcher_daemon
  ****************************************************************************/
@@ -125,23 +136,52 @@ static int watcher_daemon(int argc, FAR char *argv[])
 {
   int ret;
   struct sigaction act;
+  struct sigaction act_log;
   pid_t watcher_pid;
   FILE *fp;
 
   printf("Watcher Daemon has started!\n");
 
-  /* Configuring a signal action */
+  /* Initialize and configure the wdt */
+
+  wdt_init();
+
+  /* Configure signals action */
+
+  /* Configure signal to receive the subscribe/unsubscribe
+   *  and feed requests
+   */
 
   act.sa_sigaction = feed_sighandler;   /* The handler to be triggered when
                                          * receiving a signal */
   act.sa_flags = SA_SIGINFO;            /* Invoke the signal-catching function */
   sigfillset(&act.sa_mask);
-  sigdelset(&act.sa_mask, CONFIG_EXAMPLES_WATCHER_SIGNAL);      /* Block all
-                                                                 * other
-                                                                 * signals less
-                                                                 * this one */
+
+  /* Block all other signals less this one */
+
+  sigdelset(&act.sa_mask, CONFIG_EXAMPLES_WATCHER_SIGNAL);
 
   ret = sigaction(CONFIG_EXAMPLES_WATCHER_SIGNAL, &act, NULL);
+  if (ret != OK)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: sigaction failed: %d\n", errcode);
+      ret = errcode;
+      goto errout;
+    }
+
+  /* Configure signal to log the taks at wdt timeout */
+
+  act_log.sa_sigaction = wdt_log;       /* The handler to be triggered when
+                                         * receiving a signal */
+  act_log.sa_flags = SA_SIGINFO;        /* Invoke the signal-catching function */
+  sigfillset(&act_log.sa_mask);
+
+  /* Block all other signals less this one */
+
+  sigdelset(&act_log.sa_mask, CONFIG_EXAMPLES_WATCHER_SIGNAL_LOG);
+
+  ret = sigaction(CONFIG_EXAMPLES_WATCHER_SIGNAL_LOG, &act_log, NULL);
   if (ret != OK)
     {
       int errcode = errno;
@@ -209,10 +249,6 @@ int main(int argc, FAR char *argv[])
   /* Create a RAMDISK device, format it and mount it */
 
   prepare_fs();
-
-  /* Initialize and configure the wdt */
-
-  wdt_init();
 
   /* Start Daemon */
 

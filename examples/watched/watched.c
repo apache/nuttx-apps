@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/watched/watched.c
+ * apps/examples/watched/watched.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -156,7 +156,7 @@ int watched_unsubscribe(struct watched_info_s *info)
   return ret;
 }
 
-int feed_dog(struct watched_info_s *info)
+int watched_feed_dog(struct watched_info_s *info)
 {
   int ret;
 
@@ -168,7 +168,7 @@ int feed_dog(struct watched_info_s *info)
   if (ret == ERROR)
     {
       int errcode = errno;
-      fprintf(stderr, "feed_dog: error %d\n", errcode);
+      fprintf(stderr, "watched_feed_dog: error %d\n", errcode);
       ret = errcode;
     }
 
