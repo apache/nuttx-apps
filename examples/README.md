@@ -1651,6 +1651,15 @@ character per TCP transfer):
 - `CONFIG_STDIO_BUFFER_SIZE` – Some value `>= 64`
 - `CONFIG_STDIO_LINEBUFFER=y`
 
+## `termios` Simple Termios interface test
+
+This directory contains a simple application that uses the termios interface
+to change serial parameters. Just import a `nsh` config and enable the
+following symbols:
+
+- `CONFIG_SERIAL_TERMIOS`   – Enable the termios support.
+- `CONFIG_EXAMPLES_TERMIOS` – Enable the example itself.
+
 ## `thttpd` THTTPD server
 
 An example that builds `netutils/thttpd` with some simple NXFLAT CGI programs.
