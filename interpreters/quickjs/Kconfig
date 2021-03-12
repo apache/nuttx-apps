@@ -11,7 +11,10 @@ if INTERPRETERS_QUICKJS
 
 config INTERPRETERS_QUICKJS_BIGNUM
 	bool "Bignum support"
-	default false
+	default n
+	---help---
+	It's depend on libatomic,
+	Not all platform support it.
 
 config INTERPRETERS_QUICKJS_PRIORITY
 	int "QuickJS interpreter priority"
