@@ -9,7 +9,7 @@ config EXAMPLES_TERMIOS
 	---help---
 		Enable the Termios example. This example
 		shows how to change serial parameters like baud rate,
-		stop bits, data lenght and parity using the termios interface.
+		stop bits, data length and parity using the termios interface.
 
 if EXAMPLES_TERMIOS
 

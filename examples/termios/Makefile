@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-# Termios Example! built-in application info
+# Termios example built-in application info
 
 PROGNAME  = termios
 PRIORITY  = $(CONFIG_EXAMPLES_TERMIOS_PRIORITY)
