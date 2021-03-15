@@ -1,3 +1,14 @@
+Overview
+================================================================
+
+This is a NuttX port of the ESP-IDF iperf example. [1]
+
+It doesn't support all features in standard iperf.
+It's supposed to be compatible with iperf version 2.x. [2]
+
+[1] https://github.com/espressif/esp-idf/tree/master/examples/wifi/iperf
+[2] https://sourceforge.net/projects/iperf2/
+
 Configuring NuttX to use your Wireless Router (aka Access Point)
 ================================================================
 
