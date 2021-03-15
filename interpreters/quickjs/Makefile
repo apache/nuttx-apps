@@ -27,9 +27,13 @@ QUICKJS_URL_BASE = https://bellard.org/quickjs/
 QUICKJS_URL      = $(QUICKJS_URL_BASE)/$(QUICKJS_TARBALL)
 
 CSRCS = quickjs.c libregexp.c libbf.c libunicode.c cutils.c
-CSRCS += quickjs-libc.c repl.c
 
+ifeq ($(CONFIG_INTERPRETERS_QUICKJS_MINI),y)
+MAINSRC = qjsmini.c
+else
+CSRCS += quickjs-libc.c repl.c
 MAINSRC = qjs.c
+endif
 
 VERSION=\"$(QUICKJS_VERSION)\"
 
