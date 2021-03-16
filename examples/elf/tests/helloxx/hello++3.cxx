@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// examples/nxflat/tests/hello++/hello++2.c
+// apps/examples/elf/tests/helloxx/hello++3.cxx
 //
-//   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+//   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,10 @@
 //
 // This is an another trivial version of "Hello, World" design.  It illustrates
 //
-// - Building a C++ program to use the C library
-// - Basic class creation
+// - Building a C++ program to use the C library and stdio
+// - Basic class creation with virtual methods.
+// - Static constructor and destructors (in main program only)
 // - NO Streams
-// - NO Static constructor and destructors
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -56,35 +56,49 @@ class CThingSayer
 {
   const char *szWhatToSay;
 public:
-  CThingSayer(void)
-    {
-      printf("CThingSayer::CThingSayer: I am!\n");
-      szWhatToSay = (const char*)NULL;
-    }
-
-  ~CThingSayer(void)
-    {
-      printf("CThingSayer::~CThingSayer: I cease to be\n");
-      if (szWhatToSay)
-	{
-	  printf("CThingSayer::~CThingSayer: I will never say '%s' again\n",
-		 szWhatToSay);
-	}
-      szWhatToSay = (const char*)NULL;
-    }
-
-  void Initialize(const char *czSayThis)
-    {
-      printf("CThingSayer::Initialize: When told, I will say '%s'\n",
-	     czSayThis);
-      szWhatToSay = czSayThis;
-    }
-
-  void SayThing(void)
-    {
-      printf("CThingSayer::SayThing: I am now saying '%s'\n", szWhatToSay);
-    }
+  CThingSayer(void);
+  virtual ~CThingSayer(void);
+  virtual void Initialize(const char *czSayThis);
+  virtual void SayThing(void);
 };
+
+// A static instance of the CThingSayer class.  This instance MUST
+// be constructed by the system BEFORE the program is started at
+// main() and must be destructed by the system AFTER the main()
+// returns to the system
+
+static CThingSayer MyThingSayer;
+
+// These are implementations of the methods of the CThingSayer class
+
+CThingSayer::CThingSayer(void)
+{
+  printf("CThingSayer::CThingSayer: I am!\n");
+  szWhatToSay = (const char*)NULL;
+}
+
+CThingSayer::~CThingSayer(void)
+{
+  printf("CThingSayer::~CThingSayer: I cease to be\n");
+  if (szWhatToSay)
+    {
+      printf("CThingSayer::~CThingSayer: I will never say '%s' again\n",
+  	     szWhatToSay);
+    }
+  szWhatToSay = (const char*)NULL;
+}
+
+void CThingSayer::Initialize(const char *czSayThis)
+{
+  printf("CThingSayer::Initialize: When told, I will say '%s'\n",
+	 czSayThis);
+  szWhatToSay = czSayThis;
+}
+
+void CThingSayer::SayThing(void)
+{
+  printf("CThingSayer::SayThing: I am now saying '%s'\n", szWhatToSay);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Public Functions
@@ -92,32 +106,27 @@ public:
 
 int main(int argc, char **argv)
 {
-  CThingSayer *MyThingSayer;
-
-  printf("main: Started.  Creating MyThingSayer\n");
-
-  // Create an instance of the CThingSayer class
   // We should see the message from constructor, CThingSayer::CThingSayer(),
+  // BEFORE we see the following messages.  That is proof that the
+  // C++ static initializer is working
 
-  MyThingSayer = new CThingSayer;
-  printf("main: Created MyThingSayer=0x%08lx\n", (long)MyThingSayer);
+  printf("main: Started.  MyThingSayer should already exist\n");
 
   // Tell MyThingSayer that "Hello, World!" is the string to be said
 
-  printf("main: Calling MyThingSayer->Initialize\n");
-  MyThingSayer->Initialize("Hello, World!");
+  printf("main: Calling MyThingSayer.Initialize\n");
+  MyThingSayer.Initialize("Hello, World!");
 
   // Tell MyThingSayer to say the thing we told it to say
 
-  printf("main: Calling MyThingSayer->SayThing\n");
-  MyThingSayer->SayThing();
+  printf("main: Calling MyThingSayer.SayThing\n");
+  MyThingSayer.SayThing();
 
-  // We should see the message from the destructor,
-  // CThingSayer::~CThingSayer(), AFTER we see the following
+  // We are finished, return.  We should see the message from the
+  // destructor, CThingSayer::~CThingSayer(), AFTER we see the following
+  // message.  That is proof that the C++ static destructor logic
+  // is working
 
-  printf("main: Destroying MyThingSayer\n");
-  delete MyThingSayer;
-
-  printf("main: Returning\n");
+  printf("main: Returning.  MyThingSayer should be destroyed\n");
   return 0;
 }

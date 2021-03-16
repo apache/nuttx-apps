@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// examples/elf/tests/helloxx/hello++4.c
+// apps/examples/elf/tests/helloxx/hello++5.cxx
 //
-//   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+//   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 // - Building a C++ program
 // - Streams / statically linked libstdc++
 // - Static constructor and destructors (in main program only)
+// - Exception handling
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -48,13 +49,14 @@
 
 #include <cstdio>
 #include <iostream>
+#include <string>
 
 #ifndef NULL
 # define NULL ((void*)0L)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Classes
+// Private Classes
 /////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -69,6 +71,20 @@ public:
   virtual ~CThingSayer(void);
   virtual void Initialize(const char *czSayThis);
   virtual void SayThing(void);
+  virtual void ThrowThing(void);
+  virtual void ThrowMyThing(const char *czSayThis);
+};
+
+class MyException: public std::exception
+{
+  std::string reason;
+
+public:
+  virtual ~MyException() throw();
+  MyException();
+  MyException(std::string r);
+
+  virtual const char *what() const throw();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +99,33 @@ public:
 static CThingSayer MyThingSayer;
 
 /////////////////////////////////////////////////////////////////////////////
-// Method Implementations
+// MyException Method Implementations
+/////////////////////////////////////////////////////////////////////////////
+
+MyException::MyException(std::string r = NULL) : reason(r)
+{
+  if( r.length() > 0 )
+    {
+      cout << "MyException(" << r << "):  constructing with reason." << endl;
+    }
+  else
+    {
+      cout << "MyException():  constructing." << endl;
+    }
+}
+
+MyException::~MyException() throw()
+{
+  cout << "~MyException():  destructing." << endl;
+}
+
+const char *MyException::what() const throw()
+{
+  return reason.c_str();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CThingSayer Method Implementations
 /////////////////////////////////////////////////////////////////////////////
 
 // These are implementations of the methods of the CThingSayer class
@@ -100,7 +142,7 @@ CThingSayer::~CThingSayer(void)
   if (szWhatToSay)
     {
       cout << "CThingSayer::~CThingSayer: I will never say '"
-	   << szWhatToSay << "' again" << endl;
+     << szWhatToSay << "' again" << endl;
     }
   szWhatToSay = (const char*)NULL;
 }
@@ -116,6 +158,18 @@ void CThingSayer::SayThing(void)
 {
   cout << "CThingSayer::SayThing: I am now saying '"
        << szWhatToSay << "'" << endl;
+}
+
+void CThingSayer::ThrowThing(void)
+{
+  cout << "CThingSayer::ThrowThing: I am now throwing an exception." << endl;
+  throw exception();
+}
+
+void CThingSayer::ThrowMyThing(const char *czSayThis = NULL)
+{
+  cout << "CThingSayer::ThrowMyThing: I am now throwing an MyException (with reason)." << endl;
+  throw MyException( string(czSayThis) );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -139,6 +193,99 @@ int main(int argc, char **argv)
 
   cout << "main: Calling MyThingSayer.SayThing" << endl;
   MyThingSayer.SayThing();
+
+  // Test Static object throwing std::exception located in flash
+
+  try
+    {
+      cout << "main: Calling MyThingSayer.ThrowThing (and catching it)" << endl;
+      MyThingSayer.ThrowThing();
+    }
+
+  catch (const exception& e)
+    {
+      cout << "main: Caught exception: " << e.what() << endl;
+    }
+
+  // Test Static object throwing MyException shipped in the ELF and located in RAM.
+
+  try
+    {
+      cout << "main: Calling MyThingSayer.ThrowMyThing (and catching it)" << endl;
+      MyThingSayer.ThrowMyThing();
+    }
+
+  catch (const MyException& e)
+    {
+      cout << "main: Caught MyException: " << e.what() << endl;
+    }
+
+  // Testing with a local object
+
+  CThingSayer localMyThingSayer;
+
+  cout << "main: Calling localMyThingSayer.Initialize" << endl;
+  localMyThingSayer.Initialize("Repeat in heap.");
+  cout << "main: Calling localMyThingSayer.SayThing" << endl;
+  localMyThingSayer.SayThing();
+
+  // Test local object throwing std::exception located in flash
+
+  try
+    {
+      cout << "main: Calling localMyThingSayer.ThrowThing (and catching it)" << endl;
+      localMyThingSayer.ThrowThing();
+    }
+
+  catch (const exception& e)
+    {
+      cout << "main: Caught exception: " << e.what() << endl;
+    }
+
+  catch (const MyException& e)
+    {
+      cout << "main: Caught MyException: " << e.what() << endl;
+    }
+
+  // Test local object throwing MyException shipped in the ELF and located in RAM.
+  // Also testing the action record selection logic trying different sorting of the
+  // catch clauses
+
+  try
+    {
+      cout << "main: Calling localMyThingSayer.ThrowMyThing (and catching it)" << endl;
+      localMyThingSayer.ThrowMyThing();
+    }
+
+  catch (const exception& e)
+    {
+      cout << "main: Caught exception: " << e.what() << endl;
+    }
+
+  catch (const MyException& e)
+    {
+      cout << "main: Caught MyException: " << e.what() << endl;
+    }
+
+  // AGAING: Test local object throwing MyException shipped in the ELF and located in RAM.
+  // Also testing the action record selection logic trying different sorting of the
+  // catch clauses
+
+  try
+    {
+      cout << "main: Calling localMyThingSayer.ThrowMyThing (and catching it)" << endl;
+      localMyThingSayer.ThrowMyThing("Custom Reason.");
+    }
+
+  catch (const MyException& e)
+    {
+      cout << "main: Caught MyException: " << e.what() << endl;
+    }
+
+  catch (const exception& e)
+    {
+      cout << "main: Caught exception: " << e.what() << endl;
+    }
 
   // We are finished, return.  We should see the message from the
   // destructor, CThingSayer::~CThingSayer(), AFTER we see the following

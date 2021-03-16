@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// examples/nxflat/tests/hello++/hello++4.c
+// apps/examples/nxflat/tests/hello++/hello++3.cxx
 //
 //   Copyright (C) 2009 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,12 +33,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// This is an excessively complex version of "Hello, World" design to
-// illustrate some basic properties of C++:
+// This is an another trivial version of "Hello, World" design.  It illustrates
 //
-// - Building a C++ program
-// - Streams / statically linked libstdc++
+// - Building a C++ program to use the C library and stdio
+// - Basic class creation with virtual methods.
 // - Static constructor and destructors (in main program only)
+// - NO Streams
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,19 +47,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
-#include <iostream>
-
-#ifndef NULL
-# define NULL ((void*)0L)
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes
 /////////////////////////////////////////////////////////////////////////////
-
-using namespace std;
-
-// A hello world sayer class
 
 class CThingSayer
 {
@@ -71,10 +62,6 @@ public:
   virtual void SayThing(void);
 };
 
-/////////////////////////////////////////////////////////////////////////////
-// Private Data
-/////////////////////////////////////////////////////////////////////////////
-
 // A static instance of the CThingSayer class.  This instance MUST
 // be constructed by the system BEFORE the program is started at
 // main() and must be destructed by the system AFTER the main()
@@ -82,40 +69,35 @@ public:
 
 static CThingSayer MyThingSayer;
 
-/////////////////////////////////////////////////////////////////////////////
-// Method Implementations
-/////////////////////////////////////////////////////////////////////////////
-
 // These are implementations of the methods of the CThingSayer class
 
 CThingSayer::CThingSayer(void)
 {
-  cout << "CThingSayer::CThingSayer: I am!" << endl;
+  printf("CThingSayer::CThingSayer: I am!\n");
   szWhatToSay = (const char*)NULL;
 }
 
 CThingSayer::~CThingSayer(void)
 {
-  cout << "CThingSayer::~CThingSayer: I cease to be" << endl;
+  printf("CThingSayer::~CThingSayer: I cease to be\n");
   if (szWhatToSay)
     {
-      cout << "CThingSayer::~CThingSayer: I will never say '"
-	   << szWhatToSay << "' again" << endl;
+      printf("CThingSayer::~CThingSayer: I will never say '%s' again\n",
+  	     szWhatToSay);
     }
   szWhatToSay = (const char*)NULL;
 }
 
 void CThingSayer::Initialize(const char *czSayThis)
 {
-  cout << "CThingSayer::Initialize: When told, I will say '"
-       << czSayThis << "'" << endl;
+  printf("CThingSayer::Initialize: When told, I will say '%s'\n",
+	 czSayThis);
   szWhatToSay = czSayThis;
 }
 
 void CThingSayer::SayThing(void)
 {
-  cout << "CThingSayer::SayThing: I am now saying '"
-       << szWhatToSay << "'" << endl;
+  printf("CThingSayer::SayThing: I am now saying '%s'\n", szWhatToSay);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -128,16 +110,16 @@ int main(int argc, char **argv)
   // BEFORE we see the following messages.  That is proof that the
   // C++ static initializer is working
 
-  cout << "main: Started" << endl;
+  printf("main: Started.  MyThingSayer should already exist\n");
 
   // Tell MyThingSayer that "Hello, World!" is the string to be said
 
-  cout << "main: Calling MyThingSayer.Initialize" << endl;
+  printf("main: Calling MyThingSayer.Initialize\n");
   MyThingSayer.Initialize("Hello, World!");
 
   // Tell MyThingSayer to say the thing we told it to say
 
-  cout << "main: Calling MyThingSayer.SayThing" << endl;
+  printf("main: Calling MyThingSayer.SayThing\n");
   MyThingSayer.SayThing();
 
   // We are finished, return.  We should see the message from the
@@ -145,6 +127,6 @@ int main(int argc, char **argv)
   // message.  That is proof that the C++ static destructor logic
   // is working
 
-  cout << "main: Returning" << endl;
+  printf("main: Returning.  MyThingSayer should be destroyed\n");
   return 0;
 }
