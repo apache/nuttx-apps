@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/irtest/cmd.cpp
+ * apps/testing/irtest/cmd.cxx
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

@@ -25,8 +25,7 @@ PRIORITY  = $(CONFIG_TESTING_IRTEST_PRIORITY)
 STACKSIZE = $(CONFIG_TESTING_IRTEST_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_IRTEST)
 
-CXXEXT    = .cpp
-MAINSRC   = main.cpp
-CXXSRCS   = $(filter-out $(MAINSRC), $(wildcard *.cpp))
+MAINSRC   = main.cxx
+CXXSRCS   = $(filter-out $(MAINSRC), $(wildcard *.cxx))
 
 include $(APPDIR)/Application.mk

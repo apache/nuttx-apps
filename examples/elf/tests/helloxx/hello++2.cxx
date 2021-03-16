@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// examples/elf/tests/helloxx/hello++2.c
+// apps/examples/elf/tests/helloxx/hello++2.cxx
 //
 //   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>

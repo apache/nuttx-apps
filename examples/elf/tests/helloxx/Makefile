@@ -94,7 +94,7 @@ LDLIBSTDC_STUBS_LIB	= $(LDLIBSTDC_STUBS_DIR)/liblibxx.a
 all: $(BIN1) $(BIN2) $(BIN3) $(BIN4) $(BIN5)
 .PHONY: all clean install
 
-$(OBJS): %$(OBJEXT): %.cpp
+$(OBJS): %$(OBJEXT): %.cxx
 	@echo "CC: $<"
 	$(Q) $(CXX) -c $(CXXELFFLAGS) $< -o $@
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// examples/nxflat/tests/hello++/hello++1.c
+// apps/examples/nxflat/tests/hello++/hello++2.cxx
 //
 //   Copyright (C) 2009 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,11 +33,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// This is an trivial version of "Hello, World" program.  It illustrates
-// that we can build C programs using the C++ compiler.
+// This is an another trivial version of "Hello, World" design.  It illustrates
 //
 // - Building a C++ program to use the C library
-// - No class creation
+// - Basic class creation
 // - NO Streams
 // - NO Static constructor and destructors
 //
@@ -50,11 +49,75 @@
 #include <cstdio>
 
 /////////////////////////////////////////////////////////////////////////////
+// Classes
+/////////////////////////////////////////////////////////////////////////////
+
+class CThingSayer
+{
+  const char *szWhatToSay;
+public:
+  CThingSayer(void)
+    {
+      printf("CThingSayer::CThingSayer: I am!\n");
+      szWhatToSay = (const char*)NULL;
+    }
+
+  ~CThingSayer(void)
+    {
+      printf("CThingSayer::~CThingSayer: I cease to be\n");
+      if (szWhatToSay)
+	{
+	  printf("CThingSayer::~CThingSayer: I will never say '%s' again\n",
+		 szWhatToSay);
+	}
+      szWhatToSay = (const char*)NULL;
+    }
+
+  void Initialize(const char *czSayThis)
+    {
+      printf("CThingSayer::Initialize: When told, I will say '%s'\n",
+	     czSayThis);
+      szWhatToSay = czSayThis;
+    }
+
+  void SayThing(void)
+    {
+      printf("CThingSayer::SayThing: I am now saying '%s'\n", szWhatToSay);
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////
 // Public Functions
 /////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
-  printf("Hello, World!\n");
+  CThingSayer *MyThingSayer;
+
+  printf("main: Started.  Creating MyThingSayer\n");
+
+  // Create an instance of the CThingSayer class
+  // We should see the message from constructor, CThingSayer::CThingSayer(),
+
+  MyThingSayer = new CThingSayer;
+  printf("main: Created MyThingSayer=0x%08lx\n", (long)MyThingSayer);
+
+  // Tell MyThingSayer that "Hello, World!" is the string to be said
+
+  printf("main: Calling MyThingSayer->Initialize\n");
+  MyThingSayer->Initialize("Hello, World!");
+
+  // Tell MyThingSayer to say the thing we told it to say
+
+  printf("main: Calling MyThingSayer->SayThing\n");
+  MyThingSayer->SayThing();
+
+  // We should see the message from the destructor,
+  // CThingSayer::~CThingSayer(), AFTER we see the following
+
+  printf("main: Destroying MyThingSayer\n");
+  delete MyThingSayer;
+
+  printf("main: Returning\n");
   return 0;
 }
