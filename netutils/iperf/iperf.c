@@ -260,6 +260,8 @@ static int iperf_start_report(void)
       return -1;
     }
 
+  pthread_detach(thread);
+
   return 0;
 }
 
