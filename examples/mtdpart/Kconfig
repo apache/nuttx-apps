@@ -7,6 +7,7 @@ config EXAMPLES_MTDPART
 	tristate "MTD partition test"
 	default n
 	depends on MTD_PARTITION && BUILD_FLAT
+	select BCH
 	---help---
 		Enable the MTD partition test example.
 
