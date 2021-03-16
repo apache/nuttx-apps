@@ -215,6 +215,9 @@ int main(int argc, FAR char *argv[])
         }
     }
 
+  arg_freetable((FAR void **)&iperf_args,
+                sizeof(iperf_args) / sizeof(FAR void *));
+
   printf("\n mode=%s-%s "
          "sip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d,"
          "dip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d, "
