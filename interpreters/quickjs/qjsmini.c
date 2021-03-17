@@ -629,7 +629,7 @@ int main(int argc, char *argv[])
   if (OK != js_ext_init(ctx))
     {
       fprintf(stderr, "qjs: external context init failed\n");
-      goto fail_ctx;
+      goto fail;
     }
 #endif
 
