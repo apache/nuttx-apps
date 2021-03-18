@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/dhcpd/dhcpd.c
+ * apps/netutils/dhcpd/dhcpd.c
  *
  *   Copyright (C) 2007-2009, 2011-2014, 2017, 2020 Gregory Nutt. All rights
  *     reserved.
@@ -846,7 +846,7 @@ static inline int dhcpd_socket(void)
 
   /* Create a socket to listen for requests from DHCP clients */
 
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  sockfd = socket(PF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
   if (sockfd < 0)
     {
       nerr("ERROR: socket failed: %d\n", errno);
