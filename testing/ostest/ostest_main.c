@@ -510,6 +510,10 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: sporadic scheduler test\n");
       sporadic_test();
       check_test_memory_usage();
+
+      printf("\nuser_main: Dual sporadic thread test\n");
+      sporadic2_test();
+      check_test_memory_usage();
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD
