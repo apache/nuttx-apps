@@ -48,6 +48,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <inttypes.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -300,7 +301,7 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-          printf("qe_main: %3d. %d\n", nloops+1, position);
+          printf("qe_main: %3d. %" PRIi32 "\n", nloops + 1, position);
         }
 
       /* Delay a little bit */
