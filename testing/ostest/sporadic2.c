@@ -41,10 +41,13 @@
 
 #define PRIO_LOW1     20
 #define PRIO_LOW2     30
+#define PRIO_MID      100
 #define PRIO_HIGH1    180
 #define PRIO_HIGH2    170
 #define REPL_INTERVAL 100000000L
 #define MAX_BUDGET    (REPL_INTERVAL / 2)
+#define PRIO_HI_NDX   0
+#define PRIO_LO_NDX   1
 
 #ifndef MIN
 # define MIN(a,b) (((a) < (b)) ? (a) : (b))
@@ -61,8 +64,20 @@
 static sem_t g_sporadic_sem;
 static time_t g_start_time;
 
-static int32_t sporadic_1_ms_cnt = 0;
-static int32_t sporadic_2_ms_cnt = 0;
+/* These counters are incremented approximately once per millisecond by the
+ * sporadic threads to provide a rough estimate of the time spent by each
+ * thread in each state.
+ */
+
+static int32_t g_ms_cnt1[2] =
+{
+  0, 0
+};
+
+static int32_t g_ms_cnt2[2] =
+{
+  0, 0
+};
 
 /****************************************************************************
  * Private Functions
@@ -100,8 +115,16 @@ static FAR void *sporadic_func(FAR void *parameter)
     {
       do
         {
+          int ndx;
+
+          /* Hog the CPU for approximately 1 MS (depends on proper
+           * calibration of the timing loop!).
+           */
+
           my_mdelay(1);
-          (*counter)++;
+
+          /* Get the current thread priority */
+
           ret = sched_getparam(0, &param);
           if (ret < 0)
             {
@@ -109,6 +132,20 @@ static FAR void *sporadic_func(FAR void *parameter)
               return NULL;
             }
 
+          /* Increment the counter associated with the current priority
+           * state.
+           */
+
+          if (param.sched_priority > PRIO_MID)
+            {
+              ndx = PRIO_HI_NDX;
+            }
+          else
+            {
+              ndx = PRIO_LO_NDX;
+            }
+
+          counter[ndx]++;
           now = time(NULL);
         }
       while (now == last && prio == param.sched_priority);
@@ -141,8 +178,10 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
 
   /* initilize global worker-thread millisecons-counters */
 
-  sporadic_1_ms_cnt = 0;
-  sporadic_2_ms_cnt = 0;
+  g_ms_cnt1[PRIO_HI_NDX] = 0;
+  g_ms_cnt1[PRIO_LO_NDX] = 0;
+  g_ms_cnt2[PRIO_HI_NDX] = 0;
+  g_ms_cnt2[PRIO_LO_NDX] = 0;
 
   ret = sched_getparam(0, &myparam);
   if (ret != OK)
@@ -197,7 +236,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
     }
 
   ret = pthread_create(&sporadic_thread1, &attr, sporadic_func,
-                       &sporadic_1_ms_cnt);
+                       (pthread_addr_t)g_ms_cnt1);
   if (ret != 0)
     {
       printf("sporadic_test: ERROR: sporadic thread creation failed: %d\n",
@@ -225,7 +264,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
     }
 
   ret = pthread_create(&sporadic_thread2, &attr, sporadic_func,
-                       (pthread_addr_t)&sporadic_2_ms_cnt);
+                       (pthread_addr_t)g_ms_cnt2);
   if (ret != 0)
     {
       printf("sporadic_test: ERROR: sporadic thread creation failed: %d\n",
@@ -275,6 +314,7 @@ int sporadic2_test(void)
          PRIO_HIGH1, PRIO_LOW1, REPL_INTERVAL);
   printf("Sporadic 2: prio high %d, low %d, repl %" PRIi32 " ns\n",
          PRIO_HIGH2, PRIO_LOW2, REPL_INTERVAL);
+  printf("\n%14s%10s%7s%7s\n", "THREAD", "BUDGET", "HI MS", "LO MS");
 
   for (budget_1_ns = 0, i = 1;
        budget_1_ns <= MAX_BUDGET;
@@ -282,10 +322,11 @@ int sporadic2_test(void)
     {
       sporadic_test_case(budget_1_ns, budget_2_ns);
 
-      printf("%3d Sporadic 1 budget %09" PRIi32 " ns %6" PRIi32 " ms\n",
-             i, budget_1_ns, sporadic_1_ms_cnt);
-      printf("    Sporadic 2 budget %09" PRIi32 " ns %6" PRIi32 " ms\n",
-             budget_2_ns, sporadic_2_ms_cnt);
+      printf("%3d Sporadic 1 %09" PRIi32 " %6" PRIi32 " %6" PRIi32 "\n",
+             i,
+             budget_1_ns, g_ms_cnt1[PRIO_HI_NDX], g_ms_cnt1[PRIO_LO_NDX]);
+      printf("    Sporadic 2 %09" PRIi32 " %6" PRIi32 " %6" PRIi32 "\n",
+             budget_2_ns, g_ms_cnt2[PRIO_HI_NDX], g_ms_cnt2[PRIO_LO_NDX]);
     }
 
   return 0;
