@@ -1,0 +1,69 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INDUSTRY_FOC
+	bool "FOC Library"
+	default n
+	select LIBDSP
+	---help---
+		Enable or disable the FOC Library
+
+if INDUSTRY_FOC
+
+config INDUSTRY_FOC_CORDIC
+	bool "Enable CORDIC support"
+	depends on EXPERIMENTAL
+	default n
+	---help---
+		Enable support for CORDIC hardware acceleration
+
+config INDUSTRY_FOC_FIXED16
+	bool "Enable support for fixed16"
+	default n
+	---help---
+		Enable support for FOC fixed16 calculations
+
+config INDUSTRY_FOC_FLOAT
+	bool "Enable support for float"
+	default n
+	---help---
+		Enable support for FOC float calculations
+
+config INDUSTRY_FOC_HANDLER_PRINT
+	bool "FOC handler state printer"
+	default n
+	---help---
+		Enable support for FOC handler state printer
+
+config INDUSTRY_FOC_ANGLE_OPENLOOP
+	bool "FOC angle open-loop handler"
+	default y
+	---help---
+		Enable support for open-loop angle handler
+
+config INDUSTRY_FOC_CONTROL_PI
+	bool "FOC PI controller"
+	default y
+	---help---
+		Enable support for classic FOC PI controller
+
+config INDUSTRY_FOC_MODULATION_SVM3
+	bool "FOC SVM3 modulation"
+	default y
+	---help---
+		Enable support for FOC 3-phase space vector modulation
+
+config INDUSTRY_FOC_MODEL_PMSM
+	bool "FOC PMSM model support"
+	select INDUSTRY_FOC_HAVE_MODEL
+	default n
+	---help---
+		Enable support for PMSM model
+
+config INDUSTRY_FOC_HAVE_MODEL
+	bool
+	default n
+
+endif
