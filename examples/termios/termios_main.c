@@ -123,6 +123,7 @@ int main(int argc, FAR char *argv[])
             "Expected error code: 0. Current code: %d\n", error);
       sleep(1);
     }
+
   return 0;
 }
 
