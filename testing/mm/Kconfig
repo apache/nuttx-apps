@@ -20,7 +20,7 @@ config TESTING_MM_PROGNAME
 
 config TESTING_MM_PRIORITY
 	int "Task priority"
-	default 100
+	default 250
 
 config TESTING_MM_STACKSIZE
 	int "Stack size"
