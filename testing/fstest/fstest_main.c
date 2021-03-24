@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/fstest/fstest_main.c
+ * apps/testing/fstest/fstest_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -620,7 +620,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("ERROR: Bad CRC: %" PRId32 " vs %" PRId32 "\n", crc, file->crc);
       printf("  File name: %s\n", file->name);
       printf("  File size: %zd\n", file->len);
       close(fd);
