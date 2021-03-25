@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <crc32.h>
 #include <debug.h>
+#include <assert.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -200,8 +201,11 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
   int i;
 
   dirlen   = strlen(g_mountdir);
-  maxname  = CONFIG_TESTING_FSTEST_MAXNAME - dirlen;
-  namelen  = (rand() % maxname) + 1;
+
+  /* Force the max filename lengh and also the min name len = 4 */
+
+  maxname  = CONFIG_TESTING_FSTEST_MAXNAME - dirlen - 3;
+  namelen  = (rand() % maxname) + 4;
   alloclen = namelen + dirlen;
 
   file->name = (FAR char *)malloc(alloclen + 1);
