@@ -111,8 +111,6 @@ const int canfd_on = 1;
 const char anichar[MAXANI] = {'|', '/', '-', '\\'};
 const char extra_m_info[4][4] = {"- -", "B -", "- E", "B E"};
 
-extern int optind, opterr, optopt;
-
 static volatile int running = 1;
 
 static void print_usage(char *prg)
