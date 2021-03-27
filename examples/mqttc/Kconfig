@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MQTTC
+	tristate "Enable MQTT-C Example"
+	default n
+  	depends on NETUTILS_MQTTC
+	---help---
+		Enable a simple MQTT-C publisher example
+
+if EXAMPLES_MQTTC
+
+config EXAMPLES_MQTTC_PROGNAME
+	string "Program name"
+	default "mqttc_pub"
+
+config EXAMPLES_MQTTC_STACKSIZE
+	int "Task's stack size"
+	default 8192
+
+config EXAMPLES_MQTTC_TXSIZE
+	int "TX Buffer size"
+	default 256
+
+config EXAMPLES_MQTTC_RXSIZE
+	int "RX Buffer size"
+	default 256
+
+endif
