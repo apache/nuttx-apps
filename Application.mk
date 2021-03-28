@@ -199,10 +199,7 @@ endif # BUILD_MODULE
 
 context::
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 ifneq ($(PROGNAME),)
-ifneq ($(PRIORITY),)
-ifneq ($(STACKSIZE),)
 
 REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
 APPLIST := $(PROGNAME)
@@ -214,15 +211,6 @@ $(REGLIST): $(DEPCONFIG) Makefile
 	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
 
 register:: $(REGLIST)
-else
-register::
-endif
-else
-register::
-endif
-else
-register::
-endif
 else
 register::
 endif
