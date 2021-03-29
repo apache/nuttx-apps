@@ -1106,8 +1106,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           case AUDIO_MSG_COMPLETE:
 #ifdef CONFIG_DEBUG_FEATURES
             audinfo("Play complete.  outstanding=%d\n", outstanding);
-#endif
             DEBUGASSERT(outstanding == 0);
+#endif
             running = false;
             break;
 
