@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -311,16 +312,26 @@ static void mm_test(void)
   printf("TEST COMPLETE\n");
 }
 
-static void mm_stress_test(void)
+static void mm_stress_test(int delay)
 {
   FAR char *tmp;
   int size;
+  int i;
 
-  size = random() % 1024;
-  tmp = malloc(size);
-  if (tmp)
+  while (1)
     {
-      memset(tmp, 0xff, size);
+      size = random() % 1024 + 1;
+      tmp = malloc(size);
+      DEBUGASSERT(tmp);
+
+      memset(tmp, 0xfe, size);
+      usleep(delay);
+
+      for (i = 0; i < size; i++)
+        {
+          DEBUGASSERT(tmp[i] == 0xfe);
+        }
+
       free(tmp);
     }
 }
@@ -364,16 +375,13 @@ int main(int argc, FAR char *argv[])
       show_usage(argv[0], EXIT_FAILURE);
     }
 
-  if (!delay)
+  if (delay)
+    {
+      mm_stress_test(delay);
+    }
+  else
     {
       mm_test();
-      return 0;
-    }
-
-  while (1)
-    {
-      mm_stress_test();
-      usleep(delay);
     }
 
   return 0;
