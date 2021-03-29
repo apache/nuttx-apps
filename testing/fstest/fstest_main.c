@@ -91,6 +91,7 @@ struct fstest_filedesc_s
   bool failed;
   size_t len;
   uint32_t crc;
+  uint32_t hash;
 };
 
 /****************************************************************************
@@ -189,6 +190,29 @@ static inline char fstest_randchar(void)
 }
 
 /****************************************************************************
+ * Name: fstest_checkexit
+ ****************************************************************************/
+
+static bool fstest_checkexit(FAR struct fstest_filedesc_s *file)
+{
+  int i;
+  bool ret = false;
+
+  for (i = 0; i < CONFIG_TESTING_FSTEST_MAXOPEN; i++)
+    {
+      if (!g_files[i].deleted &&
+          &g_files[i] != file &&
+          g_files[i].hash == file->hash)
+        {
+          ret = true;
+          break;
+        }
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: fstest_randname
  ****************************************************************************/
 
@@ -217,12 +241,19 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
     }
 
   memcpy(file->name, g_mountdir, dirlen);
-  for (i = dirlen; i < alloclen; i++)
-    {
-      file->name[i] = fstest_randchar();
-    }
 
-  file->name[alloclen] = '\0';
+  do
+    {
+      for (i = dirlen; i < alloclen; i++)
+        {
+          file->name[i] = fstest_randchar();
+        }
+
+      file->name[alloclen] = '\0';
+      file->hash = crc32((const uint8_t *)file->name + dirlen,
+                         alloclen - dirlen);
+    }
+  while (fstest_checkexit(file));
 }
 
 /****************************************************************************
@@ -251,6 +282,7 @@ static void fstest_freefile(FAR struct fstest_filedesc_s *file)
   if (file->name)
     {
       free(file->name);
+      file->name = NULL;
     }
 
   memset(file, 0, sizeof(struct fstest_filedesc_s));
