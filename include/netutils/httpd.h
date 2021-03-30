@@ -192,11 +192,82 @@ EXTERN const int g_httpd_numfiles;
  * Public Function Prototypes
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: httpd_init
+ *
+ * Description:
+ *   This function initializes the web server and should be called at system
+ *   boot-up.
+ *
+ ****************************************************************************/
+
 void httpd_init(void);
+
+/****************************************************************************
+ * Name: httpd_listen
+ *
+ * Description:
+ *   This is the main processing thread for the webserver.  It never returns
+ *   unless an error occurs
+ *
+ ****************************************************************************/
+
 int httpd_listen(void);
+
+/****************************************************************************
+ * Name: httpd_cgi_register
+ *
+ * Description:
+ *   Register a CGI handler
+ *
+ ****************************************************************************/
+
 void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
-uint16_t httpd_fs_count(char *name);
+
+/****************************************************************************
+ * Name: httpd_send_datachunk
+ *
+ * Description:
+ *   Sends a chunk of HTML data using either chunked or non-chunked encoding.
+ *
+ * Input Parameters:
+ *   sockfd   Socket to which to send the data.
+ *   data     Data to send
+ *   len      Length of data to send
+ *   chunked  If True, sends an HTTP Chunked-Encoding prolog before the data
+ *            block, and a HTTP Chunked-Encoding epilog ("\r\n") after the
+ *            data block. If False, just sends the data.
+ *
+ * Returned Value:
+ *   On success, returns >=0. On failure, returns a negative number
+ *   indicating the failure code.
+ *
+ ****************************************************************************/
+
 int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked);
+
+/****************************************************************************
+ * Name: httpd_send_headers
+ *
+ * Description:
+ *   Sends HTTP headers
+ *
+ * Input Parameters:
+ *   pstate   The httpd state
+ *   status   Numeric HTTP status code
+ *   len      Length of data to be sent in subsequent send
+ *
+ * Returned Value:
+ *   On success, returns >=0. On failure, returns a negative number
+ *   indicating the failure code.
+ *
+ ****************************************************************************/
+
+int httpd_send_headers(struct httpd_state *pstate, int status, int len);
+
+#ifdef CONFIG_NETUTILS_HTTPDFSSTATS
+uint16_t httpd_fs_count(char *name);
+#endif
 
 #ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
 bool httpd_is_file(FAR const char *filename);

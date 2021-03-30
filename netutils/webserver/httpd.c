@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/webserver/httpd.c
+ * apps/netutils/webserver/httpd.c
  * httpd Web server
  *
  *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
@@ -192,76 +192,6 @@ static int httpd_close(struct httpd_fs_file *file)
 #endif
 }
 
-/****************************************************************************
- * Name: httpd_send_datachunk
- *
- * Description:
- *   Sends a chunk of HTML data using either chunked or non-chunked encoding.
- *
- * Input Parameters:
- *   sockfd   Socket to which to send the data.
- *   data     Data to send
- *   len      Length of data to send
- *   chunked  If True, sends an HTTP Chunked-Encoding prolog before the data
- *            block, and a HTTP Chunked-Encoding epilog ("\r\n") after the
- *            data block. If False, just sends the data.
- *
- * Returned Value:
- *   On success, returns >=0. On failure, returns a negative number
- *   indicating the failure code.
- *
- ****************************************************************************/
-
-int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
-{
-  int ret = 0;
-#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
-  char chunked_info[HTTPD_MAX_CHUNKEDLEN];
-#endif
-
-#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
-  /* Chunk prolog */
-
-  if (chunked)
-    {
-      int chunked_info_len = snprintf(chunked_info, HTTPD_MAX_CHUNKEDLEN,
-           "%X\r\n", len);
-      ret = send(sockfd, chunked_info, chunked_info_len, 0);
-      DEBUGASSERT(ret == chunked_info_len);
-    }
-#endif
-
-  if (ret >= 0)
-    {
-      if (len == 0)
-        {
-          /* Lower layer does not tolerate buf = NULL even if len = 0
-           * so just pass a dummy pointer.
-           */
-
-          data = &len;
-        }
-
-      ret = send(sockfd, data, len, 0);
-      DEBUGASSERT(ret == len);
-    }
-
-#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
-  /* Chunk epilog */
-
-  if (ret >= 0)
-    {
-      if (chunked)
-        {
-          ret = send(sockfd, "\r\n", 2, 0);
-          DEBUGASSERT(ret == 2);
-        }
-    }
-#endif
-
-  return ret;
-}
-
 #ifdef CONFIG_NETUTILS_HTTPD_DUMPBUFFER
 static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer,
                              unsigned int nbytes)
@@ -440,153 +370,6 @@ static int send_chunk(struct httpd_state *pstate, const char *buf, int len)
   return OK;
 }
 
-static int send_headers(struct httpd_state *pstate, int status, int len)
-{
-  const char *mime;
-  const char *ptr;
-  char contentlen[HTTPD_MAX_CONTENTLEN] =
-    {
-      0
-    };
-
-  char header[HTTPD_MAX_HEADERLEN];
-  int hdrlen;
-  int i;
-
-  static const struct
-  {
-    const char *ext;
-    const char *mime;
-  }
-
-  a[] =
-    {
-#ifndef CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE
-    {
-      "shtml", "text/html"
-    },
-#endif
-
-    {
-      "html",  "text/html"
-    },
-
-    {
-      "css",   "text/css"
-    },
-
-    {
-      "txt",   "text/plain"
-    },
-
-    {
-      "js",    "text/javascript"
-    },
-
-    {
-      "png",   "image/png"
-    },
-
-    {
-      "gif",   "image/gif"
-    },
-
-    {
-      "jpeg",  "image/jpeg"
-    },
-
-    {
-      "jpg",   "image/jpeg"
-    },
-
-    {
-      "mp3",   "audio/mpeg"
-    }
-    };
-
-  ptr = strrchr(pstate->ht_filename, ISO_PERIOD);
-  if (ptr == NULL)
-    {
-      mime = "application/octet-stream";
-    }
-  else
-    {
-      mime = "text/plain";
-
-      for (i = 0; i < sizeof a / sizeof *a; i++)
-        {
-          if (strncmp(a[i].ext, ptr + 1, strlen(a[i].ext)) == 0)
-            {
-              mime = a[i].mime;
-              break;
-            }
-        }
-    }
-
-#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
-  if (false == httpd_is_file(pstate->ht_filename))
-    {
-      /* we assume that it's a directory */
-
-      mime = "text/html";
-    }
-#endif
-
-  if (len >= 0)
-    {
-      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
-               "Content-Length: %d\r\n", len);
-    }
-  else
-    {
-#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-      /* Length unknown ahead of time */
-
-      pstate->ht_keepalive = false;
-#endif
-#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
-      /* Turn on chunked encoding */
-
-      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
-               "Transfer-Encoding: chunked\r\n");
-      pstate->ht_chunked = true;
-#endif
-    }
-
-  if (status == 413)
-    {
-      /* TODO: here we "SHOULD" include a Retry-After header */
-    }
-
-  /* Construct the header.
-   *
-   * REVISIT:  Wouldn't asprintf be a better option than a large stack
-   * array?
-   */
-
-  hdrlen = snprintf(header, HTTPD_MAX_HEADERLEN,
-                    "HTTP/1.0 %d %s\r\n"
-#ifndef CONFIG_NETUTILS_HTTPD_SERVERHEADER_DISABLE
-                    "Server: uIP/NuttX http://nuttx.org/\r\n"
-#endif
-                    "Connection: %s\r\n"
-                    "Content-type: %s\r\n"
-                    "%s"
-                    "\r\n",
-                    status,
-                    status >= 400 ? "Error" : "OK",
-#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-                    pstate->ht_keepalive ? "keep-alive" : "close",
-#else
-                    "close",
-#endif
-                    mime,
-                    contentlen
-                    );
-
-  return send_chunk(pstate, header, hdrlen);
-}
-
 static int httpd_senderror(struct httpd_state *pstate, int status)
 {
   int ret;
@@ -611,7 +394,7 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
 
   ret = httpd_openindex(pstate);
 
-  if (send_headers(pstate, status,
+  if (httpd_send_headers(pstate, status,
                    ret == OK ? pstate->ht_file.len : sizeof msg - 1) != OK)
     {
       return ERROR;
@@ -682,7 +465,7 @@ static int httpd_sendfile(struct httpd_state *pstate)
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
       pstate->ht_keepalive = false;
 #endif
-      if (send_headers(pstate, 200, -1) != OK)
+      if (httpd_send_headers(pstate, 200, -1) != OK)
         {
           goto done;
         }
@@ -693,13 +476,13 @@ static int httpd_sendfile(struct httpd_state *pstate)
 #endif
 
 #ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
-  if (send_headers(pstate, 200, -1) != OK)
+  if (httpd_send_headers(pstate, 200, -1) != OK)
     {
       goto done;
     }
 #else
-  if (send_headers(pstate, pstate->ht_file.len == 0 ? 204 : 200,
-                   pstate->ht_file.len) != OK)
+  if (httpd_send_headers(pstate, pstate->ht_file.len == 0 ? 204 : 200,
+                         pstate->ht_file.len) != OK)
     {
       goto done;
     }
@@ -1040,12 +823,18 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler,
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: httpd_init
+ ****************************************************************************/
+
+void httpd_init(void)
+{
+#ifdef CONFIG_NETUTILS_HTTPD_CLASSIC
+  httpd_fs_init();
+#endif
+}
+
+/****************************************************************************
  * Name: httpd_listen
- *
- * Description:
- *   This is the main processing thread for the webserver.  It never returns
- *   unless an error occurs
- *
  ****************************************************************************/
 
 int httpd_listen(void)
@@ -1064,17 +853,210 @@ int httpd_listen(void)
 }
 
 /****************************************************************************
- * Name: httpd_init
- *
- * Description:
- *   This function initializes the web server and should be called at system
- *   boot-up.
- *
+ * Name: httpd_send_datachunk
  ****************************************************************************/
 
-void httpd_init(void)
+int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
 {
-#ifdef CONFIG_NETUTILS_HTTPD_CLASSIC
-  httpd_fs_init();
+  int ret = 0;
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  char chunked_info[HTTPD_MAX_CHUNKEDLEN];
 #endif
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  /* Chunk prolog */
+
+  if (chunked)
+    {
+      int chunked_info_len = snprintf(chunked_info, HTTPD_MAX_CHUNKEDLEN,
+           "%X\r\n", len);
+      ret = send(sockfd, chunked_info, chunked_info_len, 0);
+      DEBUGASSERT(ret == chunked_info_len);
+    }
+#endif
+
+  if (ret >= 0)
+    {
+      if (len == 0)
+        {
+          /* Lower layer does not tolerate buf = NULL even if len = 0
+           * so just pass a dummy pointer.
+           */
+
+          data = &len;
+        }
+
+      ret = send(sockfd, data, len, 0);
+      DEBUGASSERT(ret == len);
+    }
+
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+  /* Chunk epilog */
+
+  if (ret >= 0)
+    {
+      if (chunked)
+        {
+          ret = send(sockfd, "\r\n", 2, 0);
+          DEBUGASSERT(ret == 2);
+        }
+    }
+#endif
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: httpd_send_headers
+ ****************************************************************************/
+
+int httpd_send_headers(struct httpd_state *pstate, int status, int len)
+{
+  const char *mime;
+  const char *ptr;
+  char contentlen[HTTPD_MAX_CONTENTLEN] =
+    {
+      0
+    };
+
+  char header[HTTPD_MAX_HEADERLEN];
+  int hdrlen;
+  int i;
+
+  static const struct
+  {
+    const char *ext;
+    const char *mime;
+  }
+
+  a[] =
+    {
+#ifndef CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE
+    {
+      "shtml", "text/html"
+    },
+#endif
+
+    {
+      "html",  "text/html"
+    },
+
+    {
+      "css",   "text/css"
+    },
+
+    {
+      "txt",   "text/plain"
+    },
+
+    {
+      "json",  "application/json"
+    },
+
+    {
+      "js",    "text/javascript"
+    },
+
+    {
+      "png",   "image/png"
+    },
+
+    {
+      "gif",   "image/gif"
+    },
+
+    {
+      "jpeg",  "image/jpeg"
+    },
+
+    {
+      "jpg",   "image/jpeg"
+    },
+
+    {
+      "mp3",   "audio/mpeg"
+    },
+    };
+
+  ptr = strrchr(pstate->ht_filename, ISO_PERIOD);
+  if (ptr == NULL)
+    {
+      mime = "application/octet-stream";
+    }
+  else
+    {
+      mime = "text/plain";
+
+      for (i = 0; i < sizeof a / sizeof *a; i++)
+        {
+          if (strncmp(a[i].ext, ptr + 1, strlen(a[i].ext)) == 0)
+            {
+              mime = a[i].mime;
+              break;
+            }
+        }
+    }
+
+#ifdef CONFIG_NETUTILS_HTTPD_DIRLIST
+  if (false == httpd_is_file(pstate->ht_filename))
+    {
+      /* we assume that it's a directory */
+
+      mime = "text/html";
+    }
+#endif
+
+  if (len >= 0)
+    {
+      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+               "Content-Length: %d\r\n", len);
+    }
+  else
+    {
+#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
+      /* Length unknown ahead of time */
+
+      pstate->ht_keepalive = false;
+#endif
+#if defined(CONFIG_NETUTILS_HTTPD_ENABLE_CHUNKED_ENCODING)
+      /* Turn on chunked encoding */
+
+      snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+               "Transfer-Encoding: chunked\r\n");
+      pstate->ht_chunked = true;
+#endif
+    }
+
+  if (status == 413)
+    {
+      /* TODO: here we "SHOULD" include a Retry-After header */
+    }
+
+  /* Construct the header.
+   *
+   * REVISIT:  Wouldn't asprintf be a better option than a large stack
+   * array?
+   */
+
+  hdrlen = snprintf(header, HTTPD_MAX_HEADERLEN,
+                    "HTTP/1.0 %d %s\r\n"
+#ifndef CONFIG_NETUTILS_HTTPD_SERVERHEADER_DISABLE
+                    "Server: uIP/NuttX http://nuttx.org/\r\n"
+#endif
+                    "Connection: %s\r\n"
+                    "Content-type: %s\r\n"
+                    "%s"
+                    "\r\n",
+                    status,
+                    status >= 400 ? "Error" : "OK",
+#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
+                    pstate->ht_keepalive ? "keep-alive" : "close",
+#else
+                    "close",
+#endif
+                    mime,
+                    contentlen
+                    );
+
+  return send_chunk(pstate, header, hdrlen);
 }
