@@ -45,6 +45,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -69,8 +70,6 @@
 #define STATE_INITIAL           0
 #define STATE_HAVE_OFFER        1
 #define STATE_HAVE_LEASE        2
-
-#define BOOTP_BROADCAST         0x8000
 
 #define DHCP_REQUEST            1
 #define DHCP_REPLY              2
@@ -260,7 +259,9 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          * unicast traffic before being fully configured.
          */
 
-        pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+        /* Broadcast bit. */
+
+        pdhcpc->packet.flags = HTONS(CONFIG_NETUTILS_DHCPC_BOOTP_FLAGS);
 
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addreqoptions(pend);
@@ -273,7 +274,9 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
          * unicast traffic before being fully configured.
          */
 
-        pdhcpc->packet.flags = HTONS(BOOTP_BROADCAST); /*  Broadcast bit. */
+        /* Broadcast bit. */
+
+        pdhcpc->packet.flags = HTONS(CONFIG_NETUTILS_DHCPC_BOOTP_FLAGS);
 
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
@@ -575,8 +578,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                    * clobbered by a new OFFER.
                    */
 
-                  ninfo("Received OFFER from %08x\n",
-                       ntohl(presult->serverid.s_addr));
+                  ninfo("Received OFFER from %08" PRIx32 "\n",
+                        (uint32_t)ntohl(presult->serverid.s_addr));
                   pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
                   pdhcpc->serverid.s_addr = presult->serverid.s_addr;
 
@@ -701,25 +704,25 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   while (state != STATE_HAVE_LEASE);
 
   ninfo("Got IP address %d.%d.%d.%d\n",
-        (presult->ipaddr.s_addr)       & 0xff,
-        (presult->ipaddr.s_addr >> 8)  & 0xff,
-        (presult->ipaddr.s_addr >> 16) & 0xff,
-        (presult->ipaddr.s_addr >> 24) & 0xff);
+        (int)((presult->ipaddr.s_addr)       & 0xff),
+        (int)((presult->ipaddr.s_addr >> 8)  & 0xff),
+        (int)((presult->ipaddr.s_addr >> 16) & 0xff),
+        (int)((presult->ipaddr.s_addr >> 24) & 0xff));
   ninfo("Got netmask %d.%d.%d.%d\n",
-        (presult->netmask.s_addr)       & 0xff,
-        (presult->netmask.s_addr >> 8)  & 0xff,
-        (presult->netmask.s_addr >> 16) & 0xff,
-        (presult->netmask.s_addr >> 24) & 0xff);
+        (int)((presult->netmask.s_addr)       & 0xff),
+        (int)((presult->netmask.s_addr >> 8)  & 0xff),
+        (int)((presult->netmask.s_addr >> 16) & 0xff),
+        (int)((presult->netmask.s_addr >> 24) & 0xff));
   ninfo("Got DNS server %d.%d.%d.%d\n",
-        (presult->dnsaddr.s_addr)       & 0xff,
-        (presult->dnsaddr.s_addr >> 8)  & 0xff,
-        (presult->dnsaddr.s_addr >> 16) & 0xff,
-        (presult->dnsaddr.s_addr >> 24) & 0xff);
+        (int)((presult->dnsaddr.s_addr)       & 0xff),
+        (int)((presult->dnsaddr.s_addr >> 8)  & 0xff),
+        (int)((presult->dnsaddr.s_addr >> 16) & 0xff),
+        (int)((presult->dnsaddr.s_addr >> 24) & 0xff));
   ninfo("Got default router %d.%d.%d.%d\n",
-        (presult->default_router.s_addr)       & 0xff,
-        (presult->default_router.s_addr >> 8)  & 0xff,
-        (presult->default_router.s_addr >> 16) & 0xff,
-        (presult->default_router.s_addr >> 24) & 0xff);
-  ninfo("Lease expires in %d seconds\n", presult->lease_time);
+        (int)((presult->default_router.s_addr)       & 0xff),
+        (int)((presult->default_router.s_addr >> 8)  & 0xff),
+        (int)((presult->default_router.s_addr >> 16) & 0xff),
+        (int)((presult->default_router.s_addr >> 24) & 0xff));
+  ninfo("Lease expires in %" PRId32 " seconds\n", presult->lease_time);
   return OK;
 }

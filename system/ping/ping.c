@@ -64,28 +64,36 @@
  * Name: show_usage
  ****************************************************************************/
 
-static void show_usage(FAR const char *progname, int exitcode) noreturn_function;
+static void show_usage(FAR const char *progname, int exitcode)
+    noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
 #if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
-  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] [-s <size>] <hostname>\n", progname);
+  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] "
+         "[-s <size>] <hostname>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
-  printf("  <hostname> is either an IPv4 address or the name of the remote host\n");
+  printf("  <hostname> is either an IPv4 address or the name of "
+         "the remote host\n");
   printf("   that is requested the ICMPv4 ECHO reply.\n");
 #else
-  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] [-s <size>] <ip-address>\n", progname);
+  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] "
+         "[-s <size>] <ip-address>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
-  printf("  <ip-address> is the IPv4 address request the ICMP ECHO reply.\n");
+  printf("  <ip-address> is the IPv4 address request the ICMP "
+         "ECHO reply.\n");
 #endif
   printf("  -c <count> determines the number of pings.  Default %u.\n",
          ICMP_NPINGS);
-  printf("  -i <interval> is the default delay between pings (milliseconds).\n");
+  printf("  -i <interval> is the default delay between pings "
+         "(milliseconds).\n");
   printf("    Default %d.\n", ICMP_POLL_DELAY);
-  printf("  -W <timeout> is the timeout for wait response (milliseconds).\n");
+  printf("  -W <timeout> is the timeout for wait response "
+         "(milliseconds).\n");
   printf("    Default %d.\n", ICMP_POLL_DELAY);
-  printf("  -s <size> specifies the number of data bytes to be sent.  Default %u.\n",
+  printf("  -s <size> specifies the number of data bytes to be sent.  "
+         "Default %u.\n",
          ICMP_PING_DATALEN);
   printf("  -h shows this text and exits.\n");
   exit(exitcode);
@@ -114,10 +122,10 @@ static void ping_result(FAR const struct ping_result_s *result)
 
       case ICMP_I_BEGIN:
         printf("PING %u.%u.%u.%u %u bytes of data\n",
-               (result->dest.s_addr      ) & 0xff,
-               (result->dest.s_addr >> 8 ) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->info->datalen);
         break;
 
@@ -137,10 +145,10 @@ static void ping_result(FAR const struct ping_result_s *result)
 
       case ICMP_W_TIMEOUT:
         printf("No response from %u.%u.%u.%u: icmp_seq=%u time=%d ms\n",
-               (result->dest.s_addr      ) & 0xff,
-               (result->dest.s_addr >> 8 ) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->seqno, result->extra);
         break;
 
@@ -173,10 +181,10 @@ static void ping_result(FAR const struct ping_result_s *result)
       case ICMP_I_ROUNDTRIP:
         printf("%u bytes from %u.%u.%u.%u: icmp_seq=%u time=%d ms\n",
                result->info->datalen,
-               (result->dest.s_addr      ) & 0xff,
-               (result->dest.s_addr >> 8 ) & 0xff,
-               (result->dest.s_addr >> 16) & 0xff,
-               (result->dest.s_addr >> 24) & 0xff,
+               (unsigned int)(result->dest.s_addr) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 8) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 16) & 0xff,
+               (unsigned int)(result->dest.s_addr >> 24) & 0xff,
                result->seqno, result->extra);
         break;
 
@@ -207,7 +215,8 @@ static void ping_result(FAR const struct ping_result_s *result)
                   (result->nrequests >> 1)) /
                    result->nrequests;
 
-            printf("%u packets transmitted, %u received, %u%% packet loss, time %d ms\n",
+            printf("%u packets transmitted, %u received, %u%% packet loss, "
+                   "time %d ms\n",
                    result->nrequests, result->nreplies, tmp, result->extra);
           }
         break;
@@ -244,7 +253,8 @@ int main(int argc, FAR char *argv[])
               long count = strtol(optarg, &endptr, 10);
               if (count < 1 || count > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <count> out of range: %ld\n", count);
+                  fprintf(stderr, "ERROR: <count> out of range: %ld\n",
+                          count);
                   goto errout_with_usage;
                 }
 
@@ -257,7 +267,8 @@ int main(int argc, FAR char *argv[])
               long delay = strtol(optarg, &endptr, 10);
               if (delay < 1 || delay > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <interval> out of range: %ld\n", delay);
+                  fprintf(stderr, "ERROR: <interval> out of range: %ld\n",
+                          delay);
                   goto errout_with_usage;
                 }
 
@@ -270,7 +281,8 @@ int main(int argc, FAR char *argv[])
               long timeout = strtol(optarg, &endptr, 10);
               if (timeout < 1 || timeout > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <timeout> out of range: %ld\n", timeout);
+                  fprintf(stderr, "ERROR: <timeout> out of range: %ld\n",
+                          timeout);
                   goto errout_with_usage;
                 }
 
@@ -283,7 +295,8 @@ int main(int argc, FAR char *argv[])
               long datalen = strtol(optarg, &endptr, 10);
               if (datalen < 1 || datalen > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <size> out of range: %ld\n", datalen);
+                  fprintf(stderr, "ERROR: <size> out of range: %ld\n",
+                          datalen);
                   goto errout_with_usage;
                 }
 

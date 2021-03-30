@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +39,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -90,6 +90,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "Usage: %s [-h|d]\n"
                     "    -h = this help menu\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -103,6 +104,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -110,6 +112,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -138,6 +141,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           printf("i8sak: turning on promiscuous mode.\n");
         }
+
       ieee802154_setpromisc(fd, true);
 
       /* Make sure receiver is always on while idle */
@@ -146,6 +150,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           printf("i8sak: setting receiveonidle.\n");
         }
+
       ieee802154_setrxonidle(fd, true);
     }
 #ifdef CONFIG_NET_6LOWPAN
@@ -218,7 +223,7 @@ pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg)
       memset(&addr.sin6_addr, 0, sizeof(struct in6_addr));
       addrlen           = sizeof(struct sockaddr_in6);
 
-      if (bind(i8sak->fd, (struct sockaddr*)&addr, addrlen) < 0)
+      if (bind(i8sak->fd, (struct sockaddr *)&addr, addrlen) < 0)
         {
           fprintf(stderr, "ERROR: failure to bind sock: %d\n", errno);
           exit(1);
@@ -230,7 +235,8 @@ pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg)
     {
       if (i8sak->mode == I8SAK_MODE_CHAR)
         {
-          ret = read(i8sak->fd, &frame, sizeof(struct mac802154dev_rxframe_s));
+          ret = read(i8sak->fd, &frame,
+                     sizeof(struct mac802154dev_rxframe_s));
           if (ret < 0)
             {
               continue;

@@ -70,7 +70,7 @@ LIBSTDC_STUBS_LIB	= $(LIBSTDC_STUBS_DIR)/liblibxx.a
 
 all: $(BIN1) $(BIN2) $(BIN3) # $(BIN4)
 
-$(R1CXXOBJS): %.o: %.cpp
+$(R1CXXOBJS): %.o: %.cxx
 	@echo "CC: $<"
 	$(Q) $(CXX) -c $(CXXPICFLAGS) $< -o $@
 

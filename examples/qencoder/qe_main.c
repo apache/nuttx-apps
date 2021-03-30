@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/qe/qe_main.c
+ * apps/examples/qencoder/qe_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -48,6 +48,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <inttypes.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -278,7 +279,9 @@ int main(int argc, FAR char *argv[])
    */
 
   printf("qe_main: Number of samples: %u\n", g_qeexample.nloops);
-  for (nloops = 0; !g_qeexample.nloops || nloops < g_qeexample.nloops; nloops++)
+  for (nloops = 0;
+       !g_qeexample.nloops || nloops < g_qeexample.nloops;
+       nloops++)
     {
       /* Flush any output before the loop entered or from the previous pass
        * through the loop.
@@ -300,7 +303,7 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-          printf("qe_main: %3d. %d\n", nloops+1, position);
+          printf("qe_main: %3d. %" PRIi32 "\n", nloops + 1, position);
         }
 
       /* Delay a little bit */

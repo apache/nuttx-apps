@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -58,6 +58,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #if !defined(CONFIG_IEEE802154_I8SAK_DEFAULT_EP_EADDR)
@@ -142,7 +143,8 @@ struct i8sak_s
   sem_t eventsem;  /* For synchronizing access to the event receiver list */
   sq_queue_t eventreceivers;
   sq_queue_t eventreceivers_free;
-  struct i8sak_eventreceiver_s eventreceiver_pool[CONFIG_I8SAK_NEVENTRECEIVERS];
+  struct i8sak_eventreceiver_s
+  eventreceiver_pool[CONFIG_I8SAK_NEVENTRECEIVERS];
 
   /* MAC related fields */
 
@@ -165,10 +167,10 @@ struct i8sak_s
   struct sockaddr_in6 ep_in6addr;
 #endif
 
-  /* For the Coordinator, we keep a Short Address that will be handed out next.
-   * After assigning the address to a device requesting association, this field
-   * is simply incremented.  This means short addresses will be assigned to
-   * associating devices in order.
+  /* For the Coordinator, we keep a Short Address that will be handed out
+   * next. After assigning the address to a device requesting association,
+   * this field is simply incremented.  This means short addresses will be
+   * assigned to associating devices in order.
    */
 
   uint8_t next_saddr[IEEE802154_SADDRSIZE];
@@ -220,18 +222,30 @@ void      i8sak_str2panid   (FAR const char *str, FAR uint8_t *panid);
 
 /* Command Functions. Alphabetical Order */
 
-void i8sak_acceptassoc_cmd (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_assoc_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_get_cmd         (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_regdump_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_reset_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_set_cmd         (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_acceptassoc_cmd (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_assoc_cmd       (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_get_cmd         (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_regdump_cmd     (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_reset_cmd       (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_set_cmd         (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
+void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak,
+                            int argc, FAR char *argv[]);
 
 /* Command background threads */
 
@@ -270,13 +284,17 @@ static inline void i8sak_update_ep_ip(FAR struct i8sak_s *i8sak)
   if (i8sak->ep_addr.mode == IEEE802154_ADDRMODE_EXTENDED)
     {
      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] =
-        HTONS(((uint16_t)i8sak->ep_addr.eaddr[0] << 8 | (uint16_t)i8sak->ep_addr.eaddr[1]));
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[0] << 8) |
+              (uint16_t)i8sak->ep_addr.eaddr[1]);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] =
-        HTONS(((uint16_t)i8sak->ep_addr.eaddr[2] << 8 | (uint16_t)i8sak->ep_addr.eaddr[3]));
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[2] << 8) |
+              (uint16_t)i8sak->ep_addr.eaddr[3]);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] =
-        HTONS(((uint16_t)i8sak->ep_addr.eaddr[4] << 8 | (uint16_t)i8sak->ep_addr.eaddr[5]));
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[4] << 8) |
+              (uint16_t)i8sak->ep_addr.eaddr[5]);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
-        HTONS(((uint16_t)i8sak->ep_addr.eaddr[6] << 8 | (uint16_t)i8sak->ep_addr.eaddr[7]));
+        HTONS(((uint16_t)i8sak->ep_addr.eaddr[6] << 8) |
+              (uint16_t)i8sak->ep_addr.eaddr[7]);
 
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] ^= HTONS(0x0200);
     }
@@ -286,7 +304,8 @@ static inline void i8sak_update_ep_ip(FAR struct i8sak_s *i8sak)
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] = HTONS(0x00ff);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] = HTONS(0xfe00);
       i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
-        ((uint16_t)i8sak->ep_addr.saddr[0] << 8 | (uint16_t)i8sak->ep_addr.saddr[1]);
+        ((uint16_t)i8sak->ep_addr.saddr[0] << 8 |
+         (uint16_t)i8sak->ep_addr.saddr[1]);
     }
 }
 #endif

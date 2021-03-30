@@ -133,18 +133,18 @@ Hopefully we can agree that's not a lot of code? There's no overhead, no
 unnecessary setup. Look at test.c for a bunch of nice examples, mostly all
 ripped off the json.org site, and a few from elsewhere.
 
-What about manual mode? First up you need some detail.  
-Let's cover how the cJSON objects represent the JSON data.  
-cJSON doesn't distinguish arrays from objects in handling; just type.  
+What about manual mode? First up you need some detail.
+Let's cover how the cJSON objects represent the JSON data.
+cJSON doesn't distinguish arrays from objects in handling; just type.
 Each cJSON has, potentially, a child, siblings, value, a name.
 
-The root object has: Object Type and a Child  
-The Child has name "name", with value "Jack ("Bee") Nimble", and a sibling:  
-Sibling has type Object, name "format", and a child.  
-That child has type String, name "type", value "rect", and a sibling:  
-Sibling has type Number, name "width", value 1920, and a sibling:  
-Sibling has type Number, name "height", value 1080, and a sibling:  
-Sibling hs type False, name "interlace", and a sibling:  
+The root object has: Object Type and a Child
+The Child has name "name", with value "Jack ("Bee") Nimble", and a sibling:
+Sibling has type Object, name "format", and a child.
+That child has type String, name "type", value "rect", and a sibling:
+Sibling has type Number, name "width", value 1920, and a sibling:
+Sibling has type Number, name "height", value 1080, and a sibling:
+Sibling hs type False, name "interlace", and a sibling:
 Sibling has type Number, name "frame rate", value 24
 
 Here's the structure:

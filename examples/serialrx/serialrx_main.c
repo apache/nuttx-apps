@@ -171,16 +171,17 @@ int main(int argc, FAR char *argv[])
 #elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHEX)
           for (i = 0; i < (int)n; i++)
             {
-              printf("0x%02x ", i, buf[i]);
+              printf("0x%02x ", buf[i]);
             }
 
           fflush(stdout);
-#endif                                  /*Kamal*/
+#endif                                  /* Kamal */
           cnt += n;
         }
 
       UNUSED(eof);
     }
+
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   printf("\n");
 #endif

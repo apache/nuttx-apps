@@ -333,7 +333,7 @@ static ssize_t tftp_write(FAR void *ctx, uint32_t offset, FAR uint8_t *buf,
 
       /* Handle partial writes */
 
-      ninfo("Wrote %d bytes to file\n", nbyteswritten);
+      ninfo("Wrote %zd bytes to file\n", nbyteswritten);
       left -= nbyteswritten;
       buf  += nbyteswritten;
     }

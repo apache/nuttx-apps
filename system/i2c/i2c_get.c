@@ -58,7 +58,7 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   FAR char *ptr;
   uint16_t result;
   uint8_t regaddr;
-  long repititions;
+  long repetitions;
   int nargs;
   int argndx;
   int ret;
@@ -92,11 +92,11 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
    * count.
    */
 
-  repititions = 1;
+  repetitions = 1;
   if (argndx < argc)
     {
-      repititions = strtol(argv[argndx], NULL, 16);
-      if (repititions < 1)
+      repetitions = strtol(argv[argndx], NULL, 16);
+      if (repetitions < 1)
         {
           i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
           return ERROR;
@@ -116,16 +116,16 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
-       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       return ERROR;
+      i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
+      return ERROR;
     }
 
-  /* Loop for the requested number of repititions */
+  /* Loop for the requested number of repetitions */
 
   regaddr = i2ctool->regaddr;
   ret = OK;
 
-  for (i = 0; i < repititions; i++)
+  for (i = 0; i < repetitions; i++)
     {
       /* Read from the I2C bus */
 
@@ -135,7 +135,8 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
       if (ret == OK)
         {
-          i2ctool_printf(i2ctool, "READ Bus: %d Addr: %02x Subaddr: %02x Value: ",
+          i2ctool_printf(i2ctool,
+                         "READ Bus: %d Addr: %02x Subaddr: %02x Value: ",
                          i2ctool->bus, i2ctool->addr, regaddr);
 
           if (i2ctool->width == 8)
@@ -173,12 +174,12 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
                 FAR uint16_t *result)
 {
   struct i2c_msg_s msg[2];
+  int ret;
   union
   {
     uint16_t data16;
     uint8_t  data8;
   } u;
-  int ret;
 
   /* Set up data structures */
 
@@ -201,14 +202,14 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
         }
       else
         {
-          msg[1].buffer = (uint8_t*)&u.data16;
+          msg[1].buffer = (uint8_t *)&u.data16;
           msg[1].length = 2;
         }
 
       if (i2ctool->start)
         {
           ret = i2cdev_transfer(fd, &msg[0], 1);
-          if (ret== OK)
+          if (ret == OK)
             {
               ret = i2cdev_transfer(fd, &msg[1], 1);
             }
@@ -235,7 +236,7 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
         }
       else
         {
-          msg[0].buffer = (uint8_t*)&u.data16;
+          msg[0].buffer = (uint8_t *)&u.data16;
           msg[0].length = 2;
         }
 

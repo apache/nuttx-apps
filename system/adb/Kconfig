@@ -1,0 +1,158 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_ADBD
+	tristate "ADB daemon application"
+	default n
+	---help---
+		Enable support for adb daemon.
+
+if SYSTEM_ADBD
+
+config ADBD_PROGNAME
+	string "Program name"
+	default "adbd"
+	---help---
+		This is the name of the program that will be used.
+
+config ADBD_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the adb daemon task.
+
+config ADBD_PRIORITY
+	int "Task priority"
+	default 100
+	---help---
+		The priority of the adb daemon task.
+
+config ADBD_AUTHENTICATION
+	bool "Authentication support"
+	default n
+	---help---
+		Enable authentication for adb daemon.
+
+if ADBD_AUTHENTICATION
+
+config ADBD_AUTH_PUBKEY
+	bool "Public key authentication"
+	default n
+	---help---
+		Enable hook to accept new public keys.
+
+config ADBD_TOKEN_SIZE
+	int "Authentication token size"
+	default 20
+
+endif # ADBD_AUTHENTICATION
+
+if ! BOARDCTL_UNIQUEID
+config ADBD_DEVICE_ID
+	string "Default adb device id"
+	default ""
+endif # BOARDCTL_UNIQUEID
+
+config ADBD_PRODUCT_NAME
+	string "Default adb product name"
+	default "adb dev"
+
+config ADBD_PRODUCT_MODEL
+	string "Default adb product model"
+	default "adb board"
+
+config ADBD_PRODUCT_DEVICE
+	string "Default adb product device"
+	default "NuttX device"
+
+config ADBD_FEATURES
+	string "Default adb server features list"
+	default "cmd"
+
+config ADBD_PAYLOAD_SIZE
+	int "Normal ADB frame size"
+	default 64
+	---help---
+		Normal frame size in bytes.
+
+config ADBD_CNXN_PAYLOAD_SIZE
+	int "Connection frame size"
+	default 1024
+	---help---
+		Connection frame is bigger than others.
+		Can be between 128 to 256 bytes in most of the cases.
+		If authentication is enabled, frame size must bigger
+		to receive public key from host (around 1024 bytes).
+
+config ADBD_FRAME_MAX
+	int "Frame pool size"
+	default 1
+	---help---
+		ADB frame pool size.
+
+config ADBD_TCP_SERVER
+	bool "Network socket transport support"
+	depends on NET_TCP
+	default n
+	---help---
+		Run adb daemon on network socket.
+
+config ADBD_TCP_SERVER_PORT
+	int "Network socket transport port"
+	depends on ADBD_TCP_SERVER
+	default 5555
+	---help---
+		Port used by adb daemon socket server
+
+config ADBD_USB_SERVER
+	bool "USB transport support"
+	depends on USBADB
+	default n
+	---help---
+		Run adb daemon on USB bus
+
+config ADBD_LOGCAT_SERVICE
+	bool "ADB logcat support"
+	depends on RAMLOG_SYSLOG
+	default n
+	---help---
+		Enable "adb logcat" feature.
+
+config ADBD_FILE_SERVICE
+	bool "ADB file sync support"
+	default n
+	---help---
+		Enable "adb ls/push/pull" feature.
+
+ config ADBD_SHELL_SERVICE
+	bool "ADB shell support"
+	depends on NSH_CONSOLE
+	default n
+	---help---
+		Enable "adb shell" feature.
+
+config ADBD_FILE_SYMLINK
+	bool "File service symlink support"
+	default n
+	depends on PSEUDOFS_SOFTLINKS
+	---help---
+		Enable fs symlink support.
+
+config ADBD_BOARD_INIT
+	bool "Board initialization"
+	depends on LIB_BOARDCTL
+	default n
+	---help---
+		Setup board before running adb daemon.
+
+config ADBD_NET_INIT
+    bool "Network initialization"
+    default n
+    depends on NET
+    select NETUTILS_NETINIT
+    ---help---
+        This option enables/disables all network initialization in ADB server.
+
+endif # SYSTEM_ADBD

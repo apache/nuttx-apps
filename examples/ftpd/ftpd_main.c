@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/telnetd/shell.c
+ * examples/ftpd/ftpd_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -90,6 +90,7 @@ struct ftpd_globals_s g_ftpdglob;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
 /****************************************************************************
  * Name: fptd_netinit
  ****************************************************************************/
@@ -102,7 +103,7 @@ static void fptd_netinit(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_FTPD_NOMAC
   mac[0] = 0x00;
@@ -152,8 +153,8 @@ static void ftpd_accounts(FTPD_SESSION handle)
     {
       account = &g_ftpdaccounts[i];
 
-      printf("%d. %s account: USER=%s PASSWORD=%s HOME=%s\n", i+1,
-            (account->flags & FTPD_ACCOUNTFLAG_SYSTEM) != 0 ? "Root" : "User",
+      printf("%d. %s account: USER=%s PASSWORD=%s HOME=%s\n", i + 1,
+            (account->flags & FTPD_ACCOUNTFLAG_SYSTEM) ? "Root" : "User",
             (!account->user) ? "(none)" : account->user,
             (!account->password) ? "(none)" : account->password,
             (!account->home) ? "(none)" : account->home);
@@ -214,7 +215,8 @@ int ftpd_daemon(int s_argc, char **s_argv)
 
       if (ret != -ETIMEDOUT)
         {
-          printf("FTP daemon [%d] ftpd_session returned %d\n", g_ftpdglob.pid, ret);
+          printf("FTP daemon [%d] ftpd_session returned %d\n",
+                 g_ftpdglob.pid, ret);
         }
     }
 
@@ -232,6 +234,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
 /****************************************************************************
  * Name: ftpd_main
  ****************************************************************************/
@@ -242,7 +245,6 @@ int main(int argc, FAR char *argv[])
 
   if (!g_ftpdglob.initialized)
     {
-
       /* Bring up the network */
 
       printf("Initializing the network\n");
@@ -263,6 +265,7 @@ int main(int argc, FAR char *argv[])
       printf("Waiting for FTP daemon [%d] to stop\n", g_ftpdglob.pid);
       return EXIT_FAILURE;
     }
+
   if (!g_ftpdglob.running)
     {
       printf("Starting the FTP daemon\n");
@@ -275,7 +278,7 @@ int main(int argc, FAR char *argv[])
           return EXIT_FAILURE;
         }
     }
-   else
+  else
     {
       printf("FTP daemon [%d] is running\n", g_ftpdglob.pid);
     }

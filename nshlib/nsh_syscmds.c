@@ -341,7 +341,8 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
 int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  int fd, cmd;
+  int fd;
+  int cmd;
 
   if (argc < 3)
     {

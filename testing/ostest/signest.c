@@ -33,6 +33,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -80,17 +84,17 @@ static volatile int g_nest_level;
 static bool signest_catchable(int signo)
 {
 #ifdef CONFIG_SIG_SIGSTOP_ACTION
-   if (signo == SIGSTOP || signo == SIGCONT)
-     {
-       return false;
-     }
+  if (signo == SIGSTOP || signo == SIGCONT)
+    {
+      return false;
+    }
 #endif
 
 #ifdef CONFIG_SIG_SIGKILL_ACTION
-   if (signo == SIGKILL)
-     {
-       return false;
-     }
+  if (signo == SIGKILL)
+    {
+      return false;
+    }
 #endif
 
   return true;
@@ -131,8 +135,8 @@ static int waiter_main(int argc, char *argv[])
   int ret;
   int i;
 
-  printf("waiter_main: Waiter started\n" );
-  printf("waiter_main: Setting signal mask\n" );
+  printf("waiter_main: Waiter started\n");
+  printf("waiter_main: Setting signal mask\n");
 
   sigemptyset(&set);
   ret = sigprocmask(SIG_SETMASK, &set, NULL);
@@ -142,7 +146,7 @@ static int waiter_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("waiter_main: Registering signal handler\n" );
+  printf("waiter_main: Registering signal handler\n");
 
   act.sa_handler = waiter_action;
   act.sa_flags   = 0;
@@ -163,7 +167,8 @@ static int waiter_main(int argc, char *argv[])
           ret = sigaction(i, &act, NULL);
           if (ret < 0)
             {
-              printf("waiter_main: WARNING sigaction failed\n" , errno);
+              printf("waiter_main: WARNING sigaction failed with %d\n",
+                     errno);
               return EXIT_FAILURE;
             }
         }
@@ -171,7 +176,7 @@ static int waiter_main(int argc, char *argv[])
 
   /* Now just loop until the test completes */
 
-  printf("waiter_main: Waiting on semaphore\n" );
+  printf("waiter_main: Waiting on semaphore\n");
   FFLUSH();
 
   g_waiter_running = true;
@@ -190,7 +195,7 @@ static int interfere_main(int argc, char *argv[])
 {
   /* Now just loop staying in the way as much as possible */
 
-  printf("interfere_main: Waiting on semaphore\n" );
+  printf("interfere_main: Waiting on semaphore\n");
   FFLUSH();
 
   g_interferer_running = true;
@@ -204,6 +209,7 @@ static int interfere_main(int argc, char *argv[])
   g_interferer_running = false;
   return EXIT_SUCCESS;
 }
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -243,7 +249,7 @@ void signest_test(void)
   ret = sched_getparam (0, &param);
   if (ret < 0)
     {
-      printf("signest_test: ERROR sched_getparam() failed\n" );
+      printf("signest_test: ERROR sched_getparam() failed\n");
       param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
@@ -278,9 +284,11 @@ void signest_test(void)
   /* Wait a bit */
 
   FFLUSH();
-  usleep(500*1000L);
+  usleep(500 * 1000L);
 
-  /* Then signal the waiter thread with back-to-back signals, one masked and the other unmasked. */
+  /* Then signal the waiter thread with back-to-back signals, one masked
+   * and the other unmasked.
+   */
 
   for (i = 0; i < 10; i++)
     {
@@ -298,7 +306,7 @@ void signest_test(void)
               even_signals++;
             }
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
 
           /* Even then odd */
 
@@ -314,7 +322,7 @@ void signest_test(void)
               odd_signals++;
             }
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
         }
     }
 
@@ -359,7 +367,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
 
           /* Even then odd */
 
@@ -379,7 +387,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
         }
     }
 
@@ -423,7 +431,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
 
           /* Even then odd */
 
@@ -444,7 +452,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10*1000L);
+          usleep(10 * 1000L);
         }
     }
 
@@ -454,7 +462,7 @@ errout_with_waiter:
   g_done = true;
   sem_post(&g_waiter_sem);
   sem_post(&g_interferer_sem);
-  usleep(500*1000L);
+  usleep(500 * 1000L);
 
   /* Check the final test results */
 
@@ -509,6 +517,6 @@ errout_with_waiter:
   sem_destroy(&g_waiter_sem);
   sem_destroy(&g_interferer_sem);
 
-  printf("signest_test: done\n" );
+  printf("signest_test: done\n");
   FFLUSH();
 }

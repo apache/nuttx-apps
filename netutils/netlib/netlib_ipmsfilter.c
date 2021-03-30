@@ -41,6 +41,7 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
@@ -86,9 +87,13 @@ int ipmsfilter(FAR const struct in_addr *interface,
 {
   int ret = ERROR;
 
-  ninfo("interface: %08x muliaddr: %08x fmode: %ld\n", interface, *multiaddr, fmode);
   if (interface != NULL && multiaddr != NULL)
     {
+      ninfo("interface: %08" PRIx32 " muliaddr: %08" PRIx32
+            " fmode: %" PRId32 "\n",
+            (uint32_t)interface->s_addr,
+            (uint32_t)multiaddr->s_addr, fmode);
+
       /* Get a socket (only so that we get access to the INET subsystem) */
 
       int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);

@@ -91,6 +91,10 @@
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv, FAR const char *redirfile, int oflags)
 {
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+  struct sigaction act;
+  struct sigaction old;
+#endif
   int ret = OK;
 
   /* Lock the scheduler in an attempt to prevent the application from
@@ -98,6 +102,20 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    */
 
   sched_lock();
+
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+  /* Ignore the child status if run the application on background. */
+
+  if (vtbl->np.np_bg == true)
+    {
+      act.sa_handler = SIG_DFL;
+      act.sa_flags = SA_NOCLDWAIT;
+      sigemptyset(&act.sa_mask);
+
+      sigaction(SIGCHLD, &act, &old);
+    }
+
+#endif /* CONFIG_NSH_DISABLEBG */
 
   /* Try to find and execute the command within the list of builtin
    * applications.
@@ -108,8 +126,8 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* The application was successfully started with pre-emption disabled.
        * In the simplest cases, the application will not have run because the
-       * the scheduler is locked.  But in the case where I/O was redirected, a
-       * proxy task ran and broke our lock.  As result, the application may
+       * the scheduler is locked.  But in the case where I/O was redirected,
+       * a proxy task ran and broke our lock.  As result, the application may
        * have aso ran if its priority was higher than than the priority of
        * this thread.
        *
@@ -149,10 +167,10 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * and if the application has not yet run, it will now be able to
            * do so.
            *
-           * Also, if CONFIG_SCHED_HAVE_PARENT is defined waitpid() might fail
-           * even if task is still active:  If the I/O was re-directed by a
-           * proxy task, then the ask is a child of the proxy, and not this
-           * task.  waitpid() fails with ECHILD in either case.
+           * Also, if CONFIG_SCHED_HAVE_PARENT is defined waitpid() might
+           * fail even if task is still active:  If the I/O was re-directed
+           * by a proxy task, then the ask is a child of the proxy, and not
+           * this task. waitpid() fails with ECHILD in either case.
            *
            * NOTE: WUNTRACED does nothing in the default case, but in the
            * case the where CONFIG_SIG_SIGSTOP_ACTION=y, the built-in app
@@ -164,12 +182,13 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           if (ret < 0)
             {
               /* If the child thread does not exist, waitpid() will return
-               * the error ECHLD.  Since we know that the task was successfully
-               * started, this must be one of the cases described above; we
-               * have to assume that the task already exit'ed.  In this case,
-               * we have no idea if the application ran successfully or not
-               * (because NuttX does not retain exit status of child tasks).
-               * Let's assume that is did run successfully.
+               * the error ECHLD.  Since we know that the task was
+               * successfully started, this must be one of the cases
+               * described above; we have to assume that the task already
+               * exit'ed. In this case, we have no idea if the application
+               * ran successfully or not (because NuttX does not retain exit
+               * status of child tasks). Let's assume that is did run
+               * successfully.
                */
 
               int errcode = errno;
@@ -189,16 +208,16 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           else
             {
               /* We can't return the exact status (nsh has nowhere to put it)
-               * so just pass back zero/nonzero in a fashion that doesn't look
-               * like an error.
+               * so just pass back zero/nonzero in a fashion that doesn't
+               * look like an error.
                */
 
               ret = (rc == 0) ? OK : 1;
 
-             /* TODO:  Set the environment variable '?' to a string corresponding
-              * to WEXITSTATUS(rc) so that $? will expand to the exit status of
-              * the most recently executed task.
-              */
+              /* TODO:  Set the environment variable '?' to a string
+               * corresponding to WEXITSTATUS(rc) so that $? will expand to
+               * the exit status of the most recently executed task.
+               */
             }
 
           ioctl(stdout->fs_fd, TIOCSCTTY, -1);
@@ -212,17 +231,23 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        *
        * - CONFIG_SCHED_WAITPID is not selected meaning that all commands
        *   have to be run in background, or
-       * - CONFIG_SCHED_WAITPID and CONFIG_NSH_DISABLEBG are both selected, but the
-       *   user requested to run the command in background.
+       * - CONFIG_SCHED_WAITPID and CONFIG_NSH_DISABLEBG are both selected,
+       *   but the user requested to run the command in background.
        *
        * NOTE that the case of a) CONFIG_SCHED_WAITPID is not selected and
-       * b) CONFIG_NSH_DISABLEBG selected cannot be supported.  In that event, all
-       * commands will have to run in background.  The waitpid() API must be
-       * available to support running the command in foreground.
+       * b) CONFIG_NSH_DISABLEBG selected cannot be supported.  In that
+       * event, all commands will have to run in background.  The waitpid()
+       * API must be available to support running the command in foreground.
        */
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
+#  ifdef CONFIG_SCHED_CHILD_STATUS
+
+          /* Restore the old actions */
+
+          sigaction(SIGCHLD, &old, NULL);
+#  endif
           struct sched_param param;
           sched_getparam(ret, &param);
           nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);

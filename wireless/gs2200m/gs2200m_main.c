@@ -42,6 +42,7 @@
 #include <net/if.h>
 
 #include <nuttx/net/usrsock.h>
+#include <nuttx/wireless/wireless.h>
 #include <nuttx/wireless/gs2200m.h>
 
 /****************************************************************************
@@ -894,16 +895,19 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
       goto prepare;
     }
 
-  rmsg.buf = calloc(1, req->max_buflen);
-  ASSERT(rmsg.buf);
-
   rmsg.cid = usock->cid;
   rmsg.reqlen = req->max_buflen;
   rmsg.is_tcp = (usock->type == SOCK_STREAM) ? true : false;
   rmsg.flags = req->flags;
 
-  ret = ioctl(priv->gsfd, GS2200M_IOC_RECV,
-              (unsigned long)&rmsg);
+  if (0 < req->max_buflen)
+    {
+      rmsg.buf = calloc(1, req->max_buflen);
+      ASSERT(rmsg.buf);
+
+      ret = ioctl(priv->gsfd, GS2200M_IOC_RECV,
+                  (unsigned long)&rmsg);
+    }
 
   if (0 == ret)
     {
@@ -938,7 +942,7 @@ prepare:
       resp.valuelen = MIN(resp.valuelen_nontrunc,
                           req->max_addrlen);
 
-      if (0 == rmsg.len)
+      if ((0 == rmsg.len) && (0 != rmsg.reqlen))
         {
           usock_send_event(fd, priv, usock,
                            USRSOCK_EVENT_REMOTE_CLOSED
@@ -1515,6 +1519,9 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
     {
       case SIOCGIFADDR:
       case SIOCGIFHWADDR:
+      case SIOCGIWNWID:
+      case SIOCGIWFREQ:
+      case SIOCGIWSENS:
         getreq = true;
         break;
 

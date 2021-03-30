@@ -77,8 +77,11 @@
 /* Helper macros */
 
 #define RL_GETC(v)      ((v)->rl_getc(v))
-#define RL_PUTC(v,ch)   ((v)->rl_putc(v,ch))
-#define RL_WRITE(v,b,s) ((v)->rl_write(v,b,s))
+
+#ifdef CONFIG_READLINE_ECHO
+#  define RL_PUTC(v,ch)   ((v)->rl_putc(v,ch))
+#  define RL_WRITE(v,b,s) ((v)->rl_write(v,b,s))
+#endif
 
 /****************************************************************************
  * Public Type Declarations
@@ -86,11 +89,11 @@
 
 struct rl_common_s
 {
-   int  (*rl_getc)(FAR struct rl_common_s *vtbl);
+  int  (*rl_getc)(FAR struct rl_common_s *vtbl);
 #ifdef CONFIG_READLINE_ECHO
-   void (*rl_putc)(FAR struct rl_common_s *vtbl, int ch);
-   void (*rl_write)(FAR struct rl_common_s *vtbl, FAR const char *buffer,
-                    size_t buflen);
+  void (*rl_putc)(FAR struct rl_common_s *vtbl, int ch);
+  void (*rl_write)(FAR struct rl_common_s *vtbl, FAR const char *buffer,
+                   size_t buflen);
 #endif
 };
 
@@ -121,6 +124,7 @@ struct rl_common_s
  *
  ****************************************************************************/
 
-ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen);
+ssize_t readline_common(FAR struct rl_common_s *vtbl,
+                        FAR char *buf, int buflen);
 
 #endif /* __APPS_SYSTEM_READLINE_READLINE_H */

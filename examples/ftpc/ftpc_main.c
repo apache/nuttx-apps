@@ -43,6 +43,9 @@
 #include <string.h>
 #include <errno.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include "netutils/ftpc.h"
 
@@ -55,16 +58,6 @@
  ****************************************************************************/
 
 #define FTPC_MAX_ARGUMENTS 4
-
-/* If FTP is used and both IPv6 and IPv4 are enabled, then we need to
- * pick one.
- */
-
-#ifdef CONFIG_NET_IPv6
-#  define ADDR_FAMILY AF_INET6
-#else
-#  define ADDR_FAMILY AF_INET
-#endif
 
 /****************************************************************************
  * Private Types
@@ -148,7 +141,7 @@ static int cmd_lhelp(SESSION handle, int argc, char **argv)
 
 static int cmd_lunrecognized(SESSION handle, int argc, char **argv)
 {
-  printf("Command %s unrecognized\n", argv[0]);
+  fprintf(stderr, "Command %s unrecognized\n", argv[0]);
   return ERROR;
 }
 
@@ -220,7 +213,7 @@ char *ftpc_argument(char **saveptr)
 
       if (*pend)
         {
-          /* Turn the delimiter into a null terminator */
+          /* Turn the delimiter into a NUL terminator */
 
           *pend++ = '\0';
         }
@@ -271,14 +264,14 @@ static int ftpc_execute(SESSION handle, int argc, char *argv[])
             {
               /* Fewer than the minimum number were provided */
 
-              printf("Too few arguments for '%s'\n", cmd);
+              fprintf(stderr, "Too few arguments for '%s'\n", cmd);
               return ERROR;
             }
           else if (argc > cmdmap->maxargs)
             {
               /* More than the maximum number were provided */
 
-              printf("Too many arguments for '%s'\n", cmd);
+              fprintf(stderr, "Too many arguments for '%s'\n", cmd);
               return ERROR;
             }
           else
@@ -296,7 +289,7 @@ static int ftpc_execute(SESSION handle, int argc, char *argv[])
   ret = handler(handle, argc, argv);
   if (ret < 0)
     {
-      printf("%s failed: %d\n", cmd, errno);
+      fprintf(stderr, "%s failed: %d\n", cmd, errno);
     }
 
   return ret;
@@ -316,7 +309,7 @@ int ftpc_parse(SESSION handle, char *cmdline)
 
   /* Initialize parser state */
 
-  memset(argv, 0, FTPC_MAX_ARGUMENTS*sizeof(FAR char *));
+  memset(argv, 0, FTPC_MAX_ARGUMENTS * sizeof(FAR char *));
 
   /* Parse out the command at the beginning of the line */
 
@@ -352,7 +345,7 @@ int ftpc_parse(SESSION handle, char *cmdline)
 
   if (argc > FTPC_MAX_ARGUMENTS)
     {
-      printf("Too many arguments\n");
+      fprintf(stderr, "Too many arguments\n");
       ret = -EINVAL;
     }
   else
@@ -365,6 +358,17 @@ int ftpc_parse(SESSION handle, char *cmdline)
   return ret;
 }
 
+static void usage(void)
+{
+  fprintf(stderr,
+      "Usage: ftpc [-46n] host [port]\n\
+      \t-4    Use IPv4\n\
+      \t-6    Use IPv6\n\
+      \t-n    Allow numeric IP address only\n\
+      ");
+  exit(1);
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -373,88 +377,182 @@ int main(int argc, FAR char *argv[])
 {
   union ftpc_sockaddr_u server;
   SESSION handle;
-#if ADDR_FAMILY == AF_INET
-  FAR char *ptr;
+  char *host = NULL;
+  char *port = NULL;
+#ifdef CONFIG_LIBC_NETDB
+  struct addrinfo hints;
+  FAR struct addrinfo *info;
+  FAR struct addrinfo *next;
 #endif
-#ifndef CONFIG_EXAMPLES_FTPC_FGETS
+  int option;
   int ret;
-#endif
+  int family = AF_UNSPEC;
+  bool nflag = false;
+  bool badarg = false;
 
   memset(&server, 0, sizeof(union ftpc_sockaddr_u));
 
-  if (argc != 2)
+  while ((option = getopt(argc, argv, "46n")) != ERROR)
     {
-#if ADDR_FAMILY == AF_INET6
-      printf("Usage:\n");
-      printf("   %s xx:xx:xx:xx:xx:xx:xx:xx [pp]\n", argv[0]);
-      printf("Where\n");
-      printf("  xx:xx:xx:xx:xx:xx:xx:xx is "
-             "the IP address of the FTP server\n");
-      printf("  pp is option port to use with the FTP server\n");
-#else
-      printf("Usage:\n");
-      printf("   %s xx.xx.xx.xx[:pp]\n", argv[0]);
-      printf("Where\n");
-      printf("  xx.xx.xx.xx is the IP address of the FTP server\n");
-      printf("  pp is option port to use with the FTP server\n");
+      switch (option)
+        {
+        case '4':
+          family = AF_INET;
+          break;
+        case '6':
+          family = AF_INET6;
+          break;
+        case 'n':
+          nflag = true;
+          break;
+        default:
+          badarg = true;
+          break;
+        }
+    }
+
+  if (badarg)
+    {
+      usage();
+    }
+
+  /* There should be one or two parameters remaining on the command line */
+
+  if (optind >= argc)
+    {
+      fprintf(stderr, "%s: Missing required arguments\n", argv[0]);
+      usage();
+    }
+
+  host = argv[optind];
+  optind++;
+
+  if (optind < argc)
+    {
+      port = argv[optind];
+      optind++;
+    }
+
+  if (optind != argc)
+    {
+      fprintf(stderr, "%s: Too many arguments\n", argv[0]);
+      usage();
+    }
+
+#ifdef CONFIG_LIBC_NETDB
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = family;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  if (nflag)
+    {
+      hints.ai_flags |= AI_NUMERICHOST;
+    }
+
+  /* We now get all addresses for hostname or IP address from the
+   * command line.
+   */
+
+  ret = getaddrinfo(host, port, &hints, &info);
+  if (ret != OK)
+    {
+      fprintf(stderr, "ERROR: getaddrinfo: %s\n", gai_strerror(ret));
+      exit(1);
+    }
+
+  for (next = info; next != NULL; next = next->ai_next)
+    {
+#ifdef CONFIG_NET_IPv6
+      if (next->ai_family == AF_INET6)
+        {
+          memcpy(&server.in6, next->ai_addr, next->ai_addrlen);
+        }
 #endif
-      exit(1);
-    }
 
-  /* In any event, we can now extract the IP address from the comman-line */
-
-#if ADDR_FAMILY == AF_INET6
-  server.in6.sin6_family = AF_INET6;
-  ret = inet_pton(AF_INET6, argv[1], &server.in6.sin6_addr);
-  if (ret < 0)
-    {
-      printf("Invalid IPv6 address\n");
-      exit(1);
-    }
-
-  if (argc > 2)
-    {
-      server.in6.sin6_port = atoi(argv[2]);
-    }
-#else
-  /* Check if the argument includes a port number */
-
-  ptr = strchr(argv[1], ':');
-  if (ptr)
-    {
-      *ptr = '\0';
-      server.in4.sin_port = atoi(ptr + 1);
-    }
-
-  server.in4.sin_family = AF_INET;
-  ret = inet_pton(AF_INET, argv[1], &server.in4.sin_addr);
-  if (ret < 0)
-    {
-      printf("Invalid IP address\n");
-      exit(1);
-    }
+#ifdef CONFIG_NET_IPv4
+      if (next->ai_family == AF_INET)
+        {
+          memcpy(&server.in4, next->ai_addr, next->ai_addrlen);
+        }
 #endif
 
-  /* Connect to the FTP server */
+      /* Connect to the FTP server */
 
+      handle = ftpc_connect(&server);
+      if (handle)
+        {
+          break;
+        }
+    }
+
+  freeaddrinfo(info);
+  if (!handle)
+    {
+      fprintf(stderr, "ERROR: Failed to connect to the server: %d\n", errno);
+      exit(1);
+    }
+#else
+  /* No getaddrinfo(), use IP address only, implies nflag. */
+
+  UNUSED(nflag);
+  DEBUGASSERT(host != NULL);
+
+  /* Try IPv6 first, then IPv4. */
+
+#ifdef CONFIG_NET_IPv6
+  if (family != AF_INET)
+    {
+      ret = inet_pton(AF_INET6, host, &server.in6.sin6_addr);
+      if (ret == 1)
+        {
+          server.in6.sin6_family = AF_INET6;
+          if (port != NULL)
+            {
+              server.in6.sin6_port = htons(atoi(port));
+            }
+
+          goto do_connect;
+        }
+    }
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NET_IPv4
+  if (family != AF_INET6)
+    {
+      ret = inet_pton(AF_INET, host, &server.in4.sin_addr);
+      if (ret == 1)
+        {
+          server.in4.sin_family = AF_INET;
+          if (port != NULL)
+            {
+              server.in4.sin_port = htons(atoi(port));
+            }
+
+          goto do_connect;
+        }
+    }
+#endif /* CONFIG_NET_IPv4 */
+
+  /* Did not get a valid address. */
+
+  fprintf(stderr, "ERROR: Invalid IP address\n");
+  exit(1);
+
+  /* Connect to the FTP server. */
+
+do_connect:
   handle = ftpc_connect(&server);
   if (!handle)
     {
-      printf("Failed to connect to the server: %d\n", errno);
+      fprintf(stderr, "ERROR: Failed to connect to the server: %d\n", errno);
       exit(1);
     }
+#endif /* CONFIG_LIBC_NETDB */
 
   /* Present a greeting */
 
   printf("NuttX FTP Client:\n");
   FFLUSH();
-
-  /* Setting optind to -1 is a non-standard, backdoor way to reinitialize
-   * getopt().  getopt() is not thread safe and we have no idea what state
-   * it is in now!
-   */
-
-  optind = -1;
 
   /* Then enter the command line parsing loop */
 
@@ -472,7 +570,7 @@ int main(int argc, FAR char *argv[])
 
       if (fgets(g_line, CONFIG_FTPC_LINELEN, stdin) == NULL)
         {
-          printf("ERROR: fgets failed: %d\n", errno);
+          fprintf(stderr, "ERROR: fgets failed: %d\n", errno);
           return 1;
         }
 #else
@@ -485,7 +583,7 @@ int main(int argc, FAR char *argv[])
 
       if (ret == EOF)
         {
-          printf("ERROR: readline failed: %d\n", errno);
+          fprintf(stderr, "ERROR: readline failed: %d\n", errno);
           return 1;
         }
 #endif

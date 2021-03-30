@@ -7,5 +7,6 @@ config FSUTILS_MKFATFS
 	bool "mkfatfs utility"
 	default y
 	depends on FS_FAT && !DISABLE_PSEUDOFS_OPERATIONS
+	select BCH
 	---help---
 		Enables support for the mkfatfs utility

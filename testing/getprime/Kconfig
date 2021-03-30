@@ -27,4 +27,8 @@ config TESTING_GETPRIME_STACKSIZE
 	int "getprime stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config TESTING_GETPRIME_THREAD_PRIORITY
+	int "getprime thread priority"
+	default 10
+
 endif

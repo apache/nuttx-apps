@@ -113,10 +113,10 @@ static struct slcd_chrono_s g_slcd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: button_daemon
+ * Name: chrono_daemon
  ****************************************************************************/
 
-static int button_daemon(int argc, char *argv[])
+static int chrono_daemon(int argc, char *argv[])
 {
   FAR struct slcd_chrono_s *priv = &g_slcd;
   struct btn_notify_s btnevents;
@@ -128,16 +128,16 @@ static int button_daemon(int argc, char *argv[])
 
   UNUSED(i);
 
-  printf("button_daemon: Running\n");
+  printf("chrono_daemon: Running\n");
 
   /* Open the BUTTON driver */
 
-  printf("button_daemon: Opening %s\n", BUTTON_DEVPATH);
+  printf("chrono_daemon: Opening %s\n", BUTTON_DEVPATH);
   fd = open(BUTTON_DEVPATH, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       int errcode = errno;
-      printf("button_daemon: ERROR: Failed to open %s: %d\n",
+      printf("chrono_daemon: ERROR: Failed to open %s: %d\n",
              BUTTON_DEVPATH, errcode);
       goto errout;
     }
@@ -149,12 +149,12 @@ static int button_daemon(int argc, char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      printf("button_daemon: ERROR: ioctl(BTNIOC_SUPPORTED) failed: %d\n",
+      printf("chrono_daemon: ERROR: ioctl(BTNIOC_SUPPORTED) failed: %d\n",
              errcode);
       goto errout_with_fd;
     }
 
-  printf("button_daemon: Supported BUTTONs 0x%02x\n",
+  printf("chrono_daemon: Supported BUTTONs 0x%02x\n",
          (unsigned int)supported);
 
   /* Define the notifications events */
@@ -172,10 +172,14 @@ static int button_daemon(int argc, char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      printf("button_daemon: ERROR: ioctl(BTNIOC_SUPPORTED) failed: %d\n",
+      printf("chrono_daemon: ERROR: ioctl(BTNIOC_SUPPORTED) failed: %d\n",
              errcode);
       goto errout_with_fd;
     }
+
+  /* Ignore the default signal action */
+
+  signal(BUTTON_SIGNO, SIG_IGN);
 
   /* Now loop forever, waiting BUTTONs events */
 
@@ -192,7 +196,8 @@ static int button_daemon(int argc, char *argv[])
       if (ret < 0)
         {
           int errcode = errno;
-          printf("button_daemon: ERROR: sigwaitinfo() failed: %d\n", errcode);
+          printf("chrono_daemon: ERROR: sigwaitinfo() failed: %d\n",
+                 errcode);
           goto errout_with_fd;
         }
 
@@ -218,7 +223,7 @@ errout_with_fd:
 
 errout:
 
-  printf("button_daemon: Terminating\n");
+  printf("chrono_daemon: Terminating\n");
   return EXIT_FAILURE;
 }
 
@@ -316,12 +321,12 @@ int main(int argc, FAR char *argv[])
 
   /* Create a thread to wait for the button events */
 
-  ret = task_create("button_daemon", BUTTON_PRIORITY,
-                    BUTTON_STACKSIZE, button_daemon, NULL);
+  ret = task_create("chrono_daemon", BUTTON_PRIORITY,
+                    BUTTON_STACKSIZE, chrono_daemon, NULL);
   if (ret < 0)
     {
       int errcode = errno;
-      printf("buttons_main: ERROR: Failed to start button_daemon: %d\n",
+      printf("buttons_main: ERROR: Failed to start chrono_daemon: %d\n",
              errcode);
       return EXIT_FAILURE;
     }
@@ -333,7 +338,7 @@ int main(int argc, FAR char *argv[])
   fd = open(SLCD_DEVNAME, O_RDWR);
   if (fd < 0)
     {
-      printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
+      printf("Failed to open %s: %d\n", SLCD_DEVNAME, errno);
       goto errout;
     }
 
@@ -441,7 +446,7 @@ int main(int argc, FAR char *argv[])
 
           sec = sec % 60;
 
-          sprintf(str, "%02d:%02d:%01d", min, sec,
+          sprintf(str, "%02ld:%02ld:%01ld", min, sec,
                   (priv->ts_end.tv_nsec / 100000000));
 
           /* Print it into LCD */

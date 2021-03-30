@@ -87,19 +87,6 @@ static void nsh_configstdio(int fd)
   dup2(fd, 0);
   dup2(fd, 1);
   dup2(fd, 2);
-
-  /* Setup the stdout */
-
-//  pstate->cn_outfd     = 1;
-//  pstate->cn_outstream = fdopen(1, "a");
-
-  /* Setup the stderr */
-
-//  pstate->cn_errfd     = 2;
-//  pstate->cn_errstream = fdopen(2, "a");
-  fdopen(0,"r");
-  fdopen(1,"a");
-  fdopen(2,"a");
 }
 
 /****************************************************************************

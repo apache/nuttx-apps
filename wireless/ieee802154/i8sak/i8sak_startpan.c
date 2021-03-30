@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -68,7 +68,8 @@
  *   Start PAN and accept association requests
  ****************************************************************************/
 
-void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
+void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak,
+                        int argc, FAR char *argv[])
 {
   struct ieee802154_start_req_s startreq;
   bool beaconenabled = false;
@@ -88,21 +89,27 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    -h = this help menu\n"
                     "    -b = start beacon-enabled PAN\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+
           case 'b':
             beaconenabled = true;
             break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
+
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;

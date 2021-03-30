@@ -162,6 +162,14 @@ config USE_LV_FILESYSTEM
 	bool "Enable filesystem (required for images, lv_img)"
 	default y
 
+if USE_LV_FILESYSTEM
+
+config LV_FILESYSTEM_MOUNTPOINT
+	string "File system mount point"
+	default "/data"
+
+endif
+
 config USE_LV_MULTI_LANG
 	int "Number of languages for labels to store (0 to disable)"
 	default 0

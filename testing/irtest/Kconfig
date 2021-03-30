@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_IRTEST
+	tristate "IR driver test"
+	default n
+	---help---
+		Enable the IR driver test
+
+if TESTING_IRTEST
+
+config TESTING_IRTEST_PROGNAME
+	string "Program name"
+	default "irtest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_IRTEST_PRIORITY
+	int "IR driver test task priority"
+	default 100
+
+config TESTING_IRTEST_STACKSIZE
+	int "IR driver test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_IRTEST_MAX_NIRDEV
+	int "The Maximum number of IR devices supported"
+	default 2
+
+config TESTING_IRTEST_MAX_SIRDATA
+	int "The Maximum size of sending data in unsigned int"
+	default 64
+
+endif

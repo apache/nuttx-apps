@@ -22,7 +22,17 @@ include $(APPDIR)/Make.defs
 
 WAMR_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETERS_WAMR_VERSION)))
 WAMR_UNPACK   = wamr
-WAMR_TARBALL  = WAMR-$(WAMR_VERSION).tar.gz
+
+# Tarball of main branch and tagged release have little difference
+# in name after unpack and URL
+
+ifeq ($(WAMR_VERSION), main)
+WAMR_VERSION_STUB  = 
+else
+WAMR_VERSION_STUB  = WAMR-
+endif
+
+WAMR_TARBALL  = $(WAMR_VERSION_STUB)$(WAMR_VERSION).zip
 WAMR_URL_BASE = https://github.com/bytecodealliance/wasm-micro-runtime/archive/
 WAMR_URL      = $(WAMR_URL_BASE)/$(WAMR_TARBALL)
 
@@ -32,19 +42,19 @@ VPATH += $(WAMR_UNPACK)/product-mini/platforms/nuttx
 
 MAINSRC = main.c
 
-PROGNAME  = iwamr
+PROGNAME  = iwasm
 PRIORITY  = $(CONFIG_INTERPRETERS_WAMR_PRIORITY)
 STACKSIZE = $(CONFIG_INTERPRETERS_WAMR_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_WAMR)
 
 $(WAMR_TARBALL):
 	$(Q) echo "Downloading $(WAMR_TARBALL)"
-	$(Q) wget $(WAMR_URL)
+	$(Q) curl -O -L $(WAMR_URL)
 
 $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) echo "Unpacking $(WAMR_TARBALL) to $(WAMR_UNPACK)"
-	$(Q) tar xzvf $(WAMR_TARBALL)
-	$(Q) mv wasm-micro-runtime-WAMR-$(WAMR_VERSION) $(WAMR_UNPACK)
+	$(Q) unzip $(WAMR_TARBALL)
+	$(Q) mv wasm-micro-runtime-$(WAMR_VERSION_STUB)$(WAMR_VERSION) $(WAMR_UNPACK)
 
 context:: $(WAMR_UNPACK)
 

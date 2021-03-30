@@ -41,6 +41,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -60,7 +61,8 @@
  * Name: mkfatfs_devwrite
  *
  * Description:
- *   Write the content of the dedicate sector buffer beginning to the specified sector
+ *   Write the content of the dedicate sector buffer beginning to the
+ *   specified sector
  *
  * Input:
  *    fmt  - User specified format parameters
@@ -83,7 +85,7 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
 
   if (sector < 0 || sector >= fmt->ff_nsectors)
     {
-      ferr("sector out of range: %lu\n", (unsigned long)sector);
+      ferr("sector out of range: %ju\n", (intmax_t)sector);
       return -ESPIPE;
     }
 
@@ -95,13 +97,13 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
   if (seekpos == (off_t)-1)
     {
       ret = -errno;
-      ferr("ERROR: lseek to %lu failed: %d\n", (unsigned long)fpos, ret);
+      ferr("ERROR: lseek to %jd failed: %d\n", (intmax_t)fpos, ret);
       return ret;
     }
   else if (seekpos != fpos)
     {
-      ferr("ERROR: lseek failed: %lu vs %lu\n",
-           (unsigned)seekpos, (unsigned long) fpos);
+      ferr("ERROR: lseek failed: %ju vs %ju\n",
+           (intmax_t)seekpos, (intmax_t)fpos);
       return -EINVAL;
     }
 
@@ -111,14 +113,14 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
   if (nwritten < 0)
     {
       ret = -errno;
-      ferr("ERROR:  write failed: size=%lu pos=%lu error=%d\n",
-           (unsigned)var->fv_sectorsize, (unsigned long)fpos, ret);
+      ferr("ERROR:  write failed: size=%" PRIu32 " pos=%jd error=%d\n",
+           var->fv_sectorsize, (intmax_t)fpos, ret);
       return ret;
     }
   else if (nwritten != (ssize_t)var->fv_sectorsize)
     {
-      ferr("ERROR:  Partial write: size=%lu written=%lu\n",
-           (unsigned)var->fv_sectorsize, (unsigned long)nwritten);
+      ferr("ERROR:  Partial write: size=%" PRIu32 " written=%zd\n",
+           var->fv_sectorsize, nwritten);
       return -ENODATA;
     }
 
@@ -174,7 +176,8 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
   MBR_PUTROOTENTCNT(var->fv_sect, fmt->ff_rootdirentries);
 
   /* 2@19: FAT12/16: Must be 0, see MBR_TOTSEC32.
-   * Handled with 4@32: Total count of sectors on the volume */
+   * Handled with 4@32: Total count of sectors on the volume
+   */
 
   if (fmt->ff_nsectors >= 65536)
     {
@@ -189,9 +192,13 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   MBR_PUTMEDIA(var->fv_sect, FAT_DEFAULT_MEDIA_TYPE); /* Only "hard drive" supported */
 
-  /* 2@22: FAT12/16: Must be 0, see MBR32_FATSZ32  -- handled in FAT specific logic */
+  /* 2@22: FAT12/16: Must be 0, see MBR32_FATSZ32  -- handled in FAT
+   * specific logic
+   */
 
-  /* 2@24: Sectors per track geometry value and 2@26: Number of heads geometry value */
+  /* 2@24: Sectors per track geometry value and 2@26: Number of heads
+   * geometry value
+   */
 
   MBR_PUTSECPERTRK(var->fv_sect, FAT_DEFAULT_SECPERTRK);
   MBR_PUTNUMHEADS(var->fv_sect, FAT_DEFAULT_NUMHEADS);
@@ -211,8 +218,11 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
       MBR_PUTFATSZ16(var->fv_sect, (uint16_t)var->fv_nfatsects);
 
       /* The following fields are only valid for FAT12/16 */
+
       /*  1@36: Drive number for MSDOS bootstrap -- left zero */
+
       /*  1@37: Reserved (zero) */
+
       /*  1@38: Extended boot signature: 0x29 if following valid */
 
       MBR_PUTBOOTSIG16(var->fv_sect, EXTBOOT_SIGNATURE);
@@ -238,17 +248,21 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* Boot code may be placed in the remainder of the sector */
 
-      memcpy(&var->fv_sect[MBR16_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
+      memcpy(&var->fv_sect[MBR16_BOOTCODE], var->fv_bootcode,
+             var->fv_bootcodesize);
     }
   else
     {
       /* The following fields are only valid for FAT32 */
+
       /*  4@36: Count of sectors occupied by one FAT */
 
       MBR_PUTFATSZ32(var->fv_sect, var->fv_nfatsects);
 
       /* 2@40: 0-3:Active FAT, 7=0 both FATS, 7=1 one FAT -- left zero */
+
       /* 2@42: MSB:Major LSB:Minor revision number (0.0) -- left zero */
+
       /* 4@44: Cluster no. of 1st cluster of root dir */
 
       MBR_PUTROOTCLUS(var->fv_sect, FAT32_DEFAULT_ROOT_CLUSTER);
@@ -262,8 +276,11 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
       MBR_PUTBKBOOTSEC(var->fv_sect, fmt->ff_backupboot);
 
       /* 12@52: Reserved (zero) */
+
       /*  1@64: Drive number for MSDOS bootstrap -- left zero */
+
       /*  1@65: Reserved (zero) */
+
       /*  1@66: Extended boot signature: 0x29 if following valid */
 
       MBR_PUTBOOTSIG32(var->fv_sect, EXTBOOT_SIGNATURE);
@@ -282,10 +299,12 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* Boot code may be placed in the remainder of the sector */
 
-      memcpy(&var->fv_sect[MBR32_BOOTCODE], var->fv_bootcode, var->fv_bootcodesize);
+      memcpy(&var->fv_sect[MBR32_BOOTCODE], var->fv_bootcode,
+             var->fv_bootcodesize);
     }
 
   /* The magic bytes at the end of the MBR are common to FAT12/16/32 */
+
   /*  2@510: Valid MBRs have 0x55aa here */
 
   MBR_PUTSIGNATURE(var->fv_sect, BOOT_SIGNATURE16);
@@ -316,6 +335,7 @@ static inline void mkfatfs_initfsinfo(FAR struct fat_format_s *fmt,
   FSI_PUTLEADSIG(var->fv_sect, 0x41615252);
 
   /* 480@4: Reserved (zero) */
+
   /* 4@484: 0x61417272 = "rrAa" */
 
   FSI_PUTSTRUCTSIG(var->fv_sect, 0x61417272);
@@ -329,6 +349,7 @@ static inline void mkfatfs_initfsinfo(FAR struct fat_format_s *fmt,
   FSI_PUTNXTFREE(var->fv_sect, FAT32_DEFAULT_ROOT_CLUSTER);
 
   /* 12@496: Reserved (zero) */
+
   /* 4@508:  0xaa550000 */
 
   FSI_PUTTRAILSIG(var->fv_sect, BOOT_SIGNATURE32);
@@ -344,7 +365,8 @@ static inline void mkfatfs_initfsinfo(FAR struct fat_format_s *fmt,
  *    fmt  - User specified format parameters
  *    var  - Other format parameters that are not user specifiable
  *    sectno - On FAT32, the root directory is a cluster chain.
- *        This value indicates which sector of the cluster should be produced.
+ *        This value indicates which sector of the cluster should be
+ *        produced.
  *
  * Return:
  *    None; caller is responsible for providing valid parameters.
@@ -357,7 +379,9 @@ static inline void mkfatfs_initrootdir(FAR struct fat_format_s *fmt,
   memset(var->fv_sect, 0, var->fv_sectorsize);
   if (sectno == 0)
     {
-      /* It is only necessary to set data in the first sector of the directory */
+      /* It is only necessary to set data in the first sector of the
+       * directory
+       */
 
       if (memcmp(fmt->ff_volumelabel, "           ", 11))
         {
@@ -475,60 +499,69 @@ static inline int mkfatfs_writefat(FAR struct fat_format_s *fmt,
     {
       /* Loop for each sector in the FAT */
 
-       for (sectno = 0; sectno < var->fv_nfatsects; sectno++)
-         {
-           memset(var->fv_sect, 0, var->fv_sectorsize);
+      for (sectno = 0; sectno < var->fv_nfatsects; sectno++)
+        {
+          memset(var->fv_sect, 0, var->fv_sectorsize);
 
           /* Mark cluster allocations in sector one of each FAT */
 
-           if (sectno == 0)
-             {
-               memset(var->fv_sect, 0, var->fv_sectorsize);
-               switch (fmt->ff_fattype)
-                 {
-                   case 12:
-                     /* Mark the first two full FAT entries -- 24 bits, 3 bytes total */
+          if (sectno == 0)
+            {
+              memset(var->fv_sect, 0, var->fv_sectorsize);
+              switch (fmt->ff_fattype)
+                {
+                  case 12:
+                    /* Mark the first two full FAT entries -- 24 bits,
+                     * 3 bytes total
+                     */
 
-                     memset(var->fv_sect, 0xff, 3);
-                     break;
+                    memset(var->fv_sect, 0xff, 3);
+                    break;
 
-                   case 16:
-                     /* Mark the first two full FAT entries -- 32 bits, 4 bytes total */
+                  case 16:
+                    /* Mark the first two full FAT entries -- 32 bits,
+                     * 4 bytes total
+                     */
 
-                     memset(var->fv_sect, 0xff, 4);
-                     break;
+                    memset(var->fv_sect, 0xff, 4);
+                    break;
 
-                   case 32:
-                   default: /* Shouldn't happen */
-                     /* Mark the first two full FAT entries -- 64 bits, 8 bytes total */
+                  case 32:
+                  default: /* Shouldn't happen */
 
-                     memset(var->fv_sect, 0xff, 8);
+                    /* Mark the first two full FAT entries -- 64 bits,
+                     * 8 bytes total
+                     */
 
-                     /* Cluster 2 is used as the root directory.  Mark as EOF */
+                    memset(var->fv_sect, 0xff, 8);
 
-                     var->fv_sect[8] =  0xf8;
-                     memset(&var->fv_sect[9], 0xff, 3);
-                     break;
-                 }
+                    /* Cluster 2 is used as the root directory.
+                     * Mark as EOF
+                     */
 
-               /* Save the media type in the first byte of the FAT */
+                    var->fv_sect[8] =  0xf8;
+                    memset(&var->fv_sect[9], 0xff, 3);
+                    break;
+                }
 
-               var->fv_sect[0] = FAT_DEFAULT_MEDIA_TYPE;
+              /* Save the media type in the first byte of the FAT */
+
+              var->fv_sect[0] = FAT_DEFAULT_MEDIA_TYPE;
             }
 
-           /* Write the FAT sector */
+          /* Write the FAT sector */
 
-           ret = mkfatfs_devwrite(fmt, var, offset);
-           if (ret < 0)
-             {
-               return ret;
-             }
+          ret = mkfatfs_devwrite(fmt, var, offset);
+          if (ret < 0)
+            {
+              return ret;
+            }
 
-           offset++;
-         }
-     }
+          offset++;
+        }
+    }
 
-   return OK;
+  return OK;
 }
 
 /****************************************************************************

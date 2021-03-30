@@ -1,5 +1,5 @@
 /****************************************************************************
- * netuils/tftp/tftpc_put.c
+ * netutils/tftp/tftpc_put.c
  *
  *   Copyright (C) 2008-2009, 2011, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -165,11 +165,11 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
 
               if (nbytes == 0)
                 {
-                  nerr("ERROR: Connection lost: %d bytes\n", nbytes);
+                  nerr("ERROR: Connection lost: %zd bytes\n", nbytes);
                 }
               else if (nbytes > 0)
                 {
-                  nerr("ERROR: Short packet: %d bytes\n", nbytes);
+                  nerr("ERROR: Short packet: %zd bytes\n", nbytes);
                 }
               else
                 {

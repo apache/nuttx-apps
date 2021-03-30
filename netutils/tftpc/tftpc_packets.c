@@ -1,5 +1,5 @@
 /****************************************************************************
- * netuils/tftp/tftpc_packets.c
+ * netutils/tftp/tftpc_packets.c
  *
  *   Copyright (C) 2008-2009, 2011-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -104,7 +104,8 @@ int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr)
 
   timeo.tv_sec  = CONFIG_NETUTILS_TFTP_TIMEOUT / 10;
   timeo.tv_usec = (CONFIG_NETUTILS_TFTP_TIMEOUT % 10) * 100000;
-  ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &timeo, sizeof(struct timeval));
+  ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &timeo,
+                   sizeof(struct timeval));
   if (ret < 0)
     {
       nerr("ERROR: setsockopt failed: %d\n", errno);
@@ -136,11 +137,13 @@ int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr)
  *
  ****************************************************************************/
 
-int tftp_mkreqpacket(uint8_t *buffer, int opcode, const char *path, bool binary)
+int tftp_mkreqpacket(uint8_t *buffer, int opcode, const char *path,
+                     bool binary)
 {
   buffer[0] = opcode >> 8;
   buffer[1] = opcode & 0xff;
-  return sprintf((char*)&buffer[2], "%s%c%s", path, 0, tftp_mode(binary)) + 3;
+  return sprintf((char *)&buffer[2], "%s%c%s", path, 0,
+                 tftp_mode(binary)) + 3;
 }
 
 /****************************************************************************
@@ -176,13 +179,14 @@ int tftp_mkackpacket(uint8_t *buffer, uint16_t blockno)
  *
  ****************************************************************************/
 
-int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode, const char *errormsg)
+int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode,
+                     const char *errormsg)
 {
   buffer[0] = TFTP_ERR >> 8;
   buffer[1] = TFTP_ERR & 0xff;
   buffer[2] = errorcode >> 8;
   buffer[3] = errorcode & 0xff;
-  strcpy((char*)&buffer[4], errormsg);
+  strcpy((char *)&buffer[4], errormsg);
   return strlen(errormsg) + 5;
 }
 
@@ -224,16 +228,17 @@ int tftp_parseerrpacket(const uint8_t *buffer)
  *
  ****************************************************************************/
 
-ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
+ssize_t tftp_recvfrom(int sd, void *buf, size_t len,
+                      struct sockaddr_in *from)
 {
-  int     addrlen;
+  socklen_t addrlen;
   ssize_t nbytes;
 
   /* Loop handles the case where the recvfrom is interrupted by a signal and
    * we should unconditionally try again.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* For debugging, it is helpful to start with a clean buffer */
 
@@ -244,7 +249,7 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
       /* Receive the packet */
 
       addrlen = sizeof(struct sockaddr_in);
-      nbytes = recvfrom(sd, buf, len, 0, (struct sockaddr*)from, (socklen_t*)&addrlen);
+      nbytes = recvfrom(sd, buf, len, 0, (struct sockaddr *)from, &addrlen);
 
       /* Check for errors */
 
@@ -284,7 +289,8 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
  *
  ****************************************************************************/
 
-ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to)
+ssize_t tftp_sendto(int sd, const void *buf, size_t len,
+                    struct sockaddr_in *to)
 {
   ssize_t nbytes;
 
@@ -292,11 +298,12 @@ ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to)
    * we should unconditionally try again.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* Send the packet */
 
-      nbytes = sendto(sd, buf, len, 0, (struct sockaddr*)to, sizeof(struct sockaddr_in));
+      nbytes = sendto(sd, buf, len, 0, (struct sockaddr *)to,
+                      sizeof(struct sockaddr_in));
 
       /* Check for errors */
 

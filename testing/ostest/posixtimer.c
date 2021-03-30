@@ -81,7 +81,8 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
 
   if (signo != MY_TIMER_SIGNAL)
     {
-      printf("timer_expiration: ERROR expected signo=%d\n" , MY_TIMER_SIGNAL);
+      printf("timer_expiration: ERROR expected signo=%d\n",
+             MY_TIMER_SIGNAL);
     }
 
   /* Check siginfo */
@@ -128,10 +129,9 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
 
   if (oldset != allsigs)
     {
-      printf("timer_expiration: ERROR sigprocmask=%x expected=%x\n",
-              oldset, allsigs);
+      printf("timer_expiration: ERROR sigprocmask=%jx expected=%jx\n",
+              (uintmax_t)oldset, (uintmax_t)allsigs);
     }
-
 }
 
 /****************************************************************************
@@ -149,7 +149,7 @@ void timer_test(void)
   int                status;
   int                i;
 
-  printf("timer_test: Initializing semaphore to 0\n" );
+  printf("timer_test: Initializing semaphore to 0\n");
   sem_init(&sem, 0, 0);
 
   /* Start waiter thread  */
@@ -165,7 +165,7 @@ void timer_test(void)
               status);
     }
 
-  printf("timer_test: Registering signal handler\n" );
+  printf("timer_test: Registering signal handler\n");
   act.sa_sigaction = timer_expiration;
   act.sa_flags  = SA_SIGINFO;
 
@@ -179,13 +179,13 @@ void timer_test(void)
     }
 
 #ifndef SDCC
-  printf("timer_test: oact.sigaction=%p oact.sa_flags=%x oact.sa_mask=%x\n",
-          oact.sa_sigaction, oact.sa_flags, oact.sa_mask);
+  printf("timer_test: oact.sigaction=%p oact.sa_flags=%x oact.sa_mask=%jx\n",
+          oact.sa_sigaction, oact.sa_flags, (uintmax_t)oact.sa_mask);
 #endif
 
   /* Create the POSIX timer */
 
-  printf("timer_test: Creating timer\n" );
+  printf("timer_test: Creating timer\n");
 
   notify.sigev_notify            = SIGEV_SIGNAL;
   notify.sigev_signo             = MY_TIMER_SIGNAL;
@@ -204,7 +204,7 @@ void timer_test(void)
 
   /* Start the POSIX timer */
 
-  printf("timer_test: Starting timer\n" );
+  printf("timer_test: Starting timer\n");
 
   timer.it_value.tv_sec     = 2;
   timer.it_value.tv_nsec    = 0;
@@ -222,7 +222,7 @@ void timer_test(void)
 
   for (i = 0; i < 5; i++)
     {
-      printf("timer_test: Waiting on semaphore\n" );
+      printf("timer_test: Waiting on semaphore\n");
       FFLUSH();
       status = sem_wait(&sem);
       if (status != 0)
@@ -230,17 +230,19 @@ void timer_test(void)
           int error = errno;
           if (error == EINTR)
             {
-              printf("timer_test: sem_wait() successfully interrupted by signal\n" );
+              printf("timer_test: sem_wait() successfully interrupted "
+                     "by signal\n");
             }
           else
             {
-              printf("timer_test: ERROR sem_wait failed, errno=%d\n" , error);
+              printf("timer_test: ERROR sem_wait failed, errno=%d\n", error);
             }
         }
       else
         {
-          printf("timer_test: ERROR awakened with no error!\n" );
+          printf("timer_test: ERROR awakened with no error!\n");
         }
+
       printf("timer_test: g_nsigreceived=%d\n", g_nsigreceived);
     }
 
@@ -249,7 +251,7 @@ errorout:
 
   /* Then delete the timer */
 
-  printf("timer_test: Deleting timer\n" );
+  printf("timer_test: Deleting timer\n");
   status = timer_delete(timerid);
   if (status != OK)
     {
@@ -261,6 +263,6 @@ errorout:
   act.sa_handler = SIG_DFL;
   status = sigaction(MY_TIMER_SIGNAL, &act, &oact);
 
-  printf("timer_test: done\n" );
+  printf("timer_test: done\n");
   FFLUSH();
 }

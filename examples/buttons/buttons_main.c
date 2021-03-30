@@ -186,7 +186,7 @@ static int button_daemon(int argc, char *argv[])
   /* Open the BUTTON driver */
 
   printf("button_daemon: Opening %s\n", CONFIG_EXAMPLES_BUTTONS_DEVPATH);
-  fd = open(CONFIG_EXAMPLES_BUTTONS_DEVPATH, O_RDONLY|O_NONBLOCK);
+  fd = open(CONFIG_EXAMPLES_BUTTONS_DEVPATH, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       int errcode = errno;
@@ -207,7 +207,8 @@ static int button_daemon(int argc, char *argv[])
       goto errout_with_fd;
     }
 
-  printf("button_daemon: Supported BUTTONs 0x%02x\n", (unsigned int)supported);
+  printf("button_daemon: Supported BUTTONs 0x%02x\n",
+         (unsigned int)supported);
 
 #ifdef CONFIG_EXAMPLES_BUTTONS_SIGNAL
   /* Define the notifications events */
@@ -229,6 +230,10 @@ static int button_daemon(int argc, char *argv[])
              errcode);
       goto errout_with_fd;
     }
+
+  /* Ignore the default signal action */
+
+  signal(CONFIG_EXAMPLES_BUTTONS_SIGNO, SIG_IGN);
 #endif
 
   /* Now loop forever, waiting BUTTONs events */
@@ -255,7 +260,8 @@ static int button_daemon(int argc, char *argv[])
       if (ret < 0)
         {
           int errcode = errno;
-          printf("button_daemon: ERROR: sigwaitinfo() failed: %d\n", errcode);
+          printf("button_daemon: ERROR: sigwaitinfo() failed: %d\n",
+                 errcode);
           goto errout_with_fd;
         }
 
@@ -273,7 +279,8 @@ static int button_daemon(int argc, char *argv[])
       timeout        = false;
       pollin         = false;
 
-      ret = poll(fds, CONFIG_BUTTONS_NPOLLWAITERS, CONFIG_BUTTONS_POLL_DELAY);
+      ret = poll(fds, CONFIG_BUTTONS_NPOLLWAITERS,
+                 CONFIG_BUTTONS_POLL_DELAY);
 
       printf("\nbutton_daemon: poll returned: %d\n", ret);
       if (ret < 0)
@@ -310,12 +317,14 @@ static int button_daemon(int argc, char *argv[])
                     {
                       if ((fds[i].revents & POLLIN) != 0)
                         {
-                          printf("button_daemon: ERROR no read data[%d]\n", i);
+                          printf("button_daemon: ERROR no read data[%d]\n",
+                                 i);
                         }
                     }
                   else if (errno != EINTR)
                     {
-                      printf("button_daemon: read[%d] failed: %d\n", i, errno);
+                      printf("button_daemon: read[%d] failed: %d\n", i,
+                             errno);
                     }
 
                   nbytes = 0;
@@ -324,12 +333,16 @@ static int button_daemon(int argc, char *argv[])
                 {
                   if (timeout)
                     {
-                      printf("button_daemon: ERROR? Poll timeout, but data read[%d]\n", i);
-                      printf("               (might just be a race condition)\n");
+                      printf("button_daemon: ERROR? Poll timeout, "
+                             "but data read[%d]\n", i);
+                      printf("               (might just be a race "
+                             "condition)\n");
                     }
                 }
 
-              /* Suppress error report if no read data on the next time through */
+              /* Suppress error report if no read data on the next time
+               * through
+               */
 
               fds[i].revents = 0;
             }
@@ -355,7 +368,7 @@ static int button_daemon(int argc, char *argv[])
 
       oldsample = sample;
 #else
-      printf("Sample = %d\n", sample);
+      printf("Sample = %jd\n", (intmax_t)sample);
 #endif
 
       /* Make sure that everything is displayed */

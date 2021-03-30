@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -103,18 +104,16 @@ static __u32 dropcnt[MAXSOCK];
 static __u32 last_dropcnt[MAXSOCK];
 static char devname[MAXIFNAMES][IFNAMSIZ+1];
 static int  dindex[MAXIFNAMES];
-static int  max_devname_len; /* to prevent frazzled device name output */ 
+static int  max_devname_len; /* to prevent frazzled device name output */
 const int canfd_on = 1;
 
 #define MAXANI 4
 const char anichar[MAXANI] = {'|', '/', '-', '\\'};
 const char extra_m_info[4][4] = {"- -", "B -", "- E", "B E"};
 
-extern int optind, opterr, optopt;
-
 static volatile int running = 1;
 
-void print_usage(char *prg)
+static void print_usage(char *prg)
 {
 	fprintf(stderr, "%s - dump CAN bus traffic.\n", prg);
 	fprintf(stderr, "\nUsage: %s [options] <CAN interface>+\n", prg);
@@ -248,7 +247,7 @@ int main(int argc, char **argv)
 	struct timeval timeout, timeout_config = { 0, 0 }, *timeout_current = NULL;
 	FILE *logfile = NULL;
 
-#if 0 /* NuttX doesn't support these signals */   
+#if 0 /* NuttX doesn't support these signals */
 	signal(SIGTERM, sigterm);
 	signal(SIGHUP, sigterm);
 #endif
@@ -359,7 +358,7 @@ int main(int argc, char **argv)
 		print_usage(basename(argv[0]));
 		exit(0);
 	}
-	
+
 	if (logfrmt && view) {
 		fprintf(stderr, "Log file format selected: Please disable ASCII/BINARY/SWAP options!\n");
 		exit(0);
@@ -456,15 +455,15 @@ int main(int argc, char **argv)
 				ptr = nptr+1; /* hop behind the ',' */
 				nptr = strchr(ptr, ','); /* update exit condition */
 
-				if (sscanf(ptr, "%x:%x",
-					   &rfilter[numfilter].can_id, 
+				if (sscanf(ptr, "%" SCNx32 ":%" SCNx32,
+					   &rfilter[numfilter].can_id,
 					   &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_mask &= ~CAN_ERR_FLAG;
 					if (*(ptr+8) == ':')
 						rfilter[numfilter].can_id |= CAN_EFF_FLAG;
 					numfilter++;
-				} else if (sscanf(ptr, "%x~%x",
-						  &rfilter[numfilter].can_id, 
+				} else if (sscanf(ptr, "%" SCNx32 "~%" SCNx32,
+						  &rfilter[numfilter].can_id,
 						  &rfilter[numfilter].can_mask) == 2) {
  					rfilter[numfilter].can_id |= CAN_INV_FILTER;
  					rfilter[numfilter].can_mask &= ~CAN_ERR_FLAG;
@@ -473,7 +472,7 @@ int main(int argc, char **argv)
 					numfilter++;
 				} else if (*ptr == 'j' || *ptr == 'J') {
 					join_filter = 1;
-				} else if (sscanf(ptr, "#%x", &err_mask) != 1) { 
+				} else if (sscanf(ptr, "#%" SCNx32, &err_mask) != 1) {
 					fprintf(stderr, "Error in filter option parsing: '%s'\n", ptr);
 					return 1;
 				}
@@ -634,7 +633,7 @@ int main(int argc, char **argv)
 				/* these settings may be modified by recvmsg() */
 				iov.iov_len = sizeof(frame);
 				msg.msg_namelen = sizeof(addr);
-				msg.msg_controllen = sizeof(ctrlmsg);  
+				msg.msg_controllen = sizeof(ctrlmsg);
 				msg.msg_flags = 0;
 
 				nbytes = recvmsg(s[i], &msg, 0);
@@ -660,7 +659,7 @@ int main(int argc, char **argv)
 
 				if (count && (--count == 0))
 					running = 0;
-		    
+
 				for (cmsg = CMSG_FIRSTHDR(&msg);
 				     cmsg && (cmsg->cmsg_level == SOL_SOCKET);
 				     cmsg = CMSG_NXTHDR(&msg,cmsg)) {
@@ -689,12 +688,12 @@ int main(int argc, char **argv)
 					__u32 frames = dropcnt[i] - last_dropcnt[i];
 
 					if (silent != SILENT_ON)
-						printf("DROPCOUNT: dropped %d CAN frame%s on '%s' socket (total drops %d)\n",
-						       frames, (frames > 1)?"s":"", devname[idx], dropcnt[i]);
+						printf("DROPCOUNT: dropped %" PRId32 " CAN frame%s on '%s' socket (total drops %" PRId32 ")\n",
+						       (uint32_t)frames, (frames > 1)?"s":"", devname[idx], (uint32_t)dropcnt[i]);
 
 					if (log)
-						fprintf(logfile, "DROPCOUNT: dropped %d CAN frame%s on '%s' socket (total drops %d)\n",
-							frames, (frames > 1)?"s":"", devname[idx], dropcnt[i]);
+						fprintf(logfile, "DROPCOUNT: dropped %" PRId32 " CAN frame%s on '%s' socket (total drops %" PRId32 ")\n",
+							(uint32_t)frames, (frames > 1)?"s":"", devname[idx], (uint32_t)dropcnt[i]);
 
 					last_dropcnt[i] = dropcnt[i];
 				}
@@ -708,8 +707,8 @@ int main(int argc, char **argv)
 
 					/* log CAN frame with absolute timestamp & device */
 					sprint_canframe(buf, &frame, 0, maxdlen);
-					fprintf(logfile, "(%010ld.%06ld) %*s %s\n",
-						tv.tv_sec, tv.tv_usec,
+					fprintf(logfile, "(%010ju.%06ld) %*s %s\n",
+						(uintmax_t)tv.tv_sec, tv.tv_usec,
 						max_devname_len, devname[idx], buf);
 				}
 
@@ -718,8 +717,8 @@ int main(int argc, char **argv)
 
 					/* print CAN frame in log file style to stdout */
 					sprint_canframe(buf, &frame, 0, maxdlen);
-					printf("(%010ld.%06ld) %*s %s\n",
-					       tv.tv_sec, tv.tv_usec,
+					printf("(%010ju.%06ld) %*s %s\n",
+					       (uintmax_t)tv.tv_sec, tv.tv_usec,
 					       max_devname_len, devname[idx], buf);
 					goto out_fflush; /* no other output to stdout */
 				}
@@ -731,13 +730,14 @@ int main(int argc, char **argv)
 					}
 					goto out_fflush; /* no other output to stdout */
 				}
-		      
+
 				printf(" %s", (color>2)?col_on[idx%MAXCOL]:"");
 
 				switch (timestamp) {
 
 				case 'a': /* absolute with timestamp */
-					printf("(%010ld.%06ld) ", tv.tv_sec, tv.tv_usec);
+					printf("(%010ju.%06ld) ",
+						   (uintmax_t)tv.tv_sec, tv.tv_usec);
 					break;
 
 				case 'A': /* absolute with date */
@@ -764,8 +764,9 @@ int main(int argc, char **argv)
 						diff.tv_sec--, diff.tv_usec += 1000000;
 					if (diff.tv_sec < 0)
 						diff.tv_sec = diff.tv_usec = 0;
-					printf("(%03ld.%06ld) ", diff.tv_sec, diff.tv_usec);
-				
+					printf("(%03ju.%06ld) ",
+						   (uintmax_t)diff.tv_sec, diff.tv_usec);
+
 					if (timestamp == 'd')
 						last_tv = tv; /* update for delta calculation */
 				}

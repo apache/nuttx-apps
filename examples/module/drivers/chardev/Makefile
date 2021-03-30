@@ -37,9 +37,6 @@ include $(APPDIR)/Make.defs
 
 CMODULEFLAGS += $(KDEFINE)
 
-LDLIBPATH =
-LDLIBS =
-
 ifeq ($(CONFIG_EXAMPLES_MODULE_LIBGCC),y)
 LIBGCC = "${shell $(CC) $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
 ifneq ($(LIBGCC),)

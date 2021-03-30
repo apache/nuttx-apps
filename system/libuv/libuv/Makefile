@@ -21,13 +21,12 @@
 include $(APPDIR)/Make.defs
 
 LIBUV_PATCHS ?= $(sort $(wildcard $(LIBUV_DIR)/000*.patch))
-WGET ?= wget
 UNPACK ?= unzip -q
 
 $(LIBUV_DIR)/$(CONFIG_LIBUV_TARBALL):
 	@echo "Downloading: $(CONFIG_LIBUV_TARBALL)"
-	$(Q) $(WGET) $(CONFIG_LIBUV_URL)/$(CONFIG_LIBUV_TARBALL) \
-		-O $(LIBUV_DIR)/$(CONFIG_LIBUV_TARBALL)
+	$(Q) curl -L $(CONFIG_LIBUV_URL)/$(CONFIG_LIBUV_TARBALL) \
+		-o $(LIBUV_DIR)/$(CONFIG_LIBUV_TARBALL)
 
 $(LIBUV_UNPACKDIR): $(LIBUV_DIR)/$(CONFIG_LIBUV_TARBALL)
 	@echo "Unpacking: $(CONFIG_LIBUV_TARBALL) -> $(LIBUV_UNPACKDIR)"
@@ -84,6 +83,10 @@ endif
 
 ifeq ($(CONFIG_LIBUV_ASYNC),y)
 CSRCS += $(LIBUV_UNPACKDIR)/src/unix/async.c
+endif
+
+ifeq ($(CONFIG_LIBUV_PIPE),y)
+CSRCS += $(LIBUV_UNPACKDIR)/src/unix/pipe.c
 endif
 
 ifeq ($(CONFIG_LIBUV_FS),y)

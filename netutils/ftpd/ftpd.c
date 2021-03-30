@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/n etutils/ftpd.c
+ * apps/netutils/ftpd.c
  *
  *   Copyright (C) 2012, 2015, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -48,6 +48,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -1135,9 +1136,9 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port,
 
   /* Initialize the server instance */
 
-    server->sd   = -1;
-    server->head = NULL;
-    server->tail = NULL;
+  server->sd   = -1;
+  server->head = NULL;
+  server->tail = NULL;
 
   /* Create the server listen socket */
 
@@ -1841,7 +1842,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           seekpos = ftpd_offsatoi(path, session->restartpos);
           if (seekpos < 0)
             {
-              nerr("ERROR: ftpd_offsatoi failed: %d\n", seekpos);
+              nerr("ERROR: ftpd_offsatoi failed: %jd\n", (intmax_t)seekpos);
               errval = -seekpos;
             }
         }
@@ -1850,7 +1851,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           seekpos = session->restartpos;
           if (seekpos < 0)
             {
-              nerr("ERROR: Bad restartpos: %d\n", seekpos);
+              nerr("ERROR: Bad restartpos: %jd\n", (intmax_t)seekpos);
               errval = EINVAL;
             }
         }
@@ -1909,9 +1910,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (cmdtype == 0)
         {
-          /* Read from the file.
-           * Read returns the error condition via errno.
-           */
+          /* Read from the file. */
 
           rdbytes = read(session->fd, session->data.buffer, wantsize);
           if (rdbytes < 0)
@@ -2286,7 +2285,7 @@ static int ftpd_listbuffer(FAR struct ftpd_session_s *session,
       /* size */
 
       offset += snprintf(&buffer[offset], buflen - offset,
-                         " %8u", st->st_size);
+                         " %8ju", (uintmax_t)st->st_size);
 
       /* time */
 
@@ -2383,7 +2382,7 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
   if (!dir)
     {
       int errval = errno;
-      nerr("ERROR: dir() failed\n", errval);
+      nerr("ERROR: opendir() failed: %d\n", errval);
       return -errval;
     }
 
@@ -3190,7 +3189,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
         {
           /* convert ipv6 to ipv4 */
 
-          in_addr in4addr;
+          struct in_addr in4addr;
 
           in4addr.s_addr = session->data.addr.in6.sin6_addr.s6_addr32[3];
 
@@ -3556,10 +3555,10 @@ static int ftpd_command_size(FAR struct ftpd_session_s *session)
           }
         else if (!S_ISREG(st.st_mode))
           {
-            ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                                g_respfmt2, 550, ' ', session->param,
-                                ": not a regular file.");
             ret = -EPERM;
+            ftpd_response(session->cmd.sd, session->txtimeout,
+                          g_respfmt2, 550, ' ', session->param,
+                          ": not a regular file.");
             goto errout_with_abspath;
           }
 
@@ -3672,9 +3671,9 @@ static int ftpd_command_rnto(FAR struct ftpd_session_s *session)
 
   if (!session->renamefrom)
     {
-      return ftpd_response(session->cmd.sd, session->txtimeout,
-                           g_respfmt1, 550, ' ', "RNTO error !");
-      return ret;
+      ftpd_response(session->cmd.sd, session->txtimeout,
+                    g_respfmt1, 550, ' ', "RNTO error !");
+      return -EINVAL;
     }
 
   ret = ftpd_getpath(session, session->param, &abspath, NULL);
@@ -4495,7 +4494,10 @@ void ftpd_close(FTPD_SESSION handle)
   DEBUGASSERT(handle);
 
   server = (struct ftpd_server_s *)handle;
-  ftpd_account_free(server->head);
+  if (server->head != NULL)
+    {
+      ftpd_account_free(server->head);
+    }
 
   if (server->sd >= 0)
     {

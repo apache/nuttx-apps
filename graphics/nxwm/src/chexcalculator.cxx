@@ -673,11 +673,11 @@ void CHexCalculator::updateText(void)
 
   if (m_hexMode)
     {
-      std::snprintf(buffer, 24, "%16llX", m_accum);
+      std::snprintf(buffer, 24, "%16" PRIX64, m_accum);
     }
   else
     {
-      std::snprintf(buffer, 24, "%lld", m_accum);
+      std::snprintf(buffer, 24, "%" PRId64, m_accum);
     }
 
   // setText will perform the redraw as well

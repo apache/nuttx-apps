@@ -129,8 +129,10 @@ typedef CODE int (*webclient_sink_callback_t)(FAR char **buffer, int offset,
  * An implementation of this callback should perform either of
  * the followings:
  *
- * - fill the buffer (specified by buffer and *sizep) with the data
- * - update *datap with a buffer filled with the data
+ * - Fill the buffer (specified by buffer and *sizep) with the data
+ *
+ * - Update *datap with a buffer filled with the data. In this case,
+ *   it can return more than the amount specified *sizep.
  *
  * Either ways, it should update *sizep to the size of the data.
  *
@@ -138,10 +140,17 @@ typedef CODE int (*webclient_sink_callback_t)(FAR char **buffer, int offset,
  * again to provide the remaining data.
  *
  * Input Parameters:
- *   buffer - The buffer to fill.
- *   sizep  - The size of buffer/data in bytes.
- *   datap  - The data to return.
- *   ctx    - The value of webclient_context::body_callback_arg.
+ *   buffer  - The buffer to fill.
+ *   sizep   - The size of buffer/data in bytes.
+ *   datap   - The data to return.
+ *   reqsize - The requested size.
+ *             Note: This can be larger than *sizep.
+ *             The callback can choose either of:
+ *               * return more than *sizep data by updating *datap
+ *                 with a large enough buffer
+ *               * or, just return up to *sizep. (For the rest of data,
+ *                 the callback will be called again later.)
+ *   ctx     - The value of webclient_context::body_callback_arg.
  *
  * Return value:
  *   0 on success.
@@ -152,6 +161,7 @@ typedef CODE int (*webclient_body_callback_t)(
     FAR void *buffer,
     FAR size_t *sizep,
     FAR const void * FAR *datap,
+    size_t reqsize,
     FAR void *ctx);
 
 struct webclient_tls_connection;
@@ -176,18 +186,22 @@ struct webclient_context
 {
   /* request parameters
    *
-   *   method       - HTTP method like "GET", "POST".
-   *                  The default value is "GET".
-   *   url          - A pointer to a string containing the full URL.
-   *                  (e.g., http://www.nutt.org/index.html, or
-   *                   http://192.168.23.1:80/index.html)
-   *   headers      - An array of pointers to the extra headers.
-   *   nheaders     - The number of elements in the "headers" array.
-   *   bodylen      - The size of the request body.
+   *   method           - HTTP method like "GET", "POST".
+   *                      The default value is "GET".
+   *   url              - A pointer to a string containing the full URL.
+   *                      (e.g., http://www.nutt.org/index.html, or
+   *                       http://192.168.23.1:80/index.html)
+   *   unix_socket_path - If not NULL, the path to an AF_LOCAL socket.
+   *   headers          - An array of pointers to the extra headers.
+   *   nheaders         - The number of elements in the "headers" array.
+   *   bodylen          - The size of the request body.
    */
 
   FAR const char *method;
   FAR const char *url;
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+  FAR const char *unix_socket_path;
+#endif
   FAR const char * FAR const *headers;
   unsigned int nheaders;
   size_t bodylen;

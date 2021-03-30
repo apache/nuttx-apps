@@ -57,11 +57,11 @@
 
 #define TEST_MESSAGE        "This is a test and only a test"
 #if defined(SDCC) || defined(__ZILOG__)
-   /* Cannot use strlen in array size */
+  /* Cannot use strlen in array size */
 
 #  define TEST_MSGLEN       (31)
 #else
-   /* Message length is the size of the message plus the null terminator */
+  /* Message length is the size of the message plus the null terminator */
 
 #  define TEST_MSGLEN       (strlen(TEST_MESSAGE)+1)
 #endif
@@ -109,7 +109,7 @@ static void *sender_thread(void *arg)
    * already created it.
    */
 
-  g_send_mqfd = mq_open("mqueue", O_WRONLY|O_CREAT, 0666, &attr);
+  g_send_mqfd = mq_open("mqueue", O_WRONLY | O_CREAT, 0666, &attr);
   if (g_send_mqfd == (mqd_t)-1)
     {
       printf("sender_thread: ERROR mq_open failed\n");
@@ -127,7 +127,8 @@ static void *sender_thread(void *arg)
       status = mq_send(g_send_mqfd, msg_buffer, TEST_MSGLEN, 42);
       if (status < 0)
         {
-          printf("sender_thread: ERROR mq_send failure=%d on msg %d\n", status, i);
+          printf("sender_thread: ERROR mq_send failure=%d on msg %d\n",
+                 status, i);
           nerrors++;
         }
       else
@@ -144,7 +145,7 @@ static void *sender_thread(void *arg)
     }
   else
     {
-      g_send_mqfd = NULL;
+      g_send_mqfd = 0;
     }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
@@ -178,16 +179,16 @@ static void *receiver_thread(void *arg)
    * already created it.
    */
 
-   g_recv_mqfd = mq_open("mqueue", O_RDONLY|O_CREAT, 0666, &attr);
-   if (g_recv_mqfd < 0)
-     {
-       printf("receiver_thread: ERROR mq_open failed\n");
-       pthread_exit((pthread_addr_t)1);
-     }
+  g_recv_mqfd = mq_open("mqueue", O_RDONLY | O_CREAT, 0666, &attr);
+  if (g_recv_mqfd == (mqd_t)-1)
+    {
+      printf("receiver_thread: ERROR mq_open failed\n");
+      pthread_exit((pthread_addr_t)1);
+    }
 
-   /* Perform the receive TEST_RECEIVE_NMSGS times */
+  /* Perform the receive TEST_RECEIVE_NMSGS times */
 
-   for (i = 0; i < TEST_RECEIVE_NMSGS; i++)
+  for (i = 0; i < TEST_RECEIVE_NMSGS; i++)
     {
       memset(msg_buffer, 0xaa, TEST_MSGLEN);
       nbytes = mq_receive(g_recv_mqfd, msg_buffer, TEST_MSGLEN, 0);
@@ -199,7 +200,8 @@ static void *receiver_thread(void *arg)
 
           if (errno != EINTR)
             {
-              printf("receiver_thread: ERROR mq_receive failure on msg %d, errno=%d\n", i, errno);
+              printf("receiver_thread: ERROR mq_receive failure on msg %d, "
+                     "errno=%d\n", i, errno);
               nerrors++;
             }
           else
@@ -209,26 +211,32 @@ static void *receiver_thread(void *arg)
         }
       else if (nbytes != TEST_MSGLEN)
         {
-          printf("receiver_thread: mq_receive return bad size %d on msg %d\n", nbytes, i);
+          printf("receiver_thread: "
+                 "mq_receive return bad size %d on msg %d\n",
+                 nbytes, i);
           nerrors++;
         }
       else if (memcmp(TEST_MESSAGE, msg_buffer, nbytes) != 0)
         {
           int j;
 
-          printf("receiver_thread: mq_receive returned corrupt message on msg %d\n", i);
+          printf("receiver_thread: "
+                 "mq_receive returned corrupt message on msg %d\n", i);
           printf("receiver_thread:                  i  Expected Received\n");
 
-          for (j = 0; j < TEST_MSGLEN-1; j++)
+          for (j = 0; j < TEST_MSGLEN - 1; j++)
             {
               if (isprint(msg_buffer[j]))
                 {
-                 printf("receiver_thread:                  %2d %02x (%c) %02x (%c)\n",
-                         j, TEST_MESSAGE[j], TEST_MESSAGE[j], msg_buffer[j], msg_buffer[j]);
+                 printf("receiver_thread:                  "
+                        "%2d %02x (%c) %02x (%c)\n",
+                         j, TEST_MESSAGE[j], TEST_MESSAGE[j],
+                         msg_buffer[j], msg_buffer[j]);
                 }
               else
                 {
-                  printf("receiver_thread:                  %2d %02x (%c) %02x\n",
+                  printf("receiver_thread:                  "
+                         "%2d %02x (%c) %02x\n",
                          j, TEST_MESSAGE[j], TEST_MESSAGE[j], msg_buffer[j]);
                 }
             }
@@ -251,7 +259,7 @@ static void *receiver_thread(void *arg)
     }
   else
     {
-      g_recv_mqfd = NULL;
+      g_recv_mqfd = 0;
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
@@ -274,8 +282,8 @@ void mqueue_test(void)
 
   /* Reset globals for the beginning of the test */
 
-  g_send_mqfd = NULL;
-  g_recv_mqfd = NULL;
+  g_send_mqfd = 0;
+  g_recv_mqfd = 0;
 
   /* Start the sending thread at higher priority */
 
@@ -283,13 +291,15 @@ void mqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_init failed, status=%d\n", status);
+      printf("mqueue_test: pthread_attr_init failed, status=%d\n",
+             status);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n", status);
+      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+             status);
     }
 
   prio_min = sched_get_priority_min(SCHED_FIFO);
@@ -297,14 +307,16 @@ void mqueue_test(void)
   prio_mid = (prio_min + prio_max) / 2;
 
   sparam.sched_priority = prio_mid;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n", status);
+      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n",
+             status);
     }
   else
     {
-      printf("mqueue_test: Set receiver priority to %d\n", sparam.sched_priority);
+      printf("mqueue_test: Set receiver priority to %d\n",
+             sparam.sched_priority);
     }
 
   status = pthread_create(&receiver, &attr, receiver_thread, NULL);
@@ -330,7 +342,7 @@ void mqueue_test(void)
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
       printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n",
@@ -385,16 +397,17 @@ void mqueue_test(void)
   pthread_join(receiver, &result);
   if (result != expected)
     {
-      printf("mqueue_test: ERROR receiver thread should have exited with %p\n",
+      printf("mqueue_test: "
+             "ERROR receiver thread should have exited with %p\n",
              expected);
       printf("             ERROR Instead exited with nerrors=%d\n",
              (int)((intptr_t)result));
     }
 
   /* Message queues are global resources and persist for the life the
-   * task group.  The message queue opened by the sender_thread must be closed
-   * since the sender pthread may have been canceled and may have left the
-   * message queue open.
+   * task group.  The message queue opened by the sender_thread must be
+   * closed since the sender pthread may have been canceled and may have
+   * left the message queue open.
    */
 
   if (result == PTHREAD_CANCELED && g_recv_mqfd)

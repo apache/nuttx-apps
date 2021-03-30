@@ -1998,8 +1998,8 @@ static void vi_showlinecol(FAR struct vi_s *vi)
   vi_cursoroff(vi);
   vi_setcursor(vi, vi->display.row - 1, vi->display.column - 15);
 
-  len = snprintf(vi->scratch, SCRATCH_BUFSIZE, "%d,%d",
-                 vi->cursor.row + vi->vscroll + 1,
+  len = snprintf(vi->scratch, SCRATCH_BUFSIZE, "%jd,%d",
+                 (uintmax_t)(vi->cursor.row + vi->vscroll + 1),
                  vi->cursor.column + vi->hscroll + 1);
   vi_write(vi, vi->scratch, len);
 

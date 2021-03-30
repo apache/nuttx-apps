@@ -106,12 +106,14 @@ static void adc_devpath(FAR struct adc_state_s *adc, FAR const char *devpath)
 static void adc_help(FAR struct adc_state_s *adc)
 {
   printf("Usage: adc [OPTIONS]\n");
-  printf("\nArguments are \"sticky\".  For example, once the ADC device is\n");
+  printf("\nArguments are \"sticky\".  "
+         "For example, once the ADC device is\n");
   printf("specified, that device will be re-used until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the ADC device.  "
          "Default: %s Current: %s\n",
-         CONFIG_EXAMPLES_ADC_DEVPATH, g_adcstate.devpath ? g_adcstate.devpath : "NONE");
+         CONFIG_EXAMPLES_ADC_DEVPATH,
+         g_adcstate.devpath ? g_adcstate.devpath : "NONE");
   printf("  [-n count] selects the samples to collect.  "
          "Default: 1 Current: %d\n", adc->count);
   printf("  [-h] shows this message and exits\n");
@@ -155,7 +157,8 @@ static int arg_decimal(FAR char **arg, FAR long *value)
  * Name: parse_args
  ****************************************************************************/
 
-static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
+static void parse_args(FAR struct adc_state_s *adc, int argc,
+                       FAR char **argv)
 {
   FAR char *ptr;
   FAR char *str;
@@ -228,8 +231,8 @@ int main(int argc, FAR char *argv[])
 
   if (!g_adcstate.initialized)
     {
-      /* Initialization of the ADC hardware must be performed by board-specific
-       * logic prior to running this test.
+      /* Initialization of the ADC hardware must be performed by
+       * board-specific logic prior to running this test.
        */
 
       /* Set the default values */
@@ -268,76 +271,77 @@ int main(int argc, FAR char *argv[])
    * ADC samples.
    */
 
-  for (;;)
-  {
-    /* Flush any output before the loop entered or from the previous pass
-     * through the loop.
-     */
+  for (; ; )
+    {
+      /* Flush any output before the loop entered or from the previous pass
+       * through the loop.
+       */
 
-    fflush(stdout);
+      fflush(stdout);
 
 #ifdef CONFIG_EXAMPLES_ADC_SWTRIG
-    /* Issue the software trigger to start ADC conversion */
+      /* Issue the software trigger to start ADC conversion */
 
-    ret = ioctl(fd, ANIOC_TRIGGER, 0);
-    if (ret < 0)
-      {
-        int errcode = errno;
-        printf("adc_main: ANIOC_TRIGGER ioctl failed: %d\n", errcode);
-      }
+      ret = ioctl(fd, ANIOC_TRIGGER, 0);
+      if (ret < 0)
+        {
+          int errcode = errno;
+          printf("adc_main: ANIOC_TRIGGER ioctl failed: %d\n", errcode);
+        }
 #endif
 
-    /* Read up to CONFIG_EXAMPLES_ADC_GROUPSIZE samples */
+      /* Read up to CONFIG_EXAMPLES_ADC_GROUPSIZE samples */
 
-    readsize = CONFIG_EXAMPLES_ADC_GROUPSIZE * sizeof(struct adc_msg_s);
-    nbytes = read(fd, sample, readsize);
+      readsize = CONFIG_EXAMPLES_ADC_GROUPSIZE * sizeof(struct adc_msg_s);
+      nbytes = read(fd, sample, readsize);
 
-    /* Handle unexpected return values */
+      /* Handle unexpected return values */
 
-    if (nbytes < 0)
-      {
-        errval = errno;
-        if (errval != EINTR)
-          {
-            printf("adc_main: read %s failed: %d\n",
-                   g_adcstate.devpath, errval);
-            errval = 3;
-            goto errout_with_dev;
-          }
+      if (nbytes < 0)
+        {
+          errval = errno;
+          if (errval != EINTR)
+            {
+              printf("adc_main: read %s failed: %d\n",
+                     g_adcstate.devpath, errval);
+              errval = 3;
+              goto errout_with_dev;
+            }
 
-        printf("adc_main: Interrupted read...\n");
-      }
-    else if (nbytes == 0)
-      {
-        printf("adc_main: No data read, Ignoring\n");
-      }
+          printf("adc_main: Interrupted read...\n");
+        }
+      else if (nbytes == 0)
+        {
+          printf("adc_main: No data read, Ignoring\n");
+        }
 
-    /* Print the sample data on successful return */
+      /* Print the sample data on successful return */
 
-    else
-      {
-        int nsamples = nbytes / sizeof(struct adc_msg_s);
-        if (nsamples * sizeof(struct adc_msg_s) != nbytes)
-          {
-            printf("adc_main: read size=%ld is not a multiple of sample size=%d, Ignoring\n",
-                   (long)nbytes, sizeof(struct adc_msg_s));
-          }
-        else
-          {
-            printf("Sample:\n");
-            for (i = 0; i < nsamples; i++)
-              {
-                printf("%d: channel: %d value: %d\n",
-                       i+1, sample[i].am_channel, sample[i].am_data);
-              }
-          }
-      }
+      else
+        {
+          int nsamples = nbytes / sizeof(struct adc_msg_s);
+          if (nsamples * sizeof(struct adc_msg_s) != nbytes)
+            {
+              printf("adc_main: read size=%ld is not a multiple of "
+                     "sample size=%d, Ignoring\n",
+                     (long)nbytes, sizeof(struct adc_msg_s));
+            }
+          else
+            {
+              printf("Sample:\n");
+              for (i = 0; i < nsamples; i++)
+                {
+                  printf("%d: channel: %d value: %" PRId32 "\n",
+                         i + 1, sample[i].am_channel, sample[i].am_data);
+                }
+            }
+        }
 
-    if (g_adcstate.count && --g_adcstate.count <= 0)
-      {
-        break;
-      }
-  }
+      if (g_adcstate.count && --g_adcstate.count <= 0)
+        {
+          break;
+        }
+    }
 
   close(fd);
   return OK;

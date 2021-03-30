@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/unionfs/unionfs_main.c
+ * apps/examples/unionfs/unionfs_main.c
  *
  *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -68,10 +68,6 @@
 #  error "Mountpoint support is disabled"
 #endif
 
-#if CONFIG_NFILE_DESCRIPTORS < 4
-#  error "Not enough file descriptors"
-#endif
-
 #ifndef CONFIG_FS_ROMFS
 #  error "ROMFS support not enabled"
 #endif
@@ -131,7 +127,7 @@
 
 int main(int argc, FAR char *argv[])
 {
-   int  ret;
+  int ret;
 
   /* Create a RAM disk for file system 1 */
 

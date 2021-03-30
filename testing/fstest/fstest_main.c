@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/fstest/fstest_main.c
+ * apps/testing/fstest/fstest_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <crc32.h>
 #include <debug.h>
+#include <assert.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -200,8 +201,11 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
   int i;
 
   dirlen   = strlen(g_mountdir);
-  maxname  = CONFIG_TESTING_FSTEST_MAXNAME - dirlen;
-  namelen  = (rand() % maxname) + 1;
+
+  /* Force the max filename lengh and also the min name len = 4 */
+
+  maxname  = CONFIG_TESTING_FSTEST_MAXNAME - dirlen - 3;
+  namelen  = (rand() % maxname) + 4;
   alloclen = namelen + dirlen;
 
   file->name = (FAR char *)malloc(alloclen + 1);
@@ -386,7 +390,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for writing: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %zd\n", file->len);
         }
 
       fstest_freefile(file);
@@ -427,7 +431,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
             {
               printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
-              printf("  File size:    %d\n", file->len);
+              printf("  File size:    %zd\n", file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
             }
@@ -455,7 +459,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
         {
           printf("ERROR: Partial write:\n");
           printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
+          printf("  File size:    %zd\n", file->len);
           printf("  Write offset: %ld\n", (long)offset);
           printf("  Write size:   %ld\n", (long)nbytestowrite);
           printf("  Written:      %ld\n", (long)nbyteswritten);
@@ -541,7 +545,7 @@ static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
             {
               printf("ERROR: Failed to read file: %d\n", errno);
               printf("  File name:    %s\n", file->name);
-              printf("  File size:    %d\n", file->len);
+              printf("  File size:    %zd\n", file->len);
               printf("  Read offset:  %ld\n", (long)offset);
               printf("  Read size:    %ld\n", (long)len);
               return ERROR;
@@ -552,7 +556,7 @@ static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
 #if 0 /* No... we do this on purpose sometimes */
           printf("ERROR: Unexpected end-of-file:\n");
           printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
+          printf("  File size:    %zd\n", file->len);
           printf("  Read offset:  %ld\n", (long)offset);
           printf("  Read size:    %ld\n", (long)len);
 #endif
@@ -562,7 +566,7 @@ static ssize_t fstest_rdblock(int fd, FAR struct fstest_filedesc_s *file,
         {
           printf("ERROR: Partial read:\n");
           printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
+          printf("  File size:    %zd\n", file->len);
           printf("  Read offset:  %ld\n", (long)offset);
           printf("  Read size:    %ld\n", (long)len);
           printf("  Bytes read:   %ld\n", (long)nbytesread);
@@ -592,7 +596,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for reading: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %zd\n", file->len);
         }
 
       return ERROR;
@@ -620,9 +624,9 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("ERROR: Bad CRC: %" PRId32 " vs %" PRId32 "\n", crc, file->crc);
       printf("  File name: %s\n", file->name);
-      printf("  File size: %d\n", file->len);
+      printf("  File size: %zd\n", file->len);
       close(fd);
       return ERROR;
     }
@@ -634,7 +638,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
     {
       printf("ERROR: Read past the end of file\n");
       printf("  File name:  %s\n", file->name);
-      printf("  File size:  %d\n", file->len);
+      printf("  File size:  %zd\n", file->len);
       printf("  Bytes read: %ld\n", (long)nbytesread);
       close(fd);
       return ERROR;
@@ -723,7 +727,7 @@ static int fstest_verifyfs(void)
                 {
                   printf("ERROR: Failed to read a file: %d\n", i);
                   printf("  File name: %s\n", file->name);
-                  printf("  File size: %d\n", file->len);
+                  printf("  File size: %zd\n", file->len);
                   return ERROR;
                 }
             }
@@ -734,7 +738,7 @@ static int fstest_verifyfs(void)
 #if CONFIG_TESTING_FSTEST_VERBOSE != 0
                   printf("ERROR: Successfully read a deleted file\n");
                   printf("  File name: %s\n", file->name);
-                  printf("  File size: %d\n", file->len);
+                  printf("  File size: %zd\n", file->len);
 #endif
                   fstest_freefile(file);
                   g_ndeleted--;
@@ -807,7 +811,7 @@ static int fstest_delfiles(void)
                 {
                   printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                   printf("  File name:  %s\n", file->name);
-                  printf("  File size:  %d\n", file->len);
+                  printf("  File size:  %zd\n", file->len);
                   printf("  File index: %d\n", j);
 
                   /* If we don't do this we can get stuck in an infinite
@@ -859,7 +863,7 @@ static int fstest_delallfiles(void)
             {
                printf("ERROR: Unlink %d failed: %d\n", i + 1, errno);
                printf("  File name:  %s\n", file->name);
-               printf("  File size:  %d\n", file->len);
+               printf("  File size:  %zd\n", file->len);
                printf("  File index: %d\n", i);
             }
           else

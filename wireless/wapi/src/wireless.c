@@ -4,7 +4,7 @@
  *   Copyright (C) 2011, 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted for Nuttx from WAPI:
+ * Adapted for NuttX from WAPI:
  *
  *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *   All rights reserved.
@@ -740,7 +740,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
   wrq.u.essid.pointer = buf;
   wrq.u.essid.length =
     snprintf(buf, ((WAPI_ESSID_MAX_SIZE + 1) * sizeof(char)), "%s", essid);
-  wrq.u.essid.flags = (flag == WAPI_ESSID_ON);
+  wrq.u.essid.flags = flag;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
   ret = ioctl(sock, SIOCSIWESSID, (unsigned long)((uintptr_t)&wrq));
@@ -1392,3 +1392,70 @@ void wapi_scan_coll_free(FAR struct wapi_list_s *list)
       info = temp;
     }
 }
+
+/****************************************************************************
+ * Name: wapi_set_country
+ *
+ * Description:
+ *    Set the country code
+ *
+ ****************************************************************************/
+
+int wapi_set_country(int sock, FAR const char *ifname,
+                     FAR const char *country)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  /* Prepare request. */
+
+  wrq.u.data.pointer = (FAR void *)country;
+  wrq.u.data.length = 2;
+
+  strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCSIWCOUNTRY, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWCOUNTRY, errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_get_sensitivity
+ *
+ * Description:
+ *    Get the wlan Sensitivity
+ *
+ ****************************************************************************/
+
+int wapi_get_sensitivity(int sock, FAR const char *ifname, FAR int *sense)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCGIWSENS, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWSENS, errcode);
+      ret = -errcode;
+    }
+  else
+    {
+      *sense = -wrq.u.sens.value;
+    }
+
+  return ret;
+}
+

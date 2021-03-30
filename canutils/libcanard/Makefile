@@ -35,7 +35,6 @@
 
 include $(APPDIR)/Make.defs
 
-WGET = wget
 UNPACK = unzip
 PACKEXT = .zip
 
@@ -55,7 +54,7 @@ CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c $(LIBCANARD_DRVDIR)$(DELIM)canard_nu
 
 $(LIBCANARD_PACKNAME):
 	@echo "Downloading: $@"
-	$(Q) $(WGET) -O $@ $(LIBCANARD_URL)$(DELIM)$(LIBCANARD_VERSION)$(PACKEXT)
+	$(Q) curl -o $@ -L $(LIBCANARD_URL)$(DELIM)$(LIBCANARD_VERSION)$(PACKEXT)
 
 $(LIBCANARD_UNPACKNAME): $(LIBCANARD_PACKNAME)
 	@echo "Unpacking: $< -> $@"

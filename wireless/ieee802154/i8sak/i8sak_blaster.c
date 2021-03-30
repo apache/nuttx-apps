@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +39,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -133,7 +133,8 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
 
           case 'f': /* Inline change blaster frame */
-            i8sak->payload_len = i8sak_str2payload(optarg, &i8sak->payload[0]);
+            i8sak->payload_len = i8sak_str2payload(optarg,
+                                                   &i8sak->payload[0]);
             i8sak_blaster_start(i8sak);
             break;
 
@@ -172,7 +173,7 @@ pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
 #ifdef CONFIG_NET_6LOWPAN
   if (i8sak->mode == I8SAK_MODE_NETIF)
     {
-      if (bind(i8sak->fd, (struct sockaddr*)&i8sak->ep_in6addr,
+      if (bind(i8sak->fd, (struct sockaddr *)&i8sak->ep_in6addr,
                sizeof(struct sockaddr_in6)) < 0)
         {
           fprintf(stderr, "ERROR: failure to bind sock: %d\n", errno);
@@ -183,7 +184,7 @@ pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
 
   while (i8sak->blasterenabled)
     {
-      usleep(i8sak->blasterperiod*1000);
+      usleep(i8sak->blasterperiod * 1000);
 
       if (i8sak->mode == I8SAK_MODE_CHAR)
         {
@@ -198,7 +199,8 @@ pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
           tx.meta.ranging = IEEE802154_NON_RANGING;
 
           tx.meta.srcmode = i8sak->addrmode;
-          memcpy(&tx.meta.destaddr, &i8sak->ep_addr, sizeof(struct ieee802154_addr_s));
+          memcpy(&tx.meta.destaddr, &i8sak->ep_addr,
+                 sizeof(struct ieee802154_addr_s));
 
           /* Each byte is represented by 2 chars */
 
@@ -211,7 +213,8 @@ pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
       else if (i8sak->mode == I8SAK_MODE_NETIF)
         {
           sendto(i8sak->fd, i8sak->payload, i8sak->payload_len, 0,
-                 (struct sockaddr*)&i8sak->ep_in6addr, sizeof(struct sockaddr_in6));
+                 (struct sockaddr *)&i8sak->ep_in6addr,
+                 sizeof(struct sockaddr_in6));
         }
 #endif
     }

@@ -20,22 +20,39 @@
 
 include $(APPDIR)/Make.defs
 
-QUICKJS_VERSION  = 20200705
+QUICKJS_VERSION  = 2020-11-08
 QUICKJS_UNPACK   = quickjs
-QUICKJS_TARBALL  = $(QUICKJS_VERSION).tar.gz
-QUICKJS_URL_BASE = https://github.com/horhof/quickjs/archive
+QUICKJS_TARBALL  = quickjs-$(QUICKJS_VERSION).tar.xz
+QUICKJS_URL_BASE = https://bellard.org/quickjs/
 QUICKJS_URL      = $(QUICKJS_URL_BASE)/$(QUICKJS_TARBALL)
 
-CSRCS = quickjs.c libregexp.c jscompress.c libbf.c libunicode.c
-CSRCS += cutils.c quickjs-libc.c repl.c
+CSRCS = quickjs.c libregexp.c libbf.c libunicode.c cutils.c
 
+ifeq ($(CONFIG_INTERPRETERS_QUICKJS_MINI),y)
+MAINSRC = qjsmini.c
+else
+CSRCS += quickjs-libc.c repl.c
 MAINSRC = qjs.c
+endif
 
-VERSION=\"$(shell cat $(QUICKJS_UNPACK)/VERSION)\"
+VERSION=\"$(QUICKJS_VERSION)\"
 
-CFLAGS += -DCONFIG_VERSION=$(VERSION) -Wno-shadow -D__NuttX__
+CFLAGS += -DCONFIG_VERSION=$(VERSION) -Wno-shadow
 CFLAGS += -Wno-array-bounds -I$(QUICKJS_UNPACK)
-ifneq ($(CONFIG_INTERPRETERS_QUICKJS_BIGNUM),)
+CFLAGS += -D__linux__ -include alloca.h
+CFLAGS += -Wno-incompatible-pointer-types
+CFLAGS += -Wno-implicit-function-declaration
+CFLAGS += -Wno-unused-function
+CFLAGS += -Wno-format
+
+ifeq ($(CONFIG_ARCH_ARM),y)
+CFLAGS += -DFE_TONEAREST=0x00000000
+CFLAGS += -DFE_UPWARD=0x00400000
+CFLAGS += -DFE_DOWNWARD=0x00800000
+CFLAGS += -DFE_TOWARDZERO=0x00c00000
+endif
+
+ifeq ($(CONFIG_INTERPRETERS_QUICKJS_BIGNUM),y)
 CFLAGS += -DCONFIG_BIGNUM
 CSRCS  += qjscalc.c
 endif
@@ -49,20 +66,22 @@ MODULE    = $(CONFIG_INTERPRETERS_QUICKJS)
 
 $(QUICKJS_TARBALL):
 	$(Q) echo "Downloading $(QUICKJS_TARBALL)"
-	$(Q) wget $(QUICKJS_URL)
+	$(Q) curl -O -L $(QUICKJS_URL)
 
 $(QUICKJS_UNPACK): $(QUICKJS_TARBALL)
 	$(Q) echo "Unpacking $(QUICKJS_TARBALL) to $(QUICKJS_UNPACK)"
-	$(Q) tar xzvf $(QUICKJS_TARBALL)
+	$(Q) tar -Jxf $(QUICKJS_TARBALL)
 	$(Q) mv quickjs-$(QUICKJS_VERSION) $(QUICKJS_UNPACK)
-	$(Q) patch -p0 < quickjs.patch
+	$(Q) patch -d $(QUICKJS_UNPACK) -p1 < 0001-Disabled-unsupported-feature-on-NuttX.patch
 
 $(QUICKJS_UNPACK)/.patch: $(QUICKJS_UNPACK)
-	$(Q) make -C $(QUICKJS_UNPACK) \
-		CONFIG_BIGNUM=$(CONFIG_INTERPRETERS_QUICKJS_BIGNUM)
 	$(Q) touch $(QUICKJS_UNPACK)/.patch
 
-context:: $(QUICKJS_UNPACK)/.patch
+build_host: $(QUICKJS_UNPACK)/.patch
+	make -C $(QUICKJS_UNPACK) \
+		CONFIG_BIGNUM=$(CONFIG_INTERPRETERS_QUICKJS_BIGNUM)
+
+context:: build_host
 
 clean::
 	$(Q) test ! -d $(QUICKJS_UNPACK) || make -C $(QUICKJS_UNPACK) clean

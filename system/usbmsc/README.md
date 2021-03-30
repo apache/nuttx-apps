@@ -38,11 +38,11 @@ Configuration options:
 - `CONFIG_SYSTEM_USBMSC_DEVPATH1` – The full path to the registered block
   driver. Default is `/dev/mmcsd0`
 
-- `CONFIG_SYSTEM_USBMSC_DEVMINOR2` and `CONFIG_SYSTEM_USBMSC_DEVPATH2`  
+- `CONFIG_SYSTEM_USBMSC_DEVMINOR2` and `CONFIG_SYSTEM_USBMSC_DEVPATH2`
   Similar parameters that would have to be provided if
   `CONFIG_SYSTEM_USBMSC_NLUNS` is `2` or `3`. No defaults.
 
-- `CONFIG_SYSTEM_USBMSC_DEVMINOR3` and `CONFIG_SYSTEM_USBMSC_DEVPATH3`  
+- `CONFIG_SYSTEM_USBMSC_DEVMINOR3` and `CONFIG_SYSTEM_USBMSC_DEVPATH3`
   Similar parameters that would have to be provided if
   `CONFIG_SYSTEM_USBMSC_NLUNS` is `3`. No defaults.
 

@@ -135,8 +135,8 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
 
   if (oldset != allsigs)
     {
-      printf("wakeup_action: ERROR sigprocmask=%x expected=%x\n",
-              oldset, allsigs);
+      printf("wakeup_action: ERROR sigprocmask=%jx expected=%jx\n",
+             (uintmax_t)oldset, (uintmax_t)allsigs);
     }
 }
 
@@ -173,8 +173,9 @@ static int waiter_main(int argc, char *argv[])
     }
 
 #ifndef SDCC
-  printf("waiter_main: oact.sigaction=%p oact.sa_flags=%x oact.sa_mask=%x\n",
-          oact.sa_sigaction, oact.sa_flags, oact.sa_mask);
+  printf("waiter_main: oact.sigaction=%p oact.sa_flags=%x "
+         "oact.sa_mask=%jx\n",
+          oact.sa_sigaction, oact.sa_flags, (uintmax_t)oact.sa_mask);
 #endif
 
   /* Take the semaphore */

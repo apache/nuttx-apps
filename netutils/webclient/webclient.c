@@ -67,6 +67,9 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+#include <sys/un.h>
+#endif
 
 #include <nuttx/version.h>
 
@@ -293,9 +296,11 @@ static void conn_close(struct webclient_context *ctx, struct conn *conn)
 static int webclient_static_body_func(FAR void *buffer,
                                       FAR size_t *sizep,
                                       FAR const void * FAR *datap,
+                                      size_t reqsize,
                                       FAR void *ctx)
 {
   *datap = ctx;
+  *sizep = reqsize;
   return 0;
 }
 
@@ -427,7 +432,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
             }
           else
             {
-              return - ECONNABORTED;
+              return -ECONNABORTED;
             }
 
           /* We're done parsing the status line, so start parsing
@@ -647,7 +652,6 @@ static int wget_gethostip(FAR char *hostname, FAR struct in_addr *dest)
 
 int webclient_perform(FAR struct webclient_context *ctx)
 {
-  struct sockaddr_in server;
   struct wget_s *ws;
   struct timeval tv;
   bool redirected;
@@ -720,15 +724,70 @@ int webclient_perform(FAR struct webclient_context *ctx)
         {
           char port_str[sizeof("65535")];
 
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+          if (ctx->unix_socket_path != NULL)
+            {
+              nerr("ERROR: TLS on AF_LOCAL socket is not implemented\n");
+              free(ws);
+              return -ENOTSUP;
+            }
+#endif
+
           snprintf(port_str, sizeof(port_str), "%u", ws->port);
           ret = tls_ops->connect(tls_ctx, ws->hostname, port_str,
                                  CONFIG_WEBCLIENT_TIMEOUT, &conn.tls_conn);
         }
       else
         {
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+          struct sockaddr_un server_un;
+#endif
+          struct sockaddr_in server_in;
+          int domain;
+          const struct sockaddr *server_address;
+          socklen_t server_address_len;
+
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+          if (ctx->unix_socket_path != NULL)
+            {
+              domain = PF_LOCAL;
+
+              memset(&server_un, 0, sizeof(server_un));
+              server_un.sun_family = AF_LOCAL;
+              strncpy(server_un.sun_path, ctx->unix_socket_path,
+                      sizeof(server_un.sun_path));
+#if !defined(__NuttX__) && !defined(__linux__)
+              server_un.sun_len = SUN_LEN(&server_un);
+#endif
+              server_address = (const struct sockaddr *)&server_un;
+              server_address_len = sizeof(server_un);
+            }
+          else
+#endif
+            {
+              domain = PF_INET;
+
+              /* Get the server address from the host name */
+
+              server_in.sin_family = AF_INET;
+              server_in.sin_port   = htons(ws->port);
+              ret = wget_gethostip(ws->hostname, &server_in.sin_addr);
+              if (ret < 0)
+                {
+                  /* Could not resolve host (or malformed IP address) */
+
+                  nwarn("WARNING: Failed to resolve hostname\n");
+                  free(ws);
+                  return -EHOSTUNREACH;
+                }
+
+              server_address = (const struct sockaddr *)&server_in;
+              server_address_len = sizeof(struct sockaddr_in);
+            }
+
           /* Create a socket */
 
-          conn.sockfd = socket(AF_INET, SOCK_STREAM, 0);
+          conn.sockfd = socket(domain, SOCK_STREAM, 0);
           if (conn.sockfd < 0)
             {
               /* socket failed.  It will set the errno appropriately */
@@ -748,27 +807,12 @@ int webclient_perform(FAR struct webclient_context *ctx)
           setsockopt(conn.sockfd, SOL_SOCKET, SO_SNDTIMEO,
                      (FAR const void *)&tv, sizeof(struct timeval));
 
-          /* Get the server address from the host name */
-
-          server.sin_family = AF_INET;
-          server.sin_port   = htons(ws->port);
-          ret = wget_gethostip(ws->hostname, &server.sin_addr);
-          if (ret < 0)
-            {
-              /* Could not resolve host (or malformed IP address) */
-
-              nwarn("WARNING: Failed to resolve hostname\n");
-              ret = -EHOSTUNREACH;
-              goto errout_with_errno;
-            }
-
           /* Connect to server.  First we have to set some fields in the
            * 'server' address structure.  The system will assign me an
            * arbitrary local port that is not in use.
            */
 
-          ret = connect(conn.sockfd, (struct sockaddr *)&server,
-                        sizeof(struct sockaddr_in));
+          ret = connect(conn.sockfd, server_address, server_address_len);
           if (ret == -1)
             {
               ret = -errno;
@@ -851,6 +895,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               ret = ctx->body_callback(ws->buffer,
                                        &input_buffer_size,
                                        &input_buffer,
+                                       todo,
                                        ctx->body_callback_arg);
               if (ret < 0)
                 {
@@ -893,6 +938,13 @@ int webclient_perform(FAR struct webclient_context *ctx)
             }
           else if (ws->datend == 0)
             {
+              if (ws->state != WEBCLIENT_STATE_DATA)
+                {
+                  nerr("Connection lost unexpectedly\n");
+                  ret = -ECONNABORTED;
+                  goto errout_with_errno;
+                }
+
               ninfo("Connection lost\n");
               break;
             }
@@ -930,7 +982,11 @@ int webclient_perform(FAR struct webclient_context *ctx)
                    * received file.
                    */
 
-                  if (ctx->sink_callback)
+                  if (ws->offset == ws->datend)
+                    {
+                      /* We don't have data to give to the client yet. */
+                    }
+                  else if (ctx->sink_callback)
                     {
                       ret = ctx->sink_callback(&ws->buffer, ws->offset,
                                                ws->datend, &ws->buflen,

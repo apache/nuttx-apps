@@ -84,12 +84,25 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   fd = open(filepath, O_RDONLY);
   if (fd < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
+#if defined(CONFIG_NSH_PROC_MOUNTPOINT)
+      if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
+                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+        {
+          nsh_error(vtbl,
+                    "nsh: %s: Could not open %s (is procfs mounted?): %d\n",
+                    cmd, filepath, NSH_ERRNO);
+        }
+      else
+#endif
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
+        }
+
       return ERROR;
     }
 
   buffer = (FAR char *)malloc(IOBUFFERSIZE);
-  if(buffer == NULL)
+  if (buffer == NULL)
     {
       close(fd);
       nsh_error(vtbl, g_fmtcmdfailed, cmd, "malloc", NSH_ERRNO);
@@ -98,7 +111,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   /* And just dump it byte for byte into stdout */
 
-  for (;;)
+  for (; ; )
     {
       int nbytesread = read(fd, buffer, IOBUFFERSIZE);
 
@@ -116,7 +129,8 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
             }
           else
             {
-              nsh_error(vtbl, g_fmtcmdfailed, cmd, "read", NSH_ERRNO_OF(errval));
+              nsh_error(vtbl, g_fmtcmdfailed, cmd, "read",
+                        NSH_ERRNO_OF(errval));
             }
 
           ret = ERROR;
@@ -131,7 +145,8 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           while (nbyteswritten < nbytesread)
             {
-              ssize_t n = nsh_write(vtbl, buffer + nbyteswritten, nbytesread - nbyteswritten);
+              ssize_t n = nsh_write(vtbl, buffer + nbyteswritten,
+                                    nbytesread - nbyteswritten);
               if (n < 0)
                 {
                   int errcode = errno;
@@ -166,18 +181,18 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         }
     }
 
-   /* NOTE that the following NSH prompt may appear on the same line as file
-    * content.  The IEEE Std requires that "The standard output shall
-    * contain the sequence of bytes read from the input files. Nothing else
-    * shall be written to the standard output." Reference:
-    * https://pubs.opengroup.org/onlinepubs/009695399/utilities/cat.html.
-    */
+  /* NOTE that the following NSH prompt may appear on the same line as file
+   * content.  The IEEE Std requires that "The standard output shall
+   * contain the sequence of bytes read from the input files. Nothing else
+   * shall be written to the standard output." Reference:
+   * https://pubs.opengroup.org/onlinepubs/009695399/utilities/cat.html.
+   */
 
-   /* Close the input file and return the result */
+  /* Close the input file and return the result */
 
-   close(fd);
-   free(buffer);
-   return ret;
+  close(fd);
+  free(buffer);
+  return ret;
 }
 #endif
 
@@ -319,7 +334,20 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* Failed to open the directory */
 
-      nsh_error(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
+#if defined(CONFIG_NSH_PROC_MOUNTPOINT)
+      if (strncmp(dirpath, CONFIG_NSH_PROC_MOUNTPOINT,
+                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+        {
+          nsh_error(vtbl,
+                    "nsh: %s: Could not open %s (is procfs mounted?): %d\n",
+                    cmd, dirpath, NSH_ERRNO);
+        }
+      else
+#endif
+        {
+          nsh_error(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
+        }
+
       return ERROR;
     }
 

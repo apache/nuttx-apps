@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +39,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -62,7 +62,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
+static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                       FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -186,9 +187,9 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
   else
     {
-      /* We cannot send a frame as direct if we are the PAN coordinator. Maybe
-       * this should be the hook for sending payload in beacon? But for now,
-       * let's just throw an error.
+      /* We cannot send a frame as direct if we are the PAN coordinator.
+       * Maybe this should be the hook for sending payload in beacon? But
+       * for now, let's just throw an error.
        */
 
       if (devmode == IEEE802154_DEVMODE_PANCOORD)
@@ -203,7 +204,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   i8sak_requestdaemon(i8sak);
 
-  /* Register new oneshot callback for receiving the association notifications */
+  /* Register new callback for receiving the association notifications */
 
   memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
   eventfilter.confevents.data = true;
@@ -243,7 +244,8 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       tx.meta.ranging = IEEE802154_NON_RANGING;
 
       tx.meta.srcmode = i8sak->addrmode;
-      memcpy(&tx.meta.destaddr, &i8sak->ep_addr, sizeof(struct ieee802154_addr_s));
+      memcpy(&tx.meta.destaddr, &i8sak->ep_addr,
+             sizeof(struct ieee802154_addr_s));
 
       /* Each byte is represented by 2 chars */
 
@@ -261,15 +263,14 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       addr.sin6_port       = HTONS(0);
       memset(addr.sin6_addr.s6_addr, 0, sizeof(struct in6_addr));
 
-      if (bind(i8sak->fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in6)) < 0)
+      ret = bind(i8sak->fd, (struct sockaddr *)&addr,
+                 sizeof(struct sockaddr_in6));
+      if (ret >= 0)
         {
-          fprintf(stderr, "ERROR: failure to bind sock: %d\n", errno);
-          close(fd);
-          i8sak_cmd_error(i8sak);
+          ret = sendto(fd, i8sak->payload, i8sak->payload_len, 0,
+                      (struct sockaddr *)&i8sak->ep_in6addr,
+                      sizeof(struct sockaddr_in6));
         }
-
-      ret = sendto(fd, i8sak->payload, i8sak->payload_len, 0,
-                   (struct sockaddr*)&i8sak->ep_in6addr, sizeof(struct sockaddr_in6));
     }
 #endif
 
@@ -283,7 +284,8 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   close(fd);
 }
 
-static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
+static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                       FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
 

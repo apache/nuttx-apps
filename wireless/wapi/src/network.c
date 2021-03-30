@@ -4,16 +4,17 @@
  *   Copyright (C) 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted for Nuttx from WAPI:
+ * Adapted for NuttX from WAPI:
  *
  *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  - Redistributions of  source code must  retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ *  - Redistributions of  source code must  retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
  *
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of  conditions and the  following disclaimer in the
@@ -177,7 +178,8 @@ int wapi_get_ifup(int sock, FAR const char *ifname, FAR int *is_up)
   WAPI_VALIDATE_PTR(is_up);
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
+  ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr));
+  if (ret >= 0)
     {
       *is_up = (ifr.ifr_flags & IFF_UP) == IFF_UP;
     }
@@ -205,7 +207,8 @@ int wapi_set_ifup(int sock, FAR const char *ifname)
   int ret;
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
+  ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr));
+  if (ret >= 0)
     {
       ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
       ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));
@@ -240,7 +243,8 @@ int wapi_set_ifdown(int sock, FAR const char *ifname)
   int ret;
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
+  ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr));
+  if (ret >= 0)
     {
       ifr.ifr_flags &= ~IFF_UP;
       ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));

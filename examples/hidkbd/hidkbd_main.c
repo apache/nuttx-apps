@@ -54,13 +54,8 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
-
-/* Sanity checking */
-
-#ifndef CONFIG_USBHOST
-#  error "CONFIG_USBHOST is not defined"
-#endif
 
 #ifdef CONFIG_USBHOST_INT_DISABLE
 #  error "Interrupt endpoints are disabled (CONFIG_USBHOST_INT_DISABLE)"
@@ -104,7 +99,8 @@ struct hidbkd_instream_s
 #ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
 static int hidkbd_getstream(FAR struct lib_instream_s *this)
 {
-  FAR struct hidbkd_instream_s *kbdstream = (FAR struct hidbkd_instream_s *)this;
+  FAR struct hidbkd_instream_s *kbdstream = \
+    (FAR struct hidbkd_instream_s *)this;
 
   DEBUGASSERT(kbdstream && kbdstream->buffer);
   if (kbdstream->nbytes > 0)
@@ -147,7 +143,7 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
    * might be true if the read buffer were small or the data rates high.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* Decode the next thing from the buffer */
 
@@ -206,7 +202,7 @@ int main(int argc, FAR char *argv[])
    * keyboard test.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* Open the keyboard device.  Loop until the device is successfully
        * opened.
@@ -248,7 +244,8 @@ int main(int argc, FAR char *argv[])
         }
       while (nbytes > 0);
 
-      printf("Closing device %s: %d\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME, (int)nbytes);
+      printf("Closing device %s: %d\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME,
+             (int)nbytes);
       fflush(stdout);
       close(fd);
     }

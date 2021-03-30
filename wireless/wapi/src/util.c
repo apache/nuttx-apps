@@ -4,7 +4,7 @@
  *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted for Nuttx from WAPI:
+ * Adapted for NuttX from WAPI:
  *
  *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *   All rights reserved.
@@ -307,6 +307,7 @@ FAR void *wapi_load_config(FAR const char *ifname,
                            FAR const char *confname,
                            FAR struct wpa_wconfig_s *conf)
 {
+  FAR struct ether_addr *ap;
   FAR cJSON *ifobj;
   FAR cJSON *root;
   FAR cJSON *obj;
@@ -335,6 +336,8 @@ FAR void *wapi_load_config(FAR const char *ifname,
     {
       goto errout;
     }
+
+  memset(conf, 0, sizeof(*conf));
 
   obj = cJSON_GetObjectItem(ifobj, "mode");
   if (!obj)
@@ -382,7 +385,11 @@ FAR void *wapi_load_config(FAR const char *ifname,
       goto errout;
     }
 
-  conf->bssid = (FAR const char *)obj->valuestring;
+  ap = ether_aton(obj->valuestring);
+  if (ap != NULL)
+    {
+      conf->bssid = (FAR const char *)ap->ether_addr_octet;
+    }
 
   obj = cJSON_GetObjectItem(ifobj, "psk");
   if (!obj || !obj->valuestring)

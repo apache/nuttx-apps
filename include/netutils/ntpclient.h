@@ -42,9 +42,12 @@
 
 #include <nuttx/config.h>
 
+#include <sys/socket.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_NETUTILS_NTPCLIENT_SERVERIP
@@ -90,6 +93,31 @@ extern "C"
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: ntpc_dualstack_family()
+ *
+ * Description:
+ *   Set the protocol family used (AF_INET, AF_INET6 or AF_UNSPEC)
+ *
+ ****************************************************************************/
+
+void ntpc_dualstack_family(int family);
+
+/****************************************************************************
+ * Name: ntpc_start_with_list
+ *
+ * Description:
+ *   Start the NTP daemon
+ *
+ * Returned Value:
+ *   On success, the non-negative task ID of the NTPC daemon is returned;
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ntpc_start_with_list(FAR const char *ntp_server_list);
+
 /****************************************************************************
  * Name: ntpc_start
  *
@@ -117,6 +145,34 @@ int ntpc_start(void);
  ****************************************************************************/
 
 int ntpc_stop(void);
+
+/****************************************************************************
+ * Name: ntpc_status
+ *
+ * Description:
+ *   Get a status of the NTP daemon
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+struct ntpc_status_s
+{
+  /* the latest samples */
+
+  unsigned int nsamples;
+  struct
+  {
+    int64_t offset;
+    int64_t delay;
+    FAR const struct sockaddr *srv_addr;
+    struct sockaddr_storage _srv_addr_store;
+  }
+  samples[CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
+};
+
+int ntpc_status(struct ntpc_status_s *statusp);
 
 #undef EXTERN
 #ifdef __cplusplus

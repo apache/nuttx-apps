@@ -48,26 +48,6 @@
 #include "ftpc_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -106,8 +86,9 @@ static int ftpc_restore(struct ftpc_session_s *session)
 
           ftpc_reset(session);
         }
+
       return ret;
-  }
+    }
 
   return ERROR;
 }
@@ -136,15 +117,15 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
   /* Verify that we are still connected to the server */
 
   if (!ftpc_sockconnected(&session->cmd))
-  {
-    nwarn("WARNING: Cmd channel is not connected\n");
-    goto errout;
-  }
+    {
+      nwarn("WARNING: Cmd channel is not connected\n");
+      goto errout;
+    }
 
   /* Loop, reconnecting as necessary until the command is sent */
 
 #ifdef CONFIG_FTP_AUTORECONNECT
-  for (;;)
+  for (; ; )
 #endif
     {
       /* Send the command */
@@ -159,6 +140,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
               ret = ftpc_sockflush(&session->cmd);
             }
         }
+
       va_end(ap);
 
       /* Check for an error in sending the data */
@@ -167,7 +149,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
         {
           nerr("ERROR: Error sending cmd %s: %d\n", cmd, errno);
           goto errout;
-       }
+        }
 
       /* Get the response to the command */
 
@@ -176,7 +158,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
         {
           nerr("ERROR: Error getting reply: %d\n", errno);
           goto errout;
-       }
+        }
 
       /* Check for "421 Service not available, closing control connection" */
 
@@ -214,6 +196,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
                       nwarn("WARNING: Failed to restore the connection");
                       goto errout;
                     }
+
                   continue;
                 }
             }

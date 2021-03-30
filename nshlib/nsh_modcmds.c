@@ -62,6 +62,7 @@ int cmd_insmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR void *handle;
 
   /* Usage: insmod <filepath> <modulename> */
+
   /* Install the module  */
 
   handle = insmod(argv[1], argv[2]);
@@ -84,6 +85,7 @@ int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int ret;
 
   /* Usage: rmmod <modulename> */
+
   /* Get the module handle associated with the name */
 
   handle = modhandle(argv[1]);
@@ -115,6 +117,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FILE *stream;
 
   /* Usage: lsmod */
+
   /* Open /proc/modules */
 
   stream = fopen("/proc/modules", "r");

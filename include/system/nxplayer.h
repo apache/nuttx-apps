@@ -46,6 +46,10 @@
 
 #include <nuttx/config.h>
 
+#include <mqueue.h>
+#include <pthread.h>
+#include <semaphore.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/

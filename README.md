@@ -162,7 +162,7 @@ project. One must:
 
 Q: Has anyone come up with a tidy way to build NuttX with board- specific pieces
    outside the source tree?
- 
+
 A: Here are three:
 
    1) There is a make target called `make export`. It will build NuttX, then
@@ -182,8 +182,8 @@ A: Here are three:
       custom apps directory as necessary.
 
       This is documented in `NuttX/boards/README.txt` and
-      `nuttx/Documentation/NuttxPortingGuide.html` (Online at
-      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttxPortingGuide.html#apndxconfigs
+      `nuttx/Documentation/NuttXPortingGuide.html` (Online at
+      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttXPortingGuide.html#apndxconfigs
       under _Build options_). And in the `apps/README.txt` file.
 
    3) If you like the random collection of stuff in the `apps/` directory but
@@ -226,9 +226,9 @@ A: Here are three:
       You could, for example, create a script called `install.sh` that installs
       a custom application, configuration, and board specific directory:
 
-      a) Copy `MyBoard` directory to `boards/MyBoard`.  
-      b) Add a symbolic link to `MyApplication` at `apps/external`.  
-      c) Configure NuttX, usually by:  
+      a) Copy `MyBoard` directory to `boards/MyBoard`.
+      b) Add a symbolic link to `MyApplication` at `apps/external`.
+      c) Configure NuttX, usually by:
 
       ```bash
       tools/configure.sh MyBoard:MyConfiguration

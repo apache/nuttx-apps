@@ -148,12 +148,12 @@ static void show_stat(const char *path, struct stat *ps)
       printf("\ttype        : Unknown\n");
     }
 
-  printf("\tsize        : %d (bytes)\n",  ps->st_size);
+  printf("\tsize        : %jd (bytes)\n", (intmax_t)ps->st_size);
   printf("\tblock size  : %d (bytes)\n",  ps->st_blksize);
-  printf("\tsize        : %d (blocks)\n", ps->st_blocks);
-  printf("\taccess time : %d\n", ps->st_atime);
-  printf("\tmodify time : %d\n", ps->st_mtime);
-  printf("\tchange time : %d\n", ps->st_ctime);
+  printf("\tsize        : %ju (blocks)\n", (uintmax_t)ps->st_blocks);
+  printf("\taccess time : %ju\n", (uintmax_t)ps->st_atime);
+  printf("\tmodify time : %ju\n", (uintmax_t)ps->st_mtime);
+  printf("\tchange time : %ju\n", (uintmax_t)ps->st_ctime);
 }
 #endif
 
@@ -176,14 +176,14 @@ static void show_statfs(const char *path)
   if (ret == 0)
     {
       printf("show_statfs: statfs(%s) succeeded\n", path);
-      printf("\tFS Type           : %0x\n", buf.f_type);
-      printf("\tBlock size        : %d\n", buf.f_bsize);
-      printf("\tNumber of blocks  : %d\n", buf.f_blocks);
-      printf("\tFree blocks       : %d\n", buf.f_bfree);
-      printf("\tFree user blocks  : %d\n", buf.f_bavail);
-      printf("\tNumber file nodes : %d\n", buf.f_files);
-      printf("\tFree file nodes   : %d\n", buf.f_ffree);
-      printf("\tFile name length  : %d\n", buf.f_namelen);
+      printf("\tFS Type           : %0" PRIx32 "\n", buf.f_type);
+      printf("\tBlock size        : %zd\n", buf.f_bsize);
+      printf("\tNumber of blocks  : %jd\n", (intmax_t)buf.f_blocks);
+      printf("\tFree blocks       : %jd\n", (intmax_t)buf.f_bfree);
+      printf("\tFree user blocks  : %jd\n", (intmax_t)buf.f_bavail);
+      printf("\tNumber file nodes : %jd\n", (intmax_t)buf.f_files);
+      printf("\tFree file nodes   : %jd\n", (intmax_t)buf.f_ffree);
+      printf("\tFile name length  : %zd\n", buf.f_namelen);
     }
   else
     {

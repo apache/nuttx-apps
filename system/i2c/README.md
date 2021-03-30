@@ -69,10 +69,10 @@ Where <cmd> is one of:
   Show help     : ?
   List buses    : bus
   List devices  : dev [OPTIONS] <first> <last>
-  Read register : get [OPTIONS] [<repititions>]
+  Read register : get [OPTIONS] [<repetitions>]
   Show help     : help
-  Write register: set [OPTIONS] <value> [<repititions>]
-  Verify access : verf [OPTIONS] <value> [<repititions>]
+  Write register: set [OPTIONS] <value> [<repetitions>]
+  Verify access : verf [OPTIONS] <value> [<repetitions>]
 
   Where common _sticky_ OPTIONS include:
     [-a addr] is the I2C device address (hex).  Default: 03 Current: 03
@@ -80,7 +80,7 @@ Where <cmd> is one of:
     [-r regaddr] is the I2C device register address (hex).  Default: 00 Current: 00
     [-w width] is the data width (8 or 16 decimal).  Default: 8 Current: 8
     [-s|n], send/don't send start between command and data.  Default: -n Current: -n
-    [-i|j], Auto increment|don't increment regaddr on repititions.  Default: NO Current: NO
+    [-i|j], Auto increment|don't increment regaddr on repetitions.  Default: NO Current: NO
     [-f freq] I2C frequency.  Default: 100000 Current: 100000
 ```
 
@@ -192,7 +192,7 @@ NSH scripts to execute a longer, more complex series of I2C commands.
   This determines whether or not there should be a new I2C START between sending
   of the register address and sending/receiving of the register data.
 
-- `[-i|j]`, Auto increment|don't increment `regaddr` on repititions. Default:
+- `[-i|j]`, Auto increment|don't increment `regaddr` on repetitions. Default:
   `NO` Current: `NO`
 
   On commands that take a optional number of repetitions, the option can be used
@@ -269,10 +269,10 @@ This command with write the 8-bit address value then read an 8- or 16-bit data
 value from the device. Optionally, it may re-start the transfer before obtaining
 the data.
 
-An optional `<repititions>` argument can be supplied to repeat the read
+An optional `<repetitions>` argument can be supplied to repeat the read
 operation an arbitrary number of times (up to 2 billion). If auto-increment is
 select (`-i`), then the register address will be temporarily incremented on each
-repitions. The increment is temporary in the since that it will not alter the
+repetitions. The increment is temporary in the since that it will not alter the
 _sticky_ value of the register address.
 
 On success, the output will look like the following (the data value read will be
@@ -297,10 +297,10 @@ This command will write the 8-bit address value then write the 8- or 16-bit data
 value to the device. Optionally, it may re-start the transfer before writing the
 data.
 
-An optional `<repititions>` argument can be supplied to repeat the write
+An optional `<repetitions>` argument can be supplied to repeat the write
 operation an arbitrary number of times (up to 2 billion). If auto-increment is
 select (`-i`), then the register address will be temporarily incremented on each
-repitions. The increment is temporary in the since that it will not alter the
+repetitions. The increment is temporary in the since that it will not alter the
 _sticky_ value of the register address.
 
 On success, the output will look like the following (the data value written will
@@ -313,7 +313,7 @@ WROTE Bus: 1 Addr: 49 Subaddr: 04 Value: 96
 
 All values (except the bus numbers) are hexadecimal.
 
-### Verify access: `verf [OPTIONS] <value> [<repititions>]`
+### Verify access: `verf [OPTIONS] <value> [<repetitions>]`
 
 
 This command combines writing and reading from an I2C device register. It will
@@ -326,10 +326,10 @@ and emit an error message if they do not match.
 If no value is provided, then this command will use the register address itself
 as the data, providing for a address-in-address test.
 
-An optional `<repititions>` argument can be supplied to repeat the verify
+An optional `<repetitions>` argument can be supplied to repeat the verify
 operation an arbitrary number of times (up to 2 billion). If auto-increment is
 select (`-i`), then the register address will be temporarily incremented on each
-repitions. The increment is temporary in the since that it will not alter the
+repetitions. The increment is temporary in the since that it will not alter the
 `sticky` value of the register address.
 
 On success, the output will look like the following (the data value written will

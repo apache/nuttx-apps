@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/system/ftpc.h
+ * apps/include/netutils/ftpc.h
  *
  *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -53,6 +53,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_FTP_DEFTIMEO
@@ -88,6 +89,7 @@
 #endif
 
 /* Interface arguments ******************************************************/
+
 /* These definitions describe how a put operation should be performed */
 
 #define FTPC_PUT_NORMAL      0  /* Just PUT the file on the server */
@@ -110,18 +112,15 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
 /* This "handle" describes the FTP session */
 
 typedef FAR void *SESSION;
 
-/* This union provides information to connect to a host FTP server.
+/* This union provides socket address to connect to a host FTP server.
  *
- * addr - The IPv4 or IPv6 address of the FTP server (or the proxy) for the FTP
- *        server.
- * port - The port number on the FTP server to connect to (in host byte
- *        order).  This is usually port 21 for FTP.  You may set this
- *        value to zero to let FTPC select the default port number for
- *        you (it will use CONFIG_FTP_DEFPORT).
+ * in4, in6 - The IPv4 or IPv6 address of the FTP server (or the proxy)
+ *            for the FTP server.
  */
 
 union ftpc_sockaddr_u
@@ -181,8 +180,9 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
+
 /* Connection management ****************************************************/
 
 SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server);
@@ -201,7 +201,8 @@ int ftpc_rmdir(SESSION handle, FAR const char *path);
 
 int ftpc_unlink(SESSION handle, FAR const char *path);
 int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode);
-int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname);
+int ftpc_rename(SESSION handle, FAR const char *oldname,
+                FAR const char *newname);
 off_t ftpc_filesize(SESSION handle, FAR const char *path);
 time_t ftpc_filetime(SESSION handle, FAR const char *filename);
 

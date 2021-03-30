@@ -111,7 +111,6 @@ static FAR void *thread_func(FAR void *param)
 static void get_prime_in_parallel(int n)
 {
   pthread_t thread[MAX_THREADS];
-  struct sched_param sparam;
   pthread_attr_t attr;
   pthread_addr_t result;
   int status;
@@ -120,16 +119,24 @@ static void get_prime_in_parallel(int n)
   status = pthread_attr_init(&attr);
   ASSERT(status == OK);
 
-  sparam.sched_priority = sched_get_priority_min(SCHED_FIFO);
+  struct sched_param sparam;
+  sparam.sched_priority = CONFIG_TESTING_GETPRIME_THREAD_PRIORITY;
   status = pthread_attr_setschedparam(&attr, &sparam);
   ASSERT(status == OK);
 
   printf("Set thread priority to %d\n",  sparam.sched_priority);
 
+#if CONFIG_RR_INTERVAL > 0
+  status = pthread_attr_setschedpolicy(&attr, SCHED_RR);
+  ASSERT(status == OK);
+
+  printf("Set thread policy to SCHED_RR \n");
+#else
   status = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
   ASSERT(status == OK);
 
   printf("Set thread policy to SCHED_FIFO \n");
+#endif
 
   for (i = 0; i < n; i++)
     {
@@ -151,7 +158,7 @@ static void get_prime_in_parallel(int n)
  ****************************************************************************/
 
 /****************************************************************************
- * smp_main
+ * getprime_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
@@ -178,6 +185,6 @@ int main(int argc, FAR char *argv[])
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
   elapsed /= NSEC_PER_MSEC; /* msec */
 
-  printf("%s took %ld msec \n", argv[0], elapsed);
+  printf("%s took %" PRIu64 " msec \n", argv[0], elapsed);
   return 0;
 }

@@ -51,6 +51,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_DJOYSTICK
@@ -83,6 +84,7 @@ static void show_joystick(djoy_buttonset_t oldset, djoy_buttonset_t newset);
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* The set of supported joystick discretes */
 
 static djoy_buttonset_t g_djoysupported;
@@ -190,9 +192,13 @@ int main(int argc, FAR char *argv[])
       goto errout_with_fd;
     }
 
+  /* Ignore the default signal action */
+
+  signal(CONFIG_EXAMPLES_DJOYSTICK_SIGNO, SIG_IGN);
+
   /* Then loop, receiving signals indicating joystick events. */
 
-  for (;;)
+  for (; ; )
     {
       struct siginfo value;
       sigset_t set;

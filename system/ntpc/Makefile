@@ -37,13 +37,13 @@ include $(APPDIR)/Make.defs
 
 # NTPC address renewal built-in application info
 
-PROGNAME = ntpcstart ntpcstop
+PROGNAME = ntpcstart ntpcstop ntpcstatus
 PRIORITY = $(CONFIG_SYSTEM_NTPC_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_NTPC_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_NTPC)
 
 # NTPC address renewal
 
-MAINSRC = ntpcstart_main.c ntpcstop_main.c
+MAINSRC = ntpcstart_main.c ntpcstop_main.c ntpcstatus_main.c
 
 include $(APPDIR)/Application.mk

@@ -13,9 +13,15 @@ config SYSTEM_NXRECORDER
 
 if SYSTEM_NXRECORDER
 
+config NXRECORDER_MAINTHREAD_STACKSIZE
+	int "NxRecoder main thread stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		Stack size to use with the NxRecoder main thread.
+
 config NXRECORDER_RECORDTHREAD_STACKSIZE
 	int "NxRecorder thread stack size"
-	default 1500
+	default PTHREAD_STACK_DEFAULT
 	---help---
 		Stack size to use with the NxRecorder record thread.
 

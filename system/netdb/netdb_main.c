@@ -82,11 +82,11 @@ static void show_usage(FAR const char *progname,
                        int exitcode) noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
-  fprintf(stderr, "USAGE: %s --ipv4 <ipv4-addr>\n", progname);
 #ifdef HAVE_GETHOSTBYADDR
+  fprintf(stderr, "USAGE: %s --ipv4 <ipv4-addr>\n", progname);
   fprintf(stderr, "       %s --ipv6 <ipv6-addr>\n", progname);
-  fprintf(stderr, "       %s --host <host-name>\n", progname);
 #endif
+  fprintf(stderr, "       %s --host <host-name>\n", progname);
   fprintf(stderr, "       %s --help\n", progname);
   exit(exitcode);
 }
@@ -152,7 +152,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  /* Handle: netdb --ipv46<ipv6-addr>  */
+  /* Handle: netdb --ipv6 <ipv6-addr>  */
 
   else if (strcmp(argv[1], "--ipv6") == 0)
     {

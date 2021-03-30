@@ -68,14 +68,23 @@ static struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
 {
-  { "?",    i2ccmd_help, "Show help     ",  NULL },
-  { "bus",  i2ccmd_bus,  "List buses    ",  NULL },
-  { "dev",  i2ccmd_dev,  "List devices  ", "[OPTIONS] <first> <last>" },
-  { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repititions>]" },
-  { "dump", i2ccmd_dump, "Dump register ", "[OPTIONS] [<num bytes>]" },
-  { "help", i2ccmd_help, "Show help     ", NULL },
-  { "set",  i2ccmd_set,  "Write register", "[OPTIONS] <value> [<repititions>]" },
-  { "verf", i2ccmd_verf, "Verify access ", "[OPTIONS] [<value>] [<repititions>]" },
+  { "?",     i2ccmd_help,  "Show help     ", NULL },
+  { "bus",   i2ccmd_bus,   "List buses    ", NULL },
+#ifdef CONFIG_I2C_RESET
+  { "reset", i2ccmd_reset, "Reset bus     ", NULL },
+#endif
+  { "dev",   i2ccmd_dev,   "List devices  ", "[OPTIONS] <first> <last>" },
+  { "get",   i2ccmd_get,   "Read register ", "[OPTIONS] [<repetitions>]" },
+  { "dump",  i2ccmd_dump,  "Dump register ", "[OPTIONS] [<num bytes>]" },
+  { "help",  i2ccmd_help,  "Show help     ", NULL },
+  {
+    "set",   i2ccmd_set,   "Write register",
+      "[OPTIONS] <value> [<repetitions>]"
+  },
+  {
+    "verf",  i2ccmd_verf,  "Verify access ",
+      "[OPTIONS] [<value>] [<repetitions>]"
+  },
   { NULL,   NULL,        NULL,             NULL }
 };
 
@@ -85,7 +94,8 @@ static const struct cmdmap_s g_i2ccmds[] =
 
 /* Common, message formats */
 
-const char g_i2cargrequired[] = "i2ctool: %s: missing required argument(s)\n";
+const char g_i2cargrequired[] =
+                    "i2ctool: %s: missing required argument(s)\n";
 const char g_i2carginvalid[]  = "i2ctool: %s: argument invalid\n";
 const char g_i2cargrange[]    = "i2ctool: %s: value out of range\n";
 const char g_i2ccmdnotfound[] = "i2ctool: %s: command not found\n";
@@ -120,38 +130,54 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
         }
     }
 
-  i2ctool_printf(i2ctool, "\nWhere common \"sticky\" OPTIONS include:\n");
-  i2ctool_printf(i2ctool, "  [-a addr] is the I2C device address (hex).  "
-                          "Default: %02x Current: %02x\n",
+  i2ctool_printf(i2ctool,
+                 "\nWhere common \"sticky\" OPTIONS include:\n");
+  i2ctool_printf(i2ctool,
+                 "  [-a addr] is the I2C device address (hex)."
+                 "  Default: %02x Current: %02x\n",
                  CONFIG_I2CTOOL_MINADDR, i2ctool->addr);
-  i2ctool_printf(i2ctool, "  [-b bus] is the I2C bus number (decimal).  "
-                          "Default: %d Current: %d\n",
+  i2ctool_printf(i2ctool,
+                 "  [-b bus] is the I2C bus number (decimal)."
+                 "  Default: %d Current: %d\n",
                  CONFIG_I2CTOOL_MINBUS, i2ctool->bus);
-  i2ctool_printf(i2ctool, "  [-w width] is the data width (8 or 16 decimal).  "
-                          "Default: 8 Current: %d\n",
+  i2ctool_printf(i2ctool,
+                 "  [-w width] is the data width (8 or 16 decimal)."
+                 "  Default: 8 Current: %d\n",
                  i2ctool->width);
-  i2ctool_printf(i2ctool, "  [-s|n], send/don't send start between command and data.  "
-                          "Default: -n Current: %s\n",
+  i2ctool_printf(i2ctool,
+                 "  [-s|n], send/don't send start between command and data."
+                 "  Default: -n Current: %s\n",
                  i2ctool->start ? "-s" : "-n");
-  i2ctool_printf(i2ctool, "  [-i|j], Auto increment|don't increment regaddr on repititions.  "
-                          "Default: NO Current: %s\n",
+  i2ctool_printf(i2ctool,
+                 "  [-i|j], Auto increment|don't increment regaddr on "
+                 "repetitions."
+                 "  Default: NO Current: %s\n",
                  i2ctool->autoincr ? "YES" : "NO");
-  i2ctool_printf(i2ctool, "  [-f freq] I2C frequency.  "
-                          "Default: %d Current: %d\n",
+  i2ctool_printf(i2ctool,
+                 "  [-f freq] I2C frequency."
+                 "  Default: %d Current: %d\n",
                  CONFIG_I2CTOOL_DEFFREQ, i2ctool->freq);
 
   i2ctool_printf(i2ctool, "\nSpecial non-sticky options:\n");
-  i2ctool_printf(i2ctool, "  [-r regaddr] is the I2C device register index (hex).  "
-                          "Default: not used/sent\n");
+  i2ctool_printf(i2ctool,
+                 "  [-r regaddr] is the I2C device register index (hex)."
+                 "  Default: not used/sent\n");
 
   i2ctool_printf(i2ctool, "\nNOTES:\n");
 #ifndef CONFIG_DISABLE_ENVIRON
-  i2ctool_printf(i2ctool, "o An environment variable like $PATH may be used for any argument.\n");
+  i2ctool_printf(i2ctool, "o An environment variable like $PATH may be used "
+                          "for any argument.\n");
 #endif
-  i2ctool_printf(i2ctool, "o Arguments are \"sticky\".  For example, once the I2C address is\n");
-  i2ctool_printf(i2ctool, "  specified, that address will be re-used until it is changed.\n");
+  i2ctool_printf(i2ctool,
+                 "o Arguments are \"sticky\". For example, once "
+                 "the I2C address is\n");
+  i2ctool_printf(i2ctool,
+                 "  specified, that address will be re-used until "
+                 "it is changed.\n");
   i2ctool_printf(i2ctool, "\nWARNING:\n");
-  i2ctool_printf(i2ctool, "o The I2C dev command may have bad side effects on your I2C devices.\n");
+  i2ctool_printf(i2ctool,
+                 "o The I2C dev command may have bad side effects "
+                 "on your I2C devices.\n");
   i2ctool_printf(i2ctool, "  Use only at your own risk.\n");
   return OK;
 }

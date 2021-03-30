@@ -8,7 +8,7 @@
  *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +39,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -61,7 +61,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
+static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                         FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -91,18 +92,22 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
+
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -112,14 +117,15 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   i8sak_requestdaemon(i8sak);
 
-  /* Register new oneshot callback for receiving the association notifications */
+  /* Register new callback for receiving the association notifications */
 
   memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
   eventfilter.confevents.poll = true;
 
   i8sak_eventlistener_addreceiver(i8sak, poll_eventcb, &eventfilter, true);
 
-  memcpy(&pollreq.coordaddr, &i8sak->ep_addr, sizeof(struct ieee802154_addr_s));
+  memcpy(&pollreq.coordaddr, &i8sak->ep_addr,
+         sizeof(struct ieee802154_addr_s));
 
   if (pollreq.coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
     {
@@ -135,7 +141,8 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       fd = open(i8sak->ifname, O_RDWR);
       if (fd < 0)
         {
-          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
           i8sak_cmd_error(i8sak);
         }
 
@@ -157,7 +164,9 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   close(fd);
 
-  /* Wait here, the event listener will notify us if the correct event occurs */
+  /* Wait here, the event listener will notify us if the correct event
+   * occurs
+   */
 
   ret = sem_wait(&i8sak->sigsem);
   if (ret != OK)
@@ -173,7 +182,8 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
  * Private Function
  ****************************************************************************/
 
-static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
+static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                         FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
 

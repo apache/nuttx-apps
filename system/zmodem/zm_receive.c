@@ -51,6 +51,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -97,7 +98,6 @@
  *   OO           ---->               ZMR_DONE
  */
 
-
 enum zmrs_e
 {
   ZMR_START = 0,   /* Sent ZRINIT, waiting for ZFILE or ZSINIT */
@@ -115,6 +115,7 @@ enum zmrs_e
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
+
 /* Transition actions */
 
 static int zmr_zrinit(FAR struct zm_state_s *pzm);
@@ -240,7 +241,9 @@ static const struct zm_transition_s g_zmr_reading[] =
   {ZME_ERROR,    false, ZMR_READING,     zmr_error}
 };
 
-/* Events handled in the state ZMR_FINISH - Sent ZFIN, waiting for "OO" or ZRQINIT */
+/* Events handled in the state ZMR_FINISH - Sent ZFIN, waiting for "OO" or
+ * ZRQINIT
+ */
 
 static const struct zm_transition_s g_zmr_finish[] =
 {
@@ -271,7 +274,9 @@ static struct zm_transition_s g_zmr_message[] =
   {ZME_ERROR,    false, ZMR_MESSAGE,     zmr_error}
 };
 
-/* Events handled in ZMR_DONE -- Finished with transfer.  Waiting for "OO" or  */
+/* Events handled in ZMR_DONE -- Finished with transfer.  Waiting for "OO"
+ * or
+ */
 
 static struct zm_transition_s g_zmr_done[] =
 {
@@ -499,7 +504,8 @@ static int zmr_nakcrc(FAR struct zm_state_s *pzm)
  * Name: zmr_zfile
  *
  * Description:
- *   Received ZFILE.  Cache the flags and set up to receive filename in ZDATA.
+ *   Received ZFILE.  Cache the flags and set up to receive filename in
+ *   ZDATA.
  *
  ****************************************************************************/
 
@@ -553,11 +559,11 @@ static int zmr_zdata(FAR struct zm_state_s *pzm)
        * correct position within the file.
        */
 
-       zmdbg("Bad position, send ZRPOS(%ld)\n",
-             (unsigned long)pzmr->offset);
+      zmdbg("Bad position, send ZRPOS(%ld)\n",
+            (unsigned long)pzmr->offset);
 
-       return zmr_fileerror(pzmr, ZRPOS, (uint32_t)pzmr->offset);
-   }
+      return zmr_fileerror(pzmr, ZRPOS, (uint32_t)pzmr->offset);
+    }
 
   /* Setup to receive a data packet.  Enter PSTATE_DATA */
 
@@ -578,7 +584,8 @@ static int zmr_badrpos(FAR struct zm_state_s *pzm)
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)pzm;
   uint8_t by[4];
 
-  zmdbg("ZMR_STATE %d: Send ZRPOS(%ld)\n", pzm->state, (unsigned long)pzmr->offset);
+  zmdbg("ZMR_STATE %d: Send ZRPOS(%ld)\n", pzm->state,
+        (unsigned long)pzmr->offset);
 
   /* Re-send ZRPOS */
 
@@ -646,7 +653,8 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
 
   if (ret < 0)
     {
-      zmdbg("ZMR_STATE %d->%d: ERROR: Failed to parse filename. Send ZSKIP: %d\n",
+      zmdbg("ZMR_STATE %d->%d: ERROR: Failed to parse filename. "
+            "Send ZSKIP: %d\n",
             pzm->state, ZMR_START, ret);
 
       pzmr->cmn.state = ZMR_START;
@@ -659,7 +667,8 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
 
   /* ZFILE: Following the file name are:
    *
-   *   length timestamp mode serial-number files-remaining bytes-remaining file-type
+   *   length timestamp mode serial-number files-remaining bytes-remaining
+   *   file-type
    */
 
   filesize   = 0;
@@ -751,7 +760,9 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
                 pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
           zmdbg("ZMR_STATE %d->%d\n",  pzm->state, ZMR_READREADY);
 
-          /* Revert to the ready to read state and send ZRPOS to get in sync */
+          /* Revert to the ready to read state and send ZRPOS to get in
+           * sync
+           */
 
           pzm->state     = ZMR_READREADY;
           pzm->pstate    = PSTATE_IDLE;
@@ -909,7 +920,8 @@ static int zmr_zeof(FAR struct zm_state_s *pzm)
 {
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)pzm;
 
-  zmdbg("ZMR_STATE %d: offset=%ld\n", pzm->state, (unsigned long)pzmr->offset);
+  zmdbg("ZMR_STATE %d: offset=%ld\n", pzm->state,
+        (unsigned long)pzmr->offset);
 
   /* Verify the file length */
 
@@ -1059,7 +1071,7 @@ static int zmr_zstderr(FAR struct zm_state_s *pzm)
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
   pzm->pktbuf[pzm->pktlen] = '\0';
-  fprintf(stderr, "Message: %s", (char*)pzm->pktbuf);
+  fprintf(stderr, "Message: %s", (char *)pzm->pktbuf);
   return OK;
 }
 
@@ -1119,7 +1131,8 @@ static int zmr_error(FAR struct zm_state_s *pzm)
  * Name: zmr_parsefilename
  *
  * Description:
- *   Get an appropriate path to open.  The path is returned in pzmr->filename.
+ *   Get an appropriate path to open.  The path is returned in
+ *   pzmr->filename.
  *
  ****************************************************************************/
 
@@ -1194,12 +1207,12 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
        * size.  We already have the file!
        */
 
-       if (exists && buf.st_size == pzmr->filesize)
-         {
-           zmdbg("ZCRESUM: Rejected\n");
-           ret = -EEXIST;
-           goto errout_with_filename;
-         }
+      if (exists && buf.st_size == pzmr->filesize)
+        {
+          zmdbg("ZCRESUM: Rejected\n");
+          ret = -EEXIST;
+          goto errout_with_filename;
+        }
 
       /* Otherwise, indicate that we will append to the file (whether it
        * exists yet or not.
@@ -1332,7 +1345,8 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
               {
                 /* Create a candidate file name */
 
-                asprintf(&candidate, "%s_%d", pzmr->filename, ++uniqno);
+                asprintf(&candidate, "%s_%" PRId32, pzmr->filename,
+                         ++uniqno);
                 if (!candidate)
                   {
                     zmdbg("ERROR:  Failed to allocate candidate %s_%d\n",
@@ -1349,10 +1363,13 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
                     int errcode = errno;
                     if (errcode != ENOENT)
                       {
-                        zmdbg("ERROR: stat of %s failed: %d\n", candidate, errcode);
+                        zmdbg("ERROR: stat of %s failed: %d\n", candidate,
+                              errcode);
                       }
 
-                    /* Free the old filename and replace it with the candidate */
+                    /* Free the old filename and replace it with the
+                     * candidate
+                     */
 
                     free(pzmr->filename);
                     pzmr->filename = candidate;
@@ -1379,7 +1396,8 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
         {
           int errorcode = errno;
 
-          zmdbg("ERROR: unlink of %s failed: %d\n", pzmr->filename, errorcode);
+          zmdbg("ERROR: unlink of %s failed: %d\n", pzmr->filename,
+                errorcode);
           ret = -errorcode;
           goto errout_with_filename;
         }
@@ -1501,7 +1519,7 @@ static int zmr_fileerror(FAR struct zmr_state_s *pzmr, uint8_t type,
       dest = pzmr->cmn.pktbuf;
       for (src = (FAR void *)pzmr->attn; *src != '\0'; src++)
         {
-          if (*src == ATTNBRK )
+          if (*src == ATTNBRK)
             {
 #ifdef CONFIG_SYSTEM_ZMODEM_SENDBREAK
               /* Send a break
@@ -1604,7 +1622,7 @@ ZMRHANDLE zmr_initialize(int remfd)
 
   /* Allocate a new Zmodem receive state structure */
 
-  pzmr = (FAR struct zmr_state_s*)zalloc(sizeof(struct zmr_state_s));
+  pzmr = (FAR struct zmr_state_s *)zalloc(sizeof(struct zmr_state_s));
   if (pzmr)
     {
       /* Initialize the state structure */
@@ -1628,8 +1646,9 @@ ZMRHANDLE zmr_initialize(int remfd)
           return (ZMRHANDLE)NULL;
         }
 
-      /* Note that no action is taken now... a timeout of zero is set (because
-       * of the memset).  If there is nothing pending, ZRINIT will be sent.
+      /* Note that no action is taken now... a timeout of zero is set
+       * (because of the memset).  If there is nothing pending, ZRINIT
+       * will be sent.
        */
 
       zmdbg("Initial state: %d\n", pzm->state);
@@ -1655,7 +1674,7 @@ ZMRHANDLE zmr_initialize(int remfd)
 
 int zmr_receive(ZMRHANDLE handle, FAR const char *pathname)
 {
-  FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s*)handle;
+  FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)handle;
 
   pzmr->pathname = pathname;
 
@@ -1686,7 +1705,7 @@ int zmr_receive(ZMRHANDLE handle, FAR const char *pathname)
 
 int zmr_release(ZMRHANDLE handle)
 {
-  FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s*)handle;
+  FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)handle;
   int ret;
 
   /* Send ZFIN */

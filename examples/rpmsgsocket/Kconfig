@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RPMSGSOCKET
+	tristate "Rpmsg scoekt example"
+	depends on NET_RPMSG
+	default n
+	---help---
+		Enable the rpmsg socket test example

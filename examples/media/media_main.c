@@ -41,6 +41,7 @@
 
 #include <sys/ioctl.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -159,6 +160,7 @@ int main(int argc, FAR char *argv[])
               devpath, errno);
       return 1;
     }
+
   /* Get the block size to use */
 
   get_blocksize(fd, &info);
@@ -172,7 +174,8 @@ int main(int argc, FAR char *argv[])
   txbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (txbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate TX I/O buffer of size %lu\n",
+      fprintf(stderr,
+              "ERROR: failed to allocate TX I/O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       close(fd);
       return 1;
@@ -181,7 +184,8 @@ int main(int argc, FAR char *argv[])
   rxbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (rxbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate IRX /O buffer of size %lu\n",
+      fprintf(stderr,
+              "ERROR: failed to allocate IRX /O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       free(txbuffer);
       close(fd);
@@ -214,16 +218,16 @@ int main(int argc, FAR char *argv[])
         {
           int errcode = errno;
 
-          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
-                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: lseek to %ju failed: %d\n",
+                  (uintmax_t)pos, errcode);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
         }
       else if (seekpos != pos)
         {
-          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
-                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: lseek failed: %ju vs %ju\n",
+                  (uintmax_t)seekpos, (uintmax_t) pos);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
@@ -256,16 +260,16 @@ int main(int argc, FAR char *argv[])
         {
           int errcode = errno;
 
-          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
-                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: lseek to %ju failed: %d\n",
+                  (uintmax_t)pos, errcode);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
         }
       else if (seekpos != pos)
         {
-          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
-                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: lseek failed: %ju vs %ju\n",
+                  (uintmax_t)seekpos, (uintmax_t)pos);
           fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
           info.nblocks = blockno;
           break;
@@ -299,7 +303,8 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  "
+                          "Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }
@@ -335,8 +340,8 @@ int main(int argc, FAR char *argv[])
     }
   else if (seekpos != 0)
     {
-      fprintf(stderr, "ERROR: lseek to 0 failed: %lu\n",
-              (unsigned)seekpos);
+      fprintf(stderr, "ERROR: lseek to 0 failed: %ju\n",
+              (uintmax_t)seekpos);
     }
 
   /* Re-read and verify each sector */
@@ -384,7 +389,8 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  "
+                          "Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }

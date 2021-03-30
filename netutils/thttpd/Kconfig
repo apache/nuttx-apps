@@ -12,6 +12,12 @@ config NETUTILS_THTTPD
 
 if NETUTILS_THTTPD
 
+config THTTPD_NFILE_DESCRIPTORS
+	int "the maximum number of file descriptors for thttpd webserver"
+	default 16
+	---help---
+	        The maximum number of file descriptors for thttpd webserver
+
 config THTTPD_PORT
 	int "THTTPD port number"
 	default 80

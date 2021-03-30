@@ -176,7 +176,11 @@ int main(int argc, FAR char *argv[])
       ctx.url = CONFIG_EXAMPLES_WGET_URL;
     }
 
-  webclient_perform(&ctx);
+  int ret = webclient_perform(&ctx);
+  if (ret != 0)
+    {
+      printf("webclient_perform failed with %d\n", ret);
+    }
 
   return 0;
 }

@@ -6,7 +6,7 @@
  *   Copyright (C) 2017 Verge Inc. All rights reserved.
  *
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -59,7 +59,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
+static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                         FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -119,6 +120,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -126,6 +128,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -205,7 +208,8 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
  * Private Functions
  ****************************************************************************/
 
-static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
+static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
+                         FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
   FAR struct ieee802154_scan_conf_s *scan = &primitive->u.scanconf;
@@ -234,7 +238,8 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void 
 
   printf("Scan results: \n");
 
-  if (scan->type == IEEE802154_SCANTYPE_ACTIVE || scan->type == IEEE802154_SCANTYPE_PASSIVE)
+  if (scan->type == IEEE802154_SCANTYPE_ACTIVE ||
+      scan->type == IEEE802154_SCANTYPE_PASSIVE)
     {
       /* Copy the results from the notification */
 
@@ -268,10 +273,11 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void 
     {
       /* Print the results out */
 
-      for (i=0; i < scan->numresults; i++)
+      for (i = 0; i < scan->numresults; i++)
         {
           printf("Result %d\n", i);
-          printf("    Channel: %u Energy: %d\n", scan->chlist[i], scan->edlist[i]);
+          printf("    Channel: %u Energy: %d\n",
+                 scan->chlist[i], scan->edlist[i]);
         }
     }
 

@@ -60,36 +60,36 @@
 
 static int slash_notation(FAR char *arg)
 {
-   FAR char *sptr;
-   FAR char *ptr;
+  FAR char *sptr;
+  FAR char *ptr;
 
-   /* If an address contains a /, then the netmask is imply by the following
-    * numeric value.
-    */
+  /* If an address contains a /, then the netmask is imply by the following
+   * numeric value.
+   */
 
-   sptr = strchr(arg, '/');
-   if (sptr != NULL)
-     {
-       /* Make sure that everything following the slash is a decimal digit. */
+  sptr = strchr(arg, '/');
+  if (sptr != NULL)
+    {
+      /* Make sure that everything following the slash is a decimal digit. */
 
-       ptr = sptr + 1;
-       while (isdigit(*ptr))
-         {
-           ptr++;
-         }
+      ptr = sptr + 1;
+      while (isdigit(*ptr))
+        {
+          ptr++;
+        }
 
-       /* There should be nothing be digits after the slash and up to the
-        * NULL terminator.
-        */
+      /* There should be nothing be digits after the slash and up to the
+       * NULL terminator.
+       */
 
-       if (*ptr == '\0')
-         {
-           *sptr++ = '\0';
-           return atoi(sptr);
-         }
-     }
+      if (*ptr == '\0')
+        {
+          *sptr++ = '\0';
+          return atoi(sptr);
+        }
+    }
 
-   return ERROR;
+  return ERROR;
 }
 
 /****************************************************************************
@@ -191,30 +191,30 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
 
 #ifdef CONFIG_NET_IPv4
-        if (family == PF_INET)
-          {
-            ret = netlib_set_dripv4addr(argv[3], &inaddr.ipv4);
-            if (ret != 0)
-              {
-                nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
-                goto errout;
-              }
-          }
+      if (family == PF_INET)
+        {
+          ret = netlib_set_dripv4addr(argv[3], &inaddr.ipv4);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
+              goto errout;
+            }
+        }
 #endif
 
 #ifdef CONFIG_NET_IPv6
-        if (family == PF_INET6)
-          {
-            ret = netlib_set_dripv6addr(argv[3], &inaddr.ipv6);
-            if (ret != 0)
-              {
-                nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
-                goto errout;
-              }
-          }
+      if (family == PF_INET6)
+        {
+          ret = netlib_set_dripv6addr(argv[3], &inaddr.ipv6);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0]);
+              goto errout;
+            }
+        }
 #endif
 
-        return OK;
+      return OK;
     }
 
   /* Check if slash notation is used with the target address */
@@ -291,7 +291,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-   /* Convert the netmask IP address string into its binary form */
+  /* Convert the netmask IP address string into its binary form */
 
   if (shift >= 0)
     {
@@ -355,6 +355,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             }
         }
 #endif
+
       rtrndx = 2;
     }
   else
@@ -369,7 +370,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
 
       rtrndx = 3;
-  }
+    }
 
   /* Format the netmask sockaddr instance */
 
@@ -396,7 +397,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-   /* Convert the router IP address string into its binary form */
+  /* Convert the router IP address string into its binary form */
 
   ret = inet_pton(family, argv[rtrndx], &inaddr);
   if (ret != 1)
@@ -571,7 +572,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-   /* Convert the netmask IP address string into its binary form */
+  /* Convert the netmask IP address string into its binary form */
 
   if (shift >= 0)
     {

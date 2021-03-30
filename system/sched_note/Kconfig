@@ -6,7 +6,7 @@
 config SYSTEM_NOTE
 	tristate "Scheduler monitor"
 	default n
-	depends on DRIVER_NOTE
+	depends on DRIVER_NOTERAM
 	---help---
 		Enable the schedler instrumentation monitor
 

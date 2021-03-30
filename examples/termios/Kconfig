@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TERMIOS
+	tristate "Termios example"
+	default n
+	---help---
+		Enable the Termios example. This example
+		shows how to change serial parameters like baud rate,
+		stop bits, data length and parity using the termios interface.
+
+if EXAMPLES_TERMIOS
+
+config EXAMPLES_TERMIOS_PRIORITY
+	int "Termios task priority"
+	default 100
+
+config EXAMPLES_TERMIOS_STACKSIZE
+	int "Termios stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

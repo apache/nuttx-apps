@@ -4,7 +4,7 @@
  *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted for Nuttx from WAPI:
+ * Adapted for NuttX from WAPI:
  *
  *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *   All rights reserved.
@@ -126,7 +126,36 @@ enum wapi_route_target_e
 enum wapi_essid_flag_e
 {
   WAPI_ESSID_OFF,
-  WAPI_ESSID_ON
+  WAPI_ESSID_ON,
+
+/* Extended flag "WAPI_ESSID_DELAY_ON" instructs the driver
+ * to delay the connection behavior of essid, so that which can accept
+ * more accurate information before generating a connection.
+ *
+ * About flow of wapi command, drivers that support WAPI_ESSID_DELAY_ON
+ * semantics will have the following behavior changes:
+ *
+ * 1. Station mode without bssid set:
+ *
+ * $ ifup wlan0
+ * $ wapi mode wlan0 2
+ * $ wapi psk wlan0 12345678 3
+ * $ wapi essid wlan0 archer 1
+ * $ renew wlan0
+ *
+ * 2. Station mode with bssid set:
+ *
+ * $ ifup wlan0
+ * $ wapi mode wlan0 2
+ * $ wapi psk wlan0 12345678 3
+ * $ wapi essid wlan0 archer 2  <-- WAPI_ESSID_DELAY_ON will indicate the
+ * $                                driver delay the connection event late
+ * $                                to bssid set (SIOCSIWAP).
+ * $ wapi ap wlan0 ec:41:18:e0:76:7e
+ * $ renew wlan0
+ */
+
+  WAPI_ESSID_DELAY_ON
 };
 
 /* Supported operation modes. */
@@ -258,6 +287,8 @@ struct wpa_wconfig_s
                                   * IW_AUTH_CIPHER_CCMP */
   uint8_t alg;                   /* See enum wpa_alg_e above, e.g.
                                   * WPA_ALG_CCMP */
+  double freq;                   /* Channel frequency */
+  enum wapi_freq_flag_e flag;    /* Channel frequency flag */
   uint8_t ssidlen;               /* Length of the SSID */
   uint8_t phraselen;             /* Length of the passphrase */
   FAR const char *ifname;        /* E.g., "wlan0" */
@@ -696,6 +727,28 @@ int wapi_scan_coll(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 void wapi_scan_coll_free(FAR struct wapi_list_s *aps);
+
+/****************************************************************************
+ * Name: wapi_set_country
+ *
+ * Description:
+ *    Set the country code
+ *
+ ****************************************************************************/
+
+int wapi_set_country(int sock, FAR const char *ifname,
+                     FAR const char *country);
+
+/****************************************************************************
+ * Name: wapi_get_sensitivity
+ *
+ * Description:
+ *    Get the wlan Sensitivity
+ *
+ ****************************************************************************/
+
+int wapi_get_sensitivity(int sock, FAR const char *ifname,
+                         FAR int *sense);
 
 #ifdef CONFIG_WIRELESS_WAPI_INITCONF
 /****************************************************************************

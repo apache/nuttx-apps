@@ -13,14 +13,25 @@ config NETUTILS_NTPCLIENT
 if NETUTILS_NTPCLIENT
 
 config NETUTILS_NTPCLIENT_SERVER
-	string "NTP server URL (or IP address)"
-	default "pool.ntp.org"
+	string "NTP server hostnames"
+	default "0.pool.ntp.org;1.pool.ntp.org;2.pool.ntp.org"
 	depends on LIBC_NETDB
+	---help---
+		List of NTP server hostnames to use. Server names need to
+		be separated by ';'.
 
 config NETUTILS_NTPCLIENT_SERVERIP
 	hex "NTP server IP address"
 	default 0x0a000001
 	depends on !LIBC_NETDB
+	---help---
+		Warning: this is deprecated option. Suitable only for testing.
+		Never use this in real NuttX products!
+
+		Use of hardcoded IP address for NTP server is known bad
+		practice:
+
+		  https://en.wikipedia.org/wiki/NTP_server_misuse_and_abuse
 
 config NETUTILS_NTPCLIENT_PORTNO
 	int "NTP server port number"
@@ -34,9 +45,22 @@ config NETUTILS_NTPCLIENT_SERVERPRIO
 	int "NTP client daemon priority"
 	default 100
 
+config NETUTILS_NTPCLIENT_STAY_ON
+	bool "Make NTP client keep polling"
+	default y
+
 config NETUTILS_NTPCLIENT_POLLDELAYSEC
 	int "NTP client poll interval (seconds)"
 	default 60
+	depends on NETUTILS_NTPCLIENT_STAY_ON
+
+config NETUTILS_NTPCLIENT_RETRIES
+	int "NTP client retry seconds to wait for network up"
+	default 60
+
+config NETUTILS_NTPCLIENT_NUM_SAMPLES
+	int "NTP client number of samples collected for filter"
+	default 5
 
 config NETUTILS_NTPCLIENT_SIGWAKEUP
 	int "NTP client wakeup signal number"

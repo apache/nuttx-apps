@@ -1,0 +1,56 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WATCHER
+	tristate "Watcher example"
+	default n
+	depends on DRIVER_NOTERAM
+	depends on FSUTILS_MKFATFS
+	---help---
+		Enable the watcher example. The watcher is a task that will monitor
+		other tasks that have previously subscribed to be watched. If the 
+		watched tasks don't signal the watcher during the watchdog time period,
+		the watchdog timer will expire and the watcher will print the tasks that
+		did not signal and the ones that signaled. This example will only be supported
+		by the chips that supports interrupt on timeout, i.e., which have the \"capture\"
+		command implemented.
+
+if EXAMPLES_WATCHER
+
+config EXAMPLES_WATCHER_PROGNAME
+	string "Program name"
+	default "watcher"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_WATCHER_PRIORITY
+	int "Watcher task priority"
+	default 100
+
+config EXAMPLES_WATCHER_STACKSIZE
+	int "Watcher stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_WATCHER_DEVPATH
+	string "Watchdog device path"
+	default "/dev/watchdog0"
+
+config EXAMPLES_WATCHER_TIMEOUT
+	int "Watchdog timeout in ms"
+	default 5000
+
+config EXAMPLES_WATCHER_SIGNAL
+	int "Signal Number for communication"
+	default 18
+	---help---
+		This is the Signal Number used for communication between the watcher task and the watched tasks.
+
+config EXAMPLES_WATCHER_SIGNAL_LOG
+	int "Signal Number for logging"
+	default 19
+	---help---
+		This is the Signal Number used by the wdt handler to notify the signal handler to log the tasks.
+endif

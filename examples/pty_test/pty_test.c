@@ -302,7 +302,7 @@ int main(int argc, FAR char *argv[])
 
   /* Open the created pts */
 
-  fd_pts = open(buffer, O_RDWR | O_NONBLOCK);
+  fd_pts = open(buffer, O_RDWR);
   if (fd_pts < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n", buffer, errno);
@@ -311,8 +311,7 @@ int main(int argc, FAR char *argv[])
 
   /* Open the second serial port to create a new console there */
 
-  termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV,
-                          O_RDWR | O_NONBLOCK);
+  termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV, O_RDWR);
   if (termpair.fd_uart < 0)
     {
 #ifdef CONFIG_EXAMPLES_PTYTEST_WAIT_CONNECTED
@@ -328,8 +327,7 @@ int main(int argc, FAR char *argv[])
         {
           sleep(1);
 
-          termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV,
-                                  O_RDWR | O_NONBLOCK);
+          termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV, O_RDWR);
         }
 
       /* if we exited due to an error different than ENOTCONN */
@@ -384,7 +382,7 @@ int main(int argc, FAR char *argv[])
 
   pid = task_create("NSH Console", CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO,
                     CONFIG_EXAMPLES_PTYTEST_STACKSIZE, nsh_consolemain,
-                    argv);
+                    &argv[1]);
   if (pid < 0)
     {
       /* Can't do output because stdout and stderr are redirected */

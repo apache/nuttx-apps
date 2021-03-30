@@ -19,28 +19,28 @@ def get_palette(img, maxcolors = 255):
 def write_palette(outfile, palette):
   '''Write the palette (normal and highlight) to the output file.'''
 
-  outfile.write('static const NXWidgets::nxwidget_pixel_t palette[BITMAP_PALETTESIZE] =\n');
+  outfile.write('static const NXWidgets::nxwidget_pixel_t palette[BITMAP_PALETTESIZE] =\n')
   outfile.write('{\n')
 
   for i in range(0, len(palette), 4):
-    outfile.write('  ');
+    outfile.write('  ')
     for r, g, b in palette[i:i+4]:
       outfile.write('MKRGB(%3d,%3d,%3d), ' % (r, g, b))
-    outfile.write('\n');
+    outfile.write('\n')
 
   outfile.write('};\n\n')
 
-  outfile.write('static const NXWidgets::nxwidget_pixel_t hilight_palette[BITMAP_PALETTESIZE] =\n');
+  outfile.write('static const NXWidgets::nxwidget_pixel_t hilight_palette[BITMAP_PALETTESIZE] =\n')
   outfile.write('{\n')
 
   for i in range(0, len(palette), 4):
-    outfile.write('  ');
+    outfile.write('  ')
     for r, g, b in palette[i:i+4]:
       r = min(255, r + 50)
       g = min(255, g + 50)
       b = min(255, b + 50)
       outfile.write('MKRGB(%3d,%3d,%3d), ' % (r, g, b))
-    outfile.write('\n');
+    outfile.write('\n')
 
   outfile.write('};\n\n')
 
@@ -54,7 +54,8 @@ def quantize(color, palette):
     def distance(color2):
       return sum([(a - b)**2 for a, b in zip(color, color2)])
 
-    return palette.index(min(palette, key = distance));
+    return palette.index(min(palette, key = distance))
+
 
 def encode_row(img, palette, y):
   '''RLE-encode one row of image data.'''
@@ -81,8 +82,8 @@ def encode_row(img, palette, y):
 def write_image(outfile, img, palette):
   '''Write the image contents to the output file.'''
 
-  outfile.write('static const NXWidgets::SRlePaletteBitmapEntry bitmap[] =\n');
-  outfile.write('{\n');
+  outfile.write('static const NXWidgets::SRlePaletteBitmapEntry bitmap[] =\n')
+  outfile.write('{\n')
 
   for y in range(0, img.size[1]):
     entries = encode_row(img, palette, y)
@@ -97,7 +98,8 @@ def write_image(outfile, img, palette):
     row += ' ' * (73 - len(row))
     outfile.write('  ' + row + '/* Row %d */\n' % y)
 
-  outfile.write('};\n\n');
+  outfile.write('};\n\n')
+
 
 def write_descriptor(outfile, name):
   '''Write the public descriptor structure for the image.'''

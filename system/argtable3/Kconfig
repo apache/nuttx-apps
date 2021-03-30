@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_ARGTABLE3
+	bool "ARGTABLE3 library"
+	default n
+	---help---
+		Enables the ARGTABLE3 library.
+
+if SYSTEM_ARGTABLE3
+
+config SYSTEM_ARGTABLE3_VERSION
+	string "ARGTABLE3 Version"
+	default "3.2.0.7402e6e"
+
+endif

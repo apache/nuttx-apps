@@ -51,6 +51,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_SENSORS_ZEROCROSS
@@ -111,6 +112,10 @@ int main(int argc, FAR char *argv[])
       fprintf(stderr, "ERROR: ioctl(ZCIOC_REGISTER) failed: %d\n", errno);
       goto errout_with_fd;
     }
+
+  /* Ignore the default signal action */
+
+  signal(CONFIG_EXAMPLES_ZEROCROSS_SIGNO, SIG_IGN);
 
   /* Then loop, receiving signals indicating zero cross events. */
 

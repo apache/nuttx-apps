@@ -96,9 +96,9 @@ static int briget_net1_setup(void)
   void *handle;
 #endif
 
-printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
+  printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET1_NOMAC
   mac[0] = (CONFIG_EXAMPLES_BRIDGE_NET1_MACADDR >> (8 * 5)) & 0xff;
@@ -144,8 +144,9 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 
   handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
-  /* Get an IP address.  Note:  there is no logic here for renewing the address in this
-   * example.  The address should be renewed in ds.lease_time/2 seconds.
+  /* Get an IP address.  Note:  there is no logic here for renewing the
+   * address in this example.  The address should be renewed in
+   * ds.lease_time/2 seconds.
    */
 
   if (!handle)
@@ -164,12 +165,14 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 
   if (ds.netmask.s_addr != 0)
     {
-      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.netmask);
+      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME,
+                             &ds.netmask);
     }
 
   if (ds.default_router.s_addr != 0)
     {
-      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.default_router);
+      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME,
+                            &ds.default_router);
     }
 
   if (ds.dnsaddr.s_addr != 0)
@@ -223,9 +226,9 @@ static int briget_net2_setup(void)
   void *handle;
 #endif
 
-printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
+  printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET2_NOMAC
   mac[0] = (CONFIG_EXAMPLES_BRIDGE_NET2_MACADDR >> (8 * 5)) & 0xff;
@@ -265,8 +268,9 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
   handle = dhcpc_open(&mac, IFHWADDRLEN);
 
-  /* Get an IP address.  Note:  there is no logic here for renewing the address in this
-   * example.  The address should be renewed in ds.lease_time/2 seconds.
+  /* Get an IP address.  Note:  there is no logic here for renewing the
+   * address in this example.  The address should be renewed in
+   * ds.lease_time/2 seconds.
    */
 
   if (!handle)
@@ -285,12 +289,14 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
   if (ds.netmask.s_addr != 0)
     {
-      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.netmask);
+      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME,
+                             &ds.netmask);
     }
 
   if (ds.default_router.s_addr != 0)
     {
-      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.default_router);
+      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME,
+                            &ds.default_router);
     }
 
   if (ds.dnsaddr.s_addr != 0)
@@ -347,23 +353,28 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net1_ipaddr);
   printf("NET1: Create receive socket: %d.%d.%d.%d:%d\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff),
          CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
     {
-      fprintf(stderr, "NET1 ERROR: Failed to create receive socket: %d\n", errno);
+      fprintf(stderr, "NET1 ERROR: Failed to create receive socket: %d\n",
+              errno);
       return EXIT_FAILURE;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+                 sizeof(int)) < 0)
     {
-      fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
+              errno);
       goto errout_with_recvsd;
     }
 
@@ -373,7 +384,8 @@ static int bridge_net1_worker(int argc, char *argv[])
   receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
   receiver.sin_addr.s_addr = g_net1_ipaddr;
 
-  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr *)&receiver,
+           sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, "NET1 ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
@@ -383,22 +395,27 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net2_ipaddr);
   printf("NET1: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
     {
-      fprintf(stderr, "NET1 ERROR: Failed to create send socket: %d\n", errno);
+      fprintf(stderr, "NET1 ERROR: Failed to create send socket: %d\n",
+              errno);
       goto errout_with_recvsd;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+                 sizeof(int)) < 0)
     {
-      fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
+              errno);
       goto errout_with_sendsd;
     }
 
@@ -408,7 +425,8 @@ static int bridge_net1_worker(int argc, char *argv[])
   sender.sin_port        = 0;
   sender.sin_addr.s_addr = g_net2_ipaddr;
 
-  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr *)&sender,
+           sizeof(struct sockaddr_in)) < 0)
     {
       printf("NET1: bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -416,7 +434,7 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Then receive and forward UDP packets forever  */
 
-  for (;;)
+  for (; ; )
     {
       /* Read a packet on network 1 */
 
@@ -424,14 +442,17 @@ static int bridge_net1_worker(int argc, char *argv[])
              CONFIG_EXAMPLES_BRIDGE_NET1_IOBUFIZE);
 
       addrlen = sizeof(struct sockaddr_in);
-      nrecvd = recvfrom(recvsd, g_net1_buffer, CONFIG_EXAMPLES_BRIDGE_NET1_IOBUFIZE, 0,
-                        (FAR struct sockaddr*)&fromaddr, &addrlen);
+      nrecvd = recvfrom(recvsd, g_net1_buffer,
+                        CONFIG_EXAMPLES_BRIDGE_NET1_IOBUFIZE, 0,
+                        (FAR struct sockaddr *)&fromaddr, &addrlen);
 
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET1: Received %ld bytes from %d.%d.%d.%d:%d\n",
              (long)nrecvd,
-             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             (int)(tmpaddr >> 24),
+             (int)((tmpaddr >> 16) & 0xff),
+             (int)((tmpaddr >> 8) & 0xff),
+             (int)(tmpaddr & 0xff),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
@@ -470,7 +491,8 @@ static int bridge_net1_worker(int argc, char *argv[])
       toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST);
 
       nsent = sendto(sndsd, g_net1_buffer, nrecvd, 0,
-                      (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
+                     (struct sockaddr *)&toaddr,
+                     sizeof(struct sockaddr_in));
 
       /* Check for send errors */
 
@@ -492,10 +514,10 @@ static int bridge_net1_worker(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout_with_sendsd:
-   close(sndsd);
+  close(sndsd);
 errout_with_recvsd:
-   close(recvsd);
-   return EXIT_FAILURE;
+  close(recvsd);
+  return EXIT_FAILURE;
 }
 
 /****************************************************************************
@@ -522,23 +544,28 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net2_ipaddr);
   printf("NET2: Create receive socket: %d.%d.%d.%d:%d\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff),
          CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
     {
-      fprintf(stderr, "NET2 ERROR: Failed to create receive socket: %d\n", errno);
+      fprintf(stderr, "NET2 ERROR: Failed to create receive socket: %d\n",
+              errno);
       return EXIT_FAILURE;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+                 sizeof(int)) < 0)
     {
-      fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
+              errno);
       goto errout_with_recvsd;
     }
 
@@ -548,7 +575,8 @@ static int bridge_net2_worker(int argc, char *argv[])
   receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
   receiver.sin_addr.s_addr = g_net2_ipaddr;
 
-  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr *)&receiver,
+           sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, "NET2 ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
@@ -558,22 +586,27 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   tmpaddr = ntohl(g_net1_ipaddr);
   printf("NET2: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
+         (int)(tmpaddr >> 24),
+         (int)((tmpaddr >> 16) & 0xff),
+         (int)((tmpaddr >> 8) & 0xff),
+         (int)(tmpaddr & 0xff));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
     {
-      fprintf(stderr, "NET2 ERROR: Failed to create send socket: %d\n", errno);
+      fprintf(stderr, "NET2 ERROR: Failed to create send socket: %d\n",
+              errno);
       goto errout_with_recvsd;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+                 sizeof(int)) < 0)
     {
-      fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
+              errno);
       goto errout_with_sendsd;
     }
 
@@ -583,7 +616,8 @@ static int bridge_net2_worker(int argc, char *argv[])
   sender.sin_port        = 0;
   sender.sin_addr.s_addr = g_net1_ipaddr;
 
-  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr *)&sender,
+           sizeof(struct sockaddr_in)) < 0)
     {
       printf("NET2: bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -591,7 +625,7 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Then receive and forward UDP packets forever  */
 
-  for (;;)
+  for (; ; )
     {
       /* Read a packet on network 2 */
 
@@ -599,14 +633,17 @@ static int bridge_net2_worker(int argc, char *argv[])
              CONFIG_EXAMPLES_BRIDGE_NET2_IOBUFIZE);
 
       addrlen = sizeof(struct sockaddr_in);
-      nrecvd = recvfrom(recvsd, g_net2_buffer, CONFIG_EXAMPLES_BRIDGE_NET2_IOBUFIZE, 0,
-                        (FAR struct sockaddr*)&fromaddr, &addrlen);
+      nrecvd = recvfrom(recvsd, g_net2_buffer,
+                        CONFIG_EXAMPLES_BRIDGE_NET2_IOBUFIZE, 0,
+                        (FAR struct sockaddr *)&fromaddr, &addrlen);
 
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET2: Received %ld bytes from %d.%d.%d.%d:%d\n",
              (long)nrecvd,
-             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             (int)(tmpaddr >> 24),
+             (int)((tmpaddr >> 16) & 0xff),
+             (int)((tmpaddr >> 8) & 0xff),
+             (int)(tmpaddr & 0xff),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
@@ -645,7 +682,7 @@ static int bridge_net2_worker(int argc, char *argv[])
       toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST);
 
       nsent = sendto(sndsd, g_net2_buffer, nrecvd, 0,
-                      (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
+                     (struct sockaddr *)&toaddr, sizeof(struct sockaddr_in));
 
       /* Check for send errors */
 
@@ -667,10 +704,10 @@ static int bridge_net2_worker(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout_with_sendsd:
-   close(sndsd);
+  close(sndsd);
 errout_with_recvsd:
-   close(recvsd);
-   return EXIT_FAILURE;
+  close(recvsd);
+  return EXIT_FAILURE;
 }
 
 /****************************************************************************
@@ -707,9 +744,11 @@ int main(int argc, FAR char *argv[])
 
   printf("Start network 1 worker\n");
 
-  net1_worker = task_create("NET1 Worker", CONFIG_EXAMPLES_BRIDGE_NET1_PRIORITY,
-                        CONFIG_EXAMPLES_BRIDGE_NET1_STACKSIZE, bridge_net1_worker,
-                        NULL);
+  net1_worker = task_create("NET1 Worker",
+                            CONFIG_EXAMPLES_BRIDGE_NET1_PRIORITY,
+                            CONFIG_EXAMPLES_BRIDGE_NET1_STACKSIZE,
+                            bridge_net1_worker,
+                            NULL);
   if (net1_worker < 0)
     {
       fprintf(stderr, "ERROR: Failed to start network daemon 1\n");
@@ -718,9 +757,11 @@ int main(int argc, FAR char *argv[])
 
   printf("Start network 2 worker\n");
 
-  net2_worker = task_create("NET2 Worker", CONFIG_EXAMPLES_BRIDGE_NET2_PRIORITY,
-                        CONFIG_EXAMPLES_BRIDGE_NET2_STACKSIZE, bridge_net2_worker,
-                        NULL);
+  net2_worker = task_create("NET2 Worker",
+                            CONFIG_EXAMPLES_BRIDGE_NET2_PRIORITY,
+                            CONFIG_EXAMPLES_BRIDGE_NET2_STACKSIZE,
+                            bridge_net2_worker,
+                            NULL);
   if (net2_worker < 0)
     {
       fprintf(stderr, "ERROR: Failed to start network daemon 2\n");

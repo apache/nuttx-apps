@@ -1,0 +1,15 @@
+config NIMBLE
+  bool "Apache nimBLE (BLE host-layer)"
+  default n
+  depends on !WIRELESS_BLUETOOTH_HOST
+  ---help---
+    Enable Apache nimBLE Bluetooth Low Energy
+    host-layer stack.
+
+if NIMBLE
+  config NIMBLE_REF
+  string "Version"
+  default "7b5b5e5b512133e50ef8a517b13e7269f9c821fd"
+  ---help---
+    Git ref name to use when downloading from nimBLE repo
+endif

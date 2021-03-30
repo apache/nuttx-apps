@@ -35,7 +35,6 @@
 
 include $(APPDIR)/Make.defs
 
-WGET = wget
 CP = cp -R
 UNPACK = tar -xzf
 PACKEXT = .tar.gz
@@ -108,7 +107,7 @@ endif
 
 $(PSMQ_TARBALL):
 	@echo "Downloading: $@"
-	$(Q) $(WGET) -O $@ $(PSMQ_URL)/$@
+	$(Q) curl -L -o $@ $(PSMQ_URL)/$@
 	$(Q) $(NXTOOLSDIR)/check-hash.sh sha256 $(PSMQ_SRC_SHA256) $@
 
 $(PSMQ_SOURCES): $(PSMQ_TARBALL)

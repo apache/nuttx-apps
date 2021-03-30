@@ -54,11 +54,11 @@
 #include "btsak.h"
 
 /****************************************************************************
- * Private data
+ * Private Data
  ****************************************************************************/
 
 /****************************************************************************
- * Private functions
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -92,7 +92,8 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
   if (argc < argndx)
     {
       fprintf(stderr,
-              "ERROR:  Invalid number of arguments.  Found %d expected at least %u\n",
+              "ERROR:  Invalid number of arguments.  "
+              "Found %d expected at least %u\n",
               argc - 1, argndx - 1);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
@@ -154,7 +155,8 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBTDISCOVER, (unsigned long)((uintptr_t)&btreq));
+      ret = ioctl(sockfd, SIOCBTDISCOVER,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
           fprintf(stderr, "ERROR:  ioctl(SIOCBTDISCOVER) failed: %d\n",
@@ -264,7 +266,8 @@ static void btsak_cmd_read_common(FAR struct btsak_s *btsak, int argc,
   if (argc < 4 || argc > 5)
     {
       fprintf(stderr,
-              "ERROR:  Invalid number of arguments.  Found %d expected 3 or 4\n",
+              "ERROR:  Invalid number of arguments.  "
+              "Found %d expected 3 or 4\n",
               argc - 1);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
@@ -388,7 +391,8 @@ void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
-      ret = ioctl(sockfd, SIOCBTEXCHANGE, (unsigned long)((uintptr_t)&btreq));
+      ret = ioctl(sockfd, SIOCBTEXCHANGE,
+                  (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
         {
           fprintf(stderr, "ERROR:  ioctl(SIOCBTEXCHANGE) failed: %d\n",
@@ -412,7 +416,8 @@ void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
  *
  ****************************************************************************/
 
-void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+void btsak_cmd_discover(FAR struct btsak_s *btsak, int argc,
+                        FAR char *argv[])
 {
   btsak_cmd_discover_common(btsak, argc, argv, GATT_DISCOVER);
 }
@@ -468,7 +473,8 @@ void btsak_cmd_gatt_read(FAR struct btsak_s *btsak, int argc,
  * Name: btsak_cmd_gatt_read_multiple
  *
  * Description:
- *   gatt [-h] read-multiple [-h] <addr> public|private <handle> [<handle> [<handle>]..]
+ *   gatt [-h] read-multiple [-h] <addr> public|private <handle>
+ *        [<handle> [<handle>]..]
  *
  ****************************************************************************/
 
@@ -483,7 +489,8 @@ void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,
   if (argc < 4)
     {
       fprintf(stderr,
-              "ERROR:  Invalid number of arguments.  Found %d expected at least 3\n",
+              "ERROR:  Invalid number of arguments.  "
+              "Found %d expected at least 3\n",
               argc - 1);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
@@ -495,7 +502,8 @@ void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,
  * Name: btsak_cmd_gatt_write
  *
  * Description:
- *   gatt [-h] write [-h] [-h] <addr> public|private <handle> <byte> [<byte> [<byte>]..]
+ *   gatt [-h] write [-h] [-h] <addr> public|private <handle> <byte>
+ *        [<byte> [<byte>]..]
  *
  ****************************************************************************/
 
@@ -515,7 +523,8 @@ void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
   if (argc < 5)
     {
       fprintf(stderr,
-              "ERROR:  Invalid number of arguments.  Found %d expected at least 4\n",
+              "ERROR:  Invalid number of arguments.  "
+              "Found %d expected at least 4\n",
               argc - 1);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
@@ -539,7 +548,7 @@ void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
 
   if (btreq.btr_wrnbytes > HCI_GATTWR_DATA)
     {
-      fprintf(stderr, "ERROR:  Too much data.  Limit is %u bytes%s\n",
+      fprintf(stderr, "ERROR:  Too much data.  Limit is %u bytes\n",
               HCI_GATTWR_DATA);
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
@@ -585,7 +594,6 @@ void btsak_cmd_connect(FAR struct btsak_s *btsak, int argc,
 {
   btsak_cmd_connect_common(btsak, argc, argv, SIOCBTCONNECT);
 }
-
 
 /****************************************************************************
  * Name: btsak_cmd_gatt_connect
