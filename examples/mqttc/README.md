@@ -12,7 +12,7 @@ mosquitto is used:
 mosquitto&
 mosquitto_sub -t test
 ```
-Make sure that mosquitto is configured in local mode only.
+Make sure that mosquitto is not configured in local mode only.
 
 From the nsh:
 
