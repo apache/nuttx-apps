@@ -150,10 +150,12 @@ static int initserver(const FAR struct mqttc_cfg_s *cfg)
   hints.ai_family  = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
 
+  printf("Connecting to %s:%s...\n", cfg->host, cfg->port);
+
   ret = getaddrinfo(cfg->host, cfg->port, &hints, &servinfo);
   if (ret < 0)
     {
-      printf("ERROR! getaddrinfo() failed:%s\n", gai_strerror(ret));
+      printf("ERROR! getaddrinfo() failed: %s\n", gai_strerror(ret));
     }
 
   itr = servinfo;
@@ -186,14 +188,14 @@ static int initserver(const FAR struct mqttc_cfg_s *cfg)
   ret = fcntl(fd, F_GETFL, 0);
   if (ret < 0)
     {
-      printf("ERROR! fcntl() F_GETFL failed, errno:%d\n", errno);
+      printf("ERROR! fcntl() F_GETFL failed, errno: %d\n", errno);
       return -1;
     }
 
   ret = fcntl(fd, F_SETFL, ret | O_NONBLOCK);
   if (ret < 0)
     {
-      printf("ERROR! fcntl() F_SETFL failed, errno:%d\n", errno);
+      printf("ERROR! fcntl() F_SETFL failed, errno: %d\n", errno);
       return -1;
     }
 
@@ -212,6 +214,7 @@ int main(int argc, char *argv[])
   int n = 1;
   struct mqttc_cfg_s mqtt_cfg =
     {
+      .host = "broker.hivemq.com",
       .port = "1883",
       .topic = "test",
       .msg = "test",
