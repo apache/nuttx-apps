@@ -50,8 +50,13 @@
 
 #include "fbdev.h"
 #include "lcddev.h"
+
+#ifdef CONFIG_INPUT
+
 #include "tp.h"
 #include "tp_cal.h"
+
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -194,6 +199,8 @@ int main(int argc, FAR char *argv[])
 
   lv_disp_drv_register(&disp_drv);
 
+#ifdef CONFIG_INPUT
+
   /* Touchpad Initialization */
 
   tp_init();
@@ -208,6 +215,8 @@ int main(int argc, FAR char *argv[])
   indev_drv.read_cb = tp_read;
   lv_indev_drv_register(&indev_drv);
 
+#endif
+
 #if defined(CONFIG_EXAMPLES_LVGLDEMO_BENCHMARK)
   lv_demo_benchmark();
 #elif defined(CONFIG_EXAMPLES_LVGLDEMO_PRINTER)
@@ -218,6 +227,8 @@ int main(int argc, FAR char *argv[])
   lv_demo_widgets();
 #endif
 
+#ifdef CONFIG_INPUT
+
   /* Start TP calibration */
 
 #ifdef CONFIG_EXAMPLES_LVGLDEMO_CALIBRATE
@@ -225,6 +236,9 @@ int main(int argc, FAR char *argv[])
 #else
   tp_set_cal_values(p, p + 1, p + 2, p + 3);
 #endif
+
+#endif
+
   /* Handle LVGL tasks */
 
   while (1)
