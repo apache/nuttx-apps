@@ -52,9 +52,13 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 
 # LittleVGL demo Example
 
-CSRCS += fbdev.c lcddev.c tp.c tp_cal.c
+CSRCS += fbdev.c lcddev.c
 
-# static common assets used in mutiple example
+ifneq ($(CONFIG_INPUT),)
+CSRCS += tp.c tp_cal.c
+endif
+
+# static common assets used in multiple examples
 
 LV_EXAMPLE_ASSETS = $(wildcard ./lv_examples/assets/*.c)
 CSRCS += $(notdir $(LV_EXAMPLE_ASSETS))
