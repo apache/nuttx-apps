@@ -22,7 +22,7 @@ include $(APPDIR)/Make.defs
 
 # Stack Monitor Application
 
-PROGNAME = critmon_start critmon_stop
+PROGNAME = critmon critmon_start critmon_stop
 PRIORITY = $(CONFIG_SYSTEM_CRITMONITOR_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_CRITMONITOR_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_CRITMONITOR)

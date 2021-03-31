@@ -378,15 +378,99 @@ errout_with_filepath:
 }
 
 /****************************************************************************
+ * Name: critmon_list_once
+ ****************************************************************************/
+
+static int critmon_list_once(void)
+{
+  int exitcode = EXIT_SUCCESS;
+  int errcount = 0;
+  DIR *dirp;
+  int ret;
+
+  /* Output a Header */
+
+#if CONFIG_TASK_NAME_SIZE > 0
+  printf("PRE-EMPTION CSECTION    PID   DESCRIPTION\n");
+#else
+  printf("PRE-EMPTION CSECTION    PID\n");
+#endif
+  printf("MAX DISABLE MAX TIME\n");
+
+  /* Should global usage first */
+
+  critmon_global_crit();
+
+  /* Open the top-level procfs directory */
+
+  dirp = opendir(CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT);
+  if (dirp == NULL)
+    {
+      /* Failed to open the directory */
+
+      fprintf(stderr, "Csection Monitor: Failed to open directory: %s\n",
+              CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT);
+
+      if (++errcount > 100)
+        {
+          fprintf(stderr, "Csection Monitor: Too many errors ... exiting\n");
+          return EXIT_FAILURE;
+        }
+    }
+
+  /* Read each directory entry */
+
+  for (; ; )
+    {
+      FAR struct dirent *entryp = readdir(dirp);
+      if (entryp == NULL)
+        {
+          /* Finished with this directory */
+
+          break;
+        }
+
+      /* Task/thread entries in the /proc directory will all be (1)
+       * directories with (2) all numeric names.
+       */
+
+      if (DIRENT_ISDIRECTORY(entryp->d_type) &&
+          critmon_check_name(entryp->d_name))
+        {
+          /* Looks good -- process the directory */
+
+          ret = critmon_process_directory(entryp);
+          if (ret < 0)
+            {
+              /* Failed to process the thread directory */
+
+              fprintf(stderr, "Csection Monitor: "
+                      "Failed to process sub-directory: %s\n",
+                      entryp->d_name);
+
+              if (++errcount > 100)
+                {
+                  fprintf(stderr, "Csection Monitor: "
+                          "Too many errors ... exiting\n");
+                  exitcode = EXIT_FAILURE;
+                  break;
+                }
+            }
+        }
+    }
+
+  closedir(dirp);
+  fputc('\n', stdout);
+  return exitcode;
+}
+
+/****************************************************************************
  * Name: critmon_daemon
  ****************************************************************************/
 
 static int critmon_daemon(int argc, char **argv)
 {
-  DIR *dirp;
   int exitcode = EXIT_SUCCESS;
-  int errcount = 0;
-  int ret;
 
   printf("Csection Monitor: Running: %d\n", g_critmon.pid);
 
@@ -398,81 +482,11 @@ static int critmon_daemon(int argc, char **argv)
 
       sleep(CONFIG_SYSTEM_CRITMONITOR_INTERVAL);
 
-      /* Output a Header */
-
-#if CONFIG_TASK_NAME_SIZE > 0
-      printf("PRE-EMPTION CSECTION    PID   DESCRIPTION\n");
-#else
-      printf("PRE-EMPTION CSECTION    PID\n");
-#endif
-      printf("MAX DISABLE MAX TIME\n");
-
-      /* Should global usage first */
-
-      critmon_global_crit();
-
-      /* Open the top-level procfs directory */
-
-      dirp = opendir(CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT);
-      if (dirp == NULL)
+      exitcode = critmon_list_once();
+      if (exitcode != EXIT_SUCCESS)
         {
-          /* Failed to open the directory */
-
-          fprintf(stderr, "Csection Monitor: Failed to open directory: %s\n",
-                  CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT);
-
-          if (++errcount > 100)
-            {
-              fprintf(stderr,
-                      "Csection Monitor: Too many errors ... exiting\n");
-              exitcode = EXIT_FAILURE;
-              break;
-            }
+          break;
         }
-
-      /* Read each directory entry */
-
-      for (; ; )
-        {
-          FAR struct dirent *entryp = readdir(dirp);
-          if (entryp == NULL)
-            {
-              /* Finished with this directory */
-
-              break;
-            }
-
-          /* Task/thread entries in the /proc directory will all be (1)
-           * directories with (2) all numeric names.
-           */
-
-          if (DIRENT_ISDIRECTORY(entryp->d_type) &&
-              critmon_check_name(entryp->d_name))
-            {
-              /* Looks good -- process the directory */
-
-              ret = critmon_process_directory(entryp);
-              if (ret < 0)
-                {
-                  /* Failed to process the thread directory */
-
-                  fprintf(stderr, "Csection Monitor: "
-                          "Failed to process sub-directory: %s\n",
-                          entryp->d_name);
-
-                  if (++errcount > 100)
-                    {
-                      fprintf(stderr, "Csection Monitor: "
-                              "Too many errors ... exiting\n");
-                      exitcode = EXIT_FAILURE;
-                      break;
-                    }
-                }
-            }
-        }
-
-      closedir(dirp);
-      fputc('\n', stdout);
     }
 
   /* Stopped */
@@ -488,7 +502,7 @@ static int critmon_daemon(int argc, char **argv)
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, char **argv)
+int critmon_start_main(int argc, char **argv)
 {
   /* Has the monitor already started? */
 
@@ -547,6 +561,11 @@ int critmon_stop_main(int argc, char **argv)
 
   printf("Csection Monitor: Stopped: %d\n", g_critmon.pid);
   return 0;
+}
+
+int critmon_main(int argc, char **argv)
+{
+  return critmon_list_once();
 }
 
 #endif /* CONFIG_SYSTEM_CRITMONITOR */
