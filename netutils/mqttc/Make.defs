@@ -21,9 +21,6 @@
 ifneq ($(CONFIG_NETUTILS_MQTTC),)
 CONFIGURED_APPS += $(APPDIR)/netutils/mqttc
 
-CFLAGS   += -D__unix__
-CXXFLAGS += -D__unix__
-
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
 	$(APPDIR)/netutils/mqttc/MQTT-C/include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
