@@ -13,6 +13,6 @@ if NETUTILS_MQTTC
 
 config NETUTILS_MQTTC_VERSION
 	string "MQTT-C Version"
-	default "1.1.4"
+	default "1.1.5"
 
 endif
