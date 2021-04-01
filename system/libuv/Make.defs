@@ -18,15 +18,14 @@
 #
 ############################################################################
 
-# Set up build configuration and environment
+ifneq ($(CONFIG_LIBUV),)
+CONFIGURED_APPS += $(APPDIR)/system/libuv
 
-LIBUV_DIR := $(APPDIR)/system/libuv
+# Enable <uv.h> include.
 
-CONFIG_LIBUV_URL ?= "https://github.com/libuv/libuv/archive"
-CONFIG_LIBUV_VERSION ?= 1.38.1
-CONFIG_LIBUV_TARBALL ?= v$(CONFIG_LIBUV_VERSION).zip
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+	$(APPDIR)/system/libuv/libuv/include}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+	$(APPDIR)/system/libuv/libuv/include}
 
-LIBUV_UNPACKNAME := libuv-$(CONFIG_LIBUV_VERSION)
-LIBUV_UNPACKDIR := $(LIBUV_DIR)/$(LIBUV_UNPACKNAME)
-
-include $(wildcard $(APPDIR)/system/libuv/*/Make.defs)
+endif
