@@ -29,7 +29,7 @@ MODULE = $(CONFIG_TESTING_OSTEST)
 
 # NuttX OS Test
 
-CSRCS   = dev_null.c restart.c sigprocmask.c sighand.c signest.c
+CSRCS   = getopt.c dev_null.c restart.c sigprocmask.c sighand.c signest.c
 MAINSRC = ostest_main.c
 
 ifeq ($(CONFIG_SIG_SIGSTOP_ACTION),y)
