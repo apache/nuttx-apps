@@ -365,7 +365,7 @@ config NSH_DISABLE_LS
 
 config NSH_DISABLE_MB
 	bool "Disable mb"
-	default n
+	default y
 
 config NSH_DISABLE_MD5
 	bool "Disable md5"
@@ -402,7 +402,7 @@ config NSH_DISABLE_MKSMARTFS
 
 config NSH_DISABLE_MH
 	bool "Disable mh"
-	default n
+	default y
 
 config NSH_DISABLE_MODCMDS
 	bool "Disable modules commands (insmod, rmmod, lsmod)"
@@ -419,7 +419,7 @@ config NSH_DISABLE_MV
 
 config NSH_DISABLE_MW
 	bool "Disable mw"
-	default n
+	default y
 
 config NSH_DISABLE_NSFMOUNT
 	bool "Disable nfsmount"
