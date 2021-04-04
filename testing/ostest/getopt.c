@@ -213,7 +213,10 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, ret, expected[ndx].ret);
             }
 
-          if (expected[ndx].arg != optarg)
+          if ((expected[ndx].arg == NULL &&
+               optarg != NULL) ||
+              (expected[ndx].arg != NULL &&
+               strcmp(expected[ndx].arg, optarg) != 0))
             {
               printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
                      ndx + 1, optarg == NULL ? "null" : optarg,
@@ -281,7 +284,10 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, expected[ndx].flag, g_flag);
             }
 
-          if (expected[ndx].arg != optarg)
+          if ((expected[ndx].arg == NULL &&
+               optarg != NULL) ||
+              (expected[ndx].arg != NULL &&
+               strcmp(expected[ndx].arg, optarg) != 0))
             {
               printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
                      ndx + 1, optarg == NULL ? "null" : optarg,
@@ -350,7 +356,10 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, expected[ndx].flag, g_flag);
             }
 
-          if (expected[ndx].arg != optarg)
+          if ((expected[ndx].arg == NULL &&
+               optarg != NULL) ||
+              (expected[ndx].arg != NULL &&
+               strcmp(expected[ndx].arg, optarg) != 0))
             {
               printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
                      ndx + 1, optarg == NULL ? "null" : optarg,
@@ -475,6 +484,30 @@ int getopt_test(void)
   printf("getopt_long():  No short options\n");
 
   getopt_long_test(4, 8, argv, NULL, long_options, NULL,
+                   results);
+
+  printf("getopt_long():  Argument for --option=argument\n");
+
+  argv[0] = NULL;
+  argv[1] = "--OptionA";
+  argv[2] = "--OptionB";
+  argv[3] = "--OptionC=Arg1";
+  argv[4] = "--OptionD=Arg2";
+  argv[5] = "NoOption";
+  argv[6] = NULL;
+
+  LONG_OPTION_A(0);
+  LONG_OPTION_B(1);
+  LONG_OPTION_C(2);
+  LONG_OPTION_D(3);
+  LONG_OPTION_END(4)
+
+  LONG_RESULT_A(0);
+  LONG_RESULT_B(1);
+  LONG_RESULT_C(2);
+  LONG_RESULT_D1(3);
+
+  getopt_long_test(4, 6, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long():  Invalid long option\n");
