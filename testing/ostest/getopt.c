@@ -192,7 +192,11 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
        (ret = getopt(argc, argv, optstring)) != ERROR && ndx < noptions;
        ndx++)
     {
-      if (optind < 1 || optind >= argc)
+      /* optind may index through argc (to the NULL argv entry) since it is
+       * required to always point to the next command line argument.
+       */
+
+      if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
         }
@@ -250,7 +254,11 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
                           longindex)) != ERROR;
        ndx++)
     {
-      if (optind < 1 || optind >= argc)
+      /* optind may index through argc (to the NULL argv entry) since it is
+       * required to always point to the next command line argument.
+       */
+
+      if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
         }
@@ -315,7 +323,11 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
                                longindex)) != ERROR;
        ndx++)
     {
-      if (optind < 1 || optind > 7)
+      /* optind may index through argc (to the NULL argv entry) since it is
+       * required to always point to the next command line argument.
+       */
+
+      if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
         }
@@ -413,6 +425,9 @@ int getopt_test(void)
 
   getopt_short_test(5, 9, argv, g_optstring, results);
 
+  argv[8] = NULL;
+  getopt_short_test(5, 8, argv, g_optstring, results);
+
   printf("getopt():  Missing optional argument\n");
 
   argv[0] = NULL;
@@ -488,6 +503,10 @@ int getopt_test(void)
   LONG_RESULT_X(4);
 
   getopt_long_test(5, 9, argv, g_optstring, long_options, NULL,
+                   results);
+
+  argv[8] = NULL;
+  getopt_long_test(5, 8, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long():  Mixed long and short options\n");
