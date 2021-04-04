@@ -68,6 +68,13 @@
     results[n].arg  = "Arg2"; \
  }
 
+#define SHORT_RESULT_X(n) \
+ { \
+    results[n].ret  = '?'; \
+    results[n].flag = 0; \
+    results[n].arg  = NULL; \
+ }
+
 #define LONG_OPTION_A(n) \
   { \
     long_options[n].name    = "OptionA"; \
@@ -143,6 +150,13 @@
     results[n].arg  = NULL; \
   }
 
+#define LONG_RESULT_X(n) \
+  { \
+    results[n].ret  = '?'; \
+    results[n].flag = 0; \
+    results[n].arg  = NULL; \
+  }
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -165,7 +179,7 @@ static const char *g_optstring = "abc::d:";
  * Private Functions
  ****************************************************************************/
 
-static int getopt_short_test(int argc, FAR char **argv,
+static int getopt_short_test(int noptions, int argc, FAR char **argv,
                              FAR const char *optstring,
                              FAR const struct result_s *expected)
 {
@@ -175,7 +189,7 @@ static int getopt_short_test(int argc, FAR char **argv,
   optarg = NULL;
 
   for (ndx = 0;
-       (ret = getopt(argc, argv, g_optstring)) != ERROR;
+       (ret = getopt(argc, argv, optstring)) != ERROR && ndx < noptions;
        ndx++)
     {
       if (optind < 1 || optind >= argc)
@@ -183,27 +197,43 @@ static int getopt_short_test(int argc, FAR char **argv,
           printf("ERROR: optind=%d\n", optind);
         }
 
-      if (expected[ndx].ret != ret)
-        {
-          printf("ERROR: ret=%d (expected %d)\n",
-                 ret, expected[ndx].ret);
-        }
+      /* Parse until getopt(), but do not process anything if ndx exceeds
+       * noptions.
+       */
 
-      if (expected[ndx].arg != optarg)
+      if (ndx < noptions)
         {
-          printf("ERROR: optarg=%s (expected %s)\n",
-                 optarg == NULL ? "null" : optarg,
-                 expected[ndx].arg == NULL ? "null" :
-                 expected[ndx].arg);
+          if (expected[ndx].ret != ret)
+            {
+              printf("ERROR: arg %d:  ret=%d (expected %d)\n",
+                     ndx + 1, ret, expected[ndx].ret);
+            }
+
+          if (expected[ndx].arg != optarg)
+            {
+              printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
+                     ndx + 1, optarg == NULL ? "null" : optarg,
+                     expected[ndx].arg == NULL ? "null" :
+                     expected[ndx].arg);
+            }
         }
 
       optarg = NULL;
     }
 
+  /* Verify the number of options.  Some tests have and extra value at the
+   * end of the command line after the options.
+   */
+
+  if (ndx != noptions && ndx != noptions + 1)
+    {
+      printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
+    }
+
   return OK;
 }
 
-static int getopt_long_test(int argc, FAR char **argv,
+static int getopt_long_test(int noptions, int argc, FAR char **argv,
                             FAR const char *optstring,
                             FAR const struct option *longopts,
                             FAR int *longindex,
@@ -216,43 +246,59 @@ static int getopt_long_test(int argc, FAR char **argv,
   g_flag = 0;
 
   for (ndx = 0;
-       (ret = getopt_long(argc, argv, g_optstring, longopts,
+       (ret = getopt_long(argc, argv, optstring, longopts,
                           longindex)) != ERROR;
        ndx++)
     {
-      if (optind < 1 || optind > 7)
+      if (optind < 1 || optind >= argc)
         {
           printf("ERROR: optind=%d\n", optind);
         }
 
-      if (expected[ndx].ret != ret)
-        {
-          printf("ERROR: ret=%d (expected %d)\n",
-                 ret, expected[ndx].ret);
-        }
+      /* Parse until getop_long(), but do not process anything if ndx exceeds
+       * noptions.
+       */
 
-      if (expected[ndx].flag != g_flag)
+      if (ndx < noptions)
         {
-          printf("ERROR: flag=%d (expected %d)\n",
-                 expected[ndx].flag, g_flag);
-        }
+          if (expected[ndx].ret != ret)
+            {
+              printf("ERROR: arg %d:  ret=%d (expected %d)\n",
+                     ndx + 1, ret, expected[ndx].ret);
+            }
 
-      if (expected[ndx].arg != optarg)
-        {
-          printf("ERROR: optarg=%s (expected %s)\n",
-                 optarg == NULL ? "null" : optarg,
-                 expected[ndx].arg == NULL ? "null" :
-                 expected[ndx].arg);
+          if (expected[ndx].flag != g_flag)
+            {
+              printf("ERROR: arg %d;  flag=%d (expected %d)\n",
+                     ndx + 1, expected[ndx].flag, g_flag);
+            }
+
+          if (expected[ndx].arg != optarg)
+            {
+              printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
+                     ndx + 1, optarg == NULL ? "null" : optarg,
+                     expected[ndx].arg == NULL ? "null" :
+                     expected[ndx].arg);
+            }
         }
 
       optarg = NULL;
       g_flag = 0;
     }
 
+  /* Verify the number of options.  Some tests have and extra value at the
+   * end of the command line after the options.
+   */
+
+  if (ndx != noptions && ndx != noptions + 1)
+    {
+      printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
+    }
+
   return OK;
 }
 
-static int getopt_longonly_test(int argc, FAR char **argv,
+static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
                                 FAR const char *optstring,
                                 FAR const struct option *longopts,
                                 FAR int *longindex,
@@ -265,7 +311,7 @@ static int getopt_longonly_test(int argc, FAR char **argv,
   g_flag = 0;
 
   for (ndx = 0;
-       (ret = getopt_long_only(argc, argv, g_optstring, longopts,
+       (ret = getopt_long_only(argc, argv, optstring, longopts,
                                longindex)) != ERROR;
        ndx++)
     {
@@ -274,28 +320,44 @@ static int getopt_longonly_test(int argc, FAR char **argv,
           printf("ERROR: optind=%d\n", optind);
         }
 
-      if (expected[ndx].ret != ret)
-        {
-          printf("ERROR: ret=%d (expected %d)\n",
-                 ret, expected[ndx].ret);
-        }
+      /* Parse until getop_long(), but do not process anything if ndx exceeds
+       * noptions.
+       */
 
-      if (expected[ndx].flag != g_flag)
+      if (ndx < noptions)
         {
-          printf("ERROR: flag=%d (expected %d)\n",
-                 expected[ndx].flag, g_flag);
-        }
+          if (expected[ndx].ret != ret)
+            {
+              printf("ERROR: arg %d:  ret=%d (expected %d)\n",
+                     ndx + 1, ret, expected[ndx].ret);
+            }
 
-      if (expected[ndx].arg != optarg)
-        {
-          printf("ERROR: optarg=%s (expected %s)\n",
-                 optarg == NULL ? "null" : optarg,
-                 expected[ndx].arg == NULL ? "null" :
-                 expected[ndx].arg);
+          if (expected[ndx].flag != g_flag)
+            {
+              printf("ERROR: arg %d;  flag=%d (expected %d)\n",
+                     ndx + 1, expected[ndx].flag, g_flag);
+            }
+
+          if (expected[ndx].arg != optarg)
+            {
+              printf("ERROR: arg %d:  optarg=%s (expected %s)\n",
+                     ndx + 1, optarg == NULL ? "null" : optarg,
+                     expected[ndx].arg == NULL ? "null" :
+                     expected[ndx].arg);
+            }
         }
 
       optarg = NULL;
       g_flag = 0;
+    }
+
+  /* Verify the number of options.  Some tests have and extra value at the
+   * end of the command line after the options.
+   */
+
+  if (ndx != noptions && ndx != noptions + 1)
+    {
+      printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
     }
 
   return OK;
@@ -308,8 +370,8 @@ static int getopt_longonly_test(int argc, FAR char **argv,
 int getopt_test(void)
 {
   struct option long_options[5];
-  struct result_s results[4];
-  FAR char *argv[9];
+  struct result_s results[5];
+  FAR char *argv[10];
 
   printf("getopt():  Simple test\n");
 
@@ -328,7 +390,28 @@ int getopt_test(void)
   SHORT_RESULT_C1(2);
   SHORT_RESULT_D(3);
 
-  getopt_short_test(8, argv, g_optstring, results);
+  getopt_short_test(4, 8, argv, g_optstring, results);
+
+  printf("getopt():  Invalid argument\n");
+
+  argv[0] = NULL;
+  argv[1] = "-a";
+  argv[2] = "-b";
+  argv[3] = "-c";
+  argv[4] = "Arg1";
+  argv[5] = "-d";
+  argv[6] = "Arg2";
+  argv[7] = "-x";
+  argv[8] = "NoOption";
+  argv[9] = NULL;
+
+  SHORT_RESULT_A(0);
+  SHORT_RESULT_B(1);
+  SHORT_RESULT_C1(2);
+  SHORT_RESULT_D(3);
+  SHORT_RESULT_X(4);
+
+  getopt_short_test(5, 9, argv, g_optstring, results);
 
   printf("getopt():  Missing optional argument\n");
 
@@ -346,7 +429,7 @@ int getopt_test(void)
   SHORT_RESULT_C2(2);
   SHORT_RESULT_D(3);
 
-  getopt_short_test(7, argv, g_optstring, results);
+  getopt_short_test(4, 7, argv, g_optstring, results);
 
   printf("getopt_long():  Simple test\n");
 
@@ -371,12 +454,40 @@ int getopt_test(void)
   LONG_RESULT_C(2);
   LONG_RESULT_D1(3);
 
-  getopt_long_test(8, argv, g_optstring, long_options, NULL,
+  getopt_long_test(4, 8, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long():  No short options\n");
 
-  getopt_long_test(8, argv, NULL, long_options, NULL,
+  getopt_long_test(4, 8, argv, NULL, long_options, NULL,
+                   results);
+
+  printf("getopt_long():  Invalid long option\n");
+
+  argv[0] = NULL;
+  argv[1] = "--OptionA";
+  argv[2] = "--OptionB";
+  argv[3] = "--OptionC";
+  argv[4] = "Arg1";
+  argv[5] = "--OptionD";
+  argv[6] = "Arg2";
+  argv[7] = "--OptionX";
+  argv[8] = "NoOption";
+  argv[9] = NULL;
+
+  LONG_OPTION_A(0);
+  LONG_OPTION_B(1);
+  LONG_OPTION_C(2);
+  LONG_OPTION_D(3);
+  LONG_OPTION_END(4)
+
+  LONG_RESULT_A(0);
+  LONG_RESULT_B(1);
+  LONG_RESULT_C(2);
+  LONG_RESULT_D1(3);
+  LONG_RESULT_X(4);
+
+  getopt_long_test(5, 9, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long():  Mixed long and short options\n");
@@ -400,7 +511,35 @@ int getopt_test(void)
   LONG_RESULT_C(2);
   SHORT_RESULT_D(3);
 
-  getopt_long_test(8, argv, g_optstring, long_options, NULL,
+  getopt_long_test(4, 8, argv, g_optstring, long_options, NULL,
+                   results);
+
+  printf("getopt_long():  Invalid short option\n");
+
+  argv[0] = NULL;
+  argv[1] = "--OptionA";
+  argv[2] = "--OptionB";
+  argv[3] = "--OptionC";
+  argv[4] = "Arg1";
+  argv[5] = "--OptionD";
+  argv[6] = "Arg2";
+  argv[7] = "-x";
+  argv[8] = "NoOption";
+  argv[9] = NULL;
+
+  LONG_OPTION_A(0);
+  LONG_OPTION_B(1);
+  LONG_OPTION_C(2);
+  LONG_OPTION_D(3);
+  LONG_OPTION_END(4)
+
+  LONG_RESULT_A(0);
+  LONG_RESULT_B(1);
+  LONG_RESULT_C(2);
+  LONG_RESULT_D1(3);
+  SHORT_RESULT_X(4);
+
+  getopt_long_test(5, 9, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long():  Missing optional arguments\n");
@@ -422,7 +561,7 @@ int getopt_test(void)
   SHORT_RESULT_C2(2);
   LONG_RESULT_D2(3);
 
-  getopt_long_test(6, argv, g_optstring, long_options, NULL,
+  getopt_long_test(4, 6, argv, g_optstring, long_options, NULL,
                    results);
 
   printf("getopt_long_only():  Mixed long and short options\n");
@@ -446,7 +585,7 @@ int getopt_test(void)
   SHORT_RESULT_C1(2);
   LONG_RESULT_D1(3);
 
-  getopt_longonly_test(8, argv, g_optstring, long_options, NULL,
+  getopt_longonly_test(4, 8, argv, g_optstring, long_options, NULL,
                        results);
 
   printf("getopt_long_only():  Single hyphen long options\n");
@@ -470,7 +609,7 @@ int getopt_test(void)
   LONG_RESULT_C(2);
   SHORT_RESULT_D(3);
 
-  getopt_longonly_test(8, argv, g_optstring, long_options, NULL,
+  getopt_longonly_test(4, 8, argv, g_optstring, long_options, NULL,
                        results);
   return OK;
 }
