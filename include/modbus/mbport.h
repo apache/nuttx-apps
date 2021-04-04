@@ -38,6 +38,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <termios.h>
 
 /****************************************************************************
  * Public Types

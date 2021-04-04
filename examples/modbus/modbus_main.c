@@ -76,6 +76,10 @@
  ****************************************************************************/
 /* Configuration ************************************************************/
 
+#ifndef CONFIG_SERIAL_TERMIOS
+#  error "CONFIG_SERIAL_TERMIOS is needed by modbus example"
+#endif
+
 #ifndef CONFIG_EXAMPLES_MODBUS_PORT
 #  define CONFIG_EXAMPLES_MODBUS_PORT 0
 #endif
