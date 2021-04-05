@@ -22,6 +22,18 @@ config EXAMPLES_LVGLDEMO_BUFF_SIZE
 	int "Display buffer size (in line)"
 	default 20
 
+config EXAMPLES_LVGLDEMO_DOUBLE_BUFFERING
+	bool "Enable double buffering"
+	default n
+	---help---
+		When double buffering is enabled, LVGL expects the size of both
+		buffers as:
+		CONFIG_LV_HOR_RES * CONFIG_EXAMPLES_LVGLDEMO_BUFF_SIZE.
+		True double buffering support is enabled if both buffers have the
+		same dimensions as the display device resolution. Otherwise,
+		LVGL will perform a number of partial refreshes according to the
+		defined buffer size.
+
 config EXAMPLES_LVGLDEMO_ASYNC_FLUSH
 	bool "Flush the display buffer asynchronously"
 	default n
