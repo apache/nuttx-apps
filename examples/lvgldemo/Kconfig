@@ -11,13 +11,6 @@ menuconfig EXAMPLES_LVGLDEMO
 
 if EXAMPLES_LVGLDEMO
 
-config EXAMPLES_LVGLDEMO_CALIBRATE
-	bool "Calibrate touchscreen"
-	default y
-	---help---
-		Calibrate touchscreen before demo start, but some touchscreen
-		don't need it, like capacitive touchscreen.
-
 config EXAMPLES_LVGLDEMO_BUFF_SIZE
 	int "Display buffer size (in line)"
 	default 20
@@ -80,6 +73,19 @@ config EXAMPLES_LVGLDEMO_STACKSIZE
 	int "lvgldemo stack size"
 	default 16384
 
+comment "Input configuration options"
+	depends on INPUT_TOUCHSCREEN || INPUT_MOUSE
+
+config EXAMPLES_LVGLDEMO_CALIBRATE
+	bool "Calibrate touchscreen"
+	default y
+	depends on INPUT_TOUCHSCREEN || INPUT_MOUSE
+	---help---
+		Calibrate touchscreen before demo start, but some touchscreen
+		don't need it, like capacitive touchscreen.
+
+if INPUT_TOUCHSCREEN
+
 config EXAMPLES_LGVLDEMO_MINOR
 	int "Touchscreen minor device number"
 	default 0
@@ -95,11 +101,14 @@ config EXAMPLES_LGVLDEMO_DEVPATH
 		The path to the touchscreen device.  This must be consistent with
 		EXAMPLES_LGVLDEMO_MINOR. Default: "/dev/input0"
 
+endif # INPUT_TOUCHSCREEN
+
 config EXAMPLES_LGVLDEMO_MOUSE
 	bool "Mouse interface"
 	default n
+	depends on INPUT_MOUSE
 	---help---
 		The LittleVGL demo can also be configured to work with a mouse
 		driver by setting this option.
 
-endif
+endif # EXAMPLES_LVGLDEMO
