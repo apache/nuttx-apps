@@ -41,8 +41,8 @@
 
 #include <sys/boardctl.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include <debug.h>
 
@@ -52,10 +52,8 @@
 #include "lcddev.h"
 
 #ifdef CONFIG_INPUT
-
 #include "tp.h"
 #include "tp_cal.h"
-
 #endif
 
 /****************************************************************************
@@ -112,7 +110,13 @@ static void monitor_cb(lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px)
  * Private Data
  ****************************************************************************/
 
-static lv_color_t buf[DISPLAY_BUFFER_SIZE];
+static lv_color_t buffer1[DISPLAY_BUFFER_SIZE];
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_DOUBLE_BUFFERING
+static lv_color_t buffer2[DISPLAY_BUFFER_SIZE];
+#else
+# define buffer2 NULL
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -178,7 +182,7 @@ int main(int argc, FAR char *argv[])
 
   /* Basic LVGL display driver initialization */
 
-  lv_disp_buf_init(&disp_buf, buf, NULL, DISPLAY_BUFFER_SIZE);
+  lv_disp_buf_init(&disp_buf, buffer1, buffer2, DISPLAY_BUFFER_SIZE);
   lv_disp_drv_init(&disp_drv);
   disp_drv.buffer = &disp_buf;
   disp_drv.monitor_cb = monitor_cb;
@@ -200,7 +204,6 @@ int main(int argc, FAR char *argv[])
   lv_disp_drv_register(&disp_drv);
 
 #ifdef CONFIG_INPUT
-
   /* Touchpad Initialization */
 
   tp_init();
@@ -214,7 +217,6 @@ int main(int argc, FAR char *argv[])
 
   indev_drv.read_cb = tp_read;
   lv_indev_drv_register(&indev_drv);
-
 #endif
 
 #if defined(CONFIG_EXAMPLES_LVGLDEMO_BENCHMARK)
@@ -228,7 +230,6 @@ int main(int argc, FAR char *argv[])
 #endif
 
 #ifdef CONFIG_INPUT
-
   /* Start TP calibration */
 
 #ifdef CONFIG_EXAMPLES_LVGLDEMO_CALIBRATE
@@ -236,7 +237,6 @@ int main(int argc, FAR char *argv[])
 #else
   tp_set_cal_values(p, p + 1, p + 2, p + 3);
 #endif
-
 #endif
 
   /* Handle LVGL tasks */
