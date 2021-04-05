@@ -1,4 +1,4 @@
-name: ❄️ Lint
+name: Lint
 
 on: [pull_request]
 
@@ -7,13 +7,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  yamllint:
-    name: 🍺 YAML
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: 🧹 YAML Lint
+      - name: YAML Lint
         uses: github/super-linter@v4
         env:
           VALIDATE_YAML: true
-          FILTER_REGEX_INCLUDE: .*\.github/.*
+          VALIDATE_PYTHON_BLACK: true
