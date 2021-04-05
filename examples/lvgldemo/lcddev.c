@@ -24,8 +24,14 @@
 
 #include "lcddev.h"
 
+#include <nuttx/compiler.h>
 #include <nuttx/config.h>
 #include <nuttx/lcd/lcd_dev.h>
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+#include <pthread.h>
+#include <semaphore.h>
+#endif
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -62,9 +68,43 @@ struct lcd_state_s
 
 static struct lcd_state_s state;
 
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+static pthread_t lcd_write_thread;
+static sem_t flush_sem;
+static sem_t wait_sem;
+static struct lcddev_area_s lcd_area;
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: lcddev_wait
+ *
+ * Description:
+ *   Wait for the flushing operation conclusion to notify LVGL.
+ *
+ * Input Parameters:
+ *   disp_drv - LVGL driver interface
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+
+static void lcddev_wait(lv_disp_drv_t *disp_drv)
+{
+  sem_wait(&wait_sem);
+
+  /* Tell the flushing is ready */
+
+  lv_disp_flush_ready(disp_drv);
+}
+
+#endif
 
 /****************************************************************************
  * Name: lcddev_flush
@@ -82,8 +122,28 @@ static struct lcd_state_s state;
  *
  ****************************************************************************/
 
-static void lcddev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
-                         lv_color_t *color_p)
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+
+static void lcddev_async_flush(lv_disp_drv_t *disp_drv,
+                               const lv_area_t *area,
+                               lv_color_t *color_p)
+{
+  UNUSED(disp_drv);
+
+  lcd_area.row_start = area->y1;
+  lcd_area.row_end = area->y2;
+  lcd_area.col_start = area->x1;
+  lcd_area.col_end = area->x2;
+
+  lcd_area.data = (uint8_t *)color_p;
+
+  sem_post(&flush_sem);
+}
+
+#else
+
+static void lcddev_sync_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area,
+                              lv_color_t *color_p)
 {
   int ret;
   struct lcddev_area_s lcd_area;
@@ -102,8 +162,7 @@ static void lcddev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
     {
       int errcode = errno;
 
-      gerr("ERROR: ioctl(LCDDEVIO_PUTAREA) failed: %d\n",
-           errcode);
+      gerr("ioctl(LCDDEVIO_PUTAREA) failed: %d\n", errcode);
       close(state.fd);
       return;
     }
@@ -112,6 +171,53 @@ static void lcddev_flush(struct _disp_drv_t *disp_drv, const lv_area_t *area,
 
   lv_disp_flush_ready(disp_drv);
 }
+
+#endif
+
+/****************************************************************************
+ * Name: lcddev_write
+ *
+ * Description:
+ *   Write the buffer to LCD interface.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+
+static pthread_addr_t lcddev_write(pthread_addr_t addr)
+{
+  int ret = OK;
+  int errcode;
+
+  while (ret == OK)
+    {
+      sem_wait(&flush_sem);
+      ret = ioctl(state.fd, LCDDEVIO_PUTAREA, (unsigned long)&lcd_area);
+      if (ret < 0)
+        {
+          errcode = errno;
+        }
+
+      sem_post(&wait_sem);
+    }
+
+  if (ret != OK)
+    {
+      gerr("ioctl(LCDDEVIO_PUTAREA) failed: %d\n", errcode);
+      close(state.fd);
+      state.fd = -1;
+    }
+
+  return NULL;
+}
+
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -142,7 +248,7 @@ int lcddev_init(lv_disp_drv_t *lv_drvr)
   if (state.fd < 0)
     {
       int errcode = errno;
-      gerr("ERROR: Failed to open %s: %d\n", state.fd, errcode);
+      gerr("Failed to open %s: %d\n", state.fd, errcode);
       return EXIT_FAILURE;
     }
 
@@ -154,7 +260,7 @@ int lcddev_init(lv_disp_drv_t *lv_drvr)
     {
       int errcode = errno;
 
-      gerr("ERROR: ioctl(LCDDEVIO_GETVIDEOINFO) failed: %d\n", errcode);
+      gerr("ioctl(LCDDEVIO_GETVIDEOINFO) failed: %d\n", errcode);
       close(state.fd);
       state.fd = -1;
       return EXIT_FAILURE;
@@ -169,7 +275,7 @@ int lcddev_init(lv_disp_drv_t *lv_drvr)
   if (ret < 0)
     {
       int errcode = errno;
-      gerr("ERROR: ioctl(LCDDEVIO_GETPLANEINFO) failed: %d\n", errcode);
+      gerr("ioctl(LCDDEVIO_GETPLANEINFO) failed: %d\n", errcode);
       close(state.fd);
       state.fd = -1;
       return EXIT_FAILURE;
@@ -183,15 +289,27 @@ int lcddev_init(lv_disp_drv_t *lv_drvr)
        * so fail to initialize.
        */
 
-      gerr(
-        "ERROR: Display bpp (%u) did not match CONFIG_LV_COLOR_DEPTH (%u)\n",
-        state.pinfo.bpp,
-        CONFIG_LV_COLOR_DEPTH);
+      gerr("Display bpp (%u) did not match CONFIG_LV_COLOR_DEPTH (%u)\n",
+           state.pinfo.bpp, CONFIG_LV_COLOR_DEPTH);
     }
 
   lv_drvr->hor_res = state.vinfo.xres;
   lv_drvr->ver_res = state.vinfo.yres;
-  lv_drvr->flush_cb = lcddev_flush;
+#ifndef CONFIG_EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+  lv_drvr->flush_cb = lcddev_sync_flush;
+#else
+  lv_drvr->flush_cb = lcddev_async_flush;
+  lv_drvr->wait_cb = lcddev_wait;
+
+  /* Initialize the mutexes for buffer flushing synchronization */
+
+  sem_init(&flush_sem, 0, 0);
+  sem_init(&wait_sem, 0, 0);
+
+  /* Initialize the buffer flushing thread */
+
+  pthread_create(&lcd_write_thread, NULL, lcddev_write, NULL);
+#endif
 
   return EXIT_SUCCESS;
 }
