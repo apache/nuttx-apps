@@ -22,6 +22,13 @@ config EXAMPLES_LVGLDEMO_BUFF_SIZE
 	int "Display buffer size (in line)"
 	default 20
 
+config EXAMPLES_LVGLDEMO_ASYNC_FLUSH
+	bool "Flush the display buffer asynchronously"
+	default n
+	---help---
+		Enable this option to perform an asynchronous write of the buffer
+		contents to the display device.
+
 choice
 	prompt "Select a demo application"
 	default EXAMPLES_LVGLDEMO_WIDGETS
