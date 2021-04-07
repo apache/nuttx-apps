@@ -61,6 +61,17 @@ config EXAMPLES_LVGLDEMO_WIDGETS
 
 endchoice
 
+if EXAMPLES_LVGLDEMO_WIDGETS
+
+config EXAMPLES_LVGLDEMO_WIDGETS_SLIDESHOW
+	bool "Enable Slideshow mode for Widgets example"
+	default n
+	---help---
+		Slideshow mode consists of a non-interactive demonstration of the
+		Widgets example.
+
+endif # EXAMPLES_LVGLDEMO_WIDGETS
+
 config EXAMPLES_LVGLDEMO_PRIORITY
 	int "lvgl task priority"
 	default 100
