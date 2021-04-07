@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/lvgldemo/lv_ex_conf.h
+ * apps/examples/lvgldemo/lv_ex_conf.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -45,7 +45,11 @@
 
 #define LV_USE_DEMO_WIDGETS        1
 #if LV_USE_DEMO_WIDGETS
-#define LV_DEMO_WIDGETS_SLIDESHOW  0
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_WIDGETS_SLIDESHOW
+#define LV_DEMO_WIDGETS_SLIDESHOW        CONFIG_EXAMPLES_LVGLDEMO_WIDGETS_SLIDESHOW
+#else
+#define LV_DEMO_WIDGETS_SLIDESHOW        0
+#endif
 #endif
 
 /* Printer demo, optimized for 800x480 */
