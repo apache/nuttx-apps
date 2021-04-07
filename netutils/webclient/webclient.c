@@ -423,9 +423,15 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
 
               /* Check for 3xx (Redirection)
                * Location: header line will contain the new location.
+               *
+               * Note: the following 3xx are not redirects.
+               *   304 not modified
+               *   305 use proxy
                */
 
-              else if ((http_status / 100) == 3)
+              else if ((http_status / 100) == 3 &&
+                       (http_status != 304) &&
+                       (http_status != 305))
                 {
                   ws->httpstatus = HTTPSTATUS_MOVED;
                 }
