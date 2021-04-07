@@ -28,6 +28,12 @@ config LV_USE_USER_DATA
 	---help---
 		Add a `user_data` to drivers and objects
 
+config LV_USE_PERF_MONITOR
+	bool "Show CPU usage and FPS count"
+	default n
+	---help---
+		Show CPU usage and FPS count in the right bottom corner
+
 menu "Graphics settings"
 
 config LV_HOR_RES

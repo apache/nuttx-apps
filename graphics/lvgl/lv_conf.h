@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/littlevgl/lv_conf.h
+ * apps/graphics/lvgl/lv_conf.h
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gábor Kiss-Vámosi <kisvegabor@gmail.com>
@@ -330,7 +330,11 @@ typedef void * lv_fs_drv_user_data_t;
 
 /* 1: Show CPU usage and FPS count in the right bottom corner */
 
-#define LV_USE_PERF_MONITOR     0
+#ifdef CONFIG_LV_USE_PERF_MONITOR
+#define LV_USE_PERF_MONITOR        CONFIG_LV_USE_PERF_MONITOR
+#else
+#define LV_USE_PERF_MONITOR        0
+#endif
 
 /* 1: Use the functions and types from the older API if possible */
 
