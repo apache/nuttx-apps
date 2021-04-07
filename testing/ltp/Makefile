@@ -83,22 +83,34 @@ BLACKSRCS += 35-2-buildonly.c
 
 MAINWORDS    += "main("
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell find $(TESTDIR) -name *.c |xargs grep -lr $(word))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(shell find $(TESTDIR) -name *.c))))
+LTP_COUNT    := $(shell expr `find $(TESTDIR) -name *.c | wc -l` / 2)
+LTP_ORIGS_1  := $(shell find $(TESTDIR) -name *.c | head -n $(LTP_COUNT))
+LTP_ORIGS_2  := $(shell find $(TESTDIR) -name *.c | tail -n $(LTP_COUNT))
 
-LTP_ORIGINS  := $(filter-out $(BLACKLIST), $(shell find $(TESTDIR) -name *.c))
+$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_1))))
+$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_1))))
 
-$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS+=$(shell grep -lr $(word) $(LTP_ORIGINS))))
+$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_2))))
+$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_2))))
 
-LTP_CSRCS    := $(filter-out $(LTP_MAINCSRCS), $(LTP_ORIGINS))
+LTP_ORIGS_1  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_1))
+LTP_ORIGS_2  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_2))
 
-PROGNAME     := $(basename $(shell echo $(LTP_MAINCSRCS) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
-MAINSRC       = $(LTP_MAINCSRCS)
+$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_1+=$(shell grep -lr $(word) $(LTP_ORIGS_1))))
+$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_2+=$(shell grep -lr $(word) $(LTP_ORIGS_2))))
+
+LTP_CSRCS_1  := $(filter-out $(LTP_MAINCSRCS_1), $(LTP_ORIGS_1))
+LTP_CSRCS_2  := $(filter-out $(LTP_MAINCSRCS_2), $(LTP_ORIGS_2))
+
+
+PROGNAME     := $(basename $(shell echo $(LTP_MAINCSRCS_1) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
+PROGNAME     += $(basename $(shell echo $(LTP_MAINCSRCS_2) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
+MAINSRC       = $(LTP_MAINCSRCS_1) $(LTP_MAINCSRCS_2)
 PRIORITY      = SCHED_PRIORITY_DEFAULT
 STACKSIZE     = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE        = $(CONFIG_TESTING_LTP)
 
-CSRCS        := $(LTP_CSRCS)
+CSRCS        := $(LTP_CSRCS_1) $(LTP_CSRCS_2)
 CFLAGS       += -I$(LTP_UNPACK)
 CFLAGS       += -I$(TESTDIR)/include
 endif
