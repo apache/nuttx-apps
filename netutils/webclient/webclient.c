@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/webclient/webclient.c
+ * apps/netutils/webclient/webclient.c
  * Implementation of the HTTP client.
  *
  *   Copyright (C) 2007, 2009, 2011-2012, 2014, 2020 Gregory Nutt.
