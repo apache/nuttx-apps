@@ -266,7 +266,7 @@ driver in `nuttx/include/nuttx/input/djoystick.h`.
 
 Configuration Pre-requisites:
 
-- `CONFIG_DJOYSTICK` – The discrete joystick driver.
+- `CONFIG_INPUT_DJOYSTICK` – The discrete joystick driver.
 
 Example Configuration:
 

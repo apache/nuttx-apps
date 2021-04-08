@@ -54,8 +54,8 @@
 
 /* Configuration ************************************************************/
 
-#ifndef CONFIG_DJOYSTICK
-#  error "CONFIG_DJOYSTICK is not defined in the configuration"
+#ifndef CONFIG_INPUT_DJOYSTICK
+#  error "CONFIG_INPUT_DJOYSTICK is not defined in the configuration"
 #endif
 
 #ifndef CONFIG_EXAMPLES_DJOYSTICK_DEVNAME
