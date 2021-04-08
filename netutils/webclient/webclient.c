@@ -903,8 +903,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
       if (ret < 0)
         {
           nerr("ERROR: connect failed: %d\n", errno);
-          free(ws);
-          return ret;
+          goto errout_with_errno;
         }
 
       /* Send the request */
