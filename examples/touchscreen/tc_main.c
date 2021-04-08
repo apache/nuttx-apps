@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/touchscreen/tc_main.c
+ * apps/examples/touchscreen/tc_main.c
  *
  *   Copyright (C) 2011, 2014-2025 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -172,7 +172,7 @@ int main(int argc, FAR char *argv[])
           printf("   buttons : %02x\n", sample.buttons);
           printf("         x : %d\n",   sample.x);
           printf("         y : %d\n",   sample.y);
-#ifdef CONFIG_MOUSE_WHEEL
+#ifdef CONFIG_INPUT_MOUSE_WHEEL
           printf("     wheel : %d\n",   sample.wheel);
 #endif
         }

@@ -6,7 +6,7 @@
 config EXAMPLES_AJOYSTICK
 	tristate "Analog joystick example"
 	default n
-	depends on AJOYSTICK
+	depends on INPUT_AJOYSTICK
 	---help---
 		Enable the analog joystick example
 
