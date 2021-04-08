@@ -6,7 +6,7 @@
 config EXAMPLES_BUTTONS
 	tristate "Buttons driver example"
 	default n
-	depends on BUTTONS
+	depends on INPUT_BUTTONS
 	---help---
 		Enable the Buttons drivers example
 
