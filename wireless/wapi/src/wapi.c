@@ -137,6 +137,10 @@ static const struct wapi_command_s g_wapi_commands[] =
 
 #define NCOMMANDS (sizeof(g_wapi_commands) / sizeof(struct wapi_command_s))
 
+/* Maximum length of the PASSPHRASE, refer to IEEE802.11i specification */
+
+#define PASSPHRASE_MAX_LEN  (64)
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -842,7 +846,7 @@ static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
   uint8_t if_flags;
   uint32_t value;
   size_t psk_len;
-  char psk[32];
+  char psk[PASSPHRASE_MAX_LEN];
   int ret;
 
   ret = netlib_getifstatus(argv[0], &if_flags);
