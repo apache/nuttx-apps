@@ -475,11 +475,11 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
     {
       /* Set flag. */
 
-      if (IW_FREQ_AUTO == (wrq.u.freq.flags & IW_FREQ_AUTO))
+      if (IW_FREQ_AUTO == wrq.u.freq.flags)
         {
           *flag = WAPI_FREQ_AUTO;
         }
-      else if (IW_FREQ_FIXED == (wrq.u.freq.flags & IW_FREQ_FIXED))
+      else if (IW_FREQ_FIXED == wrq.u.freq.flags)
         {
           *flag = WAPI_FREQ_FIXED;
         }

@@ -125,8 +125,8 @@ enum wapi_route_target_e
 
 enum wapi_essid_flag_e
 {
-  WAPI_ESSID_OFF,
-  WAPI_ESSID_ON,
+  WAPI_ESSID_OFF = IW_ESSID_OFF,
+  WAPI_ESSID_ON  = IW_ESSID_ON,
 
 /* Extended flag "WAPI_ESSID_DELAY_ON" instructs the driver
  * to delay the connection behavior of essid, so that which can accept
@@ -155,7 +155,7 @@ enum wapi_essid_flag_e
  * $ renew wlan0
  */
 
-  WAPI_ESSID_DELAY_ON
+  WAPI_ESSID_DELAY_ON = IW_ESSID_DELAY_ON
 };
 
 /* Supported operation modes. */
