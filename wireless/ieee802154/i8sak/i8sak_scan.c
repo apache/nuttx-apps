@@ -281,5 +281,5 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
         }
     }
 
-  i8sak_requestdaemon(i8sak);
+  i8sak_releasedaemon(i8sak);
 }
