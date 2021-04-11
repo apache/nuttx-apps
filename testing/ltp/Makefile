@@ -26,15 +26,31 @@ BLACKWORDS  += "aio.h"
 BLACKWORDS  += "SIGPOLL"
 endif
 BLACKWORDS  += "affinity.h"
+BLACKWORDS  += "endpwent"
 BLACKWORDS  += "langinfo.h"
 BLACKWORDS  += "ucontext.h"
 BLACKWORDS  += "noatime.h"
+BLACKWORDS  += "clock_getcpuclockid"
 BLACKWORDS  += "CLOCK_PROCESS_CPUTIME_ID"
 BLACKWORDS  += "CLOCK_THREAD_CPUTIME_ID"
 BLACKWORDS  += "fork()"
+BLACKWORDS  += "getpwent"
+BLACKWORDS  += "killpg"
+BLACKWORDS  += "pthread_atfork"
 BLACKWORDS  += "pthread_attr_setscope"
+BLACKWORDS  += "pthread_condattr_setpshared"
+BLACKWORDS  += "pthread_condattr_getpshared"
+BLACKWORDS  += "pthread_getattr_np"
+BLACKWORDS  += "pthread_getcpuclockid"
+BLACKWORDS  += "pthread_mutex_getprioceiling"
+BLACKWORDS  += "pthread_mutexattr_getprioceiling"
+BLACKWORDS  += "pthread_mutexattr_setprioceiling"
+BLACKWORDS  += "pthread_rwlockattr_destroy"
+BLACKWORDS  += "pthread_rwlockattr_getpshared"
+BLACKWORDS  += "pthread_rwlockattr_init"
 BLACKWORDS  += "RLIMIT_MEMLOCK"
 BLACKWORDS  += "PTHREAD_SCOPE_PROCESS"
+BLACKWORDS  += "setpwent"
 BLACKWORDS  += "SIGABRT"
 BLACKWORDS  += "SIGBUS"
 BLACKWORDS  += "SIGFPE"
@@ -103,9 +119,18 @@ CFLAGS       += -I$(LTP_UNPACK)
 CFLAGS       += -I$(TESTDIR)/include
 endif
 
+# Relax warning checks to avoid expected compile errors:
+CFLAGS += -Wno-strict-prototypes -Wno-return-type -Wno-format -Wno-uninitialized
+CFLAGS += -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-value
+
+# Should be removed if possible in the future
+CFLAGS += -Wno-incompatible-pointer-types -Wno-overflow -Wno-int-to-pointer-cast
+
 $(LTP_UNPACK):
 	$(Q) echo "git clone $(LTP_URL)"
 	$(Q) git clone $(LTP_URL)
+	$(Q) git -C $(LTP_UNPACK) am < 0001-Fix-static-struct-warning.patch
+	$(Q) git -C $(LTP_UNPACK) am < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
 
 context:: $(LTP_UNPACK)
 

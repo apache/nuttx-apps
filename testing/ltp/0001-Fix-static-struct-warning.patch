@@ -1,0 +1,39 @@
+From bfb99256e5e73e8d41f8d40bdeea70b2abb5de06 Mon Sep 17 00:00:00 2001
+From: Brennan Ashton <bashton@brennanashton.com>
+Date: Sat, 10 Apr 2021 15:15:29 -0700
+Subject: [PATCH 1/2] Fix static struct warning
+
+---
+ .../open_posix_testsuite/conformance/interfaces/mmap/5-1.c      | 2 +-
+ testcases/open_posix_testsuite/stress/threads/sem_open/s-c1.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/testcases/open_posix_testsuite/conformance/interfaces/mmap/5-1.c b/testcases/open_posix_testsuite/conformance/interfaces/mmap/5-1.c
+index bcb330da6..ad7b6bb2d 100644
+--- a/testcases/open_posix_testsuite/conformance/interfaces/mmap/5-1.c
++++ b/testcases/open_posix_testsuite/conformance/interfaces/mmap/5-1.c
+@@ -34,7 +34,7 @@
+ #include "posixtest.h"
+ #include "tempfile.h"
+ 
+-static struct testcase {
++struct testcase {
+ 	int prot;
+ 	int flags;
+ };
+diff --git a/testcases/open_posix_testsuite/stress/threads/sem_open/s-c1.c b/testcases/open_posix_testsuite/stress/threads/sem_open/s-c1.c
+index 14ad4ea2c..2133b721a 100644
+--- a/testcases/open_posix_testsuite/stress/threads/sem_open/s-c1.c
++++ b/testcases/open_posix_testsuite/stress/threads/sem_open/s-c1.c
+@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
+  * The function returns 0 when r1 is the best for all cases (latency is constant) and !0 otherwise.
+  */
+ 
+-static struct row {
++struct row {
+ 	long X;			/* the X values -- copied from function argument */
+ 	long Y_o;		/* the Y values -- copied from function argument */
+ 	long Y_c;		/* the Y values -- copied from function argument */
+-- 
+2.30.2
+
