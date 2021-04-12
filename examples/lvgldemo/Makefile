@@ -54,7 +54,7 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 
 CSRCS += fbdev.c lcddev.c
 
-ifneq ($(CONFIG_INPUT),)
+ifneq ($(CONFIG_INPUT_TOUCHSCREEN)$(CONFIG_INPUT_MOUSE),)
 CSRCS += tp.c tp_cal.c
 endif
 
