@@ -140,6 +140,7 @@ int main(int argc, FAR char *argv[])
   lv_disp_drv_t disp_drv;
   lv_disp_buf_t disp_buf;
 
+#if defined(CONFIG_INPUT_TOUCHSCREEN) || defined(CONFIG_INPUT_MOUSE)
 #ifndef CONFIG_EXAMPLES_LVGLDEMO_CALIBRATE
   lv_point_t p[4];
 
@@ -162,6 +163,7 @@ int main(int argc, FAR char *argv[])
 
   p[3].x = LV_HOR_RES;
   p[3].y = LV_VER_RES;
+#endif
 #endif
 
 #ifdef NEED_BOARDINIT
