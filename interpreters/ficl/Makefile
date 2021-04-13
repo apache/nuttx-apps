@@ -39,6 +39,10 @@ include $(APPDIR)/Make.defs
 
 # Tools
 
+# Include the generated Make.srcs
+
+-include Make.srcs
+
 # Include paths
 
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
@@ -46,8 +50,6 @@ CFLAGS += ${shell $(INCDIR) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
 # Source Files
 
 CSRCS = nuttx.c
-
--include Make.srcs
 
 ASRCS += $(FICL_ASRCS)
 CXXSRCS += $(FICL_CXXSRCS)
