@@ -174,6 +174,7 @@ static int initserver(const FAR struct mqttc_cfg_s *cfg)
         }
 
       close(fd);
+      fd = -1;
     }
   while ((itr = itr->ai_next) != NULL);
 
