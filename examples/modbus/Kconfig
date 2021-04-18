@@ -50,4 +50,15 @@ config EXAMPLES_MODBUS_REG_HOLDING_NREGS
 	int "Number of holding registers"
 	default 130
 
+config EXAMPLES_MODBUS_REG_COILS_START
+	int "Coils registers start address"
+	default 3000
+
+config EXAMPLES_MODBUS_REG_COILS_NREGS
+	int "Number of coils registers"
+	default 32
+
+config EXAMPLES_MODBUS_REG_COILS_USERLEDS
+	bool "Enable Reg Coils to control USERLEDs"
+	depends on USERLED
 endif
