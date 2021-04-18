@@ -458,8 +458,8 @@ eMBErrorCode eMBRegInputCB(uint8_t *buffer, uint16_t address, uint16_t nregs)
       index = (int)(address - CONFIG_EXAMPLES_MODBUS_REG_INPUT_START);
       while (nregs > 0)
         {
-          *buffer++ = (uint8_t)(g_modbus.reginput[index] >> 8);
           *buffer++ = (uint8_t)(g_modbus.reginput[index] & 0xff);
+          *buffer++ = (uint8_t)(g_modbus.reginput[index] >> 8);
           index++;
           nregs--;
         }
@@ -498,8 +498,8 @@ eMBErrorCode eMBRegHoldingCB(uint8_t *buffer, uint16_t address, uint16_t nregs,
           case MB_REG_READ:
             while (nregs > 0)
               {
-                *buffer++ = (uint8_t)(g_modbus.regholding[index] >> 8);
                 *buffer++ = (uint8_t)(g_modbus.regholding[index] & 0xff);
+                *buffer++ = (uint8_t)(g_modbus.regholding[index] >> 8);
                 index++;
                 nregs--;
               }
@@ -512,8 +512,8 @@ eMBErrorCode eMBRegHoldingCB(uint8_t *buffer, uint16_t address, uint16_t nregs,
           case MB_REG_WRITE:
             while (nregs > 0)
               {
-                g_modbus.regholding[index] = *buffer++ << 8;
-                g_modbus.regholding[index] |= *buffer++;
+                g_modbus.regholding[index] = *buffer++;
+                g_modbus.regholding[index] |= *buffer++ << 8;
                 index++;
                 nregs--;
               }
