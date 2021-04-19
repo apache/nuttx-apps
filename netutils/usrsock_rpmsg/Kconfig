@@ -7,6 +7,7 @@ config NETUTILS_USRSOCK_RPMSG
 	tristate "RPMSG usrsock"
 	default n
 	depends on NET && OPENAMP
+	select EVENT_FD if !NET_USRSOCK
 	---help---
 		Enable usrsock through rpmsg channel.
 
