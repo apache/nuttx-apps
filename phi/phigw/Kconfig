@@ -4,7 +4,7 @@
 #
 
 config PHI_PHIGW
-	tristate "C++ test program"
+	tristate "PHI-Gateway application"
 	default n
 	depends on HAVE_CXX
 	---help---
