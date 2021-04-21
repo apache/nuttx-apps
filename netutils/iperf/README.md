@@ -92,7 +92,3 @@ Now on the host you should see something like:
 
 This will tell you the link speed in Kbits/sec – kilobits per second. If you want kilobytes, divide by 8.
 
-
-
-
-

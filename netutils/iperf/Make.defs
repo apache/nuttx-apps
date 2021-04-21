@@ -19,6 +19,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_IPERF),)
+ifneq ($(CONFIG_NETUTILS_IPERF),)
 CONFIGURED_APPS += $(APPDIR)/netutils/iperf
 endif
