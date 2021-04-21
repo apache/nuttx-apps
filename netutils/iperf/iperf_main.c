@@ -34,8 +34,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_IPERFTEST_DEVNAME
-#  define DEVNAME CONFIG_EXAMPLES_IPERFTEST_DEVNAME
+#ifdef CONFIG_NETUTILS_IPERFTEST_DEVNAME
+#  define DEVNAME CONFIG_NETUTILS_IPERFTEST_DEVNAME
 #else
 #  define DEVNAME "wlan0"
 #endif

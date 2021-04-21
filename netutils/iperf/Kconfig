@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 		
-config EXAMPLES_IPERF
+config NETUTILS_IPERF
 	bool "iperf example"
 	default n
 	depends on NET
@@ -13,24 +13,24 @@ config EXAMPLES_IPERF
 	---help---
 		Enable the \"iperf example\"
 
-if EXAMPLES_IPERF
+if NETUTILS_IPERF
 		
-config EXAMPLES_IPERF_PROGNAME
+config NETUTILS_IPERF_PROGNAME
 	string "Program name"
 	default "iperf"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config EXAMPLES_IPERF_PRIORITY
+config NETUTILS_IPERF_PRIORITY
 	int "iperf task priority"
 	default 100
 
-config EXAMPLES_IPERF_STACKSIZE
+config NETUTILS_IPERF_STACKSIZE
 	int "iperf stack size"
 	default DEFAULT_TASK_STACKSIZE
 
-config EXAMPLES_IPERFTEST_DEVNAME
+config NETUTILS_IPERFTEST_DEVNAME
 	string "Wi-Fi Network device"
 	default "wlan0"
 
