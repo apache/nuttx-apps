@@ -151,6 +151,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int shift;
   int sockfd;
   int ret;
+  FAR char *sptr;
 
   /* First, check if we are setting the default route */
 
@@ -234,6 +235,17 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       nsh_error(vtbl, g_fmtargrequired, argv[0]);
       goto errout;
+    }
+
+  /* We need to remove the slash notation before passing it to inet_pton */
+
+  if (shift > 0)
+    {
+      sptr = strchr(argv[1], '/');
+      if (sptr != NULL)
+        {
+          *sptr = '\0';
+        }
     }
 
   /* Convert the target IP address string into its binary form */
