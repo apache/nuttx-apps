@@ -435,7 +435,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef NSH_HAVE_DIROPTS
 # ifndef CONFIG_NSH_DISABLE_RM
-  { "rm",       cmd_rm,       2, 2, "<file-path>" },
+  { "rm",       cmd_rm,       2, 3, "[-r] <file-path>" },
 # endif
 #endif
 
