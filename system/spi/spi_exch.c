@@ -71,10 +71,12 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   {
     0
   };
+
   uint8_t rxdata[MAX_XDATA] =
   {
     0
   };
+
   uint8_t *txdatap = txdata;
   struct spi_trans_s trans;
   struct spi_sequence_s seq;
@@ -111,7 +113,6 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
       return ERROR;
     }
 
-
   while (argndx < argc)
     {
       FAR uint8_t *a = (uint8_t *)argv[argndx];
@@ -119,7 +120,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
         {
           if ((*(a + 1) == 0) || !ISHEX(*a) || !ISHEX(*(a + 1)))
             {
-              /* Uneven number of characters or illegal char .... that's an error */
+              /* Uneven number of characters or illegal character error */
 
               spitool_printf(spitool, g_spiincompleteparam, argv[0]);
               return ERROR;
