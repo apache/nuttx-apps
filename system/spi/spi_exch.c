@@ -132,6 +132,21 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
       argndx += 1;
     }
 
+  spitool_printf(spitool, "Sending:\t");
+  for (d = 0; d < spitool->count; d++)
+    {
+      if (spitool->width <= 8)
+        {
+          spitool_printf(spitool, "%02X ", txdata[d]);
+        }
+      else
+        {
+          spitool_printf(spitool, "%04X ", ((uint16_t *)txdata)[d]);
+        }
+    }
+
+  spitool_printf(spitool, "\n");
+
   /* Get a handle to the SPI bus */
 
   fd = spidev_open(spitool->bus);
@@ -168,7 +183,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
       return ret;
     }
 
-  spitool_printf(spitool, "Received: ");
+  spitool_printf(spitool, "Received:\t");
   for (d = 0; d < spitool->count; d++)
     {
       if (spitool->width <= 8)
