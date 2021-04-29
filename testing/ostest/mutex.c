@@ -137,7 +137,7 @@ void mutex_test(void)
 #endif
   if (status != 0)
     {
-      printf("Error in thread#1 creation\n");
+      printf("ERROR in thread#1 creation\n");
     }
 
   printf("Starting thread 2\n");
@@ -148,7 +148,7 @@ void mutex_test(void)
 #endif
   if (status != 0)
     {
-      printf("Error in thread#2 creation\n");
+      printf("ERROR in thread#2 creation\n");
     }
 
 #ifdef SDCC
