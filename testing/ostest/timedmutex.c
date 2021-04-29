@@ -164,7 +164,7 @@ void timedmutex_test(void)
 #endif
   if (status != 0)
     {
-      fprintf(stderr, "mutex_test: Error in thread creation: %d\n", status);
+      fprintf(stderr, "mutex_test: ERROR in thread creation: %d\n", status);
       goto errout_with_lock;
     }
 

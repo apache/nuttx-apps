@@ -225,7 +225,7 @@ static int user_main(int argc, char *argv[])
 
   if (argc != NARGS + 1)
     {
-      printf("user_main: Error expected argc=%d got argc=%d\n",
+      printf("user_main: ERROR expected argc=%d got argc=%d\n",
              NARGS + 1, argc);
     }
 

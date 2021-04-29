@@ -155,7 +155,7 @@ void barrier_test(void)
                               (pthread_addr_t)((uintptr_t)i));
       if (status != 0)
         {
-          printf("barrier_test: Error in thread %d create, status=%d\n",
+          printf("barrier_test: ERROR thread %d create, status=%d\n",
                  i, status);
           printf("barrier_test: Test aborted with waiting threads\n");
           goto abort_test;
@@ -174,7 +174,7 @@ void barrier_test(void)
       status = pthread_join(barrier_thread[i], &result);
       if (status != 0)
         {
-          printf("barrier_test: Error in thread %d join, status=%d\n",
+          printf("barrier_test: ERROR thread %d join, status=%d\n",
                  i, status);
         }
       else
