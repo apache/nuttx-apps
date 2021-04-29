@@ -107,7 +107,8 @@ static void *thread_func(FAR void *parameter)
             }
           else
             {
-              fprintf(stderr, "pthread: pthread_mutex_timedlock() failed: %d\n",
+              fprintf(stderr,
+                      "pthread: pthread_mutex_timedlock() failed: %d\n",
                       status);
             }
 
@@ -120,7 +121,7 @@ static void *thread_func(FAR void *parameter)
       /* Release the lock and wait a bit in case the main thread wants it. */
 
       pthread_mutex_unlock(&g_mutex);
-      usleep(500*1000);
+      usleep(500 * 1000);
     }
 
   g_running = false;
@@ -170,7 +171,7 @@ void timedmutex_test(void)
 
   /* Wait a bit to assure that the thread gets a chance to start */
 
-  usleep(500*1000);
+  usleep(500 * 1000);
 
   /* Then unlock the mutex.  This should wake up the pthread. */
 
@@ -181,7 +182,7 @@ void timedmutex_test(void)
    * least once (it may probably loop and retake the mutex several times)
    */
 
-  usleep(500*1000);
+  usleep(500 * 1000);
 
   /* The re-lock the mutex.  The pthread should now be waiting for the lock
    * or a timeout.
