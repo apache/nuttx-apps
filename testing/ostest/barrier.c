@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/ostest/barrier.c
+ * apps/testing/ostest/barrier.c
  *
  *   Copyright (C) 2007-2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -94,6 +94,7 @@ static void *barrier_func(void *parameter)
       printf("barrier_func: ERROR thread %d could not get semaphore value\n",
              id);
     }
+
   FFLUSH();
 
   usleep(HALF_SECOND);
@@ -165,6 +166,7 @@ void barrier_test(void)
           printf("barrier_test: Thread %d created\n", i);
         }
     }
+
   FFLUSH();
 
   /* Wait for all thread instances to complete */
@@ -200,5 +202,6 @@ abort_test:
       printf("barrier_test: pthread_barrierattr_destroy failed, status=%d\n",
              status);
     }
+
   FFLUSH();
 }
