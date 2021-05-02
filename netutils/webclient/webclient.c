@@ -822,6 +822,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
           if (ret == -1)
             {
               ret = -errno;
+              close(conn.sockfd);
             }
         }
 
