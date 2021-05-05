@@ -42,7 +42,7 @@ include $(APPDIR)/Make.defs
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 CONFIG_TESTING_UNITY_URL ?= "https://github.com/ThrowTheSwitch/Unity/archive"
-CONFIG_TESTING_UNITY_VERSION ?= "2.4.3"
+CONFIG_TESTING_UNITY_VERSION ?= "2.5.2"
 UNITY_VERSION = $(patsubst "%",%,$(strip $(CONFIG_TESTING_UNITY_VERSION)))
 
 UNITY_TARBALL = v$(UNITY_VERSION).tar.gz
