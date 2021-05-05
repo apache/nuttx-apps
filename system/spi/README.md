@@ -39,10 +39,10 @@ The SPI tool is designed to be implemented as a NuttShell (NSH) add-on. Read the
 - `CONFIG_SPITOOL_DEFFREQ`  – Default frequency (default: `40000000`).
 - `CONFIG_SPITOOL_DEFMODE`  – Default mode, where
   ```
-  0 = CPOL=0, CHPHA=0
-  1 = CPOL=0, CHPHA=1
-  2 = CPOL=1, CHPHA=0
-  3 = CPOL=1, CHPHA=1
+  0 = CPOL=0, CPHA=0
+  1 = CPOL=0, CPHA=1
+  2 = CPOL=1, CPHA=0
+  3 = CPOL=1, CPHA=1
   ```
 - `CONFIG_SPITOOL_DEFWIDTH` – Default bit width (default `8`).
 - `CONFIG_SPITOOL_DEFWORDS` – Default number of words to exchange (default `1`).
@@ -159,10 +159,10 @@ NSH scripts to execute a longer, more complex series of SPI commands.
   Which of the available SPI modes is to be used. Options are;
 
   ```
-  0 = CPOL=0, CHPHA=0
-  1 = CPOL=0, CHPHA=1
-  2 = CPOL=1, CHPHA=0
-  3 = CPOL=1, CHPHA=1
+  0 = CPOL=0, CPHA=0
+  1 = CPOL=0, CPHA=1
+  2 = CPOL=1, CPHA=0
+  3 = CPOL=1, CPHA=1
   ```
 
 - `[-u udelay]` Delay after transfer in uS. Default: `0`
