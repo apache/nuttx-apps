@@ -17,7 +17,7 @@ config TESTING_UNITY_URL
 
 config TESTING_UNITY_VERSION
 	string "Version number"
-	default "2.4.3"
+	default "2.5.2"
 
 config TESTING_UNITY_EXCLUDE_SETJMP
 	bool "Exclude SETJMP"
