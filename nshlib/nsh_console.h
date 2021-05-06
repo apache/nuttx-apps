@@ -123,8 +123,8 @@ struct nsh_vtbl_s
 #ifndef CONFIG_NSH_DISABLEBG
   FAR struct nsh_vtbl_s *(*clone)(FAR struct nsh_vtbl_s *vtbl);
   void (*addref)(FAR struct nsh_vtbl_s *vtbl);
-  void (*release)(FAR struct nsh_vtbl_s *vtbl);
 #endif
+  void (*release)(FAR struct nsh_vtbl_s *vtbl);
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
                    size_t nbytes);
   int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
