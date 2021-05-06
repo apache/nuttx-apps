@@ -241,6 +241,9 @@ int nsh_telnetstart(sa_family_t family)
 
   if (state == TELNETD_NOTRUNNING)
     {
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
+      FAR struct console_stdio_s *pstate;
+#endif
       struct telnetd_config_s config;
 
       /* There is a tiny race condition here if two tasks were to try to
@@ -264,7 +267,9 @@ int nsh_telnetstart(sa_family_t family)
        */
 
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
-      nsh_initscript(vtbl);
+      pstate = nsh_newconsole();
+      nsh_initscript(&pstate->cn_vtbl);
+      nsh_release(&pstate->cn_vtbl);
 #endif
 
 #if defined(CONFIG_NSH_NETINIT) && !defined(CONFIG_NSH_CONSOLE)

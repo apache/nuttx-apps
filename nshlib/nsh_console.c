@@ -463,8 +463,8 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 
 #ifndef CONFIG_NSH_DISABLEBG
       pstate->cn_vtbl.clone       = nsh_consoleclone;
-      pstate->cn_vtbl.release     = nsh_consolerelease;
 #endif
+      pstate->cn_vtbl.release     = nsh_consolerelease;
       pstate->cn_vtbl.write       = nsh_consolewrite;
       pstate->cn_vtbl.output      = nsh_consoleoutput;
       pstate->cn_vtbl.error       = nsh_erroroutput;
