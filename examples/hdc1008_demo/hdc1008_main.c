@@ -78,7 +78,7 @@ int main(int argc, FAR char *argv[])
 
   printf("Temperature and humidity\n"
          "========================\n");
-  printf("data=%s%d\n\n", buf);
+  printf("data=%s\n\n", buf);
 
   /* Measure using ioctl */
 
