@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_WAKEONLAN
+	bool "WakeOnLAN support"
+	default n
+	depends on NET_UDP && NET_SOCKOPTS
+	---help---
+		Enable the wake on LAN command "wol".  This command
+		sends a WakeOnLAN magic packet to target MAC address.
+
+if NETUTILS_WAKEONLAN
+		
+config NETUTILS_WAKEONLAN_PROGNAME
+	string "Program name"
+	default "wol"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config NETUTILS_WAKEONLAN_PRIORITY
+	int "WakeOnLAN task priority"
+	default 100
+
+config NETUTILS_WAKEONLAN_STACKSIZE
+	int "WakeOnLAN stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
