@@ -113,21 +113,21 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url)
 
   if (*src != ':')
     {
-      ret = -EINVAL;
+      return -EINVAL;
     }
 
   src++;
 
   if (*src != '/')
     {
-      ret = -EINVAL;
+      return -EINVAL;
     }
 
   src++;
 
   if (*src != '/')
     {
-      ret = -EINVAL;
+      return -EINVAL;
     }
 
   src++;
