@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/elf/elf_main.c
+ * apps/examples/elf/elf_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
+#include <sys/boardctl.h>
 
 #include <sys/mount.h>
 #include <sys/stat.h>
@@ -205,36 +206,32 @@ int main(int argc, FAR char *argv[])
   FAR char *args[1];
   int ret;
   int i;
+  struct boardioc_romdisk_s desc;
 
   /* Initialize the memory monitor */
 
   mm_initmonitor();
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
-#if defined(CONFIG_BUILD_FLAT)
-  /* This example violates the portable POSIX interface by calling the OS
-   * internal function romdisk_register() (aka ramdisk_register()).  We can
-   * squeak by in with this violation in the FLAT build mode, but not in
-   * other build modes.  In other build modes, the following logic must be
-   * performed in the OS board initialization logic (where it really belongs
-   * anyway).
-   */
 
   /* Create a ROM disk for the ROMFS filesystem */
 
   message("Registering romdisk at /dev/ram%d\n",
           CONFIG_EXAMPLES_ELF_DEVMINOR);
-  ret = romdisk_register(CONFIG_EXAMPLES_ELF_DEVMINOR,
-                         (FAR uint8_t *)romfs_img,
-                         NSECTORS(romfs_img_len), SECTORSIZE);
+
+  desc.minor    = CONFIG_EXAMPLES_ELF_DEVMINOR;         /* Minor device number of the ROM disk. */
+  desc.nsectors = NSECTORS(romfs_img_len);              /* The number of sectors in the ROM disk */
+  desc.sectsize = SECTORSIZE;                           /* The size of one sector in bytes */
+  desc.image    = (FAR uint8_t *)romfs_img;             /* File system image */
+
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
     {
-      errmsg("ERROR: romdisk_register failed: %d\n", ret);
+      errmsg("ERROR: romdisk_register failed: %s\n", strerror(errno));
       exit(1);
     }
 
   mm_update(&g_mmstep, "after romdisk_register");
-#endif
 
   /* Mount the ROMFS file system */
 
@@ -245,8 +242,8 @@ int main(int argc, FAR char *argv[])
               MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s,%s,romfs) failed: %d\n",
-             CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
+      errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
+             CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, strerror(errno));
     }
 
 #elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
@@ -257,7 +254,8 @@ int main(int argc, FAR char *argv[])
   ret = mount(NULL, MOUNTPT, "cromfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s, cromfs) failed: %d\n", MOUNTPT, errno);
+      errmsg("ERROR: mount(%s, cromfs) failed: %s\n",
+             MOUNTPT, strerror(errno));
     }
 #elif defined(CONFIG_EXAMPLES_ELF_EXTERN)
   /* An external file system is being used */
@@ -280,8 +278,8 @@ int main(int argc, FAR char *argv[])
             }
           else
             {
-              printf("ERROR: stat(%s) failed: %d  Aborting...\n",
-                     CONFIG_EXAMPLES_ELF_DEVPATH, errcode);
+              printf("ERROR: stat(%s) failed: %s  Aborting...\n",
+                     CONFIG_EXAMPLES_ELF_DEVPATH, strerror(errcode));
               exit(EXIT_FAILURE);
             }
         }
@@ -304,9 +302,9 @@ int main(int argc, FAR char *argv[])
               CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s, %s, %s) failed: %d\n",
+      errmsg("ERROR: mount(%s, %s, %s) failed: %s\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, CONFIG_EXAMPLES_ELF_FSTYPE,
-             MOUNTPT, errno);
+             MOUNTPT, strerror(errno));
     }
 #endif
 #else
@@ -364,7 +362,8 @@ int main(int argc, FAR char *argv[])
 
       if (ret < 0)
         {
-          errmsg("ERROR: exec(%s) failed: %d\n", dirlist[i], errno);
+          errmsg("ERROR: exec(%s) failed: %s\n",
+                 dirlist[i], strerror(errno));
         }
       else
         {

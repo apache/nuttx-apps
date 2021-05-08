@@ -60,6 +60,7 @@
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/boardctl.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -474,15 +475,20 @@ static void checkdirectories(struct node_s *entry)
 int main(int argc, FAR char *argv[])
 {
   int ret;
+  struct boardioc_romdisk_s desc;
 
   /* Create a RAM disk for the test */
 
-  ret = romdisk_register(CONFIG_EXAMPLES_ROMFS_RAMDEVNO, testdir_img,
-                         NSECTORS(testdir_img_len),
-                         CONFIG_EXAMPLES_ROMFS_SECTORSIZE);
+  desc.minor    = CONFIG_EXAMPLES_ROMFS_RAMDEVNO;         /* Minor device number of the ROM disk. */
+  desc.nsectors = NSECTORS(testdir_img_len);              /* The number of sectors in the ROM disk */
+  desc.sectsize = CONFIG_EXAMPLES_ROMFS_SECTORSIZE;       /* The size of one sector in bytes */
+  desc.image    = (FAR uint8_t *)testdir_img;             /* File system image */
+
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
+
   if (ret < 0)
     {
-      printf("ERROR: Failed to create RAM disk\n");
+      printf("ERROR: Failed to create RAM disk: %s\n", strerror(errno));
       return 1;
     }
 
@@ -495,7 +501,7 @@ int main(int argc, FAR char *argv[])
               MS_RDONLY, NULL);
   if (ret < 0)
     {
-      printf("ERROR: Mount failed: %d\n", errno);
+      printf("ERROR: Mount failed: %s\n", strerror(errno));
       return 1;
     }
 
