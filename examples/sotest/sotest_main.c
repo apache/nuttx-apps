@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/sotest/sotest_main.c
+ * apps/examples/sotest/sotest_main.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -41,6 +41,7 @@
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
 #  include <sys/mount.h>
+#  include <sys/boardctl.h>
 #endif
 
 #include <stdio.h>
@@ -124,7 +125,9 @@ int main(int argc, FAR char *argv[])
   CODE void (*testfunc)(FAR const char *msg);
   FAR const char *msg;
   int ret;
-
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+  struct boardioc_romdisk_s desc;
+#endif
   /* Set the shared library symbol table */
 
   ret = dlsymtab((FAR struct symtab_s *)g_sot_exports, g_sot_nexports);
@@ -137,25 +140,21 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   /* Create a ROM disk for the ROMFS filesystem */
 
+  desc.minor    = CONFIG_EXAMPLES_SOTEST_DEVMINOR;     /* Minor device number of the ROM disk. */
+  desc.nsectors = NSECTORS(romfs_img_len);             /* The number of sectors in the ROM disk */
+  desc.sectsize = SECTORSIZE;                          /* The size of one sector in bytes */
+  desc.image    = (FAR uint8_t *)romfs_img;            /* File system image */
+
   printf("main: Registering romdisk at /dev/ram%d\n",
          CONFIG_EXAMPLES_SOTEST_DEVMINOR);
 
-  ret = romdisk_register(CONFIG_EXAMPLES_SOTEST_DEVMINOR,
-                         (FAR uint8_t *)romfs_img,
-                         NSECTORS(romfs_img_len), SECTORSIZE);
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
+
   if (ret < 0)
     {
-      /* This will happen naturally if we registered the ROM disk
-       * previously.
-       */
-
-      if (ret != -EEXIST)
-        {
-          fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
-          exit(EXIT_FAILURE);
-        }
-
-      printf("main: ROM disk already registered\n");
+      fprintf(stderr, "ERROR: romdisk_register failed: %s\n",
+              strerror(errno));
+      exit(EXIT_FAILURE);
     }
 
   /* Mount the file system */

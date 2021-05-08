@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/bastest/bastest_main.c
+ * apps/examples/bastest/bastest_main.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,7 +40,9 @@
 #include <nuttx/config.h>
 
 #include <sys/mount.h>
+#include <sys/boardctl.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/drivers/ramdisk.h>
@@ -92,15 +94,23 @@
 int main(int argc, FAR char *argv[])
 {
   int ret;
+  struct boardioc_romdisk_s desc;
 
   /* Create a ROM disk for the ROMFS filesystem */
 
-  printf("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_BASTEST_DEVMINOR);
-  ret = romdisk_register(CONFIG_EXAMPLES_BASTEST_DEVMINOR, (FAR uint8_t *)romfs_img,
-                         NSECTORS(romfs_img_len), SECTORSIZE);
+  printf("Registering romdisk at /dev/ram%d\n",
+          CONFIG_EXAMPLES_BASTEST_DEVMINOR);
+
+  desc.minor    = CONFIG_EXAMPLES_BASTEST_DEVMINOR;     /* Minor device number of the ROM disk. */
+  desc.nsectors = NSECTORS(romfs_img_len);              /* The number of sectors in the ROM disk */
+  desc.sectsize = SECTORSIZE;                           /* The size of one sector in bytes */
+  desc.image    = (FAR uint8_t *)romfs_img;             /* File system image */
+
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
+      fprintf(stderr, "ERROR: romdisk_register failed: %s\n",
+              strerror(errno));
       return 1;
     }
 
@@ -109,11 +119,12 @@ int main(int argc, FAR char *argv[])
   printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_BASTEST_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, "romfs",
+              MS_RDONLY, NULL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, errno);
+              CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, strerror(errno));
       return 1;
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/module/module_main.c
+ * apps/examples/module/module_main.c
  *
  *   Copyright (C) 2015, 2017-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -160,6 +160,7 @@ int main(int argc, FAR char *argv[])
   ssize_t nbytes;
   int ret;
   int fd;
+  struct boardioc_romdisk_s desc;
 
 #ifdef CONFIG_BUILD_FLAT
   /* Set the OS symbol table indirectly through the boardctl() */
@@ -169,8 +170,8 @@ int main(int argc, FAR char *argv[])
   ret = boardctl(BOARDIOC_OS_SYMTAB, (uintptr_t)&symdesc);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: boardctl(BOARDIOC_OS_SYMTAB) failed: %d\n",
-              ret);
+      fprintf(stderr, "ERROR: boardctl(BOARDIOC_OS_SYMTAB) failed: %s\n",
+              strerror(errno));
       exit(EXIT_FAILURE);
     }
 #endif
@@ -182,33 +183,18 @@ int main(int argc, FAR char *argv[])
   printf("main: Registering romdisk at /dev/ram%d\n",
          CONFIG_EXAMPLES_MODULE_DEVMINOR);
 
-#if defined(CONFIG_BUILD_FLAT)
-  /* This example violates the portable POSIX interface by calling the OS
-   * internal function romdisk_register() (aka ramdisk_register()).  We can
-   * squeak by in with this violation in the FLAT build mode, but not in
-   * other build modes.  In other build modes, the following logic must be
-   * performed in the OS board initialization logic (where it really belongs
-   * anyway).
-   */
+  desc.minor    = CONFIG_EXAMPLES_MODULE_DEVMINOR;      /* Minor device number of the ROM disk. */
+  desc.nsectors = NSECTORS(romfs_img_len);              /* The number of sectors in the ROM disk */
+  desc.sectsize = SECTORSIZE;                           /* The size of one sector in bytes */
+  desc.image    = (FAR uint8_t *)romfs_img;             /* File system image */
 
-  ret = romdisk_register(CONFIG_EXAMPLES_MODULE_DEVMINOR,
-                         (FAR uint8_t *)romfs_img,
-                         NSECTORS(romfs_img_len), SECTORSIZE);
+  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
     {
-      /* This will happen naturally if we registered the ROM disk
-       * previously.
-       */
-
-      if (ret != -EEXIST)
-        {
-          fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
-          exit(EXIT_FAILURE);
-        }
-
-      printf("main: ROM disk already registered\n");
+      fprintf(stderr, "ERROR: romdisk_register failed: %s\n",
+              strerror(errno));
+      exit(EXIT_FAILURE);
     }
-#endif
 
   /* Mount the file system */
 
