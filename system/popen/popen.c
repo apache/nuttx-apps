@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/popen/popen/popen.c
+ * apps/system/popen/popen.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -253,13 +253,17 @@ FILE *popen(FAR const char *command, FAR const char *mode)
                         &file_actions, &attr, argv,
                         (FAR char * const *)NULL);
 #else
-  errcode = task_spawn(&container->shell, "popen", nsh_system, &file_actions,
-                       &attr, argv, (FAR char * const *)NULL);
+  container->shell = task_spawn("popen", nsh_system, &file_actions,
+                                &attr, argv, (FAR char * const *)NULL);
+  if (container->shell < 0)
+    {
+      errcode = -container->shell;
+    }
 #endif
 
   if (errcode != 0)
     {
-      serr("ERROR: Spawn failed: %d\n", result);
+      serr("ERROR: Spawn failed: %d\n", errcode);
       goto errout_with_actions;
     }
 
