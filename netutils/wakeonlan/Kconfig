@@ -12,7 +12,7 @@ config NETUTILS_WAKEONLAN
 		sends a WakeOnLAN magic packet to target MAC address.
 
 if NETUTILS_WAKEONLAN
-		
+
 config NETUTILS_WAKEONLAN_PROGNAME
 	string "Program name"
 	default "wol"
