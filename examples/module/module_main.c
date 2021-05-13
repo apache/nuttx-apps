@@ -151,6 +151,10 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_BUILD_FLAT
   struct boardioc_symtab_s symdesc;
 #endif
+#if defined(CONFIG_EXAMPLES_MODULE_BUILTINFS) && \
+    defined(CONFIG_EXAMPLES_MODULE_ROMFS)
+  struct boardioc_romdisk_s desc;
+#endif
 #if defined(CONFIG_EXAMPLES_MODULE_FSMOUNT) && \
     defined(CONFIG_EXAMPLES_MODULE_FSREMOVEABLE)
   struct stat buf;
@@ -160,7 +164,6 @@ int main(int argc, FAR char *argv[])
   ssize_t nbytes;
   int ret;
   int fd;
-  struct boardioc_romdisk_s desc;
 
 #ifdef CONFIG_BUILD_FLAT
   /* Set the OS symbol table indirectly through the boardctl() */
