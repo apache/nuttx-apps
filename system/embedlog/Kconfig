@@ -8,7 +8,7 @@ menuconfig SYSTEM_EMBEDLOG
 	default n
 	---help---
 		Highly configurable logger for embedded devices. Documentation and
-		more info available on: https://embedlog.kurwinet.pl (don't worry,
+		more info available on: https://embedlog.bofc.pl (don't worry,
 		it's in english). Note: none of the options define how embedlog
 		will behave, it will simply configure whether given feature can be
 		enabled in runtime or no. So enabling CONFIG_EMBEDLOG_ENABLE_TIMESTAMP
@@ -22,6 +22,28 @@ menuconfig SYSTEM_EMBEDLOG
 		the downloaded code for license details
 
 if SYSTEM_EMBEDLOG
+
+config EMBEDLOG_ENABLE_PTHREAD
+	bool "Enable thread safety"
+	depends on !DISABLE_PTHREAD
+	default n
+	---help---
+		When enabled, you will be able to configure embedlog to use
+		EL_THREAD_SAFE option, which will provide full thread safety in all
+		circumstances. When printing to stdout or syslog, embedlog is
+		half thread-safe. Buffer is allocated for each print call, so
+		different calls will not interfere with each other, but once
+		buffer is handed over to the kernel, logs might get mangled.
+		To make sure this does not happen, enable this and enable
+		EL_THREAD_SAFE option in runtime.
+
+		When multiple threads print to single file, this must be
+		enabled, as there are global states in each 'el' object. If two
+		'el' objects print into two separate files, you do not need
+		thread safety.
+
+comment "DISABLE_PTHREAD must be disabled to use thread safety"
+	depends on DISABLE_PTHREAD
 
 config EMBEDLOG_ENABLE_OUT_FILE
 	bool "Enable logging to file"
@@ -107,7 +129,7 @@ config EMBEDLOG_PREFIX_MAX
 		Maximum length of prefix that can be printed. If prefix exceeds this
 		value it will be truncated.
 
-endif #EMBEDLOG_ENABLE_PREFIX
+endif # EMBEDLOG_ENABLE_PREFIX
 
 config EMBEDLOG_ENABLE_FINFO
 	bool "Enable file info"
@@ -119,7 +141,7 @@ config EMBEDLOG_ENABLE_FINFO
 if EMBEDLOG_ENABLE_FINFO
 
 config EMBEDLOG_FLEN_MAX
-	int "max file name in finfo"
+	int "Max file name in finfo"
 	default 16
 	---help---
 		finfo look like this
@@ -129,7 +151,31 @@ config EMBEDLOG_FLEN_MAX
 		this parameter defines how long "filename.c" can be, if file name
 		exceeds this value it will be truncated.
 
+config EMBEDLOG_ENABLE_FUNCINFO
+	bool "Enable function info in log"
+	default y
+	---help---
+		When enabled, embedlog can be configured to add information
+		about function name from which log originated. This uses __func__
+		macro, so you need compiler that supports that. This macro was
+		introduced in c99 standard.
+
+if EMBEDLOG_ENABLE_FUNCINFO
+
+config EMBEDLOG_FUNCLEN_MAX
+	int "Max length of function to print"
+	default 16
+	---help---
+		Max length of function name to print. If function is longer than
+		this value, it will be truncated. This directly impacts size of
+		buffer for each 'el' object allocated.
+
+endif # EMBEDLOG_ENABLE_FUNCINFO
+
 endif # EMBEDLOG_ENABLE_FINFO
+
+comment "Function info requires EMBEDLOG_ENABLE_FINFO"
+	depends on !EMBEDLOG_ENABLE_FINFO
 
 config EMBEDLOG_ENABLE_COLORS
 	bool "Enable output colors"
@@ -155,7 +201,25 @@ config EMBEDLOG_MEM_LINE_SIZE
 	default 16
 	---help---
 		How many bytes of memory to print in a single line of el_pmemory call.
-		Check https://embedlog.kurwinet.pl/manuals/el_pmemory.3.html
+		Check https://embedlog.bofc.pl/manuals/el_pmemory.3.html
 		for more information about this.
 
+config EMBEDLOG_DEMO_PROGRAMS
+	bool "Compile demo programs"
+	default n
+	---help---
+		Compile demo programs that visualise how embedlog works. Also good
+		for checking if embedlog behaves corectly.
+
+if EMBEDLOG_DEMO_PROGRAMS
+
+config EMBEDLOG_DEMO_PROGRAMS_PRIORITY
+	int "embedlog demo programs task priority"
+	default 100
+
+config EMBEDLOG_DEMO_PROGRAMS_STACKSIZE
+	int "embedlog demo programs stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # EMBEDLOG_DEMO_PROGRAMS
 endif # SYSTEM_EMBEDLOG
