@@ -235,6 +235,74 @@ struct webclient_tls_ops
                             FAR struct webclient_poll_info *info);
 };
 
+/* Note on webclient_client lifetime
+ *
+ * (uninitialized)
+ *      |
+ * webclient_set_defaults
+ *      |
+ *      v
+ *  INITIALIZED
+ *      |
+ *      |      IN-PROGRESS
+ *      |        |
+ *      |        +-------------+
+ *      |        |             |
+ *      |        |         webclient_abort
+ *      |        |             |
+ *      |        |             v
+ *      |        |         ABORTED
+ *      |        |
+ * webclient_perform
+ *      |
+ *      +---------------+
+ *      |               |
+ *      |             non-blocking mode,
+ *      |             returns -EAGAIN
+ *      |               |
+ *      v               v
+ *     DONE           IN-PROGRESS
+ *
+ * (uninitialized):
+ *   After the memory for webclient_context is allocated,
+ *   it should be initialized with webclient_set_defaults() before
+ *   feeding it to other functions taking a webclient_context.
+ *
+ *   webclient_abort() makes the state back to this state.
+ *   If the application wants to reuse the context for another request,
+ *   it should initialize it with webclient_set_defaults() again.
+ *
+ * INITIALIZED:
+ *   After calling webclient_set_defaults(), the application can set up
+ *   the request parameters by setting the struct fields before the first
+ *   call of webclient_perform().
+ *   E.g. url, method, buffers, and callbacks.
+ *
+ *   webclient_set_static_body() can only be used in this state.
+ *
+ * IN-PROGRESS:
+ *   This state only exists for the non-blocking mode.
+ *
+ *   webclient_get_poll_info() can only be used in this state.
+ *
+ * ABORTED:
+ *   The HTTP operation has been aborted by webclient_abort().
+ *
+ * DONE:
+ *   The HTTP operation has been completed. (Either successfully or not.)
+ *
+ *   The application can examine the struct fields to see the result.
+ *   E.g. http_status and http_reason.
+ *
+ * ABORTED, DONE:
+ *   The application can now dispose the resources associated to the
+ *   context.
+ *   E.g. buffers
+ *
+ *   If the application wants to reuse the context for another request,
+ *   it should initialize it with webclient_set_defaults() again.
+ */
+
 struct webclient_context
 {
   /* request parameters
