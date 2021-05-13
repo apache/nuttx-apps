@@ -203,10 +203,12 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_ELF_FSREMOVEABLE
   struct stat buf;
 #endif
+#ifdef CONFIG_EXAMPLES_ELF_ROMFS
+  struct boardioc_romdisk_s desc;
+#endif
   FAR char *args[1];
   int ret;
   int i;
-  struct boardioc_romdisk_s desc;
 
   /* Initialize the memory monitor */
 
