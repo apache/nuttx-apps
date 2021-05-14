@@ -376,9 +376,20 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
 
   while (offset < ws->datend)
     {
+      bool got_nl;
+
       ws->line[ndx] = ws->buffer[offset];
-      if (ws->line[ndx] == ISO_NL)
+      got_nl = ws->line[ndx] == ISO_NL;
+      if (got_nl || ndx == CONFIG_WEBCLIENT_MAXHTTPLINE - 1)
         {
+          if (!got_nl)
+            {
+              nerr("ERROR: HTTP status line didn't fit "
+                   "CONFIG_WEBCLIENT_MAXHTTPLINE: %.*s\n",
+                   ndx, ws->line);
+              return -E2BIG;
+            }
+
           ws->line[ndx] = '\0';
           if ((strncmp(ws->line, g_http10, strlen(g_http10)) == 0) ||
               (strncmp(ws->line, g_http11, strlen(g_http11)) == 0))
