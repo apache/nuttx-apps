@@ -384,6 +384,17 @@ struct webclient_context
   size_t http_reason_len;
 
   struct wget_s *ws;
+
+#ifdef CONFIG_DEBUG_ASSERTIONS
+  enum webclient_context_state_e
+  {
+    WEBCLIENT_CONTEXT_STATE_UNINITIALIZED,
+    WEBCLIENT_CONTEXT_STATE_INITIALIZED,
+    WEBCLIENT_CONTEXT_STATE_IN_PROGRESS,
+    WEBCLIENT_CONTEXT_STATE_ABORTED,
+    WEBCLIENT_CONTEXT_STATE_DONE,
+  } state;
+#endif
 };
 
 struct webclient_poll_info
