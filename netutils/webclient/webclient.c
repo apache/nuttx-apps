@@ -447,6 +447,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
            */
 
           ws->state = WEBCLIENT_STATE_HEADERS;
+          ndx = 0;
           break;
         }
       else
