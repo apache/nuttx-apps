@@ -406,6 +406,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
                 }
 
               ctx->http_status = http_status;
+              ninfo("Got HTTP status %lu\n", http_status);
               if (ctx->http_reason != NULL)
                 {
                   strncpy(ctx->http_reason,
@@ -525,6 +526,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
 
           if (ndx > 0) /* Should always be true */
             {
+              ninfo("Got HTTP header line: %.*s\n", ndx - 1, &ws->line[0]);
               if (ws->line[0] == ISO_CR)
                 {
                   /* This was the last header line (i.e., and empty "\r\n"),
