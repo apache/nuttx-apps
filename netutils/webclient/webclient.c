@@ -131,6 +131,14 @@
 #define CONN_WANT_READ  WEBCLIENT_POLL_INFO_WANT_READ
 #define CONN_WANT_WRITE WEBCLIENT_POLL_INFO_WANT_WRITE
 
+#ifdef CONFIG_DEBUG_ASSERTIONS
+#define	_CHECK_STATE(ctx, s)	DEBUGASSERT((ctx)->state == (s))
+#define	_SET_STATE(ctx, s)		ctx->state = (s)
+#else
+#define	_CHECK_STATE(ctx, s)	do {} while (0)
+#define	_SET_STATE(ctx, s)		do {} while (0)
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -775,6 +783,12 @@ int webclient_perform(FAR struct webclient_context *ctx)
   int len;
   int ret;
 
+#ifdef CONFIG_DEBUG_ASSERTIONS
+  DEBUGASSERT(ctx->state == WEBCLIENT_CONTEXT_STATE_INITIALIZED ||
+              (ctx->state == WEBCLIENT_CONTEXT_STATE_IN_PROGRESS &&
+               (ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0));
+#endif
+
   /* Initialize the state structure */
 
   if (ctx->ws == NULL)
@@ -782,6 +796,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
       ws = calloc(1, sizeof(struct wget_s));
       if (!ws)
         {
+          _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
           return -errno;
         }
 
@@ -797,6 +812,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
         {
           nwarn("WARNING: Malformed URL: %s\n", ctx->url);
           free(ws);
+          _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
           return ret;
         }
 
@@ -827,6 +843,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
             {
               nerr("ERROR: unsupported scheme: %s\n", ws->scheme);
               free(ws);
+              _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
               return -ENOTSUP;
             }
 
@@ -848,6 +865,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   nerr("ERROR: TLS on AF_LOCAL socket is not implemented\n");
                   free(ws);
+                  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
                   return -ENOTSUP;
                 }
 #endif
@@ -918,6 +936,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   nerr("ERROR: TLS on AF_LOCAL socket is not implemented\n");
                   free(ws);
+                  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
                   return -ENOTSUP;
                 }
 #endif
@@ -967,6 +986,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
                       nwarn("WARNING: Failed to resolve hostname\n");
                       free(ws);
+                      _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
                       return -EHOSTUNREACH;
                     }
 
@@ -1284,6 +1304,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
   while (ws->state != WEBCLIENT_STATE_DONE);
 
   free(ws);
+  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
   return OK;
 
 errout_with_errno:
@@ -1295,6 +1316,7 @@ errout_with_errno:
           conn->flags |= CONN_WANT_WRITE;
         }
 
+      _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_IN_PROGRESS);
       return -EAGAIN;
     }
 
@@ -1304,6 +1326,7 @@ errout_with_errno:
     }
 
   free(ws);
+  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
   return ret;
 }
 
@@ -1326,6 +1349,9 @@ errout_with_errno:
 
 void webclient_abort(FAR struct webclient_context *ctx)
 {
+  _CHECK_STATE(ctx, WEBCLIENT_CONTEXT_STATE_IN_PROGRESS);
+  DEBUGASSERT((ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0);
+
   struct wget_s *ws = ctx->ws;
 
   if (ws == NULL)
@@ -1341,6 +1367,7 @@ void webclient_abort(FAR struct webclient_context *ctx)
     }
 
   free(ws);
+  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_ABORTED);
 }
 
 /****************************************************************************
@@ -1503,6 +1530,7 @@ void webclient_set_defaults(FAR struct webclient_context *ctx)
   memset(ctx, 0, sizeof(*ctx));
   ctx->method = "GET";
   ctx->timeout_sec = CONFIG_WEBCLIENT_TIMEOUT;
+  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_INITIALIZED);
 }
 
 /****************************************************************************
@@ -1513,6 +1541,8 @@ void webclient_set_static_body(FAR struct webclient_context *ctx,
                                FAR const void *body,
                                size_t bodylen)
 {
+  _CHECK_STATE(ctx, WEBCLIENT_CONTEXT_STATE_INITIALIZED);
+
   ctx->body_callback = webclient_static_body_func;
   ctx->body_callback_arg = (void *)body; /* discard const */
   ctx->bodylen = bodylen;
@@ -1575,6 +1605,9 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
 {
   struct wget_s *ws;
   struct conn *conn;
+
+  _CHECK_STATE(ctx, WEBCLIENT_CONTEXT_STATE_IN_PROGRESS);
+  DEBUGASSERT((ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0);
 
   ws = ctx->ws;
   if (ws == NULL)
