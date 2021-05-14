@@ -6,6 +6,7 @@
 config EXAMPLES_WATCHDOG
 	tristate "Watchdog Timer example"
 	default n
+	depends on WATCHDOG
 	---help---
 		Enable the watchdog timer example
 
