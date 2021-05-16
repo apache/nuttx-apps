@@ -69,6 +69,14 @@ int main(int argc, FAR char *argv[])
 
   /* Read both t and rh */
 
+  ret = ioctl(fd, SNIOC_SET_OPERATIONAL_MODE, HDC1008_MEAS_T_AND_RH);
+  if (ret < 0)
+    {
+      printf("Failed to set temperature and humidity measurement mode: %d\n",
+             errno);
+      goto out;
+    }
+
   ret = read(fd, buf, sizeof(buf));
   if (ret < 0)
     {
