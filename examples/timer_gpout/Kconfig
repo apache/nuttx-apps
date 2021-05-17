@@ -1,0 +1,67 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TIMER_GPOUT
+	tristate "Timer GPOUT example"
+	default n
+	depends on TIMER && DEV_GPIO
+	---help---
+		Enable the timer-gpout example.
+		This example uses the timer interrupt to periodically
+		change the state of a digital output.
+		The digital output may be a relay, a led or anything else.
+		This example can be very useful to validate timer drivers
+		by using a logic analyzer connected to the digital output.
+		This example, differs from the timer example because it
+		waits on a sigwaitinfo() instead of using a signal handler.
+		This approach ensures a deterministic wake-up time when
+		the signal occurs. 
+
+if EXAMPLES_TIMER_GPOUT
+
+config EXAMPLES_TIMER_GPOUT_TIM_DEVNAME
+	string "Timer device name"
+	default "/dev/timer0"
+	---help---
+		This is the name of the timer device that will be used.
+
+config EXAMPLES_TIMER_GPOUT_GPOUT_DEVNAME
+	string "GPOUT device name"
+	default "/dev/gpout0"
+	---help---
+		This is the name of the gpout device that will be used.
+
+config EXAMPLES_TIMER_GPOUT_INTERVAL
+	int "Timer interval (microseconds)"
+	default 1000000
+	---help---
+		This is the timer interval in microseconds.
+
+config EXAMPLES_TIMER_GPOUT_SIGNO
+	int "Notification signal number"
+	default 17
+	---help---
+		This is the signal number that is used to notify that a timer
+		interrupt occurred.
+
+config EXAMPLES_TIMER_GPOUT_STACKSIZE
+	int "Timer stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size allocated when the timer task runs.
+
+config EXAMPLES_TIMER_GPOUT_PRIORITY
+	int "Timer task priority"
+	default 255
+	---help---
+		This is the priority of the timer task.
+
+config EXAMPLES_TIMER_GPOUT_PROGNAME
+	string "Timer GPOUT program name"
+	default "timer_gpout"
+	---help---
+		This is the name of the program that will be used from the nsh.
+
+endif
