@@ -30,6 +30,7 @@
 #include <spawn.h>
 #include <assert.h>
 #include <debug.h>
+#include <errno.h>
 
 #include "nshlib/nshlib.h"
 
