@@ -95,6 +95,10 @@
 #  ifdef CONFIG_DISABLE_MOUNTPOINT
 #    error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #  endif
+
+#ifndef CONFIG_BOARDCTL_ROMDISK
+#  error "CONFIG_BOARDCTL_ROMDISK should be enabled in the configuration file"
+#endif
 #endif
 
 #ifdef CONFIG_THTTPD_BINFS
