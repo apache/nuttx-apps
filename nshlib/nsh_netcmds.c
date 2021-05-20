@@ -56,6 +56,7 @@
 #include <fcntl.h>       /* Needed for open */
 #include <dirent.h>
 #include <libgen.h>      /* Needed for basename */
+#include <assert.h>
 #include <errno.h>
 #include <debug.h>
 

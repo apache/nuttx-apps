@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv6adaptor.c
+ * apps/netutils/netlib/netlib_ipv6adaptor.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 
 #include <net/if.h>
@@ -179,7 +180,8 @@ static int _netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
 
       strncpy(maskreq.lifr_name, lifr->lifr_name, IFNAMSIZ);
 
-      status = ioctl(sd, SIOCGLIFNETMASK, (unsigned long)((uintptr_t)&maskreq));
+      status = ioctl(sd, SIOCGLIFNETMASK,
+                     (unsigned long)((uintptr_t)&maskreq));
       if (status < 0)
         {
           ret = -errno;

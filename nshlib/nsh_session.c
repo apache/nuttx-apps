@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #ifdef CONFIG_NSH_CLE
 #  include "system/cle.h"

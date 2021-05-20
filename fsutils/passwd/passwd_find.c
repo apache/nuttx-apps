@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 #include <errno.h>
 
 #include "passwd.h"
@@ -110,7 +111,7 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
   offset = 0;
   ret    = -ENOENT;
 
-  while (fgets(iobuffer, CONFIG_FSUTILS_PASSWD_IOBUFFER_SIZE, stream) != NULL)
+  while (fgets(iobuffer, CONFIG_FSUTILS_PASSWD_IOBUFFER_SIZE, stream))
     {
       ptr  = iobuffer;
       name = ptr;

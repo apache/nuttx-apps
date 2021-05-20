@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include <debug.h>
 #include <errno.h>
 
@@ -148,8 +149,9 @@ errout:
 
 void ftpc_sockclose(FAR struct ftpc_socket_s *sock)
 {
-  /* Note that the same underlying socket descriptor is used for both streams.
-   * There should be harmless failures on the second fclose and the close.
+  /* Note that the same underlying socket descriptor is used for both
+   * streams. There should be harmless failures on the second fclose
+   * and the close.
    */
 
   fclose(sock->instream);
@@ -168,7 +170,8 @@ void ftpc_sockclose(FAR struct ftpc_socket_s *sock)
  *
  ****************************************************************************/
 
-int ftpc_sockconnect(FAR struct ftpc_socket_s *sock, FAR struct sockaddr *addr)
+int ftpc_sockconnect(FAR struct ftpc_socket_s *sock,
+                     FAR struct sockaddr *addr)
 {
   int ret;
 
@@ -177,14 +180,16 @@ int ftpc_sockconnect(FAR struct ftpc_socket_s *sock, FAR struct sockaddr *addr)
 #ifdef CONFIG_NET_IPv6
   if (addr->sa_family == AF_INET6)
     {
-      ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr_in6));
+      ret = connect(sock->sd, (struct sockaddr *)addr,
+                    sizeof(struct sockaddr_in6));
     }
   else
 #endif
 #ifdef CONFIG_NET_IPv4
   if (addr->sa_family == AF_INET)
     {
-      ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr_in));
+      ret = connect(sock->sd, (struct sockaddr *)addr,
+                    sizeof(struct sockaddr_in));
     }
   else
 #endif
@@ -234,21 +239,21 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  *   Accept a connection on the data socket.  This function is only used
  *   in active mode.
  *
- *   In active mode FTP the client connects from a random port (N>1023) to the
- *   FTP server's command port, port 21. Then, the client starts listening to
- *   port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
- *   will then connect back to the client's specified data port from its local
- *   data port, which is port 20. In passive mode FTP the client initiates
- *   both connections to the server, solving the problem of firewalls filtering
- *   the incoming data port connection to the client from the server. When
- *   opening an FTP connection, the client opens two random ports locally
- *   (N>1023 and N+1). The first port contacts the server on port 21, but
- *   instead of then issuing a PORT command and allowing the server to connect
- *   back to its data port, the client will issue the PASV command. The result
- *   of this is that the server then opens a random unprivileged port (P >
- *   1023) and sends the PORT P command back to the client. The client then
- *   initiates the connection from port N+1 to port P on the server to transfer
- *   data.
+ *   In active mode FTP the client connects from a random port (N>1023) to
+ *   the FTP server's command port, port 21. Then, the client starts
+ *   listening to port N+1 and sends the FTP command PORT N+1 to the FTP
+ *   server. The server will then connect back to the client's specified data
+ *   port from its local data port, which is port 20. In passive mode FTP the
+ *   client initiates both connections to the server, solving the problem of
+ *   firewalls filtering the incoming data port connection to the client from
+ *   the server. When opening an FTP connection, the client opens two random
+ *   ports locally (N>1023 and N+1). The first port contacts the server on
+ *   port 21, but instead of then issuing a PORT command and allowing the
+ *   server to connect back to its data port, the client will issue the PASV
+ *   command. The result of this is that the server then opens a random
+ *   unprivileged port (P > 1023) and sends the PORT P command back to the
+ *   client. The client then initiates the connection from port N+1 to port P
+ *   on the server to transfer data.
  *
  ****************************************************************************/
 
@@ -318,7 +323,7 @@ errout_with_sd:
  * Name: ftpc_socklisten
  *
  * Description:
- *   Bind the socket to local address and wait for connection from the server.
+ *   Bind the socket to local address and wait for connection from server.
  *
  ****************************************************************************/
 
@@ -411,5 +416,6 @@ int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
       nerr("ERROR: getsockname failed: %d\n", errno);
       return ERROR;
     }
+
   return OK;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/getprime_main.c
+ * apps/testing/getprime/getprime_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
+#include <assert.h>
 
 /****************************************************************************
  * Pre-processor Definitions

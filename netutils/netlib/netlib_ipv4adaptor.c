@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv4adaptor.c
+ * apps/netutils/netlib/netlib_ipv4adaptor.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 
 #include <net/if.h>
@@ -87,7 +88,8 @@
  *
  ****************************************************************************/
 
-static int _netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
+static int _netlib_ipv4adaptor(in_addr_t destipaddr,
+                               FAR in_addr_t *srcipaddr)
 {
   FAR struct ifreq *ifr;
   struct ifconf ifc;
