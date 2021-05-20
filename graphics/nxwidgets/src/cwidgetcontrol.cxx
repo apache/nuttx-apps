@@ -44,6 +44,7 @@
 #include <cstring>
 #include <csched>
 #include <cerrno>
+#include <debug.h>
 
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/nxwidgets/cnxserver.hxx"
