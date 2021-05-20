@@ -1629,7 +1629,6 @@ int dhcpd_start(FAR const char *interface)
       if (pid < 0)
         {
           int errval = errno;
-          DEBUGASSERT(errval > 0);
 
           g_dhcpd_daemon.ds_state = DHCPD_STOPPED;
           nerr("ERROR: Failed to start the DHCPD daemon: %d\n", errval);

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/ntpclient/ntpclient.c
+ * apps/netutils/ntpclient/ntpclient.c
  *
  *   Copyright (C) 2014, 2016, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,6 +50,7 @@
 #include <string.h>
 #include <time.h>
 #include <sched.h>
+#include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
