@@ -5392,7 +5392,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
        */
 
       vi->updatereqcol = true;
-      if (!iscntrl(ch) || ch == '\t')
+      if (isprint(ch) || ch == '\t')
         {
           /* Insert the filtered character into the buffer */
 
@@ -5586,7 +5586,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
               vi->curpos = vi_cursorright(vi, vi->curpos, 1);
               if (vi->curpos >= vi->textsize)
                 {
-                  vi->curpos = vi->textsize - 1;
+                  vi->curpos = vi->textsize;
                 }
             }
             break;
