@@ -48,6 +48,6 @@ distclean::
 
 # nimBLE assumes this flag since it expects undefined macros to be zero value
 
-CFLAGS += -Wno-undef
+CFLAGS += -Wno-pointer-to-int-cast -Wno-undef
 
 include $(APPDIR)/Application.mk
