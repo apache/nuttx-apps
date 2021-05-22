@@ -1,5 +1,5 @@
 /****************************************************************************
- * canutils/canlib/canlib_setloopback.c
+ * apps/canutils/canlib/canlib_setloopback.c
  *
  *   Copyright (C) 2016 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -45,15 +45,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <fcntl.h>
+#include <debug.h>
 #include <errno.h>
 #include <nuttx/can/can.h>
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: canlib_setloopback
  *
  * Description:
- *   Wrapper for CANIOC_SET_CONNMODES. When loopback mode is enabled, the CAN
- *   peripheral transmits on the bus, but only receives its own sent messages.
+ *   Wrapper for CANIOC_SET_CONNMODES. When loopback mode is enabled, the
+ *   CAN peripheral transmits on the bus, but only receives its own sent
+ *   messages.
  *
  * Input Parameter:
  *   fd       - file descriptor of an opened can device

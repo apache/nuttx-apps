@@ -1,5 +1,5 @@
 /****************************************************************************
- * canutils/canlib/canlib_setbaud.c
+ * apps/canutils/canlib/canlib_setbaud.c
  *
  *   Copyright (C) 2016 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -44,8 +44,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <debug.h>
 #include <errno.h>
 #include <nuttx/can/can.h>
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: canlib_setbaud

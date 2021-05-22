@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <debug.h>
 #include <errno.h>
 #include <poll.h>
 #include <stdio.h>
@@ -107,11 +108,11 @@ static int chat_tokenise(FAR struct chat *priv,
   {
     if (!tok_pos && !quoted && !no_termin)
       {
-        /* a) the first character in the script is a delimiter or
-         * b) the previous character was a delimiter,
-         * and in both cases it is not the empty string token,
-         * hence skipping.
-         */
+          /* a) the first character in the script is a delimiter or
+           * b) the previous character was a delimiter,
+           * and in both cases it is not the empty string token,
+           * hence skipping.
+           */
 
         return 0;
       }
