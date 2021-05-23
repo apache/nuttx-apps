@@ -1,35 +1,20 @@
 ############################################################################
 # apps/system/psmq/Makefile
 #
-#   Copyright (C) 2019 Michał Łyszczek. All rights reserved.
-#   Author: Michał Łyszczek <michal.lyszczek@bofc.pl>
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in
-#    the documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name NuttX nor the names of its contributors may be
-#    used to endorse or promote products derived from this software
-#    without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
 #
 ############################################################################
 
@@ -40,9 +25,9 @@ UNPACK = tar -xzf
 PACKEXT = .tar.gz
 NXTOOLSDIR = $(APPDIR)/tools
 
-PSMQ_URL = https://distfiles.kurwinet.pl/psmq
-PSMQ_VERSION = 0.1.0
-PSMQ_SRC_SHA256 = 52dce7d6fcbf84243e11afdb953eea6a6eb405fd81c8e71bc556bb63090e1284
+PSMQ_URL = https://distfiles.bofc.pl/psmq
+PSMQ_VERSION = 0.2.1
+PSMQ_SRC_SHA256 = b029fa06752ad7dce89f6b899f27a08a1bd1ee0a4e1d9df407274f0322bf1946
 PSMQ_EXT = tar.gz
 PSMQ_SOURCES = psmq-$(PSMQ_VERSION)
 PSMQ_TARBALL = $(PSMQ_SOURCES).$(PSMQ_EXT)
@@ -55,20 +40,16 @@ CSRCS = $(PSMQ_SOURCES)/lib/psmq.c \
 	$(PSMQ_SOURCES)/src/broker.c \
 	$(PSMQ_SOURCES)/src/cfg.c \
 	$(PSMQ_SOURCES)/src/globals.c \
-	$(PSMQ_SOURCES)/src/topic-list.c
+	$(PSMQ_SOURCES)/src/topic-list.c \
+	$(PSMQ_SOURCES)/src/utils.c
 
 # compile-time options from Kconfig
 CFLAGS += -DPSMQ_MAX_CLIENTS=$(CONFIG_PSMQ_MAX_CLIENTS)
-CFLAGS += -DPSMQ_PAYLOAD_MAX=$(CONFIG_PSMQ_PAYLOAD_MAX)
-CFLAGS += -DPSMQ_TOPIC_MAX=$(CONFIG_PSMQ_TOPIC_MAX)
 
 # build psmq as library and disable standalone applications (apps will
 # still be compiled but into shared library rather than standalone application
 CFLAGS += -DPSMQ_LIBRARY=1
 CFLAGS += -DPSMQ_STANDALONE=0
-
-# psmq cannot be damonized in nuttx
-CFLAGS += -DPSMQ_ENABLE_DAEMON=0
 
 # nuttx has no opterr variable
 CFLAGS += -DPSMQ_NO_OPTERR=1
@@ -116,8 +97,12 @@ $(PSMQ_SOURCES): $(PSMQ_TARBALL)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
-create_includes:
-	$(Q) $(CP) $(PSMQ_SOURCES)/inc/psmq.h $(APPDIR)/include/system
+$(PSMQ_SOURCES)/inc/psmq.h: $(PSMQ_SOURCES)/inc/psmq.h.in
+	@echo "Generating: $@"
+	$(Q) sed -e "s/@PSMQ_MSG_MAX@/$(CONFIG_PSMQ_MSG_MAX)/" $< > $@
+
+create_includes: $(PSMQ_SOURCES)/inc/psmq.h
+	$(Q) $(CP) $< $(APPDIR)/include/system
 
 context:: $(PSMQ_SOURCES)
 	$(Q) $(MAKE) create_includes

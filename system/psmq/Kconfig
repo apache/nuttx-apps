@@ -3,14 +3,17 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+comment "psmq requires SYSTEM_EMBEDLOG and !DISABLE_MQUEUE"
+	depends on DISABLE_MQUEUE || !SYSTEM_EMBEDLOG
+
 menuconfig SYSTEM_PSMQ
-	tristate "psmq"
+	bool "psmq"
 	default n
 	depends on !DISABLE_MQUEUE && SYSTEM_EMBEDLOG
 	---help---
 		psmq is tool set which allows IPC communication in publish/subscribe way
 		created on top of posix messege queue. Full documentation is available
-		at: https://psmq.kurwinet.pl (despite the domain, it is in english).
+		at: https://psmq.bofc.pl (despite the domain, it is in english).
 
 		Library is licensed under BSD 2-clause license. See LICENSE file in
 		the downloaded code for license details.
@@ -28,30 +31,23 @@ config PSMQ_MAX_CLIENTS
 		about 12 bytes (may vary depending on architecture) for each
 		client.
 
-config PSMQ_PAYLOAD_MAX
+config PSMQ_MSG_MAX
 	int "Max size of payload"
-	default 8
+	range 6 2147483647
+	default 24
 	---help---
-		Defines maximum size of payload that can be sent via psmq.
+		Defines maximum size of message that can be sent via psmq.
+		Message consists of topic and payload. Topic is always
+		null-terminated after which payload follows. This allows
+		for some flexibility, ie if PSMQ_MSG_MAX was be 10, then
+		topic could be 3 bytes long and payload 7, but also
+		topic could take 9 bytes and payload only 1.
 
-		Both PSMQ_TOPIC_MAX and PSMQ_PAYLOAD_MAX have direct impact on size
-		of internal message structures that  are copied each time message
-		is sent.  If you set PSMQ_PAYLOAD_MAX to, let's say 20, and you are
-		sending message with payload that takes only 2 byte, then 20 bytes
-		will get copied anyway.  Same rule applies to topics.
-
-config PSMQ_TOPIC_MAX
-	int "Max length of topic"
-	default 15
-	---help---
-		Defines maximum length any topic can be.  That includes first ´/´
-		character,  but  does  not  include terminating null  character.  So
-		if  this is set to 3, then topics "/0", "/01" will be valid, but
-		"/012" will be too long.
-
-		Library will use PSMQ_TOPIC_MAX + 1 as an array size for topic.
-		This means, to prevent unnecessary paddings, use values like 7, or 15
-		or 31.
+		This value has direct impact on runtime memory usage by
+		psmq as this increases size of struct that is used when
+		allocating memory for client. This has no impact on
+		number of bytes that are sent because only actual data
+		is sent over mqueue.
 
 config PSMQD_PRIORITY
 	int "psmqd broker task priority"
