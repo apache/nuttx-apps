@@ -44,6 +44,7 @@
 #include <cstring>
 #include <csched>
 #include <cassert>
+#include <cunistd>
 
 #include <semaphore.h>
 #include <debug.h>
