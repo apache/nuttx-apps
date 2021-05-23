@@ -90,7 +90,7 @@ int main(int argc, FAR char *argv[])
   printf("Please, reopen the terminal with the new attributes,"
          " otherwise you will have garbage.\n"
          "You may try: picocom /dev/ttyUSB0 --baud 57600"
-         " --parity o --databits 5 --stopbits 2\n\n");
+         " --parity o --databits 7 --stopbits 2\n\n");
   fflush(stdout); /* Clean stdout buffer */
 
   /* Wait to empty the hardware buffer, otherwise the above message
