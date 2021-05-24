@@ -708,13 +708,14 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                     }
 
                   g_cmdhist.buf[g_cmdhist.head][i] = '\0';
-                  g_cmdhist.offset = 1;
 
                   if (g_cmdhist.len < RL_CMDHIST_LEN)
                     {
                       g_cmdhist.len++;
                     }
                 }
+
+              g_cmdhist.offset = 1;
             }
 #endif /* CONFIG_READLINE_CMD_HISTORY */
 
