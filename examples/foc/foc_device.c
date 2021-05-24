@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #include "foc_debug.h"
 #include "foc_device.h"

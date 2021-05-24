@@ -41,6 +41,7 @@
 
 #include <sys/stat.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include <nuttx/vt100.h>
 
