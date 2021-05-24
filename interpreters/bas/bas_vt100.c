@@ -320,6 +320,7 @@ void vt100_scrolldown(int chn, uint16_t nlines)
 
       vt100_write(chn, g_revindex, sizeof(g_revindex));
     }
+}
 #endif
 
 /****************************************************************************
