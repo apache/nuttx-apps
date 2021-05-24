@@ -13,8 +13,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -116,7 +116,8 @@ struct Value *stmt_CALL(struct Value *value)
       if (g_pc.token->u.identifier->sym->type != USERFUNCTION &&
           g_pc.token->u.identifier->sym->type != BUILTINFUNCTION)
         {
-          return Value_new_ERROR(value, TYPEMISMATCH1, "variable", "function");
+          return Value_new_ERROR(value, TYPEMISMATCH1, "variable",
+                                 "function");
         }
 
       func(value);
@@ -137,7 +138,8 @@ struct Value *stmt_CASE(struct Value *value)
 
   if (g_pass == DECLARE || g_pass == COMPILE)
     {
-      struct Pc *selectcase, *nextcasevalue;
+      struct Pc *selectcase;
+      struct Pc *nextcasevalue;
 
       if ((selectcase = findLabel(L_SELECTCASE)) == (struct Pc *)0)
         {
@@ -146,7 +148,9 @@ struct Value *stmt_CASE(struct Value *value)
 
       for (nextcasevalue = &selectcase->token->u.selectcase->nextcasevalue;
            nextcasevalue->line != -1;
-           nextcasevalue = &nextcasevalue->token->u.casevalue->nextcasevalue);
+           nextcasevalue = &nextcasevalue->token->u.casevalue->nextcasevalue)
+        {
+        }
 
       *nextcasevalue = g_pc;
       if (g_pass == COMPILE)
@@ -242,7 +246,6 @@ struct Value *stmt_CASE(struct Value *value)
 
                         Value_destroy(value);
                       }
-
                   }
 
                 if (g_pc.token->type == T_COMMA)
@@ -402,14 +405,15 @@ struct Value *stmt_CLS(struct Value *value)
 
 struct Value *stmt_COLOR(struct Value *value)
 {
-  int foreground = -1, background = -1;
+  int foreground = -1;
+  int background = -1;
   struct Pc statementpc = g_pc;
 
   ++g_pc.token;
   if (eval(value, (const char *)0))
     {
-      if (value->type == V_ERROR ||
-          (g_pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
+      if (value->type == V_ERROR || (g_pass != DECLARE &&
+          Value_retype(value, V_INTEGER)->type == V_ERROR))
         {
           return value;
         }
@@ -441,7 +445,8 @@ struct Value *stmt_COLOR(struct Value *value)
             {
               Value_destroy(value);
               g_pc = statementpc;
-              return Value_new_ERROR(value, OUTOFRANGE, _("background colour"));
+              return Value_new_ERROR(value, OUTOFRANGE,
+                                     _("background colour"));
             }
         }
 
@@ -465,7 +470,8 @@ struct Value *stmt_COLOR(struct Value *value)
                 {
                   Value_destroy(value);
                   g_pc = statementpc;
-                  return Value_new_ERROR(value, OUTOFRANGE, _("border colour"));
+                  return Value_new_ERROR(value, OUTOFRANGE,
+                                         _("border colour"));
                 }
             }
 
@@ -599,7 +605,7 @@ struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value)
       if (g_pass == DECLARE)
         {
           enum ValueType *t =
-            args ? malloc(args * sizeof(enum ValueType)) : (enum ValueType *)0;
+            args ? malloc(args * sizeof(enum ValueType)) : 0;
           int i;
 
           for (i = 0; i < args; ++i)
@@ -607,8 +613,8 @@ struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value)
               t[i] = Auto_argType(&g_stack, i);
             }
 
-          if (Global_function
-              (&g_globals, fn, fn->defaultType, &g_pc, &statementpc, args, t) == 0)
+          if (Global_function(&g_globals, fn, fn->defaultType,
+                              &g_pc, &statementpc, args, t) == 0)
             {
               free(t);
               Auto_funcEnd(&g_stack);
@@ -641,7 +647,8 @@ struct Value *stmt_DEC_INC(struct Value *value)
   ++g_pc.token;
   while (1)
     {
-      struct Value *l, stepValue;
+      struct Value *l;
+      struct Value stepValue;
       struct Pc lvaluepc;
 
       lvaluepc = g_pc;
@@ -798,8 +805,10 @@ struct Value *stmt_DEFINT_DEFDBL_DEFSTR(struct Value *value)
 
 struct Value *stmt_DELETE(struct Value *value)
 {
-  struct Pc from, to;
-  int f = 0, t = 0;
+  struct Pc from;
+  struct Pc to;
+  int f = 0;
+  int t = 0;
 
   if (g_pass == INTERPRET && !DIRECTMODE)
     {
@@ -861,7 +870,8 @@ struct Value *stmt_DIM(struct Value *value)
   ++g_pc.token;
   while (1)
     {
-      unsigned int capacity = 0, *geometry = (unsigned int *)0;
+      unsigned int capacity = 0;
+      unsigned int *geometry = (unsigned int *)0;
       struct Var *var;
       struct Pc dimpc;
       unsigned int dim;
@@ -1106,6 +1116,7 @@ struct Value *stmt_EDIT(struct Value *value)
               return Value_new_ERROR(value, NOSUCHLINE);
             }
         }
+
       ++g_pc.token;
     }
   else
@@ -1120,41 +1131,33 @@ struct Value *stmt_EDIT(struct Value *value)
       char *name;
       int chn;
       struct Program newProgram;
-      const char *visual, *basename, *shell;
+      const char *visual;
+      const char *basename;
+      const char *shell;
       struct String cmd;
       static struct
         {
-          const char *editor, *flag;
+          const char *editor;
+          const char *flag;
         }
+
       gotoLine[] =
-      {
         {
-        "Xemacs", "+%ld "},
-        {
-        "cemacs", "+%ld "},
-        {
-        "emacs", "+%ld "},
-        {
-        "emori", "-l%ld "},
-        {
-        "fe", "-l%ld "},
-        {
-        "jed", "+%ld "},
-        {
-        "jmacs", "+%ld "},
-        {
-        "joe", "+%ld "},
-        {
-        "modeori", "-l%ld "},
-        {
-        "origami", "-l%ld "},
-        {
-        "vi", "-c%ld "},
-        {
-        "vim", "+%ld "},
-        {
-        "xemacs", "+%ld "}
-      };
+          "Xemacs", "+%ld ",
+          "cemacs", "+%ld ",
+          "emacs", "+%ld ",
+          "emori", "-l%ld ",
+          "fe", "-l%ld ",
+          "jed", "+%ld ",
+          "jmacs", "+%ld ",
+          "joe", "+%ld ",
+          "modeori", "-l%ld ",
+          "origami", "-l%ld ",
+          "vi", "-c%ld ",
+          "vim", "+%ld ",
+          "xemacs", "+%ld "
+        };
+
       unsigned int i;
       pid_t pid;
 
@@ -1178,7 +1181,7 @@ struct Value *stmt_EDIT(struct Value *value)
         }
 
       FS_width(chn, 0);
-      if (Program_list(&g_program, chn, 0, (struct Pc *)0, (struct Pc *)0, value))
+      if (Program_list(&g_program, chn, 0, 0, 0, value))
         {
           g_pc = statementpc;
           return value;
@@ -1311,6 +1314,7 @@ struct Value *stmt_ELSE_ELSEIFELSE(struct Value *value)
           pushLabel(L_ELSE, &elsepc);
         }
     }
+
   return (struct Value *)0;
 }
 
@@ -1403,8 +1407,10 @@ struct Value *stmt_ENDFN(struct Value *value)
     {
       if (g_pass == DECLARE)
         {
-          Global_endfunction(&g_globals, (curfn->token + 1)->u.identifier, &g_pc);
+          Global_endfunction(&g_globals, (curfn->token + 1)->u.identifier,
+                             &g_pc);
         }
+
       Auto_funcEnd(&g_stack);
     }
 
@@ -1438,7 +1444,8 @@ struct Value *stmt_ENDPROC_SUBEND(struct Value *value)
     {
       if (g_pass == DECLARE)
         {
-          Global_endfunction(&g_globals, (curfn->token + 1)->u.identifier, &g_pc);
+          Global_endfunction(&g_globals, (curfn->token + 1)->u.identifier,
+                             &g_pc);
         }
 
       Auto_funcEnd(&g_stack);
@@ -1603,8 +1610,8 @@ struct Value *stmt_EQ_FNRETURN_FNEND(struct Value *value)
         {
           if (g_pass == DECLARE)
             {
-              Global_endfunction(&g_globals, (curfn->token + 1)->u.identifier,
-                                 &g_pc);
+              Global_endfunction(&g_globals,
+                                 (curfn->token + 1)->u.identifier, &g_pc);
             }
 
           Auto_funcEnd(&g_stack);
@@ -1906,9 +1913,8 @@ struct Value *stmt_FOR(struct Value *value)
 
           if (VALUE_RETYPE
               (&limit, sym->type == GLOBALVAR ||
-               sym->type == GLOBALARRAY ? sym->u.var.type : Auto_varType(&g_stack,
-                                                                         sym))->type
-              == V_ERROR)
+               sym->type == GLOBALARRAY ? sym->u.var.type :
+               Auto_varType(&g_stack, sym))->type == V_ERROR)
             {
               Value_destroy(value);
               *value = limit;
@@ -1997,7 +2003,8 @@ struct Value *stmt_GET_PUT(struct Value *value)
               if (rec < 1)
                 {
                   g_pc = errpc;
-                  return Value_new_ERROR(value, OUTOFRANGE, _("record number"));
+                  return Value_new_ERROR(value, OUTOFRANGE,
+                                         _("record number"));
                 }
 
               if (FS_seek((int)chn, rec - 1) == -1)
@@ -2007,7 +2014,6 @@ struct Value *stmt_GET_PUT(struct Value *value)
                 }
             }
         }
-
     }
 
   if (g_pc.token->type == T_COMMA)        /* BINARY mode get/put */
@@ -2135,14 +2141,15 @@ struct Value *stmt_GOSUB(struct Value *value)
           return Value_new_ERROR(value, MISSINGLINENUMBER);
         }
 
-      if (Program_goLine(&g_program, g_pc.token->u.integer, &gosubpc->u.gosubpc) ==
-          (struct Pc *)0)
+      if (Program_goLine(&g_program, g_pc.token->u.integer,
+                         &gosubpc->u.gosubpc) == (struct Pc *)0)
         {
           return Value_new_ERROR(value, NOSUCHLINE);
         }
 
       if (g_pass == COMPILE &&
-          Program_scopeCheck(&g_program, &gosubpc->u.gosubpc, findLabel(L_FUNC)))
+          Program_scopeCheck(&g_program, &gosubpc->u.gosubpc,
+                             findLabel(L_FUNC)))
         {
           return Value_new_ERROR(value, OUTOFSCOPE);
         }
@@ -2186,14 +2193,15 @@ struct Value *stmt_RESUME_GOTO(struct Value *value)
           return Value_new_ERROR(value, MISSINGLINENUMBER);
         }
 
-      if (Program_goLine(&g_program, g_pc.token->u.integer, &gotopc->u.gotopc) ==
-          (struct Pc *)0)
+      if (Program_goLine(&g_program, g_pc.token->u.integer,
+                         &gotopc->u.gotopc) == (struct Pc *)0)
         {
           return Value_new_ERROR(value, NOSUCHLINE);
         }
 
       if (g_pass == COMPILE &&
-          Program_scopeCheck(&g_program, &gotopc->u.gotopc, findLabel(L_FUNC)))
+          Program_scopeCheck(&g_program, &gotopc->u.gotopc,
+                             findLabel(L_FUNC)))
         {
           return Value_new_ERROR(value, OUTOFSCOPE);
         }
@@ -2311,8 +2319,8 @@ struct Value *stmt_LINEINPUT(struct Value *value)
   if (g_pass == DECLARE &&
       Global_variable(&g_globals, g_pc.token->u.identifier,
                       g_pc.token->u.identifier->defaultType,
-                      (g_pc.token + 1)->type == T_OP ? GLOBALARRAY : GLOBALVAR,
-                      0) == 0)
+                      (g_pc.token + 1)->type == T_OP ? GLOBALARRAY :
+                      GLOBALVAR, 0) == 0)
     {
       return Value_new_ERROR(value, REDECLARATION);
     }
@@ -2406,7 +2414,7 @@ struct Value *stmt_LIST_LLIST(struct Value *value)
             }
 
           if (g_pass == INTERPRET &&
-              Program_toLine(&g_program, value->u.integer, &to) == (struct Pc *)0)
+              !Program_toLine(&g_program, value->u.integer, &to))
             {
               return Value_new_ERROR(value, NOSUCHLINE);
             }
@@ -2426,8 +2434,8 @@ struct Value *stmt_LIST_LLIST(struct Value *value)
       /* Some implementations do not require direct mode */
 
       if (Program_list
-          (&g_program, channel, channel == STDCHANNEL, f ? &from : (struct Pc *)0,
-           t ? &to : (struct Pc *)0, value))
+          (&g_program, channel, channel == STDCHANNEL,
+           f ? &from : (struct Pc *)0, t ? &to : (struct Pc *)0, value))
         {
           return value;
         }
@@ -2493,7 +2501,9 @@ struct Value *stmt_LOCAL(struct Value *value)
   if (g_pass == DECLARE || g_pass == COMPILE)
     {
       if ((curfn = findLabel(L_FUNC)) == (struct Pc *)0)
-        return Value_new_ERROR(value, STRAYLOCAL);
+        {
+          return Value_new_ERROR(value, STRAYLOCAL);
+        }
     }
 
   ++g_pc.token;
@@ -2509,7 +2519,10 @@ struct Value *stmt_LOCAL(struct Value *value)
           struct Symbol *fnsym;
 
           if (Auto_variable(&g_stack, g_pc.token->u.identifier) == 0)
-            return Value_new_ERROR(value, ALREADYLOCAL);
+            {
+              return Value_new_ERROR(value, ALREADYLOCAL);
+            }
+
           if (g_pass == DECLARE)
             {
               assert(curfn->token->type == T_DEFFN ||
@@ -2618,8 +2631,8 @@ struct Value *stmt_LOCK_UNLOCK(struct Value *value)
   Value_destroy(value);
   if (g_pass == INTERPRET)
     {
-      if (FS_lock(channel, 0, 0, lock ? FS_LOCK_EXCLUSIVE : FS_LOCK_NONE, 1) ==
-          -1)
+      if (FS_lock(channel, 0, 0, lock ? FS_LOCK_EXCLUSIVE : FS_LOCK_NONE, 1)
+          == -1)
         {
           return Value_new_ERROR(value, IOERROR, FS_errmsg);
         }
@@ -2878,7 +2891,6 @@ struct Value *stmt_IF_ELSEIFIF(struct Value *value)
                 }
             }
         }
-
     }
 
   return (struct Value *)0;
@@ -3109,8 +3121,8 @@ struct Value *stmt_MAT(struct Value *value)
     }
 
   if (g_pass == DECLARE &&
-      Global_variable(&g_globals, g_pc.token->u.identifier,
-                      g_pc.token->u.identifier->defaultType, GLOBALARRAY, 0) == 0)
+      !Global_variable(&g_globals, g_pc.token->u.identifier,
+                      g_pc.token->u.identifier->defaultType, GLOBALARRAY, 0))
     {
       return Value_new_ERROR(value, REDECLARATION);
     }
@@ -3130,7 +3142,9 @@ struct Value *stmt_MAT(struct Value *value)
           if (((g_pc.token + 1)->type == T_OP ||
                Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
               Global_find(&g_globals, g_pc.token->u.identifier, 1) == 0)
-            return Value_new_ERROR(value, UNDECLARED);
+            {
+              return Value_new_ERROR(value, UNDECLARED);
+            }
         }
 
       var2 = &g_pc.token->u.identifier->sym->u.var;
@@ -3200,8 +3214,8 @@ struct Value *stmt_MAT(struct Value *value)
                   return value;
                 }
             }
-          else if (Var_mat_addsub
-                   (var1, var2, var3, op == T_PLUS, value, g_pass == INTERPRET))
+          else if (Var_mat_addsub(var1, var2, var3, op == T_PLUS,
+                                  value, g_pass == INTERPRET))
             {
               assert(oppc.line != -1);
               g_pc = oppc;
@@ -3279,7 +3293,8 @@ struct Value *stmt_MAT(struct Value *value)
            g_pc.token->type == T_IDN)
     {
       op = g_pc.token->type;
-      if (g_pass == COMPILE && Value_commonType[var1->type][V_INTEGER] == V_ERROR)
+      if (g_pass == COMPILE &&
+          Value_commonType[var1->type][V_INTEGER] == V_ERROR)
         {
           return Value_new_typeError(value, V_INTEGER, var1->type);
         }
@@ -3359,7 +3374,7 @@ struct Value *stmt_MAT(struct Value *value)
                     {
                       int c = -1;
 
-                      Value_destroy(&(var1->value[i * var1->geometry[1] + j]));
+                      Value_destroy(&var1->value[i * var1->geometry[1] + j]);
                       switch (op)
                         {
                         case T_CON:
@@ -3380,14 +3395,13 @@ struct Value *stmt_MAT(struct Value *value)
 
                       if (var1->type == V_INTEGER)
                         {
-                          Value_new_INTEGER(&
-                                            (var1->value
-                                             [i * var1->geometry[1] + j]), c);
+                          Value_new_INTEGER(&(var1->value
+                                             [i * var1->geometry[1] + j]),
+                                             c);
                         }
                       else
                         {
-                          Value_new_REAL(&
-                                         (var1->
+                          Value_new_REAL(&(var1->
                                           value[i * var1->geometry[1] + j]),
                                          (double)c);
                         }
@@ -3550,7 +3564,7 @@ struct Value *stmt_MATINPUT(struct Value *value)
 
           columns = var->dim == 1 ? 0 : var->geometry[1];
           inputdata = t = (struct Token *)0;
-          for (i = unused, j = unused; i < var->geometry[0];)
+          for (i = unused, j = unused; i < var->geometry[0]; )
             {
               struct String s;
 
@@ -3570,7 +3584,8 @@ struct Value *stmt_MATINPUT(struct Value *value)
 
                   if (s.length == 0)
                     {
-                      return Value_new_ERROR(value, IOERROR, _("end of file"));
+                      return Value_new_ERROR(value, IOERROR,
+                                             _("end of file"));
                     }
 
                   inputdata = t = Token_newData(s.character);
@@ -3588,7 +3603,8 @@ struct Value *stmt_MATINPUT(struct Value *value)
                   while (i < var->geometry[0])
                     {
                       Value_destroy(&(var->value[j * columns + i]));
-                      Value_new_null(&(var->value[j * columns + i]), var->type);
+                      Value_new_null(&(var->value[j * columns + i]),
+                                     var->type);
                       ++i;
                     }
                 }
@@ -3770,8 +3786,8 @@ struct Value *stmt_MATPRINT(struct Value *value)
                   String_new(&s);
                   Value_clone(value,
                               &(var->value[var->dim == 1 ? i : i * g1 + j]));
-                  if (Value_toStringUsing(value, &s, using, &usingpos)->type ==
-                      V_ERROR)
+                  if (Value_toStringUsing(value, &s, using, &usingpos)->type
+                      == V_ERROR)
                     {
                       Value_destroy(&usingval);
                       String_destroy(&s);
@@ -4251,7 +4267,8 @@ struct Value *stmt_NEXT(struct Value *value)
         {
           if ((body = popLabel(L_FOR_BODY)) == (struct Pc *)0)
             {
-              return Value_new_ERROR(value, STRAYNEXT, topLabelDescription());
+              return Value_new_ERROR(value, STRAYNEXT,
+                                     topLabelDescription());
             }
 
           if (level)
@@ -4717,8 +4734,8 @@ struct Value *stmt_OPEN(struct Value *value)
 
               ++g_pc.token;
               errpc = g_pc;
-              if (eval(&recLengthValue, _("record length"))->type == V_ERROR ||
-                  Value_retype(&recLengthValue, V_INTEGER)->type == V_ERROR)
+              if (eval(&recLengthValue, _("record length"))->type == V_ERROR
+                || Value_retype(&recLengthValue, V_INTEGER)->type == V_ERROR)
                 {
                   Value_destroy(value);
                   *value = recLengthValue;
@@ -4731,7 +4748,8 @@ struct Value *stmt_OPEN(struct Value *value)
                 {
                   Value_destroy(value);
                   g_pc = errpc;
-                  return Value_new_ERROR(value, OUTOFRANGE, _("record length"));
+                  return Value_new_ERROR(value, OUTOFRANGE,
+                                         _("record length"));
                 }
             }
           else
@@ -4742,6 +4760,7 @@ struct Value *stmt_OPEN(struct Value *value)
     }
 
   /* open file with name value */
+
   if (g_pass == INTERPRET)
     {
       int res = -1;
@@ -4752,7 +4771,8 @@ struct Value *stmt_OPEN(struct Value *value)
         }
       else if (inout == 1)
         {
-          res = FS_openoutChn(channel, value->u.string.character, mode, append);
+          res = FS_openoutChn(channel, value->u.string.character,
+                              mode, append);
         }
       else if (inout == 3)
         {
@@ -5238,7 +5258,10 @@ struct Value *stmt_RENUM(struct Value *value)
         {
           ++g_pc.token;
           if (g_pc.token->type != T_INTEGER)
-            return Value_new_ERROR(value, MISSINGINCREMENT);
+            {
+              return Value_new_ERROR(value, MISSINGINCREMENT);
+            }
+
           inc = g_pc.token->u.integer;
           ++g_pc.token;
         }
@@ -5463,7 +5486,7 @@ struct Value *stmt_SAVE(struct Value *value)
           Value_destroy(value);
         }
 
-      if (Program_list(&g_program, chn, 0, (struct Pc *)0, (struct Pc *)0, value))
+      if (Program_list(&g_program, chn, 0, 0, 0, value))
         {
           g_pc = loadpc;
           return value;
@@ -5600,7 +5623,7 @@ struct Value *stmt_SELECTCASE(struct Value *value)
                               }
 
                             Value_retype(&casevalue2,
-                                         statementpc.token->u.selectcase->type);
+                                      statementpc.token->u.selectcase->type);
                             assert(casevalue2.type != V_ERROR);
                             if (!match)
                               {
@@ -5763,7 +5786,7 @@ struct Value *stmt_SHELL(struct Value *value)
                   }
 
                 execl(shell,
-                      (strrchr(shell, '/') ? strrchr(shell, '/') + 1 : shell),
+                      strrchr(shell, '/') ? strrchr(shell, '/') + 1 : shell,
                       (const char *)0);
                 exit(127);
               }
@@ -5859,7 +5882,8 @@ struct Value *stmt_SWAP(struct Value *value)
   if (g_pass == DECLARE &&
       Global_variable(&g_globals, g_pc.token->u.identifier,
                       g_pc.token->u.identifier->defaultType,
-                      (g_pc.token + 1)->type == T_OP ? GLOBALARRAY : GLOBALVAR,
+                      (g_pc.token + 1)->type == T_OP ?
+                      GLOBALARRAY : GLOBALVAR,
                       0) == 0)
     {
       return Value_new_ERROR(value, REDECLARATION);
@@ -5888,7 +5912,8 @@ struct Value *stmt_SWAP(struct Value *value)
   if (g_pass == DECLARE &&
       Global_variable(&g_globals, g_pc.token->u.identifier,
                       g_pc.token->u.identifier->defaultType,
-                      (g_pc.token + 1)->type == T_OP ? GLOBALARRAY : GLOBALVAR,
+                      (g_pc.token + 1)->type == T_OP ?
+                      GLOBALARRAY : GLOBALVAR,
                       0) == 0)
     {
       return Value_new_ERROR(value, REDECLARATION);
@@ -5981,7 +6006,8 @@ struct Value *stmt_TRUNCATE(struct Value *value)
       return Value_new_ERROR(value, MISSINGEXPR, _("channel"));
     }
 
-  if (value->type == V_ERROR || Value_retype(value, V_INTEGER)->type == V_ERROR)
+  if (value->type == V_ERROR ||
+      Value_retype(value, V_INTEGER)->type == V_ERROR)
     {
       return value;
     }
@@ -6108,6 +6134,7 @@ struct Value *stmt_WAIT(struct Value *value)
         }
       while ((usesel ? (v ^ sel) & mask : v ^ mask) == 0);
     }
+
   return (struct Value *)0;
 }
 
@@ -6279,7 +6306,8 @@ struct Value *stmt_WRITE(struct Value *value)
           Value_destroy(value);
           comma = 1;
         }
-      else if (g_pc.token->type == T_COMMA || g_pc.token->type == T_SEMICOLON)
+      else if (g_pc.token->type == T_COMMA ||
+               g_pc.token->type == T_SEMICOLON)
         {
           ++g_pc.token;
         }
