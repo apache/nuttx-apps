@@ -64,6 +64,7 @@
 
 #include <stdlib.h>
 #include <strings.h>
+#include <assert.h>
 
 #include "bas_statement.h"
 
