@@ -73,15 +73,15 @@ PROGNAME := $(shell echo $(PROGNAME))
 RASRCS = $(filter %.s,$(ASRCS))
 CASRCS = $(filter %.S,$(ASRCS))
 
-RAOBJS = $(RASRCS:.s=$(SUFFIX)$(OBJEXT))
-CAOBJS = $(CASRCS:.S=$(SUFFIX)$(OBJEXT))
-COBJS = $(CSRCS:.c=$(SUFFIX)$(OBJEXT))
-CXXOBJS = $(CXXSRCS:$(CXXEXT)=$(SUFFIX)$(OBJEXT))
+RAOBJS = $(RASRCS:=$(SUFFIX)$(OBJEXT))
+CAOBJS = $(CASRCS:=$(SUFFIX)$(OBJEXT))
+COBJS = $(CSRCS:=$(SUFFIX)$(OBJEXT))
+CXXOBJS = $(CXXSRCS:=$(SUFFIX)$(OBJEXT))
 
 MAINCXXSRCS = $(filter %$(CXXEXT),$(MAINSRC))
 MAINCSRCS = $(filter %.c,$(MAINSRC))
-MAINCXXOBJ = $(MAINCXXSRCS:$(CXXEXT)=$(SUFFIX)$(OBJEXT))
-MAINCOBJ = $(MAINCSRCS:.c=$(SUFFIX)$(OBJEXT))
+MAINCXXOBJ = $(MAINCXXSRCS:=$(SUFFIX)$(OBJEXT))
+MAINCOBJ = $(MAINCSRCS:=$(SUFFIX)$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(RAOBJS) $(CAOBJS) $(COBJS) $(CXXOBJS)
@@ -122,19 +122,19 @@ define ELFLD
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
 endef
 
-$(RAOBJS): %$(SUFFIX)$(OBJEXT): %.s
+$(RAOBJS): %.s$(SUFFIX)$(OBJEXT): %.s
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(AELFFLAGS)), \
 		$(call ELFASSEMBLE, $<, $@), $(call ASSEMBLE, $<, $@))
 
-$(CAOBJS): %$(SUFFIX)$(OBJEXT): %.S
+$(CAOBJS): %.S$(SUFFIX)$(OBJEXT): %.S
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(AELFFLAGS)), \
 		$(call ELFASSEMBLE, $<, $@), $(call ASSEMBLE, $<, $@))
 
-$(COBJS): %$(SUFFIX)$(OBJEXT): %.c
+$(COBJS): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
-$(CXXOBJS): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
+$(CXXOBJS): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
@@ -147,11 +147,11 @@ endif
 
 ifeq ($(BUILD_MODULE),y)
 
-$(MAINCXXOBJ): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
+$(MAINCXXOBJ): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
-$(MAINCOBJ): %$(SUFFIX)$(OBJEXT): %.c
+$(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
@@ -179,14 +179,14 @@ else
 
 MAINNAME := $(addsuffix _main,$(PROGNAME))
 
-$(MAINCXXOBJ): %$(SUFFIX)$(OBJEXT): %$(CXXEXT)
+$(MAINCXXOBJ): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(firstword $(MAINNAME))})
 	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(firstword $(MAINNAME))})
 	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
-$(MAINCOBJ): %$(SUFFIX)$(OBJEXT): %.c
+$(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(eval $<_CFLAGS += ${shell $(DEFINE) "$(CC)" main=$(firstword $(MAINNAME))})
 	$(eval $<_CELFFLAGS += ${shell $(DEFINE) "$(CC)" main=$(firstword $(MAINNAME))})
 	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
