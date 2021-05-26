@@ -55,6 +55,7 @@ $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) echo "Unpacking $(WAMR_TARBALL) to $(WAMR_UNPACK)"
 	$(Q) unzip $(WAMR_TARBALL)
 	$(Q) mv wasm-micro-runtime-$(WAMR_VERSION_STUB)$(WAMR_VERSION) $(WAMR_UNPACK)
+	$(Q) touch $(WAMR_UNPACK)
 
 context:: $(WAMR_UNPACK)
 
