@@ -12,7 +12,7 @@ if INTERPRETERS_WAMR
 
 config INTERPRETERS_WAMR_VERSION
 	string "WAMR Version"
-	default "09-29-2020"
+	default "04-15-2021"
 	---help---
 	Version 09-29-2020 and later (include main) supported.
 
