@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/alarm/alarm_main.c
+ * apps/examples/alarm/alarm_main.c
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -135,7 +135,7 @@ static int alarm_daemon(int argc, FAR char *argv[])
         {
           if (g_alarm_received[i])
             {
-              printf("alarm_demon: alarm %d received\n", i)  ;
+              printf("alarm_daemon: alarm %d received\n", i)  ;
               g_alarm_received[i] = false;
             }
         }
@@ -144,7 +144,7 @@ static int alarm_daemon(int argc, FAR char *argv[])
        * this should cause us to awken earlier.
        */
 
-      usleep(500*1000L);
+      usleep(500 * 1000L);
     }
 
 errout:
@@ -175,7 +175,7 @@ static int start_daemon(void)
         }
 
       printf("alarm_daemon started\n");
-      usleep(500*1000L);
+      usleep(500 * 1000L);
     }
 
   return OK;
@@ -228,7 +228,8 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  /* Parse commandline parameters. NOTE: getopt() is not thread safe nor re-entrant.
+  /* Parse commandline parameters. NOTE: getopt() is not thread safe nor
+   * re-entrant.
    * To keep its state proper for the next usage, it is necessary to parse to
    * the end of the line even if an error occurs.  If an error occurs, this
    * logic just sets 'badarg' and continues.
@@ -253,7 +254,9 @@ int main(int argc, FAR char *argv[])
           break;
         default:
           fprintf(stderr, "<unknown parameter '-%c'>\n\n", opt);
+
           /* fall through */
+
         case '?':
         case ':':
           badarg = true;
@@ -289,7 +292,8 @@ int main(int argc, FAR char *argv[])
       seconds = strtoul(argv[optind], NULL, 10);
       if (seconds < 1)
         {
-          fprintf(stderr, "ERROR: Invalid number of seconds: %lu\n", seconds);
+          fprintf(stderr, "ERROR: Invalid number of seconds: %lu\n",
+                  seconds);
           show_usage(argv[0]);
           return EXIT_FAILURE;
         }
@@ -310,7 +314,11 @@ int main(int argc, FAR char *argv[])
 
   if (readmode)
     {
-      struct rtc_rdalarm_s rd = { 0 };
+      struct rtc_rdalarm_s rd =
+      {
+        0
+      };
+
       long timeleft;
       time_t now;
 
@@ -357,13 +365,15 @@ int main(int argc, FAR char *argv[])
           rd.time.tm_mon = now_tm.tm_mon;
           rd.time.tm_year = now_tm.tm_year;
 
-          do {
+          do
+          {
             timeleft = mktime((struct tm *)&rd.time) - now;
             if (timeleft < 0)
               {
                 rd.time.tm_mon++;
               }
-          } while (timeleft < 0);
+          }
+          while (timeleft < 0);
         }
 
       printf("Alarm %d is %s with %ld seconds to expiration\n", alarmid,
