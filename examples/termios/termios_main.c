@@ -87,10 +87,22 @@ int main(int argc, FAR char *argv[])
   tio.c_cflag &= ~CSIZE; /* Clean the bits */
   tio.c_cflag |= CS7;    /* 7 bits */
 
+#ifdef CONFIG_EXAMPLES_TERMIOS_DIS_HW_FC
+
+  /* Disable the HW flow control */
+
+  tio.c_cflag &= ~CCTS_OFLOW;    /* Output flow control */
+  tio.c_cflag &= ~CRTS_IFLOW;    /* Input flow control */
+
+  printf("Disabled HW Flow Control\n");
+#endif
+
   printf("Please, reopen the terminal with the new attributes,"
-         " otherwise you will have garbage.\n"
+         " otherwise you will have garbage or a stuck terminal.\n"
+         "If you disabled HW flow control, try disconnecting RTS and CTS.\n"
          "You may try: picocom /dev/ttyUSB0 --baud 57600"
          " --parity o --databits 7 --stopbits 2\n\n");
+
   fflush(stdout); /* Clean stdout buffer */
 
   /* Wait to empty the hardware buffer, otherwise the above message
@@ -98,7 +110,7 @@ int main(int argc, FAR char *argv[])
    * before the hardware buffer gets empty. A small delay is enough.
    */
 
-  usleep(100);
+  sleep(1);
 
   /* Change the attributes now. */
 
