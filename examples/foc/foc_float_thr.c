@@ -75,7 +75,7 @@ struct foc_motor_f32_s
   int                           foc_mode;     /* FOC mode */
   float                         vbus;         /* Power bus voltage */
   float                         angle_now;    /* Phase angle now */
-  b16_t                         angle_ol;     /* Phase angle open-loop */
+  float                         angle_ol;     /* Phase angle open-loop */
   float                         vel_set;      /* Velocity setting now */
   float                         vel_now;      /* Velocity now */
   float                         vel_des;      /* Velocity destination */
