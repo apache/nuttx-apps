@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/gs2200m_main.c
+ * apps/wireless/gs2200m/gs2200m_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <debug.h>
 #include <fcntl.h>
 #include <errno.h>
