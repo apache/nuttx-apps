@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/ftpd.c
+ * apps/netutils/ftpd/ftpd.c
  *
  *   Copyright (C) 2012, 2015, 2020 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -58,6 +58,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <libgen.h>
+#include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
