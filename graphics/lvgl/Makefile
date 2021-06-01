@@ -76,11 +76,11 @@ UNPACK ?= unzip -o
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
 $(LVGL_TARBALL):
-	@echo "Downloading: $(LVGL_TARBALL)"
+	$(Q) echo "Downloading: $(LVGL_TARBALL)"
 	$(Q) curl -O -L $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
 
 $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
-	@echo "Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
+	$(Q) echo "Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
