@@ -418,7 +418,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   Copy of the contents of the file at `<source-path>` to the location in the
   file system indicated by `<path-path>`
 
-- `date [-s "MMM DD HH:MM:SS YYYY"]`
+- `date [-s "MMM DD HH:MM:SS YYYY"] [-u]`
 
   Show or set the current date and time.
 
