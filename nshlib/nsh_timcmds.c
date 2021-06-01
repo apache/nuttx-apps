@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/nshlib/dbg_timcmds.c
+ * apps/nshlib/nsh_timcmds.c
  *
  *   Copyright (C) 2011-2012, 2014, 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -110,7 +110,7 @@ static inline int date_month(FAR const char *abbrev)
 
 #ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
-                                FAR const char *name)
+                                FAR const char *name, bool utc)
 {
   static const char format[] = "%a, %b %d %H:%M:%S %Y";
   struct timespec ts;
@@ -129,10 +129,21 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
 
   /* Break the current time up into the format needed by strftime */
 
-  if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+  if (utc)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
-      return ERROR;
+      if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
+          return ERROR;
+        }
+    }
+  else
+    {
+      if (localtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, name, "localtime_r", NSH_ERRNO);
+          return ERROR;
+        }
     }
 
   /* Show the current time in the requested format */
@@ -155,7 +166,8 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
 
 #ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_settime(FAR struct nsh_vtbl_s *vtbl,
-                               FAR const char *name, FAR char *newtime)
+                               FAR const char *name, bool utc,
+                               FAR char *newtime)
 {
   struct timespec ts;
   struct tm tm;
@@ -266,7 +278,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl,
 
   /* Convert this to the right form, then set the timer */
 
-  ts.tv_sec  = mktime(&tm);
+  ts.tv_sec  = utc ? timegm(&tm): mktime(&tm);
   ts.tv_nsec = 0;
 
   ret = clock_settime(CLOCK_REALTIME, &ts);
@@ -376,18 +388,25 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *newtime = NULL;
   FAR const char *errfmt;
+  bool utc = false;
   int option;
   int ret;
 
   /* Get the date options:  date [-s time] [+FORMAT] */
 
-  while ((option = getopt(argc, argv, "s:")) != ERROR)
+  while ((option = getopt(argc, argv, "s:u")) != ERROR)
     {
       if (option == 's')
         {
           /* We will be setting the time */
 
           newtime = optarg;
+        }
+      else if (option == 'u')
+        {
+          /* We will use the UTC time */
+
+          utc = true;
         }
       else /* option = '?' */
         {
@@ -410,11 +429,11 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (newtime)
     {
-      ret = date_settime(vtbl, argv[0], newtime);
+      ret = date_settime(vtbl, argv[0], utc, newtime);
     }
   else
     {
-      ret = date_showtime(vtbl, argv[0]);
+      ret = date_showtime(vtbl, argv[0], utc);
     }
 
   return ret;
