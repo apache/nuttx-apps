@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
