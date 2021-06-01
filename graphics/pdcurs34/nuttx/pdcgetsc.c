@@ -42,6 +42,8 @@
 #endif
 
 #include <sys/ioctl.h>
+#include <assert.h>
+
 #include "pdcnuttx.h"
 
 /****************************************************************************

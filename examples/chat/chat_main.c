@@ -43,6 +43,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
+#include <assert.h>
 #include <debug.h>
 #include <errno.h>
 #include <fcntl.h>
