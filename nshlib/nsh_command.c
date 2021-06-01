@@ -261,7 +261,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_KILL
-  { "kill",     cmd_kill,     3, 3, "-<signal> <pid>" },
+  { "kill",     cmd_kill,     2, 3, "[-<signal>] <pid>" },
 #endif
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
