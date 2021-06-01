@@ -48,6 +48,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -618,23 +619,54 @@ int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   long signal;
   long pid;
 
-  /* Check incoming parameters.  The first parameter should be "-<signal>" */
+  /* kill will send SIGTERM to the task in case no signal is selected by
+   * -<signal> option
+   */
 
-  ptr = argv[1];
-  if (*ptr != '-' || ptr[1] < '0' || ptr[1] > '9')
+  if (argc == 3)  /* kill -<signal> <pid> */
     {
-      goto invalid_arg;
+      /* Check incoming parameters.
+       * The first parameter should be "-<signal>"
+       */
+
+      ptr = argv[1];
+      if (*ptr != '-' || ptr[1] < '0' || ptr[1] > '9')
+        {
+          goto invalid_arg;
+        }
+
+      /* Extract the signal number */
+
+      signal = strtol(&ptr[1], &endptr, 0);
+
+      /* The second parameter should be <pid>  */
+
+      ptr = argv[2];
+
+      if (*ptr < '0' || *ptr > '9')
+        {
+          goto invalid_arg;
+        }
     }
-
-  /* Extract the signal number */
-
-  signal = strtol(&ptr[1], &endptr, 0);
-
-  /* The second parameter should be <pid>  */
-
-  ptr = argv[2];
-  if (*ptr < '0' || *ptr > '9')
+  else if (argc == 2)           /* kill <pid> */
     {
+      /* uses default signal number as SIGTERM */
+
+      signal = (long) SIGTERM;  /* SIGTERM is always defined in signal.h */
+
+      /* The first parameter should be <pid>  */
+
+      ptr = argv[1];
+
+      if (*ptr < '0' || *ptr > '9')
+        {
+          goto invalid_arg;
+        }
+    }
+  else
+    {
+      /* invalid number of arguments */
+
       goto invalid_arg;
     }
 
