@@ -1,35 +1,20 @@
 /****************************************************************************
- * examples/leds/leds_main.c
+ * apps/examples/leds/leds_main.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
@@ -46,6 +31,7 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <errno.h>
+#include <signal.h>
 
 #include <nuttx/leds/userled.h>
 
@@ -60,6 +46,26 @@ static bool g_led_daemon_started;
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: sigterm_action
+ ****************************************************************************/
+
+static void sigterm_action(int signo, siginfo_t *siginfo, void *arg)
+{
+  if (signo == SIGTERM)
+    {
+      printf("SIGTERM received\n");
+
+      g_led_daemon_started = false;
+      printf("led_daemon: Terminated.\n");
+    }
+  else
+    {
+      printf("\nsigterm_action: Received signo=%d siginfo=%p arg=%p\n",
+             signo, siginfo, arg);
+    }
+}
+
+/****************************************************************************
  * Name: led_daemon
  ****************************************************************************/
 
@@ -70,11 +76,32 @@ static int led_daemon(int argc, char *argv[])
   bool incrementing;
   int ret;
   int fd;
+  pid_t mypid;
+  struct sigaction act;
+
+  /* SIGTERM handler */
+
+  memset(&act, 0, sizeof(struct sigaction));
+  act.sa_sigaction = sigterm_action;
+  act.sa_flags     = SA_SIGINFO;
+
+  sigemptyset(&act.sa_mask);
+  sigaddset(&act.sa_mask, SIGTERM);
+
+  ret = sigaction(SIGTERM, &act, NULL);
+  if (ret != 0)
+    {
+      fprintf(stderr, "Failed to install SIGTERM handler, errno=%d\n",
+              errno);
+      return (EXIT_FAILURE + 1);
+    }
 
   /* Indicate that we are running */
 
+  mypid = getpid();
+
   g_led_daemon_started = true;
-  printf("led_daemon: Running\n");
+  printf("\nled_daemon (pid# %d): Running\n", mypid);
 
   /* Open the LED driver */
 
@@ -112,7 +139,7 @@ static int led_daemon(int argc, char *argv[])
   ledset       = 0;
   incrementing = true;
 
-  for (; ; )
+  while (g_led_daemon_started == true)
     {
       userled_set_t newset;
       userled_set_t tmp;
@@ -170,16 +197,22 @@ static int led_daemon(int argc, char *argv[])
           goto errout_with_fd;
         }
 
-      usleep(500*1000L);
+      usleep(500 * 1000L);
     }
+
+  /* treats signal termination of the task
+   * task terminated by a SIGTERM
+   */
+
+  exit(EXIT_SUCCESS);
 
 errout_with_fd:
   close(fd);
 
 errout:
   g_led_daemon_started = false;
-
   printf("led_daemon: Terminating\n");
+
   return EXIT_FAILURE;
 }
 
