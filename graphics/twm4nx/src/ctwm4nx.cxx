@@ -55,6 +55,7 @@
 #include <cstdio>
 #include <cfcntl>
 #include <cstring>
+#include <cassert>
 #include <cerrno>
 
 #include <semaphore.h>
