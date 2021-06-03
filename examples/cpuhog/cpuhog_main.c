@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/cpuhog/cpuhog_main.c
+ * apps/examples/cpuhog/cpuhog_main.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Authors: Gregory Nutt <gnutt@nuttx.org>
@@ -58,7 +58,6 @@
  *
  ****************************************************************************/
 
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
@@ -112,7 +111,7 @@ int main(int argc, FAR char *argv[])
       printf("cpuhog initialized\n");
     }
 
-  while(1)
+  while (1)
     {
       /* To test semaphore interaction (debugging system crashes...) */
 
