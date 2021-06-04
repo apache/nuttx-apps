@@ -338,7 +338,20 @@ static int iperf_run_tcp_server(void)
       while (!s_iperf_ctrl.finish)
         {
           actual_recv = recv(sockfd, buffer, want_recv, 0);
-          if (actual_recv < 0)
+          if (actual_recv == 0)
+            {
+              printf("closed by the peer: %s,%d\n",
+                     inet_ntoa(remote_addr.sin_addr),
+                     htons(remote_addr.sin_port));
+
+              /* Note: unlike the original iperf, this implementation
+               * exits after finishing a single connection.
+               */
+
+              s_iperf_ctrl.finish = true;
+              break;
+            }
+          else if (actual_recv < 0)
             {
               iperf_show_socket_error_reason("tcp server recv",
                                              listen_socket);
