@@ -159,11 +159,9 @@ int main(int argc, FAR char *argv[])
 
 #if CONFIG_MODLIB_MAXDEPEND > 0
   /* Install the first test shared library.  The first shared library only
-   * verifies that symbols exported be one shared library can be used to
+   * verifies that symbols exported by one shared library can be used to
    * resolve undefined symbols in a second shared library.
    */
-
-  /* Install the second test shared library  */
 
   handle1 = dlopen(BINDIR "/modprint", RTLD_NOW | RTLD_LOCAL);
   if (handle1 == NULL)
@@ -261,7 +259,7 @@ int main(int argc, FAR char *argv[])
   ret = dlclose(handle2);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: rmmod(handle2) failed: %d\n", ret);
+      fprintf(stderr, "ERROR: dlclose(handle2) failed: %d\n", ret);
       exit(EXIT_FAILURE);
     }
 
@@ -271,7 +269,7 @@ int main(int argc, FAR char *argv[])
   ret = dlclose(handle1);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: rmmod(handle1) failed: %d\n", ret);
+      fprintf(stderr, "ERROR: dlclose(handle1) failed: %d\n", ret);
       exit(EXIT_FAILURE);
     }
 #endif
