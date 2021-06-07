@@ -1,0 +1,11 @@
+--- libtomcrypt/src/math/ltm_desc.c	2018-07-01 13:49:01.000000000 -0700
++++ libtomcrypt/src/math/ltm_desc.c.new	2021-06-06 22:42:12.877254274 -0700
+@@ -420,7 +420,7 @@
+ const ltc_math_descriptor ltm_desc = {
+ 
+    "LibTomMath",
+-   (int)DIGIT_BIT,
++   (int)MP_DIGIT_BIT,
+ 
+    &init,
+    &init_copy,

@@ -1,0 +1,10 @@
+--- libtomcrypt/demos/ltcrypt.c	2018-07-01 13:49:01.000000000 -0700
++++ libtomcrypt/demos/ltcrypt.c.new	2021-06-06 22:49:02.810188768 -0700
+@@ -119,6 +119,7 @@
+    }
+ 
+    printf("\nEnter key: ");
++   fflush(stdout);
+    if(fgets((char *)tmpkey,sizeof(tmpkey), stdin) == NULL)
+       exit(-1);
+    outlen = sizeof(key);
