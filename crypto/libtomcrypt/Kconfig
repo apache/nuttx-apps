@@ -1,0 +1,57 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig CRYPTO_LIBTOMCRYPT
+	bool "LibTomCrypt CrypographyLibrary"
+	default n
+	select MATH_LIBTOMMATH
+	---help---
+		LibTomCrypt is a fairly comprehensive, modular and portable
+		cryptographic toolkit that provides developers with a vast array
+		of well known published block ciphers, one-way hash functions,
+		chaining modes, pseudo-random number generators, public key
+		cryptography and a plethora of other routines. 
+
+if CRYPTO_LIBTOMCRYPT
+
+config LIBTOMCRYPT_VERSION
+	string "LibTomCrypt Version"
+	default "1.18.2"
+
+menuconfig LIBTOMCRYPT_DEMOS
+	bool "LibTomCrypt Library Demos"
+	default n
+	---help---
+		LibTomCrypt demo and test applications.
+
+if LIBTOMCRYPT_DEMOS
+
+config LIBTOMCRYPT_LTCRYPT
+        tristate "LibTomCrypt ltcrypt"
+        default n
+        ---help---
+                Demo encrypt/decrypt application
+
+if LIBTOMCRYPT_LTCRYPT
+
+config LIBTOMCRYPT_LTCRYPT_PROGNAME
+        string "ltcrypt program name"
+        default "ltcrypt"
+        ---help---
+                LibTomMath ltcrypt application name
+
+config LIBTOMCRYPT_LTCRYPT_PRIORITY
+        int "ltcrypt application priority"
+        default 100
+
+config LIBTOMCRYPT_LTCRYPT_STACKSIZE
+        int "ltcrypt application stack size"
+        default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMCRYPT_LTCRYPT
+
+endif # LIBTOMCRYPT_DEMOS
+
+endif # CRYPTO_LIBTOMCRYPT
