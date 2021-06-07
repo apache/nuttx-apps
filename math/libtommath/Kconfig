@@ -1,0 +1,101 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig MATH_LIBTOMMATH
+	bool "LibTomMath MPI Math Library"
+	default n
+	---help---
+		LibTomMath, a free open source portable number theoretic
+		multiple-precision integer (MPI) library written entirely in C
+
+if MATH_LIBTOMMATH
+
+config LIBTOMMATH_VERSION
+	string "LibTomMath Version"
+	default "1.2.0"
+
+menuconfig LIBTOMMATH_DEMOS
+	bool "LibTomMath MPI Math Library Demos"
+	default n
+	---help---
+		LibTomMath demo and test applications.
+
+if LIBTOMMATH_DEMOS
+
+config LIBTOMMATH_TEST
+        tristate "LibTomMath Test"
+        default n
+        ---help---
+                Demo test application for LibTomMath
+
+if LIBTOMMATH_TEST
+
+config LIBTOMMATH_TEST_PROGNAME
+        string "Test program name"
+        default "tommath_test"
+        ---help---
+                LibTomMath test application name
+
+config LIBTOMMATH_TEST_PRIORITY
+        int "Test application priority"
+        default 100
+
+config LIBTOMMATH_TEST_STACKSIZE
+        int "Test application stack size"
+        default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMMATH_TEST
+
+config LIBTOMMATH_OPPONENT_MTEST
+        tristate "LibTomMath MTest"
+        default n
+        ---help---
+                Demo mtest application for LibTomMath
+
+if LIBTOMMATH_OPPONENT_MTEST
+
+config LIBTOMMATH_MTEST_OPPONENT_PROGNAME
+        string "MTest program name"
+        default "tommath_mtest"
+        ---help---
+                LibTomMath mtest application name
+
+config LIBTOMMATH_MTEST_OPPONENT_PRIORITY
+        int "MTest application priority"
+        default 100
+
+config LIBTOMMATH_MTEST_OPPONENT_STACKSIZE
+        int "MTest application stack size"
+        default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMMATH_OPPONENT_MTEST
+
+config LIBTOMMATH_TIMING
+        tristate "LibTomMath Timing"
+        default n
+        ---help---
+                Demo timing test application for LibTomMath
+
+if LIBTOMMATH_TIMING
+
+config LIBTOMMATH_TIMING_PROGNAME
+        string "Timing program name"
+        default "tommath_timing"
+        ---help---
+                LibTomMath test application name
+
+config LIBTOMMATH_TIMING_PRIORITY
+        int "Timing application priority"
+        default 100
+
+config LIBTOMMATH_TIMING_STACKSIZE
+        int "Timing application stack size"
+        default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMMATH_TIMING
+
+endif # LIBTOMMATH_DEMOS
+
+endif # MATH_LIBTOMMATH
