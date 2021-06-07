@@ -1,6 +1,5 @@
 ############################################################################
 # apps/examples/foc/Make.defs
-# Adds selected applications to apps/ build
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
