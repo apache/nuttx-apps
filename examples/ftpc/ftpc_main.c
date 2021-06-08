@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/ftpc/ftpc_main.c
+ * apps/examples/ftpc/ftpc_main.c
  *
  *   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 
 #include <sys/types.h>

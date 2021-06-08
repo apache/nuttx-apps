@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include <nuttx/himem/himem.h>
 
