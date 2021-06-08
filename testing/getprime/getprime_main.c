@@ -147,9 +147,12 @@ static void get_prime_in_parallel(int n)
       ASSERT(status == OK);
     }
 
-  /* Wait for finishing the last thread */
+  /* Wait for all the threads to finish */
 
-  pthread_join(thread[n - 1], &result);
+  for (i = 0; i < n; i++)
+    {
+      pthread_join(thread[i], &result);
+    }
 
   printf("Done\n");
 }
