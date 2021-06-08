@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getroute.c
+ * apps/netutils/netlib/netlib_getroute.c
  *
  *   Copyright (C) 2019 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include <errno.h>
 
 #include <net/route.h>

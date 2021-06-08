@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/hex2bin_main.c
+ * apps/system/hex2bin/hex2bin_main.c
  *
  *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <assert.h>
 #include <errno.h>
 #include <hex2bin.h>
 
@@ -65,27 +66,28 @@ static void show_usage(FAR const char *progname, int exitcode)
   fprintf(stderr, "\t%s -h\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t<hexfile>:\n");
-  fprintf(stderr, "\t\tThe file containing the Intel HEX data to be converted.\n");
+  fprintf(stderr, "\t\tThe file containing the Intel HEX data to be\n");
+  fprintf(stderr, "\t\tconverted.\n");
   fprintf(stderr, "\t<binfile>:\n");
-  fprintf(stderr, "\t\tThe output file to be created contained the converted\n");
-  fprintf(stderr, "\t\tbinary data.\n");
+  fprintf(stderr, "\t\tThe output file to be created contained the\n");
+  fprintf(stderr, "\t\tconverted binary data.\n");
   fprintf(stderr, "\t-h:\n");
   fprintf(stderr, "\t\tPrints this message and exits\n");
   fprintf(stderr, "And [OPTIONS] include:\n");
   fprintf(stderr, "\t-s <start address>\n");
-  fprintf(stderr, "\t\tSets the start address of the binary output.  This value\n");
-  fprintf(stderr, "\t\tis used to (1) calculate offsets into the output stream,\n");
-  fprintf(stderr, "\t\tand (2) for error checking.  Default: 0x%08x\n",
-          CONFIG_SYSTEM_HEX2BIN_BASEADDR);
+  fprintf(stderr, "\t\tSets the start address of the binary output. This\n");
+  fprintf(stderr, "\t\tvalue is used to (1) calculate offsets into the\n");
+  fprintf(stderr, "\t\toutput stream, and (2) for error checking.\n");
+  fprintf(stderr, "\t\tDefault: 0x%08x\n", CONFIG_SYSTEM_HEX2BIN_BASEADDR);
   fprintf(stderr, "\t-e <end address>\n");
-  fprintf(stderr, "\t\tSets the maximum address (plus 1) of the binary output.\n");
-  fprintf(stderr, "\t\tThis value is used to only for error checking.  The value\n");
-  fprintf(stderr, "\t\tzero disables error checking.  Default: 0x%08x\n",
-          CONFIG_SYSTEM_HEX2BIN_ENDPADDR);
+  fprintf(stderr, "\t\tSets the maximum address (plus 1) of the binary\n");
+  fprintf(stderr, "\t\toutput. This value is used to only for error\n");
+  fprintf(stderr, "\t\tchecking. The value zero disables error checking.\n");
+  fprintf(stderr, "\t\t Default: 0x%08x\n", CONFIG_SYSTEM_HEX2BIN_ENDPADDR);
   fprintf(stderr, "\t\tno error checking\n");
   fprintf(stderr, "\t-w <swap code>\n");
-  fprintf(stderr, "\t\t(0) No swap, (1) swap bytes in 16-bit values, or (3) swap\n");
-  fprintf(stderr, "\t\tbytes in 32-bit values.  Default: %d\n",
+  fprintf(stderr, "\t\t(0) No swap, (1) swap bytes in 16-bit values, or\n");
+  fprintf(stderr, "\t\t(3) swap bytes in 32-bit values.  Default: %d\n",
           CONFIG_SYSTEM_HEX2BIN_SWAP);
 #endif
   exit(exitcode);

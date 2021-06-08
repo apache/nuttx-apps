@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/hex2mem_main.c
+ * apps/system/hex2bin/hex2mem_main.c
  *
  *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <assert.h>
 #include <errno.h>
 #include <hex2bin.h>
 
@@ -65,22 +66,25 @@ static void show_usage(FAR const char *progname, int exitcode)
   fprintf(stderr, "\t%s -h\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t<hexfile>:\n");
-  fprintf(stderr, "\t\tThe file containing the Intel HEX data to be converted.\n");
+  fprintf(stderr, "\t\tThe file containing the Intel HEX data to be\n");
+  fprintf(stderr, "\t\tconverted.\n");
   fprintf(stderr, "\t-h:\n");
   fprintf(stderr, "\t\tPrints this message and exits\n");
   fprintf(stderr, "And [OPTIONS] include:\n");
   fprintf(stderr, "\t-s <start address>\n");
-  fprintf(stderr, "\t\tSets the start memory address for the binary output.  Hex\n");
-  fprintf(stderr, "\t\tdata is written to memory relative to this address. Default:\n");
-  fprintf(stderr, "\t\t0x%08x\n", CONFIG_SYSTEM_HEX2MEM_BASEADDR);
+  fprintf(stderr, "\t\tSets the start memory address for the binary\n");
+  fprintf(stderr, "\t\toutput.  Hex data is written to memory relative\n");
+  fprintf(stderr, "\t\tto this address. Default: 0x%08x\n",
+          CONFIG_SYSTEM_HEX2MEM_BASEADDR);
   fprintf(stderr, "\t-e <end address>\n");
-  fprintf(stderr, "\t\tSets the maximum memory address (plus 1).  This value is\n");
-  fprintf(stderr, "\t\tused to assure that the program does not write past the end\n");
-  fprintf(stderr, "\t\tof memory.  The value zero disables error checking.\n");
-  fprintf(stderr, "\t\tDefault: 0x%08x\n", CONFIG_SYSTEM_HEX2MEM_ENDPADDR);
+  fprintf(stderr, "\t\tSets the maximum memory address (plus 1).  This\n");
+  fprintf(stderr, "\t\tvalue is used to assure that the program does not\n");
+  fprintf(stderr, "\t\twrite past the end of memory.  The value zero\n");
+  fprintf(stderr, "\t\tdisables error checking. Default: 0x%08x\n",
+          CONFIG_SYSTEM_HEX2MEM_ENDPADDR);
   fprintf(stderr, "\t-w <swap code>\n");
-  fprintf(stderr, "\t\t(0) No swap, (1) swap bytes in 16-bit values, or (3) swap\n");
-  fprintf(stderr, "\t\tbytes in 32-bit values.  Default: %d\n",
+  fprintf(stderr, "\t\t(0) No swap, (1) swap bytes in 16-bit values, or\n");
+  fprintf(stderr, "\t\t(3) swap bytes in 32-bit values.  Default: %d\n",
           CONFIG_SYSTEM_HEX2MEM_SWAP);
 #endif
   exit(exitcode);
@@ -194,7 +198,7 @@ int main(int argc, FAR char *argv[])
 
   if (endpaddr <= baseaddr)
     {
-      printf("ERROR: Memory end (+1) address must be AFTER memory base address\n");
+      printf("ERROR: End (+1) address must be AFTER base address\n");
       show_usage(argv[0], EXIT_FAILURE);
     }
 
