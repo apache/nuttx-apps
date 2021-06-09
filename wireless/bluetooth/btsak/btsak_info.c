@@ -102,25 +102,25 @@ void btsak_cmd_info(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
                   errno);
         }
       else
-       {
-        printf("Device: %s\n", btsak->ifname);
-        printf("BDAddr: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        {
+          printf("Device: %s\n", btsak->ifname);
+          printf("BDAddr: %02x:%02x:%02x:%02x:%02x:%02x\n",
                 btreq.btr_bdaddr.val[5], btreq.btr_bdaddr.val[4],
                 btreq.btr_bdaddr.val[3], btreq.btr_bdaddr.val[2],
                 btreq.btr_bdaddr.val[1], btreq.btr_bdaddr.val[0]);
-        printf("Flags:  %04x\n", btreq.btr_flags);
-        printf("Free:   %u\n", btreq.btr_num_cmd);
-        printf("  ACL:  %u\n", btreq.btr_num_acl);
-        printf("  SCO:  %u\n", btreq.btr_num_sco);
-        printf("Max:\n");
-        printf("  ACL:  %u\n", btreq.btr_max_acl);
-        printf("  SCO:  %u\n", btreq.btr_max_sco);
-        printf("MTU:\n");
-        printf("  ACL:  %u\n", btreq.btr_acl_mtu);
-        printf("  SCO:  %u\n", btreq.btr_sco_mtu);
-        printf("Policy: %u\n", btreq.btr_link_policy);
-        printf("Type:   %u\n", btreq.btr_packet_type);
-       }
+          printf("Flags:  %04x\n", btreq.btr_flags);
+          printf("Free:   %u\n", btreq.btr_num_cmd);
+          printf("  ACL:  %u\n", btreq.btr_num_acl);
+          printf("  SCO:  %u\n", btreq.btr_num_sco);
+          printf("Max:\n");
+          printf("  ACL:  %u\n", btreq.btr_max_acl);
+          printf("  SCO:  %u\n", btreq.btr_max_sco);
+          printf("MTU:\n");
+          printf("  ACL:  %u\n", btreq.btr_acl_mtu);
+          printf("  SCO:  %u\n", btreq.btr_sco_mtu);
+          printf("Policy: %u\n", btreq.btr_link_policy);
+          printf("Type:   %u\n", btreq.btr_packet_type);
+        }
     }
 
   close(sockfd);

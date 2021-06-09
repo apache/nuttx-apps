@@ -73,7 +73,8 @@ static void btsak_advertise_showusage(FAR const char *progname,
  *
  ****************************************************************************/
 
-static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak, FAR char *cmd,
+static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak,
+                                     FAR char *cmd,
                                      int argc, FAR char *argv[])
 {
   struct btreq_s btreq;
@@ -193,7 +194,8 @@ static void btsak_cmd_advertisestop(FAR struct btsak_s *btsak, FAR char *cmd,
  *
  ****************************************************************************/
 
-void btsak_cmd_advertise(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+void btsak_cmd_advertise(FAR struct btsak_s *btsak,
+                         int argc, FAR char *argv[])
 {
   int argind;
 
@@ -222,7 +224,8 @@ void btsak_cmd_advertise(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
     }
   else
     {
-      fprintf(stderr, "ERROR:  Unrecognized advertise command: %s\n", argv[argind]);
+      fprintf(stderr,
+              "ERROR:  Unrecognized advertise command: %s\n", argv[argind]);
       btsak_advertise_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 }

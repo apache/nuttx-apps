@@ -58,7 +58,8 @@ static void btsak_scan_showusage(FAR const char *progname,
   fprintf(stderr, "\t%s <ifname> %s [-h] <start [-d]|get|stop>\n",
           progname, cmd);
   fprintf(stderr, "\nWhere the options do the following:\n\n");
-  fprintf(stderr, "\tstart\t- Starts scanning.  The -d option enables duplicate\n");
+  fprintf(stderr,
+          "\tstart\t- Starts scanning.  The -d option enables duplicate\n");
   fprintf(stderr, "\t\t  filtering.\n");
   fprintf(stderr, "\tget\t- Shows new accumulated scan results\n");
   fprintf(stderr, "\tstop\t- Stops scanning\n");
@@ -279,7 +280,8 @@ void btsak_cmd_scan(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
     }
   else
     {
-      fprintf(stderr, "ERROR:  Unrecognized scan command: %s\n", argv[argind]);
+      fprintf(stderr,
+              "ERROR:  Unrecognized scan command: %s\n", argv[argind]);
       btsak_scan_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 }

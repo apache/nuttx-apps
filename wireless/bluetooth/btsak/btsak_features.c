@@ -76,7 +76,9 @@ static void btsak_features_showusage(FAR const char *progname,
  *
  ****************************************************************************/
 
-void btsak_cmd_features(FAR struct btsak_s *btsak, int argc, FAR char *argv[])
+void btsak_cmd_features(FAR struct btsak_s *btsak,
+                        int argc,
+                        FAR char *argv[])
 {
   struct btreq_s btreq;
   int sockfd;
