@@ -33,13 +33,13 @@
  * Public Functions
  ****************************************************************************/
 
-
 int ieee802154_addrtostr(FAR char *buf, int len,
                          FAR struct ieee802154_addr_s *addr)
 {
 #if 0
 #ifndef CONFIG_BIG_ENDIAN
-  uint16_t panid = ((addr->panid & 0xff) << 8) | ((addr->panid >> 8) & 0xff);
+  uint16_t panid = ((addr->panid & 0xff) << 8) |
+                   ((addr->panid >> 8) & 0xff);
 #else
   uint16_t panid = addr->panid;
 #endif
@@ -51,7 +51,8 @@ int ieee802154_addrtostr(FAR char *buf, int len,
   else if (addr->mode == IEEE802154_ADDRMODE_SHORT)
     {
 #ifndef CONFIG_BIG_ENDIAN
-      uint16_t saddr = ((addr->saddr & 0xff) << 8) | ((addr->saddr >> 8) & 0xff);
+      uint16_t saddr = ((addr->saddr & 0xff) << 8) |
+                       ((addr->saddr >> 8) & 0xff);
 #else
       uint16_t saddr = addr->saddr;
 #endif
@@ -71,7 +72,7 @@ int ieee802154_addrtostr(FAR char *buf, int len,
     }
   else
     {
-      return snprintf(buf,len,"<INVAL>");
+      return snprintf(buf, len, "<INVAL>");
     }
 
   return -1;
