@@ -40,16 +40,16 @@
  * Private data
  ****************************************************************************/
 
-static int *g_linePos;
-static int *g_lineLen;
-static int g_seekCount = 0;
-static int g_writeCount = 0;
-static int g_circCount = 0;
+static int *g_line_pos;
+static int *g_line_len;
+static int g_seek_count = 0;
+static int g_write_count = 0;
+static int g_circ_count = 0;
 
-static int g_lineCount = 2000;
-static int g_recordLen = 64;
-static int g_eraseCount = 32;
-static int g_totalRecords = 40000;
+static int g_line_count = 2000;
+static int g_record_len = 64;
+static int g_erase_count = 32;
+static int g_totalz_records = 40000;
 
 /****************************************************************************
  * Private Functions
@@ -86,13 +86,13 @@ static int smart_create_test_file(char *filename)
    * file where that file starts.
    */
 
-  printf("Writing test data.  %d lines to write\n", g_lineCount);
-  for (x = 0; x < g_lineCount; x++)
+  printf("Writing test data.  %d lines to write\n", g_line_count);
+  for (x = 0; x < g_line_count; x++)
     {
-      g_linePos[x] = ftell(fd);
+      g_line_pos[x] = ftell(fd);
 
-      sprintf(string, "This is line %d at offset %d\n", x, g_linePos[x]);
-      g_lineLen[x] = strlen(string);
+      sprintf(string, "This is line %d at offset %d\n", x, g_line_pos[x]);
+      g_line_len[x] = strlen(string);
       fprintf(fd, "%s", string);
 
       printf("\r%d", x);
@@ -131,25 +131,25 @@ static int smart_seek_test(char *filename)
       return -ENOENT;
     }
 
-  printf("Performing %d random seek tests\n", g_seekCount);
+  printf("Performing %d random seek tests\n", g_seek_count);
 
   srand(23);
-  for (x = 0; x < g_seekCount; x++)
+  for (x = 0; x < g_seek_count; x++)
     {
       /* Get random line to seek to */
 
       index = rand();
-      while (index >= g_lineCount)
+      while (index >= g_line_count)
         {
-          index -= g_lineCount;
+          index -= g_line_count;
         }
 
-      fseek(fd, g_linePos[index], SEEK_SET);
-      fread(readstring, 1, g_lineLen[index], fd);
-      readstring[g_lineLen[index]] = '\0';
+      fseek(fd, g_line_pos[index], SEEK_SET);
+      fread(readstring, 1, g_line_len[index], fd);
+      readstring[g_line_len[index]] = '\0';
 
       sprintf(cmpstring, "This is line %d at offset %d\n",
-              index, g_linePos[index]);
+              index, g_line_pos[index]);
 
       if (strcmp(readstring, cmpstring) != 0)
         {
@@ -252,25 +252,26 @@ static int smart_seek_with_write_test(char *filename)
     }
 
   printf("Performing %d random seek with write tests\n",
-         g_writeCount);
+         g_write_count);
 
   index = 0;
-  for (x = 0; x < g_writeCount; x++)
+  for (x = 0; x < g_write_count; x++)
     {
 #if 0
       /* Get a random value */
 
       index = rand();
-      while (index >= g_lineCount)
+      while (index >= g_line_count)
         {
-          index -= g_lineCount;
+          index -= g_line_count;
         }
 #endif
+
       /* Read the data into the buffer */
 
-      fseek(fd, g_linePos[index], SEEK_SET);
-      fread(readstring, 1, g_lineLen[index], fd);
-      readstring[g_lineLen[index]] = '\0';
+      fseek(fd, g_line_pos[index], SEEK_SET);
+      fread(readstring, 1, g_line_len[index], fd);
+      readstring[g_line_len[index]] = '\0';
 
       /* Scramble the data in the line */
 
@@ -287,24 +288,24 @@ static int smart_seek_with_write_test(char *filename)
 
       /* Now write the data back to the file */
 
-      fseek(fd, g_linePos[index], SEEK_SET);
-      fwrite(readstring, 1, g_lineLen[index], fd);
+      fseek(fd, g_line_pos[index], SEEK_SET);
+      fwrite(readstring, 1, g_line_len[index], fd);
       fflush(fd);
 
       /* Now read the data back and compare it */
 
-      fseek(fd, g_linePos[index], SEEK_SET);
-      fread(cmpstring, 1, g_lineLen[index], fd);
-      cmpstring[g_lineLen[index]] = '\0';
+      fseek(fd, g_line_pos[index], SEEK_SET);
+      fread(cmpstring, 1, g_line_len[index], fd);
+      cmpstring[g_line_len[index]] = '\0';
 
       if (strcmp(readstring, cmpstring) != 0)
         {
           printf("\nCompare failure on line %d, offset %d\n",
-                 index, g_linePos[index]);
+                 index, g_line_pos[index]);
           printf("\tExpected \"%s\"", cmpstring);
           printf("\rReceived \"%s\"", readstring);
-          fseek(fd, g_linePos[index], SEEK_SET);
-          fread(cmpstring, 1, g_lineLen[index], fd);
+          fseek(fd, g_line_pos[index], SEEK_SET);
+          fread(cmpstring, 1, g_line_len[index], fd);
           pass = FALSE;
           break;
         }
@@ -314,7 +315,7 @@ static int smart_seek_with_write_test(char *filename)
 
       /* On to next line */
 
-      if (++index >= g_lineCount)
+      if (++index >= g_line_count)
         {
           index = 0;
         }
@@ -354,14 +355,14 @@ static int smart_circular_log_test(char *filename)
   char      *cmpbuf;
   int       s1;
   int       x;
-  int       recordNo;
-  int       bufSize;
+  int       record_no;
+  int       buf_size;
   int       pass = TRUE;
 
   /* Calculate the size of our granular "erase record" writes */
 
-  bufSize = g_recordLen * g_eraseCount;
-  if (bufSize == 0)
+  buf_size = g_record_len * g_erase_count;
+  if (buf_size == 0)
     {
       printf("Invalid record parameters\n");
       return -EINVAL;
@@ -369,7 +370,7 @@ static int smart_circular_log_test(char *filename)
 
   /* Allocate memory for the record */
 
-  buffer = malloc(bufSize);
+  buffer = malloc(buf_size);
   if (buffer == NULL)
     {
       printf("Unable to allocate memory for record storage\n");
@@ -378,7 +379,7 @@ static int smart_circular_log_test(char *filename)
 
   /* Allocate memory for the compare buffer */
 
-  cmpbuf = malloc(g_recordLen);
+  cmpbuf = malloc(g_record_len);
   if (cmpbuf == NULL)
     {
       printf("Unable to allocate memory for record storage\n");
@@ -399,11 +400,11 @@ static int smart_circular_log_test(char *filename)
 
   /* Now fill the circular log with dummy 0xFF data */
 
-  printf("Creating circular log with %d records\n", g_totalRecords);
-  memset(buffer, 0xFF, g_recordLen);
-  for (x = 0; x < g_totalRecords; x++)
+  printf("Creating circular log with %d records\n", g_totalz_records);
+  memset(buffer, 0xff, g_record_len);
+  for (x = 0; x < g_totalz_records; x++)
     {
-      write(fd, buffer, g_recordLen);
+      write(fd, buffer, g_record_len);
     }
 
   close(fd);
@@ -420,67 +421,67 @@ static int smart_circular_log_test(char *filename)
     }
 
   printf("Performing %d circular log record update tests\n",
-         g_circCount);
+         g_circ_count);
 
   /* Start at record number zero and start updating log entries */
 
-  recordNo = 0;
-  for (x = 0; x < g_circCount; x++)
+  record_no = 0;
+  for (x = 0; x < g_circ_count; x++)
     {
       /* Fill a new record with random data */
 
-      for (s1=0; s1 < g_recordLen; s1++)
+      for (s1 = 0; s1 < g_record_len; s1++)
         {
-          buffer[s1] = rand() & 0xFF;
+          buffer[s1] = rand() & 0xff;
         }
 
       /* Set the first byte of the record (flag byte) to 0xFF */
 
-      buffer[0] = 0xFF;
+      buffer[0] = 0xff;
 
       /* Seek to the record location in the file */
 
-      lseek(fd, g_recordLen*recordNo, SEEK_SET);
+      lseek(fd, g_record_len * record_no, SEEK_SET);
 
       /* Write the new record to the file */
 
-      if ((recordNo & (g_eraseCount-1)) == 0)
+      if ((record_no & (g_erase_count - 1)) == 0)
         {
-          /* Every g_eraseCount records we will write a larger
+          /* Every g_erase_count records we will write a larger
            * buffer with our record and padded with 0xFF to
            * the end of our larger buffer.
            */
 
-          memset(&buffer[g_recordLen], 0xFF, bufSize-g_recordLen);
-          write(fd, buffer, bufSize);
+          memset(&buffer[g_record_len], 0xff, buf_size - g_record_len);
+          write(fd, buffer, buf_size);
         }
       else
         {
           /* Just write a single record */
 
-          write(fd, buffer, g_recordLen);
+          write(fd, buffer, g_record_len);
         }
 
       /* Now perform a couple of simulated flag updates */
 
-      lseek(fd, g_recordLen*recordNo, SEEK_SET);
-      buffer[0] = 0xFE;
+      lseek(fd, g_record_len * record_no, SEEK_SET);
+      buffer[0] = 0xfe;
       write(fd, buffer, 1);
-      lseek(fd, g_recordLen*recordNo, SEEK_SET);
-      buffer[0] = 0xFC;
+      lseek(fd, g_record_len * record_no, SEEK_SET);
+      buffer[0] = 0xfc;
       write(fd, buffer, 1);
 
       /* Now read the data back and compare it */
 
-      lseek(fd, g_recordLen*recordNo, SEEK_SET);
-      read(fd, cmpbuf, g_recordLen);
+      lseek(fd, g_record_len * record_no, SEEK_SET);
+      read(fd, cmpbuf, g_record_len);
 
-      for (s1 = 0; s1 < g_recordLen; s1++)
+      for (s1 = 0; s1 < g_record_len; s1++)
         {
           if (buffer[s1] != cmpbuf[s1])
             {
               printf("\nCompare failure in record %d, offset %d\n",
-                     recordNo, recordNo*g_recordLen+s1);
+                     record_no, record_no * g_record_len + s1);
               printf("\tExpected \"%02x\"", cmpbuf[s1]);
               printf("\rReceived \"%02x\"", buffer[s1]);
               pass = FALSE;
@@ -493,9 +494,9 @@ static int smart_circular_log_test(char *filename)
 
       /* Increment to the next record */
 
-      if (++recordNo >= g_totalRecords)
+      if (++record_no >= g_totalz_records)
         {
-          recordNo = 0;
+          record_no = 0;
         }
     }
 
@@ -523,48 +524,73 @@ static int smart_circular_log_test(char *filename)
 
 static void smart_usage(void)
 {
-  fprintf(stderr, "usage: smart_test [-c COUNT] [-s SEEKCOUNT] [-w WRITECOUNT] smart_mounted_filename\n\n");
+  fprintf(stderr, "usage: smart_test "
+    "[-c COUNT] [-s SEEKCOUNT] [-w WRITECOUNT] smart_mounted_filename\n\n");
 
   fprintf(stderr, "DESCRIPTION\n");
-  fprintf(stderr, "    Conducts various stress tests to validate SMARTFS operation.\n");
-  fprintf(stderr, "    Please choose one or more of -c, -s, or -w to conduct tests.\n\n");
+  fprintf(stderr,
+    "    Conducts various stress tests to validate SMARTFS operation.\n");
+  fprintf(stderr,
+    "    Please choose one or more of -c, -s, or -w to conduct tests.\n\n");
 
   fprintf(stderr, "OPTIONS\n");
   fprintf(stderr, "    -c COUNT\n");
-  fprintf(stderr, "          Performs a circular log style test where a fixed number of fixed\n");
-  fprintf(stderr, "          length records are written and then overwritten with new data.\n");
-  fprintf(stderr, "          Uses the -r, -e and -t options to specify the parameters of the \n");
-  fprintf(stderr, "          record geometry and update operation.  The COUNT parameter sets\n");
-  fprintf(stderr, "          the number of record updates to perform.\n\n");
+  fprintf(stderr, "          "
+    "Performs a circular log style test where a fixed number of fixed\n");
+  fprintf(stderr, "          "
+    "length records are written and then overwritten with new data.\n");
+  fprintf(stderr, "          "
+    "Uses the -r, -e and -t options to specify the parameters of the \n");
+  fprintf(stderr, "          "
+    "record geometry and update operation.  The COUNT parameter sets\n");
+  fprintf(stderr, "          "
+    "the number of record updates to perform.\n\n");
 
   fprintf(stderr, "    -s SEEKCOUNT\n");
-  fprintf(stderr, "          Performs a simple seek test where to validate the SMARTFS seek\n");
-  fprintf(stderr, "          operation.  Uses the -l option to specify the number of test\n");
-  fprintf(stderr, "          lines to write to the test file.  The SEEKCOUNT parameter sets\n");
-  fprintf(stderr, "          the number of seek/read operations to perform.\n\n");
+  fprintf(stderr, "          "
+    "Performs a simple seek test where to validate the SMARTFS seek\n");
+  fprintf(stderr, "          "
+    "operation.  Uses the -l option to specify the number of test\n");
+  fprintf(stderr, "          "
+    "lines to write to the test file.  The SEEKCOUNT parameter sets\n");
+  fprintf(stderr, "          "
+    "the number of seek/read operations to perform.\n\n");
 
   fprintf(stderr, "    -w WRITECOUNT\n");
-  fprintf(stderr, "          Performs a seek/write/seek/read test where to validate the SMARTFS\n");
-  fprintf(stderr, "          seek/write operation.  Uses the -l option to specify the number of\n");
-  fprintf(stderr, "          test lines to write to the test file.  The WRITECOUNT parameter sets\n");
-  fprintf(stderr, "          the number of seek/write operations to perform.\n\n");
+  fprintf(stderr, "          "
+    "Performs a seek/write/seek/read test where to validate the SMARTFS\n");
+  fprintf(stderr, "          "
+    "seek/write operation.  Uses the -l option to specify the number of\n");
+  fprintf(stderr, "          test lines "
+    "to write to the test file.  The WRITECOUNT parameter sets\n");
+  fprintf(stderr, "          "
+    "the number of seek/write operations to perform.\n\n");
 
   fprintf(stderr, "    -l LINECOUNT\n");
-  fprintf(stderr, "          Sets the number of lines of test data to write to the test file\n");
-  fprintf(stderr, "          during seek and seek/write tests.\n\n");
+  fprintf(stderr, "          "
+    "Sets the number of lines of test data to write to the test file\n");
+  fprintf(stderr, "          "
+    "during seek and seek/write tests.\n\n");
 
   fprintf(stderr, "    -r RECORDLEN\n");
-  fprintf(stderr, "          Sets the length of each log record during circular log tests.\n\n");
+  fprintf(stderr, "          "
+    "Sets the length of each log record during circular log tests.\n\n");
 
   fprintf(stderr, "    -e ERASECOUNT\n");
-  fprintf(stderr, "          Sets the erase granularity for overwriting old circular log entries.\n");
-  fprintf(stderr, "          Setting this value to 16, for instance, would cause every 16th record\n");
-  fprintf(stderr, "          update to write a single record followed by 15 records with all 0xFF\n");
-  fprintf(stderr, "          content.  This helps SMARTFS perform better wear leveling and reduces\n");
-  fprintf(stderr, "          the number of FLASH block erases significantly.\n\n");
+  fprintf(stderr, "          Sets the erase granularity"
+    " for overwriting old circular log entries.\n");
+  fprintf(stderr, "          Setting this value to 16, "
+    "for instance, would cause every 16th record\n");
+  fprintf(stderr, "          update "
+    "to write a single record followed by 15 records with all 0xFF\n");
+  fprintf(stderr, "          content.  "
+    "This helps SMARTFS perform better wear leveling and reduces\n");
+  fprintf(stderr, "          "
+    "the number of FLASH block erases significantly.\n\n");
 
   fprintf(stderr, "    -t TOTALRECORDS\n");
-  fprintf(stderr, "          Sets the total number of records in the circular log test file.\n\n");
+  fprintf(stderr, "          "
+    "Sets the total number of records in the circular log test file.\n\n");
 }
 
 /****************************************************************************
@@ -573,49 +599,50 @@ static void smart_usage(void)
 
 int main(int argc, FAR char *argv[])
 {
-  int ret, opt;
+  int ret;
+  int opt;
 
   /* Argument given? */
 
   while ((opt = getopt(argc, argv, "c:e:l:r:s:t:w:")) != -1)
-     {
-       switch (opt)
-         {
-           case 'c':
-             g_circCount = atoi(optarg);
-             break;
+    {
+      switch (opt)
+        {
+          case 'c':
+            g_circ_count = atoi(optarg);
+            break;
 
-           case 'e':
-             g_eraseCount = atoi(optarg);
-             break;
+          case 'e':
+            g_erase_count = atoi(optarg);
+            break;
 
-           case 'l':
-             g_lineCount = atoi(optarg);
-             break;
+          case 'l':
+            g_line_count = atoi(optarg);
+            break;
 
-           case 'r':
-             g_recordLen = atoi(optarg);
-             break;
+          case 'r':
+            g_record_len = atoi(optarg);
+            break;
 
-           case 's':
-             g_seekCount = atoi(optarg);
-             break;
+          case 's':
+            g_seek_count = atoi(optarg);
+            break;
 
-           case 't':
-             g_totalRecords = atoi(optarg);
-             break;
+          case 't':
+            g_totalz_records = atoi(optarg);
+            break;
 
-           case 'w':
-             g_writeCount = atoi(optarg);
-             break;
+          case 'w':
+            g_write_count = atoi(optarg);
+            break;
 
-           default: /* '?' */
-             smart_usage();
-             exit(EXIT_FAILURE);
-         }
+          default: /* '?' */
+            smart_usage();
+            exit(EXIT_FAILURE);
+      }
    }
 
-  if (argc < 2 || (g_seekCount + g_writeCount + g_circCount == 0))
+  if (argc < 2 || (g_seek_count + g_write_count + g_circ_count == 0))
     {
       smart_usage();
       return -1;
@@ -623,22 +650,22 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate memory for the test */
 
-  g_linePos = malloc(g_lineCount * sizeof(int));
-  if (g_linePos == NULL)
+  g_line_pos = malloc(g_line_count * sizeof(int));
+  if (g_line_pos == NULL)
     {
       return -1;
     }
 
-  g_lineLen = malloc(g_lineCount * sizeof(int));
-  if (g_lineLen == NULL)
+  g_line_len = malloc(g_line_count * sizeof(int));
+  if (g_line_len == NULL)
     {
-      free(g_linePos);
+      free(g_line_pos);
       return -1;
     }
 
   /* Test if performing seek test or write test */
 
-  if (g_seekCount > 0 || g_writeCount > 0)
+  if (g_seek_count > 0 || g_write_count > 0)
     {
       /* Create a test file */
 
@@ -649,7 +676,7 @@ int main(int argc, FAR char *argv[])
 
       /* Conduct a seek test? */
 
-      if (g_seekCount > 0 )
+      if (g_seek_count > 0)
         {
           if ((ret = smart_seek_test(argv[optind])) < 0)
             {
@@ -666,7 +693,7 @@ int main(int argc, FAR char *argv[])
 
       /* Conduct a seek with write test? */
 
-      if (g_writeCount > 0)
+      if (g_write_count > 0)
         {
           if ((ret = smart_seek_with_write_test(argv[optind])) < 0)
             {
@@ -686,7 +713,7 @@ err_out_with_mem:
 
   /* Free the memory */
 
-  free(g_linePos);
-  free(g_lineLen);
+  free(g_line_pos);
+  free(g_line_len);
   return ret;
 }
