@@ -42,7 +42,7 @@
  ****************************************************************************/
 
 static pthread_barrier_t g_smp_barrier;
-static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS+1];
+static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS + 1];
 
 /****************************************************************************
  * Private Functions
@@ -60,7 +60,8 @@ static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS+1];
 static void show_cpu(FAR const char *caller, int threadno)
 {
   g_thread_cpu[threadno] = sched_getcpu();
-  printf("%s[%d]: Running on CPU%d\n", caller, threadno, g_thread_cpu[threadno]);
+  printf("%s[%d]: Running on CPU%d\n",
+         caller, threadno, g_thread_cpu[threadno]);
 }
 
 static void show_cpu_conditional(FAR const char *caller, int threadno)
@@ -205,7 +206,9 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize data */
 
-  memset(threadid, 0, sizeof(pthread_t) * CONFIG_TESTING_SMP_NBARRIER_THREADS);
+  memset(threadid,
+         0,
+         sizeof(pthread_t) * CONFIG_TESTING_SMP_NBARRIER_THREADS);
   for (i = 0; i <= CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
       g_thread_cpu[i] = IMPOSSIBLE_CPU;
@@ -221,7 +224,8 @@ int main(int argc, FAR char *argv[])
   ret = pthread_barrierattr_init(&barrierattr);
   if (ret != OK)
     {
-      printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n", ret);
+      printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n",
+              ret);
 
       errcode = EXIT_FAILURE;
       goto errout;
@@ -231,7 +235,8 @@ int main(int argc, FAR char *argv[])
                              CONFIG_TESTING_SMP_NBARRIER_THREADS);
   if (ret != OK)
     {
-      printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n", ret);
+      printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n",
+             ret);
 
       errcode = EXIT_FAILURE;
       goto errout_with_attr;
@@ -255,10 +260,11 @@ int main(int argc, FAR char *argv[])
   for (i = 0; i < CONFIG_TESTING_SMP_NBARRIER_THREADS; i++)
     {
       ret = pthread_create(&threadid[i], &attr, barrier_thread,
-                           (pthread_addr_t)((uintptr_t)i+1));
+                           (pthread_addr_t)((uintptr_t)i + 1));
       if (ret != 0)
         {
-          printf("  Main[0]: Error in thread %d create, ret=%d\n",  i+1, ret);
+          printf("  Main[0]: Error in thread %d create, ret=%d\n",
+                  i + 1, ret);
           printf("  Main[0]: Test aborted with waiting threads\n");
 
           errcode = EXIT_FAILURE;
@@ -266,7 +272,7 @@ int main(int argc, FAR char *argv[])
         }
       else
         {
-          printf("  Main[0]: Thread %d created\n", i+1);
+          printf("  Main[0]: Thread %d created\n", i + 1);
         }
 
       show_cpu_conditional("  Main", 0);
@@ -286,12 +292,14 @@ int main(int argc, FAR char *argv[])
 
           if (ret != 0)
             {
-              printf("  Main[0]: Error in thread %d join, ret=%d\n", i+1, ret);
+              printf("  Main[0]: Error in thread %d join, ret=%d\n",
+                     i + 1, ret);
               errcode = EXIT_FAILURE;
             }
           else
             {
-              printf("  Main[0]: Thread %d completed with result=%p\n", i+1, result);
+              printf("  Main[0]: Thread %d completed with result=%p\n",
+                     i + 1, result);
             }
         }
     }
