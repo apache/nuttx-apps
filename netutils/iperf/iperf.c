@@ -264,7 +264,7 @@ static void iperf_report_task(void *arg)
              now_len,
              (((double)(now_len - last_len) * 8) /
              ts_diff(&now, &last) / 1e6));
-      if (ts_diff(&now, &start) >= time)
+      if (time != 0 && ts_diff(&now, &start) >= time)
         {
           break;
         }

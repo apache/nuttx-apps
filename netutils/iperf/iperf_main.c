@@ -209,7 +209,7 @@ int main(int argc, FAR char *argv[])
   else
     {
       cfg.time = iperf_args.time->ival[0];
-      if (cfg.time <= cfg.interval)
+      if (cfg.time != 0 && cfg.time <= cfg.interval)
         {
           cfg.time = cfg.interval;
         }
