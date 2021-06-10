@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_assocreq.c
+ * apps/wireless/ieee802154/libmac/ieee802154_disassocreq.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,15 +38,18 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_disassoc_req(int fd, FAR struct ieee802154_disassoc_req_s *req)
+int ieee802154_disassoc_req(int fd,
+                            FAR struct ieee802154_disassoc_req_s *req)
 {
   int ret;
 
-  ret = ioctl(fd, MAC802154IOC_MLME_DISASSOC_REQUEST, (unsigned long)((uintptr_t)req));
+  ret = ioctl(fd, MAC802154IOC_MLME_DISASSOC_REQUEST,
+             (unsigned long)((uintptr_t)req));
   if (ret < 0)
     {
       ret = -errno;
-      fprintf(stderr, "MAC802154IOC_MLME_DISASSOC_REQUEST failed: %d\n", ret);
+      fprintf(stderr,
+              "MAC802154IOC_MLME_DISASSOC_REQUEST failed: %d\n", ret);
     }
 
   return ret;

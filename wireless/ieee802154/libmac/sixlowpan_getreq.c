@@ -66,7 +66,9 @@ int sixlowpan_get_req(int sock, FAR const char *ifname,
   return ret;
 }
 
-/* Wrappers around get_req to make it even easier to get common attributes */
+/* Wrappers around get_req to make it even easier to get common
+ * attributes
+ */
 
 int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan)
 {
@@ -120,7 +122,8 @@ int sixlowpan_getpanid(int sock, FAR const char *ifname, FAR uint8_t *panid)
   return ret;
 }
 
-int sixlowpan_getcoordeaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
+int sixlowpan_getcoordeaddr(int sock,
+                            FAR const char *ifname, FAR uint8_t *eaddr)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -133,7 +136,8 @@ int sixlowpan_getcoordeaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr
   return ret;
 }
 
-int sixlowpan_getcoordsaddr(int sock, FAR const char *ifname, FAR uint8_t *saddr)
+int sixlowpan_getcoordsaddr(int sock,
+                            FAR const char *ifname, FAR uint8_t *saddr)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -146,7 +150,8 @@ int sixlowpan_getcoordsaddr(int sock, FAR const char *ifname, FAR uint8_t *saddr
   return ret;
 }
 
-int sixlowpan_getrxonidle(int sock, FAR const char *ifname, FAR bool *rxonidle)
+int sixlowpan_getrxonidle(int sock,
+                          FAR const char *ifname, FAR bool *rxonidle)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -173,7 +178,8 @@ int sixlowpan_getdevmode(int sock, FAR const char *ifname,
   return ret;
 }
 
-int sixlowpan_getpromisc(int sock, FAR const char *ifname, FAR bool *promisc)
+int sixlowpan_getpromisc(int sock,
+                         FAR const char *ifname, FAR bool *promisc)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -186,7 +192,8 @@ int sixlowpan_getpromisc(int sock, FAR const char *ifname, FAR bool *promisc)
   return ret;
 }
 
-int sixlowpan_gettxpwr(int sock, FAR const char *ifname, FAR int32_t *txpwr)
+int sixlowpan_gettxpwr(int sock,
+                       FAR const char *ifname, FAR int32_t *txpwr)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -199,7 +206,8 @@ int sixlowpan_gettxpwr(int sock, FAR const char *ifname, FAR int32_t *txpwr)
   return ret;
 }
 
-int sixlowpan_getmaxretries(int sock, FAR const char *ifname, FAR uint8_t *retries)
+int sixlowpan_getmaxretries(int sock,
+                            FAR const char *ifname, FAR uint8_t *retries)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -212,7 +220,8 @@ int sixlowpan_getmaxretries(int sock, FAR const char *ifname, FAR uint8_t *retri
   return ret;
 }
 
-int sixlowpan_getfcslen(int sock, FAR const char *ifname, FAR uint8_t *fcslen)
+int sixlowpan_getfcslen(int sock,
+                        FAR const char *ifname, FAR uint8_t *fcslen)
 {
   struct ieee802154_get_req_s req;
   int ret;

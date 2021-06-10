@@ -45,7 +45,8 @@ int ieee802154_reset_req(int fd, bool resetattr)
 
   req.resetattr = resetattr;
 
-  ret = ioctl(fd, MAC802154IOC_MLME_RESET_REQUEST, (unsigned long)((uintptr_t)&req));
+  ret = ioctl(fd, MAC802154IOC_MLME_RESET_REQUEST,
+             (unsigned long)((uintptr_t)&req));
   if (ret < 0)
     {
       ret = -errno;

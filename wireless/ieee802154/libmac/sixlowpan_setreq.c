@@ -71,7 +71,8 @@ int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan)
   return sixlowpan_set_req(sock, ifname, &req);
 }
 
-int sixlowpan_seteaddr(int sock, FAR const char *ifname, FAR const uint8_t *eaddr)
+int sixlowpan_seteaddr(int sock,
+                       FAR const char *ifname, FAR const uint8_t *eaddr)
 {
   struct ieee802154_set_req_s req;
 
@@ -81,7 +82,8 @@ int sixlowpan_seteaddr(int sock, FAR const char *ifname, FAR const uint8_t *eadd
   return sixlowpan_set_req(sock, ifname, &req);
 }
 
-int sixlowpan_setsaddr(int sock, FAR const char *ifname, FAR const uint8_t *saddr)
+int sixlowpan_setsaddr(int sock,
+                       FAR const char *ifname, FAR const uint8_t *saddr)
 {
   struct ieee802154_set_req_s req;
 
@@ -91,7 +93,8 @@ int sixlowpan_setsaddr(int sock, FAR const char *ifname, FAR const uint8_t *sadd
   return sixlowpan_set_req(sock, ifname, &req);
 }
 
-int sixlowpan_setpanid(int sock, FAR const char *ifname, FAR const uint8_t *panid)
+int sixlowpan_setpanid(int sock,
+                       FAR const char *ifname, FAR const uint8_t *panid)
 {
   struct ieee802154_set_req_s req;
 
@@ -121,7 +124,8 @@ int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc)
   return sixlowpan_set_req(sock, ifname, &req);
 }
 
-int sixlowpan_setassocpermit(int sock, FAR const char *ifname, bool assocpermit)
+int sixlowpan_setassocpermit(int sock,
+                             FAR const char *ifname, bool assocpermit)
 {
   struct ieee802154_set_req_s req;
 
@@ -141,7 +145,8 @@ int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr)
   return sixlowpan_set_req(sock, ifname, &req);
 }
 
-int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries)
+int sixlowpan_setmaxretries(int sock,
+                            FAR const char *ifname, uint8_t retries)
 {
   struct ieee802154_set_req_s req;
 
