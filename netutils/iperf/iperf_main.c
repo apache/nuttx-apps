@@ -204,7 +204,16 @@ int main(int argc, FAR char *argv[])
 
   if (iperf_args.time->count == 0)
     {
-      cfg.time = IPERF_DEFAULT_TIME;
+      if (iperf_args.server->count != 0)
+        {
+          /* Note: -t is a client-only option for the original iperf 2. */
+
+          cfg.time = 0;
+        }
+      else
+        {
+          cfg.time = IPERF_DEFAULT_TIME;
+        }
     }
   else
     {
