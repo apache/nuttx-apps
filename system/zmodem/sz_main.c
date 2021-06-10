@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/sz_main.c
+ * apps/system/zmodem/sz_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -49,8 +49,9 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\t<lname> is the local file name\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
-  fprintf(stderr, "\t-d <device>: Communication device to use.  Default: %s\n",
-                  CONFIG_SYSTEM_ZMODEM_DEVNAME);
+  fprintf(stderr,
+          "\t-d <device>: Communication device to use.  Default: %s\n",
+          CONFIG_SYSTEM_ZMODEM_DEVNAME);
   fprintf(stderr, "\t-r <rname>: Remote file name.  Default <lname>\n");
   fprintf(stderr, "\t-x <mode>: Transfer type\n");
   fprintf(stderr, "\t\t0: Normal file (default)\n");
@@ -112,7 +113,9 @@ int main(int argc, FAR char *argv[])
             tmp = strtol(optarg, &endptr, 10);
             if (tmp < 0 || tmp > 8)
               {
-                fprintf(stderr, "ERROR: Transfer option out of range: %ld\n", tmp);
+                fprintf(stderr,
+                        "ERROR: Transfer option out of range: %ld\n",
+                        tmp);
                 show_usage(argv[0], EXIT_FAILURE);
               }
             else
@@ -133,7 +136,9 @@ int main(int argc, FAR char *argv[])
             tmp = strtol(optarg, &endptr, 10);
             if (tmp < 0 || tmp > 3)
               {
-                fprintf(stderr, "ERROR: Transfer type out of range: %ld\n", tmp);
+                fprintf(stderr,
+                        "ERROR: Transfer type out of range: %ld\n",
+                        tmp);
                 show_usage(argv[0], EXIT_FAILURE);
               }
             else

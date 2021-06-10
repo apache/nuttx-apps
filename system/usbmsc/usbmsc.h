@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/usbmsc/usbmsc.h
+ * apps/system/usbmsc/usbmsc.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -113,7 +113,7 @@ struct usbmsc_state_s
 extern struct usbmsc_state_s g_usbmsc;
 
 /****************************************************************************
- * Public Functions
+ * Public Functions Prototypes
  ****************************************************************************/
 
 #endif /* __SYSTEM_USBMSC_USBMSC_H */

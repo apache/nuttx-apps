@@ -113,7 +113,6 @@ static FAR char *critmon_isolate_value(FAR char *line)
  ****************************************************************************/
 
 static int critmon_process_directory(FAR struct dirent *entryp)
-
 {
   FAR const char *tmpstr;
   FAR char *filepath;
@@ -131,12 +130,14 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   /* Read the task status to get the task name */
 
   filepath = NULL;
-  ret = asprintf(&filepath, CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/status",
+  ret = asprintf(&filepath,
+                 CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/status",
                  entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
       errcode = errno;
-      fprintf(stderr, "Csection Monitor: Failed to create path to status file: %d\n",
+      fprintf(stderr,
+              "Csection Monitor: Failed to create path to status file: %d\n",
               errcode);
       return -errcode;
     }
@@ -182,12 +183,14 @@ static int critmon_process_directory(FAR struct dirent *entryp)
 
   filepath = NULL;
 
-  ret = asprintf(&filepath, CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/critmon",
+  ret = asprintf(&filepath,
+                 CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/critmon",
                  entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
       errcode = errno;
-      fprintf(stderr, "Csection Monitor: Failed to create path to Csection file: %d\n",
+      fprintf(stderr, "Csection Monitor: "
+              "Failed to create path to Csection file: %d\n",
               errcode);
       ret = -EINVAL;
       goto errout_with_name;
@@ -306,11 +309,13 @@ static void critmon_global_crit(void)
 
   filepath = NULL;
 
-  ret = asprintf(&filepath, CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/critmon");
+  ret = asprintf(&filepath,
+                 CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/critmon");
   if (ret < 0 || filepath == NULL)
     {
       errcode = errno;
-      fprintf(stderr, "Csection Monitor: Failed to create path to Csection file: %d\n",
+      fprintf(stderr, "Csection Monitor: "
+              "Failed to create path to Csection file: %d\n",
               errcode);
       return;
     }
@@ -418,7 +423,8 @@ static int critmon_daemon(int argc, char **argv)
 
           if (++errcount > 100)
             {
-              fprintf(stderr, "Csection Monitor: Too many errors ... exiting\n");
+              fprintf(stderr,
+                      "Csection Monitor: Too many errors ... exiting\n");
               exitcode = EXIT_FAILURE;
               break;
             }
@@ -450,13 +456,14 @@ static int critmon_daemon(int argc, char **argv)
                 {
                   /* Failed to process the thread directory */
 
-                  fprintf(stderr,
-                          "Csection Monitor: Failed to process sub-directory: %s\n",
+                  fprintf(stderr, "Csection Monitor: "
+                          "Failed to process sub-directory: %s\n",
                           entryp->d_name);
 
                   if (++errcount > 100)
                     {
-                      fprintf(stderr, "Csection Monitor: Too many errors ... exiting\n");
+                      fprintf(stderr, "Csection Monitor: "
+                              "Too many errors ... exiting\n");
                       exitcode = EXIT_FAILURE;
                       break;
                     }
@@ -497,13 +504,15 @@ int main(int argc, char **argv)
       g_critmon.started = true;
       g_critmon.stop    = false;
 
-      ret = task_create("Csection Monitor", CONFIG_SYSTEM_CRITMONITOR_DAEMON_PRIORITY,
+      ret = task_create("Csection Monitor",
+                        CONFIG_SYSTEM_CRITMONITOR_DAEMON_PRIORITY,
                         CONFIG_SYSTEM_CRITMONITOR_DAEMON_STACKSIZE,
                         (main_t)critmon_daemon, (FAR char * const *)NULL);
       if (ret < 0)
         {
           int errcode = errno;
-          printf("Csection Monitor ERROR: Failed to start the stack monitor: %d\n",
+          printf("Csection Monitor ERROR: "
+                 "Failed to start the stack monitor: %d\n",
                  errcode);
         }
       else

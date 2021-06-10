@@ -1,5 +1,5 @@
 /************************************************************************************
- * drivers/termcurses/termcurses.c
+ * apps/system/termcurses/termcurses.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -136,7 +136,7 @@ int termcurses_deinitterm(FAR struct termcurses_s *dev)
   colors.bg_red     = 0;
   colors.bg_green   = 0;
   colors.bg_blue    = 0;
-  colors.color_mask = 0xFF;
+  colors.color_mask = 0xff;
   termcurses_setcolors(dev, &colors);
 
   /* For now, simply free the memory */

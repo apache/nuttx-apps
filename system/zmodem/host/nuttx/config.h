@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/nuttx/compiler.h
+ * apps/system/zmodem/host/nuttx/config.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -31,6 +31,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Environment stuff */
 
 #define OK 0

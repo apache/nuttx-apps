@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/rz_main.c
+ * apps/system/zmodem/rz_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -44,13 +44,17 @@
 
 static void show_usage(FAR const char *progname, int errcode)
 {
-  fprintf(stderr, "USAGE: %s [OPTIONS]\n",
-                  progname);
-  fprintf(stderr, "\nWhere OPTIONS include the following:\n");
-  fprintf(stderr, "\t-d <device>: Communication device to use.  Default: %s\n",
-                  CONFIG_SYSTEM_ZMODEM_DEVNAME);
-  fprintf(stderr, "\t-p <path>: Folder to hold the received file.  Default: %s\n",
-                  CONFIG_SYSTEM_ZMODEM_MOUNTPOINT);
+  fprintf(stderr,
+          "USAGE: %s [OPTIONS]\n",
+          progname);
+  fprintf(stderr,
+          "\nWhere OPTIONS include the following:\n");
+  fprintf(stderr,
+          "\t-d <device>: Communication device to use.  Default: %s\n",
+          CONFIG_SYSTEM_ZMODEM_DEVNAME);
+  fprintf(stderr,
+          "\t-p <path>: Folder to hold the received file.  Default: %s\n",
+          CONFIG_SYSTEM_ZMODEM_MOUNTPOINT);
   fprintf(stderr, "\t-h: Show this text and exit\n");
   exit(errcode);
 }

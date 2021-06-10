@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/zm_state.c
+ * apps/system/zmodem/zm_state.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -181,7 +181,9 @@ static int zm_hdrevent(FAR struct zm_state_s *pzm)
     {
       uint32_t crc;
 
-      /* Checksum is over 9 bytes:  The header type, 4 data bytes, plus 4 CRC bytes */
+      /* Checksum is over 9 bytes:
+       * The header type, 4 data bytes, plus 4 CRC bytes
+       */
 
       crc = crc32part(pzm->hdrdata, 9, 0xffffffff);
       if (crc != 0xdebb20e3)
@@ -194,7 +196,9 @@ static int zm_hdrevent(FAR struct zm_state_s *pzm)
     {
       uint16_t crc;
 
-      /* Checksum is over 7 bytes:  The header type, 4 data bytes, plus 2 CRC bytes */
+      /* Checksum is over 7 bytes:
+       * The header type, 4 data bytes, plus 2 CRC bytes
+       */
 
       crc = crc16part(pzm->hdrdata, 7, 0);
       if (crc != 0)
@@ -264,9 +268,9 @@ static int zm_dataevent(FAR struct zm_state_s *pzm)
           pzm->flags |= ZM_FLAG_CRKOK;
         }
 
-     /* Adjust the back length to exclude the packet type length of the 2-
-      * byte checksum.
-      */
+      /* Adjust the back length to exclude the packet type length of
+       * the 2- byte checksum.
+       */
 
       pzm->pktlen -= 3;
     }
@@ -330,11 +334,12 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
           pzm->psubstate = PIDLE_ZPAD;
         }
 
-    /* O might be the first character of "OO".  "OO" might be part of the file
-     * receiver protocol.  After receiving on e file in a group of files, the
-     * receiver expected either "OO" indicating that all files have been sent,
-     * or a ZRQINIT header indicating the start of the next file.
-     */
+      /* O might be the first character of "OO".  "OO" might be part of the
+       * file receiver protocol.  After receiving on e file in a group of
+       * files, the receiver expected either "OO" indicating that all files
+       * have been sent, or a ZRQINIT header indicating the start of the next
+       * file.
+       */
 
     case 'O':
       /* Is "OO" a possibility in this context?  Fall through to the default
@@ -370,7 +375,9 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
           break;
         }
 
-    /* Unexpected character.  Wait for the next ZPAD to get us back in sync. */
+    /* Unexpected character.
+     * Wait for the next ZPAD to get us back in sync.
+     */
 
     default:
       if (pzm->psubstate != PIDLE_ZPAD)
@@ -390,20 +397,20 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
  * Name: zm_header
  *
  * Description:
- *   Data has been received in state PSTATE_HEADER (i.e., ZDLE was received
- *   in PSTAT_IDLE).
+ *  Data has been received in state PSTATE_HEADER (i.e., ZDLE was received
+ *  in PSTAT_IDLE).
  *
- *   The following headers are supported:
+ *  The following headers are supported:
  *
- *   16-bit Binary:
- *     ZPAD ZDLE ZBIN type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2
- *     Payload length: 7 (type, 4 bytes data, 2 byte CRC)
- *   32-bit Binary:
- *     ZPAD ZDLE ZBIN32 type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2 crc-3 crc-4
- *     Payload length: 9 (type, 4 bytes data, 4 byte CRC)
- *   Hex:
- *     ZPAD ZPAD ZDLE ZHEX type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2 CR LF [XON]
- *     Payload length: 16 (14 hex digits, cr, lf, ignoring optional XON)
+ *  16-bit Binary:
+ *   ZPAD ZDLE ZBIN type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2
+ *   Payload length: 7 (type, 4 bytes data, 2 byte CRC)
+ *  32-bit Binary:
+ *   ZPAD ZDLE ZBIN32 type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2 crc-3 crc-4
+ *   Payload length: 9 (type, 4 bytes data, 4 byte CRC)
+ *  Hex:
+ *   ZPAD ZPAD ZDLE ZHEX type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2 CR LF [XON]
+ *   Payload length: 16 (14 hex digits, cr, lf, ignoring optional XON)
  *
  ****************************************************************************/
 
@@ -524,8 +531,8 @@ static int zm_header(FAR struct zm_state_s *pzm, uint8_t ch)
               /* Check if the full header payload has bee buffered.
                *
                * The ZBIN format uses 16-bit CRC so the binary length of the
-               * full payload is 1+4+2 = 7 bytes; the ZBIN32 uses a 32-bit CRC
-               * so the binary length of the payload is 1+4+4 = 9 bytes;
+               * full payload is 1+4+2 = 7 bytes; the ZBIN32 uses a 32-bit
+               * CRC so the binary length of the payload is 1+4+4 = 9 bytes;
                */
 
               if (ndx >= 9 || (pzm->hdrfmt == ZBIN && ndx >= 7))
@@ -634,7 +641,8 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
     {
       zmdbg("ERROR:  The packet buffer is full\n");
       zmdbg("        ch=%c[%02x] pktlen=%d pkttype=%02x ncrc=%d\n",
-            isprint(ch) ? ch : '.', ch, pzm->pktlen, pzm->pkttype, pzm->ncrc);
+            isprint(ch) ? ch : '.', ch, pzm->pktlen,
+            pzm->pkttype, pzm->ncrc);
       zmdbg("        rcvlen=%d rcvndx=%d\n",
             pzm->rcvlen, pzm->rcvndx);
       return -ENOSPC;
@@ -696,10 +704,12 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
    * payload plus the packet type code plus the CRC itself.
    */
 
-   pzm->pktbuf[pzm->pktlen++] = ch;
-   if (pzm->ncrc == 1)
-     {
-       /* We are at the end of the packet.  Check the CRC and post the event */
+    pzm->pktbuf[pzm->pktlen++] = ch;
+    if (pzm->ncrc == 1)
+      {
+       /* We are at the end of the packet.
+        *  Check the CRC and post the event
+        */
 
        ret = zm_dataevent(pzm);
 
@@ -710,15 +720,15 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
        pzm->pktlen = 0;
        pzm->ncrc   = 0;
        return ret;
-     }
-   else if (pzm->ncrc > 1)
-     {
+      }
+    else if (pzm->ncrc > 1)
+      {
        /* We are still parsing the CRC.  Decrement the count of CRC bytes
         * remaining.
         */
 
-       pzm->ncrc--;
-     }
+        pzm->ncrc--;
+      }
 
   return OK;
 }
@@ -944,7 +954,6 @@ int zm_datapump(FAR struct zm_state_s *pzm)
 
   return ret;
 }
-
 
 /****************************************************************************
  * Name: zm_readstate
