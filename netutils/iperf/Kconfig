@@ -10,7 +10,6 @@ config NETUTILS_IPERF
 	select NETUTILS_NETLIB
 	select LIBC_FLOATINGPOINT
 	select SYSTEM_ARGTABLE3
-	select CLOCK_MONOTONIC
 	---help---
 		Enable the \"iperf example\"
 
