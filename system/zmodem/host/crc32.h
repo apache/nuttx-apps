@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zmodem/host/crc16.h
+ * apps/system/zmodem/host/crc32.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/cdcacm/cdcacm.h
+ * apps/system/cdcacm/cdcacm.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -34,7 +34,9 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* Prerequisites */
 
 #ifndef CONFIG_USBDEV
@@ -112,7 +114,7 @@ struct cdcacm_state_s
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Public Functions Prototypes
  ****************************************************************************/
 
 #endif /* __SYSTEM_CDCACM_CDCACM_H */

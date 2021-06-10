@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/zm_utils.c
+ * apps/system/zmodem/zm_utils.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -42,10 +42,16 @@
  * Public Data
  ****************************************************************************/
 
-const uint8_t g_zeroes[4] = { 0, 0, 0, 0 };
+const uint8_t g_zeroes[4] =
+{
+  0,
+  0,
+  0,
+  0
+};
 
 /****************************************************************************
- * Public Function Protypes
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -77,7 +83,7 @@ uint32_t zm_bytobe32(FAR const uint8_t *val8)
 
 void zm_be32toby(uint32_t val32, FAR uint8_t *val8)
 {
-  val8[0] = (uint8_t)( val32        & 0xff);
+  val8[0] = (uint8_t)(val32        & 0xff);
   val8[1] = (uint8_t)((val32 >> 8)  & 0xff);
   val8[2] = (uint8_t)((val32 >> 16) & 0xff);
   val8[3] = (uint8_t)((val32 >> 24) & 0xff);
@@ -154,9 +160,9 @@ ssize_t zm_read(int fd, FAR uint8_t *buffer, size_t buflen)
 {
   ssize_t nread;
 
-  /* Read reading as necessary until the requested buffer data is successfully
-   * read or until an end of file indication or irrecoverable error is
-   * encountered.
+  /* Read reading as necessary until the requested buffer data is
+   * successfully read or until an end of file indication or irrecoverable
+   * error is encountered.
    *
    * This loop will only execute if the read is interrupted by a signal.
    */
@@ -164,8 +170,10 @@ ssize_t zm_read(int fd, FAR uint8_t *buffer, size_t buflen)
   nread = 0;
   do
     {
-      /* Get the next gulp of data from the file.  On success, read will return
-       * (1) nread > 0 and nread <= buflen, (2) nread == 0 on end of file, or
+      /* Get the next gulp of data from the file.
+       * On success, read will return
+       * (1) nread > 0 and nread <= buflen,
+       * (2) nread == 0 on end of file, or
        * (3) nread < 0 on a read error.
        */
 
@@ -241,15 +249,15 @@ ssize_t zm_write(int fd, FAR const uint8_t *buffer, size_t buflen)
   for (remaining = buflen; remaining > 0; )
     {
 #if CONFIG_SYSTEM_ZMODEM_WRITESIZE > 0
-       if (remaining > CONFIG_SYSTEM_ZMODEM_WRITESIZE)
-         {
-           wrsize = CONFIG_SYSTEM_ZMODEM_WRITESIZE;
-         }
-       else
+      if (remaining > CONFIG_SYSTEM_ZMODEM_WRITESIZE)
+        {
+          wrsize = CONFIG_SYSTEM_ZMODEM_WRITESIZE;
+        }
+      else
 #endif
-         {
-           wrsize = remaining;
-         }
+        {
+          wrsize = remaining;
+        }
 
       /* Get the next gulp of data from the file */
 
@@ -385,13 +393,13 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl)
                       ret     = zm_write(fd, (FAR uint8_t *)"\n", 1);
                       newline = true;
                     }
-               }
+                }
             }
           else
             {
               /* Increment the number of bytes we need to write beginning at
-               * start.  We want to write as many contiguous bytes as possible
-               * for performance reasons.
+               * start.  We want to write as many contiguous bytes as
+               * possible for performance reasons.
                */
 
               nbytes++;
@@ -447,7 +455,8 @@ uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename)
   /* Calculate the file CRC */
 
   crc = 0xffffffff;
-  while ((nread = zm_read(fd, pzm->scratch, CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE)) > 0)
+  while ((nread = zm_read(fd, pzm->scratch,
+                          CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE)) > 0)
     {
       crc = crc32part(pzm->scratch, nread, crc);
     }

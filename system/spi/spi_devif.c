@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/i2c/i2c_devif.c
+ * apps/system/spi/spi_devif.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

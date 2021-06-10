@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/ping/ping.c
+ * apps/system/ping6/ping6.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -51,28 +51,36 @@
  * Name: show_usage
  ****************************************************************************/
 
-static void show_usage(FAR const char *progname, int exitcode) noreturn_function;
+static void show_usage(FAR const char *progname, int exitcode)
+                       noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
 #if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
-  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] [-s <size>] <hostname>\n", progname);
+  printf("\nUsage: %s [-c <count>] [-i <interval>] "
+         "[-W <timeout>] [-s <size>] <hostname>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
-  printf("  <hostname> is either an IPv6 address or the name of the remote host\n");
+  printf("  <hostname> is either an IPv6 address "
+         "or the name of the remote host\n");
   printf("   that is requested the ICMPv6 ECHO reply.\n");
 #else
-  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] [-s <size>] <ip-address>\n", progname);
+  printf("\nUsage: %s [-c <count>] [-i <interval>] [-W <timeout>] "
+         "[-s <size>] <ip-address>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
-  printf("  <ip-address> is the IPv6 address request the ICMPv6 ECHO reply.\n");
+  printf("  <ip-address> is the IPv6 address request "
+         "the ICMPv6 ECHO reply.\n");
 #endif
   printf("  -c <count> determines the number of pings.  Default %u.\n",
          ICMPv6_NPINGS);
-  printf("  -i <interval> is the default delay between pings (milliseconds).\n");
+  printf("  -i <interval> is the default delay between pings "
+         "(milliseconds).\n");
   printf("    Default %d.\n", ICMPv6_POLL_DELAY);
-  printf("  -W <timeout> is the timeout for wait response (milliseconds).\n");
+  printf("  -W <timeout> is the timeout for wait response "
+         "(milliseconds).\n");
   printf("    Default %d.\n", ICMPv6_POLL_DELAY);
-  printf("  -s <size> specifies the number of data bytes to be sent.  Default %u.\n",
+  printf("  -s <size> specifies the number of data bytes to be sent. "
+         " Default %u.\n",
          ICMPv6_PING6_DATALEN);
   printf("  -h shows this text and exits.\n");
   exit(exitcode);
@@ -102,7 +110,8 @@ static void ping6_result(FAR const struct ping6_result_s *result)
         break;
 
       case ICMPv6_I_BEGIN:
-        inet_ntop(AF_INET6, result->dest.s6_addr16, strbuffer, INET6_ADDRSTRLEN);
+        inet_ntop(AF_INET6, result->dest.s6_addr16,
+                  strbuffer, INET6_ADDRSTRLEN);
         printf("PING6 %s: %u bytes of data\n",
                strbuffer, result->info->datalen);
         break;
@@ -189,7 +198,8 @@ static void ping6_result(FAR const struct ping6_result_s *result)
                    (result->nrequests >> 1)) /
                    result->nrequests;
 
-            printf("%u packets transmitted, %u received, %u%% packet loss, time %d ms\n",
+            printf("%u packets transmitted, %u received, "
+                   "%u%% packet loss, time %d ms\n",
                    result->nrequests, result->nreplies, tmp, result->extra);
           }
         break;
@@ -226,7 +236,8 @@ int main(int argc, FAR char *argv[])
               long count = strtol(optarg, &endptr, 10);
               if (count < 1 || count > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <count> out of range: %ld\n", count);
+                  fprintf(stderr, "ERROR: <count> out of range: %ld\n",
+                          count);
                   goto errout_with_usage;
                 }
 
@@ -239,7 +250,8 @@ int main(int argc, FAR char *argv[])
               long delay = strtol(optarg, &endptr, 10);
               if (delay < 1 || delay > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <interval> out of range: %ld\n", delay);
+                  fprintf(stderr, "ERROR: <interval> out of range: %ld\n",
+                          delay);
                   goto errout_with_usage;
                 }
 
@@ -252,7 +264,8 @@ int main(int argc, FAR char *argv[])
               long timeout = strtol(optarg, &endptr, 10);
               if (timeout < 1 || timeout > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <timeout> out of range: %ld\n", timeout);
+                  fprintf(stderr, "ERROR: <timeout> out of range: %ld\n",
+                          timeout);
                   goto errout_with_usage;
                 }
 
@@ -265,7 +278,8 @@ int main(int argc, FAR char *argv[])
               long datalen = strtol(optarg, &endptr, 10);
               if (datalen < 1 || datalen > UINT16_MAX)
                 {
-                  fprintf(stderr, "ERROR: <size> out of range: %ld\n", datalen);
+                  fprintf(stderr, "ERROR: <size> out of range: %ld\n",
+                          datalen);
                   goto errout_with_usage;
                 }
 

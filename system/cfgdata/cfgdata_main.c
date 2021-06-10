@@ -77,7 +77,6 @@ static void cfgdatacmd_help(void)
 #else
   printf("  unset id,instance\n");
 #endif
-
 }
 
 /****************************************************************************
@@ -183,7 +182,7 @@ static void cfgdatacmd_parse_byte_array(struct config_data_s *cfg,
         {
           /* Hex byte */
 
-          sscanf(&argv[x][c+2], "%x", &val);
+          sscanf(&argv[x][c + 2], "%x", &val);
           cfg->configdata[count] = (uint8_t) val;
         }
       else
@@ -491,7 +490,7 @@ static void cfgdatacmd_print(int argc, char *argv[])
 
   /* Display the data */
 
-  isstring = cfg.configdata[cfg.len-1] == 0;
+  isstring = cfg.configdata[cfg.len - 1] == 0;
   for (x = 0; x < cfg.len - 1; x++)
     {
       /* Test for all ascii characters */
@@ -519,7 +518,7 @@ static void cfgdatacmd_print(int argc, char *argv[])
 
           printf("0x%02X ", cfg.configdata[x]);
 
-          if (((x + 1) & 7) == 0 && x+1 != cfg.len)
+          if (((x + 1) & 7) == 0 && x + 1 != cfg.len)
             {
               printf("\n");
             }
@@ -589,7 +588,7 @@ static void cfgdatacmd_show_all_config_items(void)
 
       /* Test if data is a string */
 
-      isstring = cfg.configdata[cfg.len-1] == 0;
+      isstring = cfg.configdata[cfg.len - 1] == 0;
       for (x = 0; x < cfg.len - 1; x++)
         {
           /* Test for all ascii characters */
@@ -612,7 +611,7 @@ static void cfgdatacmd_show_all_config_items(void)
           char fmtstr2[10];
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
-          sprintf(fmtstr2, "\n%ds", CONFIG_MTD_CONFIG_NAME_LEN+6);
+          sprintf(fmtstr2, "\n%ds", CONFIG_MTD_CONFIG_NAME_LEN + 6);
 #else
           strcpy(fmtstr2, "\n%18s");
 #endif
@@ -624,7 +623,7 @@ static void cfgdatacmd_show_all_config_items(void)
 
               printf("0x%02X ", cfg.configdata[x]);
 
-              if (((x + 1) & 7) == 0 && x+1 != cfg.len)
+              if (((x + 1) & 7) == 0 && x + 1 != cfg.len)
                 {
                   printf(fmtstr2, " ");
                 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/zm_watchdog.c
+ * apps/system/zmodem/zm_watchdog.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -45,7 +45,8 @@
 
 static void zm_expiry(int signo, FAR siginfo_t *info, FAR void *context)
 {
-  FAR struct zm_state_s *pzm = (FAR struct zm_state_s *)info->si_value.sival_ptr;
+  FAR struct zm_state_s *pzm =
+            (FAR struct zm_state_s *)info->si_value.sival_ptr;
 
   /* Just set the timeout flag.  If the Zmodem logic was truly waiting, then
    * the signal should wake it up and it should then process the timeout

@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/mdio/mdio_main.c
+ * apps/system/mdio/mdio_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -112,7 +112,7 @@ int get_phy_reg(uint16_t phy_id, uint16_t reg_num, uint16_t *val)
 
   ret = ioctl(g_listen_fd, SIOCGMIIREG, (unsigned long) &ifr);
 
-  if(ret == OK)
+  if (ret == OK)
     {
       *val = ifr.ifr_mii_val_out;
     }
@@ -156,7 +156,7 @@ int main(int argc, FAR char *argv[])
   uint16_t val_in;
   uint16_t val_out;
 
-  /*--- SETUP --------------------------------------------------------------*/
+  /* -- SETUP ------------------------------------------------------------- */
 
   if (argc == 1)
     {

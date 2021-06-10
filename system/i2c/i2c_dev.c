@@ -86,15 +86,16 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
       argndx += nargs;
     }
 
-  /* There should be exactly two more things on the command line:  The first and
-   * last addresses to be probed.
+  /* There should be exactly two more things on the command line:
+   * The first and last addresses to be probed.
    */
 
   if (argndx + 1 < argc)
     {
       first = strtol(argv[argndx], NULL, 16);
       last  = strtol(argv[argndx + 1], NULL, 16);
-      if (first < 0 || first > 0x7f || last < 0 || last > 0x7f || first > last)
+      if (first < 0 || first > 0x7f || last < 0 ||
+          last > 0x7f || first > last)
         {
           i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
           goto errout;
@@ -119,13 +120,15 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
-       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       goto errout;
+      i2ctool_printf(i2ctool, "Failed to get bus %d\n",
+                      i2ctool->bus);
+      goto errout;
     }
 
   /* Probe each address */
 
-  i2ctool_printf(i2ctool, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+  i2ctool_printf(i2ctool,
+                 "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
   for (i = 0; i < 128; i += 16)
     {
       i2ctool_printf(i2ctool, "%02x: ", i);
@@ -160,6 +163,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
             {
               i2ctool_printf(i2ctool, "-- ");
             }
+
           i2ctool_flush(i2ctool);
         }
 

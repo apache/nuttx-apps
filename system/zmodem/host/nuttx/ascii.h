@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zmodem/host/ascii.h
+ * apps/system/zmodem/host/nuttx/ascii.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -28,6 +28,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
+
 /* All 7-bit ASCII codes */
 
 #define ASCII_NUL        0x00 /* Null character (^@) */

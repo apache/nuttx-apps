@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/cdcacm/cdcacm_main.c
+ * apps/system/cdcacm/cdcacm_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -62,8 +62,8 @@ int main(int argc, FAR char *argv[])
   struct boardioc_usbdev_ctrl_s ctrl;
   int ret;
 
-  /* Check if there is a non-NULL USB mass storage device handle (meaning that the
-   * USB mass storage device is already configured).
+  /* Check if there is a non-NULL USB mass storage device handle
+   * (meaning that the USB mass storage device is already configured).
    */
 
   if (g_cdcacm.handle)
@@ -90,7 +90,8 @@ int main(int argc, FAR char *argv[])
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("sercon: ERROR: Failed to create the CDC/ACM serial device: %d\n", -ret);
+      printf("sercon: ERROR: "
+             "Failed to create the CDC/ACM serial device: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
@@ -124,7 +125,9 @@ int serdis_main(int argc, char *argv[])
 
   usbtrace_enable(0);
 
-  /* Then disconnect the device and uninitialize the USB mass storage driver */
+  /* Then disconnect the device and uninitialize the USB mass storage
+   * driver
+   */
 
   ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;

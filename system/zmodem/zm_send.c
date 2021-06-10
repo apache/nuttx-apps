@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/zmodem/zm_send.c
+ * apps/system/zmodem/zm_send.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -199,7 +199,9 @@ static const struct zm_transition_s g_zmr_initack[] =
   {ZME_ERROR,     false, ZMS_INITACK,  zms_error},
 };
 
-/* Events handled in state ZMS_FILEWAIT- Sent file header, waiting for ZRPOS */
+/* Events handled in state ZMS_FILEWAIT- Sent file header,
+ * waiting for ZRPOS
+ */
 
 static const struct zm_transition_s g_zms_filewait[] =
 {
@@ -218,8 +220,8 @@ static const struct zm_transition_s g_zms_filewait[] =
   {ZME_ERROR,     false, ZMS_FILEWAIT, zms_error},
 };
 
-/* Events handled in state ZMS_CRCWAIT - Sent file CRC, waiting for ZRPOS
- * response.
+/* Events handled in state ZMS_CRCWAIT - Sent file CRC,
+ * waiting for ZRPOS response.
  */
 
 static const struct zm_transition_s g_zms_crcwait[] =
@@ -450,14 +452,16 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
 #ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
   /* We support CANFDX.  We can do ZCRCG if the remote sender does too */
 
-  if ((rcaps & (CANFDX | CANOVIO)) == (CANFDX | CANOVIO) && pzms->rcvmax == 0)
+  if ((rcaps & (CANFDX | CANOVIO)) ==
+      (CANFDX | CANOVIO) && pzms->rcvmax == 0)
     {
       pzms->dpkttype = ZCRCG;
     }
 #else
   /* We don't support CANFDX.  We can do ZCRCQ if the remote sender does  */
 
-  if ((rcaps & (CANFDX | CANOVIO)) == (CANFDX | CANOVIO) && pzms->rcvmax == 0)
+  if ((rcaps & (CANFDX | CANOVIO)) ==
+      (CANFDX | CANOVIO) && pzms->rcvmax == 0)
     {
       /* For the local sender, this is just like ZCRCW */
 
@@ -870,7 +874,9 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       sndsize = pzms->filesize - pzms->offset;
 
-      /* This is the number of bytes that have been sent but not yet acknowledged. */
+      /* This is the number of bytes that have been sent but not yet
+       * acknowledged.
+       */
 
       unacked = pzms->offset - pzms->lastoffs;
 
@@ -885,7 +891,9 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       if (pzms->rcvmax != 0)
         {
-          /* If we were to send 'sndsize' more bytes, would that exceed recvmax? */
+          /* If we were to send 'sndsize' more bytes,
+           * would that exceed recvmax?
+           */
 
           if (sndsize + unacked > pzms->rcvmax)
             {

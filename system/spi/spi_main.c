@@ -66,14 +66,22 @@ static const struct cmdmap_s g_spicmds[] =
 
 /* Common, message formats */
 
-const char g_spiargrequired[]     = "spitool: %s: missing required argument(s)\n";
-const char g_spiarginvalid[]      = "spitool: %s: argument invalid\n";
-const char g_spiargrange[]        = "spitool: %s: value out of range\n";
-const char g_spicmdnotfound[]     = "spitool: %s: command not found\n";
-const char g_spitoomanyargs[]     = "spitool: %s: too many arguments\n";
-const char g_spicmdfailed[]       = "spitool: %s: %s failed: %d\n";
-const char g_spixfrerror[]        = "spitool: %s: Transfer failed: %d\n";
-const char g_spiincompleteparam[] = "spitool: %s: Odd number or illegal char in tx sequence\n";
+const char g_spiargrequired[]     =
+           "spitool: %s: missing required argument(s)\n";
+const char g_spiarginvalid[]      =
+           "spitool: %s: argument invalid\n";
+const char g_spiargrange[]        =
+           "spitool: %s: value out of range\n";
+const char g_spicmdnotfound[]     =
+           "spitool: %s: command not found\n";
+const char g_spitoomanyargs[]     =
+           "spitool: %s: too many arguments\n";
+const char g_spicmdfailed[]       =
+           "spitool: %s: %s failed: %d\n";
+const char g_spixfrerror[]        =
+           "spitool: %s: Transfer failed: %d\n";
+const char g_spiincompleteparam[] =
+           "spitool: %s: Odd number or illegal char in tx sequence\n";
 
 /****************************************************************************
  * Private Functions
@@ -125,7 +133,8 @@ static int spicmd_help(FAR struct spitool_s *spitool, int argc,
                           "Default: %d Current: %d\n",
                  0, spitool->csn);
 
-  spitool_printf(spitool, "  [-t devtype] Chip Select type (see spi_devtype_e).  "
+  spitool_printf(spitool, "  [-t devtype] Chip Select type "
+                          "(see spi_devtype_e).  "
                           "Default: %d Current: %d\n",
                  SPIDEVTYPE_USER, spitool->devtype);
 
@@ -142,12 +151,16 @@ static int spicmd_help(FAR struct spitool_s *spitool, int argc,
 
   spitool_printf(spitool, "\nNOTES:\n");
 #ifndef CONFIG_DISABLE_ENVIRON
-  spitool_printf(spitool, "o An environment variable like $PATH may be used for any argument.\n");
+  spitool_printf(spitool, "o An environment variable like $PATH may be used "
+                          "for any argument.\n");
 #endif
-  spitool_printf(spitool, "o Arguments are \"sticky\".  For example, once the SPI address is\n");
-  spitool_printf(spitool, "  specified, that address will be re-used until it is changed.\n");
+  spitool_printf(spitool, "o Arguments are \"sticky\".  "
+                          "For example, once the SPI address is\n");
+  spitool_printf(spitool, "  specified, that address will be re-used "
+                          "until it is changed.\n");
   spitool_printf(spitool, "\nWARNING:\n");
-  spitool_printf(spitool, "o The SPI commands may have bad side effects on your SPI devices.\n");
+  spitool_printf(spitool, "o The SPI commands may have bad side effects "
+                          "on your SPI devices.\n");
   spitool_printf(spitool, "  Use only at your own risk.\n");
   return OK;
 }

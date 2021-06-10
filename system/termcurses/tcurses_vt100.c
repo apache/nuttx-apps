@@ -1,5 +1,5 @@
 /************************************************************************************
- * drivers/termcurses/tcurses_vt100.c
+ * apps/system/termcurses/tcurses_vt100.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -140,20 +140,48 @@ struct keycodes_s
 
 static const uint16_t g_key_modifiers[][2] =
 {
-   { KEY_PPAGE  | (PDC_KEY_MODIFIER_ALT     << 12), ALT_PGDN   },
-   { KEY_NPAGE  | (PDC_KEY_MODIFIER_ALT     << 12), ALT_PGUP   },
-   { KEY_UP     | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SUP    },
-   { KEY_DOWN   | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SDOWN  },
-   { KEY_LEFT   | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SLEFT  },
-   { KEY_RIGHT  | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SRIGHT },
-   { KEY_UP     | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_UP     },
-   { KEY_DOWN   | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_DOWN   },
-   { KEY_LEFT   | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_LEFT   },
-   { KEY_RIGHT  | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_RIGHT  },
-   { KEY_DC     | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SDC    },
-   { KEY_DC     | (PDC_KEY_MODIFIER_ALT     << 12), ALT_DEL    },
-   { KEY_DC     | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_DEL    },
-   { KEY_IC     | (PDC_KEY_MODIFIER_ALT     << 12), ALT_INS    }
+  {
+    KEY_PPAGE  | (PDC_KEY_MODIFIER_ALT     << 12), ALT_PGDN
+  },
+  {
+    KEY_NPAGE  | (PDC_KEY_MODIFIER_ALT     << 12), ALT_PGUP
+  },
+  {
+    KEY_UP     | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SUP
+  },
+  {
+    KEY_DOWN   | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SDOWN
+  },
+  {
+    KEY_LEFT   | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SLEFT
+  },
+  {
+    KEY_RIGHT  | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SRIGHT
+  },
+  {
+    KEY_UP     | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_UP
+  },
+  {
+    KEY_DOWN   | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_DOWN
+  },
+  {
+    KEY_LEFT   | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_LEFT
+  },
+  {
+    KEY_RIGHT  | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_RIGHT
+  },
+  {
+    KEY_DC     | (PDC_KEY_MODIFIER_SHIFT   << 12), KEY_SDC
+  },
+  {
+    KEY_DC     | (PDC_KEY_MODIFIER_ALT     << 12), ALT_DEL
+  },
+  {
+    KEY_DC     | (PDC_KEY_MODIFIER_CONTROL << 12), CTL_DEL
+  },
+  {
+    KEY_IC     | (PDC_KEY_MODIFIER_ALT     << 12), ALT_INS
+  }
 };
 
 static const int g_key_modifier_count =
@@ -162,193 +190,518 @@ static const int g_key_modifier_count =
 static const struct keycodes_s g_esc_keycodes[] =
 {
   /*             terminfo                   pdcurses
-   *             name       definition      key code  */
-  { TINFO_ENTRY("kcuu1",    "[A",       KEY_UP    ) },      /* Up Arrow */
-  { TINFO_ENTRY("kcud1",    "[B",       KEY_DOWN  ) },      /* Down Arrow */
-  { TINFO_ENTRY("kcuf1",    "[C",       KEY_RIGHT ) },      /* Right Arrow */
-  { TINFO_ENTRY("kcub1",    "[D",       KEY_LEFT  ) },      /* Left Arrow */
-  { TINFO_ENTRY("knp",      "[6~",      KEY_NPAGE ) },      /* Next Page Key */
-  { TINFO_ENTRY("kpp",      "[5~",      KEY_PPAGE ) },      /* Prev Page Key */
-  { TINFO_ENTRY("khom",     "OH",       KEY_HOME  ) },      /* Home Key */
-  { TINFO_ENTRY("kend",     "OF",       KEY_END   ) },      /* Home Key */
-  { TINFO_ENTRY("kcab1",    "b",        ALT_LEFT  ) },      /* Alt Left arrow Key */
-  { TINFO_ENTRY("kcaf1",    "f",        ALT_RIGHT ) },      /* Alt Right arrow Key */
-  { TINFO_ENTRY("kprt",     "[25~",     KEY_PRINT ) },      /* Print-screen Key */
-  { TINFO_ENTRY("kdc",      "[3~",      KEY_DC    ) },      /* Delete char key */
-  { TINFO_ENTRY("kic",      "[2~",      KEY_IC    ) },      /* Insert Key */
-  { TINFO_ENTRY("kacr",     "\x1a",     ALT_ENTER ) },      /* ALT-Enter Key */
-  { TINFO_ENTRY("kTAB",     "[Z",       KEY_STAB  ) },      /* SHIFT-tab Key */
+   *             name       definition      key code
+   */
 
-  { TINFO_ENTRY("kf1",      "OP",       KEY_F(1)  ) },      /* F1 Key */
-  { TINFO_ENTRY("kf2",      "OQ",       KEY_F(2)  ) },      /* F2 Key */
-  { TINFO_ENTRY("kf3",      "OR",       KEY_F(3)  ) },      /* F3 Key */
-  { TINFO_ENTRY("kf4",      "OS",       KEY_F(4)  ) },      /* F4 Key */
-  { TINFO_ENTRY("kf5",      "[15~",     KEY_F(5)  ) },      /* F5 Key */
-  { TINFO_ENTRY("kf6",      "[17~",     KEY_F(6)  ) },      /* F6 Key */
-  { TINFO_ENTRY("kf7",      "[18~",     KEY_F(7)  ) },      /* F7 Key */
-  { TINFO_ENTRY("kf8",      "[19~",     KEY_F(8)  ) },      /* F8 Key */
-  { TINFO_ENTRY("kf9",      "[20~",     KEY_F(9)  ) },      /* F9 Key */
-  { TINFO_ENTRY("kf10",     "[21~",     KEY_F(10) ) },      /* F10 Key */
-  { TINFO_ENTRY("kf11",     "[22~",     KEY_F(11) ) },      /* F11 Key */
-  { TINFO_ENTRY("kf12",     "[24~",     KEY_F(12) ) },      /* F12 Key */
+  {
+    TINFO_ENTRY("kcuu1",    "[A",       KEY_UP)
+  },      /* Up Arrow */
+  {
+    TINFO_ENTRY("kcud1",    "[B",       KEY_DOWN)
+  },      /* Down Arrow */
+  {
+    TINFO_ENTRY("kcuf1",    "[C",       KEY_RIGHT)
+  },      /* Right Arrow */
+  {
+    TINFO_ENTRY("kcub1",    "[D",       KEY_LEFT)
+  },      /* Left Arrow */
+  {
+    TINFO_ENTRY("knp",      "[6~",      KEY_NPAGE)
+  },      /* Next Page Key */
+  {
+    TINFO_ENTRY("kpp",      "[5~",      KEY_PPAGE)
+  },      /* Prev Page Key */
+  {
+    TINFO_ENTRY("khom",     "OH",       KEY_HOME)
+  },      /* Home Key */
+  {
+    TINFO_ENTRY("kend",     "OF",       KEY_END)
+  },      /* Home Key */
+  {
+    TINFO_ENTRY("kcab1",    "b",        ALT_LEFT)
+  },      /* Alt Left arrow Key */
+  {
+    TINFO_ENTRY("kcaf1",    "f",        ALT_RIGHT)
+  },      /* Alt Right arrow Key */
+  {
+    TINFO_ENTRY("kprt",     "[25~",     KEY_PRINT)
+  },      /* Print-screen Key */
+  {
+    TINFO_ENTRY("kdc",      "[3~",      KEY_DC)
+  },      /* Delete char key */
+  {
+    TINFO_ENTRY("kic",      "[2~",      KEY_IC)
+  },      /* Insert Key */
+  {
+    TINFO_ENTRY("kacr",     "\x1a",     ALT_ENTER)
+  },      /* ALT-Enter Key */
+  {
+    TINFO_ENTRY("kTAB",     "[Z",       KEY_STAB)
+  },      /* SHIFT-tab Key */
 
-  { TINFO_ENTRY("",         "Oq",       KEY_C1    ) },      /* Lower left PAD Key */
-  { TINFO_ENTRY("",         "Or",       KEY_C2    ) },      /* Lower middle PAD  Key */
-  { TINFO_ENTRY("",         "Os",       KEY_C3    ) },      /* Lower right PAD  Key */
-  { TINFO_ENTRY("",         "Ot",       KEY_B1    ) },      /* Middle left PAD Key */
-  { TINFO_ENTRY("",         "Ou",       KEY_B2    ) },      /* Middle middle PAD  Key */
-  { TINFO_ENTRY("",         "Ov",       KEY_B3    ) },      /* Middle right PAD  Key */
-  { TINFO_ENTRY("",         "Ow",       KEY_A1    ) },      /* Upper left PAD Key */
-  { TINFO_ENTRY("",         "Ox",       KEY_A2    ) },      /* Upper middle PAD  Key */
-  { TINFO_ENTRY("",         "Oy",       KEY_A3    ) },      /* Upper right PAD  Key */
+  {
+    TINFO_ENTRY("kf1",      "OP",       KEY_F(1))
+  },      /* F1 Key */
+  {
+    TINFO_ENTRY("kf2",      "OQ",       KEY_F(2))
+  },      /* F2 Key */
+  {
+    TINFO_ENTRY("kf3",      "OR",       KEY_F(3))
+  },      /* F3 Key */
+  {
+    TINFO_ENTRY("kf4",      "OS",       KEY_F(4))
+  },      /* F4 Key */
+  {
+    TINFO_ENTRY("kf5",      "[15~",     KEY_F(5))
+  },      /* F5 Key */
+  {
+    TINFO_ENTRY("kf6",      "[17~",     KEY_F(6))
+  },      /* F6 Key */
+  {
+    TINFO_ENTRY("kf7",      "[18~",     KEY_F(7))
+  },      /* F7 Key */
+  {
+    TINFO_ENTRY("kf8",      "[19~",     KEY_F(8))
+  },      /* F8 Key */
+  {
+    TINFO_ENTRY("kf9",      "[20~",     KEY_F(9))
+  },      /* F9 Key */
+  {
+    TINFO_ENTRY("kf10",     "[21~",     KEY_F(10))
+  },      /* F10 Key */
+  {
+    TINFO_ENTRY("kf11",     "[22~",     KEY_F(11))
+  },      /* F11 Key */
+  {
+    TINFO_ENTRY("kf12",     "[24~",     KEY_F(12))
+  },      /* F12 Key */
 
-  { TINFO_ENTRY("",         "a",        ALT_A ) },      /* ALT-A key */
-  { TINFO_ENTRY("",         "b",        ALT_B ) },      /* ALT-B key */
-  { TINFO_ENTRY("",         "c",        ALT_C ) },      /* ALT-C key */
-  { TINFO_ENTRY("",         "d",        ALT_D ) },      /* ALT-D key */
-  { TINFO_ENTRY("",         "e",        ALT_E ) },      /* ALT-E key */
-  { TINFO_ENTRY("",         "f",        ALT_F ) },      /* ALT-F key */
-  { TINFO_ENTRY("",         "g",        ALT_G ) },      /* ALT-G key */
-  { TINFO_ENTRY("",         "h",        ALT_H ) },      /* ALT-H key */
-  { TINFO_ENTRY("",         "i",        ALT_I ) },      /* ALT-I key */
-  { TINFO_ENTRY("",         "j",        ALT_J ) },      /* ALT-J key */
-  { TINFO_ENTRY("",         "k",        ALT_K ) },      /* ALT-K key */
-  { TINFO_ENTRY("",         "l",        ALT_L ) },      /* ALT-L key */
-  { TINFO_ENTRY("",         "m",        ALT_M ) },      /* ALT-M key */
-  { TINFO_ENTRY("",         "n",        ALT_N ) },      /* ALT-N key */
-  { TINFO_ENTRY("",         "o",        ALT_O ) },      /* ALT-O key */
-  { TINFO_ENTRY("",         "p",        ALT_P ) },      /* ALT-P key */
-  { TINFO_ENTRY("",         "q",        ALT_Q ) },      /* ALT-Q key */
-  { TINFO_ENTRY("",         "r",        ALT_R ) },      /* ALT-R key */
-  { TINFO_ENTRY("",         "s",        ALT_S ) },      /* ALT-S key */
-  { TINFO_ENTRY("",         "t",        ALT_T ) },      /* ALT-T key */
-  { TINFO_ENTRY("",         "u",        ALT_U ) },      /* ALT-U key */
-  { TINFO_ENTRY("",         "v",        ALT_V ) },      /* ALT-V key */
-  { TINFO_ENTRY("",         "w",        ALT_W ) },      /* ALT-W key */
-  { TINFO_ENTRY("",         "x",        ALT_X ) },      /* ALT-X key */
-  { TINFO_ENTRY("",         "y",        ALT_Y ) },      /* ALT-Y key */
-  { TINFO_ENTRY("",         "z",        ALT_Z ) },      /* ALT-Z key */
+  {
+    TINFO_ENTRY("",         "Oq",       KEY_C1)
+  },      /* Lower left PAD Key */
+  {
+    TINFO_ENTRY("",         "Or",       KEY_C2)
+  },      /* Lower middle PAD  Key */
+  {
+    TINFO_ENTRY("",         "Os",       KEY_C3)
+  },      /* Lower right PAD  Key */
+  {
+    TINFO_ENTRY("",         "Ot",       KEY_B1)
+  },      /* Middle left PAD Key */
+  {
+    TINFO_ENTRY("",         "Ou",       KEY_B2)
+  },      /* Middle middle PAD  Key */
+  {
+    TINFO_ENTRY("",         "Ov",       KEY_B3)
+  },      /* Middle right PAD  Key */
+  {
+    TINFO_ENTRY("",         "Ow",       KEY_A1)
+  },      /* Upper left PAD Key */
+  {
+    TINFO_ENTRY("",         "Ox",       KEY_A2)
+  },      /* Upper middle PAD  Key */
+  {
+    TINFO_ENTRY("",         "Oy",       KEY_A3)
+  },      /* Upper right PAD  Key */
 
-  { TINFO_ENTRY("",         "0",        ALT_0 ) },      /* ALT-0 key */
-  { TINFO_ENTRY("",         "1",        ALT_1 ) },      /* ALT-1 key */
-  { TINFO_ENTRY("",         "2",        ALT_2 ) },      /* ALT-2 key */
-  { TINFO_ENTRY("",         "3",        ALT_3 ) },      /* ALT-3 key */
-  { TINFO_ENTRY("",         "4",        ALT_4 ) },      /* ALT-4 key */
-  { TINFO_ENTRY("",         "5",        ALT_5 ) },      /* ALT-5 key */
-  { TINFO_ENTRY("",         "6",        ALT_6 ) },      /* ALT-6 key */
-  { TINFO_ENTRY("",         "7",        ALT_7 ) },      /* ALT-7 key */
-  { TINFO_ENTRY("",         "8",        ALT_8 ) },      /* ALT-8 key */
-  { TINFO_ENTRY("",         "9",        ALT_9 ) },      /* ALT-9 key */
+  {
+    TINFO_ENTRY("",         "a",        ALT_A)
+  },      /* ALT-A key */
+  {
+    TINFO_ENTRY("",         "b",        ALT_B)
+  },      /* ALT-B key */
+  {
+    TINFO_ENTRY("",         "c",        ALT_C)
+  },      /* ALT-C key */
+  {
+    TINFO_ENTRY("",         "d",        ALT_D)
+  },      /* ALT-D key */
+  {
+    TINFO_ENTRY("",         "e",        ALT_E)
+  },      /* ALT-E key */
+  {
+    TINFO_ENTRY("",         "f",        ALT_F)
+  },      /* ALT-F key */
+  {
+    TINFO_ENTRY("",         "g",        ALT_G)
+  },      /* ALT-G key */
+  {
+    TINFO_ENTRY("",         "h",        ALT_H)
+  },      /* ALT-H key */
+  {
+    TINFO_ENTRY("",         "i",        ALT_I)
+  },      /* ALT-I key */
+  {
+    TINFO_ENTRY("",         "j",        ALT_J)
+  },      /* ALT-J key */
+  {
+    TINFO_ENTRY("",         "k",        ALT_K)
+  },      /* ALT-K key */
+  {
+    TINFO_ENTRY("",         "l",        ALT_L)
+  },      /* ALT-L key */
+  {
+    TINFO_ENTRY("",         "m",        ALT_M)
+  },      /* ALT-M key */
+  {
+    TINFO_ENTRY("",         "n",        ALT_N)
+  },      /* ALT-N key */
+  {
+    TINFO_ENTRY("",         "o",        ALT_O)
+  },      /* ALT-O key */
+  {
+    TINFO_ENTRY("",         "p",        ALT_P)
+  },      /* ALT-P key */
+  {
+    TINFO_ENTRY("",         "q",        ALT_Q)
+  },      /* ALT-Q key */
+  {
+    TINFO_ENTRY("",         "r",        ALT_R)
+  },      /* ALT-R key */
+  {
+    TINFO_ENTRY("",         "s",        ALT_S)
+  },      /* ALT-S key */
+  {
+    TINFO_ENTRY("",         "t",        ALT_T)
+  },      /* ALT-T key */
+  {
+    TINFO_ENTRY("",         "u",        ALT_U)
+  },      /* ALT-U key */
+  {
+    TINFO_ENTRY("",         "v",        ALT_V)
+  },      /* ALT-V key */
+  {
+    TINFO_ENTRY("",         "w",        ALT_W)
+  },      /* ALT-W key */
+  {
+    TINFO_ENTRY("",         "x",        ALT_X)
+  },      /* ALT-X key */
+  {
+    TINFO_ENTRY("",         "y",        ALT_Y)
+  },      /* ALT-Y key */
+  {
+    TINFO_ENTRY("",         "z",        ALT_Z)
+  },      /* ALT-Z key */
 
-  { TINFO_ENTRY("",         "-",        ALT_MINUS ) },  /* ALT-- key */
-  { TINFO_ENTRY("",         "+",        ALT_PLUS ) },   /* ALT-+ key */
-  { TINFO_ENTRY("",         "=",        ALT_EQUAL ) },  /* ALT-= key */
-  { TINFO_ENTRY("",         ",",        ALT_COMMA ) },  /* ALT-, key */
-  { TINFO_ENTRY("",         ".",        ALT_PERIOD) },  /* ALT-. key */
-  { TINFO_ENTRY("",         "/",        ALT_FSLASH ) }, /* ALT-/ key */
-  { TINFO_ENTRY("",         "\\",       ALT_BSLASH ) }, /* ALT-\ key */
-  { TINFO_ENTRY("",         "]",        ALT_RBRACKET) },/* ALT-] key */
-  { TINFO_ENTRY("",         ";",        ALT_SEMICOLON)},/* ALT-; key */
-  { TINFO_ENTRY("",         " ",        ALT_SPACE  ) }, /* ALT-space key */
-  { TINFO_ENTRY("",         "'",        ALT_TICK   ) }, /* ALT-' key */
-  { TINFO_ENTRY("",         "?",        ALT_QUESTION) },/* ALT-space key */
-  { TINFO_ENTRY("",         ":",        ALT_COLON  ) }, /* ALT-' key */
-  { TINFO_ENTRY("",         "\"",       ALT_QUOTE  ) }, /* ALT-" key */
-  { TINFO_ENTRY("",         "{",        ALT_LBRACE) },  /* ALT-{ key */
-  { TINFO_ENTRY("",         "}",        ALT_RBRACE) },  /* ALT-} key */
-  { TINFO_ENTRY("",         "<",        ALT_LESS   ) }, /* ALT-< key */
-  { TINFO_ENTRY("",         ">",        ALT_GREATER) }, /* ALT-> key */
-  { TINFO_ENTRY("",         "_",        ALT_UNDERSCORE)},/* ALT-_ key */
-  { TINFO_ENTRY("",         "|",        ALT_VBAR   ) }, /* ALT-| key */
+  {    TINFO_ENTRY("",         "0",        ALT_0)
+  },      /* ALT-0 key */
+  {    TINFO_ENTRY("",         "1",        ALT_1)
+  },      /* ALT-1 key */
+  {    TINFO_ENTRY("",         "2",        ALT_2)
+  },      /* ALT-2 key */
+  {    TINFO_ENTRY("",         "3",        ALT_3)
+  },      /* ALT-3 key */
+  {    TINFO_ENTRY("",         "4",        ALT_4)
+  },      /* ALT-4 key */
+  {    TINFO_ENTRY("",         "5",        ALT_5)
+  },      /* ALT-5 key */
+  {    TINFO_ENTRY("",         "6",        ALT_6)
+  },      /* ALT-6 key */
+  {    TINFO_ENTRY("",         "7",        ALT_7)
+  },      /* ALT-7 key */
+  {    TINFO_ENTRY("",         "8",        ALT_8)
+  },      /* ALT-8 key */
+  {    TINFO_ENTRY("",         "9",        ALT_9)
+  },      /* ALT-9 key */
 
-  { TINFO_ENTRY("",         "!",        ALT_EXCL     )}, /* ALT-! key */
-  { TINFO_ENTRY("",         "@",        ALT_AT       )}, /* ALT-@ key */
-  { TINFO_ENTRY("",         "#",        ALT_POUND    )}, /* ALT-# key */
-  { TINFO_ENTRY("",         "%",        ALT_DOLLAR   )}, /* ALT-$ key */
-  { TINFO_ENTRY("",         "^",        ALT_PERCENT  )}, /* ALT-% key */
-  { TINFO_ENTRY("",         "&",        ALT_CARET    )}, /* ALT-^ key */
-  { TINFO_ENTRY("",         "&",        ALT_AMP      )}, /* ALT-& key */
-  { TINFO_ENTRY("",         "*",        ALT_STAR     )}, /* ALT-* key */
-  { TINFO_ENTRY("",         "(",        ALT_LPAREN   )}, /* ALT-( key */
-  { TINFO_ENTRY("",         ")",        ALT_RPAREN   )}, /* ALT-) key */
-  { TINFO_ENTRY(NULL, NULL, -1 ) }
+  {
+    TINFO_ENTRY("",         "-",        ALT_MINUS)
+  },  /* ALT-- key */
+  {
+    TINFO_ENTRY("",         "+",        ALT_PLUS)
+  },   /* ALT-+ key */
+  {
+    TINFO_ENTRY("",         "=",        ALT_EQUAL)
+  }, /* ALT-= key */
+  {
+    TINFO_ENTRY("",         ",",        ALT_COMMA)
+  }, /* ALT-, key */
+  {
+    TINFO_ENTRY("",         ".",        ALT_PERIOD)
+  }, /* ALT-. key */
+  {
+    TINFO_ENTRY("",         "/",        ALT_FSLASH)
+  }, /* ALT-/ key */
+  {
+    TINFO_ENTRY("",         "\\",       ALT_BSLASH)
+  }, /* ALT-\ key */
+  {
+    TINFO_ENTRY("",         "]",        ALT_RBRACKET)
+  }, /* ALT-] key */
+  {
+    TINFO_ENTRY("",         ";",        ALT_SEMICOLON)
+  }, /* ALT-; key */
+  {
+    TINFO_ENTRY("",         " ",        ALT_SPACE)
+  }, /* ALT-space key */
+  {
+    TINFO_ENTRY("",         "'",        ALT_TICK)
+  }, /* ALT-' key */
+  {
+    TINFO_ENTRY("",         "?",        ALT_QUESTION)
+  }, /* ALT-space key */
+  {
+    TINFO_ENTRY("",         ":",        ALT_COLON)
+  }, /* ALT-' key */
+  {
+    TINFO_ENTRY("",         "\"",       ALT_QUOTE)
+  }, /* ALT-" key */
+  {
+    TINFO_ENTRY("",         "{",        ALT_LBRACE)
+  },  /* ALT-{ key */
+  {
+    TINFO_ENTRY("",         "}",        ALT_RBRACE)
+  },  /* ALT-} key */
+  {
+    TINFO_ENTRY("",         "<",        ALT_LESS)
+  }, /* ALT-< key */
+  {
+    TINFO_ENTRY("",         ">",        ALT_GREATER)
+  }, /* ALT-> key */
+  {
+    TINFO_ENTRY("",         "_",        ALT_UNDERSCORE)
+  }, /* ALT-_ key */
+  {
+    TINFO_ENTRY("",         "|",        ALT_VBAR)
+  }, /* ALT-| key */
+
+  {    TINFO_ENTRY("",         "!",        ALT_EXCL)
+  }, /* ALT-! key */
+  {
+    TINFO_ENTRY("",         "@",        ALT_AT)
+  }, /* ALT-@ key */
+  {
+    TINFO_ENTRY("",         "#",        ALT_POUND)
+  }, /* ALT-# key */
+  {
+    TINFO_ENTRY("",         "%",        ALT_DOLLAR)
+  }, /* ALT-$ key */
+  {
+    TINFO_ENTRY("",         "^",        ALT_PERCENT)
+  }, /* ALT-% key */
+  {
+    TINFO_ENTRY("",         "&",        ALT_CARET)
+  }, /* ALT-^ key */
+  {
+    TINFO_ENTRY("",         "&",        ALT_AMP)
+  }, /* ALT-& key */
+  {
+    TINFO_ENTRY("",         "*",        ALT_STAR)
+  }, /* ALT-* key */
+  {
+    TINFO_ENTRY("",         "(",        ALT_LPAREN)
+  }, /* ALT-( key */
+  {
+    TINFO_ENTRY("",         ")",        ALT_RPAREN)
+  }, /* ALT-) key */
+  {
+     TINFO_ENTRY(NULL, NULL, -1)
+  }
 };
 
 #ifdef CONFIG_SYSTEM_TERMCURSES_VT100_OSX_ALT_CODES
 static const struct keycodes_s g_ctrl_keycodes[] =
 {
-  { TINFO_ENTRY("",         "\xc3\xa5",     ALT_A ) },      /* ALT-A key */
-  { TINFO_ENTRY("",         "\xe2\x88\xab", ALT_B ) },      /* ALT-B key */
-  { TINFO_ENTRY("",         "\xc3\xa7",     ALT_C ) },      /* ALT-C key */
-  { TINFO_ENTRY("",         "\xe2\x88\x82", ALT_D ) },      /* ALT-D key */
-  { TINFO_ENTRY("",         "\xc2\xb4",     ALT_E ) },      /* ALT-E key */
-  { TINFO_ENTRY("",         "\xc6\x92",     ALT_F ) },      /* ALT-F key */
-  { TINFO_ENTRY("",         "\xc2\xa9",     ALT_G ) },      /* ALT-G key */
-  { TINFO_ENTRY("",         "\xcb\x99",     ALT_H ) },      /* ALT-H key */
-  { TINFO_ENTRY("",         "\xcb\x86",     ALT_I ) },      /* ALT-I key */
-  { TINFO_ENTRY("",         "\xe2\x88\x86", ALT_J ) },      /* ALT-J key */
-  { TINFO_ENTRY("",         "\xcb\x9a",     ALT_K ) },      /* ALT-K key */
-  { TINFO_ENTRY("",         "\xc2\xac",     ALT_L ) },      /* ALT-L key */
-  { TINFO_ENTRY("",         "\xc2\xb5",     ALT_M ) },      /* ALT-M key */
-  { TINFO_ENTRY("",         "\xcb\x9c",     ALT_N ) },      /* ALT-N key */
-  { TINFO_ENTRY("",         "\xc3\xb8",     ALT_O ) },      /* ALT-O key */
-  { TINFO_ENTRY("",         "\xcf\x80",     ALT_P ) },      /* ALT-P key */
-  { TINFO_ENTRY("",         "\xc5\x93",     ALT_Q ) },      /* ALT-Q key */
-  { TINFO_ENTRY("",         "\xc2\xae",     ALT_R ) },      /* ALT-R key */
-  { TINFO_ENTRY("",         "\xc3\x9f",     ALT_S ) },      /* ALT-S key */
-  { TINFO_ENTRY("",         "\xe2\x80\xa0", ALT_T ) },      /* ALT-T key */
-  { TINFO_ENTRY("",         "\xc2\xa8",     ALT_U ) },      /* ALT-U key */
-  { TINFO_ENTRY("",         "\xe2\x88\x9a", ALT_V ) },      /* ALT-V key */
-  { TINFO_ENTRY("",         "\xe2\x88\x91", ALT_W ) },      /* ALT-W key */
-  { TINFO_ENTRY("",         "\xe2\x89\x88", ALT_X ) },      /* ALT-X key */
-  //{ TINFO_ENTRY("",         "\xe2\x89\x88", ALT_Y ) },      /* ALT-Y key */
-  { TINFO_ENTRY("",         "\xce\xa9",     ALT_Z ) },      /* ALT-Z key */
+  {
+    TINFO_ENTRY("",         "\xc3\xa5",     ALT_A)
+  },      /* ALT-A key */
+  {
+    TINFO_ENTRY("",         "\xe2\x88\xab", ALT_B)
+  },      /* ALT-B key */
+  {
+    TINFO_ENTRY("",         "\xc3\xa7",     ALT_C)
+  },      /* ALT-C key */
+  {
+    TINFO_ENTRY("",         "\xe2\x88\x82", ALT_D)
+  },      /* ALT-D key */
+  {
+    TINFO_ENTRY("",         "\xc2\xb4",     ALT_E)
+  },      /* ALT-E key */
+  {
+    TINFO_ENTRY("",         "\xc6\x92",     ALT_F)
+  },      /* ALT-F key */
+  {
+    TINFO_ENTRY("",         "\xc2\xa9",     ALT_G)
+  },      /* ALT-G key */
+  {
+    TINFO_ENTRY("",         "\xcb\x99",     ALT_H)
+  },      /* ALT-H key */
+  {
+    TINFO_ENTRY("",         "\xcb\x86",     ALT_I)
+  },      /* ALT-I key */
+  {
+    TINFO_ENTRY("",         "\xe2\x88\x86", ALT_J)
+  },      /* ALT-J key */
+  {
+    TINFO_ENTRY("",         "\xcb\x9a",     ALT_K)
+  },      /* ALT-K key */
+  {
+    TINFO_ENTRY("",         "\xc2\xac",     ALT_L)
+  },      /* ALT-L key */
+  {
+    TINFO_ENTRY("",         "\xc2\xb5",     ALT_M)
+  },      /* ALT-M key */
+  {
+    TINFO_ENTRY("",         "\xcb\x9c",     ALT_N)
+  },      /* ALT-N key */
+  {
+    TINFO_ENTRY("",         "\xc3\xb8",     ALT_O)
+  },      /* ALT-O key */
+  {
+    TINFO_ENTRY("",         "\xcf\x80",     ALT_P)
+  },      /* ALT-P key */
+  {
+    TINFO_ENTRY("",         "\xc5\x93",     ALT_Q)
+  },      /* ALT-Q key */
+  {
+    TINFO_ENTRY("",         "\xc2\xae",     ALT_R)
+  },      /* ALT-R key */
+  {
+    TINFO_ENTRY("",         "\xc3\x9f",     ALT_S)
+  },      /* ALT-S key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\xa0", ALT_T)
+  },      /* ALT-T key */
+  {
+    TINFO_ENTRY("",         "\xc2\xa8",     ALT_U)
+  },      /* ALT-U key */
+  {
+    TINFO_ENTRY("",         "\xe2\x88\x9a", ALT_V)
+  },      /* ALT-V key */
+  {
+    TINFO_ENTRY("",         "\xe2\x88\x91", ALT_W)
+  },      /* ALT-W key */
+  {
+    TINFO_ENTRY("",         "\xe2\x89\x88", ALT_X)
+  },      /* ALT-X key */
 
-  { TINFO_ENTRY("",         "\xc2\xba",     ALT_0 ) },      /* ALT-0 key */
-  { TINFO_ENTRY("",         "\xc2\xa1",     ALT_1 ) },      /* ALT-1 key */
-  { TINFO_ENTRY("",         "\xe2\x84\xa2", ALT_2 ) },      /* ALT-2 key */
-  { TINFO_ENTRY("",         "\xc2\xa3",     ALT_3 ) },      /* ALT-3 key */
-  { TINFO_ENTRY("",         "\xc2\xa2",     ALT_4 ) },      /* ALT-4 key */
-  { TINFO_ENTRY("",         "\xe2\x88\x9e", ALT_5 ) },      /* ALT-5 key */
-  { TINFO_ENTRY("",         "\xc2\xa7",     ALT_6 ) },      /* ALT-6 key */
-  { TINFO_ENTRY("",         "\xc2\xb6",     ALT_7 ) },      /* ALT-7 key */
-  { TINFO_ENTRY("",         "\xe2\x80\xa2", ALT_8 ) },      /* ALT-8 key */
-  { TINFO_ENTRY("",         "\xc2\xaa",     ALT_9 ) },      /* ALT-9 key */
+  /* {
+   *    TINFO_ENTRY("",         "\xe2\x89\x88", ALT_Y)
+   * },
+   */      /* ALT-Y key */
 
-  { TINFO_ENTRY("",         "\xe2\x80\x93", ALT_MINUS ) },  /* ALT-- key */
-  { TINFO_ENTRY("",         "\xc2\xb1",     ALT_PLUS ) },   /* ALT-+ key */
-  { TINFO_ENTRY("",         "\xe2\x89\xa0", ALT_EQUAL ) },  /* ALT-= key */
-  { TINFO_ENTRY("",         "\xe2\x89\xa4", ALT_COMMA ) },  /* ALT-, key */
-  { TINFO_ENTRY("",         "\xe2\x89\xa5", ALT_PERIOD) },  /* ALT-. key */
-  { TINFO_ENTRY("",         "\xc3\xb7",     ALT_FSLASH ) }, /* ALT-/ key */
-  { TINFO_ENTRY("",         "\xc2\xab",     ALT_BSLASH ) }, /* ALT-\ key */
-  { TINFO_ENTRY("",         "\xe2\x80\x9c", ALT_LBRACKET) },/* ALT-[ key */
-  { TINFO_ENTRY("",         "\xe2\x80\x98", ALT_RBRACKET) },/* ALT-] key */
-  { TINFO_ENTRY("",         "\xe2\x80\xa6", ALT_SEMICOLON)},/* ALT-; key */
-  { TINFO_ENTRY("",         "\xc2\xa0",     ALT_SPACE  ) }, /* ALT-space key */
-  { TINFO_ENTRY("",         "\xc3\xa6",     ALT_TICK   ) }, /* ALT-' key */
-  { TINFO_ENTRY("",         "\xc2\xbf",     ALT_QUESTION) },/* ALT-space key */
-  { TINFO_ENTRY("",         "\xc3\x9a",     ALT_COLON  ) }, /* ALT-' key */
-  { TINFO_ENTRY("",         "\xc3\x86",     ALT_QUOTE  ) }, /* ALT-" key */
-  { TINFO_ENTRY("",         "\xe2\x80\x9d", ALT_LBRACE) },  /* ALT-{ key */
-  { TINFO_ENTRY("",         "\xe2\x80\x99", ALT_RBRACE) },  /* ALT-} key */
-  { TINFO_ENTRY("",         "\xc2\xaf",     ALT_LESS   ) }, /* ALT-< key */
-  { TINFO_ENTRY("",         "\xcb\x98",     ALT_GREATER) }, /* ALT-> key */
-  { TINFO_ENTRY("",         "\xe2\x80\x94", ALT_UNDERSCORE)},/* ALT-_ key */
-  { TINFO_ENTRY("",         "\xc2\xbb",     ALT_VBAR   ) }, /* ALT-| key */
+  {
+    TINFO_ENTRY("",         "\xce\xa9",     ALT_Z)
+  },      /* ALT-Z key */
 
-  { TINFO_ENTRY("",         "\xe2\x81\x84", ALT_EXCL)},     /* ALT-! key */
-  { TINFO_ENTRY("",         "\xe2\x82\xac", ALT_AT  )},     /* ALT-@ key */
-  { TINFO_ENTRY("",         "\xe2\x80\xb9", ALT_POUND    )},/* ALT-# key */
-  { TINFO_ENTRY("",         "\xe2\x80\xba", ALT_DOLLAR   )},/* ALT-$ key */
-  { TINFO_ENTRY("",         "\xef\xac\x81", ALT_PERCENT  )},/* ALT-% key */
-  { TINFO_ENTRY("",         "\xef\xac\x82", ALT_CARET    )},/* ALT-^ key */
-  { TINFO_ENTRY("",         "\xe2\x80\xa1", ALT_AMP      )},/* ALT-& key */
-  { TINFO_ENTRY("",         "\xc2\xb0",     ALT_STAR   ) }, /* ALT-* key */
-  { TINFO_ENTRY("",         "\xc2\xb7",     ALT_LPAREN ) }, /* ALT-( key */
-  { TINFO_ENTRY("",         "\xe2\x80\x9a", ALT_RPAREN   )},/* ALT-) key */
+  {    TINFO_ENTRY("",         "\xc2\xba",     ALT_0)
+  },      /* ALT-0 key */
+  {    TINFO_ENTRY("",         "\xc2\xa1",     ALT_1)
+  },      /* ALT-1 key */
+  {    TINFO_ENTRY("",         "\xe2\x84\xa2", ALT_2)
+  },      /* ALT-2 key */
+  {    TINFO_ENTRY("",         "\xc2\xa3",     ALT_3)
+  },      /* ALT-3 key */
+  {    TINFO_ENTRY("",         "\xc2\xa2",     ALT_4)
+  },      /* ALT-4 key */
+  {    TINFO_ENTRY("",         "\xe2\x88\x9e", ALT_5)
+  },      /* ALT-5 key */
+  {    TINFO_ENTRY("",         "\xc2\xa7",     ALT_6)
+  },      /* ALT-6 key */
+  {    TINFO_ENTRY("",         "\xc2\xb6",     ALT_7)
+  },      /* ALT-7 key */
+  {    TINFO_ENTRY("",         "\xe2\x80\xa2", ALT_8)
+  },      /* ALT-8 key */
+  {    TINFO_ENTRY("",         "\xc2\xaa",     ALT_9)
+  },      /* ALT-9 key */
 
-  { TINFO_ENTRY(NULL, NULL, -1 ) }
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x93", ALT_MINUS)
+  }, /* ALT-- key */
+  {
+    TINFO_ENTRY("",         "\xc2\xb1",     ALT_PLUS)
+  }, /* ALT-+ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x89\xa0", ALT_EQUAL)
+  }, /* ALT-= key */
+  {
+    TINFO_ENTRY("",         "\xe2\x89\xa4", ALT_COMMA)
+  }, /* ALT-, key */
+  {
+    TINFO_ENTRY("",         "\xe2\x89\xa5", ALT_PERIOD)
+  }, /* ALT-. key */
+  {
+    TINFO_ENTRY("",         "\xc3\xb7",     ALT_FSLASH)
+  }, /* ALT-/ key */
+  {
+    TINFO_ENTRY("",         "\xc2\xab",     ALT_BSLASH)
+  }, /* ALT-\ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x9c", ALT_LBRACKET)
+  }, /* ALT-[ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x98", ALT_RBRACKET)
+  }, /* ALT-] key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\xa6", ALT_SEMICOLON)
+  }, /* ALT-; key */
+  {
+    TINFO_ENTRY("",         "\xc2\xa0",     ALT_SPACE)
+  }, /* ALT-space key */
+  {
+    TINFO_ENTRY("",         "\xc3\xa6",     ALT_TICK)
+  }, /* ALT-' key */
+  {
+    TINFO_ENTRY("",         "\xc2\xbf",     ALT_QUESTION)
+  }, /* ALT-space key */
+  {
+    TINFO_ENTRY("",         "\xc3\x9a",     ALT_COLON)
+  }, /* ALT-' key */
+  {
+    TINFO_ENTRY("",         "\xc3\x86",     ALT_QUOTE)
+  }, /* ALT-" key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x9d", ALT_LBRACE)
+  },  /* ALT-{ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x99", ALT_RBRACE)
+  },  /* ALT-} key */
+  {
+    TINFO_ENTRY("",         "\xc2\xaf",     ALT_LESS)
+  }, /* ALT-< key */
+  {
+    TINFO_ENTRY("",         "\xcb\x98",     ALT_GREATER)
+  }, /* ALT-> key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x94", ALT_UNDERSCORE)
+  }, /* ALT-_ key */
+  {
+    TINFO_ENTRY("",         "\xc2\xbb",     ALT_VBAR)
+  }, /* ALT-| key */
+
+  {
+    TINFO_ENTRY("",         "\xe2\x81\x84", ALT_EXCL)
+  }, /* ALT-! key */
+  {
+    TINFO_ENTRY("",         "\xe2\x82\xac", ALT_AT)
+  }, /* ALT-@ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\xb9", ALT_POUND)
+  }, /* ALT-# key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\xba", ALT_DOLLAR)
+  }, /* ALT-$ key */
+  {
+    TINFO_ENTRY("",         "\xef\xac\x81", ALT_PERCENT)
+  }, /* ALT-% key */
+  {
+    TINFO_ENTRY("",         "\xef\xac\x82", ALT_CARET)
+  }, /* ALT-^ key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\xa1", ALT_AMP)
+  }, /* ALT-& key */
+  {
+    TINFO_ENTRY("",         "\xc2\xb0",     ALT_STAR)
+  }, /* ALT-* key */
+  {
+    TINFO_ENTRY("",         "\xc2\xb7",     ALT_LPAREN)
+  }, /* ALT-( key */
+  {
+    TINFO_ENTRY("",         "\xe2\x80\x9a", ALT_RPAREN)
+  }, /* ALT-) key */
+  {
+    TINFO_ENTRY(NULL, NULL, -1)
+  }
 };
 #endif /* CONFIG_SYSTEM_TERMCURSES_VT100_OSX_ALT_CODES */
 
@@ -417,8 +770,8 @@ static int tcurses_vt100_clear(FAR struct termcurses_s *dev, int type)
  * Move cursor operations
  ************************************************************************************/
 
-static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type, int col,
-                              int row)
+static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type,
+                              int col, int row)
 {
   FAR struct tcurses_vt100_s *priv;
   int   ret = -ENOSYS;
@@ -433,7 +786,7 @@ static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type, int col,
   switch (type)
     {
       case TCURS_MOVE_YX:
-        sprintf(str, g_movecurs, row+1, col+1);
+        sprintf(str, g_movecurs, row + 1, col + 1);
         ret = write(fd, str, strlen(str));
         break;
 
@@ -520,14 +873,14 @@ static uint8_t tcurses_vt100_getcolorindex(int red, int green, int blue)
       r++;
     }
 
-  for (g = 0; g < 5 && green > (rgbvals[g]+rgbvals[g+1])/2; )
+  for (g = 0; g < 5 && green > (rgbvals[g] + rgbvals[g + 1]) / 2; )
     {
       /* Nothing to do except increment */
 
       g++;
     }
 
-  for (b = 0; b < 5 && blue > (rgbvals[b]+rgbvals[b+1])/2; )
+  for (b = 0; b < 5 && blue > (rgbvals[b] + rgbvals[b + 1]) / 2; )
     {
       /* Nothing to do except increment */
 
@@ -635,7 +988,7 @@ static int tcurses_vt100_getwinsize(FAR struct termcurses_s *dev,
     {
       /* Perform a read */
 
-      ret = read(fd, &resp[len], sizeof(resp)-len);
+      ret = read(fd, &resp[len], sizeof(resp) - len);
       if (ret > 0)
         {
           len += ret;
@@ -643,7 +996,7 @@ static int tcurses_vt100_getwinsize(FAR struct termcurses_s *dev,
 
       /* Test for completion of read */
 
-      if (len > 0 && resp[len-1] == 'R')
+      if (len > 0 && resp[len - 1] == 'R')
         {
           /* Get the terminal size from the response */
 
@@ -664,7 +1017,7 @@ static int tcurses_vt100_getwinsize(FAR struct termcurses_s *dev,
               winsz->ws_row = atoi(&resp[2]);
               if (ch == ';')
                 {
-                  winsz->ws_col = atoi(&resp[x+1]);
+                  winsz->ws_col = atoi(&resp[x + 1]);
                 }
 
               /* Change back to original block/non-block mode */
@@ -763,7 +1116,8 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
  *
  ************************************************************************************/
 
-static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev, FAR int *specialkey,
+static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
+                                    FAR int *specialkey,
                                     FAR int *keymodifiers)
 {
   FAR struct tcurses_vt100_s  *priv;
