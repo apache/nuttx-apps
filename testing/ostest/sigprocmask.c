@@ -18,6 +18,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -37,7 +41,14 @@
  * Private Data
  ****************************************************************************/
 
-static int g_some_signals[NSIGNALS] = {1, 3, 5, 7, 9};
+static int g_some_signals[NSIGNALS] =
+{
+  1,
+  3,
+  5,
+  7,
+  9
+};
 
 /****************************************************************************
  * Public Functions
@@ -187,7 +198,7 @@ void sigprocmask_test(void)
       goto errout;
     }
 
-  printf("sigprocmask_test: SUCCESS\n" );
+  printf("sigprocmask_test: SUCCESS\n");
   FFLUSH();
   return;
 
@@ -201,6 +212,6 @@ errout_with_mask:
     }
 
 errout:
-  printf("sigprocmask_test: Aborting\n" );
+  printf("sigprocmask_test: Aborting\n");
   FFLUSH();
 }

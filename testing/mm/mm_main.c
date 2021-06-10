@@ -59,18 +59,18 @@
 
 static const int g_alloc_sizes[NTEST_ALLOCS] =
 {
-   1024,     12,    962,   5692, 10254,   111,   9932,    601,
+    1024,    12,    962,   5692, 10254,   111,   9932,    601,
     222,   2746,      3, 124321,    68,   776,   6750,    852,
-   4732,     28,    901,    480,  5011,  1536,   2011,  81647,
+    4732,    28,    901,    480,  5011,  1536,   2011,  81647,
     646,   1646,  69179,    194,  2590,     7,    969,     70
 };
 
 static const int g_realloc_sizes[NTEST_ALLOCS] =
 {
-     18,   3088,    963,    123,   511, 11666,   3723,     42,
-   9374,   1990,   1412,      6,   592,  4088,     11,   5040,
-   8663,  91255,     28,   4346,  9172,   168,    229,   4734,
-  59139,    221,   7830,  30421,  1666,     4,    812,    416
+    18,     3088,    963,    123,   511, 11666,   3723,     42,
+    9374,   1990,   1412,      6,   592,  4088,     11,   5040,
+    8663,  91255,     28,   4346,  9172,   168,    229,   4734,
+    59139,   221,   7830,  30421,  1666,     4,    812,    416
 };
 
 static const int g_random1[NTEST_ALLOCS] =
@@ -151,7 +151,8 @@ static void do_mallocs(FAR void **mem, FAR const int *size,
 
               if (allocsize > g_alloc_info.mxordblk)
                 {
-                  fprintf(stderr, "   Normal, largest free block is only %lu\n",
+                  fprintf(stderr,
+                          "   Normal, largest free block is only %lu\n",
                           (unsigned long)g_alloc_info.mxordblk);
                 }
               else
@@ -190,7 +191,8 @@ static void do_reallocs(FAR void **mem, FAR const int *oldsize,
         {
           int allocsize = MM_ALIGN_UP(newsize[j] + SIZEOF_MM_ALLOCNODE);
 
-          fprintf(stderr, "(%d)realloc failed for allocsize=%d\n", i, allocsize);
+          fprintf(stderr,
+                  "(%d)realloc failed for allocsize=%d\n", i, allocsize);
           if (allocsize > g_alloc_info.mxordblk)
             {
               fprintf(stderr, "   Normal, largest free block is only %lu\n",
@@ -212,7 +214,9 @@ static void do_reallocs(FAR void **mem, FAR const int *oldsize,
     }
 }
 
-static void do_memaligns(FAR void **mem, FAR const int *size, FAR const int *align,
+static void do_memaligns(FAR void **mem,
+                         FAR const int *size,
+                         FAR const int *align,
                          FAR const int *seq, int n)
 {
   int i;
@@ -229,9 +233,11 @@ static void do_memaligns(FAR void **mem, FAR const int *size, FAR const int *ali
 
       if (mem[j] == NULL)
         {
-          int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE) + 2*align[i];
+          int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE) +
+                                      2 * align[i];
 
-          fprintf(stderr, "(%d)memalign failed for allocsize=%d\n", i, allocsize);
+          fprintf(stderr,
+                  "(%d)memalign failed for allocsize=%d\n", i, allocsize);
           if (allocsize > g_alloc_info.mxordblk)
             {
               fprintf(stderr, "   Normal, largest free block is only %lu\n",
@@ -291,7 +297,8 @@ int main(int argc, FAR char *argv[])
 
   /* Re-allocate the memory */
 
-  do_reallocs(g_allocs, g_alloc_sizes, g_realloc_sizes, g_random2, NTEST_ALLOCS);
+  do_reallocs(g_allocs, g_alloc_sizes,
+              g_realloc_sizes, g_random2, NTEST_ALLOCS);
 
   /* Release the memory */
 
@@ -299,8 +306,10 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate aligned memory */
 
-  do_memaligns(g_allocs, g_alloc_sizes, g_alignment, g_random2, NTEST_ALLOCS / 2);
-  do_memaligns(g_allocs, g_alloc_sizes, g_alignment, &g_random2[NTEST_ALLOCS / 2],
+  do_memaligns(g_allocs, g_alloc_sizes,
+               g_alignment, g_random2, NTEST_ALLOCS / 2);
+  do_memaligns(g_allocs, g_alloc_sizes,
+               g_alignment, &g_random2[NTEST_ALLOCS / 2],
                NTEST_ALLOCS / 2);
 
   /* Release aligned memory */

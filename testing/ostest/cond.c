@@ -18,16 +18,29 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "ostest.h"
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 #ifndef NULL
 # define NULL (void*)0
 #endif
 
-static volatile enum { RUNNING, MUTEX_WAIT, COND_WAIT} waiter_state;
+static volatile enum
+{
+  RUNNING,
+  MUTEX_WAIT,
+  COND_WAIT
+} waiter_state;
 
 static pthread_mutex_t mutex;
 static pthread_cond_t  cond;
@@ -40,13 +53,17 @@ static int signaler_already = 0;
 static int signaler_state = 0;
 static int signaler_nerrors = 0;
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 static void *thread_waiter(void *parameter)
 {
   int status;
 
   printf("waiter_thread: Started\n");
 
-  for (;;)
+  for (; ; )
     {
       /* Take the mutex */
 
@@ -56,7 +73,8 @@ static void *thread_waiter(void *parameter)
 
       if (status != 0)
         {
-          printf("waiter_thread: ERROR pthread_mutex_lock failed, status=%d\n", status);
+          printf("waiter_thread: "
+                 "ERROR pthread_mutex_lock failed, status=%d\n", status);
           waiter_nerrors++;
         }
 
@@ -66,24 +84,27 @@ static void *thread_waiter(void *parameter)
 
       if (!data_available)
         {
-           /* We are higher priority than the signaler thread so the
-            * only time that the signaler thread will have a chance to run is when
-            * we are waiting for the condition variable.  In this case, pthread_cond_wait
-            * will automatically release the mutex for the signaler (then re-acquire
-            * the mutex before returning.
-            */
+          /* We are higher priority than the signaler thread so the
+           * only time that the signaler thread will have a chance to run
+           * is when we are waiting for the condition variable.
+           * In this case, pthread_cond_wait will automatically release
+           * the mutex for the signaler (then re-acquire the mutex before
+           * returning.
+           */
 
-           waiter_state = COND_WAIT;
-           status       = pthread_cond_wait(&cond, &mutex);
-           waiter_state = RUNNING;
+          waiter_state = COND_WAIT;
+          status       = pthread_cond_wait(&cond, &mutex);
+          waiter_state = RUNNING;
 
-           if (status != 0)
-             {
-               printf("waiter_thread: ERROR pthread_cond_wait failed, status=%d\n", status);
-               waiter_nerrors++;
-             }
+          if (status != 0)
+            {
+              printf("waiter_thread: "
+                     "ERROR pthread_cond_wait failed, status=%d\n",
+                     status);
+              waiter_nerrors++;
+            }
 
-           waiter_waits++;
+          waiter_waits++;
         }
 
       /* Now data should be available */
@@ -103,7 +124,8 @@ static void *thread_waiter(void *parameter)
       status = pthread_mutex_unlock(&mutex);
       if (status != 0)
         {
-          printf("waiter_thread: ERROR waiter: pthread_mutex_unlock failed, status=%d\n", status);
+          printf("waiter_thread: ERROR waiter: "
+                 "pthread_mutex_unlock failed, status=%d\n", status);
           waiter_nerrors++;
         }
 
@@ -129,7 +151,8 @@ static void *thread_signaler(void *parameter)
       status = pthread_mutex_lock(&mutex);
       if (status != 0)
         {
-          printf("thread_signaler: ERROR pthread_mutex_lock failed, status=%d\n", status);
+          printf("thread_signaler: "
+                 "ERROR pthread_mutex_lock failed, status=%d\n", status);
           signaler_nerrors++;
         }
 
@@ -137,13 +160,16 @@ static void *thread_signaler(void *parameter)
 
       if (waiter_state != COND_WAIT)
         {
-          printf("thread_signaler: ERROR waiter state = %d != COND_WAITING\n", waiter_state);
+          printf("thread_signaler: "
+                 "ERROR waiter state = %d != COND_WAITING\n", waiter_state);
           signaler_state++;
         }
 
       if (data_available)
         {
-          printf("thread_signaler: ERROR data already available, waiter_state=%d\n", waiter_state);
+          printf("thread_signaler: "
+                 "ERROR data already available, waiter_state=%d\n",
+                  waiter_state);
           signaler_already++;
         }
 
@@ -153,16 +179,18 @@ static void *thread_signaler(void *parameter)
       status = pthread_cond_signal(&cond);
       if (status != 0)
         {
-          printf("thread_signaler: ERROR pthread_cond_signal failed, status=%d\n", status);
+          printf("thread_signaler: "
+                 "ERROR pthread_cond_signal failed, status=%d\n", status);
           signaler_nerrors++;
         }
 
-     /* Release the mutex */
+      /* Release the mutex */
 
       status = pthread_mutex_unlock(&mutex);
       if (status != 0)
         {
-          printf("thread_signaler: ERROR pthread_mutex_unlock failed, status=%d\n", status);
+          printf("thread_signaler: "
+                 "ERROR pthread_mutex_unlock failed, status=%d\n", status);
           signaler_nerrors++;
         }
 
@@ -207,7 +235,8 @@ void cond_test(void)
   status = pthread_mutex_init(&mutex, NULL);
   if (status != 0)
     {
-      printf("cond_test: ERROR pthread_mutex_init failed, status=%d\n", status);
+      printf("cond_test: "
+             "ERROR pthread_mutex_init failed, status=%d\n", status);
     }
 
   /* Initialize the condition variable */
@@ -216,7 +245,8 @@ void cond_test(void)
   status = pthread_cond_init(&cond, NULL);
   if (status != 0)
     {
-      printf("cond_test: ERROR pthread_condinit failed, status=%d\n", status);
+      printf("cond_test: "
+             "ERROR pthread_condinit failed, status=%d\n", status);
     }
 
   /* Start the waiter thread at higher priority */
@@ -233,14 +263,16 @@ void cond_test(void)
   prio_mid = (prio_min + prio_max) / 2;
 
   sparam.sched_priority = prio_mid;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("cond_test: pthread_attr_setschedparam failed, status=%d\n", status);
+      printf("cond_test: "
+             "pthread_attr_setschedparam failed, status=%d\n", status);
     }
   else
     {
-      printf("cond_test: Set thread 1 priority to %d\n", sparam.sched_priority);
+      printf("cond_test: Set thread 1 priority to %d\n",
+              sparam.sched_priority);
     }
 
   status = pthread_create(&waiter, &attr, thread_waiter, NULL);
@@ -257,14 +289,16 @@ void cond_test(void)
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("cond_test: pthread_attr_setschedparam failed, status=%d\n", status);
+      printf("cond_test: pthread_attr_setschedparam failed, status=%d\n",
+              status);
     }
   else
     {
-      printf("cond_test: Set thread 2 priority to %d\n", sparam.sched_priority);
+      printf("cond_test: Set thread 2 priority to %d\n",
+              sparam.sched_priority);
     }
 
   status = pthread_create(&signaler, &attr, thread_signaler, NULL);
@@ -290,8 +324,10 @@ void cond_test(void)
   printf("cond_test:\n");
   printf("cond_test: %d times, waiter did not have to wait for data\n",
           waiter_nloops - waiter_waits);
-  printf("cond_test: %d times, data was already available when the signaler run\n",
+  printf("cond_test: %d times, "
+         "data was already available when the signaler run\n",
           signaler_already);
-  printf("cond_test: %d times, the waiter was in an unexpected state when the signaler ran\n",
+  printf("cond_test: %d times, "
+         "the waiter was in an unexpected state when the signaler ran\n",
          signaler_state);
 }
