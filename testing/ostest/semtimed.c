@@ -77,7 +77,8 @@ static void ostest_gettime(struct timespec *tp)
     {
       printf("ostest_gettime: ERROR: clock_gettime failed\n");
     }
-  else if (tp->tv_sec < 0 || tp->tv_nsec < 0 || tp->tv_nsec >= 1000*1000*1000)
+  else if (tp->tv_sec < 0 || tp->tv_nsec < 0 ||
+           tp->tv_nsec >= 1000 * 1000 * 1000)
     {
       printf("ostest_gettime: ERROR: clock_gettime returned bogus time\n");
     }
@@ -111,7 +112,9 @@ void semtimed_test(void)
       printf("semtimed_test: ERROR: sem_init failed\n");
     }
 
-  /* First, make sure that the timeout expires if the semaphore is never posted */
+  /* First,
+   * make sure that the timeout expires if the semaphore is never posted
+   */
 
   ostest_gettime(&before);
 
@@ -136,7 +139,8 @@ void semtimed_test(void)
         }
       else
         {
-          printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n", errcode);
+          printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n",
+                  errcode);
         }
     }
 
@@ -145,14 +149,18 @@ void semtimed_test(void)
   printf("AFTER:  (%lu sec, %lu nsec)\n",
           (unsigned long)after.tv_sec, (unsigned long)after.tv_nsec);
 
-  /* Now make sure that the time wait returns successfully if the semaphore is posted */
+  /* Now make sure that the time wait returns successfully if the semaphore
+   * is posted
+   */
+
   /* Start a poster thread.  It will wait 1 seconds and post the semaphore */
 
   printf("semtimed_test: Starting poster thread\n");
   status = pthread_attr_init(&attr);
   if (status != OK)
     {
-      printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
+      printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",
+              status);
     }
 
   prio_min = sched_get_priority_min(SCHED_FIFO);
@@ -160,38 +168,44 @@ void semtimed_test(void)
   prio_mid = (prio_min + prio_max) / 2;
 
   sparam.sched_priority = (prio_mid + prio_max) / 2;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("semtimed_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("semtimed_test: ERROR: "
+             "pthread_attr_setschedparam failed, status=%d\n",  status);
     }
   else
     {
-      printf("semtimed_test: Set thread 1 priority to %d\n",  sparam.sched_priority);
+      printf("semtimed_test: Set thread 1 priority to %d\n",
+              sparam.sched_priority);
     }
 
   printf("semtimed_test: Starting poster thread 3\n");
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
+      printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",
+              status);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("semtimed_test: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("semtimed_test: pthread_attr_setschedparam failed, status=%d\n",
+              status);
     }
   else
     {
-      printf("semtimed_test: Set thread 3 priority to %d\n",  sparam.sched_priority);
+      printf("semtimed_test: Set thread 3 priority to %d\n",
+              sparam.sched_priority);
     }
 
   status = pthread_create(&poster_thread, &attr, poster_func, NULL);
   if (status != 0)
     {
-      printf("semtimed_test: ERROR: Poster thread creation failed: %d\n",  status);
+      printf("semtimed_test: ERROR: Poster thread creation failed: %d\n",
+              status);
       sem_destroy(&sem);
       return;
     }
@@ -211,7 +225,8 @@ void semtimed_test(void)
 
   if (status < 0)
     {
-      printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n", errcode);
+      printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n",
+              errcode);
     }
   else
     {

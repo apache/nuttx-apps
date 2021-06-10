@@ -58,7 +58,8 @@ static int waitpid_main(int argc, char *argv[])
 
   printf("waitpid_main: PID %d Started\n", me);
   sleep(3);
-  printf("waitpid_main: PID %d exitting with result=%d\n", me, RETURN_STATUS);
+  printf("waitpid_main: PID %d exitting with result=%d\n",
+          me, RETURN_STATUS);
   return RETURN_STATUS;
 }
 
@@ -72,11 +73,13 @@ static void waitpid_start_children(void)
       ret = task_create("waitpid", PRIORITY, STACKSIZE, waitpid_main, NULL);
       if (ret < 0)
         {
-          printf("waitpid_start_child: ERROR Failed to start waitpid_main\n");
+          printf("waitpid_start_child: "
+                 "ERROR Failed to start waitpid_main\n");
         }
       else
         {
-          printf("waitpid_start_child: Started waitpid_main at PID=%d\n", ret);
+          printf("waitpid_start_child: "
+                 "Started waitpid_main at PID=%d\n", ret);
         }
 
       g_waitpids[i] = ret;
@@ -92,7 +95,7 @@ static void waitpid_last(void)
 
   /* Find the last child thread that was started successfully */
 
-  for (i = NCHILDREN-1; i > 0; i--)
+  for (i = NCHILDREN - 1; i > 0; i--)
     {
       if (g_waitpids[i] >= 0)
         {
@@ -110,39 +113,46 @@ static void waitpid_last(void)
     }
 
   printf("waitpid_last: Waiting for PID=%d with waitpid()\n",
-         g_waitpids[NCHILDREN-1]);
+         g_waitpids[NCHILDREN - 1]);
 
-  ret = (int)waitpid(g_waitpids[NCHILDREN-1], &stat_loc, 0);
+  ret = (int)waitpid(g_waitpids[NCHILDREN - 1], &stat_loc, 0);
   if (ret < 0)
     {
       int errcode = errno;
 
-      /* Unfortunately, this main thread does not retain child status.  If
-       * child status is enabled (via CONFIG_SCHED_CHILD_STATUS), ostest_main()
-       * disables the feature by calling sigactin with SA_NOCLDWAIT.
+      /* Unfortunately, this main thread does not retain child status.
+       * If child status is enabled (via CONFIG_SCHED_CHILD_STATUS),
+       * ostest_main() disables the feature by calling sigactin with
+       * SA_NOCLDWAIT.
        */
 
       if (errcode == ECHILD)
         {
-          printf("waitpid_last: PASS: PID %d waitpid failed with ECHILD.  That may be\n",
-                 g_waitpids[NCHILDREN-1]);
-          printf("              acceptable because child status is disabled on this thread.\n");
+          printf("waitpid_last: PASS: "
+                 "PID %d waitpid failed with ECHILD.  That may be\n",
+                 g_waitpids[NCHILDREN - 1]);
+          printf("              acceptable "
+                 "because child status is disabled on this thread.\n");
         }
       else
         {
           printf("waitpid_last: ERROR: PID %d waitpid failed: %d\n",
-                 g_waitpids[NCHILDREN-1], errcode);
+                 g_waitpids[NCHILDREN - 1], errcode);
         }
     }
   else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
-      printf("waitpid_last: ERROR: PID %d return status is %d, expected %d\n",
-             g_waitpids[NCHILDREN-1], WEXITSTATUS(stat_loc), RETURN_STATUS);
+      printf("waitpid_last: ERROR: "
+             "PID %d return status is %d, expected %d\n",
+             g_waitpids[NCHILDREN - 1],
+             WEXITSTATUS(stat_loc),
+             RETURN_STATUS);
     }
   else
     {
-      printf("waitpid_last: PASS: PID %d waitpid succeeded with stat_loc=%04x\n",
-             g_waitpids[NCHILDREN-1], stat_loc);
+      printf("waitpid_last: PASS: "
+             "PID %d waitpid succeeded with stat_loc=%04x\n",
+             g_waitpids[NCHILDREN - 1], stat_loc);
     }
 }
 
@@ -163,22 +173,26 @@ int waitpid_test(void)
   printf("\nTest waitpid()\n");
   waitpid_start_children();
 
-  printf("waitpid_test: Waiting for PID=%d with waitpid()\n", g_waitpids[0]);
+  printf("waitpid_test: Waiting for PID=%d with waitpid()\n",
+          g_waitpids[0]);
   ret = (int)waitpid(g_waitpids[0], &stat_loc, 0);
   if (ret < 0)
     {
       int errcode = errno;
 
-      /* Unfortunately, this main thread does not retain child status.  If
-       * child status is enabled (via CONFIG_SCHED_CHILD_STATUS), ostest_main()
-       * disables the feature by calling sigactin with SA_NOCLDWAIT.
+      /* Unfortunately, this main thread does not retain child status.
+       * If child status is enabled (via CONFIG_SCHED_CHILD_STATUS),
+       * ostest_main() disables the feature by calling sigactin with
+       * SA_NOCLDWAIT.
        */
 
       if (errcode == ECHILD)
         {
-          printf("waitpid_test: PASS: PID %d waitpid failed with ECHILD.  That may be\n",
-                 g_waitpids[NCHILDREN-1]);
-          printf("              acceptable because child status is disabled on this thread.\n");
+          printf("waitpid_test: PASS: "
+                 "PID %d waitpid failed with ECHILD.  That may be\n",
+                 g_waitpids[NCHILDREN - 1]);
+          printf("              acceptable "
+                 "because child status is disabled on this thread.\n");
         }
       else
         {
@@ -193,12 +207,14 @@ int waitpid_test(void)
     }
   else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
-      printf("waitpid_test: ERROR: PID %d return status is %d, expected %d\n",
+      printf("waitpid_test: ERROR: "
+             "PID %d return status is %d, expected %d\n",
              g_waitpids[0], WEXITSTATUS(stat_loc), RETURN_STATUS);
     }
   else
     {
-      printf("waitpid_test: PID %d waitpid succeeded with stat_loc=%04x\n",
+      printf("waitpid_test: "
+             "PID %d waitpid succeeded with stat_loc=%04x\n",
              g_waitpids[0], stat_loc);
     }
 
@@ -219,16 +235,19 @@ int waitpid_test(void)
     {
       int errcode = errno;
 
-      /* Unfortunately, this main thread does not retain child status.  If
-       * child status is enabled (via CONFIG_SCHED_CHILD_STATUS), ostest_main()
-       * disables the feature by calling sigactin with SA_NOCLDWAIT.
+      /* Unfortunately, this main thread does not retain child status.
+       * If child status is enabled (via CONFIG_SCHED_CHILD_STATUS),
+       * ostest_main() disables the feature by calling sigactin with
+       * SA_NOCLDWAIT.
        */
 
       if (errcode == ECHILD)
         {
-          printf("waitpid_test: PASS: PID %d waitpid failed with ECHILD.  That may be\n",
-                 g_waitpids[NCHILDREN-1]);
-          printf("              acceptable because child status is disabled on this thread.\n");
+          printf("waitpid_test: PASS: "
+                 "PID %d waitpid failed with ECHILD.  That may be\n",
+                 g_waitpids[NCHILDREN - 1]);
+          printf("              acceptable "
+                 "because child status is disabled on this thread.\n");
         }
       else
         {
@@ -243,7 +262,8 @@ int waitpid_test(void)
     }
   else if (info.si_status != RETURN_STATUS)
     {
-      printf("waitpid_test: ERROR: PID %d return status is %d, expected %d\n",
+      printf("waitpid_test: ERROR: "
+             "PID %d return status is %d, expected %d\n",
              info.si_pid, info.si_status, RETURN_STATUS);
     }
   else
@@ -268,16 +288,19 @@ int waitpid_test(void)
     {
       int errcode = errno;
 
-      /* Unfortunately, this main thread does not retain child status.  If
-       * child status is enabled (via CONFIG_SCHED_CHILD_STATUS), ostest_main()
-       * disables the feature by calling sigactin with SA_NOCLDWAIT.
+      /* Unfortunately, this main thread does not retain child status.
+       * If child status is enabled (via CONFIG_SCHED_CHILD_STATUS),
+       * ostest_main() disables the feature by calling sigactin with
+       * SA_NOCLDWAIT.
        */
 
       if (errcode == ECHILD)
         {
-          printf("waitpid_test: PASS: PID %d waitpid failed with ECHILD.  That may be\n",
-                 g_waitpids[NCHILDREN-1]);
-          printf("              acceptable because child status is disabled on this thread.\n");
+          printf("waitpid_test: PASS: "
+                 "PID %d waitpid failed with ECHILD.  That may be\n",
+                 g_waitpids[NCHILDREN - 1]);
+          printf("              acceptable "
+                 "because child status is disabled on this thread.\n");
         }
       else
         {
@@ -286,7 +309,8 @@ int waitpid_test(void)
     }
   else if (info.si_status != RETURN_STATUS)
     {
-      printf("waitpid_test: ERROR: PID %d return status is %d, expected %d\n",
+      printf("waitpid_test: ERROR: "
+             "PID %d return status is %d, expected %d\n",
              info.si_pid, info.si_status, RETURN_STATUS);
     }
   else
@@ -311,16 +335,19 @@ int waitpid_test(void)
     {
       int errcode = errno;
 
-      /* Unfortunately, this main thread does not retain child status.  If
-       * child status is enabled (via CONFIG_SCHED_CHILD_STATUS), ostest_main()
-       * disables the feature by calling sigactin with SA_NOCLDWAIT.
+      /* Unfortunately, this main thread does not retain child status.
+       * If child status is enabled (via CONFIG_SCHED_CHILD_STATUS),
+       * ostest_main() disables the feature by calling sigactin with
+       * SA_NOCLDWAIT.
        */
 
       if (errcode == ECHILD)
         {
-          printf("waitpid_test: PASS: PID %d waitpid failed with ECHILD.  That may be\n",
-                 g_waitpids[NCHILDREN-1]);
-          printf("              acceptable because child status is disabled on this thread.\n");
+          printf("waitpid_test: PASS: "
+                 "PID %d waitpid failed with ECHILD.  That may be\n",
+                 g_waitpids[NCHILDREN - 1]);
+          printf("              acceptable "
+                 "because child status is disabled on this thread.\n");
         }
       else
         {
@@ -329,7 +356,8 @@ int waitpid_test(void)
     }
   else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
-      printf("waitpid_test: ERROR: PID %d return status is %d, expected %d\n",
+      printf("waitpid_test: ERROR: "
+             "PID %d return status is %d, expected %d\n",
              ret, WEXITSTATUS(stat_loc), RETURN_STATUS);
     }
   else

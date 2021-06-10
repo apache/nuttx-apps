@@ -45,7 +45,7 @@
  * Private Data
  ****************************************************************************/
 
-static char * const g_argv[NARGS+1] =
+static char * const g_argv[NARGS + 1] =
 {
   "This is argument 1",
   "Argument 2 here",
@@ -78,16 +78,17 @@ static int restart_main(int argc, char *argv[])
   if (argc != NARGS + 1)
     {
       printf("restart_main: ERROR: Expected argc=%d got argc=%d\n",
-             NARGS+1, argc);
+             NARGS + 1, argc);
     }
 
   for (i = 0; i <= NARGS; i++)
     {
       printf("restart_main: argv[%d]=\"%s\"\n", i, argv[i]);
-      if (i > 0 && strcmp(argv[i], g_argv[i-1]) != 0)
+      if (i > 0 && strcmp(argv[i], g_argv[i - 1]) != 0)
         {
-          printf("restart_main: ERROR: Expected argv[%d]=\"%s\" got \"%s\"\n",
-                 i, argv[i], g_argv[i-1]);
+          printf("restart_main: ERROR: "
+                 "Expected argv[%d]=\"%s\" got \"%s\"\n",
+                 i, argv[i], g_argv[i - 1]);
         }
     }
 
@@ -102,8 +103,10 @@ static int restart_main(int argc, char *argv[])
         }
       else
         {
-          printf("restart_main: ERROR Variable=%s has the wrong value\n", g_varname);
-          printf("restart_main:       found=%s expected=%s\n", actual, g_varvalue);
+          printf("restart_main: ERROR Variable=%s has the wrong value\n",
+                 g_varname);
+          printf("restart_main:       found=%s expected=%s\n",
+                 actual, g_varvalue);
         }
     }
   else
@@ -122,7 +125,7 @@ static int restart_main(int argc, char *argv[])
 
       /* Now just wait to be restarted */
 
-      for (;;)
+      for (; ; )
         {
           sleep(2);
           printf("restart_main: I am still here\n");

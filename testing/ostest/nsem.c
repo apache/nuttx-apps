@@ -73,7 +73,7 @@ static FAR void *nsem_peer(void *parameter)
   /* Open semaphore 2.  We will create that one */
 
   printf("nsem_peer: Create semaphore 2 with value == 0\n");
-  sem2 = sem_open(SEM2_NAME, O_CREAT|O_EXCL, 0644, 0);
+  sem2 = sem_open(SEM2_NAME, O_CREAT | O_EXCL, 0644, 0);
   if (sem1 == SEM_FAILED)
     {
       int errcode = errno;
@@ -118,7 +118,7 @@ void nsem_test(void)
   /* Open semaphore 2.  We will create that one */
 
   printf("nsem_test: Create semaphore 1 with value == 0\n");
-  sem1 = sem_open(SEM1_NAME, O_CREAT|O_EXCL, 0644, 0);
+  sem1 = sem_open(SEM1_NAME, O_CREAT | O_EXCL, 0644, 0);
   if (sem1 == SEM_FAILED)
     {
       int errcode = errno;
@@ -140,10 +140,12 @@ void nsem_test(void)
   prio_mid = (prio_min + prio_max) / 2;
 
   sparam.sched_priority = (prio_mid + prio_max) / 2;
-  status = pthread_attr_setschedparam(&attr,&sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("nsem_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("nsem_test: "
+             "ERROR: pthread_attr_setschedparam failed, status=%d\n",
+              status);
     }
   else
     {
