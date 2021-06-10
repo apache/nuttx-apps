@@ -53,7 +53,8 @@ int sixlowpan_rxenable_req(int sock, FAR const char *ifname,
   if (ret < 0)
     {
       ret = -errno;
-      fprintf(stderr, "MAC802154IOC_MLME_RXENABLE_REQUEST failed: %d\n", ret);
+      fprintf(stderr,
+              "MAC802154IOC_MLME_RXENABLE_REQUEST failed: %d\n", ret);
     }
 
   return ret;

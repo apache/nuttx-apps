@@ -42,7 +42,8 @@ int ieee802154_start_req(int fd, FAR struct ieee802154_start_req_s *req)
 {
   int ret;
 
-  ret = ioctl(fd, MAC802154IOC_MLME_START_REQUEST, (unsigned long)((uintptr_t)req));
+  ret = ioctl(fd, MAC802154IOC_MLME_START_REQUEST,
+             (unsigned long)((uintptr_t)req));
   if (ret < 0)
     {
       ret = -errno;

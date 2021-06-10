@@ -38,15 +38,18 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_rxenable_req(int fd, FAR struct ieee802154_rxenable_req_s *req)
+int ieee802154_rxenable_req(int fd,
+                            FAR struct ieee802154_rxenable_req_s *req)
 {
   int ret;
 
-  ret = ioctl(fd, MAC802154IOC_MLME_RXENABLE_REQUEST, (unsigned long)((uintptr_t)req));
+  ret = ioctl(fd, MAC802154IOC_MLME_RXENABLE_REQUEST,
+             (unsigned long)((uintptr_t)req));
   if (ret < 0)
     {
       ret = -errno;
-      fprintf(stderr, "MAC802154IOC_MLME_RXENABLE_REQUEST failed: %d\n", ret);
+      fprintf(stderr,
+              "MAC802154IOC_MLME_RXENABLE_REQUEST failed: %d\n", ret);
     }
 
   return ret;
