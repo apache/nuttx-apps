@@ -57,7 +57,7 @@ struct iperf_ctrl_t
 {
   struct iperf_cfg_t cfg;
   bool finish;
-  uint32_t total_len;
+  uintmax_t total_len;
   uint32_t buffer_len;
   uint8_t *buffer;
   uint32_t sockfd;
@@ -190,6 +190,32 @@ static int iperf_show_socket_error_reason(const char *str, int sockfd)
 }
 
 /****************************************************************************
+ * Name: ts_sec
+ *
+ * Description:
+ *    Convert a timespec to a double.
+ *
+ ****************************************************************************/
+
+static double ts_sec(const struct timespec *ts)
+{
+  return (double)ts->tv_sec + (double)ts->tv_nsec / 1e9;
+}
+
+/****************************************************************************
+ * Name: ts_diff
+ *
+ * Description:
+ *   Return the diff of two timespecs in second.
+ *
+ ****************************************************************************/
+
+static double ts_diff(const struct timespec *a, const struct timespec *b)
+{
+  return ts_sec(a) - ts_sec(b);
+}
+
+/****************************************************************************
  * Name: iperf_report_task
  *
  * Description:
@@ -201,29 +227,55 @@ static void iperf_report_task(void *arg)
 {
   uint32_t interval = s_iperf_ctrl.cfg.interval;
   uint32_t time = s_iperf_ctrl.cfg.time;
-  uint32_t last_len = 0;
-  uint32_t cur = 0;
+  struct timespec now;
+  struct timespec start;
+  uintmax_t now_len;
+  int ret;
 
+  now_len = s_iperf_ctrl.total_len;
+  ret = clock_gettime(CLOCK_MONOTONIC, &now);
+  if (ret != 0)
+    {
+      fprintf(stderr, "clock_gettime failed\n");
+      exit(EXIT_FAILURE);
+    }
+
+  start = now;
   printf("\n%16s %s\n", "Interval", "Bandwidth\n");
   while (!s_iperf_ctrl.finish)
     {
+      uintmax_t last_len;
+      struct timespec last;
+
       sleep(interval);
-      printf("%4" PRId32 "-%4" PRId32 " sec,  %.2f Mbits/sec\n",
-             cur, cur + interval,
-             (double)((s_iperf_ctrl.total_len - last_len) * 8) /
-             interval / 1e6);
-      cur += interval;
-      last_len = s_iperf_ctrl.total_len;
-      if (cur >= time)
+      last_len = now_len;
+      last = now;
+      now_len = s_iperf_ctrl.total_len;
+      ret = clock_gettime(CLOCK_MONOTONIC, &now);
+      if (ret != 0)
+        {
+          fprintf(stderr, "clock_gettime failed\n");
+          exit(EXIT_FAILURE);
+        }
+
+      printf("%4.2lf-%4.2lf sec,  %.2f Mbits/sec\n",
+             ts_diff(&last, &start),
+             ts_diff(&now, &start),
+             (((double)(now_len - last_len) * 8) /
+             ts_diff(&now, &last) / 1e6));
+      if (ts_diff(&now, &start) >= time)
         {
           break;
         }
     }
 
-  if (cur != 0)
+  if (ts_diff(&now, &start) > 0)
     {
-      printf("%4d-%4" PRId32 " sec,  %.2f Mbits/sec\n", 0, time,
-            (double)(s_iperf_ctrl.total_len * 8) / cur / 1e6);
+      printf("%4.2lf-%4.2lf sec,  %.2f Mbits/sec\n",
+             ts_diff(&start, &start),
+             ts_diff(&now, &start),
+             (((double)now_len * 8) /
+             ts_diff(&now, &start) / 1e6));
     }
 
   s_iperf_ctrl.finish = true;
