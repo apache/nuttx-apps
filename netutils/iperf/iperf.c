@@ -241,7 +241,7 @@ static void iperf_report_task(void *arg)
     }
 
   start = now;
-  printf("\n%16s %s\n", "Interval", "Bandwidth\n");
+  printf("\n%19s %16s %18s\n", "Interval", "Transfer", "Bandwidth\n");
   while (!s_iperf_ctrl.finish)
     {
       uintmax_t last_len;
@@ -258,9 +258,10 @@ static void iperf_report_task(void *arg)
           exit(EXIT_FAILURE);
         }
 
-      printf("%4.2lf-%4.2lf sec,  %.2f Mbits/sec\n",
+      printf("%7.2lf-%7.2lf sec %10ju Bytes %7.2f Mbits/sec\n",
              ts_diff(&last, &start),
              ts_diff(&now, &start),
+             now_len,
              (((double)(now_len - last_len) * 8) /
              ts_diff(&now, &last) / 1e6));
       if (ts_diff(&now, &start) >= time)
@@ -271,9 +272,10 @@ static void iperf_report_task(void *arg)
 
   if (ts_diff(&now, &start) > 0)
     {
-      printf("%4.2lf-%4.2lf sec,  %.2f Mbits/sec\n",
+      printf("%7.2lf-%7.2lf sec %10ju Bytes %7.2f Mbits/sec\n",
              ts_diff(&start, &start),
              ts_diff(&now, &start),
+             now_len,
              (((double)now_len * 8) /
              ts_diff(&now, &start) / 1e6));
     }
