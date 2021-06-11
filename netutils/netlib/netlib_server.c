@@ -63,7 +63,8 @@
  *
  ****************************************************************************/
 
-void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksize)
+void netlib_server(uint16_t portno,
+                   pthread_startroutine_t handler, int stacksize)
 {
   struct sockaddr_in myaddr;
 #ifdef CONFIG_NET_SOLINGER
@@ -86,12 +87,12 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
 
   /* Begin serving connections */
 
-  for (;;)
+  for (; ; )
     {
       /* Accept the next connectin */
 
       addrlen = sizeof(struct sockaddr_in);
-      acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
+      acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
       if (acceptsd < 0)
         {
           nerr("ERROR: accept failure: %d\n", errno);
@@ -108,7 +109,8 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
 
-      ret = setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger));
+      ret = setsockopt(acceptsd, SOL_SOCKET,
+                       SO_LINGER, &ling, sizeof(struct linger));
       if (ret < 0)
         {
           close(acceptsd);
@@ -124,7 +126,8 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
       pthread_attr_init(&attr);
       pthread_attr_setstacksize(&attr, stacksize);
 
-      ret = pthread_create(&child, &attr, handler, (pthread_addr_t)((uintptr_t)acceptsd));
+      ret = pthread_create(&child, &attr,
+                           handler, (pthread_addr_t)((uintptr_t)acceptsd));
       if (ret != 0)
         {
           /* Close the connection */

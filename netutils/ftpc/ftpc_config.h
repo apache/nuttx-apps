@@ -30,6 +30,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* This is a mindless little wrapper around include/nuttx/config.h.  Every
  * file in the ftpc directory includes this file at the very beginning of
  * of the file (instead of include/nuttx/config.h).  The only purpose of
@@ -58,7 +59,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Public Functions Prototypes
  ****************************************************************************/
 
 #endif /* __APPS_NETUTILS_FTPC_FTPC_CONFIG_H */

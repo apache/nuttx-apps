@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setipv6netmask.c
+ * apps/netutils/netlib/netlib_setipv6netmask.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -79,7 +79,8 @@ int netlib_set_ipv6netmask(FAR const char *ifname,
           inaddr->sin6_port   = 0;
           memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
 
-          ret = ioctl(sockfd, SIOCSLIFNETMASK, (unsigned long)((uintptr_t)&req));
+          ret = ioctl(sockfd, SIOCSLIFNETMASK,
+                     (unsigned long)((uintptr_t)&req));
           close(sockfd);
         }
     }

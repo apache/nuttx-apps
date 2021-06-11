@@ -75,10 +75,10 @@ int ftpc_idle(SESSION handle, unsigned int idletime)
   /* Check if the server supports the SITE IDLE command */
 
   if (!FTPC_HAS_IDLE(session))
-  {
-    nwarn("WARNING: Server does not support SITE IDLE\n");
-    return ERROR;
-  }
+    {
+      nwarn("WARNING: Server does not support SITE IDLE\n");
+      return ERROR;
+    }
 
   /* Did the caller provide an IDLE time?  Or is this just a query for the
    * current IDLE time setting?

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getipv6addr.c
+ * apps/netutils/netlib/netlib_getipv6addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

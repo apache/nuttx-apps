@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/tftoc/tftpc_internal.h
+ * apps/netutils/tftpc/tftpc_internal.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -42,6 +42,7 @@
  ****************************************************************************/
 
 /* Verify TFTP configuration settings ***************************************/
+
 /* The settings beginning with CONFIG_NETUTILS_TFTP_* can all be set in the
  * NuttX configuration file.  If they are are defined in the configuration
  * then default values are assigned here.
@@ -157,15 +158,19 @@
 /* Defined in tftp_packet.c *************************************************/
 
 extern int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr);
-extern int tftp_mkreqpacket(uint8_t *buffer, int opcode, const char *path, bool binary);
+extern int tftp_mkreqpacket(uint8_t *buffer, int opcode,
+                            const char *path, bool binary);
 extern int tftp_mkackpacket(uint8_t *buffer, uint16_t blockno);
-extern int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode, const char *errormsg);
+extern int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode,
+                            const char *errormsg);
 #ifdef CONFIG_DEBUG_NET_WARN
 extern int tftp_parseerrpacket(const uint8_t *packet);
 #endif
 
-extern ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from);
-extern ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to);
+extern ssize_t tftp_recvfrom(int sd, void *buf,
+                             size_t len, struct sockaddr_in *from);
+extern ssize_t tftp_sendto(int sd, const void *buf,
+                           size_t len, struct sockaddr_in *to);
 
 #ifdef CONFIG_NETUTILS_TFTP_DUMPBUFFERS
 # define tftp_dumpbuffer(msg, buffer, nbytes) ninfodumpbuffer(msg, buffer, nbytes)

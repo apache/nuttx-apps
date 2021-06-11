@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv4route.c
+ * apps/netutils/netlib/netlib_ipv4route.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -71,14 +71,16 @@
 
 static void set_nul_terminator(FAR char *str)
 {
-   /* The first non-decimal character that is not '.' terminates the address */
+  /* The first non-decimal character that is not '.' terminates the
+   * address
+   */
 
-   while ((*str >= '0' && *str <= '9') || *str == '.')
-     {
-       str++;
-     }
+  while ((*str >= '0' && *str <= '9') || *str == '.')
+    {
+      str++;
+    }
 
-   *str = '\0';
+  *str = '\0';
 }
 
 /****************************************************************************
@@ -173,7 +175,7 @@ ssize_t netlib_read_ipv4route(FILE *stream,
             {
               return sizeof(struct netlib_ipv4_route_s);
             }
-       }
+        }
     }
 
   return ret < 0 ? ret : -EINVAL;

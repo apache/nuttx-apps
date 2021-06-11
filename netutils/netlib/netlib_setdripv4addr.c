@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setdripv4addr.c
+ * apps/netutils/netlib/netlib_setdripv4addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -105,6 +105,7 @@ int netlib_set_dripv4addr(FAR const char *ifname,
           if (OK == ret)
             {
               /* Delete the default route first */
+
               /* This call fails if no default route exists, but it's OK */
 
               delroute(sockfd,

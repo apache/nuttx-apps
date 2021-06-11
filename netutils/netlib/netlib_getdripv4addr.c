@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getdripv4addr.c
+ * apps/netutils/netlib/netlib_getdripv4addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -76,7 +76,7 @@ int netlib_get_dripv4addr(FAR const char *ifname, FAR struct in_addr *addr)
             {
               FAR struct sockaddr_in *req_addr;
 
-              req_addr = (FAR struct sockaddr_in*)&req.ifr_addr;
+              req_addr = (FAR struct sockaddr_in *)&req.ifr_addr;
               memcpy(addr, &req_addr->sin_addr, sizeof(struct in_addr));
             }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setipv4addr.c
+ * apps/netutils/netlib/netlib_setipv4addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -56,7 +56,8 @@
  *
  ****************************************************************************/
 
-int netlib_set_ipv4addr(FAR const char *ifname, FAR const struct in_addr *addr)
+int netlib_set_ipv4addr(FAR const char *ifname,
+                        FAR const struct in_addr *addr)
 {
   int ret = ERROR;
 

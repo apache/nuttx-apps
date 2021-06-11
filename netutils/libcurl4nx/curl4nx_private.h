@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/curl4nx/curl4nx_private.h
+ * apps/netutils/libcurl4nx/curl4nx_private.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -96,7 +96,7 @@
     while(0)
 
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
