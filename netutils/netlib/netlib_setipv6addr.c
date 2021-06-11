@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setipv6addr.c
+ * apps/netutils/netlib/netlib_setipv6addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -80,7 +80,8 @@ int netlib_set_ipv6addr(FAR const char *ifname,
           inaddr->sin6_port   = 0;
           memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
 
-          ret = ioctl(sockfd, SIOCSLIFADDR, ((unsigned long)(uintptr_t)&req));
+          ret = ioctl(sockfd, SIOCSLIFADDR,
+                     ((unsigned long)(uintptr_t)&req));
           close(sockfd);
         }
     }

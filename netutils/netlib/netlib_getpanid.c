@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getpanid.c
+ * apps/netutils/netlib/netlib_getpanid.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -72,17 +72,17 @@ int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
         {
           /* Perform the IOCTL */
 
-         strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-         arg.u.getreq.attr = IEEE802154_ATTR_MAC_PANID;
+          strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+          arg.u.getreq.attr = IEEE802154_ATTR_MAC_PANID;
 
-         ret = ioctl(sockfd, MAC802154IOC_MLME_GET_REQUEST,
+          ret = ioctl(sockfd, MAC802154IOC_MLME_GET_REQUEST,
                      (unsigned long)((uintptr_t)&arg));
-         if (ret < 0)
-           {
-             ret = -errno;
-             fprintf(stderr, "MAC802154IOC_MLME_GET_REQUEST failed: %d\n",
-                     ret);
-           }
+          if (ret < 0)
+            {
+              ret = -errno;
+              fprintf(stderr, "MAC802154IOC_MLME_GET_REQUEST failed: %d\n",
+                      ret);
+            }
 
           close(sockfd);
           IEEE802154_PANIDCOPY(panid, arg.u.getreq.attrval.mac.panid);

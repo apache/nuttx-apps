@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv4router.c
+ * apps/netutils/netlib/netlib_ipv4router.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -81,7 +81,9 @@ int netlib_ipv4router(FAR const struct in_addr *destipaddr,
 
   hdest = ntohl(destipaddr->s_addr);
 
-  /* Find the routing table entry that provides the router for this sub-net. */
+  /* Find the routing table entry that provides the router for this
+   * sub-net.
+   */
 
   for (; ; )
     {

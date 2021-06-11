@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_listenon.c
+ * apps/netutils/netlib/netlib_listenon.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -77,7 +77,8 @@ int netlib_listenon(uint16_t portno)
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(listensd, SOL_SOCKET,
+                 SO_REUSEADDR, (void *)&optval, sizeof(int)) < 0)
     {
       nwarn("WARNING: setsockopt SO_REUSEADDR failure: %d\n", errno);
     }
@@ -88,7 +89,8 @@ int netlib_listenon(uint16_t portno)
   myaddr.sin_port        = portno;
   myaddr.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(listensd, (struct sockaddr *)&myaddr,
+           sizeof(struct sockaddr_in)) < 0)
     {
       nerr("ERROR: bind failure: %d\n", errno);
       goto errout_with_socket;

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv6route.c
+ * apps/netutils/netlib/netlib_ipv6route.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -70,17 +70,17 @@
 
 static void set_nul_terminator(FAR char *str)
 {
-   /* The first non-hex character that is not ':' terminates the address */
+  /* The first non-hex character that is not ':' terminates the address */
 
-   while ((*str >= '0' && *str <= '9') ||
-          (*str >= 'a' && *str <= 'f') ||
-          (*str >= 'A' && *str <= 'F') ||
-           *str == ':')
-     {
+  while ((*str >= '0' && *str <= '9') ||
+         (*str >= 'a' && *str <= 'f') ||
+         (*str >= 'A' && *str <= 'F') ||
+          *str == ':')
+    {
        str++;
-     }
+    }
 
-   *str = '\0';
+  *str = '\0';
 }
 
 /****************************************************************************

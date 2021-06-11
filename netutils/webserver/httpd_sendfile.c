@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/webserver/httpd_mmap.c
+ * apps/netutils/webserver/httpd_sendfile.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +19,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Included Header Files
+ * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
@@ -105,6 +105,7 @@ int httpd_sendfile_close(struct httpd_fs_file *file)
       return OK;
     }
 #endif
+
   if (-1 == close(file->fd))
     {
       return ERROR;

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/tftp/tftpc_get.c
+ * apps/netutils/tftpc/tftpc_get.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

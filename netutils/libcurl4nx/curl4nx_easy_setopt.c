@@ -120,6 +120,7 @@ int curl4nx_easy_setopt(FAR struct curl4nx_s *handle, int option,
               cret = CURL4NXE_BAD_FUNCTION_ARGUMENT;
               break;
             }
+
           handle->port = (uint16_t)(port & 0xffff);
           break;
         }
@@ -196,6 +197,7 @@ int curl4nx_easy_setopt(FAR struct curl4nx_s *handle, int option,
               cret = CURL4NXE_BAD_FUNCTION_ARGUMENT;
               break;
             }
+
           handle->max_redirs = redirs;
           break;
         }

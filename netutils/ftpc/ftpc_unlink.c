@@ -65,8 +65,8 @@ int ftpc_unlink(SESSION handle, FAR const char *path)
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
   int ret;
 
-  /* A DELE request asks the server to remove a regular file. A typical server
-   * accepts DELE with:
+  /* A DELE request asks the server to remove a regular file.
+   * A typical server accepts DELE with:
    *
    * - "250 Requested file action okay, completed" if the file was
    *    successfully removed

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/webserver/httpd_mmap.c
+ * apps/netutils/webserver/httpd_mmap.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +19,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Included Header Files
+ * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
@@ -71,30 +71,32 @@ int httpd_mmap_open(const char *name, struct httpd_fs_file *file)
 
   if (-1 == stat(path, &st))
     {
-       return ERROR;
+      return ERROR;
     }
 
   if (S_ISDIR(st.st_mode))
     {
-       errno = EISDIR;
-       return ERROR;
+      errno = EISDIR;
+      return ERROR;
     }
 
   if (!S_ISREG(st.st_mode))
     {
-       errno = ENOENT;
-       return ERROR;
+      errno = ENOENT;
+      return ERROR;
     }
 
   if (st.st_size > INT_MAX)
     {
-       errno = EFBIG;
-       return ERROR;
+      errno = EFBIG;
+      return ERROR;
     }
 
   file->len = (int) st.st_size;
 
-  /* SUS3: "If len is zero, mmap() shall fail and no mapping shall be established." */
+  /* SUS3: "If len is zero, mmap() shall fail and no mapping shall
+   * be established."
+   */
 
   if (st.st_size == 0)
     {
@@ -104,14 +106,15 @@ int httpd_mmap_open(const char *name, struct httpd_fs_file *file)
   file->fd = open(path, O_RDONLY);
   if (file->fd == -1)
     {
-       return ERROR;
+      return ERROR;
     }
 
-  file->data = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED | MAP_FILE, file->fd, 0);
+  file->data = mmap(NULL, st.st_size, PROT_READ,
+                    MAP_SHARED | MAP_FILE, file->fd, 0);
   if (file->data == MAP_FAILED)
     {
-       close(file->fd);
-       return ERROR;
+      close(file->fd);
+      return ERROR;
     }
 
   return OK;

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_eaddrconv.c
+ * apps/netutils/netlib/netlib_eaddrconv.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -61,9 +61,9 @@ bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
         {
           ch = *hwstr++;
           if (++j > 3)
-           {
-             return false;
-           }
+            {
+              return false;
+            }
 
           if (ch == ':' || ch == '\0')
             {

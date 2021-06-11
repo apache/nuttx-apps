@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getmacaddr.c
+ * apps/netutils/netlib/netlib_getmacaddr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

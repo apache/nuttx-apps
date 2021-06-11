@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getarptab.c
+ * apps/netutils/netlib/netlib_getarptab.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

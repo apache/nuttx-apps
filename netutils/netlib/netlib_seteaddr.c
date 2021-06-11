@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_seteaddr.c
+ * apps/netutils/netlib/netlib_seteaddr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -72,20 +72,20 @@ int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
         {
           /* Perform the IOCTL */
 
-         strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-         arg.u.setreq.attr = IEEE802154_ATTR_MAC_EADDR;
-         IEEE802154_EADDRCOPY(arg.u.setreq.attrval.mac.eaddr, eaddr);
+          strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+          arg.u.setreq.attr = IEEE802154_ATTR_MAC_EADDR;
+          IEEE802154_EADDRCOPY(arg.u.setreq.attrval.mac.eaddr, eaddr);
 
-         ret = ioctl(sockfd, MAC802154IOC_MLME_SET_REQUEST,
+          ret = ioctl(sockfd, MAC802154IOC_MLME_SET_REQUEST,
                      (unsigned long)((uintptr_t)&arg));
-         if (ret < 0)
-           {
-             ret = -errno;
-             fprintf(stderr, "MAC802154IOC_MLME_SET_REQUEST failed: %d\n",
-                    ret);
-          }
+          if (ret < 0)
+            {
+              ret = -errno;
+              fprintf(stderr, "MAC802154IOC_MLME_SET_REQUEST failed: %d\n",
+                     ret);
+            }
 
-         close(sockfd);
+          close(sockfd);
         }
     }
 

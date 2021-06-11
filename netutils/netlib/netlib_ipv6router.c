@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_ipv6router.c
+ * apps/netutils/netlib/netlib_ipv6router.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -88,7 +88,9 @@ int netlib_ipv6router(FAR const struct in6_addr *destipaddr,
   hdest[6] = ntohs(destipaddr->s6_addr16[6]);
   hdest[7] = ntohs(destipaddr->s6_addr16[7]);
 
-  /* Find the routing table entry that provides the router for this sub-net. */
+  /* Find the routing table entry that provides the router for this
+   * sub-net.
+   */
 
   for (; ; )
     {

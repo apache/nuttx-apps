@@ -298,7 +298,9 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
                   rxoff++;
                 }
 
-              /* Check for overflow, version code should not fill the tmpbuf */
+              /* Check for overflow,
+               * version code should not fill the tmpbuf
+               */
 
               if (tmplen == sizeof(tmpbuf))
                 {
@@ -350,7 +352,9 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
                   rxoff++;
                 }
 
-              /* Check for overflow, version code should not fill the tmpbuf */
+              /* Check for overflow,
+               * version code should not fill the tmpbuf
+               */
 
               if (tmplen == sizeof(tmpbuf))
                 {
@@ -366,7 +370,7 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
 
           if (state == CURL4NX_STATE_STATUSREASON)
             {
-               /* Accumulate response code until CRLF */
+              /* Accumulate response code until CRLF */
 
               while (rxoff < ret)
                 {
@@ -500,15 +504,17 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
                                                    handle->max_redirs))
                                                 {
                                                   curl4nx_info(
-                                                    "Too many redirections\n");
-                                                  cret = CURL4NXE_TOO_MANY_REDIRECTS;
+                                                  "Too many redirections\n");
+                                                  cret =
+                                                  CURL4NXE_TOO_MANY_REDIRECTS;
                                                   goto close;
                                                 }
 
                                               cret =
-                                                curl4nx_easy_setopt(handle,
-                                                                    CURL4NXOPT_URL,
-                                                                    headerbuf + off);
+                                                curl4nx_easy_setopt(
+                                                        handle,
+                                                        CURL4NXOPT_URL,
+                                                        headerbuf + off);
                                               if (cret != CURL4NXE_OK)
                                                 {
                                                   goto close;
@@ -516,9 +522,10 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
 
                                               redirected = true;
                                               redircount += 1;
-                                              curl4nx_info("REDIRECTION (%d) -> %s\n",
-                                                           redircount,
-                                                           headerbuf + off);
+                                              curl4nx_info("
+                                                REDIRECTION (%d) -> %s\n",
+                                                redircount,
+                                                headerbuf + off);
                                             }
                                         }
                                     }
