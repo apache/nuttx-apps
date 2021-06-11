@@ -255,7 +255,8 @@ int curl4nx_easy_setopt(FAR struct curl4nx_s *handle, int option,
 /****************************************************************************
  * Name: curl4nx_easy_reset()
  *
- * Description: Reset all operations that were set using curl4nx_easy_setopt()
+ * Description:
+ *   Reset all operations that were set using curl4nx_easy_setopt()
  *   to their default values.
  *
  ****************************************************************************/

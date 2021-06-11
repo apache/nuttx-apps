@@ -52,7 +52,8 @@ extern "C"
  *   pathname - the full path to a registered block driver
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success;
+ *   -1 (ERROR) on failure with errno set appropriately:
  *
  *   EINVAL - NULL block driver string
  *   ENOENT - 'pathname' does not refer to anything in the filesystem.
@@ -76,7 +77,8 @@ int issmartfs(FAR const char *pathname);
  *               on this device (supports multiple mount points).
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success;
+ *   -1 (ERROR) on failure with errno set appropriately:
  *
  *   EINVAL - NULL block driver string
  *   ENOENT - 'pathname' does not refer to anything in the filesystem.

@@ -67,16 +67,16 @@
 
 struct fat_format_s
 {
-   uint8_t  ff_nfats;           /* Number of FATs */
-   uint8_t  ff_fattype;         /* FAT size: 0 (autoselect), 12, 16, or 32 */
-   uint8_t  ff_clustshift;      /* Log2 of sectors per cluster: 0-5, 0xff (autoselect) */
-   uint8_t  ff_volumelabel[11]; /* Volume label */
-   uint16_t ff_backupboot;      /* Sector number of the backup boot sector (0=use default)*/
-   uint16_t ff_rootdirentries;  /* Number of root directory entries */
-   uint16_t ff_rsvdseccount;    /* Reserved sectors */
-   uint32_t ff_hidsec;          /* Count of hidden sectors preceding fat */
-   uint32_t ff_volumeid;        /* FAT volume id */
-   uint32_t ff_nsectors;        /* Number of sectors from device to use: 0: Use all */
+  uint8_t  ff_nfats;           /* Number of FATs */
+  uint8_t  ff_fattype;         /* FAT size: 0 (autoselect), 12, 16, or 32 */
+  uint8_t  ff_clustshift;      /* Log2 of sectors per cluster: 0-5, 0xff (autoselect) */
+  uint8_t  ff_volumelabel[11]; /* Volume label */
+  uint16_t ff_backupboot;      /* Sector number of the backup boot sector (0=use default) */
+  uint16_t ff_rootdirentries;  /* Number of root directory entries */
+  uint16_t ff_rsvdseccount;    /* Reserved sectors */
+  uint32_t ff_hidsec;          /* Count of hidden sectors preceding fat */
+  uint32_t ff_volumeid;        /* FAT volume id */
+  uint32_t ff_nsectors;        /* Number of sectors from device to use: 0: Use all */
 };
 
 /****************************************************************************
@@ -109,7 +109,8 @@ extern "C"
  *   fmt - Describes characteristics of the desired filesystem
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set appropriately:
+ *   Zero (OK) on success;
+ *   -1 (ERROR) on failure with errno set appropriately:
  *
  *   EINVAL - NULL block driver string, bad number of FATS in 'fmt', bad FAT
  *     size in 'fmt', bad cluster size in 'fmt'
