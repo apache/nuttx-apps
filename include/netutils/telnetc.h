@@ -38,13 +38,13 @@
  * SUMMARY:
  *
  * libtelnet is a library for handling the TELNET protocol.  It includes
- * routines for parsing incoming data from a remote peer as well as formatting
- * data to send to the remote peer.
+ * routines for parsing incoming data from a remote peer as well as
+ * formatting data to send to the remote peer.
  *
  * libtelnet uses a callback-oriented API, allowing application-specific
- * handling of various events.  The callback system is also used for buffering
- * outgoing protocol data, allowing the application to maintain control over
- * the actual socket connection.
+ * handling of various events.  The callback system is also used for
+ * buffering outgoing protocol data, allowing the application to maintain
+ * control over the actual socket connection.
  *
  * Features supported include the full TELNET protocol, Q-method option
  * negotiation, ZMP, MCCP2, MSSP, and NEW-ENVIRON.
@@ -62,9 +62,10 @@
  *
  * The author or authors of this code dedicate any and all copyright interest
  * in this code to the public domain. We make this dedication for the benefit
- * of the public at large and to the detriment of our heirs and successors. We
- * intend this dedication to be an overt act of relinquishment in perpetuity of
- * all present and future rights to this code under copyright law.
+ * of the public at large and to the detriment of our heirs and successors.
+ * We intend this dedication to be an overt act of relinquishment in
+ * perpetuity of all present and future rights to this code under copyright
+ * law.
  *
  *   Author: Sean Middleditch <sean@sourcemud.org>
  */
@@ -290,7 +291,7 @@ union telnet_event_u
 
   /* Subnegotiation event */
 
- struct
+  struct
   {
     enum telnet_event_type_e _type;       /* Alias for type */
     const char *buffer;                   /* Data of sub-negotiation */
@@ -679,8 +680,8 @@ void telnet_newenviron_value(struct telnet_s *telnet, unsigned char type,
  * Description:
  *   Finish a NEW-ENVIRON command.
  *
- *   This must be called after a call to telnet_begin_newenviron() to finish a
- *   NEW-ENVIRON variable list.
+ *   This must be called after a call to telnet_begin_newenviron() to finish
+ *   a NEW-ENVIRON variable list.
  *
  *   telnet Telnet state tracker object.
  *

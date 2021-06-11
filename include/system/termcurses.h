@@ -1,4 +1,4 @@
-/********************************************************************************************
+/****************************************************************************
  * apps/include/system/termcurses.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -16,22 +16,22 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  *
- ********************************************************************************************/
+ ****************************************************************************/
 
 #ifndef __APPS_INCLUDE_SYSTEM_TERMCURSES_H
 #define __APPS_INCLUDE_SYSTEM_TERMCURSES_H
 
-/********************************************************************************************
+/****************************************************************************
  * Included Files
- ********************************************************************************************/
+ ****************************************************************************/
 
 #include <stdint.h>
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/fs/fs.h>
 
-/********************************************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ********************************************************************************************/
+ ****************************************************************************/
 
 #define TCURS_CLEAR_SCREEN      1
 #define TCURS_CLEAR_LINE        2
@@ -56,9 +56,9 @@
 #define TCURS_ATTRIB_CURS_HIDE  0x0010
 #define TCURS_ATTRIB_CURS_SHOW  0x0020
 
-/********************************************************************************************
+/****************************************************************************
  * Public Type Definitions
- ********************************************************************************************/
+ ****************************************************************************/
 
 /* Used with TTY ioctls */
 
@@ -88,7 +88,8 @@ struct termcurses_ops_s
 
   /* Get terminal size in row/col dimensions */
 
-  CODE int (*getwinsize)(FAR struct termcurses_s *dev, FAR struct winsize *winsz);
+  CODE int (*getwinsize)(FAR struct termcurses_s *dev,
+                         FAR struct winsize *winsz);
 
   /* Set fg/bg colors */
 
@@ -97,11 +98,14 @@ struct termcurses_ops_s
 
   /* Set display attributes  */
 
-  CODE int (*setattrib)(FAR struct termcurses_s *dev, unsigned long attributes);
+  CODE int (*setattrib)(FAR struct termcurses_s *dev,
+                        unsigned long attributes);
 
   /* Get a keycode value */
 
-  CODE int (*getkeycode)(FAR struct termcurses_s *dev, int *specialkey, int *keymodifers);
+  CODE int (*getkeycode)(FAR struct termcurses_s *dev,
+                         int *specialkey,
+                         int *keymodifers);
 
   /* Check for cached keycode value */
 
@@ -132,9 +136,9 @@ struct termcurses_colors_s
   uint8_t   bg_blue;
 };
 
-/********************************************************************************************
+/****************************************************************************
  * Public Function Prototypes
- ********************************************************************************************/
+ ****************************************************************************/
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -144,87 +148,90 @@ extern "C"
 #define EXTERN extern
 #endif
 
-/********************************************************************************************
+/****************************************************************************
  * termcurses_initterm:
  *
  * Finds a termcurses_s device based on terminal type string and initialize
  * a new context for device control.
  *
- ********************************************************************************************/
+ ****************************************************************************/
 
 int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
                         FAR struct termcurses_s **dev);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_deinitterm
  *
  * Description:
  *    Free all space for the termcurses terminal and perform any specific
  *    de-initialization tasks.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int termcurses_deinitterm(FAR struct termcurses_s *dev);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_moveyx
  *
  * Description:
  *   Configure output text to render in the specified fg/bg colors.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int termcurses_moveyx(FAR struct termcurses_s *term, int row, int col);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_setattribute
  *
  * Description:
  *   Configure output text to render in the specified fg/bg colors.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-int termcurses_setattribute(FAR struct termcurses_s *term, unsigned long attrib);
+int termcurses_setattribute(FAR struct termcurses_s *term,
+                            unsigned long attrib);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_setcolors
  *
  * Description:
  *   Configure output text to render in the specified fg/bg colors.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int termcurses_setcolors(FAR struct termcurses_s *term,
                          FAR struct termcurses_colors_s *colors);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_getwinsize
  *
  * Description:
- *   Determines the size of the terminal screen in terms of character rows and cols.
+ *   Determines the size of the terminal screen in terms of character rows
+ *   and cols.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-int termcurses_getwinsize(FAR struct termcurses_s *term, FAR struct winsize *winsz);
+int termcurses_getwinsize(FAR struct termcurses_s *term,
+                          FAR struct winsize *winsz);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_getkeycode
  *
  * Description:
  *   Get a translated key code from the terminal input.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
                           FAR int *keymodifiers);
 
-/************************************************************************************
+/****************************************************************************
  * Name: termcurses_checkkey
  *
  * Description:
  *   Check if there is a key waiting to be processed.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 bool termcurses_checkkey(FAR struct termcurses_s *term);
 

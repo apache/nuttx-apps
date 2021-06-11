@@ -32,7 +32,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* Required configuration settings:  Of course TCP networking support is
  * required.  But here are a couple that are less obvious:
  *
@@ -104,7 +106,7 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Public Functions
+ * Public Functions Prototypes
  ****************************************************************************/
 
 /****************************************************************************
@@ -115,8 +117,8 @@ extern "C"
  *   used to run the server.
  *
  * Input Parameters:
- *    family - The type of INET family to use when opening the socket. AF_INET
- *    and AF_INET6 are supported.
+ *    family - The type of INET family to use when opening the socket.
+ *    AF_INET and AF_INET6 are supported.
  *
  * Returned Value:
  *   On success, a non-NULL handle is returned that can be used to reference
@@ -134,8 +136,8 @@ FTPD_SESSION ftpd_open(sa_family_t family);
  *
  * Input Parameters:
  *    handle - A handle previously returned by ftpd_open
- *    accountflags - The characteristics of this user (see FTPD_ACCOUNTFLAGS_*
- *      definitions above).
+ *    accountflags - The characteristics of this user
+ *                   (see FTPD_ACCOUNTFLAGS_* definitions above).
  *    user - The user login name. May be NULL indicating that no login is
  *      required.
  *    passwd - The user password.  May be NULL indicating that no password

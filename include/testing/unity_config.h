@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/testing/unity/unity_config.h
+ * apps/include/testing/unity_config.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
-/* See Also: Unity/docs/UnityConfigurationGuide.pdf /*
+/* See Also: Unity/docs/UnityConfigurationGuide.pdf */
 
 #ifndef UNITY_CONFIG_H
 #define UNITY_CONFIG_H

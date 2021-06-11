@@ -64,7 +64,7 @@ typedef enum
 typedef struct
 {
   lesp_security_t security;
-  char ssid[lespSSID_SIZE+1];     /* +1 for null char */
+  char ssid[lespSSID_SIZE + 1];     /* +1 for null char */
   uint8_t bssid[lespBSSID_SIZE];
   int rssi;
   int channel;
@@ -79,7 +79,8 @@ int lesp_soft_reset(void);
 
 const char *lesp_security_to_str(lesp_security_t security);
 
-int lesp_ap_connect(const char *ssid_name, const char *ap_key, int timeout_s);
+int lesp_ap_connect(const char *ssid_name,
+                    const char *ap_key, int timeout_s);
 int lesp_ap_get(lesp_ap_t *ap);
 
 int lesp_ap_is_connected(void);
@@ -97,8 +98,10 @@ int lesp_list_access_points(lesp_cb_t cb);
 
 int lesp_socket(int domain, int type, int protocol);
 int lesp_closesocket(int sockfd);
-int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen);
-int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen);
+int lesp_bind(int sockfd,
+              FAR const struct sockaddr *addr, socklen_t addrlen);
+int lesp_connect(int sockfd,
+                 FAR const struct sockaddr *addr, socklen_t addrlen);
 int lesp_listen(int sockfd, int backlog);
 int lesp_accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags);

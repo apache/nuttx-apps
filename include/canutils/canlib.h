@@ -92,8 +92,9 @@ int canlib_getbaud(int fd, FAR int *bauds);
  * Name: canlib_setloopback
  *
  * Description:
- *   Wrapper for CANIOC_SET_CONNMODES. When loopback mode is enabled, the CAN
- *   peripheral transmits on the bus, but only receives its own sent messages.
+ *   Wrapper for CANIOC_SET_CONNMODES.
+ *   When loopback mode is enabled, the CAN peripheral transmits on the bus,
+ *   but only receives its own sent messages.
  *
  * Input Parameter:
  *   fd       - file descriptor of an opened can device

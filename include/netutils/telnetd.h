@@ -1,5 +1,5 @@
 /****************************************************************************
- *  apps/include/netutils/telnetd.h
+ * apps/include/netutils/telnetd.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,6 +30,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* CONFIG_TELNETD_CONSOLE - Use the first Telnet session as the default
  *   console.
  */
@@ -38,7 +39,7 @@
  * Public Types
  ****************************************************************************/
 
- /* An instance of the struct telnetd_config_s structure must be passed to
+/* An instance of the struct telnetd_config_s structure must be passed to
  * telnetd_start in order to configure the new Telnet daemon.
  */
 
