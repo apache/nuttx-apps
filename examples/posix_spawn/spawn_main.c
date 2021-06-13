@@ -118,14 +118,13 @@ static const char delimiter[] =
   "**************************************"
   "**************************************";
 static const char g_redirect[] = "redirect";
-static const char g_hello[]    = "hello";
 static const char g_data[]     = "testdata.txt";
 
 static char fullpath[128];
 
-static char * const g_argv[4] =
+static char * const g_argv[5] =
 {
-  "Argument 1", "Argument 2", "Argument 3", NULL
+  "hello", "Argument 1", "Argument 2", "Argument 3", NULL
 };
 
 /****************************************************************************
@@ -271,7 +270,7 @@ int main(int argc, FAR char *argv[])
    * this program from the others.
    */
 
-  testheader(g_hello);
+  testheader(g_argv[0]);
 
   /* Initialize the attributes file actions structure */
 
@@ -300,9 +299,9 @@ int main(int argc, FAR char *argv[])
    */
 
 #ifdef CONFIG_LIB_ENVPATH
-  filepath = g_hello;
+  filepath = g_argv[0];
 #else
-  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_hello);
+  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_argv[0]);
   filepath = fullpath;
 #endif
 

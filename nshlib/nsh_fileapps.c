@@ -126,7 +126,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    * failure.
    */
 
-  ret = posix_spawnp(&pid, cmd, &file_actions, &attr, &argv[1], NULL);
+  ret = posix_spawnp(&pid, cmd, &file_actions, &attr, argv, NULL);
   if (ret == OK)
     {
       /* The application was successfully started with pre-emption disabled.
