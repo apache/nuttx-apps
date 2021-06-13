@@ -113,7 +113,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
   struct sched_param param;
   posix_spawnattr_t attr;
   posix_spawn_file_actions_t file_actions;
-  FAR char *argv[3];
+  FAR char *argv[4];
   int fd[2];
   int oldfd;
   int newfd;
@@ -244,17 +244,17 @@ FILE *popen(FAR const char *command, FAR const char *mode)
    * appropriately.
    */
 
-  argv[0] = "-c";
-  argv[1] = (FAR char *)command;
-  argv[2] = NULL;
+  argv[1] = "-c";
+  argv[2] = (FAR char *)command;
+  argv[3] = NULL;
 
 #ifdef CONFIG_SYSTEM_POPEN_SHPATH
-  errcode = posix_spawn(&container->shell, CONFIG_SYSTEM_POPEN_SHPATH,
-                        &file_actions, &attr, argv,
-                        (FAR char * const *)NULL);
+  argv[0] = CONFIG_SYSTEM_POPEN_SHPATH;
+  errcode = posix_spawn(&container->shell, argv[0], &file_actions,
+                        &attr, argv, (FAR char * const *)NULL);
 #else
   container->shell = task_spawn("popen", nsh_system, &file_actions,
-                                &attr, argv, (FAR char * const *)NULL);
+                                &attr, argv + 1, (FAR char * const *)NULL);
   if (container->shell < 0)
     {
       errcode = -container->shell;

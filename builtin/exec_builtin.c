@@ -162,9 +162,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 #ifdef CONFIG_LIBC_EXECFUNCS
   /* Load and execute the application. */
 
-  ret = posix_spawn(&pid, builtin->name, &file_actions, &attr,
-                    (argv) ? &argv[1] : (FAR char * const *)NULL, NULL);
-
+  ret = posix_spawn(&pid, builtin->name, &file_actions, &attr, argv, NULL);
   if (ret != 0 && builtin->main != NULL)
 #endif
     {
