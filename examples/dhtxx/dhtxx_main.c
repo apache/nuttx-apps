@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/dhtxx/dhtxx_main.c
+ * apps/examples/dhtxx/dhtxx_main.c
  *
  *   Copyright (C) 2018 Abdelatif GUETTOUCHE. All rights reserved.
  *   Author: Abdelatif GUETTOUCHE <abdelatif.guettouche@gmail.com>
@@ -61,7 +61,7 @@ int main(int argc, FAR char *argv[])
 
   printf("Dhtxx app is running.\n");
 
-  fd = open("/dev/dht0", O_RDWR);
+  fd = open(CONFIG_EXAMPLES_DHTXX_DEVPATH, O_RDWR);
 
   for (i = 0; i < 20; i++)
     {
