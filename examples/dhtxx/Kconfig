@@ -18,6 +18,12 @@ config EXAMPLES_DHTXX_PROGNAME
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
+config EXAMPLES_DHTXX_DEVPATH
+	string "Device path"
+	default "/dev/hum0"
+	---help---
+		The device path
+
 config EXAMPLES_DHTXX_PRIORITY
 	int "Dhtxx task priority"
 	default 100
