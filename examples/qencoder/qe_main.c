@@ -242,7 +242,7 @@ int main(int argc, FAR char *argv[])
     {
       printf("qe_main: open %s failed: %d\n", g_qeexample.devpath, errno);
       exitval = EXIT_FAILURE;
-      goto errout_with_dev;
+      goto errout;
     }
 
   /* Reset the count if so requested */
