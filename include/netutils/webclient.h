@@ -195,6 +195,13 @@ struct webclient_context
    *   headers          - An array of pointers to the extra headers.
    *   nheaders         - The number of elements in the "headers" array.
    *   bodylen          - The size of the request body.
+   *   timeout_sec      - The timeout in second.
+   *                      This is not meant to cover the entire transaction.
+   *                      Instead, this is meant to be an inactive timer.
+   *                      That is, if no progress is made during the
+   *                      specified amount of time, the operation will fail.
+   *                      The default is CONFIG_WEBCLIENT_TIMEOUT, which is
+   *                      10 seconds by default.
    */
 
   FAR const char *method;
@@ -205,6 +212,7 @@ struct webclient_context
   FAR const char * FAR const *headers;
   unsigned int nheaders;
   size_t bodylen;
+  unsigned int timeout_sec;
 
   /* other parameters
    *
