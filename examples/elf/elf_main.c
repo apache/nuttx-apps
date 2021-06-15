@@ -206,7 +206,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_ELF_ROMFS
   struct boardioc_romdisk_s desc;
 #endif
-  FAR char *args[1];
+  FAR char *args[2];
   int ret;
   int i;
 
@@ -357,7 +357,8 @@ int main(int argc, FAR char *argv[])
        * table information is available within the OS.
        */
 
-      args[0] = NULL;
+      args[0] = (FAR char *)dirlist[i];
+      args[1] = NULL;
       ret = exec(filename, args, g_elf_exports, g_elf_nexports);
 
       mm_update(&g_mmstep, "after exec");

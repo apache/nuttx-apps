@@ -117,14 +117,18 @@ static unsigned int g_mmstep;     /* Memory Usage at beginning of test step */
 static const char delimiter[] =
   "**************************************"
   "**************************************";
-static const char g_redirect[] = "redirect";
 static const char g_data[]     = "testdata.txt";
 
 static char fullpath[128];
 
-static char * const g_argv[5] =
+static char * const g_hello_argv[5] =
 {
   "hello", "Argument 1", "Argument 2", "Argument 3", NULL
+};
+
+static char * const g_redirect_argv[2] =
+{
+  "redirect", NULL
 };
 
 /****************************************************************************
@@ -270,7 +274,7 @@ int main(int argc, FAR char *argv[])
    * this program from the others.
    */
 
-  testheader(g_argv[0]);
+  testheader(g_hello_argv[0]);
 
   /* Initialize the attributes file actions structure */
 
@@ -299,9 +303,9 @@ int main(int argc, FAR char *argv[])
    */
 
 #ifdef CONFIG_LIB_ENVPATH
-  filepath = g_argv[0];
+  filepath = g_hello_argv[0];
 #else
-  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_argv[0]);
+  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_hello_argv[0]);
   filepath = fullpath;
 #endif
 
@@ -309,8 +313,8 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "before posix_spawn");
 
-  ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL,
-                    (FAR char * const *)&g_argv);
+  ret = posix_spawn(&pid, filepath, &file_actions,
+                    &attr, g_hello_argv, NULL);
   if (ret != 0)
     {
       errmsg("ERROR: posix_spawn failed: %d\n", ret);
@@ -347,7 +351,7 @@ int main(int argc, FAR char *argv[])
    * this program from the others.
    */
 
-  testheader(g_redirect);
+  testheader(g_redirect_argv[0]);
 
   /* Initialize the attributes file actions structure */
 
@@ -398,9 +402,9 @@ int main(int argc, FAR char *argv[])
    */
 
 #ifdef CONFIG_LIB_ENVPATH
-  filepath = g_redirect;
+  filepath = g_redirect_argv[0];
 #else
-  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_redirect);
+  snprintf(fullpath, 128, "%s/%s", MOUNTPT, g_redirect_argv[0]);
   filepath = fullpath;
 #endif
 
@@ -408,7 +412,8 @@ int main(int argc, FAR char *argv[])
 
   mm_update(&g_mmstep, "before posix_spawn");
 
-  ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL, NULL);
+  ret = posix_spawn(&pid, filepath, &file_actions,
+                    &attr, g_redirect_argv, NULL);
   if (ret != 0)
     {
       errmsg("ERROR: posix_spawn failed: %d\n", ret);

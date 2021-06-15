@@ -135,7 +135,7 @@ static inline void testheader(FAR const char *progname)
 
 int main(int argc, FAR char *argv[])
 {
-  FAR char *args[1];
+  FAR char *args[2];
   int ret;
   int i;
   struct boardioc_romdisk_s desc;
@@ -211,7 +211,8 @@ int main(int argc, FAR char *argv[])
        * table information is available within the OS.
        */
 
-      args[0] = NULL;
+      args[0] = (FAR char *)dirlist[i];
+      args[1] = NULL;
       ret = exec(filename, args, g_nxflat_exports, g_nxflat_nexports);
       if (ret < 0)
         {
