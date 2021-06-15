@@ -815,7 +815,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
           snprintf(port_str, sizeof(port_str), "%u", ws->port);
           ret = tls_ops->connect(tls_ctx, ws->hostname, port_str,
-                                 CONFIG_WEBCLIENT_TIMEOUT, &conn.tls_conn);
+                                 ctx->timeout_sec, &conn.tls_conn);
         }
       else
         {
@@ -879,7 +879,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
           /* Set send and receive timeout values */
 
-          tv.tv_sec  = CONFIG_WEBCLIENT_TIMEOUT;
+          tv.tv_sec  = ctx->timeout_sec;
           tv.tv_usec = 0;
 
           setsockopt(conn.sockfd, SOL_SOCKET, SO_RCVTIMEO,
@@ -1277,6 +1277,7 @@ void webclient_set_defaults(FAR struct webclient_context *ctx)
 {
   memset(ctx, 0, sizeof(*ctx));
   ctx->method = "GET";
+  ctx->timeout_sec = CONFIG_WEBCLIENT_TIMEOUT;
 }
 
 /****************************************************************************
