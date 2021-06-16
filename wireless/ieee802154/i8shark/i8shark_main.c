@@ -1,5 +1,5 @@
 /****************************************************************************
- * wireless/ieee802154/i8shark/i8shark_main.c
+ * apps/wireless/ieee802154/i8shark/i8shark_main.c
  *
  *   Copyright (C) 2017 Verge Inc. All rights reserved.
  *   Author: Anthony Merlino <anthony@vergeaero.com>
