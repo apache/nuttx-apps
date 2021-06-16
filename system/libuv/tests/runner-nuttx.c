@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/libuv/tests/runner-nuttx.c
+ * apps/system/libuv/tests/runner-nuttx.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
