@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/cu/cu_main.c
+ * apps/system/cu/cu_main.c
  *
  *   Copyright (C) 2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
  *   Author: Harald Welte <hwelte@sysmocom.de>
