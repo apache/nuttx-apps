@@ -1,5 +1,5 @@
 /****************************************************************************
- * canutils/libobd2/obd_decodepid.c
+ * apps/canutils/libobd2/obd_decodepid.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
