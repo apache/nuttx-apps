@@ -42,14 +42,14 @@ int main(int argc, char **argv)
   /* Print arguments */
 
   printf("argc\t= %d\n", argc);
-  printf("argv\t= 0x%p\n", argv);
+  printf("argv\t= %p\n", argv);
 
   for (i = 0; i < argc; i++)
     {
       printf("argv[%d]\t= ", i);
       if (argv[i])
         {
-          printf("(0x%p) \"%s\"\n", argv[i], argv[i]);
+          printf("(%p) \"%s\"\n", argv[i], argv[i]);
         }
       else
         {
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         }
     }
 
-  printf("argv[%d]\t= 0x%p\n", argc, argv[argc]);
+  printf("argv[%d]\t= %p\n", argc, argv[argc]);
   printf("Goodbye, world!\n");
   return 0;
 }
