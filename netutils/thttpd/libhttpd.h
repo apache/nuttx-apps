@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/thttpd/libhttpd.h
+ * apps/netutils/thttpd/libhttpd.h
  * HTTP Protocol Library Definitions
  *
  *   Copyright (C) 2009 Gregory Nutt. All rights reserved.

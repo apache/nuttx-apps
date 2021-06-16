@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/thttpd/libhttpd.c
+ * apps/netutils/thttpd/libhttpd.c
  * HTTP Protocol Library
  *
  *   Copyright (C) 2009, 2011, 2013, 2015-2016 Gregory Nutt. All rights reserved.

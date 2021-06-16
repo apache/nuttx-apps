@@ -1,6 +1,5 @@
 #############################################################################
-#
-# netutils/netcat/Make.defs
+# apps/netutils/netcat/Make.defs
 # netcat sample networking application
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more

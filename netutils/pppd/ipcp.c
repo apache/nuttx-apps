@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/ipcp.c
+ * apps/netutils/pppd/ipcp.c
  * PPP IPCP (intrnet protocol) Processor/Handler
  *
  *   Version: 0.1 Original Version Jun 3, 2000

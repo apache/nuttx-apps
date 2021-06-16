@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/ppp_conf.h
+ * apps/netutils/pppd/ppp_conf.h
  *
  *   Copyright (C) 2015 Max Nekludov. All rights reserved.
  *   Author: Max Nekludov <macscomp@gmail.com>

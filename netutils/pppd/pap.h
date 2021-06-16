@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/pap.h
+ * apps/netutils/pppd/pap.h
  * PAP header file
  *
  *   Version: 0.1 Original Version June 3, 2000

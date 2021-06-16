@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netcat/netcat_main.c
+ * apps/netutils/netcat/netcat_main.c
  * netcat networking application
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more

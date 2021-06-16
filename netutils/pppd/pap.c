@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/pap.c
+ * apps/netutils/pppd/pap.c
  * PAP processor for the PPP module
  *
  *   Version: 0.1 Original Version Jun 3, 2000
