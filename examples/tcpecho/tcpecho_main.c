@@ -95,7 +95,7 @@ static int tcpecho_netsetup()
   void *handle;
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_TCPECHO_NOMAC
   mac[0] = 0x00;
@@ -141,7 +141,8 @@ static int tcpecho_netsetup()
 
   handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
-  /* Get an IP address.  Note:  there is no logic here for renewing the address in this
+  /* Get an IP address.
+   * Note:  there is no logic here for renewing the address in this
    * example.  The address should be renewed in ds.lease_time/2 seconds.
    */
 
@@ -183,7 +184,11 @@ static int tcpecho_netsetup()
 
 static int tcpecho_server(void)
 {
-  int i, maxi, listenfd, connfd, sockfd;
+  int i;
+  int maxi;
+  int listenfd;
+  int connfd;
+  int sockfd;
   int nready;
   int ret;
   ssize_t n;
@@ -191,7 +196,8 @@ static int tcpecho_server(void)
   socklen_t clilen;
   bool stop = false;
   struct pollfd client[CONFIG_EXAMPLES_TCPECHO_NCONN];
-  struct sockaddr_in cliaddr, servaddr;
+  struct sockaddr_in cliaddr;
+  struct sockaddr_in servaddr;
 
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -206,7 +212,7 @@ static int tcpecho_server(void)
   servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servaddr.sin_port        = htons(CONFIG_EXAMPLES_TCPECHO_PORT);
 
-  ret = bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
+  ret = bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
   if (ret < 0)
     {
       perror("ERROR: failed to bind socket.\n");
@@ -233,14 +239,14 @@ static int tcpecho_server(void)
 
   while (!stop)
     {
-      nready = poll(client, maxi+1, TCPECHO_POLLTIMEOUT);
+      nready = poll(client, maxi + 1, TCPECHO_POLLTIMEOUT);
 
       if (client[0].revents & POLLRDNORM)
         {
           /* new client connection */
 
           clilen = sizeof(cliaddr);
-          connfd = accept(listenfd, (struct sockaddr*)&cliaddr, &clilen);
+          connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
 
           ninfo("new client: %s\n", inet_ntoa(cliaddr.sin_addr));
 
@@ -282,7 +288,7 @@ static int tcpecho_server(void)
 
           if (client[i].revents & (POLLRDNORM | POLLERR))
             {
-              if ( (n = read(sockfd, buf, TCPECHO_MAXLINE)) < 0)
+              if ((n = read(sockfd, buf, TCPECHO_MAXLINE)) < 0)
                 {
                   if (errno == ECONNRESET)
                     {

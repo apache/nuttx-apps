@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/nuttx/pdcthread.c
+ * apps/graphics/pdcurs34/nuttx/pdcthread.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

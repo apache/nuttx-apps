@@ -81,7 +81,7 @@ int main(int argc, FAR char *argv[])
   void *handle;
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_NOMAC
   mac[0] = 0x00;
@@ -127,7 +127,8 @@ int main(int argc, FAR char *argv[])
 
   handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
-  /* Get an IP address.  Note:  there is no logic here for renewing the address in this
+  /* Get an IP address.
+   * Note:  there is no logic here for renewing the address in this
    * example.  The address should be renewed in ds.lease_time/2 seconds.
    */
 

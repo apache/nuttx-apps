@@ -48,7 +48,7 @@
 
 int main(int argc, FAR char *argv[])
 {
-  struct inode* inode;
+  struct inode * inode;
   int           ret;
   int           x;
   int           logsector;
@@ -86,7 +86,8 @@ int main(int argc, FAR char *argv[])
     }
 
   /* Test if the device is formatted.  If not, then we must do a
-   * low-level format first */
+   * low-level format first
+   */
 
   if (!(fmt.flags & SMART_FMT_ISFORMATTED))
     {
@@ -176,7 +177,8 @@ int main(int argc, FAR char *argv[])
     }
 
   /* Now read the data back to validate everything was written and can
-   * be read. */
+   * be read.
+   */
 
   printf("\nDoing read verify test\n");
   for (x = 0; x < fmt.nsectors >> 1; x++)
@@ -219,9 +221,11 @@ int main(int argc, FAR char *argv[])
 
       seqs[x] = seq++;
 
-      /* Now write over the sector data with new data, causing a relocation. */
+      /* Now write over the sector data with new data, causing a relocation.
+       */
 
-      sprintf(buffer, "Logical sector %d sequence %d\n", sectors[x], seqs[x]);
+      sprintf(buffer, "Logical sector %d sequence %d\n",
+              sectors[x], seqs[x]);
       readwrite.logsector = sectors[x];
       readwrite.offset = 0;
       readwrite.count = strlen(buffer) + 1;
@@ -244,7 +248,9 @@ int main(int argc, FAR char *argv[])
 
       seqs[x] = seq++;
 
-      /* Now write over the sector data with new data, causing a relocation. */
+      /* Now write over the sector data with new data,
+       * causing a relocation.
+       */
 
       sprintf(buffer, "Appended data in sector %d\n", sectors[x]);
       readwrite.logsector = sectors[x];
@@ -267,7 +273,7 @@ int main(int argc, FAR char *argv[])
     {
       /* Only free the sector if it is still valid */
 
-      if (sectors[x] != 0xFFFF)
+      if (sectors[x] != 0xffff)
         {
           inode->u.i_bops->ioctl(inode, BIOC_FREESECT, (unsigned long)
                                  sectors[x]);
@@ -275,6 +281,7 @@ int main(int argc, FAR char *argv[])
     }
 
 errout_with_buffers:
+
   /* Free the allocated buffers */
 
   free(seqs);
@@ -282,6 +289,7 @@ errout_with_buffers:
   free(buffer);
 
 errout_with_driver:
+
   /* Now close the block device and exit */
 
   close_blockdriver(inode);
