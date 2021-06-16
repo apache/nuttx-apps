@@ -390,9 +390,9 @@ int main(int argc, FAR char *argv[])
   /* The two arrays below must be synchronized */
 
   test_ptr_t test_ptr_array[] = /* Array of test programs */
-  {
-    adxl372_test,   /* ADXL372 accelerometer tests */
-  };
+    {
+      adxl372_test,   /* ADXL372 accelerometer tests */
+    };
 
   FAR char *test_path[ARRAYSIZE(test_ptr_array)];
 

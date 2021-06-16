@@ -626,10 +626,10 @@ int main(int argc, FAR char *argv[])
   /* The two arrays below must be synchronized */
 
   test_ptr_t test_ptr_array[] =
-  {
-    lsm330acl_test,   /* LSM330 accelerometer tests */
-    lsm330gyro_test,  /* LSM330 gyroscope tests */
-  };
+    {
+      lsm330acl_test,   /* LSM330 accelerometer tests */
+      lsm330gyro_test,  /* LSM330 gyroscope tests */
+    };
 
   FAR char *test_path[ARRAYSIZE(test_ptr_array)];
 

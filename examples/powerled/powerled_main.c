@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/adc/powerled_main.c
+ * apps/examples/powerled/powerled_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -192,7 +192,7 @@ static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
   int i_value;
   float f_value;
 
-  for (index = 1; index < argc;)
+  for (index = 1; index < argc; )
     {
       ptr = argv[index];
       if (ptr[0] != '-')
@@ -461,7 +461,8 @@ int main(int argc, char *argv[])
 
   /* Set LED current limit */
 
-  powerled_limits.current = (((float)CONFIG_EXAMPLES_POWERLED_CURRENT_LIMIT)/1000.0);
+  powerled_limits.current =
+          (((float)CONFIG_EXAMPLES_POWERLED_CURRENT_LIMIT) / 1000.0);
 
   printf("\nStart powerled_main application!\n");
 
@@ -470,7 +471,8 @@ int main(int argc, char *argv[])
   fd = open(CONFIG_EXAMPLES_POWERLED_DEVPATH, 0);
   if (fd <= 0)
     {
-      printf("powerled_main: open %s failed %d\n", CONFIG_EXAMPLES_POWERLED_DEVPATH, errno);
+      printf("powerled_main: open %s failed %d\n",
+             CONFIG_EXAMPLES_POWERLED_DEVPATH, errno);
       goto errout;
     }
 
@@ -505,7 +507,8 @@ int main(int argc, char *argv[])
 
                       /* Set Powerled continuous mode */
 
-                      ret = ioctl(fd, PWRIOC_SET_MODE, (unsigned long)powerled_mode);
+                      ret = ioctl(fd, PWRIOC_SET_MODE,
+                                 (unsigned long)powerled_mode);
                       if (ret < 0)
                         {
                           printf("failed to set powerled mode %d \n", ret);
@@ -518,7 +521,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled parameters */
 
-                  ret = ioctl(fd, PWRIOC_SET_PARAMS, (unsigned long)&powerled_params);
+                  ret = ioctl(fd, PWRIOC_SET_PARAMS,
+                             (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
                       printf("failed to set params %d \n", ret);
@@ -549,7 +553,6 @@ int main(int argc, char *argv[])
                   sleep(1);
                 }
 
-
               if (demo == POWERLED_OPMODE_FLASH)
                 {
                   /* Flash mode demo */
@@ -566,13 +569,15 @@ int main(int argc, char *argv[])
 
                       /* Set Powerled flash mode */
 
-                      ret = ioctl(fd, PWRIOC_SET_MODE, (unsigned long)powerled_mode);
+                      ret = ioctl(fd, PWRIOC_SET_MODE,
+                                 (unsigned long)powerled_mode);
                       if (ret < 0)
                         {
                           printf("failed to set powerled mode %d \n", ret);
                         }
 
-                      printf("Brightness is %.2f\n", powerled_params.brightness);
+                      printf("Brightness is %.2f\n",
+                             powerled_params.brightness);
                       printf("Duty is %.2f\n", powerled_params.duty);
 
                       config = false;
@@ -582,7 +587,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled parameters */
 
-                  ret = ioctl(fd, PWRIOC_SET_PARAMS, (unsigned long)&powerled_params);
+                  ret = ioctl(fd, PWRIOC_SET_PARAMS,
+                             (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
                       printf("failed to set params %d \n", ret);
@@ -628,7 +634,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled continuous mode */
 
-                  ret = ioctl(fd, PWRIOC_SET_MODE, (unsigned long)powerled_mode);
+                  ret = ioctl(fd, PWRIOC_SET_MODE,
+                             (unsigned long)powerled_mode);
                   if (ret < 0)
                     {
                       printf("failed to set powerled mode %d \n", ret);
@@ -640,7 +647,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled parameters */
 
-                  ret = ioctl(fd, PWRIOC_SET_PARAMS, (unsigned long)&powerled_params);
+                  ret = ioctl(fd, PWRIOC_SET_PARAMS,
+                             (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
                       printf("failed to set params %d \n", ret);
@@ -672,7 +680,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled flash mode */
 
-                  ret = ioctl(fd, PWRIOC_SET_MODE, (unsigned long)powerled_mode);
+                  ret = ioctl(fd, PWRIOC_SET_MODE,
+                             (unsigned long)powerled_mode);
                   if (ret < 0)
                     {
                       printf("failed to set powerled mode %d \n", ret);
@@ -684,7 +693,8 @@ int main(int argc, char *argv[])
 
                   /* Set Powerled parameters */
 
-                  ret = ioctl(fd, PWRIOC_SET_PARAMS, (unsigned long)&powerled_params);
+                  ret = ioctl(fd, PWRIOC_SET_PARAMS,
+                             (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
                       printf("failed to set params %d \n", ret);

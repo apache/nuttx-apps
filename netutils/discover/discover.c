@@ -43,6 +43,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_DISCOVER_STACK_SIZE
@@ -70,6 +71,7 @@
 #endif
 
 /* Internal Definitions *****************************************************/
+
 /* Discover request packet format:
  * Byte Description
  * 0    Protocol identifier (0x99)
@@ -142,17 +144,17 @@ static inline void discover_initresponse()
   g_state.response[0] = DISCOVER_PROTO_ID;
   g_state.response[1] = DISCOVER_RESPONSE;
 
-  strncpy((char*) &g_state.response[2], g_state.info.description,
-          DISCOVER_RESPONSE_SIZE-3);
+  strncpy((char *) &g_state.response[2], g_state.info.description,
+          DISCOVER_RESPONSE_SIZE - 3);
 
-  for (i = 0; i < DISCOVER_RESPONSE_SIZE-1; i++)
+  for (i = 0; i < DISCOVER_RESPONSE_SIZE - 1; i++)
     {
       chk -= g_state.response[i];
     }
 
   /* Append check sum */
 
-  g_state.response[DISCOVER_RESPONSE_SIZE-1] = chk & 0xff;
+  g_state.response[DISCOVER_RESPONSE_SIZE - 1] = chk & 0xff;
 }
 
 static int discover_daemon(int argc, char *argv[])
@@ -163,11 +165,12 @@ static int discover_daemon(int argc, char *argv[])
   struct sockaddr_in srcaddr;
 
   /* memset(&g_state, 0, sizeof(struct discover_state_s)); */
+
   discover_initresponse();
 
   ninfo("Started\n");
 
-  for (;;)
+  for (; ; )
     {
       /* Create a socket to listen for requests from DHCP clients */
 
@@ -184,7 +187,7 @@ static int discover_daemon(int argc, char *argv[])
       /* Read the next packet */
 
       nbytes = recvfrom(sockfd, &g_state.request, sizeof(g_state.request), 0,
-                        (struct sockaddr*) &srcaddr,
+                        (struct sockaddr *) &srcaddr,
                         (socklen_t *) &addrlen);
       if (nbytes < 0)
         {
@@ -196,6 +199,7 @@ static int discover_daemon(int argc, char *argv[])
               close(sockfd);
               sockfd = -1;
             }
+
           continue;
         }
 
@@ -231,7 +235,7 @@ static inline int discover_parse(request_t packet)
 
   if (packet[2] == 0xff || packet[2] == g_state.info.devclass)
     {
-      for (i = 0; i < DISCOVER_REQUEST_SIZE-1; i++)
+      for (i = 0; i < DISCOVER_REQUEST_SIZE - 1; i++)
         chk -= packet[i];
 
       if ((chk & 0xff) != packet[3])
@@ -244,6 +248,7 @@ static inline int discover_parse(request_t packet)
           return OK;
         }
     }
+
   return ERROR;
 }
 
@@ -299,7 +304,8 @@ static inline int discover_socket()
 
 #ifdef HAVE_SO_REUSEADDR
   optval = 1;
-  ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int));
+  ret = setsockopt(sockfd, SOL_SOCKET,
+                   SO_REUSEADDR, (void *)&optval, sizeof(int));
   if (ret < 0)
     {
       nerr("ERROR: setsockopt SO_REUSEADDR failed: %d\n", errno);
@@ -310,7 +316,8 @@ static inline int discover_socket()
 
 #ifdef HAVE_SO_BROADCAST
   optval = 1;
-  ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (void*)&optval, sizeof(int));
+  ret = setsockopt(sockfd, SOL_SOCKET,
+                   SO_BROADCAST, (void *)&optval, sizeof(int));
   if (ret < 0)
     {
       nerr("ERROR: setsockopt SO_BROADCAST failed: %d\n", errno);
@@ -348,7 +355,8 @@ static inline int discover_openlistener()
       close(sockfd);
       return ERROR;
     }
-  g_state.serverip = ((struct sockaddr_in*)&req.ifr_addr)->sin_addr.s_addr;
+
+  g_state.serverip = ((struct sockaddr_in *)&req.ifr_addr)->sin_addr.s_addr;
   ninfo("serverip: %08lx\n", ntohl(g_state.serverip));
 
   /* Bind the socket to a local port. We have to bind to INADDRY_ANY to
@@ -361,12 +369,12 @@ static inline int discover_openlistener()
 
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
-   {
-     nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
-          addr.sin_port, (long)addr.sin_addr.s_addr, errno);
-     close(sockfd);
-     return ERROR;
-   }
+    {
+      nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
+           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
+      close(sockfd);
+      return ERROR;
+    }
 
   return sockfd;
 }
@@ -386,7 +394,7 @@ static inline int discover_openresponder(void)
       return ERROR;
     }
 
-  /* Bind the socket to a local port.*/
+  /* Bind the socket to a local port. */
 
   addr.sin_family      = AF_INET;
   addr.sin_port        = 0;
@@ -394,12 +402,12 @@ static inline int discover_openresponder(void)
 
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
-   {
-     nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
-          addr.sin_port, (long)addr.sin_addr.s_addr, errno);
-     close(sockfd);
-     return ERROR;
-   }
+    {
+      nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
+           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
+      close(sockfd);
+      return ERROR;
+    }
 
   return sockfd;
 }

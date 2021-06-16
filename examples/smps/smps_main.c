@@ -195,7 +195,7 @@ static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
   int index;
   int nargs;
 
-  for (index = 1; index < argc;)
+  for (index = 1; index < argc; )
     {
       ptr = argv[index];
       if (ptr[0] != '-')
@@ -308,21 +308,24 @@ static int validate_args(FAR struct args_s *args)
   int ret = OK;
 
   if (args->current < 0 ||
-      args->current > (((float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT)/1000.0))
+      args->current >
+     (((float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT) / 1000.0))
     {
       printf("Not valid current value: %.2f\n", args->current);
       goto errout;
     }
 
   if (args->voltage < 0 ||
-      args->voltage > (((float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT)/1000.0))
+      args->voltage >
+     (((float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT) / 1000.0))
     {
       printf("Not valid voltage value: %.2f\n", args->voltage);
       goto errout;
     }
 
   if (args->power < 0 ||
-      args->power > (((float)CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT)/1000.0))
+      args->power >
+     (((float)CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT) / 1000.0))
     {
       printf("Not valid power value: %.2f\n", args->power);
       goto errout;
@@ -362,7 +365,8 @@ static void feedback_print(FAR struct smps_feedback_s *fb)
   printf("\n");
 }
 
-static void print_info(struct smps_limits_s *limits, struct smps_params_s *params,
+static void print_info(struct smps_limits_s *limits,
+                       struct smps_params_s *params,
                        uint8_t *mode, struct args_s *args)
 {
   printf("-------------------------------------\n");
@@ -443,22 +447,28 @@ int main(int argc, char *argv[])
   /* Initialize SMPS limits */
 
 #if CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT > 0
-  smps_limits.v_out = (float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT/1000.0;
+  smps_limits.v_out =
+            (float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT / 1000.0;
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_VOLTAGE_LIMIT > 0
-  smps_limits.v_in  = (float)CONFIG_EXAMPLES_SMPS_IN_VOLTAGE_LIMIT/1000.0;
+  smps_limits.v_in  =
+            (float)CONFIG_EXAMPLES_SMPS_IN_VOLTAGE_LIMIT / 1000.0;
 #endif
 #if CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT > 0
-  smps_limits.i_out = (float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT/1000.0;
+  smps_limits.i_out =
+            (float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT / 1000.0;
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_CURRENT_LIMIT > 0
-  smps_limits.i_in  = (float)CONFIG_EXAMPLES_SMPS_IN_CURRENT_LIMIT/1000.0;
+  smps_limits.i_in  =
+            (float)CONFIG_EXAMPLES_SMPS_IN_CURRENT_LIMIT / 1000.0;
 #endif
 #if CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT > 0
-  smps_limits.p_out = (float)CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT/1000.0;
+  smps_limits.p_out =
+            (float)CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT / 1000.0;
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_CURRENT_LIMIT > 0
-  smps_limits.p_in  = (float)CONFIG_EXAMPLES_SMPS_IN_POWER_LIMIT/1000.0;
+  smps_limits.p_in  =
+            (float)CONFIG_EXAMPLES_SMPS_IN_POWER_LIMIT / 1000.0;
 #endif
 
   /* Parse the command line */
@@ -493,13 +503,14 @@ int main(int argc, char *argv[])
   /* Set SMPS params */
 
   smps_params.v_out = (args->voltage > 0 ? args->voltage :
-                       (float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_DEFAULT/1000.0);
+                (float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_DEFAULT / 1000.0);
   smps_params.i_out = (args->current > 0 ? args->current :
-                       (float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_DEFAULT/1000.0);
+                (float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_DEFAULT / 1000.0);
   smps_params.p_out = (args->power > 0 ? args->power :
-                       (float)CONFIG_EXAMPLES_SMPS_OUT_POWER_DEFAULT/1000.0);
+                (float)CONFIG_EXAMPLES_SMPS_OUT_POWER_DEFAULT / 1000.0);
 
-  args->time = (args->time == 0 ? CONFIG_EXAMPLES_SMPS_TIME_DEFAULT : args->time);
+  args->time = (args->time == 0 ? CONFIG_EXAMPLES_SMPS_TIME_DEFAULT :
+                args->time);
 
   printf("\nStart smps_main application!\n\n");
 
@@ -512,7 +523,8 @@ int main(int argc, char *argv[])
   fd = open(CONFIG_EXAMPLES_SMPS_DEVPATH, 0);
   if (fd <= 0)
     {
-      printf("smps_main: open %s failed %d\n", CONFIG_EXAMPLES_SMPS_DEVPATH, errno);
+      printf("smps_main: open %s failed %d\n",
+             CONFIG_EXAMPLES_SMPS_DEVPATH, errno);
       goto errout;
     }
 
@@ -554,7 +566,7 @@ int main(int argc, char *argv[])
 
   /* Main loop */
 
-  while(terminate != true)
+  while (terminate != true)
     {
       /* Get current SMPS state */
 
