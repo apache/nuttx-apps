@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/thttpd/timers.c
+ * apps/netutils/thttpd/timers.c
  * FD watcher routines for poll()
  *
  *   Copyright (C) 2009 Gregory Nutt. All rights reserved.

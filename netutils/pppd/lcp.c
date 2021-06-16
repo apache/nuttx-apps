@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/lcp.c
+ * apps/netutils/pppd/lcp.c
  * Link Configuration Protocol Handler
  *
  *   Version - 0.1 Original Version June 3, 2000 -

@@ -1,6 +1,5 @@
 #############################################################################
-#
-# netutils/netcat/Kconfig
+# apps/netutils/netcat/Kconfig
 # netcat networking application
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more

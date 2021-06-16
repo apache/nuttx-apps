@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/pppd.c
+ * apps/netutils/pppd/pppd.c
  *
  *   Copyright (C) 2015 Max Nekludov. All rights reserved.
  *   Author: Max Nekludov <macscomp@gmail.com>

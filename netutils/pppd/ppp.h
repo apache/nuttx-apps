@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/pppd/ppp.h
+ * apps/netutils/pppd/ppp.h
  * PPP header file
  *
  *   Version: 0.1 Original Version June 3, 2000

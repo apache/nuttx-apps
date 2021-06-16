@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/thttpd/timers.h
+ * apps/netutils/thttpd/timers.h
  * Header file for THTTPD timers package
  *
  *   Copyright (C) 2009 Gregory Nutt. All rights reserved.

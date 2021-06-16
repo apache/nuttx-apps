@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/thttpd/thttpd_strings.h
+ * apps/netutils/thttpd/thttpd_strings.h
  * HTTP strings
  *
  *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.

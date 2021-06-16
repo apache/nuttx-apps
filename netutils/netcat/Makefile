@@ -1,6 +1,5 @@
 #############################################################################
-#
-# netutils/netcat/Makefile
+# apps/netutils/netcat/Makefile
 # Netcat networking application
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
