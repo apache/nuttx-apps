@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/webserver/webserver_main.c
+ * apps/examples/webserver/webserver_main.c
  *
  *   Copyright (C) 2007, 2009-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/elf/tests/mutex/mutex.c
+ * apps/examples/elf/tests/mutex/mutex.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

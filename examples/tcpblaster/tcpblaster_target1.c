@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/tcpblaster/tcpblaster_target1.c
+ * apps/examples/tcpblaster/tcpblaster_target1.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

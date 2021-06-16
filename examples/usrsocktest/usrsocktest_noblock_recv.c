@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_noblock_recv.c
+ * apps/examples/usrsocktest/usrsocktest_noblock_recv.c
  * Receive from the socket in non-blocking mode
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

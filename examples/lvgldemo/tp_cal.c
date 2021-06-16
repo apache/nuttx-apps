@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/touchscreen/tp_cal.c
+ * apps/examples/touchscreen/tp_cal.c
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gábor Kiss-Vámosi <kisvegabor@gmail.com>

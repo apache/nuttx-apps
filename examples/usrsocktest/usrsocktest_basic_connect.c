@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_basic_connect.c
+ * apps/examples/¨usrsocktest/usrsocktest_basic_connect.c
  * Basic connect tests with socket daemon
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.
