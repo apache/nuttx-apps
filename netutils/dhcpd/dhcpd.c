@@ -56,6 +56,7 @@
 
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netinet/udp.h>
 #include <arpa/inet.h>
 
 #include "netutils/netlib.h"
@@ -820,7 +821,7 @@ static int dhcp_addoption32p(uint8_t code, FAR uint8_t *value)
  * Name: dhcpd_socket
  ****************************************************************************/
 
-static inline int dhcpd_socket(void)
+static inline int dhcpd_socket(FAR const char *interface)
 {
   int sockfd;
 #if defined(HAVE_SO_REUSEADDR) || defined(HAVE_SO_BROADCAST)
@@ -858,6 +859,22 @@ static inline int dhcpd_socket(void)
   if (ret < 0)
     {
       nerr("ERROR: setsockopt SO_BROADCAST failed: %d\n", errno);
+      close(sockfd);
+      return ERROR;
+    }
+#endif
+
+#ifdef CONFIG_NET_UDP_BINDTODEVICE
+  /* Bind socket to interface, because UDP packets have to be sent to the
+   * broadcast address at a moment when it is not possible to decide the
+   * target network device using the local or remote address (which is,
+   * by definition and purpose of DHCP, undefined yet).
+   */
+
+  if (setsockopt(sockfd, IPPROTO_UDP, UDP_BINDTODEVICE,
+                 interface, strlen(interface)) < 0)
+    {
+      ninfo("ERROR: setsockopt UDP_BINDTODEVICE failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -1396,7 +1413,7 @@ static inline int dhcpd_openlistener(FAR const char *interface)
 
   /* Create a socket to listen for requests from DHCP clients */
 
-  sockfd = dhcpd_socket();
+  sockfd = dhcpd_socket(interface);
   if (sockfd < 0)
     {
       nerr("ERROR: socket failed: %d\n", errno);
