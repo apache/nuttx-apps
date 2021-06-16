@@ -1,5 +1,5 @@
 ############################################################################
-# interpreters/quickjs/Makefile
+# apps/interpreters/quickjs/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
