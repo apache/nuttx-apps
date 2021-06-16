@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_poll.c
+ * apps/examples/usrsocktest/usrsocktest_poll.c
  * User socket polling tests
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_noblock_send.c
+ * apps/examples/usrsocktest/usrsocktest_noblock_send.c
  * Send through the socket in non-blocking mode
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

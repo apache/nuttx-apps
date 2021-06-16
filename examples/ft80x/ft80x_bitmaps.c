@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/ft80x/ft80x_bitmaps.c
+ * apps/examples/ft80x/ft80x_bitmaps.c
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

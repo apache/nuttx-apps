@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/flash_test/flash_test.c
+ * apps/examples/flash_test/flash_test.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_basic_getsockname.c
+ * apps/examples/usrsocktest/usrsocktest_basic_getsockname.c
  * Basic getsockname tests
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

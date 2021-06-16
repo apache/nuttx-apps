@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/sx127x_demo/sx127x_demo.c
+ * apps/examples/sx127x_demo/sx127x_demo.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

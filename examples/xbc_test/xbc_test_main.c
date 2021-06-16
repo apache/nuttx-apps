@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/xbc_test/xbc_test_main.c
+ * apps/examples/xbc_test/xbc_test_main.c
  *
  *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/fxos8700cq/fxos8700cq_main.c
+ * apps/examples/fxos8700cq/fxos8700cq_main.c
  * fxos8700cq motion sensor sample application
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more

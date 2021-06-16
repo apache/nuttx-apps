@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_block_recv.c
+ * apps/examples/usrsocktest/usrsocktest_block_recv.c
  * Receive from the socket in blocking mode
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

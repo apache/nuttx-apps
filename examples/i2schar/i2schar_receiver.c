@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/i2schar/i2schar_receiver.c
+ * apps/examples/i2schar/i2schar_receiver.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

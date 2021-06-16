@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/canard/canard_main.c
+ * apps/examples/canard/canard_main.c
  *
  *   Copyright (C) 2016 ETH Zuerich. All rights reserved.
  *   Author: Matthias Renner <rennerm@ethz.ch>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nrf24l01_btle/nrf24l01_btle.c
+ * apps/examples/nrf24l01_btle/nrf24l01_btle.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

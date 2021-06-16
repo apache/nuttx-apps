@@ -1,5 +1,5 @@
 /********************************************************************************************
- * examples/nximage/nximage_bitmap.c
+ * apps/examples/nximage/nximage_bitmap.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

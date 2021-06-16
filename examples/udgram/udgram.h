@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udgram/udgram.h
+ * apps/examples/udgram/udgram.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/pf_ieee802154/pf_client.c
+ * apps/examples/pf_ieee802154/pf_client.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/ina219/ina219_main.c
+ * apps/examples/ina219/ina219_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

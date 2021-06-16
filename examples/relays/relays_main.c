@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/relays/relays_main.c
+ * apps/examples/relays/relays_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Darcy Gong

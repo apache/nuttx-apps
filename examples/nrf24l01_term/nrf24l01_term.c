@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nrf24l01_term/nrf24l01_term.c
+ * apps/examples/nrf24l01_term/nrf24l01_term.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

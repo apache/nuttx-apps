@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_nodaemon.c
+ * apps/examples/usrsocktest/usrsocktest_nodaemon.c
  * Tests without user socket daemon
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/calib_udelay/calib_udelay_main.c
+ * apps/examples/calib_udelay/calib_udelay_main.c
  *
  *   Copyright (C) 2017 Haltian Ltd All rights reserved.
  *   Author: Jussi Kivilinna <jussi.kivilinna@haltian.com>

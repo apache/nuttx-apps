@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_wake_with_signal.c
+ * apps/examples/usrsocktest/usrsocktest_wake_with_signal.c
  * Wake blocked IO with signal or daemon abort
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

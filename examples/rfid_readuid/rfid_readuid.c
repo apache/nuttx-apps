@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/rfid_readuid/rfid_readuid.c
+ * apps/examples/rfid_readuid/rfid_readuid.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

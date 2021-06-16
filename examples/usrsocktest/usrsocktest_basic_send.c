@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usrsocktest/usrsocktest_basic_send.c
+ * apps/examples/usrsocktest/usrsocktest_basic_send.c
  * Basic sending tests
  *
  *   Copyright (C) 2015, 2017 Haltian Ltd. All rights reserved.

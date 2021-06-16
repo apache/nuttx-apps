@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/max31855/max31855_main.c
+ * apps/examples/max31855/max31855_main.c
  *
  *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
  *   Author: Tiago Almeida <tiagojbalmeida@gmail.com>
