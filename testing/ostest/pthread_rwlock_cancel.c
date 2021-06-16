@@ -1,5 +1,5 @@
 /****************************************************************************
- * testing/ostest/pthread_rwlock_cancel.c
+ * apps/testing/ostest/pthread_rwlock_cancel.c
  *
  *   Copyright (C) 2017 Haltian Ltd. All rights reserved.
  *   Author: Juha Niskanen <juha.niskanen@haltian.com>
