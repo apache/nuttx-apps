@@ -274,7 +274,7 @@ static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl)
 #ifndef CONFIG_NSH_DISABLEBG
 static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl)
 {
-  FAR struct console_stdio_s *pclone = nsh_newconsole();
+  FAR struct console_stdio_s *pclone = nsh_newconsole(vtbl->isctty);
   return &pclone->cn_vtbl;
 }
 #endif
@@ -436,7 +436,7 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
  * Name: nsh_newconsole
  ****************************************************************************/
 
-FAR struct console_stdio_s *nsh_newconsole(void)
+FAR struct console_stdio_s *nsh_newconsole(bool isctty)
 {
   FAR struct console_stdio_s *pstate =
     (FAR struct console_stdio_s *)zalloc(sizeof(struct console_stdio_s));
@@ -454,6 +454,7 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_vtbl.error       = nsh_erroroutput;
       pstate->cn_vtbl.linebuffer  = nsh_consolelinebuffer;
       pstate->cn_vtbl.exit        = nsh_consoleexit;
+      pstate->cn_vtbl.isctty      = isctty;
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
       /* Set the initial option flags */

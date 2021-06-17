@@ -68,7 +68,7 @@ enum telnetd_state_e
 
 static int nsh_telnetmain(int argc, char *argv[])
 {
-  FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR struct console_stdio_s *pstate = nsh_newconsole(true);
   FAR struct nsh_vtbl_s *vtbl;
   int ret;
 
