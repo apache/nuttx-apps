@@ -27,6 +27,8 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "iperf.h"
 
 /****************************************************************************
@@ -673,9 +675,15 @@ static void iperf_task_traffic(void *arg)
     {
       iperf_run_tcp_client();
     }
-  else
+  else if (iperf_is_tcp_server())
     {
       iperf_run_tcp_server();
+    }
+  else
+    {
+      /* shouldn't happen */
+
+      assert(false);
     }
 
   if (s_iperf_ctrl.buffer)
