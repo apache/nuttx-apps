@@ -245,7 +245,7 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
 
 int nsh_consolemain(int argc, FAR char *argv[])
 {
-  FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR struct console_stdio_s *pstate = nsh_newconsole(true);
   FAR const char *msg;
   int ret;
 

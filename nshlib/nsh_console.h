@@ -128,6 +128,10 @@ struct nsh_vtbl_s
   /* Parser state data */
 
   struct nsh_parser_s np;
+
+  /* Ctrl tty or not */
+
+  bool isctty;
 };
 
 /* This structure describes a console front-end that is based on stdin and
@@ -177,6 +181,6 @@ struct console_stdio_s
 
 /* Defined in nsh_console.c *************************************************/
 
-FAR struct console_stdio_s *nsh_newconsole(void);
+FAR struct console_stdio_s *nsh_newconsole(bool isctty);
 
 #endif /* __APPS_NSHLIB_NSH_CONSOLE_H */

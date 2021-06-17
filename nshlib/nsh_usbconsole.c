@@ -241,7 +241,7 @@ restart:
 
 int nsh_consolemain(int argc, FAR char *argv[])
 {
-  FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR struct console_stdio_s *pstate = nsh_newconsole(true);
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
   int ret;
