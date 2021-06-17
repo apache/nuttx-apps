@@ -31,6 +31,17 @@ VPATH   += :$(ARGTABLE3_SRCDIR)
 CFLAGS += ${shell $(DEFINE) "$(CC)" ARG_REPLACE_GETOPT=0}
 CSRCS := $(notdir $(wildcard $(ARGTABLE3_SRCDIR)$(DELIM)*.c))
 
+# workaround for clang.
+#
+# argtable3/src/arg_rex.c:100:104: error: unknown attribute 'optimize' ignored [-Werror,-Wunknown-attributes]
+# TREX_API TRex* trex_compile(const TRexChar* pattern, const TRexChar** error, int flags) __attribute__((optimize(0)));
+#
+# the upstream fix:
+# https://github.com/argtable/argtable3/commit/7704006f3cbb556e11da80a5b97469075a32892e
+ifneq "$(shell $(CC) --version | grep clang)" ""
+  CFLAGS += -Wno-unknown-attributes
+endif
+
 $(ARGTABLE3_TARBALL):
 	$(Q) echo "Downloading argtable3-$(ARGTABLE3_VERSION)"
 	$(Q) echo "$(ARGTABLE3_SRCDIR)"
