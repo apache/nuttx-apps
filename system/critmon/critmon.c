@@ -478,15 +478,15 @@ static int critmon_daemon(int argc, char **argv)
 
   while (!g_critmon.stop)
     {
-      /* Wait for the next sample interval */
-
-      sleep(CONFIG_SYSTEM_CRITMONITOR_INTERVAL);
-
       exitcode = critmon_list_once();
       if (exitcode != EXIT_SUCCESS)
         {
           break;
         }
+
+      /* Wait for the next sample interval */
+
+      sleep(CONFIG_SYSTEM_CRITMONITOR_INTERVAL);
     }
 
   /* Stopped */
