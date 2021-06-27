@@ -255,6 +255,8 @@ int ftpc_getfile(SESSION handle, FAR const char *rname,
       goto errout;
     }
 
+  offset = 0;
+
   /* Get information about the local file */
 
   ret = stat(abslpath, &statbuf);
@@ -267,29 +269,25 @@ int ftpc_getfile(SESSION handle, FAR const char *rname,
           nwarn("WARNING: '%s' is a directory\n", abslpath);
           goto errout_with_abspath;
         }
-    }
 
-  /* Is it write-able? */
+      /* Is it write-able? */
 
 #ifdef S_IWRITE
-  if (!(statbuf.st_mode & S_IWRITE))
-    {
-      nwarn("WARNING: '%s' permission denied\n", abslpath);
-      goto errout_with_abspath;
-    }
+      if (!(statbuf.st_mode & S_IWRITE))
+        {
+          nwarn("WARNING: '%s' permission denied\n", abslpath);
+          goto errout_with_abspath;
+        }
 #endif
 
-  /* Are we resuming the transfers?  Is so then the starting offset is the
-   * size of the existing, partial file.
-   */
+      /* Are we resuming the transfers?  Is so then the starting offset is
+       * the size of the existing, partial file.
+       */
 
-  if (how == FTPC_GET_RESUME)
-    {
-      offset = statbuf.st_size;
-    }
-  else
-    {
-      offset = 0;
+      if (how == FTPC_GET_RESUME)
+        {
+          offset = statbuf.st_size;
+        }
     }
 
   /* Setup to receive the file */
