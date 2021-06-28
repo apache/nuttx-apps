@@ -815,7 +815,7 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
 
       if (0 != nret)
         {
-          ret = -EINVAL;
+          ret = -errno;
           goto prepare;
         }
 
