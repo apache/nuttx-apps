@@ -137,12 +137,8 @@ int system(FAR const char *cmd)
   errcode = posix_spawn(&pid, argv[0],  NULL, &attr,
                         argv, (FAR char * const *)NULL);
 #else
-  pid = task_spawn("system", nsh_system, NULL, &attr,
-                   argv + 1, (FAR char * const *)NULL);
-  if (pid < 0)
-    {
-      errcode = -pid;
-    }
+  errcode = task_spawn(&pid, "system", nsh_system, NULL, &attr,
+                       argv, (FAR char * const *)NULL);
 #endif
 
   /* Release the attributes and check for an error from the spawn operation */

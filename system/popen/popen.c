@@ -253,12 +253,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
   errcode = posix_spawn(&container->shell, argv[0], &file_actions,
                         &attr, argv, (FAR char * const *)NULL);
 #else
-  container->shell = task_spawn("popen", nsh_system, &file_actions,
-                                &attr, argv + 1, (FAR char * const *)NULL);
-  if (container->shell < 0)
-    {
-      errcode = -container->shell;
-    }
+  errcode = task_spawn(&container->shell, "popen", nsh_system, &file_actions,
+                       &attr, argv, (FAR char * const *)NULL);
 #endif
 
   if (errcode != 0)
