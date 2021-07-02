@@ -373,7 +373,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
 {
   FAR struct telnetd_s *daemon;
   FAR char *argv[2];
-  char arg0[16];
+  char arg0[sizeof("0x1234567812345678")];
   pid_t pid;
 
   /* Allocate a state structure for the new daemon */
@@ -394,7 +394,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
 
   /* Then start the new daemon */
 
-  snprintf(arg0, 16, "0x%" PRIxPTR, (uintptr_t)daemon);
+  snprintf(arg0, sizeof(arg0), "0x%" PRIxPTR, (uintptr_t)daemon);
   argv[0] = arg0;
   argv[1] = NULL;
 
