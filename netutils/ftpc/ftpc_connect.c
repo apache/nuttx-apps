@@ -73,6 +73,10 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
   session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
   session->pid         = getpid();
 
+  session->cmd.sd       = -1;
+  session->data.sd      = -1;
+  session->dacceptor.sd = -1;
+
   /* Use the default port if the user specified port number zero */
 
 #ifdef CONFIG_NET_IPv6
