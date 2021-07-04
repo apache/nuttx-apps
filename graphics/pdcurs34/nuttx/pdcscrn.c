@@ -207,7 +207,9 @@ static int PDC_scr_open_term(int argc, char **argv)
     {
       /* Free the memory ... can't open input */
 
+#ifdef CONFIG_PDCURSES_MULTITHREAD
       PDC_ctx_free();
+#endif
       free(termscreen);
     }
 #endif
