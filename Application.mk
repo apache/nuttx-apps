@@ -92,7 +92,6 @@ endif
 
 DEPPATH += --dep-path .
 DEPPATH += --obj-path .
-DEPPATH += --obj-suffix $(SUFFIX)$(OBJEXT)
 
 VPATH += :.
 
@@ -216,8 +215,8 @@ register::
 endif
 
 .depend: Makefile $(wildcard $(foreach SRC, $(SRCS), $(addsuffix /$(SRC), $(subst :, ,$(VPATH))))) $(DEPCONFIG)
-	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(filter-out %$(CXXEXT) Makefile $(DEPCONFIG),$^) >Make.dep
-	$(Q) $(MKDEP) $(DEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out %.c Makefile $(DEPCONFIG),$^) >>Make.dep
+	$(Q) $(MKDEP) $(DEPPATH) --obj-suffix .c$(SUFFIX)$(OBJEXT) "$(CC)" -- $(CFLAGS) -- $(filter-out %$(CXXEXT) Makefile $(DEPCONFIG),$^) >Make.dep
+	$(Q) $(MKDEP) $(DEPPATH) --obj-suffix $(CXXEXT)$(SUFFIX)$(OBJEXT) "$(CXX)" -- $(CXXFLAGS) -- $(filter-out %.c Makefile $(DEPCONFIG),$^) >>Make.dep
 	$(Q) touch $@
 
 depend:: .depend
