@@ -11,4 +11,9 @@ config EXAMPLES_PIPE
 		Enable the pipe example
 
 if EXAMPLES_PIPE
+
+config EXAMPLES_PIPE_STACKSIZE
+	int "pipe stack size"
+	default DEFAULT_TASK_STACKSIZE
+
 endif
