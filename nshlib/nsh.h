@@ -799,6 +799,11 @@ extern const char g_fmtsignalrecvd[];
  * Public Function Prototypes
  ****************************************************************************/
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 /* Initialization */
 
 #ifdef CONFIG_NSH_ROMFSETC
@@ -1401,6 +1406,10 @@ int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name);
 #if defined(CONFIG_NSH_VARS) && !defined(CONFIG_NSH_DISABLE_SET)
 int nsh_foreach_var(FAR struct nsh_vtbl_s *vtbl, nsh_foreach_var_t cb,
                     FAR void *arg);
+#endif
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */
