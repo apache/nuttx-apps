@@ -36,10 +36,6 @@
 #define FIFO_PATH1 "/tmp/testfifo-1"
 #define FIFO_PATH2 "/tmp/testfifo-2"
 
-#ifndef CONFIG_EXAMPLES_PIPE_STACKSIZE
-#  define CONFIG_EXAMPLES_PIPE_STACKSIZE 1024
-#endif
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
