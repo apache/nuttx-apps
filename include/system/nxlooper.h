@@ -162,6 +162,33 @@ int nxlooper_setdevice(FAR struct nxlooper_s *plooper,
                        FAR const char *device);
 
 /****************************************************************************
+ * Name: nxlooper_loopraw
+ *
+ *   nxlooper_loopraw() tries to record and then play the raw data using the
+ *   Audio system.  If a device is specified, it will try to use that
+ *   device.
+ *
+ * Input Parameters:
+ *   plooper    Pointer to the initialized Looper context
+ *   nchannels  channel num
+ *   bpsampe    bit width
+ *   samprate   sample rate
+ *   chmap      channel map
+ *
+ * Returned Value:
+ *   OK         File is being looped
+ *   -EBUSY     The media device is busy
+ *   -ENOSYS    The media file is an unsupported type
+ *   -ENODEV    No audio device suitable
+ *   -ENOENT    The media file was not found
+ *
+ ****************************************************************************/
+
+int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
+                     uint8_t nchannels, uint8_t bpsamp,
+                     uint32_t samprate, uint8_t chmap);
+
+/****************************************************************************
  * Name: nxlooper_stop
  *
  *   Stops current loopback.
