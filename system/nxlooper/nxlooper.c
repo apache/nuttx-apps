@@ -122,8 +122,6 @@ static int nxlooper_opendevice(FAR struct nxlooper_s *plooper)
       FAR struct dirent *pdevice;
       FAR DIR *dirp;
       char path[64];
-      uint8_t supported = true;
-      uint8_t x;
 
       /* Search for a device in the audio device directory */
 
@@ -479,7 +477,7 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
 
       /* Validate a message was received */
 
-      audinfo("message received size %d id%d\n", size, msg.msg_id);
+      audinfo("message received size %zd id%d\n", size, msg.msg_id);
       if (size != sizeof(msg))
         {
           /* Interrupted by a signal? What to do? */
