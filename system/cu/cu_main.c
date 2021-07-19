@@ -146,14 +146,16 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
 
   tio = g_tio_dev;
 
+  tio.c_cflag &= ~(PARENB | PARODD | CRTSCTS);
+
   switch (parity)
     {
       case PARITY_EVEN:
-        tio.c_cflag = PARENB;
+        tio.c_cflag |= PARENB;
         break;
 
       case PARITY_ODD:
-        tio.c_cflag = PARENB | PARODD;
+        tio.c_cflag |= PARENB | PARODD;
         break;
 
       case PARITY_NONE:
