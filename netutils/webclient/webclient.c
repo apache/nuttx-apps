@@ -1063,11 +1063,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                    * received file.
                    */
 
-                  if (ws->offset == ws->datend)
-                    {
-                      /* We don't have data to give to the client yet. */
-                    }
-                  else if (ctx->sink_callback)
+                  if (ctx->sink_callback)
                     {
                       ret = ctx->sink_callback(&ws->buffer, ws->offset,
                                                ws->datend, &ws->buflen,
