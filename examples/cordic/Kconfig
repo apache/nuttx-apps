@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CORDIC
+	tristate "CORDIC example"
+	default n
+	---help---
+		Enable the CORDIC example
+
+if EXAMPLES_CORDIC
+
+config EXAMPLES_CORDIC_DEVPATH
+	string "CORDIC Device Path"
+	default "/dev/cordic0"
+	---help---
+		The device path
+
+config EXAMPLES_CORDIC_PROGNAME
+	string "Program name"
+	default "cordic"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_CORDIC_PRIORITY
+	int "CORDIC task priority"
+	default 100
+
+config EXAMPLES_CORDIC_STACKSIZE
+	int "CORDIC stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

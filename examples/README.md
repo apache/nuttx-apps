@@ -209,6 +209,10 @@ Attempts to keep the system busy by passing data through a pipe in loop back
 mode. This may be useful if you are trying run down other problems that you
 think might only occur when the system is very busy.
 
+## `cordic`
+
+A simple test of the CORDIC character driver.
+
 ## `dac` Write to DAC
 
 This is a tool for writing values to DAC device.
