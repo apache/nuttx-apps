@@ -47,6 +47,8 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <stdbool.h>
 #include <sys/types.h>
 
 /****************************************************************************
@@ -103,7 +105,7 @@
 typedef void (*wget_callback_t)(FAR char **buffer, int offset,
                                 int datend, FAR int *buflen, FAR void *arg);
 
-/* webclient_sink_callback_t: callback to consume data
+/* webclient_sink_callback_t: callback to consume body data
  *
  * Same as wget_callback_t, but allowed to fail.
  *
@@ -118,6 +120,20 @@ typedef void (*wget_callback_t)(FAR char **buffer, int offset,
 typedef CODE int (*webclient_sink_callback_t)(FAR char **buffer, int offset,
                                               int datend, FAR int *buflen,
                                               FAR void *arg);
+
+/* webclient_header_callback_t: callback to consume header data
+ *
+ * Input Parameters:
+ *   line        - A NULL-terminated string containing a header line.
+ *   truncated   - Flag for indicating whether the received header line is
+ *                 truncated for exceeding the CONFIG_WEBCLIENT_MAXHTTPLINE
+ *                 length limit.
+ *   arg         - User argument passed to callback.
+ */
+
+typedef CODE int (*webclient_header_callback_t)(FAR const char *line,
+                                                bool truncated,
+                                                FAR void *arg);
 
 /* webclient_body_callback_t: a callback to provide request body
  *
@@ -239,6 +255,8 @@ struct webclient_context
   wget_callback_t callback;
   webclient_sink_callback_t sink_callback;
   FAR void *sink_callback_arg;
+  webclient_header_callback_t header_callback;
+  FAR void *header_callback_arg;
   webclient_body_callback_t body_callback;
   FAR void *body_callback_arg;
   FAR const struct webclient_tls_ops *tls_ops;
