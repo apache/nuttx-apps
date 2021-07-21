@@ -519,7 +519,8 @@ static int parseurl(FAR const char *url, FAR struct wget_s *ws)
  * Name: wget_parseheaders
  ****************************************************************************/
 
-static inline int wget_parseheaders(struct wget_s *ws)
+static inline int wget_parseheaders(struct webclient_context *ctx,
+                                    struct wget_s *ws)
 {
   int offset;
   int ndx;
@@ -559,6 +560,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
               ninfo("Got HTTP header line%s: %.*s\n",
                     got_nl ? "" : " (truncated)",
                     ndx - 1, &ws->line[0]);
+
               if (ws->line[0] == ISO_CR)
                 {
                   /* This was the last header line (i.e., and empty "\r\n"),
@@ -595,6 +597,16 @@ static inline int wget_parseheaders(struct wget_s *ws)
 
                   nerr("ERROR: invalid header\n");
                   return -EPROTO;
+                }
+
+              if (ctx->header_callback)
+                {
+                  ret = ctx->header_callback(&ws->line[0], !got_nl,
+                                             ctx->header_callback_arg);
+                  if (ret != 0)
+                    {
+                      goto exit;
+                    }
                 }
 
               /* Check for specific HTTP header fields. */
@@ -1046,7 +1058,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
           if (ws->state == WEBCLIENT_STATE_HEADERS)
             {
-              ret = wget_parseheaders(ws);
+              ret = wget_parseheaders(ctx, ws);
               if (ret < 0)
                 {
                   goto errout_with_errno;
