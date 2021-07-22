@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/fsutils/mkfatfs/writefat.c
+ * apps/fsutils/mkfatfs/mkfatfs.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -154,8 +154,8 @@ static inline int mkfatfs_getgeometry(FAR struct fat_format_s *fmt,
       if (fmt->ff_nsectors > geometry.geo_nsectors)
         {
           ferr("ERROR: User maxblocks (%" PRId32
-               ") exceeds blocks on device (%" PRIu32 ")\n",
-               fmt->ff_nsectors, geometry.geo_nsectors);
+               ") exceeds blocks on device (%ju)\n",
+               fmt->ff_nsectors, (uintmax_t)geometry.geo_nsectors);
 
           return -EINVAL;
         }
