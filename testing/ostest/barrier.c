@@ -107,6 +107,8 @@ void barrier_test(void)
 
   printf("barrier_test: Initializing barrier\n");
 
+  /* Create the barrier */
+
   status = pthread_barrierattr_init(&barrierattr);
   if (status != OK)
     {
@@ -121,10 +123,6 @@ void barrier_test(void)
       printf("barrier_test: pthread_barrier_init failed, status=%d\n",
              status);
     }
-
-  /* Create the barrier */
-
-  pthread_barrierattr_init(&barrierattr);
 
   /* Start CONFIG_TESTING_OSTEST_NBARRIER_THREADS thread instances */
 
