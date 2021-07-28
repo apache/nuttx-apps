@@ -118,7 +118,7 @@ void barrier_test(void)
                                 CONFIG_TESTING_OSTEST_NBARRIER_THREADS);
   if (status != OK)
     {
-      printf("barrier_test: pthread_barrierattr_init failed, status=%d\n",
+      printf("barrier_test: pthread_barrier_init failed, status=%d\n",
              status);
     }
 
