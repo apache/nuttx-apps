@@ -235,7 +235,7 @@ static void foc_control_input_set_b16(FAR foc_handler_b16_t *h,
 
   /* Update phase angle */
 
-#ifndef CONFIG_INDUSTRY_FOC_CORDIC
+#ifndef CONFIG_INDUSTRY_FOC_CORDIC_ANGLE
   phase_angle_update_b16(&foc->angle, angle);
 #else
   foc_cordic_angle_b16(h->fd, &foc->angle, angle);
@@ -281,7 +281,7 @@ static void foc_control_voltage_run_b16(FAR foc_handler_b16_t *h,
 
   /* Saturate voltage DQ vector */
 
-#ifndef CONFIG_INDUSTRY_FOC_CORDIC
+#ifndef CONFIG_INDUSTRY_FOC_CORDIC_DQSAT
   dq_saturate_b16(dq_ref, mag_max);
 #else
   foc_cordic_dqsat_b16(h->fd, dq_ref, mag_max);
@@ -343,7 +343,7 @@ static void foc_control_current_run_b16(FAR foc_handler_b16_t *h,
 
   /* Saturate voltage DQ vector */
 
-#ifndef CONFIG_INDUSTRY_FOC_CORDIC
+#ifndef CONFIG_INDUSTRY_FOC_CORDIC_DQSAT
   dq_saturate_b16(dq_ref, mag_max);
 #else
   foc_cordic_dqsat_b16(h->fd, dq_ref, mag_max);

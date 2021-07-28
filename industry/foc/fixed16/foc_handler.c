@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "industry/foc/foc_log.h"
 #include "industry/foc/foc_common.h"
@@ -104,6 +105,18 @@ int foc_handler_init_b16(FAR foc_handler_b16_t *h,
       goto errout;
     }
 
+#ifdef CONFIG_INDUSTRY_FOC_CORDIC
+  /* Open CORDIC device */
+
+  h->fd = open(CONFIG_INDUSTRY_FOC_CORDIC_DEVPATH, O_RDWR);
+  if (h->fd < 0)
+    {
+      FOCLIBERR("ERROR: failed to open CORDIC device %s %d\n",
+                CONFIG_INDUSTRY_FOC_CORDIC_DEVPATH, errno);
+      goto errout;
+    }
+#endif
+
 errout:
   return ret;
 }
@@ -132,6 +145,12 @@ int foc_handler_deinit_b16(FAR foc_handler_b16_t *h)
   /* Deinitialize control handler */
 
   h->ops.ctrl->deinit(h);
+
+#ifdef CONFIG_INDUSTRY_FOC_CORDIC
+  /* Close CORDIC device */
+
+  close(h->fd);
+#endif
 
   /* Reset data */
 

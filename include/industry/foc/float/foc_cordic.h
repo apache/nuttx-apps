@@ -33,16 +33,20 @@
  * Public Function Prototypes
  ****************************************************************************/
 
+#ifdef CONFIG_INDUSTRY_FOC_CORDIC_DQSAT
 /****************************************************************************
  * Name: foc_cordic_dqsat_f32
  ****************************************************************************/
 
 int foc_cordic_dqsat_f32(int fd, FAR dq_frame_f32_t *dq_ref, float mag_max);
+#endif
 
+#ifdef CONFIG_INDUSTRY_FOC_CORDIC_ANGLE
 /****************************************************************************
  * Name: foc_cordic_angle_f32
  ****************************************************************************/
 
 int foc_cordic_angle_f32(int fd, FAR phase_angle_f32_t *angle, float a);
+#endif
 
 #endif /* __INDUSTRY_FOC_FLOAT_FOC_CORDIC_H */
