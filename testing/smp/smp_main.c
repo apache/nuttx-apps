@@ -221,6 +221,8 @@ int main(int argc, FAR char *argv[])
   show_cpu("  Main", 0);
   printf("  Main[0]: Initializing barrier\n");
 
+  /* Create the barrier */
+
   ret = pthread_barrierattr_init(&barrierattr);
   if (ret != OK)
     {
@@ -241,10 +243,6 @@ int main(int argc, FAR char *argv[])
       errcode = EXIT_FAILURE;
       goto errout_with_attr;
     }
-
-  /* Create the barrier */
-
-  pthread_barrierattr_init(&barrierattr);
 
   /* Start CONFIG_TESTING_SMP_NBARRIER_THREADS thread instances */
 
