@@ -235,7 +235,7 @@ int main(int argc, FAR char *argv[])
                              CONFIG_TESTING_SMP_NBARRIER_THREADS);
   if (ret != OK)
     {
-      printf("  Main[0]: pthread_barrierattr_init failed, ret=%d\n",
+      printf("  Main[0]: pthread_barrier_init failed, ret=%d\n",
              ret);
 
       errcode = EXIT_FAILURE;
