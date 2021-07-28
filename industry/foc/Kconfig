@@ -14,10 +14,25 @@ if INDUSTRY_FOC
 
 config INDUSTRY_FOC_CORDIC
 	bool "Enable CORDIC support"
-	depends on EXPERIMENTAL
 	default n
 	---help---
 		Enable support for CORDIC hardware acceleration
+
+if INDUSTRY_FOC_CORDIC
+
+config INDUSTRY_FOC_CORDIC_DEVPATH
+	string "CORDIC device path"
+	default "/dev/cordic0"
+
+config INDUSTRY_FOC_CORDIC_ANGLE
+	bool "Enable CORDIC for phase angle"
+	default n
+
+config INDUSTRY_FOC_CORDIC_DQSAT
+	bool "Enable CORDIC for dq saturation"
+	default n
+
+endif # INDUSTRY_FOC_CORDIC
 
 config INDUSTRY_FOC_FIXED16
 	bool "Enable support for fixed16"
