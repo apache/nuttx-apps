@@ -230,9 +230,10 @@ $(EMBEDLOG_SOURCES)/include/embedlog.h: $(EMBEDLOG_SOURCES)/include/embedlog.h.i
 	    -e "s/@ENABLE_OUT_TTY@/$(CONFIG_EMBEDLOG_ENABLE_OUT_TTY)/" \
 	    -e "s/@ENABLE_PREFIX@/$(CONFIG_EMBEDLOG_ENABLE_PREFIX)/" \
 	    -e "s/@ENABLE_OUT_CUSTOM@/$(CONFIG_EMBEDLOG_ENABLE_OUT_CUSTOM)/" \
-	    -e "s/@ENABLE_PTHREAD@/$(CONFIG_EMBEDLOG_ENABLE_PTHREAD)/" $< > $@
-	$(Q) sed -i -e "s/^#if y$$/#if 1/" \
-	    -e "s/^#if $$/#if 0/" -e "s/^#if n$$/#if 0/" $@
+	    -e "s/@ENABLE_PTHREAD@/$(CONFIG_EMBEDLOG_ENABLE_PTHREAD)/" \
+	    -e "s/^#if y$$/#if 1/" \
+	    -e "s/^#if $$/#if 0/" \
+	    -e "s/^#if n$$/#if 0/" $< > $@
 
 create_includes: $(EMBEDLOG_SOURCES)/include/embedlog.h
 	$(Q) $(CP) $< $(APPDIR)/include/system
