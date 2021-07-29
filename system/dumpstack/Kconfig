@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_DUMPSTACK
+	tristate "dumpstack tool for show the task backtrace"
+	default n
+	depends on SCHED_BACKTRACE
+	---help---
+
+if SYSTEM_DUMPSTACK
+
+config SYSTEM_DUMPSTACK_STACKSIZE
+	int "dumpstack stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size that will be used when starting the dumpstack.
+
+config SYSTEM_DUMPSTACK_PRIORITY
+	int "dumpstack priority"
+	default 100
+	---help---
+		This is the task priority that will be used when starting the dumpstack.
+
+endif # SYSTEM_DUMPSTACK
