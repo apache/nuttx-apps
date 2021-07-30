@@ -62,7 +62,8 @@
 
 #define get_pid(pid)  ((pid) < NCPUS ? 0 : (pid))
 
-#define get_task_state(s) ((s) <= LAST_READY_TO_RUN_STATE ? 'R' : 'S')
+#define get_task_state(s) ((s) == 0 ? 'X' : \
+                          ((s) <= LAST_READY_TO_RUN_STATE ? 'R' : 'S'))
 
 /****************************************************************************
  * Private Types
@@ -140,8 +141,8 @@ static void trace_dump_init_context(FAR struct trace_dump_context_s *ctx,
       ctx->cpu[cpu].intr_nest = 0;
       ctx->cpu[cpu].pendingswitch = false;
       ctx->cpu[cpu].current_state = TSTATE_TASK_RUNNING;
-      ctx->cpu[cpu].current_pid = cpu;    /* Idle task */
-      ctx->cpu[cpu].next_pid = cpu;
+      ctx->cpu[cpu].current_pid = -1;
+      ctx->cpu[cpu].next_pid = -1;
     }
 
   ctx->task = NULL;
@@ -359,14 +360,7 @@ static int trace_dump_one(FAR FILE *out,
   cctx = &ctx->cpu[cpu];
   pid = note->nc_pid[0] + (note->nc_pid[1] << 8);
 
-  if (note->nc_type != NOTE_START &&
-      note->nc_type != NOTE_STOP &&
-      note->nc_type != NOTE_RESUME
-#ifdef CONFIG_SMP
-      && !(note->nc_type >= NOTE_CPU_START &&
-           note->nc_type <= NOTE_CPU_RESUMED)
-#endif
-     )
+  if (cctx->current_pid < 0)
     {
       cctx->current_pid = pid;
     }
@@ -396,13 +390,11 @@ static int trace_dump_one(FAR FILE *out,
 
       case NOTE_STOP:
         {
-          trace_dump_header(out, note, ctx);
-          fprintf(out, "sched_switch: "
-                       "prev_comm=%s prev_pid=%u prev_state=%c ==> "
-                       "next_comm=%s next_pid=%u\n",
-                  get_task_name(pid, ctx), get_pid(pid), 'X',
-                  get_task_name(cctx->current_pid, ctx),
-                  get_pid(cctx->current_pid));
+          /* This note informs the task to be stopped.
+           * Change current task state for the succeeding NOTE_RESUME.
+           */
+
+          cctx->current_state = 0;
         }
         break;
 
