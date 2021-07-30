@@ -17,3 +17,9 @@ for the SPIFFS file system.
 - `CONFIG_TESTING_FSTEST_MOUNTPT` – Path where the file system is mounted.
 - `CONFIG_TESTING_FSTEST_NLOOPS` – Number of test loops. default `100`.
 - `CONFIG_TESTING_FSTEST_VERBOSE` – Verbose output.
+
+EXAMPLE
+  fstest -m /mnt -n 10 – Test /mnt 10 times
+  fstest -h            – Get help message
+  fstest               – Test path define by `CONFIG_TESTING_FSTEST_MOUNTPT`
+                         `CONFIG_TESTING_FSTEST_NLOOPS` times

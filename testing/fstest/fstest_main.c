@@ -102,7 +102,8 @@ struct fstest_filedesc_s
 
 static uint8_t g_fileimage[CONFIG_TESTING_FSTEST_MAXFILE];
 static struct fstest_filedesc_s g_files[CONFIG_TESTING_FSTEST_MAXOPEN];
-static const char g_mountdir[] = CONFIG_TESTING_FSTEST_MOUNTPT "/";
+static char g_mountdir[CONFIG_TESTING_FSTEST_MAXNAME] =
+            CONFIG_TESTING_FSTEST_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
 static int g_nfailed;
@@ -925,14 +926,14 @@ static int fstest_directory(void)
 
   /* Open the directory */
 
-  dirp = opendir(CONFIG_TESTING_FSTEST_MOUNTPT);
+  dirp = opendir(g_mountdir);
 
   if (!dirp)
     {
       /* Failed to open the directory */
 
       printf("ERROR: Failed to open directory '%s': %d\n",
-             CONFIG_TESTING_FSTEST_MOUNTPT, errno);
+             g_mountdir, errno);
       return ERROR;
     }
 
@@ -960,6 +961,19 @@ static int fstest_directory(void)
 }
 
 /****************************************************************************
+ * Show help Message
+ ****************************************************************************/
+
+static void show_useage(void)
+{
+  printf("Usage : fstest [OPTION [ARG]] ...\n");
+  printf("-h    show this help statement\n");
+  printf("-n    num of test loop e.g. [%d]\n", CONFIG_TESTING_FSTEST_NLOOPS);
+  printf("-m    mount point tobe test e.g. [%s]\n",
+          CONFIG_TESTING_FSTEST_MOUNTPT);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -972,10 +986,43 @@ int main(int argc, FAR char *argv[])
   struct statfs buf;
   unsigned int i;
   int ret;
+  int loop_num;
+  int option;
 
   /* Seed the random number generated */
 
   srand(0x93846);
+  loop_num = CONFIG_TESTING_FSTEST_NLOOPS;
+  strcpy(g_mountdir, CONFIG_TESTING_FSTEST_MOUNTPT);
+
+  /* Opt Parse */
+
+  while ((option = getopt(argc, argv, ":m:hn:")) != -1)
+    {
+      switch (option)
+        {
+          case 'm':
+            strcpy(g_mountdir, optarg);
+            break;
+          case 'h':
+            show_useage();
+            exit(0);
+          case 'n':
+            loop_num = atoi(optarg);
+            break;
+          case ':':
+            printf("Error: Missing required argument\n");
+            exit(1);
+          case '?':
+            printf("Error: Unrecognized option\n");
+            exit(1);
+        }
+    }
+
+  if (g_mountdir[strlen(g_mountdir)-1] != '/')
+    {
+      strcat(g_mountdir, "/");
+    }
 
   /* Set up memory monitoring */
 
@@ -990,7 +1037,7 @@ int main(int argc, FAR char *argv[])
 #if CONFIG_TESTING_FSTEST_NLOOPS == 0
   for (i = 0; ; i++)
 #else
-  for (i = 1; i <= CONFIG_TESTING_FSTEST_NLOOPS; i++)
+  for (i = 1; i <= loop_num; i++)
 #endif
     {
       /* Write a files to the file system until either (1) all of the open
