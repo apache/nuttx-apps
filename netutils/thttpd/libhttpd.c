@@ -7,7 +7,7 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright © 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@
 #include <sched.h>
 #include <errno.h>
 #include <debug.h>
+#include <fnmatch.h>
 
-#include <nuttx/lib/regex.h>
 #include "netutils/thttpd.h"
 
 #include "config.h"
@@ -436,7 +436,7 @@ static void send_response(httpd_conn *hc, int status, const char *title, const c
   snprintf(buf, sizeof(buf), form, defanged);
   add_response(hc, buf);
 
-  if (match("**MSIE**", hc->useragent))
+  if (!fnmatch("**MSIE**", hc->useragent, 0))
     {
       int n;
       add_response(hc, "<!--\n");
@@ -1960,7 +1960,7 @@ static int really_check_referer(httpd_conn *hc)
     {
       /* Disallow if the url matches. */
 
-      if (match(CONFIG_THTTPD_URLPATTERN, hc->origfilename))
+      if (!fnmatch(CONFIG_THTTPD_URLPATTERN, hc->origfilename, 0))
         {
           return 0;
         }
@@ -2030,7 +2030,7 @@ static int really_check_referer(httpd_conn *hc)
    * filename does match the url pattern, it's an illegal reference.
    */
 
-  if (!match(lp, refhost) && match(CONFIG_THTTPD_URLPATTERN, hc->origfilename))
+  if (fnmatch(lp, refhost, 0) && !fnmatch(CONFIG_THTTPD_URLPATTERN, hc->origfilename, 0))
     {
       return 0;
     }
@@ -3352,7 +3352,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
   /* Is it in the CGI area? */
 
 #ifdef CONFIG_THTTPD_CGI_PATTERN
-  if (match(CONFIG_THTTPD_CGI_PATTERN, hc->expnfilename))
+  if (!fnmatch(CONFIG_THTTPD_CGI_PATTERN, hc->expnfilename, 0))
     {
       return cgi(hc);
     }
