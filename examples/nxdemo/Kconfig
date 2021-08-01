@@ -53,7 +53,7 @@ endif
 config EXAMPLES_NXDEMO_EXTERNINIT
 	bool "External Device Initialization"
 	default n
-	depends on LIB_BOARDCTL
+	depends on BOARDCTL
 	select BOARDCTL_GRAPHICS
 	---help---
 		The driver for the graphics device on this platform requires some
@@ -67,7 +67,7 @@ config EXAMPLES_NXDEMO_EXTERNINIT
 		FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
 		#endif
 
-		and must also define: CONFIG_LIB_BOARDCTL=y and
+		and must also define: CONFIG_BOARDCTL=y and
 		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
 		will be available in order to access this function.
 

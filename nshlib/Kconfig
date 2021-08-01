@@ -12,7 +12,7 @@ config NSH_LIBRARY
 	select NETUTILS_NETLIB if NET
 	select LIBC_NETDB if NET
 	select READLINE_HAVE_EXTMATCH
-	select LIB_BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT || NSH_ROMFSETC
+	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT || NSH_ROMFSETC
 	select BOARDCTL_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
 	select BOARDCTL_ROMDISK if NSH_ROMFSETC
 	---help---
@@ -916,7 +916,7 @@ config NSH_CONSOLE
 config NSH_USBCONSOLE
 	bool "Use a USB serial console"
 	default n
-	depends on LIB_BOARDCTL && NSH_CONSOLE && USBDEV && (CDCACM || PL2303)
+	depends on BOARDCTL && NSH_CONSOLE && USBDEV && (CDCACM || PL2303)
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		If defined, then the an arbitrary USB serial device may be used
@@ -1103,7 +1103,7 @@ endmenu # USB Device Trace Support
 config NSH_ARCHINIT
 	bool "Have architecture-specific initialization"
 	default n
-	select LIB_BOARDCTL
+	select BOARDCTL
 	---help---
 		Set if your board provides architecture specific initialization
 		via the board-interface function boardctl().  The boardctl()

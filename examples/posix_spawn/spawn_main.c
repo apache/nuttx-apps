@@ -69,8 +69,8 @@
 #  error "You must not disable loadable modules via CONFIG_BINFMT_DISABLE in your configuration file"
 #endif
 
-#ifndef CONFIG_LIB_BOARDCTL
-#  error "This configuration requires CONFIG_LIB_BOARDCTL"
+#ifndef CONFIG_BOARDCTL
+#  error "This configuration requires CONFIG_BOARDCTL"
 #endif
 
 #ifndef CONFIG_BOARDCTL_APP_SYMTAB

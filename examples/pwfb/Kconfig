@@ -7,7 +7,7 @@ config EXAMPLES_PWFB
 	tristate "NX Per-Window Framebuffer Text Example"
 	default n
 	depends on NX
-	select LIB_BOARDCTL
+	select BOARDCTL
 	select NX_RAMBACKED
 	---help---
 		Enable the NX per-window framebuffer example

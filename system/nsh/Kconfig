@@ -24,7 +24,7 @@ config SYSTEM_NSH_STACKSIZE
 config SYSTEM_NSH_SYMTAB
 	bool "Register symbol table"
 	default n
-	depends on LIBC_EXECFUNCS && LIB_BOARDCTL && !EXECFUNCS_HAVE_SYMTAB
+	depends on LIBC_EXECFUNCS && BOARDCTL && !EXECFUNCS_HAVE_SYMTAB
 	select BOARDCTL_APP_SYMTAB
 	---help---
 		Enable logic to automatically register an application symbol table

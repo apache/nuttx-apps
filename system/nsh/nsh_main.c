@@ -51,7 +51,7 @@
  * support.
  */
 
-#if !defined(CONFIG_LIB_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
+#if !defined(CONFIG_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
 #  undef CONFIG_SYSTEM_NSH_SYMTAB
 #endif
 
