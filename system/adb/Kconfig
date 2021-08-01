@@ -142,7 +142,7 @@ config ADBD_FILE_SYMLINK
 
 config ADBD_BOARD_INIT
 	bool "Board initialization"
-	depends on LIB_BOARDCTL
+	depends on BOARDCTL
 	default n
 	---help---
 		Setup board before running adb daemon.

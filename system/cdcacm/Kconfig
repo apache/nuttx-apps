@@ -6,7 +6,7 @@
 menuconfig SYSTEM_CDCACM
 	tristate "USB CDC/ACM Device Commands"
 	default n
-	depends on LIB_BOARDCTL && CDCACM
+	depends on BOARDCTL && CDCACM
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB CDC/ACM class controls.  These controls include:

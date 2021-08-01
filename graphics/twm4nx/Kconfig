@@ -45,7 +45,7 @@ config TWM4NX_REVMINOR
 config TWM4NX_ARCHINIT
 	bool "Have architecture-specific initialization"
 	default n
-	select LIB_BOARDCTL
+	select BOARDCTL
 	depends on !NSH_ARCHINIT
 	---help---
 		Set if your board provides architecture specific initialization

@@ -7,7 +7,7 @@ config EXAMPLES_NXHELLO
 	tristate "NX graphics \"Hello, World!\" example"
 	default n
 	depends on NX
-	select LIB_BOARDCTL
+	select BOARDCTL
 	---help---
 		Enable the NX graphics \"Hello, World!\" example
 

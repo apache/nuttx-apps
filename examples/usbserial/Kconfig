@@ -6,7 +6,7 @@
 config EXAMPLES_USBSERIAL
 	tristate "USB serial test example"
 	default n
-	depends on LIB_BOARDCTL
+	depends on BOARDCTL
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB serial test example

@@ -6,7 +6,7 @@
 config EXAMPLES_MOUNT
 	tristate "File system mount example"
 	default n
-	select LIB_BOARDCTL if !EXAMPLES_MOUNT_BLOCKDEVICE
+	select BOARDCTL if !EXAMPLES_MOUNT_BLOCKDEVICE
 	select BOARDCTL_MKRD if !EXAMPLES_MOUNT_BLOCKDEVICE
 	---help---
 		Enable the file system mount example

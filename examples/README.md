@@ -929,7 +929,7 @@ are not as expected:
 CONFIG_DISABLE_MQUEUE=n
 CONFIG_DISABLE_PTHREAD=n
 CONFIG_NX_BLOCKING=y
-CONFIG_LIB_BOARDCTL=y
+CONFIG_BOARDCTL=y
 ```
 
 ## `nxterm` Display NuttShell (NSH) as NX Console

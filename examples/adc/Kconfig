@@ -6,7 +6,7 @@
 config EXAMPLES_ADC
 	tristate "ADC example"
 	default n
-	depends on ADC && LIB_BOARDCTL
+	depends on ADC && BOARDCTL
 	---help---
 		Enable the ADC example
 
