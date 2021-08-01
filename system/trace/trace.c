@@ -30,8 +30,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 #include <sys/ioctl.h>
-#include <nuttx/lib/regex.h>
 #include <nuttx/note/notectl_driver.h>
 
 #include "trace.h"
@@ -473,7 +473,7 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
 
       for (syscallno = 0; syscallno < SYS_nsyscalls; syscallno++)
         {
-          if (!match(&argv[index][1], g_funcnames[syscallno]))
+          if (fnmatch(&argv[index][1], g_funcnames[syscallno], 0))
             {
               continue;
             }
