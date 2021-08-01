@@ -6,7 +6,7 @@
 menuconfig SYSTEM_HEX2BIN
 	tristate "Intel HEX to binary conversion"
 	default n
-	select LIB_HEX2BIN
+	select LIBC_HEX2BIN
 	---help---
 		Enable support for a logic to convert Intel HEX format to binary.
 

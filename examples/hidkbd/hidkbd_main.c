@@ -53,7 +53,7 @@
 #  define CONFIG_EXAMPLES_HIDKBD_DEVNAME "/dev/kbda"
 #endif
 
-#if !defined(CONFIG_HIDKBD_ENCODED) || !defined(CONFIG_LIB_KBDCODEC)
+#if !defined(CONFIG_HIDKBD_ENCODED) || !defined(CONFIG_LIBC_KBDCODEC)
 #  undef CONFIG_EXAMPLES_HIDKBD_ENCODED
 #endif
 

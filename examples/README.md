@@ -544,7 +544,7 @@ This is a simple test to `debug/verify` the USB host HID keyboard class driver.
   These special keys include such things as up/down arrows, home and end keys,
   etc. If this not defined, only 7-bit printable and control ASCII characters
   will be provided to the user. Requires `CONFIG_HIDKBD_ENCODED` and
-  `CONFIG_LIB_KBDCODEC`.
+  `CONFIG_LIBC_KBDCODEC`.
 
 ## `igmp` Trivial IGMP
 
