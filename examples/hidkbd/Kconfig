@@ -35,7 +35,7 @@ config EXAMPLES_HIDKBD_DEVNAME
 config EXAMPLES_HIDKBD_ENCODED
 	bool "Encode Special Keys"
 	default y
-	depends on HIDKBD_ENCODED && LIB_KBDCODEC
+	depends on HIDKBD_ENCODED && LIBC_KBDCODEC
 	---help---
 		Decode special key press events in the user buffer.  In this case,
 		the example coded will use the interfaces defined in

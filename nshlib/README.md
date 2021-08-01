@@ -404,7 +404,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   - `cd -` sets the current working directory to the previous working directory
        (`$OLDPWD`). Equivalent to `cd $OLDPWD`.
   - `cd` or `cd ~` set the current working directory to the _home_ directory.
-       The _home_ directory can be configured by setting `CONFIG_LIB_HOMEDIR` in
+       The _home_ directory can be configured by setting `CONFIG_LIBC_HOMEDIR` in
        the configuration file. The default _home_ directory is `/`.
   - `cd ..` sets the current working directory to the parent directory.
 

@@ -96,7 +96,7 @@ static const char delimiter[] =
   "**************************************"
   "**************************************";
 
-#ifndef CONFIG_LIB_ENVPATH
+#ifndef CONFIG_LIBC_ENVPATH
 static char fullpath[128];
 #endif
 
@@ -168,7 +168,7 @@ int main(int argc, FAR char *argv[])
              ROMFSDEV, MOUNTPT, errno);
     }
 
-#if defined(CONFIG_LIB_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
+#if defined(CONFIG_LIBC_ENVPATH) && !defined(CONFIG_PATH_INITIAL)
   /* Does the system support the PATH variable?  Has the PATH variable
    * already been set?  If YES and NO, then set the PATH variable to
    * the ROMFS mountpoint.
@@ -195,7 +195,7 @@ int main(int argc, FAR char *argv[])
        * search the PATH variable to find the executable.
        */
 
-#ifdef CONFIG_LIB_ENVPATH
+#ifdef CONFIG_LIBC_ENVPATH
       filename = dirlist[i];
 #else
       snprintf(fullpath, 128, "%s/%s", MOUNTPT, dirlist[i]);

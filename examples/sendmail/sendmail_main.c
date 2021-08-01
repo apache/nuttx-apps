@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/sendmail/sendmail_maini.c
+ * apps/examples/sendmail/sendmail_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -148,7 +148,7 @@ int main(int argc, FAR char *argv[])
   handle = smtp_open();
   if (handle)
     {
-      smtp_configure(handle, CONFIG_LIB_HOSTNAME, &addr.s_addr, &port);
+      smtp_configure(handle, CONFIG_LIBC_HOSTNAME, &addr.s_addr, &port);
       smtp_send(handle, g_recipient, NULL, g_sender, g_subject,
                 g_msg_body, strlen(g_msg_body));
       smtp_close(handle);

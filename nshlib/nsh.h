@@ -462,8 +462,8 @@
 
 /* Make sure that the home directory is defined */
 
-#ifndef CONFIG_LIB_HOMEDIR
-# define CONFIG_LIB_HOMEDIR "/"
+#ifndef CONFIG_LIBC_HOMEDIR
+# define CONFIG_LIBC_HOMEDIR "/"
 #endif
 
 #undef NSH_HAVE_VARS
