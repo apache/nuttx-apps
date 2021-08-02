@@ -151,8 +151,8 @@ int main(int argc, FAR char *argv[])
   get_blocksize(fd, &info);
 
   printf("Using:\n");
-  printf("  blocksize:    %lu\n", (unsigned long)info.blocksize);
-  printf("  nblocks:      %lu\n", (unsigned long)info.nblocks);
+  printf("  blocksize:    %ju\n", (uintmax_t)info.blocksize);
+  printf("  nblocks:      %ju\n", (uintmax_t)info.nblocks);
 
   /* Allocate I/O buffers of the correct block size */
 
@@ -160,8 +160,8 @@ int main(int argc, FAR char *argv[])
   if (txbuffer == NULL)
     {
       fprintf(stderr,
-              "ERROR: failed to allocate TX I/O buffer of size %lu\n",
-              (unsigned long)info.blocksize);
+              "ERROR: failed to allocate TX I/O buffer of size %ju\n",
+              (uintmax_t)info.blocksize);
       close(fd);
       return 1;
     }
@@ -170,8 +170,8 @@ int main(int argc, FAR char *argv[])
   if (rxbuffer == NULL)
     {
       fprintf(stderr,
-              "ERROR: failed to allocate IRX /O buffer of size %lu\n",
-              (unsigned long)info.blocksize);
+              "ERROR: failed to allocate IRX /O buffer of size %ju\n",
+              (uintmax_t)info.blocksize);
       free(txbuffer);
       close(fd);
       return 1;
@@ -236,8 +236,8 @@ int main(int argc, FAR char *argv[])
         }
       else if (nwritten != info.blocksize)
         {
-          fprintf(stderr, "ERROR: Unexpected write size: %lu vs. %lu\n",
-                  (unsigned long)nwritten, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Unexpected write size: %zu vs. %ju\n",
+                  nwritten, (uintmax_t)info.blocksize);
           fprintf(stderr, "ERROR: Aborting at block: %ju\n",
                   (uintmax_t)blockno);
           info.nblocks = blockno;
@@ -282,8 +282,8 @@ int main(int argc, FAR char *argv[])
         }
       else if (nread != info.blocksize)
         {
-          fprintf(stderr, "ERROR: Unexpected read size: %lu vs. %lu\n",
-                  (unsigned long)nread, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Unexpected read size: %zu vs. %ju\n",
+                  nread, (uintmax_t)info.blocksize);
           fprintf(stderr, "ERROR: Aborting at block: %ju\n",
                   (uintmax_t)blockno);
           info.nblocks = blockno;
@@ -296,9 +296,10 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  "
+                          "ERROR: block=%ju offset=%ju.  "
                           "Unexpected value: %02x vs. %02x\n",
-                          blockno, i, rxbuffer[i], txbuffer[i]);
+                          (uintmax_t)blockno, (uintmax_t)i,
+                          rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }
             }
@@ -372,8 +373,8 @@ int main(int argc, FAR char *argv[])
         }
       else if (nread != info.blocksize)
         {
-          fprintf(stderr, "ERROR: Unexpected read size: %lu vs. %lu\n",
-                  (unsigned long)nread, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Unexpected read size: %zu vs. %ju\n",
+                  nread, (uintmax_t)info.blocksize);
           fprintf(stderr, "ERROR: Aborting at block: %ju\n",
                   (uintmax_t)blockno);
           break;
@@ -385,9 +386,10 @@ int main(int argc, FAR char *argv[])
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%lu offset=%lu.  "
+                          "ERROR: block=%ju offset=%ju.  "
                           "Unexpected value: %02x vs. %02x\n",
-                          blockno, i, rxbuffer[i], txbuffer[i]);
+                          (uintmax_t)blockno, (uintmax_t)i,
+                          rxbuffer[i], txbuffer[i]);
                   nerrors++;
                 }
             }
