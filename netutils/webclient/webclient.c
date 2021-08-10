@@ -157,7 +157,7 @@ enum webclient_state_e
     WEBCLIENT_STATE_DONE,
   };
 
-struct conn
+struct conn_s
 {
   bool tls;
 
@@ -201,7 +201,7 @@ struct wget_s
   char filename[CONFIG_WEBCLIENT_MAXFILENAME];
 
   bool need_conn_close;
-  struct conn conn;
+  struct conn_s conn;
   unsigned int nredirect;
   int redirected;
 
@@ -249,7 +249,7 @@ static const char g_httpcache[]     = "Cache-Control: no-cache";
  * Name: conn_send
  ****************************************************************************/
 
-static ssize_t conn_send(struct webclient_context *ctx, struct conn *conn,
+static ssize_t conn_send(struct webclient_context *ctx, struct conn_s *conn,
                          const void *buffer, size_t len)
 {
   if (conn->tls)
@@ -277,7 +277,7 @@ static ssize_t conn_send(struct webclient_context *ctx, struct conn *conn,
  * Name: conn_recv
  ****************************************************************************/
 
-static ssize_t conn_recv(struct webclient_context *ctx, struct conn *conn,
+static ssize_t conn_recv(struct webclient_context *ctx, struct conn_s *conn,
                          void *buffer, size_t len)
 {
   if (conn->tls)
@@ -305,7 +305,7 @@ static ssize_t conn_recv(struct webclient_context *ctx, struct conn *conn,
  * Name: conn_close
  ****************************************************************************/
 
-static void conn_close(struct webclient_context *ctx, struct conn *conn)
+static void conn_close(struct webclient_context *ctx, struct conn_s *conn)
 {
   if (conn->tls)
     {
@@ -775,7 +775,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
   struct timeval tv;
   char *dest;
   char *ep;
-  struct conn *conn;
+  struct conn_s *conn;
   FAR const struct webclient_tls_ops *tls_ops = ctx->tls_ops;
   FAR const char *method = ctx->method;
   FAR void *tls_ctx = ctx->tls_ctx;
@@ -1361,7 +1361,7 @@ void webclient_abort(FAR struct webclient_context *ctx)
 
   if (ws->need_conn_close)
     {
-      struct conn *conn = &ws->conn;
+      struct conn_s *conn = &ws->conn;
 
       conn_close(ctx, conn);
     }
@@ -1604,7 +1604,7 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
                              FAR struct webclient_poll_info *info)
 {
   struct wget_s *ws;
-  struct conn *conn;
+  struct conn_s *conn;
 
   _CHECK_STATE(ctx, WEBCLIENT_CONTEXT_STATE_IN_PROGRESS);
   DEBUGASSERT((ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0);
