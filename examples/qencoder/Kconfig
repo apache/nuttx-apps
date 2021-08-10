@@ -33,4 +33,13 @@ config EXAMPLES_QENCODER_DELAY
 		If CONFIG_NSH_BUILTIN_APPS is defined, then this value is the default
 		delay if no other delay is provided on the command line.
 
+config EXAMPLES_QENCODER_HAVE_MAXPOS
+	bool "Enable the maximum encoder position"
+	default n
+
+config EXAMPLES_QENCODER_MAXPOS
+	int "Maximum encoder position"
+	default 0
+	depends on EXAMPLES_QENCODER_HAVE_MAXPOS
+
 endif
