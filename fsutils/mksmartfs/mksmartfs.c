@@ -39,22 +39,6 @@
 #include <unistd.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -129,13 +113,7 @@ out:
  *   nrootdirs  - Number of root directory entries to create.
  *
  * Return:
- *   Zero (OK) on success; -1 (ERROR) on failure with errno set:
- *
- *   EINVAL  - NULL block driver string, bad number of FATS in 'fmt', bad FAT
- *     size in 'fmt', bad cluster size in 'fmt'
- *   ENOENT  - 'pathname' does not refer to anything in the filesystem.
- *   ENOTBLK - 'pathname' does not refer to a block driver
- *   EACCES  - block driver does not support wrie or geometry methods
+ *   Zero (OK) on success; -1 (ERROR) on failure with errno set.
  *
  * Assumptions:
  *   - The caller must assure that the block driver is not mounted and not in
@@ -158,7 +136,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
   int x;
   int ret;
 
-  /* Find the inode of the block driver identified by 'source' */
+  /* Find the inode of the block driver identified by 'pathname' */
 
   fd = open(pathname, O_RDWR);
   if (fd < 0)
@@ -176,14 +154,20 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
 #endif
   if (ret != OK)
     {
+      ret = -errno;
       goto errout_with_driver;
     }
 
   /* Get the format information so we know how big the sectors are */
 
   ret = ioctl(fd, BIOC_GETFORMAT, (unsigned long) &fmt);
+  if (ret != OK)
+    {
+      ret = -errno;
+      goto errout_with_driver;
+    }
 
-  /* Now Write the filesystem to media.  Loop for each root dir entry and
+  /* Now write the filesystem to media.  Loop for each root dir entry and
    * allocate the reserved Root Dir Entry, then write a blank root dir for
    * it.
    */
@@ -211,7 +195,7 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize)
       /* Issue a write to the sector, single byte */
 
       ret = ioctl(fd, BIOC_WRITESECT, (unsigned long) &request);
-      if (ret != 0)
+      if (ret != OK)
         {
           ret = -EIO;
           goto errout_with_driver;
@@ -225,8 +209,6 @@ errout_with_driver:
   close(fd);
 
 errout:
-
-  /* Release all allocated memory */
 
   /* Return any reported errors */
 
