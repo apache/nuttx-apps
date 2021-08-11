@@ -66,6 +66,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -171,6 +172,10 @@ struct conn
   struct webclient_tls_connection *tls_conn;
 };
 
+/* flags for wget_s::internal_flags */
+
+#define	WGET_FLAG_GOT_CONTENT_LENGTH	1
+
 struct wget_s
 {
   /* Internal status */
@@ -192,6 +197,10 @@ struct wget_s
   char line[CONFIG_WEBCLIENT_MAXHTTPLINE];
   int  ndx;
   bool skip_to_next_line;
+
+  unsigned int internal_flags; /* OR'ed WGET_FLAG_xxx */
+  uintmax_t expected_resp_body_len;
+  uintmax_t received_body_len;
 
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
   char mimetype[CONFIG_WEBCLIENT_MAXMIMESIZE];
@@ -386,6 +395,38 @@ static char *wget_urlencode_strcpy(char *dest, const char *src)
   return dest + d_len;
 }
 #endif
+
+/****************************************************************************
+ * Name: wget_parseint
+ ****************************************************************************/
+
+static int wget_parseint(const char *cp, uintmax_t *resultp)
+{
+  char *ep;
+  uintmax_t val;
+
+  errno = 0;
+  val = strtoumax(cp, &ep, 10);
+  if (cp == ep)
+    {
+      return -EINVAL; /* not a number */
+    }
+
+  if (*ep != '\0')
+    {
+      return -EINVAL; /* not a number */
+    }
+
+  if (errno != 0)
+    {
+      DEBUGASSERT(errno == ERANGE);
+      DEBUGASSERT(val == UINTMAX_MAX);
+      return -errno;
+    }
+
+  *resultp = val;
+  return 0;
+}
 
 /****************************************************************************
  * Name: wget_parsestatus
@@ -668,6 +709,25 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                   ninfo("New hostname='%s' filename='%s'\n",
                         ws->hostname, ws->filename);
                   found = true;
+                }
+              else if (strncasecmp(ws->line, g_httpcontsize,
+                                   strlen(g_httpcontsize)) == 0)
+                {
+                  found = true;
+                  if (got_nl)
+                    {
+                      ret = wget_parseint(ws->line + strlen(g_httpcontsize),
+                                          &ws->expected_resp_body_len);
+                      if (ret != 0)
+                        {
+                          goto exit;
+                        }
+
+                      ws->internal_flags |=
+                          WGET_FLAG_GOT_CONTENT_LENGTH;
+                      ninfo("Content-Length %ju\n",
+                            ws->expected_resp_body_len);
+                    }
                 }
             }
 
@@ -1209,6 +1269,17 @@ int webclient_perform(FAR struct webclient_context *ctx)
                       goto errout_with_errno;
                     }
 
+                  if ((ws->internal_flags &
+                       WGET_FLAG_GOT_CONTENT_LENGTH) != 0 &&
+                      ws->expected_resp_body_len != ws->received_body_len)
+                    {
+                      nerr("Unexpected response body length: %ju != %ju\n",
+                           ws->expected_resp_body_len,
+                           ws->received_body_len);
+                      ret = -EPROTO;
+                      goto errout_with_errno;
+                    }
+
                   ninfo("Connection lost\n");
                   ws->state = WEBCLIENT_STATE_CLOSE;
                   ws->redirected = 0;
@@ -1244,6 +1315,11 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   if (ws->httpstatus != HTTPSTATUS_MOVED)
                     {
+                      ninfo("Processing resp body %ju - %ju\n",
+                            ws->received_body_len,
+                            ws->received_body_len + ws->datend - ws->offset);
+                      ws->received_body_len += ws->datend - ws->offset;
+
                       /* Let the client decide what to do with the
                        * received file.
                        */
