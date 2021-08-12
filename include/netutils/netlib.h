@@ -221,7 +221,7 @@ struct url_s
 #endif
   FAR char *host;
   int       hostlen;
-  int       port;
+  uint16_t  port;
   FAR char *path;
   int       pathlen;
 #if 0 /* not yet */
