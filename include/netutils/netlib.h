@@ -1,5 +1,5 @@
 /****************************************************************************
- *  apps/include/netutils/netlib.h
+ * apps/include/netutils/netlib.h
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
