@@ -6,7 +6,7 @@
 config CANUTILS_LIBCANUTILS
 	bool "CAN-utils support library"
 	default n
-	depends on NET_CAN
+	depends on NET_CAN && ALLOW_GPL_COMPONENTS
 	---help---
 		Enable the CAN-utils support library ported from
 		https://github.com/linux-can/can-utils
