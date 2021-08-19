@@ -73,6 +73,16 @@ ifneq ($(CONFIG_MCUBOOT_WATCHDOG),)
 CSRCS += mcuboot/boot/nuttx/src/watchdog/watchdog.c
 endif
 
+ifneq ($(CONFIG_MCUBOOT_USE_TINYCRYPT),)
+CSRCS += mcuboot/ext/tinycrypt/lib/source/aes_encrypt.c \
+         mcuboot/ext/tinycrypt/lib/source/aes_decrypt.c \
+         mcuboot/ext/tinycrypt/lib/source/ctr_mode.c \
+         mcuboot/ext/tinycrypt/lib/source/hmac.c \
+         mcuboot/ext/tinycrypt/lib/source/ecc_dh.c \
+         mcuboot/ext/tinycrypt/lib/source/sha256.c \
+         mcuboot/ext/tinycrypt/lib/source/utils.c
+endif
+
 $(MCUBOOT_TARBALL):
 	$(Q) echo "Downloading MCUboot-$(MCUBOOT_VERSION)"
 	$(Q) curl -O -L https://github.com/mcu-tools/mcuboot/archive/$(MCUBOOT_TARBALL)

@@ -22,6 +22,15 @@ config MCUBOOT_ENABLE_LOGGING
 	---help---
 		Enable MCUboot's logging infrastructure.
 
+choice
+	prompt "Cryptographic backend"
+	default MCUBOOT_USE_TINYCRYPT
+
+config MCUBOOT_USE_TINYCRYPT
+	bool "TinyCrypt"
+
+endchoice # Cryptographic backend
+
 config MCUBOOT_BOOTLOADER
 	bool "MCUboot bootloader application"
 	default n
