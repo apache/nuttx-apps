@@ -1,0 +1,48 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HALL
+	tristate "Hall effect sensor example"
+	default n
+	depends on SENSORS_HALL3PHASE
+	---help---
+		Enable the Hall effect sensor example
+
+if EXAMPLES_HALL
+
+config EXAMPLES_HALL_DEVPATH
+	string "Hall effect sensor device path"
+	default "/dev/hall0"
+	---help---
+		The default path to the Hall effect sensor device
+
+config EXAMPLES_HALL_NSAMPLES
+	int "Number of samples"
+	default 0
+	---help---
+		This number of samples is collected and the program
+		terminates. If the value is 0, samples are collected indefinitely.
+
+config EXAMPLES_HALL_DELAY
+	int "Delay between samples"
+	default 100
+	---help---
+		This value provides the delay (in milliseconds) between each sample.
+		If CONFIG_NSH_BUILTIN_APPS is defined, then this value is the default
+		delay if no other delay is provided on the command line.
+
+choice
+	prompt "Hall effect sensor type"
+	default EXAMPLES_HALL_SENSOR_120DEG
+
+config EXAMPLES_HALL_SENSOR_120DEG
+	bool "120 deg Hall effect sensor"
+
+config EXAMPLES_HALL_SENSOR_60DEG
+	bool "60 deg Hall effect sensor"
+
+endchoice # Hall effect sensor type
+
+endif
