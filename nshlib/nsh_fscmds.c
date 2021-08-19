@@ -587,10 +587,11 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       int nbytesread;
       int nbyteswritten;
+      char *iobuffer = vtbl->iobuffer;
 
       do
         {
-          nbytesread = read(rdfd, vtbl->iobuffer, IOBUFFERSIZE);
+          nbytesread = read(rdfd, iobuffer, IOBUFFERSIZE);
           if (nbytesread == 0)
             {
               /* End of file */
@@ -621,10 +622,11 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       do
         {
-          nbyteswritten = write(wrfd, vtbl->iobuffer, nbytesread);
+          nbyteswritten = write(wrfd, iobuffer, nbytesread);
           if (nbyteswritten >= 0)
             {
               nbytesread -= nbyteswritten;
+              iobuffer += nbyteswritten;
             }
           else
             {
