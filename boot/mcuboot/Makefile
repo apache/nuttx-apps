@@ -50,6 +50,8 @@ PRIORITY  = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 endif
 
+CFLAGS += -Wno-undef
+
 CSRCS := mcuboot/boot/bootutil/src/boot_record.c \
          mcuboot/boot/bootutil/src/bootutil_misc.c \
          mcuboot/boot/bootutil/src/bootutil_public.c \
