@@ -26,17 +26,13 @@ include $(APPDIR)/Make.defs
 #DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
 #DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
 
-MPY_DIR  = ../../../micropython
+MPY_DIR  = micropython
 MPY_PORT_DIR = $(MPY_DIR)/ports/unix
 MPY_PORT_VARIANT_DIR = $(MPY_PORT_DIR)/variants/nuttx
 #TOP = $(MICROPYTHON_DIR)
-BUILD=$(MPY_PORT_DIR)/build-nuttx
+#BUILD=$(MPY_PORT_DIR)/build-nuttx
 
 #include $(MICROPYTHON_DIR)/py/mkenv.mk
-
-#include $(APP_MICROPYTHON_DIR)/Makefile
-#$(MAKE) -C $(APP_MICROPYTHON_DIR)
-#include $(MICROPYTHON_UNIX_DIR)/variants/minimal/mpconfigvariant.mk
 
 UNAME_S := NuttX
 PROGNAME  = micropython
@@ -44,47 +40,40 @@ PRIORITY  = $(CONFIG_INTERPRETERS_MICROPYTHON_PRIORITY)
 STACKSIZE = $(CONFIG_INTERPRETERS_MICROPYTHON_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_MICROPYTHON)
 
-
-#######################################
-# BEGIN MICROPYTHON MAKE 
-#######################################
-
-
-VPATH +=  \
-	 $(MPY_PORT_DIR)
-
-INC += -I$(MPY_PORT_DIR) \
-       -I$(MPY_PORT_VARIANT_DIR) \
-       -I$(TOP) \
-       -I$(BUILD) \
-
-CFLAGS += $(INC)
-
 OBJS += $(wildcard *.o)
-
-#MAINSRC = main.c
 
 CFLAGS += -Wno-undef
 
+# Micropython will use the CFLAGS that we export
 export CFLAGS
 
 #ifneq ($(CONFIG_NET),y) # DOESN'T override so does nothing
 #export MICROPY_PY_SOCKET = 0
 #endif
 
-.PHONY: micropython
 micropython:
+	$(Q) git clone https://github.com/mransom-campbell/micropython.git -b nuttx
+	$(MAKE) -C $(MPY_PORT_DIR) submodules VARIANT=nuttx
+	# build mpy-cross
+	$(MAKE) -C $(MPY_DIR)/mpy-cross
+
+
+.PHONY: micropython_make
+micropython_make: micropython
 	@echo "Calling MPY Make"
 	$(MAKE) -C $(MPY_PORT_DIR) lib VARIANT=nuttx CROSS_COMPILE=$(CROSSDEV) PROG="" \
 		MICROPY_PY_SOCKET=0 MICROPY_SSL_AXTLS=0 MICROPY_PY_USSL=0
+
 	$(CROSSDEV)ar -x $(MPY_PORT_DIR)/libmicropython.a
 
-context:: micropython
+context:: micropython_make
+
+clean::
+	$(Q) test ! -d $(MPY_PORT_DIR) || make -C $(MPY_PORT_DIR) clean VARIANT=nuttx
+
+distclean::
+	$(call DELDIR, micropython)
 
 #$(MPY_PORT_DIR)/libmicropython.a: micropython
-
-#####################################
-# END MICROPYTHON MAKE
-#####################################
 
 include $(APPDIR)/Application.mk
