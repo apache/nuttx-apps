@@ -110,6 +110,10 @@ struct termcurses_ops_s
   /* Check for cached keycode value */
 
   CODE bool (*checkkey)(FAR struct termcurses_s *dev);
+
+  /* Terminate  */
+
+  CODE int (*terminate)(FAR struct termcurses_s *dev);
 };
 
 struct termcurses_dev_s
@@ -157,7 +161,7 @@ extern "C"
  ****************************************************************************/
 
 int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
-                        FAR struct termcurses_s **dev);
+                        FAR struct termcurses_s **term);
 
 /****************************************************************************
  * Name: termcurses_deinitterm
@@ -168,7 +172,7 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
  *
  ****************************************************************************/
 
-int termcurses_deinitterm(FAR struct termcurses_s *dev);
+int termcurses_deinitterm(FAR struct termcurses_s *term);
 
 /****************************************************************************
  * Name: termcurses_moveyx

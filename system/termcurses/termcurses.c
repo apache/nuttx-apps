@@ -62,7 +62,7 @@ static struct termcurses_dev_s *g_termcurses_devices[] =
  ************************************************************************************/
 
 int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
-                        FAR struct termcurses_s **dev)
+                        FAR struct termcurses_s **term)
 {
   FAR struct termcurses_dev_s *pnext;
   int c;
@@ -94,11 +94,11 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
         {
           /* Allocate a new structure for this termcurses */
 
-          if (*dev == NULL)
+          if (*term == NULL)
             {
               /* Call the termcurses_dev init function */
 
-              *dev = pnext->ops->init(in_fd, out_fd);
+              *term = pnext->ops->init(in_fd, out_fd);
             }
 
           return OK;
@@ -111,7 +111,7 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
 
   /* Not found! */
 
-  *dev = NULL;
+  *term = NULL;
   return -ENOSYS;
 }
 
@@ -124,26 +124,24 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
  *
  ************************************************************************************/
 
-int termcurses_deinitterm(FAR struct termcurses_s *dev)
+int termcurses_deinitterm(FAR struct termcurses_s *term)
 {
-  struct termcurses_colors_s colors;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  int result = OK;
 
-  /* Ensure terminal has default color scheme */
+  /* Call the dev function */
 
-  colors.fg_red     = 255;
-  colors.fg_green   = 255;
-  colors.fg_blue    = 255;
-  colors.bg_red     = 0;
-  colors.bg_green   = 0;
-  colors.bg_blue    = 0;
-  colors.color_mask = 0xff;
-  termcurses_setcolors(dev, &colors);
+  if (dev->ops->terminate)
+    {
+      result = dev->ops->terminate(term);
+    }
 
-  /* For now, simply free the memory */
+  /* Free the memory if termination is successful. */
 
-  free(dev);
+  if (result == OK)
+    free(dev);
 
-  return OK;
+  return result;
 }
 
 /************************************************************************************

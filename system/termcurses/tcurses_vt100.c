@@ -93,6 +93,7 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
 static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
               FAR int *specialkey, FAR int *keymodifers);
 static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev);
+static int tcurses_vt100_terminate(FAR struct termcurses_s *dev);
 
 /************************************************************************************
  * Private Data
@@ -107,7 +108,8 @@ static const struct termcurses_ops_s g_vt100_ops =
   tcurses_vt100_setcolors,
   tcurses_vt100_setattributes,
   tcurses_vt100_getkeycode,
-  tcurses_vt100_checkkey
+  tcurses_vt100_checkkey,
+  tcurses_vt100_terminate
 };
 
 /* VT100 terminal codes */
@@ -128,6 +130,10 @@ static const char *g_setblink       = ";5";
 static const char *g_setnoblink     = ";25";
 static const char *g_setunderline   = ";4";
 static const char *g_setnounderline = ";24";
+
+/* Set default background and foreground colors. */
+
+static const char *g_setdefcolors   = "\x1b[39;m\x1b[49;m";
 
 struct keycodes_s
 {
@@ -1478,4 +1484,29 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
   priv->keycount = 0;
 
   return (FAR struct termcurses_s *) priv;
+}
+
+/************************************************************************************
+ * Name: tcurses_vt100_terminate
+ *
+ * Description:
+ *   Terminates a specific instance of the VT100 TermCurses handler.
+ *
+ ************************************************************************************/
+
+static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
+{
+  FAR struct tcurses_vt100_s *priv;
+  int  fd;
+
+  priv = (FAR struct tcurses_vt100_s *) dev;
+  fd   = priv->out_fd;
+
+  /* Set default foreground and background colors.
+   * (Ignore the return result.)
+   */
+
+  write(fd, g_setdefcolors, strlen(g_setdefcolors));
+
+  return OK;
 }
