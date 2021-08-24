@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config INTERPRETERS_MICROPYTHON
+menuconfig INTERPRETERS_MICROPYTHON
 	tristate "Micropython Interpreter"
 	default n
   select SERIAL_TERMIOS
@@ -19,4 +19,24 @@ config INTERPRETERS_MICROPYTHON_STACKSIZE
 	int "Micropython interpreter stack size"
 	default 8192
 
-endif
+config INTERPRETERS_MICROPYTHON_SOCKET
+  bool "Enable Micropython sockets"
+  default n
+
+config INTERPRETERS_MICROPYTHON_USSL
+  bool "Enable Micropython encryption"
+  default n
+
+if INTERPRETERS_MICROPYTHON_USSL
+
+config INTERPRETERS_MICROPYTHON_MBEDTLS
+  bool "Switch to MBEDTLS library for Micropython encryption"
+  default n
+  ---help---
+    By default Micropython uses the AXTLS library uses less code space but
+    does not support all modern algorithms
+    The MBEDTLS library supports more algorithms but takes lots of code space
+
+endif # INTERPRETERS_MICROPYTHON_USSL
+
+endif # INTERPRETERS_MICROPYTHON

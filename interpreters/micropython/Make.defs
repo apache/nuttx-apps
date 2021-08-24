@@ -1,5 +1,5 @@
 ############################################################################
-# interpreters/duktape/Make.defs
+# interpreters/micropython/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,11 +20,4 @@
 
 ifneq ($(CONFIG_INTERPRETERS_MICROPYTHON),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/micropython
-
-# It allows `<duktape/duktape.h>` import.
-# CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
-    # $(APPDIR)/interpreters/duktape/duktape/src-noline}
-# CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
-    # $(APPDIR)/interpreters/duktape/duktape/src-noline}
-
 endif

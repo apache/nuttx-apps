@@ -1,5 +1,5 @@
 ############################################################################
-# interpreters/micropython
+# interpreters/micropython/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,19 +20,9 @@
 
 include $(APPDIR)/Make.defs
 
-#DUKTAPE_VERSION  = 2.5.0
-#DUKTAPE_UNPACK   = duktape
-#DUKTAPE_TARBALL  = duktape-$(DUKTAPE_VERSION).tar.xz
-#DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
-#DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
-
 MPY_DIR  = micropython
 MPY_PORT_DIR = $(MPY_DIR)/ports/unix
 MPY_PORT_VARIANT_DIR = $(MPY_PORT_DIR)/variants/nuttx
-#TOP = $(MICROPYTHON_DIR)
-#BUILD=$(MPY_PORT_DIR)/build-nuttx
-
-#include $(MICROPYTHON_DIR)/py/mkenv.mk
 
 UNAME_S := NuttX
 PROGNAME  = micropython
@@ -47,9 +37,20 @@ CFLAGS += -Wno-undef
 # Micropython will use the CFLAGS that we export
 export CFLAGS
 
-#ifneq ($(CONFIG_NET),y) # DOESN'T override so does nothing
-#export MICROPY_PY_SOCKET = 0
-#endif
+# Tell micropython to use the correct compiler
+MPY_OVERRIDES = "CROSS_COMPILE=$(CROSSDEV)"
+
+ifneq ($(CONFIG_INTERPRETERS_MICROPYTHON_SOCKET),y)
+MPY_OVERRIDES += "MICROPY_PY_SOCKET=0"
+endif
+
+ifeq ($(CONFIG_INTERPRETERS_MICROPYTHON_USSL),y)
+ifeq ($(CONFIG_INTERPRETERS_MICROPYTHON_MBEDTLS),y)
+MPY_OVERRIDES += "MICROPY_PY_MBEDTLS=1"
+endif
+else
+MPY_OVERRIDES += "MICROPY_PY_USSL=0"
+endif
 
 micropython:
 	$(Q) git clone https://github.com/mransom-campbell/micropython.git -b nuttx
@@ -61,9 +62,7 @@ micropython:
 .PHONY: micropython_make
 micropython_make: micropython
 	@echo "Calling MPY Make"
-	$(MAKE) -C $(MPY_PORT_DIR) lib VARIANT=nuttx CROSS_COMPILE=$(CROSSDEV) PROG="" \
-		MICROPY_PY_SOCKET=0 MICROPY_SSL_AXTLS=0 MICROPY_PY_USSL=0
-
+	$(MAKE) -C $(MPY_PORT_DIR) lib VARIANT=nuttx $(MPY_OVERRIDES)
 	$(CROSSDEV)ar -x $(MPY_PORT_DIR)/libmicropython.a
 
 context:: micropython_make
@@ -74,6 +73,7 @@ clean::
 distclean::
 	$(call DELDIR, micropython)
 
+# doesn't work for some reason
 #$(MPY_PORT_DIR)/libmicropython.a: micropython
 
 include $(APPDIR)/Application.mk
