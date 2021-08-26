@@ -153,12 +153,12 @@ static void print_gps(const char *buffer, const char *name)
 static void usage(void)
 {
   printf("sensortest [arguments...] <command>\n");
-  printf("\t[-h      ]  sensotest commands help\n");
+  printf("\t[-h      ]  sensortest commands help\n");
   printf("\t[-i <val>]  The output data period of sensor in us\n");
   printf("\t            default: 1000000\n");
   printf("\t[-b <val>]  The maximum report latency of sensor in us\n");
   printf("\t            default: 0\n");
-  printf("\t[-n <val>]  The specify number of output data\n");
+  printf("\t[-n <val>]  The number of output data\n");
   printf("\t            default: 0\n");
 
   printf(" Commands:\n");
@@ -244,7 +244,7 @@ int main(int argc, FAR char *argv[])
 
       if (!len)
         {
-          printf("The sensor node name:%s is invaild\n", name);
+          printf("The sensor node name:%s is invalid\n", name);
           usage();
           ret = -EINVAL;
           goto name_err;

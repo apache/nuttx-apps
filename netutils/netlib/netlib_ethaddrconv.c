@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/netlib/netlib.c
+ * apps/netutils/netlib/netlib_ethaddrconv.c
  * Various uIP library functions.
  *
  *   Copyright (C) 2007, 2009, 2011, 2016 Gregory Nutt. All rights reserved.
@@ -78,9 +78,9 @@ bool netlib_ethaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
         {
           ch = *hwstr++;
           if (++j > 3)
-           {
-             return false;
-           }
+            {
+              return false;
+            }
 
           if (ch == ':' || ch == 0)
             {

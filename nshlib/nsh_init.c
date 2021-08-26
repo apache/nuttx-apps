@@ -52,8 +52,8 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
  * Name: nsh_initialize
  *
  * Description:
- *   This nterfaces is used to initialize the NuttShell (NSH).
- *   nsh_initialize() should be called one during application start-up prior
+ *   This interface is used to initialize the NuttShell (NSH).
+ *   nsh_initialize() should be called once during application start-up prior
  *   to executing either nsh_consolemain() or nsh_telnetstart().
  *
  * Input Parameters:
