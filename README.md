@@ -60,7 +60,7 @@ during the make context build phase.
 
 To execute an application function:
 
-`exec_builtin()` is defined in the `nuttx/include/apps/builtin/builtin.h`.
+`exec_builtin()` is defined in the `apps/include/builtin/builtin.h`.
 
 ## NuttShell (NSH) Built-In Commands
 

@@ -45,11 +45,11 @@
  * Name: nsh_consolemain (Normal character device version)
  *
  * Description:
- *   This interfaces may be to called or started with task_start to start a
+ *   This interface may be to called or started with task_start to start a
  *   single an NSH instance that operates on stdin and stdout.  This
  *   function does not normally return (see below).
  *
- *   This version of nsh_consolmain handles generic /dev/console character
+ *   This version of nsh_consolemain handles generic /dev/console character
  *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
  *   for special USB console devices).
  *
