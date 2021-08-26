@@ -107,6 +107,16 @@
 #  define CONFIG_TESTING_SMART_VERBOSE 0
 #endif
 
+/* Smartfs device naming ****************************************************/
+
+#define STR(s) STR2(s)
+#define STR2(s) #s
+
+#define TESTING_SMART_DEVNUM  1
+#define TESTING_SMART_PARTNAME "test"
+#define TESTING_SMART_DEVNAME  "/dev/smart" STR(TESTING_SMART_DEVNUM) \
+                                            TESTING_SMART_PARTNAME
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -520,7 +530,8 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("ERROR: Bad CRC: %" PRIu32 " vs %" PRIu32 "\n",
+             crc, file->crc);
       printf("  File name: %s\n", file->name);
       printf("  File size: %d\n", file->len);
       close(fd);
@@ -648,7 +659,7 @@ static int smart_delfiles(void)
         {
           /* Test for wrap-around */
 
-          if (j >= CONFIG_TESTING_FSTEST_MAXOPEN)
+          if (j >= CONFIG_TESTING_SMART_MAXOPEN)
             {
               j = 0;
             }
@@ -799,7 +810,7 @@ int main(int argc, FAR char *argv[])
   /* Initialize to provide SMART on an MTD interface */
 
   MTD_IOCTL(mtd, MTDIOC_BULKERASE, 0);
-  ret = smart_initialize(1, mtd, "SmartTest");
+  ret = smart_initialize(TESTING_SMART_DEVNUM, mtd, TESTING_SMART_PARTNAME);
   if (ret < 0)
     {
       printf("ERROR: SMART initialization failed: %d\n", -ret);
@@ -807,18 +818,18 @@ int main(int argc, FAR char *argv[])
       exit(2);
     }
 
-  /* Create a SMARTFS filesystem */
+  /* Create a SMARTFS filesystem. Use default sector size. */
 
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-  mksmartfs("/dev/smart1", 1024, 1);
+  mksmartfs(TESTING_SMART_DEVNAME, 0, 1);
 #else
-  mksmartfs("/dev/smart1", 1024);
+  mksmartfs(TESTING_SMART_DEVNAME, 0);
 #endif
 
   /* Mount the file system */
 
-  ret = mount("/dev/smart1", CONFIG_TESTING_SMART_MOUNTPT, "smartfs",
-              0, NULL);
+  ret = mount(TESTING_SMART_DEVNAME, CONFIG_TESTING_SMART_MOUNTPT,
+              "smartfs", 0, NULL);
   if (ret < 0)
     {
       printf("ERROR: Failed to mount the SMART volume: %d\n", errno);
