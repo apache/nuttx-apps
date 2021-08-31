@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_REXECD
+	tristate "Remote Execution Server"
+	default n
+	---help---
+		Enable support for the Remote Execution server.
+
+if NETUTILS_REXECD
+
+config NETUTILS_REXECD_PRIORITY
+	int "Remote execution server task priority"
+	default 100
+
+config NETUTILS_REXECD_STACKSIZE
+	int "Remote execution server task stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
