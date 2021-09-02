@@ -110,6 +110,8 @@
 #  define NETLIB_SOCK_FAMILY  AF_INET
 #elif defined(CONFIG_NET_NETLINK)
 #  define NETLIB_SOCK_FAMILY  AF_NETLINK
+#elif defined(CONFIG_NET_RPMSG)
+#  define NETLIB_SOCK_FAMILY  AF_RPMSG
 #else
 #  define NETLIB_SOCK_FAMILY  AF_UNSPEC
 #endif
@@ -162,6 +164,8 @@
 #  define NETLIB_SOCK_TYPE SOCK_RAW
 #elif NETLIB_SOCK_FAMILY == AF_NETLINK
 #  define NETLIB_SOCK_TYPE SOCK_DGRAM
+#elif NETLIB_SOCK_FAMILY == AF_RPMSG
+#  define NETLIB_SOCK_TYPE SOCK_STREAM
 #endif
 
 /****************************************************************************
