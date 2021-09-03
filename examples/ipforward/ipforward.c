@@ -1,5 +1,5 @@
 /****************************************************************************
- * examplex/ipforward/ipforward.c
+ * apps/examples/ipforward/ipforward.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -688,7 +688,7 @@ static FAR void *ipfwd_sender(FAR void *arg)
 
       memset(tcp, 0, sizeof(struct tcp_hdr_s));
 
-      tcp->srcport     = HTONS(0x1234);
+      tcp->srcport     = HTONS((0x1234 + i) & 0xffff);
       tcp->destport    = HTONS(0xabcd);
       tcp->tcpoffset   = (TCP_HDRLEN / 4) << 4;
 
