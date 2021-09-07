@@ -36,6 +36,15 @@
 #include "nsh_console.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define CHAR_ESCAPE(s, c) \
+          case (c):       \
+            *(s)++ = (c); \
+            break
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -50,6 +59,72 @@ static const char g_home[]   = CONFIG_LIBC_HOMEDIR;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_ECHO
+static void str_escape(FAR char *s)
+{
+  FAR char *q;
+  int l;
+  int c;
+
+  for (q = s; *q; q++)
+    {
+      if (*q != '\\')
+        {
+          *s++ = *q;
+          continue;
+        }
+
+      switch (*++q)
+        {
+          case '0':
+            for (c = 0, l = 3; l && q[1] >= '0' && q[1] <= '8'; l--, q++)
+              {
+                c = 8 * c + (q[1] - '0');
+              }
+
+            *s++ = c;
+            break;
+
+          case 'x':
+            for (c = 0, l = 2; l && isxdigit(q[1]); l--, q++)
+              {
+                if (isdigit(q[1]))
+                  {
+                    c = 16 * c + (q[1] - '0');
+                  }
+                else
+                  {
+                    c = 16 * c + (tolower(q[1]) - 'a' + 10);
+                  }
+              }
+
+            *s++ = c;
+            break;
+
+          case '\0':
+            *s++ = '\\';
+            *s++ = '\0';
+            return;
+
+          default:
+            *s++ = '\\';
+            *s++ = *q;
+            break;
+
+          CHAR_ESCAPE(s, '\a');
+          CHAR_ESCAPE(s, '\b');
+          CHAR_ESCAPE(s, '\f');
+          CHAR_ESCAPE(s, '\n');
+          CHAR_ESCAPE(s, '\r');
+          CHAR_ESCAPE(s, '\v');
+          CHAR_ESCAPE(s, '\\');
+        }
+    }
+
+  *s = '\0';
+}
+#endif
 
 /****************************************************************************
  * Name: nsh_getwd
@@ -263,29 +338,54 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_ECHO
 int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  int newline = 1;
+  int escape = 0;
+  int opt;
   int i;
-  int s = 1;
 
-  if (argc > 1 && 0 == strncmp(argv[1], "-n", 2))
+  while ((opt = getopt(argc, argv, "neE")) != ERROR)
     {
-      s = 2;
+      switch (opt)
+        {
+        case 'n':
+          newline = 0;
+          break;
+
+        case 'e':
+          escape = 1;
+          break;
+
+        case 'E':
+          escape = 0;
+          break;
+
+        case '?':
+        default:
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+          return ERROR;
+        }
     }
 
   /* echo each argument, separated by a space as it must have been on the
    * command line.
    */
 
-  for (i = s; i < argc; i++)
+  for (i = optind; i < argc; i++)
     {
-      if (i != s)
+      if (i != optind)
         {
           nsh_output(vtbl, " ");
+        }
+
+      if (escape)
+        {
+          str_escape(argv[i]);
         }
 
       nsh_output(vtbl, "%s", argv[i]);
     }
 
-  if (1 == s)
+  if (newline)
     {
       nsh_output(vtbl, "\n");
     }
