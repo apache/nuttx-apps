@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <netpacket/rpmsg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -128,10 +129,11 @@ errout:
 
 static void usage(FAR const char *progname)
 {
-  fprintf(stderr, "Usage: %s [-4|-6]\n", progname);
+  fprintf(stderr, "Usage: %s [-4|-6|-r]\n", progname);
   fprintf(stderr, "Remote Execution Deamon:\n"
                   " -4, Specify address family to AF_INET(default)\n"
-                  " -6, Specify address family to AF_INET6\n");
+                  " -6, Specify address family to AF_INET6\n"
+                  " -r, Specify address family to AF_RPMSG\n");
   exit(EXIT_FAILURE);
 }
 
@@ -147,7 +149,7 @@ int main(int argc, FAR char **argv)
   int ret;
 
   family = AF_INET;
-  while ((option = getopt(argc, argv, "46")) != ERROR)
+  while ((option = getopt(argc, argv, "46r")) != ERROR)
     {
       switch (option)
         {
@@ -156,6 +158,9 @@ int main(int argc, FAR char **argv)
             break;
           case '6':
             family = AF_INET6;
+            break;
+          case 'r':
+            family = AF_RPMSG;
             break;
           default:
             usage(argv[0]);
@@ -168,6 +173,7 @@ int main(int argc, FAR char **argv)
       return serv;
     }
 
+  memset(&addr, 0, sizeof(addr));
   switch (family)
     {
       case AF_INET:
@@ -179,6 +185,12 @@ int main(int argc, FAR char **argv)
         ((FAR struct sockaddr_in6 *)&addr)->sin6_family = AF_INET6;
         ((FAR struct sockaddr_in6 *)&addr)->sin6_port = REXECD_PORT;
         ret = sizeof(struct sockaddr_in6);
+        break;
+      case AF_RPMSG:
+        ((FAR struct sockaddr_rpmsg *)&addr)->rp_family = AF_RPMSG;
+        snprintf(((FAR struct sockaddr_rpmsg *)&addr)->rp_name,
+                 RPMSG_SOCKET_NAME_SIZE, "%d", REXECD_PORT);
+        ret = sizeof(struct sockaddr_rpmsg);
     }
 
   ret = bind(serv, (FAR struct sockaddr *)&addr, ret);
