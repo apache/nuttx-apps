@@ -19,6 +19,13 @@ config INTERPRETERS_MICROPYTHON_STACKSIZE
 	int "Micropython interpreter stack size"
 	default 8192
 
+config INTERPRETERS_MICROPYTHON_HEAPSIZE
+	int "Micropython interpreter default heap size"
+	default 65536
+	---help---
+	Default heapsize of Micropython. Heapsize can be overriden on the command line.
+
+
 config INTERPRETERS_MICROPYTHON_SOCKET
   bool "Enable Micropython sockets"
   default n
