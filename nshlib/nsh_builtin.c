@@ -224,7 +224,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
-#  ifdef CONFIG_SCHED_CHILD_STATUS
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
 
           /* Restore the old actions */
 
