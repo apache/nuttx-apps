@@ -148,7 +148,7 @@ static int wgetjson_callback(FAR char **buffer, int offset, int datend,
       if (new_json_buff)
         {
           g_json_buff = new_json_buff;
-          memcpy(&g_json_buff[g_json_bufflen - 1], &((*buffer)[offset]),
+          memcpy(&g_json_buff[g_json_bufflen], &((*buffer)[offset]),
                  len);
           g_json_buff[g_json_bufflen + len] = 0;
           g_json_bufflen += org;
