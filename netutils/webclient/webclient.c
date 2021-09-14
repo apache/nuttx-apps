@@ -265,11 +265,17 @@ static ssize_t conn_send(struct webclient_context *ctx, struct conn_s *conn,
     {
       return ctx->tls_ops->send(ctx->tls_ctx, conn->tls_conn, buffer, len);
     }
-  else
+
+  while (true)
     {
       ssize_t ret = send(conn->sockfd, buffer, len, 0);
       if (ret == -1)
         {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
           if (errno == EAGAIN)
             {
               conn->flags |= CONN_WANT_WRITE;
@@ -293,11 +299,17 @@ static ssize_t conn_recv(struct webclient_context *ctx, struct conn_s *conn,
     {
       return ctx->tls_ops->recv(ctx->tls_ctx, conn->tls_conn, buffer, len);
     }
-  else
+
+  while (true)
     {
       ssize_t ret = recv(conn->sockfd, buffer, len, 0);
       if (ret == -1)
         {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
           if (errno == EAGAIN)
             {
               conn->flags |= CONN_WANT_READ;
@@ -1059,16 +1071,25 @@ int webclient_perform(FAR struct webclient_context *ctx)
                * arbitrary local port that is not in use.
                */
 
-              ret = connect(conn->sockfd, server_address,
-                            server_address_len);
-              if (ret == -1)
+              while (true)
                 {
-                  ret = -errno;
-                  DEBUGASSERT(ret < 0);
-                  if (ret == -EISCONN)
+                  ret = connect(conn->sockfd, server_address,
+                                server_address_len);
+                  if (ret == -1)
                     {
-                      ret = 0;
+                      ret = -errno;
+                      DEBUGASSERT(ret < 0);
+                      if (ret == -EINTR)
+                        {
+                          continue;
+                        }
+
+                      if (ret == -EISCONN)
+                        {
+                          ret = 0;
+                        }
                     }
+                  break;
                 }
             }
 
