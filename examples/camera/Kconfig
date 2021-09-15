@@ -26,4 +26,10 @@ config EXAMPLES_CAMERA_STACKSIZE
 	int "Camera stack size"
 	default 2048
 
+config EXAMPLES_CAMERA_OUTPUT_LCD
+	bool "Output to LCD"
+	default n
+	---help---
+		This enables to output the captured RGB565 image to LCD.
+
 endif
