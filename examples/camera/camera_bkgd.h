@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/camera/camera_fileutil.h
+ * apps/examples/camera/camera_bkgd.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,27 +18,21 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__
-#define __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__
+#ifndef __APPS_EXAMPLES_CAMERA_CAMERA_BKGD_H
+#define __APPS_EXAMPLES_CAMERA_CAMERA_BKGD_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
-#include <sys/types.h>
+#include <nuttx/config.h>
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-/* Initialize file util of camera example */
+int nximage_initialize(void);                      /* Initialize NX graphics subsystem */
+void nximage_draw(FAR void *image, int w, int h);  /* Draw image onto Background window */
+void nximage_finalize(void);                       /* Finalize NX graphics subsystem */
 
-const char *futil_initialize(void);
-
-/* Write an image file */
-
-int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix);
-
-#endif  /* __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__ */
-
+#endif /* __APPS_EXAMPLES_CAMERA_CAMERA_BKGD_H */
