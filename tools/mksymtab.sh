@@ -42,9 +42,9 @@ prefix=$2
 
 varlist=`find $dir -name *-thunk.S 2>/dev/null | xargs grep -h asciz | cut -f3 | sort | uniq`
 if [ -z "$varlist" ]; then
-  execlist=`find $dir -type f -perm -a=x 2>/dev/null`
+  execlist=`find $dir -type f 2>/dev/null`
   if [ ! -z "$execlist" ]; then
-    varlist=`nm $execlist | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+    varlist=`nm $execlist 2>/dev/null | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
   fi
 fi
 
