@@ -129,8 +129,8 @@ static int show_charge_setting(int fd)
 
 static int show_bat_status(int fd)
 {
-  enum battery_charger_status_e status;
-  enum battery_charger_health_e health;
+  enum battery_status_e status;
+  enum battery_health_e health;
   const char *statestr[] =
     {
       "UNKNOWN",
