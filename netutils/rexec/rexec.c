@@ -114,8 +114,10 @@ static int do_rexec(FAR struct rexec_arg_s *arg)
 
 int main(int argc, FAR char **argv)
 {
+  char cmd[CONFIG_NSH_LINELEN];
   struct rexec_arg_s arg;
   int option;
+  int i;
 
   memset(&arg, 0, sizeof(arg));
 
@@ -159,6 +161,13 @@ int main(int argc, FAR char **argv)
       usage(argv[0]);
     }
 
-  arg.command = argv[optind];
+  cmd[0] = '\0';
+  for (i = optind; i < argc; i++)
+    {
+      strcat(cmd, argv[i]);
+      strcat(cmd, " ");
+    }
+
+  arg.command = cmd;
   return do_rexec(&arg);
 }
