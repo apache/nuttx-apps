@@ -190,9 +190,9 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
                     {
                       printf(" %02x", rsp->sr_data[j + k]);
                     }
-
-                  printf("\n");
                 }
+
+              printf("\n");
             }
         }
 
