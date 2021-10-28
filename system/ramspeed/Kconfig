@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_RAMSPEED
+	tristate "RAM Speed Test"
+	default n
+	---help---
+		Enable a simple RAM speed test.
+
+if SYSTEM_RAMSPEED
+
+config SYSTEM_RAMSPEED_PROGNAME
+	string "Program name"
+	default "ramspeed"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_RAMSPEED_PRIORITY
+	int "RAM speed test task priority"
+	default 100
+
+config SYSTEM_RAMSPEED_STACKSIZE
+	int "RAM speed test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
