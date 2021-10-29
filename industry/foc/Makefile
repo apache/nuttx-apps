@@ -54,6 +54,9 @@ endif
 ifeq ($(CONFIG_INDUSTRY_FOC_ALIGN),y)
 CSRCS += float/foc_align.c
 endif
+ifeq ($(CONFIG_INDUSTRY_FOC_IDENT),y)
+CSRCS += float/foc_ident.c
+endif
 
 endif
 
@@ -86,6 +89,9 @@ CSRCS += fixed16/foc_model_pmsm.c
 endif
 ifeq ($(CONFIG_INDUSTRY_FOC_ALIGN),y)
 CSRCS += fixed16/foc_align.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_IDENT),y)
+CSRCS += fixed16/foc_ident.c
 endif
 
 endif
