@@ -72,6 +72,14 @@ struct foc_velocity_ops_f32_s
 
   CODE int (*cfg)(FAR foc_velocity_f32_t *h, FAR void *cfg);
 
+  /* Zero */
+
+  CODE int (*zero)(FAR foc_velocity_f32_t *h);
+
+  /* Direction */
+
+  CODE int (*dir)(FAR foc_velocity_f32_t *h, float dir);
+
   /* Run velocity handler */
 
   CODE int (*run)(FAR foc_velocity_f32_t *h,
@@ -109,6 +117,18 @@ int foc_velocity_deinit_f32(FAR foc_velocity_f32_t *h);
  ****************************************************************************/
 
 int foc_velocity_cfg_f32(FAR foc_velocity_f32_t *h, FAR void *cfg);
+
+/****************************************************************************
+ * Name: foc_velocity_zero_f32
+ ****************************************************************************/
+
+int foc_velocity_zero_f32(FAR foc_velocity_f32_t *h);
+
+/****************************************************************************
+ * Name: foc_velocity_dir_f32
+ ****************************************************************************/
+
+int foc_velocity_dir_f32(FAR foc_velocity_f32_t *h, float dir);
 
 /****************************************************************************
  * Name: foc_velocity_run_f32

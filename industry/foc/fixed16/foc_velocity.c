@@ -131,6 +131,43 @@ int foc_velocity_cfg_b16(FAR foc_velocity_b16_t *h, FAR void *cfg)
 }
 
 /****************************************************************************
+ * Name: foc_velocity_zero_b16
+ *
+ * Description:
+ *   Zero the FOC velocity handler (fixed16)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC velocity handler
+ *
+ ****************************************************************************/
+
+int foc_velocity_zero_b16(FAR foc_velocity_b16_t *h)
+{
+  DEBUGASSERT(h);
+
+  return h->ops->zero(h);
+}
+
+/****************************************************************************
+ * Name: foc_velocity_dir_b16
+ *
+ * Description:
+ *   Set the FOC velocity handler direction (fixed16)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC velocity handler
+ *   dir - sensor direction (1 if normal -1 if inverted)
+ *
+ ****************************************************************************/
+
+int foc_velocity_dir_b16(FAR foc_velocity_b16_t *h, b16_t dir)
+{
+  DEBUGASSERT(h);
+
+  return h->ops->dir(h, dir);
+}
+
+/****************************************************************************
  * Name: foc_velocity_run_b16
  *
  * Description:
