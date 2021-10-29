@@ -32,6 +32,7 @@ CSRCS += float/foc_ramp.c
 CSRCS += float/foc_handler.c
 CSRCS += float/foc_angle.c
 CSRCS += float/foc_velocity.c
+CSRCS += float/foc_routine.c
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP),y)
 CSRCS += float/foc_openloop.c
 endif
@@ -61,6 +62,7 @@ CSRCS += fixed16/foc_ramp.c
 CSRCS += fixed16/foc_handler.c
 CSRCS += fixed16/foc_angle.c
 CSRCS += fixed16/foc_velocity.c
+CSRCS += fixed16/foc_routine.c
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP),y)
 CSRCS += fixed16/foc_openloop.c
 endif
