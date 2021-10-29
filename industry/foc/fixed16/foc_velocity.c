@@ -143,7 +143,7 @@ int foc_velocity_cfg_b16(FAR foc_velocity_b16_t *h, FAR void *cfg)
  *
  ****************************************************************************/
 
-void foc_velocity_run_b16(FAR foc_velocity_b16_t *h,
+int foc_velocity_run_b16(FAR foc_velocity_b16_t *h,
                           FAR struct foc_velocity_in_b16_s *in,
                           FAR struct foc_velocity_out_b16_s *out)
 {
@@ -153,5 +153,5 @@ void foc_velocity_run_b16(FAR foc_velocity_b16_t *h,
 
   /* Run velocity handler */
 
-  h->ops->run(h, in, out);
+  return h->ops->run(h, in, out);
 }
