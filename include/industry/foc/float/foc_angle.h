@@ -116,6 +116,16 @@ struct foc_qenco_cfg_f32_s
 };
 #endif
 
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_HALL
+/* Hall configuration data */
+
+struct foc_hall_cfg_f32_s
+{
+  FAR char *devpath;
+  float     per;
+};
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -130,6 +140,12 @@ extern struct foc_angle_ops_f32_s g_foc_angle_ol_f32;
 /* Qencoder angle operations (float) */
 
 extern struct foc_angle_ops_f32_s g_foc_angle_qe_f32;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_HALL
+/* Hall angle operations (float) */
+
+extern struct foc_angle_ops_f32_s g_foc_angle_hl_f32;
 #endif
 
 /****************************************************************************

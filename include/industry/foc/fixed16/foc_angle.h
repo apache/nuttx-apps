@@ -116,6 +116,16 @@ struct foc_qenco_cfg_b16_s
 };
 #endif
 
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_HALL
+/* Hall configuration data */
+
+struct foc_hall_cfg_b16_s
+{
+  FAR char *devpath;
+  b16_t     per;
+};
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -130,6 +140,12 @@ extern struct foc_angle_ops_b16_s g_foc_angle_ol_b16;
 /* Qencoder angle operations (fixed16) */
 
 extern struct foc_angle_ops_b16_s g_foc_angle_qe_b16;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_HALL
+/* Hall angle operations (fixed16) */
+
+extern struct foc_angle_ops_b16_s g_foc_angle_hl_b16;
 #endif
 
 /****************************************************************************
