@@ -76,9 +76,9 @@ struct foc_angle_ops_f32_s
 
   /* Run angle handler */
 
-  CODE void (*run)(FAR foc_angle_f32_t *h,
-                   FAR struct foc_angle_in_f32_s *in,
-                   FAR struct foc_angle_out_f32_s *out);
+  CODE int (*run)(FAR foc_angle_f32_t *h,
+                  FAR struct foc_angle_in_f32_s *in,
+                  FAR struct foc_angle_out_f32_s *out);
 };
 
 /* Angle handler - sensor or sensorless */
@@ -135,8 +135,8 @@ int foc_angle_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg);
  * Name: foc_angle_run_f32
  ****************************************************************************/
 
-void foc_angle_run_f32(FAR foc_angle_f32_t *h,
-                       FAR struct foc_angle_in_f32_s *in,
-                       FAR struct foc_angle_out_f32_s *out);
+int foc_angle_run_f32(FAR foc_angle_f32_t *h,
+                      FAR struct foc_angle_in_f32_s *in,
+                      FAR struct foc_angle_out_f32_s *out);
 
 #endif /* __INDUSTRY_FOC_FLOAT_FOC_ANGLE_H */
