@@ -131,6 +131,42 @@ int foc_angle_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
 }
 
 /****************************************************************************
+ * Name: foc_angle_zero_f32
+ *
+ * Description:
+ *   Reset the FOC angle handler (float32)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC angle handler
+ *
+ ****************************************************************************/
+
+int foc_angle_zero_f32(FAR foc_angle_f32_t *h)
+{
+  DEBUGASSERT(h);
+
+  return h->ops->zero(h);
+}
+
+/****************************************************************************
+ * Name: foc_angle_dir_f32
+ *
+ * Description:
+ *   Set the FOC angle handler direction (float32)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC angle handler
+ *
+ ****************************************************************************/
+
+int foc_angle_dir_f32(FAR foc_angle_f32_t *h, float dir)
+{
+  DEBUGASSERT(h);
+
+  return h->ops->dir(h, dir);
+}
+
+/****************************************************************************
  * Name: foc_angle_run_f32
  *
  * Description:

@@ -74,6 +74,14 @@ struct foc_angle_ops_f32_s
 
   CODE int (*cfg)(FAR foc_angle_f32_t *h, FAR void *cfg);
 
+  /* Zero */
+
+  CODE int (*zero)(FAR foc_angle_f32_t *h);
+
+  /* Direction */
+
+  CODE int (*dir)(FAR foc_angle_f32_t *h, float dir);
+
   /* Run angle handler */
 
   CODE int (*run)(FAR foc_angle_f32_t *h,
@@ -130,6 +138,18 @@ int foc_angle_deinit_f32(FAR foc_angle_f32_t *h);
  ****************************************************************************/
 
 int foc_angle_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg);
+
+/****************************************************************************
+ * Name: foc_angle_zero_f32
+ ****************************************************************************/
+
+int foc_angle_zero_f32(FAR foc_angle_f32_t *h);
+
+/****************************************************************************
+ * Name: foc_angle_dir_f32
+ ****************************************************************************/
+
+int foc_angle_dir_f32(FAR foc_angle_f32_t *h, float dir);
 
 /****************************************************************************
  * Name: foc_angle_run_f32
