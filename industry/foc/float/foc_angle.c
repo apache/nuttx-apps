@@ -143,9 +143,9 @@ int foc_angle_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
  *
  ****************************************************************************/
 
-void foc_angle_run_f32(FAR foc_angle_f32_t *h,
-                       FAR struct foc_angle_in_f32_s *in,
-                       FAR struct foc_angle_out_f32_s *out)
+int foc_angle_run_f32(FAR foc_angle_f32_t *h,
+                      FAR struct foc_angle_in_f32_s *in,
+                      FAR struct foc_angle_out_f32_s *out)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(in);
@@ -153,5 +153,5 @@ void foc_angle_run_f32(FAR foc_angle_f32_t *h,
 
   /* Run angle handler */
 
-  h->ops->run(h, in, out);
+  return h->ops->run(h, in, out);
 }

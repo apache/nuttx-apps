@@ -76,9 +76,9 @@ struct foc_angle_ops_b16_s
 
   /* Run */
 
-  CODE void (*run)(FAR foc_angle_b16_t *h,
-                   FAR struct foc_angle_in_b16_s *in,
-                   FAR struct foc_angle_out_b16_s *out);
+  CODE int (*run)(FAR foc_angle_b16_t *h,
+                  FAR struct foc_angle_in_b16_s *in,
+                  FAR struct foc_angle_out_b16_s *out);
 };
 
 /* Angle handler - sensor or sensorless */
@@ -135,8 +135,8 @@ int foc_angle_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg);
  * Name: foc_angle_run_b16
  ****************************************************************************/
 
-void foc_angle_run_b16(FAR foc_angle_b16_t *h,
-                       FAR struct foc_angle_in_b16_s *in,
-                       FAR struct foc_angle_out_b16_s *out);
+int foc_angle_run_b16(FAR foc_angle_b16_t *h,
+                      FAR struct foc_angle_in_b16_s *in,
+                      FAR struct foc_angle_out_b16_s *out);
 
 #endif /* __INDUSTRY_FOC_FIXED16_FOC_ANGLE_H */

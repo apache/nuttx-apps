@@ -143,7 +143,7 @@ int foc_angle_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg)
  *
  ****************************************************************************/
 
-void foc_angle_run_b16(FAR foc_angle_b16_t *h,
+int foc_angle_run_b16(FAR foc_angle_b16_t *h,
                        FAR struct foc_angle_in_b16_s *in,
                        FAR struct foc_angle_out_b16_s *out)
 {
@@ -153,5 +153,5 @@ void foc_angle_run_b16(FAR foc_angle_b16_t *h,
 
   /* Run angle handler */
 
-  h->ops->run(h, in, out);
+  return h->ops->run(h, in, out);
 }
