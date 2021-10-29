@@ -65,6 +65,33 @@ config INDUSTRY_FOC_ANGLE_QENCO
 	---help---
 		Enable support for quadrature encoder angle handler
 
+config INDUSTRY_FOC_ANGLE_HALL
+	bool "FOC angle 3-phase hall handler"
+	default n
+	depends on SENSORS_HALL3PHASE
+	---help---
+		Enable support for 3-phase hall sensor angle handler
+
+if INDUSTRY_FOC_ANGLE_HALL
+
+choice
+	prompt "FOC Hall sensor type"
+	default INDUSTRY_FOC_ANGLE_HALL_120DEG
+
+config INDUSTRY_FOC_ANGLE_HALL_120DEG
+	bool "Hall sensor 120 deg"
+
+config INDUSTRY_FOC_ANGLE_HALL_60DEG
+	bool "Hall sensor 60 deg (not tested)"
+
+endchoice # FOC Hall sensor type
+
+config INDUSTRY_FOC_ANGLE_HALL_EST
+	bool "FOC Hall angle estimation"
+	default n
+
+endif # INDUSTRY_FOC_ANGLE_HALL
+
 config INDUSTRY_FOC_CONTROL_PI
 	bool "FOC PI controller"
 	default y
