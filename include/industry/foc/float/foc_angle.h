@@ -106,6 +106,16 @@ struct foc_openloop_cfg_f32_s
 };
 #endif  /* CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP */
 
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_QENCO
+/* Qencoder configuration data */
+
+struct foc_qenco_cfg_f32_s
+{
+  FAR char *devpath;
+  uint32_t  posmax;
+};
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -114,6 +124,12 @@ struct foc_openloop_cfg_f32_s
 /* Open-loop angle operations (float) */
 
 extern struct foc_angle_ops_f32_s g_foc_angle_ol_f32;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_QENCO
+/* Qencoder angle operations (float) */
+
+extern struct foc_angle_ops_f32_s g_foc_angle_qe_f32;
 #endif
 
 /****************************************************************************

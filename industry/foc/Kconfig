@@ -58,6 +58,13 @@ config INDUSTRY_FOC_ANGLE_OPENLOOP
 	---help---
 		Enable support for open-loop angle handler
 
+config INDUSTRY_FOC_ANGLE_QENCO
+	bool "FOC angle quadrature encoder handler"
+	default n
+	depends on SENSORS_QENCODER
+	---help---
+		Enable support for quadrature encoder angle handler
+
 config INDUSTRY_FOC_CONTROL_PI
 	bool "FOC PI controller"
 	default y
