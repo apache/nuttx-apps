@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/industry/foc/float/foc_openloop.c
+ * apps/industry/foc/float/foc_ang_openloop.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -246,8 +246,8 @@ static int foc_angle_ol_dir_f32(FAR foc_angle_f32_t *h, float dir)
  ****************************************************************************/
 
 static int foc_angle_ol_run_f32(FAR foc_angle_f32_t *h,
-                                 FAR struct foc_angle_in_f32_s *in,
-                                 FAR struct foc_angle_out_f32_s *out)
+                                FAR struct foc_angle_in_f32_s *in,
+                                FAR struct foc_angle_out_f32_s *out)
 {
   FAR struct foc_openloop_f32_s *ol = NULL;
 
