@@ -87,4 +87,10 @@ config INDUSTRY_FOC_ALIGN
 	---help---
 		Enable support for angle sensor alignment routine (zero offset + direction)
 
+config INDUSTRY_FOC_IDENT
+	bool "FOC motor identification routine"
+	default n
+	---help---
+		Enable support for motor identification routine (phase resistance and phase inductance)
+
 endif
