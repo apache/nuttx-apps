@@ -30,6 +30,7 @@
 #include <dsp.h>
 
 #include "industry/foc/float/foc_handler.h"
+#include "industry/foc/foc_common.h"
 
 /****************************************************************************
  * Public Type Definition
@@ -49,7 +50,8 @@ struct foc_angle_in_f32_s
 
 struct foc_angle_out_f32_s
 {
-  float angle;
+  uint8_t type;                 /* Angle type */
+  float   angle;                /* Angle */
 };
 
 /* Forward declaration */

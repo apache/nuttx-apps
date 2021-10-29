@@ -30,6 +30,7 @@
 #include <dspb16.h>
 
 #include "industry/foc/fixed16/foc_handler.h"
+#include "industry/foc/foc_common.h"
 
 /****************************************************************************
  * Public Type Definition
@@ -49,7 +50,8 @@ struct foc_angle_in_b16_s
 
 struct foc_angle_out_b16_s
 {
-  b16_t angle;
+  uint8_t type;                 /* Angle type */
+  b16_t angle;                  /* Agnle */
 };
 
 /* Forward declaration */
