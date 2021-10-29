@@ -81,4 +81,10 @@ config INDUSTRY_FOC_HAVE_MODEL
 	bool
 	default n
 
+config INDUSTRY_FOC_ALIGN
+	bool "FOC sensor alignment routine"
+	default n
+	---help---
+		Enable support for angle sensor alignment routine (zero offset + direction)
+
 endif
