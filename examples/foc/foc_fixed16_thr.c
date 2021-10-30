@@ -513,32 +513,16 @@ errout:
 }
 
 /****************************************************************************
- * Name: foc_motor_run
+ * Name: foc_motor_get
  ****************************************************************************/
 
-static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
+static int foc_motor_get(FAR struct foc_motor_b16_s *motor)
 {
   struct foc_angle_in_b16_s  ain;
   struct foc_angle_out_b16_s aout;
   int                        ret = OK;
 
   DEBUGASSERT(motor);
-
-  /* No velocity feedback - assume that velocity now is velocity set
-   * TODO: velocity observer or sensor
-   */
-
-  motor->vel_now = motor->vel_set;
-
-  /* Run velocity ramp controller */
-
-  ret = foc_ramp_run_b16(&motor->ramp, motor->vel_des,
-                         motor->vel_now, &motor->vel_set);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
-      goto errout;
-    }
 
   /* Update open-loop angle handler */
 
@@ -565,6 +549,35 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
       /* TODO: get phase angle from observer or sensor */
 
       ASSERT(0);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: foc_motor_control
+ ****************************************************************************/
+
+static int foc_motor_control(FAR struct foc_motor_b16_s *motor)
+{
+  int ret = OK;
+
+  DEBUGASSERT(motor);
+
+  /* No velocity feedback - assume that velocity now is velocity set
+   * TODO: velocity observer or sensor
+   */
+
+  motor->vel_now = motor->vel_set;
+
+  /* Run velocity ramp controller */
+
+  ret = foc_ramp_run_b16(&motor->ramp, motor->vel_des,
+                         motor->vel_now, &motor->vel_set);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
+      goto errout;
     }
 
 errout:
@@ -933,12 +946,21 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
                 }
             }
 
-          /* Run motor controller */
+          /* Get motor state */
 
-          ret = foc_motor_run(&motor);
+          ret = foc_motor_get(&motor);
           if (ret < 0)
             {
-              PRINTF("ERROR: foc_motor_run failed %d!\n", ret);
+              PRINTF("ERROR: foc_motor_get failed %d!\n", ret);
+              goto errout;
+            }
+
+          /* Motor control */
+
+          ret = foc_motor_control(&motor);
+          if (ret < 0)
+            {
+              PRINTF("ERROR: foc_motor_control failed %d!\n", ret);
               goto errout;
             }
 
