@@ -31,6 +31,20 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* For now only open-loop supported */
+
+#ifndef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+#  error For now only open-loop supported
+#endif
+
+/* Open-loop configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+#  ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#    error
+#  endif
+#endif
+
 /* Velocity ramp must be configured */
 
 #if (CONFIG_EXAMPLES_FOC_RAMP_THR == 0)

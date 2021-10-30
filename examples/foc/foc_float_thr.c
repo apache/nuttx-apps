@@ -55,10 +55,6 @@
 #  error
 #endif
 
-#ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
-#  error For now only open-loop supported
-#endif
-
 /****************************************************************************
  * Private Type Definition
  ****************************************************************************/
@@ -69,13 +65,14 @@ struct foc_motor_f32_s
 {
   FAR struct foc_ctrl_env_s    *envp;         /* Thread env */
   bool                          fault;        /* Fault flag */
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   bool                          openloop_now; /* Open-loop now */
+  float                         angle_ol;     /* Phase angle open-loop */
+  foc_angle_f32_t               openloop;     /* Open-loop angle handler */
 #endif
   int                           foc_mode;     /* FOC mode */
   float                         vbus;         /* Power bus voltage */
   float                         angle_now;    /* Phase angle now */
-  float                         angle_ol;     /* Phase angle open-loop */
   float                         vel_set;      /* Velocity setting now */
   float                         vel_now;      /* Velocity now */
   float                         vel_des;      /* Velocity destination */
@@ -91,9 +88,6 @@ struct foc_motor_f32_s
   struct foc_state_s            dev_state;    /* FOC dev state */
   struct foc_params_s           dev_params;   /* FOC dev params */
   struct foc_ramp_f32_s         ramp;         /* Velocity ramp data */
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
-  foc_angle_f32_t               openloop;     /* Open-loop angle handler */
-#endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
   struct foc_model_f32_s        model;         /* Model handler */
   struct foc_model_state_f32_s  model_state;   /* PMSM model state */
@@ -111,7 +105,7 @@ struct foc_motor_f32_s
 static int foc_motor_init(FAR struct foc_motor_f32_s *motor,
                           FAR struct foc_ctrl_env_s *envp)
 {
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   struct foc_openloop_cfg_f32_s ol_cfg;
 #endif
   int                           ret = OK;
@@ -141,7 +135,7 @@ static int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   motor->per        = (float)(1.0f / CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ);
   motor->iphase_adc = ((CONFIG_EXAMPLES_FOC_IPHASE_ADC) / 100000.0f);
 
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   /* Initialize open-loop angle handler */
 
   foc_angle_init_f32(&motor->openloop,
@@ -173,7 +167,7 @@ static int foc_mode_init(FAR struct foc_motor_f32_s *motor)
           break;
         }
 
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
       case FOC_OPMODE_OL_V_VEL:
         {
           motor->foc_mode     = FOC_HANDLER_MODE_VOLTAGE;
@@ -551,7 +545,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
   ain.angle = motor->angle_now;
   ain.dir   = motor->dir;
 
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   foc_angle_run_f32(&motor->openloop, &ain, &aout);
 
   /* Store open-loop angle */

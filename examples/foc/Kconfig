@@ -75,6 +75,24 @@ config EXAMPLES_FOC_STATE_USE_MODEL_PMSM
 	---help---
 		Use PMSM model instead of real hardware
 
+choice
+	prompt "FOC sensored or sensorless configuration"
+	default EXAMPLES_FOC_SENSORLESS
+
+config EXAMPLES_FOC_SENSORLESS
+	bool "FOC example sensorless configuration"
+
+config EXAMPLES_FOC_SENSORED
+	bool "FOC example sensored configuration"
+
+endchoice #
+
+config EXAMPLES_FOC_HAVE_OPENLOOP
+	bool "FOC example have open-loop controller"
+	select INDUSTRY_FOC_ANGLE_OPENLOOP
+	default y if EXAMPLES_FOC_SENSORLESS
+	default n
+
 menu "FOC user input"
 
 config EXAMPLES_FOC_HAVE_ADC
@@ -201,6 +219,7 @@ config EXAMPLES_FOC_OPMODE
 config EXAMPLES_FOC_OPENLOOP_Q
 	int "FOC open-loop Vq/Iq setting [x1000]"
 	default 200
+	depends on EXAMPLES_FOC_HAVE_OPENLOOP
 
 config EXAMPLES_FOC_IDQ_KP
 	int "FOC PI controller Kp gain [x1000]"

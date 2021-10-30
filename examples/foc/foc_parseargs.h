@@ -43,7 +43,9 @@ struct args_s
 {
   int      time;                /* Run time limit in sec, -1 if forever */
   int      mode;                /* Operation mode */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   int      qparam;              /* Open-loop Q setting (x1000) */
+#endif
   uint32_t pi_kp;               /* PI Kp (x1000) */
   uint32_t pi_ki;               /* PI Ki (x1000) */
   uint32_t velmax;              /* Velocity max (x1000) */
