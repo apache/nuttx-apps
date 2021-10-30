@@ -131,8 +131,10 @@ static void init_args(FAR struct args_s *args)
     (args->time == 0 ? CONFIG_EXAMPLES_FOC_TIME_DEFAULT : args->time);
   args->mode =
     (args->mode == 0 ? CONFIG_EXAMPLES_FOC_OPMODE : args->mode);
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   args->qparam =
     (args->qparam == 0 ? CONFIG_EXAMPLES_FOC_OPENLOOP_Q : args->qparam);
+#endif
   args->pi_kp =
     (args->pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->pi_kp);
   args->pi_ki =
@@ -606,7 +608,9 @@ int main(int argc, char *argv[])
     {
       /* Get configuration */
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
       foc[i].qparam = args.qparam;
+#endif
       foc[i].mode   = args.mode;
       foc[i].pi_kp  = args.pi_kp;
       foc[i].pi_ki  = args.pi_ki;

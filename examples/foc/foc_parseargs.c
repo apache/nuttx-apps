@@ -80,7 +80,9 @@ static void foc_help(void)
   PRINTF("       3 - motor CW\n");
   PRINTF("       4 - motor CCW\n");
   PRINTF("  [-j] enable specific instnaces\n");
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
+#endif
   PRINTF("  [--fki] PI Kp coefficient [x1000]\n");
   PRINTF("  [--fkp] PI Ki coefficient [x1000]\n");
 }
@@ -158,11 +160,13 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
               break;
             }
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
           case 'o':
             {
               args->qparam = atoi(optarg);
               break;
             }
+#endif
 
           case '?':
           default:

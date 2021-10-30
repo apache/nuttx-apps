@@ -75,7 +75,9 @@ struct foc_ctrl_env_s
   int                 id;       /* FOC device id */
   int                 inst;     /* Type specific instance counter */
   int                 type;     /* Controller type */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   int                 qparam;   /* Open-loop Q setting (x1000) */
+#endif
   int                 mode;     /* Operation mode */
   uint32_t            pi_kp;    /* FOC PI Kp (x1000) */
   uint32_t            pi_ki;    /* FOC PI Ki (x1000) */
