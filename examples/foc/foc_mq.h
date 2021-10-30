@@ -50,7 +50,7 @@ enum foc_thr_msg_e
   CONTROL_MQ_MSG_INVALID  = 0,
   CONTROL_MQ_MSG_VBUS     = 1,
   CONTROL_MQ_MSG_APPSTATE = 2,
-  CONTROL_MQ_MSG_VEL      = 3,
+  CONTROL_MQ_MSG_SETPOINT = 3,
   CONTROL_MQ_MSG_START    = 4,
   CONTROL_MQ_MSG_KILL     = 5
 };
@@ -63,7 +63,7 @@ struct foc_mq_s
   bool     start;
   int      app_state;
   uint32_t vbus;
-  uint32_t vel;
+  uint32_t setpoint;
 };
 
 /****************************************************************************
