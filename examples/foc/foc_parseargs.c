@@ -26,6 +26,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <getopt.h>
 
 #include "foc_debug.h"
 #include "foc_parseargs.h"
@@ -34,9 +35,26 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define OPT_FKI     (SCHAR_MAX + 1)
+#define OPT_FKP     (SCHAR_MAX + 2)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+static struct option g_long_options[] =
+  {
+    { "time", required_argument, 0, 't' },
+    { "help", no_argument, 0, 'h' },
+    { "mode", required_argument, 0, 'm' },
+    { "vel", required_argument, 0, 'v' },
+    { "state", required_argument, 0, 's' },
+    { "en", required_argument, 0, 'j' },
+    { "oqset", required_argument, 0, 'o' },
+    { "fkp", required_argument, 0, OPT_FKP },
+    { "fki", required_argument, 0, OPT_FKI },
+    { 0, 0, 0, 0 }
+  };
 
 /****************************************************************************
  * Private Functions
@@ -55,9 +73,6 @@ static void foc_help(void)
   PRINTF("       1 - IDLE mode\n");
   PRINTF("       2 - voltage open-loop velocity \n");
   PRINTF("       3 - current open-loop velocity \n");
-  PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
-  PRINTF("  [-i] PI Ki coefficient [x1000]\n");
-  PRINTF("  [-p] KI Kp coefficient [x1000]\n");
   PRINTF("  [-v] velocity [x1000]\n");
   PRINTF("  [-s] motor state\n");
   PRINTF("       1 - motor free\n");
@@ -65,41 +80,9 @@ static void foc_help(void)
   PRINTF("       3 - motor CW\n");
   PRINTF("       4 - motor CCW\n");
   PRINTF("  [-j] enable specific instnaces\n");
-}
-
-/****************************************************************************
- * Name: arg_string
- ****************************************************************************/
-
-static int arg_string(FAR char **arg, FAR char **value)
-{
-  FAR char *ptr = *arg;
-
-  if (ptr[2] == '\0')
-    {
-      *value = arg[1];
-      return 2;
-    }
-  else
-    {
-      *value = &ptr[2];
-      return 1;
-    }
-}
-
-/****************************************************************************
- * Name: arg_decimal
- ****************************************************************************/
-
-static int arg_decimal(FAR char **arg, FAR int *value)
-{
-  FAR char *string;
-  int       ret;
-
-  ret = arg_string(arg, &string);
-  *value = atoi(string);
-
-  return ret;
+  PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
+  PRINTF("  [--fki] PI Kp coefficient [x1000]\n");
+  PRINTF("  [--fkp] PI Ki coefficient [x1000]\n");
 }
 
 /****************************************************************************
@@ -112,93 +95,36 @@ static int arg_decimal(FAR char **arg, FAR int *value)
 
 void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 {
-  FAR char *ptr;
-  int       index;
-  int       nargs;
-  int       i_value;
+  int option_index = 0;
+  int c = 0;
 
-  for (index = 1; index < argc; )
+  while (1)
     {
-      ptr = argv[index];
-      if (ptr[0] != '-')
+      c = getopt_long(argc, argv, "ht:m:o:v:s:j:", g_long_options,
+                      &option_index);
+
+      if (c == -1)
         {
-          PRINTF("Invalid options format: %s\n", ptr);
-          exit(0);
+          break;
         }
 
-      switch (ptr[1])
+      switch (c)
         {
-          /* Get time */
+          case OPT_FKP:
+            {
+              args->pi_kp = atoi(optarg);
+              break;
+            }
+
+          case OPT_FKI:
+            {
+              args->pi_ki = atoi(optarg);
+              break;
+            }
 
           case 't':
             {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->time = i_value;
-              break;
-            }
-
-          case 'm':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->mode = i_value;
-              break;
-            }
-
-          case 'o':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->qparam = i_value;
-              break;
-            }
-
-          case 'p':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_kp = i_value;
-              break;
-            }
-
-          case 'i':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_ki = i_value;
-              break;
-            }
-
-          case 'v':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->velmax = i_value;
-              break;
-            }
-
-          case 's':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->state = i_value;
-              break;
-            }
-
-          case 'j':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->en = i_value;
+              args->time = atoi(optarg);
               break;
             }
 
@@ -208,9 +134,49 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
               exit(0);
             }
 
+          case 'm':
+            {
+              args->mode = atoi(optarg);
+              break;
+            }
+
+          case 'v':
+            {
+              args->velmax = atoi(optarg);
+              break;
+            }
+
+          case 's':
+            {
+              args->state = atoi(optarg);
+              break;
+            }
+
+          case 'j':
+            {
+              args->en = atoi(optarg);
+              break;
+            }
+
+          case 'o':
+            {
+              args->qparam = atoi(optarg);
+              break;
+            }
+
+          case '?':
           default:
             {
-              PRINTF("Unsupported option: %s\n", ptr);
+              if (argv[optind - 1] == NULL)
+                {
+                  PRINTF("ERROR: invalid option argument for %s\n",
+                         argv[optind - 2]);
+                }
+              else
+                {
+                  PRINTF("ERROR: invalid option %s\n", argv[optind - 1]);
+                }
+
               foc_help();
               exit(1);
             }
