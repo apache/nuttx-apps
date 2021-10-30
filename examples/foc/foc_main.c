@@ -139,13 +139,19 @@ static void init_args(FAR struct args_s *args)
     (args->pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->pi_kp);
   args->pi_ki =
     (args->pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->pi_ki);
-#ifdef CONFIG_EXAMPLES_FOC_VEL_ADC
+
+  /* For now only velocity control supported */
+
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
   args->velmax =
-    (args->velmax == 0 ? CONFIG_EXAMPLES_FOC_VEL_ADC_MAX : args->velmax);
+    (args->velmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_ADC_MAX : args->velmax);
 #else
   args->velmax =
-    (args->velmax == 0 ? CONFIG_EXAMPLES_FOC_VEL_CONST_VALUE : args->velmax);
+    (args->velmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->velmax);
 #endif
+
   args->state =
     (args->state == 0 ? CONFIG_EXAMPLES_FOC_STATE_INIT : args->state);
   args->en = (args->en == -1 ? INST_EN_DEAFULT : args->en);
@@ -248,12 +254,12 @@ static int foc_vbus_send(mqd_t mqd, uint32_t vbus)
 }
 
 /****************************************************************************
- * Name: foc_vel_send
+ * Name: foc_setpoint_send
  ****************************************************************************/
 
-static int foc_vel_send(mqd_t mqd, uint32_t vel)
+static int foc_setpoint_send(mqd_t mqd, uint32_t setpoint)
 {
-  return foc_mq_send(mqd, CONTROL_MQ_MSG_VEL, (FAR void *)&vel);
+  return foc_mq_send(mqd, CONTROL_MQ_MSG_SETPOINT, (FAR void *)&setpoint);
 }
 
 /****************************************************************************
@@ -513,10 +519,10 @@ int main(int argc, char *argv[])
 #endif
   uint32_t               state        = 0;
   uint32_t               vbus_raw     = 0;
-  int32_t                vel_raw      = 0;
+  int32_t                sp_raw       = 0;
   bool                   vbus_update  = false;
   bool                   state_update = false;
-  bool                   vel_update   = false;
+  bool                   sp_update    = false;
   bool                   terminate    = false;
   bool                   started      = false;
   int                    ret          = OK;
@@ -639,9 +645,9 @@ int main(int argc, char *argv[])
   vbus_update  = true;
   vbus_raw     = VBUS_CONST_VALUE;
 #endif
-#ifndef CONFIG_EXAMPLES_FOC_VEL_ADC
-  vel_update   = true;
-  vel_raw      = 1;
+#ifndef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
+  sp_update   = true;
+  sp_raw      = 1;
 #endif
   state_update = true;
 
@@ -756,12 +762,12 @@ int main(int argc, char *argv[])
               vbus_update = true;
 #  endif
 
-#  ifdef CONFIG_EXAMPLES_FOC_VEL_ADC
+#  ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
               /* Get raw VEL */
 
-              vel_raw    = adc_sample[VEL_ADC_SAMPLE].am_data;
+              sp_raw    = adc_sample[SETPOINT_ADC_SAMPLE].am_data;
 
-              vel_update = true;
+              sp_update = true;
 #  endif
 
               /* ADC trigger next cycle */
@@ -825,20 +831,20 @@ int main(int argc, char *argv[])
 
       /* 3. Update motor velocity */
 
-      if (vel_update == true)
+      if (sp_update == true)
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
               if (args.en & (1 << i))
                 {
-                  PRINTFV("Send velocity to %d\n", i);
+                  PRINTFV("Send setpoint = %" PRIu32 "to %d\n", sp_raw, i);
 
-                  /* Send VELOCITY to threads */
+                  /* Send setpoint to threads */
 
-                  ret = foc_vel_send(mqd[i], vel_raw);
+                  ret = foc_setpoint_send(mqd[i], sp_raw);
                   if (ret < 0)
                     {
-                      PRINTF("ERROR: foc_vel_send failed %d\n", ret);
+                      PRINTF("ERROR: foc_setpoint_send failed %d\n", ret);
                       goto errout;
                     }
                 }
@@ -846,7 +852,7 @@ int main(int argc, char *argv[])
 
           /* Reset flag */
 
-          vel_update = false;
+          sp_update = false;
         }
 
       /* 4. One time start */

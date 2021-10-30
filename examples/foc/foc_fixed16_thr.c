@@ -434,7 +434,7 @@ static int foc_motor_vel(FAR struct foc_motor_b16_s *motor, uint32_t vel)
    */
 
   tmp1 = itob16(motor->envp->velmax / 1000);
-  tmp2 = b16mulb16(ftob16(VEL_ADC_SCALE), tmp1);
+  tmp2 = b16mulb16(ftob16(SETPOINT_ADC_SCALE), tmp1);
 
   motor->vel_des = b16muli(tmp2, vel);
 
@@ -773,19 +773,19 @@ static int foc_motor_handle(FAR struct foc_motor_b16_s *motor,
 
   /* Update motor velocity destination */
 
-  if (motor->mq.vel != handle->vel)
+  if (motor->mq.setpoint != handle->setpoint)
     {
-      PRINTFV("Set vel=%" PRIu32 " for FOC driver %d!\n",
-              handle->vel, motor->envp->id);
+      PRINTFV("Set setpoint=%" PRIu32 " for FOC driver %d!\n",
+              handle->setpoint, motor->envp->id);
 
-      ret = foc_motor_vel(motor, handle->vel);
+      ret = foc_motor_vel(motor, handle->setpoint);
       if (ret < 0)
         {
           PRINTF("ERROR: foc_motor_vel failed %d!\n", ret);
           goto errout;
         }
 
-      motor->mq.vel = handle->vel;
+      motor->mq.setpoint = handle->setpoint;
     }
 
   /* Update motor state */

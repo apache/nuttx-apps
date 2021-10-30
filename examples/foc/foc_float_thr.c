@@ -435,7 +435,8 @@ static int foc_motor_vel(FAR struct foc_motor_f32_s *motor, uint32_t vel)
 
   /* Update motor velocity destination */
 
-  motor->vel_des = (vel * VEL_ADC_SCALE * motor->envp->velmax / 1000.0f);
+  motor->vel_des = (vel * SETPOINT_ADC_SCALE *
+                    motor->envp->velmax / 1000.0f);
 
   return OK;
 }
@@ -771,21 +772,23 @@ static int foc_motor_handle(FAR struct foc_motor_f32_s *motor,
       motor->mq.vbus = handle->vbus;
     }
 
-  /* Update motor velocity destination */
+  /* Update motor velocity destination
+   * NOTE: only velocity control supported for now
+   */
 
-  if (motor->mq.vel != handle->vel)
+  if (motor->mq.setpoint != handle->setpoint)
     {
-      PRINTFV("Set vel=%" PRIu32 " for FOC driver %d!\n",
-              handle->vel, motor->envp->id);
+      PRINTFV("Set setpoint=%" PRIu32 " for FOC driver %d!\n",
+              handle->setpoint, motor->envp->id);
 
-      ret = foc_motor_vel(motor, handle->vel);
+      ret = foc_motor_vel(motor, handle->setpoint);
       if (ret < 0)
         {
           PRINTF("ERROR: foc_motor_vel failed %d!\n", ret);
           goto errout;
         }
 
-      motor->mq.vel = handle->vel;
+      motor->mq.setpoint = handle->setpoint;
     }
 
   /* Update motor state */

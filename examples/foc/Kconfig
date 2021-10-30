@@ -146,33 +146,33 @@ config EXAMPLES_FOC_VBUS_SCALE
 endif # EXAMPLES_FOC_VBUS_ADC
 
 choice
-	prompt "FOC velocity source"
-	default EXAMPLES_FOC_VEL_CONST
+	prompt "FOC setpoint source"
+	default EXAMPLES_FOC_SETPOINT_CONST
 
-config EXAMPLES_FOC_VEL_CONST
-	bool "Use hardcoded constant velocity value"
+config EXAMPLES_FOC_SETPOINT_CONST
+	bool "Use hardcoded constant setpiont value"
 
-config EXAMPLES_FOC_VEL_ADC
-	bool "Use ADC to control velocity"
+config EXAMPLES_FOC_SETPOINT_ADC
+	bool "Use ADC to control setpoint"
 	select EXAMPLES_FOC_HAVE_ADC
 
-endchoice # FOC velocity interface
+endchoice # FOC setpoint interface
 
-if EXAMPLES_FOC_VEL_CONST
+if EXAMPLES_FOC_SETPOINT_CONST
 
-config EXAMPLES_FOC_VEL_CONST_VALUE
-	int "FOC hardoced velocity value"
-	default 100000
+config EXAMPLES_FOC_SETPOINT_CONST_VALUE
+	int "FOC hardoced setpoint value"
+	default 0
 
-endif # EXAMPLES_FOC_VEL_CONST
+endif # EXAMPLES_FOC_SETPOINT_CONST
 
-if EXAMPLES_FOC_VEL_ADC
+if EXAMPLES_FOC_SETPOINT_ADC
 
-config EXAMPLES_FOC_VEL_ADC_MAX
-	int "FOC maximum velocity from ADC [x1000]"
-	default 100000
+config EXAMPLES_FOC_SETPOINT_ADC_MAX
+	int "FOC maximum setpoint from ADC [x1000]"
+	default 0
 
-endif # EXAMPLES_FOC_VEL_ADC
+endif # EXAMPLES_FOC_SETPOINT_ADC
 
 config EXAMPLES_FOC_TIME_DEFAULT
 	int "FOC run time default (sec)"
