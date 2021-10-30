@@ -44,6 +44,7 @@
 #include "foc_adc.h"
 #include "foc_debug.h"
 #include "foc_device.h"
+#include "foc_parseargs.h"
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
 #  include <nuttx/input/buttons.h>
@@ -86,20 +87,6 @@
  * Private Type Definition
  ****************************************************************************/
 
-/* Application arguments */
-
-struct args_s
-{
-  int      time;                /* Run time limit in sec, -1 if forever */
-  int      mode;                /* Operation mode */
-  int      qparam;              /* Open-loop Q setting (x1000) */
-  uint32_t pi_kp;               /* PI Kp (x1000) */
-  uint32_t pi_ki;               /* PI Ki (x1000) */
-  uint32_t velmax;              /* Velocity max (x1000) */
-  int      state;               /* Example state (FREE, CW, CCW, STOP) */
-  int8_t   en;                  /* Enabled instances (bit-encoded) */
-};
-
 /****************************************************************************
  * Private Function Protototypes
  ****************************************************************************/
@@ -133,203 +120,6 @@ static int g_fixed16_thr_cntr = 0;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-#ifdef CONFIG_BUILTIN
-/****************************************************************************
- * Name: foc_help
- ****************************************************************************/
-
-static void foc_help(void)
-{
-  PRINTF("Usage: foc [OPTIONS]\n");
-  PRINTF("  [-t] run time\n");
-  PRINTF("  [-h] shows this message and exits\n");
-  PRINTF("  [-m] controller mode\n");
-  PRINTF("       1 - IDLE mode\n");
-  PRINTF("       2 - voltage open-loop velocity \n");
-  PRINTF("       3 - current open-loop velocity \n");
-  PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
-  PRINTF("  [-i] PI Ki coefficient [x1000]\n");
-  PRINTF("  [-p] KI Kp coefficient [x1000]\n");
-  PRINTF("  [-v] velocity [x1000]\n");
-  PRINTF("  [-s] motor state\n");
-  PRINTF("       1 - motor free\n");
-  PRINTF("       2 - motor stop\n");
-  PRINTF("       3 - motor CW\n");
-  PRINTF("       4 - motor CCW\n");
-  PRINTF("  [-j] enable specific instnaces\n");
-}
-
-/****************************************************************************
- * Name: arg_string
- ****************************************************************************/
-
-static int arg_string(FAR char **arg, FAR char **value)
-{
-  FAR char *ptr = *arg;
-
-  if (ptr[2] == '\0')
-    {
-      *value = arg[1];
-      return 2;
-    }
-  else
-    {
-      *value = &ptr[2];
-      return 1;
-    }
-}
-
-/****************************************************************************
- * Name: arg_decimal
- ****************************************************************************/
-
-static int arg_decimal(FAR char **arg, FAR int *value)
-{
-  FAR char *string;
-  int       ret;
-
-  ret = arg_string(arg, &string);
-  *value = atoi(string);
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: parse_args
- ****************************************************************************/
-
-static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
-{
-  FAR char *ptr;
-  int       index;
-  int       nargs;
-  int       i_value;
-
-  for (index = 1; index < argc; )
-    {
-      ptr = argv[index];
-      if (ptr[0] != '-')
-        {
-          PRINTF("Invalid options format: %s\n", ptr);
-          exit(0);
-        }
-
-      switch (ptr[1])
-        {
-          /* Get time */
-
-          case 't':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value <= 0 && i_value != -1)
-                {
-                  PRINTF("Invalid time value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->time = i_value;
-              break;
-            }
-
-          case 'm':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value != FOC_OPMODE_IDLE &&
-                  i_value != FOC_OPMODE_OL_V_VEL &&
-                  i_value != FOC_OPMODE_OL_C_VEL)
-                {
-                  PRINTF("Invalid op mode value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->mode = i_value;
-              break;
-            }
-
-          case 'o':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->qparam = i_value;
-              break;
-            }
-
-          case 'p':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_kp = i_value;
-              break;
-            }
-
-          case 'i':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_ki = i_value;
-              break;
-            }
-
-          case 'v':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->velmax = i_value;
-              break;
-            }
-
-          case 's':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value != FOC_EXAMPLE_STATE_FREE &&
-                  i_value != FOC_EXAMPLE_STATE_STOP &&
-                  i_value != FOC_EXAMPLE_STATE_CW &&
-                  i_value != FOC_EXAMPLE_STATE_CCW)
-                {
-                  PRINTF("Invalid state value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->state = i_value;
-              break;
-            }
-
-          case 'j':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->en = i_value;
-              break;
-            }
-
-          case 'h':
-            {
-              foc_help();
-              exit(0);
-            }
-
-          default:
-            {
-              PRINTF("Unsupported option: %s\n", ptr);
-              foc_help();
-              exit(1);
-            }
-        }
-    }
-}
-#endif
 
 /****************************************************************************
  * Name: init_args
@@ -367,9 +157,40 @@ static int validate_args(FAR struct args_s *args)
 {
   int ret = -EINVAL;
 
+  /* FOC PI controller */
+
   if (args->pi_kp == 0 && args->pi_ki == 0)
     {
       PRINTF("ERROR: missign Kp/Ki configuration\n");
+      goto errout;
+    }
+
+  /* Operation mode */
+
+  if (args->mode != FOC_OPMODE_IDLE &&
+      args->mode != FOC_OPMODE_OL_V_VEL &&
+      args->mode != FOC_OPMODE_OL_C_VEL)
+    {
+      PRINTF("Invalid op mode value %d s\n", args->mode);
+      goto errout;
+    }
+
+  /* Example state */
+
+  if (args->state != FOC_EXAMPLE_STATE_FREE &&
+      args->state != FOC_EXAMPLE_STATE_STOP &&
+      args->state != FOC_EXAMPLE_STATE_CW &&
+      args->state != FOC_EXAMPLE_STATE_CCW)
+    {
+      PRINTF("Invalid state value %d s\n", args->state);
+      goto errout;
+    }
+
+  /* Time parameter */
+
+  if (args->time <= 0 && args->time != -1)
+    {
+      PRINTF("Invalid time value %d s\n", args->time);
       goto errout;
     }
 

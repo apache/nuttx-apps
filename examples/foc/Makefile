@@ -34,6 +34,10 @@ MAINSRC = foc_main.c
 ASRCS =
 CSRCS = foc_device.c foc_mq.c
 
+ifeq ($(CONFIG_BUILTIN),y)
+CSRCS += foc_parseargs.c
+endif
+
 # fixed16 support
 
 ifeq ($(CONFIG_INDUSTRY_FOC_FIXED16),y)
