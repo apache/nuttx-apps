@@ -155,7 +155,7 @@ static int check_done(void)
         {
           /* Check if the I/O has completed */
 
-          printf("  list[%d]. result = %d\n", i, aiocbp->aio_result);
+          printf("  list[%d]. result = %zd\n", i, aiocbp->aio_result);
           if (aiocbp->aio_lio_opcode == LIO_NOP)
             {
               printf("     NO operation\n");
@@ -219,7 +219,7 @@ static int remove_done(void)
         {
           /* Check if the I/O has completed */
 
-          printf("  list[%d]. result = %d\n", i, aiocbp->aio_result);
+          printf("  list[%d]. result = %zd\n", i, aiocbp->aio_result);
           if (aiocbp->aio_lio_opcode == LIO_NOP)
             {
               printf("     NO operation\n");
