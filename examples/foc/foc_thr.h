@@ -70,7 +70,6 @@ enum foc_operation_mode_e
 
 struct foc_ctrl_env_s
 {
-  struct foc_device_s dev;      /* FOC device */
   mqd_t               mqd;      /* Control msg queue */
   int                 id;       /* FOC device id */
   int                 inst;     /* Type specific instance counter */

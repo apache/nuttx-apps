@@ -303,15 +303,6 @@ FAR void *foc_control_thr(FAR void *arg)
 
   DEBUGASSERT(envp);
 
-  /* Open FOC device as blocking */
-
-  ret = foc_device_open(&envp->dev, envp->id);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_device_open failed %d!\n", ret);
-      goto errout;
-    }
-
   /* Get controller type */
 
   pthread_mutex_lock(&g_cntr_lock);
@@ -410,14 +401,6 @@ FAR void *foc_control_thr(FAR void *arg)
     }
 
 errout:
-
-  /* Close FOC control device */
-
-  ret = foc_device_close(&envp->dev);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_device_close %d failed %d\n", envp->id, ret);
-    }
 
   /* Close queue */
 
