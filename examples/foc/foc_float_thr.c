@@ -64,6 +64,7 @@
 struct foc_motor_f32_s
 {
   FAR struct foc_ctrl_env_s    *envp;         /* Thread env */
+  struct foc_device_s           dev;          /* FOC device */
   bool                          fault;        /* Fault flag */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   bool                          openloop_now; /* Open-loop now */
@@ -120,15 +121,6 @@ static int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   /* Connect envp with motor handler */
 
   motor->envp = envp;
-
-  /* Get device info */
-
-  ret = foc_dev_getinfo(envp->dev.fd, &motor->info);
-  if (ret < 0)
-    {
-      PRINTFV("ERROR: foc_dev_getinfo failed %d!\n", ret);
-      goto errout;
-    }
 
   /* Initialize motor data */
 
@@ -297,7 +289,7 @@ static int foc_motor_configure(FAR struct foc_motor_f32_s *motor)
 
   /* Configure FOC device */
 
-  ret = foc_dev_setcfg(motor->envp->dev.fd, &cfg);
+  ret = foc_dev_setcfg(motor->dev.fd, &cfg);
   if (ret < 0)
     {
       PRINTFV("ERROR: foc_dev_setcfg %d!\n", ret);
@@ -339,7 +331,7 @@ static int foc_motor_start(FAR struct foc_motor_f32_s *motor, bool start)
 
           PRINTF("Start FOC device %d!\n", motor->envp->id);
 
-          ret = foc_dev_start(motor->envp->dev.fd);
+          ret = foc_dev_start(motor->dev.fd);
           if (ret < 0)
             {
               PRINTFV("ERROR: foc_dev_start failed %d!\n", ret);
@@ -360,7 +352,7 @@ static int foc_motor_start(FAR struct foc_motor_f32_s *motor, bool start)
 
       PRINTF("Stop FOC device %d!\n", motor->envp->id);
 
-      ret = foc_dev_stop(motor->envp->dev.fd);
+      ret = foc_dev_stop(motor->dev.fd);
       if (ret < 0)
         {
           PRINTFV("ERROR: foc_dev_stop failed %d!\n", ret);
@@ -663,7 +655,7 @@ static int foc_dev_state_get(FAR struct foc_motor_f32_s *motor)
 
   /* Get FOC state - blocking */
 
-  ret = foc_dev_getstate(motor->envp->dev.fd, &motor->dev_state);
+  ret = foc_dev_getstate(motor->dev.fd, &motor->dev_state);
   if (ret < 0)
     {
       PRINTFV("ERROR: foc_dev_getstate failed %d!\n", ret);
@@ -699,7 +691,7 @@ static int foc_dev_params_set(FAR struct foc_motor_f32_s *motor)
 
   /* Write FOC parameters */
 
-  ret = foc_dev_setparams(motor->envp->dev.fd, &motor->dev_params);
+  ret = foc_dev_setparams(motor->dev.fd, &motor->dev_params);
   if (ret < 0)
     {
       PRINTFV("ERROR: foc_dev_setparams failed %d!\n", ret);
@@ -874,6 +866,24 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
       goto errout;
     }
 
+  /* Open FOC device as blocking */
+
+  ret = foc_device_open(&motor.dev, envp->id);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_device_open failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Get device info */
+
+  ret = foc_dev_getinfo(motor.dev.fd, &motor.info);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_dev_getinfo failed %d!\n", ret);
+      goto errout;
+    }
+
   /* Initialize controller mode */
 
   ret = foc_mode_init(&motor);
@@ -941,7 +951,7 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
             {
               /* Clear fault state */
 
-              ret = foc_dev_clearfault(envp->dev.fd);
+              ret = foc_dev_clearfault(motor.dev.fd);
               if (ret != OK)
                 {
                   goto errout;
@@ -1025,10 +1035,18 @@ errout:
 
   /* Stop FOC device */
 
-  ret = foc_dev_stop(envp->dev.fd);
+  ret = foc_dev_stop(motor.dev.fd);
   if (ret < 0)
     {
       PRINTFV("ERROR: foc_dev_stop failed %d!\n", ret);
+    }
+
+  /* Close FOC control device */
+
+  ret = foc_device_close(&motor.dev);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_device_close %d failed %d\n", envp->id, ret);
     }
 
   PRINTF("foc_float_thr %d exit\n", envp->id);
