@@ -93,6 +93,19 @@ config EXAMPLES_FOC_HAVE_OPENLOOP
 	default y if EXAMPLES_FOC_SENSORLESS
 	default n
 
+config EXAMPLES_FOC_HAVE_TORQ
+	bool "FOC example torque controller support"
+	default n
+
+config EXAMPLES_FOC_HAVE_VEL
+	bool "FOC example velocity controller support"
+	default y if EXAMPLES_FOC_SENSORLESS
+	default n
+
+config EXAMPLES_FOC_HAVE_POS
+	bool "FOC example position controller support"
+	default n
+
 menu "FOC user input"
 
 config EXAMPLES_FOC_HAVE_ADC
@@ -207,14 +220,23 @@ endmenu # FOC user input
 
 menu "FOC controller parameters"
 
-config EXAMPLES_FOC_OPMODE
-	int "FOC operation mode"
+config EXAMPLES_FOC_FMODE
+	int "FOC control mode"
 	default 2
 	range 1 3
 	---help---
 		1 - IDLE mode
-		2 - voltage open-loop velocity controller (default)
-		3 - current open-loop velocity controller
+		2 - voltage mode (default)
+		3 - current mode
+
+config EXAMPLES_FOC_MMODE
+	int "Motor control mode"
+	default 2
+	range 1 3
+	---help---
+		1 - torque control
+		2 - velocity control
+		3 - position control
 
 config EXAMPLES_FOC_OPENLOOP_Q
 	int "FOC open-loop Vq/Iq setting [x1000]"

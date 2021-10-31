@@ -80,9 +80,17 @@ static int foc_handler_run(FAR struct foc_motor_b16_s *motor,
       motor->angle_now  = 0;
       motor->vbus       = 0;
 
-      /* Force velocity to zero */
+      /* Force setpoints to zero */
 
-      motor->vel_des = 0;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+      motor->torq.des = 0;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+      motor->vel.des = 0;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+      motor->pos.des = 0;
+#endif
     }
 
   /* Get real currents */

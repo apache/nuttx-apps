@@ -129,8 +129,10 @@ static void init_args(FAR struct args_s *args)
 {
   args->time =
     (args->time == 0 ? CONFIG_EXAMPLES_FOC_TIME_DEFAULT : args->time);
-  args->mode =
-    (args->mode == 0 ? CONFIG_EXAMPLES_FOC_OPMODE : args->mode);
+  args->fmode =
+    (args->fmode == 0 ? CONFIG_EXAMPLES_FOC_FMODE : args->fmode);
+  args->mmode =
+    (args->mmode == 0 ? CONFIG_EXAMPLES_FOC_MMODE : args->mmode);
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   args->qparam =
     (args->qparam == 0 ? CONFIG_EXAMPLES_FOC_OPENLOOP_Q : args->qparam);
@@ -140,8 +142,20 @@ static void init_args(FAR struct args_s *args)
   args->pi_ki =
     (args->pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->pi_ki);
 
-  /* For now only velocity control supported */
+  /* Setpoint configuration */
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
+  args->torqmax =
+    (args->torqmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_ADC_MAX : args->torqmax);
+#else
+  args->torqmax =
+    (args->torqmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->torqmax);
+#endif
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
   args->velmax =
     (args->velmax == 0 ?
@@ -150,6 +164,18 @@ static void init_args(FAR struct args_s *args)
   args->velmax =
     (args->velmax == 0 ?
      CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->velmax);
+#endif
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
+  args->posmax =
+    (args->posmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_ADC_MAX : args->posmax);
+#else
+  args->posmax =
+    (args->posmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->posmax);
+#endif
 #endif
 
   args->state =
@@ -173,13 +199,31 @@ static int validate_args(FAR struct args_s *args)
       goto errout;
     }
 
-  /* Operation mode */
+  /* FOC operation mode */
 
-  if (args->mode != FOC_OPMODE_IDLE &&
-      args->mode != FOC_OPMODE_OL_V_VEL &&
-      args->mode != FOC_OPMODE_OL_C_VEL)
+  if (args->fmode != FOC_FMODE_IDLE &&
+      args->fmode != FOC_FMODE_VOLTAGE &&
+      args->fmode != FOC_FMODE_CURRENT)
     {
-      PRINTF("Invalid op mode value %d s\n", args->mode);
+      PRINTF("Invalid op mode value %d s\n", args->fmode);
+      goto errout;
+    }
+
+  /* Example control mode */
+
+  if (
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+    args->mmode != FOC_MMODE_TORQ &&
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+    args->mmode != FOC_MMODE_VEL &&
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+    args->mmode != FOC_MMODE_POS &&
+#endif
+    1)
+    {
+      PRINTF("Invalid ctrl mode value %d s\n", args->mmode);
       goto errout;
     }
 
@@ -598,12 +642,21 @@ int main(int argc, char *argv[])
       /* Get configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-      foc[i].qparam = args.qparam;
+      foc[i].qparam   = args.qparam;
 #endif
-      foc[i].mode   = args.mode;
-      foc[i].pi_kp  = args.pi_kp;
-      foc[i].pi_ki  = args.pi_ki;
-      foc[i].velmax = args.velmax;
+      foc[i].fmode    = args.fmode;
+      foc[i].mmode    = args.mmode;
+      foc[i].pi_kp    = args.pi_kp;
+      foc[i].pi_ki    = args.pi_ki;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+      foc[i].torqmax  = args.torqmax;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+      foc[i].velmax   = args.velmax;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+      foc[i].posmax   = args.posmax;
+#endif
 
       if (args.en & (1 << i))
         {

@@ -46,11 +46,22 @@ static struct option g_long_options[] =
   {
     { "time", required_argument, 0, 't' },
     { "help", no_argument, 0, 'h' },
-    { "mode", required_argument, 0, 'm' },
+    { "fmode", required_argument, 0, 'f' },
+    { "mmode", required_argument, 0, 'm' },
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+    { "torq", required_argument, 0, 'r' },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
     { "vel", required_argument, 0, 'v' },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+    { "pos", required_argument, 0, 'x' },
+#endif
     { "state", required_argument, 0, 's' },
     { "en", required_argument, 0, 'j' },
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
     { "oqset", required_argument, 0, 'o' },
+#endif
     { "fkp", required_argument, 0, OPT_FKP },
     { "fki", required_argument, 0, OPT_FKI },
     { 0, 0, 0, 0 }
@@ -69,11 +80,23 @@ static void foc_help(void)
   PRINTF("Usage: foc [OPTIONS]\n");
   PRINTF("  [-t] run time\n");
   PRINTF("  [-h] shows this message and exits\n");
-  PRINTF("  [-m] controller mode\n");
+  PRINTF("  [-m] operation mode\n");
   PRINTF("       1 - IDLE mode\n");
-  PRINTF("       2 - voltage open-loop velocity \n");
-  PRINTF("       3 - current open-loop velocity \n");
+  PRINTF("       2 - voltage mode \n");
+  PRINTF("       3 - current mode \n");
+  PRINTF("  [-c] controller mode\n");
+  PRINTF("       1 - torqe control \n");
+  PRINTF("       2 - velocity control \n");
+  PRINTF("       3 - position control \n");
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  PRINTF("  [-r] torque [x1000]\n");
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   PRINTF("  [-v] velocity [x1000]\n");
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+  PRINTF("  [-x] position [x1000]\n");
+#endif
   PRINTF("  [-s] motor state\n");
   PRINTF("       1 - motor free\n");
   PRINTF("       2 - motor stop\n");
@@ -102,7 +125,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 
   while (1)
     {
-      c = getopt_long(argc, argv, "ht:m:o:v:s:j:", g_long_options,
+      c = getopt_long(argc, argv, "ht:f:m:o:r:v:x:s:j:", g_long_options,
                       &option_index);
 
       if (c == -1)
@@ -136,17 +159,41 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
               exit(0);
             }
 
-          case 'm':
+          case 'f':
             {
-              args->mode = atoi(optarg);
+              args->fmode = atoi(optarg);
               break;
             }
 
+          case 'm':
+            {
+              args->mmode = atoi(optarg);
+              break;
+            }
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+          case 'r':
+            {
+              args->torqmax = atoi(optarg);
+              break;
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
           case 'v':
             {
               args->velmax = atoi(optarg);
               break;
             }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+          case 'x':
+            {
+              args->posmax = atoi(optarg);
+              break;
+            }
+#endif
 
           case 's':
             {
