@@ -35,6 +35,9 @@
 #include "industry/foc/float/foc_angle.h"
 #include "industry/foc/float/foc_velocity.h"
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+#  include "industry/foc/float/foc_align.h"
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
 #  include "industry/foc/float/foc_model.h"
 #endif
@@ -72,6 +75,8 @@ struct foc_motor_f32_s
   int                           ctrl_state;   /* Controller state */
   float                         vbus;         /* Power bus voltage */
   float                         angle_now;    /* Phase angle now */
+  float                         angle_m;      /* Motor mechanical angle */
+  float                         angle_el;     /* Motor electrical angle */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   struct foc_setpoint_f32_s     torq;         /* Torque setpoint */
 #endif
@@ -91,6 +96,9 @@ struct foc_motor_f32_s
   struct foc_mq_s               mq;           /* MQ data */
   struct foc_state_f32_s        foc_state;    /* FOC controller sate */
   struct foc_ramp_f32_s         ramp;         /* Velocity ramp data */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  struct foc_routine_f32_s      align;        /* Alignment routine */
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
   struct foc_model_f32_s        model;         /* Model handler */
   struct foc_model_state_f32_s  model_state;   /* PMSM model state */

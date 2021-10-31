@@ -84,6 +84,7 @@ config EXAMPLES_FOC_SENSORLESS
 
 config EXAMPLES_FOC_SENSORED
 	bool "FOC example sensored configuration"
+	select EXAMPLES_FOC_HAVE_ALIGN
 
 endchoice #
 
@@ -270,6 +271,23 @@ config EXAMPLES_FOC_RAMP_ACC
 config EXAMPLES_FOC_RAMP_DEC
 	int "FOC velocity ramp acc [x1000]"
 	default 0
+
+config EXAMPLES_FOC_HAVE_ALIGN
+	bool "FOC example motor alignment support"
+	select INDUSTRY_FOC_ALIGN
+	default n
+
+if EXAMPLES_FOC_HAVE_ALIGN
+
+config EXAMPLES_FOC_ALIGN_VOLT
+	int "EXAMPLES_FOC_ALIGN_VOLT (x1000)"
+	default 0
+
+config EXAMPLES_FOC_ALIGN_SEC
+	int "EXAMPLES_FOC_ALIGN_SEC (x1000)"
+	default 0
+
+endif # EXAMPLES_FOC_HAVE_ALIGN
 
 endmenu # FOC controller parameters
 

@@ -104,4 +104,15 @@
 #  define FOC_MODEL_INDQ  (0.0002f)
 #endif
 
+/* Motor alignment configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+#  if CONFIG_EXAMPLES_FOC_ALIGN_VOLT == 0
+#    error
+#  endif
+#  if CONFIG_EXAMPLES_FOC_ALIGN_SEC == 0
+#    error
+#  endif
+#endif
+
 #endif /* __EXAMPLES_FOC_FOC_CFG_H */
