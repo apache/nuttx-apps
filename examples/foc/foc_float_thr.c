@@ -54,50 +54,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: foc_mode_init
- ****************************************************************************/
-
-static int foc_mode_init(FAR struct foc_motor_f32_s *motor)
-{
-  int ret = OK;
-
-  switch (motor->envp->mode)
-    {
-      case FOC_OPMODE_IDLE:
-        {
-          motor->foc_mode     = FOC_HANDLER_MODE_IDLE;
-          break;
-        }
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-      case FOC_OPMODE_OL_V_VEL:
-        {
-          motor->foc_mode     = FOC_HANDLER_MODE_VOLTAGE;
-          motor->openloop_now = true;
-          break;
-        }
-
-      case FOC_OPMODE_OL_C_VEL:
-        {
-          motor->foc_mode     = FOC_HANDLER_MODE_CURRENT;
-          motor->openloop_now = true;
-          break;
-        }
-#endif
-
-      default:
-        {
-          PRINTF("ERROR: unsupported op mode %d\n", motor->envp->mode);
-          ret = -EINVAL;
-          goto errout;
-        }
-    }
-
-errout:
-  return ret;
-}
-
-/****************************************************************************
  * Name: foc_handler_run
  ****************************************************************************/
 
@@ -254,15 +210,6 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
   /* Get PWM max duty */
 
   motor.pwm_duty_max = FOCDUTY_TO_FLOAT(dev.info.hw_cfg.pwm_max);
-
-  /* Initialize controller mode */
-
-  ret = foc_mode_init(&motor);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_mode_init failed %d!\n", ret);
-      goto errout;
-    }
 
   /* Start with motor free */
 

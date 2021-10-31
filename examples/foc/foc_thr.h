@@ -66,6 +66,17 @@ enum foc_operation_mode_e
 #endif
 };
 
+/* Controller state */
+
+enum foc_controller_state_e
+{
+  FOC_CTRL_STATE_INVALID = 0,
+  FOC_CTRL_STATE_INIT,
+  FOC_CTRL_STATE_RUN_INIT,
+  FOC_CTRL_STATE_RUN,
+  FOC_CTRL_STATE_IDLE
+};
+
 /* FOC thread data */
 
 struct foc_ctrl_env_s
