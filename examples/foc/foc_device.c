@@ -60,6 +60,15 @@ int foc_device_open(FAR struct foc_device_s *dev, int id)
       goto errout;
     }
 
+  /* Get device info */
+
+  ret = foc_dev_getinfo(dev->fd, &dev->info);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_dev_getinfo failed %d!\n", ret);
+      goto errout;
+    }
+
 errout:
   return ret;
 }
@@ -73,6 +82,14 @@ int foc_device_close(FAR struct foc_device_s *dev)
   int ret = OK;
 
   DEBUGASSERT(dev);
+
+  /* Stop FOC device */
+
+  ret = foc_dev_stop(dev->fd);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_dev_stop %d!\n", ret);
+    }
 
   if (dev->fd > 0)
     {

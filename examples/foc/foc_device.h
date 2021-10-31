@@ -27,6 +27,8 @@
 
 #include <nuttx/config.h>
 
+#include "industry/foc/foc_utils.h"
+
 /****************************************************************************
  * Public Type Definition
  ****************************************************************************/
@@ -35,7 +37,10 @@
 
 struct foc_device_s
 {
-  int fd;         /* FOC device */
+  int                 fd;      /* FOC device */
+  struct foc_info_s   info;    /* FOC dev info */
+  struct foc_state_s  state;   /* FOC dev state */
+  struct foc_params_s params;  /* FOC dev params */
 };
 
 /****************************************************************************
