@@ -51,7 +51,11 @@ struct foc_device_s
  * Public Function Prototypes
  ****************************************************************************/
 
-int foc_device_open(FAR struct foc_device_s *dev, int id);
-int foc_device_close(FAR struct foc_device_s *dev);
+int foc_device_init(FAR struct foc_device_s *dev, int id);
+int foc_device_deinit(FAR struct foc_device_s *dev);
+int foc_device_start(FAR struct foc_device_s *dev, bool state);
+int foc_dev_state_get(FAR struct foc_device_s *dev);
+int foc_dev_params_set(FAR struct foc_device_s *dev);
+int foc_dev_state_handle(FAR struct foc_device_s *dev, FAR bool *flag);
 
 #endif /* __EXAMPLES_FOC_FOC_DEVICE_H */
