@@ -41,13 +41,13 @@ endif
 # fixed16 support
 
 ifeq ($(CONFIG_INDUSTRY_FOC_FIXED16),y)
-  CSRCS += foc_fixed16_thr.c
+  CSRCS += foc_fixed16_thr.c foc_motor_b16.c
 endif
 
 # float32 support
 
 ifeq ($(CONFIG_INDUSTRY_FOC_FLOAT),y)
-  CSRCS += foc_float_thr.c
+  CSRCS += foc_float_thr.c foc_motor_f32.c
 endif
 
 include $(APPDIR)/Application.mk
