@@ -59,6 +59,7 @@ struct foc_motor_b16_s
   foc_angle_b16_t               openloop;     /* Open-loop angle handler */
 #endif
   int                           foc_mode;     /* FOC mode */
+  int                           ctrl_state;   /* Controller state */
   b16_t                         vbus;         /* Power bus voltage */
   b16_t                         angle_now;    /* Phase angle now */
   b16_t                         vel_set;      /* Velocity setting now */

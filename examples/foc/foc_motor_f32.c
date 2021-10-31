@@ -45,6 +45,56 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: foc_runmode_init
+ ****************************************************************************/
+
+static int foc_runmode_init(FAR struct foc_motor_f32_s *motor)
+{
+  int ret = OK;
+
+  switch (motor->envp->fmode)
+    {
+      case FOC_FMODE_IDLE:
+        {
+          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+          break;
+        }
+
+      case FOC_FMODE_VOLTAGE:
+        {
+          motor->foc_mode = FOC_HANDLER_MODE_VOLTAGE;
+          break;
+        }
+
+      case FOC_FMODE_CURRENT:
+        {
+          motor->foc_mode = FOC_HANDLER_MODE_CURRENT;
+          break;
+        }
+
+      default:
+        {
+          PRINTF("ERROR: unsupported op mode %d\n", motor->envp->fmode);
+          ret = -EINVAL;
+          goto errout;
+        }
+    }
+
+  /* Force open-loop if sensorless */
+
+#ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  motor->openloop_now = true;
+#  else
+#    error
+#  endif
+#endif
+
+errout:
+  return ret;
+}
+
+/****************************************************************************
  * Name: foc_motor_configure
  ****************************************************************************/
 
@@ -291,6 +341,34 @@ errout:
 }
 
 /****************************************************************************
+ * Name: foc_motor_run
+ ****************************************************************************/
+
+static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
+{
+  int ret = OK;
+
+  /* No velocity feedback - assume that velocity now is velocity set
+   * TODO: velocity observer or sensor
+   */
+
+  motor->vel_now = motor->vel_set;
+
+  /* Run velocity ramp controller */
+
+  ret = foc_ramp_run_f32(&motor->ramp, motor->vel_des,
+                         motor->vel_now, &motor->vel_set);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
+      goto errout;
+    }
+
+errout:
+  return ret;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -333,6 +411,10 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   ol_cfg.per = motor->per;
   foc_angle_cfg_f32(&motor->openloop, &ol_cfg);
 #endif
+
+  /* Initialize controller state */
+
+  motor->ctrl_state = FOC_CTRL_STATE_INIT;
 
   return ret;
 }
@@ -427,20 +509,63 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
 
   DEBUGASSERT(motor);
 
-  /* No velocity feedback - assume that velocity now is velocity set
-   * TODO: velocity observer or sensor
-   */
+  /* Controller state machine */
 
-  motor->vel_now = motor->vel_set;
-
-  /* Run velocity ramp controller */
-
-  ret = foc_ramp_run_f32(&motor->ramp, motor->vel_des,
-                         motor->vel_now, &motor->vel_set);
-  if (ret < 0)
+  switch (motor->ctrl_state)
     {
-      PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
-      goto errout;
+      case FOC_CTRL_STATE_INIT:
+        {
+          /* Next state */
+
+          motor->ctrl_state += 1;
+          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+          break;
+        }
+
+      case FOC_CTRL_STATE_RUN_INIT:
+        {
+          /* Initialize run controller mode */
+
+          ret = foc_runmode_init(motor);
+          if (ret < 0)
+            {
+              PRINTF("ERROR: foc_runmode_init failed %d!\n", ret);
+              goto errout;
+            }
+
+          /* Next state */
+
+          motor->ctrl_state += 1;
+        }
+
+      case FOC_CTRL_STATE_RUN:
+        {
+          /* Run motor */
+
+          ret = foc_motor_run(motor);
+          if (ret < 0)
+            {
+              PRINTF("ERROR: foc_motor_run failed %d!\n", ret);
+              goto errout;
+            }
+
+          break;
+        }
+
+      case FOC_CTRL_STATE_IDLE:
+        {
+          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+          break;
+        }
+
+      default:
+        {
+          PRINTF("ERROR: invalid ctrl_state=%d\n", motor->ctrl_state);
+          ret = -EINVAL;
+          goto errout;
+        }
     }
 
 errout:
