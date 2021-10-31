@@ -44,6 +44,94 @@
  * Private Functions
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+/****************************************************************************
+ * Name: foc_align_dir_cb
+ ****************************************************************************/
+
+static int foc_align_zero_cb(FAR void *priv, b16_t offset)
+{
+  FAR foc_angle_b16_t *angle = (FAR foc_angle_b16_t *)priv;
+
+  DEBUGASSERT(angle);
+
+  UNUSED(offset);
+
+  return foc_angle_zero_b16(angle);
+}
+
+/****************************************************************************
+ * Name: foc_align_dir_cb
+ ****************************************************************************/
+
+static int foc_align_dir_cb(FAR void *priv, b16_t dir)
+{
+  FAR foc_angle_b16_t *angle = (FAR foc_angle_b16_t *)priv;
+
+  DEBUGASSERT(angle);
+
+  return foc_angle_dir_b16(angle, dir);
+}
+
+/****************************************************************************
+ * Name: foc_motor_align
+ ****************************************************************************/
+
+static int foc_motor_align(FAR struct foc_motor_b16_s *motor, FAR bool *done)
+{
+  struct foc_routine_in_b16_s          in;
+  struct foc_routine_out_b16_s         out;
+  struct foc_routine_aling_final_b16_s final;
+  int                                  ret = OK;
+
+  /* Get input */
+
+  in.foc_state = &motor->foc_state;
+  in.angle     = motor->angle_now;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  in.vel       = motor->vel.now;
+#endif
+  in.vbus      = motor->vbus;
+
+  /* Run align procedure */
+
+  ret = foc_routine_run_b16(&motor->align, &in, &out);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_routine_run_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  if (ret == FOC_ROUTINE_RUN_DONE)
+    {
+      ret = foc_routine_final_b16(&motor->align, &final);
+      if (ret < 0)
+        {
+          PRINTFV("ERROR: foc_routine_final_b16 failed %d!\n", ret);
+          goto errout;
+        }
+
+      PRINTF("Aling results:\n");
+      PRINTF("  dir    = %.2f\n", b16tof(final.dir));
+      PRINTF("  offset = %.2f\n", b16tof(final.offset));
+
+      *done = true;
+    }
+
+  /* Copy output */
+
+  motor->dq_ref.d   = out.dq_ref.d;
+  motor->dq_ref.q   = out.dq_ref.q;
+  motor->vdq_comp.d = out.vdq_comp.d;
+  motor->vdq_comp.q = out.vdq_comp.q;
+  motor->angle_now  = out.angle;
+  motor->foc_mode   = out.foc_mode;
+
+errout:
+  return ret;
+}
+#endif
+
 /****************************************************************************
  * Name: foc_runmode_init
  ****************************************************************************/
@@ -580,9 +668,12 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
                    FAR struct foc_ctrl_env_s *envp)
 {
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  struct foc_openloop_cfg_b16_s ol_cfg;
+  struct foc_openloop_cfg_b16_s      ol_cfg;
 #endif
-  int                           ret = OK;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  struct foc_routine_align_cfg_b16_s align_cfg;
+#endif
+  int                                ret = OK;
 
   DEBUGASSERT(motor);
   DEBUGASSERT(envp);
@@ -612,10 +703,44 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   foc_angle_cfg_b16(&motor->openloop, &ol_cfg);
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  /* Initialize motor alignment routine */
+
+  ret = foc_routine_init_b16(&motor->align, &g_foc_routine_align_b16);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_routine_init_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Initialize motor alignment data */
+
+  align_cfg.volt         = ftob16(CONFIG_EXAMPLES_FOC_ALIGN_VOLT / 1000.0f);
+  align_cfg.offset_steps = (CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ *     \
+                            CONFIG_EXAMPLES_FOC_ALIGN_SEC / 1000);
+
+  /* Connect align callbacks */
+
+  align_cfg.cb.zero = foc_align_zero_cb;
+  align_cfg.cb.dir  = foc_align_dir_cb;
+
+  /* TODO: Connect align callbacks private data */
+
+  align_cfg.cb.priv = NULL;
+
+  ret = foc_routine_cfg_b16(&motor->align, &align_cfg);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_routine_cfg_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
   /* Initialize controller state */
 
   motor->ctrl_state = FOC_CTRL_STATE_INIT;
 
+errout:
   return ret;
 }
 
@@ -671,7 +796,9 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
 
   /* Update open-loop angle handler */
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   ain.vel   = motor->vel.set;
+#endif
   ain.angle = motor->angle_now;
   ain.dir   = motor->dir;
 
@@ -681,7 +808,32 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
   /* Store open-loop angle */
 
   motor->angle_ol = aout.angle;
+#endif
 
+#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+  /* Handle angle from sensor */
+
+  if (aout.type == FOC_ANGLE_TYPE_ELE)
+    {
+      /* Store electrical angle */
+
+      motor->angle_el = aout.angle;
+    }
+
+  else if (aout.type == FOC_ANGLE_TYPE_MECH)
+    {
+      /* TODO */
+
+      ASSERT(0);
+    }
+
+  else
+    {
+      ASSERT(0);
+    }
+#endif  /* CONFIG_EXAMPLES_FOC_SENSORED */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   /* Get phase angle now */
 
   if (motor->openloop_now == true)
@@ -691,9 +843,9 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
   else
 #endif
     {
-      /* TODO: get phase angle from observer or sensor */
+      /* Get phase angle from observer or sensor */
 
-      ASSERT(0);
+      motor->angle_now = motor->angle_el;
     }
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
@@ -709,6 +861,7 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
       /* TODO: velocity observer or sensor */
     }
 
+errout:
   return ret;
 }
 
@@ -719,6 +872,9 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
 int foc_motor_control(FAR struct foc_motor_b16_s *motor)
 {
   int ret = OK;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  bool align_done = false;
+#endif
 
   DEBUGASSERT(motor);
 
@@ -735,6 +891,30 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
 
           break;
         }
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+      case FOC_CTRL_STATE_ALIGN:
+        {
+          /* Run motor align procedure */
+
+          ret = foc_motor_align(motor, &align_done);
+          if (ret < 0)
+            {
+              PRINTF("ERROR: foc_motor_align failed %d!\n", ret);
+              goto errout;
+            }
+
+          if (align_done == true)
+            {
+              /* Next state */
+
+              motor->ctrl_state += 1;
+              motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+            }
+
+          break;
+        }
+#endif
 
       case FOC_CTRL_STATE_RUN_INIT:
         {
