@@ -566,21 +566,19 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
   DEBUGASSERT(motor);
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-#  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   /* Open-loop works only in velocity control mode */
 
   if (motor->openloop_now == true)
     {
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
       if (motor->envp->mmode != FOC_MMODE_VEL)
+#endif
         {
           PRINTF("ERROR: open-loop only with FOC_MMODE_VEL\n");
           ret = -EINVAL;
           goto errout;
         }
     }
-#  else
-#    error
-#  endif
 #endif
 
   /* Get previous DQ */
@@ -670,6 +668,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   struct foc_openloop_cfg_b16_s      ol_cfg;
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  struct foc_hall_cfg_b16_s          hl_cfg;
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   struct foc_routine_align_cfg_b16_s align_cfg;
 #endif
@@ -703,6 +704,37 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   foc_angle_cfg_b16(&motor->openloop, &ol_cfg);
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  /* Initialize hall angle handler */
+
+  ret = foc_angle_init_b16(&motor->hall,
+                           &g_foc_angle_hl_b16);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_init_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Get hall devpath */
+
+  sprintf(motor->hldpath,
+          "%s%d",
+          CONFIG_EXAMPLES_FOC_HALL_DEVPATH,
+          motor->envp->id);
+
+  /* Configure hall angle handler */
+
+  hl_cfg.devpath = motor->hldpath;
+  hl_cfg.per     = motor->per;
+
+  ret = foc_angle_cfg_b16(&motor->hall, &hl_cfg);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_cfg_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   /* Initialize motor alignment routine */
 
@@ -724,9 +756,11 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   align_cfg.cb.zero = foc_align_zero_cb;
   align_cfg.cb.dir  = foc_align_dir_cb;
 
-  /* TODO: Connect align callbacks private data */
+  /* Connect align callbacks private data */
 
-  align_cfg.cb.priv = NULL;
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  align_cfg.cb.priv = &motor->hall;
+#  endif
 
   ret = foc_routine_cfg_b16(&motor->align, &align_cfg);
   if (ret < 0)
@@ -740,7 +774,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   motor->ctrl_state = FOC_CTRL_STATE_INIT;
 
+#ifdef CONFIG_EXAMPLES_FOC_SENSORED
 errout:
+#endif
   return ret;
 }
 
@@ -810,6 +846,15 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
   motor->angle_ol = aout.angle;
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  ret = foc_angle_run_b16(&motor->hall, &ain, &aout);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_angle_run failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_SENSORED
   /* Handle angle from sensor */
 
@@ -861,7 +906,9 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
       /* TODO: velocity observer or sensor */
     }
 
+#ifdef CONFIG_EXAMPLES_FOC_SENSORED
 errout:
+#endif
   return ret;
 }
 

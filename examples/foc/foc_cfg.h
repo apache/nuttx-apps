@@ -31,10 +31,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* For now only open-loop supported */
+/* For now only torque mode supported for sensored */
 
-#ifndef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-#  error For now only open-loop supported
+#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+#    error
+#  endif
 #endif
 
 /* For now only sensorless velocity control supported */
