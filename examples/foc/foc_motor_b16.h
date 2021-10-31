@@ -46,6 +46,15 @@
  * Public Type Definition
  ****************************************************************************/
 
+/* FOC setpoint (fixed16) */
+
+struct foc_setpoint_b16_s
+{
+  b16_t set;
+  b16_t now;
+  b16_t des;
+};
+
 /* FOC motor data (fixed16) */
 
 struct foc_motor_b16_s
@@ -62,9 +71,15 @@ struct foc_motor_b16_s
   int                           ctrl_state;   /* Controller state */
   b16_t                         vbus;         /* Power bus voltage */
   b16_t                         angle_now;    /* Phase angle now */
-  b16_t                         vel_set;      /* Velocity setting now */
-  b16_t                         vel_now;      /* Velocity now */
-  b16_t                         vel_des;      /* Velocity destination */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  struct foc_setpoint_b16_s     torq;         /* Torque setpoint */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  struct foc_setpoint_b16_s     vel;          /* Velocity setpoint */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+  struct foc_setpoint_b16_s     pos;          /* Position setpoint */
+#endif
   b16_t                         dir;          /* Motor's direction */
   b16_t                         per;          /* Controller period in seconds */
   b16_t                         iphase_adc;   /* Iphase ADC scaling factor */

@@ -47,6 +47,15 @@
  * Public Type Definition
  ****************************************************************************/
 
+/* FOC setpoint (float32) */
+
+struct foc_setpoint_f32_s
+{
+  float set;
+  float now;
+  float des;
+};
+
 /* FOC motor data (float32) */
 
 struct foc_motor_f32_s
@@ -63,9 +72,15 @@ struct foc_motor_f32_s
   int                           ctrl_state;   /* Controller state */
   float                         vbus;         /* Power bus voltage */
   float                         angle_now;    /* Phase angle now */
-  float                         vel_set;      /* Velocity setting now */
-  float                         vel_now;      /* Velocity now */
-  float                         vel_des;      /* Velocity destination */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  struct foc_setpoint_f32_s     torq;         /* Torque setpoint */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  struct foc_setpoint_f32_s     vel;          /* Velocity setpoint */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+  struct foc_setpoint_f32_s     pos;          /* Position setpoint */
+#endif
   float                         dir;          /* Motor's direction */
   float                         per;          /* Controller period in seconds */
   float                         iphase_adc;   /* Iphase ADC scaling factor */

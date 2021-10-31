@@ -75,14 +75,22 @@ static int foc_handler_run(FAR struct foc_motor_f32_s *motor,
     {
       /* Stop motor */
 
-      motor->dq_ref.q   = 0;
-      motor->dq_ref.d   = 0;
-      motor->angle_now  = 0;
-      motor->vbus       = 0;
+      motor->dq_ref.q   = 0.0f;
+      motor->dq_ref.d   = 0.0f;
+      motor->angle_now  = 0.0f;
+      motor->vbus       = 0.0f;
 
       /* Force velocity to zero */
 
-      motor->vel_des = 0;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+      motor->torq.des = 0.0f;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+      motor->vel.des = 0.0f;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+      motor->pos.des = 0.0f;
+#endif
     }
 
   /* Get real currents */

@@ -37,9 +37,20 @@
 #  error For now only open-loop supported
 #endif
 
+/* For now only sensorless velocity control supported */
+
+#ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
+#    error
+#  endif
+#endif
+
 /* Open-loop configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
+#    error
+#  endif
 #  ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
 #    error
 #  endif
