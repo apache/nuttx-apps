@@ -462,7 +462,9 @@ static int foc_angle_hl_run_b16(FAR foc_angle_b16_t *h,
   FAR struct foc_hall_b16_s *hl     = NULL;
   int                        ret    = OK;
   int8_t                     sector = -1;
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_HALL_EST
   b16_t                      tmp1   = 0;
+#endif
 
   DEBUGASSERT(h);
 
