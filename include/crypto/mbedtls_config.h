@@ -42,7 +42,7 @@
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_PKCS1_V15
 #define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
-#define MBEDTLS_SSL_PROTO_TLS1_1
+#define MBEDTLS_SSL_PROTO_TLS1_2
 
 /* Modules */
 #define MBEDTLS_AES_C
@@ -65,6 +65,7 @@
 #define MBEDTLS_PK_PARSE_C
 #define MBEDTLS_RSA_C
 #define MBEDTLS_SHA1_C
+#define MBEDTLS_SHA224_C
 #define MBEDTLS_SHA256_C
 #define MBEDTLS_SSL_CLI_C
 #define MBEDTLS_SSL_SRV_C
@@ -77,11 +78,5 @@
 #define MBEDTLS_PEM_PARSE_C
 
 #define MBEDTLS_FS_IO
-
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-
-#include "mbedtls/check_config.h"
 
 #endif /* __APPS_INCLUDE_CRYPTO_MBEDTLS_CONFIG_H */
