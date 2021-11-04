@@ -46,10 +46,10 @@
 
 #define ALIGN_DIR_ANGLE_STEP   (ftob16(0.001f))
 #define ALIGN_DIR_ANGLE_HOLD_0 (ftob16(0.0f))
-#define ALIGN_DIR_ANGLE_HOLD_1 (b16idiv(b16PI, 3))
-#define ALIGN_DIR_ANGLE_HOLD_2 (b16muli(b16idiv(b16PI, 3), 2))
+#define ALIGN_DIR_ANGLE_HOLD_1 (b16divi(b16PI, 3))
+#define ALIGN_DIR_ANGLE_HOLD_2 (b16muli(b16divi(b16PI, 3), 2))
 #define ALIGN_DIR_ANGLE_HOLD_3 (b16PI)
-#define ALIGN_DIR_ANGLE_HOLD_4 (b16muli(b16idiv(b16PI, 3), 4))
+#define ALIGN_DIR_ANGLE_HOLD_4 (b16muli(b16divi(b16PI, 3), 4))
 #define ALIGN_DIR_HOLD_CNTR    (10)
 
 /* IDLE steps */
