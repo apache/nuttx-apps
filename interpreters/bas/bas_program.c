@@ -731,11 +731,6 @@ struct Value *Program_list(struct Program *this, int dev, int watchIntr,
             {
               return Value_new_ERROR(value, IOERROR, FS_errmsg);
             }
-
-          if (watchIntr)
-            {
-              return Value_new_ERROR(value, BREAK);
-            }
         }
 
       String_destroy(&s);
