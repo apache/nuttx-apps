@@ -26,6 +26,10 @@ choice
 	prompt "Cryptographic backend"
 	default MCUBOOT_USE_TINYCRYPT
 
+config MCUBOOT_USE_MBED_TLS
+	bool "Mbed TLS"
+	depends on CRYPTO_MBEDTLS
+
 config MCUBOOT_USE_TINYCRYPT
 	bool "TinyCrypt"
 
