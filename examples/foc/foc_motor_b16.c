@@ -246,6 +246,12 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
 
   foc_handler_cfg_b16(&motor->handler, &ctrl_cfg, &mod_cfg);
 
+#ifdef CONFIG_EXAMPLES_FOC_MOTOR_POLES
+  /* Configure motor poles */
+
+  motor->poles = CONFIG_EXAMPLES_FOC_MOTOR_POLES;
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
   /* Initialize PMSM model */
 
@@ -668,6 +674,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   struct foc_openloop_cfg_b16_s      ol_cfg;
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  struct foc_qenco_cfg_b16_s         qe_cfg;
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   struct foc_hall_cfg_b16_s          hl_cfg;
 #endif
@@ -702,6 +711,37 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   ol_cfg.per = motor->per;
   foc_angle_cfg_b16(&motor->openloop, &ol_cfg);
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  /* Initialize qenco angle handler */
+
+  ret = foc_angle_init_b16(&motor->qenco,
+                           &g_foc_angle_qe_b16);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_init_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Get qenco devpath */
+
+  sprintf(motor->qedpath,
+          "%s%d",
+          CONFIG_EXAMPLES_FOC_QENCO_DEVPATH,
+          motor->envp->id);
+
+  /* Configure qenco angle handler */
+
+  qe_cfg.posmax  = CONFIG_EXAMPLES_FOC_QENCO_POSMAX;
+  qe_cfg.devpath = motor->qedpath;
+
+  ret = foc_angle_cfg_b16(&motor->qenco, &qe_cfg);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_cfg_b16 failed %d!\n", ret);
+      goto errout;
+    }
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
@@ -758,6 +798,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   /* Connect align callbacks private data */
 
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  align_cfg.cb.priv = &motor->qenco;
+#  endif
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   align_cfg.cb.priv = &motor->hall;
 #  endif
@@ -846,6 +889,15 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
   motor->angle_ol = aout.angle;
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  ret = foc_angle_run_b16(&motor->qenco, &ain, &aout);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_angle_run failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   ret = foc_angle_run_b16(&motor->hall, &ain, &aout);
   if (ret < 0)
@@ -867,9 +919,14 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
 
   else if (aout.type == FOC_ANGLE_TYPE_MECH)
     {
-      /* TODO */
+      /* Store mechanical angle */
 
-      ASSERT(0);
+      motor->angle_m = aout.angle;
+
+      /* Convert mechanical angle to electrical angle */
+
+      motor->angle_el = (b16muli(motor->angle_m,
+                                 motor->poles) % MOTOR_ANGLE_E_MAX_B16);
     }
 
   else

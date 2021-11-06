@@ -75,6 +75,10 @@ struct foc_motor_b16_s
   char                          hldpath[32];  /* Hall devpath */
   foc_angle_b16_t               hall;         /* Hall angle handler */
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  char                          qedpath[32];  /* Qenco devpath */
+  foc_angle_b16_t               qenco;        /* Qenco angle handler */
+#endif
   int                           foc_mode;     /* FOC mode */
   int                           ctrl_state;   /* Controller state */
   b16_t                         vbus;         /* Power bus voltage */
@@ -94,6 +98,7 @@ struct foc_motor_b16_s
   b16_t                         per;          /* Controller period in seconds */
   b16_t                         iphase_adc;   /* Iphase ADC scaling factor */
   b16_t                         pwm_duty_max; /* PWM duty max */
+  uint8_t                       poles;        /* Motor poles */
   dq_frame_b16_t                dq_ref;       /* DQ reference */
   dq_frame_b16_t                vdq_comp;     /* DQ voltage compensation */
   foc_handler_b16_t             handler;      /* FOC controller */
