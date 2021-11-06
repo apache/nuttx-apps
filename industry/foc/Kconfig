@@ -121,6 +121,16 @@ config INDUSTRY_FOC_ALIGN
 	---help---
 		Enable support for angle sensor alignment routine (zero offset + direction)
 
+if INDUSTRY_FOC_ALIGN
+
+config INDUSTRY_FOC_ALIGN_INDEX
+	bool "FOC alignment index search support"
+	default n
+	---help---
+		Enable support for sensor alignment index search
+
+endif # INDUSTRY_FOC_ALIGN
+
 config INDUSTRY_FOC_IDENT
 	bool "FOC motor identification routine"
 	default n
