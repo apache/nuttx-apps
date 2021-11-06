@@ -459,6 +459,33 @@ errout:
 }
 
 /****************************************************************************
+ * Name: foc_threads_terminated
+ ****************************************************************************/
+
+static bool foc_threads_terminated(void)
+{
+  bool ret = false;
+
+  pthread_mutex_unlock(&g_cntr_lock);
+
+  if (1
+#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+      && g_float_thr_cntr <= 0
+#endif
+#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+      && g_fixed16_thr_cntr <= 0
+#endif
+    )
+    {
+      ret = true;
+    }
+
+  pthread_mutex_lock(&g_cntr_lock);
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: foc_threads_init
  ****************************************************************************/
 
@@ -929,6 +956,13 @@ int main(int argc, char *argv[])
 
               terminate = true;
             }
+        }
+
+      /* Terminate main loop if threads terminated */
+
+      if (foc_threads_terminated() == true)
+        {
+          terminate = true;
         }
 
       usleep(MAIN_LOOP_USLEEP);
