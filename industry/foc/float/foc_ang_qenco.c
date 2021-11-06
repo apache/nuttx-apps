@@ -46,6 +46,7 @@ struct foc_qenco_f32_s
 {
   int                        fd;
   int32_t                    pos;
+  int32_t                    offset;
   float                      one_by_posmax;
   float                      dir;
   float                      angle;
@@ -201,6 +202,24 @@ static int foc_angle_qe_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
       goto errout;
     }
 
+  /* Set the encoder index position to 0 */
+
+  ret = ioctl(qe->fd, QEIOC_SETINDEX, (unsigned long)(0));
+  if (ret < 0)
+    {
+      FOCLIBERR("ERROR: QEIOC_SETINDEX failed, errno=%d\n", errno);
+      goto errout;
+    }
+
+  /* Reset encoder position */
+
+  ret = ioctl(qe->fd, QEIOC_RESET, 0);
+  if (ret < 0)
+    {
+      FOCLIBERR("ERROR: QEIOC_RESET failed, errno=%d\n", errno);
+      goto errout;
+    }
+
   /* Get helpers */
 
   qe->one_by_posmax = (1.0f / qe->cfg.posmax);
@@ -208,6 +227,10 @@ static int foc_angle_qe_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
   /* Initialize with CW direction */
 
   qe->dir = DIR_CW;
+
+  /* Reset offset */
+
+  qe->offset = 0.0f;
 
 errout:
   return ret;
@@ -236,12 +259,13 @@ static int foc_angle_qe_zero_f32(FAR foc_angle_f32_t *h)
   DEBUGASSERT(h->data);
   qe = h->data;
 
-  /* Reset encoder position */
+  /* Get the zero offset position from encoder */
 
-  ret = ioctl(qe->fd, QEIOC_RESET, 0);
+  ret = ioctl(qe->fd, QEIOC_POSITION,
+              (unsigned long)((uintptr_t)&qe->offset));
   if (ret < 0)
     {
-      FOCLIBERR("ERROR: QEIOC_RESET failed, errno=%d\n", errno);
+      FOCLIBERR("ERROR: QEIOC_POSITION failed, errno=%d\n", errno);
       goto errout;
     }
 
@@ -322,11 +346,12 @@ static int foc_angle_qe_run_f32(FAR foc_angle_f32_t *h,
 
   /* Get mechanical angle */
 
-  qe->angle = qe->dir * qe->pos * qe->one_by_posmax * MOTOR_ANGLE_E_MAX;
+  qe->angle = (qe->dir * (qe->pos - qe->offset) *
+               qe->one_by_posmax * MOTOR_ANGLE_M_MAX);
 
   /* Normalize angle */
 
-  angle_norm_2pi(&qe->angle, MOTOR_ANGLE_E_MIN, MOTOR_ANGLE_E_MAX);
+  angle_norm_2pi(&qe->angle, MOTOR_ANGLE_M_MIN, MOTOR_ANGLE_M_MAX);
 
   /* Copy data */
 

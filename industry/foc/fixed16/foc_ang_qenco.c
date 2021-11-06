@@ -46,6 +46,7 @@ struct foc_qenco_b16_s
 {
   int                        fd;
   int32_t                    pos;
+  int32_t                    offset;
   b16_t                      one_by_posmax;
   b16_t                      dir;
   b16_t                      angle;
@@ -201,13 +202,35 @@ static int foc_angle_qe_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg)
       goto errout;
     }
 
+  /* Set the encoder index position to 0 */
+
+  ret = ioctl(qe->fd, QEIOC_SETINDEX, (unsigned long)(0));
+  if (ret < 0)
+    {
+      FOCLIBERR("ERROR: QEIOC_SETINDEX failed, errno=%d\n", errno);
+      goto errout;
+    }
+
+  /* Reset encoder position */
+
+  ret = ioctl(qe->fd, QEIOC_RESET, 0);
+  if (ret < 0)
+    {
+      FOCLIBERR("ERROR: QEIOC_RESET failed, errno=%d\n", errno);
+      goto errout;
+    }
+
   /* Get helpers */
 
-  qe->one_by_posmax = b16divb16(b16ONE, qe->cfg.posmax);
+  qe->one_by_posmax = b16divi(b16ONE, qe->cfg.posmax);
 
   /* Initialize with CW direction */
 
   qe->dir = DIR_CW_B16;
+
+  /* Reset offset */
+
+  qe->offset = 0;
 
 errout:
   return ret;
@@ -236,12 +259,13 @@ static int foc_angle_qe_zero_b16(FAR foc_angle_b16_t *h)
   DEBUGASSERT(h->data);
   qe = h->data;
 
-  /* Reset encoder position */
+  /* Get the zero offset position from encoder */
 
-  ret = ioctl(qe->fd, QEIOC_RESET, 0);
+  ret = ioctl(qe->fd, QEIOC_POSITION,
+              (unsigned long)((uintptr_t)&qe->offset));
   if (ret < 0)
     {
-      FOCLIBERR("ERROR: QEIOC_RESET failed, errno=%d\n", errno);
+      FOCLIBERR("ERROR: QEIOC_POSITION failed, errno=%d\n", errno);
       goto errout;
     }
 
@@ -305,6 +329,7 @@ static int foc_angle_qe_run_b16(FAR foc_angle_b16_t *h,
   int                         ret  = OK;
   b16_t                       tmp1 = 0;
   b16_t                       tmp2 = 0;
+  b16_t                       tmp3 = 0;
 
   DEBUGASSERT(h);
 
@@ -324,15 +349,16 @@ static int foc_angle_qe_run_b16(FAR foc_angle_b16_t *h,
 
   /* Get mechanical angle */
 
-  tmp1 = b16muli(qe->dir, qe->pos);
-  tmp2 = b16mulb16(qe->one_by_posmax, MOTOR_ANGLE_E_MAX_B16);
+  tmp1 = (qe->pos - qe->offset);
+  tmp2 = b16muli(qe->dir, tmp1);
+  tmp3 = b16mulb16(qe->one_by_posmax, MOTOR_ANGLE_M_MAX_B16);
 
-  qe->angle = b16mulb16(tmp1, tmp2);
+  qe->angle = b16mulb16(tmp2, tmp3);
 
   /* Normalize angle */
 
-  angle_norm_2pi_b16(&qe->angle, MOTOR_ANGLE_E_MIN_B16,
-                     MOTOR_ANGLE_E_MAX_B16);
+  angle_norm_2pi_b16(&qe->angle, MOTOR_ANGLE_M_MIN_B16,
+                     MOTOR_ANGLE_M_MAX_B16);
 
   /* Copy data */
 
