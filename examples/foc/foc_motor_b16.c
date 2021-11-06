@@ -88,6 +88,7 @@ static int foc_motor_align(FAR struct foc_motor_b16_s *motor, FAR bool *done)
 
   in.foc_state = &motor->foc_state;
   in.angle     = motor->angle_now;
+  in.angle_m   = motor->angle_m;
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   in.vel       = motor->vel.now;
 #endif
