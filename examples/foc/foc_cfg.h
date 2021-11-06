@@ -117,4 +117,15 @@
 #  endif
 #endif
 
+/* Qenco configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+#  if CONFIG_EXAMPLES_FOC_MOTOR_POLES == 0
+#    error
+#  endif
+#  if CONFIG_EXAMPLES_FOC_MOTOR_POSMAX == 0
+#    error
+#  endif
+#endif
+
 #endif /* __EXAMPLES_FOC_FOC_CFG_H */

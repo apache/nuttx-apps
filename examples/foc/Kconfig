@@ -90,10 +90,37 @@ endchoice #
 
 if EXAMPLES_FOC_SENSORED
 
+choice
+	prompt "FOC sensored sensor selection"
+
+config EXAMPLES_FOC_HAVE_QENCO
+	bool "FOC example have qencoder"
+	select INDUSTRY_FOC_ANGLE_QENCO
+
 config EXAMPLES_FOC_HAVE_HALL
 	bool "FOC example Hall sensor support"
 	select INDUSTRY_FOC_ANGLE_HALL
-	default n
+
+endchoice # FOC sensored sensor selection
+
+if EXAMPLES_FOC_HAVE_QENCO
+
+config EXAMPLES_FOC_MOTOR_POLES
+	int "FOC example motor poles pairs"
+	default 0
+
+config EXAMPLES_FOC_QENCO_POSMAX
+	int "FOC example qencoder maximum position"
+	default 0
+
+config EXAMPLES_FOC_QENCO_DEVPATH
+	string "FOC example qencoder path prefix"
+	default "/dev/qe"
+	---help---
+		The default path to the qenco device without the device minor number.
+		Default: /dev/qenco
+
+endif # EXAMPLES_FOC_HAVE_QENCO
 
 if EXAMPLES_FOC_HAVE_HALL
 
