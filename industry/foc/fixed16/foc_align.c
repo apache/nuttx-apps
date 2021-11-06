@@ -56,6 +56,12 @@
 
 #define IDLE_STEPS             (500)
 
+/* Index alignment */
+
+#define ALIGN_INDEX_ANGLE_SIGN   (-b16muli(b16PI, 2))
+#define ALIGN_INDEX_ANGLE_STEP   (ftob16(0.001f))
+#define ALIGN_INDEX_ANGLE_NOZERO (ftob16(0.1f))
+
 /****************************************************************************
  * Private Data Types
  ****************************************************************************/
@@ -65,6 +71,9 @@
 enum foc_align_run_stage_e
 {
   FOC_ALIGN_RUN_INIT,
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_INDEX
+  FOC_ALIGN_RUN_INDEX,
+#endif
   FOC_ALIGN_RUN_OFFSET,
   FOC_ALIGN_RUN_DIR,
   FOC_ALIGN_RUN_IDLE,
@@ -80,6 +89,10 @@ struct foc_align_b16_s
   int                                  cntr;
   int                                  stage;
   int                                  dir_step;
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_INDEX
+  int                                  index_step;
+  b16_t                                index_angle;
+#endif
   b16_t                                dir_angle;
   b16_t                                angle_last;
   b16_t                                angle_now;
@@ -115,6 +128,148 @@ struct foc_routine_ops_b16_s g_foc_routine_align_b16 =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_INDEX
+/****************************************************************************
+ * Name: foc_align_index_run_b16
+ *
+ * Description:
+ *   Run index alignment routine
+ *
+ * Input Parameter:
+ *   align - pointer to FOC align routine
+ *   in    - pointer to FOC routine input data
+ *   out   - pointer to FOC routine output data
+ *
+ ****************************************************************************/
+
+static int foc_align_index_run_b16(FAR struct foc_align_b16_s *align,
+                                   FAR struct foc_routine_in_b16_s *in,
+                                   FAR struct foc_routine_out_b16_s *out)
+{
+  static b16_t dir         = DIR_CW_B16;
+  b16_t        sign        = 0;
+  int          ret         = FOC_ROUTINE_RUN_NOTDONE;
+
+  /* Get mechanical angles */
+
+  align->angle_last = align->angle_now;
+  align->angle_now  = in->angle_m;
+
+  /* Normalize angle to <-M_PI, M_PI> range */
+
+  align->angle_now = align->angle_now - b16PI;
+  angle_norm_2pi_b16(&align->angle_now, -b16PI, b16PI);
+
+  /* The product of the previous angle with an angle now gives us
+   * information about the encoder overflow.
+   * This procedure assumes that the encoder index signal resets the
+   * encoder value to zero.
+   */
+
+  sign = b16mulb16(align->angle_now, align->angle_last);
+
+  /* Move the motor shaft to approach index signal from both direction.
+   * After that, the encoder zero should be aligned with the encoder index.
+   */
+
+  if (align->index_step == 0)
+    {
+      /* Move the motor shaft away from zero */
+
+      align->index_angle += b16mulb16(dir, ALIGN_INDEX_ANGLE_STEP);
+
+      if (align->angle_now < ALIGN_INDEX_ANGLE_NOZERO &&
+          align->angle_now > -ALIGN_INDEX_ANGLE_NOZERO)
+        {
+          align->index_step += 1;
+        }
+    }
+
+  else if (align->index_step == 1)
+    {
+      /* Move the motor shaft to zero in positive direction */
+
+      align->index_angle += b16mulb16(dir, ALIGN_INDEX_ANGLE_STEP);
+
+      if (sign < 0 && sign < ALIGN_INDEX_ANGLE_SIGN)
+        {
+          dir = b16mulb16(DIR_CCW_B16, dir);
+          align->index_step += 1;
+        }
+    }
+
+  else if (align->index_step == 2)
+    {
+      /* Move the motor shaft away from zero */
+
+      align->index_angle += b16mulb16(dir, ALIGN_INDEX_ANGLE_STEP);
+
+      if (align->angle_now < ALIGN_INDEX_ANGLE_NOZERO &&
+          align->angle_now > -ALIGN_INDEX_ANGLE_NOZERO)
+        {
+          align->index_step += 1;
+        }
+    }
+
+  else if (align->index_step == 3)
+    {
+      /* Move the motor shaft to zero in negative direction */
+
+      align->index_angle += b16mulb16(dir, ALIGN_INDEX_ANGLE_STEP);
+
+      if (sign < 0 && sign < ALIGN_INDEX_ANGLE_SIGN)
+        {
+          dir = b16mulb16(DIR_CCW_B16, dir);
+          align->index_step += 1;
+        }
+    }
+
+  else if (align->index_step == 4)
+    {
+      /* Done */
+
+      ret = FOC_ROUTINE_RUN_DONE;
+    }
+
+  /* Get output */
+
+  if (ret == FOC_ROUTINE_RUN_DONE)
+    {
+      /* Force IDLE mode */
+
+      out->dq_ref.q   = 0;
+      out->dq_ref.d   = 0;
+      out->vdq_comp.q = 0;
+      out->vdq_comp.d = 0;
+      out->angle      = 0;
+      out->foc_mode   = FOC_HANDLER_MODE_IDLE;
+
+      /* Reset data */
+
+      align->angle_last = 0;
+      align->angle_now  = 0;
+      align->cntr       = 0;
+    }
+  else
+    {
+      /* Force DQ voltage vector */
+
+      out->dq_ref.q   = align->cfg.volt;
+      out->dq_ref.d   = 0;
+      out->vdq_comp.q = 0;
+      out->vdq_comp.d = 0;
+      out->angle      = align->index_angle;
+      out->foc_mode   = FOC_HANDLER_MODE_VOLTAGE;
+
+      /* Increase counter */
+
+      align->cntr += 1;
+    }
+
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Name: foc_align_offset_run_b16
@@ -710,6 +865,29 @@ int foc_routine_align_run_b16(FAR foc_routine_b16_t *r,
 
           break;
         }
+
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_INDEX
+      case FOC_ALIGN_RUN_INDEX:
+        {
+          /* Align zero procedure */
+
+          ret = foc_align_index_run_b16(a, in, out);
+          if (ret < 0)
+            {
+              goto errout;
+            }
+
+          if (ret == FOC_ROUTINE_RUN_DONE)
+            {
+              FOCLIBLOG("ALIGN INDEX done!\n");
+
+              a->stage += 1;
+              ret = FOC_ROUTINE_RUN_NOTDONE;
+            }
+
+          break;
+        }
+#endif
 
     case FOC_ALIGN_RUN_OFFSET:
       {

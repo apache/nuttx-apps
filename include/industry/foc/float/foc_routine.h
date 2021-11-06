@@ -46,7 +46,8 @@ enum foc_routine_run_e
 struct foc_routine_in_f32_s
 {
   FAR struct foc_state_f32_s *foc_state; /* FOC controller state */
-  float                       angle;     /* Angle now */
+  float                       angle;     /* Angle electrical now */
+  float                       angle_m;   /* Angle mechanical now */
   float                       vel;       /* Velocity now */
   float                       vbus;      /* VBUS now */
 };
