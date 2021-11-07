@@ -11,7 +11,6 @@ config NSH_LIBRARY
 	default n
 	select NETUTILS_NETLIB if NET
 	select LIBC_NETDB if NET
-	select READLINE_HAVE_EXTMATCH
 	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT || NSH_ROMFSETC
 	select BOARDCTL_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
 	select BOARDCTL_ROMDISK if NSH_ROMFSETC
@@ -80,6 +79,7 @@ choice
 config NSH_READLINE
 	bool "Minimal readline()"
 	select SYSTEM_READLINE
+	select READLINE_HAVE_EXTMATCH
 	---help---
 		Selects the minimal implementation of readline().  This minimal
 		implementation provides on backspace for command line editing.
