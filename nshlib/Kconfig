@@ -242,15 +242,18 @@ config NSH_DISABLE_BASENAME
 
 config NSH_DISABLE_CAT
 	bool "Disable cat"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_CD
 	bool "Disable cd"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_CP
 	bool "Disable cp"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_CMP
 	bool "Disable cmp"
@@ -259,8 +262,8 @@ config NSH_DISABLE_CMP
 
 config NSH_DISABLE_DATE
 	bool "Disable date"
-	default n if RTC
-	default y if !RTC
+	default n if !DEFAULT_SMALL && RTC
+	default y if DEFAULT_SMALL || !RTC
 
 config NSH_DISABLE_DD
 	bool "Disable dd"
@@ -291,11 +294,13 @@ config NSH_DISABLE_DMESG
 
 config NSH_DISABLE_ECHO
 	bool "Disable echo"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_ENV
 	bool "Disable env"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_EXEC
 	bool "Disable exec"
@@ -309,11 +314,13 @@ config NSH_DISABLE_EXIT
 
 config NSH_DISABLE_EXPORT
 	bool "Disable export"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_FREE
 	bool "Disable free"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_GET
 	bool "Disable get"
@@ -322,7 +329,8 @@ config NSH_DISABLE_GET
 
 config NSH_DISABLE_HELP
 	bool "Disable help"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_HEXDUMP
 	bool "Disable hexdump"
@@ -331,17 +339,18 @@ config NSH_DISABLE_HEXDUMP
 
 config NSH_DISABLE_IFCONFIG
 	bool "Disable ifconfig"
-	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
-	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
+	default y if DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
+	default n if !DEFAULT_SMALL && FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
 
 config NSH_DISABLE_IFUPDOWN
 	bool "Disable ifup/down"
-	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
-	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
+	default y if DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
+	default n if !DEFAULT_SMALL && FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
 
 config NSH_DISABLE_KILL
 	bool "Disable kill"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_LOSETUP
 	bool "Disable losetup"
@@ -361,7 +370,8 @@ config NSH_DISABLE_LN
 
 config NSH_DISABLE_LS
 	bool "Disable ls"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MB
 	bool "Disable mb"
@@ -375,7 +385,8 @@ config NSH_DISABLE_MD5
 
 config NSH_DISABLE_MKDIR
 	bool "Disable mkdir"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MKFATFS
 	bool "Disable mkfatfs"
@@ -406,16 +417,19 @@ config NSH_DISABLE_MH
 
 config NSH_DISABLE_MODCMDS
 	bool "Disable modules commands (insmod, rmmod, lsmod)"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on MODULE
 
 config NSH_DISABLE_MOUNT
 	bool "Disable mount"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MV
 	bool "Disable mv"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MW
 	bool "Disable mw"
@@ -423,22 +437,26 @@ config NSH_DISABLE_MW
 
 config NSH_DISABLE_NSFMOUNT
 	bool "Disable nfsmount"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NFS
 
 config NSH_DISABLE_NSLOOKUP
 	bool "Disable nslookup"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on LIBC_NETDB && NETDB_DNSCLIENT
 
 config NSH_DISABLE_PASSWD
 	bool "Disable passwd"
-	default y
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_PMCONFIG
 	bool "Disable pmconfig"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on PM
 
 config NSH_DISABLE_POWEROFF
@@ -449,17 +467,19 @@ config NSH_DISABLE_POWEROFF
 
 config NSH_DISABLE_PRINTF
 	bool "Disable printf"
-	default y
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_PS
 	bool "Disable ps"
-	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_PROCESS
-	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS
+	default y if DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_PROCESS
+	default n if !DEFAULT_SMALL && FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS
 
 config NSH_DISABLE_PSSTACKUSAGE
 	bool "Disable ps stack usage"
 	depends on STACK_COLORATION && !NSH_DISABLE_PS
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		Disable to save space and not pull in floating point routines
 
@@ -470,7 +490,8 @@ config NSH_DISABLE_PUT
 
 config NSH_DISABLE_PWD
 	bool "Disable pwd"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_READLINK
 	bool "Disable readlink"
@@ -486,11 +507,13 @@ config NSH_DISABLE_REBOOT
 
 config NSH_DISABLE_RM
 	bool "Disable rm"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_RMDIR
 	bool "Disable rmdir"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_ROUTE
 	bool "Disable delroute"
@@ -500,16 +523,19 @@ config NSH_DISABLE_ROUTE
 
 config NSH_DISABLE_RPTUN
 	bool "Disable rptun"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on RPTUN
 
 config NSH_DISABLE_SET
 	bool "Disable set"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_SOURCE
 	bool "Disable source"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_SHUTDOWN
 	bool "Disable shutdown"
@@ -519,7 +545,8 @@ config NSH_DISABLE_SHUTDOWN
 
 config NSH_DISABLE_SLEEP
 	bool "Disable sleep"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_TIME
 	bool "Disable time"
@@ -528,20 +555,23 @@ config NSH_DISABLE_TIME
 
 config NSH_DISABLE_TEST
 	bool "Disable test"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_TELNETD
 	bool "Disable telnetd"
-	default n if !NSH_NETLOCAL
-	default y if NSH_NETLOCAL
+	default n if !DEFAULT_SMALL && !NSH_NETLOCAL
+	default y if DEFAULT_SMALL || NSH_NETLOCAL
 
 config NSH_DISABLE_TRUNCATE
 	bool "Disable truncate"
-	default y
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_UMOUNT
 	bool "Disable umount"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_UNAME
 	bool "Disable uname"
@@ -550,7 +580,8 @@ config NSH_DISABLE_UNAME
 
 config NSH_DISABLE_UNSET
 	bool "Disable unset"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_URLDECODE
 	bool "Disable urldecode"
@@ -566,17 +597,20 @@ config NSH_DISABLE_URLENCODE
 
 config NSH_DISABLE_USERADD
 	bool "Disable useradd"
-	default y
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_USERDEL
 	bool "Disable userdel"
-	default y
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
 config NSH_DISABLE_USLEEP
 	bool "Disable usleep"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_WGET
 	bool "Disable wget"
