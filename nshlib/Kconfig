@@ -627,12 +627,14 @@ endmenu
 if MMCSD
 
 config NSH_MMCSDMINOR
-	int "MMC/SD minor number"
+	int "MMC/SD minor device number"
 	default 0
 	---help---
-		If board-specific NSH start-up logic needs to mount an MMC/SD device, then the
-		setting should be provided to identify the MMC/SD minor device number (i.e., the N ini
-		/dev/mmcsdN).  Default 0
+		If the architecture supports an MMC/SD slot and if the NSH
+		architecture specific logic is present, this option will provide
+		the MMC/SD minor number, i.e., the MMC/SD block driver will
+		be registered as /dev/mmcsdN where N is the minor number.
+		Default is zero.
 
 config NSH_MMCSDSLOTNO
 	int "MMC/SD slot number"
@@ -762,16 +764,6 @@ config NSH_DISABLE_LOOPS
 
 endif # !NSH_DISABLESCRIPT
 
-config NSH_MMCSDMINOR
-	int "MMC/SD minor device number"
-	default 0
-	---help---
-		If the architecture supports an MMC/SD slot and if the NSH
-		architecture specific logic is present, this option will provide
-		the MMC/SD minor number, i.e., the MMC/SD block driver will
-		be registered as /dev/mmcsdN where N is the minor number.
-		Default is zero.
-
 config NSH_ROMFSETC
 	bool "Support ROMFS start-up script"
 	default n
@@ -786,7 +778,7 @@ if NSH_ROMFSETC
 config NSH_CROMFSETC
 	bool "Support CROMFS (compressed) start-up script"
 	default n
-	depends on NSH_ROMFSETC && FS_CROMFS
+	depends on FS_CROMFS
 	---help---
 		Mount a CROMFS filesystem at /etc and provide a compressed startup
 		script at /etc/init.d/rcS.
