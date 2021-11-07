@@ -3,10 +3,6 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config READLINE_HAVE_EXTMATCH
-	bool
-	default n
-
 menuconfig SYSTEM_READLINE
 	bool "readline() Support"
 	default n
@@ -14,6 +10,10 @@ menuconfig SYSTEM_READLINE
 		Enable support for the readline() function.
 
 if SYSTEM_READLINE
+
+config READLINE_HAVE_EXTMATCH
+	bool
+	default n
 
 config READLINE_ECHO
 	bool "Echo character input"
