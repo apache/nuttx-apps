@@ -122,13 +122,18 @@ static struct mallinfo g_mmafter;
 static void fstest_showmemusage(struct mallinfo *mmbefore,
                                 struct mallinfo *mmafter)
 {
-  printf("VARIABLE  BEFORE   AFTER\n");
-  printf("======== ======== ========\n");
-  printf("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
-  printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
-  printf("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
-  printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
-  printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+  printf("VARIABLE  BEFORE   AFTER    DELTA\n");
+  printf("======== ======== ======== ========\n");
+  printf("arena    %8x %8x %8x\n", mmbefore->arena   , mmafter->arena,
+                                   mmafter->arena    - mmbefore->arena);
+  printf("ordblks  %8d %8d %8d\n", mmbefore->ordblks , mmafter->ordblks,
+                                   mmafter->ordblks  - mmbefore->ordblks);
+  printf("mxordblk %8x %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk,
+                                   mmafter->mxordblk - mmbefore->mxordblk);
+  printf("uordblks %8x %8x %8x\n", mmbefore->uordblks, mmafter->uordblks,
+                                   mmafter->uordblks - mmbefore->uordblks);
+  printf("fordblks %8x %8x %8x\n", mmbefore->fordblks, mmafter->fordblks,
+                                   mmafter->fordblks - mmbefore->fordblks);
 }
 
 /****************************************************************************
