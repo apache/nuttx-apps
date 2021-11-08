@@ -106,7 +106,6 @@ static char g_mountdir[CONFIG_TESTING_FSTEST_MAXNAME] =
 static int g_nfiles;
 static int g_ndeleted;
 static int g_nfailed;
-static bool g_media_full;
 
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
@@ -452,11 +451,7 @@ static inline int fstest_wrfile(FAR struct fstest_filedesc_s *file)
             {
               continue;
             }
-          else if (errcode == ENOSPC)
-            {
-              g_media_full = true;
-            }
-          else
+          else if (errcode != ENOSPC)
             {
               printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
@@ -513,8 +508,6 @@ static int fstest_fillfs(void)
 
   /* Create a file for each unused file structure */
 
-  g_media_full = false;
-
   for (i = 0; i < CONFIG_TESTING_FSTEST_MAXOPEN; i++)
     {
       file = &g_files[i];
@@ -533,11 +526,6 @@ static int fstest_fillfs(void)
           printf("  Created file %s\n", file->name);
 #endif
           g_nfiles++;
-
-          if (g_media_full)
-            {
-              break;
-            }
         }
     }
 
