@@ -191,10 +191,10 @@ static inline char fstest_randchar(void)
 }
 
 /****************************************************************************
- * Name: fstest_checkexit
+ * Name: fstest_checkexist
  ****************************************************************************/
 
-static bool fstest_checkexit(FAR struct fstest_filedesc_s *file)
+static bool fstest_checkexist(FAR struct fstest_filedesc_s *file)
 {
   int i;
   bool ret = false;
@@ -254,7 +254,7 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
       file->hash = crc32((const uint8_t *)file->name + dirlen,
                          alloclen - dirlen);
     }
-  while (fstest_checkexit(file));
+  while (fstest_checkexist(file));
 }
 
 /****************************************************************************
@@ -969,7 +969,7 @@ static void show_useage(void)
   printf("Usage : fstest [OPTION [ARG]] ...\n");
   printf("-h    show this help statement\n");
   printf("-n    num of test loop e.g. [%d]\n", CONFIG_TESTING_FSTEST_NLOOPS);
-  printf("-m    mount point tobe test e.g. [%s]\n",
+  printf("-m    mount point to be tested e.g. [%s]\n",
           CONFIG_TESTING_FSTEST_MOUNTPT);
 }
 
