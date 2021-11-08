@@ -655,7 +655,7 @@ static inline int fstest_rdfile(FAR struct fstest_filedesc_s *file)
 
   /* Try reading past the end of the file */
 
-  nbytesread = fstest_rdblock(fd, file, ntotalread, 1024) ;
+  nbytesread = fstest_rdblock(fd, file, ntotalread, 1024);
   if (nbytesread > 0)
     {
       printf("ERROR: Read past the end of file\n");
@@ -899,6 +899,7 @@ static int fstest_delallfiles(void)
     }
 
   g_nfiles = 0;
+  g_nfailed = 0;
   g_ndeleted = 0;
   return OK;
 }
