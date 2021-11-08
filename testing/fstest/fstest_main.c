@@ -200,7 +200,7 @@ static bool fstest_checkexist(FAR struct fstest_filedesc_s *file)
 
   for (i = 0; i < CONFIG_TESTING_FSTEST_MAXOPEN; i++)
     {
-      if (!g_files[i].deleted && &g_files[i] != file &&
+      if (&g_files[i] != file && g_files[i].name &&
           strcmp(g_files[i].name, file->name) == 0)
         {
           ret = true;
