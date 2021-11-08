@@ -91,7 +91,6 @@ struct fstest_filedesc_s
   bool failed;
   size_t len;
   uint32_t crc;
-  uint32_t hash;
 };
 
 /****************************************************************************
@@ -201,9 +200,8 @@ static bool fstest_checkexist(FAR struct fstest_filedesc_s *file)
 
   for (i = 0; i < CONFIG_TESTING_FSTEST_MAXOPEN; i++)
     {
-      if (!g_files[i].deleted &&
-          &g_files[i] != file &&
-          g_files[i].hash == file->hash)
+      if (!g_files[i].deleted && &g_files[i] != file &&
+          strcmp(g_files[i].name, file->name) == 0)
         {
           ret = true;
           break;
@@ -251,8 +249,6 @@ static inline void fstest_randname(FAR struct fstest_filedesc_s *file)
         }
 
       file->name[alloclen] = '\0';
-      file->hash = crc32((const uint8_t *)file->name + dirlen,
-                         alloclen - dirlen);
     }
   while (fstest_checkexist(file));
 }
