@@ -316,7 +316,7 @@ config EXAMPLES_FOC_RAMP_ACC
 	default 0
 
 config EXAMPLES_FOC_RAMP_DEC
-	int "FOC velocity ramp acc [x1000]"
+	int "FOC velocity ramp dec [x1000]"
 	default 0
 
 config EXAMPLES_FOC_HAVE_ALIGN
