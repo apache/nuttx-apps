@@ -346,6 +346,9 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
+  /* Get the first overlay information */
+
+  state.oinfo.overlay = 0;
   ret = ioctl(state.fd, FBIOGET_OVERLAYINFO,
                         (unsigned long)((uintptr_t)&state.oinfo));
   if (ret < 0)
