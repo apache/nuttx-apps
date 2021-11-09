@@ -92,17 +92,17 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       fputs(g_nshgreeting, pstate->cn_outstream);
 
 #ifdef CONFIG_NSH_MOTD
-#ifdef CONFIG_NSH_PLATFORM_MOTD
+# ifdef CONFIG_NSH_PLATFORM_MOTD
       /* Output the platform message of the day */
 
       platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
       fprintf(pstate->cn_outstream, "%s\n", vtbl->iobuffer);
 
-#else
+# else
       /* Output the fixed message of the day */
 
       fprintf(pstate->cn_outstream, "%s\n", g_nshmotd);
-#endif
+# endif
 #endif
 
       fflush(pstate->cn_outstream);
