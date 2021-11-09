@@ -46,17 +46,21 @@
  * Name: nsh_session
  *
  * Description:
- *   This is the common session logic or an NSH session that uses only stdin
+ *   This is the common session login on any NSH session that uses only stdin
  *   and stdout.
  *
  *   This function:
- *   - Executes the NSH logic script
+ *   - Performs the login sequence if so configured
+ *   - Executes the NSH login script
  *   - Presents a greeting
  *   - Then provides a prompt then gets and processes the command line.
  *   - This continues until an error occurs, then the session returns.
  *
  * Input Parameters:
  *   pstate - Abstracts the underlying session.
+ *
+ * Returned Values:
+ *   EXIT_SUCCESS or EXIT_FAILURE is returned.
  *
  ****************************************************************************/
 
@@ -96,8 +100,13 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       /* Output the fixed message of the day */
 
       printf("%s\n", g_nshmotd);
-
 # endif
+#endif
+
+      /* Execute the login script */
+
+#ifdef CONFIG_NSH_ROMFSRC
+      nsh_loginscript(vtbl);
 #endif
     }
 
@@ -115,20 +124,22 @@ int nsh_session(FAR struct console_stdio_s *pstate,
           nsh_usbtrace();
 #endif
 
-          /* Get the next line of input. */
+          /* Get the next line of input. readline() returns EOF
+           * on end-of-file or any read failure.
+           */
 
 #ifdef CONFIG_NSH_CLE
           /* cle() normally returns the number of characters read, but will
            * return a negated errno value on end of file or if an error
-           * occurs. Either will cause the session to terminate.
+           * occurs. Either  will cause the session to terminate.
            */
 
           ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
                     stdin, stdout);
           if (ret < 0)
             {
-              printf(g_fmtcmdfailed,
-                     "nsh_session", "cle", NSH_ERRNO_OF(-ret));
+              printf(g_fmtcmdfailed, "nsh_session",
+                     "cle", NSH_ERRNO_OF(-ret));
               continue;
             }
 #else
@@ -136,8 +147,8 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
           printf("%s", g_nshprompt);
 
-          /* readline () normally returns the number of characters read, but
-           * will return EOF on end of file or if an error occurs.  Either
+          /* readline() normally returns the number of characters read, but
+           * will return EOF on end of file or if an error occurs.  EOF
            * will cause the session to terminate.
            */
 
@@ -148,7 +159,8 @@ int nsh_session(FAR struct console_stdio_s *pstate,
                * perhaps we will be lucky and it will still be valid.
                */
 
-              printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO);
+              printf(g_fmtcmdfailed, "nsh_session",
+                     "readline", NSH_ERRNO);
               ret = EXIT_SUCCESS;
               break;
             }
@@ -166,7 +178,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
     }
   else if (strcmp(argv[1], "-c") != 0)
     {
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#ifndef CONFIG_NSH_DISABLESCRIPT
       /* Execute the shell script */
 
       ret = nsh_script(vtbl, argv[0], argv[1]);
@@ -177,9 +189,6 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       /* Parse process the command */
 
       ret = nsh_parse(vtbl, argv[2]);
-#ifdef CONFIG_FILE_STREAM
-      fflush(pstate->cn_outstream);
-#endif
     }
 
   return ret;
