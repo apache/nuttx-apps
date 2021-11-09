@@ -69,6 +69,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 {
   FAR struct nsh_vtbl_s *vtbl;
   int ret = EXIT_FAILURE;
+  int i;
 
   DEBUGASSERT(pstate);
   vtbl = &pstate->cn_vtbl;
@@ -110,85 +111,109 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 #endif
     }
 
-  if (argc < 2)
-    {
-      /* Then enter the command line parsing loop */
+  /* Process the command line option */
 
-      for (; ; )
+  for (i = 1; i < argc; i++)
+    {
+      if (strcmp(argv[i], "-h") == 0)
         {
-          /* For the case of debugging the USB console...
-           * dump collected USB trace data
-           */
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-          nsh_usbtrace();
-#endif
-
-          /* Get the next line of input. readline() returns EOF
-           * on end-of-file or any read failure.
-           */
-
-#ifdef CONFIG_NSH_CLE
-          /* cle() normally returns the number of characters read, but will
-           * return a negated errno value on end of file or if an error
-           * occurs. Either  will cause the session to terminate.
-           */
-
-          ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
-                    stdin, stdout);
-          if (ret < 0)
-            {
-              printf(g_fmtcmdfailed, "nsh_session",
-                     "cle", NSH_ERRNO_OF(-ret));
-              continue;
-            }
-#else
-          /* Display the prompt string */
-
-          printf("%s", g_nshprompt);
-
-          /* readline() normally returns the number of characters read, but
-           * will return EOF on end of file or if an error occurs.  EOF
-           * will cause the session to terminate.
-           */
-
-          ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
-          if (ret == EOF)
-            {
-              /* NOTE: readline() does not set the errno variable, but
-               * perhaps we will be lucky and it will still be valid.
-               */
-
-              printf(g_fmtcmdfailed, "nsh_session",
-                     "readline", NSH_ERRNO);
-              ret = EXIT_SUCCESS;
-              break;
-            }
-#endif
-
-          /* Parse process the command */
-
-          nsh_parse(vtbl, pstate->cn_line);
+          nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
+                     argv[0]);
+          return EXIT_SUCCESS;
         }
+      else if (strcmp(argv[i], "-c") == 0)
+        {
+          /* Process the inline command */
+
+          if (i + 1 < argc)
+            {
+              return nsh_parse(vtbl, argv[i + 1]);
+            }
+          else
+            {
+              nsh_error(vtbl, g_fmtargrequired, argv[0]);
+              return EXIT_FAILURE;
+            }
+        }
+      else if (argv[i][0] != '-')
+        {
+          break;
+        }
+
+      /* Unknown option */
+
+      nsh_error(vtbl, g_fmtsyntax, argv[0]);
+      return EXIT_FAILURE;
     }
-  else if (strcmp(argv[1], "-h") == 0)
-    {
-      ret = nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
-                       argv[0]);
-    }
-  else if (strcmp(argv[1], "-c") != 0)
+
+  if (i < argc)
     {
 #ifndef CONFIG_NSH_DISABLESCRIPT
       /* Execute the shell script */
 
-      ret = nsh_script(vtbl, argv[0], argv[1]);
+      return nsh_script(vtbl, argv[0], argv[i]);
+#else
+      return EXIT_FAILURE;
 #endif
     }
-  else if (argc >= 3)
+
+  /* Then enter the command line parsing loop */
+
+  for (; ; )
     {
+      /* For the case of debugging the USB console...
+       * dump collected USB trace data
+       */
+
+#ifdef CONFIG_NSH_USBDEV_TRACE
+      nsh_usbtrace();
+#endif
+
+      /* Get the next line of input. readline() returns EOF
+       * on end-of-file or any read failure.
+       */
+
+#ifdef CONFIG_NSH_CLE
+      /* cle() normally returns the number of characters read, but will
+       * return a negated errno value on end of file or if an error
+       * occurs. Either  will cause the session to terminate.
+       */
+
+      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
+                stdin, stdout);
+      if (ret < 0)
+        {
+          printf(g_fmtcmdfailed, "nsh_session",
+                 "cle", NSH_ERRNO_OF(-ret));
+          continue;
+        }
+#else
+      /* Display the prompt string */
+
+      printf("%s", g_nshprompt);
+
+      /* readline() normally returns the number of characters read, but
+       * will return EOF on end of file or if an error occurs.  EOF
+       * will cause the session to terminate.
+       */
+
+      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
+      if (ret == EOF)
+        {
+          /* NOTE: readline() does not set the errno variable, but
+           * perhaps we will be lucky and it will still be valid.
+           */
+
+          printf(g_fmtcmdfailed, "nsh_session",
+                 "readline", NSH_ERRNO);
+          ret = EXIT_SUCCESS;
+          break;
+        }
+#endif
+
       /* Parse process the command */
 
-      ret = nsh_parse(vtbl, argv[2]);
+      nsh_parse(vtbl, pstate->cn_line);
     }
 
   return ret;
