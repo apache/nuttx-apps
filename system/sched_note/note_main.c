@@ -129,7 +129,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length < sizeof(struct note_start_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: note too small for start note: %d\n",
+                         "note too small for start note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -169,7 +169,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_stop_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for stop note: %d\n",
+                         "Size incorrect for stop note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -197,7 +197,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_suspend_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for suspend note: %d\n",
+                         "Size incorrect for suspend note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -231,7 +231,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_resume_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for resume note: %d\n",
+                         "Size incorrect for resume note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -260,7 +260,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_start_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU start note: %d\n",
+                         "Size incorrect for CPU start note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -279,7 +279,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_started_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU started note: %d\n",
+                         "Size incorrect for CPU started note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -300,7 +300,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_pause_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU pause note: %d\n",
+                         "Size incorrect for CPU pause note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -319,7 +319,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_paused_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU paused note: %d\n",
+                         "Size incorrect for CPU paused note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -340,7 +340,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_resume_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU resume note: %d\n",
+                         "Size incorrect for CPU resume note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -359,7 +359,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_cpu_resumed_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for CPU resumed note: %d\n",
+                         "Size incorrect for CPU resumed note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -384,7 +384,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_preempt_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for preemption note: %d\n",
+                         "Size incorrect for preemption note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -440,7 +440,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_csection_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for csection note: %d\n",
+                         "Size incorrect for csection note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -498,7 +498,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_spinlock_s))
                 {
                   syslog(LOG_ERR,
-                         "ERROR: Size incorrect for spinlock note: %d\n",
+                         "Size incorrect for spinlock note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -634,7 +634,7 @@ static void dump_notes(size_t nread)
                     if (note->nc_length < SIZEOF_NOTE_SYSCALL_ENTER(0))
                       {
                         syslog(LOG_ERR,
-                               "ERROR: Size incorrect for SYSCALL enter note: %d\n",
+                               "Size incorrect for SYSCALL enter note: %d\n",
                                note->nc_length);
                         return;
                       }
@@ -655,7 +655,7 @@ static void dump_notes(size_t nread)
                     if (note->nc_length != sizeof(struct note_syscall_leave_s))
                       {
                         syslog(LOG_ERR,
-                               "ERROR: Size incorrect for SYSCALL leave note: %d\n",
+                               "Size incorrect for SYSCALL leave note: %d\n",
                                note->nc_length);
                         return;
                       }
@@ -692,7 +692,7 @@ static void dump_notes(size_t nread)
                     if (note->nc_length != sizeof(struct note_irqhandler_s))
                       {
                         syslog(LOG_ERR,
-                               "ERROR: Size incorrect for IRQ note: %d\n",
+                               "Size incorrect for IRQ note: %d\n",
                                note->nc_length);
                         return;
                       }
