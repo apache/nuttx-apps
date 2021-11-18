@@ -101,31 +101,29 @@ static CHelloWorld g_HelloWorld;
  * Name: helloxx_main
  ****************************************************************************/
 
-extern "C"
+
+extern "C" int main(int argc, FAR char *argv[])
 {
-  int main(int argc, FAR char *argv[])
- {
-    // Exercise an explicitly instantiated C++ object
+  // Exercise an explicitly instantiated C++ object
 
-    CHelloWorld *pHelloWorld = new CHelloWorld;
-    printf("helloxx_main: Saying hello from the dynamically constructed instance\n");
-    pHelloWorld->HelloWorld();
+  CHelloWorld *pHelloWorld = new CHelloWorld;
+  printf("helloxx_main: Saying hello from the dynamically constructed instance\n");
+  pHelloWorld->HelloWorld();
 
-    // Exercise an C++ object instantiated on the stack
+  // Exercise an C++ object instantiated on the stack
 
-    CHelloWorld HelloWorld;
+  CHelloWorld HelloWorld;
 
-    printf("helloxx_main: Saying hello from the instance constructed on the stack\n");
-    HelloWorld.HelloWorld();
+  printf("helloxx_main: Saying hello from the instance constructed on the stack\n");
+  HelloWorld.HelloWorld();
 
-    // Exercise an statically constructed C++ object
+  // Exercise an statically constructed C++ object
 
 #ifdef CONFIG_HAVE_CXXINITIALIZE
-    printf("helloxx_main: Saying hello from the statically constructed instance\n");
-    g_HelloWorld.HelloWorld();
+  printf("helloxx_main: Saying hello from the statically constructed instance\n");
+  g_HelloWorld.HelloWorld();
 #endif
 
-    delete pHelloWorld;
-    return 0;
-  }
+  delete pHelloWorld;
+  return 0;
 }

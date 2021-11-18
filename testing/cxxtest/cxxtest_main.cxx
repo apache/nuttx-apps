@@ -214,18 +214,15 @@ static void test_exception(void)
 // Name: cxxtest_main
 //***************************************************************************/
 
-extern "C"
+extern "C" int main(int argc, char *argv[])
 {
-  int main(int argc, char *argv[])
-  {
-    test_ofstream();
-    test_iostream();
-    test_stl();
-    test_rtti();
+  test_ofstream();
+  test_iostream();
+  test_stl();
+  test_rtti();
 #ifdef CONFIG_CXX_EXCEPTION
-    test_exception();
+  test_exception();
 #endif
 
-    return 0;
-  }
+  return 0;
 }
