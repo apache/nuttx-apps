@@ -404,6 +404,7 @@ static struct Value *input(struct Value *v, long int len, long int chn)
 
 static struct Value *env(struct Value *v, long int n)
 {
+#ifdef TODO ////
   int i;
 
   --n;
@@ -420,6 +421,7 @@ static struct Value *env(struct Value *v, long int n)
       String_appendChars(&v->u.string, environ[i]);
     }
 
+#endif  ////  TODO
   return v;
 }
 
@@ -862,6 +864,7 @@ static struct Value *fn_environd(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_environs(struct Value *v, struct Auto *stack)
 {
+#ifdef TODO  ////
   char *var;
 
   Value_new_STRING(v);
@@ -875,6 +878,7 @@ static struct Value *fn_environs(struct Value *v, struct Auto *stack)
         }
     }
 
+#endif  ////  TODO
   return v;
 }
 

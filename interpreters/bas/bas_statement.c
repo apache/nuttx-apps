@@ -261,11 +261,15 @@ struct Value *stmt_CHDIR_MKDIR(struct Value *value)
       switch (statementpc.token->type)
         {
         case T_CHDIR:
+#ifdef TODO ////
           res = chdir(value->u.string.character);
+#endif  ////  TODO
           break;
 
         case T_MKDIR:
+#ifdef TODO ////
           res = mkdir(value->u.string.character, 0777);
+#endif  ////  TODO
           break;
 
         default:
@@ -1446,7 +1450,9 @@ struct Value *stmt_ENDSELECT(struct Value *value)
 
 struct Value *stmt_ENVIRON(struct Value *value)
 {
+#ifdef TODO  ////
   struct Pc epc = g_pc;
+#endif  ////  TODO
 
   ++g_pc.token;
   if (eval(value, _("environment variable"))->type == V_ERROR ||
@@ -1457,12 +1463,14 @@ struct Value *stmt_ENVIRON(struct Value *value)
 
   if (g_pass == INTERPRET && value->u.string.character)
     {
+#ifdef TODO  ////
       if (putenv(value->u.string.character) == -1)
         {
           Value_destroy(value);
           g_pc = epc;
           return Value_new_ERROR(value, ENVIRONFAILED, strerror(errno));
         }
+#endif  ////  TODO
     }
 
   Value_destroy(value);
