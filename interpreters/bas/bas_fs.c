@@ -1861,8 +1861,13 @@ int FS_portInput(int address)
 
 int FS_memInput(int address)
 {
-  FS_errmsg = _("Direct memory access not available");
-  return -1;
+  ////  Return the 32-bit word at the specified address.
+  ////  TODO: Quit if address is invalid.
+  return *(int *) address;
+
+  ////  Previously:
+  ////  FS_errmsg = _("Direct memory access not available");
+  ////  return -1;
 }
 
 int FS_portOutput(int address, int value)
@@ -1873,6 +1878,12 @@ int FS_portOutput(int address, int value)
 
 int FS_memOutput(int address, int value)
 {
-  FS_errmsg = _("Direct memory access not available");
-  return -1;
+  ////  Set the 32-bit word at the specified address
+  ////  TODO: Quit if address is invalid.
+  *(int *) address = value;
+  return 0;
+
+  ////  Previously:
+  ////  FS_errmsg = _("Direct memory access not available");
+  ////  return -1;
 }
