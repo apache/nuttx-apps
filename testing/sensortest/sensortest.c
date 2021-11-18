@@ -158,7 +158,7 @@ static void print_valf3(const char *buffer, const char *name)
 static void print_valu(const char *buffer, const char *name)
 {
   struct sensor_event_ppg *event = (struct sensor_event_ppg *)buffer;
-  printf("%s: timestamp:%" PRIu64 " value:%u\n",
+  printf("%s: timestamp:%" PRIu64 " value:%" PRIu32 "\n",
          name, event->timestamp, event->ppg);
 }
 
@@ -168,8 +168,9 @@ static void print_gps(const char *buffer, const char *name)
 
   printf("%s: timestamp:%" PRIu64 " time_utc: %" PRIu64 " latitude: %f "
          "longitude: %f altitude: %f altitude_ellipsoid: %f eph: %f epv: %f "
-         "hdop: %f vdop: %f ground_speed: %f course: %f satellites_used:"
-         " %u\n", name, event->timestamp, event->time_utc, event->latitude,
+         "hdop: %f vdop: %f ground_speed: %f course: %f satellites_used: %"
+         PRIu32 "\n",
+         name, event->timestamp, event->time_utc, event->latitude,
          event->longitude, event->altitude, event->altitude_ellipsoid,
          event->eph, event->epv, event->hdop, event->vdop,
          event->ground_speed, event->course, event->satellites_used);
@@ -180,8 +181,9 @@ static void print_gps_satellite(FAR const char *buffer, FAR const char *name)
   FAR struct sensor_event_gps_satellite *event =
         (struct sensor_event_gps_satellite *)buffer;
 
-  printf("%s: timestamp: %" PRIu64 " count: %u satellites: %u", name,
-         event->timestamp, event->count, event->satellites);
+  printf("%s: timestamp: %" PRIu64 " count: %" PRIu32
+         " satellites: %" PRIu32 "\n",
+         name, event->timestamp, event->count, event->satellites);
 }
 
 static void usage(void)
