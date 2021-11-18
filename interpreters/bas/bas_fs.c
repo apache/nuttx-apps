@@ -294,7 +294,7 @@ static int edit(int chn, int nl)
         }
       else if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
-#ifdef CONFIG_EOL_IS_BOTH_CRLF
+#ifndef CONFIG_EOL_IS_CR
           /* Ignore carriage returns that may accompany a CRLF sequence. */
 
           if (ch != '\r')
@@ -304,10 +304,8 @@ static int edit(int chn, int nl)
 
 #ifdef CONFIG_EOL_IS_CR
               if (ch != '\r')
-#elif defined(CONFIG_EOL_IS_LF)
+#else
               if (ch != '\n')
-#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-              if (ch != '\n' && ch != '\r')
 #endif
                 {
                   /* No.. escape control characters other than newline and
@@ -341,7 +339,7 @@ static int edit(int chn, int nl)
                       FS_putChar(chn, '\n');
                     }
 
-#if defined(CONFIG_EOL_IS_CR) || defined(CONFIG_EOL_IS_EITHER_CRLF)
+#ifdef CONFIG_EOL_IS_CR
                   /* If the host is talking to us with CR line terminations,
                    * switch to use LF internally.
                    */

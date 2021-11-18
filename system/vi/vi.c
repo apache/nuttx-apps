@@ -57,34 +57,6 @@
 #  define CONFIG_SYSTEM_VI_COLS 64
 #endif
 
-/* Some environments may return CR as end-of-line, others LF, and others
- * both.  If not specified, the logic here assumes either (but not both) as
- * the default.
- */
-
-#if defined(CONFIG_EOL_IS_CR)
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_LF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#else
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  define CONFIG_EOL_IS_EITHER_CRLF 1
-#endif
-
 #ifndef CONFIG_SYSTEM_VI_YANK_THRESHOLD
 #define CONFIG_SYSTEM_VI_YANK_THRESHOLD 128
 #endif
@@ -4099,7 +4071,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
-#if defined(CONFIG_EOL_IS_CR)
+#ifdef CONFIG_EOL_IS_CR
         case KEY_CMDMODE_NEXTLINE:
         case '\r': /* CR terminates line */
           {
@@ -4108,25 +4080,12 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#else
        case '\r': /* Wait for the LF */
           break;
-#endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
         case KEY_CMDMODE_NEXTLINE:
         case '\n': /* LF terminates line */
-          {
-            vi->curpos = vi_nextline(vi, vi->curpos);
-            vi_gotofirstnonwhite(vi);
-          }
-          break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-        case KEY_CMDMODE_NEXTLINE:
-        case '\r': /* Either CR or LF terminates line */
-        case '\n':
           {
             vi->curpos = vi_nextline(vi, vi->curpos);
             vi_gotofirstnonwhite(vi);
@@ -4639,29 +4598,18 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
 
           /* What do we do with carriage returns? line feeds? */
 
-#if defined(CONFIG_EOL_IS_CR)
+#ifdef CONFIG_EOL_IS_CR
           case '\r': /* CR terminates line */
             {
               vi_parsecolon(vi);
             }
             break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#else
           case '\r': /* Wait for the LF */
             break;
-#endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
           case '\n': /* LF terminates line */
-            {
-              vi_parsecolon(vi);
-            }
-            break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Either CR or LF terminates line */
-          case '\n':
             {
               vi_parsecolon(vi);
             }
@@ -4941,29 +4889,18 @@ static void vi_find_submode(FAR struct vi_s *vi, bool revfind)
 
           /* What do we do with carriage returns? line feeds? */
 
-#if defined(CONFIG_EOL_IS_CR)
+#ifdef CONFIG_EOL_IS_CR
           case '\r': /* CR terminates line */
             {
               vi_parsefind(vi, revfind);
             }
             break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#else
           case '\r': /* Wait for the LF */
             break;
-#endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
           case '\n': /* LF terminates line */
-            {
-              vi_parsefind(vi, revfind);
-            }
-            break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Either CR or LF terminates line */
-          case '\n':
             {
               vi_parsefind(vi, revfind);
             }
@@ -5089,7 +5026,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
 
           /* What do we do with carriage returns? line feeds? */
 
-#if defined(CONFIG_EOL_IS_CR)
+#ifdef CONFIG_EOL_IS_CR
           case '\r': /* CR terminates line */
             {
               ch = '\n';
@@ -5097,24 +5034,12 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
             }
             break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#else
           case '\r': /* Wait for the LF */
             break;
-#endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
           case '\n': /* LF terminates line */
             {
-              found = true;
-            }
-            break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Either CR or LF terminates line */
-          case '\n':
-            {
-              ch = '\n';
               found = true;
             }
             break;
@@ -5487,7 +5412,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 
           /* What do we do with carriage returns? */
 
-#if defined(CONFIG_EOL_IS_CR)
+#ifdef CONFIG_EOL_IS_CR
           case '\r': /* CR terminates line */
             {
               if (vi->mode == MODE_INSERT)
@@ -5503,12 +5428,10 @@ static void vi_insert_mode(FAR struct vi_s *vi)
             }
             break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#else
          case '\r': /* Wait for the LF */
             break;
-#endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
           case '\n': /* LF terminates line */
             {
               if (vi->mode == MODE_INSERT)
@@ -5520,26 +5443,6 @@ static void vi_insert_mode(FAR struct vi_s *vi)
                   vi_replacech(vi, '\n');
                 }
 
-              vi->drawtoeos = true;
-            }
-            break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Either CR or LF terminates line */
-          case '\n':
-            {
-              if (vi->mode == MODE_INSERT)
-                {
-                  vi_insertch(vi, '\n');
-                }
-              else
-                {
-                  vi_replacech(vi, '\n');
-                }
-
-              vi_putch(vi, ' ');
-              vi_clrtoeol(vi);
               vi->drawtoeos = true;
             }
             break;
