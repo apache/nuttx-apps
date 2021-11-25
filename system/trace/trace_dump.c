@@ -608,6 +608,39 @@ static int trace_dump_one(FAR FILE *out,
         break;
 #endif
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+      case NOTE_DUMP_STRING:
+        {
+          FAR struct note_string_s *nst;
+
+          nst = (FAR struct note_string_s *)p;
+          trace_dump_header(out, note, ctx);
+          fprintf(out, "dump_string: %s\n",
+                  nst->nst_data);
+        }
+        break;
+
+      case NOTE_DUMP_BINARY:
+        {
+          FAR struct note_binary_s *nbi;
+          uint8_t count;
+          int i;
+
+          nbi = (FAR struct note_binary_s *)p;
+          trace_dump_header(out, note, ctx);
+          count = note->nc_length - sizeof(struct note_binary_s) + 1;
+          fprintf(out, "dump_binary: module=%u event=%u count=%u",
+                  nbi->nbi_module, nbi->nbi_event, count);
+          for (i = 0; i < count; i++)
+            {
+              fprintf(out, " 0x%x", nbi->nbi_data[i]);
+            }
+
+          fprintf(out, "\n");
+        }
+        break;
+#endif
+
       default:
         break;
     }
