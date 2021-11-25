@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -39,19 +40,52 @@
 #include "mkfatfs.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#if defined(CONFIG_MKFATFS_BUFFER_ALIGMENT) && \
-            CONFIG_MKFATFS_BUFFER_ALIGMENT > 0
-#  define fat_buffer_alloc(s) memalign(CONFIG_MKFATFS_BUFFER_ALIGMENT, (s))
-#else
-#  define fat_buffer_alloc(s) malloc((s))
-#endif
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: fat_alloc_sector_buffer
+ *
+ * Description:
+ *   Wrapper function to use BOARDIOC_FATDMAMEM or alloc
+ *
+ ****************************************************************************/
+
+static uint8_t *fat_alloc_sector_buffer(FAR struct fat_var_s *var)
+{
+#if defined(CONFIG_BOARDCTL_FATDMAMEMORY)
+  struct boardioc_dmafatmemory_ioctl_s req;
+  int ret;
+
+  req.size = var->fv_sectorsize;
+  req.pmemory = NULL;
+  ret = boardctl(BOARDIOC_FATDMAMEM, (uintptr_t)&req);
+  return ret == OK ? req.pmemory : NULL;
+#else
+  return (FAR uint8_t *)malloc(var->fv_sectorsize);
+#endif
+}
+
+/****************************************************************************
+ * Name: fat_free_sector_buffer
+ *
+ * Description:
+ *   Wrapper function to use BOARDIOC_FATDMAMEM or free
+ *
+ ****************************************************************************/
+
+static void fat_free_sector_buffer(FAR struct fat_var_s *var)
+{
+#if defined(CONFIG_BOARDCTL_FATDMAMEMORY)
+  struct boardioc_dmafatmemory_ioctl_s req;
+  req.size = var->fv_sectorsize;
+  req.pmemory = var->fv_sect;
+  boardctl(BOARDIOC_FATDMAMEM, (uintptr_t)&req);
+#else
+  free(var->fv_sect);
+#endif
+  var->fv_sect = NULL;
+}
 
 /****************************************************************************
  * Name: fat_systime2fattime
@@ -352,7 +386,7 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
    * Lets align it as needed
    */
 
-  var.fv_sect = (FAR uint8_t *)fat_buffer_alloc(var.fv_sectorsize);
+  var.fv_sect = fat_alloc_sector_buffer(&var);
   if (!var.fv_sect)
     {
       ferr("ERROR: Failed to allocate working buffers\n");
@@ -375,7 +409,7 @@ errout:
 
   if (var.fv_sect)
     {
-      free(var.fv_sect);
+      fat_free_sector_buffer(&var);
     }
 
   /* Return any reported errors */
