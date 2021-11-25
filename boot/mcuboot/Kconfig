@@ -14,7 +14,7 @@ if BOOT_MCUBOOT
 
 config MCUBOOT_VERSION
 	string "MCUboot version"
-	default "5e762643778454ca9a1f872e3dfdef6490204f96"
+	default "7c890f4b075aed73e4c825ccf875b2fb9ebf2ded"
 
 config MCUBOOT_ENABLE_LOGGING
 	bool "Enable MCUboot logging"
