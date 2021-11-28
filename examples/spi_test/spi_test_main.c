@@ -38,3 +38,5 @@ int main(int argc, FAR char *argv[])
   printf("Hello, World!!\n");
   return 0;
 }
+
+#error TODO: Update the main() function
