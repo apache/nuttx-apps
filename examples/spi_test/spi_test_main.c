@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 #include <stdio.h>
+#include <nuttx/spi/spi.h>
 
 /****************************************************************************
  * Public Functions
@@ -38,5 +39,3 @@ int main(int argc, FAR char *argv[])
   printf("Spi_test, World!!\n");
   return 0;
 }
-
-#error TODO: Update the main() function
