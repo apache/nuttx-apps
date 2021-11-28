@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello/Make.defs
+# apps/examples/spi_test/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,15 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# Spi_test, World! built-in application info
 
-PROGNAME  = $(CONFIG_EXAMPLES_HELLO_PROGNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_HELLO_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_HELLO_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_HELLO)
+PROGNAME  = $(CONFIG_EXAMPLES_SPI_TEST_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_SPI_TEST_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_SPI_TEST_STACKSIZE)
+MODULE    = $(CONFIG_EXAMPLES_SPI_TEST)
 
-# Hello, World! Example
+# Spi_test, World! Example
 
-MAINSRC = hello_main.c
+MAINSRC = spi_test_main.c
 
 include $(APPDIR)/Application.mk

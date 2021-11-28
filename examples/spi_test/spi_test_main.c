@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/hello/hello_main.c
+ * apps/examples/spi_test/spi_test_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,12 +30,12 @@
  ****************************************************************************/
 
 /****************************************************************************
- * hello_main
+ * spi_test_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
-  printf("Hello, World!!\n");
+  printf("Spi_test, World!!\n");
   return 0;
 }
 
