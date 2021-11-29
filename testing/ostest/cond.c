@@ -31,9 +31,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef NULL
-# define NULL (void*)0
-#endif
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
 
 static volatile enum
 {
@@ -41,6 +41,10 @@ static volatile enum
   MUTEX_WAIT,
   COND_WAIT
 } waiter_state;
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
 
 static pthread_mutex_t mutex;
 static pthread_cond_t  cond;
@@ -54,7 +58,7 @@ static int signaler_state = 0;
 static int signaler_nerrors = 0;
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 static void *thread_waiter(void *parameter)
@@ -214,6 +218,10 @@ static void *thread_signaler(void *parameter)
   pthread_exit(NULL);
   return NULL; /* Non-reachable -- needed for some compilers */
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 void cond_test(void)
 {
