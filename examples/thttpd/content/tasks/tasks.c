@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/thttpd/tasks/tasks.c
+ * apps/examples/thttpd/content/tasks/tasks.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -90,62 +90,26 @@ static FAR const char *g_policynames[4] =
 void show_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
   FAR const char *policy;
-  int i;
 
   /* Show task/thread status */
 
   policy = g_policynames[(tcb->flags & TCB_FLAG_POLICY_MASK) >>
                          TCB_FLAG_POLICY_SHIFT];
-  printf("%5d %3d %4s %7s%c%c %8s ",
+#if CONFIG_TASK_NAME_SIZE > 0
+  printf("%5d %3d %4s %7s%c%c %8s %s\n",
+#else
+  printf("%5d %3d %4s %7s%c%c %8s\n",
+#endif
          tcb->pid, tcb->sched_priority, policy,
          g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >>
                       TCB_FLAG_TTYPE_SHIFT],
          tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
          tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
-         g_statenames[tcb->task_state]);
-
-  /* Is this a task or a thread? */
-
-#ifndef CONFIG_DISABLE_PTHREAD
-  if ((tcb->flags & TCB_FLAG_TTYPE_MASK) == TCB_FLAG_TTYPE_PTHREAD)
-    {
-      FAR struct pthread_tcb_s *ptcb = (FAR struct pthread_tcb_s *)tcb;
-
-      /* It is a pthread.  Show any name assigned to the pthread via prtcl()
-       * along with the startup value.
-       */
-
+         g_statenames[tcb->task_state]
 #if CONFIG_TASK_NAME_SIZE > 0
-      printf("%s(%p)\n", tcb->name, ptcb->arg);
-#else
-      printf("pthread(%p)\n", ptcb->arg);
+         , tcb->name
 #endif
-    }
-  else
-#endif
-    {
-      FAR struct task_tcb_s *ttcb = (FAR struct task_tcb_s *)tcb;
-
-      /* Show task name and arguments */
-
-      printf("%s(", ttcb->argv[0]);
-
-      /* Special case 1st argument (no comma) */
-
-      if (ttcb->argv[1])
-        {
-         printf("%p", ttcb->argv[1]);
-        }
-
-      /* Then any additional arguments */
-
-      for (i = 2; ttcb->argv[i]; i++)
-        {
-          printf(", %p", ttcb->argv[i]);
-        }
-
-      printf(")\n");
-    }
+         );
 }
 
 /****************************************************************************
