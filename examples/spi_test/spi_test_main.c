@@ -65,6 +65,8 @@ int main(int argc, FAR char *argv[])
 
   /* From sx127x_lock() in https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/wireless/lpwan/sx127x/sx127x.c#L463-L477 */
 
+  /* TODO: Transmit and receive SPI Data */
+
   /* Close File Descriptor */
 
   close(fd);
