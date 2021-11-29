@@ -51,10 +51,13 @@ int main(int argc, FAR char *argv[])
 
   /* Configure SPI */
 
-  SPI_LOCK(spi, 1);
-  SPI_SETBITS(spi, 8);
-  SPI_SETMODE(spi, SPIDEV_MODE0);
-  SPI_SETFREQUENCY(spi, CONFIG_LPWAN_SX127X_SPIFREQ);
+  SPI_LOCK(spi, 1);  /* Lock SPI bus for exclusive use */
+
+  SPI_SETBITS(spi, 8);  /* 8-bit SPI transfer */
+
+  SPI_SETMODE(spi, SPIDEV_MODE0);  /* SPI Mode 0 */
+
+  SPI_SETFREQUENCY(spi, CONFIG_LPWAN_SX127X_SPIFREQ);  /* SPI Frequency */
 
   /* From sx127x_lock() in https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/wireless/lpwan/sx127x/sx127x.c#L463-L477 */
 
