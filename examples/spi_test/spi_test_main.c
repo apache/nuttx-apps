@@ -39,9 +39,9 @@ int main(int argc, FAR char *argv[])
   printf("Spi_test, World!!\n");
 
 #ifdef TODO
-  /* Open device */
+  /* Open SPI Device and get File Descriptor */
 
-  fd = open(DEV_NAME, O_RDWR);
+  fd = open("/dev/spi0", O_RDWR);
   if (fd < 0)
     {
       int errcode = errno;
@@ -49,7 +49,7 @@ int main(int argc, FAR char *argv[])
       goto errout;
     }
 
-  /* Configure SPI */
+  /* Configure SPI Driver */
 
   SPI_LOCK(spi, 1);  /* Lock SPI bus for exclusive use */
 
@@ -61,7 +61,7 @@ int main(int argc, FAR char *argv[])
 
   /* From sx127x_lock() in https://github.com/lupyuen/incubator-nuttx/blob/master/drivers/wireless/lpwan/sx127x/sx127x.c#L463-L477 */
 
-  /* Close SPI */
+  /* Close SPI Device */
 
   close(fd);
 
