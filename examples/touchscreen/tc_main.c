@@ -204,6 +204,7 @@ int main(int argc, FAR char *argv[])
           printf("         h : %d\n",   sample.point[0].h);
           printf("         w : %d\n",   sample.point[0].w);
           printf("  pressure : %d\n",   sample.point[0].pressure);
+          printf(" timestamp : %" PRIu64"\n", sample.point[0].timestamp);
         }
 #endif
 
