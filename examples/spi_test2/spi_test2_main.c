@@ -60,16 +60,29 @@ int main(int argc, FAR char *argv[])
 
   /* Write to SPI Test Driver */
 
-  char data[] = "Hello World"; /* TODO */
-  int bytes_written = write(fd, data, sizeof(data));
-  assert(bytes_written == sizeof(data));
+  static char tx_data[] = "Hello World"; /* TODO */
+  int bytes_written = write(fd, tx_data, sizeof(tx_data));
+  assert(bytes_written == sizeof(tx_data));
 
-  /* TODO: Read from SPI Test Driver */
+  /* Read from SPI Test Driver */
+
+  static char rx_data[256];  /* Buffer for SPI response */
+  int bytes_read = read(fd, rx_data, sizeof(rx_data));
+  assert(bytes_read == sizeof(tx_data));
 
   /* Set SPI Chip Select to High */
 
   ret = ioctl(cs, GPIOC_WRITE, 1);
   assert(ret >= 0);
+
+  /* Dump the received data */
+
+  printf("spi_test2: received\n  ");
+  for (int i = 0; i < bytes_read; i++) 
+    {
+      printf("%02x ", rx_data[i]);
+    }
+  printf("\n");
 
   /* Close SPI Test Driver */
 

@@ -46,7 +46,7 @@ int main(int argc, FAR char *argv[])
 
   /* Write to SPI Test Driver */
 
-  char data[] = "Hello World";
+  static char data[] = "Hello World";
   int bytes_written = write(fd, data, sizeof(data));
   assert(bytes_written == sizeof(data));
 
