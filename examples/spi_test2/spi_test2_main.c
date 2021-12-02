@@ -32,7 +32,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * spi_test2_main
+ * main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
@@ -42,12 +42,7 @@ int main(int argc, FAR char *argv[])
   /* Open SPI Test Driver */
 
   int fd = open("/dev/spitest0", O_RDWR);
-  if (fd < 0)
-    {
-      int errcode = errno;
-      printf("ERROR: Failed to open device %s: %d\n", "/dev/spitest0", errcode);
-      goto errout;
-    }
+  assert(fd >= 0);
 
   /* Write to SPI Test Driver */
 
@@ -58,7 +53,5 @@ int main(int argc, FAR char *argv[])
   /* Close SPI Test Driver */
 
   close(fd);
-
-errout:
   return 0;
 }
