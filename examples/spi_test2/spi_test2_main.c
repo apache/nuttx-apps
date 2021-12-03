@@ -56,17 +56,51 @@ int main(int argc, FAR char *argv[])
   int ret = ioctl(cs, GPIOC_WRITE, 0);
   assert(ret >= 0);
 
-  /* Transmit command to SX1262: Read Register 8 */
+  /* Transmit command to SX1262: Wakeup */
 
-  static char tx_data[] = { 0x1d, 0x00, 0x08, 0x00, 0x00 };
-  int bytes_written = write(fd, tx_data, sizeof(tx_data));
-  assert(bytes_written == sizeof(tx_data));
+  static char wakeup[] = { 0xc0, 0x00 };
+  int bytes_written = write(fd, wakeup, sizeof(wakeup));
+  assert(bytes_written == sizeof(wakeup));
 
   /* Read response from SX1262 */
 
   static char rx_data[256];  /* Buffer for SPI response */
   int bytes_read = read(fd, rx_data, sizeof(rx_data));
-  assert(bytes_read == sizeof(tx_data));
+  assert(bytes_read == sizeof(wakeup));
+
+  /* Set SPI Chip Select to High */
+
+  ret = ioctl(cs, GPIOC_WRITE, 1);
+  assert(ret >= 0);
+
+  /* Dump the received data */
+
+  printf("spi_test2: received\n  ");
+  for (int i = 0; i < bytes_read; i++) 
+    {
+      printf("%02x ", rx_data[i]);
+    }
+  printf("\n");
+
+  /* Wait for SX1262 to be ready */
+
+  sleep(1);
+
+  /* Set SPI Chip Select to Low */
+
+  ret = ioctl(cs, GPIOC_WRITE, 0);
+  assert(ret >= 0);
+
+  /* Transmit command to SX1262: Read Register 8 */
+
+  static char read_reg[] = { 0x1d, 0x00, 0x08, 0x00, 0x00 };
+  bytes_written = write(fd, read_reg, sizeof(read_reg));
+  assert(bytes_written == sizeof(read_reg));
+
+  /* Read response from SX1262 */
+
+  bytes_read = read(fd, rx_data, sizeof(rx_data));
+  assert(bytes_read == sizeof(read_reg));
 
   /* Set SPI Chip Select to High */
 
