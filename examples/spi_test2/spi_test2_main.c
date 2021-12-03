@@ -130,45 +130,46 @@ int main(int argc, FAR char *argv[])
 gpio_pin_register: Registering /dev/gpin0
 gpio_pin_register: Registering /dev/gpout1
 gpint_enable: Disable the interrupt
-gpio_pin_register: Registering /dev/gpint2
-bl602_spi_setfrequency: frequency=400000, actual=0
-bl602_spi_setbits: nbits=8
-bl602_spi_setmode: mode=0
-spi_test_driver_register: devpath=/dev/spitest0, spidev=0
+gpiogistering /dev/gpint2
+bl602_spi=400000, actual=0
+bl602_spi_setits=8
+bl602_spi_setmode: mode=0driver_register: devpath=/dev/spitest0, spidev=0
 bl602_spi_select: devid: 0, CS: free
 
 NuttShell (NSH) NuttX-10.2.0-RC0
 nsh> spi_test2
-spi_test_driver_open:
+spi_test_driver_open: 
 gpout_write: Writing 0
 spi_test_driver_write: buflen=2
-spi_test_driver_configspi:
+spi_test_driver_configspi: 
 bl602_spi_setmode: mode=1
 bl602_spi_setbits: nbits=8
 bl602_spi_setfrequency: frequency=1000000, actual=0
 bl602_spi_select: devid: 0, CS: select
-bl602_spi_poll_send: send=c0 and recv=a2
-bl602_spi_poll_send: send=0 and recv=22
+bl602_spi_poll_send: send=c0 and recv=51
+bl602_spi_poll_send: send=0 and recv=51
 bl602_spi_select: devid: 0, CS: free
 spi_test_driver_read: buflen=256
 gpout_write: Writing 1
-spi_test2: received
-  a2 22
+Get Status: received
+  51 51 
+SX1262 Status is 5
 gpout_write: Writing 0
 spi_test_driver_write: buflen=5
-spi_test_driver_configspi:
+spi_test_driver_configspi: 
 bl602_spi_setmode: mode=1
 bl602_spi_setbits: nbits=8
-bl602_spi_select: devid: 0, CS: select
-bl602_spi_poll_send: send=1d and recv=a2
-bl602_spi_poll_send: send=0 and recv=a2
-bl602_spi_poll_send: send=8 and recv=a2
-bl602_spi_poll_send: send=0 and recv=a2
+bl602_spi_select: dS: select
+bl602_spi_poll_send: d=1d and recv=a8
+bl602_spi_poll_send: send=0 and recv=a8
+bl602_spi_poll_send: send=8 and recv=a8
+bl602_spi_poll_send: send=0 and recv=a8
 bl602_spi_poll_send: send=0 and recv=80
 bl602_spi_select: devid: 0, CS: free
 spi_test_driver_read: buflen=256
 gpout_write: Writing 1
-spi_test2: received
-  a2 a2 a2 a2 80
-spi_test_driver_close:
+Read Register 8: received
+  a8 a8 a8 a8 80 
+SX1262 Register 8 is 0x80
+spi_test_driver_close: 
 */
