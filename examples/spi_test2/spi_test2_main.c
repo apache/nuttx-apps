@@ -130,50 +130,45 @@ int main(int argc, FAR char *argv[])
 gpio_pin_register: Registering /dev/gpin0
 gpio_pin_register: Registering /dev/gpout1
 gpint_enable: Disable the interrupt
-gpio_pin_register: Registering /dev/pint2
+gpio_pin_register: Registering /dev/gpint2
 bl602_spi_setfrequency: frequency=400000, actual=0
 bl602_spi_setbits: nbits=8
 bl602_spi_setmode: mode=0
+spi_test_driver_register: devpath=/dev/spitest0, spidev=0
 bl602_spi_select: devid: 0, CS: free
 
 NuttShell (NSH) NuttX-10.2.0-RC0
 nsh> spi_test2
-spi_test_driver_open
+spi_test_driver_open:
 gpout_write: Writing 0
 spi_test_driver_write: buflen=2
-  c0 00 
-spi_test_driver_configspi
+spi_test_driver_configspi:
 bl602_spi_setmode: mode=1
 bl602_spi_setbits: nbits=8
 bl602_spi_setfrequency: frequency=1000000, actual=0
 bl602_spi_select: devid: 0, CS: select
-bl602_spi_poll_send: send=c0 and recv=2a
-bl602_spi_poll_send: send=0 and recv=2a
-spi_test_driver_write: received
-  2a 2a 
+bl602_spi_poll_send: send=c0 and recv=a2
+bl602_spi_poll_send: send=0 and recv=22
 bl602_spi_select: devid: 0, CS: free
 spi_test_driver_read: buflen=256
 gpout_write: Writing 1
 spi_test2: received
-  2a 2a 
+  a2 22
 gpout_write: Writing 0
 spi_test_driver_write: buflen=5
-  1d 00 08 00 00 
-spi_test_driver_configspi
+spi_test_driver_configspi:
 bl602_spi_setmode: mode=1
 bl602_spi_setbits: nbits=8
 bl602_spi_select: devid: 0, CS: select
-bl602_spi_poll_send: send=1d and recv=a8
-bl602_spi_poll_send: send=0 and recv=a8
-bl602_spi_poll_send: send=8 and recv=a8
-bl602_spi_poll_send: send=0 and recv=a8
+bl602_spi_poll_send: send=1d and recv=a2
+bl602_spi_poll_send: send=0 and recv=a2
+bl602_spi_poll_send: send=8 and recv=a2
+bl602_spi_poll_send: send=0 and recv=a2
 bl602_spi_poll_send: send=0 and recv=80
-spi_test_driver_write: received
-  a8 a8 a8 a8 80 
 bl602_spi_select: devid: 0, CS: free
 spi_test_driver_read: buflen=256
 gpout_write: Writing 1
 spi_test2: received
-  a8 a8 a8 a8 80 
-spi_test_driver_close
+  a2 a2 a2 a2 80
+spi_test_driver_close:
 */
