@@ -80,8 +80,7 @@ int main(int argc, FAR char *argv[])
     {
       printf("%02x ", rx_data[i]);
     }
-  printf("\n");
-  printf("SX1262 Status is %d\n", (rx_data[1] >> 4) & 0b111);  /* Bits 6:4 */
+  printf("\nSX1262 Status is %d\n", (rx_data[1] >> 4) & 0b111);  /* Bits 6:4 */
 
   /* Wait for SX1262 to be ready */
 
@@ -115,8 +114,7 @@ int main(int argc, FAR char *argv[])
     {
       printf("%02x ", rx_data[i]);
     }
-  printf("\n");
-  printf("SX1262 Register 8 is 0x%02x\n", rx_data[4]);
+  printf("\nSX1262 Register 8 is 0x%02x\n", rx_data[4]);
 
   /* Close SPI Test Driver */
 
