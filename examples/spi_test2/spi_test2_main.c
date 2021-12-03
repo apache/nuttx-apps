@@ -56,17 +56,17 @@ int main(int argc, FAR char *argv[])
   int ret = ioctl(cs, GPIOC_WRITE, 0);
   assert(ret >= 0);
 
-  /* Transmit command to SX1262: Wakeup */
+  /* Transmit command to SX1262: Get Status */
 
-  static char wakeup[] = { 0xc0, 0x00 };
-  int bytes_written = write(fd, wakeup, sizeof(wakeup));
-  assert(bytes_written == sizeof(wakeup));
+  static char get_status[] = { 0xc0, 0x00 };
+  int bytes_written = write(fd, get_status, sizeof(get_status));
+  assert(bytes_written == sizeof(get_status));
 
   /* Read response from SX1262 */
 
   static char rx_data[256];  /* Buffer for SPI response */
   int bytes_read = read(fd, rx_data, sizeof(rx_data));
-  assert(bytes_read == sizeof(wakeup));
+  assert(bytes_read == sizeof(get_status));
 
   /* Set SPI Chip Select to High */
 
