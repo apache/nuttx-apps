@@ -188,6 +188,7 @@ static void dump_notes(size_t nread)
             }
             break;
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
           case NOTE_SUSPEND:
             {
               FAR struct note_suspend_s *note_suspend =
@@ -250,6 +251,7 @@ static void dump_notes(size_t nread)
 #endif
             }
             break;
+#endif
 
 #ifdef CONFIG_SMP
           case NOTE_CPU_START:
@@ -292,6 +294,7 @@ static void dump_notes(size_t nread)
             }
             break;
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
           case NOTE_CPU_PAUSE:
             {
               FAR struct note_cpu_pause_s *note_pause =
@@ -371,6 +374,7 @@ static void dump_notes(size_t nread)
                      (unsigned int)note->nc_priority);
             }
             break;
+#endif
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_PREEMPTION

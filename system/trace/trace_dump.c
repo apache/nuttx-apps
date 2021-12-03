@@ -398,6 +398,7 @@ static int trace_dump_one(FAR FILE *out,
         }
         break;
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
       case NOTE_SUSPEND:
         {
           FAR struct note_suspend_s *nsu = (FAR struct note_suspend_s *)p;
@@ -441,6 +442,7 @@ static int trace_dump_one(FAR FILE *out,
             }
         }
         break;
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
       case NOTE_SYSCALL_ENTER:
