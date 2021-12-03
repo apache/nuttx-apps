@@ -73,14 +73,15 @@ int main(int argc, FAR char *argv[])
   ret = ioctl(cs, GPIOC_WRITE, 1);
   assert(ret >= 0);
 
-  /* Dump the received data */
+  /* Show the received status */
 
-  printf("spi_test2: received\n  ");
+  printf("Get Status: received\n  ");
   for (int i = 0; i < bytes_read; i++) 
     {
       printf("%02x ", rx_data[i]);
     }
   printf("\n");
+  printf("SX1262 Status is %d\n", (rx_data[1] >> 4) & 0b111);  /* Bits 6:4 */
 
   /* Wait for SX1262 to be ready */
 
@@ -107,14 +108,15 @@ int main(int argc, FAR char *argv[])
   ret = ioctl(cs, GPIOC_WRITE, 1);
   assert(ret >= 0);
 
-  /* Dump the received data */
+  /* Show the received register value */
 
-  printf("spi_test2: received\n  ");
+  printf("Read Register 8: received\n  ");
   for (int i = 0; i < bytes_read; i++) 
     {
       printf("%02x ", rx_data[i]);
     }
   printf("\n");
+  printf("SX1262 Register 8 is 0x%02x\n", rx_data[4]);
 
   /* Close SPI Test Driver */
 
