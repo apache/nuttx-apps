@@ -41,8 +41,6 @@
 
 int main(int argc, FAR char *argv[])
 {
-  printf("Spi_test2, World!!\n");
-
   /* Open GPIO Output for SPI Chip Select */
 
   int cs = open("/dev/gpout1", O_RDWR);
@@ -58,13 +56,13 @@ int main(int argc, FAR char *argv[])
   int ret = ioctl(cs, GPIOC_WRITE, 0);
   assert(ret >= 0);
 
-  /* Write to SPI Test Driver */
+  /* Transmit command to SX1262: Read Register 8 */
 
-  static char tx_data[] = "Hello World"; /* TODO */
+  static char tx_data[] = { 0x1d, 0x00, 0x08, 0x00, 0x00 };
   int bytes_written = write(fd, tx_data, sizeof(tx_data));
   assert(bytes_written == sizeof(tx_data));
 
-  /* Read from SPI Test Driver */
+  /* Read response from SX1262 */
 
   static char rx_data[256];  /* Buffer for SPI response */
   int bytes_read = read(fd, rx_data, sizeof(rx_data));
