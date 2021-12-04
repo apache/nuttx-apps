@@ -41,7 +41,7 @@
 
 #include "foc_mq.h"
 #include "foc_thr.h"
-#include "foc_adc.h"
+#include "foc_cfg.h"
 #include "foc_debug.h"
 #include "foc_device.h"
 #include "foc_parseargs.h"
