@@ -27,9 +27,10 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/motor/foc/foc.h>
-
+#include <pthread.h>
 #include <mqueue.h>
+
+#include <nuttx/motor/foc/foc.h>
 
 #include "foc_device.h"
 
@@ -122,12 +123,10 @@ struct foc_ctrl_env_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-int foc_float_thr(FAR struct foc_ctrl_env_s *envp);
-#endif
-
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp);
-#endif
+int foc_threads_init(void);
+void foc_threads_deinit(void);
+bool foc_threads_terminated(void);
+int foc_ctrlthr_init(FAR struct foc_ctrl_env_s *foc, int i, FAR mqd_t *mqd,
+                     FAR pthread_t *thread);
 
 #endif /* __EXAMPLES_FOC_FOC_THR_H */
