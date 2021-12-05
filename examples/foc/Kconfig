@@ -216,8 +216,13 @@ config EXAMPLES_FOC_SETPOINT_CONST
 config EXAMPLES_FOC_SETPOINT_ADC
 	bool "Use ADC to control setpoint"
 	select EXAMPLES_FOC_HAVE_ADC
+	select EXAMPLES_FOC_HAVE_SETPOINT_VAR
 
 endchoice # FOC setpoint interface
+
+config EXAMPLES_FOC_HAVE_SETPOINT_VAR
+	bool
+	default n
 
 if EXAMPLES_FOC_SETPOINT_CONST
 
@@ -227,13 +232,13 @@ config EXAMPLES_FOC_SETPOINT_CONST_VALUE
 
 endif # EXAMPLES_FOC_SETPOINT_CONST
 
-if EXAMPLES_FOC_SETPOINT_ADC
+if EXAMPLES_FOC_HAVE_SETPOINT_VAR
 
-config EXAMPLES_FOC_SETPOINT_ADC_MAX
-	int "FOC maximum setpoint from ADC [x1000]"
+config EXAMPLES_FOC_SETPOINT_MAX
+	int "FOC maximum setpoint [x1000]"
 	default 0
 
-endif # EXAMPLES_FOC_SETPOINT_ADC
+endif # EXAMPLES_FOC_HAVE_SETPOINT_VAR
 
 config EXAMPLES_FOC_TIME_DEFAULT
 	int "FOC run time default (sec)"
