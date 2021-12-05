@@ -32,7 +32,7 @@ MODULE    = $(CONFIG_EXAMPLES_FOC)
 MAINSRC = foc_main.c
 
 ASRCS =
-CSRCS = foc_device.c foc_mq.c foc_thr.c
+CSRCS = foc_device.c foc_mq.c foc_thr.c foc_intf.c
 
 ifeq ($(CONFIG_BUILTIN),y)
 CSRCS += foc_parseargs.c
