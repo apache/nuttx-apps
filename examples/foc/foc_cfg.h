@@ -123,7 +123,7 @@
 #  if CONFIG_EXAMPLES_FOC_MOTOR_POLES == 0
 #    error
 #  endif
-#  if CONFIG_EXAMPLES_FOC_MOTOR_POSMAX == 0
+#  if CONFIG_EXAMPLES_FOC_QENCO_POSMAX == 0
 #    error
 #  endif
 #endif
