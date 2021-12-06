@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <nuttx/arch.h>
 #include <nuttx/tls.h>
 
 #include "ostest.h"
