@@ -308,6 +308,8 @@ static void trace_dump_header(FAR FILE *out,
          );
 }
 
+ #if (defined CONFIG_SCHED_INSTRUMENTATION_SWITCH) || \
+     (defined CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
 /****************************************************************************
  * Name: trace_dump_sched_switch
  ****************************************************************************/
@@ -339,6 +341,7 @@ static void trace_dump_sched_switch(FAR FILE *out,
   cctx->current_pid = cctx->next_pid;
   cctx->pendingswitch = false;
 }
+#endif
 
 /****************************************************************************
  * Name: trace_dump_one
