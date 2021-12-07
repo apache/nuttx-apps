@@ -218,6 +218,11 @@ config EXAMPLES_FOC_SETPOINT_ADC
 	select EXAMPLES_FOC_HAVE_ADC
 	select EXAMPLES_FOC_HAVE_SETPOINT_VAR
 
+config EXAMPLES_FOC_SETPOINT_CHAR
+	bool "Use character interface to control setpoint"
+	select EXAMPLES_FOC_HAVE_CHARCTRL
+	select EXAMPLES_FOC_HAVE_SETPOINT_VAR
+
 endchoice # FOC setpoint interface
 
 config EXAMPLES_FOC_HAVE_SETPOINT_VAR
@@ -266,6 +271,20 @@ config EXAMPLES_FOC_BUTTON_DEVPATH
 	string "FOC button device path"
 	default "/dev/buttons"
 	depends on INPUT_BUTTONS
+
+endif
+
+config EXAMPLES_FOC_HAVE_CHARCTRL
+	bool "FOC character control interface support"
+	default n
+	---help---
+		Use simple character commands to interact with the app
+
+if EXAMPLES_FOC_HAVE_CHARCTRL
+
+config EXAMPLES_FOC_CHAR_SETPOINT_STEP
+	int "FOC character control setpoint step [x1000]"
+	default 0
 
 endif
 
