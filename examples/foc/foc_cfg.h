@@ -131,7 +131,8 @@
 /* Setpoint source must be specified */
 
 #if !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CONST) &&  \
-    !defined(CONFIG_EXAMPLES_FOC_SETPOINT_ADC)
+    !defined(CONFIG_EXAMPLES_FOC_SETPOINT_ADC) && \
+    !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CHAR)
 #  error
 #endif
 
@@ -148,6 +149,12 @@
 #  if CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE == 0
 #    error
 #  endif
+#endif
+
+/* CHARCTRL setpoint control */
+
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CHAR
+#  define SETPOINT_ADC_SCALE  (1 / 1000.0f)
 #endif
 
 /* VBUS source must be specified */

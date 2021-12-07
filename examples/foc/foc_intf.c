@@ -49,8 +49,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#if defined(CONFIG_EXAMPLES_FOC_HAVE_ADC) ||    \
-    defined(CONFIG_EXAMPLES_FOC_HAVE_BUTTON)
+#if defined(CONFIG_EXAMPLES_FOC_HAVE_ADC) ||      \
+    defined(CONFIG_EXAMPLES_FOC_HAVE_BUTTON) ||   \
+    defined(CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL)
 #  define FOC_HAVE_INTF
 #endif
 
@@ -91,6 +92,15 @@ struct foc_intf_adc_s
 };
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+/* Character control interface data */
+
+struct foc_intf_chc_s
+{
+  int fd;
+};
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -118,6 +128,12 @@ static struct foc_intf_btn_s g_btn_intf;
 /* ADC interface data */
 
 static struct foc_intf_adc_s g_adc_intf;
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+/* Character control interface data */
+
+static struct foc_intf_chc_s g_chc_intf;
 #endif
 
 /****************************************************************************
@@ -367,6 +383,165 @@ errout:
 }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+/****************************************************************************
+ * Name: foc_charctrl_help
+ ****************************************************************************/
+
+static void foc_charctrl_help(void)
+{
+  PRINTF("\nCHARCTRL commands:\n"
+         "  h - print this message\n"
+         "  u - increase setpoint\n"
+         "  d - decrease setpoint\n"
+         "  q - quit\n"
+         "  1..4 - change example state\n\n");
+}
+
+/****************************************************************************
+ * Name: foc_charctrl_init
+ ****************************************************************************/
+
+static int foc_charctrl_init(FAR struct foc_intf_chc_s *intf)
+{
+  int ret = 0;
+
+  DEBUGASSERT(intf);
+
+  /* Character control interface on STDIN */
+
+  intf->fd = 0;
+
+  /* Print help msg */
+
+  PRINTF("\nCHARCTRL mode enabled\n");
+  foc_charctrl_help();
+
+  /* Configure input to not blocking */
+
+  fcntl(intf->fd, F_SETFL, O_NONBLOCK);
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: foc_charctrl_deinit
+ ****************************************************************************/
+
+static int foc_charctrl_deinit(FAR struct foc_intf_chc_s *intf)
+{
+  DEBUGASSERT(intf);
+
+  if (intf->fd > 0)
+    {
+      close(intf->fd);
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: foc_charctrl_update
+ ****************************************************************************/
+
+static int foc_charctrl_update(FAR struct foc_intf_chc_s *intf,
+                               FAR struct foc_intf_data_s *data)
+{
+  char c   = 0;
+  int  ret = OK;
+
+  DEBUGASSERT(intf);
+  DEBUGASSERT(data);
+
+  ret = read(intf->fd, &c, 1);
+  if (ret < 0)
+    {
+      if (errno != EAGAIN)
+        {
+          PRINTF("ERROR: read char failed %d\n", errno);
+          ret = -errno;
+          goto errout;
+        }
+      else
+        {
+          ret = OK;
+        }
+    }
+  else
+    {
+      switch (c)
+        {
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CHAR
+          case 'u':
+            {
+              data->sp_raw += CONFIG_EXAMPLES_FOC_CHAR_SETPOINT_STEP;
+
+              if (data->sp_raw > CONFIG_EXAMPLES_FOC_SETPOINT_MAX)
+                {
+                  data->sp_raw = CONFIG_EXAMPLES_FOC_SETPOINT_MAX;
+                }
+
+              PRINTF(">> sp=%" PRIu32 "\n", data->sp_raw);
+              data->sp_update = true;
+
+              break;
+            }
+
+          case 'd':
+            {
+              data->sp_raw -= CONFIG_EXAMPLES_FOC_CHAR_SETPOINT_STEP;
+
+              if (data->sp_raw < 0)
+                {
+                  data->sp_raw = 0;
+                }
+
+              PRINTF(">> sp=%" PRIu32 "\n", data->sp_raw);
+              data->sp_update = true;
+
+              break;
+            }
+#endif /* CONFIG_EXAMPLES_FOC_SETPOINT_CHAR */
+
+          case 'h':
+            {
+              foc_charctrl_help();
+
+              break;
+            }
+
+          case 'q':
+            {
+              PRINTF(">> QUIT\n");
+              data->terminate = true;
+              break;
+            }
+
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+            {
+              data->state = c - '1' + 1;
+              PRINTF(">> state=%" PRIu32 "\n", data->state);
+              data->state_update = true;
+
+              break;
+            }
+
+          default:
+            {
+              PRINTF("ERROR: invalid cmd=%d\n", c);
+              break;
+            }
+        }
+    }
+
+errout:
+  return ret;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -397,6 +572,17 @@ int foc_intf_init(void)
   if (ret < 0)
     {
       PRINTF("ERROR: failed to initialize button interface %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+  /* Initialize character control interface */
+
+  ret = foc_charctrl_init(&g_chc_intf);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: failed to initialize char interface %d\n", ret);
       goto errout;
     }
 #endif
@@ -438,6 +624,17 @@ int foc_intf_deinit(void)
     }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+  /* De-initialize character interface */
+
+  ret = foc_charctrl_deinit(&g_chc_intf);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_charctrl_deinit failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef FOC_HAVE_INTF
   errout:
 #endif
@@ -454,6 +651,17 @@ int foc_intf_update(FAR struct foc_intf_data_s *data)
   int ret = OK;
 
   DEBUGASSERT(data);
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_CHARCTRL
+  /* Update charctrl */
+
+  ret = foc_charctrl_update(&g_chc_intf, data);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_charctrl_update failed: %d\n", ret);
+      goto errout;
+    }
+#endif
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
   /* Update button */
