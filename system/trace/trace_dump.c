@@ -634,8 +634,10 @@ static int trace_dump_one(FAR FILE *out,
           nbi = (FAR struct note_binary_s *)p;
           trace_dump_header(out, note, ctx);
           count = note->nc_length - sizeof(struct note_binary_s) + 1;
-          fprintf(out, "dump_binary: module=%u event=%u count=%u",
-                  nbi->nbi_module, nbi->nbi_event, count);
+          fprintf(out, "dump_binary: module=%c%c%c%c event=%u count=%u",
+                  nbi->nbi_module[0], nbi->nbi_module[1],
+                  nbi->nbi_module[2], nbi->nbi_module[3],
+                  nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
               fprintf(out, " 0x%x", nbi->nbi_data[i]);
