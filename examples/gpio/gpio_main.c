@@ -41,18 +41,31 @@
 
 static void show_usage(FAR const char *progname)
 {
-  fprintf(stderr, "USAGE: %s [-w <signo>] [-o <value>] <driver-path>\n",
-          progname);
+  fprintf(stderr, "USAGE: %s [-t <pintype>] [-w <signo>] [-o <value>] "
+          "<driver-path>\n", progname);
   fprintf(stderr, "       %s -h\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t<driver-path>: The full path to the GPIO pin "
           "driver.\n");
-  fprintf(stderr,
-          "\t-w <signo>: Wait for an signal if this is an interrupt pin.\n");
-  fprintf(stderr,
-          "\t-o <value>:  Write this value (0 or 1) if this is an output "
-          "pin.\n");
+  fprintf(stderr, "\t-t <pintype>:  Change the pin to this pintype "
+          "(0-10):\n");
+  fprintf(stderr, "\t-w <signo>:    Wait for a signal if this is an "
+          "interrupt pin.\n");
+  fprintf(stderr, "\t-o <value>:    Write this value (0 or 1) if this is an "
+          "output pin.\n");
   fprintf(stderr, "\t-h: Print this usage information and exit.\n");
+  fprintf(stderr, "Pintypes:\n");
+  fprintf(stderr, "\t 0: GPIO_INPUT_PIN\n");
+  fprintf(stderr, "\t 1: GPIO_INPUT_PIN_PULLUP\n");
+  fprintf(stderr, "\t 2: GPIO_INPUT_PIN_PULLDOWN\n");
+  fprintf(stderr, "\t 3: GPIO_OUTPUT_PIN\n");
+  fprintf(stderr, "\t 4: GPIO_OUTPUT_PIN_OPENDRAIN\n");
+  fprintf(stderr, "\t 5: GPIO_INTERRUPT_PIN\n");
+  fprintf(stderr, "\t 6: GPIO_INTERRUPT_HIGH_PIN\n");
+  fprintf(stderr, "\t 7: GPIO_INTERRUPT_LOW_PIN\n");
+  fprintf(stderr, "\t 8: GPIO_INTERRUPT_RISING_PIN\n");
+  fprintf(stderr, "\t 9: GPIO_INTERRUPT_FALLING_PIN\n");
+  fprintf(stderr, "\t10: GPIO_INTERRUPT_BOTH_PIN\n");
 }
 
 /****************************************************************************
@@ -67,6 +80,8 @@ int main(int argc, FAR char *argv[])
 {
   FAR char *devpath = NULL;
   enum gpio_pintype_e pintype;
+  enum gpio_pintype_e newpintype;
+  bool havenewtype = false;
   bool havesigno = false;
   bool invalue;
   bool outvalue = false;
@@ -92,13 +107,34 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  if (strcmp(argv[ndx], "-w") == 0)
+  if (strcmp(argv[ndx], "-t") == 0)
+    {
+      havenewtype = true;
+
+      if (++ndx >= argc)
+        {
+          fprintf(stderr, "ERROR: Missing argument to -t\n");
+          show_usage(argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      newpintype = atoi(argv[ndx]);
+
+      if (++ndx >= argc)
+        {
+          fprintf(stderr, "ERROR: Missing required <driver-path>\n");
+          show_usage(argv[0]);
+          return EXIT_FAILURE;
+        }
+    }
+
+  if (ndx < argc && strcmp(argv[ndx], "-w") == 0)
     {
       havesigno = true;
 
       if (++ndx >= argc)
         {
-          fprintf(stderr, "ERROR: Missing argument to -o\n");
+          fprintf(stderr, "ERROR: Missing argument to -w\n");
           show_usage(argv[0]);
           return EXIT_FAILURE;
         }
@@ -160,14 +196,29 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
+  /* Set the new pintype */
+
+  if (havenewtype)
+    {
+      ret = ioctl(fd, GPIOC_SETPINTYPE, (unsigned long) newpintype);
+      if (ret < 0)
+        {
+          int errcode = errno;
+          fprintf(stderr, "ERROR: Failed to set pintype on %s: %d\n",
+                  devpath, errcode);
+          close(fd);
+          return EXIT_FAILURE;
+        }
+    }
+
   /* Get the pin type */
 
   ret = ioctl(fd, GPIOC_PINTYPE, (unsigned long)((uintptr_t)&pintype));
   if (ret < 0)
     {
       int errcode = errno;
-      fprintf(stderr, "ERROR: Failed to read pintype from %s: %d\n",
-              devpath, errcode);
+      fprintf(stderr, "ERROR: Failed to read pintype from %s: %d\n", devpath,
+              errcode);
       close(fd);
       return EXIT_FAILURE;
     }
@@ -251,6 +302,11 @@ int main(int argc, FAR char *argv[])
         break;
 
       case GPIO_INTERRUPT_PIN:
+      case GPIO_INTERRUPT_HIGH_PIN:
+      case GPIO_INTERRUPT_LOW_PIN:
+      case GPIO_INTERRUPT_RISING_PIN:
+      case GPIO_INTERRUPT_FALLING_PIN:
+      case GPIO_INTERRUPT_BOTH_PIN:
         {
           printf("  Interrupt pin: Value=%u\n", invalue);
 
