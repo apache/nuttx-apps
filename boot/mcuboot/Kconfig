@@ -14,7 +14,7 @@ if BOOT_MCUBOOT
 
 config MCUBOOT_VERSION
 	string "MCUboot version"
-	default "7c890f4b075aed73e4c825ccf875b2fb9ebf2ded"
+	default "bb927ac014787992f2d8b42c7bd5d05eb4c17e05"
 
 config MCUBOOT_ENABLE_LOGGING
 	bool "Enable MCUboot logging"
@@ -42,6 +42,63 @@ config MCUBOOT_BOOTLOADER
 	select BOARDCTL_BOOT_IMAGE
 	---help---
 		MCUboot bootloader application.
+
+config MCUBOOT_BOOTSTRAP
+	bool "Bootstrap erased the primary slot from the secondary slot"
+	depends on MCUBOOT_BOOTLOADER
+	default n
+	---help---
+		Enable bootstrapping support. Bootstrapping allows an erased primary slot
+		to be initialized from a valid image in the secondary slot.
+
+choice
+	prompt "Upgrade mode"
+	default MCUBOOT_SWAP
+	---help---
+		The default is to support A/B image swapping with rollback.  Other
+		modes with simpler code path, which only supports overwriting the
+		existing image with the update image or running the newest image
+		directly from its flash partition, are also available.
+
+config MCUBOOT_SWAP
+	bool "A/B image swapping with rollback"
+
+config MCUBOOT_OVERWRITE_ONLY
+	bool "Overwrite the existing image with the update image"
+
+config MCUBOOT_DIRECT_XIP
+	bool "Run the newest image directly from its flash partition"
+
+config MCUBOOT_RAM_LOAD
+	bool "Loaded the image into RAM instead of run directly from flash"
+
+endchoice # Upgrade mode
+
+choice
+	prompt "Swap upgrade policy"
+	depends on MCUBOOT_SWAP
+	default MCUBOOT_SWAP_USING_SCRATCH
+
+config MCUBOOT_SWAP_USING_SCRATCH
+	bool "Image swap using scratch area"
+
+config MCUBOOT_SWAP_USING_MOVE
+	bool "Image swap without using scratch area"
+
+endchoice # Swap upgrade policy
+
+config MCUBOOT_OVERWRITE_ONLY_FAST
+	bool "Enable faster copy for overwrite only upgrade"
+	depends on MCUBOOT_OVERWRITE_ONLY
+	default n
+	---help---
+		Only erase and overwrite those primary slot sectors needed
+		to install the new image, rather than the entire image slot.
+
+config MCUBOOT_DIRECT_XIP_REVERT
+	bool "Enable the revert mechanism in direct-xip mode"
+	depends on MCUBOOT_DIRECT_XIP
+	default n
 
 config MCUBOOT_UPDATE_AGENT_EXAMPLE
 	bool "MCUboot update agent example"
