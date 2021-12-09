@@ -27,11 +27,11 @@ config EXAMPLES_TIMER_GPOUT_TIM_DEVNAME
 	---help---
 		This is the name of the timer device that will be used.
 
-config EXAMPLES_TIMER_GPOUT_GPOUT_DEVNAME
+config EXAMPLES_TIMER_GPOUT_GPIO_DEVNAME
 	string "GPOUT device name"
-	default "/dev/gpout0"
+	default "/dev/gpio0"
 	---help---
-		This is the name of the gpout device that will be used.
+		This is the name of the gpio device that will be used.
 
 config EXAMPLES_TIMER_GPOUT_INTERVAL
 	int "Timer interval (microseconds)"

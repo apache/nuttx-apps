@@ -38,7 +38,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DEVNAME_SIZE 16
+#define DEVNAME_SIZE 32
 
 /****************************************************************************
  * Private Types
@@ -49,7 +49,7 @@
  ****************************************************************************/
 
 static char g_devtim[DEVNAME_SIZE];
-static char g_devgpout[DEVNAME_SIZE];
+static char g_devgpio[DEVNAME_SIZE];
 static bool g_timer_gpout_daemon_started = false;
 
 /****************************************************************************
@@ -104,7 +104,7 @@ static int timer_gpout_daemon(int argc, char *argv[])
   sigset_t set;
   struct siginfo value;
   int fd_timer;
-  int fd_gpout;
+  int fd_gpio;
   int ret;
   bool state = false;
 
@@ -128,14 +128,14 @@ static int timer_gpout_daemon(int argc, char *argv[])
 
   /* Open the GPIO driver */
 
-  printf("Open %s\n", g_devgpout);
+  printf("Open %s\n", g_devgpio);
 
-  fd_gpout = open(g_devgpout, O_RDWR);
-  if (fd_gpout < 0)
+  fd_gpio = open(g_devgpio, O_RDWR);
+  if (fd_gpio < 0)
     {
       int errcode = errno;
       printf("timer_gpout_daemon: Failed to open %s: %d\n",
-              g_devgpout, errcode);
+              g_devgpio, errcode);
       close(fd_timer);
       return EXIT_FAILURE;
     }
@@ -214,26 +214,26 @@ static int timer_gpout_daemon(int argc, char *argv[])
           goto errout;
         }
 
-      /* Change the gpout state */
+      /* Change the gpio state */
 
       state = !state;
 
       /* Write the pin value */
 
-      ret = ioctl(fd_gpout, GPIOC_WRITE, (unsigned long)state);
+      ret = ioctl(fd_gpio, GPIOC_WRITE, (unsigned long)state);
       if (ret < 0)
         {
           int errcode = errno;
           printf("timer_gpout_daemon: Failed to write value"
                  " %u from %s: %d\n",
-                (unsigned int)state, g_devgpout, errcode);
+                (unsigned int)state, g_devgpio, errcode);
           goto errout;
         }
     }
 
 errout:
   close(fd_timer);
-  close(fd_gpout);
+  close(fd_gpio);
   g_timer_gpout_daemon_started = false;
 
   printf("timer_gpout_daemon: Terminating!\n");
@@ -264,7 +264,7 @@ int main(int argc, FAR char *argv[])
   /* Use the ones configured on menuconfig */
 
   strcpy(g_devtim, CONFIG_EXAMPLES_TIMER_GPOUT_TIM_DEVNAME);
-  strcpy(g_devgpout, CONFIG_EXAMPLES_TIMER_GPOUT_GPOUT_DEVNAME);
+  strcpy(g_devgpio, CONFIG_EXAMPLES_TIMER_GPOUT_GPIO_DEVNAME);
 
   /* Or the ones passed as arguments */
 
@@ -276,13 +276,13 @@ int main(int argc, FAR char *argv[])
             strcpy(g_devtim, optarg);
             break;
         case 'g':
-            strcpy(g_devgpout, optarg);
+            strcpy(g_devgpio, optarg);
             break;
         case ':':
             fprintf(stderr, "ERROR: Option needs a value\n");
             exit(EXIT_FAILURE);
         default: /* '?' */
-            fprintf(stderr, "Usage: %s [-d /dev/timerx] [-d /dev/gpoutx]\n",
+            fprintf(stderr, "Usage: %s [-d /dev/timerx] [-d /dev/gpiox]\n",
                     argv[0]);
             exit(EXIT_FAILURE);
       }
