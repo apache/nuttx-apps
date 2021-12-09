@@ -1,0 +1,125 @@
+diff --git a/src/current/iozone.c b/src/current/iozone.c
+index eda702d..59ee513 100644
+--- a/src/current/iozone.c
++++ b/src/current/iozone.c
+@@ -82,11 +82,12 @@ extern  int h_errno; /* imported for errors */
+ #endif
+ #endif
+ 
++#include <sys/types.h>
+ #ifdef NO_FORK
++pid_t no_fork(void);
+ #define fork no_fork
+ #endif
+ 
+-#include <sys/types.h>
+ #include <sys/stat.h>
+ #if defined (__LP64__) || defined(OSF_64) || defined(__alpha__) || defined(__arch64__) || defined(_LP64) || defined(__s390x__) || defined(__AMD64__)
+ #define MODE "\tCompiled for 64 bit mode."
+@@ -870,16 +871,22 @@ struct master_neutral_command {
+ /* At 8 Meg switch to large records */
+ #define CROSSOVER (8*1024)		
+ /*maximum buffer size*/
++#ifndef MAXBUFFERSIZE
+ #define MAXBUFFERSIZE (8*1024*1024)		
++#endif
+ #else
+ /* At 16 Meg switch to large records */
+ #define CROSSOVER (16*1024)		
++#ifndef MAXBUFFERSIZE
+ /* Maximum buffer size*/
+ #define MAXBUFFERSIZE (16*1024*1024)		
+ #endif
++#endif
+ 
+ /* Maximum number of children. Threads/procs/clients */
++#ifndef MAXSTREAMS
+ #define	MAXSTREAMS	1024		
++#endif
+ 
+ /* Minimum buffer size */
+ #define MINBUFFERSIZE 128
+@@ -899,7 +906,9 @@ struct master_neutral_command {
+ 
+ 
+ /* Maximum number of characters in filename */
++#ifndef MAXNAMESIZE
+ #define MAXNAMESIZE 1000                
++#endif
+ 
+ /*
+  * Define the typical output that the user will see on their
+@@ -953,7 +962,9 @@ struct master_neutral_command {
+ /* Default maximum file size. This is 512 MBytes */
+ #define KILOBYTES_END (1024*512)
+ /* Default starting record size */
++#ifndef RECLEN_START
+ #define RECLEN_START  4096
++#endif
+ /* Default maximum record size */
+ #define RECLEN_END    (MAXBUFFERSIZE)
+ /* Multiplier for each itteration on file and record size */
+@@ -1640,7 +1651,7 @@ char dummyfile1 [MAXNAMESIZE];             /* name of dummy file     */
+ char *filearray[MAXSTREAMS];		   /* array of file names    */
+ int blkidx[MAXSTREAMS];            /* array of file names    */
+ char tfile[MAXNAMESIZE];
+-char *buffer,*buffer1, *mbuffer,*mainbuffer;
++static char *buffer,*buffer1, *mbuffer,*mainbuffer;
+ FILE *pi,*r_traj_fd,*w_traj_fd;
+ VOLATILE char *pbuffer;
+ char *default_filename="iozone.tmp"; /*default name of temporary file*/
+@@ -1805,7 +1816,7 @@ int direct_flag;
+ int current_client_number;
+ long long chid;
+ int file_lock;
+-unsigned int pattern;
++static unsigned int pattern;
+ long long stride = STRIDE;
+ long long delay,purge,fetchon;
+ off64_t  numrecs64 = (off64_t)NUMRECS;
+@@ -19219,7 +19230,7 @@ dump_throughput_cpu()
+ 	long long x,y,i,j;
+ 	char *port;
+ 	char *label;
+-	char print_str[300];
++	char print_str[512];
+ 	x=max_x;
+ 	y=max_y;
+ 
+@@ -19288,7 +19299,7 @@ dump_throughput()
+ 	long long x,y,i,j;
+ 	char *port;
+ 	char *label;
+-	char print_str[300];
++	char print_str[512];
+ 	x=max_x;
+ 	y=max_y;
+ 
+@@ -24340,7 +24351,7 @@ start_monitor(test)
+ char *test;
+ #endif
+ {
+-	char command_line[256];
++	char command_line[512];
+ 	if(strlen(imon_start)!=0)
+ 	{
+ 		if(imon_sync)
+@@ -24358,7 +24369,7 @@ stop_monitor(test)
+ char *test;
+ #endif
+ {
+-	char command_line[256];
++	char command_line[512];
+ 	if(strlen(imon_stop)!=0)
+ 	{
+ 		if(imon_sync)
+@@ -24867,6 +24878,9 @@ int main(void)
+ /*
+ ** Type definitions (for convenience).
+ */
++
++#undef false
++#undef true
+ #if defined(Windows)
+ int false = 0;
+ int true = 1;
