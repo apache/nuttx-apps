@@ -1740,8 +1740,8 @@ Example configuration:
 
 - `EXAMPLES_TIMER_GPOUT_TIM_DEVNAME` – This is the name of the timer device that will be used.
    Default: `/dev/timer0`.
-- `EXAMPLES_TIMER_GPOUT_GPOUT_DEVNAME` – This is the name of the gpout device that will be used.
-  Default: `/dev/gpout0`.
+- `EXAMPLES_TIMER_GPOUT_GPIO_DEVNAME` – This is the name of the gpout device that will be used.
+  Default: `/dev/gpio0`.
 - `EXAMPLES_TIMER_GPOUT_INTERVAL` – This is the timer interval in microseconds.
   Default: `1000000`.
 - `EXAMPLES_TIMER_GPOUT_SIGNO` – This is the signal number that is used to notify that a timer
