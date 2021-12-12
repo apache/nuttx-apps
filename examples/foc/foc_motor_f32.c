@@ -29,7 +29,6 @@
 #include "foc_motor_f32.h"
 
 #include "foc_cfg.h"
-#include "foc_adc.h"
 #include "foc_debug.h"
 
 /****************************************************************************
