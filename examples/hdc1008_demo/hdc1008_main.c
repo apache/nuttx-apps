@@ -99,7 +99,7 @@ int main(int argc, FAR char *argv[])
 
   printf("Temperature and humidity (ioctl)\n"
          "================================\n");
-  printf("t=%d.%d, h=%d.%d\n\n",
+  printf("t=%d.%02d, h=%d.%d\n\n",
           data.temperature / 100, data.temperature % 100,
           data.humidity / 10, data.humidity % 10);
 
