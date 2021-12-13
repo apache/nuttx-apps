@@ -29,8 +29,4 @@ CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/crypto/mbedtls/mbed
 CFLAGS += ${shell $(DEFINE) "$(CC)" MBEDTLS_CONFIG_FILE='"<crypto/mbedtls_config.h>"'}
 CXXFLAGS += ${shell $(DEFINE) "$(CC)" MBEDTLS_CONFIG_FILE='"<crypto/mbedtls_config.h>"'}
 
-ifneq ($(CONFIG_MBEDTLS_APPS),)
-CONFIGURED_APPS += $(APPDIR)/crypto/mbedtls/
-endif
-
 endif
