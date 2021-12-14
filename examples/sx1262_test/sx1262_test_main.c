@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/spi_test/spi_test_main.c
+ * apps/examples/sx1262_test/sx1262_test_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -37,7 +37,7 @@
 
 int main(int argc, FAR char *argv[])
 {
-  printf("Spi_test, World!!\n");
+  printf("Sx1262_test, World!!\n");
 
   /* Open SPI Test Driver */
 

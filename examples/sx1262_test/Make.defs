@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/spi_test/Make.defs
+# apps/examples/sx1262_test/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_SPI_TEST),)
-CONFIGURED_APPS += $(APPDIR)/examples/spi_test
+ifneq ($(CONFIG_EXAMPLES_SX1262_TEST),)
+CONFIGURED_APPS += $(APPDIR)/examples/sx1262_test
 endif
