@@ -41,6 +41,7 @@ int main(int argc, FAR char *argv[])
   printf("Sx1262_test, World!!\n");
 
   /* Call SX1262 Library */
+  
   test_libsx1262();
 
   return 0;
