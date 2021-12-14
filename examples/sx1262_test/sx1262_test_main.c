@@ -39,19 +39,8 @@ int main(int argc, FAR char *argv[])
 {
   printf("Sx1262_test, World!!\n");
 
-  /* Open SPI Test Driver */
+  /* Call SX1262 Library */
+  test_libsx1262();
 
-  int fd = open("/dev/spitest0", O_RDWR);
-  assert(fd >= 0);
-
-  /* Write to SPI Test Driver */
-
-  static char data[] = "Hello World";
-  int bytes_written = write(fd, data, sizeof(data));
-  assert(bytes_written == sizeof(data));
-
-  /* Close SPI Test Driver */
-
-  close(fd);
   return 0;
 }
