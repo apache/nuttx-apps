@@ -1,3 +1,8 @@
+__Updated for the articles...__
+
+-   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
+-   [__"SPI on Apache NuttX OS"__](https://lupyuen.github.io/articles/spi2)
+
 # Application Folder
 
 ## Contents
