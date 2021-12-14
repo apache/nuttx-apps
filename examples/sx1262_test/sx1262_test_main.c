@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <sx1262.h>
 
 /****************************************************************************
  * Public Functions
