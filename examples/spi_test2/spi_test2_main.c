@@ -43,7 +43,7 @@ int main(int argc, FAR char *argv[])
 {
   /* Open GPIO Output for SPI Chip Select */
 
-  int cs = open("/dev/gpout1", O_RDWR);
+  int cs = open("/dev/gpio1", O_RDWR);
   assert(cs >= 0);
 
   /* Open SPI Test Driver */
