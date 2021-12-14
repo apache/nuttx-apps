@@ -143,31 +143,41 @@ FAR const struct extmatch_vtable_s *
 #endif
 
 /****************************************************************************
- * Name: readline
+ * Name: readline_fd
  *
- *   readline() reads in at most one less than 'buflen' characters from
- *   'instream' and stores them into the buffer pointed to by 'buf'.
- *   Characters are echoed on 'outstream'.  Reading stops after an EOF or a
+ *   readline_fd() reads in at most one less than 'buflen' characters from
+ *   'infd' and stores them into the buffer pointed to by 'buf'.
+ *   Characters are echoed on 'outfd'.  Reading stops after an EOF or a
  *   newline.  If a newline is read, it is stored into the buffer.  A null
  *   terminator is stored after the last character in the buffer.
  *
- *   This version of realine assumes that we are reading and writing to
- *   a VT100 console.  This will not work well if 'instream' or 'outstream'
+ *   This version of readline_fd assumes that we are reading and writing to
+ *   a VT100 console.  This will not work well if 'infd' or 'outfd'
  *   corresponds to a raw byte steam.
  *
  *   This function is inspired by the GNU readline but is an entirely
  *   different creature.
  *
  * Input Parameters:
- *   buf       - The user allocated buffer to be filled.
- *   buflen    - the size of the buffer.
- *   instream  - The stream to read characters from
- *   outstream - The stream to each characters to.
+ *   buf    - The user allocated buffer to be filled.
+ *   buflen - the size of the buffer.
+ *   infd   - The file to read characters from
+ *   outfd  - The file to each characters to.
  *
  * Returned values:
  *   On success, the (positive) number of bytes transferred is returned.
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
+ *
+ ****************************************************************************/
+
+ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd);
+
+/****************************************************************************
+ * Name: readline
+ *
+ *   readline() is same to readline_fd() but accept a file stream instead
+ *   of a file handle.
  *
  ****************************************************************************/
 

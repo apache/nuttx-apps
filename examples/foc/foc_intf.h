@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/ostest/tls.c
+ * apps/examples/foc/foc_intf.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,96 +18,43 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_FOC_FOC_INTF_H
+#define __EXAMPLES_FOC_FOC_INTF_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <nuttx/arch.h>
-#include <nuttx/tls.h>
-
-#include "ostest.h"
-
-#if CONFIG_TLS_NELEM > 0
-
 /****************************************************************************
- * Private Data
+ * Pre-processor Definitions
  ****************************************************************************/
 
-static struct tls_info_s g_save_info;
-
 /****************************************************************************
- * Private Functions
+ * Public Type Definition
  ****************************************************************************/
 
-static void get_tls_info(FAR struct tls_info_s *info)
+/* FOC control interface data */
+
+struct foc_intf_data_s
 {
-  memcpy(info, up_tls_info(), sizeof(struct tls_info_s));
-}
-
-static void put_tls_info(FAR const struct tls_info_s *info)
-{
-  memcpy(up_tls_info(), info, sizeof(struct tls_info_s));
-}
-
-static void set_tls_info(uintptr_t value)
-{
-  FAR struct tls_info_s *info = up_tls_info();
-  int i;
-
-  for (i = 0; i < CONFIG_TLS_NELEM; i++)
-    {
-      info->tl_elem[i] = value;
-    }
-}
-
-static bool verify_tls_info(uintptr_t value)
-{
-  FAR struct tls_info_s *info = up_tls_info();
-  bool fail = false;
-  int i;
-
-  for (i = 0; i < CONFIG_TLS_NELEM; i++)
-    {
-      if (info->tl_elem[i] != value)
-        {
-          printf("tls: ERROR Element %d: Set %lx / read %lx\n",
-                 i, (unsigned long)value,
-                 (unsigned long)info->tl_elem[i]);
-          fail = true;
-        }
-    }
-
-  return fail;
-}
-
-static void do_tls_test(uintptr_t value)
-{
-  set_tls_info(value);
-  if (!verify_tls_info(value))
-    {
-      printf("tls: Successfully set %lx\n", (unsigned long)value);
-    }
-}
+  uint32_t state;
+  uint32_t vbus_raw;
+  int32_t  sp_raw;
+  bool     vbus_update;
+  bool     state_update;
+  bool     sp_update;
+  bool     terminate;
+  bool     started;
+};
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
-void tls_test(void)
-{
-  get_tls_info(&g_save_info);
-  do_tls_test(0);
-  do_tls_test(0xffffffff);
-  do_tls_test(0x55555555);
-  do_tls_test(0xaaaaaaaa);
-  put_tls_info(&g_save_info);
-}
+int foc_intf_init(void);
+int foc_intf_deinit(void);
+int foc_intf_update(FAR struct foc_intf_data_s *data);
 
-#endif /* CONFIG_TLS_NELEM > 0 */
+#endif /* __EXAMPLES_FOC_FOC_INTF_H */

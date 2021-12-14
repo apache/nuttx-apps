@@ -35,10 +35,6 @@
  * Private Definitions
  ****************************************************************************/
 
-#ifndef NULL
-# define NULL (void*)0
-#endif
-
 #define MY_TIMER_SIGNAL 17
 #define SIGVALUE_INT  42
 
