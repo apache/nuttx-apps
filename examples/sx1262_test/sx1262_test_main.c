@@ -97,7 +97,7 @@ int main(int argc, FAR char *argv[]) {
     test_libsx1262();
 
 //  Uncomment to read SX1262 registers
-//  #define READ_REGISTERS
+#define READ_REGISTERS
 #ifdef READ_REGISTERS
     //  Read SX1262 registers 0x00 to 0x0F
     read_registers();
@@ -120,7 +120,7 @@ int main(int argc, FAR char *argv[]) {
 #endif  //  SEND_MESSAGE
 
 //  Uncomment to receive a LoRa message
-#define RECEIVE_MESSAGE
+//  #define RECEIVE_MESSAGE
 #ifdef RECEIVE_MESSAGE
     //  Handle LoRa events for the next 10 seconds
     for (int i = 0; i < 10; i++) {
