@@ -33,7 +33,8 @@
 
 #include "netutils/netlib.h"
 #include "netutils/webclient.h"
-
+#include <fcntl.h>
+#include <sys/stat.h>
 /****************************************************************************
  * Preprocessor Definitions
  ****************************************************************************/
@@ -70,6 +71,7 @@
  ****************************************************************************/
 
 static char g_iobuffer[512];
+static int fd;
 
 /****************************************************************************
  * Private Functions
@@ -82,7 +84,7 @@ static char g_iobuffer[512];
 static int callback(FAR char **buffer, int offset, int datend,
                      FAR int *buflen, FAR void *arg)
 {
-  ssize_t written = write(1, &((*buffer)[offset]), datend - offset);
+  ssize_t written = write(fd, &((*buffer)[offset]), datend - offset);
   if (written == -1)
     {
       return -errno;
@@ -152,13 +154,25 @@ int main(int argc, FAR char *argv[])
   ctx.buflen = 512;
   ctx.sink_callback = callback;
   ctx.sink_callback_arg = NULL;
-  if (argc > 1)
+
+  /* mode 0644 */
+
+  mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
+  char *filename = argv[2];
+
+  if (argc == 2)
     {
       ctx.url = argv[1];
+      fd = 1;
     }
   else
     {
-      ctx.url = CONFIG_EXAMPLES_WGET_URL;
+      ctx.url = argv[3];
+      fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, mode);
+      if (fd < 0)
+        {
+          printf("cannot create file %s \n", argv[2]);
+        }
     }
 
   int ret = webclient_perform(&ctx);
@@ -166,6 +180,8 @@ int main(int argc, FAR char *argv[])
     {
       printf("webclient_perform failed with %d\n", ret);
     }
+
+  close(fd);
 
   return 0;
 }
