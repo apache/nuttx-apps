@@ -166,7 +166,7 @@ static void read_registers(void) {
         //  uint8_t val = SX1276Read(addr);          //  For SX1276
 
         //  Print the register value
-        printf("Register 0x%02x = 0x%02x\r\n", addr, val);
+        printf("Register 0x%02x = 0x%02x\n", addr, val);
     }
 }
 
@@ -267,7 +267,7 @@ static void receive_message(void) {
 /// Callback Function that is called when our LoRa message has been transmitted
 static void on_tx_done(void)
 {
-    printf("Tx done\r\n");
+    puts("Tx done");
 
     //  Log the success status
     loraping_stats.tx_success++;
@@ -286,7 +286,7 @@ static void on_rx_done(
     int16_t rssi,      //  Signal strength
     int8_t snr)        //  Signal To Noise ratio
 {
-    printf("Rx done: \r\n");
+    puts("Rx done:");
 
     //  Switch the LoRa Transceiver to low power, sleep mode
     Radio.Sleep();
@@ -305,7 +305,7 @@ static void on_rx_done(
     for (int i = 0; i < loraping_rx_size; i++) {
         printf("%02x ", loraping_buffer[i]);
     }
-    printf("\r\n");
+    puts("");
 
     //  TODO: Send a "PING" or "PONG" LoRa message
     //  os_eventq_put(os_eventq_dflt_get(), &loraping_ev_tx);
@@ -313,7 +313,7 @@ static void on_rx_done(
 
 /// Callback Function that is called when our LoRa message couldn't be transmitted due to timeout
 static void on_tx_timeout(void) {
-    printf("Tx timeout\r\n");
+    puts("Tx timeout");
 
     //  Switch the LoRa Transceiver to low power, sleep mode
     Radio.Sleep();
@@ -327,7 +327,7 @@ static void on_tx_timeout(void) {
 
 /// Callback Function that is called when no LoRa messages could be received due to timeout
 static void on_rx_timeout(void) {
-    printf("Rx timeout\r\n");
+    puts("Rx timeout");
 
     //  Switch the LoRa Transceiver to low power, sleep mode
     Radio.Sleep();
@@ -342,7 +342,7 @@ static void on_rx_timeout(void) {
 
 /// Callback Function that is called when we couldn't receive a LoRa message due to error
 static void on_rx_error(void) {
-    printf("Rx error\r\n");
+    puts("Rx error");
 
     //  Log the error
     loraping_stats.rx_error++;
@@ -428,5 +428,5 @@ static void task_callback(void *arg) {
 /// This is unused because we don't have a Background Thread to process the Event Queue.
 static void handle_event(struct ble_npl_event *ev) {
     puts("handle_event");
-    printf("\r\nHandle an event\r\n");
+    puts("Handle an event");
 }
