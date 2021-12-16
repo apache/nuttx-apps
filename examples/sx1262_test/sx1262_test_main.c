@@ -248,18 +248,8 @@ static void send_once(int is_ping) {
         loraping_buffer[i] = i - 4;
     }
 
-    //  We send the transmit buffer, limited to 29 bytes.
-    //  CAUTION: Anything more will cause message corruption!
-    #define MAX_MESSAGE_SIZE 29
-    uint8_t size = sizeof loraping_buffer > MAX_MESSAGE_SIZE
-        ? MAX_MESSAGE_SIZE 
-        : sizeof loraping_buffer;
-    Radio.Send(loraping_buffer, size);
-
-    //  TODO: Previously we send 64 bytes, which gets garbled consistently.
-    //  Does CH341 limit SPI transfers to 31 bytes?
-    //  (Including 2 bytes for SX1262 SPI command header)
-    //  Radio.Send(loraping_buffer, sizeof loraping_buffer);
+    //  We send the transmit buffer (64 bytes)
+    Radio.Send(loraping_buffer, sizeof loraping_buffer);
 }
 
 /// Receive a LoRa message. Assume that SX1262 driver has been initialised.
