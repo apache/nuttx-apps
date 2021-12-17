@@ -114,14 +114,14 @@ int main(int argc, FAR char *argv[]) {
     sleep(1);
 
 //  Uncomment to send a LoRa message
-#define SEND_MESSAGE
+//  #define SEND_MESSAGE
 #ifdef SEND_MESSAGE
     //  Send a LoRa message
     send_message();
 #endif  //  SEND_MESSAGE
 
 //  Uncomment to receive a LoRa message
-//  #define RECEIVE_MESSAGE
+#define RECEIVE_MESSAGE
 #ifdef RECEIVE_MESSAGE
     //  Handle LoRa events for the next 10 seconds
     for (int i = 0; i < 10; i++) {
