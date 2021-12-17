@@ -279,7 +279,21 @@ static int rpsock_stream_client(int argc, char *argv[])
 
   printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
   ret = connect(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
-  if (ret < 0)
+  if (ret < 0 && errno == EINPROGRESS)
+    {
+      struct pollfd pfd;
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = sockfd;
+      pfd.events = POLLOUT;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: poll failure: %d\n", errno);
+          goto errout_with_socket;
+        }
+    }
+  else if (ret < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
@@ -459,7 +473,21 @@ static int rpsock_dgram_client(int argc, char *argv[])
 
   printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
   ret = connect(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
-  if (ret < 0)
+  if (ret < 0 && errno == EINPROGRESS)
+    {
+      struct pollfd pfd;
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = sockfd;
+      pfd.events = POLLOUT;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("[client] poll failure: %d\n", errno);
+          goto errout_with_socket;
+        }
+    }
+  else if (ret < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
