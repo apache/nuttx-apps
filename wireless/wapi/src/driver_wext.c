@@ -245,7 +245,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
 
   /* Get a socket (only so that we get access to the INET subsystem) */
 
-  sockfd = socket(PF_INETX, SOCK_WAPI, 0);
+  sockfd = wapi_make_socket();
   if (sockfd < 0)
     {
       return sockfd;

@@ -63,8 +63,7 @@ int netlib_ifup(const char *ifname)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(NETLIB_SOCK_FAMILY,
-                          NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           struct ifreq req;
@@ -107,8 +106,7 @@ int netlib_ifdown(const char *ifname)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(NETLIB_SOCK_FAMILY,
-                          NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           struct ifreq req;

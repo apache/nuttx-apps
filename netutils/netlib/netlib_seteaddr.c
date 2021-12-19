@@ -67,7 +67,7 @@ int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           /* Perform the IOCTL */
