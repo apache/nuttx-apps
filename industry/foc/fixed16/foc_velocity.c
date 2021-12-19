@@ -24,7 +24,7 @@
 
 #include <nuttx/config.h>
 
-#include <errno.h>
+#include <assert.h>
 #include <errno.h>
 
 #include "industry/foc/foc_log.h"
