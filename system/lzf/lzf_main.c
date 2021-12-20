@@ -311,7 +311,6 @@ short_read:
 
 static int open_out(FAR const char *name)
 {
-  int fd;
   int m = O_EXCL;
 
   if (g_force)
@@ -319,8 +318,7 @@ static int open_out(FAR const char *name)
       m = 0;
     }
 
-  fd = open(name, O_CREAT | O_WRONLY | O_TRUNC | m, 600);
-  return fd;
+  return open(name, O_CREAT | O_WRONLY | O_TRUNC | m, 0600);
 }
 
 static int compose_name(FAR const char *fname, FAR char *oname, int namelen)
