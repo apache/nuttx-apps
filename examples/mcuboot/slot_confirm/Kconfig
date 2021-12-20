@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MCUBOOT_SLOT_CONFIRM
+	tristate "MCUboot slot confirm example"
+	default n
+	select BOOT_MCUBOOT
+	---help---
+		Example application for confirming a newly installed application
+		application firmware image using MCUboot public APIs.
+		This application should be used as the OTA update package of the
+		EXAMPLES_MCUBOOT_UPDATE_AGENT example.
