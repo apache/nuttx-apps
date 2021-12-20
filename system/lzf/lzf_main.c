@@ -41,7 +41,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <semaphore.h>
+#include <pthread.h>
 #include <getopt.h>
 #include <errno.h>
 #include <limits.h>
@@ -59,7 +59,7 @@
  ****************************************************************************/
 
 #if CONFIG_SYSTEM_LZF != CONFIG_m
-static sem_t g_exclsem = SEM_INITIALIZER(1);
+static pthread_mutex_t g_exclmutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 static off_t g_nread;
@@ -78,11 +78,11 @@ static uint8_t g_buf2[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
  * Private Functions
  ****************************************************************************/
 
-#if CONFIG_SYSTEM_LZF != 2
+#if CONFIG_SYSTEM_LZF != CONFIG_m
 static void lzf_exit(int exitcode) noreturn_function;
 static void lzf_exit(int exitcode)
 {
-  sem_post(&g_exclsem);
+  pthread_mutex_unlock(&g_exclmutex);
   exit(exitcode);
 }
 #else
@@ -454,12 +454,7 @@ int main(int argc, FAR char *argv[])
    * global variables.
    */
 
-  ret = sem_wait(&g_exclsem);
-  if (ret < 0)
-    {
-      fprintf(stderr, "sem_wait failed: %d\n", errno);
-      exit(1);
-    }
+  pthread_mutex_lock(&g_exclmutex);
 #endif
 
   /* Set defaults. */
