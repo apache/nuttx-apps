@@ -28,31 +28,18 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
-#include <mqueue.h>
-#include <pthread.h>
 
 #include <sys/types.h>
-#include <sys/ioctl.h>
 #include <sys/boardctl.h>
-#include <nuttx/fs/fs.h>
 
 #include "foc_mq.h"
 #include "foc_thr.h"
-#include "foc_adc.h"
+#include "foc_cfg.h"
 #include "foc_debug.h"
-#include "foc_device.h"
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-#  include <nuttx/input/buttons.h>
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ADC
-#  include <nuttx/analog/adc.h>
-#  include <nuttx/analog/ioctl.h>
-#endif
+#include "foc_parseargs.h"
+#include "foc_intf.h"
 
 #include "industry/foc/foc_common.h"
 
@@ -64,272 +51,13 @@
 
 #define MAIN_LOOP_USLEEP (200000)
 
-/* Button init state */
-
-#if CONFIG_EXAMPLES_FOC_STATE_INIT == 1
-#  define STATE_BUTTON_I (0)
-#elif CONFIG_EXAMPLES_FOC_STATE_INIT == 2
-#  define STATE_BUTTON_I (2)
-#elif CONFIG_EXAMPLES_FOC_STATE_INIT == 3
-#  define STATE_BUTTON_I (1)
-#elif CONFIG_EXAMPLES_FOC_STATE_INIT == 4
-#  define STATE_BUTTON_I (3)
-#else
-#  error
-#endif
-
 /* Enabled instnaces default state */
 
 #define INST_EN_DEAFULT (0xff)
 
 /****************************************************************************
- * Private Type Definition
- ****************************************************************************/
-
-/* Application arguments */
-
-struct args_s
-{
-  int      time;                /* Run time limit in sec, -1 if forever */
-  int      mode;                /* Operation mode */
-  int      qparam;              /* Open-loop Q setting (x1000) */
-  uint32_t pi_kp;               /* PI Kp (x1000) */
-  uint32_t pi_ki;               /* PI Ki (x1000) */
-  uint32_t velmax;              /* Velocity max (x1000) */
-  int      state;               /* Example state (FREE, CW, CCW, STOP) */
-  int8_t   en;                  /* Enabled instances (bit-encoded) */
-};
-
-/****************************************************************************
- * Private Function Protototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-/* Example state */
-
-static const int g_state_list[5] =
-{
-  FOC_EXAMPLE_STATE_FREE,
-  FOC_EXAMPLE_STATE_CW,
-  FOC_EXAMPLE_STATE_STOP,
-  FOC_EXAMPLE_STATE_CCW,
-  0
-};
-#endif
-
-pthread_mutex_t g_cntr_lock;
-
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-static int g_float_thr_cntr = 0;
-#endif
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-static int g_fixed16_thr_cntr = 0;
-#endif
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-#ifdef CONFIG_BUILTIN
-/****************************************************************************
- * Name: foc_help
- ****************************************************************************/
-
-static void foc_help(void)
-{
-  PRINTF("Usage: foc [OPTIONS]\n");
-  PRINTF("  [-t] run time\n");
-  PRINTF("  [-h] shows this message and exits\n");
-  PRINTF("  [-m] controller mode\n");
-  PRINTF("       1 - IDLE mode\n");
-  PRINTF("       2 - voltage open-loop velocity \n");
-  PRINTF("       3 - current open-loop velocity \n");
-  PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
-  PRINTF("  [-i] PI Ki coefficient [x1000]\n");
-  PRINTF("  [-p] KI Kp coefficient [x1000]\n");
-  PRINTF("  [-v] velocity [x1000]\n");
-  PRINTF("  [-s] motor state\n");
-  PRINTF("       1 - motor free\n");
-  PRINTF("       2 - motor stop\n");
-  PRINTF("       3 - motor CW\n");
-  PRINTF("       4 - motor CCW\n");
-  PRINTF("  [-j] enable specific instnaces\n");
-}
-
-/****************************************************************************
- * Name: arg_string
- ****************************************************************************/
-
-static int arg_string(FAR char **arg, FAR char **value)
-{
-  FAR char *ptr = *arg;
-
-  if (ptr[2] == '\0')
-    {
-      *value = arg[1];
-      return 2;
-    }
-  else
-    {
-      *value = &ptr[2];
-      return 1;
-    }
-}
-
-/****************************************************************************
- * Name: arg_decimal
- ****************************************************************************/
-
-static int arg_decimal(FAR char **arg, FAR int *value)
-{
-  FAR char *string;
-  int       ret;
-
-  ret = arg_string(arg, &string);
-  *value = atoi(string);
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: parse_args
- ****************************************************************************/
-
-static void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
-{
-  FAR char *ptr;
-  int       index;
-  int       nargs;
-  int       i_value;
-
-  for (index = 1; index < argc; )
-    {
-      ptr = argv[index];
-      if (ptr[0] != '-')
-        {
-          PRINTF("Invalid options format: %s\n", ptr);
-          exit(0);
-        }
-
-      switch (ptr[1])
-        {
-          /* Get time */
-
-          case 't':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value <= 0 && i_value != -1)
-                {
-                  PRINTF("Invalid time value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->time = i_value;
-              break;
-            }
-
-          case 'm':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value != FOC_OPMODE_IDLE &&
-                  i_value != FOC_OPMODE_OL_V_VEL &&
-                  i_value != FOC_OPMODE_OL_C_VEL)
-                {
-                  PRINTF("Invalid op mode value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->mode = i_value;
-              break;
-            }
-
-          case 'o':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->qparam = i_value;
-              break;
-            }
-
-          case 'p':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_kp = i_value;
-              break;
-            }
-
-          case 'i':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->pi_ki = i_value;
-              break;
-            }
-
-          case 'v':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->velmax = i_value;
-              break;
-            }
-
-          case 's':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              if (i_value != FOC_EXAMPLE_STATE_FREE &&
-                  i_value != FOC_EXAMPLE_STATE_STOP &&
-                  i_value != FOC_EXAMPLE_STATE_CW &&
-                  i_value != FOC_EXAMPLE_STATE_CCW)
-                {
-                  PRINTF("Invalid state value %d s\n", i_value);
-                  exit(1);
-                }
-
-              args->state = i_value;
-              break;
-            }
-
-          case 'j':
-            {
-              nargs = arg_decimal(&argv[index], &i_value);
-              index += nargs;
-
-              args->en = i_value;
-              break;
-            }
-
-          case 'h':
-            {
-              foc_help();
-              exit(0);
-            }
-
-          default:
-            {
-              PRINTF("Unsupported option: %s\n", ptr);
-              foc_help();
-              exit(1);
-            }
-        }
-    }
-}
-#endif
 
 /****************************************************************************
  * Name: init_args
@@ -339,21 +67,55 @@ static void init_args(FAR struct args_s *args)
 {
   args->time =
     (args->time == 0 ? CONFIG_EXAMPLES_FOC_TIME_DEFAULT : args->time);
-  args->mode =
-    (args->mode == 0 ? CONFIG_EXAMPLES_FOC_OPMODE : args->mode);
+  args->fmode =
+    (args->fmode == 0 ? CONFIG_EXAMPLES_FOC_FMODE : args->fmode);
+  args->mmode =
+    (args->mmode == 0 ? CONFIG_EXAMPLES_FOC_MMODE : args->mmode);
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   args->qparam =
     (args->qparam == 0 ? CONFIG_EXAMPLES_FOC_OPENLOOP_Q : args->qparam);
+#endif
   args->pi_kp =
     (args->pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->pi_kp);
   args->pi_ki =
     (args->pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->pi_ki);
-#ifdef CONFIG_EXAMPLES_FOC_VEL_ADC
+
+  /* Setpoint configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
+  args->torqmax =
+    (args->torqmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->torqmax);
+#else
+  args->torqmax =
+    (args->torqmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->torqmax);
+#endif
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
   args->velmax =
-    (args->velmax == 0 ? CONFIG_EXAMPLES_FOC_VEL_ADC_MAX : args->velmax);
+    (args->velmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->velmax);
 #else
   args->velmax =
-    (args->velmax == 0 ? CONFIG_EXAMPLES_FOC_VEL_CONST_VALUE : args->velmax);
+    (args->velmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->velmax);
 #endif
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
+  args->posmax =
+    (args->posmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->posmax);
+#else
+  args->posmax =
+    (args->posmax == 0 ?
+     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->posmax);
+#endif
+#endif
+
   args->state =
     (args->state == 0 ? CONFIG_EXAMPLES_FOC_STATE_INIT : args->state);
   args->en = (args->en == -1 ? INST_EN_DEAFULT : args->en);
@@ -367,9 +129,58 @@ static int validate_args(FAR struct args_s *args)
 {
   int ret = -EINVAL;
 
+  /* FOC PI controller */
+
   if (args->pi_kp == 0 && args->pi_ki == 0)
     {
       PRINTF("ERROR: missign Kp/Ki configuration\n");
+      goto errout;
+    }
+
+  /* FOC operation mode */
+
+  if (args->fmode != FOC_FMODE_IDLE &&
+      args->fmode != FOC_FMODE_VOLTAGE &&
+      args->fmode != FOC_FMODE_CURRENT)
+    {
+      PRINTF("Invalid op mode value %d s\n", args->fmode);
+      goto errout;
+    }
+
+  /* Example control mode */
+
+  if (
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+    args->mmode != FOC_MMODE_TORQ &&
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+    args->mmode != FOC_MMODE_VEL &&
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+    args->mmode != FOC_MMODE_POS &&
+#endif
+    1)
+    {
+      PRINTF("Invalid ctrl mode value %d s\n", args->mmode);
+      goto errout;
+    }
+
+  /* Example state */
+
+  if (args->state != FOC_EXAMPLE_STATE_FREE &&
+      args->state != FOC_EXAMPLE_STATE_STOP &&
+      args->state != FOC_EXAMPLE_STATE_CW &&
+      args->state != FOC_EXAMPLE_STATE_CCW)
+    {
+      PRINTF("Invalid state value %d s\n", args->state);
+      goto errout;
+    }
+
+  /* Time parameter */
+
+  if (args->time <= 0 && args->time != -1)
+    {
+      PRINTF("Invalid time value %d s\n", args->time);
       goto errout;
     }
 
@@ -425,12 +236,12 @@ static int foc_vbus_send(mqd_t mqd, uint32_t vbus)
 }
 
 /****************************************************************************
- * Name: foc_vel_send
+ * Name: foc_setpoint_send
  ****************************************************************************/
 
-static int foc_vel_send(mqd_t mqd, uint32_t vel)
+static int foc_setpoint_send(mqd_t mqd, uint32_t setpoint)
 {
-  return foc_mq_send(mqd, CONTROL_MQ_MSG_VEL, (FAR void *)&vel);
+  return foc_mq_send(mqd, CONTROL_MQ_MSG_SETPOINT, (FAR void *)&setpoint);
 }
 
 /****************************************************************************
@@ -463,208 +274,6 @@ static int foc_kill_send(mqd_t mqd)
 }
 
 /****************************************************************************
- * Name: foc_control_thr
- ****************************************************************************/
-
-FAR void *foc_control_thr(FAR void *arg)
-{
-  FAR struct foc_ctrl_env_s *envp = (FAR struct foc_ctrl_env_s *) arg;
-  char                       mqname[10];
-  int                        ret  = OK;
-
-  DEBUGASSERT(envp);
-
-  /* Open FOC device as blocking */
-
-  ret = foc_device_open(&envp->dev, envp->id);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_device_open failed %d!\n", ret);
-      goto errout;
-    }
-
-  /* Get controller type */
-
-  pthread_mutex_lock(&g_cntr_lock);
-
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-  if (g_float_thr_cntr < CONFIG_EXAMPLES_FOC_FLOAT_INST)
-    {
-      envp->type = FOC_NUMBER_TYPE_FLOAT;
-    }
-  else
-#endif
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-  if (g_fixed16_thr_cntr < CONFIG_EXAMPLES_FOC_FIXED16_INST)
-    {
-      envp->type = FOC_NUMBER_TYPE_FIXED16;
-    }
-  else
-#endif
-    {
-      /* Invalid configuration */
-
-      ASSERT(0);
-    }
-
-  pthread_mutex_unlock(&g_cntr_lock);
-
-  PRINTF("FOC device %d type = %d!\n", envp->id, envp->type);
-
-  /* Get queue name */
-
-  sprintf(mqname, "%s%d", CONTROL_MQ_MQNAME, envp->id);
-
-  /* Open queue */
-
-  envp->mqd = mq_open(mqname, (O_RDONLY | O_NONBLOCK), 0666, NULL);
-  if (envp->mqd == (mqd_t)-1)
-    {
-      PRINTF("ERROR: mq_open failed errno=%d\n", errno);
-      goto errout;
-    }
-
-  /* Select control logic according to FOC device type */
-
-  switch (envp->type)
-    {
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-      case FOC_NUMBER_TYPE_FLOAT:
-        {
-          pthread_mutex_lock(&g_cntr_lock);
-          envp->inst = g_float_thr_cntr;
-          g_float_thr_cntr += 1;
-          pthread_mutex_unlock(&g_cntr_lock);
-
-          /* Start thread */
-
-          ret = foc_float_thr(envp);
-
-          pthread_mutex_lock(&g_cntr_lock);
-          g_float_thr_cntr -= 1;
-          pthread_mutex_unlock(&g_cntr_lock);
-
-          break;
-        }
-#endif
-
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-      case FOC_NUMBER_TYPE_FIXED16:
-        {
-          pthread_mutex_lock(&g_cntr_lock);
-          envp->inst = g_fixed16_thr_cntr;
-          g_fixed16_thr_cntr += 1;
-          pthread_mutex_unlock(&g_cntr_lock);
-
-          /* Start thread */
-
-          ret = foc_fixed16_thr(envp);
-
-          pthread_mutex_lock(&g_cntr_lock);
-          g_fixed16_thr_cntr -= 1;
-          pthread_mutex_unlock(&g_cntr_lock);
-
-          break;
-        }
-#endif
-
-      default:
-        {
-          PRINTF("ERROR: unknown FOC device type %d\n", envp->type);
-          goto errout;
-        }
-    }
-
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc control thread failed %d\n", ret);
-    }
-
-errout:
-
-  /* Close FOC control device */
-
-  ret = foc_device_close(&envp->dev);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_device_close %d failed %d\n", envp->id, ret);
-    }
-
-  /* Close queue */
-
-  if (envp->mqd == (mqd_t)-1)
-    {
-      mq_close(envp->mqd);
-    }
-
-  PRINTFV("foc_control_thr %d exit\n", envp->id);
-
-  return NULL;
-}
-
-/****************************************************************************
- * Name: foc_threads_init
- ****************************************************************************/
-
-static int foc_threads_init(FAR struct foc_ctrl_env_s *foc, int i,
-                            FAR mqd_t *mqd, FAR pthread_t *thread)
-{
-  char                mqname[10];
-  int                 ret = OK;
-  pthread_attr_t      attr;
-  struct mq_attr      mqattr;
-  struct sched_param  param;
-
-  DEBUGASSERT(foc);
-  DEBUGASSERT(mqd);
-  DEBUGASSERT(thread);
-
-  /* Store device id */
-
-  foc->id = i;
-
-  /* Fill in attributes for message queue */
-
-  mqattr.mq_maxmsg  = CONTROL_MQ_MAXMSG;
-  mqattr.mq_msgsize = CONTROL_MQ_MSGSIZE;
-  mqattr.mq_flags   = 0;
-
-  /* Get queue name */
-
-  sprintf(mqname, "%s%d", CONTROL_MQ_MQNAME, foc->id);
-
-  /* Initialize thread recv queue */
-
-  *mqd = mq_open(mqname, (O_WRONLY | O_CREAT | O_NONBLOCK),
-                 0666, &mqattr);
-  if (*mqd < 0)
-    {
-      PRINTF("ERROR: mq_open %s failed errno=%d\n", mqname, errno);
-      goto errout;
-    }
-
-  /* Configure thread */
-
-  pthread_attr_init(&attr);
-  param.sched_priority = CONFIG_EXAMPLES_FOC_CONTROL_PRIO;
-  pthread_attr_setschedparam(&attr, &param);
-  pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_FOC_CONTROL_STACKSIZE);
-
-  /* Create FOC threads */
-
-  ret = pthread_create(thread, &attr, foc_control_thr, foc);
-  if (ret != 0)
-    {
-      PRINTF("ERROR: pthread_create ctrl failed %d\n", ret);
-      ret = -ret;
-      goto errout;
-    }
-
-errout:
-  return ret;
-}
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -678,24 +287,7 @@ int main(int argc, char *argv[])
   pthread_t              threads[CONFIG_MOTOR_FOC_INST];
   mqd_t                  mqd[CONFIG_MOTOR_FOC_INST];
   struct args_s          args;
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ADC
-  int                    adc_fd       = 0;
-  bool                   adc_trigger  = false;
-  struct adc_msg_s       adc_sample[ADC_SAMPLES];
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-  btn_buttonset_t        b_sample     = 0;
-  int                    b_fd         = 0;
-  int                    state_i      = 0;
-#endif
-  uint32_t               state        = 0;
-  uint32_t               vbus_raw     = 0;
-  int32_t                vel_raw      = 0;
-  bool                   vbus_update  = false;
-  bool                   state_update = false;
-  bool                   vel_update   = false;
-  bool                   terminate    = false;
-  bool                   started      = false;
+  struct foc_intf_data_s data;
   int                    ret          = OK;
   int                    i            = 0;
   int                    time         = 0;
@@ -706,6 +298,7 @@ int main(int argc, char *argv[])
   memset(mqd, 0, sizeof(mqd_t) * CONFIG_MOTOR_FOC_INST);
   memset(foc, 0, sizeof(struct foc_ctrl_env_s) * CONFIG_MOTOR_FOC_INST);
   memset(threads, 0, sizeof(pthread_t) * CONFIG_MOTOR_FOC_INST);
+  memset(&data, 0, sizeof(struct foc_intf_data_s));
 
   /* Initialize args before parse */
 
@@ -744,40 +337,23 @@ int main(int argc, char *argv[])
 
   PRINTF("\nStart foc_main application!\n\n");
 
-  /* Initialize mutex */
+  /* Initialize threads */
 
-  ret = pthread_mutex_init(&g_cntr_lock, NULL);
-  if (ret != 0)
+  ret = foc_threads_init();
+  if (ret < 0)
     {
-      PRINTF("ERROR: pthread_mutex_init failed %d\n", errno);
+      PRINTF("ERROR: failed to initialize threads %d\n", ret);
       goto errout_no_mutex;
     }
 
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ADC
-  /* Open ADC */
+  /* Initialize control interface */
 
-  adc_fd = open(CONFIG_EXAMPLES_FOC_ADC_DEVPATH, (O_RDONLY | O_NONBLOCK));
-  if (adc_fd <= 0)
+  ret = foc_intf_init();
+  if (ret < 0)
     {
-      PRINTF("ERROR: failed to open %s %d\n",
-             CONFIG_EXAMPLES_FOC_ADC_DEVPATH, errno);
-
-      ret = -errno;
+      PRINTF("ERROR: failed to initialize control interface %d\n", ret);
       goto errout;
     }
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-  /* Open button driver */
-
-  b_fd = open(CONFIG_EXAMPLES_FOC_BUTTON_DEVPATH, (O_RDONLY | O_NONBLOCK));
-  if (b_fd < 0)
-    {
-      PRINTF("ERROR: failed to open %s %d\n",
-             CONFIG_EXAMPLES_FOC_BUTTON_DEVPATH, errno);
-      goto errout;
-    }
-#endif
 
   /* Initialzie FOC controllers */
 
@@ -785,20 +361,31 @@ int main(int argc, char *argv[])
     {
       /* Get configuration */
 
-      foc[i].qparam = args.qparam;
-      foc[i].mode   = args.mode;
-      foc[i].pi_kp  = args.pi_kp;
-      foc[i].pi_ki  = args.pi_ki;
-      foc[i].velmax = args.velmax;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+      foc[i].qparam   = args.qparam;
+#endif
+      foc[i].fmode    = args.fmode;
+      foc[i].mmode    = args.mmode;
+      foc[i].pi_kp    = args.pi_kp;
+      foc[i].pi_ki    = args.pi_ki;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+      foc[i].torqmax  = args.torqmax;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+      foc[i].velmax   = args.velmax;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+      foc[i].posmax   = args.posmax;
+#endif
 
       if (args.en & (1 << i))
         {
           /* Initialize controller thread if enabled */
 
-          ret = foc_threads_init(&foc[i], i, &mqd[i], &threads[i]);
+          ret = foc_ctrlthr_init(&foc[i], i, &mqd[i], &threads[i]);
           if (ret < 0)
             {
-              PRINTF("ERROR: foc_threads_init failed %d!\n", ret);
+              PRINTF("ERROR: foc_ctrlthr_init failed %d!\n", ret);
               goto errout;
             }
         }
@@ -808,147 +395,40 @@ int main(int argc, char *argv[])
 
   usleep(10000);
 
-  /* Initial update for VBUS and VEL */
+  /* Initial update for VBUS and SETPOINT */
 
 #ifndef CONFIG_EXAMPLES_FOC_VBUS_ADC
-  vbus_update  = true;
-  vbus_raw     = VBUS_CONST_VALUE;
+  data.vbus_update  = true;
+  data.vbus_raw     = VBUS_CONST_VALUE;
 #endif
-#ifndef CONFIG_EXAMPLES_FOC_VEL_ADC
-  vel_update   = true;
-  vel_raw      = 1;
+#ifndef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
+  data.sp_update    = true;
+  data.sp_raw       = 1;
 #endif
-  state_update = true;
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ADC
-  /* Initial ADC trigger */
-
-  ret = ioctl(adc_fd, ANIOC_TRIGGER, 0);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: ANIOC_TRIGGER ioctl failed: %d\n", errno);
-      goto errout;
-    }
-
-  /* Make sure that conversion is done before first read form ADC device */
-
-  usleep(10000);
-
-  /* Read ADC data if the first loop cylce */
-
-  adc_trigger = false;
-#endif
+  data.state_update = true;
 
   /* Controller state */
 
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-  state_i = STATE_BUTTON_I;
-#endif
-  state = args.state;
+  data.state = args.state;
 
   /* Auxliary control loop */
 
-  while (terminate != true)
+  while (data.terminate != true)
     {
       PRINTFV("foc_main loop %d\n", time);
 
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_BUTTON
-      /* Get button state */
+      /* Update control interface */
 
-      ret = read(b_fd, &b_sample, sizeof(btn_buttonset_t));
+      ret = foc_intf_update(&data);
       if (ret < 0)
         {
-          if (errno != EAGAIN)
-            {
-              PRINTF("ERROR: read button failed %d\n", errno);
-            }
+          PRINTF("ERROR: foc_intf_update failed: %d\n", ret);
+          goto errout;
         }
-
-      /* Next state */
-
-      if (b_sample & (1 << 0))
-        {
-          state_i += 1;
-
-          if (g_state_list[state_i] == 0)
-            {
-              state_i = 0;
-            }
-
-          state = g_state_list[state_i];
-          state_update = true;
-
-          PRINTF("BUTTON STATE %" PRIu32 "\n", state);
-        }
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ADC
-      if (adc_trigger == true)
-        {
-          /* Issue the software trigger to start ADC conversion */
-
-          ret = ioctl(adc_fd, ANIOC_TRIGGER, 0);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: ANIOC_TRIGGER ioctl failed: %d\n", errno);
-              goto errout;
-            }
-
-          /* No ADC trigger next cycle */
-
-          adc_trigger = false;
-        }
-      else
-        {
-          /* Get ADC samples */
-
-          ret = read(adc_fd, adc_sample,
-                     (ADC_SAMPLES * sizeof(struct adc_msg_s)));
-          if (ret < 0)
-            {
-              if (errno != EAGAIN)
-                {
-                  PRINTF("ERROR: adc read failed %d\n", errno);
-                }
-            }
-          else
-            {
-              /* Verify we have received the configured number of samples */
-
-              if (ret != ADC_SAMPLES * sizeof(struct adc_msg_s))
-                {
-                  PRINTF("ERROR: adc read invalid read %d != %d\n",
-                         ret, ADC_SAMPLES * sizeof(struct adc_msg_s));
-                  ret = -EINVAL;
-                  goto errout;
-                }
-
-#  ifdef CONFIG_EXAMPLES_FOC_VBUS_ADC
-              /* Get raw VBUS */
-
-              vbus_raw    = adc_sample[VBUS_ADC_SAMPLE].am_data;
-
-              vbus_update = true;
-#  endif
-
-#  ifdef CONFIG_EXAMPLES_FOC_VEL_ADC
-              /* Get raw VEL */
-
-              vel_raw    = adc_sample[VEL_ADC_SAMPLE].am_data;
-
-              vel_update = true;
-#  endif
-
-              /* ADC trigger next cycle */
-
-              adc_trigger = true;
-            }
-        }
-#endif
 
       /* 1. Update VBUS */
 
-      if (vbus_update == true)
+      if (data.vbus_update == true)
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
@@ -958,7 +438,7 @@ int main(int argc, char *argv[])
 
                   /* Send VBUS to thread */
 
-                  ret = foc_vbus_send(mqd[i], vbus_raw);
+                  ret = foc_vbus_send(mqd[i], data.vbus_raw);
                   if (ret < 0)
                     {
                       PRINTF("ERROR: foc_vbus_send failed %d\n", ret);
@@ -969,22 +449,22 @@ int main(int argc, char *argv[])
 
           /* Reset flag */
 
-          vbus_update = false;
+          data.vbus_update = false;
         }
 
       /* 2. Update motor state */
 
-      if (state_update == true)
+      if (data.state_update == true)
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
               if (args.en & (1 << i))
                 {
-                  PRINTFV("Send state %" PRIu32 " to %d\n", state, i);
+                  PRINTFV("Send state %" PRIu32 " to %d\n", data.state, i);
 
                   /* Send STATE to thread */
 
-                  ret = foc_state_send(mqd[i], state);
+                  ret = foc_state_send(mqd[i], data.state);
                   if (ret < 0)
                     {
                       PRINTF("ERROR: foc_state_send failed %d\n", ret);
@@ -995,25 +475,26 @@ int main(int argc, char *argv[])
 
           /* Reset flag */
 
-          state_update = false;
+          data.state_update = false;
         }
 
       /* 3. Update motor velocity */
 
-      if (vel_update == true)
+      if (data.sp_update == true)
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
               if (args.en & (1 << i))
                 {
-                  PRINTFV("Send velocity to %d\n", i);
+                  PRINTFV("Send setpoint = %" PRIu32 "to %d\n",
+                          data.sp_raw, i);
 
-                  /* Send VELOCITY to threads */
+                  /* Send setpoint to threads */
 
-                  ret = foc_vel_send(mqd[i], vel_raw);
+                  ret = foc_setpoint_send(mqd[i], data.sp_raw);
                   if (ret < 0)
                     {
-                      PRINTF("ERROR: foc_vel_send failed %d\n", ret);
+                      PRINTF("ERROR: foc_setpoint_send failed %d\n", ret);
                       goto errout;
                     }
                 }
@@ -1021,12 +502,12 @@ int main(int argc, char *argv[])
 
           /* Reset flag */
 
-          vel_update = false;
+          data.sp_update = false;
         }
 
       /* 4. One time start */
 
-      if (started == false)
+      if (data.started == false)
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
@@ -1047,7 +528,7 @@ int main(int argc, char *argv[])
 
           /* Set flag */
 
-          started = true;
+          data.started = true;
         }
 
       /* Handle run time */
@@ -1060,8 +541,15 @@ int main(int argc, char *argv[])
             {
               /* Exit loop */
 
-              terminate = true;
+              data.terminate = true;
             }
+        }
+
+      /* Terminate main loop if threads terminated */
+
+      if (foc_threads_terminated() == true)
+        {
+          data.terminate = true;
         }
 
       usleep(MAIN_LOOP_USLEEP);
@@ -1088,11 +576,14 @@ errout:
         }
     }
 
-  /* Wait some time */
+  /* Wait for threads termination */
 
-  usleep(100000);
+  while (foc_threads_terminated() == false)
+    {
+      usleep(100000);
+    }
 
-  /* De-initialize all FOC control threads */
+  /* De-initialize all mq */
 
   for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
     {
@@ -1107,11 +598,18 @@ errout:
         }
     }
 
+  /* De-initialize control interface */
+
+  ret = foc_intf_deinit();
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_inf_deinit failed %d\n", ret);
+      goto errout;
+    }
+
 errout_no_mutex:
 
-  /* Free/uninitialize data structures */
-
-  pthread_mutex_destroy(&g_cntr_lock);
+  foc_threads_deinit();
 
   PRINTF("foc_main exit\n");
 

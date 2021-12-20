@@ -63,6 +63,8 @@ struct dhcpc_state
   uint32_t       lease_time;      /* Lease expires in this number of seconds */
 };
 
+typedef void (*dhcpc_callback_t)(FAR struct dhcpc_state *presult);
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -78,6 +80,8 @@ extern "C"
 FAR void *dhcpc_open(FAR const char *interface,
                      FAR const void *mac_addr, int mac_len);
 int  dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult);
+int  dhcpc_request_async(FAR void *handle, dhcpc_callback_t callback);
+void dhcpc_cancel(FAR void *handle);
 void dhcpc_close(FAR void *handle);
 
 #undef EXTERN

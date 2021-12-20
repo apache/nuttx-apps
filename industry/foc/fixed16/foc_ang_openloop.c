@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/industry/foc/fixed16/foc_openloop.c
+ * apps/industry/foc/fixed16/foc_ang_openloop.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -32,7 +32,7 @@
 #include "industry/foc/fixed16/foc_angle.h"
 
 /****************************************************************************
- * Private Function Prototypes
+ * Private Data Types
  ****************************************************************************/
 
 /* Open-loop data */
@@ -41,6 +41,7 @@ struct foc_openloop_b16_s
 {
   struct foc_openloop_cfg_b16_s cfg;
   struct openloop_data_b16_s    data;
+  b16_t                         dir;
 };
 
 /****************************************************************************
@@ -50,9 +51,11 @@ struct foc_openloop_b16_s
 static int foc_angle_ol_init_b16(FAR foc_angle_b16_t *h);
 static void foc_angle_ol_deinit_b16(FAR foc_angle_b16_t *h);
 static int foc_angle_ol_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg);
-static void foc_angle_ol_run_b16(FAR foc_angle_b16_t *h,
-                                 FAR struct foc_angle_in_b16_s *in,
-                                 FAR struct foc_angle_out_b16_s *out);
+static int foc_angle_ol_zero_b16(FAR foc_angle_b16_t *h);
+static int foc_angle_ol_dir_b16(FAR foc_angle_b16_t *h, b16_t dir);
+static int foc_angle_ol_run_b16(FAR foc_angle_b16_t *h,
+                                FAR struct foc_angle_in_b16_s *in,
+                                FAR struct foc_angle_out_b16_s *out);
 
 /****************************************************************************
  * Public Data
@@ -63,6 +66,8 @@ struct foc_angle_ops_b16_s g_foc_angle_ol_b16 =
   .init   = foc_angle_ol_init_b16,
   .deinit = foc_angle_ol_deinit_b16,
   .cfg    = foc_angle_ol_cfg_b16,
+  .zero   = foc_angle_ol_zero_b16,
+  .dir    = foc_angle_ol_dir_b16,
   .run    = foc_angle_ol_run_b16,
 };
 
@@ -142,7 +147,7 @@ static int foc_angle_ol_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg)
 
   DEBUGASSERT(h);
 
-  /* Get modulation data */
+  /* Get open-loop data */
 
   DEBUGASSERT(h->data);
   ol = h->data;
@@ -155,6 +160,72 @@ static int foc_angle_ol_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg)
 
   DEBUGASSERT(ol->cfg.per > 0);
   motor_openloop_init_b16(&ol->data, ol->cfg.per);
+
+  /* Initialize with CW direction */
+
+  ol->dir = DIR_CW_B16;
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: foc_angle_ol_zero_b16
+ *
+ * Description:
+ *   Zero the open-loop FOC angle handler (fixed16)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC angle handler
+ *   dir - sensor direction (1 if normal -1 if inverted)
+ *
+ ****************************************************************************/
+
+static int foc_angle_ol_zero_b16(FAR foc_angle_b16_t *h)
+{
+  FAR struct foc_openloop_b16_s *ol = NULL;
+
+  DEBUGASSERT(h);
+
+  /* Get open-loop data */
+
+  DEBUGASSERT(h->data);
+  ol = h->data;
+
+  /* Reset angle */
+
+  ol->data.angle = 0;
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: foc_angle_ol_dir_b16
+ *
+ * Description:
+ *   Set the open-loop FOC angle handler direction (fixed16)
+ *
+ * Input Parameter:
+ *   h   - pointer to FOC angle handler
+ *   dir - sensor direction (1 if normal -1 if inverted)
+ *
+ ****************************************************************************/
+
+static int foc_angle_ol_dir_b16(FAR foc_angle_b16_t *h, b16_t dir)
+{
+  FAR struct foc_openloop_b16_s *ol = NULL;
+
+  DEBUGASSERT(h);
+
+  UNUSED(dir);
+
+  /* Get open-loop data */
+
+  DEBUGASSERT(h->data);
+  ol = h->data;
+
+  /* Configure direction */
+
+  ol->dir = dir;
 
   return OK;
 }
@@ -172,15 +243,16 @@ static int foc_angle_ol_cfg_b16(FAR foc_angle_b16_t *h, FAR void *cfg)
  *
  ****************************************************************************/
 
-static void foc_angle_ol_run_b16(FAR foc_angle_b16_t *h,
-                                 FAR struct foc_angle_in_b16_s *in,
-                                 FAR struct foc_angle_out_b16_s *out)
+static int foc_angle_ol_run_b16(FAR foc_angle_b16_t *h,
+                                FAR struct foc_angle_in_b16_s *in,
+                                FAR struct foc_angle_out_b16_s *out)
 {
   FAR struct foc_openloop_b16_s *ol = NULL;
+  b16_t tmp = 0;
 
   DEBUGASSERT(h);
 
-  /* Get modulation data */
+  /* Get open-loop data */
 
   DEBUGASSERT(h->data);
   ol = h->data;
@@ -189,7 +261,12 @@ static void foc_angle_ol_run_b16(FAR foc_angle_b16_t *h,
 
   motor_openloop_b16(&ol->data, in->vel, in->dir);
 
+  tmp = motor_openloop_angle_get_b16(&ol->data);
+
   /* Get open-loop angle */
 
-  out->angle = motor_openloop_angle_get_b16(&ol->data);
+  out->type  = FOC_ANGLE_TYPE_ELE;
+  out->angle = b16mulb16(ol->dir, tmp);
+
+  return OK;
 }

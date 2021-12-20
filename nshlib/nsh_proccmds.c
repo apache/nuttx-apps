@@ -45,18 +45,6 @@
 #  define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
 #endif
 
-/* See include/nuttx/sched.h: */
-
-#undef HAVE_GROUPID
-
-#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
-#  define HAVE_GROUPID  1
-#endif
-
-#ifdef CONFIG_DISABLE_PTHREAD
-#  undef HAVE_GROUPID
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -72,13 +60,7 @@ typedef int (*exec_t)(void);
 struct nsh_taskstatus_s
 {
   FAR const char *td_type;       /* Thread type */
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
   FAR const char *td_groupid;    /* Group ID */
-#else
-  FAR const char *td_ppid;       /* Parent thread ID */
-#endif
-#endif
 #ifdef CONFIG_SMP
   FAR const char *td_cpu;        /* CPU */
 #endif
@@ -98,14 +80,7 @@ static const char g_name[]      = "Name:";
 #endif
 
 static const char g_type[]      = "Type:";
-
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
 static const char g_groupid[]   = "Group:";
-#else
-static const char g_ppid[]      = "PPID:";
-#endif
-#endif /* CONFIG_SCHED_HAVE_PARENT */
 
 #ifdef CONFIG_SMP
 static const char g_cpu[]       = "CPU:";
@@ -175,24 +150,12 @@ static void nsh_parse_statusline(FAR char *line,
 
       status->td_type = nsh_trimspaces(&line[12]);
     }
-
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
   else if (strncmp(line, g_groupid, strlen(g_groupid)) == 0)
     {
       /* Save the Group ID */
 
       status->td_groupid = nsh_trimspaces(&line[12]);
     }
-#else
-  else if (strncmp(line, g_ppid, strlen(g_ppid)) == 0)
-    {
-      /* Save the parent thread id */
-
-      status->td_ppid = nsh_trimspaces(&line[12]);
-    }
-#endif
-#endif
 
 #ifdef CONFIG_SMP
   else if (strncmp(line, g_cpu, strlen(g_cpu)) == 0)
@@ -299,13 +262,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   /* Set all pointers to the empty string. */
 
   status.td_type     = "";
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
   status.td_groupid  = "";
-#else
-  status.td_ppid     = "";
-#endif
-#endif
 #ifdef CONFIG_SMP
   status.td_cpu      = "";
 #endif
@@ -365,14 +322,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   /* Finally, print the status information */
 
   nsh_output(vtbl, "%5s ", entryp->d_name);
-
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
   nsh_output(vtbl, "%5s ", status.td_groupid);
-#else
-  nsh_output(vtbl, "%5s ", status.td_ppid);
-#endif
-#endif
 
 #ifdef CONFIG_SMP
   nsh_output(vtbl, "%3s ", status.td_cpu);
@@ -556,14 +506,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   nsh_output(vtbl, "%5s ", "PID");
-
-#ifdef CONFIG_SCHED_HAVE_PARENT
-#ifdef HAVE_GROUPID
   nsh_output(vtbl, "%5s ", "GROUP");
-#else
-  nsh_output(vtbl, "%5s ", "PPID");
-#endif
-#endif
 
 #ifdef CONFIG_SMP
   nsh_output(vtbl, "%3s ", "CPU");

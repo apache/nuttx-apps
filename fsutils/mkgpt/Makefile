@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/timer_gpout/Make.defs
+# apps/fsutils/mkgpt/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,15 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_TIMER_GPOUT),y)
-CONFIGURED_APPS += $(APPDIR)/examples/timer_gpout
-endif
+include $(APPDIR)/Make.defs
+
+# mkgpt built-in application info
+
+PROGNAME  = mkgpt
+PRIORITY  = 100
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE    = $(CONFIG_FSUTILS_MKGPT)
+
+MAINSRC = mkgpt.c
+
+include $(APPDIR)/Application.mk

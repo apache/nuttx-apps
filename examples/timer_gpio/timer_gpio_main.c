@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/timer_gpout/timer_gpout_main.c
+ * apps/examples/timer_gpio/timer_gpio_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,7 +38,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DEVNAME_SIZE 16
+#define DEVNAME_SIZE 32
 
 /****************************************************************************
  * Private Types
@@ -49,8 +49,8 @@
  ****************************************************************************/
 
 static char g_devtim[DEVNAME_SIZE];
-static char g_devgpout[DEVNAME_SIZE];
-static bool g_timer_gpout_daemon_started = false;
+static char g_devgpio[DEVNAME_SIZE];
+static bool g_timer_gpio_daemon_started = false;
 
 /****************************************************************************
  * Private Functions
@@ -90,7 +90,7 @@ static void timer_status(int fd)
 }
 
 /****************************************************************************
- * Name: timer_gpout_daemon
+ * Name: timer_gpio_daemon
  *
  * Description:
  *   Deamon that will be active waiting on a signal to change the digital
@@ -98,20 +98,20 @@ static void timer_status(int fd)
  *
  ****************************************************************************/
 
-static int timer_gpout_daemon(int argc, char *argv[])
+static int timer_gpio_daemon(int argc, char *argv[])
 {
   struct timer_notify_s notify;
   sigset_t set;
   struct siginfo value;
   int fd_timer;
-  int fd_gpout;
+  int fd_gpio;
   int ret;
   bool state = false;
 
   /* Indicate that the deamon is running */
 
-  g_timer_gpout_daemon_started = true;
-  printf("timer_gpout_daemon: timer_gpout_daemon started\n");
+  g_timer_gpio_daemon_started = true;
+  printf("timer_gpio_daemon: timer_gpio_daemon started\n");
 
   /* Open the timer device */
 
@@ -121,21 +121,21 @@ static int timer_gpout_daemon(int argc, char *argv[])
   if (fd_timer < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_daemon: Failed to open %s: %d\n",
+      printf("timer_gpio_daemon: Failed to open %s: %d\n",
               g_devtim, errcode);
       return EXIT_FAILURE;
     }
 
   /* Open the GPIO driver */
 
-  printf("Open %s\n", g_devgpout);
+  printf("Open %s\n", g_devgpio);
 
-  fd_gpout = open(g_devgpout, O_RDWR);
-  if (fd_gpout < 0)
+  fd_gpio = open(g_devgpio, O_RDWR);
+  if (fd_gpio < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_daemon: Failed to open %s: %d\n",
-              g_devgpout, errcode);
+      printf("timer_gpio_daemon: Failed to open %s: %d\n",
+              g_devgpio, errcode);
       close(fd_timer);
       return EXIT_FAILURE;
     }
@@ -147,14 +147,14 @@ static int timer_gpout_daemon(int argc, char *argv[])
   /* Set the timer interval */
 
   printf("Set timer interval to %lu\n",
-         (unsigned long)CONFIG_EXAMPLES_TIMER_GPOUT_INTERVAL);
+         (unsigned long)CONFIG_EXAMPLES_TIMER_GPIO_INTERVAL);
 
   ret = ioctl(fd_timer, TCIOC_SETTIMEOUT,
-              CONFIG_EXAMPLES_TIMER_GPOUT_INTERVAL);
+              CONFIG_EXAMPLES_TIMER_GPIO_INTERVAL);
   if (ret < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_daemon: Failed to set the timer interval: %d\n",
+      printf("timer_gpio_daemon: Failed to set the timer interval: %d\n",
              errcode);
       goto errout;
     }
@@ -166,7 +166,7 @@ static int timer_gpout_daemon(int argc, char *argv[])
   /* Configure the signal set for this task */
 
   sigemptyset(&set);
-  sigaddset(&set, CONFIG_EXAMPLES_TIMER_GPOUT_SIGNO);
+  sigaddset(&set, CONFIG_EXAMPLES_TIMER_GPIO_SIGNO);
 
   /* Configure the timer notifier to receive a signal when timeout occurs.
    * Inform the PID of the process that will be notified by the internal
@@ -178,7 +178,7 @@ static int timer_gpout_daemon(int argc, char *argv[])
 
   notify.pid   = getpid();
   notify.event.sigev_notify = SIGEV_SIGNAL;
-  notify.event.sigev_signo  = CONFIG_EXAMPLES_TIMER_GPOUT_SIGNO;
+  notify.event.sigev_signo  = CONFIG_EXAMPLES_TIMER_GPIO_SIGNO;
   notify.event.sigev_value.sival_ptr = NULL;
 
   ret = ioctl(fd_timer, TCIOC_NOTIFICATION,
@@ -186,7 +186,7 @@ static int timer_gpout_daemon(int argc, char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_daemon: Failed to set the timer handler: %d\n",
+      printf("timer_gpio_daemon: Failed to set the timer handler: %d\n",
              errcode);
       goto errout;
     }
@@ -199,7 +199,7 @@ static int timer_gpout_daemon(int argc, char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_daemon: Failed to start the timer: %d\n", errcode);
+      printf("timer_gpio_daemon: Failed to start the timer: %d\n", errcode);
       goto errout;
     }
 
@@ -209,34 +209,34 @@ static int timer_gpout_daemon(int argc, char *argv[])
       if (ret < 0)
         {
           int errcode = errno;
-          printf("timer_gpout_daemon: ERROR: sigwaitinfo() failed: %d\n",
+          printf("timer_gpio_daemon: ERROR: sigwaitinfo() failed: %d\n",
                  errcode);
           goto errout;
         }
 
-      /* Change the gpout state */
+      /* Change the gpio state */
 
       state = !state;
 
       /* Write the pin value */
 
-      ret = ioctl(fd_gpout, GPIOC_WRITE, (unsigned long)state);
+      ret = ioctl(fd_gpio, GPIOC_WRITE, (unsigned long)state);
       if (ret < 0)
         {
           int errcode = errno;
-          printf("timer_gpout_daemon: Failed to write value"
+          printf("timer_gpio_daemon: Failed to write value"
                  " %u from %s: %d\n",
-                (unsigned int)state, g_devgpout, errcode);
+                (unsigned int)state, g_devgpio, errcode);
           goto errout;
         }
     }
 
 errout:
   close(fd_timer);
-  close(fd_gpout);
-  g_timer_gpout_daemon_started = false;
+  close(fd_gpio);
+  g_timer_gpio_daemon_started = false;
 
-  printf("timer_gpout_daemon: Terminating!\n");
+  printf("timer_gpio_daemon: Terminating!\n");
   return EXIT_FAILURE;
 }
 
@@ -245,7 +245,7 @@ errout:
  ****************************************************************************/
 
 /****************************************************************************
- * timer_gpout main
+ * timer_gpio main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
@@ -253,9 +253,9 @@ int main(int argc, FAR char *argv[])
   int ret;
   int opt;
 
-  if (g_timer_gpout_daemon_started)
+  if (g_timer_gpio_daemon_started)
     {
-      printf("timer_gpout_main: timer_gpout daemon already running\n");
+      printf("timer_gpio_main: timer_gpio daemon already running\n");
       return EXIT_SUCCESS;
     }
 
@@ -263,8 +263,8 @@ int main(int argc, FAR char *argv[])
 
   /* Use the ones configured on menuconfig */
 
-  strcpy(g_devtim, CONFIG_EXAMPLES_TIMER_GPOUT_TIM_DEVNAME);
-  strcpy(g_devgpout, CONFIG_EXAMPLES_TIMER_GPOUT_GPOUT_DEVNAME);
+  strcpy(g_devtim, CONFIG_EXAMPLES_TIMER_GPIO_TIM_DEVNAME);
+  strcpy(g_devgpio, CONFIG_EXAMPLES_TIMER_GPIO_GPIO_DEVNAME);
 
   /* Or the ones passed as arguments */
 
@@ -276,28 +276,28 @@ int main(int argc, FAR char *argv[])
             strcpy(g_devtim, optarg);
             break;
         case 'g':
-            strcpy(g_devgpout, optarg);
+            strcpy(g_devgpio, optarg);
             break;
         case ':':
             fprintf(stderr, "ERROR: Option needs a value\n");
             exit(EXIT_FAILURE);
         default: /* '?' */
-            fprintf(stderr, "Usage: %s [-d /dev/timerx] [-d /dev/gpoutx]\n",
+            fprintf(stderr, "Usage: %s [-t /dev/timer0] [-g /dev/gpio0]\n",
                     argv[0]);
             exit(EXIT_FAILURE);
       }
     }
 
-  printf("timer_gpout_main: Starting the timer_gpout daemon\n");
-  ret = task_create("timer_gpout_daemon",
-                    CONFIG_EXAMPLES_TIMER_GPOUT_PRIORITY,
-                    CONFIG_EXAMPLES_TIMER_GPOUT_STACKSIZE,
-                    timer_gpout_daemon,
+  printf("timer_gpio_main: Starting the timer_gpio daemon\n");
+  ret = task_create("timer_gpio_daemon",
+                    CONFIG_EXAMPLES_TIMER_GPIO_PRIORITY,
+                    CONFIG_EXAMPLES_TIMER_GPIO_STACKSIZE,
+                    timer_gpio_daemon,
                     NULL);
   if (ret < 0)
     {
       int errcode = errno;
-      printf("timer_gpout_main: Failed to start timer_gpout_daemon: %d\n",
+      printf("timer_gpio_main: Failed to start timer_gpio_daemon: %d\n",
              errcode);
       return EXIT_FAILURE;
     }

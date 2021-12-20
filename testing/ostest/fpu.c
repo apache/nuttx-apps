@@ -86,10 +86,6 @@
 #define FPU_WORDSIZE ((CONFIG_TESTING_OSTEST_FPUSIZE+3)>>2)
 #define FPU_NTHREADS  2
 
-#ifndef NULL
-# define NULL (void*)0
-#endif
-
 /****************************************************************************
  * External Dependencies
  ****************************************************************************/

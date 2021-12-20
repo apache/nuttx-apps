@@ -44,7 +44,7 @@
 #define PRIO_MID      100
 #define PRIO_HIGH1    180
 #define PRIO_HIGH2    170
-#define REPL_INTERVAL 100000000L
+#define REPL_INTERVAL INT32_C(100000000)
 #define MAX_BUDGET    (REPL_INTERVAL / 2)
 #define PRIO_HI_NDX   0
 #define PRIO_LO_NDX   1

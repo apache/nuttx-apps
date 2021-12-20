@@ -31,6 +31,33 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* For now only torque mode supported for sensored */
+
+#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+#    error
+#  endif
+#endif
+
+/* For now only sensorless velocity control supported */
+
+#ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
+#    error
+#  endif
+#endif
+
+/* Open-loop configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
+#    error
+#  endif
+#  ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#    error
+#  endif
+#endif
+
 /* Velocity ramp must be configured */
 
 #if (CONFIG_EXAMPLES_FOC_RAMP_THR == 0)
@@ -77,6 +104,84 @@
 #  define FOC_MODEL_FLUX  (0.001f)
 #  define FOC_MODEL_INDD  (0.0002f)
 #  define FOC_MODEL_INDQ  (0.0002f)
+#endif
+
+/* Motor alignment configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+#  if CONFIG_EXAMPLES_FOC_ALIGN_VOLT == 0
+#    error
+#  endif
+#  if CONFIG_EXAMPLES_FOC_ALIGN_SEC == 0
+#    error
+#  endif
+#endif
+
+/* Qenco configuration */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+#  if CONFIG_EXAMPLES_FOC_MOTOR_POLES == 0
+#    error
+#  endif
+#  if CONFIG_EXAMPLES_FOC_QENCO_POSMAX == 0
+#    error
+#  endif
+#endif
+
+/* Setpoint source must be specified */
+
+#if !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CONST) &&  \
+    !defined(CONFIG_EXAMPLES_FOC_SETPOINT_ADC) && \
+    !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CHAR)
+#  error
+#endif
+
+/* Setpoint ADC scale factor */
+
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
+#  define SETPOINT_ADC_SCALE (1.0f / CONFIG_EXAMPLES_FOC_ADC_MAX)
+#endif
+
+/* If constant setpoint is selected, setpoint value must be provided */
+
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
+#  define SETPOINT_ADC_SCALE   (1)
+#  if CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE == 0
+#    error
+#  endif
+#endif
+
+/* CHARCTRL setpoint control */
+
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CHAR
+#  define SETPOINT_ADC_SCALE  (1 / 1000.0f)
+#endif
+
+/* VBUS source must be specified */
+
+#if !defined(CONFIG_EXAMPLES_FOC_VBUS_CONST) &&  \
+    !defined(CONFIG_EXAMPLES_FOC_VBUS_ADC)
+#  error
+#endif
+
+/* VBUS ADC scale factor */
+
+#ifdef CONFIG_EXAMPLES_FOC_VBUS_ADC
+#  define VBUS_ADC_SCALE (CONFIG_EXAMPLES_FOC_ADC_VREF *    \
+                          CONFIG_EXAMPLES_FOC_VBUS_SCALE /  \
+                          CONFIG_EXAMPLES_FOC_ADC_MAX /     \
+                          1000.0f /                         \
+                          1000.0f)
+#endif
+
+/* If constant VBUS is selected, VBUS value must be provided */
+
+#ifdef CONFIG_EXAMPLES_FOC_VBUS_CONST
+#  define VBUS_ADC_SCALE   (1)
+#  define VBUS_CONST_VALUE (CONFIG_EXAMPLES_FOC_VBUS_CONST_VALUE / 1000.0f)
+#  if CONFIG_EXAMPLES_FOC_VBUS_CONST_VALUE == 0
+#    error
+#  endif
 #endif
 
 #endif /* __EXAMPLES_FOC_FOC_CFG_H */
