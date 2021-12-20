@@ -26,6 +26,8 @@ One common use case for MCUboot is to integrate it to a firmware update agent, w
 
 The `CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT` example demonstrates this workflow by downloading an application firmware image from a webserver, installing it and triggering the firmware update process for the next boot after a system reset. There is also the `CONFIG_EXAMPLES_MCUBOOT_SLOT_CONFIRM`, which is a fairly simple example that just calls an MCUboot API for confirming the executing application firmware image as stable.
 
+For more information about all MCUboot examples, see `examples/mcuboot` directory.
+
 ## Using MCUboot on NuttX as a secure boot solution
 
 NuttX port for MCUboot also enables the creation of a secure bootloader application requiring minimal platform-specific implementation. The logical implementation for the secure boot is performed at application-level by the MCUboot library. Once MCUboot validates the application firmware image, it delegates the loading and execution of the application firmware image to a platform-specific routine, which is accessed via `boardctl(BOARDIOC_BOOT_IMAGE)` call. Each platform must then provide an implementation for the `board_boot_image()` for executing the required actions in order to boot a new application firmware image (e.g. deinitialize peripherals, load the Program Counter register with the application firmware image entry point address).

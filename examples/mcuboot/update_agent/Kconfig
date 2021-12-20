@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MCUBOOT_UPDATE_AGENT
+	bool "MCUboot update agent example"
+	default n
+	select BOOT_MCUBOOT
+	depends on NET_TCP
+	---help---
+		Example application that implements an update agent that downloads
+		an application firmware image from a given URL and saves it to the
+		secondary slot as a pending update.
+
+if EXAMPLES_MCUBOOT_UPDATE_AGENT
+
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_UPDATE_URL
+	string "URL for update image"
+	default ""
+
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_BUFFER_SIZE
+	int "Download buffer size in bytes"
+	default 512
+
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
+	bool "Calculate MD5 of update image"
+	default n
+	depends on CODECS_HASH_MD5
+
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_MD5_HASH
+	string "Expected MD5 sum of update image"
+	default ""
+	depends on EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
+
+endif # EXAMPLES_MCUBOOT_UPDATE_AGENT
