@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/boot/mcuboot/mcuboot_agent_main.c
+ * apps/examples/mcuboot/update_agent/mcuboot_agent_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,7 +38,7 @@
 
 #include <bootutil/bootutil_public.h>
 
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
 #include "netutils/md5.h"
 #endif
 #include "netutils/netlib.h"
@@ -51,14 +51,14 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
-#define DL_BUFFER_SIZE  CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_BUFFER_SIZE
+#define DL_BUFFER_SIZE  CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_BUFFER_SIZE
 
-#define DL_UPDATE_URL   CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_UPDATE_URL
+#define DL_UPDATE_URL   CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_UPDATE_URL
 
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
 #  define MD5_HASH_LENGTH     32
 #  define MD5_DIGEST_LENGTH   16
-#  define MD5_EXPECTED_HASH   CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_MD5_HASH
+#  define MD5_EXPECTED_HASH   CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_MD5_HASH
 #endif
 
 /****************************************************************************
@@ -70,7 +70,7 @@ struct download_context_s
   FAR const struct flash_area *fa;
   uint32_t                     fa_offset;
   ssize_t                      image_size;
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
   MD5_CTX                      md5_ctx;
 #endif
 };
@@ -138,7 +138,7 @@ static int sink_callback(FAR char **buffer, int offset, int datend,
 
       ctx->fa_offset += length;
 
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
       md5_update(&ctx->md5_ctx,
                  (FAR const unsigned char *)&((*buffer)[offset]),
                  length);
@@ -162,7 +162,7 @@ static int download_firmware_image(FAR const char *url)
   int ret;
   struct webclient_context client_ctx;
   struct download_context_s dl_ctx;
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
   uint8_t digest[MD5_DIGEST_LENGTH];
   char hash[MD5_HASH_LENGTH + 1];
   int i;
@@ -172,7 +172,7 @@ static int download_firmware_image(FAR const char *url)
   dl_ctx.fa_offset = 0;
   dl_ctx.image_size = -1;
 
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
   md5_init(&dl_ctx.md5_ctx);
 #endif
 
@@ -202,7 +202,7 @@ static int download_firmware_image(FAR const char *url)
       goto exit_close;
     }
 
-#ifdef CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+#ifdef CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
   md5_final(digest, &dl_ctx.md5_ctx);
 
   for (i = 0; i < MD5_DIGEST_LENGTH; i++)
