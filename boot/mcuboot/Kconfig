@@ -100,7 +100,7 @@ config MCUBOOT_DIRECT_XIP_REVERT
 	depends on MCUBOOT_DIRECT_XIP
 	default n
 
-config MCUBOOT_UPDATE_AGENT_EXAMPLE
+config EXAMPLES_MCUBOOT_UPDATE_AGENT
 	bool "MCUboot update agent example"
 	default n
 	depends on NET_TCP
@@ -109,36 +109,36 @@ config MCUBOOT_UPDATE_AGENT_EXAMPLE
 		an application firmware image from a given URL and saves it to the
 		secondary slot as a pending update.
 
-if MCUBOOT_UPDATE_AGENT_EXAMPLE
+if EXAMPLES_MCUBOOT_UPDATE_AGENT
 
-config MCUBOOT_UPDATE_AGENT_EXAMPLE_UPDATE_URL
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_UPDATE_URL
 	string "URL for update image"
 	default ""
 
-config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_BUFFER_SIZE
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_BUFFER_SIZE
 	int "Download buffer size in bytes"
 	default 512
 
-config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
 	bool "Calculate MD5 of update image"
 	default n
 	depends on CODECS_HASH_MD5
 
-config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_MD5_HASH
+config EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_MD5_HASH
 	string "Expected MD5 sum of update image"
 	default ""
-	depends on MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+	depends on EXAMPLES_MCUBOOT_UPDATE_AGENT_DL_VERIFY_MD5
 
-endif # MCUBOOT_UPDATE_AGENT_EXAMPLE
+endif # EXAMPLES_MCUBOOT_UPDATE_AGENT
 
-config MCUBOOT_SLOT_CONFIRM_EXAMPLE
+config EXAMPLES_MCUBOOT_SLOT_CONFIRM
 	tristate "MCUboot slot confirm example"
 	default n
 	---help---
 		Example application for confirming a newly installed application
 		application firmware image using MCUboot public APIs.
 		This application should be used as the OTA update package of the
-		MCUBOOT_UPDATE_AGENT_EXAMPLE example.
+		EXAMPLES_MCUBOOT_UPDATE_AGENT example.
 
 config MCUBOOT_WATCHDOG
 	bool "Watchdog feeding support"
