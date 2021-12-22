@@ -44,9 +44,9 @@
 
 #ifndef ACTIVE_REGION
 
-#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
+#warning "No active region defined, LORAMAC_REGION_AS923 will be used as default."
 
-#define ACTIVE_REGION LORAMAC_REGION_EU868
+#define ACTIVE_REGION LORAMAC_REGION_AS923
 
 #endif
 
