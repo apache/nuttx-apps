@@ -193,6 +193,9 @@ static void OnLed3TimerEvent( void* context );
  */
 static void OnLedBeaconTimerEvent( void* context );
 
+uint8_t BoardGetBatteryLevel( void ) { return 0; } //// TODO
+uint32_t BoardGetRandomSeed( void ) { return 22; } //// TODO
+
 static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
     .GetBatteryLevel = BoardGetBatteryLevel,
@@ -298,6 +301,7 @@ static volatile bool IsFileTransferDone = false;
  */
 static volatile uint32_t FileRxCrc = 0;
 
+#ifdef NOTUSED
 /*!
  * LED GPIO pins objects
  */
@@ -310,6 +314,7 @@ extern Gpio_t Led4; // App
  * UART object used for command line interface handling
  */
 extern Uart_t Uart2;
+#endif  //  NOTUSED
 
 /*!
  * Main application entry point.
@@ -368,8 +373,10 @@ int main(int argc, FAR char *argv[]) {
 
     while( 1 )
     {
+#ifdef TODO
         // Process characters sent over the command line interface
         CliProcess( &Uart2 );
+#endif  //  TODO
 
         // Processes the LoRaMac events
         LmHandlerProcess( );
@@ -468,8 +475,10 @@ static void OnClassChange( DeviceClass_t deviceClass )
         case CLASS_C:
         {
             IsMcSessionStarted = true;
+#ifdef NOTUSED
             // Switch LED 3 ON
             GpioWrite( &Led3, 1 );
+#endif  //  NOTUSED
             break;
         }
     }
@@ -541,8 +550,10 @@ static int8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
 
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost )
 {
+#ifdef NOTUSED
     // Switch LED 3 OFF for each received downlink
     GpioWrite( &Led3, 0 );
+#endif  //  NOTUSED
     TimerStart( &Led3Timer );
 
     printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
@@ -558,8 +569,10 @@ static void OnFragDone( int32_t status, uint32_t size )
 {
     FileRxCrc = Crc32( UnfragmentedData, size );
     IsFileTransferDone = true;
+#ifdef NOTUSED
     // Switch LED 3 OFF
     GpioWrite( &Led3, 0 );
+#endif  //  NOTUSED
 
     printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
     printf( "######               FINISHED                ######\n");
@@ -660,8 +673,10 @@ static void UplinkProcess( void )
             }
             if( status == LORAMAC_HANDLER_SUCCESS )
             {
+#ifdef NOTUSED
                 // Switch LED 1 ON
                 GpioWrite( &Led1, 1 );
+#endif  //  NOTUSED
                 TimerStart( &Led1Timer );
             }
         }
@@ -713,8 +728,10 @@ static void OnTxTimerEvent( void* context )
 static void OnLed1TimerEvent( void* context )
 {
     TimerStop( &Led1Timer );
+#ifdef NOTUSED
     // Switch LED 1 OFF
     GpioWrite( &Led1, 0 );
+#endif  //  NOTUSED
 }
 
 /*!
@@ -723,8 +740,10 @@ static void OnLed1TimerEvent( void* context )
 static void OnLed2TimerEvent( void* context )
 {
     TimerStop( &Led2Timer );
+#ifdef NOTUSED
     // Switch LED 2 OFF
     GpioWrite( &Led2, 0 );
+#endif  //  NOTUSED
 }
 
 /*!
@@ -733,8 +752,10 @@ static void OnLed2TimerEvent( void* context )
 static void OnLed3TimerEvent( void* context )
 {
     TimerStop( &Led3Timer );
+#ifdef NOTUSED
     // Switch LED 3 ON
     GpioWrite( &Led3, 1 );
+#endif  //  NOTUSED
 }
 
 /*!
@@ -742,7 +763,9 @@ static void OnLed3TimerEvent( void* context )
  */
 static void OnLedBeaconTimerEvent( void* context )
 {
+#ifdef NOTUSED
     GpioWrite( &Led2, 1 );
+#endif  //  NOTUSED
     TimerStart( &Led2Timer );
 
     TimerStart( &LedBeaconTimer );
