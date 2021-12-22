@@ -25,22 +25,22 @@
 
 #include <nuttx/config.h>
 #include <stdio.h>
-#include "../firmwareVersion.h"
-#include "../../common/githubVersion.h"
-#include "utilities.h"
-#include "board.h"
-#include "gpio.h"
-#include "uart.h"
-#include "RegionCommon.h"
+#include "firmwareVersion.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/githubVersion.h"
+#include "../../../nuttx/libs/liblorawan/src/boards/utilities.h"
+////#include "board.h"
+////#include "../../../nuttx/libs/liblorawan/src/system/gpio.h"
+////#include "../../../nuttx/libs/liblorawan/src/system/uart.h"
+#include "../../../nuttx/libs/liblorawan/src/mac/region/RegionCommon.h"
 
-#include "cli.h"
-#include "Commissioning.h"
-#include "LmHandler.h"
-#include "LmhpCompliance.h"
-#include "LmhpClockSync.h"
-#include "LmhpRemoteMcastSetup.h"
-#include "LmhpFragmentation.h"
-#include "LmHandlerMsgDisplay.h"
+////#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/cli.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/Commissioning.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/LmHandler.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/packages/LmhpCompliance.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/packages/LmhpClockSync.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/packages/LmhpRemoteMcastSetup.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/packages/LmhpFragmentation.h"
+#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandlerMsgDisplay.h"
 
 #ifndef ACTIVE_REGION
 
