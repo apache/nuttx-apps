@@ -343,6 +343,10 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       cmd = RPTUNIOC_STOP;
     }
+  else if (strcmp(argv[1], "panic") == 0)
+    {
+      cmd = RPTUNIOC_PANIC;
+    }
   else
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[1]);
