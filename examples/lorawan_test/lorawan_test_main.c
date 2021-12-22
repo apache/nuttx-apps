@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/sx1262_test/sx1262_test_main.c
+ * apps/examples/lorawan_test/lorawan_test_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
-//  Demo Program for LoRa SX1262 on NuttX
+//  Demo Program for LoRaWAN on NuttX
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <string.h>
@@ -93,21 +93,21 @@ static void create_task(void);
 
 int main(int argc, FAR char *argv[]) {
 
-    /* Call SX1262 Library */
+    /* Call LORAWAN Library */
 
-    test_libsx1262();
+    test_liblorawan();
 
-//  Uncomment to read SX1262 registers
+//  Uncomment to read LORAWAN registers
 //  #define READ_REGISTERS
 #ifdef READ_REGISTERS
-    //  Read SX1262 registers 0x00 to 0x0F
+    //  Read LORAWAN registers 0x00 to 0x0F
     read_registers();
 #endif  //  READ_REGISTERS
 
     //  TODO: Create a Background Thread to handle LoRa Events
     create_task();
 
-    //  Init SX1262 driver
+    //  Init LORAWAN driver
     init_driver();
 
     //  TODO: Do we need to wait?
@@ -152,7 +152,7 @@ static void on_tx_timeout(void);
 static void on_rx_timeout(void);
 static void on_rx_error(void);
 
-/// Read SX1262 registers
+/// Read LORAWAN registers
 static void read_registers(void) {
     puts("read_registers");
 
@@ -162,7 +162,7 @@ static void read_registers(void) {
     //  Read and print the first 16 registers: 0 to 15
     for (uint16_t addr = 0; addr < 0x10; addr++) {
         //  Read the register
-        uint8_t val = SX126xReadRegister(addr);      //  For SX1262
+        uint8_t val = SX126xReadRegister(addr);      //  For LORAWAN
         //  uint8_t val = SX1276Read(addr);          //  For SX1276
 
         //  Print the register value
@@ -170,7 +170,7 @@ static void read_registers(void) {
     }
 }
 
-/// Initialise the SX1262 driver.
+/// Initialise the LORAWAN driver.
 /// Assume that create_task has been called to init the Event Queue.
 static void init_driver(void) {
     puts("init_driver");
@@ -226,7 +226,7 @@ static void init_driver(void) {
     );    
 }
 
-/// Send a LoRa message. Assume that SX1262 driver has been initialised.
+/// Send a LoRa message. Assume that LORAWAN driver has been initialised.
 static void send_message(void) {
     puts("send_message");
 
@@ -252,7 +252,7 @@ static void send_once(int is_ping) {
     Radio.Send(loraping_buffer, sizeof loraping_buffer);
 }
 
-/// Receive a LoRa message. Assume that SX1262 driver has been initialised.
+/// Receive a LoRa message. Assume that LORAWAN driver has been initialised.
 /// Assume that create_task has been called to init the Event Queue.
 static void receive_message(void) {
     puts("receive_message");
