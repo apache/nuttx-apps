@@ -171,27 +171,27 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
 /*!
  * Function executed on TxTimer event
  */
-static void OnTxTimerEvent( void* context );
+static void OnTxTimerEvent( struct ble_npl_event *event );
 
 /*!
  * Function executed on Led 1 Timeout event
  */
-static void OnLed1TimerEvent( void* context );
+static void OnLed1TimerEvent( struct ble_npl_event *event );
 
 /*!
  * Function executed on Led 2 Timeout event
  */
-static void OnLed2TimerEvent( void* context );
+static void OnLed2TimerEvent( struct ble_npl_event *event );
 
 /*!
  * \brief Function executed on Led 3 Timeout event
  */
-static void OnLed3TimerEvent( void* context );
+static void OnLed3TimerEvent( struct ble_npl_event *event );
 
 /*!
  * \brief Function executed on Beacon timer Timeout event
  */
-static void OnLedBeaconTimerEvent( void* context );
+static void OnLedBeaconTimerEvent( struct ble_npl_event *event );
 
 uint8_t BoardGetBatteryLevel( void ) { return 0; } //// TODO
 uint32_t BoardGetRandomSeed( void ) { return 22; } //// TODO
@@ -711,7 +711,7 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity )
 /*!
  * Function executed on TxTimer event
  */
-static void OnTxTimerEvent( void* context )
+static void OnTxTimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &TxTimer );
 
@@ -725,7 +725,7 @@ static void OnTxTimerEvent( void* context )
 /*!
  * Function executed on Led 1 Timeout event
  */
-static void OnLed1TimerEvent( void* context )
+static void OnLed1TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led1Timer );
 #ifdef NOTUSED
@@ -737,7 +737,7 @@ static void OnLed1TimerEvent( void* context )
 /*!
  * Function executed on Led 2 Timeout event
  */
-static void OnLed2TimerEvent( void* context )
+static void OnLed2TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led2Timer );
 #ifdef NOTUSED
@@ -749,7 +749,7 @@ static void OnLed2TimerEvent( void* context )
 /*!
  * \brief Function executed on Led 3 Timeout event
  */
-static void OnLed3TimerEvent( void* context )
+static void OnLed3TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led3Timer );
 #ifdef NOTUSED
@@ -761,7 +761,7 @@ static void OnLed3TimerEvent( void* context )
 /*!
  * \brief Function executed on Beacon timer Timeout event
  */
-static void OnLedBeaconTimerEvent( void* context )
+static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
 {
 #ifdef NOTUSED
     GpioWrite( &Led2, 1 );
