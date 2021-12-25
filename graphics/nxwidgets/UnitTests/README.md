@@ -120,7 +120,7 @@ NXWidgets.:
       see that setting like:
 
       ```conf
-      CONFIG_USER_ENTRYPOINT="nsh_main"
+      CONFIG_INIT_ENTRYPOINT="nsh_main"
       ```
 
       If you are not using in NSH, then each unit test has a unique entry point.
@@ -129,13 +129,13 @@ NXWidgets.:
       `UnitTests/CButton` would be:
 
       ```conf
-      CONFIG_USER_ENTRYPOINT="cbutton_main"
+      CONFIG_INIT_ENTRYPOINT="cbutton_main"
       ```
 
       And the correct entry point for `UnitTests/nxwm` would be:
 
       ```conf
-      CONFIG_USER_ENTRYPOINT="nxwm_main"
+      CONFIG_INIT_ENTRYPOINT="nxwm_main"
       ```
 
       etc.
