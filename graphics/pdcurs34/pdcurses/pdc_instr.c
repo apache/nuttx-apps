@@ -121,7 +121,7 @@ int winnstr(WINDOW *win, char *str, int n)
   chtype *src;
   int i;
 
-  PDC_LOG(("winnstr() - called: n %d \n", n));
+  PDC_LOG(("winnstr() - called: n %d\n", n));
 
   if (!win || !str)
     {
@@ -157,7 +157,7 @@ int instr(char *str)
 
 int winstr(WINDOW *win, char *str)
 {
-  PDC_LOG(("winstr() - called: \n"));
+  PDC_LOG(("winstr() - called:\n"));
 
   return (ERR == winnstr(win, str, win->_maxx)) ? ERR : OK;
 }
@@ -167,7 +167,7 @@ int mvinstr(int y, int x, char *str)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  PDC_LOG(("mvinstr() - called: y %d x %d \n", y, x));
+  PDC_LOG(("mvinstr() - called: y %d x %d\n", y, x));
 
   if (move(y, x) == ERR)
     {
@@ -179,7 +179,7 @@ int mvinstr(int y, int x, char *str)
 
 int mvwinstr(WINDOW *win, int y, int x, char *str)
 {
-  PDC_LOG(("mvwinstr() - called: y %d x %d \n", y, x));
+  PDC_LOG(("mvwinstr() - called: y %d x %d\n", y, x));
 
   if (wmove(win, y, x) == ERR)
     {
@@ -194,7 +194,7 @@ int innstr(char *str, int n)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  PDC_LOG(("innstr() - called: n %d \n", n));
+  PDC_LOG(("innstr() - called: n %d\n", n));
 
   return winnstr(stdscr, str, n);
 }
@@ -204,7 +204,7 @@ int mvinnstr(int y, int x, char *str, int n)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  PDC_LOG(("mvinnstr() - called: y %d x %d n %d \n", y, x, n));
+  PDC_LOG(("mvinnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (move(y, x) == ERR)
     {
@@ -216,7 +216,7 @@ int mvinnstr(int y, int x, char *str, int n)
 
 int mvwinnstr(WINDOW *win, int y, int x, char *str, int n)
 {
-  PDC_LOG(("mvwinnstr() - called: y %d x %d n %d \n", y, x, n));
+  PDC_LOG(("mvwinnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (wmove(win, y, x) == ERR)
     {
@@ -232,7 +232,7 @@ int winnwstr(WINDOW *win, wchar_t *wstr, int n)
   chtype *src;
   int i;
 
-  PDC_LOG(("winnstr() - called: n %d \n", n));
+  PDC_LOG(("winnstr() - called: n %d\n", n));
 
   if (!win || !wstr)
     {

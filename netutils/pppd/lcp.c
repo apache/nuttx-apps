@@ -280,7 +280,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
               /* Write the reject frame */
 
-              DEBUG1(("\nWriting NAK frame \n"));
+              DEBUG1(("\nWriting NAK frame\n"));
 
               /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
@@ -301,13 +301,13 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
               /* Set stuff */
 
               /* ppp_flags |= tflag;
-               * DEBUG2("SET- stuff -- are we up? c=%d dif=%d \n", count,
+               * DEBUG2("SET- stuff -- are we up? c=%d dif=%d\n", count,
                * (uint16_t)(bptr-buffer));
                */
 
               /* Write the ACK frame */
 
-              DEBUG2(("Writing ACK frame \n"));
+              DEBUG2(("Writing ACK frame\n"));
 
               /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
@@ -357,7 +357,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
       /* Write the reject frame */
 
-      DEBUG1(("Writing TERM_ACK frame \n"));
+      DEBUG1(("Writing TERM_ACK frame\n"));
 
       /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
@@ -386,7 +386,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
           /* Write the echo reply frame */
 
-          DEBUG1(("\nWriting ECHO-REPLY frame \n"));
+          DEBUG1(("\nWriting ECHO-REPLY frame\n"));
 
           /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
@@ -469,7 +469,7 @@ void lcp_echo_request(struct ppp_context_s *ctx)
            * Send packet ahdlc_txz(procol,header,data,headerlen,datalen);
            */
 
-          DEBUG1(("\nWriting ECHO-REQUEST frame \n"));
+          DEBUG1(("\nWriting ECHO-REQUEST frame\n"));
           ahdlc_tx(ctx, LCP, 0, buffer, 0, t);
           DEBUG1(("- end ECHO-REQUEST Write frame\n"));
         }

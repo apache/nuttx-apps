@@ -689,7 +689,7 @@ int main(int argc, FAR char *argv[])
 
   if (is_interactive)
     {
-      printf("LSM330 diagnostic started in interactive mode... \n");
+      printf("LSM330 diagnostic started in interactive mode...\n");
       ch = 0;
       while (ch != 'x')
         {
