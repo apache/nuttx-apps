@@ -192,6 +192,7 @@ static void OnLed3TimerEvent( struct ble_npl_event *event );
  * \brief Function executed on Beacon timer Timeout event
  */
 static void OnLedBeaconTimerEvent( struct ble_npl_event *event );
+static void task_callback(void *arg);
 
 uint8_t BoardGetBatteryLevel( void ) { return 0; } //// TODO
 uint32_t BoardGetRandomSeed( void ) { return 22; } //// TODO
@@ -371,6 +372,9 @@ int main(int argc, FAR char *argv[]) {
 
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
 
+    task_callback(NULL);  //  Never returns
+
+#ifdef TODO
     while( 1 )
     {
 #ifdef TODO
@@ -397,6 +401,7 @@ int main(int argc, FAR char *argv[]) {
         }
         CRITICAL_SECTION_END( );
     }
+#endif  //  TODO
 }
 
 static void OnMacProcessNotify( void )
