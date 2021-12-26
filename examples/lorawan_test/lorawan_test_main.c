@@ -818,8 +818,9 @@ static void task_callback(void *arg) {
         //  Get the next Event from the Event Queue
         struct ble_npl_event *ev = ble_npl_eventq_get(
             &event_queue,  //  Event Queue
-            1000           //  Timeout in 1,000 ticks
+            5000           //  Timeout in 5,000 ticks (5 seconds)
         );
+        printf("task_callback: ev=%p\n", ev);
 
         //  If no Event due to timeout, wait for next Event
         if (ev == NULL) { continue; }
