@@ -774,11 +774,8 @@ static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
 ///////////////////////////////////////////////////////////////////////////////
 //  Multithreading Commands
 
-/// Event Queue containing Events to be processed
-struct ble_npl_eventq event_queue;
-
 /// Event to be added to the Event Queue
-struct ble_npl_event event;
+static struct ble_npl_event event;
 
 static void task_callback(void *arg);
 static void handle_event(struct ble_npl_event *ev);
