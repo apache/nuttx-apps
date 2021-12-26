@@ -818,14 +818,15 @@ static void task_callback(void *arg) {
     //  Loop forever handling Events from the Event Queue
     for (;;) {
         //  Get the next Event from the Event Queue
+        //  TODO: Why is timeout not working?
         struct ble_npl_event *ev = ble_npl_eventq_get(
             &event_queue,  //  Event Queue
             5000           //  Timeout in 5,000 ticks (5 seconds)
         );
-        printf("task_callback: ev=%p\n", ev);
 
         //  If no Event due to timeout, wait for next Event
         if (ev == NULL) { continue; }
+        printf("task_callback: ev=%p\n", ev);
 
         //  Remove the Event from the Event Queue
         ble_npl_eventq_remove(&event_queue, ev);
