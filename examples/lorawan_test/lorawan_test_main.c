@@ -770,3 +770,69 @@ static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
 
     TimerStart( &LedBeaconTimer );
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//  Multithreading Commands
+
+/// Event Queue containing Events to be processed
+struct ble_npl_eventq event_queue;
+
+/// Event to be added to the Event Queue
+struct ble_npl_event event;
+
+static void task_callback(void *arg);
+static void handle_event(struct ble_npl_event *ev);
+
+/// Create a Background Thread to handle LoRa Events
+static void create_task(void) {
+    puts("create_task");
+
+    //  Init the Event Queue
+    ble_npl_eventq_init(&event_queue);
+
+    //  Init the Event
+    ble_npl_event_init(
+        &event,        //  Event
+        handle_event,  //  Event Handler Function
+        NULL           //  Argument to be passed to Event Handler
+    );
+
+    //  TODO: Create a Background Thread to process the Event Queue
+    //  nimble_port_freertos_init(task_callback);
+}
+
+/// Enqueue an Event into the Event Queue
+static void put_event(char *buf, int len, int argc, char **argv) {
+    puts("put_event");
+
+    //  Add the Event to the Event Queue
+    ble_npl_eventq_put(&event_queue, &event);
+}
+
+/// Task Function that dequeues Events from the Event Queue and processes the Events
+static void task_callback(void *arg) {
+    puts("task_callback");
+
+    //  Loop forever handling Events from the Event Queue
+    for (;;) {
+        //  Get the next Event from the Event Queue
+        struct ble_npl_event *ev = ble_npl_eventq_get(
+            &event_queue,  //  Event Queue
+            1000           //  Timeout in 1,000 ticks
+        );
+
+        //  If no Event due to timeout, wait for next Event
+        if (ev == NULL) { continue; }
+
+        //  Remove the Event from the Event Queue
+        ble_npl_eventq_remove(&event_queue, ev);
+
+        //  Trigger the Event Handler Function (handle_event)
+        ble_npl_event_run(ev);
+    }
+}
+
+/// Handle an Event
+static void handle_event(struct ble_npl_event *ev) {
+    puts("handle_event");
+}
