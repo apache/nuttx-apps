@@ -192,6 +192,8 @@ static void OnLed3TimerEvent( struct ble_npl_event *event );
  * \brief Function executed on Beacon timer Timeout event
  */
 static void OnLedBeaconTimerEvent( struct ble_npl_event *event );
+
+static void create_task(void);
 static void task_callback(void *arg);
 
 uint8_t BoardGetBatteryLevel( void ) { return 0; } //// TODO
@@ -322,9 +324,13 @@ extern Uart_t Uart2;
  */
 
 int main(int argc, FAR char *argv[]) {
-    BoardInitMcu( );
-    BoardInitPeriph( );
+    //  TODO: BoardInitMcu( );
+    //  TODO: BoardInitPeriph( );
 
+    //  Create a Background Thread to handle LoRaWAM Events
+    create_task();
+
+    //  Init the timers
     TimerInit( &Led1Timer, OnLed1TimerEvent );
     TimerSetValue( &Led1Timer, 25 );
 
@@ -346,6 +352,7 @@ int main(int argc, FAR char *argv[]) {
                     &appVersion,
                     &gitHubVersion );
 
+    //  Init LoRaWAN
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
         printf( "LoRaMac wasn't properly initialized\n" );
@@ -368,19 +375,21 @@ int main(int argc, FAR char *argv[]) {
     IsClockSynched = false;
     IsFileTransferDone = false;
 
+    //  Join the LoRaWAN Network
     LmHandlerJoin( );
 
+    //  Set the Transmit Timer
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
 
+    //  Handle LoRaWAN Events
     task_callback(NULL);  //  Never returns
+}
 
-#ifdef TODO
+#ifdef NOTUSED  //  Previously
     while( 1 )
     {
-#ifdef TODO
         // Process characters sent over the command line interface
         CliProcess( &Uart2 );
-#endif  //  TODO
 
         // Processes the LoRaMac events
         LmHandlerProcess( );
@@ -401,8 +410,7 @@ int main(int argc, FAR char *argv[]) {
         }
         CRITICAL_SECTION_END( );
     }
-#endif  //  TODO
-}
+#endif  //  NOTUSED
 
 static void OnMacProcessNotify( void )
 {
@@ -779,20 +787,20 @@ static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
 ///////////////////////////////////////////////////////////////////////////////
 //  Multithreading Commands
 
-/// Event to be added to the Event Queue
+/// Test Event to be added to the Event Queue
 static struct ble_npl_event event;
 
 static void task_callback(void *arg);
 static void handle_event(struct ble_npl_event *ev);
 
-/// Create a Background Thread to handle LoRa Events
+/// Create a Background Thread to handle LoRaWAN Events
 static void create_task(void) {
     puts("create_task");
 
     //  Init the Event Queue
     ble_npl_eventq_init(&event_queue);
 
-    //  Init the Event
+    //  Init the Test Event
     ble_npl_event_init(
         &event,        //  Event
         handle_event,  //  Event Handler Function
@@ -803,14 +811,6 @@ static void create_task(void) {
     //  nimble_port_freertos_init(task_callback);
 }
 
-/// Enqueue an Event into the Event Queue
-static void put_event(char *buf, int len, int argc, char **argv) {
-    puts("put_event");
-
-    //  Add the Event to the Event Queue
-    ble_npl_eventq_put(&event_queue, &event);
-}
-
 /// Task Function that dequeues Events from the Event Queue and processes the Events
 static void task_callback(void *arg) {
     puts("task_callback");
@@ -818,11 +818,12 @@ static void task_callback(void *arg) {
     //  Loop forever handling Events from the Event Queue
     for (;;) {
         //  Get the next Event from the Event Queue
-        //  TODO: Why is timeout not working?
         struct ble_npl_event *ev = ble_npl_eventq_get(
             &event_queue,  //  Event Queue
             5000           //  Timeout in 5,000 ticks (5 seconds)
         );
+
+        if (ev == NULL) { printf("."); sleep(1); }  ////
 
         //  If no Event due to timeout, wait for next Event
         if (ev == NULL) { continue; }
@@ -833,10 +834,41 @@ static void task_callback(void *arg) {
 
         //  Trigger the Event Handler Function (handle_event)
         ble_npl_event_run(ev);
+
+        // Processes the LoRaMac events
+        LmHandlerProcess( );
+
+        // Process application uplinks management
+        UplinkProcess( );
+
+#ifdef TODO
+        CRITICAL_SECTION_BEGIN( );
+        if( IsMacProcessPending == 1 )
+        {
+            // Clear flag and prevent MCU to go into low power modes.
+            IsMacProcessPending = 0;
+        }
+        else
+        {
+            // The MCU wakes up through events
+            BoardLowPowerHandler( );
+        }
+        CRITICAL_SECTION_END( );
+#endif  //  TODO
     }
 }
 
-/// Handle an Event
+#ifdef NOTUSED
+/// For Testing: Enqueue a Test Event into the Event Queue
+static void put_event(char *buf, int len, int argc, char **argv) {
+    puts("put_event");
+
+    //  Add the Event to the Event Queue
+    ble_npl_eventq_put(&event_queue, &event);
+}
+#endif  //  NOTUSED
+
+/// For Testing: Handle a Test Event
 static void handle_event(struct ble_npl_event *ev) {
     puts("handle_event");
 }
