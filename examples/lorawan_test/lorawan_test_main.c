@@ -823,10 +823,8 @@ static void task_callback(void *arg) {
             5000           //  Timeout in 5,000 ticks (5 seconds)
         );
 
-        if (ev == NULL) { printf("."); sleep(1); }  ////
-
         //  If no Event due to timeout, wait for next Event
-        if (ev == NULL) { continue; }
+        if (ev == NULL) { printf("."); continue; }
         printf("task_callback: ev=%p\n", ev);
 
         //  Remove the Event from the Event Queue
