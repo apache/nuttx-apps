@@ -114,7 +114,7 @@ int winsnstr(WINDOW *win, const char *str, int n)
 #endif
   int len;
 
-  PDC_LOG(("winsnstr() - called: string=\"%s\" n %d \n", str, n));
+  PDC_LOG(("winsnstr() - called: string=\"%s\" n %d\n", str, n));
 
   if (!win || !str)
     {
@@ -219,7 +219,7 @@ int insnstr(const char *str, int n)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  PDC_LOG(("insnstr() - called: string=\"%s\" n %d \n", str, n));
+  PDC_LOG(("insnstr() - called: string=\"%s\" n %d\n", str, n));
 
   return winsnstr(stdscr, str, n);
 }
@@ -229,7 +229,7 @@ int mvinsnstr(int y, int x, const char *str, int n)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  PDC_LOG(("mvinsnstr() - called: y %d x %d string=\"%s\" n %d \n",
+  PDC_LOG(("mvinsnstr() - called: y %d x %d string=\"%s\" n %d\n",
            y, x, str, n));
 
   if (move(y, x) == ERR)
@@ -242,7 +242,7 @@ int mvinsnstr(int y, int x, const char *str, int n)
 
 int mvwinsnstr(WINDOW *win, int y, int x, const char *str, int n)
 {
-  PDC_LOG(("mvwinsnstr() - called: y %d x %d string=\"%s\" n %d \n",
+  PDC_LOG(("mvwinsnstr() - called: y %d x %d string=\"%s\" n %d\n",
            y, x, str, n));
 
   if (wmove(win, y, x) == ERR)

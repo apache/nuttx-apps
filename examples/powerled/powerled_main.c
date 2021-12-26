@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
                                  (unsigned long)powerled_mode);
                       if (ret < 0)
                         {
-                          printf("failed to set powerled mode %d \n", ret);
+                          printf("failed to set powerled mode %d\n", ret);
                         }
 
                       config = false;
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
                              (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
-                      printf("failed to set params %d \n", ret);
+                      printf("failed to set params %d\n", ret);
                     }
 
                   /* Start Powerled */
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
                                  (unsigned long)powerled_mode);
                       if (ret < 0)
                         {
-                          printf("failed to set powerled mode %d \n", ret);
+                          printf("failed to set powerled mode %d\n", ret);
                         }
 
                       printf("Brightness is %.2f\n",
@@ -591,7 +591,7 @@ int main(int argc, char *argv[])
                              (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
-                      printf("failed to set params %d \n", ret);
+                      printf("failed to set params %d\n", ret);
                     }
 
                   /* Start Powerled */
@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
                              (unsigned long)powerled_mode);
                   if (ret < 0)
                     {
-                      printf("failed to set powerled mode %d \n", ret);
+                      printf("failed to set powerled mode %d\n", ret);
                     }
 
                   powerled_params.brightness = args->brightness;
@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
                              (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
-                      printf("failed to set params %d \n", ret);
+                      printf("failed to set params %d\n", ret);
                     }
 
                   /* Start Powerled */
@@ -684,7 +684,7 @@ int main(int argc, char *argv[])
                              (unsigned long)powerled_mode);
                   if (ret < 0)
                     {
-                      printf("failed to set powerled mode %d \n", ret);
+                      printf("failed to set powerled mode %d\n", ret);
                     }
 
                   powerled_params.brightness = args->brightness;
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
                              (unsigned long)&powerled_params);
                   if (ret < 0)
                     {
-                      printf("failed to set params %d \n", ret);
+                      printf("failed to set params %d\n", ret);
                     }
 
                   /* Start Powerled */
@@ -726,7 +726,7 @@ int main(int argc, char *argv[])
       ret = ioctl(fd, PWRIOC_GET_STATE, (unsigned long)&powerled_state);
       if (ret < 0)
         {
-          printf("Failed to get state %d \n", ret);
+          printf("Failed to get state %d\n", ret);
         }
 
       /* Terminate if fault state */

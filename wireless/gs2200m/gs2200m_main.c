@@ -448,7 +448,7 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
   int16_t usockid;
   int ret;
 
-  gs2200m_printf("%s: start type=%d \n",
+  gs2200m_printf("%s: start type=%d\n",
                  __func__, req->type);
 
   /* Check domain requested */
@@ -487,7 +487,7 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
                        USRSOCK_EVENT_SENDTO_READY);
     }
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return OK;
 }
 
@@ -505,7 +505,7 @@ static int close_request(int fd, FAR struct gs2200m_s *priv,
   char cid;
   int ret = 0;
 
-  gs2200m_printf("%s: start \n", __func__);
+  gs2200m_printf("%s: start\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -540,7 +540,7 @@ errout:
 
   ret = gs2200m_socket_free(priv, req->usockid);
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
 
   return OK;
 }
@@ -565,7 +565,7 @@ static int connect_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: start \n", __func__);
+  gs2200m_printf("%s: start\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -683,7 +683,7 @@ prepare:
       return wlen;
     }
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return OK;
 }
 
@@ -707,7 +707,7 @@ static int sendto_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: start (buflen=%d) \n",
+  gs2200m_printf("%s: start (buflen=%d)\n",
                  __func__, req->buflen);
 
   /* Check if this socket exists. */
@@ -852,7 +852,7 @@ prepare:
       return wlen;
     }
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
 
   return OK;
 }
@@ -873,7 +873,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: start (req->max_buflen=%d) \n",
+  gs2200m_printf("%s: start (req->max_buflen=%d)\n",
                  __func__, req->max_buflen);
 
   memset(&rmsg, 0, sizeof(rmsg));
@@ -921,7 +921,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
 
   if (!rmsg.is_tcp)
     {
-      gs2200m_printf("%s: from (%s:%d) \n",
+      gs2200m_printf("%s: from (%s:%d)\n",
                      __func__,
                      inet_ntoa(rmsg.addr.sin_addr),
                      ntohs(rmsg.addr.sin_port));
@@ -986,7 +986,7 @@ prepare:
 
 err_out:
 
-  gs2200m_printf("%s: *** end ret=%d \n", __func__, ret);
+  gs2200m_printf("%s: *** end ret=%d\n", __func__, ret);
 
   if (rmsg.buf)
     {
@@ -1014,7 +1014,7 @@ static int bind_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1077,7 +1077,7 @@ prepare:
       return ret;
     }
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return OK;
 }
 
@@ -1096,7 +1096,7 @@ static int listen_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1118,7 +1118,7 @@ static int listen_request(int fd, FAR struct gs2200m_s *priv,
       return ret;
     }
 
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return ret;
 }
 
@@ -1140,7 +1140,7 @@ static int accept_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1234,7 +1234,7 @@ prepare:
     }
 
 err_out:
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return ret;
 }
 
@@ -1255,7 +1255,7 @@ static int setsockopt_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1315,7 +1315,7 @@ prepare:
 
   ret = _send_ack_common(fd, req->head.xid, &resp);
 
-  gs2200m_printf("%s: end (ret=%d) \n", __func__, ret);
+  gs2200m_printf("%s: end (ret=%d)\n", __func__, ret);
   return ret;
 }
 
@@ -1346,7 +1346,7 @@ static int getsockname_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1412,7 +1412,7 @@ prepare:
     }
 
 err_out:
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return ret;
 }
 
@@ -1431,7 +1431,7 @@ static int getpeername_request(int fd, FAR struct gs2200m_s *priv,
   DEBUGASSERT(priv);
   DEBUGASSERT(req);
 
-  gs2200m_printf("%s: called **** \n", __func__);
+  gs2200m_printf("%s: called ****\n", __func__);
 
   /* Check if this socket exists. */
 
@@ -1496,7 +1496,7 @@ prepare:
     }
 
 err_out:
-  gs2200m_printf("%s: end \n", __func__);
+  gs2200m_printf("%s: end\n", __func__);
   return ret;
 }
 
@@ -1631,7 +1631,7 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
 
       if (fds[1].revents & POLLIN)
         {
-          gs2200m_printf("=== %s: event from /dev/gs2200m \n",
+          gs2200m_printf("=== %s: event from /dev/gs2200m\n",
                          __func__);
 
           /* retrieve cid from gs2200m driver */
@@ -1646,7 +1646,7 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
 
           if (NULL == usock)
             {
-              gs2200m_printf("=== %s: cid=%c not found (ignored) \n",
+              gs2200m_printf("=== %s: cid=%c not found (ignored)\n",
                              __func__, cid);
             }
           else
@@ -1677,10 +1677,10 @@ static void _show_usage(FAR char *cmd)
           "Usage: %s [-a [ch]] ssid passphrase(key) \n\n", cmd);
   fprintf(stderr,
           "AP mode : specify -a option (optionally with channel) with ssid\n"
-          "          and 8 to 63 ascii passphrase for WPA2-PSK \n"
-          "          or 10 hex digits key for WEP \n");
+          "          and 8 to 63 ascii passphrase for WPA2-PSK\n"
+          "          or 10 hex digits key for WEP\n");
   fprintf(stderr,
-          "STA mode: specify ssid and passphrase for WPA/WPA2 PSK \n");
+          "STA mode: specify ssid and passphrase for WPA/WPA2 PSK\n");
 }
 
 /****************************************************************************
@@ -1695,7 +1695,7 @@ int main(int argc, FAR char *argv[])
 
   if (_daemon)
     {
-      fprintf(stderr, "%s is already running! \n", argv[0]);
+      fprintf(stderr, "%s is already running!\n", argv[0]);
       return -1;
     }
 

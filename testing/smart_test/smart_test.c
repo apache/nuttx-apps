@@ -540,7 +540,7 @@ static void smart_usage(void)
   fprintf(stderr, "          "
     "length records are written and then overwritten with new data.\n");
   fprintf(stderr, "          "
-    "Uses the -r, -e and -t options to specify the parameters of the \n");
+    "Uses the -r, -e and -t options to specify the parameters of the\n");
   fprintf(stderr, "          "
     "record geometry and update operation.  The COUNT parameter sets\n");
   fprintf(stderr, "          "

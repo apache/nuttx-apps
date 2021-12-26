@@ -164,7 +164,7 @@ int main(int argc, FAR char *argv[])
                   S_IRWXU | S_IRWXG | S_IRWXO);
       if (g_fd < 0)
         {
-          printf("cannot create file %s \n", argv[argc - 2]);
+          printf("cannot create file %s\n", argv[argc - 2]);
         }
     }
   else if (argc == 2)

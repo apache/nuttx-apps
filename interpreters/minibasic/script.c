@@ -62,7 +62,7 @@ static FAR char *script =
   "10 REM Test Script\n"
   "20 REM Tests the Interpreter\n"
   "30 REM By Malcolm Mclean\n"
-  "35 PRINT \"HERE\" \n"
+  "35 PRINT \"HERE\"\n"
   "40 PRINT INSTR(\"FRED\", \"ED\", 4)\n"
   "50 PRINT VALLEN(\"12a\"), VALLEN(\"xyz\")\n"
   "60 LET x = SQRT(3.0) * SQRT(3.0)\n"

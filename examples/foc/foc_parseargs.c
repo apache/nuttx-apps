@@ -82,12 +82,12 @@ static void foc_help(void)
   PRINTF("  [-h] shows this message and exits\n");
   PRINTF("  [-m] operation mode\n");
   PRINTF("       1 - IDLE mode\n");
-  PRINTF("       2 - voltage mode \n");
-  PRINTF("       3 - current mode \n");
+  PRINTF("       2 - voltage mode\n");
+  PRINTF("       3 - current mode\n");
   PRINTF("  [-c] controller mode\n");
-  PRINTF("       1 - torqe control \n");
-  PRINTF("       2 - velocity control \n");
-  PRINTF("       3 - position control \n");
+  PRINTF("       1 - torqe control\n");
+  PRINTF("       2 - velocity control\n");
+  PRINTF("       3 - position control\n");
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   PRINTF("  [-r] torque [x1000]\n");
 #endif

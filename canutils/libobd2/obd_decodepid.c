@@ -111,7 +111,7 @@ FAR char *obd_decode_pid(FAR struct obd_dev_s *dev, uint8_t pid)
       case OBD_PID_THROTTLE_POSITION:
         snprintf(g_data, MAXDATA, "%d", (100 * dev->data[3])/255);
 #ifdef CONFIG_DEBUG_INFO
-        printf("Throttle position = %d\% \n", (100 * dev->data[3])/255);
+        printf("Throttle position = %d\%\n", (100 * dev->data[3])/255);
 #endif
         break;
     }

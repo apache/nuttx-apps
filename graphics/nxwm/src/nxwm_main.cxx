@@ -217,7 +217,7 @@ static bool createStartWindow(void)
 
   if (!window->open())
     {
-      printf("createStartWindow: ERROR: Failed to open CApplicationWindow \n");
+      printf("createStartWindow: ERROR: Failed to open CApplicationWindow\n");
       delete window;
       return false;
     }
