@@ -60,7 +60,7 @@
  * Defines the application data transmission duty cycle. 40s, value in [ms].
  */
 ////TODO: #define APP_TX_DUTYCYCLE                            40000
-#define APP_TX_DUTYCYCLE                            10000
+#define APP_TX_DUTYCYCLE                            20000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 5s,
@@ -267,21 +267,6 @@ static volatile bool IsFileTransferDone = false;
  *  Received file computed CRC32
  */
 static volatile uint32_t FileRxCrc = 0;
-
-#ifdef NOTUSED
-/*!
- * LED GPIO pins objects
- */
-extern Gpio_t Led1; // Tx
-extern Gpio_t Led2; // Blinks every 5 seconds when beacon is acquired
-extern Gpio_t Led3; // Rx
-extern Gpio_t Led4; // App
-
-/*!
- * UART object used for command line interface handling
- */
-extern Uart_t Uart2;
-#endif  //  NOTUSED
 
 /*!
  * Main application entry point.
@@ -523,10 +508,6 @@ static void OnClassChange( DeviceClass_t deviceClass )
         case CLASS_C:
         {
             IsMcSessionStarted = true;
-#ifdef NOTUSED
-            // Switch LED 3 ON
-            GpioWrite( &Led3, 1 );
-#endif  //  NOTUSED
             break;
         }
     }
@@ -615,10 +596,6 @@ static void OnFragDone( int32_t status, uint32_t size )
 {
     FileRxCrc = Crc32( UnfragmentedData, size );
     IsFileTransferDone = true;
-#ifdef NOTUSED
-    // Switch LED 3 OFF
-    GpioWrite( &Led3, 0 );
-#endif  //  NOTUSED
 
     printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
     printf( "######               FINISHED                ######\n");
