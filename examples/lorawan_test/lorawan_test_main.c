@@ -155,6 +155,7 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
  */
 static void OnTxTimerEvent( struct ble_npl_event *event );
 static void OnTxTimerEvent2( struct ble_npl_event *event );
+static void OnTxTimerEvent3( struct ble_npl_event *event );
 
 static void init_event_queue(void);
 static void handle_event_queue(void *arg);
@@ -296,6 +297,14 @@ int main(int argc, FAR char *argv[]) {
     //  Compute the interval between transmissions based on Duty Cycle
     TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
 
+    ////  TESTING: Start the timer
+    static TimerEvent_t TxTimer3;
+    printf("TxTimer3=%p\n", &TxTimer3);
+    TimerInit( &TxTimer3, OnTxTimerEvent3 );
+    TimerSetValue( &TxTimer3, TxPeriodicity );
+    TimerStart( &TxTimer3 );
+    ////  TESTING
+
     const Version_t appVersion = { .Value = FIRMWARE_VERSION };
     const Version_t gitHubVersion = { .Value = GITHUB_VERSION };
     DisplayAppInfo( "fuota-test-01", 
@@ -363,6 +372,7 @@ static void PrepareTxFrame( void )
     //  Start the Transmit Timer for next transmission
     ////OnTxTimerEvent(NULL);
     static TimerEvent_t TxTimer2;
+    printf("TxTimer2=%p\n", &TxTimer2);
     TimerInit( &TxTimer2, OnTxTimerEvent2 );
     TimerSetValue( &TxTimer2, TxPeriodicity );
     IsTxFramePending = 1;
@@ -426,6 +436,11 @@ static void OnTxTimerEvent( struct ble_npl_event *event )
 static void OnTxTimerEvent2( struct ble_npl_event *event )
 {
     printf("OnTxTimerEvent2: event=%p\n", event);
+}
+
+static void OnTxTimerEvent3( struct ble_npl_event *event )
+{
+    printf("OnTxTimerEvent3: event=%p\n", event);
 }
 
 static void OnMacProcessNotify( void )
