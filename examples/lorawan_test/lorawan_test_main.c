@@ -153,8 +153,6 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
  * Function executed on TxTimer event
  */
 static void OnTxTimerEvent( struct ble_npl_event *event );
-static void OnTxTimerEvent2( struct ble_npl_event *event );
-static void OnTxTimerEvent3( struct ble_npl_event *event );
 
 static void init_event_queue(void);
 static void handle_event_queue(void *arg);
@@ -281,17 +279,9 @@ int main(int argc, FAR char *argv[]) {
     //  Compute the interval between transmissions based on Duty Cycle
     TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
 
-    ////  TESTING: Start the timer
-    static TimerEvent_t TxTimer3;
-    printf("TxTimer3=%p\n", &TxTimer3);
-    TimerInit( &TxTimer3, OnTxTimerEvent3 );
-    TimerSetValue( &TxTimer3, TxPeriodicity );
-    TimerStart( &TxTimer3 );
-    ////  TESTING
-
-    const Version_t appVersion = { .Value = FIRMWARE_VERSION };
+    const Version_t appVersion    = { .Value = FIRMWARE_VERSION };
     const Version_t gitHubVersion = { .Value = GITHUB_VERSION };
-    DisplayAppInfo( "fuota-test-01", 
+    DisplayAppInfo( "lorawan_test", 
                     &appVersion,
                     &gitHubVersion );
 
@@ -335,7 +325,7 @@ static void PrepareTxFrame( void )
     if (LmHandlerIsBusy()) { puts("PrepareTxFrame: Busy"); return; }
 
     //  Send a message to LoRaWAN
-    const char msg[] = "Hello NuttX";
+    const char msg[] = "Hi NuttX";
     printf("PrepareTxFrame: Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
 
     //  Compose the transmit request
@@ -343,24 +333,21 @@ static void PrepareTxFrame( void )
     LmHandlerAppData_t appData =
     {
         .Buffer = AppDataBuffer,
-        .BufferSize = 10, //// sizeof(msg),
+        .BufferSize = sizeof(msg),
         .Port = 1,
     };
 
-    //  Transmit the message. First message will be empty.
+    //  Check if the message can be transmitted
+    LoRaMacTxInfo_t txInfo;
+    LoRaMacStatus_t status = LoRaMacQueryTxPossible(appData.BufferSize, &txInfo);
+    printf("PrepareTxFrame: status=%d, maxSize=%d, currentSize=%d\n", status, txInfo.MaxPossibleApplicationDataSize, txInfo.CurrentPossiblePayloadSize);
+    assert(status == LORAMAC_STATUS_OK);
+
+    //  Transmit the message
     if( LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
     {
         puts("PrepareTxFrame: Transmit OK");
     }
-
-    //  Start the Transmit Timer for next transmission
-    ////OnTxTimerEvent(NULL);
-    static TimerEvent_t TxTimer2;
-    printf("TxTimer2=%p\n", &TxTimer2);
-    TimerInit( &TxTimer2, OnTxTimerEvent2 );
-    TimerSetValue( &TxTimer2, TxPeriodicity );
-    IsTxFramePending = 1;
-    TimerStart( &TxTimer2 );
 }
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
@@ -415,16 +402,6 @@ static void OnTxTimerEvent( struct ble_npl_event *event )
     // Schedule next transmission
     TimerSetValue( &TxTimer, TxPeriodicity );
     TimerStart( &TxTimer );
-}
-
-static void OnTxTimerEvent2( struct ble_npl_event *event )
-{
-    printf("OnTxTimerEvent2: event=%p\n", event);
-}
-
-static void OnTxTimerEvent3( struct ble_npl_event *event )
-{
-    printf("OnTxTimerEvent3: event=%p\n", event);
 }
 
 static void OnMacProcessNotify( void )
