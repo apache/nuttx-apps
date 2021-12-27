@@ -387,33 +387,6 @@ int main(int argc, FAR char *argv[]) {
     return 0;
 }
 
-#ifdef NOTUSED  //  Previously
-    while( 1 )
-    {
-        // Process characters sent over the command line interface
-        CliProcess( &Uart2 );
-
-        // Processes the LoRaMac events
-        LmHandlerProcess( );
-
-        // Process application uplinks management
-        UplinkProcess( );
-
-        CRITICAL_SECTION_BEGIN( );
-        if( IsMacProcessPending == 1 )
-        {
-            // Clear flag and prevent MCU to go into low power modes.
-            IsMacProcessPending = 0;
-        }
-        else
-        {
-            // The MCU wakes up through events
-            BoardLowPowerHandler( );
-        }
-        CRITICAL_SECTION_END( );
-    }
-#endif  //  NOTUSED
-
 static void OnMacProcessNotify( void )
 {
     IsMacProcessPending = 1;
