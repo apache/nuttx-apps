@@ -343,7 +343,7 @@ static void PrepareTxFrame( void )
     LmHandlerAppData_t appData =
     {
         .Buffer = AppDataBuffer,
-        .BufferSize = sizeof(msg),
+        .BufferSize = 10, //// sizeof(msg),
         .Port = 1,
     };
 
