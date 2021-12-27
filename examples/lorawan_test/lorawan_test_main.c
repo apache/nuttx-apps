@@ -1,5 +1,6 @@
-//  Demo Program for LoRaWAN on NuttX
-//  Based on https://github.com/lupyuen/LoRaMac-node-nuttx/blob/master/src/apps/LoRaMac/fuota-test-01/B-L072Z-LRWAN1/main.c
+//  Demo Program for LoRaWAN on NuttX, based on:
+//  https://github.com/lupyuen/LoRaMac-node-nuttx/blob/master/src/apps/LoRaMac/fuota-test-01/B-L072Z-LRWAN1/main.c
+//  https://github.com/lupyuen/LoRaMac-node-nuttx/blob/master/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
 /*!
  * \file      main.c
  *
@@ -414,6 +415,7 @@ static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerT
 
 static void OnJoinRequest( LmHandlerJoinParams_t* params )
 {
+    puts("OnJoinRequest");
     DisplayJoinRequestUpdate( params );
     if( params->Status == LORAMAC_HANDLER_ERROR )
     {
@@ -427,16 +429,19 @@ static void OnJoinRequest( LmHandlerJoinParams_t* params )
 
 static void OnTxData( LmHandlerTxParams_t* params )
 {
+    puts("OnTxData");
     DisplayTxUpdate( params );
 }
 
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
 {
+    puts("OnRxData");
     DisplayRxUpdate( appData, params );
 }
 
 static void OnClassChange( DeviceClass_t deviceClass )
 {
+    puts("OnClassChange");
     DisplayClassUpdate( deviceClass );
 
     switch( deviceClass )
@@ -584,6 +589,36 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
 }
 #endif
 
+/*!
+ * Prepares the payload of the frame and transmits it.
+ */
+static void PrepareTxFrame( void )
+{
+    puts("PrepareTxFrame");
+    if( LmHandlerIsBusy( ) == true ) { return; }
+
+    //  Send a message to LoRaWAN
+    const char msg[] = "Hello NuttX";
+    printf("Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
+
+    //  Compose the transmit request
+    memcpy(AppDataBuffer, msg, sizeof(msg));
+    LmHandlerAppData_t appData =
+    {
+        .Buffer = AppDataBuffer,
+        .BufferSize = sizeof(msg),
+        .Port = 1,
+    };
+
+    if( LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
+    {
+        puts("Transmit OK");
+        // Switch LED 1 ON
+        // GpioWrite( &Led1, 1 );
+        TimerStart( &Led1Timer );
+    }
+}
+
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 {
     switch( txEvent )
@@ -607,13 +642,6 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 
 static void UplinkProcess( void )
 {
-    LmHandlerErrorStatus_t status = LORAMAC_HANDLER_ERROR;
-
-    if( LmHandlerIsBusy( ) == true )
-    {
-        return;
-    }
-
     uint8_t isPending = 0;
     CRITICAL_SECTION_BEGIN( );
     isPending = IsTxFramePending;
@@ -621,59 +649,7 @@ static void UplinkProcess( void )
     CRITICAL_SECTION_END( );
     if( isPending == 1 )
     {
-        if( IsMcSessionStarted == false )
-        {
-            if( IsFileTransferDone == false )
-            {
-                if( IsClockSynched == false )
-                {
-                    status = LmhpClockSyncAppTimeReq( );
-                }
-                else
-                {
-                    //  Send a message to LoRaWAN
-                    const char msg[] = "Hello NuttX";
-                    printf("Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
-
-                    //  Compose the transmit request
-                    memcpy(AppDataBuffer, msg, sizeof(msg));
-                    LmHandlerAppData_t appData =
-                    {
-                        .Buffer = AppDataBuffer,
-                        .BufferSize = sizeof(msg),
-                        .Port = 1,
-                    };
-
-                    //  Transmit the message
-                    status = LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed );
-                }
-            }
-            else
-            {
-                AppDataBuffer[0] = 0x05; // FragDataBlockAuthReq
-                AppDataBuffer[1] = FileRxCrc & 0x000000FF;
-                AppDataBuffer[2] = ( FileRxCrc >> 8 ) & 0x000000FF;
-                AppDataBuffer[3] = ( FileRxCrc >> 16 ) & 0x000000FF;
-                AppDataBuffer[4] = ( FileRxCrc >> 24 ) & 0x000000FF;
-
-                // Send FragAuthReq
-                LmHandlerAppData_t appData =
-                {
-                    .Buffer = AppDataBuffer,
-                    .BufferSize = 5,
-                    .Port = 201,
-                };
-                status = LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed );
-            }
-            if( status == LORAMAC_HANDLER_SUCCESS )
-            {
-#ifdef NOTUSED
-                // Switch LED 1 ON
-                GpioWrite( &Led1, 1 );
-#endif  //  NOTUSED
-                TimerStart( &Led1Timer );
-            }
-        }
+        PrepareTxFrame( );
     }
 }
 
@@ -722,10 +698,8 @@ static void OnTxTimerEvent( struct ble_npl_event *event )
 static void OnLed1TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led1Timer );
-#ifdef NOTUSED
     // Switch LED 1 OFF
-    GpioWrite( &Led1, 0 );
-#endif  //  NOTUSED
+    // GpioWrite( &Led1, 0 );
 }
 
 /*!
@@ -734,10 +708,8 @@ static void OnLed1TimerEvent( struct ble_npl_event *event )
 static void OnLed2TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led2Timer );
-#ifdef NOTUSED
     // Switch LED 2 OFF
-    GpioWrite( &Led2, 0 );
-#endif  //  NOTUSED
+    // GpioWrite( &Led2, 0 );
 }
 
 /*!
@@ -746,10 +718,8 @@ static void OnLed2TimerEvent( struct ble_npl_event *event )
 static void OnLed3TimerEvent( struct ble_npl_event *event )
 {
     TimerStop( &Led3Timer );
-#ifdef NOTUSED
     // Switch LED 3 ON
-    GpioWrite( &Led3, 1 );
-#endif  //  NOTUSED
+    // GpioWrite( &Led3, 1 );
 }
 
 /*!
@@ -757,9 +727,7 @@ static void OnLed3TimerEvent( struct ble_npl_event *event )
  */
 static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
 {
-#ifdef NOTUSED
-    GpioWrite( &Led2, 1 );
-#endif  //  NOTUSED
+    // GpioWrite( &Led2, 1 );
     TimerStart( &Led2Timer );
 
     TimerStart( &LedBeaconTimer );
@@ -817,8 +785,10 @@ static void task_callback(void *arg) {
         // Processes the LoRaMac events
         LmHandlerProcess( );
 
-        // Process application uplinks management
-        UplinkProcess( );
+        // If we have joined the network, do the uplink
+        if (!LmHandlerIsBusy( )) {
+            UplinkProcess( );
+        }
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
