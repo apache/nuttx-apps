@@ -360,7 +360,12 @@ static void PrepareTxFrame( void )
     }
 
     //  Start the Transmit Timer for next transmission
-    OnTxTimerEvent(NULL);
+    ////OnTxTimerEvent(NULL);
+    static TimerEvent_t TxTimer2;
+    TimerInit( &TxTimer2, OnTxTimerEvent );
+    TimerSetValue( &TxTimer2, TxPeriodicity );
+    IsTxFramePending = 1;
+    TimerStart( &TxTimer2 );
 }
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
@@ -407,7 +412,7 @@ static void UplinkProcess( void )
  */
 static void OnTxTimerEvent( struct ble_npl_event *event )
 {
-    printf("OnTxTimerEvent: timeout in %ld ms\n", TxPeriodicity);
+    printf("OnTxTimerEvent: timeout in %ld ms, event=%p\n", TxPeriodicity, event);
     TimerStop( &TxTimer );
 
     IsTxFramePending = 1;
