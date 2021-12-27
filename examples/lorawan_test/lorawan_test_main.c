@@ -118,26 +118,6 @@ static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
  */
 static TimerEvent_t TxTimer;
 
-/*!
- * Timer to handle the state of LED1
- */
-static TimerEvent_t Led1Timer;
-
-/*!
- * Timer to handle the state of LED2
- */
-static TimerEvent_t Led2Timer;
-
-/*!
- * Timer to handle the state of LED3
- */
-static TimerEvent_t Led3Timer;
-
-/*!
- * Timer to handle the state of LED beacon indicator
- */
-static TimerEvent_t LedBeaconTimer;
-
 static void OnMacProcessNotify( void );
 static void OnNvmDataChange( LmHandlerNvmContextStates_t state, uint16_t size );
 static void OnNetworkParametersChange( CommissioningParams_t* params );
@@ -175,28 +155,8 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
  */
 static void OnTxTimerEvent( struct ble_npl_event *event );
 
-/*!
- * Function executed on Led 1 Timeout event
- */
-static void OnLed1TimerEvent( struct ble_npl_event *event );
-
-/*!
- * Function executed on Led 2 Timeout event
- */
-static void OnLed2TimerEvent( struct ble_npl_event *event );
-
-/*!
- * \brief Function executed on Led 3 Timeout event
- */
-static void OnLed3TimerEvent( struct ble_npl_event *event );
-
-/*!
- * \brief Function executed on Beacon timer Timeout event
- */
-static void OnLedBeaconTimerEvent( struct ble_npl_event *event );
-
-static void create_task(void);
-static void task_callback(void *arg);
+static void init_event_queue(void);
+static void handle_event_queue(void *arg);
 
 uint8_t BoardGetBatteryLevel( void ) { return 0; } //// TODO
 uint32_t BoardGetRandomSeed( void ) { return 22; } //// TODO
@@ -329,23 +289,10 @@ int main(int argc, FAR char *argv[]) {
     //  TODO: BoardInitMcu( );
     //  TODO: BoardInitPeriph( );
 
-    //  Create a Background Thread to handle LoRaWAM Events
-    create_task();
+    //  Init the LoRaWAN Event Queue
+    init_event_queue();
 
-    //  Init the timers
-    TimerInit( &Led1Timer, OnLed1TimerEvent );
-    TimerSetValue( &Led1Timer, 25 );
-
-    TimerInit( &Led2Timer, OnLed2TimerEvent );
-    TimerSetValue( &Led2Timer, 25 );
-
-    TimerInit( &Led3Timer, OnLed3TimerEvent );
-    TimerSetValue( &Led3Timer, 100 );
-
-    TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
-    TimerSetValue( &LedBeaconTimer, 5000 );
-
-    // Initialize transmission periodicity variable
+    //  Compute the interval between transmissions based on Duty Cycle
     TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
 
     const Version_t appVersion = { .Value = FIRMWARE_VERSION };
@@ -358,23 +305,20 @@ int main(int argc, FAR char *argv[]) {
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
         printf( "LoRaMac wasn't properly initialized\n" );
-        // Fatal error, endless loop.
-        while ( 1 )
-        {
-        }
+        //  Fatal error, endless loop.
+        while ( 1 ) {}
     }
 
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError( 20 );
 
-    // The LoRa-Alliance Compliance protocol package should always be
-    // initialized and activated.
+    // The LoRa-Alliance Compliance protocol package should always be initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
     LmHandlerPackageRegister( PACKAGE_ID_CLOCK_SYNC, NULL );
     LmHandlerPackageRegister( PACKAGE_ID_REMOTE_MCAST_SETUP, NULL );
     LmHandlerPackageRegister( PACKAGE_ID_FRAGMENTATION, &FragmentationParams );
 
-    IsClockSynched = false;
+    IsClockSynched     = false;
     IsFileTransferDone = false;
 
     //  Join the LoRaWAN Network
@@ -384,9 +328,93 @@ int main(int argc, FAR char *argv[]) {
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
 
     //  Handle LoRaWAN Events
-    task_callback(NULL);  //  Never returns
+    handle_event_queue(NULL);  //  Never returns
 
     return 0;
+}
+
+/*!
+ * Prepares the payload of the frame and transmits it.
+ */
+static void PrepareTxFrame( void )
+{
+    if (LmHandlerIsBusy()) { puts("PrepareTxFrame: Busy"); return; }
+
+    //  Send a message to LoRaWAN
+    const char msg[] = "Hello NuttX";
+    printf("PrepareTxFrame: Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
+
+    //  Compose the transmit request
+    memcpy(AppDataBuffer, msg, sizeof(msg));
+    LmHandlerAppData_t appData =
+    {
+        .Buffer = AppDataBuffer,
+        .BufferSize = sizeof(msg),
+        .Port = 1,
+    };
+
+    //  Transmit the message. First message will be empty.
+    if( LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
+    {
+        puts("PrepareTxFrame: Transmit OK");
+    }
+
+    //  Start the Transmit Timer for next transmission
+    OnTxTimerEvent(NULL);
+}
+
+static void StartTxProcess( LmHandlerTxEvents_t txEvent )
+{
+    puts("StartTxProcess");
+    switch( txEvent )
+    {
+    default:
+        // Intentional fall through
+    case LORAMAC_HANDLER_TX_ON_TIMER:
+        {
+            // Schedule 1st packet transmission
+            TimerInit( &TxTimer, OnTxTimerEvent );
+            TimerSetValue( &TxTimer, TxPeriodicity );
+            OnTxTimerEvent( NULL );
+        }
+        break;
+    case LORAMAC_HANDLER_TX_ON_EVENT:
+        {
+        }
+        break;
+    }
+}
+
+static void UplinkProcess( void )
+{
+    puts("UplinkProcess");
+    uint8_t isPending = 0;
+    CRITICAL_SECTION_BEGIN( );
+    isPending = IsTxFramePending;
+    IsTxFramePending = 0;
+    CRITICAL_SECTION_END( );
+    if( isPending == 1 )
+    {
+        PrepareTxFrame( );
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  Event Handlers
+
+/*!
+ * Function executed on TxTimer event
+ */
+static void OnTxTimerEvent( struct ble_npl_event *event )
+{
+    printf("OnTxTimerEvent: timeout in %ld ms\n", TxPeriodicity);
+    TimerStop( &TxTimer );
+
+    IsTxFramePending = 1;
+
+    // Schedule next transmission
+    TimerSetValue( &TxTimer, TxPeriodicity );
+    TimerStart( &TxTimer );
 }
 
 static void OnMacProcessNotify( void )
@@ -484,13 +512,17 @@ static void OnBeaconStatusChange( LoRaMacHandlerBeaconParams_t* params )
     {
         case LORAMAC_HANDLER_BEACON_RX:
         {
-            TimerStart( &LedBeaconTimer );
+            puts("OnBeaconStatusChange: LORAMAC_HANDLER_BEACON_RX");
             break;
         }
         case LORAMAC_HANDLER_BEACON_LOST:
+        {
+            puts("OnBeaconStatusChange: LORAMAC_HANDLER_BEACON_LOST");
+            break;
+        }
         case LORAMAC_HANDLER_BEACON_NRX:
         {
-            TimerStop( &LedBeaconTimer );
+            puts("OnBeaconStatusChange: LORAMAC_HANDLER_BEACON_NRX");
             break;
         }
         default:
@@ -544,12 +576,6 @@ static int8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
 
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost )
 {
-#ifdef NOTUSED
-    // Switch LED 3 OFF for each received downlink
-    GpioWrite( &Led3, 0 );
-#endif  //  NOTUSED
-    TimerStart( &Led3Timer );
-
     printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
     printf( "######               PROGRESS                ######\n");
     printf( "###### ===================================== ######\n");
@@ -590,75 +616,6 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
 }
 #endif
 
-/*!
- * Prepares the payload of the frame and transmits it.
- */
-static void PrepareTxFrame( void )
-{
-    puts("PrepareTxFrame");
-    if( LmHandlerIsBusy( ) == true ) { return; }
-
-    //  Send a message to LoRaWAN
-    const char msg[] = "Hello NuttX";
-    printf("PrepareTxFrame: Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
-
-    //  Compose the transmit request
-    memcpy(AppDataBuffer, msg, sizeof(msg));
-    LmHandlerAppData_t appData =
-    {
-        .Buffer = AppDataBuffer,
-        .BufferSize = sizeof(msg),
-        .Port = 1,
-    };
-
-    //  Transmit the message. First message will be empty.
-    if( LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
-    {
-        puts("PrepareTxFrame: Transmit OK");
-        // Switch LED 1 ON
-        // GpioWrite( &Led1, 1 );
-        TimerStart( &Led1Timer );
-    }
-
-    //  Start the Transmit Timer for next transmission
-    StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
-}
-
-static void StartTxProcess( LmHandlerTxEvents_t txEvent )
-{
-    puts("StartTxProcess");
-    switch( txEvent )
-    {
-    default:
-        // Intentional fall through
-    case LORAMAC_HANDLER_TX_ON_TIMER:
-        {
-            // Schedule 1st packet transmission
-            TimerInit( &TxTimer, OnTxTimerEvent );
-            TimerSetValue( &TxTimer, TxPeriodicity );
-            OnTxTimerEvent( NULL );
-        }
-        break;
-    case LORAMAC_HANDLER_TX_ON_EVENT:
-        {
-        }
-        break;
-    }
-}
-
-static void UplinkProcess( void )
-{
-    uint8_t isPending = 0;
-    CRITICAL_SECTION_BEGIN( );
-    isPending = IsTxFramePending;
-    IsTxFramePending = 0;
-    CRITICAL_SECTION_END( );
-    if( isPending == 1 )
-    {
-        PrepareTxFrame( );
-    }
-}
-
 static void OnTxPeriodicityChanged( uint32_t periodicity )
 {
     TxPeriodicity = periodicity;
@@ -684,74 +641,18 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity )
     LmHandlerParams.PingSlotPeriodicity = pingSlotPeriodicity;
 }
 
-/*!
- * Function executed on TxTimer event
- */
-static void OnTxTimerEvent( struct ble_npl_event *event )
-{
-    printf("OnTxTimerEvent: timeout in %ld ms\n", TxPeriodicity);
-    TimerStop( &TxTimer );
-
-    IsTxFramePending = 1;
-
-    // Schedule next transmission
-    TimerSetValue( &TxTimer, TxPeriodicity );
-    TimerStart( &TxTimer );
-}
-
-/*!
- * Function executed on Led 1 Timeout event
- */
-static void OnLed1TimerEvent( struct ble_npl_event *event )
-{
-    TimerStop( &Led1Timer );
-    // Switch LED 1 OFF
-    // GpioWrite( &Led1, 0 );
-}
-
-/*!
- * Function executed on Led 2 Timeout event
- */
-static void OnLed2TimerEvent( struct ble_npl_event *event )
-{
-    TimerStop( &Led2Timer );
-    // Switch LED 2 OFF
-    // GpioWrite( &Led2, 0 );
-}
-
-/*!
- * \brief Function executed on Led 3 Timeout event
- */
-static void OnLed3TimerEvent( struct ble_npl_event *event )
-{
-    TimerStop( &Led3Timer );
-    // Switch LED 3 ON
-    // GpioWrite( &Led3, 1 );
-}
-
-/*!
- * \brief Function executed on Beacon timer Timeout event
- */
-static void OnLedBeaconTimerEvent( struct ble_npl_event *event )
-{
-    // GpioWrite( &Led2, 1 );
-    TimerStart( &Led2Timer );
-
-    TimerStart( &LedBeaconTimer );
-}
-
 ///////////////////////////////////////////////////////////////////////////////
-//  Multithreading Commands
+//  Event Queue
 
 /// Test Event to be added to the Event Queue
 static struct ble_npl_event event;
 
-static void task_callback(void *arg);
+static void handle_event_queue(void *arg);
 static void handle_event(struct ble_npl_event *ev);
 
-/// Create a Background Thread to handle LoRaWAN Events
-static void create_task(void) {
-    puts("create_task");
+/// Init the Event Queue
+static void init_event_queue(void) {
+    puts("init_event_queue");
 
     //  Init the Event Queue
     ble_npl_eventq_init(&event_queue);
@@ -762,14 +663,11 @@ static void create_task(void) {
         handle_event,  //  Event Handler Function
         NULL           //  Argument to be passed to Event Handler
     );
-
-    //  TODO: Create a Background Thread to process the Event Queue
-    //  nimble_port_freertos_init(task_callback);
 }
 
 /// LoRaWAN Event Loop that dequeues Events from the Event Queue and processes the Events
-static void task_callback(void *arg) {
-    puts("task_callback");
+static void handle_event_queue(void *arg) {
+    puts("handle_event_queue");
 
     //  Loop forever handling Events from the Event Queue
     for (;;) {
@@ -781,7 +679,7 @@ static void task_callback(void *arg) {
 
         //  If no Event due to timeout, wait for next Event
         if (ev == NULL) { printf("."); continue; }
-        printf("task_callback: ev=%p\n", ev);
+        printf("handle_event_queue: ev=%p\n", ev);
 
         //  Remove the Event from the Event Queue
         ble_npl_eventq_remove(&event_queue, ev);
