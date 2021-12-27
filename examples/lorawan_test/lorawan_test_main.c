@@ -59,7 +59,8 @@
 /*!
  * Defines the application data transmission duty cycle. 40s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            40000
+////TODO: #define APP_TX_DUTYCYCLE                            40000
+#define APP_TX_DUTYCYCLE                            10000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 5s,
@@ -599,7 +600,7 @@ static void PrepareTxFrame( void )
 
     //  Send a message to LoRaWAN
     const char msg[] = "Hello NuttX";
-    printf("Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
+    printf("PrepareTxFrame: Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
 
     //  Compose the transmit request
     memcpy(AppDataBuffer, msg, sizeof(msg));
@@ -610,17 +611,22 @@ static void PrepareTxFrame( void )
         .Port = 1,
     };
 
+    //  Transmit the message. First message will be empty.
     if( LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
     {
-        puts("Transmit OK");
+        puts("PrepareTxFrame: Transmit OK");
         // Switch LED 1 ON
         // GpioWrite( &Led1, 1 );
         TimerStart( &Led1Timer );
     }
+
+    //  Start the Transmit Timer for next transmission
+    StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
 }
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 {
+    puts("StartTxProcess");
     switch( txEvent )
     {
     default:
@@ -683,6 +689,7 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity )
  */
 static void OnTxTimerEvent( struct ble_npl_event *event )
 {
+    printf("OnTxTimerEvent: timeout in %ld ms\n", TxPeriodicity);
     TimerStop( &TxTimer );
 
     IsTxFramePending = 1;
