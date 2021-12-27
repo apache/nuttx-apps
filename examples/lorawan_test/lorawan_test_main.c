@@ -154,6 +154,7 @@ static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
  * Function executed on TxTimer event
  */
 static void OnTxTimerEvent( struct ble_npl_event *event );
+static void OnTxTimerEvent2( struct ble_npl_event *event );
 
 static void init_event_queue(void);
 static void handle_event_queue(void *arg);
@@ -362,7 +363,7 @@ static void PrepareTxFrame( void )
     //  Start the Transmit Timer for next transmission
     ////OnTxTimerEvent(NULL);
     static TimerEvent_t TxTimer2;
-    TimerInit( &TxTimer2, OnTxTimerEvent );
+    TimerInit( &TxTimer2, OnTxTimerEvent2 );
     TimerSetValue( &TxTimer2, TxPeriodicity );
     IsTxFramePending = 1;
     TimerStart( &TxTimer2 );
@@ -420,6 +421,11 @@ static void OnTxTimerEvent( struct ble_npl_event *event )
     // Schedule next transmission
     TimerSetValue( &TxTimer, TxPeriodicity );
     TimerStart( &TxTimer );
+}
+
+static void OnTxTimerEvent2( struct ble_npl_event *event )
+{
+    printf("OnTxTimerEvent2: event=%p\n", event);
 }
 
 static void OnMacProcessNotify( void )
