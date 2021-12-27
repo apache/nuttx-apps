@@ -813,7 +813,7 @@ static void create_task(void) {
     //  nimble_port_freertos_init(task_callback);
 }
 
-/// Task Function that dequeues Events from the Event Queue and processes the Events
+/// LoRaWAN Event Loop that dequeues Events from the Event Queue and processes the Events
 static void task_callback(void *arg) {
     puts("task_callback");
 
@@ -821,8 +821,8 @@ static void task_callback(void *arg) {
     for (;;) {
         //  Get the next Event from the Event Queue
         struct ble_npl_event *ev = ble_npl_eventq_get(
-            &event_queue,  //  Event Queue
-            5000           //  Timeout in 5,000 ticks (5 seconds)
+            &event_queue,         //  Event Queue
+            BLE_NPL_TIME_FOREVER  //  No Timeout (Wait forever for event)
         );
 
         //  If no Event due to timeout, wait for next Event
