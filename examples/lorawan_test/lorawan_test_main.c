@@ -631,14 +631,20 @@ static void UplinkProcess( void )
                 }
                 else
                 {
-                    AppDataBuffer[0] = randr( 0, 255 );
-                    // Send random packet
+                    //  Send a message to LoRaWAN
+                    const char msg[] = "Hello NuttX";
+                    printf("Transmit to LoRaWAN: %s (%d bytes)\n", msg, sizeof(msg));
+
+                    //  Compose the transmit request
+                    memcpy(AppDataBuffer, msg, sizeof(msg));
                     LmHandlerAppData_t appData =
                     {
                         .Buffer = AppDataBuffer,
-                        .BufferSize = 1,
+                        .BufferSize = sizeof(msg),
                         .Port = 1,
                     };
+
+                    //  Transmit the message
                     status = LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed );
                 }
             }
@@ -814,7 +820,6 @@ static void task_callback(void *arg) {
         // Process application uplinks management
         UplinkProcess( );
 
-#ifdef TODO
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
         {
@@ -823,11 +828,10 @@ static void task_callback(void *arg) {
         }
         else
         {
-            // The MCU wakes up through events
-            BoardLowPowerHandler( );
+            //  The MCU wakes up through events
+            //  TODO: BoardLowPowerHandler( );
         }
         CRITICAL_SECTION_END( );
-#endif  //  TODO
     }
 }
 
