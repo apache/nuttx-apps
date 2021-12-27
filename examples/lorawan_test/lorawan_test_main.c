@@ -383,6 +383,8 @@ int main(int argc, FAR char *argv[]) {
 
     //  Handle LoRaWAN Events
     task_callback(NULL);  //  Never returns
+
+    return 0;
 }
 
 #ifdef NOTUSED  //  Previously
