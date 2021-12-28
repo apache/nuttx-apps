@@ -1,0 +1,6 @@
+[submodule "examples/sx1262_test"]
+	path = examples/sx1262_test
+	url = https://github.com/lupyuen/sx1262_test
+[submodule "examples/lorawan_test"]
+	path = examples/lorawan_test
+	url = https://github.com/lupyuen/lorawan_test
