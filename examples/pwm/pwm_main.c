@@ -65,6 +65,26 @@
 #      error "Channel numbers must be unique"
 #    endif
 #  endif
+#  if CONFIG_PWM_NCHANNELS > 4
+#    if CONFIG_EXAMPLES_PWM_CHANNEL1 == CONFIG_EXAMPLES_PWM_CHANNEL5 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL2 == CONFIG_EXAMPLES_PWM_CHANNEL5 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL3 == CONFIG_EXAMPLES_PWM_CHANNEL5 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL4 == CONFIG_EXAMPLES_PWM_CHANNEL5
+#      error "Channel numbers must be unique"
+#    endif
+#  endif
+#  if CONFIG_PWM_NCHANNELS > 5
+#    if CONFIG_EXAMPLES_PWM_CHANNEL1 == CONFIG_EXAMPLES_PWM_CHANNEL6 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL2 == CONFIG_EXAMPLES_PWM_CHANNEL6 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL3 == CONFIG_EXAMPLES_PWM_CHANNEL6 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL4 == CONFIG_EXAMPLES_PWM_CHANNEL6 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL5 == CONFIG_EXAMPLES_PWM_CHANNEL6
+#      error "Channel numbers must be unique"
+#    endif
+#  endif
+#  if CONFIG_PWM_NCHANNELS > 6
+#    error "Too many PWM channels"
+#  endif
 #endif
 
 /****************************************************************************
@@ -143,6 +163,12 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
 #if CONFIG_PWM_NCHANNELS > 3
     CONFIG_EXAMPLES_PWM_CHANNEL4,
 #endif
+#if CONFIG_PWM_NCHANNELS > 4
+    CONFIG_EXAMPLES_PWM_CHANNEL5,
+#endif
+#if CONFIG_PWM_NCHANNELS > 5
+    CONFIG_EXAMPLES_PWM_CHANNEL6,
+#endif
   };
 
   uint8_t duties[CONFIG_PWM_NCHANNELS] =
@@ -156,6 +182,12 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
 #endif
 #if CONFIG_PWM_NCHANNELS > 3
     CONFIG_EXAMPLES_PWM_DUTYPCT4,
+#endif
+#if CONFIG_PWM_NCHANNELS > 4
+    CONFIG_EXAMPLES_PWM_DUTYPCT5,
+#endif
+#if CONFIG_PWM_NCHANNELS > 5
+    CONFIG_EXAMPLES_PWM_DUTYPCT6,
 #endif
   };
 
@@ -298,7 +330,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc,
 #ifdef CONFIG_PWM_MULTICHAN
           case 'c':
             nargs = arg_decimal(&argv[index], &value);
-            if (value < 1 || value > 4)
+            if (value < 1 || value > CONFIG_PWM_NCHANNELS)
               {
                 printf("Channel out of range: %ld\n", value);
                 exit(1);
@@ -425,6 +457,14 @@ int main(int argc, FAR char *argv[])
 #if CONFIG_PWM_NCHANNELS > 3
       g_pwmstate.channels[3] = CONFIG_EXAMPLES_PWM_CHANNEL4;
       g_pwmstate.duties[3]   = CONFIG_EXAMPLES_PWM_DUTYPCT4;
+#endif
+#if CONFIG_PWM_NCHANNELS > 4
+      g_pwmstate.channels[4] = CONFIG_EXAMPLES_PWM_CHANNEL5;
+      g_pwmstate.duties[4]   = CONFIG_EXAMPLES_PWM_DUTYPCT5;
+#endif
+#if CONFIG_PWM_NCHANNELS > 5
+      g_pwmstate.channels[5] = CONFIG_EXAMPLES_PWM_CHANNEL6;
+      g_pwmstate.duties[5]   = CONFIG_EXAMPLES_PWM_DUTYPCT6;
 #endif
 #else
       g_pwmstate.duty        = CONFIG_EXAMPLES_PWM_DUTYPCT;
