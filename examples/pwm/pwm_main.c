@@ -330,7 +330,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc,
 #ifdef CONFIG_PWM_MULTICHAN
           case 'c':
             nargs = arg_decimal(&argv[index], &value);
-            if (value < 1 || value > CONFIG_PWM_NCHANNELS)
+            if (value < -1 || value > CONFIG_PWM_NCHANNELS)
               {
                 printf("Channel out of range: %ld\n", value);
                 exit(1);
@@ -346,14 +346,14 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc,
                         CONFIG_PWM_NCHANNELS - 1);
               }
 
-            pwm->channels[nchannels - 1] = (uint8_t)value;
+            pwm->channels[nchannels - 1] = (int8_t)value;
             index += nargs;
             break;
 #endif
 
           case 'd':
             nargs = arg_decimal(&argv[index], &value);
-            if (value < 1 || value > 99)
+            if (value < 0 || value > 100)
               {
                 printf("Duty out of range: %ld\n", value);
                 exit(1);
