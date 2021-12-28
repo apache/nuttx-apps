@@ -1,11 +1,7 @@
-//  Demo Program for LoRaWAN on NuttX, based on:
+//  Demo Program for LoRaWAN on NuttX based on:
 //  https://github.com/lupyuen/LoRaMac-node-nuttx/blob/master/src/apps/LoRaMac/fuota-test-01/B-L072Z-LRWAN1/main.c
 //  https://github.com/lupyuen/LoRaMac-node-nuttx/blob/master/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
 /*!
- * \file      main.c
- *
- * \brief     FUOTA interop tests - test 01
- *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
  * \code
@@ -21,20 +17,12 @@
  *
  * \author    Miguel Luis ( Semtech )
  */
-
-/*! \file fuota-test-01/B-L072Z-LRWAN1/main.c */
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include "firmwareVersion.h"
 #include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/githubVersion.h"
 #include "../../../nuttx/libs/liblorawan/src/boards/utilities.h"
-////#include "board.h"
-////#include "../../../nuttx/libs/liblorawan/src/system/gpio.h"
-////#include "../../../nuttx/libs/liblorawan/src/system/uart.h"
 #include "../../../nuttx/libs/liblorawan/src/mac/region/RegionCommon.h"
-
-////#include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/cli.h"
 #include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/Commissioning.h"
 #include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/LmHandler.h"
 #include "../../../nuttx/libs/liblorawan/src/apps/LoRaMac/common/LmHandler/packages/LmhpCompliance.h"
@@ -72,7 +60,7 @@
  *
  * \remark Please note that when ADR is enabled the end-device should be static
  */
-#define LORAWAN_ADR_STATE                           LORAMAC_HANDLER_ADR_ON
+#define LORAWAN_ADR_STATE                           LORAMAC_HANDLER_ADR_OFF
 
 /*!
  * Default datarate
