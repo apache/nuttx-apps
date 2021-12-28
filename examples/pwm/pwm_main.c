@@ -523,8 +523,7 @@ int main(int argc, FAR char *argv[])
   for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       info.channels[i].channel = g_pwmstate.channels[i];
-      info.channels[i].duty    = ((uint32_t)g_pwmstate.duties[i]
-                                  << 16) / 100;
+      info.channels[i].duty = b16divi(uitoub16(g_pwmstate.duties[i]), 100);
       printf(" channel: %d duty: %08" PRIx32,
         info.channels[i].channel, info.channels[i].duty);
     }
@@ -532,9 +531,9 @@ int main(int argc, FAR char *argv[])
   printf("\n");
 
 #else
-  info.duty      = ((uint32_t)g_pwmstate.duty << 16) / 100;
+  info.duty  = b16divi(uitoub16(g_pwmstate.duty), 100);
 #  ifdef CONFIG_PWM_PULSECOUNT
-  info.count     = g_pwmstate.count;
+  info.count = g_pwmstate.count;
 
   printf("pwm_main: starting output "
          "with frequency: %" PRIu32 " duty: %08" PRIx32
