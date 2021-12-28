@@ -94,7 +94,7 @@ FAR char *obd_decode_pid(FAR struct obd_dev_s *dev, uint8_t pid)
         break;
 
       case OBD_PID_RPM:
-        rpm = ((256 * dev->data[3]) + dev->data[4])/4;
+        rpm = ((256 * dev->data[3]) + dev->data[4]) / 4;
         snprintf(g_data, MAXDATA, "%d", rpm);
 #ifdef CONFIG_DEBUG_INFO
         printf("RPM = %d\n", rpm);
@@ -109,7 +109,7 @@ FAR char *obd_decode_pid(FAR struct obd_dev_s *dev, uint8_t pid)
         break;
 
       case OBD_PID_THROTTLE_POSITION:
-        snprintf(g_data, MAXDATA, "%d", (100 * dev->data[3])/255);
+        snprintf(g_data, MAXDATA, "%d", (100 * dev->data[3]) / 255);
 #ifdef CONFIG_DEBUG_INFO
         printf("Throttle position = %d\n", (100 * dev->data[3]) / 255);
 #endif
