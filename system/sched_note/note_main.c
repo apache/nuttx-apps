@@ -60,6 +60,7 @@ static uint8_t g_note_buffer[CONFIG_SYSTEM_NOTE_BUFFERSIZE];
 
 /* Names of task/thread states */
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
 static FAR const char *g_statenames[] =
 {
   "Invalid",
@@ -76,6 +77,7 @@ static FAR const char *g_statenames[] =
 };
 
 #define NSTATES (sizeof(g_statenames)/sizeof(FAR const char *))
+#endif
 
 /************************************************************************************
  * Private Functions
@@ -706,6 +708,68 @@ static void dump_notes(size_t nread)
                            (unsigned int)pid,
                            note->nc_type == NOTE_IRQ_ENTER ? "Enter" : "Leave",
                            note_irq->nih_irq);
+                  }
+                  break;
+#endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+                case NOTE_DUMP_STRING:
+                  {
+                    FAR struct note_string_s *note_string =
+                      (FAR struct note_string_s *)note;
+
+                    if (note->nc_length < sizeof(struct note_string_s))
+                      {
+                        syslog(LOG_INFO,
+                               "ERROR: note too small for string note: %d\n",
+                               note->nc_length);
+                        return;
+                      }
+
+                    syslog_time(LOG_INFO,
+                           "Task %u priority %u, string:%s\n",
+                           (unsigned int)pid,
+                           (unsigned int)note->nc_priority,
+                           note_string->nst_data);
+                  }
+                  break;
+
+                case NOTE_DUMP_BINARY:
+                  {
+                    FAR struct note_binary_s *note_binary =
+                      (FAR struct note_binary_s *)note;
+                    char out[1280];
+                    int count;
+                    int ret = 0;
+                    int i;
+
+                    count = note->nc_length - sizeof(struct note_binary_s) + 1;
+
+                    if (count < 0)
+                      {
+                        syslog(LOG_INFO,
+                               "ERROR: note too small for binary note: %d\n",
+                               note->nc_length);
+                        return;
+                      }
+
+                    for (i = 0; i < count; i++)
+                      {
+                        ret += sprintf(&out[ret], " 0x%x", note_binary->nbi_data[i]);
+                      }
+
+                    syslog_time(LOG_INFO,
+                           "Task %u priority %u, binary:module=%c%c%c%c "
+                            "event=%u count=%u%s\n",
+                           (unsigned int)pid,
+                           (unsigned int)note->nc_priority,
+                           note_binary->nbi_module[0],
+                           note_binary->nbi_module[1],
+                           note_binary->nbi_module[2],
+                           note_binary->nbi_module[3],
+                           note_binary->nbi_event,
+                           count,
+                           out);
                   }
                   break;
 #endif
