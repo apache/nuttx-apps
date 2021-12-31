@@ -829,7 +829,7 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
   fd = open(filename, O_RDONLY);
   if (fd < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed,  "``", "open", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "``", "open", NSH_ERRNO);
       goto errout_with_alloc;
     }
 
@@ -876,6 +876,13 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
 
       index += nbytesread;
     }
+
+  /* Remove trailing whitespace */
+
+  for (;
+       index > s1size &&
+       strchr(g_token_separator, argument[index - 1]) != NULL;
+       index--);
 
   /* Make sure that the new string is null terminated */
 
