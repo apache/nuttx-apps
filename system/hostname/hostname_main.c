@@ -46,6 +46,12 @@ int main(int argc, FAR char *argv[])
 
   if (argc > 1)
     {
+      if (argc > 2)
+        {
+          fprintf(stderr, "ERROR: Too many arguments\n");
+          return EXIT_FAILURE;
+        }
+
       ret = sethostname(argv[1], strlen(argv[1]));
       if (ret != 0)
         {
@@ -65,5 +71,5 @@ int main(int argc, FAR char *argv[])
       printf("%s\n", hostname);
     }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
