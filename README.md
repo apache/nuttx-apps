@@ -3,6 +3,7 @@ __Updated for the articles...__
 -   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
 -   [__"SPI on Apache NuttX OS"__](https://lupyuen.github.io/articles/spi2)
 -   [__"LoRa SX1262 on Apache NuttX OS"__](https://lupyuen.github.io/articles/sx1262)
+-   [__"LoRaWAN on Apache NuttX OS"__](https://lupyuen.github.io/articles/lorawan3)
 
 # Application Folder
 
