@@ -54,10 +54,10 @@ struct usrsock_rpmsg_s
  ****************************************************************************/
 
 static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
-                                  uint8_t xid, int32_t result);
+                                  uint64_t xid, int32_t result);
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
                                   struct usrsock_message_datareq_ack_s *ack,
-                                  uint8_t xid, int32_t result,
+                                  uint64_t xid, int32_t result,
                                   uint16_t valuelen,
                                   uint16_t valuelen_nontrunc);
 static int usrsock_rpmsg_send_event(struct rpmsg_endpoint *ept,
@@ -141,7 +141,7 @@ static const rpmsg_ept_cb g_usrsock_rpmsg_handler[] =
  ****************************************************************************/
 
 static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
-                                  uint8_t xid, int32_t result)
+                                  uint64_t xid, int32_t result)
 {
   struct usrsock_message_req_ack_s ack;
 
@@ -156,7 +156,7 @@ static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
 
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
                                   struct usrsock_message_datareq_ack_s *ack,
-                                  uint8_t xid, int32_t result,
+                                  uint64_t xid, int32_t result,
                                   uint16_t valuelen,
                                   uint16_t valuelen_nontrunc)
 {
