@@ -96,6 +96,23 @@ struct gs2200m_s
   struct usock_s sockets[SOCKET_COUNT];
 };
 
+union usrsock_request_u
+{
+  struct usrsock_request_socket_s       socket;
+  struct usrsock_request_close_s        close;
+  struct usrsock_request_connect_s      connect;
+  struct usrsock_request_sendto_s       sendto;
+  struct usrsock_request_recvfrom_s     recvfrom;
+  struct usrsock_request_setsockopt_s   setsockopt;
+  struct usrsock_request_getsockopt_s   getsockopt;
+  struct usrsock_request_getsockname_s  getsockname;
+  struct usrsock_request_getpeername_s  getpeername;
+  struct usrsock_request_bind_s         bind;
+  struct usrsock_request_listen_s       listen;
+  struct usrsock_request_accept_s       accept;
+  struct usrsock_request_ioctl_s        ioctl;
+};
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -366,10 +383,10 @@ read_req(int fd, FAR const struct usrsock_request_common_s *com_hdr,
 static int usrsock_request(int fd, FAR struct gs2200m_s *priv)
 {
   FAR struct usrsock_request_common_s *com_hdr;
-  uint8_t hdrbuf[16];
+  union usrsock_request_u req;
   ssize_t rlen;
 
-  com_hdr = (FAR void *)hdrbuf;
+  com_hdr = (FAR void *)&req;
   rlen = read(fd, com_hdr, sizeof(*com_hdr));
 
   if (rlen < 0)
@@ -389,9 +406,9 @@ static int usrsock_request(int fd, FAR struct gs2200m_s *priv)
       return -EIO;
     }
 
-  assert(handlers[com_hdr->reqid].hdrlen < sizeof(hdrbuf));
+  assert(handlers[com_hdr->reqid].hdrlen <= sizeof(req));
 
-  rlen = read_req(fd, com_hdr, hdrbuf,
+  rlen = read_req(fd, com_hdr, &req,
                   handlers[com_hdr->reqid].hdrlen);
 
   if (rlen < 0)
@@ -399,7 +416,7 @@ static int usrsock_request(int fd, FAR struct gs2200m_s *priv)
       return rlen;
     }
 
-  return handlers[com_hdr->reqid].fn(fd, priv, hdrbuf);
+  return handlers[com_hdr->reqid].fn(fd, priv, &req);
 }
 
 /****************************************************************************
