@@ -468,6 +468,7 @@ static void *dhcpc_run(void *args)
       else
         {
           pdhcpc->callback(NULL);
+          memset(&result, 0, sizeof(result));
           nerr("dhcpc_request error\n");
         }
 
@@ -476,6 +477,7 @@ static void *dhcpc_run(void *args)
           return NULL;
         }
 
+      result.lease_time /= 2;
       while (result.lease_time)
         {
           result.lease_time = sleep(result.lease_time);
