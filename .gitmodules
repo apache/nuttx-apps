@@ -4,3 +4,6 @@
 [submodule "examples/lorawan_test"]
 	path = examples/lorawan_test
 	url = https://github.com/lupyuen/lorawan_test
+[submodule "examples/tinycbor_test"]
+	path = examples/tinycbor_test
+	url = https://github.com/lupyuen/tinycbor_test
