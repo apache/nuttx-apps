@@ -42,9 +42,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#if defined(CONFIG_MKFATFS_BUFFER_ALIGMENT) && \
-            CONFIG_MKFATFS_BUFFER_ALIGMENT > 0
-#  define fat_buffer_alloc(s) memalign(CONFIG_MKFATFS_BUFFER_ALIGMENT, (s))
+#if defined(CONFIG_MKFATFS_BUFFER_ALIGNMENT) && \
+            CONFIG_MKFATFS_BUFFER_ALIGNMENT > 0
+#  define fat_buffer_alloc(s) memalign(CONFIG_MKFATFS_BUFFER_ALIGNMENT, (s))
 #else
 #  define fat_buffer_alloc(s) malloc((s))
 #endif

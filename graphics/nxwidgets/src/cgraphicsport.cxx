@@ -788,7 +788,7 @@ void CGraphicsPort::_drawText(struct nxgl_point_s *pos, CRect *bound,
           dest.pt2.x = pos->x + fontWidth - 1;
           dest.pt2.y = pos->y + bmHeight - 1;
 
-          // Get the interection of the font box and the bounding box
+          // Get the interaction of the font box and the bounding box
 
           struct nxgl_rect_s intersection;
           nxgl_rectintersect(&intersection, &dest, &boundingBox);

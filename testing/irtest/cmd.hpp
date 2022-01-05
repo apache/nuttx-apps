@@ -132,7 +132,7 @@ extern const struct cmd *g_cmd_table[];
 
 /* the simple command line parser */
 
-static inline const char *get_fisrt_arg(char *cmdline)
+static inline const char *get_first_arg(char *cmdline)
 {
   return strtok(cmdline, " \t,()\n") ?: "";
 }
@@ -150,7 +150,7 @@ inline const char *get_next_arg()
 {
   /* 0 mean from the end of last token */
 
-  return get_fisrt_arg(0);
+  return get_first_arg(0);
 }
 
 template < >

@@ -154,7 +154,7 @@ CRadioButton *CRadioButtonGroup::newRadioButton(nxgl_coord_t x, nxgl_coord_t y,
 }
 
 /**
- * Gets a pointer to the selectm_widgetControled widget.
+ * Gets a pointer to the selectm_widgetControlled widget.
  *
  * @return Pointer to the selected widget.
  */

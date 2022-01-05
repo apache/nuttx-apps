@@ -18,7 +18,7 @@ config EXAMPLES_MEDIA
 		drivers (see nuttx/drivers/eeprom), or with block drivers wrapped
 		as character drivers (see nuttx/drivers/bch)
 
-			int ret = bchdev_register(<path-to-block-dirver>,
+			int ret = bchdev_register(<path-to-block-driver>,
 			                          <path-to-character-driver>, false);
 
 		MTD drivers need an additional wrapper layer, the FTL wrapper must
@@ -39,7 +39,7 @@ config EXAMPLES_MEDIA_DEVPATH
 		drivers (see nuttx/drivers/eeprom), or with block drivers wrapped as
 		character drivers (see nuttx/drivers/bch)
 
-			int ret = bchdev_register(<path-to-block-dirver>,
+			int ret = bchdev_register(<path-to-block-driver>,
 			                          <path-to-character-driver>, false);
 
 		MTD drivers need an additional wrapper layer, the FTL wrapper must

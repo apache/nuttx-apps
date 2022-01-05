@@ -673,7 +673,7 @@ drivers. This test is suitable for use EEPROM character drivers (see
 `nuttx/drivers/bch`)
 
 ```c
-int ret = bchdev_register(<path-to-block-dirver>,
+int ret = bchdev_register(<path-to-block-driver>,
                           <path-to-character-driver>, false);
 ```
 
