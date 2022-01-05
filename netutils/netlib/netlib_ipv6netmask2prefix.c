@@ -96,7 +96,7 @@ static uint8_t netlib_msbits8(uint8_t byval)
  * Name: netlib_msbits16
  *
  * Description:
- *   Count the number of leading '1' bits in a 16-bit half-workd
+ *   Count the number of leading '1' bits in a 16-bit half-word
  *
  ****************************************************************************/
 

@@ -11,7 +11,7 @@ config FSUTILS_MKFATFS
 	---help---
 		Enables support for the mkfatfs utility
 
-config MKFATFS_BUFFER_ALIGMENT
+config MKFATFS_BUFFER_ALIGNMENT
 	int "Buffer alignment"
 	default 0
 	depends on FSUTILS_MKFATFS

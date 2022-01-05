@@ -41,7 +41,7 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 	default n
 
 config INTERPRETERS_WAMR_MULTI_MODULE
-	bool "Enable mutli module support"
+	bool "Enable multi module support"
 	default n
 
 config INTERPRETERS_WAMR_MINILOADER

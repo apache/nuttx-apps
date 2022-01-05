@@ -102,7 +102,7 @@ static void foc_help(void)
   PRINTF("       2 - motor stop\n");
   PRINTF("       3 - motor CW\n");
   PRINTF("       4 - motor CCW\n");
-  PRINTF("  [-j] enable specific instnaces\n");
+  PRINTF("  [-j] enable specific instances\n");
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
 #endif

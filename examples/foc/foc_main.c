@@ -51,9 +51,9 @@
 
 #define MAIN_LOOP_USLEEP (200000)
 
-/* Enabled instnaces default state */
+/* Enabled instances default state */
 
-#define INST_EN_DEAFULT (0xff)
+#define INST_EN_DEFAULT (0xff)
 
 /****************************************************************************
  * Private Functions
@@ -118,7 +118,7 @@ static void init_args(FAR struct args_s *args)
 
   args->state =
     (args->state == 0 ? CONFIG_EXAMPLES_FOC_STATE_INIT : args->state);
-  args->en = (args->en == -1 ? INST_EN_DEAFULT : args->en);
+  args->en = (args->en == -1 ? INST_EN_DEFAULT : args->en);
 }
 
 /****************************************************************************
@@ -133,7 +133,7 @@ static int validate_args(FAR struct args_s *args)
 
   if (args->pi_kp == 0 && args->pi_ki == 0)
     {
-      PRINTF("ERROR: missign Kp/Ki configuration\n");
+      PRINTF("ERROR: missing Kp/Ki configuration\n");
       goto errout;
     }
 

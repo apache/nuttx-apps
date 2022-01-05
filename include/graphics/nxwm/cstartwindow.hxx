@@ -260,7 +260,7 @@ namespace NxWM
      * Add the application to the start window.  The general sequence for
      * setting up the start window is:
      *
-     * 1. Call IAppicationFactory::create to a new instance of the application
+     * 1. Call IApplicationFactory::create to a new instance of the application
      * 2. Call CStartWindow::addApplication to add the application to the
      *    start window.
      *

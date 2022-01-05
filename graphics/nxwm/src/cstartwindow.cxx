@@ -334,7 +334,7 @@ bool CStartWindow::isFullScreen(void) const
 /**
  * Add the application to the start window.  The general sequence is:
  *
- * 1. Call IAppicationFactory::create to a new instance of the application
+ * 1. Call IApplicationFactory::create to a new instance of the application
  * 2. Call CStartWindow::addApplication to add the application to the
  *    start window.
  *

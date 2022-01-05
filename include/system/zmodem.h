@@ -91,7 +91,7 @@
 /* CONFIG_SYSTEM_ZMODEM_RCVSAMPLE indicates the local sender can sample
  * reverse channel while sending.  This means in particular, that Zmodem can
  * detect if data is received from the remote receiver while streaming a file
- * to the remote receiver. Support for such asychronous incoming data
+ * to the remote receiver. Support for such asynchronous incoming data
  * notification is needed to support interruption of the file transfer by
  * the remote receiver.
  *
@@ -297,7 +297,7 @@ ZMSHANDLE zms_initialize(int remfd);
  *   Send a file.
  *
  * Input Parameters:
- *   handle    - Handle previoulsy returned by xms_initialize()
+ *   handle    - Handle previously returned by xms_initialize()
  *   filename  - The name of the local file to transfer
  *   rfilename - The name of the remote file name to create
  *   option    - Describes optional transfer behavior
