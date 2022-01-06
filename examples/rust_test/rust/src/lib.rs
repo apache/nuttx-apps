@@ -11,6 +11,18 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
 
     //  Print a message to the serial console
     puts("Hello from Rust!");    
+
+    //  Open GPIO Input for SX1262 Busy Pin
+    let busy = unsafe { open(b"/dev/gpio0\0".as_ptr(), O_RDWR) };
+    assert!(busy > 0);
+
+    //  Open GPIO Output for SX1262 Chip Select
+    let cs = unsafe { open(b"/dev/gpio1\0".as_ptr(), O_RDWR) };
+    assert!(cs > 0);  
+
+    //  Open GPIO Interrupt for SX1262 DIO1 Pin
+    let dio1 = unsafe { open(b"/dev/gpio2\0".as_ptr(), O_RDWR) };
+    assert!(dio1 > 0);
 }
 
 /// Print a message to the serial console.
@@ -53,6 +65,18 @@ fn panic(_info: &PanicInfo) -> ! {  //  `!` means that panic handler will never 
 	//  Loop forever, do not pass go, do not collect $200
     loop {}
 }
+
+extern "C" {  //  Import C Function
+    /// Open a file
+    fn open(path: *const u8, oflag: i32, ...) -> i32;
+}
+
+/// TODO: Import with bidgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
+const O_RDONLY: i32 = 1 << 0;        /* Open for read access (only) */
+const O_RDOK:   i32 = O_RDONLY;      /* Read access is permitted (non-standard) */
+const O_WRONLY: i32 = 1 << 1;        /* Open for write access (only) */
+const O_WROK:   i32 = O_WRONLY;      /* Write access is permitted (non-standard) */
+const O_RDWR:   i32 = O_RDOK|O_WROK; /* Open for both read & write access */
 
 /// Limit Strings to 64 chars, similar to `char[64]` in C
 pub type String = heapless::String::<64>;
