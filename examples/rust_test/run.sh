@@ -118,17 +118,17 @@ echo ; echo "----- Flash BL602 Firmware"
 set -x  ##  Enable echo
 
 ##  Flash the firmware
-## pushd $BLFLASH_PATH
-## cargo run flash $APP_NAME.bin \
-##     --port /dev/tty.usbserial-14* \
-##     --initial-baud-rate 230400 \
-##     --baud-rate 230400
-## sleep 5
-## popd
+pushd $BLFLASH_PATH
+cargo run flash $APP_NAME.bin \
+    --port /dev/tty.usbserial-14* \
+    --initial-baud-rate 230400 \
+    --baud-rate 230400
+sleep 5
+popd
 
 set +x  ##  Disable echo
 echo ; echo "----- Run BL602 Firmware"
 set -x  ##  Enable echo
 
 ##  Run the firmware
-## open -a CoolTerm
+open -a CoolTerm
