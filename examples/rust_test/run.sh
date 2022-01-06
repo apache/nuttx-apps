@@ -11,7 +11,7 @@ set -x  ##  Echo commands
 export APP_NAME=nuttx
 
 ##  Path to NuttX
-export NUTTX_PATH=../../../nuttx
+export NUTTX_PATH=$PWD/../../../nuttx
 
 ##  Where blflash is located
 ##  For macOS: export BLFLASH_PATH=$PWD/../../../blflash
@@ -89,7 +89,7 @@ cargo build $rust_build_options
 popd
 
 ##  Replace the Stub Library by the compiled Rust Library
-##  Stub Library: build_out/rust-app/librust-app.a
+##  Stub Library: ../../../nuttx/staging/librust.a
 ##  Rust Library: rust/target/riscv32imacf-unknown-none-elf/debug/libapp.a
 cp $rust_app_build $rust_app_dest
 
