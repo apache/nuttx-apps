@@ -70,7 +70,7 @@ if [ -e $rust_app_build ]; then
 fi
 
 set +x  ##  Disable echo
-echo ; echo "----- Build BL602 Firmware"
+echo ; echo "----- Build NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Build the firmware with the Stub Library, ignoring references to the Rust Library
@@ -94,7 +94,7 @@ popd
 cp $rust_app_build $rust_app_dest
 
 set +x  ##  Disable echo
-echo ; echo "----- Link BL602 Firmware with Rust Library"
+echo ; echo "----- Link NuttX Firmware with Rust Library"
 set -x  ##  Enable echo
 
 ##  Link the Rust Library to the firmware
@@ -114,7 +114,7 @@ cp $NUTTX_PATH/$APP_NAME.* $BLFLASH_PATH
 ls -l $BLFLASH_PATH/$APP_NAME.bin
 
 set +x  ##  Disable echo
-echo ; echo "----- Flash BL602 Firmware"
+echo ; echo "----- Flash NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Flash the firmware
@@ -127,7 +127,7 @@ sleep 5
 popd
 
 set +x  ##  Disable echo
-echo ; echo "----- Run BL602 Firmware"
+echo ; echo "----- Run NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Run the firmware
