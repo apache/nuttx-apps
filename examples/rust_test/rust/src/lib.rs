@@ -1,7 +1,8 @@
 #![no_std]  //  Use the Rust Core Library instead of the Rust Standard Library, which is not compatible with embedded systems
 
-//  Import the Rust Core Library
-use core::{
+//  Import Libraries
+use core::{            //  Rust Core Library
+    panic::PanicInfo,  //  Panic Handler
     str::FromStr,      //  For converting `str` to `String`
 };
 
@@ -38,6 +39,19 @@ pub fn puts(s: &str) -> i32 {  //  `&str` is a reference to a string slice, simi
     }
 
     //  No semicolon `;` here, so the value returned by the C function will be passed to our caller
+}
+
+/// This function is called on panic, like an assertion failure
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {  //  `!` means that panic handler will never return
+    //  TODO: Implement the complete panic handler like this:
+    //  https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/rust/app/src/lib.rs#L115-L146
+
+    //  For now we display a message
+    puts("TODO: Rust panic"); 
+
+	//  Loop forever, do not pass go, do not collect $200
+    loop {}
 }
 
 /// Limit Strings to 64 chars, similar to `char[64]` in C

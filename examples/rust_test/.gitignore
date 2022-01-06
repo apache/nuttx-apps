@@ -3,3 +3,4 @@
 *.o
 .depend
 Make*.dep
+target
