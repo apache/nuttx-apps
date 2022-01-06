@@ -2,6 +2,7 @@
 
 //  Import Libraries
 use core::{            //  Rust Core Library
+    fmt::Write,        //  String Formatting    
     panic::PanicInfo,  //  Panic Handler
     str::FromStr,      //  For converting `str` to `String`
 };
@@ -55,14 +56,30 @@ pub fn puts(s: &str) -> i32 {  //  `&str` is a reference to a string slice, simi
 
 /// This function is called on panic, like an assertion failure
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {  //  `!` means that panic handler will never return
-    //  TODO: Implement the complete panic handler like this:
-    //  https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/rust/app/src/lib.rs#L115-L146
+fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never return
+    //  Display the filename and line number
+    puts("*** Rust Panic:");
+    if let Some(location) = info.location() {
+        puts(location.file());
+        let mut buf = String::new();
+        write!(buf, "Line {}", location.line()).expect("buf overflow");
+        puts(&buf);    
+    } else {
+        puts("Unknown location");
+    }
 
-    //  For now we display a message
-    puts("TODO: Rust panic"); 
+    //  Set to true if we are already in the panic handler
+    static mut IN_PANIC: bool = false;
 
-	//  Loop forever, do not pass go, do not collect $200
+    //  Display the payload
+    if unsafe { !IN_PANIC } {  //  Prevent panic loop while displaying the payload
+        unsafe { IN_PANIC = true };
+        if let Some(payload) = info.payload().downcast_ref::<&str>() {
+            puts(payload);
+        }
+    }
+
+    //  Loop forever, do not pass go, do not collect $200
     loop {}
 }
 
@@ -71,7 +88,7 @@ extern "C" {  //  Import C Function
     fn open(path: *const u8, oflag: i32, ...) -> i32;
 }
 
-/// TODO: Import with bidgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
+/// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
 const O_RDONLY: i32 = 1 << 0;        /* Open for read access (only) */
 const O_RDOK:   i32 = O_RDONLY;      /* Read access is permitted (non-standard) */
 const O_WRONLY: i32 = 1 << 1;        /* Open for write access (only) */
