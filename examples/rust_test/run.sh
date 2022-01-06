@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-##  macOS script to build, flash and run Rust Firmware for NuttX on BL602.
+##  macOS and WSL script to build, flash and run Rust Firmware for NuttX on BL602.
 ##  We use a custom Rust target `riscv32imacf-unknown-none-elf` that sets `llvm-abiname` to `ilp32f` for Single-Precision Hardware Floating-Point.
 ##  (Because NuttX BL602 was compiled with "gcc -march=rv32imafc -mabi=ilp32f")
 ##  TODO: BL602 is actually RV32-ACFIMX
@@ -8,13 +8,15 @@ set -e  ##  Exit when any command fails
 set -x  ##  Echo commands
 
 ##  Name of app
-export APP_NAME=rust_test
+export APP_NAME=nuttx
 
 ##  Path to NuttX
 export NUTTX_PATH=../../../nuttx
 
 ##  Where blflash is located
-export BLFLASH_PATH=$PWD/../../../blflash
+##  For macOS: export BLFLASH_PATH=$PWD/../../../blflash
+##  For WSL:
+export BLFLASH_PATH=/mnt/c/pinecone/blflash
 
 ##  Where GCC is located
 export GCC_PATH=$PWD/../../../xpack-riscv-none-embed-gcc
@@ -108,24 +110,25 @@ popd
 #     2>&1
 
 ##  Copy firmware to blflash
-cp build_out/$APP_NAME.bin $BLFLASH_PATH
+cp $NUTTX_PATH/$APP_NAME.* $BLFLASH_PATH
+ls -l $BLFLASH_PATH/$APP_NAME.bin
 
 set +x  ##  Disable echo
 echo ; echo "----- Flash BL602 Firmware"
 set -x  ##  Enable echo
 
 ##  Flash the firmware
-pushd $BLFLASH_PATH
-cargo run flash $APP_NAME.bin \
-    --port /dev/tty.usbserial-14* \
-    --initial-baud-rate 230400 \
-    --baud-rate 230400
-sleep 5
-popd
+# pushd $BLFLASH_PATH
+# cargo run flash $APP_NAME.bin \
+#     --port /dev/tty.usbserial-14* \
+#     --initial-baud-rate 230400 \
+#     --baud-rate 230400
+# sleep 5
+# popd
 
 set +x  ##  Disable echo
 echo ; echo "----- Run BL602 Firmware"
 set -x  ##  Enable echo
 
 ##  Run the firmware
-open -a CoolTerm
+# open -a CoolTerm
