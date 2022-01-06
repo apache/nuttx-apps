@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 int main(int argc, FAR char *argv[]) {
+    test_librust();
     puts("Done!");
     return 0;
 }
