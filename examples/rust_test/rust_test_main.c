@@ -26,7 +26,9 @@
 #include <unistd.h>
 
 int main(int argc, FAR char *argv[]) {
-    test_librust();
+    //  Call Rust Function
+    rust_main();
+    
     puts("Done!");
     return 0;
 }

@@ -1,0 +1,23 @@
+# Info about this package.
+[package]
+authors = ["Lee Lup Yuen <luppy@appkaki.com>"]
+edition = "2018"
+readme  = "README.md"
+name    = "app"
+version = "0.0.1"
+
+# External Rust libraries used by this module.  See crates.io.
+[dependencies]
+heapless     = "0.7.5"  # `static` friendly data structures that don't require dynamic memory allocation: https://crates.io/crates/heapless
+
+# Build this module as a Rust library, not a Rust application.  We will link this library with the BL602 firmware.
+[lib]
+name       = "app"  # Output will be named `libapp.a`
+test       = false
+bench      = false
+crate-type = ["staticlib"]
+
+# Optional features
+[features]
+default =  [  # Select the conditional compiled features
+]
