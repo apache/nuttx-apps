@@ -8,7 +8,7 @@ use embedded_hal::{
     digital::v2,
 };
 use crate::{
-    ioctl, open, read, usleep, write,
+    close, ioctl, open, read, usleep, write,
     GPIOC_READ, GPIOC_WRITE, O_RDWR,
 };
 
@@ -237,6 +237,38 @@ impl Delay {
     pub fn new() -> Self {
         //  Return the pin
         Self {}
+    }
+}
+
+/// NuttX SPI Bus
+impl Drop for Spi {
+    /// Close the SPI Bus
+    fn drop(&mut self) {
+        unsafe { close(self.fd) };
+    }
+}
+
+/// NuttX GPIO Input
+impl Drop for InputPin {
+    /// Close the GPIO Input
+    fn drop(&mut self) {
+        unsafe { close(self.fd) };
+    }
+}
+
+/// NuttX GPIO Output
+impl Drop for OutputPin {
+    /// Close the GPIO Output
+    fn drop(&mut self) {
+        unsafe { close(self.fd) };
+    }
+}
+
+/// NuttX GPIO Interrupt
+impl Drop for InterruptPin {
+    /// Close the GPIO Interrupt
+    fn drop(&mut self) {
+        unsafe { close(self.fd) };
     }
 }
 
