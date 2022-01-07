@@ -74,9 +74,13 @@ echo ; echo "----- Build NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Build the firmware with the Stub Library, ignoring references to the Rust Library
-pushd $NUTTX_PATH
-make || echo "----- Ignore undefined references to Rust Library"
-popd
+if [ "$SKIP_FIRST_BUILD" == '1' ]; then
+    echo "Skipping first build"
+else
+    pushd $NUTTX_PATH
+    make || echo "----- Ignore undefined references to Rust Library"
+    popd
+fi
 
 set +x  ##  Disable echo
 echo ; echo "----- Build Rust Library" 
