@@ -17,6 +17,11 @@ test       = false
 bench      = false
 crate-type = ["staticlib"]
 
+# Build settings for Development Profile
+[profile.dev]
+opt-level = 3     # Enable all optimizations
+lto       = true  # Enable Link Time Optimization for smaller binaries
+
 # Optional features
 [features]
 default =  [  # Select the conditional compiled features
