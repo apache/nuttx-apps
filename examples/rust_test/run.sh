@@ -122,17 +122,25 @@ echo ; echo "----- Flash NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Flash the firmware
-pushd $BLFLASH_PATH
-cargo run flash $APP_NAME.bin \
-    --port /dev/tty.usbserial-14* \
-    --initial-baud-rate 230400 \
-    --baud-rate 230400
-sleep 5
-popd
+if [ "$SKIP_FLASH" == '1' ]; then
+    echo "Skipping flash"
+else
+    pushd $BLFLASH_PATH
+    cargo run flash $APP_NAME.bin \
+        --port /dev/tty.usbserial-14* \
+        --initial-baud-rate 230400 \
+        --baud-rate 230400
+    sleep 5
+    popd
+fi
 
 set +x  ##  Disable echo
 echo ; echo "----- Run NuttX Firmware"
 set -x  ##  Enable echo
 
 ##  Run the firmware
-open -a CoolTerm
+if [ "$SKIP_FLASH" == '1' ]; then
+    echo "Skipping run"
+else
+    open -a CoolTerm
+fi
