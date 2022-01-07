@@ -20,7 +20,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     puts("Hello from Rust!");    
 
     //  Test the SPI Port by reading SX1262 Register 8
-    //  test_spi();
+    test_spi();
 
     //  Test the SX1262 Driver by reading SX1262 Register 8
     sx1262::test_sx1262();
@@ -54,8 +54,8 @@ fn test_spi() {
     };
     assert!(spi >= 0);
 
-    //  Read SX1262 Register 5 times
-    for _i in 0..5 {
+    //  Read SX1262 Register twice
+    for _i in 0..2 {
 
         //  Set SX1262 Chip Select to Low
         let ret = unsafe { 
