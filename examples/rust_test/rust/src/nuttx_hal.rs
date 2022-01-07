@@ -8,13 +8,8 @@ use embedded_hal::{
     digital::v2,
 };
 use crate::{
-    ioctl,
-    open,
-    puts,
-    usleep,
-    GPIOC_READ,
-    GPIOC_WRITE,
-    O_RDWR,
+    ioctl, open, puts, read, usleep, write,
+    GPIOC_READ, GPIOC_WRITE, O_RDWR,
 };
 
 /// NuttX SPI Transfer
@@ -24,8 +19,19 @@ impl Transfer<u8> for Spi {
 
     /// Transfer SPI data
     fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
-        //  TODO
-        assert!(false);
+        //  Transmit data
+        let bytes_written = unsafe { 
+            write(self.fd, words.as_ptr(), words.len()) 
+        };
+        assert!(bytes_written == words.len() as isize);
+
+        //  Read response
+        let bytes_read = unsafe { 
+            read(self.fd, words.as_mut_ptr(), words.len()) 
+        };
+        assert!(bytes_read == words.len() as isize);
+
+        //  Return response
         Ok(words)
     }
 }
@@ -37,8 +43,11 @@ impl Write<u8> for Spi{
 
     /// Write SPI data
     fn write(&mut self, words: &[u8]) -> Result<(), Self::Error> {
-        //  TODO
-        assert!(false); 
+        //  Transmit data
+        let bytes_written = unsafe { 
+            write(self.fd, words.as_ptr(), words.len()) 
+        };
+        assert!(bytes_written == words.len() as isize);
         Ok(())
     }
 }
