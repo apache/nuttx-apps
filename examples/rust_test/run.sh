@@ -75,7 +75,7 @@ set -x  ##  Enable echo
 
 ##  Build the firmware with the Stub Library, ignoring references to the Rust Library
 pushd $NUTTX_PATH
-make || echo "----- Ignore undefined references to Rust Library"
+####make || echo "----- Ignore undefined references to Rust Library"
 popd
 
 set +x  ##  Disable echo

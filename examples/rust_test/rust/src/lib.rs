@@ -37,44 +37,51 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     };
     assert!(spi >= 0);
 
-    //  Set SX1262 Chip Select to Low
-    let ret = unsafe { 
-        ioctl(cs, GPIOC_WRITE, 0) 
-    };
-    assert!(ret >= 0);
+    for _i in 0..5 {
+        //  Set SX1262 Chip Select to Low
+        let ret = unsafe { 
+            ioctl(cs, GPIOC_WRITE, 0) 
+        };
+        assert!(ret >= 0);
 
-    //  Transmit command to SX1262: Read Register 8
-    const READ_REG: &[u8] = &[ 0x1d, 0x00, 0x08, 0x00, 0x00 ];
-    let bytes_written = unsafe { 
-        write(spi, READ_REG.as_ptr(), READ_REG.len()) 
-    };
-    assert!(bytes_written == READ_REG.len() as isize);
+        //  Transmit command to SX1262: Read Register 8
+        const READ_REG: &[u8] = &[ 0x1d, 0x00, 0x08, 0x00, 0x00 ];
+        let bytes_written = unsafe { 
+            write(spi, READ_REG.as_ptr(), READ_REG.len()) 
+        };
+        assert!(bytes_written == READ_REG.len() as isize);
 
-    //  Read response from SX1262
-    let mut rx_data: [ u8; 16 ] = [ 0; 16 ];
-    let bytes_read = unsafe { 
-        read(spi, rx_data.as_mut_ptr(), rx_data.len()) 
-    };
-    assert!(bytes_read == READ_REG.len() as isize);
+        //  Read response from SX1262
+        let mut rx_data: [ u8; 16 ] = [ 0; 16 ];
+        let bytes_read = unsafe { 
+            read(spi, rx_data.as_mut_ptr(), rx_data.len()) 
+        };
+        assert!(bytes_read == READ_REG.len() as isize);
 
-    //  Set SX1262 Chip Select to High
-    let ret = unsafe { 
-        ioctl(cs, GPIOC_WRITE, 1) 
-    };
-    assert!(ret >= 0);
+        //  Set SX1262 Chip Select to High
+        let ret = unsafe { 
+            ioctl(cs, GPIOC_WRITE, 1) 
+        };
+        assert!(ret >= 0);
 
-    //  Show the received register value
-    puts("Read Register 8: received");
-    for i in 0..bytes_read {
+        //  Show the received register value
+        puts("Read Register 8: received");
+        for i in 0..bytes_read {
+            let mut buf = String::new();
+            write!(buf, "  {:02x}", rx_data[i as usize])
+                .expect("buf overflow");
+            puts(&buf);    
+        }
         let mut buf = String::new();
-        write!(buf, "  {:02x}", rx_data[i as usize])
+        write!(buf, "SX1262 Register 8 is {:02x}", rx_data[4])
             .expect("buf overflow");
         puts(&buf);    
+
+        //  Sleep 5 seconds
+        unsafe {
+            sleep(5);
+        }
     }
-    let mut buf = String::new();
-    write!(buf, "SX1262 Register 8 is {:02x}", rx_data[4])
-        .expect("buf overflow");
-    puts(&buf);    
 }
 
 /// Print a message to the serial console.
@@ -141,19 +148,20 @@ extern "C" {  //  Import POSIX Functions. TODO: Import with bindgen
     pub fn open(path: *const u8, oflag: i32, ...) -> i32;
     pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
     pub fn write(fd: i32, buf: *const u8, count: usize) -> isize;
-    pub fn ioctl(fd: i32, request: u64, ...) -> i32;
+    pub fn ioctl(fd: i32, request: i32, ...) -> i32;  //  On NuttX: request is i32, not u64 like Linux
+    pub fn sleep(secs: u32) -> u32;
 }
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/nuttx/ioexpander/gpio.h
-pub const GPIOC_WRITE:      u64 = _GPIOBASE | 1;  //  _GPIOC(1)
-pub const GPIOC_READ:       u64 = _GPIOBASE | 2;  //  _GPIOC(2)
-pub const GPIOC_PINTYPE:    u64 = _GPIOBASE | 3;  //  _GPIOC(3)
-pub const GPIOC_REGISTER:   u64 = _GPIOBASE | 4;  //  _GPIOC(4)
-pub const GPIOC_UNREGISTER: u64 = _GPIOBASE | 5;  //  _GPIOC(5)
-pub const GPIOC_SETPINTYPE: u64 = _GPIOBASE | 6;  //  _GPIOC(6)
+pub const GPIOC_WRITE:      i32 = _GPIOBASE | 1;  //  _GPIOC(1)
+pub const GPIOC_READ:       i32 = _GPIOBASE | 2;  //  _GPIOC(2)
+pub const GPIOC_PINTYPE:    i32 = _GPIOBASE | 3;  //  _GPIOC(3)
+pub const GPIOC_REGISTER:   i32 = _GPIOBASE | 4;  //  _GPIOC(4)
+pub const GPIOC_UNREGISTER: i32 = _GPIOBASE | 5;  //  _GPIOC(5)
+pub const GPIOC_SETPINTYPE: i32 = _GPIOBASE | 6;  //  _GPIOC(6)
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
-pub const _GPIOBASE: u64 = 0x2300; /* GPIO driver commands */
+pub const _GPIOBASE: i32 = 0x2300; /* GPIO driver commands */
 //  #define _GPIOC(nr)       _IOC(_GPIOBASE,nr)
 //  #define _IOC(type,nr)    ((type)|(nr))
 
