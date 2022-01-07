@@ -73,16 +73,21 @@ impl v2::InputPin for InputPin {
 
     /// Return true if GPIO Input is high
     fn is_high(&self) -> Result<bool, Self::Error> {
-        //  TODO
-        assert!(false);
-        Ok(false)
+        let mut invalue: i32 = 0;
+        let addr: *mut i32 = &mut invalue;
+        let ret = unsafe {
+            ioctl(self.fd, GPIOC_READ, addr)
+        };
+        assert!(ret >= 0);
+        match invalue {
+            0 => Ok(false),
+            _ => Ok(true),
+        }
     }
 
     /// Return true if GPIO Input is low
     fn is_low(&self) -> Result<bool, Self::Error> {
-        //  TODO
-        assert!(false);
-        Ok(true)
+        Ok(!self.is_high()?)
     }
 }
 
@@ -91,18 +96,23 @@ impl v2::InputPin for InterruptPin {
     /// Error Type
     type Error = ();
 
-    /// Return true if pin is high
+    /// Return true if GPIO Input is high
     fn is_high(&self) -> Result<bool, Self::Error> {
-        //  TODO
-        assert!(false);
-        Ok(false)
+        let mut invalue: i32 = 0;
+        let addr: *mut i32 = &mut invalue;
+        let ret = unsafe {
+            ioctl(self.fd, GPIOC_READ, addr)
+        };
+        assert!(ret >= 0);
+        match invalue {
+            0 => Ok(false),
+            _ => Ok(true),
+        }
     }
 
-    /// Return true if pin is low
+    /// Return true if GPIO Input is low
     fn is_low(&self) -> Result<bool, Self::Error> {
-        //  TODO
-        assert!(false);
-        Ok(true)
+        Ok(!self.is_high()?)
     }
 }
 
