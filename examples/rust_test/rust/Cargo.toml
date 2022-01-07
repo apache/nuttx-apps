@@ -19,8 +19,8 @@ crate-type = ["staticlib"]
 
 # Build settings for Development Profile
 [profile.dev]
-opt-level = 3        # Enable all optimizations
-panic     = 'abort'  # Terminate the process upon panic
+opt-level = "s"      # Optimize for size
+panic     = "abort"  # Terminate the process upon panic
 # lto     = true     # Enable Link Time Optimization for smaller binaries
 
 # Optional features
