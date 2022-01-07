@@ -86,6 +86,15 @@ impl UnusedPin {
     }
 }
 
+/// NuttX Delay
+impl Delay {
+    /// Create a delay interface
+    pub fn new() -> Self {
+        //  Return the pin
+        Self {}
+    }
+}
+
 /// NuttX SPI Bus
 pub struct Spi {
     /// NuttX Device Path (e.g. b"/dev/spitest0\0")
@@ -120,4 +129,8 @@ pub struct InterruptPin {
 
 /// NuttX GPIO Unused
 pub struct UnusedPin {
+}
+
+/// NuttX Delay
+pub struct Delay {
 }

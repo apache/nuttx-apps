@@ -45,12 +45,12 @@ pub fn test_sx1262() {
         lora_dio1,   // /dev/gpio2
     );
 
-    /*
     //  Init a busy-waiting delay
-    let delay = &mut Delay::new();
+    let delay = &mut nuttx_hal::Delay::new();
 
     //  Init LoRa modem
     let conf = build_config();
+    /*
     let mut lora = SX126x::new(lora_pins);
     lora.init(spi1, delay, conf)
         .expect("sx1262 init failed");
