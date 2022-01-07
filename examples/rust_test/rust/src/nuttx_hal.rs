@@ -5,7 +5,7 @@ use embedded_hal::{
         delay::{DelayMs, DelayUs},
         spi::{Transfer, Write},
     },
-    digital::v2::{InputPin, OutputPin},
+    digital::v2,
 };
 use crate::{
     open,
@@ -14,7 +14,7 @@ use crate::{
 };
 
 /// NuttX SPI Bus
-impl NxSpi {
+impl Spi {
     /// Create an SPI Bus from a Device Path (e.g. b"/dev/spitest0\0")
     pub fn new(path: *const u8) -> Self {
         //  Open the NuttX Device Path (e.g. b"/dev/spitest0\0") for read-write
@@ -30,7 +30,7 @@ impl NxSpi {
 }
 
 /// NuttX GPIO Input
-impl NxInputPin {
+impl InputPin {
     /// Create a GPIO Input Pin from a Device Path (e.g. b"/dev/gpio0\0")
     pub fn new(path: *const u8) -> Self {
         //  Open the NuttX Device Path (e.g. b"/dev/gpio0\0") for read-write
@@ -46,7 +46,7 @@ impl NxInputPin {
 }
 
 /// NuttX GPIO Output
-impl NxOutputPin {
+impl OutputPin {
     /// Create a GPIO Output Pin from a Device Path (e.g. b"/dev/gpio1\0")
     pub fn new(path: *const u8) -> Self {
         //  Open the NuttX Device Path (e.g. b"/dev/gpio1\0") for read-write
@@ -62,7 +62,7 @@ impl NxOutputPin {
 }
 
 /// NuttX GPIO Interrupt
-impl NxInterruptPin {
+impl InterruptPin {
     /// Create a GPIO Interrupt Pin from a Device Path (e.g. b"/dev/gpio2\0")
     pub fn new(path: *const u8) -> Self {
         //  Open the NuttX Device Path (e.g. b"/dev/gpio2\0") for read-write
@@ -78,7 +78,7 @@ impl NxInterruptPin {
 }
 
 /// NuttX GPIO Unused
-impl NxUnusedPin {
+impl UnusedPin {
     /// Create a GPIO Unused Pin
     pub fn new() -> Self {
         //  Return the pin
@@ -87,7 +87,7 @@ impl NxUnusedPin {
 }
 
 /// NuttX SPI Bus
-pub struct NxSpi {
+pub struct Spi {
     /// NuttX Device Path (e.g. b"/dev/spitest0\0")
     path: *const u8,
     /// NuttX File Descriptor
@@ -95,7 +95,7 @@ pub struct NxSpi {
 }
 
 /// NuttX GPIO Input
-pub struct NxInputPin {
+pub struct InputPin {
     /// NuttX Device Path (e.g. b"/dev/gpio0\0")
     path: *const u8,
     /// NuttX File Descriptor
@@ -103,7 +103,7 @@ pub struct NxInputPin {
 }
 
 /// NuttX GPIO Output
-pub struct NxOutputPin {
+pub struct OutputPin {
     /// NuttX Device Path (e.g. b"/dev/gpio1\0")
     path: *const u8,
     /// NuttX File Descriptor
@@ -111,7 +111,7 @@ pub struct NxOutputPin {
 }
 
 /// NuttX GPIO Interrupt
-pub struct NxInterruptPin {
+pub struct InterruptPin {
     /// NuttX Device Path (e.g. b"/dev/gpio2\0")
     path: *const u8,
     /// NuttX File Descriptor
@@ -119,5 +119,5 @@ pub struct NxInterruptPin {
 }
 
 /// NuttX GPIO Unused
-pub struct NxUnusedPin {
+pub struct UnusedPin {
 }

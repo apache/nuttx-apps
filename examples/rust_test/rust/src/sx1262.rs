@@ -7,14 +7,8 @@ use sx126x::{     //  SX1262 Library
     op::*,        //  LoRa Operations
     SX126x,       //  SX1262 Driver
 };
-use crate::nuttx_hal::{  //  NuttX HAL
-    NxInputPin,      //  GPIO Input
-    NxOutputPin,     //  GPIO Output
-    NxInterruptPin,  //  GPIO Interrupt
-    NxUnusedPin,     //  Unused Pin
-    NxSpi,           //  SPI Bus
-};
 use crate::{      //  Local Library
+    nuttx_hal,    //  NuttX Embedded HAL
     puts,         //  Print to serial console
     String,       //  String Library
 };
@@ -25,22 +19,22 @@ pub fn test_sx1262() {
     puts("test_sx1262");
 
     //  Open GPIO Input for SX1262 Busy Pin
-    let mut lora_busy = NxInputPin::new(b"/dev/gpio0\0".as_ptr());
+    let mut lora_busy = nuttx_hal::InputPin::new(b"/dev/gpio0\0".as_ptr());
 
     //  Open GPIO Output for SX1262 Chip Select
-    let mut lora_nss = NxOutputPin::new(b"/dev/gpio1\0".as_ptr());
+    let mut lora_nss = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
 
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
-    let mut lora_dio1 = NxInterruptPin::new(b"/dev/gpio2\0".as_ptr());
+    let mut lora_dio1 = nuttx_hal::InterruptPin::new(b"/dev/gpio2\0".as_ptr());
 
     //  TODO: Open GPIO Output for SX1262 NRESET Pin
-    let mut lora_nreset = NxUnusedPin::new();
+    let mut lora_nreset = nuttx_hal::UnusedPin::new();
 
     //  TODO: Open GPIO Output for SX1262 Antenna Pin
-    let mut lora_ant = NxUnusedPin::new();
+    let mut lora_ant = nuttx_hal::UnusedPin::new();
 
     //  Open SPI Bus for SX1262
-    let mut spi1 = NxSpi::new(b"/dev/spitest0\0".as_ptr());
+    let mut spi1 = nuttx_hal::Spi::new(b"/dev/spitest0\0".as_ptr());
 
     //  Define the SX1262 Pins
     let lora_pins = (
