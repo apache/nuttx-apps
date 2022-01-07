@@ -1,15 +1,18 @@
 //  Import Libraries
-use core::{      //  Rust Core Library
-    fmt::Write,  //  String Formatting    
+use core::{       //  Rust Core Library
+    fmt::Write,   //  String Formatting    
 };
-use sx126x::{    //  SX1262 Library
+use sx126x::{     //  SX1262 Library
     conf::Config as LoRaConfig,  //  LoRa Configuration
-    op::*,       //  LoRa Operations
-    SX126x,      //  SX1262 Driver
+    op::*,        //  LoRa Operations
+    SX126x,       //  SX1262 Driver
 };
-use crate::{     //  Local Library
-    puts,        //  Print to serial console
-    String,      //  String Library
+use crate::nuttx_hal::{  //  NuttX HAL
+    NxInputPin,   //  GPIO Input
+};
+use crate::{      //  Local Library
+    puts,         //  Print to serial console
+    String,       //  String Library
 };
 
 /// Test the SX1262 Driver by reading SX1262 Register 8.
@@ -17,7 +20,22 @@ use crate::{     //  Local Library
 pub fn test_sx1262() {
     puts("test_sx1262");
 
+    //  Open GPIO Input for SX1262 Busy Pin
+    let lora_busy = NxInputPin::new(b"/dev/gpio0\0".as_ptr());
+
     /*
+    //  Open GPIO Output for SX1262 Chip Select
+    let lora_nss = NxOutputPin::new(b"/dev/gpio1\0".as_ptr());
+
+    //  Open GPIO Interrupt for SX1262 DIO1 Pin
+    let lora_dio1 = NxInterruptPin::new(b"/dev/gpio2\0".as_ptr());
+
+    //  Open GPIO Output for SX1262 NRESET Pin (unused)
+    let lora_nreset = NxUnusedPin::new();
+
+    //  Open SPI Bus for SX1262
+    let spi1 = NxSpi::new(b"/dev/spitest0\0".as_ptr());
+
     let lora_pins = (
         lora_nss,    // D7
         lora_nreset, // A0

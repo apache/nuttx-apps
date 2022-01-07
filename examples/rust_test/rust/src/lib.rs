@@ -1,5 +1,8 @@
 #![no_std]  //  Use the Rust Core Library instead of the Rust Standard Library, which is not compatible with embedded systems
 
+//  Import NuttX HAL
+mod nuttx_hal;
+
 //  Import module sx1262
 mod sx1262;
 
@@ -26,7 +29,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
 /// Test the SPI Port by reading SX1262 Register 8
 fn test_spi() {
     puts("test_spi");
-    
+
     //  Open GPIO Input for SX1262 Busy Pin
     let busy = unsafe { 
         open(b"/dev/gpio0\0".as_ptr(), O_RDWR) 
