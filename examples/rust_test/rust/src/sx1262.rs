@@ -8,7 +8,11 @@ use sx126x::{     //  SX1262 Library
     SX126x,       //  SX1262 Driver
 };
 use crate::nuttx_hal::{  //  NuttX HAL
-    NxInputPin,   //  GPIO Input
+    NxInputPin,      //  GPIO Input
+    NxOutputPin,     //  GPIO Output
+    NxInterruptPin,  //  GPIO Interrupt
+    NxUnusedPin,     //  Unused Pin
+    NxSpi,           //  SPI Bus
 };
 use crate::{      //  Local Library
     puts,         //  Print to serial console
@@ -21,20 +25,22 @@ pub fn test_sx1262() {
     puts("test_sx1262");
 
     //  Open GPIO Input for SX1262 Busy Pin
-    let lora_busy = NxInputPin::new(b"/dev/gpio0\0".as_ptr());
+    let mut lora_busy = NxInputPin::new(b"/dev/gpio0\0".as_ptr());
 
-    /*
     //  Open GPIO Output for SX1262 Chip Select
-    let lora_nss = NxOutputPin::new(b"/dev/gpio1\0".as_ptr());
+    let mut lora_nss = NxOutputPin::new(b"/dev/gpio1\0".as_ptr());
 
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
-    let lora_dio1 = NxInterruptPin::new(b"/dev/gpio2\0".as_ptr());
+    let mut lora_dio1 = NxInterruptPin::new(b"/dev/gpio2\0".as_ptr());
 
     //  Open GPIO Output for SX1262 NRESET Pin (unused)
-    let lora_nreset = NxUnusedPin::new();
+    let mut lora_nreset = NxUnusedPin::new();
+
+    //  Open GPIO Output for SX1262 Antenna Pin (unused)
+    let mut lora_ant = NxUnusedPin::new();
 
     //  Open SPI Bus for SX1262
-    let spi1 = NxSpi::new(b"/dev/spitest0\0".as_ptr());
+    let mut spi1 = NxSpi::new(b"/dev/spitest0\0".as_ptr());
 
     //  Define the SX1262 Pins
     let lora_pins = (
@@ -45,6 +51,7 @@ pub fn test_sx1262() {
         lora_dio1,   // D6
     );
 
+    /*
     //  Init a busy-waiting delay
     let delay = &mut Delay::new();
 
