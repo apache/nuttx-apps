@@ -33,10 +33,10 @@ pub fn test_sx1262() {
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
     let mut lora_dio1 = NxInterruptPin::new(b"/dev/gpio2\0".as_ptr());
 
-    //  Open GPIO Output for SX1262 NRESET Pin (unused)
+    //  TODO: Open GPIO Output for SX1262 NRESET Pin
     let mut lora_nreset = NxUnusedPin::new();
 
-    //  Open GPIO Output for SX1262 Antenna Pin (unused)
+    //  TODO: Open GPIO Output for SX1262 Antenna Pin
     let mut lora_ant = NxUnusedPin::new();
 
     //  Open SPI Bus for SX1262
@@ -44,11 +44,11 @@ pub fn test_sx1262() {
 
     //  Define the SX1262 Pins
     let lora_pins = (
-        lora_nss,    // D7
-        lora_nreset, // A0
-        lora_busy,   // D4
-        lora_ant,    // D8
-        lora_dio1,   // D6
+        lora_nss,    // /dev/gpio1
+        lora_nreset, // TODO
+        lora_busy,   // /dev/gpio0
+        lora_ant,    // TODO
+        lora_dio1,   // /dev/gpio2
     );
 
     /*
