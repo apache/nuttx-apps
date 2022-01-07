@@ -11,6 +11,7 @@ use crate::{
     ioctl,
     open,
     puts,
+    usleep,
     GPIOC_READ,
     GPIOC_WRITE,
     O_RDWR,
@@ -132,19 +133,19 @@ impl v2::OutputPin for UnusedPin {
     }
 }
 
-/// NuttX Delay
+/// NuttX Delay in Microseconds
 impl DelayUs<u32> for Delay {
+    /// Sleep for us microseconds
     fn delay_us(&mut self, us: u32) {
-        //  TODO
-        assert!(false);
+        unsafe { usleep(us); }
     }
 }
 
-/// NuttX Delay
+/// NuttX Delay in Milliseconds
 impl DelayMs<u32> for Delay {
+    /// Sleep for ms milliseconds
     fn delay_ms(&mut self, ms: u32) {
-        //  TODO
-        assert!(false);
+        unsafe { usleep(ms * 1000); }
     }
 }
 
