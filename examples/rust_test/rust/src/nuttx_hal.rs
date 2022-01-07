@@ -8,7 +8,7 @@ use embedded_hal::{
     digital::v2,
 };
 use crate::{
-    ioctl, open, puts, read, usleep, write,
+    ioctl, open, read, usleep, write,
     GPIOC_READ, GPIOC_WRITE, O_RDWR,
 };
 
@@ -243,6 +243,7 @@ impl Delay {
 /// NuttX SPI Bus
 pub struct Spi {
     /// NuttX Device Path (e.g. b"/dev/spitest0\0")
+    #[allow(dead_code)]
     path: *const u8,
     /// NuttX File Descriptor
     fd:   i32,
@@ -251,6 +252,7 @@ pub struct Spi {
 /// NuttX GPIO Input
 pub struct InputPin {
     /// NuttX Device Path (e.g. b"/dev/gpio0\0")
+    #[allow(dead_code)]
     path: *const u8,
     /// NuttX File Descriptor
     fd:   i32,
@@ -259,6 +261,7 @@ pub struct InputPin {
 /// NuttX GPIO Output
 pub struct OutputPin {
     /// NuttX Device Path (e.g. b"/dev/gpio1\0")
+    #[allow(dead_code)]
     path: *const u8,
     /// NuttX File Descriptor
     fd:   i32,
@@ -267,6 +270,7 @@ pub struct OutputPin {
 /// NuttX GPIO Interrupt
 pub struct InterruptPin {
     /// NuttX Device Path (e.g. b"/dev/gpio2\0")
+    #[allow(dead_code)]
     path: *const u8,
     /// NuttX File Descriptor
     fd:   i32,

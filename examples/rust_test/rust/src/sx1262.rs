@@ -19,19 +19,19 @@ pub fn test_sx1262() {
     puts("test_sx1262");
 
     //  Open GPIO Input for SX1262 Busy Pin
-    let mut lora_busy = nuttx_hal::InputPin::new(b"/dev/gpio0\0".as_ptr());
+    let lora_busy = nuttx_hal::InputPin::new(b"/dev/gpio0\0".as_ptr());
 
     //  Open GPIO Output for SX1262 Chip Select
-    let mut lora_nss = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
+    let lora_nss = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
 
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
-    let mut lora_dio1 = nuttx_hal::InterruptPin::new(b"/dev/gpio2\0".as_ptr());
+    let lora_dio1 = nuttx_hal::InterruptPin::new(b"/dev/gpio2\0".as_ptr());
 
     //  TODO: Open GPIO Output for SX1262 NRESET Pin
-    let mut lora_nreset = nuttx_hal::UnusedPin::new();
+    let lora_nreset = nuttx_hal::UnusedPin::new();
 
     //  TODO: Open GPIO Output for SX1262 Antenna Pin
-    let mut lora_ant = nuttx_hal::UnusedPin::new();
+    let lora_ant = nuttx_hal::UnusedPin::new();
 
     //  Open SPI Bus for SX1262
     let mut spi1 = nuttx_hal::Spi::new(b"/dev/spitest0\0".as_ptr());
