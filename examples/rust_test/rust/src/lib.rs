@@ -1,5 +1,8 @@
 #![no_std]  //  Use the Rust Core Library instead of the Rust Standard Library, which is not compatible with embedded systems
 
+//  Import module sx1262
+mod sx1262;
+
 //  Import Libraries
 use core::{            //  Rust Core Library
     fmt::Write,        //  String Formatting    
@@ -13,6 +16,17 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     //  Print a message to the serial console
     puts("Hello from Rust!");    
 
+    //  Test the SPI Port by reading SX1262 Register 8
+    test_spi();
+
+    //  Test the SX1262 Driver by reading SX1262 Register 8
+    sx1262::test_sx1262();
+}
+
+/// Test the SPI Port by reading SX1262 Register 8
+fn test_spi() {
+    puts("test_spi");
+    
     //  Open GPIO Input for SX1262 Busy Pin
     let busy = unsafe { 
         open(b"/dev/gpio0\0".as_ptr(), O_RDWR) 
@@ -82,6 +96,14 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
         //  Sleep 5 seconds
         unsafe { sleep(5); }
     }
+
+    //  Close the GPIO and SPI ports
+    unsafe {
+        close(busy);
+        close(cs);
+        close(dio1);
+        close(spi);    
+    }
 }
 
 /// Print a message to the serial console.
@@ -148,6 +170,7 @@ extern "C" {  //  Import POSIX Functions. TODO: Import with bindgen
     pub fn open(path: *const u8, oflag: i32, ...) -> i32;
     pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
     pub fn write(fd: i32, buf: *const u8, count: usize) -> isize;
+    pub fn close(fd: i32) -> i32;
     pub fn ioctl(fd: i32, request: i32, ...) -> i32;  //  On NuttX: request is i32, not u64 like Linux
     pub fn sleep(secs: u32) -> u32;
 }
