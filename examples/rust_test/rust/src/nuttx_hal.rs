@@ -14,7 +14,7 @@ use crate::{
     String,
 };
 
-/// GPIO Input
+/// NuttX GPIO Input
 impl NxInputPin {
     /// Create a GPIO Input Pin from a Device Path (e.g. b"/dev/gpio0\0")
     pub fn new(path: *const u8) -> Self {
@@ -30,7 +30,7 @@ impl NxInputPin {
     }
 }
 
-/// GPIO Input
+/// NuttX GPIO Input
 pub struct NxInputPin {
     /// NuttX Device Path (e.g. "/dev/gpio0")
     path: *const u8,

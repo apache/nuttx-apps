@@ -36,6 +36,7 @@ pub fn test_sx1262() {
     //  Open SPI Bus for SX1262
     let spi1 = NxSpi::new(b"/dev/spitest0\0".as_ptr());
 
+    //  Define the SX1262 Pins
     let lora_pins = (
         lora_nss,    // D7
         lora_nreset, // A0
@@ -53,12 +54,12 @@ pub fn test_sx1262() {
     lora.init(spi1, delay, conf)
         .expect("sx1262 init failed");
 
-    //  Read register 8
+    //  Read SX1262 Register 8
     let mut result: [ u8; 1 ] = [ 0; 1 ];
     lora.read_register(spi1, delay, 8, &mut result)
         .expect("sx1262 read register failed");
 
-    //  Show the received register value
+    //  Show the register value
     let mut buf = String::new();
     write!(buf, "SX1262 Register 8 is 0x{:02x}", result[0])
         .expect("buf overflow");
