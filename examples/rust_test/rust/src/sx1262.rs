@@ -52,12 +52,12 @@ pub fn test_sx1262() {
     let conf = build_config();
     /*
     let mut lora = SX126x::new(lora_pins);
-    lora.init(spi1, delay, conf)
+    lora.init(&mut spi1, delay, conf)
         .expect("sx1262 init failed");
 
     //  Read SX1262 Register 8
     let mut result: [ u8; 1 ] = [ 0; 1 ];
-    lora.read_register(spi1, delay, 8, &mut result)
+    lora.read_register(&mut spi1, delay, 8, &mut result)
         .expect("sx1262 read register failed");
 
     //  Show the register value

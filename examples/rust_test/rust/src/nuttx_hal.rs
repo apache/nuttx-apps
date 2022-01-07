@@ -13,6 +13,124 @@ use crate::{
     O_RDWR,
 };
 
+/// NuttX SPI Transfer
+impl Transfer<u8> for Spi {
+    /// Error Type
+    type Error = ();
+
+    /// Transfer SPI data
+    fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(words)
+    }
+}
+
+/// NuttX SPI Write
+impl Write<u8> for Spi{
+    /// Error Type
+    type Error = ();
+
+    /// Write SPI data
+    fn write(&mut self, words: &[u8]) -> Result<(), Self::Error> {
+        //  TODO
+        assert!(false); 
+        Ok(())
+    }
+}
+
+/// NuttX Output Pin
+impl v2::OutputPin for OutputPin {
+    /// Error Type
+    type Error = ();
+
+    /// Set the pin to high
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(())
+    }
+
+    /// Set the pin to low
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(())
+    }
+}
+
+/// NuttX Input Pin
+impl v2::InputPin for InputPin {
+    /// Error Type
+    type Error = ();
+
+    /// Return true if pin is high
+    fn is_high(&self) -> Result<bool, Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(false)
+    }
+
+    /// Return true if pin is low
+    fn is_low(&self) -> Result<bool, Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(true)
+    }
+}
+
+/// NuttX Interrupt Pin
+impl v2::InputPin for InterruptPin {
+    /// Error Type
+    type Error = ();
+
+    /// Return true if pin is high
+    fn is_high(&self) -> Result<bool, Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(false)
+    }
+
+    /// Return true if pin is low
+    fn is_low(&self) -> Result<bool, Self::Error> {
+        //  TODO
+        assert!(false);
+        Ok(true)
+    }
+}
+
+/// NuttX Unused Pin
+impl v2::OutputPin for UnusedPin {
+    /// Error Type
+    type Error = ();
+
+    /// Set the pin to high
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    /// Set the pin to low
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+}
+
+/// NuttX Delay
+impl DelayUs<u32> for Delay {
+    fn delay_us(&mut self, us: u32) {
+        //  TODO
+        assert!(false);
+    }
+}
+
+/// NuttX Delay
+impl DelayMs<u32> for Delay {
+    fn delay_ms(&mut self, ms: u32) {
+        //  TODO
+        assert!(false);
+    }
+}
+
 /// NuttX SPI Bus
 impl Spi {
     /// Create an SPI Bus from a Device Path (e.g. b"/dev/spitest0\0")
