@@ -18,7 +18,7 @@ use crate::{
 impl NxInputPin {
     /// Create a GPIO Input Pin from a Device Path (e.g. b"/dev/gpio0\0")
     pub fn new(path: *const u8) -> Self {
-        //  Open the NuttX Device Path (e.g. "/dev/gpio0") for read-write
+        //  Open the NuttX Device Path (e.g. b"/dev/gpio0\0") for read-write
         let fd = unsafe { open(path, O_RDWR) };
         assert!(fd > 0);
 
@@ -32,7 +32,7 @@ impl NxInputPin {
 
 /// NuttX GPIO Input
 pub struct NxInputPin {
-    /// NuttX Device Path (e.g. "/dev/gpio0")
+    /// NuttX Device Path (e.g. b"/dev/gpio0\0")
     path: *const u8,
     /// NuttX File Descriptor
     fd:   i32,
