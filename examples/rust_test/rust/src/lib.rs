@@ -14,16 +14,67 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     puts("Hello from Rust!");    
 
     //  Open GPIO Input for SX1262 Busy Pin
-    let busy = unsafe { open(b"/dev/gpio0\0".as_ptr(), O_RDWR) };
+    let busy = unsafe { 
+        open(b"/dev/gpio0\0".as_ptr(), O_RDWR) 
+    };
     assert!(busy > 0);
 
     //  Open GPIO Output for SX1262 Chip Select
-    let cs = unsafe { open(b"/dev/gpio1\0".as_ptr(), O_RDWR) };
+    let cs = unsafe { 
+        open(b"/dev/gpio1\0".as_ptr(), O_RDWR) 
+    };
     assert!(cs > 0);  
 
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
-    let dio1 = unsafe { open(b"/dev/gpio2\0".as_ptr(), O_RDWR) };
+    let dio1 = unsafe { 
+        open(b"/dev/gpio2\0".as_ptr(), O_RDWR) 
+    };
     assert!(dio1 > 0);
+
+    //  Open SPI Bus for SX1262
+    let spi = unsafe { 
+        open(b"/dev/spitest0\0".as_ptr(), O_RDWR) 
+    };
+    assert!(spi >= 0);
+
+    //  Set SX1262 Chip Select to Low
+    let ret = unsafe { 
+        ioctl(cs, GPIOC_WRITE, 0) 
+    };
+    assert!(ret >= 0);
+
+    //  Transmit command to SX1262: Read Register 8
+    const READ_REG: &[u8] = &[ 0x1d, 0x00, 0x08, 0x00, 0x00 ];
+    let bytes_written = unsafe { 
+        write(spi, READ_REG.as_ptr(), READ_REG.len()) 
+    };
+    assert!(bytes_written == READ_REG.len() as isize);
+
+    //  Read response from SX1262
+    let mut rx_data: [ u8; 16 ] = [ 0; 16 ];
+    let bytes_read = unsafe { 
+        read(spi, rx_data.as_mut_ptr(), rx_data.len()) 
+    };
+    assert!(bytes_read == READ_REG.len() as isize);
+
+    //  Set SX1262 Chip Select to High
+    let ret = unsafe { 
+        ioctl(cs, GPIOC_WRITE, 1) 
+    };
+    assert!(ret >= 0);
+
+    //  Show the received register value
+    puts("Read Register 8: received");
+    for i in 0..bytes_read {
+        let mut buf = String::new();
+        write!(buf, "  {:02x}", rx_data[i as usize])
+            .expect("buf overflow");
+        puts(&buf);    
+    }
+    let mut buf = String::new();
+    write!(buf, "SX1262 Register 8 is {:02x}", rx_data[4])
+        .expect("buf overflow");
+    puts(&buf);    
 }
 
 /// Print a message to the serial console.
@@ -83,17 +134,32 @@ fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never r
     loop {}
 }
 
-extern "C" {  //  Import C Function
-    /// Open a file
-    fn open(path: *const u8, oflag: i32, ...) -> i32;
-}
-
-/// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
-const O_RDONLY: i32 = 1 << 0;        /* Open for read access (only) */
-const O_RDOK:   i32 = O_RDONLY;      /* Read access is permitted (non-standard) */
-const O_WRONLY: i32 = 1 << 1;        /* Open for write access (only) */
-const O_WROK:   i32 = O_WRONLY;      /* Write access is permitted (non-standard) */
-const O_RDWR:   i32 = O_RDOK|O_WROK; /* Open for both read & write access */
-
 /// Limit Strings to 64 chars, similar to `char[64]` in C
 pub type String = heapless::String::<64>;
+
+extern "C" {  //  Import POSIX Functions. TODO: Import with bindgen
+    pub fn open(path: *const u8, oflag: i32, ...) -> i32;
+    pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
+    pub fn write(fd: i32, buf: *const u8, count: usize) -> isize;
+    pub fn ioctl(fd: i32, request: u64, ...) -> i32;
+}
+
+/// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/nuttx/ioexpander/gpio.h
+pub const GPIOC_WRITE:      u64 = _GPIOBASE | 1;  //  _GPIOC(1)
+pub const GPIOC_READ:       u64 = _GPIOBASE | 2;  //  _GPIOC(2)
+pub const GPIOC_PINTYPE:    u64 = _GPIOBASE | 3;  //  _GPIOC(3)
+pub const GPIOC_REGISTER:   u64 = _GPIOBASE | 4;  //  _GPIOC(4)
+pub const GPIOC_UNREGISTER: u64 = _GPIOBASE | 5;  //  _GPIOC(5)
+pub const GPIOC_SETPINTYPE: u64 = _GPIOBASE | 6;  //  _GPIOC(6)
+
+/// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
+pub const _GPIOBASE: u64 = 0x2300; /* GPIO driver commands */
+//  #define _GPIOC(nr)       _IOC(_GPIOBASE,nr)
+//  #define _IOC(type,nr)    ((type)|(nr))
+
+/// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
+pub const O_RDONLY: i32 = 1 << 0;        /* Open for read access (only) */
+pub const O_RDOK:   i32 = O_RDONLY;      /* Read access is permitted (non-standard) */
+pub const O_WRONLY: i32 = 1 << 1;        /* Open for write access (only) */
+pub const O_WROK:   i32 = O_WRONLY;      /* Write access is permitted (non-standard) */
+pub const O_RDWR:   i32 = O_RDOK|O_WROK; /* Open for both read & write access */
