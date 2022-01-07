@@ -37,7 +37,9 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     };
     assert!(spi >= 0);
 
+    //  Read SX1262 Register 5 times
     for _i in 0..5 {
+
         //  Set SX1262 Chip Select to Low
         let ret = unsafe { 
             ioctl(cs, GPIOC_WRITE, 0) 
@@ -73,14 +75,12 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
             puts(&buf);    
         }
         let mut buf = String::new();
-        write!(buf, "SX1262 Register 8 is {:02x}", rx_data[4])
+        write!(buf, "SX1262 Register 8 is 0x{:02x}", rx_data[4])
             .expect("buf overflow");
         puts(&buf);    
 
         //  Sleep 5 seconds
-        unsafe {
-            sleep(5);
-        }
+        unsafe { sleep(5); }
     }
 }
 
