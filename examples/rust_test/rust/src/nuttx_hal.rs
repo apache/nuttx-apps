@@ -8,8 +8,11 @@ use embedded_hal::{
     digital::v2,
 };
 use crate::{
+    ioctl,
     open,
     puts,
+    GPIOC_READ,
+    GPIOC_WRITE,
     O_RDWR,
 };
 
@@ -44,17 +47,21 @@ impl v2::OutputPin for OutputPin {
     /// Error Type
     type Error = ();
 
-    /// Set the pin to high
+    /// Set the GPIO Output to High
     fn set_high(&mut self) -> Result<(), Self::Error> {
-        //  TODO
-        assert!(false);
+        let ret = unsafe { 
+            ioctl(self.fd, GPIOC_WRITE, 1) 
+        };
+        assert!(ret >= 0);
         Ok(())
     }
 
-    /// Set the pin to low
+    /// Set the GPIO Output to low
     fn set_low(&mut self) -> Result<(), Self::Error> {
-        //  TODO
-        assert!(false);
+        let ret = unsafe { 
+            ioctl(self.fd, GPIOC_WRITE, 0) 
+        };
+        assert!(ret >= 0);
         Ok(())
     }
 }
@@ -64,14 +71,14 @@ impl v2::InputPin for InputPin {
     /// Error Type
     type Error = ();
 
-    /// Return true if pin is high
+    /// Return true if GPIO Input is high
     fn is_high(&self) -> Result<bool, Self::Error> {
         //  TODO
         assert!(false);
         Ok(false)
     }
 
-    /// Return true if pin is low
+    /// Return true if GPIO Input is low
     fn is_low(&self) -> Result<bool, Self::Error> {
         //  TODO
         assert!(false);
