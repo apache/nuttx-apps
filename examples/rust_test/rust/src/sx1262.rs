@@ -50,7 +50,6 @@ pub fn test_sx1262() {
 
     //  Init LoRa modem
     let conf = build_config();
-    /*
     let mut lora = SX126x::new(lora_pins);
     lora.init(&mut spi1, delay, conf)
         .expect("sx1262 init failed");
@@ -65,7 +64,6 @@ pub fn test_sx1262() {
     write!(buf, "SX1262 Register 8 is 0x{:02x}", result[0])
         .expect("buf overflow");
     puts(&buf);
-    */
 }
 
 /// Build the LoRa configuration
@@ -107,6 +105,26 @@ fn build_config() -> LoRaConfig {
         rf_freq,
     }
 }
+
+/// Read Priority Mask Register. Missing function called by sx126x crate (Arm only, not RISC-V).
+/// See https://github.com/rust-embedded/cortex-m/blob/master/src/register/primask.rs#L29
+#[no_mangle]
+extern "C" fn __primask_r() -> u32 { 0 }
+
+/// Disables all interrupts. Missing function called by sx126x crate (Arm only, not RISC-V).
+/// See https://github.com/rust-embedded/cortex-m/blob/master/src/interrupt.rs#L29
+#[no_mangle]
+extern "C" fn __cpsid() {}
+
+/// Enables all interrupts. Missing function called by sx126x crate (Arm only, not RISC-V).
+/// See https://github.com/rust-embedded/cortex-m/blob/master/src/interrupt.rs#L39
+#[no_mangle]
+extern "C" fn __cpsie() {}
+
+/// No operation. Missing function called by sx126x crate (Arm only, not RISC-V).
+/// See https://github.com/rust-embedded/cortex-m/blob/master/src/asm.rs#L35
+#[no_mangle]
+extern "C" fn __nop() {}
 
 /// LoRa Frequency
 const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)

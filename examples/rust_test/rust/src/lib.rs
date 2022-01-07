@@ -20,7 +20,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     puts("Hello from Rust!");    
 
     //  Test the SPI Port by reading SX1262 Register 8
-    test_spi();
+    //  test_spi();
 
     //  Test the SX1262 Driver by reading SX1262 Register 8
     sx1262::test_sx1262();
