@@ -13,7 +13,7 @@ use crate::{      //  Local Library
     String,       //  String Library
 };
 
-/// LoRa Frequency
+/// TODO: Change this to your LoRa Frequency
 const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)
 
 /// SX1262 Clock Frequency
@@ -73,6 +73,7 @@ pub fn test_sx1262() {
         .expect("buf overflow");
     puts(&buf);
 
+    /*
     // Send a LoRa message
     puts("Sending LoRa message...");
     lora.write_bytes(
@@ -83,6 +84,7 @@ pub fn test_sx1262() {
         8,          //  Preamble Length
         packet::lora::LoRaCrcType::CrcOn,  //  Enable CRC
     ).expect("send failed");
+    */
 }
 
 /// Build the LoRa configuration
