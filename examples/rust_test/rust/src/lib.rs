@@ -22,7 +22,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     //  Test the SPI Port by reading SX1262 Register 8
     test_spi();
 
-    //  Test the SX1262 Driver by reading SX1262 Register 8
+    //  Test the SX1262 Driver by reading a register and sending a LoRa message
     sx1262::test_sx1262();
 }
 
@@ -111,11 +111,11 @@ fn test_spi() {
 
 /// Print a message to the serial console.
 /// TODO: Auto-generate this wrapper with `bindgen` from the C declaration
-pub fn puts(s: &str) -> i32 {  //  `&str` is a reference to a string slice, similar to `const char *` in C
+pub fn puts(s: &str) -> isize {  //  `&str` is a reference to a string slice, similar to `const char *` in C
 
     extern "C" {  //  Import C Function
         /// Print a message to the serial console (from C stdio library)
-        fn puts(s: *const u8) -> i32;
+        fn puts(s: *const u8) -> isize;
     }
 
     //  Convert `str` to `String`, which similar to `char [64]` in C
@@ -170,32 +170,32 @@ fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never r
 pub type String = heapless::String::<64>;
 
 extern "C" {  //  Import POSIX Functions. TODO: Import with bindgen
-    pub fn open(path: *const u8, oflag: i32, ...) -> i32;
-    pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
-    pub fn write(fd: i32, buf: *const u8, count: usize) -> isize;
-    pub fn close(fd: i32) -> i32;
-    pub fn ioctl(fd: i32, request: i32, ...) -> i32;  //  On NuttX: request is i32, not u64 like Linux
-    pub fn sleep(secs: u32) -> u32;
-    pub fn usleep(usec: u32) -> u32;
-    pub fn exit(status: u32) -> !;
+    pub fn open(path: *const u8, oflag: isize, ...) -> isize;
+    pub fn read(fd: isize, buf: *mut u8, count: usize) -> isize;
+    pub fn write(fd: isize, buf: *const u8, count: usize) -> isize;
+    pub fn close(fd: isize) -> isize;
+    pub fn ioctl(fd: isize, request: isize, ...) -> isize;  //  On NuttX: request is isize, not u64 like Linux
+    pub fn sleep(secs: usize) -> usize;
+    pub fn usleep(usec: usize) -> usize;
+    pub fn exit(status: usize) -> !;
 }
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/nuttx/ioexpander/gpio.h
-pub const GPIOC_WRITE:      i32 = _GPIOBASE | 1;  //  _GPIOC(1)
-pub const GPIOC_READ:       i32 = _GPIOBASE | 2;  //  _GPIOC(2)
-pub const GPIOC_PINTYPE:    i32 = _GPIOBASE | 3;  //  _GPIOC(3)
-pub const GPIOC_REGISTER:   i32 = _GPIOBASE | 4;  //  _GPIOC(4)
-pub const GPIOC_UNREGISTER: i32 = _GPIOBASE | 5;  //  _GPIOC(5)
-pub const GPIOC_SETPINTYPE: i32 = _GPIOBASE | 6;  //  _GPIOC(6)
+pub const GPIOC_WRITE:      isize = _GPIOBASE | 1;  //  _GPIOC(1)
+pub const GPIOC_READ:       isize = _GPIOBASE | 2;  //  _GPIOC(2)
+pub const GPIOC_PINTYPE:    isize = _GPIOBASE | 3;  //  _GPIOC(3)
+pub const GPIOC_REGISTER:   isize = _GPIOBASE | 4;  //  _GPIOC(4)
+pub const GPIOC_UNREGISTER: isize = _GPIOBASE | 5;  //  _GPIOC(5)
+pub const GPIOC_SETPINTYPE: isize = _GPIOBASE | 6;  //  _GPIOC(6)
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
-pub const _GPIOBASE: i32 = 0x2300; /* GPIO driver commands */
+pub const _GPIOBASE: isize = 0x2300; /* GPIO driver commands */
 //  #define _GPIOC(nr)       _IOC(_GPIOBASE,nr)
 //  #define _IOC(type,nr)    ((type)|(nr))
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/fcntl.h
-pub const O_RDONLY: i32 = 1 << 0;        /* Open for read access (only) */
-pub const O_RDOK:   i32 = O_RDONLY;      /* Read access is permitted (non-standard) */
-pub const O_WRONLY: i32 = 1 << 1;        /* Open for write access (only) */
-pub const O_WROK:   i32 = O_WRONLY;      /* Write access is permitted (non-standard) */
-pub const O_RDWR:   i32 = O_RDOK|O_WROK; /* Open for both read & write access */
+pub const O_RDONLY: isize = 1 << 0;        /* Open for read access (only) */
+pub const O_RDOK:   isize = O_RDONLY;      /* Read access is permitted (non-standard) */
+pub const O_WRONLY: isize = 1 << 1;        /* Open for write access (only) */
+pub const O_WROK:   isize = O_WRONLY;      /* Write access is permitted (non-standard) */
+pub const O_RDWR:   isize = O_RDOK|O_WROK; /* Open for both read & write access */

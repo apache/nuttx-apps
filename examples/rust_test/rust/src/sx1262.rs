@@ -22,7 +22,7 @@ const RF_FREQUENCY: u32 = 923_000_000;  //  923 MHz (Asia)
 /// SX1262 Clock Frequency
 const F_XTAL: u32 = 32_000_000;  //  32 MHz
 
-/// Test the SX1262 Driver by reading SX1262 Register 8.
+/// Test the SX1262 Driver by reading a register and sending a LoRa message.
 /// Based on https://github.com/tweedegolf/sx126x-rs/blob/master/examples/stm32f103-ping-pong.rs
 pub fn test_sx1262() {
     puts("test_sx1262");
