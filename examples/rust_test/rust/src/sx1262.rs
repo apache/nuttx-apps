@@ -13,6 +13,12 @@ use crate::{      //  Local Library
     String,       //  String Library
 };
 
+/// LoRa Frequency
+const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)
+
+/// SX1262 Clock Frequency
+const F_XTAL: u32 = 32_000_000; // 32MHz
+
 /// Test the SX1262 Driver by reading SX1262 Register 8.
 /// Based on https://github.com/tweedegolf/sx126x-rs/blob/master/examples/stm32f103-ping-pong.rs
 pub fn test_sx1262() {
@@ -110,26 +116,24 @@ fn build_config() -> LoRaConfig {
 
 /// Read Priority Mask Register. Missing function called by sx126x crate (Arm only, not RISC-V).
 /// See https://github.com/rust-embedded/cortex-m/blob/master/src/register/primask.rs#L29
+#[cfg(not(target_arch = "arm"))]  //  If architecture is not Arm...
 #[no_mangle]
 extern "C" fn __primask_r() -> u32 { 0 }
 
 /// Disables all interrupts. Missing function called by sx126x crate (Arm only, not RISC-V).
 /// See https://github.com/rust-embedded/cortex-m/blob/master/src/interrupt.rs#L29
+#[cfg(not(target_arch = "arm"))]  //  If architecture is not Arm...
 #[no_mangle]
 extern "C" fn __cpsid() {}
 
 /// Enables all interrupts. Missing function called by sx126x crate (Arm only, not RISC-V).
 /// See https://github.com/rust-embedded/cortex-m/blob/master/src/interrupt.rs#L39
+#[cfg(not(target_arch = "arm"))]  //  If architecture is not Arm...
 #[no_mangle]
 extern "C" fn __cpsie() {}
 
 /// No operation. Missing function called by sx126x crate (Arm only, not RISC-V).
 /// See https://github.com/rust-embedded/cortex-m/blob/master/src/asm.rs#L35
+#[cfg(not(target_arch = "arm"))]  //  If architecture is not Arm...
 #[no_mangle]
 extern "C" fn __nop() {}
-
-/// LoRa Frequency
-const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)
-
-/// SX1262 Clock Frequency
-const F_XTAL: u32 = 32_000_000; // 32MHz
