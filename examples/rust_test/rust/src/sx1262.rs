@@ -76,23 +76,27 @@ pub fn test_sx1262() {
         .expect("buf overflow");
     puts(&buf);
 
-    puts("Write Register 0x889: 0x04 (TxModulation)");
+    //  Write SX1262 Registers to prepare for transmitting LoRa message.
+    //  Based on https://gist.github.com/lupyuen/5fdede131ad0e327478994872f190668
+    puts("Writing Registers...");
+
+    //  Write Register 0x889: 0x04 (TxModulation)
     lora.write_register(&mut spi1, delay, Register::TxModulaton, &[0x04])
         .expect("write register failed");
 
-    puts("Write Register 0x8D8: 0xFE (TxClampConfig)");
+    //  Write Register 0x8D8: 0xFE (TxClampConfig)
     lora.write_register(&mut spi1, delay, Register::TxClampConfig, &[0xFE])
         .expect("write register failed");
 
-    puts("Write Register 0x8E7: 0x38 (Over Current Protection)");
+    //  Write Register 0x8E7: 0x38 (Over Current Protection)
     lora.write_register(&mut spi1, delay, Register::OcpConfiguration, &[0x38])
         .expect("write register failed");
 
-    puts("Write Register 0x736: 0x0D (Inverted IQ)");
+    //  Write Register 0x736: 0x0D (Inverted IQ)
     lora.write_register(&mut spi1, delay, Register::IqPolaritySetup, &[0x0D])
         .expect("write register failed");
 
-    // Send a LoRa message
+    //  Send a LoRa message
     puts("Sending LoRa message...");
     buf.clear();
     write!(buf, "Frequency: {}", RF_FREQUENCY)
@@ -101,8 +105,7 @@ pub fn test_sx1262() {
     lora.write_bytes(
         &mut spi1,  //  SPI Interface
         delay,      //  Delay Interface
-        ////b"Hello from Rust on NuttX!",  //  Payload
-        &[ 0x12 ; 64 ],  //  Payload
+        b"Hello from Rust on NuttX!",  //  Payload
         0.into(),   //  Disable Transmit Timeout
         8,          //  Preamble Length
         packet::lora::LoRaCrcType::CrcOn,  //  Enable CRC
