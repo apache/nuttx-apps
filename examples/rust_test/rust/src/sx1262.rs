@@ -15,6 +15,7 @@ use crate::{      //  Local Library
 
 /// TODO: Change this to your LoRa Frequency
 const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)
+//  const RF_FREQUENCY: u32 = 923_000_000; // 923MHz (Asia)
 
 /// SX1262 Clock Frequency
 const F_XTAL: u32 = 32_000_000; // 32MHz
@@ -73,9 +74,12 @@ pub fn test_sx1262() {
         .expect("buf overflow");
     puts(&buf);
 
-    /*
     // Send a LoRa message
     puts("Sending LoRa message...");
+    buf.clear();
+    write!(buf, "Frequency: {}", RF_FREQUENCY)
+        .expect("buf overflow");
+    puts(&buf);
     lora.write_bytes(
         &mut spi1,  //  SPI Interface
         delay,      //  Delay Interface
@@ -84,14 +88,13 @@ pub fn test_sx1262() {
         8,          //  Preamble Length
         packet::lora::LoRaCrcType::CrcOn,  //  Enable CRC
     ).expect("send failed");
-    */
 }
 
 /// Build the LoRa configuration
 fn build_config() -> LoRaConfig {
     use sx126x::op::{
         irq::IrqMaskBit::*, modulation::lora::*, packet::lora::LoRaPacketParams,
-        rxtx::DeviceSel::SX1261, PacketType::LoRa,
+        rxtx::DeviceSel::SX1262, PacketType::LoRa,
     };
 
     let mod_params = LoraModParams::default().into();
@@ -99,7 +102,7 @@ fn build_config() -> LoRaConfig {
         .set_power_dbm(14)
         .set_ramp_time(RampTime::Ramp200u);
     let pa_config = PaConfig::default()
-        .set_device_sel(SX1261)
+        .set_device_sel(SX1262)  //  TODO: Select SX1261 or SX1262
         .set_pa_duty_cycle(0x04);
 
     let dio1_irq_mask = IrqMask::none()
