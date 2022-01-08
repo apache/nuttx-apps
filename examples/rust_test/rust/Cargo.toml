@@ -10,8 +10,8 @@ version = "0.0.1"
 [dependencies]
 heapless     = "0.7.5"  # `static` friendly data structures that don't require dynamic memory allocation: https://crates.io/crates/heapless
 embedded-hal = "0.2.3"  # Embedded HAL: https://crates.io/crates/embedded-hal
-#sx126x      = { git = "https://github.com/lupyuen/sx126x-rs-nuttx" }  # SX126x LoRa Radio Driver fixed for NuttX
-sx126x       = { path = "../../../../sx126x-rs-nuttx" }  # For local development
+sx126x       = { git = "https://github.com/lupyuen/sx126x-rs-nuttx" }  # SX126x LoRa Radio Driver fixed for NuttX
+# sx126x     = { path = "../../../../sx126x-rs-nuttx" }  # For local development
 
 # Build this module as a Rust library, not a Rust application.  We will link this library with the BL602 firmware.
 [lib]
