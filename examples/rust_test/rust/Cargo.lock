@@ -308,7 +308,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "sx126x"
 version = "0.1.1"
-source = "git+https://github.com/lupyuen/sx126x-rs-nuttx#a9583d843e56740a77a82c76fcaee0c242f9d310"
+source = "git+https://github.com/lupyuen/sx126x-rs-nuttx#484c7c9d3742cf80ef93cc8389a76101e2cba41f"
 dependencies = [
  "cortex-m 0.6.7",
  "embedded-hal",
