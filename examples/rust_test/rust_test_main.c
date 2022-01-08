@@ -25,6 +25,9 @@
 #include <assert.h>
 #include <unistd.h>
 
+//  Rust Function defined in rust/src/lib.rs
+void rust_main(void);
+
 int main(int argc, FAR char *argv[]) {
     //  Call Rust Function
     rust_main();
