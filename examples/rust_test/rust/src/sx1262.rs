@@ -72,6 +72,17 @@ pub fn test_sx1262() {
     write!(buf, "test_sx1262: SX1262 Register 8 is 0x{:02x}", result[0])
         .expect("buf overflow");
     puts(&buf);
+
+    // Send a LoRa message
+    puts("Sending LoRa message...");
+    lora.write_bytes(
+        &mut spi1,  //  SPI Interface
+        delay,      //  Delay Interface
+        b"Hello from Rust on NuttX!",  //  Payload
+        0.into(),   //  Disable Transmit Timeout
+        8,          //  Preamble Length
+        packet::lora::LoRaCrcType::CrcOn,  //  Enable CRC
+    ).expect("send failed");
 }
 
 /// Build the LoRa configuration
