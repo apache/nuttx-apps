@@ -92,7 +92,7 @@ fn test_spi() {
             puts(&buf);    
         }
         let mut buf = String::new();
-        write!(buf, "SX1262 Register 8 is 0x{:02x}", rx_data[4])
+        write!(buf, "test_spi: SX1262 Register 8 is 0x{:02x}", rx_data[4])
             .expect("buf overflow");
         puts(&buf);    
 

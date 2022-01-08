@@ -63,7 +63,7 @@ pub fn test_sx1262() {
 
     //  Show the register value
     let mut buf = String::new();
-    write!(buf, "SX1262 Register 8 is 0x{:02x}", result[0])
+    write!(buf, "test_sx1262: SX1262 Register 8 is 0x{:02x}", result[0])
         .expect("buf overflow");
     puts(&buf);
 }
