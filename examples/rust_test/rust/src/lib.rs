@@ -162,8 +162,8 @@ fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never r
         }
     }
 
-    //  Loop forever, do not pass go, do not collect $200
-    loop {}
+    //  Terminate the app
+    unsafe { exit(1); }
 }
 
 /// Limit Strings to 64 chars, similar to `char[64]` in C
@@ -177,6 +177,7 @@ extern "C" {  //  Import POSIX Functions. TODO: Import with bindgen
     pub fn ioctl(fd: i32, request: i32, ...) -> i32;  //  On NuttX: request is i32, not u64 like Linux
     pub fn sleep(secs: u32) -> u32;
     pub fn usleep(usec: u32) -> u32;
+    pub fn exit(status: u32) -> !;
 }
 
 /// TODO: Import with bindgen from https://github.com/lupyuen/incubator-nuttx/blob/rust/include/nuttx/ioexpander/gpio.h
