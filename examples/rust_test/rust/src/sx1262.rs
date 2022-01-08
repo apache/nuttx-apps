@@ -5,6 +5,7 @@ use core::{       //  Rust Core Library
 use sx126x::{     //  SX1262 Library
     conf::Config as LoRaConfig,  //  LoRa Configuration
     op::*,        //  LoRa Operations
+    reg::Register,//  LoRa Registers
     SX126x,       //  SX1262 Driver
 };
 use crate::{      //  Local Library
@@ -14,11 +15,12 @@ use crate::{      //  Local Library
 };
 
 /// TODO: Change this to your LoRa Frequency
-const RF_FREQUENCY: u32 = 868_000_000; // 868MHz (EU)
-//  const RF_FREQUENCY: u32 = 923_000_000; // 923MHz (Asia)
+//  const RF_FREQUENCY: u32 = 868_000_000;  //  868 MHz (EU)
+//  const RF_FREQUENCY: u32 = 915_000_000;  //  915 MHz (US)
+const RF_FREQUENCY: u32 = 923_000_000;  //  923 MHz (Asia)
 
 /// SX1262 Clock Frequency
-const F_XTAL: u32 = 32_000_000; // 32MHz
+const F_XTAL: u32 = 32_000_000;  //  32 MHz
 
 /// Test the SX1262 Driver by reading SX1262 Register 8.
 /// Based on https://github.com/tweedegolf/sx126x-rs/blob/master/examples/stm32f103-ping-pong.rs
@@ -74,6 +76,22 @@ pub fn test_sx1262() {
         .expect("buf overflow");
     puts(&buf);
 
+    puts("Write Register 0x889: 0x04 (TxModulation)");
+    lora.write_register(&mut spi1, delay, Register::TxModulaton, &[0x04])
+        .expect("write register failed");
+
+    puts("Write Register 0x8D8: 0xFE (TxClampConfig)");
+    lora.write_register(&mut spi1, delay, Register::TxClampConfig, &[0xFE])
+        .expect("write register failed");
+
+    puts("Write Register 0x8E7: 0x38 (Over Current Protection)");
+    lora.write_register(&mut spi1, delay, Register::OcpConfiguration, &[0x38])
+        .expect("write register failed");
+
+    puts("Write Register 0x736: 0x0D (Inverted IQ)");
+    lora.write_register(&mut spi1, delay, Register::IqPolaritySetup, &[0x0D])
+        .expect("write register failed");
+
     // Send a LoRa message
     puts("Sending LoRa message...");
     buf.clear();
@@ -83,7 +101,8 @@ pub fn test_sx1262() {
     lora.write_bytes(
         &mut spi1,  //  SPI Interface
         delay,      //  Delay Interface
-        b"Hello from Rust on NuttX!",  //  Payload
+        ////b"Hello from Rust on NuttX!",  //  Payload
+        &[ 0x12 ; 64 ],  //  Payload
         0.into(),   //  Disable Transmit Timeout
         8,          //  Preamble Length
         packet::lora::LoRaCrcType::CrcOn,  //  Enable CRC
