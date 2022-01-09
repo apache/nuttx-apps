@@ -45,8 +45,8 @@ fn test_puts() {
     unsafe {  //  Mark as unsafe because we are calling C
         //  Print a message to the serial console
         puts(
-            b"test_puts: Hello!\0"  //  Byte String terminated with null
-                .as_ptr()           //  Convert to pointer
+            b"Hello World!\0"  //  Byte String terminated with null
+                .as_ptr()      //  Convert to pointer
         );
     }
 }
