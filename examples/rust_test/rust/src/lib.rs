@@ -23,7 +23,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     //  Print a message to the serial console
     puts("Hello from Rust!");    
 
-    //  Print a message with puts the unsafe way
+    //  Print a message the unsafe way
     test_puts();
 
     //  Test the SPI Port by reading SX1262 Register 8
@@ -36,7 +36,7 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     sx1262::test_sx1262();
 }
 
-/// Print a message with puts the unsafe way
+/// Print a message the unsafe way
 fn test_puts() {
     extern "C" {  //  Import C Function
         /// Print a message to the serial console (from C stdio library)
