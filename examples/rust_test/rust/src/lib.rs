@@ -23,6 +23,9 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
     //  Print a message to the serial console
     puts("Hello from Rust!");    
 
+    //  Print a message with puts the unsafe way
+    test_puts();
+
     //  Test the SPI Port by reading SX1262 Register 8
     test_spi();
 
@@ -31,6 +34,21 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
 
     //  Test the SX1262 Driver by reading a register and sending a LoRa message
     sx1262::test_sx1262();
+}
+
+/// Print a message with puts the unsafe way
+fn test_puts() {
+    extern "C" {  //  Import C Function
+        /// Print a message to the serial console (from C stdio library)
+        fn puts(s: *const u8) -> isize;
+    }
+    unsafe {  //  Mark as unsafe because we are calling C
+        //  Print a message to the serial console
+        puts(
+            b"test_puts: Hello!\0"  //  Byte String terminated with null
+                .as_ptr()           //  Convert to pointer
+        );
+    }
 }
 
 /// Test the SPI Port by reading SX1262 Register 8
