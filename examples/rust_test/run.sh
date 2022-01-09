@@ -14,9 +14,9 @@ export APP_NAME=nuttx
 export NUTTX_PATH=$PWD/../../../nuttx
 
 ##  Where blflash is located
-##  For macOS: 
-export BLFLASH_PATH=$PWD/../../../../blflash
-##  For WSL: export BLFLASH_PATH=/mnt/c/pinecone/blflash
+##  For macOS: export BLFLASH_PATH=$PWD/../../../../blflash
+##  For WSL: 
+export BLFLASH_PATH=/mnt/c/pinecone/blflash
 
 ##  Where GCC is located
 export GCC_PATH=$PWD/../../../xpack-riscv-none-embed-gcc
