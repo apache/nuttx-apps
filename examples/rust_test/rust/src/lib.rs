@@ -12,6 +12,10 @@ use core::{            //  Rust Core Library
     panic::PanicInfo,  //  Panic Handler
     str::FromStr,      //  For converting `str` to `String`
 };
+use embedded_hal::{           //  Rust Embedded HAL
+    digital::v2::OutputPin,   //  GPIO Output
+    blocking::spi::Transfer,  //  SPI Transfer
+};
 
 #[no_mangle]                 //  Don't mangle the function name
 extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called by NuttX
@@ -21,6 +25,9 @@ extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called 
 
     //  Test the SPI Port by reading SX1262 Register 8
     test_spi();
+
+    //  Test the NuttX Embedded HAL by reading SX1262 Register 8
+    test_hal();
 
     //  Test the SX1262 Driver by reading a register and sending a LoRa message
     sx1262::test_sx1262();
@@ -84,7 +91,7 @@ fn test_spi() {
         assert!(ret >= 0);
 
         //  Show the received register value
-        puts("Read Register 8: received");
+        puts("test_spi: received");
         for i in 0..bytes_read {
             let mut buf = String::new();
             write!(buf, "  {:02x}", rx_data[i as usize])
@@ -107,6 +114,43 @@ fn test_spi() {
         close(dio1);
         close(spi);    
     }
+}
+
+/// Test the NuttX Embedded HAL by reading SX1262 Register 8
+fn test_hal() {
+    puts("test_hal");
+
+    //  Open GPIO Output for SX1262 Chip Select
+    let mut cs = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
+
+    //  Open SPI Bus for SX1262
+    let mut spi = nuttx_hal::Spi::new(b"/dev/spitest0\0".as_ptr());
+
+    //  Set SX1262 Chip Select to Low
+    cs.set_low()
+        .expect("cs failed");
+
+    //  Transfer command to SX1262: Read Register 8
+    let mut data: [ u8; 5 ] = [ 0x1d, 0x00, 0x08, 0x00, 0x00 ];
+    spi.transfer(&mut data)
+        .expect("spi failed");
+
+    //  Show the received register value
+    puts("test_hal: received");
+    for i in 0..data.len() {
+        let mut buf = String::new();
+        write!(buf, "  {:02x}", data[i as usize])
+            .expect("buf overflow");
+        puts(&buf);    
+    }
+    let mut buf = String::new();
+    write!(buf, "test_hal: SX1262 Register 8 is 0x{:02x}", data[4])
+        .expect("buf overflow");
+    puts(&buf);    
+    
+    //  Set SX1262 Chip Select to High
+    cs.set_high()
+        .expect("cs failed");
 }
 
 /// Print a message to the serial console.
