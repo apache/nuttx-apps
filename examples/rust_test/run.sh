@@ -89,6 +89,7 @@ set -x  ##  Enable echo
 ##  Build the Rust Library
 pushd rust
 rustup default nightly
+cargo clippy $rust_build_options
 cargo build $rust_build_options
 popd
 
