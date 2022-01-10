@@ -1,3 +1,5 @@
+//! Test SX1262 Driver
+
 //  Import Libraries
 use core::{       //  Rust Core Library
     fmt::Write,   //  String Formatting    
@@ -28,13 +30,13 @@ pub fn test_sx1262() {
     puts("test_sx1262");
 
     //  Open GPIO Input for SX1262 Busy Pin
-    let lora_busy = nuttx_hal::InputPin::new(b"/dev/gpio0\0".as_ptr());
+    let lora_busy = nuttx_hal::InputPin::new("/dev/gpio0");
 
     //  Open GPIO Output for SX1262 Chip Select
-    let lora_nss = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
+    let lora_nss = nuttx_hal::OutputPin::new("/dev/gpio1");
 
     //  Open GPIO Interrupt for SX1262 DIO1 Pin
-    let lora_dio1 = nuttx_hal::InterruptPin::new(b"/dev/gpio2\0".as_ptr());
+    let lora_dio1 = nuttx_hal::InterruptPin::new("/dev/gpio2");
 
     //  TODO: Open GPIO Output for SX1262 NRESET Pin
     let lora_nreset = nuttx_hal::UnusedPin::new();
@@ -43,7 +45,7 @@ pub fn test_sx1262() {
     let lora_ant = nuttx_hal::UnusedPin::new();
 
     //  Open SPI Bus for SX1262
-    let mut spi1 = nuttx_hal::Spi::new(b"/dev/spitest0\0".as_ptr());
+    let mut spi1 = nuttx_hal::Spi::new("/dev/spitest0");
 
     //  Define the SX1262 Pins
     let lora_pins = (

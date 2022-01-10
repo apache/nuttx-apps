@@ -139,10 +139,10 @@ fn test_hal() {
     puts("test_hal");
 
     //  Open GPIO Output for SX1262 Chip Select
-    let mut cs = nuttx_hal::OutputPin::new(b"/dev/gpio1\0".as_ptr());
+    let mut cs = nuttx_hal::OutputPin::new("/dev/gpio1");
 
     //  Open SPI Bus for SX1262
-    let mut spi = nuttx_hal::Spi::new(b"/dev/spitest0\0".as_ptr());
+    let mut spi = nuttx_hal::Spi::new("/dev/spitest0");
 
     //  Set SX1262 Chip Select to Low
     cs.set_low()
