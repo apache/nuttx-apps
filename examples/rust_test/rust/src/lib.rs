@@ -1,14 +1,18 @@
 #![no_std]  //  Use the Rust Core Library instead of the Rust Standard Library, which is not compatible with embedded systems
 
+//  Import Macros for NuttX
+#[macro_use]
+mod macros;
+
 //  Import NuttX HAL
 mod nuttx_hal;
 
-//  Import module sx1262
+//  Import Module sx1262
 mod sx1262;
 
 //  Import Libraries
 use core::{            //  Rust Core Library
-    fmt::Write,        //  String Formatting    
+    fmt,               //  String Formatting    
     panic::PanicInfo,  //  Panic Handler
     str::FromStr,      //  For converting `str` to `String`
 };
@@ -21,7 +25,7 @@ use embedded_hal::{           //  Rust Embedded HAL
 extern "C" fn rust_main() {  //  Declare `extern "C"` because it will be called by NuttX
 
     //  Print a message to the serial console
-    puts("Hello from Rust!");    
+    println!("Hello from Rust!");    
 
     //  Print a message the unsafe way
     test_puts();
@@ -53,7 +57,7 @@ fn test_puts() {
 
 /// Test the SPI Port by reading SX1262 Register 8
 fn test_spi() {
-    puts("test_spi");
+    println!("test_spi");
 
     //  Open GPIO Input for SX1262 Busy Pin
     let busy = unsafe { 
@@ -109,17 +113,11 @@ fn test_spi() {
         assert!(ret >= 0);
 
         //  Show the received register value
-        puts("test_spi: received");
+        println!("test_spi: received");
         for i in 0..bytes_read {
-            let mut buf = String::new();
-            write!(buf, "  {:02x}", rx_data[i as usize])
-                .expect("buf overflow");
-            puts(&buf);    
+            println!("  {:02x}", rx_data[i as usize])
         }
-        let mut buf = String::new();
-        write!(buf, "test_spi: SX1262 Register 8 is 0x{:02x}", rx_data[4])
-            .expect("buf overflow");
-        puts(&buf);    
+        println!("test_spi: SX1262 Register 8 is 0x{:02x}", rx_data[4]);
 
         //  Sleep 5 seconds
         unsafe { sleep(5); }
@@ -136,7 +134,7 @@ fn test_spi() {
 
 /// Test the NuttX Embedded HAL by reading SX1262 Register 8
 fn test_hal() {
-    puts("test_hal");
+    println!("test_hal");
 
     //  Open GPIO Output for SX1262 Chip Select
     let mut cs = nuttx_hal::OutputPin::new("/dev/gpio1");
@@ -154,17 +152,11 @@ fn test_hal() {
         .expect("spi failed");
 
     //  Show the received register value
-    puts("test_hal: received");
+    println!("test_hal: received");
     for i in 0..data.len() {
-        let mut buf = String::new();
-        write!(buf, "  {:02x}", data[i as usize])
-            .expect("buf overflow");
-        puts(&buf);    
+        println!("  {:02x}", data[i as usize]);
     }
-    let mut buf = String::new();
-    write!(buf, "test_hal: SX1262 Register 8 is 0x{:02x}", data[4])
-        .expect("buf overflow");
-    puts(&buf);    
+    println!("test_hal: SX1262 Register 8 is 0x{:02x}", data[4]);
     
     //  Set SX1262 Chip Select to High
     cs.set_high()
@@ -199,18 +191,29 @@ pub fn puts(s: &str) -> isize {  //  `&str` is a reference to a string slice, si
     //  No semicolon `;` here, so the value returned by the C function will be passed to our caller
 }
 
+/// Print a formatted message to the serial console. Called by println! macro.
+pub fn puts_format(args: fmt::Arguments<'_>) {
+    //  Allocate a 64-byte buffer
+    let mut buf = String::new();
+
+    //  Format the message into the buffer
+    fmt::write(&mut buf, args)
+        .expect("puts_with_args overflow");
+
+    //  Print the buffer
+    puts(&buf);
+}
+
 /// This function is called on panic, like an assertion failure
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never return
     //  Display the filename and line number
-    puts("*** Rust Panic:");
+    println!("*** Rust Panic:");
     if let Some(location) = info.location() {
-        puts(location.file());
-        let mut buf = String::new();
-        write!(buf, "Line {}", location.line()).expect("buf overflow");
-        puts(&buf);    
+        println!("File: {}", location.file());
+        println!("Line: {}", location.line());
     } else {
-        puts("Unknown location");
+        println!("Unknown location");
     }
 
     //  Set to true if we are already in the panic handler
@@ -220,7 +223,7 @@ fn panic(info: &PanicInfo) -> ! {  //  `!` means that panic handler will never r
     if unsafe { !IN_PANIC } {  //  Prevent panic loop while displaying the payload
         unsafe { IN_PANIC = true };
         if let Some(payload) = info.payload().downcast_ref::<&str>() {
-            puts(payload);
+            println!("Payload: {}", payload);
         }
     }
 

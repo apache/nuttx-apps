@@ -1,9 +1,6 @@
 //! Test SX1262 Driver
 
 //  Import Libraries
-use core::{       //  Rust Core Library
-    fmt::Write,   //  String Formatting    
-};
 use sx126x::{     //  SX1262 Library
     conf::Config as LoRaConfig,  //  LoRa Configuration
     op::*,        //  LoRa Operations
@@ -12,8 +9,6 @@ use sx126x::{     //  SX1262 Library
 };
 use crate::{      //  Local Library
     nuttx_hal,    //  NuttX Embedded HAL
-    puts,         //  Print to serial console
-    String,       //  String Library
 };
 
 /// TODO: Change this to your LoRa Frequency
@@ -27,7 +22,7 @@ const F_XTAL: u32 = 32_000_000;  //  32 MHz
 /// Test the SX1262 Driver by reading a register and sending a LoRa message.
 /// Based on https://github.com/tweedegolf/sx126x-rs/blob/master/examples/stm32f103-ping-pong.rs
 pub fn test_sx1262() {
-    puts("test_sx1262");
+    println!("test_sx1262");
 
     //  Open GPIO Input for SX1262 Busy Pin
     let lora_busy = nuttx_hal::InputPin::new("/dev/gpio0");
@@ -60,27 +55,24 @@ pub fn test_sx1262() {
     let delay = &mut nuttx_hal::Delay::new();
 
     //  Init LoRa modem
-    puts("Init modem...");
+    println!("Init modem...");
     let conf = build_config();
     let mut lora = SX126x::new(lora_pins);
     lora.init(&mut spi1, delay, conf)
         .expect("sx1262 init failed");
 
     //  Read SX1262 Register 8
-    puts("Reading Register 8...");
+    println!("Reading Register 8...");
     let mut result: [ u8; 1 ] = [ 0; 1 ];
     lora.read_register(&mut spi1, delay, 8, &mut result)
         .expect("sx1262 read register failed");
 
     //  Show the register value
-    let mut buf = String::new();
-    write!(buf, "test_sx1262: SX1262 Register 8 is 0x{:02x}", result[0])
-        .expect("buf overflow");
-    puts(&buf);
+    println!("test_sx1262: SX1262 Register 8 is 0x{:02x}", result[0]);
 
     //  Write SX1262 Registers to prepare for transmitting LoRa message.
     //  Based on https://gist.github.com/lupyuen/5fdede131ad0e327478994872f190668
-    puts("Writing Registers...");
+    println!("Writing Registers...");
 
     //  Write Register 0x889: 0x04 (TxModulation)
     lora.write_register(&mut spi1, delay, Register::TxModulaton, &[0x04])
@@ -99,11 +91,8 @@ pub fn test_sx1262() {
         .expect("write register failed");
 
     //  Send a LoRa message
-    puts("Sending LoRa message...");
-    buf.clear();
-    write!(buf, "Frequency: {}", RF_FREQUENCY)
-        .expect("buf overflow");
-    puts(&buf);
+    println!("Sending LoRa message...");
+    println!("Frequency: {}", RF_FREQUENCY);
     lora.write_bytes(
         &mut spi1,  //  SPI Interface
         delay,      //  Delay Interface
