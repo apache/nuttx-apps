@@ -7,3 +7,6 @@
 [submodule "examples/tinycbor_test"]
 	path = examples/tinycbor_test
 	url = https://github.com/lupyuen/tinycbor_test
+[submodule "examples/rust_test"]
+	path = examples/rust_test
+	url = https://github.com/lupyuen/rust_test

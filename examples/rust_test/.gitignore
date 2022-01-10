@@ -1,6 +1,0 @@
-*.a
-*.ddc
-*.o
-.depend
-Make*.dep
-target
