@@ -173,6 +173,7 @@ pub fn puts(s: &str) -> isize {  //  `&str` is a reference to a string slice, si
     }
 
     //  Convert `str` to `String`, which similar to `char [64]` in C
+    //  TODO: Increase the buffer size if we're sure we won't overflow the stack
     let mut s_with_null = String::from_str(s)  //  `mut` because we will modify it
         .expect("puts conversion failed");     //  If it exceeds 64 chars, halt with an error
     
@@ -193,12 +194,13 @@ pub fn puts(s: &str) -> isize {  //  `&str` is a reference to a string slice, si
 
 /// Print a formatted message to the serial console. Called by println! macro.
 pub fn puts_format(args: fmt::Arguments<'_>) {
-    //  Allocate a 64-byte buffer
+    //  Allocate a 64-byte buffer.
+    //  TODO: Increase the buffer size if we're sure we won't overflow the stack
     let mut buf = String::new();
 
     //  Format the message into the buffer
     fmt::write(&mut buf, args)
-        .expect("puts_with_args overflow");
+        .expect("puts_format overflow");
 
     //  Print the buffer
     puts(&buf);
