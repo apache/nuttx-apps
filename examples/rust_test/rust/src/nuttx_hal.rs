@@ -25,15 +25,15 @@ impl Transfer<u8> for Spi {
     fn transfer<'w>(&mut self, words: &'w mut [u8]) -> Result<&'w [u8], Self::Error> {
         //  Transmit data
         let bytes_written = unsafe { 
-            write(self.fd, words.as_ptr(), words.len()) 
+            write(self.fd, words.as_ptr(), words.len() as u32) 
         };
-        assert!(bytes_written == words.len() as isize);
+        assert!(bytes_written == words.len() as i32);
 
         //  Read response
         let bytes_read = unsafe { 
-            read(self.fd, words.as_mut_ptr(), words.len()) 
+            read(self.fd, words.as_mut_ptr(), words.len() as u32) 
         };
-        assert!(bytes_read == words.len() as isize);
+        assert!(bytes_read == words.len() as i32);
 
         //  Return response
         Ok(words)
@@ -49,9 +49,9 @@ impl Write<u8> for Spi{
     fn write(&mut self, words: &[u8]) -> Result<(), Self::Error> {
         //  Transmit data
         let bytes_written = unsafe { 
-            write(self.fd, words.as_ptr(), words.len()) 
+            write(self.fd, words.as_ptr(), words.len() as u32) 
         };
-        assert!(bytes_written == words.len() as isize);
+        assert!(bytes_written == words.len() as i32);
         Ok(())
     }
 }
@@ -87,8 +87,8 @@ impl v2::InputPin for InputPin {
 
     /// Return true if GPIO Input is high
     fn is_high(&self) -> Result<bool, Self::Error> {
-        let mut invalue: isize = 0;
-        let addr: *mut isize = &mut invalue;
+        let mut invalue: i32 = 0;
+        let addr: *mut i32 = &mut invalue;
         let ret = unsafe {
             ioctl(self.fd, GPIOC_READ, addr)
         };
@@ -112,8 +112,8 @@ impl v2::InputPin for InterruptPin {
 
     /// Return true if GPIO Input is high
     fn is_high(&self) -> Result<bool, Self::Error> {
-        let mut invalue: isize = 0;
-        let addr: *mut isize = &mut invalue;
+        let mut invalue: i32 = 0;
+        let addr: *mut i32 = &mut invalue;
         let ret = unsafe {
             ioctl(self.fd, GPIOC_READ, addr)
         };
@@ -150,7 +150,7 @@ impl v2::OutputPin for UnusedPin {
 impl DelayUs<u32> for Delay {
     /// Sleep for us microseconds
     fn delay_us(&mut self, us: u32) {
-        unsafe { usleep(us as usize); }
+        unsafe { usleep(us); }
     }
 }
 
@@ -158,7 +158,7 @@ impl DelayUs<u32> for Delay {
 impl DelayMs<u32> for Delay {
     /// Sleep for ms milliseconds
     fn delay_ms(&mut self, ms: u32) {
-        unsafe { usleep(ms as usize * 1000); }
+        unsafe { usleep(ms * 1000); }
     }
 }
 
@@ -267,25 +267,25 @@ impl Drop for InterruptPin {
 /// NuttX SPI Struct
 pub struct Spi {
     /// NuttX File Descriptor
-    fd: isize,
+    fd: i32,
 }
 
 /// NuttX GPIO Input Struct
 pub struct InputPin {
     /// NuttX File Descriptor
-    fd: isize,
+    fd: i32,
 }
 
 /// NuttX GPIO Output Struct
 pub struct OutputPin {
     /// NuttX File Descriptor
-    fd: isize,
+    fd: i32,
 }
 
 /// NuttX GPIO Interrupt Struct
 pub struct InterruptPin {
     /// NuttX File Descriptor
-    fd: isize,
+    fd: i32,
 }
 
 /// NuttX GPIO Unused Struct
@@ -298,7 +298,7 @@ pub struct Delay {
 
 /// Open a file and return the file descriptor.
 /// TODO: Auto-generate this wrapper with `bindgen` from the C declaration
-fn open(path: &str, oflag: isize) -> isize {  //  `&str` is a reference to a string slice, similar to `const char *` in C
+fn open(path: &str, oflag: i32) -> i32 {  //  `&str` is a reference to a string slice, similar to `const char *` in C
 
     use crate::open;
 
