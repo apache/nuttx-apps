@@ -18,7 +18,10 @@ use core::{            //  Rust Core Library
 };
 use embedded_hal::{           //  Rust Embedded HAL
     digital::v2::OutputPin,   //  GPIO Output
-    blocking::spi::Transfer,  //  SPI Transfer
+    blocking::{               //  Blocking I/O
+        delay::DelayMs,       //  Delay Interface
+        spi::Transfer,        //  SPI Transfer
+    },
 };
 
 #[no_mangle]                 //  Don't mangle the function name
@@ -142,6 +145,9 @@ fn test_hal() {
     //  Open SPI Bus for SX1262
     let mut spi = nuttx_hal::Spi::new("/dev/spitest0");
 
+    //  Get a Delay Interface
+    let mut delay = nuttx_hal::Delay::new();
+
     //  Set SX1262 Chip Select to Low
     cs.set_low()
         .expect("cs failed");
@@ -161,6 +167,9 @@ fn test_hal() {
     //  Set SX1262 Chip Select to High
     cs.set_high()
         .expect("cs failed");
+
+    //  Wait 5 seconds
+    delay.delay_ms(5000);
 }
 
 /// Print a message to the serial console.
