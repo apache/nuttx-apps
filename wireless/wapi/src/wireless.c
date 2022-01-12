@@ -263,6 +263,7 @@ static int wapi_event_stream_extract(FAR struct wapi_event_stream_s *stream,
   switch (iwe_stream->cmd)
     {
       case SIOCGIWESSID:
+      case SIOCGIWENCODE:
       case IWEVGENIE:
         iwe->cmd = iwe_stream->cmd;
         iwe->len = offsetof(struct iw_event, u) + sizeof(struct iw_point);
@@ -436,6 +437,14 @@ static int wapi_scan_event(FAR struct iw_event *event,
               }
           }
 
+        break;
+      }
+
+    case SIOCGIWENCODE:
+      {
+        info->has_encode = 1;
+        if (!(event->u.data.flags & IW_ENCODE_DISABLED))
+            info->encode |= IEEE80211_CAP_PRIVACY;
         break;
       }
     }

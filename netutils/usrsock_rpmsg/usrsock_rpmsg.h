@@ -27,6 +27,11 @@
 
 #include <nuttx/net/usrsock.h>
 
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+#  include <nuttx/wireless/wireless.h>
+#  include <metal/cache.h>
+#endif
+
 /****************************************************************************
  * Pre-processor definitions
  ****************************************************************************/
@@ -34,6 +39,16 @@
 #define USRSOCK_RPMSG_EPT_NAME      "rpmsg-usrsock"
 
 #define USRSOCK_RPMSG_DNS_EVENT      127
+
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+#  define WL_IS80211POINTERCMD(cmd)  ((cmd) == SIOCGIWSCAN || \
+                                      (cmd) == SIOCSIWCOUNTRY || \
+                                      (cmd) == SIOCGIWRANGE || \
+                                      (cmd) == SIOCSIWENCODEEXT || \
+                                      (cmd) == SIOCGIWENCODEEXT || \
+                                      (cmd) == SIOCGIWESSID || \
+                                      (cmd) == SIOCSIWESSID)
+#endif
 
 /****************************************************************************
  * Public Types

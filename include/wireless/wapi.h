@@ -76,6 +76,10 @@
 #  define wapi_save_config(ifname, confname, conf) 0
 #endif
 
+/* Not a open network when IEEE80211_CAP_PRIVACY set */
+
+#define IEEE80211_CAP_PRIVACY	0x0010
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -193,6 +197,8 @@ struct wapi_scan_info_s
   int bitrate;
   int has_rssi;
   int rssi;
+  int has_encode;
+  int encode;
 };
 
 /* Linked list container for routing table rows. */
