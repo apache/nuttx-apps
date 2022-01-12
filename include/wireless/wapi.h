@@ -147,6 +147,21 @@ enum wapi_mode_e
   WAPI_MODE_MESH    = IW_MODE_MESH     /* Mesh (IEEE 802.11s) network */
 };
 
+/* Flags for encoding */
+
+enum wapi_encode_e
+{
+  WAPI_ENCODE_INDEX      = IW_ENCODE_INDEX,       /* Token index (if needed) */
+  WAPI_ENCODE_FLAGS      = IW_ENCODE_FLAGS,       /* Flags defined below */
+  WAPI_ENCODE_MODE       = IW_ENCODE_MODE,        /* Modes defined below */
+  WAPI_ENCODE_DISABLED   = IW_ENCODE_DISABLED,    /* Encoding disabled */
+  WAPI_ENCODE_ENABLED    = IW_ENCODE_ENABLED,     /* Encoding enabled */
+  WAPI_ENCODE_RESTRICTED = IW_ENCODE_RESTRICTED,  /* Refuse non-encoded packets */
+  WAPI_ENCODE_OPEN       = IW_ENCODE_OPEN,        /* Accept non-encoded packets */
+  WAPI_ENCODE_NOKEY      = IW_ENCODE_NOKEY,       /* Key is write only, so not present */
+  WAPI_ENCODE_TEMP       = IW_ENCODE_TEMP         /* Temporary key */
+};
+
 /* Bitrate flags.
  *
  * At the moment, unicast (IW_BITRATE_UNICAST) and broadcast
@@ -193,6 +208,8 @@ struct wapi_scan_info_s
   int bitrate;
   int has_rssi;
   int rssi;
+  int has_encode;
+  int encode;
 };
 
 /* Linked list container for routing table rows. */
