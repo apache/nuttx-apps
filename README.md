@@ -5,6 +5,7 @@ __Updated for the articles...__
 -   [__"LoRa SX1262 on Apache NuttX OS"__](https://lupyuen.github.io/articles/sx1262)
 -   [__"LoRaWAN on Apache NuttX OS"__](https://lupyuen.github.io/articles/lorawan3)
 -   [__"Encode Sensor Data with CBOR on Apache NuttX OS"__](https://lupyuen.github.io/articles/cbor2)
+-   [__"Rust on Apache NuttX OS"__](https://lupyuen.github.io/articles/rust2)
 
 # Application Folder
 
