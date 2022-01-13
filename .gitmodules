@@ -10,3 +10,6 @@
 [submodule "examples/rust_test"]
 	path = examples/rust_test
 	url = https://github.com/lupyuen/rust_test
+[submodule "examples/bl602_adc_test"]
+	path = examples/bl602_adc_test
+	url = https://github.com/lupyuen/bl602_adc_test
