@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PFIEEE802154_PFIEEE802154_H
-#define __EXAMPLES_PFIEEE802154_PFIEEE802154_H
+#ifndef __APPS_EXAMPLES_PFIEEE802154_PFIEEE802154_H
+#define __APPS_EXAMPLES_PFIEEE802154_PFIEEE802154_H
 
 /****************************************************************************
  * Included Files
@@ -49,4 +49,4 @@ void pf_cmdline(int argc, char **argv);
 void pf_client(void);
 void pf_server(void);
 
-#endif /* __EXAMPLES_PFIEEE802154_IEEE802154_H */
+#endif /* __APPS_EXAMPLES_PFIEEE802154_IEEE802154_H */

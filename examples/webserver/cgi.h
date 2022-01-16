@@ -31,8 +31,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef __EXAMPLES_WEBSERVER_CGI_H
-#define __EXAMPLES_WEBSERVER_CGI_H
+#ifndef __APPS_EXAMPLES_WEBSERVER_CGI_H
+#define __APPS_EXAMPLES_WEBSERVER_CGI_H
 
 /****************************************************************************
  * Public Function Prototypes
@@ -40,4 +40,4 @@
 
 void cgi_register(void);
 
-#endif /* __EXAMPLES_WEBSERVER_CGI_H */
+#endif /* __APPS_EXAMPLES_WEBSERVER_CGI_H */

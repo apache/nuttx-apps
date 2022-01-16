@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX
-#define __UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -130,4 +130,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CCHECKBOX_CCHECKBOXTEST_HXX

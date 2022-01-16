@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CKEYPAD_CKEYPADTEST_HXX
-#define __UNITTESTS_CKEYPAD_CKEYPADTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CKEYPAD_CKEYPADTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CKEYPAD_CKEYPADTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -170,4 +170,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CKEYPAD_CKEYPADTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CKEYPAD_CKEYPADTEST_HXX

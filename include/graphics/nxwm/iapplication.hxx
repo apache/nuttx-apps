@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_NXX
-#define __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_NXX
+#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_HXX
+#define __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_HXX
 
 /****************************************************************************
  * Included Files
@@ -232,4 +232,4 @@ namespace NxWM
 
 #endif // __cplusplus
 
-#endif // __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_NXX
+#endif // __APPS_INCLUDE_GRAPHICS_NXWM_IAPPLICATION_HXX

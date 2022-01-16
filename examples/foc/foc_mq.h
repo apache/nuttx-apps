@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_MQ_H
-#define __EXAMPLES_FOC_FOC_MQ_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_MQ_H
+#define __APPS_EXAMPLES_FOC_FOC_MQ_H
 
 /****************************************************************************
  * Included Files
@@ -80,4 +80,4 @@ struct foc_mq_s
 
 int foc_mq_handle(mqd_t mq, FAR struct foc_mq_s *h);
 
-#endif /* __EXAMPLES_FOC_FOC_THR_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_THR_H */

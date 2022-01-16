@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PIPE_PIPE_H
-#define __EXAMPLES_PIPE_PIPE_H
+#ifndef __APPS_EXAMPLES_PIPE_PIPE_H
+#define __APPS_EXAMPLES_PIPE_PIPE_H
 
 /****************************************************************************
  * Compilation Switches
@@ -52,4 +52,4 @@ extern int transfer_test(int fdin, int fdout);
 extern int interlock_test(void);
 extern int redirection_test(void);
 
-#endif /* __EXAMPLES_PIPE_PIPE_H */
+#endif /* __APPS_EXAMPLES_PIPE_PIPE_H */

@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX
-#define __UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -152,4 +152,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CLATCHBUTTON_CLATCHBUTTONTEST_HXX

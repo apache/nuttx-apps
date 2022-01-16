@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_WIRELESS_IEEE802154_I8SAK_EVENTS_H
-#define __APPS_WIRELESS_IEEE802154_I8SAK_EVENTS_H
+#ifndef __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_EVENTS_H
+#define __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_EVENTS_H
 
 /****************************************************************************
  * Included Files
@@ -48,6 +48,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #if !defined(CONFIG_I8SAK_NEVENTRECEIVERS) || CONFIG_I8SAK_NEVENTRECEIVERS <= 0
@@ -75,7 +76,8 @@ struct i8sak_eventfilter_s
     uint32_t syncloss     : 1;
   } indevents;
 
-  struct {
+  struct
+  {
     uint32_t data         : 1;
     uint32_t assoc        : 1;
     uint32_t disassoc     : 1;
@@ -99,7 +101,7 @@ struct i8sak_eventreceiver_s
 };
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 /* Forware Reference */
@@ -192,4 +194,4 @@ int i8sak_eventlistener_addreceiver(FAR struct i8sak_s *i8sak,
 int i8sak_eventlistener_removereceiver(FAR struct i8sak_s *handle,
                                        i8sak_eventcallback_t cb);
 
-#endif /* __APPS_WIRELESS_IEEE802154_I8SAK_EVENTS_H */
+#endif /* __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_EVENTS_H */

@@ -7,7 +7,7 @@
  *
  * Derived from the file libhttpd.c in the original THTTPD package:
  *
- *   Copyright © 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
  *
  ****************************************************************************/
 
-#ifndef __HTTPD_CGI_H
-#define __HTTPD_CGI_H
+#ifndef __APPS_NETUTILS_THTTPD_THTTPD_CGI_H
+#define __APPS_NETUTILS_THTTPD_THTTPD_CGI_H
 
 /****************************************************************************
  * Included Files

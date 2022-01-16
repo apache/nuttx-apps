@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX
-#define __UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -139,4 +139,4 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 
 
-#endif // __UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CTEXTBOX_CTEXTBOXTEST_HXX

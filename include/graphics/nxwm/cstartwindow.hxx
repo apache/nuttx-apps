@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
-#define __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
+#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX
+#define __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX
 
 /****************************************************************************
  * Included Files
@@ -274,4 +274,4 @@ namespace NxWM
 
 #endif // __cplusplus
 
-#endif // __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
+#endif // __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX

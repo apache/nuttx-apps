@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NXTERM_NXTERM_INTERNAL_H
-#define __EXAMPLES_NXTERM_NXTERM_INTERNAL_H
+#ifndef __APPS_EXAMPLES_NXTERM_NXTERM_INTERNAL_H
+#define __APPS_EXAMPLES_NXTERM_NXTERM_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -41,7 +41,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* Need NX graphics support */
 
 #ifndef CONFIG_NX
@@ -252,4 +254,4 @@ extern const struct nx_callback_s g_nxtoolcb;
 
 FAR void *nxterm_listener(FAR void *arg);
 
-#endif /* __EXAMPLES_NXTERM_NXTERM_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_NXTERM_NXTERM_INTERNAL_H */
