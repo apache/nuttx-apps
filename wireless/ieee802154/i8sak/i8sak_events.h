@@ -60,8 +60,8 @@
  * Public Types
  ****************************************************************************/
 
-typedef void (*i8sak_eventcallback_t) (FAR struct ieee802154_primitive_s *primitive,
-                                       FAR void *arg);
+typedef void (*i8sak_eventcallback_t)(FAR struct ieee802154_primitive_s *
+                                      primitive, FAR void *arg);
 
 struct i8sak_eventfilter_s
 {
@@ -148,8 +148,8 @@ int i8sak_eventlistener_stop(FAR struct i8sak_s *i8sak);
  * Name: i8sak_eventlistener_addreceiver
  *
  * Description:
- *   Add an event receiver.  An event receiver consists of a callback and flags
- *   for which events should be sent to the callback.
+ *   Add an event receiver.  An event receiver consists of a callback and
+ *   flags for which events should be sent to the callback.
  *
  * Parameters:
  *   handle   - handle to the i8sak instance struct

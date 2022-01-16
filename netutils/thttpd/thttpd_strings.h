@@ -7,8 +7,8 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
- *   All rights reserved.
+ *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer
+ *   <jef@mail.acme.com>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -109,7 +109,9 @@ extern const char html_endhdr2[];
  * Public Function Prototypes
  ****************************************************************************/
 
-/* Copies and decodes a string.  It's ok for from and to to be the same string. */
+/* Copies and decodes a string.
+ * It's ok for from and to to be the same string.
+ */
 
 void httpd_strdecode(char *to, char *from);
 

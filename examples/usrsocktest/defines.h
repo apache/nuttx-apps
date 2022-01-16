@@ -183,7 +183,8 @@ bool usrsocktest_assert_print_buf(FAR const char *func,
                                   FAR const void *expect_buf,
                                   size_t buflen);
 
-int usrsocktest_daemon_start(FAR const struct usrsocktest_daemon_conf_s *conf);
+int usrsocktest_daemon_start(
+  FAR const struct usrsocktest_daemon_conf_s *conf);
 
 int usrsocktest_daemon_stop(void);
 
