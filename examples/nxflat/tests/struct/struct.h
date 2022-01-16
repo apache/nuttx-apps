@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
-#define __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
+#ifndef __APPS_EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
+#define __APPS_EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
 
 /****************************************************************************
  * Included Files
@@ -63,10 +63,10 @@ extern int    dummy_scalar; /* (DUMMY_SCALAR_VALUE2) */
 extern const struct struct_dummy_s dummy_struct;
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 extern void dummyfunc(void);
 extern const struct struct_s *getstruct(void);
 
-#endif /* __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H */
+#endif /* __APPS_EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H */

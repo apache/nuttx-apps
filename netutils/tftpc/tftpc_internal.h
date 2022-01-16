@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NETUTILS_TFTP_TFTPC_INTERNAL_H
-#define __NETUTILS_TFTP_TFTPC_INTERNAL_H
+#ifndef __APPS_NETUTILS_TFTP_TFTPC_INTERNAL_H
+#define __APPS_NETUTILS_TFTP_TFTPC_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -178,4 +178,4 @@ extern ssize_t tftp_sendto(int sd, const void *buf,
 # define tftp_dumpbuffer(msg, buffer, nbytes)
 #endif
 
-#endif /* __NETUTILS_TFTP_TFTPC_INTERNAL_H */
+#endif /* __APPS_NETUTILS_TFTP_TFTPC_INTERNAL_H */

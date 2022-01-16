@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_CFG_H
-#define __EXAMPLES_FOC_FOC_CFG_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_CFG_H
+#define __APPS_EXAMPLES_FOC_FOC_CFG_H
 
 /****************************************************************************
  * Included Files
@@ -184,4 +184,4 @@
 #  endif
 #endif
 
-#endif /* __EXAMPLES_FOC_FOC_CFG_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_CFG_H */

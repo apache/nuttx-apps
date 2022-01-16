@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX
-#define __UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -160,4 +160,4 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 
 
-#endif // __UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CBUTTONARRAY_CBUTTONARRAYTEST_HXX

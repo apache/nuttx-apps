@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__
-#define __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__
+#ifndef __APPS_EXAMPLES_CAMERA_CAMERA_FILEUTIL_H
+#define __APPS_EXAMPLES_CAMERA_CAMERA_FILEUTIL_H
 
 /****************************************************************************
  * Included Files
@@ -40,5 +40,5 @@ const char *futil_initialize(void);
 
 int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix);
 
-#endif  /* __EXAMPLES_CAMERA_CAMERA_FILEUTIL_H__ */
+#endif  /* __APPS_EXAMPLES_CAMERA_CAMERA_FILEUTIL_H */
 

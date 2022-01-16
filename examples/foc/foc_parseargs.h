@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_PARSEARGS_H
-#define __EXAMPLES_FOC_FOC_PARSEARGS_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_PARSEARGS_H
+#define __APPS_EXAMPLES_FOC_FOC_PARSEARGS_H
 
 /****************************************************************************
  * Included Files
@@ -76,4 +76,4 @@ struct args_s
 
 void parse_args(FAR struct args_s *args, int argc, FAR char **argv);
 
-#endif /* __EXAMPLES_FOC_FOC_THR_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_THR_H */

@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NETUTILS_THTTPD_CONFIG_H
-#define __NETUTILS_THTTPD_CONFIG_H
+#ifndef __APPS_NETUTILS_THTTPD_CONFIG_H
+#define __APPS_NETUTILS_THTTPD_CONFIG_H
 
 /****************************************************************************
  * Included Files
@@ -249,10 +249,10 @@
  * verify referrers.
  */
 
-#else  /* Dependencies not provided */
+#else /* Dependencies not provided */
 #  ifdef CONFIG_CPP_HAVE_WARNING
 #    warning "THTTPD not built because dependencies not selected in configuration"
 #  endif
 #endif /* Dependencies not provided */
 
-#endif /* __NETUTILS_THTTPD_CONFIG_H */
+#endif /* __APPS_NETUTILS_THTTPD_CONFIG_H */

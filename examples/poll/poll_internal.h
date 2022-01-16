@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_POLL_POLL_INTERNAL_H
-#define __EXAMPLES_POLL_POLL_INTERNAL_H
+#ifndef __APPS_EXAMPLES_POLL_POLL_INTERNAL_H
+#define __APPS_EXAMPLES_POLL_POLL_INTERNAL_H
 
 /****************************************************************************
  * Compilation Switches
@@ -78,4 +78,4 @@ extern void *select_listener(pthread_addr_t pvarg);
 extern void *net_listener(pthread_addr_t pvarg);
 extern void *net_reader(pthread_addr_t pvarg);
 #endif
-#endif /* __EXAMPLES_POLL_POLL_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_POLL_POLL_INTERNAL_H */

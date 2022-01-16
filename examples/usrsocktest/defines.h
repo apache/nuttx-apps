@@ -35,8 +35,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_USRSOCKTEST_DEFINES_H
-#define __EXAMPLES_USRSOCKTEST_DEFINES_H
+#ifndef __APPS_EXAMPLES_USRSOCKTEST_DEFINES_H
+#define __APPS_EXAMPLES_USRSOCKTEST_DEFINES_H
 
 /****************************************************************************
  * Included Files
@@ -209,4 +209,4 @@ bool usrsocktest_send_delayed_command(char cmd, unsigned int delay_msec);
 
 int usrsocktest_daemon_pause_usrsock_handling(bool pause);
 
-#endif /* __EXAMPLES_USRSOCKTEST_DEFINES_H */
+#endif /* __APPS_EXAMPLES_USRSOCKTEST_DEFINES_H */
