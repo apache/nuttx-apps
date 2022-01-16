@@ -157,7 +157,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
 #endif
 
-  /* boarctl() will not return in any case.  It if does, it means that
+  /* boardctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown/resaet operation.
    */
 
@@ -280,7 +280,7 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
     }
 
-  /* boarctl() will not return in any case.  It if does, it means that
+  /* boardctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown operation.
    */
 
@@ -310,7 +310,7 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
     }
 
-  /* boarctl() will not return in this case.  It if does, it means that
+  /* boardctl() will not return in this case.  It if does, it means that
    * there was a problem with the reset operation.
    */
 
