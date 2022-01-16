@@ -1447,7 +1447,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = boardctl(BOARDIOC_MKRD, (uintptr_t)&desc);
   if (ret < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boarctl(BOARDIOC_MKRD)",
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl(BOARDIOC_MKRD)",
                 NSH_ERRNO_OF(-ret));
       return ERROR;
     }
