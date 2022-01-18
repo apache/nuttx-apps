@@ -78,6 +78,33 @@ int do_io(int infd, int outfd)
   return EXIT_SUCCESS;
 }
 
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+int do_io_over_sendfile(int infd, int outfd, ssize_t len)
+{
+  off_t offset = 0;
+  ssize_t written;
+
+  while (len > 0)
+    {
+      written = sendfile(outfd, infd, &offset, len);
+
+      if (written == -1 && errno == EAGAIN)
+        {
+          continue;
+        }
+      else if (written == -1)
+        {
+          perror("do_io: sendfile error");
+          return 5;
+        }
+
+      len -= written;
+    }
+
+  return EXIT_SUCCESS;
+}
+#endif
+
 int netcat_server(int argc, char * argv[])
 {
   int id = -1;
@@ -170,8 +197,6 @@ int netcat_client(int argc, char * argv[])
   int result = EXIT_SUCCESS;
 #ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
   struct stat stat_buf;
-  off_t offset;
-  ssize_t len;
 #endif
 
   if (argc > 1)
@@ -198,7 +223,7 @@ int netcat_client(int argc, char * argv[])
 #ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
       if (fstat(infd, &stat_buf) == -1)
         {
-          perror("fstat");
+          perror("error: fstat: Could not get the input file size");
           infd = STDIN_FILENO;
           result = 1;
           goto out;
@@ -234,25 +259,7 @@ int netcat_client(int argc, char * argv[])
 #ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
   if (argc > 3)
     {
-      len = stat_buf.st_size;
-      offset = 0;
-
-      while (len > 0)
-        {
-          result = sendfile(id, infd, &offset, len);
-
-          if (result == -1 && errno == EAGAIN)
-            {
-              continue;
-            }
-          else if (result == -1)
-            {
-              perror("sendfile error");
-              break;
-            }
-
-          len -= result;
-        }
+      result = do_io_over_sendfile(infd, id, stat_buf.st_size);
     }
   else
 #endif
