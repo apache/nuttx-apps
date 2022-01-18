@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_DEVICE_H
-#define __EXAMPLES_FOC_FOC_DEVICE_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_DEVICE_H
+#define __APPS_EXAMPLES_FOC_FOC_DEVICE_H
 
 /****************************************************************************
  * Included Files
@@ -58,4 +58,4 @@ int foc_dev_state_get(FAR struct foc_device_s *dev);
 int foc_dev_params_set(FAR struct foc_device_s *dev);
 int foc_dev_state_handle(FAR struct foc_device_s *dev, FAR bool *flag);
 
-#endif /* __EXAMPLES_FOC_FOC_DEVICE_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_DEVICE_H */

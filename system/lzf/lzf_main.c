@@ -1,27 +1,30 @@
 /****************************************************************************
- * apps/examples/lzf/lzf_main.c
+ * apps/system/lzf/lzf_main.c
  *
  *   Copyright (c) 2006 Stefan Traby <stefan@hello-penguin.com>
  *
- * Redistribution and use in source and binary forms, with or without modifica-
- * tion, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- *   1.  Redistributions of source code must retain the above copyright notice,
- *       this list of conditions and the following disclaimer.
+ *   1.  Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
  *
  *   2.  Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
+ *       notice, this list of conditions and the following disclaimer in
+ *       the documentation and/or other materials provided with the
+ *       distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
- * CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
- * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPE-
- * CIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTH-
- * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
@@ -41,7 +44,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <semaphore.h>
+#include <pthread.h>
 #include <getopt.h>
 #include <errno.h>
 #include <limits.h>
@@ -59,14 +62,17 @@
  ****************************************************************************/
 
 #if CONFIG_SYSTEM_LZF != CONFIG_m
-static sem_t g_exclsem = SEM_INITIALIZER(1);
+static pthread_mutex_t g_exclmutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 static off_t g_nread;
 static off_t g_nwritten;
 
 static FAR const char *g_imagename;
-static enum { COMPRESS, UNCOMPRESS } g_mode;
+static enum
+  {
+    COMPRESS, UNCOMPRESS
+  } g_mode;
 static bool g_verbose;
 static bool g_force;
 static unsigned long g_blocksize;
@@ -78,11 +84,11 @@ static uint8_t g_buf2[MAX_BLOCKSIZE + LZF_MAX_HDR_SIZE + 16];
  * Private Functions
  ****************************************************************************/
 
-#if CONFIG_SYSTEM_LZF != 2
+#if CONFIG_SYSTEM_LZF != CONFIG_m
 static void lzf_exit(int exitcode) noreturn_function;
 static void lzf_exit(int exitcode)
 {
-  sem_post(&g_exclsem);
+  pthread_mutex_unlock(&g_exclmutex);
   exit(exitcode);
 }
 #else
@@ -92,8 +98,10 @@ static void lzf_exit(int exitcode)
 static void usage(int ret)
 {
   fprintf(stderr, "\n"
-          "lzf, a very lightweight compression/decompression utility written by Stefan Traby.\n"
-          "uses liblzf written by Marc Lehmann <schmorp@schmorp.de> You can find more info at\n"
+          "lzf, a very lightweight compression/decompression "
+          "utility written by Stefan Traby.\n"
+          "uses liblzf written by Marc Lehmann <schmorp@schmorp.de> "
+          " You can find more info at\n"
           "http://liblzf.plan9.de/\n"
           "\n"
           "usage: lzf [-dufhvb] [file ...]\n\n"
@@ -155,7 +163,8 @@ static inline ssize_t wwrite(int fd, void *buf, size_t len)
   return 0;
 }
 
-/* Anatomy: an lzf file consists of any number of blocks in the following format:
+/* Anatomy: an lzf file consists of any number of blocks
+ *          in the following format:
  *
  * \x00   EOF (optional)
  * "ZV\0" 2-byte-usize <uncompressed data>
@@ -172,7 +181,8 @@ static int compress_fd(int from, int to)
   g_nread = g_nwritten = 0;
   while ((us = rread(from, &g_buf1[LZF_MAX_HDR_SIZE], g_blocksize)) > 0)
     {
-      len = lzf_compress(&g_buf1[LZF_MAX_HDR_SIZE], us, &g_buf2[LZF_MAX_HDR_SIZE],
+      len = lzf_compress(&g_buf1[LZF_MAX_HDR_SIZE], us,
+                         &g_buf2[LZF_MAX_HDR_SIZE],
                          us > 4 ? us - 4 : us, g_htab, &header);
       if (wwrite(to, header, len) == -1)
         {
@@ -214,7 +224,8 @@ static int uncompress_fd(int from, int to)
 
       if (ret < LZF_MIN_HDR_SIZE || header[0] != 'Z' || header[1] != 'V')
         {
-          fprintf(stderr, "%s: invalid data stream - magic not found or short header\n",
+          fprintf(stderr, "%s: invalid data stream - "
+                          "magic not found or short header\n",
                   g_imagename);
           return -1;
         }
@@ -278,7 +289,8 @@ static int uncompress_fd(int from, int to)
         {
           if (lzf_decompress(g_buf1, cs, g_buf2, us) != us)
             {
-              fprintf(stderr, "%s: decompress: invalid stream - data corrupted\n",
+              fprintf(stderr, "%s: decompress: invalid stream - "
+                              "data corrupted\n",
                       g_imagename);
               return -1;
             }
@@ -299,7 +311,6 @@ short_read:
 
 static int open_out(FAR const char *name)
 {
-  int fd;
   int m = O_EXCL;
 
   if (g_force)
@@ -307,8 +318,7 @@ static int open_out(FAR const char *name)
       m = 0;
     }
 
-  fd = open(name, O_CREAT | O_WRONLY | O_TRUNC | m, 600);
-  return fd;
+  return open(name, O_CREAT | O_WRONLY | O_TRUNC | m, 0600);
 }
 
 static int compose_name(FAR const char *fname, FAR char *oname, int namelen)
@@ -454,12 +464,7 @@ int main(int argc, FAR char *argv[])
    * global variables.
    */
 
-  ret = sem_wait(&g_exclsem);
-  if (ret < 0)
-    {
-      fprintf(stderr, "sem_wait failed: %d\n", errno);
-      exit(1);
-    }
+  pthread_mutex_lock(&g_exclmutex);
 #endif
 
   /* Set defaults. */
@@ -538,14 +543,16 @@ int main(int argc, FAR char *argv[])
         {
           if ((g_mode == UNCOMPRESS) && isatty(0))
             {
-              fprintf(stderr, "%s: compressed data not read from a terminal. "
+              fprintf(stderr,
+                      "%s: compressed data not read from a terminal. "
                       "Use -f to force decompression.\n", g_imagename);
               lzf_exit(1);
             }
 
           if (g_mode == COMPRESS && isatty(1))
             {
-              fprintf(stderr, "%s: compressed data not written to a terminal. "
+              fprintf(stderr,
+                      "%s: compressed data not written to a terminal. "
                       "Use -f to force compression.\n", g_imagename);
               lzf_exit(1);
             }

@@ -102,7 +102,7 @@ void pap_rx(struct ppp_context_s *ctx, FAR uint8_t * buffer, uint16_t count)
       bptr += 3;
       len = *bptr++;
       *(bptr + len) = 0;
-      DEBUG1((" %s \n", bptr));
+      DEBUG1((" %s\n", bptr));
       ctx->pap_state |= PAP_TX_UP;
       break;
 
@@ -115,7 +115,7 @@ void pap_rx(struct ppp_context_s *ctx, FAR uint8_t * buffer, uint16_t count)
       bptr += 3;
       len = *bptr++;
       *(bptr + len) = 0;
-      DEBUG1((" %s \n", bptr));
+      DEBUG1((" %s\n", bptr));
       break;
     }
 }

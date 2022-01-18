@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SHT3X
+	tristate "SHT3x sensor example"
+	default n
+	depends on SENSORS_SHT3X
+	---help---
+		Enable the SHT3x sensor example
+
+if EXAMPLES_SHT3X
+
+config EXAMPLES_SHT3X_PROGNAME
+	string "Program name"
+	default "sht3x"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SHT3X_PRIORITY
+	int "SHT3x task priority"
+	default 100
+
+config EXAMPLES_SHT3X_STACKSIZE
+	int "SHT3X stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

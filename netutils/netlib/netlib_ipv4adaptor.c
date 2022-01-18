@@ -96,7 +96,7 @@ static int _netlib_ipv4adaptor(in_addr_t destipaddr,
   ifc.ifc_req = NULL;
   ifc.ifc_len = 0;
 
-  sd = socket(AF_INET, NETLIB_SOCK_TYPE, 0);
+  sd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
   if (sd < 0)
     {
       ret = -errno;

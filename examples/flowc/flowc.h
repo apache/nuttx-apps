@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FLOWC_FLOWC_H
-#define __EXAMPLES_FLOWC_FLOWC_H
+#ifndef __APPS_EXAMPLES_FLOWC_FLOWC_H
+#define __APPS_EXAMPLES_FLOWC_FLOWC_H
 
 /****************************************************************************
  * Included Files
@@ -54,4 +54,4 @@
 int flowc_sender(int argc, char **argv);
 int flowc_receiver(int argc, char **argv);
 
-#endif /* __EXAMPLES_FLOWC_FLOWC_H */
+#endif /* __APPS_EXAMPLES_FLOWC_FLOWC_H */

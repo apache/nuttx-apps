@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
   while (prompt("$", cmdline, sizeof(cmdline)))
     {
-      const char *name = get_fisrt_arg(cmdline);
+      const char *name = get_first_arg(cmdline);
       if (name != 0 && *name != 0)
         {
           int res =  -ENOSYS;

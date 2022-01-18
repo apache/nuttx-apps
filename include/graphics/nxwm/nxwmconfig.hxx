@@ -285,7 +285,7 @@
  * CONFIG_NXWM_STARTWINDOW_MXMSGS - The maximum number of messages to queue
  *   before blocking.  Default 32
  * CONFIG_NXWM_STARTWINDOW_MXMPRIO - The message priority. Default: 42.
- * CONFIG_NXWM_STARTWINDOW_PRIO - Priority of the StartWindoW task.  Default:
+ * CONFIG_NXWM_STARTWINDOW_PRIO - Priority of the StartWindow task.  Default:
  *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
  *   CONFIG_NXSTART_SERVERPRIO or else there may be data overrun errors.
  *   Such errors would most likely appear as duplicated rows of data on the

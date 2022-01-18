@@ -150,7 +150,7 @@
   In that case, we just use the default background color.  However,
   that doesn't work either for the case where the background color
   changes when the widget is selected.  Then the background color
-  in the font is wrong.  Fixed in CButtonArrary, but the problem
+  in the font is wrong.  Fixed in CButtonArray, but the problem
   probably exists in other places as well.
 * NxWM:  Increase default spacing of icons on the Start Window.
 * NxWM::CHexCalculator:  Fix some non-standard calculator behavior
@@ -208,8 +208,8 @@
   From Petteri Aimonen.
 * NxWidgets::CNxTimer:  Replace the original (apparently non-functional) signal-
   based solution with a work queue-based solution.  This raises some isses about
-  using the internal work queues from user space.  I have decided to implemented
-  user-space work queues (someday) in order to accomplish that functionaliy.
+  using the internal work queues from user space.  I have decided to implement
+  user-space work queues (someday) in order to accomplish that functionality.
   Submitted by Petteri Aimonen.
 * NxWidgets:CText and NxWidgets:CNumericEdite:  Fix some memory freeing bugs
   (from Petteri Aimonen).

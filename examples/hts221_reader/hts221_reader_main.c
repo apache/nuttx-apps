@@ -55,7 +55,7 @@ int main(int argc, FAR char *argv[])
       return -ENOENT;
     }
 
-  ret = ioctl(fileno(sensor), SNIOC_START, 0);
+  ret = ioctl(fileno(sensor), SNIOC_START_CONVERSION, 0);
   if (ret < 0)
     {
       printf("IOCTL SNIOC_START failed %d\n", ret);

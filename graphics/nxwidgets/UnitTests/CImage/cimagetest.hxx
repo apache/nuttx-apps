@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CIMAGE_CIMAGETEST_HXX
-#define __UNITTESTS_CIMAGE_CIMAGETEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CIMAGE_CIMAGETEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CIMAGE_CIMAGETEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -128,4 +128,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CIMAGE_CIMAGETEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CIMAGE_CIMAGETEST_HXX

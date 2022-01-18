@@ -329,7 +329,7 @@ int ipcfg_read_binary_ipv6(FAR const char *path,
   int fd;
   int ret;
 
-  DEBUGASSERT(fd >= 0 && ipv6cfg != NULL);
+  DEBUGASSERT(path != NULL && ipv6cfg != NULL);
 
   /* Open the file for reading */
 

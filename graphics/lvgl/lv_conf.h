@@ -156,7 +156,7 @@ typedef int16_t lv_coord_t;
 
 #  define LV_MEM_SIZE    CONFIG_LV_MEM_SIZE
 
-/* Complier prefix for a big array declaration */
+/* Compiler prefix for a big array declaration */
 
 #  define LV_MEM_ATTR
 

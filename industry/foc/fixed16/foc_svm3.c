@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "industry/foc/fixed16/foc_handler.h"
 
@@ -210,7 +211,7 @@ static void foc_modulation_vbase_get_b16(FAR foc_handler_b16_t *h,
  * Name: foc_modulation_current_b16
  *
  * Description:
- *   Correct current samples accrding to the SVM3 modulation state (fixed16)
+ *   Correct current samples according to the SVM3 modulation state (fixed16)
  *
  * Input Parameter:
  *   h    - pointer to FOC handler

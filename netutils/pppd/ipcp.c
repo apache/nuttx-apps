@@ -211,7 +211,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
               /* Write the reject frame */
 
-              DEBUG1(("Writing NAK frame \n"));
+              DEBUG1(("Writing NAK frame\n"));
               ahdlc_tx(IPCP, buffer, (uint16_t)(tptr - buffer));
               DEBUG1(("- End NAK Write frame\n"));
             }
@@ -233,12 +233,12 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
           /* ppp_flags |= tflag; */
 
-          DEBUG1(("SET- stuff -- are we up? c=%d dif=%d \n",
+          DEBUG1(("SET- stuff -- are we up? c=%d dif=%d\n",
                   count, (uint16_t)(bptr - buffer)));
 
           /* Write the ACK frame */
 
-          DEBUG1(("Writing ACK frame \n"));
+          DEBUG1(("Writing ACK frame\n"));
 
           /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
@@ -308,7 +308,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
       /* ppp_ipcp_state &= ~IPCP_RX_UP; */
 
-      DEBUG1(("were up! \n"));
+      DEBUG1(("were up!\n"));
       printip(ctx->local_ip);
 #ifdef IPCP_GET_PRI_DNS
       printip(ctx->pri_dns_addr);

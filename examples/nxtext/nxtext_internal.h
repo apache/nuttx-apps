@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H
-#define __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H
+#ifndef __APPS_EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H
+#define __APPS_EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -69,8 +69,8 @@
 #    define CONFIG_EXAMPLES_NXTEXT_BPP 8
 #  elif !defined(CONFIG_NX_DISABLE_16BPP)
 #    define CONFIG_EXAMPLES_NXTEXT_BPP 16
-//#elif !defined(CONFIG_NX_DISABLE_24BPP)
-//#    define CONFIG_NXTERM_BPP 24
+#  elif !defined(CONFIG_NX_DISABLE_24BPP)
+#    define CONFIG_EXAMPLES_NXTEXT_BPP 24
 #  elif !defined(CONFIG_NX_DISABLE_32BPP)
 #    define CONFIG_EXAMPLES_NXTEXT_BPP 32
 #  else
@@ -315,4 +315,4 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                      FAR struct nxtext_state_s *st, NXHANDLE hfont,
                      FAR const struct nxtext_bitmap_s *bm);
 
-#endif /* __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */

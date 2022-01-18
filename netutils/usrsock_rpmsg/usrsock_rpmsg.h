@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NETUTILS_USRSOCK_RPMSG_H
-#define __NETUTILS_USRSOCK_RPMSG_H
+#ifndef __APPS_NETUTILS_USRSOCK_RPMSG_H
+#define __APPS_NETUTILS_USRSOCK_RPMSG_H
 
 /****************************************************************************
  * Included Files
@@ -48,4 +48,4 @@ begin_packed_struct struct usrsock_rpmsg_dns_event_s
   uint16_t addrlen;
 } end_packed_struct;
 
-#endif /* __NETUTILS_USRSOCK_RPMSG_H */
+#endif /* __APPS_NETUTILS_USRSOCK_RPMSG_H */

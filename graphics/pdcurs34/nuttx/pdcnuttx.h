@@ -298,7 +298,7 @@ struct pdc_fbscreen_s
 
 struct pdc_termstate_s
 {
-  /* Terminal fd numbers (typcially 0 and 1) */
+  /* Terminal fd numbers (typically 0 and 1) */
 
   int    out_fd;
   int    in_fd;

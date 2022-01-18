@@ -248,7 +248,7 @@ pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg)
               printf("%02X", frame.payload[i]);
             }
 
-          printf(" \n");
+          printf("\n");
           fflush(stdout);
         }
 #ifdef CONFIG_NET_6LOWPAN
@@ -266,7 +266,7 @@ pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg)
               printf("%02X", buf[i]);
             }
 
-          printf(" \n");
+          printf("\n");
           fflush(stdout);
         }
 #endif

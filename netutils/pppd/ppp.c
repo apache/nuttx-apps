@@ -429,7 +429,7 @@ uint16_t scan_packet(FAR struct ppp_context_s *ctx, uint16_t protocol,
 
       DEBUG1(("Writing Reject frame --\n"));
       ahdlc_tx(ctx, protocol, buffer, 0, (uint16_t)(tptr - buffer), 0);
-      DEBUG1(("\nEnd writing reject \n"));
+      DEBUG1(("\nEnd writing reject\n"));
     }
 
   return bad;

@@ -1307,7 +1307,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           return ERROR;
         }
     }
-  else if (optind >= argc)
+  else if (optind < argc)
     {
       nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
       return ERROR;
@@ -1426,7 +1426,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       nsectors = (uint32_t)atoi(argv[optind]);
     }
-  else if (optind >= argc)
+  else if (optind < argc)
     {
       fmt = g_fmttoomanyargs;
       goto errout_with_fmt;
@@ -1447,7 +1447,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = boardctl(BOARDIOC_MKRD, (uintptr_t)&desc);
   if (ret < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boarctl(BOARDIOC_MKRD)",
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl(BOARDIOC_MKRD)",
                 NSH_ERRNO_OF(-ret));
       return ERROR;
     }

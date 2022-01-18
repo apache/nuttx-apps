@@ -131,17 +131,17 @@ static void get_prime_in_parallel(int n)
   status = pthread_attr_setschedpolicy(&attr, SCHED_RR);
   ASSERT(status == OK);
 
-  printf("Set thread policy to SCHED_RR \n");
+  printf("Set thread policy to SCHED_RR\n");
 #else
   status = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
   ASSERT(status == OK);
 
-  printf("Set thread policy to SCHED_FIFO \n");
+  printf("Set thread policy to SCHED_FIFO\n");
 #endif
 
   for (i = 0; i < n; i++)
     {
-      printf("Start thread #%d \n", i);
+      printf("Start thread #%d\n", i);
       status = pthread_create(&thread[i], &attr,
                               thread_func, (FAR void *)&i);
       ASSERT(status == OK);
@@ -189,6 +189,6 @@ int main(int argc, FAR char *argv[])
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
   elapsed /= NSEC_PER_MSEC; /* msec */
 
-  printf("%s took %" PRIu64 " msec \n", argv[0], elapsed);
+  printf("%s took %" PRIu64 " msec\n", argv[0], elapsed);
   return 0;
 }

@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NXWM_INCLUDE_CKEYBOARD_HXX
-#define __NXWM_INCLUDE_CKEYBOARD_HXX
+#ifndef __NXWM_INCLUDE_GRAPHICS_NXWM_CKEYBOARD_HXX
+#define __NXWM_INCLUDE_GRAPHICS_NXWM_CKEYBOARD_HXX
 
 /****************************************************************************
  * Included Files
@@ -153,4 +153,4 @@ namespace NxWM
   };
 }
 
-#endif // __NXWM_INCLUDE_CKEYBOARD_HXX
+#endif // __NXWM_INCLUDE_GRAPHICS_CKEYBOARD_HXX

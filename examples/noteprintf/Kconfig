@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NOTEPRINTF
+	tristate "\"Note printf!\" example"
+	default n
+	depends on SCHED_INSTRUMENTATION_DUMP
+	---help---
+		Enable the \"Note printf!\" example
+
+if EXAMPLES_NOTEPRINTF
+
+config EXAMPLES_NOTEPRINTF_PROGNAME
+	string "Program name"
+	default "noteprintf"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NOTEPRINTF_PRIORITY
+	int "Note printf task priority"
+	default 100
+
+config EXAMPLES_NOTEPRINTF_STACKSIZE
+	int "Note printf stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

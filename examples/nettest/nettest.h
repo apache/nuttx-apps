@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NETTEST_H
-#define __EXAMPLES_NETTEST_H
+#ifndef __APPS_EXAMPLES_NETTEST_NETTEST_H
+#define __APPS_EXAMPLES_NETTEST_NETTEST_H
 
 /****************************************************************************
  * Included Files
@@ -37,14 +37,14 @@
  ****************************************************************************/
 
 #ifdef NETTEST_HOST
-   /* HTONS/L macros are unique to uIP */
+/* HTONS/L macros are unique to uIP */
 
 #  undef HTONS
 #  undef HTONL
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
 
-   /* Have SO_LINGER */
+/* Have SO_LINGER */
 
 #  define NETTEST_HAVE_SOLINGER 1
 
@@ -96,4 +96,4 @@ void nettest_cmdline(int argc, char **argv);
 extern void nettest_client(void);
 extern void nettest_server(void);
 
-#endif /* __EXAMPLES_NETTEST_H */
+#endif /* __APPS_EXAMPLES_NETTEST_NETTEST_H */

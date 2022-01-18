@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_THR_H
-#define __EXAMPLES_FOC_FOC_THR_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_THR_H
+#define __APPS_EXAMPLES_FOC_FOC_THR_H
 
 /****************************************************************************
  * Included Files
@@ -129,4 +129,4 @@ bool foc_threads_terminated(void);
 int foc_ctrlthr_init(FAR struct foc_ctrl_env_s *foc, int i, FAR mqd_t *mqd,
                      FAR pthread_t *thread);
 
-#endif /* __EXAMPLES_FOC_FOC_THR_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_THR_H */

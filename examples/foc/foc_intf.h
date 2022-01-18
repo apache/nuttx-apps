@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_INTF_H
-#define __EXAMPLES_FOC_FOC_INTF_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_INTF_H
+#define __APPS_EXAMPLES_FOC_FOC_INTF_H
 
 /****************************************************************************
  * Included Files
@@ -57,4 +57,4 @@ int foc_intf_init(void);
 int foc_intf_deinit(void);
 int foc_intf_update(FAR struct foc_intf_data_s *data);
 
-#endif /* __EXAMPLES_FOC_FOC_INTF_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_INTF_H */

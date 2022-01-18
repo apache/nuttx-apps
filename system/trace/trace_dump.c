@@ -308,6 +308,8 @@ static void trace_dump_header(FAR FILE *out,
          );
 }
 
+ #if (defined CONFIG_SCHED_INSTRUMENTATION_SWITCH) || \
+     (defined CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
 /****************************************************************************
  * Name: trace_dump_sched_switch
  ****************************************************************************/
@@ -339,6 +341,7 @@ static void trace_dump_sched_switch(FAR FILE *out,
   cctx->current_pid = cctx->next_pid;
   cctx->pendingswitch = false;
 }
+#endif
 
 /****************************************************************************
  * Name: trace_dump_one
@@ -398,6 +401,7 @@ static int trace_dump_one(FAR FILE *out,
         }
         break;
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
       case NOTE_SUSPEND:
         {
           FAR struct note_suspend_s *nsu = (FAR struct note_suspend_s *)p;
@@ -441,6 +445,7 @@ static int trace_dump_one(FAR FILE *out,
             }
         }
         break;
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
       case NOTE_SYSCALL_ENTER:
@@ -629,8 +634,10 @@ static int trace_dump_one(FAR FILE *out,
           nbi = (FAR struct note_binary_s *)p;
           trace_dump_header(out, note, ctx);
           count = note->nc_length - sizeof(struct note_binary_s) + 1;
-          fprintf(out, "dump_binary: module=%u event=%u count=%u",
-                  nbi->nbi_module, nbi->nbi_event, count);
+          fprintf(out, "dump_binary: module=%c%c%c%c event=%u count=%u",
+                  nbi->nbi_module[0], nbi->nbi_module[1],
+                  nbi->nbi_module[2], nbi->nbi_module[3],
+                  nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
               fprintf(out, " 0x%x", nbi->nbi_data[i]);

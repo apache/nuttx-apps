@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_USTREAM_H
-#define __APPS_EXAMPLES_USTREAM_H
+#ifndef __APPS_EXAMPLES_USTREAM_USTREAM_H
+#define __APPS_EXAMPLES_USTREAM_USTREAM_H
 
 /****************************************************************************
  * Included Files
@@ -35,4 +35,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_EXAMPLES_USTREAM_H */
+#endif /* __APPS_EXAMPLES_USTREAM_USTREAM_H */

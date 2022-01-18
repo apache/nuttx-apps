@@ -21,7 +21,7 @@
 include $(APPDIR)/Make.defs
 
 PRIORITY  = 255
-STACKSIZE = 16384
+STACKSIZE = $(CONFIG_NIMBLE_STACKSIZE)
 
 NIMBLE_UNPACKDIR = mynewt-nimble
 NIMBLE_ROOT = $(APPDIR)/wireless/bluetooth/nimble/$(NIMBLE_UNPACKDIR)

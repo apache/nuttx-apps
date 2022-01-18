@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX
-#define __UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -125,4 +125,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSCROLLBARHORIZONTAL_CSCROLLBARHORIZONTALTEST_HXX

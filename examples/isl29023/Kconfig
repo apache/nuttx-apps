@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ISL29023
+	tristate "ISL29023 driver example"
+	default n
+	---help---
+		Enable the example application
+

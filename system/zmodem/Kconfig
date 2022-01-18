@@ -109,7 +109,7 @@ config SYSTEM_ZMODEM_RCVSAMPLE
 		Local sender can sample reverse channel while sending.  This means
 		in particular, that Zmodem can detect if data is received from the
 		remote receiver while streaming a file to the remote receiver.
-		Support for such asychronous incoming data notification is needed to
+		Support for such asynchronous incoming data notification is needed to
 		support interruption of the file transfer by the remote receiver.
 
 		This capapability is not yet supported.  There are only incomplete

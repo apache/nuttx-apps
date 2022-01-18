@@ -256,7 +256,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(family, NETLIB_SOCK_TYPE, 0);
+  sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
   if (sockfd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
@@ -503,7 +503,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * used.
    */
 
-  if (shift > 0 && argc  != 2)
+  if (shift > 0 && argc != 2)
     {
       nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
       goto errout;
@@ -537,7 +537,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(family, NETLIB_SOCK_TYPE, 0);
+  sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
   if (sockfd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);

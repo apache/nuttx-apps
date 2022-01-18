@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX
-#define __UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -125,4 +125,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CSLIDERHORIZONTAL_CSLIDERHORIZONTALTEST_HXX

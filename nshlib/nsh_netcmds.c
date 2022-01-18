@@ -1306,7 +1306,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       url = argv[optind];
     }
-  else if (optind >= argc)
+  else if (optind < argc)
     {
       fmt = g_fmttoomanyargs;
       goto errout;
