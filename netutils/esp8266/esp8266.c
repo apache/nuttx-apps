@@ -482,7 +482,7 @@ static inline int lesp_read_ipd(int sockfd, int len)
 
   sock = get_sock(sockfd);
 
-  ninfo("Read %d bytes for socket %d \n", len, sockfd);
+  ninfo("Read %d bytes for socket %d\n", len, sockfd);
 
   if (sock == NULL)
     {
@@ -558,7 +558,7 @@ static inline int lesp_read_ipd(int sockfd, int len)
 
           if (sock->sem)
             {
-              ninfo("post %p \n", sock->sem);
+              ninfo("post %p\n", sock->sem);
               sem_post(sock->sem);
             }
         }
@@ -707,7 +707,7 @@ static int lesp_read(int timeout_ms)
     }
   while ((ret <= 0) && (g_lesp_state.and == lesp_eNONE));
 
-  ninfo("lesp_read %d=>%s and and = %d \n", ret, g_lesp_state.bufans,
+  ninfo("lesp_read %d=>%s and and = %d\n", ret, g_lesp_state.bufans,
         g_lesp_state.and);
 
   return ret;
@@ -1262,7 +1262,7 @@ static void *lesp_worker(void *args)
 
   UNUSED(args);
 
-  ninfo("worker Started \n");
+  ninfo("worker Started\n");
 
   while (worker->running)
     {

@@ -62,7 +62,7 @@ config IPCFG_OFFSET
 		Seek to this offset before reading or writing the IP Configuration.
 		This is only support for the character driver device.  This permits
 		some formatting of, say, EEPROM, so that multiple, different
-		configurations can be maintained at differnt offsets into the IP
+		configurations can be maintained at different offsets into the IP
 		Configuration File.
 
 endif # FSUTILS_IPCFG

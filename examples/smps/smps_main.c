@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
       ret = ioctl(fd, PWRIOC_GET_STATE, (unsigned long)&smps_state);
       if (ret < 0)
         {
-          printf("Failed to get state %d \n", ret);
+          printf("Failed to get state %d\n", ret);
         }
 
       /* Terminate if fault state */

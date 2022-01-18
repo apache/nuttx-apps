@@ -26,6 +26,8 @@
 
 #include <stdint.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -70,6 +72,7 @@
  ****************************************************************************/
 
 static char g_iobuffer[512];
+static int g_fd;
 
 /****************************************************************************
  * Private Functions
@@ -82,7 +85,7 @@ static char g_iobuffer[512];
 static int callback(FAR char **buffer, int offset, int datend,
                      FAR int *buflen, FAR void *arg)
 {
-  ssize_t written = write(1, &((*buffer)[offset]), datend - offset);
+  ssize_t written = write(g_fd, &((*buffer)[offset]), datend - offset);
   if (written == -1)
     {
       return -errno;
@@ -152,19 +155,38 @@ int main(int argc, FAR char *argv[])
   ctx.buflen = 512;
   ctx.sink_callback = callback;
   ctx.sink_callback_arg = NULL;
-  if (argc > 1)
+
+  if (argc >= 3)
+    {
+      ctx.url = argv[argc - 1];
+      g_fd = open(argv[argc - 2],
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  S_IRWXU | S_IRWXG | S_IRWXO);
+      if (g_fd < 0)
+        {
+          printf("cannot create file %s\n", argv[argc - 2]);
+        }
+    }
+  else if (argc == 2)
     {
       ctx.url = argv[1];
+      g_fd = 1;
     }
   else
     {
       ctx.url = CONFIG_EXAMPLES_WGET_URL;
+      g_fd = 1;
     }
 
-  int ret = webclient_perform(&ctx);
-  if (ret != 0)
+  if (g_fd >= 0)
     {
-      printf("webclient_perform failed with %d\n", ret);
+      int ret = webclient_perform(&ctx);
+      if (ret != 0)
+        {
+          printf("webclient_perform failed with %d\n", ret);
+        }
+
+      close(g_fd);
     }
 
   return 0;

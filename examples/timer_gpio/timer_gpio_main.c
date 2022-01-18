@@ -60,7 +60,7 @@ static bool g_timer_gpio_daemon_started = false;
  * Name: timer_status
  *
  * Description:
- *   Auxiliar function to get the timer status and print it.
+ *   Auxiliary function to get the timer status and print it.
  *
  * Parameters:
  *   fd           - Timer file descriptor to access the timer.

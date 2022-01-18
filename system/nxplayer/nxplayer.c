@@ -169,7 +169,7 @@ static int _open_with_http(const char *fullurl)
 
   if (OK != n)
     {
-      printf("netlib_parsehttpurl() returned %d \n", n);
+      printf("netlib_parsehttpurl() returned %d\n", n);
       return n;
     }
 
@@ -1856,7 +1856,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
     {
       /* Hmmm, it's some unknown / unsupported type */
 
-      auderr("ERROR: Unsupported format: %d \n", filefmt);
+      auderr("ERROR: Unsupported format: %d\n", filefmt);
       ret = -ENOSYS;
       goto err_out_nodev;
     }

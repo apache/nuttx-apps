@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_UDP_UDP_H
-#define __EXAMPLES_UDP_UDP_H
+#ifndef __APPS_EXAMPLES_UDP_UDP_H
+#define __APPS_EXAMPLES_UDP_UDP_H
 
 /****************************************************************************
  * Included Files
@@ -93,4 +93,4 @@ void udp_cmdline(int argc, char **argv);
 void udp_client(void);
 void udp_server(void);
 
-#endif /* __EXAMPLES_UDP_UDP_H */
+#endif /* __APPS_EXAMPLES_UDP_UDP_H */

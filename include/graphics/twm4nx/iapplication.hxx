@@ -145,7 +145,7 @@ namespace Twm4Nx
        *
        * @return. Either, (1) an event with recipient = EVENT_RECIPIENT_APP
        *   that will be generated when menu item is selected, or (2) any other
-       *   value (preferabley zero) that indicates that standard, built-in
+       *   value (preferably zero) that indicates that standard, built-in
        *   event handling should be used.
        */
 

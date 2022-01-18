@@ -189,7 +189,7 @@ config EXAMPLES_FOC_ADC_DEVPATH
 	default "/dev/adc0"
 
 config EXAMPLES_FOC_ADC_VREF
-	int "FOC ADC reference votlage [x1000]"
+	int "FOC ADC reference voltage [x1000]"
 	default 0
 
 config EXAMPLES_FOC_ADC_MAX
@@ -320,7 +320,7 @@ config EXAMPLES_FOC_IDQ_KP
 	default 0
 	---help---
 		It is set to 0 by default and must be properly configured by the user!
-		The vaule of Kp and Ki depends on the controlled motor parameters.
+		The value of Kp and Ki depends on the controlled motor parameters.
 		For more instructions see README.md for this example.
 
 config EXAMPLES_FOC_IDQ_KI
@@ -328,7 +328,7 @@ config EXAMPLES_FOC_IDQ_KI
 	default 0
 	---help---
 		It is set to 0 by default and must be properly configured by the user!
-		The vaule of Kp and Ki depends on the controlled motor parameters.
+		The value of Kp and Ki depends on the controlled motor parameters.
 		For more instructions see README.md for this example.
 
 config EXAMPLES_FOC_RAMP_THR

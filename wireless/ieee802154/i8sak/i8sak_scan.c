@@ -236,7 +236,7 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
         break;
     }
 
-  printf("Scan results: \n");
+  printf("Scan results:\n");
 
   if (scan->type == IEEE802154_SCANTYPE_ACTIVE ||
       scan->type == IEEE802154_SCANTYPE_PASSIVE)

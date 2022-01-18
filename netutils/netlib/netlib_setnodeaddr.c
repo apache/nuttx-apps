@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/netlib/netlib_setnodnodeaddr.c
+ * apps/netutils/netlib/netlib_setnodeaddr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -67,7 +67,7 @@ int netlib_setnodeaddr(FAR const char *ifname,
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           /* Copy the network interface name */

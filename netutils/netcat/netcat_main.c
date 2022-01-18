@@ -31,7 +31,9 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <sys/sendfile.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 
 /****************************************************************************
@@ -75,6 +77,33 @@ int do_io(int infd, int outfd)
 
   return EXIT_SUCCESS;
 }
+
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+int do_io_over_sendfile(int infd, int outfd, ssize_t len)
+{
+  off_t offset = 0;
+  ssize_t written;
+
+  while (len > 0)
+    {
+      written = sendfile(outfd, infd, &offset, len);
+
+      if (written == -1 && errno == EAGAIN)
+        {
+          continue;
+        }
+      else if (written == -1)
+        {
+          perror("do_io: sendfile error");
+          return 5;
+        }
+
+      len -= written;
+    }
+
+  return EXIT_SUCCESS;
+}
+#endif
 
 int netcat_server(int argc, char * argv[])
 {
@@ -166,6 +195,9 @@ int netcat_client(int argc, char * argv[])
   char *host = "127.0.0.1";
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+  struct stat stat_buf;
+#endif
 
   if (argc > 1)
     {
@@ -187,6 +219,16 @@ int netcat_client(int argc, char * argv[])
           result = 1;
           goto out;
         }
+
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+      if (fstat(infd, &stat_buf) == -1)
+        {
+          perror("error: fstat: Could not get the input file size");
+          infd = STDIN_FILENO;
+          result = 1;
+          goto out;
+        }
+#endif
     }
 
   id = socket(AF_INET , SOCK_STREAM , 0);
@@ -214,7 +256,16 @@ int netcat_client(int argc, char * argv[])
       goto out;
     }
 
-  result = do_io(infd, id);
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+  if (argc > 3)
+    {
+      result = do_io_over_sendfile(infd, id, stat_buf.st_size);
+    }
+  else
+#endif
+    {
+      result = do_io(infd, id);
+    }
 
 out:
   if (id != -1)

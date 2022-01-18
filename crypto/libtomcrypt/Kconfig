@@ -12,7 +12,7 @@ menuconfig CRYPTO_LIBTOMCRYPT
 		cryptographic toolkit that provides developers with a vast array
 		of well known published block ciphers, one-way hash functions,
 		chaining modes, pseudo-random number generators, public key
-		cryptography and a plethora of other routines. 
+		cryptography and a plethora of other routines.
 
 if CRYPTO_LIBTOMCRYPT
 
@@ -29,28 +29,53 @@ menuconfig LIBTOMCRYPT_DEMOS
 if LIBTOMCRYPT_DEMOS
 
 config LIBTOMCRYPT_LTCRYPT
-        tristate "LibTomCrypt ltcrypt"
-        default n
-        ---help---
-                Demo encrypt/decrypt application
+	tristate "LibTomCrypt ltcrypt"
+	default n
+	---help---
+		Demo encrypt/decrypt application
 
 if LIBTOMCRYPT_LTCRYPT
 
 config LIBTOMCRYPT_LTCRYPT_PROGNAME
-        string "ltcrypt program name"
-        default "ltcrypt"
-        ---help---
-                LibTomMath ltcrypt application name
+	string "ltcrypt program name"
+	default "ltcrypt"
+	---help---
+		LibTomMath ltcrypt application name
 
 config LIBTOMCRYPT_LTCRYPT_PRIORITY
-        int "ltcrypt application priority"
-        default 100
+	int "ltcrypt application priority"
+	default 100
 
 config LIBTOMCRYPT_LTCRYPT_STACKSIZE
-        int "ltcrypt application stack size"
-        default DEFAULT_TASK_STACKSIZE
+	int "ltcrypt application stack size"
+	default DEFAULT_TASK_STACKSIZE
 
 endif # LIBTOMCRYPT_LTCRYPT
+
+config LIBTOMCRYPT_HASHSUM
+	tristate "LibTomCrypt hashsum"
+	depends on SCHED_ATEXIT
+	default n
+	---help---
+		Demo hashsum application
+
+if LIBTOMCRYPT_HASHSUM
+
+config LIBTOMCRYPT_HASHSUM_PROGNAME
+	string "hashsum program name"
+	default "hashsum"
+	---help---
+		LibTomMath hashsum application name
+
+config LIBTOMCRYPT_HASHSUM_PRIORITY
+	int "hashsum application priority"
+	default 100
+
+config LIBTOMCRYPT_HASHSUM_STACKSIZE
+	int "hashsum application stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMCRYPT_HASHSUM
 
 endif # LIBTOMCRYPT_DEMOS
 

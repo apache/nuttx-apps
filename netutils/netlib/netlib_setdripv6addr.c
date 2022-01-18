@@ -63,7 +63,7 @@ int netlib_set_dripv6addr(FAR const char *ifname,
 
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           FAR struct sockaddr_in6 *inaddr;
@@ -80,7 +80,8 @@ int netlib_set_dripv6addr(FAR const char *ifname,
           inaddr->sin6_port   = 0;
           memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
 
-          ret = ioctl(sockfd, SIOCSLIFDSTADDR, (unsigned long)((uintptr_t)&req));
+          ret = ioctl(sockfd, SIOCSLIFDSTADDR,
+                      (unsigned long)((uintptr_t)&req));
           close(sockfd);
         }
     }

@@ -66,7 +66,7 @@ int netlib_get_dripv4addr(FAR const char *ifname, FAR struct in_addr *addr)
 
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           struct ifreq req;

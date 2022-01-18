@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NXWM_INCLUDE_CTASKBAR_HXX
-#define __NXWM_INCLUDE_CTASKBAR_HXX
+#ifndef __NXWM_INCLUDE_GRAPHICS_NXWM_CTASKBAR_HXX
+#define __NXWM_INCLUDE_GRAPHICS_NXWM_CTASKBAR_HXX
 
 /****************************************************************************
  * Included Files
@@ -406,4 +406,4 @@ namespace NxWM
 }
 
 #endif // __cplusplus
-#endif // __NXWM_INCLUDE_CTASKBAR_HXX
+#endif // __NXWM_INCLUDE_GRAPHICS_NXWM_CTASKBAR_HXX

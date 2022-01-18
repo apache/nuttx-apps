@@ -7,7 +7,7 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright © 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NETUTILS_THTTPD_LIBHTTPD_H
-#define __NETUTILS_THTTPD_LIBHTTPD_H
+#ifndef __APPS_NETUTILS_THTTPD_LIBHTTPD_H
+#define __APPS_NETUTILS_THTTPD_LIBHTTPD_H
 
 /****************************************************************************
  * Included Files
@@ -339,4 +339,4 @@ extern int httpd_read(int fd, const void *buf, size_t nbytes);
 extern int httpd_write(int fd, const void *buf, size_t nbytes);
 
 #endif /* CONFIG_THTTPD */
-#endif /* __NETUTILS_THTTPD_LIBHTTPD_H */
+#endif /* __APPS_NETUTILS_THTTPD_LIBHTTPD_H */

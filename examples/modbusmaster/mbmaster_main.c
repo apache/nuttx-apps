@@ -222,7 +222,7 @@ static FAR void *mbmaster_pollthread(FAR void *pvarg)
 
 static void mbmaster_showstatistics(void)
 {
-  printf("Modbus master statistics: \n");
+  printf("Modbus master statistics:\n");
   printf("Requests count:  %d\n", g_mbmaster.statistics.reqcount);
   printf("Responses count: %d\n", g_mbmaster.statistics.rspcount);
   printf("Errors count:    %d\n", g_mbmaster.statistics.errcount);

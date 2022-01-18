@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_MOTOR_B16_H
-#define __EXAMPLES_FOC_FOC_MOTOR_B16_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_MOTOR_B16_H
+#define __APPS_EXAMPLES_FOC_FOC_MOTOR_B16_H
 
 /****************************************************************************
  * Included Files
@@ -130,4 +130,4 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor);
 int foc_motor_handle(FAR struct foc_motor_b16_s *motor,
                      FAR struct foc_mq_s *handle);
 
-#endif /* __EXAMPLES_FOC_FOC_MOTOR_B16_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_MOTOR_B16_H */

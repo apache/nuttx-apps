@@ -49,6 +49,8 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
+#include <nuttx/net/netconfig.h>
+
 #include "wireless/wapi.h"
 #include "util.h"
 
@@ -188,7 +190,7 @@ static bool wapi_json_update(FAR cJSON *root,
 
 int wapi_make_socket(void)
 {
-  return socket(PF_INETX, SOCK_WAPI, 0);
+  return socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
 }
 
 /****************************************************************************

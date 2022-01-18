@@ -252,7 +252,7 @@ eMBErrorCode eMBPoll(void);
  *     otherwise the Run Indicator Status is 0x00.
  *   pucAdditional Values which should be returned in the Additional
  *     bytes of the  Report Slave ID response.
- *   usAdditionalLen Length of the buffer <code>pucAdditonal</code>.
+ *   usAdditionalLen Length of the buffer <code>pucAdditional</code>.
  *
  * Returned Value:
  *   If the static buffer defined by CONFIG_MB_FUNC_OTHER_REP_SLAVEID_BUF

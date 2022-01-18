@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_WATCHER_WATCHED_H
-#define __EXAMPLES_WATCHER_WATCHED_H
+#ifndef __APPS_EXAMPLES_WATCHER_WATCHED_H
+#define __APPS_EXAMPLES_WATCHER_WATCHED_H
 
 /****************************************************************************
  * Included Files
@@ -76,4 +76,4 @@ int  watched_subscribe(struct watched_info_s *info);
 int  watched_unsubscribe(struct watched_info_s *info);
 int  watched_feed_dog(struct watched_info_s *info);
 
-#endif                                 /* __EXAMPLES_WATCHER_WATCHED_H */
+#endif /* __APPS_EXAMPLES_WATCHER_WATCHED_H */

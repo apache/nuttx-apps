@@ -47,4 +47,16 @@ config NETUTILS_NETCAT_STACKSIZE
 	int "netcat stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config NETUTILS_NETCAT_SENDFILE
+	bool "Use sendfile() in netcat when possible"
+	default y
+	depends on NET_SENDFILE
+	---help---
+		This option enables using sendfile() in netcat client mode
+		if a normal file (not stdin) is sent. If the option is enabled
+		but stdin is sent rather than a normal file, netcat falls back
+		to the combination of read() and write().
+		Using sendfile() provides a higher performance compared to
+		the combination of read() and write().
+
 endif

@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_NETUTILS_CURL4NX_CURL4NX_PRIVATE_H
-#define __APPS_NETUTILS_CURL4NX_CURL4NX_PRIVATE_H
+#ifndef __APPS_NETUTILS_LIBCURL4NX_CURL4NX_PRIVATE_H
+#define __APPS_NETUTILS_LIBCURL4NX_CURL4NX_PRIVATE_H
 
 /****************************************************************************
  * Included Files
@@ -170,4 +170,4 @@ struct curl4nx_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_NETLIB_CURL4NX_CURL4NX_PRIVATE_H */
+#endif /* __APPS_NETUTILS_LIBCURL4NX_CURL4NX_PRIVATE_H */

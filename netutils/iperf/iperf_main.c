@@ -153,7 +153,7 @@ int main(int argc, FAR char *argv[])
   netlib_get_ipv4addr(DEVNAME, &addr);
   if (addr.s_addr == 0)
     {
-      printf("ERROR: access IP is 0x00 \n");
+      printf("ERROR: access IP is 0x00\n");
       return -1;
     }
 
@@ -230,7 +230,7 @@ int main(int argc, FAR char *argv[])
   printf("\n mode=%s-%s "
          "sip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d,"
          "dip=%" PRId32 ".%" PRId32 ".%" PRId32 ".%" PRId32 ":%d, "
-         "interval=%" PRId32 ", time=%" PRId32 " \n",
+         "interval=%" PRId32 ", time=%" PRId32 "\n",
          cfg.flag & IPERF_FLAG_TCP ?"tcp":"udp",
          cfg.flag & IPERF_FLAG_SERVER ?"server":"client",
          cfg.sip & 0xff, (cfg.sip >> 8) & 0xff, (cfg.sip >> 16) & 0xff,

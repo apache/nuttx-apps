@@ -1305,7 +1305,7 @@ IApplication *CCalibrationFactory::create(void)
 
   if (!window->open())
     {
-      gerr("ERROR: Failed to open CFullScreenWindow \n");
+      gerr("ERROR: Failed to open CFullScreenWindow\n");
       delete window;
       return (IApplication *)0;
     }

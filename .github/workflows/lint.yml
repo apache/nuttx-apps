@@ -2,6 +2,10 @@ name: ❄️ Lint
 
 on: [pull_request]
 
+concurrency:
+  group: lint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   yamllint:
     name: 🍺 YAML
@@ -9,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: 🧹 YAML Lint
-        uses: github/super-linter@v3
+        uses: github/super-linter@v4
         env:
           VALIDATE_YAML: true
           FILTER_REGEX_INCLUDE: .*\.github/.*
