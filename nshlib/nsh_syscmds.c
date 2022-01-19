@@ -377,6 +377,10 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       cmd = RPTUNIOC_PANIC;
     }
+  else if (strcmp(argv[1], "dump") == 0)
+    {
+      cmd = RPTUNIOC_DUMP;
+    }
   else
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[1]);
