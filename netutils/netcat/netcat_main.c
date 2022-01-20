@@ -44,18 +44,23 @@
 # define NETCAT_PORT 31337
 #endif
 
+#ifndef NETCAT_IOBUF_SIZE
+# define NETCAT_IOBUF_SIZE 256
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 int do_io(int infd, int outfd)
 {
-  size_t capacity = 256;
-  char buf[capacity];
+  ssize_t avail;
+  ssize_t written;
+  char buf[NETCAT_IOBUF_SIZE];
 
   while (true)
     {
-      ssize_t avail = read(infd, buf, capacity);
+      avail = read(infd, buf, NETCAT_IOBUF_SIZE);
       if (avail == 0)
         {
           break;
@@ -67,7 +72,7 @@ int do_io(int infd, int outfd)
           return 5;
         }
 
-      ssize_t written = write(outfd, buf, avail);
+      written = write(outfd, buf, avail);
       if (written == -1)
         {
           perror("do_io: write error");
@@ -113,6 +118,8 @@ int netcat_server(int argc, char * argv[])
   struct sockaddr_in client;
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  int conn;
+  socklen_t addrlen;
 
   if ((1 < argc) && (0 == strcmp("-l", argv[1])))
     {
@@ -160,8 +167,6 @@ int netcat_server(int argc, char * argv[])
       goto out;
     }
 
-  socklen_t addrlen;
-  int conn;
   if ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
     {
       result = do_io(conn, outfd);
@@ -195,6 +200,7 @@ int netcat_client(int argc, char * argv[])
   char *host = "127.0.0.1";
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  struct sockaddr_in server;
 #ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
   struct stat stat_buf;
 #endif
@@ -239,7 +245,6 @@ int netcat_client(int argc, char * argv[])
       goto out;
     }
 
-  struct sockaddr_in server;
   server.sin_family = AF_INET;
   server.sin_port = htons(port);
   if (1 != inet_pton(AF_INET, host, &server.sin_addr))
