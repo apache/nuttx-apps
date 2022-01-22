@@ -12,6 +12,10 @@ config CANUTILS_SLCAN
 
 if CANUTILS_SLCAN
 
+config CANUTILS_SLCAN_STACKSIZE
+	int "SocketCAN slcan stack size"
+	default DEFAULT_TASK_STACKSIZE
+
 config SLCAN_TRACE
 	bool "Print trace output"
 	default y
