@@ -54,7 +54,18 @@ void adb_log_impl(FAR const char *func, int line, FAR const char *fmt, ...)
 void adb_reboot_impl(const char *target)
 {
 #ifdef CONFIG_BOARDCTL_RESET
-  boardctl(BOARDIOC_RESET, 0);
+  if (strcmp(target, "recovery") == 0)
+    {
+      boardctl(BOARDIOC_RESET, CONFIG_ADBD_RESET_RECOVERY);
+    }
+  else if (strcmp(target, "bootloader") == 0)
+    {
+      boardctl(BOARDIOC_RESET, CONFIG_ADBD_RESET_BOOTLOADER);
+    }
+  else
+    {
+      boardctl(BOARDIOC_RESET, 0);
+    }
 #else
   adb_log("reboot not implemented\n");
 #endif
