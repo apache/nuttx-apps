@@ -59,7 +59,7 @@ config ADBD_RESET_BOOTLOADER
 	default 2
 endif # BOARDCTL_RESET
 
-if ! BOARDCTL_UNIQUEID
+if !BOARDCTL_UNIQUEID
 config ADBD_DEVICE_ID
 	string "Default adb device id"
 	default ""
@@ -136,19 +136,36 @@ config ADBD_FILE_SERVICE
 	---help---
 		Enable "adb ls/push/pull" feature.
 
- config ADBD_SHELL_SERVICE
+config ADBD_FILE_SYMLINK
+	bool "File service symlink support"
+	default n
+	depends on ADBD_FILE_SERVICE
+	depends on PSEUDOFS_SOFTLINKS
+	---help---
+		Enable fs symlink support.
+
+config ADBD_SHELL_SERVICE
 	bool "ADB shell support"
-	depends on NSH_CONSOLE
+	depends on SYSTEM_NSH
+	select LIBC_EXECFUNCS
+	select PSEUDOTERM
 	default n
 	---help---
 		Enable "adb shell" feature.
 
-config ADBD_FILE_SYMLINK
-	bool "File service symlink support"
-	default n
-	depends on PSEUDOFS_SOFTLINKS
+config ADBD_SHELL_SERVICE_CMD
+	string "ADB shell command"
+	depends on ADBD_SHELL_SERVICE
+	default "sh"
 	---help---
-		Enable fs symlink support.
+		The shell command name.
+
+config ADBD_SHELL_SERVICE_PATH
+	string "ADB shell path"
+	depends on ADBD_SHELL_SERVICE
+	default "/bin/sh"
+	---help---
+		The path to the shell executable.
 
 config ADBD_BOARD_INIT
 	bool "Board initialization"
