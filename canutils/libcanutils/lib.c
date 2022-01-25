@@ -48,7 +48,6 @@
 
 #include <sys/socket.h> /* for sa_family_t */
 #include <nuttx/can.h>
-#include "error.h"
 #include <netpacket/can.h>
 
 #include "lib.h"

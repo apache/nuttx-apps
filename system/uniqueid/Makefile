@@ -1,5 +1,5 @@
 ############################################################################
-# apps/canutils/cansend/Makefile
+# apps/system/uniqueid/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -16,19 +16,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 include $(APPDIR)/Make.defs
 
-# SocketCAN userspace utilities and tools cansend tool
-# https://github.com/linux-can/can-utils/blob/master/cansend.c
+# UNIQUEID tool built-in application info
 
-PROGNAME = cansend
+PROGNAME = uniqueid
 PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_CANUTILS_CANSEND_STACKSIZE)
-MODULE = $(CONFIG_CANUTILS_CANSEND)
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_SYSTEM_UNIQUEID)
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/canutils/libcanutils}
-MAINSRC = cansend.c
+# UNIQUEID tool
+
+MAINSRC = uniqueid_main.c
 
 include $(APPDIR)/Application.mk
