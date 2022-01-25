@@ -59,4 +59,12 @@ config NETUTILS_NETCAT_SENDFILE
 		Using sendfile() provides a higher performance compared to
 		the combination of read() and write().
 
+config NETUTILS_NETCAT_BUFSIZE
+	int "netcat I/O buffer size"
+	default 256
+	---help---
+		The I/O buffer is used in the netcat server mode.
+		The I/O buffer is also used in the netcat client mode only if
+		sendfile() is not applicable.
+
 endif

@@ -48,14 +48,17 @@
  * Public Functions
  ****************************************************************************/
 
-int do_io(int infd, int outfd)
+int do_io(int infd,
+          int outfd,
+          char *buf,
+          size_t buf_size)
 {
-  size_t capacity = 256;
-  char buf[capacity];
+  ssize_t avail;
+  ssize_t written;
 
   while (true)
     {
-      ssize_t avail = read(infd, buf, capacity);
+      avail = read(infd, buf, buf_size);
       if (avail == 0)
         {
           break;
@@ -67,7 +70,7 @@ int do_io(int infd, int outfd)
           return 5;
         }
 
-      ssize_t written = write(outfd, buf, avail);
+      written = write(outfd, buf, avail);
       if (written == -1)
         {
           perror("do_io: write error");
@@ -113,6 +116,9 @@ int netcat_server(int argc, char * argv[])
   struct sockaddr_in client;
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  int conn;
+  socklen_t addrlen;
+  char *preallocated_iobuf = NULL;
 
   if ((1 < argc) && (0 == strcmp("-l", argv[1])))
     {
@@ -132,6 +138,14 @@ int netcat_server(int argc, char * argv[])
               goto out;
             }
         }
+    }
+
+  preallocated_iobuf = (char *)malloc(CONFIG_NETUTILS_NETCAT_BUFSIZE);
+  if (preallocated_iobuf == NULL)
+    {
+      perror("error: malloc: Failed to allocate I/O buffer\n");
+      result = 2;
+      goto out;
     }
 
   id = socket(AF_INET , SOCK_STREAM , 0);
@@ -160,11 +174,10 @@ int netcat_server(int argc, char * argv[])
       goto out;
     }
 
-  socklen_t addrlen;
-  int conn;
   if ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
     {
-      result = do_io(conn, outfd);
+      result = do_io(conn, outfd,
+                     preallocated_iobuf, CONFIG_NETUTILS_NETCAT_BUFSIZE);
     }
 
   if (0 > conn)
@@ -178,6 +191,11 @@ out:
   if (id != -1)
     {
       close(id);
+    }
+
+  if (preallocated_iobuf != NULL)
+    {
+      free(preallocated_iobuf);
     }
 
   if (outfd != STDOUT_FILENO)
@@ -195,6 +213,8 @@ int netcat_client(int argc, char * argv[])
   char *host = "127.0.0.1";
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  struct sockaddr_in server;
+  char *preallocated_iobuf = NULL;
 #ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
   struct stat stat_buf;
 #endif
@@ -239,7 +259,6 @@ int netcat_client(int argc, char * argv[])
       goto out;
     }
 
-  struct sockaddr_in server;
   server.sin_family = AF_INET;
   server.sin_port = htons(port);
   if (1 != inet_pton(AF_INET, host, &server.sin_addr))
@@ -264,13 +283,28 @@ int netcat_client(int argc, char * argv[])
   else
 #endif
     {
-      result = do_io(infd, id);
+      preallocated_iobuf = (char *)malloc(CONFIG_NETUTILS_NETCAT_BUFSIZE);
+
+      if (preallocated_iobuf == NULL)
+        {
+          perror("error: malloc: Failed to allocate I/O buffer\n");
+          result = 2;
+          goto out;
+        }
+
+      result = do_io(infd, id,
+                     preallocated_iobuf, CONFIG_NETUTILS_NETCAT_BUFSIZE);
     }
 
 out:
   if (id != -1)
     {
       close(id);
+    }
+
+  if (preallocated_iobuf != NULL)
+    {
+      free(preallocated_iobuf);
     }
 
   if (infd != STDIN_FILENO)

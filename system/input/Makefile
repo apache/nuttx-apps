@@ -1,5 +1,5 @@
 ############################################################################
-# apps/canutils/cansend/Makefile
+# apps/system/input/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -16,19 +16,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 include $(APPDIR)/Make.defs
 
-# SocketCAN userspace utilities and tools cansend tool
-# https://github.com/linux-can/can-utils/blob/master/cansend.c
+PROGNAME  = input
+PRIORITY  = $(CONFIG_SYSTEM_INPUT_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_INPUT_STACKSIZE)
+MODULE    = $(CONFIG_SYSTEM_INPUT)
 
-PROGNAME = cansend
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_CANUTILS_CANSEND_STACKSIZE)
-MODULE = $(CONFIG_CANUTILS_CANSEND)
-
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/canutils/libcanutils}
-MAINSRC = cansend.c
+MAINSRC   = input.c
 
 include $(APPDIR)/Application.mk

@@ -25,6 +25,7 @@
 #include "ftpc_config.h"
 
 #include <sys/stat.h>
+#include <sys/sendfile.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -65,11 +66,60 @@
  *
  ****************************************************************************/
 
+#ifdef CONFIG_FTPC_OVER_SENDFILE
 static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
-                           FAR FILE *linstream, FILE *routstream)
+                           FAR FILE *linstream)
+{
+  struct stat stat_buf;
+  off_t offset = session->offset;
+  ssize_t result;
+  ssize_t len;
+  int linfd = fileno(linstream);
+
+  if (linfd == -1 || fstat(linfd, &stat_buf) == -1)
+    {
+      ftpc_xfrabort(session, NULL);
+      return ERROR;
+    }
+
+  /* Loop until the entire file is sent */
+
+  len = stat_buf.st_size - offset;
+
+  while (len > 0)
+    {
+      result = sendfile(session->data.sd, linfd, &offset, len);
+
+      if (result == -1 && errno == EAGAIN)
+        {
+          continue;
+        }
+      else if (result == -1)
+        {
+          ftpc_xfrabort(session, NULL);
+          return ERROR;
+        }
+
+      len -= result;
+
+      /* Increment the size of the file sent */
+
+      session->size += result;
+    }
+
+  /* Return success */
+
+  return OK;
+}
+
+#else
+
+static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
+                           FAR FILE *linstream)
 {
   ssize_t nread;
   ssize_t nwritten;
+  FILE *routstream = session->data.outstream;
 
   /* Loop until the entire file is sent */
 
@@ -111,6 +161,7 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
       session->size += nread;
     }
 }
+#endif
 
 /****************************************************************************
  * Name: ftpc_sendtext
@@ -121,10 +172,11 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
  ****************************************************************************/
 
 static int ftpc_sendtext(FAR struct ftpc_session_s *session,
-                         FAR FILE *linstream, FAR FILE *routstream)
+                         FAR FILE *linstream)
 {
   int ch;
   int ret = OK;
+  FILE *routstream = session->data.outstream;
 
   /* Write characters one at a time. */
 
@@ -174,15 +226,12 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
 static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                          FILE *stream, uint8_t how, uint8_t xfrmode)
 {
-  long offset = session->offset;
 #ifdef CONFIG_DEBUG_FEATURES
   FAR char *rname;
   FAR char *str;
   int len;
 #endif
   int ret;
-
-  session->offset = 0;
 
   /* Were we asked to store a file uniquely?  Does the host support the STOU
    * command?
@@ -212,10 +261,10 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
    * allow REST immediately before STOR for binary files.
    */
 
-  if (offset > 0)
+  if (session->offset > 0)
     {
-      ret = ftpc_cmd(session, "REST %ld", offset);
-      session->size = offset;
+      ret = ftpc_cmd(session, "REST %ld", session->offset);
+      session->size = session->offset;
     }
 
   /* Send the file using STOR, STOU, or APPE:
@@ -331,11 +380,11 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
   if (xfrmode == FTPC_XFRMODE_ASCII)
     {
-      ret = ftpc_sendtext(session, stream, session->data.outstream);
+      ret = ftpc_sendtext(session, stream);
     }
   else
     {
-      ret = ftpc_sendbinary(session, stream, session->data.outstream);
+      ret = ftpc_sendbinary(session, stream);
     }
 
   ftpc_sockflush(&session->data);
