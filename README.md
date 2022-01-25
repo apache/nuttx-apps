@@ -6,6 +6,7 @@ __Updated for the articles...__
 -   [__"LoRaWAN on Apache NuttX OS"__](https://lupyuen.github.io/articles/lorawan3)
 -   [__"Encode Sensor Data with CBOR on Apache NuttX OS"__](https://lupyuen.github.io/articles/cbor2)
 -   [__"Rust on Apache NuttX OS"__](https://lupyuen.github.io/articles/rust2)
+-   [__"Auto Flash and Test NuttX on RISC-V BL602"__](https://lupyuen.github.io/articles/auto)
 
 # Application Folder
 
