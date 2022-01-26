@@ -1,0 +1,51 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CMSIS
+	bool "CMSIS Libraries"
+	default n
+	---help---
+		Enable CMSIS Libraries.
+		The Cortex Microcontroller Software Interface Standard (CMSIS) is provided
+		from https://github.com/ARM-software/CMSIS_5 and licensed under Apache-2.0.
+		For details, see http://arm-software.github.io/CMSIS_5/General/html/index.html.
+
+if CMSIS
+
+config CMSIS_VER
+	string "Default CMSIS version"
+	default 5.8.0
+
+config CMSIS_DSP
+	bool "CMSIS DSP"
+	default y
+	---help---
+		Enable CMSIS-DSP: Fast implementation of digital signal processing.
+
+if CMSIS_DSP
+
+config CMSIS_DSP_ARM_MATH_MATRIX_CHECK
+	bool "CMSIS DSP MATH MATRIX CHECK"
+	default n
+	---help---
+		Enable checking on the input and output sizes of matrices
+
+config CMSIS_DSP_ARM_MATH_ROUNDING
+	bool "CMSIS DSP MATH ROUNDING"
+	default n
+	---help---
+		Enable rounding on support functions
+
+endif # CMSIS_DSP
+
+config CMSIS_NN
+        bool "CMSIS NN"
+        default y
+        depends on CMSIS_DSP
+        ---help---
+                Enable CMSIS-NN: Efficient neural network kernels.
+
+
+endif # CMSIS
