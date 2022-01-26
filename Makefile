@@ -63,6 +63,10 @@ ifeq ($(CONFIG_BUILD_KERNEL),y)
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 .import: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+	$(Q) for app in ${CONFIGURED_APPS}; do \
+		$(MAKE) -C "$${app}" archive ; \
+	done
+	$(Q) install libapps.a $(APPDIR)$(DELIM)import$(DELIM)libs
 	$(Q) $(MAKE) install
 
 import: $(IMPORT_TOOLS)
