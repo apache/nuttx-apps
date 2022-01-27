@@ -69,6 +69,18 @@ ifneq ($(CONFIG_BUILD_KERNEL),y)
   endif
 endif
 
+# When building a module, link with the compiler runtime.
+# This should be linked after libapps. Consider that mbedtls in libapps
+# uses __udivdi3.
+ifeq ($(BUILD_MODULE),y)
+  # Revisit: This only works for gcc and clang.
+  # Do other compilers have similar?
+  COMPILER_RT_LIB = $(shell $(CC) $(ARCHCPUFLAGS) --print-libgcc-file-name)
+  ifneq ($(COMPILER_RT_LIB),)
+    LDLIBS += $(COMPILER_RT_LIB)
+  endif
+endif
+
 SUFFIX = $(subst $(DELIM),.,$(CWD))
 PROGNAME := $(shell echo $(PROGNAME))
 
