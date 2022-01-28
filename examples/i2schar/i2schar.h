@@ -104,7 +104,7 @@ extern struct i2schar_state_s g_i2schar;
  * Name: i2schar_devinit()
  *
  * Description:
- *   Perform architecuture-specific initialization of the I2s hardware and
+ *   Perform architecture-specific initialization of the I2s hardware and
  *   registration of the I2S character driver CHAR hardware.  If
  *   CONFIG_EXAMPLES_I2SCHAR_DEVINIT is defined, then board-specific logic
  *   must provide this function.

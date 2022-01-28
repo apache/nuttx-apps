@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #define SUBSCRIBE_CMD      1
-#define UNSUSBCRIBE_CMD   -1
+#define UNSUBSCRIBE_CMD   -1
 #define FEED_CMD           2
 
 /****************************************************************************
@@ -91,7 +91,7 @@ static void feed_sighandler(int signo, FAR siginfo_t * siginfo,
 
       task_mn_subscribe(request.task_id);
       break;
-    case UNSUSBCRIBE_CMD:
+    case UNSUBSCRIBE_CMD:
 
       /* Excludes the current requester task from the watched tasks list */
 
@@ -208,7 +208,7 @@ static int watcher_daemon(int argc, FAR char *argv[])
 
   fprintf(fp, "%d %d %d %d %d\n", (int)watcher_pid,
           (int)CONFIG_EXAMPLES_WATCHER_SIGNAL, (int)SUBSCRIBE_CMD,
-          (int)FEED_CMD, (int)UNSUSBCRIBE_CMD);
+          (int)FEED_CMD, (int)UNSUBSCRIBE_CMD);
   fclose(fp);
 
   /* Suspends the calling thread until delivery of a non-blocked signal. */

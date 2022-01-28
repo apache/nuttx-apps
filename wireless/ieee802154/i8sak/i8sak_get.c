@@ -90,7 +90,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             fprintf(stderr, "Gets various parameters and attributes\n"
                     "Usage: %s [-h] parameter\n"
                     "    -h = this help menu\n"
-                    " \n"
+                    "\n"
                     "Parameters:\n"
                     "    chan = RF channel\n"
                     "    panid = PAN Identifier\n"

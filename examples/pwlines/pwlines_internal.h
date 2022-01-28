@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PWLINES_PWLINES_INTERNAL_H
-#define __EXAMPLES_PWLINES_PWLINES_INTERNAL_H
+#ifndef __APPS_EXAMPLES_PWLINES_PWLINES_INTERNAL_H
+#define __APPS_EXAMPLES_PWLINES_PWLINES_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -228,4 +228,4 @@ void pwlines_circle(FAR struct pwlines_state_s *st);
 void pwlines_update(FAR struct pwlines_state_s *st);
 bool pwlines_motion(FAR struct pwlines_state_s *st);
 
-#endif /* __EXAMPLES_PWLINES_PWLINES_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_PWLINES_PWLINES_INTERNAL_H */

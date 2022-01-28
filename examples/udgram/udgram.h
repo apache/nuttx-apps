@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_UDGRAM_UDGRAM_H
-#define __EXAMPLES_UDGRAM_UDGRAM_H
+#ifndef __APPS_EXAMPLES_UDGRAM_UDGRAM_H
+#define __APPS_EXAMPLES_UDGRAM_UDGRAM_H
 
 /****************************************************************************
  * Included Files
@@ -36,4 +36,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __EXAMPLES_UDGRAM_UDGRAM_H */
+#endif /* __APPS_EXAMPLES_UDGRAM_UDGRAM_H */

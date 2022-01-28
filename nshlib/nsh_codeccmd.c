@@ -308,7 +308,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
     {
       sdata = argv[optind];
     }
-  else if (optind >= argc)
+  else if (optind < argc)
     {
       fmt = g_fmttoomanyargs;
       goto errout;

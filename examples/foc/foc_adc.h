@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_FOC_FOC_ADC_H
-#define __EXAMPLES_FOC_FOC_ADC_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_ADC_H
+#define __APPS_EXAMPLES_FOC_FOC_ADC_H
 
 /****************************************************************************
  * Included Files
@@ -67,4 +67,4 @@
 
 #endif  /* CONFIG_EXAMPLES_FOC_HAVE_ADC */
 
-#endif /* __EXAMPLES_FOC_FOC_ADC_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_ADC_H */

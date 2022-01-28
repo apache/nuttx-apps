@@ -48,7 +48,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#ifdef CONFIG_EXAMPLES_LGVLDEMO_MOUSE
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_MOUSE
 #  include <nuttx/input/mouse.h>
 #endif
 
@@ -94,12 +94,12 @@ int tp_init(void)
 
   /* Open the touchscreen device for reading */
 
-  printf("tp_init: Opening %s\n", CONFIG_EXAMPLES_LGVLDEMO_DEVPATH);
-  fd = open(CONFIG_EXAMPLES_LGVLDEMO_DEVPATH, O_RDONLY | O_NONBLOCK);
+  printf("tp_init: Opening %s\n", CONFIG_EXAMPLES_LVGLDEMO_DEVPATH);
+  fd = open(CONFIG_EXAMPLES_LVGLDEMO_DEVPATH, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       printf("tp_init: open %s failed: %d\n",
-               CONFIG_EXAMPLES_LGVLDEMO_DEVPATH, errno);
+               CONFIG_EXAMPLES_LVGLDEMO_DEVPATH, errno);
       errval = 2;
       goto errout;
     }

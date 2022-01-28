@@ -50,7 +50,7 @@ config EMBEDLOG_ENABLE_OUT_FILE
 	default n
 	---help---
 		If enabled, you will be able to store logs in a file (like on
-		sdcard). Log rotation is available as well. LIbrary automatically
+		sdcard). Log rotation is available as well. Library automatically
 		handles cases when files are deleted or mountpoint disappears and
 		appear again (like sd card switch). Disabling this will result in
 		smaller code.
@@ -209,7 +209,7 @@ config EMBEDLOG_DEMO_PROGRAMS
 	default n
 	---help---
 		Compile demo programs that visualise how embedlog works. Also good
-		for checking if embedlog behaves corectly.
+		for checking if embedlog behaves correctly.
 
 if EMBEDLOG_DEMO_PROGRAMS
 

@@ -74,6 +74,12 @@ else
   LDLIBPATH = -L $(TOPDIR)$(DELIM)libs
 endif
 
+# Link with user libraries
+
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+  LDLIBS = -lapps -lxx -lmm -lc -lm -lproxies
+endif
+
 # Try to get the path to libgcc.a.  Of course, this only works for GCC
 # toolchains.
 

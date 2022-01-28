@@ -13,4 +13,9 @@ config CANUTILS_CANSEND
 		https://github.com/linux-can/can-utils
 
 if CANUTILS_CANSEND
+
+config CANUTILS_CANSEND_STACKSIZE
+	int "SocketCAN cansend stack size"
+	default DEFAULT_TASK_STACKSIZE
+
 endif

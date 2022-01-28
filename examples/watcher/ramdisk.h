@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_WATCHER_RAMDISK_H
-#define __EXAMPLES_WATCHER_RAMDISK_H
+#ifndef __APPS_EXAMPLES_WATCHER_RAMDISK_H
+#define __APPS_EXAMPLES_WATCHER_RAMDISK_H
 
 /****************************************************************************
  * Included Files
@@ -53,4 +53,4 @@
 int create_ramdisk(void);
 int prepare_fs(void);
 
-#endif /* __EXAMPLES_WATCHER_RAMDISK_H */
+#endif /* __APPS_EXAMPLES_WATCHER_RAMDISK_H */

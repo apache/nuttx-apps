@@ -125,7 +125,7 @@ CClock::CClock(FAR CTwm4Nx *twm4nx)
 
   m_pid     = (pid_t)-1;
 
-  // This is un-neccessary but helpful in debugging to have a known value
+  // This is un-necessary but helpful in debugging to have a known value
 
   std::memset(m_digits, 0, CLOCK_NDIGITS * sizeof(struct SClockDigit));
 }

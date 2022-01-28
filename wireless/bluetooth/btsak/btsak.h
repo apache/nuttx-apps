@@ -23,8 +23,8 @@
  * Intel/Zephyr Arduino 101 package (BSD license).
  */
 
-#ifndef __APPS_EXAMPLES_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H
-#define __APPS_EXAMPLES_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H
+#ifndef __APPS_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H
+#define __APPS_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H
 
 /****************************************************************************
  * Included Files
@@ -257,4 +257,4 @@ void btsak_cmd_gatt_read_multiple(FAR struct btsak_s *btsak, int argc,
 void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
        FAR char *argv[]);
 
-#endif /* __APPS_EXAMPLES_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H */
+#endif /* __APPS_WIRELESS_BLUETOOTH_BTSAK_BTSAK_H */

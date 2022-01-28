@@ -7,10 +7,11 @@
  *           Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  - Redistributions of  source code must  retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ *  - Redistributions of  source code must  retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
  *
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of  conditions and the  following disclaimer in the
@@ -42,31 +43,6 @@
 
 #include "wireless/ieee802154.h"
 #include "wireless/iwpan.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* The address family that we used to create the socket really does not
- * matter.  It should, however, be valid in the current configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
-#endif
-
-/* SOCK_DGRAM is the preferred socket type to use when we just want a
- * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
- * if UDP is disabled.
- */
-
-#ifdef CONFIG_NET_UDP
-# define SOCK_IWPAN SOCK_DGRAM
-#else
-# define SOCK_IWPAN SOCK_STREAM
-#endif
 
 /****************************************************************************
  * Private Types
@@ -236,7 +212,8 @@ static uint8_t iwpan_char2nibble(char ch)
     }
   else
     {
-      fprintf(stderr, "ERROR: Unexpected character in hex value: %02x\n", ch);
+      fprintf(stderr,
+              "ERROR: Unexpected character in hex value: %02x\n", ch);
       exit(EXIT_FAILURE);
     }
 }
@@ -420,12 +397,12 @@ static void iwpan_show_cmd(int sock, FAR const char *ifname)
 static void iwpan_cca_cmd(int sock, FAR const char *ifname,
                           FAR const char *ccastr)
 {
+  int ret;
   union
   {
     struct ieee802154_cca_s cca;
     uint8_t b;
   } u;
-  int ret;
 
   /* Convert input strings to values */
 
@@ -589,7 +566,7 @@ static void iwpan_promisc_cmd(int sock, FAR const char *ifname,
 static void iwpan_saddr_cmd(int sock, FAR const char *ifname,
                             FAR const char *addrstr)
 {
-   uint16_t saddr;
+  uint16_t saddr;
   int ret;
 
   /* Convert input strings to values */
@@ -734,7 +711,7 @@ int main(int argc, FAR char *argv[])
 
   /* Create a communication socket */
 
-  sock = socket(PF_INETX, SOCK_IWPAN, 0);
+  sock = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
   if (sock < 0)
     {
       fprintf(stderr, "ERROR: iwpan_make_socket() failed: %d\n", sock);

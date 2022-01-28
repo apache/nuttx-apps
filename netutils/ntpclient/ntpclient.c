@@ -1222,8 +1222,8 @@ sock_error:
 
 static int ntpc_daemon(int argc, FAR char **argv)
 {
-  struct ntp_sample_s samples[CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES];
-  struct ntp_servers_s srvs;
+  FAR struct ntp_sample_s *samples;
+  FAR struct ntp_servers_s *srvs;
   int exitcode = EXIT_SUCCESS;
   int retries = 0;
   int nsamples;
@@ -1233,7 +1233,19 @@ static int ntpc_daemon(int argc, FAR char **argv)
 
   DEBUGASSERT(argc > 1 && argv[1] != NULL && *argv[1] != '\0');
 
-  memset(&srvs, 0, sizeof(srvs));
+  samples = malloc(sizeof(struct ntp_sample_s) *
+                   CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES);
+  if (samples == NULL)
+    {
+      return EXIT_FAILURE;
+    }
+
+  srvs = calloc(1, sizeof(*srvs));
+  if (srvs == NULL)
+    {
+      free(samples);
+      return EXIT_FAILURE;
+    }
 
   /* Indicate that we have started */
 
@@ -1268,15 +1280,17 @@ static int ntpc_daemon(int argc, FAR char **argv)
   sched_lock();
   while (g_ntpc_daemon.state != NTP_STOP_REQUESTED)
     {
-      struct timespec start_realtime, start_monotonic;
+      struct timespec start_realtime;
+      struct timespec start_monotonic;
       int errval = 0;
       int i;
 
-      free(srvs.hostlist_str);
-      memset(&srvs, 0, sizeof(srvs));
-      srvs.ntp_servers = argv[1];
+      free(srvs->hostlist_str);
+      memset(srvs, 0, sizeof(*srvs));
+      srvs->ntp_servers = argv[1];
 
-      memset(samples, 0, sizeof(samples));
+      memset(samples, 0, sizeof(*samples) *
+                         CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES);
 
       clock_gettime(CLOCK_REALTIME, &start_realtime);
 #ifdef CONFIG_CLOCK_MONOTONIC
@@ -1290,7 +1304,7 @@ static int ntpc_daemon(int argc, FAR char **argv)
         {
           /* Get next sample. */
 
-          ret = ntpc_get_ntp_sample(&srvs, samples, nsamples);
+          ret = ntpc_get_ntp_sample(srvs, samples, nsamples);
           if (ret < 0)
             {
               errval = errno;
@@ -1417,7 +1431,9 @@ static int ntpc_daemon(int argc, FAR char **argv)
 
   g_ntpc_daemon.state = NTP_STOPPED;
   sem_post(&g_ntpc_daemon.sync);
-  free(srvs.hostlist_str);
+  free(srvs->hostlist_str);
+  free(srvs);
+  free(samples);
   return exitcode;
 }
 

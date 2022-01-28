@@ -70,31 +70,6 @@
 
 #define WAPI_PROC_LINE_SIZE  1024
 
-/* Select options to successfully open a socket in this network
- * configuration.
- */
-
-/* The address family that we used to create the socket really does not
- * matter.  It should, however, be valid in the current configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
-#endif
-
-/* SOCK_DGRAM is the preferred socket type to use when we just want a
- * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
- * if UDP is disabled.
- */
-
-#ifdef CONFIG_NET_UDP
-#  define SOCK_WAPI SOCK_DGRAM
-#else
-#  define SOCK_WAPI SOCK_STREAM
-#endif
-
 #ifndef CONFIG_WIRELESS_WAPI_INITCONF
 #  define wapi_load_config(ifname, confname, conf) NULL
 #  define wapi_unload_config(load)

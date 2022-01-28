@@ -39,8 +39,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_WIRELESS_IEEE802154_I8SAK_I8SAK_H
-#define __APPS_EXAMPLES_WIRELESS_IEEE802154_I8SAK_I8SAK_H
+#ifndef __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_H
+#define __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_H
 
 /****************************************************************************
  * Included Files
@@ -310,4 +310,4 @@ static inline void i8sak_update_ep_ip(FAR struct i8sak_s *i8sak)
 }
 #endif
 
-#endif /* __APPS_EXAMPLES_WIRELESS_IEEE802154_I8SAK_I8SAK_H */
+#endif /* __APPS_WIRELESS_IEEE802154_I8SAK_I8SAK_H */

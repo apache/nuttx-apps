@@ -589,7 +589,7 @@ config NXWM_CALIBRATION_MARGIN
 	---help---
 		The Calbration display consists of a target press offset from the edges
 		of the display by this number of pixels (in the horizontal direction)
-		or rows (in the vertical).  The closer that you can comfortabley
+		or rows (in the vertical).  The closer that you can comfortably
 		position the press positions to the edge, the more accurate will be the
 		linear interpolation (provide that the hardware provides equally good
 		measurements near the edges).
@@ -636,7 +636,7 @@ config NXWM_CALIBRATION_MESSAGES
 	bool "Add Instructions in Center"
 	default n
 	---help---
-		By default, the calibration screen is clear excecpt for the
+		By default, the calibration screen is clear except for the
 		calibration touchpoints.  If this options are enabled, then
 		instructions when to touch and when to release the touch will
 		be added in the center of the display,

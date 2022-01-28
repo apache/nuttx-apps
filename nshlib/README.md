@@ -986,7 +986,7 @@ All of the startup-behavior is contained in `rcS.template`. The role of
   are provided on the command line after the `mount` command, then the `mount`
   command will enumerate all of the current mountpoints on the console.
 
-  If the mount parameters are provied on the command after the `mount` command,
+  If the mount parameters are provided on the command after the `mount` command,
   then the `mount` command will mount a file system in the NuttX pseudo-file
   system. `mount` performs a three way association, binding:
 

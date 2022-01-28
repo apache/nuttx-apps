@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PWFB_PWFB_INTERNAL_H
-#define __EXAMPLES_PWFB_PWFB_INTERNAL_H
+#ifndef __APPS_EXAMPLES_PWFB_PWFB_INTERNAL_H
+#define __APPS_EXAMPLES_PWFB_PWFB_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -263,4 +263,4 @@ extern const struct nx_callback_s g_pwfb_tbcb;
 FAR void *pwfb_listener(FAR void *arg);
 bool pwfb_motion(FAR struct pwfb_state_s *st);
 
-#endif /* __EXAMPLES_PWFB_PWFB_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_PWFB_PWFB_INTERNAL_H */

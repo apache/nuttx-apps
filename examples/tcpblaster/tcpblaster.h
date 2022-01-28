@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_TCPBLASTER_H
-#define __APPS_EXAMPLES_TCPBLASTER_H
+#ifndef __APPS_EXAMPLES_TCPBLASTER_TCPBLASTER_H
+#define __APPS_EXAMPLES_TCPBLASTER_TCPBLASTER_H
 
 /****************************************************************************
  * Included Files
@@ -108,4 +108,4 @@ void tcpblaster_cmdline(int argc, char **argv);
 extern void tcpblaster_client(void);
 extern void tcpblaster_server(void);
 
-#endif /* __APPS_EXAMPLES_TCPBLASTER_H */
+#endif /* __APPS_EXAMPLES_TCPBLASTER_TCPBLASTER_H */
