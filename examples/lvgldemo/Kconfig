@@ -6,6 +6,7 @@
 menuconfig EXAMPLES_LVGLDEMO
 	tristate "LVGL Demo"
 	default n
+	depends on GRAPHICS_LVGL
 	---help---
 		Enable build the Light and Versatile Graphics Library Demo programs
 
@@ -86,24 +87,24 @@ config EXAMPLES_LVGLDEMO_CALIBRATE
 
 if INPUT_TOUCHSCREEN
 
-config EXAMPLES_LGVLDEMO_MINOR
+config EXAMPLES_LVGLDEMO_MINOR
 	int "Touchscreen minor device number"
 	default 0
 	---help---
 		The minor device number.  Minor=N corresponds to touchscreen device
-		/dev/inputN.  Note this value must with EXAMPLES_LGVLDEMO_DEVPATH.
+		/dev/inputN.  Note this value must with EXAMPLES_LVGLDEMO_DEVPATH.
 		Default 0.
 
-config EXAMPLES_LGVLDEMO_DEVPATH
+config EXAMPLES_LVGLDEMO_DEVPATH
 	string "Touchscreen device path"
 	default "/dev/input0"
 	---help---
 		The path to the touchscreen device.  This must be consistent with
-		EXAMPLES_LGVLDEMO_MINOR. Default: "/dev/input0"
+		EXAMPLES_LVGLDEMO_MINOR. Default: "/dev/input0"
 
 endif # INPUT_TOUCHSCREEN
 
-config EXAMPLES_LGVLDEMO_MOUSE
+config EXAMPLES_LVGLDEMO_MOUSE
 	bool "Mouse interface"
 	default n
 	depends on INPUT_MOUSE
