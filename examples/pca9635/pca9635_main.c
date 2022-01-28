@@ -59,7 +59,7 @@ int main(int argc, FAR char *argv[])
   int fd;
   int ret;
 
-  fd = open(CONFIG_EXAMPLES_PCA9635_DEVNAME, O_RDONLY);
+  fd = open(CONFIG_EXAMPLES_PCA9635_DEVNAME, O_WRONLY);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
