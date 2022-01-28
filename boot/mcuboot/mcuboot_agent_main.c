@@ -285,7 +285,7 @@ int main(int argc, FAR char *argv[])
 
   usleep(1000);
 
-  boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+  boardctl(BOARDIOC_RESET, 0);
 
   return OK;
 }
