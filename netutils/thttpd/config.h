@@ -37,8 +37,7 @@
 
 #undef CONFIG_THTTPD
 #if defined(CONFIG_NET) && defined(CONFIG_NET_TCP) && \
-    defined(CONFIG_NET_TCPBACKLOG) && !defined(CONFIG_DISABLE_ENVIRON) && \
-    !defined(CONFIG_SDCLONE_DISABLE)
+    defined(CONFIG_NET_TCPBACKLOG) && !defined(CONFIG_DISABLE_ENVIRON)
 
 #  define CONFIG_THTTPD 1
 
