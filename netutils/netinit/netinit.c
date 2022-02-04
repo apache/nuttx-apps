@@ -186,7 +186,7 @@
 #elif defined(CONFIG_NET_TUN)
 #  define NET_DEVNAME "tun0"
 #  define NETINIT_HAVE_NETDEV
-#elif defined(CONFIG_NET_LOCAL)
+#elif defined(CONFIG_NET_LOOPBACK)
 #  define NET_DEVNAME "lo"
 #  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_CAN)
