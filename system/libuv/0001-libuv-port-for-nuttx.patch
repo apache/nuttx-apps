@@ -232,10 +232,10 @@ index a88e71c3..dad463b3 100644
    return 0;
 diff --git a/src/unix/nuttx.c b/src/unix/nuttx.c
 new file mode 100644
-index 00000000..dfc2cc47
+index 00000000..728b57f6
 --- /dev/null
 +++ b/src/unix/nuttx.c
-@@ -0,0 +1,282 @@
+@@ -0,0 +1,284 @@
 +/* Copyright Xiaomi, Inc. and other Node contributors. All rights reserved.
 + * Permission is hereby granted, free of charge, to any person obtaining a copy
 + * of this software and associated documentation files (the "Software"), to
@@ -435,12 +435,14 @@ index 00000000..dfc2cc47
 +}
 +#endif
 +
-+#ifndef CONFIG_NET
-+int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
++#ifndef CONFIG_NET_SOCKOPTS
++int getsockopt(int sockfd, int level, int option, void *value, socklen_t *value_len) {
 +  return UV_ENOTSUP;
 +}
++#endif
 +
-+int getsockopt(int sockfd, int level, int option, void *value, socklen_t *value_len) {
++#ifndef CONFIG_NET
++int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
 +  return UV_ENOTSUP;
 +}
 +
@@ -1259,9 +1261,18 @@ index f49d1964..91a20bd2 100644
    ASSERT(r == 0);
    r = uv_idle_start(&idle_handle, idle_cb);
 diff --git a/test/test-list.h b/test/test-list.h
-index 59b95da9..db8545ed 100644
+index 59b95da9..33867697 100644
 --- a/test/test-list.h
 +++ b/test/test-list.h
+@@ -573,7 +573,7 @@ TASK_LIST_START
+   TEST_ENTRY  (pipe_connect_on_prepare)
+ 
+   TEST_ENTRY  (pipe_server_close)
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__NuttX__)
+   TEST_ENTRY  (pipe_close_stdout_read_stdin)
+ #endif
+   /* Seems to be either about 0.5s or 5s, depending on the OS. */
 @@ -1112,7 +1112,7 @@ TASK_LIST_START
    TEST_ENTRY  (req_type_name)
    TEST_ENTRY  (getters_setters)
