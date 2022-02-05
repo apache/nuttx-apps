@@ -64,7 +64,6 @@ CSRCS += core.c
 CSRCS += poll.c
 CSRCS += loop.c
 CSRCS += thread.c
-CSRCS += no-proctitle.c
 CSRCS += posix-hrtime.c
 CSRCS += posix-poll.c
 CSRCS += uv-data-getter-setters.c
@@ -87,6 +86,8 @@ CSRCS += fs.c
 CSRCS += fs-poll.c
 CSRCS += timer.c
 CSRCS += process.c
+CSRCS += sysinfo-loadavg.c
+CSRCS += sysinfo-memory.c
 
 ifneq ($(CONFIG_LIBC_DLFCN),)
 CSRCS += dl.c
@@ -182,7 +183,6 @@ CSRCS += test-osx-select.c
 CSRCS += test-pass-always.c
 CSRCS += test-ping-pong.c
 CSRCS += test-pipe-bind-error.c
-CSRCS += test-pipe-close-stdout-read-stdin.c
 CSRCS += test-pipe-connect-error.c
 CSRCS += test-pipe-connect-multiple.c
 CSRCS += test-pipe-connect-prepare.c
