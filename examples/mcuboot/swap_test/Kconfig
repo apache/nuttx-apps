@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MCUBOOT_SWAP_TEST
+	tristate "MCUboot SWAP Test image example"
+	default n
+	select BOOT_MCUBOOT
+	---help---
+		Example application to demonstrate the firmware image swap
+		and the image rollback processes of MCUboot using the boot
+		swap and test method.

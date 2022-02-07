@@ -84,7 +84,8 @@ $(ROMFS_IMG): install
 # Create the romfs.c file from the romfs.img file
 
 $(FSIMG_SRC): $(ROMFS_IMG)
-	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/const unsigned/g" >$@)
+	$(Q) (cd $(TESTS_DIR) && echo "#include <nuttx/compiler.h>" >$@ && \
+		xxd -i romfs.img | sed -e "s/^unsigned char/const unsigned char aligned_data(4)/g" >>$@)
 
 else
 # Make sure that the NuttX gencromfs tool has been built

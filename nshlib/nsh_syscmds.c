@@ -112,7 +112,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * reset the board due to some constraints.
        */
 
-      boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+      boardctl(BOARDIOC_RESET, 0);
     }
   else
     {
@@ -121,7 +121,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * to power-off the* board due to some constraints.
        */
 
-      boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+      boardctl(BOARDIOC_POWEROFF, 0);
     }
 
 #elif defined(CONFIG_BOARDCTL_RESET)
@@ -142,7 +142,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * reset the board due to some constraints.
    */
 
-  boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+  boardctl(BOARDIOC_RESET, 0);
 
 #else
   /* Only the reset behavior is supported and we already know that there is
@@ -154,7 +154,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * off the board due to some constraints.
    */
 
-  boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+  boardctl(BOARDIOC_POWEROFF, 0);
 #endif
 
   /* boardctl() will not return in any case.  It if does, it means that
@@ -277,7 +277,7 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-      boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+      boardctl(BOARDIOC_POWEROFF, 0);
     }
 
   /* boardctl() will not return in any case.  It if does, it means that
@@ -307,7 +307,7 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-      boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+      boardctl(BOARDIOC_RESET, 0);
     }
 
   /* boardctl() will not return in this case.  It if does, it means that

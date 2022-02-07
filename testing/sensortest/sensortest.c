@@ -62,7 +62,8 @@ static void print_valf2(FAR const char *buffer, FAR const char *name);
 static void print_valf(FAR const char *buffer, FAR const char *name);
 static void print_valb(FAR const char *buffer, FAR const char *name);
 static void print_vali2(FAR const char *buffer, FAR const char *name);
-static void print_valu(FAR const char *buffer, FAR const char *name);
+static void print_ppgd(FAR const char *buffer, FAR const char *name);
+static void print_ppgq(FAR const char *buffer, FAR const char *name);
 static void print_gps(FAR const char *buffer, FAR const char *name);
 static void print_gps_satellite(FAR const char *buffer,
                                 FAR const char *name);
@@ -100,7 +101,8 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf,  sizeof(struct sensor_event_hrate), "hrate"},
   {print_valf,  sizeof(struct sensor_event_hbeat), "hbeat"},
   {print_valf,  sizeof(struct sensor_event_ecg),   "ecg"},
-  {print_valu,  sizeof(struct sensor_event_ppg),   "ppg"},
+  {print_ppgd,  sizeof(struct sensor_event_ppgd),  "ppgd"},
+  {print_ppgq,  sizeof(struct sensor_event_ppgq),  "ppgq"},
   {print_valf2, sizeof(struct sensor_event_impd),  "impd"},
   {print_vali2, sizeof(struct sensor_event_ots),   "ots"},
   {print_gps_satellite,  sizeof(struct sensor_event_gps_satellite),
@@ -155,11 +157,25 @@ static void print_valf3(const char *buffer, const char *name)
          name, event->timestamp, event->r, event->g, event->b);
 }
 
-static void print_valu(const char *buffer, const char *name)
+static void print_ppgd(const char *buffer, const char *name)
 {
-  struct sensor_event_ppg *event = (struct sensor_event_ppg *)buffer;
-  printf("%s: timestamp:%" PRIu64 " value:%" PRIu32 "\n",
-         name, event->timestamp, event->ppg);
+  struct sensor_event_ppgd *event = (struct sensor_event_ppgd *)buffer;
+  printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
+         "current:%" PRIu32 " gain1:%" PRIu16 " gain2:%" PRIu16 "\n",
+         name, event->timestamp, event->ppg[0], event->ppg[1],
+         event->current, event->gain[0], event->gain[1]);
+}
+
+static void print_ppgq(const char *buffer, const char *name)
+{
+  struct sensor_event_ppgq *event = (struct sensor_event_ppgq *)buffer;
+  printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
+         "ppg3:%" PRIu32 " ppg4:%" PRIu32 " current:%" PRIu32 " "
+         "gain1:%" PRIu16 " gain2:%" PRIu16 " gain3:%" PRIu16 " "
+         "gain4:%" PRIu16 "\n",
+         name, event->timestamp, event->ppg[0], event->ppg[1], event->ppg[2],
+         event->ppg[3], event->current, event->gain[0], event->gain[1],
+         event->gain[2], event->gain[3]);
 }
 
 static void print_gps(const char *buffer, const char *name)
