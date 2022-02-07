@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/pca9635/pca9635_main.c
+ * apps/examples/mcuboot/swap_test/confirm_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,71 +24,23 @@
 
 #include <nuttx/config.h>
 
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
 
-#include <nuttx/leds/pca9635pw.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define CONFIG_EXAMPLES_PCA9635_DEVNAME "/dev/leddrv0"
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+#include <bootutil/bootutil_public.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * pca9635_main
+ * mcuboot_confirm_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
-  struct pca9635pw_brightness_s ledbright;
-  int led;
-  int bright;
-  int fd;
-  int ret;
+  boot_set_confirmed_multi(0);
 
-  fd = open(CONFIG_EXAMPLES_PCA9635_DEVNAME, O_WRONLY);
-  if (fd < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to open %s: %d\n",
-              CONFIG_EXAMPLES_PCA9635_DEVNAME, errno);
-      return -1;
-    }
+  printf("Application Image successfully confirmed!\n");
 
-  for (; ; )
-    {
-      for (bright = 0; bright <= 255; bright++)
-        {
-          for (led = LED_0; led <= LED_15; led++)
-            {
-              ledbright.led = led;
-              ledbright.brightness = bright;
-
-              ret = ioctl(fd, PWMIOC_SETLED_BRIGHTNESS,
-                          (unsigned long)&ledbright);
-              if (ret < 0)
-                {
-                  _err("ERROR: ioctl(PWMIOC_SETLED_BRIGHTNESS) failed: %d\n",
-                        errno);
-                }
-            }
-
-          usleep(100);
-        }
-    }
-
-  close(fd);
   return 0;
 }

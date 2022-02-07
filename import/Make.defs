@@ -74,11 +74,24 @@ else
   LDLIBPATH = -L $(TOPDIR)$(DELIM)libs
 endif
 
+# Link with user libraries
+
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+  LDLIBS = -lapps -lxx -lmm -lc -lproxies
+ifneq ($(CONFIG_LIBM),y)
+  LIBM = ${shell "$(CC)" $(ARCHCPUFLAGS) --print-file-name=libm.a}
+ifneq ($(LIBM),".")
+  LDLIBPATH += -L "${shell dirname $(LIBM)}"
+  LDLIBS += -lm
+endif
+endif
+endif
+
 # Try to get the path to libgcc.a.  Of course, this only works for GCC
 # toolchains.
 
-LIBGCC = ${shell "$(CC)" $(ARCHCPUFLAGS) -print-file-name=libgcc.a}
-ifneq ($(LIBGCC),)
+LIBGCC = ${shell "$(CC)" $(ARCHCPUFLAGS) --print-file-name=libgcc.a}
+ifneq ($(LIBGCC),".")
   LDLIBPATH += -L "${shell dirname $(LIBGCC)}"
   LDLIBS += -lgcc
 endif
