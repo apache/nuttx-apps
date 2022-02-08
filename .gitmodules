@@ -13,3 +13,6 @@
 [submodule "examples/bl602_adc_test"]
 	path = examples/bl602_adc_test
 	url = https://github.com/lupyuen/bl602_adc_test
+[submodule "examples/ikea_air_quality_sensor"]
+	path = examples/ikea_air_quality_sensor
+	url = https://github.com/lupyuen/ikea_air_quality_sensor
