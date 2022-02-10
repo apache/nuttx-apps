@@ -66,6 +66,10 @@ LDLIBPATH = $(addprefix -L,$(call CONVERT_PATH,$(TOPDIR)$(DELIM)libs))
 # Link with user libraries
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(CONFIG_ARCH_ARMV7A),y)
+  # Clear ARCHCPUFLAGS not to link thumb-based libraries to avoid a crash
+  ARCHCPUFLAGS =
+endif
   LDLIBS = -lapps -lxx -lmm -lc -lproxies
 ifneq ($(CONFIG_LIBM),y)
   LIBM = ${shell "$(CC)" $(ARCHCPUFLAGS) --print-file-name=libm.a}
