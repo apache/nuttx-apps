@@ -490,3 +490,39 @@ FAR char *nsh_trimspaces(FAR char *str)
   return trimmed;
 }
 #endif
+
+/****************************************************************************
+ * Name: nsh_getdirpath
+ *
+ * Description:
+ *   Combine dirpath with a file/path, this will genarated a new string,
+ *   which need free outside.
+ *
+ * Input Parameters:
+ *   dirpath - the dirpath
+ *   path    - the file/path
+ *
+ * Returned value:
+ *   The new string pointer, need free in caller.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_IOBUFFER
+FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
+                         FAR const char *dirpath, FAR const char *path)
+{
+  /* Handle the case where all that is left is '/' */
+
+  if (strcmp(dirpath, "/") == 0)
+    {
+      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "/%s", path);
+    }
+  else
+    {
+      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "%s/%s", dirpath, path);
+    }
+
+  vtbl->iobuffer[PATH_MAX] = '\0';
+  return strdup(vtbl->iobuffer);
+}
+#endif

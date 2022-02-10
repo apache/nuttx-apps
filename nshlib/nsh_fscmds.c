@@ -85,30 +85,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_getdirpath
- ****************************************************************************/
-
-#if !defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP)
-static char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
-                            FAR const char *path, FAR const char *file)
-{
-  /* Handle the case where all that is left is '/' */
-
-  if (strcmp(path, "/") == 0)
-    {
-      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "/%s", file);
-    }
-  else
-    {
-      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "%s/%s", path, file);
-    }
-
-  vtbl->iobuffer[PATH_MAX] = '\0';
-  return strdup(vtbl->iobuffer);
-}
-#endif
-
-/****************************************************************************
  * Name: ls_specialdir
  ****************************************************************************/
 
@@ -361,8 +337,9 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
 
           ret = nsh_foreach_direntry(vtbl, "ls", newpath, ls_recursive,
                                      pvarg);
-          free(newpath);
         }
+
+      free(newpath);
     }
 
   return ret;

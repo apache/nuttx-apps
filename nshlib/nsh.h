@@ -490,7 +490,8 @@
  */
 
 #if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_CP) && \
-    defined(CONFIG_NSH_DISABLE_PS) && !defined(CONFIG_NSH_PLATFORM_MOTD)
+    defined(CONFIG_NSH_DISABLE_PS) && !defined(CONFIG_NSH_PLATFORM_MOTD) && \
+    defined(CONFIG_DISABLE_ENVIRON)
 #  undef NSH_HAVE_IOBUFFER
 #endif
 
@@ -1387,6 +1388,25 @@ void nsh_trimdir(FAR char *dirpath);
 #ifdef NSH_HAVE_TRIMSPACES
 FAR char *nsh_trimspaces(FAR char *str);
 #endif
+
+/****************************************************************************
+ * Name: nsh_getdirpath
+ *
+ * Description:
+ *   Combine dirpath with a file/path, this will genarated a new string,
+ *   which need free outside.
+ *
+ * Input Parameters:
+ *   dirpath - the dirpath
+ *   path    - the file/path
+ *
+ * Returned value:
+ *   The new string pointer, need free in caller.
+ *
+ ****************************************************************************/
+
+FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
+                         FAR const char *dirpath, FAR const char *path);
 
 /****************************************************************************
  * Name: nsh_getvar, nsh_setvar, and nsh_setvar
