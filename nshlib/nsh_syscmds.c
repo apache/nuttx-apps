@@ -28,6 +28,7 @@
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -344,17 +345,12 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
+                          int argc, char **argv)
 {
   unsigned long val = 0;
-  int fd;
   int cmd;
-
-  if (argc < 3)
-    {
-      nsh_output(vtbl, g_fmtargrequired, argv[0]);
-      return ERROR;
-    }
+  int fd;
 
   if (strcmp(argv[1], "start") == 0)
     {
@@ -387,17 +383,57 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  fd = open(argv[2], 0);
+  fd = open(path, 0);
   if (fd < 0)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[2]);
       return ERROR;
     }
 
-  ioctl(fd, cmd, val);
+  cmd = ioctl(fd, cmd, val);
 
   close(fd);
-  return 0;
+
+  return cmd;
+}
+
+static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
+                               const char *dirpath,
+                               struct dirent *entryp, void *pvarg)
+{
+  char *path;
+  int ret = 0;
+
+  if (DIRENT_ISDIRECTORY(entryp->d_type))
+    {
+      return 0;
+    }
+
+  path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
+  if (path)
+    {
+      ret = cmd_rptun_once(vtbl, path, 2, pvarg);
+      free(path);
+    }
+
+  return ret;
+}
+
+int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  if (argc < 2)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+
+  if (argc == 2)
+    {
+      return nsh_foreach_direntry(vtbl, "rptun", "/dev/rptun",
+                                  cmd_rptun_recursive, argv);
+    }
+
+  return cmd_rptun_once(vtbl, argv[2], argc, argv);
 }
 #endif
 
