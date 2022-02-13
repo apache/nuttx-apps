@@ -36,6 +36,12 @@ CSRCS += float/foc_routine.c
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP),y)
 CSRCS += float/foc_ang_openloop.c
 endif
+ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_ONFO),y)
+CSRCS += float/foc_ang_onfo.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OSMO),y)
+CSRCS += float/foc_ang_osmo.c
+endif
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_QENCO),y)
 CSRCS += float/foc_ang_qenco.c
 endif

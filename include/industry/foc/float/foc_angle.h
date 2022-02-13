@@ -106,6 +106,26 @@ struct foc_openloop_cfg_f32_s
 };
 #endif  /* CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP */
 
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+struct foc_angle_onfo_cfg_f32_s
+{
+  float per;            /* Controller period */
+  float gain;
+  float gain_slow;
+  struct motor_phy_params_f32_s phy;
+};
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OSMO
+struct foc_angle_osmo_cfg_f32_s
+{
+  float per;            /* Controller period */
+  float k_slide;        /* Bang-bang controller gain */
+  float err_max;        /* Linear mode threshold */
+  struct motor_phy_params_f32_s phy;
+};
+#endif
+
 #ifdef CONFIG_INDUSTRY_FOC_ANGLE_QENCO
 /* Qencoder configuration data */
 
@@ -134,6 +154,18 @@ struct foc_hall_cfg_f32_s
 /* Open-loop angle operations (float) */
 
 extern struct foc_angle_ops_f32_s g_foc_angle_ol_f32;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+/* NFO oberver angle operations (float) */
+
+extern struct foc_angle_ops_f32_s g_foc_angle_onfo_f32;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_OSMO
+/* SMO oberver angle operations (float) */
+
+extern struct foc_angle_ops_f32_s g_foc_angle_osmo_f32;
 #endif
 
 #ifdef CONFIG_INDUSTRY_FOC_ANGLE_QENCO
