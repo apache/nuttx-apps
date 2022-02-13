@@ -75,7 +75,7 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Put the new ESSID into the request */
 
