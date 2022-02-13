@@ -83,7 +83,7 @@ config ADBD_FEATURES
 
 config ADBD_PAYLOAD_SIZE
 	int "Normal ADB frame size"
-	default 64
+	default 1024
 	---help---
 		Normal frame size in bytes.
 
