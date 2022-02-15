@@ -38,12 +38,6 @@
 
 #define MAX_TIME_STRING 80
 
-#ifdef CONFIG_CLOCK_MONOTONIC
-#  define TIME_CLOCK CLOCK_MONOTONIC
-#else
-#  define TIME_CLOCK CLOCK_REALTIME
-#endif
-
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -303,7 +297,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the current time */
 
-  ret = clock_gettime(TIME_CLOCK, &start);
+  ret = clock_gettime(CLOCK_MONOTONIC, &start);
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
@@ -329,7 +323,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* Get and print the elapsed time */
 
-      ret = clock_gettime(TIME_CLOCK, &end);
+      ret = clock_gettime(CLOCK_MONOTONIC, &end);
       if (ret < 0)
         {
            nsh_error(vtbl, g_fmtcmdfailed,
