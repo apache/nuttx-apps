@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX
-#define __UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -160,4 +160,4 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 
 
-#endif // __UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CGLYPHBUTTON_CGLYPHBUTTONTEST_HXX

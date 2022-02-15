@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "industry/foc/float/foc_handler.h"
 
@@ -345,9 +346,9 @@ static void foc_control_current_run_f32(FAR foc_handler_f32_t *h,
   /* Saturate voltage DQ vector */
 
 #ifndef CONFIG_INDUSTRY_FOC_CORDIC_DQSAT
-  dq_saturate(dq_ref, mag_max);
+  dq_saturate(&v_dq_ref, mag_max);
 #else
-  foc_cordic_dqsat_f32(h->fd, dq_ref, mag_max);
+  foc_cordic_dqsat_f32(h->fd, &v_dq_ref, mag_max);
 #endif
 
   /* Call FOC voltage control */

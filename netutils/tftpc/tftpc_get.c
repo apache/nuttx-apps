@@ -87,7 +87,7 @@ static inline int tftp_parsedatapacket(FAR const uint8_t *packet,
  * Input Parameters:
  *   remote - The name of the file on the TFTP server.
  *   addr   - The IP address of the server in network order
- *   binary - TRUE:  Perform binary ('octect') transfer
+ *   binary - TRUE:  Perform binary ('octet') transfer
  *            FALSE: Perform text ('netascii') transfer
  *   cb     - callback that will be called with data packets
  *   ctx    - pointer passed to the previous callback

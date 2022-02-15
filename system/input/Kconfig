@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_INPUT
+	tristate "Enable input tool"
+	default n
+	select INPUT_UINPUT
+	---help---
+		Enable support for a command line input tool.
+
+if SYSTEM_INPUT
+
+config SYSTEM_INPUT_STACKSIZE
+	int "system/input stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the input task.
+
+config SYSTEM_INPUT_PRIORITY
+	int "input priority"
+	default 100
+	---help---
+		The priority of the input task.
+
+
+endif # SYSTEM_INPUT

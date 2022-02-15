@@ -157,7 +157,7 @@ static int chrono_daemon(int argc, char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      printf("chrono_daemon: ERROR: ioctl(BTNIOC_SUPPORTED) failed: %d\n",
+      printf("chrono_daemon: ERROR: ioctl(BTNIOC_REGISTER) failed: %d\n",
              errcode);
       goto errout_with_fd;
     }

@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# LED driver test built-in application info
+# Buttons test built-in application info
 
 PROGNAME = $(CONFIG_EXAMPLES_BUTTONS_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_BUTTONS_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_BUTTONS_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_BUTTONS)
 
-# LED driver test
+# Buttons test
 
 MAINSRC = buttons_main.c
 

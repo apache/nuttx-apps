@@ -8,7 +8,7 @@ board-specific logic must provide the function:
 void board_usbmsc_initialize(void);
 ```
 
-This function will be called by the `system/usbmsc` indirectly via the `boarctl`
+This function will be called by the `system/usbmsc` indirectly via the `boardctl`
 `BOARDIOC_USBDEV_CONTROL` command in order to do the actual registration of the
 block device drivers. For examples of the implementation of
 `board_usbmsc_initialize()` see
@@ -21,7 +21,7 @@ Configuration options:
   commands if this option is selected: `msconn` will connect the USB mass
   storage device; `msdis` will disconnect the USB storage device.
 
-- `CONFIG_LIB_BOARDCTL` – Enables the `boardctl()` interfaces.
+- `CONFIG_BOARDCTL` – Enables the `boardctl()` interfaces.
 
 - `CONFIG_BOARDCTL_USBDEVCTRL` – Enables the `BOARDIOC_USBDEV_CONTROL`
   `boardctl()` command.

@@ -48,7 +48,7 @@
 
 /* ZModem *******************************************************************/
 
-/* Zmodem ZRINIT flags. These bits describe the cababilities of the receiver.
+/* Zmodem ZRINIT flags. These bits describe the capabilities of the receiver.
  * Reference: Paragraph 11.2:
  */
 

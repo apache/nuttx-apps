@@ -196,7 +196,7 @@ int mvinchnstr(int y, int x, chtype *ch, int n)
 
 int mvwinchnstr(WINDOW *win, int y, int x, chtype *ch, int n)
 {
-  PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d \n", y, x, n));
+  PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (wmove(win, y, x) == ERR)
     {
@@ -282,7 +282,7 @@ int mvin_wchnstr(int y, int x, cchar_t *wch, int n)
 
 int mvwin_wchnstr(WINDOW *win, int y, int x, cchar_t *wch, int n)
 {
-  PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d \n", y, x, n));
+  PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d\n", y, x, n));
 
   if (wmove(win, y, x) == ERR)
     {

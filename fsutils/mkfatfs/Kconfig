@@ -10,3 +10,12 @@ config FSUTILS_MKFATFS
 	select BCH
 	---help---
 		Enables support for the mkfatfs utility
+
+config MKFATFS_BUFFER_ALIGNMENT
+	int "Buffer alignment"
+	default 0
+	depends on FSUTILS_MKFATFS
+	---help---
+		Enables alignment of the buffers used by the mkfatfs application
+		to N bytes. This may be needed for systems with cache or buffer
+		alignment constraints.

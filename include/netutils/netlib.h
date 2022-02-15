@@ -1,5 +1,5 @@
 /****************************************************************************
- *  apps/include/netutils/netlib.h
+ * apps/include/netutils/netlib.h
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
@@ -79,91 +79,6 @@
 #  define IPv6_ROUTE_PATH CONFIG_NETLIB_PROCFS_MOUNTPT "/net/route/ipv6"
 #endif
 
-/* Using the following definitions, the following socket() arguments should
- * provide a valid socket in all configurations:
- *
- *   ret = socket(NETLIB_SOCK_FAMILY, NETLIB_SOCK_TYPE,
- *                NETLIB_SOCK_PROTOCOL);
- */
-
-/* The address family that we used to create the socket really does not
- * matter.  It should, however, be valid in the current configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define NETLIB_SOCK_FAMILY  AF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define NETLIB_SOCK_FAMILY  AF_INET6
-#elif defined(CONFIG_NET_LOCAL)
-#  define NETLIB_SOCK_FAMILY  AF_LOCAL
-#elif defined(CONFIG_NET_PKT)
-#  define NETLIB_SOCK_FAMILY  AF_PACKET
-#elif defined(CONFIG_NET_CAN)
-#  define NETLIB_SOCK_FAMILY  AF_CAN
-#elif defined(CONFIG_NET_IEEE802154)
-#  define NETLIB_SOCK_FAMILY  AF_IEEE802154
-#elif defined(CONFIG_WIRELESS_PKTRADIO)
-#  define NETLIB_SOCK_FAMILY  AF_PKTRADIO
-#elif defined(CONFIG_NET_BLUETOOTH)
-#  define NETLIB_SOCK_FAMILY  AF_BLUETOOTH
-#elif defined(CONFIG_NET_USRSOCK)
-#  define NETLIB_SOCK_FAMILY  AF_INET
-#elif defined(CONFIG_NET_NETLINK)
-#  define NETLIB_SOCK_FAMILY  AF_NETLINK
-#else
-#  define NETLIB_SOCK_FAMILY  AF_UNSPEC
-#endif
-
-/* Socket protocol of zero normally works */
-
-#define NETLIB_SOCK_PROTOCOL  0
-
-/* SOCK_DGRAM is the preferred socket type to use when we just want a
- * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
- * if UDP is disabled.
- *
- * Pick a socket type (and perhaps protocol) compatible with the currently
- * selected address family.
- */
-
-#if NETLIB_SOCK_FAMILY == AF_INET
-#  if defined(CONFIG_NET_UDP)
-#    define NETLIB_SOCK_TYPE SOCK_DGRAM
-#  elif defined(CONFIG_NET_TCP)
-#   define NETLIB_SOCK_TYPE SOCK_STREAM
-#  elif defined(CONFIG_NET_ICMP_SOCKET)
-#   define NETLIB_SOCK_TYPE SOCK_DGRAM
-#   undef NETLIB_SOCK_PROTOCOL
-#   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP
-#  endif
-#elif NETLIB_SOCK_FAMILY == AF_INET6
-#  if defined(CONFIG_NET_UDP)
-#    define NETLIB_SOCK_TYPE SOCK_DGRAM
-#  elif defined(CONFIG_NET_TCP)
-#   define NETLIB_SOCK_TYPE SOCK_STREAM
-#  elif defined(CONFIG_NET_ICMPv6_SOCKET)
-#   define NETLIB_SOCK_TYPE SOCK_DGRAM
-#   undef NETLIB_SOCK_PROTOCOL
-#   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP6
-#  endif
-#elif NETLIB_SOCK_FAMILY == AF_LOCAL
-#  if defined(CONFIG_NET_LOCAL_DGRAM)
-#    define NETLIB_SOCK_TYPE SOCK_DGRAM
-#  elif defined(CONFIG_NET_LOCAL_STREAM)
-#     define NETLIB_SOCK_TYPE SOCK_STREAM
-#  endif
-#elif NETLIB_SOCK_FAMILY == AF_PACKET
-#  define NETLIB_SOCK_TYPE SOCK_RAW
-#elif NETLIB_SOCK_FAMILY == AF_CAN
-#  define NETLIB_SOCK_TYPE SOCK_RAW
-#elif NETLIB_SOCK_FAMILY == AF_IEEE802154
-#  define NETLIB_SOCK_TYPE SOCK_DGRAM
-#elif NETLIB_SOCK_FAMILY == AF_BLUETOOTH
-#  define NETLIB_SOCK_TYPE SOCK_RAW
-#elif NETLIB_SOCK_FAMILY == AF_NETLINK
-#  define NETLIB_SOCK_TYPE SOCK_DGRAM
-#endif
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -221,7 +136,7 @@ struct url_s
 #endif
   FAR char *host;
   int       hostlen;
-  int       port;
+  uint16_t  port;
   FAR char *path;
   int       pathlen;
 #if 0 /* not yet */

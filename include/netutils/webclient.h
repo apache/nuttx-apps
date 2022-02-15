@@ -77,6 +77,39 @@
 #  endif
 #endif
 
+/* The following WEBCLIENT_FLAG_xxx constants are for
+ * webclient_context::flags.
+ */
+
+/* WEBCLIENT_FLAG_NON_BLOCKING tells webclient_perform() to
+ * use non-blocking I/O.
+ *
+ * If this flag is set, webclient_perform() returns -EAGAIN
+ * when it would otherwise block for network I/O. In that case,
+ * the application should either retry the operation later by calling
+ * webclient_perform() again, or abort it by calling webclient_abort().
+ * It can also use webclient_get_poll_info() to avoid busy-retrying.
+ *
+ * If this flag is set, it's the application's responsibility to
+ * implement a timeout.
+ *
+ * If the application specifies tls_ops, it's the application's
+ * responsibility to make the TLS implementation to use non-blocking I/O
+ * in addition to specifying this flag.
+ *
+ * Caveat: Even when this flag is set, the current implementation performs
+ * the name resolution in a blocking manner.
+ */
+
+#define	WEBCLIENT_FLAG_NON_BLOCKING	1U
+
+/* The following WEBCLIENT_FLAG_xxx constants are for
+ * webclient_poll_info::flags.
+ */
+
+#define	WEBCLIENT_POLL_INFO_WANT_READ	1U
+#define	WEBCLIENT_POLL_INFO_WANT_WRITE	2U
+
 /****************************************************************************
  * Public types
  ****************************************************************************/
@@ -181,6 +214,7 @@ typedef CODE int (*webclient_body_callback_t)(
     FAR void *ctx);
 
 struct webclient_tls_connection;
+struct webclient_poll_info;
 
 struct webclient_tls_ops
 {
@@ -196,7 +230,78 @@ struct webclient_tls_ops
                        FAR void *buf, size_t len);
   CODE int (*close)(FAR void *ctx,
                     FAR struct webclient_tls_connection *conn);
+  CODE int (*get_poll_info)(FAR void *ctx,
+                            FAR struct webclient_tls_connection *conn,
+                            FAR struct webclient_poll_info *info);
 };
+
+/* Note on webclient_client lifetime
+ *
+ * (uninitialized)
+ *      |
+ * webclient_set_defaults
+ *      |
+ *      v
+ *  INITIALIZED
+ *      |
+ *      |      IN-PROGRESS
+ *      |        |
+ *      |        +-------------+
+ *      |        |             |
+ *      |        |         webclient_abort
+ *      |        |             |
+ *      |        |             v
+ *      |        |         ABORTED
+ *      |        |
+ * webclient_perform
+ *      |
+ *      +---------------+
+ *      |               |
+ *      |             non-blocking mode,
+ *      |             returns -EAGAIN
+ *      |               |
+ *      v               v
+ *     DONE           IN-PROGRESS
+ *
+ * (uninitialized):
+ *   After the memory for webclient_context is allocated,
+ *   it should be initialized with webclient_set_defaults() before
+ *   feeding it to other functions taking a webclient_context.
+ *
+ *   webclient_abort() makes the state back to this state.
+ *   If the application wants to reuse the context for another request,
+ *   it should initialize it with webclient_set_defaults() again.
+ *
+ * INITIALIZED:
+ *   After calling webclient_set_defaults(), the application can set up
+ *   the request parameters by setting the struct fields before the first
+ *   call of webclient_perform().
+ *   E.g. url, method, buffers, and callbacks.
+ *
+ *   webclient_set_static_body() can only be used in this state.
+ *
+ * IN-PROGRESS:
+ *   This state only exists for the non-blocking mode.
+ *
+ *   webclient_get_poll_info() can only be used in this state.
+ *
+ * ABORTED:
+ *   The HTTP operation has been aborted by webclient_abort().
+ *
+ * DONE:
+ *   The HTTP operation has been completed. (Either successfully or not.)
+ *
+ *   The application can examine the struct fields to see the result.
+ *   E.g. http_status and http_reason.
+ *
+ * ABORTED, DONE:
+ *   The application can now dispose the resources associated to the
+ *   context.
+ *   E.g. buffers
+ *
+ *   If the application wants to reuse the context for another request,
+ *   it should initialize it with webclient_set_defaults() again.
+ */
 
 struct webclient_context
 {
@@ -248,6 +353,7 @@ struct webclient_context
    *   tls_ops           - A vector to implement TLS operations.
    *                       NULL means no https support.
    *   tls_ctx           - A user pointer to be passed to tls_ops as it is.
+   *   flags             - OR'ed WEBCLIENT_FLAG_xxx values.
    */
 
   FAR char *buffer;
@@ -261,6 +367,7 @@ struct webclient_context
   FAR void *body_callback_arg;
   FAR const struct webclient_tls_ops *tls_ops;
   FAR void *tls_ctx;
+  unsigned int flags;
 
   /* results
    *
@@ -275,6 +382,27 @@ struct webclient_context
   unsigned int http_status;
   FAR char *http_reason;
   size_t http_reason_len;
+
+  struct wget_s *ws;
+
+#ifdef CONFIG_DEBUG_ASSERTIONS
+  enum webclient_context_state_e
+  {
+    WEBCLIENT_CONTEXT_STATE_UNINITIALIZED,
+    WEBCLIENT_CONTEXT_STATE_INITIALIZED,
+    WEBCLIENT_CONTEXT_STATE_IN_PROGRESS,
+    WEBCLIENT_CONTEXT_STATE_ABORTED,
+    WEBCLIENT_CONTEXT_STATE_DONE,
+  } state;
+#endif
+};
+
+struct webclient_poll_info
+{
+  /* A file descriptor to wait for i/o. */
+
+  int fd;
+  unsigned int flags; /* OR'ed WEBCLIENT_POLL_INFO_xxx flags */
 };
 
 /****************************************************************************
@@ -329,9 +457,12 @@ int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
 
 void webclient_set_defaults(FAR struct webclient_context *ctx);
 int webclient_perform(FAR struct webclient_context *ctx);
+void webclient_abort(FAR struct webclient_context *ctx);
 void webclient_set_static_body(FAR struct webclient_context *ctx,
                                FAR const void *body,
                                size_t bodylen);
+int webclient_get_poll_info(FAR struct webclient_context *ctx,
+                            FAR struct webclient_poll_info *info);
 
 #undef EXTERN
 #ifdef __cplusplus

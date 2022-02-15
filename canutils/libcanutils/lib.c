@@ -48,13 +48,12 @@
 
 #include <sys/socket.h> /* for sa_family_t */
 #include <nuttx/can.h>
-#include <nuttx/can/error.h>
 #include <netpacket/can.h>
 
 #include "lib.h"
 
 #define CANID_DELIM '#'
-#define DATA_SEPERATOR '.'
+#define DATA_SEPARATOR '.'
 
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
@@ -217,7 +216,7 @@ int parse_canframe(char *cs, struct canfd_frame *cf) {
 
 	for (i=0, dlen=0; i < maxdlen; i++){
 
-		if(cs[idx] == DATA_SEPERATOR) /* skip (optional) separator */
+		if(cs[idx] == DATA_SEPARATOR) /* skip (optional) separator */
 			idx++;
 
 		if(idx >= len) /* end of string => end of data */

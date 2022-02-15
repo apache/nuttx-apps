@@ -63,7 +63,7 @@ int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr)
 
   if (inaddr != NULL)
     {
-      int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
           struct arpreq req;

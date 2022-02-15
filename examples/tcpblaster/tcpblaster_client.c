@@ -184,7 +184,7 @@ void tcpblaster_client(void)
         }
       else if (nbytessent != SENDSIZE)
         {
-          printf("client: Bad send length=%d: %d of \n",
+          printf("client: Bad send length=%d: of %d\n",
                   nbytessent, SENDSIZE);
           goto errout_with_socket;
         }

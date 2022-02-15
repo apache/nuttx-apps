@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_DHCPD_DHCPD_RUN_H
-#define __APPS_EXAMPLES_DHCPD_DHCPD_RUN_H
+#ifndef __APPS_EXAMPLES_DHCPD_DHCPD_DAEMON_H
+#define __APPS_EXAMPLES_DHCPD_DHCPD_DAEMON_H
 
 /****************************************************************************
  * Included Files
@@ -52,4 +52,4 @@ int dhcpd_daemon(int argc, FAR char *argv[], bool daemon);
 }
 #endif
 
-#endif /* __APPS_EXAMPLES_DHCPD_DHCPD_RUN_H */
+#endif /* __APPS_EXAMPLES_DHCPD_DHCPD_DAEMON_H */

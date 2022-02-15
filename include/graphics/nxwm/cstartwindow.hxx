@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
-#define __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
+#ifndef __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX
+#define __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX
 
 /****************************************************************************
  * Included Files
@@ -260,7 +260,7 @@ namespace NxWM
      * Add the application to the start window.  The general sequence for
      * setting up the start window is:
      *
-     * 1. Call IAppicationFactory::create to a new instance of the application
+     * 1. Call IApplicationFactory::create to a new instance of the application
      * 2. Call CStartWindow::addApplication to add the application to the
      *    start window.
      *
@@ -274,4 +274,4 @@ namespace NxWM
 
 #endif // __cplusplus
 
-#endif // __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_NXX
+#endif // __APPS_INCLUDE_GRAPHICS_NXWM_CSTARTWINDOW_HXX

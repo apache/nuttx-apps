@@ -33,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX
-#define __UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX
+#ifndef __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX
+#define __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX
 
 /////////////////////////////////////////////////////////////////////////////
 // Included Files
@@ -140,4 +140,4 @@ public:
 // Public Function Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // __UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX
+#endif // __APPS_GRAPHICS_NXWIDGETS_UNITTESTS_CRADIOBUTTON_CRADIOBUTTONTEST_HXX

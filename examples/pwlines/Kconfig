@@ -7,7 +7,7 @@ config EXAMPLES_PWLINES
 	tristate "NX Per-Window Framebuffer Graphics Example"
 	default n
 	depends on NX
-	select LIB_BOARDCTL
+	select BOARDCTL
 	select NX_RAMBACKED
 	---help---
 		Enable the NX per-window framebuffer example

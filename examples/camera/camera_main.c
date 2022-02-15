@@ -1,35 +1,20 @@
 /****************************************************************************
- * camera/camera_main.c
+ * apps/examples/camera/camera_main.c
  *
- *   Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name of Sony Semiconductor Solutions Corporation nor
- *    the names of its contributors may be used to endorse or promote
- *    products derived from this software without specific prior written
- *    permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
@@ -52,12 +37,18 @@
 
 #include "camera_fileutil.h"
 
+#ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxglib.h>
+#include "camera_bkgd.h"
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 #define IMAGE_JPG_SIZE     (512*1024)  /* 512kB for FullHD Jpeg file. */
-#define IMAGE_YUV_SIZE     (320*240*2) /* QVGA YUV422 */
+#define IMAGE_RGB_SIZE     (320*240*2) /* QVGA RGB565 */
 
 #define VIDEO_BUFNUM       (3)
 #define STILL_BUFNUM       (1)
@@ -65,16 +56,8 @@
 #define MAX_CAPTURE_NUM     (100)
 #define DEFAULT_CAPTURE_NUM (10)
 
-#define START_CAPTURE_TIME  (5000)   /* mili-seconds */
-#define KEEP_VIDEO_TIME     (10000)  /* mili-seconds */
-
-#define RESET_INITIAL_TIME(t) gettimeofday(&(t), NULL)
-#define UPDATE_DIFF_TIME(d, then, now) \
-    { \
-      gettimeofday(&(now), NULL); \
-      (d) = ((((now).tv_sec - (then).tv_sec) * 1000) \
-                   + (((now).tv_usec - (then).tv_usec) / 1000)); \
-    }
+#define START_CAPTURE_TIME  (5)   /* seconds */
+#define KEEP_VIDEO_TIME     (10)  /* seconds */
 
 #define APP_STATE_BEFORE_CAPTURE  (0)
 #define APP_STATE_UNDER_CAPTURE   (1)
@@ -463,8 +446,13 @@ int main(int argc, FAR char *argv[])
   enum v4l2_buf_type capture_type = V4L2_BUF_TYPE_STILL_CAPTURE;
   struct v4l2_buffer v4l2_buf;
   const char *save_dir;
+  int is_eternal;
+  int app_state;
 
-  struct timeval then;
+  struct timeval start;
+  struct timeval now;
+  struct timeval delta;
+  struct timeval wait;
 
   struct v_buffer *buffers_video = NULL;
   struct v_buffer *buffers_still = NULL;
@@ -480,9 +468,29 @@ int main(int argc, FAR char *argv[])
 
   /* =====  Initialization Code  ===== */
 
+  /* Initialize NX graphics subsystem to use LCD */
+
+#ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+  ret = nximage_initialize();
+  if (ret < 0)
+    {
+      printf("camera_main: Failed to get NX handle: %d\n", errno);
+      return ERROR;
+    }
+#endif
+
   /* Select storage to save image files */
 
   save_dir = futil_initialize();
+
+  /* Initialize video driver to create a device file */
+
+  ret = video_initialize("/dev/video");
+  if (ret != 0)
+    {
+      printf("ERROR: Failed to initialize video: errno = %d\n", errno);
+      goto exit_without_cleaning_videodriver;
+    }
 
   /* Open the device file. */
 
@@ -507,13 +515,16 @@ int main(int argc, FAR char *argv[])
    * And all allocated memorys are VIDIOC_QBUFed.
    */
 
-  ret = camera_prepare(v_fd, V4L2_BUF_TYPE_STILL_CAPTURE,
-                       V4L2_BUF_MODE_FIFO, V4L2_PIX_FMT_JPEG,
-                       VIDEO_HSIZE_FULLHD, VIDEO_VSIZE_FULLHD,
-                       &buffers_still, STILL_BUFNUM, IMAGE_JPG_SIZE);
-  if (ret != OK)
+  if (capture_num != 0)
     {
-      goto exit_this_app;
+      ret = camera_prepare(v_fd, V4L2_BUF_TYPE_STILL_CAPTURE,
+                           V4L2_BUF_MODE_FIFO, V4L2_PIX_FMT_JPEG,
+                           VIDEO_HSIZE_FULLHD, VIDEO_VSIZE_FULLHD,
+                           &buffers_still, STILL_BUFNUM, IMAGE_JPG_SIZE);
+      if (ret != OK)
+        {
+          goto exit_this_app;
+        }
     }
 
   /* Prepare for VIDEO_CAPTURE stream.
@@ -525,74 +536,182 @@ int main(int argc, FAR char *argv[])
    * order from the captured frame buffer and a new camera image is
    * recaptured.
    *
-   * Allocate freame buffers for QVGA YUV422 size (320x240x2=150KB).
+   * Allocate freame buffers for QVGA RGB565 size (320x240x2=150KB).
    * Number of frame buffers is defined as VIDEO_BUFNUM(3).
    * And all allocated memorys are VIDIOC_QBUFed.
    */
 
   ret = camera_prepare(v_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE,
-                       V4L2_BUF_MODE_RING, V4L2_PIX_FMT_UYVY,
+                       V4L2_BUF_MODE_RING, V4L2_PIX_FMT_RGB565,
                        VIDEO_HSIZE_QVGA, VIDEO_VSIZE_QVGA,
-                       &buffers_video, VIDEO_BUFNUM, IMAGE_YUV_SIZE);
+                       &buffers_video, VIDEO_BUFNUM, IMAGE_RGB_SIZE);
   if (ret != OK)
     {
       goto exit_this_app;
     }
 
-  printf("Take %d pictures as %s file in %s after %d mili-seconds.\n",
-         capture_num,
-         (capture_type == V4L2_BUF_TYPE_STILL_CAPTURE) ? "JPEG" : "YUV",
-         save_dir, START_CAPTURE_TIME);
-  printf(" After taking pictures, the app will be exit after %d ms.\n",
-      KEEP_VIDEO_TIME);
+  /* This application has 3 states.
+   *
+   * APP_STATE_BEFORE_CAPTURE:
+   *    This state waits 5 seconds (definded START_CAPTURE_TIME)
+   *    with displaying preview (VIDEO_CAPTURE stream image) on LCD.
+   *    After 5 seconds, state will be changed to APP_STATE_UNDER_CAPTURE.
+   *
+   * APP_STATE_UNDER_CAPTURE:
+   *    This state will start taking picture and store the image into files.
+   *    Number of taking pictures is set capture_num valiable.
+   *    It can be changed by command line argument.
+   *    After finishing taking pictures, the state will be changed to
+   *    APP_STATE_AFTER_CAPTURE.
+   *
+   * APP_STATE_AFTER_CAPTURE:
+   *    This state waits 10 seconds (definded KEEP_VIDEO_TIME)
+   *    with displaying preview (VIDEO_CAPTURE stream image) on LCD.
+   *    After 10 seconds, this application will be finished.
+   *
+   * Notice:
+   *    If capture_num is set '0', state will stay APP_STATE_BEFORE_CAPTURE.
+   */
 
-  RESET_INITIAL_TIME(then);
+  app_state = APP_STATE_BEFORE_CAPTURE;
+
+  /* Show this application behavior. */
+
+  if (capture_num == 0)
+    {
+      is_eternal = 1;
+      printf("Start video this mode is eternal."
+             " (Non stop, non save files.)\n");
+#ifndef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+      printf("This mode should be run with LCD display\n");
+#endif
+    }
+  else
+    {
+      is_eternal = 0;
+      wait.tv_sec = START_CAPTURE_TIME;
+      wait.tv_usec = 0;
+      printf("Take %d pictures as %s file in %s after %d seconds.\n",
+             capture_num,
+              (capture_type == V4L2_BUF_TYPE_STILL_CAPTURE) ? "JPEG" : "RGB",
+             save_dir, START_CAPTURE_TIME);
+      printf(" After finishing taking pictures,"
+             " this app will be finished after %d seconds.\n",
+              KEEP_VIDEO_TIME);
+    }
+
+  gettimeofday(&start, NULL);
 
   /* =====  Main Loop  ===== */
 
   while (1)
     {
-      printf("Start capturing...\n");
-      ret = start_stillcapture(v_fd, capture_type);
-      if (ret != OK)
+      switch (app_state)
         {
-          goto exit_this_app;
+          /* BEFORE_CAPTURE and AFTER_CAPTURE is waiting for expiring the
+           * time.
+           * In the meantime, Captureing VIDEO image to show pre-view on LCD.
+           */
+
+          case APP_STATE_BEFORE_CAPTURE:
+          case APP_STATE_AFTER_CAPTURE:
+            ret = get_camimage(v_fd, &v4l2_buf, V4L2_BUF_TYPE_VIDEO_CAPTURE);
+            if (ret != OK)
+              {
+                goto exit_this_app;
+              }
+
+#ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+            nximage_draw((void *)v4l2_buf.m.userptr,
+                         VIDEO_HSIZE_QVGA, VIDEO_VSIZE_QVGA);
+#endif
+
+            ret = release_camimage(v_fd, &v4l2_buf);
+            if (ret != OK)
+              {
+                goto exit_this_app;
+              }
+
+            if (!is_eternal)
+              {
+                gettimeofday(&now, NULL);
+                timersub(&now, &start, &delta);
+                if (timercmp(&delta, &wait, >))
+                  {
+                    printf("Expire time is pasted. GoTo next state.\n");
+                    if (app_state == APP_STATE_BEFORE_CAPTURE)
+                      {
+                        app_state = APP_STATE_UNDER_CAPTURE;
+                      }
+                    else
+                      {
+                        ret = OK;
+                        goto exit_this_app;
+                      }
+                  }
+              }
+
+            break; /* Finish APP_STATE_BEFORE_CAPTURE or APP_STATE_AFTER_CAPTURE */
+
+          /* UNDER_CAPTURE is taking pictures until number of capture_num
+           * value.
+           * This state stays until finishing all pictures.
+           */
+
+          case APP_STATE_UNDER_CAPTURE:
+            printf("Start captureing...\n");
+            ret = start_stillcapture(v_fd, capture_type);
+            if (ret != OK)
+              {
+                goto exit_this_app;
+              }
+
+            while (capture_num)
+              {
+                ret = get_camimage(v_fd, &v4l2_buf, capture_type);
+                if (ret != OK)
+                  {
+                    goto exit_this_app;
+                  }
+
+                futil_writeimage(
+                  (uint8_t *)v4l2_buf.m.userptr,
+                  (size_t)v4l2_buf.bytesused,
+                  (capture_type == V4L2_BUF_TYPE_VIDEO_CAPTURE) ?
+                  "RGB" : "JPG");
+
+                ret = release_camimage(v_fd, &v4l2_buf);
+                if (ret != OK)
+                  {
+                    goto exit_this_app;
+                  }
+
+                capture_num--;
+              }
+
+            ret = stop_stillcapture(v_fd, capture_type);
+            if (ret != OK)
+              {
+                goto exit_this_app;
+              }
+
+            app_state = APP_STATE_AFTER_CAPTURE;
+            wait.tv_sec = KEEP_VIDEO_TIME;
+            wait.tv_usec = 0;
+            gettimeofday(&start, NULL);
+            printf("Finished captureing...\n");
+            break; /* Finish APP_STATE_UNDER_CAPTURE */
+
+          default:
+            printf("Unknown error is occured.. state=%d\n", app_state);
+            goto exit_this_app;
+            break;
         }
-
-      while (capture_num)
-        {
-          ret = get_camimage(v_fd, &v4l2_buf, capture_type);
-          if (ret != OK)
-            {
-              goto exit_this_app;
-            }
-
-          futil_writeimage((uint8_t *)v4l2_buf.m.userptr,
-           (size_t)v4l2_buf.bytesused,
-           (capture_type == V4L2_BUF_TYPE_VIDEO_CAPTURE) ? "YUV" : "JPG");
-
-          ret = release_camimage(v_fd, &v4l2_buf);
-          if (ret != OK)
-            {
-              goto exit_this_app;
-            }
-
-          capture_num--;
-        }
-
-      ret = stop_stillcapture(v_fd, capture_type);
-      if (ret != OK)
-        {
-          goto exit_this_app;
-        }
-
-      RESET_INITIAL_TIME(then);
-      printf("Finished capturing...\n");
     }
 
 exit_this_app:
 
-  /* Close video device file makes dequqe all buffers */
+  /* Close video device file makes dequeue all buffers */
 
   close(v_fd);
 
@@ -603,5 +722,12 @@ exit_without_cleaning_buffer:
 
   video_uninitialize();
 
+exit_without_cleaning_videodriver:
+
+#ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+  nximage_finalize();
+#endif
+
   return ret;
 }
+

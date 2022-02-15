@@ -39,6 +39,17 @@
 #include "mkfatfs.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if defined(CONFIG_MKFATFS_BUFFER_ALIGNMENT) && \
+            CONFIG_MKFATFS_BUFFER_ALIGNMENT > 0
+#  define fat_buffer_alloc(s) memalign(CONFIG_MKFATFS_BUFFER_ALIGNMENT, (s))
+#else
+#  define fat_buffer_alloc(s) malloc((s))
+#endif
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -337,9 +348,11 @@ int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt)
       goto errout_with_driver;
     }
 
-  /* Allocate a buffer that will be working sector memory */
+  /* Allocate a buffer that will be working sector memory
+   * Lets align it as needed
+   */
 
-  var.fv_sect = (FAR uint8_t *)malloc(var.fv_sectorsize);
+  var.fv_sect = (FAR uint8_t *)fat_buffer_alloc(var.fv_sectorsize);
   if (!var.fv_sect)
     {
       ferr("ERROR: Failed to allocate working buffers\n");

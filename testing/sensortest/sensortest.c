@@ -61,7 +61,12 @@ static void print_valf3(FAR const char *buffer, FAR const char *name);
 static void print_valf2(FAR const char *buffer, FAR const char *name);
 static void print_valf(FAR const char *buffer, FAR const char *name);
 static void print_valb(FAR const char *buffer, FAR const char *name);
+static void print_vali2(FAR const char *buffer, FAR const char *name);
+static void print_ppgd(FAR const char *buffer, FAR const char *name);
+static void print_ppgq(FAR const char *buffer, FAR const char *name);
 static void print_gps(FAR const char *buffer, FAR const char *name);
+static void print_gps_satellite(FAR const char *buffer,
+                                FAR const char *name);
 
 /****************************************************************************
  * Private Data
@@ -95,6 +100,13 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf,  sizeof(struct sensor_event_dust),  "dust"},
   {print_valf,  sizeof(struct sensor_event_hrate), "hrate"},
   {print_valf,  sizeof(struct sensor_event_hbeat), "hbeat"},
+  {print_valf,  sizeof(struct sensor_event_ecg),   "ecg"},
+  {print_ppgd,  sizeof(struct sensor_event_ppgd),  "ppgd"},
+  {print_ppgq,  sizeof(struct sensor_event_ppgq),  "ppgq"},
+  {print_valf2, sizeof(struct sensor_event_impd),  "impd"},
+  {print_vali2, sizeof(struct sensor_event_ots),   "ots"},
+  {print_gps_satellite,  sizeof(struct sensor_event_gps_satellite),
+                                                   "gps_satellite"}
 };
 
 /****************************************************************************
@@ -115,6 +127,13 @@ static void print_valb(const char *buffer, const char *name)
   struct sensor_event_hall *event = (struct sensor_event_hall *)buffer;
   printf("%s: timestamp:%" PRIu64 " value:%d\n",
          name, event->timestamp, event->hall);
+}
+
+static void print_vali2(const char *buffer, const char *name)
+{
+  struct sensor_event_ots *event = (struct sensor_event_ots *)buffer;
+  printf("%s: timestamp:%" PRIu64 " value1:% " PRIi32 " value2:% " PRIi32
+         "\n", name, event->timestamp, event->x, event->y);
 }
 
 static void print_valf(const char *buffer, const char *name)
@@ -138,27 +157,60 @@ static void print_valf3(const char *buffer, const char *name)
          name, event->timestamp, event->r, event->g, event->b);
 }
 
+static void print_ppgd(const char *buffer, const char *name)
+{
+  struct sensor_event_ppgd *event = (struct sensor_event_ppgd *)buffer;
+  printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
+         "current:%" PRIu32 " gain1:%" PRIu16 " gain2:%" PRIu16 "\n",
+         name, event->timestamp, event->ppg[0], event->ppg[1],
+         event->current, event->gain[0], event->gain[1]);
+}
+
+static void print_ppgq(const char *buffer, const char *name)
+{
+  struct sensor_event_ppgq *event = (struct sensor_event_ppgq *)buffer;
+  printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
+         "ppg3:%" PRIu32 " ppg4:%" PRIu32 " current:%" PRIu32 " "
+         "gain1:%" PRIu16 " gain2:%" PRIu16 " gain3:%" PRIu16 " "
+         "gain4:%" PRIu16 "\n",
+         name, event->timestamp, event->ppg[0], event->ppg[1], event->ppg[2],
+         event->ppg[3], event->current, event->gain[0], event->gain[1],
+         event->gain[2], event->gain[3]);
+}
+
 static void print_gps(const char *buffer, const char *name)
 {
   struct sensor_event_gps *event = (struct sensor_event_gps *)buffer;
 
-  printf("%s: year: %d month: %d day: %d hour: %d min: %d sec: %d "
-         "msec: %d\n", name, event->year, event->month, event->day,
-         event->hour, event->min, event->sec, event->msec);
-  printf("%s: yaw: %.4f height: %.4f speed: %.4f latitude: %.4f "
-         "longitude: %.4f\n", name, event->yaw, event->height, event->speed,
-         event->latitude, event->longitude);
+  printf("%s: timestamp:%" PRIu64 " time_utc: %" PRIu64 " latitude: %f "
+         "longitude: %f altitude: %f altitude_ellipsoid: %f eph: %f epv: %f "
+         "hdop: %f vdop: %f ground_speed: %f course: %f satellites_used: %"
+         PRIu32 "\n",
+         name, event->timestamp, event->time_utc, event->latitude,
+         event->longitude, event->altitude, event->altitude_ellipsoid,
+         event->eph, event->epv, event->hdop, event->vdop,
+         event->ground_speed, event->course, event->satellites_used);
+}
+
+static void print_gps_satellite(FAR const char *buffer, FAR const char *name)
+{
+  FAR struct sensor_event_gps_satellite *event =
+        (struct sensor_event_gps_satellite *)buffer;
+
+  printf("%s: timestamp: %" PRIu64 " count: %" PRIu32
+         " satellites: %" PRIu32 "\n",
+         name, event->timestamp, event->count, event->satellites);
 }
 
 static void usage(void)
 {
   printf("sensortest [arguments...] <command>\n");
-  printf("\t[-h      ]  sensotest commands help\n");
+  printf("\t[-h      ]  sensortest commands help\n");
   printf("\t[-i <val>]  The output data period of sensor in us\n");
   printf("\t            default: 1000000\n");
   printf("\t[-b <val>]  The maximum report latency of sensor in us\n");
   printf("\t            default: 0\n");
-  printf("\t[-n <val>]  The specify number of output data\n");
+  printf("\t[-n <val>]  The number of output data\n");
   printf("\t            default: 0\n");
 
   printf(" Commands:\n");
@@ -244,7 +296,7 @@ int main(int argc, FAR char *argv[])
 
       if (!len)
         {
-          printf("The sensor node name:%s is invaild\n", name);
+          printf("The sensor node name:%s is invalid\n", name);
           usage();
           ret = -EINVAL;
           goto name_err;
@@ -277,7 +329,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       ret = -errno;
-      if (ret != -ENOTTY)
+      if (ret != -ENOTSUP)
         {
           printf("Failed to set interval for sensor:%s, ret:%s\n",
                  devname, strerror(errno));
@@ -289,7 +341,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       ret = -errno;
-      if (ret != -ENOTTY)
+      if (ret != -ENOTSUP)
         {
           printf("Failed to batch for sensor:%s, ret:%s\n",
                  devname, strerror(errno));
@@ -301,7 +353,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       ret = -errno;
-      if (ret != -ENOTTY)
+      if (ret != -ENOTSUP)
         {
           printf("Failed to enable sensor:%s, ret:%s\n",
                  devname, strerror(errno));

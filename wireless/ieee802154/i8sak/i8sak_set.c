@@ -90,7 +90,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             fprintf(stderr, "Sets various parameters and attributes\n"
                     "Usage: %s [-h] parameter\n"
                     "    -h = this help menu\n"
-                    " \n"
+                    "\n"
                     "Parameters:\n"
                     "    chan 0-255 = RF channel (only some channels valid per radio)\n"
                     "    panid xx:xx = PAN Identifier\n"

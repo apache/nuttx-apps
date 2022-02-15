@@ -72,11 +72,19 @@ struct foc_velocity_ops_f32_s
 
   CODE int (*cfg)(FAR foc_velocity_f32_t *h, FAR void *cfg);
 
+  /* Zero */
+
+  CODE int (*zero)(FAR foc_velocity_f32_t *h);
+
+  /* Direction */
+
+  CODE int (*dir)(FAR foc_velocity_f32_t *h, float dir);
+
   /* Run velocity handler */
 
-  CODE void (*run)(FAR foc_velocity_f32_t *h,
-                   FAR struct foc_velocity_in_f32_s *in,
-                   FAR struct foc_velocity_out_f32_s *out);
+  CODE int (*run)(FAR foc_velocity_f32_t *h,
+                  FAR struct foc_velocity_in_f32_s *in,
+                  FAR struct foc_velocity_out_f32_s *out);
 };
 
 /* Velocity handler - sensor or sensorless */
@@ -111,11 +119,23 @@ int foc_velocity_deinit_f32(FAR foc_velocity_f32_t *h);
 int foc_velocity_cfg_f32(FAR foc_velocity_f32_t *h, FAR void *cfg);
 
 /****************************************************************************
+ * Name: foc_velocity_zero_f32
+ ****************************************************************************/
+
+int foc_velocity_zero_f32(FAR foc_velocity_f32_t *h);
+
+/****************************************************************************
+ * Name: foc_velocity_dir_f32
+ ****************************************************************************/
+
+int foc_velocity_dir_f32(FAR foc_velocity_f32_t *h, float dir);
+
+/****************************************************************************
  * Name: foc_velocity_run_f32
  ****************************************************************************/
 
-void foc_velocity_run_f32(FAR foc_velocity_f32_t *h,
-                          FAR struct foc_velocity_in_f32_s *in,
-                          FAR struct foc_velocity_out_f32_s *out);
+int foc_velocity_run_f32(FAR foc_velocity_f32_t *h,
+                         FAR struct foc_velocity_in_f32_s *in,
+                         FAR struct foc_velocity_out_f32_s *out);
 
 #endif /* __INDUSTRY_FOC_FLOAT_FOC_VELOCITY_H */

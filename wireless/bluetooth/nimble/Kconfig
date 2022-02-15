@@ -7,7 +7,11 @@ config NIMBLE
     host-layer stack.
 
 if NIMBLE
-  config NIMBLE_REF
+config NIMBLE_STACKSIZE
+	int "nimble stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config NIMBLE_REF
   string "Version"
   default "cd8ab38c3da91b71dd428979153a408f38d3b02e"
   ---help---

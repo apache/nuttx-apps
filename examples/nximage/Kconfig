@@ -7,7 +7,7 @@ config EXAMPLES_NXIMAGE
 	tristate "NX graphics image example"
 	default n
 	depends on NX
-	select LIB_BOARDCTL
+	select BOARDCTL
 	---help---
 		Enable the X graphics image example
 

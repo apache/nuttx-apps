@@ -7,7 +7,7 @@ config EXAMPLES_NXTERM
 	tristate "NxTerm example"
 	default n
 	depends on NXTERM
-	select LIB_BOARDCTL
+	select BOARDCTL
 	---help---
 		Enable the NxTerm example
 

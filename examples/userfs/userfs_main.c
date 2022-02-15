@@ -117,6 +117,10 @@ static int     ufstest_rename(FAR void *volinfo, FAR const char *oldrelpath,
 static int     ufstest_stat(FAR void *volinfo, FAR const char *relpath,
                  FAR struct stat *buf);
 static int     ufstest_destroy(FAR void *volinfo);
+static int     ufstest_fchstat(FAR void *volinfo, FAR void *openinfo,
+                 FAR const struct stat *buf, int flags);
+static int     ufstest_chstat(FAR void *volinfo, FAR const char *relpath,
+                 FAR const struct stat *buf, int flags);
 
 /****************************************************************************
  * Private Data
@@ -175,7 +179,9 @@ static const struct userfs_operations_s g_ufstest_ops =
   ufstest_rmdir,
   ufstest_rename,
   ufstest_stat,
-  ufstest_destroy
+  ufstest_destroy,
+  ufstest_fchstat,
+  ufstest_chstat
 };
 
 /****************************************************************************
@@ -552,6 +558,18 @@ static int ufstest_stat(FAR void *volinfo, FAR const char *relpath,
 }
 
 static int ufstest_destroy(FAR void *volinfo)
+{
+  return OK;
+}
+
+static int ufstest_fchstat(FAR void *volinfo, FAR void *openinfo,
+                           FAR const struct stat *buf, int flags)
+{
+  return OK;
+}
+
+static int ufstest_chstat(FAR void *volinfo, FAR const char *relpath,
+                          FAR const struct stat *buf, int flags)
 {
   return OK;
 }

@@ -57,16 +57,16 @@
 #define UNAME_KERNEL   (1 << 0)
 #define UNAME_NODE     (1 << 1)
 #define UNAME_RELEASE  (1 << 2)
-#define UNAME_VERISON  (1 << 3)
+#define UNAME_VERSION  (1 << 3)
 #define UNAME_MACHINE  (1 << 4)
 #define UNAME_PLATFORM (1 << 5)
 #define UNAME_UNKNOWN  (1 << 6)
 
 #ifdef CONFIG_NET
 #  define UNAME_ALL    (UNAME_KERNEL | UNAME_NODE | UNAME_RELEASE | \
-                        UNAME_VERISON | UNAME_MACHINE | UNAME_PLATFORM)
+                        UNAME_VERSION | UNAME_MACHINE | UNAME_PLATFORM)
 #else
-#  define UNAME_ALL    (UNAME_KERNEL | UNAME_RELEASE | UNAME_VERISON | \
+#  define UNAME_ALL    (UNAME_KERNEL | UNAME_RELEASE | UNAME_VERSION | \
                         UNAME_MACHINE | UNAME_PLATFORM)
 #endif
 
@@ -112,7 +112,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * reset the board due to some constraints.
        */
 
-      boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+      boardctl(BOARDIOC_RESET, 0);
     }
   else
     {
@@ -121,7 +121,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * to power-off the* board due to some constraints.
        */
 
-      boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+      boardctl(BOARDIOC_POWEROFF, 0);
     }
 
 #elif defined(CONFIG_BOARDCTL_RESET)
@@ -142,7 +142,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * reset the board due to some constraints.
    */
 
-  boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+  boardctl(BOARDIOC_RESET, 0);
 
 #else
   /* Only the reset behavior is supported and we already know that there is
@@ -154,10 +154,10 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * off the board due to some constraints.
    */
 
-  boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+  boardctl(BOARDIOC_POWEROFF, 0);
 #endif
 
-  /* boarctl() will not return in any case.  It if does, it means that
+  /* boardctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown/resaet operation.
    */
 
@@ -277,10 +277,10 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-      boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+      boardctl(BOARDIOC_POWEROFF, 0);
     }
 
-  /* boarctl() will not return in any case.  It if does, it means that
+  /* boardctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown operation.
    */
 
@@ -307,10 +307,10 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else
     {
-      boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+      boardctl(BOARDIOC_RESET, 0);
     }
 
-  /* boarctl() will not return in this case.  It if does, it means that
+  /* boardctl() will not return in this case.  It if does, it means that
    * there was a problem with the reset operation.
    */
 
@@ -408,7 +408,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             break;
 
           case 'v':
-            set |= UNAME_VERISON;
+            set |= UNAME_VERSION;
             break;
 
           case 'm':

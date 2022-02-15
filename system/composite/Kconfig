@@ -6,7 +6,7 @@
 menuconfig SYSTEM_COMPOSITE
 	tristate "USB Composite Device Commands"
 	default n
-	depends on LIB_BOARDCTL && USBDEV_COMPOSITE && BUILD_FLAT
+	depends on BOARDCTL && USBDEV_COMPOSITE && BUILD_FLAT
 	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB composite class controls.  These controls include:

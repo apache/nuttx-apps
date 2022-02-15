@@ -31,7 +31,9 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <sys/sendfile.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 
 /****************************************************************************
@@ -46,14 +48,17 @@
  * Public Functions
  ****************************************************************************/
 
-int do_io(int infd, int outfd)
+int do_io(int infd,
+          int outfd,
+          char *buf,
+          size_t buf_size)
 {
-  size_t capacity = 256;
-  char buf[capacity];
+  ssize_t avail;
+  ssize_t written;
 
   while (true)
     {
-      ssize_t avail = read(infd, buf, capacity);
+      avail = read(infd, buf, buf_size);
       if (avail == 0)
         {
           break;
@@ -65,7 +70,7 @@ int do_io(int infd, int outfd)
           return 5;
         }
 
-      ssize_t written = write(outfd, buf, avail);
+      written = write(outfd, buf, avail);
       if (written == -1)
         {
           perror("do_io: write error");
@@ -76,6 +81,33 @@ int do_io(int infd, int outfd)
   return EXIT_SUCCESS;
 }
 
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+int do_io_over_sendfile(int infd, int outfd, ssize_t len)
+{
+  off_t offset = 0;
+  ssize_t written;
+
+  while (len > 0)
+    {
+      written = sendfile(outfd, infd, &offset, len);
+
+      if (written == -1 && errno == EAGAIN)
+        {
+          continue;
+        }
+      else if (written == -1)
+        {
+          perror("do_io: sendfile error");
+          return 5;
+        }
+
+      len -= written;
+    }
+
+  return EXIT_SUCCESS;
+}
+#endif
+
 int netcat_server(int argc, char * argv[])
 {
   int id = -1;
@@ -84,6 +116,9 @@ int netcat_server(int argc, char * argv[])
   struct sockaddr_in client;
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  int conn;
+  socklen_t addrlen;
+  char *preallocated_iobuf = NULL;
 
   if ((1 < argc) && (0 == strcmp("-l", argv[1])))
     {
@@ -103,6 +138,14 @@ int netcat_server(int argc, char * argv[])
               goto out;
             }
         }
+    }
+
+  preallocated_iobuf = (char *)malloc(CONFIG_NETUTILS_NETCAT_BUFSIZE);
+  if (preallocated_iobuf == NULL)
+    {
+      perror("error: malloc: Failed to allocate I/O buffer\n");
+      result = 2;
+      goto out;
     }
 
   id = socket(AF_INET , SOCK_STREAM , 0);
@@ -131,11 +174,11 @@ int netcat_server(int argc, char * argv[])
       goto out;
     }
 
-  socklen_t addrlen;
-  int conn;
+  addrlen = sizeof(struct sockaddr_in);
   if ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
     {
-      result = do_io(conn, outfd);
+      result = do_io(conn, outfd,
+                     preallocated_iobuf, CONFIG_NETUTILS_NETCAT_BUFSIZE);
     }
 
   if (0 > conn)
@@ -149,6 +192,11 @@ out:
   if (id != -1)
     {
       close(id);
+    }
+
+  if (preallocated_iobuf != NULL)
+    {
+      free(preallocated_iobuf);
     }
 
   if (outfd != STDOUT_FILENO)
@@ -166,6 +214,11 @@ int netcat_client(int argc, char * argv[])
   char *host = "127.0.0.1";
   int port = NETCAT_PORT;
   int result = EXIT_SUCCESS;
+  struct sockaddr_in server;
+  char *preallocated_iobuf = NULL;
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+  struct stat stat_buf;
+#endif
 
   if (argc > 1)
     {
@@ -187,6 +240,16 @@ int netcat_client(int argc, char * argv[])
           result = 1;
           goto out;
         }
+
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+      if (fstat(infd, &stat_buf) == -1)
+        {
+          perror("error: fstat: Could not get the input file size");
+          infd = STDIN_FILENO;
+          result = 1;
+          goto out;
+        }
+#endif
     }
 
   id = socket(AF_INET , SOCK_STREAM , 0);
@@ -197,7 +260,6 @@ int netcat_client(int argc, char * argv[])
       goto out;
     }
 
-  struct sockaddr_in server;
   server.sin_family = AF_INET;
   server.sin_port = htons(port);
   if (1 != inet_pton(AF_INET, host, &server.sin_addr))
@@ -214,12 +276,36 @@ int netcat_client(int argc, char * argv[])
       goto out;
     }
 
-  result = do_io(infd, id);
+#ifdef CONFIG_NETUTILS_NETCAT_SENDFILE
+  if (argc > 3)
+    {
+      result = do_io_over_sendfile(infd, id, stat_buf.st_size);
+    }
+  else
+#endif
+    {
+      preallocated_iobuf = (char *)malloc(CONFIG_NETUTILS_NETCAT_BUFSIZE);
+
+      if (preallocated_iobuf == NULL)
+        {
+          perror("error: malloc: Failed to allocate I/O buffer\n");
+          result = 2;
+          goto out;
+        }
+
+      result = do_io(infd, id,
+                     preallocated_iobuf, CONFIG_NETUTILS_NETCAT_BUFSIZE);
+    }
 
 out:
   if (id != -1)
     {
       close(id);
+    }
+
+  if (preallocated_iobuf != NULL)
+    {
+      free(preallocated_iobuf);
     }
 
   if (infd != STDIN_FILENO)

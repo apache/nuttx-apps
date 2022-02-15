@@ -13,4 +13,9 @@ config CANUTILS_CANDUMP
 		https://github.com/linux-can/can-utils
 
 if CANUTILS_CANDUMP
+
+config CANUTILS_CANDUMP_STACKSIZE
+	int "SocketCAN candump stack size"
+	default DEFAULT_TASK_STACKSIZE
+
 endif

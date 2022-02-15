@@ -45,11 +45,7 @@
 #  endif
 #endif
 
-#ifdef CONFIG_SMP
-#  define NCPUS CONFIG_SMP_NCPUS
-#else
-#  define NCPUS 1
-#endif
+#define NCPUS CONFIG_SMP_NCPUS
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -85,7 +81,7 @@ struct trace_dump_task_context_s
   FAR struct trace_dump_task_context_s *next;
   pid_t pid;                              /* Task PID */
   int syscall_nest;                       /* Syscall nest level */
-  char name[CONFIG_TASK_NAME_SIZE + 1];   /* Task name (with NUL terminator) */
+  char name[CONFIG_TASK_NAME_SIZE + 1];   /* Task name (with NULL terminator) */
 };
 
 struct trace_dump_context_s
@@ -308,6 +304,8 @@ static void trace_dump_header(FAR FILE *out,
          );
 }
 
+ #if (defined CONFIG_SCHED_INSTRUMENTATION_SWITCH) || \
+     (defined CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
 /****************************************************************************
  * Name: trace_dump_sched_switch
  ****************************************************************************/
@@ -339,6 +337,7 @@ static void trace_dump_sched_switch(FAR FILE *out,
   cctx->current_pid = cctx->next_pid;
   cctx->pendingswitch = false;
 }
+#endif
 
 /****************************************************************************
  * Name: trace_dump_one
@@ -398,6 +397,7 @@ static int trace_dump_one(FAR FILE *out,
         }
         break;
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
       case NOTE_SUSPEND:
         {
           FAR struct note_suspend_s *nsu = (FAR struct note_suspend_s *)p;
@@ -441,6 +441,7 @@ static int trace_dump_one(FAR FILE *out,
             }
         }
         break;
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
       case NOTE_SYSCALL_ENTER:
@@ -604,6 +605,41 @@ static int trace_dump_one(FAR FILE *out,
                   trace_dump_sched_switch(out, note, ctx);
                 }
             }
+        }
+        break;
+#endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+      case NOTE_DUMP_STRING:
+        {
+          FAR struct note_string_s *nst;
+
+          nst = (FAR struct note_string_s *)p;
+          trace_dump_header(out, note, ctx);
+          fprintf(out, "dump_string: %s\n",
+                  nst->nst_data);
+        }
+        break;
+
+      case NOTE_DUMP_BINARY:
+        {
+          FAR struct note_binary_s *nbi;
+          uint8_t count;
+          int i;
+
+          nbi = (FAR struct note_binary_s *)p;
+          trace_dump_header(out, note, ctx);
+          count = note->nc_length - sizeof(struct note_binary_s) + 1;
+          fprintf(out, "dump_binary: module=%c%c%c%c event=%u count=%u",
+                  nbi->nbi_module[0], nbi->nbi_module[1],
+                  nbi->nbi_module[2], nbi->nbi_module[3],
+                  nbi->nbi_event, count);
+          for (i = 0; i < count; i++)
+            {
+              fprintf(out, " 0x%x", nbi->nbi_data[i]);
+            }
+
+          fprintf(out, "\n");
         }
         break;
 #endif

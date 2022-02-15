@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_MKGPT
+	bool "mkgpt utility"
+	default n
+	select BCH
+	select DEV_URANDOM
+	---help---
+		Enables support for the mkgpt utility

@@ -148,7 +148,7 @@ static int wgetjson_callback(FAR char **buffer, int offset, int datend,
       if (new_json_buff)
         {
           g_json_buff = new_json_buff;
-          memcpy(&g_json_buff[g_json_bufflen - 1], &((*buffer)[offset]),
+          memcpy(&g_json_buff[g_json_bufflen], &((*buffer)[offset]),
                  len);
           g_json_buff[g_json_bufflen + len] = 0;
           g_json_bufflen += org;
@@ -213,38 +213,38 @@ static int wgetjson_json_item_callback(const char *name, int type,
 
   if (!strcmp(name, "name"))
     {
-      printf("name:\t\t\t%s \n", item->valuestring);
+      printf("name:\t\t\t%s\n", item->valuestring);
 
       /* todo something.... */
     }
   else if (strcmp(name, "format/type") == 0)
     {
-      printf("format/type:\t\t%s \n", item->valuestring);
+      printf("format/type:\t\t%s\n", item->valuestring);
 
       /* todo something.... */
     }
   else if (!strcmp(name, "format/width"))
     {
-      printf("format/width:\t\t%d \n", item->valueint);
+      printf("format/width:\t\t%d\n", item->valueint);
 
       /* todo something.... */
     }
   else if (!strcmp(name, "format/height"))
     {
-      printf("format/height:\t\t%d \n", item->valueint);
+      printf("format/height:\t\t%d\n", item->valueint);
 
       /* todo something.... */
     }
   else if (!strcmp(name, "format/interlace"))
     {
-      printf("format/interlace:\t%s \n",
+      printf("format/interlace:\t%s\n",
              (item->valueint) ? "true" : "false");
 
       /* todo something.... */
     }
   else if (!strcmp(name, "format/frame rate"))
     {
-      printf("format/frame rate:\t%d \n", item->valueint);
+      printf("format/frame rate:\t%d\n", item->valueint);
 
       /* todo something.... */
     }

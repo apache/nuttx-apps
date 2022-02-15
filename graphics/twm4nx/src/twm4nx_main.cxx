@@ -112,13 +112,13 @@ int main(int argc, FAR char *argv[])
 
   int ret;
 
-#if defined(CONFIG_TWM4NX_ARCHINIT) && defined(CONFIG_LIB_BOARDCTL) && \
+#if defined(CONFIG_TWM4NX_ARCHINIT) && defined(CONFIG_BOARDCTL) && \
    !defined(CONFIG_BOARD_LATE_INITIALIZE)
   // Should we perform board-specific initialization?  There are two ways
   // that board initialization can occur:  1) automatically via
   // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
   // 2) here via a call to boardctl() if the interface is enabled
-  // (CONFIG_LIB_BOARDCTL=y).  board_early_initialize() is also possibility,
+  // (CONFIG_BOARDCTL=y).  board_early_initialize() is also possibility,
   // although less likely.
 
   ret = boardctl(BOARDIOC_INIT, 0);

@@ -6,7 +6,7 @@
 config EXAMPLES_MODULE
 	tristate "Module Example"
 	default n
-	depends on MODULE && LIB_BOARDCTL
+	depends on MODULE && BOARDCTL
 	select BOARDCTL_OS_SYMTAB
 	---help---
 		Enable the module example

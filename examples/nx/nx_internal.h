@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NX_NX_INTERNAL_H
-#define __EXAMPLES_NX_NX_INTERNAL_H
+#ifndef __APPS_EXAMPLES_NX_NX_INTERNAL_H
+#define __APPS_EXAMPLES_NX_NX_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -200,16 +200,16 @@ struct nxeg_bitmap_s
 
 struct nxeg_state_s
 {
-  uint8_t wnum;                        /* Window number */
+  uint8_t wnum;                            /* Window number */
   nxgl_mxpixel_t color[CONFIG_NX_NPLANES]; /* Window color */
 
 #ifdef CONFIG_NX_KBD
-  uint8_t height;                      /* Max height of a font in pixels */
-  uint8_t width;                       /* Max width of a font in pixels */
-  uint8_t spwidth;                     /* The width of a space */
+  uint8_t height;                          /* Max height of a font in pixels */
+  uint8_t width;                           /* Max width of a font in pixels */
+  uint8_t spwidth;                         /* The width of a space */
 
-  uint8_t nchars;                      /* Number of KBD chars received */
-  uint8_t nglyphs;                     /* Number of glyphs cached */
+  uint8_t nchars;                          /* Number of KBD chars received */
+  uint8_t nglyphs;                         /* Number of glyphs cached */
 
   struct nxeg_bitmap_s bm[NXTK_MAXKBDCHARS];
   struct nxeg_glyph_s  glyph[NXTK_MAXKBDCHARS];
@@ -259,12 +259,14 @@ extern nxgl_mxpixel_t g_tbcolor[CONFIG_NX_NPLANES];
 FAR void *nx_listenerthread(FAR void *arg);
 
 #ifdef CONFIG_NX_KBD
-void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
+void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch,
+                FAR void *arg);
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
+void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch,
+                  FAR void *arg);
 #endif
 void nxeg_filltext(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                    FAR struct nxeg_state_s *st);
 #endif
 
-#endif /* __EXAMPLES_NX_NX_INTERNAL_H */
+#endif /* __APPS_EXAMPLES_NX_NX_INTERNAL_H */

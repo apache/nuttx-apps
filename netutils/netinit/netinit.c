@@ -186,7 +186,7 @@
 #elif defined(CONFIG_NET_TUN)
 #  define NET_DEVNAME "tun0"
 #  define NETINIT_HAVE_NETDEV
-#elif defined(CONFIG_NET_LOCAL)
+#elif defined(CONFIG_NET_LOOPBACK)
 #  define NET_DEVNAME "lo"
 #  define NETINIT_HAVE_NETDEV
 #elif defined(CONFIG_NET_CAN)
@@ -200,16 +200,6 @@
 
 #ifndef NETINIT_HAVE_NETDEV
 #  undef CONFIG_NETINIT_MONITOR
-#endif
-
-/* We need a valid IP domain (any domain) to create a socket that we can use
- * to communicate with the network device.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define AF_INETX AF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define AF_INETX AF_INET6
 #endif
 
 /* While the network is up, the network monitor really does nothing.  It
@@ -763,7 +753,7 @@ static int netinit_monitor(void)
    * interface driver.
    */
 
-  sd = socket(AF_INETX, SOCK_DGRAM, 0);
+  sd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
   if (sd < 0)
     {
       ret = -errno;

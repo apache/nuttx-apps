@@ -75,7 +75,7 @@
 #define IFD_TAG_IMAGEWIDTH        256 /* ImageLength, SHORT or LONG (Required) */
 #define IFD_TAG_IMAGELENGTH       257 /* ImageWidth, SHORT or LONG (Required) */
 #define IFD_TAG_BITSPERSAMPLE     258 /* BitsPerSample, SHORT (Required
-                                       * in greyscale and pallette-color image files) */
+                                       * in greyscale and palette-color image files) */
 #define IFD_TAG_COMPRESSION       259 /* Compression, SHORT (Required) */
 #  define TAG_COMP_NONE             1 /*   No compression */
 #  define TAG_COMP_CCITT            2 /*   CCITT Group 3 1-Dimensional Modified Huffman

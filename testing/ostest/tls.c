@@ -29,13 +29,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <nuttx/arch.h>
 #include <nuttx/tls.h>
 
 #include "ostest.h"
 
 #if CONFIG_TLS_NELEM > 0
-
-#include <arch/tls.h>
 
 /****************************************************************************
  * Private Data

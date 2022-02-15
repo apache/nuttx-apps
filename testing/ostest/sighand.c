@@ -36,10 +36,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef NULL
-# define NULL (void*)0
-#endif
-
 #define WAKEUP_SIGNAL 17
 #define SIGVALUE_INT  42
 
@@ -47,9 +43,11 @@
  * Private Data
  ****************************************************************************/
 
-static sem_t sem;
+static sem_t sem1;
+static sem_t sem2;
 static bool sigreceived = false;
-static bool threadexited = false;
+static bool thread1exited = false;
+static bool thread2exited = false;
 
 /****************************************************************************
  * Private Functions
@@ -138,6 +136,19 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
       printf("wakeup_action: ERROR sigprocmask=%jx expected=%jx\n",
              (uintmax_t)oldset, (uintmax_t)allsigs);
     }
+
+  /* Checkout sem_wait */
+
+  status = sem_wait(&sem2);
+  if (status != 0)
+    {
+      int error = errno;
+      printf("wakeup_action: ERROR sem_wait failed, errno=%d\n" , error);
+    }
+  else
+    {
+      printf("wakeup_action: sem_wait() successfully!\n");
+    }
 }
 
 static int waiter_main(int argc, char *argv[])
@@ -183,7 +194,7 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: Waiting on semaphore\n");
   FFLUSH();
 
-  status = sem_wait(&sem);
+  status = sem_wait(&sem1);
   if (status != 0)
     {
       int error = errno;
@@ -210,7 +221,27 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: done\n");
   FFLUSH();
 
-  threadexited = true;
+  thread1exited = true;
+  return 0;
+}
+
+static int poster_main(int argc, char *argv[])
+{
+  int status;
+
+  printf("poster_main: Poster started\n");
+
+  status = sem_post(&sem2);
+  if (status != 0)
+    {
+      int error = errno;
+      printf("poster_main: sem_post failed error=%d\n", error);
+    }
+
+  printf("poster_main: done\n");
+  FFLUSH();
+
+  thread2exited = true;
   return 0;
 }
 
@@ -227,11 +258,12 @@ void sighand_test(void)
 #endif
   struct sched_param param;
   union sigval sigvalue;
-  pid_t waiterpid;
+  pid_t waiterpid, posterpid;
   int status;
 
   printf("sighand_test: Initializing semaphore to 0\n");
-  sem_init(&sem, 0, 0);
+  sem_init(&sem1, 0, 0);
+  sem_init(&sem2, 0, 0);
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
   printf("sighand_test: Unmasking SIGCHLD\n");
@@ -298,6 +330,19 @@ void sighand_test(void)
       task_delete(waiterpid);
     }
 
+  /* Start poster thread  */
+
+  posterpid = task_create("poster", param.sched_priority,
+                           STACKSIZE, poster_main, NULL);
+  if (posterpid == ERROR)
+    {
+      printf("sighand_test: ERROR failed to start poster_main\n");
+    }
+  else
+    {
+      printf("sighand_test: Started poster_main pid=%d\n", posterpid);
+    }
+
   /* Wait a bit */
 
   FFLUSH();
@@ -305,9 +350,14 @@ void sighand_test(void)
 
   /* Then check the result */
 
-  if (!threadexited)
+  if (!thread1exited)
     {
       printf("sighand_test: ERROR waiter task did not exit\n");
+    }
+
+  if (!thread2exited)
+    {
+      printf("sighand_test: ERROR poster task did not exit\n");
     }
 
   if (!sigreceived)

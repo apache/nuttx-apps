@@ -66,7 +66,7 @@ extern "C"
  * Input Parameter:
  *   filename  - Name of the linked-in binary to be started.
  *   argv      - Argument list
- *   redirfile - If output if redirected, this parameter will be non-NULL
+ *   redirfile - If output is redirected, this parameter will be non-NULL
  *               and will provide the full path to the file.
  *   oflags    - If output is redirected, this parameter will provide the
  *               open flags to use.  This will support file replacement
@@ -74,7 +74,7 @@ extern "C"
  *
  * Returned Value:
  *   This is an end-user function, so it follows the normal convention:
- *   Returns the PID of the exec'ed module.  On failure, it.returns
+ *   Returns the PID of the exec'ed module.  On failure, it returns
  *   -1 (ERROR) and sets errno appropriately.
  *
  ****************************************************************************/

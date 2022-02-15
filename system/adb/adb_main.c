@@ -24,6 +24,9 @@
 
 #include "adb.h"
 
+#include <stdio.h>
+#include <syslog.h>
+
 #if defined(CONFIG_ADBD_BOARD_INIT) || defined (CONFIG_BOARDCTL_RESET)
 #  include <sys/boardctl.h>
 #endif
@@ -38,18 +41,31 @@
 
 void adb_log_impl(FAR const char *func, int line, FAR const char *fmt, ...)
 {
+  struct va_format vaf;
   va_list ap;
-  fprintf(stderr, "%s (%d): ", func, line);
 
   va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
+  vaf.fmt = fmt;
+  vaf.va  = &ap;
+  syslog(LOG_ERR, "%s (%d): %pV", func, line, &vaf);
   va_end(ap);
 }
 
 void adb_reboot_impl(const char *target)
 {
 #ifdef CONFIG_BOARDCTL_RESET
-  boardctl(BOARDIOC_RESET, 0);
+  if (strcmp(target, "recovery") == 0)
+    {
+      boardctl(BOARDIOC_RESET, CONFIG_ADBD_RESET_RECOVERY);
+    }
+  else if (strcmp(target, "bootloader") == 0)
+    {
+      boardctl(BOARDIOC_RESET, CONFIG_ADBD_RESET_BOOTLOADER);
+    }
+  else
+    {
+      boardctl(BOARDIOC_RESET, 0);
+    }
 #else
   adb_log("reboot not implemented\n");
 #endif
@@ -57,13 +73,9 @@ void adb_reboot_impl(const char *target)
 
 int main(int argc, FAR char **argv)
 {
-  UNUSED(argc);
-  UNUSED(argv);
-
   adb_context_t *ctx;
 
 #ifdef CONFIG_ADBD_BOARD_INIT
-{
   boardctl(BOARDIOC_INIT, 0);
 
 #if defined(CONFIG_ADBD_USB_SERVER) && \
@@ -106,8 +118,6 @@ int main(int argc, FAR char **argv)
       return 1;
     }
 #endif /* ADBD_USB_SERVER && USBDEV_COMPOSITE && BOARDCTL_USBDEVCTRL */
-}
-
 #endif /* CONFIG_ADBD_BOARD_INIT */
 
 #ifdef CONFIG_ADBD_NET_INIT

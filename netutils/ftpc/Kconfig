@@ -50,4 +50,15 @@ config FTPC_DISABLE_EPSV
 		if you need to use PASV instead, use this option to disable EPSV and
 		fallback to using PASV.
 
+config FTPC_OVER_SENDFILE
+	bool "Use sendfile() in ftpc binary transfer mode of PUT operation"
+	default y
+	depends on NET_SENDFILE
+	---help---
+		This option enables using sendfile() in ftpc binary transfer mode of PUT
+		operation. If the option is enabled but ASCII transfer mode is activated,
+		ftpc falls back to the combination of read() and write().
+		Using sendfile() provides a higher performance compared
+		to the combination of read() and write().
+
 endif

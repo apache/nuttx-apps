@@ -1,0 +1,192 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BOOT_MCUBOOT
+	bool "MCUboot"
+	default n
+	select BCH
+	---help---
+		Enable support for the MCUboot bootloader.
+
+if BOOT_MCUBOOT
+
+config MCUBOOT_VERSION
+	string "MCUboot version"
+	default "bb927ac014787992f2d8b42c7bd5d05eb4c17e05"
+
+config MCUBOOT_ENABLE_LOGGING
+	bool "Enable MCUboot logging"
+	default n
+	---help---
+		Enable MCUboot's logging infrastructure.
+
+choice
+	prompt "Cryptographic backend"
+	default MCUBOOT_USE_TINYCRYPT
+
+config MCUBOOT_USE_MBED_TLS
+	bool "Mbed TLS"
+	depends on CRYPTO_MBEDTLS
+
+config MCUBOOT_USE_TINYCRYPT
+	bool "TinyCrypt"
+
+endchoice # Cryptographic backend
+
+config MCUBOOT_BOOTLOADER
+	bool "MCUboot bootloader application"
+	default n
+	select BOARDCTL
+	select BOARDCTL_BOOT_IMAGE
+	---help---
+		MCUboot bootloader application.
+
+config MCUBOOT_BOOTSTRAP
+	bool "Bootstrap erased the primary slot from the secondary slot"
+	depends on MCUBOOT_BOOTLOADER
+	default n
+	---help---
+		Enable bootstrapping support. Bootstrapping allows an erased primary slot
+		to be initialized from a valid image in the secondary slot.
+
+choice
+	prompt "Upgrade mode"
+	default MCUBOOT_SWAP
+	---help---
+		The default is to support A/B image swapping with rollback.  Other
+		modes with simpler code path, which only supports overwriting the
+		existing image with the update image or running the newest image
+		directly from its flash partition, are also available.
+
+config MCUBOOT_SWAP
+	bool "A/B image swapping with rollback"
+
+config MCUBOOT_OVERWRITE_ONLY
+	bool "Overwrite the existing image with the update image"
+
+config MCUBOOT_DIRECT_XIP
+	bool "Run the newest image directly from its flash partition"
+
+config MCUBOOT_RAM_LOAD
+	bool "Loaded the image into RAM instead of run directly from flash"
+
+endchoice # Upgrade mode
+
+choice
+	prompt "Swap upgrade policy"
+	depends on MCUBOOT_SWAP
+	default MCUBOOT_SWAP_USING_SCRATCH
+
+config MCUBOOT_SWAP_USING_SCRATCH
+	bool "Image swap using scratch area"
+
+config MCUBOOT_SWAP_USING_MOVE
+	bool "Image swap without using scratch area"
+
+endchoice # Swap upgrade policy
+
+config MCUBOOT_OVERWRITE_ONLY_FAST
+	bool "Enable faster copy for overwrite only upgrade"
+	depends on MCUBOOT_OVERWRITE_ONLY
+	default n
+	---help---
+		Only erase and overwrite those primary slot sectors needed
+		to install the new image, rather than the entire image slot.
+
+config MCUBOOT_DIRECT_XIP_REVERT
+	bool "Enable the revert mechanism in direct-xip mode"
+	depends on MCUBOOT_DIRECT_XIP
+	default n
+
+config MCUBOOT_UPDATE_AGENT_EXAMPLE
+	bool "MCUboot update agent example"
+	default n
+	depends on NET_TCP
+	---help---
+		Example application that implements an update agent that downloads
+		an application firmware image from a given URL and saves it to the
+		secondary slot as a pending update.
+
+if MCUBOOT_UPDATE_AGENT_EXAMPLE
+
+config MCUBOOT_UPDATE_AGENT_EXAMPLE_UPDATE_URL
+	string "URL for update image"
+	default ""
+
+config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_BUFFER_SIZE
+	int "Download buffer size in bytes"
+	default 512
+
+config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+	bool "Calculate MD5 of update image"
+	default n
+	depends on CODECS_HASH_MD5
+
+config MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_MD5_HASH
+	string "Expected MD5 sum of update image"
+	default ""
+	depends on MCUBOOT_UPDATE_AGENT_EXAMPLE_DL_VERIFY_MD5
+
+endif # MCUBOOT_UPDATE_AGENT_EXAMPLE
+
+config MCUBOOT_SLOT_CONFIRM_EXAMPLE
+	tristate "MCUboot slot confirm example"
+	default n
+	---help---
+		Example application for confirming a newly installed application
+		application firmware image using MCUboot public APIs.
+		This application should be used as the OTA update package of the
+		MCUBOOT_UPDATE_AGENT_EXAMPLE example.
+
+config MCUBOOT_WATCHDOG
+	bool "Watchdog feeding support"
+	default n
+	depends on WATCHDOG
+	---help---
+		This config must be selected in case the Watchdog is enabled while
+		performing a swap upgrade and the time it takes for a swapping is long
+		enough to cause an unwanted reset.
+
+config MCUBOOT_WATCHDOG_DEVPATH
+	string "Watchdog device path"
+	default "/dev/watchdog0"
+	depends on MCUBOOT_WATCHDOG
+	---help---
+		The path to the watchdog device.
+		Default: /dev/watchdog0
+
+config MCUBOOT_PRIMARY_SLOT_PATH
+	string "Application firmware image primary slot path"
+	default "/dev/ota0"
+	---help---
+		The path to the application firmware image primary slot character
+		device driver.
+		Default: /dev/ota0
+
+config MCUBOOT_SECONDARY_SLOT_PATH
+	string "Application firmware image secondary slot path"
+	default "/dev/ota1"
+	---help---
+		The path to the application firmware image secondary slot character
+		device driver.
+		Default: /dev/ota1
+
+config MCUBOOT_SCRATCH_PATH
+	string "Scratch partition path"
+	default "/dev/otascratch"
+	---help---
+		The path to the scratch partition character device driver.
+		Default: /dev/otascratch
+
+config MCUBOOT_DEFAULT_FLASH_ERASE_STATE
+	hex "Default flash erase state"
+	default 0xff
+	---help---
+		MCUboot will attempt to retrieve this value from the underlying MTD
+		driver.
+		In case of failure, the value from this config will be used as a
+		fallback.
+
+endif # BOOT_MCUBOOT

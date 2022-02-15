@@ -292,8 +292,12 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
   struct note_filter_irq_s filter_irq;
 #endif
+
+#if defined(CONFIG_SCHED_INSTRUMENTATION_SYSCALL) ||\
+    defined(CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
   int i;
   int count;
+#endif
 
   /* Usage: trace mode [{+|-}{o|s|a|i}...] */
 

@@ -86,7 +86,7 @@ extern "C"
  *
  * Description:
  *   This interface is used to initialize the NuttShell (NSH).
- *   nsh_initialize() should be called one during application start-up prior
+ *   nsh_initialize() should be called once during application start-up prior
  *   to executing either nsh_consolemain() or nsh_telnetstart().
  *
  * Input Parameters:
@@ -103,9 +103,9 @@ void nsh_initialize(void);
  * Name: nsh_consolemain
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
- *   single an NSH instance that operates on stdin and stdout.  This
- *   function does not return.
+ *   This interface may be called or started with task_start to start a
+ *   single NSH instance that operates on stdin and stdout.  This function
+ *   does not return.
  *
  *   This function handles generic /dev/console character devices, or
  *   special USB console devices.  The USB console requires some special

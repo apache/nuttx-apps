@@ -53,7 +53,7 @@ static volatile int g_thread_cpu[CONFIG_TESTING_SMP_NBARRIER_THREADS + 1];
  *
  * Description:
  *   This depends on internal OS interfaces that are not generally available
- *   but can be accessed (albeit inappropriatley) in a FLAT build
+ *   but can be accessed (albeit inappropriately) in a FLAT build
  *
  ****************************************************************************/
 

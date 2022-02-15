@@ -51,4 +51,4 @@ config EXAMPLES_TCPECHO_DRIPADDR
 config EXAMPLES_TCPECHO_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
-	depends on EXAMPLES_TCPECHO && !NSH_NETINITd
+	depends on EXAMPLES_TCPECHO && !NSH_NETINIT

@@ -87,9 +87,9 @@ int foc_mq_handle(mqd_t mq, FAR struct foc_mq_s *h)
           break;
         }
 
-      case CONTROL_MQ_MSG_VEL:
+      case CONTROL_MQ_MSG_SETPOINT:
         {
-          memcpy(&h->vel, &buffer[1], 4);
+          memcpy(&h->setpoint, &buffer[1], 4);
           break;
         }
 

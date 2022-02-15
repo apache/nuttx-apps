@@ -45,6 +45,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_QENCODER_HAVE_MAXPOS
+#  if CONFIG_EXAMPLES_QENCODER_MAXPOS == 0
+#    error CONFIG_EXAMPLES_QENCODER_MAXPOS not specified
+#  endif
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -244,6 +250,19 @@ int main(int argc, FAR char *argv[])
       exitval = EXIT_FAILURE;
       goto errout;
     }
+
+#ifdef CONFIG_EXAMPLES_QENCODER_HAVE_MAXPOS
+  /* Set the maximum encoder positions */
+
+  ret = ioctl(fd, QEIOC_SETPOSMAX,
+              (unsigned long)CONFIG_EXAMPLES_QENCODER_MAXPOS);
+  if (ret < 0)
+    {
+      printf("qe_main: ioctl(QEIOC_SETMAXPOS) failed: %d\n", errno);
+      exitval = EXIT_FAILURE;
+      goto errout_with_dev;
+    }
+#endif
 
   /* Reset the count if so requested */
 

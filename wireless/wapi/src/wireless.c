@@ -365,6 +365,10 @@ static int wapi_scan_event(FAR struct iw_event *event,
               {
                 info->freq = 2484;
               }
+            else if (event->u.freq.m >= 36 && event->u.freq.m <= 165)
+              {
+                info->freq = 5000 + 5 * event->u.freq.m;
+              }
           }
         else
           {

@@ -219,7 +219,7 @@ restart:
  * Name: nsh_consolemain (USB console version)
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
+ *   This interface may be called or started with task_start to start a
  *   single an NSH instance that operates on stdin and stdout.  This
  *   function does not return.
  *
