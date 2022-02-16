@@ -63,6 +63,12 @@ endif
 ifeq ($(CONFIG_INDUSTRY_FOC_IDENT),y)
 CSRCS += float/foc_ident.c
 endif
+ifeq ($(CONFIG_INDUSTRY_FOC_VELOCITY_ODIV),y)
+CSRCS += float/foc_vel_odiv.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_VELOCITY_OPLL),y)
+CSRCS += float/foc_vel_opll.c
+endif
 
 endif
 

@@ -137,4 +137,16 @@ config INDUSTRY_FOC_IDENT
 	---help---
 		Enable support for motor identification routine (phase resistance and phase inductance)
 
+config INDUSTRY_FOC_VELOCITY_ODIV
+	bool "FOC velocity DIV observer"
+	default n
+	---help---
+		Enable support for the velocity DIV observer
+
+config INDUSTRY_FOC_VELOCITY_OPLL
+	bool "FOC velocity PLL observer"
+	default n
+	---help---
+		Enable support for the velocity PLL observer
+
 endif
