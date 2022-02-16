@@ -188,7 +188,9 @@ errout:
 
 static int foc_motor_configure(FAR struct foc_motor_f32_s *motor)
 {
-#ifdef CONFIG_INDUSTRY_FOC_CONTROL_PI
+  FAR struct foc_control_ops_f32_s    *foc_ctrl = NULL;
+  FAR struct foc_modulation_ops_f32_s *foc_mod  = NULL;
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   struct foc_initdata_f32_s ctrl_cfg;
 #endif
 #ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
@@ -216,24 +218,43 @@ static int foc_motor_configure(FAR struct foc_motor_f32_s *motor)
     }
 #endif
 
+  /* Get FOC controller */
+
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+  foc_ctrl = &g_foc_control_pi_f32;
+#else
+#  error FOC controller not selected
+#endif
+
+  /* Get FOC modulation */
+
+#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+  foc_mod = &g_foc_mod_svm3_f32;
+#else
+#  error FOC modulation not selected
+#endif
+
   /* Initialize FOC handler */
 
+  DEBUGASSERT(foc_ctrl != NULL);
+  DEBUGASSERT(foc_mod != NULL);
+
   ret = foc_handler_init_f32(&motor->handler,
-                             &g_foc_control_pi_f32,
-                             &g_foc_mod_svm3_f32);
+                             foc_ctrl,
+                             foc_mod);
   if (ret < 0)
     {
       PRINTF("ERROR: foc_handler_init failed %d\n", ret);
       goto errout;
     }
 
-#ifdef CONFIG_INDUSTRY_FOC_CONTROL_PI
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   /* Get PI controller configuration */
 
-  ctrl_cfg.id_kp = (motor->envp->pi_kp / 1000.0f);
-  ctrl_cfg.id_ki = (motor->envp->pi_ki / 1000.0f);
-  ctrl_cfg.iq_kp = (motor->envp->pi_kp / 1000.0f);
-  ctrl_cfg.iq_ki = (motor->envp->pi_ki / 1000.0f);
+  ctrl_cfg.id_kp = (motor->envp->foc_pi_kp / 1000.0f);
+  ctrl_cfg.id_ki = (motor->envp->foc_pi_ki / 1000.0f);
+  ctrl_cfg.iq_kp = (motor->envp->foc_pi_kp / 1000.0f);
+  ctrl_cfg.iq_ki = (motor->envp->foc_pi_ki / 1000.0f);
 #endif
 
 #ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
