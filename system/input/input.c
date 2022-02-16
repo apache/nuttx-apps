@@ -19,11 +19,13 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
+#include <unistd.h>
 
+#include <nuttx/input/buttons.h>
 #include <nuttx/input/touchscreen.h>
 
 /****************************************************************************
@@ -33,7 +35,7 @@
 #define DEFATLT_INTERVAL 30
 #define DEFATLT_DISTANCE 10
 
-#define DELAY_MS(ms) usleep((ms)*1000)
+#define DELAY_MS(ms) usleep((ms) * 1000)
 #define ABS(a)       (((a) > 0) ? (a) : -(a))
 #define MAX(a, b)    (((a) > (b)) ? (a) : (b))
 
@@ -43,31 +45,32 @@
 
 struct input_cmd_s
 {
-  const char *cmd;                     /* Command name */
-  int (*func)(int argc, char** argv);  /* Function corresponding to command */
+  const char *cmd;                    /* Command name */
+  int (*func)(int argc, char **argv); /* Function corresponding to command */
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int  input_utouch_tap(int argc, char** argv);
-static int  input_utouch_swipe(int argc, char** argv);
-static int  input_sleep(int argc, char** argv);
-static int  input_help(int argc, char** argv);
+static int  input_utouch_tap(int argc, char **argv);
+static int  input_utouch_swipe(int argc, char **argv);
+static int  input_sleep(int argc, char **argv);
+static int  input_help(int argc, char **argv);
+static int  input_button(int argc, char **argv);
 static void input_utouch_move(int fd, int x, int y, int pendown);
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static const struct input_cmd_s g_input_cmd_list[] =
 {
-  {"help",  input_help},
-  {"sleep", input_sleep},
-  {"tap",   input_utouch_tap},
-  {"swipe", input_utouch_swipe},
-  {NULL,    NULL}
+  {"help",   input_help        },
+  {"sleep",  input_sleep       },
+  {"tap",    input_utouch_tap  },
+  {"swipe",  input_utouch_swipe},
+  {"button", input_button      },
+  {NULL,     NULL              }
 };
 
 /****************************************************************************
@@ -88,7 +91,7 @@ static void input_utouch_move(int fd, int x, int y, int pendown)
     {
       sample.point[0].flags = TOUCH_UP | TOUCH_ID_VALID;
     }
-    else
+  else
     {
       sample.point[0].x        = x;
       sample.point[0].y        = y;
@@ -108,7 +111,7 @@ static void input_utouch_move(int fd, int x, int y, int pendown)
  * Name: input_sleep
  ****************************************************************************/
 
-static int input_sleep(int argc, char** argv)
+static int input_sleep(int argc, char **argv)
 {
   if (argc != 2)
     {
@@ -123,7 +126,7 @@ static int input_sleep(int argc, char** argv)
  * Name: input_utouch_tap
  ****************************************************************************/
 
-static int input_utouch_tap(int argc, char** argv)
+static int input_utouch_tap(int argc, char **argv)
 {
   int fd;
   int x;
@@ -161,7 +164,7 @@ static int input_utouch_tap(int argc, char** argv)
  * Name: input_utouch_swipe
  ****************************************************************************/
 
-static int input_utouch_swipe(int argc, char** argv)
+static int input_utouch_swipe(int argc, char **argv)
 {
   int i;
   int fd;
@@ -220,21 +223,46 @@ static int input_utouch_swipe(int argc, char** argv)
   return 0;
 }
 
+static int input_button(int argc, char **argv)
+{
+  int fd;
+  btn_buttonset_t button;
+
+  if (argc != 2)
+    {
+      return -EINVAL;
+    }
+
+  button = strtoul(argv[1], NULL, 0);
+  fd = open("/dev/ubutton", O_WRONLY);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  write(fd, &button, sizeof(button));
+  close(fd);
+
+  return 0;
+}
+
 /****************************************************************************
  * Name: intput_help
  ****************************************************************************/
 
-static int input_help(int argc, char** argv)
+static int input_help(int argc, char **argv)
 {
   printf("Usage: input <command> [<arg>...]\n");
   printf("The commands and default sources are:\n"
          "\thelp\n"
          "\tsleep <time(ms)>\n"
          "\ttap <x> <y> [interval(ms)]\n"
-         "\tswipe <x1> <y1> <x2> <y2> [duration(ms)] [distance(pix)]\n\n"
+         "\tswipe <x1> <y1> <x2> <y2> [duration(ms)] [distance(pix)]\n"
+         "\tbutton <buttonvalue>\n"
          "\tinterval: Time interval between two reports of sample\n"
          "\tduration: Duration of sliding\n"
-         "\tdistance: Report the pixel distance of the sample twice\n");
+         "\tdistance: Report the pixel distance of the sample twice\n"
+         "\tbuttonvalue: button value in hex format\n");
 
   return 0;
 }
@@ -251,10 +279,15 @@ static int input_help(int argc, char** argv)
  *
  ****************************************************************************/
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   int i;
   int ret = -EINVAL;
+
+  if (argv[1] == NULL)
+    {
+      goto errout;
+    }
 
   for (i = 0; g_input_cmd_list[i].cmd != NULL; i++)
     {
@@ -267,10 +300,12 @@ int main(int argc, char** argv)
         }
     }
 
-  if (ret < 0)
+errout:
+  if (ret != 0)
     {
       input_help(argc, argv);
+      return EXIT_FAILURE;
     }
 
-  return ret;
+  return EXIT_SUCCESS;
 }
