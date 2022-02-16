@@ -75,10 +75,13 @@ static void init_args(FAR struct args_s *args)
   args->qparam =
     (args->qparam == 0 ? CONFIG_EXAMPLES_FOC_OPENLOOP_Q : args->qparam);
 #endif
-  args->pi_kp =
-    (args->pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->pi_kp);
-  args->pi_ki =
-    (args->pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->pi_ki);
+
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+  args->foc_pi_kp =
+    (args->foc_pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->foc_pi_kp);
+  args->foc_pi_ki =
+    (args->foc_pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->foc_pi_ki);
+#endif
 
   /* Setpoint configuration */
 
@@ -129,13 +132,15 @@ static int validate_args(FAR struct args_s *args)
 {
   int ret = -EINVAL;
 
-  /* FOC PI controller */
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+  /* Current PI controller */
 
-  if (args->pi_kp == 0 && args->pi_ki == 0)
+  if (args->foc_pi_kp == 0 && args->foc_pi_ki == 0)
     {
-      PRINTF("ERROR: missing Kp/Ki configuration\n");
+      PRINTF("ERROR: missing FOC Kp/Ki configuration\n");
       goto errout;
     }
+#endif
 
   /* FOC operation mode */
 
@@ -366,8 +371,10 @@ int main(int argc, char *argv[])
 #endif
       foc[i].fmode    = args.fmode;
       foc[i].mmode    = args.mmode;
-      foc[i].pi_kp    = args.pi_kp;
-      foc[i].pi_ki    = args.pi_ki;
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+      foc[i].foc_pi_kp = args.foc_pi_kp;
+      foc[i].foc_pi_ki = args.foc_pi_ki;
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       foc[i].torqmax  = args.torqmax;
 #endif
