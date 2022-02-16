@@ -145,19 +145,19 @@ static int foc_runmode_init(FAR struct foc_motor_f32_s *motor)
     {
       case FOC_FMODE_IDLE:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+          motor->foc_mode_run = FOC_HANDLER_MODE_IDLE;
           break;
         }
 
       case FOC_FMODE_VOLTAGE:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_VOLTAGE;
+          motor->foc_mode_run = FOC_HANDLER_MODE_VOLTAGE;
           break;
         }
 
       case FOC_FMODE_CURRENT:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_CURRENT;
+          motor->foc_mode_run = FOC_HANDLER_MODE_CURRENT;
           break;
         }
 
@@ -569,6 +569,18 @@ errout:
 }
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
+
+/****************************************************************************
+ * Name: foc_motor_run_init
+ ****************************************************************************/
+
+static int foc_motor_run_init(FAR struct foc_motor_f32_s *motor)
+{
+  /* Empty for now */
+
+  return OK;
+}
+
 /****************************************************************************
  * Name: foc_motor_run
  ****************************************************************************/
@@ -712,6 +724,21 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   motor->per        = (float)(1.0f / CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ);
   motor->iphase_adc = ((CONFIG_EXAMPLES_FOC_IPHASE_ADC) / 100000.0f);
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
+  /* Initialize controller run mode */
+
+  ret = foc_runmode_init(motor);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_runmode_init failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+  /* Start with FOC IDLE mode */
+
+  motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   /* Initialize open-loop angle handler */
 
@@ -828,7 +855,7 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
 
   motor->ctrl_state = FOC_CTRL_STATE_INIT;
 
-#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+#if defined(CONFIG_EXAMPLES_FOC_SENSORED) || defined(CONFIG_EXAMPLES_FOC_HAVE_RUN)
 errout:
 #endif
   return ret;
@@ -1045,22 +1072,29 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
       case FOC_CTRL_STATE_RUN_INIT:
         {
-          /* Initialize run controller mode */
+          /* Initialize controller run mode */
 
-          ret = foc_runmode_init(motor);
+          ret = foc_motor_run_init(motor);
           if (ret < 0)
             {
-              PRINTF("ERROR: foc_runmode_init failed %d!\n", ret);
+              PRINTF("ERROR: foc_motor_run_init failed %d!\n", ret);
               goto errout;
             }
 
           /* Next state */
 
           motor->ctrl_state += 1;
+          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+          break;
         }
 
       case FOC_CTRL_STATE_RUN:
         {
+          /* Get FOC run mode */
+
+          motor->foc_mode = motor->foc_mode_run;
+
           /* Run motor */
 
           ret = foc_motor_run(motor);
