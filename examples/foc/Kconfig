@@ -376,5 +376,14 @@ endif # EXAMPLES_FOC_HAVE_ALIGN
 
 endmenu # FOC controller parameters
 
+config EXAMPLES_FOC_HAVE_RUN
+	bool
+	default y if !EXAMPLES_FOC_RUN_DISABLE
+	default n
+
+config EXAMPLES_FOC_RUN_DISABLE
+	bool "FOC Disable FOC motor controller"
+	default n
+
 endif # EXAMPLES_FOC
 

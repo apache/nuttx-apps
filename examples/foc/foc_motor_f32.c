@@ -132,6 +132,7 @@ errout:
 }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
 /****************************************************************************
  * Name: foc_runmode_init
  ****************************************************************************/
@@ -181,6 +182,7 @@ static int foc_runmode_init(FAR struct foc_motor_f32_s *motor)
 errout:
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: foc_motor_configure
@@ -566,6 +568,7 @@ errout:
   return ret;
 }
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
 /****************************************************************************
  * Name: foc_motor_run
  ****************************************************************************/
@@ -666,6 +669,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 errout:
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -1038,6 +1042,7 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
         }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
       case FOC_CTRL_STATE_RUN_INIT:
         {
           /* Initialize run controller mode */
@@ -1067,6 +1072,7 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
 
           break;
         }
+#endif
 
       case FOC_CTRL_STATE_IDLE:
         {
