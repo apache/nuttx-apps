@@ -55,6 +55,10 @@
 #define AUDIO_APB_RECORD         (1 << 4)
 #define AUDIO_APB_PLAY           (1 << 5)
 
+#ifndef MIN
+#  define MIN(a, b)              (((a) < (b)) ? (a) : (b))
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -316,7 +320,6 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
 {
   FAR struct nxlooper_s   *plooper = (FAR struct nxlooper_s *)pvarg;
   FAR struct ap_buffer_s  *apb;
-  FAR struct ap_buffer_s  *apbtemp;
   struct dq_queue_s       playdq;
   struct dq_queue_s       recorddq;
   struct audio_msg_s      msg;
@@ -493,6 +496,7 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
 
           case AUDIO_MSG_DEQUEUE:
             apb = msg.u.ptr;
+            apb->curbyte = 0;
             if (apb->flags & AUDIO_APB_PLAY)
               {
                 dq_addlast(&apb->dq_entry, &playdq);
@@ -502,33 +506,51 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
                 dq_addlast(&apb->dq_entry, &recorddq);
               }
 
-              if (dq_count(&playdq) != 0 && dq_count(&recorddq) != 0)
+            if (dq_count(&playdq) != 0 && dq_count(&recorddq) != 0)
               {
-                 apbtemp = (struct ap_buffer_s *)dq_remfirst(&recorddq);
-                 apb = (struct ap_buffer_s *)dq_remfirst(&playdq);
+                FAR struct ap_buffer_s *apbrec;
+                uint32_t copy;
 
-                 apb->nbytes = apbtemp->nbytes;
-                 memcpy(apb->samp, apbtemp->samp, apbtemp->nbytes);
+                apbrec = (FAR struct ap_buffer_s *)dq_peek(&recorddq);
+                apb = (FAR struct ap_buffer_s *)dq_peek(&playdq);
 
-                 ret = nxlooper_enqueuerecordbuffer(plooper, apbtemp);
-                 if (ret == OK)
-                 {
-                   ret = nxlooper_enqueueplaybuffer(plooper, apb);
-                   if (ret == OK &&
-                       plooper->loopstate == NXLOOPER_STATE_RECORDING)
-                   {
-#ifdef CONFIG_AUDIO_MULTI_SESSION
-                     ret = ioctl(plooper->playdev_fd, AUDIOIOC_START,
-                                    (unsigned long)plooper->pplayses);
+                copy = MIN(apbrec->nbytes - apbrec->curbyte,
+                           apb->nmaxbytes - apb->curbyte);
+
+                memcpy(apb->samp + apb->curbyte,
+                       apbrec->samp + apbrec->curbyte, copy);
+                apbrec->curbyte += copy;
+                apb->curbyte += copy;
+
+                if (apbrec->curbyte == apbrec->nbytes)
+                  {
+                    apbrec =
+                        (FAR struct ap_buffer_s *)dq_remfirst(&recorddq);
+                    apbrec->curbyte = 0;
+                    ret = nxlooper_enqueuerecordbuffer(plooper, apbrec);
+                  }
+
+                if (ret == OK && apb->curbyte == apb->nmaxbytes)
+                  {
+                    apb = (FAR struct ap_buffer_s *)dq_remfirst(&playdq);
+                    apb->nbytes = apb->nmaxbytes;
+                    apb->curbyte = 0;
+                    ret = nxlooper_enqueueplaybuffer(plooper, apb);
+                  }
+              }
+
+            if (ret == OK && plooper->loopstate == NXLOOPER_STATE_RECORDING)
+              {
+#ifdef CONFIG_O_MULTI_SESSION
+                ret = ioctl(plooper->playdev_fd, AUDIOIOC_START,
+                            (unsigned long)plooper->pplayses);
 #else
-                     ret = ioctl(plooper->playdev_fd, AUDIOIOC_START, 0);
+                ret = ioctl(plooper->playdev_fd, AUDIOIOC_START, 0);
 #endif
-                     if (ret == OK)
-                       {
-                         plooper->loopstate = NXLOOPER_STATE_LOOPING;
-                       }
-                   }
-                 }
+                if (ret == OK)
+                  {
+                    plooper->loopstate = NXLOOPER_STATE_LOOPING;
+                  }
               }
 
             if (ret == OK)
