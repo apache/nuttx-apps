@@ -1,0 +1,1107 @@
+diff --git a/CMSIS_5/CMSIS/NN/Include/arm_nnfunctions_nnabla.h CMSIS_5/CMSIS/NN/Include/arm_nnfunctions_nnabla.h
+===CHANGE_NOTICE(1/5)===========================================================
+Sony Corporation added this file to 5.4.0
+to add the following function prototypes:
+ - arm_convolve_CHW_f32_basic_nonsquare()
+ - arm_convolve_CHW_q15_basic_nonsquare()
+ - arm_convolve_CHW_q7_basic_nonsquare()
+ - arm_nn_CHW_mat_mult_kernel_q7_q15()
+================================================================================
+--- /dev/null
++++ CMSIS_5/CMSIS/NN/Include/arm_nnfunctions_nnabla.h
+@@ -0,0 +1,217 @@
++/*
++ * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
++ * Copyright 2018 Sony Corporation
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the License); you may
++ * not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
++ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/* ----------------------------------------------------------------------
++ * Title:        arm_nnfunctions_nnabla.h
++ * Author:       Sony Corporation
++ * Description:  Sony Corporation added this file to 5.4.0
++ *               to add the following function prototypes:
++ *               - arm_convolve_CHW_f32_basic_nonsquare()
++ *               - arm_convolve_CHW_q15_basic_nonsquare()
++ *               - arm_convolve_CHW_q7_basic_nonsquare()
++ *               - arm_nn_CHW_mat_mult_kernel_q7_q15()
++ * $Date:        14. September 2018
++ * -------------------------------------------------------------------- */
++
++#ifndef _ARM_NNFUNCTIONS_CHW_H
++#define _ARM_NNFUNCTIONS_CHW_H
++
++#include "arm_nnsupportfunctions.h"
++#include "arm_nn_tables.h"
++
++#define USE_INTRINSIC
++
++//#define ARM_NN_TRUNCATE /* This config the rounding model to floor or round to the nearest int */
++
++#ifdef __cplusplus
++extern    "C"
++{
++#endif
++
++  /**
++   * @brief Basic float32 convolution function (non-sqaure shape)
++   * @param[in]       Im_in        pointer to input tensor
++   * @param[in]       dim_im_in_x  input tensor dimention x
++   * @param[in]       dim_im_in_y  input tensor dimention y
++   * @param[in]       ch_im_in     number of input tensor channels
++   * @param[in]       wt           pointer to kernel weights
++   * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x filter kernel size x
++   * @param[in]       dim_kernel_y filter kernel size y
++   * @param[in]       padding_x    padding size x
++   * @param[in]       padding_y    padding size y
++   * @param[in]       stride_x     convolution stride x
++   * @param[in]       stride_y     convolution stride y
++   * @param[in]       bias         pointer to bias
++   * @param[in,out]   Im_out       pointer to output tensor
++   * @param[in]       dim_im_out_x output tensor dimension x
++   * @param[in]       dim_im_out_y output tensor dimension y
++   * @param[in,out]   bufferA      pointer to buffer space for input
++   * @param[in,out]   bufferB      pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   */
++
++    arm_status
++    arm_convolve_CHW_f32_basic_nonsquare(const float * Im_in,
++                                        const uint16_t dim_im_in_x,
++                                        const uint16_t dim_im_in_y,
++                                        const uint16_t ch_im_in,
++                                        const float * wt,
++                                        const uint16_t ch_im_out,
++                                        const uint16_t dim_kernel_x,
++                                        const uint16_t dim_kernel_y,
++                                        const uint16_t padding_x,
++                                        const uint16_t padding_y,
++                                        const uint16_t stride_x,
++                                        const uint16_t stride_y,
++                                        const float * bias,
++                                        float * Im_out,
++                                        const uint16_t dim_im_out_x,
++                                        const uint16_t dim_im_out_y,
++                                        float * bufferA,
++                                        float * bufferB);
++
++
++  /**
++   * @brief Basic Q15 version of CHW convolution (non-sqaure shape)
++   * @param[in]       Im_in         pointer to input tensor
++   * @param[in]       dim_im_in_x   input tensor dimention x
++   * @param[in]       dim_im_in_y   input tensor dimention y
++   * @param[in]       ch_im_in      number of input tensor channels
++   * @param[in]       wt            pointer to kernel weights
++   * @param[in]       ch_im_out     number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x  filter kernel size x
++   * @param[in]       dim_kernel_y  filter kernel size y
++   * @param[in]       padding_x     padding sizes x
++   * @param[in]       padding_y     padding sizes y
++   * @param[in]       stride_x      convolution stride x
++   * @param[in]       stride_y      convolution stride y
++   * @param[in]       bias          pointer to bias
++   * @param[in]       bias_shift    amount of left-shift for bias
++   * @param[in]       out_shift     amount of right-shift for output
++   * @param[in,out]   Im_out        pointer to output tensor
++   * @param[in]       dim_im_out_x  output tensor dimension x
++   * @param[in]       dim_im_out_y  output tensor dimension y
++   * @param[in,out]   bufferA       pointer to buffer space for input
++   * @param[in,out]   bufferB       pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   */
++
++    arm_status
++    arm_convolve_CHW_q15_basic_nonsquare(const q15_t * Im_in,
++                                         const uint16_t dim_im_in_x,
++                                         const uint16_t dim_im_in_y,
++                                         const uint16_t ch_im_in,
++                                         const q15_t * wt,
++                                         const uint16_t ch_im_out,
++                                         const uint16_t dim_kernel_x,
++                                         const uint16_t dim_kernel_y,
++                                         const uint16_t padding_x,
++                                         const uint16_t padding_y,
++                                         const uint16_t stride_x,
++                                         const uint16_t stride_y,
++                                         const q15_t * bias,
++                                         const uint16_t bias_shift,
++                                         const uint16_t out_shift,
++                                         q15_t * Im_out,
++                                         const uint16_t dim_im_out_x,
++                                         const uint16_t dim_im_out_y,
++                                         q15_t * bufferA,
++                                         q7_t * bufferB);
++
++  /**
++   * @brief Basic Q7 version of CHW convolution (non-sqaure shape)
++   * @param[in]       Im_in        pointer to input tensor
++   * @param[in]       dim_im_in_x  input tensor dimention x
++   * @param[in]       dim_im_in_y  input tensor dimention y
++   * @param[in]       ch_im_in     number of input tensor channels
++   * @param[in]       wt           pointer to kernel weights
++   * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x filter kernel size x
++   * @param[in]       dim_kernel_y filter kernel size y
++   * @param[in]       padding_x    padding size x
++   * @param[in]       padding_y    padding size y
++   * @param[in]       stride_x     convolution stride x
++   * @param[in]       stride_y     convolution stride y
++   * @param[in]       bias         pointer to bias
++   * @param[in]       bias_shift   amount of left-shift for bias
++   * @param[in]       out_shift    amount of right-shift for output
++   * @param[in,out]   Im_out       pointer to output tensor
++   * @param[in]       dim_im_out_x output tensor dimension x
++   * @param[in]       dim_im_out_y output tensor dimension y
++   * @param[in,out]   bufferA      pointer to buffer space for input
++   * @param[in,out]   bufferB      pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   */
++
++    arm_status
++    arm_convolve_CHW_q7_basic_nonsquare(const q7_t * Im_in,
++                                        const uint16_t dim_im_in_x,
++                                        const uint16_t dim_im_in_y,
++                                        const uint16_t ch_im_in,
++                                        const q7_t * wt,
++                                        const uint16_t ch_im_out,
++                                        const uint16_t dim_kernel_x,
++                                        const uint16_t dim_kernel_y,
++                                        const uint16_t padding_x,
++                                        const uint16_t padding_y,
++                                        const uint16_t stride_x,
++                                        const uint16_t stride_y,
++                                        const q7_t * bias,
++                                        const uint16_t bias_shift,
++                                        const uint16_t out_shift,
++                                        q7_t * Im_out,
++                                        const uint16_t dim_im_out_x,
++                                        const uint16_t dim_im_out_y,
++                                        q15_t * bufferA,
++                                        q7_t * bufferB);
++
++  /**
++   * @brief Matrix-multiplication function for convolution with CHW output
++   * @param[in]       pA          pointer to operand A
++   * @param[in]       pInBuffer   pointer to operand B, always conssists of 2 vectors
++   * @param[in]       ch_im_out   numRow of A
++   * @param[in]       numCol_A    numCol of A
++   * @param[in]       out_stride  output buffer channel stride
++   * @param[in]       bias_shift  amount of left-shift for bias
++   * @param[in]       out_shift   amount of right-shift for output
++   * @param[in]       bias        the bias
++   * @param[in,out]   pOut        pointer to output
++   * @return     The function returns the incremented output pointer
++   *
++   * @details
++   *
++   * This function does the matrix multiplication with weight matrix
++   * and 2 columns from im2col.
++   */
++
++    q7_t     *arm_nn_CHW_mat_mult_kernel_q7_q15(const q7_t * pA,
++                                                const q15_t * pInBuffer,
++                                                const uint16_t ch_im_out,
++                                                const uint16_t numCol_A,
++                                                const uint16_t out_stride,
++                                                const uint16_t bias_shift,
++                                                const uint16_t out_shift,
++                                                const q7_t * bias,
++                                                q7_t * pOut);
++
++#ifdef __cplusplus
++}
++#endif
++#endif
+diff --git a/CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_f32_basic_nonsquare.c CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_f32_basic_nonsquare.c
+===CHANGE_NOTICE(2/5)===========================================================
+Sony Corporation added this file to 5.4.0 for these reasons:
+ - support float version of convolution
+ - support the CHW tensor layout
+================================================================================
+--- /dev/null
++++ CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_f32_basic_nonsquare.c
+@@ -0,0 +1,207 @@
++/*
++ * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
++ * Copyright 2018 Sony Corporation
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the License); you may
++ * not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
++ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/* ----------------------------------------------------------------------
++ * Title:        arm_convolve_CHW_f32_basic_nonsquare.c
++ * Author:       Sony Corporation
++ * Description:  Sony Corporation added this file to 5.4.0 for these reasons:
++ *                - support float version of convolution
++ *                - support the CHW tensor layout
++ * $Date:        14. September 2018
++ * -------------------------------------------------------------------- */
++
++#include "arm_math.h"
++#include "arm_nnfunctions_nnabla.h"
++
++/**
++ *  @ingroup groupNN
++ */
++
++/**
++ * @addtogroup NNConv
++ * @{
++ */
++
++  /**
++   * @brief Basic float32 version of CHW convolution (non-sqaure shape)
++   * @param[in]       Im_in         pointer to input tensor
++   * @param[in]       dim_im_in_x   input tensor dimention x
++   * @param[in]       dim_im_in_y   input tensor dimention y
++   * @param[in]       ch_im_in      number of input tensor channels
++   * @param[in]       wt            pointer to kernel weights
++   * @param[in]       ch_im_out     number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x  filter kernel size x
++   * @param[in]       dim_kernel_y  filter kernel size y
++   * @param[in]       padding_x     padding sizes x
++   * @param[in]       padding_y     padding sizes y
++   * @param[in]       stride_x      convolution stride x
++   * @param[in]       stride_y      convolution stride y
++   * @param[in]       bias          pointer to bias
++   * @param[in,out]   Im_out        pointer to output tensor
++   * @param[in]       dim_im_out_x  output tensor dimension x
++   * @param[in]       dim_im_out_y  output tensor dimension y
++   * @param[in,out]   bufferA       pointer to buffer space for input
++   * @param[in,out]   bufferB       pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   *
++   * @details
++   *
++   * <b>Buffer size:</b>
++   *
++   * bufferA size: ch_im_in*dim_kernel_x*dim_kernel_y
++   *
++   * bufferB size: 0
++   *
++   * This basic version is designed to work for any input tensor and weight
++   * dimension.
++   */
++
++arm_status
++arm_convolve_CHW_f32_basic_nonsquare(const float * Im_in,
++                                     const uint16_t dim_im_in_x,
++                                     const uint16_t dim_im_in_y,
++                                     const uint16_t ch_im_in,
++                                     const float * wt,
++                                     const uint16_t ch_im_out,
++                                     const uint16_t dim_kernel_x,
++                                     const uint16_t dim_kernel_y,
++                                     const uint16_t padding_x,
++                                     const uint16_t padding_y,
++                                     const uint16_t stride_x,
++                                     const uint16_t stride_y,
++                                     const float * bias,
++                                     float * Im_out,
++                                     const uint16_t dim_im_out_x,
++                                     const uint16_t dim_im_out_y,
++                                     float * bufferA,
++                                     float * bufferB)
++{
++
++    /* Run the following code for Cortex-M4 and Cortex-M7 */
++
++    int16_t   i_out_y, i_out_x, i_ker_y, i_ker_x;
++    int16_t   i_ker_x_begin, i_ker_y_begin;
++    int16_t   i_ker_x_end, i_ker_y_end;
++    int16_t   single_in_map_size = dim_im_in_x * dim_im_in_y;
++    int16_t   kernel_size_2d = dim_kernel_x * dim_kernel_y;
++
++    uint16_t  im2col_out_pixel_index = 0;
++    float    *pBuffer = bufferA;
++    float    *im_buffer = bufferA;
++    const float *pA;
++    int       i;
++
++    /* This part implements the im2col function */
++    for (i_out_y = 0; i_out_y < dim_im_out_y; i_out_y++)
++    {
++        for (i_out_x = 0; i_out_x < dim_im_out_x; i_out_x++)
++        {
++            i_ker_y_begin = i_out_y * stride_y - padding_y;
++            i_ker_y_end = i_ker_y_begin + dim_kernel_y;
++
++            for (i_ker_y = i_ker_y_begin; i_ker_y < i_ker_y_end; i_ker_y++)
++            {
++                i_ker_x_begin = i_out_x * stride_x - padding_x;
++                i_ker_x_end = i_ker_x_begin + dim_kernel_x;
++
++                for (i_ker_x = i_ker_x_begin; i_ker_x < i_ker_x_end; i_ker_x++)
++                {
++                    float *pDest = pBuffer + (i_ker_y - i_ker_y_begin) * dim_kernel_x + (i_ker_x - i_ker_x_begin);
++                    float *pDestEnd = pDest + ch_im_in * kernel_size_2d;
++
++                    if (i_ker_y < 0 || i_ker_y >= dim_im_in_y || i_ker_x < 0 || i_ker_x >= dim_im_in_x)
++                    {
++                        /* Out of bound zero values */
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = 0;
++                            pDest += kernel_size_2d;
++                        }
++                    } else
++                    {
++                        const float *pSrc = Im_in + i_ker_y * dim_im_in_x + i_ker_x;
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = *pSrc;
++                            pSrc += single_in_map_size;
++                            pDest += kernel_size_2d;
++                        }
++                    }
++                }
++            }
++
++            pA = wt;
++            float  *pOut = Im_out++;
++            int16_t map_size_out = dim_im_out_x * dim_im_out_y;
++            for (i = 0; i < ch_im_out; i++)
++            {
++                float     sum = 0;
++                float    *pB = im_buffer;
++                uint16_t  colCnt = (ch_im_in * dim_kernel_x * dim_kernel_y) >> 2;
++
++                if (bias)
++                {
++                    sum = bias[i];
++                }
++
++                while (colCnt)
++                {
++                    float   inA1 = *pA++;
++                    float   inB1 = *pB++;
++                    float   inA2 = *pA++;
++                    float   inB2 = *pB++;
++
++                    sum += inA1 * inB1;
++                    sum += inA2 * inB2;
++
++                    inA1 = *pA++;
++                    inB1 = *pB++;
++                    inA2 = *pA++;
++                    inB2 = *pB++;
++
++                    sum += inA1 * inB1;
++                    sum += inA2 * inB2;
++
++                    colCnt--;
++                }
++                colCnt = (ch_im_in * dim_kernel_x * dim_kernel_y) & 0x3;
++                while (colCnt)
++                {
++                    float     inA1 = *pA++;
++                    float     inB1 = *pB++;
++                    sum += inA1 * inB1;
++                    colCnt--;
++                }
++                *pOut = sum;
++                pOut += map_size_out;
++            }
++
++            /* counter reset */
++            pBuffer = im_buffer;
++            im2col_out_pixel_index++;
++        }
++    }
++
++    /* Return to application */
++    return ARM_MATH_SUCCESS;
++}
++
++/**
++ * @} end of NNConv group
++ */
+diff --git a/CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q15_basic_nonsquare.c CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q15_basic_nonsquare.c
+===CHANGE_NOTICE(3/5)===========================================================
+Sony Corporation added this file to 5.4.0 to support the CHW tensor layout
+================================================================================
+--- /dev/null
++++ CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q15_basic_nonsquare.c
+@@ -0,0 +1,231 @@
++/*
++ * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
++ * Copyright 2018 Sony Corporation
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the License); you may
++ * not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
++ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/* ----------------------------------------------------------------------
++ * Title:        arm_convolve_CHW_q15_basic_nonsquare.c
++ * Author:       Sony Corporation
++ * Description:  Sony Corporation added this file to 5.4.0
++ *               to support the CHW tensor layout
++ * $Date:        14. September 2018
++ * -------------------------------------------------------------------- */
++
++#include "arm_math.h"
++#include "arm_nnfunctions_nnabla.h"
++
++/**
++ *  @ingroup groupNN
++ */
++
++/**
++ * @addtogroup NNConv
++ * @{
++ */
++
++  /**
++   * @brief Basic Q15 version of CHW convolution (non-sqaure shape)
++   * @param[in]       Im_in         pointer to input tensor
++   * @param[in]       dim_im_in_x   input tensor dimention x
++   * @param[in]       dim_im_in_y   input tensor dimention y
++   * @param[in]       ch_im_in      number of input tensor channels
++   * @param[in]       wt            pointer to kernel weights
++   * @param[in]       ch_im_out     number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x  filter kernel size x
++   * @param[in]       dim_kernel_y  filter kernel size y
++   * @param[in]       padding_x     padding sizes x
++   * @param[in]       padding_y     padding sizes y
++   * @param[in]       stride_x      convolution stride x
++   * @param[in]       stride_y      convolution stride y
++   * @param[in]       bias          pointer to bias
++   * @param[in]       bias_shift    amount of left-shift for bias
++   * @param[in]       out_shift     amount of right-shift for output
++   * @param[in,out]   Im_out        pointer to output tensor
++   * @param[in]       dim_im_out_x  output tensor dimension x
++   * @param[in]       dim_im_out_y  output tensor dimension y
++   * @param[in,out]   bufferA       pointer to buffer space for input
++   * @param[in,out]   bufferB       pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   *
++   * @details
++   *
++   * <b>Buffer size:</b>
++   *
++   * bufferA size: ch_im_in*dim_kernel_x*dim_kernel_y
++   *
++   * bufferB size: 0
++   *
++   * This basic version is designed to work for any input tensor and weight
++   * dimension.
++   */
++
++arm_status
++arm_convolve_CHW_q15_basic_nonsquare(const q15_t * Im_in,
++                                     const uint16_t dim_im_in_x,
++                                     const uint16_t dim_im_in_y,
++                                     const uint16_t ch_im_in,
++                                     const q15_t * wt,
++                                     const uint16_t ch_im_out,
++                                     const uint16_t dim_kernel_x,
++                                     const uint16_t dim_kernel_y,
++                                     const uint16_t padding_x,
++                                     const uint16_t padding_y,
++                                     const uint16_t stride_x,
++                                     const uint16_t stride_y,
++                                     const q15_t * bias,
++                                     const uint16_t bias_shift,
++                                     const uint16_t out_shift,
++                                     q15_t * Im_out,
++                                     const uint16_t dim_im_out_x,
++                                     const uint16_t dim_im_out_y,
++                                     q15_t * bufferA,
++                                     q7_t * bufferB)
++{
++
++    /* Run the following code for Cortex-M4 and Cortex-M7 */
++
++    int16_t   i_out_y, i_out_x, i_ker_y, i_ker_x;
++    int16_t   i_ker_x_begin, i_ker_y_begin;
++    int16_t   i_ker_x_end, i_ker_y_end;
++    int16_t   single_in_map_size = dim_im_in_x * dim_im_in_y;
++    int16_t   kernel_size_2d = dim_kernel_x * dim_kernel_y;
++
++    uint16_t  im2col_out_pixel_index = 0;
++    q15_t    *pBuffer = bufferA;
++    q15_t    *im_buffer = bufferA;
++    const q15_t *pA;
++    int       i;
++
++    /* This part implements the im2col function */
++    for (i_out_y = 0; i_out_y < dim_im_out_y; i_out_y++)
++    {
++        for (i_out_x = 0; i_out_x < dim_im_out_x; i_out_x++)
++        {
++#define USE_CHW_IN_COL
++#ifdef USE_CHW_IN_COL
++
++            i_ker_y_begin = i_out_y * stride_y - padding_y;
++            i_ker_y_end = i_ker_y_begin + dim_kernel_y;
++
++            for (i_ker_y = i_ker_y_begin; i_ker_y < i_ker_y_end; i_ker_y++)
++            {
++                i_ker_x_begin = i_out_x * stride_x - padding_x;
++                i_ker_x_end = i_ker_x_begin + dim_kernel_x;
++
++                for (i_ker_x = i_ker_x_begin; i_ker_x < i_ker_x_end; i_ker_x++)
++                {
++                    q15_t *pDest = pBuffer + (i_ker_y - i_ker_y_begin) * dim_kernel_x + (i_ker_x - i_ker_x_begin);
++                    q15_t *pDestEnd = pDest + ch_im_in * kernel_size_2d;
++
++                    if (i_ker_y < 0 || i_ker_y >= dim_im_in_y || i_ker_x < 0 || i_ker_x >= dim_im_in_x)
++                    {
++                        /* Out of bound zero values */
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = 0;
++                            pDest += kernel_size_2d;
++                        }
++                    } else
++                    {
++                        const q15_t *pSrc = Im_in + i_ker_y * dim_im_in_x + i_ker_x;
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = *pSrc;
++                            pSrc += single_in_map_size;
++                            pDest += kernel_size_2d;
++                        }
++                    }
++                }
++            }
++#else
++            // HWC in columns
++            for (i_ker_y = i_out_y * stride_y - padding_y; i_ker_y < i_out_y * stride_y - padding_y + dim_kernel_y; i_ker_y++)
++            {
++                for (i_ker_x = i_out_x * stride_x - padding_x; i_ker_x < i_out_x * stride_x - padding_x + dim_kernel_x; i_ker_x++)
++                {
++                    if (i_ker_y < 0 || i_ker_y >= dim_im_in_y || i_ker_x < 0 || i_ker_x >= dim_im_in_y)
++                    {
++                        /* Filling 0 for out-of-bound paddings */
++                        /* arm_fill_q15(0, pBuffer, ch_im_in); */
++                        memset(pBuffer, 0, sizeof(q15_t)*ch_im_in);
++                    } else
++                    {
++                        /* load CHW patch to HWC column */
++                        const q15_t *pSrc = Im_in + i_ker_y * dim_im_in_x + i_ker_x;
++                        for (int16_t ch_idx = 0; ch_idx < ch_im_in; ch_idx++)
++                        {
++                            pBuffer[ch_idx++] = *pSrc;
++                            pSrc += single_in_map_size;
++                        }
++                    }
++
++                    pBuffer += ch_im_in;
++                }
++            }
++#endif
++
++            pA = wt;
++            q15_t  *pOut = Im_out++;
++            int16_t map_size_out = dim_im_out_x * dim_im_out_y;
++            for (i = 0; i < ch_im_out; i++)
++            {
++                q31_t     sum = 0;
++                q15_t    *pB = im_buffer;
++                uint16_t  colCnt = (ch_im_in * dim_kernel_x * dim_kernel_y) >> 2;
++
++                if (bias)
++                {
++                    sum = ((q31_t)bias[i] << bias_shift) + NN_ROUND(out_shift);
++                }
++
++                while (colCnt)
++                {
++                    q31_t     inA1 = *__SIMD32(pA)++;
++                    q31_t     inB1 = *__SIMD32(pB)++;
++                    q31_t     inA2 = *__SIMD32(pA)++;
++                    q31_t     inB2 = *__SIMD32(pB)++;
++
++                    sum = __SMLAD(inA1, inB1, sum);
++                    sum = __SMLAD(inA2, inB2, sum);
++
++                    colCnt--;
++                }
++                colCnt = (ch_im_in * dim_kernel_x * dim_kernel_y) & 0x3;
++                while (colCnt)
++                {
++                    q15_t     inA1 = *pA++;
++                    q15_t     inB1 = *pB++;
++                    sum += inA1 * inB1;
++                    colCnt--;
++                }
++                *pOut = (q15_t) __SSAT((sum >> out_shift), 16);
++                pOut += map_size_out;
++            }
++
++            /* counter reset */
++            pBuffer = im_buffer;
++            im2col_out_pixel_index++;
++        }
++    }
++
++    /* Return to application */
++    return ARM_MATH_SUCCESS;
++}
++
++/**
++ * @} end of NNConv group
++ */
+diff --git a/CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q7_basic_nonsquare.c CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q7_basic_nonsquare.c
+===CHANGE_NOTICE(4/5)===========================================================
+Sony Corporation added this file to 5.4.0 to support the CHW tensor layout
+================================================================================
+--- /dev/null
++++ CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_convolve_CHW_q7_basic_nonsquare.c
+@@ -0,0 +1,214 @@
++/*
++ * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
++ * Copyright 2018 Sony Corporation
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the License); you may
++ * not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
++ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/* ----------------------------------------------------------------------
++ * Title:        arm_convolve_CHW_q7_basic_nonsquare.c
++ * Author:       Sony Corporation
++ * Description:  Sony Corporation added this file to 5.4.0
++ *               to support the CHW tensor layout
++ * $Date:        14. September 2018
++ * -------------------------------------------------------------------- */
++
++#include "arm_math.h"
++#include "arm_nnfunctions_nnabla.h"
++
++/**
++ *  @ingroup groupNN
++ */
++
++/**
++ * @addtogroup NNConv
++ * @{
++ */
++
++  /**
++   * @brief Basic Q7 version of CHW convolution (non-sqaure shape)
++   * @param[in]       Im_in        pointer to input tensor
++   * @param[in]       dim_im_in_x  input tensor dimention x
++   * @param[in]       dim_im_in_y  input tensor dimention y
++   * @param[in]       ch_im_in     number of input tensor channels
++   * @param[in]       wt           pointer to kernel weights
++   * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
++   * @param[in]       dim_kernel_x filter kernel size x
++   * @param[in]       dim_kernel_y filter kernel size y
++   * @param[in]       padding_x    padding size x
++   * @param[in]       padding_y    padding size y
++   * @param[in]       stride_x     convolution stride x
++   * @param[in]       stride_y     convolution stride y
++   * @param[in]       bias         pointer to bias
++   * @param[in]       bias_shift   amount of left-shift for bias
++   * @param[in]       out_shift    amount of right-shift for output
++   * @param[in,out]   Im_out       pointer to output tensor
++   * @param[in]       dim_im_out_x output tensor dimension x
++   * @param[in]       dim_im_out_y output tensor dimension y
++   * @param[in,out]   bufferA      pointer to buffer space for input
++   * @param[in,out]   bufferB      pointer to buffer space for output
++   * @return     The function returns <code>ARM_MATH_SUCCESS</code>
++   */
++
++arm_status arm_convolve_CHW_q7_basic_nonsquare(const q7_t * Im_in,
++                                               const uint16_t dim_im_in_x,
++                                               const uint16_t dim_im_in_y,
++                                               const uint16_t ch_im_in,
++                                               const q7_t * wt,
++                                               const uint16_t ch_im_out,
++                                               const uint16_t dim_kernel_x,
++                                               const uint16_t dim_kernel_y,
++                                               const uint16_t padding_x,
++                                               const uint16_t padding_y,
++                                               const uint16_t stride_x,
++                                               const uint16_t stride_y,
++                                               const q7_t * bias,
++                                               const uint16_t bias_shift,
++                                               const uint16_t out_shift,
++                                               q7_t * Im_out,
++                                               const uint16_t dim_im_out_x,
++                                               const uint16_t dim_im_out_y,
++                                               q15_t * bufferA,
++                                               q7_t * bufferB)
++{
++
++    /* Run the following code for Cortex-M4 and Cortex-M7 */
++
++    int16_t   i_out_y, i_out_x, i_ker_y, i_ker_x;
++    int16_t   i_ker_x_begin, i_ker_y_begin;
++    int16_t   i_ker_x_end, i_ker_y_end;
++    int16_t   single_in_map_size = dim_im_in_x * dim_im_in_y;
++    int16_t   kernel_size_2d = dim_kernel_x * dim_kernel_y;
++    int16_t   kernel_size_3d = ch_im_in * kernel_size_2d;
++
++    /*
++     *  Here we use bufferA as q15_t internally as computation are done with q15_t level
++     *  im2col are done to output in q15_t format from q7_t input
++     */
++    q15_t    *pBuffer = bufferA;
++    q7_t     *pOut = Im_out;
++
++    /* This part implements the im2col function */
++    for (i_out_y = 0; i_out_y < dim_im_out_y; i_out_y++)
++    {
++        for (i_out_x = 0; i_out_x < dim_im_out_x; i_out_x++)
++        {
++            i_ker_y_begin = i_out_y * stride_y - padding_y;
++            i_ker_y_end = i_out_y * stride_y - padding_y + dim_kernel_y;
++
++            for (i_ker_y = i_ker_y_begin; i_ker_y < i_ker_y_end; i_ker_y++)
++            {
++
++                i_ker_x_begin = i_out_x * stride_x - padding_x;
++                i_ker_x_end = i_out_x * stride_x - padding_x + dim_kernel_x;
++
++                for (i_ker_x = i_ker_x_begin; i_ker_x < i_ker_x_end; i_ker_x++)
++                {
++
++                    q15_t *pDest = pBuffer + (i_ker_y - i_ker_y_begin) * dim_kernel_x + (i_ker_x - i_ker_x_begin);
++                    q15_t *pDestEnd = pDest + ch_im_in * kernel_size_2d;
++
++                    if (i_ker_y < 0 || i_ker_y >= dim_im_in_y || i_ker_x < 0 || i_ker_x >= dim_im_in_x)
++                    {
++                        /* Filling 0 for out-of-bound paddings */
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = 0;
++                            pDest += kernel_size_2d;
++                        }
++                    } else
++                    {
++                        /* Copying the pixel data to column */
++                        const q7_t *pSrc = Im_in + i_ker_y * dim_im_in_x + i_ker_x;
++                        for (; pDest < pDestEnd;)
++                        {
++                            *pDest = *pSrc;
++                            pSrc += single_in_map_size;
++                            pDest += kernel_size_2d;
++                        }
++                    }
++                }
++            }
++
++            pBuffer += kernel_size_3d;
++
++            /* Computation is filed for every 2 columns */
++            if (pBuffer == bufferA + 2 * kernel_size_3d)
++            {
++                pOut =
++                    arm_nn_CHW_mat_mult_kernel_q7_q15(wt, bufferA,
++                                                      ch_im_out,
++                                                      ch_im_in *
++                                                      dim_kernel_y * dim_kernel_x,
++                                                      dim_im_out_y * dim_im_out_x,
++                                                      bias_shift, out_shift, bias, pOut);
++
++                /* counter reset */
++                pBuffer = bufferA;
++            }
++        }
++    }
++
++    /* left-over because odd number of output pixels */
++    if (pBuffer != bufferA)
++    {
++        const q7_t *pA = wt;
++        int       i;
++
++        for (i = 0; i < ch_im_out; i++)
++        {
++            /* Load the accumulator with bias first */
++            q31_t     sum = ((q31_t)bias[i] << bias_shift) + NN_ROUND(out_shift);
++
++            /* Point to the beging of the im2col buffer */
++            q15_t    *pB = bufferA;
++
++            /* Each time it process 4 entries */
++            uint16_t  colCnt = kernel_size_3d >> 2;
++
++            while (colCnt)
++            {
++                q31_t     inA1, inA2;
++                q31_t     inB1, inB2;
++
++                pA = (q7_t *) read_and_pad((void *)pA, &inA1, &inA2);
++
++                inB1 = *__SIMD32(pB)++;
++                sum = __SMLAD(inA1, inB1, sum);
++                inB2 = *__SIMD32(pB)++;
++                sum = __SMLAD(inA2, inB2, sum);
++
++                colCnt--;
++            }
++            colCnt = kernel_size_3d & 0x3;
++            while (colCnt)
++            {
++                q7_t      inA1 = *pA++;
++                q15_t     inB1 = *pB++;
++                sum += inA1 * inB1;
++                colCnt--;
++            }
++            *pOut = (q7_t) __SSAT((sum >> out_shift), 8);
++            pOut += dim_im_out_y * dim_im_out_x;
++        }
++    }
++
++    /* Return to application */
++    return ARM_MATH_SUCCESS;
++}
++
++/**
++ * @} end of NNConv group
++ */
+diff --git a/CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_nn_CHW_mat_mult_kernel_q7_q15.c CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_nn_CHW_mat_mult_kernel_q7_q15.c
+===CHANGE_NOTICE(5/5)===========================================================
+Sony Corporation added this file to 5.4.0 to support the CHW tensor layout
+================================================================================
+--- /dev/null
++++ CMSIS_5/CMSIS/NN/Source/ConvolutionFunctions/arm_nn_CHW_mat_mult_kernel_q7_q15.c
+@@ -0,0 +1,196 @@
++/*
++ * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
++ * Copyright 2018 Sony Corporation
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the License); you may
++ * not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
++ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/* ----------------------------------------------------------------------
++ * Title:        arm_nn_CHW_mat_mult_kernel_q7_q15.c
++ * Author:       Sony Corporation
++ * Description:  Sony Corporation added this file to 5.4.0
++ *               to support the CHW tensor layout in convolution
++ * $Date:        14. September 2018
++ * -------------------------------------------------------------------- */
++
++#include "arm_math.h"
++#include "arm_nnfunctions_nnabla.h"
++
++  /**
++   * @brief Matrix-multiplication function for convolution with CHW output
++   * @param[in]       pA          pointer to operand A
++   * @param[in]       pInBuffer   pointer to operand B, always conssists of 2 vectors
++   * @param[in]       ch_im_out   numRow of A
++   * @param[in]       numCol_A    numCol of A
++   * @param[in]       out_stride  output buffer channel stride
++   * @param[in]       bias_shift  amount of left-shift for bias
++   * @param[in]       out_shift   amount of right-shift for output
++   * @param[in]       bias        the bias
++   * @param[in,out]   pOut        pointer to output
++   * @return     The function returns the incremented output pointer
++   *
++   * @details
++   *
++   * This function does the matrix multiplication with weight matrix
++   * and 2 columns from im2col.
++   */
++
++q7_t     *arm_nn_CHW_mat_mult_kernel_q7_q15(const q7_t * pA,
++                                            const q15_t * pInBuffer,
++                                            const uint16_t ch_im_out,
++                                            const uint16_t numCol_A,
++                                            const uint16_t out_stride,
++                                            const uint16_t bias_shift,
++                                            const uint16_t out_shift,
++                                            const q7_t * bias,
++                                            q7_t * pOut)
++{
++    /* set up the second output pointers */
++    q7_t     *pOut_base = pOut;
++    q7_t     *pOut2;
++    const q7_t *pBias = bias;
++    int16_t   i_row;
++
++    uint16_t  rowCnt = ch_im_out >> 1;
++    /* this loop over rows in A */
++    for (i_row = 0; i_row < rowCnt; ++i_row)
++    {
++        /* setup output pointers */
++        pOut = pOut_base + 2 * i_row * out_stride;
++        pOut2 = pOut + out_stride;
++
++        /* setup pointers for B */
++        const q15_t *pB = pInBuffer;
++        const q15_t *pB2 = pB + numCol_A;
++
++        /* align the second pointer for A */
++        const q7_t *pA2 = pA + numCol_A;
++
++        /* sum & sum3 belong to same outmap, sum2 & sum4 belong to another outmap
++         *
++         *      sum      sum3
++         *      sum2     sum4
++         *
++         */
++        /* init the sum with bias */
++        q31_t     sum =  ((q31_t)(*pBias++) << bias_shift) + NN_ROUND(out_shift);
++        q31_t     sum3 = sum;
++        q31_t     sum2 = ((q31_t)(*pBias++) << bias_shift) + NN_ROUND(out_shift);
++        q31_t     sum4 = sum2;
++
++        uint16_t  colCnt = numCol_A >> 2;
++        /* accumulate over the vector */
++        while (colCnt)
++        {
++            q31_t     inA11, inA12, inA21, inA22;
++            q31_t     inB1 = *__SIMD32(pB)++;
++            q31_t     inB2 = *__SIMD32(pB2)++;
++
++            /* pA is in CHW -> inA11 & inA12 belong to same out-map weight */
++            pA = (q7_t *) read_and_pad((void *)pA, &inA11, &inA12);
++            pA2 = (q7_t *) read_and_pad((void *)pA2, &inA21, &inA22);
++
++            /* inB1 belongs to the first columns, inB2 is the second column */
++            sum  = __SMLAD(inA11, inB1, sum);
++            sum3 = __SMLAD(inA11, inB2, sum3);
++            sum2 = __SMLAD(inA21, inB1, sum2);
++            sum4 = __SMLAD(inA21, inB2, sum4);
++
++            inB1 = *__SIMD32(pB)++;
++            inB2 = *__SIMD32(pB2)++;
++
++            sum  = __SMLAD(inA12, inB1, sum);
++            sum3 = __SMLAD(inA12, inB2, sum3);
++            sum2 = __SMLAD(inA22, inB1, sum2);
++            sum4 = __SMLAD(inA22, inB2, sum4);
++
++            colCnt--;
++        }                       /* while over colCnt */
++        colCnt = numCol_A & 0x3;
++        while (colCnt)
++        {
++            q7_t      inA1 = *pA++;
++            q15_t     inB1 = *pB++;
++            q7_t      inA2 = *pA2++;
++            q15_t     inB2 = *pB2++;
++
++            sum  += inA1 * inB1;
++            sum3 += inA1 * inB2;
++            sum2 += inA2 * inB1;
++            sum4 += inA2 * inB2;
++            colCnt--;
++        }                       /* while over colCnt */
++        *pOut++ = (q7_t) __SSAT((sum >> out_shift), 8);
++        *pOut   = (q7_t) __SSAT((sum3 >> out_shift), 8);
++        *pOut2++ = (q7_t) __SSAT((sum2 >> out_shift), 8);
++        *pOut2   = (q7_t) __SSAT((sum4 >> out_shift), 8);
++
++        /* skip the row computed with A2 */
++        pA += numCol_A;
++    }                           /* for over ch_im_out */
++
++    /* compute left-over row if any */
++    if (ch_im_out & 0x1)
++    {
++        /* setup output pointers */
++        pOut = pOut_base + (ch_im_out - 1) * out_stride;
++
++        /* setup pointers for B */
++        const q15_t *pB = pInBuffer;
++        const q15_t *pB2 = pB + numCol_A;
++
++        /* load the bias */
++        q31_t     sum = ((q31_t)(*pBias) << bias_shift) + NN_ROUND(out_shift);
++        q31_t     sum3 = sum;
++
++        uint16_t  colCnt = numCol_A >> 2;
++        while (colCnt)
++        {
++            q31_t     inA11, inA12;
++            q31_t     inB1 = *__SIMD32(pB)++;
++            q31_t     inB2 = *__SIMD32(pB2)++;
++
++            pA = (q7_t *) read_and_pad((void *)pA, &inA11, &inA12);
++
++            sum  = __SMLAD(inA11, inB1, sum);
++            sum3 = __SMLAD(inA11, inB2, sum3);
++
++            inB1 = *__SIMD32(pB)++;
++            inB2 = *__SIMD32(pB2)++;
++
++            sum  = __SMLAD(inA12, inB1, sum);
++            sum3 = __SMLAD(inA12, inB2, sum3);
++
++            colCnt--;
++        }
++        colCnt = numCol_A & 0x3;
++        while (colCnt)
++        {
++            q7_t      inA1 = *pA++;
++            q15_t     inB1 = *pB++;
++            q15_t     inB2 = *pB2++;
++
++            sum  += inA1 * inB1;
++            sum3 += inA1 * inB2;
++            colCnt--;
++        }
++
++        *pOut++ = (q7_t) __SSAT((sum  >> out_shift), 8);
++        *pOut   = (q7_t) __SSAT((sum3 >> out_shift), 8);
++    }
++
++    /* return the new output pointer with offset */
++    return pOut_base + 2;
++}
