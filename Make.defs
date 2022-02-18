@@ -57,6 +57,7 @@ $(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
 # File extensions
 
 CXXEXT ?= .cxx
+RUSTEXT ?= .rs
 
 # Library path
 
