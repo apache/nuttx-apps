@@ -93,17 +93,20 @@ RAOBJS = $(RASRCS:=$(SUFFIX)$(OBJEXT))
 CAOBJS = $(CASRCS:=$(SUFFIX)$(OBJEXT))
 COBJS = $(CSRCS:=$(SUFFIX)$(OBJEXT))
 CXXOBJS = $(CXXSRCS:=$(SUFFIX)$(OBJEXT))
+RUSTOBJS = $(RUSTSRCS:=$(SUFFIX)$(OBJEXT))
 
 MAINCXXSRCS = $(filter %$(CXXEXT),$(MAINSRC))
 MAINCSRCS = $(filter %.c,$(MAINSRC))
+MAINRUSTSRCS = $(filter %$(RUSTEXT),$(MAINSRC))
 MAINCXXOBJ = $(MAINCXXSRCS:=$(SUFFIX)$(OBJEXT))
 MAINCOBJ = $(MAINCSRCS:=$(SUFFIX)$(OBJEXT))
+MAINRUSTOBJ = $(MAINRUSTSRCS:=$(SUFFIX)$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
-OBJS = $(RAOBJS) $(CAOBJS) $(COBJS) $(CXXOBJS)
+OBJS = $(RAOBJS) $(CAOBJS) $(COBJS) $(CXXOBJS) $(RUSTOBJS)
 
 ifneq ($(BUILD_MODULE),y)
-  OBJS += $(MAINCOBJ) $(MAINCXXOBJ)
+  OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 endif
 
 DEPPATH += --dep-path .
@@ -132,6 +135,11 @@ define ELFCOMPILEXX
 	$(Q) $(CXX) -c $(CXXELFFLAGS) $($(strip $1)_CXXELFFLAGS) $1 -o $2
 endef
 
+define ELFCOMPILERUST
+	@echo "RUSTC: $1"
+	$(Q) $(RUSTC) --emit obj $(RUSTELFFLAGS) $($(strip $1)_RUSTELFFLAGS) $1 -o $2
+endef
+
 define ELFLD
 	@echo "LD: $2"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
@@ -153,6 +161,10 @@ $(CXXOBJS): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
+$(RUSTOBJS): %$(RUSTEXT)$(SUFFIX)$(OBJEXT): %$(RUSTEXT)
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
+		$(call ELFCOMPILERUST, $<, $@), $(call COMPILERUST, $<, $@))
+
 archive:
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 	$(call ARCHIVE_ADD, "${shell cygpath -w $(BIN)}", $(OBJS))
@@ -170,11 +182,11 @@ $(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
-PROGLIST := $(wordlist 1,$(words $(MAINCOBJ) $(MAINCXXOBJ)),$(PROGNAME))
+PROGLIST := $(wordlist 1,$(words $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)),$(PROGNAME))
 PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGLIST))
-PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ)
+PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 
-$(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ)
+$(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 	$(Q) mkdir -p $(BINDIR)
 ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
 	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
@@ -207,6 +219,10 @@ $(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
+
+$(MAINRUSTOBJ): %$(RUSTEXT)$(SUFFIX)$(OBJEXT): %$(RUSTEXT)
+	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
+		$(call ELFCOMPILERUST, $<, $@), $(call COMPILERUST, $<, $@))
 
 install::
 
