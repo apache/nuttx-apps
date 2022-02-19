@@ -291,7 +291,7 @@ static int foc_angle_osmo_run_f32(FAR foc_angle_f32_t *h,
   /* Update observer */
 
   motor_aobserver_smo(&ob->data, &in->state->iab, &in->state->vab,
-                      &ob->cfg.phy, ob->dir);
+                      &ob->cfg.phy, in->dir, in->vel);
 
   /* Copy data */
 
