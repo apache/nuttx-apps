@@ -50,7 +50,7 @@ struct foc_observer_f32_s
 {
   struct foc_observer_cfg_f32_s cfg;
   struct motor_aobserver_f32_s  data;
-  float                         dir;
+  float                         sensor_dir;
 };
 
 /****************************************************************************
@@ -198,7 +198,7 @@ static int foc_angle_onfo_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
 
   /* Initialize with CW direction */
 
-  ob->dir = DIR_CW;
+  ob->sensor_dir = DIR_CW;
 
   return OK;
 errout:
@@ -264,7 +264,7 @@ static int foc_angle_onfo_dir_f32(FAR foc_angle_f32_t *h, float dir)
 
   /* Configure direction */
 
-  ob->dir = dir;
+  ob->sensor_dir = dir;
 
   return OK;
 }
