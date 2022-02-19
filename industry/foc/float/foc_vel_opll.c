@@ -49,7 +49,7 @@ struct foc_pll_f32_s
   struct foc_vel_pll_f32_cfg_s     cfg;
   struct motor_sobserver_pll_f32_s data;
   struct motor_sobserver_f32_s     o;
-  float                            dir;
+  float                            sensor_dir;
 };
 
 /****************************************************************************
@@ -175,7 +175,7 @@ static int foc_velocity_pll_cfg_f32(FAR foc_velocity_f32_t *h, FAR void *cfg)
 
   /* Initialize with CW direction */
 
-  pll->dir = DIR_CW;
+  pll->sensor_dir = DIR_CW;
 
   return ret;
 }
@@ -235,7 +235,7 @@ static int foc_velocity_pll_dir_f32(FAR foc_velocity_f32_t *h, float dir)
 
   /* Set direction */
 
-  pll->dir = dir;
+  pll->sensor_dir = dir;
 
   return OK;
 }
@@ -271,7 +271,7 @@ static int foc_velocity_pll_run_f32(FAR foc_velocity_f32_t *h,
 
   /* Copy data */
 
-  out->velocity = pll->dir * motor_sobserver_speed_get(&pll->o);
+  out->velocity = pll->sensor_dir * motor_sobserver_speed_get(&pll->o);
 
   return OK;
 }
