@@ -46,11 +46,12 @@
 
 /* sensorless observer data */
 
-struct foc_observer_f32_s
+struct foc_ang_onfo_f32_s
 {
-  struct foc_observer_cfg_f32_s cfg;
-  struct motor_aobserver_f32_s  data;
-  float                         sensor_dir;
+  struct foc_angle_onfo_cfg_f32_s  cfg;
+  struct motor_aobserver_nfo_f32_s data;
+  struct motor_aobserver_f32_s     o;
+  float                            sensor_dir;
 };
 
 /****************************************************************************
@@ -105,7 +106,7 @@ static int foc_angle_onfo_init_f32(FAR foc_angle_f32_t *h)
 
   /* Connect angle data */
 
-  h->data = zalloc(sizeof(struct foc_observer_f32_s));
+  h->data = zalloc(sizeof(struct foc_ang_onfo_f32_s));
   if (h->data == NULL)
     {
       ret = -ENOMEM;
@@ -129,19 +130,11 @@ errout:
 
 static void foc_angle_onfo_deinit_f32(FAR foc_angle_f32_t *h)
 {
-  FAR struct foc_observer_f32_s *ob = NULL;
-
   DEBUGASSERT(h);
-
-  /* Free angle data */
 
   if (h->data)
     {
-      ob = h->data;
-      if (ob->data.ao)
-        {
-           free(ob->data.ao);
-        }
+      /* Free angle data */
 
       free(h->data);
     }
@@ -156,15 +149,14 @@ static void foc_angle_onfo_deinit_f32(FAR foc_angle_f32_t *h)
  * Input Parameter:
  *   h   - pointer to FOC angle handler
  *   cfg - pointer to angle handler configuration data
- *         (struct foc_observer_f32_s)
+ *         (struct foc_ang_onfo_f32_s)
  *
  ****************************************************************************/
 
 static int foc_angle_onfo_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
 {
-  int ret = OK;
-  FAR struct foc_observer_f32_s *ob = NULL;
-  FAR struct motor_aobserver_nfo_f32_s *ao = NULL;
+  FAR struct foc_ang_onfo_f32_s *ob  = NULL;
+  int                            ret = OK;
 
   DEBUGASSERT(h);
 
@@ -175,37 +167,23 @@ static int foc_angle_onfo_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
 
   /* Copy configuration */
 
-  memcpy(&ob->cfg, cfg, sizeof(struct foc_observer_cfg_f32_s));
+  memcpy(&ob->cfg, cfg, sizeof(struct foc_angle_onfo_cfg_f32_s));
 
   /* Initialize sensorless observer controller data */
 
   DEBUGASSERT(ob->cfg.per > 0.0f);
 
-  ao = zalloc(sizeof(struct motor_aobserver_nfo_f32_s));
-  if (ao == NULL)
-    {
-      ret = -ENOMEM;
-      goto errout;
-    }
-
   /* Initialize nolinear fluxlink angle observer */
 
-  motor_aobserver_nfo_init(ao);
+  motor_aobserver_nfo_init(&ob->data);
 
   /* Initialize sensorless observer */
 
-  motor_aobserver_init(&ob->data, ao, ob->cfg.per);
+  motor_aobserver_init(&ob->o, &ob->data, ob->cfg.per);
 
   /* Initialize with CW direction */
 
   ob->sensor_dir = DIR_CW;
-
-  return OK;
-errout:
-  if (ao)
-    {
-      free(ao);
-    }
 
   return ret;
 }
@@ -223,7 +201,7 @@ errout:
 
 static int foc_angle_onfo_zero_f32(FAR foc_angle_f32_t *h)
 {
-  FAR struct foc_observer_f32_s *ob = NULL;
+  FAR struct foc_ang_onfo_f32_s *ob = NULL;
 
   DEBUGASSERT(h);
 
@@ -232,9 +210,13 @@ static int foc_angle_onfo_zero_f32(FAR foc_angle_f32_t *h)
   DEBUGASSERT(h->data);
   ob = h->data;
 
+  /* Reinitialize observer data */
+
+  motor_aobserver_nfo_init(&ob->data);
+
   /* Reset angle */
 
-  ob->data.angle = 0.0f;
+  ob->o.angle = 0.0f;
 
   return OK;
 }
@@ -253,7 +235,7 @@ static int foc_angle_onfo_zero_f32(FAR foc_angle_f32_t *h)
 
 static int foc_angle_onfo_dir_f32(FAR foc_angle_f32_t *h, float dir)
 {
-  FAR struct foc_observer_f32_s *ob = NULL;
+  FAR struct foc_ang_onfo_f32_s *ob = NULL;
 
   DEBUGASSERT(h);
 
@@ -286,8 +268,8 @@ static int foc_angle_onfo_run_f32(FAR foc_angle_f32_t *h,
                                 FAR struct foc_angle_in_f32_s *in,
                                 FAR struct foc_angle_out_f32_s *out)
 {
-  FAR struct foc_observer_f32_s *ob = NULL;
-  FAR dq_frame_f32_t  v_dq_mod;
+  FAR struct foc_ang_onfo_f32_s *ob = NULL;
+  FAR dq_frame_f32_t v_dq_mod;
   float duty_now;
   float dyn_gain;
 
@@ -316,13 +298,13 @@ static int foc_angle_onfo_run_f32(FAR foc_angle_f32_t *h,
 
   /* Update observer */
 
-  motor_aobserver_nfo(&ob->data, &in->state->iab, &in->state->vab,
+  motor_aobserver_nfo(&ob->o, &in->state->iab, &in->state->vab,
                       &ob->cfg.phy, dyn_gain);
 
   /* Copy data */
 
   out->type  = FOC_ANGLE_TYPE_ELE;
-  out->angle = ob->data.angle;
+  out->angle = ob->sensor_dir * motor_aobserver_angle_get(&ob->o);
 
   return OK;
 }
