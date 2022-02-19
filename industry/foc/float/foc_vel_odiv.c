@@ -90,6 +90,7 @@ struct foc_velocity_ops_f32_s g_foc_velocity_odiv_f32 =
  * Name: foc_velocity_div_init_f32
  *
  * Description:
+ *   Initialize the DIV velocity observer (float32)
  *
  * Input Parameter:
  *   h - pointer to FOC velocity handler
@@ -119,6 +120,7 @@ errout:
  * Name: foc_velocity_div_deinit_f32
  *
  * Description:
+ *   De-initialize the DIV velocity observer (float32)
  *
  * Input Parameter:
  *   h - pointer to FOC velocity handler
@@ -141,6 +143,7 @@ static void foc_velocity_div_deinit_f32(FAR foc_velocity_f32_t *h)
  * Name: foc_velocity_div_cfg_f32
  *
  * Description:
+ *   Configure the DIV velocity observer (float32)
  *
  * Input Parameter:
  *   h   - pointer to FOC velocity handler
@@ -185,6 +188,7 @@ static int foc_velocity_div_cfg_f32(FAR foc_velocity_f32_t *h, FAR void *cfg)
  * Name: foc_velocity_div_zero_f32
  *
  * Description:
+ *   Zero the DIV velocity observer (float32)
  *
  * Input Parameter:
  *   h   - pointer to FOC velocity handler
@@ -217,6 +221,7 @@ static int foc_velocity_div_zero_f32(FAR foc_velocity_f32_t *h)
  * Name: foc_velocity_div_dir_f32
  *
  * Description:
+ *   Set the DIV velocity observer direction (float32)
  *
  * Input Parameter:
  *   h   - pointer to FOC velocity handler
@@ -246,6 +251,7 @@ static int foc_velocity_div_dir_f32(FAR foc_velocity_f32_t *h, float dir)
  * Name: foc_velocity_div_run_f32
  *
  * Description:
+ *   Process the DIV velocity observer (float32)
  *
  * Input Parameter:
  *   h   - pointer to FOC velocity handler
