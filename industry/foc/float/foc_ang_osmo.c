@@ -55,8 +55,8 @@ static int foc_angle_osmo_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg);
 static int foc_angle_osmo_zero_f32(FAR foc_angle_f32_t *h);
 static int foc_angle_osmo_dir_f32(FAR foc_angle_f32_t *h, float dir);
 static int foc_angle_osmo_run_f32(FAR foc_angle_f32_t *h,
-                                FAR struct foc_angle_in_f32_s *in,
-                                FAR struct foc_angle_out_f32_s *out);
+                                  FAR struct foc_angle_in_f32_s *in,
+                                  FAR struct foc_angle_out_f32_s *out);
 
 /****************************************************************************
  * Public Data
@@ -256,8 +256,8 @@ static int foc_angle_osmo_dir_f32(FAR foc_angle_f32_t *h, float dir)
  ****************************************************************************/
 
 static int foc_angle_osmo_run_f32(FAR foc_angle_f32_t *h,
-                                FAR struct foc_angle_in_f32_s *in,
-                                FAR struct foc_angle_out_f32_s *out)
+                                  FAR struct foc_angle_in_f32_s *in,
+                                  FAR struct foc_angle_out_f32_s *out)
 {
   FAR struct foc_ang_osmo_f32_s *ob = NULL;
 
