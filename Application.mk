@@ -62,11 +62,7 @@ endif
 # Add the static application library to the linked libraries. Don't do this
 # with CONFIG_BUILD_KERNEL as there is no static app library
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-    LDLIBS += "${shell cygpath -w $(BIN)}"
-  else
-    LDLIBS += $(BIN)
-  endif
+  LDLIBS += $(call CONVERT_PATH,$(BIN))
 endif
 
 # When building a module, link with the compiler runtime.
@@ -166,11 +162,7 @@ $(RUSTOBJS): %$(RUSTEXT)$(SUFFIX)$(OBJEXT): %$(RUSTEXT)
 		$(call ELFCOMPILERUST, $<, $@), $(call COMPILERUST, $<, $@))
 
 archive:
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-	$(call ARCHIVE_ADD, "${shell cygpath -w $(BIN)}", $(OBJS))
-else
-	$(call ARCHIVE_ADD, $(BIN), $(OBJS))
-endif
+	$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $(OBJS))
 
 ifeq ($(BUILD_MODULE),y)
 
@@ -188,11 +180,7 @@ PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 
 $(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 	$(Q) mkdir -p $(BINDIR)
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-	$(call ELFLD,$(firstword $(PROGOBJ)),"${shell cygpath -w $(firstword $(PROGLIST))}")
-else
-	$(call ELFLD,$(firstword $(PROGOBJ)),$(firstword $(PROGLIST)))
-endif
+	$(call ELFLD,$(firstword $(PROGOBJ)),$(call CONVERT_PATH,$(firstword $(PROGLIST))))
 	$(Q) chmod +x $(firstword $(PROGLIST))
 ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
 	$(Q) $(STRIP) $(firstword $(PROGLIST))

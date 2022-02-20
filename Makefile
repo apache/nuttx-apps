@@ -101,11 +101,7 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, -fno-lto $<, $@)
 
 $(BIN): $(SYMTABOBJ)
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-	$(call ARCHIVE_ADD, "${shell cygpath -w $(BIN)}", $^)
-else
-	$(call ARCHIVE_ADD, $(BIN), $^)
-endif
+	$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $^)
 
 endif # !CONFIG_BUILD_LOADABLE
 
