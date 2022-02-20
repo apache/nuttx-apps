@@ -95,6 +95,44 @@ struct foc_velocity_b16_s
   FAR void                          *data;
 };
 
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_ODIV
+/* Velocity DIV observer */
+
+struct foc_vel_div_b16_cfg_s
+{
+  uint8_t samples;
+  b16_t   filter;
+  b16_t   per;
+};
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_OPLL
+/* Velocity PLL observer */
+
+struct foc_vel_pll_b16_cfg_s
+{
+  b16_t kp;
+  b16_t ki;
+  b16_t per;
+};
+#endif
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_ODIV
+/* Velocity DIV observer (fixed16) */
+
+extern struct foc_velocity_ops_b16_s g_foc_velocity_odiv_b16;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_OPLL
+/* Velocity PLL observer (fixed16) */
+
+extern struct foc_velocity_ops_b16_s g_foc_velocity_opll_b16;
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
