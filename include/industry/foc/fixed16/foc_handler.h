@@ -66,6 +66,7 @@ struct foc_state_b16_s
   ab_frame_b16_t  vab;
   dq_frame_b16_t  vdq;
   dq_frame_b16_t  idq;
+  b16_t           mod_scale;
 };
 
 /* Forward declaration */
