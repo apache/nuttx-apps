@@ -72,7 +72,7 @@ int netlib_getmacaddr(const char *ifname, uint8_t *macaddr)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to get the MAC address */
 

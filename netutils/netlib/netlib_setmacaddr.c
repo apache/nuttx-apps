@@ -72,7 +72,7 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Put the new MAC address into the request */
 

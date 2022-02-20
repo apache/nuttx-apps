@@ -71,7 +71,7 @@ int netlib_icmpv6_autoconfiguration(FAR const char *ifname)
           /* Create a request consisting only of the interface name */
 
           struct lifreq req;
-          strncpy(req.lifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.lifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ICMPv6 auto-configuration and close the socket */
 

@@ -57,6 +57,11 @@ echo "#include <nuttx/compiler.h>"
 echo "#include <nuttx/symtab.h>"
 echo ""
 
+echo "#if defined(__GNUC__) && !defined(__clang__)"
+echo "#  pragma GCC diagnostic ignored \"-Wbuiltin-declaration-mismatch\""
+echo "#endif"
+echo ""
+
 for string in $varlist; do
   var=`echo $string | sed -e "s/\"//g"`
   echo "extern void *${var};"

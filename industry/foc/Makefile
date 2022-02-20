@@ -36,6 +36,12 @@ CSRCS += float/foc_routine.c
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP),y)
 CSRCS += float/foc_ang_openloop.c
 endif
+ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_ONFO),y)
+CSRCS += float/foc_ang_onfo.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_OSMO),y)
+CSRCS += float/foc_ang_osmo.c
+endif
 ifeq ($(CONFIG_INDUSTRY_FOC_ANGLE_QENCO),y)
 CSRCS += float/foc_ang_qenco.c
 endif
@@ -62,6 +68,12 @@ CSRCS += float/foc_align.c
 endif
 ifeq ($(CONFIG_INDUSTRY_FOC_IDENT),y)
 CSRCS += float/foc_ident.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_VELOCITY_ODIV),y)
+CSRCS += float/foc_vel_odiv.c
+endif
+ifeq ($(CONFIG_INDUSTRY_FOC_VELOCITY_OPLL),y)
+CSRCS += float/foc_vel_opll.c
 endif
 
 endif

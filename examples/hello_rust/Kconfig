@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HELLO_RUST
+	tristate "\"Hello, Rust!\" example"
+	default n
+	---help---
+		Enable the \"Hello, Rust!\" example
+
+if EXAMPLES_HELLO_RUST
+
+config EXAMPLES_HELLO_RUST_PROGNAME
+	string "Program name"
+	default "hello_rust"
+	---help---
+		This is the name of the program that will be used when the
+		program is installed.
+
+config EXAMPLES_HELLO_RUST_PRIORITY
+	int "Hello Rust task priority"
+	default 100
+
+config EXAMPLES_HELLO_RUST_STACKSIZE
+	int "Hello Rust stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

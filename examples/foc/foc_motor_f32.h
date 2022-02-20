@@ -80,6 +80,9 @@ struct foc_motor_f32_s
   foc_angle_f32_t               qenco;        /* Qenco angle handler */
 #endif
   int                           foc_mode;     /* FOC mode */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
+  int                           foc_mode_run; /* FOC mode for run state */
+#endif
   int                           ctrl_state;   /* Controller state */
   float                         vbus;         /* Power bus voltage */
   float                         angle_now;    /* Phase angle now */

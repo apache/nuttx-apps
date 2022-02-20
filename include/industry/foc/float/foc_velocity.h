@@ -95,6 +95,44 @@ struct foc_velocity_f32_s
   FAR void                          *data;
 };
 
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_ODIV
+/* Velocity DIV observer */
+
+struct foc_vel_div_f32_cfg_s
+{
+  uint8_t samples;
+  float   filter;
+  float   per;
+};
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_OPLL
+/* Velocity PLL observer */
+
+struct foc_vel_pll_f32_cfg_s
+{
+  float kp;
+  float ki;
+  float per;
+};
+#endif
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_ODIV
+/* Velocity DIV observer (float) */
+
+extern struct foc_velocity_ops_f32_s g_foc_velocity_odiv_f32;
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_VELOCITY_OPLL
+/* Velocity PLL observer (float) */
+
+extern struct foc_velocity_ops_f32_s g_foc_velocity_opll_f32;
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
