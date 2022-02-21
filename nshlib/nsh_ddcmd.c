@@ -102,7 +102,7 @@ static int dd_write(FAR struct dd_s *dd)
   written = 0;
   do
     {
-      nbytes = write(dd->outfd, buffer, dd->sectsize - written);
+      nbytes = write(dd->outfd, buffer, dd->nbytes - written);
       if (nbytes < 0)
         {
           FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
@@ -114,7 +114,7 @@ static int dd_write(FAR struct dd_s *dd)
       written += nbytes;
       buffer  += nbytes;
     }
-  while (written < dd->sectsize);
+  while (written < dd->nbytes);
 
   return OK;
 }
