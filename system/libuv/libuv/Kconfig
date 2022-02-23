@@ -29,7 +29,6 @@ config LIBUV_ASYNC
 config LIBUV_TIMER
 	bool "libuv software timers support"
 	default n
-	select CLOCK_MONOTONIC
 	---help---
 		Enable software timers support in libuv.
 

@@ -183,7 +183,7 @@ NXWidgets.:
 
    ```makefile
    CXXFLAGS = -m32 $(ARCHWARNINGSXX) $(ARCHOPTIMIZATION) \
-              $(ARCHCPUFLAGSXX) $(ARCHINCLUDESXX) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
+              $(ARCHCXXFLAGS) $(ARCHINCLUDESXX) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
    ```
 
 2. Stack Size Issues with the X11 Simulation

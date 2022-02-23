@@ -233,14 +233,9 @@ static void iperf_report_task(void *arg)
   struct timespec start;
   uintmax_t now_len;
   int ret;
-#ifdef CONFIG_CLOCK_MONOTONIC
-  const clockid_t clockid = CLOCK_MONOTONIC;
-#else
-  const clockid_t clockid = CLOCK_REALTIME;
-#endif
 
   now_len = s_iperf_ctrl.total_len;
-  ret = clock_gettime(clockid, &now);
+  ret = clock_gettime(CLOCK_MONOTONIC, &now);
   if (ret != 0)
     {
       fprintf(stderr, "clock_gettime failed\n");
@@ -258,7 +253,7 @@ static void iperf_report_task(void *arg)
       last_len = now_len;
       last = now;
       now_len = s_iperf_ctrl.total_len;
-      ret = clock_gettime(clockid, &now);
+      ret = clock_gettime(CLOCK_MONOTONIC, &now);
       if (ret != 0)
         {
           fprintf(stderr, "clock_gettime failed\n");
