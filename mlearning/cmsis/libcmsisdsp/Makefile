@@ -552,6 +552,6 @@ CSRCS += $(CMSIS5_DSP)/ComplexMathFunctions/arm_cmplx_mag_f32.c
 
 CFLAGS += -ffast-math -Wno-shadow
 
-BIN := libarm_math$(LIBEXT)
+MODULE = $(CONFIG_CMSIS_DSP)
 
 include $(APPDIR)/Application.mk

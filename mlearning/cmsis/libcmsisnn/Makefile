@@ -97,6 +97,6 @@ CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_nn_mat_mul_core_1x_s8.c
 CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_nn_add_q7.c
 CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_q7_to_q15_reordered_with_offset.c
 
-BIN := libcmsis_nn$(LIBEXT)
+MODULE = $(CONFIG_CMSIS_NN)
 
 include $(APPDIR)/Application.mk
