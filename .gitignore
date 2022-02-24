@@ -15,6 +15,7 @@
 *.swp
 *.sym
 *~
+.context
 .depend
 .kconfig
 /bin

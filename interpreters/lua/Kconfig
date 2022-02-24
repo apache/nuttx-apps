@@ -1,0 +1,67 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig INTERPRETERS_LUA
+	bool "Lua interpreter support"
+	default n
+	select ARCH_SETJMP_H
+	select LIBC_LOCALE
+	---help---
+		Embed Lua language interpreter.
+		Select the Lua version with the INTERPRETER_LUA_VERSION config.
+		A math library is required. Use the LIBM config or a toolchain library.
+		It's suggested to enable the SYSTEM_READLINE and LIBC_FLOATINGPOINT configs.
+
+if INTERPRETERS_LUA
+
+config INTERPRETER_LUA_VERSION
+	string "Lua interpreter version"
+	default "5.4.0"
+	---help---
+		Lua release version to fetch and build.
+		Versions 5.2.0 and up are supported.
+
+config INTERPRETER_LUA_CORELIBS
+	bool "Load core Lua modules"
+	default y
+	select SYSTEM_SYSTEM
+	---help---
+		Load core Lua modules like "os", "string", and "table".
+
+config INTERPRETER_LUA_PATH
+	string "Lua modules search path"
+	---help---
+		Override default package.path search path for Lua modules.
+
+config INTERPRETER_LUA_CPATH
+	string "Lua C modules search path"
+	---help---
+		Override default package.cpath search path for C modules.
+
+config INTERPRETER_LUA_32BIT
+	bool "Use 32-bit integers and floats"
+	default y
+	---help---
+		"Use int and float instead of long and double for Lua numbers."
+
+config INTERPRETER_LUA_PRIORITY
+	int "Lua interpreter priority"
+	default 100
+	---help---
+		Task priority of the Lua interpreter main task.
+
+config INTERPRETER_LUA_STACKSIZE
+	int "Lua interpreter stack size"
+	default 32768
+	---help---
+		Size of the stack allocated for the Lua interpreter main task.
+
+config INTERPRETER_LUA_IOBUFSIZE
+	int "I/O buffer size"
+	default 1024
+	---help---
+		Size of the statically allocated I/O buffer.
+
+endif # INTERPRETERS_LUA
