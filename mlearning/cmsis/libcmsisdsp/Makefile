@@ -26,6 +26,10 @@ endif
 ifeq ($(CONFIG_CMSIS_DSP_ARM_MATH_ROUNDING),y)
 CFLAGS += -DARM_MATH_ROUNDING
 endif
+ifeq ($(CONFIG_ARCH_FPU),y)
+CFLAGS += -D__FPU_PRESENT=1U
+CXXFLAGS += -D__FPU_PRESENT=1U
+endif
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/PrivateInclude/}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/PrivateInclude/}
