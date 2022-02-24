@@ -6,7 +6,6 @@
 config INTERPRETERS_WAMR
 	tristate "Webassembly Micro Runtime"
 	default n
-	select CLOCK_MONOTONIC
 
 if INTERPRETERS_WAMR
 

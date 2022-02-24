@@ -58,6 +58,12 @@
 #  endif
 #endif
 
+/* For now only the FOC PI current controller supported */
+
+#ifndef CONFIG_EXAMPLES_FOC_CONTROL_PI
+#  error For now only the FOC PI current controller supported
+#endif
+
 /* Velocity ramp must be configured */
 
 #if (CONFIG_EXAMPLES_FOC_RAMP_THR == 0)

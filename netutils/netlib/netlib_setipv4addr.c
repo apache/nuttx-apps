@@ -71,7 +71,7 @@ int netlib_set_ipv4addr(FAR const char *ifname,
 
           /* Add the device name to the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Add the INET address to the request */
 

@@ -62,8 +62,10 @@ static struct option g_long_options[] =
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
     { "oqset", required_argument, 0, 'o' },
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
     { "fkp", required_argument, 0, OPT_FKP },
     { "fki", required_argument, 0, OPT_FKI },
+#endif
     { 0, 0, 0, 0 }
   };
 
@@ -80,11 +82,11 @@ static void foc_help(void)
   PRINTF("Usage: foc [OPTIONS]\n");
   PRINTF("  [-t] run time\n");
   PRINTF("  [-h] shows this message and exits\n");
-  PRINTF("  [-m] operation mode\n");
+  PRINTF("  [-f] FOC run mode\n");
   PRINTF("       1 - IDLE mode\n");
   PRINTF("       2 - voltage mode\n");
   PRINTF("       3 - current mode\n");
-  PRINTF("  [-c] controller mode\n");
+  PRINTF("  [-m] controller mode\n");
   PRINTF("       1 - torqe control\n");
   PRINTF("       2 - velocity control\n");
   PRINTF("       3 - position control\n");
@@ -106,8 +108,10 @@ static void foc_help(void)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   PRINTF("  [--fki] PI Kp coefficient [x1000]\n");
   PRINTF("  [--fkp] PI Ki coefficient [x1000]\n");
+#endif
 }
 
 /****************************************************************************
@@ -135,17 +139,19 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 
       switch (c)
         {
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
           case OPT_FKP:
             {
-              args->pi_kp = atoi(optarg);
+              args->foc_pi_kp = atoi(optarg);
               break;
             }
 
           case OPT_FKI:
             {
-              args->pi_ki = atoi(optarg);
+              args->foc_pi_ki = atoi(optarg);
               break;
             }
+#endif
 
           case 't':
             {

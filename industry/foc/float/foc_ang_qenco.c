@@ -48,7 +48,7 @@ struct foc_qenco_f32_s
   int32_t                    pos;
   int32_t                    offset;
   float                      one_by_posmax;
-  float                      dir;
+  float                      sensor_dir;
   float                      angle;
   struct foc_qenco_cfg_f32_s cfg;
 };
@@ -226,7 +226,7 @@ static int foc_angle_qe_cfg_f32(FAR foc_angle_f32_t *h, FAR void *cfg)
 
   /* Initialize with CW direction */
 
-  qe->dir = DIR_CW;
+  qe->sensor_dir = DIR_CW;
 
   /* Reset offset */
 
@@ -303,7 +303,7 @@ static int foc_angle_qe_dir_f32(FAR foc_angle_f32_t *h, float dir)
 
   /* Configure direction */
 
-  qe->dir = dir;
+  qe->sensor_dir = dir;
 
   return OK;
 }
@@ -346,7 +346,7 @@ static int foc_angle_qe_run_f32(FAR foc_angle_f32_t *h,
 
   /* Get mechanical angle */
 
-  qe->angle = (qe->dir * (qe->pos - qe->offset) *
+  qe->angle = (qe->sensor_dir * (qe->pos - qe->offset) *
                qe->one_by_posmax * MOTOR_ANGLE_M_MAX);
 
   /* Normalize angle */

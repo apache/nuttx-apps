@@ -71,7 +71,7 @@ int netlib_ifup(const char *ifname)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup flag */
 
@@ -114,7 +114,7 @@ int netlib_ifdown(const char *ifname)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup flag */
 

@@ -54,7 +54,7 @@ $(DUKTAPE_TARBALL):
 
 $(DUKTAPE_UNPACK): $(DUKTAPE_TARBALL)
 	$(Q) echo "Unpacking $(DUKTAPE_TARBALL) to $(DUKTAPE_UNPACK)"
-	$(Q) tar xvfJ $(DUKTAPE_TARBALL)
+	$(Q) tar xfJ $(DUKTAPE_TARBALL)
 	$(Q) mv duktape-$(DUKTAPE_VERSION) $(DUKTAPE_UNPACK)
 	$(Q) echo "Patching $(DUKTAPE_UNPACK)"
 	$(Q) patch -p0 < duk_cmdline.patch

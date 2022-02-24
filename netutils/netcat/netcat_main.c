@@ -174,6 +174,7 @@ int netcat_server(int argc, char * argv[])
       goto out;
     }
 
+  addrlen = sizeof(struct sockaddr_in);
   if ((conn = accept(id, (struct sockaddr *)&client, &addrlen)) != -1)
     {
       result = do_io(conn, outfd,

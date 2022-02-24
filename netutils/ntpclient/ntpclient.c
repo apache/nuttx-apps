@@ -542,18 +542,14 @@ static void ntpc_settime(int64_t offset, FAR struct timespec *start_realtime,
 {
   struct timespec tp;
   struct timespec curr_realtime;
-#ifdef CONFIG_CLOCK_MONOTONIC
   struct timespec curr_monotonic;
   int64_t diffms_real;
   int64_t diffms_mono;
   int64_t diff_diff_ms;
-#endif
 
   /* Get the system times */
 
   clock_gettime(CLOCK_REALTIME, &curr_realtime);
-
-#ifdef CONFIG_CLOCK_MONOTONIC
   clock_gettime(CLOCK_MONOTONIC, &curr_monotonic);
 
   /* Check differences between monotonic and realtime. */
@@ -583,9 +579,6 @@ static void ntpc_settime(int64_t offset, FAR struct timespec *start_realtime,
 
       return;
     }
-#else
-  UNUSED(start_monotonic);
-#endif
 
   /* Apply offset */
 
@@ -1293,9 +1286,7 @@ static int ntpc_daemon(int argc, FAR char **argv)
                          CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES);
 
       clock_gettime(CLOCK_REALTIME, &start_realtime);
-#ifdef CONFIG_CLOCK_MONOTONIC
       clock_gettime(CLOCK_MONOTONIC, &start_monotonic);
-#endif
 
       /* Collect samples. */
 

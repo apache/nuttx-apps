@@ -69,12 +69,6 @@
 #include "ftpd.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define __NUTTX__ 1 /* Flags some unusual NuttX dependencies */
-
-/****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
@@ -2261,7 +2255,7 @@ static int ftpd_listbuffer(FAR struct ftpd_session_s *session,
 
       offset += snprintf(&buffer[offset], buflen - offset, "%s", str);
 
-#ifdef __NUTTX__
+#ifdef __NuttX__
       /* Fake nlink, user id, and group id */
 
       offset += snprintf(&buffer[offset], buflen - offset, "%4u %8u %8u",
@@ -2311,7 +2305,7 @@ static int ftpd_listbuffer(FAR struct ftpd_session_s *session,
 
       /* linkname */
 
-#ifndef __NUTTX__
+#ifndef __NuttX__
       if (S_ISLNK(st->st_mode) != 0)
         {
           FAR char *temp;

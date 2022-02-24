@@ -415,4 +415,8 @@ static void foc_control_state_get_b16(FAR foc_handler_b16_t *h,
   state->volt[0] = foc->data.v_abc.a;
   state->volt[1] = foc->data.v_abc.b;
   state->volt[2] = foc->data.v_abc.c;
+
+  /* Copy modulation scale */
+
+  state->mod_scale = foc->data.vab_mod_scale;
 }

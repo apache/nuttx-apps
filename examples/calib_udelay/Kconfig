@@ -6,7 +6,6 @@
 config EXAMPLES_CALIB_UDELAY
 	tristate "Calibration tool for udelay"
 	default n
-	select CLOCK_MONOTONIC
 	select LIBC_FLOATINGPOINT
 	---help---
 		Note that libm support is also required by this tool.  You

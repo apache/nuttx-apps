@@ -132,6 +132,7 @@ errout:
 }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
 /****************************************************************************
  * Name: foc_runmode_init
  ****************************************************************************/
@@ -144,19 +145,19 @@ static int foc_runmode_init(FAR struct foc_motor_b16_s *motor)
     {
       case FOC_FMODE_IDLE:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+          motor->foc_mode_run = FOC_HANDLER_MODE_IDLE;
           break;
         }
 
       case FOC_FMODE_VOLTAGE:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_VOLTAGE;
+          motor->foc_mode_run = FOC_HANDLER_MODE_VOLTAGE;
           break;
         }
 
       case FOC_FMODE_CURRENT:
         {
-          motor->foc_mode = FOC_HANDLER_MODE_CURRENT;
+          motor->foc_mode_run = FOC_HANDLER_MODE_CURRENT;
           break;
         }
 
@@ -168,7 +169,7 @@ static int foc_runmode_init(FAR struct foc_motor_b16_s *motor)
         }
     }
 
-  /* Force open-loop if sensorlesss */
+  /* Force open-loop if sensorless */
 
 #ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
@@ -181,6 +182,7 @@ static int foc_runmode_init(FAR struct foc_motor_b16_s *motor)
 errout:
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: foc_motor_configure
@@ -188,7 +190,9 @@ errout:
 
 static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
 {
-#ifdef CONFIG_INDUSTRY_FOC_CONTROL_PI
+  FAR struct foc_control_ops_b16_s    *foc_ctrl = NULL;
+  FAR struct foc_modulation_ops_b16_s *foc_mod  = NULL;
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   struct foc_initdata_b16_s ctrl_cfg;
 #endif
 #ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
@@ -216,24 +220,45 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
     }
 #endif
 
+  /* Get FOC controller */
+
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+  foc_ctrl = &g_foc_control_pi_b16;
+#else
+#  error FOC controller not selected
+#endif
+
+  /* Get FOC modulation */
+
+#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+  foc_mod = &g_foc_mod_svm3_b16;
+#else
+#  error FOC modulation not selected
+#endif
+
+  /* Initialize FOC handler */
+
+  DEBUGASSERT(foc_ctrl != NULL);
+  DEBUGASSERT(foc_mod != NULL);
+
   /* Initialize FOC handler */
 
   ret = foc_handler_init_b16(&motor->handler,
-                             &g_foc_control_pi_b16,
-                             &g_foc_mod_svm3_b16);
+                             foc_ctrl,
+                             foc_mod);
   if (ret < 0)
     {
       PRINTF("ERROR: foc_handler_init failed %d\n", ret);
       goto errout;
     }
 
-#ifdef CONFIG_INDUSTRY_FOC_CONTROL_PI
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   /* Get PI controller configuration */
 
-  ctrl_cfg.id_kp = ftob16(motor->envp->pi_kp / 1000.0f);
-  ctrl_cfg.id_ki = ftob16(motor->envp->pi_ki / 1000.0f);
-  ctrl_cfg.iq_kp = ftob16(motor->envp->pi_kp / 1000.0f);
-  ctrl_cfg.iq_ki = ftob16(motor->envp->pi_ki / 1000.0f);
+  ctrl_cfg.id_kp = ftob16(motor->envp->foc_pi_kp / 1000.0f);
+  ctrl_cfg.id_ki = ftob16(motor->envp->foc_pi_ki / 1000.0f);
+  ctrl_cfg.iq_kp = ftob16(motor->envp->foc_pi_kp / 1000.0f);
+  ctrl_cfg.iq_ki = ftob16(motor->envp->foc_pi_ki / 1000.0f);
 #endif
 
 #ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
@@ -559,6 +584,19 @@ errout:
   return ret;
 }
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
+
+/****************************************************************************
+ * Name: foc_motor_run_init
+ ****************************************************************************/
+
+static int foc_motor_run_init(FAR struct foc_motor_b16_s *motor)
+{
+  /* Empty for now */
+
+  return OK;
+}
+
 /****************************************************************************
  * Name: foc_motor_run
  ****************************************************************************/
@@ -659,6 +697,7 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
 errout:
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -700,6 +739,21 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   motor->per        = b16divi(b16ONE, CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ);
   motor->iphase_adc = ftob16((CONFIG_EXAMPLES_FOC_IPHASE_ADC) / 100000.0f);
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
+  /* Initialize controller run mode */
+
+  ret = foc_runmode_init(motor);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_runmode_init failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+  /* Start with FOC IDLE mode */
+
+  motor->foc_mode = FOC_HANDLER_MODE_IDLE;
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   /* Initialize open-loop angle handler */
@@ -817,7 +871,7 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   motor->ctrl_state = FOC_CTRL_STATE_INIT;
 
-#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+#if defined(CONFIG_EXAMPLES_FOC_SENSORED) || defined(CONFIG_EXAMPLES_FOC_HAVE_RUN)
 errout:
 #endif
   return ret;
@@ -1020,24 +1074,32 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
         }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
       case FOC_CTRL_STATE_RUN_INIT:
         {
-          /* Initialize run controller mode */
+          /* Initialize controller run mode */
 
-          ret = foc_runmode_init(motor);
+          ret = foc_motor_run_init(motor);
           if (ret < 0)
             {
-              PRINTF("ERROR: foc_runmode_init failed %d!\n", ret);
+              PRINTF("ERROR: foc_motor_run_init failed %d!\n", ret);
               goto errout;
             }
 
           /* Next state */
 
           motor->ctrl_state += 1;
+          motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+          break;
         }
 
       case FOC_CTRL_STATE_RUN:
         {
+          /* Get FOC run mode */
+
+          motor->foc_mode = motor->foc_mode_run;
+
           /* Run motor */
 
           ret = foc_motor_run(motor);
@@ -1049,6 +1111,7 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
 
           break;
         }
+#endif
 
       case FOC_CTRL_STATE_IDLE:
         {
