@@ -1215,16 +1215,56 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_MKDIR
 int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath = NULL;
+  bool parent = false;
   int ret = ERROR;
+  int option;
+
+  while ((option = getopt(argc, argv, "p")) != ERROR)
+    {
+      switch (option)
+        {
+          case 'p':
+            parent = true;
+            break;
+        }
+    }
+
+  if (optind < argc)
+    {
+      fullpath = nsh_getfullpath(vtbl, argv[optind]);
+    }
 
   if (fullpath != NULL)
     {
-      ret = mkdir(fullpath, 0777);
-      if (ret < 0)
+      char *slash = parent ? fullpath : "";
+
+      for (; ; )
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mkdir", NSH_ERRNO);
-        }
+          slash = strstr(slash, "/");
+          if (slash != NULL)
+            {
+              *slash = '\0';
+            }
+
+          ret = mkdir(fullpath, 0777);
+
+          if (ret < 0 && (errno != EEXIST || !parent))
+            {
+              nsh_error(vtbl, g_fmtcmdfailed,
+                        fullpath, "mkdir", NSH_ERRNO);
+              break;
+            }
+
+          if (slash != NULL)
+            {
+              *slash++ = '/';
+            }
+          else
+            {
+              break;
+            }
+         }
 
       nsh_freefullpath(fullpath);
     }
