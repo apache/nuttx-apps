@@ -694,6 +694,7 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
       pthread_mutex_lock(&priv->mutex);
       priv->pfds[i].ptr = &priv->socks[i];
       priv->pfds[i].events = POLLIN;
+      priv->pfds[req->usockid].events |= POLLIN;
       usrsock_rpmsg_notify_poll(priv);
       pthread_mutex_unlock(&priv->mutex);
       usrsock_rpmsg_send_event(ept, i, USRSOCK_EVENT_SENDTO_READY);
