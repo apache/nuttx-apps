@@ -84,8 +84,10 @@ enum foc_controller_state_e
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   FOC_CTRL_STATE_ALIGN,
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
   FOC_CTRL_STATE_RUN_INIT,
   FOC_CTRL_STATE_RUN,
+#endif
   FOC_CTRL_STATE_IDLE
 };
 
@@ -102,8 +104,12 @@ struct foc_ctrl_env_s
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   int                 qparam;   /* Open-loop Q setting (x1000) */
 #endif
-  uint32_t            pi_kp;    /* FOC PI Kp (x1000) */
-  uint32_t            pi_ki;    /* FOC PI Ki (x1000) */
+
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
+  uint32_t            foc_pi_kp; /* FOC PI Kp (x1000) */
+  uint32_t            foc_pi_ki; /* FOC PI Ki (x1000) */
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   uint32_t            torqmax;  /* Torque max (x1000) */
 #endif

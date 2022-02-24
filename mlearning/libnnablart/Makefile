@@ -108,7 +108,7 @@ CSRCS   += $(SRC)/runtime/runtime_internal.c
 
 CFLAGS += -Wno-shadow -Wno-format
 
-BIN = libnnablart$(LIBEXT)
+MODULE = $(CONFIG_NNABLA_RT)
 
 nnabla.zip:
 	$(Q) curl -L https://github.com/sony/nnabla-c-runtime/archive/refs/tags/v$(CONFIG_NNABLA_RT_VER).zip -o nnabla.zip

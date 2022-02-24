@@ -20,10 +20,10 @@
 
 include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_EXTERNALS_CMSIS_DSP_ARM_MATH_MATRIX_CHECK),y)
+ifeq ($(CONFIG_CMSIS_DSP_ARM_MATH_MATRIX_CHECK),y)
 CFLAGS += -DARM_MATH_MATRIX_CHECK
 endif
-ifeq ($(CONFIG_EXTERNALS_CMSIS_DSP_ARM_MATH_ROUNDING),y)
+ifeq ($(CONFIG_CMSIS_DSP_ARM_MATH_ROUNDING),y)
 CFLAGS += -DARM_MATH_ROUNDING
 endif
 
@@ -552,6 +552,6 @@ CSRCS += $(CMSIS5_DSP)/ComplexMathFunctions/arm_cmplx_mag_f32.c
 
 CFLAGS += -ffast-math -Wno-shadow
 
-BIN := libarm_math$(LIBEXT)
+MODULE = $(CONFIG_CMSIS_DSP)
 
 include $(APPDIR)/Application.mk

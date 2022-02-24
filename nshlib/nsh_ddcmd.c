@@ -300,11 +300,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Then perform the data transfer */
 
 #ifdef CONFIG_NSH_CMDOPT_DD_STATS
-#ifdef CONFIG_CLOCK_MONOTONIC
   clock_gettime(CLOCK_MONOTONIC, &ts0);
-#else
-  clock_gettime(CLOCK_REALTIME, &ts0);
-#endif
 #endif
 
   dd.sector = 0;
@@ -353,11 +349,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = OK;
 
 #ifdef CONFIG_NSH_CMDOPT_DD_STATS
-#ifdef CONFIG_CLOCK_MONOTONIC
   clock_gettime(CLOCK_MONOTONIC, &ts1);
-#else
-  clock_gettime(CLOCK_REALTIME, &ts1);
-#endif
 
   elapsed  = (((uint64_t)ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec);
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);

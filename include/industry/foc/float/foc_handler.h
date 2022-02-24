@@ -66,6 +66,7 @@ struct foc_state_f32_s
   ab_frame_f32_t  vab;
   dq_frame_f32_t  vdq;
   dq_frame_f32_t  idq;
+  float           mod_scale;
 };
 
 /* Forward declaration */

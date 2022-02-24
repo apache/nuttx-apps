@@ -27,11 +27,11 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if !defined(CONFIG_NSH_DISABLE_FREE) && defined(NSH_HAVE_CATFILE)
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+#if !defined(CONFIG_NSH_DISABLE_FREE) && defined(NSH_HAVE_CATFILE)
 
 /****************************************************************************
  * Name: cmd_free
@@ -43,3 +43,24 @@ int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 
 #endif /* !CONFIG_NSH_DISABLE_FREE && NSH_HAVE_CATFILE */
+
+#if !defined(CONFIG_NSH_DISABLE_MEMDUMP) && defined(NSH_HAVE_WRITEFILE)
+
+/****************************************************************************
+ * Name: cmd_memdump
+ ****************************************************************************/
+
+int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR const char *arg = "used";
+
+  if (argc > 1)
+    {
+      arg = argv[1];
+    }
+
+  return nsh_writefile(vtbl, argv[0], arg, strlen(arg),
+                       CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+}
+
+#endif /* !CONFIG_NSH_DISABLE_MEMDUMP && NSH_HAVE_WRITEFILE */

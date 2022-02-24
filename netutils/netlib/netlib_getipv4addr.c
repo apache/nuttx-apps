@@ -70,7 +70,7 @@ int netlib_get_ipv4addr(FAR const char *ifname, FAR struct in_addr *addr)
       if (sockfd >= 0)
         {
           struct ifreq req;
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
           ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
           if (!ret)
             {
