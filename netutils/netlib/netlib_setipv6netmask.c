@@ -70,7 +70,7 @@ int netlib_set_ipv6netmask(FAR const char *ifname,
 
           /* Add the device name to the request */
 
-          strncpy(req.lifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.lifr_name, ifname, IFNAMSIZ);
 
           /* Add the INET address to the request */
 

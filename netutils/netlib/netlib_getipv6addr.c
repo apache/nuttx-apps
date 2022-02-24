@@ -71,7 +71,7 @@ int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr)
         {
           struct lifreq req;
 
-          strncpy(req.lifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.lifr_name, ifname, IFNAMSIZ);
           ret = ioctl(sockfd, SIOCGLIFADDR, (unsigned long)&req);
           if (!ret)
             {

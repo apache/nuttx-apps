@@ -72,6 +72,10 @@ CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_HWC_q7_fast_nonsquare.c
 CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_depthwise_conv_s8.c
 CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_1x1_HWC_q7_fast_nonsquare.c
 CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_HWC_q7_basic_nonsquare.c
+CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_CHW_f32_basic_nonsquare.c
+CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_CHW_q7_basic_nonsquare.c
+CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_convolve_CHW_q15_basic_nonsquare.c
+CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_nn_CHW_mat_mult_kernel_q7_q15.c
 CSRCS += $(CMSIS5_NN)/ConvolutionFunctions/arm_nn_mat_mult_kernel_s8_s16_reordered.c
 CSRCS += $(CMSIS5_NN)/BasicMathFunctions/arm_elementwise_mul_s8.c
 CSRCS += $(CMSIS5_NN)/BasicMathFunctions/arm_elementwise_add_s8.c
@@ -93,6 +97,6 @@ CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_nn_mat_mul_core_1x_s8.c
 CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_nn_add_q7.c
 CSRCS += $(CMSIS5_NN)/NNSupportFunctions/arm_q7_to_q15_reordered_with_offset.c
 
-BIN := libcmsis_nn$(LIBEXT)
+MODULE = $(CONFIG_CMSIS_NN)
 
 include $(APPDIR)/Application.mk

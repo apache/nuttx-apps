@@ -26,12 +26,7 @@ include $(TOPDIR)/scripts/Make.defs
 # Tool related definitions
 # Compiler
 
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  ARCHCRT0OBJ = "${shell cygpath -w $(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT)}"
-else
-  ARCHCRT0OBJ = $(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT)
-endif
-
+ARCHCRT0OBJ = $(call CONVERT_PATH,$(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT))
 ARCHINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
 
 ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
@@ -66,18 +61,15 @@ AFLAGS = $(CFLAGS) -D__ASSEMBLY__
 
 # Linker
 
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  # Windows-native toolchains
-  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
-else
-  # Linux/Cygwin-native toolchain
-  LDLIBPATH = -L $(TOPDIR)$(DELIM)libs
-endif
+LDLIBPATH = $(addprefix -L,$(call CONVERT_PATH,$(TOPDIR)$(DELIM)libs))
 
 # Link with user libraries
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-  LDLIBS = -lapps -lxx -lmm -lc -lproxies
+  LDLIBS = -lapps -lmm -lc -lproxies
+  ifeq ($(CONFIG_HAVE_CXX),y)
+    LDLIBS += -lxx
+  endif
 ifneq ($(CONFIG_LIBM),y)
   LIBM = ${shell "$(CC)" $(ARCHCPUFLAGS) --print-file-name=libm.a}
 ifneq ($(LIBM),".")
@@ -99,8 +91,4 @@ endif
 # ELF module definitions
 
 LDELFFLAGS = -r -e _start -Bstatic
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  LDELFFLAGS += -T "${shell cygpath -w $(TOPDIR)/scripts/gnu-elf.ld}"
-else
-  LDELFFLAGS += -T $(TOPDIR)/scripts/gnu-elf.ld
-endif
+LDELFFLAGS += $(addprefix -T,$(call CONVERT_PATH,$(TOPDIR)/scripts/gnu-elf.ld))

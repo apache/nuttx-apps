@@ -6,7 +6,7 @@
 config EXAMPLES_LIBCANARD
 	tristate "libcandard example"
 	default n
-	depends on CANUTILS_LIBCANARD && CLOCK_MONOTONIC && SYSTEM_TIME64
+	depends on CANUTILS_LIBCANARD && SYSTEM_TIME64
 	---help---
 		Enable the LIBCANARD example
 

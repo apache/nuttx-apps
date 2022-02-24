@@ -143,7 +143,7 @@ static bool g_button_daemon_started;
 static int button_daemon(int argc, char *argv[])
 {
 #ifdef CONFIG_EXAMPLES_BUTTONS_POLL
-  struct pollfd fds[CONFIG_INPUT_BUTTONS_NPOLLWAITERS];
+  struct pollfd fds[1];
 #endif
 
 #ifdef CONFIG_EXAMPLES_BUTTONS_SIGNAL
@@ -232,7 +232,6 @@ static int button_daemon(int argc, char *argv[])
 
 #ifdef CONFIG_EXAMPLES_BUTTONS_POLL
       bool timeout;
-      bool pollin;
       int nbytes;
 #endif
 
@@ -256,17 +255,14 @@ static int button_daemon(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_BUTTONS_POLL
       /* Prepare the File Descriptor for poll */
 
-      memset(fds, 0,
-             sizeof(struct pollfd)*CONFIG_INPUT_BUTTONS_NPOLLWAITERS);
+      memset(fds, 0, sizeof(fds));
 
       fds[0].fd      = fd;
       fds[0].events  = POLLIN;
 
       timeout        = false;
-      pollin         = false;
 
-      ret = poll(fds, CONFIG_INPUT_BUTTONS_NPOLLWAITERS,
-                 CONFIG_INPUT_BUTTONS_POLL_DELAY);
+      ret = poll(fds, 1, CONFIG_INPUT_BUTTONS_POLL_DELAY);
 
       printf("\nbutton_daemon: poll returned: %d\n", ret);
       if (ret < 0)
@@ -283,57 +279,47 @@ static int button_daemon(int argc, char *argv[])
         {
           printf("button_daemon: ERROR poll reported: %d\n", errno);
         }
-      else
-        {
-          pollin = true;
-        }
 
       /* In any event, read until the pipe is empty */
 
-      for (i = 0; i < CONFIG_INPUT_BUTTONS_NPOLLWAITERS; i++)
+      do
         {
-          do
+          nbytes = read(fds[0].fd, (void *)&sample, sizeof(btn_buttonset_t));
+
+          if (nbytes <= 0)
             {
-              nbytes = read(fds[i].fd, (void *)&sample,
-                            sizeof(btn_buttonset_t));
-
-              if (nbytes <= 0)
+              if (nbytes == 0 || errno == EAGAIN)
                 {
-                  if (nbytes == 0 || errno == EAGAIN)
+                  if ((fds[0].revents & POLLIN) != 0)
                     {
-                      if ((fds[i].revents & POLLIN) != 0)
-                        {
-                          printf("button_daemon: ERROR no read data[%d]\n",
-                                 i);
-                        }
-                    }
-                  else if (errno != EINTR)
-                    {
-                      printf("button_daemon: read[%d] failed: %d\n", i,
-                             errno);
-                    }
-
-                  nbytes = 0;
-                }
-              else
-                {
-                  if (timeout)
-                    {
-                      printf("button_daemon: ERROR? Poll timeout, "
-                             "but data read[%d]\n", i);
-                      printf("               (might just be a race "
-                             "condition)\n");
+                      printf("button_daemon: ERROR no read data\n");
                     }
                 }
+              else if (errno != EINTR)
+                {
+                  printf("button_daemon: read failed: %d\n", errno);
+                }
 
-              /* Suppress error report if no read data on the next time
-               * through
-               */
-
-              fds[i].revents = 0;
+              nbytes = 0;
             }
-          while (nbytes > 0);
+          else
+            {
+              if (timeout)
+                {
+                  printf("button_daemon: ERROR? Poll timeout, "
+                         "but data read\n");
+                  printf("               (might just be a race "
+                         "condition)\n");
+                }
+            }
+
+          /* Suppress error report if no read data on the next time
+           * through
+           */
+
+          fds[0].revents = 0;
         }
+      while (nbytes > 0);
 #endif
 
 #ifdef CONFIG_EXAMPLES_BUTTONS_NAMES

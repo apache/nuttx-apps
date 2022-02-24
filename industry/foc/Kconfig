@@ -58,6 +58,18 @@ config INDUSTRY_FOC_ANGLE_OPENLOOP
 	---help---
 		Enable support for open-loop angle handler
 
+config INDUSTRY_FOC_ANGLE_OSMO
+	bool "Enable slidmode angle observer"
+	default n
+	---help---
+		Enable support for SMO observer handler
+
+config INDUSTRY_FOC_ANGLE_ONFO
+	bool "Enable fluxlink angle observer"
+	default n
+	---help---
+		Enable support for NFO observer handler
+
 config INDUSTRY_FOC_ANGLE_QENCO
 	bool "FOC angle quadrature encoder handler"
 	default n
@@ -136,5 +148,17 @@ config INDUSTRY_FOC_IDENT
 	default n
 	---help---
 		Enable support for motor identification routine (phase resistance and phase inductance)
+
+config INDUSTRY_FOC_VELOCITY_ODIV
+	bool "FOC velocity DIV observer"
+	default n
+	---help---
+		Enable support for the velocity DIV observer
+
+config INDUSTRY_FOC_VELOCITY_OPLL
+	bool "FOC velocity PLL observer"
+	default n
+	---help---
+		Enable support for the velocity PLL observer
 
 endif

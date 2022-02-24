@@ -73,7 +73,7 @@ int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
 
           /* Put the driver name into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup or ifdown status */
 

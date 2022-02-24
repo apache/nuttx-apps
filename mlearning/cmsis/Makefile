@@ -24,6 +24,7 @@ cmsis.zip:
 	$(Q) curl -L https://github.com/ARM-software/CMSIS_5/archive/refs/tags/$(CONFIG_CMSIS_VER).zip -o cmsis.zip
 	$(Q) unzip -o cmsis.zip
 	$(Q) mv CMSIS_5-$(CONFIG_CMSIS_VER) CMSIS_5
+	$(Q) patch -p0 < cmsis-nn-support_nnabla.patch
 
 context:: cmsis.zip
 

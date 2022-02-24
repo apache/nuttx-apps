@@ -57,6 +57,7 @@ $(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
 # File extensions
 
 CXXEXT ?= .cxx
+RUSTEXT ?= .rs
 
 # Library path
 
@@ -97,8 +98,4 @@ endef
 CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
-ifeq ($(CONFIG_CYGWIN_WINTOOL),y)
-  NUTTXLIB ?= "${shell cygpath -w $(TOPDIR)$(DELIM)staging}"
-else
-  NUTTXLIB ?= "$(TOPDIR)$(DELIM)staging"
-endif
+NUTTXLIB ?= $(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging)

@@ -92,6 +92,10 @@ static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
 static const char g_sigmask[]   = "SigMask:";
 
+#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+static const char g_heapsize[]  = "AllocSize:";
+#endif /* CONFIG_DEBUG _MM && !CONFIG_NSH_DISABLE_PSHEAPUSAGE */
+
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
 static const char g_stacksize[] = "StackSize:";
 #ifdef CONFIG_STACK_COLORATION
@@ -228,6 +232,9 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   FAR char *nextline;
   int ret;
   int i;
+#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+  uint32_t heap_size;
+#endif
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   uint32_t stack_size;
 #ifdef CONFIG_STACK_COLORATION
@@ -332,6 +339,70 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
              status.td_priority, status.td_policy, status.td_type,
              status.td_flags, status.td_state, status.td_event);
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
+
+#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+  /* Get the Heap AllocSize */
+
+  heap_size = 0;
+  filepath  = NULL;
+
+  ret = asprintf(&filepath, "%s/%s/heap", dirpath, entryp->d_name);
+  if (ret < 0 || filepath == NULL)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      vtbl->iobuffer[0] = '\0';
+    }
+  else
+    {
+      ret = nsh_readfile(vtbl, "ps", filepath, vtbl->iobuffer,
+                         IOBUFFERSIZE);
+      free(filepath);
+
+      if (ret >= 0)
+        {
+          nextline = vtbl->iobuffer;
+          do
+            {
+              /* Find the beginning of the next line and NUL-terminate the
+               * current line.
+               */
+
+              line = nextline;
+              for (nextline++;
+                  *nextline != '\n' && *nextline != '\0';
+                  nextline++);
+
+              if (*nextline == '\n')
+                {
+                  *nextline++ = '\0';
+                }
+              else
+                {
+                  nextline = NULL;
+                }
+
+              /* Parse the current line
+               *
+               *   Format:
+               *
+               *            111111111122222222223
+               *   123456789012345678901234567890
+               *   AllocSize:  xxxx
+               *   AllocBlks:  xxxx
+               */
+
+              if (strncmp(line, g_heapsize, strlen(g_heapsize)) == 0)
+                {
+                  heap_size = (uint32_t)atoi(&line[12]);
+                  break;
+                }
+            }
+          while (nextline != NULL);
+        }
+    }
+
+  nsh_output(vtbl, "%08u ", (unsigned int)heap_size);
+#endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   /* Get the StackSize and StackUsed */
@@ -515,6 +586,10 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
              "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
   nsh_output(vtbl, "%-8s ", "SIGMASK");
+
+#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+  nsh_output(vtbl, "%8s ", "HEAP");
+#endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   nsh_output(vtbl, "%6s ", "STACK");
