@@ -1596,9 +1596,8 @@ int webclient_perform(FAR struct webclient_context *ctx)
                       /* Could not resolve host (or malformed IP address) */
 
                       nwarn("WARNING: Failed to resolve hostname\n");
-                      free_ws(ws);
-                      _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
-                      return -EHOSTUNREACH;
+                      ret = -EHOSTUNREACH;
+                      goto errout_with_errno;
                     }
 
                   server_address = (const struct sockaddr *)&server_in;
