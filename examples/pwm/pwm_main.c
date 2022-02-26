@@ -307,6 +307,13 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc,
   for (index = 1; index < argc; )
     {
       ptr = argv[index];
+      if (ptr[0] == '>')
+        {
+          /* We don't need to parse the remaining (file redirection) */
+
+          return;
+        }
+
       if (ptr[0] != '-')
         {
           printf("Invalid options format: %s\n", ptr);
