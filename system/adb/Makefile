@@ -53,7 +53,6 @@ CSRCS += $(ADB_UNPACKNAME)/adb_frame.c
 CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv.c
 CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_packet.c
 
-CFLAGS += -D__NUTTX__=1
 CFLAGS += -I$(ADB_UNPACKNAME)
 
 ifeq ($(CONFIG_ADBD_TCP_SERVER),y)
