@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HELLO_ZIG
+	tristate "\"Hello, Zig!\" example"
+	default n
+	---help---
+		Enable the \"Hello, Zig!\" example
+
+if EXAMPLES_HELLO_ZIG
+
+config EXAMPLES_HELLO_ZIG_PROGNAME
+	string "Program name"
+	default "hello_zig"
+	---help---
+		This is the name of the program that will be used when the
+		program is installed.
+
+config EXAMPLES_HELLO_ZIG_PRIORITY
+	int "Hello Zig task priority"
+	default 100
+
+config EXAMPLES_HELLO_ZIG_STACKSIZE
+	int "Hello Zig stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
