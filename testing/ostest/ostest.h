@@ -243,6 +243,10 @@ void priority_inheritance(void);
 int vfork_test(void);
 #endif
 
+/* setjmp.c *****************************************************************/
+
+void setjmp_test(void);
+
 /* APIs exported (conditionally) by the OS specifically for testing of
  * priority inheritance
  */
