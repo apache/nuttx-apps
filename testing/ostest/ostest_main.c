@@ -532,6 +532,14 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifdef CONFIG_ARCH_SETJMP_H
+      /* Verify setjmp/longjmp */
+
+      printf("\nuser_main: setjmp test\n");
+      setjmp_test();
+      check_test_memory_usage();
+#endif
+
 #if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_PTHREAD)
       /* Verify priority inheritance */
 
