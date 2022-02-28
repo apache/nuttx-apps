@@ -388,6 +388,7 @@ static int iperf_run_tcp_server(void)
           iperf_start_report();
 
           t.tv_sec = IPERF_SOCKET_RX_TIMEOUT;
+          t.tv_usec = 0;
           setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
         }
 
@@ -476,6 +477,7 @@ static int iperf_run_udp_server(void)
   printf("want recv=%d", want_recv);
 
   t.tv_sec = IPERF_SOCKET_RX_TIMEOUT;
+  t.tv_usec = 0;
   setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
 
   while (!s_iperf_ctrl.finish)
