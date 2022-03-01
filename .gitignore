@@ -25,5 +25,6 @@
 /symtab_apps.c
 cscope.out
 Make.dep
+.context
 # nuttx/$(TOPDIR)/Makefile.[unix|win]::$(DIRLINKS_EXTERNAL_DIRS)
 .dirlinks
