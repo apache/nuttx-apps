@@ -643,6 +643,16 @@ maintaining duplicate logic in the NuttX repository.
 This is a simple test of the board LED driver at
 `nuttx/drivers/leds/userled_*.c`.
 
+## `luamod_hello` Hello World Lua module
+
+A Lua C module showing how to add built-in modules to the Lua interpreter.
+Usage:
+
+```lua
+> hello.say_hello()
+"Hello World!"
+```
+
 ## `lis2csh_reader` `LIS3DSH` Accelerometer
 
 A simple reader example for the `LIS3DSH` acceleration sensor as found on
