@@ -105,7 +105,7 @@ static const adb_service_ops_t logcat_ops =
   .on_write_frame = alog_on_write,
   .on_ack_frame   = alog_on_ack,
   .on_kick        = alog_on_kick,
-  .close          = alog_close
+  .on_close       = alog_close
 };
 
 static void logcat_on_data_available(uv_poll_t * handle,
