@@ -668,8 +668,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
 #ifdef CONFIG_NETUTILS_HTTPD_CLASSIC
   if (0 == strcmp(pstate->ht_filename, "/"))
     {
-      strncpy(pstate->ht_filename, "/" CONFIG_NETUTILS_HTTPD_INDEX,
-              strlen("/" CONFIG_NETUTILS_HTTPD_INDEX));
+      strlcpy(pstate->ht_filename, "/" CONFIG_NETUTILS_HTTPD_INDEX,
+              sizeof(pstate->ht_filename));
     }
 #endif
 
