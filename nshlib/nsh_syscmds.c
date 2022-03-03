@@ -328,6 +328,7 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
                           int argc, char **argv)
 {
+  struct rptun_ping_s ping;
   unsigned long val = 0;
   int cmd;
   int fd;
@@ -357,6 +358,21 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
     {
       cmd = RPTUNIOC_DUMP;
     }
+  else if (strcmp(argv[1], "ping") == 0)
+    {
+      if (argc != 6)
+        {
+          nsh_output(vtbl, g_fmtarginvalid, path);
+          return ERROR;
+        }
+
+      ping.times = atoi(argv[3]);
+      ping.len   = atoi(argv[4]);
+      ping.ack   = atoi(argv[5]);
+
+      cmd = RPTUNIOC_PING;
+      val = (unsigned long)&ping;
+    }
   else
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[1]);
@@ -366,7 +382,7 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
   fd = open(path, 0);
   if (fd < 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[2]);
+      nsh_output(vtbl, g_fmtarginvalid, path);
       return ERROR;
     }
 

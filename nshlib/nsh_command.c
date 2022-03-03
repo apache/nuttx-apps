@@ -466,8 +466,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-  { "rptun",    cmd_rptun,    2, 4,
-    "start|stop|reset|panic|dump [dev-path] [value]" },
+  { "rptun",    cmd_rptun,    2, 6,
+    "start|stop|reset|panic|dump|ping [dev-path] [value|times length ack]" },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_SET
