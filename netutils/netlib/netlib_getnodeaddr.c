@@ -72,7 +72,7 @@ int netlib_getnodnodeaddr(FAR const char *ifname,
         {
           /* Copy the network interface name */
 
-          strncpy(req.pifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.pifr_name, ifname, IFNAMSIZ);
 
           /* And perform the IOCTL command */
 
