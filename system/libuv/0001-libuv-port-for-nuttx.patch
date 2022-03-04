@@ -738,7 +738,7 @@ index 0f4bf938..dd36028b 100644
    time_base = loop->time;
 diff --git a/src/unix/process-spawn.c b/src/unix/process-spawn.c
 new file mode 100644
-index 00000000..78401ca5
+index 00000000..755efc84
 --- /dev/null
 +++ b/src/unix/process-spawn.c
 @@ -0,0 +1,368 @@
@@ -865,7 +865,7 @@ index 00000000..78401ca5
 +    if (container->data.stream->type != UV_NAMED_PIPE)
 +      return UV_EINVAL;
 +    else
-+      return uv_socketpair(SOCK_STREAM, 0, fds, 0, 0);
++      return uv_pipe(fds, 0, 0);
 +
 +  case UV_INHERIT_FD:
 +  case UV_INHERIT_STREAM:
