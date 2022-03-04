@@ -72,7 +72,7 @@ int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
         {
           /* Perform the IOCTL */
 
-          strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
           arg.u.getreq.attr = IEEE802154_ATTR_MAC_PANID;
 
           ret = ioctl(sockfd, MAC802154IOC_MLME_GET_REQUEST,

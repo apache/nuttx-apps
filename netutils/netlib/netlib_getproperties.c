@@ -72,7 +72,7 @@ int netlib_getproperties(FAR const char *ifname,
         {
           /* Copy the network interface name */
 
-          strncpy(req.pifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.pifr_name, ifname, IFNAMSIZ);
 
           /* And perform the IOCTL command */
 
