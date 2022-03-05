@@ -327,7 +327,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
            * /128 -> ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
            */
 
-          memset(&inaddr.ipv6, 0, sizeof(struct sockaddr_in6));
+          memset(&inaddr.ipv6, 0, sizeof(inaddr.ipv6));
           for (i = 0; i < 8 && shift >= 16; i++, shift -= 16)
             {
               inaddr.ipv6.s6_addr16[i] = 0xffff;
