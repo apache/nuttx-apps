@@ -181,8 +181,9 @@ void CProgressBar::drawContents(CGraphicsPort *port)
 
   if (m_showPercentageText)
     {
-      char text[6];
-      sprintf(text, "%d%%", (100 * m_value) / (m_maximumValue - m_minimumValue));
+      char text[12];
+      snprintf(text, sizeof(text), "%d%%",
+               (100 * m_value) / (m_maximumValue - m_minimumValue));
 
       struct nxgl_point_s pos;
       pos.x = rect.getX() +
