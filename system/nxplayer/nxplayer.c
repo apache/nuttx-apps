@@ -148,7 +148,7 @@ static int _open_with_http(const char *fullurl)
   char resp_msg[] = "\r\n\r\n";
   struct timeval tv;
   uint16_t port = 80;
-  char buf[64];
+  char buf[PATH_MAX];
   int  s;
   int  n;
   char c;
@@ -317,7 +317,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
       struct audio_caps_s caps;
       FAR struct dirent *pdevice;
       FAR DIR *dirp;
-      char path[64];
+      char path[PATH_MAX];
       uint8_t supported = true;
       uint8_t x;
 
@@ -1778,7 +1778,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct audio_caps_desc_s cap_desc;
   struct ap_buffer_info_s  buf_info;
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-  char                path[128];
+  char                path[PATH_MAX];
 #endif
   int                 tmpsubfmt = AUDIO_FMT_UNDEF;
   int                 ret;
