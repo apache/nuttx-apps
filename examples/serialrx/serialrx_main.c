@@ -73,7 +73,8 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   int count = 0;
 #endif
-#ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHEX
+#if defined (CONFIG_EXAMPLES_SERIALRX_PRINTHEX) || \
+    defined (CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
   int i;
 #endif
   bool eof = false;
@@ -175,7 +176,14 @@ int main(int argc, FAR char *argv[])
             }
 
           fflush(stdout);
-#endif                                  /* Kamal */
+#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
+          for (i = 0; i < (int)n; i++)
+            {
+              printf("%c", buf[i]);
+            }
+
+          fflush(stdout);
+#endif
           cnt += n;
         }
 
