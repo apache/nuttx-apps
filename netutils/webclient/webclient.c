@@ -1120,7 +1120,21 @@ int webclient_perform(FAR struct webclient_context *ctx)
 #endif
 
           dest = append(dest, ep, " ");
-          dest = append(dest, ep, g_http10);
+          if (ctx->protocol_version == WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0)
+            {
+              dest = append(dest, ep, g_http10);
+            }
+          else if (ctx->protocol_version ==
+                   WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1)
+            {
+              dest = append(dest, ep, g_http11);
+            }
+          else
+            {
+              ret = -EINVAL;
+              goto errout_with_errno;
+            }
+
           dest = append(dest, ep, g_httpcrnl);
           dest = append(dest, ep, g_httphost);
           dest = append(dest, ep, ws->hostname);
