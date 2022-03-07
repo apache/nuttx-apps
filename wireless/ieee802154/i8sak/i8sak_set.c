@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -72,24 +72,28 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           case 'h':
             fprintf(stderr, "Sets various parameters and attributes\n"
-                    "Usage: %s [-h] parameter\n"
-                    "    -h = this help menu\n"
-                    "\n"
-                    "Parameters:\n"
-                    "    chan 0-255 = RF channel (only some channels valid per radio)\n"
-                    "    panid xx:xx = PAN Identifier\n"
-                    "    saddr xx:xx = this node's short address\n"
-                    "    eaddr xx:xx:xx:xx:xx:xx:xx:xx = this node's extended address\n"
-                    "    addrmode s|e = source addressing mode\n"
-                    "    ep_saddr xx:xx = i8sak endpoint short address\n"
-                    "    ep_eaddr xx:xx:xx:xx:xx:xx:xx:xx = i8sak endpoint extended address\n"
-                    "    ep_addrmode s|e = destination addressing mode\n"
-                    "    ep_port 1-65535 = port to send to\n"
-                    "    rxonidle = Receiver on when idle\n"
-                    "    txpwr = Transmit Power\n"
-                    "    maxretries = macMaxFrameRetries\n"
-                    "    promisc = Promiscuous Mode\n"
-                    , argv[0]);
+                "Usage: %s [-h] parameter\n"
+                "    -h = this help menu\n"
+                "\n"
+                "Parameters:\n"
+                "    chan 0-255 = RF channel "
+                "(only some channels valid per radio)\n"
+                "    panid xx:xx = PAN Identifier\n"
+                "    saddr xx:xx = this node's short address\n"
+                "    eaddr xx:xx:xx:xx:xx:xx:xx:xx = this node's "
+                "extended address\n"
+                "    addrmode s|e = source addressing mode\n"
+                "    ep_saddr xx:xx = i8sak endpoint short address\n"
+                "    ep_eaddr xx:xx:xx:xx:xx:xx:xx:xx = i8sak "
+                "endpoint extended address\n"
+                "    ep_addrmode s|e = destination addressing mode\n"
+                "    ep_port 1-65535 = port to send to\n"
+                "    rxonidle = Receiver on when idle\n"
+                "    txpwr = Transmit Power\n"
+                "    maxretries = macMaxFrameRetries\n"
+                "    promisc = Promiscuous Mode\n"
+                , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -97,12 +101,14 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -183,7 +189,8 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 #ifdef CONFIG_NET_6LOWPAN
   else if (strcmp(argv[argind], "ep_port") == 0)
     {
-      i8sak->ep_in6addr.sin6_port = HTONS(i8sak_str2luint16(argv[argind + 1]));
+      i8sak->ep_in6addr.sin6_port =
+              HTONS(i8sak_str2luint16(argv[argind + 1]));
     }
 #endif
 
@@ -232,7 +239,8 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
-              ieee802154_setmaxretries(fd, i8sak_str2luint8(argv[argind + 1]));
+              ieee802154_setmaxretries(fd,
+                                i8sak_str2luint8(argv[argind + 1]));
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
@@ -240,7 +248,8 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr,
+                      "ERROR: unsupported parameter: %s\n", argv[argind]);
             }
         }
 #ifdef CONFIG_NET_6LOWPAN
@@ -249,7 +258,8 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           fd = socket(PF_INET6, SOCK_DGRAM, 0);
           if (fd < 0)
             {
-              fprintf(stderr,  "ERROR: failed to open socket, errno=%d\n", errno);
+              fprintf(stderr,
+                      "ERROR: failed to open socket, errno=%d\n", errno);
               i8sak_cmd_error(i8sak);
             }
 
@@ -276,23 +286,28 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "rxonidle") == 0)
             {
-              sixlowpan_setrxonidle(fd, i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
+              sixlowpan_setrxonidle(fd,
+                        i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
             }
           else if (strcmp(argv[argind], "txpwr") == 0)
             {
-              sixlowpan_settxpwr(fd, i8sak->ifname, i8sak_str2long(argv[argind + 1]));
+              sixlowpan_settxpwr(fd,
+                        i8sak->ifname, i8sak_str2long(argv[argind + 1]));
             }
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
-              sixlowpan_setmaxretries(fd, i8sak->ifname, i8sak_str2luint8(argv[argind + 1]));
+              sixlowpan_setmaxretries(fd,
+                        i8sak->ifname, i8sak_str2luint8(argv[argind + 1]));
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
-              sixlowpan_setpromisc(fd, i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
+              sixlowpan_setpromisc(fd,
+                        i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr,
+                      "ERROR: unsupported parameter: %s\n", argv[argind]);
             }
         }
 #endif

@@ -37,8 +37,8 @@
  ****************************************************************************/
 
 /* libmac *******************************************************************/
-/* Character driver IOCTL helpers */
 
+/* Character driver IOCTL helpers */
 
 int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
 int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp);
@@ -148,7 +148,8 @@ int sixlowpan_calibrate_req(int sock, FAR const char *ifname,
 #endif
 
 int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan);
-int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan);
+int sixlowpan_getchan(int sock, FAR const char *ifname,
+      FAR uint8_t *chan);
 
 int sixlowpan_setpanid(int sock, FAR const char *ifname,
       FAR const uint8_t *panid);
@@ -165,9 +166,11 @@ int sixlowpan_seteaddr(int sock, FAR const char *ifname,
 int sixlowpan_geteaddr(int sock, FAR const char *ifname,
       FAR uint8_t *eaddr);
 
-int sixlowpan_getcoordsaddr(int fd, FAR const char *ifname, FAR uint8_t *saddr);
+int sixlowpan_getcoordsaddr(int fd, FAR const char *ifname,
+      FAR uint8_t *saddr);
 
-int sixlowpan_getcoordeaddr(int fd, FAR const char *ifname, FAR uint8_t *eaddr);
+int sixlowpan_getcoordeaddr(int fd, FAR const char *ifname,
+      FAR uint8_t *eaddr);
 
 int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc);
 int sixlowpan_getpromisc(int sock, FAR const char *ifname,
@@ -181,23 +184,26 @@ int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
 int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
       FAR int32_t *txpwr);
 
-int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries);
+int sixlowpan_setmaxretries(int sock, FAR const char *ifname,
+                            uint8_t retries);
 int sixlowpan_getmaxretries(int sock, FAR const char *ifname,
       FAR uint8_t *retries);
 
 int sixlowpan_setfcslen(int sock, FAR const char *ifname, uint8_t fcslen);
-int sixlowpan_getfcslen(int sock, FAR const char *ifname, FAR uint8_t *fcslen);
+int sixlowpan_getfcslen(int sock, FAR const char *ifname,
+      FAR uint8_t *fcslen);
 
 int sixlowpan_getdevmode(int fd, FAR const char *ifname,
-                         FAR enum ieee802154_devmode_e *devmode);
+      FAR enum ieee802154_devmode_e *devmode);
 
-int sixlowpan_setassocpermit(int sock, FAR const char *ifname, bool assocpermit);
+int sixlowpan_setassocpermit(int sock, FAR const char *ifname,
+                             bool assocpermit);
 
-#endif /* CONFIG_NET_6LOWPAN*/
+#endif /* CONFIG_NET_6LOWPAN */
 
 /* libutils *****************************************************************/
 
 int ieee802154_addrtostr(FAR char *buf, int len,
       FAR struct ieee802154_addr_s *addr);
 
-#endif /*__APPS_INCLUDE_WIRELESS_IEEE802154_H */
+#endif /* __APPS_INCLUDE_WIRELESS_IEEE802154_H */

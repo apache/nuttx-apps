@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -91,6 +91,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    maxretries = macMaxFrameRetries\n"
                     "    promisc = Promiscuous Mode\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -98,12 +99,14 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -170,7 +173,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 #ifdef CONFIG_NET_6LOWPAN
   else if (strcmp(argv[argind], "ep_port") == 0)
     {
-      printf("i8sak: Endpoint Port: %d\n", NTOHS(i8sak->ep_in6addr.sin6_port));
+      printf("i8sak: Endpoint Port: %d\n",
+              NTOHS(i8sak->ep_in6addr.sin6_port));
     }
   else if (strcmp(argv[argind], "snifferport") == 0)
     {
@@ -248,7 +252,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
               ieee802154_getmaxretries(fd, &u.attr.mac.max_retries);
-              printf("i8sak: Max Frame Retries: %d\n", (int)u.attr.mac.max_retries);
+              printf("i8sak: Max Frame Retries: %d\n",
+                      (int)u.attr.mac.max_retries);
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
@@ -264,7 +269,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr,
+                      "ERROR: unsupported parameter: %s\n", argv[argind]);
             }
         }
 #ifdef CONFIG_NET_6LOWPAN
@@ -273,7 +279,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           fd = socket(PF_INET6, SOCK_DGRAM, 0);
           if (fd < 0)
             {
-              fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+              fprintf(stderr,
+                      "ERROR: failed to open socket, errno=%d\n", errno);
               i8sak_cmd_error(i8sak);
             }
 
@@ -309,7 +316,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "coordeaddr") == 0)
             {
-              sixlowpan_getcoordeaddr(fd, i8sak->ifname, u.attr.mac.coordeaddr);
+              sixlowpan_getcoordeaddr(fd, i8sak->ifname,
+                                      u.attr.mac.coordeaddr);
               printf("i8sak: Coordinator Extended Address: "
                      PRINTF_FORMAT_EADDR(u.attr.mac.coordeaddr));
             }
@@ -332,12 +340,15 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
-              sixlowpan_getmaxretries(fd, i8sak->ifname, &u.attr.mac.max_retries);
-              printf("i8sak: Max Retries: %d\n", (int)u.attr.mac.max_retries);
+              sixlowpan_getmaxretries(fd, i8sak->ifname,
+                                      &u.attr.mac.max_retries);
+              printf("i8sak: Max Retries: %d\n",
+                     (int)u.attr.mac.max_retries);
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
-              sixlowpan_getpromisc(fd, i8sak->ifname, &u.attr.mac.promisc_mode);
+              sixlowpan_getpromisc(fd, i8sak->ifname,
+                                   &u.attr.mac.promisc_mode);
               if (u.attr.mac.promisc_mode)
                 {
                   printf("i8sak: Promiscuous Mode: true\n");
@@ -349,7 +360,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr, "ERROR: unsupported parameter: %s\n",
+                      argv[argind]);
             }
         }
 #endif

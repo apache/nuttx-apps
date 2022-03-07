@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -61,6 +61,7 @@ void i8sak_reset_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -68,12 +69,14 @@ void i8sak_reset_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
            case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
