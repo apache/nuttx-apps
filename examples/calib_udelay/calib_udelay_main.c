@@ -260,11 +260,11 @@ int main(int argc, FAR char *argv[])
        loop_count += min_step * calibration_step_multiplier)
     {
       duration += (double)num_measurements * loop_count *
-                          timer_resolution * min_timer_resolution_steps / min_step;
+                timer_resolution * min_timer_resolution_steps / min_step;
     }
 
-  printf("Performing main calibration for udelay. This will take approx. %.3f seconds.\n",
-         duration * 1e-9);
+  printf("Performing main calibration for udelay."
+         "This will take approx. %.3f seconds.\n", duration * 1e-9);
   usleep(200 * 1000);
 
   for (loop_count = min_step, i = 0; i < num_results; i++,
