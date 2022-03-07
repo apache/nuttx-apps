@@ -54,13 +54,16 @@ static void cleanup(FAR void * data)
 #ifndef CONFIG_CANCELLATION_POINTS
   if (status == EPERM)
     {
-      printf("pthread_cleanup: thread did not have mutex locked: %d\n", status);
+      printf("pthread_cleanup: thread did not have mutex locked: %d\n",
+              status);
       return;
     }
 #endif
+
   if (status != 0)
     {
-      printf("pthread_cleanup: ERROR pthread_mutex_unlock in cleanup handler. "
+      printf("pthread_cleanup:"
+             "ERROR pthread_mutex_unlock in cleanup handler. "
              "Status: %d\n", status);
     }
 }
@@ -73,18 +76,20 @@ static void *cleanup_thread(FAR void * data)
   status = pthread_mutex_lock(&sync->lock);
   if (status != 0)
     {
-      printf("pthread_cleanup: ERROR pthread_mutex_lock, status=%d\n", status);
+      printf("pthread_cleanup: ERROR pthread_mutex_lock, status=%d\n",
+              status);
       return NULL;
     }
 
   pthread_cleanup_push(&cleanup, sync);
 
-  while(1)
+  while (1)
     {
       status = pthread_cond_wait(&sync->cond, &sync->lock);
       if (status != 0)
         {
-          printf("pthread_cleanup: ERROR wait returned. Status: %d\n", status);
+          printf("pthread_cleanup: ERROR wait returned. Status: %d\n",
+                 status);
         }
     }
 
@@ -124,7 +129,8 @@ static void test_cleanup(void)
     }
   else if (result != PTHREAD_CANCELED)
     {
-      printf("pthread_cleanup: ERROR pthread_join returned wrong result: %p\n", result);
+      printf("pthread_cleanup: "
+             "ERROR pthread_join returned wrong result: %p\n", result);
     }
 
 #ifdef CONFIG_CANCELLATION_POINTS
@@ -133,13 +139,15 @@ static void test_cleanup(void)
   status = pthread_mutex_trylock(&sync.lock);
   if (status != 0)
     {
-      printf("pthread_cleanup: ERROR pthread_mutex_trylock, status=%d\n", status);
+      printf("pthread_cleanup: ERROR pthread_mutex_trylock, status=%d\n",
+              status);
     }
 
   status = pthread_mutex_unlock(&sync.lock);
   if (status != 0)
     {
-      printf("pthread_cleanup: ERROR pthread_mutex_unlock, status=%d\n", status);
+      printf("pthread_cleanup: ERROR pthread_mutex_unlock, status=%d\n",
+              status);
     }
 #endif
 }

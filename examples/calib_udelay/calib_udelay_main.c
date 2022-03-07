@@ -216,7 +216,9 @@ int main(int argc, FAR char *argv[])
   double iters_per_nsec;
   double iters_per_msec;
   uint64_t timer_resolution;
-  double slope_m, slope_b, slope_r2;
+  double slope_m;
+  double slope_b;
+  double slope_r2;
   int min_step;
   int loop_count;
   double duration;
