@@ -1625,6 +1625,7 @@ int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
 void webclient_set_defaults(FAR struct webclient_context *ctx)
 {
   memset(ctx, 0, sizeof(*ctx));
+  ctx->protocol_version = WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0;
   ctx->method = "GET";
   ctx->timeout_sec = CONFIG_WEBCLIENT_TIMEOUT;
   _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_INITIALIZED);
