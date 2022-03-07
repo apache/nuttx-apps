@@ -298,7 +298,7 @@ static void slcd_puts(FAR struct lib_outstream_s *outstream,
 int main(int argc, FAR char *argv[])
 {
   FAR struct slcd_chrono_s *priv = &g_slcd;
-  FAR char str[16] = "00:00.0";
+  FAR char str[32] = "00:00.0";
   int fd;
   int ret;
   long sec;
