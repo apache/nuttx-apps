@@ -240,14 +240,15 @@ static const char g_httpuseragentfields[] =
   CONFIG_NSH_WGET_USERAGENT
   "\r\n\r\n";
 
-static const char g_httpcrnl[]      = "\r\n";
+static const char g_httpcrnl[]       = "\r\n";
 
-static const char g_httpform[]      = "Content-Type: "
-                                      "application/x-www-form-urlencoded";
-static const char g_httpcontsize[]  = "Content-Length: ";
+static const char g_httpform[]       = "Content-Type: "
+                                       "application/x-www-form-urlencoded";
+static const char g_httpcontsize[]   = "Content-Length: ";
+static const char g_httpconn_close[] = "Connection: close";
 #if 0
-static const char g_httpconn[]      = "Connection: Keep-Alive";
-static const char g_httpcache[]     = "Cache-Control: no-cache";
+static const char g_httpconn[]       = "Connection: Keep-Alive";
+static const char g_httpcache[]      = "Cache-Control: no-cache";
 #endif
 
 /****************************************************************************
@@ -1153,6 +1154,14 @@ int webclient_perform(FAR struct webclient_context *ctx)
               dest = append(dest, ep, g_httpcontsize);
               sprintf(post_size, "%zu", ctx->bodylen);
               dest = append(dest, ep, post_size);
+              dest = append(dest, ep, g_httpcrnl);
+            }
+
+          if (ctx->protocol_version == WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1)
+            {
+              /* We don't implement persistect connections. */
+
+              dest = append(dest, ep, g_httpconn_close);
               dest = append(dest, ep, g_httpcrnl);
             }
 
