@@ -83,7 +83,7 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 #endif
 
   while (i8sak->eventlistener_run)
-   {
+    {
       if (i8sak->mode == I8SAK_MODE_CHAR)
         {
           ret = ioctl(i8sak->fd, MAC802154IOC_GET_EVENT,
@@ -164,13 +164,15 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 
                   /* Link the receiver back into the free list */
 
-                  sq_addlast((FAR sq_entry_t *)receiver, &i8sak->eventreceivers_free);
+                  sq_addlast((FAR sq_entry_t *)receiver,
+                              &i8sak->eventreceivers_free);
                 }
             }
 
           receiver = (FAR struct i8sak_eventreceiver_s *)sq_next(
                         (FAR sq_entry_t *)receiver);
         }
+
       sem_post(&i8sak->eventsem);
     }
 
@@ -219,7 +221,8 @@ int i8sak_eventlistener_start(FAR struct i8sak_s *i8sak)
 
   i8sak->eventlistener_run = true;
 
-  ret = pthread_create(&i8sak->eventlistener_threadid, NULL, i8sak_eventthread,
+  ret = pthread_create(&i8sak->eventlistener_threadid,
+                       NULL, i8sak_eventthread,
                        (void *)i8sak);
   if (ret != 0)
     {
@@ -266,8 +269,9 @@ int i8sak_eventlistener_stop(FAR struct i8sak_s *i8sak)
  * Name: i8sak_eventlistener_addreceiver
  *
  * Description:
- *   Add an event receiver.  An event receiver consists of a callback and flags
- *   for which events should be sent to the callback.
+ *   Add an event receiver.
+ *   An event receiver consists of a callback and flags for which events
+ *   should be sent to the callback.
  *
  * Parameters:
  *   handle   - handle to the i8sak instance struct
@@ -304,7 +308,7 @@ int i8sak_eventlistener_addreceiver(FAR struct i8sak_s *i8sak,
   /* Allocate a receiver struct from the static pool */
 
   receiver = (FAR struct i8sak_eventreceiver_s *)sq_remfirst(
-                                                   &i8sak->eventreceivers_free);
+                   &i8sak->eventreceivers_free);
   if (receiver == NULL)
     {
       fprintf(stderr, "failed to add receiver: %d\n", ENOMEM);
@@ -376,7 +380,8 @@ int i8sak_eventlistener_removereceiver(FAR struct i8sak_s *i8sak,
 
           /* Link the receiver back into the free list */
 
-          sq_addlast((FAR sq_entry_t *)receiver, &i8sak->eventreceivers_free);
+          sq_addlast((FAR sq_entry_t *)receiver,
+                      &i8sak->eventreceivers_free);
 
           sem_post(&i8sak->eventsem);
 

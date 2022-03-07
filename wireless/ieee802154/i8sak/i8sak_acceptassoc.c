@@ -114,7 +114,8 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
       fd = open(i8sak->ifname, O_RDWR);
       if (fd < 0)
         {
-          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
           i8sak_cmd_error(i8sak);
         }
 
@@ -170,7 +171,8 @@ static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
    */
 
   if (i8sak->acceptall ||
-      IEEE802154_EADDRCMP(primitive->u.assocind.devaddr, i8sak->ep_addr.eaddr))
+      IEEE802154_EADDRCMP(primitive->u.assocind.devaddr,
+                          i8sak->ep_addr.eaddr))
     {
       /* Assign the short address */
 
