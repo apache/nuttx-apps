@@ -133,6 +133,9 @@
  *   buflen - A pointer to the length of the buffer.  If the callee wishes
  *       to change the size of the buffer, it may write to buflen.
  *   arg    - User argument passed to callback.
+ *
+ * Note: changing buffer address and/or size is only allowed for HTTP 1.0.
+ * It's not allowed for HTTP 1.1.
  */
 
 typedef void (*wget_callback_t)(FAR char **buffer, int offset,
