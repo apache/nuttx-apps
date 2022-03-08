@@ -1,5 +1,5 @@
 /****************************************************************************
- * audio_sound/audio_sound.h
+ * apps/examples/audio_rttl/audio_rttl.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
