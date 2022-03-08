@@ -68,22 +68,21 @@
 #define BUF_ANS_LEN     CONFIG_NETUTILS_ESP8266_MAXRXLEN
 #define BUF_WORKER_LEN  CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN
 
-
 #define CON_NBR 4
 
 #define ESP8266_ACCESS_POINT_NBR_MAX 32
 
-#define lespWAITING_OK_POLLING_MS   250
-#define lespTIMEOUT_FLUSH_MS        100
-#define lespTIMEOUT_MS              1000
-#define lespTIMEOUT_MS_SEND         1000
-#define lespTIMEOUT_MS_CONNECTION   30000
-#define lespTIMEOUT_MS_LISP_AP      5000
-#define lespTIMEOUT_FLOODING_OFFSET_S 3
-#define lespTIMEOUT_MS_RECV_S       60
+#define LESP_WAITING_OK_POLLING_MS   250
+#define LESP_TIMEOUT_FLUSH_MS        100
+#define LESP_TIMEOUT_MS              1000
+#define LESP_TIMEOUT_MS_SEND         1000
+#define LESP_TIMEOUT_MS_CONNECTION   30000
+#define LESP_TIMEOUT_MS_LISP_AP      5000
+#define LESP_TIMEOUT_FLOODING_OFFSET_S 3
+#define LESP_TIMEOUT_MS_RECV_S       60
 
-#define lespCON_USED_MASK(idx)      (1<<(idx))
-#define lespPOLLING_TIME_MS         1000
+#define LESP_CON_USED_MASK(idx)      (1<<(idx))
+#define LESP_POLLING_TIME_MS         1000
 
 /* Must be a power of 2 */
 
@@ -104,9 +103,9 @@
 
 typedef enum
 {
-  lesp_eERR  = -1,
-  lesp_eNONE =  0,
-  lesp_eOK   =  1
+  LESP_ERR  = -1,
+  LESP_NONE =  0,
+  LESP_OK   =  1
 }lesp_ans_t;
 
 typedef struct
@@ -169,9 +168,9 @@ lesp_state_t g_lesp_state =
   .is_initialized = false,
   .fd             = -1,
   .worker.running = false,
-  .worker.and     = lesp_eNONE,
+  .worker.and     = LESP_NONE,
   .worker.mutex   = PTHREAD_MUTEX_INITIALIZER,
-  .and            = lesp_eNONE,
+  .and            = LESP_NONE,
 };
 
 /****************************************************************************
@@ -209,7 +208,7 @@ static inline void lesp_clear_read_buffer(void)
 
 static inline void lesp_clear_read_ans(void)
 {
-  g_lesp_state.and = lesp_eNONE;
+  g_lesp_state.and = LESP_NONE;
 }
 
 /****************************************************************************
@@ -238,7 +237,7 @@ static inline int lesp_str_to_unsigned(char **p_ptr, char end)
       nbr += c;
     }
 
-  *p_ptr = ptr+1; /* Pass the end char */
+  *p_ptr = ptr + 1; /* Pass the end char */
   return nbr;
 }
 
@@ -414,7 +413,7 @@ static int lesp_low_level_read(uint8_t *buf, int size)
 
   /* poll return 1=>even occur 0=>timeout or -1=>error */
 
-  ret = poll(fds, 1, lespPOLLING_TIME_MS);
+  ret = poll(fds, 1, LESP_POLLING_TIME_MS);
   if (ret < 0)
     {
       int errcode = errno;
@@ -571,7 +570,7 @@ int lesp_vsend_cmd(FAR const IPTR char *format, va_list ap)
   ret = vsnprintf(g_lesp_state.bufcmd, BUF_CMD_LEN, format, ap);
   if (ret >= BUF_CMD_LEN)
     {
-      g_lesp_state.bufcmd[BUF_CMD_LEN-1] = '\0';
+      g_lesp_state.bufcmd[BUF_CMD_LEN - 1] = '\0';
       ninfo("Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
       ret = -1;
     }
@@ -652,14 +651,14 @@ static int lesp_read(int timeout_ms)
       return -1;
     }
 
-  ts.tv_nsec += (timeout_ms%1000) * 1000000;
+  ts.tv_nsec += (timeout_ms % 1000) * 1000000;
   if (ts.tv_nsec >= 1000000000)
     {
       ts.tv_nsec -= 1000000000;
       ts.tv_sec  += 1;
     }
 
-  ts.tv_sec  += (timeout_ms/1000);
+  ts.tv_sec  += (timeout_ms / 1000);
 
   do
     {
@@ -670,10 +669,10 @@ static int lesp_read(int timeout_ms)
 
       pthread_mutex_lock(&g_lesp_state.worker.mutex);
 
-      if (g_lesp_state.worker.and != lesp_eNONE)
+      if (g_lesp_state.worker.and != LESP_NONE)
         {
           g_lesp_state.and = g_lesp_state.worker.and;
-          g_lesp_state.worker.and = lesp_eNONE;
+          g_lesp_state.worker.and = LESP_NONE;
         }
 
       ret = strlen(g_lesp_state.worker.buf);
@@ -681,13 +680,13 @@ static int lesp_read(int timeout_ms)
         {
           /* +1 to copy null */
 
-          memcpy(g_lesp_state.bufans, g_lesp_state.worker.buf, ret+1);
+          memcpy(g_lesp_state.bufans, g_lesp_state.worker.buf, ret + 1);
         }
 
       g_lesp_state.worker.buf[0] = '\0'; /* buffer is read */
       pthread_mutex_unlock(&g_lesp_state.worker.mutex);
     }
-  while ((ret <= 0) && (g_lesp_state.and == lesp_eNONE));
+  while ((ret <= 0) && (g_lesp_state.and == LESP_NONE));
 
   ninfo("lesp_read %d=>%s and and = %d\n", ret, g_lesp_state.bufans,
         g_lesp_state.and);
@@ -716,7 +715,7 @@ static void lesp_flush(void)
       lesp_clear_read_buffer();
       lesp_clear_read_ans();
     }
-  while (lesp_read(lespTIMEOUT_FLUSH_MS) >= 0);
+  while (lesp_read(LESP_TIMEOUT_FLUSH_MS) >= 0);
 }
 
 /****************************************************************************
@@ -738,13 +737,14 @@ int lesp_read_ans_ok(int timeout_ms)
   int ret = 0;
   time_t end;
 
-  end = time(NULL) + (timeout_ms/1000) + lespTIMEOUT_FLOODING_OFFSET_S;
+  end = time(NULL) + (timeout_ms / 1000) +
+        LESP_TIMEOUT_FLOODING_OFFSET_S;
 
-  while (g_lesp_state.and != lesp_eOK)
+  while (g_lesp_state.and != LESP_OK)
     {
       ret = lesp_read(timeout_ms);
 
-      if ((ret < 0) || (g_lesp_state.and == lesp_eERR) || \
+      if ((ret < 0) || (g_lesp_state.and == LESP_ERR) || \
            (time(NULL) > end))
         {
           ret = -1;
@@ -816,7 +816,7 @@ static int lesp_check(void)
 
   lesp_flush();
 
-  if (lesp_ask_ans_ok(lespTIMEOUT_MS, "AT\r\n") < 0)
+  if (lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT\r\n") < 0)
     {
       nerr("ERROR: ESP8266 not answer at AT command\n");
       return -1;
@@ -834,7 +834,8 @@ static int lesp_check(void)
  *   see in:
  *   https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/
  *   or
- *   http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf
+ *   http://www.espressif.com/sites/default/files/documentation/
+ *                                     4a-esp8266_at_instruction_set_en.pdf
  *
  *                net ip
  *    +CIPDOMAIN:"192.168.1.1"
@@ -886,6 +887,7 @@ static int lesp_parse_cwdomain_ans_line(const char *ptr, in_addr_t *ip)
               break;
 
           case 1:
+
               /* No '"' for this command ! */
 
               if (inet_pton(AF_INET, ptr, ip) < 0)
@@ -913,7 +915,8 @@ static int lesp_parse_cwdomain_ans_line(const char *ptr, in_addr_t *ip)
  *   see in:
  *   https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/
  *   or
- *   http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf
+ *   http://www.espressif.com/sites/default/files/documentation/
+ *                                   4a-esp8266_at_instruction_set_en.pdf
  *
  *                net ip       net mask
  *    +CIPxxxx:ip:"192.168.1.1","255.255.255.0","192.168.1.1",
@@ -969,6 +972,7 @@ static int lesp_parse_cipxxx_ans_line(const char *ptr, in_addr_t *ip)
               break;
 
           case 1:
+
               /* ip label */
 
               break;
@@ -996,7 +1000,8 @@ static int lesp_parse_cipxxx_ans_line(const char *ptr, in_addr_t *ip)
  *   see in:
  *   https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/
  *   or
- *   http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf
+ *   http://www.espressif.com/sites/default/files/documentation/
+ *                                4a-esp8266_at_instruction_set_en.pdf
  *
  *             SSID        BSSID            ch  RSSI
  *    +CWLAP:"FreeWifi","00:07:cb:07:b6:00", 1, -90
@@ -1053,8 +1058,8 @@ static int lesp_parse_cwjap_ans_line(char *ptr, lesp_ap_t *ap)
           case 1:
               ptr++; /* Remove first '"' */
               *(ptr_next - 1) = '\0';
-              strncpy(ap->ssid, ptr, lespSSID_SIZE);
-              ap->ssid[lespSSID_SIZE] = '\0';
+              strncpy(ap->ssid, ptr, LESP_SSID_SIZE);
+              ap->ssid[LESP_SSID_SIZE] = '\0';
               break;
 
           case 2:
@@ -1064,7 +1069,7 @@ static int lesp_parse_cwjap_ans_line(char *ptr, lesp_ap_t *ap)
                   ptr++; /* Remove first '"' */
                   *(ptr_next - 1) = '\0';
 
-                  for (i = 0; i < lespBSSID_SIZE ; i++)
+                  for (i = 0; i < LESP_BSSID_SIZE ; i++)
                     {
                       ap->bssid[i] = strtol(ptr, &ptr, 16);
                       if (*ptr == ':')
@@ -1167,7 +1172,7 @@ static int lesp_parse_cwlap_ans_line(char *ptr, lesp_ap_t *ap)
                 {
                   int i = *ptr - '0';
 
-                  if ((i < 0) || (i >= lesp_eSECURITY_NBR))
+                  if ((i < 0) || (i >= LESP_SECURITY_NBR))
                     {
                       return -1;
                     }
@@ -1179,8 +1184,8 @@ static int lesp_parse_cwlap_ans_line(char *ptr, lesp_ap_t *ap)
           case 2:
               ptr++; /* Remove first '"' */
               *(ptr_next - 1) = '\0';
-              strncpy(ap->ssid, ptr, lespSSID_SIZE);
-              ap->ssid[lespSSID_SIZE] = '\0';
+              strncpy(ap->ssid, ptr, LESP_SSID_SIZE);
+              ap->ssid[LESP_SSID_SIZE] = '\0';
               break;
 
           case 3:
@@ -1203,7 +1208,7 @@ static int lesp_parse_cwlap_ans_line(char *ptr, lesp_ap_t *ap)
                   ptr++; /* Remove first '"' */
                   *(ptr_next - 1) = '\0';
 
-                  for (i = 0; i < lespBSSID_SIZE ; i++)
+                  for (i = 0; i < LESP_BSSID_SIZE ; i++)
                     {
                       ap->bssid[i] = strtol(ptr, &ptr, 16);
                       if (*ptr == ':')
@@ -1263,7 +1268,7 @@ static void *lesp_worker(void *args)
           pthread_mutex_lock(&(worker->mutex));
           if (c == '\n')
             {
-              if (worker->rxbuf[rxlen-1] == '\r')
+              if (worker->rxbuf[rxlen - 1] == '\r')
                 {
                   rxlen--;
                 }
@@ -1277,16 +1282,16 @@ static void *lesp_worker(void *args)
                 {
                   if (strcmp(worker->rxbuf, "OK") == 0)
                     {
-                      worker->and = lesp_eOK;
+                      worker->and = LESP_OK;
                     }
                   else if ((strcmp(worker->rxbuf, "FAIL") == 0) ||
                            (strcmp(worker->rxbuf, "ERROR") == 0)
                           )
                     {
-                      worker->and = lesp_eERR;
+                      worker->and = LESP_ERR;
                     }
                   else if ((rxlen == 8) &&
-                            (memcmp(worker->rxbuf+1, ",CLOSED", 7) == 0))
+                            (memcmp(worker->rxbuf + 1, ",CLOSED", 7) == 0))
                     {
                       unsigned int sockid = worker->rxbuf[0] - '0';
                       if (sockid < SOCKET_NBR)
@@ -1305,13 +1310,14 @@ static void *lesp_worker(void *args)
 
                       /* ninfo("Worker Read data:%s\n", worker->rxbuf); */
 
-                      if (rxlen+1 <= BUF_ANS_LEN)
+                      if (rxlen + 1 <= BUF_ANS_LEN)
                         {
-                          memcpy(worker->buf, worker->rxbuf, rxlen+1);
+                          memcpy(worker->buf, worker->rxbuf, rxlen + 1);
                         }
                       else
                         {
-                          nerr("Worker and line is too long:%s\n", worker->rxbuf);
+                          nerr("Worker and line is too long:%s\n",
+                                worker->rxbuf);
                         }
                     }
 
@@ -1327,7 +1333,7 @@ static void *lesp_worker(void *args)
                 {
                   int sockfd;
                   int len;
-                  char *ptr = worker->rxbuf+5;
+                  char *ptr = worker->rxbuf + 5;
 
                   sockfd = lesp_str_to_unsigned(&ptr, ',');
                   if (sockfd >= 0)
@@ -1396,7 +1402,8 @@ static inline int lesp_create_worker(int priority)
         }
       else
         {
-          nerr("ERROR: Cannot Get/Set scheduler parameter thread (%d)\n", ret);
+          nerr("ERROR: "
+               "Cannot Get/Set scheduler parameter thread (%d)\n", ret);
         }
 
       g_lesp_state.worker.running = true;
@@ -1485,7 +1492,8 @@ int lesp_initialize(void)
 #ifdef CONFIG_SERIAL_TERMIOS
   if (ret >= 0 && lesp_set_baudrate(CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
-      nerr("ERROR: Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
+      nerr("ERROR: Cannot set baud rate %d\n",
+            CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
 #endif
@@ -1561,7 +1569,7 @@ int lesp_soft_reset(void)
 
   lesp_flush();
 
-  while (lesp_ask_ans_ok(lespTIMEOUT_MS, "ATE0\r\n") < 0)
+  while (lesp_ask_ans_ok(LESP_TIMEOUT_MS, "ATE0\r\n") < 0)
     {
       sleep(1);
       lesp_flush();
@@ -1569,21 +1577,21 @@ int lesp_soft_reset(void)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+GMR\r\n");
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+GMR\r\n");
     }
 
   /* Enable the module to act as a “Station” */
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CWMODE_CUR=1\r\n");
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CWMODE_CUR=1\r\n");
     }
 
   /* Enable the multi connection */
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CIPMUX=1\r\n");
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIPMUX=1\r\n");
     }
 
   if (ret < 0)
@@ -1622,7 +1630,8 @@ int lesp_ap_connect(const char *ssid_name, const char *ap_key, int timeout_s)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(timeout_s*1000, "AT+CWJAP=\"%s\",\"%s\"\r\n",
+      ret = lesp_ask_ans_ok(timeout_s * 1000,
+                            "AT+CWJAP=\"%s\",\"%s\"\r\n",
                             ssid_name, ap_key);
     }
 
@@ -1670,7 +1679,7 @@ int lesp_ap_get(lesp_ap_t *ap)
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
 
   if (ret >= 0)
@@ -1685,7 +1694,7 @@ int lesp_ap_get(lesp_ap_t *ap)
 
   if (ret >= 0)
     {
-      ret = lesp_read_ans_ok(lespTIMEOUT_MS);
+      ret = lesp_read_ans_ok(LESP_TIMEOUT_MS);
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -1707,7 +1716,7 @@ int lesp_ap_get(lesp_ap_t *ap)
  *    Read the current network details.
  *
  * Input Parameters:
- *   mode : lesp_eMODE_AP or lesp_eMODE_STATION
+ *   mode : LESP_MODE_AP or LESP_MODE_STATION
  *
  * Output Parameters:
  *   ip     : ip of interface
@@ -1719,7 +1728,8 @@ int lesp_ap_get(lesp_ap_t *ap)
  *
  ****************************************************************************/
 
-int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw)
+int lesp_get_net(lesp_mode_t mode, in_addr_t *ip,
+                 in_addr_t *mask, in_addr_t *gw)
 {
   int ret = 0;
   ninfo("Get IP info...\n");
@@ -1731,13 +1741,14 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
   if (ret >= 0)
     {
       ret = lesp_send_cmd("AT+CIP%s_CUR?\r\n",
-                          (mode == lesp_eMODE_STATION)?"STA":"AP");
+                          (mode == LESP_MODE_STATION)?"STA":"AP");
     }
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
+
   if (ret >= 0)
     {
       ninfo("Read:%s\n", g_lesp_state.bufans);
@@ -1751,7 +1762,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
 
   if (ret >= 0)
@@ -1767,7 +1778,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
 
   if (ret >= 0)
@@ -1783,7 +1794,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
 
   if (ret >= 0)
     {
-      ret = lesp_read_ans_ok(lespTIMEOUT_MS);
+      ret = lesp_read_ans_ok(LESP_TIMEOUT_MS);
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -1802,7 +1813,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
  *
  * Description:
  *   It will set network ip of mode.
- *   Warning: use lesp_eMODE_STATION or lesp_eMODE_AP.
+ *   Warning: use LESP_MODE_STATION or LESP_MODE_AP.
  *
  * Input Parameters:
  *   mode    : mode to configure.
@@ -1815,7 +1826,8 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask, in_addr_t *gw
  *
  ****************************************************************************/
 
-int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask, in_addr_t gateway)
+int lesp_set_net(lesp_mode_t mode, in_addr_t ip,
+                 in_addr_t mask, in_addr_t gateway)
 {
   int ret = 0;
 
@@ -1825,17 +1837,19 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask, in_addr_t gatew
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CIP%s_CUR=\"%d.%d.%d.%d\","
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIP%s_CUR=\"%d.%d.%d.%d\","
                             "\"%d.%d.%d.%d\",\"%d.%d.%d.%d\"\r\n",
-                            (mode == lesp_eMODE_STATION)?"STA":"AP",
+                            (mode == LESP_MODE_STATION)?"STA":"AP",
                             *((uint8_t *)&(ip)+0), *((uint8_t *)&(ip)+1),
                             *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3),
                             *((uint8_t *)&(gateway)+0),
                             *((uint8_t *)&(gateway)+1),
                             *((uint8_t *)&(gateway)+2),
                             *((uint8_t *)&(gateway)+3),
-                            *((uint8_t *)&(mask)+0), *((uint8_t *)&(mask)+1),
-                            *((uint8_t *)&(mask)+2), *((uint8_t *)&(mask)+3));
+                            *((uint8_t *)&(mask)+0),
+                            *((uint8_t *)&(mask)+1),
+                            *((uint8_t *)&(mask)+2),
+                            *((uint8_t *)&(mask)+3));
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -1873,7 +1887,7 @@ int lesp_set_dhcp(lesp_mode_t mode, bool enable)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CWDHCP_CUR=%d,%c\r\n",
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CWDHCP_CUR=%d,%c\r\n",
                             mode, (enable)?'1':'0');
     }
 
@@ -1919,7 +1933,7 @@ int lesp_get_dhcp(bool *ap_enable, bool *sta_enable)
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
 
   if (ret >= 0)
@@ -1956,7 +1970,7 @@ int lesp_get_dhcp(bool *ap_enable, bool *sta_enable)
 
   if (ret >= 0)
     {
-      ret = lesp_read_ans_ok(lespTIMEOUT_MS);
+      ret = lesp_read_ans_ok(LESP_TIMEOUT_MS);
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -1998,7 +2012,7 @@ int lesp_list_access_points(lesp_cb_t cb)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT\r\n");
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT\r\n");
     }
 
   if (ret >= 0)
@@ -2008,7 +2022,7 @@ int lesp_list_access_points(lesp_cb_t cb)
 
   while (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS_LISP_AP);
+      ret = lesp_read(LESP_TIMEOUT_MS_LISP_AP);
       if (ret < 0)
         {
           continue;
@@ -2062,15 +2076,15 @@ const char *lesp_security_to_str(lesp_security_t security)
 {
   switch (security)
     {
-      case lesp_eSECURITY_NONE:
+      case LESP_SECURITY_NONE:
           return "NONE";
-      case lesp_eSECURITY_WEP:
+      case LESP_SECURITY_WEP:
           return "WEP";
-      case lesp_eSECURITY_WPA_PSK:
+      case LESP_SECURITY_WPA_PSK:
           return "WPA_PSK";
-      case lesp_eSECURITY_WPA2_PSK:
+      case LESP_SECURITY_WPA2_PSK:
           return "WPA2_PSK";
-      case lesp_eSECURITY_WPA_WPA2_PSK:
+      case LESP_SECURITY_WPA_WPA2_PSK:
           return "WPA_WPA2_PSK";
       default:
           return "Unknown";
@@ -2140,7 +2154,8 @@ int lesp_socket(int domain, int type, int protocol)
           if ((g_lesp_state.sockets[i].flags & FLAGS_SOCK_USED) == 0)
             {
               g_lesp_state.sockets[i].flags = flags;
-              g_lesp_state.sockets[i].rcv_timeo.tv_sec = lespTIMEOUT_MS_RECV_S;
+              g_lesp_state.sockets[i].rcv_timeo.tv_sec =
+                                              LESP_TIMEOUT_MS_RECV_S;
               g_lesp_state.sockets[i].rcv_timeo.tv_nsec = 0;
               ret = i;
               break;
@@ -2195,7 +2210,7 @@ int lesp_closesocket(int sockfd)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CIPCLOSE=%d\r\n", sockfd);
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIPCLOSE=%d\r\n", sockfd);
 
       pthread_mutex_lock(&g_lesp_state.worker.mutex);
       set_sock_closed(sockfd);
@@ -2266,7 +2281,8 @@ int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
  *
  ****************************************************************************/
 
-int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
+int lesp_connect(int sockfd,
+                 FAR const struct sockaddr *addr, socklen_t addrlen)
 {
   int ret = 0;
   const char *proto_str;
@@ -2321,10 +2337,11 @@ int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CIPSTART=%d,\"%s\","
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIPSTART=%d,\"%s\","
                             "\"%d.%d.%d.%d\",%d\r\n", sockfd, proto_str,
                             *((uint8_t *)&(ip)+0), *((uint8_t *)&(ip)+1),
-                            *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3), port);
+                            *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3),
+                            port);
       if (ret < 0)
         {
           errno = EIO;
@@ -2391,7 +2408,8 @@ int lesp_listen(int sockfd, int backlog)
  * Input Parameters:
  *   sockfd    Socket descriptor returned by socket()
  *   addr     Receives the address of the connecting client
- *   addrlen  Input: allocated size of 'addr', Return: returned size of 'addr'
+ *   addrlen  Input: allocated size of 'addr',
+ *            Return: returned size of 'addr'
  *
  * Returned Value:
  *   A 0 on success; -1 on error.
@@ -2460,7 +2478,8 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(lespTIMEOUT_MS, "AT+CIPSEND=%d,%d\r\n", sockfd, len);
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS,
+                            "AT+CIPSEND=%d,%d\r\n", sockfd, len);
     }
 
   if (ret >= 0)
@@ -2472,7 +2491,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
   while (ret >= 0)
     {
       char * ptr = g_lesp_state.bufans;
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
 
       if (ret < 0)
         {
@@ -2654,8 +2673,10 @@ int lesp_setsockopt(int sockfd, int level, int option,
           case SO_RCVTIMEO:
               if (value_len == sizeof(struct timeval))
                 {
-                  sock->rcv_timeo.tv_sec = ((struct timeval *)(value))->tv_sec;
-                  sock->rcv_timeo.tv_nsec = ((struct timeval *)(value))->tv_usec;
+                  sock->rcv_timeo.tv_sec = ((struct timeval *)
+                                            (value))->tv_sec;
+                  sock->rcv_timeo.tv_nsec = ((struct timeval *)
+                                             (value))->tv_usec;
                   sock->rcv_timeo.tv_nsec *= 1000; /* tv_usec to tv_nsec */
                 }
               else
@@ -2764,7 +2785,7 @@ FAR struct hostent *lesp_gethostbyname(FAR const char *hostname)
 
   if (ret >= 0)
     {
-      ret = lesp_read(lespTIMEOUT_MS);
+      ret = lesp_read(LESP_TIMEOUT_MS);
     }
 
   if (ret >= 0)
@@ -2780,9 +2801,10 @@ FAR struct hostent *lesp_gethostbyname(FAR const char *hostname)
           errno = EIO;
         }
     }
+
   if (ret >= 0)
     {
-      ret = lesp_read_ans_ok(lespTIMEOUT_MS);
+      ret = lesp_read_ans_ok(LESP_TIMEOUT_MS);
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
