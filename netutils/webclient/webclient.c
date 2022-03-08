@@ -245,7 +245,6 @@ static const char g_httplocation[]         = "location: ";
 static const char g_httptransferencoding[] = "transfer-encoding: ";
 
 static const char g_httpuseragentfields[] =
-  "Connection: close\r\n"
   "User-Agent: "
   CONFIG_NSH_WGET_USERAGENT
   "\r\n\r\n";
