@@ -80,7 +80,8 @@
 
 static void nxdemo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                           bool morem, FAR void *arg);
-static void nxdemo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxdemo_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg);
@@ -137,10 +138,11 @@ static void nxdemo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxdemo_position
  ****************************************************************************/
 
-static void nxdemo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                                FAR const struct nxgl_point_s *pos,
-                                FAR const struct nxgl_rect_s *bounds,
-                                FAR void *arg)
+static void nxdemo_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
+                            FAR const struct nxgl_point_s *pos,
+                            FAR const struct nxgl_rect_s *bounds,
+                            FAR void *arg)
 {
   /* Report the position */
 
@@ -276,7 +278,7 @@ static void nxdemo_demo_1(NXWINDOW hwnd)
   center.x = g_nxdemo.xres >> 1;
   center.y = g_nxdemo.yres >> 1;
 
-  for (i = 0; i<MIN(g_nxdemo.xres, g_nxdemo.yres)>> 1; i++)
+  for (i = 0; i < (MIN(g_nxdemo.xres, g_nxdemo.yres) >> 1); i++)
     {
       circle_radius = i;
 
@@ -334,7 +336,7 @@ static void nxdemo_demo_2(NXWINDOW hwnd)
   center.x = g_nxdemo.xres >> 1;
   center.y = g_nxdemo.yres >> 1;
 
-  for (i = 0; i<MIN(g_nxdemo.xres, g_nxdemo.yres)>> 1; i++)
+  for (i = 0; i < (MIN(g_nxdemo.xres, g_nxdemo.yres) >> 1); i++)
     {
       rect.pt1.x = center.x - i;
       rect.pt1.y = center.y - i;
@@ -360,7 +362,6 @@ static void nxdemo_demo_2(NXWINDOW hwnd)
 
   for (i = MIN(g_nxdemo.xres, g_nxdemo.yres) >> 1; i > 1; i--)
     {
-
       rect.pt1.x = center.x - i;
       rect.pt1.y = center.y - i;
       rect.pt2.x = center.x + i;

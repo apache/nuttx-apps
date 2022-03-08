@@ -110,15 +110,15 @@ int main(int argc, FAR char *argv[])
   if (optind == argc - 1)
     {
       stat = argv[optind];
-      set_stat = (!strcmp(stat,"on") || !strcmp(stat,"ON")) ? true : false ;
+      set_stat = (strcmp(stat, "on") == 0 || strcmp(stat, "ON") == 0);
     }
 
   up_relaysinit();
 
   if (n >= 0)
     {
-      printf("set RELAY ID %d to %s\n", n , set_stat ? "ON" : "OFF");
-      relays_setstat(n,set_stat);
+      printf("set RELAY ID %d to %s\n", n, set_stat ? "ON" : "OFF");
+      relays_setstat(n, set_stat);
     }
   else
     {
