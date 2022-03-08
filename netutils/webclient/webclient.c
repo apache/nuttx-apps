@@ -764,9 +764,6 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
               else if (strncasecmp(ws->line, g_httptransferencoding,
                                    strlen(g_httptransferencoding)) == 0)
                 {
-                  /* Parse the new host and filename from the URL.
-                   */
-
                   FAR const char *encodings =
                       ws->line + strlen(g_httptransferencoding);
 
