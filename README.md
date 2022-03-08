@@ -107,8 +107,8 @@ CONFIG_EXAMPLES_HELLO=y
 
 This will select the `apps/examples/hello` in the following way:
 
-- The top-level make will include `examples/Make.defs`
-- `examples/Make.defs` will set `CONFIGURED_APPS += $(APPDIR)/examples/hello`
+- The top-level make will include `apps/examples/Make.defs`
+- `apps/examples/Make.defs` will set `CONFIGURED_APPS += $(APPDIR)/examples/hello`
   like this:
 
 ```makefile
