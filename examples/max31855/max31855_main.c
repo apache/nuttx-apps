@@ -82,12 +82,14 @@ int main(int argc, FAR char *argv[])
   /* Start reading each file and print sensor temperature if acquired */
 
   printf("Starting...\n");
-  while(1)
+  while (1)
     {
       printf("Channel SSP0/SPI1 Device 0: ");
       if (fd0 < 0)
         {
-          /* The file could not be open, probably the device is not registered */
+          /* The file could not be open,
+           * probably the device is not registered
+           */
 
           printf("Not enabled!\n");
         }
@@ -106,14 +108,16 @@ int main(int argc, FAR char *argv[])
             {
               /* Print temperature value of target device */
 
-              printf("Temperature = %d!\n",temp/4);
+              printf("Temperature = %d!\n", temp / 4);
             }
         }
 
       printf("Channel SSP0/SPI1 Device 1: ");
       if (fd1 < 0)
         {
-          /* The file could not be open, probably the device is not registered */
+          /* The file could not be open,
+           * probably the device is not registered
+           */
 
           printf("Not enabled!\n");
         }
@@ -122,8 +126,8 @@ int main(int argc, FAR char *argv[])
           ret = read(fd1, &temp, 2);
           if (ret < 0)
             {
-              /* The file could not be read, probably some max31855 pin is not
-               * connected to the channel.
+              /* The file could not be read, probably some max31855 pin is
+               * not connected to the channel.
                */
 
               printf("Disconnected!\n");
@@ -132,14 +136,16 @@ int main(int argc, FAR char *argv[])
             {
               /* Print temperature value of target device */
 
-              printf("Temperature = %d!\n",temp/4);
+              printf("Temperature = %d!\n", temp / 4);
             }
         }
 
       printf("Channel SSP1/SPI2 Device 0: ");
       if (fd2 < 0)
         {
-          /* The file could not be open, probably the device is not registered */
+          /* The file could not be open,
+           * probably the device is not registered
+           */
 
           printf("Not enabled!\n");
         }
@@ -148,8 +154,8 @@ int main(int argc, FAR char *argv[])
           ret = read(fd2, &temp, 2);
           if (ret < 0)
             {
-              /* The file could not be read, probably some max31855 pin is not
-               * connected to the channel.
+              /* The file could not be read, probably some max31855 pin is
+               * not connected to the channel.
                */
 
               printf("Disconnected!\n");
@@ -158,14 +164,16 @@ int main(int argc, FAR char *argv[])
             {
               /* Print temperature value of target device */
 
-              printf("Temperature = %d!\n",temp/4);
+              printf("Temperature = %d!\n", temp / 4);
             }
         }
 
       printf("Channel SSP1/SPI2 Device 1: ");
       if (fd3 < 0)
         {
-          /* The file could not be open, probably the device is not registered */
+          /* The file could not be open,
+           * probably the device is not registered
+           */
 
           printf("Not enabled!\n");
         }
@@ -184,7 +192,7 @@ int main(int argc, FAR char *argv[])
             {
               /* Print temperature value of target device */
 
-              printf("Temperature = %d!\n",temp/4);
+              printf("Temperature = %d!\n", temp / 4);
             }
         }
 

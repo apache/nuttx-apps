@@ -70,32 +70,32 @@
 
 #define CON_NBR 4
 
-#define ESP8266_ACCESS_POINT_NBR_MAX 32
+#define ESP8266_ACCESS_POINT_NBR_MAX   32
 
-#define LESP_WAITING_OK_POLLING_MS   250
-#define LESP_TIMEOUT_FLUSH_MS        100
-#define LESP_TIMEOUT_MS              1000
-#define LESP_TIMEOUT_MS_SEND         1000
-#define LESP_TIMEOUT_MS_CONNECTION   30000
-#define LESP_TIMEOUT_MS_LISP_AP      5000
+#define LESP_WAITING_OK_POLLING_MS     250
+#define LESP_TIMEOUT_FLUSH_MS          100
+#define LESP_TIMEOUT_MS                1000
+#define LESP_TIMEOUT_MS_SEND           1000
+#define LESP_TIMEOUT_MS_CONNECTION     30000
+#define LESP_TIMEOUT_MS_LISP_AP        5000
 #define LESP_TIMEOUT_FLOODING_OFFSET_S 3
-#define LESP_TIMEOUT_MS_RECV_S       60
+#define LESP_TIMEOUT_MS_RECV_S         60
 
-#define LESP_CON_USED_MASK(idx)      (1<<(idx))
-#define LESP_POLLING_TIME_MS         1000
+#define LESP_CON_USED_MASK(idx)        (1<<(idx))
+#define LESP_POLLING_TIME_MS           1000
 
 /* Must be a power of 2 */
 
-#define SOCKET_FIFO_SIZE            2048
-#define SOCKET_NBR                  4
+#define SOCKET_FIFO_SIZE              2048
+#define SOCKET_NBR                    4
 
-#define FLAGS_SOCK_USED             (1 << 0)
-#define FLAGS_SOCK_CONNECTED        (1 << 1)
+#define FLAGS_SOCK_USED               (1 << 0)
+#define FLAGS_SOCK_CONNECTED          (1 << 1)
 
-#define FLAGS_SOCK_TYPE_MASK        (3 << 2)
-#define FLAGS_SOCK_TYPE_TCP         (0 << 2)
-#define FLAGS_SOCK_TYPE_UDP         (1 << 2)
-#define FLAGS_SOCK_TYPE_SSL         (2 << 2) /* non standard but useful */
+#define FLAGS_SOCK_TYPE_MASK          (3 << 2)
+#define FLAGS_SOCK_TYPE_TCP           (0 << 2)
+#define FLAGS_SOCK_TYPE_UDP           (1 << 2)
+#define FLAGS_SOCK_TYPE_SSL           (2 << 2) /* non standard but useful */
 
 /****************************************************************************
  * Private Types
@@ -744,8 +744,8 @@ int lesp_read_ans_ok(int timeout_ms)
     {
       ret = lesp_read(timeout_ms);
 
-      if ((ret < 0) || (g_lesp_state.and == LESP_ERR) || \
-           (time(NULL) > end))
+      if ((ret < 0) || (g_lesp_state.and == LESP_ERR) ||
+          (time(NULL) > end))
         {
           ret = -1;
           break;
@@ -1317,7 +1317,7 @@ static void *lesp_worker(void *args)
                       else
                         {
                           nerr("Worker and line is too long:%s\n",
-                                worker->rxbuf);
+                               worker->rxbuf);
                         }
                     }
 
@@ -1741,7 +1741,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip,
   if (ret >= 0)
     {
       ret = lesp_send_cmd("AT+CIP%s_CUR?\r\n",
-                          (mode == LESP_MODE_STATION)?"STA":"AP");
+                          (mode == LESP_MODE_STATION) ? "STA" : "AP");
     }
 
   if (ret >= 0)
@@ -1839,7 +1839,7 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip,
     {
       ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIP%s_CUR=\"%d.%d.%d.%d\","
                             "\"%d.%d.%d.%d\",\"%d.%d.%d.%d\"\r\n",
-                            (mode == LESP_MODE_STATION)?"STA":"AP",
+                            (mode == LESP_MODE_STATION) ? "STA" : "AP",
                             *((uint8_t *)&(ip)+0), *((uint8_t *)&(ip)+1),
                             *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3),
                             *((uint8_t *)&(gateway)+0),
@@ -1888,7 +1888,7 @@ int lesp_set_dhcp(lesp_mode_t mode, bool enable)
   if (ret >= 0)
     {
       ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CWDHCP_CUR=%d,%c\r\n",
-                            mode, (enable)?'1':'0');
+                            mode, enable ? '1' : '0');
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -2281,8 +2281,8 @@ int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
  *
  ****************************************************************************/
 
-int lesp_connect(int sockfd,
-                 FAR const struct sockaddr *addr, socklen_t addrlen)
+int lesp_connect(int sockfd, FAR const struct sockaddr *addr,
+                 socklen_t addrlen)
 {
   int ret = 0;
   const char *proto_str;
@@ -2339,8 +2339,8 @@ int lesp_connect(int sockfd,
     {
       ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIPSTART=%d,\"%s\","
                             "\"%d.%d.%d.%d\",%d\r\n", sockfd, proto_str,
-                            *((uint8_t *)&(ip)+0), *((uint8_t *)&(ip)+1),
-                            *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3),
+                            *((uint8_t *)&ip + 0), *((uint8_t *)&ip +1),
+                            *((uint8_t *)&ip + 2), *((uint8_t *)&ip + 3),
                             port);
       if (ret < 0)
         {
@@ -2674,7 +2674,7 @@ int lesp_setsockopt(int sockfd, int level, int option,
               if (value_len == sizeof(struct timeval))
                 {
                   sock->rcv_timeo.tv_sec = ((struct timeval *)
-                                            (value))->tv_sec;
+                                             (value))->tv_sec;
                   sock->rcv_timeo.tv_nsec = ((struct timeval *)
                                              (value))->tv_usec;
                   sock->rcv_timeo.tv_nsec *= 1000; /* tv_usec to tv_nsec */

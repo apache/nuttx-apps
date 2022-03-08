@@ -47,7 +47,7 @@ extern "C"
 void tp_cal_create(void);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}
 #endif
 
-#endif /*__APPS_EXAMPLES_LVGLDEMO_TP_CAL_H*/
+#endif /* __APPS_EXAMPLES_LVGLDEMO_TP_CAL_H */

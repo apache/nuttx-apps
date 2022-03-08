@@ -1,5 +1,5 @@
 /****************************************************************************
- * net/recvfrom.c
+ * apps/examples/netpkt/netpkt_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -76,11 +76,11 @@ static void print_buf(const uint8_t *buf, int len)
     {
       printf("%02X", buf[i]);
 
-      if ((i+1) % 16 == 0 || (i+1) == len)
+      if ((i + 1) % 16 == 0 || (i + 1) == len)
         {
           printf("\n");
         }
-      else if ((i+1) % 8 == 0)
+      else if ((i + 1) % 8 == 0)
         {
           printf("  ");
         }
@@ -88,7 +88,7 @@ static void print_buf(const uint8_t *buf, int len)
         {
           printf(" ");
         }
-  }
+    }
 }
 
 /****************************************************************************
@@ -122,8 +122,15 @@ int main(int argc, FAR char *argv[])
   int rxc;
   uint8_t *buf;
   const int buflen = 128;
-  const char da[6] = {0xf0, 0xde, 0xf1, 0x02, 0x43, 0x01};
-  const char sa[6] = {0x00, 0xe0, 0xde, 0xad, 0xbe, 0xef};
+  const char da[6] =
+    {
+      0xf0, 0xde, 0xf1, 0x02, 0x43, 0x01
+    };
+
+  const char sa[6] =
+    {
+      0x00, 0xe0, 0xde, 0xad, 0xbe, 0xef
+    };
 
   int opt;
   int verbose = 0;
@@ -142,7 +149,7 @@ int main(int argc, FAR char *argv[])
 
   while ((opt = getopt(argc, argv, "artv")) != -1)
     {
-      switch(opt)
+      switch (opt)
         {
           case 'a':
             do_rx = 1;
@@ -179,7 +186,7 @@ int main(int argc, FAR char *argv[])
       buf = malloc(buflen);
       memset(buf, 0, buflen);
       memcpy(buf, da, 6);
-      memcpy(buf+6, sa, 6);
+      memcpy(buf + 6, sa, 6);
       for (i = 0; i < do_txtimes; i++)
         {
           if ((txc = write(sd, buf, buflen)) < 0)

@@ -58,6 +58,7 @@
  ****************************************************************************/
 
 /* Configuration ************************************************************/
+
 /* If not specified, assume that the hardware supports one video plane */
 
 #ifndef CONFIG_EXAMPLES_NXDEMO_VPLANE
@@ -115,7 +116,8 @@ static inline int nxdemo_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxdemo_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxdemo_initialize: "
+             "Failed to start the NX server: %d\n", errno);
       return ERROR;
     }
 
@@ -124,52 +126,53 @@ static inline int nxdemo_initialize(void)
   g_nxdemo.hnx = nx_connect();
   if (g_nxdemo.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0,  g_nxdemo.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+        {
+           0,  g_nxdemo.hnx
+        };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nxdemo.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nxdemo.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.
+       * This is probably the least efficient way to do this,
+       * but it makes this example flow more smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXDEMO_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXDEMO_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr,
+                                CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxdemo_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxdemo_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nxdemo_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nxdemo_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nxdemo.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nxdemo.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nxdemo.eventsem);
-         }
+          sem_wait(&g_nxdemo.eventsem);
+        }
     }
   else
     {
