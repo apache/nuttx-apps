@@ -5,7 +5,8 @@
  *   Copyright (c) 2011, B.ZaaR, All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
  *   Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
@@ -18,17 +19,17 @@
  *   products derived from this software without specific prior written
  *   permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
 
@@ -60,7 +61,9 @@ static int move(FAR struct command_s *cmd)
 
 static int moveover(FAR struct command_s *cmd)
 {
-  long cnt, len, off;
+  long cnt;
+  long len;
+  long off;
 
   bfmove(g_hexfile, cmd->opts.dest, cmd->opts.src, cmd->opts.bytes);
 
@@ -68,7 +71,7 @@ static int moveover(FAR struct command_s *cmd)
 
   if (cmd->opts.src < cmd->opts.dest)
     {
-      memset(cmd->opts.buf, 0, OPT_BUF_SZ);
+      memset(cmd->opts.buf, 0, sizeof(cmd->opts.buf));
       len = OPT_BUF_SZ;
       cnt = cmd->opts.bytes;
       off = cmd->opts.dest - cmd->opts.bytes;
@@ -162,8 +165,8 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
 
   switch (optc)
     {
-
     case 0:
+
       /* Set source */
 
       cmd->opts.src = v;
@@ -171,6 +174,7 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
       break;
 
     case 1:
+
       /* Set destination */
 
       cmd->opts.dest = v;
@@ -178,6 +182,7 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
       break;
 
     case 2:
+
       /* Set length */
 
       cmd->opts.len = v;
@@ -186,6 +191,7 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
       break;
 
     default:
+
       /* Too many options specified */
 
       return -E2BIG;
