@@ -25,12 +25,12 @@
 #include <nuttx/config.h>
 
 #include <errno.h>
-#include <fcntl.h>
 #include <poll.h>
 #include <pthread.h>
 #include <string.h>
 
 #include <sys/eventfd.h>
+#include <sys/ioctl.h>
 
 #include <nuttx/net/dns.h>
 #include <nuttx/net/net.h>
@@ -212,14 +212,11 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
       pthread_mutex_lock(&priv->mutex);
       if (priv->socks[i].s_conn == NULL)
         {
-          ret = psock_socket(req->domain, req->type, req->protocol,
-                             &priv->socks[i]);
+          ret = psock_socket(req->domain, req->type | SOCK_NONBLOCK,
+                             req->protocol, &priv->socks[i]);
           pthread_mutex_unlock(&priv->mutex);
           if (ret >= 0)
             {
-              psock_fcntl(&priv->socks[i], F_SETFL,
-                psock_fcntl(&priv->socks[i], F_GETFL) | O_NONBLOCK);
-
               priv->epts[i] = ept;
               ret = i; /* Return index as the usockid */
             }
@@ -664,9 +661,9 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
               pthread_mutex_unlock(&priv->mutex);
               if (ret >= 0)
                 {
-                  psock_fcntl(&priv->socks[i], F_SETFL,
-                    psock_fcntl(&priv->socks[i], F_GETFL) | O_NONBLOCK);
+                  int nonblock = 1;
 
+                  psock_ioctl(&priv->socks[i], FIONBIO, &nonblock);
                   priv->epts[i] = ept;
 
                   /* Append index as usockid to the payload */

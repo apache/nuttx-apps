@@ -165,7 +165,7 @@ static int _netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
 
       /* Get the network mask */
 
-      strncpy(maskreq.lifr_name, lifr->lifr_name, IFNAMSIZ);
+      strlcpy(maskreq.lifr_name, lifr->lifr_name, IFNAMSIZ);
 
       status = ioctl(sd, SIOCGLIFNETMASK,
                      (unsigned long)((uintptr_t)&maskreq));

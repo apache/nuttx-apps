@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/adb/shell_pipe.h
+ * apps/testing/ostest/setjmp.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,35 +22,35 @@
  * Included Files
  ****************************************************************************/
 
-#include <uv.h>
-#include "adb.h"
+#include <nuttx/config.h>
+
+#include <assert.h>
+#include <setjmp.h>
+#include <stdio.h>
 
 /****************************************************************************
- * Private types
+ * Public Functions
  ****************************************************************************/
 
-struct shell_pipe_s
+void setjmp_test(void)
 {
-  uv_poll_t handle;
-  int write_fd;
-  void (*close_cb)(struct shell_pipe_s *);
-  void (*on_data_cb)(struct shell_pipe_s *, struct apacket_s *);
-};
+  int value;
+  jmp_buf buf;
 
-typedef struct shell_pipe_s shell_pipe_t;
+  printf("setjmp_test: Initializing jmp_buf\n");
 
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
+  if ((value = setjmp(buf)) == 0)
+    {
+      printf("setjmp_test: Try jump\n");
+      longjmp(buf, 123);
 
-int shell_pipe_setup(adb_client_t *client, shell_pipe_t *pipe);
-int shell_pipe_start(shell_pipe_t *pipe,
-                     void (*on_data_cb)(shell_pipe_t *, apacket *));
-void shell_pipe_destroy(shell_pipe_t *pipe,
-                        void (*close_cb)(shell_pipe_t *));
-int shell_pipe_write(shell_pipe_t *pipe, const void *buf, size_t count);
+      /* Unreachable */
 
-int shell_pipe_exec(char * const argv[], shell_pipe_t *pipe,
-                    void (*on_data_cb)(shell_pipe_t *, apacket *));
-int shell_exec_builtin(const char *appname, FAR char *const *argv,
-                       shell_pipe_t *apipe);
+      ASSERT(0);
+    }
+  else
+    {
+      ASSERT(value == 123);
+      printf("setjmp_test: Jump succeed\n");
+    }
+}

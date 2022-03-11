@@ -1,35 +1,20 @@
 /****************************************************************************
  * apps/testing/ostest/pthread_rwlock_cancel.c
  *
- *   Copyright (C) 2017 Haltian Ltd. All rights reserved.
- *   Author: Juha Niskanen <juha.niskanen@haltian.com>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
@@ -61,7 +46,7 @@ static void * timeout_thread1(FAR void * data)
   struct timespec time;
   int status;
 
-  while(1)
+  while (1)
     {
       clock_gettime(CLOCK_REALTIME, &time);
       time.tv_sec += 1;
@@ -69,7 +54,8 @@ static void * timeout_thread1(FAR void * data)
       status = pthread_rwlock_timedrdlock(sync->write_lock, &time);
       if (status != ETIMEDOUT)
         {
-          printf("pthread_rwlock_cancel: ERROR Acquired held write_lock. Status: %d\n", status);
+          printf("pthread_rwlock_cancel: "
+                 "ERROR Acquired held write_lock. Status: %d\n", status);
         }
     }
 
@@ -90,7 +76,8 @@ static void * timeout_thread2(FAR void * data)
       status = pthread_rwlock_timedrdlock(sync->read_lock, &time);
       if (status != 0)
         {
-          printf("pthread_rwlock_cancel: Failed to acquire read_lock. Status: %d\n", status);
+          printf("pthread_rwlock_cancel: "
+                 "Failed to acquire read_lock. Status: %d\n", status);
         }
 
       sched_yield(); /* Not a cancellation point. */
@@ -100,7 +87,8 @@ static void * timeout_thread2(FAR void * data)
           status = pthread_rwlock_unlock(sync->read_lock);
           if (status != 0)
             {
-              printf("pthread_rwlock_cancel: Failed to release read_lock. Status: %d\n", status);
+              printf("pthread_rwlock_cancel: "
+                     "Failed to release read_lock. Status: %d\n", status);
             }
         }
 
@@ -111,7 +99,8 @@ static void * timeout_thread2(FAR void * data)
       if (status != ETIMEDOUT)
         {
           printf("pthread_rwlock_cancel: "
-                 "ERROR Acquired held read_lock for writing. Status: %d\n", status);
+                 "ERROR Acquired held read_lock for writing."
+                 " Status: %d\n", status);
         }
     }
 
@@ -123,35 +112,37 @@ static void test_timeout(void)
   pthread_rwlock_t read_lock;
   pthread_rwlock_t write_lock;
   struct sync_s sync;
-  pthread_t thread1, thread2;
-  int status, i;
+  pthread_t thread1;
+  pthread_t thread2;
+  int status;
+  int i;
 
   status = pthread_rwlock_init(&read_lock, NULL);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_rwlock_init(read_lock), status=%d\n",
-              status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_rwlock_init(read_lock), status=%d\n", status);
     }
 
   status = pthread_rwlock_init(&write_lock, NULL);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_rwlock_init(write_lock), status=%d\n",
-              status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_rwlock_init(write_lock), status=%d\n", status);
     }
 
   status = pthread_rwlock_rdlock(&read_lock);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_rwlock_rdlock, status=%d\n",
-              status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_rwlock_rdlock, status=%d\n", status);
     }
 
   status = pthread_rwlock_wrlock(&write_lock);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_rwlock_wrlock, status=%d\n",
-              status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_rwlock_wrlock, status=%d\n", status);
     }
 
   sync.read_lock = &read_lock;
@@ -160,13 +151,15 @@ static void test_timeout(void)
   status = pthread_create(&thread1, NULL, timeout_thread1, &sync);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_create, status=%d\n", status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_create, status=%d\n", status);
     }
 
   status = pthread_create(&thread2, NULL, timeout_thread2, &sync);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_create, status=%d\n", status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_create, status=%d\n", status);
     }
 
   for (i = 0; i < 10; i++)
@@ -177,20 +170,23 @@ static void test_timeout(void)
   status = pthread_cancel(thread1);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_cancel, status=%d\n", status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_cancel, status=%d\n", status);
     }
 
   status = pthread_cancel(thread2);
   if (status != 0)
     {
-      printf("pthread_rwlock_cancel: ERROR pthread_cancel, status=%d\n", status);
+      printf("pthread_rwlock_cancel: "
+             "ERROR pthread_cancel, status=%d\n", status);
     }
 
   pthread_join(thread1, NULL);
   pthread_join(thread2, NULL);
 
   /* Do some operations on locks in order to check if they are still in
-   * usable state after deferred cancellation. */
+   * usable state after deferred cancellation.
+   */
 
 #ifdef CONFIG_PTHREAD_CLEANUP
 #ifdef CONFIG_CANCELLATION_POINTS
@@ -198,16 +194,16 @@ static void test_timeout(void)
   if (status != EBUSY)
     {
       printf("pthread_rwlock_cancel: "
-             "ERROR able to acquire write lock when write lock already acquired, "
-             "status=%d\n", status);
+             "ERROR able to acquire write lock when write lock already "
+             "acquired, status=%d\n", status);
     }
 
   status = pthread_rwlock_tryrdlock(&write_lock);
   if (status != EBUSY)
     {
       printf("pthread_rwlock_cancel: "
-             "ERROR able to acquire read lock when write lock already acquired, "
-             "status=%d\n", status);
+             "ERROR able to acquire read lock when write lock already "
+             "acquired, status=%d\n", status);
     }
 
   status = pthread_rwlock_unlock(&read_lock);

@@ -782,7 +782,7 @@ static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type,
   FAR struct tcurses_vt100_s *priv;
   int   ret = -ENOSYS;
   int   fd;
-  char  str[16];
+  char  str[32];
 
   priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
@@ -792,7 +792,7 @@ static int tcurses_vt100_move(FAR struct termcurses_s *dev, int type,
   switch (type)
     {
       case TCURS_MOVE_YX:
-        sprintf(str, g_movecurs, row + 1, col + 1);
+        snprintf(str, sizeof(str), g_movecurs, row + 1, col + 1);
         ret = write(fd, str, strlen(str));
         break;
 

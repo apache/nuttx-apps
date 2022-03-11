@@ -154,6 +154,11 @@ enum webclient_state_e
     WEBCLIENT_STATE_STATUSLINE,
     WEBCLIENT_STATE_HEADERS,
     WEBCLIENT_STATE_DATA,
+    WEBCLIENT_STATE_CHUNKED_HEADER,
+    WEBCLIENT_STATE_CHUNKED_DATA,
+    WEBCLIENT_STATE_CHUNKED_ENDDATA,
+    WEBCLIENT_STATE_CHUNKED_TRAILER,
+    WEBCLIENT_STATE_WAIT_CLOSE,
     WEBCLIENT_STATE_CLOSE,
     WEBCLIENT_STATE_DONE,
   };
@@ -174,7 +179,8 @@ struct conn_s
 
 /* flags for wget_s::internal_flags */
 
-#define	WGET_FLAG_GOT_CONTENT_LENGTH	1
+#define	WGET_FLAG_GOT_CONTENT_LENGTH 1U
+#define	WGET_FLAG_CHUNKED            2U
 
 struct wget_s
 {
@@ -202,6 +208,9 @@ struct wget_s
   uintmax_t expected_resp_body_len;
   uintmax_t received_body_len;
 
+  uintmax_t chunk_len;
+  uintmax_t chunk_received;
+
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
   char mimetype[CONFIG_WEBCLIENT_MAXMIMESIZE];
 #endif
@@ -226,28 +235,29 @@ struct wget_s
  * Private Data
  ****************************************************************************/
 
-static const char g_http10[]          = "HTTP/1.0";
-static const char g_http11[]          = "HTTP/1.1";
+static const char g_http10[]               = "HTTP/1.0";
+static const char g_http11[]               = "HTTP/1.1";
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
-static const char g_httpcontenttype[] = "content-type: ";
+static const char g_httpcontenttype[]      = "content-type: ";
 #endif
-static const char g_httphost[]        = "host: ";
-static const char g_httplocation[]    = "location: ";
+static const char g_httphost[]             = "host: ";
+static const char g_httplocation[]         = "location: ";
+static const char g_httptransferencoding[] = "transfer-encoding: ";
 
 static const char g_httpuseragentfields[] =
-  "Connection: close\r\n"
   "User-Agent: "
   CONFIG_NSH_WGET_USERAGENT
   "\r\n\r\n";
 
-static const char g_httpcrnl[]      = "\r\n";
+static const char g_httpcrnl[]       = "\r\n";
 
-static const char g_httpform[]      = "Content-Type: "
-                                      "application/x-www-form-urlencoded";
-static const char g_httpcontsize[]  = "Content-Length: ";
+static const char g_httpform[]       = "Content-Type: "
+                                       "application/x-www-form-urlencoded";
+static const char g_httpcontsize[]   = "Content-Length: ";
+static const char g_httpconn_close[] = "Connection: close";
 #if 0
-static const char g_httpconn[]      = "Connection: Keep-Alive";
-static const char g_httpcache[]     = "Cache-Control: no-cache";
+static const char g_httpconn[]       = "Connection: Keep-Alive";
+static const char g_httpcache[]      = "Cache-Control: no-cache";
 #endif
 
 /****************************************************************************
@@ -412,13 +422,13 @@ static char *wget_urlencode_strcpy(char *dest, const char *src)
  * Name: wget_parseint
  ****************************************************************************/
 
-static int wget_parseint(const char *cp, uintmax_t *resultp)
+static int wget_parseint(const char *cp, uintmax_t *resultp, int base)
 {
   char *ep;
   uintmax_t val;
 
   errno = 0;
-  val = strtoumax(cp, &ep, 10);
+  val = strtoumax(cp, &ep, base);
   if (cp == ep)
     {
       return -EINVAL; /* not a number */
@@ -458,7 +468,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
     {
       bool got_nl;
 
-      ws->line[ndx] = ws->buffer[offset];
+      ws->line[ndx] = ws->buffer[offset++];
       got_nl = ws->line[ndx] == ISO_NL;
       if (got_nl || ndx == CONFIG_WEBCLIENT_MAXHTTPLINE - 1)
         {
@@ -539,12 +549,12 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
            */
 
           ws->state = WEBCLIENT_STATE_HEADERS;
+          ws->internal_flags &= ~WGET_FLAG_CHUNKED;
           ndx = 0;
           break;
         }
       else
         {
-          offset++;
           ndx++;
         }
     }
@@ -613,7 +623,7 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
     {
       bool got_nl;
 
-      ws->line[ndx] = ws->buffer[offset];
+      ws->line[ndx] = ws->buffer[offset++];
       got_nl = ws->line[ndx] == ISO_NL;
       if (got_nl || ndx == CONFIG_WEBCLIENT_MAXHTTPLINE - 1)
         {
@@ -648,7 +658,16 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                    * actual data.
                    */
 
-                  ws->state = WEBCLIENT_STATE_DATA;
+                  if ((ws->internal_flags & WGET_FLAG_CHUNKED) != 0)
+                    {
+                      ws->state = WEBCLIENT_STATE_CHUNKED_HEADER;
+                      ndx = 0;
+                    }
+                  else
+                    {
+                      ws->state = WEBCLIENT_STATE_DATA;
+                    }
+
                   goto exit;
                 }
 
@@ -729,7 +748,7 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                   if (got_nl)
                     {
                       ret = wget_parseint(ws->line + strlen(g_httpcontsize),
-                                          &ws->expected_resp_body_len);
+                                          &ws->expected_resp_body_len, 10);
                       if (ret != 0)
                         {
                           goto exit;
@@ -740,6 +759,21 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                       ninfo("Content-Length %ju\n",
                             ws->expected_resp_body_len);
                     }
+                }
+              else if (strncasecmp(ws->line, g_httptransferencoding,
+                                   strlen(g_httptransferencoding)) == 0)
+                {
+                  FAR const char *encodings =
+                      ws->line + strlen(g_httptransferencoding);
+
+                  if (strcasecmp(encodings, "chunked"))
+                    {
+                      nerr("unknown encodings: '%s'\n", encodings);
+                      return -EPROTO;
+                    }
+
+                  ninfo("transfer encodings: '%s'\n", encodings);
+                  ws->internal_flags |= WGET_FLAG_CHUNKED;
                 }
             }
 
@@ -768,12 +802,229 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
         {
           ndx++;
         }
-
-      offset++;
     }
 
 exit:
-  ws->offset = ++offset;
+  ws->offset = offset;
+  ws->ndx    = ndx;
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wget_parsechunkheader
+ ****************************************************************************/
+
+static inline int wget_parsechunkheader(struct webclient_context *ctx,
+                                        struct wget_s *ws)
+{
+  int offset;
+  int ndx;
+  int ret = OK;
+
+  offset = ws->offset;
+  ndx    = ws->ndx;
+
+  while (offset < ws->datend)
+    {
+      bool got_nl;
+
+      ws->line[ndx] = ws->buffer[offset++];
+      got_nl = ws->line[ndx] == ISO_NL;
+      if (got_nl || ndx == CONFIG_WEBCLIENT_MAXHTTPLINE - 1)
+        {
+          bool found_extension = false;
+
+          /* We have an entire header line in ws->line, or
+           * our buffer is already full, so we start parsing it.
+           */
+
+          if (ndx > 0) /* Should always be true */
+            {
+              FAR char *semicolon;
+
+              ninfo("Got chunk header line%s: %.*s\n",
+                    got_nl ? "" : " (truncated)",
+                    ndx - 1, &ws->line[0]);
+
+              if (ws->line[0] == ISO_CR)
+                {
+                  nerr("ERROR: empty chunk header\n");
+                  ret = -EPROTO;
+                  break;
+                }
+
+              /* Truncate the trailing \r\n */
+
+              if (got_nl)
+                {
+                  ndx--;
+                  if (ws->line[ndx] != ISO_CR)
+                    {
+                      nerr("ERROR: unexpected EOL from the server\n");
+                      ret = -EPROTO;
+                      break;
+                    }
+                }
+
+              ws->line[ndx] = '\0';
+
+              semicolon = strchr(ws->line, ';');
+              if (semicolon != NULL)
+                {
+                  found_extension = true;
+                  ninfo("Ignoring extentions in chunk header\n");
+                  *semicolon = 0;
+                }
+            }
+
+          if (!got_nl && !found_extension)
+            {
+              /* We found something we might care.
+               * but we couldn't process it correctly.
+               */
+
+              nerr("ERROR: truncated a header due to "
+                   "small CONFIG_WEBCLIENT_MAXHTTPLINE\n");
+              ret = -E2BIG;
+              break;
+            }
+
+          ret = wget_parseint(ws->line, &ws->chunk_len, 16);
+          if (ret != 0)
+            {
+              break;
+            }
+
+          if (ws->chunk_len != 0)
+            {
+              ninfo("Receiving a chunk with %ju bytes\n", ws->chunk_len);
+              ws->state = WEBCLIENT_STATE_CHUNKED_DATA;
+              ws->chunk_received = 0;
+            }
+          else
+            {
+              ws->state = WEBCLIENT_STATE_CHUNKED_TRAILER;
+            }
+
+          ndx = 0;
+          break;
+        }
+      else
+        {
+          ndx++;
+        }
+    }
+
+  ws->offset = offset;
+  ws->ndx    = ndx;
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wget_parsechunkenddata
+ ****************************************************************************/
+
+static inline int wget_parsechunkenddata(struct webclient_context *ctx,
+                                         struct wget_s *ws)
+{
+  int offset;
+  int ndx;
+  int ret = OK;
+
+  offset = ws->offset;
+  ndx    = ws->ndx;
+
+  while (offset < ws->datend)
+    {
+      ws->line[ndx] = ws->buffer[offset++];
+      if (ws->line[ndx] == ISO_NL)
+        {
+          if (ndx == 0)
+            {
+              ret = -EPROTO;
+              break;
+            }
+
+          if (ws->line[ndx - 1] != ISO_CR)
+            {
+              ret = -EPROTO;
+              break;
+            }
+
+          if (ndx != 1)
+            {
+              ret = -EPROTO;
+              break;
+            }
+
+          if (ws->chunk_len == 0)
+            {
+              ws->state = WEBCLIENT_STATE_CHUNKED_TRAILER;
+            }
+          else
+            {
+              ws->state = WEBCLIENT_STATE_CHUNKED_HEADER;
+            }
+
+          ndx = 0;
+          break;
+        }
+
+      ndx++;
+    }
+
+  ws->offset = offset;
+  ws->ndx    = ndx;
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wget_parsechunktrailer
+ ****************************************************************************/
+
+static inline int wget_parsechunktrailer(struct webclient_context *ctx,
+                                         struct wget_s *ws)
+{
+  int offset;
+  int ndx;
+  int ret = OK;
+
+  offset = ws->offset;
+  ndx    = ws->ndx;
+
+  while (offset < ws->datend)
+    {
+      ws->line[ndx] = ws->buffer[offset++];
+      if (ws->line[ndx] == ISO_NL)
+        {
+          if (ndx == 0)
+            {
+              ret = -EPROTO;
+              break;
+            }
+
+          if (ws->line[ndx - 1] != ISO_CR)
+            {
+              ret = -EPROTO;
+              break;
+            }
+
+          if (ndx != 1)
+            {
+              /* Ignore all non empty lines. */
+
+              ndx = 0;
+              continue;
+            }
+
+          ws->state = WEBCLIENT_STATE_WAIT_CLOSE;
+          break;
+        }
+
+      ndx++;
+    }
+
+  ws->offset = offset;
   ws->ndx    = ndx;
   return ret;
 }
@@ -1120,7 +1371,21 @@ int webclient_perform(FAR struct webclient_context *ctx)
 #endif
 
           dest = append(dest, ep, " ");
-          dest = append(dest, ep, g_http10);
+          if (ctx->protocol_version == WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0)
+            {
+              dest = append(dest, ep, g_http10);
+            }
+          else if (ctx->protocol_version ==
+                   WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1)
+            {
+              dest = append(dest, ep, g_http11);
+            }
+          else
+            {
+              ret = -EINVAL;
+              goto errout_with_errno;
+            }
+
           dest = append(dest, ep, g_httpcrnl);
           dest = append(dest, ep, g_httphost);
           dest = append(dest, ep, ws->hostname);
@@ -1139,6 +1404,14 @@ int webclient_perform(FAR struct webclient_context *ctx)
               dest = append(dest, ep, g_httpcontsize);
               sprintf(post_size, "%zu", ctx->bodylen);
               dest = append(dest, ep, post_size);
+              dest = append(dest, ep, g_httpcrnl);
+            }
+
+          if (ctx->protocol_version == WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1)
+            {
+              /* We don't implement persistect connections. */
+
+              dest = append(dest, ep, g_httpconn_close);
               dest = append(dest, ep, g_httpcrnl);
             }
 
@@ -1270,46 +1543,60 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
       if (ws->state == WEBCLIENT_STATE_STATUSLINE ||
           ws->state == WEBCLIENT_STATE_HEADERS ||
-          ws->state == WEBCLIENT_STATE_DATA)
+          ws->state == WEBCLIENT_STATE_DATA ||
+          ws->state == WEBCLIENT_STATE_CHUNKED_HEADER ||
+          ws->state == WEBCLIENT_STATE_CHUNKED_DATA)
         {
           for (; ; )
             {
-              ws->datend = conn_recv(ctx, conn, ws->buffer, ws->buflen);
-              if (ws->datend < 0)
+              if (ws->datend - ws->offset == 0)
                 {
-                  ret = ws->datend;
-                  nerr("ERROR: recv failed: %d\n", -ret);
-                  goto errout_with_errno;
-                }
-              else if (ws->datend == 0)
-                {
-                  if (ws->state != WEBCLIENT_STATE_DATA)
+                  ssize_t ssz;
+
+                  ninfo("Reading new data\n");
+                  ssz = conn_recv(ctx, conn, ws->buffer, ws->buflen);
+                  if (ssz < 0)
                     {
-                      nerr("Connection lost unexpectedly\n");
-                      ret = -ECONNABORTED;
+                      ret = ssz;
+                      nerr("ERROR: recv failed: %d\n", -ret);
                       goto errout_with_errno;
                     }
-
-                  if ((ws->internal_flags &
-                       WGET_FLAG_GOT_CONTENT_LENGTH) != 0 &&
-                      ws->expected_resp_body_len != ws->received_body_len)
+                  else if (ssz == 0)
                     {
-                      nerr("Unexpected response body length: %ju != %ju\n",
-                           ws->expected_resp_body_len,
-                           ws->received_body_len);
-                      ret = -EPROTO;
-                      goto errout_with_errno;
+                      if (ws->state != WEBCLIENT_STATE_DATA &&
+                          ws->state != WEBCLIENT_STATE_WAIT_CLOSE)
+                        {
+                          nerr("Connection lost unexpectedly\n");
+                          ret = -ECONNABORTED;
+                          goto errout_with_errno;
+                        }
+
+                      if ((ws->internal_flags &
+                           WGET_FLAG_GOT_CONTENT_LENGTH) != 0 &&
+                          ws->expected_resp_body_len !=
+                          ws->received_body_len)
+                        {
+                          nerr("Unexpected response body length: "
+                               "%ju != %ju\n",
+                               ws->expected_resp_body_len,
+                               ws->received_body_len);
+                          ret = -EPROTO;
+                          goto errout_with_errno;
+                        }
+
+                      ninfo("Connection lost\n");
+                      ws->state = WEBCLIENT_STATE_CLOSE;
+                      ws->redirected = 0;
+                      break;
                     }
 
-                  ninfo("Connection lost\n");
-                  ws->state = WEBCLIENT_STATE_CLOSE;
-                  ws->redirected = 0;
-                  break;
+                  ninfo("Got %zd bytes data\n", ssz);
+                  ws->offset = 0;
+                  ws->datend = ssz;
                 }
 
               /* Handle initial parsing of the status line */
 
-              ws->offset = 0;
               if (ws->state == WEBCLIENT_STATE_STATUSLINE)
                 {
                   ret = wget_parsestatus(ctx, ws);
@@ -1330,29 +1617,88 @@ int webclient_perform(FAR struct webclient_context *ctx)
                     }
                 }
 
+              /* Parse the chunk header */
+
+              if (ws->state == WEBCLIENT_STATE_CHUNKED_HEADER)
+                {
+                  ret = wget_parsechunkheader(ctx, ws);
+                  if (ret < 0)
+                    {
+                      goto errout_with_errno;
+                    }
+                }
+
+              if (ws->state == WEBCLIENT_STATE_CHUNKED_ENDDATA)
+                {
+                  ret = wget_parsechunkenddata(ctx, ws);
+                  if (ret < 0)
+                    {
+                      goto errout_with_errno;
+                    }
+                }
+
+              if (ws->state == WEBCLIENT_STATE_CHUNKED_TRAILER)
+                {
+                  ret = wget_parsechunktrailer(ctx, ws);
+                  if (ret < 0)
+                    {
+                      goto errout_with_errno;
+                    }
+                }
+
+              if (ws->state == WEBCLIENT_STATE_WAIT_CLOSE)
+                {
+                  uintmax_t received = ws->datend - ws->offset;
+                  if (received != 0)
+                    {
+                      nerr("Unexpected %ju bytes data received", received);
+                      ret = -EPROTO;
+                      goto errout_with_errno;
+                    }
+                }
+
               /* Dispose of the data payload */
 
-              if (ws->state == WEBCLIENT_STATE_DATA)
+              if (ws->state == WEBCLIENT_STATE_DATA ||
+                  ws->state == WEBCLIENT_STATE_CHUNKED_DATA)
                 {
                   if (ws->httpstatus != HTTPSTATUS_MOVED)
                     {
+                      uintmax_t received = ws->datend - ws->offset;
+                      FAR char *orig_buffer = ws->buffer;
+                      int orig_buflen = ws->buflen;
+
+                      if (ws->state == WEBCLIENT_STATE_CHUNKED_DATA)
+                        {
+                          uintmax_t chunk_left =
+                              ws->chunk_len - ws->chunk_received;
+
+                          if (received > chunk_left)
+                            {
+                              received = chunk_left;
+                            }
+
+                          ws->chunk_received += received;
+                        }
+
                       ninfo("Processing resp body %ju - %ju\n",
                             ws->received_body_len,
-                            ws->received_body_len + ws->datend - ws->offset);
-                      ws->received_body_len += ws->datend - ws->offset;
+                            ws->received_body_len + received);
+                      ws->received_body_len += received;
 
                       /* Let the client decide what to do with the
                        * received file.
                        */
 
-                      if (ws->offset == ws->datend)
+                      if (received == 0)
                         {
                           /* We don't have data to give to the client yet. */
                         }
                       else if (ctx->sink_callback)
                         {
                           ret = ctx->sink_callback(&ws->buffer, ws->offset,
-                                                   ws->datend, &ws->buflen,
+                                                   ws->offset + received,
+                                                   &ws->buflen,
                                                    ctx->sink_callback_arg);
                           if (ret != 0)
                             {
@@ -1361,8 +1707,36 @@ int webclient_perform(FAR struct webclient_context *ctx)
                         }
                       else
                         {
-                          ctx->callback(&ws->buffer, ws->offset, ws->datend,
+                          ctx->callback(&ws->buffer, ws->offset,
+                                        ws->offset + received,
                                         &ws->buflen, ctx->sink_callback_arg);
+                        }
+
+                      ws->offset += received;
+
+                      /* The buffer swapping API doesn't work for
+                       * HTTP 1.1 chunked transfer because the buffer here
+                       * might already contain the next chunk header.
+                       */
+
+                      if (ctx->protocol_version ==
+                          WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1)
+                        {
+                          if (orig_buffer != ws->buffer ||
+                              orig_buflen != ws->buflen)
+                            {
+                              ret = -EINVAL;
+                              goto errout_with_errno;
+                            }
+                        }
+
+                      if (ws->state == WEBCLIENT_STATE_CHUNKED_DATA)
+                        {
+                          if (ws->chunk_len == ws->chunk_received)
+                            {
+                              ws->state = WEBCLIENT_STATE_CHUNKED_ENDDATA;
+                              ws->ndx = 0;
+                            }
                         }
                     }
                   else
@@ -1625,6 +1999,7 @@ int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
 void webclient_set_defaults(FAR struct webclient_context *ctx)
 {
   memset(ctx, 0, sizeof(*ctx));
+  ctx->protocol_version = WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0;
   ctx->method = "GET";
   ctx->timeout_sec = CONFIG_WEBCLIENT_TIMEOUT;
   _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_INITIALIZED);

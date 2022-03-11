@@ -72,7 +72,7 @@ int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
         {
           /* Perform the IOCTL */
 
-          strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+          strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
           arg.u.setreq.attr = IEEE802154_ATTR_MAC_EADDR;
           IEEE802154_EADDRCOPY(arg.u.setreq.attrval.mac.eaddr, eaddr);
 

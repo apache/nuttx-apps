@@ -1,39 +1,26 @@
 /****************************************************************************
  * apps/examples/ft80x/ft80x_primitives.c
  *
- *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
  * Derives from FTDI sample code which appears to have an unrestricted
- * license.  Re-released here under the BSD 3-clause license:
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
+ * license.
  ****************************************************************************/
 
 /****************************************************************************
@@ -104,11 +91,16 @@ int ft80x_prim_bitmaps(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* Set up the display list */
 
   cmds[0]  = FT80X_CLEAR(1, 1, 1);               /* Clear screen */
-  cmds[1]  = FT80X_COLOR_RGB(255,255,255);
+  cmds[1]  = FT80X_COLOR_RGB(255, 255, 255);
   cmds[2]  = FT80X_BITMAP_SOURCE(FT80X_RAM_G);
-  cmds[3]  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride, bmhdr->height);
-  cmds[4]  = FT80X_BITMAP_SIZE(FT80X_FILTER_NEAREST, FT80X_WRAP_BORDER,
-                         FT80X_WRAP_BORDER, bmhdr->width, bmhdr->height);
+  cmds[3]  = FT80X_BITMAP_LAYOUT(bmhdr->format,
+                                 bmhdr->stride,
+                                 bmhdr->height);
+  cmds[4]  = FT80X_BITMAP_SIZE(FT80X_FILTER_NEAREST,
+                               FT80X_WRAP_BORDER,
+                               FT80X_WRAP_BORDER,
+                               bmhdr->width,
+                               bmhdr->height);
   cmds[5]  = FT80X_BEGIN(FT80X_PRIM_BITMAPS);    /* Start drawing bitmaps */
 
   offsetx  = FT80X_DISPLAY_WIDTH / 4 - bmhdr->width / 2;
@@ -165,13 +157,13 @@ int ft80x_prim_points(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   uint32_t cmds[15];
   int ret;
 
-  cmds[0]  = FT80X_CLEAR_COLOR_RGB(128,128,128);
-  cmds[1]  = FT80X_CLEAR(1,1,1);
+  cmds[0]  = FT80X_CLEAR_COLOR_RGB(128, 128, 128);
+  cmds[1]  = FT80X_CLEAR(1, 1, 1);
   cmds[2]  = FT80X_COLOR_RGB(128, 0, 0);
   cmds[3]  = FT80X_POINT_SIZE(5 * 16);
 
   cmds[4]  = FT80X_BEGIN(FT80X_PRIM_POINTS);
-  cmds[5]  = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH / 5 ) * 16,
+  cmds[5]  = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH / 5) * 16,
                             (FT80X_DISPLAY_HEIGHT / 2) * 16);
 
   cmds[6]  = FT80X_COLOR_RGB(0, 128, 0);
@@ -230,7 +222,7 @@ int ft80x_prim_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   height   = 40;
 
-  cmds[8]  = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) /4) * 16,
+  cmds[8]  = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 4) * 16,
                             ((FT80X_DISPLAY_HEIGHT - height) / 2) * 16);
   cmds[9]  = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 4) * 16,
                             ((FT80X_DISPLAY_HEIGHT + height) / 2) * 16);
@@ -242,7 +234,7 @@ int ft80x_prim_lines(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds[12] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 3) / 4) * 16,
                             ((FT80X_DISPLAY_HEIGHT - height) / 2) * 16);
   cmds[13] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 3) / 4) * 16,
-                            ((FT80X_DISPLAY_HEIGHT + height)/2) * 16);
+                            ((FT80X_DISPLAY_HEIGHT + height) / 2) * 16);
 
   /* Create the hardware display list */
 
@@ -273,10 +265,10 @@ int ft80x_prim_linestrip(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds[0] = FT80X_CLEAR_COLOR_RGB(5, 45, 10);
   cmds[1] = FT80X_COLOR_RGB(255, 168, 64);
-  cmds[2] = FT80X_CLEAR(1 ,1 ,1);
+  cmds[2] = FT80X_CLEAR(1, 1, 1);
   cmds[3] = FT80X_BEGIN(FT80X_PRIM_LINE_STRIP);
   cmds[4] = FT80X_VERTEX2F(16 * 16, 16 * 16);
-  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) /3) * 16,
+  cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 3) * 16,
                            (FT80X_DISPLAY_HEIGHT * 2 / 3) * 16);
   cmds[6] = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH - 80) * 16,
                            (FT80X_DISPLAY_HEIGHT - 20) * 16);
@@ -310,9 +302,9 @@ int ft80x_prim_edgestrip_r(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds[0] = FT80X_CLEAR_COLOR_RGB(5, 45, 10);
   cmds[1] = FT80X_COLOR_RGB(255, 168, 64);
-  cmds[2] = FT80X_CLEAR(1 ,1 ,1);
+  cmds[2] = FT80X_CLEAR(1, 1, 1);
   cmds[3] = FT80X_BEGIN(FT80X_PRIM_EDGE_STRIP_R);
-  cmds[4] = FT80X_VERTEX2F(16 * 16,16 * 16);
+  cmds[4] = FT80X_VERTEX2F(16 * 16, 16 * 16);
   cmds[5] = FT80X_VERTEX2F(((FT80X_DISPLAY_WIDTH * 2) / 3) * 16,
                            ((FT80X_DISPLAY_HEIGHT * 2) / 3) * 16);
   cmds[6] = FT80X_VERTEX2F((FT80X_DISPLAY_WIDTH - 80) * 16,
@@ -363,9 +355,11 @@ int ft80x_prim_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   width    = 10;
   height   = 40;
 
-  cmds[8]  = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 2) / 4) - (width / 2)) * 16,
+  cmds[8]  = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 2) / 4) -
+                              (width / 2)) * 16,
                             ((FT80X_DISPLAY_HEIGHT - height) / 2) * 16);
-  cmds[9]  = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 2) /4) + (width / 2)) * 16,
+  cmds[9]  = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 2) / 4) +
+                              (width / 2)) * 16,
                             ((FT80X_DISPLAY_HEIGHT + height) / 2) * 16);
   cmds[10] = FT80X_COLOR_RGB(128, 128, 0);
   cmds[11] = FT80X_LINE_WIDTH(10 * 16);
@@ -373,9 +367,11 @@ int ft80x_prim_rectangles(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   width    = 20;
   height   = 55;
 
-  cmds[12] = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 3) / 4) - (width / 2)) * 16,
+  cmds[12] = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 3) / 4) -
+                              (width / 2)) * 16,
                             ((FT80X_DISPLAY_HEIGHT - height) / 2) * 16);
-  cmds[13] = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 3) / 4) + (width /2 )) * 16,
+  cmds[13] = FT80X_VERTEX2F((((FT80X_DISPLAY_WIDTH * 3) / 4) +
+                              (width / 2)) * 16,
                             ((FT80X_DISPLAY_HEIGHT + height) / 2) * 16);
 
   /* Create the hardware display list */
@@ -519,7 +515,8 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   ret = ft80x_audio_enable(fd, true);
   if (ret < 0)
     {
-      ft80x_err("ERROR: ft80x_audio_enable(FT80X_IOC_AUDIO) failed: %d\n", ret);
+      ft80x_err("ERROR: ft80x_audio_enable(FT80X_IOC_AUDIO) failed: %d\n",
+                ret);
     }
 
   for (i = 100; i > 0; i--)
@@ -532,7 +529,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
-              goto errout_with_sound;;
+              goto errout_with_sound;
             }
         }
 
@@ -544,7 +541,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_audio_playsound failed: %d\n", ret);
-              goto errout_with_sound;;
+              goto errout_with_sound;
             }
         }
 
@@ -572,12 +569,13 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_start failed: %d\n", ret);
-          goto errout_with_sound;;
+          goto errout_with_sound;
         }
 
       cmds.a.clearrgb.cmd    = FT80X_CLEAR_COLOR_RGB(128, 128, 0);
       cmds.a.clear.cmd       = FT80X_CLEAR(1, 1, 1);
-      cmds.a.stencil.cmd     = FT80X_STENCIL_OP(STENCIL_OP_INCR, STENCIL_OP_INCR);
+      cmds.a.stencil.cmd     = FT80X_STENCIL_OP(STENCIL_OP_INCR,
+                                                STENCIL_OP_INCR);
       cmds.a.colorrgb.cmd    = FT80X_COLOR_RGB(0, 0, 0);
 
       /* Draw grid */
@@ -589,7 +587,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          goto errout_with_sound;;
+          goto errout_with_sound;
         }
 
       for (j = 0; j <= ((dispr - displ) / gridsize); j++)
@@ -603,7 +601,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              goto errout_with_sound;;
+              goto errout_with_sound;
             }
         }
 
@@ -618,23 +616,26 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              goto errout_with_sound;;
+              goto errout_with_sound;
             }
         }
 
       cmds.c.end.cmd         = FT80X_END();
-      cmds.c.colormask.cmd   = FT80X_COLOR_MASK(0,0,0,0);
-      cmds.c.pointsize.cmd   = FT80X_POINT_SIZE(rball*16);
+      cmds.c.colormask.cmd   = FT80X_COLOR_MASK(0, 0, 0, 0);
+      cmds.c.pointsize.cmd   = FT80X_POINT_SIZE(rball * 16);
       cmds.c.begin.cmd       = FT80X_BEGIN(FT80X_PRIM_POINTS);
-      cmds.c.vertex2f.cmd    = FT80X_VERTEX2F(xball*16,yball*16);
-      cmds.c.stencilop.cmd   = FT80X_STENCIL_OP(STENCIL_OP_INCR, STENCIL_OP_ZERO);
-      cmds.c.stencilfunc.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL,1,255);
+      cmds.c.vertex2f.cmd    = FT80X_VERTEX2F(xball * 16,
+                                              yball * 16);
+      cmds.c.stencilop.cmd   = FT80X_STENCIL_OP(STENCIL_OP_INCR,
+                                                STENCIL_OP_ZERO);
+      cmds.c.stencilfunc.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL, 1,
+                                                  255);
 
       ret = ft80x_dl_data(fd, buffer, &cmds.c, sizeof(cmds.c));
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          goto errout_with_sound;;
+          goto errout_with_sound;
         }
 
       /* One side points */
@@ -653,16 +654,18 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
               int32_t tmp = asmooth - rball;
               aradius = (rball * rball + tmp * tmp) / (2 * tmp);
 
-              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius*16);
-              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball - aradius + tmp)*16,yball*16);
+              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius * 16);
+              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball - aradius + tmp) *
+                                                    16, yball * 16);
             }
           else
             {
               int32_t tmp = rball - asmooth;
               aradius = (rball * rball + tmp * tmp) / (2 * tmp);
 
-              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius*16);
-              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball+ aradius - tmp)*16,yball*16);
+              cmds.d.pointsize.cmd = FT80X_POINT_SIZE(aradius * 16);
+              cmds.d.vertex2f.cmd  = FT80X_VERTEX2F((xball + aradius - tmp) *
+                                                    16, yball * 16);
             }
         }
 
@@ -673,7 +676,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          goto errout_with_sound;;
+          goto errout_with_sound;
         }
 
       /* Draw lines - line should be at least radius diameter */
@@ -686,35 +689,43 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
                        (2 * (float)rball)), 0, 2 * (float)rball);
 
           cmds.e.linewidth.cmd = FT80X_LINE_WIDTH(asmooth * 16);
-          cmds.e.vertex2f1.cmd = FT80X_VERTEX2F((xball - rball)*16,(yball - rball )*16);
-          cmds.e.vertex2f2.cmd = FT80X_VERTEX2F((xball + rball)*16,(yball - rball )*16);
+          cmds.e.vertex2f1.cmd = FT80X_VERTEX2F((xball - rball) * 16,
+                                                (yball - rball) * 16);
+          cmds.e.vertex2f2.cmd = FT80X_VERTEX2F((xball + rball) * 16,
+                                                (yball - rball) * 16);
 
           ret = ft80x_dl_data(fd, buffer, &cmds.e, sizeof(cmds.e));
           if (ret < 0)
             {
               ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-              goto errout_with_sound;;
+              goto errout_with_sound;
             }
         }
 
       cmds.f.end1.cmd         = FT80X_END();
 
       cmds.f.colormask.cmd    = FT80X_COLOR_MASK(1, 1, 1, 1);
-      cmds.f.stencilfunc1.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_ALWAYS, 1, 255);
-      cmds.f.stencilop1.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP, STENCIL_OP_KEEP);
+      cmds.f.stencilfunc1.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_ALWAYS,
+                                                   1, 255);
+      cmds.f.stencilop1.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP,
+                                                 STENCIL_OP_KEEP);
       cmds.f.colorrgb1.cmd    = FT80X_COLOR_RGB(255, 255, 255);
       cmds.f.pointsize.cmd    = FT80X_POINT_SIZE(rball * 16);
       cmds.f.begin.cmd        = FT80X_BEGIN(FT80X_PRIM_POINTS);
-      cmds.f.vertex2f1.cmd    = FT80X_VERTEX2F((xball - 1) * 16, (yball - 1) * 16);
+      cmds.f.vertex2f1.cmd    = FT80X_VERTEX2F((xball - 1) * 16,
+                                               (yball - 1) * 16);
       cmds.f.colorrgb2.cmd    = FT80X_COLOR_RGB(0, 0, 0);
       cmds.f.colora1.cmd      = FT80X_COLOR_A(160);
-      cmds.f.vertex2f2.cmd    = FT80X_VERTEX2F((xball + 16) * 16, (yball + 8) * 16);
+      cmds.f.vertex2f2.cmd    = FT80X_VERTEX2F((xball + 16) * 16,
+                                               (yball + 8) * 16);
       cmds.f.colora2.cmd      = FT80X_COLOR_A(255);
       cmds.f.colorrgb3.cmd    = FT80X_COLOR_RGB(255, 255, 255);
       cmds.f.vertex2f3.cmd    = FT80X_VERTEX2F(xball * 16, yball * 16);
       cmds.f.colorrgb4.cmd    = FT80X_COLOR_RGB(255, 0, 0);
-      cmds.f.stencilfunc2.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL, 1, 1);
-      cmds.f.stencilop2.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP, STENCIL_OP_KEEP);
+      cmds.f.stencilfunc2.cmd = FT80X_STENCIL_FUNC(STENCIL_FUNC_GEQUAL,
+                                                   1, 1);
+      cmds.f.stencilop2.cmd   = FT80X_STENCIL_OP(STENCIL_OP_KEEP,
+                                                 STENCIL_OP_KEEP);
       cmds.f.vertex2f4.cmd    = FT80X_VERTEX2F(xball * 16, yball * 16);
       cmds.f.end2.cmd         = FT80X_END();
 
@@ -722,7 +733,7 @@ int ft80x_prim_stencil(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       if (ret < 0)
         {
           ft80x_err("ERROR: ft80x_dl_data failed: %d\n", ret);
-          goto errout_with_sound;;
+          goto errout_with_sound;
         }
 
       /* Finally, terminate the display list */

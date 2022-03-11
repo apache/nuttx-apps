@@ -1,38 +1,20 @@
 /****************************************************************************
  * apps/include/wireless/ieee802154.h
  *
- *   Copyright(C) 2015 Sebastien Lorquet. All rights reserved.
- *   Copyright(C) 2017 Verge Inc. All rights reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
- *   Author: Anthony Merlino <anthony@vergeaero.com>
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
@@ -55,8 +37,8 @@
  ****************************************************************************/
 
 /* libmac *******************************************************************/
-/* Character driver IOCTL helpers */
 
+/* Character driver IOCTL helpers */
 
 int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
 int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp);
@@ -166,7 +148,8 @@ int sixlowpan_calibrate_req(int sock, FAR const char *ifname,
 #endif
 
 int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan);
-int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan);
+int sixlowpan_getchan(int sock, FAR const char *ifname,
+      FAR uint8_t *chan);
 
 int sixlowpan_setpanid(int sock, FAR const char *ifname,
       FAR const uint8_t *panid);
@@ -183,9 +166,11 @@ int sixlowpan_seteaddr(int sock, FAR const char *ifname,
 int sixlowpan_geteaddr(int sock, FAR const char *ifname,
       FAR uint8_t *eaddr);
 
-int sixlowpan_getcoordsaddr(int fd, FAR const char *ifname, FAR uint8_t *saddr);
+int sixlowpan_getcoordsaddr(int fd, FAR const char *ifname,
+      FAR uint8_t *saddr);
 
-int sixlowpan_getcoordeaddr(int fd, FAR const char *ifname, FAR uint8_t *eaddr);
+int sixlowpan_getcoordeaddr(int fd, FAR const char *ifname,
+      FAR uint8_t *eaddr);
 
 int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc);
 int sixlowpan_getpromisc(int sock, FAR const char *ifname,
@@ -199,23 +184,26 @@ int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
 int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
       FAR int32_t *txpwr);
 
-int sixlowpan_setmaxretries(int sock, FAR const char *ifname, uint8_t retries);
+int sixlowpan_setmaxretries(int sock, FAR const char *ifname,
+                            uint8_t retries);
 int sixlowpan_getmaxretries(int sock, FAR const char *ifname,
       FAR uint8_t *retries);
 
 int sixlowpan_setfcslen(int sock, FAR const char *ifname, uint8_t fcslen);
-int sixlowpan_getfcslen(int sock, FAR const char *ifname, FAR uint8_t *fcslen);
+int sixlowpan_getfcslen(int sock, FAR const char *ifname,
+      FAR uint8_t *fcslen);
 
 int sixlowpan_getdevmode(int fd, FAR const char *ifname,
-                         FAR enum ieee802154_devmode_e *devmode);
+      FAR enum ieee802154_devmode_e *devmode);
 
-int sixlowpan_setassocpermit(int sock, FAR const char *ifname, bool assocpermit);
+int sixlowpan_setassocpermit(int sock, FAR const char *ifname,
+                             bool assocpermit);
 
-#endif /* CONFIG_NET_6LOWPAN*/
+#endif /* CONFIG_NET_6LOWPAN */
 
 /* libutils *****************************************************************/
 
 int ieee802154_addrtostr(FAR char *buf, int len,
       FAR struct ieee802154_addr_s *addr);
 
-#endif /*__APPS_INCLUDE_WIRELESS_IEEE802154_H */
+#endif /* __APPS_INCLUDE_WIRELESS_IEEE802154_H */
