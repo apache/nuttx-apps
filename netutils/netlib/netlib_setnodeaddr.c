@@ -72,7 +72,7 @@ int netlib_setnodeaddr(FAR const char *ifname,
         {
           /* Copy the network interface name */
 
-          strncpy(req.pifr_name, ifname, IFNAMSIZ);
+          strlcpy(req.pifr_name, ifname, IFNAMSIZ);
 
           /* Copy the node address into the request */
 

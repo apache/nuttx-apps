@@ -133,6 +133,9 @@
  *   buflen - A pointer to the length of the buffer.  If the callee wishes
  *       to change the size of the buffer, it may write to buflen.
  *   arg    - User argument passed to callback.
+ *
+ * Note: changing buffer address and/or size is only allowed for HTTP 1.0.
+ * It's not allowed for HTTP 1.1.
  */
 
 typedef void (*wget_callback_t)(FAR char **buffer, int offset,
@@ -307,6 +310,7 @@ struct webclient_context
 {
   /* request parameters
    *
+   *   protocol_version - HTTP protocol version. HTTP 1.0 by default.
    *   method           - HTTP method like "GET", "POST".
    *                      The default value is "GET".
    *   url              - A pointer to a string containing the full URL.
@@ -324,6 +328,12 @@ struct webclient_context
    *                      The default is CONFIG_WEBCLIENT_TIMEOUT, which is
    *                      10 seconds by default.
    */
+
+  enum webclient_protocol_version_e
+    {
+      WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0, /* HTTP 1.0 */
+      WEBCLIENT_PROTOCOL_VERSION_HTTP_1_1, /* HTTP 1.1 */
+    } protocol_version;
 
   FAR const char *method;
   FAR const char *url;

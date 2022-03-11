@@ -22,6 +22,11 @@ include $(APPDIR)/Make.defs
 
 CMSIS5_NN := ../CMSIS_5/CMSIS/NN/Source
 
+ifeq ($(CONFIG_ARCH_FPU),y)
+CFLAGS += -D__FPU_PRESENT=1U
+CXXFLAGS += -D__FPU_PRESENT=1U
+endif
+
 CSRCS += $(CMSIS5_NN)/ActivationFunctions/arm_nn_activations_q15.c
 CSRCS += $(CMSIS5_NN)/ActivationFunctions/arm_relu6_s8.c
 CSRCS += $(CMSIS5_NN)/ActivationFunctions/arm_relu_q15.c

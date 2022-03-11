@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/wapi/examples/network.c
+ * apps/wireless/wapi/src/network.c
  *
  *   Copyright (C) 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

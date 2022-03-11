@@ -1,39 +1,26 @@
 /****************************************************************************
  * apps/examples/ft80x/ft80x_coprocessor.c
  *
- *   Copyright (C) 2018 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
  * Derives from FTDI sample code which appears to have an unrestricted
  * license.  Re-released here under the BSD 3-clause license:
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
  ****************************************************************************/
 
 /****************************************************************************
@@ -117,7 +104,7 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -137,6 +124,7 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   yoffset                  = FT80X_DISPLAY_HEIGHT / 2 - 2 * ydist;
 
   /* Construct a buttons with "ONE/TWO/THREE" text and default background */
+
   /* Draw buttons 60x30 resolution at 10x40,10x75,10x110 */
 
   /* Flat effect and default color background */
@@ -328,7 +316,7 @@ int ft80x_coproc_button(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* 3d effect with background color */
 
   xoffset                 += xdist;
-  yoffset                  = FT80X_DISPLAY_HEIGHT/ 2 - 2 * ydist;
+  yoffset                  = FT80X_DISPLAY_HEIGHT / 2 - 2 * ydist;
 
   cmds.b.fgcolor.cmd       = FT80X_CMD_FGCOLOR;
   cmds.b.fgcolor.c         = 0xffff00;
@@ -635,7 +623,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd     = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd        = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd        = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -648,6 +636,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   /* Draw clock with blue as background and read as needle color */
+
   /* Flat effect and default color background */
 
   xoffset                 = xdist / 2;
@@ -860,7 +849,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
                                            (yoffset + radius - 10) * 16);
   cmds.e.end1.cmd         = FT80X_END();
   cmds.e.colora.cmd       = FT80X_COLOR_A(0xff);
-  cmds.e.colorrgb2.cmd    = FT80X_COLOR_RGB(0xff,0xff,0xff);
+  cmds.e.colorrgb2.cmd    = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
   cmds.e.colormask1.cmd   = FT80X_COLOR_MASK(0, 0, 0, 1);
   cmds.e.clear.cmd        = FT80X_CLEAR(1, 1, 1);
   cmds.e.begin2.cmd       = FT80X_BEGIN(FT80X_PRIM_RECTS);
@@ -890,9 +879,10 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds.f.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
 
-  cmds.f.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.f.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);
   cmds.f.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
-  cmds.f.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+  cmds.f.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format,
+                                                 bmhdr->stride,
                                                  bmhdr->height);
   cmds.f.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
                                                FT80X_WRAP_BORDER,
@@ -902,7 +892,7 @@ int ft80x_coproc_clock(int fd, FAR struct ft80x_dlbuffer_s *buffer)
                                             (yoffset - radius) * 16);
   cmds.f.end.cmd           = FT80X_END();
   cmds.f.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_SRC_ALPHA,
-                                              FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
+                                        FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
   cmds.f.loadidentity2.cmd = FT80X_CMD_LOADIDENTITY;
   cmds.f.setmatrix2.cmd    = FT80X_CMD_SETMATRIX;
   cmds.f.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
@@ -1059,7 +1049,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd     = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd        = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd        = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -1072,6 +1062,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   /* Draw gauge with blue as background and read as needle color */
+
   /* Flat effect and default color background */
 
   xoffset                 = xdist / 2;
@@ -1202,7 +1193,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.b.bgcolor.cmd      = FT80X_CMD_BGCOLOR;                /* Background color */
   cmds.b.bgcolor.c        = 0xff00ff;
 
-  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00,0xff,0xff);
+  cmds.b.colorrgb.cmd     = FT80X_COLOR_RGB(0x00, 0xff, 0xff);
 
   cmds.b.gauge.cmd        = FT80X_CMD_GAUGE;                  /* Gauge */
   cmds.b.gauge.x          = xoffset;
@@ -1278,7 +1269,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   /* Bigger gauge */
 
   yoffset                += radius + 10;
-  radius                  = FT80X_DISPLAY_HEIGHT - ( 2  *radius + 5 + 10);
+  radius                  = FT80X_DISPLAY_HEIGHT - (2 *radius + 5 + 10);
   radius                  = (radius - 5 - 20) / 2;
   xoffset                 = radius + 10;
   yoffset                += radius + 5;
@@ -1337,7 +1328,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   cmds.f.end2.cmd          = FT80X_END();
   cmds.f.colormask2.cmd    = FT80X_COLOR_MASK(1, 1, 1, 1);
   cmds.f.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_DST_ALPHA,
-                                              FT80X_BLEND_ONE_MINUS_DST_ALPHA);
+                                        FT80X_BLEND_ONE_MINUS_DST_ALPHA);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.f, sizeof(cmds.f));
   if (ret < 0)
@@ -1356,9 +1347,10 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds.g.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
 
-  cmds.g.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.g.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);
   cmds.g.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
-  cmds.g.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+  cmds.g.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format,
+                                                 bmhdr->stride,
                                                  bmhdr->height);
   cmds.g.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
                                                FT80X_WRAP_BORDER,
@@ -1368,7 +1360,7 @@ int ft80x_coproc_gauge(int fd, FAR struct ft80x_dlbuffer_s *buffer)
                                             (yoffset - radius) * 16);
   cmds.g.end.cmd           = FT80X_END();
   cmds.g.blend.cmd         = FT80X_BLEND_FUNC(FT80X_BLEND_SRC_ALPHA,
-                                              FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
+                                        FT80X_BLEND_ONE_MINUS_SRC_ALPHA);
   cmds.g.loadidentity2.cmd = FT80X_CMD_LOADIDENTITY;
   cmds.g.setmatrix2.cmd    = FT80X_CMD_SETMATRIX;
   cmds.g.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
@@ -1478,7 +1470,7 @@ int ft80x_coproc_keys(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd    = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd       = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd       = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd    = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -1948,7 +1940,7 @@ int ft80x_coproc_interactive(int fd, FAR struct ft80x_dlbuffer_s *buffer)
         }
 
       cmds.a.clearrgb.cmd       = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-      cmds.a.clear.cmd          = FT80X_CLEAR(1 ,1, 1);
+      cmds.a.clear.cmd          = FT80X_CLEAR(1, 1, 1);
       cmds.a.colorrgb.cmd       = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
       /* Copy the commands into the display list */
@@ -1961,6 +1953,7 @@ int ft80x_coproc_interactive(int fd, FAR struct ft80x_dlbuffer_s *buffer)
         }
 
       /* Draw text entered by user */
+
       /* Make sure the array is a NUL terminated string */
 
       text[textndx]             = ch;
@@ -2199,6 +2192,7 @@ int ft80x_coproc_interactive(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   return OK;
 }
+
 /****************************************************************************
  * Name: ft80x_coproc_progressbar
  *
@@ -2261,7 +2255,7 @@ int ft80x_coproc_progressbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd     = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd        = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd        = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd     = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -2547,7 +2541,7 @@ int ft80x_coproc_scrollbar(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -2847,7 +2841,7 @@ int ft80x_coproc_dial(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -3105,7 +3099,7 @@ int ft80x_coproc_slider(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -3396,7 +3390,7 @@ int ft80x_coproc_toggle(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Copy the commands into the display list */
@@ -3672,7 +3666,7 @@ int ft80x_coproc_number(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -3862,7 +3856,7 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   cmds.a.text.cmd          = FT80X_CMD_TEXT;                   /* Text */
@@ -3914,7 +3908,8 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   ft80x_info("Transform A-F: {%08lx, %08lx, %08lx, %08lx, %08lx, %08lx}\n",
-             matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+             matrix[0], matrix[1], matrix[2],
+             matrix[3], matrix[4], matrix[5]);
   return OK;
 }
 
@@ -3960,7 +3955,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -4030,6 +4025,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
   sleep(1);
 
   /* Spinner with style 1 and scale 1 */
+
   /* Start a new the hardware display list */
 
   ret = ft80x_dl_start(fd, buffer, true);
@@ -4040,7 +4036,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -4121,7 +4117,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -4202,7 +4198,7 @@ int ft80x_coproc_spinner(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(64, 64, 64);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -4352,7 +4348,7 @@ int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer)
     }
 
   cmds.a.clearrgb.cmd      = FT80X_CLEAR_COLOR_RGB(0, 0, 0x80);
-  cmds.a.clear.cmd         = FT80X_CLEAR(1 ,1, 1);
+  cmds.a.clear.cmd         = FT80X_CLEAR(1, 1, 1);
   cmds.a.colorrgb.cmd      = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   ret = ft80x_dl_data(fd, buffer, &cmds.a, sizeof(cmds.a));
@@ -4372,9 +4368,10 @@ int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer)
 
   cmds.b.setmatrix1.cmd    = FT80X_CMD_SETMATRIX;
 
-  cmds.b.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);;
+  cmds.b.begin.cmd         = FT80X_BEGIN(FT80X_PRIM_BITMAPS);
   cmds.b.bitmapsource.cmd  = FT80X_BITMAP_SOURCE(0);
-  cmds.b.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format, bmhdr->stride,
+  cmds.b.bitmaplayout.cmd  = FT80X_BITMAP_LAYOUT(bmhdr->format,
+                                                 bmhdr->stride,
                                                  bmhdr->height);
   cmds.b.bitmapsize.cmd    = FT80X_BITMAP_SIZE(FT80X_FILTER_BILINEAR,
                                                FT80X_WRAP_BORDER,

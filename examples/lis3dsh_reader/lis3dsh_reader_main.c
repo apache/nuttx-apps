@@ -1,5 +1,5 @@
 /****************************************************************************
- * lis3dsh_reader_main.c
+ * apps/examples/lis3dsh_reader/lis3dsh_reader_main.c
  *
  *   Copyright (C) 2017 Florian Olbrich. All rights reserved.
  *   Author: Florian Olbrich <florian.olbrich@oth-regensburg.de>
@@ -33,6 +33,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 
 #include <sys/ioctl.h>
@@ -47,6 +51,10 @@
 #include <time.h>
 
 #include <nuttx/sensors/lis3dsh.h>
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * lis3dsh_reader_main
@@ -66,7 +74,7 @@ int main(int argc, FAR char *argv[])
 
   for (; ; )
     {
-      fread( &acc_data, 6, 1, acc );
+      fread(&acc_data, 6, 1, acc);
       printf("x: %4d  y: %4d  z: %4d            \r",
              acc_data.x, acc_data.y, acc_data.z);
       usleep(300);

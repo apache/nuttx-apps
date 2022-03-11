@@ -119,4 +119,8 @@ CSRCS += prioinherit.c
 endif # CONFIG_PRIORITY_INHERITANCE
 endif # CONFIG_DISABLE_PTHREAD
 
+ifeq ($(CONFIG_ARCH_SETJMP_H),y)
+CSRCS += setjmp.c
+endif
+
 include $(APPDIR)/Application.mk

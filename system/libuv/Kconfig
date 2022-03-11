@@ -1,0 +1,45 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIBUV
+	bool "libuv asynchronous I/O Library"
+	default n
+	select PIPES
+	---help---
+		Enable build for libuv asynchronous I/O Library
+
+if LIBUV
+
+config LIBUV_THREADPOOL_SIZE
+	int "libuv default thread pool size"
+	default 1
+
+choice
+	prompt "libuv utils"
+	default LIBUV_UTILS_NONE
+
+config LIBUV_UTILS_NONE
+	bool "none"
+
+config LIBUV_UTILS_TEST
+	bool "uv_run_tests"
+
+config LIBUV_UTILS_BENCHMARK
+	bool "uv_run_benchmarks"
+
+endchoice
+
+if !LIBUV_UTILS_NONE
+
+config LIBUV_UTILS_PRIORITY
+	int "libuv utils priority"
+	default 100
+
+config LIBUV_UTILS_STACKSIZE
+	int "libuv utils stack size"
+	default 8192
+endif
+
+endif

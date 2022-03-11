@@ -1,36 +1,20 @@
 /****************************************************************************
  * apps/examples/nxdemo/nxdemo_main.c
  *
- *   Copyright (C) 2018-2019 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *           Cherciu Mihail <m_cherciu@yahoo.com>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
@@ -74,6 +58,7 @@
  ****************************************************************************/
 
 /* Configuration ************************************************************/
+
 /* If not specified, assume that the hardware supports one video plane */
 
 #ifndef CONFIG_EXAMPLES_NXDEMO_VPLANE
@@ -131,7 +116,8 @@ static inline int nxdemo_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxdemo_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxdemo_initialize: "
+             "Failed to start the NX server: %d\n", errno);
       return ERROR;
     }
 
@@ -140,52 +126,53 @@ static inline int nxdemo_initialize(void)
   g_nxdemo.hnx = nx_connect();
   if (g_nxdemo.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0,  g_nxdemo.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+        {
+           0,  g_nxdemo.hnx
+        };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nxdemo.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nxdemo.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.
+       * This is probably the least efficient way to do this,
+       * but it makes this example flow more smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXDEMO_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXDEMO_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr,
+                                CONFIG_EXAMPLES_NXDEMO_LISTENER_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxdemo_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxdemo_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nxdemo_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nxdemo_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nxdemo.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nxdemo.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nxdemo.eventsem);
-         }
+          sem_wait(&g_nxdemo.eventsem);
+        }
     }
   else
     {

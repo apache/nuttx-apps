@@ -21,7 +21,7 @@ config EXAMPLES_ONESHOT_DEVNAME
 
 config EXAMPLES_ONESHOT_DELAY
 	int "Sample delay (microseconds)"
-	default 100000
+	default 2000000
 	---help---
 		This is the default delay samples in microseconds if one is not
 		specified on the command line

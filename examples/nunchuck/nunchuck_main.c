@@ -1,5 +1,5 @@
 /****************************************************************************
- * examplex/nunchuck/nunchuck_main.c
+ * apps/examples/nunchuck/nunchuck_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -37,6 +37,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_INPUT_NUNCHUCK
@@ -52,17 +53,18 @@
 /* Helpers ******************************************************************/
 
 #ifndef MIN
-#  define MIN(a,b) (a < b ? a : b)
+#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 #ifndef MAX
-#  define MAX(a,b) (a > b ? a : b)
+#  define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static void show_buttons(nunchuck_buttonset_t oldset, nunchuck_buttonset_t newset);
+static void show_buttons(nunchuck_buttonset_t oldset,
+                         nunchuck_buttonset_t newset);
 static void show_joystick(FAR const struct nunchuck_sample_s *sample);
 static int nunchuck_read(int fd, FAR struct nunchuck_sample_s *sample);
 static int nunchuck_calibrate(int fd);
@@ -70,6 +72,7 @@ static int nunchuck_calibrate(int fd);
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 /* The set of supported joystick buttons */
 
 static nunchuck_buttonset_t g_nunchucksupported;
@@ -101,7 +104,8 @@ static const char *g_nunchucknames[NUNCHUCK_NBUTTONS] =
  * Private Functions
  ****************************************************************************/
 
-static void show_buttons(nunchuck_buttonset_t oldset, nunchuck_buttonset_t newset)
+static void show_buttons(nunchuck_buttonset_t oldset,
+                         nunchuck_buttonset_t newset)
 {
   nunchuck_buttonset_t chgset = oldset ^ newset;
   int i;
@@ -194,8 +198,9 @@ static int nunchuck_read(int fd, FAR struct nunchuck_sample_s *sample)
     }
 
 #ifdef CONFIG_DEBUG_INPUT
-  /* Show the joystick position and set buttons accompanying the signal */
-  /* Show the set of joystick buttons that we just read */
+  /* Show the joystick position and set buttons accompanying the signal.
+   * Show the set of joystick buttons that we just read
+   */
 
   printf("Read position and button set\n");
   show_joystick(sample);
@@ -390,7 +395,8 @@ int main(int argc, FAR char *argv[])
   ret = ioctl(fd, NUNCHUCKIOC_SUPPORTED,  (unsigned long)((uintptr_t)&tmp));
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ioctl(NUNCHUCKIOC_SUPPORTED) failed: %d\n", errno);
+      fprintf(stderr, "ERROR: ioctl(NUNCHUCKIOC_SUPPORTED) failed: %d\n",
+              errno);
       goto errout_with_fd;
     }
 
@@ -402,7 +408,7 @@ int main(int argc, FAR char *argv[])
 
   nunchuck_calibrate(fd);
 
-  for (;;)
+  for (; ; )
     {
       struct nunchuck_sample_s sample;
 

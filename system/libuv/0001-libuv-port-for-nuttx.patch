@@ -1,0 +1,2207 @@
+diff --git a/include/uv.h b/include/uv.h
+index 77503bde..17940e3d 100644
+--- a/include/uv.h
++++ b/include/uv.h
+@@ -797,6 +797,16 @@ UV_EXTERN void uv_pipe_connect(uv_connect_t* req,
+                                uv_pipe_t* handle,
+                                const char* name,
+                                uv_connect_cb cb);
++#ifdef CONFIG_NET_RPMSG
++UV_EXTERN int uv_pipe_rpmsg_bind(uv_pipe_t* handle,
++                                 const char* name,
++                                 const char* cpu_name);
++UV_EXTERN void uv_pipe_rpmsg_connect(uv_connect_t* req,
++                                     uv_pipe_t* handle,
++                                     const char* name,
++                                     const char* cpu_name,
++                                     uv_connect_cb cb);
++#endif
+ UV_EXTERN int uv_pipe_getsockname(const uv_pipe_t* handle,
+                                   char* buffer,
+                                   size_t* size);
+diff --git a/include/uv/unix.h b/include/uv/unix.h
+index e3cf7bdd..bf8dc32c 100644
+--- a/include/uv/unix.h
++++ b/include/uv/unix.h
+@@ -71,6 +71,8 @@
+ # include "uv/posix.h"
+ #elif defined(__QNX__)
+ # include "uv/posix.h"
++#elif defined(__NuttX__)
++# include "uv/posix.h"
+ #endif
+ 
+ #ifndef NI_MAXHOST
+diff --git a/src/fs-poll.c b/src/fs-poll.c
+index 89864e23..ceb047cb 100644
+--- a/src/fs-poll.c
++++ b/src/fs-poll.c
+@@ -53,7 +53,7 @@ static void poll_cb(uv_fs_t* req);
+ static void timer_cb(uv_timer_t* timer);
+ static void timer_close_cb(uv_handle_t* handle);
+ 
+-static uv_stat_t zero_statbuf;
++static const uv_stat_t zero_statbuf;
+ 
+ 
+ int uv_fs_poll_init(uv_loop_t* loop, uv_fs_poll_t* handle) {
+diff --git a/src/random.c b/src/random.c
+index e75f77de..feef5a44 100644
+--- a/src/random.c
++++ b/src/random.c
+@@ -31,7 +31,7 @@
+ static int uv__random(void* buf, size_t buflen) {
+   int rc;
+ 
+-#if defined(__PASE__)
++#if defined(__PASE__) || defined(__NuttX__)
+   rc = uv__random_readpath("/dev/urandom", buf, buflen);
+ #elif defined(_AIX) || defined(__QNX__)
+   rc = uv__random_readpath("/dev/random", buf, buflen);
+diff --git a/src/threadpool.c b/src/threadpool.c
+index 869ae95f..8fabeba5 100644
+--- a/src/threadpool.c
++++ b/src/threadpool.c
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include "uv-common.h"
++#include "uv-global.h"
+ 
+ #if !defined(_WIN32)
+ # include "unix/internal.h"
+@@ -27,20 +28,11 @@
+ 
+ #include <stdlib.h>
+ 
+-#define MAX_THREADPOOL_SIZE 1024
++#ifndef DEF_THREADPOOL_SIZE
++# define DEF_THREADPOOL_SIZE 4
++#endif
+ 
+-static uv_once_t once = UV_ONCE_INIT;
+-static uv_cond_t cond;
+-static uv_mutex_t mutex;
+-static unsigned int idle_threads;
+-static unsigned int slow_io_work_running;
+-static unsigned int nthreads;
+-static uv_thread_t* threads;
+-static uv_thread_t default_threads[4];
+-static QUEUE exit_message;
+-static QUEUE wq;
+-static QUEUE run_slow_work_message;
+-static QUEUE slow_io_pending_wq;
++#define MAX_THREADPOOL_SIZE 1024
+ 
+ static unsigned int slow_work_thread_threshold(void) {
+   return (nthreads + 1) / 2;
+@@ -68,16 +60,16 @@ static void worker(void* arg) {
+ 
+     /* Keep waiting while either no work is present or only slow I/O
+        and we're at the threshold for that. */
+-    while (QUEUE_EMPTY(&wq) ||
+-           (QUEUE_HEAD(&wq) == &run_slow_work_message &&
+-            QUEUE_NEXT(&run_slow_work_message) == &wq &&
++    while (QUEUE_EMPTY(&lwq) ||
++           (QUEUE_HEAD(&lwq) == &run_slow_work_message &&
++            QUEUE_NEXT(&run_slow_work_message) == &lwq &&
+             slow_io_work_running >= slow_work_thread_threshold())) {
+       idle_threads += 1;
+       uv_cond_wait(&cond, &mutex);
+       idle_threads -= 1;
+     }
+ 
+-    q = QUEUE_HEAD(&wq);
++    q = QUEUE_HEAD(&lwq);
+     if (q == &exit_message) {
+       uv_cond_signal(&cond);
+       uv_mutex_unlock(&mutex);
+@@ -92,7 +84,7 @@ static void worker(void* arg) {
+       /* If we're at the slow I/O threshold, re-schedule until after all
+          other work in the queue is done. */
+       if (slow_io_work_running >= slow_work_thread_threshold()) {
+-        QUEUE_INSERT_TAIL(&wq, q);
++        QUEUE_INSERT_TAIL(&lwq, q);
+         continue;
+       }
+ 
+@@ -110,7 +102,7 @@ static void worker(void* arg) {
+ 
+       /* If there is more slow I/O work, schedule it to be run as well. */
+       if (!QUEUE_EMPTY(&slow_io_pending_wq)) {
+-        QUEUE_INSERT_TAIL(&wq, &run_slow_work_message);
++        QUEUE_INSERT_TAIL(&lwq, &run_slow_work_message);
+         if (idle_threads > 0)
+           uv_cond_signal(&cond);
+       }
+@@ -153,13 +145,21 @@ static void post(QUEUE* q, enum uv__work_kind kind) {
+     q = &run_slow_work_message;
+   }
+ 
+-  QUEUE_INSERT_TAIL(&wq, q);
++  QUEUE_INSERT_TAIL(&lwq, q);
+   if (idle_threads > 0)
+     uv_cond_signal(&cond);
+   uv_mutex_unlock(&mutex);
+ }
+ 
+ 
++#ifndef _WIN32
++static void reset_once(void) {
++  uv_once_t child_once = UV_ONCE_INIT;
++  memcpy(&once, &child_once, sizeof(child_once));
++}
++#endif
++
++
+ void uv__threadpool_cleanup(void) {
+   unsigned int i;
+ 
+@@ -180,6 +180,11 @@ void uv__threadpool_cleanup(void) {
+ 
+   threads = NULL;
+   nthreads = 0;
++
++#ifndef _WIN32
++  reset_once();
++#endif
++
+ }
+ 
+ 
+@@ -212,7 +217,7 @@ static void init_threads(void) {
+   if (uv_mutex_init(&mutex))
+     abort();
+ 
+-  QUEUE_INIT(&wq);
++  QUEUE_INIT(&lwq);
+   QUEUE_INIT(&slow_io_pending_wq);
+   QUEUE_INIT(&run_slow_work_message);
+ 
+@@ -230,14 +235,6 @@ static void init_threads(void) {
+ }
+ 
+ 
+-#ifndef _WIN32
+-static void reset_once(void) {
+-  uv_once_t child_once = UV_ONCE_INIT;
+-  memcpy(&once, &child_once, sizeof(child_once));
+-}
+-#endif
+-
+-
+ static void init_once(void) {
+ #ifndef _WIN32
+   /* Re-initialize the threadpool after fork.
+diff --git a/src/unix/core.c b/src/unix/core.c
+index 71e9c525..6859fe71 100644
+--- a/src/unix/core.c
++++ b/src/unix/core.c
+@@ -58,8 +58,6 @@
+ # include <crt_externs.h>
+ # include <mach-o/dyld.h> /* _NSGetExecutablePath */
+ # define environ (*_NSGetEnviron())
+-#else /* defined(__APPLE__) && !TARGET_OS_IPHONE */
+-extern char** environ;
+ #endif /* !(defined(__APPLE__) && !TARGET_OS_IPHONE) */
+ 
+ 
+@@ -987,7 +985,7 @@ int uv_getrusage(uv_rusage_t* rusage) {
+   rusage->ru_stime.tv_sec = usage.ru_stime.tv_sec;
+   rusage->ru_stime.tv_usec = usage.ru_stime.tv_usec;
+ 
+-#if !defined(__MVS__) && !defined(__HAIKU__)
++#if !defined(__MVS__) && !defined(__HAIKU__) && !defined(__NuttX__)
+   rusage->ru_maxrss = usage.ru_maxrss;
+   rusage->ru_ixrss = usage.ru_ixrss;
+   rusage->ru_idrss = usage.ru_idrss;
+diff --git a/src/unix/loop.c b/src/unix/loop.c
+index a88e71c3..dad463b3 100644
+--- a/src/unix/loop.c
++++ b/src/unix/loop.c
+@@ -220,8 +220,10 @@ int uv__loop_configure(uv_loop_t* loop, uv_loop_option option, va_list ap) {
+   if (option != UV_LOOP_BLOCK_SIGNAL)
+     return UV_ENOSYS;
+ 
++#ifdef SIGPROF
+   if (va_arg(ap, int) != SIGPROF)
+     return UV_EINVAL;
++#endif
+ 
+   loop->flags |= UV_LOOP_BLOCK_SIGPROF;
+   return 0;
+diff --git a/src/unix/nuttx.c b/src/unix/nuttx.c
+new file mode 100644
+index 00000000..728b57f6
+--- /dev/null
++++ b/src/unix/nuttx.c
+@@ -0,0 +1,284 @@
++/* Copyright Xiaomi, Inc. and other Node contributors. All rights reserved.
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++/* We lean on the fact that POLL{IN,OUT,ERR,HUP} correspond with their
++ * EPOLL* counterparts.  We use the POLL* variants in this file because that
++ * is what libuv uses elsewhere.
++ */
++
++#include "internal.h"
++#include "uv.h"
++#include "uv-global.h"
++
++#include <ifaddrs.h>
++#include <malloc.h>
++#include <net/if.h>
++#include <pthread.h>
++#include <sys/sysinfo.h>
++#include <unistd.h>
++
++int uv_exepath(char* buffer, size_t* size) {
++  return UV_ENOTSUP;
++}
++
++char** uv_setup_args(int argc, char** argv) {
++  return argv;
++}
++
++void uv__process_title_cleanup(void) {
++}
++
++int uv_set_process_title(const char* title) {
++  return UV__ERR(pthread_setname_np(pthread_self(), title));
++}
++
++int uv_get_process_title(char* buffer, size_t size) {
++  return UV__ERR(pthread_getname_np(pthread_self(), buffer, size));
++}
++
++uint64_t uv_get_constrained_memory(void) {
++  return 0;  /* Memory constraints are unknown. */
++}
++
++int uv_resident_set_memory(size_t* rss) {
++  struct sysinfo info;
++  int ret;
++
++  ret = sysinfo(&info);
++  if (ret >= 0)
++    {
++      *rss = (info.totalram - info.freeram) * info.mem_unit;
++    }
++  else
++    {
++      ret = UV__ERR(errno);
++    }
++
++  return ret;
++}
++
++int uv_uptime(double* uptime) {
++  struct sysinfo info;
++  int ret;
++
++
++  ret = sysinfo(&info);
++  if (ret >= 0)
++    {
++      *uptime = info.uptime;
++    }
++  else
++    {
++      ret = UV__ERR(errno);
++    }
++
++  return ret;
++}
++
++int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
++  *count = sysconf(_SC_NPROCESSORS_ONLN);
++  *cpu_infos = uv__calloc(*count, sizeof(uv_cpu_info_t));
++  if (!*cpu_infos) {
++    return UV_ENOMEM;
++  }
++
++  return 0;
++}
++
++#ifndef CONFIG_NETDEV_IFINDEX
++unsigned int if_nametoindex(const char *ifname) {
++  return 0;
++}
++
++int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
++  return UV_ENOSYS;
++}
++
++void uv_free_interface_addresses(uv_interface_address_t* addresses, int count) {
++}
++#else
++static int uv__ifaddr_exclude(struct ifaddrs *ent) {
++  if (!((ent->ifa_flags & IFF_UP) && (ent->ifa_flags & IFF_RUNNING)))
++    return 1;
++  if (ent->ifa_addr == NULL)
++    return 1;
++  return 0;
++}
++
++int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
++  struct ifaddrs* addrs;
++  struct ifaddrs* ent;
++  uv_interface_address_t* address;
++
++  *count = 0;
++  *addresses = NULL;
++
++  if (getifaddrs(&addrs) != 0)
++    return UV__ERR(errno);
++
++  /* Count the number of interfaces */
++  for (ent = addrs; ent != NULL; ent = ent->ifa_next) {
++    if (uv__ifaddr_exclude(ent))
++      continue;
++    (*count)++;
++  }
++
++  if (*count == 0) {
++    freeifaddrs(addrs);
++    return 0;
++  }
++
++  /* Make sure the memory is initiallized to zero using calloc() */
++  *addresses = uv__calloc(*count, sizeof(**addresses));
++  if (*addresses == NULL) {
++    freeifaddrs(addrs);
++    return UV_ENOMEM;
++  }
++
++  address = *addresses;
++  for (ent = addrs; ent != NULL; ent = ent->ifa_next) {
++    if (uv__ifaddr_exclude(ent))
++      continue;
++
++    address->name = uv__strdup(ent->ifa_name);
++
++    if (ent->ifa_addr->sa_family == AF_INET6) {
++      address->address.address6 = *((struct sockaddr_in6*) ent->ifa_addr);
++    } else {
++      address->address.address4 = *((struct sockaddr_in*) ent->ifa_addr);
++    }
++
++    if (ent->ifa_netmask) {
++      if (ent->ifa_netmask->sa_family == AF_INET6) {
++        address->netmask.netmask6 = *((struct sockaddr_in6*) ent->ifa_netmask);
++      } else {
++        address->netmask.netmask4 = *((struct sockaddr_in*) ent->ifa_netmask);
++      }
++    }
++
++    if (ent->ifa_data) {
++      struct sockaddr* addr = ent->ifa_data;
++      memcpy(address->phys_addr, addr->sa_data, sizeof(address->phys_addr));
++    }
++
++    address->is_internal = !strcmp(address->name, "lo");
++    address++;
++  }
++
++  freeifaddrs(addrs);
++  return 0;
++}
++
++void uv_free_interface_addresses(uv_interface_address_t* addresses, int count) {
++  int i;
++
++  for (i = 0; i < count; i++) {
++    uv__free(addresses[i].name);
++  }
++
++  uv__free(addresses);
++}
++#endif
++
++#ifndef CONFIG_NET_SOCKOPTS
++int getsockopt(int sockfd, int level, int option, void *value, socklen_t *value_len) {
++  return UV_ENOTSUP;
++}
++#endif
++
++#ifndef CONFIG_NET
++int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
++  return UV_ENOTSUP;
++}
++
++ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags) {
++  return UV_ENOTSUP;
++}
++
++ssize_t sendmsg(int sockfd, struct msghdr *msg, int flags) {
++  return UV_ENOTSUP;
++}
++
++int shutdown(int sockfd, int how) {
++  return UV_ENOTSUP;
++}
++#endif
++
++#ifndef CONFIG_NET_TCP
++void uv__tcp_close(uv_tcp_t* handle) {
++}
++
++int uv__tcp_nodelay(int fd, int on) {
++  return UV_ENOTSUP;
++}
++
++int uv__tcp_keepalive(int fd, int on, unsigned int delay) {
++  return UV_ENOTSUP;
++}
++#endif
++
++#ifndef CONFIG_NET_UDP
++void uv__udp_close(uv_udp_t* handle) {
++}
++
++void uv__udp_finish_close(uv_udp_t* handle) {
++}
++#endif
++
++#if CONFIG_TLS_TASK_NELEM == 0
++#  error "libuv depends on CONFIG_TLS_TASK_NELEM, please enable it by menuconfig"
++#endif
++
++#undef once
++#undef uv__signal_global_init_guard
++#undef uv__signal_lock_pipefd
++
++static void uv__global_free(void* global) {
++  if (global) {
++    uv_library_shutdown();
++    uv__free(global);
++  }
++}
++
++uv__global_t* uv__global_get(void) {
++  static int index = -1;
++  uv__global_t* global = NULL;
++
++  if (index < 0) {
++    index = task_tls_alloc(uv__global_free);
++  }
++
++  if (index >= 0) {
++    global = (uv__global_t*)task_tls_get_value(index);
++    if (global == NULL) {
++      global = (uv__global_t*)uv__calloc(1, sizeof(uv__global_t));
++      if (global) {
++          global->once = UV_ONCE_INIT;
++          global->uv__signal_global_init_guard = UV_ONCE_INIT;
++          global->uv__signal_lock_pipefd[0] = -1;
++          global->uv__signal_lock_pipefd[1] = -1;
++          task_tls_set_value(index, (uintptr_t)global);
++      }
++    }
++  }
++
++  ASSERT(global != NULL);
++  return global;
++}
+diff --git a/src/unix/pipe.c b/src/unix/pipe.c
+index 788e038e..9104cb92 100644
+--- a/src/unix/pipe.c
++++ b/src/unix/pipe.c
+@@ -28,7 +28,9 @@
+ #include <sys/un.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+-
++#ifdef CONFIG_NET_RPMSG
++#include <netpacket/rpmsg.h>
++#endif // CONFIG_NET_RPMSG
+ 
+ int uv_pipe_init(uv_loop_t* loop, uv_pipe_t* handle, int ipc) {
+   uv__stream_init(loop, (uv_stream_t*)handle, UV_NAMED_PIPE);
+@@ -90,6 +92,48 @@ err_socket:
+   return err;
+ }
+ 
++#ifdef CONFIG_NET_RPMSG
++int uv_pipe_rpmsg_bind(uv_pipe_t* handle,
++                       const char* name,
++                       const char* cpu_name) {
++  struct sockaddr_rpmsg saddr;
++  int sockfd;
++  int err;
++
++  /* Already bound? */
++  if (uv__stream_fd(handle) >= 0)
++    return UV_EINVAL;
++
++  err = uv__socket(AF_RPMSG, SOCK_STREAM, 0);
++  if (err < 0)
++    goto err_socket;
++  sockfd = err;
++
++  memset(&saddr, 0, sizeof saddr);
++  uv__strscpy(saddr.rp_name, name, sizeof(saddr.rp_name));
++  uv__strscpy(saddr.rp_cpu, cpu_name, sizeof(saddr.rp_cpu));
++  saddr.rp_family = AF_RPMSG;
++
++  if (bind(sockfd, (struct sockaddr*)&saddr, sizeof saddr)) {
++    err = UV__ERR(errno);
++    /* Convert ENOENT to EACCES for compatibility with Windows. */
++    if (err == UV_ENOENT)
++      err = UV_EACCES;
++
++    uv__close(sockfd);
++    goto err_socket;
++  }
++
++  /* Success. */
++  handle->flags |= UV_HANDLE_BOUND;
++  handle->pipe_fname = NULL;
++  handle->io_watcher.fd = sockfd;
++  return 0;
++
++err_socket:
++  return err;
++}
++#endif
+ 
+ int uv_pipe_listen(uv_pipe_t* handle, int backlog, uv_connection_cb cb) {
+   if (uv__stream_fd(handle) == -1)
+@@ -169,32 +213,18 @@ int uv_pipe_open(uv_pipe_t* handle, uv_file fd) {
+   return uv__stream_open((uv_stream_t*)handle, fd, flags);
+ }
+ 
+-
+-void uv_pipe_connect(uv_connect_t* req,
+-                    uv_pipe_t* handle,
+-                    const char* name,
+-                    uv_connect_cb cb) {
+-  struct sockaddr_un saddr;
+-  int new_sock;
++static inline int uv__connect(uv_connect_t* req,
++                               uv_pipe_t* handle,
++                               struct sockaddr* saddr,
++                               socklen_t addrlen,
++                               int new_sock,
++                               uv_connect_cb cb)
++{
+   int err;
+   int r;
+ 
+-  new_sock = (uv__stream_fd(handle) == -1);
+-
+-  if (new_sock) {
+-    err = uv__socket(AF_UNIX, SOCK_STREAM, 0);
+-    if (err < 0)
+-      goto out;
+-    handle->io_watcher.fd = err;
+-  }
+-
+-  memset(&saddr, 0, sizeof saddr);
+-  uv__strscpy(saddr.sun_path, name, sizeof(saddr.sun_path));
+-  saddr.sun_family = AF_UNIX;
+-
+   do {
+-    r = connect(uv__stream_fd(handle),
+-                (struct sockaddr*)&saddr, sizeof saddr);
++    r = connect(uv__stream_fd(handle), saddr, addrlen);
+   }
+   while (r == -1 && errno == EINTR);
+ 
+@@ -222,6 +252,14 @@ void uv_pipe_connect(uv_connect_t* req,
+     uv__io_start(handle->loop, &handle->io_watcher, POLLOUT);
+ 
+ out:
++  return err;
++}
++
++static inline void uv__connect_handle_err(uv_connect_t* req,
++                                          uv_pipe_t* handle,
++                                          int err,
++                                          uv_connect_cb cb)
++{
+   handle->delayed_error = err;
+   handle->connect_req = req;
+ 
+@@ -233,9 +271,66 @@ out:
+   /* Force callback to run on next tick in case of error. */
+   if (err)
+     uv__io_feed(handle->loop, &handle->io_watcher);
++}
++
++void uv_pipe_connect(uv_connect_t* req,
++                    uv_pipe_t* handle,
++                    const char* name,
++                    uv_connect_cb cb) {
++  struct sockaddr_un saddr;
++  int new_sock;
++  int err;
++
++  new_sock = (uv__stream_fd(handle) == -1);
++
++  if (new_sock) {
++    err = uv__socket(AF_UNIX, SOCK_STREAM, 0);
++    if (err < 0)
++      goto out;
++    handle->io_watcher.fd = err;
++  }
++
++  memset(&saddr, 0, sizeof saddr);
++  uv__strscpy(saddr.sun_path, name, sizeof(saddr.sun_path));
++  saddr.sun_family = AF_UNIX;
++
++  err = uv__connect(req, handle, (struct sockaddr*)&saddr, sizeof saddr,
++                    new_sock, cb);
+ 
++out:
++    uv__connect_handle_err(req, handle, err, cb);
+ }
+ 
++#ifdef CONFIG_NET_RPMSG
++void uv_pipe_rpmsg_connect(uv_connect_t* req,
++                           uv_pipe_t* handle,
++                           const char* name,
++                           const char* cpu_name,
++                           uv_connect_cb cb) {
++  struct sockaddr_rpmsg saddr;
++  int new_sock;
++  int err;
++
++  new_sock = (uv__stream_fd(handle) == -1);
++
++  if (new_sock) {
++    err = uv__socket(AF_RPMSG, SOCK_STREAM, 0);
++    if (err < 0)
++      goto out;
++    handle->io_watcher.fd = err;
++  }
++
++  memset(&saddr, 0, sizeof saddr);
++  uv__strscpy(saddr.rp_name, name, sizeof(saddr.rp_name));
++  uv__strscpy(saddr.rp_cpu, cpu_name, sizeof(saddr.rp_cpu));
++  saddr.rp_family = AF_RPMSG;
++  err = uv__connect(req, handle, (struct sockaddr*)&saddr, sizeof saddr,
++                    new_sock, cb);
++
++out:
++    uv__connect_handle_err(req, handle, err, cb);
++}
++#endif // CONFIG_NET_RPMSG
+ 
+ static int uv__pipe_getsockpeername(const uv_pipe_t* handle,
+                                     uv__peersockfunc func,
+diff --git a/src/unix/posix-poll.c b/src/unix/posix-poll.c
+index 0f4bf938..dd36028b 100644
+--- a/src/unix/posix-poll.c
++++ b/src/unix/posix-poll.c
+@@ -144,7 +144,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
+   int have_signals;
+   struct pollfd* pe;
+   int fd;
+-  int user_timeout;
++  int user_timeout = 0;
+   int reset_timeout;
+ 
+   if (loop->nfds == 0) {
+@@ -170,11 +170,15 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
+ 
+   /* Prepare a set of signals to block around poll(), if any.  */
+   pset = NULL;
++#ifdef SIGPROF
+   if (loop->flags & UV_LOOP_BLOCK_SIGPROF) {
+     pset = &set;
+     sigemptyset(pset);
+     sigaddset(pset, SIGPROF);
+   }
++#else
++  (void) set;
++#endif
+ 
+   assert(timeout >= -1);
+   time_base = loop->time;
+diff --git a/src/unix/process-spawn.c b/src/unix/process-spawn.c
+new file mode 100644
+index 00000000..755efc84
+--- /dev/null
++++ b/src/unix/process-spawn.c
+@@ -0,0 +1,368 @@
++/* Copyright Xiaomi, Inc. and other Node contributors. All rights reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#define __USE_GNU
++#include "uv.h"
++#include "internal.h"
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <assert.h>
++#include <errno.h>
++
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <spawn.h>
++
++#ifdef SIGCHLD
++static void uv__chld(uv_signal_t* handle, int signum) {
++  uv_process_t* process;
++  uv_loop_t* loop;
++  int exit_status;
++  int term_signal;
++  int status;
++  pid_t pid;
++  QUEUE pending;
++  QUEUE* q;
++  QUEUE* h;
++
++  assert(signum == SIGCHLD);
++
++  QUEUE_INIT(&pending);
++  loop = handle->loop;
++
++  h = &loop->process_handles;
++  q = QUEUE_HEAD(h);
++  while (q != h) {
++    process = QUEUE_DATA(q, uv_process_t, queue);
++    q = QUEUE_NEXT(q);
++
++    do
++      pid = waitpid(process->pid, &status, WNOHANG);
++    while (pid == -1 && errno == EINTR);
++
++    if (pid == 0)
++      continue;
++
++    if (pid == -1) {
++      if (errno != ECHILD)
++        abort();
++      continue;
++    }
++
++    process->status = status;
++    QUEUE_REMOVE(&process->queue);
++    QUEUE_INSERT_TAIL(&pending, &process->queue);
++  }
++
++  h = &pending;
++  q = QUEUE_HEAD(h);
++  while (q != h) {
++    process = QUEUE_DATA(q, uv_process_t, queue);
++    q = QUEUE_NEXT(q);
++
++    QUEUE_REMOVE(&process->queue);
++    QUEUE_INIT(&process->queue);
++    uv__handle_stop(process);
++
++    if (process->exit_cb == NULL)
++      continue;
++
++    exit_status = 0;
++    if (WIFEXITED(process->status))
++      exit_status = WEXITSTATUS(process->status);
++
++    term_signal = 0;
++    if (WIFSIGNALED(process->status))
++      term_signal = WTERMSIG(process->status);
++
++    process->exit_cb(process, exit_status, term_signal);
++  }
++  assert(QUEUE_EMPTY(&pending));
++}
++#endif
++
++/*
++ * Used for initializing stdio streams like options.stdin_stream. Returns
++ * zero on success. See also the cleanup section in uv_spawn().
++ */
++static int uv__process_init_stdio(uv_stdio_container_t* container, int fds[2]) {
++  int mask;
++  int fd;
++
++  mask = UV_IGNORE | UV_CREATE_PIPE | UV_INHERIT_FD | UV_INHERIT_STREAM;
++
++  switch (container->flags & mask) {
++  case UV_IGNORE:
++    return 0;
++
++  case UV_CREATE_PIPE:
++    assert(container->data.stream != NULL);
++    if (container->data.stream->type != UV_NAMED_PIPE)
++      return UV_EINVAL;
++    else
++      return uv_pipe(fds, 0, 0);
++
++  case UV_INHERIT_FD:
++  case UV_INHERIT_STREAM:
++    if (container->flags & UV_INHERIT_FD)
++      fd = container->data.fd;
++    else
++      fd = uv__stream_fd(container->data.stream);
++
++    if (fd == -1)
++      return UV_EINVAL;
++
++    fds[0] = fds[1] = fd;
++    return 0;
++
++  default:
++    assert(0 && "Unexpected flags");
++    return UV_EINVAL;
++  }
++}
++
++
++static int uv__process_open_stream(uv_stdio_container_t* container,
++                                   int pipefds[2]) {
++  int flags;
++
++  if (!(container->flags & UV_CREATE_PIPE) || pipefds[0] < 0)
++    return 0;
++
++  uv__nonblock(pipefds[0], 1);
++
++  flags = 0;
++  if (container->flags & UV_WRITABLE_PIPE)
++    flags |= UV_HANDLE_READABLE;
++  if (container->flags & UV_READABLE_PIPE)
++    flags |= UV_HANDLE_WRITABLE;
++
++  return uv__stream_open(container->data.stream, pipefds[0], flags);
++}
++
++
++static void uv__process_close_stream(uv_stdio_container_t* container) {
++  if (!(container->flags & UV_CREATE_PIPE)) return;
++  uv__stream_close(container->data.stream);
++}
++
++
++static int uv__process_child_spawn(const uv_process_options_t* options,
++                                   int stdio_count,
++                                   int (*pipes)[2],
++                                   pid_t *pid) {
++  posix_spawn_file_actions_t file_actions;
++  posix_spawnattr_t attr;
++  sigset_t set;
++  int use_fd;
++  int flags;
++  int err;
++  int fd;
++
++  posix_spawn_file_actions_init(&file_actions);
++  posix_spawnattr_init(&attr);
++
++  /* Reset signal disposition and mask */
++  flags = POSIX_SPAWN_SETSIGDEF | POSIX_SPAWN_SETSIGMASK;
++
++  sigfillset(&set);
++  posix_spawnattr_setsigdefault(&attr, &set);
++
++  sigemptyset(&set);
++  posix_spawnattr_setsigmask(&attr, &set);
++
++  if (options->flags & UV_PROCESS_DETACHED)
++    flags |= POSIX_SPAWN_SETSID;
++
++  /* First duplicate low numbered fds, since it's not safe to duplicate them,
++   * they could get replaced. Example: swapping stdout and stderr; without
++   * this fd 2 (stderr) would be duplicated into fd 1, thus making both
++   * stdout and stderr go to the same fd, which was not the intention. */
++  for (fd = 0; fd < stdio_count; fd++) {
++    use_fd = pipes[fd][1];
++    if (use_fd < 0 || use_fd >= fd)
++      continue;
++    pipes[fd][1] = fcntl(use_fd, F_DUPFD, stdio_count);
++    if (pipes[fd][1] == -1) {
++      err = errno;
++      goto error;
++    }
++  }
++
++  for (fd = 0; fd < stdio_count; fd++) {
++    use_fd = pipes[fd][1];
++
++    if (use_fd < 0) {
++      if (fd >= 3)
++        continue;
++      else {
++        /* redirect stdin, stdout and stderr to /dev/null even if UV_IGNORE is
++         * set
++         */
++        use_fd = open("/dev/null", fd == 0 ? O_RDONLY : O_RDWR);
++        pipes[fd][1] = use_fd;
++
++        if (use_fd < 0) {
++          err = errno;
++          goto error;
++        }
++      }
++    }
++
++    if (fd == use_fd)
++      uv__cloexec_fcntl(use_fd, 0);
++    else
++      posix_spawn_file_actions_adddup2(&file_actions, use_fd, fd);
++
++    if (fd <= 2)
++      uv__nonblock_fcntl(use_fd, 0);
++  }
++
++  if (options->flags & UV_PROCESS_SETUID) {
++    err = options->uid ? ENOTSUP : EPERM;
++    goto error;
++  }
++
++  if (options->flags & UV_PROCESS_SETGID) {
++    if (options->gid == 0) {
++      err = EPERM;
++      goto error;
++    }
++
++    posix_spawnattr_setpgroup(&attr, options->gid);
++    flags |= POSIX_SPAWN_SETPGROUP;
++  }
++
++  posix_spawnattr_setflags(&attr, flags);
++  err = posix_spawn(pid, options->file, &file_actions, &attr,
++                    options->args, options->env ? options->env : environ);
++
++error:
++  for (fd = 0; fd < stdio_count; fd++) {
++    if (pipes[fd][1] >= 0 && pipes[fd][1] != pipes[fd][0]) {
++      close(pipes[fd][1]);
++      pipes[fd][1] = -1;
++    }
++  }
++
++  posix_spawn_file_actions_destroy(&file_actions);
++  posix_spawnattr_destroy(&attr);
++  return UV__ERR(err);
++}
++
++
++int uv_spawn(uv_loop_t* loop,
++             uv_process_t* process,
++             const uv_process_options_t* options) {
++  int pipes_storage[8][2];
++  int (*pipes)[2];
++  int stdio_count;
++  pid_t pid;
++  int err;
++  int i;
++
++  assert(options->file != NULL);
++  assert(!(options->flags & ~(UV_PROCESS_DETACHED |
++                              UV_PROCESS_SETGID |
++                              UV_PROCESS_SETUID |
++                              UV_PROCESS_WINDOWS_HIDE |
++                              UV_PROCESS_WINDOWS_HIDE_CONSOLE |
++                              UV_PROCESS_WINDOWS_HIDE_GUI |
++                              UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS)));
++
++  uv__handle_init(loop, (uv_handle_t*)process, UV_PROCESS);
++  QUEUE_INIT(&process->queue);
++
++  stdio_count = options->stdio_count;
++  if (stdio_count < 3)
++    stdio_count = 3;
++
++  err = UV_ENOMEM;
++  pipes = pipes_storage;
++  if (stdio_count > (int)ARRAY_SIZE(pipes_storage))
++    pipes = uv__malloc(stdio_count * sizeof(*pipes));
++
++  if (pipes == NULL)
++    goto error;
++
++  for (i = 0; i < stdio_count; i++) {
++    pipes[i][0] = -1;
++    pipes[i][1] = -1;
++  }
++
++  for (i = 0; i < options->stdio_count; i++) {
++    err = uv__process_init_stdio(options->stdio + i, pipes[i]);
++    if (err)
++      goto error;
++  }
++
++#ifdef SIGCHLD
++  uv_signal_start(&loop->child_watcher, uv__chld, SIGCHLD);
++#endif
++
++  err = uv__process_child_spawn(options, stdio_count, pipes, &pid);
++  if (err)
++    goto error;
++
++  for (i = 0; i < options->stdio_count; i++) {
++    err = uv__process_open_stream(options->stdio + i, pipes[i]);
++    if (err == 0)
++      continue;
++
++    while (i--)
++      uv__process_close_stream(options->stdio + i);
++
++    goto error;
++  }
++
++  QUEUE_INSERT_TAIL(&loop->process_handles, &process->queue);
++  uv__handle_start(process);
++
++  process->status = 0;
++  process->pid = pid;
++  process->exit_cb = options->exit_cb;
++
++  if (pipes != pipes_storage)
++    uv__free(pipes);
++
++  return 0;
++
++error:
++  if (pipes != NULL) {
++    for (i = 0; i < stdio_count; i++) {
++      if (i < options->stdio_count)
++        if (options->stdio[i].flags & (UV_INHERIT_FD | UV_INHERIT_STREAM))
++          continue;
++      if (pipes[i][0] != -1)
++        uv__close_nocheckstdio(pipes[i][0]);
++      if (pipes[i][1] != -1)
++        uv__close_nocheckstdio(pipes[i][1]);
++    }
++
++    if (pipes != pipes_storage)
++      uv__free(pipes);
++  }
++
++  return err;
++}
+diff --git a/src/unix/process.c b/src/unix/process.c
+index f4aebb04..61b8db5d 100644
+--- a/src/unix/process.c
++++ b/src/unix/process.c
+@@ -509,24 +509,3 @@ error:
+   return err;
+ #endif
+ }
+-
+-
+-int uv_process_kill(uv_process_t* process, int signum) {
+-  return uv_kill(process->pid, signum);
+-}
+-
+-
+-int uv_kill(int pid, int signum) {
+-  if (kill(pid, signum))
+-    return UV__ERR(errno);
+-  else
+-    return 0;
+-}
+-
+-
+-void uv__process_close(uv_process_t* handle) {
+-  QUEUE_REMOVE(&handle->queue);
+-  uv__handle_stop(handle);
+-  if (QUEUE_EMPTY(&handle->loop->process_handles))
+-    uv_signal_stop(&handle->loop->child_watcher);
+-}
+diff --git a/src/unix/signal.c b/src/unix/signal.c
+index 1133c73a..791938b8 100644
+--- a/src/unix/signal.c
++++ b/src/unix/signal.c
+@@ -20,6 +20,7 @@
+ 
+ #include "uv.h"
+ #include "internal.h"
++#include "uv-global.h"
+ 
+ #include <assert.h>
+ #include <errno.h>
+@@ -32,14 +33,6 @@
+ # define SA_RESTART 0
+ #endif
+ 
+-typedef struct {
+-  uv_signal_t* handle;
+-  int signum;
+-} uv__signal_msg_t;
+-
+-RB_HEAD(uv__signal_tree_s, uv_signal_s);
+-
+-
+ static int uv__signal_unlock(void);
+ static int uv__signal_start(uv_signal_t* handle,
+                             uv_signal_cb signal_cb,
+@@ -50,12 +43,6 @@ static int uv__signal_compare(uv_signal_t* w1, uv_signal_t* w2);
+ static void uv__signal_stop(uv_signal_t* handle);
+ static void uv__signal_unregister_handler(int signum);
+ 
+-
+-static uv_once_t uv__signal_global_init_guard = UV_ONCE_INIT;
+-static struct uv__signal_tree_s uv__signal_tree =
+-    RB_INITIALIZER(uv__signal_tree);
+-static int uv__signal_lock_pipefd[2] = { -1, -1 };
+-
+ RB_GENERATE_STATIC(uv__signal_tree_s,
+                    uv_signal_s, tree_entry,
+                    uv__signal_compare)
+@@ -556,3 +543,21 @@ static void uv__signal_stop(uv_signal_t* handle) {
+   handle->signum = 0;
+   uv__handle_stop(handle);
+ }
++
++int uv_process_kill(uv_process_t* process, int signum) {
++  return uv_kill(process->pid, signum);
++}
++
++int uv_kill(int pid, int signum) {
++  if (kill(pid, signum))
++    return UV__ERR(errno);
++  else
++    return 0;
++}
++
++void uv__process_close(uv_process_t* handle) {
++  QUEUE_REMOVE(&handle->queue);
++  uv__handle_stop(handle);
++  if (QUEUE_EMPTY(&handle->loop->process_handles))
++    uv_signal_stop(&handle->loop->child_watcher);
++}
+diff --git a/src/unix/thread.c b/src/unix/thread.c
+old mode 100644
+new mode 100755
+diff --git a/src/unix/tty.c b/src/unix/tty.c
+index 9442cf16..bb7170bc 100644
+--- a/src/unix/tty.c
++++ b/src/unix/tty.c
+@@ -66,6 +66,7 @@ static int orig_termios_fd = -1;
+ static struct termios orig_termios;
+ static uv_spinlock_t termios_spinlock = UV_SPINLOCK_INITIALIZER;
+ 
++#ifndef __NuttX__
+ static int uv__tty_is_slave(const int fd) {
+   int result;
+ #if defined(__linux__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+@@ -119,15 +120,13 @@ static int uv__tty_is_slave(const int fd) {
+ #endif
+   return result;
+ }
++#endif
+ 
+ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
+   uv_handle_type type;
+   int flags;
+-  int newfd;
+-  int r;
+   int saved_flags;
+   int mode;
+-  char path[256];
+   (void)unused; /* deprecated parameter is no longer needed */
+ 
+   /* File descriptors that refer to files cannot be monitored with epoll.
+@@ -139,7 +138,6 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
+     return UV_EINVAL;
+ 
+   flags = 0;
+-  newfd = -1;
+ 
+   /* Save the fd flags in case we need to restore them due to an error. */
+   do
+@@ -150,6 +148,7 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
+     return UV__ERR(errno);
+   mode = saved_flags & O_ACCMODE;
+ 
++#ifndef __NuttX__
+   /* Reopen the file descriptor when it refers to a tty. This lets us put the
+    * tty in non-blocking mode without affecting other processes that share it
+    * with us.
+@@ -161,6 +160,10 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
+    * other processes.
+    */
+   if (type == UV_TTY) {
++    int newfd;
++    int r;
++    char path[256];
++
+     /* Reopening a pty in master mode won't work either because the reopened
+      * pty will be in slave mode (*BSD) or reopening will allocate a new
+      * master/slave pair (Linux). Therefore check if the fd points to a
+@@ -194,6 +197,7 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
+   }
+ 
+ skip:
++#endif
+   uv__stream_init(loop, (uv_stream_t*) tty, UV_TTY);
+ 
+   /* If anything fails beyond this point we need to remove the handle from
+diff --git a/src/unix/udp.c b/src/unix/udp.c
+index 49051c07..dbd8a2c7 100644
+--- a/src/unix/udp.c
++++ b/src/unix/udp.c
+@@ -932,6 +932,7 @@ static int uv__udp_set_source_membership6(uv_udp_t* handle,
+                                           const char* interface_addr,
+                                           const struct sockaddr_in6* source_addr,
+                                           uv_membership membership) {
++#ifndef __NuttX__
+   struct group_source_req mreq;
+   struct sockaddr_in6 addr6;
+   int optname;
+@@ -973,6 +974,9 @@ static int uv__udp_set_source_membership6(uv_udp_t* handle,
+   }
+ 
+   return 0;
++#else
++  return UV_ENOSYS;
++#endif
+ }
+ #endif
+ 
+diff --git a/src/uv-common.c b/src/uv-common.c
+index e81ed79b..d105db1f 100644
+--- a/src/uv-common.c
++++ b/src/uv-common.c
+@@ -21,6 +21,7 @@
+ 
+ #include "uv.h"
+ #include "uv-common.h"
++#include "uv-global.h"
+ 
+ #include <assert.h>
+ #include <errno.h>
+@@ -756,10 +757,6 @@ int uv_loop_configure(uv_loop_t* loop, uv_loop_option option, ...) {
+ }
+ 
+ 
+-static uv_loop_t default_loop_struct;
+-static uv_loop_t* default_loop_ptr;
+-
+-
+ uv_loop_t* uv_default_loop(void) {
+   if (default_loop_ptr != NULL)
+     return default_loop_ptr;
+@@ -880,8 +877,6 @@ void uv_free_cpu_info(uv_cpu_info_t* cpu_infos, int count) {
+ __attribute__((destructor))
+ #endif
+ void uv_library_shutdown(void) {
+-  static int was_shutdown;
+-
+   if (uv__load_relaxed(&was_shutdown))
+     return;
+ 
+@@ -949,3 +944,22 @@ uint64_t uv_metrics_idle_time(uv_loop_t* loop) {
+     idle_time += uv_hrtime() - entry_time;
+   return idle_time;
+ }
++
++/* Add uv_global_get here since all system need it but NuttX */
++
++#ifndef __NuttX__
++#undef once
++#undef uv__signal_global_init_guard
++#undef uv__signal_lock_pipefd
++
++uv__global_t* uv__global_get(void)
++{
++  static uv__global_t g_uv_common_global = {
++    .once = UV_ONCE_INIT,
++    .uv__signal_global_init_guard = UV_ONCE_INIT,
++    .uv__signal_lock_pipefd = {-1, -1},
++  };
++
++  return &g_uv_common_global;
++}
++#endif
+diff --git a/src/uv-global.h b/src/uv-global.h
+new file mode 100644
+index 00000000..458fe8ef
+--- /dev/null
++++ b/src/uv-global.h
+@@ -0,0 +1,92 @@
++/* Copyright Joyent, Inc. and other Node contributors. All rights reserved.
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#ifndef UV_GLOBAL_H
++#define UV_GLOBAL_H
++
++#include "uv.h"
++
++#if !defined(_WIN32)
++typedef struct {
++  uv_signal_t* handle;
++  int signum;
++} uv__signal_msg_t;
++
++RB_HEAD(uv__signal_tree_s, uv_signal_s);
++#endif
++
++typedef struct {
++  /* Member in threadpool.c */
++  uv_once_t once;
++  uv_cond_t cond;
++  uv_mutex_t mutex;
++  unsigned int idle_threads;
++  unsigned int slow_io_work_running;
++  unsigned int nthreads;
++  uv_thread_t* threads;
++  uv_thread_t default_threads[4];
++  QUEUE exit_message;
++  QUEUE wq;
++  QUEUE run_slow_work_message;
++  QUEUE slow_io_pending_wq;
++  /* Member in uv-common.c */
++  int was_shutdown;
++  uv_loop_t default_loop_struct;
++  uv_loop_t* default_loop_ptr;
++#if !defined(_WIN32)
++  /* Member in signal.c */
++  uv_once_t uv__signal_global_init_guard;
++  struct uv__signal_tree_s uv__signal_tree;
++  int uv__signal_lock_pipefd[2];
++#endif
++} uv__global_t;
++
++uv__global_t* uv__global_get(void);
++
++/* Used in threadpool.c */
++
++#define once uv__global_get()->once
++#define cond uv__global_get()->cond
++#define mutex uv__global_get()->mutex
++#define idle_threads uv__global_get()->idle_threads
++#define slow_io_work_running uv__global_get()->slow_io_work_running
++#define nthreads uv__global_get()->nthreads
++#define threads uv__global_get()->threads
++#define default_threads uv__global_get()->default_threads
++#define exit_message uv__global_get()->exit_message
++#define lwq uv__global_get()->wq
++#define run_slow_work_message uv__global_get()->run_slow_work_message
++#define slow_io_pending_wq uv__global_get()->slow_io_pending_wq
++
++/* Used in uv-common.c */
++
++#define was_shutdown uv__global_get()->was_shutdown
++#define default_loop_struct uv__global_get()->default_loop_struct
++#define default_loop_ptr uv__global_get()->default_loop_ptr
++
++#if !defined(_WIN32)
++/* Used in signal.c */
++
++#define uv__signal_global_init_guard uv__global_get()->uv__signal_global_init_guard
++#define uv__signal_tree uv__global_get()->uv__signal_tree
++#define uv__signal_lock_pipefd uv__global_get()->uv__signal_lock_pipefd
++#endif
++
++#endif
+diff --git a/test/run-tests.c b/test/run-tests.c
+index 5e53aaa8..cc7c1e81 100644
+--- a/test/run-tests.c
++++ b/test/run-tests.c
+@@ -66,7 +66,7 @@ typedef BOOL (WINAPI *sCompareObjectHandles)(_In_ HANDLE, _In_ HANDLE);
+ 
+ 
+ int main(int argc, char **argv) {
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__NuttX__)
+   if (0 == geteuid() && NULL == getenv("UV_RUN_AS_ROOT")) {
+     fprintf(stderr, "The libuv test suite cannot be run as root.\n");
+     return EXIT_FAILURE;
+diff --git a/test/runner-unix.c b/test/runner-unix.c
+index a13648bc..c0b33b41 100644
+--- a/test/runner-unix.c
++++ b/test/runner-unix.c
+@@ -39,8 +39,7 @@
+ #include <sys/select.h>
+ #include <sys/time.h>
+ #include <pthread.h>
+-
+-extern char** environ;
++#include <spawn.h>
+ 
+ static void closefd(int fd) {
+   if (close(fd) == 0 || errno == EINTR || errno == EINPROGRESS)
+@@ -79,6 +78,7 @@ void platform_init(int argc, char **argv) {
+ /* Invoke "argv[0] test-name [test-part]". Store process info in *p. Make sure
+  * that all stdio output of the processes is buffered up. */
+ int process_start(char* name, char* part, process_info_t* p, int is_helper) {
++  posix_spawn_file_actions_t file_actions;
+   FILE* stdout_file;
+   int stdout_fd;
+   const char* arg;
+@@ -115,12 +115,17 @@ int process_start(char* name, char* part, process_info_t* p, int is_helper) {
+     return -1;
+   }
+ 
++  posix_spawn_file_actions_init(&file_actions);
++  posix_spawn_file_actions_adddup2(&file_actions, stdout_fd, STDOUT_FILENO);
++  posix_spawn_file_actions_adddup2(&file_actions, stdout_fd, STDERR_FILENO);
++
+   if (is_helper) {
+     if (pipe(pipefd)) {
+       perror("pipe");
+       return -1;
+     }
+ 
++    posix_spawn_file_actions_addclose(&file_actions, pipefd[0]);
+     snprintf(fdstr, sizeof(fdstr), "%d", pipefd[1]);
+     if (setenv("UV_TEST_RUNNER_FD", fdstr, /* overwrite */ 1)) {
+       perror("setenv");
+@@ -131,25 +136,13 @@ int process_start(char* name, char* part, process_info_t* p, int is_helper) {
+   p->terminated = 0;
+   p->status = 0;
+ 
+-  pid = fork();
+-
+-  if (pid < 0) {
+-    perror("fork");
++  n = posix_spawn(&pid, args[0], &file_actions, NULL, args, environ);
++  posix_spawn_file_actions_destroy(&file_actions);
++  if (n != 0) {
++    fprintf(stderr, "posix_spawn: %s\n", strerror(n));
+     return -1;
+   }
+ 
+-  if (pid == 0) {
+-    /* child */
+-    if (is_helper)
+-      closefd(pipefd[0]);
+-    dup2(stdout_fd, STDOUT_FILENO);
+-    dup2(stdout_fd, STDERR_FILENO);
+-    execve(args[0], args, environ);
+-    perror("execve()");
+-    _exit(127);
+-  }
+-
+-  /* parent */
+   p->pid = pid;
+   p->name = strdup(name);
+   p->stdout_file = stdout_file;
+diff --git a/test/task.h b/test/task.h
+index a02c8931..997e55b2 100644
+--- a/test/task.h
++++ b/test/task.h
+@@ -100,6 +100,7 @@ typedef enum {
+ /* Have our own assert, so we are sure it does not get optimized away in
+  * a release build.
+  */
++#undef ASSERT
+ #define ASSERT(expr)                                      \
+  do {                                                     \
+   if (!(expr)) {                                          \
+@@ -313,6 +314,7 @@ enum test_status {
+ extern int snprintf(char*, size_t, const char*, ...);
+ #endif
+ 
++#undef UNUSED
+ #if defined(__clang__) ||                                \
+     defined(__GNUC__) ||                                 \
+     defined(__INTEL_COMPILER)
+diff --git a/test/test-active.c b/test/test-active.c
+index 38438956..aed8a36e 100644
+--- a/test/test-active.c
++++ b/test/test-active.c
+@@ -44,6 +44,8 @@ TEST_IMPL(active) {
+   int r;
+   uv_timer_t timer;
+ 
++  close_cb_called = 0;
++
+   r = uv_timer_init(uv_default_loop(), &timer);
+   ASSERT(r == 0);
+ 
+diff --git a/test/test-async-null-cb.c b/test/test-async-null-cb.c
+index 52652d91..2b341c4a 100644
+--- a/test/test-async-null-cb.c
++++ b/test/test-async-null-cb.c
+@@ -52,6 +52,8 @@ TEST_IMPL(async_null_cb) {
+    */
+   memset(&async_handle, 0xff, sizeof(async_handle));
+ 
++  check_cb_called = 0;
++
+   ASSERT(0 == uv_async_init(uv_default_loop(), &async_handle, NULL));
+   ASSERT(0 == uv_check_init(uv_default_loop(), &check_handle));
+   ASSERT(0 == uv_check_start(&check_handle, check_cb));
+diff --git a/test/test-async.c b/test/test-async.c
+index 619be620..fee1ddd1 100644
+--- a/test/test-async.c
++++ b/test/test-async.c
+@@ -108,6 +108,10 @@ static void prepare_cb(uv_prepare_t* handle) {
+ TEST_IMPL(async) {
+   int r;
+ 
++  async_cb_called = 0;
++  close_cb_called = 0;
++  prepare_cb_called = 0;
++
+   r = uv_mutex_init(&mutex);
+   ASSERT(r == 0);
+   uv_mutex_lock(&mutex);
+diff --git a/test/test-close-order.c b/test/test-close-order.c
+index c2fd6c3d..7a8111f0 100644
+--- a/test/test-close-order.c
++++ b/test/test-close-order.c
+@@ -56,6 +56,11 @@ static void timer_cb(uv_timer_t* handle) {
+ 
+ TEST_IMPL(close_order) {
+   uv_loop_t* loop;
++
++  check_cb_called = 0;
++  timer_cb_called = 0;
++  close_cb_called = 0;
++
+   loop = uv_default_loop();
+ 
+   uv_check_init(loop, &check_handle);
+diff --git a/test/test-default-loop-close.c b/test/test-default-loop-close.c
+index 51e1e7dc..fd9ad810 100644
+--- a/test/test-default-loop-close.c
++++ b/test/test-default-loop-close.c
+@@ -36,6 +36,8 @@ TEST_IMPL(default_loop_close) {
+   uv_loop_t* loop;
+   uv_timer_t timer_handle;
+ 
++  timer_cb_called = 0;
++
+   loop = uv_default_loop();
+   ASSERT_NOT_NULL(loop);
+ 
+diff --git a/test/test-fs-copyfile.c b/test/test-fs-copyfile.c
+index fa00fe4e..e7e1a409 100644
+--- a/test/test-fs-copyfile.c
++++ b/test/test-fs-copyfile.c
+@@ -25,7 +25,8 @@
+ #if defined(__unix__) || defined(__POSIX__) || \
+     defined(__APPLE__) || defined(__sun) || \
+     defined(_AIX) || defined(__MVS__) || \
+-    defined(__HAIKU__) || defined(__QNX__)
++    defined(__HAIKU__) || defined(__QNX__) || \
++    defined(__NuttX__)
+ #include <unistd.h> /* unlink, etc. */
+ #else
+ # include <direct.h>
+diff --git a/test/test-idle.c b/test/test-idle.c
+index f49d1964..91a20bd2 100644
+--- a/test/test-idle.c
++++ b/test/test-idle.c
+@@ -72,6 +72,11 @@ static void check_cb(uv_check_t* handle) {
+ TEST_IMPL(idle_starvation) {
+   int r;
+ 
++  idle_cb_called = 0;
++  check_cb_called = 0;
++  timer_cb_called = 0;
++  close_cb_called = 0;
++
+   r = uv_idle_init(uv_default_loop(), &idle_handle);
+   ASSERT(r == 0);
+   r = uv_idle_start(&idle_handle, idle_cb);
+diff --git a/test/test-list.h b/test/test-list.h
+index 59b95da9..33867697 100644
+--- a/test/test-list.h
++++ b/test/test-list.h
+@@ -573,7 +573,7 @@ TASK_LIST_START
+   TEST_ENTRY  (pipe_connect_on_prepare)
+ 
+   TEST_ENTRY  (pipe_server_close)
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__NuttX__)
+   TEST_ENTRY  (pipe_close_stdout_read_stdin)
+ #endif
+   /* Seems to be either about 0.5s or 5s, depending on the OS. */
+@@ -1112,7 +1112,7 @@ TASK_LIST_START
+   TEST_ENTRY  (req_type_name)
+   TEST_ENTRY  (getters_setters)
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__NuttX__)
+   TEST_ENTRY  (fork_timer)
+   TEST_ENTRY  (fork_socketpair)
+   TEST_ENTRY  (fork_socketpair_started)
+diff --git a/test/test-loop-alive.c b/test/test-loop-alive.c
+index cf4d3019..9a7b1024 100644
+--- a/test/test-loop-alive.c
++++ b/test/test-loop-alive.c
+@@ -63,5 +63,6 @@ TEST_IMPL(loop_alive) {
+   ASSERT(r == 0);
+   ASSERT(!uv_loop_alive(uv_default_loop()));
+ 
++  MAKE_VALGRIND_HAPPY();
+   return 0;
+ }
+diff --git a/test/test-loop-close.c b/test/test-loop-close.c
+index f0f3e627..d3f8748f 100644
+--- a/test/test-loop-close.c
++++ b/test/test-loop-close.c
+@@ -53,6 +53,7 @@ TEST_IMPL(loop_close) {
+   ASSERT(0 == uv_loop_close(&loop));
+   ASSERT(loop.data == (void*) &loop);
+ 
++  MAKE_VALGRIND_HAPPY();
+   return 0;
+ }
+ 
+diff --git a/test/test-loop-configure.c b/test/test-loop-configure.c
+index d057c1ed..1633f597 100644
+--- a/test/test-loop-configure.c
++++ b/test/test-loop-configure.c
+@@ -25,7 +25,7 @@ TEST_IMPL(loop_configure) {
+   uv_timer_t timer_handle;
+   uv_loop_t loop;
+   ASSERT(0 == uv_loop_init(&loop));
+-#ifdef _WIN32
++#ifndef SIGPROF
+   ASSERT(UV_ENOSYS == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, 0));
+ #else
+   ASSERT(0 == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF));
+diff --git a/test/test-loop-handles.c b/test/test-loop-handles.c
+index 05cb8466..5db583b5 100644
+--- a/test/test-loop-handles.c
++++ b/test/test-loop-handles.c
+@@ -282,6 +282,21 @@ TEST_IMPL(loop_handles) {
+   int i;
+   int r;
+ 
++  loop_iteration = 0;
++  prepare_1_cb_called = 0;
++  prepare_1_close_cb_called = 0;
++  prepare_2_cb_called = 0;
++  prepare_2_close_cb_called = 0;
++  check_cb_called = 0;
++  check_close_cb_called = 0;
++  idle_1_cb_called = 0;
++  idle_1_close_cb_called = 0;
++  idles_1_active = 0;
++  idle_2_cb_called = 0;
++  idle_2_close_cb_called = 0;
++  idle_2_cb_started = 0;
++  idle_2_is_active = 0;
++
+   r = uv_prepare_init(uv_default_loop(), &prepare_1_handle);
+   ASSERT(r == 0);
+   r = uv_prepare_start(&prepare_1_handle, prepare_1_cb);
+diff --git a/test/test-loop-stop.c b/test/test-loop-stop.c
+index 14b8c111..6aa251fd 100644
+--- a/test/test-loop-stop.c
++++ b/test/test-loop-stop.c
+@@ -49,6 +49,11 @@ static void timer_cb(uv_timer_t* handle) {
+ 
+ TEST_IMPL(loop_stop) {
+   int r;
++
++  prepare_called = 0;
++  timer_called = 0;
++  num_ticks = 10;
++
+   uv_prepare_init(uv_default_loop(), &prepare_handle);
+   uv_prepare_start(&prepare_handle, prepare_cb);
+   uv_timer_init(uv_default_loop(), &timer_handle);
+@@ -67,5 +72,6 @@ TEST_IMPL(loop_stop) {
+   ASSERT(timer_called == 10);
+   ASSERT(prepare_called == 10);
+ 
++  MAKE_VALGRIND_HAPPY();
+   return 0;
+ }
+diff --git a/test/test-pipe-connect-error.c b/test/test-pipe-connect-error.c
+index 30c270d9..0e9eea30 100644
+--- a/test/test-pipe-connect-error.c
++++ b/test/test-pipe-connect-error.c
+@@ -35,6 +35,11 @@
+ static int close_cb_called = 0;
+ static int connect_cb_called = 0;
+ 
++static void init_globals(void)
++{
++  close_cb_called = 0;
++  connect_cb_called = 0;
++}
+ 
+ static void close_cb(uv_handle_t* handle) {
+   ASSERT_NOT_NULL(handle);
+@@ -61,6 +66,7 @@ TEST_IMPL(pipe_connect_bad_name) {
+   uv_connect_t req;
+   int r;
+ 
++  init_globals();
+   r = uv_pipe_init(uv_default_loop(), &client, 0);
+   ASSERT(r == 0);
+   uv_pipe_connect(&req, &client, BAD_PIPENAME, connect_cb);
+@@ -84,6 +90,7 @@ TEST_IMPL(pipe_connect_to_file) {
+   uv_connect_t req;
+   int r;
+ 
++  init_globals();
+   r = uv_pipe_init(uv_default_loop(), &client, 0);
+   ASSERT(r == 0);
+   uv_pipe_connect(&req, &client, path, connect_cb_file);
+diff --git a/test/test-pipe-connect-prepare.c b/test/test-pipe-connect-prepare.c
+index 08b57cbf..e6975b95 100644
+--- a/test/test-pipe-connect-prepare.c
++++ b/test/test-pipe-connect-prepare.c
+@@ -64,6 +64,9 @@ static void prepare_cb(uv_prepare_t* handle) {
+ TEST_IMPL(pipe_connect_on_prepare) {
+   int r;
+ 
++  close_cb_called = 0;
++  connect_cb_called = 0;
++
+   r = uv_pipe_init(uv_default_loop(), &pipe_handle, 0);
+   ASSERT(r == 0);
+ 
+diff --git a/test/test-queue-foreach-delete.c b/test/test-queue-foreach-delete.c
+index 049ea776..2b54de1d 100644
+--- a/test/test-queue-foreach-delete.c
++++ b/test/test-queue-foreach-delete.c
+@@ -101,6 +101,9 @@ static const unsigned first_handle_number_fs_event = 0;
+ #define INIT_AND_START(name, loop)                                            \
+   do {                                                                        \
+     size_t i;                                                                 \
++    name##_cb_calls[0] = 0;                                                   \
++    name##_cb_calls[1] = 0;                                                   \
++    name##_cb_calls[2] = 0;                                                   \
+     for (i = 0; i < ARRAY_SIZE(name); i++) {                                  \
+       int r;                                                                  \
+       r = uv_##name##_init((loop), &(name)[i]);                               \
+diff --git a/test/test-random.c b/test/test-random.c
+index 2e3ce442..6736c342 100644
+--- a/test/test-random.c
++++ b/test/test-random.c
+@@ -53,6 +53,9 @@ TEST_IMPL(random_async) {
+   uv_random_t req;
+   uv_loop_t* loop;
+ 
++  random_cb_called = 0;
++  memset(scratch, 0, sizeof(scratch));
++
+   loop = uv_default_loop();
+   ASSERT(UV_EINVAL == uv_random(loop, &req, scratch, sizeof(scratch), -1,
+                                 random_cb));
+@@ -79,6 +82,9 @@ TEST_IMPL(random_sync) {
+   char zero[256];
+   char buf[256];
+ 
++  random_cb_called = 0;
++  memset(scratch, 0, sizeof(scratch));
++
+   ASSERT(UV_EINVAL == uv_random(NULL, NULL, buf, sizeof(buf), -1, NULL));
+   ASSERT(UV_E2BIG == uv_random(NULL, NULL, buf, -1, -1, NULL));
+ 
+diff --git a/test/test-run-nowait.c b/test/test-run-nowait.c
+index 43524f63..9f2645b5 100644
+--- a/test/test-run-nowait.c
++++ b/test/test-run-nowait.c
+@@ -34,6 +34,9 @@ static void timer_cb(uv_timer_t* handle) {
+ 
+ TEST_IMPL(run_nowait) {
+   int r;
++
++  timer_called = 0;
++
+   uv_timer_init(uv_default_loop(), &timer_handle);
+   uv_timer_start(&timer_handle, timer_cb, 100, 100);
+ 
+@@ -41,5 +44,6 @@ TEST_IMPL(run_nowait) {
+   ASSERT(r != 0);
+   ASSERT(timer_called == 0);
+ 
++  MAKE_VALGRIND_HAPPY();
+   return 0;
+ }
+diff --git a/test/test-run-once.c b/test/test-run-once.c
+index 10cbf95e..7de04a91 100644
+--- a/test/test-run-once.c
++++ b/test/test-run-once.c
+@@ -37,6 +37,9 @@ static void idle_cb(uv_idle_t* handle) {
+ 
+ 
+ TEST_IMPL(run_once) {
++
++  idle_counter = 0;
++
+   uv_idle_init(uv_default_loop(), &idle_handle);
+   uv_idle_start(&idle_handle, idle_cb);
+ 
+diff --git a/test/test-strscpy.c b/test/test-strscpy.c
+index 4e7db6ff..f1d3e3ac 100644
+--- a/test/test-strscpy.c
++++ b/test/test-strscpy.c
+@@ -24,7 +24,9 @@
+ #include <string.h>
+ 
+ #include "../src/strscpy.h"
++#ifndef __NuttX__
+ #include "../src/strscpy.c"
++#endif
+ 
+ TEST_IMPL(strscpy) {
+   char d[4];
+diff --git a/test/test-thread.c b/test/test-thread.c
+index 8de5a6f0..11e3cf80 100644
+--- a/test/test-thread.c
++++ b/test/test-thread.c
+@@ -61,6 +61,11 @@ static void fs_cb(uv_fs_t* handle);
+ static int thread_called;
+ static uv_key_t tls_key;
+ 
++static void init_globals(void)
++{
++  thread_called = 0;
++  tls_key = 0;
++}
+ 
+ static void getaddrinfo_do(struct getaddrinfo_req* req) {
+   int r;
+@@ -151,6 +156,8 @@ TEST_IMPL(thread_create) {
+   uv_thread_t tid;
+   int r;
+ 
++  init_globals();
++
+   r = uv_thread_create(&tid, thread_entry, (void *) 42);
+   ASSERT(r == 0);
+ 
+@@ -172,6 +179,7 @@ TEST_IMPL(threadpool_multiple_event_loops) {
+   RETURN_SKIP("Test does not currently work in QEMU");
+ #endif
+   
++  init_globals();
+   struct test_thread threads[8];
+   size_t i;
+   int r;
+@@ -205,6 +213,7 @@ static void tls_thread(void* arg) {
+ TEST_IMPL(thread_local_storage) {
+   char name[] = "main";
+   uv_thread_t threads[2];
++  init_globals();
+   ASSERT(0 == uv_key_create(&tls_key));
+   ASSERT_NULL(uv_key_get(&tls_key));
+   uv_key_set(&tls_key, name);
+@@ -248,6 +257,7 @@ static void thread_check_stack(void* arg) {
+ 
+ TEST_IMPL(thread_stack_size) {
+   uv_thread_t thread;
++  init_globals();
+   ASSERT(0 == uv_thread_create(&thread, thread_check_stack, NULL));
+   ASSERT(0 == uv_thread_join(&thread));
+   return 0;
+@@ -257,6 +267,7 @@ TEST_IMPL(thread_stack_size_explicit) {
+   uv_thread_t thread;
+   uv_thread_options_t options;
+ 
++  init_globals();
+   options.flags = UV_THREAD_HAS_STACK_SIZE;
+   options.stack_size = 1024 * 1024;
+   ASSERT(0 == uv_thread_create_ex(&thread, &options,
+diff --git a/test/test-threadpool-cancel.c b/test/test-threadpool-cancel.c
+index 1e867c51..955d49b3 100644
+--- a/test/test-threadpool-cancel.c
++++ b/test/test-threadpool-cancel.c
+@@ -49,6 +49,13 @@ static unsigned timer_cb_called;
+ static uv_work_t pause_reqs[4];
+ static uv_sem_t pause_sems[ARRAY_SIZE(pause_reqs)];
+ 
++static void init_globals(void)
++{
++  fs_cb_called = 0;
++  done_cb_called = 0;
++  done2_cb_called = 0;
++  timer_cb_called = 0;
++}
+ 
+ static void work_cb(uv_work_t* req) {
+   uv_sem_wait(pause_sems + (req - pause_reqs));
+@@ -168,6 +175,8 @@ TEST_IMPL(threadpool_cancel_getaddrinfo) {
+   uv_loop_t* loop;
+   int r;
+ 
++  init_globals();
++
+   INIT_CANCEL_INFO(&ci, reqs);
+   loop = uv_default_loop();
+   saturate_threadpool();
+@@ -201,6 +210,8 @@ TEST_IMPL(threadpool_cancel_getnameinfo) {
+   uv_loop_t* loop;
+   int r;
+ 
++  init_globals();
++
+   r = uv_ip4_addr("127.0.0.1", 80, &addr4);
+   ASSERT(r == 0);
+ 
+@@ -234,6 +245,8 @@ TEST_IMPL(threadpool_cancel_random) {
+   struct random_info req;
+   uv_loop_t* loop;
+ 
++  init_globals();
++
+   saturate_threadpool();
+   loop = uv_default_loop();
+   ASSERT(0 == uv_random(loop,
+@@ -259,6 +272,8 @@ TEST_IMPL(threadpool_cancel_work) {
+   uv_loop_t* loop;
+   unsigned i;
+ 
++  init_globals();
++
+   INIT_CANCEL_INFO(&ci, reqs);
+   loop = uv_default_loop();
+   saturate_threadpool();
+@@ -284,6 +299,8 @@ TEST_IMPL(threadpool_cancel_fs) {
+   unsigned n;
+   uv_buf_t iov;
+ 
++  init_globals();
++
+   INIT_CANCEL_INFO(&ci, reqs);
+   loop = uv_default_loop();
+   saturate_threadpool();
+@@ -335,6 +352,8 @@ TEST_IMPL(threadpool_cancel_single) {
+   uv_loop_t* loop;
+   uv_work_t req;
+ 
++  init_globals();
++
+   saturate_threadpool();
+   loop = uv_default_loop();
+   ASSERT(0 == uv_queue_work(loop, &req, (uv_work_cb) abort, nop_done_cb));
+diff --git a/test/test-threadpool.c b/test/test-threadpool.c
+index e3d17d75..845c4b6a 100644
+--- a/test/test-threadpool.c
++++ b/test/test-threadpool.c
+@@ -27,6 +27,11 @@ static int after_work_cb_count;
+ static uv_work_t work_req;
+ static char data;
+ 
++static void init_globals(void)
++{
++  work_cb_count = 0;
++  after_work_cb_count = 0;
++}
+ 
+ static void work_cb(uv_work_t* req) {
+   ASSERT(req == &work_req);
+@@ -46,6 +51,8 @@ static void after_work_cb(uv_work_t* req, int status) {
+ TEST_IMPL(threadpool_queue_work_simple) {
+   int r;
+ 
++  init_globals();
++
+   work_req.data = &data;
+   r = uv_queue_work(uv_default_loop(), &work_req, work_cb, after_work_cb);
+   ASSERT(r == 0);
+@@ -62,6 +69,8 @@ TEST_IMPL(threadpool_queue_work_simple) {
+ TEST_IMPL(threadpool_queue_work_einval) {
+   int r;
+ 
++  init_globals();
++
+   work_req.data = &data;
+   r = uv_queue_work(uv_default_loop(), &work_req, NULL, after_work_cb);
+   ASSERT(r == UV_EINVAL);
+diff --git a/test/test-timer-again.c b/test/test-timer-again.c
+index 834b59d7..cffc2e07 100644
+--- a/test/test-timer-again.c
++++ b/test/test-timer-again.c
+@@ -95,6 +95,11 @@ static void repeat_2_cb(uv_timer_t* handle) {
+ TEST_IMPL(timer_again) {
+   int r;
+ 
++  close_cb_called = 0;
++  repeat_1_cb_called = 0;
++  repeat_2_cb_called = 0;
++  repeat_2_cb_allowed = 0;
++
+   start_time = uv_now(uv_default_loop());
+   ASSERT(0 < start_time);
+ 
+diff --git a/test/test-timer-from-check.c b/test/test-timer-from-check.c
+index a18c7e1f..745eec4d 100644
+--- a/test/test-timer-from-check.c
++++ b/test/test-timer-from-check.c
+@@ -62,6 +62,11 @@ static void check_cb(uv_check_t* handle) {
+ 
+ 
+ TEST_IMPL(timer_from_check) {
++
++  prepare_cb_called = 0;
++  check_cb_called = 0;
++  timer_cb_called = 0;
++
+   ASSERT(0 == uv_prepare_init(uv_default_loop(), &prepare_handle));
+   ASSERT(0 == uv_check_init(uv_default_loop(), &check_handle));
+   ASSERT(0 == uv_check_start(&check_handle, check_cb));
+diff --git a/test/test-timer.c b/test/test-timer.c
+index d0921a96..a9cb2731 100644
+--- a/test/test-timer.c
++++ b/test/test-timer.c
+@@ -32,6 +32,17 @@ static uint64_t start_time;
+ static uv_timer_t tiny_timer;
+ static uv_timer_t huge_timer1;
+ static uv_timer_t huge_timer2;
++static int ncalls = 0;
++
++void init_globals(void)
++{
++  once_cb_called = 0;
++  once_close_cb_called = 0;
++  repeat_cb_called = 0;
++  repeat_close_cb_called = 0;
++  order_cb_called = 0;
++  ncalls = 0;
++}
+ 
+ 
+ static void once_close_cb(uv_handle_t* handle) {
+@@ -94,6 +105,8 @@ TEST_IMPL(timer) {
+   unsigned int i;
+   int r;
+ 
++  init_globals();
++
+   start_time = uv_now(uv_default_loop());
+   ASSERT(0 < start_time);
+ 
+@@ -140,6 +153,8 @@ TEST_IMPL(timer_start_twice) {
+   uv_timer_t once;
+   int r;
+ 
++  init_globals();
++
+   r = uv_timer_init(uv_default_loop(), &once);
+   ASSERT(r == 0);
+   r = uv_timer_start(&once, never_cb, 86400 * 1000, 0);
+@@ -159,6 +174,8 @@ TEST_IMPL(timer_start_twice) {
+ TEST_IMPL(timer_init) {
+   uv_timer_t handle;
+ 
++  init_globals();
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &handle));
+   ASSERT(0 == uv_timer_get_repeat(&handle));
+   ASSERT_UINT64_LE(0, uv_timer_get_due_in(&handle));
+@@ -185,6 +202,8 @@ TEST_IMPL(timer_order) {
+   uv_timer_t handle_a;
+   uv_timer_t handle_b;
+ 
++  init_globals();
++
+   first = 0;
+   second = 1;
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &handle_a));
+@@ -227,6 +246,9 @@ static void tiny_timer_cb(uv_timer_t* handle) {
+ 
+ 
+ TEST_IMPL(timer_huge_timeout) {
++
++  init_globals();
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &tiny_timer));
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &huge_timer1));
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &huge_timer2));
+@@ -243,7 +265,6 @@ TEST_IMPL(timer_huge_timeout) {
+ 
+ 
+ static void huge_repeat_cb(uv_timer_t* handle) {
+-  static int ncalls;
+ 
+   if (ncalls == 0)
+     ASSERT(handle == &huge_timer1);
+@@ -258,6 +279,9 @@ static void huge_repeat_cb(uv_timer_t* handle) {
+ 
+ 
+ TEST_IMPL(timer_huge_repeat) {
++
++  init_globals();
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &tiny_timer));
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &huge_timer1));
+   ASSERT(0 == uv_timer_start(&tiny_timer, huge_repeat_cb, 2, 2));
+@@ -279,6 +303,10 @@ static void timer_run_once_timer_cb(uv_timer_t* handle) {
+ TEST_IMPL(timer_run_once) {
+   uv_timer_t timer_handle;
+ 
++  init_globals();
++
++  timer_run_once_timer_cb_called = 0;
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &timer_handle));
+   ASSERT(0 == uv_timer_start(&timer_handle, timer_run_once_timer_cb, 0, 0));
+   ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_ONCE));
+@@ -299,6 +327,8 @@ TEST_IMPL(timer_run_once) {
+ TEST_IMPL(timer_is_closing) {
+   uv_timer_t handle;
+ 
++  init_globals();
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &handle));
+   uv_close((uv_handle_t *)&handle, NULL);
+ 
+@@ -312,6 +342,8 @@ TEST_IMPL(timer_is_closing) {
+ TEST_IMPL(timer_null_callback) {
+   uv_timer_t handle;
+ 
++  init_globals();
++
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &handle));
+   ASSERT(UV_EINVAL == uv_timer_start(&handle, NULL, 100, 100));
+ 
+@@ -333,6 +365,8 @@ TEST_IMPL(timer_early_check) {
+   uv_timer_t timer_handle;
+   const uint64_t timeout_ms = 10;
+ 
++  init_globals();
++
+   timer_early_check_expected_time = uv_now(uv_default_loop()) + timeout_ms;
+ 
+   ASSERT(0 == uv_timer_init(uv_default_loop(), &timer_handle));

@@ -1,40 +1,24 @@
 /****************************************************************************
  * apps/wireless/ieee802154/i8sak/i8sak_get.c
- * IEEE 802.15.4 Swiss Army Knife
  *
- *   Copyright (C) 2017 Verge Inc. All rights reserved.
- *   Author: Anthony Merlino <anthony@vergeaero.com>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  ****************************************************************************/
 
- /****************************************************************************
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -107,6 +91,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    maxretries = macMaxFrameRetries\n"
                     "    promisc = Promiscuous Mode\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -114,12 +99,14 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -186,7 +173,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 #ifdef CONFIG_NET_6LOWPAN
   else if (strcmp(argv[argind], "ep_port") == 0)
     {
-      printf("i8sak: Endpoint Port: %d\n", NTOHS(i8sak->ep_in6addr.sin6_port));
+      printf("i8sak: Endpoint Port: %d\n",
+              NTOHS(i8sak->ep_in6addr.sin6_port));
     }
   else if (strcmp(argv[argind], "snifferport") == 0)
     {
@@ -264,7 +252,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
               ieee802154_getmaxretries(fd, &u.attr.mac.max_retries);
-              printf("i8sak: Max Frame Retries: %d\n", (int)u.attr.mac.max_retries);
+              printf("i8sak: Max Frame Retries: %d\n",
+                      (int)u.attr.mac.max_retries);
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
@@ -280,7 +269,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr,
+                      "ERROR: unsupported parameter: %s\n", argv[argind]);
             }
         }
 #ifdef CONFIG_NET_6LOWPAN
@@ -289,7 +279,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           fd = socket(PF_INET6, SOCK_DGRAM, 0);
           if (fd < 0)
             {
-              fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+              fprintf(stderr,
+                      "ERROR: failed to open socket, errno=%d\n", errno);
               i8sak_cmd_error(i8sak);
             }
 
@@ -325,7 +316,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "coordeaddr") == 0)
             {
-              sixlowpan_getcoordeaddr(fd, i8sak->ifname, u.attr.mac.coordeaddr);
+              sixlowpan_getcoordeaddr(fd, i8sak->ifname,
+                                      u.attr.mac.coordeaddr);
               printf("i8sak: Coordinator Extended Address: "
                      PRINTF_FORMAT_EADDR(u.attr.mac.coordeaddr));
             }
@@ -348,12 +340,15 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else if (strcmp(argv[argind], "maxretries") == 0)
             {
-              sixlowpan_getmaxretries(fd, i8sak->ifname, &u.attr.mac.max_retries);
-              printf("i8sak: Max Retries: %d\n", (int)u.attr.mac.max_retries);
+              sixlowpan_getmaxretries(fd, i8sak->ifname,
+                                      &u.attr.mac.max_retries);
+              printf("i8sak: Max Retries: %d\n",
+                     (int)u.attr.mac.max_retries);
             }
           else if (strcmp(argv[argind], "promisc") == 0)
             {
-              sixlowpan_getpromisc(fd, i8sak->ifname, &u.attr.mac.promisc_mode);
+              sixlowpan_getpromisc(fd, i8sak->ifname,
+                                   &u.attr.mac.promisc_mode);
               if (u.attr.mac.promisc_mode)
                 {
                   printf("i8sak: Promiscuous Mode: true\n");
@@ -365,7 +360,8 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             }
           else
             {
-              fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
+              fprintf(stderr, "ERROR: unsupported parameter: %s\n",
+                      argv[argind]);
             }
         }
 #endif

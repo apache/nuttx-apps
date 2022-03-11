@@ -274,7 +274,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
               if (tmp_name[0] == '\0')
                 {
-                  strncpy(tmp_name, name, sizeof(tmp_name) - 1);
+                  strlcpy(tmp_name, name, sizeof(tmp_name));
                 }
 
               RL_PUTC(vtbl, ' ');
@@ -309,7 +309,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
               if (tmp_name[0] == '\0')
                 {
-                  strncpy(tmp_name, name, sizeof(tmp_name) - 1);
+                  strlcpy(tmp_name, name, sizeof(tmp_name));
                 }
 
               RL_PUTC(vtbl, ' ');
