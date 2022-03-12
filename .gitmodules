@@ -16,3 +16,6 @@
 [submodule "examples/ikea_air_quality_sensor"]
 	path = examples/ikea_air_quality_sensor
 	url = https://github.com/lupyuen/ikea_air_quality_sensor
+[submodule "examples/rust_i2c"]
+	path = examples/rust_i2c
+	url = https://github.com/lupyuen/rust-i2c-nuttx
