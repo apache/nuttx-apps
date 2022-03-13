@@ -61,7 +61,7 @@ fn panic(_panic: &PanicInfo<'_>) -> ! {
  ****************************************************************************/
 
 #[no_mangle]
-pub extern "C" fn hello_rust_main(_argc: i32, _argv: *const *const u8) -> i32 {
+pub extern "C" fn main(_argc: i32, _argv: *const *const u8) -> i32 {
     /* "Hello, Rust!!" using printf() from libc */
 
     unsafe {
