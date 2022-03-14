@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/ramspeed/ramspeed.c
+ * apps/system/ramspeed/ramspeed_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -416,7 +416,7 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
  ****************************************************************************/
 
 /****************************************************************************
- * Name: main
+ * Name: ramspeed_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
