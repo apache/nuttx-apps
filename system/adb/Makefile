@@ -21,7 +21,7 @@
 include $(APPDIR)/Make.defs
 
 ADBD_URL ?= "https://github.com/spiriou/microADB/archive"
-ADBD_VERSION ?= a1a12e2452eed9d8fdd008c05b4d93c992bfc0a7
+ADBD_VERSION ?= 5b3c9229e70f74fedfbbf1a0b9000836c9a34789
 
 ADB_DIR := $(APPDIR)/system/adb
 ADB_UNPACKNAME := microADB
@@ -75,6 +75,11 @@ endif
 
 ifeq ($(CONFIG_ADBD_SHELL_SERVICE),y)
 CSRCS += $(ADB_UNPACKNAME)/hal/shell_service_uv.c
+endif
+
+ifeq ($(CONFIG_ADBD_SOCKET_SERVICE),y)
+CSRCS += $(ADB_UNPACKNAME)/tcp_service.c
+CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_socket.c
 endif
 
 context:: $(ADB_UNPACKDIR)
