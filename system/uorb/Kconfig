@@ -10,6 +10,14 @@ menuconfig UORB
 
 if UORB
 
+config UORB_PRIORITY
+	int "task priority"
+	default 100
+
+config UORB_STACKSIZE
+	int "stack size"
+	default DEFAULT_TASK_STACKSIZE
+
 config DEBUG_UORB
 	bool "uorb debug output"
 	default n
@@ -37,5 +45,17 @@ config UORB_INFO
 	depends on DEBUG_INFO
 
 endif # DEBUG_UORB
+
+config UORB_TESTS
+	bool "uorb unit tests"
+	default n
+
+if UORB_TESTS
+
+config UORB_SRORAGE_DIR
+	string "uorb test result storage dir"
+	default "/data/"
+
+endif # UORB_TESTS
 
 endif # UORB
