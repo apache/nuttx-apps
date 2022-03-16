@@ -176,6 +176,7 @@ int main(int argc, FAR char **argv)
   memset(&addr, 0, sizeof(addr));
   switch (family)
     {
+      default:
       case AF_INET:
         ((FAR struct sockaddr_in *)&addr)->sin_family = AF_INET;
         ((FAR struct sockaddr_in *)&addr)->sin_port = REXECD_PORT;
