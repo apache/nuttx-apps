@@ -217,7 +217,8 @@ int main(int argc, FAR char *argv[])
 
   printf("Attach timer handler\n");
 
-  notify.pid   = getpid();
+  notify.pid      = getpid();
+  notify.periodic = true;
 
   notify.event.sigev_notify = SIGEV_SIGNAL;
   notify.event.sigev_signo  = CONFIG_EXAMPLES_TIMER_SIGNO;
