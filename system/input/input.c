@@ -36,8 +36,11 @@
 #define DEFATLT_DISTANCE 10
 
 #define DELAY_MS(ms) usleep((ms) * 1000)
-#define ABS(a)       (((a) > 0) ? (a) : -(a))
-#define MAX(a, b)    (((a) > (b)) ? (a) : (b))
+#define ABS(a)       ((a) > 0 ? (a) : -(a))
+
+#ifndef MAX
+#  define MAX(a,b)   ((a) > (b) ? (a) : (b))
+#endif
 
 /****************************************************************************
  * Private Types

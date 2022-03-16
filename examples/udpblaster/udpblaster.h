@@ -103,7 +103,7 @@
 #endif
 
 #ifndef MIN
-#  define MIN(a,b) ((a)<(b)?(a):(b))
+#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 #define UDPBLASTER_SENDSIZE MIN(UDPBLASTER_MSS, g_udpblaster_strlen)
