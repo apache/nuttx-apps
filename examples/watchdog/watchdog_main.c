@@ -149,7 +149,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc,
 
       switch (ptr[1])
         {
-          case 'd':
+          case 'p':
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1)
               {
@@ -167,7 +167,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc,
             index += nargs;
             break;
 
-          case 'p':
+          case 'd':
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1 || value > INT_MAX)
               {
