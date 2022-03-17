@@ -326,8 +326,8 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
   struct audio_buf_desc_s buf_desc;
   struct ap_buffer_info_s recordbuf_info;
   struct ap_buffer_info_s playbuf_info;
-  FAR struct ap_buffer_s  **playbufs;
-  FAR struct ap_buffer_s  **recordbufs;
+  FAR struct ap_buffer_s  **playbufs = NULL;
+  FAR struct ap_buffer_s  **recordbufs = NULL;
   unsigned int            prio;
   ssize_t                 size;
   bool                    running = true;
