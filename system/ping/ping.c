@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <nuttx/lib/math.h>
 #include <limits.h>
 #include <fixedmath.h>
 
