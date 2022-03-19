@@ -390,7 +390,8 @@ uint8_t *js_load_file(JSContext *ctx, size_t *pbuf_len, const char *filename)
 static int js_eval_file(JSContext *ctx, const char *filename, int module)
 {
   uint8_t *buf;
-  int ret, eval_flags;
+  int ret;
+  int eval_flags;
   size_t buf_len;
 
   buf = js_load_file(ctx, &buf_len, filename);
@@ -482,7 +483,7 @@ int main(int argc, char *argv[])
       malloc_usable_size,
   };
 
-  int optind;
+  int argi;
   char *expr = NULL;
   int dump_memory = 0;
   int trace_memory = 0;
@@ -490,15 +491,15 @@ int main(int argc, char *argv[])
   size_t memory_limit = 0;
   size_t stack_size = 0;
 
-  optind = 1;
-  while (optind < argc && *argv[optind] == '-')
+  argi = 1;
+  while (argi < argc && *argv[argi] == '-')
     {
-      char *arg = argv[optind] + 1;
+      char *arg = argv[argi] + 1;
       const char *longopt = "";
 
       if (!*arg)
         break;
-      optind++;
+      argi++;
       if (*arg == '-')
         {
           longopt = arg + 1;
@@ -529,9 +530,9 @@ int main(int argc, char *argv[])
                   break;
                 }
 
-              if (optind < argc)
+              if (argi < argc)
                 {
-                  expr = argv[optind++];
+                  expr = argv[argi++];
                   break;
                 }
 
@@ -559,25 +560,25 @@ int main(int argc, char *argv[])
 
           if (!strcmp(longopt, "memory-limit"))
             {
-              if (optind >= argc)
+              if (argi >= argc)
                 {
                   fprintf(stderr, "expecting memory limit");
                   exit(1);
                 }
 
-              memory_limit = (size_t)strtod(argv[optind++], NULL);
+              memory_limit = (size_t)strtod(argv[argi++], NULL);
               continue;
             }
 
           if (!strcmp(longopt, "stack-size"))
             {
-              if (optind >= argc)
+              if (argi >= argc)
                 {
                   fprintf(stderr, "expecting stack size");
                   exit(1);
                 }
 
-              stack_size = (size_t)strtod(argv[optind++], NULL);
+              stack_size = (size_t)strtod(argv[argi++], NULL);
               continue;
             }
 
@@ -642,10 +643,10 @@ int main(int argc, char *argv[])
               goto fail;
             }
         }
-      else if (optind < argc)
+      else if (argi < argc)
         {
           const char *filename;
-          filename = argv[optind];
+          filename = argv[argi];
           if (js_eval_file(ctx, filename, 1))
             {
               goto fail;
