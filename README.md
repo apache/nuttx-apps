@@ -9,6 +9,7 @@ __Updated for the articles...__
 -   [__"Auto Flash and Test NuttX on RISC-V BL602"__](https://lupyuen.github.io/articles/auto)
 -   [__"Connect IKEA Air Quality Sensor to Apache NuttX OS"__](https://lupyuen.github.io/articles/ikea)
 -   [__"Apache NuttX Driver for BME280 Sensor: Ported from Zephyr OS"__](https://lupyuen.github.io/articles/bme280)
+-   [__"Rust talks I2C on Apache NuttX RTOS"__](https://lupyuen.github.io/articles/rusti2c)
 
 # Application Folder
 
