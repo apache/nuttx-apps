@@ -1683,7 +1683,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
 
   /* Save the path and format capabilities of the preferred device */
 
-  strncpy(pplayer->prefdevice, pdevice, sizeof(pplayer->prefdevice));
+  strlcpy(pplayer->prefdevice, pdevice, sizeof(pplayer->prefdevice));
   pplayer->prefformat = caps.ac_format.b[0] | (caps.ac_format.b[1] << 8);
   pplayer->preftype = caps.ac_controls.b[0];
 
@@ -2087,7 +2087,7 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
 void nxplayer_setmediadir(FAR struct nxplayer_s *pplayer,
      FAR const char *mediadir)
 {
-  strncpy(pplayer->mediadir, mediadir, sizeof(pplayer->mediadir));
+  strlcpy(pplayer->mediadir, mediadir, sizeof(pplayer->mediadir));
 }
 #endif
 
@@ -2312,7 +2312,7 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer)
 {
   struct dirent *pdevice;
   DIR           *dirp;
-  char           path[64];
+  char           path[PATH_MAX];
 
   /* Search for a device in the audio device directory */
 
