@@ -1068,7 +1068,7 @@ int main(int argc, FAR char *argv[])
   int n1 = 12345;
   int n2;
   bool ok;
-  char s1[80];
+  char s1[84];
   char s2[80];
   float f1;
   float f2;
@@ -1396,7 +1396,7 @@ int main(int argc, FAR char *argv[])
           sscanf(type_data[t].input, type_data[t].format, &nou);
           if (type_data[t].value.u != nou)
             {
-              printf("Test #%u assigned %nou instead of %lli.\n",
+              printf("Test #%u assigned %u instead of %lli.\n",
                      t + 1, nou, type_data[t].value.u);
               ok = false;
             }
