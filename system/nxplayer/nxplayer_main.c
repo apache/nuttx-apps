@@ -590,8 +590,8 @@ static int nxplayer_cmd_resume(FAR struct nxplayer_s *pplayer, char *parg)
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
 static int nxplayer_cmd_device(FAR struct nxplayer_s *pplayer, char *parg)
 {
-  int     ret;
-  char    path[32];
+  int  ret;
+  char path[PATH_MAX];
 
   /* First try to open the file directly */
 
@@ -738,8 +738,11 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pplayer, char *parg)
 int main(int argc, FAR char *argv[])
 {
   char                    buffer[CONFIG_NSH_LINELEN];
-  int                     len, x, running;
-  char                    *cmd, *arg;
+  int                     len;
+  int                     x;
+  int                     running;
+  char                    *cmd;
+  char                    *arg;
   FAR struct nxplayer_s   *pplayer;
 
   printf("NxPlayer version " NXPLAYER_VER "\n");

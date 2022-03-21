@@ -121,7 +121,7 @@ static int nxlooper_opendevice(FAR struct nxlooper_s *plooper)
       struct audio_caps_s caps;
       FAR struct dirent *pdevice;
       FAR DIR *dirp;
-      char path[64];
+      char path[PATH_MAX];
 
       /* Search for a device in the audio device directory */
 
@@ -851,11 +851,11 @@ int nxlooper_setdevice(FAR struct nxlooper_s *plooper,
 
   if (caps.ac_controls.b[0] & AUDIO_TYPE_OUTPUT)
     {
-      strncpy(plooper->playdev, pdevice, sizeof(plooper->playdev));
+      strlcpy(plooper->playdev, pdevice, sizeof(plooper->playdev));
     }
   else if (caps.ac_controls.b[0] & AUDIO_TYPE_INPUT)
     {
-      strncpy(plooper->recorddev, pdevice, sizeof(plooper->playdev));
+      strlcpy(plooper->recorddev, pdevice, sizeof(plooper->recorddev));
     }
 
   return OK;
@@ -1297,7 +1297,7 @@ int nxlooper_systemreset(FAR struct nxlooper_s *plooper)
   struct audio_caps_s caps;
   FAR struct dirent   *pdevice;
   FAR DIR             *dirp;
-  char                path[64];
+  char                path[PATH_MAX];
   int                 temp_fd;
 
   /* Search for a device in the audio device directory */
