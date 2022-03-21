@@ -99,7 +99,7 @@ int wpa_driver_wext_get_key_ext(int sockfd, FAR const char *ifname,
     }
 
   memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(iwr.ifr_name, ifname, IFNAMSIZ);
 
   iwr.u.encoding.pointer = (caddr_t) ext;
   iwr.u.encoding.length = sizeof(*ext) + *req_len;
@@ -171,7 +171,7 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
     }
 
   memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(iwr.ifr_name, ifname, IFNAMSIZ);
 
   iwr.u.encoding.pointer = (caddr_t) ext;
   iwr.u.encoding.length = sizeof(*ext) + key_len;
@@ -253,7 +253,7 @@ int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
 
   /* Put the driver name into the request */
 
-  strncpy(req.ifr_name, wconfig->ifname, IFNAMSIZ);
+  strlcpy(req.ifr_name, wconfig->ifname, IFNAMSIZ);
 
   ret = wapi_set_mode(sockfd, wconfig->ifname, wconfig->sta_mode);
   if (ret < 0)
@@ -354,7 +354,7 @@ static int wpa_driver_wext_process_auth_param(int sockfd,
   DEBUGASSERT(ifname != NULL);
 
   memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(iwr.ifr_name, ifname, IFNAMSIZ);
   iwr.u.param.flags = idx & IW_AUTH_INDEX;
   iwr.u.param.value = set ? *value : 0;
 
@@ -443,7 +443,7 @@ void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname)
    */
 
   memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(iwr.ifr_name, ifname, IFNAMSIZ);
 
   if (ioctl(sockfd, SIOCGIWMODE, (unsigned long)&iwr) < 0)
     {
