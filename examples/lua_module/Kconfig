@@ -1,0 +1,10 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LUA_MODULE
+	tristate "Lua module example"
+	default n
+	---help---
+		Enable the Lua module example

@@ -204,7 +204,7 @@ NXWidgets.:
    requires large stacks. If you are using X11 in the simulation, make sure that
    you set aside a "lot" of stack for the X11 system calls (maybe 8 or 16Kb).
    The stack size for the thread that begins with user start is controlled by
-   the configuration setting `CONFIG_USERMAIN_STACKSIZE`; you may need to
+   the configuration setting `CONFIG_INIT_STACKSIZE`; you may need to
    increase this value to larger number to survive the X11 system calls.
 
    If you are running X11 applications as NSH add-on programs, then the stack

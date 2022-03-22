@@ -62,10 +62,10 @@
 #define MINHEIGHT     0             // had been 32
 #define MINWIDTH      0             // had been 60
 
-#define makemult(a,b) ((b==1) ? (a) : (((int)((a) / (b))) * (b)))
+#define makemult(a,b) ((b == 1) ? (a) : (((int)((a) / (b))) * (b)))
 
 #ifndef MIN
-#  define MIN(a,b)    (((a) < (b)) ? (a) : (b))
+#  define MIN(a,b)    ((a) < (b) ? (a) : (b))
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

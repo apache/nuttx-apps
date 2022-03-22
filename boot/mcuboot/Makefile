@@ -30,22 +30,6 @@ DEPPATH += --dep-path $(MCUBOOT_SRCDIR)
 VPATH   += :$(MCUBOOT_UNPACK)$(DELIM)src
 VPATH   += :$(MCUBOOT_SRCDIR)
 
-ifneq ($(CONFIG_MCUBOOT_UPDATE_AGENT_EXAMPLE),)
-MAINSRC   += mcuboot_agent_main.c
-
-PROGNAME  += mcuboot_agent
-PRIORITY  += SCHED_PRIORITY_DEFAULT
-STACKSIZE += $(CONFIG_DEFAULT_TASK_STACKSIZE)
-endif
-
-ifneq ($(CONFIG_MCUBOOT_SLOT_CONFIRM_EXAMPLE),)
-MAINSRC   += mcuboot_confirm_main.c
-
-PROGNAME  += mcuboot_confirm
-PRIORITY  += SCHED_PRIORITY_DEFAULT
-STACKSIZE += $(CONFIG_DEFAULT_TASK_STACKSIZE)
-endif
-
 ifneq ($(CONFIG_MCUBOOT_BOOTLOADER),)
 MAINSRC   += mcuboot/boot/nuttx/main.c
 

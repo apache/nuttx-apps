@@ -32,6 +32,8 @@
 #include <poll.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
+#include <stdbool.h>
 
 #ifdef CONFIG_LIBC_NETDB
 #  include <netdb.h>
@@ -57,11 +59,21 @@
  * separate instance of g_ping6_id in every process space.
  */
 
-static uint16_t g_ping6_id = 0;
+static uint16_t g_ping6_id;
+static volatile bool g_exiting6;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: sigexit
+ ****************************************************************************/
+
+static void sigexit(int signo)
+{
+  g_exiting6 = true;
+}
 
 /****************************************************************************
  * Name: ping6_newid
@@ -135,7 +147,7 @@ static int ping6_gethostip(FAR const char *hostname,
  ****************************************************************************/
 
 static void icmp6_callback(FAR struct ping6_result_s *result,
-                           int code, int extra)
+                           int code, long extra)
 {
   result->code = code;
   result->extra = extra;
@@ -160,7 +172,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
   struct pollfd recvfd;
   FAR uint8_t *iobuffer;
   FAR uint8_t *ptr;
-  int32_t elapsed;
+  long elapsed;
   clock_t kickoff;
   clock_t start;
   socklen_t addrlen;
@@ -171,6 +183,9 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
   int ret;
   int ch;
   int i;
+
+  g_exiting6 = false;
+  signal(SIGINT, sigexit);
 
   /* Initialize result structure */
 
@@ -217,6 +232,11 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
 
   while (result.nrequests < info->count)
     {
+      if (g_exiting6)
+        {
+          break;
+        }
+
       /* Copy the ICMP header into the I/O buffer */
 
       memcpy(iobuffer, &outhdr, SIZEOF_ICMPV6_ECHO_REQUEST_S(0));
@@ -261,7 +281,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
           recvfd.events   = POLLIN;
           recvfd.revents  = 0;
 
-          ret = poll(&recvfd, 1, info->timeout - elapsed);
+          ret = poll(&recvfd, 1, info->timeout - elapsed / USEC_PER_MSEC);
           if (ret < 0)
             {
               icmp6_callback(&result, ICMPv6_E_POLL, errno);
@@ -289,7 +309,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
               goto done;
             }
 
-          elapsed = (unsigned int)TICK2MSEC(clock() - start);
+          elapsed = TICK2USEC(clock() - start);
           inhdr   = (FAR struct icmpv6_echo_reply_s *)iobuffer;
 
           if (inhdr->type == ICMPv6_ECHO_REPLY)
@@ -308,13 +328,13 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
               else
                 {
                   bool verified = true;
-                  int32_t pktdelay = elapsed;
+                  long pktdelay = elapsed;
 
                   if (ntohs(inhdr->seqno) < result.seqno)
                     {
                       icmp6_callback(&result, ICMPv6_W_SEQNOSMALL,
                                      ntohs(inhdr->seqno));
-                      pktdelay += info->delay;
+                      pktdelay += info->delay * USEC_PER_MSEC;
                       retry     = true;
                     }
 
@@ -361,11 +381,12 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
               icmp6_callback(&result, ICMPv6_W_TYPE, inhdr->type);
             }
         }
-      while (retry && info->delay > elapsed && info->timeout > elapsed);
+      while (retry && info->delay > elapsed / USEC_PER_MSEC &&
+             info->timeout > elapsed / USEC_PER_MSEC);
 
       /* Wait if necessary to preserved the requested ping rate */
 
-      elapsed = (unsigned int)TICK2MSEC(clock() - start);
+      elapsed = TICK2MSEC(clock() - start);
       if (elapsed < info->delay)
         {
           struct timespec rqt;
@@ -387,7 +408,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
     }
 
 done:
-  icmp6_callback(&result, ICMPv6_I_FINISH, TICK2MSEC(clock() - kickoff));
+  icmp6_callback(&result, ICMPv6_I_FINISH, TICK2USEC(clock() - kickoff));
   close(sockfd);
   free(iobuffer);
 }
