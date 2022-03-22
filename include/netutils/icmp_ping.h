@@ -79,7 +79,7 @@ struct ping_info_s
 struct ping_result_s
 {
   int code;                 /* Notice code ICMP_I/E/W_XXX */
-  int extra;                /* Extra information for code */
+  long extra;               /* Extra information for code */
   struct in_addr dest;      /* Target address to ping */
   uint16_t nrequests;       /* Number of ICMP ECHO requests sent */
   uint16_t nreplies;        /* Number of matching ICMP ECHO replies received */

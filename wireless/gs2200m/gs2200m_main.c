@@ -59,7 +59,7 @@
 #endif
 
 #ifndef MIN
-#  define MIN(a,b)  (((a) < (b)) ? (a) : (b))
+#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 #define SOCKET_BASE  10000

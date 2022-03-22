@@ -167,6 +167,13 @@ config ADBD_SHELL_SERVICE_PATH
 	---help---
 		The path to the shell executable.
 
+config ADBD_SOCKET_SERVICE
+	bool "ADB socket service"
+	depends on NET
+	default n
+	---help---
+		Enable "adb forward|reverse" feature.
+
 config ADBD_BOARD_INIT
 	bool "Board initialization"
 	depends on BOARDCTL

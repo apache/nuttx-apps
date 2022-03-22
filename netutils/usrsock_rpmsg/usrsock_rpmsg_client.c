@@ -49,6 +49,12 @@ struct usrsock_rpmsg_s
   struct file           file;
 };
 
+enum usrsock_cache_action_e
+{
+  USRSOCK_COHERENT_BEFORE,
+  USRSOCK_COHERENT_AFTER,
+};
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -155,6 +161,41 @@ static int usrsock_rpmsg_ept_cb(struct rpmsg_endpoint *ept, void *data,
   return ret;
 }
 
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+
+static void usersock_coherent_cache(FAR void *buf,
+                                    enum usrsock_cache_action_e action)
+{
+  FAR struct usrsock_request_ioctl_s *req = buf;
+  FAR struct iwreq *wlreq;
+
+  if (req->head.reqid == USRSOCK_REQUEST_IOCTL)
+    {
+      if (WL_IS80211POINTERCMD(req->cmd))
+        {
+          wlreq = (FAR struct iwreq *)(req + 1);
+          if (action == USRSOCK_COHERENT_BEFORE)
+            {
+              metal_cache_flush(wlreq->u.data.pointer,
+                                wlreq->u.data.length);
+            }
+
+          if (action == USRSOCK_COHERENT_AFTER)
+            {
+              metal_cache_invalidate(wlreq->u.data.pointer,
+                                    wlreq->u.data.length);
+            }
+        }
+    }
+}
+
+#else
+static void usersock_coherent_cache(FAR void *buf,
+                                    enum usrsock_cache_action_e action)
+{
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -251,6 +292,8 @@ int main(int argc, char *argv[])
               break;
             }
 
+          usersock_coherent_cache(buf, USRSOCK_COHERENT_BEFORE);
+
           /* Send the packet to remote */
 
           ret = rpmsg_send_nocopy(&priv.ept, buf, ret);
@@ -258,6 +301,8 @@ int main(int argc, char *argv[])
             {
               break;
             }
+
+          usersock_coherent_cache(buf, USRSOCK_COHERENT_AFTER);
         }
 
       /* Reclaim the resource */

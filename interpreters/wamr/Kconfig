@@ -15,6 +15,12 @@ config INTERPRETERS_WAMR_VERSION
 	---help---
 	Version 09-29-2020 and later (include main) supported.
 
+config INTERPRETERS_IWASM_TASK
+	bool "Webassembly iwasm task"
+	default y
+
+if INTERPRETERS_IWASM_TASK
+
 config INTERPRETERS_WAMR_PRIORITY
 	int "Webassembly Micro Runtime priority"
 	default 100
@@ -23,13 +29,26 @@ config INTERPRETERS_WAMR_STACKSIZE
 	int "Webassembly Micro Runtime stack size"
 	default 8192
 
+endif
+
 config INTERPRETERS_WAMR_AOT
 	bool "Enable AOT"
 	default n
 
+choice
+	prompt "Enable interpreter"
+	default INTERPRETERS_NONE
+
 config INTERPRETERS_WAMR_FAST
 	bool "Enable fast interpreter"
-	default n
+
+config INTERPRETERS_WAMR_CLASSIC
+	bool "Enable classic interpreter"
+
+config INTERPRETERS_NONE
+	bool "Disable interpreter"
+
+endchoice
 
 config INTERPRETERS_WAMR_LOG
 	bool "Enable log"
@@ -55,6 +74,22 @@ config INTERPRETERS_WAMR_THREAD_MGR
 
 config INTERPRETERS_WAMR_LIB_PTHREAD
 	bool "Enable lib pthread"
+	default n
+
+config INTERPRETERS_WAMR_SHARED_MEMORY
+	bool "Enable shared memory"
+	default n
+
+config INTERPRETERS_WAMR_BULK_MEMORY
+	bool "Enable bluk memory"
+	default n
+
+config INTERPRETERS_WAMR_MEMORY_PROFILING
+	bool "Enable memory profiling"
+	default n
+
+config INTERPRETERS_WAMR_MEMORY_TRACING
+	bool "Enable memory tracing"
 	default n
 
 config INTERPRETERS_WAMR_DISABLE_HW_BOUND_CHECK
