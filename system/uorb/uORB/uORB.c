@@ -200,7 +200,8 @@ int orb_get_state(int fd, FAR struct orb_state *state)
                               1000000 / tmp.min_interval : 0;
   state->min_batch_interval = tmp.min_latency;
   state->queue_size         = tmp.nbuffer;
-  state->enable             = tmp.nsubscribers > 0;
+  state->nsubscribers       = tmp.nsubscribers;
+  state->generation         = tmp.generation;
 
   return ret;
 }
