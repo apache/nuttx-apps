@@ -167,6 +167,7 @@ static void test_stl(void)
 // Name: test_rtti
 //***************************************************************************/
 
+#ifdef CONFIG_CXX_RTTI
 static void test_rtti(void)
 {
   std::cout << "test rtti===============================" << std::endl;
@@ -185,6 +186,7 @@ static void test_rtti(void)
   delete a;
   delete b;
 }
+#endif
 
 //***************************************************************************
 // Name: test_exception
@@ -195,14 +197,13 @@ static void test_exception(void)
 {
   std::cout << "test exception==========================" << std::endl;
   try
-  {
-    throw runtime_error("runtime error");
-  }
-
+    {
+      throw runtime_error("runtime error");
+    }
   catch (runtime_error &e)
-  {
-    std::cout << "Catch exception: " << e.what() << std::endl;
-  }
+    {
+      std::cout << "Catch exception: " << e.what() << std::endl;
+    }
 }
 #endif
 
@@ -219,7 +220,9 @@ extern "C" int main(int argc, char *argv[])
   test_ofstream();
   test_iostream();
   test_stl();
+#ifdef CONFIG_CXX_RTTI
   test_rtti();
+#endif
 #ifdef CONFIG_CXX_EXCEPTION
   test_exception();
 #endif
