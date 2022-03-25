@@ -60,9 +60,8 @@ struct orb_state
   uint32_t queue_size;          /* The maximum number of buffered elements,
                                  * if 1, no queuing is is used
                                  */
-  bool     enable;              /* Indicates whether the current node is
-                                 * subscribed or activated
-                                 */
+  uint32_t nsubscribers;        /* Number of subscribers */
+  uint64_t generation;          /* Mainline generation */
 };
 
 struct orb_object
