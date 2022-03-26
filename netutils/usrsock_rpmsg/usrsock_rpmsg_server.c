@@ -35,7 +35,9 @@
 #include <nuttx/net/dns.h>
 #include <nuttx/net/net.h>
 #include <nuttx/rptun/openamp.h>
-
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+#  include <nuttx/wireless/wireless.h>
+#endif
 #include "usrsock_rpmsg.h"
 
 struct usrsock_rpmsg_s
@@ -712,6 +714,10 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
   struct usrsock_request_ioctl_s *req = data;
   struct usrsock_message_datareq_ack_s *ack;
   struct usrsock_rpmsg_s *priv = priv_;
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+  struct iwreq *wlreq;
+  struct iwreq *wlack;
+#endif
   int ret = -EBADF;
   uint32_t len;
 
@@ -719,9 +725,30 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 &&
       req->usockid < CONFIG_NETUTILS_USRSOCK_NSOCK_DESCRIPTORS)
     {
-      memcpy(ack + 1, req + 1, req->arglen);
+      memcpy(ack + 1, req + 1, len_ - sizeof(*req));
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+      wlreq = (struct iwreq *)(req + 1);
+      wlack = (struct iwreq *)(ack + 1);
+      if (WL_IS80211POINTERCMD(req->cmd))
+        {
+          wlack->u.data.pointer = wlack + 1;
+        }
+#endif
+
       ret = psock_ioctl(&priv->socks[req->usockid],
               req->cmd, (unsigned long)(ack + 1));
+
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+      if (WL_IS80211POINTERCMD(req->cmd))
+        {
+          if (ret >= 0)
+            {
+              ret = wlreq->u.data.length;
+            }
+
+          wlack->u.data.pointer = wlreq->u.data.pointer;
+        }
+#endif
     }
 
   return usrsock_rpmsg_send_data_ack(ept,
