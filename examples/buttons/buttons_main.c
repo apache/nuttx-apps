@@ -44,10 +44,6 @@
 #  error "CONFIG_INPUT_BUTTONS is not defined in the configuration"
 #endif
 
-#ifndef CONFIG_INPUT_BUTTONS_NPOLLWAITERS
-#  define CONFIG_INPUT_BUTTONS_NPOLLWAITERS 2
-#endif
-
 #ifndef CONFIG_EXAMPLES_BUTTONS_SIGNO
 #  define CONFIG_EXAMPLES_BUTTONS_SIGNO 13
 #endif
@@ -274,10 +270,6 @@ static int button_daemon(int argc, char *argv[])
         {
           printf("button_daemon: Timeout\n");
           timeout = true;
-        }
-      else if (ret > CONFIG_INPUT_BUTTONS_NPOLLWAITERS)
-        {
-          printf("button_daemon: ERROR poll reported: %d\n", errno);
         }
 
       /* In any event, read until the pipe is empty */
