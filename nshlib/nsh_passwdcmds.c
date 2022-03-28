@@ -80,7 +80,7 @@ int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif /* !CONFIG_NSH_DISABLE_USERDEL */
 
 /****************************************************************************
- * Name: cmd_useradd
+ * Name: cmd_passwd
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PASSWD
