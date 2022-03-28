@@ -1,5 +1,5 @@
 //***************************************************************************
-// apps/testing/main.cxx
+// apps/testing/cxxtest/cxxtest_main.cxx
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -25,14 +25,21 @@
 #include <nuttx/config.h>
 
 #include <cstdio>
+#include <cassert>
+#include <cstdio>
+
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
+#ifdef CONFIG_CXX_EXCEPTION
 #include <stdexcept>
-#include <cassert>
-
-using namespace std;
+#endif
+#if __cplusplus >= 201703L
+#include <array>
+#include <utility>
+#endif
 
 //***************************************************************************
 // Private Classes
@@ -54,6 +61,37 @@ public:
   }
 };
 
+#if __cplusplus >= 201703L
+class File
+{
+public:
+  static auto open(std::string_view path) noexcept -> std::optional<File>
+  {
+    auto fd = ::fopen(path.data(), "r");
+    if (fd != nullptr)
+      {
+        return std::make_optional<File>(fd);
+      }
+    else
+      {
+        return std::nullopt;
+      }
+  }
+
+  File(FILE* file) : file_(file) {}
+  ~File()
+  {
+    if (file_ != nullptr)
+      {
+        ::fclose(file_);
+      }
+  }
+
+private:
+  FILE* file_ = nullptr;
+};
+#endif
+
 //***************************************************************************
 // Private Data
 //***************************************************************************
@@ -66,11 +104,11 @@ public:
 // Name: test_ostream
 //***************************************************************************/
 
-static void test_ofstream(void)
+static void test_ofstream()
 {
   std::ofstream ttyOut;
 
-  std::cout << "test ofstream===========================" << std::endl;
+  std::cout << "Test ofstream ================================" << std::endl;
   std::printf("printf: Starting test_ostream\n");
   ttyOut.open ("/dev/console");
   if (!ttyOut.good())
@@ -95,35 +133,23 @@ static void test_ofstream(void)
 // Name: test_iostream
 //***************************************************************************/
 
-static void test_iostream(void)
+static void test_iostream()
 {
-  std::cout << "test iostream===========================" << std::endl;
+  std::cout << "Test iostream ================================" << std::endl;
   std::cout << "Hello, this is only a test" << std::endl;
   std::cout << "Print an int: "  <<  190  <<  std::endl;
-  std::cout <<  "Print a char: "  <<  'd'  <<  std::endl;
-
-#if 0
-  int a;
-  string s;
-
-  std::cout << "Please type in an int:" << std::endl;
-  std::cin >> a;
-  std::cout << "You type in: " << a << std::endl;
-  std::cout << "Please type in a string:" << std::endl;
-  std::cin >> s;
-  std::cout << "You type in: " << s << std::endl;
-#endif
+  std::cout << "Print a char: "  <<  'd'  <<  std::endl;
 }
 
 //***************************************************************************
 // Name: test_stl
 //***************************************************************************/
 
-static void test_stl(void)
+static void test_stl()
 {
-  std::cout << "test vector=============================" << std::endl;
+  std::cout << "Test std::vector =============================" << std::endl;
 
-  vector<int> v1;
+  std::vector<int> v1;
   assert(v1.empty());
 
   v1.push_back(1);
@@ -140,12 +166,12 @@ static void test_stl(void)
   std::cout << "v1=" << v1[0] << ' ' << v1[1] << ' ' << v1[2] << std::endl;
   assert(v1[2] == 3);
 
-  vector<int> v2 = v1;
+  std::vector<int> v2 = v1;
   assert(v2 == v1);
 
-  string words[4] = {"Hello", "World", "Good", "Luck"};
-  vector<string> v3(words, words + 4);
-  vector<string>::iterator it;
+  std::string words[4] = {"Hello", "World", "Good", "Luck"};
+  std::vector<std::string> v3(words, words + 4);
+  std::vector<std::string>::iterator it;
   for (it = v3.begin(); it != v3.end(); ++it)
     {
       std::cout << *it << ' ';
@@ -154,9 +180,9 @@ static void test_stl(void)
   std::cout << std::endl;
   assert(v3[1] == "World");
 
-  std::cout << "test map================================" << std::endl;
+  std::cout << "Test std::map ================================" << std::endl;
 
-  map<int,string> m1;
+  std::map<int, std::string> m1;
   m1[12] = "Hello";
   m1[24] = "World";
   assert(m1.size() == 2);
@@ -164,13 +190,41 @@ static void test_stl(void)
 }
 
 //***************************************************************************
+// Name: test_stl2
+//***************************************************************************/
+
+#if __cplusplus >= 201703L
+auto test_stl2() -> void
+{
+  std::cout << "Test C++17 features ==========================" << std::endl;
+
+  auto check = [](auto&& path)
+    {
+      if (File::open(path))
+        {
+          std::cout << "File " << path << " exists!" << std::endl;
+        }
+      else
+        {
+          std::cerr << "Invalid file! " << path << std::endl;
+        }
+    };
+  std::array<std::string_view, 3> path_list{
+    "/proc/meminfo", "/invalid", "/proc/version"
+  };
+
+  std::for_each(path_list.cbegin(), path_list.cend(), check);
+}
+#endif
+
+//***************************************************************************
 // Name: test_rtti
 //***************************************************************************/
 
 #ifdef CONFIG_CXX_RTTI
-static void test_rtti(void)
+static void test_rtti()
 {
-  std::cout << "test rtti===============================" << std::endl;
+  std::cout << "Test RTTI ====================================" << std::endl;
   Base *a = new Base();
   Base *b = new Extend();
   assert(a);
@@ -193,14 +247,14 @@ static void test_rtti(void)
 //***************************************************************************/
 
 #ifdef CONFIG_CXX_EXCEPTION
-static void test_exception(void)
+static void test_exception()
 {
-  std::cout << "test exception==========================" << std::endl;
+  std::cout << "Test Exception ===============================" << std::endl;
   try
     {
-      throw runtime_error("runtime error");
+      throw std::runtime_error("runtime error");
     }
-  catch (runtime_error &e)
+  catch (std::runtime_error &e)
     {
       std::cout << "Catch exception: " << e.what() << std::endl;
     }
@@ -220,6 +274,9 @@ extern "C" int main(int argc, char *argv[])
   test_ofstream();
   test_iostream();
   test_stl();
+#if __cplusplus >= 201703L
+  test_stl2();
+#endif
 #ifdef CONFIG_CXX_RTTI
   test_rtti();
 #endif
