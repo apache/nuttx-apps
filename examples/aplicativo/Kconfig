@@ -1,0 +1,26 @@
+
+
+config EXAMPLES_APP
+	tristate "\"Application!\" example"
+	default n
+	---help---
+		Enable the \"Application!\" example
+
+if EXAMPLES_APP
+
+config EXAMPLES_APP_PROGNAME
+	string "Program name"
+	default "application"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_APP_PRIORITY
+	int "App task priority"
+	default 100
+
+config EXAMPLES_APP_STACKSIZE
+	int "App stack size"
+	default 2048
+
+endif
