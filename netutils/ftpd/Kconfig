@@ -13,7 +13,17 @@ config NETUTILS_FTPD
 if NETUTILS_FTPD
 
 config FTPD_WORKERSTACKSIZE
-	int "FTPD client thread stack size"
+	int "FTPD server thread stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+config FTPD_LOGIN_PASSWD
+	bool "Verify FTPD server login with encrypted password file"
+	default n
+	depends on FSUTILS_PASSWD
+	---help---
+		Use the content of an encrypted password file to verify user
+		credentials.  This option requires that you have selected
+		CONFIG_FSUTILS_PASSWD to enable the access methods of
+		apps/fsutils/passwd.
 
 endif

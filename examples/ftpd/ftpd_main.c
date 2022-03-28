@@ -69,7 +69,7 @@ static const struct fptd_account_s g_ftpdaccounts[] =
  * Public Data
  ****************************************************************************/
 
-/* To minimize the probability of name collisitions, all FTPD example
+/* To minimize the probability of name collisions, all FTPD example
  * global data is maintained in a single instance of a structure.
  */
 
