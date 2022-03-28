@@ -1,4 +1,0 @@
-
-ifneq ($(CONFIG_EXAMPLES_APP),)
-CONFIGURED_APPS += $(APPDIR)/examples/aplicativo
-endif
