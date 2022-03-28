@@ -16,6 +16,10 @@ config LIBUV_THREADPOOL_SIZE
 	int "libuv default thread pool size"
 	default 1
 
+config LIBUV_THREAD_STACKSIZE
+	int "libuv worker thread stack size"
+	default PTHREAD_STACK_DEFAULT
+
 choice
 	prompt "libuv utils"
 	default LIBUV_UTILS_NONE
