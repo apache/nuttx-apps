@@ -653,6 +653,8 @@ static int trace_dump_one(FAR FILE *out,
         break;
     }
 
+  fflush(out);
+
   /* Return the length of the processed note */
 
   return note->nc_length;
