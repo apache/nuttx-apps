@@ -592,8 +592,8 @@ static int trace_dump_one(FAR FILE *out,
 
           nih = (FAR struct note_irqhandler_s *)p;
           trace_dump_header(out, note, ctx);
-          fprintf(out, "irq_handler_entry: irq=%u\n",
-                  nih->nih_irq);
+          fprintf(out, "irq_handler_entry: irq=%u name=%d\n",
+                  nih->nih_irq, nih->nih_irq);
           cctx->intr_nest++;
         }
         break;
@@ -604,7 +604,7 @@ static int trace_dump_one(FAR FILE *out,
 
           nih = (FAR struct note_irqhandler_s *)p;
           trace_dump_header(out, note, ctx);
-          fprintf(out, "irq_handler_exit: irq=%u\n",
+          fprintf(out, "irq_handler_exit: irq=%u ret=handled\n",
                   nih->nih_irq);
           cctx->intr_nest--;
 
