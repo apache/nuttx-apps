@@ -547,6 +547,12 @@ config NSH_DISABLE_XD
 	bool "Disable xd"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_RESET_CAUSE
+	bool "Disable reset cause"
+	default n if !DEFAULT_SMALL
+	default y if DEFAULT_SMALL
+	depends on BOARDCTL_RESET_CAUSE
+
 endmenu
 
 if MMCSD

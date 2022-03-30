@@ -319,6 +319,26 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 #endif
 
+#if defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE)
+int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  int ret;
+  struct boardioc_reset_cause_s cause;
+
+  memset(&cause, 0, sizeof(cause));
+  ret = boardctl(BOARDIOC_RESET_CAUSE, &cause);
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+      return ERROR;
+    }
+
+  nsh_output(vtbl, "cause:0x%x, flag:0x" PRIx32 "\n",
+             cause.cause, cause.flag);
+  return OK;
+}
+#endif
+
 /****************************************************************************
  * Name: cmd_rptun
  ****************************************************************************/

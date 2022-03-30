@@ -439,6 +439,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "reboot",   cmd_reboot,   1, 2, NULL },
 #endif
 
+#if defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE)
+  { "resetcause",   cmd_reset_cause,   1, 1, NULL },
+#endif
+
 #ifdef NSH_HAVE_DIROPTS
 # ifndef CONFIG_NSH_DISABLE_RM
   { "rm",       cmd_rm,       2, 3, "[-r] <file-path>" },
