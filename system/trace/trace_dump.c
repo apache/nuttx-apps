@@ -317,7 +317,7 @@ static void trace_dump_header(FAR FILE *out,
   int cpu = 0;
 #endif
 
-  pid = ctx->cpu[cpu].current_pid;
+  trace_dump_unflatten(&pid, note->nc_pid, sizeof(pid));
 
   fprintf(out, "%8s-%-3u [%d] %3" PRIu32 ".%09" PRIu32 ": ",
           get_task_name(pid, ctx), get_pid(pid), cpu,
