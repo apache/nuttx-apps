@@ -70,11 +70,13 @@
 
 struct trace_dump_cpu_context_s
 {
-  int intr_nest;          /* Interrupt nest level */
-  bool pendingswitch;     /* sched_switch pending flag */
-  int current_state;      /* Task state of the current line */
-  pid_t current_pid;      /* Task PID of the current line */
-  pid_t next_pid;         /* Task PID of the next line */
+  int intr_nest;            /* Interrupt nest level */
+  bool pendingswitch;       /* sched_switch pending flag */
+  int current_state;        /* Task state of the current line */
+  pid_t current_pid;        /* Task PID of the current line */
+  pid_t next_pid;           /* Task PID of the next line */
+  uint8_t current_priority; /* Task Priority of the current line */
+  uint8_t next_priority;    /* Task Priority of the next line */
 };
 
 struct trace_dump_task_context_s
@@ -170,6 +172,8 @@ static void trace_dump_init_context(FAR struct trace_dump_context_s *ctx,
       ctx->cpu[cpu].current_state = TSTATE_TASK_RUNNING;
       ctx->cpu[cpu].current_pid = -1;
       ctx->cpu[cpu].next_pid = -1;
+      ctx->cpu[cpu].current_priority = -1;
+      ctx->cpu[cpu].next_priority = -1;
     }
 
   ctx->task = NULL;
@@ -342,6 +346,8 @@ static void trace_dump_sched_switch(FAR FILE *out,
                                     FAR struct trace_dump_context_s *ctx)
 {
   FAR struct trace_dump_cpu_context_s *cctx;
+  uint8_t current_priority;
+  uint8_t next_priority;
   pid_t current_pid;
   pid_t next_pid;
 #ifdef CONFIG_SMP
@@ -354,14 +360,19 @@ static void trace_dump_sched_switch(FAR FILE *out,
   current_pid = cctx->current_pid;
   next_pid = cctx->next_pid;
 
+  current_priority = cctx->current_priority;
+  next_priority = cctx->next_priority;
+
   fprintf(out, "sched_switch: "
-               "prev_comm=%s prev_pid=%u prev_state=%c ==> "
-               "next_comm=%s next_pid=%u\n",
+               "prev_comm=%s prev_pid=%u prev_prio=%u prev_state=%c ==> "
+               "next_comm=%s next_pid=%u next_prio=%u\n",
           get_task_name(current_pid, ctx), get_pid(current_pid),
-          get_task_state(cctx->current_state),
-          get_task_name(next_pid, ctx), get_pid(next_pid));
+          current_priority, get_task_state(cctx->current_state),
+          get_task_name(next_pid, ctx), get_pid(next_pid),
+          next_priority);
 
   cctx->current_pid = cctx->next_pid;
+  cctx->current_priority = cctx->next_priority;
   cctx->pendingswitch = false;
 }
 #endif
@@ -444,6 +455,7 @@ static int trace_dump_one(FAR FILE *out,
            */
 
           cctx->next_pid = pid;
+          cctx->next_priority = note->nc_priority;
 
           if (cctx->intr_nest == 0)
             {
