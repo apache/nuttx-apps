@@ -737,7 +737,7 @@ static void dump_notes(size_t nread)
                   {
                     FAR struct note_binary_s *note_binary =
                       (FAR struct note_binary_s *)note;
-                    uint32_t module;
+                    uintptr_t ip;
                     char out[1280];
                     int count;
                     int ret = 0;
@@ -758,15 +758,15 @@ static void dump_notes(size_t nread)
                         ret += sprintf(&out[ret], " 0x%x", note_binary->nbi_data[i]);
                       }
 
-                    trace_dump_unflatten(&module,
-                                         note_binary->nbi_module,
-                                         sizeof(module));
+                    trace_dump_unflatten(&ip, note_binary->nbi_ip,
+                                         sizeof(ip));
 
                     syslog_time(LOG_INFO,
-                           "Task %u priority %u, binary:module=%lx "
-                            "event=%u count=%u%s\n",
+                           "Task %u priority %u, ip=0x%" PRIdPTR
+                            " event=%u count=%u%s\n",
                            (unsigned int)pid,
-                           (unsigned int)note->nc_priority, module,
+                           (unsigned int)note->nc_priority,
+                           note_binary->nbi_ip,
                            note_binary->nbi_event,
                            count,
                            out);

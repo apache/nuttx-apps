@@ -615,31 +615,30 @@ static int trace_dump_one(FAR FILE *out,
       case NOTE_DUMP_STRING:
         {
           FAR struct note_string_s *nst;
+          uintptr_t ip;
 
           nst = (FAR struct note_string_s *)p;
           trace_dump_header(out, note, ctx);
-          fprintf(out, "dump_string: %s\n",
-                  nst->nst_data);
+          trace_dump_unflatten(&ip, nst->nst_ip, sizeof(ip));
+          fprintf(out, "0x%" PRIdPTR ": %s\n", ip, nst->nst_data);
         }
         break;
 
       case NOTE_DUMP_BINARY:
         {
           FAR struct note_binary_s *nbi;
-          uint32_t module;
           uint8_t count;
+          uintptr_t ip;
           int i;
 
           nbi = (FAR struct note_binary_s *)p;
           trace_dump_header(out, note, ctx);
           count = note->nc_length - sizeof(struct note_binary_s) + 1;
 
-          trace_dump_unflatten(&module,
-                               note_binary->nbi_module,
-                               sizeof(module));
+          trace_dump_unflatten(&ip, nbi->nbi_ip, sizeof(ip));
 
-          fprintf(out, "dump_binary: module=%lx event=%u count=%u",
-                  module, nbi->nbi_event, count);
+          fprintf(out, "0x%" PRIdPTR ": event=%u count=%u",
+                  ip, nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
               fprintf(out, " 0x%x", nbi->nbi_data[i]);
