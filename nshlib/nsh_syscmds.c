@@ -345,8 +345,8 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
-                          int argc, char **argv)
+static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
+                          FAR const char *path, char **argv)
 {
   struct rptun_ping_s ping;
   unsigned long val = 0;
@@ -363,11 +363,7 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
     }
   else if (strcmp(argv[1], "reset") == 0)
     {
-      if (argc > 3)
-        {
-          val = atoi(argv[3]);
-        }
-
+      val = atoi(argv[3]);
       cmd = RPTUNIOC_RESET;
     }
   else if (strcmp(argv[1], "panic") == 0)
@@ -380,9 +376,8 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl, char *path,
     }
   else if (strcmp(argv[1], "ping") == 0)
     {
-      if (argc != 6)
+      if (argv[3] == 0 || argv[4] == 0 || argv[5] == 0)
         {
-          nsh_output(vtbl, g_fmtarginvalid, path);
           return ERROR;
         }
 
@@ -418,7 +413,7 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
                                struct dirent *entryp, void *pvarg)
 {
   char *path;
-  int ret = 0;
+  int ret = ERROR;
 
   if (DIRENT_ISDIRECTORY(entryp->d_type))
     {
@@ -428,7 +423,7 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
   path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
   if (path)
     {
-      ret = cmd_rptun_once(vtbl, path, 2, pvarg);
+      ret = cmd_rptun_once(vtbl, path, pvarg);
       free(path);
     }
 
@@ -437,19 +432,19 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
 
 int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  if (argc < 2)
+  if (argc < 3)
     {
       nsh_output(vtbl, g_fmtargrequired, argv[0]);
       return ERROR;
     }
 
-  if (argc == 2)
+  if (strcmp(argv[2], "all") == 0)
     {
       return nsh_foreach_direntry(vtbl, "rptun", "/dev/rptun",
                                   cmd_rptun_recursive, argv);
     }
 
-  return cmd_rptun_once(vtbl, argv[2], argc, argv);
+  return cmd_rptun_once(vtbl, argv[2], argv);
 }
 #endif
 
