@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -98,6 +99,36 @@ struct trace_dump_context_s
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: trace_dump_unflatten
+ ****************************************************************************/
+
+static void trace_dump_unflatten(FAR void *dst,
+                                 FAR uint8_t *src, size_t len)
+{
+  switch (len)
+    {
+#ifdef CONFIG_HAVE_LONG_LONG
+      case 8:
+        *(uint64_t *)dst = ((uint64_t)src[7] << 56)
+                         + ((uint64_t)src[6] << 48)
+                         + ((uint64_t)src[5] << 40)
+                         + ((uint64_t)src[4] << 32);
+#endif
+      case 4:
+        *(uint32_t *)dst = ((uint64_t)src[3] << 24)
+                         + ((uint64_t)src[2] << 16);
+      case 2:
+        *(uint16_t *)dst = ((uint64_t)src[1] << 8);
+      case 1:
+        *(uint8_t *)dst = src[0];
+        break;
+      default:
+        DEBUGASSERT(FALSE);
+        break;
+    }
+}
 
 /****************************************************************************
  * Name: note_ioctl
@@ -270,19 +301,15 @@ static void trace_dump_header(FAR FILE *out,
 {
   pid_t pid;
 #ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
-  uint32_t nsec = note->nc_systime_nsec[0] +
-                  (note->nc_systime_nsec[1] << 8) +
-                  (note->nc_systime_nsec[2] << 16) +
-                  (note->nc_systime_nsec[3] << 24);
-  uint32_t sec = note->nc_systime_sec[0] +
-                 (note->nc_systime_sec[1] << 8) +
-                 (note->nc_systime_sec[2] << 16) +
-                 (note->nc_systime_sec[3] << 24);
+  uint32_t nsec;
+  uint32_t sec;
+
+  trace_dump_unflatten(&nsec, note->nc_systime_nsec, sizeof(nsec));
+  trace_dump_unflatten(&sec, note->nc_systime_sec, sizeof(sec));
 #else
-  uint32_t systime = note->nc_systime[0] +
-                     (note->nc_systime[1] << 8) +
-                     (note->nc_systime[2] << 16) +
-                     (note->nc_systime[3] << 24);
+  uint32_t systime;
+
+  trace_dump_unflatten(&systime, note->nc_systime, sizeof(systime));
 #endif
 #ifdef CONFIG_SMP
   int cpu = note->nc_cpu;
@@ -357,7 +384,7 @@ static int trace_dump_one(FAR FILE *out,
 #endif
 
   cctx = &ctx->cpu[cpu];
-  pid = note->nc_pid[0] + (note->nc_pid[1] << 8);
+  trace_dump_unflatten(&pid, note->nc_pid, sizeof(pid));
 
   if (cctx->current_pid < 0)
     {
@@ -486,18 +513,7 @@ static int trace_dump_one(FAR FILE *out,
 
           for (i = j = 0; i < nsc->nsc_argc; i++)
             {
-              arg = (uintptr_t)nsc->nsc_args[j++];
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 8;
-#if UINTPTR_MAX > UINT16_MAX
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 16;
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 24;
-#if UINTPTR_MAX > UINT32_MAX
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 32;
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 40;
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 48;
-              arg |= (uintptr_t)nsc->nsc_args[j++] << 56;
-#endif
-#endif
+              trace_dump_unflatten(&arg, nsc->nsc_args, sizeof(arg));
               if (i == 0)
                 {
                   fprintf(out, "arg%d: 0x%" PRIxPTR, i, arg);
@@ -549,21 +565,7 @@ static int trace_dump_one(FAR FILE *out,
             }
 
           trace_dump_header(out, note, ctx);
-
-          result =    (uintptr_t)nsc->nsc_result[0]
-                   + ((uintptr_t)nsc->nsc_result[1] << 8)
-#if UINTPTR_MAX > UINT16_MAX
-                   + ((uintptr_t)nsc->nsc_result[2] << 16)
-                   + ((uintptr_t)nsc->nsc_result[3] << 24)
-#if UINTPTR_MAX > UINT32_MAX
-                   + ((uintptr_t)nsc->nsc_result[4] << 32)
-                   + ((uintptr_t)nsc->nsc_result[5] << 40)
-                   + ((uintptr_t)nsc->nsc_result[6] << 48)
-                   + ((uintptr_t)nsc->nsc_result[7] << 56)
-#endif
-#endif
-          ;
-
+          trace_dump_unflatten(&result, nsc->nsc_result, sizeof(result));
           fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
                   g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
                   result);
@@ -624,16 +626,20 @@ static int trace_dump_one(FAR FILE *out,
       case NOTE_DUMP_BINARY:
         {
           FAR struct note_binary_s *nbi;
+          uint32_t module;
           uint8_t count;
           int i;
 
           nbi = (FAR struct note_binary_s *)p;
           trace_dump_header(out, note, ctx);
           count = note->nc_length - sizeof(struct note_binary_s) + 1;
-          fprintf(out, "dump_binary: module=%c%c%c%c event=%u count=%u",
-                  nbi->nbi_module[0], nbi->nbi_module[1],
-                  nbi->nbi_module[2], nbi->nbi_module[3],
-                  nbi->nbi_event, count);
+
+          trace_dump_unflatten(&module,
+                               note_binary->nbi_module,
+                               sizeof(module));
+
+          fprintf(out, "dump_binary: module=%lx event=%u count=%u",
+                  module, nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
               fprintf(out, " 0x%x", nbi->nbi_data[i]);
