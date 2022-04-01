@@ -977,6 +977,10 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_TIMEDATECTL
+  int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_DATE
   int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
