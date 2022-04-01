@@ -692,7 +692,7 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
 
   /* Save the path and format capabilities of the device */
 
-  strncpy(precorder->device, pdevice, sizeof(precorder->device));
+  strlcpy(precorder->device, pdevice, sizeof(precorder->device));
 
   return OK;
 }

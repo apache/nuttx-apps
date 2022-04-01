@@ -218,7 +218,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef CONFIG_DEBUG_MM
 # ifndef CONFIG_NSH_DISABLE_MEMDUMP
-  { "memdump",  cmd_memdump,  1, 3, "[pid/used/free]" },
+  { "memdump",  cmd_memdump,  1, 3, "[pid/used/free/on/off]" },
 # endif
 #endif
 
@@ -437,6 +437,10 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
   { "reboot",   cmd_reboot,   1, 2, NULL },
+#endif
+
+#if defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE)
+  { "resetcause",   cmd_reset_cause,   1, 1, NULL },
 #endif
 
 #ifdef NSH_HAVE_DIROPTS

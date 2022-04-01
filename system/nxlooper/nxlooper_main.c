@@ -348,7 +348,7 @@ static int nxlooper_cmd_resume(FAR struct nxlooper_s *plooper, char *parg)
 static int nxlooper_cmd_device(FAR struct nxlooper_s *plooper, char *parg)
 {
   int  ret;
-  char path[32];
+  char path[PATH_MAX];
 
   /* First try to open the file directly */
 

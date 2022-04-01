@@ -59,7 +59,7 @@ index e75f77de..feef5a44 100644
  #elif defined(_AIX) || defined(__QNX__)
    rc = uv__random_readpath("/dev/random", buf, buflen);
 diff --git a/src/threadpool.c b/src/threadpool.c
-index 869ae95f..8fabeba5 100644
+index 869ae95f..73077ec6 100644
 --- a/src/threadpool.c
 +++ b/src/threadpool.c
 @@ -20,6 +20,7 @@
@@ -169,7 +169,24 @@ index 869ae95f..8fabeba5 100644
  }
  
  
-@@ -212,7 +217,7 @@ static void init_threads(void) {
+@@ -188,6 +193,16 @@ static void init_threads(void) {
+   const char* val;
+   uv_sem_t sem;
+ 
++  const uv_thread_options_t params = {
++#ifdef DEF_THREADPOOL_STACKSIZE
++    UV_THREAD_HAS_STACK_SIZE,
++    DEF_THREADPOOL_STACKSIZE
++#else
++    UV_THREAD_NO_FLAGS,
++    0
++#endif
++  };
++
+   nthreads = ARRAY_SIZE(default_threads);
+   val = getenv("UV_THREADPOOL_SIZE");
+   if (val != NULL)
+@@ -212,7 +227,7 @@ static void init_threads(void) {
    if (uv_mutex_init(&mutex))
      abort();
  
@@ -178,7 +195,16 @@ index 869ae95f..8fabeba5 100644
    QUEUE_INIT(&slow_io_pending_wq);
    QUEUE_INIT(&run_slow_work_message);
  
-@@ -230,14 +235,6 @@ static void init_threads(void) {
+@@ -220,7 +235,7 @@ static void init_threads(void) {
+     abort();
+ 
+   for (i = 0; i < nthreads; i++)
+-    if (uv_thread_create(threads + i, worker, &sem))
++    if (uv_thread_create_ex(threads + i, &params, worker, &sem))
+       abort();
+ 
+   for (i = 0; i < nthreads; i++)
+@@ -230,14 +245,6 @@ static void init_threads(void) {
  }
  
  

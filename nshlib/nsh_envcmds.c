@@ -148,47 +148,6 @@ static inline FAR const char *nsh_getwd(const char *wd)
 #endif
 
 /****************************************************************************
- * Name: nsh_getdirpath
- ****************************************************************************/
-
-#ifndef CONFIG_DISABLE_ENVIRON
-static inline char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
-                                   const char *dirpath, const char *relpath)
-{
-  FAR char *alloc;
-  int len;
-
-  /* Handle the special case where the dirpath is simply "/" */
-
-  if (strcmp(dirpath, "/") == 0)
-    {
-      len   = strlen(relpath) + 2;
-      alloc = (FAR char *)malloc(len);
-      if (alloc)
-        {
-          sprintf(alloc, "/%s", relpath);
-        }
-    }
-  else
-    {
-      len = strlen(dirpath) + strlen(relpath) + 2;
-      alloc = (FAR char *)malloc(len);
-      if (alloc)
-        {
-          sprintf(alloc, "%s/%s", dirpath, relpath);
-        }
-    }
-
-  if (!alloc)
-    {
-      nsh_error(vtbl, g_fmtcmdoutofmemory, "nsh_getdirpath");
-    }
-
-  return alloc;
-}
-#endif
-
-/****************************************************************************
  * Name: nsh_dumpvar
  ****************************************************************************/
 

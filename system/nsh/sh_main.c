@@ -49,5 +49,5 @@ int main(int argc, FAR char *argv[])
    * system() and popen() interfaces.
    */
 
-  return nsh_system(argc, argv);
+  return nsh_system_ctty(argc, argv);
 }

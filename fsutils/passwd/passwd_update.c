@@ -25,7 +25,7 @@
 #include <semaphore.h>
 
 #include "fsutils/passwd.h"
-#include <passwd.h>
+#include "passwd.h"
 
 /****************************************************************************
  * Public Functions

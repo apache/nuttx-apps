@@ -4,7 +4,8 @@
  *   Copyright (C) 2005-01-26, Greg King (https://github.com/cc65)
  *
  * Original License:
- * This software is provided 'as-is', without any express or implied warranty.
+ * This software is provided 'as-is', without any express or implied
+ * warranty.
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
@@ -80,14 +81,10 @@
 #define ARRAYSIZE(a) (sizeof (a) / sizeof (a)[0])
 
 /****************************************************************************
- * Private Data
+ * Private Types
  ****************************************************************************/
 
-/****************************************************************************
- * Name: cmd_basename
- ****************************************************************************/
-
-static const struct
+struct test_data_s
 {
   FAR const char *input;
   FAR const char *format;
@@ -114,8 +111,41 @@ static const struct
     double dvalue;
     const char *svalue;
   } v2;
-}
-test_data[] =
+};
+
+struct type_data_s
+{
+  FAR const char *input;
+  FAR const char *format;
+  union
+  {
+    long long s;
+    unsigned long long u;
+  } value;
+  enum MODTYPE
+  {
+    HH_MOD_S,
+    HH_MOD_U,
+    H_MOD_S,
+    H_MOD_U,
+    NO_MOD_S,
+    NO_MOD_U,
+    L_MOD_S,
+    L_MOD_U,
+    LL_MOD_S,
+    LL_MOD_U
+  } type;
+};
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: cmd_basename
+ ****************************************************************************/
+
+static const struct test_data_s test_data[] =
 {
   /* Input sequences for character specifiers must be less than 80 characters
    * long.  These format strings are allowwed a maximum of two assignment
@@ -367,7 +397,8 @@ test_data[] =
 
   {
     "123456qwertyasdfghzxcvbn!@#$%^QWERTYASDFGHZXCV"
-      "BN7890-=uiop[]\\jkl;'m,./&*()_+UIOP{}|JKL:\"M<>?", "%79s%79s", 2, CHAR,
+    "BN7890-=uiop[]\\jkl;'m,./&*()_+UIOP{}|JKL:\"M<>?",
+    "%79s%79s", 2, CHAR,
     {
       .svalue = "123456qwertyasdfghzxcvbn!@#$%^QWERTYASDFGHZXCV"
                 "BN7890-=uiop[]\\jkl;'m,./&*()_+UIO"
@@ -719,7 +750,7 @@ test_data[] =
   {
     "qwerty   9.87654321E8", "qwerty  %f%i", 1, FLOAT,
     {
-      .fvalue = 9.87654321E8f
+      .fvalue = 9.87654321e8f
     },
     INT,
     {
@@ -729,7 +760,7 @@ test_data[] =
   {
     "qwerty   +9.87654321E+8", "qwerty  %f%i", 1, FLOAT,
     {
-      .fvalue = 9.87654321E8f
+      .fvalue = 9.87654321e8f
     },
     INT,
     {
@@ -739,7 +770,7 @@ test_data[] =
   {
     "qwerty   -9.87654321e8", "qwerty  %f%i", 1, FLOAT,
     {
-      .fvalue = -9.87654321E8f
+      .fvalue = -9.87654321e8f
     },
     INT,
     {
@@ -799,7 +830,7 @@ test_data[] =
   {
     "qwerty   9.87654321e8", "qwerty  %lf%i", 1, DOUBLE,
     {
-      .dvalue = 9.87654321E8l
+      .dvalue = 9.87654321e8l
     },
     INT,
     {
@@ -809,7 +840,7 @@ test_data[] =
   {
     "qwerty   +9.87654321e+8", "qwerty  %lf%i", 1, DOUBLE,
     {
-      .dvalue = 9.87654321E8l
+      .dvalue = 9.87654321e8l
     },
     INT,
     {
@@ -817,9 +848,9 @@ test_data[] =
     }
   },                           /* 66 */
   {
-    "qwerty   -9.87654321E8", "qwerty  %lf%i", 1, DOUBLE,
+    "qwerty   -9.87654321e8", "qwerty  %lf%i", 1, DOUBLE,
     {
-      .dvalue = -9.87654321E8l
+      .dvalue = -9.87654321e8l
     },
     INT,
     {
@@ -850,30 +881,7 @@ test_data[] =
 
 /* Test the char, short, and long specification-modifiers. */
 
-static const struct
-{
-  FAR const char *input;
-  FAR const char *format;
-  union
-  {
-    long long s;
-    unsigned long long u;
-  } value;
-  enum MODTYPE
-  {
-    HH_MOD_S,
-    HH_MOD_U,
-    H_MOD_S,
-    H_MOD_U,
-    NO_MOD_S,
-    NO_MOD_U,
-    L_MOD_S,
-    L_MOD_U,
-    LL_MOD_S,
-    LL_MOD_U
-  } type;
-}
-type_data[] =
+static const struct type_data_s type_data[] =
 {
   {
     " 123456789", "%hhd",
@@ -1068,7 +1076,7 @@ int main(int argc, FAR char *argv[])
   int n1 = 12345;
   int n2;
   bool ok;
-  char s1[80];
+  char s1[84];
   char s2[80];
   float f1;
   float f2;
@@ -1215,6 +1223,7 @@ int main(int argc, FAR char *argv[])
                     (FAR void *)s2
               );
             }
+
           if (c != test_data[t].rvalue)
             {
               printf("Test #%u returned %d instead of %d.\n", t + 1, c,
@@ -1396,7 +1405,7 @@ int main(int argc, FAR char *argv[])
           sscanf(type_data[t].input, type_data[t].format, &nou);
           if (type_data[t].value.u != nou)
             {
-              printf("Test #%u assigned %nou instead of %lli.\n",
+              printf("Test #%u assigned %u instead of %lli.\n",
                      t + 1, nou, type_data[t].value.u);
               ok = false;
             }

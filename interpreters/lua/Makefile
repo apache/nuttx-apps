@@ -84,9 +84,11 @@ CSRCS += $(CORELIBS_SRCS)
 
 register::
 	# collect core module names from defines in lualib.h
-	$(Q) awk '{ if (match($$0,/LUA_[A-Z]+LIBNAME\s"([a-z]+)"$$/,m)) \
-		printf "{ \"%s\", luaopen_%s },\n", m[1], m[1] > "registry$(DELIM)"m[1]".bdat" }' \
-		$(LUA_SRC)$(DELIM)lualib.h
+	$(Q) while read -r line; do \
+		name=$$(expr "$$line" : '#define LUA_[[:upper:]]\+LIBNAME[[:space:]]\+"\([[:lower:]]\+\)"'); \
+		if [ ! -z $$name ]; then \
+			printf '{ "%s", luaopen_%s },\n' $$name $$name > registry$(DELIM)$$name.bdat; \
+		fi done < $(LUA_SRC)$(DELIM)lualib.h
 endif
 
 # Lua builtin module registry
