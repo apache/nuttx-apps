@@ -335,7 +335,7 @@ static void cfgdatacmd_set(int argc, char *argv[])
 
   /* Now open the /dev/config file and set the config item */
 
-  if ((fd = open(g_config_dev, O_WRONLY)) < 2)
+  if ((fd = open(g_config_dev, 0)) < 2)
     {
       /* Display error */
 
@@ -402,7 +402,7 @@ static void cfgdatacmd_unset(int argc, char *argv[])
 
   /* Try to open the /dev/config file */
 
-  if ((fd = open(g_config_dev, O_WRONLY)) < 2)
+  if ((fd = open(g_config_dev, 0)) < 2)
     {
       /* Display error */
 
@@ -549,7 +549,7 @@ static void cfgdatacmd_show_all_config_items(void)
 
   /* Try to open the /dev/config file */
 
-  if ((fd = open(g_config_dev, O_RDONLY)) < 2)
+  if ((fd = open(g_config_dev, 0)) < 2)
     {
       /* Display error */
 
@@ -658,7 +658,7 @@ static void cfgdatacmd_format(void)
 
   /* Try to open the /dev/config file */
 
-  if ((fd = open(g_config_dev, O_WRONLY)) < 2)
+  if ((fd = open(g_config_dev, 0)) < 2)
     {
       /* Display error */
 
