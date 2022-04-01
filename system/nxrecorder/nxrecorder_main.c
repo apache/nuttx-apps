@@ -301,8 +301,8 @@ static int nxrecorder_cmd_resume(FAR struct nxrecorder_s *precorder,
 static int nxrecorder_cmd_device(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg)
 {
-  int     ret;
-  char    path[32];
+  int  ret;
+  char path[PATH_MAX];
 
   /* First try to open the file directly */
 

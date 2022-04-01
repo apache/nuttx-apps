@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/mtd/mtd.h>
 #include <nuttx/mtd/configdata.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>

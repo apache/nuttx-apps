@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/types.h>
 #include <getopt.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -45,8 +46,8 @@ struct rexec_arg_s
   FAR const char *command;
   FAR const char *user;
   FAR char *host;
+  sa_family_t af;
   int port;
-  int af;
 };
 
 /****************************************************************************

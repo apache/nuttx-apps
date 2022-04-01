@@ -93,11 +93,11 @@ static char passwd_base64(uint8_t binary)
 
   /* 62 -> '+' */
 
- binary -= 10;
- if (binary == 0)
-   {
-     return '+';
-   }
+  binary -= 10;
+  if (binary == 0)
+    {
+      return '+';
+    }
 
   /* 63 -> '/' */
 
@@ -123,7 +123,8 @@ static char passwd_base64(uint8_t binary)
  *
  ****************************************************************************/
 
-int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
+int passwd_encrypt(FAR const char *password,
+                   char encrypted[MAX_ENCRYPTED + 1])
 {
   union
   {
@@ -138,7 +139,6 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
   uint32_t tmp;
   uint8_t remainder;
   int remaining;
-  int converted;
   int gulpsize;
   int nbits;
   int i;
@@ -160,11 +160,11 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
   remainder  = 0;
   nbits      = 0;
 
-  for (converted = 0; converted < remaining; converted += 8)
+  for (; remaining > 0; remaining -= gulpsize)
     {
       /* Copy bytes */
 
-      gulpsize = 8;
+      gulpsize = sizeof(value.b);
       if (gulpsize > remaining)
         {
           gulpsize = remaining;
@@ -178,7 +178,7 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
 
       /* Pad with spaces if necessary */
 
-      for (; i < 8; i++)
+      for (; i < sizeof(value.b); i++)
         {
           *bptr++ = ' ';
         }
