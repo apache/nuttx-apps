@@ -381,8 +381,7 @@ static void trace_dump_sched_switch(FAR FILE *out,
  * Name: trace_dump_one
  ****************************************************************************/
 
-static int trace_dump_one(FAR FILE *out,
-                          FAR uint8_t *p,
+static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
                           FAR struct trace_dump_context_s *ctx)
 {
   FAR struct note_common_s *note = (FAR struct note_common_s *)p;
@@ -520,8 +519,16 @@ static int trace_dump_one(FAR FILE *out,
             }
 
           trace_dump_header(out, note, ctx);
-          fprintf(out, "sys_%s(",
-                  g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
+          if (type == TRACE_TYPE_ANDROID)
+            {
+              fprintf(out, "tracing_mark_write: B|%d|sys_%s(",
+                      pid, g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
+            }
+          else
+            {
+              fprintf(out, "sys_%s(",
+                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
+            }
 
           for (i = j = 0; i < nsc->nsc_argc; i++)
             {
@@ -578,9 +585,20 @@ static int trace_dump_one(FAR FILE *out,
 
           trace_dump_header(out, note, ctx);
           trace_dump_unflatten(&result, nsc->nsc_result, sizeof(result));
-          fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
-                  g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
-                  result);
+
+          if (type == TRACE_TYPE_ANDROID)
+            {
+              fprintf(out, "tracing_mark_write: E|%d|"
+                      "sys_%s -> 0x%" PRIxPTR "\n", pid,
+                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
+                      result);
+            }
+          else
+            {
+              fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
+                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
+                      result);
+            }
         }
         break;
 #endif
@@ -632,7 +650,18 @@ static int trace_dump_one(FAR FILE *out,
           nst = (FAR struct note_string_s *)p;
           trace_dump_header(out, note, ctx);
           trace_dump_unflatten(&ip, nst->nst_ip, sizeof(ip));
-          fprintf(out, "0x%" PRIdPTR ": %s\n", ip, nst->nst_data);
+
+          if (type == TRACE_TYPE_ANDROID &&
+              strlen(nst->nst_data) > 2 &&
+              (memcmp(nst->nst_data, "B|", 2) == 0 ||
+               memcmp(nst->nst_data, "E|", 2) == 0))
+            {
+              fprintf(out, "tracing_mark_write: %s\n", nst->nst_data);
+            }
+          else
+            {
+              fprintf(out, "0x%" PRIdPTR ": %s\n", ip, nst->nst_data);
+            }
         }
         break;
 
@@ -684,7 +713,7 @@ static int trace_dump_one(FAR FILE *out,
  *
  ****************************************************************************/
 
-int trace_dump(FAR FILE *out)
+int trace_dump(trace_dump_t type, FAR FILE *out)
 {
   struct trace_dump_context_s ctx;
   uint8_t tracedata[UCHAR_MAX];
@@ -718,7 +747,7 @@ int trace_dump(FAR FILE *out)
       p = tracedata;
       do
         {
-          size = trace_dump_one(out, p, &ctx);
+          size = trace_dump_one(type, out, p, &ctx);
           p += size;
           ret -= size;
         }
