@@ -36,6 +36,10 @@ config WIRELESS_WAPI_PRIORITY
 	int "Command Priority"
 	default 100
 
+config WIRELESS_WAPI_SCAN_MAX_DATA
+	int "Scan Cache Buffer Size (bytes)"
+	default 4096
+
 config WIRELESS_WAPI_INITCONF
 	bool "Wireless Configure Initialization"
 	default n
