@@ -142,10 +142,22 @@ static int trace_cmd_start(int index, int argc, FAR char **argv,
 static int trace_cmd_dump(int index, int argc, FAR char **argv,
                           int notectlfd)
 {
+  trace_dump_t type = TRACE_TYPE_LTTNG_KERNEL;
   FAR FILE *out = stdout;
-  int ret;
   bool changed = false;
   bool cont = false;
+  int ret;
+
+  /* Usage: trace dump [-a] "Custom Format : Android SysTrace" */
+
+  if (index < argc)
+    {
+      if (strcmp(argv[index], "-a") == 0)
+        {
+          index++;
+          type = TRACE_TYPE_ANDROID;
+        }
+    }
 
   /* Usage: trace dump [-c][<filename>] */
 
@@ -189,7 +201,7 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
 
   /* Dump the trace data */
 
-  ret = trace_dump(out);
+  ret = trace_dump(type, out);
 
   if (changed)
     {
@@ -788,8 +800,9 @@ static void show_usage(void)
                                 " Get the trace while running <command>\n"
 #endif
 #ifdef CONFIG_DRIVER_NOTERAM
-          "  dump [-c][<filename>]           :"
+          "  dump [-a][-c][<filename>]           :"
                                 " Output the trace result\n"
+                                " [-a] <Android SysTrace>\n"
 #endif
           "  mode [{+|-}{o|w|s|a|i|d}...]        :"
                                 " Set task trace options\n"
