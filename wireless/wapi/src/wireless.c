@@ -1292,7 +1292,7 @@ int wapi_scan_coll(int sock, FAR const char *ifname,
 
   WAPI_VALIDATE_PTR(aps);
 
-  buflen = IW_SCAN_MAX_DATA;
+  buflen = CONFIG_WIRELESS_WAPI_SCAN_MAX_DATA;
   buf = malloc(buflen * sizeof(char));
   if (!buf)
     {
