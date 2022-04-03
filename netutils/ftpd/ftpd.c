@@ -484,7 +484,7 @@ ftpd_account_search_user(FAR struct ftpd_session_s *session,
                          FAR const char *user)
 {
   FAR struct ftpd_account_s *newaccount = NULL;
-  FAR struct ftpd_account_s *account;
+  const FAR struct ftpd_account_s *account;
   uint8_t accountflags;
 
   account = session->head;
@@ -1656,24 +1656,20 @@ static int ftpd_changedir(FAR struct ftpd_session_s *session,
   ret = stat(abspath, &st);
   if (ret < 0)
     {
-      ret = -errno;
-
       free(workpath);
       free(abspath);
-      ftpd_response(session->cmd.sd, session->txtimeout,
-                    g_respfmt2, 550, ' ', rempath,
-                    ": No such file or directory");
-      return ret;
+      return ftpd_response(session->cmd.sd, session->txtimeout,
+                           g_respfmt2, 550, ' ', rempath,
+                           ": No such file or directory");
     }
 
   if (S_ISDIR(st.st_mode) == 0)
     {
       free(workpath);
       free(abspath);
-      ftpd_response(session->cmd.sd, session->txtimeout,
-                    g_respfmt2, 550, ' ', rempath,
-                    ": No such file or directory");
-      return -ENOTDIR;
+      return ftpd_response(session->cmd.sd, session->txtimeout,
+                           g_respfmt2, 550, ' ', rempath,
+                           ": No such file or directory");
     }
 
   free(abspath);
@@ -2064,8 +2060,8 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
                wrbytes, errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 550, ' ', "Data send error !");
-           ret = -errval;
-           break;
+          ret = -errval;
+          break;
         }
 
       /* Get the next file offset */
@@ -4145,7 +4141,7 @@ static FAR void *ftpd_worker(FAR void *arg)
   /* Send the welcoming message */
 
   ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt1, 220, ' ', CONFIG_FTPD_SERVERID);
+                      g_respfmt1, 220, ' ', CONFIG_FTPD_SERVERID);
   if (ret < 0)
     {
       nerr("ERROR: ftpd_response() failed: %d\n", ret);
