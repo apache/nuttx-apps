@@ -118,12 +118,12 @@ struct ftpd_stream_s
 
 struct ftpd_session_s
 {
-  FAR struct ftpd_server_s  *server;
-  FAR struct ftpd_account_s *head;
-  bool                       loggedin;
-  uint8_t                    flags;   /* See TPD_SESSIONFLAG_* definitions */
-  int                        rxtimeout;
-  int                        txtimeout;
+  const FAR struct ftpd_server_s  *server;
+  const FAR struct ftpd_account_s *head;
+  bool                             loggedin;
+  uint8_t                          flags;   /* See TPD_SESSIONFLAG_* definitions */
+  int                              rxtimeout;
+  int                              txtimeout;
 
   /* Command */
 
