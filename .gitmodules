@@ -19,3 +19,6 @@
 [submodule "examples/rust_i2c"]
 	path = examples/rust_i2c
 	url = https://github.com/lupyuen/rust-i2c-nuttx
+[submodule "examples/lvgltest"]
+	path = examples/lvgltest
+	url = https://github.com/lupyuen/lvgltest-nuttx
