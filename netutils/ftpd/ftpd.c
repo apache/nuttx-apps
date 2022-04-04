@@ -484,7 +484,7 @@ ftpd_account_search_user(FAR struct ftpd_session_s *session,
                          FAR const char *user)
 {
   FAR struct ftpd_account_s *newaccount = NULL;
-  const FAR struct ftpd_account_s *account;
+  FAR const struct ftpd_account_s *account;
   uint8_t accountflags;
 
   account = session->head;
