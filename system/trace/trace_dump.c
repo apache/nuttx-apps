@@ -109,27 +109,15 @@ struct trace_dump_context_s
 static void trace_dump_unflatten(FAR void *dst,
                                  FAR uint8_t *src, size_t len)
 {
-  switch (len)
+#ifdef CONFIG_ENDIAN_BIG
+  FAR uint8_t *end = (FAR uint8_t *)dst + len - 1;
+  while (len-- > 0)
     {
-#ifdef CONFIG_HAVE_LONG_LONG
-      case 8:
-        *(uint64_t *)dst = ((uint64_t)src[7] << 56)
-                         + ((uint64_t)src[6] << 48)
-                         + ((uint64_t)src[5] << 40)
-                         + ((uint64_t)src[4] << 32);
-#endif
-      case 4:
-        *(uint32_t *)dst = ((uint64_t)src[3] << 24)
-                         + ((uint64_t)src[2] << 16);
-      case 2:
-        *(uint16_t *)dst = ((uint64_t)src[1] << 8);
-      case 1:
-        *(uint8_t *)dst = src[0];
-        break;
-      default:
-        DEBUGASSERT(FALSE);
-        break;
+      *end-- = *src++;
     }
+#else
+  memcpy(dst, src, len);
+#endif
 }
 
 /****************************************************************************
