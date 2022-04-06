@@ -57,6 +57,14 @@ static const int g_alloc_sizes[NTEST_ALLOCS] =
     646,   1646,  69179,    194,  2590,     7,    969,     70
 };
 
+static const int g_alloc_small_sizes[NTEST_ALLOCS] =
+{
+       1,     2,      3,      4,     5,     6,      7,      8,
+       9,    10,     11,     12,    13,    14,     15,     16,
+      17,    18,     19,     20,    21,    22,     23,     24,
+      25,    26,     27,     28,    29,    30,     31,     32,
+};
+
 static const int g_realloc_sizes[NTEST_ALLOCS] =
 {
     18,     3088,    963,    123,   511, 11666,   3723,     42,
@@ -93,6 +101,12 @@ static const int g_alignment[NTEST_ALLOCS / 2] =
 {
     128,  2048, 131072,   8192,    32,  32768, 16384 , 262144,
     512,  4096,  65536,      8,     64,  1024,    16,       4
+};
+
+static const int g_alignment2[NTEST_ALLOCS / 2] =
+{
+      1,     2,      4,      8,    16,     32,     64,    128,
+      1,     2,      4,      8,    16,     32,     64,    128,
 };
 
 static FAR void       *g_allocs[NTEST_ALLOCS];
@@ -506,6 +520,18 @@ int main(int argc, FAR char *argv[])
   /* Release aligned memory */
 
   do_frees(g_allocs, g_alloc_sizes, g_random1, NTEST_ALLOCS);
+
+  /* Allocate aligned memory */
+
+  do_memaligns(g_allocs, g_alloc_small_sizes,
+               g_alignment2, g_random2, NTEST_ALLOCS / 2);
+  do_memaligns(g_allocs, g_alloc_small_sizes,
+               g_alignment2, &g_random2[NTEST_ALLOCS / 2],
+               NTEST_ALLOCS / 2);
+
+  /* Release aligned memory */
+
+  do_frees(g_allocs, g_alloc_small_sizes, g_random1, NTEST_ALLOCS);
 
   printf("TEST COMPLETE\n");
   return 0;
