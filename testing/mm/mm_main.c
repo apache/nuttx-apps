@@ -256,6 +256,14 @@ static void do_memaligns(FAR void **mem,
         }
       else
         {
+          if (((uintptr_t)mem[j] % align[i]) != 0)
+            {
+              fprintf(stderr,
+                      "   ERROR wrong alignment: ptr %p, alignment %d\n",
+                      mem[j], align[i]);
+              exit(1);
+            }
+
           memset(mem[j], 0x33, size[j]);
         }
 
