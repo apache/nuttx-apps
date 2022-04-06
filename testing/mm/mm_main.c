@@ -351,7 +351,8 @@ static void *realloc_boundary_malloc(int *nodesize)
     }
   else
     {
-      printf("malloc failed, size=%d\n", (size << 1) - SIZEOF_MM_ALLOCNODE);
+      printf("malloc failed, size=%zu\n",
+             (size_t)((size << 1) - SIZEOF_MM_ALLOCNODE));
     }
 
   return ptr;
@@ -374,7 +375,7 @@ static void realloc_boundary(void)
   DEBUGASSERT(sizeof(dq_entry_t) <= (MM_MIN_CHUNK - SIZEOF_MM_ALLOCNODE));
 
   printf("memory realloc_boundary test start.\n");
-  printf("MM_MIN_CHUNK=%d, SIZEOF_MM_ALLOCNODE=%d\n",
+  printf("MM_MIN_CHUNK=%d, SIZEOF_MM_ALLOCNODE=%zu\n",
          MM_MIN_CHUNK, SIZEOF_MM_ALLOCNODE);
 
   /* Malloc memory until the memeory ran out */
