@@ -1256,13 +1256,13 @@ int wapi_scan_stat(int sock, FAR const char *ifname)
           return 1;
         }
 
-      printf("err[%d]: %s\n", errno, strerror(errno));
-    }
-  else
-    {
       int errcode = errno;
       WAPI_IOCTL_STRERROR(SIOCGIWSCAN, errcode);
       ret = -errcode;
+    }
+  else
+    {
+      ret = 0;
     }
 
   return ret;
