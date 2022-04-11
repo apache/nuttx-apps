@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SCD41
+	tristate "SCD41 CO2 sensor example"
+	default n
+	depends on SENSORS_SCD41
+	---help---
+		Enable the SCD41 CO2 sensor example
+
+if EXAMPLES_SCD41
+
+config EXAMPLES_SCD41_PROGNAME
+	string "Program name"
+	default "scd41"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SCD41_DEVPATH
+	string "Device path"
+	default "/dev/co2"
+	---help---
+		The device path
+
+config EXAMPLES_SCD41_PRIORITY
+	int "scd41 task priority"
+	default 100
+
+config EXAMPLES_SCD41_STACKSIZE
+	int "scd41 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
