@@ -1,5 +1,6 @@
-__Updated for the articles...__
+__This is the `pinedio` branch for NuttX on PineDio Stack BL604...__
 
+-   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
 -   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
 -   [__"SPI on Apache NuttX OS"__](https://lupyuen.github.io/articles/spi2)
 -   [__"LoRa SX1262 on Apache NuttX OS"__](https://lupyuen.github.io/articles/sx1262)
