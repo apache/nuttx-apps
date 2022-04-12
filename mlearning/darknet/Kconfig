@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config DARKNET_YOLO
+	bool "YOLO: Real-Time Object Detection"
+	default n
+	---help---
+		You only look once (YOLO) is a state-of-the-art,
+                real-time object detection system
+
+if DARKNET_YOLO
+
+config DARKNET_YOLO_VER
+	string "DARKNET YOLO version"
+	default "master"
+
+endif # DARKNET_YOLO
