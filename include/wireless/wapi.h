@@ -277,7 +277,7 @@ struct wpa_wconfig_s
   uint8_t cipher_mode;           /* IW_AUTH_PAIRWISE_CIPHER and
                                   * IW_AUTH_GROUP_CIPHER values, e.g.,
                                   * IW_AUTH_CIPHER_CCMP */
-  uint8_t alg;                   /* See enum wpa_alg_e above, e.g.
+  enum wpa_alg_e alg;            /* See enum wpa_alg_e above, e.g.
                                   * WPA_ALG_CCMP */
   double freq;                   /* Channel frequency */
   enum wapi_freq_flag_e flag;    /* Channel frequency flag */
