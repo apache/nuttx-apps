@@ -971,9 +971,8 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
               eventfd_t value;
 
               file_read(priv->eventfp, &value, sizeof(value));
+              prepare = true;
             }
-
-          prepare = true;
         }
       else
         {
@@ -1020,6 +1019,7 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
                   pfds[i].ptr = NULL;
                   priv->pfds[j].ptr = NULL;
+                  prepare = true;
                 }
 
               if (events != 0)
