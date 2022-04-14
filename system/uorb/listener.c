@@ -24,6 +24,7 @@
 
 #include <nuttx/list.h>
 
+#include <ctype.h>
 #include <errno.h>
 #include <dirent.h>
 #include <poll.h>
@@ -319,24 +320,77 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
                                          FAR const char *filter)
 {
   FAR struct dirent *entry;
+  struct orb_object object;
+  char name[ORB_PATH_MAX];
   FAR DIR *dir;
+  size_t len;
   int cnt = 0;
-  int ret;
+
+  /* First traverse all objects in filter */
+
+  if (filter)
+    {
+      FAR const char *tmp;
+      FAR const char *member = filter;
+
+      do
+        {
+          while (*member == ',')
+            {
+              member++;
+            }
+
+          tmp = strchr(member, ',');
+          len = tmp ? tmp - member : strlen(member);
+          if (!len)
+            {
+              return cnt;
+            }
+
+          strlcpy(name, member, len + 1);
+          member = tmp;
+          object.meta = orb_get_meta(name);
+          if (object.meta)
+            {
+              object.instance = 0;
+              while (1)
+                {
+                  if (isdigit(name[len - 1]))
+                    {
+                      object.instance = name[len - 1] - '0';
+                    }
+
+                  if (listener_update(objlist, &object) >= 0)
+                    {
+                      cnt++;
+                      if (isdigit(name[len - 1]))
+                        {
+                          break;
+                        }
+                    }
+
+                  if (orb_exists(object.meta, object.instance++) < 0)
+                    {
+                      break;
+                    }
+                }
+            }
+        }
+      while (tmp);
+
+      return cnt;
+    }
 
   /* Traverse all objects under ORB_SENSOR_PATH */
 
   dir = opendir(ORB_SENSOR_PATH);
   if (!dir)
     {
-      return ERROR;
+      return 0;
     }
 
   while ((entry = readdir(dir)))
     {
-      struct orb_object object;
-      char file_name[ORB_PATH_MAX];
-      int len;
-
       /* Get meta data and instance number through file name */
 
       if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
@@ -344,11 +398,11 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
           continue;
         }
 
-      strlcpy(file_name, entry->d_name, ORB_PATH_MAX);
+      strlcpy(name, entry->d_name, ORB_PATH_MAX);
 
-      len = strlen(file_name) - 1;
-      object.instance = file_name[len] - '0';
-      file_name[len] = 0;
+      len = strlen(name) - 1;
+      object.instance = name[len] - '0';
+      name[len] = 0;
 
       if (filter)
         {
@@ -359,7 +413,7 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
            *   aaa0, aaa1, aaa2, bbb1.
            */
 
-          FAR const char *str = strstr(filter, file_name);
+          FAR const char *str = strstr(filter, name);
           if (!str || (str[len] && str[len] != ',' &&
                        str[len] != object.instance + '0'))
             {
@@ -375,8 +429,7 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
 
       /* Update object infomation to list. */
 
-      ret = listener_update(objlist, &object);
-      if (ret < 0)
+      if (listener_update(objlist, &object) < 0)
         {
           uorbinfo_raw("listener %s failed", object.meta->o_name);
           continue;
@@ -515,7 +568,7 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
       else if (errno != EINTR)
         {
           uorbinfo_raw("Waited for %d seconds without a message. "
-                       "Giving up.", timeout);
+                       "Giving up. err:%d", timeout, errno);
           break;
         }
     }
