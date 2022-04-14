@@ -104,6 +104,9 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
 static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
                                        void *data, size_t len,
                                        uint32_t src, void *priv_);
+static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept,
+                                     void *data, size_t len,
+                                     uint32_t src, void *priv_);
 
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest);
@@ -136,6 +139,7 @@ static const rpmsg_ept_cb g_usrsock_rpmsg_handler[] =
   [USRSOCK_REQUEST_LISTEN]      = usrsock_rpmsg_listen_handler,
   [USRSOCK_REQUEST_ACCEPT]      = usrsock_rpmsg_accept_handler,
   [USRSOCK_REQUEST_IOCTL]       = usrsock_rpmsg_ioctl_handler,
+  [USRSOCK_RPMSG_DNS_REQUEST]   = usrsock_rpmsg_dns_handler,
 };
 
 /****************************************************************************
@@ -755,6 +759,18 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
            ack, req->head.xid, ret, req->arglen, req->arglen);
 }
 
+static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept, void *data,
+                                     size_t len, uint32_t src, void *priv_)
+{
+#ifdef CONFIG_NETDB_DNSCLIENT
+  struct usrsock_rpmsg_dns_request_s *dns = data;
+
+  dns_add_nameserver((struct sockaddr *)(dns + 1), dns->addrlen);
+#endif
+
+  return 0;
+}
+
 #ifdef CONFIG_NETDB_DNSCLIENT
 static int usrsock_rpmsg_send_dns_event(void *arg,
                                         struct sockaddr *addr,
@@ -860,7 +876,7 @@ static int usrsock_rpmsg_ept_cb(struct rpmsg_endpoint *ept, void *data,
     {
       return usrsock_rpmsg_sendto_handler(ept, data, len, src, priv);
     }
-  else if (common->reqid >= 0 && common->reqid < USRSOCK_REQUEST__MAX)
+  else if (common->reqid >= 0 && common->reqid <= USRSOCK_REQUEST__MAX)
     {
       return g_usrsock_rpmsg_handler[common->reqid](ept, data, len,
                                                     src, priv);

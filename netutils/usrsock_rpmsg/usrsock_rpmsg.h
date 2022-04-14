@@ -33,11 +33,21 @@
 
 #define USRSOCK_RPMSG_EPT_NAME      "rpmsg-usrsock"
 
+#define USRSOCK_RPMSG_DNS_REQUEST    USRSOCK_REQUEST__MAX
 #define USRSOCK_RPMSG_DNS_EVENT      127
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+/* DNS request message */
+
+begin_packed_struct struct usrsock_rpmsg_dns_request_s
+{
+  struct usrsock_request_common_s head;
+
+  uint16_t addrlen;
+} end_packed_struct;
 
 /* DNS event message */
 
