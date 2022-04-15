@@ -113,7 +113,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
 FAR const struct orb_metadata *orb_get_meta(FAR const char *name)
 {
   struct sensor_state_s state;
-  char path[PATH_MAX];
+  char path[ORB_PATH_MAX];
   int idx = -1;
   int ret;
   int fd;
@@ -141,11 +141,11 @@ FAR const struct orb_metadata *orb_get_meta(FAR const char *name)
 
   /* Then open node to get meta */
 
-  snprintf(path, PATH_MAX, ORB_SENSOR_PATH"%s", name);
+  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s", name);
   fd = open(path, O_RDONLY);
   if (fd < 0)
     {
-      snprintf(path, PATH_MAX, ORB_SENSOR_PATH"%s%d", name, 0);
+      snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", name, 0);
       fd = open(path, O_RDONLY);
       if (fd < 0)
         {

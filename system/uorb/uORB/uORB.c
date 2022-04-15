@@ -56,12 +56,13 @@
 static int orb_open(FAR const struct orb_metadata *meta, bool advertiser,
                     int instance, unsigned int queue_size)
 {
-  char path[PATH_MAX];
+  char path[ORB_PATH_MAX];
   bool first_open = false;
   int fd;
   int ret;
 
-  snprintf(path, PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name, instance);
+  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name,
+           instance);
 
   /* Check existance before open */
 
@@ -281,11 +282,12 @@ orb_abstime orb_absolute_time(void)
 int orb_exists(FAR const struct orb_metadata *meta, int instance)
 {
   struct sensor_state_s state;
-  char path[PATH_MAX];
+  char path[ORB_PATH_MAX];
   int ret;
   int fd;
 
-  snprintf(path, PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name, instance);
+  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name,
+           instance);
   fd = open(path, 0);
   if (fd < 0)
     {
