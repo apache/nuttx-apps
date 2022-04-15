@@ -146,6 +146,22 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 }
 
 /****************************************************************************
+ * Name: nsh_sysinitscript
+ *
+ * Description:
+ *   Attempt to execute the configured system initialization script. This
+ *   script should be executed once when NSH starts.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_ROMFSETC
+int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl)
+{
+  return nsh_script(vtbl, "sysinit", NSH_SYSINITPATH);
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_initscript
  *
  * Description:
