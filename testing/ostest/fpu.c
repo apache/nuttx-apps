@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/arch.h>
 #include <sys/wait.h>
 
 #include <inttypes.h>
@@ -42,16 +43,10 @@
 
 #undef HAVE_FPU
 #ifdef CONFIG_ARCH_FPU
-#  if defined(CONFIG_TESTING_OSTEST_FPUSIZE) && \
-      (CONFIG_TESTING_OSTEST_FPUSIZE != 0) && \
-      defined(CONFIG_SCHED_WAITPID) && \
+#  if defined(CONFIG_SCHED_WAITPID) && \
       defined(CONFIG_BUILD_FLAT)
 #    define HAVE_FPU 1
 #  else
-#    if defined(CONFIG_TESTING_OSTEST_FPUSIZE) && \
-        (CONFIG_TESTING_OSTEST_FPUSIZE == 0)
-#      warning "FPU test not built; CONFIG_TESTING_OSTEST_FPUSIZE not defined"
-#    endif
 #    ifndef CONFIG_SCHED_WAITPID
 #      warning "FPU test not built; CONFIG_SCHED_WAITPID not defined"
 #    endif
@@ -81,34 +76,7 @@
 
 /* Other definitions ********************************************************/
 
-/* We'll keep all data using 32-bit values only to force 32-bit alignment.
- * This logic has no real notion of the underlying representation.
- */
-
-#define FPU_WORDSIZE ((CONFIG_TESTING_OSTEST_FPUSIZE+3)>>2)
 #define FPU_NTHREADS  2
-
-/****************************************************************************
- * External Dependencies
- ****************************************************************************/
-
-/* This test is very dependent on support provided by the chip/board-
- * layer logic.  In particular, it expects the following functions
- * to be provided:
- */
-
-/* Given an array of size CONFIG_TESTING_OSTEST_FPUSIZE, this function
- * will return the current FPU registers.
- */
-
-extern void arch_getfpu(FAR uint32_t *fpusave);
-
-/* Given two arrays of size CONFIG_TESTING_OSTEST_FPUSIZE this
- * function will compare them and return true if they are identical.
- */
-
-extern bool arch_cmpfpu(FAR const uint32_t *fpusave1,
-                        FAR const uint32_t *fpusave2);
 
 /****************************************************************************
  * Private Types
@@ -116,8 +84,8 @@ extern bool arch_cmpfpu(FAR const uint32_t *fpusave1,
 
 struct fpu_threaddata_s
 {
-  uint32_t save1[FPU_WORDSIZE];
-  uint32_t save2[FPU_WORDSIZE];
+  uintptr_t save1[XCPTCONTEXT_REGS];
+  uintptr_t save2[XCPTCONTEXT_REGS];
 
   /* These are just dummy values to force the compiler to do the
    * requested floating point computations without the nonsense
@@ -146,23 +114,23 @@ static uint8_t g_fpuno;
  * Private Functions
  ****************************************************************************/
 
-static void fpu_dump(FAR uint32_t *buffer, FAR const char *msg)
+static void fpu_dump(FAR uintptr_t *buffer, FAR const char *msg)
 {
   int i;
   int j;
   int k;
 
   printf("%s (%p):\n", msg, buffer);
-  for (i = 0; i < FPU_WORDSIZE; i += 8)
+  for (i = 0; i < XCPTCONTEXT_REGS; i += 8)
     {
       printf("    %04x: ", i);
       for (j = 0; j < 8; j++)
         {
           k = i + j;
 
-          if (k < FPU_WORDSIZE)
+          if (k < XCPTCONTEXT_REGS)
             {
-              printf("%08" PRIx32 " ", buffer[k]);
+              printf("%08" PRIxPTR " ", buffer[k]);
             }
           else
             {
@@ -211,8 +179,8 @@ static int fpu_task(int argc, char *argv[])
        * that we can verify that reading of the registers actually occurs.
        */
 
-      memset(fpu->save1, 0xff, FPU_WORDSIZE * sizeof(uint32_t));
-      memset(fpu->save2, 0xff, FPU_WORDSIZE * sizeof(uint32_t));
+      memset(fpu->save1, 0xff, XCPTCONTEXT_REGS * sizeof(uintptr_t));
+      memset(fpu->save2, 0xff, XCPTCONTEXT_REGS * sizeof(uintptr_t));
 
       /* Prevent context switches while we set up some stuff */
 
@@ -247,14 +215,14 @@ static int fpu_task(int argc, char *argv[])
 
       /* Sample the floating point registers */
 
-      arch_getfpu(fpu->save1);
+      up_saveusercontext(fpu->save1);
 
       /* Re-read and verify the FPU registers consistently without
        * corruption
        */
 
-      arch_getfpu(fpu->save2);
-      if (!arch_cmpfpu(fpu->save1, fpu->save2))
+      up_saveusercontext(fpu->save2);
+      if (!up_fpucmp(fpu->save1, fpu->save2))
         {
           printf("ERROR FPU#%d: save1 and save2 do not match\n", id);
           fpu_dump(fpu->save1, "Values after math operations (save1)");
@@ -273,8 +241,8 @@ static int fpu_task(int argc, char *argv[])
        * the floating point registers are still correctly set.
        */
 
-      arch_getfpu(fpu->save2);
-      if (!arch_cmpfpu(fpu->save1, fpu->save2))
+      up_saveusercontext(fpu->save2);
+      if (!up_fpucmp(fpu->save1, fpu->save2))
         {
           printf("ERROR FPU#%d: save1 and save2 do not match\n", id);
           fpu_dump(fpu->save1, "Values before waiting (save1)");
