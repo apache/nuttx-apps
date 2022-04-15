@@ -78,6 +78,7 @@ typedef uint64_t orb_abstime;
 
 #define ORB_SENSOR_PATH        "/dev/sensor/"
 #define ORB_USENSOR_PATH       "/dev/usensor"
+#define ORB_PATH_MAX           (NAME_MAX + 16)
 
 #ifdef CONFIG_UORB_ALERT
 #  define uorbpanic(fmt, ...)  _alert(fmt "\n", ##__VA_ARGS__)

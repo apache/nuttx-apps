@@ -344,7 +344,7 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
   while ((entry = readdir(dir)))
     {
       struct orb_object object;
-      char file_name[PATH_MAX];
+      char file_name[ORB_PATH_MAX];
       int len;
 
       /* Get meta data and instance number through file name */
@@ -354,7 +354,7 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
           continue;
         }
 
-      strlcpy(file_name, entry->d_name, PATH_MAX);
+      strlcpy(file_name, entry->d_name, ORB_PATH_MAX);
 
       len = strlen(file_name) - 1;
       object.instance = file_name[len] - '0';
@@ -424,8 +424,6 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
     {
       meta->o_cb(meta, buffer);
     }
-#else
-  uorbinfo_raw("Enable debug uorb to print message");
 #endif
 
   return ret;
