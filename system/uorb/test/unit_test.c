@@ -61,10 +61,16 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
   int current_value;
   int num_missed = 0;
   unsigned timingsgroup = 0;
-  unsigned timings[MAX_RUNS];
+  FAR unsigned *timings;
   unsigned timing_min = 9999999;
   unsigned timing_max = 0;
   unsigned i;
+
+  timings = malloc(MAX_RUNS * sizeof(unsigned));
+  if (timings == NULL)
+    {
+      return -ENOMEM;
+    }
 
   /* clear all ready flags */
 
@@ -128,6 +134,7 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
       if (f == NULL)
         {
           snerr("Error opening file!");
+          free(timings);
           return ERROR;
         }
 
@@ -167,6 +174,7 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
       g_pubsubtest_res = OK;
     }
 
+  free(timings);
   return g_pubsubtest_res;
 }
 
