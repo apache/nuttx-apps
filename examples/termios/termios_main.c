@@ -123,7 +123,7 @@ int main(int argc, FAR char *argv[])
        */
     }
 
-  (void)close(fd);
+  close(fd);
 
   /* Now, we should reopen the terminal with the new
    * attributes to see if they took effect;
