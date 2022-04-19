@@ -24,6 +24,8 @@
 
 #include <nuttx/config.h>
 
+#include <unistd.h>
+
 #include <nuttx/i2c/i2c_master.h>
 
 #include "i2ctool.h"
@@ -58,6 +60,12 @@ int i2ccmd_reset(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   else
     {
       i2ctool_printf(i2ctool, "Failed to send the reset command\n");
+    }
+
+  ret = close(fd);
+  if (ret < 0)
+    {
+      i2ctool_printf(i2ctool, "Failed to close i2c device\n");
     }
 
   return ret;
