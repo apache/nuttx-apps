@@ -423,12 +423,7 @@ static int critmon_list_once(void)
 
       fprintf(stderr, "Csection Monitor: Failed to open directory: %s\n",
               CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT);
-
-      if (++errcount > 100)
-        {
-          fprintf(stderr, "Csection Monitor: Too many errors ... exiting\n");
-          return EXIT_FAILURE;
-        }
+      return EXIT_FAILURE;
     }
 
   /* Read each directory entry */

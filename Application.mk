@@ -55,9 +55,12 @@ ifeq ($(BUILD_MODULE),y)
   # Revisit: This only works for gcc and clang.
   # Do other compilers have similar?
   COMPILER_RT_LIB = $(shell $(CC) $(ARCHCPUFLAGS) --print-libgcc-file-name)
-  ifneq ($(COMPILER_RT_LIB),)
-    LDLIBS += $(COMPILER_RT_LIB)
+  ifeq ($(wildcard $(COMPILER_RT_LIB)),)
+    # if "--print-libgcc-file-name" unable to find the correct libgcc PATH
+    # then go ahead and try "--print-file-name"
+    COMPILER_RT_LIB := $(wildcard $(shell $(CC) $(ARCHCPUFLAGS) --print-file-name $(notdir $(COMPILER_RT_LIB))))
   endif
+  LDLIBS += $(COMPILER_RT_LIB)
 endif
 
 SUFFIX = $(subst $(DELIM),.,$(CWD))

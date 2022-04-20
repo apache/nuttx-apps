@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/i2c/i2c_reset.c
+ * apps/examples/scd41/scd41_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,51 +23,65 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
+#include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-#include <nuttx/i2c/i2c_master.h>
-
-#include "i2ctool.h"
+#include <nuttx/sensors/scd41.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: i2ccmd_reset
+ * scd41_main
  ****************************************************************************/
 
-int i2ccmd_reset(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int main(int argc, FAR char *argv[])
 {
-  int ret;
+  struct scd41_conv_data_s data;
   int fd;
+  int ret;
+  int i;
 
-  /* Get a handle to the I2C bus */
+  printf("scd41 app is running.\n");
 
-  fd = i2cdev_open(i2ctool->bus);
+  fd = open(CONFIG_EXAMPLES_SCD41_DEVPATH, O_RDWR);
   if (fd < 0)
     {
-      i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-      return ERROR;
+      printf("ERROR: open failed: %d\n", fd);
+      return -1;
     }
 
-  ret = i2cdev_reset(fd);
-  if (ret == OK)
+  for (i = 0; i < 20; i++)
     {
-      i2ctool_printf(i2ctool, "Reset command sent successfully\n");
-    }
-  else
-    {
-      i2ctool_printf(i2ctool, "Failed to send the reset command\n");
+      /* Sensor data is updated every 5 seconds. */
+
+      sleep(5);
+
+      ret = ioctl(fd, SNIOC_READ_CONVERT_DATA, (unsigned long)&data);
+      if (ret < 0)
+        {
+          printf("Read error.\n");
+          printf("Sensor reported error %d\n", ret);
+        }
+      else
+        {
+          printf("CO2[ppm]: %.2f, Temperature[C]: %.2f, RH[%%]: %.2f\n",
+                 data.co2, data.temperature, data.humidity);
+        }
     }
 
-  ret = close(fd);
+  ret = ioctl(fd, SNIOC_STOP, 0);
   if (ret < 0)
     {
-      i2ctool_printf(i2ctool, "Failed to close i2c device\n");
+      printf("Failed to stop: %d\n", errno);
     }
 
-  return ret;
-}
+  close(fd);
 
+  return 0;
+}

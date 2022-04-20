@@ -817,7 +817,7 @@ int CInput::session(void)
 
       if ((pfd[KBD_INDEX].revents & (POLLERR | POLLHUP)) != 0)
         {
-          twmerr("ERROR: keyboard poll() failed. revents=%04x\n",
+          twmerr("ERROR: keyboard poll() failed. revents=%08" PRIx32 "\n",
                  pfd[KBD_INDEX].revents);
           ret = -EIO;
           break;
@@ -839,7 +839,7 @@ int CInput::session(void)
 
       if ((pfd[MOUSE_INDEX].revents & (POLLERR | POLLHUP)) != 0)
         {
-          twmerr("ERROR: Mouse poll() failed. revents=%04x\n",
+          twmerr("ERROR: Mouse poll() failed. revents=%08" PRIx32 "\n",
                  pfd[MOUSE_INDEX].revents);
           ret = -EIO;
           break;

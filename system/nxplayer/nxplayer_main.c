@@ -466,11 +466,11 @@ static int nxplayer_cmd_balance(FAR struct nxplayer_s *pplayer, char *parg)
 {
   uint16_t   percent;
 
-  /* If no arg given, then print current volume */
+  /* If no arg given, then print current balance */
 
   if (parg == NULL || *parg == '\0')
     {
-      printf("balance: %d\n", pplayer->volume / 10);
+      printf("balance: %d\n", pplayer->balance / 10);
     }
   else
     {

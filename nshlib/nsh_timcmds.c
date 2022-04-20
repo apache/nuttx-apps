@@ -28,6 +28,12 @@
 #include <strings.h>
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <nuttx/timers/rtc.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -419,5 +425,109 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 errout:
   nsh_error(vtbl, errfmt, argv[0]);
   return ERROR;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_timedatectl
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_TIMEDATECTL
+int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  char timbuf[MAX_TIME_STRING];
+  FAR char *newtz = NULL;
+  struct timespec ts;
+  struct tm tm;
+  int ret;
+
+  if (argc == 3 && strcmp(argv[1], "set-timezone") == 0)
+    {
+      newtz = argv[2];
+    }
+
+  /* Display or set the timedatectl */
+
+  if (newtz)
+    {
+      ret = setenv("TZ", newtz, true);
+      if (ret != 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
+          return ERROR;
+        }
+
+      tzset();
+    }
+  else
+    {
+      ret = clock_gettime(CLOCK_REALTIME, &ts);
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime",
+                    NSH_ERRNO);
+          return ERROR;
+        }
+
+      if (localtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "localtime_r", NSH_ERRNO);
+          return ERROR;
+        }
+
+      /* Show the current time in the requested format */
+
+      ret = strftime(timbuf, MAX_TIME_STRING, "%a, %b %d %H:%M:%S %Y", &tm);
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "strftime", NSH_ERRNO);
+          return ERROR;
+        }
+
+      nsh_output(vtbl, "      TimeZone: %s, %ld\n", tm.tm_zone,
+                 tm.tm_gmtoff);
+      nsh_output(vtbl, "    Local time: %s %s\n", timbuf, tm.tm_zone);
+
+      if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "gmtime_r", NSH_ERRNO);
+          return ERROR;
+        }
+
+      /* Show the current time in the requested format */
+
+      ret = strftime(timbuf, MAX_TIME_STRING, "%a, %b %d %H:%M:%S %Y", &tm);
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "strftime", NSH_ERRNO);
+          return ERROR;
+        }
+
+      nsh_output(vtbl, "Universal time: %s %s\n", timbuf, tm.tm_zone);
+
+      ret = open("/dev/rtc0", O_RDONLY);
+      if (ret > 0)
+        {
+          struct rtc_time rtctime;
+
+          ioctl(ret, RTC_RD_TIME, &rtctime);
+          close(ret);
+
+          /* Show the current time in the requested format */
+
+          ret = strftime(timbuf, MAX_TIME_STRING, "%a, %b %d %H:%M:%S %Y",
+                         (FAR struct tm *)&rtctime);
+          if (ret < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "strftime",
+                        NSH_ERRNO);
+              return ERROR;
+            }
+
+          nsh_output(vtbl, "      RTC time: %s\n", timbuf);
+        }
+    }
+
+  return ret;
 }
 #endif

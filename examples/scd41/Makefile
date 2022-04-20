@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/examples/scd41/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,15 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# Memory Management Test
+# scd41 co2 sensor built-in application info
 
-PROGNAME  = $(CONFIG_TESTING_MM_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_MM_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_MM_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_MM)
+PROGNAME  = $(CONFIG_EXAMPLES_SCD41_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_SCD41_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_SCD41_STACKSIZE)
+MODULE    = $(CONFIG_EXAMPLES_SCD41)
 
-MAINSRC = mm_main.c
+# scd41 co2 sensor Example
 
-CFLAGS += -I$(TOPDIR)/mm/mm_heap
+MAINSRC = scd41_main.c
 
 include $(APPDIR)/Application.mk

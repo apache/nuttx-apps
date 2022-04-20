@@ -264,7 +264,7 @@ int nximage_initialize(void)
        * are connected.
        */
 
-      (void)sem_wait(&g_nximage.sem);
+      sem_wait(&g_nximage.sem);
     }
 
   /* Set background color to black */
