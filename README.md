@@ -10,6 +10,10 @@ __Updated for the articles...__
 -   [__"Connect IKEA Air Quality Sensor to Apache NuttX OS"__](https://lupyuen.github.io/articles/ikea)
 -   [__"Apache NuttX Driver for BME280 Sensor: Ported from Zephyr OS"__](https://lupyuen.github.io/articles/bme280)
 -   [__"Rust talks I2C on Apache NuttX RTOS"__](https://lupyuen.github.io/articles/rusti2c)
+-   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
+-   [__"NuttX Touch Panel Driver for PineDio Stack BL604"__](https://lupyuen.github.io/articles/touch)
+
+__For PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx-apps/tree/pinedio)
 
 # Application Folder
 
