@@ -77,27 +77,27 @@ int main(int argc, FAR char *argv[])
 
   while (1)
     {
-      sched_note_printf("shced note test count = %d.", count++);
-      sched_note_string(str);
-      sched_note_dump(MAIN_MODULE, 1, &binary, sizeof(struct binary));
-      sched_note_bprintf(MAIN_MODULE, 2, "%hhd", c);
-      sched_note_bprintf(MAIN_MODULE, 3, "%hd", s);
-      sched_note_bprintf(MAIN_MODULE, 4, "%d", i);
-      sched_note_bprintf(MAIN_MODULE, 5, "%ld", l);
-      sched_note_bprintf(MAIN_MODULE, 6, "%lld", ll);
-      sched_note_bprintf(MAIN_MODULE, 7, "%jd", im);
-      sched_note_bprintf(MAIN_MODULE, 8, "%zd", sz);
-      sched_note_bprintf(MAIN_MODULE, 9, "%td", ptr);
+      SCHED_NOTE_PRINTF("shced note test count = %d.", count++);
+      SCHED_NOTE_STRING(str);
+      SCHED_NOTE_DUMP(1, &binary, sizeof(struct binary));
+      SCHED_NOTE_BPRINTF(2, "%hhd", c);
+      SCHED_NOTE_BPRINTF(3, "%hd", s);
+      SCHED_NOTE_BPRINTF(4, "%d", i);
+      SCHED_NOTE_BPRINTF(5, "%ld", l);
+      SCHED_NOTE_BPRINTF(6, "%lld", ll);
+      SCHED_NOTE_BPRINTF(7, "%jd", im);
+      SCHED_NOTE_BPRINTF(8, "%zd", sz);
+      SCHED_NOTE_BPRINTF(9, "%td", ptr);
 #ifdef CONFIG_HAVE_FLOAT
-      sched_note_bprintf(MAIN_MODULE, 10, "%e", f);
+      SCHED_NOTE_BPRINTF(10, "%e", f);
 #endif
 #ifdef CONFIG_HAVE_DOUBLE
-      sched_note_bprintf(MAIN_MODULE, 11, "%le", d);
+      SCHED_NOTE_BPRINTF(11, "%le", d);
 #endif
 #ifdef CONFIG_HAVE_LONG_DOUBLE
-      sched_note_bprintf(MAIN_MODULE, 12, "%Le", ld);
+      SCHED_NOTE_BPRINTF(12, "%Le", ld);
 #endif
-      sched_note_bprintf(MAIN_MODULE, 13,
+      SCHED_NOTE_BPRINTF(13,
                          "%hhd  %hd  %d  %ld  %lld  %jd  %zd  %td",
                           c,    s,   i,  l,    ll,  im,  sz,  ptr);
       usleep(10);

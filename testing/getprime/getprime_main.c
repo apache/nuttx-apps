@@ -181,9 +181,9 @@ int main(int argc, FAR char *argv[])
       ASSERT(0 < n && n <= MAX_THREADS);
     }
 
-  (void)clock_gettime(CLOCK_REALTIME, &ts0);
+  clock_gettime(CLOCK_REALTIME, &ts0);
   get_prime_in_parallel(n);
-  (void)clock_gettime(CLOCK_REALTIME, &ts1);
+  clock_gettime(CLOCK_REALTIME, &ts1);
 
   elapsed  = (((uint64_t)ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec);
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);

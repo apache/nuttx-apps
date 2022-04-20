@@ -38,6 +38,20 @@ extern "C"
 #endif
 
 /****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef enum
+{
+  TRACE_TYPE_LTTNG_KERNEL = 0,  /* Common Trace Format : Linux Kernel Trace */
+  TRACE_TYPE_GENERIC_CTF  = 1,  /* Common Trace Format : Generic CTF Trace */
+  TRACE_TYPE_LTTNG_UST    = 2,  /* Common Trace Format : LTTng UST Trace */
+  TRACE_TYPE_CUSTOM_TEXT  = 3,  /* Custom Text :         TmfGeneric */
+  TRACE_TYPE_CUSTOM_XML   = 4,  /* Custom XML :          Custom XML Log */
+  TRACE_TYPE_ANDROID      = 5,  /* Custom Format :       Android ATrace */
+} trace_dump_t;
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
@@ -51,7 +65,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int trace_dump(FAR FILE *out);
+int trace_dump(trace_dump_t type, FAR FILE *out);
 
 /****************************************************************************
  * Name: trace_dump_clear
@@ -85,7 +99,7 @@ void trace_dump_set_overwrite(bool mode);
 
 #else /* CONFIG_DRIVER_NOTERAM */
 
-#define trace_dump(out)
+#define trace_dump(type,out)
 #define trace_dump_clear()
 #define trace_dump_get_overwrite()      0
 #define trace_dump_set_overwrite(mode)  (void)(mode)

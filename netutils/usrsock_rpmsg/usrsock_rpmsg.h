@@ -27,32 +27,27 @@
 
 #include <nuttx/net/usrsock.h>
 
-#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-#  include <nuttx/wireless/wireless.h>
-#  include <metal/cache.h>
-#endif
-
 /****************************************************************************
  * Pre-processor definitions
  ****************************************************************************/
 
 #define USRSOCK_RPMSG_EPT_NAME      "rpmsg-usrsock"
 
+#define USRSOCK_RPMSG_DNS_REQUEST    USRSOCK_REQUEST__MAX
 #define USRSOCK_RPMSG_DNS_EVENT      127
-
-#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-#  define WL_IS80211POINTERCMD(cmd)  ((cmd) == SIOCGIWSCAN || \
-                                      (cmd) == SIOCSIWCOUNTRY || \
-                                      (cmd) == SIOCGIWRANGE || \
-                                      (cmd) == SIOCSIWENCODEEXT || \
-                                      (cmd) == SIOCGIWENCODEEXT || \
-                                      (cmd) == SIOCGIWESSID || \
-                                      (cmd) == SIOCSIWESSID)
-#endif
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+/* DNS request message */
+
+begin_packed_struct struct usrsock_rpmsg_dns_request_s
+{
+  struct usrsock_request_common_s head;
+
+  uint16_t addrlen;
+} end_packed_struct;
 
 /* DNS event message */
 

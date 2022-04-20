@@ -35,7 +35,9 @@
 #include <nuttx/net/dns.h>
 #include <nuttx/net/net.h>
 #include <nuttx/rptun/openamp.h>
-
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+#  include <nuttx/wireless/wireless.h>
+#endif
 #include "usrsock_rpmsg.h"
 
 struct usrsock_rpmsg_s
@@ -53,10 +55,14 @@ struct usrsock_rpmsg_s
  * Private Function Prototypes
  ****************************************************************************/
 
+static bool usrsock_rpmsg_available(struct socket *psock, int cmd);
+
 static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
+                                  uint16_t events,
                                   uint64_t xid, int32_t result);
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
                                   struct usrsock_message_datareq_ack_s *ack,
+                                  uint16_t events,
                                   uint64_t xid, int32_t result,
                                   uint16_t valuelen,
                                   uint16_t valuelen_nontrunc);
@@ -102,6 +108,9 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
 static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
                                        void *data, size_t len,
                                        uint32_t src, void *priv_);
+static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept,
+                                     void *data, size_t len,
+                                     uint32_t src, void *priv_);
 
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest);
@@ -134,19 +143,37 @@ static const rpmsg_ept_cb g_usrsock_rpmsg_handler[] =
   [USRSOCK_REQUEST_LISTEN]      = usrsock_rpmsg_listen_handler,
   [USRSOCK_REQUEST_ACCEPT]      = usrsock_rpmsg_accept_handler,
   [USRSOCK_REQUEST_IOCTL]       = usrsock_rpmsg_ioctl_handler,
+  [USRSOCK_RPMSG_DNS_REQUEST]   = usrsock_rpmsg_dns_handler,
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+static bool usrsock_rpmsg_available(struct socket *psock, int cmd)
+{
+  int len;
+
+  if (psock_ioctl(psock, cmd, &len, sizeof(len)) == 0)
+    {
+      if (len > 0)
+        {
+          return true;
+        }
+    }
+
+  return false;
+}
+
 static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
+                                  uint16_t events,
                                   uint64_t xid, int32_t result)
 {
   struct usrsock_message_req_ack_s ack;
 
-  ack.head.msgid = USRSOCK_MESSAGE_RESPONSE_ACK;
-  ack.head.flags = (result == -EINPROGRESS);
+  ack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_ACK;
+  ack.head.flags  = (result == -EINPROGRESS);
+  ack.head.events = events;
 
   ack.xid    = xid;
   ack.result = result;
@@ -156,12 +183,14 @@ static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
 
 static int usrsock_rpmsg_send_data_ack(struct rpmsg_endpoint *ept,
                                   struct usrsock_message_datareq_ack_s *ack,
+                                  uint16_t events,
                                   uint64_t xid, int32_t result,
                                   uint16_t valuelen,
                                   uint16_t valuelen_nontrunc)
 {
-  ack->reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-  ack->reqack.head.flags = 0;
+  ack->reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  ack->reqack.head.flags  = 0;
+  ack->reqack.head.events = events;
 
   ack->reqack.xid    = xid;
   ack->reqack.result = result;
@@ -188,11 +217,11 @@ static int usrsock_rpmsg_send_event(struct rpmsg_endpoint *ept,
 {
   struct usrsock_message_socket_event_s event;
 
-  event.head.msgid = USRSOCK_MESSAGE_SOCKET_EVENT;
-  event.head.flags = USRSOCK_MESSAGE_FLAG_EVENT;
+  event.head.msgid  = USRSOCK_MESSAGE_SOCKET_EVENT;
+  event.head.flags  = USRSOCK_MESSAGE_FLAG_EVENT;
+  event.head.events = events;
 
   event.usockid = usockid;
-  event.events  = events;
 
   return rpmsg_send(ept, &event, sizeof(event));
 }
@@ -227,7 +256,7 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
       pthread_mutex_unlock(&priv->mutex);
     }
 
-  retr = usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  retr = usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
   if (retr >= 0 && ret >= 0 &&
       req->type != SOCK_STREAM && req->type != SOCK_SEQPACKET)
     {
@@ -268,7 +297,7 @@ static int usrsock_rpmsg_close_handler(struct rpmsg_endpoint *ept,
       ret = psock_close(&priv->socks[req->usockid]);
     }
 
-  return usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  return usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
 }
 
 static int usrsock_rpmsg_connect_handler(struct rpmsg_endpoint *ept,
@@ -293,7 +322,7 @@ static int usrsock_rpmsg_connect_handler(struct rpmsg_endpoint *ept,
         }
     }
 
-  retr = usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  retr = usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
   if (retr >= 0 && ret >= 0 && priv->pfds[req->usockid].ptr == NULL)
     {
       pthread_mutex_lock(&priv->mutex);
@@ -322,6 +351,7 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
 {
   struct usrsock_request_sendto_s *req;
   struct usrsock_rpmsg_s *priv = priv_;
+  uint16_t events = 0;
   ssize_t ret = -EBADF;
   size_t total;
   int retr;
@@ -415,15 +445,14 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
 
 out:
 
-  retr = usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
-  if (retr >= 0 && ret >= 0)
+  if (ret > 0 &&
+      usrsock_rpmsg_available(&priv->socks[req->usockid], FIONSPACE))
     {
-      /* Assume the new buffer can be accepted until return -EAGAIN */
-
-      retr = usrsock_rpmsg_send_event(ept,
-      req->usockid, USRSOCK_EVENT_SENDTO_READY);
+      events |= USRSOCK_EVENT_SENDTO_READY;
     }
-  else if (ret == -EAGAIN)
+
+  retr = usrsock_rpmsg_send_ack(ept, events, req->head.xid, ret);
+  if (retr >= 0 && events == 0)
     {
       pthread_mutex_lock(&priv->mutex);
       priv->pfds[req->usockid].events |= POLLOUT;
@@ -460,6 +489,7 @@ static int usrsock_rpmsg_recvfrom_handler(struct rpmsg_endpoint *ept,
   socklen_t inaddrlen = req->max_addrlen;
   size_t buflen = req->max_buflen;
   ssize_t ret = -EBADF;
+  uint16_t events = 0;
   uint32_t len;
   int retr;
 
@@ -476,16 +506,24 @@ static int usrsock_rpmsg_recvfrom_handler(struct rpmsg_endpoint *ept,
               (void *)(ack + 1) + inaddrlen, buflen, req->flags,
               outaddrlen ? (struct sockaddr *)(ack + 1) : NULL,
               outaddrlen ? &outaddrlen : NULL);
-      if (ret > 0 && outaddrlen < inaddrlen)
+      if (ret > 0)
         {
-          memcpy((void *)(ack + 1) + outaddrlen,
-                 (void *)(ack + 1) + inaddrlen, ret);
+          if (outaddrlen < inaddrlen)
+            {
+              memcpy((void *)(ack + 1) + outaddrlen,
+                     (void *)(ack + 1) + inaddrlen, ret);
+            }
+
+          if (usrsock_rpmsg_available(&priv->socks[req->usockid], FIONREAD))
+            {
+              events |= USRSOCK_EVENT_RECVFROM_AVAIL;
+            }
         }
     }
 
   retr = usrsock_rpmsg_send_data_ack(ept,
-            ack, req->head.xid, ret, inaddrlen, outaddrlen);
-  if (retr >= 0 && (ret >= 0 || ret == -EAGAIN))
+            ack, events, req->head.xid, ret, inaddrlen, outaddrlen);
+  if (retr >= 0 && events == 0)
     {
       pthread_mutex_lock(&priv->mutex);
       priv->pfds[req->usockid].events |= POLLIN;
@@ -511,7 +549,7 @@ static int usrsock_rpmsg_setsockopt_handler(struct rpmsg_endpoint *ept,
               req->level, req->option, req + 1, req->valuelen);
     }
 
-  return usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  return usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
 }
 
 static int usrsock_rpmsg_getsockopt_handler(struct rpmsg_endpoint *ept,
@@ -534,7 +572,7 @@ static int usrsock_rpmsg_getsockopt_handler(struct rpmsg_endpoint *ept,
     }
 
   return usrsock_rpmsg_send_data_ack(ept,
-          ack, req->head.xid, ret, optlen, optlen);
+          ack, 0, req->head.xid, ret, optlen, optlen);
 }
 
 static int usrsock_rpmsg_getsockname_handler(struct rpmsg_endpoint *ept,
@@ -558,7 +596,7 @@ static int usrsock_rpmsg_getsockname_handler(struct rpmsg_endpoint *ept,
     }
 
   return usrsock_rpmsg_send_data_ack(ept,
-          ack, req->head.xid, ret, inaddrlen, outaddrlen);
+          ack, 0, req->head.xid, ret, inaddrlen, outaddrlen);
 }
 
 static int usrsock_rpmsg_getpeername_handler(struct rpmsg_endpoint *ept,
@@ -582,7 +620,7 @@ static int usrsock_rpmsg_getpeername_handler(struct rpmsg_endpoint *ept,
     }
 
   return usrsock_rpmsg_send_data_ack(ept,
-          ack, req->head.xid, ret, inaddrlen, outaddrlen);
+          ack, 0, req->head.xid, ret, inaddrlen, outaddrlen);
 }
 
 static int usrsock_rpmsg_bind_handler(struct rpmsg_endpoint *ept,
@@ -600,7 +638,7 @@ static int usrsock_rpmsg_bind_handler(struct rpmsg_endpoint *ept,
               (const struct sockaddr *)(req + 1), req->addrlen);
     }
 
-  return usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  return usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
 }
 
 static int usrsock_rpmsg_listen_handler(struct rpmsg_endpoint *ept,
@@ -618,7 +656,7 @@ static int usrsock_rpmsg_listen_handler(struct rpmsg_endpoint *ept,
       ret = psock_listen(&priv->socks[req->usockid], req->backlog);
     }
 
-  retr = usrsock_rpmsg_send_ack(ept, req->head.xid, ret);
+  retr = usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
   if (retr >= 0 && ret >= 0)
     {
       pthread_mutex_lock(&priv->mutex);
@@ -688,7 +726,7 @@ static int usrsock_rpmsg_accept_handler(struct rpmsg_endpoint *ept,
     }
 
   retr = usrsock_rpmsg_send_data_ack(ept,
-    ack, req->head.xid, ret, inaddrlen, outaddrlen);
+    ack, 0, req->head.xid, ret, inaddrlen, outaddrlen);
   if (retr >= 0 && ret >= 0)
     {
       pthread_mutex_lock(&priv->mutex);
@@ -710,6 +748,10 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
   struct usrsock_request_ioctl_s *req = data;
   struct usrsock_message_datareq_ack_s *ack;
   struct usrsock_rpmsg_s *priv = priv_;
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+  struct iwreq *wlreq;
+  struct iwreq *wlack;
+#endif
   int ret = -EBADF;
   uint32_t len;
 
@@ -717,30 +759,46 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 &&
       req->usockid < CONFIG_NETUTILS_USRSOCK_NSOCK_DESCRIPTORS)
     {
+      memcpy(ack + 1, req + 1, len_ - sizeof(*req));
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-      FAR struct iwreq *wlreq = (FAR struct iwreq *)(req + 1);
+      wlreq = (struct iwreq *)(req + 1);
+      wlack = (struct iwreq *)(ack + 1);
       if (WL_IS80211POINTERCMD(req->cmd))
         {
-          metal_cache_invalidate(wlreq->u.data.pointer,
-                                 wlreq->u.data.length);
+          wlack->u.data.pointer = wlack + 1;
         }
 #endif
 
-      memcpy(ack + 1, req + 1, req->arglen);
       ret = psock_ioctl(&priv->socks[req->usockid],
               req->cmd, (unsigned long)(ack + 1));
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
       if (WL_IS80211POINTERCMD(req->cmd))
         {
-          metal_cache_flush(wlreq->u.data.pointer,
-                            wlreq->u.data.length);
+          if (ret >= 0)
+            {
+              ret = wlreq->u.data.length;
+            }
+
+          wlack->u.data.pointer = wlreq->u.data.pointer;
         }
 #endif
     }
 
   return usrsock_rpmsg_send_data_ack(ept,
-           ack, req->head.xid, ret, req->arglen, req->arglen);
+           ack, 0, req->head.xid, ret, req->arglen, req->arglen);
+}
+
+static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept, void *data,
+                                     size_t len, uint32_t src, void *priv_)
+{
+#ifdef CONFIG_NETDB_DNSCLIENT
+  struct usrsock_rpmsg_dns_request_s *dns = data;
+
+  dns_add_nameserver((struct sockaddr *)(dns + 1), dns->addrlen);
+#endif
+
+  return 0;
 }
 
 #ifdef CONFIG_NETDB_DNSCLIENT
@@ -848,7 +906,7 @@ static int usrsock_rpmsg_ept_cb(struct rpmsg_endpoint *ept, void *data,
     {
       return usrsock_rpmsg_sendto_handler(ept, data, len, src, priv);
     }
-  else if (common->reqid >= 0 && common->reqid < USRSOCK_REQUEST__MAX)
+  else if (common->reqid >= 0 && common->reqid <= USRSOCK_REQUEST__MAX)
     {
       return g_usrsock_rpmsg_handler[common->reqid](ept, data, len,
                                                     src, priv);
@@ -947,6 +1005,13 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
               if (pfds[i].revents & (POLLHUP | POLLERR))
                 {
                   events |= USRSOCK_EVENT_REMOTE_CLOSED;
+
+                  /* Check data that has not been recv */
+
+                  if (usrsock_rpmsg_available(&priv->socks[j], FIONREAD))
+                    {
+                      events |= USRSOCK_EVENT_RECVFROM_AVAIL;
+                    }
 
                   /* Stop poll at all */
 

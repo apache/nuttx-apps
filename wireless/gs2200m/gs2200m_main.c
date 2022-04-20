@@ -246,8 +246,9 @@ static int _send_ack_common(int fd,
                             uint64_t xid,
                             FAR struct usrsock_message_req_ack_s *resp)
 {
-  resp->head.msgid = USRSOCK_MESSAGE_RESPONSE_ACK;
-  resp->head.flags = 0;
+  resp->head.msgid  = USRSOCK_MESSAGE_RESPONSE_ACK;
+  resp->head.flags  = 0;
+  resp->head.events = 0;
   resp->xid = xid;
 
   /* Send ACK response. */
@@ -447,7 +448,7 @@ static int usock_send_event(int fd, FAR struct gs2200m_s *priv,
     }
 
   event.usockid = i + SOCKET_BASE;
-  event.events  = events;
+  event.head.events = events;
 
   return _write_to_usock(fd, &event, sizeof(event));
 }
@@ -883,6 +884,7 @@ static int recvfrom_request(int fd, FAR struct gs2200m_s *priv,
 {
   FAR struct usrsock_request_recvfrom_s *req = hdrbuf;
   struct usrsock_message_datareq_ack_s resp;
+  struct usrsock_message_req_ack_s resp1;
   struct gs2200m_recv_msg rmsg;
   FAR struct usock_s *usock;
   int ret = 0;
@@ -951,8 +953,9 @@ prepare:
   memset(&resp, 0, sizeof(resp));
   resp.reqack.result = ret;
   resp.reqack.xid = req->head.xid;
-  resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-  resp.reqack.head.flags = 0;
+  resp.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags  = 0;
+  resp.reqack.head.events = 0;
 
   if (0 <= ret)
     {
@@ -965,6 +968,14 @@ prepare:
           usock_send_event(fd, priv, usock,
                            USRSOCK_EVENT_REMOTE_CLOSED
                            );
+
+          /* Send ack only */
+
+          memset(&resp1, 0, sizeof(resp1));
+          resp1.result = ret;
+          ret = _send_ack_common(fd, req->head.xid, &resp1);
+
+          goto err_out;
         }
     }
 
@@ -1199,8 +1210,9 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.reqack.xid = req->head.xid;
-  resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-  resp.reqack.head.flags = 0;
+  resp.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags  = 0;
+  resp.reqack.head.events = 0;
 
   if (0 == ret)
     {
@@ -1387,8 +1399,9 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.reqack.xid = req->head.xid;
-  resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-  resp.reqack.head.flags = 0;
+  resp.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags  = 0;
+  resp.reqack.head.events = 0;
   resp.reqack.result = ret;
 
   if (0 == ret)
@@ -1471,8 +1484,9 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.reqack.xid = req->head.xid;
-  resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-  resp.reqack.head.flags = 0;
+  resp.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags  = 0;
+  resp.reqack.head.events = 0;
   resp.reqack.result = ret;
 
   if (0 == ret)
@@ -1575,8 +1589,9 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
     {
       resp2.reqack.result = ret;
       resp2.reqack.xid = req->head.xid;
-      resp2.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
-      resp2.reqack.head.flags = 0;
+      resp2.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+      resp2.reqack.head.flags  = 0;
+      resp2.reqack.head.events = 0;
       resp2.valuelen_nontrunc = sizeof(imsg.ifr);
       resp2.valuelen = sizeof(imsg.ifr);
 
