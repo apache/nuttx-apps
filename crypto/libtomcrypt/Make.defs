@@ -23,6 +23,6 @@ CONFIGURED_APPS += $(APPDIR)/crypto/libtomcrypt
 
 # It allows `<tomcrypt.h>` import.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/crypto/libtomcrypt/libtomcrypt/src/headers/}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/crypto/libtomcrypt/libtomcrypt/src/headers/}
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/crypto/libtomcrypt/libtomcrypt/src/headers}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/crypto/libtomcrypt/libtomcrypt/src/headers}
 endif

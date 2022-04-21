@@ -31,7 +31,7 @@ VPATH   += :$(MCUBOOT_UNPACK)$(DELIM)src
 VPATH   += :$(MCUBOOT_SRCDIR)
 
 ifneq ($(CONFIG_MCUBOOT_BOOTLOADER),)
-MAINSRC   += mcuboot/boot/nuttx/main.c
+MAINSRC   += $(MCUBOOT_UNPACK)/boot/nuttx/main.c
 
 PROGNAME  += mcuboot_loader
 PRIORITY  += SCHED_PRIORITY_DEFAULT
@@ -40,37 +40,37 @@ endif
 
 CFLAGS += -Wno-undef
 
-CSRCS := mcuboot/boot/bootutil/src/boot_record.c \
-         mcuboot/boot/bootutil/src/bootutil_misc.c \
-         mcuboot/boot/bootutil/src/bootutil_public.c \
-         mcuboot/boot/bootutil/src/caps.c \
-         mcuboot/boot/bootutil/src/encrypted.c \
-         mcuboot/boot/bootutil/src/fault_injection_hardening.c \
-         mcuboot/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c \
-         mcuboot/boot/bootutil/src/image_ec.c \
-         mcuboot/boot/bootutil/src/image_ec256.c \
-         mcuboot/boot/bootutil/src/image_ed25519.c \
-         mcuboot/boot/bootutil/src/image_rsa.c \
-         mcuboot/boot/bootutil/src/image_validate.c \
-         mcuboot/boot/bootutil/src/loader.c \
-         mcuboot/boot/bootutil/src/swap_misc.c \
-         mcuboot/boot/bootutil/src/swap_move.c \
-         mcuboot/boot/bootutil/src/swap_scratch.c \
-         mcuboot/boot/bootutil/src/tlv.c \
-         mcuboot/boot/nuttx/src/flash_map_backend/flash_map_backend.c
+CSRCS := $(MCUBOOT_UNPACK)/boot/bootutil/src/boot_record.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/bootutil_misc.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/bootutil_public.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/caps.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/encrypted.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/fault_injection_hardening.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ec.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ec256.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ed25519.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_rsa.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_validate.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/loader.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/swap_misc.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/swap_move.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/swap_scratch.c \
+         $(MCUBOOT_UNPACK)/boot/bootutil/src/tlv.c \
+         $(MCUBOOT_UNPACK)/boot/nuttx/src/flash_map_backend/flash_map_backend.c
 
 ifneq ($(CONFIG_MCUBOOT_WATCHDOG),)
-CSRCS += mcuboot/boot/nuttx/src/watchdog/watchdog.c
+CSRCS += $(MCUBOOT_UNPACK)/boot/nuttx/src/watchdog/watchdog.c
 endif
 
 ifneq ($(CONFIG_MCUBOOT_USE_TINYCRYPT),)
-CSRCS += mcuboot/ext/tinycrypt/lib/source/aes_encrypt.c \
-         mcuboot/ext/tinycrypt/lib/source/aes_decrypt.c \
-         mcuboot/ext/tinycrypt/lib/source/ctr_mode.c \
-         mcuboot/ext/tinycrypt/lib/source/hmac.c \
-         mcuboot/ext/tinycrypt/lib/source/ecc_dh.c \
-         mcuboot/ext/tinycrypt/lib/source/sha256.c \
-         mcuboot/ext/tinycrypt/lib/source/utils.c
+CSRCS += $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/aes_encrypt.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/aes_decrypt.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/ctr_mode.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/hmac.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/ecc_dh.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/sha256.c \
+         $(MCUBOOT_UNPACK)/ext/tinycrypt/lib/source/utils.c
 endif
 
 $(MCUBOOT_TARBALL):
