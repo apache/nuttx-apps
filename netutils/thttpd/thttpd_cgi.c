@@ -886,10 +886,10 @@ static int cgi_child(int argc, char **argv)
   ninfo("Starting CGI: %s\n", hc->expnfilename);
 
 #ifdef CONFIG_THTTPD_NXFLAT
-  child = exec(hc->expnfilename, (FAR char * const *)argp,
+  child = exec(hc->expnfilename, argp, NULL,
                g_thttpdsymtab, g_thttpdnsymbols);
 #else
-  child = exec(hc->expnfilename, (FAR char * const *)argp, NULL, 0);
+  child = exec(hc->expnfilename, argp, NULL, NULL, 0);
 #endif
   if (child < 0)
     {
