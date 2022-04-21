@@ -245,6 +245,10 @@ config NSH_DISABLE_CMP
 	bool "Disable cmp"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_TIMEDATECTL
+	bool "Disable TIMEDATECTL"
+	default DEFAULT_SMALL || !LIBC_LOCALTIME || !RTC
+
 config NSH_DISABLE_DATE
 	bool "Disable date"
 	default DEFAULT_SMALL || !RTC

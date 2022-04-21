@@ -37,11 +37,11 @@
 
 struct cfg_s
 {
-  const FAR char *delim;
-  const FAR char *format;
+  FAR const char *format;
+  FAR const char *delim;
   uint8_t positions[CONFIG_BOARDCTL_UNIQUEID_SIZE];
   size_t count;
-  const FAR char *prefix;
+  FAR const char *prefix;
 };
 
 /****************************************************************************
@@ -51,13 +51,13 @@ struct cfg_s
 static int parse_positions(FAR char *arg, FAR uint8_t *positions,
                            FAR size_t *count)
 {
-  char *list_save;
-  char *list_item;
-  char *range_save;
-  char *range_item;
-  char *endptr;
-  int pos;
-  int pos2;
+  FAR char *list_save;
+  FAR char *list_item;
+  FAR char *range_save;
+  FAR char *range_item;
+  FAR char *endptr;
+  FAR int pos;
+  FAR int pos2;
 
 #define APPEND_POSITION(pos) \
   do \
@@ -227,12 +227,13 @@ static int parsearg(int argc, FAR char *argv[], FAR struct cfg_s *cfg)
 int main(int argc, FAR char *argv[])
 {
   uint8_t uniqueid[CONFIG_BOARDCTL_UNIQUEID_SIZE];
-  char *formatter;
+  FAR char *formatter;
   int i;
 
-  struct cfg_s cfg = {
-    .format = "02x",
-  };
+  struct cfg_s cfg =
+    {
+      "02x"
+    };
 
   if (parsearg(argc, argv, &cfg) != 0)
     {

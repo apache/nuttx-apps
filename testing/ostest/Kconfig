@@ -86,10 +86,6 @@ config TESTING_OSTEST_FPUTESTDISABLE
 
 if !TESTING_OSTEST_FPUTESTDISABLE
 
-config TESTING_OSTEST_FPUSIZE
-	int "Size of floating point register save area"
-	default 0
-
 config TESTING_OSTEST_FPULOOPS
 	int "Number of FPU test loops"
 	default 16

@@ -84,6 +84,24 @@ static FAR const char *g_statenames[] =
  ************************************************************************************/
 
 /************************************************************************************
+ * Name: trace_dump_unflatten
+ ************************************************************************************/
+
+static void trace_dump_unflatten(FAR void *dst,
+                                 FAR uint8_t *src, size_t len)
+{
+#ifdef CONFIG_ENDIAN_BIG
+  FAR uint8_t *end = (FAR uint8_t *)dst + len - 1;
+  while (len-- > 0)
+    {
+      *end-- = *src++;
+    }
+#else
+  memcpy(dst, src, len);
+#endif
+}
+
+/************************************************************************************
  * Name: dump_notes
  ************************************************************************************/
 
@@ -103,22 +121,14 @@ static void dump_notes(size_t nread)
   while (offset < nread)
     {
       note    = (FAR struct note_common_s *)&g_note_buffer[offset];
-      pid     =  (pid_t)note->nc_pid[0] +
-                ((pid_t)note->nc_pid[1] << 8);
+      trace_dump_unflatten(&pid, note->note->nc_pid, sizeof(pid));
 #ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
-      systime_nsec = (uint32_t)note->nc_systime_nsec[0] +
-                     (uint32_t)(note->nc_systime_nsec[1] << 8) +
-                     (uint32_t)(note->nc_systime_nsec[2] << 16) +
-                     (uint32_t)(note->nc_systime_nsec[3] << 24);
-      systime_sec = (uint32_t)note->nc_systime_sec[0] +
-                    (uint32_t)(note->nc_systime_sec[1] << 8) +
-                    (uint32_t)(note->nc_systime_sec[2] << 16) +
-                    (uint32_t)(note->nc_systime_sec[3] << 24);
+      trace_dump_unflatten(&systime_nsec,
+                           note->nc_systime_nsec, sizeof(systime_nsec));
+      trace_dump_unflatten(&systime_sec,
+                           note->nc_systime_sec, sizeof(systime_sec));
 #else
-      systime = (uint32_t) note->nc_systime[0]        +
-                (uint32_t)(note->nc_systime[1] << 8)  +
-                (uint32_t)(note->nc_systime[2] << 16) +
-                (uint32_t)(note->nc_systime[3] << 24);
+      trace_dump_unflatten(&systime, note->nc_systime, sizeof(systime));
 #endif
 
       switch (note->nc_type)
@@ -395,8 +405,7 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              count = (uint16_t) note_preempt->npr_count[0] +
-                      (uint16_t)(note_preempt->npr_count[1] << 8);
+              trace_dump_unflatten(&count, note_preempt->npr_count, sizeof(count));
 
               if (note->nc_type == NOTE_PREEMPT_LOCK)
                 {
@@ -452,8 +461,7 @@ static void dump_notes(size_t nread)
                 }
 
 #ifdef CONFIG_SMP
-              count = (uint16_t) note_csection->ncs_count[0] +
-                      (uint16_t)(note_csection->ncs_count[1] << 8);
+              trace_dump_unflatten(&count, note_csection->ncs_count, sizeof(count));
 
               if (note->nc_type == NOTE_CSECTION_ENTER)
                 {
@@ -509,20 +517,9 @@ static void dump_notes(size_t nread)
                   return;
                 }
 
-              spinlock = (FAR void *)
-                            ((uintptr_t)note_spinlock->nsp_spinlock[0]
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[1] << 8)
-#if UINTPTR_MAX > UINT16_MAX
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[2] << 16)
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[3] << 24)
-#if UINTPTR_MAX > UINT32_MAX
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[4] << 32)
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[5] << 40)
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[6] << 48)
-                             + ((uintptr_t)note_spinlock->nsp_spinlock[7] << 56)
-#endif
-#endif
-                            );
+              trace_dump_unflatten(&spinlock,
+                                   note_spinlock->nsp_spinlock,
+                                   sizeof(spinlock));
 
              switch (note->nc_type)
                {
@@ -666,19 +663,9 @@ static void dump_notes(size_t nread)
                         return;
                       }
 
-                    result =    (uintptr_t)note_sysleave->nsc_result[0]
-                             + ((uintptr_t)note_sysleave->nsc_result[1] << 8)
-#if UINTPTR_MAX > UINT16_MAX
-                             + ((uintptr_t)note_sysleave->nsc_result[2] << 16)
-                             + ((uintptr_t)note_sysleave->nsc_result[3] << 24)
-#if UINTPTR_MAX > UINT32_MAX
-                             + ((uintptr_t)note_sysleave->nsc_result[4] << 32)
-                             + ((uintptr_t)note_sysleave->nsc_result[5] << 40)
-                             + ((uintptr_t)note_sysleave->nsc_result[6] << 48)
-                             + ((uintptr_t)note_sysleave->nsc_result[7] << 56)
-#endif
-#endif
-                    ;
+                    trace_dump_unflatten(&result,
+                                         note_sysleave->nsc_result,
+                                         sizeof(result));
 
                     syslog_time(LOG_INFO,
                            "Task %u Leave SYSCALL %d: %" PRIdPTR "\n",
@@ -738,6 +725,7 @@ static void dump_notes(size_t nread)
                   {
                     FAR struct note_binary_s *note_binary =
                       (FAR struct note_binary_s *)note;
+                    uintptr_t ip;
                     char out[1280];
                     int count;
                     int ret = 0;
@@ -758,15 +746,15 @@ static void dump_notes(size_t nread)
                         ret += sprintf(&out[ret], " 0x%x", note_binary->nbi_data[i]);
                       }
 
+                    trace_dump_unflatten(&ip, note_binary->nbi_ip,
+                                         sizeof(ip));
+
                     syslog_time(LOG_INFO,
-                           "Task %u priority %u, binary:module=%c%c%c%c "
-                            "event=%u count=%u%s\n",
+                           "Task %u priority %u, ip=0x%" PRIdPTR
+                            " event=%u count=%u%s\n",
                            (unsigned int)pid,
                            (unsigned int)note->nc_priority,
-                           note_binary->nbi_module[0],
-                           note_binary->nbi_module[1],
-                           note_binary->nbi_module[2],
-                           note_binary->nbi_module[3],
+                           note_binary->nbi_ip,
                            note_binary->nbi_event,
                            count,
                            out);

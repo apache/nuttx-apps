@@ -91,18 +91,18 @@ void *poll_listener(pthread_addr_t pvarg)
 
   printf("poll_listener: Opening %s for non-blocking read\n", FIFO_PATH1);
 
-  fd = open(FIFO_PATH1, O_RDONLY|O_NONBLOCK);
+  fd = open(FIFO_PATH1, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       printf("poll_listener: ERROR Failed to open FIFO %s: %d\n",
              FIFO_PATH1, errno);
       close(fd);
-      return (void*)-1;
+      return (FAR void *)-1;
     }
 
   /* Loop forever */
 
-  for (;;)
+  for (; ; )
     {
       printf("poll_listener: Calling poll()\n");
 
@@ -143,32 +143,35 @@ void *poll_listener(pthread_addr_t pvarg)
       nevents = 0;
       for (i = 0; i < NPOLLFDS; i++)
         {
-          printf("poll_listener: FIFO revents[%d]=%02x\n", i, fds[i].revents);
+          printf("poll_listener: FIFO revents[%d]=%08" PRIx32 "\n", i,
+                 fds[i].revents);
           if (timeout)
             {
               if (fds[i].revents != 0)
                 {
-                  printf("poll_listener: ERROR? expected revents=00, received revents[%d]=%02x\n",
-                         fds[i].revents, i);
+                  printf("poll_listener: ERROR? expected revents=00, "
+                         "received revents[%d]=%08" PRIx32 "\n",
+                         i, fds[i].revents);
                 }
             }
           else if (pollin)
             {
-               if (fds[i].revents == POLLIN)
-                 {
-                   nevents++;
-                 }
-               else if (fds[i].revents != 0)
+              if (fds[i].revents == POLLIN)
                 {
-                   printf("poll_listener: ERROR unexpected revents[%d]=%02x\n",
-                          i, fds[i].revents);
-                 }
+                  nevents++;
+                }
+              else if (fds[i].revents != 0)
+                {
+                  printf("poll_listener: ERROR unexpected revents[%d]="
+                         "%08" PRIx32 "\n", i, fds[i].revents);
+                }
             }
         }
 
       if (pollin && nevents != ret)
         {
-           printf("poll_listener: ERROR found %d events, poll reported %d\n", nevents, ret);
+           printf("poll_listener: ERROR found %d events, "
+                  "poll reported %d\n", nevents, ret);
         }
 
       /* In any event, read until the pipe/serial  is empty */
@@ -210,21 +213,26 @@ void *poll_listener(pthread_addr_t pvarg)
                     {
                       if ((fds[i].revents & POLLIN) != 0)
                         {
-                          printf("poll_listener: ERROR no read data[%d]\n", i);
+                          printf("poll_listener: ERROR no read"
+                                 " data[%d]\n", i);
                         }
                     }
                   else if (errno != EINTR)
                     {
-                      printf("poll_listener: read[%d] failed: %d\n", i, errno);
+                      printf("poll_listener: read[%d] failed: %d\n",
+                             i, errno);
                     }
+
                   nbytes = 0;
                 }
               else
                 {
                   if (timeout)
                     {
-                      printf("poll_listener: ERROR? Poll timeout, but data read[%d]\n", i);
-                      printf("               (might just be a race condition)\n");
+                      printf("poll_listener: ERROR? Poll timeout, "
+                              "but data read[%d]\n", i);
+                      printf("               (might just be "
+                             "a race condition)\n");
                     }
 
                   buffer[nbytes] = '\0';
@@ -232,7 +240,9 @@ void *poll_listener(pthread_addr_t pvarg)
                          i, buffer, (long)nbytes);
                 }
 
-              /* Suppress error report if no read data on the next time through */
+              /* Suppress error report if no read data on the next
+               * time through
+               */
 
               fds[i].revents = 0;
             }
