@@ -18,6 +18,9 @@
  *
  ***************************************************************************/
 
+#ifndef __APPS_INTERPRETERS_FICL_SRC_NUTTX_H
+#define __APPS_INTERPRETERS_FICL_SRC_NUTTX_H
+
 /***************************************************************************
  * Included Files
  ***************************************************************************/
@@ -41,3 +44,5 @@ typedef float ficlFloat;
 
 #define FICL_PLATFORM_OS            "ansi"
 #define FICL_PLATFORM_ARCHITECTURE  "unknown"
+
+#endif /* __APPS_INTERPRETERS_FICL_SRC_NUTTX_H */
