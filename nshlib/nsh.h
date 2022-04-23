@@ -340,9 +340,16 @@
 #    define CONFIG_NSH_ROMFSMOUNTPT "/etc"
 #  endif
 
+#  ifndef CONFIG_NSH_SYSINITSCRIPT
+#    define CONFIG_NSH_SYSINITSCRIPT "init.d/rc.sysinit"
+#  endif
+
 #  ifndef CONFIG_NSH_INITSCRIPT
 #    define CONFIG_NSH_INITSCRIPT "init.d/rcS"
 #  endif
+
+#  undef NSH_SYSINITPATH
+#  define NSH_SYSINITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_SYSINITSCRIPT
 
 #  undef NSH_INITPATH
 #  define NSH_INITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_INITSCRIPT
@@ -829,6 +836,7 @@ int nsh_usbconsole(void);
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                FAR const char *path);
 #ifdef CONFIG_NSH_ROMFSETC
+int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl);
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl);
 #ifdef CONFIG_NSH_ROMFSRC
 int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);

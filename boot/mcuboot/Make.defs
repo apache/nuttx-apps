@@ -34,8 +34,8 @@ CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/boot/mcuboot/mcuboo
 # It allows import of MCUboot's crypto backend library headers.
 
 ifeq ($(CONFIG_MCUBOOT_USE_TINYCRYPT),y)
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/boot/mcuboot/mcuboot/ext/tinycrypt/lib/include/}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/boot/mcuboot/mcuboot/ext/tinycrypt/lib/include/}
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/boot/mcuboot/mcuboot/ext/tinycrypt/lib/include}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/boot/mcuboot/mcuboot/ext/tinycrypt/lib/include}
 endif
 
 endif
