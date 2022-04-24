@@ -328,18 +328,16 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
                                  ntohs(inhdr->seqno));
                   retry = true;
                 }
+              else if (ntohs(inhdr->seqno) < result.seqno)
+                {
+                  icmp6_callback(&result, ICMPv6_W_SEQNOSMALL,
+                                 ntohs(inhdr->seqno));
+                  retry = true;
+                }
               else
                 {
                   bool verified = true;
                   long pktdelay = elapsed;
-
-                  if (ntohs(inhdr->seqno) < result.seqno)
-                    {
-                      icmp6_callback(&result, ICMPv6_W_SEQNOSMALL,
-                                     ntohs(inhdr->seqno));
-                      pktdelay += info->delay * USEC_PER_MSEC;
-                      retry     = true;
-                    }
 
                   icmp6_callback(&result, ICMPv6_I_ROUNDTRIP, pktdelay);
 
