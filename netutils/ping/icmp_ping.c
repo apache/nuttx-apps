@@ -329,18 +329,16 @@ void icmp_ping(FAR const struct ping_info_s *info)
                                 ntohs(inhdr->seqno));
                   retry = true;
                 }
+              else if (ntohs(inhdr->seqno) < result.seqno)
+                {
+                  icmp_callback(&result, ICMP_W_SEQNOSMALL,
+                                ntohs(inhdr->seqno));
+                  retry = true;
+                }
               else
                 {
                   bool verified = true;
                   long pktdelay = elapsed;
-
-                  if (ntohs(inhdr->seqno) < result.seqno)
-                    {
-                      icmp_callback(&result, ICMP_W_SEQNOSMALL,
-                                    ntohs(inhdr->seqno));
-                      pktdelay += info->delay * USEC_PER_MSEC;
-                      retry     = true;
-                    }
 
                   icmp_callback(&result, ICMP_I_ROUNDTRIP, pktdelay);
 
