@@ -242,10 +242,17 @@ static void ping_result(FAR const struct ping_result_s *result)
                    result->extra / USEC_PER_MSEC);
             if (result->nreplies > 0)
               {
-                long avg = priv->tsum / result->nreplies;
-                long long tempnum = priv->tsum2 / result->nreplies -
-                                    (long long)avg * avg;
-                long tmdev = ub16toi(ub32sqrtub16(uitoub32(tempnum)));
+                long avg = 0;
+                long long tempnum = 0;
+                long tmdev = 0;
+
+                if (priv->tsum > 0)
+                  {
+                    avg = priv->tsum / result->nreplies;
+                    tempnum = priv->tsum2 / result->nreplies -
+                              (long long)avg * avg;
+                    tmdev = ub16toi(ub32sqrtub16(uitoub32(tempnum)));
+                  }
 
                 printf("rtt min/avg/max/mdev = %ld.%03ld/%ld.%03ld/"
                        "%ld.%03ld/%ld.%03ld ms\n",
