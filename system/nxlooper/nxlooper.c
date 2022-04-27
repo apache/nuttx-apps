@@ -330,7 +330,8 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
   FAR struct ap_buffer_s  **recordbufs = NULL;
   unsigned int            prio;
   ssize_t                 size;
-  bool                    running = true;
+  int                     running = 2;
+  bool                    streaming = true;
   int                     x;
   int                     ret;
 
@@ -495,6 +496,11 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
           /* An audio buffer is being dequeued by the driver */
 
           case AUDIO_MSG_DEQUEUE:
+            if (!streaming)
+              {
+                break;
+              }
+
             apb = msg.u.ptr;
             apb->curbyte = 0;
             if (apb->flags & AUDIO_APB_PLAY)
@@ -576,8 +582,12 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
             ioctl(plooper->playdev_fd, AUDIOIOC_STOP, 0);
             ioctl(plooper->recorddev_fd, AUDIOIOC_STOP, 0);
 #endif
+            streaming = false;
 
-            running = false;
+            break;
+
+          case AUDIO_MSG_COMPLETE:
+            running--;
             break;
 
           /* Unknown / unsupported message ID */
