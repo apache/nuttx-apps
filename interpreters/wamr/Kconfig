@@ -58,6 +58,10 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 	bool "Enable built-in libc"
 	default n
 
+config INTERPRETERS_WAMR_LIBC_WASI
+	bool "Enable WASI libc"
+	default n
+
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
 	default n
