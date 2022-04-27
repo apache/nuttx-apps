@@ -765,7 +765,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
       wlreq = (struct iwreq *)(req + 1);
       wlack = (struct iwreq *)(ack + 1);
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           wlack->u.data.pointer = wlack + 1;
         }
@@ -775,7 +775,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
               req->cmd, (unsigned long)(ack + 1));
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           if (ret >= 0)
             {
