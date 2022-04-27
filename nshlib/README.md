@@ -176,21 +176,28 @@ the `echo $PWD` command.
 - `PWD`    - The current working directory
 - `OLDPWD` - The previous working directory
 
-## NSH Start-Up Script
+## NSH System-init And Start-Up Script
 
-NSH supports options to provide a start up script for NSH. In general this
-capability is enabled with `CONFIG_NSH_ROMFSETC`, but has several other related
-configuration options as described in the final section of this README. This
-capability also depends on:
+NSH supports options to provide a system init script and start up script for NSH.
+In general this capability is enabled with `CONFIG_NSH_ROMFSETC`, but has
+several other related configuration options as described in the final section
+of this README. This capability also depends on:
 
 - `CONFIG_DISABLE_MOUNTPOINT` not set
 - `CONFIG_FS_ROMFS`
 
-### Default Start-Up Behavior
+### Default Script Behavior
 
 The implementation that is provided is intended to provide great flexibility for
-the use of Start-Up files. This paragraph will discuss the general behavior when
-all of the configuration options are set to the default values.
+the use of script files, include system init file and start-up file. This
+paragraph will discuss the general behavior when all of the configuration
+options are set to the default values.
+
+System-init script is executed before Start-up script. The system-init script
+is mainly used for file system mounting and core system service startup, and the
+start-up script is used for application and other system service startup. So,
+Between them, some initialize can use filesystem and core system service,
+Examples: Peripheral driver initialize at `boardctl(BOARDIOC_FINALINIT, 0)`.
 
 In this default case, enabling `CONFIG_NSH_ROMFSETC` will cause NSH to behave as
 follows at NSH startup time:
@@ -201,9 +208,11 @@ follows at NSH startup time:
   ```
    |   `--init.d/
            `-- rcS
+           `-- rc.sysinit
   ````
 
   Where `rcS` is the NSH start-up script
+  Where `rc.sysinit` is the NSH system-init script
 
 - NSH will then mount the ROMFS file system at `/etc`, resulting in:
 
@@ -213,9 +222,10 @@ follows at NSH startup time:
    `--etc/
        `--init.d/
            `-- rcS
+           `-- rc.sysinit
   ```
 
-- By default, the contents of `rcS` script are:
+- By default, the contents of `rc.sysinit` script are:
 
   ```shell
   # Create a RAMDISK and mount it at XXXRDMOUNTPOINTXXX
@@ -225,8 +235,9 @@ follows at NSH startup time:
   mount -t vfat /dev/ram1 /tmp
   ```
 
-- NSH will execute the script at `/etc/init.d/rcS` at start-up (before the first
-  NSH prompt. After execution of the script, the root FS will look like:
+- NSH will execute the script at `/etc/init.d/rc.sysinit` at system init
+  before the first NSH prompt. After execution of the script, the root
+  FS will look like:
 
   ```
    |--dev/
@@ -235,6 +246,7 @@ follows at NSH startup time:
    |--etc/
    |   `--init.d/
    |       `-- rcS
+   |       `-- rc.sysinit
    `--tmp/
   ```
 
@@ -262,21 +274,27 @@ there are three things to study:
    - The file `apps/nshlib/rcS.template` (OR, if `CONFIG_NSH_ARCHROMFS` is
      defined, `include/arch/board/rcs.template`)
 
-3. `rcS.template`. The file `apps/nshlib/rcS.template` contains the general form
+3. `rc.sysinit.template`. The file `apps/nshlib/rc.sysinit.template` contains
+   the general form of the `rc.sysinit.template` file; configured values
+   are plugged into this template file to produce the final `rc.sysinit` file.
+
+   `rcS.template`. The file `apps/nshlib/rcS.template` contains the general form
    of the `rcS` file; configured values are plugged into this template file to
    produce the final `rcS` file.
 
-**Note**: `apps/nshlib/rcS.template` generates the standard, default
-`nsh_romfsimg.h` file. If `CONFIG_NSH_ARCHROMFS` is defined in the NuttX
-configuration file, then a custom, board-specific `nsh_romfsimg.h` file residing
-in `boards/<arch>/<chip>/<board>/include` will be used. **Note** when the OS is
-configured, `include/arch/board` will be linked to
+**Note**: `apps/nshlib/rc.sysinit.template` and ` apps/nshlib/rcS.template`
+generates the standard, default `nsh_romfsimg.h` file. If `CONFIG_NSH_ARCHROMFS`
+is defined in the NuttX configuration file, then a custom, board-specific
+`nsh_romfsimg.h` file residing in `boards/<arch>/<chip>/<board>/include` will be
+used. **Note** when the OS is configured, `include/arch/board` will be linked to
 `boards/<arch>/<chip>/<board>/include`.
 
-All of the startup-behavior is contained in `rcS.template`. The role of
-`mkromfsimg.sh` is to (1) apply the specific configuration settings to
-`rcS.template` to create the final `rcS`, and (2) to generate the header file
-`nsh_romfsimg.h` containing the ROMFS file system image.
+All of the startup-behavior is contained in `rc.sysinit.template` and
+`rcS.template`. The role of `mkromfsimg.sh` is to (1) apply the specific
+configuration settings to `rc.sysinit.template` to create the final
+`rc.sysinit.template`, and `rcS.template` to create the final `rcS` and
+(2) to generate the header file `nsh_romfsimg.h` containing the ROMFS file
+system image.
 
 ## Simple Commands
 
@@ -1803,8 +1821,9 @@ The behavior of NSH can be modified with the following settings in the
   `/dev/mmcsdN` where `N` is the minor number. Default is zero.
 
 - `CONFIG_NSH_ROMFSETC` – Mount a ROMFS file system at `/etc` and provide a
-  startup script at `/etc/init.d/rcS`. The default startup script will mount a
-  FAT FS RAMDISK at `/tmp` but the logic is easily extensible.
+  system init script at `/etc/init.d/rc.sysinit` and a startup script at
+  `/etc/init.d/rcS`. The default system init script will mount a FAT FS RAMDISK
+  at `/tmp` but the logic is easily extensible.
 
 - `CONFIG_NSH_CONSOLE`
 
@@ -1943,6 +1962,10 @@ configuration setting apply:
 - `CONFIG_NSH_ROMFSMOUNTPT` – The default mountpoint for the ROMFS volume is
   `/etc`, but that can be changed with this setting. This must be a absolute
   path beginning with `/`.
+
+- `CONFIG_NSH_SYSINITSCRIPT` – This is the relative path to the system init
+  script within the mountpoint. The default is `init.d/rc.sysinit`. This
+  is a relative path and must not start with `/`.
 
 - `CONFIG_NSH_INITSCRIPT` – This is the relative path to the startup script
   within the mountpoint. The default is `init.d/rcS`. This is a relative path

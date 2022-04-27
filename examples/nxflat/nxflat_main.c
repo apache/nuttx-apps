@@ -213,7 +213,7 @@ int main(int argc, FAR char *argv[])
 
       args[0] = (FAR char *)dirlist[i];
       args[1] = NULL;
-      ret = exec(filename, args, g_nxflat_exports, g_nxflat_nexports);
+      ret = exec(filename, args, NULL, g_nxflat_exports, g_nxflat_nexports);
       if (ret < 0)
         {
           errmsg("ERROR: exec(%s) failed: %d\n", dirlist[i], errno);
