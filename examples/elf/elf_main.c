@@ -359,7 +359,7 @@ int main(int argc, FAR char *argv[])
 
       args[0] = (FAR char *)dirlist[i];
       args[1] = NULL;
-      ret = exec(filename, args, g_elf_exports, g_elf_nexports);
+      ret = exec(filename, args, NULL, g_elf_exports, g_elf_nexports);
 
       mm_update(&g_mmstep, "after exec");
 
