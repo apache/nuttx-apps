@@ -132,7 +132,7 @@ endef
 
 define ELFLD
 	@echo "LD: $2"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDLIBS) -o $2
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDSTARTGROUP) $(LDLIBS) $(LDENDGROUP) -o $2
 endef
 
 $(RAOBJS): %.s$(SUFFIX)$(OBJEXT): %.s
