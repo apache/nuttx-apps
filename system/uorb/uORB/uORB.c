@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: orb_open
+ * Name: orb_advsub_open
  *
  * Description:
  *   Open device node as advertiser / subscriber, regist node and save meta
@@ -45,7 +45,7 @@
  *
  * Input Parameters:
  *   meta         The uORB metadata (usually from the ORB_ID() macro)
- *   advertiser   Whether advertiser or subscriber.
+ *   flag         The open flag.
  *   instance     Instance number to open.
  *   queue_size   Maximum number of buffered elements.
  *
@@ -53,11 +53,10 @@
  *   fd on success, otherwise returns negative value and set errno.
  ****************************************************************************/
 
-static int orb_open(FAR const struct orb_metadata *meta, bool advertiser,
-                    int instance, unsigned int queue_size)
+static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
+                           int instance, unsigned int queue_size)
 {
   char path[ORB_PATH_MAX];
-  bool first_open = false;
   int fd;
   int ret;
 
@@ -66,11 +65,11 @@ static int orb_open(FAR const struct orb_metadata *meta, bool advertiser,
 
   /* Check existance before open */
 
-  ret = access(path, F_OK);
-  if (ret < 0)
+  flags |= O_CLOEXEC;
+  fd = open(path, flags);
+  if (fd < 0)
     {
       struct sensor_reginfo_s reginfo;
-
       reginfo.path    = path;
       reginfo.esize   = meta->o_size;
       reginfo.nbuffer = queue_size;
@@ -90,18 +89,16 @@ static int orb_open(FAR const struct orb_metadata *meta, bool advertiser,
           return ret;
         }
 
-      first_open = true;
-    }
+      fd = open(path, flags);
+      if (fd < 0)
+        {
+          return fd;
+        }
 
-  fd = open(path, O_CLOEXEC | (advertiser ? O_WRONLY : O_RDONLY));
-  if (fd < 0)
-    {
-      return fd;
-    }
-
-  if (first_open)
-    {
-      ioctl(fd, SNIOC_SET_USERPRIV, (unsigned long)(uintptr_t)meta);
+      if (ret != -EEXIST)
+        {
+          ioctl(fd, SNIOC_SET_USERPRIV, (unsigned long)(uintptr_t)meta);
+        }
     }
 
   /* Only first advertiser can successfully set buffer number */
@@ -118,6 +115,19 @@ static int orb_open(FAR const struct orb_metadata *meta, bool advertiser,
  * Public Functions
  ****************************************************************************/
 
+int orb_open(FAR const char *name, int instance, int flags)
+{
+  char path[ORB_PATH_MAX];
+
+  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", name, instance);
+  return open(path, O_CLOEXEC | flags);
+}
+
+int orb_close(int fd)
+{
+  return close(fd);
+}
+
 int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
                               FAR const void *data, FAR int *instance,
                               unsigned int queue_size)
@@ -129,7 +139,7 @@ int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
 
   inst = instance ? *instance : orb_group_count(meta);
 
-  fd = orb_open(meta, true, inst, queue_size);
+  fd = orb_advsub_open(meta, O_WRONLY, inst, queue_size);
   if (fd < 0)
     {
       uorberr("%s advertise failed (%i)", meta->o_name, fd);
@@ -155,11 +165,6 @@ int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
   return fd;
 }
 
-int orb_unadvertise(int fd)
-{
-  return close(fd);
-}
-
 ssize_t orb_publish_multi(int fd, const void *data, size_t len)
 {
   return write(fd, data, len);
@@ -168,12 +173,7 @@ ssize_t orb_publish_multi(int fd, const void *data, size_t len)
 int orb_subscribe_multi(FAR const struct orb_metadata *meta,
                         unsigned instance)
 {
-  return orb_open(meta, false, instance, 0);
-}
-
-int orb_unsubscribe(int fd)
-{
-  return close(fd);
+  return orb_advsub_open(meta, O_RDONLY, instance, 0);
 }
 
 ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len)
@@ -225,9 +225,9 @@ int orb_check(int fd, FAR bool *updated)
   return 0;
 }
 
-int orb_ioctl(int handle, int cmd, unsigned long arg)
+int orb_ioctl(int fd, int cmd, unsigned long arg)
 {
-  return ioctl(handle, cmd, arg);
+  return ioctl(fd, cmd, arg);
 }
 
 int orb_set_interval(int fd, unsigned interval)

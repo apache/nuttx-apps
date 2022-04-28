@@ -174,6 +174,38 @@ extern "C"
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: orb_open
+ *
+ * Description:
+ *   Open device exist node with name, instance and flags.
+ *
+ * Input Parameters:
+ *   name         The topic name.
+ *   instance     Instance number to open.
+ *   flags        The open flags.
+ *
+ * Returned Value:
+ *   fd on success, otherwise returns negative value and set errno.
+ ****************************************************************************/
+
+int orb_open(FAR const char *name, int instance, int flags);
+
+/****************************************************************************
+ * Name: orb_close
+ *
+ * Description:
+ *   Close fd.
+ *
+ * Input Parameters:
+ *   fd       A fd returned by orb_open.
+ *
+ * Returned Value:
+ *   0 on success.
+ ****************************************************************************/
+
+int orb_close(int fd);
+
+/****************************************************************************
  * Name: orb_advertise_multi_queue
  *
  * Description:
@@ -227,13 +259,16 @@ static inline int orb_advertise_multi(FAR const struct orb_metadata *meta,
  *   Unadvertise a topic.
  *
  * Input Parameters:
- *   handle   A handle returned by orb_advertise or orb_advertise_multi.
+ *   fd       A fd returned by orb_advertise or orb_advertise_multi.
  *
  * Returned Value:
  *   0 on success.
  ****************************************************************************/
 
-int orb_unadvertise(int handle);
+static inline int orb_unadvertise(int fd)
+{
+  return orb_close(fd);
+}
 
 /****************************************************************************
  * Name: orb_publish_multi
@@ -246,7 +281,7 @@ int orb_unadvertise(int handle);
  *   updates using orb_check.
  *
  * Input Parameters:
- *   handle   The handle returned from orb_advertise.
+ *   fd       The fd returned from orb_advertise.
  *   data     A pointer to the data to be published.
  *   len      The length of the data to be published.
  *
@@ -254,24 +289,24 @@ int orb_unadvertise(int handle);
  *   0 on success, -1 otherwise with errno set accordingly.
  ****************************************************************************/
 
-ssize_t orb_publish_multi(int handle, FAR const void *data, size_t len);
+ssize_t orb_publish_multi(int fd, FAR const void *data, size_t len);
 
 static inline int orb_publish(FAR const struct orb_metadata *meta,
-                              int handle, FAR const void *data)
+                              int fd, FAR const void *data)
 {
   int ret;
 
-  ret = orb_publish_multi(handle, data, meta->o_size);
+  ret = orb_publish_multi(fd, data, meta->o_size);
   return ret == meta->o_size ? 0 : -1;
 }
 
 static inline int orb_publish_auto(FAR const struct orb_metadata *meta,
-                                   FAR int *handle, FAR const void *data,
+                                   FAR int *fd, FAR const void *data,
                                    FAR int *instance)
 {
-  if (handle && *handle)
+  if (fd && *fd)
     {
-      return orb_publish(meta, *handle, data);
+      return orb_publish(meta, *fd, data);
     }
   else
     {
@@ -283,9 +318,9 @@ static inline int orb_publish_auto(FAR const struct orb_metadata *meta,
           return tmp;
         }
 
-      if (handle)
+      if (fd)
         {
-          *handle = tmp;
+          *fd = tmp;
           return tmp;
         }
       else
@@ -319,7 +354,7 @@ static inline int orb_publish_auto(FAR const struct orb_metadata *meta,
  *              the orb_subscribe() call.
  *
  * Returned Value:
- *   -1 on error, otherwise returns a handle
+ *   -1 on error, otherwise returns a fd
  *   that can be used to read and update the topic.
  *   If the topic in question is not known (due to an
  *   ORB_DEFINE_OPTIONAL with no corresponding ORB_DECLARE)
@@ -341,13 +376,16 @@ static inline int orb_subscribe(FAR const struct orb_metadata *meta)
  *   Unsubscribe from a topic.
  *
  * Input Parameters:
- *   handle   A handle returned from orb_subscribe.
+ *   fd       A fd returned from orb_subscribe.
  *
  * Returned Value:
  *   0 on success.
  ****************************************************************************/
 
-int orb_unsubscribe(int handle);
+static inline int orb_unsubscribe(int fd)
+{
+  return orb_close(fd);
+}
 
 /****************************************************************************
  * Name: orb_copy_multi
@@ -361,7 +399,7 @@ int orb_unsubscribe(int handle);
  *   must be used to update the subscription.
  *
  * Input Parameters:
- *   handle   A handle returned from orb_subscribe.
+ *   fd       A fd returned from orb_subscribe.
  *   buffer   Pointer to the buffer receiving the data, or NULL if the
  *            caller wants to clear the updated flag without.
  *   len      The length to the buffer receiving the data.
@@ -372,14 +410,14 @@ int orb_unsubscribe(int handle);
  *   -1 otherwise with errno set accordingly.
  ****************************************************************************/
 
-ssize_t orb_copy_multi(int handle, FAR void *buffer, size_t len);
+ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len);
 
 static inline int orb_copy(FAR const struct orb_metadata *meta,
-                           int handle, FAR void *buffer)
+                           int fd, FAR void *buffer)
 {
   int ret;
 
-  ret = orb_copy_multi(handle, buffer, meta->o_size);
+  ret = orb_copy_multi(fd, buffer, meta->o_size);
   return ret == meta->o_size ? 0 : -1;
 }
 
@@ -397,7 +435,7 @@ static inline int orb_copy(FAR const struct orb_metadata *meta,
  *     max_frequency to 0. min_batch_interval to 0, enable to false.
  *
  * Input Parameters:
- *   handle   The handle returned from orb_advertise / orb_subscribe.
+ *   fd       The fd returned from orb_advertise / orb_subscribe.
  *   state    Pointer to an state of struct orb_state type. This is an
  *            output parameter and will be set to the current state of topic.
  *
@@ -405,7 +443,7 @@ static inline int orb_copy(FAR const struct orb_metadata *meta,
  *   -1 on error.
  ****************************************************************************/
 
-int orb_get_state(int handle, FAR struct orb_state *state);
+int orb_get_state(int fd, FAR struct orb_state *state);
 
 /****************************************************************************
  * Name: orb_check
@@ -417,20 +455,20 @@ int orb_get_state(int handle, FAR struct orb_state *state);
  *   not using poll(), or to avoid the overhead of calling poll() when the
  *   topic is likely to have updated.
  *
- *   Updates are tracked on a per-handle basis; this call will continue to
- *   return true until orb_copy is called using the same handle.
+ *   Updates are tracked on a per-fd basis; this call will continue to
+ *   return true until orb_copy is called using the same fd.
  *
  * Input Parameters:
- *   handle   A handle returned from orb_subscribe.
+ *   fd       A fd returned from orb_subscribe.
  *   update   Set to true if the topic has been updated since the
- *            last time it was copied using this handle.
+ *            last time it was copied using this fd.
  *
  * Returned Value:
  *   0 if the check was successful,
  *   -1 otherwise with errno set accordingly.
  ****************************************************************************/
 
-int orb_check(int handle, FAR bool *updated);
+int orb_check(int fd, FAR bool *updated);
 
 /****************************************************************************
  * Name: orb_ioctl
@@ -439,7 +477,7 @@ int orb_check(int handle, FAR bool *updated);
  *   Ioctl control for the subscriber, the same as ioctl().
  *
  * Input Parameters:
- *   handle   A handle returned from orb_advertise / orb_subscribe.
+ *   fd       A fd returned from orb_advertise / orb_subscribe.
  *   cmd      Ioctl command.
  *   arg      Ioctl argument.
  *
@@ -447,7 +485,7 @@ int orb_check(int handle, FAR bool *updated);
  *   0 on success.
  ****************************************************************************/
 
-int orb_ioctl(int handle, int cmd, unsigned long arg);
+int orb_ioctl(int fd, int cmd, unsigned long arg);
 
 /****************************************************************************
  * Name: orb_set_batch_interval
@@ -462,14 +500,14 @@ int orb_ioctl(int handle, int cmd, unsigned long arg);
  *   hardware fifo, otherwise it's meaningless.
  *
  * Input Parameters:
- *   handle         A handle returned from orb_subscribe.
+ *   fd             A fd returned from orb_subscribe.
  *   batch_interval An batch interval in us.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-int orb_set_batch_interval(int handle, unsigned batch_interval);
+int orb_set_batch_interval(int fd, unsigned batch_interval);
 
 /****************************************************************************
  * Name: orb_get_batch_interval
@@ -483,14 +521,14 @@ int orb_set_batch_interval(int handle, unsigned batch_interval);
  *   @see orb_set_batch_interval()
  *
  * Input Parameters:
- *   handle          A handle returned from orb_subscribe.
+ *   fd              A fd returned from orb_subscribe.
  *   batch_interval  The returned batch interval in us.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-int orb_get_batch_interval(int handle, FAR unsigned *batch_interval);
+int orb_get_batch_interval(int fd, FAR unsigned *batch_interval);
 
 /****************************************************************************
  * Name:
@@ -499,14 +537,14 @@ int orb_get_batch_interval(int handle, FAR unsigned *batch_interval);
  *   Set the minimum interval between which updates seen for a subscription.
  *
  * Input Parameters:
- *   handle     A handle returned from orb_subscribe.
+ *   fd         A fd returned from orb_subscribe.
  *   interval   An interval period in us.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-int orb_set_interval(int handle, unsigned interval);
+int orb_set_interval(int fd, unsigned interval);
 
 /****************************************************************************
  * Name:
@@ -515,14 +553,14 @@ int orb_set_interval(int handle, unsigned interval);
  *   Get the minimum interval between which updates seen for a subscription.
  *
  * Input Parameters:
- *   handle     A handle returned from orb_subscribe.
+ *   fd         A fd returned from orb_subscribe.
  *   interval   The returned interval period in us.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-int orb_get_interval(int handle, FAR unsigned *interval);
+int orb_get_interval(int fd, FAR unsigned *interval);
 
 /****************************************************************************
  * Name:
@@ -532,16 +570,16 @@ int orb_get_interval(int handle, FAR unsigned *interval);
  *   Set the maximum frequency for a subscription.
  *
  * Input Parameters:
- *   handle     A handle returned from orb_subscribe.
+ *   fd         A fd returned from orb_subscribe.
  *   frequency  A frequency in hz.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-static inline int orb_set_frequency(int handle, unsigned frequency)
+static inline int orb_set_frequency(int fd, unsigned frequency)
 {
-  return orb_set_interval(handle, frequency ? 1000000 / frequency : 0);
+  return orb_set_interval(fd, frequency ? 1000000 / frequency : 0);
 }
 
 /****************************************************************************
@@ -552,19 +590,19 @@ static inline int orb_set_frequency(int handle, unsigned frequency)
  *   Get the maximum frequency for a subscription.
  *
  * Input Parameters:
- *   handle     A handle returned from orb_subscribe.
+ *   fd         A fd returned from orb_subscribe.
  *   frequency  The returned frequency in hz.
  *
  * Returned Value:
  *   0 on success, -1 otherwise with ERRNO set accordingly.
  ****************************************************************************/
 
-static inline int orb_get_frequency(int handle, FAR unsigned *frequency)
+static inline int orb_get_frequency(int fd, FAR unsigned *frequency)
 {
   unsigned interval;
   int ret;
 
-  ret = orb_get_interval(handle, &interval);
+  ret = orb_get_interval(fd, &interval);
   if (ret < 0)
     {
       return ret;
