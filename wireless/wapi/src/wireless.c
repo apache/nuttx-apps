@@ -1068,23 +1068,21 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
 
       /* Get flag. */
 
-      if (IW_TXPOW_DBM == (wrq.u.txpower.flags & IW_TXPOW_DBM))
+      switch (wrq.u.txpower.flags & IW_TXPOW_TYPE)
         {
-          *flag = WAPI_TXPOWER_DBM;
-        }
-      else if (IW_TXPOW_MWATT == (wrq.u.txpower.flags & IW_TXPOW_MWATT))
-        {
-          *flag = WAPI_TXPOWER_MWATT;
-        }
-      else if (IW_TXPOW_RELATIVE ==
-               (wrq.u.txpower.flags & IW_TXPOW_RELATIVE))
-        {
-          *flag = WAPI_TXPOWER_RELATIVE;
-        }
-      else
-        {
-          WAPI_ERROR("ERROR: Unknown flag: %d\n", wrq.u.txpower.flags);
-          return -1;
+          case IW_TXPOW_DBM:
+            *flag = WAPI_TXPOWER_DBM;
+            break;
+          case IW_TXPOW_MWATT:
+            *flag = WAPI_TXPOWER_MWATT;
+            break;
+          case IW_TXPOW_RELATIVE:
+            *flag = WAPI_TXPOWER_RELATIVE;
+            break;
+
+          default:
+            WAPI_ERROR("ERROR: Unknown flag: %d\n", wrq.u.txpower.flags);
+            return -1;
         }
 
       /* Get power. */
