@@ -235,14 +235,18 @@ int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
 static inline int orb_advertise(FAR const struct orb_metadata *meta,
                                 FAR const void *data)
 {
-  return orb_advertise_multi_queue(meta, data, NULL, 1);
+  int instance = 0;
+
+  return orb_advertise_multi_queue(meta, data, &instance, 1);
 }
 
 static inline int orb_advertise_queue(FAR const struct orb_metadata *meta,
                                       FAR const void *data,
                                       unsigned int queue_size)
 {
-  return orb_advertise_multi_queue(meta, data, NULL, queue_size);
+  int instance = 0;
+
+  return orb_advertise_multi_queue(meta, data, &instance, queue_size);
 }
 
 static inline int orb_advertise_multi(FAR const struct orb_metadata *meta,
