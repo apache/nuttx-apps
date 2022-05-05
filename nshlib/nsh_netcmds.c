@@ -1028,6 +1028,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * arp -s <ipaddr> <hwaddr>
    */
 
+  memset(&inaddr, 0, sizeof(inaddr));
 #ifdef CONFIG_NETLINK_ROUTE
   if (strcmp(argv[1], "-t") == 0)
     {
