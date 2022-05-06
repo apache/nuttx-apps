@@ -638,6 +638,21 @@ int orb_exists(FAR const struct orb_metadata *meta, int instance);
 
 int orb_group_count(FAR const struct orb_metadata *meta);
 
+/****************************************************************************
+ * Name: orb_get_meta
+ *
+ * Description:
+ *   Get the metadata of topic object by name string.
+ *
+ * Input Parameters:
+ *   name       The name of topic, ex: sensor_accel, sensor_accel0.
+ *
+ * Returned Value:
+ *   The metadata on success. NULL on failure.
+ ****************************************************************************/
+
+FAR const struct orb_metadata *orb_get_meta(FAR const char *name);
+
 #ifdef __cplusplus
 }
 #endif

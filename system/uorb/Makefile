@@ -21,6 +21,7 @@
 include $(APPDIR)/Make.defs
 
 CSRCS    += uORB/uORB.c
+CSRCS    += $(wildcard sensor/*.c)
 
 ifneq ($(CONFIG_UORB_TESTS),)
 CSRCS    += test/utility.c
