@@ -1,6 +1,8 @@
-__For PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx-apps/tree/pinedio)
+__Apache NuttX Apps for PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx-apps/tree/pinedio)
 
-__For PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx-apps)
+__Apache NuttX Apps for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx-apps)
+
+__Read the articles...__
 
 -   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
 -   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
@@ -14,6 +16,7 @@ __For PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/inc
 -   [__"Apache NuttX Driver for BME280 Sensor: Ported from Zephyr OS"__](https://lupyuen.github.io/articles/bme280)
 -   [__"Rust talks I2C on Apache NuttX RTOS"__](https://lupyuen.github.io/articles/rusti2c)
 -   [__"NuttX Touch Panel Driver for PineDio Stack BL604"__](https://lupyuen.github.io/articles/touch)
+-   [__"NuttX GPIO Expander for PineDio Stack BL604"__](https://lupyuen.github.io/articles/expander)
 
 # Application Folder
 

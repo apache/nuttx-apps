@@ -147,6 +147,24 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           regaddr       = i2ctool->regaddr;
 
+#ifdef CONFIG_BL602_I2C0
+#warning Testing: Send Register ID as I2C Sub Address
+          //  For BL602: Send Register ID as I2C Sub Address
+          struct i2c_msg_s msg2[2];
+          msg2[0].frequency = i2ctool->freq;
+          msg2[0].addr      = addr;
+          msg2[0].flags     = I2C_M_NOSTOP;
+          msg2[0].buffer    = &regaddr;
+          msg2[0].length    = 1;
+
+          msg2[1].frequency = i2ctool->freq;
+          msg2[1].addr      = addr;
+          msg2[1].flags     = I2C_M_READ;
+
+          ret = i2cdev_transfer(fd, msg2, 2);
+          UNUSED(&msg);
+#else
+          //  Otherwise send Register ID as I2C Data
           msg.frequency = i2ctool->freq;
           msg.addr      = addr;
           msg.flags     = I2C_M_READ;
@@ -154,6 +172,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
           msg.length    = 1;
 
           ret = i2cdev_transfer(fd, &msg, 1);
+#endif // CONFIG_BL602_I2C0 
 
           if (ret == OK)
             {
