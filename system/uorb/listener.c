@@ -492,12 +492,25 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
 static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
                              int topic_rate, int nb_msgs, int timeout)
 {
-  struct pollfd fds[nb_objects];
-  int recv_msgs[nb_objects];
+  FAR struct pollfd *fds;
+  FAR int *recv_msgs;
   int nb_recv_msgs = 0;
   int i = 0;
 
   struct listen_object_s *tmp;
+
+  fds = malloc(nb_objects * sizeof(struct pollfd));
+  if (!fds)
+    {
+      return;
+    }
+
+  recv_msgs = malloc(nb_objects * sizeof(int));
+  if (!recv_msgs)
+    {
+      free(fds);
+      return;
+    }
 
   /* Prepare pollfd for all objects */
 
@@ -533,6 +546,8 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
 
   if (nb_msgs == 1)
     {
+      free(fds);
+      free(recv_msgs);
       return;
     }
 
@@ -594,6 +609,8 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
 
   uorbinfo_raw("Total number of received Message:%d/%d",
                nb_recv_msgs, nb_msgs ? nb_msgs : nb_recv_msgs);
+  free(fds);
+  free(recv_msgs);
 }
 
 /****************************************************************************
