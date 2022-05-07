@@ -31,6 +31,22 @@
 
 #include <nuttx/ioexpander/gpio.h>
 
+/* Define the SPI Test Driver for SX1262. (Not the regular SPI Driver) */
+
+#ifdef CONFIG_LIBSX1262_SPI_DEVPATH
+#define SPI_DEVPATH CONFIG_LIBSX1262_SPI_DEVPATH
+#else
+#define SPI_DEVPATH "/dev/spitest0"
+#endif /* CONFIG_LIBSX1262_SPI_DEVPATH */
+
+/* Define the GPIO for SX1262 Chip Select */
+
+#ifdef CONFIG_LIBSX1262_CS_DEVPATH
+#define CS_DEVPATH CONFIG_LIBSX1262_CS_DEVPATH
+#else
+#define CS_DEVPATH "/dev/gpio1"
+#endif /* CONFIG_LIBSX1262_CS_DEVPATH */
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -43,12 +59,12 @@ int main(int argc, FAR char *argv[])
 {
   /* Open GPIO Output for SPI Chip Select */
 
-  int cs = open("/dev/gpio1", O_RDWR);
+  int cs = open(CS_DEVPATH, O_RDWR);
   assert(cs >= 0);
 
   /* Open SPI Test Driver */
 
-  int fd = open("/dev/spitest0", O_RDWR);
+  int fd = open(SPI_DEVPATH, O_RDWR);
   assert(fd >= 0);
 
   /* Set SPI Chip Select to Low */
@@ -116,6 +132,17 @@ int main(int argc, FAR char *argv[])
     }
   printf("\nSX1262 Register 8 is 0x%02x\n", rx_data[4]);
 
+  /* Register 8 should be 0x80 */
+
+  if (rx_data[4] == 0x80)
+  {
+    printf("SX1262 is OK\n");
+  }
+  else
+  {
+    printf("***** ERROR: SX1262 is NOT OK! Check SPI connection\n");
+  }
+
   /* Close SPI Test Driver */
 
   close(fd);
@@ -171,5 +198,6 @@ gpout_write: Writing 1
 Read Register 8: received
   a8 a8 a8 a8 80 
 SX1262 Register 8 is 0x80
+SX1262 is OK
 spi_test_driver_close: 
 */
