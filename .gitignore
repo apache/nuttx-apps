@@ -4,8 +4,6 @@
 *.d
 *.dSYM
 *.exe
-*.gcno
-*.gcda
 *.hobj
 *.i
 *.lib
