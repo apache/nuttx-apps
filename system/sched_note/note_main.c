@@ -121,7 +121,7 @@ static void dump_notes(size_t nread)
   while (offset < nread)
     {
       note    = (FAR struct note_common_s *)&g_note_buffer[offset];
-      trace_dump_unflatten(&pid, note->note->nc_pid, sizeof(pid));
+      trace_dump_unflatten(&pid, note->nc_pid, sizeof(pid));
 #ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
       trace_dump_unflatten(&systime_nsec,
                            note->nc_systime_nsec, sizeof(systime_nsec));
