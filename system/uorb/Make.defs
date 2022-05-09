@@ -22,4 +22,6 @@ ifneq ($(CONFIG_UORB),)
 CONFIGURED_APPS += $(APPDIR)/system/uorb
 CFLAGS          += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
                    $(APPDIR)/system/uorb/}
+CXXFLAGS        += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+                   $(APPDIR)/system/uorb/}
 endif
