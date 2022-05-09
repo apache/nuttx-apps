@@ -501,13 +501,13 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
     {
       if (argv[index][0] == '-' || argv[index][0] == '+')
         {
-          enable = (argv[index][0] == '+');
+          enable = (argv[index++][0] == '+');
           if (enable ==
               ((mode.flag & NOTE_FILTER_MODE_FLAG_SWITCH) != 0))
             {
               /* Already set */
 
-              return false;
+              return index;
             }
 
           if (enable)
@@ -520,8 +520,6 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
-
-          index++;
         }
     }
 
@@ -754,13 +752,13 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
     {
       if (argv[index][0] == '-' || argv[index][0] == '+')
         {
-          enable = (argv[index][0] == '+');
+          enable = (argv[index++][0] == '+');
           if (enable ==
               ((mode.flag & NOTE_FILTER_MODE_FLAG_DUMP) != 0))
             {
               /* Already set */
 
-              return false;
+              return index;
             }
 
           if (enable)
@@ -773,8 +771,6 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
-
-          index++;
         }
     }
 
