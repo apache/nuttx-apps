@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GCOV
+	tristate "gcov tool"
+	depends on ARCH_COVERAGE
+	---help---
+		Enable support for the 'gcov' command.
+
+if SYSTEM_GCOV
+
+config SYSTEM_GCOV_PROGNAME
+	string "gcov program name"
+	default "gcov"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_GCOV_PRIORITY
+	int "gcov task priority"
+	default 100
+
+config SYSTEM_GCOV_STACKSIZE
+	int "gcov stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
