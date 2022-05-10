@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MMLPARSER
+	tristate "mml_parser example"
+	default n
+	---help---
+		Enable the mml_parser example
+

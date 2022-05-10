@@ -776,6 +776,10 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               gip         = addr.s_addr;
             }
         }
+      else
+        {
+          addr.s_addr = 0;
+        }
 
       netlib_set_ipv4addr(ifname, &addr);
     }
@@ -1028,6 +1032,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * arp -s <ipaddr> <hwaddr>
    */
 
+  memset(&inaddr, 0, sizeof(inaddr));
 #ifdef CONFIG_NETLINK_ROUTE
   if (strcmp(argv[1], "-t") == 0)
     {
