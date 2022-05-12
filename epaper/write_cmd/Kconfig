@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EPAPER_WRITE_CMD
+	tristate "write_cmd"
+	default n
+	---help---
+		Enable write command to epaper display
+
+if EPAPER_WRITE_CMD
+
+config EPAPER_WRITE_CMD_PROGNAME
+	string "Program name"
+	default "write_cmd"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EPAPER_WRITE_CMD_PRIORITY
+	int "epwrite task priority"
+	default 100
+
+config EPAPER_WRITE_CMD_STACKSIZE
+	int "epwritecmd stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
