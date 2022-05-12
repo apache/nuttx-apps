@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EPAPER_WRITE_DTA
+	tristate "write_dta"
+	default n
+	---help---
+		Enable write data to epaper display
+
+if EPAPER_WRITE_DTA
+
+config EPAPER_WRITE_DTA_PROGNAME
+	string "Program name"
+	default "write_dta"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EPAPER_WRITE_DTA_PRIORITY
+	int "write_dta task priority"
+	default 100
+
+config EPAPER_WRITE_DTA_STACKSIZE
+	int "epwritedta stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
