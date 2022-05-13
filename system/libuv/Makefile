@@ -69,7 +69,9 @@ CSRCS += posix-hrtime.c
 CSRCS += posix-poll.c
 CSRCS += uv-data-getter-setters.c
 CSRCS += version.c
+ifneq ($(CONFIG_LIBUV_UTILS_TEST),)
 CSRCS += idna.c
+endif
 CSRCS += no-fsevents.c
 CSRCS += uv-common.c
 CSRCS += strscpy.c
