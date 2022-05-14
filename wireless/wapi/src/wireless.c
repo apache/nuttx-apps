@@ -131,6 +131,18 @@ FAR const char *g_wapi_alg_flags[] =
   NULL
 };
 
+/* PTA PRIORITY */
+
+FAR const char *g_wapi_pta_prio_flags[] =
+{
+  "WAPI_PTA_PRIORITY_COEX_MAXIMIZED",
+  "WAPI_PTA_PRIORITY_COEX_HIGH",
+  "WAPI_PTA_PRIORITY_BALANCED",
+  "WAPI_PTA_PRIORITY_WLAN_HIGHD",
+  "WAPI_PTA_PRIORITY_WLAN_MAXIMIZED",
+  NULL
+};
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -1498,6 +1510,72 @@ int wapi_get_sensitivity(int sock, FAR const char *ifname, FAR int *sense)
   else
     {
       *sense = -wrq.u.sens.value;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_set_pta_prio
+ *
+ * Description:
+ *   Sets the pta priority of the device.
+ *
+ ****************************************************************************/
+
+int wapi_set_pta_prio(int sock, FAR const char *ifname,
+                      enum wapi_pta_prio_e pta_prio)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  wrq.u.param.value = pta_prio;
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCSIWPTAPRIO, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWPTAPRIO, errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_get_pta_prio
+ *
+ * Description:
+ *   Gets the pta priority of the device.
+ *
+ ****************************************************************************/
+
+int wapi_get_pta_prio(int sock, FAR const char *ifname,
+                      enum wapi_pta_prio_e *pta_prio)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  WAPI_VALIDATE_PTR(pta_prio);
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCGIWPTAPRIO, (unsigned long)((uintptr_t)&wrq));
+  if (ret >= 0)
+    {
+      *pta_prio = wrq.u.param.value;
+    }
+  else
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWPTAPRIO, errcode);
+      ret = -errcode;
     }
 
   return ret;
