@@ -70,7 +70,8 @@ static int listener_generate_object_list(FAR struct list_node *objlist,
                                          FAR const char *filter);
 static int listener_print(FAR const struct orb_metadata *meta, int fd);
 static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
-                             int topic_rate, int nb_msgs, int timeout);
+                             int topic_rate, int topic_latency, int nb_msgs,
+                             int timeout);
 static int listener_update(FAR struct list_node *objlist,
                            FAR struct orb_object *object);
 static void listener_top(FAR struct list_node *objlist,
@@ -115,6 +116,8 @@ listener <command> [arguments...]\n\
 \t[-h       ]  Listener commands help\n\
 \t[-n <val> ]  Number of messages, default: 0\n\
 \t[-r <val> ]  Subscription rate (unlimited if 0), default: 0\n\
+\t[-b <val> ]  Subscription maximum report latency in us(unlimited if 0),\n\
+\t             default: 0\n\
 \t[-t <val> ]  Time of listener, in seconds, default: 5\n\
 \t[-T       ]  Top, continuously print updating objects\n\
 \t[-l       ]  Top only execute once.\n\
@@ -482,6 +485,7 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
  *   objlist        List of objects to subscribe.
  *   nb_objects     Length of objects list.
  *   topic_rate     Subscribe frequency.
+ *   topic_latency  Subscribe report latency.
  *   nb_msgs        Subscribe amount of messages.
  *   timeout        Maximum poll waiting time , ms.
  *
@@ -490,7 +494,8 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
  ****************************************************************************/
 
 static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
-                             int topic_rate, int nb_msgs, int timeout)
+                             int topic_rate, int topic_latency, int nb_msgs,
+                             int timeout)
 {
   FAR struct pollfd *fds;
   FAR int *recv_msgs;
@@ -539,6 +544,10 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
       else if (topic_rate != 0)
         {
           orb_set_frequency(fd, topic_rate);
+          if (topic_latency != 0)
+            {
+              orb_set_batch_interval(fd, topic_latency);
+            }
         }
 
       i++;
@@ -598,6 +607,11 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
         }
       else
         {
+          if (topic_latency)
+            {
+              orb_set_batch_interval(fds[i].fd, 0);
+            }
+
           orb_unsubscribe(fds[i].fd);
           uorbinfo_raw("Object name:%s%d, recieved:%d",
                        tmp->object.meta->o_name, tmp->object.instance,
@@ -695,6 +709,7 @@ int main(int argc, FAR char *argv[])
   struct list_node objlist;
   FAR struct listen_object_s *tmp;
   int topic_rate    = 0;
+  int topic_latency = 0;
   int nb_msgs       = 0;
   int timeout       = 5;
   bool top          = false;
@@ -711,13 +726,21 @@ int main(int argc, FAR char *argv[])
 
   /* Pasrse Argument */
 
-  while ((ch = getopt(argc, argv, "r:n:t:Tlh")) != EOF)
+  while ((ch = getopt(argc, argv, "r:b:n:t:Tlh")) != EOF)
     {
       switch (ch)
       {
         case 'r':
           topic_rate = strtol(optarg, NULL, 0);
           if (topic_rate < 0)
+            {
+              goto error;
+            }
+          break;
+
+        case 'b':
+          topic_latency = strtol(optarg, NULL, 0);
+          if (topic_latency < 0)
             {
               goto error;
             }
@@ -781,7 +804,8 @@ int main(int argc, FAR char *argv[])
                        tmp->object.instance);
         }
 
-      listener_monitor(&objlist, ret, topic_rate, nb_msgs, timeout);
+      listener_monitor(&objlist, ret, topic_rate, topic_latency,
+                       nb_msgs, timeout);
     }
 
   listener_delete_object_list(&objlist);
