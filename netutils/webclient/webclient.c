@@ -182,14 +182,20 @@ struct conn_s
 #define	WGET_FLAG_GOT_CONTENT_LENGTH 1U
 #define	WGET_FLAG_CHUNKED            2U
 
+struct wget_target_s
+{
+  char scheme[sizeof("https") + 1];
+  char hostname[CONFIG_WEBCLIENT_MAXHOSTNAME];
+  char filename[CONFIG_WEBCLIENT_MAXFILENAME];
+  uint16_t port;     /* The port number to use in the connection */
+};
+
 struct wget_s
 {
   /* Internal status */
 
   enum webclient_state_e state;
   uint8_t httpstatus;
-
-  uint16_t port;     /* The port number to use in the connection */
 
   /* These describe the just-received buffer of data */
 
@@ -214,9 +220,8 @@ struct wget_s
 #ifdef CONFIG_WEBCLIENT_GETMIMETYPE
   char mimetype[CONFIG_WEBCLIENT_MAXMIMESIZE];
 #endif
-  char scheme[sizeof("https") + 1];
-  char hostname[CONFIG_WEBCLIENT_MAXHOSTNAME];
-  char filename[CONFIG_WEBCLIENT_MAXFILENAME];
+
+  struct wget_target_s target;
 
   bool need_conn_close;
   struct conn_s conn;
@@ -568,18 +573,18 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
  * Name: parseurl
  ****************************************************************************/
 
-static int parseurl(FAR const char *url, FAR struct wget_s *ws)
+static int parseurl(FAR const char *url, FAR struct wget_target_s *targ)
 {
   struct url_s url_s;
   int ret;
 
   memset(&url_s, 0, sizeof(url_s));
-  url_s.scheme = ws->scheme;
-  url_s.schemelen = sizeof(ws->scheme);
-  url_s.host = ws->hostname;
-  url_s.hostlen = sizeof(ws->hostname);
-  url_s.path = ws->filename;
-  url_s.pathlen = sizeof(ws->filename);
+  url_s.scheme = targ->scheme;
+  url_s.schemelen = sizeof(targ->scheme);
+  url_s.host = targ->hostname;
+  url_s.hostlen = sizeof(targ->hostname);
+  url_s.path = targ->filename;
+  url_s.pathlen = sizeof(targ->filename);
   ret = netlib_parseurl(url, &url_s);
   if (ret < 0)
     {
@@ -588,18 +593,18 @@ static int parseurl(FAR const char *url, FAR struct wget_s *ws)
 
   if (url_s.port == 0)
     {
-      if (!strcmp(ws->scheme, "https"))
+      if (!strcmp(targ->scheme, "https"))
         {
-          ws->port = 443;
+          targ->port = 443;
         }
       else
         {
-          ws->port = 80;
+          targ->port = 80;
         }
     }
   else
     {
-      ws->port = url_s.port;
+      targ->port = url_s.port;
     }
 
   return 0;
@@ -736,9 +741,10 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
 
                   ninfo("Redirect to location: '%s'\n",
                         ws->line + strlen(g_httplocation));
-                  ret = parseurl(ws->line + strlen(g_httplocation), ws);
+                  ret = parseurl(ws->line + strlen(g_httplocation),
+                                 &ws->target);
                   ninfo("New hostname='%s' filename='%s'\n",
-                        ws->hostname, ws->filename);
+                        ws->target.hostname, ws->target.filename);
                   found = true;
                 }
               else if (strncasecmp(ws->line, g_httpcontsize,
@@ -1130,7 +1136,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
        * from the URL.
        */
 
-      ret = parseurl(ctx->url, ws);
+      ret = parseurl(ctx->url, &ws->target);
       if (ret != 0)
         {
           nwarn("WARNING: Malformed URL: %s\n", ctx->url);
@@ -1145,7 +1151,8 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
   ws = ctx->ws;
 
-  ninfo("hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
+  ninfo("hostname='%s' filename='%s'\n", ws->target.hostname,
+        ws->target.filename);
 
   /* The following sequence may repeat indefinitely if we are redirected */
 
@@ -1154,17 +1161,17 @@ int webclient_perform(FAR struct webclient_context *ctx)
     {
       if (ws->state == WEBCLIENT_STATE_SOCKET)
         {
-          if (!strcmp(ws->scheme, "https") && tls_ops != NULL)
+          if (!strcmp(ws->target.scheme, "https") && tls_ops != NULL)
             {
               conn->tls = true;
             }
-          else if (!strcmp(ws->scheme, "http"))
+          else if (!strcmp(ws->target.scheme, "http"))
             {
               conn->tls = false;
             }
           else
             {
-              nerr("ERROR: unsupported scheme: %s\n", ws->scheme);
+              nerr("ERROR: unsupported scheme: %s\n", ws->target.scheme);
               free(ws);
               _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
               return -ENOTSUP;
@@ -1264,8 +1271,8 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 }
 #endif
 
-              snprintf(port_str, sizeof(port_str), "%u", ws->port);
-              ret = tls_ops->connect(tls_ctx, ws->hostname, port_str,
+              snprintf(port_str, sizeof(port_str), "%u", ws->target.port);
+              ret = tls_ops->connect(tls_ctx, ws->target.hostname, port_str,
                                      ctx->timeout_sec,
                                      &conn->tls_conn);
               if (ret == 0)
@@ -1301,8 +1308,9 @@ int webclient_perform(FAR struct webclient_context *ctx)
                   /* Get the server address from the host name */
 
                   server_in.sin_family = AF_INET;
-                  server_in.sin_port   = htons(ws->port);
-                  ret = wget_gethostip(ws->hostname, &server_in.sin_addr);
+                  server_in.sin_port   = htons(ws->target.port);
+                  ret = wget_gethostip(ws->target.hostname,
+                                       &server_in.sin_addr);
                   if (ret < 0)
                     {
                       /* Could not resolve host (or malformed IP address) */
@@ -1363,11 +1371,11 @@ int webclient_perform(FAR struct webclient_context *ctx)
           dest = append(dest, ep, " ");
 
 #ifndef WGET_USE_URLENCODE
-          dest = append(dest, ep, ws->filename);
+          dest = append(dest, ep, ws->target.filename);
 #else
           /* TODO: should we use wget_urlencode_strcpy? */
 
-          dest = append(dest, ep, ws->filename);
+          dest = append(dest, ep, ws->target.filename);
 #endif
 
           dest = append(dest, ep, " ");
@@ -1388,7 +1396,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
           dest = append(dest, ep, g_httpcrnl);
           dest = append(dest, ep, g_httphost);
-          dest = append(dest, ep, ws->hostname);
+          dest = append(dest, ep, ws->target.hostname);
           dest = append(dest, ep, g_httpcrnl);
 
           for (i = 0; i < ctx->nheaders; i++)
