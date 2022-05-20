@@ -71,10 +71,10 @@ CSRCS += uv-data-getter-setters.c
 CSRCS += version.c
 ifneq ($(CONFIG_LIBUV_UTILS_TEST),)
 CSRCS += idna.c
+CSRCS += strscpy.c
 endif
 CSRCS += no-fsevents.c
 CSRCS += uv-common.c
-CSRCS += strscpy.c
 CSRCS += random-devurandom.c
 CSRCS += random.c
 CSRCS += nuttx.c

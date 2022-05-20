@@ -1900,20 +1900,6 @@ index 10cbf95e..7de04a91 100644
    uv_idle_init(uv_default_loop(), &idle_handle);
    uv_idle_start(&idle_handle, idle_cb);
  
-diff --git a/test/test-strscpy.c b/test/test-strscpy.c
-index 4e7db6ff..f1d3e3ac 100644
---- a/test/test-strscpy.c
-+++ b/test/test-strscpy.c
-@@ -24,7 +24,9 @@
- #include <string.h>
- 
- #include "../src/strscpy.h"
-+#ifndef __NuttX__
- #include "../src/strscpy.c"
-+#endif
- 
- TEST_IMPL(strscpy) {
-   char d[4];
 diff --git a/test/test-thread.c b/test/test-thread.c
 index 8de5a6f0..11e3cf80 100644
 --- a/test/test-thread.c
