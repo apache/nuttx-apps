@@ -73,6 +73,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       reginfo.path    = path;
       reginfo.esize   = meta->o_size;
       reginfo.nbuffer = queue_size;
+      reginfo.persist = !!(flags & SENSOR_PERSIST);
 
       fd = open(ORB_USENSOR_PATH, O_WRONLY);
       if (fd < 0)
@@ -111,26 +112,10 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
   return fd;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int orb_open(FAR const char *name, int instance, int flags)
-{
-  char path[ORB_PATH_MAX];
-
-  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", name, instance);
-  return open(path, O_CLOEXEC | flags);
-}
-
-int orb_close(int fd)
-{
-  return close(fd);
-}
-
-int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
-                              FAR const void *data, FAR int *instance,
-                              unsigned int queue_size)
+static int
+orb_advertise_multi_queue_flags(FAR const struct orb_metadata *meta,
+                                FAR const void *data, FAR int *instance,
+                                unsigned int queue_size, int flags)
 {
   int inst;
   int fd;
@@ -139,7 +124,7 @@ int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
 
   inst = instance ? *instance : orb_group_count(meta);
 
-  fd = orb_advsub_open(meta, O_WRONLY, inst, queue_size);
+  fd = orb_advsub_open(meta, flags, inst, queue_size);
   if (fd < 0)
     {
       uorberr("%s advertise failed (%i)", meta->o_name, fd);
@@ -163,6 +148,40 @@ int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
     }
 
   return fd;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int orb_open(FAR const char *name, int instance, int flags)
+{
+  char path[ORB_PATH_MAX];
+
+  snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", name, instance);
+  return open(path, O_CLOEXEC | flags);
+}
+
+int orb_close(int fd)
+{
+  return close(fd);
+}
+
+int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
+                              FAR const void *data, FAR int *instance,
+                              unsigned int queue_size)
+{
+  return orb_advertise_multi_queue_flags(meta, data, instance,
+                                         queue_size, O_WRONLY);
+}
+
+int orb_advertise_multi_queue_persist(FAR const struct orb_metadata *meta,
+                                      FAR const void *data,
+                                      FAR int *instance,
+                                      unsigned int queue_size)
+{
+  return orb_advertise_multi_queue_flags(meta, data, instance, queue_size,
+                                         O_WRONLY | SENSOR_PERSIST);
 }
 
 ssize_t orb_publish_multi(int fd, const void *data, size_t len)
