@@ -257,6 +257,33 @@ static inline int orb_advertise_multi(FAR const struct orb_metadata *meta,
 }
 
 /****************************************************************************
+ * Name: orb_advertise_multi_queue_persist
+ *
+ * Description:
+ *   orb_advertise_multi_queue_persist is similar to orb_advertise_mult and
+ *   it can ensures that every subscriber has access to current and
+ *   future data.
+ *
+ * Input Parameters:
+ *   meta         The uORB metadata (usually from the ORB_ID() macro)
+ *   data         A pointer to the initial data to be published.
+ *   instance     Pointer to an integer which yield the instance ID,
+ *                (has default 0 if pointer is NULL).
+ *
+ * Returned Value:
+ *   -1 on error, otherwise returns an file descriptor
+ *   that can be used to publish to the topic.
+ *   If the topic in question is not known (due to an
+ *   ORB_DEFINE with no corresponding ORB_DECLARE)
+ *   this function will return -1 and set errno to ENOENT.
+ ****************************************************************************/
+
+int orb_advertise_multi_queue_persist(FAR const struct orb_metadata *meta,
+                                      FAR const void *data,
+                                      FAR int *instance,
+                                      unsigned int queue_size);
+
+/****************************************************************************
  * Name: orb_unadvertise
  *
  * Description:
@@ -316,7 +343,7 @@ static inline int orb_publish_auto(FAR const struct orb_metadata *meta,
     {
       int tmp;
 
-      tmp = orb_advertise_multi(meta, data, instance);
+      tmp = orb_advertise_multi_queue_persist(meta, data, instance, 1);
       if (tmp < 0)
         {
           return tmp;
