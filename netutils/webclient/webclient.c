@@ -222,6 +222,7 @@ struct wget_s
 #endif
 
   struct wget_target_s target;
+  struct wget_target_s proxy;
 
   bool need_conn_close;
   struct conn_s conn;
@@ -1118,6 +1119,15 @@ int webclient_perform(FAR struct webclient_context *ctx)
                (ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0));
 #endif
 
+#if defined(CONFIG_WEBCLIENT_NET_LOCAL)
+  if (ctx->unix_socket_path != NULL && ctx->proxy != NULL)
+    {
+      nerr("ERROR: proxy with AF_LOCAL is not implemented");
+      _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
+      return -ENOTSUP;
+    }
+#endif
+
   /* Initialize the state structure */
 
   if (ctx->ws == NULL)
@@ -1143,6 +1153,27 @@ int webclient_perform(FAR struct webclient_context *ctx)
           free(ws);
           _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
           return ret;
+        }
+
+      if (ctx->proxy != NULL)
+        {
+          ret = parseurl(ctx->proxy, &ws->proxy);
+          if (ret != 0)
+            {
+              nerr("ERROR: Malformed proxy setting: %s\n", ctx->proxy);
+              free(ws);
+              _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
+              return ret;
+            }
+
+          if (strcmp(ws->proxy.scheme, "http") ||
+              strcmp(ws->proxy.filename, "/"))
+            {
+              nerr("ERROR: Unsupported proxy setting: %s\n", ctx->proxy);
+              free(ws);
+              _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
+              return -ENOTSUP;
+            }
         }
 
       ws->state = WEBCLIENT_STATE_SOCKET;
@@ -1199,6 +1230,14 @@ int webclient_perform(FAR struct webclient_context *ctx)
                   return -ENOTSUP;
                 }
 #endif
+
+              if (ctx->proxy != NULL)
+                {
+                  nerr("ERROR: TLS over proxy is not implemented\n");
+                  free(ws);
+                  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
+                  return -ENOTSUP;
+                }
             }
           else
             {
@@ -1307,9 +1346,20 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   /* Get the server address from the host name */
 
+                  FAR struct wget_target_s *target;
+
+                  if (ctx->proxy != NULL)
+                    {
+                      target = &ws->proxy;
+                    }
+                  else
+                    {
+                      target = &ws->target;
+                    }
+
                   server_in.sin_family = AF_INET;
-                  server_in.sin_port   = htons(ws->target.port);
-                  ret = wget_gethostip(ws->target.hostname,
+                  server_in.sin_port   = htons(target->port);
+                  ret = wget_gethostip(target->hostname,
                                        &server_in.sin_addr);
                   if (ret < 0)
                     {
@@ -1370,13 +1420,36 @@ int webclient_perform(FAR struct webclient_context *ctx)
           dest = append(dest, ep, method);
           dest = append(dest, ep, " ");
 
-#ifndef WGET_USE_URLENCODE
-          dest = append(dest, ep, ws->target.filename);
-#else
-          /* TODO: should we use wget_urlencode_strcpy? */
+          if (ctx->proxy != NULL)
+            {
+              /* Use absolute-form for a proxy
+               *
+               * https://datatracker.ietf.org/doc/html/rfc7230#section-5.3.2
+               */
 
-          dest = append(dest, ep, ws->target.filename);
+              char port_str[sizeof("65535")];
+
+              dest = append(dest, ep, ws->target.scheme);
+              dest = append(dest, ep, "://");
+              dest = append(dest, ep, ws->target.hostname);
+              dest = append(dest, ep, ":");
+              snprintf(port_str, sizeof(port_str), "%u", ws->target.port);
+              dest = append(dest, ep, port_str);
+              dest = append(dest, ep, "/");
+              dest = append(dest, ep, ws->target.filename);
+            }
+          else
+            {
+              /* Otherwise, use origin-form */
+
+#ifndef WGET_USE_URLENCODE
+              dest = append(dest, ep, ws->target.filename);
+#else
+              /* TODO: should we use wget_urlencode_strcpy? */
+
+              dest = append(dest, ep, ws->target.filename);
 #endif
+            }
 
           dest = append(dest, ep, " ");
           if (ctx->protocol_version == WEBCLIENT_PROTOCOL_VERSION_HTTP_1_0)
@@ -1395,6 +1468,22 @@ int webclient_perform(FAR struct webclient_context *ctx)
             }
 
           dest = append(dest, ep, g_httpcrnl);
+
+          /* Note about proxy and Host header:
+           *
+           * https://datatracker.ietf.org/doc/html/rfc7230#section-5.4
+           * > A client MUST send a Host header field in an HTTP/1.1
+           * > request even if the request-target is in the absolute-form,
+           * > since this allows the Host information to be forwarded
+           * > through ancient HTTP/1.0 proxies that might not have
+           * > implemented Host.
+           *
+           * > When a proxy receives a request with an absolute-form of
+           * > request-target, the proxy MUST ignore the received Host
+           * > header field (if any) and instead replace it with the host
+           * > information of the request-target.
+           */
+
           dest = append(dest, ep, g_httphost);
           dest = append(dest, ep, ws->target.hostname);
           dest = append(dest, ep, g_httpcrnl);
