@@ -574,7 +574,8 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
  * Name: parseurl
  ****************************************************************************/
 
-static int parseurl(FAR const char *url, FAR struct wget_target_s *targ)
+static int parseurl(FAR const char *url, FAR struct wget_target_s *targ,
+                    bool require_port)
 {
   struct url_s url_s;
   int ret;
@@ -594,6 +595,11 @@ static int parseurl(FAR const char *url, FAR struct wget_target_s *targ)
 
   if (url_s.port == 0)
     {
+      if (require_port)
+        {
+          return -EINVAL;
+        }
+
       if (!strcmp(targ->scheme, "https"))
         {
           targ->port = 443;
@@ -743,7 +749,7 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                   ninfo("Redirect to location: '%s'\n",
                         ws->line + strlen(g_httplocation));
                   ret = parseurl(ws->line + strlen(g_httplocation),
-                                 &ws->target);
+                                 &ws->target, false);
                   ninfo("New hostname='%s' filename='%s'\n",
                         ws->target.hostname, ws->target.filename);
                   found = true;
@@ -1146,7 +1152,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
        * from the URL.
        */
 
-      ret = parseurl(ctx->url, &ws->target);
+      ret = parseurl(ctx->url, &ws->target, false);
       if (ret != 0)
         {
           nwarn("WARNING: Malformed URL: %s\n", ctx->url);
@@ -1157,7 +1163,13 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
       if (ctx->proxy != NULL)
         {
-          ret = parseurl(ctx->proxy, &ws->proxy);
+          /* Note: reject a proxy string w/o port number specified.
+           * It's better to be explicit because the default number varies
+           * among HTTP client implementations.
+           * (80, 1080, 3128, 8080, ...)
+           */
+
+          ret = parseurl(ctx->proxy, &ws->proxy, true);
           if (ret != 0)
             {
               nerr("ERROR: Malformed proxy setting: %s\n", ctx->proxy);
