@@ -316,6 +316,10 @@ struct webclient_context
    *   url              - A pointer to a string containing the full URL.
    *                      (e.g., http://www.nutt.org/index.html, or
    *                       http://192.168.23.1:80/index.html)
+   *   proxy            - A pointer to a string containing the proxy string.
+   *                      (e.g., http://myproxy:1080)
+   *                      NULL means no proxy. This is the default.
+   *                      Only http:// protocol is implemented.
    *   unix_socket_path - If not NULL, the path to an AF_LOCAL socket.
    *   headers          - An array of pointers to the extra headers.
    *   nheaders         - The number of elements in the "headers" array.
@@ -337,6 +341,7 @@ struct webclient_context
 
   FAR const char *method;
   FAR const char *url;
+  FAR const char *proxy;
 #if defined(CONFIG_WEBCLIENT_NET_LOCAL)
   FAR const char *unix_socket_path;
 #endif
