@@ -30,6 +30,8 @@ CSRCS = cromfs.c
 endif
 CSRCS += dirlist.c
 CSRCS += symtab.c
+tests$(DELIM)symtab.c_CFLAGS = -fno-builtin
+tests$(DELIM)symtab.c_CELFFLAGS = -fno-builtin
 MAINSRC = elf_main.c
 
 PROGNAME = elf

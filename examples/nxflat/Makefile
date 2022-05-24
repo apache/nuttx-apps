@@ -25,6 +25,8 @@ include $(APPDIR)/Make.defs
 CSRCS = romfs.c
 CSRCS += dirlist.c
 CSRCS += symtab.c
+tests$(DELIM)symtab.c_CFLAGS = -fno-builtin
+tests$(DELIM)symtab.c_CELFFLAGS = -fno-builtin
 MAINSRC = nxflat_main.c
 
 PROGNAME = nxflat

@@ -218,17 +218,11 @@ int nrf24_cfg(int fd)
   uint32_t rf = NRF24L01_MIN_FREQ + frequency[current];
   int32_t txpow = DEFAULT_TXPOWER;
 
-  /**************************************************************************
-   * if using RATE_1Mbps from include/nuttx/wireless/nrf24l01.h,
-   * tools/checkpatch.sh report error: Mixed case identifier found.
-   *
-   **************************************************************************/
-
-  nrf24l01_datarate_t datarate = 0; /* RATE_1Mbps */
+  nrf24l01_datarate_t datarate = RATE_1Mbps;
   nrf24l01_retrcfg_t retrcfg =
     {
       .count = 0,
-      .delay = 3 /* DELAY_1000us */
+      .delay = DELAY_1000us
     };
 
   uint32_t addrwidth = 4;

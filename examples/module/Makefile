@@ -36,6 +36,8 @@ ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
 CSRCS = cromfs.c
 endif
 CSRCS += mod_symtab.c
+drivers$(DELIM)mod_symtab.c_CFLAGS = -fno-builtin
+drivers$(DELIM)mod_symtab.c_CELFFLAGS = -fno-builtin
 MAINSRC = module_main.c
 
 VPATH += drivers

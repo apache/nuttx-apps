@@ -84,6 +84,10 @@ config INTERPRETERS_WAMR_BULK_MEMORY
 	bool "Enable bluk memory"
 	default n
 
+config INTERPRETERS_WAMR_PERF_PROFILING
+	bool "Enable performance profiling"
+	default n
+
 config INTERPRETERS_WAMR_MEMORY_PROFILING
 	bool "Enable memory profiling"
 	default n
