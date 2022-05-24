@@ -192,7 +192,7 @@ int send_pkt(int wl_fd)
   len = strlen(buff);
   if (len > 0 && buff[len - 1] == '\n')
     {
-      len --;
+      len--;
       buff[len] = '\0';
     }
 
