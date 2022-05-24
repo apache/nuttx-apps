@@ -499,6 +499,7 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
 {
   FAR struct pollfd *fds;
   FAR int *recv_msgs;
+  int interval = topic_rate ? 1000000 / topic_rate : 0;
   int nb_recv_msgs = 0;
   int i = 0;
 
@@ -541,9 +542,10 @@ static void listener_monitor(FAR struct list_node *objlist, int nb_objects,
           listener_print(tmp->object.meta, fd);
           orb_unsubscribe(fd);
         }
-      else if (topic_rate != 0)
+      else if (interval != 0)
         {
-          orb_set_frequency(fd, topic_rate);
+          orb_set_interval(fd, interval);
+
           if (topic_latency != 0)
             {
               orb_set_batch_interval(fd, topic_latency);
