@@ -61,6 +61,14 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 config INTERPRETERS_WAMR_LIBC_WASI
 	bool "Enable WASI libc"
 	default n
+	---help---
+	Note: As of writing this, this works only with main branch of
+	wasm-micro-runtime.
+	I.e. INTERPRETERS_WAMR_VERSION="main"
+
+	Note: As of writing this, most of the filesystem operations are
+	not implemented. (Mainly because of lack of openat family of
+	the API in NuttX.)
 
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
