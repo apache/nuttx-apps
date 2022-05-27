@@ -552,8 +552,8 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
 
       /* Configure for read timeouts */
 
-      tv.tv_sec  = CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT;
-      tv.tv_usec = 0;
+      tv.tv_sec  = CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT / 1000;
+      tv.tv_usec = (CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT % 1000) * 1000;
 
       ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv,
                        sizeof(struct timeval));
