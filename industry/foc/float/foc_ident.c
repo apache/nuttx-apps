@@ -164,6 +164,8 @@ int foc_ident_res_run_f32(FAR struct foc_ident_f32_s *ident,
   int   ret  = FOC_ROUTINE_RUN_NOTDONE;
   float err  = 0.0f;
   float vref = 0.0f;
+  static float curr_sum  = 0.0f;
+  static float volt_sum  = 0.0f;
 
   /* Initialize PI controller */
 
@@ -193,12 +195,17 @@ int foc_ident_res_run_f32(FAR struct foc_ident_f32_s *ident,
   /* Increase counter */
 
   ident->cntr += 1;
+  if (ident->cntr > (ident->cfg.res_steps / 3))
+    {
+      volt_sum += vector2d_mag(in->foc_state->vdq.q, in->foc_state->vdq.d);
+      curr_sum += vector2d_mag(in->foc_state->idq.q, in->foc_state->idq.d);
+    }
 
   if (ident->cntr > ident->cfg.res_steps)
     {
       /* Get resistance */
 
-      ident->final.res = vref / ident->cfg.res_current;
+      ident->final.res = (2.0f / 3.0f) * volt_sum / curr_sum;
 
       /* Force IDLE state */
 
@@ -216,6 +223,11 @@ int foc_ident_res_run_f32(FAR struct foc_ident_f32_s *ident,
       /* Reset counter */
 
       ident->cntr = 0;
+
+      /* Reset static data */
+
+      curr_sum = 0.0f;
+      volt_sum = 0.0f;
     }
 
   return ret;
