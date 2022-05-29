@@ -261,7 +261,7 @@ new file mode 100644
 index 00000000..728b57f6
 --- /dev/null
 +++ b/src/unix/nuttx.c
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,286 @@
 +/* Copyright Xiaomi, Inc. and other Node contributors. All rights reserved.
 + * Permission is hereby granted, free of charge, to any person obtaining a copy
 + * of this software and associated documentation files (the "Software"), to
@@ -297,6 +297,8 @@ index 00000000..728b57f6
 +#include <pthread.h>
 +#include <sys/sysinfo.h>
 +#include <unistd.h>
++
++#include <nuttx/tls.h>
 +
 +int uv_exepath(char* buffer, size_t* size) {
 +  return UV_ENOTSUP;
