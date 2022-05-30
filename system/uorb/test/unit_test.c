@@ -183,6 +183,7 @@ static int latency_test(bool print)
   FAR char *const args[1];
   struct orb_test_medium_s sample;
   int pubsub_task;
+  int instance = 0;
   int fd;
 
   test_note("---------------- LATENCY TEST ------------------");
@@ -190,7 +191,8 @@ static int latency_test(bool print)
   sample.val       = 308;
   sample.timestamp = orb_absolute_time();
 
-  fd = orb_advertise(ORB_ID(orb_test_medium), &sample);
+  fd = orb_advertise_multi_queue_persist(ORB_ID(orb_test_medium),
+                                         &sample, &instance, 1);
   if (fd < 0)
     {
       return test_fail("orb_advertise failed (%i)", errno);
@@ -239,6 +241,7 @@ static int test_single(void)
 {
   struct orb_test_s sample;
   struct orb_test_s sub_sample;
+  int instance = 0;
   bool updated;
   int afd;
   int sfd;
@@ -250,7 +253,8 @@ static int test_single(void)
 
   sample.val = 0;
 
-  afd = orb_advertise(ORB_ID(orb_test), &sample);
+  afd = orb_advertise_multi_queue_persist(ORB_ID(orb_test),
+                                          &sample, &instance, 1);
   if (afd < 0)
     {
       return test_fail("advertise failed: %d", errno);
@@ -361,7 +365,8 @@ static int test_multi_inst10(void)
 
   for (i = 0; i < max_inst; i++)
     {
-      afd[i] = orb_advertise_multi_queue(ORB_ID(orb_test), NULL, &i, 1);
+      afd[i] = orb_advertise_multi_queue_persist(ORB_ID(orb_test),
+                                                 NULL, &i, 1);
       if (OK != orb_exists(ORB_ID(orb_test), i))
         {
           return test_fail("sub %d advertise failed", i);
@@ -438,14 +443,16 @@ static int test_multi(int *afds, int *sfds)
 
   test_note("try multi-topic support");
 
-  afds[0] = orb_advertise_multi(ORB_ID(orb_multitest), &sample, &instance0);
+  afds[0] = orb_advertise_multi_queue_persist(ORB_ID(orb_multitest),
+                                              &sample, &instance0, 1);
 
   if (instance0 != 0)
     {
       return test_fail("mult. id0: %d", instance0);
     }
 
-  afds[1] = orb_advertise_multi(ORB_ID(orb_multitest), &sample, &instance1);
+  afds[1] = orb_advertise_multi_queue_persist(ORB_ID(orb_multitest),
+                                              &sample, &instance1, 1);
 
   if (instance1 != 1)
     {
@@ -524,14 +531,16 @@ static int test_multi_reversed(int *afds, int *sfds)
       return test_fail("sub. id2: ret: %d", sfds[2]);
     }
 
-  afds[2] = orb_advertise_multi(ORB_ID(orb_multitest), &sample, &instance2);
+  afds[2] = orb_advertise_multi_queue_persist(ORB_ID(orb_multitest),
+                                              &sample, &instance2, 1);
 
   if (instance2 != 2)
     {
       return test_fail("mult. id2: %d", instance2);
     }
 
-  afds[3] = orb_advertise_multi(ORB_ID(orb_multitest), &sample, &instance3);
+  afds[3] = orb_advertise_multi_queue_persist(ORB_ID(orb_multitest),
+                                              &sample, &instance3, 1);
 
   if (instance3 != 3)
     {
@@ -615,8 +624,8 @@ static int pub_test_multi2_entry(int argc, char *argv[])
   memset(&data_topic, '\0', sizeof(data_topic));
   for (i = 0; i < num_instances; ++i)
     {
-      orb_pub[i] = orb_advertise_multi(ORB_ID(orb_test_medium_multi),
-                                       &data_topic, &i);
+      orb_pub[i] = orb_advertise_multi_queue_persist(
+        ORB_ID(orb_test_medium_multi), &data_topic, &i, 1);
     }
 
   usleep(100 * 1000);
@@ -728,6 +737,7 @@ int test_queue(void)
   struct orb_test_medium_s sample;
   struct orb_test_medium_s sub_sample;
   bool updated;
+  int instance = 0;
   int ptopic;
   int sfd;
   int i;
@@ -755,8 +765,8 @@ int test_queue(void)
     }
   while (updated);
 
-  ptopic = orb_advertise_queue(ORB_ID(orb_test_medium_queue),
-                               &sample, queue_size);
+  ptopic = orb_advertise_multi_queue_persist(
+    ORB_ID(orb_test_medium_queue), &sample, &instance, queue_size);
   if (ptopic < 0)
     {
       return test_fail("advertise failed: %d", errno);
@@ -872,11 +882,12 @@ static int pub_test_queue_entry(int argc, char *argv[])
   struct orb_test_medium_s t;
   int num_messages = 20 * queue_size;
   int message_counter = 0;
+  int instance = 0;
   int ptopic;
 
   memset(&t, '\0', sizeof(t));
-  ptopic = orb_advertise_queue(ORB_ID(orb_test_medium_queue_poll),
-                               &t, queue_size);
+  ptopic = orb_advertise_multi_queue_persist(
+    ORB_ID(orb_test_medium_queue_poll), &t, &instance, queue_size);
   if (ptopic < 0)
     {
       g_thread_should_exit = true;
