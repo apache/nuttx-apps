@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -60,6 +61,107 @@ struct fb_state_s
  * Private Data
  ****************************************************************************/
 
+#define SSD1306_DEF_FONT_SIZE 5
+static const unsigned char SSD1306_font[][SSD1306_DEF_FONT_SIZE]=
+{
+    {0x00, 0x00, 0x00, 0x00, 0x00},   // space
+    {0x00, 0x00, 0x2f, 0x00, 0x00},   // !
+    {0x00, 0x07, 0x00, 0x07, 0x00},   // "
+    {0x14, 0x7f, 0x14, 0x7f, 0x14},   // #
+    {0x24, 0x2a, 0x7f, 0x2a, 0x12},   // $
+    {0x23, 0x13, 0x08, 0x64, 0x62},   // %
+    {0x36, 0x49, 0x55, 0x22, 0x50},   // &
+    {0x00, 0x05, 0x03, 0x00, 0x00},   // '
+    {0x00, 0x1c, 0x22, 0x41, 0x00},   // (
+    {0x00, 0x41, 0x22, 0x1c, 0x00},   // )
+    {0x14, 0x08, 0x3E, 0x08, 0x14},   // *
+    {0x08, 0x08, 0x3E, 0x08, 0x08},   // +
+    {0x00, 0x00, 0xA0, 0x60, 0x00},   // ,
+    {0x08, 0x08, 0x08, 0x08, 0x08},   // -
+    {0x00, 0x60, 0x60, 0x00, 0x00},   // .
+    {0x20, 0x10, 0x08, 0x04, 0x02},   // /
+    {0x3E, 0x51, 0x49, 0x45, 0x3E},   // 0
+    {0x00, 0x42, 0x7F, 0x40, 0x00},   // 1
+    {0x42, 0x61, 0x51, 0x49, 0x46},   // 2
+    {0x21, 0x41, 0x45, 0x4B, 0x31},   // 3
+    {0x18, 0x14, 0x12, 0x7F, 0x10},   // 4
+    {0x27, 0x45, 0x45, 0x45, 0x39},   // 5
+    {0x3C, 0x4A, 0x49, 0x49, 0x30},   // 6
+    {0x01, 0x71, 0x09, 0x05, 0x03},   // 7
+    {0x36, 0x49, 0x49, 0x49, 0x36},   // 8
+    {0x06, 0x49, 0x49, 0x29, 0x1E},   // 9
+    {0x00, 0x36, 0x36, 0x00, 0x00},   // :
+    {0x00, 0x56, 0x36, 0x00, 0x00},   // ;
+    {0x08, 0x14, 0x22, 0x41, 0x00},   // <
+    {0x14, 0x14, 0x14, 0x14, 0x14},   // =
+    {0x00, 0x41, 0x22, 0x14, 0x08},   // >
+    {0x02, 0x01, 0x51, 0x09, 0x06},   // ?
+    {0x32, 0x49, 0x59, 0x51, 0x3E},   // @
+    {0x7C, 0x12, 0x11, 0x12, 0x7C},   // A
+    {0x7F, 0x49, 0x49, 0x49, 0x36},   // B
+    {0x3E, 0x41, 0x41, 0x41, 0x22},   // C
+    {0x7F, 0x41, 0x41, 0x22, 0x1C},   // D
+    {0x7F, 0x49, 0x49, 0x49, 0x41},   // E
+    {0x7F, 0x09, 0x09, 0x09, 0x01},   // F
+    {0x3E, 0x41, 0x49, 0x49, 0x7A},   // G
+    {0x7F, 0x08, 0x08, 0x08, 0x7F},   // H
+    {0x00, 0x41, 0x7F, 0x41, 0x00},   // I
+    {0x20, 0x40, 0x41, 0x3F, 0x01},   // J
+    {0x7F, 0x08, 0x14, 0x22, 0x41},   // K
+    {0x7F, 0x40, 0x40, 0x40, 0x40},   // L
+    {0x7F, 0x02, 0x0C, 0x02, 0x7F},   // M
+    {0x7F, 0x04, 0x08, 0x10, 0x7F},   // N
+    {0x3E, 0x41, 0x41, 0x41, 0x3E},   // O
+    {0x7F, 0x09, 0x09, 0x09, 0x06},   // P
+    {0x3E, 0x41, 0x51, 0x21, 0x5E},   // Q
+    {0x7F, 0x09, 0x19, 0x29, 0x46},   // R
+    {0x46, 0x49, 0x49, 0x49, 0x31},   // S
+    {0x01, 0x01, 0x7F, 0x01, 0x01},   // T
+    {0x3F, 0x40, 0x40, 0x40, 0x3F},   // U
+    {0x1F, 0x20, 0x40, 0x20, 0x1F},   // V
+    {0x3F, 0x40, 0x38, 0x40, 0x3F},   // W
+    {0x63, 0x14, 0x08, 0x14, 0x63},   // X
+    {0x07, 0x08, 0x70, 0x08, 0x07},   // Y
+    {0x61, 0x51, 0x49, 0x45, 0x43},   // Z
+    {0x00, 0x7F, 0x41, 0x41, 0x00},   // [
+    {0x55, 0xAA, 0x55, 0xAA, 0x55},   // Backslash (Checker pattern)
+    {0x00, 0x41, 0x41, 0x7F, 0x00},   // ]
+    {0x04, 0x02, 0x01, 0x02, 0x04},   // ^
+    {0x40, 0x40, 0x40, 0x40, 0x40},   // _
+    {0x00, 0x03, 0x05, 0x00, 0x00},   // `
+    {0x20, 0x54, 0x54, 0x54, 0x78},   // a
+    {0x7F, 0x48, 0x44, 0x44, 0x38},   // b
+    {0x38, 0x44, 0x44, 0x44, 0x20},   // c
+    {0x38, 0x44, 0x44, 0x48, 0x7F},   // d
+    {0x38, 0x54, 0x54, 0x54, 0x18},   // e
+    {0x08, 0x7E, 0x09, 0x01, 0x02},   // f
+    {0x18, 0xA4, 0xA4, 0xA4, 0x7C},   // g
+    {0x7F, 0x08, 0x04, 0x04, 0x78},   // h
+    {0x00, 0x44, 0x7D, 0x40, 0x00},   // i
+    {0x40, 0x80, 0x84, 0x7D, 0x00},   // j
+    {0x7F, 0x10, 0x28, 0x44, 0x00},   // k
+    {0x00, 0x41, 0x7F, 0x40, 0x00},   // l
+    {0x7C, 0x04, 0x18, 0x04, 0x78},   // m
+    {0x7C, 0x08, 0x04, 0x04, 0x78},   // n
+    {0x38, 0x44, 0x44, 0x44, 0x38},   // o
+    {0xFC, 0x24, 0x24, 0x24, 0x18},   // p
+    {0x18, 0x24, 0x24, 0x18, 0xFC},   // q
+    {0x7C, 0x08, 0x04, 0x04, 0x08},   // r
+    {0x48, 0x54, 0x54, 0x54, 0x20},   // s
+    {0x04, 0x3F, 0x44, 0x40, 0x20},   // t
+    {0x3C, 0x40, 0x40, 0x20, 0x7C},   // u
+    {0x1C, 0x20, 0x40, 0x20, 0x1C},   // v
+    {0x3C, 0x40, 0x30, 0x40, 0x3C},   // w
+    {0x44, 0x28, 0x10, 0x28, 0x44},   // x
+    {0x1C, 0xA0, 0xA0, 0xA0, 0x7C},   // y
+    {0x44, 0x64, 0x54, 0x4C, 0x44},   // z
+    {0x00, 0x10, 0x7C, 0x82, 0x00},   // {
+    {0x00, 0x00, 0xFF, 0x00, 0x00},   // |
+    {0x00, 0x82, 0x7C, 0x10, 0x00},   // }
+    {0x00, 0x06, 0x09, 0x09, 0x06}    // ~ (Degrees)
+};
+
+
 static const char g_default_fbdev[] = CONFIG_EXAMPLES_FB_DEFAULTFB;
 
 /* Violet-Blue-Green-Yellow-Orange-Red */
@@ -89,6 +191,63 @@ static const uint8_t g_rgb8[NCOLORS] =
 /****************************************************************************
  * draw_rect
  ****************************************************************************/
+
+
+static void draw_bit_column1(FAR struct fb_state_s *state,
+		uint8_t col_val, int column, int row, int flags)
+{
+  int bit_shift = col % 8;
+  uint8_t mask = 0x80 >> bit_shift;
+
+  int line;
+
+  uint8_t *pixels;
+
+  for (line = 0; line < 8; line ++ )
+  {
+	  pixels = state->fbmem +
+        (row + line) * state->pinfo->stride + (column >> 3);
+	  *pixels = (*pixels & ~mask);
+	  if (col_val & 0x80) //TODO add flag reverse
+	  {
+		  *pixels |= mask;
+	  }
+	  col_val << 1;
+  }
+}
+
+static void write_text(FAR struct fb_state_s *state, int x_start, int x_end,
+		int y_start, int y_end, int flags, FAR const char *text)
+{
+  char *letter = text;
+  int x = x_start;
+  int col;
+  uint8_t val;
+  while (*letter != '\0')
+  {
+	  if (x + 5 > x_end)
+	  {
+		  x = x_start;
+		  y+= 9;
+		  if (y + 8 > y_end)
+			  break;
+	  }
+
+	  for (col = 0; col < 5; col++)
+	  {
+		  val = SSD1306_font[col][*letter];
+		  draw_bit_column1(state, val, x+col, y, 0)
+	  }
+
+	  //Write letter separator
+	  if (x+5 < x_end)
+	  {
+		  draw_bit_column1(state, 0, x+5, y, 0)
+	  }
+	  x+= 6;
+  }
+}
+
 
 static void draw_rect32(FAR struct fb_state_s *state,
                         FAR struct fb_area_s *area, int color)
@@ -159,32 +318,43 @@ static void draw_rect1(FAR struct fb_state_s *state,
   FAR uint8_t *pixel;
   FAR uint8_t *row;
   uint8_t color8 = (color & 1) == 0 ? 0 : 0xff;
+
+  int start_full_x;
+  int end_full_x;
+  int start_bit_shift;
+  int last_bits;
   uint8_t lmask;
   uint8_t rmask;
-  int startx;
-  int endx;
-  int x;
   int y;
 
   /* Calculate the framebuffer address of the first row to draw on */
 
   row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
 
-  /* Calculate the start byte position rounding down so that we get the
-   * first byte containing any part of the pixel sequence.  Then calculate
-   * the last byte position with a ceil() operation so it includes any final
-   * final pixels of the sequence.
+  /* Calculate the position of the first complete (with all bits) byte.
+   * Then calculate the last byte with all the bits
    */
 
-  startx = (area->x >> 3);
-  endx   = ((area->x + area->w + 6) >> 3);
+  start_full_x = ((area->x+7) >> 3);
+  end_full_x   = ((area->x + area->w) >> 3);
+
+  /* Calculate the number of bits in byte before start that need to remain
+   * unchanged. Later calculate the mask.
+   */
+
+  start_bit_shift = 8 + area->x - (start_full_x << 3);
+  lmask = 0xFF >> start_bit_shift;
+
+  /* Calculate the number of bits that needs to be changed after last byte
+   * with all the bits. Later calculate the mask
+   */
+
+  last_bits = area-> x + area->w - (end_full_x << 3);
+  rmask = 0xFF << (8-last_bits);
 
   /* Calculate a mask on the first and last bytes of the sequence that may
    * not be completely filled with pixel.
    */
-
-  lmask  = 0xff << (8 - (area->x & 7));
-  rmask  = 0xff >> ((area->x + area->w - 1) & 7);
 
   /* Now draw each row, one-at-a-time */
 
@@ -192,34 +362,34 @@ static void draw_rect1(FAR struct fb_state_s *state,
     {
       /* 'pixel' points to the 1st pixel the next row */
 
-      pixel = row + startx;
+      /* Special case: The row starts and ends within the same byte */
+
+      if (start_full_x > end_full_x)
+        {
+          pixel = row + start_full_x - 1;
+          *pixel = (*pixel & (~lmask | ~rmask)) | (lmask & rmask & color8);
+          continue;
+        }
+
+	  if (start_bit_shift != 0)
+        {
+          pixel = row + start_full_x - 1;
+          *pixel = (*pixel & ~lmask) | (lmask & color8);
+        }
+
+      if (end_full_x > start_full_x)
+        {
+          pixel = row + start_full_x;
+          memset(pixel, color8, end_full_x - start_full_x);
+        }
+
+      if (last_bits != 0)
+        {
+          pixel = row + end_full_x;
+          *pixel = (*pixel & ~rmask) | (rmask & color8);
+        }
 
       /* Special case: The row is less no more than one byte wide */
-
-      if (startx == endx)
-        {
-          uint8_t mask = lmask | rmask;
-
-          *pixel = (*pixel & mask) | (color8 & ~mask);
-        }
-      else
-        {
-          /* Special case the first byte of the row */
-
-          *pixel = (*pixel & lmask) | (color8 & ~lmask);
-          pixel++;
-
-          /* Handle all middle bytes in the row */
-
-          for (x = startx + 1; x < endx; x++)
-            {
-              *pixel++ = color8;
-            }
-
-          /* Handle the final byte of the row */
-
-          *pixel = (*pixel & rmask) | (color8 & ~rmask);
-        }
 
       row += state->pinfo.stride;
     }
@@ -253,6 +423,7 @@ static void draw_rect(FAR struct fb_state_s *state,
     }
 
 #ifdef CONFIG_FB_UPDATE
+  area->h = state->vinfo.yres - area->y;
   ret = ioctl(state->fd, FBIO_UPDATE,
               (unsigned long)((uintptr_t)area));
   if (ret < 0)
@@ -455,7 +626,46 @@ int main(int argc, FAR char *argv[])
 
       width  -= (2 * xstep);
       height -= (2 * ystep);
+
+      uint8_t *row = state.fbmem + 148 * state.pinfo.stride;
+      printf("Memory line 148: "
+    		  "0x%02x%02x%02x%02x %02x%02x%02x%02x "
+    		  "%02x%02x%02x%02x %02x%02x%02x%02x\n",
+    		  row[0],  row[1],  row[2],  row[3],
+			  row[4],  row[5],  row[6],  row[7],
+    		  row[8],  row[9],  row[10], row[11],
+			  row[12], row[13], row[14], row[15]
+      );
     }
+
+
+  area.h = state.vinfo.yres;
+  area.y = 0;
+  area.w = 128;
+  area.x = 0;
+  ioctl(state.fd, FBIO_UPDATE,
+              (unsigned long)((uintptr_t)&area));
+
+
+
+/*
+  area.w = 20;
+  for (x = 0; x<= 20; x += 6)
+  {
+	  area.h = 10;
+	  area.x = x;
+	  area.y = x;
+	  draw_rect(&state, &area, 1);
+  }
+
+  for (x = 3; x<= 20; x += 6)
+  {
+	  area.h = 10;
+	  area.x = x;
+	  area.y = x;
+	  draw_rect(&state, &area, 1);
+  }
+*/
 
   printf("Test finished\n");
   munmap(state.fbmem, state.pinfo.fblen);
