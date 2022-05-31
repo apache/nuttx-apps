@@ -149,6 +149,16 @@ config INDUSTRY_FOC_IDENT
 	---help---
 		Enable support for motor identification routine (phase resistance and phase inductance)
 
+if INDUSTRY_FOC_IDENT
+
+config INDUSTRY_FOC_IDENT_FLUX
+	bool "FOC flux linkage identification support"
+	default n
+	---help---
+		Enable support for flux linkage identification
+
+endif # INDUSTRY_FOC_IDENT
+
 config INDUSTRY_FOC_VELOCITY_ODIV
 	bool "FOC velocity DIV observer"
 	default n
