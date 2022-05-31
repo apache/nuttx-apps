@@ -33,6 +33,7 @@ endif
 
 config INTERPRETERS_WAMR_AOT
 	bool "Enable AOT"
+	select ARCH_USE_TEXT_HEAP if ARCH_HAVE_TEXT_HEAP
 	default n
 
 choice
@@ -58,6 +59,18 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 	bool "Enable built-in libc"
 	default n
 
+config INTERPRETERS_WAMR_LIBC_WASI
+	bool "Enable WASI libc"
+	default n
+	---help---
+	Note: As of writing this, this works only with main branch of
+	wasm-micro-runtime.
+	I.e. INTERPRETERS_WAMR_VERSION="main"
+
+	Note: As of writing this, most of the filesystem operations are
+	not implemented. (Mainly because of lack of openat family of
+	the API in NuttX.)
+
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
 	default n
@@ -82,6 +95,10 @@ config INTERPRETERS_WAMR_SHARED_MEMORY
 
 config INTERPRETERS_WAMR_BULK_MEMORY
 	bool "Enable bluk memory"
+	default n
+
+config INTERPRETERS_WAMR_PERF_PROFILING
+	bool "Enable performance profiling"
 	default n
 
 config INTERPRETERS_WAMR_MEMORY_PROFILING

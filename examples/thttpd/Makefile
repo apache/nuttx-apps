@@ -31,6 +31,8 @@ ifeq ($(CONFIG_THTTPD_BINFS),y)
 else
   CONTENT_MAKE += -f Makefile.nxflat
   CSRCS += symtab.c
+  content$(DELIM)symtab.c_CFLAGS = -fno-builtin
+  content$(DELIM)symtab.c_CELFFLAGS = -fno-builtin
 endif
 
 PROGNAME = thttp

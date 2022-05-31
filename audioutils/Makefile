@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/posix_spawn/Makefile
+# apps/audioutils/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,35 +18,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "Audio Utility libraries"
 
-# ELF Example
-
-CSRCS = romfs.c
-CSRCS += symtab.c
-filesystem$(DELIM)symtab.c_CFLAGS = -fno-builtin
-filesystem$(DELIM)symtab.c_CELFFLAGS = -fno-builtin
-MAINSRC = spawn_main.c
-
-PROGNAME = posix_spawn
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE = $(CONFIG_EXAMPLES_POSIXSPAWN)
-
-DEPPATH	+= --dep-path filesystem
-
-# Build targets
-
-VPATH += filesystem
-
-filesystem/romfs.c: build
-filesystem/symtab.c: build
-
-.PHONY: build
-build:
-	+$(Q) $(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-clean::
-	+$(Q) $(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

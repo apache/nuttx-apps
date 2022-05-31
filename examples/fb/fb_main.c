@@ -28,6 +28,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -62,7 +63,7 @@ struct fb_state_s
  ****************************************************************************/
 
 #define SSD1306_DEF_FONT_SIZE 5
-static const unsigned char SSD1306_font[][SSD1306_DEF_FONT_SIZE]=
+static const uint8_t SSD1306_font[][SSD1306_DEF_FONT_SIZE]=
 {
     {0x00, 0x00, 0x00, 0x00, 0x00},   // space
     {0x00, 0x00, 0x2f, 0x00, 0x00},   // !
@@ -194,57 +195,157 @@ static const uint8_t g_rgb8[NCOLORS] =
 
 
 static void draw_bit_column1(FAR struct fb_state_s *state,
-		uint8_t col_val, int column, int row, int flags)
+		uint8_t col_val, int x, int y, int flags)
 {
-  int bit_shift = col % 8;
+  int bit_shift = x % 8;
   uint8_t mask = 0x80 >> bit_shift;
 
   int line;
 
   uint8_t *pixels;
 
-  for (line = 0; line < 8; line ++ )
+  for (line = 7; line >= 0; line--)
   {
 	  pixels = state->fbmem +
-        (row + line) * state->pinfo->stride + (column >> 3);
+			  (y + line) * state->pinfo.stride + (x >> 3);
 	  *pixels = (*pixels & ~mask);
 	  if (col_val & 0x80) //TODO add flag reverse
 	  {
 		  *pixels |= mask;
 	  }
-	  col_val << 1;
+	  col_val = (col_val << 1);
+  }
+}
+
+static void draw_bit_row1(FAR struct fb_state_s *state,
+		uint8_t col_val, int x, int y, int flags)
+{
+  int bit_shift;
+  uint8_t mask;
+
+  int line;
+
+  uint8_t *pixels;
+
+  for (line = 7; line >= 0; line--)
+  {
+	  int bit_shift = (x + line) % 8;
+	  uint8_t mask = 0x80 >> bit_shift;
+	  pixels = state->fbmem +
+			  y * state->pinfo.stride + ((x + line)>> 3);
+	  *pixels = (*pixels & ~mask);
+	  if (col_val & 0x80) //TODO add flag reverse color
+	  {
+		  *pixels |= mask;
+	  }
+	  col_val = (col_val << 1);
   }
 }
 
 static void write_text(FAR struct fb_state_s *state, int x_start, int x_end,
 		int y_start, int y_end, int flags, FAR const char *text)
 {
-  char *letter = text;
-  int x = x_start;
+  FAR const char *letter = text;
+
+  if (x_start + 5 > state->vinfo.xres)
+  {
+	  printf("Wrong argument x_start = %d, schould be less then %d\n",
+			  x_start, state->vinfo.xres-5);
+	  return;
+  }
+
+  if (y_start + 8 > state->vinfo.yres)
+  {
+	  printf("Wrong argument y_start = %d, schould be less then %d\n",
+			  y_start, state->vinfo.yres-8);
+	  return;
+  }
+
+  if (x_end >= state->vinfo.xres-1)
+    {
+	  x_end = state->vinfo.xres-1;
+    }
+
+  if (y_end >= state->vinfo.yres-1)
+    {
+	  y_end = state->vinfo.yres-1;
+    }
+
+  if (x_end - x_start < 5)
+    {
+	  printf("too short row\n");
+	  return;
+    }
+
+  if (y_end - y_start < 8)
+    {
+	  printf("too short column\n");
+	  return;
+    }
+
+
+  int x = flags & 0x01 ? x_end-6 : x_start;
+  int y = y_start;
   int col;
   uint8_t val;
   while (*letter != '\0')
   {
-	  if (x + 5 > x_end)
-	  {
-		  x = x_start;
-		  y+= 9;
-		  if (y + 8 > y_end)
+	  if (flags & 0x01)
+        {
+          if (y + 5 > y_end)
+            {
+              y = y_start;
+              x-= 9;
+            }
+		  if (x < x_start)
 			  break;
-	  }
+        }
+	  else
+        {
+          if (x + 5 > x_end)
+            {
+              x = x_start;
+              y+= 9;
+            }
+          if (y + 8 > y_end)
+            break;
+        }
 
+	  int font_idx = (uint8_t)((*letter - 32) & 0xff);
+	  printf("%c (idx %3d): Bits: 0x", *letter, font_idx);
 	  for (col = 0; col < 5; col++)
-	  {
-		  val = SSD1306_font[col][*letter];
-		  draw_bit_column1(state, val, x+col, y, 0)
+        {
+          val = SSD1306_font[font_idx][col];
+          printf("%02x", val);
+          if (flags & 0x01)
+            {
+              draw_bit_row1(state, val, x, y+col, flags);
+            }
+          else
+            {
+              draw_bit_column1(state, val, x+col, y, flags);
+            }
 	  }
+	  printf("\n");
 
 	  //Write letter separator
-	  if (x+5 < x_end)
-	  {
-		  draw_bit_column1(state, 0, x+5, y, 0)
-	  }
-	  x+= 6;
+	  if (flags & 0x01)
+        {
+		  if (y+5 < y_end)
+		  {
+			  draw_bit_column1(state, 0, x+5, y, 0);
+		  }
+          y += 6;
+        }
+	  else
+        {
+		  if (x+5 < x_end)
+		  {
+			  draw_bit_column1(state, 0, x+5, y, 0);
+		  }
+	      x+= 6;
+        }
+	  letter++;
   }
 }
 
@@ -332,10 +433,10 @@ static void draw_rect1(FAR struct fb_state_s *state,
   row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
 
   /* Calculate the position of the first complete (with all bits) byte.
-   * Then calculate the last byte with all the bits
+   * Then calculate the last byte with all the bits.
    */
 
-  start_full_x = ((area->x+7) >> 3);
+  start_full_x = ((area->x + 7) >> 3);
   end_full_x   = ((area->x + area->w) >> 3);
 
   /* Calculate the number of bits in byte before start that need to remain
@@ -343,14 +444,14 @@ static void draw_rect1(FAR struct fb_state_s *state,
    */
 
   start_bit_shift = 8 + area->x - (start_full_x << 3);
-  lmask = 0xFF >> start_bit_shift;
+  lmask = 0xff >> start_bit_shift;
 
   /* Calculate the number of bits that needs to be changed after last byte
-   * with all the bits. Later calculate the mask
+   * with all the bits. Later calculate the mask.
    */
 
-  last_bits = area-> x + area->w - (end_full_x << 3);
-  rmask = 0xFF << (8-last_bits);
+  last_bits = area->x + area->w - (end_full_x << 3);
+  rmask = 0xff << (8 - last_bits);
 
   /* Calculate a mask on the first and last bytes of the sequence that may
    * not be completely filled with pixel.
@@ -371,7 +472,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
           continue;
         }
 
-	  if (start_bit_shift != 0)
+      if (start_bit_shift != 0)
         {
           pixel = row + start_full_x - 1;
           *pixel = (*pixel & ~lmask) | (lmask & color8);
@@ -388,8 +489,6 @@ static void draw_rect1(FAR struct fb_state_s *state,
           pixel = row + end_full_x;
           *pixel = (*pixel & ~rmask) | (rmask & color8);
         }
-
-      /* Special case: The row is less no more than one byte wide */
 
       row += state->pinfo.stride;
     }
@@ -464,7 +563,7 @@ int main(int argc, FAR char *argv[])
 
   if (argc == 2)
     {
-      fbdev = argv[1];
+      //fbdev = argv[1];
     }
   else if (argc != 1)
     {
@@ -638,6 +737,14 @@ int main(int argc, FAR char *argv[])
       );
     }
 
+  write_text(&state, 0, 127, 0, 296, 0, "Hello world !!!");
+
+  write_text(&state, 0, 127, 10, 296, 0, "Hello world !!!");
+
+  if (argc == 2)
+    {
+	  write_text(&state, 0, 127, 30, 296, 0, argv[1]);
+    }
 
   area.h = state.vinfo.yres;
   area.y = 0;
@@ -667,7 +774,6 @@ int main(int argc, FAR char *argv[])
   }
 */
 
-  printf("Test finished\n");
   munmap(state.fbmem, state.pinfo.fblen);
   close(state.fd);
   return EXIT_SUCCESS;

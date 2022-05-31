@@ -501,13 +501,13 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
     {
       if (argv[index][0] == '-' || argv[index][0] == '+')
         {
-          enable = (argv[index][0] == '+');
+          enable = (argv[index++][0] == '+');
           if (enable ==
               ((mode.flag & NOTE_FILTER_MODE_FLAG_SWITCH) != 0))
             {
               /* Already set */
 
-              return false;
+              return index;
             }
 
           if (enable)
@@ -520,8 +520,6 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
-
-          index++;
         }
     }
 
@@ -754,13 +752,13 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
     {
       if (argv[index][0] == '-' || argv[index][0] == '+')
         {
-          enable = (argv[index][0] == '+');
+          enable = (argv[index++][0] == '+');
           if (enable ==
               ((mode.flag & NOTE_FILTER_MODE_FLAG_DUMP) != 0))
             {
               /* Already set */
 
-              return false;
+              return index;
             }
 
           if (enable)
@@ -773,8 +771,6 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
-
-          index++;
         }
     }
 
@@ -791,38 +787,40 @@ static void show_usage(void)
   fprintf(stderr,
           "\nUsage: trace <subcommand>...\n"
           "Subcommand:\n"
-          "  start [-c][<duration>]          :"
+          " start   [-c][<duration>]            :"
                                 " Start task tracing\n"
-          "  stop                            :"
+          " stop                                :"
                                 " Stop task tracing\n"
 #ifdef CONFIG_SYSTEM_SYSTEM
-          "  cmd [-c] <command> [<args>...]  :"
+          " cmd     [-c] <command> [<args>...]  :"
                                 " Get the trace while running <command>\n"
 #endif
 #ifdef CONFIG_DRIVER_NOTERAM
-          "  dump [-a][-c][<filename>]           :"
+          " dump    [-a][-c][<filename>]        :"
                                 " Output the trace result\n"
-                                " [-a] <Android SysTrace>\n"
+          "                                       [-a] <Android SysTrace>\n"
 #endif
-          "  mode [{+|-}{o|w|s|a|i|d}...]        :"
+          " mode    [{+|-}{o|w|s|a|i|d}...]     :"
                                 " Set task trace options\n"
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
-          "  switch [+|-] :"
+          " switch  [+|-]                       :"
                                 " Configure switch trace filter\n"
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
-          "  syscall [{+|-}<syscallname>...] :"
+          " syscall [{+|-}<syscallname>...]     :"
                                 " Configure syscall trace filter\n"
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
-          "  irq [{+|-}<irqnum>...]          :"
+          " irq     [{+|-}<irqnum>...]          :"
                                 " Configure IRQ trace filter\n"
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-          "  print [+|-] :"
+          " print   [+|-]                       :"
                                 " Configure dump trace filter\n"
 #endif
          );
+
+  fflush(stderr);
 }
 
 /****************************************************************************

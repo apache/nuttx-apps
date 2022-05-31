@@ -70,7 +70,6 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 {
   FAR struct nsh_vtbl_s *vtbl;
   int ret = EXIT_FAILURE;
-  int i;
 
   DEBUGASSERT(pstate);
   vtbl = &pstate->cn_vtbl;
@@ -116,21 +115,21 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
   /* Process the command line option */
 
-  for (i = 1; i < argc; i++)
+  if (argc > 1)
     {
-      if (strcmp(argv[i], "-h") == 0)
+      if (strcmp(argv[1], "-h") == 0)
         {
           nsh_output(vtbl, "Usage: %s [<script-path>|-c <command>]\n",
                      argv[0]);
           return EXIT_SUCCESS;
         }
-      else if (strcmp(argv[i], "-c") == 0)
+      else if (strcmp(argv[1], "-c") == 0)
         {
           /* Process the inline command */
 
-          if (i + 1 < argc)
+          if (argc > 2)
             {
-              return nsh_parse(vtbl, argv[i + 1]);
+              return nsh_parse(vtbl, argv[2]);
             }
           else
             {
@@ -138,26 +137,23 @@ int nsh_session(FAR struct console_stdio_s *pstate,
               return EXIT_FAILURE;
             }
         }
-      else if (argv[i][0] != '-')
+      else if (argv[1][0] == '-')
         {
-          break;
+          /* Unknown option */
+
+          nsh_error(vtbl, g_fmtsyntax, argv[0]);
+          return EXIT_FAILURE;
         }
-
-      /* Unknown option */
-
-      nsh_error(vtbl, g_fmtsyntax, argv[0]);
-      return EXIT_FAILURE;
-    }
-
-  if (i < argc)
-    {
+      else
+        {
 #ifndef CONFIG_NSH_DISABLESCRIPT
-      /* Execute the shell script */
+          /* Execute the shell script */
 
-      return nsh_script(vtbl, argv[0], argv[i]);
+          return nsh_script(vtbl, argv[0], argv[1]);
 #else
-      return EXIT_FAILURE;
+          return EXIT_FAILURE;
 #endif
+        }
     }
 
   /* Then enter the command line parsing loop */
