@@ -1447,7 +1447,6 @@ int webclient_perform(FAR struct webclient_context *ctx)
               dest = append(dest, ep, ":");
               snprintf(port_str, sizeof(port_str), "%u", ws->target.port);
               dest = append(dest, ep, port_str);
-              dest = append(dest, ep, "/");
               dest = append(dest, ep, ws->target.filename);
             }
           else
