@@ -234,6 +234,7 @@ typedef CODE int (*webclient_body_callback_t)(
 
 struct webclient_tls_connection;
 struct webclient_poll_info;
+struct webclient_conn_s;
 
 struct webclient_tls_ops
 {
@@ -252,6 +253,25 @@ struct webclient_tls_ops
   CODE int (*get_poll_info)(FAR void *ctx,
                             FAR struct webclient_tls_connection *conn,
                             FAR struct webclient_poll_info *info);
+
+  /* init_connection: Initialize TLS over an existing connection
+   *
+   * This method is used for https proxy, which is essentially
+   * tunnelling over http.
+   *
+   * hostname parameter is supposed to be used for server certificate
+   * validation.
+   *
+   * This method can be NULL.
+   * In that case, webclient_perform fails with -ENOTSUP
+   * when it turns out that tunnelling is necessary.
+   */
+
+  CODE int (*init_connection)(FAR void *ctx,
+                              FAR struct webclient_conn_s *conn,
+                              FAR const char *hostname,
+                              unsigned int timeout_second,
+                              FAR struct webclient_tls_connection **connp);
 };
 
 /* Note on webclient_client lifetime

@@ -222,6 +222,8 @@ struct wget_s
   size_t state_len;
   FAR const void *data_buffer;
   size_t data_len;
+
+  FAR struct webclient_context *tunnel;
 };
 
 /****************************************************************************
@@ -264,6 +266,7 @@ static const char g_httpcache[]      = "Cache-Control: no-cache";
 static void free_ws(FAR struct wget_s *ws)
 {
   free(ws->conn);
+  free(ws->tunnel);
   free(ws);
 }
 
@@ -1277,10 +1280,50 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
               if (ctx->proxy != NULL)
                 {
-                  nerr("ERROR: TLS over proxy is not implemented\n");
-                  free_ws(ws);
-                  _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
-                  return -ENOTSUP;
+                  FAR struct webclient_context *tunnel;
+
+                  DEBUGASSERT(ws->tunnel == NULL);
+
+                  if (tls_ops->init_connection == NULL)
+                    {
+                      nerr("ERROR: TLS over proxy is not implemented\n");
+                      ret = -ENOTSUP;
+                      goto errout_with_errno;
+                    }
+
+                  /* Create a temporary context to establish a tunnel. */
+
+                  ws->tunnel = tunnel = calloc(1, sizeof(*ws->tunnel));
+                  if (tunnel == NULL)
+                    {
+                      ret = -ENOMEM;
+                      goto errout_with_errno;
+                    }
+
+                  webclient_set_defaults(tunnel);
+                  tunnel->method = "CONNECT";
+                  tunnel->flags |= WEBCLIENT_FLAG_TUNNEL;
+                  tunnel->tunnel_target_host = ws->target.hostname;
+                  tunnel->tunnel_target_port = ws->target.port;
+                  tunnel->proxy = ctx->proxy;
+
+                  /* Inherit some configurations.
+                   *
+                   * Revisit: should there be independent configurations?
+                   */
+
+                  tunnel->protocol_version = ctx->protocol_version;
+                  if ((ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0)
+                    {
+                      tunnel->flags |= WEBCLIENT_FLAG_NON_BLOCKING;
+                    }
+
+                  /* Abuse the buffer of the original request.
+                   * It's safe with the current usage.
+                   */
+
+                  tunnel->buffer = ctx->buffer;
+                  tunnel->buflen = ctx->buflen;
                 }
             }
           else
@@ -1340,7 +1383,64 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
       if (ws->state == WEBCLIENT_STATE_CONNECT)
         {
-          if (conn->tls)
+          if (ws->tunnel != NULL)
+            {
+              ret = webclient_perform(ws->tunnel);
+              if (ret == 0)
+                {
+                  FAR struct webclient_conn_s *tunnel_conn;
+
+                  ret = webclient_get_tunnel(ws->tunnel, &tunnel_conn);
+                  if (ret == 0)
+                    {
+                      DEBUGASSERT(tunnel_conn != NULL);
+                      DEBUGASSERT(!tunnel_conn->tls);
+                      free(ws->tunnel);
+                      ws->tunnel = NULL;
+
+                      if (conn->tls)
+                        {
+                          /* Revisit: tunnel_conn here should have
+                           * timeout configured already.
+                           * Configuring it again here is redundant.
+                           */
+
+                          ret = tls_ops->init_connection(tls_ctx,
+                                                         tunnel_conn,
+                                                         ws->target.hostname,
+                                                         ctx->timeout_sec,
+                                                         &conn->tls_conn);
+                          if (ret == 0)
+                            {
+                              /* Note: tunnel_conn has been consumed by
+                               * tls_ops->init_connection
+                               */
+
+                              ws->need_conn_close = true;
+                            }
+                          else
+                            {
+                              /* Note: restarting tls_ops->init_connection
+                               * is not implemented
+                               */
+
+                              DEBUGASSERT(ret != -EAGAIN &&
+                                          ret != -EINPROGRESS &&
+                                          ret != -EALREADY);
+                              conn_close(ctx, tunnel_conn);
+                              free(tunnel_conn);
+                            }
+                        }
+                      else
+                        {
+                          conn->sockfd = tunnel_conn->sockfd;
+                          ws->need_conn_close = true;
+                          free(tunnel_conn);
+                        }
+                    }
+                }
+            }
+          else if (conn->tls)
             {
               char port_str[sizeof("65535")];
 
@@ -2266,6 +2366,11 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
   if (ws == NULL)
     {
       return -EINVAL;
+    }
+
+  if (ws->tunnel != NULL)
+    {
+      return webclient_get_poll_info(ws->tunnel, info);
     }
 
   conn = ws->conn;
