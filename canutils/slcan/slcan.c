@@ -189,7 +189,11 @@ int main(int argc, char *argv[])
 
   /* CAN */
 
-  int s, nbytes, i, ret, reccount;
+  int s;
+  int nbytes;
+  int i;
+  int ret;
+  int reccount;
   struct sockaddr_can addr;
   struct canfd_frame frame;
   struct msghdr msg;
@@ -197,7 +201,8 @@ int main(int argc, char *argv[])
   fd_set rdfs;
   char ctrlmsg[CMSG_SPACE(sizeof(struct timeval) +
                           3 * sizeof(struct timespec) + sizeof(int))];
-  char sbuf[40], *sbp;
+  char sbuf[40];
+  char *sbp;
 
   if (argc != 3)
     {
@@ -210,7 +215,7 @@ int main(int argc, char *argv[])
   char *candev = argv[1];
 
   debug_print("Starting slcan on NuttX\n");
-  fd = open(chrdev, O_RDWR | O_BINARY);
+  fd = open(chrdev, O_RDWR);
   if (fd < 0)
     {
       syslog(LOG_ERR, "Failed to open serial channel %s\n", chrdev);
@@ -396,7 +401,8 @@ int main(int argc, char *argv[])
                           /* Transmit an extended 29 bit CAN frame */
 
                           char tbuf[9];
-                          int idval, val;
+                          int idval;
+                          int val;
 
                           /* get 29bit CAN ID */
 
@@ -441,7 +447,8 @@ int main(int argc, char *argv[])
                           /* Transmit an 11 bit CAN frame */
 
                           char tbuf[9];
-                          int idval, val;
+                          int idval;
+                          int val;
 
                           /* get 11bit CAN ID */
 

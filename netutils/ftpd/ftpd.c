@@ -1809,9 +1809,6 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 #if defined(O_LARGEFILE)
   oflags |= O_LARGEFILE;
 #endif
-#if defined(O_BINARY)
-  oflags |= O_BINARY;
-#endif
 
   /* Are we creating the file? */
 
