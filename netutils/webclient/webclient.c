@@ -2430,6 +2430,7 @@ int webclient_get_tunnel(FAR struct webclient_context *ctx,
   struct webclient_conn_s *conn;
 
   _CHECK_STATE(ctx, WEBCLIENT_CONTEXT_STATE_TUNNEL_ESTABLISHED);
+  DEBUGASSERT(ctx->http_status / 100 == 2);
   ws = ctx->ws;
   DEBUGASSERT(ws != NULL);
   conn = ws->conn;
