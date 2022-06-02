@@ -1392,6 +1392,28 @@ int webclient_perform(FAR struct webclient_context *ctx)
               ret = webclient_perform(ws->tunnel);
               if (ret == 0)
                 {
+                  unsigned int http_status = ws->tunnel->http_status;
+
+                  if (http_status / 100 != 2)
+                    {
+                      nerr("HTTP-level error %u on tunnel attempt\n",
+                           http_status);
+
+                      /* 407 Proxy Authentication Required */
+
+                      if (http_status == 407)
+                        {
+                          ret = -EPERM;
+                        }
+                      else
+                        {
+                          ret = -EIO;
+                        }
+                    }
+                }
+
+              if (ret == 0)
+                {
                   FAR struct webclient_conn_s *tunnel_conn;
 
                   ret = webclient_get_tunnel(ws->tunnel, &tunnel_conn);
