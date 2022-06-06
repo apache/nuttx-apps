@@ -360,6 +360,10 @@ struct webclient_context
    *   unix_socket_path - If not NULL, the path to an AF_LOCAL socket.
    *   headers          - An array of pointers to the extra headers.
    *   nheaders         - The number of elements in the "headers" array.
+   *   proxy_headers    - An array of pointers to the extra headers for
+   *                      the proxy connection.
+   *   proxy_nheaders   - The number of elements in the "headers" array for
+   *                      the proxy connection.
    *   bodylen          - The size of the request body.
    *   timeout_sec      - The timeout in second.
    *                      This is not meant to cover the entire transaction.
@@ -384,6 +388,10 @@ struct webclient_context
 #endif
   FAR const char * FAR const *headers;
   unsigned int nheaders;
+
+  FAR const char * FAR const *proxy_headers;
+  unsigned int proxy_nheaders;
+
   size_t bodylen;
   unsigned int timeout_sec;
 

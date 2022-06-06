@@ -1337,6 +1337,8 @@ int webclient_perform(FAR struct webclient_context *ctx)
                   tunnel->tunnel_target_host = ws->target.hostname;
                   tunnel->tunnel_target_port = ws->target.port;
                   tunnel->proxy = ctx->proxy;
+                  tunnel->proxy_headers = ctx->proxy_headers;
+                  tunnel->proxy_nheaders = ctx->proxy_nheaders;
 
                   /* Inherit some configurations.
                    *
@@ -1700,10 +1702,35 @@ int webclient_perform(FAR struct webclient_context *ctx)
           dest = append(dest, ep, ws->target.hostname);
           dest = append(dest, ep, g_httpcrnl);
 
-          for (i = 0; i < ctx->nheaders; i++)
+          /* Append user-specified headers.
+           *
+           * - For non-proxied request,
+           *   only send "headers".
+           *
+           * - For proxied request, (traditional http proxy)
+           *   send both of "headers" and "proxy_headers".
+           *
+           * - For tunneling request, (WEBCLIENT_FLAG_TUNNEL)
+           *   only send "proxy_headers".
+           */
+
+          if ((ctx->flags & WEBCLIENT_FLAG_TUNNEL) == 0)
             {
-              dest = append(dest, ep, ctx->headers[i]);
-              dest = append(dest, ep, g_httpcrnl);
+              for (i = 0; i < ctx->nheaders; i++)
+                {
+                  dest = append(dest, ep, ctx->headers[i]);
+                  dest = append(dest, ep, g_httpcrnl);
+                }
+            }
+
+          if ((ctx->flags & WEBCLIENT_FLAG_TUNNEL) != 0 ||
+              ctx->proxy != NULL)
+            {
+              for (i = 0; i < ctx->proxy_nheaders; i++)
+                {
+                  dest = append(dest, ep, ctx->proxy_headers[i]);
+                  dest = append(dest, ep, g_httpcrnl);
+                }
             }
 
           if (ctx->bodylen)
