@@ -168,6 +168,7 @@ enum webclient_state_e
 
 #define	WGET_FLAG_GOT_CONTENT_LENGTH 1U
 #define	WGET_FLAG_CHUNKED            2U
+#define	WGET_FLAG_GOT_LOCATION       4U
 
 struct wget_target_s
 {
@@ -576,7 +577,8 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
            */
 
           ws->state = WEBCLIENT_STATE_HEADERS;
-          ws->internal_flags &= ~WGET_FLAG_CHUNKED;
+          ws->internal_flags &= ~(WGET_FLAG_CHUNKED |
+                                  WGET_FLAG_GOT_LOCATION);
           ndx = 0;
           break;
         }
@@ -788,8 +790,14 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                         ws->line + strlen(g_httplocation));
                   ret = parseurl(ws->line + strlen(g_httplocation),
                                  &ws->target, false);
+                  if (ret != 0)
+                    {
+                      goto exit;
+                    }
+
                   ninfo("New hostname='%s' filename='%s'\n",
                         ws->target.hostname, ws->target.filename);
+                  ws->internal_flags |= WGET_FLAG_GOT_LOCATION;
                   found = true;
                 }
               else if (strncasecmp(ws->line, g_httpcontsize,
@@ -1979,6 +1987,11 @@ int webclient_perform(FAR struct webclient_context *ctx)
                       FAR char *orig_buffer = ws->buffer;
                       int orig_buflen = ws->buflen;
 
+                      if ((ws->internal_flags & WGET_FLAG_GOT_LOCATION) != 0)
+                        {
+                          nwarn("WARNING: Unexpected Location header\n");
+                        }
+
                       if (ws->state == WEBCLIENT_STATE_CHUNKED_DATA)
                         {
                           uintmax_t chunk_left =
@@ -2052,6 +2065,13 @@ int webclient_perform(FAR struct webclient_context *ctx)
                     }
                   else
                     {
+                      if ((ws->internal_flags & WGET_FLAG_GOT_LOCATION) == 0)
+                        {
+                          nerr("ERROR: Redirect w/o Location header\n");
+                          ret = -EPROTO;
+                          goto errout_with_errno;
+                        }
+
                       ws->nredirect++;
                       if (ws->nredirect > CONFIG_WEBCLIENT_MAX_REDIRECT)
                         {
