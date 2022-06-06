@@ -577,7 +577,8 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
            */
 
           ws->state = WEBCLIENT_STATE_HEADERS;
-          ws->internal_flags &= ~(WGET_FLAG_CHUNKED |
+          ws->internal_flags &= ~(WGET_FLAG_GOT_CONTENT_LENGTH |
+                                  WGET_FLAG_CHUNKED |
                                   WGET_FLAG_GOT_LOCATION);
           ndx = 0;
           break;
