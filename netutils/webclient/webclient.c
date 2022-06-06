@@ -489,6 +489,16 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
               return -E2BIG;
             }
 
+          /* HTTP status line is something like:
+           *
+           * HTTP/1.1 200 OK
+           *
+           * https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2
+           *
+           * > status-line = HTTP-version SP status-code \
+           * >               SP reason-phrase CRLF
+           */
+
           ws->line[ndx] = '\0';
           if ((strncmp(ws->line, g_http10, strlen(g_http10)) == 0) ||
               (strncmp(ws->line, g_http11, strlen(g_http11)) == 0))
@@ -496,7 +506,15 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
               unsigned long http_status;
               char *ep;
 
-              dest = &(ws->line[9]);
+              DEBUGASSERT(strlen(g_http10) == 8);
+              DEBUGASSERT(strlen(g_http11) == 8);
+
+              if (ws->line[8] != ' ')  /* SP before the status-code */
+                {
+                  return -EINVAL;
+                }
+
+              dest = &(ws->line[9]);  /* the status-code */
               ws->httpstatus = HTTPSTATUS_NONE;
 
               errno = 0;
@@ -506,7 +524,7 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
                   return -EINVAL;
                 }
 
-              if (*ep != ' ')
+              if (*ep != ' ')  /* SP before reason-phrase */
                 {
                   return -EINVAL;
                 }
