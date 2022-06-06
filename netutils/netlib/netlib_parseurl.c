@@ -174,6 +174,11 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url)
       src++;
     }
 
+  /* Note: the current implementation does not distinguish
+   * an empty path and "/". While it's fine for HTTP, maybe it's
+   * cleaner to move the HTTP-specific normalization to the caller.
+   */
+
   *dest++ = '/';
   bytesleft--;
 
