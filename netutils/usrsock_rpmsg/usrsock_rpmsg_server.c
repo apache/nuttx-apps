@@ -112,6 +112,8 @@ static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept,
                                      void *data, size_t len,
                                      uint32_t src, void *priv_);
 
+static bool usrsock_rpmsg_ns_match(struct rpmsg_device *rdev, void *priv_,
+                                   const char *name, uint32_t dest);
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest);
 static void usrsock_rpmsg_ns_unbind(struct rpmsg_endpoint *ept);
@@ -822,17 +824,18 @@ static int usrsock_rpmsg_send_dns_event(void *arg,
 }
 #endif
 
+static bool usrsock_rpmsg_ns_match(struct rpmsg_device *rdev, void *priv_,
+                                   const char *name, uint32_t dest)
+{
+  return !strcmp(name, USRSOCK_RPMSG_EPT_NAME);
+}
+
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest)
 {
   struct usrsock_rpmsg_s *priv = priv_;
   struct rpmsg_endpoint *ept;
   int ret;
-
-  if (strcmp(name, USRSOCK_RPMSG_EPT_NAME))
-    {
-      return;
-    }
 
   ept = zalloc(sizeof(struct rpmsg_endpoint));
   if (!ept)
@@ -1069,6 +1072,7 @@ int main(int argc, char *argv[])
   ret = rpmsg_register_callback(priv,
                                 NULL,
                                 NULL,
+                                usrsock_rpmsg_ns_match,
                                 usrsock_rpmsg_ns_bind);
   if (ret < 0)
     {
@@ -1097,6 +1101,7 @@ int main(int argc, char *argv[])
   rpmsg_unregister_callback(priv,
                             NULL,
                             NULL,
+                            usrsock_rpmsg_ns_match,
                             usrsock_rpmsg_ns_bind);
 free_fd:
   close(fd);
