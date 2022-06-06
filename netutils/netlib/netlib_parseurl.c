@@ -63,6 +63,15 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url)
   int ret = OK;
   size_t pathlen;
 
+  /* Each fields should have at least 1 byte to store
+   * the terminating NUL.
+   */
+
+  if (url->schemelen == 0 || url->hostlen == 0 || url->pathlen == 0)
+    {
+      return -EINVAL;
+    }
+
   /* extract the protocol field, a set of a-z letters */
 
   dest      = url->scheme;
