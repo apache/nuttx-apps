@@ -854,6 +854,12 @@ config NSH_FATMOUNTPT
 		will mount a FAT FS under /tmp. This is the location where the FAT
 		FS will be mounted.  Default is "/tmp".
 
+config NSH_SCRIPT_REDIRECT_PATH
+	string "rcS redirect output"
+	default ""
+	---help---
+		This option can redirect rcS output.such as /dev/log or other.
+
 endif # NSH_ROMFSETC
 endmenu # Scripting Support
 
