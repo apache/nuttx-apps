@@ -173,6 +173,8 @@ static int listener_add_object(FAR struct list_node *objlist,
                                FAR struct orb_object *object)
 {
   FAR struct listen_object_s *tmp;
+  struct orb_state state;
+  int ret;
 
   tmp = malloc(sizeof(struct listen_object_s));
   if (tmp == NULL)
@@ -180,9 +182,17 @@ static int listener_add_object(FAR struct list_node *objlist,
       return -ENOMEM;
     }
 
+  ret = listener_get_state(object, &state);
+  if (ret < 0)
+    {
+      free(tmp);
+      return ret;
+    }
+
   tmp->object.meta     = object->meta;
   tmp->object.instance = object->instance;
-  tmp->timestamp       = 0;
+  tmp->timestamp       = orb_absolute_time();
+  tmp->generation      = state.generation;
   list_add_tail(objlist, &tmp->node);
   return 0;
 }
@@ -234,13 +244,6 @@ static int listener_update(FAR struct list_node *objlist,
       if (ret < 0)
         {
           return ret;
-        }
-
-      if (old->timestamp == 0)
-        {
-          old->timestamp  = orb_absolute_time();
-          old->generation = state.generation;
-          return 0;
         }
 
       delta_time       = now_time - old->timestamp;
