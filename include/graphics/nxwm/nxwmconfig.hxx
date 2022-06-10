@@ -79,8 +79,8 @@
  * exit.
  */
 
-#ifndef CONFIG_SCHED_ONEXIT
-#  warning "on_exit() support may be needed (CONFIG_SCHED_ONEXIT)"
+#if CONFIG_LIBC_MAX_EXITFUNS == 0
+#  warning "on_exit() support may be needed (CONFIG_LIBC_MAX_EXITFUNS)"
 #endif
 
 /**

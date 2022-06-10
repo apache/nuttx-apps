@@ -28,6 +28,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -159,32 +160,43 @@ static void draw_rect1(FAR struct fb_state_s *state,
   FAR uint8_t *pixel;
   FAR uint8_t *row;
   uint8_t color8 = (color & 1) == 0 ? 0 : 0xff;
+
+  int start_full_x;
+  int end_full_x;
+  int start_bit_shift;
+  int last_bits;
   uint8_t lmask;
   uint8_t rmask;
-  int startx;
-  int endx;
-  int x;
   int y;
 
   /* Calculate the framebuffer address of the first row to draw on */
 
   row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
 
-  /* Calculate the start byte position rounding down so that we get the
-   * first byte containing any part of the pixel sequence.  Then calculate
-   * the last byte position with a ceil() operation so it includes any final
-   * final pixels of the sequence.
+  /* Calculate the position of the first complete (with all bits) byte.
+   * Then calculate the last byte with all the bits.
    */
 
-  startx = (area->x >> 3);
-  endx   = ((area->x + area->w + 6) >> 3);
+  start_full_x = ((area->x + 7) >> 3);
+  end_full_x   = ((area->x + area->w) >> 3);
+
+  /* Calculate the number of bits in byte before start that need to remain
+   * unchanged. Later calculate the mask.
+   */
+
+  start_bit_shift = 8 + area->x - (start_full_x << 3);
+  lmask = 0xff >> start_bit_shift;
+
+  /* Calculate the number of bits that needs to be changed after last byte
+   * with all the bits. Later calculate the mask.
+   */
+
+  last_bits = area->x + area->w - (end_full_x << 3);
+  rmask = 0xff << (8 - last_bits);
 
   /* Calculate a mask on the first and last bytes of the sequence that may
    * not be completely filled with pixel.
    */
-
-  lmask  = 0xff << (8 - (area->x & 7));
-  rmask  = 0xff >> ((area->x + area->w - 1) & 7);
 
   /* Now draw each row, one-at-a-time */
 
@@ -192,33 +204,31 @@ static void draw_rect1(FAR struct fb_state_s *state,
     {
       /* 'pixel' points to the 1st pixel the next row */
 
-      pixel = row + startx;
+      /* Special case: The row starts and ends within the same byte */
 
-      /* Special case: The row is less no more than one byte wide */
-
-      if (startx == endx)
+      if (start_full_x > end_full_x)
         {
-          uint8_t mask = lmask | rmask;
-
-          *pixel = (*pixel & mask) | (color8 & ~mask);
+          pixel = row + start_full_x - 1;
+          *pixel = (*pixel & (~lmask | ~rmask)) | (lmask & rmask & color8);
+          continue;
         }
-      else
+
+      if (start_bit_shift != 0)
         {
-          /* Special case the first byte of the row */
+          pixel = row + start_full_x - 1;
+          *pixel = (*pixel & ~lmask) | (lmask & color8);
+        }
 
-          *pixel = (*pixel & lmask) | (color8 & ~lmask);
-          pixel++;
+      if (end_full_x > start_full_x)
+        {
+          pixel = row + start_full_x;
+          memset(pixel, color8, end_full_x - start_full_x);
+        }
 
-          /* Handle all middle bytes in the row */
-
-          for (x = startx + 1; x < endx; x++)
-            {
-              *pixel++ = color8;
-            }
-
-          /* Handle the final byte of the row */
-
-          *pixel = (*pixel & rmask) | (color8 & ~rmask);
+      if (last_bits != 0)
+        {
+          pixel = row + end_full_x;
+          *pixel = (*pixel & ~rmask) | (rmask & color8);
         }
 
       row += state->pinfo.stride;
