@@ -534,28 +534,48 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NSH_VARS) || !defined(CONFIG_DISABLE_ENVIRON)
   int status;
 #endif
+#if defined(CONFIG_NSH_VARS) && !defined(CONFIG_DISABLE_ENVIRON)
+  FAR char *oldvalue;
+#endif
   int ret = OK;
 
 #if defined(CONFIG_NSH_VARS)
-  /* Unset NSH variable */
+#ifndef CONFIG_DISABLE_ENVIRON
+  /* Check if the NSH variable has already been promoted to an group-
+   * wide environment variable. In this case, remove the exported
+   * variable
+   */
 
-  status = nsh_unsetvar(vtbl, argv[1]);
-  if (status < 0 && status != -ENOENT)
+  oldvalue = getenv(argv[1]);
+  if (oldvalue == NULL)
+#endif
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
-                NSH_ERRNO_OF(-status));
-      ret = ERROR;
+      /* Unset NSH variable */
+
+      status = nsh_unsetvar(vtbl, argv[1]);
+      if (status < 0 && status != -ENOENT)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "nsh_unsetvar",
+                    NSH_ERRNO_OF(-status));
+          ret = ERROR;
+        }
     }
 #endif
 
 #if !defined(CONFIG_DISABLE_ENVIRON)
-  /* Unset environment variable */
-
-  status = unsetenv(argv[1]);
-  if (status < 0)
+#if defined(CONFIG_NSH_VARS)
+  else
+#endif
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
-      ret = ERROR;
+      /* Unset environment variable */
+
+      status = unsetenv(argv[1]);
+      if (status < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv",
+                    NSH_ERRNO);
+          ret = ERROR;
+        }
     }
 #endif
 
@@ -600,7 +620,7 @@ int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   status = setenv(argv[1], value, TRUE);
   if (status < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
       ret = ERROR;
     }
   else
