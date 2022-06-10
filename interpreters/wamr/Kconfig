@@ -11,9 +11,9 @@ if INTERPRETERS_WAMR
 
 config INTERPRETERS_WAMR_VERSION
 	string "WAMR Version"
-	default "04-15-2021"
+	default "WAMR-04-15-2021"
 	---help---
-	Version 09-29-2020 and later (include main) supported.
+	Version WAMR-09-29-2020 and later (include main) supported.
 
 config INTERPRETERS_IWASM_TASK
 	bool "Webassembly iwasm task"
@@ -33,6 +33,7 @@ endif
 
 config INTERPRETERS_WAMR_AOT
 	bool "Enable AOT"
+	select ARCH_USE_TEXT_HEAP if ARCH_HAVE_TEXT_HEAP
 	default n
 
 choice
@@ -57,6 +58,18 @@ config INTERPRETERS_WAMR_LOG
 config INTERPRETERS_WAMR_LIBC_BUILTIN
 	bool "Enable built-in libc"
 	default n
+
+config INTERPRETERS_WAMR_LIBC_WASI
+	bool "Enable WASI libc"
+	default n
+	---help---
+	Note: As of writing this, this works only with main branch of
+	wasm-micro-runtime.
+	I.e. INTERPRETERS_WAMR_VERSION="main"
+
+	Note: As of writing this, most of the filesystem operations are
+	not implemented. (Mainly because of lack of openat family of
+	the API in NuttX.)
 
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
