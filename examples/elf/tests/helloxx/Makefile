@@ -114,7 +114,7 @@ $(BIN3): $(OBJS3)
 # NOTE:  libstdc++ is not available for NuttX as of this writing
 #
 ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
-ifeq ($(CXX_EXCEPTION),y) 
+ifeq ($(CONFIG_CXX_EXCEPTION),y)
 $(BIN4): $(OBJS4)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
