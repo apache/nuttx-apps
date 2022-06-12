@@ -552,7 +552,7 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Unset environment variable */
 
   status = unsetenv(argv[1]);
-  if (status < 0)
+  if (status < 0 && errno != ENOENT)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "unsetenv", NSH_ERRNO);
       ret = ERROR;
