@@ -183,16 +183,10 @@ static int listener_add_object(FAR struct list_node *objlist,
     }
 
   ret = listener_get_state(object, &state);
-  if (ret < 0)
-    {
-      free(tmp);
-      return ret;
-    }
-
   tmp->object.meta     = object->meta;
   tmp->object.instance = object->instance;
   tmp->timestamp       = orb_absolute_time();
-  tmp->generation      = state.generation;
+  tmp->generation      = ret < 0 ? 0 : state.generation;
   list_add_tail(objlist, &tmp->node);
   return 0;
 }
@@ -252,7 +246,8 @@ static int listener_update(FAR struct list_node *objlist,
         {
           unsigned long frequency;
 
-          frequency = delta_generation * 1000000 / delta_time;
+          frequency = (state.max_frequency ? state.max_frequency : 1000000)
+                      * delta_generation / delta_time;
           uorbinfo_raw("\033[K" "%-*s %2u %4" PRIu32 " %4lu "
                        "%2" PRIu32 " %4u",
                        ORB_MAX_PRINT_NAME,
