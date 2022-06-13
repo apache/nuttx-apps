@@ -271,7 +271,7 @@ enum wpa_alg_e
 
 struct wpa_wconfig_s
 {
-  uint8_t sta_mode;              /* Mode of operation, e.g. IW_MODE_INFRA */
+  enum wapi_mode_e sta_mode;     /* Mode of operation, e.g. IW_MODE_INFRA */
   uint8_t auth_wpa;              /* IW_AUTH_WPA_VERSION values, e.g.
                                   * IW_AUTH_WPA_VERSION_WPA2 */
   uint8_t cipher_mode;           /* IW_AUTH_PAIRWISE_CIPHER and
