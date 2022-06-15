@@ -18,6 +18,8 @@ __Read the articles...__
 -   [__"NuttX Touch Panel Driver for PineDio Stack BL604"__](https://lupyuen.github.io/articles/touch)
 -   [__"NuttX GPIO Expander for PineDio Stack BL604"__](https://lupyuen.github.io/articles/expander)
 -   [__"(Mostly) Automated Testing of Apache NuttX RTOS on PineDio Stack BL604 RISC-V Board"__](https://lupyuen.github.io/articles/auto2)
+-   [__"Zig on RISC-V BL602: Quick Peek with Apache NuttX RTOS"__](https://lupyuen.github.io/articles/zig)
+-   [__"Build an IoT App with Zig and LoRaWAN"__](https://lupyuen.github.io/articles/iot)
 
 # Application Folder
 
