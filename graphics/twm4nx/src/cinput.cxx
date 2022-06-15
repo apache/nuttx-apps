@@ -24,14 +24,14 @@
 
 #include <nuttx/config.h>
 
-#include <cunistd>
 #include <cerrno>
-#include <cfcntl>
 
+#include <fcntl.h>
 #include <sched.h>
 #include <poll.h>
 #include <pthread.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include <nuttx/semaphore.h>
 #include <nuttx/nx/nxglib.h>
@@ -127,7 +127,7 @@ CInput::~CInput(void)
 
   if (m_kbdFd >= 0)
     {
-      std::close(m_kbdFd);
+      close(m_kbdFd);
     }
 #endif
 
@@ -136,7 +136,7 @@ CInput::~CInput(void)
 
   if (m_mouseFd >= 0)
     {
-      std::close(m_mouseFd);
+      close(m_mouseFd);
     }
 #endif
 }
@@ -220,7 +220,7 @@ int CInput::keyboardOpen(void)
     {
       // Try to open the keyboard device non-blocking.
 
-      fd = std::open(CONFIG_TWM4NX_KEYBOARD_DEVPATH, O_RDONLY | O_NONBLOCK);
+      fd = open(CONFIG_TWM4NX_KEYBOARD_DEVPATH, O_RDONLY | O_NONBLOCK);
       if (fd < 0)
         {
           int errcode = errno;
@@ -246,7 +246,7 @@ int CInput::keyboardOpen(void)
                   // Sleep a bit and try again
 
                   twminfo("WAITING for a USB keyboard\n");
-                  std::sleep(2);
+                  sleep(2);
                 }
 
               // Anything else would be really bad.
@@ -296,7 +296,7 @@ inline int CInput::mouseOpen(void)
     {
       // Try to open the mouse device non-blocking
 
-      fd = std::open(CONFIG_TWM4NX_MOUSE_DEVPATH, O_RDONLY | O_NONBLOCK);
+      fd = open(CONFIG_TWM4NX_MOUSE_DEVPATH, O_RDONLY | O_NONBLOCK);
       if (fd < 0)
         {
           int errcode = errno;
@@ -322,7 +322,7 @@ inline int CInput::mouseOpen(void)
                   // Sleep a bit and try again
 
                   twminfo("WAITING for a USB mouse\n");
-                  std::sleep(2);
+                  sleep(2);
                 }
 
               // Anything else would be really bad.
@@ -956,14 +956,14 @@ FAR void *CInput::listener(FAR void *arg)
 #ifndef CONFIG_TWM4NX_NOKEYBOARD
       // Close the keyboard device
 
-      std::close(This->m_kbdFd);
+      close(This->m_kbdFd);
       This->m_kbdFd = -1;
 #endif
 
 #ifndef CONFIG_TWM4NX_NOMOUSE
       // Close the mouse device
 
-      std::close(This->m_mouseFd);
+      close(This->m_mouseFd);
       This->m_mouseFd = -1;
 #endif
     }

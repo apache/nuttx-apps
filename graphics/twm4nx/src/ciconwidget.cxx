@@ -24,11 +24,12 @@
 
 #include <nuttx/config.h>
 
-#include <sys/types.h>
 #include <cstdint>
 #include <cstdbool>
-#include <cfcntl>
 #include <cerrno>
+
+#include <sys/types.h>
+#include <fcntl.h>
 #include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>

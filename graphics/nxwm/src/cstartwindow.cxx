@@ -25,9 +25,10 @@
 #include <nuttx/config.h>
 
 #include <cstdlib>
-#include <cfcntl>
-#include <csched>
 #include <cerrno>
+
+#include <fcntl.h>
+#include <sched.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 
