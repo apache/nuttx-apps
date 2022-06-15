@@ -26,12 +26,12 @@
 
 #include <ctime>
 #include <cstring>
-#include <csched>
 #include <cassert>
-#include <cunistd>
 
 #include <semaphore.h>
 #include <debug.h>
+#include <sched.h>
+#include <unistd.h>
 
 #include <nuttx/semaphore.h>
 
@@ -361,7 +361,7 @@ void CClock::stop(void)
 
       // Then delete the NSH task, possibly stranding resources
 
-      std::task_delete(pid);
+      task_delete(pid);
     }
 }
 

@@ -24,14 +24,14 @@
 
 #include <nuttx/config.h>
 
-#include <cunistd>
 #include <cerrno>
-#include <cfcntl>
 
+#include <fcntl.h>
 #include <sched.h>
 #include <pthread.h>
 #include <assert.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxwm/ckeyboard.hxx"
@@ -84,7 +84,7 @@ CKeyboard::~CKeyboard(void)
 
   if (m_kbdFd >= 0)
     {
-      std::close(m_kbdFd);
+      close(m_kbdFd);
     }
 }
 
@@ -167,7 +167,7 @@ int CKeyboard::open(void)
     {
       // Try to open the keyboard device
 
-      fd = std::open(CONFIG_NXWM_KEYBOARD_DEVPATH, O_RDONLY);
+      fd = ::open(CONFIG_NXWM_KEYBOARD_DEVPATH, O_RDONLY);
       if (fd < 0)
         {
           int errcode = errno;
@@ -193,7 +193,7 @@ int CKeyboard::open(void)
                   // Sleep a bit and try again
 
                   ginfo("WAITING for a USB device\n");
-                  std::sleep(2);
+                  sleep(2);
                 }
 
               // Anything else would be really bad.
@@ -366,7 +366,7 @@ FAR void *CKeyboard::listener(FAR void *arg)
 
       // Close the keyboard device
 
-      std::close(This->m_kbdFd);
+      close(This->m_kbdFd);
       This->m_kbdFd = -1;
     }
 
