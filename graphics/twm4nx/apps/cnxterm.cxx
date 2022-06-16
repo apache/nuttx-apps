@@ -26,14 +26,14 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cunistd>
-#include <cfcntl>
 #include <ctime>
 #include <cassert>
 
 #include <sys/boardctl.h>
 #include <semaphore.h>
+#include <fcntl.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include "nshlib/nshlib.h"
 
@@ -402,16 +402,16 @@ int CNxTerm::nxterm(int argc, char *argv[])
   std::fflush(stderr);
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-  std::dup2(fd, 0);
+  dup2(fd, 0);
 #endif
-  std::dup2(fd, 1);
-  std::dup2(fd, 2);
+  dup2(fd, 1);
+  dup2(fd, 2);
 
   // And we can close our original driver file descriptor
 
   if (fd > 2)
     {
-      std::close(fd);
+      close(fd);
     }
 
   // Inform the parent thread that we successfully initialized

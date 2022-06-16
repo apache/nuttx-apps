@@ -37,11 +37,11 @@
 
 #include <nuttx/config.h>
 
-#include <cfcntl>
 #include <cstring>
 #include <cassert>
 #include <cerrno>
 
+#include <fcntl.h>
 #include <mqueue.h>
 
 #include <nuttx/nx/nxglib.h>

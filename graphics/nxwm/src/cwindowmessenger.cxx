@@ -24,10 +24,10 @@
 
 #include <nuttx/config.h>
 
-#include <cfcntl>
 #include <cerrno>
 
 #include <debug.h>
+#include <fcntl.h>
 
 #include "graphics/nxwm/nxwmconfig.hxx"
 #include "graphics/nxwm/cstartwindow.hxx"

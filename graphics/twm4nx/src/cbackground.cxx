@@ -24,8 +24,9 @@
 
 #include <nuttx/config.h>
 
-#include <cfcntl>
 #include <cerrno>
+
+#include <fcntl.h>
 
 #include <nuttx/nx/nxglib.h>
 
