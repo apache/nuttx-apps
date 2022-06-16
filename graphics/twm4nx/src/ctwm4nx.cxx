@@ -41,11 +41,11 @@
 #include <cstdbool>
 #include <csignal>
 #include <cstdio>
-#include <cfcntl>
 #include <cstring>
 #include <cassert>
 #include <cerrno>
 
+#include <fcntl.h>
 #include <semaphore.h>
 
 #include <nuttx/semaphore.h>

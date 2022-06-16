@@ -110,16 +110,18 @@ $(BIN3): $(OBJS3)
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
 # BIN4 is similar to BIN3 except that it uses the streams code from libstdc++
-#
+# Both BIN4 and BIN5 use exceptions
 # NOTE:  libstdc++ is not available for NuttX as of this writing
 #
 ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
+ifeq ($(CONFIG_CXX_EXCEPTION),y)
 $(BIN4): $(OBJS4)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 $(BIN5): $(OBJS5)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+endif
 endif
 endif
 

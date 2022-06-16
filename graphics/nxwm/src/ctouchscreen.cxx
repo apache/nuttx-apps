@@ -25,16 +25,15 @@
 #include <nuttx/config.h>
 
 #include <cinttypes>
-#include <cunistd>
 #include <cerrno>
-#include <cfcntl>
 
 #include <sys/prctl.h>
-
+#include <fcntl.h>
 #include <sched.h>
 #include <pthread.h>
 #include <assert.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <nuttx/nx/nxglib.h>
 
@@ -103,7 +102,7 @@ CTouchscreen::~CTouchscreen(void)
 
   if (m_touchFd >= 0)
     {
-      std::close(m_touchFd);
+      close(m_touchFd);
     }
 
    // Destroy the semaphores that we created.
@@ -253,7 +252,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 
   // Open the touchscreen device that we just created.
 
-  This->m_touchFd = std::open(CONFIG_NXWM_TOUCHSCREEN_DEVPATH, O_RDONLY);
+  This->m_touchFd = open(CONFIG_NXWM_TOUCHSCREEN_DEVPATH, O_RDONLY);
   if (This->m_touchFd < 0)
     {
       gerr("ERROR Failed to open %s for reading: %d\n",

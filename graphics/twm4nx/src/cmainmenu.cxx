@@ -24,7 +24,7 @@
 
 #include <nuttx/config.h>
 
-#include <cunistd>
+#include <unistd.h>
 #include <debug.h>
 
 #include <graphics/nxwidgets/cnxstring.hxx>
