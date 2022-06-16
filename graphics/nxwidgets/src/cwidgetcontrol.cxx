@@ -27,9 +27,10 @@
 #include <cstdint>
 #include <cstdbool>
 #include <cstring>
-#include <csched>
 #include <cerrno>
+
 #include <debug.h>
+#include <sched.h>
 
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/nxwidgets/cnxserver.hxx"

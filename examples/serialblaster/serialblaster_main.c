@@ -59,7 +59,8 @@ int main(int argc, FAR char *argv[])
   int ret;
   int fd;
   FAR char *devpath;
-  int size = 0;
+  const int slength = sizeof(s)-1;
+  int size = slength;
   int rem;
 
   if (argc == 1)
@@ -84,25 +85,25 @@ int main(int argc, FAR char *argv[])
   fd = open(devpath, O_RDWR);
   if (fd < 0)
     {
-      printf("dev_ttyS2: ERROR Failed to open /dev/ttyS2\n");
+      printf("%s: ERROR Failed to open %s\n", argv[0], devpath);
       return -1;
     }
 
   rem = size;
-  while (size > sizeof(s))
+  printf("Sending %d bytes of data to %s (fd=%d)\n", size, devpath, fd);
+  while (rem > 0)
     {
-      if (rem > 26)
+      if (rem > slength)
         {
-          ret = write(fd, s, (sizeof(s)-1));
+          ret = write(fd, s, slength);
+          rem = rem - slength;
         }
-
-      rem = rem - 26;
-      if (rem < 26)
+      else
         {
           ret = write(fd, s, rem);
+          rem = 0;
         }
 
-      size = size - 26;
       UNUSED(ret);
     }
 
