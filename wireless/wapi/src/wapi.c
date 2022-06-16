@@ -117,7 +117,7 @@ static const struct wapi_command_s g_wapi_commands[] =
   {"mask",         2, 2, wapi_mask_cmd},
   {"freq",         3, 3, wapi_freq_cmd},
   {"essid",        3, 3, wapi_essid_cmd},
-  {"psk",          3, 3, wapi_psk_cmd},
+  {"psk",          3, 4, wapi_psk_cmd},
   {"disconnect",   1, 1, wapi_disconnect_cmd},
   {"mode",         2, 2, wapi_mode_cmd},
   {"ap",           2, 2, wapi_ap_cmd},
@@ -521,15 +521,64 @@ static int wapi_essid_cmd(int sock, int argc, FAR char **argv)
 static int wapi_psk_cmd(int sock, int argc, FAR char **argv)
 {
   enum wpa_alg_e alg_flag;
+  uint8_t auth_wpa;
+  int cipher;
+  int ret;
 
   /* Convert input strings to values */
 
   alg_flag = (enum wpa_alg_e)wapi_str2ndx(argv[2], g_wapi_alg_flags);
 
-  /* Set the Passphrase */
+  if (argc > 3)
+    {
+      auth_wpa = atoi(argv[3]);
+    }
+  else
+    {
+      auth_wpa = IW_AUTH_WPA_VERSION_WPA2;
+    }
 
-  return wpa_driver_wext_set_key_ext(sock, argv[0], alg_flag,
-                                     argv[1], strlen(argv[1]));
+  switch (alg_flag)
+    {
+      case WPA_ALG_NONE:
+        cipher = IW_AUTH_CIPHER_NONE;
+        break;
+
+      case WPA_ALG_WEP:
+        cipher = IW_AUTH_CIPHER_WEP40;
+        break;
+
+      case WPA_ALG_TKIP:
+        cipher = IW_AUTH_CIPHER_TKIP;
+        break;
+
+      case WPA_ALG_CCMP:
+        cipher = IW_AUTH_CIPHER_CCMP;
+        break;
+
+      default:
+        return -1;
+    }
+
+  ret = wpa_driver_wext_set_auth_param(sock, argv[0],
+                                       IW_AUTH_WPA_VERSION,
+                                       auth_wpa);
+  if (ret >= 0)
+    {
+      ret = wpa_driver_wext_set_auth_param(sock, argv[0],
+                                           IW_AUTH_CIPHER_PAIRWISE,
+                                           cipher);
+
+      /* Set the Passphrase */
+
+      if (ret >= 0)
+        {
+          ret = wpa_driver_wext_set_key_ext(sock, argv[0], alg_flag,
+                                            argv[1], strlen(argv[1]));
+        }
+    }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -957,8 +1006,8 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
                    progname);
   fprintf(stderr, "\t%s essid        <ifname> <essid>      <index/flag>\n",
                    progname);
-  fprintf(stderr, "\t%s psk          <ifname> <passphrase> <index/flag>\n",
-                   progname);
+  fprintf(stderr, "\t%s psk          <ifname> <passphrase> <index/flag> "
+                  "<wpa>\n", progname);
   fprintf(stderr, "\t%s disconnect   <ifname>\n", progname);
   fprintf(stderr, "\t%s mode         <ifname>              <index/mode>\n",
                    progname);
