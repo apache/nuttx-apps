@@ -1445,53 +1445,50 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   FAR struct webclient_conn_s *tunnel_conn;
 
-                  ret = webclient_get_tunnel(ws->tunnel, &tunnel_conn);
-                  if (ret == 0)
-                    {
-                      DEBUGASSERT(tunnel_conn != NULL);
-                      DEBUGASSERT(!tunnel_conn->tls);
-                      free(ws->tunnel);
-                      ws->tunnel = NULL;
+                  webclient_get_tunnel(ws->tunnel, &tunnel_conn);
+                  DEBUGASSERT(tunnel_conn != NULL);
+                  DEBUGASSERT(!tunnel_conn->tls);
+                  free(ws->tunnel);
+                  ws->tunnel = NULL;
 
-                      if (conn->tls)
+                  if (conn->tls)
+                    {
+                      /* Revisit: tunnel_conn here should have
+                       * timeout configured already.
+                       * Configuring it again here is redundant.
+                       */
+
+                      ret = tls_ops->init_connection(tls_ctx,
+                                                     tunnel_conn,
+                                                     ws->target.hostname,
+                                                     ctx->timeout_sec,
+                                                     &conn->tls_conn);
+                      if (ret == 0)
                         {
-                          /* Revisit: tunnel_conn here should have
-                           * timeout configured already.
-                           * Configuring it again here is redundant.
+                          /* Note: tunnel_conn has been consumed by
+                           * tls_ops->init_connection
                            */
 
-                          ret = tls_ops->init_connection(tls_ctx,
-                                                         tunnel_conn,
-                                                         ws->target.hostname,
-                                                         ctx->timeout_sec,
-                                                         &conn->tls_conn);
-                          if (ret == 0)
-                            {
-                              /* Note: tunnel_conn has been consumed by
-                               * tls_ops->init_connection
-                               */
-
-                              ws->need_conn_close = true;
-                            }
-                          else
-                            {
-                              /* Note: restarting tls_ops->init_connection
-                               * is not implemented
-                               */
-
-                              DEBUGASSERT(ret != -EAGAIN &&
-                                          ret != -EINPROGRESS &&
-                                          ret != -EALREADY);
-                              conn_close(ctx, tunnel_conn);
-                              free(tunnel_conn);
-                            }
+                          ws->need_conn_close = true;
                         }
                       else
                         {
-                          conn->sockfd = tunnel_conn->sockfd;
-                          ws->need_conn_close = true;
+                          /* Note: restarting tls_ops->init_connection
+                           * is not implemented
+                           */
+
+                          DEBUGASSERT(ret != -EAGAIN &&
+                                      ret != -EINPROGRESS &&
+                                      ret != -EALREADY);
+                          conn_close(ctx, tunnel_conn);
                           free(tunnel_conn);
                         }
+                    }
+                  else
+                    {
+                      conn->sockfd = tunnel_conn->sockfd;
+                      ws->need_conn_close = true;
+                      free(tunnel_conn);
                     }
                 }
             }
@@ -2486,16 +2483,16 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
  *   the tunneled connection.
  *
  *   This function should be used exactly once after a successful
- *   call of webclient_perform with WEBCLIENT_FLAG_TUNNEL.
+ *   call of webclient_perform with WEBCLIENT_FLAG_TUNNEL, with
+ *   http_status 2xx.
  *
  *   This function also disposes the given webclient_context.
- *   The context will be invalid after the successful call of this
- *   function.
+ *   The context will be invalid after a call of this function.
  *
  ****************************************************************************/
 
-int webclient_get_tunnel(FAR struct webclient_context *ctx,
-                         FAR struct webclient_conn_s **connp)
+void webclient_get_tunnel(FAR struct webclient_context *ctx,
+                          FAR struct webclient_conn_s **connp)
 {
   struct wget_s *ws;
   struct webclient_conn_s *conn;
@@ -2510,6 +2507,4 @@ int webclient_get_tunnel(FAR struct webclient_context *ctx,
   ws->conn = NULL;
   free_ws(ws);
   _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_DONE);
-
-  return 0;
 }

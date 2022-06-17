@@ -561,8 +561,8 @@ void webclient_set_static_body(FAR struct webclient_context *ctx,
                                size_t bodylen);
 int webclient_get_poll_info(FAR struct webclient_context *ctx,
                             FAR struct webclient_poll_info *info);
-int webclient_get_tunnel(FAR struct webclient_context *ctx,
-                         FAR struct webclient_conn_s **connp);
+void webclient_get_tunnel(FAR struct webclient_context *ctx,
+                          FAR struct webclient_conn_s **connp);
 
 #undef EXTERN
 #ifdef __cplusplus
