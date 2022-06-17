@@ -2206,6 +2206,11 @@ void webclient_abort(FAR struct webclient_context *ctx)
       conn_close(ctx, conn);
     }
 
+  if (ws->tunnel != NULL)
+    {
+      webclient_abort(ws->tunnel);
+    }
+
   free_ws(ws);
   _SET_STATE(ctx, WEBCLIENT_CONTEXT_STATE_ABORTED);
 }
