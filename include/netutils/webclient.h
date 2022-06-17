@@ -295,13 +295,27 @@ struct webclient_tls_ops
  *      |        |
  * webclient_perform
  *      |
- *      +---------------+
- *      |               |
- *      |             non-blocking mode,
- *      |             returns -EAGAIN
- *      |               |
- *      v               v
- *     DONE           IN-PROGRESS
+ *      |
+ *      +-- non-blocking mode, returns -EAGAIN ---> IN-PROGRESS
+ *      |
+ *      +-- returns -errno ---> DONE
+ *      |
+ *     returns 0
+ *      |
+ *      +-- !WEBCLIENT_FLAG_TUNNEL --> DONE
+ *      |
+ *      +-- WEBCLIENT_FLAG_TUNNEL, http_status 2xx -----> TUNNEL_ESTABLISHED
+ *      |
+ *      +-- WEBCLIENT_FLAG_TUNNEL, http_status others --> DONE
+ *
+ *
+ *  TUNNEL_ESTABLISHED
+ *      |
+ * webclient_get_tunnel
+ *      |
+ *      v
+ *     DONE
+ *
  *
  * (uninitialized):
  *   After the memory for webclient_context is allocated,
@@ -341,6 +355,10 @@ struct webclient_tls_ops
  *
  *   If the application wants to reuse the context for another request,
  *   it should initialize it with webclient_set_defaults() again.
+ *
+ * TUNNEL_ESTABLISHED
+ *   webclient_get_tunnel() should be called exactly once to return
+ *   the established tunnel.
  */
 
 struct webclient_context
