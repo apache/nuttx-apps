@@ -2504,6 +2504,17 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
  *   This function also disposes the given webclient_context.
  *   The context will be invalid after a call of this function.
  *
+ *   It's the caller's responsibility to close the returned
+ *   webclient_conn_s, either using webclient_conn_close() or
+ *   using the internal knowledge about the structure. (E.g.
+ *   It's sometimes convenient/efficient for the caller to
+ *   only keep conn->sockfd descriptor and free the rest of the
+ *   structure using webclient_conn_free(). In that case, it will
+ *   need to close() the descriptor after finishing on it.)
+ *
+ *   It's the caller's responsibility to free the returned
+ *   webclient_conn_s using webclient_conn_free().
+ *
  ****************************************************************************/
 
 void webclient_get_tunnel(FAR struct webclient_context *ctx,
