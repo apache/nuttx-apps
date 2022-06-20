@@ -501,6 +501,11 @@ struct webclient_conn_s
   /* for tls */
 
   FAR struct webclient_tls_connection *tls_conn;
+
+  /* for tls, same as webclient_context */
+
+  FAR const struct webclient_tls_ops *tls_ops;
+  FAR void *tls_ctx;
 };
 
 /****************************************************************************
@@ -563,6 +568,13 @@ int webclient_get_poll_info(FAR struct webclient_context *ctx,
                             FAR struct webclient_poll_info *info);
 void webclient_get_tunnel(FAR struct webclient_context *ctx,
                           FAR struct webclient_conn_s **connp);
+
+ssize_t webclient_conn_send(FAR struct webclient_conn_s *conn,
+                            FAR const void *buffer, size_t len);
+ssize_t webclient_conn_recv(FAR struct webclient_conn_s *conn,
+                            FAR void *buffer, size_t len);
+void webclient_conn_close(FAR struct webclient_conn_s *conn);
+void webclient_conn_free(FAR struct webclient_conn_s *conn);
 
 #undef EXTERN
 #ifdef __cplusplus

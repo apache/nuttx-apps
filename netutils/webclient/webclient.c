@@ -266,96 +266,13 @@ static const char g_httpcache[]      = "Cache-Control: no-cache";
 
 static void free_ws(FAR struct wget_s *ws)
 {
-  free(ws->conn);
+  if (ws->conn != NULL)
+    {
+      webclient_conn_free(ws->conn);
+    }
+
   free(ws->tunnel);
   free(ws);
-}
-
-/****************************************************************************
- * Name: conn_send
- ****************************************************************************/
-
-static ssize_t conn_send(struct webclient_context *ctx,
-                         struct webclient_conn_s *conn,
-                         const void *buffer, size_t len)
-{
-  if (conn->tls)
-    {
-      return ctx->tls_ops->send(ctx->tls_ctx, conn->tls_conn, buffer, len);
-    }
-
-  while (true)
-    {
-      ssize_t ret = send(conn->sockfd, buffer, len, 0);
-      if (ret == -1)
-        {
-          if (errno == EINTR)
-            {
-              continue;
-            }
-
-          if (errno == EAGAIN)
-            {
-              conn->flags |= CONN_WANT_WRITE;
-            }
-
-          return -errno;
-        }
-
-      return ret;
-    }
-}
-
-/****************************************************************************
- * Name: conn_recv
- ****************************************************************************/
-
-static ssize_t conn_recv(struct webclient_context *ctx,
-                         struct webclient_conn_s *conn,
-                         void *buffer, size_t len)
-{
-  if (conn->tls)
-    {
-      return ctx->tls_ops->recv(ctx->tls_ctx, conn->tls_conn, buffer, len);
-    }
-
-  while (true)
-    {
-      ssize_t ret = recv(conn->sockfd, buffer, len, 0);
-      if (ret == -1)
-        {
-          if (errno == EINTR)
-            {
-              continue;
-            }
-
-          if (errno == EAGAIN)
-            {
-              conn->flags |= CONN_WANT_READ;
-            }
-
-          return -errno;
-        }
-
-      return ret;
-    }
-}
-
-/****************************************************************************
- * Name: conn_close
- ****************************************************************************/
-
-static void conn_close(struct webclient_context *ctx,
-                       struct webclient_conn_s *conn)
-{
-  if (conn->tls)
-    {
-      ctx->tls_ops->close(ctx->tls_ctx, conn->tls_conn);
-    }
-  else
-    {
-      close(conn->sockfd);
-    }
 }
 
 /****************************************************************************
@@ -1148,6 +1065,100 @@ static int wget_gethostip(FAR char *hostname, FAR struct in_addr *dest)
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: webclient_conn_send
+ ****************************************************************************/
+
+ssize_t webclient_conn_send(FAR struct webclient_conn_s *conn,
+                            FAR const void *buffer, size_t len)
+{
+  if (conn->tls)
+    {
+      return conn->tls_ops->send(conn->tls_ctx, conn->tls_conn, buffer, len);
+    }
+
+  while (true)
+    {
+      ssize_t ret = send(conn->sockfd, buffer, len, 0);
+      if (ret == -1)
+        {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
+          if (errno == EAGAIN)
+            {
+              conn->flags |= CONN_WANT_WRITE;
+            }
+
+          return -errno;
+        }
+
+      return ret;
+    }
+}
+
+/****************************************************************************
+ * Name: webclient_conn_recv
+ ****************************************************************************/
+
+ssize_t webclient_conn_recv(FAR struct webclient_conn_s *conn,
+                            FAR void *buffer, size_t len)
+{
+  if (conn->tls)
+    {
+      return conn->tls_ops->recv(conn->tls_ctx, conn->tls_conn, buffer, len);
+    }
+
+  while (true)
+    {
+      ssize_t ret = recv(conn->sockfd, buffer, len, 0);
+      if (ret == -1)
+        {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
+          if (errno == EAGAIN)
+            {
+              conn->flags |= CONN_WANT_READ;
+            }
+
+          return -errno;
+        }
+
+      return ret;
+    }
+}
+
+/****************************************************************************
+ * Name: webclient_conn_close
+ ****************************************************************************/
+
+void webclient_conn_close(FAR struct webclient_conn_s *conn)
+{
+  if (conn->tls)
+    {
+      conn->tls_ops->close(conn->tls_ctx, conn->tls_conn);
+    }
+  else
+    {
+      close(conn->sockfd);
+    }
+}
+
+/****************************************************************************
+ * Name: webclient_conn_free
+ ****************************************************************************/
+
+void webclient_conn_free(FAR struct webclient_conn_s *conn)
+{
+  DEBUGASSERT(conn != NULL);
+  free(conn);
+}
+
+/****************************************************************************
  * Name: webclient_perform
  *
  * Returned Value:
@@ -1273,6 +1284,8 @@ int webclient_perform(FAR struct webclient_context *ctx)
           else if (!strcmp(ws->target.scheme, "https") && tls_ops != NULL)
             {
               conn->tls = true;
+              conn->tls_ops = tls_ops;
+              conn->tls_ctx = ctx->tls_ctx;
             }
           else if (!strcmp(ws->target.scheme, "http"))
             {
@@ -1480,15 +1493,15 @@ int webclient_perform(FAR struct webclient_context *ctx)
                           DEBUGASSERT(ret != -EAGAIN &&
                                       ret != -EINPROGRESS &&
                                       ret != -EALREADY);
-                          conn_close(ctx, tunnel_conn);
-                          free(tunnel_conn);
+                          webclient_conn_close(tunnel_conn);
+                          webclient_conn_free(tunnel_conn);
                         }
                     }
                   else
                     {
                       conn->sockfd = tunnel_conn->sockfd;
                       ws->need_conn_close = true;
-                      free(tunnel_conn);
+                      webclient_conn_free(tunnel_conn);
                     }
                 }
             }
@@ -1767,8 +1780,9 @@ int webclient_perform(FAR struct webclient_context *ctx)
         {
           ssize_t ssz;
 
-          ssz = conn_send(ctx, conn, ws->buffer + ws->state_offset,
-                          ws->state_len);
+          ssz = webclient_conn_send(conn,
+                                    ws->buffer + ws->state_offset,
+                                    ws->state_len);
           if (ssz < 0)
             {
               ret = ssz;
@@ -1841,9 +1855,10 @@ int webclient_perform(FAR struct webclient_context *ctx)
               size_t bytes_to_send = ws->data_len - ws->state_offset;
 
               DEBUGASSERT(bytes_to_send <= ws->state_len);
-              ssize_t ssz = conn_send(ctx, conn,
-                                      ws->data_buffer + ws->state_offset,
-                                      bytes_to_send);
+              ssize_t ssz = webclient_conn_send(conn,
+                                                ws->data_buffer +
+                                                ws->state_offset,
+                                                bytes_to_send);
               if (ssz < 0)
                 {
                   ret = ssz;
@@ -1898,7 +1913,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                       want = 1;
                     }
 
-                  ssz = conn_recv(ctx, conn, ws->buffer, want);
+                  ssz = webclient_conn_recv(conn, ws->buffer, want);
                   if (ssz < 0)
                     {
                       ret = ssz;
@@ -2121,7 +2136,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
       if (ws->state == WEBCLIENT_STATE_CLOSE)
         {
-          conn_close(ctx, conn);
+          webclient_conn_close(conn);
           ws->need_conn_close = false;
           if (ws->redirected)
             {
@@ -2163,7 +2178,7 @@ errout_with_errno:
 
   if (ws->need_conn_close)
     {
-      conn_close(ctx, conn);
+      webclient_conn_close(conn);
     }
 
   free_ws(ws);
@@ -2200,7 +2215,7 @@ void webclient_abort(FAR struct webclient_context *ctx)
     {
       struct webclient_conn_s *conn = ws->conn;
 
-      conn_close(ctx, conn);
+      webclient_conn_close(conn);
     }
 
   if (ws->tunnel != NULL)
