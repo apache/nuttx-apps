@@ -482,7 +482,7 @@ struct webclient_conn_s
 
   /* for tls */
 
-  struct webclient_tls_connection *tls_conn;
+  FAR struct webclient_tls_connection *tls_conn;
 };
 
 /****************************************************************************
