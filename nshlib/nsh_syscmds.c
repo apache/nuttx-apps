@@ -351,7 +351,7 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  nsh_output(vtbl, "cause:0x%x, flag:0x%" PRIx32 "\n",
+  nsh_output(vtbl, "cause:0x%x,flag:0x%" PRIx32 "\n",
              cause.cause, cause.flag);
   return OK;
 }
