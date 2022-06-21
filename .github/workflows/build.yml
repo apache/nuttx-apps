@@ -118,7 +118,7 @@ jobs:
 
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: source-bundle
           path: .
@@ -164,7 +164,7 @@ jobs:
         boards: [macos, sim-01, sim-02]
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: source-bundle
           path: .
