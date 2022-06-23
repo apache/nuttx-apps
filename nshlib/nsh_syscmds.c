@@ -344,7 +344,7 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   struct boardioc_reset_cause_s cause;
 
   memset(&cause, 0, sizeof(cause));
-  ret = boardctl(BOARDIOC_RESET_CAUSE, &cause);
+  ret = boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&cause);
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
