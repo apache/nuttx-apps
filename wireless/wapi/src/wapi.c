@@ -123,7 +123,7 @@ static const struct wapi_command_s g_wapi_commands[] =
   {"ap",           2, 2, wapi_ap_cmd},
   {"bitrate",      3, 3, wapi_bitrate_cmd},
   {"txpower",      3, 3, wapi_txpower_cmd},
-  {"country",      2, 2, wapi_country_cmd},
+  {"country",      1, 2, wapi_country_cmd},
   {"sense",        1, 1, wapi_sense_cmd},
 #ifdef CONFIG_WIRELESS_WAPI_INITCONF
   {"reconnect",    1, 1, wapi_reconnect_cmd},
@@ -259,6 +259,7 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   enum wapi_mode_e mode;
   struct ether_addr ap;
   struct in_addr addr;
+  char country[4];
   double tmpfreq;
   int bitrate;
   int txpower;
@@ -402,6 +403,15 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   if (ret == 0)
     {
       printf("    Sense: %d\n", sense);
+    }
+
+  /* Get Country Code */
+
+  memset(country, 0, sizeof(country));
+  ret = wapi_get_country(sock, ifname, country);
+  if (ret == 0)
+    {
+      printf("  Country: %s\n", country);
     }
 
   return 0;
@@ -806,7 +816,7 @@ static int wapi_scan_cmd(int sock, int argc, FAR char **argv)
  * Name: wapi_country_cmd
  *
  * Description:
- *  Set the country code
+ *  Set/Get the country code
  *
  * Returned Value:
  *   None
@@ -815,6 +825,20 @@ static int wapi_scan_cmd(int sock, int argc, FAR char **argv)
 
 static int wapi_country_cmd(int sock, int argc, FAR char **argv)
 {
+  char country[4];
+  int ret;
+
+  if (argc == 1)
+    {
+      ret = wapi_get_country(sock, argv[0], country);
+      if (ret == 0)
+        {
+          printf("%s\n", country);
+        }
+
+      return ret;
+    }
+
   return wapi_set_country(sock, argv[0], argv[1]);
 }
 
