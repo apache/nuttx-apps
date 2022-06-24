@@ -991,7 +991,7 @@ static int wapi_save_config_cmd(int sock, int argc, FAR char **argv)
                                     &conf.alg,
                                     psk,
                                     &psk_len);
-  if (ret == 0)
+  if (ret >= 0)
     {
       conf.passphrase = psk;
       conf.phraselen = psk_len;
