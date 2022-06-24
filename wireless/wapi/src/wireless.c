@@ -1461,7 +1461,7 @@ int wapi_get_country(int sock, FAR const char *ifname,
 
   strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
   wrq.u.data.pointer = (FAR void *)country;
-  wrq.u.data.length = 2;
+  wrq.u.data.length = 3;
   ret = ioctl(sock, SIOCGIWCOUNTRY, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {

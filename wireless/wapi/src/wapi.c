@@ -403,7 +403,7 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
   /* Get sensitivity */
 
   ret = wapi_get_sensitivity(sock, ifname, &sense);
-  if (ret == 0)
+  if (ret >= 0)
     {
       printf("    Sense: %d\n", sense);
     }
@@ -412,7 +412,7 @@ static int wapi_show_cmd(int sock, int argc, FAR char **argv)
 
   memset(country, 0, sizeof(country));
   ret = wapi_get_country(sock, ifname, country);
-  if (ret == 0)
+  if (ret >= 0)
     {
       printf("  Country: %s\n", country);
     }
@@ -834,7 +834,7 @@ static int wapi_country_cmd(int sock, int argc, FAR char **argv)
   if (argc == 1)
     {
       ret = wapi_get_country(sock, argv[0], country);
-      if (ret == 0)
+      if (ret >= 0)
         {
           printf("%s\n", country);
         }
@@ -862,7 +862,7 @@ static int wapi_sense_cmd(int sock, int argc, FAR char **argv)
   int ret;
 
   ret = wapi_get_sensitivity(sock, argv[0], &sense);
-  if (ret == 0)
+  if (ret >= 0)
     {
       printf("%d\n", sense);
     }
