@@ -146,6 +146,7 @@ jobs:
             mkdir $CCACHE_DIR
             export ARTIFACTDIR=`pwd`/buildartifacts
             git config --global --add safe.directory /github/workspace/sources/nuttx
+            git config --global --add safe.directory /github/workspace/sources/apps
             cd sources/nuttx/tools/ci
             ./cibuild.sh -A -c testlist/${{matrix.boards}}.dat
             ccache -s
