@@ -295,13 +295,27 @@ struct webclient_tls_ops
  *      |        |
  * webclient_perform
  *      |
- *      +---------------+
- *      |               |
- *      |             non-blocking mode,
- *      |             returns -EAGAIN
- *      |               |
- *      v               v
- *     DONE           IN-PROGRESS
+ *      |
+ *      +-- non-blocking mode, returns -EAGAIN ---> IN-PROGRESS
+ *      |
+ *      +-- returns -errno ---> DONE
+ *      |
+ *     returns 0
+ *      |
+ *      +-- !WEBCLIENT_FLAG_TUNNEL --> DONE
+ *      |
+ *      +-- WEBCLIENT_FLAG_TUNNEL, http_status 2xx -----> TUNNEL_ESTABLISHED
+ *      |
+ *      +-- WEBCLIENT_FLAG_TUNNEL, http_status others --> DONE
+ *
+ *
+ *  TUNNEL_ESTABLISHED
+ *      |
+ * webclient_get_tunnel
+ *      |
+ *      v
+ *     DONE
+ *
  *
  * (uninitialized):
  *   After the memory for webclient_context is allocated,
@@ -341,6 +355,10 @@ struct webclient_tls_ops
  *
  *   If the application wants to reuse the context for another request,
  *   it should initialize it with webclient_set_defaults() again.
+ *
+ * TUNNEL_ESTABLISHED
+ *   webclient_get_tunnel() should be called exactly once to return
+ *   the established tunnel.
  */
 
 struct webclient_context
@@ -482,7 +500,12 @@ struct webclient_conn_s
 
   /* for tls */
 
-  struct webclient_tls_connection *tls_conn;
+  FAR struct webclient_tls_connection *tls_conn;
+
+  /* for tls, same as webclient_context */
+
+  FAR const struct webclient_tls_ops *tls_ops;
+  FAR void *tls_ctx;
 };
 
 /****************************************************************************
@@ -543,8 +566,15 @@ void webclient_set_static_body(FAR struct webclient_context *ctx,
                                size_t bodylen);
 int webclient_get_poll_info(FAR struct webclient_context *ctx,
                             FAR struct webclient_poll_info *info);
-int webclient_get_tunnel(FAR struct webclient_context *ctx,
-                         FAR struct webclient_conn_s **connp);
+void webclient_get_tunnel(FAR struct webclient_context *ctx,
+                          FAR struct webclient_conn_s **connp);
+
+ssize_t webclient_conn_send(FAR struct webclient_conn_s *conn,
+                            FAR const void *buffer, size_t len);
+ssize_t webclient_conn_recv(FAR struct webclient_conn_s *conn,
+                            FAR void *buffer, size_t len);
+void webclient_conn_close(FAR struct webclient_conn_s *conn);
+void webclient_conn_free(FAR struct webclient_conn_s *conn);
 
 #undef EXTERN
 #ifdef __cplusplus

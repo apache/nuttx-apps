@@ -732,6 +732,17 @@ int wapi_set_country(int sock, FAR const char *ifname,
                      FAR const char *country);
 
 /****************************************************************************
+ * Name: wapi_get_country
+ *
+ * Description:
+ *    Get the country code
+ *
+ ****************************************************************************/
+
+int wapi_get_country(int sock, FAR const char *ifname,
+                     FAR char *country);
+
+/****************************************************************************
  * Name: wapi_get_sensitivity
  *
  * Description:

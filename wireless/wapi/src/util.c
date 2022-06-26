@@ -256,6 +256,9 @@ FAR const char *wapi_ioctl_command_name(int cmd)
     case SIOCSIWMODE:
       return "SIOCSIWMODE";
 
+    case SIOCGIWSENS:
+      return "SIOCGIWSENS";
+
     case SIOCSIWRATE:
       return "SIOCSIWRATE";
 

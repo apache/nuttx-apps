@@ -1441,6 +1441,39 @@ int wapi_set_country(int sock, FAR const char *ifname,
 }
 
 /****************************************************************************
+ * Name: wapi_get_country
+ *
+ * Description:
+ *    Get the country code
+ *
+ ****************************************************************************/
+
+int wapi_get_country(int sock, FAR const char *ifname,
+                     FAR char *country)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  /* Prepare request. */
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  wrq.u.data.pointer = (FAR void *)country;
+  wrq.u.data.length = 2;
+  ret = ioctl(sock, SIOCGIWCOUNTRY, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWSENS, errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: wapi_get_sensitivity
  *
  * Description:
