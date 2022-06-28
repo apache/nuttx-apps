@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_CAPTURE
+	tristate "PWM Capture example"
+	default n
+	depends on CAPTURE
+	---help---
+		Enable the pwm capture example
+
+if EXAMPLES_CAPTURE
+
+config EXAMPLES_CAPTURE_DEVPATH
+	string "Capture device path"
+	default "/dev/capture0"
+	---help---
+		The default path to the capture device
+
+config EXAMPLES_CAPTURE_NSAMPLES
+	int "Number of samples"
+	default 0
+	---help---
+		This number of samples is collected and the program
+		terminates. If the value is 0, samples are collected indefinitely.
+
+config EXAMPLES_CAPTURE_DELAY
+	int "Delay between samples"
+	default 100
+	---help---
+		This value provides the delay (in milliseconds) between each sample.
+		If CONFIG_NSH_BUILTIN_APPS is defined, then this value is the default
+		delay if no other delay is provided on the command line.
+
+endif
