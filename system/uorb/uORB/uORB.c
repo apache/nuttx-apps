@@ -25,7 +25,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <poll.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -228,20 +227,7 @@ int orb_get_state(int fd, FAR struct orb_state *state)
 
 int orb_check(int fd, FAR bool *updated)
 {
-  struct pollfd fds[1];
-  int ret;
-
-  fds[0].fd     = fd;
-  fds[0].events = POLLIN;
-
-  ret = poll(fds, 1, 0);
-  if (ret < 0)
-    {
-      return -1;
-    }
-
-  *updated = (fds[0].revents & POLLIN) > 0;
-  return 0;
+  return ioctl(fd, SNIOC_UPDATED, (unsigned long)(uintptr_t)updated);
 }
 
 int orb_ioctl(int fd, int cmd, unsigned long arg)
