@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WS2812
+	tristate "ws2812 Demo Program"
+	default n
+	---help---
+		Enable the ws2812 demo
+
+if EXAMPLES_WS2812
+
+config EXAMPLES_WS2812_PROGNAME
+	string "Program Name"
+	default "ws2812"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_WS2812_PRIORITY
+	int "Task Priority"
+	default 100
+
+config EXAMPLES_WS2812_STACKSIZE
+	int "Stack Size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_WS2812_DEFAULT_DEV
+	string "Default Device"
+	default "/dev/leds0"
+
+endif
