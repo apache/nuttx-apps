@@ -21,8 +21,7 @@
 include $(APPDIR)/Make.defs
 
 CXXEXT := .cpp
-TESTDIR = $(TOPDIR)/libs/libxx/uClibc++/tests
-ORIGS  := $(shell find $(TESTDIR) -name *.cpp)
+ORIGS  := $(wildcard $(TOPDIR)/libs/libxx/uClibc++/tests/*.cpp)
 
 BLACKSRCS := wchartest.cpp
 BLACKSRCS += excepttest.cpp
