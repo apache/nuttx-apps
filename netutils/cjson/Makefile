@@ -66,11 +66,13 @@ $(APPS_INCDIR)$(DELIM)cJSON_Utils.h: $(CJSON_SRCDIR)$(DELIM)cJSON_Utils.h
 	$(Q) cp $< $@
 
 context:: $(APPS_INCDIR)$(DELIM)cJSON.h $(APPS_INCDIR)$(DELIM)cJSON_Utils.h
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(CJSON_UNPACKNAME))
 	$(call DELFILE, $(CJSON_TARBALL))
 	$(call DELFILE, $(APPDIR)/include/netutils/cJSON.h)
 	$(call DELFILE, $(APPDIR)/include/netutils/cJSON_Utils.h)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

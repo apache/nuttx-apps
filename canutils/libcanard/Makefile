@@ -58,6 +58,7 @@ $(APPS_INCDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h
 	$(Q) cp $< $@
 
 context:: $(APPS_INCDIR)$(DELIM)canard.h $(APPS_INCDIR)$(DELIM)canard_nuttx.h
+	$(Q) touch .context
 
 clean::
 	$(foreach OBJ, $(OBJS), $(call DELFILE, $(OBJ)))
@@ -67,5 +68,6 @@ distclean::
 	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard_nuttx.h)
 	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
 	$(call DELFILE, $(LIBCANARD_PACKNAME))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

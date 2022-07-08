@@ -53,9 +53,11 @@ $(ARGTABLE3_UNPACK): $(ARGTABLE3_TARBALL)
 	$(Q) mv argtable3-$(ARGTABLE3_VERSION) $(ARGTABLE3_UNPACK)
 
 context:: $(ARGTABLE3_UNPACK)
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, $(ARGTABLE3_TARBALL))
 	$(call DELDIR, $(ARGTABLE3_UNPACK))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

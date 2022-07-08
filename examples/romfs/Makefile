@@ -50,10 +50,12 @@ romfs_testdir.h : testdir.img
 	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
 
 context:: romfs_testdir.h
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, testdir.img)
 	$(call DELFILE, romfs_testdir.h)
 	$(call DELDIR, testdir)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

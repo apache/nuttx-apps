@@ -133,8 +133,10 @@ $(LTP_UNPACK):
 	$(Q) git -C $(LTP_UNPACK) am < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
 
 context:: $(LTP_UNPACK)
+	$(Q) touch .context
 
 distclean::
 	$(Q) rm -rf $(LTP_UNPACK)
+	$(Q) $(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

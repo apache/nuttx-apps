@@ -116,10 +116,12 @@ nnabla.zip:
 	$(Q) mv nnabla-c-runtime-$(CONFIG_NNABLA_RT_VER) nnabla-c-runtime
 
 context:: nnabla.zip
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, nnabla-c-runtime)
 	$(call DELFILE, nnabla.zip)
+	$(call DELFILE, .context)
 
 endif
 

@@ -26,6 +26,7 @@ SUBDIRS       := $(dir $(wildcard *$(DELIM)Makefile))
 CONFIGSUBDIRS := $(filter-out $(dir $(wildcard *$(DELIM)Kconfig)),$(SUBDIRS))
 CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).depend))
 CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).kconfig))
+CLEANSUBDIRS  += $(dir $(wildcard *$(DELIM).context))
 CLEANSUBDIRS  := $(sort $(CLEANSUBDIRS))
 
 all: nothing

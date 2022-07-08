@@ -63,9 +63,11 @@ $(DUKTAPE_UNPACK)/.patch: $(DUKTAPE_UNPACK)
 	$(Q) touch $(DUKTAPE_UNPACK)/.patch
 
 context:: $(DUKTAPE_UNPACK)/.patch
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(DUKTAPE_UNPACK))
 	$(call DELFILE, $(DUKTAPE_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

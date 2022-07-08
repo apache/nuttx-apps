@@ -111,6 +111,7 @@ endif
 endif
 
 context:: config.h $(HOST_BIN)
+	$(Q) touch .context
 
 clean::
 ifneq ($(CONFIG_EXAMPLES_TCPBLASTER_TARGET2),y)
@@ -121,6 +122,7 @@ ifneq ($(CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK),y)
 endif
 endif
 	$(call DELFILE, config.h)
+	$(call DELFILE, .context)
 
 MODULE = $(CONFIG_EXAMPLES_TCPBLASTER)
 

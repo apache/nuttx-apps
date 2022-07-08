@@ -83,11 +83,13 @@ CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_socket.c
 endif
 
 context:: $(ADB_UNPACKDIR)
+	$(Q) touch .context
 
 clean::
 	$(call DELFILE, $(OBJS))
 
 distclean::
 	$(call DELDIR, $(ADB_UNPACKDIR))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

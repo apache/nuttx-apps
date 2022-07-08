@@ -27,9 +27,11 @@ cmsis.zip:
 	$(Q) patch -p0 < cmsis-nn-support_nnabla.patch
 
 context:: cmsis.zip
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, CMSIS_5)
 	$(call DELFILE, cmsis.zip)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

@@ -104,9 +104,11 @@ $(LIBTOMMATH_UNPACKNAME): $(LIBTOMMATH_ZIP)
 	$(Q) touch $(LIBTOMMATH_UNPACKNAME)
 
 context:: $(LIBTOMMATH_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(LIBTOMMATH_UNPACKNAME))
 	$(call DELFILE, $(LIBTOMMATH_ZIP))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

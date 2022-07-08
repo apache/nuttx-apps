@@ -88,9 +88,11 @@ $(LVGL_EXAMPLES_UNPACKNAME): $(LVGL_EXAMPLES_TARBALL)
 	$(Q) touch $(LVGL_EXAMPLES_UNPACKNAME)
 
 context:: $(LVGL_EXAMPLES_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(LVGL_EXAMPLES_UNPACKNAME))
 	$(call DELFILE, $(LVGL_EXAMPLES_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

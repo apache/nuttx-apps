@@ -89,6 +89,7 @@ $(HOST_BIN): $(HOST_OBJS)
 endif
 
 context:: config.h $(HOST_BIN)
+	$(Q) touch .context
 
 clean::
 ifneq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
@@ -97,6 +98,7 @@ ifneq ($(CONFIG_EXAMPLES_FLOWC_TARGET2),y)
 	$(call DELFILE, *.dSYM)
 endif
 	$(call DELFILE, config.h)
+	$(call DELFILE, .context)
 
 MODULE = $(CONFIG_EXAMPLES_FLOWC)
 

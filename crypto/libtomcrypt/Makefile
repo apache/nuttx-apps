@@ -477,9 +477,11 @@ $(LIBTOMCRYPT_UNPACKNAME): $(LIBTOMCRYPT_ZIP)
 	$(Q) touch $(LIBTOMCRYPT_UNPACKNAME)
 
 context:: $(LIBTOMCRYPT_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(LIBTOMCRYPT_UNPACKNAME))
 	$(call DELFILE, $(LIBTOMCRYPT_ZIP))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

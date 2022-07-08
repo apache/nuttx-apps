@@ -40,9 +40,11 @@ $(MQTTC_UNPACK): $(MQTTC_TARBALL)
 	$(Q) touch $(MQTTC_UNPACK)
 
 context:: $(MQTTC_UNPACK)
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, $(MQTTC_TARBALL))
 	$(call DELDIR, $(MQTTC_UNPACK))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

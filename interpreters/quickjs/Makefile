@@ -82,6 +82,7 @@ build_host: $(QUICKJS_UNPACK)/.patch
 		CONFIG_BIGNUM=$(CONFIG_INTERPRETERS_QUICKJS_BIGNUM)
 
 context:: build_host
+	$(Q) touch .context
 
 clean::
 	$(Q) test ! -d $(QUICKJS_UNPACK) || make -C $(QUICKJS_UNPACK) clean
@@ -89,5 +90,6 @@ clean::
 distclean::
 	$(call DELDIR, $(QUICKJS_UNPACK))
 	$(call DELFILE, $(QUICKJS_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

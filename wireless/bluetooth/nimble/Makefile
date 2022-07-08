@@ -41,10 +41,12 @@ $(NIMBLE_UNPACKDIR): $(NIMBLE_TAR)
 	$(Q) touch $(NIMBLE_UNPACKDIR)
 
 context:: $(NIMBLE_UNPACKDIR)
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE,$(NIMBLE_TAR))
 	$(call DELDIR,$(NIMBLE_UNPACKDIR))
+	$(call DELFILE, .context)
 
 # nimBLE assumes this flag since it expects undefined macros to be zero value
 

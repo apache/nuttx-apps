@@ -235,6 +235,7 @@ create_includes: $(EMBEDLOG_SOURCES)/include/embedlog.h
 
 context:: $(EMBEDLOG_SOURCES)
 	$(Q) $(MAKE) create_includes
+	$(Q) touch .context
 
 clean::
 	$(Q) $(call DELFILE, $(APPDIR)/include/system/embedlog.h)
@@ -243,5 +244,6 @@ clean::
 distclean::
 	$(Q) $(call DELDIR, $(EMBEDLOG_SOURCES))
 	$(Q) $(call DELDIR, $(EMBEDLOG_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

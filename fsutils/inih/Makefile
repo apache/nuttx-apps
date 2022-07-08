@@ -79,6 +79,7 @@ create_includes:
 
 context:: $(INIH_SOURCES)
 	$(Q) $(MAKE) create_includes
+	$(Q) touch .context
 
 clean::
 	$(Q) $(call DELFILE, $(APPDIR)/include/fsutils/ini.h)
@@ -87,5 +88,6 @@ clean::
 distclean::
 	$(Q) $(call DELDIR, $(INIH_SOURCES))
 	$(Q) $(call DELDIR, $(INIH_TARBALL))
+	$(Q) $(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

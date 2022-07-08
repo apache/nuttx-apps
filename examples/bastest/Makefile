@@ -49,9 +49,11 @@ $(ROMFS_HDR) : $(ROMFS_IMG)
 # Add the BASTEST object to the archive
 
 context:: $(ROMFS_HDR)
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, $(ROMFS_HDR))
 	$(call DELFILE, $(ROMFS_IMG))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

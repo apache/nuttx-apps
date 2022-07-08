@@ -319,9 +319,11 @@ CSRCS += echo-server.c
 endif
 
 context:: $(LIBUV_UNPACK)/.patch
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(LIBUV_UNPACK))
 	$(call DELFILE, $(LIBUV_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

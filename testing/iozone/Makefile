@@ -56,9 +56,11 @@ $(IOZONE_UNPACKNAME): $(IOZONE_ZIP)
 	$(Q) touch $(IOZONE_UNPACKNAME)
 
 context:: $(IOZONE_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(IOZONE_UNPACKNAME))
 	$(call DELFILE, $(IOZONE_ZIP))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

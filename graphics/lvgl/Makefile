@@ -71,9 +71,11 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
 context:: $(LVGL_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(LVGL_UNPACKNAME))
 	$(call DELFILE, $(LVGL_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

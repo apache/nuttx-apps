@@ -80,10 +80,12 @@ darknet.zip:
 	$(Q) mv darknet-$(DARKNET_YOLO_VER) darknet
 
 context:: darknet.zip
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, darknet)
 	$(call DELFILE, darknet.zip)
+	$(call DELFILE, .context)
 
 endif
 

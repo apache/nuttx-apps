@@ -53,11 +53,13 @@ romfs_btestdir.h : btestdir.img
 	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
 
 context:: romfs_atestdir.h romfs_btestdir.h
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, atestdir.img)
 	$(call DELFILE, btestdir.img)
 	$(call DELFILE, romfs_atestdir.h)
 	$(call DELFILE, romfs_btestdir.h)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

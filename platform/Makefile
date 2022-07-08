@@ -54,11 +54,13 @@ $(PLATFORMDIR): $(TOPDIR)$(DELIM).config
 dirlinks: $(PLATFORMDIR)
 
 context:: dirlinks
+	$(Q) touch .context
 
 clean_context:
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 
 clean::
 	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
+	$(Q) $(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

@@ -72,9 +72,11 @@ $(WASM3_UNPACK)/.patch: $(WASM3_UNPACK)
 	$(Q) touch $(WASM3_UNPACK)/.patch
 
 context:: $(WASM3_UNPACK)/.patch
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(WASM3_UNPACK))
 	$(call DELFILE, $(WASM3_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

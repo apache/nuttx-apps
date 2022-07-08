@@ -106,6 +106,7 @@ create_includes: $(PSMQ_SOURCES)/inc/psmq.h
 
 context:: $(PSMQ_SOURCES)
 	$(Q) $(MAKE) create_includes
+	$(Q) touch .context
 
 clean::
 	$(Q) $(call DELFILE, $(APPDIR)/include/system/psmq.h)
@@ -114,6 +115,7 @@ clean::
 distclean::
 	$(Q) $(call DELDIR, $(PSMQ_SOURCES))
 	$(Q) $(call DELDIR, $(PSMQ_TARBALL))
+	$(Q) $(call DELFILE, .context)
 
 MODULE = $(CONFIG_SYSTEM_PSMQ)
 

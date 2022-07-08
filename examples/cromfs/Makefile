@@ -37,8 +37,10 @@ cromfs.c: $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE)
 	$(Q) $(NXTOOLDIR)$(DELIM)$(GENCROMFSEXE) cromfs cromfs.c
 
 context:: cromfs.c
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, cromfs.c)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

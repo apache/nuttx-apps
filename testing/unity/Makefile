@@ -65,11 +65,13 @@ $(APPS_INCDIR)$(DELIM)unity_internals.h: $(UNITY_SRCDIR)$(DELIM)unity_internals.
 	$(Q) cp $< $@
 
 context:: $(APPS_INCDIR)$(DELIM)unity.h $(APPS_INCDIR)$(DELIM)unity_internals.h
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(UNITY_UNPACKNAME))
 	$(call DELFILE, $(UNITY_TARBALL))
 	$(call DELFILE, $(APPDIR)/include/testing/unity.h)
 	$(call DELFILE, $(APPDIR)/include/testing/unity_internals.h)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

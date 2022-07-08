@@ -51,9 +51,11 @@ $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) touch $(WAMR_UNPACK)
 
 context:: $(WAMR_UNPACK)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(WAMR_UNPACK))
 	$(call DELFILE, $(WAMR_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

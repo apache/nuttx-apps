@@ -84,9 +84,11 @@ $(MCUBOOT_UNPACK): $(MCUBOOT_TARBALL)
 	$(Q) touch $(MCUBOOT_UNPACK)
 
 context:: $(MCUBOOT_UNPACK)
+	$(Q) touch .context
 
 distclean::
 	$(call DELFILE, $(MCUBOOT_TARBALL))
 	$(call DELDIR, $(MCUBOOT_UNPACK))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

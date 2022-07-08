@@ -76,6 +76,7 @@ $(LUA_UNPACK): $(LUA_TARBALL)
 	$(Q) tar -xvzf $(LUA_TARBALL)
 
 context:: $(LUA_UNPACK)
+	$(Q) touch .context
 
 # Register core modules
 
@@ -131,5 +132,6 @@ distclean:: clean_context clean
 	$(call DELFILE, registry$(DELIM).updated)
 	$(call DELDIR, $(LUA_UNPACK))
 	$(call DELFILE, $(LUA_TARBALL))
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

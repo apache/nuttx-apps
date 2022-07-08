@@ -62,6 +62,7 @@ $(HOST_BIN2): $(HOST_OBJS2)
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS2) -o $@
 
 context:: $(HOST_BIN1) $(HOST_BIN2)
+	$(Q) touch .context
 
 clean::
 	$(call DELFILE, $(HOST_BIN1))
@@ -69,5 +70,6 @@ clean::
 
 distclean::
 	$(call DELFILE, bridge_config.h)
+	$(call DELFILE, .context)
 
 include $(APPDIR)/Application.mk

@@ -51,10 +51,12 @@ $(MBEDTLS_UNPACKNAME): $(MBEDTLS_ZIP)
 	$(Q) touch $(MBEDTLS_UNPACKNAME)
 
 context:: $(MBEDTLS_UNPACKNAME)
+	$(Q) touch .context
 
 distclean::
 	$(call DELDIR, $(MBEDTLS_UNPACKNAME))
 	$(call DELFILE, $(MBEDTLS_ZIP))
+	$(call DELFILE, .context)
 
 # Configuration Applications
 
