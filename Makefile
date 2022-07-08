@@ -31,6 +31,29 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 export APPDIR = $(subst /,\,$(CURDIR))
 endif
 
+# Application Directories
+
+# BUILDIRS is the list of top-level directories containing Make.defs files
+# CLEANDIRS is the list of all top-level directories containing Makefiles.
+#   It is used only for cleaning.
+
+BUILDIRS   := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Make.defs))
+BUILDIRS   := $(filter-out $(APPDIR)$(DELIM)import$(DELIM),$(BUILDIRS))
+CONFIGDIRS := $(filter-out $(APPDIR)$(DELIM)builtin$(DELIM),$(BUILDIRS))
+CONFIGDIRS := $(filter-out $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Kconfig)),$(CONFIGDIRS))
+CLEANDIRS  := $(dir $(wildcard $(APPDIR)$(DELIM)*$(DELIM)Makefile))
+
+# CONFIGURED_APPS is the application directories that should be built in
+#   the current configuration.
+
+CONFIGURED_APPS :=
+
+define Add_Application
+	include $(1)Make.defs
+endef
+
+$(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
+
 # Symbol table for loadable apps.
 
 SYMTABSRC = symtab_apps.c
