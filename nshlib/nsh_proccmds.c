@@ -233,13 +233,13 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   int ret;
   int i;
 #if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
-  uint32_t heap_size;
+  unsigned long heap_size = 0;
 #endif
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
-  uint32_t stack_size;
+  unsigned long stack_size = 0;
 #ifdef CONFIG_STACK_COLORATION
-  uint32_t stack_used;
-  uint32_t stack_filled;
+  unsigned long stack_used = 0;
+  unsigned long stack_filled = 0;
 #endif
 #endif
 
@@ -343,9 +343,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 #if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
   /* Get the Heap AllocSize */
 
-  heap_size = 0;
   filepath  = NULL;
-
   ret = asprintf(&filepath, "%s/%s/heap", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
@@ -393,7 +391,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
               if (strncmp(line, g_heapsize, strlen(g_heapsize)) == 0)
                 {
-                  heap_size = (uint32_t)atoi(&line[12]);
+                  heap_size = strtoul(&line[12], NULL, 0);
                   break;
                 }
             }
@@ -401,18 +399,13 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
     }
 
-  nsh_output(vtbl, "%08u ", (unsigned int)heap_size);
+  nsh_output(vtbl, "%08lu ", heap_size);
 #endif
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   /* Get the StackSize and StackUsed */
 
-  stack_size = 0;
-#ifdef CONFIG_STACK_COLORATION
-  stack_used = 0;
-#endif
   filepath   = NULL;
-
   ret = asprintf(&filepath, "%s/%s/stack", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
@@ -461,12 +454,12 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
               if (strncmp(line, g_stacksize, strlen(g_stacksize)) == 0)
                 {
-                  stack_size = (uint32_t)atoi(&line[12]);
+                  stack_size = strtoul(&line[12], NULL, 0);
                 }
 #ifdef CONFIG_STACK_COLORATION
               else if (strncmp(line, g_stackused, strlen(g_stackused)) == 0)
                 {
-                  stack_used = (uint32_t)atoi(&line[12]);
+                  stack_used = strtoul(&line[12], NULL, 0);
                 }
 #endif
             }
@@ -474,12 +467,11 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
     }
 
-  nsh_output(vtbl, "%06u ", (unsigned int)stack_size);
+  nsh_output(vtbl, "%06lu ", stack_size);
 
 #ifdef CONFIG_STACK_COLORATION
-  nsh_output(vtbl, "%06u ", (unsigned int)stack_used);
+  nsh_output(vtbl, "%06lu ", stack_used);
 
-  stack_filled = 0;
   if (stack_size > 0 && stack_used > 0)
     {
       /* Use fixed-point math with one decimal place */
@@ -489,7 +481,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   /* Additionally print a '!' if the stack is filled more than 80% */
 
-  nsh_output(vtbl, "%3d.%1d%%%c ",
+  nsh_output(vtbl, "%3lu.%lu%%%c ",
              stack_filled / 10, stack_filled % 10,
              (stack_filled >= 10 * 80 ? '!' : ' '));
 #endif

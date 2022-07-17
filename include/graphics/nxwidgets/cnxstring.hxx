@@ -510,7 +510,7 @@ namespace NXWidgets
      * @return New CNxString instance.
      */
 
-    static CNxString format(const char *fmt, ...);
+    static CNxString format(const char *fmt, ...) printflike(1, 2);
   };
 }
 

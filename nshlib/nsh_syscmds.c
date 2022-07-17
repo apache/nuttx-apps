@@ -217,7 +217,7 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
       sleep_count = ctrl.count;
 
-      nsh_output(vtbl, "Last state %d, Next state %d",
+      nsh_output(vtbl, "Last state %d, Next state %d"
                  "PM stay [%d, %d, %d, %d]\n",
                  last_state, next_state, normal_count, idle_count,
                  standby_count, sleep_count);
@@ -611,7 +611,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               nsh_output(vtbl, " ");
             }
 
-          nsh_output(vtbl, str);
+          nsh_output(vtbl, "%s", str);
           first = false;
         }
     }

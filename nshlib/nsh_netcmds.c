@@ -377,8 +377,9 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
   if (dir == NULL)
     {
       nsh_error(vtbl,
-                "nsh: %s: Could not open %s/net (is procfs mounted?): %d\n",
-                cmd, CONFIG_NSH_PROC_MOUNTPOINT, NSH_ERRNO);
+                "nsh: %s: Could not open %s/net (is procfs mounted?)\n",
+                cmd, CONFIG_NSH_PROC_MOUNTPOINT);
+      nsh_error(vtbl, g_fmtcmdfailed, cmd, "opendir", NSH_ERRNO);
       return ERROR;
     }
 
