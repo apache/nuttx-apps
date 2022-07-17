@@ -166,7 +166,7 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
           /* Make sure we end it with a newline */
 
-          nsh_output(vtbl, "\n", *ptr);
+          nsh_output(vtbl, "\n");
         }
     }
 
@@ -222,7 +222,7 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
           /* Make sure we end it with a newline */
 
-          nsh_output(vtbl, "\n", *ptr);
+          nsh_output(vtbl, "\n");
         }
     }
 
@@ -252,7 +252,7 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         {
           /* Print the value at the address */
 
-          nsh_output(vtbl, "  %p = 0x%08x", ptr, *ptr);
+          nsh_output(vtbl, "  %p = 0x%08" PRIx32, ptr, *ptr);
 
           /* Are we supposed to write a value to this address? */
 
@@ -264,12 +264,12 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                */
 
               *ptr = mem.dm_value;
-              nsh_output(vtbl, " -> 0x%08x", *ptr);
+              nsh_output(vtbl, " -> 0x%08" PRIx32, *ptr);
             }
 
           /* Make sure we end it with a newline */
 
-          nsh_output(vtbl, "\n", *ptr);
+          nsh_output(vtbl, "\n");
         }
     }
 

@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -245,7 +246,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
       if ((lsflags & LSFLAGS_SIZE) != 0)
         {
-          nsh_output(vtbl, "%8d", buf.st_size);
+          nsh_output(vtbl, "%8" PRIdOFF, buf.st_size);
         }
     }
 
@@ -1873,7 +1874,7 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (nbytesread1 != nbytesread2 ||
           memcmp(buf1, buf2, nbytesread1) != 0)
         {
-          nsh_error(vtbl, "files differ: byte %u\n", total_read);
+          nsh_error(vtbl, "files differ: byte %" PRIuOFF "\n", total_read);
           goto errout_with_fd2;
         }
 

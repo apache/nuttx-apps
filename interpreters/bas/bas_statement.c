@@ -1241,7 +1241,7 @@ struct Value *stmt_EDIT(struct Value *value)
 
   return (struct Value *)0;
 #else
-  return Value_new_ERROR(value, NOTAVAILABLE, strerror(ENOSYS));
+  return Value_new_ERROR(value, NOTAVAILABLE);
 #endif
 }
 
@@ -3526,7 +3526,7 @@ struct Value *stmt_MATINPUT(struct Value *value)
 
           if (var->dim != 1 && var->dim != 2)
             {
-              return Value_new_ERROR(value, NOMATRIX, var->dim);
+              return Value_new_ERROR(value, DIMENSION);
             }
 
           columns = var->dim == 1 ? 0 : var->geometry[1];
@@ -5772,7 +5772,7 @@ struct Value *stmt_SHELL(struct Value *value)
 
   return (struct Value *)0;
 #else
-  return Value_new_ERROR(value, NOTAVAILABLE, strerror(ENOSYS));
+  return Value_new_ERROR(value, NOTAVAILABLE);
 #endif
 }
 
