@@ -634,9 +634,9 @@ int main(int argc, FAR char **argv)
   printf("ostest_main: setenv(%s, %s, TRUE)\n", g_var2_name, g_var2_value);
   setenv(g_var2_name, g_var2_value, TRUE);  /* Variable2=GoodValue2 */
 
-  printf("ostest_main: setenv(%s, %s, FALSE)\n", g_var3_name, g_var3_name);
+  printf("ostest_main: setenv(%s, %s, FALSE)\n", g_var3_name, g_var3_value);
   setenv(g_var3_name, g_var3_value, FALSE); /* Variable3=GoodValue3 */
-  printf("ostest_main: setenv(%s, %s, FALSE)\n", g_var3_name, g_var3_name);
+  printf("ostest_main: setenv(%s, %s, FALSE)\n", g_var3_name, g_bad_value2);
   setenv(g_var3_name, g_bad_value2, FALSE); /* Variable3=GoodValue3 */
   show_environment(true, true, true);
 #endif
