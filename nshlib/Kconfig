@@ -401,7 +401,7 @@ config NSH_DISABLE_NSFMOUNT
 config NSH_DISABLE_NSLOOKUP
 	bool "Disable nslookup"
 	default DEFAULT_SMALL
-	depends on LIBC_NETDB && NETDB_DNSCLIENT
+	depends on LIBC_NETDB
 
 config NSH_DISABLE_PASSWD
 	bool "Disable passwd"
