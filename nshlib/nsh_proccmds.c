@@ -92,7 +92,7 @@ static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
 static const char g_sigmask[]   = "SigMask:";
 
-#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+#if defined(CONFIG_MM_BACKTRACE) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
 static const char g_heapsize[]  = "AllocSize:";
 #endif /* CONFIG_DEBUG _MM && !CONFIG_NSH_DISABLE_PSHEAPUSAGE */
 
@@ -232,7 +232,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   FAR char *nextline;
   int ret;
   int i;
-#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+#if defined(CONFIG_MM_BACKTRACE) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
   unsigned long heap_size = 0;
 #endif
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
@@ -340,7 +340,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
              status.td_flags, status.td_state, status.td_event);
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
 
-#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+#if defined(CONFIG_MM_BACKTRACE) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
   /* Get the Heap AllocSize */
 
   filepath  = NULL;
@@ -579,7 +579,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
              "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
   nsh_output(vtbl, "%-8s ", "SIGMASK");
 
-#if defined(CONFIG_DEBUG_MM) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
+#if defined(CONFIG_MM_BACKTRACE) && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
   nsh_output(vtbl, "%8s ", "HEAP");
 #endif
 
