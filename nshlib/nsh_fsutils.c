@@ -79,6 +79,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                     cmd, filepath);
         }
 #endif
+
       nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
       return ERROR;
     }
@@ -183,7 +184,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  *
  * Description:
  *   Read a small file into a user-provided buffer.  The data is assumed to
- *   be a string and is guaranteed to be NUL-termined.  An error occurs if
+ *   be a string and is guaranteed to be NUL-terminated.  An error occurs if
  *   the file content (+terminator)  will not fit into the provided 'buffer'.
  *
  * Input Parameters:
@@ -291,8 +292,8 @@ int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Input Paratemets:
  *   vtbl     - session vtbl
  *   cmd      - NSH command name to use in error reporting
- *   buffer   - The pointer of writting buffer
- *   len      - The length of writting buffer
+ *   buffer   - The pointer of writing buffer
+ *   len      - The length of writing buffer
  *   filepath - The full path to the file to be dumped
  *
  * Returned Value:
@@ -322,6 +323,7 @@ int nsh_writefile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                     cmd, filepath);
         }
 #endif
+
       nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
       return ERROR;
     }
@@ -379,6 +381,7 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
                     cmd, dirpath);
         }
+
 #endif
       nsh_error(vtbl, g_fmtcmdfailed, cmd, "opendir", NSH_ERRNO);
       return ERROR;
@@ -483,7 +486,7 @@ FAR char *nsh_trimspaces(FAR char *str)
  * Name: nsh_getdirpath
  *
  * Description:
- *   Combine dirpath with a file/path, this will genarated a new string,
+ *   Combine dirpath with a file/path, this will generated a new string,
  *   which need free outside.
  *
  * Input Parameters:

@@ -1329,8 +1329,8 @@ int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Input Paratemets:
  *   vtbl     - session vtbl
  *   cmd      - NSH command name to use in error reporting
- *   buffer   - The pointer of writting buffer
- *   len      - The length of writting buffer
+ *   buffer   - The pointer of writing buffer
+ *   len      - The length of writing buffer
  *   filepath - The full path to the file to be dumped
  *
  * Returned Value:
@@ -1409,7 +1409,7 @@ FAR char *nsh_trimspaces(FAR char *str);
  * Name: nsh_getdirpath
  *
  * Description:
- *   Combine dirpath with a file/path, this will genarated a new string,
+ *   Combine dirpath with a file/path, this will generated a new string,
  *   which need free outside.
  *
  * Input Parameters:
