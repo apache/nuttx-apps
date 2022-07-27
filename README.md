@@ -21,6 +21,7 @@ __Read the articles...__
 -   [__"Zig on RISC-V BL602: Quick Peek with Apache NuttX RTOS"__](https://lupyuen.github.io/articles/zig)
 -   [__"Build an IoT App with Zig and LoRaWAN"__](https://lupyuen.github.io/articles/iot)
 -   [__"Build an LVGL Touchscreen App with Zig"__](https://lupyuen.github.io/articles/lvgl)
+-   [__"Read NuttX Sensor Data with Zig"__](https://lupyuen.github.io/articles/sensor)
 
 # Application Folder
 
