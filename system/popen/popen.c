@@ -197,12 +197,14 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       goto errout_with_actions;
     }
 
+#ifndef CONFIG_SYSTEM_POPEN_SHPATH
   errcode = task_spawnattr_setstacksize(&attr,
                                         CONFIG_SYSTEM_POPEN_STACKSIZE);
   if (errcode != 0)
     {
       goto errout_with_actions;
     }
+#endif
 
   /* If robin robin scheduling is enabled, then set the scheduling policy
    * of the new task to SCHED_RR before it has a chance to run.
