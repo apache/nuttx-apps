@@ -112,8 +112,10 @@ struct nsh_vtbl_s
   void (*release)(FAR struct nsh_vtbl_s *vtbl);
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
                    size_t nbytes);
-  int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
-  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
+  int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
+      printflike(2, 3);
+  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
+      printflike(2, 3);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save);
   void (*undirect)(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save);

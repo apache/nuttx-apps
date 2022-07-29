@@ -1014,7 +1014,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #ifndef CONFIG_NSH_DISABLE_LS
   int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
-#if defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
+#if defined(CONFIG_SYSLOG_DEVPATH) && !defined(CONFIG_NSH_DISABLE_DMESG)
   int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 #if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
@@ -1329,8 +1329,8 @@ int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Input Paratemets:
  *   vtbl     - session vtbl
  *   cmd      - NSH command name to use in error reporting
- *   buffer   - The pointer of writting buffer
- *   len      - The length of writting buffer
+ *   buffer   - The pointer of writing buffer
+ *   len      - The length of writing buffer
  *   filepath - The full path to the file to be dumped
  *
  * Returned Value:
@@ -1409,7 +1409,7 @@ FAR char *nsh_trimspaces(FAR char *str);
  * Name: nsh_getdirpath
  *
  * Description:
- *   Combine dirpath with a file/path, this will genarated a new string,
+ *   Combine dirpath with a file/path, this will generated a new string,
  *   which need free outside.
  *
  * Input Parameters:

@@ -1,0 +1,65 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig UORB
+	tristate "uorb(micro object request broker)"
+	depends on SENSORS && USENSOR
+	default n
+
+if UORB
+
+config UORB_PRIORITY
+	int "task priority"
+	default 100
+
+config UORB_STACKSIZE
+	int "stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config UORB_LISTENER
+	bool "uorb listener"
+	default n
+
+config UORB_TESTS
+	bool "uorb unit tests"
+	default n
+
+if UORB_TESTS
+
+config UORB_SRORAGE_DIR
+	string "uorb test result storage dir"
+	default "/data/"
+
+endif # UORB_TESTS
+
+config DEBUG_UORB
+	bool "uorb debug output"
+	default n
+
+if DEBUG_UORB
+
+config UORB_ALERT
+	bool "uorb panic output"
+	default n
+	depends on DEBUG_ALERT
+
+config UORB_ERROR
+	bool "uorb error output"
+	default n
+	depends on DEBUG_ERROR
+
+config UORB_WARN
+	bool "uorb warn output"
+	default n
+	depends on DEBUG_WARN
+
+config UORB_INFO
+	bool "uorb info output"
+	default n
+	depends on DEBUG_INFO
+
+endif # DEBUG_UORB
+
+endif # UORB
