@@ -454,6 +454,24 @@ static int usock_send_event(int fd, FAR struct gs2200m_s *priv,
 }
 
 /****************************************************************************
+ * Name: usock_sendevent_toall
+ ****************************************************************************/
+
+static void usock_sendevent_toall(FAR struct gs2200m_s *priv, int fd)
+{
+  int i;
+
+  for (i = 0; i < SOCKET_COUNT; i++)
+    {
+      if (priv->sockets[i].state != CLOSED)
+        {
+          usock_send_event(fd, priv, &priv->sockets[i],
+                           USRSOCK_EVENT_RECVFROM_AVAIL);
+        }
+    }
+}
+
+/****************************************************************************
  * Name: socket_request
  ****************************************************************************/
 
@@ -1672,21 +1690,37 @@ static int gs2200m_loop(FAR struct gs2200m_s *priv)
           ret = read(fd[1], &cid, sizeof(cid));
           ASSERT(ret == sizeof(cid));
 
-          /* find usock by the cid */
+          /* Check if all socket destroy or not */
 
-          usock = gs2200m_find_socket_by_cid(priv, cid);
-
-          if (NULL == usock)
+          if (cid == DISASSOCIATION_CID)
             {
-              gs2200m_printf("=== %s: cid=%c not found (ignored)\n",
-                             __func__, cid);
+              gs2200m_printf("=== %s: Disassocitaion event\n",
+                            __func__);
+
+              /* To release sockets blocking in user-sock,
+               * send event to all opened sockets.
+               */
+
+              usock_sendevent_toall(priv, fd[0]);
             }
           else
             {
-              /* send event to call xxxx_request() */
+              /* find usock by the cid */
 
-              usock_send_event(fd[0], priv, usock,
-                               USRSOCK_EVENT_RECVFROM_AVAIL);
+              usock = gs2200m_find_socket_by_cid(priv, cid);
+
+              if (NULL == usock)
+                {
+                  gs2200m_printf("=== %s: cid=%c not found (ignored)\n",
+                                __func__, cid);
+                }
+              else
+                {
+                  /* send event to call xxxx_request() */
+
+                  usock_send_event(fd[0], priv, usock,
+                                  USRSOCK_EVENT_RECVFROM_AVAIL);
+                }
             }
         }
     }
