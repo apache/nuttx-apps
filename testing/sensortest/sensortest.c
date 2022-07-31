@@ -325,7 +325,7 @@ int main(int argc, FAR char *argv[])
       goto open_err;
     }
 
-  ret = ioctl(fd, SNIOC_SET_INTERVAL, &interval);
+  ret = ioctl(fd, SNIOC_SET_INTERVAL, interval);
   if (ret < 0)
     {
       ret = -errno;
@@ -337,7 +337,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  ret = ioctl(fd, SNIOC_BATCH, &latency);
+  ret = ioctl(fd, SNIOC_BATCH, latency);
   if (ret < 0)
     {
       ret = -errno;
