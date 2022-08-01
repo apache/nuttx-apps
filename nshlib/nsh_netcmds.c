@@ -1130,6 +1130,8 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
   if (strcmp(argv[1], "-a") == 0)
     {
+      char hwaddr[20];
+
       if (argc != 3)
         {
           goto errout_toomany;
@@ -1147,7 +1149,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           goto errout_cmdfaild;
         }
 
-      nsh_output(vtbl, "HWaddr: %s\n",  ether_ntoa(&mac));
+      nsh_output(vtbl, "HWaddr: %s\n", ether_ntoa_r(&mac, hwaddr));
     }
   else if (strcmp(argv[1], "-d") == 0)
     {
