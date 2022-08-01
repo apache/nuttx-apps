@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/canard/canard_main.c
+ * apps/examples/canardv0/canard_main.c
  *
  *   Copyright (C) 2016 ETH Zuerich. All rights reserved.
  *   Author: Matthias Renner <rennerm@ethz.ch>
@@ -60,7 +60,7 @@
 
 #define APP_VERSION_MAJOR                        1
 #define APP_VERSION_MINOR                        0
-#define APP_NODE_NAME                            CONFIG_EXAMPLES_LIBCANARD_APP_NODE_NAME
+#define APP_NODE_NAME                            CONFIG_EXAMPLES_LIBCANARDV0_APP_NODE_NAME
 #define GIT_HASH                                 0xb28bf6ac
 
  /* Some useful constants defined by the UAVCAN specification.
@@ -99,7 +99,7 @@ static CanardInstance canard;
 
 /* Arena for memory allocation, used by the library */
 
-static uint8_t canard_memory_pool[CONFIG_EXAMPLES_LIBCANARD_NODE_MEM_POOL_SIZE];
+static uint8_t canard_memory_pool[CONFIG_EXAMPLES_LIBCANARDV0_NODE_MEM_POOL_SIZE];
 
 static uint8_t unique_id[UNIQUE_ID_LENGTH_BYTES] =
 { 0x00, 0x00, 0x00, 0x00,
@@ -436,11 +436,11 @@ static int canard_daemon(int argc, char *argv[])
   /* Open the CAN device for reading */
 
   ret = canardNuttXInit(&canardnuttx_instance,
-                        CONFIG_EXAMPLES_LIBCANARD_DEVPATH);
+                        CONFIG_EXAMPLES_LIBCANARDV0_DEVPATH);
   if (ret < 0)
     {
       printf("canard_daemon: ERROR: open %s failed: %d\n",
-             CONFIG_EXAMPLES_LIBCANARD_DEVPATH, errno);
+             CONFIG_EXAMPLES_LIBCANARDV0_DEVPATH, errno);
       errval = 2;
       goto errout_with_dev;
     }
@@ -469,9 +469,9 @@ static int canard_daemon(int argc, char *argv[])
 
   canardInit(&canard, canard_memory_pool, sizeof(canard_memory_pool),
              onTransferReceived, shouldAcceptTransfer, (void *)(12345));
-  canardSetLocalNodeID(&canard, CONFIG_EXAMPLES_LIBCANARD_NODE_ID);
+  canardSetLocalNodeID(&canard, CONFIG_EXAMPLES_LIBCANARDV0_NODE_ID);
   printf("canard_daemon: canard initialized\n");
-  printf("start node (ID: %d Name: %s)\n", CONFIG_EXAMPLES_LIBCANARD_NODE_ID,
+  printf("start node (ID: %d Name: %s)\n", CONFIG_EXAMPLES_LIBCANARDV0_NODE_ID,
          APP_NODE_NAME);
 
   g_canard_daemon_started = true;
@@ -517,8 +517,8 @@ int main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  ret = task_create("canard_daemon", CONFIG_EXAMPLES_LIBCANARD_DAEMON_PRIORITY,
-                    CONFIG_EXAMPLES_LIBCANARD_STACKSIZE, canard_daemon,
+  ret = task_create("canard_daemon", CONFIG_EXAMPLES_LIBCANARDV0_DAEMON_PRIORITY,
+                    CONFIG_EXAMPLES_LIBCANARDV0_STACKSIZE, canard_daemon,
                     NULL);
   if (ret < 0)
     {

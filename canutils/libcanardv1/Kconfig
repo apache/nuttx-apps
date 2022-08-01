@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_LIBCANARDV1
+	bool "libcanard UAVCAN v1 Library"
+	default n
+	depends on NET_CAN && ALLOW_MIT_COMPONENTS
+	---help---
+		Enable the libcanard UAVCAN v1 library.
+
+if CANUTILS_LIBCANARDV1
+
+config LIBCANARDV1_URL
+	string "libcanard URL"
+	default "https://github.com/UAVCAN/libcanard/archive"
+	---help---
+		libcanard URL.
+
+config LIBCANARDV1_VERSION
+	string "libcanard Version"
+	default "cde670347425023480a1417fcd603b27c8eb06c1"
+	---help---
+		libcanard version.
+
+config O1HEAP_URL
+	string "O(1) heap URL"
+	default "https://github.com/pavel-kirienko/o1heap/archive"
+	---help---
+		libcanard URL.
+
+config O1HEAP_VERSION
+	string "O(1) heap Version"
+	default "b21b069e4b971d3016dd232784faca6f7d9fd724"
+	---help---
+		libcanard version.
+
+endif
