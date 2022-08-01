@@ -101,6 +101,7 @@ int main(int argc, FAR char *argv[])
   struct iperf_cfg_t cfg;
   struct in_addr addr;
   int nerrors;
+  char inetaddr[INET_ADDRSTRLEN];
 
   bzero(&addr, sizeof(struct in_addr));
   bzero(&cfg, sizeof(cfg));
@@ -157,7 +158,7 @@ int main(int argc, FAR char *argv[])
       return -1;
     }
 
-  printf("       IP: %s\n", inet_ntoa(addr));
+  printf("       IP: %s\n", inet_ntoa_r(addr, inetaddr, sizeof(inetaddr)));
 
   cfg.sip = addr.s_addr;
 
