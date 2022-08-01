@@ -1,5 +1,5 @@
 ############################################################################
-# apps/canutils/libcanard/Make.defs
+# apps/examples/canardv0/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -8,7 +8,7 @@
 # "License"); you may not use this file except in compliance with the
 # License.  You may obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+#   http:#www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -18,6 +18,14 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_CANUTILS_LIBCANARD),y)
-CONFIGURED_APPS += $(APPDIR)/canutils/libcanard
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME = canardv0
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_EXAMPLES_LIBCANARDV0_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_LIBCANARDV0)
+
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/include/canutils}
+MAINSRC = canard_main.c
+
+include $(APPDIR)/Application.mk
