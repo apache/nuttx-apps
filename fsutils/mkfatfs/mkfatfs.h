@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/futils/mkfatfs/mkfatfs.h
+ * apps/fsutils/mkfatfs/mkfatfs.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -72,7 +72,8 @@ struct fat_var_s
   uint32_t       fv_nfatsects;      /* Number of sectors in each FAT */
   uint32_t       fv_nclusters;      /* Number of clusters */
   uint8_t       *fv_sect;           /* Allocated working sector buffer */
-  const uint8_t *fv_bootcode;       /* Points to boot code to put into MBR */
+  uint8_t        fv_bootcodepatch;  /* FAT16/FAT32 Bootcode offset patch */
+  const uint8_t *fv_bootcodeblob;   /* Points to boot code to put into MBR */
 };
 
 /****************************************************************************
