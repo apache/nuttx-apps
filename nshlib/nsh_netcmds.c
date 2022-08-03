@@ -559,6 +559,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
 #ifdef CONFIG_NET_IPv6
   struct in6_addr addr6;
+  struct in6_addr gip6 = IN6ADDR_ANY_INIT;
 #endif
   int i;
   FAR char *ifname = NULL;
@@ -801,6 +802,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           inet_pton(AF_INET6, gwip, &addr6);
 
           netlib_set_dripv6addr(ifname, &addr6);
+          gip6 = addr6;
         }
     }
 #endif /* CONFIG_NET_IPv6 */
@@ -883,7 +885,18 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (inet6)
 #endif
     {
-#warning Missing Logic
+      if (dns != NULL)
+        {
+          ninfo("DNS: %s\n", dns);
+          inet_pton(AF_INET6, dns, &addr6);
+        }
+      else
+        {
+          ninfo("DNS: Default\n");
+          addr6 = gip6;
+        }
+
+      netlib_set_ipv6dnsaddr(&addr6);
     }
 #endif /* CONFIG_NET_IPv6 */
 
@@ -958,6 +971,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
 #ifdef CONFIG_NET_IPv4
   UNUSED(gip);
+#endif
+#ifdef CONFIG_NET_IPv6
+  UNUSED(gip6);
 #endif
 
   return OK;
