@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ETL
+	tristate "Embedded Template Library (ETL) C++ example"
+	default n
+	depends on HAVE_CXX && ETL
+	---help---
+		Enable the ETL C++ example which showcases the etl::vector container
+		and C++11 iterator
