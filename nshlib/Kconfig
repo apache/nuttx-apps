@@ -1157,6 +1157,12 @@ config NSH_IOBUFFER_SIZE
 		Determines the size of the I/O buffer to use for sending/
 		receiving TELNET commands/responses.  Default: 512
 
+config NSH_DISABLE_TELNETSTART
+	bool "Disable to start telnetd"
+	default false
+	---help---
+		Determines if the nsh starts telnetd automatically
+
 endif # NSH_TELNET
 endmenu # Telnet Configuration
 
