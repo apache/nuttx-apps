@@ -11,5 +11,24 @@ config NETUTILS_TELNETD
 	---help---
 		Enable support for the Telnet daemon.
 
-if NETUTILS_TELNETD
-endif
+config NETUTILS_TELNETD_USE_POSIX_SPAWNP
+	bool "Telnet daemon uses posix_spawnp"
+	default y if BUILD_KERNEL
+	default n if !BUILD_KERNEL
+	depends on NETUTILS_TELNETD
+	---help---
+		Enable to use posix_spawnp instead of tak_create
+
+config NETUTILS_TELNETD_PATH
+	string "Telnetd path"
+	default "/bin/telnetd"
+	depends on NETUTILS_TELNETD_USE_POSIX_SPAWNP
+	---help---
+		The path to the telnetd.
+
+config NETUTILS_TELNETD_SHELL_PATH
+	string "Telnetd shell path"
+	default "/bin/sh"
+	depends on NETUTILS_TELNETD_USE_POSIX_SPAWNP
+	---help---
+		The path to the shell executable.
