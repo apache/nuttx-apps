@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/scd41/scd41_main.c
+ * apps/games/shift/shift_input_gesture.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,65 +23,56 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#include <nuttx/sensors/scd41.h>
+#include <nuttx/sensors/apds9960.h>
+
+#include "shift_inputs.h"
 
 /****************************************************************************
- * Public Functions
+ * Preprocessor Definitions
  ****************************************************************************/
+
+#define APDS9960_DEVNAME "/dev/gest0"
 
 /****************************************************************************
- * scd41_main
+ * dev_input_init
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+int dev_input_init(FAR struct input_state_s *dev)
 {
-  struct scd41_conv_data_s data;
-  int fd;
-  int ret;
-  int i;
+  /* Open the gesture sensor APDS9960 */
 
-  printf("scd41 app is running.\n");
-
-  fd = open(CONFIG_EXAMPLES_SCD41_DEVPATH, O_RDWR);
-  if (fd < 0)
+  dev->fd_gest = open(APDS9960_DEVNAME, O_RDONLY | O_NONBLOCK);
+  if (dev->fd_gest < 0)
     {
-      printf("ERROR: open failed: %d\n", fd);
-      return -1;
+      int errcode = errno;
+      printf("ERROR: Failed to open %s: %d\n", APDS9960_DEVNAME, errcode);
+      return -ENODEV;
     }
 
-  for (i = 0; i < 20; i++)
-    {
-      /* Sensor data is updated every 5 seconds. */
-
-      sleep(5);
-
-      ret = ioctl(fd, SNIOC_READ_CONVERT_DATA, (unsigned long)&data);
-      if (ret < 0)
-        {
-          printf("Read error.\n");
-          printf("Sensor reported error %d\n", ret);
-        }
-      else
-        {
-          printf("CO2[ppm]: %.2f, Temperature[C]: %.2f, RH[%%]: %.2f\n",
-                 data.co2, data.temperature, data.humidity);
-        }
-    }
-
-  ret = ioctl(fd, SNIOC_STOP, 0);
-  if (ret < 0)
-    {
-      printf("Failed to stop: %d\n", errno);
-    }
-
-  close(fd);
-
-  return 0;
+  return OK;
 }
+
+/****************************************************************************
+ * dev_read_input
+ ****************************************************************************/
+
+int dev_read_input(FAR struct input_state_s *dev)
+{
+  int nbytes;
+  uint8_t gest;
+
+  nbytes = read(dev->fd_gest, (void *)&gest, sizeof(gest));
+  if (nbytes == sizeof(gest))
+    {
+      dev->dir = gest;
+    }
+  else
+    {
+      dev->dir = DIR_NONE;
+      return -EINVAL;
+    }
+
+  return OK;
+}
+

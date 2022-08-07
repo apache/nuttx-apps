@@ -78,6 +78,7 @@ static int briget_net1_setup(void)
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC
   struct dhcpc_state ds;
   void *handle;
+  char inetaddr[INET_ADDRSTRLEN];
 #endif
 
   printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
@@ -165,7 +166,8 @@ static int briget_net1_setup(void)
     }
 
   dhcpc_close(handle);
-  printf("NET1: Assigned IP: %s\n", inet_ntoa(ds.ipaddr));
+  printf("NET1: Assigned IP: %s\n",
+         net_ntoa_r(ds.ipaddr, inetaddr, sizeof(inetaddr)));
 
   /* Save the IP address in network order */
 
@@ -208,6 +210,7 @@ static int briget_net2_setup(void)
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC
   struct dhcpc_state ds;
   void *handle;
+  char inetaddr[INET_ADDRSTRLEN];
 #endif
 
   printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
@@ -289,7 +292,8 @@ static int briget_net2_setup(void)
     }
 
   dhcpc_close(handle);
-  printf("NET1: Assigned IP: %s\n", inet_ntoa(ds.ipaddr));
+  printf("NET1: Assigned IP: %s\n",
+         inet_ntoa_r(ds.ipaddr, inetaddr, sizeof(inetaddr)));
 
   /* Save the IP address in network order */
 

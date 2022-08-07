@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/scd41/scd41_main.c
+ * apps/games/shift/shift_inputs.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,65 +23,42 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#include <nuttx/sensors/scd41.h>
 
 /****************************************************************************
- * Public Functions
+ * Preprocessor Definitions
  ****************************************************************************/
 
-/****************************************************************************
- * scd41_main
- ****************************************************************************/
+#ifndef DIR_NONE
+#  define DIR_NONE    0
+#endif
 
-int main(int argc, FAR char *argv[])
+#ifndef DIR_LEFT
+#  define DIR_LEFT    1
+#endif
+
+#ifndef DIR_RIGHT
+#  define DIR_RIGHT   2
+#endif
+
+#ifndef DIR_UP
+#  define DIR_UP      3
+#endif
+
+#ifndef DIR_DOWN
+#  define DIR_DOWN    4
+#endif
+
+struct input_state_s
 {
-  struct scd41_conv_data_s data;
-  int fd;
-  int ret;
-  int i;
+#ifdef CONFIG_GAMES_SHIFT_USE_CONSOLEKEY
+  int fd_con;
+#endif
+#ifdef CONFIG_GAMES_SHIFT_USE_DJOYSTICK
+  int fd_joy;
+#endif
+#ifdef CONFIG_GAMES_SHIFT_USE_GESTURE
+  int fd_gest;
+#endif
+  int dir;      /* Direction to move the blocks */
+};
 
-  printf("scd41 app is running.\n");
-
-  fd = open(CONFIG_EXAMPLES_SCD41_DEVPATH, O_RDWR);
-  if (fd < 0)
-    {
-      printf("ERROR: open failed: %d\n", fd);
-      return -1;
-    }
-
-  for (i = 0; i < 20; i++)
-    {
-      /* Sensor data is updated every 5 seconds. */
-
-      sleep(5);
-
-      ret = ioctl(fd, SNIOC_READ_CONVERT_DATA, (unsigned long)&data);
-      if (ret < 0)
-        {
-          printf("Read error.\n");
-          printf("Sensor reported error %d\n", ret);
-        }
-      else
-        {
-          printf("CO2[ppm]: %.2f, Temperature[C]: %.2f, RH[%%]: %.2f\n",
-                 data.co2, data.temperature, data.humidity);
-        }
-    }
-
-  ret = ioctl(fd, SNIOC_STOP, 0);
-  if (ret < 0)
-    {
-      printf("Failed to stop: %d\n", errno);
-    }
-
-  close(fd);
-
-  return 0;
-}

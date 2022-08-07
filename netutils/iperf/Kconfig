@@ -31,7 +31,7 @@ config NETUTILS_IPERF_STACKSIZE
 	default DEFAULT_TASK_STACKSIZE
 
 config NETUTILS_IPERFTEST_DEVNAME
-	string "Wi-Fi Network device"
+	string "iperf Network device"
 	default "wlan0"
 
 endif

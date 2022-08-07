@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/scd41/scd41_main.c
+ * apps/netutils/netlib/netlib_setipv6dnsaddr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,65 +23,57 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#include <nuttx/sensors/scd41.h>
+#include <sys/socket.h>
+
+#include <string.h>
+#include <errno.h>
+
+#include <netinet/in.h>
+
+#include <nuttx/net/dns.h>
+
+#include "netutils/netlib.h"
+
+#if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDB_DNSCLIENT)
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * scd41_main
+ * Name: netlib_set_ipv6dnsaddr
+ *
+ * Description:
+ *   Set the DNS server IPv6 address
+ *
+ * Parameters:
+ *   inaddr   The address to set
+ *
+ * Return:
+ *   Zero (OK) is returned on success; A negated errno value is returned
+ *   on failure.
+ *
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+int netlib_set_ipv6dnsaddr(FAR const struct in6_addr *inaddr)
 {
-  struct scd41_conv_data_s data;
-  int fd;
-  int ret;
-  int i;
+  struct sockaddr_in6 addr;
+  int ret = -EINVAL;
 
-  printf("scd41 app is running.\n");
-
-  fd = open(CONFIG_EXAMPLES_SCD41_DEVPATH, O_RDWR);
-  if (fd < 0)
+  if (inaddr)
     {
-      printf("ERROR: open failed: %d\n", fd);
-      return -1;
+      /* Set the IPv6 DNS server address */
+
+      addr.sin6_family = AF_INET6;
+      addr.sin6_port   = 0;
+      memcpy(&addr.sin6_addr, inaddr, sizeof(struct in6_addr));
+
+      ret = dns_add_nameserver((FAR const struct sockaddr *)&addr,
+                               sizeof(struct sockaddr_in6));
     }
 
-  for (i = 0; i < 20; i++)
-    {
-      /* Sensor data is updated every 5 seconds. */
-
-      sleep(5);
-
-      ret = ioctl(fd, SNIOC_READ_CONVERT_DATA, (unsigned long)&data);
-      if (ret < 0)
-        {
-          printf("Read error.\n");
-          printf("Sensor reported error %d\n", ret);
-        }
-      else
-        {
-          printf("CO2[ppm]: %.2f, Temperature[C]: %.2f, RH[%%]: %.2f\n",
-                 data.co2, data.temperature, data.humidity);
-        }
-    }
-
-  ret = ioctl(fd, SNIOC_STOP, 0);
-  if (ret < 0)
-    {
-      printf("Failed to stop: %d\n", errno);
-    }
-
-  close(fd);
-
-  return 0;
+  return ret;
 }
+
+#endif /* CONFIG_NET_IPv6 && CONFIG_NETDB_DNSCLIENT */

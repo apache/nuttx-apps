@@ -337,6 +337,10 @@ int netlib_ifdown(FAR const char *ifname);
 int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr);
 #endif
 
+#if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDB_DNSCLIENT)
+int netlib_set_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
+#endif
+
 #undef EXTERN
 #ifdef __cplusplus
 }

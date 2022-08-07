@@ -1,5 +1,5 @@
 ############################################################################
-# apps/canutils/libcanard/Makefile
+# apps/canutils/libcanardv0/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -23,38 +23,38 @@ include $(APPDIR)/Make.defs
 UNPACK = unzip
 PACKEXT = .zip
 
-LIBCANARD_URL = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_URL)))
-LIBCANARD_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_VERSION)))
-LIBCANARD_UNPACKNAME = libcanard-$(LIBCANARD_VERSION)
-LIBCANARD_PACKNAME = $(LIBCANARD_UNPACKNAME)$(PACKEXT)
-LIBCANARD_SRCDIR = $(LIBCANARD_UNPACKNAME)
-LIBCANARD_DRVDIR = $(LIBCANARD_SRCDIR)$(DELIM)drivers$(DELIM)nuttx
+LIBCANARDV0_URL = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARDV0_URL)))
+LIBCANARDV0_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARDV0_VERSION)))
+LIBCANARDV0_UNPACKNAME = libcanard-$(LIBCANARDV0_VERSION)
+LIBCANARDV0_PACKNAME = $(LIBCANARDV0_UNPACKNAME)$(PACKEXT)
+LIBCANARDV0_SRCDIR = $(LIBCANARDV0_UNPACKNAME)
+LIBCANARDV0_DRVDIR = $(LIBCANARDV0_SRCDIR)$(DELIM)drivers$(DELIM)nuttx
 
 APPS_INCDIR = $(APPDIR)$(DELIM)include$(DELIM)canutils
 
 CFLAGS += -std=c99 -DCANARD_ASSERT=DEBUGASSERT
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPS_INCDIR)}
 
-CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.c
+CSRCS = $(LIBCANARDV0_SRCDIR)$(DELIM)canard.c $(LIBCANARDV0_DRVDIR)$(DELIM)canard_nuttx.c
 
-$(LIBCANARD_PACKNAME):
+$(LIBCANARDV0_PACKNAME):
 	@echo "Downloading: $@"
-	$(Q) curl -o $@ -L $(LIBCANARD_URL)$(DELIM)$(LIBCANARD_VERSION)$(PACKEXT)
+	$(Q) curl -o $@ -L $(LIBCANARDV0_URL)$(DELIM)$(LIBCANARDV0_VERSION)$(PACKEXT)
 
-$(LIBCANARD_UNPACKNAME): $(LIBCANARD_PACKNAME)
+$(LIBCANARDV0_UNPACKNAME): $(LIBCANARDV0_PACKNAME)
 	@echo "Unpacking: $< -> $@"
 	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
-$(LIBCANARD_SRCDIR)$(DELIM)canard.h: $(LIBCANARD_UNPACKNAME)
+$(LIBCANARDV0_SRCDIR)$(DELIM)canard.h: $(LIBCANARDV0_UNPACKNAME)
 
-$(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_UNPACKNAME)
+$(LIBCANARDV0_DRVDIR)$(DELIM)canard_nuttx.h: $(LIBCANARDV0_UNPACKNAME)
 
-$(APPS_INCDIR)$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
+$(APPS_INCDIR)$(DELIM)canard.h: $(LIBCANARDV0_SRCDIR)$(DELIM)canard.h
 	$(Q) cp $< $@
 
-$(APPS_INCDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h
+$(APPS_INCDIR)$(DELIM)canard_nuttx.h: $(LIBCANARDV0_DRVDIR)$(DELIM)canard_nuttx.h
 	$(Q) cp $< $@
 
 context:: $(APPS_INCDIR)$(DELIM)canard.h $(APPS_INCDIR)$(DELIM)canard_nuttx.h
@@ -65,7 +65,7 @@ clean::
 distclean::
 	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard.h)
 	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard_nuttx.h)
-	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
-	$(call DELFILE, $(LIBCANARD_PACKNAME))
+	$(call DELDIR, $(LIBCANARDV0_UNPACKNAME))
+	$(call DELFILE, $(LIBCANARDV0_PACKNAME))
 
 include $(APPDIR)/Application.mk
