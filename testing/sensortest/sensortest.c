@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 #define ARRAYSIZE(a)       (sizeof(a) / sizeof(a)[0])
-#define DEVNAME_FMT        "/dev/sensor/%s"
+#define DEVNAME_FMT        "/dev/sensor/sensor_%s"
 #define DEVNAME_MAX        64
 
 /****************************************************************************
