@@ -48,7 +48,7 @@ int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *fmt;
   char ch;
-  uint32_t value;
+  unsigned int value;
   int len;
   int i;
 

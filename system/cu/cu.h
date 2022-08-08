@@ -73,6 +73,7 @@ struct cu_globals_s
   int infd;            /* Incoming data from serial port */
   int outfd;           /* Outgoing data to serial port */
   pthread_t listener;  /* Terminal listener thread */
+  bool force_exit;     /* Force exit */
 };
 
 /****************************************************************************

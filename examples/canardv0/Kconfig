@@ -1,0 +1,48 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LIBCANARDV0
+	tristate "libcandard v0 example"
+	default n
+	depends on CANUTILS_LIBCANARDV0 && SYSTEM_TIME64
+	---help---
+		Enable the LIBCANARDV0 example
+
+if EXAMPLES_LIBCANARDV0
+
+config EXAMPLES_LIBCANARDV0_DEVPATH
+	string "Device Path"
+	default "/dev/can0"
+	---help---
+		The device path
+
+config EXAMPLES_LIBCANARDV0_NODE_ID
+	int "Node ID"
+	default 1
+	range 1 127
+	---help---
+		Specifies the node's ID
+
+config EXAMPLES_LIBCANARDV0_APP_NODE_NAME
+	string "Node name"
+	default "org.uavcan.libcanard.nuttx.demo"
+	---help---
+		app node name
+
+config EXAMPLES_LIBCANARDV0_NODE_MEM_POOL_SIZE
+	int "Node Memory Pool Size"
+	default 1024
+	---help---
+		Specifies the node's memory pool size
+
+config EXAMPLES_LIBCANARDV0_DAEMON_PRIORITY
+	int "daemon task priority"
+	default 100
+
+config EXAMPLES_LIBCANARDV0_STACKSIZE
+	int "canard stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

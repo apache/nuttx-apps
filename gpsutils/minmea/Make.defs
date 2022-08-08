@@ -20,4 +20,6 @@
 
 ifeq ($(CONFIG_GPSUTILS_MINMEA_LIB),y)
 CONFIGURED_APPS += $(APPDIR)/gpsutils/minmea
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+    $(APPDIR)/gpsutils/minmea}
 endif

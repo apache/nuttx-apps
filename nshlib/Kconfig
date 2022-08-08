@@ -401,7 +401,7 @@ config NSH_DISABLE_NSFMOUNT
 config NSH_DISABLE_NSLOOKUP
 	bool "Disable nslookup"
 	default DEFAULT_SMALL
-	depends on LIBC_NETDB && NETDB_DNSCLIENT
+	depends on LIBC_NETDB
 
 config NSH_DISABLE_PASSWD
 	bool "Disable passwd"
@@ -853,6 +853,12 @@ config NSH_FATMOUNTPT
 		When the default rcS file used when NSH_ROMFSETC is selected, it
 		will mount a FAT FS under /tmp. This is the location where the FAT
 		FS will be mounted.  Default is "/tmp".
+
+config NSH_SCRIPT_REDIRECT_PATH
+	string "rcS redirect output"
+	default ""
+	---help---
+		This option can redirect rcS output.such as /dev/log or other.
 
 endif # NSH_ROMFSETC
 endmenu # Scripting Support
