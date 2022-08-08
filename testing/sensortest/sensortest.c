@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 #define ARRAYSIZE(a)       (sizeof(a) / sizeof(a)[0])
-#define DEVNAME_FMT        "/dev/sensor/sensor_%s"
+#define DEVNAME_FMT        "/dev/uorb/sensor_%s"
 #define DEVNAME_MAX        64
 
 /****************************************************************************
@@ -214,7 +214,7 @@ static void usage(void)
   printf("\t            default: 0\n");
 
   printf(" Commands:\n");
-  printf("\t<sensor_node_name> ex, accel0(/dev/sensor/accel0)\n");
+  printf("\t<sensor_node_name> ex, accel0(/dev/uorb/sensor_accel0)\n");
 }
 
 static void exit_handler(int signo)
