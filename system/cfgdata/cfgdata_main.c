@@ -52,10 +52,11 @@ static void cfgdatacmd_help(void)
 {
   printf("\nUsage: cfgdata <cmd> [arguments]\n");
   printf("Where <cmd> is one of:\n\n");
-  printf("  all:   show all config entries\n");
-  printf("  print: display a specific config entry\n");
-  printf("  set:   set or change a config entry\n");
-  printf("  unset: delete a config entry\n\n");
+  printf("  all:    show all config entries\n");
+  printf("  print:  display a specific config entry\n");
+  printf("  set:    set or change a config entry\n");
+  printf("  unset:  delete a config entry\n");
+  printf("  format: delete all config entries\n\n");
 
   printf("Syntax for 'set' cmd:\n");
 #ifdef CONFIG_MTD_CONFIG_NAMED

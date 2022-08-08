@@ -122,7 +122,7 @@ static int spicmd_help(FAR struct spitool_s *spitool, int argc,
                  CONFIG_SPITOOL_DEFCMD, spitool->command);
 #endif
   spitool_printf(spitool, "  [-f freq] SPI frequency.  "
-                          "Default: %d Current: %d\n",
+                          "Default: %d Current: %" PRIu32 "\n",
                  CONFIG_SPITOOL_DEFFREQ, spitool->freq);
 
   spitool_printf(spitool, "  [-m mode] Mode for transfer.  "
@@ -130,23 +130,24 @@ static int spicmd_help(FAR struct spitool_s *spitool, int argc,
                  CONFIG_SPITOOL_DEFMODE, spitool->mode);
 
   spitool_printf(spitool, "  [-n CSn] chip select number.  "
-                          "Default: %d Current: %d\n",
+                          "Default: %d Current: %" PRIu32 "\n",
                  0, spitool->csn);
 
   spitool_printf(spitool, "  [-t devtype] Chip Select type "
                           "(see spi_devtype_e).  "
-                          "Default: %d Current: %d\n",
+                          "Default: %d Current: %" PRIu32 "\n",
                  SPIDEVTYPE_USER, spitool->devtype);
 
   spitool_printf(spitool, "  [-u udelay] Delay after transfer in uS.  "
-                          "Default: 0 Current: %d\n", spitool->udelay);
+                          "Default: 0 Current: %" PRIu32 "\n",
+                 spitool->udelay);
 
   spitool_printf(spitool, "  [-w width] Width of bus.  "
                           "Default: %d Current: %d\n",
                  CONFIG_SPITOOL_DEFWIDTH, spitool->width);
 
   spitool_printf(spitool, "  [-x count] Words to exchange  "
-                          "Default: %d Current: %d Max: %d\n",
+                          "Default: %d Current: %" PRIu32 " Max: %d\n",
                  CONFIG_SPITOOL_DEFWORDS, spitool->count, MAX_XDATA);
 
   spitool_printf(spitool, "\nNOTES:\n");

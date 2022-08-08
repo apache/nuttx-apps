@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_LIBCANARDV0
+	bool "libcanard UAVCAN v0 Library"
+	default n
+	depends on CAN && CAN_EXTID
+	---help---
+		Enable the libcanard UAVCAN v0 library.
+
+if CANUTILS_LIBCANARDV0
+
+config LIBCANARDV0_URL
+	string "libcanard URL"
+	default "https://github.com/UAVCAN/libcanard/archive"
+	---help---
+		libcanard URL.
+
+config LIBCANARDV0_VERSION
+	string "libcanard Version"
+	default "5ad65c6a4efda60cda7a8f0512da0f465822bbb8"
+	---help---
+		libcanard version.
+
+endif

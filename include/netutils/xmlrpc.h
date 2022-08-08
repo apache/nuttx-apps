@@ -40,11 +40,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-/*
- *  Lightweight Embedded XML-RPC Server Types and Definitions
+/* Lightweight Embedded XML-RPC Server Types and Definitions
  *
- *  mtj@cogitollc.com
- *
+ * mtj@cogitollc.com
  */
 
 #ifndef __APPS_INCLUDE_NETUTILS_XMLRPC_H
@@ -86,13 +84,13 @@ struct xmlrpc_arg_s
     int i;
     char boolean;
     double d;
-    char string[CONFIG_XMLRPC_STRINGSIZE+1];
+    char string[CONFIG_XMLRPC_STRINGSIZE + 1];
   } u;
 };
 
 struct xmlrpc_s
 {
-  char  name[CONFIG_XMLRPC_STRINGSIZE+1];
+  char  name[CONFIG_XMLRPC_STRINGSIZE + 1];
   struct xmlrpc_arg_s arguments[MAX_ARGS];
   char  args[MAX_ARGS];
   int   argsize;
@@ -104,7 +102,7 @@ struct xmlrpc_s
 struct xmlrpc_entry_s
 {
   struct xmlrpc_entry_s *next;
-  int (*func)(struct xmlrpc_s*);
+  int (*func)(struct xmlrpc_s *);
   char *name;
 };
 

@@ -23,11 +23,48 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <fcntl.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
 
 #if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_ROMFSETC) || defined(CONFIG_NSH_ROMFSRC)
+static int nsh_script_redirect(FAR struct nsh_vtbl_s *vtbl,
+                               FAR const char *cmd,
+                               FAR const char *path)
+{
+  uint8_t save[SAVE_SIZE];
+  int fd = -1;
+  int ret;
+
+  if (CONFIG_NSH_SCRIPT_REDIRECT_PATH[0])
+    {
+      fd = open(CONFIG_NSH_SCRIPT_REDIRECT_PATH, 0666);
+      if (fd > 0)
+        {
+          nsh_redirect(vtbl, fd, save);
+        }
+    }
+
+  ret = nsh_script(vtbl, cmd, path);
+  if (CONFIG_NSH_SCRIPT_REDIRECT_PATH[0])
+    {
+      if (fd > 0)
+        {
+          nsh_undirect(vtbl, save);
+          close(fd);
+        }
+    }
+
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -157,7 +194,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 #ifdef CONFIG_NSH_ROMFSETC
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl)
 {
-  return nsh_script(vtbl, "sysinit", NSH_SYSINITPATH);
+  return nsh_script_redirect(vtbl, "sysinit", NSH_SYSINITPATH);
 }
 #endif
 
@@ -190,8 +227,7 @@ int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
 
   if (!already)
     {
-      ret = nsh_script(vtbl, "init", NSH_INITPATH);
-
+      ret = nsh_script_redirect(vtbl, "init", NSH_INITPATH);
 #ifndef CONFIG_NSH_DISABLESCRIPT
       /* Reset the option flags */
 
@@ -214,7 +250,7 @@ int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
 #ifdef CONFIG_NSH_ROMFSRC
 int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl)
 {
-  return nsh_script(vtbl, "login", NSH_RCPATH);
+  return nsh_script_redirect(vtbl, "login", NSH_RCPATH);
 }
 #endif
 #endif /* CONFIG_NSH_ROMFSETC */

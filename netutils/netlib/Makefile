@@ -60,6 +60,9 @@ CSRCS += netlib_ipv6adaptor.c
 ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
 CSRCS += netlib_autoconfig.c
 endif
+ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
+CSRCS += netlib_setipv6dnsaddr.c
+endif
 ifeq ($(CONFIG_NET_ROUTE),y)
 CSRCS += netlib_ipv6route.c netlib_ipv6router.c
 endif
