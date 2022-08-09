@@ -89,6 +89,11 @@ config INTERPRETERS_WAMR_LIB_PTHREAD
 	bool "Enable lib pthread"
 	default n
 
+config INTERPRETERS_WAMR_LIB_PTHREAD_SEMAPHORE
+	bool "Enable semaphore"
+	depends on INTERPRETERS_WAMR_LIB_PTHREAD
+	default n
+
 config INTERPRETERS_WAMR_SHARED_MEMORY
 	bool "Enable shared memory"
 	default n
