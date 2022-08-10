@@ -81,6 +81,13 @@ config INTERPRETERS_WAMR_MINILOADER
 	---help---
 	Mini-loader don't check the integrity of wasm module
 
+config INTERPRETERS_WAMR_STACK_GUARD_SIZE
+	int "Custom stack guard size"
+	default 0
+	---help---
+	Reserve some space in stack as guard to detect stack overflow,
+	use stack base by default but may not safe enough.
+
 config INTERPRETERS_WAMR_THREAD_MGR
 	bool "Enable thread manager"
 	default n
