@@ -45,11 +45,12 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
-#include <crc16.h>
-#include <crc32.h>
 
+#include <nuttx/crc16.h>
+#include <nuttx/crc32.h>
 #include <nuttx/ascii.h>
-#include "system/zmodem.h"
+
+#include <system/zmodem.h>
 
 #include "zm.h"
 

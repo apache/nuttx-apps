@@ -22,7 +22,6 @@
  * Included Files
  ****************************************************************************/
 
-#include <crc32.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -34,6 +33,8 @@
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+
+#include <nuttx/crc32.h>
 
 /****************************************************************************
  * Pre-processor Definitions

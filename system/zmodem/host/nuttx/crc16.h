@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zmodem/host/crc32.h
+ * apps/system/zmodem/host/nuttx/crc16.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_ZMODEM_HOST_CRC32_H
-#define __APPS_SYSTEM_ZMODEM_HOST_CRC32_H
+#ifndef __APPS_SYSTEM_ZMODEM_HOST_NUTTX_CRC16_H
+#define __APPS_SYSTEM_ZMODEM_HOST_NUTTX_CRC16_H
 
 /****************************************************************************
  * Included Files
@@ -41,28 +41,28 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Name: crc32part
+ * Name: crc16part
  *
  * Description:
  *   Continue CRC calculation on a part of the buffer.
  *
  ****************************************************************************/
 
-uint32_t crc32part(const uint8_t *src, size_t len, uint32_t crc32val);
+uint16_t crc16part(const uint8_t *src, size_t len, uint16_t crc16val);
 
 /****************************************************************************
- * Name: crc32
+ * Name: crc16
  *
  * Description:
- *   Return a 32-bit CRC of the contents of the 'src' buffer, length 'len'
+ *   Return a 16-bit CRC of the contents of the 'src' buffer, length 'len'
  *
  ****************************************************************************/
 
-uint32_t crc32(const uint8_t *src, size_t len);
+uint16_t crc16(const uint8_t *src, size_t len);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_SYSTEM_ZMODEM_HOST_CRC32_H */
+#endif /* __APPS_SYSTEM_ZMODEM_HOST_NUTTX_CRC16_H */
