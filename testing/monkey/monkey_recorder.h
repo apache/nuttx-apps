@@ -83,8 +83,8 @@ void monkey_recorder_delete(FAR struct monkey_recorder_s *recorder);
  ****************************************************************************/
 
 enum monkey_recorder_res_e monkey_recorder_write(
-                                  FAR struct monkey_recorder_s *recorder,
-                                  FAR const struct monkey_dev_state_s *state);
+                                FAR struct monkey_recorder_s *recorder,
+                                FAR const struct monkey_dev_state_s *state);
 
 /****************************************************************************
  * Name: monkey_recorder_read
