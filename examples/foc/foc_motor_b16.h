@@ -38,6 +38,9 @@
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
 #  include "industry/foc/fixed16/foc_align.h"
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+#  include "industry/foc/fixed16/foc_ident.h"
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
 #  include "industry/foc/fixed16/foc_model.h"
 #endif
@@ -110,6 +113,12 @@ struct foc_motor_b16_s
   struct foc_ramp_b16_s         ramp;         /* Velocity ramp data */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   struct foc_routine_b16_s      align;        /* Alignment routine */
+  bool                          align_done;   /* Alignment done */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  struct foc_routine_b16_s      ident;        /* Motor ident routine */
+  struct motor_phy_params_b16_s phy_ident;    /* Motor phy from ident */
+  bool                          ident_done;   /* Motor ident done */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
   struct foc_model_b16_s        model;         /* Model handler */
