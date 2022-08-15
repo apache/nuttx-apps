@@ -78,13 +78,13 @@ $(QUICKJS_UNPACK)/.patch: $(QUICKJS_UNPACK)
 	$(Q) touch $(QUICKJS_UNPACK)/.patch
 
 build_host: $(QUICKJS_UNPACK)/.patch
-	make -C $(QUICKJS_UNPACK) \
+	$(MAKE) -C $(QUICKJS_UNPACK) \
 		CONFIG_BIGNUM=$(CONFIG_INTERPRETERS_QUICKJS_BIGNUM)
 
 context:: build_host
 
 clean::
-	$(Q) test ! -d $(QUICKJS_UNPACK) || make -C $(QUICKJS_UNPACK) clean
+	$(Q) test ! -d $(QUICKJS_UNPACK) || $(MAKE) -C $(QUICKJS_UNPACK) clean
 
 distclean::
 	$(call DELDIR, $(QUICKJS_UNPACK))
