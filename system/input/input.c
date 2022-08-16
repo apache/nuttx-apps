@@ -297,7 +297,7 @@ static int input_keydown(int argc, char **argv)
       return -EINVAL;
     }
 
-  fd = open("/dev/ukbd", O_WRONLY);
+  fd = open("/dev/ukeyboard", O_WRONLY);
   if (fd < 0)
     {
       return -errno;
@@ -326,9 +326,6 @@ static int input_help(int argc, char **argv)
          "\tbutton <buttonvalue>\n"
          "\tkeyup: <keycode>, input keyup 0x61\n"
          "\tkeydown: <keycode>, input keydown 0x61\n"
-         "\tinterval: Time interval between two reports of sample\n"
-         "\tduration: Duration of sliding\n"
-         "\tdistance: Report the pixel distance of the sample twice\n"
          "\tinterval: Time interval between two reports of sample\n"
          "\tduration: Duration of sliding\n"
          "\tdistance: Report the pixel distance of the sample twice\n"
