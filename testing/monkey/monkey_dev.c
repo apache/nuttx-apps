@@ -124,8 +124,8 @@ static bool button_read(int fd, FAR uint32_t *value)
 {
   btn_buttonset_t buttonset;
 
-  int ret = read(fd, &buttonset, sizeof(buttonset));
-  if (ret < 0)
+  int nbytes = read(fd, &buttonset, sizeof(buttonset));
+  if (nbytes != sizeof(buttonset))
     {
       return false;
     }
@@ -297,13 +297,13 @@ int monkey_dev_get_available(FAR struct monkey_dev_s *devs[], int dev_num)
   int i;
   int available = 0;
   struct pollfd fds[MONKEY_DEV_MAX_NUM];
+  memset(fds, 0, sizeof(fds));
 
   for (i = 0; i < dev_num; i++)
     {
       devs[i]->is_available = false;
       fds[i].fd = devs[i]->fd;
       fds[i].events = POLLIN | POLLPRI;
-      fds[i].revents = 0;
     }
 
   if (poll(fds, dev_num, -1) < 0)
