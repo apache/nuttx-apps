@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __MONKEY_RECORDER_H__
-#define __MONKEY_RECORDER_H__
+#ifndef __APPS_TESTING_MONKEY_MONKEY_RECORDER_H
+#define __APPS_TESTING_MONKEY_MONKEY_RECORDER_H
 
 /****************************************************************************
  * Included Files
@@ -107,4 +107,4 @@ enum monkey_recorder_res_e monkey_recorder_reset(
 }
 #endif
 
-#endif /* __MONKEY_RECORDER_H__ */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_RECORDER_H */

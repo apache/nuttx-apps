@@ -135,9 +135,8 @@ FAR struct monkey_recorder_s *monkey_recorder_create(FAR const char *path,
 
   MONKEY_ASSERT_NULL(path);
 
-  recorder = malloc(sizeof(struct monkey_recorder_s));
+  recorder = calloc(1, sizeof(struct monkey_recorder_s));
   MONKEY_ASSERT_NULL(recorder);
-  memset(recorder, 0, sizeof(struct monkey_recorder_s));
 
   if (mode == MONKEY_RECORDER_MODE_RECORD)
     {
@@ -198,7 +197,6 @@ void monkey_recorder_delete(FAR struct monkey_recorder_s *recorder)
     {
       MONKEY_LOG_NOTICE("close fd: %d", recorder->fd);
       close(recorder->fd);
-      recorder->fd = -1;
     }
 
   free(recorder);
@@ -223,24 +221,26 @@ enum monkey_recorder_res_e monkey_recorder_write(
   cur_tick = monkey_tick_get();
 
   switch (MONKEY_GET_DEV_TYPE(state->type))
-  {
-    case MONKEY_DEV_TYPE_TOUCH:
-      len = snprintf(buffer, sizeof(buffer), MONKEY_REC_TOUCH_FMT,
-                     cur_tick,
-                     state->type,
-                     state->data.touch.x,
-                     state->data.touch.y,
-                     state->data.touch.is_pressed);
-      break;
-    case MONKEY_DEV_TYPE_BUTTON:
-      len = snprintf(buffer, sizeof(buffer), MONKEY_REC_BTN_FMT,
-                     cur_tick,
-                     state->type,
-                     state->data.button.value);
-      break;
-    default:
-      return MONKEY_RECORDER_RES_DEV_TYPE_ERROR;
-  }
+    {
+      case MONKEY_DEV_TYPE_TOUCH:
+        len = snprintf(buffer, sizeof(buffer), MONKEY_REC_TOUCH_FMT,
+                      cur_tick,
+                      state->type,
+                      state->data.touch.x,
+                      state->data.touch.y,
+                      state->data.touch.is_pressed);
+        break;
+
+      case MONKEY_DEV_TYPE_BUTTON:
+        len = snprintf(buffer, sizeof(buffer), MONKEY_REC_BTN_FMT,
+                      cur_tick,
+                      state->type,
+                      state->data.button.value);
+        break;
+
+      default:
+        return MONKEY_RECORDER_RES_DEV_TYPE_ERROR;
+    }
 
   if (len <= 0)
     {
@@ -300,32 +300,34 @@ enum monkey_recorder_res_e monkey_recorder_read(
 
   switch (MONKEY_GET_DEV_TYPE(state->type))
     {
-    case MONKEY_DEV_TYPE_TOUCH:
-      converted = sscanf(buffer,
-                         MONKEY_REC_TOUCH_FMT,
-                         time_stamp,
-                         &dev_type,
-                         &state->data.touch.x,
-                         &state->data.touch.y,
-                         &state->data.touch.is_pressed);
-      if (converted != 5)
-        {
-          return MONKEY_RECORDER_RES_PARSER_ERROR;
-        }
-      break;
-    case MONKEY_DEV_TYPE_BUTTON:
-      converted = sscanf(buffer,
-                        MONKEY_REC_BTN_FMT,
-                        time_stamp,
-                        &dev_type,
-                        &state->data.button.value);
-      if (converted != 3)
-        {
-          return MONKEY_RECORDER_RES_PARSER_ERROR;
-        }
-      break;
-    default:
-      return MONKEY_RECORDER_RES_DEV_TYPE_ERROR;
+      case MONKEY_DEV_TYPE_TOUCH:
+        converted = sscanf(buffer,
+                          MONKEY_REC_TOUCH_FMT,
+                          time_stamp,
+                          &dev_type,
+                          &state->data.touch.x,
+                          &state->data.touch.y,
+                          &state->data.touch.is_pressed);
+        if (converted != 5)
+          {
+            return MONKEY_RECORDER_RES_PARSER_ERROR;
+          }
+        break;
+
+      case MONKEY_DEV_TYPE_BUTTON:
+        converted = sscanf(buffer,
+                          MONKEY_REC_BTN_FMT,
+                          time_stamp,
+                          &dev_type,
+                          &state->data.button.value);
+        if (converted != 3)
+          {
+            return MONKEY_RECORDER_RES_PARSER_ERROR;
+          }
+        break;
+
+      default:
+        return MONKEY_RECORDER_RES_DEV_TYPE_ERROR;
     }
 
   return MONKEY_RECORDER_RES_OK;

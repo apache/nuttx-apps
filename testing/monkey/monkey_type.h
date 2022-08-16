@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __MONKEY_TYPE_H__
-#define __MONKEY_TYPE_H__
+#ifndef __APPS_TESTING_MONKEY_MONKEY_TYPE_H
+#define __APPS_TESTING_MONKEY_MONKEY_TYPE_H
 
 /****************************************************************************
  * Included Files
@@ -34,7 +34,7 @@
 
 #define MONKEY_UINPUT_TYPE_MASK     (0x10)
 #define MONKEY_IS_UINPUT_TYPE(type) (!!((type) & MONKEY_UINPUT_TYPE_MASK))
-#define MONKEY_GET_DEV_TYPE(type)   (type & ~MONKEY_UINPUT_TYPE_MASK)
+#define MONKEY_GET_DEV_TYPE(type)   ((type) & ~MONKEY_UINPUT_TYPE_MASK)
 #define MONKEY_DEV_MAX_NUM          2
 
 /****************************************************************************
@@ -110,9 +110,9 @@ struct monkey_s
   FAR struct monkey_recorder_s *recorder;
   struct
   {
-      struct monkey_dev_state_s state;
-      uint32_t time_stamp;
+    struct monkey_dev_state_s state;
+    uint32_t time_stamp;
   } playback_ctx;
 };
 
-#endif /* __MONKEY_TYPE_H__ */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_TYPE_H */

@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __MONKEY_ASSERT_H__
-#define __MONKEY_ASSERT_H__
+#ifndef __APPS_TESTING_MONKEY_MONKEY_ASSERT_H
+#define __APPS_TESTING_MONKEY_MONKEY_ASSERT_H
 
 /****************************************************************************
  * Included Files
@@ -34,4 +34,4 @@
 #define MONKEY_ASSERT(expr)     DEBUGASSERT(expr)
 #define MONKEY_ASSERT_NULL(ptr) MONKEY_ASSERT(ptr != NULL)
 
-#endif /* __MONKEY_ASSERT_H__ */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_ASSERT_H */
