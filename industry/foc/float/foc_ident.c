@@ -81,6 +81,7 @@ struct foc_ident_f32_s
   float                                sign;
   float                                curr1_sum;
   float                                curr2_sum;
+
 #ifdef CONFIG_INDUSTRY_FOC_IDENT_FLUX
   /* global data in flux linkage identification */
 
