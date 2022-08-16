@@ -56,9 +56,10 @@ void monkey_log_printf(enum monkey_log_level_type_e level,
   struct va_format vaf;
   va_list ap;
 
-  static const int priority[_MONKEY_LOG_LEVEL_LAST] = {
-    LOG_INFO, LOG_NOTICE, LOG_WARNING, LOG_ERR
-  };
+  static const int priority[_MONKEY_LOG_LEVEL_LAST] =
+    {
+      LOG_INFO, LOG_NOTICE, LOG_WARNING, LOG_ERR
+    };
 
   if (level < g_log_level)
     {

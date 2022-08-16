@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __MONKEY_H__
-#define __MONKEY_H__
+#ifndef __APPS_TESTING_MONKEY_MONKEY_H
+#define __APPS_TESTING_MONKEY_MONKEY_H
 
 /****************************************************************************
  * Included Files
@@ -95,4 +95,4 @@ bool monkey_set_recorder_path(FAR struct monkey_s *monkey,
 }
 #endif
 
-#endif /* __MONKEY_H__ */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_H */

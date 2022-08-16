@@ -135,6 +135,10 @@ static bool button_read(int fd, FAR uint32_t *value)
 }
 
 /****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
  * Name: monkey_dev_create
  ****************************************************************************/
 
@@ -147,9 +151,8 @@ FAR struct monkey_dev_s *monkey_dev_create(FAR const char *dev_path,
 
   MONKEY_ASSERT_NULL(dev_path);
 
-  dev = malloc(sizeof(struct monkey_dev_s));
+  dev = calloc(1, sizeof(struct monkey_dev_s));
   MONKEY_ASSERT_NULL(dev);
-  memset(dev, 0, sizeof(struct monkey_dev_s));
 
   if (MONKEY_IS_UINPUT_TYPE(type))
     {
@@ -190,10 +193,6 @@ failed:
 }
 
 /****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Name: monkey_dev_delete
  ****************************************************************************/
 
@@ -212,7 +211,6 @@ void monkey_dev_delete(FAR struct monkey_dev_s *dev)
 
       MONKEY_LOG_NOTICE("close fd: %d", dev->fd);
       close(dev->fd);
-      dev->fd = -1;
     }
 
   free(dev);
@@ -223,25 +221,25 @@ void monkey_dev_delete(FAR struct monkey_dev_s *dev)
  ****************************************************************************/
 
 void monkey_dev_set_state(FAR struct monkey_dev_s *dev,
-                           FAR const struct monkey_dev_state_s *state)
+                          FAR const struct monkey_dev_state_s *state)
 {
   MONKEY_ASSERT_NULL(dev);
 
   switch (MONKEY_GET_DEV_TYPE(dev->type))
     {
-    case MONKEY_DEV_TYPE_TOUCH:
-      utouch_write(dev->fd,
-                   state->data.touch.x,
-                   state->data.touch.y,
-                   state->data.touch.is_pressed);
-      break;
+      case MONKEY_DEV_TYPE_TOUCH:
+        utouch_write(dev->fd,
+                    state->data.touch.x,
+                    state->data.touch.y,
+                    state->data.touch.is_pressed);
+        break;
 
-    case MONKEY_DEV_TYPE_BUTTON:
-      ubutton_write(dev->fd, state->data.button.value);
-      break;
+      case MONKEY_DEV_TYPE_BUTTON:
+        ubutton_write(dev->fd, state->data.button.value);
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
 }
 
@@ -261,19 +259,19 @@ bool monkey_dev_get_state(FAR struct monkey_dev_s *dev,
 
   switch (dev->type)
     {
-    case MONKEY_DEV_TYPE_TOUCH:
-      retval = touch_read(dev->fd,
-                          &state->data.touch.x,
-                          &state->data.touch.y,
-                          &state->data.touch.is_pressed);
-      break;
+      case MONKEY_DEV_TYPE_TOUCH:
+        retval = touch_read(dev->fd,
+                            &state->data.touch.x,
+                            &state->data.touch.y,
+                            &state->data.touch.is_pressed);
+        break;
 
-    case MONKEY_DEV_TYPE_BUTTON:
-      retval = button_read(dev->fd, &state->data.button.value);
-      break;
+      case MONKEY_DEV_TYPE_BUTTON:
+        retval = button_read(dev->fd, &state->data.button.value);
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
 
   return retval;

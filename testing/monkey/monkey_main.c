@@ -43,7 +43,7 @@
   do                                                                   \
   {                                                                    \
     FAR char *ptr;                                                     \
-    value = (type)strtoul(optarg, &ptr, base);                         \
+    (value) = (type)strtoul(optarg, &ptr, (base));                     \
     if (*ptr != '\0')                                                  \
       {                                                                \
         printf(MONKEY_PREFIX "Parameter error: -%c %s\n", ch, optarg); \
@@ -208,9 +208,11 @@ static void parse_commandline(int argc, FAR char **argv,
           case 't':
             OPTARG_TO_VALUE(param->dev_type_mask, int, 16);
             break;
+
           case 'f':
             param->file_path = optarg;
             break;
+
           case 'p':
             converted = sscanf(optarg, "%d-%d", &period_min, &period_max);
             if (converted == 2 && period_min >= 0 && period_max >= 0)
@@ -224,6 +226,7 @@ static void parse_commandline(int argc, FAR char **argv,
                 show_usage(argv[0], EXIT_FAILURE);
               }
             break;
+
           case 's':
             converted = sscanf(optarg, "%dx%d", &hor_res, &ver_res);
             if (converted == 2 && hor_res > 0 && ver_res > 0)
@@ -238,6 +241,7 @@ static void parse_commandline(int argc, FAR char **argv,
                 show_usage(argv[0], EXIT_FAILURE);
               }
             break;
+
           case '?':
             printf(MONKEY_PREFIX ": Unknown option: %c\n", optopt);
             show_usage(argv[0], EXIT_FAILURE);

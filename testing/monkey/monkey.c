@@ -39,7 +39,7 @@
 
 #define MONKEY_DEV_CREATE_MATCH(monkey, type_mask, type)                  \
 do {                                                                      \
-  if ((type_mask & MONKEY_DEV_TYPE_##type) == MONKEY_DEV_TYPE_##type)     \
+  if (((type_mask) & MONKEY_DEV_TYPE_##type) == MONKEY_DEV_TYPE_##type)   \
     {                                                                     \
       FAR struct monkey_dev_s *dev;                                       \
       dev = monkey_dev_create(CONFIG_TESTING_MONKEY_DEV_PATH_##type,      \
@@ -48,8 +48,8 @@ do {                                                                      \
         {                                                                 \
           goto failed;                                                    \
         }                                                                 \
-      monkey->devs[monkey->dev_num] = dev;                                \
-      monkey->dev_num++;                                                  \
+      (monkey)->devs[(monkey)->dev_num] = dev;                            \
+      (monkey)->dev_num++;                                                \
     }                                                                     \
 } while (0)
 
@@ -63,9 +63,8 @@ do {                                                                      \
 
 FAR struct monkey_s *monkey_create(int dev_type_mask)
 {
-  FAR struct monkey_s *monkey = malloc(sizeof(struct monkey_s));
+  FAR struct monkey_s *monkey = calloc(1, sizeof(struct monkey_s));
   MONKEY_ASSERT_NULL(monkey);
-  memset(monkey, 0, sizeof(struct monkey_s));
 
   if (MONKEY_IS_UINPUT_TYPE(dev_type_mask))
     {
@@ -106,7 +105,7 @@ void monkey_delete(FAR struct monkey_s *monkey)
 
   for (i = 0; i < monkey->dev_num; i++)
     {
-        monkey_dev_delete(monkey->devs[i]);
+      monkey_dev_delete(monkey->devs[i]);
     }
 
   if (monkey->recorder)

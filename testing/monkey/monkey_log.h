@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __MONKEY_LOG_H__
-#define __MONKEY_LOG_H__
+#ifndef __APPS_TESTING_MONKEY_MONKEY_LOG_H
+#define __APPS_TESTING_MONKEY_MONKEY_LOG_H
 
 /****************************************************************************
  * Included Files
@@ -114,4 +114,4 @@ enum monkey_log_level_type_e monkey_log_get_level(void);
 }
 #endif
 
-#endif /* __MONKEY_LOG_H__ */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_LOG_H */
