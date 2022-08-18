@@ -22,6 +22,15 @@
  * Included Files
  ****************************************************************************/
 
+#ifdef __clang__  //  Workaround for zig cc
+#include <arch/types.h>
+#include "../../nuttx/include/limits.h"
+#define goto return ret;
+#define name_err
+#define open_err
+#define ctl_err
+#endif  //  __clang__
+
 #include <nuttx/sensors/sensor.h>
 #include <nuttx/config.h>
 #include <sys/ioctl.h>
@@ -370,11 +379,17 @@ int main(int argc, FAR char *argv[])
   printf("SensorTest: Received message: %s, number:%d/%d\n",
          name, received, count);
 
+#ifndef __clang__  //  Workaround for zig cc
 ctl_err:
+#endif  //  !__clang__
   close(fd);
+#ifndef __clang__  //  Workaround for zig cc
 open_err:
+#endif  //  !__clang__
   free(buffer);
+#ifndef __clang__  //  Workaround for zig cc
 name_err:
+#endif  //  !__clang__
   optind = 0;
   return ret;
 }
