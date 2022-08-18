@@ -352,6 +352,14 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
               PRINTF("ERROR: foc_dev_params_set failed %d!\n", ret);
               goto errout;
             }
+
+          /* Terminate control thread */
+
+          if (motor.ctrl_state == FOC_CTRL_STATE_TERMINATE)
+            {
+              PRINTF("TERMINATE CTRL THREAD\n");
+              goto errout;
+            }
         }
       else
         {

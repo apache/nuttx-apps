@@ -1112,6 +1112,19 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
         {
           motor->foc_mode = FOC_HANDLER_MODE_IDLE;
 
+#ifndef CONFIG_EXAMPLES_FOC_HAVE_RUN
+          /* Terminate */
+
+          motor->ctrl_state += 1;
+#endif
+
+          break;
+        }
+
+      case FOC_CTRL_STATE_TERMINATE:
+        {
+          /* Do nothing */
+
           break;
         }
 
