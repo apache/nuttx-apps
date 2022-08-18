@@ -88,7 +88,8 @@ enum foc_controller_state_e
   FOC_CTRL_STATE_RUN_INIT,
   FOC_CTRL_STATE_RUN,
 #endif
-  FOC_CTRL_STATE_IDLE
+  FOC_CTRL_STATE_IDLE,
+  FOC_CTRL_STATE_TERMINATE
 };
 
 /* FOC thread data */

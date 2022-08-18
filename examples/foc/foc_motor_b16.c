@@ -1120,6 +1120,13 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
           break;
         }
 
+      case FOC_CTRL_STATE_TERMINATE:
+        {
+          /* Do nothing */
+
+          break;
+        }
+
       default:
         {
           PRINTF("ERROR: invalid ctrl_state=%d\n", motor->ctrl_state);
