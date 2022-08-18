@@ -39,7 +39,6 @@
  ****************************************************************************/
 
 #define IDENT_PI_KP           (ftob16(0.0f))
-#define IDENT_PI_KI           (ftob16(0.05f))
 
 /****************************************************************************
  * Private Data Types
@@ -169,7 +168,8 @@ int foc_ident_res_run_b16(FAR struct foc_ident_b16_s *ident,
 
   if (ident->cntr == 0)
     {
-      pi_controller_init_b16(&ident->pi, IDENT_PI_KP, IDENT_PI_KI);
+      DEBUGASSERT(ident->cfg.res_ki > 0);
+      pi_controller_init_b16(&ident->pi, IDENT_PI_KP, ident->cfg.res_ki);
     }
 
   /* PI saturation */
@@ -422,6 +422,12 @@ int foc_routine_ident_cfg_b16(FAR foc_routine_b16_t *r, FAR void *cfg)
   /* Verify configuration */
 
   if (i->cfg.per <= 0)
+    {
+      ret = -EINVAL;
+      goto errout;
+    }
+
+  if (i->cfg.res_ki <= 0)
     {
       ret = -EINVAL;
       goto errout;
