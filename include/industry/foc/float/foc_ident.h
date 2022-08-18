@@ -83,6 +83,7 @@ struct foc_routine_ident_cfg_f32_s
 #endif
   float per;                    /* Routine period in sec */
   float res_current;            /* Resistance measurement current */
+  float res_ki;                 /* Resistance measurement Ki */
   float ind_volt;               /* Inductance measurement voltage */
   int   res_steps;              /* Resistance measurement steps */
   int   ind_steps;              /* Inductance measurement steps */

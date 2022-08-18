@@ -88,6 +88,9 @@
 #  if (CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT == 0)
 #    error
 #  endif
+#  if (CONFIG_EXAMPLES_FOC_IDENT_RES_KI == 0)
+#    error
+#  endif
 #  if (CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE == 0)
 #    error
 #  endif

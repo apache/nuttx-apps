@@ -989,6 +989,8 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   ident_cfg.per         = motor->per;
   ident_cfg.res_current = ftob16(CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT /
                                  1000.0f);
+  ident_cfg.res_ki      = ftob16(CONFIG_EXAMPLES_FOC_IDENT_RES_KI /
+                                 1000.0f);
   ident_cfg.ind_volt    = ftob16(CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE /
                                  1000.0f);
   ident_cfg.res_steps   = (CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ *

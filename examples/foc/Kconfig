@@ -386,6 +386,10 @@ config EXAMPLES_FOC_IDENT_RES_CURRENT
 	int "FOC motor ident resistance current (x1000)"
 	default 0
 
+config EXAMPLES_FOC_IDENT_RES_KI
+	int "FOC motor ident resistance Ki (x1000)"
+	default 50
+
 config EXAMPLES_FOC_IDENT_IND_VOLTAGE
 	int "FOC motor ident inductance voltage (x1000)"
 	default 0
