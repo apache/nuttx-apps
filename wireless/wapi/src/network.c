@@ -90,6 +90,7 @@ static int wapi_set_addr(int sock, FAR const char *ifname, int cmd,
   WAPI_VALIDATE_PTR(addr);
 
   sin.sin_family = AF_INET;
+  sin.sin_port = 0;
   memcpy(&sin.sin_addr, addr, sizeof(struct in_addr));
   memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr_in));
   strlcpy(ifr.ifr_name, ifname, IFNAMSIZ);

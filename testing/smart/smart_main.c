@@ -35,9 +35,9 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include <crc32.h>
 #include <debug.h>
 
+#include <nuttx/crc32.h>
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/smart.h>
 #include <nuttx/fs/ioctl.h>

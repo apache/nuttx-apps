@@ -30,7 +30,8 @@
 #include <termios.h>
 #include <assert.h>
 #include <errno.h>
-#include <crc32.h>
+
+#include <nuttx/crc32.h>
 
 #include "zm.h"
 

@@ -34,6 +34,8 @@
 #include <spawn.h>
 #include <errno.h>
 #include <string.h>
+#include <libgen.h>
+#include <nuttx/lib/builtin.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -73,6 +75,10 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   pid_t pid;
   int rc = 0;
   int ret;
+#ifdef CONFIG_BUILTIN
+  FAR char *appname;
+  int index;
+#endif
 
   /* Initialize the attributes file actions structure */
 
@@ -116,6 +122,42 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           goto errout_with_attrs;
         }
     }
+
+#ifdef CONFIG_BUILTIN
+  /* Check if a builtin application with this name exists */
+
+  appname = basename((FAR char *)cmd);
+  index = builtin_isavail(appname);
+  if (index >= 0)
+    {
+      FAR const struct builtin_s *builtin;
+      struct sched_param param;
+
+      /* Get information about the builtin */
+
+      builtin = builtin_for_index(index);
+      if (builtin == NULL)
+        {
+          ret = ENOENT;
+          goto errout_with_actions;
+        }
+
+      /* Set the correct task size and priority */
+
+      param.sched_priority = builtin->priority;
+      ret = posix_spawnattr_setschedparam(&attr, &param);
+      if (ret != 0)
+        {
+          goto errout_with_actions;
+        }
+
+      ret = task_spawnattr_setstacksize(&attr, builtin->stacksize);
+      if (ret != 0)
+        {
+          goto errout_with_actions;
+        }
+    }
+#endif
 
   /* Lock the scheduler in an attempt to prevent the application from
    * running until waitpid() has been called.

@@ -65,6 +65,20 @@ struct telnetd_config_s
                             * connection is accepted. */
 };
 
+/* This structure represents the overall state of one telnet daemon instance
+ * (Yes, multiple telnet daemons are supported).
+ */
+
+struct telnetd_s
+{
+  uint16_t              port;      /* The port to listen on (in network byte order) */
+  sa_family_t           family;    /* Address family */
+  uint8_t               priority;  /* The execution priority of the spawned task, */
+  size_t                stacksize; /* The stack size needed by the spawned task */
+  main_t                entry;     /* The entrypoint of the task to spawn when a new
+                                    * connection is accepted. */
+};
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -76,6 +90,23 @@ extern "C"
 #else
 #define EXTERN extern
 #endif
+
+/****************************************************************************
+ * Name: telnetd_daemon
+ *
+ * Description:
+ *   This function is the Telnet daemon.  It does not return (unless an
+ *   error occurs).
+ *
+ * Parameters:
+ *   Standard task start up arguments.
+ *
+ * Return:
+ *   Does not return unless an error occurs.
+ *
+ ****************************************************************************/
+
+int telnetd_daemon(int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Name: telnetd_start

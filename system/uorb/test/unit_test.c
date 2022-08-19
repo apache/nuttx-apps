@@ -180,7 +180,6 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
 
 static int latency_test(bool print)
 {
-  FAR char *const args[1];
   struct orb_test_medium_s sample;
   int pubsub_task;
   int instance = 0;
@@ -201,18 +200,11 @@ static int latency_test(bool print)
   g_pubsubtest_print  = print;
   g_pubsubtest_passed = false;
 
-  /* test pub / sub latency
-   * Can't pass a pointer in args, must be a null terminated
-   * array of strings because the strings are copied to
-   * prevent access if the caller data goes out of scope
-   */
-
-  args[0] = NULL;
   pubsub_task = task_create("uorb_latency",
                             SCHED_PRIORITY_DEFAULT,
                             CONFIG_UORB_STACKSIZE,
                             pubsubtest_thread_entry,
-                            args);
+                            NULL);
 
   /* give the test task some data */
 
@@ -665,7 +657,6 @@ static int test_multi2(void)
   int orb_data_fd[num_instances];
   int orb_data_next     = 0;
   orb_abstime last_time = 0;
-  FAR char *const args[1];
   int pubsub_task;
   int i;
 
@@ -682,12 +673,11 @@ static int test_multi2(void)
 
   /* launch the publisher thread */
 
-  args[0] = NULL;
   pubsub_task = task_create("uorb_test_multi",
                             SCHED_PRIORITY_MAX - 5,
                             CONFIG_UORB_STACKSIZE,
-                            (main_t)&pub_test_multi2_entry,
-                            args);
+                            pub_test_multi2_entry,
+                            NULL);
   if (pubsub_task < 0)
     {
       return test_fail("failed launching task");
@@ -924,7 +914,6 @@ static int pub_test_queue_entry(int argc, char *argv[])
 
 static int test_queue_poll_notify(void)
 {
-  FAR char *const args[1];
   struct pollfd fds[1];
   struct orb_test_medium_s t;
   bool updated;
@@ -955,12 +944,11 @@ static int test_queue_poll_notify(void)
 
   g_thread_should_exit = false;
 
-  args[0] = NULL;
   pubsub_task = task_create("uorb_test_queue",
                             SCHED_PRIORITY_MIN + 5,
                             CONFIG_UORB_STACKSIZE,
-                            (main_t)&pub_test_queue_entry,
-                            args);
+                            pub_test_queue_entry,
+                            NULL);
 
   if (pubsub_task < 0)
     {

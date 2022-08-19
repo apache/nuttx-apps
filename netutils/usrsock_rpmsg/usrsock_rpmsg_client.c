@@ -267,6 +267,7 @@ int main(int argc, char *argv[])
 
           /* Wait the packet ready */
 
+          memset(&pfd, 0, sizeof(struct pollfd));
           pfd.ptr = &priv.file;
           pfd.events = POLLIN | POLLFILE;
           ret = poll(&pfd, 1, -1);

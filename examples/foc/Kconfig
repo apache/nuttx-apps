@@ -225,6 +225,7 @@ config EXAMPLES_FOC_SETPOINT_CONST
 
 config EXAMPLES_FOC_SETPOINT_ADC
 	bool "Use ADC to control setpoint"
+	depends on ADC
 	select EXAMPLES_FOC_HAVE_ADC
 	select EXAMPLES_FOC_HAVE_SETPOINT_VAR
 

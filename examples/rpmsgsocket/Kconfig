@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_RPMSGSOCKET
-	tristate "Rpmsg scoekt example"
+	tristate "Rpmsg socket example"
 	depends on NET_RPMSG
 	default n
 	---help---
