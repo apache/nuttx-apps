@@ -528,9 +528,9 @@ int main(int argc, FAR char *argv[])
       /* Read a line from the terminal */
 
       len = readline(buffer, sizeof(buffer), stdin, stdout);
-      buffer[len] = '\0';
       if (len > 0)
         {
+          buffer[len] = '\0';
           if (strncmp(buffer, "!", 1) != 0)
             {
               /* nxlooper command */

@@ -6,7 +6,7 @@
 menuconfig SYSTEM_INPUT
 	tristate "Enable input tool"
 	default n
-	select INPUT_UINPUT
+	depends on INPUT_UINPUT
 	---help---
 		Enable support for a command line input tool.
 

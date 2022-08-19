@@ -30,8 +30,9 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
-#include <crc16.h>
-#include <crc32.h>
+
+#include <nuttx/crc16.h>
+#include <nuttx/crc32.h>
 
 #include "zm.h"
 

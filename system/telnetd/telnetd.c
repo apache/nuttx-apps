@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zmodem/host/crc16.h
+ * apps/system/telnetd/telnetd.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,51 +18,44 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_ZMODEM_HOST_CRC16_H
-#define __APPS_SYSTEM_ZMODEM_HOST_CRC16_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "netutils/telnetd.h"
+#include "netutils/netlib.h"
+#include "nshlib/nshlib.h"
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
+int main(int argc, FAR char *argv[])
 {
-#else
-#define EXTERN extern
-#endif
+  FAR char *argv1[3];
+  char arg0[sizeof("0x1234567812345678")];
+  struct telnetd_s daemon;
 
-/****************************************************************************
- * Name: crc16part
- *
- * Description:
- *   Continue CRC calculation on a part of the buffer.
- *
- ****************************************************************************/
+  /* Initialize the daemon structure */
 
-uint16_t crc16part(const uint8_t *src, size_t len, uint16_t crc16val);
+  daemon.port      = HTONS(23);
+  daemon.family    = AF_INET;
+  daemon.entry     = nsh_telnetmain;
 
-/****************************************************************************
- * Name: crc16
- *
- * Description:
- *   Return a 16-bit CRC of the contents of the 'src' buffer, length 'len'
- *
- ****************************************************************************/
+  /* NOTE: Settings for telnet session task */
 
-uint16_t crc16(const uint8_t *src, size_t len);
+  daemon.priority  = CONFIG_SYSTEM_TELNETD_SESSION_PRIORITY;
+  daemon.stacksize = CONFIG_SYSTEM_TELNETD_SESSION_STACKSIZE;
 
-#undef EXTERN
-#ifdef __cplusplus
+  snprintf(arg0, sizeof(arg0), "0x%" PRIxPTR, (uintptr_t)&daemon);
+  argv1[0] = "telnetd";
+  argv1[1] = arg0;
+  argv1[2] = NULL;
+
+  telnetd_daemon(2, argv1);
+  return 0;
 }
-#endif
-
-#endif /* __APPS_SYSTEM_ZMODEM_HOST_CRC16_H */

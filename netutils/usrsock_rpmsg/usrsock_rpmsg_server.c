@@ -284,12 +284,12 @@ static int usrsock_rpmsg_close_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 &&
       req->usockid < CONFIG_NETUTILS_USRSOCK_NSOCK_DESCRIPTORS)
     {
+      pthread_mutex_lock(&priv->mutex);
       priv->pfds[req->usockid].ptr = NULL;
       priv->epts[req->usockid] = NULL;
 
       /* Signal and wait the poll thread to wakeup */
 
-      pthread_mutex_lock(&priv->mutex);
       usrsock_rpmsg_notify_poll(priv);
       pthread_cond_wait(&priv->cond, &priv->mutex);
       pthread_mutex_unlock(&priv->mutex);
@@ -765,7 +765,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
       wlreq = (struct iwreq *)(req + 1);
       wlack = (struct iwreq *)(ack + 1);
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           wlack->u.data.pointer = wlack + 1;
         }
@@ -775,7 +775,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
               req->cmd, (unsigned long)(ack + 1));
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           if (ret >= 0)
             {
@@ -971,9 +971,8 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
               eventfd_t value;
 
               file_read(priv->eventfp, &value, sizeof(value));
+              prepare = true;
             }
-
-          prepare = true;
         }
       else
         {
@@ -1020,6 +1019,7 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
                   pfds[i].ptr = NULL;
                   priv->pfds[j].ptr = NULL;
+                  prepare = true;
                 }
 
               if (events != 0)
