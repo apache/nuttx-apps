@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_TELNETD
+	tristate "Telnet daemon application"
+	default n
+	depends on NETUTILS_TELNETD
+	---help---
+		Enable the Telnet daemon application
+
+config SYSTEM_TELNETD_PROGNAME
+	string "Telnetd program name"
+	default "telnetd"
+	depends on SYSTEM_TELNETD
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_TELNETD_PRIORITY
+	int "Telnetd task priority"
+	default 100
+	depends on SYSTEM_TELNETD
+
+config SYSTEM_TELNETD_STACKSIZE
+	int "Telnetd task stack size"
+	default DEFAULT_TASK_STACKSIZE
+	depends on SYSTEM_TELNETD
+
+config SYSTEM_TELNETD_SESSION_PRIORITY
+	int "Telnetd session task priority"
+	default 100
+	depends on SYSTEM_TELNETD
+
+config SYSTEM_TELNETD_SESSION_STACKSIZE
+	int "Telnetd session task stack size"
+	default 3072
+	depends on SYSTEM_TELNETD

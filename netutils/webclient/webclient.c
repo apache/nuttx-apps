@@ -1417,10 +1417,27 @@ int webclient_perform(FAR struct webclient_context *ctx)
                   tv.tv_sec  = ctx->timeout_sec;
                   tv.tv_usec = 0;
 
-                  setsockopt(conn->sockfd, SOL_SOCKET, SO_RCVTIMEO,
-                             (FAR const void *)&tv, sizeof(struct timeval));
-                  setsockopt(conn->sockfd, SOL_SOCKET, SO_SNDTIMEO,
-                             (FAR const void *)&tv, sizeof(struct timeval));
+                  /* Check return value one by one */
+
+                  ret = setsockopt(conn->sockfd, SOL_SOCKET, SO_RCVTIMEO,
+                                  (FAR const void *)&tv,
+                                   sizeof(struct timeval));
+                  if (ret != 0)
+                    {
+                      ret = -errno;
+                      nerr("ERROR: setsockopt failed: %d\n", ret);
+                      goto errout_with_errno;
+                    }
+
+                  ret = setsockopt(conn->sockfd, SOL_SOCKET, SO_SNDTIMEO,
+                                  (FAR const void *)&tv,
+                                  sizeof(struct timeval));
+                  if (ret != 0)
+                    {
+                      ret = -errno;
+                      nerr("ERROR: setsockopt failed: %d\n", ret);
+                      goto errout_with_errno;
+                    }
                 }
             }
 

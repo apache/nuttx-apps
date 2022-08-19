@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zmodem/host/crc32.h
+ * apps/testing/monkey/monkey_assert.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,51 +18,20 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_ZMODEM_HOST_CRC32_H
-#define __APPS_SYSTEM_ZMODEM_HOST_CRC32_H
+#ifndef __APPS_TESTING_MONKEY_MONKEY_ASSERT_H
+#define __APPS_TESTING_MONKEY_MONKEY_ASSERT_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-#include <stdint.h>
+#include <assert.h>
 
 /****************************************************************************
- * Public Function Prototypes
+ * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
-{
-#else
-#define EXTERN extern
-#endif
+#define MONKEY_ASSERT(expr)     DEBUGASSERT(expr)
+#define MONKEY_ASSERT_NULL(ptr) MONKEY_ASSERT(ptr != NULL)
 
-/****************************************************************************
- * Name: crc32part
- *
- * Description:
- *   Continue CRC calculation on a part of the buffer.
- *
- ****************************************************************************/
-
-uint32_t crc32part(const uint8_t *src, size_t len, uint32_t crc32val);
-
-/****************************************************************************
- * Name: crc32
- *
- * Description:
- *   Return a 32-bit CRC of the contents of the 'src' buffer, length 'len'
- *
- ****************************************************************************/
-
-uint32_t crc32(const uint8_t *src, size_t len);
-
-#undef EXTERN
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __APPS_SYSTEM_ZMODEM_HOST_CRC32_H */
+#endif /* __APPS_TESTING_MONKEY_MONKEY_ASSERT_H */

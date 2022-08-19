@@ -37,9 +37,10 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include <crc32.h>
 #include <debug.h>
 #include <assert.h>
+
+#include <nuttx/crc32.h>
 
 /****************************************************************************
  * Pre-processor Definitions

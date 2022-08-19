@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 #include <nuttx/input/buttons.h>
+#include <nuttx/input/keyboard.h>
 #include <nuttx/input/touchscreen.h>
 
 /****************************************************************************
@@ -56,24 +57,29 @@ struct input_cmd_s
  * Private Function Prototypes
  ****************************************************************************/
 
+static int  input_button(int argc, char **argv);
+static int  input_help(int argc, char **argv);
+static int  input_keydown(int argc, char **argv);
+static int  input_keyup(int argc, char **argv);
+static int  input_sleep(int argc, char **argv);
+static void input_utouch_move(int fd, int x, int y, int pendown);
 static int  input_utouch_tap(int argc, char **argv);
 static int  input_utouch_swipe(int argc, char **argv);
-static int  input_sleep(int argc, char **argv);
-static int  input_help(int argc, char **argv);
-static int  input_button(int argc, char **argv);
-static void input_utouch_move(int fd, int x, int y, int pendown);
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static const struct input_cmd_s g_input_cmd_list[] =
 {
-  {"help",   input_help        },
-  {"sleep",  input_sleep       },
-  {"tap",    input_utouch_tap  },
-  {"swipe",  input_utouch_swipe},
-  {"button", input_button      },
-  {NULL,     NULL              }
+  {"help",    input_help        },
+  {"sleep",   input_sleep       },
+  {"tap",     input_utouch_tap  },
+  {"swipe",   input_utouch_swipe},
+  {"button",  input_button      },
+  {"keyup",   input_keyup       },
+  {"keydown", input_keydown     },
+  {NULL,      NULL              }
 };
 
 /****************************************************************************
@@ -250,6 +256,62 @@ static int input_button(int argc, char **argv)
 }
 
 /****************************************************************************
+ * Name: input_keyup
+ ****************************************************************************/
+
+static int input_keyup(int argc, char **argv)
+{
+  int fd;
+  struct keyboard_event_s key;
+
+  if (argc != 2 || argv[1] == NULL)
+    {
+      return -EINVAL;
+    }
+
+  fd = open("/dev/ukeyboard", O_WRONLY);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  key.code = strtoul(argv[1], NULL, 0);
+  key.type = KEYBOARD_RELEASE;
+
+  write(fd, &key, sizeof(struct keyboard_event_s));
+  close(fd);
+  return 0;
+}
+
+/****************************************************************************
+ * Name: input_keydown
+ ****************************************************************************/
+
+static int input_keydown(int argc, char **argv)
+{
+  int fd;
+  struct keyboard_event_s key;
+
+  if (argc != 2 || argv[1] == NULL)
+    {
+      return -EINVAL;
+    }
+
+  fd = open("/dev/ukeyboard", O_WRONLY);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  key.code = strtoul(argv[1], NULL, 0);
+  key.type = KEYBOARD_PRESS;
+
+  write(fd, &key, sizeof(struct keyboard_event_s));
+  close(fd);
+  return 0;
+}
+
+/****************************************************************************
  * Name: intput_help
  ****************************************************************************/
 
@@ -262,10 +324,14 @@ static int input_help(int argc, char **argv)
          "\ttap <x> <y> [interval(ms)]\n"
          "\tswipe <x1> <y1> <x2> <y2> [duration(ms)] [distance(pix)]\n"
          "\tbutton <buttonvalue>\n"
+         "\tkeyup: <keycode>, input keyup 0x61\n"
+         "\tkeydown: <keycode>, input keydown 0x61\n"
          "\tinterval: Time interval between two reports of sample\n"
          "\tduration: Duration of sliding\n"
          "\tdistance: Report the pixel distance of the sample twice\n"
-         "\tbuttonvalue: button value in hex format\n");
+         "\tbuttonvalue: button value in hex format\n"
+         "\tkeycode: x11 key code, hexadecimal format\n"
+         );
 
   return 0;
 }
