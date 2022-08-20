@@ -756,6 +756,7 @@ int foc_routine_ident_run_f32(FAR foc_routine_f32_t *r,
       case FOC_IDENT_RUN_DONE:
         {
           ret = FOC_ROUTINE_RUN_DONE;
+          i->stage = FOC_IDENT_RUN_INIT;
 
           break;
         }
