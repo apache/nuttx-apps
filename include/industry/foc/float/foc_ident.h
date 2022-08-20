@@ -50,7 +50,7 @@ struct foc_routine_ident_cb_f32_s
 
   /* Private data for kpki callbacks */
 
-  FAR void *priv_handler;
+  FAR void *priv_kpki;
 
   /* Openloop angle zero callback */
 
