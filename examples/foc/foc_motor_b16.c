@@ -679,8 +679,8 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
        * NOTE: Id always set to 0
        */
 
-      motor->dq_ref.q = b16idiv(motor->envp->qparam, 1000);
-      motor->dq_ref.d = 0;
+      q_ref = b16idiv(motor->envp->qparam, 1000);
+      d_ref = 0;
     }
 #endif
 

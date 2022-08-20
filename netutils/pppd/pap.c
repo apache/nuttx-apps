@@ -137,7 +137,8 @@ void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
   if (!(ctx->pap_state & PAP_TX_UP) && !(ctx->pap_state & PAP_TX_TIMEOUT))
     {
       /* Do we need to send a PAP auth packet? Check if we have a request
-       * pending */
+       * pending.
+       */
 
       if ((ppp_arch_clock_seconds() - ctx->pap_prev_seconds) > PAP_TIMEOUT)
         {
@@ -159,16 +160,25 @@ void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           /* Write options */
 
+          /* Write peer-ID length */
+
           t = strlen((char *)ctx->settings->pap_username);
-
-          /* Write peer length */
-
           *bptr++ = (uint8_t)t;
+
+          /* Write peer-ID */
+
           bptr = memcpy(bptr, ctx->settings->pap_username, t);
+          bptr += t;
+
+          /* Write passwd length */
 
           t = strlen((char *)ctx->settings->pap_password);
           *bptr++ = (uint8_t)t;
+
+          /* Write passwd */
+
           bptr = memcpy(bptr, ctx->settings->pap_password, t);
+          bptr += t;
 
           /* Write length */
 

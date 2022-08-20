@@ -14,7 +14,7 @@
  * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -58,7 +58,7 @@
 
 enum ValueType
 {
-  V_ERROR=1,
+  V_ERROR = 1,
   V_INTEGER,
   V_NIL,
   V_REAL,
@@ -71,12 +71,16 @@ struct Value
   enum ValueType type;
   union
   {
-    /* V_ERROR   */ struct { char *msg; long int code; } error;
-    /* V_INTEGER */ long int integer;
-    /* V_NIL     */
-    /* V_REAL    */ double real;
-    /* V_STRING  */ struct String string;
-    /* V_VOID    */
+    struct                /* V_ERROR   */
+    {
+      char *msg;
+      long int code;
+    } error;
+    long int integer;     /* V_INTEGER */
+                          /* V_NIL     */
+    double real;          /* V_REAL    */
+    struct String string; /* V_STRING  */
+                          /* V_VOID    */
   } u;
 };
 
@@ -84,7 +88,7 @@ struct Value
  * Public Data
  ****************************************************************************/
 
-extern const enum ValueType Value_commonType[V_VOID+1][V_VOID+1];
+extern const enum ValueType Value_commonType[V_VOID + 1][V_VOID + 1];
 
 /****************************************************************************
  * Public Function Prototypes
@@ -99,7 +103,7 @@ double Value_vald(const char *s, char **end, int *overflow);
 
 struct Value *Value_new_NIL(struct Value *this);
 struct Value *Value_new_ERROR(struct Value *this, int code,
-                              const char *error, ...);
+                              const char *error, ...) printflike(3, 4);
 struct Value *Value_new_INTEGER(struct Value *this, int n);
 struct Value *Value_new_REAL(struct Value *this, double n);
 struct Value *Value_new_STRING(struct Value *this);

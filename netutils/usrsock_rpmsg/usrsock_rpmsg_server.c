@@ -112,6 +112,8 @@ static int usrsock_rpmsg_dns_handler(struct rpmsg_endpoint *ept,
                                      void *data, size_t len,
                                      uint32_t src, void *priv_);
 
+static bool usrsock_rpmsg_ns_match(struct rpmsg_device *rdev, void *priv_,
+                                   const char *name, uint32_t dest);
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest);
 static void usrsock_rpmsg_ns_unbind(struct rpmsg_endpoint *ept);
@@ -282,12 +284,12 @@ static int usrsock_rpmsg_close_handler(struct rpmsg_endpoint *ept,
   if (req->usockid >= 0 &&
       req->usockid < CONFIG_NETUTILS_USRSOCK_NSOCK_DESCRIPTORS)
     {
+      pthread_mutex_lock(&priv->mutex);
       priv->pfds[req->usockid].ptr = NULL;
       priv->epts[req->usockid] = NULL;
 
       /* Signal and wait the poll thread to wakeup */
 
-      pthread_mutex_lock(&priv->mutex);
       usrsock_rpmsg_notify_poll(priv);
       pthread_cond_wait(&priv->cond, &priv->mutex);
       pthread_mutex_unlock(&priv->mutex);
@@ -763,7 +765,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
       wlreq = (struct iwreq *)(req + 1);
       wlack = (struct iwreq *)(ack + 1);
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           wlack->u.data.pointer = wlack + 1;
         }
@@ -773,7 +775,7 @@ static int usrsock_rpmsg_ioctl_handler(struct rpmsg_endpoint *ept,
               req->cmd, (unsigned long)(ack + 1));
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
-      if (WL_IS80211POINTERCMD(req->cmd))
+      if (WL_IS80211POINTERCMD(req->cmd) && wlreq->u.data.pointer)
         {
           if (ret >= 0)
             {
@@ -822,17 +824,18 @@ static int usrsock_rpmsg_send_dns_event(void *arg,
 }
 #endif
 
+static bool usrsock_rpmsg_ns_match(struct rpmsg_device *rdev, void *priv_,
+                                   const char *name, uint32_t dest)
+{
+  return !strcmp(name, USRSOCK_RPMSG_EPT_NAME);
+}
+
 static void usrsock_rpmsg_ns_bind(struct rpmsg_device *rdev, void *priv_,
                                   const char *name, uint32_t dest)
 {
   struct usrsock_rpmsg_s *priv = priv_;
   struct rpmsg_endpoint *ept;
   int ret;
-
-  if (strcmp(name, USRSOCK_RPMSG_EPT_NAME))
-    {
-      return;
-    }
 
   ept = zalloc(sizeof(struct rpmsg_endpoint));
   if (!ept)
@@ -968,9 +971,8 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
               eventfd_t value;
 
               file_read(priv->eventfp, &value, sizeof(value));
+              prepare = true;
             }
-
-          prepare = true;
         }
       else
         {
@@ -1017,6 +1019,7 @@ static bool usrsock_rpmsg_process_poll(struct usrsock_rpmsg_s *priv,
 
                   pfds[i].ptr = NULL;
                   priv->pfds[j].ptr = NULL;
+                  prepare = true;
                 }
 
               if (events != 0)
@@ -1069,6 +1072,7 @@ int main(int argc, char *argv[])
   ret = rpmsg_register_callback(priv,
                                 NULL,
                                 NULL,
+                                usrsock_rpmsg_ns_match,
                                 usrsock_rpmsg_ns_bind);
   if (ret < 0)
     {
@@ -1097,6 +1101,7 @@ int main(int argc, char *argv[])
   rpmsg_unregister_callback(priv,
                             NULL,
                             NULL,
+                            usrsock_rpmsg_ns_match,
                             usrsock_rpmsg_ns_bind);
 free_fd:
   close(fd);

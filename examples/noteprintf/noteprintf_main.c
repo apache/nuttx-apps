@@ -59,7 +59,7 @@ int main(int argc, FAR char *argv[])
   short s        = 2;
   int i          = 3;
   long l         = 4;
-#ifdef CONFIG_LIBC_LONG_LONG
+#ifdef CONFIG_HAVE_LONG_LONG
   long long ll   = 5;
 #endif
   intmax_t im    = 6;
@@ -84,7 +84,9 @@ int main(int argc, FAR char *argv[])
       SCHED_NOTE_BPRINTF(3, "%hd", s);
       SCHED_NOTE_BPRINTF(4, "%d", i);
       SCHED_NOTE_BPRINTF(5, "%ld", l);
+#ifdef CONFIG_HAVE_LONG_LONG
       SCHED_NOTE_BPRINTF(6, "%lld", ll);
+#endif
       SCHED_NOTE_BPRINTF(7, "%jd", im);
       SCHED_NOTE_BPRINTF(8, "%zd", sz);
       SCHED_NOTE_BPRINTF(9, "%td", ptr);

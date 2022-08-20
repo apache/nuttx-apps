@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/futils/mkfatfs/fat32.h
+ * apps/fsutils/mkfatfs/fat32.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -34,7 +34,6 @@
 #include <time.h>
 
 #include <nuttx/kmalloc.h>
-#include <nuttx/fs/dirent.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -110,12 +109,14 @@
 
 #define EXTBOOT_SIGNATURE  0x29
 
-/****************************************************************************
- * These offsets describes the partition table.
+/* These offsets describes the partition table.
+ * 446@0: Generally unused and zero; but may include IDM Boot Manager menu
+ * entry at 8@394
  */
-                               /* 446@0: Generally unused and zero; but may
-                                * include IDM Boot Manager menu entry at 8@394 */
-#define PART_ENTRY(n)     (446+((n) << 4)) /* n = 0,1,2,3 */
+
+/* n = 0,1,2,3 */
+
+#define PART_ENTRY(n)     (446+((n) << 4))
 #define PART_ENTRY1        446 /* 16@446: Partition table, first entry */
 #define PART_ENTRY2        462 /* 16@462: Partition table, second entry */
 #define PART_ENTRY3        478 /* 16@478: Partition table, third entry */
@@ -259,8 +260,7 @@
 
 #define CLUS_NDXMASK(f)     ((f)->fs_fatsecperclus - 1)
 
-/****************************************************************************
- * The FAT "long" file name (LFN) directory entry */
+/* The FAT "long" file name (LFN) directory entry */
 
 #ifdef CONFIG_FAT_LFN
 
@@ -301,8 +301,7 @@
 # define LDDIR_LFNATTR     0x0f
 #endif
 
-/****************************************************************************
- * File system types */
+/* File system types */
 
 #define FSTYPE_FAT12         0
 #define FSTYPE_FAT16         1
@@ -342,8 +341,8 @@
  * between FAT12, 16, and 32.
  */
 
-/* FAT12: For M$, the calculation is ((1 << 12) - 19).  But we will follow the
- * Linux tradition of allowing slightly more clusters for FAT12.
+/* FAT12: For M$, the calculation is ((1 << 12) - 19).  But we will follow
+ * the Linux tradition of allowing slightly more clusters for FAT12.
  */
 
 #define FAT_MAXCLUST12 ((1 << 12) - 16)
@@ -356,16 +355,15 @@
 #define FAT_MAXCLUST16 (((uint32_t)1 << 16) - 16)
 
 /* FAT32: M$ reserves the MS 4 bits of a FAT32 FAT entry so only 18 bits are
- * available.  For M$, the calculation is ((1 << 28) - 19). (The uint32_t cast
- * is needed for architectures where int is only 16 bits).  M$ also claims
- * that the minimum size is 65,527.
+ * available.  For M$, the calculation is ((1 << 28) - 19). (The uint32_t
+ * cast is needed for architectures where int is only 16 bits).  M$ also
+ * claims that the minimum size is 65,527.
  */
 
 #define FAT_MINCLUST32  65524
 /* #define FAT_MINCLUST32  (FAT_MAXCLUST16 + 1) */
 #define FAT_MAXCLUST32  (((uint32_t)1 << 28) - 16)
 
-/****************************************************************************/
 /* Endian-ness helpers */
 
 #ifdef CONFIG_ENDIAN_BIG

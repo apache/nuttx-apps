@@ -586,7 +586,8 @@ void telnet_begin_compress2(struct telnet_s *telnet);
  *
  ****************************************************************************/
 
-int telnet_printf(struct telnet_s *telnet, const char *fmt, ...);
+int telnet_printf(struct telnet_s *telnet, const char *fmt, ...)
+    printflike(2, 3);
 
 /****************************************************************************
  * Name: telnet_vprintf
@@ -598,7 +599,8 @@ int telnet_printf(struct telnet_s *telnet, const char *fmt, ...);
  *
  ****************************************************************************/
 
-int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va);
+int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
+    printflike(2, 0);
 
 /****************************************************************************
  * Name: telnet_raw_printf
@@ -619,7 +621,8 @@ int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va);
  *
  ****************************************************************************/
 
-int telnet_raw_printf(struct telnet_s *telnet, const char *fmt, ...);
+int telnet_raw_printf(struct telnet_s *telnet, const char *fmt, ...)
+    printflike(2, 3);
 
 /****************************************************************************
  * Name: telnet_raw_vprintf
@@ -631,7 +634,8 @@ int telnet_raw_printf(struct telnet_s *telnet, const char *fmt, ...);
  *
  ****************************************************************************/
 
-int telnet_raw_vprintf(struct telnet_s *telnet, const char *fmt, va_list va);
+int telnet_raw_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
+    printflike(2, 0);
 
 /****************************************************************************
  * Name: telnet_begin_newenviron

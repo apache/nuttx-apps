@@ -114,7 +114,7 @@ errout:
       free(buf);
     }
 
-  if (fd > 0)
+  if (fd >= 0)
     {
       close(fd);
     }
@@ -241,6 +241,9 @@ FAR const char *wapi_ioctl_command_name(int cmd)
     case SIOCGIWTXPOW:
       return "SIOCGIWTXPOW";
 
+    case SIOCGIWPTAPRIO:
+      return "SIOCGIWPTAPRIO";
+
     case SIOCSIFADDR:
       return "SIOCSIFADDR";
 
@@ -267,6 +270,9 @@ FAR const char *wapi_ioctl_command_name(int cmd)
 
     case SIOCSIWTXPOW:
       return "SIOCSIWTXPOW";
+
+    case SIOCSIWPTAPRIO:
+      return "SIOCSIWPTAPRIO";
 
     default:
       snprintf(g_ioctl_command_namebuf, WAPI_IOCTL_COMMAND_NAMEBUFSIZ,
@@ -512,7 +518,7 @@ errout:
       free(buf);
     }
 
-  if (fd > 0)
+  if (fd >= 0)
     {
       close(fd);
     }

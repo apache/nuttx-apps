@@ -14,7 +14,7 @@
  * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -64,7 +64,8 @@ struct String *String_clone(struct String *this, const struct String *clon);
 int String_appendString(struct String *this, const struct String *app);
 int String_appendChar(struct String *this, char ch);
 int String_appendChars(struct String *this, const char *ch);
-int String_appendPrintf(struct String *this, const char *fmt, ...);
+int String_appendPrintf(struct String *this, const char *fmt, ...)
+    printflike(2, 3);
 int String_insertChar(struct String *this, size_t where, char ch);
 int String_delete(struct String *this, size_t where, size_t len);
 void String_ucase(struct String *this);

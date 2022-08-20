@@ -383,7 +383,11 @@ static int iperf_run_tcp_server(void)
         }
       else
         {
-          printf("accept: %s,%d\n", inet_ntoa(remote_addr.sin_addr),
+          char inetaddr[INET_ADDRSTRLEN];
+
+          printf("accept: %s,%d\n",
+                 inet_ntoa_r(remote_addr.sin_addr, inetaddr,
+                             sizeof(inetaddr)),
                  htons(remote_addr.sin_port));
           iperf_start_report();
 
@@ -397,8 +401,10 @@ static int iperf_run_tcp_server(void)
           actual_recv = recv(sockfd, buffer, want_recv, 0);
           if (actual_recv == 0)
             {
+              char inetaddr[INET_ADDRSTRLEN];
               printf("closed by the peer: %s,%d\n",
-                     inet_ntoa(remote_addr.sin_addr),
+                     inet_ntoa_r(remote_addr.sin_addr, inetaddr,
+                                 sizeof(inetaddr)),
                      htons(remote_addr.sin_port));
 
               /* Note: unlike the original iperf, this implementation

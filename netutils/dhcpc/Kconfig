@@ -17,7 +17,7 @@ config NETUTILS_DHCPC_HOST_NAME
 	string "DHCP client host name"
 	default "nuttx"
 
-config NETUTILS_DHCPC_RECV_TIMEOUT
+config NETUTILS_DHCPC_RECV_TIMEOUT_MS
 	int "Number of receive timeout in millisecond"
 	default 3000
 	---help---

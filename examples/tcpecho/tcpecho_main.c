@@ -93,6 +93,7 @@ static int tcpecho_netsetup()
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
   struct dhcpc_state ds;
   void *handle;
+  char inetaddr[INET_ADDRSTRLEN];
 #endif
 
   /* Many embedded network interfaces must have a software assigned MAC */
@@ -174,7 +175,7 @@ static int tcpecho_netsetup()
     }
 
   dhcpc_close(handle);
-  printf("IP: %s\n", inet_ntoa(ds.ipaddr));
+  printf("IP: %s\n", inet_ntoa_r(ds.ipaddr, inetaddr, sizeof(inetaddr)));
 
 #endif /* CONFIG_EXAMPLES_TCPECHO_DHCPC */
 #endif /* CONFIG_NSH_NETINIT */
@@ -243,12 +244,15 @@ static int tcpecho_server(void)
 
       if (client[0].revents & POLLRDNORM)
         {
+          char inetaddr[INET_ADDRSTRLEN];
+
           /* new client connection */
 
           clilen = sizeof(cliaddr);
           connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
 
-          ninfo("new client: %s\n", inet_ntoa(cliaddr.sin_addr));
+          ninfo("new client: %s\n",
+                inet_ntoa_r(cliaddr.sin_addr, inetaddr, sizeof(inetaddr)));
 
           for (i = 1; i < CONFIG_EXAMPLES_TCPECHO_NCONN; i++)
             {
