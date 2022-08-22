@@ -399,6 +399,8 @@ int cmd_basename(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_DIRNAME
 int cmd_dirname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *filename;
 
   /* Usage: dirname <path>
@@ -458,6 +460,8 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_SYSLOG_DEVPATH) && !defined(CONFIG_NSH_DISABLE_DMESG)
 int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   return nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
 }
 #endif
@@ -469,6 +473,8 @@ int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_CP
 int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   struct stat buf;
   FAR char *srcpath  = NULL;
   FAR char *destpath = NULL;
@@ -1269,6 +1275,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *fullpath;
   bool badarg;
   int option;
+  int rootdirentries;
   int ret = ERROR;
 
   /* mkfatfs [-F <fatsize>] <block-driver> */
@@ -1289,8 +1296,12 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             break;
 
          case 'r':
-            fmt.ff_rootdirentries = atoi(optarg);
-            if (fmt.ff_rootdirentries < 0)
+            rootdirentries = atoi(optarg);
+            if (rootdirentries >= 0)
+              {
+                fmt.ff_rootdirentries = rootdirentries;
+              }
+            else
               {
                 nsh_error(vtbl, g_fmtargrange, argv[0]);
                 badarg = true;
@@ -1363,6 +1374,8 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     !defined(CONFIG_NSH_DISABLE_MKFIFO)
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
@@ -1584,6 +1597,8 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_MV
 int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *oldpath;
   FAR char *newpath;
   int ret;
@@ -1631,6 +1646,8 @@ errout_with_oldpath:
 #if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
 int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *fullpath;
   ssize_t len;
 
@@ -1725,6 +1742,8 @@ static int unlink_recursive(FAR char *path)
 
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   bool recursive = (strcmp(argv[1], "-r") == 0);
   FAR char *fullpath = nsh_getfullpath(vtbl, recursive ? argv[2] : argv[1]);
   char buf[PATH_MAX];
@@ -1763,6 +1782,8 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_RMDIR
 int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
@@ -1790,6 +1811,8 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_SOURCE
 int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   return nsh_script(vtbl, argv[0], argv[1]);
 }
 #endif
@@ -1802,6 +1825,8 @@ int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_CMP
 int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *path1 = NULL;
   FAR char *path2 = NULL;
   off_t total_read = 0;
@@ -1880,7 +1905,7 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* A partial read indicates the end of file (usually) */
 
-      if (nbytesread1 < (size_t)sizeof(buf1))
+      if (nbytesread1 < (ssize_t)sizeof(buf1))
         {
           break;
         }
@@ -1913,6 +1938,8 @@ errout:
 #ifndef CONFIG_NSH_DISABLE_TRUNCATE
 int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   FAR char *fullpath;
   FAR char *endptr;
   struct stat buf;

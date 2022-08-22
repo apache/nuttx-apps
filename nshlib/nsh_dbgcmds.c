@@ -71,6 +71,8 @@ struct dbgmem_s
 static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv,
                      FAR struct dbgmem_s *mem)
 {
+  UNUSED(vtbl);
+
   FAR char *pcvalue = strchr(argv[1], '=');
   unsigned long lvalue = 0;
 
@@ -327,6 +329,8 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
 #ifndef CONFIG_NSH_DISABLE_XD
 int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  UNUSED(argc);
+
   FAR char *addr;
   FAR char *endptr;
   int       nbytes;
@@ -493,6 +497,8 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef HAVE_IRQINFO
 int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  UNUSED(argc);
+
   return nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/irqs");
 }
 #endif

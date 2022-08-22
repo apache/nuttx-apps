@@ -794,7 +794,7 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
   size_t allocsize;
   ssize_t nbytesread;
   FAR char *argument;
-  int index;
+  unsigned index;
   int fd;
   int ret;
 
@@ -1186,7 +1186,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl,
       while (len > 0 && *ptr != '\0')
         {
           FAR char *prev = working + len - 1;
-          int bcount;
+          unsigned bcount;
           bool quoted;
 
           /* Check if the current character is quoted */
@@ -2740,6 +2740,9 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
 int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+  UNUSED(argv);
+
   FAR struct nsh_parser_s *np = &vtbl->np;
 
   /* Break outside of a loop is ignored */
