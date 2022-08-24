@@ -565,14 +565,14 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
           return NULL;
         }
 
-#ifdef CONFIG_NET_UDP_BINDTODEVICE
+#ifdef CONFIG_NET_BINDTODEVICE
       /* Bind socket to interface, because UDP packets have to be sent to the
        * broadcast address at a moment when it is not possible to decide the
        * target network device using the local or remote address (which is,
        * by definition and purpose of DHCP, undefined yet).
        */
 
-      ret = setsockopt(pdhcpc->sockfd, IPPROTO_UDP, UDP_BINDTODEVICE,
+      ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_BINDTODEVICE,
                        pdhcpc->interface, strlen(pdhcpc->interface));
       if (ret < 0)
         {
