@@ -1,4 +1,5 @@
-/*-
+/****************************************************************************
+ * apps/testing/crypto/hmac.c
  * Copyright (c) 2008 Damien Bergamini <damien.bergamini@free.fr>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -12,87 +13,239 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
+ ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <err.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <crypto/cryptodev.h>
+#include <string.h>
+#include <sys/ioctl.h>
 #include <crypto/md5.h>
 #include <crypto/sha1.h>
 #include <crypto/sha2.h>
-#include <crypto/hmac.h>
-#include <string.h>
 
-static void
-print_hex(unsigned char *buf, int len)
+struct tb
 {
-	int i;
+  FAR char *key;
+  int keylen;
+  FAR char *data;
+  int datalen;
+}
+testcase[] =
+{
+    {
+      "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b",
+      16,
+      "Hi There",
+      8,
+    },
+    {
+      "Jefe",
+      4,
+      "what do ya want for nothing?",
+      28,
+    },
+    {
+      "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa",
+      16,
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd"
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd"
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd"
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd"
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd",
+      50
+    },
+};
 
-	printf("digest = 0x");
-	for (i = 0; i < len; i++)
-		printf("%02x", buf[i]);
-	printf("\n");
+FAR char *md5_result[] =
+{
+  "\x92\x94\x72\x7a\x36\x38\xbb\x1c\x13\xf4\x8e\xf8\x15\x8b\xfc\x9d",
+  "\x75\x0c\x78\x3e\x6a\xb0\xb5\x03\xea\xa8\x6e\x31\x0a\x5d\xb7\x38",
+  "\x56\xbe\x34\x52\x1d\x14\x4c\x88\xdb\xb8\xc7\x33\xf0\xe8\xb3\xf6"
+};
+
+FAR char *sha1_result[] =
+{
+  "\x67\x5b\x0b\x3a\x1b\x4d\xdf\x4e\x12\x48\x72\xda\x6c\x2f\x63\x2b"
+  "\xfe\xd9\x57\xe9",
+  "\xef\xfc\xdf\x6a\xe5\xeb\x2f\xa2\xd2\x74\x16\xd5\xf1\x84\xdf\x9c"
+  "\x25\x9a\x7c\x79",
+  "\xd7\x30\x59\x4d\x16\x7e\x35\xd5\x95\x6f\xd8\x00\x3d\x0d\xb3\xd3"
+  "\xf4\x6d\xc7\xbb"
+};
+
+FAR char *sha256_result[] =
+{
+  "\x49\x2c\xe0\x20\xfe\x25\x34\xa5\x78\x9d\xc3\x84\x88\x06\xc7\x8f"
+  "\x4f\x67\x11\x39\x7f\x08\xe7\xe7\xa1\x2c\xa5\xa4\x48\x3c\x8a\xa6",
+  "\x5b\xdc\xc1\x46\xbf\x60\x75\x4e\x6a\x04\x24\x26\x08\x95\x75\xc7"
+  "\x5a\x00\x3f\x08\x9d\x27\x39\x83\x9d\xec\x58\xb9\x64\xec\x38\x43",
+  "\x7d\xda\x3c\xc1\x69\x74\x3a\x64\x84\x64\x9f\x94\xf0\xed\xa0\xf9"
+  "\xf2\xff\x49\x6a\x97\x33\xfb\x79\x6e\xd5\xad\xb4\x0a\x44\xc3\xc1"
+};
+
+int syshmac(int mac, FAR const char *key, size_t keylen,
+            FAR const char *s, size_t len, FAR char *out)
+{
+  struct session_op session;
+  struct crypt_op cryp;
+  int cryptodev_fd = -1;
+
+  if ((cryptodev_fd = open("/dev/crypto", O_RDWR, 0)) < 0)
+    {
+      warn("/dev/crypto");
+      goto err;
+    }
+
+  memset(&session, 0, sizeof(session));
+  session.cipher = 0;
+  session.mac = mac;
+  session.mackey = (caddr_t)key;
+  session.mackeylen = keylen;
+  if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
+    {
+      warn("CIOCGSESSION");
+      goto err;
+    }
+
+  memset(&cryp, 0, sizeof(cryp));
+  cryp.ses = session.ses;
+  cryp.op = COP_ENCRYPT;
+  cryp.flags = 0;
+  cryp.src = (caddr_t) s;
+  cryp.len = len;
+  cryp.dst = 0;
+  cryp.mac = (caddr_t) out;
+  cryp.iv = 0;
+  if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+    {
+      warn("CIOCCRYPT");
+      goto err;
+    }
+
+  if (ioctl(cryptodev_fd, CIOCFSESSION, &session.ses) == -1)
+    {
+      warn("CIOCFSESSION");
+      goto err;
+    };
+
+  close(cryptodev_fd);
+  return 0;
+err:
+  if (cryptodev_fd != -1)
+    {
+      close(cryptodev_fd);
+    }
+
+  return 1;
 }
 
-int
-main(void)
+static int match(unsigned char *a, unsigned char *b, size_t len)
 {
-	HMAC_MD5_CTX md5;
-	HMAC_SHA1_CTX sha1;
-	HMAC_SHA256_CTX sha256;
-	u_int8_t data[50], output[32];
+  int i;
 
-	HMAC_MD5_Init(&md5, "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b", 16);
-	HMAC_MD5_Update(&md5, "Hi There", 8);
-	HMAC_MD5_Final(output, &md5);
-	print_hex(output, MD5_DIGEST_LENGTH);
+  if (memcmp(a, b, len) == 0)
+    return (0);
 
-	HMAC_MD5_Init(&md5, "Jefe", 4);
-	HMAC_MD5_Update(&md5, "what do ya want for nothing?", 28);
-	HMAC_MD5_Final(output, &md5);
-	print_hex(output, MD5_DIGEST_LENGTH);
+  warnx("hmac mismatch");
 
-	HMAC_MD5_Init(&md5, "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA", 16);
-	memset(data, 0xDD, sizeof data);
-	HMAC_MD5_Update(&md5, data, sizeof data);
-	HMAC_MD5_Final(output, &md5);
-	print_hex(output, MD5_DIGEST_LENGTH);
+  for (i = 0; i < len; i++)
+    {
+      printf("%02x", a[i]);
+    }
 
-	HMAC_SHA1_Init(&sha1, "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b", 16);
-	HMAC_SHA1_Update(&sha1, "Hi There", 8);
-	HMAC_SHA1_Final(output, &sha1);
-	print_hex(output, SHA1_DIGEST_LENGTH);
+  printf("\n");
+  for (i = 0; i < len; i++)
+    {
+      printf("%02x", b[i]);
+    }
 
-	HMAC_SHA1_Init(&sha1, "Jefe", 4);
-	HMAC_SHA1_Update(&sha1, "what do ya want for nothing?", 28);
-	HMAC_SHA1_Final(output, &sha1);
-	print_hex(output, SHA1_DIGEST_LENGTH);
+  printf("\n");
 
-	HMAC_SHA1_Init(&sha1, "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA", 16);
-	memset(data, 0xDD, sizeof data);
-	HMAC_SHA1_Update(&sha1, data, sizeof data);
-	HMAC_SHA1_Final(output, &sha1);
-	print_hex(output, SHA1_DIGEST_LENGTH);
-
-	HMAC_SHA256_Init(&sha256, "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b", 16);
-	HMAC_SHA256_Update(&sha256, "Hi There", 8);
-	HMAC_SHA256_Final(output, &sha256);
-	print_hex(output, SHA256_DIGEST_LENGTH);
-
-	HMAC_SHA256_Init(&sha256, "Jefe", 4);
-	HMAC_SHA256_Update(&sha256, "what do ya want for nothing?", 28);
-	HMAC_SHA256_Final(output, &sha256);
-	print_hex(output, SHA256_DIGEST_LENGTH);
-
-	HMAC_SHA256_Init(&sha256, "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA", 16);
-	memset(data, 0xDD, sizeof data);
-	HMAC_SHA256_Update(&sha256, data, sizeof data);
-	HMAC_SHA256_Final(output, &sha256);
-	print_hex(output, SHA256_DIGEST_LENGTH);
-
-	return 0;
+  return (1);
 }
 
-void
-explicit_bzero(void *b, size_t len)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(void)
 {
-	bzero(b, len);
+  char output[32];
+  int ret = 0;
+  for (int i = 0; i < sizeof(testcase) / sizeof(struct tb); i++)
+    {
+      ret += syshmac(CRYPTO_MD5_HMAC, testcase[i].key,
+                     testcase[i].keylen,
+                     testcase[i].data, testcase[i].datalen, output);
+      if (ret)
+        {
+          printf("syshamc md5 failed\n");
+        }
+
+      ret += match((unsigned char *)md5_result[i],
+                   (unsigned char *)output,
+                   MD5_DIGEST_LENGTH);
+      if (ret)
+        {
+          printf("match md5 failed\n");
+        }
+      else
+        {
+          printf("hmac md5 success\n");
+        }
+    }
+
+  for (int i = 0; i < sizeof(testcase) / sizeof(struct tb); i++)
+    {
+      ret = syshmac(CRYPTO_SHA1_HMAC, testcase[i].key,
+                    testcase[i].keylen,
+                    testcase[i].data, testcase[i].datalen, output);
+      if (ret)
+        {
+          printf("syshamc sha1 failed\n");
+        }
+
+      ret = match((unsigned char *)sha1_result[i],
+                   (unsigned char *)output,
+                   SHA1_DIGEST_LENGTH);
+      if (ret)
+        {
+          printf("match sha1 failed\n");
+        }
+      else
+        {
+          printf("hmac sha1 success\n");
+        }
+    }
+
+  for (int i = 0; i < sizeof(testcase) / sizeof(struct tb); i++)
+    {
+      ret = syshmac(CRYPTO_SHA2_256_HMAC, testcase[i].key,
+                    testcase[i].keylen,
+                    testcase[i].data, testcase[i].datalen, output);
+      if (ret)
+        {
+          printf("syshamc sha256 failed\n");
+        }
+
+      ret = match((unsigned char *)sha256_result[i],
+                   (unsigned char *)output,
+                   SHA256_DIGEST_LENGTH);
+      if (ret)
+        {
+          printf("match sha256 failed\n");
+        }
+      else
+        {
+          printf("hmac sha256 success\n");
+        }
+    }
+
+  return 0;
 }
