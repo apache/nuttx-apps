@@ -314,8 +314,8 @@ int foc_ident_ind_run_b16(FAR struct foc_ident_b16_s *ident,
       tmp1 = b16muli(ident->curr1_sum, 2);
       tmp2 = b16muli(ident->curr2_sum, 2);
 
-      curr1_avg = b16divb16(tmp1, ident->cntr);
-      curr2_avg = b16divb16(tmp2, ident->cntr);
+      curr1_avg = b16divi(tmp1, ident->cntr);
+      curr2_avg = b16divi(tmp2, ident->cntr);
 
       /* Average delta current */
 
@@ -374,7 +374,7 @@ int foc_ident_ind_run_b16(FAR struct foc_ident_b16_s *ident,
 int foc_routine_ident_init_b16(FAR foc_routine_b16_t *r)
 {
   FAR struct foc_ident_b16_s *i   = NULL;
- int ret = OK;
+  int ret = OK;
 
   DEBUGASSERT(r);
 
