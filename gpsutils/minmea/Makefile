@@ -40,12 +40,16 @@ $(MINMEA_UNPACKDIR):
 CSRCS	= minmea/minmea.c
 CFLAGS += -std=c99
 
-context:: $(MINMEA_UNPACKDIR)
 
 clean::
 	$(call DELFILE, $(OBJS))
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(MINMEA_UNPACKDIR)/.git),)
+context:: $(MINMEA_UNPACKDIR)
+
 distclean::
 	$(call DELDIR, $(MINMEA_UNPACKDIR))
+endif
 
 include $(APPDIR)/Application.mk

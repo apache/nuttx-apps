@@ -39,10 +39,13 @@ $(MQTTC_UNPACK): $(MQTTC_TARBALL)
 	$(Q) mv MQTT-C-$(MQTTC_VERSION) $(MQTTC_UNPACK)
 	$(Q) touch $(MQTTC_UNPACK)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(MQTTC_UNPACK)/.git),)
 context:: $(MQTTC_UNPACK)
 
 distclean::
 	$(call DELFILE, $(MQTTC_TARBALL))
 	$(call DELDIR, $(MQTTC_UNPACK))
+endif
 
 include $(APPDIR)/Application.mk

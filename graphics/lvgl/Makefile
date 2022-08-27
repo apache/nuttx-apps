@@ -70,10 +70,13 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
 context:: $(LVGL_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(LVGL_UNPACKNAME))
 	$(call DELFILE, $(LVGL_TARBALL))
+endif
 
 include $(APPDIR)/Application.mk
