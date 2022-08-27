@@ -39,6 +39,7 @@
  ****************************************************************************/
 
 #define IDENT_PI_KP           (ftob16(0.0f))
+#define B16UPPERLIMIT         (0x7e000000)
 
 /****************************************************************************
  * Private Data Types
@@ -211,6 +212,15 @@ int foc_ident_res_run_b16(FAR struct foc_ident_b16_s *ident,
       ident->curr_sum += vector2d_mag_b16(in->foc_state->idq.q,
                                           in->foc_state->idq.d);
     }
+
+  /* Overflow protection */
+
+  if (ident->volt_sum > B16UPPERLIMIT || ident->curr_sum > B16UPPERLIMIT)
+    {
+      ret = -EOVERFLOW;
+      goto errout;
+    }
+
   if (ident->cntr > ident->cfg.res_steps)
     {
       /* Get resistance */
@@ -243,6 +253,7 @@ int foc_ident_res_run_b16(FAR struct foc_ident_b16_s *ident,
       ident->volt_sum = 0;
     }
 
+errout:
   return ret;
 }
 
@@ -287,6 +298,14 @@ int foc_ident_ind_run_b16(FAR struct foc_ident_b16_s *ident,
       /* Average top current */
 
       ident->curr2_sum += in->foc_state->idq.d;
+    }
+
+  /* Overflow protection */
+
+  if (ident->curr1_sum > B16UPPERLIMIT || ident->curr2_sum > B16UPPERLIMIT)
+    {
+      ret = -EOVERFLOW;
+      goto errout;
     }
 
   /* Invert voltage to generate square wave D voltage */
@@ -357,6 +376,7 @@ int foc_ident_ind_run_b16(FAR struct foc_ident_b16_s *ident,
       ident->curr2_sum = 0;
     }
 
+errout:
   return ret;
 }
 
