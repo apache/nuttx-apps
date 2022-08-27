@@ -63,15 +63,21 @@ enum foc_foc_mode_e
 
 enum foc_motor_mode_e
 {
-  FOC_MMODE_INVALID = 0,     /* Reserved */
+  FOC_MMODE_INVALID    = 0,  /* Reserved */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-  FOC_MMODE_TORQ    = 1,     /* Torque control */
+  FOC_MMODE_TORQ       = 1,  /* Torque control */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-  FOC_MMODE_VEL     = 2,     /* Velocity control */
+  FOC_MMODE_VEL        = 2,  /* Velocity control */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-  FOC_MMODE_POS     = 3      /* Position control */
+  FOC_MMODE_POS        = 3,  /* Position control */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  FOC_MMODE_ALIGN_ONLY = 4,  /* Sensor alignment only */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  FOC_MMODE_IDENT_ONLY = 5,  /* Motor identification only */
 #endif
 };
 

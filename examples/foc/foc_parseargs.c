@@ -93,6 +93,13 @@ static void foc_help(void)
   PRINTF("       1 - torqe control\n");
   PRINTF("       2 - velocity control\n");
   PRINTF("       3 - position control\n");
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  PRINTF("       4 - align only\n");
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  PRINTF("       5 - ident only\n");
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   PRINTF("  [-r] torque [x1000]\n");
 #endif

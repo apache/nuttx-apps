@@ -548,6 +548,18 @@ static int foc_motor_setpoint(FAR struct foc_motor_b16_s *motor, uint32_t sp)
         }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+      case FOC_MMODE_ALIGN_ONLY:
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+      case FOC_MMODE_IDENT_ONLY:
+#endif
+        {
+          /* Do nothing */
+
+          break;
+        }
+
       default:
         {
           PRINTF("ERROR: unsupported ctrl mode %d\n", motor->envp->mmode);
@@ -995,7 +1007,23 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 
   /* Initialize controller state */
 
-  motor->ctrl_state = FOC_CTRL_STATE_INIT;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  if (motor->envp->mmode == FOC_MMODE_ALIGN_ONLY)
+    {
+      motor->ctrl_state = FOC_CTRL_STATE_ALIGN;
+    }
+  else
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  if (motor->envp->mmode == FOC_MMODE_IDENT_ONLY)
+    {
+      motor->ctrl_state = FOC_CTRL_STATE_IDENT;
+    }
+  else
+#endif
+    {
+      motor->ctrl_state = FOC_CTRL_STATE_INIT;
+    }
 
 #if defined(CONFIG_EXAMPLES_FOC_SENSORED) ||  \
     defined(CONFIG_EXAMPLES_FOC_HAVE_RUN) ||  \
@@ -1215,6 +1243,11 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
 
               motor->ctrl_state += 1;
               motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+              if (motor->envp->mmode == FOC_MMODE_ALIGN_ONLY)
+                {
+                  motor->ctrl_state = FOC_CTRL_STATE_TERMINATE;
+                }
             }
 
           break;
@@ -1239,6 +1272,11 @@ int foc_motor_control(FAR struct foc_motor_b16_s *motor)
 
               motor->ctrl_state += 1;
               motor->foc_mode = FOC_HANDLER_MODE_IDLE;
+
+              if (motor->envp->mmode == FOC_MMODE_IDENT_ONLY)
+                {
+                  motor->ctrl_state = FOC_CTRL_STATE_TERMINATE;
+                }
             }
 
           break;
