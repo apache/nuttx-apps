@@ -103,10 +103,13 @@ $(LIBTOMMATH_UNPACKNAME): $(LIBTOMMATH_ZIP)
 	$(Q) mv	libtommath-$(LIBTOMMATH_VERSION) $(LIBTOMMATH_UNPACKNAME)
 	$(Q) touch $(LIBTOMMATH_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LIBTOMMATH_UNPACKNAME)/.git),)
 context:: $(LIBTOMMATH_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(LIBTOMMATH_UNPACKNAME))
 	$(call DELFILE, $(LIBTOMMATH_ZIP))
+endif
 
 include $(APPDIR)/Application.mk

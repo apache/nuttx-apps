@@ -52,10 +52,13 @@ $(ARGTABLE3_UNPACK): $(ARGTABLE3_TARBALL)
 	$(Q) tar zxf $(ARGTABLE3_TARBALL)
 	$(Q) mv argtable3-$(ARGTABLE3_VERSION) $(ARGTABLE3_UNPACK)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(ARGTABLE3_UNPACK)/.git),)
 context:: $(ARGTABLE3_UNPACK)
 
 distclean::
 	$(call DELFILE, $(ARGTABLE3_TARBALL))
 	$(call DELDIR, $(ARGTABLE3_UNPACK))
+endif
 
 include $(APPDIR)/Application.mk

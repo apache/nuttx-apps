@@ -68,13 +68,13 @@ $(WASM3_UNPACK): $(WASM3_TARBALL)
 	$(Q) tar xzvf $(WASM3_TARBALL)
 	$(Q) mv wasm3-$(WASM3_VERSION) $(WASM3_UNPACK)
 
-$(WASM3_UNPACK)/.patch: $(WASM3_UNPACK)
-	$(Q) touch $(WASM3_UNPACK)/.patch
-
-context:: $(WASM3_UNPACK)/.patch
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(WASM3_UNPACK)/.git),)
+context:: $(WASM3_UNPACK)
 
 distclean::
 	$(call DELDIR, $(WASM3_UNPACK))
 	$(call DELFILE, $(WASM3_TARBALL))
+endif
 
 include $(APPDIR)/Application.mk

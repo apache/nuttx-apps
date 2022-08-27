@@ -55,10 +55,13 @@ $(IOZONE_UNPACKNAME): $(IOZONE_ZIP)
 	$(Q) cat iozone.patch | patch -s -N -d $(IOZONE_UNPACKNAME) -p1
 	$(Q) touch $(IOZONE_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(IOZONE_UNPACKNAME)/.git),)
 context:: $(IOZONE_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(IOZONE_UNPACKNAME))
 	$(call DELFILE, $(IOZONE_ZIP))
+endif
 
 include $(APPDIR)/Application.mk
