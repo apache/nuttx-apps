@@ -476,10 +476,13 @@ $(LIBTOMCRYPT_UNPACKNAME): $(LIBTOMCRYPT_ZIP)
 	$(Q) patch -p0 < ltcrypt-flush.patch # Missing stdout flush in demo app
 	$(Q) touch $(LIBTOMCRYPT_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LIBTOMCRYPT_UNPACKNAME)/.git),)
 context:: $(LIBTOMCRYPT_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(LIBTOMCRYPT_UNPACKNAME))
 	$(call DELFILE, $(LIBTOMCRYPT_ZIP))
+endif
 
 include $(APPDIR)/Application.mk

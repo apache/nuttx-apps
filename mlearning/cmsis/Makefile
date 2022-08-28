@@ -26,10 +26,13 @@ cmsis.zip:
 	$(Q) mv CMSIS_5-$(CONFIG_CMSIS_VER) CMSIS_5
 	$(Q) patch -p0 < cmsis-nn-support_nnabla.patch
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard CMSIS_5/.git),)
 context:: cmsis.zip
 
 distclean::
 	$(call DELDIR, CMSIS_5)
 	$(call DELFILE, cmsis.zip)
+endif
 
 include $(APPDIR)/Application.mk

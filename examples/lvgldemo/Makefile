@@ -87,10 +87,13 @@ $(LVGL_EXAMPLES_UNPACKNAME): $(LVGL_EXAMPLES_TARBALL)
 	$(Q) mv	lv_demos-$(LVGL_EXAMPLES_VERSION) $(LVGL_EXAMPLES_UNPACKNAME)
 	$(Q) touch $(LVGL_EXAMPLES_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LVGL_EXAMPLES_UNPACKNAME)/.git),)
 context:: $(LVGL_EXAMPLES_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(LVGL_EXAMPLES_UNPACKNAME))
 	$(call DELFILE, $(LVGL_EXAMPLES_TARBALL))
+endif
 
 include $(APPDIR)/Application.mk

@@ -208,6 +208,8 @@ endif
 
 # building of embedlog
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(EMBEDLOG_SOURCES)/.git),)
 $(EMBEDLOG_TARBALL):
 	@echo "Downloading: $@"
 	$(Q) curl -L -o $@ $(EMBEDLOG_URL)/$@
@@ -218,6 +220,7 @@ $(EMBEDLOG_SOURCES): $(EMBEDLOG_TARBALL)
 	$(Q) $(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
+endif
 
 $(EMBEDLOG_SOURCES)/include/embedlog.h: $(EMBEDLOG_SOURCES)/include/embedlog.h.in
 	@echo "Generating: $@"

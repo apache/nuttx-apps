@@ -82,6 +82,23 @@
 #  error
 #endif
 
+/* Motor identification support */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+#  if (CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT == 0)
+#    error
+#  endif
+#  if (CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE == 0)
+#    error
+#  endif
+#  if (CONFIG_EXAMPLES_FOC_IDENT_RES_SEC == 0)
+#    error
+#  endif
+#  if (CONFIG_EXAMPLES_FOC_IDENT_IND_SEC == 0)
+#    error
+#  endif
+#endif
+
 /* Printer prescaler */
 
 #if defined(CONFIG_INDUSTRY_FOC_HANDLER_PRINT) && \

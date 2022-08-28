@@ -20,7 +20,6 @@
 
 include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_DARKNET_YOLO),y)
 SRC = darknet/src
 
 CSRCS   +=$(SRC)/gemm.c
@@ -79,12 +78,13 @@ darknet.zip:
 	$(Q) unzip -o darknet.zip
 	$(Q) mv darknet-$(DARKNET_YOLO_VER) darknet
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard darknet/.git),)
 context:: darknet.zip
 
 distclean::
 	$(call DELDIR, darknet)
 	$(call DELFILE, darknet.zip)
-
 endif
 
 include $(APPDIR)/Application.mk

@@ -188,6 +188,8 @@ static void readline_write(FAR struct rl_common_s *vtbl,
 
 ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 {
+  UNUSED(outfd);
+
   struct readline_s vtbl;
 
   /* Set up the vtbl structure */

@@ -75,7 +75,10 @@ $(LUA_UNPACK): $(LUA_TARBALL)
 	$(Q) echo "Unpacking $(LUA_TARBALL) to $(LUA_UNPACK)"
 	$(Q) tar -xvzf $(LUA_TARBALL)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LUA_UNPACK)/.git),)
 context:: $(LUA_UNPACK)
+endif
 
 # Register core modules
 
@@ -129,7 +132,9 @@ clean_context::
 
 distclean:: clean_context clean
 	$(call DELFILE, registry$(DELIM).updated)
+ifeq ($(wildcard $(LUA_UNPACK)/.git),)
 	$(call DELDIR, $(LUA_UNPACK))
 	$(call DELFILE, $(LUA_TARBALL))
+endif
 
 include $(APPDIR)/Application.mk

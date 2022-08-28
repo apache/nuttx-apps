@@ -80,6 +80,8 @@
 
 int telnetd_daemon(int argc, FAR char *argv[])
 {
+  UNUSED(argc);
+
   FAR struct telnetd_s *daemon;
   union
   {
