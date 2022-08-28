@@ -67,7 +67,9 @@ struct cmdhist_s
 
 /* <esc>[K is the VT100 command erases to the end of the line. */
 
+#ifdef CONFIG_READLINE_ECHO
 static const char g_erasetoeol[] = VT100_CLEAREOL;
+#endif
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
 /* Prompt string to present at the beginning of the line */
@@ -280,13 +282,13 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
               RL_PUTC(vtbl, ' ');
               RL_PUTC(vtbl, ' ');
 
-              for (j = 0; j < strlen(name); j++)
+              for (j = 0; j < (int)strlen(name); j++)
                 {
                   /* Removing characters that aren't common to all the
                    * matches.
                    */
 
-                  if (j < sizeof(tmp_name) && name[j] != tmp_name[j])
+                  if (j < (int)sizeof(tmp_name) && name[j] != tmp_name[j])
                     {
                       tmp_name[j] = '\0';
                     }
@@ -341,7 +343,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
           if (g_readline_prompt != NULL)
             {
-              for (i = 0; i < strlen(g_readline_prompt); i++)
+              for (i = 0; i < (int)strlen(g_readline_prompt); i++)
                 {
                   RL_PUTC(vtbl, g_readline_prompt[i]);
                 }

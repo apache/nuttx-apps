@@ -48,6 +48,10 @@ struct foc_routine_ident_cb_f32_s
 
   FAR void *priv_speed;
 
+  /* Private data for kpki callbacks */
+
+  FAR void *priv_kpki;
+
   /* Openloop angle zero callback */
 
   CODE int (*zero)(FAR void *priv);
@@ -59,6 +63,10 @@ struct foc_routine_ident_cb_f32_s
   /* Identification openloop speed callback */
 
   CODE float (*speed)(FAR void *priv, float des, float now);
+
+  /* Identification calculate kp and ki callback */
+
+  CODE int (*kpki)(FAR void *priv, float res, float ind, float per);
 };
 #endif
 
@@ -70,7 +78,7 @@ struct foc_routine_ident_cfg_f32_s
   struct foc_routine_ident_cb_f32_s cb; /* Identification routine callbacks */
 
   float flux_vel;               /* Flux linkage measurement velocity */
-  float flux_volt;              /* Flux linkage measurement voltage */
+  float flux_curr;              /* Flux linkage measurement current */
   int   flux_steps;             /* Flux linkage measurement steps */
 #endif
   float per;                    /* Routine period in sec */

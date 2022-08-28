@@ -67,7 +67,7 @@ static int mkfatfs_devwrite(FAR const struct fat_format_s *fmt,
 
   /* Convert the sector number to a byte offset */
 
-  if (sector < 0 || sector >= fmt->ff_nsectors)
+  if (sector < 0 || sector >= (off_t)fmt->ff_nsectors)
     {
       ferr("sector out of range: %ju\n", (intmax_t)sector);
       return -ESPIPE;
@@ -320,6 +320,8 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 static inline void mkfatfs_initfsinfo(FAR struct fat_format_s *fmt,
                                       FAR struct fat_var_s *var)
 {
+  UNUSED(fmt);
+
   memset(var->fv_sect, 0, var->fv_sectorsize);
 
   /* 4@0: 0x41615252 = "RRaA" */
@@ -481,8 +483,8 @@ static inline int mkfatfs_writefat(FAR struct fat_format_s *fmt,
                                    FAR struct fat_var_s *var)
 {
   off_t offset = fmt->ff_rsvdseccount;
-  int fatno;
-  int sectno;
+  uint8_t fatno;
+  uint32_t sectno;
   int ret;
 
   /* Loop for each FAT copy */

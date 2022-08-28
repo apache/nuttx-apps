@@ -83,10 +83,13 @@ $(MCUBOOT_UNPACK): $(MCUBOOT_TARBALL)
 	$(Q) mv mcuboot-$(MCUBOOT_VERSION) $(MCUBOOT_UNPACK)
 	$(Q) touch $(MCUBOOT_UNPACK)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(MCUBOOT_UNPACK)/.git),)
 context:: $(MCUBOOT_UNPACK)
 
 distclean::
 	$(call DELFILE, $(MCUBOOT_TARBALL))
 	$(call DELDIR, $(MCUBOOT_UNPACK))
+endif
 
 include $(APPDIR)/Application.mk

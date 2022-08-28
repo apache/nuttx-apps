@@ -80,16 +80,26 @@ static struct option g_long_options[] =
 static void foc_help(void)
 {
   PRINTF("Usage: foc [OPTIONS]\n");
-  PRINTF("  [-t] run time\n");
+  PRINTF("  [-t] run time (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_TIME_DEFAULT);
   PRINTF("  [-h] shows this message and exits\n");
-  PRINTF("  [-f] FOC run mode\n");
+  PRINTF("  [-f] FOC run mode (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_FMODE);
   PRINTF("       1 - IDLE mode\n");
   PRINTF("       2 - voltage mode\n");
   PRINTF("       3 - current mode\n");
-  PRINTF("  [-m] controller mode\n");
+  PRINTF("  [-m] controller mode (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_MMODE);
   PRINTF("       1 - torqe control\n");
   PRINTF("       2 - velocity control\n");
   PRINTF("       3 - position control\n");
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
+  PRINTF("       4 - align only\n");
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  PRINTF("       5 - ident only\n");
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   PRINTF("  [-r] torque [x1000]\n");
 #endif
@@ -99,18 +109,22 @@ static void foc_help(void)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   PRINTF("  [-x] position [x1000]\n");
 #endif
-  PRINTF("  [-s] motor state\n");
+  PRINTF("  [-s] motor state init (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_STATE_INIT);
   PRINTF("       1 - motor free\n");
   PRINTF("       2 - motor stop\n");
   PRINTF("       3 - motor CW\n");
   PRINTF("       4 - motor CCW\n");
   PRINTF("  [-j] enable specific instances\n");
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  PRINTF("  [-o] openloop Vq/Iq setting [x1000]\n");
+  PRINTF("  [-o] openloop Vq/Iq setting [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_OPENLOOP_Q);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  PRINTF("  [--fki] PI Kp coefficient [x1000]\n");
-  PRINTF("  [--fkp] PI Ki coefficient [x1000]\n");
+  PRINTF("  [--fki] PI Kp coefficient [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDQ_KP);
+  PRINTF("  [--fkp] PI Ki coefficient [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDQ_KI);
 #endif
 }
 

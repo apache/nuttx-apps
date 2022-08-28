@@ -40,11 +40,14 @@ $(NIMBLE_UNPACKDIR): $(NIMBLE_TAR)
 	$(Q) mv mynewt-nimble-$(CONFIG_NIMBLE_REF) $(NIMBLE_UNPACKDIR)
 	$(Q) touch $(NIMBLE_UNPACKDIR)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(NIMBLE_UNPACKDIR)/.git),)
 context:: $(NIMBLE_UNPACKDIR)
 
 distclean::
 	$(call DELFILE,$(NIMBLE_TAR))
 	$(call DELDIR,$(NIMBLE_UNPACKDIR))
+endif
 
 # nimBLE assumes this flag since it expects undefined macros to be zero value
 
