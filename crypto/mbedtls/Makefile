@@ -50,11 +50,14 @@ $(MBEDTLS_UNPACKNAME): $(MBEDTLS_ZIP)
 	$(Q) mv	mbedtls-$(MBEDTLS_VERSION) $(MBEDTLS_UNPACKNAME)
 	$(Q) touch $(MBEDTLS_UNPACKNAME)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(MBEDTLS_UNPACKNAME)/.git),)
 context:: $(MBEDTLS_UNPACKNAME)
 
 distclean::
 	$(call DELDIR, $(MBEDTLS_UNPACKNAME))
 	$(call DELFILE, $(MBEDTLS_ZIP))
+endif
 
 # Configuration Applications
 

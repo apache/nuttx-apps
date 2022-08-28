@@ -273,7 +273,6 @@ config NSH_DISABLE_DIRNAME
 config NSH_DISABLE_DMESG
 	bool "Disable dmesg"
 	default DEFAULT_SMALL
-	depends on RAMLOG_SYSLOG
 
 config NSH_DISABLE_ECHO
 	bool "Disable echo"

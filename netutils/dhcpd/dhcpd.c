@@ -864,14 +864,14 @@ static inline int dhcpd_socket(FAR const char *interface)
     }
 #endif
 
-#ifdef CONFIG_NET_UDP_BINDTODEVICE
+#ifdef CONFIG_NET_BINDTODEVICE
   /* Bind socket to interface, because UDP packets have to be sent to the
    * broadcast address at a moment when it is not possible to decide the
    * target network device using the local or remote address (which is,
    * by definition and purpose of DHCP, undefined yet).
    */
 
-  if (setsockopt(sockfd, IPPROTO_UDP, UDP_BINDTODEVICE,
+  if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
                  interface, strlen(interface)) < 0)
     {
       ninfo("ERROR: setsockopt UDP_BINDTODEVICE failed: %d\n", errno);

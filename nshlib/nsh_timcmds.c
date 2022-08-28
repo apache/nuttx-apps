@@ -291,6 +291,8 @@ errout_bad_parm:
 #ifndef CONFIG_NSH_DISABLE_TIME
 int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   struct timespec start;
 #ifndef CONFIG_NSH_DISABLEBG
   bool bgsave;

@@ -132,9 +132,12 @@ $(LTP_UNPACK):
 	$(Q) git -C $(LTP_UNPACK) am < 0001-Fix-static-struct-warning.patch
 	$(Q) git -C $(LTP_UNPACK) am < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(LTP_UNPACK)/.git),)
 context:: $(LTP_UNPACK)
 
 distclean::
 	$(Q) rm -rf $(LTP_UNPACK)
+endif
 
 include $(APPDIR)/Application.mk

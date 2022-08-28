@@ -155,6 +155,8 @@ static inline FAR const char *nsh_getwd(const char *wd)
 static int nsh_dumpvar(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
                        FAR const char *pair)
 {
+  UNUSED(arg);
+
   nsh_output(vtbl, "%s\n", pair);
   return OK;
 }
@@ -360,6 +362,8 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_ENV
 int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   return nsh_catfile(vtbl, argv[0],
                      CONFIG_NSH_PROC_MOUNTPOINT "/self/group/env");
 }
@@ -373,6 +377,9 @@ int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_PWD
 int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+  UNUSED(argv);
+
   nsh_output(vtbl, "%s\n", nsh_getcwd());
   return OK;
 }
@@ -531,6 +538,8 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_UNSET
 int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
 #if defined(CONFIG_NSH_VARS) || !defined(CONFIG_DISABLE_ENVIRON)
   int status;
 #endif

@@ -50,10 +50,13 @@ $(WAMR_UNPACK): $(WAMR_TARBALL)
 	$(Q) mv wasm-micro-runtime-$(WAMR_VERSION) $(WAMR_UNPACK)
 	$(Q) touch $(WAMR_UNPACK)
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(WAMR_UNPACK)/.git),)
 context:: $(WAMR_UNPACK)
 
 distclean::
 	$(call DELDIR, $(WAMR_UNPACK))
 	$(call DELFILE, $(WAMR_TARBALL))
+endif
 
 include $(APPDIR)/Application.mk

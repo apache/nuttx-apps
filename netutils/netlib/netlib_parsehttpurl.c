@@ -51,7 +51,7 @@ int netlib_parsehttpurl(FAR const char *url, FAR uint16_t *port,
 {
   FAR const char *src = url;
   FAR char *dest;
-  int bytesleft;
+  size_t bytesleft;
   int ret = OK;
   size_t pathlen;
 

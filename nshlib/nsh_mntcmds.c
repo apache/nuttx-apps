@@ -361,6 +361,8 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && !defined(CONFIG_NSH_DISABLE_UMOUNT)
 int cmd_umount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  UNUSED(argc);
+
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 

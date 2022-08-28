@@ -46,6 +46,8 @@ CFLAGS += -DCJSON_INCLUDE_CONFIG_H
 CSRCS = $(CJSON_SRCDIR)$(DELIM)cJSON.c
 CSRCS += $(CJSON_SRCDIR)$(DELIM)cJSON_Utils.c
 
+# Download and unpack tarball if no git repo found
+ifeq ($(wildcard $(CJSON_UNPACKNAME)/.git),)
 $(CJSON_TARBALL):
 	@echo "Downloading: $(CJSON_TARBALL)"
 	$(Q) curl -O -L $(CONFIG_NETUTILS_CJSON_URL)/$(CJSON_TARBALL)
@@ -54,6 +56,7 @@ $(CJSON_UNPACKNAME): $(CJSON_TARBALL)
 	@echo "Unpacking: $(CJSON_TARBALL) -> $(CJSON_UNPACKNAME)"
 	$(Q) $(UNPACK) $(CJSON_TARBALL)
 	$(Q) touch $(CJSON_UNPACKNAME)
+endif
 
 $(CJSON_SRCDIR)$(DELIM)cJSON.h: $(CJSON_UNPACKNAME)
 
@@ -68,8 +71,10 @@ $(APPS_INCDIR)$(DELIM)cJSON_Utils.h: $(CJSON_SRCDIR)$(DELIM)cJSON_Utils.h
 context:: $(APPS_INCDIR)$(DELIM)cJSON.h $(APPS_INCDIR)$(DELIM)cJSON_Utils.h
 
 distclean::
+ifeq ($(wildcard $(CJSON_UNPACKNAME)/.git),)
 	$(call DELDIR, $(CJSON_UNPACKNAME))
 	$(call DELFILE, $(CJSON_TARBALL))
+endif
 	$(call DELFILE, $(APPDIR)/include/netutils/cJSON.h)
 	$(call DELFILE, $(APPDIR)/include/netutils/cJSON_Utils.h)
 

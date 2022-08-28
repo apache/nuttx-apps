@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config AUDIOUTILS_NXAUDIO_LIB
+	bool "NX Audio Library"
+	default n
+	---help---
+		Enable support for the NX Audio library.
+
+if AUDIOUTILS_NXAUDIO_LIB
+
+config AUDIOUTILS_NXAUDIO_DEVPATH
+	string "Audio Device file path"
+	default "/dev/audio/pcm1"
+	---help---
+		Audio device file path of target audio device.
+
+config AUDIOUTILS_NXAUDIO_MSGQNAME
+	string "Message queue name"
+	default "/tmp/fmaudio_mq"
+	---help---
+		Message queue name (file path) to communicate with audio message loop.
+
+endif
