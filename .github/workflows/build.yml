@@ -20,6 +20,9 @@ on:
       - 'releases/*'
     tags:
 
+permissions:
+  contents: read
+
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
