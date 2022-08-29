@@ -262,7 +262,7 @@ int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           /* Successful read.  Make sure that the buffer is null terminated */
 
-          DEBUGASSERT(nread <= remaining);
+          DEBUGASSERT(nread <= (ssize_t)remaining);
           ntotal += nread;
           buffer[ntotal] = '\0';
 

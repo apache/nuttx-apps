@@ -1160,7 +1160,7 @@ int nsh_extmatch_count(FAR char *name, FAR int *matches, int namelen)
     defined(CONFIG_READLINE_HAVE_EXTMATCH)
 FAR const char *nsh_extmatch_getname(int index)
 {
-  DEBUGASSERT(index > 0 && index <= NUM_CMDS);
+  DEBUGASSERT(index > 0 && index <= (int)NUM_CMDS);
   return  g_cmdmap[index].cmd;
 }
 #endif
