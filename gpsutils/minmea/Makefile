@@ -23,17 +23,14 @@ include $(APPDIR)/Make.defs
 MINMEA_URL ?= "https://github.com/kosma/minmea/archive"
 MINMEA_VERSION ?= db46128e73cee26d6a6eb0482dcba544ee1ea9f5
 
-MINMEA_DIR := $(APPDIR)/gpsutils/minmea/minmea
-MINMEA_UNPACKNAME := minmea
-MINMEA_UNPACKDIR := $(MINMEA_DIR)/$(MINMEA_UNPACKNAME)
+MINMEA_UNPACKNAME = minmea
 
-
-$(MINMEA_UNPACKDIR):
+$(MINMEA_UNPACKNAME):
 	@echo "Downloading: $(MINMEA_UNPACKNAME)"
 	$(Q) curl -O -L $(MINMEA_URL)/$(MINMEA_VERSION).zip
-	$(Q) unzip -o -j $(MINMEA_VERSION).zip
+	$(Q) mkdir $(MINMEA_UNPACKNAME)
+	$(Q) unzip -o -j $(MINMEA_VERSION).zip -d $(MINMEA_UNPACKNAME)
 	$(call DELFILE, $(MINMEA_VERSION).zip)
-	$(call MOVEFILE, $(MINMEA_UNPACKNAME)-$(MINMEA_VERSION), $(MINMEA_UNPACKDIR))
 
 # Files
 
@@ -45,11 +42,11 @@ clean::
 	$(call DELFILE, $(OBJS))
 
 # Download and unpack tarball if no git repo found
-ifeq ($(wildcard $(MINMEA_UNPACKDIR)/.git),)
-context:: $(MINMEA_UNPACKDIR)
+ifeq ($(wildcard $(MINMEA_UNPACKNAME)/.git),)
+context:: $(MINMEA_UNPACKNAME)
 
 distclean::
-	$(call DELDIR, $(MINMEA_UNPACKDIR))
+	$(call DELDIR, $(MINMEA_UNPACKNAME))
 endif
 
 include $(APPDIR)/Application.mk
