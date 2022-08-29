@@ -178,7 +178,7 @@ static int usrsock_rpmsg_send_ack(struct rpmsg_endpoint *ept,
   ack.head.events = events;
 
   ack.xid    = xid;
-  ack.result = result;
+  ack.result = result == -EINPROGRESS ? 0 : result;
 
   return rpmsg_send(ept, &ack, sizeof(ack));
 }
@@ -317,14 +317,15 @@ static int usrsock_rpmsg_connect_handler(struct rpmsg_endpoint *ept,
     {
       ret = psock_connect(&priv->socks[req->usockid],
               (const struct sockaddr *)(req + 1), req->addrlen);
-      if (ret == -EINPROGRESS)
-        {
-          inprogress = true;
-          ret = 0;
-        }
     }
 
   retr = usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
+  if (ret == -EINPROGRESS)
+    {
+      inprogress = true;
+      ret = 0;
+    }
+
   if (retr >= 0 && ret >= 0 && priv->pfds[req->usockid].ptr == NULL)
     {
       pthread_mutex_lock(&priv->mutex);
