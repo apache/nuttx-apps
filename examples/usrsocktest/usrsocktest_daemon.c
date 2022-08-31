@@ -856,7 +856,7 @@ static int recvfrom_request(int fd, FAR struct daemon_priv_s *priv,
 
   if (!tsock->connected)
     {
-      ret = -ENOTCONN;
+      ret = (tsock->endp) ? 0 : -ENOTCONN;
       goto prepare;
     }
 
