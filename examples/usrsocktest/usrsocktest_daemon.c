@@ -36,6 +36,7 @@
 #include <pthread.h>
 
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <nuttx/net/usrsock.h>
@@ -74,6 +75,7 @@ struct test_socket_s
   bool connect_refused:1;
   bool disconnected:1;
   int recv_avail_bytes;
+  int flags;
   FAR void *endp;
   struct usrsock_message_req_ack_s pending_resp;
 };
@@ -1333,7 +1335,12 @@ prepare:
 
   resp.reqack.head.flags = 0;
   resp.reqack.result = ret;
-  if (ret >= 0)
+  if (req->max_addrlen == 0)
+    {
+      resp.valuelen = 0;
+      resp.valuelen_nontrunc = sizeof(addr);
+    }
+  else if (ret >= 0)
     {
       resp.valuelen = sizeof(addr);
       resp.valuelen_nontrunc = sizeof(addr);
@@ -1366,6 +1373,133 @@ prepare:
       /* Send address (value) */
 
       wlen = write(fd, &addr, resp.valuelen);
+      if (wlen < 0)
+        {
+          return -errno;
+        }
+
+      if (wlen != resp.valuelen)
+        {
+          return -ENOSPC;
+        }
+    }
+
+  return OK;
+}
+
+static int ioctl_request(int fd, FAR struct daemon_priv_s *priv,
+                         FAR void *hdrbuf)
+{
+  FAR struct usrsock_request_ioctl_s *req = hdrbuf;
+  struct usrsock_message_datareq_ack_s resp = {
+  };
+
+  FAR struct test_socket_s *tsock;
+  uint32_t value;
+  ssize_t wlen;
+  ssize_t rlen;
+  int ret;
+
+  /* Check if this socket exists. */
+
+  tsock = test_socket_get(priv, req->usockid);
+  if (!tsock)
+    {
+      ret = -EBADFD;
+      goto prepare;
+    }
+
+  if (req->arglen != sizeof(value))
+    {
+      ret = -EINVAL;
+      goto prepare;
+    }
+
+  /* Read value. */
+
+  rlen = read(fd, &value, sizeof(value));
+  if (rlen < 0 || rlen < sizeof(value))
+    {
+      ret = -EFAULT;
+      goto prepare;
+    }
+
+  ret = OK;
+
+prepare:
+
+  /* Prepare response. */
+
+  resp.reqack.xid = req->head.xid;
+  resp.reqack.head.msgid  = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+  resp.reqack.head.flags  = 0;
+  resp.reqack.head.events = 0;
+
+  if (priv->conf->delay_all_responses)
+    {
+      resp.reqack.head.flags = USRSOCK_MESSAGE_FLAG_REQ_IN_PROGRESS;
+      resp.reqack.result = -EINPROGRESS;
+      resp.valuelen = 0;
+      resp.valuelen_nontrunc = 0;
+
+      /* Send ack response. */
+
+      wlen = write(fd, &resp, sizeof(resp));
+      if (wlen < 0)
+        {
+          return -errno;
+        }
+
+      if (wlen != sizeof(resp))
+        {
+          return -ENOSPC;
+        }
+
+      pthread_mutex_unlock(&daemon_mutex);
+      usleep(50 * 1000);
+      pthread_mutex_lock(&daemon_mutex);
+
+      /* Previous write was acknowledgment to request, informing that request
+       * is still in progress. Now write actual completion response.
+       */
+
+      resp.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
+      resp.reqack.head.flags &= ~USRSOCK_MESSAGE_FLAG_REQ_IN_PROGRESS;
+    }
+
+  resp.reqack.head.flags = 0;
+  resp.reqack.result = ret;
+  if (ret >= 0)
+    {
+      resp.valuelen = sizeof(value);
+      resp.valuelen_nontrunc = sizeof(value);
+
+      tsock->flags |= value;
+      value = tsock->flags;
+    }
+  else
+    {
+      resp.valuelen = 0;
+    }
+
+  /* Send response. */
+
+  wlen = write(fd, &resp, sizeof(resp));
+  if (wlen < 0)
+    {
+      return -errno;
+    }
+
+  if (wlen != sizeof(resp))
+    {
+      return -ENOSPC;
+    }
+
+  if (resp.valuelen > 0)
+    {
+      /* Send address (value) */
+
+      wlen = write(fd, &value, resp.valuelen);
       if (wlen < 0)
         {
           return -errno;
@@ -1436,6 +1570,12 @@ static int handle_usrsock_request(int fd, FAR struct daemon_priv_s *priv)
         {
           sizeof(struct usrsock_request_getsockname_s),
           getsockname_request,
+        },
+
+      [USRSOCK_REQUEST_IOCTL] =
+        {
+          sizeof(struct usrsock_request_ioctl_s),
+          ioctl_request,
         },
     };
 
