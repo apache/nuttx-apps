@@ -264,7 +264,7 @@ static int nxlooper_cmd_volume(FAR struct nxlooper_s *plooper, char *parg)
     {
       /* Get the percentage value from the argument */
 
-      percent = (uint16_t)(atof(parg) * 10.0);
+      percent = (uint16_t)(strtof(parg, NULL) * 10.0f);
       return nxlooper_setvolume(plooper, percent);
     }
 
