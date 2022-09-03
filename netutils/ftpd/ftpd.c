@@ -64,7 +64,9 @@
 
 #include <arpa/inet.h>
 
-#include "fsutils/passwd.h"
+#ifdef CONFIG_FTPD_LOGIN_PASSWD
+  #include "fsutils/passwd.h"
+#endif
 
 #include "netutils/ftpd.h"
 
@@ -2151,6 +2153,8 @@ static int ftpd_listbuffer(FAR struct ftpd_session_s *session,
                            FAR struct stat *st, FAR char *buffer,
                            size_t buflen, unsigned int opton)
 {
+  UNUSED(session);
+
   FAR char *name;
   size_t offset = 0;
 
@@ -4092,6 +4096,8 @@ static void ftpd_freesession(FAR struct ftpd_session_s *session)
 
 static void ftpd_workersetup(FAR struct ftpd_session_s *session)
 {
+  UNUSED(session);
+
 #if defined(CONFIG_NET_HAVE_IPTOS) || defined(CONFIG_NET_HAVE_OOBINLINE)
   int temp;
 #endif
