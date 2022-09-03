@@ -4262,7 +4262,9 @@ static FAR void *ftpd_worker(FAR void *arg)
  *   used to run the server.
  *
  * Input Parameters:
- *    None
+ *    port - The port that the server will listen to.
+ *    family - The type of INET family to use when opening the socket.
+ *    AF_INET and AF_INET6 are supported.
  *
  * Returned Value:
  *   On success, a non-NULL handle is returned that can be used to reference
@@ -4270,15 +4272,11 @@ static FAR void *ftpd_worker(FAR void *arg)
  *
  ****************************************************************************/
 
-FTPD_SESSION ftpd_open(sa_family_t family)
+FTPD_SESSION ftpd_open(int port, sa_family_t family)
 {
   FAR struct ftpd_server_s *server;
 
-  server = ftpd_openserver(21, family);
-  if (server == NULL)
-    {
-      server = ftpd_openserver(2211, family);
-    }
+  server = ftpd_openserver(port, family);
 
   return (FTPD_SESSION)server;
 }
