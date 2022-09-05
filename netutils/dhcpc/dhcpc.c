@@ -44,6 +44,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/random.h>
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -131,6 +132,7 @@ struct dhcpc_state_s
 {
   FAR const char    *interface;
   int                sockfd;
+  uint8_t            xid[4];
   struct in_addr     ipaddr;
   struct in_addr     serverid;
   struct dhcp_msg    packet;
@@ -144,11 +146,6 @@ struct dhcpc_state_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
-
-static const uint8_t xid[4] =
-{
-  0xad, 0xde, 0x12, 0x23
-};
 
 static const uint8_t magic_cookie[4] =
 {
@@ -234,7 +231,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
   pdhcpc->packet.op    = DHCP_REQUEST;
   pdhcpc->packet.htype = DHCP_HTYPE_ETHERNET;
   pdhcpc->packet.hlen  = pdhcpc->maclen;
-  memcpy(pdhcpc->packet.xid, xid, 4);
+  memcpy(pdhcpc->packet.xid, pdhcpc->xid, 4);
   memcpy(pdhcpc->packet.chaddr, pdhcpc->macaddr, pdhcpc->maclen);
   memset(&pdhcpc->packet.chaddr[pdhcpc->maclen], 0, 16 - pdhcpc->maclen);
   memcpy(pdhcpc->packet.options, magic_cookie, sizeof(magic_cookie));
@@ -435,7 +432,7 @@ static uint8_t dhcpc_parsemsg(FAR struct dhcpc_state_s *pdhcpc, int buflen,
                               FAR struct dhcpc_state *presult)
 {
   if (buflen >= 44 && pdhcpc->packet.op == DHCP_REPLY &&
-      memcmp(pdhcpc->packet.xid, xid, sizeof(xid)) == 0 &&
+      memcmp(pdhcpc->packet.xid, pdhcpc->xid, 4) == 0 &&
       memcmp(pdhcpc->packet.chaddr,
              pdhcpc->macaddr, pdhcpc->maclen) == 0)
     {
@@ -506,6 +503,10 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
   struct sockaddr_in addr;
   struct timeval tv;
   int ret;
+  const uint8_t default_xid[4] =
+  {
+    0xad, 0xde, 0x12, 0x23
+  };
 
   ninfo("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
         ((uint8_t *)macaddr)[0], ((uint8_t *)macaddr)[1],
@@ -517,6 +518,21 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
   pdhcpc = malloc(sizeof(struct dhcpc_state_s) + maclen - 1);
   if (pdhcpc)
     {
+      /* RFC2131: A DHCP client MUST choose 'xid's in such a
+       * way as to minimize the chance of using an 'xid' identical to one
+       * used by another client.
+       */
+
+      ret = getrandom(pdhcpc->xid, 4, 0);
+      if (ret != 4)
+        {
+          ret = getrandom(pdhcpc->xid, 4, GRND_RANDOM);
+          if (ret != 4)
+            {
+              memcpy(pdhcpc->xid, default_xid, 4);
+            }
+        }
+
       /* Initialize the allocated structure */
 
       memset(pdhcpc, 0, sizeof(struct dhcpc_state_s));
@@ -664,6 +680,13 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   uint8_t msgtype;
   int     retries;
   int     state;
+
+  /* RFC2131: For example, a client may choose a different,
+   * random initial 'xid' each time the client is rebooted, and
+   * subsequently use sequential 'xid's until the next reboot.
+   */
+
+  pdhcpc->xid[3]++;
 
   /* Save the currently assigned IP address (should be INADDR_ANY) */
 
