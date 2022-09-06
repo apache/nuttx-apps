@@ -128,7 +128,7 @@ static void print_vec3(const char *buffer, const char *name)
 static void print_valb(const char *buffer, const char *name)
 {
   FAR struct sensor_hall *event = (FAR struct sensor_hall *)buffer;
-  printf("%s: timestamp:%" PRIu64 " value:%d\n",
+  printf("%s: timestamp:%" PRIu64 " value:%" PRIi32 "\n",
          name, event->timestamp, event->hall);
 }
 
