@@ -346,7 +346,11 @@ void sighand_test(void)
   /* Wait a bit */
 
   FFLUSH();
-  sleep(2);
+  status = sleep(2);
+  while (status)
+    {
+      status = sleep(status);
+    }
 
   /* Then check the result */
 
