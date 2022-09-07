@@ -1568,6 +1568,7 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
   switch (req->cmd)
     {
       case SIOCGIFADDR:
+      case SIOCGIFFLAGS:
       case SIOCGIFHWADDR:
       case SIOCGIWNWID:
       case SIOCGIWFREQ:
