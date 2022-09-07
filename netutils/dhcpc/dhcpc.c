@@ -680,6 +680,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   uint8_t msgtype;
   int     retries;
   int     state;
+  clock_t start;
 
   /* RFC2131: For example, a client may choose a different,
    * random initial 'xid' each time the client is rebooted, and
@@ -730,43 +731,49 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 
       /* Get the DHCPOFFER response */
 
-      result = recv(pdhcpc->sockfd, &pdhcpc->packet,
-                    sizeof(struct dhcp_msg), 0);
-      if (result >= 0)
+      start = clock();
+      do
         {
-          msgtype = dhcpc_parsemsg(pdhcpc, result, presult);
-          if (msgtype == DHCPOFFER)
+          result = recv(pdhcpc->sockfd, &pdhcpc->packet,
+                        sizeof(struct dhcp_msg), 0);
+          if (result >= 0)
             {
-              /* Save the servid from the presult so that it is not
-               * clobbered by a new OFFER.
-               */
+              msgtype = dhcpc_parsemsg(pdhcpc, result, presult);
+              if (msgtype == DHCPOFFER)
+                {
+                  /* Save the servid from the presult so that it is not
+                   * clobbered by a new OFFER.
+                   */
 
-              ninfo("Received OFFER from %08" PRIx32 "\n",
-                    (uint32_t)ntohl(presult->serverid.s_addr));
-              pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
-              pdhcpc->serverid.s_addr = presult->serverid.s_addr;
+                  ninfo("Received OFFER from %08" PRIx32 "\n",
+                        (uint32_t)ntohl(presult->serverid.s_addr));
+                  pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
+                  pdhcpc->serverid.s_addr = presult->serverid.s_addr;
 
-              /* Temporarily use the address offered by the server
-               * and break out of the loop.
-               */
+                  /* Temporarily use the address offered by the server
+                   * and break out of the loop.
+                   */
 
-              netlib_set_ipv4addr(pdhcpc->interface,
-                                  &presult->ipaddr);
-              state = STATE_HAVE_OFFER;
+                  netlib_set_ipv4addr(pdhcpc->interface,
+                                      &presult->ipaddr);
+                  state = STATE_HAVE_OFFER;
+                }
+            }
+
+          /* An error has occurred.  If this was a timeout error (meaning
+           * that nothing was received on this socket for a long period
+           * of time). Then loop and send the DISCOVER command again.
+           */
+
+          else if (errno != EAGAIN)
+            {
+              /* An error other than a timeout was received -- error out */
+
+              return ERROR;
             }
         }
-
-      /* An error has occurred.  If this was a timeout error (meaning
-       * that nothing was received on this socket for a long period
-       * of time). Then loop and send the DISCOVER command again.
-       */
-
-      else if (errno != EAGAIN)
-        {
-          /* An error other than a timeout was received -- error out */
-
-          return ERROR;
-        }
+      while (state == STATE_INITIAL && TICK2MSEC(clock() - start) <
+             CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT_MS);
     }
   while (state == STATE_INITIAL &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
@@ -804,67 +811,70 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 
       /* Get the ACK/NAK response to the REQUEST (or timeout) */
 
-      result = recv(pdhcpc->sockfd, &pdhcpc->packet,
-                    sizeof(struct dhcp_msg), 0);
-      if (result >= 0)
+      start = clock();
+      do
         {
-          /* Parse the response */
-
-          msgtype = dhcpc_parsemsg(pdhcpc, result, presult);
-
-          /* The ACK response means that the server has accepted
-           * our request and we have the lease.
-           */
-
-          if (msgtype == DHCPACK)
+          result = recv(pdhcpc->sockfd, &pdhcpc->packet,
+                        sizeof(struct dhcp_msg), 0);
+          if (result >= 0)
             {
-              ninfo("Received ACK\n");
-              state = STATE_HAVE_LEASE;
+              /* Parse the response */
+
+              msgtype = dhcpc_parsemsg(pdhcpc, result, presult);
+
+              /* The ACK response means that the server has accepted
+               * our request and we have the lease.
+               */
+
+              if (msgtype == DHCPACK)
+                {
+                  ninfo("Received ACK\n");
+                  state = STATE_HAVE_LEASE;
+                }
+
+              /* NAK means the server has refused our request */
+
+              else if (msgtype == DHCPNAK)
+                {
+                  ninfo("Received NAK\n");
+                  return ERROR;
+                }
+
+              /* If we get any OFFERs from other servers, then decline
+               * them now and continue waiting for the ACK from the server
+               * that we requested from.
+               */
+
+              else if (msgtype == DHCPOFFER)
+                {
+                  ninfo("Received another OFFER, send DECLINE\n");
+                  dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
+                }
+
+              /* Otherwise, it is something that we do not recognize */
+
+              else
+                {
+                  ninfo("Ignoring msgtype=%d\n", msgtype);
+                }
             }
 
-          /* NAK means the server has refused our request.  Break out of
-           * this loop with state == STATE_HAVE_OFFER and send DISCOVER
-           * again
+          /* An error has occurred.  If this was a timeout error (meaning
+           * that nothing was received on this socket for a long period of
+           * time). Then break out and send the DISCOVER command again
+           * (at most 3 times).
            */
 
-          else if (msgtype == DHCPNAK)
+          else if (errno != EAGAIN)
             {
-              ninfo("Received NAK\n");
-              break;
-            }
+              /* An error other than a timeout was received */
 
-          /* If we get any OFFERs from other servers, then decline
-           * them now and continue waiting for the ACK from the server
-           * that we requested from.
-           */
-
-          else if (msgtype == DHCPOFFER)
-            {
-              ninfo("Received another OFFER, send DECLINE\n");
-              dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
-            }
-
-          /* Otherwise, it is something that we do not recognize */
-
-          else
-            {
-              ninfo("Ignoring msgtype=%d\n", msgtype);
+              netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
+              return ERROR;
             }
         }
-
-      /* An error has occurred.  If this was a timeout error (meaning
-       * that nothing was received on this socket for a long period of
-       * time). Then break out and send the DISCOVER command again
-       * (at most 3 times).
-       */
-
-      else if (errno != EAGAIN)
-        {
-          /* An error other than a timeout was received */
-
-          netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
-          return ERROR;
-        }
+      while (state == STATE_HAVE_OFFER && TICK2MSEC(clock() - start) <
+             CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT_MS);
     }
   while (state == STATE_HAVE_OFFER &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
