@@ -1204,6 +1204,10 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_UPTIME
+  int cmd_uptime(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_BASE64)
 #  ifndef CONFIG_NSH_DISABLE_BASE64DEC
   int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
