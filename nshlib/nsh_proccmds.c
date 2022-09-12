@@ -33,6 +33,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/sysinfo.h>
+#include <time.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -43,6 +45,15 @@
 
 #ifndef CONFIG_NSH_PROC_MOUNTPOINT
 #  define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_UPTIME
+  #ifndef FSHIFT
+    #  define FSHIFT SI_LOAD_SHIFT
+  #endif
+#  define FIXED_1      (1 << FSHIFT)     /* 1.0 as fixed-point */
+#  define LOAD_INT(x)  ((x) >> FSHIFT)
+#  define LOAD_FRAC(x) (LOAD_INT(((x) & (FIXED_1 - 1)) * 100))
 #endif
 
 /****************************************************************************
@@ -755,6 +766,117 @@ int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
   usleep(usecs);
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_uptime
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_UPTIME
+int cmd_uptime(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  uint32_t updays;
+  uint32_t uphours;
+  uint32_t upminutes;
+
+  time_t current_time_seconds;
+  FAR struct tm *current_time;
+
+  struct sysinfo sys_info;
+
+  time_t uptime = 0;
+
+  bool pretty_format_opt = false;
+  bool system_load_opt = false;
+
+  if (argc < 2)
+    {
+      system_load_opt = true;
+
+      current_time_seconds = time(NULL);
+      current_time = localtime(&current_time_seconds);
+      nsh_output(vtbl, "%02u:%02u:%02u ", current_time->tm_hour,
+                 current_time->tm_min, current_time->tm_sec);
+    }
+  else if (strcmp(argv[1], "-p") == 0)
+    {
+      pretty_format_opt = true;
+    }
+  else if (strcmp(argv[1], "-s") == 0)
+    {
+      sysinfo(&sys_info);
+      time(&current_time_seconds);
+      current_time_seconds -= sys_info.uptime;
+      current_time = localtime(&current_time_seconds);
+      nsh_output(vtbl, "%04u-%02u-%02u %02u:%02u:%02u\n",
+                 current_time->tm_year + 1900, current_time->tm_mon + 1,
+                 current_time->tm_mday, current_time->tm_hour,
+                 current_time->tm_min, current_time->tm_sec);
+      return OK;
+    }
+  else
+    {
+      if (strcmp(argv[1], "-h") != 0)
+        {
+          nsh_output(vtbl, "uptime: invalid option -- %s\n", argv[1]);
+        }
+
+      nsh_output(vtbl, "Usage:\n");
+      nsh_output(vtbl, "uptime [options]\n");
+
+      nsh_output(vtbl, "Options:\n");
+      nsh_output(vtbl, "-p, show uptime in pretty format\n");
+      nsh_output(vtbl, "-h, display this help and exit\n");
+      nsh_output(vtbl, "-s, system up since\n");
+
+      return ERROR;
+    }
+
+  sysinfo(&sys_info);
+  uptime = sys_info.uptime;
+
+  updays = uptime / 86400;
+  uptime -= updays * 86400;
+  uphours = uptime / 3600;
+  uptime -= uphours * 3600;
+  upminutes = uptime / 60;
+
+  nsh_output(vtbl, "up ");
+
+  if (updays)
+    {
+      nsh_output(vtbl, "%" PRIu32 " day%s, ", updays,
+                 (updays > 1) ? "s" : "");
+    }
+
+  if (pretty_format_opt)
+    {
+      if (uphours)
+        {
+          nsh_output(vtbl, "%" PRIu32 " hour%s, ", uphours,
+                     (uphours > 1) ? "s" : "");
+        }
+
+      nsh_output(vtbl, "%" PRIu32 " minute%s", upminutes,
+                 (upminutes > 1) ? "s" : "");
+    }
+  else
+    {
+      nsh_output(vtbl, "%2" PRIu32 ":" "%02" PRIu32, uphours, upminutes);
+    }
+
+  if (system_load_opt)
+    {
+      nsh_output(vtbl, ", load average: %lu.%02lu, %lu.%02lu, %lu.%02lu",
+                 LOAD_INT(sys_info.loads[0]), LOAD_FRAC(sys_info.loads[0]),
+                 LOAD_INT(sys_info.loads[1]), LOAD_FRAC(sys_info.loads[1]),
+                 LOAD_INT(sys_info.loads[2]), LOAD_FRAC(sys_info.loads[2]));
+    }
+
+  nsh_output(vtbl, "\n");
+
   return OK;
 }
 #endif

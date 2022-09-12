@@ -564,6 +564,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "unset",    cmd_unset,    2, 2, "<name>" },
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_UPTIME
+  { "uptime",   cmd_uptime,   1, 2, "[-sph]" },
+#endif
+
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_URLCODE)
 #  ifndef CONFIG_NSH_DISABLE_URLDECODE
   { "urldecode", cmd_urldecode, 2, 3, "[-f] <string or filepath>" },

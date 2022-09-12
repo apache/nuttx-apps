@@ -518,6 +518,10 @@ config NSH_DISABLE_UNSET
 	bool "Disable unset"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_UPTIME
+	bool "Disable uptime"
+	default DEFAULT_SMALL
+
 config NSH_DISABLE_URLDECODE
 	bool "Disable urldecode"
 	default DEFAULT_SMALL
