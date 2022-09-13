@@ -154,11 +154,6 @@ static const struct cmdmap_s g_cmdmap[] =
   { "dirname",  cmd_dirname,  2, 2, "<path>" },
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_TIMEDATECTL
-  { "timedatectl", cmd_timedatectl, 1, 3, "[set-timezone TZ]"
-  },
-#endif
-
 #ifndef CONFIG_NSH_DISABLE_DATE
   { "date",     cmd_date,     1, 4, "[-s \"MMM DD HH:MM:SS YYYY\"] [-u]" },
 #endif
@@ -535,6 +530,10 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_TIME
   { "time",     cmd_time,     2, 2, "\"<command>\"" },
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_TIMEDATECTL
+  { "timedatectl", cmd_timedatectl, 1, 3, "[set-timezone TZ]" },
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
