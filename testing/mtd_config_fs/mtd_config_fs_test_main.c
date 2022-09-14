@@ -80,6 +80,7 @@ struct mtdnvs_ctx_s
   struct mallinfo mmbefore;
   struct mallinfo mmprevious;
   struct mallinfo mmafter;
+  uint8_t         erasestate;
 };
 
 /****************************************************************************
@@ -128,9 +129,10 @@ static void fill_crc8_update(FAR struct nvs_ate *entry)
  * Name: fill_gc_done_ate
  ****************************************************************************/
 
-static void fill_corrupted_close_ate(FAR struct nvs_ate *close_ate)
+static void fill_corrupted_close_ate(FAR struct mtdnvs_ctx_s *ctx,
+                                     FAR struct nvs_ate *close_ate)
 {
-  memset((FAR void *)close_ate, CONFIG_MTD_CONFIG_ERASEDVALUE,
+  memset((FAR void *)close_ate, ctx->erasestate,
     sizeof(struct nvs_ate));
   close_ate->id = 0xffffffff;
   close_ate->len = 0U;
@@ -140,9 +142,10 @@ static void fill_corrupted_close_ate(FAR struct nvs_ate *close_ate)
  * Name: fill_close_ate
  ****************************************************************************/
 
-static void fill_close_ate(FAR struct nvs_ate *close_ate, int offset)
+static void fill_close_ate(FAR struct mtdnvs_ctx_s *ctx,
+                           FAR struct nvs_ate *close_ate, int offset)
 {
-  memset((FAR void *)close_ate, CONFIG_MTD_CONFIG_ERASEDVALUE,
+  memset((FAR void *)close_ate, ctx->erasestate,
     sizeof(struct nvs_ate));
   close_ate->id = 0xffffffff;
   close_ate->len = 0U;
@@ -154,9 +157,10 @@ static void fill_close_ate(FAR struct nvs_ate *close_ate, int offset)
  * Name: fill_gc_done_ate
  ****************************************************************************/
 
-static void fill_gc_done_ate(FAR struct nvs_ate *gc_done_ate)
+static void fill_gc_done_ate(FAR struct mtdnvs_ctx_s *ctx,
+                             FAR struct nvs_ate *gc_done_ate)
 {
-  memset((FAR void *)gc_done_ate, CONFIG_MTD_CONFIG_ERASEDVALUE,
+  memset((FAR void *)gc_done_ate, ctx->erasestate,
     sizeof(struct nvs_ate));
   gc_done_ate->id = 0xffffffff;
   gc_done_ate->len = 0U;
@@ -167,10 +171,11 @@ static void fill_gc_done_ate(FAR struct nvs_ate *gc_done_ate)
  * Name: fill_ate
  ****************************************************************************/
 
-static void fill_ate(FAR struct nvs_ate *ate, FAR const char *key,
-                    uint16_t len, uint16_t offset, bool expired)
+static void fill_ate(FAR struct mtdnvs_ctx_s *ctx, FAR struct nvs_ate *ate,
+                     FAR const char *key, uint16_t len, uint16_t offset,
+                     bool expired)
 {
-  memset((FAR void *)ate, CONFIG_MTD_CONFIG_ERASEDVALUE,
+  memset((FAR void *)ate, ctx->erasestate,
     sizeof(struct nvs_ate));
   ate->id = nvs_fnv_hash((FAR const uint8_t *)key, strlen(key) + 1)
     % 0xfffffffd + 1;
@@ -185,10 +190,11 @@ static void fill_ate(FAR struct nvs_ate *ate, FAR const char *key,
  * Name: fill_corrupted_ate
  ****************************************************************************/
 
-static void fill_corrupted_ate(FAR struct nvs_ate *ate,
-                FAR const char *key, uint16_t len, uint16_t offset)
+static void fill_corrupted_ate(FAR struct mtdnvs_ctx_s *ctx,
+                               FAR struct nvs_ate *ate, FAR const char *key,
+                               uint16_t len, uint16_t offset)
 {
-  memset((FAR void *)ate, CONFIG_MTD_CONFIG_ERASEDVALUE,
+  memset((FAR void *)ate, ctx->erasestate,
     sizeof(struct nvs_ate));
   ate->id = nvs_fnv_hash((FAR const uint8_t *)key, strlen(key) + 1)
     % 0xfffffffd + 1;
@@ -296,6 +302,14 @@ static int setup(struct mtdnvs_ctx_s *ctx)
       printf("ERROR: open %s failed: %d\n",
         CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, ret);
       return -errno;
+    }
+
+  ret = MTD_IOCTL(sys_node->u.i_mtd, MTDIOC_ERASESTATE,
+                 (unsigned long)((uintptr_t)&ctx->erasestate));
+  if (ret < 0)
+    {
+      printf("ERROR: MTD ioctl(MTDIOC_ERASESTATE) failed: %d\n", ret);
+      return ret;
     }
 
   ret = mtdconfig_register(sys_node->u.i_mtd);
@@ -476,7 +490,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
   int nvs_fd = -1;
   int ret;
   int i;
-  uint8_t erase_value = CONFIG_MTD_CONFIG_ERASEDVALUE;
+  uint8_t erase_value = ctx->erasestate;
   struct config_data_s data;
   char rd_buf[50];
 
@@ -537,7 +551,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
 
   /* Write ate */
 
-  fill_ate(&ate, TEST_KEY1, strlen(TEST_DATA2) + 1,
+  fill_ate(ctx, &ate, TEST_KEY1, strlen(TEST_DATA2) + 1,
     strlen(TEST_KEY1) + strlen(TEST_DATA1) + 2, false);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
@@ -546,7 +560,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
       goto test_fail;
     }
 
-  fill_ate(&ate, TEST_KEY1, strlen(TEST_DATA1) + 1, 0, false);
+  fill_ate(ctx, &ate, TEST_KEY1, strlen(TEST_DATA1) + 1, 0, false);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -556,7 +570,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
 
   /* write gc_done ate */
 
-  fill_gc_done_ate(&ate);
+  fill_gc_done_ate(ctx, &ate);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -566,7 +580,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
 
   /* write close ate, mark section 0 as closed */
 
-  fill_close_ate(&ate,
+  fill_close_ate(ctx, &ate,
     CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE - 4 * 16);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
@@ -660,7 +674,7 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
   int mtd_fd = -1;
   int nvs_fd = -1;
   int i;
-  uint8_t erase_value = CONFIG_MTD_CONFIG_ERASEDVALUE;
+  uint8_t erase_value = ctx->erasestate;
   struct nvs_ate ate;
   struct config_data_s data;
 
@@ -723,7 +737,7 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
 
   /* write ate */
 
-  fill_ate(&ate, key1, sizeof(wr_buf_1), 0, false);
+  fill_ate(ctx, &ate, key1, sizeof(wr_buf_1), 0, false);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -733,7 +747,7 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
 
   /* write gc_done ate */
 
-  fill_gc_done_ate(&ate);
+  fill_gc_done_ate(ctx, &ate);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -1294,7 +1308,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
   int nvs_fd = -1;
   int loop_section;
   int i;
-  uint8_t erase_value = CONFIG_MTD_CONFIG_ERASEDVALUE;
+  uint8_t erase_value = ctx->erasestate;
   struct nvs_ate ate;
   struct config_data_s data;
 
@@ -1352,7 +1366,8 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
 
       /* write ate 2 times */
 
-      fill_ate(&ate, key1, sizeof(wr_buf), sizeof(wr_buf) + sizeof(key1),
+      fill_ate(ctx, &ate, key1, sizeof(wr_buf),
+        sizeof(wr_buf) + sizeof(key1),
         (loop_section ==
         CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT - 2)
         ? false : true);
@@ -1363,7 +1378,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
           goto test_fail;
         }
 
-      fill_ate(&ate, key1, sizeof(wr_buf), 0, true);
+      fill_ate(ctx, &ate, key1, sizeof(wr_buf), 0, true);
       ret = write(mtd_fd, &ate, sizeof(ate));
       if (ret != sizeof(ate))
         {
@@ -1373,7 +1388,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
 
       /* write gc_done ate */
 
-      fill_gc_done_ate(&ate);
+      fill_gc_done_ate(ctx, &ate);
       ret = write(mtd_fd, &ate, sizeof(ate));
       if (ret != sizeof(ate))
         {
@@ -1384,11 +1399,11 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
       if (loop_section ==
         CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT - 2)
         {
-          fill_corrupted_close_ate(&ate);
+          fill_corrupted_close_ate(ctx, &ate);
         }
       else
         {
-          fill_close_ate(&ate,
+          fill_close_ate(ctx, &ate,
             CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE - 4 * 16);
         }
 
@@ -1655,7 +1670,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
   int nvs_fd = -1;
   int ret;
   int i;
-  uint8_t erase_value = CONFIG_MTD_CONFIG_ERASEDVALUE;
+  uint8_t erase_value = ctx->erasestate;
   struct config_data_s data;
   char rd_buf[50];
 
@@ -1700,7 +1715,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* Write valid ate at -6 */
 
-  fill_ate(&ate, TEST_KEY1, strlen(TEST_DATA1) + 1, 0, false);
+  fill_ate(ctx, &ate, TEST_KEY1, strlen(TEST_DATA1) + 1, 0, false);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -1724,7 +1739,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* write gc_done ate */
 
-  fill_gc_done_ate(&ate);
+  fill_gc_done_ate(ctx, &ate);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -1734,7 +1749,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* write invalid close ate, mark section 0 as closed */
 
-  fill_corrupted_close_ate(&close_ate);
+  fill_corrupted_close_ate(ctx, &close_ate);
   ret = write(mtd_fd, &close_ate, sizeof(close_ate));
   if (ret != sizeof(ate))
     {
@@ -1758,7 +1773,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* write invalid close ate, mark section 1 as closed */
 
-  fill_corrupted_close_ate(&close_ate);
+  fill_corrupted_close_ate(ctx, &close_ate);
   ret = write(mtd_fd, &close_ate, sizeof(close_ate));
   if (ret != sizeof(ate))
     {
@@ -1841,11 +1856,11 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
   int mtd_fd = -1;
   int ret;
   int i;
-  uint8_t erase_value = CONFIG_MTD_CONFIG_ERASEDVALUE;
+  uint8_t erase_value = ctx->erasestate;
 
   printf("%s: test begin\n", __func__);
 
-  fill_corrupted_ate(&ate, TEST_KEY1, 10, 0);
+  fill_corrupted_ate(ctx, &ate, TEST_KEY1, 10, 0);
 
   mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
@@ -1889,7 +1904,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
 
   /* write gc_done ate */
 
-  fill_gc_done_ate(&ate);
+  fill_gc_done_ate(ctx, &ate);
   ret = write(mtd_fd, &ate, sizeof(ate));
   if (ret != sizeof(ate))
     {
@@ -1899,7 +1914,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
 
   /* write close ate, mark section 0 as closed */
 
-  fill_close_ate(&close_ate,
+  fill_close_ate(ctx, &close_ate,
     CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / 2);
   ret = write(mtd_fd, &close_ate, sizeof(close_ate));
   if (ret != sizeof(ate))
