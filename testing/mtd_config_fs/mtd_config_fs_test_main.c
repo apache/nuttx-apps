@@ -1980,6 +1980,491 @@ test_fail:
 }
 
 /****************************************************************************
+ * Name: test_nvs_gc_touched_deleted_ate
+ * Description: Test case when writing and gc touched A prev entry
+ *   which was deleted.
+ ****************************************************************************/
+
+static void test_nvs_gc_touched_deleted_ate(struct mtdnvs_ctx_s *ctx)
+{
+  int ret;
+  uint16_t filling_id = 0;
+  uint16_t i;
+  uint16_t data_read;
+  int fd = -1;
+  struct config_data_s data;
+
+  printf("%s: test begin\n", __func__);
+  ret = setup(ctx);
+  if (ret < 0)
+    {
+      printf("%s:setup failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  fd = open("/dev/config", 0);
+  if (fd < 0)
+    {
+      printf("%s:open failed, ret=%d\n", __func__, fd);
+      goto test_fail;
+    }
+
+  while (1)
+    {
+      sprintf(data.name, "k%04x", filling_id);
+      data.configdata = (FAR uint8_t *)&filling_id;
+      data.len = sizeof(filling_id);
+
+      ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+
+      /* ENOSPC will be accompanied by gc 3 times(if 3 blocks)
+       * block will change three times:
+       * block:    0,               1,           2
+       *           A                B            gc
+       *  (gc==1) gc                B            A
+       *  (gc==2)  B                gc           A
+       *  (gc==3)  B                A            gc
+       */
+
+      if (ret == -1 && errno == ENOSPC)
+        {
+          break;
+        }
+      else if (ret != 0)
+        {
+          printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+
+      filling_id++;
+    }
+
+  /* Now delete last record.
+   * The layout should be:
+   * block:    0,               1,           2
+   *           B(deleted)       A            gc
+   */
+
+  sprintf(data.name, "k%04x", filling_id - 1);
+  data.configdata = NULL;
+  data.len = 0;
+  ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_DELCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* Now input B again,
+   * we should trigger gc for once, and we needn't search for
+   * the old one again because it is expired.
+   */
+
+  filling_id -= 1;
+  sprintf(data.name, "k%04x", filling_id);
+  data.configdata = (FAR uint8_t *)&filling_id;
+  data.len = sizeof(filling_id);
+  ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* Sanitycheck on NVS content */
+
+  for (i = 0; i <= filling_id; i++)
+    {
+      sprintf(data.name, "k%04x", i);
+      data.configdata = (FAR uint8_t *)&data_read;
+      data.len = sizeof(data_read);
+
+      ret = ioctl(fd, CFGDIOC_GETCONFIG, &data);
+
+      if (ret != 0)
+        {
+          printf("%s:CFGDIOC_GETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+      else
+        {
+          if (data_read != i)
+            {
+              printf("%s:read data %d \n", __func__, data_read);
+              printf("%s:read expected  %d\n", __func__, i);
+              printf("%s:read unexpected data: %d instead of %d\n",
+                __func__, data_read, i);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+    }
+
+  close(fd);
+
+  /* At the end of test, erase all blocks */
+
+  ret = teardown();
+  if (ret < 0)
+    {
+      printf("%s:teardown failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  printf("%s: success\n", __func__);
+  return;
+
+test_fail:
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  printf("%s: failed\n", __func__);
+  return;
+}
+
+/****************************************************************************
+ * Name: test_nvs_gc_touched_expired_ate
+ * Description: Test case when writing and  gc touched A prev entry
+ *   which was moved by gc.
+ ****************************************************************************/
+
+static void test_nvs_gc_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
+{
+  int ret;
+  uint16_t filling_id = 0;
+  uint16_t update_id;
+  uint16_t i;
+  uint16_t data_read;
+  int fd = -1;
+  struct config_data_s data;
+
+  printf("%s: test begin\n", __func__);
+  ret = setup(ctx);
+  if (ret < 0)
+    {
+      printf("%s:setup failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  fd = open("/dev/config", 0);
+  if (fd < 0)
+    {
+      printf("%s:open failed, ret=%d\n", __func__, fd);
+      goto test_fail;
+    }
+
+  while (1)
+    {
+      sprintf(data.name, "k%04x", filling_id);
+      data.configdata = (FAR uint8_t *)&filling_id;
+      data.len = sizeof(filling_id);
+      ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+      if (ret == -1 && errno == ENOSPC)
+        {
+          break;
+        }
+      else if (ret != 0)
+        {
+          printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+
+      filling_id++;
+    }
+
+  /* Now delete,
+   * the layout should be:
+   * block:    0,               1,           2
+   *           B                A(deleted)   gc
+   */
+
+  sprintf(data.name, "k%04x", 1);
+  data.configdata = NULL;
+  data.len = 0;
+  ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_DELCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* The last sector is full now, test re-initialization */
+
+  close(fd);
+  fd = -1;
+  mtdconfig_unregister();
+  ret = setup(ctx);
+  if (ret < 0)
+    {
+      printf("%s:setup failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  fd = open("/dev/config", 0);
+  if (fd < 0)
+    {
+      printf("%s:open failed, ret=%d\n", __func__, fd);
+      goto test_fail;
+    }
+
+  /* Now update A.
+   * It should trigger gc for twice, and we need to search for
+   * the old one again as gc has touched the old one. We will
+   * find it and expire the old A.
+   */
+
+  update_id = 3;
+  sprintf(data.name, "k%04x", 2);
+  data.configdata = (FAR uint8_t *)&update_id;
+  data.len = sizeof(update_id);
+  ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* Sanitycheck on NVS content */
+
+  for (i = 0; i <= filling_id - 1; i++)
+    {
+      sprintf(data.name, "k%04x", i);
+      data.configdata = (FAR uint8_t *)&data_read;
+      data.len = sizeof(data_read);
+      ret = ioctl(fd, CFGDIOC_GETCONFIG, &data);
+      if (i == 1)
+        {
+          if (ret != -1 || errno != ENOENT)
+            {
+              printf("%s:shouldn't found the entry: %d\n", __func__, i);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+      else if (ret != 0)
+        {
+          printf("%s:CFGDIOC_GETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+      else if (i == 2)
+        {
+          if (data_read != 3)
+            {
+              printf("%s:read data %d \n", __func__, data_read);
+              printf("%s:read expected  %d\n", __func__, 3);
+              printf("%s:read unexpected data: %d instead of %d\n",
+                __func__, data_read, 3);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+      else
+        {
+          if (data_read != i)
+            {
+              printf("%s:read data %d \n", __func__, data_read);
+              printf("%s:read expected  %d\n", __func__, i);
+              printf("%s:read unexpected data: %d instead of %d\n",
+                __func__, data_read, i);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+    }
+
+  close(fd);
+
+  /* At the end of test, erase all blocks */
+
+  ret = teardown();
+  if (ret < 0)
+    {
+      printf("%s:teardown failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  printf("%s: success\n", __func__);
+  return;
+
+test_fail:
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  printf("%s: failed\n", __func__);
+  return;
+}
+
+/****************************************************************************
+ * Name: test_nvs_gc_not_touched_expired_ate
+ * Description: Test case when writing and  gc not touched a prev entry
+ *   which was moved by gc.
+ ****************************************************************************/
+
+static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
+{
+  int ret;
+  uint16_t filling_id = 0;
+  uint16_t update_id;
+  uint16_t i;
+  uint16_t data_read;
+  int fd = -1;
+  struct config_data_s data;
+
+  printf("%s: test begin\n", __func__);
+  ret = setup(ctx);
+  if (ret < 0)
+    {
+      printf("%s:setup failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  fd = open("/dev/config", 0);
+  if (fd < 0)
+    {
+      printf("%s:open failed, ret=%d\n", __func__, fd);
+      goto test_fail;
+    }
+
+  while (1)
+    {
+      sprintf(data.name, "k%04x", filling_id);
+      data.configdata = (FAR uint8_t *)&filling_id;
+      data.len = sizeof(filling_id);
+      ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+      if (ret == -1 && errno == ENOSPC)
+        {
+          break;
+        }
+      else if (ret != 0)
+        {
+          printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+
+      filling_id++;
+    }
+
+  /* Now delete last record,
+   * the layout should be:
+   * block:    0,               1,           2
+   *           B(deleted)       A            gc
+   */
+
+  sprintf(data.name, "k%04x", filling_id - 1);
+  data.configdata = NULL;
+  data.len = 0;
+  ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_DELCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* Now udpate A again.
+   * We should trigger gc for once, and we won't need to search for
+   * the old one again after gc.
+   */
+
+  update_id = 3;
+  sprintf(data.name, "k%04x", 2);
+  data.configdata = (FAR uint8_t *)&update_id;
+  data.len = sizeof(update_id);
+  ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
+  if (ret != 0)
+    {
+      printf("%s:CFGDIOC_SETCONFIG failed, ret=%d\n", __func__, ret);
+      ret = -EIO;
+      goto test_fail;
+    }
+
+  /* Sanitycheck on NVS content */
+
+  for (i = 0; i <= filling_id - 1; i++)
+    {
+      sprintf(data.name, "k%04x", i);
+      data.configdata = (FAR uint8_t *)&data_read;
+      data.len = sizeof(data_read);
+      ret = ioctl(fd, CFGDIOC_GETCONFIG, &data);
+      if (i == filling_id - 1)
+        {
+          if (ret != -1 || errno != ENOENT)
+            {
+              printf("%s:shouldn't found the entry: %d\n", __func__, i);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+      else if (ret != 0)
+        {
+          printf("%s:CFGDIOC_GETCONFIG failed, ret=%d\n", __func__, ret);
+          ret = -EIO;
+          goto test_fail;
+        }
+      else if (i == 2)
+        {
+          if (data_read != 3)
+            {
+              printf("%s:read data %d \n", __func__, data_read);
+              printf("%s:read expected  %d\n", __func__, 3);
+              printf("%s:read unexpected data: %d instead of %d\n",
+                __func__, data_read, 3);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+      else
+        {
+          if (data_read != i)
+            {
+              printf("%s:read data %d \n", __func__, data_read);
+              printf("%s:read expected  %d\n", __func__, i);
+              printf("%s:read unexpected data: %d instead of %d\n",
+                __func__, data_read, i);
+              ret = -EIO;
+              goto test_fail;
+            }
+        }
+    }
+
+  close(fd);
+
+  /* At the end of test, erase all blocks */
+
+  ret = teardown();
+  if (ret < 0)
+    {
+      printf("%s:teardown failed, ret=%d\n", __func__, ret);
+      goto test_fail;
+    }
+
+  printf("%s: success\n", __func__);
+  return;
+
+test_fail:
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  printf("%s: failed\n", __func__);
+  return;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -2043,6 +2528,9 @@ int main(int argc, FAR char *argv[])
   test_nvs_full_sector(ctx);
   test_nvs_gc_corrupt_close_ate(ctx);
   test_nvs_gc_corrupt_ate(ctx);
+  test_nvs_gc_touched_deleted_ate(ctx);
+  test_nvs_gc_touched_expired_ate(ctx);
+  test_nvs_gc_not_touched_expired_ate(ctx);
 
   /* Show memory usage */
 
