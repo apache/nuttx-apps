@@ -2,6 +2,8 @@ __Apache NuttX Apps for PineDio Stack BL604:__ See the [`pinedio` branch](https:
 
 __Apache NuttX Apps for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx-apps)
 
+__Apache NuttX Apps for PinePhone:__ See the [`pinephone` branch](https://github.com/lupyuen/incubator-nuttx-apps/tree/pinephone)
+
 __Read the articles...__
 
 -   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
@@ -24,6 +26,13 @@ __Read the articles...__
 -   [__"Read NuttX Sensor Data with Zig"__](https://lupyuen.github.io/articles/sensor)
 -   [__"Zig Visual Programming with Blockly"__](https://lupyuen.github.io/articles/blockly)
 -   [__"Visual Programming with Zig and NuttX Sensors"__](https://lupyuen.github.io/articles/visual)
+
+__NuttX on PinePhone__
+
+-   [__"Apache NuttX RTOS on Arm Cortex-A53: How it might run on PinePhone"__](https://lupyuen.github.io/articles/arm)
+-   [__"PinePhone boots Apache NuttX RTOS"__](https://lupyuen.github.io/articles/uboot)
+-   [__"NuttX RTOS on PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
+-   [__"NuttX RTOS on PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
 
 # Application Folder
 

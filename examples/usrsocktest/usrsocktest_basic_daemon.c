@@ -333,7 +333,7 @@ static void basic_daemon_dup2(FAR struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(2, usrsocktest_daemon_get_num_active_sockets());
 
   ret = dup2(sd2, sd);
-  TEST_ASSERT_EQUAL(0, ret);
+  TEST_ASSERT_EQUAL(sd, ret);
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
 
   ret = close(sd2);

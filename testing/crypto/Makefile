@@ -1,5 +1,5 @@
 ############################################################################
-# apps/gpsutils/minmea/Makefile
+# apps/testing/fstest/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,33 +20,13 @@
 
 include $(APPDIR)/Make.defs
 
-MINMEA_URL ?= "https://github.com/kosma/minmea/archive"
-MINMEA_VERSION ?= db46128e73cee26d6a6eb0482dcba544ee1ea9f5
+# Generic file system stress test application info
+PROGNAME = des3cbc aesxts aesctr hmac
+MAINSRC =  3descbc.c aesxts.c aesctr.c hmac.c
+PRIORITY = $(CONFIG_TESTING_CRYPTO_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_CRYPTO_STACKSIZE)
+MODULE = $(CONFIG_TESTING_CRYPTO)
 
-MINMEA_UNPACKNAME = minmea
-
-$(MINMEA_UNPACKNAME):
-	@echo "Downloading: $(MINMEA_UNPACKNAME)"
-	$(Q) curl -O -L $(MINMEA_URL)/$(MINMEA_VERSION).zip
-	$(Q) mkdir $(MINMEA_UNPACKNAME)
-	$(Q) unzip -o -j $(MINMEA_VERSION).zip -d $(MINMEA_UNPACKNAME)
-	$(call DELFILE, $(MINMEA_VERSION).zip)
-
-# Files
-
-CSRCS	= minmea/minmea.c
-CFLAGS += -std=c99
-
-
-clean::
-	$(call DELFILE, $(OBJS))
-
-# Download and unpack tarball if no git repo found
-ifeq ($(wildcard $(MINMEA_UNPACKNAME)/.git),)
-context:: $(MINMEA_UNPACKNAME)
-
-distclean::
-	$(call DELDIR, $(MINMEA_UNPACKNAME))
-endif
+# Generic file system stress test
 
 include $(APPDIR)/Application.mk

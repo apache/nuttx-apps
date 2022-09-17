@@ -9,9 +9,20 @@ config INTERPRETERS_QUICKJS
 
 if INTERPRETERS_QUICKJS
 
+choice
+	prompt "QuickJS command line interpreter"
+	default INTERPRETERS_QUICKJS_NONE
+
+config INTERPRETERS_QUICKJS_NONE
+	bool "distable quickjs interpreter"
+
 config INTERPRETERS_QUICKJS_MINI
-	bool "Minimal interpreter"
-	default n
+	bool "Minimal quickjs interpreter"
+
+config INTERPRETERS_QUICKJS_FULL
+	bool "normal quickjs interpreter"
+
+endchoice # QuickJS command line interpreter
 
 config INTERPRETERS_QUICKJS_BIGNUM
 	bool "Bignum support"

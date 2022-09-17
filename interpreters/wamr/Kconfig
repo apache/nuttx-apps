@@ -51,6 +51,17 @@ config INTERPRETERS_NONE
 
 endchoice
 
+config INTERPRETERS_WAMR_DEBUG_INTERP
+	bool "Enable debugger support in the interpreter"
+	default n
+	# Note: It only works with the classic interpreter
+	depends on INTERPRETERS_WAMR_CLASSIC
+	# Note: It uses thread-manager internally
+	depends on INTERPRETERS_WAMR_THREAD_MGR
+	# Note: It sets up the listening socket with SO_LINGER
+	depends on NET_TCP
+	depends on NET_SOLINGER
+
 config INTERPRETERS_WAMR_LOG
 	bool "Enable log"
 	default n
