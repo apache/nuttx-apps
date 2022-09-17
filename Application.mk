@@ -91,7 +91,7 @@ SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(RAOBJS) $(CAOBJS) $(COBJS) $(CXXOBJS) $(RUSTOBJS) $(ZIGOBJS)
 
 ifneq ($(BUILD_MODULE),y)
-  OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJS)
+  OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ)
 endif
 
 DEPPATH += --dep-path .
@@ -126,8 +126,9 @@ define ELFCOMPILERUST
 endef
 
 define ELFCOMPILEZIG
-       @echo "ZIG: $1"
-       $(Q) $(ZIG) build-obj $(ZIGELFFLAGS) $($(strip $1)_ZIGELFFLAGS) $1 --name $2
+	@echo "ZIG: $1"
+	# Remove target suffix here since zig compiler add .o automatically
+	$(Q) $(ZIG) build-obj $(ZIGELFFLAGS) $($(strip $1)_ZIGELFFLAGS) --name $(basename $2) $1 
 endef
 
 define ELFLD

@@ -874,7 +874,7 @@ static inline int dhcpd_socket(FAR const char *interface)
   if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
                  interface, strlen(interface)) < 0)
     {
-      ninfo("ERROR: setsockopt UDP_BINDTODEVICE failed: %d\n", errno);
+      ninfo("ERROR: setsockopt SO_BINDTODEVICE failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }

@@ -180,7 +180,8 @@ static void receive(struct usrsocktest_daemon_conf_s *dconf)
   TEST_ASSERT_EQUAL(3, ret);
   TEST_ASSERT_EQUAL_UINT8_ARRAY("abc", data, 3);
   TEST_ASSERT_EQUAL(addrlen, sizeof(remoteaddr));
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr, addrlen);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(&remoteaddr, &addr,
+                                addrlen - sizeof(addr.sin_zero));
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
   TEST_ASSERT_EQUAL(datalen + ret, usrsocktest_daemon_get_recv_bytes());
@@ -365,7 +366,7 @@ static void delayed_connect(struct usrsocktest_daemon_conf_s *dconf)
                  &addrlen);
   TEST_ASSERT_EQUAL(-1, ret);
   TEST_ASSERT_EQUAL(EAGAIN, errno);
-  TEST_ASSERT_EQUAL(0, addrlen);
+  TEST_ASSERT_EQUAL(sizeof(remoteaddr), addrlen);
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_connected_sockets());
   TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
   TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_send_bytes());

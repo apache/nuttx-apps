@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <poll.h>
 
+#include <nuttx/clock.h>
+
 #include "defines.h"
 
 /****************************************************************************
