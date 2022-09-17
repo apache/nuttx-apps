@@ -5,9 +5,9 @@
 This script converts from any image type supported by Python imaging library to
 the RLE-encoded format used by NxWidgets.
 
-RLE (Run Length Length) is a very simply encoding that compress quite well with
-certain kinds of images: Images that that have many pixels of the same color
-adjacent on a row (like simple graphics). It does not work well with
+RLE (Run Length Encoding) is a very simply encoding that compress quite well
+with certain kinds of images: Images that that have many pixels of the same
+color adjacent on a row (like simple graphics). It does not work well with
 photographic images.
 
 But even simple graphics may not encode compactly if, for example, they have

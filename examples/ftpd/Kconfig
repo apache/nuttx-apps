@@ -11,6 +11,10 @@ config EXAMPLES_FTPD
 
 if EXAMPLES_FTPD
 
+config EXAMPLES_FTPD_PORT
+	int "FTP Daemon Port"
+	default 21
+
 config EXAMPLES_FTPD_STACKSIZE
 	int "FTP Daemon Stack Size"
 	default DEFAULT_TASK_STACKSIZE

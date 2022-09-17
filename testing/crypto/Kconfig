@@ -1,0 +1,17 @@
+config TESTING_CRYPTO
+	tristate "crypto test"
+	default n
+	---help---
+		Enable crypto test
+
+if TESTING_CRYPTO
+
+config TESTING_CRYPTO_PRIORITY
+	int "crypto test task priority"
+	default 100
+
+config TESTING_CRYPTO_STACKSIZE
+	int "crypto test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
