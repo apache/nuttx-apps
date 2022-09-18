@@ -31,8 +31,9 @@ __NuttX on PinePhone__
 
 -   [__"Apache NuttX RTOS on Arm Cortex-A53: How it might run on PinePhone"__](https://lupyuen.github.io/articles/arm)
 -   [__"PinePhone boots Apache NuttX RTOS"__](https://lupyuen.github.io/articles/uboot)
--   [__"NuttX RTOS on PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
--   [__"NuttX RTOS on PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
+-   [__"NuttX RTOS for PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
+-   [__"NuttX RTOS for PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
+-   [__"NuttX RTOS for PinePhone: Blinking the LEDs"__](https://lupyuen.github.io/articles/pio)
 
 # Application Folder
 
