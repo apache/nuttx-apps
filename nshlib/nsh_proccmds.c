@@ -571,7 +571,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       return ERROR;
     }
 
-  nsh_output(vtbl, "Calling %p\n", (void*)addr);
+  nsh_output(vtbl, "Calling %p\n", (void *)addr);
   return ((exec_t)addr)();
 }
 #endif
