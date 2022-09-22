@@ -131,9 +131,9 @@ static void str_escape(FAR char *s)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_ENVIRON
-static inline FAR const char *nsh_getwd(const char *wd)
+static inline FAR const char *nsh_getwd(FAR const char *wd)
 {
-  const char *val;
+  FAR const char *val;
 
   /* If no working directory is defined, then default to the home directory */
 
@@ -185,7 +185,7 @@ FAR const char *nsh_getcwd(void)
 FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *relpath)
 {
-  const char *wd;
+  FAR const char *wd;
 
   /* Handle some special cases */
 
@@ -237,7 +237,7 @@ void nsh_freefullpath(FAR char *fullpath)
 
 #ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_CD
-int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR const char *path = argv[1];
   FAR char *alloc = NULL;
@@ -297,7 +297,7 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_ECHO
-int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   int newline = 1;
   int escape = 0;
@@ -360,7 +360,7 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_ENV
-int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
@@ -375,7 +375,7 @@ int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_PWD
-int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
   UNUSED(argv);
@@ -391,7 +391,7 @@ int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_SET
-int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR char *value;
   int ret = OK;
@@ -536,7 +536,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_UNSET
-int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
@@ -577,7 +577,7 @@ int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_EXPORT
-int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_export(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR const char *value = "";
   int status;

@@ -66,15 +66,15 @@ struct dd_s
 {
   FAR struct nsh_vtbl_s *vtbl;
 
-  int      infd;       /* File descriptor of the input device */
-  int      outfd;      /* File descriptor of the output device */
-  uint32_t nsectors;   /* Number of sectors to transfer */
-  uint32_t sector;     /* The current sector number */
-  uint32_t skip;       /* The number of sectors skipped on input */
-  bool     eof;        /* true: The end of the input or output file has been hit */
-  uint16_t sectsize;   /* Size of one sector */
-  uint16_t nbytes;     /* Number of valid bytes in the buffer */
-  uint8_t *buffer;     /* Buffer of data to write to the output file */
+  int          infd;       /* File descriptor of the input device */
+  int          outfd;      /* File descriptor of the output device */
+  uint32_t     nsectors;   /* Number of sectors to transfer */
+  uint32_t     sector;     /* The current sector number */
+  uint32_t     skip;       /* The number of sectors skipped on input */
+  bool         eof;        /* true: The end of the input or output file has been hit */
+  uint16_t     sectsize;   /* Size of one sector */
+  uint16_t     nbytes;     /* Number of valid bytes in the buffer */
+  FAR uint8_t *buffer;     /* Buffer of data to write to the output file */
 };
 
 /****************************************************************************
@@ -191,7 +191,7 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
  * Name: cmd_dd
  ****************************************************************************/
 
-int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   struct dd_s dd;
   FAR char *infile = NULL;

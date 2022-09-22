@@ -42,7 +42,7 @@
  * Name: nsh_cmpname
  ****************************************************************************/
 
-static bool nsh_cmpname(const char *pszname, const char *peqname)
+static bool nsh_cmpname(FAR const char *pszname, FAR const char *peqname)
 {
   /* Search until we find anything different in the two names */
 

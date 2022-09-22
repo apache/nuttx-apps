@@ -581,7 +581,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PS
-int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
   UNUSED(argv);
@@ -624,10 +624,10 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_KILL
-int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  char *ptr;
-  char *endptr;
+  FAR char *ptr;
+  FAR char *endptr;
   long signal;
   long pid;
 
@@ -727,11 +727,11 @@ invalid_arg:
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_SLEEP
-int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
-  char *endptr;
+  FAR char *endptr;
   long secs;
 
   secs = strtol(argv[1], &endptr, 0);
@@ -751,11 +751,11 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_USLEEP
-int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
-  char *endptr;
+  FAR char *endptr;
   long usecs;
 
   usecs = strtol(argv[1], &endptr, 0);

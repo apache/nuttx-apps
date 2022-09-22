@@ -233,7 +233,7 @@ static int calc_codec_buffsize(int srclen, uint8_t mode)
 
 #ifdef NEED_CMD_CODECS_PROC
 static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
-                           char **argv, uint8_t mode,
+                           FAR char **argv, uint8_t mode,
                            codec_callback_t func)
 {
 #ifdef HAVE_CODECS_HASH_MD5
@@ -525,7 +525,7 @@ errout:
  ****************************************************************************/
 
 #ifdef HAVE_CODECS_URLENCODE
-int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLENCODE,
                          urlencode_cb);
@@ -537,7 +537,7 @@ int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifdef HAVE_CODECS_URLDECODE
-int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLDECODE,
                          urldecode_cb);
@@ -549,7 +549,7 @@ int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifdef HAVE_CODECS_BASE64ENC
-int cmd_base64encode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_base64encode(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_BASE64ENC, b64enc_cb);
 }
@@ -560,7 +560,7 @@ int cmd_base64encode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifdef HAVE_CODECS_BASE64DEC
-int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_BASE64DEC, b64dec_cb);
 }
@@ -571,7 +571,7 @@ int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifdef HAVE_CODECS_HASH_MD5
-int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_HASH_MD5, md5_cb);
 }

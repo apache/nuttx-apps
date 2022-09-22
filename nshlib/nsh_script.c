@@ -78,7 +78,7 @@ static int nsh_script_redirect(FAR struct nsh_vtbl_s *vtbl,
  *
  ****************************************************************************/
 
-int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
                FAR const char *path)
 {
   FAR char *fullpath;

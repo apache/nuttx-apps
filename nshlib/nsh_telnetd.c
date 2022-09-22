@@ -354,7 +354,7 @@ int nsh_telnetstart(sa_family_t family)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_TELNETD
-int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(vtbl);
   UNUSED(argc);

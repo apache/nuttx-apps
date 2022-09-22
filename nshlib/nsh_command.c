@@ -65,20 +65,21 @@ struct cmdmap_s
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_HELP
-static int  cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+static int  cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static int  cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-static int  cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+static int  cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+static int  cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc,
+                      FAR char **argv);
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_EXIT
-static int  cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+static int  cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
 static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
-                             char **argv);
+                             FAR char **argv);
 
 /****************************************************************************
  * Private Data
@@ -887,7 +888,7 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_HELP
-static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR const char *cmd = NULL;
 #ifndef CONFIG_NSH_HELP_TERSE
@@ -971,7 +972,7 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
-                            char **argv)
+                            FAR char **argv)
 {
   UNUSED(argc);
 
@@ -984,7 +985,7 @@ static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static int cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(vtbl);
   UNUSED(argc);
@@ -1000,7 +1001,7 @@ static int cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static int cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(vtbl);
   UNUSED(argc);
@@ -1015,7 +1016,7 @@ static int cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_EXIT
-static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
   UNUSED(argv);
@@ -1041,7 +1042,7 @@ static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  *
  ****************************************************************************/
 
-int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
+int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
 {
   const struct cmdmap_s *cmdmap;
   const char            *cmd;
