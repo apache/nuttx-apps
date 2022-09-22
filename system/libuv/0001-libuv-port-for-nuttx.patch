@@ -1,5 +1,5 @@
 diff --git a/include/uv.h b/include/uv.h
-index 77503bde..17940e3d 100644
+index 77503bde..0e6a6764 100644
 --- a/include/uv.h
 +++ b/include/uv.h
 @@ -797,6 +797,16 @@ UV_EXTERN void uv_pipe_connect(uv_connect_t* req,
@@ -19,6 +19,136 @@ index 77503bde..17940e3d 100644
  UV_EXTERN int uv_pipe_getsockname(const uv_pipe_t* handle,
                                    char* buffer,
                                    size_t* size);
+@@ -1768,12 +1778,14 @@ UV_EXTERN int uv_thread_create(uv_thread_t* tid, uv_thread_cb entry, void* arg);
+ 
+ typedef enum {
+   UV_THREAD_NO_FLAGS = 0x00,
+-  UV_THREAD_HAS_STACK_SIZE = 0x01
++  UV_THREAD_HAS_STACK_SIZE = 0x01,
++  UV_THREAD_HAS_PRIORITY = 0x02
+ } uv_thread_create_flags;
+ 
+ struct uv_thread_options_s {
+   unsigned int flags;
+   size_t stack_size;
++  int priority;
+   /* More fields may be added at any time. */
+ };
+ 
+diff --git a/include/uv/queue.h b/include/uv/queue.h
+new file mode 100644
+index 00000000..ff3540a0
+--- /dev/null
++++ b/include/uv/queue.h
+@@ -0,0 +1,108 @@
++/* Copyright (c) 2013, Ben Noordhuis <info@bnoordhuis.nl>
++ *
++ * Permission to use, copy, modify, and/or distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++#ifndef QUEUE_H_
++#define QUEUE_H_
++
++#include <stddef.h>
++
++typedef void *QUEUE[2];
++
++/* Private macros. */
++#define QUEUE_NEXT(q)       (*(QUEUE **) &((*(q))[0]))
++#define QUEUE_PREV(q)       (*(QUEUE **) &((*(q))[1]))
++#define QUEUE_PREV_NEXT(q)  (QUEUE_NEXT(QUEUE_PREV(q)))
++#define QUEUE_NEXT_PREV(q)  (QUEUE_PREV(QUEUE_NEXT(q)))
++
++/* Public macros. */
++#define QUEUE_DATA(ptr, type, field)                                          \
++  ((type *) ((char *) (ptr) - offsetof(type, field)))
++
++/* Important note: mutating the list while QUEUE_FOREACH is
++ * iterating over its elements results in undefined behavior.
++ */
++#define QUEUE_FOREACH(q, h)                                                   \
++  for ((q) = QUEUE_NEXT(h); (q) != (h); (q) = QUEUE_NEXT(q))
++
++#define QUEUE_EMPTY(q)                                                        \
++  ((const QUEUE *) (q) == (const QUEUE *) QUEUE_NEXT(q))
++
++#define QUEUE_HEAD(q)                                                         \
++  (QUEUE_NEXT(q))
++
++#define QUEUE_INIT(q)                                                         \
++  do {                                                                        \
++    QUEUE_NEXT(q) = (q);                                                      \
++    QUEUE_PREV(q) = (q);                                                      \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_ADD(h, n)                                                       \
++  do {                                                                        \
++    QUEUE_PREV_NEXT(h) = QUEUE_NEXT(n);                                       \
++    QUEUE_NEXT_PREV(n) = QUEUE_PREV(h);                                       \
++    QUEUE_PREV(h) = QUEUE_PREV(n);                                            \
++    QUEUE_PREV_NEXT(h) = (h);                                                 \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_SPLIT(h, q, n)                                                  \
++  do {                                                                        \
++    QUEUE_PREV(n) = QUEUE_PREV(h);                                            \
++    QUEUE_PREV_NEXT(n) = (n);                                                 \
++    QUEUE_NEXT(n) = (q);                                                      \
++    QUEUE_PREV(h) = QUEUE_PREV(q);                                            \
++    QUEUE_PREV_NEXT(h) = (h);                                                 \
++    QUEUE_PREV(q) = (n);                                                      \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_MOVE(h, n)                                                      \
++  do {                                                                        \
++    if (QUEUE_EMPTY(h))                                                       \
++      QUEUE_INIT(n);                                                          \
++    else {                                                                    \
++      QUEUE* q = QUEUE_HEAD(h);                                               \
++      QUEUE_SPLIT(h, q, n);                                                   \
++    }                                                                         \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_INSERT_HEAD(h, q)                                               \
++  do {                                                                        \
++    QUEUE_NEXT(q) = QUEUE_NEXT(h);                                            \
++    QUEUE_PREV(q) = (h);                                                      \
++    QUEUE_NEXT_PREV(q) = (q);                                                 \
++    QUEUE_NEXT(h) = (q);                                                      \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_INSERT_TAIL(h, q)                                               \
++  do {                                                                        \
++    QUEUE_NEXT(q) = (h);                                                      \
++    QUEUE_PREV(q) = QUEUE_PREV(h);                                            \
++    QUEUE_PREV_NEXT(q) = (q);                                                 \
++    QUEUE_PREV(h) = (q);                                                      \
++  }                                                                           \
++  while (0)
++
++#define QUEUE_REMOVE(q)                                                       \
++  do {                                                                        \
++    QUEUE_PREV_NEXT(q) = QUEUE_NEXT(q);                                       \
++    QUEUE_NEXT_PREV(q) = QUEUE_PREV(q);                                       \
++  }                                                                           \
++  while (0)
++
++#endif /* QUEUE_H_ */
 diff --git a/include/uv/unix.h b/include/uv/unix.h
 index e3cf7bdd..bf8dc32c 100644
 --- a/include/uv/unix.h
@@ -45,6 +175,120 @@ index 89864e23..ceb047cb 100644
  
  
  int uv_fs_poll_init(uv_loop_t* loop, uv_fs_poll_t* handle) {
+diff --git a/src/queue.h b/src/queue.h
+deleted file mode 100644
+index ff3540a0..00000000
+--- a/src/queue.h
++++ /dev/null
+@@ -1,108 +0,0 @@
+-/* Copyright (c) 2013, Ben Noordhuis <info@bnoordhuis.nl>
+- *
+- * Permission to use, copy, modify, and/or distribute this software for any
+- * purpose with or without fee is hereby granted, provided that the above
+- * copyright notice and this permission notice appear in all copies.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+- */
+-
+-#ifndef QUEUE_H_
+-#define QUEUE_H_
+-
+-#include <stddef.h>
+-
+-typedef void *QUEUE[2];
+-
+-/* Private macros. */
+-#define QUEUE_NEXT(q)       (*(QUEUE **) &((*(q))[0]))
+-#define QUEUE_PREV(q)       (*(QUEUE **) &((*(q))[1]))
+-#define QUEUE_PREV_NEXT(q)  (QUEUE_NEXT(QUEUE_PREV(q)))
+-#define QUEUE_NEXT_PREV(q)  (QUEUE_PREV(QUEUE_NEXT(q)))
+-
+-/* Public macros. */
+-#define QUEUE_DATA(ptr, type, field)                                          \
+-  ((type *) ((char *) (ptr) - offsetof(type, field)))
+-
+-/* Important note: mutating the list while QUEUE_FOREACH is
+- * iterating over its elements results in undefined behavior.
+- */
+-#define QUEUE_FOREACH(q, h)                                                   \
+-  for ((q) = QUEUE_NEXT(h); (q) != (h); (q) = QUEUE_NEXT(q))
+-
+-#define QUEUE_EMPTY(q)                                                        \
+-  ((const QUEUE *) (q) == (const QUEUE *) QUEUE_NEXT(q))
+-
+-#define QUEUE_HEAD(q)                                                         \
+-  (QUEUE_NEXT(q))
+-
+-#define QUEUE_INIT(q)                                                         \
+-  do {                                                                        \
+-    QUEUE_NEXT(q) = (q);                                                      \
+-    QUEUE_PREV(q) = (q);                                                      \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_ADD(h, n)                                                       \
+-  do {                                                                        \
+-    QUEUE_PREV_NEXT(h) = QUEUE_NEXT(n);                                       \
+-    QUEUE_NEXT_PREV(n) = QUEUE_PREV(h);                                       \
+-    QUEUE_PREV(h) = QUEUE_PREV(n);                                            \
+-    QUEUE_PREV_NEXT(h) = (h);                                                 \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_SPLIT(h, q, n)                                                  \
+-  do {                                                                        \
+-    QUEUE_PREV(n) = QUEUE_PREV(h);                                            \
+-    QUEUE_PREV_NEXT(n) = (n);                                                 \
+-    QUEUE_NEXT(n) = (q);                                                      \
+-    QUEUE_PREV(h) = QUEUE_PREV(q);                                            \
+-    QUEUE_PREV_NEXT(h) = (h);                                                 \
+-    QUEUE_PREV(q) = (n);                                                      \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_MOVE(h, n)                                                      \
+-  do {                                                                        \
+-    if (QUEUE_EMPTY(h))                                                       \
+-      QUEUE_INIT(n);                                                          \
+-    else {                                                                    \
+-      QUEUE* q = QUEUE_HEAD(h);                                               \
+-      QUEUE_SPLIT(h, q, n);                                                   \
+-    }                                                                         \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_INSERT_HEAD(h, q)                                               \
+-  do {                                                                        \
+-    QUEUE_NEXT(q) = QUEUE_NEXT(h);                                            \
+-    QUEUE_PREV(q) = (h);                                                      \
+-    QUEUE_NEXT_PREV(q) = (q);                                                 \
+-    QUEUE_NEXT(h) = (q);                                                      \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_INSERT_TAIL(h, q)                                               \
+-  do {                                                                        \
+-    QUEUE_NEXT(q) = (h);                                                      \
+-    QUEUE_PREV(q) = QUEUE_PREV(h);                                            \
+-    QUEUE_PREV_NEXT(q) = (q);                                                 \
+-    QUEUE_PREV(h) = (q);                                                      \
+-  }                                                                           \
+-  while (0)
+-
+-#define QUEUE_REMOVE(q)                                                       \
+-  do {                                                                        \
+-    QUEUE_PREV_NEXT(q) = QUEUE_NEXT(q);                                       \
+-    QUEUE_NEXT_PREV(q) = QUEUE_PREV(q);                                       \
+-  }                                                                           \
+-  while (0)
+-
+-#endif /* QUEUE_H_ */
 diff --git a/src/random.c b/src/random.c
 index e75f77de..feef5a44 100644
 --- a/src/random.c
@@ -59,7 +303,7 @@ index e75f77de..feef5a44 100644
  #elif defined(_AIX) || defined(__QNX__)
    rc = uv__random_readpath("/dev/random", buf, buflen);
 diff --git a/src/threadpool.c b/src/threadpool.c
-index 869ae95f..73077ec6 100644
+index 869ae95f..d0c11d4f 100644
 --- a/src/threadpool.c
 +++ b/src/threadpool.c
 @@ -20,6 +20,7 @@
@@ -70,14 +314,9 @@ index 869ae95f..73077ec6 100644
  
  #if !defined(_WIN32)
  # include "unix/internal.h"
-@@ -27,20 +28,11 @@
+@@ -29,19 +30,6 @@
  
- #include <stdlib.h>
- 
--#define MAX_THREADPOOL_SIZE 1024
-+#ifndef DEF_THREADPOOL_SIZE
-+# define DEF_THREADPOOL_SIZE 4
-+#endif
+ #define MAX_THREADPOOL_SIZE 1024
  
 -static uv_once_t once = UV_ONCE_INIT;
 -static uv_cond_t cond;
@@ -91,11 +330,11 @@ index 869ae95f..73077ec6 100644
 -static QUEUE wq;
 -static QUEUE run_slow_work_message;
 -static QUEUE slow_io_pending_wq;
-+#define MAX_THREADPOOL_SIZE 1024
- 
+-
  static unsigned int slow_work_thread_threshold(void) {
    return (nthreads + 1) / 2;
-@@ -68,16 +60,16 @@ static void worker(void* arg) {
+ }
+@@ -68,16 +56,16 @@ static void worker(void* arg) {
  
      /* Keep waiting while either no work is present or only slow I/O
         and we're at the threshold for that. */
@@ -116,7 +355,7 @@ index 869ae95f..73077ec6 100644
      if (q == &exit_message) {
        uv_cond_signal(&cond);
        uv_mutex_unlock(&mutex);
-@@ -92,7 +84,7 @@ static void worker(void* arg) {
+@@ -92,7 +80,7 @@ static void worker(void* arg) {
        /* If we're at the slow I/O threshold, re-schedule until after all
           other work in the queue is done. */
        if (slow_io_work_running >= slow_work_thread_threshold()) {
@@ -125,7 +364,7 @@ index 869ae95f..73077ec6 100644
          continue;
        }
  
-@@ -110,7 +102,7 @@ static void worker(void* arg) {
+@@ -110,7 +98,7 @@ static void worker(void* arg) {
  
        /* If there is more slow I/O work, schedule it to be run as well. */
        if (!QUEUE_EMPTY(&slow_io_pending_wq)) {
@@ -134,7 +373,7 @@ index 869ae95f..73077ec6 100644
          if (idle_threads > 0)
            uv_cond_signal(&cond);
        }
-@@ -153,13 +145,21 @@ static void post(QUEUE* q, enum uv__work_kind kind) {
+@@ -153,13 +141,21 @@ static void post(QUEUE* q, enum uv__work_kind kind) {
      q = &run_slow_work_message;
    }
  
@@ -157,7 +396,7 @@ index 869ae95f..73077ec6 100644
  void uv__threadpool_cleanup(void) {
    unsigned int i;
  
-@@ -180,6 +180,11 @@ void uv__threadpool_cleanup(void) {
+@@ -180,6 +176,11 @@ void uv__threadpool_cleanup(void) {
  
    threads = NULL;
    nthreads = 0;
@@ -169,24 +408,32 @@ index 869ae95f..73077ec6 100644
  }
  
  
-@@ -188,6 +193,16 @@ static void init_threads(void) {
+@@ -188,6 +189,24 @@ static void init_threads(void) {
    const char* val;
    uv_sem_t sem;
  
 +  const uv_thread_options_t params = {
 +#ifdef DEF_THREADPOOL_STACKSIZE
-+    UV_THREAD_HAS_STACK_SIZE,
-+    DEF_THREADPOOL_STACKSIZE
-+#else
++    UV_THREAD_HAS_STACK_SIZE |
++#endif
++#ifdef DEF_THREADPOOL_PRIORITY
++    UV_THREAD_HAS_PRIORITY |
++#endif
 +    UV_THREAD_NO_FLAGS,
-+    0
++#ifdef DEF_THREADPOOL_STACKSIZE
++    DEF_THREADPOOL_STACKSIZE,
++#else
++    0,
++#endif
++#ifdef DEF_THREADPOOL_PRIORITY
++    DEF_THREADPOOL_PRIORITY
 +#endif
 +  };
 +
    nthreads = ARRAY_SIZE(default_threads);
    val = getenv("UV_THREADPOOL_SIZE");
    if (val != NULL)
-@@ -212,7 +227,7 @@ static void init_threads(void) {
+@@ -212,7 +231,7 @@ static void init_threads(void) {
    if (uv_mutex_init(&mutex))
      abort();
  
@@ -195,7 +442,7 @@ index 869ae95f..73077ec6 100644
    QUEUE_INIT(&slow_io_pending_wq);
    QUEUE_INIT(&run_slow_work_message);
  
-@@ -220,7 +235,7 @@ static void init_threads(void) {
+@@ -220,7 +239,7 @@ static void init_threads(void) {
      abort();
  
    for (i = 0; i < nthreads; i++)
@@ -204,7 +451,7 @@ index 869ae95f..73077ec6 100644
        abort();
  
    for (i = 0; i < nthreads; i++)
-@@ -230,14 +245,6 @@ static void init_threads(void) {
+@@ -230,14 +249,6 @@ static void init_threads(void) {
  }
  
  
@@ -219,6 +466,87 @@ index 869ae95f..73077ec6 100644
  static void init_once(void) {
  #ifndef _WIN32
    /* Re-initialize the threadpool after fork.
+diff --git a/src/unix/async.c b/src/unix/async.c
+index e1805c32..36a0aae0 100644
+--- a/src/unix/async.c
++++ b/src/unix/async.c
+@@ -32,7 +32,6 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
+-#include <sched.h>  /* sched_yield() */
+ 
+ #ifdef __linux__
+ #include <sys/eventfd.h>
+@@ -65,55 +64,14 @@ int uv_async_send(uv_async_t* handle) {
+   if (ACCESS_ONCE(int, handle->pending) != 0)
+     return 0;
+ 
+-  /* Tell the other thread we're busy with the handle. */
+-  if (cmpxchgi(&handle->pending, 0, 1) != 0)
+-    return 0;
+-
+-  /* Wake up the other thread's event loop. */
+-  uv__async_send(handle->loop);
+-
+-  /* Tell the other thread we're done. */
+-  if (cmpxchgi(&handle->pending, 1, 2) != 1)
+-    abort();
++  if (cmpxchgi(&handle->pending, 0, 1) == 0)
++    uv__async_send(handle->loop);
+ 
+   return 0;
+ }
+ 
+ 
+-/* Only call this from the event loop thread. */
+-static int uv__async_spin(uv_async_t* handle) {
+-  int i;
+-  int rc;
+-
+-  for (;;) {
+-    /* 997 is not completely chosen at random. It's a prime number, acyclical
+-     * by nature, and should therefore hopefully dampen sympathetic resonance.
+-     */
+-    for (i = 0; i < 997; i++) {
+-      /* rc=0 -- handle is not pending.
+-       * rc=1 -- handle is pending, other thread is still working with it.
+-       * rc=2 -- handle is pending, other thread is done.
+-       */
+-      rc = cmpxchgi(&handle->pending, 2, 0);
+-
+-      if (rc != 1)
+-        return rc;
+-
+-      /* Other thread is busy with this handle, spin until it's done. */
+-      cpu_relax();
+-    }
+-
+-    /* Yield the CPU. We may have preempted the other thread while it's
+-     * inside the critical section and if it's running on the same CPU
+-     * as us, we'll just burn CPU cycles until the end of our time slice.
+-     */
+-    sched_yield();
+-  }
+-}
+-
+-
+ void uv__async_close(uv_async_t* handle) {
+-  uv__async_spin(handle);
+   QUEUE_REMOVE(&handle->queue);
+   uv__handle_stop(handle);
+ }
+@@ -154,8 +112,8 @@ static void uv__async_io(uv_loop_t* loop, uv__io_t* w, unsigned int events) {
+     QUEUE_REMOVE(q);
+     QUEUE_INSERT_TAIL(&loop->async_handles, q);
+ 
+-    if (0 == uv__async_spin(h))
+-      continue;  /* Not pending. */
++    if (cmpxchgi(&h->pending, 1, 0) == 0)
++      continue;
+ 
+     if (h->async_cb == NULL)
+       continue;
 diff --git a/src/unix/core.c b/src/unix/core.c
 index 71e9c525..6859fe71 100644
 --- a/src/unix/core.c
@@ -258,7 +586,7 @@ index a88e71c3..dad463b3 100644
    return 0;
 diff --git a/src/unix/nuttx.c b/src/unix/nuttx.c
 new file mode 100644
-index 00000000..728b57f6
+index 00000000..0fb46019
 --- /dev/null
 +++ b/src/unix/nuttx.c
 @@ -0,0 +1,286 @@
@@ -1232,6 +1560,36 @@ index 1133c73a..791938b8 100644
 diff --git a/src/unix/thread.c b/src/unix/thread.c
 old mode 100644
 new mode 100755
+index c46450cc..74085025
+--- a/src/unix/thread.c
++++ b/src/unix/thread.c
+@@ -245,16 +245,25 @@ int uv_thread_create_ex(uv_thread_t* tid,
+ #endif
+   }
+ 
+-  if (stack_size > 0) {
++  if (stack_size > 0 || (params->flags & UV_THREAD_HAS_PRIORITY)) {
+     attr = &attr_storage;
+ 
+     if (pthread_attr_init(attr))
+       abort();
++  }
+ 
++  if (stack_size > 0) {
+     if (pthread_attr_setstacksize(attr, stack_size))
+       abort();
+   }
+ 
++  if (params->flags & UV_THREAD_HAS_PRIORITY) {
++    struct sched_param param;
++    pthread_attr_getschedparam(attr, &param);
++    param.sched_priority = params->priority;
++    pthread_attr_setschedparam(attr, &param);
++  }
++
+   f.in = entry;
+   err = pthread_create(tid, attr, f.out, arg);
+ 
 diff --git a/src/unix/tty.c b/src/unix/tty.c
 index 9442cf16..bb7170bc 100644
 --- a/src/unix/tty.c
@@ -1373,12 +1731,25 @@ index e81ed79b..d105db1f 100644
 +  return &g_uv_common_global;
 +}
 +#endif
+diff --git a/src/uv-common.h b/src/uv-common.h
+index 8a190bf8..4806d8cc 100644
+--- a/src/uv-common.h
++++ b/src/uv-common.h
+@@ -39,7 +39,7 @@
+ 
+ #include "uv.h"
+ #include "uv/tree.h"
+-#include "queue.h"
++#include "uv/queue.h"
+ #include "strscpy.h"
+ 
+ #if EDOM > 0
 diff --git a/src/uv-global.h b/src/uv-global.h
 new file mode 100644
-index 00000000..458fe8ef
+index 00000000..db1d7e7b
 --- /dev/null
 +++ b/src/uv-global.h
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,96 @@
 +/* Copyright Joyent, Inc. and other Node contributors. All rights reserved.
 + * Permission is hereby granted, free of charge, to any person obtaining a copy
 + * of this software and associated documentation files (the "Software"), to
@@ -1404,6 +1775,10 @@ index 00000000..458fe8ef
 +
 +#include "uv.h"
 +
++#ifndef DEF_THREADPOOL_SIZE
++# define DEF_THREADPOOL_SIZE 4
++#endif
++
 +#if !defined(_WIN32)
 +typedef struct {
 +  uv_signal_t* handle;
@@ -1422,7 +1797,7 @@ index 00000000..458fe8ef
 +  unsigned int slow_io_work_running;
 +  unsigned int nthreads;
 +  uv_thread_t* threads;
-+  uv_thread_t default_threads[4];
++  uv_thread_t default_threads[DEF_THREADPOOL_SIZE];
 +  QUEUE exit_message;
 +  QUEUE wq;
 +  QUEUE run_slow_work_message;
@@ -1471,6 +1846,19 @@ index 00000000..458fe8ef
 +#endif
 +
 +#endif
+diff --git a/src/win/core.c b/src/win/core.c
+index e53a0f8e..dbd8b11e 100644
+--- a/src/win/core.c
++++ b/src/win/core.c
+@@ -31,7 +31,7 @@
+ 
+ #include "uv.h"
+ #include "internal.h"
+-#include "queue.h"
++#include "uv/queue.h"
+ #include "handle-inl.h"
+ #include "heap-inl.h"
+ #include "req-inl.h"
 diff --git a/test/run-tests.c b/test/run-tests.c
 index 5e53aaa8..cc7c1e81 100644
 --- a/test/run-tests.c
