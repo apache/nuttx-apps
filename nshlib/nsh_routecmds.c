@@ -89,7 +89,7 @@ static int slash_notation(FAR char *arg)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_ADDROUTE
-int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   union
   {
@@ -458,7 +458,7 @@ errout:
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_DELROUTE
-int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   union
   {
@@ -700,7 +700,7 @@ errout:
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_ROUTE
-int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
   bool ipv6 = false;
