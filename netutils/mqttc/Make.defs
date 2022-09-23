@@ -26,4 +26,8 @@ CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
     $(APPDIR)/netutils/mqttc/MQTT-C/include}
 
+ifneq ($(CONFIG_NETUTILS_MQTTC_WITH_MBEDTLS),)
+CFLAGS += -DMQTT_USE_MBEDTLS
+endif
+
 endif

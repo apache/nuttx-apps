@@ -11,6 +11,10 @@ config NETUTILS_MQTTC
 
 if NETUTILS_MQTTC
 
+config NETUTILS_MQTTC_WITH_MBEDTLS
+	bool "Enable MQTT-C with mbedtls"
+	default n
+
 config NETUTILS_MQTTC_VERSION
 	string "MQTT-C Version"
 	default "1.1.5"
