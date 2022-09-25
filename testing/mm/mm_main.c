@@ -26,8 +26,9 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
-#include <queue.h>
 #include <assert.h>
+
+#include <nuttx/queue.h>
 
 /* Include nuttx/mm/mm_heap/mm.h */
 
