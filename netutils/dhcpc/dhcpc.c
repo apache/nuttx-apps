@@ -99,6 +99,7 @@
 #define DHCP_OPTION_MSG_TYPE    53
 #define DHCP_OPTION_SERVER_ID   54
 #define DHCP_OPTION_REQ_LIST    55
+#define DHCP_OPTION_CLIENT_ID   61
 #define DHCP_OPTION_END         255
 
 #define BUFFER_SIZE             256
@@ -196,6 +197,17 @@ static FAR uint8_t *dhcpc_addreqipaddr(FAR struct in_addr *ipaddr,
   return optptr + 4;
 }
 
+static FAR uint8_t *dhcpc_addclientid(FAR uint8_t *clientid,
+                                      FAR uint8_t len,
+                                      FAR uint8_t *optptr)
+{
+  *optptr++ = DHCP_OPTION_CLIENT_ID;
+  *optptr++ = 1 + len;
+  *optptr++ = 0x1;
+  memcpy(optptr, clientid, len);
+  return optptr + len;
+}
+
 static FAR uint8_t *dhcpc_addreqoptions(FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_REQ_LIST;
@@ -265,6 +277,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
 
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addreqoptions(pend);
+        pend     = dhcpc_addclientid(pdhcpc->macaddr, pdhcpc->maclen, pend);
         break;
 
       /* Send REQUEST message to the server that sent the *first* OFFER */
@@ -281,6 +294,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
         pend     = dhcpc_addhostname(hostname, pend);
         pend     = dhcpc_addserverid(&pdhcpc->serverid, pend);
         pend     = dhcpc_addreqipaddr(&pdhcpc->ipaddr, pend);
+        pend     = dhcpc_addclientid(pdhcpc->macaddr, pdhcpc->maclen, pend);
         break;
 
       /* Send DECLINE message to the server that sent the *last* OFFER */
