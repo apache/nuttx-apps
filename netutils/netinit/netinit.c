@@ -595,7 +595,7 @@ static void netinit_net_bringup(void)
       return;
     }
 
-#ifdef CONFIG_WIRELESS_WAPI
+#if defined(CONFIG_WIRELESS_WAPI) && defined(CONFIG_DRIVERS_IEEE80211)
   /* Associate the wlan with an access point. */
 
   if (netinit_associate(NET_DEVNAME) < 0)
