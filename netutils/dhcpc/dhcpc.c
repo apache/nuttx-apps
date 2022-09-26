@@ -542,7 +542,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
 
       /* Create a UDP socket */
 
-      pdhcpc->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+      pdhcpc->sockfd = socket(PF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
       if (pdhcpc->sockfd < 0)
         {
           ninfo("socket handle %d\n", pdhcpc->sockfd);
