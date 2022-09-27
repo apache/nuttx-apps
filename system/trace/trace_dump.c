@@ -640,15 +640,16 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
           trace_dump_unflatten(&ip, nst->nst_ip, sizeof(ip));
 
           if (type == TRACE_TYPE_ANDROID &&
-              strlen(nst->nst_data) > 2 &&
-              (memcmp(nst->nst_data, "B|", 2) == 0 ||
-               memcmp(nst->nst_data, "E|", 2) == 0))
+              nst->nst_data[1] == '\0' &&
+              (nst->nst_data[0] == 'B' ||
+               nst->nst_data[0] == 'E'))
             {
-              fprintf(out, "tracing_mark_write: %s\n", nst->nst_data);
+              fprintf(out, "tracing_mark_write: %c|%d|%pS\n",
+                      nst->nst_data[0], pid, (FAR void *)ip);
             }
           else
             {
-              fprintf(out, "0x%" PRIdPTR ": %s\n", ip, nst->nst_data);
+              fprintf(out, "%pS: %s\n", (FAR void *)ip, nst->nst_data);
             }
         }
         break;
