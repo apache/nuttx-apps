@@ -57,6 +57,11 @@ int main(int argc, FAR char *argv[])
 {
   int option;
 
+  if (argc < 2)
+    {
+      show_usage(argv[0]);
+    }
+
   while ((option = getopt(argc, argv, "drh")) != ERROR)
     {
       switch (option)
