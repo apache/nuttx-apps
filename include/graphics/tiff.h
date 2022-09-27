@@ -56,7 +56,7 @@
                                        * integer */
 #define IFD_FIELD_SLONG             9 /* A 32-bit (4-byte) signed (twos-complement)
                                        * integer */
-#define IFD_FIELD_SRATIONAL        10 /* Two SLONG’s: the first represents the
+#define IFD_FIELD_SRATIONAL        10 /* Two SLONG's: the first represents the
                                        * numerator of a fraction, the second the
                                        * denominator */
 #define IFD_FIELD_FLOAT            11 /* Single precision (4-byte) IEEE format */
@@ -183,7 +183,7 @@
 #  define TAG_EXTSAMP_UNASSALPHA    2 /*   Unassociated alpha data */
 #define IFD_TAG_SAMPLEFORMAT      339 /* SampleFormat, SHORT */
 #  define TAG_SAMPLEFMT_UNSIGED     1 /*   Unsigned integer data */
-#  define TAG_SAMPLEFMT_SIGNED      2 /*   Two’s complement signed integer data */
+#  define TAG_SAMPLEFMT_SIGNED      2 /*   Two's complement signed integer data */
 #  define TAG_SAMPLEFMT_FLOAT       3 /*   IEEE floating point data */
 #  define TAG_SAMPLEFMT_UNDEFINED   4 /*   Undefined data format */
 #define IFD_TAG_SMINSAMPLEVALUE   340 /* SMinSampleValue, type matches sample data */
