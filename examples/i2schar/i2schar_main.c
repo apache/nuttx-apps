@@ -212,7 +212,6 @@ static void parse_args(FAR struct i2schar_state_s *i2schar,
         }
     }
 }
-#endif
 
 /****************************************************************************
  * Public Functions

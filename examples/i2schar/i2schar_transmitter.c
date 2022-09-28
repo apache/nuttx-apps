@@ -109,9 +109,8 @@ pthread_addr_t i2schar_transmitter(pthread_addr_t arg)
       ret = apb_alloc(&desc);
       if (ret < 0)
         {
-           printf("
-             i2schar_transmitter: ERROR: failed to allocate buffer %d: %d\n",
-             i + 1, ret);
+           printf("i2schar_transmitter:"
+                  "ERROR: failed to allocate buffer %d: %d\n", i + 1, ret);
            close(fd);
            pthread_exit(NULL);
         }
