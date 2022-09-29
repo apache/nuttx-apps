@@ -261,8 +261,8 @@ int nsh_consolemain(int argc, FAR char *argv[])
    * Any output will go to /dev/console.
    */
 
-#ifdef CONFIG_NSH_ROMFSETC
-  nsh_initscript(&pstate->cn_vtbl);
+#ifdef CONFIG_NSH_RUNSYSINITSCRIPT
+  nsh_sysinitscript(&pstate->cn_vtbl);
 #endif
 
 #ifdef CONFIG_NSH_NETINIT
@@ -275,6 +275,10 @@ int nsh_consolemain(int argc, FAR char *argv[])
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
+#endif
+
+#ifdef CONFIG_NSH_RUNINITSCRIPT
+  nsh_initscript(&pstate->cn_vtbl);
 #endif
 
   /* First map stderr and stdout to alternative devices */

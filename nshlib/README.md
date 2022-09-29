@@ -1963,14 +1963,6 @@ configuration setting apply:
   `/etc`, but that can be changed with this setting. This must be a absolute
   path beginning with `/`.
 
-- `CONFIG_NSH_SYSINITSCRIPT` – This is the relative path to the system init
-  script within the mountpoint. The default is `init.d/rc.sysinit`. This
-  is a relative path and must not start with `/`.
-
-- `CONFIG_NSH_INITSCRIPT` – This is the relative path to the startup script
-  within the mountpoint. The default is `init.d/rcS`. This is a relative path
-  and must not start with `/`.
-
 - `CONFIG_NSH_ROMFSDEVNO` – This is the minor number of the ROMFS block device.
   The default is `0` corresponding to `/dev/ram0`.
 
@@ -1994,6 +1986,27 @@ mount a FAT FS under `/tmp`. The following selections describe that FAT FS.
 
 - `CONFIG_NSH_FATMOUNTPT` – This is the location where the FAT FS will be
   mounted. Default is `/tmp`.
+
+## Init scripts
+
+Scripts can be run to initialize the system when NSH starts. For increased
+flexibility, this can be enabled even if `CONFIG_NSH_ROMFSETC` is not enabled,
+since startup scripts can also be executed from any filesystem initialized
+by the board logic.
+
+- `CONFIG_NSH_SYSINITSCRIPT` – This is the absolute path to the system init
+  script. The default is `/etcinit.d/rc.sysinit`. This is executed before the
+  network is initialized.
+
+- `CONFIG_NSH_INITSCRIPT` – This is the absolute path to the startup script.
+  The default is `/etc/init.d/rcS`. This is executed after the network has been
+  initialized.
+
+- `CONFIG_NSH_RCSCRIPT` – This is the absolute path to the login script.
+  The default is `/etc/init.d/rcS`. This is executed at console login, eg at
+  system startup, but also on USB connection and in when someone logs in via
+  telnet.
+
 
 ## Common Problems
 

@@ -117,7 +117,7 @@ int nsh_telnetmain(int argc, FAR char *argv[])
 
   /* Execute the login script */
 
-#ifdef CONFIG_NSH_ROMFSRC
+#ifdef CONFIG_NSH_RUNRCSCRIPT
   nsh_loginscript(vtbl);
 #endif
 
@@ -250,9 +250,9 @@ int nsh_telnetstart(sa_family_t family)
        * safe to call nsh_initscript multiple times).
        */
 
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
+#if defined(CONFIG_NSH_RUNSYSINITSCRIPT) && !defined(CONFIG_NSH_CONSOLE)
       pstate = nsh_newconsole();
-      nsh_initscript(&pstate->cn_vtbl);
+      nsh_sysinitscript(&pstate->cn_vtbl);
       nsh_release(&pstate->cn_vtbl);
 #endif
 
@@ -263,6 +263,12 @@ int nsh_telnetstart(sa_family_t family)
 #endif
 
       /* Perform architecture-specific final-initialization(if configured) */
+
+#if defined(CONFIG_NSH_RUNINITSCRIPT) && !defined(CONFIG_NSH_CONSOLE)
+      pstate = nsh_newconsole();
+      nsh_initscript(&pstate->cn_vtbl);
+      nsh_release(&pstate->cn_vtbl);
+#endif
 
 #if defined(CONFIG_NSH_ARCHINIT) && \
     defined(CONFIG_BOARDCTL_FINALINIT) && \

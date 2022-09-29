@@ -699,12 +699,12 @@ config NSH_DISABLE_LOOPS
 endif # !NSH_DISABLESCRIPT
 
 config NSH_ROMFSETC
-	bool "Support ROMFS start-up script"
+	bool "Mount a ROMFS at /etc (eg, to support a start-up script)"
 	default n
 	depends on FS_ROMFS
 	---help---
-		Mount a ROMFS filesystem at /etc and provide a system init
-		script at /etc/init.d/rc.sysinit and a startup script
+		Mount a ROMFS filesystem at /etc. This can be used to and provide
+		a system init script at /etc/init.d/rc.sysinit and a startup script
 		at /etc/init.d/rcS.  The default system init script will mount
 		a FAT FS RAMDISK at /tmp but the logic is easily extensible.
 
@@ -738,31 +738,6 @@ config NSH_ROMFSMOUNTPT
 		The default mountpoint for the ROMFS volume is /etc, but that
 		can be changed with this setting.  This must be a absolute path
 		beginning with '/'.
-
-config NSH_SYSINITSCRIPT
-	string "Relative path to sysinit script"
-	default "init.d/rc.sysinit"
-	---help---
-		This is the relative path to the sysinit script within the mountpoint.
-		The default is init.d/rc.sysinit. This is a relative path and must not
-		start with '/'.
-
-config NSH_INITSCRIPT
-	string "Relative path to startup script"
-	default "init.d/rcS"
-	---help---
-		This is the relative path to the startup script within the mountpoint.
-		The default is init.d/rcS.  This is a relative path and must not
-		start with '/'.
-
-config NSH_RCSCRIPT
-	string "Relative path to login script"
-	default ".nshrc"
-	depends on NSH_ROMFSRC
-	---help---
-		This is the relative path to the login script within the mountpoint.
-		The default is .nshrc.  This is a relative path and must not
-		start with '/'.
 
 config NSH_ROMFSDEVNO
 	int "ROMFS block device minor number"
@@ -857,13 +832,75 @@ config NSH_FATMOUNTPT
 		will mount a FAT FS under /tmp. This is the location where the FAT
 		FS will be mounted.  Default is "/tmp".
 
+endif # NSH_ROMFSETC
+
+config NSH_RUNSYSINITSCRIPT
+	bool "Run a sysinit script"
+    default n
+    select NSH_AUTOSCRIPTS
+
+if NSH_RUNSYSINITSCRIPT
+
+config NSH_SYSINITSCRIPT
+	string "Path to sysinit script"
+	default "/etc/init.d/rc.sysinit"
+	---help---
+		This is the path to the sysinit script executed by nsh at boot.
+		The default is init.d/rc.sysinit. This script can be in a ROMFS mounted
+		by NSH or in any other filesystem that was mounted by the board logic.
+
+endif
+
+config NSH_RUNINITSCRIPT
+	bool "Run a startup script"
+    default n
+    select NSH_AUTOSCRIPTS
+
+if NSH_RUNINITSCRIPT
+
+config NSH_INITSCRIPT
+	string "Path to startup script"
+	default "/etc/init.d/rcS"
+	---help---
+		This is the path to the startup script executed by nsh at boot.
+		The default is /etc/init.d/rcS. This script can be in a ROMFS mounted
+		by NSH or in any other filesystem that was mounted by the board logic.
+
+endif
+
+config NSH_RUNRCSCRIPT
+	bool "Run a login script"
+    default n
+    select NSH_AUTOSCRIPTS
+
+if NSH_RUNRCSCRIPT
+
+config NSH_RCSCRIPT
+	string "Path to login script"
+	default "/etc/init.d/.nshrc"
+	---help---
+		This is the relative path to the login script within the mountpoint.
+		The default is /etc/init.d/.nshrc. This script can be in a ROMFS
+		mounted by NSG or in any other filesystem that was mounted by the board
+		logic.
+
+endif
+
+#this config is enabled is ANY script is enabled
+config NSH_AUTOSCRIPTS
+    bool
+    default n
+
+if NSH_AUTOSCRIPTS
+
 config NSH_SCRIPT_REDIRECT_PATH
 	string "rcS redirect output"
 	default ""
 	---help---
 		This option can redirect rcS output.such as /dev/log or other.
 
-endif # NSH_ROMFSETC
+endif
+
 endmenu # Scripting Support
 
 menu "Console Configuration"

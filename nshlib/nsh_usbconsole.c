@@ -286,7 +286,7 @@ int nsh_consolemain(int argc, FAR char *argv[])
 
   /* Execute the one-time start-up script (output may go to /dev/null) */
 
-#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_NSH_RUNINITSCRIPT
   nsh_initscript(&pstate->cn_vtbl);
 #endif
 

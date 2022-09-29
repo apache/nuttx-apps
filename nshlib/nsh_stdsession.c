@@ -106,7 +106,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
       /* Execute the login script */
 
-#ifdef CONFIG_NSH_ROMFSRC
+#ifdef CONFIG_NSH_RUNRCSCRIPT
       nsh_loginscript(vtbl);
 #endif
     }

@@ -340,28 +340,7 @@
 #    define CONFIG_NSH_ROMFSMOUNTPT "/etc"
 #  endif
 
-#  ifndef CONFIG_NSH_SYSINITSCRIPT
-#    define CONFIG_NSH_SYSINITSCRIPT "init.d/rc.sysinit"
-#  endif
-
-#  ifndef CONFIG_NSH_INITSCRIPT
-#    define CONFIG_NSH_INITSCRIPT "init.d/rcS"
-#  endif
-
-#  undef NSH_SYSINITPATH
-#  define NSH_SYSINITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_SYSINITSCRIPT
-
-#  undef NSH_INITPATH
-#  define NSH_INITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_INITSCRIPT
-
 #  ifdef CONFIG_NSH_ROMFSRC
-#    ifndef CONFIG_NSH_RCSCRIPT
-#      define CONFIG_NSH_RCSCRIPT ".nshrc"
-#    endif
-
-#    undef NSH_RCPATH
-#    define NSH_RCPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_RCSCRIPT
-#  endif
 
 #  ifndef CONFIG_NSH_ROMFSDEVNO
 #    define CONFIG_NSH_ROMFSDEVNO 0
@@ -376,14 +355,7 @@
 #  define MKMOUNT_DEVNAME(m) "/dev/ram" STR_RAMDEVNO(m)
 #  define MOUNT_DEVNAME      MKMOUNT_DEVNAME(CONFIG_NSH_ROMFSDEVNO)
 
-#else
-
-#  undef CONFIG_NSH_ROMFSRC
-#  undef CONFIG_NSH_ROMFSMOUNTPT
-#  undef CONFIG_NSH_INITSCRIPT
-#  undef CONFIG_NSH_RCSCRIPT
-#  undef CONFIG_NSH_ROMFSDEVNO
-#  undef CONFIG_NSH_ROMFSSECTSIZE
+#  endif
 
 #endif
 
@@ -835,13 +807,19 @@ int nsh_usbconsole(void);
 #if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                FAR const char *path);
-#ifdef CONFIG_NSH_ROMFSETC
+
+#ifdef CONFIG_NSH_RUNSYSINITSCRIPT
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl);
+#endif
+
+#ifdef CONFIG_NSH_RUNINITSCRIPT
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl);
-#ifdef CONFIG_NSH_ROMFSRC
+#endif
+
+#ifdef CONFIG_NSH_RUNRCSCRIPT
 int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 #endif
-#endif
+
 #endif
 
 /* Certain commands are only available if the boardctl() interface is

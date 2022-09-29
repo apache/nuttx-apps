@@ -77,7 +77,7 @@ int nsh_consolemain(int argc, FAR char *argv[])
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if defined(CONFIG_NSH_RUNSYSINITSCRIPT) && !defined(CONFIG_NSH_DISABLESCRIPT)
   /* Execute the system init script */
 
   nsh_sysinitscript(&pstate->cn_vtbl);
@@ -95,7 +95,7 @@ int nsh_consolemain(int argc, FAR char *argv[])
   boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if defined(CONFIG_NSH_RUNINITSCRIPT) && !defined(CONFIG_NSH_DISABLESCRIPT)
   /* Execute the start-up script */
 
   nsh_initscript(&pstate->cn_vtbl);

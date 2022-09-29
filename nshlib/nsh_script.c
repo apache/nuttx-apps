@@ -34,7 +34,8 @@
  * Private Functions
  ****************************************************************************/
 
-#if defined(CONFIG_NSH_ROMFSETC) || defined(CONFIG_NSH_ROMFSRC)
+#if defined(CONFIG_NSH_RUNSYSINITSCRIPT) || defined(CONFIG_NSH_RUNINITSCRIPT) \
+ || defined(CONFIG_NSH_RUNRCSCRIPT)
 static int nsh_script_redirect(FAR struct nsh_vtbl_s *vtbl,
                                FAR const char *cmd,
                                FAR const char *path)
@@ -191,10 +192,10 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_NSH_RUNSYSINITSCRIPT
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl)
 {
-  return nsh_script_redirect(vtbl, "sysinit", NSH_SYSINITPATH);
+  return nsh_script_redirect(vtbl, "sysinit", CONFIG_NSH_SYSINITSCRIPT);
 }
 #endif
 
@@ -209,7 +210,7 @@ int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_NSH_RUNINITSCRIPT
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
 {
   static bool initialized;
@@ -227,7 +228,7 @@ int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
 
   if (!already)
     {
-      ret = nsh_script_redirect(vtbl, "init", NSH_INITPATH);
+      ret = nsh_script_redirect(vtbl, "init", CONFIG_NSH_INITSCRIPT);
 #ifndef CONFIG_NSH_DISABLESCRIPT
       /* Reset the option flags */
 
@@ -247,10 +248,10 @@ int nsh_initscript(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_ROMFSRC
+#ifdef CONFIG_NSH_RUNRCSCRIPT
 int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl)
 {
-  return nsh_script_redirect(vtbl, "login", NSH_RCPATH);
+  return nsh_script_redirect(vtbl, "login", CONFIG_NSH_RCSCRIPT);
 }
 #endif
 #endif /* CONFIG_NSH_ROMFSETC */
