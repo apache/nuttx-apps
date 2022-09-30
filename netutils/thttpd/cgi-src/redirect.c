@@ -7,7 +7,7 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright © 1995 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright Â© 1995 by Jef Poskanzer <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@
  */
 
 /****************************************************************************
- * Public Functions
+ * Included Files
  ****************************************************************************/
 
 #include <stdio.h>
@@ -100,47 +100,48 @@ static void internal_error(char *reason)
 {
   char *title = "500 Internal Error";
 
-  printf("\
-Status: %s\n\
-Content-type: text/html\n\
-\n\
-<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n\
-<BODY><H2>%s</H2>\n\
-Something unusual went wrong during a redirection request:\n\
-<BLOCKQUOTE>\n\
-%s\n\
-</BLOCKQUOTE>\n\
-</BODY></HTML>\n", title, title, title, reason);
+  printf("Status: %s\n"
+         "Content-type: text/html\n"
+         "\n"
+         "<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n"
+         "<BODY><H2>%s</H2>\n"
+         "Something unusual went wrong during a redirection request:\n"
+         "<BLOCKQUOTE>\n"
+         "%s\n"
+         "</BLOCKQUOTE>\n"
+         "</BODY></HTML>\n",
+         title, title, title, reason);
 }
 
 static void not_found(char *script_name)
 {
   char *title = "404 Not Found";
 
-  printf("\
-Status: %s\n\
-Content-type: text/html\n\
-\n\
-<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n\
-<BODY><H2>%s</H2>\n\
-The requested filename, %s, is set up to be redirected to another URL;\n\
-however, the new URL has not yet been specified.\n\
-</BODY></HTML>\n", title, title, title, script_name);
+  printf("Status: %s\n"
+         "Content-type: text/html\n"
+         "\n"
+         "<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n"
+         "<BODY><H2>%s</H2>\n"
+         "The requested filename, %s, is set up to be redirected to another "
+         "URL;\n"
+         "however, the new URL has not yet been specified.\n"
+         "</BODY></HTML>\n",
+         title, title, title, script_name);
 }
 
 static void moved(char *script_name, char *url)
 {
   char *title = "Moved";
 
-  printf("\
-Location: %s\n\
-Content-type: text/html\n\
-\n\
-<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n\
-<BODY><H2>%s</H2>\n\
-The requested filename, %s, has moved to a new URL:\n\
-<A HREF=\"%s\">%s</A>.\n\
-</BODY></HTML>\n", url, title, title, script_name, url, url);
+  printf("Location: %s\n"
+         "Content-type: text/html\n"
+         "\n"
+         "<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n"
+         "<BODY><H2>%s</H2>\n"
+         "The requested filename, %s, has moved to a new URL:\n"
+         "<A HREF=\"%s\">%s</A>.\n"
+         "</BODY></HTML>\n",
+         url, title, title, script_name, url, url);
 }
 
 /****************************************************************************

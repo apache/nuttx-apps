@@ -42,9 +42,10 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <queue.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
+
+#include <nuttx/queue.h>
 #include <nuttx/fs/ioctl.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>

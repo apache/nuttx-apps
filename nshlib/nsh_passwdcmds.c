@@ -42,7 +42,7 @@
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_USERADD
-int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
@@ -65,7 +65,7 @@ int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_USERDEL
-int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
@@ -88,7 +88,7 @@ int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PASSWD
-int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 

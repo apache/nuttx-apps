@@ -44,7 +44,7 @@
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PRINTF
-int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR char *fmt;
   char ch;

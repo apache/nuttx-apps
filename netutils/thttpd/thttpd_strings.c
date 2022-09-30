@@ -7,8 +7,8 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright © 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
- *   All rights reserved.
+ *   Copyright Â© 1995,1998,1999,2000,2001 by Jef Poskanzer
+ *   <jef@mail.acme.com>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -68,7 +68,8 @@ const char err302form[]  = "The actual URL is '%s'.\n";
 const char err304title[] = "Not Modified";
 
 const char httpd_err400title[]  = "Bad Request";
-const char httpd_err400form[]   = "Your request has bad syntax or is inherently impossible to satisfy.\n";
+const char httpd_err400form[]   = "Your request has bad syntax or is "
+                                  "inherently impossible to satisfy.\n";
 
 #ifdef CONFIG_THTTPD_AUTH_FILE
 const char err401title[] = "Unauthorized";
@@ -77,23 +78,29 @@ const char err401form[]  = "Authorization required for the URL '%s'.\n";
 
 const char err403title[] = "Forbidden";
 #ifndef EXPLICIT_ERROR_PAGES
-const char err403form[]  = "You do not have permission to get URL '%s' from this server.\n";
+const char err403form[]  = "You do not have permission to get URL '%s' from "
+                           "this server.\n";
 #endif
 
 const char err404title[] = "Not Found";
-const char err404form[]  = "The requested URL '%s' was not found on this server.\n";
+const char err404form[]  = "The requested URL '%s' was not found on this "
+                           "server.\n";
 
 const char httpd_err408title[]  = "Request Timeout";
-const char httpd_err408form[]   = "No request appeared within a reasonable time period.\n";
+const char httpd_err408form[]   = "No request appeared within a reasonable "
+                                  "time period.\n";
 
 const char err500title[] = "Internal Error";
-const char err500form[]  = "There was an unusual problem serving the requested URL '%s'.\n";
+const char err500form[]  = "There was an unusual problem serving the "
+                           "requested URL '%s'.\n";
 
 const char err501title[] = "Not Implemented";
-const char err501form[]  = "The requested method '%s' is not implemented by this server.\n";
+const char err501form[]  = "The requested method '%s' is not implemented by "
+                           "this server.\n";
 
 const char httpd_err503title[] = "Service Temporarily Overloaded";
-const char httpd_err503form[]  = "The requested URL '%s' is temporarily overloaded.  Please try again later.\n";
+const char httpd_err503form[]  = "The requested URL '%s' is temporarily "
+                                 "overloaded. Please try again later.\n";
 
 /* HTML strings */
 
@@ -102,7 +109,8 @@ const char html_html[]      = "<HTML>\r\n";
 const char html_endhtml[]   = "</HTML>\r\n";
 const char html_hdtitle[]   = "<HEAD><TITLE>";
 const char html_titlehd[]   = "</TITLE></HEAD>\r\n";
-const char html_body[]      = "<BODY BGCOLOR=\"#99cc99\" TEXT=\"#000000\" LINK=\"#2020ff\" VLINK=\"#4040cc\">\r\n";
+const char html_body[]      = "<BODY BGCOLOR=\"#99cc99\" TEXT=\"#000000\" "
+                              "LINK=\"#2020ff\" VLINK=\"#4040cc\">\r\n";
 const char html_endbody[]   = "</BODY>\r\n";
 const char html_hdr2[]      = "<H2>";
 const char html_endhdr2[]   = "</H2>";
@@ -125,6 +133,7 @@ static int hexit(char nibble)
     {
       return nibble - 'A' + 10;
     }
+
   return 0;
 }
 
@@ -132,7 +141,7 @@ static int hexit(char nibble)
  * Public Functions
  ****************************************************************************/
 
-/* Copies and decodes a string.  It's ok for from and to to be the same string. */
+/* Copies and decodes a string. "from" and "to" can be the same string. */
 
 void httpd_strdecode(char *to, char *from)
 {
@@ -148,6 +157,7 @@ void httpd_strdecode(char *to, char *from)
           *to = *from;
         }
     }
+
   *to = '\0';
 }
 
@@ -173,6 +183,7 @@ void httpd_strencode(char *to, int tosize, char *from)
           tolen += 3;
         }
     }
+
   *to = '\0';
 }
 #endif /* CONFIG_THTTPD_GENERATE_INDICES */

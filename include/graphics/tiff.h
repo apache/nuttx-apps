@@ -36,9 +36,11 @@
 /************************************************************************************
  * Pre-processor Definitions
  ************************************************************************************/
+
 /* Configuration ********************************************************************/
 
 /* TIFF File Format Definitions *****************************************************/
+
 /* Values for the IFD field type */
 
 #define IFD_FIELD_BYTE              1 /* 8-bit unsigned integer */
@@ -56,7 +58,7 @@
                                        * integer */
 #define IFD_FIELD_SLONG             9 /* A 32-bit (4-byte) signed (twos-complement)
                                        * integer */
-#define IFD_FIELD_SRATIONAL        10 /* Two SLONG’s: the first represents the
+#define IFD_FIELD_SRATIONAL        10 /* Two SLONG's: the first represents the
                                        * numerator of a fraction, the second the
                                        * denominator */
 #define IFD_FIELD_FLOAT            11 /* Single precision (4-byte) IEEE format */
@@ -183,7 +185,7 @@
 #  define TAG_EXTSAMP_UNASSALPHA    2 /*   Unassociated alpha data */
 #define IFD_TAG_SAMPLEFORMAT      339 /* SampleFormat, SHORT */
 #  define TAG_SAMPLEFMT_UNSIGED     1 /*   Unsigned integer data */
-#  define TAG_SAMPLEFMT_SIGNED      2 /*   Two’s complement signed integer data */
+#  define TAG_SAMPLEFMT_SIGNED      2 /*   Two's complement signed integer data */
 #  define TAG_SAMPLEFMT_FLOAT       3 /*   IEEE floating point data */
 #  define TAG_SAMPLEFMT_UNDEFINED   4 /*   Undefined data format */
 #define IFD_TAG_SMINSAMPLEVALUE   340 /* SMinSampleValue, type matches sample data */
@@ -207,7 +209,9 @@
 /************************************************************************************
  * Public Types
  ************************************************************************************/
+
 /* TIFF File Format Structure *******************************************************/
+
 /* "A TIFF file begins with an 8-byte image file header that points to an
  *  image file directory (IFD). An image file directory contains information
  *  about the image, as well as pointers to the actual image data."
@@ -239,6 +243,7 @@ struct tiff_ifdentry_s
 #define SIZEOF_IFD_ENTRY 12
 
 /************************************************************************************/
+
 /* Structures needed to interface with the TIFF file creation library )and also
  * structures used only internally by the TIFF file creation library).
  */
@@ -381,7 +386,8 @@ int tiff_initialize(FAR struct tiff_info_s *info);
  *   the RowsPerStrip x ImageWidth values that were provided to tiff_initialize().
  *
  * Input Parameters:
- *   info    - A pointer to the caller allocated parameter passing/TIFF state instance.
+ *   info    - A pointer to the caller allocated parameter passing/TIFF state
+ *             instance.
  *   buffer  - A buffer containing a single row of data.
  *
  * Returned Value:
@@ -427,7 +433,8 @@ void tiff_abort(FAR struct tiff_info_s *info);
  * Name: tiff_put/get16/32
  *
  * Description:
- *   Put and get 16 and 32 values in the correct byte order at the specified position.
+ *   Put and get 16 and 32 values in the correct byte order at the specified
+ *   position.
  *
  * Input Parameters:
  *   dest - The location to store the multi-byte data (put only)
