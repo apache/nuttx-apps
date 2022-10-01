@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/irq.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -74,6 +75,7 @@ struct ramspeed_s
   size_t size;
   uint8_t value;
   uint32_t repeat_num;
+  bool irq_disable;
 };
 
 /****************************************************************************
@@ -91,7 +93,7 @@ struct ramspeed_s
 static void show_usage(FAR const char *progname, int exitcode)
 {
   printf("\nUsage: %s -r <hex-address> -w <hex-address> -s <decimal-size>"
-         " -v <hex-value>[0x00] -n <decimal-repeat number>[100]\n",
+         " -v <hex-value>[0x00] -n <decimal-repeat number>[100] -i\n",
          progname);
   printf("\nWhere:\n");
   printf("  -r <hex-address> read address.\n");
@@ -101,6 +103,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          " [default value: 0x00].\n");
   printf("  -n <decimal-repeat num> number of repetitions"
          " [default value: 100].\n");
+  printf("  -i turn off interrupts while testing"
+         " [default value: false].\n");
   exit(exitcode);
 }
 
@@ -122,7 +126,7 @@ static void parse_commandline(int argc, FAR char **argv,
       show_usage(argv[0], EXIT_FAILURE);
     }
 
-  while ((ch = getopt(argc, argv, "r:w:s:v:n:")) != ERROR)
+  while ((ch = getopt(argc, argv, "r:w:s:v:n:i")) != ERROR)
     {
       switch (ch)
         {
@@ -145,6 +149,9 @@ static void parse_commandline(int argc, FAR char **argv,
                 printf(RAMSPEED_PREFIX "<repeat number> must > 0\n");
                 exit(EXIT_FAILURE);
               }
+
+          case 'i':
+            info->irq_disable = true;
             break;
           case '?':
             printf(RAMSPEED_PREFIX "Unknown option: %c\n", (char)optopt);
@@ -346,12 +353,20 @@ static void print_rate(FAR const char *name, size_t bytes,
  ****************************************************************************/
 
 static void memcpy_speed_test(FAR void *dest, FAR const void *src,
-                              size_t size, uint32_t repeat_cnt)
+                              size_t size, uint32_t repeat_cnt,
+                              bool irq_disable)
 {
   uint32_t start_time;
-  uint32_t cost_time;
+  uint32_t cost_time_system;
+  uint32_t cost_time_internal;
   uint32_t cnt;
   const size_t total_size = size * repeat_cnt;
+  irqstate_t flags;
+
+  if (irq_disable)
+    {
+      flags = enter_critical_section();
+    }
 
   start_time = get_timestamp();
 
@@ -360,9 +375,7 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
       memcpy(dest, src, size);
     }
 
-  cost_time = get_time_elaps(start_time);
-
-  print_rate("system memcpy():\t", total_size, cost_time);
+  cost_time_system = get_time_elaps(start_time);
 
   start_time = get_timestamp();
 
@@ -371,9 +384,15 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
       internal_memcpy(dest, src, size);
     }
 
-  cost_time = get_time_elaps(start_time);
+  cost_time_internal = get_time_elaps(start_time);
 
-  print_rate("internal memcpy():\t", total_size, cost_time);
+  if (irq_disable)
+    {
+      leave_critical_section(flags);
+    }
+
+  print_rate("system memcpy():\t", total_size, cost_time_system);
+  print_rate("internal memcpy():\t", total_size, cost_time_internal);
 }
 
 /****************************************************************************
@@ -381,12 +400,20 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
  ****************************************************************************/
 
 static void memset_speed_test(FAR void *dest, uint8_t value,
-                              size_t size, uint32_t repeat_num)
+                              size_t size, uint32_t repeat_num,
+                              bool irq_disable)
 {
   uint32_t start_time;
-  uint32_t cost_time;
+  uint32_t cost_time_system;
+  uint32_t cost_time_internal;
   uint32_t cnt;
   const size_t total_size = size * repeat_num;
+  irqstate_t flags;
+
+  if (irq_disable)
+    {
+      flags = enter_critical_section();
+    }
 
   start_time = get_timestamp();
 
@@ -395,9 +422,7 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
       memset(dest, value, size);
     }
 
-  cost_time = get_time_elaps(start_time);
-
-  print_rate("system memset():\t", total_size, cost_time);
+  cost_time_system = get_time_elaps(start_time);
 
   start_time = get_timestamp();
 
@@ -406,9 +431,15 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
       internal_memset(dest, value, size);
     }
 
-  cost_time = get_time_elaps(start_time);
+  cost_time_internal = get_time_elaps(start_time);
 
-  print_rate("internal memset():\t", total_size, cost_time);
+  if (irq_disable)
+    {
+      leave_critical_section(flags);
+    }
+
+  print_rate("system memset():\t", total_size, cost_time_system);
+  print_rate("internal memset():\t", total_size, cost_time_internal);
 }
 
 /****************************************************************************
@@ -426,10 +457,10 @@ int main(int argc, FAR char *argv[])
   parse_commandline(argc, argv, &ramspeed);
 
   memcpy_speed_test(ramspeed.dest, ramspeed.src,
-                    ramspeed.size, ramspeed.repeat_num);
+                    ramspeed.size, ramspeed.repeat_num, ramspeed.irq_disable);
 
   memset_speed_test(ramspeed.dest, ramspeed.value,
-                    ramspeed.size, ramspeed.repeat_num);
+                    ramspeed.size, ramspeed.repeat_num, ramspeed.irq_disable);
 
   return EXIT_SUCCESS;
 }
