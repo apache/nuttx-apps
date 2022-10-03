@@ -67,7 +67,7 @@ int netlib_ifup(const char *ifname)
       if (sockfd >= 0)
         {
           struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
+          memset(&req, 0, sizeof(struct ifreq));
 
           /* Put the driver name into the request */
 
@@ -110,7 +110,7 @@ int netlib_ifdown(const char *ifname)
       if (sockfd >= 0)
         {
           struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
+          memset(&req, 0, sizeof(struct ifreq));
 
           /* Put the driver name into the request */
 

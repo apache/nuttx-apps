@@ -79,7 +79,7 @@ static int tcpecho_server(void);
  * Private Functions
  ****************************************************************************/
 
-static int tcpecho_netsetup()
+static int tcpecho_netsetup(void)
 {
   /* If this task is excecutated as an NSH built-in function, then the
    * network has already been configured by NSH's start-up logic.

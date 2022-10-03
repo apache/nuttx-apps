@@ -273,7 +273,7 @@ static void test_two_threads(void)
 
 static void * timeout_thread1(FAR void * data)
 {
-  FAR struct race_cond_s * rc = (FAR struct race_cond_s *) data;
+  FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   int status;
 
   status = pthread_rwlock_wrlock(rc->rw_lock);
@@ -297,7 +297,7 @@ static void * timeout_thread1(FAR void * data)
 
 static void * timeout_thread2(FAR void * data)
 {
-  FAR struct race_cond_s * rc = (FAR struct race_cond_s *) data;
+  FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   struct timespec time;
   int status;
 

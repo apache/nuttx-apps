@@ -113,8 +113,8 @@ static uint16_t rgb565(uint32_t argb)
  ****************************************************************************/
 
 #ifdef CONFIG_FB_CMAP
-static void draw_rect8(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
-                       FAR const struct fb_area_s * area, uint8_t color)
+static void draw_rect8(FAR void *fbmem, FAR struct fb_overlayinfo_s *oinfo,
+                       FAR const struct fb_area_s *area, uint8_t color)
 {
   FAR uint8_t *dest;
   FAR uint8_t *row;
@@ -152,8 +152,8 @@ static void draw_rect8(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  ****************************************************************************/
 
-static void draw_rect16(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
-                        FAR const struct fb_area_s * area, uint16_t rgb)
+static void draw_rect16(FAR void *fbmem, FAR struct fb_overlayinfo_s *oinfo,
+                        FAR const struct fb_area_s *area, uint16_t rgb)
 {
   FAR uint16_t *dest;
   FAR uint8_t *row;
@@ -190,8 +190,8 @@ static void draw_rect16(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  ****************************************************************************/
 
-static void draw_rect24(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
-                        FAR const struct fb_area_s * area, uint32_t rgb)
+static void draw_rect24(FAR void *fbmem, FAR struct fb_overlayinfo_s *oinfo,
+                        FAR const struct fb_area_s *area, uint32_t rgb)
 {
   int         x;
   int         y;
@@ -238,8 +238,8 @@ static void draw_rect24(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
  *
  ****************************************************************************/
 
-static void draw_rect32(FAR void *fbmem, FAR struct fb_overlayinfo_s * oinfo,
-                        FAR const struct fb_area_s * area, uint32_t argb)
+static void draw_rect32(FAR void *fbmem, FAR struct fb_overlayinfo_s *oinfo,
+                        FAR const struct fb_area_s *area, uint32_t argb)
 {
   int          x;
   int          y;
@@ -501,7 +501,7 @@ static void print_overlay_info(int fb, uint8_t overlayno)
  ****************************************************************************/
 
 static int overlay_fill(int fb, uint8_t overlayno, uint32_t color,
-                        FAR const struct fb_area_s * area)
+                        FAR const struct fb_area_s *area)
 {
   int ret;
   FAR void *fbmem;

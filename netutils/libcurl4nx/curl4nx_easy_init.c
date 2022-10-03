@@ -43,7 +43,7 @@
  * Name: curl4nx_easy_init()
  ****************************************************************************/
 
-FAR struct curl4nx_s * curl4nx_easy_init(void)
+FAR struct curl4nx_s *curl4nx_easy_init(void)
 {
   FAR struct curl4nx_s *handle = malloc(sizeof(struct curl4nx_s));
 

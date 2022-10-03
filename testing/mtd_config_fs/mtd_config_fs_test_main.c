@@ -352,10 +352,7 @@ static void test_nvs_mount(struct mtdnvs_ctx_s *ctx)
   return;
 
 test_fail:
-
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -472,10 +469,7 @@ static void test_nvs_write(struct mtdnvs_ctx_s *ctx)
   return;
 
 test_fail:
-
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -648,16 +642,17 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
   return;
 
 test_fail:
-
   if (mtd_fd >= 0)
-    close(mtd_fd);
+    {
+      close(mtd_fd);
+    }
 
   if (nvs_fd >= 0)
-    close(nvs_fd);
+    {
+      close(nvs_fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -808,7 +803,6 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
   return;
 
 test_fail:
-
   printf("%s: failed\n", __func__);
   if (nvs_fd > 0)
     {
@@ -819,8 +813,6 @@ test_fail:
     {
       close(mtd_fd);
     }
-
-  return;
 }
 
 /****************************************************************************
@@ -975,16 +967,15 @@ static void test_nvs_gc(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
   if (fd >= 0)
-    close(fd);
+    {
+      close(fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -1033,7 +1024,9 @@ static int write_content(uint16_t max_id, uint16_t begin, uint16_t end)
 
 test_fail:
   if (fd >= 0)
-    close(fd);
+    {
+      close(fd);
+    }
 
   return ret;
 }
@@ -1090,9 +1083,10 @@ static int check_content(uint16_t max_id)
   return ret;
 
 test_fail:
-
   if (fd >= 0)
-    close(fd);
+    {
+      close(fd);
+    }
 
   return ret;
 }
@@ -1284,14 +1278,10 @@ static void test_nvs_gc_3sectors(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
-
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -1473,20 +1463,20 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
-
   if (nvs_fd >= 0)
-    close(nvs_fd);
+    {
+      close(nvs_fd);
+    }
 
   if (mtd_fd >= 0)
-    close(mtd_fd);
+    {
+      close(mtd_fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -1638,17 +1628,15 @@ static void test_nvs_full_sector(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
-
   if (fd >= 0)
-    close(fd);
+    {
+      close(fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -1828,20 +1816,20 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
-
   if (nvs_fd >= 0)
-    close(nvs_fd);
+    {
+      close(nvs_fd);
+    }
 
   if (mtd_fd >= 0)
-    close(mtd_fd);
+    {
+      close(mtd_fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -1966,17 +1954,15 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
     }
 
   printf("%s: success\n", __func__);
-
   return;
 
 test_fail:
-
   if (mtd_fd >= 0)
-    close(mtd_fd);
+    {
+      close(mtd_fd);
+    }
 
   printf("%s: failed\n", __func__);
-
-  return;
 }
 
 /****************************************************************************
@@ -2125,7 +2111,6 @@ test_fail:
     }
 
   printf("%s: failed\n", __func__);
-  return;
 }
 
 /****************************************************************************
@@ -2303,7 +2288,6 @@ test_fail:
     }
 
   printf("%s: failed\n", __func__);
-  return;
 }
 
 /****************************************************************************
@@ -2461,7 +2445,6 @@ test_fail:
     }
 
   printf("%s: failed\n", __func__);
-  return;
 }
 
 /****************************************************************************

@@ -766,7 +766,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to create tun0: %d\n", ret);
-      goto errout;
+      return ret;
     }
 
   ret = ipfwd_netconfig(&fwd.if_tun0, g_tun0_laddr, g_netmask);
@@ -848,6 +848,5 @@ errout_with_tun1:
   close(fwd.if_tun1.it_fd);
 errout_with_tun0:
   close(fwd.if_tun0.it_fd);
-errout:
   return errcode;
 }

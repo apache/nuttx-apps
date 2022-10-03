@@ -120,7 +120,7 @@ static int foc_modulation_init_b16(FAR foc_handler_b16_t *h)
       goto errout;
     }
 
-  errout:
+errout:
   return ret;
 }
 

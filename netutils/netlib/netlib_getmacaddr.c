@@ -68,7 +68,7 @@ int netlib_getmacaddr(const char *ifname, uint8_t *macaddr)
       if (sockfd >= 0)
         {
           struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
+          memset(&req, 0, sizeof(struct ifreq));
 
           /* Put the driver name into the request */
 

@@ -42,7 +42,7 @@ struct sync_s
 
 static void * timeout_thread1(FAR void * data)
 {
-  FAR struct sync_s * sync = (FAR struct sync_s *) data;
+  FAR struct sync_s *sync = (FAR struct sync_s *)data;
   struct timespec time;
   int status;
 
@@ -64,7 +64,7 @@ static void * timeout_thread1(FAR void * data)
 
 static void * timeout_thread2(FAR void * data)
 {
-  FAR struct sync_s * sync = (FAR struct sync_s *) data;
+  FAR struct sync_s *sync = (FAR struct sync_s *)data;
   struct timespec time;
   int status;
 

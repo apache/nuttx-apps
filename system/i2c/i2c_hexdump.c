@@ -111,7 +111,7 @@ void i2ctool_hexdump(FILE *outstream, void *addr, int len)
     {
       /* print address */
 
-      fprintf(outstream, "%08tx ", p - (uint8_t *) addr);
+      fprintf(outstream, "%08tx ", p - (uint8_t *)addr);
 
       /* print one line of data */
 
