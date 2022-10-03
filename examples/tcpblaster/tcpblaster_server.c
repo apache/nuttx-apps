@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/tcpblaster/tcpblaster-server.c
+ * apps/examples/tcpblaster/tcpblaster_server.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -191,7 +191,7 @@ void tcpblaster_server(void)
 
       memset(fds, 0, 1 * sizeof(struct pollfd));
       fds[0].fd     = acceptsd;
-      fds[0].events = POLLIN | POLLHUP;
+      fds[0].events = POLLIN;
 
       /* Wait until we can receive data or until the connection is lost */
 
