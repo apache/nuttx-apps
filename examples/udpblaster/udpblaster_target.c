@@ -290,7 +290,7 @@ int main(int argc, FAR char *argv[])
 
       memset(fds, 0, 1 * sizeof(struct pollfd));
       fds[0].fd     = sockfd;
-      fds[0].events = POLLOUT | POLLHUP;
+      fds[0].events = POLLOUT;
 
       /* Wait until we can send data or until the connection is lost */
 

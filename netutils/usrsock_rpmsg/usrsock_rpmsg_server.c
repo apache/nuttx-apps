@@ -942,7 +942,7 @@ static int usrsock_rpmsg_prepare_poll(struct usrsock_rpmsg_s *priv,
       if (priv->pfds[i].ptr)
         {
           pfds[count] = priv->pfds[i];
-          pfds[count++].events |= POLLERR | POLLHUP | POLLSOCK;
+          pfds[count++].events |= POLLSOCK;
         }
     }
 
