@@ -150,7 +150,7 @@ void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           /* Build a PAP request packet */
 
-          pkt = (PAPPKT *) buffer;
+          pkt = (PAPPKT *)buffer;
 
           /* Configure-Request only here, write id */
 

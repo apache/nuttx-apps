@@ -122,6 +122,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
   switch (*bptr++)
     {
     case CONF_REQ:             /* config request */
+
       /* Parse request and see if we can ACK it */
 
       id = *bptr++;
@@ -191,14 +192,14 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
                     {
                       /* OK */
 
-                      DEBUG1(("<asyncmap sum=0x%04x>, assume 0xffffffff", j));
+                      DEBUG1(("<asyncmap sum=0x%04x>, assume all ones", j));
                       ctx->ahdlc_flags &= ~PPP_TX_ASYNC_MAP;
                     }
                   else
                     {
                       /* Fail.  We only support default or all zeros */
 
-                      DEBUG1(("We only support default or all zeros for ACCM "));
+                      DEBUG1(("We only support default or all zeros ACCM "));
                       error = 1;
                       *tptr++ = LPC_ACCM;
                       *tptr++ = 0x6;
@@ -236,9 +237,9 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
                 case LPC_MAGICNUMBER:
                   DEBUG1(("<magic > "));
 
-                  /* Compare incoming number to our number (not implemented) */
+                  /* Compare incoming number to our number */
 
-                  bptr++;       /* For now just dump */
+                  bptr++; /* For now just dump */
                   bptr++;
                   bptr++;
                   bptr++;
@@ -259,8 +260,8 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
                 }
             }
 
-          /* Error? if we we need to send a config Reject ++++ this is good for
-           * a subroutine.
+          /* Error? if we we need to send a config Reject ++++ this is good
+           * for a subroutine.
            */
 
           if (error)
@@ -282,7 +283,9 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
               DEBUG1(("\nWriting NAK frame\n"));
 
-              /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
+              /* Send packet:
+               * ahdlc_txz(procol,header,data,headerlen,datalen);
+               */
 
               ahdlc_tx(ctx, LCP, 0, buffer, 0, (uint16_t)(tptr - buffer));
               DEBUG1(("- end NAK Write frame\n"));
@@ -309,7 +312,9 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
 
               DEBUG2(("Writing ACK frame\n"));
 
-              /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
+              /* Send packet:
+               * ahdlc_txz(procol,header,data,headerlen,datalen);
+               */
 
               ahdlc_tx(ctx, LCP, 0, buffer, 0, count /* bptr-buffer */);
               DEBUG2(("- end ACK Write frame\n"));
@@ -444,7 +449,7 @@ void lcp_echo_request(struct ppp_context_s *ctx)
         {
           ctx->lcp_prev_seconds = ppp_arch_clock_seconds();
 
-          pkt = (LCPPKT *) buffer;
+          pkt = (LCPPKT *)buffer;
 
           /* Configure-Request only here, write id */
 
@@ -507,7 +512,7 @@ void lcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           /* No pending request, lets build one */
 
-          pkt = (LCPPKT *) buffer;
+          pkt = (LCPPKT *)buffer;
 
           /* Configure-Request only here, write id */
 

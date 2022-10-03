@@ -225,7 +225,7 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
 
 static void *nxrecorder_recordthread(pthread_addr_t pvarg)
 {
-  struct nxrecorder_s         *precorder = (struct nxrecorder_s *) pvarg;
+  struct nxrecorder_s         *precorder = (struct nxrecorder_s *)pvarg;
   struct audio_msg_s          msg;
   struct audio_buf_desc_s     buf_desc;
   ssize_t                     size;

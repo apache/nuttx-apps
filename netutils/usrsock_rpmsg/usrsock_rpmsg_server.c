@@ -446,7 +446,6 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
     }
 
 out:
-
   if (ret > 0 &&
       usrsock_rpmsg_available(&priv->socks[req->usockid], FIONSPACE))
     {

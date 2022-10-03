@@ -1135,7 +1135,6 @@ int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
   return OK;
 
 err_out:
-
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   ioctl(plooper->playdev_fd, AUDIOIOC_RELEASE,
         (unsigned long)plooper->pplayses);
@@ -1144,7 +1143,6 @@ err_out:
 #endif
 
 err_out_record:
-
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   ioctl(plooper->recorddev_fd, AUDIOIOC_RELEASE,
         (unsigned long)plooper->precordses);
@@ -1153,7 +1151,6 @@ err_out_record:
 #endif
 
 err_out_dev:
-
   close(plooper->playdev_fd);
   plooper->playdev_fd = -1;
   close(plooper->recorddev_fd);

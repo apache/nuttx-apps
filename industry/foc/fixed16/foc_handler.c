@@ -298,7 +298,6 @@ errout:
   /* Set duty to zeros */
 
   memset(out->duty, 0, sizeof(b16_t) * CONFIG_MOTOR_FOC_PHASES);
-
   return ret;
 }
 

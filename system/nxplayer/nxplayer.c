@@ -752,7 +752,7 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pplayer,
 
 static void *nxplayer_playthread(pthread_addr_t pvarg)
 {
-  struct nxplayer_s           *pplayer = (struct nxplayer_s *) pvarg;
+  struct nxplayer_s           *pplayer = (struct nxplayer_s *)pvarg;
   struct audio_msg_s          msg;
   struct audio_buf_desc_s     buf_desc;
   ssize_t                     size;

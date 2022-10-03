@@ -307,7 +307,7 @@ struct vi_s
   struct vi_pos_s cursor;   /* Current cursor position */
   struct vi_pos_s cursave;  /* Saved cursor position */
   struct vi_pos_s display;  /* Display size */
-  FAR struct termcurses_s * tcurs;
+  FAR struct termcurses_s *tcurs;
   off_t curpos;             /* The current cursor offset into the text buffer */
   off_t textsize;           /* The size of the text buffer */
   off_t winpos;             /* Offset corresponding to the start of the display */

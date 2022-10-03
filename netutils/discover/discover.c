@@ -136,7 +136,7 @@ static inline void discover_initresponse(void);
  * Private Functions
  ****************************************************************************/
 
-static inline void discover_initresponse()
+static inline void discover_initresponse(void)
 {
   int chk = 0;
   int i;
@@ -283,7 +283,7 @@ static inline int discover_respond(in_addr_t *ipaddr)
   return ret;
 }
 
-static inline int discover_socket()
+static inline int discover_socket(void)
 {
   int sockfd;
 #if defined(HAVE_SO_REUSEADDR) || defined(HAVE_SO_BROADCAST)
@@ -329,7 +329,7 @@ static inline int discover_socket()
   return sockfd;
 }
 
-static inline int discover_openlistener()
+static inline int discover_openlistener(void)
 {
   struct sockaddr_in addr;
   struct ifreq req;

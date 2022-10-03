@@ -753,7 +753,6 @@ int main(int argc, char *argv[])
     }
 
 errout:
-
   fflush(stdout);
   fflush(stderr);
 

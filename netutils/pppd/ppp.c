@@ -107,7 +107,7 @@ static void ppp_reject_protocol(FAR struct ppp_context_s *ctx,
       *--dptr = *--sptr;
     }
 
-  pkt = (LCPPKT *) buffer;
+  pkt = (LCPPKT *)buffer;
   pkt->code = PROT_REJ;         /* Write Conf_rej */
 
   /* pkt->id = tid++;  write tid */

@@ -207,7 +207,6 @@ errout_with_fd:
   close(fd);
 
 errout:
-
   printf("chrono_daemon: Terminating\n");
   return EXIT_FAILURE;
 }

@@ -62,8 +62,8 @@
  * Private Types
  ****************************************************************************/
 
-/* In the future add compression protocol and name servers (possibly for servers
- * only)
+/* In the future add compression protocol and name servers (possibly for
+ * servers only)
  */
 
 static const uint8_t g_ipcplist[] =
@@ -137,6 +137,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
   switch (*bptr++)
     {
     case CONF_REQ:
+
       /* Parse request and see if we can ACK it */
 
       ++bptr;
@@ -146,7 +147,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
       /* len-=2; */
 
       DEBUG1(("check lcplist\n"));
-      if (scan_packet(ctx, IPCP, g_ipcplist, buffer, bptr, (uint16_t)(len - 4)))
+      if (scan_packet(ctx, IPCP, g_ipcplist, buffer, bptr, len - 4))
         {
           DEBUG1(("option was bad\n"));
         }
@@ -160,8 +161,8 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
           /* Reject any protocol not */
 
-          /* Error? if we we need to send a config Reject ++++ this is good for
-           * a subroutine.
+          /* Error? if we we need to send a config Reject ++++ this is good
+           * for a subroutine.
            */
 
            /* All we should get is the peer IP address */
@@ -202,7 +203,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
               *bptr++ = CONF_NAK;       /* Write Conf_rej */
               *bptr++;
 
-              /* tptr++; *//* skip over ID */
+              /* tptr++; */ /* skip over ID */
 
               /* Write new length */
 
@@ -219,8 +220,9 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
             {
             }
 #endif
-          /* If we get here then we are OK, lets send an ACK and tell the rest
-           * of our modules our negotiated config.
+
+          /* If we get here then we are OK, lets send an ACK and tell the
+           * rest of our modules our negotiated config.
            */
 
           ctx->ipcp_state |= IPCP_RX_UP;
@@ -269,6 +271,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
           switch (*bptr++)
             {
             case IPCP_IPADDRESS:
+
               /* Dump length */
 
               bptr++;
@@ -338,6 +341,7 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
           switch (*bptr++)
             {
             case IPCP_IPADDRESS:
+
               /* Dump length */
 
               bptr++;
@@ -456,7 +460,8 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
    * request
    */
 
-  if (!(ctx->ipcp_state & IPCP_TX_UP) && !(ctx->ipcp_state & IPCP_TX_TIMEOUT))
+  if (!(ctx->ipcp_state & IPCP_TX_UP) &&
+      !(ctx->ipcp_state & IPCP_TX_TIMEOUT))
     {
       /* Check if we have a request pending */
 
@@ -466,7 +471,7 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           /* No pending request, lets build one */
 
-          pkt = (IPCPPKT *) buffer;
+          pkt = (IPCPPKT *)buffer;
 
           /* Configure-Request only here, write id */
 

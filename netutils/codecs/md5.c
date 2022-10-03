@@ -183,7 +183,7 @@ void md5_update(struct md5_context_s *ctx, unsigned char const *buf,
 
       memcpy(p, buf, t);
       byte_reverse(ctx->in, 16);
-      md5_transform(ctx->buf, (uint32_t *) ctx->in);
+      md5_transform(ctx->buf, (uint32_t *)ctx->in);
       buf += t;
       len -= t;
     }
@@ -194,7 +194,7 @@ void md5_update(struct md5_context_s *ctx, unsigned char const *buf,
     {
       memcpy(ctx->in, buf, 64);
       byte_reverse(ctx->in, 16);
-      md5_transform(ctx->buf, (uint32_t *) ctx->in);
+      md5_transform(ctx->buf, (uint32_t *)ctx->in);
       buf += 64;
       len -= 64;
     }
@@ -241,7 +241,7 @@ void md5_final(unsigned char digest[16], struct md5_context_s *ctx)
 
       memset(p, 0, count);
       byte_reverse(ctx->in, 16);
-      md5_transform(ctx->buf, (uint32_t *) ctx->in);
+      md5_transform(ctx->buf, (uint32_t *)ctx->in);
 
       /* Now fill the next block with 56 bytes */
 
@@ -261,7 +261,7 @@ void md5_final(unsigned char digest[16], struct md5_context_s *ctx)
   ((uint32_t *)ctx->in)[14] = ctx->bits[0];
   ((uint32_t *)ctx->in)[15] = ctx->bits[1];
 
-  md5_transform(ctx->buf, (uint32_t *) ctx->in);
+  md5_transform(ctx->buf, (uint32_t *)ctx->in);
   byte_reverse((unsigned char *)ctx->buf, 4);
   memcpy(digest, ctx->buf, 16);
   memset(ctx, 0, sizeof(struct md5_context_s));  /* In case it's sensitive */
