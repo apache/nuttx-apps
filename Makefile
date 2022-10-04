@@ -158,7 +158,9 @@ ifneq ($(EXPORTDIR),)
 ifneq ($(CONFIG_BUILD_KERNEL),y)
 ifneq ($(BUILTIN_REGISTRY),)
 	for f in "${BUILTIN_REGISTRY}"$(DELIM)*.bdat "${BUILTIN_REGISTRY}"$(DELIM)*.pdat ; do \
-		[ -f "$${f}" ] && cp -f "$${f}" "${EXPORTDIR}"$(DELIM)registry ; \
+		if [ -f "$${f}" ]; then \
+			cp -f "$${f}" "${EXPORTDIR}"$(DELIM)registry ; \
+		fi \
 	done
 endif
 endif
