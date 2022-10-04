@@ -990,7 +990,7 @@ static ssize_t ftpd_send(int sd, FAR const void *data, size_t size,
   ret = send(sd, data, size, 0);
   if (ret < 0)
     {
-      ssize_t errval = errno;
+      int errval = errno;
       nerr("ERROR: send() failed: %d\n", errval);
       return -errval;
     }
@@ -1958,7 +1958,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (rdbytes < 0)
         {
-          nerr("ERROR: Read failed: rdbytes=%d errval=%d\n",
+          nerr("ERROR: Read failed: rdbytes=%zu errval=%d\n",
                rdbytes, errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 550, ' ', "Data read error !");
@@ -2056,7 +2056,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       if (wrbytes != ((ssize_t)buflen))
         {
-          nerr("ERROR: Write failed: wrbytes=%d errval=%d\n",
+          nerr("ERROR: Write failed: wrbytes=%zu errval=%d\n",
                wrbytes, errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 550, ' ', "Data send error !");
