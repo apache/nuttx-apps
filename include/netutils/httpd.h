@@ -72,6 +72,10 @@
  * MSS value.  Here we arbitrarily select the minimum MSS for that case.
  */
 
+#ifndef MIN_TCP_MSS
+#  error "You need to enable TCP/IP (i.e. CONFIG_NET_TCP) to use HTTPD"
+#endif
+
 #define HTTPD_IOBUFFER_SIZE (3*MIN_TCP_MSS)
 
 /* This is the maximum size of a file path */
