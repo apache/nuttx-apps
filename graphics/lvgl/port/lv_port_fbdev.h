@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/lvgldemo/fbdev.h
+ * apps/graphics/lvgl/port/lv_port_fbdev.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,29 +18,63 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_LVGLDEMO_FBDEV_H
-#define __APPS_EXAMPLES_LVGLDEMO_FBDEV_H
+#ifndef __APPS_GRAPHICS_LVGL_PORT_LV_PORT_FBDEV_H
+#define __APPS_GRAPHICS_LVGL_PORT_LV_PORT_FBDEV_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
+#include <nuttx/config.h>
 #include <lvgl/lvgl.h>
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if defined(CONFIG_LV_PORT_USE_FBDEV)
+
+/****************************************************************************
+ * Type Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
 #ifdef __cplusplus
+#define EXTERN extern "C"
 extern "C"
 {
+#else
+#define EXTERN extern
 #endif
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int fbdev_init(lv_disp_drv_t *lv_drvr);
+/****************************************************************************
+ * Name: lv_port_fbdev_init
+ *
+ * Description:
+ *   Framebuffer device interface initialization.
+ *
+ * Input Parameters:
+ *   dev_path - Framebuffer device path, set to NULL to use the default path.
+ *
+ * Returned Value:
+ *   lv_disp object address on success; NULL on failure.
+ *
+ ****************************************************************************/
 
+FAR lv_disp_t *lv_port_fbdev_init(FAR const char *dev_path);
+
+#undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_EXAMPLES_LVGLDEMO_FBDEV_H */
+#endif /* CONFIG_LV_PORT_USE_FBDEV */
+
+#endif /* __APPS_GRAPHICS_LVGL_PORT_LV_PORT_FBDEV_H */

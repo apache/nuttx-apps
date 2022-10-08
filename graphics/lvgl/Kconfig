@@ -13,481 +13,215 @@ if GRAPHICS_LVGL
 
 config LVGL_VERSION
 	string "LVGL Version"
-	default "7.3.0"
+	default "8.3.3"
 
-config LV_MEM_SIZE
-	int "Heap size of the graphics library"
-	default 32768
-	---help---
-		The size of a memory pool where the grapohisc library
-		dynamically allocates data
+source "$APPSDIR/graphics/lvgl/lv_conf/Kconfig"
 
-config LV_USE_USER_DATA
-	bool "Use user data in driver and objects"
-	default n
-	---help---
-		Add a `user_data` to drivers and objects
-
-config LV_USE_PERF_MONITOR
-	bool "Show CPU usage and FPS count"
-	default n
-	---help---
-		Show CPU usage and FPS count in the right bottom corner
-
-menu "Graphics settings"
-
-config LV_HOR_RES
-	int "Horizontal resolution."
-	default 320
-	---help---
-		Number of pixels in horizontally.
-
-config LV_VER_RES
-	int "Vertical resolution."
-	default 240
-	---help---
-		Number of pixels vertically. Double it if anti aliasing is used
-
-config LV_DPI
-	int "DPI (px/inch)"
-	default 100
-	---help---
-		Number of pixels in 1 inch
-
-config LV_ANTIALIAS
-	bool "Anti aliasing of the screen"
+config LV_PORT_USE_LCDDEV
+	bool "Enable LCD device port"
 	default n
 
-config LV_DISP_DEF_REFR_PERIOD
-	int "Default refresh period in milliseconds"
-	default 30
-	---help---
-		The graphics library will check for invalid areas an refresh
-		them with this period time
+if LV_PORT_USE_LCDDEV
 
-config LV_INV_FIFO_SIZE
-	int "Average number of object on the screen"
-	default 32
-	---help---
-		If too much area is invalidated (greater then this number) then
-		the whole screen will be refreshed
+config LV_PORT_LCDDEV_DEFAULT_DEVICEPATH
+	string "LCD default device path"
+	default "/dev/lcd0"
 
-endmenu
+config LV_PORT_LCDDEV_FULL_SCREEN_BUFFER
+	bool "Use full screen buffer"
+	default n
 
-menu "Input device settings"
+if !LV_PORT_LCDDEV_FULL_SCREEN_BUFFER
 
-config LV_INDEV_DEF_READ_PERIOD
-	int "Input device default read period in milliseconds"
-	default 30
-
-config LV_INDEV_POINT_MARKER
-	int "Mark the pressed points on the screen"
-	default 0
-
-config LV_INDEV_DEF_DRAG_LIMIT
-	int "Default drag limit in pixels"
+config LV_PORT_LCDDEV_LINE_BUFFER_DEFAULT
+	int "Default buffer size (in line)"
 	default 10
 
-config LV_INDEV_DEF_DRAG_THROW
-	int "Default slow down ration when throwing on object by drag [%]"
-	default 20
+endif # LV_PORT_LCDDEV_FULL_SCREEN_BUFFER
 
-config LV_INDEV_DEF_LONG_PRESS_TIME
-	int "Default long press time [ms]"
-	default 400
+config LV_PORT_LCDDEV_DOUBLE_BUFFER
+	bool "Use double buffer"
+	default n
 
-config LV_INDEV_DEF_LONG_PRESS_REP_TIME
-	int "Default repeated trigger period in long press [ms]"
-	default 100
+endif # LV_PORT_USE_LCDDEV
 
-config LV_INDEV_DEF_GESTURE_LIMIT
-	int "Gesture threshold in pixels"
-	default 50
+config LV_PORT_USE_FBDEV
+	bool "Enable framebuffer port"
+	default n
 
-config LV_INDEV_DEF_GESTURE_MIN_VELOCITY
-	int "Gesture min velocity at release before swipe (pixels)"
-	default 3
+config LV_PORT_FBDEV_DEFAULT_DEVICEPATH
+	string "Framebuffer default device path"
+	default "/dev/fb0"
+	depends on LV_PORT_USE_FBDEV
 
-endmenu
+config LV_PORT_USE_TOUCHPAD
+	bool "Enable touchpad port"
+	default n
 
-menu "Color settings"
+config LV_PORT_TOUCHPAD_DEFAULT_DEVICEPATH
+	depends on LV_PORT_USE_TOUCHPAD
+	string "Touchpad default device path"
+	default "/dev/input0"
 
-config LV_COLOR_DEPTH
-	int "Color depth (8/16/32)"
-	default 16
+config LV_USE_ENCODER
+	depends on INPUT_MOUSE_WHEEL
+	bool "Encoder interface"
+	default n
 
-config LV_COLOR_16_SWAP
-	bool "Swap the 2 bytes of RGB565 color"
-	depends on LV_COLOR_DEPTH = 16
+menuconfig LV_PORT_USE_BUTTON
+	bool "Enable button port"
+	default n
+
+if LV_PORT_USE_BUTTON
+
+config LV_PORT_BUTTON_DEFAULT_DEVICEPATH
+	string "Button default device path"
+	default "/dev/buttons"
+
+config LV_PORT_BUTTON_BUTTON_0_MAP_X
+	int "Button 0 mapping coordinate x"
 	default 0
 
-config LV_COLOR_SCREEN_TRANSP
-	bool "Enable screen transparency.(If disabled, 32-bit color depth fall to 24-bit)"
+config LV_PORT_BUTTON_BUTTON_0_MAP_Y
+	int "Button 0 mapping coordinate y"
 	default 0
 
-config LV_COLOR_TRANSP
-	hex "Chroma key color (pixels with this color will be transparent on images)"
-	default 0x00ff00
-
-endmenu
-
-menu "Text (font) settings"
-
-config LV_TXT_UTF8
-	bool "Unicode support"
-	default n
-
-config LV_TXT_BREAK_CHARS
-	string "Characters where the words/line cab be wrapped"
-	default " ,.;:-_"
-
-endmenu
-
-menu "Feature usage"
-config USE_LV_ANIMATION
-	bool "Enable animations"
-	default y
-
-config USE_LV_SHADOW
-	bool "Enable shadows"
-	default y
-
-config USE_LV_GROUP
-	bool "Enable object groups (for keyboard)"
-	default y
-
-config USE_LV_GPU
-	bool "Enable GPU (hardware acceleration) API"
-	default y
-
-config USE_LV_REAL_DRAW
-	bool "Enable function which draws directly to the frame buffer instead of VDB"
-	default y
-
-config USE_LV_FILESYSTEM
-	bool "Enable filesystem (required for images, lv_img)"
-	default y
-
-if USE_LV_FILESYSTEM
-
-config LV_FILESYSTEM_MOUNTPOINT
-	string "File system mount point"
-	default "/data"
-
-endif
-
-config USE_LV_MULTI_LANG
-	int "Number of languages for labels to store (0 to disable)"
+config LV_PORT_BUTTON_BUTTON_1_MAP_X
+	int "Button 1 mapping coordinate x"
 	default 0
 
-endmenu
+config LV_PORT_BUTTON_BUTTON_1_MAP_Y
+	int "Button 1 mapping coordinate y"
+	default 0
 
-menu "Log usage"
+config LV_PORT_BUTTON_BUTTON_2_MAP_X
+	int "Button 2 mapping coordinate x"
+	default 0
 
-config LV_USE_LOG
-	bool "Enable/disable the log module"
+config LV_PORT_BUTTON_BUTTON_2_MAP_Y
+	int "Button 2 mapping coordinate y"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_3_MAP_X
+	int "Button 3 mapping coordinate x"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_3_MAP_Y
+	int "Button 3 mapping coordinate y"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_4_MAP_X
+	int "Button 4 mapping coordinate x"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_4_MAP_Y
+	int "Button 4 mapping coordinate y"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_5_MAP_X
+	int "Button 5 mapping coordinate x"
+	default 0
+
+config LV_PORT_BUTTON_BUTTON_5_MAP_Y
+	int "Button 5 mapping coordinate y"
+	default 0
+
+endif # LV_PORT_USE_BUTTON
+
+menuconfig LV_PORT_USE_KEYPAD
+	bool "Enable keypad port"
 	default n
-
-choice
-	prompt "Log level"
-	depends on LV_USE_LOG
-	default LV_LOG_LEVEL_WARN
-
-config LV_LOG_LEVEL_TRACE
-	bool "Trace"
-
-config LV_LOG_LEVEL_INFO
-	bool "Info"
-
-config LV_LOG_LEVEL_WARN
-	bool "Warn"
-
-config LV_LOG_LEVEL_ERROR
-	bool "Error"
-
-endchoice
-
-config LV_LOG_PRINTF
-	bool "Use printf() for logging"
-	depends on LV_USE_LOG
-	default y
-
-endmenu
-
-menu "Debug usage"
-
-config LV_USE_DEBUG
-	bool "Enable/disable the debug module"
-	default n
-
-config LV_USE_ASSERT_NULL
-	bool "Check if the parameter is NULL"
-	depends on LV_USE_DEBUG
-	default n
-
-config LV_USE_ASSERT_MEM
-	bool "Checks is the memory is successfully allocated or no"
-	depends on LV_USE_DEBUG
-	default n
-
-config LV_USE_ASSERT_STR
-	bool "Check the strings"
-	depends on LV_USE_DEBUG
-	default n
-
-config LV_USE_ASSERT_OBJ
-	bool "Check object's type and existence"
-	depends on LV_USE_DEBUG
-	default n
-
-config LV_USE_ASSERT_STYLE
-	bool "Check if the styles are properly initialized"
-	depends on LV_USE_DEBUG
-	default n
-
-endmenu
-
-menu "Theme usage"
-
-config LV_USE_THEME_TEMPL
-	bool "Use Template theme: just for test"
-	default n
-
-config LV_USE_THEME_MONO
-	bool "Use Mono theme: mono color theme"
-	default n
-
-config LV_USE_THEME_MATERIAL
-	bool "Use Material theme: material theme with bold colors"
-	default n
-
-endmenu
-
-menu "Base object settings"
-
-config LV_OBJ_REALIGN
-	bool "Enable `lv_obj_realaign()` based on `lv_obj_align()` parameters"
-	default y
-
-endmenu
-
-menu "Object type usage settings"
-
-config USE_LV_LABEL
-	bool "Label usage"
-	default y
-
-config LV_LABEL_SCROLL_SPEED
-	int "Hor, or ver. scroll speed [px/sec] in 'LV_LABEL_LONG_SCROLL/ROLL' mode"
-	depends on USE_LV_LABEL
-	default 25
-
-config USE_LV_IMG
-	bool "Image usage"
-	default y
-
-config LV_IMG_CF_INDEXED
-	bool "Enable indexed (palette) images"
-	depends on USE_LV_IMG
-	default y
-
-config LV_IMG_CF_ALPHA
-	bool "Enable alpha indexed images"
-	depends on USE_LV_IMG
-	default y
-
-config USE_LV_LINE
-	bool "Line usage"
-	default y
-
-config USE_LV_ARC
-	bool "Arc usage"
-	default y
-
-config USE_LV_CONT
-	bool "Container usage"
-	default y
-
-config USE_LV_PAGE
-	depends on USE_LV_CONT
-	bool "Page usage"
-	default y
-
-config USE_LV_WIN
-	depends on USE_LV_PAGE && USE_LV_LABEL && USE_LV_IMG && USE_LV_BTN
-	bool "Window usage"
-	default y
-
-config USE_LV_TABVIEW
-	depends on USE_LV_PAGE && USE_LV_BTNM
-	bool "Tabview usage"
-	default y
-
-config LV_TABVIEW_ANIM_TIME
-	int "Time of slide animation [ms] (0: no animation)"
-	depends on USE_LV_TABVIEW
-	default 300
-
-config USE_LV_TILEVIEW
-	depends on USE_LV_CONT && USE_LV_PAGE
-	bool "Tileview usage"
-	default y
-
-config LV_TILEVIEW_ANIM_TIME
-	int "Time of slide animation [ms] (0: no animation)"
-	depends on USE_LV_TILEVIEW
-	default 300
-
-config USE_LV_BAR
-	bool "Bar usage"
-	default y
-
-config USE_LV_LMETER
-	depends on USE_LV_BAR
-	bool "Line meter usage"
-	default y
-
-config USE_LV_GAUGE
-	depends on USE_LV_BAR && USE_LV_LMETER
-	bool "Gauge usage"
-	default y
-
-config USE_LV_CHART
-	bool "Chart usage"
-	default y
-
-config LV_CHART_AXIS_TICK_LABEL_MAX_LEN
-	depends on USE_LV_CHART
-	int "Chart axis tick label max length"
-	default 20
-
-config USE_LV_TABLE
-	bool "Table usage"
-	depends on USE_LV_LABEL
-	default y
-
-config LV_TABLE_COL_MAX
-	int "Maximum number of table columns"
-	depends on USE_LV_TABLE
-	default 12
-
-config USE_LV_LED
-	bool "LED usage"
-	default y
-
-config USE_LV_MBOX
-	bool "Messagebox usage"
-	depends on USE_LV_BTNM && USE_LV_LABEL
-	default y
-
-config USE_LV_TA
-	bool "Text area usage"
-	depends on USE_LV_LABEL && USE_LV_PAGE
-	default y
-
-config USE_LV_SPINBOX
-	bool "Spinbox usage"
-	depends on USE_LV_TA
-	default y
-
-config USE_LV_CALENDAR
-	bool "Calendar usage"
-	default y
-
-config USE_LV_PRELOAD
-	bool "Preload usage"
-	depends on USE_LV_ARC
-	default y
-
-config LV_PRELOAD_DEF_ARC_LENGTH
-	int "Degrees of arc length (default)"
-	range 0 360
-	depends on USE_LV_PRELOAD
-	default 60
-
-config LV_PRELOAD_DEF_SPIN_TIME
-	int "Time (ms) preload spins (default)"
-	depends on USE_LV_PRELOAD
-	default 1000
-
-choice
-	prompt "Default preload animation"
-	depends on USE_LV_PRELOAD
-	default LV_PRELOAD_DEF_ANIM_SPINNING_ARC
-
-config LV_PRELOAD_DEF_ANIM_SPINNING_ARC
-	bool "Spinning Arc"
-
-config LV_PRELOAD_DEF_ANIM_FILLSPIN_ARC
-	bool "Fillspin Arc"
-
-endchoice
-
-config USE_LV_CANVAS
-	bool "Canvas usage"
-	depends on USE_LV_IMG
-	default n
-
-config USE_LV_BTN
-	bool "Button usage"
-	depends on USE_LV_CONT
-	default y
-
-config LV_BTN_INK_EFFECT
-	bool "Enable button-state animations"
-	depends on USE_LV_BTN && USE_LV_ANIMATION
-	default y
-
-config USE_LV_IMGBTN
-	depends on USE_LV_BTN
-	bool "Image button usage"
-	default y
-
-config LV_IMGBTN_TILED
-	bool "Tiled image button"
-	depends on USE_LV_IMGBTN
 	---help---
-	The imgbtn requires left, mid and right parts and the width can be set freely
+	button bit map < 0 is no binding, must >= 0 and < 31 to binding button device.
 
-config USE_LV_BTNM
-	bool "Button matrix usage"
-	default y
+if LV_PORT_USE_KEYPAD
 
-config USE_LV_KB
-	bool "Keyboard"
-	depends on USE_LV_BTNM
-	default y
+config LV_PORT_KEYPAD_DEFAULT_DEVICEPATH
+	string "Button default device path"
+	default "/dev/buttons"
 
-config USE_LV_CB
-	bool "Chekbox usage"
-	depends on USE_LV_BTN
-	default y
+config LV_PORT_KEYPAD_KEY_UP_MAP_BIT
+	int "LV_KEY_UP button bit map"
+	default -1
 
-config USE_LV_SW
-	bool "Switch usage"
-	depends on USE_LV_BTN
-	default y
+config LV_PORT_KEYPAD_KEY_DOWN_MAP_BIT
+	int "LV_KEY_DOWN button bit map"
+	default -1
 
-config USE_LV_LIST
-	bool "List usage"
-	depends on USE_LV_BTN && USE_LV_PAGE
-	default y
+config LV_PORT_KEYPAD_KEY_RIGHT_MAP_BIT
+	int "LV_KEY_RIGHT button bit map"
+	default -1
 
-config USE_LV_DDLIST
-	bool "Drop down list usage"
-	depends on USE_LV_PAGE && USE_LV_LABEL
-	default y
+config LV_PORT_KEYPAD_KEY_LEFT_MAP_BIT
+	int "LV_KEY_LEFT button bit map"
+	default -1
 
-config USE_LV_ROLLER
-	bool "Roller usage"
-	depends on USE_LV_DDLIST
-	default y
+config LV_PORT_KEYPAD_KEY_ESC_MAP_BIT
+	int "LV_KEY_ESC button bit map"
+	default -1
 
-config USE_LV_SLIDER
-	bool "Slider usage"
-	depends on USE_LV_BAR
-	default y
+config LV_PORT_KEYPAD_KEY_DEL_MAP_BIT
+	int "LV_KEY_DEL button bit map"
+	default -1
 
-endmenu
+config LV_PORT_KEYPAD_KEY_BACKSPACE_MAP_BIT
+	int "LV_KEY_BACKSPACE button bit map"
+	default -1
+
+config LV_PORT_KEYPAD_KEY_ENTER_MAP_BIT
+	int "LV_KEY_ENTER button bit map"
+	default -1
+
+config LV_PORT_KEYPAD_KEY_NEXT_MAP_BIT
+	int "LV_KEY_NEXT button bit map"
+	default -1
+
+config LV_PORT_KEYPAD_KEY_PREV_MAP_BIT
+	int "LV_KEY_PREV button bit map"
+	default -1
+
+config LV_PORT_KEYPAD_KEY_HOME_MAP_BIT
+	int "LV_KEY_HOME button bit map"
+	default -1
+
+config LV_PORT_KEYPAD_KEY_END_MAP_BIT
+	int "LV_KEY_END button bit map"
+	default -1
+
+endif # LV_PORT_USE_KEYPAD
+
+if LV_PORT_USE_ENCODER
+
+config LV_PORT_ENCODER_DEFAULT_DEVICEPATH
+	string "Encoder default device path"
+	default "/dev/input0"
+
+endif # LV_USE_ENCODER
+
+menu "Memory configuration"
+
+config LV_PORT_MEM_ATTRIBUTE_FAST_MEM_SECTION_NAME
+	string "LV_ATTRIBUTE_FAST_MEM Section Name"
+	default ""
+	---help---
+		Set this option to configure custom memory as LV_ATTRIBUTE_FAST_MEM
+
+if LV_MEM_CUSTOM
+
+config LV_PORT_MEM_CUSTOM_SIZE
+	int "Size of the custom memory used by `lv_mem_alloc` in kilobytes (>= 2kB)"
+	default 0
+
+if LV_PORT_MEM_CUSTOM_SIZE != 0
+
+config LV_PORT_MEM_CUSTOM_NAME
+	string "Name of the custom HEAP memory"
+	default "lvgl"
+
+endif # LV_PORT_MEM_CUSTOM_SIZE
+
+endif # LV_MEM_CUSTOM
+
+endmenu # "Memory configuration"
 
 endif # GRAPHICS_LVGL

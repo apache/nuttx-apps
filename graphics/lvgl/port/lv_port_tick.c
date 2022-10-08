@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/lvgldemo/tp_cal.h
+ * apps/graphics/lvgl/port/lv_port_tick.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,36 +18,44 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_LVGLDEMO_TP_CAL_H
-#define __APPS_EXAMPLES_LVGLDEMO_TP_CAL_H
-
 /****************************************************************************
- * Public Function Prototypes
+ * Included Files
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
+#include <nuttx/config.h>
+#include <time.h>
+#include "lv_port_tick.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Type Declarations
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+uint32_t millis(void)
 {
-#endif
+  struct timespec ts;
 
-/****************************************************************************
- * Name: tp_cal_create
- *
- * Description:
- *   Create a touchpad calibration screen
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  uint32_t tick = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 
-void tp_cal_create(void);
-
-#ifdef __cplusplus
+  return tick;
 }
-#endif
-
-#endif /* __APPS_EXAMPLES_LVGLDEMO_TP_CAL_H */

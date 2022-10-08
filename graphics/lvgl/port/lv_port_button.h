@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/lvgldemo/lcddev.h
+ * apps/graphics/lvgl/port/lv_port_button.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,29 +18,63 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_LVGLDEMO_LCDDEV_H
-#define __APPS_EXAMPLES_LVGLDEMO_LCDDEV_H
+#ifndef __APPS_GRAPHICS_LVGL_PORT_LV_PORT_BUTTON_H
+#define __APPS_GRAPHICS_LVGL_PORT_LV_PORT_BUTTON_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
+#include <nuttx/config.h>
 #include <lvgl/lvgl.h>
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if defined(CONFIG_LV_PORT_USE_BUTTON)
+
+/****************************************************************************
+ * Type Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
 #ifdef __cplusplus
+#define EXTERN extern "C"
 extern "C"
 {
+#else
+#define EXTERN extern
 #endif
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int lcddev_init(lv_disp_drv_t *lv_drvr);
+/****************************************************************************
+ * Name: lv_port_button_init
+ *
+ * Description:
+ *   Button interface initialization.
+ *
+ * Input Parameters:
+ *   dev_path - input device path, set to NULL to use the default path
+ *
+ * Returned Value:
+ *   lv_indev object address on success; NULL on failure.
+ *
+ ****************************************************************************/
 
+FAR lv_indev_t *lv_port_button_init(FAR const char *dev_path);
+
+#undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_EXAMPLES_LVGLDEMO_LCDDEV_H */
+#endif /* CONFIG_LV_PORT_USE_BUTTON */
+
+#endif /* __APPS_GRAPHICS_LVGL_PORT_LV_PORT_BUTTON_H */

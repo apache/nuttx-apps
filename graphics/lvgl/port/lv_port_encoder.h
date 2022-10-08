@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/lvgl/lv_tick_interface.c
+ * apps/graphics/lvgl/port/lv_port_encoder.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,56 +18,63 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_GRAPHICS_LVGL_PORT_LV_PORT_ENCODER_H
+#define __APPS_GRAPHICS_LVGL_PORT_LV_PORT_ENCODER_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
-#include "lv_tick_interface.h"
+#include <lvgl/lvgl.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
+#if defined(CONFIG_LV_PORT_USE_ENCODER)
+
 /****************************************************************************
- * Private Type Declarations
+ * Type Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Private Function Prototypes
+ * Public Data
  ****************************************************************************/
 
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-uint32_t lv_tick_interface(void)
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
 {
-  static bool first_time = true;
-  static struct timeval t0;
+#else
+#define EXTERN extern
+#endif
 
-  if (first_time)
-    {
-      gettimeofday(&t0, NULL);
-      first_time = false;
-      return 0;
-    }
-  else
-    {
-      struct timeval t;
-      struct timeval delta;
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-      gettimeofday(&t, NULL);
-      timersub(&t, &t0, &delta);
-      return delta.tv_sec * 1000 + delta.tv_usec / 1000;
-    }
+/****************************************************************************
+ * Name: lv_port_encoder_init
+ *
+ * Description:
+ *   Encoder interface initialization.
+ *
+ * Input Parameters:
+ *   dev_path - input device path, set to NULL to use the default path.
+ *
+ * Returned Value:
+ *   lv_indev object address on success; NULL on failure.
+ *
+ ****************************************************************************/
+
+FAR lv_indev_t *lv_port_encoder_init(FAR const char *dev_path);
+
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* CONFIG_LV_PORT_USE_ENCODER */
+
+#endif /* __APPS_GRAPHICS_LVGL_PORT_LV_PORT_ENCODER_H */
