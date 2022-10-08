@@ -337,7 +337,7 @@ static bool pwfb_putc(FAR struct pwfb_state_s *st,
 
   /* Render the glyph into the window */
 
-  src = (FAR const void *)glyph->bitmap;
+  src = glyph->bitmap;
   ret =  nxtk_bitmapwindow(wndo->hwnd, &bounds, &src,
                            fpos, (unsigned int)glyph->stride);
   if (ret < 0)

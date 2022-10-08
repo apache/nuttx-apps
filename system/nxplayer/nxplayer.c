@@ -74,9 +74,9 @@
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
 struct nxplayer_ext_fmt_s
 {
-  const char  *ext;
-  uint16_t    format;
-  CODE int    (*getsubformat)(int fd);
+  FAR const char *ext;
+  uint16_t       format;
+  CODE int       (*getsubformat)(int fd);
 };
 #endif
 
@@ -179,10 +179,8 @@ static int _open_with_http(const char *fullurl)
   tv.tv_sec  = 10; /* TODO */
   tv.tv_usec = 0;
 
-  setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
-             sizeof(struct timeval));
-  setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
-             sizeof(struct timeval));
+  setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
+  setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval));
 
   struct sockaddr_in server;
   server.sin_family = AF_INET;
@@ -472,8 +470,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
 #ifdef CONFIG_AUDIO_FORMAT_MIDI
 int nxplayer_getmidisubformat(int fd)
 {
-  char    type[2];
-  int     ret;
+  char type[2];
+  int  ret;
 
   /* Seek to location 8 in the file (the format type) */
 
@@ -516,9 +514,9 @@ static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pplayer,
                                             FAR const char *pfilename,
                                             FAR int *subfmt)
 {
-  const char  *pext;
-  uint8_t      x;
-  uint8_t      c;
+  FAR const char *pext;
+  uint8_t         x;
+  uint8_t         c;
 
   /* Find the file extension, if any */
 
@@ -750,23 +748,23 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pplayer,
  *
  ****************************************************************************/
 
-static void *nxplayer_playthread(pthread_addr_t pvarg)
+static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
 {
-  struct nxplayer_s           *pplayer = (struct nxplayer_s *)pvarg;
-  struct audio_msg_s          msg;
-  struct audio_buf_desc_s     buf_desc;
-  ssize_t                     size;
-  bool                        running = true;
-  bool                        streaming = true;
-  bool                        failed = false;
-  struct ap_buffer_info_s     buf_info;
-  FAR struct ap_buffer_s      **buffers;
-  unsigned int                prio;
+  FAR struct nxplayer_s   *pplayer = (FAR struct nxplayer_s *)pvarg;
+  struct audio_msg_s      msg;
+  struct audio_buf_desc_s buf_desc;
+  ssize_t                 size;
+  bool                    running = true;
+  bool                    streaming = true;
+  bool                    failed = false;
+  struct ap_buffer_info_s buf_info;
+  FAR struct ap_buffer_s  **buffers;
+  unsigned int            prio;
 #ifdef CONFIG_DEBUG_FEATURES
-  int                         outstanding = 0;
+  int                     outstanding = 0;
 #endif
-  int                         x;
-  int                         ret;
+  int                     x;
+  int                     ret;
 
   audinfo("Entry\n");
 
@@ -1419,7 +1417,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pplayer, uint16_t balance)
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxplayer_pause(FAR struct nxplayer_s *pplayer)
 {
-  int   ret = OK;
+  int ret = OK;
 
   if (pplayer->state == NXPLAYER_STATE_PLAYING)
     {
@@ -1705,8 +1703,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
 int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 {
-  struct audio_msg_s  term_msg;
-  FAR void            *value;
+  struct audio_msg_s term_msg;
+  FAR void           *value;
 
   DEBUGASSERT(pplayer != NULL);
 
@@ -2111,7 +2109,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
 
   /* Allocate the memory */
 
-  pplayer = (FAR struct nxplayer_s *) malloc(sizeof(struct nxplayer_s));
+  pplayer = (FAR struct nxplayer_s *)malloc(sizeof(struct nxplayer_s));
   if (pplayer == NULL)
     {
       return NULL;

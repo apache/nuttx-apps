@@ -222,8 +222,7 @@ int i8sak_eventlistener_start(FAR struct i8sak_s *i8sak)
   i8sak->eventlistener_run = true;
 
   ret = pthread_create(&i8sak->eventlistener_threadid,
-                       NULL, i8sak_eventthread,
-                       (void *)i8sak);
+                       NULL, i8sak_eventthread, i8sak);
   if (ret != 0)
     {
       fprintf(stderr, "failed to start event thread: %d\n", ret);

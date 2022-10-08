@@ -117,12 +117,12 @@ static int smart_create_test_file(char *filename)
 
 static int smart_seek_test(char *filename)
 {
-  FILE     *fd;
-  char      readstring[80];
-  char      cmpstring[80];
-  int       index;
-  int       x;
-  int       ret = OK;
+  FILE *fd;
+  char  readstring[80];
+  char  cmpstring[80];
+  int   index;
+  int   x;
+  int   ret = OK;
 
   fd = fopen(filename, "r");
   if (fd == NULL)

@@ -703,7 +703,7 @@ static void netinit_configure(void)
 
 #ifdef CONFIG_NETINIT_MONITOR
 static void netinit_signal(int signo, FAR siginfo_t *siginfo,
-                               FAR void * context)
+                           FAR void *context)
 {
   int semcount;
   int ret;
@@ -995,10 +995,10 @@ static pthread_addr_t netinit_thread(pthread_addr_t arg)
 int netinit_bringup(void)
 {
 #ifdef CONFIG_NETINIT_THREAD
-  struct sched_param  sparam;
-  pthread_attr_t      attr;
-  pthread_t           tid;
-  int                 ret;
+  struct sched_param sparam;
+  pthread_attr_t     attr;
+  pthread_t          tid;
+  int                ret;
 
   /* Start the network initialization thread to perform the network bring-up
    * asynchronously.

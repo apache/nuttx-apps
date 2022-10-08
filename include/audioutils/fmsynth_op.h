@@ -47,7 +47,7 @@ typedef CODE int (*opfunc_t)(int theta);
 
 typedef struct fmsynth_op_s
 {
-  FAR fmsynth_eg_t  *eg;
+  FAR fmsynth_eg_t *eg;
   opfunc_t wavegen;
   struct fmsynth_op_s *cascadeop;
   struct fmsynth_op_s *parallelop;

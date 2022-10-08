@@ -187,13 +187,13 @@ clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 
 distclean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_distclean)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) ( if exist  external ( \
+	$(Q) (if exist  external ( \
 		echo ********************************************************" \
 		echo * The external directory/link must be removed manually *" \
 		echo ********************************************************" \
 	)
 else
-	$(Q) ( if [ -e external ]; then \
+	$(Q) (if [ -e external ]; then \
 		echo "********************************************************"; \
 		echo "* The external directory/link must be removed manually *"; \
 		echo "********************************************************"; \

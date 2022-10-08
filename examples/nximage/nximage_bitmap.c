@@ -3692,5 +3692,5 @@ void nximage_blitrow(FAR nxgl_mxpixel_t *run, FAR const void **state)
 
   /* Save the start of the next row and return success */
 
-  *state = (FAR const void *)pos;
+  *state = pos;
 }

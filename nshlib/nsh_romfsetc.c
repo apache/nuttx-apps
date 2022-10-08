@@ -78,7 +78,7 @@
 
 int nsh_romfsetc(void)
 {
-  int  ret;
+  int ret;
 
 #ifndef CONFIG_NSH_CROMFSETC
   struct boardioc_romdisk_s desc;

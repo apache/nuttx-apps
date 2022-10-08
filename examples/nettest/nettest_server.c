@@ -87,7 +87,7 @@ void nettest_server(void)
 
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR,
-                 (void *)&optval, sizeof(int)) < 0)
+                 &optval, sizeof(int)) < 0)
     {
       printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_listensd;

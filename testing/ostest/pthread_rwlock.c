@@ -49,7 +49,7 @@ static int g_race_cond_thread_pos;
 
 static FAR void *race_cond_thread1(FAR void *data)
 {
-  FAR struct race_cond_s *rc = (FAR struct race_cond_s *) data;
+  FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   int status;
 
   /* Runs 1st */
@@ -147,7 +147,7 @@ static FAR void *race_cond_thread1(FAR void *data)
 
 static FAR void *race_cond_thread2(FAR void *data)
 {
-  FAR struct race_cond_s *rc = (FAR struct race_cond_s *) data;
+  FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   int status;
 
   status = sem_wait(rc->sem2);
@@ -294,7 +294,7 @@ static void test_two_threads(void)
   pthread_join(thread2, NULL);
 }
 
-static void * timeout_thread1(FAR void * data)
+static FAR void *timeout_thread1(FAR void *data)
 {
   FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   int status;
@@ -320,7 +320,7 @@ static void * timeout_thread1(FAR void * data)
   return NULL;
 }
 
-static void * timeout_thread2(FAR void * data)
+static FAR void *timeout_thread2(FAR void *data)
 {
   FAR struct race_cond_s *rc = (FAR struct race_cond_s *)data;
   struct timespec time;

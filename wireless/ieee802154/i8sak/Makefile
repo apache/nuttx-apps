@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-# IEEE 802.15.4  SAK (swiss army knife )
+# IEEE 802.15.4  SAK (swiss army knife)
 
 PROGNAME = $(CONFIG_IEEE802154_I8SAK_PROGNAME)
 PRIORITY = $(CONFIG_IEEE802154_I8SAK_PRIORITY)

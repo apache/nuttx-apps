@@ -84,7 +84,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
                           uint16_t hsize, uint16_t vsize,
                           struct v_buffer **vbuf,
                           uint8_t buffernum, int buffersize);
-static void free_buffer(struct v_buffer  *buffers, uint8_t bufnum);
+static void free_buffer(struct v_buffer *buffers, uint8_t bufnum);
 static int parse_arguments(int argc, char *argv[],
                            int *capture_num, enum v4l2_buf_type *type);
 static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
@@ -246,7 +246,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
  *   All free allocated memory of v_buffer.
  ****************************************************************************/
 
-static void free_buffer(struct v_buffer  *buffers, uint8_t bufnum)
+static void free_buffer(struct v_buffer *buffers, uint8_t bufnum)
 {
   uint8_t cnt;
   if (buffers)

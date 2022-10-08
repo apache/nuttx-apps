@@ -396,8 +396,8 @@ namespace NxWM
   class CCalibrationFactory : public IApplicationFactory
   {
   private:
-    CTaskbar      *m_taskbar;      /**< The taskbar */
-    CTouchscreen  *m_touchscreen;  /**< The touchscreen device */
+    CTaskbar     *m_taskbar;      /**< The taskbar */
+    CTouchscreen *m_touchscreen;  /**< The touchscreen device */
 
   public:
     /**

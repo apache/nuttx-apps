@@ -217,7 +217,7 @@ static int foc_mq_send(mqd_t mqd, uint8_t msg, FAR void *data)
 
   /* Data max 4B */
 
-  tmp = *((FAR uint32_t *) data);
+  tmp = *((FAR uint32_t *)data);
 
   buffer[0] = msg;
   buffer[1] = ((tmp & 0x000000ff) >> 0);

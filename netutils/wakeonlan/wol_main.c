@@ -66,7 +66,7 @@ static int send_wol(FAR struct ether_addr *dest,
     }
 
   ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
-    (void *)&optval, sizeof(optval));
+                   &optval, sizeof(optval));
   if (ret < 0)
     {
       fprintf(stderr, "failed to set socket options: %s\n", strerror(errno));

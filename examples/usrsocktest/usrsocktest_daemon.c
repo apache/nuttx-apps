@@ -2084,10 +2084,10 @@ int usrsocktest_daemon_stop(void)
       goto out;
     }
 
-  item = (void *)sq_peek(&priv->delayed_cmd_threads);
+  item = (FAR struct delayed_cmd_s *)sq_peek(&priv->delayed_cmd_threads);
   while (item)
     {
-      next = (void *)sq_next(&item->node);
+      next = (FAR struct delayed_cmd_s *)sq_next(&item->node);
 
       pthread_mutex_unlock(&daemon_mutex);
       pthread_join(item->tid, &retval);

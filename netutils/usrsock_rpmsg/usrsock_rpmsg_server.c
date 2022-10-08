@@ -442,7 +442,7 @@ static int usrsock_rpmsg_sendto_handler(struct rpmsg_endpoint *ept,
           else
             {
               ret = psock_sendto(&priv->socks[req->usockid],
-                  (const void *)(req + 1) + req->addrlen, req->buflen,
+                  (const char *)(req + 1) + req->addrlen, req->buflen,
                   req->flags,
                   req->addrlen ? (const struct sockaddr *)(req + 1) : NULL,
                   req->addrlen);

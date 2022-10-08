@@ -140,15 +140,15 @@ static int curl4nx_is_header(FAR char *buf, int len,
 int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
 {
   struct sockaddr_in server;
-  FILE *             stream;     /* IOSTREAM used to printf in the socket TODO avoid */
+  FAR FILE          *stream;     /* IOSTREAM used to printf in the socket TODO avoid */
   int                rxoff;      /* Current offset within RX buffer */
   char               tmpbuf[16]; /* Buffer to hold small strings */
   int                tmplen;     /* Number of bytes used in tmpbuffer */
   int                state;      /* Current state of the parser */
   int                ret;        /* Return value from internal calls */
-  char *             headerbuf;
+  FAR char          *headerbuf;
   int                headerlen;
-  char *             end;
+  FAR char          *end;
   int                cret = CURL4NXE_OK; /* Public return value */
   bool               redirected = false; /* Boolean to manage HTTP redirections */
   bool               chunked = false;
@@ -506,7 +506,7 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
                                                   curl4nx_info(
                                                   "Too many redirections\n");
                                                   cret =
-                                                  CURL4NXE_TOO_MANY_REDIRECTS;
+                                                 CURL4NXE_TOO_MANY_REDIRECTS;
                                                   goto close;
                                                 }
 

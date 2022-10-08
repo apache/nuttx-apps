@@ -120,7 +120,7 @@ int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
 int sixlowpan_disassoc_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_disassoc_req_s *req);
 int sixlowpan_get_req(int sock, FAR const char *ifname,
-      FAR const struct ieee802154_get_req_s *req);
+      FAR struct ieee802154_get_req_s *req);
 int sixlowpan_gts_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_gts_req_s *req);
 int sixlowpan_orphan_resp(int sock, FAR const char *ifname,

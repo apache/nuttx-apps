@@ -150,15 +150,15 @@ struct console_stdio_s
 
 #ifdef CONFIG_FILE_STREAM
 #ifdef CONFIG_NSH_ALTCONDEV
-  int    cn_confd;     /* Console I/O file descriptor */
+  int   cn_confd;     /* Console I/O file descriptor */
 #endif
-  int    cn_outfd;     /* Output file descriptor (possibly redirected) */
-  int    cn_errfd;     /* Error Output file descriptor (possibly redirected) */
+  int   cn_outfd;     /* Output file descriptor (possibly redirected) */
+  int   cn_errfd;     /* Error Output file descriptor (possibly redirected) */
 #ifdef CONFIG_NSH_ALTCONDEV
-  FILE  *cn_constream; /* Console I/O stream (possibly redirected) */
+  FILE *cn_constream; /* Console I/O stream (possibly redirected) */
 #endif
-  FILE  *cn_outstream; /* Output stream */
-  FILE  *cn_errstream; /* Error Output stream */
+  FILE *cn_outstream; /* Output stream */
+  FILE *cn_errstream; /* Error Output stream */
 #endif
 
 #ifdef CONFIG_NSH_VARS

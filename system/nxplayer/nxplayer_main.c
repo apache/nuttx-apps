@@ -256,7 +256,7 @@ static const int g_nxplayer_cmd_count = sizeof(g_nxplayer_cmds) /
 
 static int nxplayer_cmd_play(FAR struct nxplayer_s *pplayer, char *parg)
 {
-  int     ret;
+  int ret;
 
   /* Try to play the file specified */
 

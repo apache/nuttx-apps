@@ -59,11 +59,11 @@ esac
 if [ `which ${hash_algo}sum 2> /dev/null` ]; then
     hash_algo_cmd="${hash_algo}sum"
 elif [ `which shasum 2> /dev/null` ]; then
-    hash_algo_len=$( echo ${hash_algo} | cut -c 4- )
+    hash_algo_len=$(echo ${hash_algo} | cut -c 4-)
     hash_algo_cmd="shasum -a ${hash_algo_len}"
 fi
 
-calc_hash=$( ${hash_algo_cmd} "${file_to_check}" | cut -d' ' -f1 )
+calc_hash=$(${hash_algo_cmd} "${file_to_check}" | cut -d' ' -f1)
 
 # Does it match expected hash?
 

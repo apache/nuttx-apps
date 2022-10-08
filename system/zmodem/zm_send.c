@@ -777,7 +777,7 @@ static int zms_sendfilename(FAR struct zm_state_s *pzm)
           (unsigned long)pzms->filesize);
 #endif
 
-  ptr += strlen((char *)ptr);
+  ptr += strlen((FAR char *)ptr);
   *ptr++ = '\0';
 
   len =  ptr - pzm->scratch;
@@ -1596,7 +1596,7 @@ ZMSHANDLE zms_initialize(int remfd)
        * or command if it were not already active.
        */
 
-      nwritten = zm_remwrite(pzm->remfd, (uint8_t *) "rz\r", 3);
+      nwritten = zm_remwrite(pzm->remfd, (FAR uint8_t *)"rz\r", 3);
       if (nwritten < 0)
         {
           zmdbg("ERROR: zm_remwrite failed: %d\n", (int)nwritten);

@@ -765,7 +765,7 @@ static int i8sak_daemon(int argc, FAR char *argv[])
           i8sak->startblaster = false;
 
           ret = pthread_create(&i8sak->blaster_threadid, NULL,
-                               i8sak_blaster_thread, (void *)i8sak);
+                               i8sak_blaster_thread, i8sak);
           if (ret != 0)
             {
               fprintf(stderr, "failed to start blaster thread: %d\n", ret);
@@ -779,7 +779,7 @@ static int i8sak_daemon(int argc, FAR char *argv[])
           i8sak->startsniffer = false;
 
           ret = pthread_create(&i8sak->sniffer_threadid, NULL,
-                               i8sak_sniffer_thread, (void *)i8sak);
+                               i8sak_sniffer_thread, i8sak);
           if (ret != 0)
             {
               fprintf(stderr, "failed to start sniffer thread: %d\n", ret);

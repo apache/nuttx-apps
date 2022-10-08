@@ -310,7 +310,7 @@ static int xmlrpc_parsemethod(struct parsebuf_s *pbuf)
   int ret = XMLRPC_PARSE_ERROR;
   int type;
 
-  memset((void *)&g_xmlcall, 0, sizeof(struct xmlrpc_s));
+  memset(&g_xmlcall, 0, sizeof(struct xmlrpc_s));
 
   /* Look for the methodName tag */
 

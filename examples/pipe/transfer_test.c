@@ -68,7 +68,6 @@ static void *transfer_reader(pthread_addr_t pvarg)
   int nbytes;
   int value;
   int ndx;
-  void *p;
 
   printf("transfer_reader: started\n");
   for (nbytes = 0, value = 0; nbytes < NREAD_BYTES; )
@@ -80,8 +79,7 @@ static void *transfer_reader(pthread_addr_t pvarg)
           "transfer_reader: read failed, errno=%d\n", \
           errno);
 
-          p = (void *) 1;
-          return p;
+          return (void *)(uintptr_t)1;
         }
       else if (ret == 0)
         {
@@ -91,8 +89,7 @@ static void *transfer_reader(pthread_addr_t pvarg)
               "transfer_reader: Too few bytes read -- aborting: %d\n", \
               nbytes);
 
-              p = (void *) 2;
-              return p;
+              return (void *)(uintptr_t)2;
             }
             break;
         }
@@ -110,8 +107,7 @@ static void *transfer_reader(pthread_addr_t pvarg)
               "transfer_reader: Byte %d, expected %d, found %d\n",
                     nbytes + ndx, value, buffer[ndx]);
 
-              p = (void *) 3;
-              return p;
+              return (void *)(uintptr_t)3;
             }
 
           value++;
@@ -124,15 +120,13 @@ static void *transfer_reader(pthread_addr_t pvarg)
           "transfer_reader: Too many bytes read -- aborting: %d\n", \
           nbytes);
 
-          p = (void *) 4;
-          return p;
+          return (void *)(uintptr_t)4;
         }
     }
 
   printf("transfer_reader: %d bytes read\n", nbytes);
 
-  p = (void *) 0;
-  return p;
+  return NULL;
 }
 
 /****************************************************************************
@@ -145,7 +139,6 @@ static void *transfer_writer(pthread_addr_t pvarg)
   int fd = (intptr_t)pvarg;
   int ret;
   int i;
-  void *p;
 
   printf("transfer_writer: started\n");
   for (i = 0; i < WRITE_SIZE; i++)
@@ -160,21 +153,18 @@ static void *transfer_writer(pthread_addr_t pvarg)
         {
           fprintf(stderr, \
           "transfer_writer: write failed, errno=%d\n", errno);
-          p = (void *) 1;
-          return p;
+          return (void *)(uintptr_t)1;
         }
       else if (ret != WRITE_SIZE)
         {
           fprintf(stderr, \
           "transfer_writer: Unexpected write size=%d\n", ret);
-          p = (void *) 2;
-          return p;
+          return (void *)(uintptr_t)2;
         }
     }
 
   printf("transfer_writer: %d bytes written\n", NWRITE_BYTES);
-  p = (void *) 0;
-  return p;
+  return NULL;
 }
 
 /****************************************************************************

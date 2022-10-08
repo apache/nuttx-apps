@@ -78,7 +78,7 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
         {
           /* Default to vt100 as a last resort */
 
-          term_type = (FAR const char *) "vt100";
+          term_type = "vt100";
         }
     }
 
@@ -126,7 +126,7 @@ int termcurses_initterm(FAR const char *term_type, int in_fd, int out_fd,
 
 int termcurses_deinitterm(FAR struct termcurses_s *term)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
   int result = OK;
 
   /* Call the dev function */
@@ -154,7 +154,7 @@ int termcurses_deinitterm(FAR struct termcurses_s *term)
 
 int termcurses_moveyx(FAR struct termcurses_s *term, int row, int col)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 
@@ -177,7 +177,7 @@ int termcurses_moveyx(FAR struct termcurses_s *term, int row, int col)
 int termcurses_setcolors(FAR struct termcurses_s *term,
                          FAR struct termcurses_colors_s *colors)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 
@@ -199,7 +199,7 @@ int termcurses_setcolors(FAR struct termcurses_s *term,
 
 int termcurses_setattribute(FAR struct termcurses_s *term, unsigned long attrib)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 
@@ -221,7 +221,7 @@ int termcurses_setattribute(FAR struct termcurses_s *term, unsigned long attrib)
 
 int termcurses_getwinsize(FAR struct termcurses_s *term, FAR struct winsize *winsz)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 
@@ -244,7 +244,7 @@ int termcurses_getwinsize(FAR struct termcurses_s *term, FAR struct winsize *win
 int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
       int *keymodifiers)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 
@@ -266,7 +266,7 @@ int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
 
 bool termcurses_checkkey(FAR struct termcurses_s *term)
 {
-  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *) term;
+  FAR struct termcurses_dev_s *dev = (FAR struct termcurses_dev_s *)term;
 
   /* Call the dev function */
 

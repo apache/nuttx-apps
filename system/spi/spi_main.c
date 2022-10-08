@@ -186,8 +186,8 @@ static int spi_execute(FAR struct spitool_s *spitool, int argc,
 {
   FAR const struct cmdmap_s *cmdmap;
   FAR const char            *cmd;
-  cmd_t                  handler;
-  int                    ret;
+  cmd_t                      handler;
+  int                        ret;
 
   /* The form of argv is:
    *

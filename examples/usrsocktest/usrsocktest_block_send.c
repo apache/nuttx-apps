@@ -284,8 +284,7 @@ static void send_timeout(FAR struct usrsocktest_daemon_conf_s *dconf)
 
   tv.tv_sec = 0;
   tv.tv_usec = 100 * 1000;
-  ret = setsockopt(sd, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
-                   sizeof(tv));
+  ret = setsockopt(sd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
   TEST_ASSERT_EQUAL(0, ret);
 
   /* Try send data to remote. */

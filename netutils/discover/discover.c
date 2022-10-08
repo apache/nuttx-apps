@@ -144,7 +144,7 @@ static inline void discover_initresponse(void)
   g_state.response[0] = DISCOVER_PROTO_ID;
   g_state.response[1] = DISCOVER_RESPONSE;
 
-  strncpy((char *) &g_state.response[2], g_state.info.description,
+  strncpy((char *)&g_state.response[2], g_state.info.description,
           DISCOVER_RESPONSE_SIZE - 3);
 
   for (i = 0; i < DISCOVER_RESPONSE_SIZE - 1; i++)
@@ -161,7 +161,7 @@ static int discover_daemon(int argc, char *argv[])
 {
   int sockfd = -1;
   int nbytes;
-  int addrlen = sizeof(struct sockaddr_in);
+  socklen_t addrlen = sizeof(struct sockaddr_in);
   struct sockaddr_in srcaddr;
 
   /* memset(&g_state, 0, sizeof(struct discover_state_s)); */
@@ -187,8 +187,7 @@ static int discover_daemon(int argc, char *argv[])
       /* Read the next packet */
 
       nbytes = recvfrom(sockfd, &g_state.request, sizeof(g_state.request), 0,
-                        (struct sockaddr *) &srcaddr,
-                        (socklen_t *) &addrlen);
+                        (struct sockaddr *)&srcaddr, &addrlen);
       if (nbytes < 0)
         {
           /* On errors (other EINTR), close the socket and try again */
@@ -305,7 +304,7 @@ static inline int discover_socket(void)
 #ifdef HAVE_SO_REUSEADDR
   optval = 1;
   ret = setsockopt(sockfd, SOL_SOCKET,
-                   SO_REUSEADDR, (void *)&optval, sizeof(int));
+                   SO_REUSEADDR, &optval, sizeof(int));
   if (ret < 0)
     {
       nerr("ERROR: setsockopt SO_REUSEADDR failed: %d\n", errno);
@@ -317,7 +316,7 @@ static inline int discover_socket(void)
 #ifdef HAVE_SO_BROADCAST
   optval = 1;
   ret = setsockopt(sockfd, SOL_SOCKET,
-                   SO_BROADCAST, (void *)&optval, sizeof(int));
+                   SO_BROADCAST, &optval, sizeof(int));
   if (ret < 0)
     {
       nerr("ERROR: setsockopt SO_BROADCAST failed: %d\n", errno);

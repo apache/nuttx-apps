@@ -45,7 +45,7 @@ $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install)))
 # Install each program in the romfs directory
 
 install: $(foreach DIR, $(SUBDIRS), $(DIR)_install)
-	$(Q) ( for file in $(INSTALL_FILES); do\
+	$(Q) (for file in $(INSTALL_FILES); do \
 		install -m 0644 -D $${file} $(ROMFS_DIR)/$${file}; \
 	done; )
 

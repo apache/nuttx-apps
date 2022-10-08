@@ -356,8 +356,7 @@ static void receive_timeout(FAR struct usrsocktest_daemon_conf_s *dconf)
 
   tv.tv_sec = 0;
   tv.tv_usec = 100 * 1000;
-  ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
-                   sizeof(tv));
+  ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
   TEST_ASSERT_EQUAL(0, ret);
 
   /* Receive data from remote */

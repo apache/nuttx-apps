@@ -152,7 +152,7 @@ static void shut_down(void)
       if (connects[cnum].hc != NULL)
         {
           httpd_destroy_conn(connects[cnum].hc);
-          httpd_free((void *)connects[cnum].hc);
+          httpd_free(connects[cnum].hc);
           connects[cnum].hc = NULL;
         }
     }
@@ -170,7 +170,7 @@ static void shut_down(void)
     }
 
   tmr_destroy();
-  httpd_free((void *)connects);
+  httpd_free(connects);
 }
 
 static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
@@ -638,7 +638,7 @@ static void linger_clear_connection(ClientData client_data,
   struct connect_s *conn;
 
   ninfo("Clear connection\n");
-  conn = (struct connect_s *) client_data.p;
+  conn = (struct connect_s *)client_data.p;
   conn->linger_timer = NULL;
   really_clear_connection(conn);
 }

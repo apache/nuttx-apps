@@ -730,7 +730,7 @@ void CIconMgr::insertEntry(FAR struct SWindowEntry *wentry,
       // Insert the new window mid-list, in name order
 
       NXWidgets::CNxString windowName = cwin->getWindowName();
-      if (windowName.compareTo( tmpwin->cwin->getWindowName()) > 0)
+      if (windowName.compareTo(tmpwin->cwin->getWindowName()) > 0)
         {
           wentry->flink = tmpwin;
           wentry->blink = tmpwin->blink;

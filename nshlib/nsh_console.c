@@ -45,10 +45,10 @@
 #ifdef CONFIG_FILE_STREAM
 struct serialsave_s
 {
-  int    cn_errfd;     /* Re-directed error output file descriptor */
-  int    cn_outfd;     /* Re-directed output file descriptor */
-  FILE  *cn_errstream; /* Re-directed error output stream */
-  FILE  *cn_outstream; /* Re-directed output stream */
+  int   cn_errfd;     /* Re-directed error output file descriptor */
+  int   cn_outfd;     /* Re-directed output file descriptor */
+  FILE *cn_errstream; /* Re-directed error output stream */
+  FILE *cn_outstream; /* Re-directed output stream */
 };
 #endif
 

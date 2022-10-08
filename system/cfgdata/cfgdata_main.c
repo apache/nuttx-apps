@@ -237,11 +237,11 @@ static void cfgdatacmd_parse_byte_array(struct config_data_s *cfg,
 
 static void cfgdatacmd_set(int argc, char *argv[])
 {
-  int                   ret;
-  int                   fd;
-  int                   x;
-  struct config_data_s  cfg;
-  uint8_t               data[32];
+  int                  ret;
+  int                  fd;
+  int                  x;
+  struct config_data_s cfg;
+  uint8_t              data[32];
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
 
@@ -369,9 +369,9 @@ static void cfgdatacmd_set(int argc, char *argv[])
 
 static void cfgdatacmd_unset(int argc, char *argv[])
 {
-  int                   ret;
-  int                   fd;
-  struct config_data_s  cfg;
+  int                  ret;
+  int                  fd;
+  struct config_data_s cfg;
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
   /* Copy the name to the cfg struct */
@@ -432,11 +432,11 @@ static void cfgdatacmd_unset(int argc, char *argv[])
 
 static void cfgdatacmd_print(int argc, char *argv[])
 {
-  int                   ret;
-  int                   fd;
-  int                   x;
-  struct config_data_s  cfg;
-  bool                  isstring;
+  int                  ret;
+  int                  fd;
+  int                  x;
+  struct config_data_s cfg;
+  bool                 isstring;
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
 
@@ -541,12 +541,12 @@ static void cfgdatacmd_print(int argc, char *argv[])
 
 static void cfgdatacmd_show_all_config_items(void)
 {
-  int                   ret;
-  int                   fd;
-  int                   x;
-  struct config_data_s  cfg;
-  char                  fmtstr[24];
-  bool                  isstring;
+  int                  ret;
+  int                  fd;
+  int                  x;
+  struct config_data_s cfg;
+  char                 fmtstr[24];
+  bool                 isstring;
 
   /* Try to open the /dev/config file */
 

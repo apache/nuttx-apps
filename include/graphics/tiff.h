@@ -66,10 +66,11 @@
 
 /* Values for the IFD tag type */
 
-#define IFD_TAG_NEWSUBFILETYPE    254 /* NewSubfileType, LONG */
+#define IFD_TAG_NEWSUBFILETYPE    254         /* NewSubfileType, LONG */
 #  define TAG_NEWSUBFILETYPE_REDUCED (1 << 0) /* Bit 0: Reduced resolution version of image */
 #  define TAG_NEWSUBFILETYPE_SINGLE  (1 << 1) /* Bit 1: Single page of a multi-page image */
 #  define TAG_NEWSUBFILETYPE_TRANSP  (1 << 2) /* Bit 2: Defines a transparency mask for image */
+
 #define IFD_TAG_SUBFILETYPE       255 /* SubfileType, SHORT */
 #  define TAG_SUBFILETYPE_FULL      1 /*   Full-resolution image data */
 #  define TAG_SUBFILETYPE_REDUCED   2 /*   Reduced-resolution image data */
@@ -145,11 +146,11 @@
 #  define TAG_GRAYRESPUNIT_100KTHS  5 /*   Number represents hundred-thousandths of a unit */
 #define IFD_TAG_GRAYRESPONSECURVE 291 /* GrayResponseCurve, SHORT */
 #define IFD_TAG_T4OPTIONS         292 /* T4Options, LONG */
-#  define TAG_T4OPTIONS_2D        (1 << 0) /*   2-dimensional coding */
-#  define TAG_T4OPTIONS_NONE      (1 << 1) /*   Uncompressed mode */
-#  define TAG_T4OPTIONS_FILL      (1 << 2) /*   Fill bits have been added */
+#  define TAG_T4OPTIONS_2D   (1 << 0) /*   2-dimensional coding */
+#  define TAG_T4OPTIONS_NONE (1 << 1) /*   Uncompressed mode */
+#  define TAG_T4OPTIONS_FILL (1 << 2) /*   Fill bits have been added */
 #define IFD_TAG_T6OPTIONS         293 /* T6Options, LONG */
-#  define TAG_T6OPTIONS_NONE      (1 << 1) /*   Uncompressed mode allowed */
+#  define TAG_T6OPTIONS_NONE (1 << 1) /*   Uncompressed mode allowed */
 #define IFD_TAG_RESUNIT           296 /* ResolutionUnit, SHORT (Required) */
 #  define TAG_RESUNIT_NONE          1 /* No absolute unit of measurement */
 #  define TAG_RESUNIT_INCH          2 /* Inch (default) */
@@ -244,7 +245,7 @@ struct tiff_ifdentry_s
 
 /************************************************************************************/
 
-/* Structures needed to interface with the TIFF file creation library )and also
+/* Structures needed to interface with the TIFF file creation library) and also
  * structures used only internally by the TIFF file creation library).
  */
 

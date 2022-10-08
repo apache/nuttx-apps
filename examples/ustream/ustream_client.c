@@ -59,8 +59,8 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate buffers */
 
-  outbuf = (char*)malloc(SENDSIZE);
-  inbuf  = (char*)malloc(SENDSIZE);
+  outbuf = (FAR char *)malloc(SENDSIZE);
+  inbuf  = (FAR char *)malloc(SENDSIZE);
   if (!outbuf || !inbuf)
     {
       printf("client: failed to allocate buffers\n");
@@ -90,7 +90,7 @@ int main(int argc, FAR char *argv[])
 
   printf("client: Connecting to %s...\n", CONFIG_EXAMPLES_USTREAM_ADDR);
   addrlen += sizeof(sa_family_t) + 1;
-  ret = connect( sockfd, (struct sockaddr *)&myaddr, addrlen);
+  ret = connect(sockfd, (struct sockaddr *)&myaddr, addrlen);
   if (ret < 0)
     {
       printf("client: connect failure: %d\n", errno);
@@ -147,7 +147,8 @@ int main(int argc, FAR char *argv[])
     }
   else if (nbytessent != SENDSIZE)
     {
-      printf("client: Bad send length: %d Expected: %d\n", nbytessent, SENDSIZE);
+      printf("client: Bad send length: %d Expected: %d\n",
+             nbytessent, SENDSIZE);
       goto errout_with_socket;
     }
 
@@ -178,7 +179,8 @@ int main(int argc, FAR char *argv[])
 #endif
 
       printf("client: Receiving...\n");
-      nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd], SENDSIZE - totalbytesrecvd, 0);
+      nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd],
+                         SENDSIZE - totalbytesrecvd, 0);
 
       if (nbytesrecvd < 0)
         {
@@ -198,7 +200,8 @@ int main(int argc, FAR char *argv[])
 
   if (totalbytesrecvd != SENDSIZE)
     {
-      printf("client: Bad recv length: %d Expected: %d\n", totalbytesrecvd, SENDSIZE);
+      printf("client: Bad recv length: %d Expected: %d\n",
+             totalbytesrecvd, SENDSIZE);
       goto errout_with_socket;
     }
   else if (memcmp(inbuf, outbuf, SENDSIZE) != 0)

@@ -1420,8 +1420,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                   /* Check return value one by one */
 
                   ret = setsockopt(conn->sockfd, SOL_SOCKET, SO_RCVTIMEO,
-                                  (FAR const void *)&tv,
-                                   sizeof(struct timeval));
+                                   &tv, sizeof(struct timeval));
                   if (ret != 0)
                     {
                       ret = -errno;
@@ -1430,8 +1429,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                     }
 
                   ret = setsockopt(conn->sockfd, SOL_SOCKET, SO_SNDTIMEO,
-                                  (FAR const void *)&tv,
-                                  sizeof(struct timeval));
+                                   &tv, sizeof(struct timeval));
                   if (ret != 0)
                     {
                       ret = -errno;

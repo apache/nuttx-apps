@@ -181,7 +181,7 @@ static inline int unaryexpression(FAR struct nsh_vtbl_s *vtbl,
 {
   struct stat buf;
   FAR char *fullpath;
-  int   ret;
+  int ret;
 
   /* -n STRING */
 

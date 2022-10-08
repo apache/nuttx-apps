@@ -570,7 +570,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
       /* Blit the font bitmap into the window */
 
-      src = (FAR const void *)glyph->bitmap;
+      src = glyph->bitmap;
       ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
                       &bm->pos, (unsigned int)glyph->stride);
       if (ret < 0)

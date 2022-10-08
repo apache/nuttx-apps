@@ -302,7 +302,7 @@ static inline int
   config.instance = entry->instance;
   config.len = entry->len;
   config.configdata = g_entryimage;
-  ret = ioctl(g_fd, CFGDIOC_SETCONFIG, (unsigned long) &config);
+  ret = ioctl(g_fd, CFGDIOC_SETCONFIG, (unsigned long)&config);
   if (ret < 0)
     {
       entry->id = 0;
@@ -368,7 +368,7 @@ static inline int
   config.instance = entry->instance;
   config.len = entry->len;
   config.configdata = g_entryimage;
-  ret = ioctl(g_fd, CFGDIOC_GETCONFIG, (unsigned long) &config);
+  ret = ioctl(g_fd, CFGDIOC_GETCONFIG, (unsigned long)&config);
   if (ret < 0)
     {
       return ERROR;

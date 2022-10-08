@@ -599,7 +599,7 @@ static void succeed_stat(const char *path)
 
 int main(int argc, FAR char *argv[])
 {
-  int  ret;
+  int ret;
 
 #ifndef CONFIG_EXAMPLES_MOUNT_DEVNAME
   /* Create a RAM disk for the test */
