@@ -234,6 +234,7 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
 {
   struct usrsock_request_socket_s *req = data;
   struct usrsock_rpmsg_s *priv = priv_;
+  uint16_t events = 0;
   int i;
   int retr;
   int ret = -ENFILE;
@@ -250,6 +251,10 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
             {
               priv->epts[i] = ept;
               ret = i; /* Return index as the usockid */
+              if (req->type != SOCK_STREAM && req->type != SOCK_SEQPACKET)
+                {
+                  events = USRSOCK_EVENT_SENDTO_READY;
+                }
             }
 
           break;
@@ -258,7 +263,7 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
       pthread_mutex_unlock(&priv->mutex);
     }
 
-  retr = usrsock_rpmsg_send_ack(ept, 0, req->head.xid, ret);
+  retr = usrsock_rpmsg_send_ack(ept, events, req->head.xid, ret);
   if (retr >= 0 && ret >= 0 &&
       req->type != SOCK_STREAM && req->type != SOCK_SEQPACKET)
     {
@@ -267,7 +272,6 @@ static int usrsock_rpmsg_socket_handler(struct rpmsg_endpoint *ept,
       priv->pfds[ret].events = POLLIN;
       usrsock_rpmsg_notify_poll(priv);
       pthread_mutex_unlock(&priv->mutex);
-      retr = usrsock_rpmsg_send_event(ept, ret, USRSOCK_EVENT_SENDTO_READY);
     }
 
   return retr;
