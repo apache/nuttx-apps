@@ -85,12 +85,15 @@ static bool net_closeclient(struct net_listener_s *nls, int sd)
   close(sd);
   FD_CLR(sd, &nls->master);
 
-  /* If we just closed the max SD, then search downward for the next biggest SD. */
+  /* If we just closed the max SD, then search downward for the next
+   * biggest SD.
+   */
 
   while (FD_ISSET(nls->mxsd, &nls->master) == false)
     {
       nls->mxsd -= 1;
     }
+
   return true;
 }
 
@@ -107,7 +110,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
   /* Read data from the socket */
 
 #ifdef FIONBIO
-  for (;;)
+  for (; ; )
 #endif
     {
       printf("net_listener: Read data from sd=%d\n", sd);
@@ -132,7 +135,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
         }
       else
         {
-          nls->buffer[ret]='\0';
+          nls->buffer[ret] = '\0';
           printf("poll_listener: Read '%s' (%d bytes)\n", nls->buffer, ret);
 
           /* Echo the data back to the client */
@@ -144,9 +147,10 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
                 {
                   if (errno != EINTR)
                     {
-                       printf("net_listener: Send failed sd=%d: %d\n", sd, errno);
-                       net_closeclient(nls, sd);
-                       return false;
+                      printf("net_listener: Send failed sd=%d: %d\n",
+                             sd, errno);
+                      net_closeclient(nls, sd);
+                      return false;
                     }
                 }
               else
@@ -157,6 +161,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
             }
         }
     }
+
   return 0;
 }
 
@@ -171,10 +176,11 @@ static inline bool net_connection(struct net_listener_s *nls)
   /* Loop until all connections have been processed */
 
 #ifdef FIONBIO
-  for (;;)
+  for (; ; )
 #endif
     {
-      printf("net_listener: Accepting new connection on sd=%d\n", nls->listensd);
+      printf("net_listener: Accepting new connection on sd=%d\n",
+             nls->listensd);
 
       sd = accept(nls->listensd, NULL, NULL);
       if (sd < 0)
@@ -197,6 +203,7 @@ static inline bool net_connection(struct net_listener_s *nls)
             {
                nls->mxsd = sd;
             }
+
           return true;
         }
     }
@@ -225,7 +232,8 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   /* Configure the socket */
 
   value = 1;
-  ret = setsockopt(nls->listensd, SOL_SOCKET,  SO_REUSEADDR, (char*)&value, sizeof(int));
+  ret = setsockopt(nls->listensd, SOL_SOCKET,  SO_REUSEADDR,
+                   (char *)&value, sizeof(int));
   if (ret < 0)
     {
       printf("net_listener: setsockopt failed: %d\n", errno);
@@ -251,7 +259,8 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   nls->addr.sin_family      = AF_INET;
   nls->addr.sin_addr.s_addr = htonl(INADDR_ANY);
   nls->addr.sin_port        = htons(LISTENER_PORT);
-  ret = bind(nls->listensd, (struct sockaddr *)&nls->addr, sizeof(struct sockaddr_in));
+  ret = bind(nls->listensd, (struct sockaddr *)&nls->addr,
+             sizeof(struct sockaddr_in));
   if (ret < 0)
     {
       printf("net_listener: bind failed: %d\n", errno);
@@ -283,8 +292,9 @@ static void net_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  /* Configure the network */
-  /* Many embedded network interfaces must have a software assigned MAC */
+  /* Configure the network
+   * Many embedded network interfaces must have a software assigned MAC
+   */
 
 #ifdef CONFIG_EXAMPLES_POLL_NOMAC
   mac[0] = 0x00;
@@ -343,7 +353,7 @@ void *net_listener(pthread_addr_t pvarg)
   memset(&nls, 0, sizeof(struct net_listener_s));
   if (!net_mksocket(&nls))
     {
-       return (void*)1;
+      return (void *)(uintptr_t)1;
     }
 
   /* Initialize the 'master' file descriptor set */
@@ -361,13 +371,15 @@ void *net_listener(pthread_addr_t pvarg)
    * on any of the connect sockets.
    */
 
-  for (;;)
+  for (; ; )
     {
       /* Wait on select */
 
-      printf("net_listener: Calling select(), listener sd=%d\n", nls.listensd);
+      printf("net_listener: Calling select(), listener sd=%d\n",
+             nls.listensd);
       memcpy(&nls.working, &nls.master, sizeof(fd_set));
-      ret = select(nls.mxsd + 1, (FAR fd_set*)&nls.working, (FAR fd_set*)NULL, (FAR fd_set*)NULL, &timeout);
+      ret = select(nls.mxsd + 1, (FAR fd_set *)&nls.working,
+                   (FAR fd_set*)NULL, (FAR fd_set *)NULL, &timeout);
       if (ret < 0)
         {
           printf("net_listener: select failed: %d\n", errno);
@@ -411,7 +423,7 @@ void *net_listener(pthread_addr_t pvarg)
   /* Cleanup */
 
 #if 0 /* Don't get here */
-   for (i = 0; i <= nls.mxsd; +i++)
+  for (i = 0; i <= nls.mxsd; +i++)
     {
       if (FD_ISSET(i, &nls.master))
         {
@@ -419,5 +431,6 @@ void *net_listener(pthread_addr_t pvarg)
         }
     }
 #endif
+
   return NULL;  /* Keeps some compilers from complaining */
 }

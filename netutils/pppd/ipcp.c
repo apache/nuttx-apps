@@ -87,7 +87,7 @@ static const uint8_t g_ipcplist[] =
 #if PPP_DEBUG
 void printip(struct in_addr ip2)
 {
-  char *ip = (FAR uint8_t *) & ip2.s_addr;
+  FAR unt8_t *ip = (FAR uint8_t *)&ip2.s_addr;
   DEBUG1((" %d.%d.%d.%d ", ip[0], ip[1], ip[2], ip[3]));
 }
 #else
@@ -173,10 +173,10 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
               ++bptr;
 #ifdef IPCP_GET_PEER_IP
-              ((FAR uint8_t *) & ctx->peer_ip)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->peer_ip)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->peer_ip)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->peer_ip)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->peer_ip)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->peer_ip)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->peer_ip)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->peer_ip)[3] = *bptr++;
 
               DEBUG1(("Peer IP "));
               printip(ctx->peer_ip);
@@ -275,29 +275,29 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
               /* Dump length */
 
               bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[3] = *bptr++;
               break;
 
 #  ifdef IPCP_GET_PRI_DNS
             case IPCP_PRIMARY_DNS:
               bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[3] = *bptr++;
               break;
 #  endif
 
 #  ifdef IPCP_GET_SEC_DNS
             case IPCP_SECONDARY_DNS:
               bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[3] = *bptr++;
               break;
 #  endif
 
@@ -346,22 +346,22 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 
               bptr++;
 
-              ((FAR uint8_t *) & ctx->local_ip)[0] = (char)*bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[1] = (char)*bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[2] = (char)*bptr++;
-              ((FAR uint8_t *) & ctx->local_ip)[3] = (char)*bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[0] = (char)*bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[1] = (char)*bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[2] = (char)*bptr++;
+              ((FAR uint8_t *)&ctx->local_ip)[3] = (char)*bptr++;
 
-              netlib_ifup((char *)ctx->ifname);
-              netlib_set_ipv4addr((char *)ctx->ifname, &ctx->local_ip);
+              netlib_ifup((FAR char *)ctx->ifname);
+              netlib_set_ipv4addr((FAR char *)ctx->ifname, &ctx->local_ip);
               break;
 
 #ifdef IPCP_GET_PRI_DNS
             case IPCP_PRIMARY_DNS:
               bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->pri_dns_addr)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->pri_dns_addr)[3] = *bptr++;
               netlib_set_ipv4dnsaddr(&ctx->pri_dns_addr);
               break;
 #endif
@@ -369,10 +369,10 @@ void ipcp_rx(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer,
 #ifdef IPCP_GET_SEC_DNS
             case IPCP_SECONDARY_DNS:
               bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[0] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[1] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[2] = *bptr++;
-              ((FAR uint8_t *) & ctx->sec_dns_addr)[3] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[0] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[1] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[2] = *bptr++;
+              ((FAR uint8_t *)&ctx->sec_dns_addr)[3] = *bptr++;
               netlib_set_ipv4dnsaddr(&ctx->sec_dns_addr);
               break;
 #endif
@@ -486,10 +486,10 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
           *bptr++ = IPCP_IPADDRESS;
           *bptr++ = 0x6;
-          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[0];
-          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[1];
-          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[2];
-          *bptr++ = (uint8_t)((FAR uint8_t *) & ctx->local_ip)[3];
+          *bptr++ = (uint8_t)((FAR uint8_t *)&ctx->local_ip)[0];
+          *bptr++ = (uint8_t)((FAR uint8_t *)&ctx->local_ip)[1];
+          *bptr++ = (uint8_t)((FAR uint8_t *)&ctx->local_ip)[2];
+          *bptr++ = (uint8_t)((FAR uint8_t *)&ctx->local_ip)[3];
 
 #ifdef IPCP_GET_PRI_DNS
           if ((ctx->ipcp_state & IPCP_PRI_DNS_BIT) == 0)
@@ -498,10 +498,10 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
               *bptr++ = IPCP_PRIMARY_DNS;
               *bptr++ = 0x6;
-              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[0];
-              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[1];
-              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[2];
-              *bptr++ = ((FAR uint8_t *) & ctx->pri_dns_addr)[3];
+              *bptr++ = ((FAR uint8_t *)&ctx->pri_dns_addr)[0];
+              *bptr++ = ((FAR uint8_t *)&ctx->pri_dns_addr)[1];
+              *bptr++ = ((FAR uint8_t *)&ctx->pri_dns_addr)[2];
+              *bptr++ = ((FAR uint8_t *)&ctx->pri_dns_addr)[3];
             }
 #endif
 
@@ -512,10 +512,10 @@ void ipcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t * buffer)
 
               *bptr++ = IPCP_SECONDARY_DNS;
               *bptr++ = 0x6;
-              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[0];
-              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[1];
-              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[2];
-              *bptr++ = ((FAR uint8_t *) & ctx->sec_dns_addr)[3];
+              *bptr++ = ((FAR uint8_t *)&ctx->sec_dns_addr)[0];
+              *bptr++ = ((FAR uint8_t *)&ctx->sec_dns_addr)[1];
+              *bptr++ = ((FAR uint8_t *)&ctx->sec_dns_addr)[2];
+              *bptr++ = ((FAR uint8_t *)&ctx->sec_dns_addr)[3];
             }
 #endif
 

@@ -147,7 +147,7 @@ static int adxl372_test(int is_interactive, FAR char *path)
   };
 
   char bfr[32] __attribute__((aligned(2)));  /* REVISIT: GCC dependent attribute */
-  FAR struct XYZ *pxyz = (FAR struct XYZ *) bfr;
+  FAR struct XYZ *pxyz = (FAR struct XYZ *)bfr;
   int rc = PASSED;
   int rc_step = PASSED;
 
@@ -335,11 +335,11 @@ static int adxl372_test(int is_interactive, FAR char *path)
           goto error_exit;
         }
 
-      printf("ADXL372 = ( %6d, %6d, %6d))\n",
+      printf("ADXL372 = (%6d, %6d, %6d))\n",
              pxyz->d[0], pxyz->d[1], pxyz->d[2]);
-      printf("ADXL372 = ( 0x%04X, 0x%04X, 0x%04X)\n",
+      printf("ADXL372 = (0x%04X, 0x%04X, 0x%04X)\n",
              pxyz->d[0], pxyz->d[1], pxyz->d[2]);
-      printf("ADXL372 raw = ( 0x%02X%02X, 0x%02X%02X, 0x%02X%02X)\n",
+      printf("ADXL372 raw = (0x%02X%02X, 0x%02X%02X, 0x%02X%02X)\n",
              bfr[1], bfr[0], bfr[3], bfr[2], bfr[5], bfr[4]);
 
       if (is_interactive)

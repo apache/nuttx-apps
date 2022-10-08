@@ -307,7 +307,7 @@ int main(void)
           dump_count -= SAMPLE_NUM;
         }
 
-      snd_pcm_writei(hndl, (const void *)samples, SAMPLE_NUM);
+      snd_pcm_writei(hndl, samples, SAMPLE_NUM);
     }
 
   snd_pcm_drain(hndl);

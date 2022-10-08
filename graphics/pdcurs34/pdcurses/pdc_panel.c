@@ -164,7 +164,7 @@ typedef struct panel_ctx_s
 #ifdef CONFIG_PDCURSES_MULTITHREAD
 void *pdc_alloc_panel_ctx()
 {
-  return (void *) zalloc(sizeof(struct panel_ctx_s));
+  return zalloc(sizeof(struct panel_ctx_s));
 }
 #endif
 

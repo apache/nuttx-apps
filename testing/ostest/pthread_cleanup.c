@@ -40,9 +40,9 @@ struct sync_s
  * Private Functions
  ****************************************************************************/
 
-static void cleanup(FAR void * data)
+static void cleanup(FAR void *data)
 {
-  FAR struct sync_s *sync = (FAR struct sync_s *) data;
+  FAR struct sync_s *sync = (FAR struct sync_s *)data;
   int status;
 
   /* Note:  The behavior of canceling pthread_cond_wait() with asynchronous
@@ -68,9 +68,9 @@ static void cleanup(FAR void * data)
     }
 }
 
-static void *cleanup_thread(FAR void * data)
+static void *cleanup_thread(FAR void *data)
 {
-  FAR struct sync_s *sync = (FAR struct sync_s *) data;
+  FAR struct sync_s *sync = (FAR struct sync_s *)data;
   int status;
 
   status = pthread_mutex_lock(&sync->lock);

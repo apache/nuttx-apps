@@ -62,7 +62,7 @@ int dev_read_input(FAR struct input_state_s *dev)
   int nbytes;
   uint8_t gest;
 
-  nbytes = read(dev->fd_gest, (void *)&gest, sizeof(gest));
+  nbytes = read(dev->fd_gest, &gest, sizeof(gest));
   if (nbytes == sizeof(gest))
     {
       dev->dir = gest;

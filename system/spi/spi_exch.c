@@ -41,7 +41,7 @@
  ****************************************************************************/
 
 #define ISHEX(x) ((((x)>='0') && ((x)<='9')) || ((toupper(x)>='A') && (toupper(x)<='F')))
-#define HTOI(x) ( (((x)>='0') && ((x)<='9')) ? (x)-'0':toupper(x)-'A'+10 )
+#define HTOI(x)  ((((x)>='0') && ((x)<='9')) ? (x)-'0':toupper(x)-'A'+10)
 
 int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
 {

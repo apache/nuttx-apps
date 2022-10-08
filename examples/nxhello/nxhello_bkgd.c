@@ -399,7 +399,7 @@ void nxhello_hello(NXWINDOW hwnd)
 
           /* Then put the font on the display */
 
-          src[0] = (FAR const void *)glyph;
+          src[0] = glyph;
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif

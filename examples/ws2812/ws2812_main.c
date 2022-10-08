@@ -43,10 +43,10 @@
 
 struct neo_config_s
 {
-  FAR char  *path;
-  int        loops;
-  int        leds;
-  int        delay;
+  FAR char *path;
+  int       loops;
+  int       leds;
+  int       delay;
 };
 
 /****************************************************************************

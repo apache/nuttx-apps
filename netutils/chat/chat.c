@@ -492,7 +492,7 @@ static void chat_flush(FAR struct chat *priv)
   char c;
 
   ninfo("starting\n");
-  while (chat_readb(priv, (FAR char *) &c, 0) == 0);
+  while (chat_readb(priv, &c, 0) == 0);
   ninfo("done\n");
 }
 

@@ -736,7 +736,7 @@ static int tcurses_vt100_clear(FAR struct termcurses_s *dev, int type)
   int ret = -ENOSYS;
   int fd;
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd = priv->out_fd;
 
   /* Perform operation based on type */
@@ -908,7 +908,7 @@ static int tcurses_vt100_setcolors(FAR struct termcurses_s *dev,
   int  fd;
   char str[48];
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
 
   /* Test if FG color to be set */
@@ -961,7 +961,7 @@ static int tcurses_vt100_getwinsize(FAR struct termcurses_s *dev,
   int  delay;
   int  len;
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
 
   /* First try the TIOCGWINSZ ioctl */
@@ -1055,7 +1055,7 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
   int fd;
   char str[48];
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
 
   /* Test for cursor hide */
@@ -1127,22 +1127,22 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
                                     FAR int *keymodifiers)
 {
   FAR struct tcurses_vt100_s  *priv;
-  const struct keycodes_s     *pkeycodes;
-  int                         ret;
-  int                         fd;
-  bool                        esc_seq = false;
-  bool                        ctrl_seq = false;
-  bool                        ismodifier;
-  int                         keycode;
-  int                         k;
-  int                         x;
-  int                         start;
-  fd_set                      rfds;
-  struct                      timeval tv;
-  char                        ch;
-  char                        buildkey[16];
-  int                         keybuildcount;
-  static const char modtable[7] =
+  FAR const struct keycodes_s *pkeycodes;
+  int                          ret;
+  int                          fd;
+  bool                         esc_seq = false;
+  bool                         ctrl_seq = false;
+  bool                         ismodifier;
+  int                          keycode;
+  int                          k;
+  int                          x;
+  int                          start;
+  fd_set                       rfds;
+  struct timeval               tv;
+  char                         ch;
+  char                         buildkey[16];
+  int                          keybuildcount;
+  static const char            modtable[7] =
   {
     PDC_KEY_MODIFIER_SHIFT,
     PDC_KEY_MODIFIER_ALT,
@@ -1153,7 +1153,7 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
     PDC_KEY_MODIFIER_ALT | PDC_KEY_MODIFIER_CONTROL | PDC_KEY_MODIFIER_SHIFT
   };
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->in_fd;
 
   /* Watch stdin (fd 0) to see when it has input. */
@@ -1414,13 +1414,13 @@ static int tcurses_vt100_getkeycode(FAR struct termcurses_s *dev,
 
 static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev)
 {
-  FAR struct tcurses_vt100_s  *priv;
+  FAR struct tcurses_vt100_s *priv;
   int                         ret;
   int                         fd;
   fd_set                      rfds;
   struct                      timeval tv;
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->in_fd;
 
   /* Test for queued characters */
@@ -1483,7 +1483,7 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
   priv->out_fd   = out_fd;
   priv->keycount = 0;
 
-  return (FAR struct termcurses_s *) priv;
+  return (FAR struct termcurses_s *)priv;
 }
 
 /************************************************************************************
@@ -1499,7 +1499,7 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
   FAR struct tcurses_vt100_s *priv;
   int  fd;
 
-  priv = (FAR struct tcurses_vt100_s *) dev;
+  priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
 
   /* Set default foreground and background colors.

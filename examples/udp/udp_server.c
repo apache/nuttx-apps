@@ -104,7 +104,7 @@ void udp_server(void)
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval,
                  sizeof(int)) < 0)
     {
       printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);

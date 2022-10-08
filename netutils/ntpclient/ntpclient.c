@@ -1148,7 +1148,7 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
    * setsockopt() above)
    */
 
-  nbytes = recvfrom(sd, (void *)&recv, sizeof(struct ntp_datagram_s),
+  nbytes = recvfrom(sd, &recv, sizeof(struct ntp_datagram_s),
                     0, &recvaddr.sa, &socklen);
   recv_time = ntp_localtime();
 

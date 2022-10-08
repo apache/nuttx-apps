@@ -57,7 +57,6 @@
 static void *null_writer(pthread_addr_t pvarg)
 {
   int fd;
-  void *p;
 
   /* Wait a bit */
 
@@ -73,8 +72,7 @@ static void *null_writer(pthread_addr_t pvarg)
       fprintf(stderr, \
         "null_writer: Failed to open FIFO %s for writing, errno=%d\n",
               FIFO_PATH2, errno);
-      p = (void *) 1;
-      return p;
+      return (void *)(uintptr_t)1;
     }
 
   /* Wait a bit more */
@@ -93,8 +91,7 @@ static void *null_writer(pthread_addr_t pvarg)
   sleep(5);
 
   printf("null_writer: Returning success\n");
-  p = (void *) 0;
-  return p;
+  return NULL;
 }
 
 /****************************************************************************
@@ -113,7 +110,6 @@ int interlock_test(void)
   ssize_t nbytes;
   int fd;
   int ret;
-  void *p;
 
   /* Create a FIFO */
 
@@ -202,8 +198,7 @@ int interlock_test(void)
   else
     {
       printf("interlock_test: writer returned %p\n", value);
-      p = (void *) 0;
-      if (value != p)
+      if (value != NULL)
         {
           ret = 7;
           goto errout_with_fifo;

@@ -303,7 +303,7 @@ int main(int argc, FAR char *argv[])
 
   traceon();
   initscr();
-  seed = time((time_t *) 0);
+  seed = time(NULL);
   srand(seed);
 
   start_color();

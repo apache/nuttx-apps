@@ -58,12 +58,12 @@
 static void nsh_telnetecho(FAR struct console_stdio_s *pstate,
                            uint8_t is_use)
 {
-  uint8_t optbuf[4];
+  char optbuf[4];
   optbuf[0] = TELNET_IAC;
   optbuf[1] = (is_use == TELNET_USE_ECHO) ? TELNET_WILL : TELNET_DO;
   optbuf[2] = 1;
   optbuf[3] = 0;
-  fputs((char *)optbuf, pstate->cn_outstream);
+  fputs(optbuf, pstate->cn_outstream);
   fflush(pstate->cn_outstream);
 }
 

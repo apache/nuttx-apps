@@ -89,7 +89,7 @@ static CThingSayer MyThingSayer;
 
 MyException::MyException(std::string r = NULL) : reason(r)
 {
-  if( r.length() > 0 )
+  if(r.length() > 0)
     {
       cout << "MyException(" << r << "):  constructing with reason." << endl;
     }
@@ -154,7 +154,7 @@ void CThingSayer::ThrowThing(void)
 void CThingSayer::ThrowMyThing(const char *czSayThis = NULL)
 {
   cout << "CThingSayer::ThrowMyThing: I am now throwing an MyException (with reason)." << endl;
-  throw MyException( string(czSayThis) );
+  throw MyException(tring(czSayThis));
 }
 
 /////////////////////////////////////////////////////////////////////////////

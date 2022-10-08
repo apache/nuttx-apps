@@ -80,16 +80,18 @@ int main(int argc, char *argv[])
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
     {
-      fprintf(stderr, LABEL "ERROR: Failed to create send socket: %d\n", errno);
+      fprintf(stderr, LABEL "ERROR: Failed to create send socket: %d\n",
+              errno);
       return EXIT_FAILURE;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) < 0)
     {
-      fprintf(stderr, LABEL "ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr,
+              LABEL "ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_sendsd;
     }
 
@@ -99,7 +101,8 @@ int main(int argc, char *argv[])
   sender.sin_port        = 0;
   sender.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_SEND_IPHOST);
 
-  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr *)&sender,
+           sizeof(struct sockaddr_in)) < 0)
     {
       printf(LABEL "bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -113,16 +116,18 @@ int main(int argc, char *argv[])
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
     {
-      fprintf(stderr, LABEL "ERROR: Failed to create receive socket: %d\n", errno);
+      fprintf(stderr,
+              LABEL "ERROR: Failed to create receive socket: %d\n", errno);
       goto errout_with_sendsd;
     }
 
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) < 0)
     {
-      fprintf(stderr, LABEL "ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      fprintf(stderr,
+              LABEL "ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_recvsd;
     }
 
@@ -132,7 +137,8 @@ int main(int argc, char *argv[])
   receiver.sin_port        = htons(EXAMPLES_BRIDGE_SEND_HOSTPORT);
   receiver.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPHOST);
 
-  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr *)&receiver,
+           sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, LABEL "ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
@@ -148,8 +154,8 @@ int main(int argc, char *argv[])
   toaddr.sin_port        = htons(EXAMPLES_BRIDGE_RECV_RECVPORT);
   toaddr.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPADDR);
 
-   nsent = sendto(sndsd, g_sndmessage,  sizeof(g_sndmessage), 0,
-                 (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
+  nsent = sendto(sndsd, g_sndmessage, sizeof(g_sndmessage), 0,
+                 (struct sockaddr *)&toaddr, sizeof(struct sockaddr_in));
 
   /* Check for send errors */
 
@@ -173,7 +179,7 @@ int main(int argc, char *argv[])
 
   addrlen = sizeof(struct sockaddr_in);
   nrecvd = recvfrom(recvsd, g_rdbuffer, EXAMPLES_BRIDGE_SEND_IOBUFIZE, 0,
-                    (struct sockaddr*)&fromaddr, &addrlen);
+                    (struct sockaddr *)&fromaddr, &addrlen);
 
   tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
   printf(LABEL "Received %ld bytes from %d.%d.%d.%d:%d\n",
@@ -207,7 +213,7 @@ int main(int argc, char *argv[])
 
   for (i = 0, j = 0; i < nrecvd; i++)
     {
-      if ( g_rdbuffer[i] == ' ' && j >= 64)
+      if (g_rdbuffer[i] == ' ' && j >= 64)
         {
           putchar('\n');
           j = 0;
@@ -234,8 +240,8 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 
 errout_with_recvsd:
-   close(recvsd);
+  close(recvsd);
 errout_with_sendsd:
-   close(sndsd);
-   return EXIT_FAILURE;
+  close(sndsd);
+  return EXIT_FAILURE;
 }

@@ -3123,21 +3123,21 @@ void httpd_destroy_conn(httpd_conn *hc)
 {
   if (hc->initialized)
     {
-      httpd_free((void *)hc->read_buf);
-      httpd_free((void *)hc->decodedurl);
-      httpd_free((void *)hc->origfilename);
-      httpd_free((void *)hc->expnfilename);
-      httpd_free((void *)hc->encodings);
-      httpd_free((void *)hc->pathinfo);
-      httpd_free((void *)hc->query);
-      httpd_free((void *)hc->accept);
-      httpd_free((void *)hc->accepte);
-      httpd_free((void *)hc->reqhost);
-      httpd_free((void *)hc->hostdir);
-      httpd_free((void *)hc->remoteuser);
-      httpd_free((void *)hc->buffer);
+      httpd_free(hc->read_buf);
+      httpd_free(hc->decodedurl);
+      httpd_free(hc->origfilename);
+      httpd_free(hc->expnfilename);
+      httpd_free(hc->encodings);
+      httpd_free(hc->pathinfo);
+      httpd_free(hc->query);
+      httpd_free(hc->accept);
+      httpd_free(hc->accepte);
+      httpd_free(hc->reqhost);
+      httpd_free(hc->hostdir);
+      httpd_free(hc->remoteuser);
+      httpd_free(hc->buffer);
 #ifdef CONFIG_THTTPD_TILDE_MAP2
-      httpd_free((void *)hc->altdir);
+      httpd_free(hc->altdir);
 #endif /* CONFIG_THTTPD_TILDE_MAP2 */
       hc->initialized = 0;
     }

@@ -344,7 +344,7 @@ void timedmqueue_test(void)
 
   printf("timedmqueue_test: Waiting for sender to complete\n");
   pthread_join(sender, &result);
-  if (result != (void *)0)
+  if (result != NULL)
     {
       printf("timedmqueue_test: ERROR sender thread exited with %d errors\n",
              (int)((intptr_t)result));
@@ -378,7 +378,7 @@ void timedmqueue_test(void)
 
   printf("timedmqueue_test: Waiting for receiver to complete\n");
   pthread_join(receiver, &result);
-  if (result != (void *)0)
+  if (result != NULL)
     {
       printf("timedmqueue_test: ERROR receiver thread exited "
              "with %d errors\n", (int)((intptr_t)result));

@@ -138,8 +138,8 @@ struct spitool_s
   /* Output streams */
 
 #ifdef CONFIG_SPITOOL_OUTDEV
-  int    ss_outfd;     /* Output file descriptor */
-  FILE  *ss_outstream; /* Output stream */
+  int   ss_outfd;     /* Output file descriptor */
+  FILE *ss_outstream; /* Output stream */
 #endif
 };
 

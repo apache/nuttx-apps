@@ -21,7 +21,7 @@ On nuttx:
 nsh> tcpclient
 Connecting to IPv4 Address: 0100000a
 client: Connected
-[2014-07-31 00:16:15.000] 0: Sent 200 4096-byte buffers:    800.0 KB (avg   4.0 KB) in   0.18 seconds ( 4444.4 KB/second)
+[2014-07-31 00:16:15.000] 0: Sent 200 4096-byte buffers:    800.0 KB (avg   4.0 KB) in   0.18 seconds (4444.4 KB/second)
 ```
 
 Now on the host you should see something like:
@@ -31,8 +31,8 @@ $ ./tcpserver
 Binding to IPv4 Address: 00000000
 server: Accepting connections on port 5471
 server: Connection accepted -- receiving
-[2020-02-22 16:17:07.000] 0: Received 200 buffers:   502.9 KB (buffer average size:   2.5 KB) in   0.12 seconds ( 4194.8 KB/second)
-[2020-02-22 16:17:07.000] 1: Received 200 buffers:   393.1 KB (buffer average size:   2.0 KB) in   0.09 seconds ( 4299.4 KB/second)
+[2020-02-22 16:17:07.000] 0: Received 200 buffers:   502.9 KB (buffer average size:   2.5 KB) in   0.12 seconds (4194.8 KB/second)
+[2020-02-22 16:17:07.000] 1: Received 200 buffers:   393.1 KB (buffer average size:   2.0 KB) in   0.09 seconds (4299.4 KB/second)
 ```
 
 This will tell you the link speed in KB/sec – kilobytes per second. If you want

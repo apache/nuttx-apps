@@ -2066,7 +2066,7 @@ int ft80x_coproc_interactive(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       cmds.e.button.cmd         = FT80X_CMD_BUTTON;
       cmds.e.button.x           = ydist;
       cmds.e.button.y           = yoffset;
-      cmds.e.button.w           = 10  *width;
+      cmds.e.button.w           = 10 * width;
       cmds.e.button.h           = height;
       cmds.e.button.font        = fontid;
 

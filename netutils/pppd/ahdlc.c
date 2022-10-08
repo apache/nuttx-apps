@@ -79,8 +79,8 @@ static uint16_t crcadd(uint16_t crcvalue, uint8_t c)
 {
   uint16_t b;
 
-  b = (crcvalue ^ c) & 0xFF;
-  b = (b ^ (b << 4)) & 0xFF;
+  b = (crcvalue ^ c) & 0xff;
+  b = (b ^ (b << 4)) & 0xff;
   b = (b << 8) ^ (b << 3) ^ (b >> 4);
 
   return ((crcvalue >> 8) ^ b);
@@ -149,7 +149,7 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
         {
           /* Discard character */
 
-          DEBUG1(("Discard because char is < 0x20 hex and asysnc map is 0\n"));
+          DEBUG1(("Discard since char is < 0x20 hex and asysnc map is 0\n"));
           return 0;
         }
 
@@ -182,8 +182,8 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
               DEBUG1(("\nReceiving packet with good crc value, len %d\n",
                       ctx->ahdlc_rx_count));
 
-              /* we have a good packet, turn off CTS until we are done with this
-               * packet
+              /* we have a good packet, turn off CTS until we are done with
+               * this packet
                */
 
               /* CTS_OFF(); */
@@ -212,7 +212,7 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
                   /* Send up packet */
 
                   ppp_upcall(ctx, (uint16_t)ctx->ahdlc_rx_buffer[0],
-                             (FAR uint8_t *) & ctx->ahdlc_rx_buffer[1],
+                             (FAR uint8_t *)&ctx->ahdlc_rx_buffer[1],
                              (uint16_t)(ctx->ahdlc_rx_count - 1));
                 }
               else
@@ -222,7 +222,7 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
                   ppp_upcall(ctx,
                              (uint16_t)(ctx->ahdlc_rx_buffer[0] << 8 | ctx->
                                         ahdlc_rx_buffer[1]),
-                             (FAR uint8_t *) & ctx->ahdlc_rx_buffer[2],
+                             (FAR uint8_t *)&ctx->ahdlc_rx_buffer[2],
                              (uint16_t)(ctx->ahdlc_rx_count - 2));
                 }
 
@@ -232,8 +232,8 @@ uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t c)
             }
           else if (ctx->ahdlc_rx_count > 3)
             {
-              DEBUG1(("\nReceiving packet with bad crc value, was 0x%04x len %d\n",
-                     ctx->ahdlc_rx_crc, ctx->ahdlc_rx_count));
+              DEBUG1(("\nReceiving packet with bad crc value, was 0x%04x "
+                      "len %d\n", ctx->ahdlc_rx_crc, ctx->ahdlc_rx_count));
 #ifdef PPP_STATISTICS
               ++ctx->ahdlc_crc_error;
 #endif
@@ -312,16 +312,14 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, uint16_t protocol, uint8_t c)
 
   ctx->ahdlc_tx_crc = crcadd(ctx->ahdlc_tx_crc, c);
 
-  /* See if we need to escape char, we always escape 0x7d and 0x7e, in the case
-   * of char < 0x20 we only support async map of default or none, so escape if
-   * ASYNC map is not set.  We may want to modify this to support a bitmap set
+  /* See if we need to escape char, we always escape 0x7d and 0x7e, in the
+   * case of char < 0x20 we only support async map of default or none, so
+   * escape if ASYNC map is not set.  We may want to modify this to support
    * ASYNC map.
    */
 
-  if ((c == 0x7d) || (c == 0x7e) || ((c < 0x20) && ((protocol == LCP) ||
-                                                    (ctx->
-                                                     ahdlc_flags &
-                                                     PPP_TX_ASYNC_MAP) == 0)))
+  if ((c == 0x7d) || (c == 0x7e) || ((c < 0x20) &&
+      ((protocol == LCP) || (ctx->ahdlc_flags & PPP_TX_ASYNC_MAP) == 0)))
     {
       /* Send escape char and xor byte by 0x20 */
 
@@ -344,19 +342,21 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, uint16_t protocol, uint8_t c)
  ****************************************************************************/
 
 uint8_t ahdlc_tx(struct ppp_context_s *ctx, uint16_t protocol,
-                 FAR uint8_t * header, FAR uint8_t * buffer, uint16_t headerlen,
-                 uint16_t datalen)
+                 FAR uint8_t * header, FAR uint8_t * buffer,
+                 uint16_t headerlen, uint16_t datalen)
 {
   uint16_t i;
   uint8_t c;
 
-  DEBUG1(("\nAHDLC_TX - transmit frame, protocol 0x%04x, length %d  offline %d\n",
+  DEBUG1(("\nAHDLC_TX - transmit frame, protocol 0x%04x, length %d "
+          "offline %d\n",
          protocol, datalen + headerlen, ctx->ahdlc_tx_offline));
 
   if (AHDLC_TX_OFFLINE && (ctx->ahdlc_tx_offline++ > AHDLC_TX_OFFLINE))
     {
       ctx->ahdlc_tx_offline = 0;
-      DEBUG1(("\nAHDLC_TX to many outstanding TX packets => ppp_reconnect()\n"));
+      DEBUG1(("\nAHDLC_TX to many outstanding TX packets => "
+              "ppp_reconnect()\n"));
       ppp_reconnect(ctx);
       return 0;
     }

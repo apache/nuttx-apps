@@ -53,7 +53,7 @@ int main(int argc, FAR char *argv[])
   int nbytes;
   char gest;
 
-  fd = open(CONFIG_EXAMPLES_APDS9960_DEVNAME, O_RDONLY|O_NONBLOCK);
+  fd = open(CONFIG_EXAMPLES_APDS9960_DEVNAME, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       int errcode = errno;
@@ -64,7 +64,7 @@ int main(int argc, FAR char *argv[])
 
   while (1)
     {
-      nbytes = read(fd, (void *)&gest, sizeof(gest));
+      nbytes = read(fd, &gest, sizeof(gest));
       if (nbytes == 1)
         {
           switch (gest)

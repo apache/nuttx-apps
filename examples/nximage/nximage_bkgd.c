@@ -300,7 +300,7 @@ void nximage_image(NXWINDOW hwnd)
       dest.pt1.y = pos.y;
       dest.pt2.y = pos.y;
 
-      src[0] = (FAR const void *)g_runs[0].run;
+      src[0] = g_runs[0].run;
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
@@ -342,7 +342,7 @@ void nximage_image(NXWINDOW hwnd)
       dest.pt1.y = pos.y;
       dest.pt2.y = pos.y;
 
-      src[0] = (FAR const void *)g_runs[0].run;
+      src[0] = g_runs[0].run;
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
@@ -363,7 +363,7 @@ void nximage_image(NXWINDOW hwnd)
       dest.pt1.y = pos.y;
       dest.pt2.y = pos.y;
 
-      src[0] = (FAR const void *)g_runs[1].run;
+      src[0] = g_runs[1].run;
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif

@@ -145,7 +145,7 @@ typedef struct
 
   /* ESP Got only One ip + 1 for NULL that indicate end of list */
 
-  in_addr_t *     h_addr_list_buf[2];
+  in_addr_t      *h_addr_list_buf[2];
 
   in_addr_t       in_addr;
 } lesp_state_t;

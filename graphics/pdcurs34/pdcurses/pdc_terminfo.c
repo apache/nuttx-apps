@@ -84,7 +84,7 @@ TERMINAL *cur_term = NULL;
 #ifdef CONFIG_PDCURSES_MULTITHREAD
 void *pdc_alloc_term_ctx(void)
 {
-  return (void *) zalloc(sizeof(TERMINAL));
+  return zalloc(sizeof(TERMINAL));
 }
 #endif
 

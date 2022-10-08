@@ -1225,7 +1225,7 @@ void CMultiLineTextBox::drawCursor(CGraphicsPort *port)
       // Draw cursor
 
       port->invert(cursorX, cursorY,
-                   m_text->getFont()->getCharWidth( getCursorChar()),
+                   m_text->getFont()->getCharWidth(getCursorChar()),
                    m_text->getFont()->getHeight());
     }
 }

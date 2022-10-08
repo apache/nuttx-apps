@@ -68,7 +68,7 @@ struct popen_file_s
  *   were created within the popen() call using the fork() function, and the
  *   child invoked the sh utility using the call:
  *
- *     execl(shell path, "sh", "-c", command, (char *)0);
+ *     execl(shell path, "sh", "-c", command, NULL);
  *
  *   where shell path is an unspecified pathname for the sh utility.
  *

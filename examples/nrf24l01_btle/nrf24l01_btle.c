@@ -468,7 +468,7 @@ static void adv_packet(int wl_fd)
 
 FAR void *advertise(FAR void *arg)
 {
-  uint32_t wl_fd = *(uint32_t *)arg;
+  uint32_t wl_fd = *(FAR uint32_t *)arg;
   while (!quit)
     {
       if (current == 2)

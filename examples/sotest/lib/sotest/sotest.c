@@ -60,22 +60,22 @@ static const char g_msg3[] = "Yes, don't be a stranger!";
 static const struct symtab_s g_sotest_exports[6] =
 {
   {
-    (FAR const char *)"testfunc1", (FAR const void *)testfunc1,
+    "testfunc1", (FAR const void *)testfunc1,
   },
   {
-    (FAR const char *)"testfunc2", (FAR const void *)testfunc2,
+    "testfunc2", (FAR const void *)testfunc2,
   },
   {
-    (FAR const char *)"testfunc3", (FAR const void *)testfunc3,
+    "testfunc3", (FAR const void *)testfunc3,
   },
   {
-    (FAR const char *)"g_msg1",    (FAR const void *)g_msg1,
+    "g_msg1",    (FAR const void *)g_msg1,
   },
   {
-    (FAR const char *)"g_msg2",    (FAR const void *)g_msg2,
+    "g_msg2",    (FAR const void *)g_msg2,
   },
   {
-    (FAR const char *)"g_msg3",    (FAR const void *)g_msg3,
+    "g_msg3",    (FAR const void *)g_msg3,
   },
 };
 

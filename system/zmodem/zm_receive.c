@@ -422,7 +422,7 @@ static int zmr_zsrintdata(FAR struct zm_state_s *pzm)
   pzmr->attn = NULL;
   if (pzm->pktbuf[0] != '\0')
     {
-      pzmr->attn = strdup((char *)pzm->pktbuf);
+      pzmr->attn = strdup((FAR char *)pzm->pktbuf);
     }
 
   /* And send ZACK */
@@ -1057,7 +1057,7 @@ static int zmr_zstderr(FAR struct zm_state_s *pzm)
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
   pzm->pktbuf[pzm->pktlen] = '\0';
-  fprintf(stderr, "Message: %s", (char *)pzm->pktbuf);
+  fprintf(stderr, "Message: %s", (FAR char *)pzm->pktbuf);
   return OK;
 }
 

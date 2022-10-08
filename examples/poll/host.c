@@ -85,11 +85,13 @@ int main(int argc, char **argv, char **envp)
   myaddr.sin_addr.s_addr = inet_addr(TARGETIP);
 
   printf("client: Connecting to %s...\n", TARGETIP);
-  if (connect( sockfd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+  if (connect(sockfd, (struct sockaddr *)&myaddr,
+              sizeof(struct sockaddr_in)) < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
     }
+
   printf("client: Connected\n");
 
   /* Then send and receive messages */
@@ -110,7 +112,8 @@ int main(int argc, char **argv, char **envp)
         }
       else if (nbytessent != len)
         {
-          printf("client: Bad send length: %d Expected: %d\n", nbytessent, len);
+          printf("client: Bad send length: %d Expected: %d\n",
+                 nbytessent, len);
           goto errout_with_socket;
         }
 
@@ -133,7 +136,8 @@ int main(int argc, char **argv, char **envp)
 
       if (nbytesrecvd != len)
         {
-          printf("client: Bad recv length: %d Expected: %d\n", nbytesrecvd, len);
+          printf("client: Bad recv length: %d Expected: %d\n",
+                 nbytesrecvd, len);
           goto errout_with_socket;
         }
       else if (memcmp(inbuf, outbuf, len) != 0)

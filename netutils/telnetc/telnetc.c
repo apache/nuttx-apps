@@ -236,7 +236,7 @@ enum telnet_error_e _init_zlib(FAR struct telnet_s *telnet, int deflate,
 
   /* Allocate zstream box */
 
-  if ((z = (z_stream *) calloc(1, sizeof(z_stream))) == 0)
+  if ((z = (z_stream *)calloc(1, sizeof(z_stream))) == 0)
     {
       return _error(telnet, __LINE__, __func__, TELNET_ENOMEM, err_fatal,
                     "malloc() failed: %d", errno);
@@ -381,8 +381,8 @@ static inline int _check_telopt(FAR struct telnet_s *telnet,
 
 /* Retrieve RFC1143 option state */
 
-static inline struct telnet_rfc1143_s _get_rfc1143(FAR struct telnet_s *telnet,
-                                                   unsigned char telopt)
+static inline struct telnet_rfc1143_s
+_get_rfc1143(FAR struct telnet_s *telnet, unsigned char telopt)
 {
   struct telnet_rfc1143_s empty;
   int i;
@@ -425,9 +425,9 @@ static inline void _set_rfc1143(FAR struct telnet_s *telnet,
 
   /* we're going to need to track state for it, so grow the queue by 4 (four)
    * elements and put the telopt into it; bail on allocation error.  we go by
-   * four because it seems like a reasonable guess as to the number of enabled
-   * options for most simple code, and it allows for an acceptable number of
-   * reallocations for complex code.
+   * four because it seems like a reasonable guess as to the number of
+   * enabled options for most simple code, and it allows for an acceptable
+   * number of reallocations for complex code.
    */
 
   qtmp = (struct telnet_rfc1143_s *)
@@ -1307,7 +1307,9 @@ static void _process(FAR struct telnet_s *telnet, FAR const char *buffer,
 
         case TELNET_STATE_DATA:
 
-          /* On an IAC byte, pass through all pending bytes and switch states */
+          /* On an IAC byte, pass through all pending bytes and switch
+           * states
+           */
 
           if (byte == TELNET_IAC)
             {
@@ -1421,8 +1423,9 @@ static void _process(FAR struct telnet_s *telnet, FAR const char *buffer,
               /* In 1998 MCCP used TELOPT 85 and the protocol defined an
                * invalid subnegotiation sequence (IAC SB 85 WILL SE) to start
                * compression. Subsequently MCCP version 2 was created in 2000
-               * using TELOPT 86 and a valid subnegotiation (IAC SB 86 IAC SE).
-               * libtelnet for now just captures and discards MCCPv1 sequences.
+               * using TELOPT 86 and a valid subnegotiation (IAC SB 86 IAC
+               * SE). libtelnet for now just captures and discards MCCPv1
+               * sequences.
                */
 
               start = i + 2;
@@ -1455,10 +1458,11 @@ static void _process(FAR struct telnet_s *telnet, FAR const char *buffer,
 
               if (_subnegotiate(telnet) != 0)
                 {
-                  /* Any remaining bytes in the buffer are compressed. we have
-                   * to re-invoke telnet_recv to get those bytes inflated and
-                   * abort trying to process the remaining compressed bytes in
-                   * the current _process buffer argument.
+                  /* Any remaining bytes in the buffer are compressed. we
+                   * have to re-invoke telnet_recv to get those bytes
+                   * inflated and abort trying to process the remaining
+                   * compressed bytes in the current _process buffer
+                   * argument.
                    */
 
                   telnet_recv(telnet, &buffer[start], size - start);
@@ -1483,9 +1487,9 @@ static void _process(FAR struct telnet_s *telnet, FAR const char *buffer,
                 }
               break;
 
-              /* Something else -- protocol error.  attempt to process content
-               * in subnegotiation buffer, then evaluate the given command as
-               * an IAC code.
+              /* Something else -- protocol error.  attempt to process
+               * content in subnegotiation buffer, then evaluate the given
+               * command as an IAC code.
                */
 
             default:
@@ -1508,9 +1512,9 @@ static void _process(FAR struct telnet_s *telnet, FAR const char *buffer,
                 }
               else
                 {
-                  /* Recursive call to get the current input byte processed as
-                   * a regular IAC command.  we could use a goto, but that
-                   * would be gross.
+                  /* Recursive call to get the current input byte
+                   * processed as a regular IAC command.  we could use a
+                   * goto, but that would be gross.
                    */
 
                   _process(telnet, (char *)&byte, 1);
@@ -1877,8 +1881,8 @@ void telnet_subnegotiation(FAR struct telnet_s *telnet, unsigned char telopt,
   _sendu(telnet, bytes + 3, 2);
 
 #if defined(HAVE_ZLIB)
-  /* If we're a proxy and we just sent the COMPRESS2 marker, we must make sure
-   * all further data is compressed if not already.
+  /* If we're a proxy and we just sent the COMPRESS2 marker, we must make
+   * sure all further data is compressed if not already.
    */
 
   if (telnet->flags & TELNET_FLAG_PROXY && telopt == TELNET_TELOPT_COMPRESS2)
@@ -1934,9 +1938,9 @@ void telnet_begin_compress2(FAR struct telnet_s *telnet)
       return;
     }
 
-  /* Send compression marker.  we send directly to the event handler instead of
-   * passing through _send because _send would result in the compress marker
-   * itself being compressed.
+  /* Send compression marker.  we send directly to the event handler instead
+   * of passing through _send because _send would result in the compress
+   * marker itself being compressed.
    */
 
   ev.type        = TELNET_EV_SEND;

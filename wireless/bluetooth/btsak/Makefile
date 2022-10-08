@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-# Bluetooth SAK (swiss army knife )
+# Bluetooth SAK (swiss army knife)
 
 CSRCS   = btsak_advertise.c btsak_features.c btsak_gatt.c btsak_info.c
 CSRCS  += btsak_scan.c btsak_security.c

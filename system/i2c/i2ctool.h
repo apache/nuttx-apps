@@ -134,8 +134,8 @@ struct i2ctool_s
   /* Output streams */
 
 #ifdef CONFIG_I2CTOOL_OUTDEV
-  int    ss_outfd;     /* Output file descriptor */
-  FILE  *ss_outstream; /* Output stream */
+  int   ss_outfd;     /* Output file descriptor */
+  FILE *ss_outstream; /* Output stream */
 #endif
 };
 

@@ -759,7 +759,7 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume)
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxlooper_pause(FAR struct nxlooper_s *plooper)
 {
-  int   ret = OK;
+  int ret = OK;
 
   if (plooper->loopstate == NXLOOPER_STATE_LOOPING)
     {

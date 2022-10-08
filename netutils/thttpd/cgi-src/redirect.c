@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   /* Open the redirects file. */
 
   fp = fopen(".redirects", "r");
-  if (fp == (FILE *) 0)
+  if (fp == NULL)
     {
       internal_error("Couldn't open .redirects file.");
       errcode = 3;

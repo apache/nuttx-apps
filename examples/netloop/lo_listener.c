@@ -85,7 +85,9 @@ static bool net_closeclient(struct net_listener_s *nls, int sd)
   close(sd);
   FD_CLR(sd, &nls->master);
 
-  /* If we just closed the max SD, then search downward for the next biggest SD. */
+  /* If we just closed the max SD, then search downward for the next
+   * biggest SD.
+   */
 
   while (FD_ISSET(nls->mxsd, &nls->master) == false)
     {
@@ -297,7 +299,7 @@ void *lo_listener(pthread_addr_t pvarg)
   memset(&nls, 0, sizeof(struct net_listener_s));
   if (!net_mksocket(&nls))
     {
-       return (void*)1;
+       return (void *)(uintptr_t)1;
     }
 
   /* Initialize the 'master' file descriptor set */

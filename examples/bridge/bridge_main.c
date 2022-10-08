@@ -358,8 +358,8 @@ static int bridge_net1_worker(int argc, char *argv[])
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
-                 sizeof(int)) < 0)
+  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, sizeof(int)) < 0)
     {
       fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
               errno);
@@ -399,8 +399,8 @@ static int bridge_net1_worker(int argc, char *argv[])
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
-                 sizeof(int)) < 0)
+  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, sizeof(int)) < 0)
     {
       fprintf(stderr, "NET1 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
               errno);
@@ -549,8 +549,8 @@ static int bridge_net2_worker(int argc, char *argv[])
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
-                 sizeof(int)) < 0)
+  if (setsockopt(recvsd, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, sizeof(int)) < 0)
     {
       fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n",
               errno);
@@ -590,7 +590,7 @@ static int bridge_net2_worker(int argc, char *argv[])
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval,
+  if (setsockopt(sndsd, SOL_SOCKET, SO_REUSEADDR, &optval,
                  sizeof(int)) < 0)
     {
       fprintf(stderr, "NET2 ERROR: setsockopt SO_REUSEADDR failure: %d\n",

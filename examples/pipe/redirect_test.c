@@ -73,9 +73,9 @@ static int redirect_reader(int argc, char *argv[])
   ret = close(fdout);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
-               fdout);
-       return 1;
+      fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
+              fdout);
+      return 1;
     }
 
   /* Re-direct the fdin to stdin */
@@ -83,9 +83,9 @@ static int redirect_reader(int argc, char *argv[])
   ret = dup2(fdin, 0);
   if (ret != 0)
     {
-        fprintf(stderr, "redirect_reader: dup2 failed: %d\n", errno);
-        close(fdin);
-        return 2;
+      fprintf(stderr, "redirect_reader: dup2 failed: %d\n", errno);
+      close(fdin);
+      return 2;
     }
 
   /* Close the original file descriptor */
@@ -93,23 +93,23 @@ static int redirect_reader(int argc, char *argv[])
   ret = close(fdin);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdin=%d\n", fdin);
-       return 3;
+      fprintf(stderr, "redirect_reader: failed to close fdin=%d\n", fdin);
+      return 3;
     }
 
   /* Then read from stdin until we hit the end of file */
 
   fflush(stdout);
-  for (;;)
+  for (; ; )
     {
       /* Read from stdin */
 
       ret = read(0, buffer, READ_SIZE);
-      if (ret < 0 )
+      if (ret < 0)
         {
-           fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
-                   errno);
-           return 4;
+          fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
+                  errno);
+          return 4;
         }
       else if (ret == 0)
         {
@@ -123,9 +123,9 @@ static int redirect_reader(int argc, char *argv[])
       ret = write(1, buffer, ret);
       if (ret < 0)
         {
-           fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
-                   errno);
-           return 5;
+          fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
+                  errno);
+          return 5;
         }
     }
 
@@ -133,8 +133,8 @@ static int redirect_reader(int argc, char *argv[])
   ret = close(0);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fd=0\n");
-       return 6;
+      fprintf(stderr, "redirect_reader: failed to close fd=0\n");
+      return 6;
     }
 
   sem_post(&g_rddone);
@@ -165,8 +165,8 @@ static int redirect_writer(int argc, char *argv[])
   ret = close(fdin);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdin=%d\n", fdin);
-       return 1;
+      fprintf(stderr, "redirect_reader: failed to close fdin=%d\n", fdin);
+      return 1;
     }
 
   /* Re-direct the fdout to stdout */
@@ -174,8 +174,8 @@ static int redirect_writer(int argc, char *argv[])
   ret = dup2(fdout, 1);
   if (ret != 0)
     {
-        fprintf(stderr, "redirect_writer: dup2 failed: %d\n", errno);
-        return 2;
+      fprintf(stderr, "redirect_writer: dup2 failed: %d\n", errno);
+      return 2;
     }
 
   /* Close the original file descriptor */
@@ -183,9 +183,9 @@ static int redirect_writer(int argc, char *argv[])
   ret = close(fdout);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
-               fdout);
-       return 3;
+      fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
+              fdout);
+      return 3;
     }
 
   /* Then write a bunch of stuff to stdout */
@@ -215,8 +215,8 @@ static int redirect_writer(int argc, char *argv[])
   ret = close(1);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_writer: failed to close fd=1\n");
-       return 4;
+      fprintf(stderr, "redirect_writer: failed to close fd=1\n");
+      return 4;
     }
 
   fprintf(stderr, "redirect_writer: Returning success\n");
@@ -243,12 +243,13 @@ int redirection_test(void)
 
   sem_init(&g_rddone, 0, 0);
 
-    /* Create the pipe */
+  /* Create the pipe */
 
   ret = pipe(fd);
   if (ret < 0)
     {
-      fprintf(stderr, "redirection_test: pipe failed with errno=%d\n", errno);
+      fprintf(stderr, "redirection_test: pipe failed with errno=%d\n",
+              errno);
       return 5;
     }
 
@@ -260,34 +261,35 @@ int redirection_test(void)
 
   /* Start redirect_reader thread */
 
-  printf("redirection_test: Starting redirect_reader task with fd=%d\n", fd[0]);
-  readerid = task_create("redirect_reader", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
+  printf("redirection_test: Starting redirect_reader task with fd=%d\n",
+         fd[0]);
+  readerid = task_create("redirect_reader",
+                         50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
                          redirect_reader, (FAR char * const *)argv);
   if (readerid < 0)
     {
-      fprintf(stderr,
-              "redirection_test: Failed to create redirect_writer task: %d\n",
-              errno);
+      fprintf(stderr, "redirection_test: "
+              "Failed to create redirect_writer task: %d\n", errno);
       return 1;
     }
 
   /* Start redirect_writer task */
 
-  printf("redirection_test: Starting redirect_writer task with fd=%d\n", fd[1]);
-  writerid = task_create("redirect_writer", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
+  printf("redirection_test: Starting redirect_writer task with fd=%d\n",
+         fd[1]);
+  writerid = task_create("redirect_writer",
+                         50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
                          redirect_writer, (FAR char * const *)argv);
   if (writerid < 0)
     {
-      fprintf(stderr,
-              "redirection_test: Failed to create redirect_writer task: %d\n",
-              errno);
+      fprintf(stderr, "redirection_test: "
+              "Failed to create redirect_writer task: %d\n", errno);
 
       ret = task_delete(readerid);
       if (ret != 0)
         {
-          fprintf(stderr,
-                  "redirection_test: Failed to delete redirect_reader task %d\n",
-                  errno);
+          fprintf(stderr, "redirection_test: "
+                  "Failed to delete redirect_reader task %d\n", errno);
         }
 
       return 2;

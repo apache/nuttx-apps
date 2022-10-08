@@ -223,23 +223,23 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
  *
  ****************************************************************************/
 
-static void *nxrecorder_recordthread(pthread_addr_t pvarg)
+static FAR void *nxrecorder_recordthread(pthread_addr_t pvarg)
 {
-  struct nxrecorder_s         *precorder = (struct nxrecorder_s *)pvarg;
-  struct audio_msg_s          msg;
-  struct audio_buf_desc_s     buf_desc;
-  ssize_t                     size;
-  bool                        running = true;
-  bool                        streaming = true;
-  bool                        failed = false;
-  struct ap_buffer_info_s     buf_info;
-  FAR struct ap_buffer_s      **pbuffers;
-  unsigned int                prio;
+  FAR struct nxrecorder_s *precorder = (FAR struct nxrecorder_s *)pvarg;
+  struct audio_msg_s      msg;
+  struct audio_buf_desc_s buf_desc;
+  ssize_t                 size;
+  bool                    running = true;
+  bool                    streaming = true;
+  bool                    failed = false;
+  struct ap_buffer_info_s buf_info;
+  FAR struct ap_buffer_s  **pbuffers;
+  unsigned int            prio;
 #ifdef CONFIG_DEBUG_FEATURES
-  int                         outstanding = 0;
+  int                     outstanding = 0;
 #endif
-  int                         x;
-  int                         ret;
+  int                     x;
+  int                     ret;
 
   audinfo("Entry\n");
 
@@ -711,8 +711,8 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
 int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 {
-  struct audio_msg_s  term_msg;
-  FAR void            *value;
+  struct audio_msg_s term_msg;
+  FAR void           *value;
 
   DEBUGASSERT(precorder != NULL);
 
@@ -956,8 +956,7 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
 
   /* Allocate the memory */
 
-  precorder = (FAR struct nxrecorder_s *) malloc(
-                                           sizeof(struct nxrecorder_s));
+  precorder = (FAR struct nxrecorder_s *)malloc(sizeof(struct nxrecorder_s));
   if (precorder == NULL)
     {
       return NULL;
