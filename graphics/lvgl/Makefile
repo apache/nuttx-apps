@@ -25,32 +25,67 @@ include $(APPDIR)/Make.defs
 LVGL_DIR = .
 LVGL_DIR_NAME = lvgl
 
-# Relax format check for LVGL to avoid errors on prinf() use
+# Relax LVGL's format checking and unused variable checking to avoid errors
 
-CFLAGS += -Wno-format
+CFLAGS += -Wno-format -Wno-unused-variable
 
-# LVGL Libraries
+-include ./lvgl/lvgl.mk
 
--include ./lvgl/src/lv_core/lv_core.mk
--include ./lvgl/src/lv_hal/lv_hal.mk
--include ./lvgl/src/lv_widgets/lv_widgets.mk
--include ./lvgl/src/lv_font/lv_font.mk
--include ./lvgl/src/lv_misc/lv_misc.mk
--include ./lvgl/src/lv_themes/lv_themes.mk
--include ./lvgl/src/lv_draw/lv_draw.mk
--include ./lvgl/src/lv_gpu/lv_gpu.mk
+CSRCS += port/lv_port.c
+CSRCS += port/lv_port_tick.c
 
-CSRCS += lv_tick_interface.c
 
-ifneq ($(CONFIG_USE_LV_FILESYSTEM),)
-CSRCS += lv_fs_interface.c
+ifeq ($(CONFIG_LV_PORT_USE_LCDDEV),y)
+CSRCS += port/lv_port_lcddev.c
+endif
+
+ifeq ($(CONFIG_LV_PORT_USE_FBDEV),y)
+CSRCS += port/lv_port_fbdev.c
+endif
+
+ifeq ($(CONFIG_LV_PORT_USE_TOUCHPAD),y)
+CSRCS += port/lv_port_touchpad.c
+endif
+
+ifeq ($(CONFIG_LV_PORT_USE_BUTTON),y)
+CSRCS += port/lv_port_button.c
+endif
+
+ifeq ($(CONFIG_LV_PORT_USE_KEYPAD),y)
+CSRCS += port/lv_port_keypad.c
+endif
+
+ifeq ($(CONFIG_LV_PORT_USE_ENCODER),y)
+CSRCS += port/lv_port_encoder.c
+endif
+
+ifeq ($(CONFIG_LV_USE_LOG),y)
+CSRCS += port/lv_port_syslog.c
+endif
+
+ifneq ($(CONFIG_LV_PORT_MEM_ATTRIBUTE_FAST_MEM_SECTION_NAME), "")
+CFLAGS   += "-DLV_ATTRIBUTE_FAST_MEM=locate_data(CONFIG_LV_PORT_MEM_ATTRIBUTE_FAST_MEM_SECTION_NAME)"
+CXXFLAGS += "-DLV_ATTRIBUTE_FAST_MEM=locate_data(CONFIG_LV_PORT_MEM_ATTRIBUTE_FAST_MEM_SECTION_NAME)"
+endif
+
+ifeq ($(CONFIG_LV_MEM_CUSTOM),y)
+ifneq ($(CONFIG_LV_PORT_MEM_CUSTOM_SIZE), 0)
+CFLAGS += "-DLV_MEM_CUSTOM_ALLOC=lv_port_mem_alloc"
+CFLAGS += "-DLV_MEM_CUSTOM_FREE=lv_port_mem_free"
+CFLAGS += "-DLV_MEM_CUSTOM_REALLOC=lv_port_mem_realloc"
+CSRCS  += port/lv_port_mem.c
+endif
+endif
+
+ifneq ($(CONFIG_LV_ASSERT_HANDLER_INCLUDE), "")
+CFLAGS += "-DLV_ASSERT_HANDLER=ASSERT(0);"
 endif
 
 # Set up build configuration and environment
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive"
+CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive/refs/tags"
 
 LVGL_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LVGL_VERSION)))
 LVGL_TARBALL = v$(LVGL_VERSION).zip

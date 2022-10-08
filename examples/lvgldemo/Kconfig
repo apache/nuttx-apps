@@ -12,104 +12,12 @@ menuconfig EXAMPLES_LVGLDEMO
 
 if EXAMPLES_LVGLDEMO
 
-config EXAMPLES_LVGLDEMO_BUFF_SIZE
-	int "Display buffer size (in line)"
-	default 20
-
-config EXAMPLES_LVGLDEMO_DOUBLE_BUFFERING
-	bool "Enable double buffering"
-	default n
-	---help---
-		When double buffering is enabled, LVGL expects the size of both
-		buffers as:
-		CONFIG_LV_HOR_RES * CONFIG_EXAMPLES_LVGLDEMO_BUFF_SIZE.
-		True double buffering support is enabled if both buffers have the
-		same dimensions as the display device resolution. Otherwise,
-		LVGL will perform a number of partial refreshes according to the
-		defined buffer size.
-
-config EXAMPLES_LVGLDEMO_ASYNC_FLUSH
-	bool "Flush the display buffer asynchronously"
-	default n
-	---help---
-		Enable this option to perform an asynchronous write of the buffer
-		contents to the display device.
-
-choice
-	prompt "Select a demo application"
-	default EXAMPLES_LVGLDEMO_WIDGETS
-
-config EXAMPLES_LVGLDEMO_BENCHMARK
-	bool "Benchmark"
-
-config EXAMPLES_LVGLDEMO_PRINTER
-	bool "Printer"
-	---help---
-		This demo is optimized for 800 * 480 resolution
-
-config EXAMPLES_LVGLDEMO_STRESS
-	bool "Stress"
-
-config EXAMPLES_LVGLDEMO_WIDGETS
-	bool "Widgets"
-
-endchoice
-
-if EXAMPLES_LVGLDEMO_WIDGETS
-
-config EXAMPLES_LVGLDEMO_WIDGETS_SLIDESHOW
-	bool "Enable Slideshow mode for Widgets example"
-	default n
-	---help---
-		Slideshow mode consists of a non-interactive demonstration of the
-		Widgets example.
-
-endif # EXAMPLES_LVGLDEMO_WIDGETS
-
 config EXAMPLES_LVGLDEMO_PRIORITY
-	int "lvgl task priority"
+	int "lvgldemo task priority"
 	default 100
 
 config EXAMPLES_LVGLDEMO_STACKSIZE
 	int "lvgldemo stack size"
 	default 16384
-
-comment "Input configuration options"
-	depends on INPUT_TOUCHSCREEN || INPUT_MOUSE
-
-config EXAMPLES_LVGLDEMO_CALIBRATE
-	bool "Calibrate touchscreen"
-	default y
-	depends on INPUT_TOUCHSCREEN || INPUT_MOUSE
-	---help---
-		Calibrate touchscreen before demo start, but some touchscreen
-		don't need it, like capacitive touchscreen.
-
-if INPUT_TOUCHSCREEN
-
-config EXAMPLES_LVGLDEMO_MINOR
-	int "Touchscreen minor device number"
-	default 0
-	---help---
-		The minor device number.  Minor=N corresponds to touchscreen device
-		/dev/inputN.  Note this value must with EXAMPLES_LVGLDEMO_DEVPATH.
-		Default 0.
-
-config EXAMPLES_LVGLDEMO_DEVPATH
-	string "Touchscreen device path"
-	default "/dev/input0"
-	---help---
-		The path to the touchscreen device.  This must be consistent with
-		EXAMPLES_LVGLDEMO_MINOR. Default: "/dev/input0"
-
-endif # INPUT_TOUCHSCREEN
-
-config EXAMPLES_LVGLDEMO_MOUSE
-	bool "Mouse interface"
-	default n
-	depends on INPUT_MOUSE
-	---help---
-		The LittleVGL demo can also be configured to work with a mouse
-		driver by setting this option.
 
 endif # EXAMPLES_LVGLDEMO

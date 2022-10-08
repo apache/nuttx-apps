@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/lvgl/lv_tick_interface.h
+ * apps/graphics/lvgl/port/lv_port.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,15 +18,12 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_LV_TICK_INTERFACE_H
-#define __APPS_GRAPHICS_LV_TICK_INTERFACE_H
+#ifndef __APPS_GRAPHICS_LVGL_PORT_LV_PORT_H
+#define __APPS_GRAPHICS_LVGL_PORT_LV_PORT_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
-#include <nuttx/config.h>
-#include <sys/time.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -52,11 +49,19 @@ extern "C"
  * Public Function Prototypes
  ****************************************************************************/
 
-uint32_t lv_tick_interface(void);
+/****************************************************************************
+ * Name: lv_port_init
+ *
+ * Description:
+ *   Initialize all porting.
+ *
+ ****************************************************************************/
+
+void lv_port_init(void);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __APPS_GRAPHICS_LV_TICK_INTERFACE_H
+#endif /* __APPS_GRAPHICS_LVGL_PORT_LV_PORT_H */

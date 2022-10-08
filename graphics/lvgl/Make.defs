@@ -26,8 +26,4 @@ CONFIGURED_APPS += $(APPDIR)/graphics/lvgl
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/lvgl
 CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/lvgl
 
-# It allows `<lvgl.h>` import.
-
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/lvgl/lvgl
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/lvgl/lvgl
 endif
