@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LTR308
+	tristate "LTR308 ambient light sensor example"
+	default n
+	depends on SENSORS_LTR308
+	---help---
+		Enable the LTR308 example
+
+if EXAMPLES_LTR308
+
+config EXAMPLES_LTR308_PROGNAME
+	string "Program name"
+	default "ltr308"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_LTR308_PRIORITY
+	int "LTR308 task priority"
+	default 100
+
+config EXAMPLES_LTR308_STACKSIZE
+	int "LTR308 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
