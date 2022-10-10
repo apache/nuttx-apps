@@ -546,8 +546,18 @@ static int wapi_psk_cmd(int sock, int argc, FAR char **argv)
 {
   enum wpa_alg_e alg_flag;
   uint8_t auth_wpa;
+  int passlen;
   int cipher;
   int ret;
+
+  /* Check if password len >= 8 && <= 63 */
+
+  passlen = strnlen(argv[1], 64);
+  if (passlen < 8 || passlen > 63)
+    {
+      printf("The password should have between 8 and 63 characters!\n");
+      return -EINVAL;
+    }
 
   /* Convert input strings to values */
 
