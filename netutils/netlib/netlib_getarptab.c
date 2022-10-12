@@ -99,7 +99,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
 
   /* Pre-allocate a buffer to hold the response */
 
-  maxsize   = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arp_entry_s);
+  maxsize   = nentries * sizeof(struct arp_entry_s);
   allocsize = SIZEOF_NETLIB_RECVFROM_RESPONSE_S(maxsize);
   resp = (FAR struct netlib_recvfrom_response_s *)malloc(allocsize);
   if (resp == NULL)
