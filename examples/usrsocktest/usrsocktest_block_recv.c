@@ -194,7 +194,7 @@ static void no_block_connect(FAR struct usrsocktest_daemon_conf_s *dconf)
 
   dconf->endpoint_addr = "127.0.0.1";
   dconf->endpoint_port = 255;
-  dconf->endpoint_block_connect = true;
+  dconf->endpoint_block_connect = false;
   dconf->endpoint_block_send = true;
   dconf->endpoint_recv_avail_from_start = true;
   dconf->endpoint_recv_avail = 6;
