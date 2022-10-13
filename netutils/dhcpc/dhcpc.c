@@ -689,7 +689,6 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 {
   FAR struct dhcpc_state_s *pdhcpc = (FAR struct dhcpc_state_s *)handle;
   struct in_addr oldaddr;
-  struct in_addr newaddr;
   ssize_t result;
   uint8_t msgtype;
   int     retries;
@@ -703,15 +702,12 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 
   pdhcpc->xid[3]++;
 
-  /* Save the currently assigned IP address (should be INADDR_ANY) */
+  /* Save the currently assigned IP address. It should be INADDR_ANY
+   * if this is the initial request, or a valid IP if this is a renewal.
+   */
 
   oldaddr.s_addr = 0;
   netlib_get_ipv4addr(pdhcpc->interface, &oldaddr);
-
-  /* Set the IP address to INADDR_ANY. */
-
-  newaddr.s_addr = INADDR_ANY;
-  netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
 
   /* Loop sending the DISCOVER up to CONFIG_NETUTILS_DHCPC_RETRIES
    * times
@@ -792,7 +788,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   while (state == STATE_INITIAL &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
 
-  /* If no DHCPOFFER recveived here, error out */
+  /* If no DHCPOFFER received here, error out */
 
   if (state == STATE_INITIAL)
     {
@@ -851,6 +847,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               else if (msgtype == DHCPNAK)
                 {
                   ninfo("Received NAK\n");
+                  oldaddr.s_addr = INADDR_ANY;
+                  netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
                   return ERROR;
                 }
 
@@ -893,7 +891,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   while (state == STATE_HAVE_OFFER &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
 
-  /* If no DHCPLEASE recveived here, error out */
+  /* If no DHCPLEASE received here, error out */
 
   if (state != STATE_HAVE_LEASE)
     {
