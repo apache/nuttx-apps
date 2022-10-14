@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TCP_IPC_CLIENT
+	bool "Client for TCP IPC NuttX"
+	default n
+	depends on NET_TCP
+	depends on NET_SOCKOPTS
+	select NET_LOOPBACK
+	---help---
+		Enable the Client for TCP IPC NuttX example
+
+config EXAMPLES_TCP_IPC_CLIENT_PROGNAME
+	string "Program name"
+	default "CLIENT"
+	depends on EXAMPLES_TCP_IPC_CLIENT
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TCP_IPC_CLIENT_PRIORITY
+	int "CLIENT task priority"
+	default 100
+	depends on EXAMPLES_TCP_IPC_CLIENT
+
+config EXAMPLES_TCP_IPC_CLIENT_STACKSIZE
+	int "CLIENT stack size"
+	default 8192
+	depends on EXAMPLES_TCP_IPC_CLIENT
