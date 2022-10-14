@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TCP_IPC_SERVER
+	bool "Server for TCP IPC NuttX"
+	default n
+	depends on NET_TCP
+	depends on NET_SOCKOPTS
+	select NET_LOOPBACK
+	---help---
+		Enable the TCP SERVER example
+
+config EXAMPLES_TCP_IPC_SERVER_PROGNAME
+	string "Program name"
+	default "SERVER"
+	depends on EXAMPLES_TCP_IPC_SERVER
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TCP_IPC_SERVER_PRIORITY
+	int "SERVER task priority"
+	default 100
+	depends on EXAMPLES_TCP_IPC_SERVER
+
+config EXAMPLES_TCP_IPC_SERVER_STACKSIZE
+	int "SERVER stack size"
+	default DEFAULT_TASK_STACKSIZE
+	depends on EXAMPLES_TCP_IPC_SERVER
