@@ -162,29 +162,30 @@ static uint32_t get_time_elaps(uint32_t prev_time)
  ****************************************************************************/
 
 static void print_result(FAR const char *name, size_t bytes,
-                         uint32_t cost_time)
+                         uint32_t cost_time, uint32_t repeat_cnt)
 {
   uint32_t rate;
   struct timespec ts;
 
-  /* Converted to ms */
+  /* Converted to ns */
 
   up_perf_convert(cost_time, &ts);
-  cost_time = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+  cost_time = ts.tv_sec * 1000000000 + ts.tv_nsec;
 
-  if (cost_time == 0)
+  if (cost_time / 1000000 == 0)
     {
       printf(CACHESPEED_PREFIX
-             "Time-consuming is too short\n");
-      exit(EXIT_FAILURE);
+             "The total overhead time in millisecond precision"
+             "is too short.\n");
     }
 
-  /* rate  = (bytes / 1024) / (cost_time / 1000) */
+  /* rate  = (bytes / 1024) / (cost_time / 1000000000) */
 
-  rate = (uint64_t)bytes * 1000 / cost_time / 1024;
+  rate = (uint64_t)bytes * 1000000000 / cost_time / 1024;
   printf(CACHESPEED_PREFIX
-         "%s cost = %" PRIu32 " ms\t[Rate: %" PRIu32 "KB/s]\n",
-         name, cost_time, rate);
+         "%s avg = %"PRIu32 " ns\t Rate: %" PRIu32 "KB/s\t"
+         "[cost = %" PRIu32 " ms]\n",
+         name, cost_time / repeat_cnt, rate, cost_time / 1000000);
 }
 
 /****************************************************************************
@@ -229,8 +230,8 @@ static void dcache_speed_test(FAR void *begin, size_t memset_size,
     }
 
   leave_critical_section(flags);
-  print_result("clean dcache():\t", total_size, clean_cost_time);
-  print_result("flush dcache():\t", total_size, flush_cost_time);
+  print_result("clean dcache():\t", total_size, clean_cost_time, repeat_cnt);
+  print_result("flush dcache():\t", total_size, flush_cost_time, repeat_cnt);
 
   for (pt = 32; pt <= opt_size; pt <<= 1)
     {
@@ -273,9 +274,11 @@ static void dcache_speed_test(FAR void *begin, size_t memset_size,
 
       leave_critical_section(flags);
       print_result("invalidate dcache():\t",
-                   total_size, invalidate_cost_time);
-      print_result("clean dcache():\t", total_size, clean_cost_time);
-      print_result("flush dcache():\t", total_size, flush_cost_time);
+                   total_size, invalidate_cost_time, repeat_cnt);
+      print_result("clean dcache():\t", total_size, clean_cost_time,
+                    repeat_cnt);
+      print_result("flush dcache():\t", total_size, flush_cost_time,
+                    repeat_cnt);
     }
 }
 
@@ -308,7 +311,7 @@ static void icache_speed_test(FAR void *begin, size_t memset_size,
 
   leave_critical_section(flags);
   print_result("invalidate dcache():\t",
-               memset_size * repeat_cnt, invalidate_cost_time);
+               memset_size * repeat_cnt, invalidate_cost_time, repeat_cnt);
 
   for (pt = 32; pt <= memset_size; pt <<= 1)
     {
@@ -336,7 +339,7 @@ static void icache_speed_test(FAR void *begin, size_t memset_size,
 
       leave_critical_section(flags);
       print_result("invalidate icache():\t",
-                   total_size, invalidate_cost_time);
+                   total_size, invalidate_cost_time, repeat_cnt);
     }
 }
 
