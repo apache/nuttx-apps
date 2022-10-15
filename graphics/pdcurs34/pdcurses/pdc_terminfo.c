@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_terminfo.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_terminfo.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -165,7 +165,7 @@ TERMINAL *set_curterm(TERMINAL * nterm)
 {
   PDC_LOG(("set_curterm() - called\n"));
 
-  return (TERMINAL *) NULL;
+  return NULL;
 }
 
 int setterm(const char *term)
@@ -216,14 +216,14 @@ char *tgetstr(const char *id, char **area)
 {
   PDC_LOG(("tgetstr() - called: id %s\n", id));
 
-  return (char *)NULL;
+  return NULL;
 }
 
 char *tgoto(const char *cap, int col, int row)
 {
   PDC_LOG(("tgoto() - called\n"));
 
-  return (char *)NULL;
+  return NULL;
 }
 
 int tigetflag(const char *capname)
@@ -244,7 +244,7 @@ char *tigetstr(const char *capname)
 {
   PDC_LOG(("tigetstr() - called: capname %s\n", capname));
 
-  return (char *)(-1);
+  return NULL;
 }
 
 char *tparm(const char *cap, long p1, long p2, long p3, long p4,
@@ -252,7 +252,7 @@ char *tparm(const char *cap, long p1, long p2, long p3, long p4,
 {
   PDC_LOG(("tparm() - called: cap %s\n", cap));
 
-  return (char *)NULL;
+  return NULL;
 }
 
 int tputs(const char *str, int affcnt, int (*putfunc) (int))

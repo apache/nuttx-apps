@@ -65,8 +65,8 @@
 
 CImageTest::CImageTest()
 {
-  m_widgetControl = (CWidgetControl *)NULL;
-  m_bgWindow      = (CBgWindow *)NULL;
+  m_widgetControl = NULL;
+  m_bgWindow      = NULL;
 }
 
 // CImageTest Descriptor
@@ -135,7 +135,7 @@ bool CImageTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -172,7 +172,7 @@ CImage *CImageTest::createImage(IBitmap *bitmap)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CImageTest::createGraphics: Failed to get window size\n");
-      return (CImage *)NULL;
+      return NULL;
     }
 
   // Get the height and width of the image

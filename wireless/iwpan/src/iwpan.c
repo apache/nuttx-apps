@@ -82,7 +82,7 @@ static void iwpan_showusage(FAR const char *progname, int exitcode);
 
 static const struct iwpan_command_s g_iwpan_commands[] =
 {
-  {"help",    0, (CODE void *)NULL},
+  {"help",    0, NULL},
   {"show",    1, (CODE void *)iwpan_show_cmd},
   {"cca",     2, (CODE void *)iwpan_cca_cmd},
   {"chan",    2, (CODE void *)iwpan_chan_cmd},

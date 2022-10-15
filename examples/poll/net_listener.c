@@ -207,6 +207,7 @@ static inline bool net_connection(struct net_listener_s *nls)
           return true;
         }
     }
+
   return false;
 }
 
@@ -378,8 +379,7 @@ void *net_listener(pthread_addr_t pvarg)
       printf("net_listener: Calling select(), listener sd=%d\n",
              nls.listensd);
       memcpy(&nls.working, &nls.master, sizeof(fd_set));
-      ret = select(nls.mxsd + 1, (FAR fd_set *)&nls.working,
-                   (FAR fd_set*)NULL, (FAR fd_set *)NULL, &timeout);
+      ret = select(nls.mxsd + 1, &nls.working, NULL, NULL, &timeout);
       if (ret < 0)
         {
           printf("net_listener: select failed: %d\n", errno);

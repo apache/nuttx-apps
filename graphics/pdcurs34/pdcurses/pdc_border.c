@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_border.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_border.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -47,15 +47,18 @@
  *                       const cchar_t *ts, const cchar_t *bs,
  *                       const cchar_t *tl, const cchar_t *tr,
  *                       const cchar_t *bl, const cchar_t *br);
- *       int box_set(WINDOW *win, const cchar_t *verch, const cchar_t *horch);
+ *       int box_set(WINDOW *win, const cchar_t *verch,
+ *                   const cchar_t *horch);
  *       int hline_set(const cchar_t *wch, int n);
  *       int vline_set(const cchar_t *wch, int n);
  *       int whline_set(WINDOW *win, const cchar_t *wch, int n);
  *       int wvline_set(WINDOW *win, const cchar_t *wch, int n);
  *       int mvhline_set(int y, int x, const cchar_t *wch, int n);
  *       int mvvline_set(int y, int x, const cchar_t *wch, int n);
- *       int mvwhline_set(WINDOW *win, int y, int x, const cchar_t *wch, int n);
- *       int mvwvline_set(WINDOW *win, int y, int x, const cchar_t *wch, int n);
+ *       int mvwhline_set(WINDOW *win, int y, int x,
+ *                        const cchar_t *wch, int n);
+ *       int mvwvline_set(WINDOW *win, int y, int x,
+ *                        const cchar_t *wch, int n);
  *
  * Description:
  *       border(), wborder(), and box() draw a border around the edge of
@@ -143,7 +146,7 @@ static chtype _attr_passthru(WINDOW *win, chtype ch)
     }
 
   /* wrs (4/10/93) -- Apply the same sort of logic for the window background,
-   * in that it only takes precedence if other color attributes are not there.
+   * in that it only takes precedence if other color attributes aren't there.
    */
 
   if (!(attr & A_COLOR))
@@ -239,7 +242,8 @@ int box(WINDOW *win, chtype verch, chtype horch)
 int whline(WINDOW *win, chtype ch, int n)
 {
   chtype *dest;
-  int startpos, endpos;
+  int startpos;
+  int endpos;
 
   PDC_LOG(("whline() - called\n"));
 
@@ -415,8 +419,7 @@ int box_set(WINDOW *win, const cchar_t *verch, const cchar_t *horch)
   PDC_LOG(("box_set() - called\n"));
 
   return wborder_set(win, verch, verch, horch, horch,
-                     (const cchar_t *)NULL, (const cchar_t *)NULL,
-                     (const cchar_t *)NULL, (const cchar_t *)NULL);
+                     NULL, NULL, NULL, NULL);
 }
 
 int whline_set(WINDOW *win, const cchar_t *wch, int n)

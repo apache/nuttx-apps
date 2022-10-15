@@ -226,7 +226,7 @@ namespace NXWidgets
 
     CTextBox(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
              nxgl_coord_t width, nxgl_coord_t height, const CNxString &text,
-             CWidgetStyle *style = (CWidgetStyle *)NULL);
+             CWidgetStyle *style = NULL);
 
     /**
      * Sets the cursor display mode.

@@ -144,7 +144,7 @@ namespace NXWidgets
     CScrollbarHorizontal(CWidgetControl *pWidgetControl,
                          nxgl_coord_t x, nxgl_coord_t y,
                          nxgl_coord_t width, nxgl_coord_t height,
-                         CWidgetStyle *style = (CWidgetStyle *)NULL);
+                         CWidgetStyle *style = NULL);
 
     /**
      * Destructor.

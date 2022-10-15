@@ -209,7 +209,7 @@ namespace NXWidgets
     virtual inline ~CNxString()
     {
       delete[] m_text;
-      m_text = (FAR nxwidget_char_t *)NULL;
+      m_text = NULL;
     };
 
     /**

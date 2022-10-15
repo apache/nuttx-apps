@@ -753,7 +753,7 @@ NXWidgets::CNxWindow *CTaskbar::openRawWindow(void)
 {
   // Create the widget control (with the window messenger) using the default style
 
-  CWindowMessenger *control = new CWindowMessenger((NXWidgets::CWidgetStyle *)NULL);
+  CWindowMessenger *control = new CWindowMessenger(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -790,7 +790,7 @@ NXWidgets::CNxTkWindow *CTaskbar::openFramedWindow(void)
 {
   // Create the widget control (with the window messenger) using the default style
 
-  CWindowMessenger *control = new CWindowMessenger((NXWidgets::CWidgetStyle *)NULL);
+  CWindowMessenger *control = new CWindowMessenger(NULL);
 
   // Get an (uninitialized) instance of the framed window as a class
   // that derives from INxWindow.
@@ -957,7 +957,7 @@ bool CTaskbar::createTaskbarWindow(void)
 
 bool CTaskbar::createBackgroundWindow(void)
 {
-  CWindowMessenger *control = new CWindowMessenger((NXWidgets::CWidgetStyle *)NULL);
+  CWindowMessenger *control = new CWindowMessenger(NULL);
 
   // Create a raw window to present the background image
 

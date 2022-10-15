@@ -118,8 +118,7 @@ namespace NxWM
      *   values stored in the defaultCWidgetStyle object.
      */
 
-     CWindowMessenger(FAR const NXWidgets::CWidgetStyle *style =
-       (const NXWidgets::CWidgetStyle *)NULL);
+     CWindowMessenger(FAR const NXWidgets::CWidgetStyle *style = NULL);
 
     /**
      * CWindowMessenger Destructor.

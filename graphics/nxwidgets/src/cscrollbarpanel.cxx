@@ -107,9 +107,9 @@ CScrollbarPanel::CScrollbarPanel(CWidgetControl *pWidgetControl,
   m_flags.borderless       = true;
 
   m_widgetControl          = pWidgetControl;
-  m_panel                  = (CScrollingPanel *)NULL;
-  m_scrollbarVertical      = (CScrollbarVertical *)NULL;
-  m_scrollbarHorizontal    = (CScrollbarHorizontal *)NULL;
+  m_panel                  = NULL;
+  m_scrollbarVertical      = NULL;
+  m_scrollbarHorizontal    = NULL;
 
   buildUI();
 }

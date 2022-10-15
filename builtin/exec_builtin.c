@@ -169,8 +169,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       /* Start the built-in */
 
       pid = task_spawn(builtin->name, builtin->main, &file_actions,
-                       &attr, (argv) ? &argv[1] : (FAR char * const *)NULL,
-                       (FAR char * const *)NULL);
+                       &attr, argv ? &argv[1] : NULL, NULL);
       ret = pid < 0 ? -pid : 0;
     }
 

@@ -96,7 +96,7 @@ CRadioButtonGroup::CRadioButtonGroup(CWidgetControl *pWidgetControl,
 : CNxWidget(pWidgetControl, x, y, 0, 0, WIDGET_BORDERLESS, style)
 {
   m_widgetControl  = pWidgetControl;
-  m_selectedWidget = (CRadioButton *)NULL;
+  m_selectedWidget = NULL;
 }
 
 /**

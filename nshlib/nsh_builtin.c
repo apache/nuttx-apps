@@ -99,7 +99,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    * applications.
    */
 
-  ret = exec_builtin(cmd, (FAR char * const *)argv, redirfile, oflags);
+  ret = exec_builtin(cmd, argv, redirfile, oflags);
   if (ret >= 0)
     {
       /* The application was successfully started with pre-emption disabled.

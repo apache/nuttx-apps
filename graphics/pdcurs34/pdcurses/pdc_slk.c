@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_slk.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_slk.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -124,7 +124,7 @@ static int label_fmt = 0;
 static int label_line = 0;
 static bool hidden = false;
 
-static struct SLK *slk = (struct SLK *)NULL;
+static struct SLK *slk = NULL;
 #endif
 
 /****************************************************************************
@@ -496,7 +496,9 @@ int slk_attr_set(const attr_t attrs, short color_pair, void *opts)
 
 static void _slk_calc(void)
 {
-  int i, center, col = 0;
+  int i;
+  int center;
+  int col = 0;
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
@@ -655,11 +657,11 @@ void PDC_slk_free(void)
       if (SP->slk_winptr)
         {
           delwin(SP->slk_winptr);
-          SP->slk_winptr = (WINDOW *) NULL;
+          SP->slk_winptr = NULL;
         }
 
       free(slk);
-      slk = (struct SLK *)NULL;
+      slk = NULL;
 
       label_length = 0;
       labels       = 0;
@@ -724,7 +726,8 @@ int slk_wset(int labnum, const wchar_t *label, int justify)
     }
   else
     {
-      int i, j = 0;
+      int i;
+      int j = 0;
 
       /* Skip leading spaces */
 

@@ -134,11 +134,9 @@ int system(FAR const char *cmd)
 
 #ifdef CONFIG_SYSTEM_SYSTEM_SHPATH
   argv[0] = CONFIG_SYSTEM_SYSTEM_SHPATH;
-  errcode = posix_spawn(&pid, argv[0],  NULL, &attr,
-                        argv, (FAR char * const *)NULL);
+  errcode = posix_spawn(&pid, argv[0],  NULL, &attr, argv, NULL);
 #else
-  pid = task_spawn("system", nsh_system, NULL, &attr,
-                   argv + 1, (FAR char * const *)NULL);
+  pid = task_spawn("system", nsh_system, NULL, &attr, argv + 1, NULL);
   if (pid < 0)
     {
       errcode = -pid;

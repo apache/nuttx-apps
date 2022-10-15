@@ -76,8 +76,9 @@ static void net_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  /* Configure the network */
-  /* Many embedded network interfaces must have a software assigned MAC */
+  /* Configure the network
+   * Many embedded network interfaces must have a software assigned MAC
+   */
 
 #ifdef CONFIG_EXAMPLES_POLL_NOMAC
   mac[0] = 0x00;
@@ -131,7 +132,7 @@ static void net_receive(int sd)
 
   /* Loop while we have the connection */
 
-  for (;;)
+  for (; ; )
     {
       /* Wait for incoming message */
 
@@ -139,7 +140,7 @@ static void net_receive(int sd)
         {
           FD_ZERO(&readset);
           FD_SET(sd, &readset);
-          ret = select(sd + 1, (FAR fd_set*)&readset, (FAR fd_set*)NULL, (FAR fd_set*)NULL, &timeout);
+          ret = select(sd + 1, &readset, NULL, NULL, &timeout);
         }
       while (ret < 0 && errno == EINTR);
 
@@ -177,7 +178,7 @@ static void net_receive(int sd)
             }
           else
             {
-              buffer[ret]='\0';
+              buffer[ret] = '\0';
               printf("net_reader: Read '%s' (%d bytes)\n", buffer, ret);
 
               /* Echo the data back to the client */
@@ -189,7 +190,8 @@ static void net_receive(int sd)
                     {
                       if (errno != EINTR)
                         {
-                           printf("net_reader: Send failed sd=%d: %d\n", sd, errno);
+                           printf("net_reader: Send failed sd=%d: %d\n",
+                                  sd, errno);
                            return;
                         }
                     }
@@ -239,7 +241,8 @@ void *net_reader(pthread_addr_t pvarg)
   /* Set socket to reuse address */
 
   optval = 1;
-  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, sizeof(int)) < 0)
     {
       printf("net_reader: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_listensd;
@@ -251,7 +254,8 @@ void *net_reader(pthread_addr_t pvarg)
   addr.sin_port        = HTONS(LISTENER_PORT);
   addr.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(listensd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(listensd, (struct sockaddr *)&addr,
+           sizeof(struct sockaddr_in)) < 0)
     {
       printf("net_reader: bind failure: %d\n", errno);
       goto errout_with_listensd;
@@ -267,13 +271,14 @@ void *net_reader(pthread_addr_t pvarg)
 
   /* Connection loop */
 
-  for (;;)
+  for (; ; )
     {
       /* Accept only one connection */
 
-      printf("net_reader: Accepting new connections on port %d\n", LISTENER_PORT);
+      printf("net_reader: Accepting new connections on port %d\n",
+             LISTENER_PORT);
       addrlen = sizeof(struct sockaddr_in);
-      acceptsd = accept(listensd, (struct sockaddr*)&addr, &addrlen);
+      acceptsd = accept(listensd, (struct sockaddr *)&addr, &addrlen);
       if (acceptsd < 0)
         {
           printf("net_reader: accept failure: %d\n", errno);
@@ -282,13 +287,16 @@ void *net_reader(pthread_addr_t pvarg)
 
       printf("net_reader: Connection accepted on sd=%d\n", acceptsd);
 
-      /* Configure to "linger" until all data is sent when the socket is closed */
+      /* Configure to "linger" until all data is sent when the socket is
+       * closed
+       */
 
 #ifdef POLL_HAVE_SOLINGER
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
 
-      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
+      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER,
+                     &ling, sizeof(struct linger)) < 0)
         {
           printf("net_reader: setsockopt SO_LINGER failure: %d\n", errno);
           goto errout_with_acceptsd;

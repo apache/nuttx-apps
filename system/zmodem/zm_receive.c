@@ -1629,7 +1629,7 @@ ZMRHANDLE zmr_initialize(int remfd)
         {
           zmdbg("ERROR: zm_timerinit failed: %d\n", ret);
           free(pzmr);
-          return (ZMRHANDLE)NULL;
+          return NULL;
         }
 
       /* Note that no action is taken now... a timeout of zero is set
