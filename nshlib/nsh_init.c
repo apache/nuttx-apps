@@ -41,7 +41,7 @@
 /* Symbol table is not needed if loadable binary modules are not supported */
 
 #if !defined(CONFIG_LIBC_EXECFUNCS)
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#  undef CONFIG_NSH_SYMTAB
 #endif
 
 /* boardctl() support is also required for application-space symbol table
@@ -49,7 +49,7 @@
  */
 
 #if !defined(CONFIG_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#  undef CONFIG_NSH_SYMTAB
 #endif
 
 /* If a symbol table is provided by board-specific logic, then we do not
@@ -57,7 +57,7 @@
  */
 
 #ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#  undef CONFIG_NSH_SYMTAB
 #endif
 
 /****************************************************************************
@@ -73,9 +73,9 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
 };
 #endif
 
-#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
-extern const struct symtab_s CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME[];
-extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
+#if defined(CONFIG_NSH_SYMTAB)
+extern const struct symtab_s CONFIG_NSH_SYMTAB_ARRAYNAME[];
+extern const int CONFIG_NSH_SYMTAB_COUNTNAME;
 #endif
 
 /****************************************************************************
@@ -100,7 +100,7 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 
 void nsh_initialize(void)
 {
-#if defined (CONFIG_SYSTEM_NSH_SYMTAB)
+#if defined (CONFIG_NSH_SYMTAB)
   struct boardioc_symtab_s symdesc;
 #endif
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
@@ -129,11 +129,11 @@ void nsh_initialize(void)
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
+#if defined(CONFIG_NSH_SYMTAB)
   /* Make sure that we are using our symbol table */
 
-  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
-  symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
+  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
+  symdesc.nsymbols = CONFIG_NSH_SYMTAB_COUNTNAME;
 
   boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
