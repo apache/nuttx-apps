@@ -257,12 +257,10 @@ int nsh_consolemain(int argc, FAR char *argv[])
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-  /* Execute the one-time start-up script.
-   * Any output will go to /dev/console.
-   */
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  /* Execute the system init script */
 
-#ifdef CONFIG_NSH_ROMFSETC
-  nsh_initscript(&pstate->cn_vtbl);
+  nsh_sysinitscript(&pstate->cn_vtbl);
 #endif
 
 #ifdef CONFIG_NSH_NETINIT
@@ -277,10 +275,17 @@ int nsh_consolemain(int argc, FAR char *argv[])
   boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
+  /* Execute the one-time start-up script.
+   * Any output will go to /dev/console.
+   */
+
+#ifdef CONFIG_NSH_ROMFSETC
+  nsh_initscript(&pstate->cn_vtbl);
+#endif
+
   /* First map stderr and stdout to alternative devices */
 
   ret = nsh_clone_console(pstate);
-
   if (ret < 0)
     {
       return ret;
