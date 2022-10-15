@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+#include <nuttx/symtab.h>
 
 #include "system/readline.h"
 #include "netutils/netinit.h"
@@ -32,6 +33,32 @@
 
 #include "nsh.h"
 #include "nsh_console.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Symbol table is not needed if loadable binary modules are not supported */
+
+#if !defined(CONFIG_LIBC_EXECFUNCS)
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#endif
+
+/* boardctl() support is also required for application-space symbol table
+ * support.
+ */
+
+#if !defined(CONFIG_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#endif
+
+/* If a symbol table is provided by board-specific logic, then we do not
+ * need to do anything from the application space.
+ */
+
+#ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
+#  undef CONFIG_SYSTEM_NSH_SYMTAB
+#endif
 
 /****************************************************************************
  * Private Data
@@ -44,6 +71,11 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
   nsh_extmatch_count,  /* count_matches */
   nsh_extmatch_getname /* getname */
 };
+#endif
+
+#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
+extern const struct symtab_s CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME[];
+extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 #endif
 
 /****************************************************************************
@@ -68,6 +100,9 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
 
 void nsh_initialize(void)
 {
+#if defined (CONFIG_SYSTEM_NSH_SYMTAB)
+  struct boardioc_symtab_s symdesc;
+#endif
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
   FAR struct console_stdio_s *pstate;
 #endif
@@ -92,6 +127,15 @@ void nsh_initialize(void)
   /* Initialize any USB tracing options that were requested */
 
   usbtrace_enable(TRACE_BITSET);
+#endif
+
+#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
+  /* Make sure that we are using our symbol table */
+
+  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
+  symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
+
+  boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
 
 #ifdef CONFIG_NSH_ARCHINIT

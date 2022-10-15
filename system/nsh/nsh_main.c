@@ -31,53 +31,16 @@
 #include <sched.h>
 #include <errno.h>
 
-#if defined(CONFIG_LIBC_EXECFUNCS)
-#  include <nuttx/symtab.h>
-#endif
-
 #include "nshlib/nshlib.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Symbol table is not needed if loadable binary modules are not supported */
-
-#if !defined(CONFIG_LIBC_EXECFUNCS)
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
-#endif
-
-/* boardctl() support is also required for application-space symbol table
- * support.
- */
-
-#if !defined(CONFIG_BOARDCTL) || !defined(CONFIG_BOARDCTL_APP_SYMTAB)
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
-#endif
-
-/* If a symbol table is provided by board-specific logic, then we do not
- * need to do anything from the application space.
- */
-
-#ifdef CONFIG_EXECFUNCS_HAVE_SYMTAB
-#  undef CONFIG_SYSTEM_NSH_SYMTAB
-#endif
-
 /* The NSH telnet console requires networking support (and TCP/IP) */
 
 #ifndef CONFIG_NET
 #  undef CONFIG_NSH_TELNET
-#endif
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
-
-extern const struct symtab_s CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME[];
-extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
-
 #endif
 
 /****************************************************************************
@@ -96,9 +59,6 @@ extern const int CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
 
 int main(int argc, FAR char *argv[])
 {
-#if defined (CONFIG_SYSTEM_NSH_SYMTAB)
-  struct boardioc_symtab_s symdesc;
-#endif
   struct sched_param param;
   int ret = 0;
 
@@ -112,15 +72,6 @@ int main(int argc, FAR char *argv[])
       param.sched_priority = CONFIG_SYSTEM_NSH_PRIORITY;
       sched_setparam(0, &param);
     }
-
-#if defined(CONFIG_SYSTEM_NSH_SYMTAB)
-  /* Make sure that we are using our symbol table */
-
-  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_SYSTEM_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
-  symdesc.nsymbols = CONFIG_SYSTEM_NSH_SYMTAB_COUNTNAME;
-
-  boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
-#endif
 
   /* Initialize the NSH library */
 
