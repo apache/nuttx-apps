@@ -79,6 +79,7 @@ static void *thread_waiter(void *parameter)
         {
           printf("waiter_thread: "
                  "ERROR pthread_mutex_lock failed, status=%d\n", status);
+          ASSERT(false);
           waiter_nerrors++;
         }
 
@@ -105,6 +106,7 @@ static void *thread_waiter(void *parameter)
               printf("waiter_thread: "
                      "ERROR pthread_cond_wait failed, status=%d\n",
                      status);
+              ASSERT(false);
               waiter_nerrors++;
             }
 
@@ -116,6 +118,7 @@ static void *thread_waiter(void *parameter)
       if (!data_available)
         {
           printf("waiter_thread: ERROR data not available after wait\n");
+          ASSERT(false);
           waiter_nerrors++;
         }
 
@@ -130,6 +133,7 @@ static void *thread_waiter(void *parameter)
         {
           printf("waiter_thread: ERROR waiter: "
                  "pthread_mutex_unlock failed, status=%d\n", status);
+          ASSERT(false);
           waiter_nerrors++;
         }
 
@@ -157,6 +161,7 @@ static void *thread_signaler(void *parameter)
         {
           printf("thread_signaler: "
                  "ERROR pthread_mutex_lock failed, status=%d\n", status);
+          ASSERT(false);
           signaler_nerrors++;
         }
 
@@ -174,6 +179,7 @@ static void *thread_signaler(void *parameter)
           printf("thread_signaler: "
                  "ERROR data already available, waiter_state=%d\n",
                   waiter_state);
+          ASSERT(false);
           signaler_already++;
         }
 
@@ -185,6 +191,7 @@ static void *thread_signaler(void *parameter)
         {
           printf("thread_signaler: "
                  "ERROR pthread_cond_signal failed, status=%d\n", status);
+          ASSERT(false);
           signaler_nerrors++;
         }
 
@@ -195,6 +202,7 @@ static void *thread_signaler(void *parameter)
         {
           printf("thread_signaler: "
                  "ERROR pthread_mutex_unlock failed, status=%d\n", status);
+          ASSERT(false);
           signaler_nerrors++;
         }
 
@@ -245,6 +253,7 @@ void cond_test(void)
     {
       printf("cond_test: "
              "ERROR pthread_mutex_init failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   /* Initialize the condition variable */
@@ -255,6 +264,7 @@ void cond_test(void)
     {
       printf("cond_test: "
              "ERROR pthread_condinit failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   /* Start the waiter thread at higher priority */

@@ -82,6 +82,7 @@ static int restart_main(int argc, char *argv[])
     {
       printf("restart_main: ERROR: Expected argc=%d got argc=%d\n",
              NARGS + 1, argc);
+      ASSERT(false);
     }
 
   for (i = 0; i <= NARGS; i++)
@@ -92,6 +93,7 @@ static int restart_main(int argc, char *argv[])
           printf("restart_main: ERROR: "
                  "Expected argv[%d]=\"%s\" got \"%s\"\n",
                  i, argv[i], g_argv[i - 1]);
+          ASSERT(false);
         }
     }
 
@@ -110,11 +112,13 @@ static int restart_main(int argc, char *argv[])
                  g_varname);
           printf("restart_main:       found=%s expected=%s\n",
                  actual, g_varvalue);
+          ASSERT(false);
         }
     }
   else
     {
       printf("restart_main: ERROR: Variable=%s has no value\n", g_varname);
+      ASSERT(false);
     }
 #endif
 
@@ -133,6 +137,7 @@ static int restart_main(int argc, char *argv[])
         if (sem_wait(&g_sem) != 0)
           {
             printf("restart_main: ERROR thread sem_wait failed\n");
+            ASSERT(false);
           }
         break;
       default:
@@ -169,6 +174,7 @@ void restart_test(void)
   if (ret < 0)
     {
       printf("restart_main: ERROR Failed to start restart_main\n");
+      ASSERT(false);
     }
   else
     {
@@ -186,6 +192,7 @@ void restart_test(void)
       if (ret < 0)
         {
           printf("restart_main:  ERROR: task_restart failed\n");
+          ASSERT(false);
         }
 
       /* Start the task wait for a semaphore */
@@ -202,6 +209,7 @@ void restart_test(void)
       if (ret < 0)
         {
           printf("restart_main:  ERROR: task_restart failed\n");
+          ASSERT(false);
         }
 
       sleep(1);

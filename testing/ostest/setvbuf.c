@@ -47,6 +47,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -55,6 +56,7 @@ int setvbuf_test(void)
     {
       printf("setvbuf_test ERROR: "
              "setvbuf(stream, NULL, _IONBF, 0) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream, "setvbuf_test: Using NO buffering\r\n");
@@ -72,6 +74,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -80,6 +83,7 @@ int setvbuf_test(void)
     {
       printf("ssetvbuf_test ERROR: "
              "setvbuf(stream, NULL, _IOFBF, 0) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream, "setvbuf_test: Using default FULL buffering\r\n");
@@ -97,6 +101,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -105,6 +110,7 @@ int setvbuf_test(void)
     {
       printf("ssetvbuf_test ERROR: "
              "setvbuf(stream, NULL, _IOFBF, 64) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream, "setvbuf_test: Using FULL buffering, buffer size 64\r\n");
@@ -122,6 +128,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -130,6 +137,7 @@ int setvbuf_test(void)
     {
       printf("ssetvbuf_test ERROR: "
              "setvbuf(stream, buffer, _IOFBF, 64) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream,
@@ -148,6 +156,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -156,6 +165,7 @@ int setvbuf_test(void)
     {
       printf("setvbuf_test ERROR: "
              "setvbuf(stream, NULL, _IOLBF, 64) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream, "setvbuf_test: Using LINE buffering, buffer size 64\r\n");
@@ -173,6 +183,7 @@ int setvbuf_test(void)
   if (stream == NULL)
     {
       printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      ASSERT(false);
       return ERROR;
     }
 
@@ -181,6 +192,7 @@ int setvbuf_test(void)
     {
       printf("setvbuf_test ERROR: "
              "setvbuf(stream, buffer, _IOLBF, 64) failed\n");
+      ASSERT(false);
     }
 
   fprintf(stream,

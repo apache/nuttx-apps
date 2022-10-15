@@ -166,6 +166,7 @@ static void show_variable(const char *var_name, const char *exptd_value,
               printf("show_variable: ERROR Variable=%s has the wrong "
                      "value\n",
                      var_name);
+              ASSERT(false);
               printf("show_variable:       found=%s expected=%s\n",
                      actual_value, exptd_value);
             }
@@ -175,6 +176,7 @@ static void show_variable(const char *var_name, const char *exptd_value,
           printf("show_variable: ERROR Variable=%s has a value when it "
                  "should not\n",
                  var_name);
+          ASSERT(false);
           printf("show_variable:       value=%s\n",
                  actual_value);
         }
@@ -183,6 +185,7 @@ static void show_variable(const char *var_name, const char *exptd_value,
     {
       printf("show_variable: ERROR Variable=%s has no value\n",
              var_name);
+      ASSERT(false);
       printf("show_variable:       Should have had value=%s\n",
              exptd_value);
     }
@@ -227,6 +230,7 @@ static int user_main(int argc, char *argv[])
     {
       printf("user_main: ERROR expected argc=%d got argc=%d\n",
              NARGS + 1, argc);
+      ASSERT(false);
     }
 
   for (i = 0; i <= NARGS; i++)
@@ -241,6 +245,7 @@ static int user_main(int argc, char *argv[])
           printf("user_main: ERROR argv[%d]:  "
                  "Expected \"%s\" found \"%s\"\n",
                  i, g_argv[i - 1], argv[i]);
+          ASSERT(false);
         }
     }
 
@@ -275,6 +280,7 @@ static int user_main(int argc, char *argv[])
       if (ret < 0)
         {
           printf("user_main: ERROR: sigaction failed: %d\n", errno);
+          ASSERT(false);
         }
     }
 #endif
@@ -648,6 +654,7 @@ int main(int argc, FAR char **argv)
   if (result == ERROR)
     {
       printf("ostest_main: ERROR Failed to start user_main\n");
+      ASSERT(false);
       ostest_result = ERROR;
     }
   else
@@ -661,6 +668,7 @@ int main(int argc, FAR char **argv)
         {
           printf("ostest_main: ERROR Failed to wait for user_main to "
                  "terminate\n");
+          ASSERT(false);
           ostest_result = ERROR;
         }
 #endif

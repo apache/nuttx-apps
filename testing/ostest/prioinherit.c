@@ -116,7 +116,8 @@ static void sleep_and_display(int n, int us)
 
       if (status != 0)
         {
-          printf("priority_inheritance: sched_getparam failed\n");
+          printf("priority_inheritance: ERROR sched_getparam failed\n");
+          ASSERT(false);
         }
 
       if (us == 0 || g_priority_tracking[n] != sparam.sched_priority)
@@ -227,7 +228,9 @@ static FAR void *highpri_thread(FAR void *parameter)
 
   if (ret != 0)
     {
-      printf("highpri_thread-%d: sem_take failed: %d\n", threadno, ret);
+      printf("highpri_thread-%d: "
+             "ERROR sem_take failed: %d\n", threadno, ret);
+      ASSERT(false);
     }
   else if (g_middlestate == RUNNING)
     {
@@ -239,6 +242,7 @@ static FAR void *highpri_thread(FAR void *parameter)
       printf("highpri_thread-%d: ERROR --  "
              "midpri_thread has already exited!\n",
              threadno);
+      ASSERT(false);
     }
 
   sem_post(&g_sem);
@@ -325,6 +329,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
     {
       printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
              threadno, ret);
+      ASSERT(false);
     }
   else
     {
@@ -333,6 +338,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
       if (sparam.sched_priority != g_lowpri)
         {
           printf("               ERROR should have been %d\n", g_lowpri);
+          ASSERT(false);
         }
     }
 
@@ -340,7 +346,8 @@ static FAR void *lowpri_thread(FAR void *parameter)
   ret = sem_wait(&g_sem);
   if (ret != 0)
     {
-      printf("lowpri_thread-%d: sem_take failed: %d\n", threadno, ret);
+      printf("lowpri_thread-%d: ERROR sem_take failed: %d\n", threadno, ret);
+      ASSERT(false);
     }
   else
     {
@@ -377,6 +384,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
         {
           printf("lowpri_thread-%d: ERROR sem_getvalue failed: %d\n",
                  threadno, errno);
+          ASSERT(false);
         }
 
       printf("lowpri_thread-%d: Sem count: %d, No. highpri thread: %d\n",
@@ -401,6 +409,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
           printf("lowpri_thread-%d: %s the middle priority task has already"
                  " exitted!\n",
                  threadno, count >= 0 ? "SUCCESS" : "ERROR");
+          ASSERT(count >= 0);
           printf("               g_middlestate:  %d sem count=%d\n",
                  (int)g_middlestate, count);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
@@ -418,6 +427,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
     {
       printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
              threadno, ret);
+      ASSERT(false);
     }
   else
     {
@@ -438,6 +448,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
       if (sparam.sched_priority != expected)
         {
           printf("               ERROR should have been %d\n", expected);
+          ASSERT(false);
         }
     }
 
@@ -446,6 +457,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
     {
       printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
              threadno, ret);
+      ASSERT(false);
     }
   else
     {
@@ -457,6 +469,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
       if (sparam.sched_priority != g_lowpri)
         {
           printf("               ERROR should have been %d\n", g_lowpri);
+          ASSERT(false);
         }
     }
 
@@ -505,7 +518,8 @@ void priority_inheritance(void)
   status = sched_getparam(getpid(), &sparam);
   if (status != 0)
     {
-      printf("priority_inheritance: sched_getparam failed\n");
+      printf("priority_inheritance: ERROR sched_getparam failed\n");
+      ASSERT(false);
       sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
@@ -530,8 +544,9 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "pthread_attr_init failed, status=%d\n",
+                 "ERROR pthread_attr_init failed, status=%d\n",
                  status);
+          ASSERT(false);
         }
 
       sparam.sched_priority = g_lowpri;
@@ -539,8 +554,9 @@ void priority_inheritance(void)
       if (status != OK)
         {
           printf("priority_inheritance: "
-                 "pthread_attr_setschedparam failed, status=%d\n",
+                 "ERROR pthread_attr_setschedparam failed, status=%d\n",
                  status);
+          ASSERT(false);
         }
       else
         {
@@ -554,7 +570,8 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "pthread_create failed, status=%d\n", status);
+                 "ERROR pthread_create failed, status=%d\n", status);
+          ASSERT(false);
         }
     }
 
@@ -569,7 +586,8 @@ void priority_inheritance(void)
   if (status != 0)
     {
       printf("priority_inheritance: "
-             "pthread_attr_init failed, status=%d\n", status);
+             "ERROR pthread_attr_init failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = g_medpri;
@@ -577,8 +595,9 @@ void priority_inheritance(void)
   if (status != OK)
     {
       printf("priority_inheritance: "
-             "pthread_attr_setschedparam failed, status=%d\n",
+             "ERROR pthread_attr_setschedparam failed, status=%d\n",
               status);
+      ASSERT(false);
     }
   else
     {
@@ -591,8 +610,10 @@ void priority_inheritance(void)
   status = pthread_create(&medpri, &attr, medpri_thread, NULL);
   if (status != 0)
     {
-      printf("priority_inheritance: pthread_create failed, status=%d\n",
+      printf("priority_inheritance: "
+             "ERROR pthread_create failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   printf("priority_inheritance: Waiting...\n");
@@ -611,7 +632,8 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "pthread_attr_init failed, status=%d\n", status);
+                 "ERROR pthread_attr_init failed, status=%d\n", status);
+          ASSERT(false);
         }
 
       sparam.sched_priority = g_highpri - i;
@@ -619,7 +641,9 @@ void priority_inheritance(void)
       if (status != OK)
         {
           printf("priority_inheritance: "
-                 "pthread_attr_setschedparam failed, status=%d\n", status);
+                 "ERROR pthread_attr_setschedparam failed, status=%d\n",
+                 status);
+          ASSERT(false);
         }
       else
         {
@@ -635,7 +659,8 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "pthread_create failed, status=%d\n", status);
+                 "ERRROR pthread_create failed, status=%d\n", status);
+          ASSERT(false);
         }
     }
 
@@ -715,6 +740,7 @@ void priority_inheritance(void)
     {
       printf("priority_inheritance: ERROR: FAIL Priorities were not "
              "correctly restored.\n");
+      ASSERT(false);
     }
   else
     {

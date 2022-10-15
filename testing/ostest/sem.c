@@ -57,6 +57,7 @@ static void *waiter_func(void *parameter)
     {
       printf("waiter_func: "
              "ERROR thread %d could not get semaphore value\n",  id);
+      ASSERT(false);
     }
   else
     {
@@ -69,6 +70,7 @@ static void *waiter_func(void *parameter)
   if (status != 0)
     {
       printf("waiter_func: ERROR thread %d sem_wait failed\n",  id);
+      ASSERT(false);
     }
 
   printf("waiter_func: Thread %d awakened\n",  id);
@@ -78,6 +80,7 @@ static void *waiter_func(void *parameter)
     {
       printf("waiter_func: "
              "ERROR thread %d could not get semaphore value\n",  id);
+      ASSERT(false);
     }
   else
     {
@@ -106,6 +109,7 @@ static void *poster_func(void *parameter)
         {
           printf("poster_func: "
                  "ERROR thread %d could not get semaphore value\n",  id);
+          ASSERT(false);
         }
       else
         {
@@ -120,6 +124,7 @@ static void *poster_func(void *parameter)
           if (status != 0)
             {
               printf("poster_func: ERROR thread %d sem_wait failed\n",  id);
+              ASSERT(false);
             }
 
           pthread_yield();
@@ -129,6 +134,7 @@ static void *poster_func(void *parameter)
             {
               printf("poster_func: "
                      "ERROR thread %d could not get semaphore value\n",  id);
+              ASSERT(false);
             }
           else
             {
@@ -184,6 +190,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: "
              "pthread_attr_setschedparam failed, status=%d\n",  status);
+      ASSERT(false);
     }
   else
     {
@@ -197,6 +204,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: "
              "Thread 1 creation failed: %d\n",  status);
+      ASSERT(false);
     }
 
   printf("sem_test: Starting waiter thread 2\n");
@@ -205,6 +213,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: "
              "pthread_attr_init failed, status=%d\n",  status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = prio_mid;
@@ -213,6 +222,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: "
              "pthread_attr_setschedparam failed, status=%d\n",  status);
+      ASSERT(false);
     }
   else
     {
@@ -225,6 +235,7 @@ void sem_test(void)
   if (status != 0)
     {
       printf("sem_test: ERROR: Thread 2 creation failed: %d\n",  status);
+      ASSERT(false);
     }
 
   printf("sem_test: Starting poster thread 3\n");
@@ -233,6 +244,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: "
              "pthread_attr_init failed, status=%d\n",  status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
@@ -254,6 +266,7 @@ void sem_test(void)
     {
       printf("sem_test: ERROR: Thread 3 creation failed: %d\n",  status);
       printf("          Canceling waiter threads\n");
+      ASSERT(false);
 
       pthread_cancel(waiter_thread1);
       pthread_cancel(waiter_thread2);

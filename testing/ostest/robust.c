@@ -53,12 +53,14 @@ static FAR void *robust_waiter(FAR void *parameter)
     {
        printf("thread_waiter: ERROR: pthread_mutex_lock failed, status=%d\n",
                status);
+       ASSERT(false);
     }
 
   if (status != 0)
     {
        printf("robust_waiter: ERROR: pthread_mutex_lock failed, status=%d\n",
                status);
+       ASSERT(false);
     }
   else
     {
@@ -92,6 +94,7 @@ void robust_test(void)
       printf("robust_test: ERROR: "
              "pthread_mutexattr_init failed, status=%d\n",
              status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -101,6 +104,7 @@ void robust_test(void)
       printf("robust_test: ERROR: "
              "pthread_mutexattr_setrobust failed, status=%d\n",
              status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -109,6 +113,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_mutex_init failed, status=%d\n",
              status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -121,6 +126,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_attr_init failed, status=%d\n",
              status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -130,6 +136,7 @@ void robust_test(void)
       printf("robust_test: ERROR: "
              "pthread_attr_setstacksize failed, status=%d\n",
              status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -143,6 +150,7 @@ void robust_test(void)
       printf("robust_test: ERROR: "
              "pthread_create failed, status=%d\n", status);
       printf("             ERROR: Terminating test\n");
+      ASSERT(false);
       nerrors++;
       return;
     }
@@ -159,6 +167,7 @@ void robust_test(void)
   if (status == 0)
     {
       printf("robust_test: ERROR: pthread_mutex_lock succeeded\n");
+      ASSERT(false);
       nerrors++;
     }
   else if (status != EOWNERDEAD)
@@ -166,6 +175,7 @@ void robust_test(void)
       printf("robust_test: ERROR: pthread_mutex_lock failed with %d\n",
               status);
       printf("             ERROR: expected %d (EOWNERDEAD)\n", EOWNERDEAD);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -178,6 +188,7 @@ void robust_test(void)
   if (status == 0)
     {
       printf("robust_test: ERROR: pthread_mutex_lock succeeded\n");
+      ASSERT(false);
       nerrors++;
     }
   else if (status != EOWNERDEAD)
@@ -185,6 +196,7 @@ void robust_test(void)
       printf("robust_test: ERROR: pthread_mutex_lock failed with %d\n",
               status);
       printf("             ERROR: expected %d (EOWNERDEAD)\n", EOWNERDEAD);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -196,6 +208,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_mutex_consistent failed: %d\n",
               status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -205,6 +218,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_mutex_lock failed with: %d\n",
               status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -217,6 +231,7 @@ void robust_test(void)
   if (status != 0)
     {
       printf("robust_test: ERROR: pthread_join failed, status=%d\n", status);
+      ASSERT(false);
       nerrors++;
     }
   else
@@ -226,6 +241,7 @@ void robust_test(void)
         {
           printf("robust_test: ERROR: expected result=%p\n",
                   PTHREAD_CANCELED);
+          ASSERT(false);
           nerrors++;
         }
     }
@@ -237,6 +253,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_mutex_unlock failed, status=%d\n",
               status);
+      ASSERT(false);
       nerrors++;
     }
 
@@ -245,6 +262,7 @@ void robust_test(void)
     {
       printf("robust_test: ERROR: pthread_mutex_unlock failed, status=%d\n",
               status);
+      ASSERT(false);
       nerrors++;
     }
 

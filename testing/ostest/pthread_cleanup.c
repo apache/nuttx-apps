@@ -65,6 +65,7 @@ static void cleanup(FAR void * data)
       printf("pthread_cleanup:"
              "ERROR pthread_mutex_unlock in cleanup handler. "
              "Status: %d\n", status);
+      ASSERT(false);
     }
 }
 
@@ -78,6 +79,7 @@ static void *cleanup_thread(FAR void * data)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_lock, status=%d\n",
               status);
+      ASSERT(false);
       return NULL;
     }
 
@@ -90,6 +92,7 @@ static void *cleanup_thread(FAR void * data)
         {
           printf("pthread_cleanup: ERROR wait returned. Status: %d\n",
                  status);
+          ASSERT(false);
         }
     }
 
@@ -111,6 +114,7 @@ static void test_cleanup(void)
   if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_create, status=%d\n", status);
+      ASSERT(false);
       return;
     }
 
@@ -120,17 +124,20 @@ static void test_cleanup(void)
   if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_cancel, status=%d\n", status);
+      ASSERT(false);
     }
 
   status = pthread_join(thread1, &result);
   if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_join, status=%d\n", status);
+      ASSERT(false);
     }
   else if (result != PTHREAD_CANCELED)
     {
       printf("pthread_cleanup: "
              "ERROR pthread_join returned wrong result: %p\n", result);
+      ASSERT(false);
     }
 
 #ifdef CONFIG_CANCELLATION_POINTS
@@ -141,6 +148,7 @@ static void test_cleanup(void)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_trylock, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   status = pthread_mutex_unlock(&sync.lock);
@@ -148,6 +156,7 @@ static void test_cleanup(void)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_unlock, status=%d\n",
               status);
+      ASSERT(false);
     }
 #endif
 }

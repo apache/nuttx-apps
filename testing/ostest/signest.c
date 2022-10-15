@@ -124,6 +124,7 @@ static int waiter_main(int argc, char *argv[])
   if (ret < 0)
     {
       printf("waiter_main: ERROR sigprocmask failed: %d\n", errno);
+      ASSERT(false);
       return EXIT_FAILURE;
     }
 
@@ -231,6 +232,7 @@ void signest_test(void)
   if (ret < 0)
     {
       printf("signest_test: ERROR sched_getparam() failed\n");
+      ASSERT(false);
       param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
@@ -243,6 +245,7 @@ void signest_test(void)
   if (waiterpid == ERROR)
     {
       printf("signest_test: ERROR failed to start waiter_main\n");
+      ASSERT(false);
       return;
     }
 
@@ -257,6 +260,7 @@ void signest_test(void)
   if (interferepid == ERROR)
     {
       printf("signest_test: ERROR failed to start interfere_main\n");
+      ASSERT(false);
       goto errout_with_waiter;
     }
 
@@ -464,35 +468,41 @@ errout_with_waiter:
   if (g_waiter_running)
     {
       printf("signest_test: ERROR waiter is still running\n");
+      ASSERT(false);
     }
 
   if (g_interferer_running)
     {
       printf("signest_test: ERROR interferer is still running\n");
+      ASSERT(false);
     }
 
   if (total_signals != total_handled)
     {
       printf("signest_test: ERROR only %d of %d signals were handled\n",
              total_handled, total_signals);
+      ASSERT(false);
     }
 
   if (odd_signals != g_odd_handled)
     {
       printf("signest_test: ERROR only %d of %d ODD signals were handled\n",
              g_odd_handled, odd_signals);
+      ASSERT(false);
     }
 
   if (even_signals != g_even_handled)
     {
       printf("signest_test: ERROR only %d of %d EVEN signals were handled\n",
              g_even_handled, even_signals);
+      ASSERT(false);
     }
 
   if (g_odd_nested > 0)
     {
       printf("signest_test: ERROR %d ODD signals were nested\n",
              g_odd_nested);
+      ASSERT(false);
     }
 
   sem_destroy(&g_waiter_sem);

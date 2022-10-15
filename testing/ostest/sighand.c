@@ -95,6 +95,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
   if (signo != WAKEUP_SIGNAL)
     {
       printf("wakeup_action: ERROR expected signo=%d\n" , WAKEUP_SIGNAL);
+      ASSERT(false);
     }
 
   /* Check siginfo */
@@ -103,6 +104,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
     {
       printf("wakeup_action: ERROR sival_int=%d expected %d\n",
               info->si_value.sival_int, SIGVALUE_INT);
+      ASSERT(false);
     }
   else
     {
@@ -113,6 +115,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
     {
       printf("wakeup_action: ERROR expected si_signo=%d, got=%d\n",
                WAKEUP_SIGNAL, info->si_signo);
+      ASSERT(false);
     }
 
   printf("wakeup_action: si_code=%d\n" , info->si_code);
@@ -129,12 +132,14 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
     {
       printf("wakeup_action: ERROR sigprocmask failed, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   if (oldset != allsigs)
     {
       printf("wakeup_action: ERROR sigprocmask=%jx expected=%jx\n",
              (uintmax_t)oldset, (uintmax_t)allsigs);
+      ASSERT(false);
     }
 
   /* Checkout sem_wait */
@@ -144,6 +149,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
     {
       int error = errno;
       printf("wakeup_action: ERROR sem_wait failed, errno=%d\n" , error);
+      ASSERT(false);
     }
   else
     {
@@ -168,6 +174,7 @@ static int waiter_main(int argc, char *argv[])
     {
       printf("waiter_main: ERROR sigprocmask failed, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   printf("waiter_main: Registering signal handler\n");
@@ -181,6 +188,7 @@ static int waiter_main(int argc, char *argv[])
   if (status != OK)
     {
       printf("waiter_main: ERROR sigaction failed, status=%d\n" , status);
+      ASSERT(false);
     }
 
 #ifndef SDCC
@@ -206,11 +214,13 @@ static int waiter_main(int argc, char *argv[])
       else
         {
           printf("waiter_main: ERROR sem_wait failed, errno=%d\n" , error);
+          ASSERT(false);
         }
     }
   else
     {
       printf("waiter_main: ERROR awakened with no error!\n");
+      ASSERT(false);
     }
 
   /* Detach the signal handler */
@@ -236,6 +246,7 @@ static int poster_main(int argc, char *argv[])
     {
       int error = errno;
       printf("poster_main: sem_post failed error=%d\n", error);
+      ASSERT(false);
     }
 
   printf("poster_main: done\n");
@@ -275,6 +286,7 @@ void sighand_test(void)
     {
       printf("sighand_test: ERROR sigprocmask failed, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   printf("sighand_test: Registering SIGCHLD handler\n");
@@ -288,6 +300,7 @@ void sighand_test(void)
   if (status != OK)
     {
       printf("waiter_main: ERROR sigaction failed, status=%d\n" , status);
+      ASSERT(false);
     }
 #endif
 
@@ -298,6 +311,7 @@ void sighand_test(void)
   if (status != OK)
     {
       printf("sighand_test: ERROR sched_getparam() failed\n");
+      ASSERT(false);
       param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
@@ -306,6 +320,7 @@ void sighand_test(void)
   if (waiterpid == ERROR)
     {
       printf("sighand_test: ERROR failed to start waiter_main\n");
+      ASSERT(false);
     }
   else
     {
@@ -327,6 +342,7 @@ void sighand_test(void)
   if (status != OK)
     {
       printf("sighand_test: ERROR sigqueue failed\n");
+      ASSERT(false);
       task_delete(waiterpid);
     }
 
@@ -337,6 +353,7 @@ void sighand_test(void)
   if (posterpid == ERROR)
     {
       printf("sighand_test: ERROR failed to start poster_main\n");
+      ASSERT(false);
     }
   else
     {
@@ -357,16 +374,19 @@ void sighand_test(void)
   if (!thread1exited)
     {
       printf("sighand_test: ERROR waiter task did not exit\n");
+      ASSERT(false);
     }
 
   if (!thread2exited)
     {
       printf("sighand_test: ERROR poster task did not exit\n");
+      ASSERT(false);
     }
 
   if (!sigreceived)
     {
       printf("sighand_test: ERROR signal handler did not run\n");
+      ASSERT(false);
     }
 
   /* Detach the signal handler */

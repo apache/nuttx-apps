@@ -199,6 +199,7 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
       if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
+          ASSERT(false);
         }
 
       /* Parse until getopt(), but do not process anything if ndx exceeds
@@ -211,6 +212,7 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
             {
               printf("ERROR: arg %d:  ret=%d (expected %d)\n",
                      ndx + 1, ret, expected[ndx].ret);
+              ASSERT(false);
             }
 
           if ((expected[ndx].arg == NULL &&
@@ -222,6 +224,7 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, optarg == NULL ? "null" : optarg,
                      expected[ndx].arg == NULL ? "null" :
                      expected[ndx].arg);
+              ASSERT(false);
             }
         }
 
@@ -235,6 +238,7 @@ static int getopt_short_test(int noptions, int argc, FAR char **argv,
   if (ndx != noptions && ndx != noptions + 1)
     {
       printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
+      ASSERT(false);
     }
 
   return OK;
@@ -264,6 +268,7 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
       if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
+          ASSERT(false);
         }
 
       /* Parse until getop_long(), but do not process anything if ndx exceeds
@@ -276,12 +281,14 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
             {
               printf("ERROR: arg %d:  ret=%d (expected %d)\n",
                      ndx + 1, ret, expected[ndx].ret);
+              ASSERT(false);
             }
 
           if (expected[ndx].flag != g_flag)
             {
               printf("ERROR: arg %d;  flag=%d (expected %d)\n",
                      ndx + 1, expected[ndx].flag, g_flag);
+              ASSERT(false);
             }
 
           if ((expected[ndx].arg == NULL &&
@@ -293,6 +300,7 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, optarg == NULL ? "null" : optarg,
                      expected[ndx].arg == NULL ? "null" :
                      expected[ndx].arg);
+              ASSERT(false);
             }
         }
 
@@ -307,6 +315,7 @@ static int getopt_long_test(int noptions, int argc, FAR char **argv,
   if (ndx != noptions && ndx != noptions + 1)
     {
       printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
+      ASSERT(false);
     }
 
   return OK;
@@ -336,6 +345,7 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
       if (optind < 1 || optind > argc)
         {
           printf("ERROR: optind=%d\n", optind);
+          ASSERT(false);
         }
 
       /* Parse until getop_long(), but do not process anything if ndx exceeds
@@ -348,12 +358,14 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
             {
               printf("ERROR: arg %d:  ret=%d (expected %d)\n",
                      ndx + 1, ret, expected[ndx].ret);
+              ASSERT(false);
             }
 
           if (expected[ndx].flag != g_flag)
             {
               printf("ERROR: arg %d;  flag=%d (expected %d)\n",
                      ndx + 1, expected[ndx].flag, g_flag);
+              ASSERT(false);
             }
 
           if ((expected[ndx].arg == NULL &&
@@ -365,6 +377,7 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
                      ndx + 1, optarg == NULL ? "null" : optarg,
                      expected[ndx].arg == NULL ? "null" :
                      expected[ndx].arg);
+              ASSERT(false);
             }
         }
 
@@ -379,6 +392,7 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
   if (ndx != noptions && ndx != noptions + 1)
     {
       printf("ERROR: ndx=%d (expected %d)\n", ndx, noptions);
+      ASSERT(false);
     }
 
   return OK;
