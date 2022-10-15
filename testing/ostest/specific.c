@@ -53,6 +53,7 @@ static void *thread_func(FAR void *parameter)
   if (ret != 0)
     {
       printf("ERROR: pthread_setspecific() failed: %d\n", ret);
+      ASSERT(false);
     }
 
   /* Check the thread-specific data */
@@ -62,6 +63,7 @@ static void *thread_func(FAR void *parameter)
     {
       printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
              data, (FAR void *)0xcafebabe);
+      ASSERT(false);
     }
 
   return NULL;
@@ -87,6 +89,7 @@ void specific_test(void)
   if (ret != 0)
     {
       printf("ERROR: pthread_key_create() failed: %d\n", ret);
+      ASSERT(false);
     }
 
   /* Set the pthread specific data for the main thread */
@@ -95,6 +98,7 @@ void specific_test(void)
   if (ret != 0)
     {
       printf("ERROR: pthread_setspecific() failed: %d\n", ret);
+      ASSERT(false);
     }
 
   /* Check the thread-specific data */
@@ -104,6 +108,7 @@ void specific_test(void)
     {
       printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
              data, (FAR void *)0xf00dface);
+      ASSERT(false);
     }
 
   /* Start a thread */
@@ -118,6 +123,7 @@ void specific_test(void)
   if (ret != 0)
     {
       printf("ERROR: pthread_create() failed: %d\n", ret);
+      ASSERT(false);
     }
 
   /* Wait for the thread to terminate */
@@ -135,6 +141,7 @@ void specific_test(void)
     {
       printf("ERROR: pthread_getspecific() failed: Returned %p vs %p\n",
              data, (FAR void *)0xf00dface);
+      ASSERT(false);
     }
 
   /* Destroy the pthread key */
@@ -143,5 +150,6 @@ void specific_test(void)
   if (ret != 0)
     {
       printf("ERROR: pthread_key_delete() failed: %d\n", ret);
+      ASSERT(false);
     }
 }

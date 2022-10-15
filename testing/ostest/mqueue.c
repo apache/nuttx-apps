@@ -98,6 +98,7 @@ static void *sender_thread(void *arg)
   if (g_send_mqfd == (mqd_t)-1)
     {
       printf("sender_thread: ERROR mq_open failed\n");
+      ASSERT(false);
       pthread_exit((pthread_addr_t)1);
     }
 
@@ -114,6 +115,7 @@ static void *sender_thread(void *arg)
         {
           printf("sender_thread: ERROR mq_send failure=%d on msg %d\n",
                  status, i);
+          ASSERT(false);
           nerrors++;
         }
       else
@@ -127,6 +129,7 @@ static void *sender_thread(void *arg)
   if (mq_close(g_send_mqfd) < 0)
     {
       printf("sender_thread: ERROR mq_close failed\n");
+      ASSERT(false);
     }
   else
     {
@@ -168,6 +171,7 @@ static void *receiver_thread(void *arg)
   if (g_recv_mqfd == (mqd_t)-1)
     {
       printf("receiver_thread: ERROR mq_open failed\n");
+      ASSERT(false);
       pthread_exit((pthread_addr_t)1);
     }
 
@@ -187,6 +191,7 @@ static void *receiver_thread(void *arg)
             {
               printf("receiver_thread: ERROR mq_receive failure on msg %d, "
                      "errno=%d\n", i, errno);
+              ASSERT(false);
               nerrors++;
             }
           else
@@ -197,8 +202,9 @@ static void *receiver_thread(void *arg)
       else if (nbytes != TEST_MSGLEN)
         {
           printf("receiver_thread: "
-                 "mq_receive return bad size %d on msg %d\n",
+                 "ERROR mq_receive return bad size %d on msg %d\n",
                  nbytes, i);
+          ASSERT(false);
           nerrors++;
         }
       else if (memcmp(TEST_MESSAGE, msg_buffer, nbytes) != 0)
@@ -240,6 +246,7 @@ static void *receiver_thread(void *arg)
   if (mq_close(g_recv_mqfd) < 0)
     {
       printf("receiver_thread: ERROR mq_close failed\n");
+      ASSERT(false);
       nerrors++;
     }
   else
@@ -276,15 +283,18 @@ void mqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_init failed, status=%d\n",
+      printf("mqueue_test: ERROR pthread_attr_init failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+      printf("mqueue_test: "
+             "ERROR pthread_attr_setstacksize failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   prio_min = sched_get_priority_min(SCHED_FIFO);
@@ -295,8 +305,10 @@ void mqueue_test(void)
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n",
+      printf("mqueue_test: "
+             "ERROR pthread_attr_setschedparam failed, status=%d\n",
              status);
+      ASSERT(false);
     }
   else
     {
@@ -307,7 +319,9 @@ void mqueue_test(void)
   status = pthread_create(&receiver, &attr, receiver_thread, NULL);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_create failed, status=%d\n", status);
+      printf("mqueue_test: "
+             "ERROR pthread_create failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   /* Start the sending thread at lower priority */
@@ -316,22 +330,28 @@ void mqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_init failed, status=%d\n", status);
+      printf("mqueue_test: "
+             "ERROR pthread_attr_init failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+      printf("mqueue_test: "
+             "ERROR pthread_attr_setstacksize failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n",
+      printf("mqueue_test: "
+             "ERROR pthread_attr_setschedparam failed, status=%d\n",
              status);
+      ASSERT(false);
     }
   else
     {
@@ -342,7 +362,9 @@ void mqueue_test(void)
   status = pthread_create(&sender, &attr, sender_thread, NULL);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_create failed, status=%d\n", status);
+      printf("mqueue_test: "
+             "ERROR pthread_create failed, status=%d\n", status);
+      ASSERT(false);
     }
 
   printf("mqueue_test: Waiting for sender to complete\n");
@@ -351,6 +373,7 @@ void mqueue_test(void)
     {
       printf("mqueue_test: ERROR sender thread exited with %d errors\n",
              (int)((intptr_t)result));
+      ASSERT(false);
     }
 
   /* Wake up the receiver thread with a signal */
@@ -387,6 +410,7 @@ void mqueue_test(void)
              expected);
       printf("             ERROR Instead exited with nerrors=%d\n",
              (int)((intptr_t)result));
+      ASSERT(false);
     }
 
   /* Message queues are global resources and persist for the life the
@@ -400,14 +424,17 @@ void mqueue_test(void)
       if (mq_close(g_recv_mqfd) < 0)
         {
           printf("mqueue_test: ERROR mq_close failed\n");
+          ASSERT(false);
         }
     }
   else if (result != PTHREAD_CANCELED && g_recv_mqfd)
     {
       printf("mqueue_test: ERROR send mqd_t left open\n");
+      ASSERT(false);
       if (mq_close(g_recv_mqfd) < 0)
         {
           printf("mqueue_test: ERROR mq_close failed\n");
+          ASSERT(false);
         }
     }
 
@@ -416,9 +443,11 @@ void mqueue_test(void)
   if (g_send_mqfd)
     {
       printf("mqueue_test: ERROR receiver mqd_t left open\n");
+      ASSERT(false);
       if (mq_close(g_send_mqfd) < 0)
         {
           printf("sender_thread: ERROR mq_close failed\n");
+          ASSERT(false);
         }
     }
 
@@ -427,5 +456,6 @@ void mqueue_test(void)
   if (mq_unlink("mqueue") < 0)
     {
       printf("mqueue_test: ERROR mq_unlink failed\n");
+      ASSERT(false);
     }
 }

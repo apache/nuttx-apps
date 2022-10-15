@@ -112,6 +112,7 @@ static void *sender_thread(void *arg)
   if (g_send_mqfd == (mqd_t)-1)
     {
         printf("sender_thread: ERROR mq_open failed\n");
+        ASSERT(false);
         pthread_exit((pthread_addr_t)1);
     }
 
@@ -128,6 +129,7 @@ static void *sender_thread(void *arg)
       if (status != 0)
         {
           printf("sender_thread: ERROR clock_gettime failed\n");
+          ASSERT(false);
         }
 
       ts.tv_sec += 5;
@@ -148,6 +150,7 @@ static void *sender_thread(void *arg)
             {
               printf("sender_thread: ERROR mq_timedsend "
                      "failure=%d on msg %d\n", errno, i);
+              ASSERT(false);
               nerrors++;
             }
         }
@@ -156,6 +159,7 @@ static void *sender_thread(void *arg)
           if (i == TEST_SEND_NMSGS - 1)
             {
               printf("sender_thread: ERROR mq_timedsend of msg %d\n", i);
+              ASSERT(false);
               nerrors++;
             }
           else
@@ -170,6 +174,7 @@ static void *sender_thread(void *arg)
   if (mq_close(g_send_mqfd) < 0)
     {
       printf("sender_thread: ERROR mq_close failed\n");
+      ASSERT(false);
     }
   else
     {
@@ -212,6 +217,7 @@ static void *receiver_thread(void *arg)
   if (g_recv_mqfd == (mqd_t)-1)
     {
       printf("receiver_thread: ERROR mq_open failed\n");
+      ASSERT(false);
       pthread_exit((pthread_addr_t)1);
     }
 
@@ -224,6 +230,7 @@ static void *receiver_thread(void *arg)
       if (status != 0)
         {
           printf("sender_thread: ERROR clock_gettime failed\n");
+          ASSERT(false);
         }
 
       ts.tv_sec += 5;
@@ -245,13 +252,15 @@ static void *receiver_thread(void *arg)
             {
               printf("receiver_thread: ERROR mq_timedreceive "
                      "failure=%d on msg %d\n", errno, i);
+              ASSERT(false);
               nerrors++;
             }
         }
       else if (nbytes != TEST_MSGLEN)
         {
           printf("receiver_thread: mq_timedreceive return "
-                 "bad size %d on msg %d\n", nbytes, i);
+                 "ERROR bad size %d on msg %d\n", nbytes, i);
+          ASSERT(false);
           nerrors++;
         }
       else if (memcmp(TEST_MESSAGE, msg_buffer, nbytes) != 0)
@@ -282,6 +291,7 @@ static void *receiver_thread(void *arg)
       else if (i == TEST_SEND_NMSGS - 1)
         {
           printf("receiver_thread: ERROR mq_timedreceive of msg %d\n", i);
+          ASSERT(false);
           nerrors++;
         }
       else
@@ -295,6 +305,7 @@ static void *receiver_thread(void *arg)
   if (mq_close(g_recv_mqfd) < 0)
     {
       printf("receiver_thread: ERROR mq_close failed\n");
+      ASSERT(false);
       nerrors++;
     }
   else
@@ -322,22 +333,25 @@ void timedmqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n",
+      printf("timedmqueue_test: ERROR pthread_attr_init failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_setstacksize failed, "
+      printf("timedmqueue_test: ERROR pthread_attr_setstacksize failed, "
              "status=%d\n", status);
+      ASSERT(false);
     }
 
   status = pthread_create(&sender, &attr, sender_thread, NULL);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_create failed, status=%d\n",
+      printf("timedmqueue_test: ERROR pthread_create failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   /* Wait for the sending thread to complete */
@@ -348,6 +362,7 @@ void timedmqueue_test(void)
     {
       printf("timedmqueue_test: ERROR sender thread exited with %d errors\n",
              (int)((intptr_t)result));
+      ASSERT(false);
     }
 
   /* Start the receiving thread at the default priority */
@@ -356,22 +371,25 @@ void timedmqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n",
+      printf("timedmqueue_test: ERROR pthread_attr_init failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_setstacksize failed, "
+      printf("timedmqueue_test: ERROR pthread_attr_setstacksize failed, "
              "status=%d\n", status);
+      ASSERT(false);
     }
 
   status = pthread_create(&receiver, &attr, receiver_thread, NULL);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_create failed, status=%d\n",
+      printf("timedmqueue_test: ERROR pthread_create failed, status=%d\n",
              status);
+      ASSERT(false);
     }
 
   /* Wait for the receiving thread to complete */
@@ -382,6 +400,7 @@ void timedmqueue_test(void)
     {
       printf("timedmqueue_test: ERROR receiver thread exited "
              "with %d errors\n", (int)((intptr_t)result));
+      ASSERT(false);
     }
 
   /* Make sure that the message queues were properly closed (otherwise, we
@@ -391,18 +410,22 @@ void timedmqueue_test(void)
   if (g_send_mqfd)
     {
       printf("timedmqueue_test: ERROR send mqd_t left open\n");
+      ASSERT(false);
       if (mq_close(g_send_mqfd) < 0)
         {
           printf("timedmqueue_test: ERROR mq_close failed\n");
+          ASSERT(false);
         }
     }
 
   if (g_recv_mqfd)
     {
       printf("timedmqueue_test: ERROR receive mqd_t left open\n");
+      ASSERT(false);
       if (mq_close(g_recv_mqfd) < 0)
         {
           printf("timedmqueue_test: ERROR mq_close failed\n");
+          ASSERT(false);
         }
     }
 
@@ -411,6 +434,7 @@ void timedmqueue_test(void)
   if (mq_unlink("timedmq") < 0)
     {
       printf("timedmqueue_test: ERROR mq_unlink failed\n");
+      ASSERT(false);
     }
 
   printf("timedmqueue_test: Test complete\n");

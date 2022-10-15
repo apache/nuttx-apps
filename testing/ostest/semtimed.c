@@ -59,6 +59,7 @@ static void *poster_func(void *parameter)
   if (status != OK)
     {
       printf("poster_func: ERROR: sem_post failed\n");
+      ASSERT(false);
     }
 
   return NULL;
@@ -72,11 +73,13 @@ static void ostest_gettime(struct timespec *tp)
   if (status != OK)
     {
       printf("ostest_gettime: ERROR: clock_gettime failed\n");
+      ASSERT(false);
     }
   else if (tp->tv_sec < 0 || tp->tv_nsec < 0 ||
            tp->tv_nsec >= 1000 * 1000 * 1000)
     {
       printf("ostest_gettime: ERROR: clock_gettime returned bogus time\n");
+      ASSERT(false);
     }
 }
 
@@ -106,6 +109,7 @@ void semtimed_test(void)
   if (status != OK)
     {
       printf("semtimed_test: ERROR: sem_init failed\n");
+      ASSERT(false);
     }
 
   /* First,
@@ -126,6 +130,7 @@ void semtimed_test(void)
   if (status == OK)
     {
       printf("semtimed_test: ERROR: sem_timedwait succeeded\n");
+      ASSERT(false);
     }
   else
     {
@@ -137,6 +142,7 @@ void semtimed_test(void)
         {
           printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n",
                   errcode);
+          ASSERT(false);
         }
     }
 
@@ -157,6 +163,7 @@ void semtimed_test(void)
     {
       printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   prio_min = sched_get_priority_min(SCHED_FIFO);
@@ -169,6 +176,7 @@ void semtimed_test(void)
     {
       printf("semtimed_test: ERROR: "
              "pthread_attr_setschedparam failed, status=%d\n",  status);
+      ASSERT(false);
     }
   else
     {
@@ -182,14 +190,17 @@ void semtimed_test(void)
     {
       printf("semtimed_test: ERROR: pthread_attr_init failed, status=%d\n",
               status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("semtimed_test: pthread_attr_setschedparam failed, status=%d\n",
+      printf("semtimed_test: "
+             "ERROR pthread_attr_setschedparam failed, status=%d\n",
               status);
+      ASSERT(false);
     }
   else
     {
@@ -202,6 +213,7 @@ void semtimed_test(void)
     {
       printf("semtimed_test: ERROR: Poster thread creation failed: %d\n",
               status);
+      ASSERT(false);
       sem_destroy(&sem);
       return;
     }
@@ -223,6 +235,7 @@ void semtimed_test(void)
     {
       printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n",
               errcode);
+      ASSERT(false);
     }
   else
     {

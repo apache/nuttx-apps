@@ -66,6 +66,7 @@ static void *thread_func(FAR void *parameter)
         {
           printf("ERROR thread %d: pthread_mutex_lock failed, status=%d\n",
                   id, status);
+          ASSERT(false);
         }
 
       if (my_mutex == 1)
@@ -73,6 +74,7 @@ static void *thread_func(FAR void *parameter)
           printf("ERROR thread=%d: "
                  "my_mutex should be zero, instead my_mutex=%d\n",
                   id, my_mutex);
+          ASSERT(false);
           nerrors[ndx]++;
         }
 
@@ -89,6 +91,7 @@ static void *thread_func(FAR void *parameter)
         {
           printf("ERROR thread %d: pthread_mutex_unlock failed, status=%d\n",
                  id, status);
+          ASSERT(false);
         }
     }
 
@@ -128,6 +131,7 @@ void mutex_test(void)
   if (status != 0)
     {
       printf("ERROR in thread#1 creation\n");
+      ASSERT(false);
     }
 
   printf("Starting thread 2\n");
@@ -139,6 +143,7 @@ void mutex_test(void)
   if (status != 0)
     {
       printf("ERROR in thread#2 creation\n");
+      ASSERT(false);
     }
 
 #ifdef SDCC

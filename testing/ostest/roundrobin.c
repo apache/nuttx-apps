@@ -159,6 +159,7 @@ void rr_test(void)
   if (status != OK)
     {
       printf("rr_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
+      ASSERT(false);
     }
 
   sparam.sched_priority = sched_get_priority_min(SCHED_FIFO);
@@ -167,6 +168,7 @@ void rr_test(void)
     {
       printf("rr_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",
               status);
+      ASSERT(false);
     }
   else
     {
@@ -178,6 +180,7 @@ void rr_test(void)
     {
       printf("rr_test: ERROR: pthread_attr_setschedpolicy failed, status=%d\n",
               status);
+      ASSERT(false);
     }
   else
     {
@@ -199,6 +202,7 @@ void rr_test(void)
   if (status != 0)
     {
       printf("         ERROR: Thread 1 creation failed: %d\n",  status);
+      ASSERT(false);
     }
 
   printf("         First get_primes_thread: %d\n", (int)get_primes1_thread);
@@ -209,6 +213,7 @@ void rr_test(void)
   if (status != 0)
     {
       printf("         ERROR: Thread 2 creation failed: %d\n",  status);
+      ASSERT(false);
     }
 
   printf("         Second get_primes_thread: %d\n", (int)get_primes2_thread);

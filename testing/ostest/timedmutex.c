@@ -64,7 +64,9 @@ static void *thread_func(FAR void *parameter)
       if (status < 0)
         {
           int errcode = errno;
-          fprintf(stderr, "pthread: clock_gettime() failed: %d\n", errcode);
+          fprintf(stderr, "pthread: "
+                  "ERROR clock_gettime() failed: %d\n", errcode);
+          ASSERT(false);
           g_result = errcode;
           break;
         }
@@ -86,9 +88,10 @@ static void *thread_func(FAR void *parameter)
             }
           else
             {
-              fprintf(stderr,
-                      "pthread: pthread_mutex_timedlock() failed: %d\n",
+              fprintf(stderr, "pthread: "
+                      "ERROR pthread_mutex_timedlock() failed: %d\n",
                       status);
+              ASSERT(false);
             }
 
           g_result = status;
@@ -129,7 +132,8 @@ void timedmutex_test(void)
   status = pthread_mutex_lock(&g_mutex);
   if (status != OK)
     {
-      fprintf(stderr, "mutex_test: Failed to get mutex: %d\n", status);
+      fprintf(stderr, "mutex_test: ERROR Failed to get mutex: %d\n", status);
+      ASSERT(false);
       goto errout_with_mutex;
     }
 
@@ -145,6 +149,7 @@ void timedmutex_test(void)
   if (status != 0)
     {
       fprintf(stderr, "mutex_test: ERROR in thread creation: %d\n", status);
+      ASSERT(false);
       goto errout_with_lock;
     }
 
@@ -170,7 +175,8 @@ void timedmutex_test(void)
   status = pthread_mutex_lock(&g_mutex);
   if (status != OK)
     {
-      fprintf(stderr, "mutex_test: Failed to get mutex: %d\n", status);
+      fprintf(stderr, "mutex_test: ERROR Failed to get mutex: %d\n", status);
+      ASSERT(false);
       goto errout_with_mutex;
     }
 
@@ -187,11 +193,13 @@ void timedmutex_test(void)
   if (g_running)
     {
       fprintf(stderr, "mutex_test: ERROR: The pthread is still running!\n");
+      ASSERT(false);
     }
   else if (g_result != ETIMEDOUT)
     {
       fprintf(stderr, "mutex_test: ERROR: Result was not ETIMEDOUT: %d\n",
               g_result);
+      ASSERT(false);
     }
   else
     {

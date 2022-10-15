@@ -128,6 +128,7 @@ static FAR void *sporadic_func(FAR void *parameter)
           if (ret < 0)
             {
               printf("ERROR: sched_getparam failed\n");
+              ASSERT(false);
               return NULL;
             }
 
@@ -186,6 +187,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
   if (ret != OK)
     {
       printf("sporadic_test: ERROR: sched_getparam failed, ret=%d\n", ret);
+      ASSERT(false);
     }
 
   /* Temporarily set our priority to PRIO_HIGH + 2 */
@@ -195,6 +197,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
   if (ret != OK)
     {
       printf("sporadic_test: ERROR: sched_setparam failed, ret=%d\n", ret);
+      ASSERT(false);
     }
 
   ret = pthread_attr_init(&attr);
@@ -202,6 +205,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
     {
       printf("sporadic_test: ERROR: pthread_attr_init failed, ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   /* This semaphore will prevent anything from running until we are ready */
@@ -216,6 +220,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
       printf("sporadic_test: ERROR: pthread_attr_setschedpolicy failed, "
              "ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   sparam.sched_priority               = PRIO_HIGH1;
@@ -232,6 +237,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
       printf("sporadic_test: ERROR: pthread_attr_setsched param failed, "
              "ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   ret = pthread_create(&sporadic_thread1, &attr, sporadic_func,
@@ -240,6 +246,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
     {
       printf("sporadic_test: ERROR: sporadic thread creation failed: %d\n",
              ret);
+      ASSERT(false);
     }
 
   ret = pthread_attr_setschedpolicy(&attr, SCHED_SPORADIC);
@@ -248,6 +255,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
       printf("sporadic_test: ERROR: pthread_attr_setschedpolicy failed, "
              "ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   sparam.sched_priority               = PRIO_HIGH2;
@@ -260,6 +268,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
       printf("sporadic_test: ERROR: pthread_attr_setsched param failed, "
              "ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   ret = pthread_create(&sporadic_thread2, &attr, sporadic_func,
@@ -268,6 +277,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
     {
       printf("sporadic_test: ERROR: sporadic thread creation failed: %d\n",
              ret);
+      ASSERT(false);
     }
 
   ret = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
@@ -276,6 +286,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
       printf("sporadic_test: ERROR: pthread_attr_setschedpolicy failed, "
              "ret=%d\n",
              ret);
+      ASSERT(false);
     }
 
   g_start_time = time(NULL);
@@ -296,6 +307,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
   if (ret != OK)
     {
       printf("sporadic_test: ERROR: sched_setparam failed, ret=%d\n", ret);
+      ASSERT(false);
     }
 }
 
