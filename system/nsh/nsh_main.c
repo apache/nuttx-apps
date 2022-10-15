@@ -127,27 +127,6 @@ int main(int argc, FAR char *argv[])
 
   nsh_initialize();
 
-#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_DISABLE_TELNETSTART) && \
-  !defined(CONFIG_NETINIT_NETLOCAL)
-  /* If the Telnet console is selected as a front-end, then start the
-   * Telnet daemon UNLESS network initialization is deferred via
-   * CONFIG_NETINIT_NETLOCAL.  In that case, the telnet daemon must be
-   * started manually with the telnetd command after the network has
-   * been initialized
-   */
-
-  ret = nsh_telnetstart(AF_UNSPEC);
-  if (ret < 0)
-    {
-      /* The daemon is NOT running.  Report the error then fail...
-       * either with the serial console up or just exiting.
-       */
-
-      fprintf(stderr, "ERROR: Failed to start TELNET daemon: %d\n", ret);
-      exitval = 1;
-    }
-#endif
-
 #ifdef CONFIG_NSH_CONSOLE
   /* If the serial console front end is selected, run it on this thread */
 

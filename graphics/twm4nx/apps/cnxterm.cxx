@@ -574,20 +574,6 @@ bool CNxTermFactory::nshlibInitialize(void)
   // Initialize the NSH library
 
   nsh_initialize();
-
-  // If the Telnet console is selected as a front-end, then start the
-  // Telnet daemon.
-
-#ifdef CONFIG_NSH_TELNET
-  int ret = nsh_telnetstart(AF_UNSPEC);
-  if (ret < 0)
-    {
-      // The daemon is NOT running!
-
-      return false;
-   }
-#endif
-
   return true;
 }
 

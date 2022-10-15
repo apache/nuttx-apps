@@ -54,7 +54,7 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
  * Description:
  *   This interface is used to initialize the NuttShell (NSH).
  *   nsh_initialize() should be called once during application start-up prior
- *   to executing either nsh_consolemain() or nsh_telnetstart().
+ *   to executing nsh_consolemain().
  *
  * Input Parameters:
  *   None
@@ -86,5 +86,17 @@ void nsh_initialize(void)
   /* Perform architecture-specific initialization (if configured) */
 
   boardctl(BOARDIOC_INIT, 0);
+#endif
+
+#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_DISABLE_TELNETSTART) && \
+  !defined(CONFIG_NETINIT_NETLOCAL)
+  /* If the Telnet console is selected as a front-end, then start the
+   * Telnet daemon UNLESS network initialization is deferred via
+   * CONFIG_NETINIT_NETLOCAL.  In that case, the telnet daemon must be
+   * started manually with the telnetd command after the network has
+   * been initialized
+   */
+
+  nsh_telnetstart(AF_UNSPEC);
 #endif
 }
