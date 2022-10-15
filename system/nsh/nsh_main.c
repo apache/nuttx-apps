@@ -100,8 +100,7 @@ int main(int argc, FAR char *argv[])
   struct boardioc_symtab_s symdesc;
 #endif
   struct sched_param param;
-  int exitval = 0;
-  int ret;
+  int ret = 0;
 
   /* Check the task priority that we were started with */
 
@@ -137,8 +136,8 @@ int main(int argc, FAR char *argv[])
    */
 
   fprintf(stderr, "ERROR: nsh_consolemain() returned: %d\n", ret);
-  exitval = 1;
+  ret = 1;
 #endif
 
-  return exitval;
+  return ret;
 }
